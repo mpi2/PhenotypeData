@@ -41,124 +41,113 @@ public class GrossPathService {
 	
 	public List<GrossPathPageTableRow> getSummaryTableData(List<ObservationDTO> allObservations, List<SolrDocument> images, List<ObservationDTO> abnormaObservations) throws SolrServerException, IOException {
 		List<GrossPathPageTableRow> rows = new ArrayList<>();
-		
 		System.out.println("observations for GrossPath size with abnormal=" + allObservations.size());
-
-		//List<ObservationDTO> filteredObservations = screenOutObservationsThatAreNormal(allObservations);
-
-		Map<String, List<ObservationDTO>> anatomyNames = this.getAnatomyNamesFromObservations(abnormaObservations);//only look at abnormal anatomies now as summary view
-
-
-		Map<String, List<ObservationDTO>> sampleToObservations = this.getSampleToObservationMap(allObservations);
-		Map<String, List<SolrDocument>> sampleToImages = this.getSampleToImagesMap(images);
-		
-		
-		for (String sampleId : sampleToObservations.keySet()) {
-			TreeSet<String> abnormalAnatomyMapPerSampleId = new TreeSet<>();
+		Map<String, List<ObservationDTO>> anatomyToObservationMap = this.getAnatomyNamesToObservationsMap(abnormaObservations);//only look at abnormal anatomies now as summary view
 			ArrayList<String> textValuesForSampleId = new ArrayList<String>();
-
-			for (String anatomyName : anatomyNames.keySet()) {
-				
-				GrossPathPageTableRow row = new GrossPathPageTableRow();
-				row.setAnatomyName(anatomyName);
-				row.setSampleId(sampleId);
-				
-				Set<String> parameterNames = new TreeSet<>();
-
-				for (ObservationDTO obs : sampleToObservations.get(sampleId)) {
-					// a row is a unique sampleId and anatomy combination
-
-					if (this.getAnatomyStringFromObservation(obs) != null
-							&& this.getAnatomyStringFromObservation(obs).equals(anatomyName)) {
-						row.setZygosity(obs.getZygosity().substring(0, 3).toUpperCase());
-
-
-						ImpressBaseDTO parameter = new ImpressBaseDTO(null, null, obs.getParameterStableId(),
-								obs.getParameterName());
-						parameterNames.add(obs.getParameterName());
+			for (String anatomyName : anatomyToObservationMap.keySet()) {				
+				int abnormalObservations=0;
+				//for summary we want the rows split on a key of anatomy||zygosity||normal/abnormal
+				Map<String, List<ObservationDTO>> keysForRow = this.generateKeyMapForAnatomy(anatomyToObservationMap.get(anatomyName));
+				for (String key : keysForRow.keySet()) {	
+					System.out.println("key for row is "+key);
+						for(ObservationDTO obs: keysForRow.get(key)){
 						
-						if (obs.getObservationType().equalsIgnoreCase("ontological")) {
-
-							if (obs.getSubTermName() != null) {
-								for (int i = 0; i < obs.getSubTermId().size(); i++) {
-									if(!obs.getSubTermName().get(i).equals("no abnormal phenotype detected")){
-									
-									abnormalAnatomyMapPerSampleId.add(anatomyName);
-									}
-									if(obs.getSubTermId().get(i).contains("MP:")){//for the moment lets keep things simple and restrict to MP only as PATO doesn't seem useful as is.
-									OntologyBean subOntologyBean = new OntologyBean(obs.getSubTermId().get(i),
-											obs.getSubTermName().get(i), obs.getSubTermDescription().get(i));// ,
-									row.addOntologicalParam(parameter, subOntologyBean);
-									}
-								}
-							}else{
-								System.out.println("subterms are null for ontological data="+obs);
-							}
-						}
-						
-						
-
-					} else {
-						// should be image here
-						
-						
-					}
-					if (obs.getObservationType().equalsIgnoreCase("text")) {
-						//System.out.println("Text parameter found:" +obs.getTextValue()+" sampleId="+obs.getExternalSampleId());
-						textValuesForSampleId.add(obs.getTextValue());
-					}
-
-					
-				}
-
-				if (parameterNames.size() != 0) {
-					row.setParameterNames(parameterNames);
-					rows.add(row);
-				}
-				
-				
-				
-
-			}
-			if (!abnormalAnatomyMapPerSampleId.isEmpty()) {// only bother
-															// checking if we
-															// have abnormal
-															// phenotypes for
-															// this sampleId
-				for (GrossPathPageTableRow row : rows) {
-					if (row.getSampleId().equals(sampleId)) {// filter by sample
-																// id as well
-						// System.out.println("checking rows with
-						// size="+rows.size()+" abnormal phenotypes with
-						// size="+abnormalAnatomyMapPerSampleId.size());
-						if (abnormalAnatomyMapPerSampleId.contains(row.getAnatomyName())) {
-							for (String text : textValuesForSampleId) {
-								// System.out.println("Text="+text);
-								String[] words = text.split(" ");
-								for (String word : words) {
-									// System.out.println("word="+word);
-									for (String anatomyWord : row.getAnatomyName().split(" ")) {
-										if (anatomyWord.equalsIgnoreCase(word)) {
-											// System.out.println("Text matches
-											// row!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-											row.setTextValue(text);
-											
+						GrossPathPageTableRow row = new GrossPathPageTableRow();
+						row.setAnatomyName(anatomyName);
+						row.setSampleId(obs.getExternalSampleId());				
+						Set<String> parameterNames = new TreeSet<>();
+							row.setZygosity(obs.getZygosity().substring(0, 3).toUpperCase());
+							ImpressBaseDTO parameter = new ImpressBaseDTO(null, null, obs.getParameterStableId(),
+									obs.getParameterName());
+							parameterNames.add(obs.getParameterName());
+							
+							if (obs.getObservationType().equalsIgnoreCase("ontological")) {
+	
+								if (obs.getSubTermName() != null) {
+									for (int i = 0; i < obs.getSubTermId().size(); i++) {
+										if(!obs.getSubTermName().get(i).equals("no abnormal phenotype detected")){
+										
+											abnormalObservations++;
+										}
+										if(obs.getSubTermId().get(i).contains("MP:")){//for the moment lets keep things simple and restrict to MP only as PATO doesn't seem useful as is.
+										OntologyBean subOntologyBean = new OntologyBean(obs.getSubTermId().get(i),
+												obs.getSubTermName().get(i), obs.getSubTermDescription().get(i));// ,
+										row.addOntologicalParam(parameter, subOntologyBean);
 										}
 									}
+								}else{
+									System.out.println("subterms are null for ontological data="+obs);
 								}
 							}
-							
-							if(sampleToImages.containsKey(sampleId)){
-								row.addImages(sampleToImages.get(sampleId));
+							if (obs.getObservationType().equalsIgnoreCase("text")) {
+								//System.out.println("Text parameter found:" +obs.getTextValue()+" sampleId="+obs.getExternalSampleId());
+								row.setTextValue(obs.getTextValue());
 							}
+	
+						if (parameterNames.size() != 0) {
+							row.setParameterNames(parameterNames);
+							//row.setNumberOfAbnormalPhenotypes();
+							rows.add(row);
 						}
 					}
+
 				}
 			}
-		}
+//			if (!abnormalAnatomyMapPerSampleId.isEmpty()) {// only bother
+//															// checking if we
+//															// have abnormal
+//															// phenotypes for
+//															// this sampleId
+//				for (GrossPathPageTableRow row : rows) {
+//					if (row.getSampleId().equals(sampleId)) {// filter by sample
+//																// id as well
+//						// System.out.println("checking rows with
+//						// size="+rows.size()+" abnormal phenotypes with
+//						// size="+abnormalAnatomyMapPerSampleId.size());
+//						if (abnormalAnatomyMapPerSampleId.contains(row.getAnatomyName())) {
+//							for (String text : textValuesForSampleId) {
+//								// System.out.println("Text="+text);
+//								String[] words = text.split(" ");
+//								for (String word : words) {
+//									// System.out.println("word="+word);
+//									for (String anatomyWord : row.getAnatomyName().split(" ")) {
+//										if (anatomyWord.equalsIgnoreCase(word)) {
+//											// System.out.println("Text matches
+//											// row!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+//											row.setTextValue(text);
+//											
+//										}
+//									}
+//								}
+//							}
+//							
+//							if(sampleToImages.containsKey(sampleId)){
+//								row.addImages(sampleToImages.get(sampleId));
+//							}
+//						}
+//					}
+//				}
+//			}
+		//}
 
 		return rows;
 
+	}
+
+	private Map<String, List<ObservationDTO>> generateKeyMapForAnatomy(List<ObservationDTO> list) {
+		//for summary we want the rows split on a key of anatomy||zygosity||normal/abnormal
+		Map<String, List<ObservationDTO> >keyMap=new HashMap<>();
+		for(ObservationDTO obs:list){
+			String key=this.getAnatomyStringFromObservation(obs);
+			if(keyMap.containsKey(key)){
+				keyMap.get(key).add(obs);
+			}else{
+				List<ObservationDTO> tempList=new ArrayList<>();
+				tempList.add(obs);
+				keyMap.put(key, tempList);
+			}
+		}
+		return keyMap;
 	}
 
 	public List<GrossPathPageTableRow> getTableData(List<ObservationDTO> allObservations, List<SolrDocument> images) throws SolrServerException, IOException {
@@ -167,7 +156,7 @@ public class GrossPathService {
 		System.out.println("observations for GrossPath size with abnormal=" + allObservations.size());
 
 		//List<ObservationDTO> filteredObservations = screenOutObservationsThatAreNormal(allObservations);
-		Map<String, List<ObservationDTO>> anatomyNames = this.getAnatomyNamesFromObservations(allObservations);// We
+		Map<String, List<ObservationDTO>> anatomyNames = this.getAnatomyNamesToObservationsMap(allObservations);// We
 																								// want
 																								// each
 																								// row
@@ -320,7 +309,7 @@ public class GrossPathService {
 	}
 	
 
-	public Map<String, List<ObservationDTO>> getAnatomyNamesFromObservations(List<ObservationDTO> observations) {
+	public Map<String, List<ObservationDTO>> getAnatomyNamesToObservationsMap(List<ObservationDTO> observations) {
 		
 		Map<String, List<ObservationDTO>> anatomyToObservationsMap = new HashMap<>();
 		for (ObservationDTO obs : observations) {
