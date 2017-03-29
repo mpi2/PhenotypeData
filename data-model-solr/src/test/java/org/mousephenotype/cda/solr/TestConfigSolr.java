@@ -149,12 +149,6 @@ public class TestConfigSolr {
 		return new HttpSolrClient(solrBaseUrl + "/images");
 	}
 
-	//MA
-	@Bean(name = "maCore")
-	HttpSolrClient getMaCore() {
-		return new HttpSolrClient(solrBaseUrl + "/ma");
-	}
-
 	//ANATOMY
 	@Bean(name = "anatomyCore")
 	HttpSolrClient getAnatomyCore() { return new HttpSolrClient(solrBaseUrl + "/anatomy");	}

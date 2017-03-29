@@ -225,8 +225,11 @@ public class ScatterChartAndTableProvider {
 		return scatterChartAndData;
 	}
 
-	public static String getScatterChart(String divId, JSONArray data, String title, String subtitle, String yTitle, String xTitle, String xTooltipPrefix, String yTooltipPrefix){
-
+	public static String getScatterChart(String divId, JSONArray data, String title, String subtitle, String yTitle, String xTitle, String xTooltipPrefix, String yTooltipPrefix, String seriesTitle){
+		String seriesLabel="";
+		if(seriesTitle!=null){
+			seriesLabel="name: 'Gene',";
+		}
 
 		String chartString = " chart = new Highcharts.Chart({ " + " colors:" + ChartColors.getFemaleMaleColorsRgba(ChartColors.alphaOpaque) + ", " +
 		" chart: { type: 'scatter',	zoomType: 'xy',	renderTo: '" + divId + "'}, " +
@@ -240,7 +243,7 @@ public class ScatterChartAndTableProvider {
 				"scatter: {	point: { events: { click: function(point) { var url=\"/data/genes/\" + this.markerAcc" + ";  window.open(url); } } }, " +
 				"marker: {radius: 5}, " +
 				"tooltip: {headerFormat: '', pointFormat: '<b>{point.markerSymbol}</b><br>" + xTooltipPrefix +" {point.x:,.0f}<br/>" + yTooltipPrefix + "{point.y:,.0f}', hideDelay:5} }	}," +
-		" series: [{	data: "+ data + "}]});";
+		" series: [{	"+seriesLabel+"  data: "+ data + "}]});";
 
 		return chartString;
 

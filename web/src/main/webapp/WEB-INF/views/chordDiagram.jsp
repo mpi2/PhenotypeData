@@ -46,7 +46,7 @@
             <c:if test="${phenotypeName != null}">
                 mpTopLevelTerms = ${phenotypeName};
             </c:if>
-            drawChords("chordDiagramSvg", "chordContainer", true, mpTopLevelTerms, false);
+            drawChords("chordDiagramSvg", "chordContainer", true, mpTopLevelTerms, false, null, true);
         </script>
     </jsp:body>
 

@@ -21,6 +21,7 @@ import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
 import org.mousephenotype.cda.indexers.utils.PhisService;
 import org.mousephenotype.cda.owl.OntologyParser;
+import org.mousephenotype.cda.owl.OntologyParserFactory;
 import org.mousephenotype.cda.owl.OntologyTermDTO;
 import org.mousephenotype.cda.solr.service.ImageService;
 import org.mousephenotype.cda.solr.service.ImpressService;
@@ -111,6 +112,7 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 	private OntologyParser maParser;
 	private OntologyParser mpParser;
 	private OntologyParser emapaParser;
+	OntologyParserFactory ontologyParserFactory;
 
 	public ImpcImagesIndexer() {
 		super();
@@ -133,9 +135,10 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 		long start = System.currentTimeMillis();
 
 		try {
-			mpParser = getMpParser();
-			maParser = getMaParser();
-			emapaParser = getEmapaParser();
+			ontologyParserFactory = new OntologyParserFactory(komp2DataSource, owlpath);
+			mpParser = ontologyParserFactory.getMpParser();
+			maParser = ontologyParserFactory.getMaParser();
+			emapaParser = ontologyParserFactory.getEmapaParser();
 		} catch (OWLOntologyCreationException | OWLOntologyStorageException e) {
 			e.printStackTrace();
 		}
@@ -157,7 +160,7 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 
 		try {
 			logger.info("  Started emap mapping...");
-			emap2EmapaMap = getEmapToEmapaMap();
+			emap2EmapaMap = ontologyParserFactory.getEmapToEmapaMap();
 			logger.info("  Done {} EMAP to EMAPA mappings", emap2EmapaMap.size());
 			parameterStableIdToEmapaTermIdMap = this.populateParameterStableIdToEmapaIdMap();
 		} catch (SQLException e) {
@@ -343,7 +346,7 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 						imageDTO = addAnatomyValues(emapaParser.getOntologyTerm(thisTermId), imageDTO);
 					}
 					if (thisTermId.startsWith("MP:")) {
-						imageDTO = addMpValues(mpParser.getOntologyTerm(thisTermId), imageDTO, thisTermId);
+						imageDTO = addMpValues(mpParser.getOntologyTerm(thisTermId), imageDTO, thisTermId, runStatus);
 					}
 
 				}
@@ -353,10 +356,11 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 
 
 	// Since the fields are separate, we have to methods to add ontology info - one for mp and one for anatomy
-	private ImageDTO addMpValues(OntologyTermDTO term, ImageDTO imageDTO, String termId){
+	private ImageDTO addMpValues(OntologyTermDTO term, ImageDTO imageDTO, String termId, RunStatus runStatus){
 
 		if (term == null) {
-			logger.warn(" Cannot find MP ontology term for ID \"{}\",\n   OMERO ID: {},\n   URL: {}", termId, imageDTO.getOmeroId(), imageDTO.getFullResolutionFilePath());
+			String message = "Cannot find MP ontology term for ID " + termId + ",\n   OMERO ID " + imageDTO.getOmeroId() + ",\n   URL " + imageDTO.getFullResolutionFilePath();
+			runStatus.addWarning(message);
 			return imageDTO;
 		}
 
@@ -467,7 +471,7 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 			image.setMpId(new ArrayList<>());
 			for (String mpId : mpIds){
 				if (mpId.startsWith("MP:")) {
-					image = addMpValues(mpParser.getOntologyTerm(mpId), image, mpId);
+					image = addMpValues(mpParser.getOntologyTerm(mpId), image, mpId, runStatus);
 				}
 			}
 		}

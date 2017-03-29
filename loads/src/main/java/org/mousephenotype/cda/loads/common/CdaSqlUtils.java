@@ -1953,7 +1953,7 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
             Integer biologicalSamplePk,
             String parameterStableId,
             int parameterPk,
-            String sequenceId,
+            Integer sequenceId,
             int populationId,
             ObservationType observationType,
             int missing,
@@ -2949,9 +2949,20 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
 
     /**
      *
-     * @return A set of required parameters
+     * @return The set of derived parameters
      */
-    public HashSet<String> getRequiredImpressParameters() {
+    public HashSet<String> getImpressDerivedParameters() {
+
+        String query = "SELECT stable_id FROM phenotype_parameter WHERE derived = 1";
+        List<String> results = jdbcCda.queryForList(query, new HashMap(), String.class);
+        return new HashSet<>(results);
+    }
+
+    /**
+     *
+     * @return The set of metadata and data_analysis parameters
+     */
+    public HashSet<String> getImpressMetadataAndDataAnalysisParameters() {
 
         String query = "SELECT stable_id FROM phenotype_parameter WHERE metadata = 1 AND data_analysis = 1";
         List<String> results = jdbcCda.queryForList(query, new HashMap(), String.class);

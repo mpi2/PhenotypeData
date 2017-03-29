@@ -19,6 +19,7 @@ package org.mousephenotype.cda.loads.create.extract.dcc;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import org.apache.commons.lang3.StringUtils;
+import org.mousephenotype.cda.loads.common.CdaSqlUtils;
 import org.mousephenotype.cda.loads.common.DccSqlUtils;
 import org.mousephenotype.cda.loads.common.SpecimenExtended;
 import org.mousephenotype.cda.loads.create.extract.dcc.config.ExtractDccConfigBeans;
@@ -274,6 +275,34 @@ public class ExtractDccExperiments implements CommandLineRunner {
         }
 
         // specimens
+
+        // For EuroPhenome specimens only, the dcc appends the center name to the specimen id. We remove it here
+        // because 1)it is not useful, 2)moreso, it would be confusing when the centers tried to look up their specimens
+        // and couldn't find them because the specimen ids had the trailing center, and 3)we remove it in the specimen extractor.
+        if (datasourceShortName.equals(CdaSqlUtils.EUROPHENOME)) {
+            List<String> specimenIds = experiment.getSpecimenID();
+            List<String> truncatedSpecimenIds = new ArrayList<>();
+            for (String specimenId : specimenIds) {
+                if (specimenId != null) {
+                    String truncatedSpecimen = specimenId;
+                    int    idx               = -1;
+                    if (truncatedSpecimen.endsWith("_MRC_Harwell")) {
+                        idx = truncatedSpecimen.lastIndexOf(("_MRC_Harwell"));
+                    } else {
+                        idx = truncatedSpecimen.lastIndexOf("_");
+                    }
+
+                    if (idx >= 0) {
+                        truncatedSpecimen = truncatedSpecimen.substring(0, idx);
+                        specimenId = truncatedSpecimen;
+                    }
+                    truncatedSpecimenIds.add(specimenId);
+                }
+            }
+
+            experiment.setSpecimenID(truncatedSpecimenIds);
+        }
+
         for (String specimenId : experiment.getSpecimenID()) {
             Long specimenPk;
 

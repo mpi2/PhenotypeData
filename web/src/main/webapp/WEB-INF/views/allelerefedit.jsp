@@ -10,8 +10,8 @@
 	<jsp:attribute name="bodyTag"><body  class="phenotype-node no-sidebars small-header"></jsp:attribute>
 	<jsp:attribute name="header">
 	
-		<script type='text/javascript' src='https://bartaz.github.io/sandbox.js/jquery.highlight.js'></script>
-		<script type='text/javascript' src='https://cdn.datatables.net/plug-ins/f2c75b7247b/features/searchHighlight/dataTables.searchHighlight.min.js'></script>  
+ 		<script type='text/javascript' src='${baseUrl}/js/vendor/jquery/jquery.highlight.js'></script>
+        <script type='text/javascript' src='${baseUrl}/js/utils/dataTables.searchHighlight.min.js'></script>
 
 		<style type="text/css">
 			h1#top {
@@ -158,8 +158,9 @@
 
 					<form id="pmidAllelebox">
 						<fieldset>
-							<legend>Add paper containing EUCOMM/KOMP allele(s) by PMID <b>and</b> alleles.<br>Separate by tab or space for PMID and alleles.<br>Use comma or semicolon as separator for multiple alleles.<br>
-							Eg. 28069890 cdbp<sup>tm1(KOMP)Vlcg</sup>, Sdpr<sup>tm1(KOMP)Vlcg</sup> (Use < > for superscript)
+							<legend>Add paper(s) containing EUCOMM/KOMP allele(s) by PMID <b>and</b> alleles.<br><br>Separate PMID and alleles by <b>comma</b>.<br>Use <b>semicolon</b> to separate multiple alleles.<br>
+								Eg. <pre>your_pmid,Kmo<sup>tm1a(KOMP)Wtsi</sup>;Sdpr<sup>tm1(KOMP)Vlcg</sup></pre> (Use < > for superscript).<br><br>
+							For multiple papers, separate by new line.<br>
 							</legend>
 							<textarea></textarea>
 							<input type="button" value="Submit papers"/>
@@ -209,7 +210,7 @@
 	        oConf.iDisplayStart = 0;
 	        oConf.editMode = false;
 
-			var tableHeader = "<thead><th>Allele info</th><th>Date of publication</th><th>PMID</th><th>Grant id (Grant agency)</th><th>Paper link</th></thead>";
+			var tableHeader = "<thead><th>Allele info</th><th>Date of publication</th><th>PMID</th><th>Paper title</th><th>Paper link</th></thead>";
 
 			var tableCols = 5;
 
@@ -309,14 +310,14 @@
                 var itemSep = "___";
 
                 for ( var i=0; i<idAlleleStrList.length; i++){
-                    var idAllele = idAlleleStrList[i].split(/\s+/);
+                    var idAllele = idAlleleStrList[i].split(/,/);
                     var id = idAllele[0].trim();
-                    var alleleStr = idAllele[1].trim().replace(/;|\|/g, ",");
+                    var alleleStr = idAllele[1].trim().replace(/;/g, ",");
                     if (alleleStr == "") {
                         alleleStr = "N/A"
                     }
 
-                    console.log(id + " --- " + alleleStr);
+                    console.log(id + idAlleleSep + alleleStr);
 
                     if ( (!id.match(/^\d+$/)) || id == ""){
                         badIds.push(id);
@@ -441,6 +442,7 @@
 				var pmid = thisTr.find('td span.pmid').text();
 				var falsepositive = thisObj.siblings("input[name='falsepositive']").is(':checked') ? "yes" : "no";
 				var reviewed = thisObj.siblings("input[name='reviewed']").is(':checked') ? "yes" : "no";
+                var consortium_paper = thisObj.siblings("input[name='consortium_paper']").is(':checked') ? "yes" : "no";
 
 				var symbolVal = textarea.val();
 
@@ -451,7 +453,7 @@
 				else if (symbolVal != "" && reviewed == 'yes' && falsepositive == 'yes') {
 					alert("Sorry, you cannot set a symbol and make it as false positive");
 
-					// fetch original values
+					// then fetch original values to replace users
 					$.ajax({
 						method: "post",
 						url: baseUrl + "/fetchAlleleRefPmidData?pmid=" + pmid,
@@ -470,6 +472,9 @@
 						}
 					});
 				}
+                else if (consortium_paper == 'yes' && (reviewed == 'no' || falsepositive == 'yes')){
+                    alert("Sorry, you cannot set a consortium paper as false positive or not reviewed");
+                }
 				else {
 
 					if ( symbolVal == defaultLabel ){
@@ -484,23 +489,23 @@
 
 					$.ajax({
 						method: "post",
-						url: baseUrl + "/dataTableAlleleRefPost?id=" + dbid + "&symbol=" + symbolVal + "&pmid=" + pmid + "&reviewed=" + reviewed + "&falsepositive=" +  falsepositive,
+						url: baseUrl + "/dataTableAlleleRefPost?id=" + dbid + "&symbol=" + symbolVal + "&pmid=" + pmid + "&reviewed=" + reviewed + "&falsepositive=" +  falsepositive + "&consortium_paper=" + consortium_paper,
 						success: function (jsonStr) {
 							//alert(jsonStr);
 
 							var j = JSON.parse(jsonStr);
 							var displayedSymbol = null;
 							if (j.allAllelesNotFound) {
-
 								$('body').removeClass("loading");
 								alert("Curation ignored.\n\n" + j.error);
 							}
 							else if (j.hasOwnProperty("someAllelesNotFound")) {
 								$('body').removeClass("loading");
-								alert("Some curation ignored:\n\n" + j.someAllelesNotFound + "\n\ncould not be mapped to an MGI allele(s)");
+								alert("Curation saved to database.\n\nBut Some curation ignored:\n\n" + j.someAllelesNotFound + "\n\ncould not be mapped to an MGI allele(s)");
 							}
 							else {
 								$('body').removeClass("loading");
+                                alert("Curation saved to database");
 							}
 							displayedSymbol = j.symbol;
 							textarea.val(displayedSymbol);
@@ -510,6 +515,9 @@
 
 							var isFalsepositive = j.falsepositive=='yes' ? true : false;
 							thisObj.siblings("input[name='falsepositive']").prop('checked', isFalsepositive);
+
+                            var isConsortiumPaper = j.consortium_paper=='yes' ? true : false;
+                            thisObj.siblings("input[name='consortium_paper']").prop('checked', isConsortiumPaper);
 
 							//thisTr.find('td:first-child').html("<input type='checkbox'>");
 							//thisTr.find('td:nth-child(2)').text(j.reviewed);

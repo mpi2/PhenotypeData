@@ -27,6 +27,7 @@ import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
 import org.mousephenotype.cda.owl.OntologyParser;
+import org.mousephenotype.cda.owl.OntologyParserFactory;
 import org.mousephenotype.cda.owl.OntologyTermDTO;
 import org.mousephenotype.cda.solr.service.OntologyBean;
 import org.mousephenotype.cda.solr.service.dto.BasicBean;
@@ -112,6 +113,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 
 	OntologyParser emapaParser;
 	OntologyParser maParser;
+	OntologyParserFactory ontologyParserFactory;
 
 	public static final String ipgttWeightParameter = "IMPC_IPG_001_001";
 	public static final List<String> maleFertilityParameters = Arrays.asList("IMPC_FER_001_001", "IMPC_FER_006_001",
@@ -142,8 +144,9 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 
 			connection = komp2DataSource.getConnection();
 
-			emapaParser = getEmapaParser();
-			maParser = getMaParser();
+			ontologyParserFactory = new OntologyParserFactory(komp2DataSource, owlpath);
+			emapaParser = ontologyParserFactory.getEmapaParser();
+			maParser = ontologyParserFactory.getMaParser();
 			logger.info("  populating supporting maps");
 			pipelineMap = IndexerMap.getImpressPipelines(connection);
 			procedureMap = IndexerMap.getImpressProcedures(connection);
@@ -1061,7 +1064,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 	 *                When a database error occurrs
 	 */
 	void populateEmap2EmapaMap() throws IOException {
-		emap2emapaIdMap = getEmapToEmapaMap();
+		emap2emapaIdMap = ontologyParserFactory.getEmapToEmapaMap();
 	}
 
 	/**
