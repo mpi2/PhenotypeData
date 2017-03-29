@@ -11,6 +11,5 @@ public interface HpRepository extends Neo4jRepository<Hp, Long> {
 
     Hp findByHpId(String hpId);
     Hp findByHpTerm(String hpTerm);
-    Hp findByHpSynonym(String hpSynonym);
 
 }

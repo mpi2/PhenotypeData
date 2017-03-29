@@ -33,17 +33,9 @@ public class Mp {
     @Relationship(type="MP_NARROW_SYNONYM", direction=Relationship.OUTGOING)
     private Set<OntoSynonym> mpNarrowSynonyms;
 
-    @Relationship(type="MP_TOP_LEVEL_ID", direction=Relationship.OUTGOING)
-    private Set<Mp> mpTopLevelIds;
-
-    @Relationship(type="MP_INTERMEDIATE_ID", direction=Relationship.OUTGOING)
-    private Set<Mp> mpIntermediateIds;
-
     @Relationship(type="MP_PARENT_ID", direction=Relationship.OUTGOING)
     private Set<Mp> mpParentIds;
 
-    @Relationship(type="MP_CHILD_ID", direction=Relationship.OUTGOING)
-    private Set<Mp> mpChildIds;
 
     public Long getId() {
         return id;
@@ -109,20 +101,12 @@ public class Mp {
         this.ontoSynonyms = ontoSynonyms;
     }
 
-    public Set<Mp> getMpTopLevelIds() {
-        return mpTopLevelIds;
+    public Set<OntoSynonym> getMpNarrowSynonyms() {
+        return mpNarrowSynonyms;
     }
 
-    public void setMpTopLevelIds(Set<Mp> mpTopLevelIds) {
-        this.mpTopLevelIds = mpTopLevelIds;
-    }
-
-    public Set<Mp> getMpIntermediateIds() {
-        return mpIntermediateIds;
-    }
-
-    public void setMpIntermediateIds(Set<Mp> mpIntermediateIds) {
-        this.mpIntermediateIds = mpIntermediateIds;
+    public void setMpNarrowSynonyms(Set<OntoSynonym> mpNarrowSynonyms) {
+        this.mpNarrowSynonyms = mpNarrowSynonyms;
     }
 
     public Set<Mp> getMpParentIds() {
@@ -131,22 +115,6 @@ public class Mp {
 
     public void setMpParentIds(Set<Mp> mpParentIds) {
         this.mpParentIds = mpParentIds;
-    }
-
-    public Set<Mp> getMpChildIds() {
-        return mpChildIds;
-    }
-
-    public void setMpChildIds(Set<Mp> mpChildIds) {
-        this.mpChildIds = mpChildIds;
-    }
-
-    public Set<OntoSynonym> getMpNarrowSynonyms() {
-        return mpNarrowSynonyms;
-    }
-
-    public void setMpNarrowSynonyms(Set<OntoSynonym> mpNarrowSynonyms) {
-        this.mpNarrowSynonyms = mpNarrowSynonyms;
     }
 
     @Override
@@ -161,10 +129,7 @@ public class Mp {
                 ", humanPhenotypes=" + humanPhenotypes +
                 ", ontoSynonyms=" + ontoSynonyms +
                 ", mpNarrowSynonyms=" + mpNarrowSynonyms +
-                ", mpTopLevelIds=" + mpTopLevelIds +
-                ", mpIntermediateIds=" + mpIntermediateIds +
                 ", mpParentIds=" + mpParentIds +
-                ", mpChildIds=" + mpChildIds +
                 '}';
     }
 }

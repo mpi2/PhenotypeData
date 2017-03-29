@@ -40,8 +40,11 @@ public class Gene {
     @Relationship(type = "DISEASE", direction = Relationship.OUTGOING)
     private Set<Disease> diseases;
 
-    @Relationship(type = "PHENOTYPE", direction = Relationship.OUTGOING)
-    private Set<Phenotype> phenotypes;
+    @Relationship(type = "MOUSE_PHENOTYPE", direction = Relationship.OUTGOING)
+    private Set<Mp> mousePhenotypes;
+
+    @Relationship(type = "HUMAN_PHENOTYPE", direction = Relationship.OUTGOING)
+    private Set<Hp> humanPhenotypes;
 
     public Long getId() {
         return id;
@@ -155,12 +158,20 @@ public class Gene {
         this.diseases = diseases;
     }
 
-    public Set<Phenotype> getPhenotypes() {
-        return phenotypes;
+    public Set<Mp> getMousePhenotypes() {
+        return mousePhenotypes;
     }
 
-    public void setPhenotypes(Set<Phenotype> phenotypes) {
-        this.phenotypes = phenotypes;
+    public void setMousePhenotypes(Set<Mp> mousePhenotypes) {
+        this.mousePhenotypes = mousePhenotypes;
+    }
+
+    public Set<Hp> getHumanPhenotypes() {
+        return humanPhenotypes;
+    }
+
+    public void setHumanPhenotypes(Set<Hp> humanPhenotypes) {
+        this.humanPhenotypes = humanPhenotypes;
     }
 
     @Override
@@ -180,7 +191,8 @@ public class Gene {
                 ", humanGeneSymbols=" + humanGeneSymbols +
                 ", alleles=" + alleles +
                 ", diseases=" + diseases +
-                ", phenotypes=" + phenotypes +
+                ", mousePhenotypes=" + mousePhenotypes +
+                ", humanPhenotypes=" + humanPhenotypes +
                 '}';
     }
 }
