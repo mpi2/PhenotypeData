@@ -21,6 +21,7 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
 import org.mousephenotype.cda.owl.OntologyParser;
+import org.mousephenotype.cda.owl.OntologyParserFactory;
 import org.mousephenotype.cda.owl.OntologyTermDTO;
 import org.mousephenotype.cda.solr.service.dto.AnatomyDTO;
 import org.mousephenotype.cda.utilities.RunStatus;
@@ -69,12 +70,12 @@ public class AnatomyIndexer extends AbstractIndexer implements CommandLineRunner
     @Qualifier("komp2DataSource")
     DataSource komp2DataSource;
 
-
     private OntologyParser maParser;
     private OntologyParser emapaParser;
 
     private Map<String, Map<String,List<String>>> maUberonEfoMap = new HashMap<>();      // key = term_id.
 
+    protected OntologyParserFactory ontologyParserFactory;
 
     public AnatomyIndexer() {
 
@@ -100,6 +101,7 @@ public class AnatomyIndexer extends AbstractIndexer implements CommandLineRunner
 
             initialiseSupportingBeans();
 
+            ontologyParserFactory = new OntologyParserFactory(komp2DataSource, owlpath);
             Set<String> maIds = maParser.getTermsInSlim();
             Set<String> emapaIds = emapaParser.getTermsInSlim();
 
@@ -227,10 +229,8 @@ public class AnatomyIndexer extends AbstractIndexer implements CommandLineRunner
 
         try {
             maUberonEfoMap = IndexerMap.mapMaToUberronOrEfoForAnatomogram(anatomogramResource);
-            emapaParser = getEmapaParser();
-            emapaParser.fillJsonTreePath("EMAPA:25765", "/data/anatomy/", null, TREE_TOP_LEVEL_EMAPA_TERMS); // mouse
-            maParser = getMaParser();
-            maParser.fillJsonTreePath("MA:0002405", "/data/anatomy/", null, TREE_TOP_LEVEL_MA_TERMS); // postnatal mouse
+            emapaParser = ontologyParserFactory.getEmapaParserWithTreeJson();
+            maParser = ontologyParserFactory.getMaParserWithTreeJson();
         } catch (SQLException | IOException | OWLOntologyCreationException | OWLOntologyStorageException e1) {
             e1.printStackTrace();
         }
