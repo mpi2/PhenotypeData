@@ -24,6 +24,8 @@ import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
+import org.mousephenotype.cda.owl.OntologyParser;
+import org.mousephenotype.cda.owl.OntologyTermDTO;
 import org.mousephenotype.cda.solr.service.AbstractGenotypePhenotypeService;
 import org.mousephenotype.cda.solr.service.StatisticalResultService;
 import org.mousephenotype.cda.solr.service.dto.BasicBean;
@@ -31,6 +33,8 @@ import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
 import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
 import org.mousephenotype.cda.solr.service.dto.StatisticalResultDTO;
 import org.mousephenotype.cda.utilities.RunStatus;
+import org.semanticweb.owlapi.model.OWLOntologyCreationException;
+import org.semanticweb.owlapi.model.OWLOntologyStorageException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -77,12 +81,6 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
     private SolrClient statisticalResultCore;
 
     @Autowired
-    private MpOntologyDAO mpOntologyService;
-
-    @Autowired
-    private MaOntologyDAO maOntologyService;
-
-    @Autowired
     private PhenotypePipelineDAO phenotypePipelineDAO;
 
     private Map<Integer, ImpressBaseDTO> pipelineMap = new HashMap<>();
@@ -112,6 +110,10 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
         this.parameterMap = parameterMap;
     }
 
+    private OntologyParser mpParser;
+    private OntologyParser mpMaParser;
+    private OntologyParser maParser;
+
     @Override
     public RunStatus validateBuild() throws IndexerException {
         return super.validateBuild(statisticalResultCore);
@@ -133,6 +135,10 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 
             Connection connection = komp2DataSource.getConnection();
 
+            mpParser = getMpParser();
+            mpMaParser = getMpMaParser();
+            maParser = getMaParser();
+
             pipelineMap = IndexerMap.getImpressPipelines(connection);
             procedureMap = IndexerMap.getImpressProcedures(connection);
             parameterMap = IndexerMap.getImpressParameters(connection);
@@ -144,7 +150,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
             populateEmbryoSignificanceMap();
             populateAdultLineLevelSignificanceMap();
 
-        } catch (SQLException e) {
+        } catch (SQLException | OWLOntologyCreationException | OWLOntologyStorageException e) {
             throw new IndexerException(e);
         }
 
@@ -524,65 +530,59 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
         // Add the appropriate fields for the global MP term
         if (mpId != null) {
 
-            OntologyTermBean mpTerm = mpOntologyService.getTerm(mpId);
+            OntologyTermDTO mpTerm = mpParser.getOntologyTerm(mpId);
             if (mpTerm != null) {
-                doc.setMpTermId(mpTerm.getId());
+                doc.setMpTermId(mpTerm.getAccessionId());
                 doc.setMpTermName(mpTerm.getName());
 
                 // if the mpId itself is a top level, add itself as a top level
-                if (mpOntologyService.getTopLevelDetail(mpId).getIds().size() == 0 ){
+                if (mpTerm.getTopLevelIds() == null ){
                     // if the mpId itself is a top level, add itself as a top level
-                    List<String> ids = new ArrayList<>(); ids.add(mpId);
-                    List<String> names = new ArrayList<>(); names.add(doc.getMpTermName());
-
-                    doc.setTopLevelMpTermId(ids);
-                    doc.setTopLevelMpTermName(names);
+                    doc.addTopLevelMpTermId(mpTerm.getAccessionId());
+                    doc.addTopLevelMpTermName(mpTerm.getName());
                 }
                 else {
-                    doc.setTopLevelMpTermId(mpOntologyService.getTopLevelDetail(mpId).getIds());
-                    doc.setTopLevelMpTermName(mpOntologyService.getTopLevelDetail(mpId).getNames());
+                    doc.addTopLevelMpTermId(mpTerm.getTopLevelIds());
+                    doc.addTopLevelMpTermName(mpTerm.getTopLevelNames());
                 }
 
-                doc.setIntermediateMpTermId(mpOntologyService.getIntermediatesDetail(mpId).getIds());
-                doc.setIntermediateMpTermName(mpOntologyService.getIntermediatesDetail(mpId).getNames());
+                doc.addIntermediateMpTermId(mpTerm.getIntermediateIds());
+                doc.addIntermediateMpTermName(mpTerm.getIntermediateNames());
 
                 // mp-anatomy mappings (all MA at the moment)
                 if (doc.getLifeStageAcc() != null && doc.getLifeStageAcc().equalsIgnoreCase(POSTPARTUM_STAGE)) {
-                    if (mpOntologyService.getAnatomyMappings(mpId) != null) {
-                        List<String> anatomyIds = mpOntologyService.getAnatomyMappings(mpId);
-                        for (String id : anatomyIds) {
-                            OntologyDAO currentOntologyService = maOntologyService;
-                            if (currentOntologyService != null) {
+                    Set<String> referencedClasses = mpMaParser.getReferencedClasses(mpId, VIA_PROPERTIES, "MA");
+                    if (referencedClasses != null && referencedClasses.size() > 0) {
+                        for (String id : referencedClasses) {
+                            OntologyTermDTO maTerm = maParser.getOntologyTerm(id);
+
+                            if (maTerm != null) {
                                 doc.addAnatomyTermId(id);
-                                doc.addAnatomyTermName(currentOntologyService.getTerm(id).getName());
-                                OntologyDetail anatomyIntermediateTerms = currentOntologyService.getIntermediatesDetail(id);
-                                doc.setIntermediateAnatomyTermId(anatomyIntermediateTerms.getIds());
-                                doc.setIntermediateAnatomyTermName(anatomyIntermediateTerms.getNames());
-                                OntologyDetail anatomyTopLevels = currentOntologyService.getSelectedTopLevelDetails(id);
-                                doc.setTopLevelAnatomyTermId(anatomyTopLevels.getIds());
-                                doc.setTopLevelAnatomyTermName(anatomyTopLevels.getNames());
+                                doc.addAnatomyTermName(maTerm.getName());
+                                doc.addIntermediateAnatomyTermId(maTerm.getIntermediateIds());
+                                doc.addIntermediateAnatomyTermName(maTerm.getIntermediateNames());
+                                doc.addTopLevelAnatomyTermId(maTerm.getTopLevelIds());
+                                doc.addTopLevelAnatomyTermName(maTerm.getTopLevelNames());
                             }
                         }
                     }
                     // Also check mappings up the tree, as a leaf term might not have a mapping, but the parents might.
                     Set<String> anatomyIdsForAncestors = new HashSet<>();
-                    for (String mpAncestorId : mpOntologyService.getAncestorsDetail(mpId).getIds()) {
-                        if (mpOntologyService.getAnatomyMappings(mpAncestorId) != null) {
-                            anatomyIdsForAncestors.addAll(mpOntologyService.getAnatomyMappings(mpAncestorId));
+                    for (String mpAncestorId : mpTerm.getIntermediateIds()) {
+                        if (mpMaParser.getReferencedClasses(mpAncestorId, VIA_PROPERTIES, "MA") != null) {
+                            anatomyIdsForAncestors.addAll(mpMaParser.getReferencedClasses(mpAncestorId, VIA_PROPERTIES, "MA") );
                         }
                     }
 
                     for (String id : anatomyIdsForAncestors) {
-                        OntologyDAO currentOntologyService = maOntologyService;
-                        if (currentOntologyService != null) {
+                        OntologyTermDTO maTerm = maParser.getOntologyTerm(id);
+                        if (maTerm != null) {
                             doc.addIntermediateAnatomyTermId(id);
-                            doc.addIntermediateAnatomyTermName(currentOntologyService.getTerm(id).getName());
-                            OntologyDetail anatomyIntermediateTerms = currentOntologyService.getIntermediatesDetail(id);
-                            doc.addIntermediateAnatomyTermId(anatomyIntermediateTerms.getIds());
-                            doc.addIntermediateAnatomyTermName(anatomyIntermediateTerms.getNames());
-                            OntologyDetail anatomyTopLevels = currentOntologyService.getSelectedTopLevelDetails(id);
-                            doc.addTopLevelAnatomyTermId(anatomyTopLevels.getIds());
-                            doc.addTopLevelAnatomyTermName(anatomyTopLevels.getNames());
+                            doc.addIntermediateAnatomyTermName(maTerm.getName());
+                            doc.addIntermediateAnatomyTermId(maTerm.getIntermediateIds());
+                            doc.addIntermediateAnatomyTermName(maTerm.getIntermediateNames());
+                            doc.addTopLevelAnatomyTermId(maTerm.getTopLevelIds());
+                            doc.addTopLevelAnatomyTermName(maTerm.getTopLevelNames());
                         }
                     }
                 }
@@ -654,16 +654,16 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
         mpTerm = r.getString("male_mp_acc");
         if (!r.wasNull()) {
 
-            OntologyTermBean bean = mpOntologyService.getTerm(mpTerm);
-            if (bean != null) {
-                doc.setMaleMpTermId(bean.getId());
-                doc.setMaleMpTermName(bean.getName());
+            OntologyTermDTO term = mpParser.getOntologyTerm(mpTerm);
+            if (term != null) {
+                doc.setMaleMpTermId(term.getAccessionId());
+                doc.setMaleMpTermName(term.getName());
 
-                doc.setMaleTopLevelMpTermId(mpOntologyService.getTopLevelDetail(bean.getId()).getIds());
-                doc.setMaleTopLevelMpTermName(mpOntologyService.getTopLevelDetail(bean.getId()).getNames());
+                doc.addMaleTopLevelMpTermId(term.getTopLevelIds());
+                doc.addMaleTopLevelMpTermName(term.getTopLevelNames());
 
-                doc.setMaleIntermediateMpTermId(mpOntologyService.getIntermediatesDetail(bean.getId()).getIds());
-                doc.setMaleIntermediateMpTermName(mpOntologyService.getIntermediatesDetail(bean.getId()).getNames());
+                doc.addMaleIntermediateMpTermId(term.getIntermediateIds());
+                doc.addMaleIntermediateMpTermName(term.getIntermediateNames());
             }
         }
 
@@ -671,16 +671,16 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
         mpTerm = r.getString("female_mp_acc");
         if (!r.wasNull()) {
 
-            OntologyTermBean bean = mpOntologyService.getTerm(mpTerm);
-            if (bean != null) {
-                doc.setFemaleMpTermId(bean.getId());
-                doc.setFemaleMpTermName(bean.getName());
+            OntologyTermDTO term = mpParser.getOntologyTerm(mpTerm);
+            if (term != null) {
+                doc.setFemaleMpTermId(term.getAccessionId());
+                doc.setFemaleMpTermName(term.getName());
 
-                doc.setFemaleTopLevelMpTermId(mpOntologyService.getTopLevelDetail(bean.getId()).getIds());
-                doc.setFemaleTopLevelMpTermName(mpOntologyService.getTopLevelDetail(bean.getId()).getNames());
+                doc.addFemaleTopLevelMpTermId(term.getTopLevelIds());
+                doc.addFemaleTopLevelMpTermName(term.getTopLevelNames());
 
-                doc.setFemaleIntermediateMpTermId(mpOntologyService.getIntermediatesDetail(bean.getId()).getIds());
-                doc.setFemaleIntermediateMpTermName(mpOntologyService.getIntermediatesDetail(bean.getId()).getNames());
+                doc.addFemaleIntermediateMpTermId(term.getIntermediateIds());
+                doc.addFemaleIntermediateMpTermName(term.getIntermediateNames());
             }
         }
 
@@ -714,32 +714,13 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 
             mpIds.forEach(mpId -> {
 
-                OntologyTermBean bean = mpOntologyService.getTerm(mpId);
-
-                if (bean != null) {
-
-                    ontoTerms.add(bean);
-                    // Add all ancestor terms for this MP ID
-                    mpOntologyService.getAncestorsDetail(bean.getId()).getIds().forEach(mp -> {
-                        OntologyTermBean b = mpOntologyService.getTerm(mp);
-                        if (b != null) {
-                            ontoTerms.add(b);
-                        }
-                    });
-
-                }
+                OntologyTermDTO term = mpParser.getOntologyTerm(mpId);
+                doc.addMpTermIdOptions(term.getAccessionId());
+                doc.addMpTermNameOptions(term.getName());
+                doc.addMpTermIdOptions(term.getIntermediateIds());
+                doc.addMpTermNameOptions(term.getIntermediateNames());
 
             });
-
-            // Default the term options to empty lists
-            doc.setMpTermIdOptions(new ArrayList<>());
-            doc.setMpTermNameOptions(new ArrayList<>());
-
-            ontoTerms.forEach(term -> {
-                doc.getMpTermIdOptions().add(term.getId());
-                doc.getMpTermNameOptions().add(term.getName());
-            });
-
 
         } else {
 

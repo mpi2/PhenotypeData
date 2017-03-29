@@ -18,6 +18,7 @@ package org.mousephenotype.cda.solr.service.dto;
 import org.apache.solr.client.solrj.beans.Field;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -294,11 +295,11 @@ public class ImageDTO extends ObservationDTO {
         this.intermediateMpId = intermediateMpId;
     }
 
-    public void addIntermediateMpId(String intermediateMpId) {
+    public void addIntermediateMpId(Collection<String> intermediateMpId) {
         if (this.intermediateMpId == null) {
             this.intermediateMpId = new ArrayList<>();
         }
-        this.intermediateMpId.add(intermediateMpId);
+        this.intermediateMpId.addAll(intermediateMpId);
     }
 
     public List<String> getIntermediateMpTerm() {
@@ -309,11 +310,11 @@ public class ImageDTO extends ObservationDTO {
         this.intermediateMpTerm = intermediateMpTerm;
     }
 
-    public void addIntermediateMpTerm(String intermediateMpTerm) {
+    public void addIntermediateMpTerm(Collection<String> intermediateMpTerm) {
         if (this.intermediateMpTerm == null) {
             this.intermediateMpTerm = new ArrayList<>();
         }
-        this.intermediateMpTerm.add(intermediateMpTerm);
+        this.intermediateMpTerm.addAll(intermediateMpTerm);
     }
 
     public List<String> getTopLevelMpTerm() {
@@ -324,7 +325,7 @@ public class ImageDTO extends ObservationDTO {
         this.topLevelMpTerm = topLevelMpTerm;
     }
 
-    public void addTopLevelMpTerm(String topLevelMpTerm, Boolean uniqueOnly) {
+    public void addTopLevelMpTerm(Collection<String> topLevelMpTerm, Boolean uniqueOnly) {
         this.topLevelMpTerm = add(this.topLevelMpTerm, topLevelMpTerm, uniqueOnly);
     }
 
@@ -336,7 +337,7 @@ public class ImageDTO extends ObservationDTO {
         this.topLevelMpId = topLevelMpId;
     }
 
-    public void addTopLevelMpId(String topLevelMpId, Boolean uniqueOnly) {
+    public void addTopLevelMpId(Collection<String> topLevelMpId, Boolean uniqueOnly) {
         this.topLevelMpId = add(this.topLevelMpId, topLevelMpId, uniqueOnly);
     }
 
@@ -518,7 +519,7 @@ public class ImageDTO extends ObservationDTO {
         return mpTermSynonym;
     }
 
-    public void addMpTermSynonym(List<String> mpTermSynonym, Boolean uniqueOnly) {
+    public void addMpTermSynonym(Collection<String> mpTermSynonym, Boolean uniqueOnly) {
         this.mpTermSynonym = add(this.mpTermSynonym, mpTermSynonym, uniqueOnly);
     }
 
@@ -1041,7 +1042,7 @@ public class ImageDTO extends ObservationDTO {
 
     }
 
-    private List<String> add(List<String> to, String what, Boolean uniqueOnly) {
+    protected List<String> add(List<String> to, String what, Boolean uniqueOnly) {
         if (to == null) {
             to = new ArrayList<>();
         }
@@ -1056,18 +1057,6 @@ public class ImageDTO extends ObservationDTO {
             to = new ArrayList<>();
         }
         to.add(what);
-        return to;
-    }
-
-    private List<String> add(List<String> to, List<String> what, Boolean uniqueOnly) {
-        if (to == null) {
-            to = new ArrayList<>();
-        }
-        if (uniqueOnly) {
-            addUnique(to, what);
-        } else {
-            to.addAll(what);
-        }
         return to;
     }
 

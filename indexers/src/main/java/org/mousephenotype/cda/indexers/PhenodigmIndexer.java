@@ -18,11 +18,13 @@ package org.mousephenotype.cda.indexers;
 
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.mousephenotype.cda.db.beans.OntologyTermBean;
-import org.mousephenotype.cda.db.dao.MpOntologyDAO;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
+import org.mousephenotype.cda.owl.OntologyParser;
+import org.mousephenotype.cda.owl.OntologyTermDTO;
 import org.mousephenotype.cda.solr.service.dto.PhenodigmDTO;
 import org.mousephenotype.cda.utilities.RunStatus;
+import org.semanticweb.owlapi.model.OWLOntologyCreationException;
+import org.semanticweb.owlapi.model.OWLOntologyStorageException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,8 +61,7 @@ public class PhenodigmIndexer extends AbstractIndexer implements CommandLineRunn
     @NotNull
     private DataSource phenodigmDataSource;
 
-    @Autowired
-    MpOntologyDAO mpOntologyService;
+    private OntologyParser mpParser;
 
     public static final long MIN_EXPECTED_ROWS = 218000;
 
@@ -88,6 +89,8 @@ public class PhenodigmIndexer extends AbstractIndexer implements CommandLineRunn
 
     @Override
     public RunStatus run() throws IndexerException, SQLException, IOException, SolrServerException {
+
+
         documentCount = 0;
 
         Integer count = 0;
@@ -95,6 +98,8 @@ public class PhenodigmIndexer extends AbstractIndexer implements CommandLineRunn
         long start = System.currentTimeMillis();
 
         try {
+
+            mpParser = getMpParser();
 
             diseasePhenotypeMap = getDiseasePhenotypeMap();
             logger.info("Populated disease phenotype map");
@@ -146,7 +151,7 @@ public class PhenodigmIndexer extends AbstractIndexer implements CommandLineRunn
             // Final commit
             phenodigmCore.commit();
 
-        } catch (SQLException | SolrServerException | IOException e) {
+        } catch (SQLException | SolrServerException | IOException | OWLOntologyCreationException | OWLOntologyStorageException e) {
             throw new IndexerException(e);
         }
 
@@ -643,18 +648,17 @@ public class PhenodigmIndexer extends AbstractIndexer implements CommandLineRunn
 
                 for(String mpId : mpMatchedIds){
 
-                    OntologyTermBean term =  mpOntologyService.getTerm(mpId);
+                    OntologyTermDTO term = mpParser.getOntologyTerm(mpId);
 
                     if (term != null) {  // some phenodigm MPs are not in IMPC slim
                         names.add(term.getName());
-
-                        for (OntologyTermBean topTerm : mpOntologyService.getTopLevel(mpId)) {
-                            topIds.add(topTerm.getId());
-                            topNames.add(topTerm.getName());
+                        if (term.getTopLevelIds() != null) {
+                            topIds.addAll(term.getTopLevelIds());
+                            topNames.addAll(term.getTopLevelNames());
                         }
-                        for (OntologyTermBean iterm : mpOntologyService.getIntermediates(mpId)) {
-                            intermediateIds.add(iterm.getId());
-                            intermediateNames.add(iterm.getName());
+                        if(term.getIntermediateIds() != null) {
+                            intermediateIds.addAll(term.getIntermediateIds());
+                            intermediateNames.addAll(term.getIntermediateNames());
                         }
                     }
                 }
