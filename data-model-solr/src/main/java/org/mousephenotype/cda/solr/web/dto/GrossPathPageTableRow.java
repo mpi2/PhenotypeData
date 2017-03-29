@@ -233,6 +233,7 @@ public class GrossPathPageTableRow {
 	private List<SolrDocument> imageList=new ArrayList<>();
 	private Integer sequenceId;
 	private String zygosity;
+	private int numberOfAbnormalObservations=0;
 	
 	public Integer getSequenceId() {
 		return sequenceId;
@@ -256,6 +257,9 @@ public class GrossPathPageTableRow {
 	}
 	public String getZygosity() {
 		return zygosity;
+	}
+	public void setNumberOfAbnormalObservations(int numberOfAbnormalObservations) {
+		this.numberOfAbnormalObservations=numberOfAbnormalObservations;
 	}
 	
 	
