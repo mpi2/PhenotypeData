@@ -7,8 +7,7 @@
 
 	<jsp:attribute name="title">Gross Pathology Information for ${gene.markerName}</jsp:attribute>
 
-	<jsp:attribute name="breadcrumb">&nbsp;&raquo; <a
-			href="${baseUrl}/search/genes?kw=*">Genes</a> &raquo; Results</jsp:attribute>
+	<jsp:attribute name="breadcrumb">&nbsp;&raquo;<a href='${baseUrl}/genes/${gene.mgiAccessionId}'>${gene.markerSymbol}</a>&nbsp;&raquo; Gross Pathology And Tissue Collection View</jsp:attribute>
 
 	<jsp:attribute name="header">
 
@@ -162,7 +161,7 @@
                 
                 
                 
-                <div  class="section">
+               <%--  <div  class="section">
 								<div class="inner">
 									<div class="accordion-body" style="display: block">
 										<div id="grid">
@@ -181,7 +180,7 @@
 										</div>
 									</div>
 								</div>
-					</div> 
+					</div>  --%>
 					
 					
 					
