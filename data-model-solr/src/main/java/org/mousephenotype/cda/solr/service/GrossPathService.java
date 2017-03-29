@@ -45,7 +45,9 @@ public class GrossPathService {
 		System.out.println("observations for GrossPath size with abnormal=" + allObservations.size());
 
 		//List<ObservationDTO> filteredObservations = screenOutObservationsThatAreNormal(allObservations);
-		Set<String> anatomyNames = this.getAnatomyNamesFromObservations(abnormaObservations);//only look at abnormal anatomies now as summary view
+
+		Map<String, List<ObservationDTO>> anatomyNames = this.getAnatomyNamesFromObservations(abnormaObservations);//only look at abnormal anatomies now as summary view
+
 
 		Map<String, List<ObservationDTO>> sampleToObservations = this.getSampleToObservationMap(allObservations);
 		Map<String, List<SolrDocument>> sampleToImages = this.getSampleToImagesMap(images);
@@ -55,7 +57,7 @@ public class GrossPathService {
 			TreeSet<String> abnormalAnatomyMapPerSampleId = new TreeSet<>();
 			ArrayList<String> textValuesForSampleId = new ArrayList<String>();
 
-			for (String anatomyName : anatomyNames) {
+			for (String anatomyName : anatomyNames.keySet()) {
 				
 				GrossPathPageTableRow row = new GrossPathPageTableRow();
 				row.setAnatomyName(anatomyName);
@@ -65,9 +67,11 @@ public class GrossPathService {
 
 				for (ObservationDTO obs : sampleToObservations.get(sampleId)) {
 					// a row is a unique sampleId and anatomy combination
+
 					if (this.getAnatomyStringFromObservation(obs) != null
 							&& this.getAnatomyStringFromObservation(obs).equals(anatomyName)) {
 						row.setZygosity(obs.getZygosity().substring(0, 3).toUpperCase());
+
 
 						ImpressBaseDTO parameter = new ImpressBaseDTO(null, null, obs.getParameterStableId(),
 								obs.getParameterName());
@@ -163,7 +167,7 @@ public class GrossPathService {
 		System.out.println("observations for GrossPath size with abnormal=" + allObservations.size());
 
 		//List<ObservationDTO> filteredObservations = screenOutObservationsThatAreNormal(allObservations);
-		Set<String> anatomyNames = this.getAnatomyNamesFromObservations(allObservations);// We
+		Map<String, List<ObservationDTO>> anatomyNames = this.getAnatomyNamesFromObservations(allObservations);// We
 																								// want
 																								// each
 																								// row
@@ -185,7 +189,7 @@ public class GrossPathService {
 			TreeSet<String> abnormalAnatomyMapPerSampleId = new TreeSet<>();
 			ArrayList<String> textValuesForSampleId = new ArrayList<String>();
 
-			for (String anatomyName : anatomyNames) {
+			for (String anatomyName : anatomyNames.keySet()) {
 				
 				GrossPathPageTableRow row = new GrossPathPageTableRow();
 				row.setAnatomyName(anatomyName);
@@ -316,18 +320,25 @@ public class GrossPathService {
 	}
 	
 
-	public Set<String> getAnatomyNamesFromObservations(List<ObservationDTO> observations) {
+	public Map<String, List<ObservationDTO>> getAnatomyNamesFromObservations(List<ObservationDTO> observations) {
 		
-		Set<String> anatomyNames = new TreeSet<>();
+		Map<String, List<ObservationDTO>> anatomyToObservationsMap = new HashMap<>();
 		for (ObservationDTO obs : observations) {
 			if(obs.getObservationType().equals("ontological")){//only set anatomy if ontological as simple is bodyweight or text or image
-			String anatomyString = getAnatomyStringFromObservation(obs);
-			if (anatomyString != null) {
-				anatomyNames.add(anatomyString);
-			}
+			String anatomyString = obs.getParameterName().trim();
+				if (anatomyString != null) {
+					if(anatomyToObservationsMap.containsKey(anatomyString)){
+						anatomyToObservationsMap.get(anatomyString).add(obs);
+						
+					}else{
+						List<ObservationDTO> tempList=new ArrayList<>();
+						tempList.add(obs);
+						anatomyToObservationsMap.put(anatomyString, tempList);
+					}
+				}
 			}
 		}
-		return anatomyNames;
+		return anatomyToObservationsMap;
 	}
 
 	private String getAnatomyStringFromObservation(ObservationDTO obs) {
