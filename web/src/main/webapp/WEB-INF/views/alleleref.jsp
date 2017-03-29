@@ -129,9 +129,12 @@
                 oConf2.id = "consortiumPapers";
                 $.fn.fetchAlleleRefDataTable2(oConf2);
 
+                // find out which tab to open from hash tag
+                var matches = window.location.hash.match(/(\d)$/);
+                var tabIndex = matches == null ? 0 : matches[0];
 
                 $( "#tabs" ).tabs({
-                    active: 0,
+                    active: tabIndex,
                     activate: function(event, ui) {
 
                         // get paper stats as highcharts
@@ -143,15 +146,10 @@
                             var chartMonth = "chartMonth";
                             $.fn.fetchAllelePaperDataPointsIncrement(chartYearIncrease, chartMonthIncrease, chartQuarter, chartGrantQuarter);
                         }
-//                        if ( ui.newTab.index() == 2){
-//                            $('div#consortiumPapers .saveTable').html("");
-//                            $.fn.fetchAlleleRefDataTable2(oConf2);
-//                        }
                     }
                 });
 
             });
-
 
         </script>
 

@@ -27,6 +27,7 @@ import org.mousephenotype.cda.indexers.beans.PhenotypeCallSummaryBean;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
 import org.mousephenotype.cda.owl.OntologyParser;
+import org.mousephenotype.cda.owl.OntologyParserFactory;
 import org.mousephenotype.cda.owl.OntologyTermDTO;
 import org.mousephenotype.cda.solr.generic.util.PhenotypeFacetResult;
 import org.mousephenotype.cda.solr.service.PostQcService;
@@ -101,6 +102,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
     @Qualifier("preqcService")
     PreQcService preqcService;
 
+
     private static Connection komp2DbConnection;
 
     Map<String, List<AlleleDTO>> alleles;
@@ -121,6 +123,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
     private OntologyParser mpParser;
     private OntologyParser mpMaParser;
     private OntologyParser maParser;
+    OntologyParserFactory ontologyParserFactory;
 
     public MPIndexer() {
 
@@ -146,14 +149,14 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
         initialiseSupportingBeans();
 
         try {
-            mpParser = getMpParser();
-
+            ontologyParserFactory = new OntologyParserFactory(komp2DataSource, owlpath);
+            mpParser = ontologyParserFactory.getMpParser();
             System.out.println("Loaded mp parser");
-            mpHpParser = getMpHpParser();
+            mpHpParser = ontologyParserFactory.getMpHpParser();
             System.out.println("Loaded mp hp parser");
-            mpMaParser = getMpMaParser();
+            mpMaParser = ontologyParserFactory.getMpMaParser();
             System.out.println("Loaded mp ma parser");
-            maParser = getMaParser();
+            maParser = ontologyParserFactory.getMaParser();
             System.out.println("Loaded ma parser");
 
         	// maps MP to number of phenotyping calls
@@ -239,7 +242,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
                     System.out.println("Added " + documentCount);
                 }
 
-                mpParser.fillJsonTreePath("MP:0000001", "/data/phenotype/", mpGeneVariantCount, TOP_LEVEL_MP_TERMS ); // call this if you want node ids from the objects
+                mpParser.fillJsonTreePath("MP:0000001", "/data/phenotype/", mpGeneVariantCount, ontologyParserFactory.TOP_LEVEL_MP_TERMS ); // call this if you want node ids from the objects
             }
 
             // Send a final commit
@@ -912,7 +915,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
     protected void getMaTermsForMp(MpDTO mp) {
 
         // get MA ids referenced from MP
-        Set<String> maTerms = mpMaParser.getReferencedClasses(mp.getMpId(), VIA_PROPERTIES, "MA");
+        Set<String> maTerms = mpMaParser.getReferencedClasses(mp.getMpId(), ontologyParserFactory.VIA_PROPERTIES, "MA");
         for (String maId : maTerms) {
             // get info about these MA terms. In the mp-ma file the MA classes have no details but the id. For example the labels or synonyms are not there.
             OntologyTermDTO ma = maParser.getOntologyTerm(maId);

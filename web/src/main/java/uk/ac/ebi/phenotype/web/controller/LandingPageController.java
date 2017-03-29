@@ -5,16 +5,11 @@ import net.sf.json.JSONObject;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.Group;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.type.TypeFactory;
-import org.json.JSONException;
 import org.mousephenotype.cda.solr.service.*;
 import org.mousephenotype.cda.solr.service.dto.CountTableRow;
-import org.mousephenotype.cda.solr.service.dto.GeneDTO;
 import org.mousephenotype.cda.solr.service.dto.ImpressDTO;
 import org.mousephenotype.cda.solr.service.dto.MpDTO;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -25,8 +20,6 @@ import uk.ac.ebi.phenotype.chart.ScatterChartAndTableProvider;
 import uk.ac.ebi.phenotype.error.OntologyTermNotFoundException;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.sql.SQLException;
@@ -103,7 +96,7 @@ public class LandingPageController {
 
 
     @RequestMapping(value = "/biological-system/{page}", method = RequestMethod.GET)
-    public String loadDeafnessPage(@PathVariable String page, Model model, HttpServletRequest request, RedirectAttributes attributes)
+    public String loadBiologicalSystemPage(@PathVariable String page, Model model, HttpServletRequest request, RedirectAttributes attributes)
             throws OntologyTermNotFoundException, IOException, URISyntaxException, SolrServerException, SQLException, ExecutionException, InterruptedException {
 
         String pageTitle = "";
@@ -157,13 +150,9 @@ public class LandingPageController {
         procedures.addAll(is.getProceduresByMpTerm(mpDTO.getMpId(), true));
         Collections.sort(procedures, ImpressDTO.getComparatorByProcedureName());
 
-        try {
-            model.addAttribute("phenotypeChart", ScatterChartAndTableProvider.getScatterChart("phenotypeChart", gpService.getTopLevelPhenotypeIntersection(mpDTO.getMpId()), "Gene pleiotropy",
-                    "for genes with at least one " + pageTitle + " phenotype", "Number of associations to " + pageTitle, "Number of associations to other phenotypes",
-                    "Other phenotype calls: ", pageTitle + " phenotype calls: "));
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        model.addAttribute("phenotypeChart", ScatterChartAndTableProvider.getScatterChart("phenotypeChart", gpService.getTopLevelPhenotypeIntersection(mpDTO.getMpId()), "Gene pleiotropy",
+                "for genes with at least one " + pageTitle + " phenotype", "Number of phenotype associations to " + pageTitle, "Number of associations to other phenotypes",
+                "Other phenotype calls: ", pageTitle + " phenotype calls: ", "Gene"));
         model.addAttribute("pageTitle", pageTitle);
         model.addAttribute("paramToNumber", paramToNumber);
         model.addAttribute("impcImageGroups", groups);
@@ -185,6 +174,7 @@ public class LandingPageController {
     @RequestMapping(value = "/orthology.jsonp", method = RequestMethod.GET)
     public String getOrthologyJson(
             @RequestParam(required = true, value = "mpId") String mpId,
+            @RequestParam( required =  true, value = "phenotypeShort") String phenotypeShort,
             Model model,
             HttpServletRequest request,
             RedirectAttributes attributes)
@@ -196,65 +186,70 @@ public class LandingPageController {
         diseaseClasses.add("cardiac malformations");
         diseaseClasses.add("circulatory system");
 
-        return "var mgiSets =  " + getOrtologyDiseaseModelVennDiagram(mpId, diseaseClasses, true, false) + ";"
-            + "var impcSets = " +  getOrtologyDiseaseModelVennDiagram(mpId, diseaseClasses, false, true) + ";";
+        return "var mgiSets =  " + getOrtologyDiseaseModelVennDiagram(mpId, diseaseClasses, true, false, false, phenotypeShort) + ";"
+            + "var impcSets = " +  getOrtologyDiseaseModelVennDiagram(mpId, diseaseClasses, false, true, false, phenotypeShort ) + ";";
 
     }
 
 
 
     @ResponseBody
-    @RequestMapping(value = "/orthology.csv", method = RequestMethod.GET)
+    @RequestMapping(value = "/orthology.tsv", method = RequestMethod.GET)
     public String getOrthologyDownload(
             @RequestParam(required = true, value = "mpId") String mpId,
             @RequestParam( required =  true, value = "diseaseClasses") Set<String> diseaseClasses,
+            @RequestParam( required =  true, value = "phenotypeShort") String phenotypeShort,
             Model model,
             HttpServletRequest request,
             RedirectAttributes attributes)
             throws OntologyTermNotFoundException, IOException, URISyntaxException, SolrServerException, SQLException, ExecutionException, InterruptedException {
 
-        StringBuffer result = new StringBuffer("There are 2 tables in this file: disease predictions and phenotype associations. ");
+        StringBuffer result = new StringBuffer();
+        result.append("IMPC sets\t Set label\t Genes \n");
 
-        result.append(GeneDTO.MARKER_SYMBOL + "\t" + GeneDTO.MGI_ACCESSION_ID + "\t" + GeneDTO.MP_TERM + "\t" + GeneDTO.MP_ID + "\n");
-        result.append(geneService.getGenesSymbolsBy(mpId).stream().map(geneDTO -> { return "\"" + geneDTO.getMarkerSymbol() + "\",\"" + geneDTO.getMgiAccessionId() + "\",\""
-                + geneDTO.getMpTerm() + "\",\"" + geneDTO.getMpId() + "\""; }).collect(Collectors.joining("\n")));
-        result.append("\n\n"); // separate the 2 tables by some empty space.
-        result.append(phenodigmService.getGenesWithDiseaseDownload(diseaseClasses));
+        JSONArray jsonArray = getOrtologyDiseaseModelVennDiagram(mpId, diseaseClasses, false, true, true, phenotypeShort);
+        for (int i = 0; i < jsonArray.size(); i++){
+            JSONObject object = jsonArray.getJSONObject(i);
+            result.append(object.getString("sets")).append("\t");
+            result.append(object.containsKey("label") ? object.getString("label") : "").append("\t");
+            result.append(object.getString("set")).append("\t");
+            result.append("\n");
+        }
 
         return result.toString();
 
     }
 
-    private JSONArray getOrtologyDiseaseModelVennDiagram(String mpId, Set<String> diseaseClasses, Boolean mgi, Boolean impc) throws IOException, SolrServerException {
+    private JSONArray getOrtologyDiseaseModelVennDiagram(String mpId, Set<String> diseaseClasses, Boolean mgi, Boolean impc, Boolean download, String phenotypeShort) throws IOException, SolrServerException {
 
         Map<String, Set<String>> sets = new HashMap<>();
 
         // get gene sets for human orthology (with/without)
-        sets.put("IMPC phenotype", geneService.getGenesSymbolsBy(mpId).stream().map(geneDTO -> {return geneDTO.getMarkerSymbol();}).collect(Collectors.toSet()));
-        System.out.println("Gene count : " + geneService.getGenesSymbolsBy(mpId).size());
-
+        sets.put(" IMPC " + phenotypeShort + " phenotypes", geneService.getGenesSymbolsBy(mpId).stream().map(geneDTO -> {return geneDTO.getMarkerSymbol();}).collect(Collectors.toSet()));
         // get gene sets for IMPC and MGI disease models
-        // http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/phenodigm/select?q=*:*&facet=true&facet.field=type&fq=type:disease_gene_summary&fq=impc_predicted:true&fq=raw_htpc_score:[1.79%20TO%20*]&fq=disease_classes:cardiac*&group=true&group.field=marker_symbol&group.ngroups=true
 
         Map<String, Set<String>> genesWithDisease = phenodigmService.getGenesWithDisease(diseaseClasses);
 
         if (mgi && !impc){
-            sets.put("Human curated (orthology)", genesWithDisease.get("Human curated (orthology)"));
-            sets.put("MGI predicted", genesWithDisease.get("MGI predicted"));
-            return getJsonForVenn(sets);
+            sets.put("Human curated (orthology) in " + phenotypeShort + " phenotypes", genesWithDisease.get("Human curated (orthology)"));
+            sets.put("MGI " + phenotypeShort + "D predicted", genesWithDisease.get("MGI predicted"));
         }
         else if (!mgi && impc) {
-            sets.put("IMPC predicted", genesWithDisease.get("IMPC predicted"));
-            sets.put("Human curated (orthology)", genesWithDisease.get("Human curated (orthology)"));
-            return getJsonForVenn(sets);
+            sets.put("IMPC " + phenotypeShort + "D predicted", genesWithDisease.get("IMPC predicted"));
+            sets.put("Human curated (orthology) in " + phenotypeShort + " phenotypes", genesWithDisease.get("Human curated (orthology)"));
         } else {
             sets.putAll(genesWithDisease);
-            return getJsonForVenn(sets);
         }
-
+        return getJsonForVenn(sets, download);
     }
 
-    private JSONArray getJsonForVenn( Map<String, Set<String>> allSets){
+    /**
+     *
+     * @param allSets
+     * @param download true if you need data for download - all gene names, false if you need it for display - gene counts only
+     * @return
+     */
+    private JSONArray getJsonForVenn( Map<String, Set<String>> allSets, Boolean download){
 
         // get counts for intersections
         JSONArray sets = new JSONArray();
@@ -307,11 +302,13 @@ public class LandingPageController {
 //                CollectionUtils.intersection(allSets.get(keysIndex.get(1)), CollectionUtils.intersection(allSets.get(keysIndex.get(2)),allSets.get(keysIndex.get(3))))).size();
 //        sets.add(getSetVennFormat(null, currentSets, intersectionSize));
 
-        //System.out.println("SETS HERE :::: " + wholeSets);
-
         // return in right format for venn diagram http://benfred.github.io/venn.js/examples/styled.html
         JSONArray result = new JSONArray();
-        result.addAll(sets);
+        if (download) {
+            result.addAll(wholeSets);
+        } else {
+            result.addAll(sets);
+        }
 
         return result;
 
