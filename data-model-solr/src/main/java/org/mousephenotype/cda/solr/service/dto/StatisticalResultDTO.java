@@ -704,13 +704,6 @@ public class StatisticalResultDTO {
         this.topLevelMpTermId.addAll(topLevelMpTermId);
     }
 
-    public void addTopLevelMpTermId(String topLevelMpTermId) {
-        if (this.topLevelMpTermId ==  null){
-            this.topLevelMpTermId = new ArrayList<>();
-        }
-        this.topLevelMpTermId.add(topLevelMpTermId);
-    }
-
     public List<String> getTopLevelMpTermName() {
 
         return topLevelMpTermName;
@@ -719,13 +712,6 @@ public class StatisticalResultDTO {
     public void setTopLevelMpTermName(List<String> topLevelMpTermName) {
 
         this.topLevelMpTermName = topLevelMpTermName;
-    }
-
-    public void addTopLevelMpTermName(String topLevelMpTermName) {
-        if (this.topLevelMpTermName ==  null){
-            this.topLevelMpTermName = new ArrayList<>();
-        }
-        this.topLevelMpTermName.add(topLevelMpTermName);
     }
 
     public void addTopLevelMpTermName(Collection<String> topLevelMpTermName) {

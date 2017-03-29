@@ -468,7 +468,7 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 			image.setMpId(new ArrayList<>());
 			for (String mpId : mpIds){
 				if (mpId.startsWith("MP:")) {
-					image = addMpValues(mpParser.getOntologyTerm(mpId), image, mpId);
+					image = addMpValues(mpParser.getOntologyTerm(mpId), image, mpId, runStatus);
 				}
 			}
 		}
