@@ -19,6 +19,7 @@ import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.owl.OntologyParser;
+import org.mousephenotype.cda.owl.OntologyParserFactory;
 import org.mousephenotype.cda.owl.OntologyTermDTO;
 import org.mousephenotype.cda.solr.service.dto.GenotypePhenotypeDTO;
 import org.mousephenotype.cda.utilities.CommonUtils;
@@ -57,6 +58,7 @@ public class MGIPhenotypeIndexer extends AbstractIndexer implements CommandLineR
     SolrClient mgiPhenotypeCore;
 
     OntologyParser mpParser;
+    OntologyParserFactory ontologyParserFactory;
 
 	public MGIPhenotypeIndexer() {
     }
@@ -81,7 +83,8 @@ public class MGIPhenotypeIndexer extends AbstractIndexer implements CommandLineR
         long start = System.currentTimeMillis();
 
         try {
-            mpParser = getMpParser();
+            ontologyParserFactory = new OntologyParserFactory(komp2DataSource, owlpath);
+            mpParser = ontologyParserFactory.getMpParser();
             count = populateMgiPhenotypeSolrCore(runStatus);
 
         } catch (SQLException | IOException | SolrServerException | OWLOntologyStorageException | OWLOntologyCreationException ex) {

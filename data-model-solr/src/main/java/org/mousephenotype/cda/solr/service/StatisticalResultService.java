@@ -1707,5 +1707,5 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 	public String getServiceName(){
 		return "statistical result service";
 	}
-
+	
 }

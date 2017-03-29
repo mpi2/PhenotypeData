@@ -20,8 +20,10 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringUtils;
-import org.mousephenotype.cda.db.pojo.*;
+import org.mousephenotype.cda.db.pojo.Allele;
+import org.mousephenotype.cda.db.pojo.BiologicalSample;
 import org.mousephenotype.cda.db.pojo.Experiment;
+import org.mousephenotype.cda.db.pojo.PhenotypedColony;
 import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
@@ -40,7 +42,9 @@ import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.util.Assert;
+
 import javax.inject.Inject;
+import java.math.BigInteger;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -727,8 +731,6 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
                     insertSeriesParameter(dccExperiment, seriesParameter, experimentPk, dbId, biologicalSamplePk, missing);
                 }
             }
-
-            insertSeriesParameter(dccExperiment, seriesParameter, experimentPk, dbId, biologicalSamplePk, missing);
         }
 
 
@@ -1106,29 +1108,30 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         for (SeriesParameterValue seriesParameterValue : seriesParameter.getValue()) {
 
             // Get the parameter data type.
-            String          incrementValue         = seriesParameterValue.getIncrementValue();
-            String          simpleValue            = seriesParameterValue.getValue();
-            int             observationPk          = 0;
-            ObservationType observationType        = cdaSqlUtils.computeObservationType(parameterStableId, simpleValue);
-            int             parameterPk            = cdaParameter_idMap.get(parameterStableId);
-            String          sequenceId             = null;
-            int             populationId           = 0;
+            String          incrementValue  = seriesParameterValue.getIncrementValue();
+            String          simpleValue     = seriesParameterValue.getValue();
+            int             observationPk   = 0;
+            ObservationType observationType = cdaSqlUtils.computeObservationType(parameterStableId, simpleValue);
+            int             parameterPk     = cdaParameter_idMap.get(parameterStableId);
+            String          sequenceId      = null;
+            int             populationId    = 0;
+            int             valueMissing    = missing;
 
             // time_series_observation variables
             Float dataPoint     = null;
-            Date  timePoint     = dccExperiment.getDateOfExperiment();                                               // timePoint for all cases. Default is dateOfExperiment.
+            Date  timePoint     = dccExperiment.getDateOfExperiment();                                                  // timePoint for all cases. Default is dateOfExperiment.
             Float discretePoint = null;
 
-            if (missing == 0) {
+            if (valueMissing == 0) {
                 if ((simpleValue != null) && ( ! simpleValue.equals("null")) && ( ! simpleValue.trim().isEmpty())) {
                     try {
                         dataPoint = Float.parseFloat(simpleValue);                                                      // dataPoint for all cases.
-                        missing = 0;
+                        valueMissing = 0;
                     } catch (NumberFormatException e) {
-                        missing = 1;
+                        valueMissing = 1;
                     }
                 } else {
-                    missing = 1;
+                    valueMissing = 1;
                 }
             }
 
@@ -1138,7 +1141,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
                 // Time series (increment is a datetime or time) - e.g. IMPC_CAL_003_001
                 SeriesParameterObservationUtils utils = new SeriesParameterObservationUtils();
 
-                discretePoint = utils.convertTimepoint(incrementValue, dccExperiment, dccMetadataList);              // discretePoint if increment value represents a date.
+                discretePoint = utils.convertTimepoint(incrementValue, dccExperiment, dccMetadataList);                 // discretePoint if increment value represents a date.
 
                 // Parse value into correct format
                 String parsedIncrementValue = utils.getParsedIncrementValue(incrementValue);
@@ -1158,13 +1161,13 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
                 try {
                     discretePoint = Float.parseFloat(incrementValue);                                                   // discretePoint if increment value does not represent a date.
                 } catch (NumberFormatException e) {
-                    missing = 1;
+                    valueMissing = 1;
                 }
             }
 
             try {
                 observationPk = cdaSqlUtils.insertObservation(dbId, biologicalSamplePk, parameterStableId, parameterPk,
-                                                              sequenceId, populationId, observationType, missing,
+                                                              sequenceId, populationId, observationType, valueMissing,
                                                               parameterStatus, parameterStatusMessage,
                                                               seriesParameter, dataPoint, timePoint, discretePoint);
             } catch (Exception e) {
@@ -1173,7 +1176,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
                                     " parameterPk {}. observationType {}. missing {}. parameterStatus {}. parameterStatusMessage {}." +
                                     " dataPoint {}. timePoint {}. discretePoint {}. Reason: {}",
                             dccExperiment.getPhenotypingCenter(), biologicalSamplePk, parameterStableId, parameterPk,
-                            observationType, missing, parameterStatus, parameterStatusMessage, dataPoint, timePoint,
+                            observationType, valueMissing, parameterStatus, parameterStatusMessage, dataPoint, timePoint,
                             discretePoint, e.getLocalizedMessage());
                 return;
             }
@@ -1200,7 +1203,17 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
 
         String parameterStableId = ontologyParameter.getParameterID();
         int parameterPk = cdaParameter_idMap.get(parameterStableId);
-        String sequenceId = null;
+
+        Integer sequenceId = null;
+        BigInteger bi = ontologyParameter.getSequenceID();
+        if (bi != null) {
+            try {
+                sequenceId = Integer.valueOf(bi.intValue());
+            } catch (Exception e) {
+
+            }
+        }
+
         ObservationType observationType = ObservationType.ontological;
         int populationId = 0;
 

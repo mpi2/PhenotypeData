@@ -16,8 +16,7 @@ import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
-import org.mousephenotype.cda.db.beans.OntologyTermBean;
-import org.mousephenotype.cda.db.dao.*;
+import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.db.pojo.Parameter;
 import org.mousephenotype.cda.db.pojo.PhenotypeAnnotationType;
 import org.mousephenotype.cda.enumerations.SexType;
@@ -25,6 +24,7 @@ import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
 import org.mousephenotype.cda.owl.OntologyParser;
+import org.mousephenotype.cda.owl.OntologyParserFactory;
 import org.mousephenotype.cda.owl.OntologyTermDTO;
 import org.mousephenotype.cda.solr.service.AbstractGenotypePhenotypeService;
 import org.mousephenotype.cda.solr.service.StatisticalResultService;
@@ -113,6 +113,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
     private OntologyParser mpParser;
     private OntologyParser mpMaParser;
     private OntologyParser maParser;
+    OntologyParserFactory ontologyParserFactory;
 
     @Override
     public RunStatus validateBuild() throws IndexerException {
@@ -135,9 +136,11 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 
             Connection connection = komp2DataSource.getConnection();
 
-            mpParser = getMpParser();
-            mpMaParser = getMpMaParser();
-            maParser = getMaParser();
+            ontologyParserFactory = new OntologyParserFactory(komp2DataSource, owlpath);
+
+            mpParser = ontologyParserFactory.getMpParser();
+            mpMaParser = ontologyParserFactory.getMpMaParser();
+            maParser = ontologyParserFactory.getMaParser();
 
             pipelineMap = IndexerMap.getImpressPipelines(connection);
             procedureMap = IndexerMap.getImpressProcedures(connection);
@@ -551,7 +554,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 
                 // mp-anatomy mappings (all MA at the moment)
                 if (doc.getLifeStageAcc() != null && doc.getLifeStageAcc().equalsIgnoreCase(POSTPARTUM_STAGE)) {
-                    Set<String> referencedClasses = mpMaParser.getReferencedClasses(mpId, VIA_PROPERTIES, "MA");
+                    Set<String> referencedClasses = mpMaParser.getReferencedClasses(mpId, ontologyParserFactory.VIA_PROPERTIES, "MA");
                     if (referencedClasses != null && referencedClasses.size() > 0) {
                         for (String id : referencedClasses) {
                             OntologyTermDTO maTerm = maParser.getOntologyTerm(id);
@@ -569,8 +572,8 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
                     // Also check mappings up the tree, as a leaf term might not have a mapping, but the parents might.
                     Set<String> anatomyIdsForAncestors = new HashSet<>();
                     for (String mpAncestorId : mpTerm.getIntermediateIds()) {
-                        if (mpMaParser.getReferencedClasses(mpAncestorId, VIA_PROPERTIES, "MA") != null) {
-                            anatomyIdsForAncestors.addAll(mpMaParser.getReferencedClasses(mpAncestorId, VIA_PROPERTIES, "MA") );
+                        if (mpMaParser.getReferencedClasses(mpAncestorId, ontologyParserFactory.VIA_PROPERTIES, "MA") != null) {
+                            anatomyIdsForAncestors.addAll(mpMaParser.getReferencedClasses(mpAncestorId, ontologyParserFactory.VIA_PROPERTIES, "MA") );
                         }
                     }
 
@@ -710,7 +713,6 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
         Set<String> mpIds = parameterMpTermMap.get(doc.getParameterStableId());
 
         if (mpIds != null) {
-            Set<OntologyTermBean> ontoTerms = new HashSet<>();
 
             mpIds.forEach(mpId -> {
 
@@ -940,7 +942,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 
         String query = "SELECT stable_id, ontology_acc FROM phenotype_parameter p " +
                 "INNER JOIN phenotype_parameter_lnk_ontology_annotation l ON l.parameter_id=p.id " +
-                "INNER JOIN phenotype_parameter_ontology_annotation o ON o.id=l.annotation_id " ;
+                "INNER JOIN phenotype_parameter_ontology_annotation o ON o.id=l.annotation_id WHERE ontology_acc like 'MP:%'" ;
 
         try (Connection connection = komp2DataSource.getConnection(); PreparedStatement p = connection.prepareStatement(query)) {
 
@@ -1385,6 +1387,13 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
             Double minimumPvalue = Collections.min(mins);
             doc.setpValue(minimumPvalue);
             setSignificantFlag(SIGNIFICANCE_THRESHOLD, doc);
+
+            // If not already set, ensure that the document has all possible top level MP terms defined
+            if (doc.getTopLevelMpTermId() == null && mpParser.getOntologyTerm(doc.getMpTermId()) != null) {
+                OntologyTermDTO term = mpParser.getOntologyTerm(doc.getMpTermId());
+                doc.addTopLevelMpTermIds(term.getTopLevelIds());
+                doc.addTopLevelMpTermNames(term.getTopLevelNames());
+            }
 
             doc.setClassificationTag(r.getString("classification_tag"));
             doc.setAdditionalInformation(r.getString("additional_information"));
