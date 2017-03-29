@@ -219,6 +219,7 @@ public class OntologyParser {
 
         OWLOntologyLoaderConfiguration config = new OWLOntologyLoaderConfiguration();
         config.setMissingImportHandlingStrategy(MissingImportHandlingStrategy.SILENT);
+        config.setFollowRedirects(true);
         FileDocumentSource source = new FileDocumentSource(new File(pathToOwlFile));
         ontology = manager.loadOntologyFromOntologyDocument(source, config);
 
