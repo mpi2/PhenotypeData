@@ -1,5 +1,7 @@
 package org.mousephenotype.cda.solr.service;
 
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.WordUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
@@ -38,10 +40,10 @@ public class GrossPathService {
 
 	}
 
-	public List<GrossPathPageTableRow> getTableData(List<ObservationDTO> allObservations) throws SolrServerException, IOException {
+	public List<GrossPathPageTableRow> getTableData(List<ObservationDTO> allObservations, List<SolrDocument> images) throws SolrServerException, IOException {
 		List<GrossPathPageTableRow> rows = new ArrayList<>();
 		downloadToImgMap = new HashMap<String, SolrDocument>();
-		System.out.println("observations for GrossPath size with normal and abnormal=" + allObservations.size());
+		System.out.println("observations for GrossPath size with abnormal=" + allObservations.size());
 
 		//List<ObservationDTO> filteredObservations = screenOutObservationsThatAreNormal(allObservations);
 		Set<String> anatomyNames = this.getAnatomyNamesFromObservations(allObservations);// We
@@ -59,6 +61,9 @@ public class GrossPathService {
 																								// Brain
 
 		Map<String, List<ObservationDTO>> sampleToObservations = this.getSampleToObservationMap(allObservations);
+		Map<String, List<SolrDocument>> sampleToImages = this.getSampleToImagesMap(images);
+		
+		
 		for (String sampleId : sampleToObservations.keySet()) {
 			TreeSet<String> abnormalAnatomyMapPerSampleId = new TreeSet<>();
 			ArrayList<String> textValuesForSampleId = new ArrayList<String>();
@@ -68,12 +73,14 @@ public class GrossPathService {
 				GrossPathPageTableRow row = new GrossPathPageTableRow();
 				row.setAnatomyName(anatomyName);
 				row.setSampleId(sampleId);
+				
 				Set<String> parameterNames = new TreeSet<>();
 
 				for (ObservationDTO obs : sampleToObservations.get(sampleId)) {
 					// a row is a unique sampleId and anatomy combination
 					if (this.getAnatomyStringFromObservation(obs) != null
 							&& this.getAnatomyStringFromObservation(obs).equals(anatomyName)) {
+						row.setZygosity(obs.getZygosity().substring(0, 3).toUpperCase());
 
 						ImpressBaseDTO parameter = new ImpressBaseDTO(null, null, obs.getParameterStableId(),
 								obs.getParameterName());
@@ -87,10 +94,11 @@ public class GrossPathService {
 									
 									abnormalAnatomyMapPerSampleId.add(anatomyName);
 									}
-
+									if(obs.getSubTermId().get(i).contains("MP:")){//for the moment lets keep things simple and restrict to MP only as PATO doesn't seem useful as is.
 									OntologyBean subOntologyBean = new OntologyBean(obs.getSubTermId().get(i),
 											obs.getSubTermName().get(i), obs.getSubTermDescription().get(i));// ,
 									row.addOntologicalParam(parameter, subOntologyBean);
+									}
 								}
 							}else{
 								System.out.println("subterms are null for ontological data="+obs);
@@ -109,6 +117,7 @@ public class GrossPathService {
 						textValuesForSampleId.add(obs.getTextValue());
 					}
 
+					
 				}
 
 				if (parameterNames.size() != 0) {
@@ -142,9 +151,14 @@ public class GrossPathService {
 											// System.out.println("Text matches
 											// row!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 											row.setTextValue(text);
+											
 										}
 									}
 								}
+							}
+							
+							if(sampleToImages.containsKey(sampleId)){
+								row.addImages(sampleToImages.get(sampleId));
 							}
 						}
 					}
@@ -154,6 +168,22 @@ public class GrossPathService {
 
 		return rows;
 
+	}
+
+	private Map<String, List<SolrDocument>> getSampleToImagesMap(List<SolrDocument> images) {
+		Map<String, List<SolrDocument>> sampleToImagesMap=new HashMap<>();
+		
+		for(SolrDocument image:images){
+			if(sampleToImagesMap.containsKey(image.get(ObservationDTO.EXTERNAL_SAMPLE_ID))){
+				sampleToImagesMap.get(image.get(ObservationDTO.EXTERNAL_SAMPLE_ID)).add(image);
+			}else{
+				List<SolrDocument> tmpImageList=new ArrayList<>();
+				tmpImageList.add(image);
+				sampleToImagesMap.put((String)image.get(ObservationDTO.EXTERNAL_SAMPLE_ID), tmpImageList);
+			}
+		}
+		System.out.println("sampleToImagesMap size="+sampleToImagesMap.size());
+		return sampleToImagesMap;
 	}
 
 	public Map<String, List<ObservationDTO>> getSampleToObservationMap(List<ObservationDTO> observations) {
@@ -167,6 +197,7 @@ public class GrossPathService {
 		}
 		return map;
 	}
+	
 
 	public Set<String> getAnatomyNamesFromObservations(List<ObservationDTO> observations) {
 		
