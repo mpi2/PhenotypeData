@@ -3,7 +3,6 @@ package uk.ac.ebi.phenotype.repository;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.json.JSONObject;
-import org.mousephenotype.cda.indexers.MPIndexer;
 import org.mousephenotype.cda.owl.OntologyParser;
 import org.mousephenotype.cda.owl.OntologyTermDTO;
 import org.mousephenotype.cda.solr.service.dto.MpDTO;
@@ -22,6 +21,8 @@ import javax.validation.constraints.NotNull;
 import java.io.*;
 import java.net.URISyntaxException;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 
@@ -88,12 +89,6 @@ public class Loader implements CommandLineRunner {
     @Autowired
     OntoSynonymRepository ontoSynonymRepository;
 
-
-    @Autowired
-    MPIndexer mpIndexer;
-
-
-
     Map<String, Gene> loadedGenes = new HashMap<>();
     Map<String, Gene> loadedGeneSymbols = new HashMap<>();
 
@@ -101,8 +96,6 @@ public class Loader implements CommandLineRunner {
     private OntologyParser mpParser;
 
     private static final int LEVELS_FOR_NARROW_SYNONYMS = 2;
-
-    Map<String, Long> mpCalls = new HashMap<>();
 
     public Loader() {}
 
@@ -122,24 +115,59 @@ public class Loader implements CommandLineRunner {
 
         // loading Gene, Allele, EnsemblGeneId, MarkerSynonym
         // based on Peter's allele2 flatfile
-       // loadGene1();
+        // loadGene1();
         //loadHumanOrtholog();
 
         loadPhenotypes();
 
+    }
+    protected Set<String> getWantedMPIds() throws SQLException {
 
+        // Select MP terms from images too
+        Set<String> wantedIds = new HashSet<>();
 
+        // Get mp terms from Sanger images
+        PreparedStatement statement = komp2DataSource.getConnection().prepareStatement("SELECT DISTINCT (UPPER(TERM_ID)) AS TERM_ID, (UPPER(TERM_NAME)) as TERM_NAME FROM  IMA_IMAGE_TAG iit INNER JOIN ANN_ANNOTATION aa ON aa.FOREIGN_KEY_ID=iit.ID");
+        ResultSet res = statement.executeQuery();
+        while (res.next()) {
+            String r = res.getString("TERM_ID");
+            if (r.startsWith("MP:")) {
+                wantedIds.add(r);
+            }
+        }
 
+        //All MP terms we can have annotations to (from IMPRESS)
+        wantedIds.addAll(getOntologyIds(5, komp2DataSource));
+
+        return wantedIds;
     }
 
+    public List<String> getOntologyIds(Integer ontologyId, DataSource ds) throws SQLException{
+
+        PreparedStatement statement = ds.getConnection().prepareStatement(
+                "SELECT DISTINCT(ontology_acc) FROM phenotype_parameter_ontology_annotation ppoa WHERE ppoa.ontology_db_id=" + ontologyId);
+        ResultSet res = statement.executeQuery();
+        List<String> terms = new ArrayList<>();
+
+        while (res.next()) {
+            terms.add(res.getString("ontology_acc"));
+        }
+
+        return terms;
+    }
 
     public void loadPhenotypes() throws IOException, OWLOntologyCreationException, OWLOntologyStorageException, SQLException, URISyntaxException, SolrServerException {
         long begin = System.currentTimeMillis();
 
 //        mpCalls = mpIndexer.populateMpCallMaps();
+        final List<String> TOP_LEVEL_MP_TERMS = new ArrayList<>(Arrays.asList("MP:0010768", "MP:0002873", "MP:0001186", "MP:0003631",
+                "MP:0005367",  "MP:0005369", "MP:0005370", "MP:0005371", "MP:0005377", "MP:0005378", "MP:0005375", "MP:0005376",
+                "MP:0005379", "MP:0005380",  "MP:0005381", "MP:0005384", "MP:0005385", "MP:0005382", "MP:0005388", "MP:0005389", "MP:0005386",
+                "MP:0005387", "MP:0005391",  "MP:0005390", "MP:0005394", "MP:0005397", "MP:0010771"));
 
 
-        mpParser = mpIndexer.getMpParser();
+        OntologyParser mpParser = new OntologyParser(owlpath + "/mp.owl", "MP", TOP_LEVEL_MP_TERMS, getWantedMPIds());
+
         System.out.println("Loaded mp parser");
 
         mpHpParser = new OntologyParser(owlpath + "/mp-hp.owl", "MP", null, null);
@@ -177,13 +205,6 @@ public class Loader implements CommandLineRunner {
                 }
             }
 
-            if (ph.getMpTopLevelIds() == null) {
-                addTopLevelTerms(ph, mpDTO);
-            }
-            if (ph.getMpIntermediateIds() == null) {
-                addIntermediateTerms(ph, mpDTO);
-            }
-
             // PARENT
             if (ph.getMpParentIds() == null) {
                 for (String parId : mpDTO.getParentIds()) {
@@ -201,50 +222,11 @@ public class Loader implements CommandLineRunner {
                 }
             }
 
-            // CHILD
-            if (ph.getMpChildIds() == null) {
-                for (String childId : mpDTO.getChildIds()) {
-                    Mp thisPh = mpRepository.findByMpId(childId);
-                    if (thisPh == null) {
-                        thisPh = new Mp();
-                    }
-                    thisPh.setMpId(childId);
-                    mpRepository.save(thisPh);
-
-                    if (ph.getMpChildIds() == null) {
-                        ph.setMpChildIds(new HashSet<Mp>());
-                    }
-                    ph.getMpChildIds().add(thisPh);
-                }
+            // MARK MP WHICH IS TOP LEVEL
+            if (mpDTO.getTopLevelIds() == null || mpDTO.getTopLevelIds().size() == 0){
+                // add self as top level
+                ph.setTopLevelStatus(true);
             }
-
-//            ph.setChildMpId(mpDTO.getChildIds());
-//            mp.setChildMpTerm(mpDTO.getChildNames());
-//            mp.setParentMpId(mpDTO.getParentIds());
-//            mp.setParentMpTerm(mpDTO.getParentNames());
-
-            //------------
-
-//            MpDTO mp = new MpDTO();
-//            mp.setDataType("mp");
-//            mp.setMpId(termId);
-//            mp.setMpTerm(mpDTO.getName());
-//            mp.setMpDefinition(mpDTO.getDefinition());
-//
-//            // alternative MP ID
-//            if (mpDTO.getAlternateIds() != null && !mpDTO.getAlternateIds().isEmpty()) {
-//                mp.setAltMpIds(mpDTO.getAlternateIds());
-//            }
-//
-//            mp.setMpNodeId(mpDTO.getNodeIds());
-//
-//            addTopLevelTerms(mp, mpDTO);
-//            addIntermediateTerms(mp, mpDTO);
-//
-//            mp.setChildMpId(mpDTO.getChildIds());
-//            mp.setChildMpTerm(mpDTO.getChildNames());
-//            mp.setParentMpId(mpDTO.getParentIds());
-//            mp.setParentMpTerm(mpDTO.getParentNames());
 
             // add mp-hp mapping using Monarch's mp-hp hybrid ontology
             MpDTO mpn = new MpDTO();
@@ -309,68 +291,6 @@ public class Loader implements CommandLineRunner {
             }
         }
 
-
-    }
-
-
-    private void addTopLevelTerms(Mp ph, OntologyTermDTO mpDTO) {
-
-        if (mpDTO.getTopLevelIds() != null && mpDTO.getTopLevelIds().size() > 0){
-
-            for (String topid : mpDTO.getTopLevelIds()){
-                Mp thisPh = mpRepository.findByMpId(topid);
-                if ( thisPh == null ){
-                    thisPh = new Mp();
-                }
-                thisPh.setMpId(topid);
-                thisPh.setTopLevelStatus(true);
-                mpRepository.save(thisPh);
-
-                if ( ph.getMpTopLevelIds() == null){
-                    ph.setMpTopLevelIds(new HashSet<Mp>());
-                }
-                ph.getMpTopLevelIds().add(thisPh);
-            }
-
-//
-//            mp.addTopLevelMpId(mpDTO.getTopLevelIds());
-//            mp.addTopLevelMpTerm(mpDTO.getTopLevelNames());
-//            mp.addTopLevelMpTermSynonym(mpDTO.getTopLevelSynonyms());
-//            mp.addTopLevelMpTermId(mpDTO.getTopLevelMpTermIds());
-//            mp.addTopLevelMpTermInclusive(mpDTO.getTopLevelNames());
-//            mp.addTopLevelMpIdInclusive(mpDTO.getTopLevelIds());
-
-        }
-        else {
-            // add self as top level
-//            mp.addTopLevelMpTermInclusive(mpDTO.getName());
-//            mp.addTopLevelMpIdInclusive(mpDTO.getAccessionId());
-            ph.setTopLevelStatus(true);
-        }
-
-    }
-
-    private void addIntermediateTerms(Mp ph, OntologyTermDTO mpDTO) {
-
-        if (mpDTO.getIntermediateIds() != null) {
-            for (String intermId : mpDTO.getIntermediateIds()){
-                Mp thisPh = mpRepository.findByMpId(intermId);
-                if ( thisPh == null ){
-                    thisPh = new Mp();
-                }
-                thisPh.setMpId(intermId);
-                mpRepository.save(thisPh);
-
-                if ( ph.getMpIntermediateIds() == null){
-                    ph.setMpIntermediateIds(new HashSet<Mp>());
-                }
-                ph.getMpIntermediateIds().add(thisPh);
-            }
-
-            //mp.addIntermediateMpId(mpDTO.getIntermediateIds());
-//            mp.addIntermediateMpTerm(mpDTO.getIntermediateNames());
-//            mp.addIntermediateMpTermSynonym(mpDTO.getIntermediateSynonyms());
-        }
 
     }
 

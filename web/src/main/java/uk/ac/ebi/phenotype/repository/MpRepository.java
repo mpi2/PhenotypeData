@@ -11,6 +11,8 @@ public interface MpRepository extends Neo4jRepository<Mp, Long> {
 
     Mp findByMpId(String mpId);
     Mp findByMpTerm (String mpTerm);
-    Mp findByMpSynonym (String mpSynonym);
+
+
+
 
 }
