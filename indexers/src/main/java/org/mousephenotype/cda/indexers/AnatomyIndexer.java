@@ -18,10 +18,8 @@ package org.mousephenotype.cda.indexers;
 
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.json.JSONObject;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
-import org.mousephenotype.cda.indexers.utils.OntologyBrowserGetter;
 import org.mousephenotype.cda.owl.OntologyParser;
 import org.mousephenotype.cda.owl.OntologyTermDTO;
 import org.mousephenotype.cda.solr.service.dto.AnatomyDTO;
@@ -93,7 +91,6 @@ public class AnatomyIndexer extends AbstractIndexer implements CommandLineRunner
         
         RunStatus runStatus = new RunStatus();
         long start = System.currentTimeMillis();
-        OntologyBrowserGetter browser = new OntologyBrowserGetter();
 
     	try {
 
@@ -117,7 +114,7 @@ public class AnatomyIndexer extends AbstractIndexer implements CommandLineRunner
                 anatomyTerm.setStage("adult");
 
                 // Set fields in common with EMAPA documents
-                addBasicFields(anatomyTerm, maTerm, browser, maParser, TREE_TOP_LEVEL_MA_TERMS);
+                addBasicFields(anatomyTerm, maTerm);
 
                 // index UBERON/EFO id for MA id
                 //TODO replace file for uberon mapping, use OntologyParser directly
@@ -167,7 +164,7 @@ public class AnatomyIndexer extends AbstractIndexer implements CommandLineRunner
                 emapa.setDataType("emapa");
                 emapa.setStage("embryo");
 
-                addBasicFields(emapa, emapaDTO, browser, emapaParser, TREE_TOP_LEVEL_EMAPA_TERMS);
+                addBasicFields(emapa, emapaDTO);
 
                 documentCount++;
                 anatomyCore.addBean(emapa, 60000);
@@ -187,7 +184,7 @@ public class AnatomyIndexer extends AbstractIndexer implements CommandLineRunner
     }
 
 
-    private void addBasicFields(AnatomyDTO anatomyDTO, OntologyTermDTO termDTO, OntologyBrowserGetter browser, OntologyParser parser, List<String> topLevelsForTree){
+    private void addBasicFields(AnatomyDTO anatomyDTO, OntologyTermDTO termDTO){
 
         anatomyDTO.setAnatomyId(termDTO.getAccessionId());
         anatomyDTO.setAnatomyTerm(termDTO.getName());
@@ -220,14 +217,9 @@ public class AnatomyIndexer extends AbstractIndexer implements CommandLineRunner
 
         anatomyDTO.setAnatomyNodeId(termDTO.getNodeIds());
 
-        System.out.println("----- " + termDTO.getAccessionId() + "  " + termDTO.getChildIds() + " " + termDTO.getPathsToRoot());
-        List<JSONObject> searchTree = browser.createTreeJson(termDTO, "/data/anatomy/", parser, null, topLevelsForTree);
-        anatomyDTO.setSearchTermJson(searchTree.toString());
-        String scrollNodeId = browser.getScrollTo(searchTree);
-        anatomyDTO.setScrollNode(scrollNodeId);
-        List<JSONObject> childrenTree = browser.getChildrenJson(termDTO, "/data/anatomy/", parser, null);
-        anatomyDTO.setChildrenJson(childrenTree.toString());
-
+        anatomyDTO.setSearchTermJson(termDTO.getSeachJson());
+        anatomyDTO.setScrollNode(termDTO.getScrollToNode());
+        anatomyDTO.setChildrenJson(termDTO.getChildrenJson());
 
     }
 
@@ -236,9 +228,9 @@ public class AnatomyIndexer extends AbstractIndexer implements CommandLineRunner
         try {
             maUberonEfoMap = IndexerMap.mapMaToUberronOrEfoForAnatomogram(anatomogramResource);
             emapaParser = getEmapaParser();
-            emapaParser.fillJsonTreePath("EMAPA:25765"); // mouse
+            emapaParser.fillJsonTreePath("EMAPA:25765", "/data/anatomy/", null, TREE_TOP_LEVEL_EMAPA_TERMS); // mouse
             maParser = getMaParser();
-            maParser.fillJsonTreePath("MA:0000001");
+            maParser.fillJsonTreePath("MA:0002405", "/data/anatomy/", null, TREE_TOP_LEVEL_MA_TERMS); // postnatal mouse
         } catch (SQLException | IOException | OWLOntologyCreationException | OWLOntologyStorageException e1) {
             e1.printStackTrace();
         }
