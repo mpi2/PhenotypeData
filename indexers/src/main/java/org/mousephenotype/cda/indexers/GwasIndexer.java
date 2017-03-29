@@ -38,8 +38,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.mousephenotype.cda.db.dao.OntologyDAO.BATCH_SIZE;
-
 /**
  * Populate the GWAS core
  */
@@ -58,6 +56,9 @@ public class GwasIndexer extends AbstractIndexer implements CommandLineRunner {
     @Autowired
     @Qualifier("gwasCore")
     SolrClient gwasCore;
+
+
+    public static final int BATCH_SIZE = 2000;
 
     private List<GwasDTO> gwasMappings = new ArrayList<>();
 

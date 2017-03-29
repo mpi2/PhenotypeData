@@ -17,20 +17,19 @@ package org.mousephenotype.cda.indexers;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.mousephenotype.cda.db.beans.OntologyTermBean;
-import org.mousephenotype.cda.db.dao.EmapaOntologyDAO;
-import org.mousephenotype.cda.db.dao.MaOntologyDAO;
-import org.mousephenotype.cda.db.dao.MpOntologyDAO;
-import org.mousephenotype.cda.db.dao.OntologyDAO;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
 import org.mousephenotype.cda.indexers.utils.PhisService;
+import org.mousephenotype.cda.owl.OntologyParser;
+import org.mousephenotype.cda.owl.OntologyTermDTO;
 import org.mousephenotype.cda.solr.service.ImageService;
 import org.mousephenotype.cda.solr.service.ImpressService;
 import org.mousephenotype.cda.solr.service.dto.AlleleDTO;
 import org.mousephenotype.cda.solr.service.dto.ImageDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.mousephenotype.cda.utilities.RunStatus;
+import org.semanticweb.owlapi.model.OWLOntologyCreationException;
+import org.semanticweb.owlapi.model.OWLOntologyStorageException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -88,19 +87,6 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 	@Qualifier("komp2DataSource")
 	DataSource komp2DataSource;
 
-	@Autowired
-	@Qualifier("ontodbDataSource")
-	DataSource ontodbDataSource;
-
-	@Autowired
-    MaOntologyDAO maOntologyService;
-
-	@Autowired
-	EmapaOntologyDAO emapaOntologyService;
-
-	@Autowired
-	MpOntologyDAO mpOntologyService;
-	
 	private List<ImageDTO> secondaryProjectImageList=new ArrayList<>();//store all secondary project images in this list
 	PhisService phisService=new PhisService();
 
@@ -113,7 +99,7 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 	private Map<String, String> parameterStableIdToMaTermIdMap;
 	private Map<String, String> parameterStableIdToEmapaTermIdMap = new HashMap<>(); // key: EMAPA id;
 	private Map<String, String> parameterStableIdToMpTermIdMap;
-	private Map<String, EmapaOntologyDAO.Emapa> emap2EmapaMap;
+	private Map<String, String> emap2EmapaMap;
 	private Map<String, Set<String>> primaryGenesProcedures; //  we need to know which genes have images for which procedures so that we don't overwrite them from PhenoImageShare.
 
 	private String impcAnnotationBaseUrl;
@@ -121,6 +107,10 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 	private Map<String, Map<String, List<String>>> maUberonEfoMap = new HashMap<>(); // key: MA id
 
 	private final String fieldSeparator = "___";
+
+	private OntologyParser maParser;
+	private OntologyParser mpParser;
+	private OntologyParser emapaParser;
 
 	public ImpcImagesIndexer() {
 		super();
@@ -141,7 +131,15 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 
 		RunStatus runStatus = new RunStatus();
 		long start = System.currentTimeMillis();
-		
+
+		try {
+			mpParser = getMpParser();
+			maParser = getMaParser();
+			emapaParser = getEmapaParser();
+		} catch (OWLOntologyCreationException | OWLOntologyStorageException e) {
+			e.printStackTrace();
+		}
+
 		try {
 			parameterStableIdToMaTermIdMap = this.populateParameterStableIdToMaIdMap();
 		} catch (SQLException e) {
@@ -159,7 +157,7 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 
 		try {
 			logger.info("  Started emap mapping...");
-			emap2EmapaMap = emapaOntologyService.populateEmap2EmapaMap();
+			emap2EmapaMap = getEmapToEmapaMap();
 			logger.info("  Done {} EMAP to EMAPA mappings", emap2EmapaMap.size());
 			parameterStableIdToEmapaTermIdMap = this.populateParameterStableIdToEmapaIdMap();
 		} catch (SQLException e) {
@@ -339,13 +337,13 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 				if (stableIdToTermIdMap.containsKey(paramString)) {
 					String thisTermId = stableIdToTermIdMap.get(paramString);
 					if (thisTermId.startsWith("MA:")) {
-						imageDTO = addAnatomyValues(thisTermId, imageDTO, maOntologyService, runStatus);
+						imageDTO = addAnatomyValues(maParser.getOntologyTerm(thisTermId), imageDTO);
 					}
 					if (thisTermId.startsWith("EMAPA:")) {
-						imageDTO = addAnatomyValues(thisTermId, imageDTO, emapaOntologyService, runStatus);
+						imageDTO = addAnatomyValues(emapaParser.getOntologyTerm(thisTermId), imageDTO);
 					}
 					if (thisTermId.startsWith("MP:")) {
-						imageDTO = addMpValues(thisTermId, imageDTO, mpOntologyService, runStatus);
+						imageDTO = addMpValues(mpParser.getOntologyTerm(thisTermId), imageDTO, thisTermId);
 					}
 
 				}
@@ -355,33 +353,26 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 
 
 	// Since the fields are separate, we have to methods to add ontology info - one for mp and one for anatomy
-	private ImageDTO addMpValues(String termId, ImageDTO imageDTO, OntologyDAO ontologyDAO, RunStatus runStatus){
+	private ImageDTO addMpValues(OntologyTermDTO term, ImageDTO imageDTO, String termId){
 
-		OntologyTermBean termBean = ontologyDAO.getTerm(termId);
-
-		if (termBean == null) {
+		if (term == null) {
 			logger.warn(" Cannot find MP ontology term for ID \"{}\",\n   OMERO ID: {},\n   URL: {}", termId, imageDTO.getOmeroId(), imageDTO.getFullResolutionFilePath());
 			return imageDTO;
 		}
 
-		// term
-		imageDTO.addMpTerm(termBean.getName(), true);
-		imageDTO.addMpId(termBean.getId(), true);
-		imageDTO.addMpTermSynonym(termBean.getSynonyms(), true);
-		imageDTO.addMpIdTerm(termBean.getId() + "_" + termBean.getName(), true);
+		imageDTO.addMpTerm(term.getName(), true);
+		imageDTO.addMpId(term.getAccessionId(), true);
+		imageDTO.addMpTermSynonym(term.getSynonyms(), true);
+		imageDTO.addMpIdTerm(term.getAccessionId() + "_" + term.getName(), true);
 
-		// intermediate
-		List<OntologyTermBean> intermediate = ontologyDAO.getIntermediates(termBean.getId());
-		for (OntologyTermBean term : intermediate) {
-			imageDTO.addIntermediateMpId(term.getId());
-			imageDTO.addIntermediateMpTerm(term.getName());
+		if (term.getIntermediateIds() != null){
+			imageDTO.addIntermediateMpId(term.getIntermediateIds());
+			imageDTO.addIntermediateMpTerm(term.getIntermediateNames());
 		}
 
-		// top levels
-		List<OntologyTermBean> topLevels = ontologyDAO.getTopLevel(termBean.getId(), OntologyDAO.PHENOTYPE_LEVELS);
-		for (OntologyTermBean term : topLevels) {
-			imageDTO.addTopLevelMpId(term.getId(), true);
-			imageDTO.addTopLevelMpTerm(term.getName(), true);
+		if (term.getTopLevelIds() != null){
+			imageDTO.addTopLevelMpId(term.getTopLevelIds(), true);
+			imageDTO.addTopLevelMpTerm(term.getTopLevelNames(), true);
 		}
 
 		// anatomy terms from mp
@@ -390,60 +381,53 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 	}
 
 
-	private ImageDTO addAnatomyValues(String termId, ImageDTO imageDTO, OntologyDAO ontologyDAO, RunStatus runStatus) {
+	private ImageDTO addAnatomyValues(OntologyTermDTO term, ImageDTO imageDTO) {
 
-		OntologyTermBean termBean = ontologyDAO.getTerm(termId);
 
 		// term
-		imageDTO.addAnatomyTerm(termBean.getName());
-		imageDTO.addAnatomyId(termBean.getId());
-		imageDTO.addAnatomyTermSynonym(termBean.getSynonyms(), true);
-		imageDTO.addAnatomyIdTerm(termBean.getId() + "_" + termBean.getName());
-		imageDTO.addAnatomyTermSynonymAnatomyIdTerm(termBean.getSynonyms(), fieldSeparator + termBean.getTermIdTermName());
+		imageDTO.addAnatomyTerm(term.getName());
+		imageDTO.addAnatomyId(term.getAccessionId());
+		imageDTO.addAnatomyTermSynonym(term.getSynonyms(), true);
+		imageDTO.addAnatomyIdTerm(term.getAccessionId() + "_" + term.getName());
+	//	imageDTO.addAnatomyTermSynonymAnatomyIdTerm(termBean.getSynonyms(), fieldSeparator + termBean.getTermIdTermName());
 
 		// intermediate terms
-		List<OntologyTermBean> intermediate = ontologyDAO.getIntermediates(termBean.getId());
-		for (OntologyTermBean term : intermediate) {
-			imageDTO.addIntermediateAnatomyId(term.getId());
-			imageDTO.addIntermediateAnatomyTerm(term.getName());
-			imageDTO.addIntermediateAnatomyTermSynonym(term.getSynonyms(), true);
-			imageDTO.addIntermediateAnatomyIdAnatomyIdTerm(term.getId() + fieldSeparator + termBean.getTermIdTermName());
-			imageDTO.addIntermediateAnatomyTermAnatomyIdTerm(term.getName() + fieldSeparator + termBean.getTermIdTermName());
-			imageDTO.addIntermediateAnatomyTermSynonymAnatomyIdTerm(term.getSynonyms(), fieldSeparator + termBean.getTermIdTermName());
+		if (term.getIntermediateIds() != null){
+			imageDTO.addIntermediateAnatomyId(term.getIntermediateIds());
+			imageDTO.addIntermediateAnatomyTerm(term.getIntermediateNames());
+			imageDTO.addIntermediateAnatomyTermSynonym(term.getIntermediateSynonyms(), true);
+	//		imageDTO.addIntermediateAnatomyIdAnatomyIdTerm(term.getId() + fieldSeparator + termBean.getTermIdTermName()); // Do we need these?
+	//		imageDTO.addIntermediateAnatomyTermAnatomyIdTerm(term.getName() + fieldSeparator + termBean.getTermIdTermName());
+	//		imageDTO.addIntermediateAnatomyTermSynonymAnatomyIdTerm(term.getSynonyms(), fieldSeparator + termBean.getTermIdTermName());
 		}
 
-		// selected top levels - what we actually use
-		List<OntologyTermBean> selectedTopLevels = ontologyDAO.getSelectedTopLevel(termBean.getId(), 1);
-		if (selectedTopLevels.size() == 0){
-			if ( ! termId.equals("EMAPA:16039")) {																		// Special case: ignore EMAPA:16039, 'embryo', as there are higher-level terms defined below this level.
-				runStatus.addWarning("No selected top level found for " + termId);
-			}
+
+		if (term.getTopLevelIds() != null){
+			imageDTO.addSelectedTopLevelAnatomyId(term.getTopLevelIds(), true);
+			imageDTO.addSelectedTopLevelAnatomyTerm(term.getTopLevelNames(), true);
+			imageDTO.addSelectedTopLevelAnatomySynonyms(term.getTopLevelSynonyms(), true);
+//			imageDTO.addSelectedTopLevelAnatomyTermSynonymAnatomyIdTerm(term.getSynonyms(), fieldSeparator + termBean.getTermIdTermName());
+//			imageDTO.addSelectedTopLevelAnatomyTermAnatomyIdTerm(term.getName() + fieldSeparator + termBean.getTermIdTermName());
+//			imageDTO.addSelectedTopLevelAnatomyIdAnatomyIdTerm(term.getId() + fieldSeparator + termBean.getTermIdTermName());
 		}
-		for (OntologyTermBean term : selectedTopLevels) {
-			imageDTO.addSelectedTopLevelAnatomyId(term.getId(), true);
-			imageDTO.addSelectedTopLevelAnatomyTerm(term.getName(), true);
-			imageDTO.addSelectedTopLevelAnatomySynonyms(term.getSynonyms(), true);
-			imageDTO.addSelectedTopLevelAnatomyTermSynonymAnatomyIdTerm(term.getSynonyms(), fieldSeparator + termBean.getTermIdTermName());
-			imageDTO.addSelectedTopLevelAnatomyTermAnatomyIdTerm(term.getName() + fieldSeparator + termBean.getTermIdTermName());
-			imageDTO.addSelectedTopLevelAnatomyIdAnatomyIdTerm(term.getId() + fieldSeparator + termBean.getTermIdTermName());
-		}
+		// TODO Add UBERON ids like in anatomy core
 		// UBERON/EFO id for MA id
-		try {
-			if (maUberonEfoMap.containsKey(termBean.getId())) {
-				if (maUberonEfoMap.get(termBean.getId()).containsKey(ImageDTO.UBERON_ID)) {
-					for (String id : maUberonEfoMap.get(termBean.getId()).get(ImageDTO.UBERON_ID)) {
-						imageDTO.addUberonId(id);
-					}
-				}
-				if (maUberonEfoMap.get(termBean.getId()).containsKey(ImageDTO.EFO_ID)) {
-					for (String id : maUberonEfoMap.get(termBean.getId()).get(ImageDTO.EFO_ID)) {
-						imageDTO.addEfoId(id);
-					}
-				}
-			}
-		} catch (Exception e) {
-			runStatus.addWarning(" Could not find term when indexing MA " + termBean.getId() + ". LocalizedMessage: " + e.getLocalizedMessage());
-		}
+//		try {
+//			if (maUberonEfoMap.containsKey(termBean.getId())) {
+//				if (maUberonEfoMap.get(termBean.getId()).containsKey(ImageDTO.UBERON_ID)) {
+//					for (String id : maUberonEfoMap.get(termBean.getId()).get(ImageDTO.UBERON_ID)) {
+//						imageDTO.addUberonId(id);
+//					}
+//				}
+//				if (maUberonEfoMap.get(termBean.getId()).containsKey(ImageDTO.EFO_ID)) {
+//					for (String id : maUberonEfoMap.get(termBean.getId()).get(ImageDTO.EFO_ID)) {
+//						imageDTO.addEfoId(id);
+//					}
+//				}
+//			}
+//		} catch (Exception e) {
+//			runStatus.addWarning(" Could not find term when indexing MA " + termBean.getId() + ". LocalizedMessage: " + e.getLocalizedMessage());
+//		}
 
 		return imageDTO;
 	}
@@ -483,7 +467,7 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 			image.setMpId(new ArrayList<>());
 			for (String mpId : mpIds){
 				if (mpId.startsWith("MP:")) {
-					image = addMpValues(mpId, image, mpOntologyService, runStatus);
+					image = addMpValues(mpParser.getOntologyTerm(mpId), image, mpId);
 				}
 			}
 		}
@@ -753,7 +737,7 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 				String parameterStableId = resultSet.getString("stable_id");
 				String acc = resultSet.getString("ontology_acc");
 				if (emap2EmapaMap.get(acc) != null) {
-					String emapaAcc = emap2EmapaMap.get(acc).getEmapaId();
+					String emapaAcc = emap2EmapaMap.get(acc);
 					//System.out.println(acc + " mapped to " + emapaAcc);
 					paramToEmapa.put(parameterStableId, emapaAcc);
 				}

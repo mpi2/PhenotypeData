@@ -27,12 +27,40 @@ public class OntologyTermDTO {
     Set<String>         topLevelNames;
     Set<String>         topLevelIds;
     Set<String>         topLevelSynonyms;
-    Set<String>         topLevelMpTermIds; // concatenated for search/ autosuggest/ something CK does
+    Set<String>         topLevelTermIdsConcatenated; // concatenated for search/ autosuggest/ something CK does
     String              replacementAccessionId;
     String              definition;
     boolean             isObsolete;
     OWLClass            cls;
     Map<Integer, List<Integer>> pathsToRoot; // <nodeId, <nodeids>>
+    String              seachJson;
+    String              childrenJson;
+    String              scrollToNode;
+
+
+    public String getSeachJson() {
+        return seachJson;
+    }
+
+    public void setSeachJson(String seachJson) {
+        this.seachJson = seachJson;
+    }
+
+    public String getChildrenJson() {
+        return childrenJson;
+    }
+
+    public void setChildrenJson(String childrenJson) {
+        this.childrenJson = childrenJson;
+    }
+
+    public String getScrollToNode() {
+        return scrollToNode;
+    }
+
+    public void setScrollToNode(String scrollToNode) {
+        this.scrollToNode = scrollToNode;
+    }
 
     public Set<Integer> getNodeIds(){
         return pathsToRoot == null ? null : pathsToRoot.keySet();
@@ -89,17 +117,17 @@ public class OntologyTermDTO {
         this.pathsToRoot.put(nodeId, pathToRoot);
     }
 
-    public Set<String> getTopLevelMpTermIds() {
-        return topLevelMpTermIds;
+    public Set<String> getTopLevelTermIdsConcatenated() {
+        return topLevelTermIdsConcatenated;
     }
 
-    public void setTopLevelMpTermIds(Set<String> topLevelMpTermIds) {
-        this.topLevelMpTermIds = topLevelMpTermIds;
+    public void setTopLevelTermIdsConcatenated(Set<String> topLevelMpTermIds) {
+        this.topLevelTermIdsConcatenated = topLevelMpTermIds;
     }
 
-    public void addTopLevelMpTermIds(String term, String id) {
-        if (this.topLevelMpTermIds == null) { this.topLevelMpTermIds = new HashSet<>();}
-        this.topLevelMpTermIds.add( concatForSearch(id,term));
+    public void addTopLevelTermIdsConcatenated(String term, String id) {
+        if (this.topLevelTermIdsConcatenated == null) { this.topLevelTermIdsConcatenated = new HashSet<>();}
+        this.topLevelTermIdsConcatenated.add( concatForSearch(id,term));
     }
 
     public Set<String> getIntermediateIds() {
