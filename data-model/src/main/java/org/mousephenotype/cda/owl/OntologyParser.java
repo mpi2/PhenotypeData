@@ -3,6 +3,7 @@ package org.mousephenotype.cda.owl;
 import org.json.JSONObject;
 import org.semanticweb.elk.owlapi.ElkReasonerFactory;
 import org.semanticweb.owlapi.apibinding.OWLManager;
+import org.semanticweb.owlapi.io.FileDocumentSource;
 import org.semanticweb.owlapi.io.StringDocumentTarget;
 import org.semanticweb.owlapi.model.*;
 import org.semanticweb.owlapi.reasoner.InferenceType;
@@ -216,7 +217,10 @@ public class OntologyParser {
 
         TERM_REPLACED_BY = factory.getOWLAnnotationProperty(IRI.create("http://purl.obolibrary.org/obo/IAO_0100001"));
 
-        ontology = manager.loadOntologyFromOntologyDocument(IRI.create(new File(pathToOwlFile)));
+        OWLOntologyLoaderConfiguration config = new OWLOntologyLoaderConfiguration();
+        config.setMissingImportHandlingStrategy(MissingImportHandlingStrategy.SILENT);
+        FileDocumentSource source = new FileDocumentSource(new File(pathToOwlFile));
+        ontology = manager.loadOntologyFromOntologyDocument(source, config);
 
         if (useReasoner){
 
