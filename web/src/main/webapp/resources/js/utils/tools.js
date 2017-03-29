@@ -433,13 +433,16 @@
                         text: 'Grant agency funded IKMC/IMPC related publications'
                     },
                     subtitle: {
-                         text: 'Click the agency columns to view the list of publications'
+                         text: 'Click the agency bars on the right to view the list of publications'
                     },
                     xAxis: {
                         categories: agencyNames,
                         //type: 'category',
                         labels: {
-                            enabled: true
+                            enabled: true,
+                            style: {
+                                // cursor: normal
+                            }
                         }
                     },
                     yAxis: {
@@ -539,28 +542,47 @@
                                                 oConf.dataType = "alleleRef";
                                                 oConf.rowFormat = true;
 
-                                                oConf.consortium = id == "consortiumPapers" ? true : false;
-
-                                                var paramStr = "mode=all";
-                                                $.each(oConf, function (i, val) {
-                                                    paramStr += "&" + i + "=" + val;
-                                                });
 
                                                 var fileTypeTsv = "fileType=tsv";
                                                 var fileTypeXls = "fileType=xls";
 
-                                                var urltsvA = baseUrl+"/export2?" + paramStr + "&" + fileTypeTsv;
-                                                var urlxlsA = baseUrl+"/export2?" + paramStr + "&" + fileTypeXls;
-
                                                 var toolBox = '<span>Export table as: &nbsp;&nbsp;&nbsp;'
-                                                    + '<a id="tsvA" class="fa fa-download gridDump" href="' + urltsvA + '">TSV</a>&nbsp;&nbsp;&nbsp;or&nbsp;&nbsp;&nbsp;'
-                                                    + '<a id="xlsA" class="fa fa-download gridDump" href="' + urlxlsA + '">XLS</a></span>';
+                                                    + '<a id="tsvA" class="fa fa-download gridDump" href="">TSV</a>&nbsp;&nbsp;&nbsp;or&nbsp;&nbsp;&nbsp;'
+                                                    + '<a id="xlsA" class="fa fa-download gridDump" href="">XLS</a></span>';//+
+                                                // '<span>For more information, consider <a href=${baseUrl}/batchQuery>Batch search</a></span>';
 
                                                 $("div#"+id + " div.saveTable").html(toolBox);
 
+                                                $("div#"+id + " div.saveTable").on('click', 'a.gridDump', function(){
+
+                                                    oConf.id = $(this).parent().parent().siblings('div.dataTables_processing').attr('id').replace('_processing','');
+                                                    oConf.consortium = false;
+
+                                                    var paramStr = "mode=all";
+                                                    if ($("#" + id +"_filter").find('input').val() != "") {
+                                                        oConf.filter = $("#" + id +"_filter").find('input').val().trim();
+                                                        alert(oConf.filter)
+                                                    }
+                                                    else {
+                                                        delete oConf.filter;
+                                                    }
+
+                                                    $.each(oConf, function (i, val) {
+                                                        paramStr += "&" + i + "=" + val;
+                                                    });
+
+                                                    if ($(this).attr('id') == 'tsvA'){
+                                                        $(this).attr('href', baseUrl+"/export2?" + fileTypeTsv + "&" + paramStr);
+                                                    }
+                                                    else {
+                                                        $(this).attr('href', baseUrl+"/export2?" + fileTypeXls + "&" + paramStr);
+                                                    }
+                                                });
+
                                                 // sort by date_of_publication and reload table with new content
-                                                $('table#'+ id + ' > caption button').click(function(){
-                                                    oConf.consortium = id == "consortiumPapers" ? true : false;
+                                                $('table#'+ id + ' > caption button').on('click', function(){
+                                                    oConf.id = $(this).parent().parent().siblings('div.dataTables_processing').attr('id').replace('_processing','');
+                                                    oConf.consortium = oConf.id == "consortiumPapers" ? true : false;
 
                                                     if ($(this).siblings("i").hasClass("fa-caret-down")){
                                                         $(this).siblings("i").removeClass("fa-caret-down").addClass("fa-caret-up");
@@ -913,29 +935,46 @@
                 oConf.dataType = "alleleRef";
                 oConf.rowFormat = true;
 
-                oConf.consortium = id == "consortiumPapers" ? true : false;
-
-                var paramStr = "mode=all";
-                $.each(oConf, function (i, val) {
-                    paramStr += "&" + i + "=" + val;
-                });
-
                 var fileTypeTsv = "fileType=tsv";
                 var fileTypeXls = "fileType=xls";
 
-                var urltsvA = baseUrl+"/export2?" + paramStr + "&" + fileTypeTsv;
-                var urlxlsA = baseUrl+"/export2?" + paramStr + "&" + fileTypeXls;
-
                 var toolBox = '<span>Export table as: &nbsp;&nbsp;&nbsp;'
-                    + '<a id="tsvA" class="fa fa-download gridDump" href="' + urltsvA + '">TSV</a>&nbsp;&nbsp;&nbsp;or&nbsp;&nbsp;&nbsp;'
-                    + '<a id="xlsA" class="fa fa-download gridDump" href="' + urlxlsA + '">XLS</a></span>';
-                //+ '<span>For more information, consider <a href=${baseUrl}/batchQuery>Batch search</a></span>';
+                    + '<a id="tsvA" class="fa fa-download gridDump" href="">TSV</a>&nbsp;&nbsp;&nbsp;or&nbsp;&nbsp;&nbsp;'
+                    + '<a id="xlsA" class="fa fa-download gridDump" href="">XLS</a></span>';//+
+                // '<span>For more information, consider <a href=${baseUrl}/batchQuery>Batch search</a></span>';
 
                 $("div#"+id + " div.saveTable").html(toolBox);
 
+                $('a.gridDump').on('click', function(){
+
+                    oConf.id = $(this).parent().parent().siblings('div.dataTables_processing').attr('id').replace('_processing','');
+                    oConf.consortium = oConf.id == "consortiumPapers" ? true : false;
+
+                    var paramStr = "mode=all";
+                    if ($("#" + oConf.id +"_filter").find('input').val() != "") {
+                        oConf.kw = $("#" + oConf.id +"_filter").find('input').val().trim();
+                    }
+                    else {
+                        oConf.kw = "";
+                    }
+
+                    $.each(oConf, function (i, val) {
+                        paramStr += "&" + i + "=" + val;
+                    });
+
+                    if ($(this).attr('id') == 'tsvA'){
+                        $(this).attr('href', baseUrl+"/export2?" + fileTypeTsv + "&" + paramStr);
+                    }
+                    else {
+                        $(this).attr('href', baseUrl+"/export2?" + fileTypeXls + "&" + paramStr);
+                    }
+                    // alert($(this).attr('href'));
+                });
+
 				// sort by date_of_publication and reload table with new content
-				$('table#'+ id + ' > caption button').click(function(){
-                    oConf.consortium = id == "consortiumPapers" ? true : false;
+				$('table#'+ id + ' > caption button').on('click', function(){
+                    oConf.id = $('div.saveTable').siblings('div.dataTables_processing').attr('id').replace('_processing','');
+                    oConf.consortium = oConf.id == "consortiumPapers" ? true : false;
 
 					if ($(this).siblings("i").hasClass("fa-caret-down")){
                         $(this).siblings("i").removeClass("fa-caret-down").addClass("fa-caret-up");
