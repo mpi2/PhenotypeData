@@ -7,9 +7,11 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.solr.common.SolrDocument;
+import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.service.OntologyBean;
 import org.mousephenotype.cda.solr.service.dto.ImageDTO;
 import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
+import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 
 /**
  * A table row which is one per samepleId which should have all ontology info and text info and images info for the row
@@ -230,6 +232,7 @@ public class GrossPathPageTableRow {
 	
 	private List<SolrDocument> imageList=new ArrayList<>();
 	private Integer sequenceId;
+	private String zygosity;
 	
 	public Integer getSequenceId() {
 		return sequenceId;
@@ -238,14 +241,21 @@ public class GrossPathPageTableRow {
 		return imageList;
 	}
 	
-	public void addImage(SolrDocument image) {
-			this.imageList.add(image);
-			
-		
-		
+	public void addImage(SolrDocument obs) {
+			this.imageList.add(obs);	
 	}
 	public void setSequenceId(Integer sequenceId) {
 		this.sequenceId=sequenceId;
+	}
+	public void addImages(List<SolrDocument> list) {
+		this.imageList=list;
+	}
+	public void setZygosity(String zygosity) {
+		this.zygosity=zygosity;
+		
+	}
+	public String getZygosity() {
+		return zygosity;
 	}
 	
 	

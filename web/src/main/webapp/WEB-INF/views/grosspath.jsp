@@ -59,12 +59,18 @@
 							<th>
 							Anatomy
 							</th>
-							<th>Sample Id</th>
+							<%-- <th>Sample Id</th> --%>
+							<th>
+							Zyg
+							</th>
 							<th>
 							OntologyTerm
 							</th>
 							<th>
 							Free Text
+							</th>
+							<th>
+							Images
 							</th>
 							
 						
@@ -78,8 +84,11 @@
 									<td id="${pathRow.sampleId}_${pathRow.anatomyName}">
 										${pathRow.anatomyName}
 									</td>
-									<td>
+									<%-- <td>
 										${pathRow.sampleId}
+									</td> --%>
+									<td>
+										${pathRow.zygosity}
 									</td>
 									<c:choose>
 									<c:when test="${fn:length(pathRow.subOntologyBeans) == 0}">
@@ -92,8 +101,8 @@
 											<%-- subOntologyParam: ${parameter.key} gives anatomy term which should match the anatomy in the row --%>
 											
 										
-										<c:forEach var="value" items="${parameter.value }">
-										${value.id } - ${value.name }
+										<c:forEach var="value" items="${parameter.value }" varStatus="loop"  >
+										<%-- ${value.id } - --%> ${value.name }<c:if test="${!loop.last}">,</c:if>
 										</c:forEach>
 										</td>
 									</c:forEach>
@@ -106,6 +115,26 @@
 										${pathRow.textValue}
 										
 									</td>
+									
+									<c:if test="${fn:length(pathRow.imageList) >0}">
+										<%-- <tr> --%>
+											<c:forEach var="img" items="${pathRow.imageList }">
+												<td>
+																			
+												  	<%-- <div id="grid">
+		                                           
+														<t:impcimgdisplay2 img="${image}" impcMediaBaseUrl="${impcMediaBaseUrl}"></t:impcimgdisplay2>
+													
+													</div> --%>
+													
+													<a href="${impcMediaBaseUrl}/render_image/${img.omero_id}/" class="fancybox" fullRes="${impcMediaBaseUrl}/render_image/${img.omero_id}/" original="${impcMediaBaseUrl}/archived_files/download/${img.omero_id}/">
+         		<img  src="${impcMediaBaseUrl}/render_birds_eye_view/${img.omero_id}/" class="thumbnailStyle"></a>
+         		
+												</td>
+											</c:forEach>
+										
+									<%-- </tr>	 --%> 
+									</c:if>
 									
 									
 	

@@ -40,7 +40,7 @@ public class GrossPathController {
 		List<ObservationDTO> allObservations = grossPathService.getObservationsForGrossPathForGene(acc);
 		List<SolrDocument> images = grossPathService.getGrossPathImagesForGene(acc);
 		List<ObservationDTO> abnormalObservations = grossPathService.getAbnormalObservations(allObservations);
-		List<GrossPathPageTableRow> grossPathRows = grossPathService.getTableData(abnormalObservations);
+		List<GrossPathPageTableRow> grossPathRows = grossPathService.getTableData(abnormalObservations, images);
 		model.addAttribute("pathRows", grossPathRows);
 		model.addAttribute("extSampleIdToObservations", allObservations);
 		model.addAttribute("images", images);
