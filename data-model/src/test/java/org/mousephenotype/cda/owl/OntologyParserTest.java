@@ -335,21 +335,4 @@ public class OntologyParserTest {
     }
 
 
-    @Test
-    public void testNodePath() throws OWLOntologyCreationException, OWLOntologyStorageException, IOException {
-
-        ontologyParser = new OntologyParser(downloads.get("mp").target, downloads.get("mp").name, null, null);
-        ontologyParser.fillJsonTreePath("MP:0000001", "",  null, new ArrayList<>());
-        OntologyTermDTO mp = ontologyParser.getOntologyTerm("MP:0000003");
-        Assert.assertTrue(mp.getPathsToRoot().size() == 1); // only 1 way possible
-        Integer nodeId = mp.getPathsToRoot().keySet().iterator().next();
-        Assert.assertTrue(mp.getPathsToRoot().get(nodeId).size() == 3); // 3 nodes on the path to root
-
-        // test multiple paths to root
-        mp = ontologyParser.getOntologyTerm("MP:0001926");
-        Assert.assertTrue(mp.getPathsToRoot().size() == 2);
-
-    }
-
-
 }
