@@ -16,7 +16,7 @@
             <c:set var="lastProcedure" value="" scope="page"/>
             <c:forEach var="procedure" items="${procedures}" varStatus="firstLoop">
                 <c:if test="${lastProcedure.equalsIgnoreCase(procedure.getProcedureName())}">
-                    <a href="${drupalBaseUrl}/impress/impress/displaySOP/${procedure.procedureStableKey}">
+                    <a href="${drupalBaseUrl}/impress/protocol/${procedure.procedureStableKey}">
                             , ${procedure.procedureStableId.split("_")[0]} v${procedure.procedureStableId.substring(procedure.procedureStableId.length()-1, procedure.procedureStableId.length())}
                     </a>
                 </c:if>
@@ -24,7 +24,7 @@
                     </li>
                     <li>
                         ${procedure.procedureName}
-                        <a href="${drupalBaseUrl}/impress/impress/displaySOP/${procedure.procedureStableKey}">
+                        <a href="${drupalBaseUrl}/impress/protocol/${procedure.procedureStableKey}">
                              ${procedure.procedureStableId.split("_")[0]} v${procedure.procedureStableId.substring(procedure.procedureStableId.length()-1, procedure.procedureStableId.length())}
                         </a>
 

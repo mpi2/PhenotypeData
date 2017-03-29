@@ -40,6 +40,7 @@ public class HistopathService {
 
 	public List<HistopathPageTableRow> getTableData(List<ObservationDTO> allObservations) throws SolrServerException, IOException {
 		List<HistopathPageTableRow> rows = new ArrayList<>();
+		List<HistopathPageTableRow> anatomyAndSampleIdIsSignificantRow=new ArrayList<>();//Holds all anatomy and sampleIds that have a significant call - when something is significant it applies to the overall anatomy e.g. brain and the sample (overview applies to whole call though but we are showing detail of what the lab scientist specified here).
 		downloadToImgMap = new HashMap<String, SolrDocument>();
 		System.out.println("observations for histopath size with normal and abnormal=" + allObservations.size());
 
@@ -98,7 +99,10 @@ public class HistopathService {
 						if (obs.getObservationType().equalsIgnoreCase("categorical")) {
 							row.addCategoricalParam(parameter, obs.getCategory());
 							if (parameter.getName().contains("Significance")) {
+								System.out.println(parameter+" "+ obs.getCategory());
 								row.addSignficiance(parameter, obs.getCategory());
+								row.setSignficant();
+								anatomyAndSampleIdIsSignificantRow.add(row);
 							}
 							if (parameter.getName().contains("Severity")) {
 								row.addSeveirty(parameter, obs.getCategory());
@@ -177,6 +181,14 @@ public class HistopathService {
 
 			
 				
+			}
+		}
+		//loop over significant rows and find rows with same anatomy and sampleid and set them to significant as well
+		for(HistopathPageTableRow sigRow:anatomyAndSampleIdIsSignificantRow){
+			for(HistopathPageTableRow rowToUpdate:rows){
+				if(sigRow.getAnatomyName().equalsIgnoreCase(rowToUpdate.getAnatomyName()) && sigRow.getSampleId().equalsIgnoreCase(rowToUpdate.getSampleId())){
+				rowToUpdate.setSignficant();
+				}
 			}
 		}
 		return rows;

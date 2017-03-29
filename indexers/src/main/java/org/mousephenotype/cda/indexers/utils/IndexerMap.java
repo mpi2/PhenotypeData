@@ -28,9 +28,7 @@ import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
 import org.mousephenotype.cda.solr.service.dto.SangerImageDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
-import org.springframework.stereotype.Component;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -112,8 +110,8 @@ public class IndexerMap {
 	        
     }
 
-	public static Map<String, List<EmbryoStrain>> populateEmbryoData(final String embryoRestUrl) {
-    	EmbryoRestGetter embryoGetter=new EmbryoRestGetter(embryoRestUrl);
+	public Map<String, List<EmbryoStrain>> populateEmbryoData(String embryoViewerFilename) {
+    	EmbryoRestGetter embryoGetter=new EmbryoRestGetter(embryoViewerFilename);
     	
 		EmbryoRestData restData=null;
 		try {

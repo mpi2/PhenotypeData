@@ -129,7 +129,7 @@ public class ControllerUtils {
 		pgs.setBothNumber(genesBothPhenotype.size());
 		pgs.setFemaleOnlyNumber(genesFemalePhenotype.size());
 		pgs.setMaleOnlyNumber(genesMalePhenotype.size());
-		pgs.fillPieChartCode();
+		pgs.fillPieChartCode(phenotype_id);
 
 		return pgs;
 	}

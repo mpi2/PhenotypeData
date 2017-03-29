@@ -20,8 +20,12 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.owl.OntologyParser;
+import org.mousephenotype.cda.owl.OntologyParserFactory;
 import org.mousephenotype.cda.owl.OntologyTermDTO;
-import org.mousephenotype.cda.solr.service.dto.*;
+import org.mousephenotype.cda.solr.service.dto.ImpressDTO;
+import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
+import org.mousephenotype.cda.solr.service.dto.PipelineDTO;
+import org.mousephenotype.cda.solr.service.dto.ProcedureDTO;
 import org.mousephenotype.cda.utilities.RunStatus;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.semanticweb.owlapi.model.OWLOntologyStorageException;
@@ -64,6 +68,7 @@ public class PipelineIndexer extends AbstractIndexer implements CommandLineRunne
 	private Map<String, String> emapToEmapa;
 	private OntologyParser mpParser;
 	private OntologyParser emapaParser;
+	OntologyParserFactory ontologyParserFactory;
 
 	protected static final int MINIMUM_DOCUMENT_COUNT = 10;
 
@@ -88,9 +93,10 @@ public class PipelineIndexer extends AbstractIndexer implements CommandLineRunne
 			throws IndexerException{
 
 		try {
-			mpParser = getMpParser();
-			emapaParser = getEmapaParser();
-			emapToEmapa = getEmapToEmapaMap();
+			ontologyParserFactory = new OntologyParserFactory(komp2DataSource, owlpath);
+			mpParser = ontologyParserFactory.getMpParser();
+			emapaParser = ontologyParserFactory.getEmapaParser();
+			emapToEmapa = ontologyParserFactory.getEmapToEmapaMap();
 			parameterToObservationTypeMap = getObservationTypeMap(runStatus);
 			paramIdToParameter = populateParamIdToParameterMap(runStatus);
 			addUnits();

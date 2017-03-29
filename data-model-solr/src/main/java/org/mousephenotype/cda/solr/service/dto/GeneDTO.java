@@ -165,6 +165,19 @@ public class GeneDTO {
 	public static final String CHR_NAME = "chr_name";
 	public static final String CHR_start = "chr_start";
 	public static final String CHR_end = "chr_end";
+	public static final String IS_IDG_GENE ="is_idg_gene";
+	
+	
+	@Field(IS_IDG_GENE)
+	private Boolean isIdgGene;
+
+	public Boolean getIsIdgGene() {
+		return isIdgGene;
+	}
+
+	public void setIsIdgGene(Boolean isIdgGene) {
+		this.isIdgGene = isIdgGene;
+	}
 
 	@Field(VEGA_IDS)
 	private List<String> vegaIds;

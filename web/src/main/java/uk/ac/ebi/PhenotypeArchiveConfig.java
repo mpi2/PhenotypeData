@@ -25,6 +25,7 @@ import uk.ac.ebi.phenotype.web.util.DeploymentInterceptor;
 
 import javax.persistence.PersistenceContext;
 import javax.sql.DataSource;
+import javax.validation.constraints.NotNull;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -43,6 +44,11 @@ import java.util.Properties;
 public class PhenotypeArchiveConfig {
 
     private static final Logger logger = LoggerFactory.getLogger(PhenotypeArchiveConfig.class);
+
+
+    @NotNull
+    @Value("${neo4jDbPath}")
+    private String neo4jDbPath;
 
     @Value("${drupal_base_url}")
     private String drupalBaseUrl;
@@ -73,6 +79,19 @@ public class PhenotypeArchiveConfig {
 
     @Value("${live_site}")
     private String liveSite;
+
+
+//    @Bean
+//    public org.neo4j.ogm.config.Configuration getConfiguration() {
+//
+//        org.neo4j.ogm.config.Configuration config = new org.neo4j.ogm.config.Configuration();
+//        config.driverConfiguration()
+//                .setDriverClassName("org.neo4j.ogm.drivers.http.driver.HttpDriver")
+//                //.setURI("http://ves-ebi-d0:7474/");
+//                .setURI("http://localhost:7474/");
+//
+//        return config;
+//    }
 
 
     @Bean

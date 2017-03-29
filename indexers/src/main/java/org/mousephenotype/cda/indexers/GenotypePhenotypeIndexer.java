@@ -18,14 +18,18 @@ package org.mousephenotype.cda.indexers;
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.mousephenotype.cda.db.dao.*;
+import org.mousephenotype.cda.db.dao.DatasourceDAO;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
 import org.mousephenotype.cda.owl.OntologyParser;
+import org.mousephenotype.cda.owl.OntologyParserFactory;
 import org.mousephenotype.cda.owl.OntologyTermDTO;
 import org.mousephenotype.cda.solr.service.StatisticalResultService;
-import org.mousephenotype.cda.solr.service.dto.*;
+import org.mousephenotype.cda.solr.service.dto.BasicBean;
+import org.mousephenotype.cda.solr.service.dto.GenotypePhenotypeDTO;
+import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
+import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
 import org.mousephenotype.cda.utilities.RunStatus;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.semanticweb.owlapi.model.OWLOntologyStorageException;
@@ -74,6 +78,7 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
     @Autowired
     DatasourceDAO dsDAO;
 
+
     Map<Integer, ImpressBaseDTO> pipelineMap = new HashMap<>();
     Map<Integer, ImpressBaseDTO> procedureMap = new HashMap<>();
     Map<Integer, ParameterDTO> parameterMap = new HashMap<>();
@@ -81,6 +86,7 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
     OntologyParser mpParser;
     OntologyParser mpMaParser;
     OntologyParser maParser;
+    OntologyParserFactory ontologyParserFactory;
 
     public GenotypePhenotypeIndexer() {
     }
@@ -102,9 +108,12 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
         long start = System.currentTimeMillis();
 
         try {
-            mpParser = getMpParser();
-            maParser = getMaParser();
-            mpMaParser = getMpMaParser();
+
+            ontologyParserFactory = new OntologyParserFactory(komp2DataSource, owlpath);
+
+            mpParser = ontologyParserFactory.getMpParser();
+            maParser = ontologyParserFactory.getMaParser();
+            mpMaParser = ontologyParserFactory.getMpMaParser();
 
             connection = komp2DataSource.getConnection();
 
@@ -296,7 +305,7 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
 
                     OntologyTermDTO mpDto = mpParser.getOntologyTerm(mpId);
 
-                    if (mpDto.getTopLevelIds().size() == 0 ){
+                    if (mpDto.getTopLevelIds() == null || mpDto.getTopLevelIds().size() == 0 ){
                         // if the mpId itself is a top level, add itself as a top level
                         List<String> ids = new ArrayList<>(); ids.add(mpId);
                         List<String> names = new ArrayList<>(); names.add(doc.getMpTermName());
@@ -362,7 +371,7 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
     protected void getMaTermsForMp(GenotypePhenotypeDTO dto, String mpId, Boolean direct) {
 
         // get MA ids referenced from MP
-        Set<String> maTerms = mpMaParser.getReferencedClasses(mpId, VIA_PROPERTIES, "MA");
+        Set<String> maTerms = mpMaParser.getReferencedClasses(mpId, ontologyParserFactory.VIA_PROPERTIES, "MA");
         for (String maId : maTerms) {
             // get info about these MA terms. In the mp-ma file the MA classes have no details but the id. For example the labels or synonyms are not there.
             OntologyTermDTO ma = maParser.getOntologyTerm(maId);
