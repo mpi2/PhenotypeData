@@ -296,7 +296,7 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
 
                     OntologyTermDTO mpDto = mpParser.getOntologyTerm(mpId);
 
-                    if (mpDto.getTopLevelIds().size() == 0 ){
+                    if (mpDto.getTopLevelIds() == null || mpDto.getTopLevelIds().size() == 0 ){
                         // if the mpId itself is a top level, add itself as a top level
                         List<String> ids = new ArrayList<>(); ids.add(mpId);
                         List<String> names = new ArrayList<>(); names.add(doc.getMpTermName());
