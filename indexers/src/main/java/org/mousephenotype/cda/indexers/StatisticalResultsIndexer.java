@@ -16,7 +16,6 @@ import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
-import org.mousephenotype.cda.db.beans.OntologyTermBean;
 import org.mousephenotype.cda.db.dao.*;
 import org.mousephenotype.cda.db.pojo.Parameter;
 import org.mousephenotype.cda.db.pojo.PhenotypeAnnotationType;
@@ -710,7 +709,6 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
         Set<String> mpIds = parameterMpTermMap.get(doc.getParameterStableId());
 
         if (mpIds != null) {
-            Set<OntologyTermBean> ontoTerms = new HashSet<>();
 
             mpIds.forEach(mpId -> {
 
@@ -1388,12 +1386,9 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 
             // If not already set, ensure that the document has all possible top level MP terms defined
             if (doc.getTopLevelMpTermId() == null) {
-
-                for (String mpTermId : doc.getMpTermIdOptions()) {
-                    List<OntologyTermBean> tops = mpOntologyService.getTopLevel(mpTermId);
-                    doc.addTopLevelMpTermIds(tops.stream().map(OntologyTermBean::getId).collect(Collectors.toSet()));
-                    doc.addTopLevelMpTermNames(tops.stream().map(OntologyTermBean::getName).collect(Collectors.toSet()));
-                }
+                OntologyTermDTO term = mpParser.getOntologyTerm(doc.getMpTermId());
+                doc.addTopLevelMpTermIds(term.getTopLevelIds());
+                doc.addTopLevelMpTermNames(term.getTopLevelNames());
             }
 
 
