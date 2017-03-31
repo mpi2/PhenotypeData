@@ -151,13 +151,13 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
         try {
             ontologyParserFactory = new OntologyParserFactory(komp2DataSource, owlpath);
             mpParser = ontologyParserFactory.getMpParser();
-            System.out.println("Loaded mp parser");
+            logger.info("Loaded mp parser");
             mpHpParser = ontologyParserFactory.getMpHpParser();
-            System.out.println("Loaded mp hp parser");
+            logger.info("Loaded mp hp parser");
             mpMaParser = ontologyParserFactory.getMpMaParser();
-            System.out.println("Loaded mp ma parser");
+            logger.info("Loaded mp ma parser");
             maParser = ontologyParserFactory.getMaParser();
-            System.out.println("Loaded ma parser");
+            logger.info("Loaded ma parser");
 
         	// maps MP to number of phenotyping calls
         	populateMpCallMaps();
@@ -928,7 +928,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
                 }
                 //TODO intermediate terms - can't do this before merge to master as fields were not in schema
             } else {
-                System.out.println("Term not found in MA : " + maId);
+                logger.info("Term not found in MA : " + maId);
             }
         }
 
