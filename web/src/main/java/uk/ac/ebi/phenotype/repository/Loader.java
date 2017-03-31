@@ -110,6 +110,7 @@ public class Loader implements CommandLineRunner {
     @Override
     public void run(String... strings) throws Exception {
 
+
         ontologyParserFactory = new OntologyParserFactory(komp2DataSource, owlpath);
 
 
@@ -239,8 +240,9 @@ public class Loader implements CommandLineRunner {
                 mm.setModelId(modelId);
 
                 String mgiAcc = r.getString("model_gene_id");
-                Gene g = geneRepository.findByMgiAccessionId(mgiAcc);
                 // only want Genes that IMPC knows about
+                Gene g = geneRepository.findByMgiAccessionId(mgiAcc);
+//                Gene g = allGenes.get(mgiAcc);
                 if (g != null) {
                     mm.setGene(g);
                 }
@@ -352,6 +354,20 @@ public class Loader implements CommandLineRunner {
 
         int dCount = 0;
 
+        Map<String, Hp> allHpTerms = new HashMap<>();
+        Map<String, Gene> allGenes = new HashMap<>();
+
+        Iterable<Hp> allHp = hpRepository.findAll();
+        for ( Hp hp : allHp) {
+            allHpTerms.put(hp.getHpId(), hp);
+        }
+
+        Iterable<Gene> allGeneNodes = geneRepository.findAll();
+        for ( Gene gene : allGeneNodes) {
+            allGenes.put(gene.getMgiAccessionId(), gene);
+        }
+
+
         try (Connection connection = phenodigmDataSource.getConnection();
             PreparedStatement p = connection.prepareStatement(query, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY)) {
 
@@ -383,7 +399,8 @@ public class Loader implements CommandLineRunner {
 
                 // mouse gene model for the human disease
                 String mgiAcc = r.getString("model_gene_id");
-                Gene g = geneRepository.findByMgiAccessionId(mgiAcc);
+//                Gene g = geneRepository.findByMgiAccessionId(mgiAcc);
+                Gene g = allGenes.get(mgiAcc);
                 if (g != null){
                     d.setGene(g);
                 }
@@ -411,11 +428,14 @@ public class Loader implements CommandLineRunner {
                 // Disease human phenotype associations
                 if ( diseasePhenotypeMap.containsKey(diseaseId)) {
                     for (String hpId : diseasePhenotypeMap.get(diseaseId)) {
-                        Hp hp = hpRepository.findByHpId(hpId);
+
+                        Hp hp = allHpTerms.get(hpId);
+//                        Hp hp = hpRepository.findByHpId(hpId);
                         if (hp == null && hpIdTermMap.containsKey(hpId)) {
                             hp = new Hp();
                             hp.setHpId(hpId);
                             hp.setHpTerm(hpIdTermMap.get(hpId));
+                            allHpTerms.put(hp.getHpId(), hp);
                         }
 
                         if (d.getHumanPhenotypes() == null) {
