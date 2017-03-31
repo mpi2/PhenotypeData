@@ -923,7 +923,6 @@ public class AbstractGenotypePhenotypeService extends BasicService {
         PhenotypeFacetResult facetResult = new PhenotypeFacetResult();
         List<PhenotypeCallSummaryDTO> list = new ArrayList<PhenotypeCallSummaryDTO>();
         JSONObject results = new JSONObject();
-        System.out.println("url in getPhenotypeResultFromSolrResponse="+url);
         results = JSONRestUtil.getResults(url);
         JSONArray docs = results.getJSONObject("response").getJSONArray("docs");
                 
