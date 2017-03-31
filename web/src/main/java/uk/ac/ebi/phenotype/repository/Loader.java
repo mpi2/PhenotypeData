@@ -95,6 +95,8 @@ public class Loader implements CommandLineRunner {
 
     Map<String, Gene> loadedGenes = new HashMap<>();
     Map<String, Gene> loadedGeneSymbols = new HashMap<>();
+    Map<String, Mp> loadedMps = new HashMap<>();
+    Map<String, Hp> loadedHps = new HashMap<>();
     Map<Integer, Set<String>> mouseModelMpMap = new HashMap<>();
     Map<String, String> hpIdTermMap = new HashMap<>();
     Map<String, Set<String>> bestMpHpMap = new HashMap<>();
@@ -138,7 +140,7 @@ public class Loader implements CommandLineRunner {
         //----------- STEP 2 -----------//
         populateHpIdTermMap(); // STEP 2.1
         populateBestMpHpMap(); // STEP 2.2
-//        loadMousePhenotypes(); // STEP 2.3
+        loadMousePhenotypes(); // STEP 2.3
 
         //----------- STEP 3 -----------//
         //populateMouseModelMpMap(); // run this before loadMouseModel()
@@ -297,6 +299,8 @@ public class Loader implements CommandLineRunner {
     }
 
     public void populateDiseasePhenotypeMap() throws SQLException {
+
+        //select count(distinct d.disease_id) from disease d left join disease_hp dh on d.disease_id=dh.disease_id left join mouse_disease_summary mds on mds.disease_id=d.disease_id;
 
         String query = "SELECT DISTINCT dh.disease_id, hp.hp_id FROM disease_hp dh INNER JOIN hp ON hp.hp_id = dh.hp_id";
 
@@ -759,34 +763,34 @@ public class Loader implements CommandLineRunner {
             OntologyTermDTO mpDTO = mpParser.getOntologyTerm(mpId);
             String termId = mpDTO.getAccessionId();
 
-            Mp ph = mpRepository.findByMpId(termId);
-            if (ph == null){
-                ph = new Mp();
-                ph.setMpId(termId);
+            Mp mp = mpRepository.findByMpId(termId);
+            if (mp == null){
+                mp = new Mp();
+                mp.setMpId(termId);
             }
-            if (ph.getMpTerm() == null) {
-                ph.setMpTerm(mpDTO.getName());
+            if (mp.getMpTerm() == null) {
+                mp.setMpTerm(mpDTO.getName());
             }
-            if (ph.getMpDefinition() == null) {
-                ph.setMpDefinition(mpDTO.getDefinition());
+            if (mp.getMpDefinition() == null) {
+                mp.setMpDefinition(mpDTO.getDefinition());
             }
 
-            if (ph.getOntoSynonyms() == null) {
+            if (mp.getOntoSynonyms() == null) {
                 for (String mpsym : mpDTO.getSynonyms()) {
                     OntoSynonym ms = new OntoSynonym();
                     ms.setOntoSynonym(mpsym);
-                    ms.setMousePhenotype(ph);
+                    ms.setMousePhenotype(mp);
 //                    ontoSynonymRepository.save(ms);
 
-                    if (ph.getOntoSynonyms() == null) {
-                        ph.setOntoSynonyms(new HashSet<OntoSynonym>());
+                    if (mp.getOntoSynonyms() == null) {
+                        mp.setOntoSynonyms(new HashSet<OntoSynonym>());
                     }
-                    ph.getOntoSynonyms().add(ms);
+                    mp.getOntoSynonyms().add(ms);
                 }
             }
 
             // PARENT
-            if (ph.getMpParentIds() == null) {
+            if (mp.getMpParentIds() == null) {
                 if ( mpDTO.getParentIds() != null) {
                     for (String parId : mpDTO.getParentIds()) {
                         Mp thisPh = mpRepository.findByMpId(parId);
@@ -796,10 +800,10 @@ public class Loader implements CommandLineRunner {
                         thisPh.setMpId(parId);
                         //mpRepository.save(thisPh); same transactioin
 
-                        if (ph.getMpParentIds() == null) {
-                            ph.setMpParentIds(new HashSet<Mp>());
+                        if (mp.getMpParentIds() == null) {
+                            mp.setMpParentIds(new HashSet<Mp>());
                         }
-                        ph.getMpParentIds().add(thisPh);
+                        mp.getMpParentIds().add(thisPh);
                     }
                 }
             }
@@ -807,30 +811,32 @@ public class Loader implements CommandLineRunner {
             // MARK MP WHICH IS TOP LEVEL
             if (mpDTO.getTopLevelIds() == null || mpDTO.getTopLevelIds().size() == 0){
                 // add self as top level
-                ph.setTopLevelStatus(true);
+                mp.setTopLevelStatus(true);
             }
 
             // BEST MP to HP mapping
             if (bestMpHpMap.containsKey(termId)){
                 for(String hpId : bestMpHpMap.get(termId)){
-                    Hp hp = hpRepository.findByHpId(hpId);
-                    if (hp == null){
-                        hp = new Hp();
-                        hp.setHpId(hpId);
-                        hp.setHpTerm(hpIdTermMap.get(hpId));
-                    }
 
-                    if (ph.getHumanPhenotypes() == null){
-                        ph.setHumanPhenotypes(new HashSet<Hp>());
+                    Hp hp = new Hp();
+                    if (! loadedHps.containsKey(hpId)){
+                        hp = hpRepository.findByHpId(hpId);
+                        hp.setHpTerm(hpIdTermMap.get(hpId));
+                        loadedHps.put(hpId, hp);
                     }
-                    ph.getHumanPhenotypes().add(hp);
+                    if (mp.getHumanPhenotypes() == null){
+                        mp.setHumanPhenotypes(new HashSet<Hp>());
+                    }
+                    mp.getHumanPhenotypes().add(hp);
                 }
             }
 
             // add mp-hp mapping using Monarch's mp-hp hybrid ontology: gets the narrow synonym
             // TO DO
 
-            mpRepository.save(ph);
+            mpRepository.save(mp);
+            loadedMps.put(mp.getMpId(), mp);
+
             mpCount++;
 
             if (mpCount % 1000 == 0) {
