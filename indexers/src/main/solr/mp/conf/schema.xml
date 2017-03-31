@@ -334,7 +334,6 @@
 
     <copyField source="inferred_ma_id" dest="auto_suggest" />
     <copyField source="inferred_ma_term" dest="auto_suggest" />
-    <copyField source="inferred_ma_term_synonym" dest="auto_suggest" />
 
     <copyField source="inferred_selected_top_level_ma_id" dest="auto_suggest" />
     <copyField source="inferred_selected_top_level_ma_term" dest="auto_suggest" />
@@ -342,7 +341,6 @@
 
     <copyField source="inferred_ma_id" dest="ma_id" />
     <copyField source="inferred_ma_term" dest="ma_term" />
-    <copyField source="inferred_ma_term_synonym" dest="ma_term_synonym" />
 
     <copyField source="allele_id" dest="auto_suggest" />
     <copyField source="allele_symbol" dest="auto_suggest" />
