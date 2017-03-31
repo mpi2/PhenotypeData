@@ -322,7 +322,7 @@
     <copyField source="top_level_mp_id" dest="auto_suggest" />
     <copyField source="top_level_mp_term" dest="auto_suggest" />
     <copyField source="top_level_mp_term_synonym" dest="auto_suggest" />
-    <copyField source="top_level_mp_term" dest="annotatedHigherLevelMpTermName" />
+    <!--<copyField source="top_level_mp_term" dest="annotatedHigherLevelMpTermName" />-->
 
     <copyField source="intermediate_mp_id" dest="auto_suggest" />
     <copyField source="intermediate_mp_term" dest="auto_suggest" />
