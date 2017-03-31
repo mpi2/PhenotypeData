@@ -80,20 +80,6 @@ public class PhenotypeArchiveConfig {
     @Value("${live_site}")
     private String liveSite;
 
-
-//    @Bean
-//    public org.neo4j.ogm.config.Configuration getConfiguration() {
-//
-//        org.neo4j.ogm.config.Configuration config = new org.neo4j.ogm.config.Configuration();
-//        config.driverConfiguration()
-//                .setDriverClassName("org.neo4j.ogm.drivers.http.driver.HttpDriver")
-//                //.setURI("http://ves-ebi-d0:7474/");
-//                .setURI("http://localhost:7474/");
-//
-//        return config;
-//    }
-
-
     @Bean
     public ErrorPageFilter errorPageFilter() {
         return new ErrorPageFilter();
@@ -105,65 +91,6 @@ public class PhenotypeArchiveConfig {
         filterRegistrationBean.setFilter(filter);
         filterRegistrationBean.setEnabled(false);
         return filterRegistrationBean;
-    }
-
-    @Bean
-    @Primary
-    @ConfigurationProperties(prefix = "datasource.komp2")
-    public DataSource komp2DataSource() {
-        return DataSourceBuilder.create().driverClassName("com.mysql.jdbc.Driver").build();
-    }
-
-    @Bean
-    @ConfigurationProperties(prefix = "datasource.admintools")
-    public DataSource admintoolsDataSource() {
-        return DataSourceBuilder.create().driverClassName("com.mysql.jdbc.Driver").build();
-    }
-
-
-    @Bean
-    public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
-        LocalContainerEntityManagerFactoryBean emf = new LocalContainerEntityManagerFactoryBean();
-        emf.setDataSource(komp2DataSource());
-        emf.setPackagesToScan(new String[]{"org.mousephenotype.cda.db.pojo", "org.mousephenotype.cda.db.dao"});
-
-        JpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
-        emf.setJpaVendorAdapter(vendorAdapter);
-        emf.setJpaProperties(buildHibernateProperties());
-
-        return emf;
-    }
-
-    protected Properties buildHibernateProperties() {
-        Properties hibernateProperties = new Properties();
-
-        hibernateProperties.setProperty("hibernate.dialect", "org.hibernate.dialect.MySQLDialect");
-        hibernateProperties.setProperty("hibernate.show_sql", "false");
-        hibernateProperties.setProperty("hibernate.use_sql_comments", "false");
-        hibernateProperties.setProperty("hibernate.format_sql", "false");
-        hibernateProperties.setProperty("hibernate.generate_statistics", "false");
-        hibernateProperties.setProperty("hibernate.current_session_context_class", "thread");
-
-        return hibernateProperties;
-    }
-
-    @Bean
-    @Primary
-    @PersistenceContext(name = "komp2Context")
-    public LocalContainerEntityManagerFactoryBean emf(EntityManagerFactoryBuilder builder) {
-        return builder
-                .dataSource(komp2DataSource())
-                .packages("org.mousephenotype.cda.db")
-                .persistenceUnit("komp2")
-                .build();
-    }
-
-    @Bean(name = "sessionFactory")
-    public LocalSessionFactoryBean sessionFactory() {
-        LocalSessionFactoryBean sessionFactory = new LocalSessionFactoryBean();
-        sessionFactory.setDataSource(komp2DataSource());
-        sessionFactory.setPackagesToScan("org.mousephenotype.cda.db");
-        return sessionFactory;
     }
 
     @Bean(name = "globalConfiguration")

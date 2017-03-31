@@ -1,45 +1,33 @@
 package uk.ac.ebi.phenotype.repository;
 
-import org.mousephenotype.cda.solr.service.dto.PhenodigmDTO;
-import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.RelationshipType;
 import org.neo4j.ogm.annotation.GraphId;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 
-import java.util.List;
 import java.util.Set;
 
 /**
  * Created by ckchen on 14/03/2017.
  */
 @NodeEntity
-public class Disease {
+public class MouseModel {
 
     @GraphId
     Long id;
 
-    private String diseaseId;
-//    private List<String> diseaseClasses;
-    private String diseaseTerm;
-//    private List<String> diseaseAlts;
-    private Boolean impcPredicted;
-    private Boolean mgiPredicted;
-    private Double diseaseToModelScore;
-    private Double modelToDiseaseScore;
+    private int modelId;
+    private String allelicComposition;
+    private String geneticBackground;
+    private String homHet;
+
+    @Relationship(type="ALLELE", direction=Relationship.OUTGOING)
+    private Set<Allele> alleles;
 
     @Relationship(type="GENE", direction=Relationship.OUTGOING)
     private Gene gene;
 
     @Relationship(type="MOUSE_PHENOTYPE", direction=Relationship.OUTGOING)
     private Set<Mp> mousePhenotypes;
-
-    @Relationship(type="HUMAN_PHENOTYPE", direction=Relationship.OUTGOING)
-    private Set<Hp> humanPhenotypes;
-
-//    @Relationship(type="MOUSE_MODEL", direction=Relationship.OUTGOING)
-//    private Set<MouseModel> mouseModels;
-
 
     public Long getId() {
         return id;
@@ -49,52 +37,44 @@ public class Disease {
         this.id = id;
     }
 
-    public String getDiseaseId() {
-        return diseaseId;
+    public int getModelId() {
+        return modelId;
     }
 
-    public void setDiseaseId(String diseaseId) {
-        this.diseaseId = diseaseId;
+    public void setModelId(int modelId) {
+        this.modelId = modelId;
     }
 
-    public String getDiseaseTerm() {
-        return diseaseTerm;
+    public String getAllelicComposition() {
+        return allelicComposition;
     }
 
-    public void setDiseaseTerm(String diseaseTerm) {
-        this.diseaseTerm = diseaseTerm;
+    public void setAllelicComposition(String allelicComposition) {
+        this.allelicComposition = allelicComposition;
     }
 
-    public Boolean getImpcPredicted() {
-        return impcPredicted;
+    public String getGeneticBackground() {
+        return geneticBackground;
     }
 
-    public void setImpcPredicted(Boolean impcPredicted) {
-        this.impcPredicted = impcPredicted;
+    public void setGeneticBackground(String geneticBackground) {
+        this.geneticBackground = geneticBackground;
     }
 
-    public Boolean getMgiPredicted() {
-        return mgiPredicted;
+    public String getHomHet() {
+        return homHet;
     }
 
-    public void setMgiPredicted(Boolean mgiPredicted) {
-        this.mgiPredicted = mgiPredicted;
+    public void setHomHet(String homHet) {
+        this.homHet = homHet;
     }
 
-    public Double getDiseaseToModelScore() {
-        return diseaseToModelScore;
+    public Set<Allele> getAlleles() {
+        return alleles;
     }
 
-    public void setDiseaseToModelScore(Double diseaseToModelScore) {
-        this.diseaseToModelScore = diseaseToModelScore;
-    }
-
-    public Double getModelToDiseaseScore() {
-        return modelToDiseaseScore;
-    }
-
-    public void setModelToDiseaseScore(Double modelToDiseaseScore) {
-        this.modelToDiseaseScore = modelToDiseaseScore;
+    public void setAlleles(Set<Allele> alleles) {
+        this.alleles = alleles;
     }
 
     public Gene getGene() {
@@ -113,27 +93,17 @@ public class Disease {
         this.mousePhenotypes = mousePhenotypes;
     }
 
-    public Set<Hp> getHumanPhenotypes() {
-        return humanPhenotypes;
-    }
-
-    public void setHumanPhenotypes(Set<Hp> humanPhenotypes) {
-        this.humanPhenotypes = humanPhenotypes;
-    }
-
     @Override
     public String toString() {
-        return "Disease{" +
+        return "MouseModel{" +
                 "id=" + id +
-                ", diseaseId='" + diseaseId + '\'' +
-                ", diseaseTerm='" + diseaseTerm + '\'' +
-                ", impcPredicted=" + impcPredicted +
-                ", mgiPredicted=" + mgiPredicted +
-                ", diseaseToModelScore=" + diseaseToModelScore +
-                ", modelToDiseaseScore=" + modelToDiseaseScore +
+                ", modelId=" + modelId +
+                ", allelicComposition='" + allelicComposition + '\'' +
+                ", geneticBackground='" + geneticBackground + '\'' +
+                ", homHet='" + homHet + '\'' +
+                ", alleles=" + alleles +
                 ", gene=" + gene +
                 ", mousePhenotypes=" + mousePhenotypes +
-                ", humanPhenotypes=" + humanPhenotypes +
                 '}';
     }
 }

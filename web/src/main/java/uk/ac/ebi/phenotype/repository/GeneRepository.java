@@ -12,6 +12,7 @@ import org.springframework.stereotype.Repository;
     Gene findByMgiAccessionId(String mgiAccessionId);
     Gene findByMarkerSymbol(String markerSymbol);
 
+
 //
 //    Gene findByMarkerSymbolAndDiseaseName(String symbol, String ensemblGeneId);
 //

@@ -7,12 +7,9 @@ import org.springframework.stereotype.Repository;
  * Created by ckchen on 14/03/2017.
  */
 @Repository
-public interface MpRepository extends Neo4jRepository<Mp, Long> {
+public interface MouseModelRepository extends Neo4jRepository<MouseModel, Long> {
 
-    Mp findByMpId(String mpId);
-    Mp findByMpTerm (String mpTerm);
-
-
+    MouseModel findByModelId(int modelId);
 
 
 }
