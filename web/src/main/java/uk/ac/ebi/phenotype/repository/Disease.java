@@ -62,7 +62,7 @@ public class Disease {
     private Set<Hp> humanPhenotypes;
 
     @Relationship(type="MOUSE_MODEL", direction=Relationship.OUTGOING)
-    private MouseModel mouseModel;
+    private Set<MouseModel> mouseModels;
 
     public Long getId() {
         return id;
@@ -272,12 +272,12 @@ public class Disease {
         this.humanPhenotypes = humanPhenotypes;
     }
 
-    public MouseModel getMouseModel() {
-        return mouseModel;
+    public Set<MouseModel> getMouseModels() {
+        return mouseModels;
     }
 
-    public void setMouseModel(MouseModel mouseModel) {
-        this.mouseModel = mouseModel;
+    public void setMouseModels(Set<MouseModel> mouseModels) {
+        this.mouseModels = mouseModels;
     }
 
     @Override
@@ -309,7 +309,7 @@ public class Disease {
                 ", gene=" + gene +
                 ", mousePhenotypes=" + mousePhenotypes +
                 ", humanPhenotypes=" + humanPhenotypes +
-                ", mouseModel=" + mouseModel +
+                ", mouseModels=" + mouseModels +
                 '}';
     }
 }

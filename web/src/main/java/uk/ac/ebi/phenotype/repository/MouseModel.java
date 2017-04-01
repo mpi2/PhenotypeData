@@ -21,13 +21,16 @@ public class MouseModel {
     private String homHet;
 
     @Relationship(type="ALLELE", direction=Relationship.OUTGOING)
-    private Set<Allele> alleles;
+    private Allele allele;
 
     @Relationship(type="GENE", direction=Relationship.OUTGOING)
     private Gene gene;
 
     @Relationship(type="MOUSE_PHENOTYPE", direction=Relationship.OUTGOING)
     private Set<Mp> mousePhenotypes;
+
+    @Relationship(type="HUMAN_PHENOTYPE", direction=Relationship.OUTGOING)
+    private Set<Hp> humanPhenotypes;
 
     public Long getId() {
         return id;
@@ -69,12 +72,12 @@ public class MouseModel {
         this.homHet = homHet;
     }
 
-    public Set<Allele> getAlleles() {
-        return alleles;
+    public Allele getAllele() {
+        return allele;
     }
 
-    public void setAlleles(Set<Allele> alleles) {
-        this.alleles = alleles;
+    public void setAllele(Allele allele) {
+        this.allele = allele;
     }
 
     public Gene getGene() {
@@ -93,6 +96,14 @@ public class MouseModel {
         this.mousePhenotypes = mousePhenotypes;
     }
 
+    public Set<Hp> getHumanPhenotypes() {
+        return humanPhenotypes;
+    }
+
+    public void setHumanPhenotypes(Set<Hp> humanPhenotypes) {
+        this.humanPhenotypes = humanPhenotypes;
+    }
+
     @Override
     public String toString() {
         return "MouseModel{" +
@@ -101,9 +112,10 @@ public class MouseModel {
                 ", allelicComposition='" + allelicComposition + '\'' +
                 ", geneticBackground='" + geneticBackground + '\'' +
                 ", homHet='" + homHet + '\'' +
-                ", alleles=" + alleles +
+                ", allele=" + allele +
                 ", gene=" + gene +
                 ", mousePhenotypes=" + mousePhenotypes +
+                ", humanPhenotypes=" + humanPhenotypes +
                 '}';
     }
 }
