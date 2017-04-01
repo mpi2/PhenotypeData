@@ -418,10 +418,11 @@ public class Loader implements CommandLineRunner {
                     Gene g = loadedGenes.get(mgiAcc);
                     d.setGene(g);
 
-                    if (g.getDiseases() == null){
-                        g.setDiseases(new HashSet<Disease>());
-                    }
-                    g.getDiseases().add(d);
+                      // doing this takes ca. 4h
+//                    if (g.getDiseases() == null){
+//                        g.setDiseases(new HashSet<Disease>());
+//                    }
+//                    g.getDiseases().add(d);
                 }
 
                 d.setHgncGeneId(r.getString("hgnc_gene_id"));
@@ -565,6 +566,9 @@ public class Loader implements CommandLineRunner {
                             mm.getMousePhenotypes().add(mp);
                         }
                     }
+
+                    mm.setDiseaseToModelScore(getDoubleDefaultZero(r, "disease_to_model_perc_score"));
+                    mm.setModelToDiseaseScore(getDoubleDefaultZero(r, "model_to_disease_perc_score"));
 
                     // connects a MouseModel to allele
                     // allelicComposition:	Nes<tm1b(KOMP)Wtsi>/Nes<tm1b(KOMP)Wtsi>
