@@ -54,7 +54,8 @@ public class ReferenceDAO {
         + "\tGrant agency"
         + "\tPaper link"
         + "\tMesh term"
-        + "\tConsortium paper";
+        + "\tConsortium paper"
+        + "\tabstract";
 
     @Autowired
     @Qualifier("admintoolsDataSource")
@@ -131,6 +132,7 @@ public class ReferenceDAO {
                 + ", paper_url AS paperUrls\n"
                 + ", mesh\n"
                 + ", author\n"
+                + ", abstract\n"
                 + " FROM allele_ref\n"
                 + " WHERE agency LIKE '%" + filter + "%'\n"
                 + " ORDER BY " + orderBy + "\n";
@@ -165,6 +167,7 @@ public class ReferenceDAO {
                 referenceRow.setPaperUrls(Arrays.asList(resultSet.getString("paperUrls").split(delimeter)));
                 referenceRow.setMeshTerms(Arrays.asList(resultSet.getString("mesh").split(delimeter)));
                 referenceRow.setAuthor(resultSet.getString("author"));
+                referenceRow.setAbstractTxt(resultSet.getString("abstract"));
 
                 results.add(referenceRow);
             }
@@ -204,7 +207,7 @@ public class ReferenceDAO {
         String filterClause = "";
 
         if (filter != null){
-            colCount = 11;
+            colCount = 12;
             filterClause =
                     "  AND (\n"
                             + "     title               LIKE ?\n"
@@ -217,7 +220,8 @@ public class ReferenceDAO {
                             + " OR agency              LIKE ?\n"
                             + " OR acronym             LIKE ?\n"
                             + " OR author              LIKE ?\n"
-                            + " OR mesh                LIKE ?)\n";
+                            + " OR mesh                LIKE ?\n"
+                            + " OR abstract            LIKE ?)\n";
 
             whereClause += filterClause;
         }
@@ -240,6 +244,7 @@ public class ReferenceDAO {
                         + ", meshtree\n"
                         + ", author\n"
                         + ", consortium_paper\n"
+                        + ", abstract\n"
                         + "FROM allele_ref\n"
                         + whereClause
                         + "ORDER BY date_of_publication DESC\n";
@@ -285,6 +290,7 @@ public class ReferenceDAO {
                 referenceRow.setMeshTerms(Arrays.asList(resultSet.getString("mesh").split(delimeter)));
                 referenceRow.setAuthor(resultSet.getString("author"));
                 referenceRow.setConsortiumPaper(resultSet.getString("consortium_paper"));
+                referenceRow.setAbstractTxt(resultSet.getString("abstract"));
 
                 results.add(referenceRow);
             }
@@ -336,16 +342,20 @@ public class ReferenceDAO {
             int occurrence = findOccurrenceOfSubstr(filter, "|");
             int loop = occurrence + 1;
 
-            List<String> cols = new ArrayList<>(Arrays.asList("title", "mesh"));
+            List<String> cols = new ArrayList<>(Arrays.asList("title", "mesh", "abstract"));
             List<String> titleLikes = new ArrayList<>();
             List<String> meshLikes = new ArrayList<>();
+            List<String> abstractLikes = new ArrayList<>();
             for( int oc=0; oc< loop; oc++){
                 for (String col : cols){
                     if (col.equals("title")){
                         titleLikes.add(col + " LIKE ? ");
                     }
-                    else {
+                    else if (col.equals("mesh")) {
                         meshLikes.add(col + " LIKE ? ");
+                    }
+                    else if (col.equals("abstract")){
+                        abstractLikes.add(col + " LIKE ? ");
                     }
                 }
             }
@@ -353,8 +363,10 @@ public class ReferenceDAO {
             searchClause =
                     "  AND (\n"
                     + "(" + StringUtils.join(titleLikes, " OR ") +")\n"
-                    + " OR (" +  StringUtils.join(meshLikes, " OR ") + "))\n";
+                    + "(" + StringUtils.join(meshLikes, " OR ") +")\n"
+                    + " OR (" +  StringUtils.join(abstractLikes, " OR ") + "))\n";
         }
+
 
         String whereClause = "";
 
@@ -391,9 +403,9 @@ public class ReferenceDAO {
                     + ", meshtree\n"
                     + ", author\n"
                     + ", consortium_paper\n"
+                    + ", abstract\n"
                     + "FROM allele_ref AS ar\n"
                     + whereClause
-                    //+ "GROUP BY pmid\n"
                     + "ORDER BY " + orderBy + "\n";
 
         System.out.println("alleleRef query 2: " + query);
@@ -449,6 +461,7 @@ public class ReferenceDAO {
                 referenceRow.setMeshTerms(Arrays.asList(resultSet.getString("mesh").split(delimeter)));
                 referenceRow.setAuthor(resultSet.getString("author"));
                 referenceRow.setConsortiumPaper(resultSet.getString("consortium_paper"));
+                referenceRow.setAbstractTxt(resultSet.getString("abstract"));
 
                 results.add(referenceRow);
             }
@@ -510,11 +523,12 @@ public class ReferenceDAO {
                                 + " OR (agency LIKE ? OR agency LIKE ?)\n"
                                 + " OR (acronym LIKE ? OR acronym LIKE ?)\n"
                                 + " OR (author LIKE ? OR author LIKE ?)\n"
+                                + " OR (abstract LIKE ? OR abstract LIKE ?)\n"
                                 + " OR (mesh LIKE ? OR mesh LIKE ?))\n";
-                colCount = 22;
+                colCount = 24;
             }
             else {
-                colCount = 11;
+                colCount = 12;
                 searchClause =
                         "  AND (\n"
                                 + "     title               LIKE ?\n"
@@ -527,6 +541,7 @@ public class ReferenceDAO {
                                 + " OR agency              LIKE ?\n"
                                 + " OR acronym             LIKE ?\n"
                                 + " OR author              LIKE ?\n"
+                                + " OR abstract            LIKE ?\n"
                                 + " OR mesh                LIKE ?)\n";
             }
         }
@@ -570,6 +585,7 @@ public class ReferenceDAO {
               + ", mesh\n"
               + ", meshtree\n"
               + ", consortium_paper\n"
+              + ", abstract\n"
               + "FROM allele_ref \n"
               + whereClause
               //+ "GROUP BY pmid\n"
@@ -629,6 +645,7 @@ public class ReferenceDAO {
                 referenceRow.setMeshTerms(Arrays.asList(resultSet.getString("mesh").split(delimeter)));
                 referenceRow.setMeshJsonStr(resultSet.getString("meshtree"));
                 referenceRow.setConsortiumPaper(resultSet.getString("consortium_paper"));
+                referenceRow.setAbstractTxt(resultSet.getString("abstract"));
 
                 results.add(referenceRow);
             }
