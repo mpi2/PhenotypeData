@@ -14,7 +14,7 @@ import java.util.Set;
  * Created by ckchen on 14/03/2017.
  */
 @NodeEntity
-public class Disease {
+public class DiseaseGene {
 
     @GraphId
     Long id;
@@ -24,7 +24,7 @@ public class Disease {
     private String diseaseLocus;
     private String hgncGeneId;
     private String hgncGeneSymbol;
-    //private List<String> diseaseClasses;
+    private String diseaseClasses; // comma separated string
     //private List<String> diseaseAlts;
     private Boolean inLocus;
     private Boolean impcPredicted;
@@ -51,18 +51,11 @@ public class Disease {
     private Double diseaseToModelScore;
     private Double modelToDiseaseScore;
 
-
     @Relationship(type="GENE", direction=Relationship.OUTGOING)
     private Gene gene;
 
-    @Relationship(type="MOUSE_PHENOTYPE", direction=Relationship.OUTGOING)
-    private Set<Mp> mousePhenotypes;
-
     @Relationship(type="HUMAN_PHENOTYPE", direction=Relationship.OUTGOING)
     private Set<Hp> humanPhenotypes;
-
-    @Relationship(type="MOUSE_MODEL", direction=Relationship.OUTGOING)
-    private Set<MouseModel> mouseModels;
 
     public Long getId() {
         return id;
@@ -110,6 +103,14 @@ public class Disease {
 
     public void setHgncGeneSymbol(String hgncGeneSymbol) {
         this.hgncGeneSymbol = hgncGeneSymbol;
+    }
+
+    public String getDiseaseClasses() {
+        return diseaseClasses;
+    }
+
+    public void setDiseaseClasses(String diseaseClasses) {
+        this.diseaseClasses = diseaseClasses;
     }
 
     public Boolean getInLocus() {
@@ -256,14 +257,6 @@ public class Disease {
         this.gene = gene;
     }
 
-    public Set<Mp> getMousePhenotypes() {
-        return mousePhenotypes;
-    }
-
-    public void setMousePhenotypes(Set<Mp> mousePhenotypes) {
-        this.mousePhenotypes = mousePhenotypes;
-    }
-
     public Set<Hp> getHumanPhenotypes() {
         return humanPhenotypes;
     }
@@ -272,23 +265,16 @@ public class Disease {
         this.humanPhenotypes = humanPhenotypes;
     }
 
-    public Set<MouseModel> getMouseModels() {
-        return mouseModels;
-    }
-
-    public void setMouseModels(Set<MouseModel> mouseModels) {
-        this.mouseModels = mouseModels;
-    }
-
     @Override
     public String toString() {
-        return "Disease{" +
+        return "DiseaseGene{" +
                 "id=" + id +
                 ", diseaseId='" + diseaseId + '\'' +
                 ", diseaseTerm='" + diseaseTerm + '\'' +
                 ", diseaseLocus='" + diseaseLocus + '\'' +
                 ", hgncGeneId='" + hgncGeneId + '\'' +
                 ", hgncGeneSymbol='" + hgncGeneSymbol + '\'' +
+                ", diseaseClasses='" + diseaseClasses + '\'' +
                 ", inLocus=" + inLocus +
                 ", impcPredicted=" + impcPredicted +
                 ", mgiPredicted=" + mgiPredicted +
@@ -307,9 +293,7 @@ public class Disease {
                 ", diseaseToModelScore=" + diseaseToModelScore +
                 ", modelToDiseaseScore=" + modelToDiseaseScore +
                 ", gene=" + gene +
-                ", mousePhenotypes=" + mousePhenotypes +
                 ", humanPhenotypes=" + humanPhenotypes +
-                ", mouseModels=" + mouseModels +
                 '}';
     }
 }

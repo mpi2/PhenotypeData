@@ -1,5 +1,6 @@
 package uk.ac.ebi.phenotype.repository;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.json.JSONObject;
@@ -47,6 +48,10 @@ public class Loader implements CommandLineRunner {
     DataSource phenodigmDataSource;
 
     @NotNull
+    @Value("${neo4jDbPath}")
+    private String neo4jDbPath;
+
+    @NotNull
     @Value("${allele2File}")
     private String pathToAlleleFile;
 
@@ -87,7 +92,10 @@ public class Loader implements CommandLineRunner {
     OntoSynonymRepository ontoSynonymRepository;
 
     @Autowired
-    DiseaseRepository diseaseRepository;
+    DiseaseGeneRepository diseaseGeneRepository;
+
+    @Autowired
+    DiseaseModelRepository diseaseModelRepository;
 
     @Autowired
     MouseModelRepository mouseModelRepository;
@@ -100,7 +108,7 @@ public class Loader implements CommandLineRunner {
     Map<String, Gene> loadedSymbolGenes = new HashMap<>();
     Map<String, Mp> loadedMps = new HashMap<>();
     Map<String, Hp> loadedHps = new HashMap<>();
-    Map<String, Disease> loadedDiseases = new HashMap<>();
+   // Map<String, DiseaseGene> loadedDiseaseGenes = new HashMap<>();
     Map<Integer, MouseModel> loadedMouseModels = new HashMap<>();
 
     Map<String, EnsemblGeneId> ensGidEnsemblGeneIdMap = new HashMap<>();
@@ -125,6 +133,8 @@ public class Loader implements CommandLineRunner {
         // would be way faster to just remove the db directory
 
         logger.info("Start deleting all repositories ...");
+        //FileUtils.deleteDirectory(new File(neo4jDbPath));
+
         geneRepository.deleteAll();
         alleleRepository.deleteAll();
         ensemblGeneIdRepository.deleteAll();
@@ -133,7 +143,8 @@ public class Loader implements CommandLineRunner {
         humanGeneSymbolRepository.deleteAll();
         mpRepository.deleteAll();
         hpRepository.deleteAll();
-        diseaseRepository.deleteAll();
+        diseaseGeneRepository.deleteAll();
+        diseaseModelRepository.deleteAll();
         mouseModelRepository.deleteAll();
         logger.info("Done deleting all repositories");
 
@@ -157,11 +168,296 @@ public class Loader implements CommandLineRunner {
         //----------- STEP 4 -----------//
         // load disease and Gene, Hp, Mp relationships
         populateDiseaseIdPhenotypeMap();
-        loadDiseases();
+        loadDiseaseGenes();
 
         //----------- STEP 5 -----------//
-        connectDiseaseMouseModels();
+        loadDiseaseModels();
 
+    }
+
+    public void loadGenes() throws IOException, SolrServerException {
+
+        long begin = System.currentTimeMillis();
+
+        final Map<String, String> ES_CELL_STATUS_MAPPINGS = new HashMap<>();
+        ES_CELL_STATUS_MAPPINGS.put("No ES Cell Production", "Not Assigned for ES Cell Production");
+        ES_CELL_STATUS_MAPPINGS.put("ES Cell Production in Progress", "Assigned for ES Cell Production");
+        ES_CELL_STATUS_MAPPINGS.put("ES Cell Targeting Confirmed", "ES Cells Produced");
+
+
+        final Map<String, String> MOUSE_STATUS_MAPPINGS = new HashMap<>();
+        MOUSE_STATUS_MAPPINGS.put("Chimeras obtained", "Assigned for Mouse Production and Phenotyping");
+        MOUSE_STATUS_MAPPINGS.put("Micro-injection in progress", "Assigned for Mouse Production and Phenotyping");
+        MOUSE_STATUS_MAPPINGS.put("Cre Excision Started", "Mice Produced");
+        MOUSE_STATUS_MAPPINGS.put("Rederivation Complete", "Mice Produced");
+        MOUSE_STATUS_MAPPINGS.put("Rederivation Started", "Mice Produced");
+        MOUSE_STATUS_MAPPINGS.put("Genotype confirmed", "Mice Produced");
+        MOUSE_STATUS_MAPPINGS.put("Cre Excision Complete", "Mice Produced");
+        MOUSE_STATUS_MAPPINGS.put("Phenotype Attempt Registered", "Mice Produced");
+
+
+        Map<String, Integer> columns = new HashMap<>();
+
+        BufferedReader in = new BufferedReader(new FileReader(new File(pathToAlleleFile)));
+        BufferedReader in2 = new BufferedReader(new FileReader(new File(pathToAlleleFile)));
+
+        String[] header = in.readLine().split("\t");
+        for (int i = 0; i < header.length; i++){
+            columns.put(header[i], i);
+        }
+
+        int geneCount = 0;
+        int alleleCount = 0;
+
+        String line = in.readLine();
+        while (line != null) {
+//            System.out.println(line);
+            String[] array = line.split("\t", -1);
+            if (array.length == 1) {
+                continue;
+            }
+
+            if (! array[columns.get("latest_project_status")].isEmpty() && array[columns.get("type")].equals("Gene")) {
+                String mgiAcc = array[columns.get("mgi_accession_id")];
+                Gene gene = new Gene();
+                gene.setMgiAccessionId(mgiAcc);
+
+                String thisSymbol = null;
+
+                if (! array[columns.get("marker_symbol")].isEmpty()) {
+                    thisSymbol = array[columns.get("marker_symbol")];
+                    gene.setMarkerSymbol(thisSymbol);
+                }
+                if (! array[columns.get("feature_type")].isEmpty()) {
+                    gene.setMarkerType(array[columns.get("feature_type")]);
+                }
+                if (! array[columns.get("marker_name")].isEmpty()) {
+                    gene.setMarkerName(array[columns.get("marker_name")]);
+                }
+                if (! array[columns.get("synonym")].isEmpty()) {
+                    List<String> syms = Arrays.asList(StringUtils.split(array[columns.get("synonym")], "|"));
+                    Set<MarkerSynonym> mss = new HashSet<>();
+
+                    for (String sym : syms) {
+                        MarkerSynonym ms = new MarkerSynonym();
+                        ms.setMarkerSynonym(sym);
+                        ms.setGene(gene);
+                        mss.add(ms);
+                    }
+                    gene.setMarkerSynonyms(mss);
+                }
+                if (! array[columns.get("feature_chromosome")].isEmpty()) {
+                    gene.setChrId(array[columns.get("feature_chromosome")]);
+                    gene.setChrStart(array[columns.get("feature_coord_start")]);
+                    gene.setChrEnd(array[columns.get("feature_coord_end")]);
+                    gene.setChrStrand(array[columns.get("feature_strand")]);
+                }
+
+                Set<EnsemblGeneId> ensgs = new HashSet<>();
+                if (! array[columns.get("gene_model_ids")].isEmpty()) {
+                    String[] ids = StringUtils.split(array[columns.get("gene_model_ids")], "|");
+                    for (int j = 0; j < ids.length; j++) {
+                        String thisId = ids[j];
+                        if (thisId.startsWith("ensembl_ids") || thisId.startsWith("\"ensembl_ids")) {
+                            String[] vals = StringUtils.split(thisId, ":");
+                            if (vals.length == 2) {
+                                String ensgId = vals[1];
+                                //System.out.println("Found " + ensgId);
+
+                                EnsemblGeneId ensg = new EnsemblGeneId();
+                                if (!ensGidEnsemblGeneIdMap.containsKey(ensgId)) {
+                                    ensg.setEnsemblGeneId(ensgId);
+                                    ensg.setGene(gene);
+                                    ensGidEnsemblGeneIdMap.put(ensgId, ensg);
+                                } else {
+                                    ensg = ensGidEnsemblGeneIdMap.get(ensgId);
+                                }
+
+                                ensgs.add(ensg);
+                            }
+                        }
+                    }
+                }
+                if (ensgs.size() > 0){
+                    gene.setEnsemblGeneIds(ensgs);
+                }
+
+                geneRepository.save(gene);
+                loadedGenes.put(mgiAcc, gene);
+                loadedSymbolGenes.put(thisSymbol, gene);
+
+                geneCount++;
+                if (geneCount % 5000 == 0) {
+                    logger.info("Loaded {} Gene nodes", geneCount);
+                }
+            }
+
+            line = in.readLine();
+        }
+        logger.info("Done loading Gene nodes");
+
+        String line2 = in2.readLine();
+        while (line2 != null) {
+            //System.out.println(line);
+            String[] array = line2.split("\t", -1);
+            if (array.length == 1) {
+                continue;
+            }
+
+            String mgiAcc = array[columns.get("mgi_accession_id")];
+
+            if (array[columns.get("type")].equals("Allele") && loadedGenes.containsKey(mgiAcc) && ! array[columns.get("allele_mgi_accession_id")].isEmpty()) {
+
+                Gene gene = loadedGenes.get(mgiAcc);
+
+                String alleleAcc = array[columns.get("allele_mgi_accession_id")];
+
+                Allele allele = new Allele();
+                allele.setAlleleMgiAccessionId(alleleAcc);
+                allele.setGene(gene);
+
+                if (!array[columns.get("allele_symbol")].isEmpty()) {
+                    allele.setAlleleSymbol(array[columns.get("allele_symbol")]);
+                }
+                if (!array[columns.get("allele_description")].isEmpty()) {
+                    allele.setAlleleDescription(array[columns.get("allele_description")]);
+                }
+                if (!array[columns.get("mutation_type")].isEmpty()) {
+                    allele.setMutationType(array[columns.get("mutation_type")]);
+                }
+                if (!array[columns.get("es_cell_status")].isEmpty()) {
+                    allele.setEsCellStatus(ES_CELL_STATUS_MAPPINGS.get(array[columns.get("es_cell_status")]));
+                }
+                if (!array[columns.get("mouse_status")].isEmpty()) {
+                    allele.setMouseStatus(MOUSE_STATUS_MAPPINGS.get(array[columns.get("mouse_status")]));
+                }
+                if (!array[columns.get("phenotype_status")].isEmpty()) {
+                    allele.setPhenotypeStatus(array[columns.get("phenotype_status")]);
+                }
+
+                if (gene.getAlleles() == null){
+                    Set<Allele> aset = new HashSet<Allele>();
+                    aset.add(allele);
+                    gene.setAlleles(aset);
+                }
+                else {
+                    gene.getAlleles().add(allele);
+                }
+
+                alleleRepository.save(allele);
+                loadedAlleles.put(allele.getAlleleSymbol(), allele);
+
+                alleleCount++;
+                if (alleleCount % 5000 == 0){
+                    logger.info("Loaded {} Allele nodes", alleleCount);
+                }
+            }
+
+            line2 = in2.readLine();
+        }
+
+        logger.info("Loaded {} Allele nodes and {} Gene nodes", alleleCount, geneCount);
+
+        String job = "Gene, Allele, MarkerSynonym and EnsemblGeneId nodes";
+        loadTime(begin, System.currentTimeMillis(), job);
+
+        // based on MGI report HMD_HumanPhenotype.rpt
+        // Mouse/Human Orthology with Phenotype Annotations (tab-delimited)
+        loadHumanOrtholog();
+    }
+
+    public void loadMousePhenotypes() throws IOException, OWLOntologyCreationException, OWLOntologyStorageException, SQLException, URISyntaxException, SolrServerException {
+        long begin = System.currentTimeMillis();
+
+        mpParser = ontologyParserFactory.getMpParser();
+        logger.info("Loaded mp parser");
+
+//        mpHpParser = ontologyParserFactory.getMpHpParser();
+//        logger.info("Loaded mp hp parser");
+
+        int mpCount = 0;
+        for (String mpId: mpParser.getTermsInSlim()) {
+
+            OntologyTermDTO mpDTO = mpParser.getOntologyTerm(mpId);
+            String termId = mpDTO.getAccessionId();
+
+            Mp mp = mpRepository.findByMpId(termId);
+            if (mp == null){
+                mp = new Mp();
+                mp.setMpId(termId);
+            }
+            if (mp.getMpTerm() == null) {
+                mp.setMpTerm(mpDTO.getName());
+            }
+            if (mp.getMpDefinition() == null) {
+                mp.setMpDefinition(mpDTO.getDefinition());
+            }
+
+            if (mp.getOntoSynonyms() == null) {
+                for (String mpsym : mpDTO.getSynonyms()) {
+                    OntoSynonym ms = new OntoSynonym();
+                    ms.setOntoSynonym(mpsym);
+                    ms.setMousePhenotype(mp);
+                    //ontoSynonymRepository.save(ms);
+
+                    if (mp.getOntoSynonyms() == null) {
+                        mp.setOntoSynonyms(new HashSet<OntoSynonym>());
+                    }
+                    mp.getOntoSynonyms().add(ms);
+                }
+            }
+
+            // PARENT
+            if (mp.getMpParentIds() == null) {
+                if ( mpDTO.getParentIds() != null) {
+                    for (String parId : mpDTO.getParentIds()) {
+                        Mp thisPh = mpRepository.findByMpId(parId);
+                        if (thisPh == null) {
+                            thisPh = new Mp();
+                        }
+                        thisPh.setMpId(parId);
+                        //mpRepository.save(thisPh); same transactioin
+
+                        if (mp.getMpParentIds() == null) {
+                            mp.setMpParentIds(new HashSet<Mp>());
+                        }
+                        mp.getMpParentIds().add(thisPh);
+                    }
+                }
+            }
+
+            // MARK MP WHICH IS TOP LEVEL
+            if (mpDTO.getTopLevelIds() == null || mpDTO.getTopLevelIds().size() == 0){
+                // add self as top level
+                mp.setTopLevelStatus(true);
+            }
+
+            // BEST MP to HP mapping
+            if (bestMpIdHpMap.containsKey(termId)){
+                for(Hp hp : bestMpIdHpMap.get(termId)){
+                    if (mp.getHumanPhenotypes() == null){
+                        mp.setHumanPhenotypes(new HashSet<Hp>());
+                    }
+                    mp.getHumanPhenotypes().add(hp);
+                }
+            }
+
+            // add mp-hp mapping using Monarch's mp-hp hybrid ontology: gets the narrow synonym
+            // TO DO
+
+            mpRepository.save(mp);
+            loadedMps.put(mp.getMpId(), mp);
+
+            mpCount++;
+
+            if (mpCount % 1000 == 0) {
+                logger.info("Added {} mp nodes",  mpCount);
+            }
+        }
+
+        logger.info("Added total of {} mp nodes",  mpCount);
+        String job = "loadMousePhenotypes";
+        loadTime(begin, System.currentTimeMillis(), job);
     }
 
     public void populateBestMpIdHpMap() throws SQLException {
@@ -345,7 +641,7 @@ public class Loader implements CommandLineRunner {
         }
     }
 
-    public void loadDiseases() throws SQLException {
+    public void loadDiseaseGenes() throws SQLException {
 
         long begin = System.currentTimeMillis();
 
@@ -378,7 +674,8 @@ public class Loader implements CommandLineRunner {
                 "FROM " +
                 "  mouse_disease_gene_summary_high_quality mdgshq " +
                 "  LEFT JOIN disease d ON d.disease_id = mdgshq.disease_id" +
-                "  JOIN (SELECT DISTINCT model_gene_id, model_gene_symbol, hgnc_id, hgnc_gene_symbol FROM mouse_gene_ortholog) mgo ON mgo.model_gene_id = mdgshq.model_gene_id ";
+                "  JOIN (SELECT DISTINCT model_gene_id, model_gene_symbol, hgnc_id, hgnc_gene_symbol FROM mouse_gene_ortholog) mgo ON mgo.model_gene_id = mdgshq.model_gene_id " +
+                "  WHERE d.disease_id IS NOT NULL";
 
 
         int dCount = 0;
@@ -391,18 +688,14 @@ public class Loader implements CommandLineRunner {
 
                 String diseaseId = r.getString("disease_id");
 
-                if (diseaseId == null) {
-                    continue;
-                }
-
-                Disease d = new Disease();
+                DiseaseGene d = new DiseaseGene();
 
                 d.setDiseaseId(diseaseId);
                 d.setDiseaseTerm(r.getString("disease_term"));
                 d.setDiseaseLocus(r.getString("disease_locus"));
 
                 //doc.setDiseaseAlts(Arrays.asList(r.getString("disease_alts").split("\\|")));
-                //doc.setDiseaseClasses(Arrays.asList(r.getString("disease_classes").split(",")));
+                d.setDiseaseClasses(r.getString("disease_classes"));
 
                 d.setHumanCurated(r.getBoolean("human_curated"));
                 d.setMouseCurated(r.getBoolean("mod_curated"));
@@ -446,65 +739,37 @@ public class Loader implements CommandLineRunner {
                 d.setImpcNovelPredictedInLocus(r.getBoolean("novel_htpc_predicted_in_locus"));
 
                 // Disease human phenotype associations
+                Set<Hp> hps = new HashSet<>();
                 if ( diseaseIdPhenotypeMap.containsKey(diseaseId)) {
                     for (Hp hp : diseaseIdPhenotypeMap.get(diseaseId)) {
-                        if (d.getHumanPhenotypes() == null) {
-                            d.setHumanPhenotypes(new HashSet<Hp>());
-                        }
-                        d.getHumanPhenotypes().add(hp);
+                        hps.add(hp);
                     }
                 }
+                d.setHumanPhenotypes(hps);
 
                 dCount++;
-                diseaseRepository.save(d);
-                loadedDiseases.put(d.getDiseaseId(), d);
+                diseaseGeneRepository.save(d);
+                //loadedDiseaseGenes.put(d.getDiseaseId(), d);
 
-                if (dCount % 1000 == 0) {
+                if (dCount % 5000 == 0) {
                     logger.info("Added {} Disease nodes", dCount);
                 }
             }
-            logger.info("Added total of {} Disease nodes", dCount);
-            String job = "Disease nodes";
+            logger.info("Added total of {} DiseaseGene nodes", dCount);
+            String job = "DiseaseGene nodes";
             loadTime(begin, System.currentTimeMillis(), job);
         }
     }
 
-    public void  connectDiseaseMouseModels() throws SQLException {
+    public void  loadDiseaseModels() throws SQLException {
 
         long begin = System.currentTimeMillis();
-
-//        Map<Integer, MouseModel> allMouseModels = new HashMap<>();
-//        Iterable<MouseModel> mms = mouseModelRepository.findAll();
-//            for(MouseModel mm : mms){
-//            allMouseModels.put(mm.getModelId(), mm);
-//        }
-//        System.out.println("Done populating MouseModel map");
-//
-        // disease takes ages to finish (> 30 and still not finished, aborted)
-//        Map<String, Disease> allDiseases = new HashMap<>();
-//        Iterable<Disease> ds = diseaseRepository.findAll();
-//        for(Disease d : ds){
-//            allDiseases.put(d.getDiseaseId(), d);
-//        }
-//        System.out.println("Done populating Disease map");
-//
-//        Map<String, Hp> allHps = new HashMap<>();
-//        Iterable<Hp> hps = hpRepository.findAll();
-//        for(Hp hp : hps){
-//            allHps.put(hp.getHpId(), hp);
-//        }
-//        System.out.println("Done populating Hp map");
-
-//        Map<String, Mp> allMps = new HashMap<>();
-//        Iterable<Mp> mps = mpRepository.findAll();
-//        for(Mp mp : mps){
-//            allMps.put(mp.getMpId(), mp);
-//        }
-//        System.out.println("Done populating Mp map");
 
         String query = "SELECT " +
                 "  'disease_model_association'      AS type, " +
                 "  mdgshq.disease_id, " +
+                "  d.disease_term, " +
+                "  d.disease_classes, " +
                 "  mmgo.model_gene_id               AS model_gene_id, " +
                 "  mmgo.model_id, " +
                 "  mdma.lit_model, " +
@@ -514,8 +779,7 @@ public class Loader implements CommandLineRunner {
                 "  mdma.hp_matched_terms, " +
                 "  mdma.mp_matched_terms, " +
                 "  mdgshq.mod_predicted, " +
-                "  mdgshq.htpc_predicted, " +
-                "  d.disease_classes " +
+                "  mdgshq.htpc_predicted " +
                 "FROM mouse_disease_gene_summary_high_quality mdgshq " +
                 "  JOIN mouse_model_gene_ortholog mmgo ON mdgshq.model_gene_id = mmgo.model_gene_id " +
                 "  JOIN mouse_disease_model_association mdma ON mdgshq.disease_id = mdma.disease_id AND mmgo.model_id = mdma.model_id " +
@@ -527,7 +791,7 @@ public class Loader implements CommandLineRunner {
 
             ResultSet r = p.executeQuery();
 
-            int mCount = 0;
+            int dmCount = 0;
 
             while (r.next()) {
 
@@ -536,39 +800,36 @@ public class Loader implements CommandLineRunner {
                 // only want IMPC related mouse models
                 if (loadedMouseModels.containsKey(modelId)) {
                     MouseModel mm = loadedMouseModels.get(modelId);
+
                     String diseaseId = r.getString("disease_id");
-                    Disease d = loadedDiseases.get(diseaseId);
-                    if (d.getMouseModels() == null) {
-                        d.setMouseModels(new HashSet<MouseModel>());
-                    }
-                    d.getMouseModels().add(mm);
+                    DiseaseModel d = new DiseaseModel();
+                    d.setDiseaseId(diseaseId);
+                    d.setDiseaseTerm(r.getString("disease_term"));
+                    d.setDiseaseClasses(r.getString("disease_classes"));
+                    d.setMouseModel(mm);
 
                     List<String> hpIds = Arrays.asList(r.getString("hp_matched_terms").split(","));
+                    Set<Hp> hps = new HashSet<>();
                     for (String hpId : hpIds) {
                         if (loadedHps.containsKey(hpId)) {
                             Hp hp = loadedHps.get(hpId);
-
-                            if (mm.getHumanPhenotypes() == null) {
-                                mm.setHumanPhenotypes(new HashSet<Hp>());
-                            }
-                            mm.getHumanPhenotypes().add(hp);
+                            hps.add(hp);
                         }
                     }
+                    d.setHumanPhenotypes(hps);
 
                     List<String> mpIds = Arrays.asList(r.getString("mp_matched_terms").split(","));
+                    Set<Mp> mps = new HashSet<>();
                     for (String mpId : mpIds) {
                         if (loadedMps.containsKey(mpId)) {
                             Mp mp = loadedMps.get(mpId);
-
-                            if (mm.getMousePhenotypes() == null) {
-                                mm.setMousePhenotypes(new HashSet<Mp>());
-                            }
-                            mm.getMousePhenotypes().add(mp);
+                            mps.add(mp);
                         }
                     }
+                    d.setMousePhenotypes(mps);
 
-                    mm.setDiseaseToModelScore(getDoubleDefaultZero(r, "disease_to_model_perc_score"));
-                    mm.setModelToDiseaseScore(getDoubleDefaultZero(r, "model_to_disease_perc_score"));
+                    d.setDiseaseToModelScore(getDoubleDefaultZero(r, "disease_to_model_perc_score"));
+                    d.setModelToDiseaseScore(getDoubleDefaultZero(r, "model_to_disease_perc_score"));
 
                     // connects a MouseModel to allele
                     // allelicComposition:	Nes<tm1b(KOMP)Wtsi>/Nes<tm1b(KOMP)Wtsi>
@@ -577,117 +838,24 @@ public class Loader implements CommandLineRunner {
                     String[] diploids = StringUtils.split(allelicComposition, "/");
                     String alleleSymbol = !diploids[0].equals("+") ? diploids[0] : diploids[1];
                     if (loadedAlleles.containsKey(alleleSymbol)){
-                        mm.setAllele(loadedAlleles.get(alleleSymbol));
+                        d.setAllele(loadedAlleles.get(alleleSymbol));
                     }
 
-                    diseaseRepository.save(d);
-                    mouseModelRepository.save(mm);
+                    diseaseModelRepository.save(d);
 
-                    mCount++;
-                    if (mCount % 1000 == 0) {
-                        logger.info("Added {} MouseModel - Disease connections", mCount);
+                    dmCount++;
+                    if (dmCount % 1000 == 0) {
+                        logger.info("Added {} DiseaseModel nodes", dmCount);
                     }
                 }
             }
-            logger.info("Added total of {} MouseModel - Disease connections",  mCount);
-            String job = "connectDiseaseMouseModels";
+            logger.info("Added total of {} DiseaseModel nodes",  dmCount);
+            String job = "loadDiseaseModels";
             loadTime(begin, System.currentTimeMillis(), job);
         }
     }
 
-    public void loadMousePhenotypes() throws IOException, OWLOntologyCreationException, OWLOntologyStorageException, SQLException, URISyntaxException, SolrServerException {
-        long begin = System.currentTimeMillis();
 
-        mpParser = ontologyParserFactory.getMpParser();
-        logger.info("Loaded mp parser");
-
-//        mpHpParser = ontologyParserFactory.getMpHpParser();
-//        logger.info("Loaded mp hp parser");
-
-        int mpCount = 0;
-        for (String mpId: mpParser.getTermsInSlim()) {
-
-            OntologyTermDTO mpDTO = mpParser.getOntologyTerm(mpId);
-            String termId = mpDTO.getAccessionId();
-
-            Mp mp = mpRepository.findByMpId(termId);
-            if (mp == null){
-                mp = new Mp();
-                mp.setMpId(termId);
-            }
-            if (mp.getMpTerm() == null) {
-                mp.setMpTerm(mpDTO.getName());
-            }
-            if (mp.getMpDefinition() == null) {
-                mp.setMpDefinition(mpDTO.getDefinition());
-            }
-
-            if (mp.getOntoSynonyms() == null) {
-                for (String mpsym : mpDTO.getSynonyms()) {
-                    OntoSynonym ms = new OntoSynonym();
-                    ms.setOntoSynonym(mpsym);
-                    ms.setMousePhenotype(mp);
-                    //ontoSynonymRepository.save(ms);
-
-                    if (mp.getOntoSynonyms() == null) {
-                        mp.setOntoSynonyms(new HashSet<OntoSynonym>());
-                    }
-                    mp.getOntoSynonyms().add(ms);
-                }
-            }
-
-            // PARENT
-            if (mp.getMpParentIds() == null) {
-                if ( mpDTO.getParentIds() != null) {
-                    for (String parId : mpDTO.getParentIds()) {
-                        Mp thisPh = mpRepository.findByMpId(parId);
-                        if (thisPh == null) {
-                            thisPh = new Mp();
-                        }
-                        thisPh.setMpId(parId);
-                        //mpRepository.save(thisPh); same transactioin
-
-                        if (mp.getMpParentIds() == null) {
-                            mp.setMpParentIds(new HashSet<Mp>());
-                        }
-                        mp.getMpParentIds().add(thisPh);
-                    }
-                }
-            }
-
-            // MARK MP WHICH IS TOP LEVEL
-            if (mpDTO.getTopLevelIds() == null || mpDTO.getTopLevelIds().size() == 0){
-                // add self as top level
-                mp.setTopLevelStatus(true);
-            }
-
-            // BEST MP to HP mapping
-            if (bestMpIdHpMap.containsKey(termId)){
-                for(Hp hp : bestMpIdHpMap.get(termId)){
-                    if (mp.getHumanPhenotypes() == null){
-                        mp.setHumanPhenotypes(new HashSet<Hp>());
-                    }
-                    mp.getHumanPhenotypes().add(hp);
-                }
-            }
-
-            // add mp-hp mapping using Monarch's mp-hp hybrid ontology: gets the narrow synonym
-            // TO DO
-
-            mpRepository.save(mp);
-            loadedMps.put(mp.getMpId(), mp);
-
-            mpCount++;
-
-            if (mpCount % 1000 == 0) {
-                logger.info("Added {} mp nodes",  mpCount);
-            }
-        }
-
-        logger.info("Added total of {} mp nodes",  mpCount);
-        String job = "loadMousePhenotypes";
-        loadTime(begin, System.currentTimeMillis(), job);
-    }
 
     public void loadHumanOrtholog() throws IOException {
 
@@ -741,204 +909,13 @@ public class Loader implements CommandLineRunner {
         loadTime(begin, System.currentTimeMillis(), job);
     }
 
-
-    public void loadGenes() throws IOException, SolrServerException {
-
-        long begin = System.currentTimeMillis();
-
-        final Map<String, String> ES_CELL_STATUS_MAPPINGS = new HashMap<>();
-        ES_CELL_STATUS_MAPPINGS.put("No ES Cell Production", "Not Assigned for ES Cell Production");
-        ES_CELL_STATUS_MAPPINGS.put("ES Cell Production in Progress", "Assigned for ES Cell Production");
-        ES_CELL_STATUS_MAPPINGS.put("ES Cell Targeting Confirmed", "ES Cells Produced");
-
-
-        final Map<String, String> MOUSE_STATUS_MAPPINGS = new HashMap<>();
-        MOUSE_STATUS_MAPPINGS.put("Chimeras obtained", "Assigned for Mouse Production and Phenotyping");
-        MOUSE_STATUS_MAPPINGS.put("Micro-injection in progress", "Assigned for Mouse Production and Phenotyping");
-        MOUSE_STATUS_MAPPINGS.put("Cre Excision Started", "Mice Produced");
-        MOUSE_STATUS_MAPPINGS.put("Rederivation Complete", "Mice Produced");
-        MOUSE_STATUS_MAPPINGS.put("Rederivation Started", "Mice Produced");
-        MOUSE_STATUS_MAPPINGS.put("Genotype confirmed", "Mice Produced");
-        MOUSE_STATUS_MAPPINGS.put("Cre Excision Complete", "Mice Produced");
-        MOUSE_STATUS_MAPPINGS.put("Phenotype Attempt Registered", "Mice Produced");
-
-
-        Map<String, Integer> columns = new HashMap<>();
-
-        BufferedReader in = new BufferedReader(new FileReader(new File(pathToAlleleFile)));
-        BufferedReader in2 = new BufferedReader(new FileReader(new File(pathToAlleleFile)));
-
-        String[] header = in.readLine().split("\t");
-        for (int i = 0; i < header.length; i++){
-            columns.put(header[i], i);
-        }
-
-        int geneCount = 0;
-        int alleleCount = 0;
-
-        String line = in.readLine();
-        while (line != null) {
-            //System.out.println(line);
-            String[] array = line.split("\t", -1);
-            if (array.length == 1) {
-                continue;
-            }
-
-            if (! array[columns.get("latest_project_status")].isEmpty() && array[columns.get("type")].equals("Gene")) {
-                String mgiAcc = array[columns.get("mgi_accession_id")];
-                Gene gene = new Gene();
-                gene.setMgiAccessionId(mgiAcc);
-
-                String thisSymbol = null;
-
-                if (! array[columns.get("marker_symbol")].isEmpty()) {
-                    thisSymbol = array[columns.get("marker_symbol")];
-                    gene.setMarkerSymbol(thisSymbol);
-                }
-                if (! array[columns.get("feature_type")].isEmpty()) {
-                    gene.setMarkerType(array[columns.get("feature_type")]);
-                }
-                if (! array[columns.get("marker_name")].isEmpty()) {
-                    gene.setMarkerName(array[columns.get("marker_name")]);
-                }
-                if (! array[columns.get("synonym")].isEmpty()) {
-                    List<String> syms = Arrays.asList(StringUtils.split(array[columns.get("synonym")], "|"));
-                    Set<MarkerSynonym> mss = new HashSet<>();
-
-                    for (String sym : syms) {
-                        MarkerSynonym ms = new MarkerSynonym();
-                        ms.setMarkerSynonym(sym);
-                        ms.setGene(gene);
-                        mss.add(ms);
-                    }
-                    gene.setMarkerSynonyms(mss);
-                }
-                if (! array[columns.get("feature_chromosome")].isEmpty()) {
-                    gene.setChrId(array[columns.get("feature_chromosome")]);
-                    gene.setChrStart(array[columns.get("feature_coord_start")]);
-                    gene.setChrEnd(array[columns.get("feature_coord_end")]);
-                    gene.setChrStrand(array[columns.get("feature_strand")]);
-                }
-
-                if (! array[columns.get("gene_model_ids")].isEmpty()) {
-                    String[] ids = StringUtils.split(array[columns.get("gene_model_ids")], "|");
-                    for(int j=0; j<ids.length; j++){
-                        String thisId = ids[j];
-                        if (thisId.startsWith("ensembl_ids") || thisId.startsWith("\"ensembl_ids")){
-                            String[] vals = StringUtils.split(thisId, ":");
-                            if (vals.length == 2) {
-                                String ensgId = vals[1];
-                                //System.out.println("Found " + ensgId);
-
-                                EnsemblGeneId ensg = new EnsemblGeneId();
-                                if (! ensGidEnsemblGeneIdMap.containsKey(ensgId)) {
-                                    ensg.setEnsemblGeneId(ensgId);
-                                    ensg.setGene(gene);
-                                    ensGidEnsemblGeneIdMap.put(ensgId, ensg);
-                                }
-                                else {
-                                    ensg = ensGidEnsemblGeneIdMap.get(ensgId);
-                                }
-
-                                if (gene.getEnsemblGeneIds() == null) {
-                                    gene.setEnsemblGeneIds(new HashSet<EnsemblGeneId>());
-                                }
-                                gene.getEnsemblGeneIds().add(ensg);
-                            }
-                        }
-                    }
-                }
-
-                geneRepository.save(gene);
-                loadedGenes.put(mgiAcc, gene);
-                loadedSymbolGenes.put(thisSymbol, gene);
-
-                geneCount++;
-                if (geneCount % 5000 == 0) {
-                    logger.info("Loaded {} Gene nodes", geneCount);
-                }
-            }
-
-            line = in.readLine();
-        }
-        logger.info("Done loading Gene nodes");
-
-        String line2 = in2.readLine();
-        while (line2 != null) {
-            //System.out.println(line);
-            String[] array = line2.split("\t", -1);
-            if (array.length == 1) {
-                continue;
-            }
-
-            String mgiAcc = array[columns.get("mgi_accession_id")];
-
-            if (array[columns.get("type")].equals("Allele") && loadedGenes.containsKey(mgiAcc) && ! array[columns.get("allele_mgi_accession_id")].isEmpty()) {
-
-                Gene gene = loadedGenes.get(mgiAcc);
-
-                String alleleAcc = array[columns.get("allele_mgi_accession_id")];
-
-                Allele allele = new Allele();
-                allele.setAlleleMgiAccessionId(alleleAcc);
-                allele.setGene(gene);
-
-                if (!array[columns.get("allele_symbol")].isEmpty()) {
-                    allele.setAlleleSymbol(array[columns.get("allele_symbol")]);
-                }
-                if (!array[columns.get("allele_description")].isEmpty()) {
-                    allele.setAlleleDescription(array[columns.get("allele_description")]);
-                }
-                if (!array[columns.get("mutation_type")].isEmpty()) {
-                    allele.setMutationType(array[columns.get("mutation_type")]);
-                }
-                if (!array[columns.get("es_cell_status")].isEmpty()) {
-                    allele.setEsCellStatus(ES_CELL_STATUS_MAPPINGS.get(array[columns.get("es_cell_status")]));
-                }
-                if (!array[columns.get("mouse_status")].isEmpty()) {
-                    allele.setMouseStatus(MOUSE_STATUS_MAPPINGS.get(array[columns.get("mouse_status")]));
-                }
-                if (!array[columns.get("phenotype_status")].isEmpty()) {
-                    allele.setPhenotypeStatus(array[columns.get("phenotype_status")]);
-                }
-
-                if (gene.getAlleles() == null){
-                    Set<Allele> aset = new HashSet<Allele>();
-                    aset.add(allele);
-                    gene.setAlleles(aset);
-                }
-                else {
-                    gene.getAlleles().add(allele);
-                }
-
-                alleleRepository.save(allele);
-                loadedAlleles.put(allele.getAlleleSymbol(), allele);
-
-                alleleCount++;
-                if (alleleCount % 5000 == 0){
-                    logger.info("Loaded {} Allele nodes", alleleCount);
-                }
-            }
-
-            line2 = in2.readLine();
-        }
-
-        logger.info("Loaded {} Allele nodes and {} Gene nodes", alleleCount, geneCount);
-
-        String job = "Gene, Allele, MarkerSynonym and EnsemblGeneId nodes";
-        loadTime(begin, System.currentTimeMillis(), job);
-
-        // based on MGI report HMD_HumanPhenotype.rpt
-        // Mouse/Human Orthology with Phenotype Annotations (tab-delimited)
-        loadHumanOrtholog();
-    }
-
     public void loadTime(long begin, long end, String job){
-
         long elapsedTimeMillis = end - begin;
-        double sec = (elapsedTimeMillis / 1000.0);
-        double min = Math. floor((elapsedTimeMillis / (1000.0 * 60)) % 60);
-        logger.info("Time taken to load {}: {} min {} sec", job, min, sec);
+        int seconds = (int) (elapsedTimeMillis / 1000) % 60 ;
+        int minutes = (int) ((elapsedTimeMillis / (1000*60)) % 60);
+        int hours   = (int) ((elapsedTimeMillis / (1000*60*60)) % 24);
+
+        logger.info("Time taken to load {}: {}hr:{}min:{}sec", job, hours, minutes, seconds);
     }
 
     private Double getDoubleDefaultZero(ResultSet r, String field) throws SQLException {
