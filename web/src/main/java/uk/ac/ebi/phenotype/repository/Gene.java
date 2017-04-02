@@ -38,7 +38,7 @@ public class Gene {
     private Set<Allele> alleles;
 
     @Relationship(type = "DISEASE", direction = Relationship.OUTGOING)
-    private Set<Disease> diseases;
+    private Set<DiseaseGene> diseaseGenes;
 
     @Relationship(type = "MOUSE_PHENOTYPE", direction = Relationship.OUTGOING)
     private Set<Mp> mousePhenotypes;
@@ -150,12 +150,12 @@ public class Gene {
         this.alleles = alleles;
     }
 
-    public Set<Disease> getDiseases() {
-        return diseases;
+    public Set<DiseaseGene> getDiseaseGenes() {
+        return diseaseGenes;
     }
 
-    public void setDiseases(Set<Disease> diseases) {
-        this.diseases = diseases;
+    public void setDiseaseGenes(Set<DiseaseGene> diseaseGenes) {
+        this.diseaseGenes = diseaseGenes;
     }
 
     public Set<Mp> getMousePhenotypes() {
@@ -190,7 +190,7 @@ public class Gene {
                 ", markerSynonyms=" + markerSynonyms +
                 ", humanGeneSymbols=" + humanGeneSymbols +
                 ", alleles=" + alleles +
-                ", diseases=" + diseases +
+                ", diseaseGenes=" + diseaseGenes +
                 ", mousePhenotypes=" + mousePhenotypes +
                 ", humanPhenotypes=" + humanPhenotypes +
                 '}';
