@@ -189,44 +189,6 @@ public class CdaSqlUtils {
 
 
     /**
-     * Return the {@link BiologicalModel} for the given input parameters
-     *
-     * @param geneAccessionId gene accession id
-     * @param allele_symbol allele symbol
-     * @param background_strain_name background strain name
-     *
-     * @return the {@link BiologicalModel} for the given input parameters
-     */
-    public BiologicalModel getBiologicalModelByJoins(String geneAccessionId, String allele_symbol, String background_strain_name) {
-        BiologicalModel bm = null;
-        String query =
-                "SELECT DISTINCT bm.*\n" +
-                "FROM biological_model bm\n" +
-                "JOIN biological_model_allele bma ON bma.biological_model_id=bm.id\n" +
-                "JOIN allele a ON a.acc=bma.allele_acc\n" +
-                "JOIN biological_model_genomic_feature bmgf ON bmgf.biological_model_id=bm.id\n" +
-                "JOIN genomic_feature gf ON gf.acc=bmgf.gf_acc\n" +
-                "JOIN biological_model_strain bms ON bms.biological_model_id = bm.id\n" +
-                "JOIN strain s ON s.acc = bms.strain_acc\n" +
-                "JOIN phenotyped_colony pc ON pc.gf_acc = gf.acc AND pc.allele_symbol = a.symbol AND pc.background_strain_name = s.name\n" +
-                "WHERE pc.gf_acc = :gf_acc AND pc.allele_symbol = :allele_symbol AND pc.background_strain_name = :background_strain_name\n";
-
-        Map<String, Object> parameterMap = new HashMap<>();
-        parameterMap.put("gf_acc", geneAccessionId);
-        parameterMap.put("allele_symbol", allele_symbol);
-        parameterMap.put("background_strain_name", background_strain_name);
-
-        List<BiologicalModel> bmAggregatorList = jdbcCda.query(query, parameterMap, new BiologicalModelRowMapper());
-
-        if ( ! bmAggregatorList.isEmpty()) {
-            bm = bmAggregatorList.get(0);
-        }
-
-        return bm;
-    }
-
-
-    /**
      *
      * @return a map of {@link BiologicalSample}, keyed by external_id and organisation_id (e.g. "mouseXXX_12345")
      *         NOTE: The external_id in {@link BiologicalSample} is called stableId.
@@ -746,6 +708,35 @@ public class CdaSqlUtils {
             Map<String, Object> parameterMap = new HashMap<>();
             parameterMap.put("biological_model_id", biologicalModelId);
             parameterMap.put("biological_sample_id", biologicalSampleId);
+
+            count = jdbcCda.update(insert, parameterMap);
+
+        } catch (DuplicateKeyException e) {
+
+        }
+
+        return count;
+    }
+
+    /**
+     * Insert biological_model_strain record. Ignore duplicates.
+     * @param biologicalModelId the biological model primary key
+     * @param strainId the strain primary key
+     * @return the nuber of rows inserted
+     * @throws DataLoadException
+     */
+    public int insertBiologicalModelStrain(int biologicalModelId, DatasourceEntityId strainId) throws DataLoadException {
+        int count = 0;
+
+        final String insert = "INSERT INTO biological_model_strain (biological_model_id, strain_acc, strain_db_id) " +
+                                   "VALUES (:biological_model_id, :strain_acc, :strain_db_id)";
+
+        // Insert biological_model_sample. Ignore any duplicates.
+        try {
+            Map<String, Object> parameterMap = new HashMap<>();
+            parameterMap.put("biological_model_id", biologicalModelId);
+            parameterMap.put("strain_acc", strainId.getAccession());
+            parameterMap.put("strain_db_id", strainId.getDatabaseId());
 
             count = jdbcCda.update(insert, parameterMap);
 
@@ -3122,22 +3113,6 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
             throw new DataLoadException(message, e);
         }
 
-
-
-
-// FIXME FIXME FIXME FIXME FIXME FIXME
-// FIXME FIXME FIXME FIXME FIXME FIXME
-// FIXME FIXME FIXME FIXME FIXME FIXME
-// FIXME FIXME FIXME FIXME FIXME FIXME
-// 02-Apr-2017 (mrelac)
-// Test this call out and either fix it or remove it.
-//        BiologicalModel bm = getBiologicalModelByJoins(colony.getGene().getId().getAccession(), allele.getSymbol(), backgroundStrain.getName());
-
-// FIXME FIXME FIXME FIXME FIXME FIXME
-// FIXME FIXME FIXME FIXME FIXME FIXME
-// FIXME FIXME FIXME FIXME FIXME FIXME
-// FIXME FIXME FIXME FIXME FIXME FIXME
-
         // Get the biological model. Create one if it is not found.
         String allelicComposition = strainMapper.createAllelicComposition(zygosity, allele.getSymbol(), gene.getSymbol(), sampleGroup);
         BiologicalModelAggregator biologicalModelAggregator = new BiologicalModelAggregator(
@@ -3160,6 +3135,9 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
             if (biologicalModel == null) {
                 throw new DataLoadException("Attempt to create biological model for colony '" + colony.getColonyName() + "' failed.");
             }
+        } else {
+            // The biological_model_strain table is not inserted when the cda_base database is created, as the info may be obsolete. Insert it here.
+            insertBiologicalModelStrain(biologicalModel.getId(), backgroundStrain.getId());
         }
 
         return biologicalModel;
