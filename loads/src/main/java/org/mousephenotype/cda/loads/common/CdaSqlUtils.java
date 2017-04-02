@@ -180,7 +180,7 @@ public class CdaSqlUtils {
             } catch (DuplicateKeyException e) {
 
             } catch (Exception e) {
-                logger.error("Error inserting allele {}: {}. Record skipped...", alleles, e.getLocalizedMessage());
+                logger.error("Error inserting allele {}: {}. Record skipped...", allele, e.getLocalizedMessage());
             }
         }
 
