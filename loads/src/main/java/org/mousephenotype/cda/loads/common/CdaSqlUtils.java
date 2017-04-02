@@ -2502,7 +2502,7 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
      *
      * @throws DataLoadException
      */
-    public Map<String, Strain> getStrainByNameOrMgiAccessionId() throws DataLoadException {
+    public Map<String, Strain> getStrainsByNameOrMgiAccessionId() throws DataLoadException {
 
         if ((strainsByNameAndMgiAccessionId == null) || strainsByNameAndMgiAccessionId.isEmpty()) {
             strainsByNameAndMgiAccessionId = new ConcurrentHashMap<>();
@@ -2531,7 +2531,7 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
      * @throws DataLoadException
      */
     public Strain getStrainByNameOrMgiAccessionId(String strainNameOrMgiAccessionId) throws DataLoadException {
-        return getStrainByNameOrMgiAccessionId().get(strainNameOrMgiAccessionId);
+        return getStrainsByNameOrMgiAccessionId().get(strainNameOrMgiAccessionId);
     }
 
     /**
