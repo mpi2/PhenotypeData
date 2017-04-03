@@ -47,7 +47,6 @@ public class TreeJsHelper {
                     }
                 }
             }
-            System.out.println();
 
             return children;
         }

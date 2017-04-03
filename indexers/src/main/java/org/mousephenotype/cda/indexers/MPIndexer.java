@@ -139,7 +139,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
 
     @Override
     public RunStatus run ()
-            throws IndexerException, SQLException, IOException, SolrServerException, URISyntaxException {
+            throws IndexerException{
 
         int count = 0;
         RunStatus runStatus = new RunStatus();
@@ -182,7 +182,8 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
                     mp.setAltMpIds(mpDTO.getAlternateIds());
                 }
 
-                mp.setMpNodeId(mpDTO.getNodeIds());
+
+                mp.setMpNodeId(mpDTO.getNodeIds() != null ? mpDTO.getNodeIds() : Arrays.asList(-1));
 
                 addTopLevelTerms(mp, mpDTO);
                 addIntermediateTerms(mp, mpDTO);
@@ -242,13 +243,14 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
                     System.out.println("Added " + documentCount);
                 }
 
-                mpParser.fillJsonTreePath("MP:0000001", "/data/phenotype/", mpGeneVariantCount, ontologyParserFactory.TOP_LEVEL_MP_TERMS ); // call this if you want node ids from the objects
+                mpParser.fillJsonTreePath("MP:0000001", "/data/phenotype/", mpGeneVariantCount, ontologyParserFactory.TOP_LEVEL_MP_TERMS, false); // call this if you want node ids from the objects
             }
 
             // Send a final commit
             mpCore.commit();
 
-        } catch (SolrServerException | IOException | OWLOntologyCreationException | OWLOntologyStorageException e) {
+        } catch (SolrServerException | IOException | OWLOntologyCreationException | OWLOntologyStorageException | SQLException | URISyntaxException e) {
+            e.printStackTrace();
             throw new IndexerException(e);
         }
 
