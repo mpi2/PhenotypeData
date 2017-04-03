@@ -81,44 +81,45 @@ public class AdvancedSearchController {
 //    private GeneRepository geneRepository;
 
 
-
     @RequestMapping(value = "/batchQuery2", method = RequestMethod.GET)
-    public @ResponseBody Integer chrlen(
+    public
+    @ResponseBody
+    Integer chrlen(
             @RequestParam(value = "chr", required = true) String chr,
             HttpServletRequest request,
             HttpServletResponse response,
             Model model) throws IOException, URISyntaxException, SolrServerException, SQLException {
 
 
-
-
-
-    @RequestMapping(value = "/chrlen", method = RequestMethod.GET)
-    public @ResponseBody Integer chrlen(
-            @RequestParam(value = "chr", required = true) String chr,
-            HttpServletRequest request,
-            HttpServletResponse response,
-            Model model) throws IOException, URISyntaxException, SolrServerException, SQLException {
-
-        Integer len = null;
-        //fetchChrLenJson();
-//        Connection connKomp2 = komp2DataSource.getConnection();
-//
-//        String sql = "SELECT length FROM seq_region WHERE name ='" + chr + "'";
-//
-//
-//        try (PreparedStatement p = connKomp2.prepareStatement(sql)) {
-//            ResultSet resultSet = p.executeQuery();
-//
-//            while (resultSet.next()) {
-//                len = resultSet.getInt("length");
-//            }
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-
-        return len;
+       return null;
     }
+
+//    @RequestMapping(value = "/chrlen", method = RequestMethod.GET)
+//    public @ResponseBody Integer chrlen(
+//            @RequestParam(value = "chr", required = true) String chr,
+//            HttpServletRequest request,
+//            HttpServletResponse response,
+//            Model model) throws IOException, URISyntaxException, SolrServerException, SQLException {
+//
+//        Integer len = null;
+//        //fetchChrLenJson();
+////        Connection connKomp2 = komp2DataSource.getConnection();
+////
+////        String sql = "SELECT length FROM seq_region WHERE name ='" + chr + "'";
+////
+////
+////        try (PreparedStatement p = connKomp2.prepareStatement(sql)) {
+////            ResultSet resultSet = p.executeQuery();
+////
+////            while (resultSet.next()) {
+////                len = resultSet.getInt("length");
+////            }
+////        } catch (Exception e) {
+////            e.printStackTrace();
+////        }
+//
+//        return len;
+//    }
 
     private HttpHeaders createResponseHeaders() {
         HttpHeaders responseHeaders = new HttpHeaders();
