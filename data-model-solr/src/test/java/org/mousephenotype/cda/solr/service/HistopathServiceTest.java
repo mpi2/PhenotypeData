@@ -6,6 +6,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.mousephenotype.cda.solr.web.dto.HistopathPageTableRow;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -21,9 +22,8 @@ import java.util.Map;
 @TestPropertySource("file:${user.home}/configfiles/${profile:dev}/test.properties")
 public class HistopathServiceTest {
 
-
-    //TODO: Fix this test case
-
+	@Autowired
+    GrossPathService grossService;
     @Test
     public void getTableDataTest() throws IOException, SolrServerException {
         //gene_accession_id:"MGI:2449119"
