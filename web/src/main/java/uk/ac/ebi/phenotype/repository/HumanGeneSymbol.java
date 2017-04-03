@@ -4,6 +4,8 @@ import org.neo4j.ogm.annotation.GraphId;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 
+import java.util.Set;
+
 /**
  * Created by ckchen on 14/03/2017.
  */
@@ -15,8 +17,9 @@ public class HumanGeneSymbol {
 
     private String humanGeneSymbol;
 
+    // one human symbol can be associated with multiple mouse symbols
     @Relationship(type="GENE", direction=Relationship.OUTGOING)
-    private Gene gene;
+    private Set<Gene> genes;
 
     public Long getId() {
         return id;
@@ -34,12 +37,12 @@ public class HumanGeneSymbol {
         this.humanGeneSymbol = humanGeneSymbol;
     }
 
-    public Gene getGene() {
-        return gene;
+    public Set<Gene> getGenes() {
+        return genes;
     }
 
-    public void setGene(Gene gene) {
-        this.gene = gene;
+    public void setGenes(Set<Gene> genes) {
+        this.genes = genes;
     }
 
     @Override
@@ -47,7 +50,7 @@ public class HumanGeneSymbol {
         return "HumanGeneSymbol{" +
                 "id=" + id +
                 ", humanGeneSymbol='" + humanGeneSymbol + '\'' +
-                ", gene=" + gene +
+                ", genes=" + genes +
                 '}';
     }
 }

@@ -43,7 +43,8 @@ import org.springframework.util.Assert;
 public class GeneRepositoryTest2 {
 
     private final static Logger log = LoggerFactory.getLogger(GeneRepositoryTest2.class);
-    public static final String geneSymbol = "Akt2";
+
+    public static final String geneSymbol = "Nxn";
 
     @Autowired
     GeneRepository geneRepository;
@@ -55,8 +56,7 @@ public class GeneRepositoryTest2 {
 
     @Test
     public void testGeneRepository() {
-        System.out.println(geneSymbol);
-        System.out.println(geneRepository.toString());
+
 //    CommandLineRunner demo(GeneRepository geneRepository) {
 //        return args -> {
 //
@@ -70,8 +70,9 @@ public class GeneRepositoryTest2 {
 //                gene.setMarkerSymbol(geneSymbol);
 //                geneRepository.save(gene);
 //            }
+        Gene g = geneRepository.findByMarkerSymbol(geneSymbol);
+        System.out.println(g.toString());
 
-            geneRepository.findByMarkerSymbol(geneSymbol).toString();
 
 
     }
