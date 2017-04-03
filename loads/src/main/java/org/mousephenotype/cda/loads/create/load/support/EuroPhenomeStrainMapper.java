@@ -120,7 +120,7 @@ public class EuroPhenomeStrainMapper {
     private void initialise() throws DataLoadException {
         uncharacterizedBackgroundStrain = cdaSqlUtils.getOntologyTermByName("IMPC uncharacterized background strain");
 
-        this.strainsByAccessionId = cdaSqlUtils.getStrains();
+        this.strainsByAccessionId = cdaSqlUtils.getStrainsByNameOrMgiAccessionId();
         for (Strain strain : strainsByAccessionId.values()) {
             strainsByName.put(strain.getName(), strain);
             if (strain.getSynonyms() != null) {
