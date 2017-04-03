@@ -101,7 +101,6 @@ public class AnatomyIndexer extends AbstractIndexer implements CommandLineRunner
 
             initialiseSupportingBeans();
 
-            ontologyParserFactory = new OntologyParserFactory(komp2DataSource, owlpath);
             Set<String> maIds = maParser.getTermsInSlim();
             Set<String> emapaIds = emapaParser.getTermsInSlim();
 
@@ -228,6 +227,7 @@ public class AnatomyIndexer extends AbstractIndexer implements CommandLineRunner
     private void initialiseSupportingBeans() throws IndexerException, SQLException, IOException {
 
         try {
+            ontologyParserFactory = new OntologyParserFactory(komp2DataSource, owlpath);
             maUberonEfoMap = IndexerMap.mapMaToUberronOrEfoForAnatomogram(anatomogramResource);
             emapaParser = ontologyParserFactory.getEmapaParserWithTreeJson();
             maParser = ontologyParserFactory.getMaParserWithTreeJson();
