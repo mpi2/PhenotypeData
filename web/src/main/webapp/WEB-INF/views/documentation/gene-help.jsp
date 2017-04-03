@@ -129,7 +129,7 @@ This section displays IMPC lacZ expression data (A). In some cases where legacy 
 <p class="intraSectBr">
 
 <h4>(1) IMPC lacZ Expression Data:</h4>
-<p>Eventually, all genes should have both embyo and adult expression data. They are organized in tabs.
+<p>Eventually, all genes should have both embryo and young adult (weeks 9-16) expression data. They are organized in tabs.
 <ul class="subUl">
     <li>Adult Expression tab
         <p>An anatomogram displays all lacZ expressing tissues in blue. Mouseover will light up a tissue currently under the cursor. Click on a tissue in the list will take you to a page with expression images.<br>

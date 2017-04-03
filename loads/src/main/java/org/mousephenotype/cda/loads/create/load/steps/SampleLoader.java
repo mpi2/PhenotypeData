@@ -374,7 +374,7 @@ public class SampleLoader implements Step, Tasklet, InitializingBean {
 
         // specimen.strainId can contain an MGI strain accession id in the form "MGI:", or a strain name like C57BL/6N.
         if (specimen.getStrainID().toLowerCase().startsWith("mgi:")) {
-            backgroundStrain = cdaSqlUtils.getStrain(specimen.getStrainID());
+            backgroundStrain = cdaSqlUtils.getStrainByNameOrMgiAccessionId(specimen.getStrainID());
             if (backgroundStrain == null) {
                 throw new DataLoadException("No strain table entry found for strain accession id '" + specimen.getStrainID() + "'");
             }
@@ -386,7 +386,7 @@ public class SampleLoader implements Step, Tasklet, InitializingBean {
 
         try {
             backgroundStrainName = euroPhenomeStrainMapper.filterEuroPhenomeGeneticBackground(backgroundStrainName);
-            backgroundStrain = cdaSqlUtils.getStrainByName(backgroundStrainName);
+            backgroundStrain = cdaSqlUtils.getStrainByNameOrMgiAccessionId(backgroundStrainName);
             if (backgroundStrain == null) {
                 backgroundStrain = cdaSqlUtils.createAndInsertStrain(backgroundStrainName);
             }
