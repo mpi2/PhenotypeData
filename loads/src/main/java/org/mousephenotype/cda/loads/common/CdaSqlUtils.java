@@ -2631,6 +2631,18 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
         return count;
     }
 
+    public int updateBiologicalModelZygosity(int biologicalModelPk, String zygosity) {
+        final String update = "UPDATE biological_model SET zygosity = :zygosity WHERE id = :biologicalModelPk";
+
+        Map<String, Object> parameterMap = new HashMap<>();
+        parameterMap.put("zygosity", zygosity);
+        parameterMap.put("biologicalModelPk", biologicalModelPk);
+
+        int count = jdbcCda.update(update, parameterMap);
+
+        return count;
+    }
+
     public void updateObservationMissingFlag(int observationPk, boolean missing) {
         int iMissing = (missing ? 1 : 0);
         final String update = "UPDATE observation SET missing = :missing WHERE id = :observationPk";
@@ -3136,8 +3148,11 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
                 throw new DataLoadException("Attempt to create biological model for colony '" + colony.getColonyName() + "' failed.");
             }
         } else {
-            // The biological_model_strain table is not inserted when the cda_base database is created, as the info may be obsolete. Insert it here.
+            // The biological_model_strain table is not inserted when the cda_base database is created, as the info may be obsolete, and the strain is not available. Insert it here.
             insertBiologicalModelStrain(biologicalModel.getId(), backgroundStrain.getId());
+
+            // When the cda_base table is created, the biological_model table is inserted, but the zygosity is not known. Now we know it. Update the biological_model.zygosity column here.
+            updateBiologicalModelZygosity(biologicalModel.getId(), zygosity);
         }
 
         return biologicalModel;
