@@ -55,8 +55,7 @@ public class CdaSqlUtils {
     private Map<String, OntologyTerm>     ontologyTerms;    // keyed by ontology term accession id
     private Map<String, SequenceRegion>   sequenceRegions;  // keyed by strain id (int)
     private SqlUtils                      sqlUtils = new SqlUtils();
-    private Map<String, Strain>           strains;          // keyed by accession id
-    private Map<String, Strain>           strainsByName;    // keyed by strain name
+    private Map<String, Strain>           strainsByNameAndMgiAccessionId;    // keyed by strain name or mgi accession id
     private Map<String, List<Synonym>>    synonyms;         // keyed by accession id
 
     private final LoadUtils   loadUtils   = new LoadUtils();
@@ -181,49 +180,11 @@ public class CdaSqlUtils {
             } catch (DuplicateKeyException e) {
 
             } catch (Exception e) {
-                logger.error("Error inserting allele {}: {}. Record skipped...", alleles, e.getLocalizedMessage());
+                logger.error("Error inserting allele {}: {}. Record skipped...", allele, e.getLocalizedMessage());
             }
         }
 
         return count;
-    }
-
-
-    /**
-     * Return the {@link BiologicalModel} for the given input parameters
-     *
-     * @param geneAccessionId gene accession id
-     * @param allele_symbol allele symbol
-     * @param background_strain_name background strain name
-     *
-     * @return the {@link BiologicalModel} for the given input parameters
-     */
-    public BiologicalModel getBiologicalModelByJoins(String geneAccessionId, String allele_symbol, String background_strain_name) {
-        BiologicalModel bm = null;
-        String query =
-                "SELECT DISTINCT bm.*\n" +
-                "FROM biological_model bm\n" +
-                "JOIN biological_model_allele bma ON bma.biological_model_id=bm.id\n" +
-                "JOIN allele a ON a.acc=bma.allele_acc\n" +
-                "JOIN biological_model_genomic_feature bmgf ON bmgf.biological_model_id=bm.id\n" +
-                "JOIN genomic_feature gf ON gf.acc=bmgf.gf_acc\n" +
-                "JOIN biological_model_strain bms ON bms.biological_model_id = bm.id\n" +
-                "JOIN strain s ON s.acc = bms.strain_acc\n" +
-                "JOIN phenotyped_colony pc ON pc.gf_acc = gf.acc AND pc.allele_symbol = a.symbol AND pc.background_strain_name = s.name\n" +
-                "WHERE pc.gf_acc = :gf_acc AND pc.allele_symbol = :allele_symbol AND pc.background_strain_name = :background_strain_name\n";
-
-        Map<String, Object> parameterMap = new HashMap<>();
-        parameterMap.put("gf_acc", geneAccessionId);
-        parameterMap.put("allele_symbol", allele_symbol);
-        parameterMap.put("background_strain_name", background_strain_name);
-
-        List<BiologicalModel> bmAggregatorList = jdbcCda.query(query, parameterMap, new BiologicalModelRowMapper());
-
-        if ( ! bmAggregatorList.isEmpty()) {
-            bm = bmAggregatorList.get(0);
-        }
-
-        return bm;
     }
 
 
@@ -250,19 +211,19 @@ public class CdaSqlUtils {
      * Return the {@link BiologicalModel} for the given input parameters
      *
      * @param allelicComposition allelic composition
-     * @param backgroundStrainName background strain name
+     * @param geneticBackground genetic background (often prefaced with 'involves...')
      *
      * @return the {@link BiologicalModel} for the given input parameters
      */
-    public BiologicalModel getBiologicalModel(String allelicComposition, String backgroundStrainName) {
+    public BiologicalModel getBiologicalModel(String allelicComposition, String geneticBackground) {
         BiologicalModel bm = null;
         String query =
                 "SELECT * FROM biological_model\n" +
-                "WHERE allelic_composition = :allelic_composition AND genetic_background = :genetic_background\n";
+                "WHERE allelic_composition = :allelic_composition AND genetic_background = :genetic_background";
 
         Map<String, Object> parameterMap = new HashMap<>();
         parameterMap.put("allelic_composition", allelicComposition);
-        parameterMap.put("genetic_background", backgroundStrainName);
+        parameterMap.put("genetic_background", geneticBackground);
 
         List<BiologicalModel> bmAggregatorList = jdbcCda.query(query, parameterMap, new BiologicalModelRowMapper());
 
@@ -608,7 +569,7 @@ public class CdaSqlUtils {
 
             // biological_model
             Map<String, Object> parameterMap = new HashMap<>();
-            parameterMap.put("db_id", DbIdType.MGI.intValue());
+            parameterMap.put("db_id", DbIdType.IMPC.intValue());
             parameterMap.put("allelic_composition", bioModel.getAllelicComposition());
             parameterMap.put("genetic_background", bioModel.getGeneticBackground());
             parameterMap.put("zygosity", bioModel.getZygosity());
@@ -747,6 +708,35 @@ public class CdaSqlUtils {
             Map<String, Object> parameterMap = new HashMap<>();
             parameterMap.put("biological_model_id", biologicalModelId);
             parameterMap.put("biological_sample_id", biologicalSampleId);
+
+            count = jdbcCda.update(insert, parameterMap);
+
+        } catch (DuplicateKeyException e) {
+
+        }
+
+        return count;
+    }
+
+    /**
+     * Insert biological_model_strain record. Ignore duplicates.
+     * @param biologicalModelId the biological model primary key
+     * @param strainId the strain primary key
+     * @return the nuber of rows inserted
+     * @throws DataLoadException
+     */
+    public int insertBiologicalModelStrain(int biologicalModelId, DatasourceEntityId strainId) throws DataLoadException {
+        int count = 0;
+
+        final String insert = "INSERT INTO biological_model_strain (biological_model_id, strain_acc, strain_db_id) " +
+                                   "VALUES (:biological_model_id, :strain_acc, :strain_db_id)";
+
+        // Insert biological_model_sample. Ignore any duplicates.
+        try {
+            Map<String, Object> parameterMap = new HashMap<>();
+            parameterMap.put("biological_model_id", biologicalModelId);
+            parameterMap.put("strain_acc", strainId.getAccession());
+            parameterMap.put("strain_db_id", strainId.getDatabaseId());
 
             count = jdbcCda.update(insert, parameterMap);
 
@@ -2498,79 +2488,41 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
     }
 
 
-
     /**
-     * Returns the {@code Strain} instance matching {@code accessionId}, if found; null otherwise
-     *
-     * @param accessionId the desired strain accession id
-     *
-     * @return the {@code Strain} instance matching {@code accessionId}, if found; null otherwise
+     * @return a list of all strains, keyed by strain name and mgi accession id
      *
      * @throws DataLoadException
      */
-    public Strain getStrain(String accessionId) throws DataLoadException {
-        return getStrains().get(accessionId);
-    }
+    public Map<String, Strain> getStrainsByNameOrMgiAccessionId() throws DataLoadException {
 
-    /**
-     * @return a list of all strains, keyed by accession id
-     *
-     * @throws DataLoadException
-     */
-    public Map<String, Strain> getStrains() throws DataLoadException {
+        if ((strainsByNameAndMgiAccessionId == null) || strainsByNameAndMgiAccessionId.isEmpty()) {
+            strainsByNameAndMgiAccessionId = new ConcurrentHashMap<>();
 
-        if ((strains == null) || strains.isEmpty()) {
-            strains = new ConcurrentHashMap<>();
-
-            logger.info("Loading strains.");
+            logger.info("Loading strains by name and mgi accession id.");
 
             List<Strain> strainList = jdbcCda.query("SELECT * FROM strain", new StrainRowMapper());
 
             for (Strain strain : strainList) {
-                strains.put(strain.getId().getAccession(), strain);
+                strainsByNameAndMgiAccessionId.put(strain.getId().getAccession(), strain);
+                strainsByNameAndMgiAccessionId.put(strain.getName(), strain);
             }
 
-            logger.info("Loading strains complete.");
+            logger.info("Loading strains by name and mgi accession id complete.");
         }
 
-        return strains;
+        return strainsByNameAndMgiAccessionId;
     }
-
-
     /**
-     * @return a list of all strains, keyed by strain name
+     * Returns the {@code Strain} instance matching {@code strainNameOrMgiAccessionId}, if found; null otherwise
+     *
+     * @param strainNameOrMgiAccessionId the strain name or mgi accession id
+     *
+     * @return the {@code Strain} instance matching {@code strainNameOrMgiAccessionId}, if found; null otherwise
      *
      * @throws DataLoadException
      */
-    public Map<String, Strain> getStrainsByName() throws DataLoadException {
-
-        if ((strainsByName == null) || strainsByName.isEmpty()) {
-            strainsByName = new ConcurrentHashMap<>();
-
-            logger.info("Loading strains by name.");
-
-            List<Strain> strainList = new ArrayList<>(getStrains().values());
-
-            for (Strain strain : strainList) {
-                strainsByName.put(strain.getName(), strain);
-            }
-
-            logger.info("Loading strains by name complete.");
-        }
-
-        return strains;
-    }
-    /**
-     * Returns the {@code Strain} instance matching {@code strainName}, if found; null otherwise
-     *
-     * @param strainName the strain name
-     *
-     * @return the {@code Strain} instance matching {@code strainName}, if found; null otherwise
-     *
-     * @throws DataLoadException
-     */
-    public Strain getStrainByName(String strainName) throws DataLoadException {
-        return getStrainsByName().get(strainName);
+    public Strain getStrainByNameOrMgiAccessionId(String strainNameOrMgiAccessionId) throws DataLoadException {
+        return getStrainsByNameOrMgiAccessionId().get(strainNameOrMgiAccessionId);
     }
 
     /**
@@ -2675,6 +2627,18 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
         } catch (DuplicateKeyException dke) {
 
         }
+
+        return count;
+    }
+
+    public int updateBiologicalModelZygosity(int biologicalModelPk, String zygosity) {
+        final String update = "UPDATE biological_model SET zygosity = :zygosity WHERE id = :biologicalModelPk";
+
+        Map<String, Object> parameterMap = new HashMap<>();
+        parameterMap.put("zygosity", zygosity);
+        parameterMap.put("biologicalModelPk", biologicalModelPk);
+
+        int count = jdbcCda.update(update, parameterMap);
 
         return count;
     }
@@ -3118,7 +3082,7 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
         String message;
 
         GenomicFeature gene;
-        String backgroundStrainName;
+        String geneticBackground;
         Strain backgroundStrain;
 
         if (colony == null) {
@@ -3148,10 +3112,10 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
         //  - Filter the iMits background strain name through the EuroPhenomeStrainMapper
         //  - If the filtered background strain does not exist, create it and add it to the strain table.
         try {
-            backgroundStrainName = strainMapper.filterEuroPhenomeGeneticBackground(colony.getBackgroundStrain());
-            backgroundStrain = getStrainByName(backgroundStrainName);
+            geneticBackground = strainMapper.filterEuroPhenomeGeneticBackground(colony.getBackgroundStrain());
+            backgroundStrain = getStrainByNameOrMgiAccessionId(colony.getBackgroundStrain());
             if (backgroundStrain == null) {
-                backgroundStrain = createAndInsertStrain(backgroundStrainName);
+                backgroundStrain = createAndInsertStrain(geneticBackground);
             }
 
         } catch (DataLoadException e) {
@@ -3162,26 +3126,33 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
         }
 
         // Get the biological model. Create one if it is not found.
-        BiologicalModel biologicalModel = getBiologicalModelByJoins(colony.getGene().getId().getAccession(), allele.getSymbol(), backgroundStrainName);
+        String allelicComposition = strainMapper.createAllelicComposition(zygosity, allele.getSymbol(), gene.getSymbol(), sampleGroup);
+        BiologicalModelAggregator biologicalModelAggregator = new BiologicalModelAggregator(
+                allelicComposition,
+                allele.getSymbol(),
+                geneticBackground,
+                zygosity,
+                allele.getId().getAccession(),
+                colony.getGene().getId().getAccession(),
+                backgroundStrain.getId().getAccession());
+
+        BiologicalModel biologicalModel = getBiologicalModel(allelicComposition, geneticBackground);
         if (biologicalModel == null) {
-            String allelicComposition = strainMapper.createAllelicComposition(zygosity, allele.getSymbol(), gene.getSymbol(), sampleGroup);
-            BiologicalModelAggregator biologicalModelAggregator = new BiologicalModelAggregator(
-                    allelicComposition,
-                    allele.getSymbol(),
-                    backgroundStrainName,
-                    zygosity,
-                    allele.getId().getAccession(),
-                    colony.getGene().getId().getAccession(),
-                    backgroundStrain.getId().getAccession());
             List<BiologicalModelAggregator> biologicalModelAggregators = new ArrayList<>();
             biologicalModelAggregators.add(biologicalModelAggregator);
 
             insertBiologicalModel(biologicalModelAggregators);
 
-            biologicalModel = getBiologicalModel(allelicComposition, backgroundStrainName);
+            biologicalModel = getBiologicalModel(allelicComposition, geneticBackground);
             if (biologicalModel == null) {
                 throw new DataLoadException("Attempt to create biological model for colony '" + colony.getColonyName() + "' failed.");
             }
+        } else {
+            // The biological_model_strain table is not inserted when the cda_base database is created, as the info may be obsolete, and the strain is not available. Insert it here.
+            insertBiologicalModelStrain(biologicalModel.getId(), backgroundStrain.getId());
+
+            // When the cda_base table is created, the biological_model table is inserted, but the zygosity is not known. Now we know it. Update the biological_model.zygosity column here.
+            updateBiologicalModelZygosity(biologicalModel.getId(), zygosity);
         }
 
         return biologicalModel;

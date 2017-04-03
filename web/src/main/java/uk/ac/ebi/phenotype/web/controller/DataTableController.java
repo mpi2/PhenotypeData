@@ -2964,6 +2964,7 @@ public class DataTableController {
 
 	public String fetch_allele_ref2(int iDisplayLength, int iDisplayStart, String sSearch, Boolean rowFormat, String orderByStr, Boolean consortium) throws SQLException, UnsupportedEncodingException {
 		final int DISPLAY_THRESHOLD = 5;
+
 		List<org.mousephenotype.cda.db.pojo.ReferenceDTO> references = referenceDAO.getReferenceRows(sSearch, orderByStr, consortium);
 
 		JSONObject j = new JSONObject();
@@ -3076,7 +3077,13 @@ public class DataTableController {
 				paperLink = paperLinksOther.get(0);
 			}
 
-			rowData.add("<p><a href='" + paperLink + "'>" + reference.getTitle() + "</a></p>");
+			if (paperLink == null || paperLink.isEmpty()){
+				rowData.add("<p>" + reference.getTitle() + "</p>");
+			}
+			else {
+				rowData.add("<p><a href='" + paperLink + "'>" + reference.getTitle() + "</a></p>");
+			}
+
 			rowData.add("<p class='author'>" + reference.getAuthor() + "</p>");
 			rowData.add("<p><i>" + reference.getJournal() + "</i>, " + reference.getDateOfPublication() + "</p>");
 			rowData.add("<p>PMID: " + Integer.toString(reference.getPmid()) + "</p>");

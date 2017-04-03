@@ -74,6 +74,14 @@
             div.clear {
                 clear: both;
             }
+            div#agencyName {
+                font-weight: bold;
+                font-size: 20px;
+                margin: 10px 0;
+            }
+            .highcharts-axis-labels {
+                cursor: text !important;
+            }
 
 
          </style>
@@ -94,13 +102,10 @@
             $(document).ready(function () {
                 'use strict';
 
-
-
                 // test only
                 //var baseUrl = '//dev.mousephenotype.org/data';
                 //var baseUrl = 'http://localhost:8080/phenotype-archive';
                 //var solrUrl = "${internalSolrUrl};"
-
 
                 // get alleleref in dataTable
                 var tableHeader = "<thead><th></th></thead>";
@@ -121,13 +126,8 @@
                 oConf.rowFormat = true;
                 oConf.orderBy = "date_of_publication DESC"; // default
                 oConf.id = "alleleRef";
-
                 $.fn.fetchAlleleRefDataTable2(oConf);
 
-                var oConf2 = oConf;
-                oConf2.consortium = true;
-                oConf2.id = "consortiumPapers";
-                $.fn.fetchAlleleRefDataTable2(oConf2);
 
                 // find out which tab to open from hash tag
                 var matches = window.location.hash.match(/(\d)$/);
@@ -136,15 +136,25 @@
                 $( "#tabs" ).tabs({
                     active: tabIndex,
                     activate: function(event, ui) {
-
-                        // get paper stats as highcharts
-
-                        // need to load highcharts after a tab is activated to ensure the width of charts
-                        // will stay inside the parent container
-                        if ( ui.newTab.index() == 1){
+                        if (ui.newTab.index() == 0) {
+                            $('div#agencyBox').hide();
+                        }
+                        else if (ui.newTab.index() == 1){
+                            // get paper stats as highcharts
+                            // need to load highcharts after a tab is activated to ensure the width of charts
+                            // will stay inside the parent container
+                            $('div#agencyBox').show();
                             var chartWeek = "chartWeek";
                             var chartMonth = "chartMonth";
                             $.fn.fetchAllelePaperDataPointsIncrement(chartYearIncrease, chartMonthIncrease, chartQuarter, chartGrantQuarter);
+                        }
+                        else if (ui.newTab.index() == 2){
+                            $('div#agencyBox').hide();  // container for agency funded papers
+                            var oConf2 = oConf;
+                            oConf2.consortium = true;
+                            oConf2.id = "consortiumPapers";
+
+                            $.fn.fetchAlleleRefDataTable2(oConf2);
                         }
                     }
                 });
@@ -185,7 +195,7 @@
                                     </ul>
                                     <div id="tabs-1">
                                         <!-- container to display dataTable -->
-                                        <div class="HomepageTable" id="alleleRef"></div>
+                                        <div id="alleleRef"></div>
 
                                     </div>
                                     <div class="clear"></div>
@@ -203,7 +213,10 @@
 
                                     </div>
                                 </div>
-
+                                <div id='agencyBox'>
+                                    <div id="agencyName"></div>
+                                    <div id="agency"></div>
+                                </div>
 
                             </div>
                         </div>

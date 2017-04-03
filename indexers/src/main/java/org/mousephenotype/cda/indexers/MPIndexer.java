@@ -160,7 +160,14 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
             logger.info("Loaded ma parser");
 
         	// maps MP to number of phenotyping calls
-        	populateMpCallMaps();
+            runStatus = populateMpCallMaps();
+
+               for (String error : runStatus.getErrorMessages()) {
+                   logger.error(error);
+               }
+               for (String warning : runStatus.getWarningMessages()) {
+                   logger.warn(warning);
+               }
 
             // Delete the documents in the core if there are any.
             mpCore.deleteByQuery("*:*");
@@ -258,12 +265,15 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
         return runStatus;
     }
 
+    // 22-Mar-2017 (mrelac) Added status to query for errors and warnings.
+    public Map<String, Integer> getPhenotypeGeneVariantCounts(String termId, RunStatus status)
+            throws IOException, URISyntaxException, SolrServerException {
 
-    public Map<String, Integer> getPhenotypeGeneVariantCounts(String termId)
-    throws IOException, URISyntaxException, SolrServerException {
-
+        // Errors and warnings are returned in PhenotypeFacetResult.status.
         PhenotypeFacetResult phenoResult = postqcService.getMPCallByMPAccessionAndFilter(termId,  null, null, null);
+        status.add(phenoResult.getStatus());
         PhenotypeFacetResult preQcResult = preqcService.getMPCallByMPAccessionAndFilter(termId,  null, null, null);
+        status.add(preQcResult.getStatus());
 
         List<PhenotypeCallSummaryDTO> phenotypeList;
         phenotypeList = phenoResult.getPhenotypeCallSummaries();
@@ -387,7 +397,8 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
 
     }
 
-    private void populateMpCallMaps() throws IOException, SolrServerException, URISyntaxException {
+    private RunStatus populateMpCallMaps() throws IOException, SolrServerException, URISyntaxException {
+        RunStatus status = new RunStatus();
 
         List<SolrClient> ss = new ArrayList<>();
         ss.add(preqcCore);
@@ -410,7 +421,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
                     if (!mpCalls.containsKey(facet.getName())){
                         mpCalls.put(facet.getName(), new Long(0));
 
-                        Map<String, Integer> geneVariantCount = getPhenotypeGeneVariantCounts(facet.getName());
+                        Map<String, Integer> geneVariantCount = getPhenotypeGeneVariantCounts(facet.getName(), status);
                         int gvCount = geneVariantCount.get("sumCount");
                         mpGeneVariantCount.put(facet.getName(), gvCount);
                     }
@@ -418,8 +429,10 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
 
                 }
             }
-
         }
+        //System.out.println("FINISHED");
+
+        return status;
     }
 
 

@@ -557,6 +557,12 @@ public class ImpressService extends BasicService implements WebStatus {
 						ImpressDTO.UNITX, ImpressDTO.UNITY, ImpressDTO.PROCEDURE_NAME )
 				.setRows(1);
 		QueryResponse response = solr.query(query);
+
+		List<ImpressDTO> dtoList = response.getBeans(ImpressDTO.class);
+		if ((dtoList == null) || (dtoList.isEmpty())) {
+			return null;
+		}
+
 		ImpressDTO dto = response.getBeans(ImpressDTO.class).get(0);
 		param.setId(dto.getParameterId());
 		param.setStableId(dto.getParameterStableId());
