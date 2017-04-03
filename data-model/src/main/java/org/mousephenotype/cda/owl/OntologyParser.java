@@ -4,6 +4,8 @@ import org.json.JSONObject;
 import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.model.*;
 import org.semanticweb.owlapi.search.EntitySearcher;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import uk.ac.manchester.cs.owl.owlapi.OWLObjectPropertyImpl;
 
 import java.io.File;
@@ -12,6 +14,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class OntologyParser {
+
+    private static final Logger logger = LoggerFactory.getLogger(OntologyParser.class);
 
     OWLOntologyManager manager = OWLManager.createOWLOntologyManager();
     OWLDataFactory factory = manager.getOWLDataFactory();
@@ -482,7 +486,7 @@ public class OntologyParser {
         }
 
         termsInSlim = classesInSlim;
-        System.out.println("Set termsInSlim " + termsInSlim.size());
+        logger.info("Set termsInSlim " + termsInSlim.size());
         return classesInSlim;
 
     }
