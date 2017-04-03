@@ -239,9 +239,9 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
                 documentCount++;
                 mpCore.addBean(mp, 60000);
 
-                if (documentCount % 100 == 0){
-                    System.out.println("Added " + documentCount);
-                }
+//                if (documentCount % 100 == 0){
+//                    System.out.println("Added " + documentCount);
+//                }
 
                 mpParser.fillJsonTreePath("MP:0000001", "/data/phenotype/", mpGeneVariantCount, ontologyParserFactory.TOP_LEVEL_MP_TERMS, false); // call this if you want node ids from the objects
             }
