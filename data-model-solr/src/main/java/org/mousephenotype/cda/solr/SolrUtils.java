@@ -33,8 +33,6 @@ import java.lang.reflect.Field;
 import java.util.*;
 import java.util.Map.Entry;
 
-import static org.mousephenotype.cda.db.dao.OntologyDAO.BATCH_SIZE;
-
 /**
  *
  * @author mrelac
@@ -43,6 +41,7 @@ public class SolrUtils {
 
     private static final Logger logger = LoggerFactory.getLogger(SolrUtils.class);
 
+    public static final int BATCH_SIZE = 2000;
     // PRIVATE METHODS
     private static void printItemList(String label, List<String> itemList) {
         System.out.print("\t" + label);

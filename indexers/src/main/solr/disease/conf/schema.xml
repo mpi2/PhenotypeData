@@ -172,9 +172,6 @@
         <field name="hp_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
         <field name="hp_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />
 
-        <!-- ontology subset of mp/ma terms -->
-        <field name="ontology_subset" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-
         <!-- annotated and inferred ma term -->
         <field name="ma_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
         <field name="ma_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />

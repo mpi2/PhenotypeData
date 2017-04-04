@@ -20,23 +20,23 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.constants.Constants;
-import org.mousephenotype.cda.db.beans.OntologyTermBean;
-import org.mousephenotype.cda.db.dao.EmapaOntologyDAO;
-import org.mousephenotype.cda.db.dao.MaOntologyDAO;
-import org.mousephenotype.cda.db.dao.OntologyDAO;
-import org.mousephenotype.cda.db.dao.OntologyDetail;
 import org.mousephenotype.cda.db.utilities.SqlUtils;
 import org.mousephenotype.cda.enumerations.BiologicalSampleType;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
+import org.mousephenotype.cda.owl.OntologyParser;
+import org.mousephenotype.cda.owl.OntologyParserFactory;
+import org.mousephenotype.cda.owl.OntologyTermDTO;
 import org.mousephenotype.cda.solr.service.OntologyBean;
 import org.mousephenotype.cda.solr.service.dto.BasicBean;
 import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTOWrite;
 import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
 import org.mousephenotype.cda.utilities.RunStatus;
+import org.semanticweb.owlapi.model.OWLOntologyCreationException;
+import org.semanticweb.owlapi.model.OWLOntologyStorageException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,6 +60,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Populate the experiment core
@@ -84,15 +85,6 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 	@Qualifier("experimentCore")
 	SolrClient observationCore;
 
-	@Autowired
-	MaOntologyDAO maOntologyService;
-
-//	@Autowired
-//	EmapOntologyDAO emapOntologyService;
-
-	@Autowired
-	EmapaOntologyDAO emapaOntologyService;
-
 	@Value("${experimenterIdMap}")
 	String experimenterIdMap;
 
@@ -103,7 +95,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 	Map<Integer, ImpressBaseDTO> procedureMap = new HashMap<>();
 	Map<Integer, ParameterDTO> parameterMap = new HashMap<>();
 
-	Map<String, EmapaOntologyDAO.Emapa> emap2emapaIdMap = new HashMap<>();
+	Map<String, String> emap2emapaIdMap = new HashMap<>();
 	Map<Integer, String> anatomyMap = new HashMap<>();
 
 	Map<Integer, DatasourceBean> datasourceMap = new HashMap<>();
@@ -118,6 +110,10 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 	Map<String, Map<String, String>> translateCategoryNames = new HashMap<>();
 
 	private Map<Integer, List<OntologyBean>> ontologyEntityMap;
+
+	OntologyParser emapaParser;
+	OntologyParser maParser;
+	OntologyParserFactory ontologyParserFactory;
 
 	public static final String ipgttWeightParameter = "IMPC_IPG_001_001";
 	public static final List<String> maleFertilityParameters = Arrays.asList("IMPC_FER_001_001", "IMPC_FER_006_001",
@@ -146,9 +142,11 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 
 		try {
 
-
 			connection = komp2DataSource.getConnection();
 
+			ontologyParserFactory = new OntologyParserFactory(komp2DataSource, owlpath);
+			emapaParser = ontologyParserFactory.getEmapaParser();
+			maParser = ontologyParserFactory.getMaParser();
 			logger.info("  populating supporting maps");
 			pipelineMap = IndexerMap.getImpressPipelines(connection);
 			procedureMap = IndexerMap.getImpressProcedures(connection);
@@ -203,7 +201,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 
 			count = populateObservationSolrCore(runStatus);
 
-		} catch (SolrServerException | SQLException | IOException e) {
+		} catch (SolrServerException | SQLException | IOException |OWLOntologyCreationException | OWLOntologyStorageException e) {
 			e.printStackTrace();
 			throw new IndexerException(e);
 		}
@@ -248,6 +246,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 
 			p.setFetchSize(Integer.MIN_VALUE);
 			ResultSet r = p.executeQuery();
+
 			while (r.next()) {
 
 				ObservationDTOWrite o = new ObservationDTOWrite();
@@ -307,33 +306,13 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 							o.setSelectedTopLevelAnatomyTermSynonym(new ArrayList<>());
 						}
 
-						OntologyDAO ontoService = null;
 						if (anatomyTermId.startsWith("MA:")) {
-							ontoService = maOntologyService;
+							addAnatomyInfo (maParser.getOntologyTerm(anatomyTermId), o);
 						} else if (anatomyTermId.startsWith("EMAPA:")) {
-							ontoService = emapaOntologyService;
+							addAnatomyInfo (emapaParser.getOntologyTerm(anatomyTermId), o);
 						}
 
-						OntologyTermBean term = ontoService.getTerm(anatomyTermId);
 
-						if (term != null) {
-							o.getAnatomyId().add(term.getId());
-							o.getAnatomyTerm().add(term.getName());
-							o.getAnatomyTermSynonym().addAll(term.getSynonyms());
-
-							if (ontoService != null) {
-
-								OntologyDetail selectedTopLevels = ontoService.getSelectedTopLevelDetails(anatomyTermId);
-								o.setSelectedTopLevelAnatomyId(selectedTopLevels.getIds());
-								o.setSelectedTopLevelAnatomyTerm(selectedTopLevels.getNames());
-								o.setSelectedTopLevelAnatomyTermSynonym(selectedTopLevels.getSynonyms());
-
-								OntologyDetail intermediates = ontoService.getIntermediatesDetail(anatomyTermId);
-								o.setIntermediateAnatomyId(intermediates.getIds());
-								o.setIntermediateAnatomyTerm(intermediates.getNames());
-								o.setIntermediateAnatomyTermSynonym(intermediates.getSynonyms());
-							}
-						}
 					}
 				}
 
@@ -612,6 +591,24 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 		}
 
 		return count;
+	}
+
+
+	private void addAnatomyInfo(OntologyTermDTO term, ObservationDTOWrite doc) {
+
+		if (term != null) {
+			doc.getAnatomyId().add(term.getAccessionId());
+			doc.getAnatomyTerm().add(term.getName());
+			doc.getAnatomyTermSynonym().addAll(term.getSynonyms());
+			if (term.getTopLevelIds() != null) {
+				doc.setSelectedTopLevelAnatomyId(term.getTopLevelIds().stream().collect(Collectors.toList()));
+				doc.setSelectedTopLevelAnatomyTerm(term.getTopLevelNames().stream().collect(Collectors.toList()));
+			}
+			if (term.getIntermediateIds() != null) {
+				doc.setIntermediateAnatomyId(term.getIntermediateIds().stream().collect(Collectors.toList()));
+				doc.setIntermediateAnatomyTerm(term.getIntermediateNames().stream().collect(Collectors.toList()));
+			}
+		}
 	}
 
 	public static boolean isInteger(String s) {
@@ -1066,8 +1063,8 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 	 * @exception SQLException
 	 *                When a database error occurrs
 	 */
-	void populateEmap2EmapaMap() throws SQLException {
-		emap2emapaIdMap = emapaOntologyService.populateEmap2EmapaMap();
+	void populateEmap2EmapaMap() throws IOException {
+		emap2emapaIdMap = ontologyParserFactory.getEmapToEmapaMap();
 	}
 
 	/**
@@ -1090,7 +1087,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 				String ontoAcc = resultSet.getString("ontology_acc");
 				if (ontoAcc != null) {
 					anatomyMap.put(resultSet.getInt("id"),
-							ontoAcc.startsWith("EMAP:") ? emap2emapaIdMap.get(ontoAcc).getEmapaId() : ontoAcc);
+							ontoAcc.startsWith("EMAP:") ? emap2emapaIdMap.get(ontoAcc) : ontoAcc);
 				}
 				else {
 					logger.warn(" Parameter {} missing ontology association.", resultSet.getString("stable_id"));

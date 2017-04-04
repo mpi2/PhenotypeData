@@ -17,11 +17,15 @@ package org.mousephenotype.cda.indexers;
 
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.mousephenotype.cda.db.dao.MpOntologyDAO;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
+import org.mousephenotype.cda.owl.OntologyParser;
+import org.mousephenotype.cda.owl.OntologyParserFactory;
+import org.mousephenotype.cda.owl.OntologyTermDTO;
 import org.mousephenotype.cda.solr.service.dto.GenotypePhenotypeDTO;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.mousephenotype.cda.utilities.RunStatus;
+import org.semanticweb.owlapi.model.OWLOntologyCreationException;
+import org.semanticweb.owlapi.model.OWLOntologyStorageException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,15 +54,11 @@ public class MGIPhenotypeIndexer extends AbstractIndexer implements CommandLineR
     DataSource komp2DataSource;
 
 	@Autowired
-	@Qualifier("ontodbDataSource")
-	DataSource ontodbDataSource;
-
-	@Autowired
     @Qualifier("mgiPhenotypeCore")
     SolrClient mgiPhenotypeCore;
 
-    @Autowired
-    MpOntologyDAO mpOntologyService;
+    OntologyParser mpParser;
+    OntologyParserFactory ontologyParserFactory;
 
 	public MGIPhenotypeIndexer() {
     }
@@ -83,13 +83,15 @@ public class MGIPhenotypeIndexer extends AbstractIndexer implements CommandLineR
         long start = System.currentTimeMillis();
 
         try {
+            ontologyParserFactory = new OntologyParserFactory(komp2DataSource, owlpath);
+            mpParser = ontologyParserFactory.getMpParser();
             count = populateMgiPhenotypeSolrCore(runStatus);
 
-        } catch (SQLException | IOException | SolrServerException ex) {
+        } catch (SQLException | IOException | SolrServerException | OWLOntologyStorageException | OWLOntologyCreationException ex) {
             throw new IndexerException(ex);
         }
 
-	    CommonUtils commonUtils = new CommonUtils();
+        CommonUtils commonUtils = new CommonUtils();
         logger.info(" Added {} total beans in {}", count, commonUtils.msToHms(System.currentTimeMillis() - start));
         return runStatus;
     }
@@ -157,11 +159,15 @@ public class MGIPhenotypeIndexer extends AbstractIndexer implements CommandLineR
                     doc.setMpTermId(mpId);
                     doc.setMpTermName(r.getString("ontology_term_name"));
 
-                    doc.setTopLevelMpTermId(mpOntologyService.getTopLevelDetail(mpId).getIds());
-                    doc.setTopLevelMpTermName(mpOntologyService.getTopLevelDetail(mpId).getNames());
-
-                    doc.setIntermediateMpTermId(mpOntologyService.getIntermediatesDetail(mpId).getIds());
-                    doc.setIntermediateMpTermName(mpOntologyService.getIntermediatesDetail(mpId).getNames());
+                    OntologyTermDTO term = mpParser.getOntologyTerm(mpId);
+                    if (term.getTopLevelIds() != null) {
+                        doc.setTopLevelMpTermId(term.getTopLevelIds());
+                        doc.setTopLevelMpTermName(term.getTopLevelNames());
+                    }
+                    if (term.getIntermediateIds() != null) {
+                        doc.setIntermediateMpTermId(term.getIntermediateIds());
+                        doc.setIntermediateMpTermName(term.getIntermediateNames());
+                    }
                 }
                 // MPATH association
                 else if ( r.getString("ontology_term_id").startsWith("MPATH:") ){
