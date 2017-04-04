@@ -39,8 +39,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import uk.ac.ebi.phenotype.repository.Gene;
-import uk.ac.ebi.phenotype.repository.GeneRepository;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -63,63 +61,100 @@ public class AdvancedSearchController {
 
     private final Logger log = LoggerFactory.getLogger(this.getClass().getCanonicalName());
 
-//    @Resource(name = "globalConfiguration")
-//    private Map<String, String> config;
-//
-//    @Autowired
-//    private SolrIndex solrIndex;
-//
-//    @NotNull
-//    @Value("${neo4jDbPath}")
-//    private String neo4jDbPath;
-//
-//    @Autowired
-//    @Qualifier("komp2DataSource")
-//    private DataSource komp2DataSource;
-//
-//    @Autowired
-//    private GeneRepository geneRepository;
+    @Resource(name = "globalConfiguration")
+    private Map<String, String> config;
+
+    @Autowired
+    private SolrIndex solrIndex;
+
+    @NotNull
+    @Value("${neo4jDbPath}")
+    private String neo4jDbPath;
+
+    @Autowired
+    @Qualifier("komp2DataSource")
+    private DataSource komp2DataSource;
 
 
-    @RequestMapping(value = "/batchQuery2", method = RequestMethod.GET)
-    public
-    @ResponseBody
-    Integer chrlen(
-            @RequestParam(value = "chr", required = true) String chr,
+    @RequestMapping(value="/meshtree", method=RequestMethod.GET)
+    public String loadmeshtreePage(
+            @RequestParam(value = "core", required = false) String core,
             HttpServletRequest request,
-            HttpServletResponse response,
-            Model model) throws IOException, URISyntaxException, SolrServerException, SQLException {
+            Model model) {
+
+        String outputFieldsHtml = Tools.fetchOutputFieldsCheckBoxesHtml(core);
+        model.addAttribute("outputFields", outputFieldsHtml);
 
 
-       return null;
+        return "treetest";
+
     }
 
-//    @RequestMapping(value = "/chrlen", method = RequestMethod.GET)
-//    public @ResponseBody Integer chrlen(
-//            @RequestParam(value = "chr", required = true) String chr,
-//            HttpServletRequest request,
-//            HttpServletResponse response,
-//            Model model) throws IOException, URISyntaxException, SolrServerException, SQLException {
+    @RequestMapping(value="/batchQuery3", method=RequestMethod.GET)
+    public String loadBatchQueryPage3(
+            @RequestParam(value = "core", required = false) String core,
+            HttpServletRequest request,
+            Model model) {
+
+        String outputFieldsHtml = Tools.fetchOutputFieldsCheckBoxesHtml(core);
+        model.addAttribute("outputFields", outputFieldsHtml);
+
+
+        return "batchQuery3";
+    }
 //
-//        Integer len = null;
-//        //fetchChrLenJson();
-////        Connection connKomp2 = komp2DataSource.getConnection();
-////
-////        String sql = "SELECT length FROM seq_region WHERE name ='" + chr + "'";
-////
-////
-////        try (PreparedStatement p = connKomp2.prepareStatement(sql)) {
-////            ResultSet resultSet = p.executeQuery();
-////
-////            while (resultSet.next()) {
-////                len = resultSet.getInt("length");
-////            }
-////        } catch (Exception e) {
-////            e.printStackTrace();
-////        }
+//	@RequestMapping(value="/batchQuery3", method=RequestMethod.GET)
+//	public String batchqueryAdv(
+//			@RequestParam(value = "core", required = false) String core,
+//			HttpServletRequest request,
+//			Model model) {
 //
-//        return len;
-//    }
+////		String outputFieldsHtml = Tools.fetchOutputFieldsCheckBoxesHtml(core);
+////		model.addAttribute("outputFields", outputFieldsHtml);
+//
+//
+//		return "batchqueryAdv";
+//	}
+
+    @RequestMapping(value = "/dataTable_bq2", method = RequestMethod.POST)
+    public ResponseEntity<String> bqDataTableJson2(
+            @RequestParam(value = "idlist", required = true) String idlistStr,
+            @RequestParam(value = "labelFllist", required = true) String labelFllistStr,
+            @RequestParam(value = "dataType", required = true) String dataType,
+            HttpServletRequest request,
+            HttpServletResponse response,
+            Model model) throws IOException, URISyntaxException, SolrServerException {
+
+        System.out.println("dataType: " +  dataType);;
+        System.out.println("idlist: " + idlistStr);
+        JSONObject jLabelFieldsParam = (JSONObject) JSONSerializer.toJSON(labelFllistStr);
+        System.out.println("Labels: "+ jLabelFieldsParam.keySet());
+
+        if (dataType.equals("geneChr")){
+            // convert coordiantes range to list of mouse gene ids
+            String[] parts = idlistStr.replaceAll("\"","").split(":");
+            String chr = parts[0].replace("chr","");
+            String[] se = parts[1].split("-");
+            String start = se[0];
+            String end = se[1];
+            String mode = "nonExport";
+            List<String> geneIds = solrIndex.fetchQueryIdsFromChrRange(chr, start, end, mode);
+            idlistStr = StringUtils.join(geneIds, ",");
+        }
+
+
+
+        return null;
+    }
+
+    public String lowercaseListStr(String idlist) {
+        List<String> lst = Arrays.asList(StringUtils.split(idlist,","));
+        List<String> lst2 = new ArrayList<>();
+        for (String s : lst){
+            lst2.add("lower(" + s + ")");
+        }
+        return StringUtils.join(lst2, ",");
+    }
 
     private HttpHeaders createResponseHeaders() {
         HttpHeaders responseHeaders = new HttpHeaders();
@@ -130,9 +165,34 @@ public class AdvancedSearchController {
         // this returns html string, not json, and is utf encoded
         responseHeaders.add("Content-Type", "text/html; charset=utf-8");
 
+
         return responseHeaders;
     }
 
+    @RequestMapping(value = "/chrlen", method = RequestMethod.GET)
+    public @ResponseBody
+    Integer chrlen(
+            @RequestParam(value = "chr", required = true) String chr,
+            HttpServletRequest request,
+            HttpServletResponse response,
+            Model model) throws IOException, URISyntaxException, SolrServerException, SQLException {
 
+        //fetchChrLenJson();
+        Connection connKomp2 = komp2DataSource.getConnection();
 
+        String sql = "SELECT length FROM seq_region WHERE name ='" + chr + "'";
+        Integer len = null;
+
+        try (PreparedStatement p = connKomp2.prepareStatement(sql)) {
+            ResultSet resultSet = p.executeQuery();
+
+            while (resultSet.next()) {
+                len = resultSet.getInt("length");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return len;
+    }
 }
