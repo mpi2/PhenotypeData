@@ -44,7 +44,7 @@
 
 						<div class="section">
 							<div class='inner' id='srchBlock'>
-								<div>This is the IMPC data model. Select the datatypes to build your query. Click <button id="path">OK</button> to continue.</div>
+								<div>This is the IMPC data model. Select the datatypes to build your query. Click <button id="dataType">OK</button> to continue.</div>
 								<div id="graph">
 
 								</div>
@@ -75,58 +75,58 @@
                         x: 690,
                         y: 250,
                         r: 40,
-						fields: {
-                            "MGI gene id": "mgiAccessionId",
-                            "MGI gene symbol": "markerSymbol",
-                            "MGI gene type": "markerType",
-                            "MGI gene name": "markerName",
-                            "Chromosome id": "chrId",
-                            "Chromosome start": "chrStart",
-                            "Chromosome end": "chrEnd",
-                            "Chromosome strand": "chrStrand"
-                        }
+						fields: [
+							{"MGI gene id": "mgiAccessionId"},
+							{"MGI gene symbol": "markerSymbol"},
+							{"MGI gene type": "markerType"},
+							{"MGI gene name": "markerName"},
+							{"chromosome id": "chrId"},
+							{"chromosome start": "chrStart"},
+							{ "chromosome end": "chrEnd"},
+							{"chromosome strand": "chrStrand"}
+						]
                     },
-                    "HumanOrtholog": {
+                    "HumanGeneSymbol": {
                         text: "Human\nOrtholog",
                         x: 800,
                         y: 250,
                         r: 40,
-                        fields: {
-                            "HGNC gene symbol":"humanGeneSymbol"
-                        }
+                        fields: [
+							{"HGNC gene symbol":"humanGeneSymbol"}
+						]
                     },
                     "EnsemblGeneId": {
                         text: "Ensembl\nGene Id",
                         x: 800,
                         y: 160,
                         r: 40,
-                        fields: {
-                            "Ensembl gene id":"ensembleGeneId"
-                        }
+                        fields: [
+							{"Ensembl gene id":"ensembleGeneId"}
+                        ]
                     },
                     "MarkerSynonym": {
                         text: "Marker\nSynonym",
                         x: 800,
                         y: 50,
                         r: 40,
-                        fields: {
-                            "MGI gene synonym":"markerSynonym"
-                        }
+                        fields: [
+                            {"MGI gene synonym":"markerSynonym"}
+                        ]
                     },
                     "Allele": {
                         text: "Allele",
                         x: 550,
                         y: 170,
                         r: 40,
-                        fields: {
-                            "MGI allele id":"alleleMgiAccessionId",
-                            "MGI allele symbol":"alleleSymbol",
-                            "allele description":"alleleDescription",
-                            "allele mutation type":"mutationType",
-                            "ES cell available?":"esCellStatus",
-                            "mouse available?":"mouseStatus",
-                            "phenotyping data available?":"phenotypeStatus"
-                        }
+                        fields: [
+							{"MGI allele id":"alleleMgiAccessionId"},
+							{"MGI allele symbol":"alleleSymbol"},
+							{"allele description":"alleleDescription"},
+							{"allele mutation type":"mutationType"},
+							{"ES cell available?":"esCellStatus"},
+							{"mouse available?":"mouseStatus"},
+							{"phenotyping data available?":"phenotypeStatus"}
+                        ]
                     },
 //                    "DiseaseGene": {
 //                        text: "Disease-\nGene",
@@ -139,37 +139,66 @@
                         x: 400,
                         y: 110,
                         r: 40,
-
+                        fields: [
+							{"disease id":"diseaseId"},
+							{"disease term":"diseaseTerm"},
+							{"disease classes":"diseaseClasses"},
+							{"predicted by IMPC":"impcPredicted"},
+							{"predicted by MGI":"mgiPredicted"},
+							{"disease to model score":"diseaseToModelScore"},
+							{"model to disease score":"modelToDiseaseScore"}
+                        ]
                     },
                     "MouseModel": {
                         text: "Mouse\nModel",
                         x: 380,
                         y: 260,
-                        r: 40
+                        r: 40,
+                        fields: [
+							{"allelic composition":"allelicComposition"},
+							{"genetic background":"geneticBackground"},
+							{"homozygous or heterozygous":"homHet"},
+							{"predicted by IMPC":"impcPredicted"},
+							{"predicted by MGI":"mgiPredicted"},
+							{"disease to model score":"diseaseToModelScore"},
+							{"model to disease score":"modelToDiseaseScore"}
+                        ]
                     },
                     "Hp": {
                         text: "Human\nPhenotype",
                         x: 200,
                         y: 55,
-                        r: 40
+                        r: 40,
+                        fields: [
+							{"human phenotype ontology id":"hpId"},
+							{"human phenotype ontology term":"hpTerm"}
+                        ]
                     },
                     "Mp": {
                         text: "Mouse\nPhenotype",
                         x: 120,
                         y: 220,
-                        r: 40
+                        r: 40,
+                        fields: [
+							{"mouse phenotype ontology id":"mpId"},
+							{"mouse phenotype ontology term":"mpTerm"},
+							{"mouse phenotype ontology definition":"mpDefinition"}
+                        ]
                     },
                     "OntoSynonym": {
                         text: "Mouse\nPhenotype\nSynonym",
                         x: 80,
                         y: 100,
-                        r: 40
+                        r: 40,
+                        fields: [
+							{"mouse phenotype ontology term synonym": "ontoSynonym"}
+                        ]
                     },
 
 
                 };
 
-                var paths = [];
+                var dataTypes = [];
 
                 paper = new Raphael(document.getElementById('graph'), 500, 500);
 
@@ -206,9 +235,9 @@
 
                         }
                         else {
-							paths.push(circle.data("id"));
+							dataTypes.push(circle.data("id"));
                             $(this).attr({"stroke":"darkorange", "stroke-width": 5});
-                            console.log(paths);
+                            console.log("datatypes: " + dataTypes);
                         }
                     });
 
@@ -237,7 +266,7 @@
                 }
 
                 // connect circles
-                connectCircle("Gene", "HumanOrtholog");
+                connectCircle("Gene", "HumanGeneSymbol");
                 connectCircle("Gene", "EnsemblGeneId");
                 connectCircle("Gene", "MarkerSynonym");
                 connectCircle("Gene", "Allele");
@@ -251,8 +280,6 @@
                 connectCircle("DiseaseModel", "Mp");
                 connectCircle("Mp", "Hp");
                 connectCircle("Mp", "OntoSynonym");
-
-
 
                 function connectCircle(id1, id2) {
 
@@ -281,14 +308,26 @@
 					}
 
                     line.attr ("stroke", lineColor);
-
-
                 }
 
                 // hit OK button to continue to next step
-				$('button#path').click(function(){
+                $('button#dataType').click(function(){
+                    for (var d=0; d<dataTypes.length; d++) {
+                        var id = dataTypes[d];
+                        console.log(id)
+                        var objs = idsVar[id].fields;
+                        for (var i = 0; i < objs.length; i++) {
+                            for (var k in objs[i]) {
+                                console.log(k + " - " + objs[i][k]);
+                            }
 
-				});
+                        }
+                    }
+
+                });
+
+
+
 
 
 
@@ -303,9 +342,6 @@
                 function linePath(x1, y1, x2, y2) {
                     return "M" + x1 + "," + y1 + "L" + x2 + "," + y2;
                 }
-
-
-
 
             });
 
