@@ -20,6 +20,17 @@
 			}
 			.clear{width: 100%; clear: both; height: 0px; line-height:0px;}
 
+			fieldset {
+				padding: 3px 10px;
+				border: 1px solid lightgrey;
+				font-size: 12px;
+				margin: 15px 0;
+			}
+			legend {
+				padding: 0 15px;
+				border: 1px solid lightgrey;
+				background-color: #e6f5ff;
+			}
 
 		</style>
 
@@ -46,7 +57,7 @@
 							<div class='inner' id='srchBlock'>
 								<div>This is the IMPC data model. Select the datatypes to build your query. Click <button id="dataType">OK</button> to continue.</div>
 								<div id="graph">
-
+								<div><button id="clearSel">Clear selections</button></div>
 								</div>
 							</div>
 						</div>
@@ -310,18 +321,37 @@
                     line.attr ("stroke", lineColor);
                 }
 
+                var bot = paper.bottom, res = [];
+                while (bot) {
+                    res.push(bot);
+                    console.log( bot.next);
+                }
+
+
+                $('button#clearSel').click(function(){
+
+				});
+
                 // hit OK button to continue to next step
                 $('button#dataType').click(function(){
+                    $('div#bqFilter').html('');
                     for (var d=0; d<dataTypes.length; d++) {
                         var id = dataTypes[d];
                         console.log(id)
                         var objs = idsVar[id].fields;
+
+                        var inputs = "";
                         for (var i = 0; i < objs.length; i++) {
                             for (var k in objs[i]) {
+                                var display = k;
+                                var dbproperty = objs[i][k];
                                 console.log(k + " - " + objs[i][k]);
+                            	inputs += '<input type="checkbox" name="' + display + '" value="' + dbproperty + '">' + display;
                             }
-
                         }
+                        var legend = '<legend>' + idsVar[id].text + '</legend>';
+                        var filter = '<fieldset id="' + id + '">' + legend + inputs + '</fieldset>';
+                    	$('div#bqFilter').append(filter);
                     }
 
                 });
