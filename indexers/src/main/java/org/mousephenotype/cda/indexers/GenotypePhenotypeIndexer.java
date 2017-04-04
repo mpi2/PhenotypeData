@@ -18,16 +18,21 @@ package org.mousephenotype.cda.indexers;
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.mousephenotype.cda.db.dao.*;
+import org.mousephenotype.cda.db.dao.DatasourceDAO;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
+import org.mousephenotype.cda.owl.OntologyParser;
+import org.mousephenotype.cda.owl.OntologyParserFactory;
+import org.mousephenotype.cda.owl.OntologyTermDTO;
 import org.mousephenotype.cda.solr.service.StatisticalResultService;
 import org.mousephenotype.cda.solr.service.dto.BasicBean;
 import org.mousephenotype.cda.solr.service.dto.GenotypePhenotypeDTO;
 import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
 import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
 import org.mousephenotype.cda.utilities.RunStatus;
+import org.semanticweb.owlapi.model.OWLOntologyCreationException;
+import org.semanticweb.owlapi.model.OWLOntologyStorageException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,29 +72,21 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
     DataSource komp2DataSource;
 
     @Autowired
-    @Qualifier("ontodbDataSource")
-    DataSource ontodbDataSource;
-
-    @Autowired
     @Qualifier("genotypePhenotypeCore")
     SolrClient genotypePhenotypeCore;
 
     @Autowired
-    MpOntologyDAO mpOntologyService;
-
-    @Autowired
-    MaOntologyDAO maOntologyService;
-
-    @Autowired
-    EmapaOntologyDAO emapaOntologyService;
-
-
-    @Autowired
     DatasourceDAO dsDAO;
+
 
     Map<Integer, ImpressBaseDTO> pipelineMap = new HashMap<>();
     Map<Integer, ImpressBaseDTO> procedureMap = new HashMap<>();
     Map<Integer, ParameterDTO> parameterMap = new HashMap<>();
+
+    OntologyParser mpParser;
+    OntologyParser mpMaParser;
+    OntologyParser maParser;
+    OntologyParserFactory ontologyParserFactory;
 
     public GenotypePhenotypeIndexer() {
     }
@@ -112,6 +109,12 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
 
         try {
 
+            ontologyParserFactory = new OntologyParserFactory(komp2DataSource, owlpath);
+
+            mpParser = ontologyParserFactory.getMpParser();
+            maParser = ontologyParserFactory.getMaParser();
+            mpMaParser = ontologyParserFactory.getMpMaParser();
+
             connection = komp2DataSource.getConnection();
 
             pipelineMap = IndexerMap.getImpressPipelines(connection);
@@ -123,7 +126,7 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
 
             count = populateGenotypePhenotypeSolrCore(runStatus);
 
-        } catch (SQLException | IOException | SolrServerException ex) {
+        } catch (SQLException | IOException | SolrServerException | OWLOntologyCreationException | OWLOntologyStorageException ex) {
         	ex.printStackTrace();
             throw new IndexerException(ex);
         }
@@ -289,53 +292,20 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
 
                     // mp-ma mappings, only add to adult (POSTPARTUM_STAGE) (MmusDv:0000092) as mapping if to MA
                     if (doc.getLifeStageAcc().equalsIgnoreCase(POSTPARTUM_STAGE)) {
-                        if (mpOntologyService.getAnatomyMappings(mpId) != null) {
-                            List<String> anatomyIds = mpOntologyService.getAnatomyMappings(mpId);
-                            for (String id : anatomyIds) {
-                                OntologyDAO currentOntologyService = null;
-                                if (id.startsWith("MA")) {
-                                    currentOntologyService = maOntologyService;
-                                }
-                                if (currentOntologyService != null) {
-                                    doc.addAnatomyTermId(id);
-                                    doc.addAnatomyTermName(currentOntologyService.getTerm(id).getName());
-                                    OntologyDetail anatomyIntermediateTerms = currentOntologyService.getIntermediatesDetail(id);
-                                    doc.addIntermediateAnatomyTermId(anatomyIntermediateTerms.getIds());
-                                    doc.addIntermediateAnatomyTermName(anatomyIntermediateTerms.getNames());
-                                    OntologyDetail anatomyTopLevels = currentOntologyService.getSelectedTopLevelDetails(id);
-                                    doc.addTopLevelAnatomyTermId(anatomyTopLevels.getIds());
-                                    doc.addTopLevelAnatomyTermName(anatomyTopLevels.getNames());
-                                }
-                            }
-                        }
+
+                        getMaTermsForMp(doc, mpId, true);
 
                         // Also check mappings up the tree, as a leaf term might not have a mapping, but the parents might.
                         Set<String> anatomyIdsForAncestors = new HashSet<>();
-                        for (String mpAncestorId : mpOntologyService.getAncestorsDetail(mpId).getIds()) {
-                            if (mpOntologyService.getAnatomyMappings(mpAncestorId) != null) {
-                                anatomyIdsForAncestors.addAll(mpOntologyService.getAnatomyMappings(mpAncestorId));
-                            }
+                        for (String mpAncestorId : mpParser.getOntologyTerm(mpId).getIntermediateIds()) {
+                            getMaTermsForMp(doc, mpAncestorId, false);
                         }
 
-                        for (String id : anatomyIdsForAncestors) {
-                            OntologyDAO currentOntologyService = null;
-                            if (id.startsWith("MA")) {
-                                currentOntologyService = maOntologyService;
-                            }
-                            if (currentOntologyService != null) {
-                                doc.addIntermediateAnatomyTermId(id);
-                                doc.addIntermediateAnatomyTermName(currentOntologyService.getTerm(id).getName());
-                                OntologyDetail anatomyIntermediateTerms = currentOntologyService.getIntermediatesDetail(id);
-                                doc.addIntermediateAnatomyTermId(anatomyIntermediateTerms.getIds());
-                                doc.addIntermediateAnatomyTermName(anatomyIntermediateTerms.getNames());
-                                OntologyDetail anatomyTopLevels = currentOntologyService.getSelectedTopLevelDetails(id);
-                                doc.addTopLevelAnatomyTermId(anatomyTopLevels.getIds());
-                                doc.addTopLevelAnatomyTermName(anatomyTopLevels.getNames());
-                            }
-                        }
                     }
 
-                    if (mpOntologyService.getTopLevelDetail(mpId).getIds().size() == 0 ){
+                    OntologyTermDTO mpDto = mpParser.getOntologyTerm(mpId);
+
+                    if (mpDto.getTopLevelIds() == null || mpDto.getTopLevelIds().size() == 0 ){
                         // if the mpId itself is a top level, add itself as a top level
                         List<String> ids = new ArrayList<>(); ids.add(mpId);
                         List<String> names = new ArrayList<>(); names.add(doc.getMpTermName());
@@ -344,11 +314,11 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
                         doc.setTopLevelMpTermName(names);
                     }
                     else {
-                        doc.setTopLevelMpTermId(mpOntologyService.getTopLevelDetail(mpId).getIds());
-                        doc.setTopLevelMpTermName(mpOntologyService.getTopLevelDetail(mpId).getNames());
+                        doc.setTopLevelMpTermId(mpDto.getTopLevelIds());
+                        doc.setTopLevelMpTermName(mpDto.getTopLevelNames());
                     }
-                    doc.setIntermediateMpTermId(mpOntologyService.getIntermediatesDetail(mpId).getIds());
-                    doc.setIntermediateMpTermName(mpOntologyService.getIntermediatesDetail(mpId).getNames());
+                    doc.setIntermediateMpTermId(mpDto.getIntermediateIds());
+                    doc.setIntermediateMpTermName(mpDto.getIntermediateNames());
                 }
                 // MPATH association
                 else if (r.getString("ontology_term_id").startsWith("MPATH:")) {
@@ -389,6 +359,40 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
         }
 
         return count;
+    }
+
+
+    /**
+     *
+     * @param dto
+     * @param mpId
+     * @param direct direct term or ancestors
+     */
+    protected void getMaTermsForMp(GenotypePhenotypeDTO dto, String mpId, Boolean direct) {
+
+        // get MA ids referenced from MP
+        Set<String> maTerms = mpMaParser.getReferencedClasses(mpId, ontologyParserFactory.VIA_PROPERTIES, "MA");
+        for (String maId : maTerms) {
+            // get info about these MA terms. In the mp-ma file the MA classes have no details but the id. For example the labels or synonyms are not there.
+            OntologyTermDTO ma = maParser.getOntologyTerm(maId);
+            if (ma != null) {
+                if (direct) {
+                    dto.addAnatomyTermId(ma.getAccessionId());
+                    dto.addAnatomyTermName(ma.getName());
+                } else {
+                    dto.addIntermediateAnatomyTermId(ma.getAccessionId());
+                    dto.addIntermediateAnatomyTermName(ma.getName());
+                }
+                if (ma.getTopLevelIds() != null) {
+                    dto.addTopLevelAnatomyTermId(ma.getTopLevelIds());
+                    dto.addTopLevelAnatomyTermName(ma.getTopLevelNames());
+                }
+                dto.addIntermediateAnatomyTermId(ma.getIntermediateIds());
+                dto.addIntermediateAnatomyTermName(ma.getIntermediateNames());
+            } else {
+                System.out.println("Term not found in MA : " + maId);
+            }
+        }
     }
 
 }

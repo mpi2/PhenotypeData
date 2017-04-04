@@ -97,7 +97,7 @@ public class ExpressionMpOverlapReport extends AbstractReport {
 	        // Get MP-MA mappings
 	        Map<String, List<String>> mpAnatomyMap = new HashMap<>();
 	        for (MpDTO doc :  mpService.getAllMpWithMaMapping()){
-	        	mpAnatomyMap.put(doc.getMpId(), doc.getInferredMaTermId());
+	        	mpAnatomyMap.put(doc.getMpId(), doc.getInferredMaId());
 	        }
 
 	        // Convert gene-MP mappings to gene-MA

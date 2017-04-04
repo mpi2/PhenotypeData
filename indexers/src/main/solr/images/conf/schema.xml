@@ -260,9 +260,6 @@
 	<field name="mgi_novel_predicted_in_locus" type="boolean" indexed="true" stored="true" multiValued="true" />
 	<field name="impc_novel_predicted_in_locus" type="boolean" indexed="true" stored="true" multiValued="true" />
 
-	<!-- ontology subset of mp/ma terms -->
-	<field name="ontology_subset" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-		
 	<!-- mp term -->
 	<field name="mp_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
 	<field name="mp_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />

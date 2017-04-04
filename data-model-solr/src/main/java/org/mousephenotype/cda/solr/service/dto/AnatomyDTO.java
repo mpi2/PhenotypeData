@@ -17,6 +17,8 @@ package org.mousephenotype.cda.solr.service.dto;
 
 import org.apache.solr.client.solrj.beans.Field;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 
@@ -47,11 +49,9 @@ public class AnatomyDTO {
 
     public static final String PARENT_ANATOMY_ID = "parent_anatomy_id";
     public static final String PARENT_ANATOMY_TERM = "parent_anatomy_term";
-    public static final String PARENT_ANATOMY_TERM_SYNONYM = "parent_anatomy_term_synonym";
 
     public static final String CHILD_ANATOMY_ID = "child_anatomy_id";
     public static final String CHILD_ANATOMY_TERM = "child_anatomy_term";
-    public static final String CHILD_ANATOMY_TERM_SYNONYM = "child_anatomy_term_synonym";
 
     public static final String UBERON_ID = "uberon_id";
     public static final String ALL_AE_MAPPED_UBERON_ID = "all_ae_mapped_uberon_id";
@@ -138,17 +138,11 @@ public class AnatomyDTO {
     @Field(PARENT_ANATOMY_TERM)
     private List<String> parentAnatomyTerm;
 
-    @Field(PARENT_ANATOMY_TERM_SYNONYM)
-    private List<String> parentAnatomyTermSynonym;
-
     @Field(CHILD_ANATOMY_ID)
     private List<String> childAnatomyId;
 
     @Field(CHILD_ANATOMY_TERM)
     private List<String> childAnatomyTerm;
-
-    @Field(CHILD_ANATOMY_TERM_SYNONYM)
-    private List<String> childAnatomyTermSynonym;
 
     // MA to MP mapping
     @Field(MP_ID)
@@ -230,24 +224,33 @@ public class AnatomyDTO {
         return anatomyTermSynonym;
     }
 
-    public void setAnatomyTermSynonym(List<String> anatomyTermSynonym) {
-        this.anatomyTermSynonym = anatomyTermSynonym;
+    public void setAnatomyTermSynonym(Collection<String> anatomyTermSynonym) {
+        if (anatomyTermSynonym != null) {
+            this.anatomyTermSynonym = new ArrayList<>();
+            this.anatomyTermSynonym.addAll(anatomyTermSynonym);
+        }
     }
 
     public List<String> getAltAnatomyIds() {
         return altAnatomyIds;
     }
 
-    public void setAltAnatomyIds(List<String> altAnatomyIds) {
-        this.altAnatomyIds = altAnatomyIds;
+    public void setAltAnatomyIds(Collection<String> altAnatomyIds) {
+        if (altAnatomyIds != null) {
+            this.altAnatomyIds = new ArrayList<>();
+            this.altAnatomyIds.addAll(altAnatomyIds);
+        }
     }
 
     public List<Integer> getAnatomyNodeId() {
         return anatomyNodeId;
     }
 
-    public void setAnatomyNodeId(List<Integer> anatomyNodeId) {
-        this.anatomyNodeId = anatomyNodeId;
+    public void setAnatomyNodeId(Collection<Integer> anatomyNodeId) {
+        if (anatomyNodeId != null){
+            this.anatomyNodeId = new ArrayList<>();
+            this.anatomyNodeId.addAll(anatomyNodeId);
+        }
     }
 
     public String getStage() {
@@ -262,48 +265,66 @@ public class AnatomyDTO {
         return topLevelAnatomyId;
     }
 
-    public void setTopLevelAnatomyId(List<String> topLevelAnatomyId) {
-        this.topLevelAnatomyId = topLevelAnatomyId;
+    public void setTopLevelAnatomyId(Collection<String> topLevelAnatomyId) {
+        if (topLevelAnatomyId != null){
+            this.topLevelAnatomyId = new ArrayList<>();
+            this.topLevelAnatomyId.addAll(topLevelAnatomyId);
+        }
     }
 
     public List<String> getTopLevelAnatomyTerm() {
         return topLevelAnatomyTerm;
     }
 
-    public void setTopLevelAnatomyTerm(List<String> topLevelAnatomyTerm) {
-        this.topLevelAnatomyTerm = topLevelAnatomyTerm;
+    public void setTopLevelAnatomyTerm(Collection<String> topLevelAnatomyTerm) {
+        if (topLevelAnatomyTerm != null){
+            this.topLevelAnatomyTerm = new ArrayList<>();
+            this.topLevelAnatomyTerm.addAll(topLevelAnatomyTerm);
+        }
     }
 
     public List<String> getTopLevelAnatomyTermSynonym() {
         return topLevelAnatomyTermSynonym;
     }
 
-    public void setTopLevelAnatomyTermSynonym(List<String> topLevelAnatomyTermSynonym) {
-        this.topLevelAnatomyTermSynonym = topLevelAnatomyTermSynonym;
+    public void setTopLevelAnatomyTermSynonym(Collection<String> topLevelAnatomyTermSynonym) {
+        if (topLevelAnatomyTermSynonym != null){
+            this.topLevelAnatomyTermSynonym = new ArrayList<>();
+            this.topLevelAnatomyTermSynonym.addAll(topLevelAnatomyTermSynonym);
+        }
     }
 
     public List<String> getSelectedTopLevelAnatomyId() {
         return selectedTopLevelAnatomyId;
     }
 
-    public void setSelectedTopLevelAnatomyId(List<String> selectedTopLevelAnatomyId) {
-        this.selectedTopLevelAnatomyId = selectedTopLevelAnatomyId;
+    public void setSelectedTopLevelAnatomyId(Collection<String> selectedTopLevelAnatomyId) {
+        if (selectedTopLevelAnatomyId != null){
+            this.selectedTopLevelAnatomyId = new ArrayList<>();
+            this.selectedTopLevelAnatomyId.addAll(selectedTopLevelAnatomyId);
+        }
     }
 
     public List<String> getSelectedTopLevelAnatomyTerm() {
         return selectedTopLevelAnatomyTerm;
     }
 
-    public void setSelectedTopLevelAnatomyTerm(List<String> selectedTopLevelAnatomyTerm) {
-        this.selectedTopLevelAnatomyTerm = selectedTopLevelAnatomyTerm;
+    public void setSelectedTopLevelAnatomyTerm(Collection<String> selectedTopLevelAnatomyTerm) {
+        if (selectedTopLevelAnatomyTerm != null){
+            this.selectedTopLevelAnatomyTerm = new ArrayList<>();
+            this.selectedTopLevelAnatomyTerm.addAll(selectedTopLevelAnatomyTerm);
+        }
     }
 
     public List<String> getSelectedTopLevelAnatomyTermSynonym() {
         return selectedTopLevelAnatomyTermSynonym;
     }
 
-    public void setSelectedTopLevelAnatomyTermSynonym(List<String> selectedTopLevelAnatomyTermSynonym) {
-        this.selectedTopLevelAnatomyTermSynonym = selectedTopLevelAnatomyTermSynonym;
+    public void setSelectedTopLevelAnatomyTermSynonym(Collection<String> selectedTopLevelAnatomyTermSynonym) {
+        if (selectedTopLevelAnatomyTermSynonym != null){
+            this.selectedTopLevelAnatomyTermSynonym = new ArrayList<>();
+            this.selectedTopLevelAnatomyTermSynonym.addAll(selectedTopLevelAnatomyTermSynonym);
+        }
     }
 
     public List<String> getSelectedTopLevelAnatomyIdTerm() {
@@ -318,72 +339,77 @@ public class AnatomyDTO {
         return intermediateAnatomyId;
     }
 
-    public void setIntermediateAnatomyId(List<String> intermediateAnatomyId) {
-        this.intermediateAnatomyId = intermediateAnatomyId;
+    public void setIntermediateAnatomyId(Collection<String> intermediateAnatomyId) {
+        if(intermediateAnatomyId!=null) {
+            this.intermediateAnatomyId = new ArrayList<>();
+            this.intermediateAnatomyId.addAll(intermediateAnatomyId);
+        }
     }
 
     public List<String> getIntermediateAnatomyTerm() {
         return intermediateAnatomyTerm;
     }
 
-    public void setIntermediateAnatomyTerm(List<String> intermediateAnatomyTerm) {
-        this.intermediateAnatomyTerm = intermediateAnatomyTerm;
+    public void setIntermediateAnatomyTerm(Collection<String> intermediateAnatomyTerm) {
+        if(intermediateAnatomyTerm != null) {
+            this.intermediateAnatomyTerm = new ArrayList<>();
+            this.intermediateAnatomyTerm.addAll(intermediateAnatomyTerm);
+        }
     }
 
     public List<String> getIntermediateAnatomyTermSynonym() {
         return intermediateAnatomyTermSynonym;
     }
 
-    public void setIntermediateAnatomyTermSynonym(List<String> intermediateAnatomyTermSynonym) {
-        this.intermediateAnatomyTermSynonym = intermediateAnatomyTermSynonym;
+    public void setIntermediateAnatomyTermSynonym(Collection<String> intermediateAnatomyTermSynonym) {
+        if(intermediateAnatomyTermSynonym != null) {
+            this.intermediateAnatomyTermSynonym = new ArrayList<>();
+            this.intermediateAnatomyTermSynonym.addAll(intermediateAnatomyTermSynonym);
+        }
     }
 
     public List<String> getParentAnatomyId() {
         return parentAnatomyId;
     }
 
-    public void setParentAnatomyId(List<String> parentAnatomyId) {
-        this.parentAnatomyId = parentAnatomyId;
+    public void setParentAnatomyId(Collection<String> parentAnatomyId) {
+        if (parentAnatomyId != null){
+            this.parentAnatomyId = new ArrayList<>();
+            this.parentAnatomyId.addAll(parentAnatomyId);
+        }
     }
 
     public List<String> getParentAnatomyTerm() {
         return parentAnatomyTerm;
     }
 
-    public void setParentAnatomyTerm(List<String> parentAnatomyTerm) {
-        this.parentAnatomyTerm = parentAnatomyTerm;
-    }
-
-    public List<String> getParentAnatomyTermSynonym() {
-        return parentAnatomyTermSynonym;
-    }
-
-    public void setParentAnatomyTermSynonym(List<String> parentAnatomyTermSynonym) {
-        this.parentAnatomyTermSynonym = parentAnatomyTermSynonym;
+    public void setParentAnatomyTerm(Collection<String> parentAnatomyTerm) {
+        if (parentAnatomyTerm != null){
+            this.parentAnatomyTerm = new ArrayList<>();
+            this.parentAnatomyTerm.addAll(parentAnatomyTerm);
+        }
     }
 
     public List<String> getChildAnatomyId() {
         return childAnatomyId;
     }
 
-    public void setChildAnatomyId(List<String> childAnatomyId) {
-        this.childAnatomyId = childAnatomyId;
+    public void setChildAnatomyId(Collection<String> childAnatomyId) {
+        if (childAnatomyId != null){
+            this.childAnatomyId = new ArrayList<>();
+            this.childAnatomyId.addAll(childAnatomyId);
+        }
     }
 
     public List<String> getChildAnatomyTerm() {
         return childAnatomyTerm;
     }
 
-    public void setChildAnatomyTerm(List<String> childAnatomyTerm) {
-        this.childAnatomyTerm = childAnatomyTerm;
-    }
-
-    public List<String> getChildAnatomyTermSynonym() {
-        return childAnatomyTermSynonym;
-    }
-
-    public void setChildAnatomyTermSynonym(List<String> childAnatomyTermSynonym) {
-        this.childAnatomyTermSynonym = childAnatomyTermSynonym;
+    public void setChildAnatomyTerm(Collection<String> childAnatomyTerm) {
+        if (childAnatomyTerm != null){
+            this.childAnatomyTerm = new ArrayList<>();
+            this.childAnatomyTerm.addAll(childAnatomyTerm);
+        }
     }
 
     public List<String> getMpId() {
@@ -556,13 +582,9 @@ public class AnatomyDTO {
             return false;
         if (parentAnatomyTerm != null ? !parentAnatomyTerm.equals(that.parentAnatomyTerm) : that.parentAnatomyTerm != null)
             return false;
-        if (parentAnatomyTermSynonym != null ? !parentAnatomyTermSynonym.equals(that.parentAnatomyTermSynonym) : that.parentAnatomyTermSynonym != null)
-            return false;
         if (childAnatomyId != null ? !childAnatomyId.equals(that.childAnatomyId) : that.childAnatomyId != null)
             return false;
         if (childAnatomyTerm != null ? !childAnatomyTerm.equals(that.childAnatomyTerm) : that.childAnatomyTerm != null)
-            return false;
-        if (childAnatomyTermSynonym != null ? !childAnatomyTermSynonym.equals(that.childAnatomyTermSynonym) : that.childAnatomyTermSynonym != null)
             return false;
         if (mpId != null ? !mpId.equals(that.mpId) : that.mpId != null) return false;
         if (mpTerm != null ? !mpTerm.equals(that.mpTerm) : that.mpTerm != null) return false;
@@ -611,10 +633,8 @@ public class AnatomyDTO {
         result = 31 * result + (intermediateAnatomyTermSynonym != null ? intermediateAnatomyTermSynonym.hashCode() : 0);
         result = 31 * result + (parentAnatomyId != null ? parentAnatomyId.hashCode() : 0);
         result = 31 * result + (parentAnatomyTerm != null ? parentAnatomyTerm.hashCode() : 0);
-        result = 31 * result + (parentAnatomyTermSynonym != null ? parentAnatomyTermSynonym.hashCode() : 0);
         result = 31 * result + (childAnatomyId != null ? childAnatomyId.hashCode() : 0);
         result = 31 * result + (childAnatomyTerm != null ? childAnatomyTerm.hashCode() : 0);
-        result = 31 * result + (childAnatomyTermSynonym != null ? childAnatomyTermSynonym.hashCode() : 0);
         result = 31 * result + (mpId != null ? mpId.hashCode() : 0);
         result = 31 * result + (mpTerm != null ? mpTerm.hashCode() : 0);
         result = 31 * result + (mpTermSynonym != null ? mpTermSynonym.hashCode() : 0);
@@ -657,10 +677,8 @@ public class AnatomyDTO {
                 ", intermediateAnatomyTermSynonym=" + intermediateAnatomyTermSynonym +
                 ", parentAnatomyId=" + parentAnatomyId +
                 ", parentAnatomyTerm=" + parentAnatomyTerm +
-                ", parentAnatomyTermSynonym=" + parentAnatomyTermSynonym +
                 ", childAnatomyId=" + childAnatomyId +
                 ", childAnatomyTerm=" + childAnatomyTerm +
-                ", childAnatomyTermSynonym=" + childAnatomyTermSynonym +
                 ", mpId=" + mpId +
                 ", mpTerm=" + mpTerm +
                 ", mpTermSynonym=" + mpTermSynonym +
