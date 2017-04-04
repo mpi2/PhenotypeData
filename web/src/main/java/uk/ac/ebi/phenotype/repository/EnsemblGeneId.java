@@ -20,7 +20,6 @@ public class EnsemblGeneId {
     @Relationship(type="GENE", direction=Relationship.OUTGOING)
     private Gene gene;
 
-
     public Long getId() {
         return id;
     }
@@ -44,7 +43,6 @@ public class EnsemblGeneId {
     public void setGene(Gene gene) {
         this.gene = gene;
     }
-
 
     @Override
     public String toString() {

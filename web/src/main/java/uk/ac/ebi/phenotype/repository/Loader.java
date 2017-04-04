@@ -169,7 +169,7 @@ public class Loader implements CommandLineRunner {
         //----------- STEP 4 -----------//
         // load disease and Gene, Hp, Mp relationships
         populateDiseaseIdPhenotypeMap();
-        loadDiseaseGenes();
+        //loadDiseaseGenes();
 
         //----------- STEP 5 -----------//
         loadDiseaseModels();
@@ -813,7 +813,7 @@ public class Loader implements CommandLineRunner {
                 //loadedDiseaseGenes.put(d.getDiseaseId(), d);
 
                 if (dCount % 5000 == 0) {
-                    logger.info("Added {} Disease nodes", dCount);
+                    logger.info("Added {} DiseaseGene nodes", dCount);
                 }
             }
             logger.info("Added total of {} DiseaseGene nodes", dCount);
@@ -906,6 +906,8 @@ public class Loader implements CommandLineRunner {
                         d.setAllele(loadedAlleles.get(alleleSymbol));
                     }
 
+                    System.out.println("ALLELE: " + d.getAllele());
+                    System.out.println("MMODEL : " +d.getMouseModel());
                     diseaseModelRepository.save(d);
 
                     dmCount++;

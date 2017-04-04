@@ -55,7 +55,8 @@
 
 						<div class="section">
 							<div class='inner' id='srchBlock'>
-								<div>This is the IMPC data model. Select the datatypes to build your query. Click <button id="dataType">OK</button> to continue.</div>
+								<div>This is the IMPC data model. Select the datatypes and query keyword to build your query. Click <button id="dataType">OK</button> to continue.</div>
+								<div id="qryKw"></div>
 								<div id="graph">
 									<div><button id="clearSel">Clear selections</button></div>
 								</div>
@@ -64,6 +65,42 @@
 						<div class="section" id="sec2">
 							<h4>Batch Query Filters</h4>
 							<div id="bqFilter" class="inner"></div>
+
+							<div id="accordion">
+								<p class='header'>Paste in your list</p>
+								<div>
+									<p>
+										<form id='pastedIds'>
+											<textarea id='pastedList' rows="5" cols="50"></textarea>
+											<input type="submit" id="pastedlist" name="" value="Submit" onclick="return submitPastedList()" />
+											<input type="reset" name="reset" value="Reset"><p>
+									<p class='notes'>Supports space, comma, tab or new line separated identifier list</p>
+									<p class='notes'>Please DO NOT submit a mix of identifiers from different datatypes</p>
+									</form>
+									</p>
+								</div>
+								<p class='header'>Upload your list from file</p>
+								<div>
+
+									<form id="ajaxForm" method="post" action="${baseUrl}/batchQuery" enctype="multipart/form-data">
+										<!-- File input -->
+										<input name="fileupload" id="fileupload" type="file" /><br/>
+										<input name="dataType" id="dtype" value="" type="hidden" /><br/>
+										<input type="submit" id="upload" name="upload" value="Upload" onclick="return uploadJqueryForm()" />
+										<input type="reset" name="reset" value="Reset"><p>
+										<p class='notes'>Supports comma, tab or new line separated identifier list</p>
+										<p class='notes'>Please DO NOT submit a mix of identifiers from different datatypes</p>
+									</form>
+
+								</div>
+								<p class='header'>Full dataset</p>
+								<form>
+									<div id='fullDump'></div>
+									Please use our <a id='ftp' href='ftp://ftp.ebi.ac.uk/pub/databases/impc/' target='_blank'>FTP</a> site for large dataset.
+									<!-- <input type="submit" id="fulldata" name="" value="Submit" onclick="return fetchFullDataset()" /><p> -->
+								</form>
+							</div>
+
 						</div>
 
 						<div class="section" id="sec3">
@@ -95,7 +132,19 @@
                             {"chromosome start": "chrStart"},
                             { "chromosome end": "chrEnd"},
                             {"chromosome strand": "chrStrand"}
-                        ]
+                        ],
+						findBy: [
+						    {"symbol":{
+								"property":"markerSymbol",
+								"eg":"Nxn",
+								}
+                            },
+							{"ID":{
+								"property":"mgiAccessionId",
+								"eg":"MGI:109331"
+								}
+							}
+						]
                     },
                     "HumanGeneSymbol": {
                         text: "Human\nOrtholog",
@@ -104,6 +153,14 @@
                         r: 40,
                         fields: [
                             {"HGNC gene symbol":"humanGeneSymbol"}
+                        ],
+                        findBy: [
+                            {
+                                "symbol": {
+                                    "property": "humanGeneSymbol",
+                                    "eg": "NXN"
+                                }
+                            }
                         ]
                     },
                     "EnsemblGeneId": {
@@ -113,6 +170,14 @@
                         r: 40,
                         fields: [
                             {"Ensembl gene id":"ensembleGeneId"}
+                        ],
+                        findBy: [
+                            {
+                                "ID": {
+                                    "property": "ensembleGeneId",
+                                    "eg": "ENSMUSG00000020844"
+                                }
+                            }
                         ]
                     },
                     "MarkerSynonym": {
@@ -158,6 +223,18 @@
                             {"predicted by MGI":"mgiPredicted"},
                             {"disease to model score":"diseaseToModelScore"},
                             {"model to disease score":"modelToDiseaseScore"}
+                        ],
+                        findBy: [
+                            {"name":{
+                                "property":"diseaseTerm",
+                                "eg":"Atrial Standstill",
+                            }
+                            },
+                            {"ID":{
+                                "property":"diseaseId",
+                                "eg":"OMIM:108770"
+                            }
+                            }
                         ]
                     },
                     "MouseModel": {
@@ -183,6 +260,18 @@
                         fields: [
                             {"human phenotype ontology id":"hpId"},
                             {"human phenotype ontology term":"hpTerm"}
+                        ],
+                        findBy: [
+                            {"name":{
+                                "property":"hpTerm",
+                                "eg":"Hypocalcemia",
+                            }
+                            },
+                            {"ID":{
+                                "property":"hpId",
+                                "eg":"HP:0002901"
+                            }
+                            }
                         ]
                     },
                     "Mp": {
@@ -194,6 +283,18 @@
                             {"mouse phenotype ontology id":"mpId"},
                             {"mouse phenotype ontology term":"mpTerm"},
                             {"mouse phenotype ontology definition":"mpDefinition"}
+                        ],
+                        findBy: [
+                            {"name":{
+                                "property":"mpTerm",
+                                "eg":"abnormal midbrain development",
+                            }
+                            },
+                            {"ID":{
+                                "property":"mpId",
+                                "eg":"MP:0003864"
+                            }
+                            }
                         ]
                     },
                     "OntoSynonym": {
@@ -204,10 +305,26 @@
                         fields: [
                             {"mouse phenotype ontology term synonym": "ontoSynonym"}
                         ]
-                    },
-
-
+                    }
                 };
+
+                var findBy = [
+					{"Mouse gene":"Gene"},
+					{"HGNC gene symbol":"HumanGeneSymbol"},
+					{"Human phenotype ontology (HP)":"Hp"},
+					{"Mouse phenotype ontology (MP)":"Mp"},
+					{"Human disease":"DiseaseModel"}
+				];
+
+                var radios = "";
+                for (var obj in findBy){
+                    for (var k in obj) {
+                        var id = obj[k];
+                        radios += '<input type="radio" name="kw" value="' + id + '">' + k +'<br>';
+                    }
+				}
+
+                $('div#qryKw').html(radios);
 
                 var dataTypes = [];
 
@@ -334,6 +451,12 @@
 
                 // hit OK button to continue to next step
                 $('button#dataType').click(function(){
+
+                    // get the kw radio button checked
+                    var selDataType = $('input[name=kw]:checked', '#qryKw').val();
+                    var inputTxt =
+
+
                     $('div#bqFilter').html('');
                     for (var d=0; d<dataTypes.length; d++) {
                         var id = dataTypes[d];

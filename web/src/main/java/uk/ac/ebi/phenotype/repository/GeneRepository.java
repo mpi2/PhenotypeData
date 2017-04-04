@@ -1,5 +1,6 @@
 package uk.ac.ebi.phenotype.repository;
 
+import org.springframework.data.neo4j.annotation.Depth;
 import org.springframework.data.neo4j.annotation.Query;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.repository.query.Param;
@@ -17,9 +18,10 @@ import java.util.List;
     Gene findByMarkerSymbol(String markerSymbol);
 
     // diseaseModels know about MouseModel and Allele
-    @Query("match (g:Gene) where g.markerSymbol={markerSymbol} with g,"
-//        + "[(g)<-[:GENE]-(mm:MouseModel) | mm] as mouseModel,"
-        + "[(g)<-[:GENE]-(mm:MouseModel)<-[:MOUSE_MODEL]-(dm:DiseaseModel) | dm] as diseaseModel"
+    @Depth(2)
+    @Query("match (g:Gene) where g.markerSymbol={markerSymbol} with g, "
+//        "[(g)<-[:GENE]-(mm:MouseModel) | mm] as mouseModel, "
+        + "[(g)<-[:GENE]-(mm:MouseModel)<-[:MOUSE_MODEL]-(dm:DiseaseModel) | dm] as diseaseModel "
 //        + "[(g)<-[:GENE]-(mm:MouseModel)<-[:MOUSE_MODEL]-(dm:DiseaseModel)-[:ALLELE]->(a:Allele) | a] as allele "
         + "return g, diseaseModel")
     List<Object> findDiseaseModelByMarkerSymbol(@Param( "markerSymbol" ) String markerSymbol);

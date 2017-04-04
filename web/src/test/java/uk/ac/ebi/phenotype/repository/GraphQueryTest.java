@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
+import uk.ac.ebi.phenodigm.model.Disease;
 import uk.ac.ebi.phenotype.repository.*;
 
 import java.util.Arrays;
@@ -71,6 +72,12 @@ public class GraphQueryTest {
         List<String> markerSymbols = Arrays.asList("Nxn","Dst");
         for(String ms : markerSymbols) {
             List<Object> objs = geneRepository.findDiseaseModelByMarkerSymbol(ms);
+            List<DiseaseModel> d = diseaseModelRepository.findByAlleleGeneMarkerSymbol(ms);
+            for (DiseaseModel d1 : d) {
+                System.out.println(d1.getDiseaseTerm());
+                System.out.println("allele:"+ d1.getAllele());
+            }
+
             for (Object obj : objs) {
                 String className = obj.getClass().getSimpleName();
 
@@ -88,9 +95,13 @@ public class GraphQueryTest {
                     DiseaseModel dm = (DiseaseModel) obj;
                     dms.add(dm);
 
-                    alleles.add(dm.getAllele());
+                    if (dm.getAllele() != null) {
+                        alleles.add(dm.getAllele());
+                    }
 
-                    mms.add(dm.getMouseModel());
+                    if (dm.getMouseModel() != null) {
+                        mms.add(dm.getMouseModel());
+                    }
                 }
 
                 for (MouseModel mm : mms) {
