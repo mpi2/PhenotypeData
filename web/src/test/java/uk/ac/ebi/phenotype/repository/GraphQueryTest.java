@@ -1,10 +1,17 @@
-package uk.ac.ebi.phenotype.repository.access;
+package uk.ac.ebi.phenotype.repository;
 
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.neo4j.repository.config.EnableNeo4jRepositories;
 import org.springframework.stereotype.Component;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.transaction.annotation.Transactional;
 import uk.ac.ebi.phenotype.repository.*;
 
 import java.util.Arrays;
@@ -15,9 +22,12 @@ import java.util.Set;
 /**
  * Created by ckchen on 17/03/2017.
  */
-
-@Component
-public class Neo4jAccess implements CommandLineRunner {
+@RunWith(SpringRunner.class)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
+@ContextConfiguration(classes = {Neo4jConfig.class})
+@EnableNeo4jRepositories(basePackages = "uk.ac.ebi.phenotype.repository")
+@Transactional
+public class GraphQueryTest {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -55,13 +65,8 @@ public class Neo4jAccess implements CommandLineRunner {
     MouseModelRepository mouseModelRepository;
 
 
-    public Neo4jAccess() {}
-
-    @Override
-    public void run(String... strings) throws Exception {
-
-        logger.info("access");
-
+    @Test
+    public void graphQueryTest() throws Exception {
 
         List<String> markerSymbols = Arrays.asList("Nxn","Dst");
         for(String ms : markerSymbols) {
@@ -76,28 +81,26 @@ public class Neo4jAccess implements CommandLineRunner {
                 }
 
                 Set<MouseModel> mms = new HashSet<>();
-                if (className.equals("MouseModel")) {
-                    MouseModel mm = (MouseModel) obj;
-                    mms.add(mm);
+                Set<Allele> alleles = new HashSet<>();
+                Set<DiseaseModel> dms = new HashSet<>();
+
+                if (className.equals("DiseaseModel")) {
+                    DiseaseModel dm = (DiseaseModel) obj;
+                    dms.add(dm);
+
+                    alleles.add(dm.getAllele());
+
+                    mms.add(dm.getMouseModel());
                 }
+
                 for (MouseModel mm : mms) {
                     System.out.println("MouseModel: " + mm.toString());
                 }
 
-                Set<Allele> alleles = new HashSet<>();
-                if (className.equals("Allele")) {
-                    Allele allele = (Allele) obj;
-                    alleles.add(allele);
-                }
                 for (Allele allele : alleles) {
                     System.out.println("Allele: " + allele.toString());
                 }
 
-                Set<DiseaseModel> dms = new HashSet<>();
-                if (className.equals("DiseaseModel")) {
-                    DiseaseModel dm = (DiseaseModel) obj;
-                    dms.add(dm);
-                }
                 for (DiseaseModel dm : dms) {
                     System.out.println("DiseaseModel: " + dm.toString());
                 }
