@@ -50,11 +50,12 @@ public class GrossPathService {
 				Map<String, List<ObservationDTO>> keysForRow = this.generateKeyMapForAnatomy(anatomyToObservationMap.get(anatomyName));
 				for (String key : keysForRow.keySet()) {	
 					System.out.println("key for row is "+key);
+					GrossPathPageTableRow row = new GrossPathPageTableRow();
+					row.setAnatomyName(anatomyName);
 						for(ObservationDTO obs: keysForRow.get(key)){
 						
-						GrossPathPageTableRow row = new GrossPathPageTableRow();
-						row.setAnatomyName(anatomyName);
-						row.setSampleId(obs.getExternalSampleId());				
+						
+						//row.setSampleId(obs.getExternalSampleId());				
 						Set<String> parameterNames = new TreeSet<>();
 							row.setZygosity(obs.getZygosity().substring(0, 3).toUpperCase());
 							ImpressBaseDTO parameter = new ImpressBaseDTO(null, null, obs.getParameterStableId(),
@@ -85,12 +86,14 @@ public class GrossPathService {
 							}
 	
 						if (parameterNames.size() != 0) {
-							row.setParameterNames(parameterNames);
-							//row.setNumberOfAbnormalPhenotypes();
-							rows.add(row);
+//							row.setParameterNames(parameterNames);
+//							//row.setNumberOfAbnormalPhenotypes();
+//							rows.add(row);
 						}
 					}
-
+						//row.setParameterNames(parameterNames);
+						//row.setNumberOfAbnormalPhenotypes();
+						rows.add(row);
 				}
 			}
 //			if (!abnormalAnatomyMapPerSampleId.isEmpty()) {// only bother
@@ -138,7 +141,7 @@ public class GrossPathService {
 		//for summary we want the rows split on a key of anatomy||zygosity||normal/abnormal
 		Map<String, List<ObservationDTO> >keyMap=new HashMap<>();
 		for(ObservationDTO obs:list){
-			String key=this.getAnatomyStringFromObservation(obs);
+			String key=this.getAnatomyStringFromObservation(obs)+"||"+obs.getZygosity()+"||"+this.getNormalOrAbnormalStringFromObservation(obs);
 			if(keyMap.containsKey(key)){
 				keyMap.get(key).add(obs);
 			}else{
@@ -280,6 +283,31 @@ public class GrossPathService {
 
 	}
 
+	
+	private String getNormalOrAbnormalStringFromObservation(ObservationDTO obs){
+		String normalOrAbnormal="";
+		int abnormalObservations=0;
+		if (obs.getSubTermName() != null) {
+			for (int i = 0; i < obs.getSubTermId().size(); i++) {
+				if(!obs.getSubTermName().get(i).equals("no abnormal phenotype detected")){
+				
+					abnormalObservations++;
+				}
+				if(obs.getSubTermId().get(i).contains("MP:")){//for the moment lets keep things simple and restrict to MP only as PATO doesn't seem useful as is.
+				OntologyBean subOntologyBean = new OntologyBean(obs.getSubTermId().get(i),
+						obs.getSubTermName().get(i), obs.getSubTermDescription().get(i));// ,
+				//row.addOntologicalParam(parameter, subOntologyBean);
+				normalOrAbnormal+=obs.getSubTermName();
+				}
+			}
+		}
+		System.out.println("abnormalObservations size in getString="+abnormalObservations);
+		System.out.println("normal or abnormal="+normalOrAbnormal);
+		if(abnormalObservations>0){
+			return "Abnormal";
+		}
+		return "Normal";
+	}
 	private Map<String, List<SolrDocument>> getSampleToImagesMap(List<SolrDocument> images) {
 		Map<String, List<SolrDocument>> sampleToImagesMap=new HashMap<>();
 		
