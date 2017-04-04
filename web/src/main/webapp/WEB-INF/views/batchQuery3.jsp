@@ -75,31 +75,58 @@
                         x: 690,
                         y: 250,
                         r: 40,
-						fields: []
+						fields: {
+                            "MGI gene id": "mgiAccessionId",
+                            "MGI gene symbol": "markerSymbol",
+                            "MGI gene type": "markerType",
+                            "MGI gene name": "markerName",
+                            "Chromosome id": "chrId",
+                            "Chromosome start": "chrStart",
+                            "Chromosome end": "chrEnd",
+                            "Chromosome strand": "chrStrand"
+                        }
                     },
                     "HumanOrtholog": {
                         text: "Human\nOrtholog",
                         x: 800,
                         y: 250,
-                        r: 40
+                        r: 40,
+                        fields: {
+                            "HGNC gene symbol":"humanGeneSymbol"
+                        }
                     },
                     "EnsemblGeneId": {
                         text: "Ensembl\nGene Id",
                         x: 800,
                         y: 160,
-                        r: 40
+                        r: 40,
+                        fields: {
+                            "Ensembl gene id":"ensembleGeneId"
+                        }
                     },
                     "MarkerSynonym": {
                         text: "Marker\nSynonym",
                         x: 800,
                         y: 50,
-                        r: 40
+                        r: 40,
+                        fields: {
+                            "MGI gene synonym":"markerSynonym"
+                        }
                     },
                     "Allele": {
                         text: "Allele",
                         x: 550,
                         y: 170,
-                        r: 40
+                        r: 40,
+                        fields: {
+                            "MGI allele id":"alleleMgiAccessionId",
+                            "MGI allele symbol":"alleleSymbol",
+                            "allele description":"alleleDescription",
+                            "allele mutation type":"mutationType",
+                            "ES cell available?":"esCellStatus",
+                            "mouse available?":"mouseStatus",
+                            "phenotyping data available?":"phenotypeStatus"
+                        }
                     },
 //                    "DiseaseGene": {
 //                        text: "Disease-\nGene",
@@ -111,7 +138,8 @@
                         text: "Disease-\nModel",
                         x: 400,
                         y: 110,
-                        r: 40
+                        r: 40,
+
                     },
                     "MouseModel": {
                         text: "Mouse\nModel",
