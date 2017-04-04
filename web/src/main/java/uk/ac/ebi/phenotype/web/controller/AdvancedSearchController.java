@@ -77,7 +77,7 @@ public class AdvancedSearchController {
 
 
 	@RequestMapping(value="/meshtree", method=RequestMethod.GET)
-	public String loadBatchQueryPage(
+	public String loadmeshtreePage(
 			@RequestParam(value = "core", required = false) String core,
 			HttpServletRequest request,
 			Model model) {
@@ -87,17 +87,34 @@ public class AdvancedSearchController {
 
 
 		return "treetest";
+
 	}
 
-	@RequestMapping(value="/batchqueryAdv", method=RequestMethod.GET)
-	public @ResponseBody String fetchDataFields(
+	@RequestMapping(value="/batchQuery3", method=RequestMethod.GET)
+	public String loadBatchQueryPage3(
 			@RequestParam(value = "core", required = false) String core,
 			HttpServletRequest request,
 			Model model) {
 
-		return "test";
+		String outputFieldsHtml = Tools.fetchOutputFieldsCheckBoxesHtml(core);
+		model.addAttribute("outputFields", outputFieldsHtml);
 
+
+		return "batchQuery3";
 	}
+//
+//	@RequestMapping(value="/batchQuery3", method=RequestMethod.GET)
+//	public String batchqueryAdv(
+//			@RequestParam(value = "core", required = false) String core,
+//			HttpServletRequest request,
+//			Model model) {
+//
+////		String outputFieldsHtml = Tools.fetchOutputFieldsCheckBoxesHtml(core);
+////		model.addAttribute("outputFields", outputFieldsHtml);
+//
+//
+//		return "batchqueryAdv";
+//	}
 
 	@RequestMapping(value = "/dataTable_bq2", method = RequestMethod.POST)
 	public ResponseEntity<String> bqDataTableJson2(
