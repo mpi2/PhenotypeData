@@ -16,11 +16,12 @@ import java.util.List;
     Gene findByMgiAccessionId(String mgiAccessionId);
     Gene findByMarkerSymbol(String markerSymbol);
 
+    // diseaseModels know about MouseModel and Allele
     @Query("match (g:Gene) where g.markerSymbol={markerSymbol} with g,"
-        + "[(g)<-[:GENE]-(mm:MouseModel) | mm] as mouseModel,"
-        + "[(g)<-[:GENE]-(mm:MouseModel)<-[:MOUSE_MODEL]-(dm:DiseaseModel) | dm] as diseaseModel,"
-        + "[(g)<-[:GENE]-(mm:MouseModel)<-[:MOUSE_MODEL]-(dm:DiseaseModel)-[:ALLELE]->(a:Allele) | a] as allele "
-        + "return g, mouseModel, allele, diseaseModel")
+//        + "[(g)<-[:GENE]-(mm:MouseModel) | mm] as mouseModel,"
+        + "[(g)<-[:GENE]-(mm:MouseModel)<-[:MOUSE_MODEL]-(dm:DiseaseModel) | dm] as diseaseModel"
+//        + "[(g)<-[:GENE]-(mm:MouseModel)<-[:MOUSE_MODEL]-(dm:DiseaseModel)-[:ALLELE]->(a:Allele) | a] as allele "
+        + "return g, diseaseModel")
     List<Object> findDiseaseModelByMarkerSymbol(@Param( "markerSymbol" ) String markerSymbol);
 
 //
