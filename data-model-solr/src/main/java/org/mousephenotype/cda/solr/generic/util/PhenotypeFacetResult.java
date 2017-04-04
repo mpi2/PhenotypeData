@@ -15,18 +15,20 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.generic.util;
 
+import org.mousephenotype.cda.solr.web.dto.PhenotypeCallSummaryDTO;
+import org.mousephenotype.cda.utilities.RunStatus;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.mousephenotype.cda.solr.web.dto.PhenotypeCallSummaryDTO;
-
 public class PhenotypeFacetResult {
-	
-	List<PhenotypeCallSummaryDTO> phenotypeCallSummaries = new ArrayList<PhenotypeCallSummaryDTO>();
-	Map<String, Map<String, Integer>> facetResults = new HashMap<String, Map<String, Integer>>();
-	List<String> errorCodes = new ArrayList<>();
+
+	private List<PhenotypeCallSummaryDTO>     phenotypeCallSummaries = new ArrayList<PhenotypeCallSummaryDTO>();
+	private Map<String, Map<String, Integer>> facetResults           = new HashMap<String, Map<String, Integer>>();
+	private List<String>                      errorCodes             = new ArrayList<>();
+	private RunStatus                         status                 = new RunStatus();
 		
 	public List<PhenotypeCallSummaryDTO> getPhenotypeCallSummaries() {
 		return phenotypeCallSummaries;
@@ -51,8 +53,16 @@ public class PhenotypeFacetResult {
 	public void setErrorCodes(List<String> errorCodes) {
 		this.errorCodes = errorCodes;
 	}
-	
+
 	public void addErrorCode(String code){
 		errorCodes.add(code);
+	}
+
+	public RunStatus getStatus() {
+		return status;
+	}
+
+	public void setStatus(RunStatus status) {
+		this.status = status;
 	}
 }

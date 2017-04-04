@@ -549,8 +549,9 @@ public class MpDTO {
 
 
 	public void setMpNodeId(Collection<Integer> mpNodeId) {
-
-		this.mpNodeId = new ArrayList<>(mpNodeId);
+		if (mpNodeId != null) {
+			this.mpNodeId = new ArrayList<>(mpNodeId);
+		}
 	}
 
 

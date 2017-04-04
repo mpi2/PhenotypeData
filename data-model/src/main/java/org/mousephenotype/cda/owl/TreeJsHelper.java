@@ -2,6 +2,8 @@ package org.mousephenotype.cda.owl;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -13,6 +15,8 @@ import java.util.Map;
  */
 public class TreeJsHelper {
 
+
+    private static final Logger logger = LoggerFactory.getLogger(TreeJsHelper.class);
 
         public TreeJsHelper(){	}
 
@@ -47,7 +51,6 @@ public class TreeJsHelper {
                     }
                 }
             }
-            System.out.println();
 
             return children;
         }
@@ -61,7 +64,7 @@ public class TreeJsHelper {
                     getJson(path, baseUrl, parser, term.getAccessionId(), nodes, mpGeneVariantCount);
                 }
             } else {
-                System.out.println("No path to root for " + term.getAccessionId() + ". It's OK to have some terms outside, i.e. EMAPA:0, but if you see lots investigate the issue.");
+                logger.info("No path to root for " + term.getAccessionId() + ". It's OK to have some terms outside, i.e. EMAPA:0, but if you see lots investigate the issue.");
             }
 
             // root is 0, mammalian phenotype for MP

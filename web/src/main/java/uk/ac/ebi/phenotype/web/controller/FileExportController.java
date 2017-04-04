@@ -113,6 +113,7 @@ public class FileExportController {
 
 	@Autowired
 	private PhenoDigmWebDao phenoDigmDao;
+
 	private final double rawScoreCutoff = 1.97;
 
 	@Autowired
@@ -222,6 +223,7 @@ public class FileExportController {
 		@RequestParam(value = "fq", required = false) String fqStr,
 		@RequestParam(value = "dataType", required = true) String dataType,
 		@RequestParam(value = "mode", required = false) String mode,
+		@RequestParam(value = "filter", required = false) String filter,
 		@RequestParam(value = "fileType", required = true) String fileType,
 		@RequestParam(value = "fileName", required = true) String fileName,
 		@RequestParam(value = "showImgView", required = false, defaultValue = "false") Boolean showImgView,
@@ -239,7 +241,7 @@ public class FileExportController {
 
 		if ( dataType.equals("alleleRef") ){
 			// query is * by default
-			dataRows = composeAlleleRefExportRows(iDisplayLength, iDisplayStart, query, mode, consortium);
+			dataRows = composeAlleleRefExportRows(iDisplayLength, iDisplayStart, query, mode, consortium, filter);
 		}
 		else {
 
@@ -393,7 +395,8 @@ public class FileExportController {
 						length, showImgView);
 				dataRows = composeGene2PfamClansDataRows(json, request);
 			} else if (doAlleleRef) {
-				dataRows = composeAlleleRefExportRows(length, rowStart, filterStr, dumpMode, false);
+				String filter = "";
+				dataRows = composeAlleleRefExportRows(length, rowStart, filterStr, dumpMode, false, filter);
 			} else {
 				JSONObject json = solrIndex.getDataTableExportRows(solrCoreName, solrFilters, gridFields, rowStart,
 						length, showImgView);
@@ -1253,11 +1256,21 @@ public class FileExportController {
 		return rowData;
 	}
 
-	private List<String> composeAlleleRefExportRows(int iDisplayLength, int iDisplayStart, String sSearch, String dumpMode, Boolean consortium) throws SQLException {
+	private List<String> composeAlleleRefExportRows(int iDisplayLength, int iDisplayStart, String sSearch, String dumpMode, Boolean consortium, String filter) throws SQLException {
 		List<String> rowData = new ArrayList<>();
 		rowData.add(referenceDAO.heading);
 
-        List<ReferenceDTO> references = referenceDAO.getReferenceRows(sSearch, consortium);
+		System.out.print("**** :");
+		System.out.println(sSearch == null);
+		List<ReferenceDTO> references = null;
+		if (filter != null) {
+			boolean agencyOnly = true;
+			references = referenceDAO.getReferenceRows(agencyOnly, sSearch, filter); // for agency papers
+		}
+		else {
+			references = referenceDAO.getReferenceRows(sSearch, consortium);
+		}
+
 		for (ReferenceDTO reference : references) {
 			List<String> row = new ArrayList<>();
 			row.add(StringUtils.join(reference.getAlleleSymbols(), "|")); //1

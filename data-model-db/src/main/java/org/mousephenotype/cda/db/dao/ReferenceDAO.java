@@ -54,7 +54,8 @@ public class ReferenceDAO {
         + "\tGrant agency"
         + "\tPaper link"
         + "\tMesh term"
-        + "\tConsortium paper";
+        + "\tConsortium paper"
+        + "\tabstract";
 
     @Autowired
     @Qualifier("admintoolsDataSource")
@@ -114,6 +115,213 @@ public class ReferenceDAO {
      *
      */
 
+    public List<ReferenceDTO> getReferenceRows(String filter, String orderBy) throws SQLException {
+        Connection connection = admintoolsDataSource.getConnection();
+
+        String impcGeneBaseUrl = "http://www.mousephenotype.org/data/genes/";
+
+        String sql =  "SELECT\n"
+                + "  symbol AS alleleSymbols\n"
+                + ", acc AS alleleAccessionIds\n"
+                + ", gacc AS geneAccessionIds\n"
+                + ", title\n"
+                + ", journal\n"
+                + ", pmid\n"
+                + ", date_of_publication\n"
+                + ", agency AS grantAgencies\n"
+                + ", paper_url AS paperUrls\n"
+                + ", mesh\n"
+                + ", author\n"
+                + ", abstract\n"
+                + " FROM allele_ref\n"
+                + " WHERE agency LIKE '%" + filter + "%'\n"
+                + " ORDER BY " + orderBy + "\n";
+
+        //System.out.println("alleleRef query: " + sql);
+        List<ReferenceDTO> results = new ArrayList<>();
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+
+            ResultSet resultSet = ps.executeQuery();
+            while (resultSet.next()) {
+                final String delimeter = "\\|\\|\\|";
+                ReferenceDTO referenceRow = new ReferenceDTO();
+
+                referenceRow.setAlleleSymbols(Arrays.asList(resultSet.getString("alleleSymbols").split(delimeter)));
+                referenceRow.setAlleleAccessionIds(Arrays.asList(resultSet.getString("alleleAccessionIds").split(delimeter)));
+                String geneAccessionIds = resultSet.getString("geneAccessionIds").trim();
+                List<String> geneLinks = new ArrayList();
+                if ( ! geneAccessionIds.isEmpty()) {
+                    referenceRow.setGeneAccessionIds(Arrays.asList(geneAccessionIds.split(delimeter)));
+                    String[] parts = geneAccessionIds.split(delimeter);
+                    for (String part : parts) {
+                        geneLinks.add(impcGeneBaseUrl + part.trim());
+                    }
+                    referenceRow.setImpcGeneLinks(geneLinks);
+                }
+                referenceRow.setTitle(resultSet.getString("title"));
+                referenceRow.setJournal(resultSet.getString("journal"));
+                referenceRow.setPmid(resultSet.getInt("pmid"));
+                referenceRow.setDateOfPublication(resultSet.getString("date_of_publication"));
+                referenceRow.setGrantAgencies(Arrays.asList(resultSet.getString("grantAgencies").split(delimeter)));
+                referenceRow.setPaperUrls(Arrays.asList(resultSet.getString("paperUrls").split(delimeter)));
+                referenceRow.setMeshTerms(Arrays.asList(resultSet.getString("mesh").split(delimeter)));
+                referenceRow.setAuthor(resultSet.getString("author"));
+                referenceRow.setAbstractTxt(resultSet.getString("abstract"));
+
+                results.add(referenceRow);
+            }
+            resultSet.close();
+            ps.close();
+            connection.close();
+
+        } catch (Exception e) {
+            log.error("Fetching agency related papers failed: " + e.getLocalizedMessage());
+            e.printStackTrace();
+        }
+
+        return results;
+    }
+
+    /**
+     * Fetch the reference rows, optionally filtered.
+     *
+     * @param filter Filter string, which may be null or empty, indicating no
+     * filtering is desired. If supplied, a WHERE clause of the form "LIKE
+     * '%<i>filter</i>%' is used in the query to query all fields for
+     * <code>filter</code>.
+     *
+     * @return the reference rows, optionally filtered.
+     *
+     * @throws SQLException
+     *
+     */
+
+    public List<ReferenceDTO> getReferenceRows(Boolean agencyOnly, String agencySrch, String filter) throws SQLException {
+        Connection connection = admintoolsDataSource.getConnection();
+
+        String impcGeneBaseUrl = "http://www.mousephenotype.org/data/genes/";
+
+        String whereClause = "WHERE agency LIKE '%" + agencySrch + "%'\n";
+        int colCount = 0;
+        String filterClause = "";
+
+        if (filter != null){
+            colCount = 12;
+            filterClause =
+                    "  AND (\n"
+                            + "     title               LIKE ?\n"
+                            + " OR journal             LIKE ?\n"
+                            + " OR acc                 LIKE ?\n"
+                            + " OR symbol              LIKE ?\n"
+                            + " OR pmid                LIKE ?\n"
+                            + " OR date_of_publication LIKE ?\n"
+                            + " OR grant_id            LIKE ?\n"
+                            + " OR agency              LIKE ?\n"
+                            + " OR acronym             LIKE ?\n"
+                            + " OR author              LIKE ?\n"
+                            + " OR mesh                LIKE ?\n"
+                            + " OR abstract            LIKE ?)\n";
+
+            whereClause += filterClause;
+        }
+
+
+        String query =
+                "SELECT\n"
+                        + "  symbol AS alleleSymbols\n"
+                        + ", acc AS alleleAccessionIds\n"
+                        + ", gacc AS geneAccessionIds\n"
+                        + ", name AS alleleNames\n"
+                        + ", title\n"
+                        + ", journal\n"
+                        + ", pmid\n"
+                        + ", date_of_publication\n"
+                        + ", grant_id AS grantIds\n"
+                        + ", agency AS grantAgencies\n"
+                        + ", paper_url AS paperUrls\n"
+                        + ", mesh\n"
+                        + ", meshtree\n"
+                        + ", author\n"
+                        + ", consortium_paper\n"
+                        + ", abstract\n"
+                        + "FROM allele_ref\n"
+                        + whereClause
+                        + "ORDER BY date_of_publication DESC\n";
+
+        System.out.println("alleleRef query 3: " + query);
+        List<ReferenceDTO> results = new ArrayList<>();
+
+        try (PreparedStatement ps = connection.prepareStatement(query)) {
+            if (! filterClause.isEmpty()) {
+                // Replace the parameter holder ? with the values.
+                String like = "%" + filter + "%";
+                for (int i = 0; i < colCount; i++) {                                   // If a search clause was specified, load the parameters.
+                    ps.setString(i + 1, like);
+                }
+            }
+
+            ResultSet resultSet = ps.executeQuery();
+            while (resultSet.next()) {
+                final String delimeter = "\\|\\|\\|";
+                ReferenceDTO referenceRow = new ReferenceDTO();
+
+                referenceRow.setAlleleSymbols(Arrays.asList(resultSet.getString("alleleSymbols").split(delimeter)));
+                referenceRow.setAlleleAccessionIds(Arrays.asList(resultSet.getString("alleleAccessionIds").split(delimeter)));
+                String geneAccessionIds = resultSet.getString("geneAccessionIds").trim();
+                List<String> geneLinks = new ArrayList();
+                if ( ! geneAccessionIds.isEmpty()) {
+                    referenceRow.setGeneAccessionIds(Arrays.asList(geneAccessionIds.split(delimeter)));
+                    String[] parts = geneAccessionIds.split(delimeter);
+                    for (String part : parts) {
+                        geneLinks.add(impcGeneBaseUrl + part.trim());
+                    }
+                    referenceRow.setImpcGeneLinks(geneLinks);
+                }
+                referenceRow.setMgiAlleleNames(Arrays.asList(resultSet.getString("alleleNames").split(delimeter)));
+                referenceRow.setTitle(resultSet.getString("title"));
+                referenceRow.setJournal(resultSet.getString("journal"));
+                referenceRow.setPmid(resultSet.getInt("pmid"));
+                referenceRow.setDateOfPublication(resultSet.getString("date_of_publication"));
+                referenceRow.setGrantIds(Arrays.asList(resultSet.getString("grantIds").split(delimeter)));
+                referenceRow.setGrantAgencies(Arrays.asList(resultSet.getString("grantAgencies").split(delimeter)));
+                referenceRow.setPaperUrls(Arrays.asList(resultSet.getString("paperUrls").split(delimeter)));
+                referenceRow.setMeshJsonStr(resultSet.getString("meshtree"));
+                referenceRow.setMeshTerms(Arrays.asList(resultSet.getString("mesh").split(delimeter)));
+                referenceRow.setAuthor(resultSet.getString("author"));
+                referenceRow.setConsortiumPaper(resultSet.getString("consortium_paper"));
+                referenceRow.setAbstractTxt(resultSet.getString("abstract"));
+
+                results.add(referenceRow);
+            }
+            resultSet.close();
+            ps.close();
+            connection.close();
+
+        } catch (Exception e) {
+            log.error("download rowData extract failed: " + e.getLocalizedMessage());
+            e.printStackTrace();
+        }
+
+        return results;
+    }
+
+
+
+    /**
+     * Fetch the reference rows, optionally filtered.
+     *
+     * @param filter Filter string, which may be null or empty, indicating no
+     * filtering is desired. If supplied, a WHERE clause of the form "LIKE
+     * '%<i>filter</i>%' is used in the query to query all fields for
+     * <code>filter</code>.
+     *
+     * @return the reference rows, optionally filtered.
+     *
+     * @throws SQLException
+     *
+     */
+
     public List<ReferenceDTO> getReferenceRows(String filter, String orderBy, Boolean consortium) throws SQLException {
         Connection connection = admintoolsDataSource.getConnection();
         // need to set max length for group_concat() otherwise some values would get chopped off !!
@@ -134,16 +342,20 @@ public class ReferenceDAO {
             int occurrence = findOccurrenceOfSubstr(filter, "|");
             int loop = occurrence + 1;
 
-            List<String> cols = new ArrayList<>(Arrays.asList("title", "mesh"));
+            List<String> cols = new ArrayList<>(Arrays.asList("title", "mesh", "abstract"));
             List<String> titleLikes = new ArrayList<>();
             List<String> meshLikes = new ArrayList<>();
+            List<String> abstractLikes = new ArrayList<>();
             for( int oc=0; oc< loop; oc++){
                 for (String col : cols){
                     if (col.equals("title")){
                         titleLikes.add(col + " LIKE ? ");
                     }
-                    else {
+                    else if (col.equals("mesh")) {
                         meshLikes.add(col + " LIKE ? ");
+                    }
+                    else if (col.equals("abstract")){
+                        abstractLikes.add(col + " LIKE ? ");
                     }
                 }
             }
@@ -151,8 +363,10 @@ public class ReferenceDAO {
             searchClause =
                     "  AND (\n"
                     + "(" + StringUtils.join(titleLikes, " OR ") +")\n"
-                    + " OR (" +  StringUtils.join(meshLikes, " OR ") + "))\n";
+                    + "(" + StringUtils.join(meshLikes, " OR ") +")\n"
+                    + " OR (" +  StringUtils.join(abstractLikes, " OR ") + "))\n";
         }
+
 
         String whereClause = "";
 
@@ -163,7 +377,7 @@ public class ReferenceDAO {
             whereClause = "WHERE\n"
                     + " reviewed = 'yes'\n"
                     + " AND falsepositive = 'no'"
-                    + " AND symbol != '' "
+                   // + " AND symbol != '' "
                     + notInClause
                     + searchClause;
         }
@@ -189,12 +403,12 @@ public class ReferenceDAO {
                     + ", meshtree\n"
                     + ", author\n"
                     + ", consortium_paper\n"
+                    + ", abstract\n"
                     + "FROM allele_ref AS ar\n"
                     + whereClause
-                    //+ "GROUP BY pmid\n"
                     + "ORDER BY " + orderBy + "\n";
 
-        //System.out.println("alleleRef query: " + query);
+        System.out.println("alleleRef query 2: " + query);
         List<ReferenceDTO> results = new ArrayList<>();
 
         try (PreparedStatement ps = connection.prepareStatement(query)) {
@@ -247,6 +461,7 @@ public class ReferenceDAO {
                 referenceRow.setMeshTerms(Arrays.asList(resultSet.getString("mesh").split(delimeter)));
                 referenceRow.setAuthor(resultSet.getString("author"));
                 referenceRow.setConsortiumPaper(resultSet.getString("consortium_paper"));
+                referenceRow.setAbstractTxt(resultSet.getString("abstract"));
 
                 results.add(referenceRow);
             }
@@ -278,7 +493,7 @@ public class ReferenceDAO {
         return count;
     }
 
-    public List<ReferenceDTO> getReferenceRows(String filter, Boolean consortium) throws SQLException {
+    public List<ReferenceDTO> getReferenceRows(String srchKw, Boolean consortium) throws SQLException {
 
     	Connection connection = admintoolsDataSource.getConnection();
     	// need to set max length for group_concat() otherwise some values would get chopped off !!
@@ -287,9 +502,6 @@ public class ReferenceDAO {
 //    	PreparedStatement pst = connection.prepareStatement(gcsql);
 //    	pst.executeQuery();
 
-    	if (filter == null)
-            filter = "";
-
         String impcGeneBaseUrl = "http://www.mousephenotype.org/data/genes/";
         String pmidsToOmit = getPmidsToOmit();
         String notInClause = (pmidsToOmit.isEmpty() ? "" : "  AND pmid NOT IN (" + pmidsToOmit + ")\n");
@@ -297,8 +509,8 @@ public class ReferenceDAO {
 
         int colCount = 0;
 
-        if ( ! filter.isEmpty()) {
-            if ( filter.contains("|")){
+        if (! srchKw.isEmpty()) {
+            if ( srchKw.contains("|")){
                 searchClause =
                         "  AND (\n"
                                 + "(title LIKE ? or title LIKE ?)\n"
@@ -310,11 +522,13 @@ public class ReferenceDAO {
                                 + " OR (grant_id LIKE ? OR grant_id LIKE ?)\n"
                                 + " OR (agency LIKE ? OR agency LIKE ?)\n"
                                 + " OR (acronym LIKE ? OR acronym LIKE ?)\n"
+                                + " OR (author LIKE ? OR author LIKE ?)\n"
+                                + " OR (abstract LIKE ? OR abstract LIKE ?)\n"
                                 + " OR (mesh LIKE ? OR mesh LIKE ?))\n";
-                colCount = 20;
+                colCount = 24;
             }
             else {
-                colCount = 10;
+                colCount = 12;
                 searchClause =
                         "  AND (\n"
                                 + "     title               LIKE ?\n"
@@ -326,6 +540,8 @@ public class ReferenceDAO {
                                 + " OR grant_id            LIKE ?\n"
                                 + " OR agency              LIKE ?\n"
                                 + " OR acronym             LIKE ?\n"
+                                + " OR author              LIKE ?\n"
+                                + " OR abstract            LIKE ?\n"
                                 + " OR mesh                LIKE ?)\n";
             }
         }
@@ -333,13 +549,13 @@ public class ReferenceDAO {
         String whereClause = "";
 
         if (consortium) {
-            whereClause = "WHERE consortium_paper='yes' ";
+            whereClause = "WHERE consortium_paper='yes' " + notInClause + searchClause;
         }
         else {
             whereClause = "WHERE\n"
                     + " reviewed = 'yes'\n"
                     + " AND falsepositive = 'no'"
-                    + " AND symbol != ''\n"
+                   // + " AND symbol != ''\n"
 
                     // some paper are forced to be reviewed although no gacc and acc is known, but symbol will have been set as "Not available"
                     // + " AND gacc != ''\n"
@@ -369,12 +585,13 @@ public class ReferenceDAO {
               + ", mesh\n"
               + ", meshtree\n"
               + ", consortium_paper\n"
-              + "FROM allele_ref AS ar\n"
+              + ", abstract\n"
+              + "FROM allele_ref \n"
               + whereClause
               //+ "GROUP BY pmid\n"
-              + "ORDER BY date_of_publication DESC\n";
+              + " ORDER BY date_of_publication DESC\n";
 
-        //System.out.println("alleleRef query: " + query);
+        System.out.println("alleleRef query 1: " + query);
         List<ReferenceDTO> results = new ArrayList<>();
 
         try (PreparedStatement ps = connection.prepareStatement(query)) {
@@ -382,8 +599,8 @@ public class ReferenceDAO {
                 // Replace the parameter holder ? with the values.
 
                 String like1, like2 = null;
-                if (filter.contains("|")){
-                    String[] fltr = StringUtils.split(filter,"|");
+                if (srchKw.contains("|")){
+                    String[] fltr = StringUtils.split(srchKw,"|");
                     like1 = "%" + fltr[0] + "%";
                     like2 = "%" + fltr[1] + "%";
 
@@ -393,7 +610,7 @@ public class ReferenceDAO {
                     }
                 }
                 else {
-                    like1 = "%" + filter + "%";
+                    like1 = "%" + srchKw + "%";
                     for (int i = 0; i < colCount; i++) {                                   // If a search clause was specified, load the parameters.
                         ps.setString(i + 1, like1);
                     }
@@ -428,6 +645,7 @@ public class ReferenceDAO {
                 referenceRow.setMeshTerms(Arrays.asList(resultSet.getString("mesh").split(delimeter)));
                 referenceRow.setMeshJsonStr(resultSet.getString("meshtree"));
                 referenceRow.setConsortiumPaper(resultSet.getString("consortium_paper"));
+                referenceRow.setAbstractTxt(resultSet.getString("abstract"));
 
                 results.add(referenceRow);
             }

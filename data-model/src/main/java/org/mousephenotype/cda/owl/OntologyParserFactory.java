@@ -80,7 +80,7 @@ public class OntologyParserFactory {
     public OntologyParser getMaParserWithTreeJson() throws OWLOntologyStorageException, IOException, SQLException, OWLOntologyCreationException {
 
         OntologyParser parser = getMaParser();
-        parser.fillJsonTreePath("MA:0002405", "/data/anatomy/", null, TREE_TOP_LEVEL_MA_TERMS); // postnatal mouse
+        parser.fillJsonTreePath("MA:0002405", "/data/anatomy/", null, TREE_TOP_LEVEL_MA_TERMS, true); // postnatal mouse
         return parser;
     }
 
@@ -88,7 +88,7 @@ public class OntologyParserFactory {
     public OntologyParser getEmapaParserWithTreeJson() throws OWLOntologyStorageException, IOException, SQLException, OWLOntologyCreationException {
 
         OntologyParser parser = getEmapaParser();
-        parser.fillJsonTreePath("EMAPA:25765", "/data/anatomy/", null, TREE_TOP_LEVEL_EMAPA_TERMS); // mouse
+        parser.fillJsonTreePath("EMAPA:25765", "/data/anatomy/", null, TREE_TOP_LEVEL_EMAPA_TERMS, true); // mouse
         return parser;
     }
 

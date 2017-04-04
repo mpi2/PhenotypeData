@@ -264,7 +264,7 @@ public class PhisService {
 						res.setName(param.getName());
 					}
 				} catch (SolrServerException | IOException e) {
-					logger.warn("No netry found for IMPRES id " + parameter);
+					logger.warn("No entry found for IMPRESS id " + parameter);
 					e.printStackTrace();
 				}
 			} else {

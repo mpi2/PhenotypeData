@@ -191,7 +191,6 @@ public abstract class AbstractIndexer implements CommandLineRunner {
             }
             return el;
         } else {
-            System.out.println();
             runStatus.addError(" Caught error accessing Allele2 core: " + "Field not found " + field );
             return null;
         }

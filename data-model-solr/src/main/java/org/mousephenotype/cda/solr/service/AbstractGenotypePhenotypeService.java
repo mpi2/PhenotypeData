@@ -916,27 +916,29 @@ public class AbstractGenotypePhenotypeService extends BasicService {
         return results;
     }
 
-    
+    // Returns status of operation in PhenotypeFacetResult.status. Query it for errors and warnings.
     public PhenotypeFacetResult createPhenotypeResultFromSolrResponse(String url, Boolean isPreQc)
     throws IOException, URISyntaxException, SolrServerException {
 
         PhenotypeFacetResult facetResult = new PhenotypeFacetResult();
         List<PhenotypeCallSummaryDTO> list = new ArrayList<PhenotypeCallSummaryDTO>();
         JSONObject results = new JSONObject();
-        System.out.println("url in getPhenotypeResultFromSolrResponse="+url);
         results = JSONRestUtil.getResults(url);
         JSONArray docs = results.getJSONObject("response").getJSONArray("docs");
                 
         for (Object doc : docs) {
-            try{
-        		PhenotypeCallSummaryDTO call = createSummaryCall(doc, isPreQc);
-        		if (call != null){
-        			list.add(call);
-        		}
-        	}catch(Exception e){
-           		// Catch errors so that at least the data without issues displays
-           		facetResult.addErrorCode(e.getMessage());
-           	}
+            try {
+                PhenotypeCallSummaryDTO call = createSummaryCall(doc, isPreQc);
+                if ((call.getStatus().hasErrors()) || call.getStatus().hasWarnings()) {
+                    facetResult.getStatus().add(call.getStatus());
+                }
+                if (call != null) {
+                    list.add(call);
+                }
+            } catch (Exception e) {
+                // Catch errors so that at least the data without issues displays
+                facetResult.addErrorCode(e.getMessage());
+            }
         }
 
         // get the facet information that we can use to create the buttons, dropdowns, checkboxes
@@ -994,7 +996,7 @@ public class AbstractGenotypePhenotypeService extends BasicService {
                     phenotypeTerm.setName(mpTerm);
                 }
                 else {
-                    logger.warn(mpId + " has no term name");
+                    sum.getStatus().addWarning(mpId + " has no term name");
                 }
 
                 // check the top level categories
@@ -1042,7 +1044,7 @@ public class AbstractGenotypePhenotypeService extends BasicService {
                 sum.setPhenotypingCenter(phen.getString(GenotypePhenotypeDTO.PHENOTYPING_CENTER));
             }
             else {
-	            logger.warn(sum.getgId() + " has no phenotyping center");
+                sum.getStatus().addWarning(sum.getgId() + " has no phenotyping center");
             }
 	
 	        if (phen.containsKey(GenotypePhenotypeDTO.ALLELE_SYMBOL)) {
@@ -1068,7 +1070,7 @@ public class AbstractGenotypePhenotypeService extends BasicService {
                     gene.setAccessionId(phen.getString(GenotypePhenotypeDTO.MARKER_ACCESSION_ID));
                 }
                 else {
-	                logger.warn(gene.getSymbol() + " has no accession id");
+                    sum.getStatus().addWarning(gene.getSymbol() + " has no accession id");
                 }
 
 	            sum.setGene(gene);
@@ -1084,7 +1086,7 @@ public class AbstractGenotypePhenotypeService extends BasicService {
                 sum.setZygosity(zyg);
             }
             else {
-	            logger.warn(sum.getgId() + " has no zygosity");
+                sum.getStatus().addWarning(sum.getgId() + " has no zygosity");
             }
 
 
@@ -1106,7 +1108,7 @@ public class AbstractGenotypePhenotypeService extends BasicService {
                 sum.setDatasource(datasource);
             }
             else {
-                logger.warn(sum.getgId() + " has no resource name");
+                sum.getStatus().addWarning(sum.getgId() + " has no resource name");
                 datasource.setName("");
                 sum.setDatasource(datasource);
             }
@@ -1116,7 +1118,7 @@ public class AbstractGenotypePhenotypeService extends BasicService {
 	            parameter.setStableId(phen.getString(GenotypePhenotypeDTO.PARAMETER_STABLE_ID));
 	            parameter.setName(phen.getString((GenotypePhenotypeDTO.PARAMETER_NAME)));
 	        } else {
-	            System.err.println("parameter_stable_id missing");
+                sum.getStatus().addError("parameter_stable_id missing");
 	        }
 	        sum.setParameter(parameter);
 	
@@ -1125,7 +1127,7 @@ public class AbstractGenotypePhenotypeService extends BasicService {
 	            pipeline.setStableId(phen.getString(GenotypePhenotypeDTO.PIPELINE_STABLE_ID));
 	            pipeline.setName(phen.getString((GenotypePhenotypeDTO.PIPELINE_NAME)));
 	        } else {
-	            System.err.println("pipeline stable_id missing");
+                sum.getStatus().addError("pipeline stable_id missing");
 	        }
 	        sum.setPipeline(pipeline);
 	
@@ -1138,7 +1140,7 @@ public class AbstractGenotypePhenotypeService extends BasicService {
                 sum.setProject(project);
             }
             else {
-	            logger.warn(sum.getgId() + " has no project name");
+                sum.getStatus().addWarning(sum.getgId() + " has no project name");
             }
 	
 	        if (phen.containsKey(GenotypePhenotypeDTO.P_VALUE)) {
@@ -1152,7 +1154,7 @@ public class AbstractGenotypePhenotypeService extends BasicService {
 	            procedure.setName(phen.getString(GenotypePhenotypeDTO.PROCEDURE_NAME));
 	            sum.setProcedure(procedure);
 	        } else {
-	            System.err.println("procedure_stable_id");
+                sum.getStatus().addError("procedure_stable_id");
 	        }
 
             if ( phen.containsKey(GenotypePhenotypeDTO.COLONY_ID) ){

@@ -139,7 +139,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
 
     @Override
     public RunStatus run ()
-            throws IndexerException, SQLException, IOException, SolrServerException, URISyntaxException {
+            throws IndexerException{
 
         int count = 0;
         RunStatus runStatus = new RunStatus();
@@ -151,16 +151,23 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
         try {
             ontologyParserFactory = new OntologyParserFactory(komp2DataSource, owlpath);
             mpParser = ontologyParserFactory.getMpParser();
-            System.out.println("Loaded mp parser");
+            logger.info("Loaded mp parser");
             mpHpParser = ontologyParserFactory.getMpHpParser();
-            System.out.println("Loaded mp hp parser");
+            logger.info("Loaded mp hp parser");
             mpMaParser = ontologyParserFactory.getMpMaParser();
-            System.out.println("Loaded mp ma parser");
+            logger.info("Loaded mp ma parser");
             maParser = ontologyParserFactory.getMaParser();
-            System.out.println("Loaded ma parser");
+            logger.info("Loaded ma parser");
 
         	// maps MP to number of phenotyping calls
-        	populateMpCallMaps();
+            runStatus = populateMpCallMaps();
+
+               for (String error : runStatus.getErrorMessages()) {
+                   logger.error(error);
+               }
+               for (String warning : runStatus.getWarningMessages()) {
+                   logger.warn(warning);
+               }
 
             // Delete the documents in the core if there are any.
             mpCore.deleteByQuery("*:*");
@@ -182,7 +189,8 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
                     mp.setAltMpIds(mpDTO.getAlternateIds());
                 }
 
-                mp.setMpNodeId(mpDTO.getNodeIds());
+
+                mp.setMpNodeId(mpDTO.getNodeIds() != null ? mpDTO.getNodeIds() : Arrays.asList(-1));
 
                 addTopLevelTerms(mp, mpDTO);
                 addIntermediateTerms(mp, mpDTO);
@@ -238,17 +246,18 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
                 documentCount++;
                 mpCore.addBean(mp, 60000);
 
-                if (documentCount % 100 == 0){
-                    System.out.println("Added " + documentCount);
-                }
+//                if (documentCount % 100 == 0){
+//                    System.out.println("Added " + documentCount);
+//                }
 
-                mpParser.fillJsonTreePath("MP:0000001", "/data/phenotype/", mpGeneVariantCount, ontologyParserFactory.TOP_LEVEL_MP_TERMS ); // call this if you want node ids from the objects
+                mpParser.fillJsonTreePath("MP:0000001", "/data/phenotype/", mpGeneVariantCount, ontologyParserFactory.TOP_LEVEL_MP_TERMS, false); // call this if you want node ids from the objects
             }
 
             // Send a final commit
             mpCore.commit();
 
-        } catch (SolrServerException | IOException | OWLOntologyCreationException | OWLOntologyStorageException e) {
+        } catch (SolrServerException | IOException | OWLOntologyCreationException | OWLOntologyStorageException | SQLException | URISyntaxException e) {
+            e.printStackTrace();
             throw new IndexerException(e);
         }
 
@@ -256,12 +265,15 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
         return runStatus;
     }
 
+    // 22-Mar-2017 (mrelac) Added status to query for errors and warnings.
+    public Map<String, Integer> getPhenotypeGeneVariantCounts(String termId, RunStatus status)
+            throws IOException, URISyntaxException, SolrServerException {
 
-    public Map<String, Integer> getPhenotypeGeneVariantCounts(String termId)
-    throws IOException, URISyntaxException, SolrServerException {
-
+        // Errors and warnings are returned in PhenotypeFacetResult.status.
         PhenotypeFacetResult phenoResult = postqcService.getMPCallByMPAccessionAndFilter(termId,  null, null, null);
+        status.add(phenoResult.getStatus());
         PhenotypeFacetResult preQcResult = preqcService.getMPCallByMPAccessionAndFilter(termId,  null, null, null);
+        status.add(preQcResult.getStatus());
 
         List<PhenotypeCallSummaryDTO> phenotypeList;
         phenotypeList = phenoResult.getPhenotypeCallSummaries();
@@ -385,7 +397,8 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
 
     }
 
-    public void populateMpCallMaps() throws IOException, SolrServerException, URISyntaxException {
+    private RunStatus populateMpCallMaps() throws IOException, SolrServerException, URISyntaxException {
+        RunStatus status = new RunStatus();
 
         List<SolrClient> ss = new ArrayList<>();
         ss.add(preqcCore);
@@ -408,7 +421,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
                     if (!mpCalls.containsKey(facet.getName())){
                         mpCalls.put(facet.getName(), new Long(0));
 
-                        Map<String, Integer> geneVariantCount = getPhenotypeGeneVariantCounts(facet.getName());
+                        Map<String, Integer> geneVariantCount = getPhenotypeGeneVariantCounts(facet.getName(), status);
                         int gvCount = geneVariantCount.get("sumCount");
                         mpGeneVariantCount.put(facet.getName(), gvCount);
                     }
@@ -416,8 +429,10 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
 
                 }
             }
-
         }
+        //System.out.println("FINISHED");
+
+        return status;
     }
 
 
@@ -928,7 +943,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
                 }
                 //TODO intermediate terms - can't do this before merge to master as fields were not in schema
             } else {
-                System.out.println("Term not found in MA : " + maId);
+                logger.info("Term not found in MA : " + maId);
             }
         }
 

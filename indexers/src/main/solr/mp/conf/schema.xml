@@ -152,7 +152,7 @@
         <field name="mp_definition" type="text" indexed="true" stored="true" required="false" multiValued="false" />
         <field name="mp_term_synonym" type="text" indexed="true" stored="true" required="false" multiValued="true" />
         <field name="mp_narrow_synonym" type="text" indexed="true" stored="true" required="false" multiValued="true" />
-        <field name="mp_node_id" type="int" indexed="true" stored="true" required="true" multiValued="true" />
+        <field name="mp_node_id" type="int" indexed="true" stored="true" required="false" multiValued="true" />
         <field name="alt_mp_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
 
         <field name="child_mp_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
@@ -322,7 +322,7 @@
     <copyField source="top_level_mp_id" dest="auto_suggest" />
     <copyField source="top_level_mp_term" dest="auto_suggest" />
     <copyField source="top_level_mp_term_synonym" dest="auto_suggest" />
-    <copyField source="top_level_mp_term" dest="annotatedHigherLevelMpTermName" />
+    <!--<copyField source="top_level_mp_term" dest="annotatedHigherLevelMpTermName" />-->
 
     <copyField source="intermediate_mp_id" dest="auto_suggest" />
     <copyField source="intermediate_mp_term" dest="auto_suggest" />
@@ -334,15 +334,9 @@
 
     <copyField source="inferred_ma_id" dest="auto_suggest" />
     <copyField source="inferred_ma_term" dest="auto_suggest" />
-    <copyField source="inferred_ma_term_synonym" dest="auto_suggest" />
 
     <copyField source="inferred_selected_top_level_ma_id" dest="auto_suggest" />
     <copyField source="inferred_selected_top_level_ma_term" dest="auto_suggest" />
-    <copyField source="inferred_selected_top_level_ma_term_synonym" dest="auto_suggest" />
-
-    <copyField source="inferred_ma_id" dest="ma_id" />
-    <copyField source="inferred_ma_term" dest="ma_term" />
-    <copyField source="inferred_ma_term_synonym" dest="ma_term_synonym" />
 
     <copyField source="allele_id" dest="auto_suggest" />
     <copyField source="allele_symbol" dest="auto_suggest" />
