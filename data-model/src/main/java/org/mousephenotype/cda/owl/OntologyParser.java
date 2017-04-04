@@ -262,7 +262,7 @@ public class OntologyParser {
      * @param cls
      * @return OBO-style id
      */
-    private String getIdentifierShortForm (OWLClass cls){
+    protected String getIdentifierShortForm (OWLClass cls){
 
         String id = cls.getIRI().toString();
         return id.split("/|#")[id.split("/|#").length-1].replace("_", ":");
@@ -491,6 +491,9 @@ public class OntologyParser {
 
     }
 
+    protected OWLClass getOwlClass(String shortFormId){
+        return classMap.get(shortFormId);
+    }
 
     /**
      *
@@ -508,6 +511,25 @@ public class OntologyParser {
         ancestorsCache.put(getIdentifierShortForm(cls), ancestorIds);
 
         return ancestorIds;
+    }
+
+
+    protected String getXref(OWLClass cls,  String prefixOfCrossRef) {
+
+        if (!cls.getIRI().isNothing() && EntitySearcher.getAnnotations(cls, ontology, X_REF) != null) {
+            for (OWLAnnotation annotation : EntitySearcher.getAnnotations(cls, ontology, X_REF)) {
+                if (annotation.getValue() instanceof OWLLiteral) {
+                    OWLLiteral val = (OWLLiteral) annotation.getValue();
+                    String id = val.getLiteral().replace(":", "_");
+                    if (id.startsWith(prefixOfCrossRef + "_")) {
+                        return id;
+                    }
+                }
+            }
+        }
+
+        return null;
+
     }
 
 
@@ -620,26 +642,32 @@ public class OntologyParser {
      */
     private void addParentInfo(OWLClass cls, OntologyTermDTO term, String prefix){
 
+        for (OWLClass parent: getParents(cls, prefix, true)){
+            term.addParentId(getIdentifierShortForm(parent));
+            term.addParentName(getLabel(parent));
+        }
+    }
+
+    protected Set<OWLClass> getParents(OWLClass cls, String prefix, Boolean partOfToo){
+
+        Set<OWLClass> res = new HashSet<>();
         for (OWLClassExpression classExpression : EntitySearcher.getSuperClasses(cls, ontology)){
             if (classExpression.isClassExpressionLiteral() && startsWithPrefix(classExpression.asOWLClass(), prefix)){
-                term.addParentId(getIdentifierShortForm(classExpression.asOWLClass()));
-                term.addParentName(getLabel(classExpression.asOWLClass()));
+                res.add(classExpression.asOWLClass());
             } else {
-                if (classExpression instanceof OWLObjectSomeValuesFrom){
+                if (partOfToo && classExpression instanceof OWLObjectSomeValuesFrom){
                     OWLObjectSomeValuesFrom svf = (OWLObjectSomeValuesFrom) classExpression;
                     if (PART_OF.contains(svf.getProperty().asOWLObjectProperty())){
                         OWLClassExpression filler = svf.getFiller();
                         if (filler instanceof OWLNamedObject && startsWithPrefix(filler.asOWLClass(), prefix)){
-                            term.addParentId(getIdentifierShortForm(filler.asOWLClass()));
-                            term.addParentName(getLabel(filler.asOWLClass()));
+                            res.add(filler.asOWLClass());
                         }
                     }
                 }
             }
         }
+        return res;
     }
-
-
 
     private boolean isObsolete(OWLClass cls){
 
