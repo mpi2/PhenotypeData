@@ -15,11 +15,14 @@ import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.semanticweb.owlapi.model.OWLOntologyStorageException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import uk.ac.manchester.cs.owl.owlapi.OWLObjectPropertyImpl;
 
+import javax.sql.DataSource;
 import javax.validation.constraints.NotNull;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -51,6 +54,9 @@ public class OntologyParserTest {
     @Value("${owlpath}")
     protected String owlpath;
 
+    @Autowired
+    @Qualifier("komp2DataSource")
+    DataSource komp2DataSource;
 
     @Before
     public void setUp() throws Exception {
@@ -333,6 +339,14 @@ public class OntologyParserTest {
         Assert.assertTrue(ma.contains("MA:0000009"));
 
     }
+//
+//    @Test
+//    public void testMpTree(){
+//
+//        OntologyParserFactory factory = new OntologyParserFactory(komp2DataSource, owlpath);
+//        OntologyParser parser = factory.getMpParser();
+//        parser.fillJsonTreePath();
+//    }
 
 
 }

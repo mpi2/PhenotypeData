@@ -32,7 +32,7 @@ import java.util.Objects;
  * <li>MGI allele names</li>
  * <li>grant ids</li>
  * <li>grant agencies</li>
- * <li>references to other papers</li></ul>
+ * <li>url links to a paper</li></ul>
  */
 public class ReferenceDTO {
     private List<String> alleleSymbols;
@@ -52,6 +52,7 @@ public class ReferenceDTO {
     private String meshJsonStr;
     private String author;
     private String consortiumPaper;
+    private String abstractTxt;
 
     public List<String> getAlleleSymbols() {
         return alleleSymbols;
@@ -109,7 +110,9 @@ public class ReferenceDTO {
         this.journal = journal;
     }
 
-    public Integer getPmid() { return pmid; }
+    public Integer getPmid() {
+        return pmid;
+    }
 
     public void setPmid(Integer pmid) {
         this.pmid = pmid;
@@ -187,6 +190,14 @@ public class ReferenceDTO {
         this.consortiumPaper = consortiumPaper;
     }
 
+    public String getAbstractTxt() {
+        return abstractTxt;
+    }
+
+    public void setAbstractTxt(String abstractTxt) {
+        this.abstractTxt = abstractTxt;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -217,7 +228,9 @@ public class ReferenceDTO {
         if (meshTerms != null ? !meshTerms.equals(that.meshTerms) : that.meshTerms != null) return false;
         if (meshJsonStr != null ? !meshJsonStr.equals(that.meshJsonStr) : that.meshJsonStr != null) return false;
         if (author != null ? !author.equals(that.author) : that.author != null) return false;
-        return consortiumPaper != null ? consortiumPaper.equals(that.consortiumPaper) : that.consortiumPaper == null;
+        if (consortiumPaper != null ? !consortiumPaper.equals(that.consortiumPaper) : that.consortiumPaper != null)
+            return false;
+        return abstractTxt != null ? abstractTxt.equals(that.abstractTxt) : that.abstractTxt == null;
     }
 
     @Override
@@ -239,6 +252,7 @@ public class ReferenceDTO {
         result = 31 * result + (meshJsonStr != null ? meshJsonStr.hashCode() : 0);
         result = 31 * result + (author != null ? author.hashCode() : 0);
         result = 31 * result + (consortiumPaper != null ? consortiumPaper.hashCode() : 0);
+        result = 31 * result + (abstractTxt != null ? abstractTxt.hashCode() : 0);
         return result;
     }
 
@@ -262,6 +276,7 @@ public class ReferenceDTO {
                 ", meshJsonStr='" + meshJsonStr + '\'' +
                 ", author='" + author + '\'' +
                 ", consortiumPaper='" + consortiumPaper + '\'' +
+                ", abstractTxt='" + abstractTxt + '\'' +
                 '}';
     }
 }

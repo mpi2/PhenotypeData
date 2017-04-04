@@ -474,7 +474,8 @@ CREATE TABLE biological_model_sample (
 	biological_sample_id      INT(10) UNSIGNED NOT NULL,
 
 	KEY biological_model_idx (biological_model_id),
-	KEY biological_sample_idx (biological_sample_id)
+	KEY biological_sample_idx (biological_sample_id),
+	UNIQUE KEY unique_biological_model_sample (biological_model_id, biological_sample_id)
 
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
