@@ -39,7 +39,7 @@ public class GrosspathServiceTest {
 		List<SolrDocument> images = grossPathService.getGrossPathImagesForGene(acc);
 		List<ObservationDTO> abnormalObservations = grossPathService.getAbnormalObservations(allObservations);
 		//grossPathService.processForAbnormalAnatomies(allObservations, abnormalObservations);
-		List<GrossPathPageTableRow> grossPathRows = grossPathService.getSummaryTableData(allObservations, images, abnormalObservations);
+		List<GrossPathPageTableRow> grossPathRows = grossPathService.getSummaryTableData(allObservations, images, abnormalObservations, true);
         for (GrossPathPageTableRow row : grossPathRows) {
             //System.out.println("row="+row);
         }
