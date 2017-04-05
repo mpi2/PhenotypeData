@@ -2,6 +2,7 @@ package uk.ac.ebi.phenotype.repository;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.mousephenotype.cda.annotations.ComponentScanNonParticipant;
 import org.mousephenotype.cda.owl.OntologyParser;
 import org.mousephenotype.cda.owl.OntologyParserFactory;
 import org.mousephenotype.cda.owl.OntologyTermDTO;
@@ -33,6 +34,7 @@ import java.util.*;
  */
 
 @Component
+@ComponentScanNonParticipant
 public class Loader implements CommandLineRunner {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());

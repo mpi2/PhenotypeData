@@ -1,5 +1,6 @@
 package uk.ac.ebi.phenotype.repository;
 
+import org.mousephenotype.cda.annotations.ComponentScanNonParticipant;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.data.jpa.JpaRepositoriesAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
@@ -16,6 +17,7 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
         JpaRepositoriesAutoConfiguration.class,
         DataSourceAutoConfiguration.class,
         WebMvcAutoConfiguration.class})
+@ComponentScanNonParticipant
 public class Application {
 
     public static void main(String[] args) throws Exception {
