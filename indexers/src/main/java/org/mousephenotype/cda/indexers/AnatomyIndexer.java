@@ -129,9 +129,8 @@ public class AnatomyIndexer extends AbstractIndexer implements CommandLineRunner
                     }
                 }
 
-                //TODO replace file for uberon mapping, use OntologyParser directly
-
-//                // also index all UBERON/EFO ids for intermediate MA ids
+                //I don't think we need the terms for the intermediate terms, the mapper should already get the best hit. Not sure if we use these at all.
+                // also index all UBERON/EFO ids for intermediate MA ids
 //                Set<String> all_ae_mapped_uberonIds = new HashSet<>();
 //                Set<String> all_ae_mapped_efoIds = new HashSet<>();
 //
@@ -198,8 +197,7 @@ public class AnatomyIndexer extends AbstractIndexer implements CommandLineRunner
 
         anatomyDTO.setAnatomyTermSynonym(termDTO.getSynonyms());
 
-        // TODO top level for anatomy are NOT selected top levels, but organ, organ sytem, anatomic region, postnatal mouse, ... (not including nodeId 0). Not sure they're needed though.
-
+        // top level for anatomy are NOT selected top levels, but organ, organ sytem, anatomic region, postnatal mouse, ... (not including nodeId 0). Not sure they're needed though.
         anatomyDTO.setTopLevelAnatomyId(termDTO.getTopLevelIds());
         anatomyDTO.setTopLevelAnatomyTerm(termDTO.getTopLevelNames());
         anatomyDTO.setTopLevelAnatomyTermSynonym(termDTO.getTopLevelSynonyms());
