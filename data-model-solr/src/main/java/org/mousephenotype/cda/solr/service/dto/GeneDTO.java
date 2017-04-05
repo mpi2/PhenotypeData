@@ -152,6 +152,7 @@ public class GeneDTO {
 	public static final String PFAMA_GO_TERM = "pfama_go_term";
 	public static final String PFAMA_GO_CAT = "pfama_go_cat";
 	public static final String EMBRYO_DATA_AVAILABLE = "embryo_data_available";
+	public static final String DMDD_IMAGE_DATA_AVAILABLE="dmdd_image_data_available";
 	public static final String SEQ_REGION_ID = "seq_region_id";
 	public static final String SEQ_REGION_START = "seq_region_start";
 	public static final String SEQ_REGION_END = "seq_region_end";
@@ -688,6 +689,17 @@ public class GeneDTO {
 	@Field(EMBRYO_DATA_AVAILABLE)
 	private boolean isEmbryoDataAvailable;
 	
+	@Field(DMDD_IMAGE_DATA_AVAILABLE)
+	private boolean isDmddImageDataAvailable;
+	
+	public boolean isDmddImageDataAvailable() {
+		return isDmddImageDataAvailable;
+	}
+
+	public void setDmddImageDataAvailable(boolean isDmddImageDataAvailable) {
+		this.isDmddImageDataAvailable = isDmddImageDataAvailable;
+	}
+
 	@Field(EMBRYO_MODALITIES)
 	private List<String> embryoModalities;
 
@@ -2540,5 +2552,7 @@ public class GeneDTO {
 				", embryoModalities=" + embryoModalities +
 				'}';
 	}
+
+
 
 }
