@@ -1754,7 +1754,7 @@ public class MpDTO {
 	public void setInferredIntermediatedMaId(List<String> inferredIntermediatedMaId) {
 		this.inferredIntermediatedMaId = inferredIntermediatedMaId;
 	}
-	public void addInferredIntermediatedMaId(List<String> inferredIntermediatedMaId) {
+	public void addInferredIntermediatedMaId(Collection<String> inferredIntermediatedMaId) {
 		if (this.inferredIntermediatedMaId == null){ this.inferredIntermediatedMaId = new ArrayList<>();}
 		this.inferredIntermediatedMaId.addAll(inferredIntermediatedMaId);
 	}
@@ -1767,7 +1767,7 @@ public class MpDTO {
 		this.inferredIntermediateMaTerm = inferredIntermediateMaTerm;
 	}
 
-	public void addInferredIntermediateMaTerm(List<String> inferredIntermediateMaTerm) {
+	public void addInferredIntermediateMaTerm(Collection<String> inferredIntermediateMaTerm) {
 		if (this.inferredIntermediateMaTerm == null){ this.inferredIntermediateMaTerm = new ArrayList<>();}
 		this.inferredIntermediateMaTerm.addAll(inferredIntermediateMaTerm);
 	}
