@@ -1,13 +1,8 @@
 package uk.ac.ebi.phenotype.repository;
 
-import org.mousephenotype.cda.solr.service.dto.Allele2DTO;
-import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.RelationshipType;
 import org.neo4j.ogm.annotation.GraphId;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
-
-import java.util.Set;
 
 /**
  * Created by ckchen on 14/03/2017.
@@ -113,7 +108,7 @@ public class Allele {
                 ", esCellStatus='" + esCellStatus + '\'' +
                 ", mouseStatus='" + mouseStatus + '\'' +
                 ", phenotypeStatus='" + phenotypeStatus + '\'' +
-                ", gene=" + gene +
+                ", gene=" + (gene!=null && gene.getMarkerSymbol()!=null?gene.getMarkerSymbol():"null") +
                 '}';
     }
 }

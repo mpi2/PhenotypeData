@@ -1,15 +1,10 @@
 package uk.ac.ebi.phenotype.repository;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.json.JSONObject;
 import org.mousephenotype.cda.owl.OntologyParser;
 import org.mousephenotype.cda.owl.OntologyParserFactory;
 import org.mousephenotype.cda.owl.OntologyTermDTO;
-import org.mousephenotype.cda.solr.service.dto.MpDTO;
-import org.mousephenotype.cda.solr.service.dto.PhenodigmDTO;
-import org.neo4j.helpers.collection.Iterables;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.semanticweb.owlapi.model.OWLOntologyStorageException;
 import org.slf4j.Logger;
@@ -22,7 +17,10 @@ import org.springframework.stereotype.Component;
 
 import javax.sql.DataSource;
 import javax.validation.constraints.NotNull;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.net.URISyntaxException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -47,9 +45,9 @@ public class Loader implements CommandLineRunner {
     @Qualifier("phenodigmDataSource")
     DataSource phenodigmDataSource;
 
-    @NotNull
-    @Value("${neo4jDbPath}")
-    private String neo4jDbPath;
+//    @NotNull
+//    @Value("${neo4jDbPath}")
+//    private String neo4jDbPath;
 
     @NotNull
     @Value("${allele2File}")
@@ -59,9 +57,9 @@ public class Loader implements CommandLineRunner {
     @Value("${human2mouseFilename}")
     private String pathToHuman2mouseFilename;
 
-    @NotNull
-    @Value("${mpListPath}")
-    private String mpListPath;
+//    @NotNull
+//    @Value("${mpListPath}")
+//    private String mpListPath;
 
     @NotNull
     @Value("${owlpath}")
