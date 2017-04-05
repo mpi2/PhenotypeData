@@ -86,11 +86,11 @@ public class IndexerMap {
 	}
 	
 	public Map<String, List<DmddDataUnit>> populateDmddImagedData(String embryoViewerFilename) {
-    	DmddRestGetter embryoGetter=new DmddRestGetter(embryoViewerFilename);
+    	DmddRestGetter dmddGetter=new DmddRestGetter(embryoViewerFilename);
     	
 		DmddRestData restData=null;
 		try {
-			restData = embryoGetter.getEmbryoRestData();
+			restData = dmddGetter.getEmbryoRestData();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
