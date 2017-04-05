@@ -159,7 +159,7 @@ public class Loader implements CommandLineRunner {
         //----------- STEP 2 -----------//
         populateHpIdTermMap();            // STEP 2.1
         populateBestMpIdHpMap();          // STEP 2.2
-        extendLoadedHpAndConnectHp2Mp();  // STEP 2.4
+        extendLoadedHpAndConnectHp2Mp();  // STEP 2.3
         loadMousePhenotypes();            // STEP 2.4
 
         //----------- STEP 3 -----------//
