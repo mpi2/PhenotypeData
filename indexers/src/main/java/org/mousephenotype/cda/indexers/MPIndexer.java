@@ -941,7 +941,10 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
                     mp.addInferredSelectedTopLevelMaId(ma.getTopLevelIds());
                     mp.addInferredSelectedTopLevelMaTerm(ma.getTopLevelNames());
                 }
-                //TODO intermediate terms - can't do this before merge to master as fields were not in schema
+                if (ma.getIntermediateIds() != null){
+                    mp.addInferredIntermediatedMaId(ma.getIntermediateIds());
+                    mp.addInferredIntermediateMaTerm(ma.getIntermediateNames());
+                }
             } else {
                 logger.info("Term not found in MA : " + maId);
             }
