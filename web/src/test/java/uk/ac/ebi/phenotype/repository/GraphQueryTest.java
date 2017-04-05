@@ -1,6 +1,5 @@
 package uk.ac.ebi.phenotype.repository;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -15,7 +14,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Created by ckchen on 17/03/2017.
@@ -62,7 +60,7 @@ public class GraphQueryTest {
     @Autowired
     MouseModelRepository mouseModelRepository;
 
-    @Before
+    //@Before
     public void before() {
 
         Gene g = new Gene();
@@ -95,12 +93,12 @@ public class GraphQueryTest {
         System.out.println("DM after retriving is: " + dm2);
         System.out.println("DM Allele after retreiving is : " + dm2.getAllele());
 
-        List<DiseaseModel> d = diseaseModelRepository.findByAlleleGeneMarkerSymbol("TEST_MARKER_NXN");
+        List<DiseaseModel> d = diseaseModelRepository.findByAllele_Gene_MarkerSymbol("TEST_MARKER_NXN");
         System.out.println("Disease models found when looking by marker symbol "+ d.size());
 
     }
 
-    @Test
+   // @Test
     public void testTraverseDiseaseModelRepository() throws Exception {
         DiseaseModel testDiseaseModelFind = diseaseModelRepository.findByDiseaseId("TEST_DISEASE");
 
@@ -111,7 +109,7 @@ public class GraphQueryTest {
         assert (byAllele != null);
         System.out.println("allele is : " + byAllele.get(0).getAllele());
 
-        List<DiseaseModel> d = diseaseModelRepository.findByAlleleGeneMarkerSymbol("TEST_MARKER_NXN");
+        List<DiseaseModel> d = diseaseModelRepository.findByAllele_Gene_MarkerSymbol("TEST_MARKER_NXN");
         System.out.println("Disease models found "+ d.size());
         for (DiseaseModel d1 : d) {
             System.out.println(d1.getDiseaseTerm());
@@ -123,57 +121,76 @@ public class GraphQueryTest {
     @Test
     public void graphQueryTest() throws Exception {
 
-        List<String> markerSymbols = Arrays.asList("TEST_MARKER_NXN","Dst");
+        List<String> markerSymbols = Arrays.asList("Nxn","Dst");
         for(String ms : markerSymbols) {
-            List<Object> objs = geneRepository.findDiseaseModelByMarkerSymbol(ms);
-            List<DiseaseModel> d = diseaseModelRepository.findByAlleleGeneMarkerSymbol(ms);
+            List<DiseaseModel> d = diseaseModelRepository.findByAllele_Gene_MarkerSymbol(ms);
             System.out.println("Disease models found "+ d.size());
             for (DiseaseModel d1 : d) {
-                System.out.println(d1.getDiseaseTerm());
+                System.out.println("Gene symbol: " + d1.getGene().getMarkerSymbol());
+                System.out.println("MGI Acc: "+ d1.getGene().getMgiAccessionId());
+                System.out.println("Disease: " + d1.getDiseaseTerm());
                 System.out.println("allele:"+ d1.getAllele());
             }
-            if (true) continue;
 
-            for (Object obj : objs) {
-                String className = obj.getClass().getSimpleName();
 
-                if (className.equals("Gene")) {
-                    Gene g = (Gene) obj;
-                    System.out.println(g.getMarkerSymbol());
-                    System.out.println(g.getMgiAccessionId());
-                }
-
-                Set<MouseModel> mms = new HashSet<>();
-                Set<Allele> alleles = new HashSet<>();
-                Set<DiseaseModel> dms = new HashSet<>();
-
-                if (className.equals("DiseaseModel")) {
-                    DiseaseModel dm = (DiseaseModel) obj;
-                    dms.add(dm);
-
-                    if (dm.getAllele() != null) {
-                        alleles.add(dm.getAllele());
-                    }
-
-                    if (dm.getMouseModel() != null) {
-                        mms.add(dm.getMouseModel());
-                    }
-                }
-
-                for (MouseModel mm : mms) {
-                    System.out.println("MouseModel: " + mm.toString());
-                }
-
-                for (Allele allele : alleles) {
-                    System.out.println("Allele: " + allele.toString());
-                }
-
-                for (DiseaseModel dm : dms) {
-                    System.out.println("DiseaseModel: " + dm.toString());
-                }
-
-            }
         }
     }
+
+
+   // @Test
+//    public void graphQueryTest() throws Exception {
+//
+//        List<String> markerSymbols = Arrays.asList("Nxn","Dst");
+//        for(String ms : markerSymbols) {
+//            List<Object> objs = geneRepository.findDiseaseModelByMarkerSymbol(ms);
+//            List<DiseaseModel> d = diseaseModelRepository.findByAllele_Gene_MarkerSymbol(ms);
+//            System.out.println("Disease models found "+ d.size());
+//            for (DiseaseModel d1 : d) {
+//                System.out.println(d1.getDiseaseTerm());
+//                System.out.println("allele:"+ d1.getAllele());
+//            }
+//            if (true) continue;
+//
+//            for (Object obj : objs) {
+//                String className = obj.getClass().getSimpleName();
+//
+//                if (className.equals("Gene")) {
+//                    Gene g = (Gene) obj;
+//                    System.out.println(g.getMarkerSymbol());
+//                    System.out.println(g.getMgiAccessionId());
+//                }
+//
+//                Set<MouseModel> mms = new HashSet<>();
+//                Set<Allele> alleles = new HashSet<>();
+//                Set<DiseaseModel> dms = new HashSet<>();
+//
+//                if (className.equals("DiseaseModel")) {
+//                    DiseaseModel dm = (DiseaseModel) obj;
+//                    dms.add(dm);
+//
+//                    if (dm.getAllele() != null) {
+//                        alleles.add(dm.getAllele());
+//                    }
+//
+//                    if (dm.getMouseModel() != null) {
+//                        mms.add(dm.getMouseModel());
+//                    }
+//                }
+//
+//                for (MouseModel mm : mms) {
+//                    System.out.println("MouseModel: " + mm.toString());
+//                }
+//
+//                for (Allele allele : alleles) {
+//                    System.out.println("Allele: " + allele.toString());
+//                }
+//
+//                for (DiseaseModel dm : dms) {
+//                    System.out.println("DiseaseModel: " + dm.toString());
+//                }
+//
+//            }
+//        }
+//    }
 
 }

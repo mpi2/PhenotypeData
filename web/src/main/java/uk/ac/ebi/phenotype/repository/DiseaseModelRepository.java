@@ -22,6 +22,6 @@ public interface DiseaseModelRepository extends Neo4jRepository<DiseaseModel, Lo
     List<DiseaseModel> findByAlleleAlleleSymbol(String alleleSymbol);
 
     @Query("MATCH (dm:DiseaseModel)--(a:Allele)--(g:Gene) WHERE g.markerSymbol = {markerSymbol} return dm")
-    List<DiseaseModel> findByAlleleGeneMarkerSymbol(@Param("markerSymbol") String markerSymbol);
+    List<DiseaseModel> findByAllele_Gene_MarkerSymbol(@Param("markerSymbol") String markerSymbol);
 
 }
