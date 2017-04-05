@@ -1,7 +1,7 @@
 package org.mousephenotype.cda.owl;
 
-import org.semanticweb.owlapi.apibinding.OWLManager;
-import org.semanticweb.owlapi.model.*;
+import org.semanticweb.owlapi.model.OWLClass;
+import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 
 import java.io.IOException;
 import java.util.*;
@@ -19,11 +19,6 @@ import java.util.*;
  * This can be easily extended to work with EMAPA ids as well as MA ids, just use the EMAPA prefix.
  */
 public class AnatomogramMapper {
-
-    private String owlpath;
-    private static final OWLOntologyManager manager = OWLManager.createOWLOntologyManager();
-    private static final OWLDataFactory factory = manager.getOWLDataFactory();
-    public static final OWLAnnotationProperty X_REF = factory.getOWLAnnotationProperty(IRI.create("http://www.geneontology.org/formats/oboInOwl#hasDbXref"));
 
     private static Map<String, OWLClass> maMap = new HashMap<>();
     private static Map<String, String> nonUberonAnatomogramMap = new HashMap<>();
@@ -80,7 +75,7 @@ public class AnatomogramMapper {
         Map<String, Set<String>> res = new HashMap<>();
         for (String id : resMap.keySet()){
             if (resMap.get(id).getMappedIds().isEmpty()){
-                System.out.println(id + "\t" + resMap.get(id).getMappedIds().size());
+                System.out.println("How many ids we found for " + id + "\t" + resMap.get(id).getMappedIds().size());
             }
             res.put(id, resMap.get(id).getMappedIds());
             for (String mappedId: resMap.get(id).getMappedIds()){
@@ -107,15 +102,15 @@ public class AnatomogramMapper {
 
         Set<OWLClass> parentNodes = new HashSet<>();
         parentNodes.addAll(parser.getParents(cls, prefix, true));
-        String clsId = parser.getIdentifierShortForm(cls).replace(":", "_");
+        String clsId = parser.getIdentifierShortForm(cls);
 
         AnatomogramMapping currentMapping = resMap.get(clsId);
         int currentLevel = 1;
 
         while (currentLevel <= currentMapping.level && !parentNodes.isEmpty()){
-            // Check existing mappings for parent classes are better
+            // Check existing mappings for parent classes are better (closer)
             for (OWLClass parent : parentNodes){
-                AnatomogramMapping parentMapping = resMap.get(parser.getIdentifierShortForm(parent).replace(":", "_"));
+                AnatomogramMapping parentMapping = resMap.get(parser.getIdentifierShortForm(parent));
                 if (currentMapping.level >= (currentLevel + parentMapping.level) && !parentMapping.getMappedIds().isEmpty()){
                     currentMapping.addMappedIds(parentMapping.getMappedIds(), currentLevel + parentMapping.level);
                     resMap.put(clsId, currentMapping);
