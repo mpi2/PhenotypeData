@@ -4,7 +4,6 @@ import org.neo4j.ogm.annotation.GraphId;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -165,8 +164,8 @@ public class DiseaseModel {
                 ", rawScore=" + rawScore +
                 ", diseaseToModelScore=" + diseaseToModelScore +
                 ", modelToDiseaseScore=" + modelToDiseaseScore +
-                ", gene=" + gene +
-                ", allele=" + allele +
+                ", gene=" + ((gene!=null && gene.getMarkerSymbol()!=null)?gene.getMarkerSymbol():"null") +
+                ", allele=" + ((allele!=null && allele.getAlleleSymbol()!=null)?allele.getAlleleSymbol():"null") +
                 ", mousePhenotypes=" + mousePhenotypes +
                 ", humanPhenotypes=" + humanPhenotypes +
                 ", mouseModel=" + mouseModel +

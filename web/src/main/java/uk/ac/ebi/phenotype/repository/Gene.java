@@ -4,8 +4,8 @@ import org.neo4j.ogm.annotation.GraphId;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 
-import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Created by ckchen on 14/03/2017.
@@ -189,7 +189,7 @@ public class Gene {
                 ", ensemblGeneIds=" + ensemblGeneIds +
                 ", markerSynonyms=" + markerSynonyms +
                 ", humanGeneSymbols=" + humanGeneSymbols +
-                ", alleles=" + alleles +
+                ", alleles=" + alleles.stream().map(Allele::getAlleleSymbol).collect(Collectors.toList()) +
                 ", diseaseGenes=" + diseaseGenes +
                 ", mousePhenotypes=" + mousePhenotypes +
                 ", humanPhenotypes=" + humanPhenotypes +
