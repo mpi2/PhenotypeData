@@ -51,7 +51,7 @@
 							<div class="inner">
 							 ${gene.markerSymbol}: ${gene.markerName}
 							 <br>
-								Number of mice sampled: ${sampleSize }
+								<%-- Number of mice sampled: ${sampleSize } --%>
 							 
 							 <table id="histopath" class="table tableSorter">
 							
