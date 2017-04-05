@@ -67,16 +67,18 @@ public class GrossPathService {
 	
 								if (obs.getSubTermName() != null) {
 									for (int i = 0; i < obs.getSubTermId().size(); i++) {
-										if(!obs.getSubTermName().get(i).equals("no abnormal phenotype detected")){
 										
-											abnormalObservations++;
-										}else{
-											normalObservations++;
-										}
 										if(obs.getSubTermId().get(i).contains("MP:")){//for the moment lets keep things simple and restrict to MP only as PATO doesn't seem useful as is.
 										OntologyBean subOntologyBean = new OntologyBean(obs.getSubTermId().get(i),
 												obs.getSubTermName().get(i), obs.getSubTermDescription().get(i));// ,
 										row.addOntologicalParam(parameter, subOntologyBean);
+										//System.out.println(subOntologyBean);
+										if(!obs.getSubTermName().get(i).equals("no abnormal phenotype detected")){
+											
+											abnormalObservations++;
+										}else{
+											normalObservations++;
+										}
 										}
 									}
 								}else{
