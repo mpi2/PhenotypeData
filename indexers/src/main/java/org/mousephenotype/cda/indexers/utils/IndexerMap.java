@@ -84,6 +84,48 @@ public class IndexerMap {
 		}
 		return mgiToEmbryoMap;
 	}
+	
+	public Map<String, List<DmddDataUnit>> populateDmddImagedData(String embryoViewerFilename) {
+    	DmddRestGetter embryoGetter=new DmddRestGetter(embryoViewerFilename);
+    	
+		DmddRestData restData=null;
+		try {
+			restData = embryoGetter.getEmbryoRestData();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		List<DmddDataUnit> imaged = restData.getImaged();
+		Map<String,List<DmddDataUnit>> mgiToDmddImagedMap=new HashMap<>();
+		for(DmddDataUnit strain: imaged){
+			String mgi=strain.getGeneAccession();
+			if(!mgiToDmddImagedMap.containsKey(mgi)){
+				mgiToDmddImagedMap.put(mgi,new ArrayList<>());
+			}
+			mgiToDmddImagedMap.get(mgi).add(strain);
+		}
+		return mgiToDmddImagedMap;
+	}
+	
+	public Map<String, List<DmddDataUnit>> populateDmddLethalData(String embryoViewerFilename) {
+    	DmddRestGetter embryoGetter=new DmddRestGetter(embryoViewerFilename);
+    	
+		DmddRestData restData=null;
+		try {
+			restData = embryoGetter.getEmbryoRestData();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		List<DmddDataUnit> lethal = restData.getEarlyLethal();
+		Map<String,List<DmddDataUnit>> mgiToDmddLethalMap=new HashMap<>();
+		for(DmddDataUnit strain: lethal){
+			String mgi=strain.getGeneAccession();
+			if(!mgiToDmddLethalMap.containsKey(mgi)){
+				mgiToDmddLethalMap.put(mgi,new ArrayList<>());
+			}
+			mgiToDmddLethalMap.get(mgi).add(strain);
+		}
+		return mgiToDmddLethalMap;
+	}
     
     
     
