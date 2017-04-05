@@ -45,9 +45,13 @@ public class HistopathController {
 		model.addAttribute("gene", gene);
 
 		List<ObservationDTO> allObservations = histopathService.getObservationsForHistopathForGene(acc);
-		List<ObservationDTO> extSampleIdToObservations = histopathService
+		List<ObservationDTO> abnormalObservationsOnly = histopathService
 				.screenOutObservationsThatAreNormal(allObservations);
-		List<HistopathPageTableRow> histopathRows = histopathService.getTableData(extSampleIdToObservations);
+		//get observations that have the same sampleid, sequence_id and anatomy name
+		Map<String, List<ObservationDTO>> uniqueSampleSequeneAndAnatomyName = histopathService
+				.getUniqueInfo(allObservations);
+		
+		List<HistopathPageTableRow> histopathRows = histopathService.getTableData(uniqueSampleSequeneAndAnatomyName);
 		Set<String> parameterNames = new TreeSet<>();
 
 		// get image data
@@ -73,7 +77,7 @@ public class HistopathController {
 		// Collections.sort(histopathRows, new HistopathAnatomyComparator());
 
 		model.addAttribute("histopathRows", histopathRows);
-		model.addAttribute("extSampleIdToObservations", extSampleIdToObservations);
+		model.addAttribute("extSampleIdToObservations", abnormalObservationsOnly);
 		model.addAttribute("parameterNames", parameterNames);
 		model.addAttribute("histopathImagesForGene",histopathImagesForGene);
 		return "histopath";
@@ -88,7 +92,9 @@ public class HistopathController {
 		List<ObservationDTO> allObservations = histopathService.getObservationsForHistopathForGene(acc);
 		List<ObservationDTO> extSampleIdToObservations = histopathService
 				.screenOutObservationsThatAreNormal(allObservations);
-		List<HistopathPageTableRow> histopathRows = histopathService.getTableData(extSampleIdToObservations);
+		Map<String, List<ObservationDTO>> uniqueSampleSequeneAndAnatomyName = histopathService
+				.getUniqueInfo(allObservations);
+		List<HistopathPageTableRow> histopathRows = histopathService.getTableData(uniqueSampleSequeneAndAnatomyName);
 		// for the summary we add an extra method to count the significant
 		// scores and collapse rows based on Anatomy
 		List<HistopathPageTableRow> collapsedRows = histopathService.collapseHistopathTableRows(histopathRows);

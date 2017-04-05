@@ -492,6 +492,13 @@ public class AnatomyDTO {
         this.uberonIds = uberonIds;
     }
 
+    public void addUberonIds(String uberonId) {
+        if (this.uberonIds == null){
+            this.uberonIds = new ArrayList<>();
+        }
+        this.uberonIds.add(uberonId);
+    }
+
     public List<String> getAll_ae_mapped_uberonIds() {
         return all_ae_mapped_uberonIds;
     }
@@ -506,6 +513,13 @@ public class AnatomyDTO {
 
     public void setEfoIds(List<String> efoIds) {
         this.efoIds = efoIds;
+    }
+
+    public void addEfoIds(String efoId) {
+        if (this.efoIds == null){
+            this.efoIds = new ArrayList<>();
+        }
+        this.efoIds.add(efoId);
     }
 
     public List<String> getAll_ae_mapped_efoIds() {

@@ -17,7 +17,6 @@ package uk.ac.ebi.phenotype.web.controller;
 
 import net.sf.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
-import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.solr.generic.util.Tools;
 import org.mousephenotype.cda.solr.service.SolrIndex;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,14 +27,9 @@ import org.springframework.web.bind.annotation.*;
 import uk.ac.ebi.phenotype.util.SearchConfig;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -48,15 +42,6 @@ public class SearchController {
 	//LinkedList<FileMeta> files = new LinkedList<FileMeta>();
     //FileMeta fileMeta = null;
 
-	/**
-	 * redirect calls to the base url or /search path to the search page with the version 2 URL path
-	 *
-	 * @return
-	 */
-	@RequestMapping("/index.html")
-	public String rootForward() {
-		return "redirect:/search";
-	}
 
 	@Autowired
 	private SolrIndex solrIndex;
@@ -73,6 +58,20 @@ public class SearchController {
 	@Autowired
 	@Qualifier("komp2DataSource")
 	private DataSource komp2DataSource;
+
+
+
+
+	/**
+	 * redirect calls to the base url or /search path to the search page with the version 2 URL path
+	 *
+	 * @return
+	 */
+	@RequestMapping("/index.html")
+	public String rootForward(HttpServletRequest request) {
+
+		return "redirect:" + request.getAttribute("baseUrl") + "/search";
+	}
 
 
 	/**
