@@ -69,8 +69,8 @@ public class SearchController {
 	 */
 	@RequestMapping("/index.html")
 	public String rootForward(HttpServletRequest request) {
-
-		return "redirect:" + request.getAttribute("baseUrl") + "/search";
+		String redirectUrl = request.getScheme() + ":" + request.getAttribute("mappedHostname") + request.getAttribute("baseUrl") + "/search";
+		return "redirect:" + redirectUrl;
 	}
 
 
