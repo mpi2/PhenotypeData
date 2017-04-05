@@ -1,5 +1,6 @@
 package uk.ac.ebi.phenotype.repository;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.annotations.ComponentScanNonParticipant;
@@ -47,9 +48,9 @@ public class Loader implements CommandLineRunner {
     @Qualifier("phenodigmDataSource")
     DataSource phenodigmDataSource;
 
-//    @NotNull
-//    @Value("${neo4jDbPath}")
-//    private String neo4jDbPath;
+    @NotNull
+    @Value("${neo4jDbPath}")
+    private String neo4jDbPath;
 
     @NotNull
     @Value("${allele2File}")
@@ -127,52 +128,52 @@ public class Loader implements CommandLineRunner {
     @Override
     public void run(String... strings) throws Exception {
 
-        ontologyParserFactory = new OntologyParserFactory(komp2DataSource, owlpath);
-
-        // NOTE that deleting repositories takes lots of memory
-        // would be way faster to just remove the db directory
-
-        logger.info("Start deleting all repositories ...");
-        //FileUtils.deleteDirectory(new File(neo4jDbPath));
-
-        geneRepository.deleteAll();
-        alleleRepository.deleteAll();
-        ensemblGeneIdRepository.deleteAll();
-        markerSynonymRepository.deleteAll();
-        ontoSynonymRepository.deleteAll();
-        humanGeneSymbolRepository.deleteAll();
-        mpRepository.deleteAll();
-        hpRepository.deleteAll();
-        diseaseGeneRepository.deleteAll();
-        diseaseModelRepository.deleteAll();
-        mouseModelRepository.deleteAll();
-        logger.info("Done deleting all repositories");
-
-        Connection komp2Conn = komp2DataSource.getConnection();
-        Connection diseaseConn = phenodigmDataSource.getConnection();
-
-        //----------- STEP 1 -----------//
-        // loading Gene, Allele, EnsemblGeneId, MarkerSynonym, human orthologs
-        // based on Peter's allele2 flatfile
-        loadGenes();
-
-        //----------- STEP 2 -----------//
-        populateHpIdTermMap();            // STEP 2.1
-        populateBestMpIdHpMap();          // STEP 2.2
-        extendLoadedHpAndConnectHp2Mp();  // STEP 2.3
-        loadMousePhenotypes();            // STEP 2.4
-
-        //----------- STEP 3 -----------//
-        populateMouseModelIdMpMap(); // run this before loadMouseModel()
-        loadMouseModels();
-
-        //----------- STEP 4 -----------//
-        // load disease and Gene, Hp, Mp relationships
-        populateDiseaseIdPhenotypeMap();
-        //loadDiseaseGenes();
-
-        //----------- STEP 5 -----------//
-        loadDiseaseModels();
+//        ontologyParserFactory = new OntologyParserFactory(komp2DataSource, owlpath);
+//
+//        // NOTE that deleting repositories takes lots of memory
+//        // would be way faster to just remove the db directory
+//
+//        logger.info("Start deleting all repositories ...");
+////        FileUtils.deleteDirectory(new File(neo4jDbPath));
+//
+//        geneRepository.deleteAll();
+//        alleleRepository.deleteAll();
+//        ensemblGeneIdRepository.deleteAll();
+//        markerSynonymRepository.deleteAll();
+//        ontoSynonymRepository.deleteAll();
+//        humanGeneSymbolRepository.deleteAll();
+//        mpRepository.deleteAll();
+//        hpRepository.deleteAll();
+//        diseaseGeneRepository.deleteAll();
+//        diseaseModelRepository.deleteAll();
+//        mouseModelRepository.deleteAll();
+//        logger.info("Done deleting all repositories");
+//
+//        Connection komp2Conn = komp2DataSource.getConnection();
+//        Connection diseaseConn = phenodigmDataSource.getConnection();
+//
+//        //----------- STEP 1 -----------//
+//        // loading Gene, Allele, EnsemblGeneId, MarkerSynonym, human orthologs
+//        // based on Peter's allele2 flatfile
+//        loadGenes();
+//
+//        //----------- STEP 2 -----------//
+//        populateHpIdTermMap();            // STEP 2.1
+//        populateBestMpIdHpMap();          // STEP 2.2
+//        extendLoadedHpAndConnectHp2Mp();  // STEP 2.3
+//        loadMousePhenotypes();            // STEP 2.4
+//
+//        //----------- STEP 3 -----------//
+//        populateMouseModelIdMpMap(); // run this before loadMouseModel()
+//        loadMouseModels();
+//
+//        //----------- STEP 4 -----------//
+//        // load disease and Gene, Hp, Mp relationships
+//        populateDiseaseIdPhenotypeMap();
+//        loadDiseaseGenes();
+//
+//        //----------- STEP 5 -----------//
+//        loadDiseaseModels();
 
     }
 
@@ -321,6 +322,7 @@ public class Loader implements CommandLineRunner {
 
             if (array[columns.get("allele_design_project")].equals("IMPC")
                     && array[columns.get("type")].equals("Allele")
+                    && !array[columns.get("allele_symbol")].isEmpty()
                     && loadedGenes.containsKey(mgiAcc)
                     && ! array[columns.get("allele_mgi_accession_id")].isEmpty()) {
 
@@ -334,9 +336,9 @@ public class Loader implements CommandLineRunner {
                 // allele rel to gene
                 allele.setGene(gene);
 
-                if (!array[columns.get("allele_symbol")].isEmpty()) {
-                    allele.setAlleleSymbol(array[columns.get("allele_symbol")]);
-                }
+                String alleleSymbol = array[columns.get("allele_symbol")];
+                allele.setAlleleSymbol(alleleSymbol);
+
                 if (!array[columns.get("allele_description")].isEmpty()) {
                     allele.setAlleleDescription(array[columns.get("allele_description")]);
                 }
@@ -360,7 +362,8 @@ public class Loader implements CommandLineRunner {
 
 
                 alleleRepository.save(allele);
-                loadedAlleles.put(allele.getAlleleSymbol(), allele);
+
+                loadedAlleles.put(alleleSymbol, allele);
 
                 alleleCount++;
                 if (alleleCount % 5000 == 0){
@@ -652,7 +655,7 @@ public class Loader implements CommandLineRunner {
 
                 mmCount++;
                 mouseModelRepository.save(mm);
-                loadedMouseModels.put(mm.getModelId(), mm);
+                loadedMouseModels.put(modelId, mm);
 
                 if (mmCount % 1000 == 0) {
                     logger.info("Added {} MouseModel nodes", mmCount);
@@ -769,12 +772,6 @@ public class Loader implements CommandLineRunner {
                 if (loadedGenes.containsKey(mgiAcc)) {
                     Gene g = loadedGenes.get(mgiAcc);
                     d.setGene(g);
-
-                      // doing this takes ca. 4h
-//                    if (g.getDiseases() == null){
-//                        g.setDiseases(new HashSet<Disease>());
-//                    }
-//                    g.getDiseases().add(d);
                 }
 
                 d.setHgncGeneId(r.getString("hgnc_gene_id"));
@@ -848,11 +845,14 @@ public class Loader implements CommandLineRunner {
 
         logger.info("DISEASE MODEL ASSOC QUERY: " + query);
         try (Connection connection = phenodigmDataSource.getConnection();
-             PreparedStatement p = connection.prepareStatement(query, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY)) {
+             PreparedStatement p = connection.prepareStatement(query)) {
 
             ResultSet r = p.executeQuery();
 
             int dmCount = 0;
+
+            logger.info("Found {} loaded MouseModels, {} loaded Genes, {} loaded HPs, {} loaded Mps, {} loadedAlleles",
+                    loadedMouseModels.size(), loadedGenes.size(), loadedHps.size(), loadedMps.size(), loadedAlleles.size());
 
             while (r.next()) {
 
@@ -867,6 +867,7 @@ public class Loader implements CommandLineRunner {
                     d.setDiseaseId(diseaseId);
                     d.setDiseaseTerm(r.getString("disease_term"));
                     d.setDiseaseClasses(r.getString("disease_classes"));
+
                     d.setMouseModel(mm);
 
                     String mgiAcc = r.getString("model_gene_id");
@@ -878,8 +879,7 @@ public class Loader implements CommandLineRunner {
                     Set<Hp> hps = new HashSet<>();
                     for (String hpId : hpIds) {
                         if (loadedHps.containsKey(hpId)) {
-                            Hp hp = loadedHps.get(hpId);
-                            hps.add(hp);
+                            hps.add(loadedHps.get(hpId));
                         }
                     }
                     if (hps.size() > 0) {
@@ -890,8 +890,7 @@ public class Loader implements CommandLineRunner {
                     Set<Mp> mps = new HashSet<>();
                     for (String mpId : mpIds) {
                         if (loadedMps.containsKey(mpId)) {
-                            Mp mp = loadedMps.get(mpId);
-                            mps.add(mp);
+                            mps.add(loadedMps.get(mpId));
                         }
                     }
                     if (mps.size() > 0) {
