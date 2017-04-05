@@ -7,7 +7,7 @@
 
 	<jsp:attribute name="title">Histopath Information for ${gene.markerName}</jsp:attribute>
 
-<jsp:attribute name="breadcrumb">&nbsp;&raquo;<a href='${baseUrl}/genes/${gene.mgiAccessionId}'>${gene.markerSymbol}</a>&nbsp;&raquo; Histopathology Detailed View</jsp:attribute>
+<jsp:attribute name="breadcrumb">&nbsp;&raquo;<a href='${baseUrl}/histopathsum/${gene.mgiAccessionId}'>${gene.markerSymbol}</a>&nbsp;&raquo; Histopathology Detailed View</jsp:attribute>
 
 
 	<jsp:attribute name="header">
@@ -217,7 +217,8 @@
 									${histRow.zygosity}
 									</td>
 									<td>
-									${histRow.sampleId}
+									${histRow.sampleId}/ ${histRow.sequenceId}
+									
 									</td>
 									
 									<%-- <td>

@@ -28,6 +28,7 @@ public class HistopathService {
 	private String delimeter = " - ";
 
 	private Map<String, SolrDocument> downloadToImgMap;
+	public static String histoDelimeter="||";
 
 	public HistopathService(ObservationService observationService) {
 		super();
@@ -38,62 +39,39 @@ public class HistopathService {
 
 	}
 
-	public List<HistopathPageTableRow> getTableData(List<ObservationDTO> allObservations) throws SolrServerException, IOException {
+	public List<HistopathPageTableRow> getTableData(Map<String, List<ObservationDTO>> uniqueSampleSequeneAndAnatomyName) throws SolrServerException, IOException {
 		List<HistopathPageTableRow> rows = new ArrayList<>();
-		List<HistopathPageTableRow> anatomyAndSampleIdIsSignificantRow=new ArrayList<>();//Holds all anatomy and sampleIds that have a significant call - when something is significant it applies to the overall anatomy e.g. brain and the sample (overview applies to whole call though but we are showing detail of what the lab scientist specified here).
 		downloadToImgMap = new HashMap<String, SolrDocument>();
-		System.out.println("observations for histopath size with normal and abnormal=" + allObservations.size());
+		//System.out.println("observations for histopath size with normal and abnormal=" + uniqueSampleSequeneAndAnatomyName.size());
 
-		Set<String> anatomyNames = this.getAnatomyNamesFromObservations(allObservations);// We
-																								// want
-																								// each
-																								// row
-																								// to
-																								// represent
-																								// and
-																								// antomy
-																								// set
-																								// i.e
-																								// related
-																								// to
-																								// Brain
-
-		Map<String, List<ObservationDTO>> sampleToObservations = this.getSampleToObservationMap(allObservations);
-		for (String sampleId : sampleToObservations.keySet()) {
+		
+		for (String key : uniqueSampleSequeneAndAnatomyName.keySet()) {
 
 			// just for images here as no anatomy currently
 
-			for (String anatomyName : anatomyNames) {
-				Set<String> parameterNames = new TreeSet<>();
-				
-				Map<Integer, List<ObservationDTO>> uniqueSequenceIdsToObservations=this.getSequenceIds(sampleToObservations.get(sampleId));
-				for(Integer sequenceId: uniqueSequenceIdsToObservations.keySet()){
+			List<ObservationDTO> observations=uniqueSampleSequeneAndAnatomyName.get(key);
+			Set<String> parameterNames=new TreeSet<>();
+					
 					HistopathPageTableRow row = new HistopathPageTableRow();// a row is a unique sampleId and anatomy and sequence id combination
-					row.setAnatomyName(anatomyName);
-					row.setSampleId(sampleId);
+					row.setAnatomyName(this.getAnatomyStringFromObservation(observations.get(0)));//anatomy should be the same from any in this dataset
+					row.setSampleId(observations.get(0).getExternalSampleId());
 					
 					
-					//System.out.println("uniqueSequenceId="+sequenceId);
-				for (ObservationDTO obs : uniqueSequenceIdsToObservations.get(sequenceId)) {
-					row.setZygosity(obs.getZygosity());
-					String sequenceString="";
-					if(obs.getAgeInWeeks()!=null){
-						row.setAgeInWeeks(obs.getAgeInWeeks());
-					}
-					if (obs.getSequenceId() != null) {
-						//System.out.println("sequenceId in observation="+obs.getSequenceId());
-						row.setSequenceId(obs.getSequenceId());
-						sequenceString=Integer.toString(obs.getSequenceId());
-
-					} else {
-						//System.out.println("sequence_id is null");
-					}
-					
-					if (this.getAnatomyStringFromObservation(obs) != null
-							&& this.getAnatomyStringFromObservation(obs).equals(anatomyName)) {
+					System.out.println("number of observations with key="+observations.size());
+				for (ObservationDTO obs : observations) {
+				
+						row.setZygosity(obs.getZygosity());
+						if(obs.getAgeInWeeks()!=null){
+							row.setAgeInWeeks(obs.getAgeInWeeks());
+						}
+						
+							//System.out.println("sequenceId in observation="+obs.getSequenceId());
+							row.setSequenceId(obs.getSequenceId());
+						
 
 						ImpressBaseDTO parameter = new ImpressBaseDTO(null, null, obs.getParameterStableId(),
 								obs.getParameterName());
+						
 						parameterNames.add(obs.getParameterName());
 
 						if (obs.getObservationType().equalsIgnoreCase("categorical")) {
@@ -102,10 +80,10 @@ public class HistopathService {
 								System.out.println(parameter+" "+ obs.getCategory());
 								row.addSignficiance(parameter, obs.getCategory());
 								row.setSignficant();
-								anatomyAndSampleIdIsSignificantRow.add(row);
+								
 							}
 							if (parameter.getName().contains("Severity")) {
-								row.addSeveirty(parameter, obs.getCategory());
+								row.addSeverity(parameter, obs.getCategory());
 							}
 						}
 						if (obs.getObservationType().equalsIgnoreCase("ontological")) {
@@ -139,58 +117,15 @@ public class HistopathService {
 								row.addFreeTextParam(parameter, obs.getTextValue());
 							}
 							if (obs.getParameterName().contains("Description")) {
+								//System.out.println("setting description="+obs.getTextValue());
 								row.addDescriptionTextParam(parameter, obs.getTextValue());
 							}
 						}
 
-					} else {
-						// should be image here
-						if (obs.getObservationType().equals("image_record")) {
-							SolrDocument image = null;
-							if (downloadToImgMap.containsKey(obs.getDownloadFilePath())) {
-								//image = downloadToImgMap.get(obs.getDownloadFilePath());
-							} else {
-								//removed the images as they have no useful information with them. group them under the table.
-								//image = imageService.getImageByDownloadFilePath(obs.getDownloadFilePath());
-								//downloadToImgMap.put(obs.getDownloadFilePath(), image);
-							}
-
-							//System.out.println("image omero id=" + image.get(ImageDTO.OMERO_ID));
-							parameterNames.add(obs.getParameterName());
-							//if (image.get(ImageDTO.INCREMENT_VALUE) == row.getSequenceId()) {
-								row.addImage(image);
-							//} else {
-							//	System.out.println("numbers don't match seqid" + row.getSequenceId() + " inc="
-							//			+ image.get(ImageDTO.INCREMENT_VALUE));
-							//}
-
-							// if(obs.getParameterAssociationSequenceId()!=null){
-							// System.out.println("parameterAssociationSequenceId="+obs.getParameterAssociationSequenceId());
-							// }
-
-						}
-					}
-
+					} 
+				rows.add(row);
+				row.setParameterNames(parameterNames);
 				}
-				if (parameterNames.size() != 0) {
-					row.setParameterNames(parameterNames);
-					//System.out.println("adding row=" + row);
-					rows.add(row);
-				}
-			}//end of sequenceId loop
-
-			
-				
-			}
-		}
-		//loop over significant rows and find rows with same anatomy and sampleid and set them to significant as well
-		for(HistopathPageTableRow sigRow:anatomyAndSampleIdIsSignificantRow){
-			for(HistopathPageTableRow rowToUpdate:rows){
-				if(sigRow.getAnatomyName().equalsIgnoreCase(rowToUpdate.getAnatomyName()) && sigRow.getSampleId().equalsIgnoreCase(rowToUpdate.getSampleId())){
-				rowToUpdate.setSignficant();
-				}
-			}
-		}
 		return rows;
 
 	}
@@ -354,6 +289,26 @@ public class HistopathService {
 			}
 		}
 		return collapsedRows;
+	}
+
+	//get observations that have the same anatomy name, sampleid, sequence_id
+	public Map<String, List<ObservationDTO>> getUniqueInfo(List<ObservationDTO> allObservations) {
+		Map<String, List<ObservationDTO>> uniqueDataSets=new HashMap<>();
+		
+		for(ObservationDTO obs: allObservations){
+			String key=this.getAnatomyStringFromObservation(obs)+histoDelimeter+obs.getExternalSampleId()+histoDelimeter+obs.getSequenceId();
+			System.out.println("key="+key);
+			//System.out.println("observation="+obs);
+			if(uniqueDataSets.containsKey(key)){
+				uniqueDataSets.get(key).add(obs);
+			}else{
+				ArrayList<ObservationDTO> newList = new ArrayList<ObservationDTO>();
+				newList.add(obs);
+				uniqueDataSets.put(key, newList );
+			}
+		}
+		System.out.println("uniqe datasets for his size="+uniqueDataSets.size());
+		return uniqueDataSets;
 	}
 
 }
