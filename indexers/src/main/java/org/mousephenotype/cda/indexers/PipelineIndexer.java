@@ -17,12 +17,18 @@ package org.mousephenotype.cda.indexers;
 
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.mousephenotype.cda.db.dao.EmapaOntologyDAO;
-import org.mousephenotype.cda.db.dao.MpOntologyDAO;
 import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
-import org.mousephenotype.cda.solr.service.dto.*;
+import org.mousephenotype.cda.owl.OntologyParser;
+import org.mousephenotype.cda.owl.OntologyParserFactory;
+import org.mousephenotype.cda.owl.OntologyTermDTO;
+import org.mousephenotype.cda.solr.service.dto.ImpressDTO;
+import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
+import org.mousephenotype.cda.solr.service.dto.PipelineDTO;
+import org.mousephenotype.cda.solr.service.dto.ProcedureDTO;
 import org.mousephenotype.cda.utilities.RunStatus;
+import org.semanticweb.owlapi.model.OWLOntologyCreationException;
+import org.semanticweb.owlapi.model.OWLOntologyStorageException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,24 +61,14 @@ public class PipelineIndexer extends AbstractIndexer implements CommandLineRunne
 	@Qualifier("pipelineCore")
 	SolrClient pipelineCore;
 
-	@Autowired
-	MpOntologyDAO mpOntologyService;
-
-	@Autowired
-	@Qualifier("ontodbDataSource")
-	DataSource ontodbDataSource;
-
-	@Autowired
-	EmapaOntologyDAO emapaService;
-
 	private Map<String, ParameterDTO> paramIdToParameter;
 	private Map<String, ProcedureDTO> procedureIdToProcedure;
 	private Map<String, PipelineDTO> pipelines;
-	private Map<String, MpDTO> mpIdToMp;
 	private Map<String, ObservationType> parameterToObservationTypeMap;
-	private Map<String, EmapaOntologyDAO.Emapa> emap2EmapaMap;
-
-	private static Connection ontoDbConnection;
+	private Map<String, String> emapToEmapa;
+	private OntologyParser mpParser;
+	private OntologyParser emapaParser;
+	OntologyParserFactory ontologyParserFactory;
 
 	protected static final int MINIMUM_DOCUMENT_COUNT = 10;
 
@@ -94,20 +90,23 @@ public class PipelineIndexer extends AbstractIndexer implements CommandLineRunne
 
 
 	private void initialiseSupportingBeans(RunStatus runStatus)
-			throws IndexerException, SQLException {
+			throws IndexerException{
 
-		parameterToObservationTypeMap = getObservationTypeMap(runStatus);
-		paramIdToParameter = populateParamIdToParameterMap(runStatus);
-		addUnits();
-		procedureIdToProcedure = populateProcedureIdToProcedureMap(runStatus);
-		pipelines = populatePipelineList();
-		emap2EmapaMap = emapaService.populateEmap2EmapaMap();
-
-        ontoDbConnection = ontodbDataSource.getConnection();
-		addAbnormalMaOntology();
-		addAbnormalEmapOntology();
-		mpIdToMp = populateMpIdToMp();
-		logger.info("  Populated {} mp terms to map", mpIdToMp.size());
+		try {
+			ontologyParserFactory = new OntologyParserFactory(komp2DataSource, owlpath);
+			mpParser = ontologyParserFactory.getMpParser();
+			emapaParser = ontologyParserFactory.getEmapaParser();
+			emapToEmapa = ontologyParserFactory.getEmapToEmapaMap();
+			parameterToObservationTypeMap = getObservationTypeMap(runStatus);
+			paramIdToParameter = populateParamIdToParameterMap(runStatus);
+			addUnits();
+			procedureIdToProcedure = populateProcedureIdToProcedureMap(runStatus);
+			pipelines = populatePipelineList();
+			addAbnormalMaOntology();
+			addAbnormalEmapOntology();
+		} catch (SQLException | OWLOntologyCreationException | OWLOntologyStorageException | IOException e){
+			throw new IndexerException(e);
+		}
 	}
 
 
@@ -182,20 +181,20 @@ public class PipelineIndexer extends AbstractIndexer implements CommandLineRunne
 						if (param.getMpIds().size() > 0){
 							for (String mpId : param.getMpIds()){
 								doc.addMpId(mpId);
-								MpDTO mp = mpIdToMp.get(mpId);
+								OntologyTermDTO mp = mpParser.getOntologyTerm(mpId);
 								if (mp == null) {
 									noTermSet.add(pipeline.getName() + ":" + procedure.getName() + ":" + mpId);
 									continue;
 								}
 
-								doc.addMpTerm(mp.getMpTerm());
-								if (mp.getIntermediateMpId() != null && mp.getIntermediateMpId().size() > 0){
-									doc.addIntermediateMpId(mp.getIntermediateMpId());
-									doc.addIntermediateMpTerm(mp.getIntermediateMpTerm());
+								doc.addMpTerm(mp.getName());
+								if (mp.getIntermediateIds() != null && mp.getIntermediateIds().size() > 0){
+									doc.addIntermediateMpId(mp.getIntermediateIds());
+									doc.addIntermediateMpTerm(mp.getIntermediateNames());
 								}
-								if (mp.getTopLevelMpId() != null && mp.getTopLevelMpId().size() > 0){
-									doc.addTopLevelMpId(mp.getTopLevelMpId());
-									doc.addTopLevelMpTerm(mp.getTopLevelMpTerm());
+								if (mp.getTopLevelIds() != null && mp.getTopLevelIds().size() > 0){
+									doc.addTopLevelMpId(mp.getTopLevelIds());
+									doc.addTopLevelMpTerm(mp.getTopLevelNames());
 								}
 							}
 						}
@@ -204,7 +203,7 @@ public class PipelineIndexer extends AbstractIndexer implements CommandLineRunne
 							doc.setAbnormalMpId(new ArrayList<String>(param.getAbnormalMpId()));
 							for (String mpId: param.getAbnormalMpId()){
 								try {
-									doc.addAbnormalMpTerm(mpIdToMp.get(mpId).getMpTerm());
+									doc.addAbnormalMpTerm(mpParser.getOntologyTerm(mpId).getName());
 								} catch (NullPointerException e) {
 									logger.warn(" Cannot get information from mpIdToMp map for id {}", mpId);
 								}
@@ -214,7 +213,7 @@ public class PipelineIndexer extends AbstractIndexer implements CommandLineRunne
 							doc.setIncreasedMpId(new ArrayList<String>(param.getIncreasedMpId()));
 							for(String mpId: param.getIncreasedMpId()){
 								try {
-									doc.addIncreasedMpTerm(mpIdToMp.get(mpId).getMpTerm());
+									doc.addIncreasedMpTerm(mpParser.getOntologyTerm(mpId).getName());
 								} catch (NullPointerException e) {
 									logger.warn(" Cannot get information from mpIdToMp map for id {}", mpId);
 								}
@@ -223,9 +222,9 @@ public class PipelineIndexer extends AbstractIndexer implements CommandLineRunne
 						if (param.getDecreasedMpId()!= null){
 							doc.setDecreasedMpId(new ArrayList<String>(param.getDecreasedMpId()));
 							for(String mpId: param.getDecreasedMpId()){
-								if (mpIdToMp.get(mpId)!=null) {
+								if (mpParser.getOntologyTerm(mpId) != null) {
 									try {
-										doc.addDecreasedMpTerm(mpIdToMp.get(mpId).getMpTerm());
+										doc.addDecreasedMpTerm(mpParser.getOntologyTerm(mpId).getName());
 									} catch (NullPointerException e) {
 										logger.warn(" Cannot get information from mpIdToMp map for id {}", mpId);
 									}
@@ -238,17 +237,16 @@ public class PipelineIndexer extends AbstractIndexer implements CommandLineRunne
 						if (doc.getProcedureId() == null){
 							System.out.println(doc.getIdidid() + "  " + doc);
 						}
+
 						if(param.getEmapId()!=null){
+
 							String emapId = param.getEmapId();
 							doc.setEmapId(emapId);
 
-							if ( emap2EmapaMap.get(emapId) != null) {
-								doc.setAnatomyId(emap2EmapaMap.get(emapId).getEmapaId());
-								if (param.getEmapName() != null) {
-									String emapName = param.getEmapName();
-									doc.setEmapTerm(emapName);
-									doc.setAnatomyTerm(emap2EmapaMap.get(emapId).getEmapaTerm());
-								}
+							if ( emapToEmapa.containsKey(emapId)) {
+								OntologyTermDTO emapaTerm = emapaParser.getOntologyTerm(emapToEmapa.get(emapId));
+								doc.setAnatomyId(emapaTerm.getAccessionId());
+								doc.setAnatomyTerm(emapaTerm.getName());
 							}
 							else {
 								logger.debug(" EMAP Id {} is not mapped to an EMAPA Id", emapId);
@@ -268,14 +266,12 @@ public class PipelineIndexer extends AbstractIndexer implements CommandLineRunne
 
 			pipelineCore.commit();
 
-		} catch (IOException | SolrServerException e) {
+		} catch (IOException | SolrServerException | NullPointerException e) {
 			e.printStackTrace();
 			throw new IndexerException(e);
-		} catch (NullPointerException npe) {
-			npe.printStackTrace();
 		}
 
-        if (runStatus.hasWarnings()) {
+		if (runStatus.hasWarnings()) {
             runStatus.addWarning("No mp term COUNT: " + noTermSet.size());
         }
 
@@ -637,40 +633,6 @@ protected void addAbnormalEmapOntology(){
 		}
 
 	}
-
-
-    protected Map<String, MpDTO> populateMpIdToMp()
-    throws IndexerException, SQLException {
-
-        Map<String, MpDTO> map = new HashMap<>();
-        String q = " select distinct 'mp' as dataType, ti.term_id, ti.name, ti.definition, group_concat(distinct alt.alt_id) as alt_ids from mp_term_infos ti left join mp_alt_ids alt on ti.term_id=alt.term_id where ti.term_id != 'MP:0000001' group by ti.term_id";
-        PreparedStatement ps = ontoDbConnection.prepareStatement(q);
-        ResultSet rs = ps.executeQuery();
-        while (rs.next()) {
-
-            String termId = rs.getString("term_id");
-
-            MpDTO mp = new MpDTO();
-            mp.setDataType(rs.getString("dataType"));
-            mp.setMpId(termId);
-            mp.setMpTerm(rs.getString("name"));
-            mp.setMpDefinition(rs.getString("definition"));
-
-            // alternative MP ID
-            String alt_ids = rs.getString("alt_ids");
-            if (!rs.wasNull()) {
-                mp.setAltMpIds(Arrays.asList(alt_ids.split(",")));
-            }
-
-            MPIndexer.addTopLevelNodes(mp, mpOntologyService);
-            MPIndexer.addIntermediateLevelNodes(mp, mpOntologyService);
-            MPIndexer.addParentLevelNodes(mp, mpOntologyService);
-
-            map.put(termId, mp);
-
-        }
-        return map;
-    }
 
 
 	/**@since 2015

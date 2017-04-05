@@ -507,6 +507,17 @@
 
                                                 });
 
+                                                $('table#agency').on("click", "div.abstxt", function(){
+                                                    if ($(this).next().is(":visible")){
+                                                        $(this).next().hide();
+                                                        $(this).text("Show abstract");
+                                                    }
+                                                    else {
+                                                        $(this).next().show();
+                                                        $(this).text("Hide abstract");
+                                                    }
+                                                });
+
                                                 $('table#agency').on("click", "div.meshTree", function(){
                                                     //console.log("mesh: "+ $(this).next().text());
                                                     if ($(this).next().is(":visible")){
@@ -1004,6 +1015,17 @@
 				});
 
 				// so that the event works with pagination
+                $('table#'+ id).on("click", "div.abstxt", function(){
+                    if ($(this).next().is(":visible")){
+                        $(this).next().hide();
+                        $(this).text("Show abstract");
+                    }
+                    else {
+                        $(this).next().show();
+                        $(this).text("Hide abstract");
+                    }
+                });
+
                 $('table#'+ id).on("click", "div.alleleToggle", function(){
 
                     if (!$(this).hasClass('showMe')) {

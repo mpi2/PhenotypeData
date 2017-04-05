@@ -33,7 +33,7 @@ table.dataTable td {
     font-size: 14px !important;
 }
 
-div.alleleToggle, div.meshTree {
+div.alleleToggle, div.meshTree, div.abstxt {
     cursor: pointer;
     font-size: 11px;
     font-weight: bold;
@@ -43,7 +43,6 @@ div.alleleToggle, div.meshTree {
     width: 100px;
     text-align: center;
     border-radius: 4px;
-
 }
 div.saveTable {
     margin-top: -25px;
@@ -73,8 +72,9 @@ div.innerData p {
     padding: 0;
     margin: 0;
 }
-div.meshTerms {
+div.meshTerms, div.abs {
     display: none;
+    margin-bottom: 10px;
 }
 p.author {
     font-weight: bold;

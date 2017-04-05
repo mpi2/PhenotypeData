@@ -19,6 +19,7 @@ import org.apache.solr.client.solrj.beans.Field;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 
@@ -422,7 +423,7 @@ public class ObservationDTOBase {
 		}
 		this.anatomyTermSynonym.add(anatomyTermSynonym);
 	}
-	public void addAnatomyTermSynonym(List<String> anatomyTermSynonym, boolean uniqueOnly) {
+	public void addAnatomyTermSynonym(Collection<String> anatomyTermSynonym, boolean uniqueOnly) {
 		if (this.anatomyTermSynonym == null){
 			this.anatomyTermSynonym = new ArrayList<>();
 		}
@@ -440,17 +441,18 @@ public class ObservationDTOBase {
 		this.intermediateAnatomyId = intermediateAnatomyId;
 	}
 
-	public void addIntermediateAnatomyId(String intermediateAnatomyId) {
+	public void addIntermediateAnatomyId(Collection<String> intermediateAnatomyId) {
 
-		if (this.intermediateAnatomyId == null) {
-			this.intermediateAnatomyId = new ArrayList<>();
+		if (intermediateAnatomyId != null) {
+			if (this.intermediateAnatomyId == null) {
+				this.intermediateAnatomyId = new ArrayList<>();
+			}
+
+			this.intermediateAnatomyId.addAll(intermediateAnatomyId);
 		}
-
-		this.intermediateAnatomyId.add(intermediateAnatomyId);
-
 	}
 
-	private List<String> addUnique(List<String> toList, List<String> fromList){
+	private List<String> addUnique(List<String> toList, Collection<String> fromList){
 
 		for (String o : fromList){
 			if (!toList.contains(o)){
@@ -468,11 +470,13 @@ public class ObservationDTOBase {
 		this.intermediateAnatomyTerm = intermediateAnatomyTerm;
 	}
 
-	public void addIntermediateAnatomyTerm(String intermediateAnatomyTerm) {
-		if (this.intermediateAnatomyTerm == null){
-			this.intermediateAnatomyTerm = new ArrayList<>();
+	public void addIntermediateAnatomyTerm(Collection<String> intermediateAnatomyTerm) {
+		if (intermediateAnatomyTerm != null) {
+			if (this.intermediateAnatomyTerm == null) {
+				this.intermediateAnatomyTerm = new ArrayList<>();
+			}
+			this.intermediateAnatomyTerm.addAll(intermediateAnatomyTerm);
 		}
-		this.intermediateAnatomyTerm.add(intermediateAnatomyTerm);
 	}
 
 	public void addTopLevelAnatomyTerm(String topLevelAnatomyTerm) {
@@ -508,7 +512,7 @@ public class ObservationDTOBase {
 		this.intermediateAnatomyTermSynonym = intermediateAnatomyTermSynonym;
 	}
 
-	public void addIntermediateAnatomyTermSynonym(List<String> intermediateAnatomyTermSynonym, boolean uniqueOnly) {
+	public void addIntermediateAnatomyTermSynonym(Collection<String> intermediateAnatomyTermSynonym, boolean uniqueOnly) {
 		if (this.intermediateAnatomyTermSynonym == null){
 			this.intermediateAnatomyTermSynonym = new ArrayList<>();
 		}
@@ -567,15 +571,16 @@ public class ObservationDTOBase {
 		this.selectedTopLevelAnatomyTermSynonym = selectedTopLevelAnatomyTermSynonym;
 	}
 
-	public void addSelectedTopLevelAnatomyTerm(String selectedTopLevelAnatomyTerm, boolean uniqueOnly) {
+	public void addSelectedTopLevelAnatomyTerm(Collection<String> selectedTopLevelAnatomyTerm, boolean uniqueOnly) {
 		this.selectedTopLevelAnatomyTerm = add(this.selectedTopLevelAnatomyTerm, selectedTopLevelAnatomyTerm, uniqueOnly);
 	}
 
-	public void addSelectedTopLevelAnatomyId(String selectedTopLevelAnatomyId, boolean uniqueOnly) {
+	public void addSelectedTopLevelAnatomyId(Collection<String> selectedTopLevelAnatomyId, boolean uniqueOnly) {
+
 		this.selectedTopLevelAnatomyId = add(this.selectedTopLevelAnatomyId, selectedTopLevelAnatomyId, uniqueOnly);
 	}
 
-	public void addSelectedTopLevelAnatomySynonyms(List<String> selectedTopLevelAnatomyTermSynonym, boolean uniqueOnly) {
+	public void addSelectedTopLevelAnatomySynonyms(Collection<String> selectedTopLevelAnatomyTermSynonym, boolean uniqueOnly) {
 		this.selectedTopLevelAnatomyTermSynonym = add(this.selectedTopLevelAnatomyTermSynonym, selectedTopLevelAnatomyTermSynonym, uniqueOnly);
 	}
 
@@ -1584,7 +1589,7 @@ public class ObservationDTOBase {
 		this.developmentalStageName = developmentalStageName;
 	}
 
-	private List<String> add(List<String> to, String what, Boolean uniqueOnly){
+	protected List<String> add(List<String> to, String what, Boolean uniqueOnly){
 		if (to == null){
 			to = new ArrayList<>();
 		}
@@ -1594,7 +1599,7 @@ public class ObservationDTOBase {
 		return to;
 	}
 
-	private List<String> add (List<String> to, List<String> what, Boolean uniqueOnly){
+	protected List<String> add (List<String> to, Collection<String> what, Boolean uniqueOnly){
 		if (to == null){
 			to = new ArrayList<>();
 		}

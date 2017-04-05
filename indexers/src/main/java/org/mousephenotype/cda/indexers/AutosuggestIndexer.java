@@ -611,7 +611,7 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
 
         List<String> anatomyFields = Arrays.asList(
                 AnatomyDTO.ANATOMY_ID, AnatomyDTO.ANATOMY_TERM, AnatomyDTO.ANATOMY_TERM_SYNONYM, AnatomyDTO.ALT_ANATOMY_ID, AnatomyDTO.CHILD_ANATOMY_ID, AnatomyDTO.CHILD_ANATOMY_TERM,
-                AnatomyDTO.CHILD_ANATOMY_TERM_SYNONYM, AnatomyDTO.SELECTED_TOP_LEVEL_ANATOMY_ID,
+                AnatomyDTO.SELECTED_TOP_LEVEL_ANATOMY_ID,
                 AnatomyDTO.SELECTED_TOP_LEVEL_ANATOMY_TERM, AnatomyDTO.SELECTED_TOP_LEVEL_ANATOMY_TERM_SYNONYM);
 
         SolrQuery query = new SolrQuery()
@@ -699,19 +699,7 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
                             }
                         }
                         break;
-                    case AnatomyDTO.CHILD_ANATOMY_TERM_SYNONYM:
-                        if (anatomy.getChildAnatomyTermSynonym() != null) {
-                            for (String s : anatomy.getChildAnatomyTermSynonym()) {
-                                mapKey = s;
-                                if (anatomyTermSynonymSet.add(mapKey)) {
-                                    AutosuggestBean asyn = new AutosuggestBean();
-                                    asyn.setAnatomyTermSynonym(s);
-                                    asyn.setDocType("anatomy");
-                                    beans.add(asyn);
-                                }
-                            }
-                        }
-                        break;
+
                     case AnatomyDTO.PARENT_ANATOMY_ID:
                         if (anatomy.getChildAnatomyId() != null) {
                             for (String s : anatomy.getChildAnatomyId()) {
@@ -738,19 +726,7 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
                             }
                         }
                         break;
-                    case AnatomyDTO.PARENT_ANATOMY_TERM_SYNONYM:
-                        if (anatomy.getChildAnatomyTermSynonym() != null) {
-                            for (String s : anatomy.getChildAnatomyTermSynonym()) {
-                                mapKey = s;
-                                if (anatomyTermSynonymSet.add(mapKey)) {
-                                    AutosuggestBean asyn = new AutosuggestBean();
-                                    asyn.setAnatomyTermSynonym(s);
-                                    asyn.setDocType("anatomy");
-                                    beans.add(asyn);
-                                }
-                            }
-                        }
-                        break;
+
                     case AnatomyDTO.INTERMEDIATE_ANATOMY_ID:
                         if (anatomy.getChildAnatomyId() != null) {
                             for (String s : anatomy.getChildAnatomyId()) {
@@ -777,19 +753,7 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
                             }
                         }
                         break;
-                    case AnatomyDTO.INTERMEDIATE_ANATOMY_TERM_SYNONYM:
-                        if (anatomy.getChildAnatomyTermSynonym() != null) {
-                            for (String s : anatomy.getChildAnatomyTermSynonym()) {
-                                mapKey = s;
-                                if (anatomyTermSynonymSet.add(mapKey)) {
-                                    AutosuggestBean asyn = new AutosuggestBean();
-                                    asyn.setAnatomyTermSynonym(s);
-                                    asyn.setDocType("anatomy");
-                                    beans.add(asyn);
-                                }
-                            }
-                        }
-                        break;
+
                     case AnatomyDTO.TOP_LEVEL_ANATOMY_ID:
                         if (anatomy.getSelectedTopLevelAnatomyId() != null) {
                             for (String s : anatomy.getSelectedTopLevelAnatomyId()) {

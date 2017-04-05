@@ -30,11 +30,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.PropertySource;
 
 import javax.sql.DataSource;
+import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.sql.Connection;
@@ -63,6 +65,10 @@ public abstract class AbstractIndexer implements CommandLineRunner {
     @Autowired
     @Qualifier("komp2DataSource")
     DataSource komp2DataSource;
+
+    @NotNull
+    @Value("${owlpath}")
+    protected String owlpath;
 
     protected Integer EFO_DB_ID = 15; // default as of 2016-05-06
 
@@ -132,7 +138,7 @@ public abstract class AbstractIndexer implements CommandLineRunner {
 	public void initialise() throws IndexerException {
 
 		printConfiguration();
-	}
+    }
 
     /**
      * This is a hook for extended classes to implement to print their
@@ -185,7 +191,6 @@ public abstract class AbstractIndexer implements CommandLineRunner {
             }
             return el;
         } else {
-            System.out.println();
             runStatus.addError(" Caught error accessing Allele2 core: " + "Field not found " + field );
             return null;
         }
@@ -236,7 +241,6 @@ public abstract class AbstractIndexer implements CommandLineRunner {
             try {
 				return new Integer(el);
 			} catch (NumberFormatException e) {
-				// TODO Auto-generated catch block
 				System.err.println("field not string is ="+el);
 				e.printStackTrace();
 				return null;
@@ -285,17 +289,6 @@ public abstract class AbstractIndexer implements CommandLineRunner {
                     + "FROM specimen_life_stage o, live_sample ls, ontology_term ot "
                     + "WHERE ot.acc=ls.developmental_stage_acc "
                     + "AND ls.id=o.biological_sample_id";
-
-
-//         String tmpQuery = "CREATE TEMPORARY TABLE observations2 AS "
-//                 + "(SELECT DISTINCT o.biological_sample_id, e.pipeline_stable_id, e.procedure_stable_id "
-//               + "FROM observation o, experiment_observation eo, experiment e "
-//                  + "WHERE o.id=eo.observation_id "
-//                  + "AND eo.experiment_id=e.id )";
-
-//              try (PreparedStatement p1 = connection.prepareStatement(tmpQuery, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY)) {
-//              p1.executeUpdate();
-            //            logger.info(" Creating temporary observations2 table took [took: {}s]", (System.currentTimeMillis() - tmpTableStartTime) / 1000.0);
 
             try (Connection connection = komp2DataSource.getConnection(); PreparedStatement p = connection.prepareStatement(query)) {
                 ResultSet r = p.executeQuery();
@@ -375,5 +368,6 @@ public abstract class AbstractIndexer implements CommandLineRunner {
 
         return stage;
     }
+
 
 }
