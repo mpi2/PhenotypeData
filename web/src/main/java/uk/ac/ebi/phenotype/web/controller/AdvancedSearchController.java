@@ -39,6 +39,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import uk.ac.ebi.phenotype.repository.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -75,6 +76,39 @@ public class AdvancedSearchController {
     @Qualifier("komp2DataSource")
     private DataSource komp2DataSource;
 
+    @Autowired
+    GeneRepository geneRepository;
+
+    @Autowired
+    AlleleRepository alleleRepository;
+
+    @Autowired
+    EnsemblGeneIdRepository ensemblGeneIdRepository;
+
+    @Autowired
+    MarkerSynonymRepository markerSynonymRepository;
+
+    @Autowired
+    HumanGeneSymbolRepository humanGeneSymbolRepository;
+
+    @Autowired
+    MpRepository mpRepository;
+
+    @Autowired
+    HpRepository hpRepository;
+
+    @Autowired
+    OntoSynonymRepository ontoSynonymRepository;
+
+    @Autowired
+    DiseaseGeneRepository diseaseGeneRepository;
+
+    @Autowired
+    DiseaseModelRepository diseaseModelRepository;
+
+    @Autowired
+    MouseModelRepository mouseModelRepository;
+
 
     @RequestMapping(value="/meshtree", method=RequestMethod.GET)
     public String loadmeshtreePage(
@@ -99,22 +133,8 @@ public class AdvancedSearchController {
         String outputFieldsHtml = Tools.fetchOutputFieldsCheckBoxesHtml(core);
         model.addAttribute("outputFields", outputFieldsHtml);
 
-
         return "batchQuery3";
     }
-//
-//	@RequestMapping(value="/batchQuery3", method=RequestMethod.GET)
-//	public String batchqueryAdv(
-//			@RequestParam(value = "core", required = false) String core,
-//			HttpServletRequest request,
-//			Model model) {
-//
-////		String outputFieldsHtml = Tools.fetchOutputFieldsCheckBoxesHtml(core);
-////		model.addAttribute("outputFields", outputFieldsHtml);
-//
-//
-//		return "batchqueryAdv";
-//	}
 
     @RequestMapping(value = "/dataTable_bq2", method = RequestMethod.POST)
     public ResponseEntity<String> bqDataTableJson2(
@@ -141,8 +161,6 @@ public class AdvancedSearchController {
             List<String> geneIds = solrIndex.fetchQueryIdsFromChrRange(chr, start, end, mode);
             idlistStr = StringUtils.join(geneIds, ",");
         }
-
-
 
         return null;
     }
