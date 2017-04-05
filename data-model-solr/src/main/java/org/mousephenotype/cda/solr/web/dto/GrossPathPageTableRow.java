@@ -235,6 +235,15 @@ public class GrossPathPageTableRow {
 	private String zygosity;
 	private int numberOfAbnormalObservations=0;
 	
+	public int getNumberOfAbnormalObservations() {
+		return numberOfAbnormalObservations;
+	}
+	public int getNumberOfNormalObservations() {
+		return numberOfNormalObservations;
+	}
+
+	private int numberOfNormalObservations=0;
+	
 	public Integer getSequenceId() {
 		return sequenceId;
 	}
@@ -260,6 +269,12 @@ public class GrossPathPageTableRow {
 	}
 	public void setNumberOfAbnormalObservations(int numberOfAbnormalObservations) {
 		this.numberOfAbnormalObservations=numberOfAbnormalObservations;
+	}
+	
+	
+public void setNumberOfNormalObservations(int normalObservations) {
+		
+		this.numberOfNormalObservations=normalObservations;
 	}
 	
 	

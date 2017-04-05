@@ -39,13 +39,14 @@ public class GrossPathService {
 
 	}
 	
-	public List<GrossPathPageTableRow> getSummaryTableData(List<ObservationDTO> allObservations, List<SolrDocument> images, List<ObservationDTO> abnormaObservations) throws SolrServerException, IOException {
+	public List<GrossPathPageTableRow> getSummaryTableData(List<ObservationDTO> allObservations, List<SolrDocument> images, List<ObservationDTO> abnormaObservations, boolean abnormalOnly) throws SolrServerException, IOException {
 		List<GrossPathPageTableRow> rows = new ArrayList<>();
 		System.out.println("observations for GrossPath size with abnormal=" + allObservations.size());
-		Map<String, List<ObservationDTO>> anatomyToObservationMap = this.getAnatomyNamesToObservationsMap(abnormaObservations);//only look at abnormal anatomies now as summary view
+		Map<String, List<ObservationDTO>> anatomyToObservationMap = this.getAnatomyNamesToObservationsMap(allObservations);//only look at abnormal anatomies now as summary view
 			ArrayList<String> textValuesForSampleId = new ArrayList<String>();
 			for (String anatomyName : anatomyToObservationMap.keySet()) {				
 				int abnormalObservations=0;
+				int normalObservations=0;
 				//for summary we want the rows split on a key of anatomy||zygosity||normal/abnormal
 				Map<String, List<ObservationDTO>> keysForRow = this.generateKeyMapForAnatomy(anatomyToObservationMap.get(anatomyName));
 				for (String key : keysForRow.keySet()) {	
@@ -69,6 +70,8 @@ public class GrossPathService {
 										if(!obs.getSubTermName().get(i).equals("no abnormal phenotype detected")){
 										
 											abnormalObservations++;
+										}else{
+											normalObservations++;
 										}
 										if(obs.getSubTermId().get(i).contains("MP:")){//for the moment lets keep things simple and restrict to MP only as PATO doesn't seem useful as is.
 										OntologyBean subOntologyBean = new OntologyBean(obs.getSubTermId().get(i),
@@ -92,8 +95,14 @@ public class GrossPathService {
 						}
 					}
 						//row.setParameterNames(parameterNames);
-						//row.setNumberOfAbnormalPhenotypes();
+						row.setNumberOfAbnormalObservations(abnormalObservations);
+						row.setNumberOfNormalObservations(normalObservations);
+						if(abnormalOnly && abnormalObservations>0){
 						rows.add(row);
+						}
+						if(!abnormalOnly){
+							rows.add(row);
+						}
 				}
 			}
 //			if (!abnormalAnatomyMapPerSampleId.isEmpty()) {// only bother
