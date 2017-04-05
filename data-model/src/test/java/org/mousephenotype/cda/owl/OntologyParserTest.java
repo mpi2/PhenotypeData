@@ -10,11 +10,15 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.utilities.UrlUtils;
+import org.semanticweb.owlapi.model.IRI;
+import org.semanticweb.owlapi.model.OWLOntologyCreationException;
+import org.semanticweb.owlapi.model.OWLOntologyStorageException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import uk.ac.manchester.cs.owl.owlapi.OWLObjectPropertyImpl;
 
 import javax.validation.constraints.NotNull;
 import java.io.File;
@@ -42,10 +46,10 @@ public class OntologyParserTest {
     private final Logger                logger        = LoggerFactory.getLogger(this.getClass());
     private       OntologyParser        ontologyParser;
 
+
     @NotNull
     @Value("${owlpath}")
     protected String owlpath;
-
 
     @Before
     public void setUp() throws Exception {
@@ -131,7 +135,7 @@ public class OntologyParserTest {
         for (File file : owlFiles) {
             prefix = file.getName().replace(".owl", "").toUpperCase();
             try {
-                ontologyParser = new OntologyParser(file.getPath(), prefix);
+                ontologyParser = new OntologyParser(file.getPath(), prefix, null, null);
             } catch (Exception e) {
                 message = "[FAIL - " + prefix + "] Exception in " + file.getPath() + "(" + prefix + "): " + e.getLocalizedMessage();
                 exception.add(e);
@@ -157,7 +161,7 @@ public class OntologyParserTest {
     @Test
     public void testEFO()  throws Exception {
 
-        ontologyParser = new OntologyParser(downloads.get("efo").target, downloads.get("efo").name);
+        ontologyParser = new OntologyParser(downloads.get("efo").target, downloads.get("efo").name, null, null);
         List<OntologyTermDTO> terms = ontologyParser.getTerms();
         Assert.assertFalse("Expected at least one term.", terms.isEmpty());
     }
@@ -168,7 +172,7 @@ public class OntologyParserTest {
 
         System.out.println("target: " + downloads.get("mphp").target);
         System.out.println("name:   " + downloads.get("mphp").name);
-        ontologyParser = new OntologyParser(downloads.get("mphp").target, downloads.get("mphp").name);
+        ontologyParser = new OntologyParser(downloads.get("mphp").target, downloads.get("mphp").name, null, null);
         OntologyTermDTO term = ontologyParser.getOntologyTerm("MP:0006325");
 
         Set<String> narrowSynonyms = ontologyParser.getNarrowSynonyms(term, 1);
@@ -189,7 +193,7 @@ public class OntologyParserTest {
     @Test
     public void testEquivalent() throws Exception {
 
-        ontologyParser = new OntologyParser(downloads.get("mphp").target, downloads.get("mphp").name);
+        ontologyParser = new OntologyParser(downloads.get("mphp").target, downloads.get("mphp").name, null, null);
         List<OntologyTermDTO> terms = ontologyParser.getTerms();
         Assert.assertFalse("Term list is empty!", terms.isEmpty());
 
@@ -210,7 +214,7 @@ public class OntologyParserTest {
     @Test
     public void testReplacementOptions() throws Exception {
 
-        ontologyParser = new OntologyParser(downloads.get("mp").target, downloads.get("mp").name);
+        ontologyParser = new OntologyParser(downloads.get("mp").target, downloads.get("mp").name, null, null);
 
         List<OntologyTermDTO> termList = ontologyParser.getTerms();
         Map<String, OntologyTermDTO> terms =
@@ -243,4 +247,90 @@ public class OntologyParserTest {
         Assert.assertTrue("Expected consider id MP:0010464. Not found.", withConsiderIds.getConsiderIds().contains("MP:0010464"));
 
     }
+
+    @Test
+    public void testTermsInSlim() throws Exception{
+
+        ontologyParser = new OntologyParser(downloads.get("mp").target, downloads.get("mp").name, null, null);
+        Set<String> wantedIds = new HashSet<>();
+        wantedIds.add("MP:0008901");
+        wantedIds.add("MP:0005395"); // "other phenotype" -  obsolete and should not be in the sim
+        Set<String> termsInSlim = ontologyParser.getTermsInSlim(wantedIds, null);
+        Assert.assertTrue(termsInSlim.size() == 7);
+        Assert.assertTrue(!termsInSlim.contains("MP:0005395"));
+    }
+
+    @Test
+    public void testParentInfo() throws Exception{
+
+        ontologyParser = new OntologyParser(downloads.get("mp").target, downloads.get("mp").name, null, null);
+        OntologyTermDTO term = ontologyParser.getOntologyTerm("MP:0005452");  // abnormal adipose tissue amount
+        Assert.assertTrue(term.getParentIds().contains("MP:0000003"));
+        Assert.assertTrue(term.getParentIds().size() == 1);
+        Assert.assertTrue(term.getParentNames().size() == 1);
+
+    }
+
+    @Test
+    public void testChildInfo() throws Exception{
+
+        ontologyParser = new OntologyParser(downloads.get("mp").target, downloads.get("mp").name, null, null);
+        OntologyTermDTO term = ontologyParser.getOntologyTerm("MP:0005452");  // abnormal adipose tissue amount
+        Assert.assertTrue(term.getChildIds().contains("MP:0010024"));
+        System.out.println("term.getChildIds().size() " + term.getChildIds().size() + term.getChildIds());
+        Assert.assertTrue(term.getChildIds().size() == 4); // 4 child terms in the ontology without reasoning
+        Assert.assertTrue(term.getChildNames().size() == 4);
+
+        term =ontologyParser.getOntologyTerm("MP:0000003");
+        System.out.println("term.getChildIds().size() " + term.getChildIds().size() + term.getChildIds());
+        Assert.assertTrue(term.getChildIds().size() == 11); // 11 child terms in the ontology without reasoning
+        Assert.assertTrue(term.getChildNames().size() == 11);
+
+    }
+
+    @Test
+    public void testTopLevels() throws Exception{
+
+        Set<String> topLevels = new HashSet<>(Arrays.asList("MP:0010768", "MP:0002873", "MP:0001186", "MP:0003631",
+                "MP:0003012", "MP:0005367",  "MP:0005369", "MP:0005370", "MP:0005371", "MP:0005377", "MP:0005378", "MP:0005375", "MP:0005376",
+                "MP:0005379", "MP:0005380",  "MP:0005381", "MP:0005384", "MP:0005385", "MP:0005382", "MP:0005388", "MP:0005389", "MP:0005386",
+                "MP:0005387", "MP:0005391",  "MP:0005390", "MP:0005394", "MP:0005397"));
+
+        ontologyParser = new OntologyParser(downloads.get("mp").target, downloads.get("mp").name, topLevels, null);
+
+        // 1 term top level
+        OntologyTermDTO term = ontologyParser.getOntologyTerm("MP:0005452");  // abnormal adipose tissue amount
+        Assert.assertTrue(term.getTopLevelIds().contains("MP:0005375"));
+        Assert.assertTrue(term.getTopLevelIds().size() == 1);
+        Assert.assertTrue(term.getTopLevelNames().size() == 1);
+
+        // multiple top levels
+        term = ontologyParser.getOntologyTerm("MP:0000017"); // big ears
+        Assert.assertTrue(term.getTopLevelIds().contains("MP:0005382"));
+        Assert.assertTrue(term.getTopLevelIds().contains("MP:0005378"));
+        Assert.assertTrue(term.getTopLevelIds().contains("MP:0005377"));
+        Assert.assertTrue(term.getTopLevelIds().size() == 3);
+        Assert.assertTrue(term.getTopLevelNames().size() == 3);
+
+        // term is top level itself
+        term = ontologyParser.getOntologyTerm("MP:0005378");
+        Assert.assertTrue(term.getTopLevelIds() == null || term.getTopLevelIds().size() == 0);
+    }
+
+    @Test
+    public void testMpMaMapping() throws OWLOntologyCreationException, OWLOntologyStorageException, IOException {
+
+        Set<OWLObjectPropertyImpl> viaProperties = new HashSet<>();
+        viaProperties.add(new OWLObjectPropertyImpl(IRI.create("http://purl.obolibrary.org/obo/BFO_0000052")));
+        viaProperties.add(new OWLObjectPropertyImpl(IRI.create("http://purl.obolibrary.org/obo/BFO_0000070")));
+        viaProperties.add(new OWLObjectPropertyImpl(IRI.create("http://purl.obolibrary.org/obo/mp/mp-logical-definitions#inheres_in_part_of")));
+
+        OntologyParser mpMaParser = new OntologyParser(Paths.get(owlpath)+ "/mp-ext-merged.owl", null, null, null);
+        // Should have only MA_0000009 = adipose tissue; MP:0000003 = abnormal adipose tissue morphology
+        Set<String> ma = mpMaParser.getReferencedClasses("MP:0000003", viaProperties, "MA");
+        Assert.assertTrue(ma.size() == 1);
+        Assert.assertTrue(ma.contains("MA:0000009"));
+
+    }
+
 }

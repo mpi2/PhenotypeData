@@ -87,8 +87,6 @@ public class GeneDTO {
 	public static final String INTERMEDIATE_MP_TERM = "intermediate_mp_term";
 	public static final String INTERMEDIATE_MP_TERM_SYNONYM = "intermediate_mp_term_synonym";
 
-	public static final String ONTOLOGY_SUBSET = "ontology_subset";
-
 	public static final String INFERRED_MA_ID = "inferred_ma_id";
 	public static final String INFERRED_MA_TERM = "inferred_ma_term";
 	public static final String INFERRED_MA_TERM_SYNONYM = "inferred_ma_term_synonym";
@@ -509,12 +507,6 @@ public class GeneDTO {
 
 	@Field(INTERMEDIATE_MP_TERM_SYNONYM)
 	List<String> intermediateMpTermSynonym;
-
-
-	// <!-- ontology subset of mp terms -->
-
-	@Field(ONTOLOGY_SUBSET)
-	List<String> ontologySubset;
 
 	// <!-- annotated and inferred ma term -->
 
@@ -1314,18 +1306,6 @@ public class GeneDTO {
 	public void setTopLevelMpDefinition(List<String> topLevelMpDefinition) {
 
 		this.topLevelMpDefinition = topLevelMpDefinition;
-	}
-
-
-	public List<String> getOntologySubset() {
-
-		return ontologySubset;
-	}
-
-
-	public void setOntologySubset(List<String> ontologySubset) {
-
-		this.ontologySubset = ontologySubset;
 	}
 
 
@@ -2207,8 +2187,6 @@ public class GeneDTO {
 			return false;
 		if (intermediateMpTermSynonym != null ? !intermediateMpTermSynonym.equals(geneDTO.intermediateMpTermSynonym) : geneDTO.intermediateMpTermSynonym != null)
 			return false;
-		if (ontologySubset != null ? !ontologySubset.equals(geneDTO.ontologySubset) : geneDTO.ontologySubset != null)
-			return false;
 		if (inferredMaId != null ? !inferredMaId.equals(geneDTO.inferredMaId) : geneDTO.inferredMaId != null)
 			return false;
 		if (inferredMaTerm != null ? !inferredMaTerm.equals(geneDTO.inferredMaTerm) : geneDTO.inferredMaTerm != null)
@@ -2371,7 +2349,6 @@ public class GeneDTO {
 		result = 31 * result + (intermediateMpId != null ? intermediateMpId.hashCode() : 0);
 		result = 31 * result + (intermediateMpTerm != null ? intermediateMpTerm.hashCode() : 0);
 		result = 31 * result + (intermediateMpTermSynonym != null ? intermediateMpTermSynonym.hashCode() : 0);
-		result = 31 * result + (ontologySubset != null ? ontologySubset.hashCode() : 0);
 		result = 31 * result + (inferredMaId != null ? inferredMaId.hashCode() : 0);
 		result = 31 * result + (inferredMaTerm != null ? inferredMaTerm.hashCode() : 0);
 		result = 31 * result + (inferredMaTermSynonym != null ? inferredMaTermSynonym.hashCode() : 0);
@@ -2503,7 +2480,6 @@ public class GeneDTO {
 				", intermediateMpId=" + intermediateMpId +
 				", intermediateMpTerm=" + intermediateMpTerm +
 				", intermediateMpTermSynonym=" + intermediateMpTermSynonym +
-				", ontologySubset=" + ontologySubset +
 				", inferredMaId=" + inferredMaId +
 				", inferredMaTerm=" + inferredMaTerm +
 				", inferredMaTermSynonym=" + inferredMaTermSynonym +
