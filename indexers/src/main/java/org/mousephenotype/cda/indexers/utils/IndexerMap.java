@@ -28,11 +28,8 @@ import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
 import org.mousephenotype.cda.solr.service.dto.SangerImageDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.io.Resource;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -67,49 +64,6 @@ public class IndexerMap {
 
     // PUBLIC METHODS
 
-    /**
-	 * ontology mapper: MA term id to UBERON or EFO id
-	 * @throws IOException 
-	 * @returns a map, where key is MA is and value is either UBERON or EFO (can be multi-valued) 
-	 */
-	
-    public static Map<String, Map<String,List<String>>> mapMaToUberronOrEfoForAnatomogram(Resource anatomogramResource) throws SQLException, IOException {
-        
-    	if ( maUberonEfoMap == null || maUberonEfoMap.isEmpty() ){
-    		
-    		maUberonEfoMap = new HashMap<>();
-    		
-	    	InputStreamReader in = new InputStreamReader(anatomogramResource.getInputStream());
-	    	
-			try (BufferedReader bin = new BufferedReader(in)) {
-			
-				String line;
-				while ((line = bin.readLine()) != null) {
-
-                    String[] kv = line.split("\\t");
-					if ( kv.length == 2 ){
-						String mappedId = kv[1];
-						String maId = kv[0].replace("_", ":");
-
-                        if ( ! maUberonEfoMap.containsKey(maId) ){
-							maUberonEfoMap.put(maId, new HashMap<>());
-						}	
-						String key = mappedId.startsWith("U") ? "uberon_id" : "efo_id";
-						if ( ! maUberonEfoMap.get(maId).containsKey(key) ){
-							maUberonEfoMap.get(maId).put(key, new ArrayList<>());
-						}
-						maUberonEfoMap.get(maId).get(key).add(mappedId);
-					}
-				}	
-			}	
-			
-			logger.debug(" Converted " + maUberonEfoMap.size() + " MA Ids");
-//			logger.debug(" " + maUberonEfoMap.toString());
-    	}
-		return maUberonEfoMap;
-	        
-    }
-
 	public Map<String, List<EmbryoStrain>> populateEmbryoData(String embryoViewerFilename) {
     	EmbryoRestGetter embryoGetter=new EmbryoRestGetter(embryoViewerFilename);
     	
@@ -117,7 +71,6 @@ public class IndexerMap {
 		try {
 			restData = embryoGetter.getEmbryoRestData();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		List<EmbryoStrain> strains = restData.getStrains();
