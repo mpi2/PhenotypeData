@@ -57,35 +57,22 @@
 							
 							<thead>
 							<tr>
-							<th colspan="2" style="border-bottom-style: none;">
-							</th>
-							<th colspan="2">
-							Observation Numbers
-							</th>
-							</tr>
-							<tr>
 							<th>
 							Anatomy
 							</th>
-							<%-- <th>Sample Id</th> --%>
+							<th>Sample Id</th>
 							<th>
 							Zyg
 							</th>
-							<%-- <th>
+							<th>
 							OntologyTerm
-							</th> --%>
-							<%-- <th>
+							</th>
+							<th>
 							Free Text
-							</th> --%>
-							<th>
-							Abnormal
 							</th>
 							<th>
-							Normal
-							</th>
-							<%-- <th>
 							Images
-							</th> --%>
+							</th>
 							
 						
 							
@@ -98,13 +85,13 @@
 									<td id="${pathRow.sampleId}_${pathRow.anatomyName}">
 										${pathRow.anatomyName}
 									</td>
-									 <%-- <td>
+									 <td>
 										${pathRow.sampleId}
-									</td> --%>
+									</td>
 									<td>
 										${pathRow.zygosity}
 									</td>
-									<%-- <c:choose>
+									<c:choose>
 									<c:when test="${fn:length(pathRow.subOntologyBeans) == 0}">
 										<td>
 										</td>
@@ -112,40 +99,34 @@
 									<c:otherwise>
 									<c:forEach var="parameter" items="${pathRow.subOntologyBeans }">
 										<td >
-											subOntologyParam: ${parameter.key} gives anatomy term which should match the anatomy in the row
+											<%-- subOntologyParam: ${parameter.key} gives anatomy term which should match the anatomy in the row --%>
 											
 										
 										<c:forEach var="value" items="${parameter.value }" varStatus="loop"  >
-										${value.id } - ${value.name }<c:if test="${!loop.last}">,</c:if>
+										<%-- ${value.id } - --%> ${value.name }<c:if test="${!loop.last}">,</c:if>
 										</c:forEach>
 										</td>
 									</c:forEach>
 									</c:otherwise>
-									</c:choose>  --%>
+									</c:choose> 
 									
 									
-									<%-- <td>
+									<td>
 										
 										${pathRow.textValue}
 										
-									</td> --%>
-									<td>
-									${pathRow.numberOfAbnormalObservations}
-									</td>
-									<td>
-									${pathRow.numberOfNormalObservations}
 									</td>
 									
-									<%-- <c:if test="${fn:length(pathRow.imageList) >0}">
-										<tr>
+									<c:if test="${fn:length(pathRow.imageList) >0}">
+										<%-- <tr> --%>
 											<c:forEach var="img" items="${pathRow.imageList }">
 												<td>
 																			
-												  	<div id="grid">
+												  	<%-- <div id="grid">
 		                                           
 														<t:impcimgdisplay2 img="${image}" impcMediaBaseUrl="${impcMediaBaseUrl}"></t:impcimgdisplay2>
 													
-													</div>
+													</div> --%>
 													
 													<a href="${impcMediaBaseUrl}/render_image/${img.omero_id}/" class="fancybox" fullRes="${impcMediaBaseUrl}/render_image/${img.omero_id}/" original="${impcMediaBaseUrl}/archived_files/download/${img.omero_id}/">
          		<img  src="${impcMediaBaseUrl}/render_birds_eye_view/${img.omero_id}/" class="thumbnailStyle"></a>
@@ -153,8 +134,8 @@
 												</td>
 											</c:forEach>
 										
-									</tr>	 
-									</c:if> --%>
+									<%-- </tr>	 --%> 
+									</c:if>
 									
 									
 	

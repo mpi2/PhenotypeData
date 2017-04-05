@@ -143,7 +143,7 @@ public class ImageComparatorController {
 			System.out.println("using frames based comparator to pdfs");
 			return "comparatorFrames";
 		}
-		return "comparator";//js viewport used to view images in this view.
+		return "comparatorFrames";//js viewport used to view images in this view.
 	}
 	
 	private boolean isFederated(List<ImageDTO> filteredMutants) {
