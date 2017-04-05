@@ -147,7 +147,7 @@
         <!-- distinguish between adult and embry -->
         <field name="stage" type="string" indexed="true" stored="true" required="true" multiValued="false" />
 
-        <field name="efo_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+        <field name="efo_id" type="string" indexed="true" stored="true" required="false" multiValued="true" /> <!-- for anatomogram -->
         <field name="all_ae_mapped_efo_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
         <field name="uberon_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
         <field name="all_ae_mapped_uberon_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />

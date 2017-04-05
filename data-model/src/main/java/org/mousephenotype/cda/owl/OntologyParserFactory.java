@@ -77,6 +77,10 @@ public class OntologyParserFactory {
         return new OntologyParser(owlpath + "/emapa.owl", "EMAPA", TOP_LEVEL_EMAPA_TERMS, getEmapaWantedIds());
     }
 
+    public OntologyParser getUberonParser() throws OWLOntologyCreationException, OWLOntologyStorageException, IOException, SQLException {
+        return new OntologyParser(owlpath + "/uberon.owl", "UBERON", null, null);
+    }
+
     public OntologyParser getMaParserWithTreeJson() throws OWLOntologyStorageException, IOException, SQLException, OWLOntologyCreationException {
 
         OntologyParser parser = getMaParser();
