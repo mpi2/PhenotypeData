@@ -232,7 +232,7 @@ public class AnatomyIndexer extends AbstractIndexer implements CommandLineRunner
             ontologyParserFactory = new OntologyParserFactory(komp2DataSource, owlpath);
             emapaParser = ontologyParserFactory.getEmapaParserWithTreeJson();
             maParser = ontologyParserFactory.getMaParserWithTreeJson();
-            uberonParser = ontologyParserFactory.getMaParserWithTreeJson();
+            uberonParser = ontologyParserFactory.getUberonParser();
             maUberonEfoMap = AnatomogramMapper.getMapping(maParser, uberonParser, "UBERON", "MA");
 
         } catch (SQLException | IOException | OWLOntologyCreationException | OWLOntologyStorageException e1) {

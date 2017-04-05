@@ -57,7 +57,8 @@ public class AnatomogramMapper {
 
         Map<String, AnatomogramMapping> resMap = new HashMap<>(); // <MA, <UBERON>>
 
-        for (String maId: maParser.getTermsInSlim()) {
+        for (OntologyTermDTO materm: maParser.getTerms()) {
+            String maId = materm.getAccessionId();
             resMap.put(maId, new AnatomogramMapping(maId));
             maMap.put(maId, maParser.getOwlClass(maId));
         }
@@ -74,17 +75,16 @@ public class AnatomogramMapper {
 
         Map<String, Set<String>> res = new HashMap<>();
         for (String id : resMap.keySet()){
-            if (resMap.get(id).getMappedIds().isEmpty()){
-                System.out.println("How many ids we found for " + id + "\t" + resMap.get(id).getMappedIds().size());
-            }
-            res.put(id, resMap.get(id).getMappedIds());
+            Set<String> current = new HashSet<>();
             for (String mappedId: resMap.get(id).getMappedIds()){
                 // If it's EFO, replace mapped UBERON with corresponding EFO because anatomogram expects 4 EFO ids
                 if (nonUberonAnatomogramMap.containsKey(mappedId)){
-                    res.get(id).remove(mappedId);
-                    res.get(id).add(nonUberonAnatomogramMap.get(mappedId));
+                    current.add(nonUberonAnatomogramMap.get(mappedId));
+                } else {
+                    current.add(mappedId);
                 }
             }
+            res.put(id.replace("_", ":"), current);
         }
 
         return res;
@@ -136,23 +136,27 @@ public class AnatomogramMapper {
         parentNodes.addAll(parser.getParents(cls, prefix, true));
         String clsId = parser.getIdentifierShortForm(cls).replace(":", "_");
         String xRefId = parser.getXref(cls, crossRefPrefix);
-        if (xRefId != null){    xRefId.replace(":", "_"); }
-        int currentLevel = 0;
+        if (xRefId != null){
+            xRefId = xRefId.replace("_", ":");
+            System.out.println("Found xref " + clsId + " " + xRefId) ;
+            int currentLevel = 0;
+            if (resMap.containsKey(xRefId)) {
 
-        if (resMap.containsKey(xRefId)) {
+                AnatomogramMapping mapping = resMap.get(xRefId);
 
-            AnatomogramMapping mapping = resMap.get(xRefId);
-
-            if (toTerms.contains(clsId)) {
-                if (mapping != null ) {
-                    mapping.addMappedIds(clsId, currentLevel);
+                if (toTerms.contains(clsId)) {
+                    if (mapping != null ) {
+                        mapping.addMappedIds(clsId, currentLevel);
+                    }
                 }
-            }
 
-            while (xRefId != null && mapping.getMappedIds().isEmpty() && !parentNodes.isEmpty()) {
-                currentLevel ++;
-                mapping.addMappedIds(getIds(parentNodes, toTerms, parser), currentLevel);
-                parentNodes = getParentsPartOf(parentNodes, prefix, parser);
+                while (xRefId != null && mapping.getMappedIds().isEmpty() && !parentNodes.isEmpty()) {
+                    currentLevel ++;
+                    mapping.addMappedIds(getIds(parentNodes, toTerms, parser), currentLevel);
+                    parentNodes = getParentsPartOf(parentNodes, prefix, parser);
+                }
+
+                resMap.put(xRefId, mapping);
             }
         }
 
