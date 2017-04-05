@@ -842,7 +842,7 @@ public class Loader implements CommandLineRunner {
                 "FROM mouse_disease_gene_summary_high_quality mdgshq " +
                 "  JOIN mouse_model_gene_ortholog mmgo ON mdgshq.model_gene_id = mmgo.model_gene_id " +
                 "  JOIN mouse_disease_model_association mdma ON mdgshq.disease_id = mdma.disease_id AND mmgo.model_id = mdma.model_id " +
-                "  JOIN disease d ON d.disease_id = mdgshq.disease_id " ;
+                "  JOIN disease d ON d.disease_id = mdgshq.disease_id" ;
 
         logger.info("DISEASE MODEL ASSOC QUERY: " + query);
         try (Connection connection = phenodigmDataSource.getConnection();
@@ -856,8 +856,6 @@ public class Loader implements CommandLineRunner {
 
                 int modelId = r.getInt("model_id");
 
-
-
                 // only want IMPC related mouse models
                 if (loadedMouseModels.containsKey(modelId)) {
                     MouseModel mm = loadedMouseModels.get(modelId);
@@ -868,6 +866,11 @@ public class Loader implements CommandLineRunner {
                     d.setDiseaseTerm(r.getString("disease_term"));
                     d.setDiseaseClasses(r.getString("disease_classes"));
                     d.setMouseModel(mm);
+
+                    String mgiAcc = r.getString("model_gene_id");
+                    if (loadedGenes.containsKey(mgiAcc)) {
+                        d.setGene(loadedGenes.get(mgiAcc));
+                    }
 
                     List<String> hpIds = Arrays.asList(r.getString("hp_matched_terms").split(","));
                     Set<Hp> hps = new HashSet<>();
@@ -906,8 +909,7 @@ public class Loader implements CommandLineRunner {
                         d.setAllele(loadedAlleles.get(alleleSymbol));
                     }
 
-                    System.out.println("ALLELE: " + d.getAllele());
-                    System.out.println("MMODEL : " +d.getMouseModel());
+
                     diseaseModelRepository.save(d);
 
                     dmCount++;
