@@ -45,7 +45,7 @@ public class GrossPathController {
 		//abnormal observations informs us of which Anatomy terms we need stats for both normal and abnormal numbers
 		List<ObservationDTO> abnormalObservations = grossPathService.getAbnormalObservations(allObservations);
 		//grossPathService.processForAbnormalAnatomies(allObservations, abnormalObservations);
-		List<GrossPathPageTableRow> grossPathRows = grossPathService.getSummaryTableData(allObservations, images, abnormalObservations);
+		List<GrossPathPageTableRow> grossPathRows = grossPathService.getSummaryTableData(allObservations, images, abnormalObservations, true);
 		model.addAttribute("sampleSize",sampleSize);
 		model.addAttribute("pathRows", grossPathRows);
 		model.addAttribute("extSampleIdToObservations", allObservations);
