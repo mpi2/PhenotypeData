@@ -563,8 +563,6 @@ public class OntologyParser {
                     }
                 }
             }
-        } else {
-            System.out.println("Yup, found circular ref " + getIdentifierShortForm(cls));
         }
 
         return ancestorIds;

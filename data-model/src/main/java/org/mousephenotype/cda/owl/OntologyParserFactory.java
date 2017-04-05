@@ -3,7 +3,6 @@ package org.mousephenotype.cda.owl;
 import org.semanticweb.owlapi.model.IRI;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.semanticweb.owlapi.model.OWLOntologyStorageException;
-import org.springframework.stereotype.Component;
 import uk.ac.manchester.cs.owl.owlapi.OWLObjectPropertyImpl;
 
 import javax.sql.DataSource;
@@ -17,7 +16,7 @@ import java.util.*;
 /**
  * Created by ilinca on 29/03/2017.
  */
-@Component
+
 public class OntologyParserFactory {
 
 
