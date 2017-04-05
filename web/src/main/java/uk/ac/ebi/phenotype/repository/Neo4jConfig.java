@@ -1,8 +1,6 @@
 package uk.ac.ebi.phenotype.repository;
 
 import org.neo4j.ogm.session.SessionFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -12,9 +10,7 @@ import org.springframework.data.neo4j.repository.config.EnableNeo4jRepositories;
 import org.springframework.data.neo4j.transaction.Neo4jTransactionManager;
 import uk.ac.ebi.PhenotypeArchiveDatabaseConfig;
 
-import javax.sql.DataSource;
 import javax.validation.constraints.NotNull;
-import java.nio.file.Paths;
 
 /**
  * Created by jmason on 18/03/2017.

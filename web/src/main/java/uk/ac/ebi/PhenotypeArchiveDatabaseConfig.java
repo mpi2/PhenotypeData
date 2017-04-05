@@ -83,8 +83,8 @@ public class PhenotypeArchiveDatabaseConfig {
                 .build();
     }
 
-    @Bean(name = "sessionFactory")
-    public LocalSessionFactoryBean sessionFactory() {
+    @Bean(name = "sessionFactoryHibernate")
+    public LocalSessionFactoryBean sessionFactoryHibernate() {
         LocalSessionFactoryBean sessionFactory = new LocalSessionFactoryBean();
         sessionFactory.setDataSource(komp2DataSource());
         sessionFactory.setPackagesToScan("org.mousephenotype.cda.db");
