@@ -3,7 +3,6 @@ package org.mousephenotype.cda.owl;
 import org.semanticweb.owlapi.model.IRI;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.semanticweb.owlapi.model.OWLOntologyStorageException;
-import org.springframework.stereotype.Component;
 import uk.ac.manchester.cs.owl.owlapi.OWLObjectPropertyImpl;
 
 import javax.sql.DataSource;
@@ -17,7 +16,7 @@ import java.util.*;
 /**
  * Created by ilinca on 29/03/2017.
  */
-@Component
+
 public class OntologyParserFactory {
 
 
@@ -75,6 +74,10 @@ public class OntologyParserFactory {
 
     public OntologyParser getEmapaParser() throws OWLOntologyCreationException, OWLOntologyStorageException, IOException, SQLException {
         return new OntologyParser(owlpath + "/emapa.owl", "EMAPA", TOP_LEVEL_EMAPA_TERMS, getEmapaWantedIds());
+    }
+
+    public OntologyParser getUberonParser() throws OWLOntologyCreationException, OWLOntologyStorageException, IOException, SQLException {
+        return new OntologyParser(owlpath + "/uberon.owl", "UBERON", null, null);
     }
 
     public OntologyParser getMaParserWithTreeJson() throws OWLOntologyStorageException, IOException, SQLException, OWLOntologyCreationException {

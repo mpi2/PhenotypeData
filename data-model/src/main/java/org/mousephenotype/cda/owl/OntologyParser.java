@@ -507,7 +507,8 @@ public class OntologyParser {
             return ancestorsCache.get(getIdentifierShortForm(cls));
         }
         Set<OWLClass> ancestorIds = new HashSet<>();
-        ancestorIds.addAll(getClassAncestors(cls, prefixes, ancestorIds));
+        Set<String> usedIds = new HashSet<>();
+        ancestorIds.addAll(getClassAncestors(cls, prefixes, ancestorIds, usedIds));
         ancestorsCache.put(getIdentifierShortForm(cls), ancestorIds);
 
         return ancestorIds;
@@ -541,20 +542,23 @@ public class OntologyParser {
      * @param ancestorIds
      * @return
      */
-    private Set<OWLClass> getClassAncestors(OWLClass cls, Set<String> prefixes, Set<OWLClass> ancestorIds){
+    private Set<OWLClass> getClassAncestors(OWLClass cls, Set<String> prefixes, Set<OWLClass> ancestorIds, Set<String> usedIds){
 
-        Collection<OWLClassExpression> superClasses = EntitySearcher.getSuperClasses(cls, ontology);
-        for(OWLClassExpression superClass : superClasses){
-            if (superClass.isClassExpressionLiteral()){
-                ancestorIds.add(superClass.asOWLClass());
-                getClassAncestors (superClass.asOWLClass(), prefixes, ancestorIds);
-            } else {
-                if (superClass instanceof OWLObjectSomeValuesFrom){
-                    OWLObjectSomeValuesFrom svf = (OWLObjectSomeValuesFrom) superClass;
-                    if (PART_OF.contains(svf.getProperty().asOWLObjectProperty())){
-                        if (svf.getFiller() instanceof OWLNamedObject){
-                            ancestorIds.add(svf.getFiller().asOWLClass());
-                            getClassAncestors (svf.getFiller().asOWLClass(), prefixes, ancestorIds);
+        if (!usedIds.contains(getIdentifierShortForm(cls))){
+            usedIds.add(getIdentifierShortForm(cls));
+            Collection<OWLClassExpression> superClasses = EntitySearcher.getSuperClasses(cls, ontology);
+            for(OWLClassExpression superClass : superClasses){
+                if (superClass.isClassExpressionLiteral()){
+                    ancestorIds.add(superClass.asOWLClass());
+                    getClassAncestors (superClass.asOWLClass(), prefixes, ancestorIds, usedIds);
+                } else {
+                    if (superClass instanceof OWLObjectSomeValuesFrom){
+                        OWLObjectSomeValuesFrom svf = (OWLObjectSomeValuesFrom) superClass;
+                        if (PART_OF.contains(svf.getProperty().asOWLObjectProperty())){
+                            if (svf.getFiller() instanceof OWLNamedObject){
+                                ancestorIds.add(svf.getFiller().asOWLClass());
+                                getClassAncestors (svf.getFiller().asOWLClass(), prefixes, ancestorIds, usedIds);
+                            }
                         }
                     }
                 }

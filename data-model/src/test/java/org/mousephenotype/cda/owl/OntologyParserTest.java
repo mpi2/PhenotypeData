@@ -164,6 +164,7 @@ public class OntologyParserTest {
         ontologyParser = new OntologyParser(downloads.get("efo").target, downloads.get("efo").name, null, null);
         List<OntologyTermDTO> terms = ontologyParser.getTerms();
         Assert.assertFalse("Expected at least one term.", terms.isEmpty());
+
     }
 
 
