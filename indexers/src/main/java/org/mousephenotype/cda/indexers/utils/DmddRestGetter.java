@@ -47,16 +47,17 @@ public static void main(String [] args){
         JSONArray imagedArray = genes.getJSONArray("imaged");
         for (int i = 0; i < imagedArray.length(); i++) {
             JSONObject jsonObject = imagedArray.getJSONObject(i);
-            System.out.println(jsonObject);
+            //System.out.println(jsonObject);
             DmddDataUnit dataForGene=new DmddDataUnit(jsonObject.getString("mgi_id"),jsonObject.getString("url"));
             imagedData.add(dataForGene);
         }
+        System.out.println("dmdd image data size is "+imagedData.size());
         dmddRestData.setImaged(imagedData);
         JSONArray earlyLethalsArray = genes.getJSONArray("early_lethals");
         List<DmddDataUnit> earlyLethalData=new ArrayList<>();
         for (int i = 0; i < earlyLethalsArray.length(); i++) {
             JSONObject jsonObject = earlyLethalsArray.getJSONObject(i);
-            System.out.println(jsonObject);
+            //System.out.println(jsonObject);
             DmddDataUnit dataForGene=new DmddDataUnit(jsonObject.getString("mgi_id"),jsonObject.getString("url"));
             earlyLethalData.add(dataForGene);
         }
