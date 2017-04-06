@@ -153,6 +153,7 @@ public class GeneDTO {
 	public static final String PFAMA_GO_CAT = "pfama_go_cat";
 	public static final String EMBRYO_DATA_AVAILABLE = "embryo_data_available";
 	public static final String DMDD_IMAGE_DATA_AVAILABLE="dmdd_image_data_available";
+	public static final String DMDD_LETHAL_DATA_AVAILABLE="dmdd_lethal_data_available";
 	public static final String SEQ_REGION_ID = "seq_region_id";
 	public static final String SEQ_REGION_START = "seq_region_start";
 	public static final String SEQ_REGION_END = "seq_region_end";
@@ -692,6 +693,17 @@ public class GeneDTO {
 	@Field(DMDD_IMAGE_DATA_AVAILABLE)
 	private boolean isDmddImageDataAvailable;
 	
+	@Field(DMDD_LETHAL_DATA_AVAILABLE)
+	private boolean isDmddLethalDataAvailable;
+	
+	public boolean isDmddLethalDataAvailable() {
+		return isDmddLethalDataAvailable;
+	}
+
+	public void setDmddLethalDataAvailable(boolean isDmddLethalDataAvailable) {
+		this.isDmddLethalDataAvailable = isDmddLethalDataAvailable;
+	}
+
 	public boolean isDmddImageDataAvailable() {
 		return isDmddImageDataAvailable;
 	}
