@@ -59,8 +59,10 @@ public class IndexerMap {
     private static Map<Integer, ParameterDTO> parameterMap = null;
     private static Map<Integer, OrganisationBean> organisationMap = null;
     private static Map<String, Map<String,List<String>>> maUberonEfoMap = null;
+    private static DmddRestData dmddRestData;
     
     private static final Logger logger = LoggerFactory.getLogger(IndexerMap.class);
+    
 
     // PUBLIC METHODS
 
@@ -106,16 +108,16 @@ public class IndexerMap {
 		return mgiToDmddImagedMap;
 	}
 	
-	public Map<String, List<DmddDataUnit>> populateDmddLethalData(String embryoViewerFilename) {
-    	DmddRestGetter embryoGetter=new DmddRestGetter(embryoViewerFilename);
-    	
-		DmddRestData restData=null;
-		try {
-			restData = embryoGetter.getEmbryoRestData();
-		} catch (Exception e) {
-			e.printStackTrace();
+	public Map<String, List<DmddDataUnit>> populateDmddLethalData(String dmddFileName) {
+    	if (dmddRestData==null) {//should have this data already from imaged data call so don't do again if so.
+			DmddRestGetter dmddGetter = new DmddRestGetter(dmddFileName);
+			try {
+				dmddRestData = dmddGetter.getEmbryoRestData();
+			} catch (Exception e) {
+				e.printStackTrace();
+			} 
 		}
-		List<DmddDataUnit> lethal = restData.getEarlyLethal();
+		List<DmddDataUnit> lethal = dmddRestData.getEarlyLethal();
 		Map<String,List<DmddDataUnit>> mgiToDmddLethalMap=new HashMap<>();
 		for(DmddDataUnit strain: lethal){
 			String mgi=strain.getGeneAccession();

@@ -104,6 +104,7 @@ public class GeneIndexer extends AbstractIndexer implements CommandLineRunner {
     private Set<String> idgGenes=new HashSet<>();
 
 	private Map<String, List<DmddDataUnit>> dmddImageData;
+	private Map<String, List<DmddDataUnit>> dmddLethalData;
 
 
     @PostConstruct
@@ -250,6 +251,10 @@ public class GeneIndexer extends AbstractIndexer implements CommandLineRunner {
                 if(dmddImageData.containsKey(gene.getMgiAccessionId())){
                 	//add dmdd image data here
                 	gene.setDmddImageDataAvailable(true);
+                }
+                if(dmddLethalData.containsKey(gene.getMgiAccessionId())){
+                	//add dmdd image data here
+                	gene.setDmddLethalDataAvailable(true);
                 }
                 
                 if(idgGenes.contains(gene.getMgiAccessionId())){
@@ -624,6 +629,7 @@ public class GeneIndexer extends AbstractIndexer implements CommandLineRunner {
         genomicFeatureXrefs=this.populateXrefs();
         idgGenes=this.populateIdgGeneList();
         dmddImageData=indexerMap.populateDmddImagedData(dmddDataFilename);
+        dmddLethalData = indexerMap.populateDmddLethalData(dmddDataFilename);
         
     }
 
