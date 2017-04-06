@@ -90,13 +90,13 @@ public class IndexerMap {
 	public Map<String, List<DmddDataUnit>> populateDmddImagedData(String embryoViewerFilename) {
     	DmddRestGetter dmddGetter=new DmddRestGetter(embryoViewerFilename);
     	
-		DmddRestData restData=null;
+		
 		try {
-			restData = dmddGetter.getEmbryoRestData();
+			dmddRestData = dmddGetter.getEmbryoRestData();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		List<DmddDataUnit> imaged = restData.getImaged();
+		List<DmddDataUnit> imaged = dmddRestData.getImaged();
 		Map<String,List<DmddDataUnit>> mgiToDmddImagedMap=new HashMap<>();
 		for(DmddDataUnit strain: imaged){
 			String mgi=strain.getGeneAccession();
