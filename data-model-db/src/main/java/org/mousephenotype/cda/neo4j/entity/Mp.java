@@ -1,4 +1,4 @@
-package uk.ac.ebi.phenotype.repository;
+package org.mousephenotype.cda.neo4j.entity;
 
 /**
  * Created by ckchen on 28/03/2017.

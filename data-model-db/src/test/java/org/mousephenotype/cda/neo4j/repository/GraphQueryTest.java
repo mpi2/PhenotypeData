@@ -1,7 +1,12 @@
-package uk.ac.ebi.phenotype.repository;
+package org.mousephenotype.cda.neo4j.repository;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mousephenotype.cda.db.TestConfig;
+import org.mousephenotype.cda.neo4j.entity.Allele;
+import org.mousephenotype.cda.neo4j.entity.DiseaseModel;
+import org.mousephenotype.cda.neo4j.entity.Gene;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,9 +25,9 @@ import java.util.List;
  */
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
-@ContextConfiguration(classes = {Neo4jConfig.class})
-@EnableNeo4jRepositories(basePackages = "uk.ac.ebi.phenotype.repository")
+@EnableNeo4jRepositories(basePackages = "org.mousephenotype.cda.neo4j.repository")
 @Transactional
+@ContextConfiguration(classes = {TestConfig.class, Neo4jConfig.class})
 public class GraphQueryTest {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -60,7 +65,7 @@ public class GraphQueryTest {
     @Autowired
     MouseModelRepository mouseModelRepository;
 
-    //@Before
+    @Before
     public void before() {
 
         Gene g = new Gene();
@@ -98,7 +103,7 @@ public class GraphQueryTest {
 
     }
 
-   // @Test
+    @Test
     public void testTraverseDiseaseModelRepository() throws Exception {
         DiseaseModel testDiseaseModelFind = diseaseModelRepository.findByDiseaseId("TEST_DISEASE");
 
@@ -118,20 +123,22 @@ public class GraphQueryTest {
         assert (d.size() > 0);
     }
 
-    @Test
+    //@Test
     public void graphQueryTest() throws Exception {
 
         List<String> markerSymbols = Arrays.asList("Nxn","Dst");
         for(String ms : markerSymbols) {
-            List<DiseaseModel> d = diseaseModelRepository.findByAllele_Gene_MarkerSymbol(ms);
-            System.out.println("Disease models found "+ d.size());
-            for (DiseaseModel d1 : d) {
-                System.out.println("Gene symbol: " + d1.getGene().getMarkerSymbol());
-                System.out.println("MGI Acc: "+ d1.getGene().getMgiAccessionId());
-                System.out.println("Disease: " + d1.getDiseaseTerm());
-                System.out.println("allele:"+ d1.getAllele());
-            }
-
+//            List<DiseaseModel> d = diseaseModelRepository.findByAllele_Gene_MarkerSymbol(ms);
+//
+//            System.out.println("Disease models found "+ d.size());
+//            for (DiseaseModel d1 : d) {
+//                System.out.println("Gene symbol: " + d1.getGene().getMarkerSymbol());
+//                System.out.println("MGI Acc: "+ d1.getGene().getMgiAccessionId());
+//                System.out.println("Disease: " + d1.getDiseaseTerm());
+//                System.out.println("allele:"+ d1.getAllele());
+//            }
+            Gene g = geneRepository.findByMarkerSymbol(ms);
+            System.out.println(g.toString());
 
         }
     }

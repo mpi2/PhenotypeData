@@ -12,13 +12,13 @@ import javax.sql.DataSource;
  */
 public class DataSourceConfig {
 
-
-    // database connections
-    @Bean
-    @Primary
-    @ConfigurationProperties(prefix = "datasource.komp2")
-    public DataSource komp2DataSource() {
-        return DataSourceBuilder.create().driverClassName("com.mysql.jdbc.Driver").build();
-    }
+//
+//    // database connections
+//    @Bean
+//    @Primary
+//    @ConfigurationProperties(prefix = "datasource.komp2")
+//    public DataSource komp2DataSource() {
+//        return DataSourceBuilder.create().driverClassName("com.mysql.jdbc.Driver").build();
+//    }
 
 }
