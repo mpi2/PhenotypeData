@@ -40,7 +40,7 @@
         </c:if>
         
         <c:if test="${gene.dmddImagedDataAvailable}">
-            <a id="embryoViewerBtn" class="btn" href="https://dmdd.org.uk/mutants/{gene.markerSymbol}">DMDD Imaging</a>
+            <a id="DmddViewerBtn" class="btn" href="https://dmdd.org.uk/mutants/{gene.markerSymbol}">DMDD Imaging</a>
         </c:if>
 
         <c:if test="${hasVignette}">
