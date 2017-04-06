@@ -136,6 +136,35 @@ public class AdvancedSearchController {
         return "batchQuery3";
     }
 
+    @RequestMapping(value = "/dataTableNeo4jBq", method = RequestMethod.POST)
+    public ResponseEntity<String> dataTableNeo4jBq(
+            @RequestParam(value = "idlist", required = true) String idlistStr,
+            @RequestParam(value = "datatypeProperty", required = true) String datatypeProperty,
+            @RequestParam(value = "dataType", required = true) String dataType,
+            HttpServletRequest request,
+            HttpServletResponse response,
+            Model model) throws IOException, URISyntaxException, SolrServerException {
+
+        System.out.println("dataType: " +  dataType);;
+        System.out.println("idlist: " + idlistStr);
+        JSONObject dp = (JSONObject) JSONSerializer.toJSON(datatypeProperty);
+        System.out.println("Labels: "+ dp.keySet());
+
+        if (dataType.equals("geneChr")){
+            // convert coordiantes range to list of mouse gene ids
+            String[] parts = idlistStr.replaceAll("\"","").split(":");
+            String chr = parts[0].replace("chr","");
+            String[] se = parts[1].split("-");
+            String start = se[0];
+            String end = se[1];
+            String mode = "nonExport";
+            List<String> geneIds = solrIndex.fetchQueryIdsFromChrRange(chr, start, end, mode);
+            idlistStr = StringUtils.join(geneIds, ",");
+        }
+
+        return null;
+    }
+
     @RequestMapping(value = "/dataTable_bq2", method = RequestMethod.POST)
     public ResponseEntity<String> bqDataTableJson2(
             @RequestParam(value = "idlist", required = true) String idlistStr,
