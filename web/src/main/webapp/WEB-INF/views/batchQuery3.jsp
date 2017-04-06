@@ -581,18 +581,15 @@
                 addChomosomeRangerFilter();
 
                 $('button#clearAllDt').click(function(){
-//                    $('fieldset').each(function(){
-//                        var nodeId = $(this).attr('id');
-//                        var nodeType = mapinputId2NodeType($('input.bq:checked').attr('id'));
-//                        if (nodeId == 'chrosomose'){
-//                            $(this).hide();
-//                        }
-//                        else if (nodeId != nodeType){
-//                            $(this).remove();
-//						}
-//					});
+                    var nodeType = mapInputId2NodeType($('input.bq:checked').attr('id'));
                     for(var c=0; c<selectedCircles.length; c++){
-                        selectedCircles[c].click();
+                        if (selectedCircles[c].data('id') != nodeType) {
+                            var circle = selectedCircles[c];
+                            selectedCircles.slice(c, 1);
+                            // now remove color and filter
+							circle.attr({"stroke":"black", "stroke-width": 1});
+                            removeDatatypeFilters(circle.data("id"));
+                        }
                     }
 //                paper.forEach(function (el) {
 //                });
@@ -605,7 +602,7 @@
                 $('input#mouseMarkerSymbol').prop("checked", true) // check datatyep ID as gene by default
                 $('textarea#pastedList').val($('input#mouseMarkerSymbol').attr("value"));
 
-                var nodeType = mapinputId2NodeType($('input.bq:checked').attr('id'));
+                var nodeType = mapInputId2NodeType($('input.bq:checked').attr('id'));
 				drawnCircles[nodeType].click();
 
                 var currDataType  = false;
@@ -625,7 +622,7 @@
                 // fetch dynamic data fields as radios
                 $('input.bq').click(function(){
 
-                    var nodeType = mapinputId2NodeType($('input.bq:checked').attr('id'));
+                    var nodeType = mapInputId2NodeType($('input.bq:checked').attr('id'));
                     $('button#clearAllDt').click(); // clear first
                     drawnCircles[nodeType].click();
 
@@ -650,13 +647,13 @@
 
                         //when input change, update $('textarea#pastedList')
                         $('select#chrSel').change(function() {
+                            console.log('chr changed')
                             var chrStart = $('input#rstart').val() == "" ? "empty" : $('input#rstart').val();
                             var chrEnd = $('input#rend').val() == "" ? "empty" : $('input#rend').val();
                             $('textarea#pastedList').val("chr" + this.value + ":" + chrStart + "-" + chrEnd);
                         });
 
                         $('input#rstart, input#rend').keyup(function() {
-                            console.log("getting " + this.val);
                             var chr = $('select#chrSel').val();
                             var chrStart = $('input#rstart').val() == "" ? "empty" : $('input#rstart').val();
                             var chrEnd = $('input#rend').val() == "" ? "empty" : $('input#rend').val();
@@ -684,30 +681,31 @@
                         return false;
                     }
 
-                    var DatatypeProperty;
+                    var datatypeProperty;
                     if ($('fieldset input:checked').length == 0){
-                        alert('Oops, datatype filter is not checked...');
+                        alert('Oops, customized output filter is not checked...');
                         return false;
                     }
                     else {
-                        DatatypeProperty = fetchDatatypeProperties();
+                        datatypeProperty = fetchDatatypeProperties();
+                        if ( datatypeProperty == false){
+                            return false;
+                        }
                     }
 
                     var idList = parsePastedList($('textarea#pastedList').val(), currDataType);
 
                     var oConf = {};
                     oConf.idlist = idList;
-                    oConf.DatatypeProperty = DatatypeProperty;
-                    oConf.dataType = mapinputId2NodeType($('input.bq:checked').attr('id'));
-                    //fetchBatchQueryDataTable(oConf)
+                    oConf.datatypeProperty = datatypeProperty;
+                    oConf.dataType = mapInputId2NodeType($('input.bq:checked').attr('id'));
 
-                    console.log(oConf);
+                    //console.log(oConf);
+
+                    refreshResult(); // refresh first
+//
+                    fetchBatchQueryDataTable(oConf);
                     return false;
-//
-//                        refreshResult(); // refresh first
-//
-//
-
                 });
 
                 function connectCircle(id1, id2) {
@@ -749,52 +747,76 @@
                     return "M" + x1 + "," + y1 + "L" + x2 + "," + y2;
                 }
 
-                function fetchDatatypeProperties(){
+                function fetchDatatypeProperties() {
 
                     var kv = {};
-                    $('fieldset input:checked').each(function() {
+                    $('fieldset input:checked').each(function () {
                         var dataType = $(this).parent().attr('id');
                         var property = $(this).val();
                         console.log(dataType + " --- " + property);
 
-                        if (! kv.hasOwnProperty(dataType)){
+                        if (!kv.hasOwnProperty(dataType)) {
                             kv[dataType] = [];
                         }
                         kv[dataType].push(property);
 
                     });
 
-                    if ($('fieldset#chromosome').size() == 1){
-                        // check if chr. range is available
-                        var chrId =  $('select#chrSel').val();
-                        var chrStart =  $('input#rstart').val();
+                    if ($('input.bq:checked').attr('id') == "geneChr") {
+                        var chrId = $('select#chrSel').val();
+                        var chrStart = $('input#rstart').val();
                         var chrEnd = $('input#rend').val();
+                        kv = checkChrCoords(chrId, chrStart, chrEnd, kv);
+                        if ( kv == false){
+                            return false;
+                        }
+                    }
 
+                    if ($('fieldset#chromosome').is(":visible")) {
+                        var chrId = $('select#chrSel2').val();
+                        var chrStart = $('input#rstart2').val();
+                        var chrEnd = $('input#rend2').val();
                         console.log(chrId + " - " + chrStart + " - " + chrEnd);
-                        if (chrStart + chrEnd == ""){
+                        if (chrStart + chrEnd == "") {
                             console.log('empty: ignore');
                         }
-                        else  if (chrStart == 0 || chrEnd == 0){
-                            alert("ERROR: chromosome coordinate cannot be 0");
-                        }
-                        else if (! $.isNumeric(chrStart) || ! $.isNumeric(chrEnd)){
-                            alert("ERROR: chromosome coordinate must be numeric");
-                        }
-                        else if (chrStart == chrEnd){
-                            alert("ERROR: chromosome start and end cannot be the same");
-                        }
-                        else if (parseInt(chrStart) > parseInt(chrEnd)){
-                            alert("ERROR: chromosome range is not right");
-                        }
                         else {
-                            kv["chr"] = [chrId, chrStart, chrEnd];
+                            kv = checkChrCoords(chrId, chrStart, chrEnd, kv); // returns filters
+                            if ( kv == false){
+                                return false;
+                            }
                         }
                     }
 
                     return kv;
                 }
 
-                function mapinputId2NodeType(key){
+
+                function checkChrCoords(chrId, chrStart, chrEnd, kv){
+
+                    if (chrStart == 0 || chrEnd == 0){
+                        alert("ERROR: chromosome coordinate cannot be 0");
+                        return false;
+                    }
+                    else if (! $.isNumeric(chrStart) || ! $.isNumeric(chrEnd)){
+                        alert("ERROR: chromosome coordinate must be numeric");
+                        return false;
+                    }
+                    else if (chrStart == chrEnd){
+                        alert("ERROR: chromosome start and end cannot be the same");
+                        return false;
+                    }
+                    else if (parseInt(chrStart) > parseInt(chrEnd)){
+                        alert("ERROR: chromosome range is not right");
+                        return false;
+                    }
+                    else {
+                        kv["chr"] = [chrId, chrStart, chrEnd];
+                        return kv;
+                    }
+                }
+
+                function mapInputId2NodeType(key){
                     var map = {
                         "mouseMarkerSymbol":"Gene",
                         "mouseGeneId":"Gene",
@@ -1005,73 +1027,73 @@
 
                 function submitPastedList(){
 
-                    // verify chromosome coords
-                    if ($('input.bq:checked').attr('id') == "geneChr"){
-                        var chr = $('select#chrSel').val();
-                        $.ajax({
-                            url: baseUrl + '/chrlen?chr=' + chr,
-                            success: function(chrlen) {
-
-                                var easyReadChrLen = chrlen.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-
-                                console.log("chr range check " + chrlen);
-                                var chrStart = $('input#rstart').val();
-                                var chrEnd = $('input#rend').val();
-
-                                console.log("check: "+ chrStart > chrEnd);
-                                if (! chrStart.match(/^\d+$/)){
-                                    alert("ERROR: start coordinate should be integer");
-                                }
-                                else if (! chrEnd.match(/^\d+$/)) {
-                                    alert("ERROR: end coordinate should be integer");
-                                }
-                                else if (chrStart > chrEnd){
-                                    alert("ERROR: start coord is larger than end coord");
-                                }
-                                else if (chrStart == chrEnd){
-                                    alert("ERROR: start coord is same as end coord");
-                                }
-                                else if (chrStart > chrlen) {
-                                    alert("ERROR: start coord exceeds chromosome range: " + easyReadChrLen);
-                                }
-                                else if (chrEnd > chrlen) {
-                                    alert("ERROR: end coord exceeds chromosome range: " + easyReadChrLen);
-                                }
-                                else if (chrStart < 1 || chrEnd < 1){
-                                    alert("ERROR: coordinate cannot be less than 1");
-                                }
-                                return false;
-                            },
-                            error: function() {
-                                window.alert('AJAX error trying to fetch length of chromosome' + chr);
-                            }
-                        });
-                    }
-
-                    if ( $('textarea#pastedList').val() == ''){
-                        alert('Oops, search keyword is missing...');
-                    }
-                    else {
-
-                        refreshResult(); // refresh first
-
-                        var currDataType = $('input.bq:checked').attr('id');
-                        var idList = parsePastedList($('textarea#pastedList').val(), currDataType);
-
-                        if ( idList !== false ){
-                            var kv = fetchSelectedFieldList();
-
-                            prepare_dataTable(kv.fllist);
-
-                            var oConf = {};
-                            oConf.idlist = idList;
-                            oConf.labelFllist = kv.labelFllist;
-                            oConf.dataType = currDataType;
-
-                            fetchBatchQueryDataTable(oConf);
-                        }
-                    }
-                    return false;
+//                    // verify chromosome coords
+//                    if ($('input.bq:checked').attr('id') == "geneChr"){
+//                        var chr = $('select#chrSel').val();
+//                        $.ajax({
+//                            url: baseUrl + '/chrlen?chr=' + chr,
+//                            success: function(chrlen) {
+//
+//                                var easyReadChrLen = chrlen.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+//
+//                                console.log("chr range check " + chrlen);
+//                                var chrStart = $('input#rstart').val();
+//                                var chrEnd = $('input#rend').val();
+//
+//                                console.log("check: "+ chrStart > chrEnd);
+//                                if (! chrStart.match(/^\d+$/)){
+//                                    alert("ERROR: start coordinate should be integer");
+//                                }
+//                                else if (! chrEnd.match(/^\d+$/)) {
+//                                    alert("ERROR: end coordinate should be integer");
+//                                }
+//                                else if (chrStart > chrEnd){
+//                                    alert("ERROR: start coord is larger than end coord");
+//                                }
+//                                else if (chrStart == chrEnd){
+//                                    alert("ERROR: start coord is same as end coord");
+//                                }
+//                                else if (chrStart > chrlen) {
+//                                    alert("ERROR: start coord exceeds chromosome range: " + easyReadChrLen);
+//                                }
+//                                else if (chrEnd > chrlen) {
+//                                    alert("ERROR: end coord exceeds chromosome range: " + easyReadChrLen);
+//                                }
+//                                else if (chrStart < 1 || chrEnd < 1){
+//                                    alert("ERROR: coordinate cannot be less than 1");
+//                                }
+//                                return false;
+//                            },
+//                            error: function() {
+//                                window.alert('AJAX error trying to fetch length of chromosome' + chr);
+//                            }
+//                        });
+//                    }
+//
+//                    if ( $('textarea#pastedList').val() == ''){
+//                        alert('Oops, search keyword is missing...');
+//                    }
+//                    else {
+//
+//                        refreshResult(); // refresh first
+//
+//                        var currDataType = $('input.bq:checked').attr('id');
+//                        var idList = parsePastedList($('textarea#pastedList').val(), currDataType);
+//
+//                        if ( idList !== false ){
+//                            var kv = fetchSelectedFieldList();
+//
+//                            prepare_dataTable(kv.fllist);
+//
+//                            var oConf = {};
+//                            oConf.idlist = idList;
+//                            oConf.labelFllist = kv.labelFllist;
+//                            oConf.dataType = currDataType;
+//
+//                            fetchBatchQueryDataTable(oConf);
+//                        }
+//                    }
+//                    return false;
                 }
 
                 function refreshResult(){
@@ -1206,7 +1228,7 @@
                 }
 
                 function fetchBatchQueryDataTable(oConf) {
-                    console.log(oConf);
+                    //console.log(oConf);
                     // deals with duplicates and take a max of first 10 records to show the users
                     oConf.idlist = getFirstTenUniqIdsStr(getUniqIdsStr(oConf.idlist));
                     //oConf.idlist = getUniqIdsStr(oConf.idlist);
@@ -1298,7 +1320,7 @@
                             $('body').removeClass('footerToBottom');
                         },
                         "ajax": {
-                            "url": baseUrl + "/dataTable_bq2?",
+                            "url": baseUrl + "/dataTableNeo4jBq?",
                             "data": oConf,
                             "type": "POST",
                             "error": function() {
@@ -1340,8 +1362,7 @@
                     var circle = paper.circle(x, y, r).attr({gradient: '90-#526c7a-#64a0c1'}).toBack();
                     circle.data('id', id);
 
-
-//                    circle.attr(
+                    //                    circle.attr(
 //                        {
 //                            gradient: '90-#526c7a-#64a0c1',
 //                            stroke: '#3b4449',
@@ -1356,26 +1377,24 @@
 
                     drawnCircles[id] = jCircle;
 
-                    var nodeType = mapinputId2NodeType($('input.bq:checked').attr('id'));
-
                     jCircle.click(function () {
-                        if ($(this).attr("stroke") == "darkorange") {
-                            $(this).attr({"stroke":"black", "stroke-width": 1});
 
-                            // do not remove default (relates to input id)
-                            //if (nodeType != circle.data("id")) {
+                        var nodeType = mapInputId2NodeType($('input.bq:checked').attr('id'));
+
+                        if ($(this).attr("stroke") == "darkorange") {
+
+                            // do not remove default dataType and filter (relates to input id)
+                            if (nodeType != circle.data("id")) {
+                                $(this).attr({"stroke":"black", "stroke-width": 1});
                                 removeDatatypeFilters(circle.data("id"));
-                            //}
+                            }
                         }
                         else {
-                            selectedCircles.push(jCircle);
+                            if (! selectedCircles.includes(circle)){
+                                selectedCircles.push(circle);
+							}
                             $(this).attr({"stroke":"darkorange", "stroke-width": 5});
-
-                            // do not add duplicate filter
-                           // if (nodeType != circle.data("id") || drawnCircles.hasOwnProperty(id)) {
-                                addDatatypeFilters(circle.data("id"));
-                           // }
-
+                            addDatatypeFilters(circle.data("id"));
                         }
                     });
 
@@ -1412,7 +1431,7 @@
                         for (var k in objs[i]) {
                             var display = k;
                             var dbproperty = objs[i][k];
-                            console.log(k + " - " + objs[i][k]);
+                            //console.log(k + " - " + objs[i][k]);
                             inputs += '<input type="checkbox" name="' + display + '" value="' + dbproperty + '">' + display;
                         }
                     }
@@ -1455,9 +1474,9 @@
 					}
 
 					var legend = '<legend>Mouse chromosomal range</legend>';
-					var inputs = 'Chr:<select id="chrSel">' + chrSel + '</select>' +
-						'Start: <input id="rstart" type="text" name="chr">' +
-						'End: <input id="rend" type="text" name="chr">';
+					var inputs = 'Chr:<select id="chrSel2">' + chrSel + '</select>' +
+						'Start: <input id="rstart2" type="text" name="chr">' +
+						'End: <input id="rend2" type="text" name="chr">';
 					var filter = '<fieldset id="chromosome">' + legend + inputs + '</fieldset>';
 
 					$('div#bqFilter').append(filter);
@@ -1511,7 +1530,7 @@
 												<td>
 													<input type="radio" id="mouseMarkerSymbol" value="Eg. Car4 or CAR4 (case insensitive). Synonym search supported" name="dataType" class='bq' checked="checked">MGI gene symbol<br>
 													<input type="radio" id="mouseGeneId" value="Eg. MGI:106209" name="dataType" class='bq' >MGI id<br>
-													<input type="radio" id="ensembl" value="Eg.. ENSMUSG00000011257" name="dataType" class='bq'>Ensembl id<br>
+													<input type="radio" id="ensembl" value="Eg. ENSMUSG00000011257" name="dataType" class='bq'>Ensembl id<br>
 													<input type="radio" id="geneChr" value="Eg. chr12:53694976-56714605" name="dataType" class='bq'>Chromosomal coordinates<br>
 													<div id="rangeBox" class="srchBox">
 														Chr:
@@ -1549,17 +1568,6 @@
 														<input id='srchMp' value="search">
 														<i class='fa fa-times'></i>
 													</div>
-
-												</td>
-
-
-													<input type="radio" id="mp" value="Eg. cardiovescular phenotype or MP:0001926" name="dataType" class='bq'>Mouse phenotype <i class="fa fa-info-circle" aria-hidden="true"></i><br>
-													<div class='block srchBox'>
-														<i class='fa fa-search'></i>
-														<input id='srchMp' value="search">
-														<i class='fa fa-times'></i>
-													</div>
-
 												</td>
 											</tr>
 											<tr id="humantr">
@@ -1590,8 +1598,8 @@
 												<p>
 													<form id='pastedIds'>
 														<textarea id='pastedList' rows="5" cols="50"></textarea>
-															<%--<input type="submit" id="pastedlistSubmit" name="" value="Submit" onclick="return submitPastedList()" />--%>
-														<input type="submit" id="pastedlistSubmit" name="" value="Submit" onclick="return submitPastedList()" />
+														<%--<input type="submit" id="pastedlistSubmit" name="" value="Submit" onclick="return submitPastedList()" />--%>
+														<input type="submit" id="pastedlistSubmit" name="" value="Submit" />
 														<input type="reset" name="reset" value="Reset"><p>
 												<p class='notes'>Supports space, comma, tab or new line separated identifier list</p>
 												<p class='notes'>Please DO NOT submit a mix of identifiers from different datatypes</p>
