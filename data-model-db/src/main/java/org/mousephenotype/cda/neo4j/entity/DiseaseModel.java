@@ -1,5 +1,6 @@
-package uk.ac.ebi.phenotype.repository;
+package org.mousephenotype.cda.neo4j.entity;
 
+import org.mousephenotype.cda.neo4j.entity.*;
 import org.neo4j.ogm.annotation.GraphId;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;

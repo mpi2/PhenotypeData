@@ -36,8 +36,8 @@ import java.util.Properties;
  */
 
 @Configuration
-@ComponentScan(value = "org.mousephenotype.cda.db",
-	excludeFilters = @ComponentScan.Filter(type = FilterType.ASPECTJ, pattern = {"org.mousephenotype.cda.db.dao.*OntologyDAO"})
+@ComponentScan(value = {"org.mousephenotype.cda.db","org.mousephenotype.cda.neo4j"},
+	excludeFilters = @ComponentScan.Filter(type = FilterType.ASPECTJ, pattern = {"org.mousephenotype.cda.db.entity.*OntologyDAO"})
 )
 @EnableJpaRepositories
 @EnableTransactionManagement
@@ -79,12 +79,12 @@ public class TestConfig {
 	}
 
 
-	@Bean(name = "sessionFactory")
+	@Bean(name = "sessionFactoryHibernate")
 	@Primary
 	public SessionFactory getSessionFactory() {
 
 		LocalSessionFactoryBuilder sessionBuilder = new LocalSessionFactoryBuilder(h2DataSource());
-		sessionBuilder.scanPackages("org.mousephenotype.cda.db.dao");
+		sessionBuilder.scanPackages("org.mousephenotype.cda.db.entity");
 		sessionBuilder.scanPackages("org.mousephenotype.cda.db.pojo");
 
 		return sessionBuilder.buildSessionFactory();
@@ -94,7 +94,7 @@ public class TestConfig {
 	public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
 		LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
 		em.setDataSource(h2DataSource());
-		em.setPackagesToScan("org.mousephenotype.cda.db.dao", "org.mousephenotype.cda.db.pojo");
+		em.setPackagesToScan("org.mousephenotype.cda.db.entity", "org.mousephenotype.cda.db.pojo");
 
 		JpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
 		em.setJpaVendorAdapter(vendorAdapter);
@@ -149,7 +149,7 @@ public class TestConfig {
 	public SessionFactory getSessionFactoryDcc1() {
 
 		LocalSessionFactoryBuilder sessionBuilder = new LocalSessionFactoryBuilder(dcc1DataSource());
-		sessionBuilder.scanPackages("org.mousephenotype.cda.db.dao");
+		sessionBuilder.scanPackages("org.mousephenotype.cda.db.entity");
 		sessionBuilder.scanPackages("org.mousephenotype.cda.db.pojo");
 
 		return sessionBuilder.buildSessionFactory();
@@ -159,7 +159,7 @@ public class TestConfig {
 	public LocalContainerEntityManagerFactoryBean entityManagerFactoryDcc1() {
 		LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
 		em.setDataSource(dcc1DataSource());
-		em.setPackagesToScan("org.mousephenotype.cda.db.dao", "org.mousephenotype.cda.db.pojo");
+		em.setPackagesToScan("org.mousephenotype.cda.db.entity", "org.mousephenotype.cda.db.pojo");
 
 		JpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
 		em.setJpaVendorAdapter(vendorAdapter);
@@ -203,7 +203,7 @@ public class TestConfig {
 	public SessionFactory getSessionFactorydcc2() {
 
 		LocalSessionFactoryBuilder sessionBuilder = new LocalSessionFactoryBuilder(dcc2DataSource());
-		sessionBuilder.scanPackages("org.mousephenotype.cda.db.dao");
+		sessionBuilder.scanPackages("org.mousephenotype.cda.db.entity");
 		sessionBuilder.scanPackages("org.mousephenotype.cda.db.pojo");
 
 		return sessionBuilder.buildSessionFactory();
@@ -213,7 +213,7 @@ public class TestConfig {
 	public LocalContainerEntityManagerFactoryBean entityManagerFactorydcc2() {
 		LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
 		em.setDataSource(dcc2DataSource());
-		em.setPackagesToScan("org.mousephenotype.cda.db.dao", "org.mousephenotype.cda.db.pojo");
+		em.setPackagesToScan("org.mousephenotype.cda.db.entity", "org.mousephenotype.cda.db.pojo");
 
 		JpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
 		em.setJpaVendorAdapter(vendorAdapter);

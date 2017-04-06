@@ -1,5 +1,6 @@
-package uk.ac.ebi.phenotype.repository;
+package org.mousephenotype.cda.neo4j.repository;
 
+import org.mousephenotype.cda.neo4j.entity.DiseaseModel;
 import org.springframework.data.neo4j.annotation.Depth;
 import org.springframework.data.neo4j.annotation.Query;
 import org.springframework.data.neo4j.repository.Neo4jRepository;

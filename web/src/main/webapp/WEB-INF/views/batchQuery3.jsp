@@ -287,6 +287,12 @@
  		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/raphael/2.2.7/raphael.min.js"></script>
         <script type='text/javascript'>
 
+
+            var selectedCircles = [];
+            var drawnCircles = {};
+            var idsVar = null;
+            var paper = null;
+
             $(document).ready(function () {
                 'use strict';
                 // test only
@@ -359,7 +365,7 @@
                 // Raphael JS stuff
                 //----------------------
 
-                var idsVar = {
+                idsVar = {
                     "Gene": {
                         text: "MGI\nGene",
                         x: 330,
@@ -550,11 +556,8 @@
                     }
                 };
 
-                var selectedCircles = [];
+                paper = new Raphael(document.getElementById('graph'), 300, 230);
 
-                var paper = new Raphael(document.getElementById('graph'), 300, 230);
-
-                var drawnCircles = {};
                 for (var id in idsVar) {
                     var text = id;
                     drawCircle(id, idsVar[id].text, idsVar[id].x, idsVar[id].y, idsVar[id].r, paper);
@@ -587,7 +590,7 @@
                             var circle = selectedCircles[c];
                             selectedCircles.slice(c, 1);
                             // now remove color and filter
-							circle.attr({"stroke":"black", "stroke-width": 1});
+                            circle.attr({"stroke":"black", "stroke-width": 1});
                             removeDatatypeFilters(circle.data("id"));
                         }
                     }
@@ -603,7 +606,7 @@
                 $('textarea#pastedList').val($('input#mouseMarkerSymbol').attr("value"));
 
                 var nodeType = mapInputId2NodeType($('input.bq:checked').attr('id'));
-				drawnCircles[nodeType].click();
+                drawnCircles[nodeType].click();
 
                 var currDataType  = false;
 
@@ -671,43 +674,7 @@
                 $('input#fileupload').val(''); // reset
                 $('input#fulldata').attr('checked', false); // reset
 
-                //----------------------
-                //   submit the form
-                //----------------------
-                $('form#pastedIds').submit(function(){
-
-                    if ( $('textarea#pastedList').val() == ''){
-                        alert('Oops, search keyword is missing...');
-                        return false;
-                    }
-
-                    var datatypeProperty;
-                    if ($('fieldset input:checked').length == 0){
-                        alert('Oops, customized output filter is not checked...');
-                        return false;
-                    }
-                    else {
-                        datatypeProperty = fetchDatatypeProperties();
-                        if ( datatypeProperty == false){
-                            return false;
-                        }
-                    }
-
-                    var idList = parsePastedList($('textarea#pastedList').val(), currDataType);
-
-                    var oConf = {};
-                    oConf.idlist = idList;
-                    oConf.datatypeProperty = datatypeProperty;
-                    oConf.dataType = mapInputId2NodeType($('input.bq:checked').attr('id'));
-
-                    //console.log(oConf);
-
-                    refreshResult(); // refresh first
-//
-                    fetchBatchQueryDataTable(oConf);
-                    return false;
-                });
-
+            });
                 function connectCircle(id1, id2) {
 
                     var x1 = idsVar[id1].x;
@@ -760,6 +727,11 @@
                         }
                         kv[dataType].push(property);
 
+                        if (!kv.hasOwnProperty("properties")) {
+                            kv["properties"] = [];
+                        }
+                        kv["properties"].push(property);
+
                     });
 
                     if ($('input.bq:checked').attr('id') == "geneChr") {
@@ -790,7 +762,6 @@
 
                     return kv;
                 }
-
 
                 function checkChrCoords(chrId, chrStart, chrEnd, kv){
 
@@ -1026,6 +997,39 @@
                 }
 
                 function submitPastedList(){
+                    alert("here")
+
+
+                    if ( $('textarea#pastedList').val() == ''){
+                        alert('Oops, search keyword is missing...');
+                        return false;
+                    }
+//
+                    var datatypeProperty;
+                    if ($('fieldset input:checked').length == 0){
+                        alert('Oops, customized output filter is not checked...');
+                        return false;
+                    }
+                    else {
+                        datatypeProperty = fetchDatatypeProperties();
+                        if ( datatypeProperty == false){
+                            return false;
+                        }
+                    }
+
+                    var currDataType = $('input.bq:checked').attr('id');
+
+                    var idList = parsePastedList($('textarea#pastedList').val(), currDataType);
+
+                    prepare_dataTable(datatypeProperty.properties);
+                    delete datatypeProperty.properties;
+
+                    var oConf = {};
+                    oConf.idlist = idList;
+                    oConf.datatypeProperty = JSON.stringify(datatypeProperty); // no properties key here
+                    oConf.dataType = mapInputId2NodeType(currDataType);
+
+                    fetchBatchQueryDataTable(oConf);
 
 //                    // verify chromosome coords
 //                    if ($('input.bq:checked').attr('id') == "geneChr"){
@@ -1069,7 +1073,7 @@
 //                            }
 //                        });
 //                    }
-//
+
 //                    if ( $('textarea#pastedList').val() == ''){
 //                        alert('Oops, search keyword is missing...');
 //                    }
@@ -1083,7 +1087,8 @@
 //                        if ( idList !== false ){
 //                            var kv = fetchSelectedFieldList();
 //
-//                            prepare_dataTable(kv.fllist);
+//                            //prepare_dataTable(kv.fllist);
+//                            prepare_dataTable("marker_symbol");
 //
 //                            var oConf = {};
 //                            oConf.idlist = idList;
@@ -1093,7 +1098,7 @@
 //                            fetchBatchQueryDataTable(oConf);
 //                        }
 //                    }
-//                    return false;
+                    return false;
                 }
 
                 function refreshResult(){
@@ -1392,7 +1397,7 @@
                         else {
                             if (! selectedCircles.includes(circle)){
                                 selectedCircles.push(circle);
-							}
+                            }
                             $(this).attr({"stroke":"darkorange", "stroke-width": 5});
                             addDatatypeFilters(circle.data("id"));
                         }
@@ -1456,34 +1461,34 @@
 
                 function addChomosomeRangerFilter(){
 
-					// add chromosome range filter
-					var chrs = [];
-					for (var r = 1; r < 20; r++) {
-						chrs.push(r);
-					}
-					chrs.push("X", "Y", "MT");
+                    // add chromosome range filter
+                    var chrs = [];
+                    for (var r = 1; r < 20; r++) {
+                        chrs.push(r);
+                    }
+                    chrs.push("X", "Y", "MT");
 
-					var chrSel = "";
-					for (var i = 0; i < chrs.length; i++) {
-						if (i == 0) {
-							chrSel += '<option value="' + chrs[i] + '" selected="selected">' + chrs[i] + '</option>';
-						}
-						else {
-							chrSel += '<option value="' + chrs[i] + '">' + chrs[i] + '</option>';
-						}
-					}
+                    var chrSel = "";
+                    for (var i = 0; i < chrs.length; i++) {
+                        if (i == 0) {
+                            chrSel += '<option value="' + chrs[i] + '" selected="selected">' + chrs[i] + '</option>';
+                        }
+                        else {
+                            chrSel += '<option value="' + chrs[i] + '">' + chrs[i] + '</option>';
+                        }
+                    }
 
-					var legend = '<legend>Mouse chromosomal range</legend>';
-					var inputs = 'Chr:<select id="chrSel2">' + chrSel + '</select>' +
-						'Start: <input id="rstart2" type="text" name="chr">' +
-						'End: <input id="rend2" type="text" name="chr">';
-					var filter = '<fieldset id="chromosome">' + legend + inputs + '</fieldset>';
+                    var legend = '<legend>Mouse chromosomal range</legend>';
+                    var inputs = 'Chr:<select id="chrSel2">' + chrSel + '</select>' +
+                        'Start: <input id="rstart2" type="text" name="chr">' +
+                        'End: <input id="rend2" type="text" name="chr">';
+                    var filter = '<fieldset id="chromosome">' + legend + inputs + '</fieldset>';
 
-					$('div#bqFilter').append(filter);
+                    $('div#bqFilter').append(filter);
                 }
 
 
-            });
+
 		</script>
 
 
@@ -1598,8 +1603,8 @@
 												<p>
 													<form id='pastedIds'>
 														<textarea id='pastedList' rows="5" cols="50"></textarea>
-														<%--<input type="submit" id="pastedlistSubmit" name="" value="Submit" onclick="return submitPastedList()" />--%>
-														<input type="submit" id="pastedlistSubmit" name="" value="Submit" />
+														<input type="submit" id="pastedlistSubmit" name="" value="Submit" onclick="return submitPastedList()" />
+															<%--<input type="submit" id="pastedlistSubmit" name="" value="Submit" />--%>
 														<input type="reset" name="reset" value="Reset"><p>
 												<p class='notes'>Supports space, comma, tab or new line separated identifier list</p>
 												<p class='notes'>Please DO NOT submit a mix of identifiers from different datatypes</p>

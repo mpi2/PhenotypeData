@@ -1,4 +1,4 @@
-package uk.ac.ebi.phenotype.repository;
+package org.mousephenotype.cda.loads.graph;
 
 import org.mousephenotype.cda.annotations.ComponentScanNonParticipant;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

@@ -1,4 +1,4 @@
-package uk.ac.ebi;
+package org.mousephenotype.cda.loads.graph;
 
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;

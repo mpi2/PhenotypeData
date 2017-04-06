@@ -790,7 +790,7 @@
             }
 
             function submitPastedList(){
-
+alert("do submit query 2")
                 // verify chromosome coords
                 if ($('input.bq:checked').attr('id') == "geneChr"){
                     var chr = $('select#chrSel').val();
