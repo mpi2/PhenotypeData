@@ -138,7 +138,6 @@ public class AnatomogramMapper {
         String xRefId = parser.getXref(cls, crossRefPrefix);
         if (xRefId != null){
             xRefId = xRefId.replace("_", ":");
-            System.out.println("Found xref " + clsId + " " + xRefId) ;
             int currentLevel = 0;
             if (resMap.containsKey(xRefId)) {
 
