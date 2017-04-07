@@ -343,9 +343,6 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
         // Biological details
         addBiologicalData(doc, doc.getMutantBiologicalModelId());
 
-        // MP Terms
-        addMpTermData(r, doc);
-
         BasicBean stage = getDevelopmentalStage(doc.getPipelineStableId(), doc.getProcedureStableId(), doc.getColonyId());
 
         if (stage != null) {
@@ -354,6 +351,9 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
         } else {
             logger.info("  Stage is NULL for doc id" + doc.getDocId());
         }
+
+        // MP Terms must come after setting the stage as it's used for selecting MA or EMAPA
+        addMpTermData(r, doc);
 
         return doc;
     }
