@@ -17,6 +17,7 @@
 package org.mousephenotype.cda.loads.create.load.support;
 
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang.StringUtils;
 import org.mousephenotype.cda.db.pojo.DatasourceEntityId;
 import org.mousephenotype.cda.db.pojo.OntologyTerm;
 import org.mousephenotype.cda.db.pojo.Strain;
@@ -38,7 +39,7 @@ import java.util.Map;
  * <p/>
  * Created by mrelac on 06/09/16. Ported from AdminTools. Original creator: Gautier Koscielny, Feb 2012.
  */
-public class EuroPhenomeStrainMapper {
+public class StrainMapper {
     private CdaSqlUtils cdaSqlUtils;
     private Logger      logger = LoggerFactory.getLogger(this.getClass());
 
@@ -112,7 +113,7 @@ public class EuroPhenomeStrainMapper {
     }
 
     @Inject
-    public EuroPhenomeStrainMapper(CdaSqlUtils cdaSqlUtils) throws DataLoadException {
+    public StrainMapper(CdaSqlUtils cdaSqlUtils) throws DataLoadException {
         this.cdaSqlUtils = cdaSqlUtils;
         initialise();
     }
@@ -177,7 +178,10 @@ public class EuroPhenomeStrainMapper {
     }
 
     /**
-     * Return a reformatted representation based on the string representation of the genetic background as specified in EuroPhenome
+     * Return a reformatted representation based on the string representation of the background strain name
+     * For special cases, we need to standardise the strain name to IMPC nomenclature
+     *
+     * e.g.  BALB/c;129S2/SvPas  -> BALB/c * 129S2/SvPas
      *
      * @param backgroundStrainName the raw background strain name, as provided by the dcc
      *
@@ -185,20 +189,9 @@ public class EuroPhenomeStrainMapper {
      *
      * @throws DataLoadException
      */
-    public String filterEuroPhenomeGeneticBackground(String backgroundStrainName) throws DataLoadException {
-
-        List<Strain> strains           = getGeneticBackgroundStrains(backgroundStrainName);
-        String       geneticBackground = "involves: ";
-        int          cBg               = 0;
-        for (Strain strain : strains) {
-            if (strain == null)
-                continue;
-
-            geneticBackground += ((cBg > 0) ? " * " + strain.getName() : strain.getName());
-            cBg++;
-        }
-
-        return geneticBackground;
+    public String parseMultipleBackgroundStrainNames(String backgroundStrainName) throws DataLoadException {
+        List<Strain> strains           = getBackgroundStrains(backgroundStrainName);
+        return StringUtils.join(strains, " * ");
     }
 
     /**
@@ -208,7 +201,7 @@ public class EuroPhenomeStrainMapper {
      *
      * @throws DataLoadException if a strain is not found
      */
-    private List<Strain> getGeneticBackgroundStrains(String backgroundStrainName) throws DataLoadException {
+    private List<Strain> getBackgroundStrains(String backgroundStrainName) throws DataLoadException {
 
         List<Strain> strains     = new ArrayList<>();
         String[]     intermediateBackgrounds;

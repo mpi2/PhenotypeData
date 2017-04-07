@@ -57,6 +57,9 @@ public class Strain {
 		super();
 	}
 
+	public String getGeneticBackground() {
+		return "involves: " + this.name;
+	}
 
 	/**
 	 * @return the synonyms
