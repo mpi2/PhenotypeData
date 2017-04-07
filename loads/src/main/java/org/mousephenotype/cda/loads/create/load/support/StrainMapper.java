@@ -17,7 +17,6 @@
 package org.mousephenotype.cda.loads.create.load.support;
 
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.lang.StringUtils;
 import org.mousephenotype.cda.db.pojo.DatasourceEntityId;
 import org.mousephenotype.cda.db.pojo.OntologyTerm;
 import org.mousephenotype.cda.db.pojo.Strain;
@@ -33,6 +32,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * StrainNames is a curated set of strains for EuroPhenome data.
@@ -191,7 +191,7 @@ public class StrainMapper {
      */
     public String parseMultipleBackgroundStrainNames(String backgroundStrainName) throws DataLoadException {
         List<Strain> strains           = getBackgroundStrains(backgroundStrainName);
-        return StringUtils.join(strains, " * ");
+        return strains.stream().map(Strain::getName).collect(Collectors.joining(" * "));
     }
 
     /**
