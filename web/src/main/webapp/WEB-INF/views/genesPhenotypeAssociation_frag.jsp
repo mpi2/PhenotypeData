@@ -39,9 +39,9 @@
             <a id="embryoViewerBtn" class="btn" href="${drupalBaseUrl}/embryoviewer/?mgi=${acc}">3D Embryo Imaging</a>
         </c:if>
         
-        <c:if test="${gene.dmddImagedDataAvailable}">
-            <a id="DmddViewerBtn" class="btn" href="https://dmdd.org.uk/mutants/{gene.markerSymbol}">DMDD Imaging</a>
-        </c:if>
+        <%--<c:if test="${gene.dmddImagedDataAvailable}">--%>
+            <%--<a id="DmddViewerBtn" class="btn" href="https://dmdd.org.uk/mutants/{gene.markerSymbol}">DMDD Imaging</a>--%>
+        <%--</c:if>--%>
 
         <c:if test="${hasVignette}">
             <a class="btn" href="${baseUrl}/embryo/vignettes#${acc}">Embryo Vignette</a>
