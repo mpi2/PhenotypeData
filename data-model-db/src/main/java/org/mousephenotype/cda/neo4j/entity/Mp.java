@@ -36,7 +36,6 @@ public class Mp {
     @Relationship(type="MP_PARENT_ID", direction=Relationship.OUTGOING)
     private Set<Mp> mpParentIds;
 
-
     public Long getId() {
         return id;
     }

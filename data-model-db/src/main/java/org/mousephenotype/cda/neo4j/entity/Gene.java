@@ -21,8 +21,8 @@ public class Gene {
     private String markerSymbol;
     private String markerName;
     private String chrId;
-    private String chrStart;
-    private String chrEnd;
+    private int chrStart;
+    private int chrEnd;
     private String chrStrand;
 
     @Relationship(type = "ENSEMBL_GENE_ID", direction = Relationship.OUTGOING)
@@ -94,19 +94,19 @@ public class Gene {
         this.chrId = chrId;
     }
 
-    public String getChrStart() {
+    public int getChrStart() {
         return chrStart;
     }
 
-    public void setChrStart(String chrStart) {
+    public void setChrStart(int chrStart) {
         this.chrStart = chrStart;
     }
 
-    public String getChrEnd() {
+    public int getChrEnd() {
         return chrEnd;
     }
 
-    public void setChrEnd(String chrEnd) {
+    public void setChrEnd(int chrEnd) {
         this.chrEnd = chrEnd;
     }
 
@@ -183,13 +183,13 @@ public class Gene {
                 ", markerSymbol='" + markerSymbol + '\'' +
                 ", markerName='" + markerName + '\'' +
                 ", chrId='" + chrId + '\'' +
-                ", chrStart='" + chrStart + '\'' +
-                ", chrEnd='" + chrEnd + '\'' +
+                ", chrStart=" + chrStart +
+                ", chrEnd=" + chrEnd +
                 ", chrStrand='" + chrStrand + '\'' +
                 ", ensemblGeneIds=" + ensemblGeneIds +
                 ", markerSynonyms=" + markerSynonyms +
                 ", humanGeneSymbols=" + humanGeneSymbols +
-                ", alleles=" + alleles.stream().map(Allele::getAlleleSymbol).collect(Collectors.toList()) +
+                ", alleles=" + alleles +
                 ", diseaseGenes=" + diseaseGenes +
                 ", mousePhenotypes=" + mousePhenotypes +
                 ", humanPhenotypes=" + humanPhenotypes +

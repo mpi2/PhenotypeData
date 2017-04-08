@@ -15,11 +15,14 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.web.controller;
 
+import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import net.sf.json.JSONSerializer;
 
+import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.mousephenotype.cda.neo4j.entity.*;
 import org.mousephenotype.cda.neo4j.repository.*;
 import org.mousephenotype.cda.solr.generic.util.Tools;
 import org.mousephenotype.cda.solr.service.SolrIndex;
@@ -31,6 +34,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -45,13 +49,16 @@ import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.URISyntaxException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
-
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Controller
 @PropertySource("file:${user.home}/configfiles/${profile}/application.properties")
@@ -106,6 +113,7 @@ public class AdvancedSearchController {
     @Autowired
     MouseModelRepository mouseModelRepository;
 
+    private String NA = "not available";
 
     @RequestMapping(value="/meshtree", method=RequestMethod.GET)
     public String loadmeshtreePage(
@@ -162,7 +170,7 @@ public class AdvancedSearchController {
     }
 
 
-    @RequestMapping(value = "/dataTableNeo4jBq", method = RequestMethod.POST)
+    @RequestMapping(value = "/dataTable_bq2", method = RequestMethod.POST)
     public ResponseEntity<String> dataTableNeo4jBq(
             @RequestParam(value = "idlist", required = true) String idlistStr,
             @RequestParam(value = "datatypeProperty", required = true) String datatypeProperty,
@@ -174,6 +182,7 @@ public class AdvancedSearchController {
         System.out.println("dataType: " +  dataType);;
         System.out.println("idlist: " + idlistStr);
         JSONObject dp = (JSONObject) JSONSerializer.toJSON(datatypeProperty);
+        Set<String> labels = dp.keySet();
         System.out.println("Labels: "+ dp.keySet());
 
         if (dataType.equals("geneChr")){
@@ -188,36 +197,261 @@ public class AdvancedSearchController {
             idlistStr = StringUtils.join(geneIds, ",");
         }
 
+//        String cypher = null;
+//        if (labels.size() == 2 && labels.contains("Gene") && labels.contains("Allele")){
+//            cypher = "MATCH (g:Gene)-[:ALLELE]->(a:Allele)"
+//        }
+
         return null;
     }
 
-    @RequestMapping(value = "/dataTable_bq2", method = RequestMethod.POST)
+    @RequestMapping(value = "/dataTableNeo4jBq", method = RequestMethod.POST)
     public ResponseEntity<String> bqDataTableJson2(
             @RequestParam(value = "idlist", required = true) String idlistStr,
-            @RequestParam(value = "labelFllist", required = true) String labelFllistStr,
+            @RequestParam(value = "properties", required = true) String properties,
+            @RequestParam(value = "datatypeProperties", required = true) String datatypeProperties,
+            @RequestParam(value = "childLevel", required = false) int childLevel,
+            @RequestParam(value = "regionId", required = false) String regionId,
+            @RequestParam(value = "regionStart", required = false) int regionStart,
+            @RequestParam(value = "regionEnd", required = false) int regionEnd,
             @RequestParam(value = "dataType", required = true) String dataType,
             HttpServletRequest request,
             HttpServletResponse response,
-            Model model) throws IOException, URISyntaxException, SolrServerException {
+            Model model) throws Exception {
 
         System.out.println("dataType: " +  dataType);;
-        System.out.println("idlist: " + idlistStr);
-        JSONObject jLabelFieldsParam = (JSONObject) JSONSerializer.toJSON(labelFllistStr);
-        System.out.println("Labels: "+ jLabelFieldsParam.keySet());
 
-        if (dataType.equals("geneChr")){
-            // convert coordiantes range to list of mouse gene ids
-            String[] parts = idlistStr.replaceAll("\"","").split(":");
-            String chr = parts[0].replace("chr","");
-            String[] se = parts[1].split("-");
-            String start = se[0];
-            String end = se[1];
-            String mode = "nonExport";
-            List<String> geneIds = solrIndex.fetchQueryIdsFromChrRange(chr, start, end, mode);
-            idlistStr = StringUtils.join(geneIds, ",");
+        if (dataType.equals("EnsemblGeneId")){
+            dataType = "Gene";
         }
 
-        return null;
+        JSONObject jDatatypeProperties = (JSONObject) JSONSerializer.toJSON(datatypeProperties);
+        System.out.println(jDatatypeProperties.toString());
+
+        Set<String> labels = new LinkedHashSet<>(jDatatypeProperties.keySet());
+        System.out.println("Labels: "+ labels);
+
+        Set<String> idlist = new LinkedHashSet<>(Arrays.asList(idlistStr.split(",")));
+        System.out.println("idlist: " + idlistStr);
+
+        String content = null;
+
+        if (idlistStr.matches("^chr(\\w*):(\\d+)-(\\d+)$")) {
+            System.out.println("find chr range");
+
+            Pattern pattern = Pattern.compile("^chr(\\w*):(\\d+)-(\\d+)$");
+            Matcher matcher = pattern.matcher(idlistStr);
+            String chr = null;
+            String start = null;
+            String end = null;
+
+            // convert coordiantes range to list of mouse gene ids
+            while(matcher.find()) {
+                System.out.println("found: " + matcher.group(1));
+                chr = matcher.group(1);
+                start = matcher.group(2);
+                end = matcher.group(3);
+            }
+
+            String mode = "nonExport";
+            idlist = new HashSet<>(solrIndex.fetchQueryIdsFromChrRange(chr, start, end, mode));
+            System.out.println(idlist);
+        }
+
+        content = fetchGraphData(dataType, idlist, labels, jDatatypeProperties, properties, regionId, regionStart, regionEnd, childLevel);
+
+        return new ResponseEntity<String>(content, createResponseHeaders(), HttpStatus.CREATED);
+    }
+
+    public String fetchGraphData(String dataType, Set<String> mouseSrchKw, Set<String> labels, JSONObject jDatatypeProperties, String properties, String regionId, int regionStart, int regionEnd, int childLevel) throws Exception {
+
+        List<String> cols = new ArrayList<>();
+        for (String property : properties.split(",")){
+            cols.add(property);
+        }
+
+        int rowCount = 0;
+        JSONObject j = new JSONObject();
+        j.put("aaData", new Object[0]);
+
+        for(String kw : mouseSrchKw) {
+
+            Map<String, Set<String>> colValMap = new HashedMap();
+            rowCount++;
+
+            System.out.println("Working on " + kw);
+
+            List<Object> objs = null;
+            if (kw.startsWith("MGI:")){
+                objs = geneRepository.findDataByMgiId(kw);
+            }
+            else if (dataType.equals("Gene")) {
+                objs = geneRepository.findDataByMarkerSymbol(kw);
+            }
+            else if (kw.startsWith("ENSMUSG")){
+                objs = ensemblGeneIdRepository.findDataByEnsemblGeneId(kw);
+            }
+            else if (kw.startsWith("MP:") && !regionId.isEmpty()) {
+                objs = mpRepository.findDataByMpIdChrRange(kw, regionId, regionStart, regionEnd);
+            }
+//            else if (kw.startsWith("MP:") && !regionId.isEmpty() && childLevel != 0){
+//                objs = mpRepository.findDataByMpIdWithChildrenChrRange(kw, regionId, regionStart, regionEnd);
+//            }
+            else if (kw.startsWith("MP:")){
+                objs = mpRepository.findDataByMpId(kw);
+            }
+
+            else if (dataType.equals("Mp")) {
+                objs = mpRepository.findDataByMpTerm(kw);
+            }
+
+
+
+            System.out.println("Data objects found: "+ objs.size());
+
+
+            for (Object obj : objs) {
+                String className = obj.getClass().getSimpleName();
+
+                if (jDatatypeProperties.containsKey(className)) {
+
+                    System.out.println("className: " + className);
+
+                    List<String> nodeProperties = jDatatypeProperties.getJSONArray(className);
+
+                    if (className.equals("Gene")) {
+                        Gene g = (Gene) obj;
+                        getValues(nodeProperties, g, colValMap);  // convert to class ???
+                    }
+                    else if (className.equals("EnsemblGeneId")) {
+                        EnsemblGeneId ensg = (EnsemblGeneId) obj;
+                        getValues(nodeProperties, ensg, colValMap);
+                    }
+                    else if (className.equals("MarkerSynonym")) {
+                        MarkerSynonym m = (MarkerSynonym) obj;
+                        getValues(nodeProperties, m, colValMap);
+                    }
+                    else if (className.equals("HumanGeneSymbol")) {
+                        HumanGeneSymbol hg = (HumanGeneSymbol) obj;
+                        getValues(nodeProperties, hg, colValMap);
+                    }
+                    else if (className.equals("DiseaseModel")) {
+                        DiseaseModel dm = (DiseaseModel) obj;
+                        getValues(nodeProperties, dm, colValMap);
+                    }
+                    else if (className.equals("MouseModel")) {
+                        MouseModel mm = (MouseModel) obj;
+                        getValues(nodeProperties, mm, colValMap);
+                    }
+                    else if (className.equals("Allele")) {
+                        Allele allele = (Allele) obj;
+                        getValues(nodeProperties, allele, colValMap);
+                    }
+                    else if (className.equals("Mp")) {
+                        Mp mp = (Mp) obj;
+                        getValues(nodeProperties, mp, colValMap);
+                    }
+                    else if (className.equals("OntoSynonym")) {
+                        OntoSynonym mpsyn = (OntoSynonym) obj;
+                        getValues(nodeProperties, mpsyn, colValMap);
+                    }
+                    else if (className.equals("Hp")) {
+                        Hp hp = (Hp) obj;
+                        getValues(nodeProperties, hp, colValMap);
+                    }
+                }
+            }
+            System.out.println("About to prepare for rows");
+
+
+            List<String> rowData = new ArrayList<>();
+            for (String col : cols){
+
+                if (colValMap.containsKey(col)) {
+                    List<String> vals = new ArrayList<>(colValMap.get(col));
+
+                    int valSize = vals.size();
+
+                    if (valSize > 2) {
+                        // add showmore
+                        vals.add("<button rel=" + valSize + " class='showMore'>show all (" + valSize + ")</button>");
+                    }
+                    if (valSize == 1) {
+                        rowData.add(StringUtils.join(vals, ""));
+                    } else {
+                        rowData.add("<ul>" + StringUtils.join(vals, "") + "</ul>");
+                    }
+
+                    System.out.println("col: " + col);
+                    if (col.equals("ontoSynonym")) {
+                        System.out.println(col + " -- " + vals);
+                    }
+                }
+                else {
+                    rowData.add(NA);
+                }
+
+            }
+            j.getJSONArray("aaData").add(rowData);
+
+        }
+
+        System.out.println("rows done");
+
+        j.put("iTotalRecords", rowCount);
+        j.put("iTotalDisplayRecords", rowCount);
+
+
+        return j.toString();
+    }
+
+    public void getValues(List<String> nodeProperties, Object o, Map<String, Set<String>> colValMap) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+
+        int showCutOff = 3;
+
+        for(String property : nodeProperties) {
+
+            if (property.equals("topLevelMpId")){
+                property = "topLevelStatus";
+            }
+
+
+            char first = Character.toUpperCase(property.charAt(0));
+            String property2 = first + property.substring(1);
+            System.out.println("property: " + property);
+
+
+
+            Method method = o.getClass().getMethod("get"+property2);
+            if (! colValMap.containsKey(property)) {
+                colValMap.put(property, new LinkedHashSet<>());
+            }
+            String colVal = NA;
+
+            if (method.invoke(o) == null){
+                System.out.println(property + " is null");
+            }
+
+            try {
+                colVal = method.invoke(o).toString();
+
+                if (property.equals("alleleSymbol")){
+                    colVal = Tools.superscriptify(colVal);
+                }
+
+
+                System.out.println(property + " : " +  colVal);
+
+            } catch(Exception e) {
+                System.out.println(property + " set to " + colVal);
+            }
+
+
+            if (! colVal.isEmpty()) {
+                colValMap.get(property).add("<li>" + colVal + "</li>");
+            }
+        }
+
     }
 
     public String lowercaseListStr(String idlist) {

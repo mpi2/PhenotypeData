@@ -50,7 +50,7 @@ public class Neo4jConfig {
 
     @Bean
     public SessionFactory sessionFactory() {
-        return new SessionFactory(getConfiguration(), "org.mousephenotype.cda.neo4j.repository");
+        return new SessionFactory(getConfiguration(), "org.mousephenotype.cda.neo4j");
     }
 
     @Bean
