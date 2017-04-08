@@ -45,7 +45,7 @@
 				height: 10px;
 				width: 60px;
 			}
-			fieldset#chromosome {
+			fieldset#chromosome, fieldset#mpLevel {
 				display: none;
 			}
 			div#tableTool {
@@ -53,21 +53,40 @@
 				top: -70px;
 				right: 0px;
 			}
-			table#dataInput td:first-child {
-				width: 90px;
-				max-width: 90px;
-			}
+
 			table.dataTable span.highlight {
 				background-color: yellow;
 				font-weight: bold;
 				color: black;
 			}
-			.hideMe {
+			table.dataTable tr {
+				 width: 100% !important;
+			 }
+			table.dataTable td > li {
+				list-style: none;
+			}
+			table.dataTable td ul {
+				list-style-position:inside;
+			}
+			table.dataTable td ul li:nth-child(1), table.dataTable td ul li:nth-child(2) {
+				display: list-item;
+			}
+			table.dataTable td ul li {
+				/* 0 based */
+				min-width: 120px;
 				display: none;
 			}
-			.showMe {
-				display: block;
+			button.showMore {
+				cursor: pointer;
+				color: #0978A1;
 			}
+
+				/*.hideme {*/
+				/*display: none;*/
+			/*}*/
+			/*.showme {*/
+				/*display: block;*/
+			/*}*/
 			.alleleToggle {
 				cursor: pointer;
 				font-size: 11px;
@@ -133,12 +152,6 @@
 				font-size: 12px;
 				padding-left: 20px;
 				height: 40px;
-			}
-			.cat {
-				font-weight: bold;
-				font-size:14px;
-				color: black;
-				padding: 5px;
 			}
 			/*.inner {*/
 			/*height: auto;*/
@@ -224,6 +237,15 @@
 			}
 			table#dataInput td.idnote {
 				padding-left: 8px;
+			}
+			table#dataInput td:nth-child(2) {
+				width: 260px;
+			}
+			span.cat {
+				font-weight: bold;
+				font-size:14px;
+				color: black;
+				padding: 5px;
 			}
 			div.textright {
 				padding: 5px 0;
@@ -417,12 +439,12 @@
                         y: 110,
                         r:30,
                         fields: [
-                            {"Ensembl gene id":"ensembleGeneId"}
+                            {"Ensembl gene id":"ensemblGeneId"}
                         ],
                         findBy: [
                             {
                                 "ID": {
-                                    "property": "ensembleGeneId",
+                                    "property": "ensemblGeneId",
                                     "eg": "ENSMUSG00000020844"
                                 }
                             }
@@ -493,11 +515,7 @@
                         fields: [
                             {"allelic composition":"allelicComposition"},
                             {"genetic background":"geneticBackground"},
-                            {"homozygous or heterozygous":"homHet"},
-                            {"predicted by IMPC":"impcPredicted"},
-                            {"predicted by MGI":"mgiPredicted"},
-                            {"disease to model score":"diseaseToModelScore"},
-                            {"model to disease score":"modelToDiseaseScore"}
+                            {"homozygous or heterozygous":"homHet"}
                         ]
                     },
                     "Hp": {
@@ -530,7 +548,10 @@
                         fields: [
                             {"mouse phenotype ontology id":"mpId"},
                             {"mouse phenotype ontology term":"mpTerm"},
-                            {"mouse phenotype ontology definition":"mpDefinition"}
+                            {"mouse phenotype ontology definition":"mpDefinition"},
+                            {"top level mouse phenotype ontology id":"topLevelMpId"},
+                            {"top level mouse phenotype ontology term":"topLevelMpTerm"}
+
                         ],
                         findBy: [
                             {"name":{
@@ -582,6 +603,7 @@
 
 
                 addChomosomeRangerFilter();
+                addMpChildrenLevelFilter();
 
                 $('button#clearAllDt').click(function(){
                     var nodeType = mapInputId2NodeType($('input.bq:checked').attr('id'));
@@ -636,7 +658,7 @@
                     // assign to hidden field in fileupload section
                     $('input#datatype').val(currDataType);
 
-                    if (currDataType == "mp" || currDataType == "hp" || currDataType == "disease"){
+                    if (currDataType == "mpTerm" || currDataType == "hp" || currDataType == "disease"){
                         var theSrchBox = $(this).next().next().next();
                         var theInput = theSrchBox.find('input');
 
@@ -743,23 +765,28 @@
                             return false;
                         }
                     }
-
                     if ($('fieldset#chromosome').is(":visible")) {
                         var chrId = $('select#chrSel2').val();
                         var chrStart = $('input#rstart2').val();
                         var chrEnd = $('input#rend2').val();
-                        console.log(chrId + " - " + chrStart + " - " + chrEnd);
-                        if (chrStart + chrEnd == "") {
-                            console.log('empty: ignore');
-                        }
-                        else {
-                            kv = checkChrCoords(chrId, chrStart, chrEnd, kv); // returns filters
-                            if ( kv == false){
-                                return false;
-                            }
+                        if ( chrStart + chrEnd != 0) {
+                            console.log("check chr" + chrId + ":" + chrStart + "-" + chrEnd);
+							kv = checkChrCoords(chrId, chrStart, chrEnd, kv);
+							if (kv == false) {
+								return false;
+							}
+                    	}
+                    }
+                    if ($('fieldset#mpLevel').is(":visible")) {
+                        var level = $('select#childLevel').val();
+                        console.log("children level down: "+ level);
+                        if (level != 0) {
+                            kv['childLevel'] = level;
                         }
                     }
 
+                    console.log("check kv");
+                    console.log(kv)
                     return kv;
                 }
 
@@ -782,7 +809,7 @@
                         return false;
                     }
                     else {
-                        kv["chr"] = [chrId, chrStart, chrEnd];
+                        kv['chrRange'] = "chr" + chrId + ":" + chrStart + "-" + chrEnd;
                         return kv;
                     }
                 }
@@ -793,7 +820,8 @@
                         "mouseGeneId":"Gene",
                         "geneChr":"Gene",
                         "ensembl":"EnsemblGeneId",
-                        "mp":"Mp",
+                        "mpTerm":"Mp",
+                        "mpId":"Mp",
                         "human_marker_symbol":"HumanGeneSymbol",
                         "hp":"Hp",
                         "disease":"DiseaseModel"
@@ -996,23 +1024,25 @@
 
                 }
 
-                function submitPastedList(){
-                    alert("here")
+                //-------------------
+				// SUBMIT THE FORM
+				//-------------------
 
+                function submitPastedList(){
 
                     if ( $('textarea#pastedList').val() == ''){
                         alert('Oops, search keyword is missing...');
                         return false;
                     }
 //
-                    var datatypeProperty;
+                    var datatypeProperties;
                     if ($('fieldset input:checked').length == 0){
                         alert('Oops, customized output filter is not checked...');
                         return false;
                     }
                     else {
-                        datatypeProperty = fetchDatatypeProperties();
-                        if ( datatypeProperty == false){
+                        datatypeProperties = fetchDatatypeProperties();
+                        if ( datatypeProperties == false){
                             return false;
                         }
                     }
@@ -1020,84 +1050,40 @@
                     var currDataType = $('input.bq:checked').attr('id');
 
                     var idList = parsePastedList($('textarea#pastedList').val(), currDataType);
+					if (idList == false){
+					    return false; // no page refresh
+					}
 
-                    prepare_dataTable(datatypeProperty.properties);
-                    delete datatypeProperty.properties;
+					console.log(datatypeProperties);
+
+                    console.log("properties: " + datatypeProperties.properties);
+					console.log("childLevel: " + datatypeProperties.childLevel);
+                    console.log("chrRange: " + datatypeProperties.chrRange);
+
+                    refreshResult(); // refresh first
+
+					alert('before table')
+                    prepare_dataTable(datatypeProperties.properties);
+
 
                     var oConf = {};
                     oConf.idlist = idList;
-                    oConf.datatypeProperty = JSON.stringify(datatypeProperty); // no properties key here
+                    oConf.properties = datatypeProperties.properties.join(","); // order is important
+					oConf.childLevel = datatypeProperties.childLevel;
+					oConf.chrRange = datatypeProperties.chrRange;
+
+					var excludes = ["properties", "childLevel", "chrRange"];
+					for(var e=0; e < excludes.length; e++) {
+                        delete datatypeProperties[excludes[e]];
+                    }
+
+                    oConf.datatypeProperties = JSON.stringify(datatypeProperties);
                     oConf.dataType = mapInputId2NodeType(currDataType);
+
+                    console.log(oConf);
 
                     fetchBatchQueryDataTable(oConf);
 
-//                    // verify chromosome coords
-//                    if ($('input.bq:checked').attr('id') == "geneChr"){
-//                        var chr = $('select#chrSel').val();
-//                        $.ajax({
-//                            url: baseUrl + '/chrlen?chr=' + chr,
-//                            success: function(chrlen) {
-//
-//                                var easyReadChrLen = chrlen.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-//
-//                                console.log("chr range check " + chrlen);
-//                                var chrStart = $('input#rstart').val();
-//                                var chrEnd = $('input#rend').val();
-//
-//                                console.log("check: "+ chrStart > chrEnd);
-//                                if (! chrStart.match(/^\d+$/)){
-//                                    alert("ERROR: start coordinate should be integer");
-//                                }
-//                                else if (! chrEnd.match(/^\d+$/)) {
-//                                    alert("ERROR: end coordinate should be integer");
-//                                }
-//                                else if (chrStart > chrEnd){
-//                                    alert("ERROR: start coord is larger than end coord");
-//                                }
-//                                else if (chrStart == chrEnd){
-//                                    alert("ERROR: start coord is same as end coord");
-//                                }
-//                                else if (chrStart > chrlen) {
-//                                    alert("ERROR: start coord exceeds chromosome range: " + easyReadChrLen);
-//                                }
-//                                else if (chrEnd > chrlen) {
-//                                    alert("ERROR: end coord exceeds chromosome range: " + easyReadChrLen);
-//                                }
-//                                else if (chrStart < 1 || chrEnd < 1){
-//                                    alert("ERROR: coordinate cannot be less than 1");
-//                                }
-//                                return false;
-//                            },
-//                            error: function() {
-//                                window.alert('AJAX error trying to fetch length of chromosome' + chr);
-//                            }
-//                        });
-//                    }
-
-//                    if ( $('textarea#pastedList').val() == ''){
-//                        alert('Oops, search keyword is missing...');
-//                    }
-//                    else {
-//
-//                        refreshResult(); // refresh first
-//
-//                        var currDataType = $('input.bq:checked').attr('id');
-//                        var idList = parsePastedList($('textarea#pastedList').val(), currDataType);
-//
-//                        if ( idList !== false ){
-//                            var kv = fetchSelectedFieldList();
-//
-//                            //prepare_dataTable(kv.fllist);
-//                            prepare_dataTable("marker_symbol");
-//
-//                            var oConf = {};
-//                            oConf.idlist = idList;
-//                            oConf.labelFllist = kv.labelFllist;
-//                            oConf.dataType = currDataType;
-//
-//                            fetchBatchQueryDataTable(oConf);
-//                        }
-//                    }
                     return false;
                 }
 
@@ -1178,6 +1164,7 @@
                     var tableHeader = "<thead>" + th + "</thead>";
                     var tableCols = flList.length;
 
+
                     var dTable = $.fn.fetchEmptyTable(tableHeader, tableCols, "batchq");
 
                     $('div#bqResult').append(dTable);
@@ -1212,7 +1199,11 @@
                             alert(errMsg);
                             return false;
                         }
-                        else if ( (dataType == 'mp' || dataType == 'ma' || dataType == 'hp' ) && uppercaseId.indexOf(dataType.toUpperCase()) !== 0 ){
+                        else if ( dataType == 'mpId' && uppercaseId.indexOf('MP:') !== 0 ){
+                            alert(errMsg);
+                            return false;
+                        }
+                        else if ( dataType == 'hp' && uppercaseId.indexOf('HP:') !== 0 ){
                             alert(errMsg);
                             return false;
                         }
@@ -1238,7 +1229,11 @@
                     oConf.idlist = getFirstTenUniqIdsStr(getUniqIdsStr(oConf.idlist));
                     //oConf.idlist = getUniqIdsStr(oConf.idlist);
                     console.log(oConf);
-                    //var aDataTblCols = [0,1,2,3,4,5];
+
+                    console.log($('table#batchq'));
+                    console.log($('table#batchq').html())
+
+                    alert("here")
                     var oTable = $('table#batchq').dataTable({
                         "bSort": false, // true is default
                         "processing": true,
@@ -1253,10 +1248,13 @@
                             "sSearch": "Filter: ",
                             "sInfo": "Showing _START_ to _END_ of _TOTAL_ genes (for complete dataset of your search, please use export buttons)"
                         },
+//                        "aoColumns": [
+//                            {"bSearchable": true, "sType": "html", "bSortable": true}
+//                        ],
 						/*  "columnDefs": [
 						 { "type": "alt-string", targets: 3 }   //4th col sorted using alt-string
 						 ], */
-                        "aaSorting": [[ 0, "asc" ]],  // default sort column order, won't work if bSort is false
+                        //"aaSorting": [[ 0, "asc" ]],  // default sort column order, won't work if bSort is false
 						/*"aoColumns": [
 						 {"bSearchable": true, "sType": "html", "bSortable": true},
 						 {"bSearchable": true, "sType": "string", "bSortable": true},
@@ -1265,11 +1263,27 @@
 						 {"bSearchable": true, "sType": "string", "bSortable": true},
 						 {"bSearchable": false, "sType": "html", "bSortable": true}
 						 ],*/
-                        "fnDrawCallback": function (oSettings) {  // when dataTable is loaded
+                        "initComplete": function (oSettings) {  // when dataTable is loaded
 
                             $('div#sec2').show();
 
                             document.getElementById('sec2').scrollIntoView(true); // scrolls to results when datatable loads
+
+							// js to toggle hidden values in cells
+							$('button.showMore').click(function(){
+							    if ($(this).hasClass('hideMe')){
+                                    $(this).removeClass("hideMe");
+                                    $(this).text("show all (" + $(this).attr('rel') + ")");
+                                    $(this).siblings('li:gt(1)').hide();
+
+								}
+								else {
+							        $(this).addClass("hideMe");
+                                    $(this).text("show less");
+                                    $(this).siblings('li:gt(1)').show();
+								}
+							});
+
 
                             var endPoint = baseUrl + '/bqExport';
 
@@ -1445,8 +1459,11 @@
                     $('div#bqFilter').append(filter);
 
                     var inputId = $('input.bq:checked').attr('id');
-                    if (inputId == "hp" || inputId == "mp" || inputId == "disease") {
+                    if (inputId == "hp" || inputId == "mpTerm" || inputId == "mpId" || inputId == "disease") {
                         $('fieldset#chromosome').show();
+                    }
+                    if (inputId == "mpId" || inputId == "mpTerm") {
+                        $('fieldset#mpLevel').show();
                     }
 
                 }
@@ -1456,6 +1473,7 @@
 
                     if ($('fieldset.fsfilter').size() == 0) {
                         $('fieldset#chromosome').hide();
+                        $('fieldset#mpLevel').hide();
                     }
                 }
 
@@ -1487,6 +1505,24 @@
                     $('div#bqFilter').append(filter);
                 }
 
+                function addMpChildrenLevelFilter(){
+                    var levels = [0, 1,2,3,4,5,'all'];
+                    var levelSel = "";
+                    for (var i = 0; i < levels.length; i++) {
+                        if (i == 0) {
+                            levelSel += '<option value="' + levels[i] + '" selected="selected">' + levels[i] + '</option>';
+                        }
+                        else {
+                            levelSel += '<option value="' + levels[i] + '">' + levels[i] + '</option>';
+                        }
+                    }
+
+                    var legend = '<legend>Include mouse phenotype children: number of level down in hierarchy</legend>';
+                    var input = 'level:<select id="childLevel">' + levelSel + '</select>';
+                    var filter = '<fieldset id="mpLevel">' + legend + input + '</fieldset>';
+
+                    $('div#bqFilter').append(filter);
+				}
 
 
 		</script>
@@ -1531,9 +1567,11 @@
 									<div id='query'>
 										<table id='dataInput'>
 											<tr>
-												<td><span class='cat'><i class="icon icon-species">M</i>Mouse<br>&nbsp;(GRCm38):</span></td>
+												<td><span class='cat'><i class="icon icon-species">M</i>Mouse<br>&nbsp;&nbsp;GRCm38</span></td>
 												<td>
-													<input type="radio" id="mouseMarkerSymbol" value="Eg. Car4 or CAR4 (case insensitive). Synonym search supported" name="dataType" class='bq' checked="checked">MGI gene symbol<br>
+													<input type="radio" id="mouseMarkerSymbol" value="Nxn Dst" name="dataType" class='bq' checked="checked">MGI gene symbol<br>
+
+													<%--<input type="radio" id="mouseMarkerSymbol" value="Eg. Car4 or CAR4 (case insensitive). Synonym search supported" name="dataType" class='bq' checked="checked">MGI gene symbol<br>--%>
 													<input type="radio" id="mouseGeneId" value="Eg. MGI:106209" name="dataType" class='bq' >MGI id<br>
 													<input type="radio" id="ensembl" value="Eg. ENSMUSG00000011257" name="dataType" class='bq'>Ensembl id<br>
 													<input type="radio" id="geneChr" value="Eg. chr12:53694976-56714605" name="dataType" class='bq'>Chromosomal coordinates<br>
@@ -1567,16 +1605,17 @@
 														End: <input id='rend' type="text" name="pin" size="8">
 													</div>
 
-													<input type="radio" id="mp" value="Eg. cardiovescular phenotype or MP:0001926" name="dataType" class='bq'>Mouse phenotype <i class="fa fa-info-circle" aria-hidden="true"></i><br>
+													<input type="radio" id="mpTerm" value="Eg. cardiovescular system phenotype" name="dataType" class='bq'>Mouse phenotype by name <i class="fa fa-info-circle" aria-hidden="true"></i><br>
 													<div class='block srchBox'>
 														<i class='fa fa-search'></i>
 														<input id='srchMp' value="search">
 														<i class='fa fa-times'></i>
 													</div>
+													<input type="radio" id="mpId" value="Eg. MP:0001926" name="dataType" class='bq'>Mouse phenotype by id <i class="fa fa-info-circle" aria-hidden="true"></i><br>
 												</td>
 											</tr>
 											<tr id="humantr">
-												<td><span class='cat'><i class="icon icon-species">H</i>Human<br>&nbsp;(GRCh38):</span></td>
+												<td><span class='cat'><i class="icon icon-species">H</i>Human<br>&nbsp;&nbsp;&nbsp;GRCh38</span></td>
 												<td>
 													<input type="radio" id="human_marker_symbol" value="Eg. Car4 or CAR4 (case insensitive). Synonym search supported" name="dataType" class='bq'>HGNC gene symbol<br>
 

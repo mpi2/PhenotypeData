@@ -14,7 +14,7 @@ import javax.validation.constraints.NotNull;
  */
 @Configuration
 @EnableNeo4jRepositories(basePackages = "org.mousephenotype.cda.neo4j.repository")
-@ComponentScan(value = "org.mousephenotype.cda.neo4j.entity")
+@ComponentScan(value = "org.mousephenotype.cda.neo4j")
 @PropertySource("file:${user.home}/configfiles/${profile:dev}/application.properties")
 public class Neo4jConfig {
 
@@ -45,7 +45,7 @@ public class Neo4jConfig {
 
     @Bean
     public SessionFactory sessionFactory() {
-        return new SessionFactory(getConfiguration(), "org.mousephenotype.cda.neo4j.repository");
+        return new SessionFactory(getConfiguration(), "org.mousephenotype.cda.neo4j");  // both entity and repository
     }
 
     @Bean

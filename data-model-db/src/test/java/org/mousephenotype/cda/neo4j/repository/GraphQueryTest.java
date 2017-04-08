@@ -1,12 +1,9 @@
 package org.mousephenotype.cda.neo4j.repository;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.db.TestConfig;
-import org.mousephenotype.cda.neo4j.entity.Allele;
-import org.mousephenotype.cda.neo4j.entity.DiseaseModel;
-import org.mousephenotype.cda.neo4j.entity.Gene;
+import org.mousephenotype.cda.neo4j.entity.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +16,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by ckchen on 17/03/2017.
@@ -65,7 +65,7 @@ public class GraphQueryTest {
     @Autowired
     MouseModelRepository mouseModelRepository;
 
-    @Before
+    //@Before
     public void before() {
 
         Gene g = new Gene();
@@ -103,7 +103,7 @@ public class GraphQueryTest {
 
     }
 
-    @Test
+    //@Test
     public void testTraverseDiseaseModelRepository() throws Exception {
         DiseaseModel testDiseaseModelFind = diseaseModelRepository.findByDiseaseId("TEST_DISEASE");
 
@@ -124,32 +124,10 @@ public class GraphQueryTest {
     }
 
     //@Test
-    public void graphQueryTest() throws Exception {
-
-        List<String> markerSymbols = Arrays.asList("Nxn","Dst");
-        for(String ms : markerSymbols) {
-//            List<DiseaseModel> d = diseaseModelRepository.findByAllele_Gene_MarkerSymbol(ms);
-//
-//            System.out.println("Disease models found "+ d.size());
-//            for (DiseaseModel d1 : d) {
-//                System.out.println("Gene symbol: " + d1.getGene().getMarkerSymbol());
-//                System.out.println("MGI Acc: "+ d1.getGene().getMgiAccessionId());
-//                System.out.println("Disease: " + d1.getDiseaseTerm());
-//                System.out.println("allele:"+ d1.getAllele());
-//            }
-            Gene g = geneRepository.findByMarkerSymbol(ms);
-            System.out.println(g.toString());
-
-        }
-    }
-
-
-   // @Test
-//    public void graphQueryTest() throws Exception {
-//
-//        List<String> markerSymbols = Arrays.asList("Nxn","Dst");
-//        for(String ms : markerSymbols) {
-//            List<Object> objs = geneRepository.findDiseaseModelByMarkerSymbol(ms);
+    public void ensemblGraphQueryTest() throws Exception {
+        List<String> ensgIds = Arrays.asList("ENSMUSG00000025903","ENSMUSG00000062588");
+        for(String ensgId : ensgIds) {
+            List<Object> objs = ensemblGeneIdRepository.findDataByEnsemblGeneId(ensgId);
 //            List<DiseaseModel> d = diseaseModelRepository.findByAllele_Gene_MarkerSymbol(ms);
 //            System.out.println("Disease models found "+ d.size());
 //            for (DiseaseModel d1 : d) {
@@ -157,47 +135,378 @@ public class GraphQueryTest {
 //                System.out.println("allele:"+ d1.getAllele());
 //            }
 //            if (true) continue;
-//
-//            for (Object obj : objs) {
-//                String className = obj.getClass().getSimpleName();
-//
-//                if (className.equals("Gene")) {
-//                    Gene g = (Gene) obj;
-//                    System.out.println(g.getMarkerSymbol());
-//                    System.out.println(g.getMgiAccessionId());
-//                }
-//
-//                Set<MouseModel> mms = new HashSet<>();
-//                Set<Allele> alleles = new HashSet<>();
-//                Set<DiseaseModel> dms = new HashSet<>();
-//
-//                if (className.equals("DiseaseModel")) {
-//                    DiseaseModel dm = (DiseaseModel) obj;
-//                    dms.add(dm);
-//
-//                    if (dm.getAllele() != null) {
-//                        alleles.add(dm.getAllele());
-//                    }
-//
-//                    if (dm.getMouseModel() != null) {
-//                        mms.add(dm.getMouseModel());
-//                    }
-//                }
-//
-//                for (MouseModel mm : mms) {
-//                    System.out.println("MouseModel: " + mm.toString());
-//                }
-//
-//                for (Allele allele : alleles) {
-//                    System.out.println("Allele: " + allele.toString());
-//                }
-//
-//                for (DiseaseModel dm : dms) {
-//                    System.out.println("DiseaseModel: " + dm.toString());
-//                }
-//
+
+            Set<EnsemblGeneId> engs = new HashSet<>();
+            Set<HumanGeneSymbol> hgs = new HashSet<>();
+            Set<MarkerSynonym> ms = new HashSet<>();
+            Set<MouseModel> mms = new HashSet<>();
+            Set<Allele> alleles = new HashSet<>();
+            Set<DiseaseModel> dms = new HashSet<>();
+            Set<Mp> mps = new HashSet<>();
+            Set<OntoSynonym> mpsyns = new HashSet<>();
+            Set<Hp> hps = new HashSet<>();
+
+            for (Object obj : objs) {
+                String className = obj.getClass().getSimpleName();
+
+
+                if (className.equals("Gene")) {
+                    Gene g = (Gene) obj;
+                    System.out.println(g.getMarkerSymbol());
+                    System.out.println(g.getMgiAccessionId());
+                }
+
+                if (className.equals("EnsemblGeneId")) {
+                    EnsemblGeneId ensg = (EnsemblGeneId) obj;
+                    engs.add(ensg);
+                }
+
+
+                if (className.equals("MarkerSynonym")) {
+                    MarkerSynonym m = (MarkerSynonym) obj;
+                    ms.add(m);
+                }
+
+
+                if (className.equals("HumanGeneSymbol")) {
+                    HumanGeneSymbol hg = (HumanGeneSymbol) obj;
+                    hgs.add(hg);
+                }
+
+
+                if (className.equals("DiseaseModel")) {
+                    DiseaseModel dm = (DiseaseModel) obj;
+                    dms.add(dm);
+                }
+
+
+                if (className.equals("MouseModel")) {
+                    MouseModel mm = (MouseModel) obj;
+                    mms.add(mm);
+                }
+
+
+                if (className.equals("Allele")) {
+                    Allele allele = (Allele) obj;
+                    alleles.add(allele);
+                }
+
+
+                if (className.equals("Mp")) {
+                    Mp mp = (Mp) obj;
+                    mps.add(mp);
+                }
+
+
+                if (className.equals("OntoSynonym")) {
+                    OntoSynonym mpsyn = (OntoSynonym) obj;
+                    mpsyns.add(mpsyn);
+                }
+
+
+                if (className.equals("Hp")) {
+                    Hp hp = (Hp) obj;
+                    hps.add(hp);
+                }
+            }
+
+            for (EnsemblGeneId eng : engs) {
+                System.out.println("EnsemblGeneId: " + eng.toString());
+            }
+            for (MarkerSynonym m : ms) {
+                System.out.println("MarkerSynonym: " + m.toString());
+            }
+            for (HumanGeneSymbol hg : hgs) {
+                System.out.println("HumanGeneSymbol: " + hg.toString());
+            }
+            for (DiseaseModel dm : dms) {
+                System.out.println("DiseaseModel: " + dm.toString());
+            }
+            for (MouseModel mm : mms) {
+                System.out.println("MouseModel: " + mm.toString());
+            }
+            for (Allele allele : alleles) {
+                System.out.println("Allele: " + allele.toString());
+            }
+            for (Mp mp : mps) {
+                System.out.println("Mp: " + mp.toString());
+            }
+            for (OntoSynonym mpsyn : mpsyns) {
+                System.out.println("OntoSynonym: " + mpsyn.toString());
+            }
+            for (Hp hp : hps) {
+                System.out.println("Hp: " + hp.toString());
+            }
+
+        }
+
+    }
+
+    @Test
+    public void mpGraphQueryTest() throws Exception {
+        List<String> mpIds = Arrays.asList("MP:0004787");
+//        List<String> mpIds = Arrays.asList("cardiovascular phenotype");
+        for(String mpId : mpIds) {
+           // List<Object> objs = mpRepository.findDataByMpId(mpId);
+            List<Object> objs = mpRepository.findDataByMpTermWithTopLevel(mpId);
+       //     List<Object> objs = mpRepository.findDataByMpIdChrRange(mpId, "1", 12345678, 34567890);
+//            List<Object> objs = mpRepository.findDataByMpTerm(mpId);
+//            List<DiseaseModel> d = diseaseModelRepository.findByAllele_Gene_MarkerSymbol(ms);
+//            System.out.println("Disease models found "+ d.size());
+//            for (DiseaseModel d1 : d) {
+//                System.out.println(d1.getDiseaseTerm());
+//                System.out.println("allele:"+ d1.getAllele());
 //            }
-//        }
-//    }
+//            if (true) continue;
+
+            Set<EnsemblGeneId> engs = new HashSet<>();
+            Set<HumanGeneSymbol> hgs = new HashSet<>();
+            Set<MarkerSynonym> ms = new HashSet<>();
+            Set<MouseModel> mms = new HashSet<>();
+            Set<Allele> alleles = new HashSet<>();
+            Set<DiseaseModel> dms = new HashSet<>();
+            Set<Mp> mps = new HashSet<>();
+            Set<OntoSynonym> mpsyns = new HashSet<>();
+            Set<Hp> hps = new HashSet<>();
+
+            for (Object obj : objs) {
+                String className = obj.getClass().getSimpleName();
+
+
+                if (className.equals("Gene")) {
+                    Gene g = (Gene) obj;
+                    System.out.println(g.getMarkerSymbol());
+                    System.out.println(g.getMgiAccessionId());
+                }
+
+                if (className.equals("EnsemblGeneId")) {
+                    EnsemblGeneId ensg = (EnsemblGeneId) obj;
+                    engs.add(ensg);
+                }
+
+
+                if (className.equals("MarkerSynonym")) {
+                    MarkerSynonym m = (MarkerSynonym) obj;
+                    ms.add(m);
+                }
+
+
+                if (className.equals("HumanGeneSymbol")) {
+                    HumanGeneSymbol hg = (HumanGeneSymbol) obj;
+                    hgs.add(hg);
+                }
+
+
+                if (className.equals("DiseaseModel")) {
+                    DiseaseModel dm = (DiseaseModel) obj;
+                    dms.add(dm);
+                }
+
+
+                if (className.equals("MouseModel")) {
+                    MouseModel mm = (MouseModel) obj;
+                    mms.add(mm);
+                }
+
+
+                if (className.equals("Allele")) {
+                    Allele allele = (Allele) obj;
+                    alleles.add(allele);
+                }
+
+
+                if (className.equals("Mp")) {
+                    Mp mp = (Mp) obj;
+                    mps.add(mp);
+                }
+
+
+                if (className.equals("OntoSynonym")) {
+                    OntoSynonym mpsyn = (OntoSynonym) obj;
+                    mpsyns.add(mpsyn);
+                }
+
+
+                if (className.equals("Hp")) {
+                    Hp hp = (Hp) obj;
+                    hps.add(hp);
+                }
+            }
+
+            for (EnsemblGeneId eng : engs) {
+                System.out.println("EnsemblGeneId: " + eng.toString());
+            }
+            for (MarkerSynonym m : ms) {
+                System.out.println("MarkerSynonym: " + m.toString());
+            }
+            for (HumanGeneSymbol hg : hgs) {
+                System.out.println("HumanGeneSymbol: " + hg.toString());
+            }
+            for (DiseaseModel dm : dms) {
+                System.out.println("DiseaseModel: " + dm.toString());
+            }
+            for (MouseModel mm : mms) {
+                System.out.println("MouseModel: " + mm.toString());
+            }
+            for (Allele allele : alleles) {
+                System.out.println("Allele: " + allele.toString());
+            }
+            for (Mp mp : mps) {
+                System.out.println("Mp: " + mp.toString());
+            }
+            for (OntoSynonym mpsyn : mpsyns) {
+                System.out.println("OntoSynonym: " + mpsyn.toString());
+            }
+            for (Hp hp : hps) {
+                System.out.println("Hp: " + hp.toString());
+            }
+
+        }
+
+    }
+
+    //@Test
+    public void graphQueryTest2() throws Exception {
+
+        List<String> markerSymbols = Arrays.asList("Nxn","Dst");
+        for(String symbol : markerSymbols) {
+            List<Object> objs = geneRepository.findDataByMarkerSymbol(symbol);
+//            List<DiseaseModel> d = diseaseModelRepository.findByAllele_Gene_MarkerSymbol(ms);
+//            System.out.println("Disease models found "+ d.size());
+//            for (DiseaseModel d1 : d) {
+//                System.out.println(d1.getDiseaseTerm());
+//                System.out.println("allele:"+ d1.getAllele());
+//            }
+//            if (true) continue;
+
+            Set<EnsemblGeneId> engs = new HashSet<>();
+            Set<HumanGeneSymbol> hgs = new HashSet<>();
+            Set<MarkerSynonym> ms = new HashSet<>();
+            Set<MouseModel> mms = new HashSet<>();
+            Set<Allele> alleles = new HashSet<>();
+            Set<DiseaseModel> dms = new HashSet<>();
+            Set<Mp> mps = new HashSet<>();
+            Set<OntoSynonym> mpsyns = new HashSet<>();
+            Set<Hp> hps = new HashSet<>();
+
+            for (Object obj : objs) {
+                String className = obj.getClass().getSimpleName();
+
+
+                if (className.equals("Gene")) {
+                    Gene g = (Gene) obj;
+                    System.out.println(g.getMarkerSymbol());
+                    System.out.println(g.getMgiAccessionId());
+                }
+
+                if (className.equals("EnsemblGeneId")) {
+                    EnsemblGeneId ensg = (EnsemblGeneId) obj;
+                    engs.add(ensg);
+                }
+
+
+                if (className.equals("MarkerSynonym")) {
+                    MarkerSynonym m = (MarkerSynonym) obj;
+                    ms.add(m);
+                }
+
+
+                if (className.equals("HumanGeneSymbol")) {
+                    HumanGeneSymbol hg = (HumanGeneSymbol) obj;
+                    hgs.add(hg);
+                }
+
+
+                if (className.equals("DiseaseModel")) {
+                    DiseaseModel dm = (DiseaseModel) obj;
+                    dms.add(dm);
+                }
+
+
+                if (className.equals("MouseModel")) {
+                    MouseModel mm = (MouseModel) obj;
+                    mms.add(mm);
+                }
+
+
+                if (className.equals("Allele")) {
+                    Allele allele = (Allele) obj;
+                    alleles.add(allele);
+                }
+
+
+                if (className.equals("Mp")) {
+                    Mp mp = (Mp) obj;
+                    mps.add(mp);
+                }
+
+
+                if (className.equals("OntoSynonym")) {
+                    OntoSynonym mpsyn = (OntoSynonym) obj;
+                    mpsyns.add(mpsyn);
+                }
+
+
+                if (className.equals("Hp")) {
+                    Hp hp = (Hp) obj;
+                    hps.add(hp);
+                }
+            }
+
+            for (EnsemblGeneId eng : engs) {
+                System.out.println("EnsemblGeneId: " + eng.toString());
+            }
+            for (MarkerSynonym m : ms) {
+                System.out.println("MarkerSynonym: " + m.toString());
+            }
+            for (HumanGeneSymbol hg : hgs) {
+                System.out.println("HumanGeneSymbol: " + hg.toString());
+            }
+            for (DiseaseModel dm : dms) {
+                System.out.println("DiseaseModel: " + dm.toString());
+            }
+            for (MouseModel mm : mms) {
+                System.out.println("MouseModel: " + mm.toString());
+            }
+            for (Allele allele : alleles) {
+                System.out.println("Allele: " + allele.toString());
+            }
+            for (Mp mp : mps) {
+                System.out.println("Mp: " + mp.toString());
+            }
+            for (OntoSynonym mpsyn : mpsyns) {
+                System.out.println("OntoSynonym: " + mpsyn.toString());
+            }
+            for (Hp hp : hps) {
+                System.out.println("Hp: " + hp.toString());
+            }
+
+        }
+    }
+
+
+    //@Test
+    public void codeTest() throws Exception {
+
+        String idlistStr = "chr1:12345-43535";
+        if (idlistStr.matches("^chr(\\w*):(\\d+)-(\\d+)$")) {
+            System.out.println("find chr range");
+
+            Pattern pattern = Pattern.compile("^chr(\\w*):(\\d+)-(\\d+)$");
+            Matcher matcher = pattern.matcher(idlistStr);
+            String chr = null;
+            String start = null;
+            String end = null;
+
+            // convert coordiantes range to list of mouse gene ids
+            while (matcher.find()) {
+                System.out.println("found: " + matcher.group(1));
+                chr = matcher.group(1);
+                start = matcher.group(2);
+                end = matcher.group(3);
+                logger.info("chr {} start {} end {}", chr, start, end );
+            }
+        }
+    }
 
 }

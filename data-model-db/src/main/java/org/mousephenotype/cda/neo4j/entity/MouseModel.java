@@ -19,9 +19,6 @@ public class MouseModel {
     private String allelicComposition;
     private String geneticBackground;
     private String homHet;
-    private Double diseaseToModelScore;
-    private Double modelToDiseaseScore;
-
 
     @Relationship(type="ALLELE", direction=Relationship.OUTGOING)
     private Allele allele;
@@ -75,22 +72,6 @@ public class MouseModel {
         this.homHet = homHet;
     }
 
-    public Double getDiseaseToModelScore() {
-        return diseaseToModelScore;
-    }
-
-    public void setDiseaseToModelScore(Double diseaseToModelScore) {
-        this.diseaseToModelScore = diseaseToModelScore;
-    }
-
-    public Double getModelToDiseaseScore() {
-        return modelToDiseaseScore;
-    }
-
-    public void setModelToDiseaseScore(Double modelToDiseaseScore) {
-        this.modelToDiseaseScore = modelToDiseaseScore;
-    }
-
     public Allele getAllele() {
         return allele;
     }
@@ -131,8 +112,6 @@ public class MouseModel {
                 ", allelicComposition='" + allelicComposition + '\'' +
                 ", geneticBackground='" + geneticBackground + '\'' +
                 ", homHet='" + homHet + '\'' +
-                ", diseaseToModelScore=" + diseaseToModelScore +
-                ", modelToDiseaseScore=" + modelToDiseaseScore +
                 ", allele=" + allele +
                 ", gene=" + gene +
                 ", mousePhenotypes=" + mousePhenotypes +

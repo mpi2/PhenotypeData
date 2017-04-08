@@ -134,7 +134,7 @@ public class SolrIndex {
 
 		System.out.println("Found " + response.getResults().getNumFound() + " gene(s) in range");
 		for (SolrDocument doc : response.getResults() ){
-			queryIds.add("\"" + doc.get("mgi_accession_id") + "\"");
+			queryIds.add(doc.get("mgi_accession_id").toString());
 		}
 		return queryIds;
 	}
