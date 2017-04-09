@@ -47,6 +47,23 @@ import java.util.List;
     List<Object> findDataByMgiId(@Param( "mgiAccessionId" ) String mgiAccessionId);
 
 
+    @Query("MATCH (g:Gene) WHERE g.chrId = {chrId} AND g.chrStart >= {chrStart} AND g.chrEnd <= {chrEnd} with g, "
+    + "[(g)-[:MARKER_SYNONYM]->(ms:MarkerSynonym) | ms] as markerSynonym, "
+    + "[(g)-[:HUMAN_GENE_SYMBOL]->(hgs:HumanGeneSymbol) | hgs] as humanGeneSymbol, "
+    + "[(g)-[:ENSEMBL_GENE_ID]->(ensg:EnsemblGeneId) | ensg] as ensemblGeneId, "
+    + "[(g)<-[:MOUSE_MODEL]-(mm:MouseModel) | mm] as mouseModel, "
+    + "[(g)<-[:MOUSE_MODEL]-(mm:MouseModel)-[:MOUSE_PHENOTYPE]->(m:Mp) | m] as mp, "
+    + "[(g)<-[:MOUSE_MODEL]-(mm:MouseModel)-[:MOUSE_PHENOTYPE]->(m:Mp)-[:MP_SYNONYM]->(mps:OntoSynonym) | mps] as mpSynonym, "
+    + "[(g)-[:ALLELE]->(a:Allele)<-[:ALLELE]-(d:DiseaseModel) | d] as diseaseModel, "
+    + "[(g)-[:ALLELE]->(a:Allele) | a] as allele, "
+    + "[(g)-[:ALLELE]->(a:Allele)<-[:ALLELE]-(d:DiseaseModel)-[:HUMAN_PHENOTYPE]->(h:Hp) | h] as hp "
+    + "RETURN g, markerSynonym, humanGeneSymbol, ensemblGeneId, mouseModel, mp, mpSynonym, diseaseModel, allele, hp")
+    List<Object> findDataByChrRange(@Param( "chrId" ) String chrId,
+                                    @Param( "chrStart" ) int chrStart,
+                                    @Param( "chrEnd" ) int chrEnd);
+
+
+
 //
 //    Gene findByMarkerSymbolAndDiseaseName(String symbol, String ensemblGeneId);
 //

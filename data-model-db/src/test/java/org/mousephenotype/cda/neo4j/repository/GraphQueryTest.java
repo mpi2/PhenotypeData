@@ -244,11 +244,15 @@ public class GraphQueryTest {
 
     @Test
     public void mpGraphQueryTest() throws Exception {
-        List<String> mpIds = Arrays.asList("MP:0004787");
-//        List<String> mpIds = Arrays.asList("cardiovascular phenotype");
+//        List<String> mpIds = Arrays.asList("MP:0005385");
+        List<String> mpIds = Arrays.asList("cardiovascular system phenotype");
+       // List<String> mpIds = Arrays.asList("glucose");
         for(String mpId : mpIds) {
-           // List<Object> objs = mpRepository.findDataByMpId(mpId);
-            List<Object> objs = mpRepository.findDataByMpTermWithTopLevel(mpId);
+            List<Object> objs = mpRepository.findChildrenMpsByMpTerm(mpId, 3);
+//            List<Object> objs = mpRepository.findDataByMpTerm(mpId);
+            System.out.println("found " + objs.size());
+            System.out.println(objs.get(0));
+      //      List<Object> objs = mpRepository.findDataByMpTermWithTopLevel(mpId);
        //     List<Object> objs = mpRepository.findDataByMpIdChrRange(mpId, "1", 12345678, 34567890);
 //            List<Object> objs = mpRepository.findDataByMpTerm(mpId);
 //            List<DiseaseModel> d = diseaseModelRepository.findByAllele_Gene_MarkerSymbol(ms);
@@ -488,25 +492,16 @@ public class GraphQueryTest {
     //@Test
     public void codeTest() throws Exception {
 
-        String idlistStr = "chr1:12345-43535";
-        if (idlistStr.matches("^chr(\\w*):(\\d+)-(\\d+)$")) {
-            System.out.println("find chr range");
+        String idlistStr = "\"this is a test of mp term\"";
 
-            Pattern pattern = Pattern.compile("^chr(\\w*):(\\d+)-(\\d+)$");
-            Matcher matcher = pattern.matcher(idlistStr);
-            String chr = null;
-            String start = null;
-            String end = null;
-
-            // convert coordiantes range to list of mouse gene ids
-            while (matcher.find()) {
-                System.out.println("found: " + matcher.group(1));
-                chr = matcher.group(1);
-                start = matcher.group(2);
-                end = matcher.group(3);
-                logger.info("chr {} start {} end {}", chr, start, end );
-            }
+        if (idlistStr.matches("^\".*\"$")){
+            // ontology term name is quoted
+            System.out.println("mp term");
+            System.out.println(idlistStr.replaceAll("\"",""));
+            System.out.println("found: " + idlistStr);
+            //idlist.add(idlistStr);
         }
+
     }
 
 }

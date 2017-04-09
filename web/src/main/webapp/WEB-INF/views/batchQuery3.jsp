@@ -53,14 +53,18 @@
 				top: -70px;
 				right: 0px;
 			}
-
+			table.dataTable {
+				overflow-x:scroll;
+				width:100%;
+				display:block;
+			}
 			table.dataTable span.highlight {
 				background-color: yellow;
 				font-weight: bold;
 				color: black;
 			}
 			table.dataTable tr {
-				 width: 100% !important;
+				 /*width: 100% !important;*/
 			 }
 			table.dataTable td > li {
 				list-style: none;
@@ -188,11 +192,6 @@
 			button#chkfields {
 				margin-top: 10px;
 				display: block;
-			}
-			table.dataTable {
-				overflow-x:scroll;
-				width:100%;
-				display:block;
 			}
 			input[type=checkbox] {
 				height: 25px;
@@ -739,6 +738,9 @@
                 function fetchDatatypeProperties() {
 
                     var kv = {};
+                    kv["properties"] = [];
+                    kv["properties"].push("searchBy"); // default 1st column
+
                     $('fieldset input:checked').each(function () {
                         var dataType = $(this).parent().attr('id');
                         var property = $(this).val();
@@ -749,11 +751,7 @@
                         }
                         kv[dataType].push(property);
 
-                        if (!kv.hasOwnProperty("properties")) {
-                            kv["properties"] = [];
-                        }
                         kv["properties"].push(property);
-
                     });
 
                     if ($('input.bq:checked').attr('id') == "geneChr") {
@@ -944,7 +942,7 @@
                             var q = this.value;
                             q = encodeURIComponent(q).replace("%3A", "\\%3A");
 
-                            $('textarea#pastedList').val(decodeURIComponent(q));
+                            $('textarea#pastedList').val('"'+ decodeURIComponent(q) + '"');
 
                             // prevents escaped html tag displayed in input box
                             event.preventDefault(); return false;
@@ -1062,7 +1060,7 @@
 
                     refreshResult(); // refresh first
 
-					alert('before table')
+					//alert('before table')
                     prepare_dataTable(datatypeProperties.properties);
 
 
@@ -1079,8 +1077,6 @@
 
                     oConf.datatypeProperties = JSON.stringify(datatypeProperties);
                     oConf.dataType = mapInputId2NodeType(currDataType);
-
-                    console.log(oConf);
 
                     fetchBatchQueryDataTable(oConf);
 
@@ -1172,8 +1168,17 @@
 
                 function parsePastedList(val, dataType){
                     val = val.trim();
-                    var aVals = val.split(/\n|,|\t|\s+/);
+
+                    var aVals = [];
+                    if (dataType == 'mpTerm'){
+                        aVals.push(val);
+					}
+					else {
+                        aVals = val.split(/\n|,|\t|\s+/);
+                    }
+
                     var aVals2 = [];
+
                     for ( var i=0; i<aVals.length; i++){
                         if ( aVals[i] == "" ){
                             continue;
@@ -1230,10 +1235,10 @@
                     //oConf.idlist = getUniqIdsStr(oConf.idlist);
                     console.log(oConf);
 
-                    console.log($('table#batchq'));
-                    console.log($('table#batchq').html())
+//                    console.log($('table#batchq'));
+//                    console.log($('table#batchq').html())
 
-                    alert("here")
+                    //alert("here")
                     var oTable = $('table#batchq').dataTable({
                         "bSort": false, // true is default
                         "processing": true,
@@ -1519,7 +1524,7 @@
 
                     var legend = '<legend>Include mouse phenotype children: number of level down in hierarchy</legend>';
                     var input = 'level:<select id="childLevel">' + levelSel + '</select>';
-                    var filter = '<fieldset id="mpLevel">' + legend + input + '</fieldset>';
+                    var filter = '<fieldset id="mpLevel">' + legend + input + ' (0 means negative)</fieldset>';
 
                     $('div#bqFilter').append(filter);
 				}
@@ -1605,7 +1610,7 @@
 														End: <input id='rend' type="text" name="pin" size="8">
 													</div>
 
-													<input type="radio" id="mpTerm" value="Eg. cardiovescular system phenotype" name="dataType" class='bq'>Mouse phenotype by name <i class="fa fa-info-circle" aria-hidden="true"></i><br>
+													<input type="radio" id="mpTerm" value="Eg. cardiovascular system phenotype" name="dataType" class='bq'>Mouse phenotype by name <i class="fa fa-info-circle" aria-hidden="true"></i><br>
 													<div class='block srchBox'>
 														<i class='fa fa-search'></i>
 														<input id='srchMp' value="search">
