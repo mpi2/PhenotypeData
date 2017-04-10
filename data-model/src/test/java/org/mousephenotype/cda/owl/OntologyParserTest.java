@@ -332,6 +332,9 @@ public class OntologyParserTest {
         Assert.assertTrue(ma.size() == 1);
         Assert.assertTrue(ma.contains("MA:0000009"));
 
+        Set<String> maBrain = mpMaParser.getReferencedClasses("MP:0002152", viaProperties, "MA");
+        Assert.assertTrue(maBrain.contains("MA:0000168"));
+
     }
 
 }
