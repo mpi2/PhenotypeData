@@ -3110,6 +3110,10 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
         try {
 
             String backgroundStrainName = strainMapper.parseMultipleBackgroundStrainNames(colony.getBackgroundStrain());
+            if ((backgroundStrainName == null) || backgroundStrainName.trim().isEmpty()) {
+                logger.warn("parseMultipleBackgroundStrainNames returned null backgroundStrainName for colony " + colony);
+                return null;
+            }
             backgroundStrain = getStrainByNameOrMgiAccessionId(backgroundStrainName);
 
             if (backgroundStrain == null) {
