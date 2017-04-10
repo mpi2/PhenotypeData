@@ -37,6 +37,26 @@ public class OntologyTermDTO {
     String              childrenJson;
     String              scrollToNode;
 
+    public OntologyTermDTO(){
+
+        synonyms = new HashSet<>();
+        narrowSynonyms = new HashSet<>();
+        equivalentClasses = new HashSet<>();
+        childIds = new HashSet<>();
+        childNames = new HashSet<>();
+        parentIds = new HashSet<>();
+        parentNames = new HashSet<>();
+        alternateIds = new HashSet<>();
+        considerIds = new HashSet<>();
+        broadSynonyms = new HashSet<>();
+        intermediateIds = new HashSet<>();
+        intermediateNames = new HashSet<>();
+        intermediateSynonyms = new HashSet<>();
+        topLevelNames = new HashSet<>();
+        topLevelIds = new HashSet<>();
+        topLevelSynonyms = new HashSet<>();
+        topLevelTermIdsConcatenated = new HashSet<>();
+    }
 
     public String getSeachJson() {
         return seachJson;
