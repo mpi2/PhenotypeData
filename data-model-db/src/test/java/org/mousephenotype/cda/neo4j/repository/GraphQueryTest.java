@@ -244,11 +244,14 @@ public class GraphQueryTest {
 
     @Test
     public void mpGraphQueryTest() throws Exception {
+        List<String> hgsyms = Arrays.asList("NXN","DST");
 //        List<String> mpIds = Arrays.asList("MP:0005385");
-        List<String> mpIds = Arrays.asList("cardiovascular system phenotype");
+//        List<String> mpIds = Arrays.asList("cardiovascular system phenotype");
        // List<String> mpIds = Arrays.asList("glucose");
-        for(String mpId : mpIds) {
-            List<Object> objs = mpRepository.findChildrenMpsByMpTerm(mpId, 3);
+        for(String hgsym : hgsyms) {
+//        for(String mpId : mpIds) {
+            List<Object> objs = humanGeneSymbolRepository.findDataByHumanGeneSymbol(hgsym);
+            //        List<Object> objs = mpRepository.findChildrenMpsByMpTerm(mpId, 3);
 //            List<Object> objs = mpRepository.findDataByMpTerm(mpId);
             System.out.println("found " + objs.size());
             System.out.println(objs.get(0));
