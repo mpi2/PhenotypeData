@@ -2226,14 +2226,16 @@ public class StatisticalResultDTO {
 	}
 
 	public void addTopLevelAnatomyTermId(Collection<String> topLevelAnatomyTermId){
-		if (this.topLevelAnatomyTermId == null){
-			this.topLevelAnatomyTermId = new ArrayList<>();
-		}
-		for (String term : topLevelAnatomyTermId){
-			if (!this.topLevelAnatomyTermId.contains(term)){
-				this.topLevelAnatomyTermId.add(term);
-			}
-		}
+		if (topLevelAnatomyTermId != null) {
+            if (this.topLevelAnatomyTermId == null) {
+                this.topLevelAnatomyTermId = new ArrayList<>();
+            }
+            for (String term : topLevelAnatomyTermId) {
+                if (!this.topLevelAnatomyTermId.contains(term)) {
+                    this.topLevelAnatomyTermId.add(term);
+                }
+            }
+        }
 	}
 
 	public List<String> getTopLevelAnatomyTermName() {
@@ -2252,14 +2254,16 @@ public class StatisticalResultDTO {
 	}
 
 	public void addTopLevelAnatomyTermName(Collection<String> topLevelAnatomyTermName){
-		if (this.topLevelAnatomyTermName == null){
-			this.topLevelAnatomyTermName = new ArrayList<>();
-		}
-		for (String term : topLevelAnatomyTermName){
-			if (!this.topLevelAnatomyTermName.contains(term)){
-				this.topLevelAnatomyTermName.add(term);
-			}
-		}
+	    if (topLevelAnatomyTermName != null) {
+            if (this.topLevelAnatomyTermName == null) {
+                this.topLevelAnatomyTermName = new ArrayList<>();
+            }
+            for (String term : topLevelAnatomyTermName) {
+                if (!this.topLevelAnatomyTermName.contains(term)) {
+                    this.topLevelAnatomyTermName.add(term);
+                }
+            }
+        }
 	}
 
 
