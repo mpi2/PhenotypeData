@@ -137,17 +137,17 @@ public class Loader implements CommandLineRunner {
         logger.info("Start deleting all repositories ...");
 //        FileUtils.deleteDirectory(new File(neo4jDbPath));
 
-        geneRepository.deleteAll();
-        alleleRepository.deleteAll();
-        ensemblGeneIdRepository.deleteAll();
-        markerSynonymRepository.deleteAll();
-        ontoSynonymRepository.deleteAll();
-        humanGeneSymbolRepository.deleteAll();
-        mpRepository.deleteAll();
-        hpRepository.deleteAll();
-        diseaseGeneRepository.deleteAll();
-        diseaseModelRepository.deleteAll();
-        mouseModelRepository.deleteAll();
+//        geneRepository.deleteAll();
+//        alleleRepository.deleteAll();
+//        ensemblGeneIdRepository.deleteAll();
+//        markerSynonymRepository.deleteAll();
+//        ontoSynonymRepository.deleteAll();
+//        humanGeneSymbolRepository.deleteAll();
+//        mpRepository.deleteAll();
+//        hpRepository.deleteAll();
+//        diseaseGeneRepository.deleteAll();
+//        diseaseModelRepository.deleteAll();
+//        mouseModelRepository.deleteAll();
         logger.info("Done deleting all repositories");
 
         Connection komp2Conn = komp2DataSource.getConnection();
@@ -156,26 +156,27 @@ public class Loader implements CommandLineRunner {
         //----------- STEP 1 -----------//
         // loading Gene, Allele, EnsemblGeneId, MarkerSynonym, human orthologs
         // based on Peter's allele2 flatfile
-        loadGenes();
+//        loadGenes();
+//
+//        //----------- STEP 2 -----------//
+//        populateHpIdTermMap();            // STEP 2.1
+//        populateBestMpIdHpMap();          // STEP 2.2
+//        extendLoadedHpAndConnectHp2Mp();  // STEP 2.3
+//        loadMousePhenotypes();            // STEP 2.4
+//
+//        //----------- STEP 3 -----------//
+//        populateMouseModelIdMpMap(); // run this before loadMouseModel()
+//        loadMouseModels();
+//
+//        //----------- STEP 4 -----------//
+//        // load disease and Gene, Hp, Mp relationships
+//        populateDiseaseIdPhenotypeMap();
+//        loadDiseaseGenes();
+//
+//        //----------- STEP 5 -----------//
+//        loadDiseaseModels();
 
-        //----------- STEP 2 -----------//
-        populateHpIdTermMap();            // STEP 2.1
-        populateBestMpIdHpMap();          // STEP 2.2
-        extendLoadedHpAndConnectHp2Mp();  // STEP 2.3
-        loadMousePhenotypes();            // STEP 2.4
-
-        //----------- STEP 3 -----------//
-        populateMouseModelIdMpMap(); // run this before loadMouseModel()
-        loadMouseModels();
-
-        //----------- STEP 4 -----------//
-        // load disease and Gene, Hp, Mp relationships
-        populateDiseaseIdPhenotypeMap();
-        loadDiseaseGenes();
-
-        //----------- STEP 5 -----------//
-        loadDiseaseModels();
-
+        loadHumanPhenotypes();
     }
 
     public void loadGenes() throws IOException, SolrServerException {
@@ -385,14 +386,31 @@ public class Loader implements CommandLineRunner {
         loadHumanOrtholog();
     }
 
+    public void loadHumanPhenotypes() throws IOException, OWLOntologyCreationException, OWLOntologyStorageException, SQLException, URISyntaxException, SolrServerException {
+        long begin = System.currentTimeMillis();
+
+        mpHpParser = ontologyParserFactory.getMpHpParser();
+        logger.info("Loaded mp hp parser");
+
+        int hpCount = 0;
+
+        for (OntologyTermDTO term : mpHpParser.getTerms()){
+
+
+//            OntologyTermDTO mpDTO = mpHpParser.getOntologyTerm(mpId);
+//            String termId = mpDTO.getAccessionId();
+
+        }
+    }
+
     public void loadMousePhenotypes() throws IOException, OWLOntologyCreationException, OWLOntologyStorageException, SQLException, URISyntaxException, SolrServerException {
         long begin = System.currentTimeMillis();
 
         mpParser = ontologyParserFactory.getMpParser();
         logger.info("Loaded mp parser");
 
-//        mpHpParser = ontologyParserFactory.getMpHpParser();
-//        logger.info("Loaded mp hp parser");
+        mpHpParser = ontologyParserFactory.getMpHpParser();
+        logger.info("Loaded mp hp parser");
 
         int mpCount = 0;
         for (String mpId: mpParser.getTermsInSlim()) {
@@ -426,7 +444,7 @@ public class Loader implements CommandLineRunner {
                 }
             }
 
-            // PARENT
+            // MP PARENT
             if (mp.getMpParentIds() == null) {
                 if ( mpDTO.getParentIds() != null) {
                     Set<Mp> parentMps = new HashSet<>();

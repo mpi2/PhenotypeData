@@ -114,6 +114,7 @@ public class AdvancedSearchController {
     MouseModelRepository mouseModelRepository;
 
     private String NA = "not available";
+    private String baseUrl = null;
 
     @RequestMapping(value="/meshtree", method=RequestMethod.GET)
     public String loadmeshtreePage(
@@ -266,6 +267,8 @@ public class AdvancedSearchController {
 
             String mode = "nonExport";
         }
+
+        baseUrl = request.getAttribute("baseUrl").toString();
 
         content = fetchGraphData(dataType, idlist, labels, jDatatypeProperties, properties, regionId, regionStart, regionEnd, childLevel);
 
@@ -519,6 +522,12 @@ public class AdvancedSearchController {
     public void getValues(List<String> nodeProperties, Object o, Map<String, Set<String>> colValMap) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
 
         int showCutOff = 3;
+        ;
+        String geneBaseUrl = baseUrl + "/genes/";
+        String mpBaseUrl = baseUrl + "/phenotypes/";
+        String diseaseBaseUrl = baseUrl + "/disease/";
+        String ensemblGeneBaseUrl = "http://www.ensembl.org/Mus_musculus/Gene/Summary?db=core;g=";
+
 
         for(String property : nodeProperties) {
 
@@ -555,6 +564,19 @@ public class AdvancedSearchController {
 
 
             if (! colVal.isEmpty()) {
+                if (property.equals("mgiAccessionId")){
+                    colVal = "<a target='_blank' href='" + geneBaseUrl + colVal + "'>" + colVal + "</a>";
+                }
+                else if (property.equals("mpId")){
+                    colVal = "<a target='_blank' href='" + mpBaseUrl + colVal + "'>" + colVal + "</a>";
+                }
+                else if (property.equals("diseaseId")){
+                    colVal = "<a target='_blank' href='" + diseaseBaseUrl + colVal + "'>" + colVal + "</a>";
+                }
+                else if (property.equals("ensemblGeneId")){
+                    colVal = "<a target='_blank' href='" + ensemblGeneBaseUrl + colVal + "'>" + colVal + "</a>";
+                }
+
                 colValMap.get(property).add("<li>" + colVal + "</li>");
             }
         }

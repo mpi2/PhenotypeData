@@ -70,7 +70,7 @@
 				list-style: none;
 			}
 			table.dataTable td ul {
-				list-style-position:inside;
+				list-style-position:outside;
 			}
 			table.dataTable td ul li:nth-child(1), table.dataTable td ul li:nth-child(2) {
 				display: list-item;
