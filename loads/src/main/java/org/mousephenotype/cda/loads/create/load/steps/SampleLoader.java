@@ -61,9 +61,10 @@ public class SampleLoader implements Step, Tasklet, InitializingBean {
     private StrainMapper strainMapper;
     private NamedParameterJdbcTemplate jdbcCda;
 
-    private Set<String> missingColonyIds = new HashSet<>();
-    private Set<String> noGeneForAllele = new HashSet<>();
-    private Set<String> unexpectedStage  = new HashSet<>();
+    private Set<String> missingColonyIds         = new HashSet<>();
+    private Set<String> missingBackgroundStrains = new HashSet<>();
+    private Set<String> noGeneForAllele          = new HashSet<>();
+    private Set<String> unexpectedStage          = new HashSet<>();
 
     private final Logger         logger      = LoggerFactory.getLogger(this.getClass());
     private StepBuilderFactory   stepBuilderFactory;
@@ -210,6 +211,12 @@ public class SampleLoader implements Step, Tasklet, InitializingBean {
             logger.warn("Skipping missing phenotyped_colony information for dcc-supplied colony '" + colonyId + "'");
         }
 
+        Iterator<String> noBackgroundStrainIt = missingBackgroundStrains.iterator();
+        while (noBackgroundStrainIt.hasNext()) {
+            String colonyId = noBackgroundStrainIt.next();
+            logger.warn("Skipping colonyId " + colonyId + " because background strain is missing");
+        }
+
         Iterator<String> unexpectedStageIt = unexpectedStage.iterator();
         while (unexpectedStageIt.hasNext()) {
             String stage = unexpectedStageIt.next();
@@ -296,6 +303,10 @@ public class SampleLoader implements Step, Tasklet, InitializingBean {
                 case NONEXISTENT_COLONY_ID:
                     missingColonyIds.add(specimen.getColonyID());
                     break;
+
+                case NO_BACKGROUND_STRAIN:
+                    missingBackgroundStrains.add(specimen.getColonyID());
+                    return counts;
 
                 default:
                     logger.error("Unable to get/create biological model for colonyId '" + specimen.getColonyID() + "'.");

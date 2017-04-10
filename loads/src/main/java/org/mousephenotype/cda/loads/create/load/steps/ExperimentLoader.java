@@ -69,6 +69,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
 
     private Set<String> badDates                     = new HashSet<>();
     private Set<String> experimentsMissingSamples    = new HashSet<>();        // value = specimenId + "_" + cda phenotypingCenterPk
+    private Set<String> missingBackgroundStrains     = new HashSet<>();
     private Set<String> missingColonyIds             = new HashSet<>();
     private Set<String> experimentsMissingColonyIds  = new HashSet<>();
     private Set<String> missingProjects              = new HashSet<>();
@@ -325,6 +326,11 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
             logger.warn(experimentsMissingColonyIdsIt.next());
         }
 
+        Iterator<String> missingBackgroundStrainsIt = missingBackgroundStrains.iterator();
+        while (missingBackgroundStrainsIt.hasNext()) {
+            logger.info(missingBackgroundStrainsIt.next());
+        }
+
         Iterator<String> experimentsMissingSamplesIt = experimentsMissingSamples.iterator();
         while (experimentsMissingSamplesIt.hasNext()) {
             logger.warn(experimentsMissingSamplesIt.next());
@@ -559,8 +565,19 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
             List<SimpleParameter> simpleParameters = dccSqlUtils.getSimpleParameters(dccExperiment.getDcc_procedure_pk());
             try {
                 biologicalModelPk = getBiologicalModelId(phenotypedColony, simpleParameters);
+
             } catch (DataLoadException e) {
-                logger.warn("Skipping line-level experiment {}", dccExperiment.getExperimentId());
+
+                switch (e.getDetail()) {
+                    case NO_BACKGROUND_STRAIN:
+                        missingBackgroundStrains.add(phenotypedColony.getColonyName());
+                        return null;
+
+                    default:
+                        logger.warn("Skipping line-level experiment {}", dccExperiment.getExperimentId());
+                        break;
+                }
+
                 return null;
             }
 

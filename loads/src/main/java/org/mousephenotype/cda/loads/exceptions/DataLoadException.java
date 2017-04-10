@@ -24,7 +24,8 @@ public class DataLoadException extends Exception {
     public enum DETAIL {
         GENERAL_ERROR,
         NONEXISTENT_COLONY_ID,
-        NO_GENE_FOR_ALLELE
+        NO_GENE_FOR_ALLELE,
+        NO_BACKGROUND_STRAIN
     }
 
     private DETAIL detail = DETAIL.GENERAL_ERROR;
