@@ -1486,6 +1486,7 @@
 
                     // add chromosome range filter
                     var chrs = [];
+                    chrs.push("none")
                     for (var r = 1; r < 20; r++) {
                         chrs.push(r);
                     }
@@ -1502,16 +1503,16 @@
                     }
 
                     var legend = '<legend>Mouse chromosomal range</legend>';
-                    var inputs = 'Chr:<select id="chrSel2">' + chrSel + '</select>' +
-                        'Start: <input id="rstart2" type="text" name="chr">' +
-                        'End: <input id="rend2" type="text" name="chr">';
+                    var inputs = 'Chr:<select id="chrSel2">' + chrSel + '</select> (restricts phenotype(s) on genes of this chromosome)';
+                        //'Start: <input id="rstart2" type="text" name="chr">' +
+                        //'End: <input id="rend2" type="text" name="chr">';
                     var filter = '<fieldset id="chromosome">' + legend + inputs + '</fieldset>';
 
                     $('div#bqFilter').append(filter);
                 }
 
                 function addMpChildrenLevelFilter(){
-                    var levels = [0, 1,2,3,4,5,'all'];
+                    var levels = [0,1,2,3,4,5,'all'];
                     var levelSel = "";
                     for (var i = 0; i < levels.length; i++) {
                         if (i == 0) {
@@ -1522,9 +1523,9 @@
                         }
                     }
 
-                    var legend = '<legend>Include mouse phenotype children: number of level down in hierarchy</legend>';
+                    var legend = '<legend>Include children of this mouse phenotype</legend>';
                     var input = 'level:<select id="childLevel">' + levelSel + '</select>';
-                    var filter = '<fieldset id="mpLevel">' + legend + input + ' (0 means negative)</fieldset>';
+                    var filter = '<fieldset id="mpLevel">' + legend + input + ' (0 means none, 1 means one level down in the ontology hierarchy, etc.)</fieldset>';
 
                     $('div#bqFilter').append(filter);
 				}
