@@ -3107,26 +3107,19 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
         // Get the background strain from iMits. Some EuroPhenome background strains require translation because
         // they are comprised of multiple strains separated by semicolons (or other reasons.
         // strainMapper.parseMultipleBackgroundStrainNames takes care of this translation
-        try {
 
-            String backgroundStrainName = strainMapper.parseMultipleBackgroundStrainNames(colony.getBackgroundStrain());
-            if ((backgroundStrainName == null) || backgroundStrainName.trim().isEmpty()) {
-                throw new DataLoadException("parseMultipleBackgroundStrainNames returned null/empty backgroundStrainName for colony " + colony, DataLoadException.DETAIL.NO_BACKGROUND_STRAIN);
-            }
-            backgroundStrain = getStrainByNameOrMgiAccessionId(backgroundStrainName);
-
-            if (backgroundStrain == null) {
-                backgroundStrain = createAndInsertStrain(backgroundStrainName);
-            }
-
-            geneticBackground = backgroundStrain.getGeneticBackground();
-
-        } catch (DataLoadException e) {
-
-            message = "Insert strain " + colony.getBackgroundStrain() + " for dcc-supplied colony '" + colony.getColonyName() + "' failed. Reason: " + e.getLocalizedMessage() + ". Skipping...";
-            logger.error(message);
-            throw new DataLoadException(message, e);
+        String backgroundStrainName = strainMapper.parseMultipleBackgroundStrainNames(colony.getBackgroundStrain());
+        if ((backgroundStrainName == null) || backgroundStrainName.trim().isEmpty()) {
+            throw new DataLoadException("parseMultipleBackgroundStrainNames returned null/empty backgroundStrainName for colony " + colony.getColonyName(), DataLoadException.DETAIL.NO_BACKGROUND_STRAIN);
         }
+        backgroundStrain = getStrainByNameOrMgiAccessionId(backgroundStrainName);
+
+        if (backgroundStrain == null) {
+            backgroundStrain = createAndInsertStrain(backgroundStrainName);
+        }
+
+        geneticBackground = backgroundStrain.getGeneticBackground();
+
 
         // Get the biological model. Create one if it is not found.
         String allelicComposition = strainMapper.createAllelicComposition(zygosity, allele.getSymbol(), gene.getSymbol(), sampleGroup);
