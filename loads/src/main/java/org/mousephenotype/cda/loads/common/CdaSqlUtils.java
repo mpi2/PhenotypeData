@@ -3068,7 +3068,7 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
      * @param zygosity
      * @param sampleGroup
      * @param allelesBySymbol
-     * @return {@link BiologicalModel} matching the input parameters. Creates it if necessary.
+     * @return {@link BiologicalModel} matching the input parameters. Creates it if necessary. NOTE: if the colony has no background strain, a null BiologicalModel is returned. This can and does happen.
      * @throws DataLoadException
      */
     public BiologicalModel selectOrInsertBiologicalModel (
@@ -3111,8 +3111,7 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
 
             String backgroundStrainName = strainMapper.parseMultipleBackgroundStrainNames(colony.getBackgroundStrain());
             if ((backgroundStrainName == null) || backgroundStrainName.trim().isEmpty()) {
-                logger.warn("parseMultipleBackgroundStrainNames returned null backgroundStrainName for colony " + colony);
-                return null;
+                throw new DataLoadException("parseMultipleBackgroundStrainNames returned null/empty backgroundStrainName for colony " + colony, DataLoadException.DETAIL.NO_BACKGROUND_STRAIN);
             }
             backgroundStrain = getStrainByNameOrMgiAccessionId(backgroundStrainName);
 
