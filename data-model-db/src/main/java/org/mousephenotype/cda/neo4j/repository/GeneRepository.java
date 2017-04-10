@@ -19,7 +19,7 @@ import java.util.List;
 
     // diseaseModels know about MouseModel and Allele
 
-    @Query("match (g:Gene) where g.markerSymbol=~ ('(?i){markerSymbol}) with g, "
+    @Query("match (g:Gene) where g.markerSymbol=~ ('(?i)'+{markerSymbol}) with g, "
         + "[(g)-[:MARKER_SYNONYM]->(ms:MarkerSynonym) | ms] as markerSynonym, "
         + "[(g)-[:HUMAN_GENE_SYMBOL]->(hgs:HumanGeneSymbol) | hgs] as humanGeneSymbol, "
         + "[(g)-[:ENSEMBL_GENE_ID]->(ensg:EnsemblGeneId) | ensg] as ensemblGeneId, "
