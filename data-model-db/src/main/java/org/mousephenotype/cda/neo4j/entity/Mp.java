@@ -33,7 +33,7 @@ public class Mp {
     @Relationship(type="MP_NARROW_SYNONYM", direction=Relationship.OUTGOING)
     private Set<OntoSynonym> mpNarrowSynonyms;
 
-    @Relationship(type="MP_PARENT_ID", direction=Relationship.OUTGOING)
+    @Relationship(type="PARENT", direction=Relationship.OUTGOING)
     private Set<Mp> mpParentIds;
 
     public Long getId() {

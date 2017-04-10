@@ -1,6 +1,5 @@
 package org.mousephenotype.cda.neo4j.repository;
 
-import org.mousephenotype.cda.neo4j.entity.DiseaseModelGeneResult;
 import org.mousephenotype.cda.neo4j.entity.Gene;
 import org.springframework.data.neo4j.annotation.Query;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
@@ -20,7 +19,7 @@ import java.util.List;
 
     // diseaseModels know about MouseModel and Allele
 
-    @Query("match (g:Gene) where g.markerSymbol={markerSymbol} with g, "
+    @Query("match (g:Gene) where g.markerSymbol=~ ('(?i){markerSymbol}) with g, "
         + "[(g)-[:MARKER_SYNONYM]->(ms:MarkerSynonym) | ms] as markerSynonym, "
         + "[(g)-[:HUMAN_GENE_SYMBOL]->(hgs:HumanGeneSymbol) | hgs] as humanGeneSymbol, "
         + "[(g)-[:ENSEMBL_GENE_ID]->(ensg:EnsemblGeneId) | ensg] as ensemblGeneId, "
