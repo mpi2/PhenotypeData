@@ -22,13 +22,6 @@ public interface MpRepository extends Neo4jRepository<Mp, Long> {
     // FIND BY MP ID (INCLUDES SELF)
     //---------------------------------------
 
-    //@Query("MATCH (mp:Mp)<-[:MP_PARENT_ID*0..{childLevel}]-(cmp) WHERE mp.mpId={mpId} with mp, cmp RETURN collect(distinct mp.mpId), collect(distinct cmp.mpId)")
-    @Query("MATCH (mp:Mp)<-[:MP_PARENT_ID*0..3]-(cmp) WHERE mp.mpId={mpId} with mp, cmp RETURN collect(distinct cmp)")
-    List<Object> findChildrenMpsByMpId(@Param( "mpId" ) String mpId, @Param( "childLevel" ) int childLevel);
-
-    @Query("MATCH (mp:Mp)<-[:MP_PARENT_ID*0..]-(cmp) WHERE mp.mpId={mpId} RETURN collect(distinct mp), collect(distinct cmp)")
-    List<Object> findAllChildrenMpsByMpId(@Param( "mpId" ) String mpId);
-
     @Query("MATCH (mp:Mp) WHERE mp.mpId={mpId} WITH mp, "
             + "[(mp)<-[:MOUSE_PHENOTYPE]-(mm:MouseModel)-[:GENE]->(g:Gene)-[:MARKER_SYNONYM]->(ms:MarkerSynonym) | ms] as markerSynonym, "
             + "[(mp)<-[:MOUSE_PHENOTYPE]-(mm:MouseModel)-[:GENE]->(g:Gene)-[:HUMAN_GENE_SYMBOL]->(hgs:HumanGeneSymbol) | hgs] as humanGeneSymbol, "
@@ -42,8 +35,37 @@ public interface MpRepository extends Neo4jRepository<Mp, Long> {
             + "RETURN mp, markerSynonym, humanGeneSymbol, ensemblGeneId, gene, mouseModel, diseaseModel, allele, hp, mpSynonym")
     List<Object> findDataByMpId(@Param( "mpId" ) String mpId);
 
+
+    //@Query("MATCH (mp:Mp)<-[:MP_PARENT_ID*0..{childLevel}]-(cmp) WHERE mp.mpId={mpId} with mp, cmp RETURN collect(distinct mp.mpId), collect(distinct cmp.mpId)")
+    @Query("MATCH (mp:Mp)<-[:MP_PARENT_ID*0..3]-(cmp) WHERE mp.mpId={mpId} with mp, cmp RETURN collect(distinct cmp)")
+    List<Object> findChildrenMpsByMpId(@Param( "mpId" ) String mpId, @Param( "childLevel" ) int childLevel);
+
+    @Query("MATCH (mp:Mp)<-[:MP_PARENT_ID*0..]-(cmp) WHERE mp.mpId={mpId} RETURN collect(distinct mp), collect(distinct cmp)")
+    List<Object> findAllChildrenMpsByMpId(@Param( "mpId" ) String mpId);
+
+
+    @Query("MATCH (cmp)-[:MP_PARENT_ID*0..]->(mp:Mp)<-[:MOUSE_PHENOTYPE]-(mm:MouseModel)-[:GENE]->(g:Gene) "
+            + "WHERE g.chrId = {chrId} "
+            + "AND mp.mpId={mpId} "
+            + "RETURN collect(distinct cmp)")
+    List<Object> findAllChildrenMpsByMpIdChr(@Param( "mpId" ) String mpId,
+                                               @Param( "chrId" ) String chrId
+//                                               @Param( "chrStart" ) int chrStart,
+//                                               @Param( "chrEnd" ) int chrEnd
+                                                );
+
+    @Query("MATCH (cmp)-[:MP_PARENT_ID*0..3]->(mp:Mp)<-[:MOUSE_PHENOTYPE]-(mm:MouseModel)-[:GENE]->(g:Gene) "
+            + "WHERE g.chrId = {chrId} "
+            + "AND mp.mpId={mpId} "
+            + "RETURN collect(distinct cmp)")
+    List<Object> findChildrenMpsByMpIdChr(@Param( "mpId" ) String mpId,
+                                               @Param( "chrId" ) String chrId,
+//                                               @Param( "chrStart" ) int chrStart,
+//                                               @Param( "chrEnd" ) int chrEnd,
+                                               @Param( "childLevel" ) int childLevel);
+
     @Query("MATCH (mp:Mp)<-[:MOUSE_PHENOTYPE]-(mm:MouseModel)-[:GENE]->(g:Gene) WHERE mp.mpId={mpId} "
-            + " AND g.chrId = {chrId} AND g.chrStart >= {chrStart} AND g.chrEnd <= {chrEnd} with mp, g, "
+            + " AND g.chrId = {chrId} with mp, g, "
             + "[(g:Gene)-[:MARKER_SYNONYM]->(ms:MarkerSynonym) | ms] as markerSynonym, "
             + "[(g:Gene)-[:HUMAN_GENE_SYMBOL]->(hgs:HumanGeneSymbol) | hgs] as humanGeneSymbol, "
             + "[(g:Gene)-[:ENSEMBL_GENE_ID]->(ensg:EnsemblGeneId) | ensg] as ensemblGeneId, "
@@ -53,21 +75,16 @@ public interface MpRepository extends Neo4jRepository<Mp, Long> {
             + "[(mp)-[:HUMAN]->(h:Hp) | h] as hp, "
             + "[(mp)-[:MP_SYNONYM]->(mps:OntoSynonym) | mps] as mpSynonym "
             + "RETURN mp, markerSynonym, humanGeneSymbol, ensemblGeneId, g, mouseModel, diseaseModel, allele, hp, mpSynonym")
-    List<Object> findDataByMpIdChrRange(@Param( "mpId" ) String mpId,
-                                        @Param( "chrId" ) String chrId,
-                                        @Param( "chrStart" ) int chrStart,
-                                        @Param( "chrEnd" ) int chrEnd);
+    List<Object> findDataByMpIdChr(@Param( "mpId" ) String mpId,
+                                        @Param( "chrId" ) String chrId
+//                                        @Param( "chrStart" ) int chrStart,
+//                                        @Param( "chrEnd" ) int chrEnd
+                                        );
 
 
     //---------------------------------------
     // FIND BY MP TERM (INCLUDES SELF)
     //---------------------------------------
-
-    @Query("MATCH (mp:Mp)<-[:MP_PARENT_ID*0..3]-(cmp) WHERE mp.mpTerm =~ ('(?i)'+'.*'+{mpTerm}+'.*') with mp, cmp RETURN collect(distinct cmp)")
-    List<Object> findChildrenMpsByMpTerm(@Param( "mpTerm" ) String mpTerm, @Param( "childLevel" ) int childLevel);
-
-    @Query("MATCH (mp:Mp)<-[:MP_PARENT_ID*0..]-(cmp) WHERE mp.mpTerm =~ ('(?i)'+'.*'+{mpTerm}+'.*') RETURN collect(distinct mp), collect(distinct cmp)")
-    List<Object> findAllChildrenMpsByMpTerm(@Param( "mpTerm" ) String mpTerm);
 
     @Query("MATCH (mp:Mp) WHERE mp.mpTerm =~ ('(?i)'+'.*'+{mpTerm}+'.*')  WITH mp, "
             + "[(mp)<-[:MOUSE_PHENOTYPE]-(mm:MouseModel)-[:GENE]->(g:Gene)-[:MARKER_SYNONYM]->(ms:MarkerSynonym) | ms] as markerSynonym, "
@@ -82,8 +99,34 @@ public interface MpRepository extends Neo4jRepository<Mp, Long> {
             + "RETURN mp, markerSynonym, humanGeneSymbol, ensemblGeneId, gene, mouseModel, diseaseModel, allele, hp, mpSynonym")
     List<Object> findDataByMpTerm(@Param( "mpTerm" ) String mpTerm);
 
+    @Query("MATCH (mp:Mp)<-[:MP_PARENT_ID*0..3]-(cmp) WHERE mp.mpTerm =~ ('(?i)'+'.*'+{mpTerm}+'.*') with mp, cmp RETURN collect(distinct cmp)")
+    List<Object> findChildrenMpsByMpTerm(@Param( "mpTerm" ) String mpTerm, @Param( "childLevel" ) int childLevel);
+
+    @Query("MATCH (mp:Mp)<-[:MP_PARENT_ID*0..]-(cmp) WHERE mp.mpTerm =~ ('(?i)'+'.*'+{mpTerm}+'.*') RETURN collect(distinct mp), collect(distinct cmp)")
+    List<Object> findAllChildrenMpsByMpTerm(@Param( "mpTerm" ) String mpTerm);
+
+    @Query("MATCH (cmp)-[:MP_PARENT_ID*0..]->(mp:Mp)<-[:MOUSE_PHENOTYPE]-(mm:MouseModel)-[:GENE]->(g:Gene) "
+            + "WHERE g.chrId = {chrId} "
+            + "AND mp.mpTerm =~ ('(?i)'+'.*'+{mpTerm}+'.*') "
+            + "RETURN collect(distinct cmp)")
+    List<Object> findAllChildrenMpsByMpTermChr(@Param( "mpTerm" ) String mpTerm,
+                                                    @Param( "chrId" ) String chrId
+//                                                    @Param( "chrStart" ) int chrStart,
+//                                                    @Param( "chrEnd" ) int chrEnd
+                                                    );
+
+    @Query("MATCH (cmp)-[:MP_PARENT_ID*0..3]->(mp:Mp)<-[:MOUSE_PHENOTYPE]-(mm:MouseModel)-[:GENE]->(g:Gene) "
+            + "WHERE g.chrId = {chrId} "
+            + "AND mp.mpTerm =~ ('(?i)'+'.*'+{mpTerm}+'.*') "
+            + "RETURN collect(distinct cmp)")
+    List<Object> findChildrenMpsByMpTermChr(@Param( "mpTerm" ) String mpTerm,
+                                                 @Param( "chrId" ) String chrId,
+//                                                 @Param( "chrStart" ) int chrStart,
+//                                                 @Param( "chrEnd" ) int chrEnd,
+                                                 @Param( "childLevel" ) int childLevel);
+
     @Query("MATCH (mp:Mp)<-[:MOUSE_PHENOTYPE]-(mm:MouseModel)-[:GENE]->(g:Gene) WHERE mp.mpTerm =~ ('(?i)'+'.*'+{mpTerm}+'.*') "
-            + " AND g.chrId = {chrId} AND g.chrStart >= {chrStart} AND g.chrEnd <= {chrEnd} with mp, g, "
+            + "AND g.chrId = {chrId} with mp, g, "
             + "[(g:Gene)-[:MARKER_SYNONYM]->(ms:MarkerSynonym) | ms] as markerSynonym, "
             + "[(g:Gene)-[:HUMAN_GENE_SYMBOL]->(hgs:HumanGeneSymbol) | hgs] as humanGeneSymbol, "
             + "[(g:Gene)-[:ENSEMBL_GENE_ID]->(ensg:EnsemblGeneId) | ensg] as ensemblGeneId, "
@@ -93,9 +136,12 @@ public interface MpRepository extends Neo4jRepository<Mp, Long> {
             + "[(mp)-[:HUMAN]->(h:Hp) | h] as hp, "
             + "[(mp)-[:MP_SYNONYM]->(mps:OntoSynonym) | mps] as mpSynonym "
             + "RETURN mp, markerSynonym, humanGeneSymbol, ensemblGeneId, g, mouseModel, diseaseModel, allele, hp, mpSynonym")
-    List<Object> findDataByMpTermChrRange(@Param( "mpTerm" ) String mpTerm,
-                                        @Param( "chrId" ) String chrId,
-                                        @Param( "chrStart" ) int chrStart,
-                                        @Param( "chrEnd" ) int chrEnd);
+    List<Object> findDataByMpTermChr(@Param( "mpTerm" ) String mpTerm,
+                                        @Param( "chrId" ) String chrId
+//                                        @Param( "chrStart" ) int chrStart,
+//                                        @Param( "chrEnd" ) int chrEnd
+                                        );
+
+
 
 }

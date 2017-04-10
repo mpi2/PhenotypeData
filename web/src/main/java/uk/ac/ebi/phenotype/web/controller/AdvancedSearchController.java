@@ -310,15 +310,24 @@ public class AdvancedSearchController {
             else if (kw.startsWith("ENSMUSG")){
                 objs = ensemblGeneIdRepository.findDataByEnsemblGeneId(kw);
             }
-            else if (kw.startsWith("MP:") && regionId != null && childLevel != null) {
 
+            // MP ID
+            else if (kw.startsWith("MP:") && regionId != null && childLevel != null) {
+                if (childLevel.equals("all")) {
+                    System.out.println("MP id with region and ALL children");
+                    objs = mpRepository.findAllChildrenMpsByMpIdChr(kw, regionId);
+                }
+                else {
+                    System.out.println("MP id with region and " + childLevel + " children level");
+                    int level = Integer.parseInt(childLevel);
+                    objs = mpRepository.findChildrenMpsByMpIdChr(kw, regionId, level);
+                }
             }
             else if (kw.startsWith("MP:") && regionId != null && childLevel == null) {
                 System.out.println("MP id with region");
-                objs = mpRepository.findDataByMpIdChrRange(kw, regionId, regionStart, regionEnd);
+                objs = mpRepository.findDataByMpIdChr(kw, regionId);
             }
             else if (kw.startsWith("MP:") && regionId == null && childLevel != null) {
-                System.out.println("MP id with children");
                 if (childLevel.equals("all")){
                     System.out.println("MP id with ALL children");
 
@@ -329,7 +338,7 @@ public class AdvancedSearchController {
                     objs = fetchMps(objs);
                 }
                 else if (childLevel != "0"){
-                    System.out.println("MP with " + childLevel + " children level");
+                    System.out.println("MP Id with " + childLevel + " children level");
 
                     // first get all children mps (including self)
                     int level = Integer.parseInt(childLevel);
@@ -344,15 +353,28 @@ public class AdvancedSearchController {
                 objs = mpRepository.findDataByMpId(kw);
             }
 
+            // MP term
             else if (dataType.equals("MP") && regionId != null && childLevel != null) {
+                System.out.println("MP term with all children and chr filter");
+                if (childLevel.equals("all")) {
+                    objs = mpRepository.findAllChildrenMpsByMpTermChr(kw, regionId);
+                }
+                else if (childLevel != "0"){
+                    System.out.println("MP term with " + childLevel + " children level and chr filter");
 
+                    // first get all children mps (including self)
+                    int level = Integer.parseInt(childLevel);
+                    objs = mpRepository.findChildrenMpsByMpTermChr(kw, regionId, level);
+
+                    // then query data by each mp and put together
+                    objs = fetchMps(objs);
+                }
             }
             else if (dataType.equals("MP") && regionId != null && childLevel == null){
                 System.out.println("MP term with region");
-                objs = mpRepository.findDataByMpTermChrRange(kw, regionId, regionStart, regionEnd);
+                objs = mpRepository.findDataByMpTermChr(kw, regionId);
             }
             else if (dataType.equals("Mp") && regionId == null && childLevel != null) {
-                System.out.println("MP term with children");
                 if (childLevel.equals("all")){
                     System.out.println("MP term with ALL children");
 
@@ -363,7 +385,7 @@ public class AdvancedSearchController {
                     objs = fetchMps(objs);
                 }
                 else if (childLevel != "0"){
-                    System.out.println("MP with " + childLevel + " children level");
+                    System.out.println("MP term with " + childLevel + " children level");
 
                     // first get all children mps (including self)
                     int level = Integer.parseInt(childLevel);
