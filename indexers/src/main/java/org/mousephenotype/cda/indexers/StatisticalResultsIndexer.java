@@ -562,8 +562,10 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
                             if (maTerm != null) {
                                 doc.addAnatomyTermId(id);
                                 doc.addAnatomyTermName(maTerm.getName());
+                            } if (maTerm.getIntermediateIds() != null) {
                                 doc.addIntermediateAnatomyTermId(maTerm.getIntermediateIds());
                                 doc.addIntermediateAnatomyTermName(maTerm.getIntermediateNames());
+                            } if (maTerm.getTopLevelIds() != null){
                                 doc.addTopLevelAnatomyTermId(maTerm.getTopLevelIds());
                                 doc.addTopLevelAnatomyTermName(maTerm.getTopLevelNames());
                             }
@@ -582,8 +584,12 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
                         if (maTerm != null) {
                             doc.addIntermediateAnatomyTermId(id);
                             doc.addIntermediateAnatomyTermName(maTerm.getName());
+                        }
+                        if (maTerm.getIntermediateIds() != null){
                             doc.addIntermediateAnatomyTermId(maTerm.getIntermediateIds());
                             doc.addIntermediateAnatomyTermName(maTerm.getIntermediateNames());
+                        }
+                        if (maTerm.getTopLevelIds() != null){
                             doc.addTopLevelAnatomyTermId(maTerm.getTopLevelIds());
                             doc.addTopLevelAnatomyTermName(maTerm.getTopLevelNames());
                         }
