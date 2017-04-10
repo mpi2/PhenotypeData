@@ -49,6 +49,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Controller
 public class ChartsController {
@@ -128,19 +129,22 @@ public class ChartsController {
                          @RequestParam(required = false, value = "chart_type") ChartType chartType,
                          @RequestParam(required = false, value = "pipeline_stable_id") String[] pipelineStableIds,
                          @RequestParam(required = false, value = "allele_accession_id") String[] alleleAccession,
-                         Model model)
-            throws GenomicFeatureNotFoundException, ParameterNotFoundException, IOException, URISyntaxException, SolrServerException {
-
-        if ((accessionsParams != null) && (accessionsParams.length > 0) && (parameterIds != null) && (parameterIds.length > 0)) {
-            for (String parameterStableId : parameterIds) {
-                if (parameterStableId.contains("_FER_")) {
-                    String url = config.get("baseUrl") + "/genes/" + accessionsParams[0];
-                    return "redirect:" + url;
+                         Model model) {
+        try {
+            if ((accessionsParams != null) && (accessionsParams.length > 0) && (parameterIds != null) && (parameterIds.length > 0)) {
+                for (String parameterStableId : parameterIds) {
+                    if (parameterStableId.contains("_FER_")) {
+                        String url = config.get("baseUrl") + "/genes/" + accessionsParams[0];
+                        return "redirect:" + url;
+                    }
                 }
             }
-        }
 
-        return createCharts(accessionsParams, pipelineStableIds, parameterIds, gender, phenotypingCenter, strains, metadataGroup, zygosity, model, chartType, alleleAccession);
+            return createCharts(accessionsParams, pipelineStableIds, parameterIds, gender, phenotypingCenter, strains, metadataGroup, zygosity, model, chartType, alleleAccession);
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        return "";
     }
 
     /**
@@ -399,6 +403,17 @@ public class ChartsController {
         Set<String> allGraphUrlSet = new LinkedHashSet<>();
         String allParameters = "";
 
+        // All ABR parameters are displayed on the same chart so we don't want to duplicate an identical chart for every ABR parameter
+        List<String> abrParameters =  new ArrayList<>();
+        abrParameters.addAll(paramIds);
+        abrParameters.retainAll(Constants.ABR_PARAMETERS);
+        if (abrParameters.size() > 1){
+            for (int i = 1; i < abrParameters.size(); i++) { // remove all ABR params but the first one
+                paramIds.remove(abrParameters.get(i));
+            }
+        }
+
+
         for (String geneId : geneIds) {
 
             GeneDTO gene = geneService.getGeneById(geneId);
@@ -412,6 +427,7 @@ public class ChartsController {
             model.addAttribute("gene", gene);
 
             List<String> pNames = new ArrayList<>();
+
 
             for (String parameterId : paramIds) {
 
@@ -504,11 +520,9 @@ public class ChartsController {
      */
     private List<String> getParamsAsList(String[] parameterIds) {
 
-        List<String> paramIds;
-        if (parameterIds == null) {
-            paramIds = new ArrayList<String>();
-        } else {
-            paramIds = Arrays.asList(parameterIds);
+        List<String> paramIds = new ArrayList<String>();
+        if (parameterIds != null) {
+            paramIds.addAll(Arrays.stream(parameterIds).collect(Collectors.toSet()));
         }
         return paramIds;
     }
