@@ -377,6 +377,10 @@ public class AdvancedSearchController {
                 System.out.println("MP term normal");
                 objs = mpRepository.findDataByMpTerm(kw);
             }
+            else if (dataType.equals("HumanGeneSymbol")){
+                objs = humanGeneSymbolRepository.findDataByHumanGeneSymbol(kw);
+            }
+
 
             System.out.println("Data objects found: "+ objs.size());
 
