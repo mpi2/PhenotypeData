@@ -17,7 +17,7 @@ import java.util.List;
 
     HumanGeneSymbol findByHumanGeneSymbol(String humanGeneSymbol);
 
-    @Query("MATCH (hgs:HumanGeneSymbol)-[:GENE]->(g:Gene) WHERE hgs.humanGeneSymbol={humanGeneSymbol} WITH hgs, g, "
+    @Query("MATCH (hgs:HumanGeneSymbol)-[:GENE*0..1]->(g:Gene) WHERE hgs.humanGeneSymbol={humanGeneSymbol} WITH hgs, g, "
             + "[(g)-[:MARKER_SYNONYM]->(ms:MarkerSynonym) | ms] as markerSynonym, "
             + "[(g)-[:ENSEMBL_GENE_ID]->(ensg:EnsemblGeneId) | ensg] as ensemblGeneId, "
             + "[(g)<-[:GENE]-(d:DiseaseModel) | d] as diseaseModel, "
