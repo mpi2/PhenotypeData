@@ -156,7 +156,7 @@ public class Loader implements CommandLineRunner {
         //----------- STEP 1 -----------//
         // loading Gene, Allele, EnsemblGeneId, MarkerSynonym, human orthologs
         // based on Peter's allele2 flatfile
-        loadGenes();
+       // loadGenes();
 
         //----------- STEP 2 -----------//
         populateHpIdTermMapAndLoadHumanPhenotypes();  // STEP 2.1
@@ -564,29 +564,40 @@ public class Loader implements CommandLineRunner {
         for(String wantedHpId : hpParser.getTermsInSlim()){
             OntologyTermDTO hpDTO = hpParser.getOntologyTerm(wantedHpId);
 
+            if (hpDTO == null){
+                System.out.println(wantedHpId + " has not data");
+            }
+
             Hp hp = hpRepository.findByHpId(wantedHpId);
             if (hp == null){
                 hp = new Hp();
                 hp.setHpId(wantedHpId);
             }
             if (hp.getHpTerm() == null) {
-                hp.setHpTerm(hpDTO.getName());
+
+                    if (hpDTO.getName() != null) {
+                        hp.setHpTerm(hpDTO.getName());
+                    }
+
+
             }
             if (hp.getHpDefinition() == null) {
-                hp.setHpDefinition(hpDTO.getDefinition());
+                if (hpDTO.getDefinition() != null) {
+                    hp.setHpDefinition(hpDTO.getDefinition());
+                }
             }
 
             if (hp.getOntoSynonyms() == null) {
 
                 Set<OntoSynonym> ontosyms = new HashSet<>();
-
-                for (String hpsym : hpDTO.getSynonyms()) {
-                    OntoSynonym hs = new OntoSynonym();
-                    hs.setOntoSynonym(hpsym);
-                    ontosyms.add(hs);
+                if (hpDTO.getSynonyms() != null) {
+                    for (String hpsym : hpDTO.getSynonyms()) {
+                        OntoSynonym hs = new OntoSynonym();
+                        hs.setOntoSynonym(hpsym);
+                        ontosyms.add(hs);
+                    }
+                    hp.setOntoSynonyms(ontosyms);
                 }
-
-                hp.setOntoSynonyms(ontosyms);
             }
 
             // MP PARENT

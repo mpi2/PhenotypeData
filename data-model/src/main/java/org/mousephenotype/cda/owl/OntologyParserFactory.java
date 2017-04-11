@@ -136,11 +136,13 @@ public class OntologyParserFactory {
             ResultSet r = p.executeQuery();
             while (r.next()) {
                 String hpId = r.getString("hp_id");
-                if (hpWanted.contains(hpId)){
-                    seen++;
-                }
-                else {
-                    hpWanted.add(hpId);
+                if (hpId.startsWith("HP:")){ // just double check
+                    if (hpWanted.contains(hpId)){
+                        seen++;
+                    }
+                    else {
+                        hpWanted.add(hpId);
+                    }
                 }
             }
         }
