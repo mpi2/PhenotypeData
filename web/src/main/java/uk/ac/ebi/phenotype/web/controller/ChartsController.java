@@ -428,12 +428,11 @@ public class ChartsController {
 
             List<String> pNames = new ArrayList<>();
 
-
             for (String parameterId : paramIds) {
 
                 ParameterDTO parameter = is.getParameterByStableId(parameterId);
                 pNames.add(StringUtils.capitalize(parameter.getName()) + " (" + parameter.getStableId() + ")");
-
+                //TODO change to get only valid combinations from core
 				// instead of an experiment list here we need just the outline
                 // of the experiments - how many, observation types
                 Set<String> graphUrlsForParam = graphUtils.getGraphUrls(geneId, parameter, pipelineStableIds, genderList, zyList, phenotypingCentersList,

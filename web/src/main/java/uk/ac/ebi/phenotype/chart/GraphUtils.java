@@ -58,25 +58,11 @@ public class GraphUtils {
 		
 		List<String> alleleAccessionStrings = keyList.get(ObservationDTO.ALLELE_ACCESSION_ID);
 		List<String> pipelineStableIdStrings = keyList.get(ObservationDTO.PIPELINE_STABLE_ID);
-		// if(metaDataGroupStrings==null){
-		// metaDataGroupStrings=new ArrayList<String>();
-		// metaDataGroupStrings.add("");
-		// }
 		// for each parameter we want the unique set of urls to make ajax
 		// requests for experiments
 		String seperator = "&";
 		String parameterStableId = parameter.getStableId();
 		String accessionAndParam = "accession=" + acc;
-
-		// for(String phenoCString: phenotypingCentersList) {
-		// phenoCenterString+=
-		// seperator+ObservationService.PHENOTYPING_CENTER+"="+phenoCString;
-		// }
-		// if(phenotypingCentersList.size()>0) {
-		// //if phenotype centers specified in url then just set the centerlist
-		// to this and the phenoCenterString should be set correctly above???
-		// centersList=phenotypingCentersList;
-		// }
 
 		String genderString = "";
 		for (String sex : genderList) {
