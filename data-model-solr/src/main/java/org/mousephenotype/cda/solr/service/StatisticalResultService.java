@@ -126,6 +126,44 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 		return retVal;
 	}
 
+	public Set<String> getChartPivots(String acc, ParameterDTO parameter, List<String> pipelineStableIds, List<String> genderList, List<String> zyList, List<String> phenotypingCentersList,
+						  List<String> strainsParams, List<String> metaDataGroup, List<String> alleleAccession){
+
+		SolrQuery query = new SolrQuery();
+		query.setQuery("*:*");
+		if (acc != null){
+			query.addFilterQuery(StatisticalResultDTO.MARKER_ACCESSION_ID + ":\"" + acc + "\"");
+		}
+		if (parameter != null){
+			query.addFilterQuery(StatisticalResultDTO.PARAMETER_STABLE_ID + ":" + parameter.getStableId() );
+		}
+		if (pipelineStableIds != null){
+			query.addFilterQuery(pipelineStableIds.stream().collect(Collectors.joining(" OR ", "(" + StatisticalResultDTO.PIPELINE_STABLE_ID, ")")));
+		}
+		if (genderList != null){
+			query.addFilterQuery(genderList.stream().collect(Collectors.joining(" OR ", "(" + StatisticalResultDTO.SEX, ")")));
+		}
+		if (zyList != null){
+			query.addFilterQuery(zyList.stream().collect(Collectors.joining(" OR ", "(" + StatisticalResultDTO.ZYGOSITY, ")")));
+		}
+		if (phenotypingCentersList != null){
+			query.addFilterQuery(phenotypingCentersList.stream().collect(Collectors.joining("\" OR \"", "(\"" + StatisticalResultDTO.PHENOTYPING_CENTER, "\")")));
+		}
+		if (strainsParams != null){
+			query.addFilterQuery(strainsParams.stream().collect(Collectors.joining(" OR ", "(" + StatisticalResultDTO.STRAIN_ACCESSION_ID, ")")));
+		}
+		if (metaDataGroup != null){
+			query.addFilterQuery(metaDataGroup.stream().collect(Collectors.joining("\" OR \"", "(\"" + StatisticalResultDTO.METADATA_GROUP, "\")")));
+		}
+		if (alleleAccession != null){
+			query.addFilterQuery(alleleAccession.stream().collect(Collectors.joining("\" OR \"", "(\"" + StatisticalResultDTO.ALLELE_ACCESSION_ID, "\")")));
+		}
+
+		//TODO
+
+		return new HashSet<>();
+	}
+
 
 	public static Double getMalePercentageChange(String token) {
 		Double retVal = null;

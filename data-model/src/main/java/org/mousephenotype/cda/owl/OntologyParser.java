@@ -373,7 +373,7 @@ public class OntologyParser {
         addChildrenInfo(cls, term, prefix);
         addParentInfo(cls, term, prefix);
         addIntermediateInfo(cls, term, prefix);
-        addTopLevelInfo(cls, term);
+        addTopLevelInfo(cls, term, prefix);
 
         return term;
     }
@@ -480,7 +480,7 @@ public class OntologyParser {
             if (wantedIDs.contains(getIdentifierShortForm(cls))) {
                 if (startsWithPrefix(cls, prefix)) {
                     classesInSlim.add(getIdentifierShortForm(cls));
-                    classesInSlim.addAll(getClassAncestors(cls, null).stream().map(item -> {return getIdentifierShortForm(item);}).collect(Collectors.toSet()));
+                    classesInSlim.addAll(getClassAncestors(cls, prefix).stream().map(item -> {return getIdentifierShortForm(item);}).collect(Collectors.toSet()));
                 }
             }
         }
@@ -498,17 +498,17 @@ public class OntologyParser {
     /**
      *
      * @param cls
-     * @param prefixes
+     * @param prefix
      * @return
      */
-    private Set<OWLClass> getClassAncestors(OWLClass cls, Set<String> prefixes){
+    private Set<OWLClass> getClassAncestors(OWLClass cls, String prefix){
 
         if( ancestorsCache.containsKey(getIdentifierShortForm(cls))){
             return ancestorsCache.get(getIdentifierShortForm(cls));
         }
         Set<OWLClass> ancestorIds = new HashSet<>();
         Set<String> usedIds = new HashSet<>();
-        ancestorIds.addAll(getClassAncestors(cls, prefixes, ancestorIds, usedIds));
+        ancestorIds.addAll(getClassAncestors(cls, prefix, ancestorIds, usedIds));
         ancestorsCache.put(getIdentifierShortForm(cls), ancestorIds);
 
         return ancestorIds;
@@ -538,26 +538,30 @@ public class OntologyParser {
     /**
      * This is the recursive method, use the other one as it caches results too
      * @param cls
-     * @param prefixes
+     * @param prefix
      * @param ancestorIds
      * @return
      */
-    private Set<OWLClass> getClassAncestors(OWLClass cls, Set<String> prefixes, Set<OWLClass> ancestorIds, Set<String> usedIds){
+    private Set<OWLClass> getClassAncestors(OWLClass cls, String prefix, Set<OWLClass> ancestorIds, Set<String> usedIds){
 
         if (!usedIds.contains(getIdentifierShortForm(cls))){
             usedIds.add(getIdentifierShortForm(cls));
             Collection<OWLClassExpression> superClasses = EntitySearcher.getSuperClasses(cls, ontology);
             for(OWLClassExpression superClass : superClasses){
                 if (superClass.isClassExpressionLiteral()){
-                    ancestorIds.add(superClass.asOWLClass());
-                    getClassAncestors (superClass.asOWLClass(), prefixes, ancestorIds, usedIds);
+                    if (startsWithPrefix(superClass.asOWLClass(), prefix)) {
+                        ancestorIds.add(superClass.asOWLClass());
+                        getClassAncestors(superClass.asOWLClass(), prefix, ancestorIds, usedIds);
+                    }
                 } else {
                     if (superClass instanceof OWLObjectSomeValuesFrom){
                         OWLObjectSomeValuesFrom svf = (OWLObjectSomeValuesFrom) superClass;
                         if (PART_OF.contains(svf.getProperty().asOWLObjectProperty())){
                             if (svf.getFiller() instanceof OWLNamedObject){
-                                ancestorIds.add(svf.getFiller().asOWLClass());
-                                getClassAncestors (svf.getFiller().asOWLClass(), prefixes, ancestorIds, usedIds);
+                                if (startsWithPrefix(svf.getFiller().asOWLClass(), prefix)) {
+                                    ancestorIds.add(svf.getFiller().asOWLClass());
+                                    getClassAncestors(svf.getFiller().asOWLClass(), prefix, ancestorIds, usedIds);
+                                }
                             }
                         }
                     }
@@ -589,9 +593,9 @@ public class OntologyParser {
         }
     }
 
-    private void addTopLevelInfo (OWLClass cls, OntologyTermDTO term ){
+    private void addTopLevelInfo (OWLClass cls, OntologyTermDTO term, String prefix){
 
-        Set<OWLClass> classAncestors = getClassAncestors(cls, null);
+        Set<OWLClass> classAncestors = getClassAncestors(cls, prefix);
         if (classAncestors != null && topLevelIds != null) {
             // Intersect list of ancestors with list of top Levels
             Set<OWLClass> localTopLevels = classAncestors.stream()
@@ -617,7 +621,7 @@ public class OntologyParser {
      */
     private void addIntermediateInfo(OWLClass cls, OntologyTermDTO term, String prefix ){
 
-        Set<OWLClass> classAncestors = getClassAncestors(cls, null);
+        Set<OWLClass> classAncestors = getClassAncestors(cls, prefix);
         if (classAncestors != null) {
             Set<OWLClass> intermediates = classAncestors;
             if (topLevelIds != null){
