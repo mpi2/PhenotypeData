@@ -156,7 +156,7 @@ public class Loader implements CommandLineRunner {
         //----------- STEP 1 -----------//
         // loading Gene, Allele, EnsemblGeneId, MarkerSynonym, human orthologs
         // based on Peter's allele2 flatfile
-       // loadGenes();
+        loadGenes();
 
         //----------- STEP 2 -----------//
         populateHpIdTermMapAndLoadHumanPhenotypes();  // STEP 2.1
@@ -565,7 +565,8 @@ public class Loader implements CommandLineRunner {
             OntologyTermDTO hpDTO = hpParser.getOntologyTerm(wantedHpId);
 
             if (hpDTO == null){
-                System.out.println(wantedHpId + " has not data");
+                System.out.println(wantedHpId + " is not parsed");
+                continue;
             }
 
             Hp hp = hpRepository.findByHpId(wantedHpId);
@@ -574,12 +575,9 @@ public class Loader implements CommandLineRunner {
                 hp.setHpId(wantedHpId);
             }
             if (hp.getHpTerm() == null) {
-
-                    if (hpDTO.getName() != null) {
-                        hp.setHpTerm(hpDTO.getName());
-                    }
-
-
+                if (hpDTO.getName() != null) {
+                    hp.setHpTerm(hpDTO.getName());
+                }
             }
             if (hp.getHpDefinition() == null) {
                 if (hpDTO.getDefinition() != null) {
