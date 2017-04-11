@@ -72,6 +72,10 @@ public class OntologyParserFactory {
         return new OntologyParser(owlpath + "/ma.owl", "MA", TOP_LEVEL_MA_TERMS, getMaWantedIds());
     }
 
+    public OntologyParser getHpParser(DataSource phenodigmDB) throws OWLOntologyCreationException, OWLOntologyStorageException, IOException, SQLException {
+        return new OntologyParser(owlpath + "/hp.owl", "HP", null, getHpWantedIds(phenodigmDB));
+    }
+
     public OntologyParser getEmapaParser() throws OWLOntologyCreationException, OWLOntologyStorageException, IOException, SQLException {
         return new OntologyParser(owlpath + "/emapa.owl", "EMAPA", TOP_LEVEL_EMAPA_TERMS, getEmapaWantedIds());
     }
@@ -87,12 +91,17 @@ public class OntologyParserFactory {
         return parser;
     }
 
-
     public OntologyParser getEmapaParserWithTreeJson() throws OWLOntologyStorageException, IOException, SQLException, OWLOntologyCreationException {
 
         OntologyParser parser = getEmapaParser();
         parser.fillJsonTreePath("EMAPA:25765", "/data/anatomy/", null, TREE_TOP_LEVEL_EMAPA_TERMS, true); // mouse
         return parser;
+    }
+
+    protected Set<String> getHpWantedIds(DataSource phenodigm){
+
+        return new HashSet<>();
+
     }
 
     protected Set<String> getMaWantedIds() throws SQLException, OWLOntologyCreationException, OWLOntologyStorageException, IOException {
