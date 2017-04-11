@@ -18,6 +18,7 @@ package uk.ac.ebi.phenotype.chart;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.solr.service.ExperimentService;
+import org.mousephenotype.cda.solr.service.StatisticalResultService;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
 import org.mousephenotype.cda.web.ChartType;
@@ -37,10 +38,13 @@ public class GraphUtils {
 	private final Logger log = LoggerFactory.getLogger(this.getClass().getCanonicalName());
 
 	ExperimentService experimentService;
+	StatisticalResultService srService;
 
-	public GraphUtils(ExperimentService experimentService) {
+	public GraphUtils(ExperimentService experimentService, StatisticalResultService srService) {
 
 		this.experimentService = experimentService;
+		this.srService = srService;
+
 	}
 
 
@@ -126,6 +130,11 @@ public class GraphUtils {
 				}
 			}
 		}
+
+		// TODO get possible combinations from s-r core.
+		srService.getChartPivots( acc, parameter, pipelineStableIds, genderList, zyList, phenotypingCentersList,
+				 strainsParams, metaDataGroup, alleleAccession);
+
 		// for(String url:urls) {
 		// System.out.println("graph url!!!="+url);
 		// }
