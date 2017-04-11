@@ -156,7 +156,7 @@ public class Loader implements CommandLineRunner {
         //----------- STEP 1 -----------//
         // loading Gene, Allele, EnsemblGeneId, MarkerSynonym, human orthologs
         // based on Peter's allele2 flatfile
-        loadGenes();
+        //loadGenes();
 
         //----------- STEP 2 -----------//
         populateHpIdTermMapAndLoadHumanPhenotypes();  // STEP 2.1
@@ -598,7 +598,7 @@ public class Loader implements CommandLineRunner {
                 }
             }
 
-            // MP PARENT
+            // HP PARENT
             if (hp.getHpParentIds() == null) {
                 if ( hpDTO.getParentIds() != null) {
                     Set<Hp> parentHps = new HashSet<>();

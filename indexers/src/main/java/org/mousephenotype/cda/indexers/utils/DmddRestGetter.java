@@ -1,6 +1,7 @@
 package org.mousephenotype.cda.indexers.utils;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,7 +26,7 @@ public class DmddRestGetter {
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
 	private String dmddFileName;
 
-public static void main(String [] args){
+public static void main(String [] args) throws JSONException {
 	
 	DmddRestGetter getter=new DmddRestGetter("/Users/jwarren/Documents/DMDD.txt");
 	getter.readEmbryoViewerFile();
@@ -36,7 +37,7 @@ public static void main(String [] args){
 	    this.dmddFileName = dmddFileName;
     }
 
-	public DmddRestData getEmbryoRestData() {
+	public DmddRestData getEmbryoRestData() throws JSONException {
 
         
         String             content       = readEmbryoViewerFile();
