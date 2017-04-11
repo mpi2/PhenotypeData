@@ -24,6 +24,7 @@ import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.service.ExperimentService;
 import org.mousephenotype.cda.solr.service.GeneService;
 import org.mousephenotype.cda.solr.service.ImpressService;
+import org.mousephenotype.cda.solr.service.StatisticalResultService;
 import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
 import org.mousephenotype.cda.solr.service.dto.GeneDTO;
 import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
@@ -76,6 +77,9 @@ public class ChartsController {
 
     @Autowired
     private ExperimentService experimentService;
+
+    @Autowired
+    private StatisticalResultService srService;
 
     @Autowired
     private GeneService geneService;
@@ -377,7 +381,8 @@ public class ChartsController {
     			String[] strains, String[] metadataGroup, String[] zygosity, Model model, ChartType chartType, String[] alleleAccession)
     throws SolrServerException, IOException, GenomicFeatureNotFoundException, ParameterNotFoundException {
 
-        GraphUtils graphUtils = new GraphUtils(experimentService);
+        Long time = System.currentTimeMillis();
+        GraphUtils graphUtils = new GraphUtils(experimentService, srService);
         List<String> geneIds = getParamsAsList(accessionsParams);
         List<String> paramIds = getParamsAsList(parameterIds);
         List<String> genderList = getParamsAsList(gender);
@@ -444,10 +449,10 @@ public class ChartsController {
             allParameters = StringUtils.join(pNames, ", ");
 
         }// end of gene iterations
-        System.out.println("all graphs=" + StringUtils.join(allGraphUrlSet, "\n"));
+        System.out.println(allGraphUrlSet.size() + " all graphs ");
         model.addAttribute("allGraphUrlSet", allGraphUrlSet);
         model.addAttribute("allParameters", allParameters);
-
+        System.out.println("Time to return charts links  " + (System.currentTimeMillis() - time));
         return "stats";
     }
 
