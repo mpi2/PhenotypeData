@@ -625,6 +625,8 @@
                 // reset to default when page loads
                 $('input#mouseMarkerSymbol').prop("checked", true) // check datatyep ID as gene by default
                 $('textarea#pastedList').val($('input#mouseMarkerSymbol').attr("value"));
+                $('fieldset#ontoLevel').hide();
+
 
                 var nodeType = mapInputId2NodeType($('input.bq:checked').attr('id'));
                 drawnCircles[nodeType].click();
@@ -647,6 +649,8 @@
                 $('input.bq').click(function(){
 
                     var nodeType = mapInputId2NodeType($('input.bq:checked').attr('id'));
+                    $('span#restriction').text(nodeType == 'DiseaseModel' ? 'diseases' : 'phenotypes');
+
                     $('button#clearAllDt').click(); // clear first
                     drawnCircles[nodeType].click();
 
@@ -657,7 +661,7 @@
                     // assign to hidden field in fileupload section
                     $('input#datatype').val(currDataType);
 
-                    if (currDataType == "mpTerm" || currDataType == "hp" || currDataType == "disease"){
+                    if (currDataType == "mpTerm" || currDataType == "hpTerm" || currDataType == "disease"){
                         var theSrchBox = $(this).next().next().next();
                         var theInput = theSrchBox.find('input');
 
@@ -779,7 +783,7 @@
 //                    	}
 
                     }
-                    if ($('fieldset#mpLevel').is(":visible")) {
+                    if ($('fieldset#ontoLevel').is(":visible")) {
                         var level = $('select#childLevel').val();
                         console.log("children level down: "+ level);
                         if (level != 0) {
@@ -825,7 +829,8 @@
                         "mpTerm":"Mp",
                         "mpId":"Mp",
                         "human_marker_symbol":"HumanGeneSymbol",
-                        "hp":"Hp",
+                        "hpTerm":"Hp",
+						"hpId":"Hp",
                         "disease":"DiseaseModel"
                     };
                     return map[key];
@@ -1213,7 +1218,7 @@
                             alert(errMsg);
                             return false;
                         }
-                        else if ( dataType == 'hp' && uppercaseId.indexOf('HP:') !== 0 ){
+                        else if ( dataType == 'hpId' && uppercaseId.indexOf('HP:') !== 0 ){
                             alert(errMsg);
                             return false;
                         }
@@ -1469,11 +1474,12 @@
                     $('div#bqFilter').append(filter);
 
                     var inputId = $('input.bq:checked').attr('id');
-                    if (inputId == "hp" || inputId == "mpTerm" || inputId == "mpId" || inputId == "disease") {
+                    if (inputId == "hpTerm" || inputId == "hpId" || inputId == "mpTerm" || inputId == "mpId" || inputId == "disease") {
                         $('fieldset#chromosome').show();
+                        $('fieldset#ontoLevel').show();
                     }
-                    if (inputId == "mpId" || inputId == "mpTerm") {
-                        $('fieldset#mpLevel').show();
+                    if (inputId == "disease") {
+                        $('fieldset#ontoLevel').hide();
                     }
 
                 }
@@ -1483,7 +1489,7 @@
 
                     if ($('fieldset.fsfilter').size() == 0) {
                         $('fieldset#chromosome').hide();
-                        $('fieldset#mpLevel').hide();
+                        $('fieldset#ontoLevel').hide();
                     }
                 }
 
@@ -1507,8 +1513,9 @@
                         }
                     }
 
+                    var restriction = "<span id='restriction'></span>";
                     var legend = '<legend>Mouse chromosome</legend>';
-                    var inputs = 'Chr:<select id="chrSel2">' + chrSel + '</select> (restricts phenotype(s) of genes on this chromosome)';
+                    var inputs = 'Chr:<select id="chrSel2">' + chrSel + '</select> (restricts ' + restriction + ' of genes on this chromosome)';
                         //'Start: <input id="rstart2" type="text" name="chr">' +
                         //'End: <input id="rend2" type="text" name="chr">';
                     var filter = '<fieldset id="chromosome">' + legend + inputs + '</fieldset>';
@@ -1528,9 +1535,9 @@
                         }
                     }
 
-                    var legend = '<legend>Include children of this mouse phenotype</legend>';
+                    var legend = '<legend>Include children of this phenotype</legend>';
                     var input = 'level:<select id="childLevel">' + levelSel + '</select>';
-                    var filter = '<fieldset id="mpLevel">' + legend + input + ' (0 means none, 1 means one level down in the ontology hierarchy, etc.)</fieldset>';
+                    var filter = '<fieldset id="ontoLevel">' + legend + input + ' (0 means none, 1 means one level down in the ontology hierarchy, etc.)</fieldset>';
 
                     $('div#bqFilter').append(filter);
 				}
@@ -1630,12 +1637,13 @@
 												<td>
 													<input type="radio" id="human_marker_symbol" value="Eg. Car4 or CAR4 (case insensitive). Synonym search supported" name="dataType" class='bq'>HGNC gene symbol<br>
 
-													<input type="radio" id="hp" value="Eg. Hyperchloremia or HP:0000400" name="dataType" class='bq'>Human phenotype <i class="fa fa-info-circle" aria-hidden="true"></i><br>
+													<input type="radio" id="hpTerm" value="Eg. Hyperchloremia" name="dataType" class='bq'>Human phenotype name <i class="fa fa-info-circle" aria-hidden="true"></i><br>
 													<div class='block srchBox'>
 														<i class='fa fa-search'></i>
 														<input id='srchHp' value="search">
 														<i class='fa fa-times'></i>
 													</div>
+													<input type="radio" id="hpId" value="Eg. HP:0000400" name="dataType" class='bq'>Human phenotype id<i class="fa fa-info-circle" aria-hidden="true"></i><br>
 
 													<input type="radio" id="disease" value="Eg. Apert syndrome or OMIM:100300 or ORPHANET:10 or DECIPHER:38" name="dataType" class='bq'>Human disease<i></i><br>
 													<div class='block srchBox'>
