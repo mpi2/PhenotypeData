@@ -262,7 +262,7 @@ public class OntologyParser {
      * @param cls
      * @return OBO-style id
      */
-    private String getIdentifierShortForm (OWLClass cls){
+    protected String getIdentifierShortForm (OWLClass cls){
 
         String id = cls.getIRI().toString();
         return id.split("/|#")[id.split("/|#").length-1].replace("_", ":");
@@ -491,6 +491,9 @@ public class OntologyParser {
 
     }
 
+    protected OWLClass getOwlClass(String shortFormId){
+        return classMap.get(shortFormId);
+    }
 
     /**
      *
@@ -504,10 +507,30 @@ public class OntologyParser {
             return ancestorsCache.get(getIdentifierShortForm(cls));
         }
         Set<OWLClass> ancestorIds = new HashSet<>();
-        ancestorIds.addAll(getClassAncestors(cls, prefixes, ancestorIds));
+        Set<String> usedIds = new HashSet<>();
+        ancestorIds.addAll(getClassAncestors(cls, prefixes, ancestorIds, usedIds));
         ancestorsCache.put(getIdentifierShortForm(cls), ancestorIds);
 
         return ancestorIds;
+    }
+
+
+    protected String getXref(OWLClass cls,  String prefixOfCrossRef) {
+
+        if (!cls.getIRI().isNothing() && EntitySearcher.getAnnotations(cls, ontology, X_REF) != null) {
+            for (OWLAnnotation annotation : EntitySearcher.getAnnotations(cls, ontology, X_REF)) {
+                if (annotation.getValue() instanceof OWLLiteral) {
+                    OWLLiteral val = (OWLLiteral) annotation.getValue();
+                    String id = val.getLiteral().replace(":", "_");
+                    if (id.startsWith(prefixOfCrossRef + "_")) {
+                        return id;
+                    }
+                }
+            }
+        }
+
+        return null;
+
     }
 
 
@@ -519,20 +542,23 @@ public class OntologyParser {
      * @param ancestorIds
      * @return
      */
-    private Set<OWLClass> getClassAncestors(OWLClass cls, Set<String> prefixes, Set<OWLClass> ancestorIds){
+    private Set<OWLClass> getClassAncestors(OWLClass cls, Set<String> prefixes, Set<OWLClass> ancestorIds, Set<String> usedIds){
 
-        Collection<OWLClassExpression> superClasses = EntitySearcher.getSuperClasses(cls, ontology);
-        for(OWLClassExpression superClass : superClasses){
-            if (superClass.isClassExpressionLiteral()){
-                ancestorIds.add(superClass.asOWLClass());
-                getClassAncestors (superClass.asOWLClass(), prefixes, ancestorIds);
-            } else {
-                if (superClass instanceof OWLObjectSomeValuesFrom){
-                    OWLObjectSomeValuesFrom svf = (OWLObjectSomeValuesFrom) superClass;
-                    if (PART_OF.contains(svf.getProperty().asOWLObjectProperty())){
-                        if (svf.getFiller() instanceof OWLNamedObject){
-                            ancestorIds.add(svf.getFiller().asOWLClass());
-                            getClassAncestors (svf.getFiller().asOWLClass(), prefixes, ancestorIds);
+        if (!usedIds.contains(getIdentifierShortForm(cls))){
+            usedIds.add(getIdentifierShortForm(cls));
+            Collection<OWLClassExpression> superClasses = EntitySearcher.getSuperClasses(cls, ontology);
+            for(OWLClassExpression superClass : superClasses){
+                if (superClass.isClassExpressionLiteral()){
+                    ancestorIds.add(superClass.asOWLClass());
+                    getClassAncestors (superClass.asOWLClass(), prefixes, ancestorIds, usedIds);
+                } else {
+                    if (superClass instanceof OWLObjectSomeValuesFrom){
+                        OWLObjectSomeValuesFrom svf = (OWLObjectSomeValuesFrom) superClass;
+                        if (PART_OF.contains(svf.getProperty().asOWLObjectProperty())){
+                            if (svf.getFiller() instanceof OWLNamedObject){
+                                ancestorIds.add(svf.getFiller().asOWLClass());
+                                getClassAncestors (svf.getFiller().asOWLClass(), prefixes, ancestorIds, usedIds);
+                            }
                         }
                     }
                 }
@@ -620,26 +646,32 @@ public class OntologyParser {
      */
     private void addParentInfo(OWLClass cls, OntologyTermDTO term, String prefix){
 
+        for (OWLClass parent: getParents(cls, prefix, true)){
+            term.addParentId(getIdentifierShortForm(parent));
+            term.addParentName(getLabel(parent));
+        }
+    }
+
+    protected Set<OWLClass> getParents(OWLClass cls, String prefix, Boolean partOfToo){
+
+        Set<OWLClass> res = new HashSet<>();
         for (OWLClassExpression classExpression : EntitySearcher.getSuperClasses(cls, ontology)){
             if (classExpression.isClassExpressionLiteral() && startsWithPrefix(classExpression.asOWLClass(), prefix)){
-                term.addParentId(getIdentifierShortForm(classExpression.asOWLClass()));
-                term.addParentName(getLabel(classExpression.asOWLClass()));
+                res.add(classExpression.asOWLClass());
             } else {
-                if (classExpression instanceof OWLObjectSomeValuesFrom){
+                if (partOfToo && classExpression instanceof OWLObjectSomeValuesFrom){
                     OWLObjectSomeValuesFrom svf = (OWLObjectSomeValuesFrom) classExpression;
                     if (PART_OF.contains(svf.getProperty().asOWLObjectProperty())){
                         OWLClassExpression filler = svf.getFiller();
                         if (filler instanceof OWLNamedObject && startsWithPrefix(filler.asOWLClass(), prefix)){
-                            term.addParentId(getIdentifierShortForm(filler.asOWLClass()));
-                            term.addParentName(getLabel(filler.asOWLClass()));
+                            res.add(filler.asOWLClass());
                         }
                     }
                 }
             }
         }
+        return res;
     }
-
-
 
     private boolean isObsolete(OWLClass cls){
 

@@ -25,7 +25,7 @@ import org.mousephenotype.cda.loads.common.CdaSqlUtils;
 import org.mousephenotype.cda.loads.common.DccSqlUtils;
 import org.mousephenotype.cda.loads.common.SpecimenExtended;
 import org.mousephenotype.cda.loads.create.extract.cdabase.support.BiologicalModelAggregator;
-import org.mousephenotype.cda.loads.create.load.support.EuroPhenomeStrainMapper;
+import org.mousephenotype.cda.loads.create.load.support.StrainMapper;
 import org.mousephenotype.cda.loads.exceptions.DataLoadException;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.mousephenotype.dcc.exportlibrary.datastructure.core.common.StageUnit;
@@ -58,12 +58,13 @@ public class SampleLoader implements Step, Tasklet, InitializingBean {
     private CdaSqlUtils                cdaSqlUtils;
     private CommonUtils                commonUtils = new CommonUtils();
     private DccSqlUtils                dccSqlUtils;
-    private EuroPhenomeStrainMapper    euroPhenomeStrainMapper;
+    private StrainMapper strainMapper;
     private NamedParameterJdbcTemplate jdbcCda;
 
-    private Set<String> missingColonyIds = new HashSet<>();
-    private Set<String> noGeneForAllele = new HashSet<>();
-    private Set<String> unexpectedStage  = new HashSet<>();
+    private Set<String> missingColonyIds         = new HashSet<>();
+    private Set<String> missingBackgroundStrains = new HashSet<>();
+    private Set<String> noGeneForAllele          = new HashSet<>();
+    private Set<String> unexpectedStage          = new HashSet<>();
 
     private final Logger         logger      = LoggerFactory.getLogger(this.getClass());
     private StepBuilderFactory   stepBuilderFactory;
@@ -110,7 +111,7 @@ public class SampleLoader implements Step, Tasklet, InitializingBean {
         developmentalStageMouse = cdaSqlUtils.getOntologyTermByName("postnatal");
         sampleTypeMouseEmbryoStage = cdaSqlUtils.getOntologyTermByName("mouse embryo stage");
         sampleTypePostnatalMouse = cdaSqlUtils.getOntologyTerm("MA:0002405");                // postnatal mouse
-        this.euroPhenomeStrainMapper = new EuroPhenomeStrainMapper(cdaSqlUtils);
+        this.strainMapper = new StrainMapper(cdaSqlUtils);
         this.efoDbId = cdaSqlUtils.getExternalDbId("EFO");
 
         Assert.notNull(cdaOrganisation_idMap, "cdaOrganisation_idMap must be set");
@@ -210,6 +211,12 @@ public class SampleLoader implements Step, Tasklet, InitializingBean {
             logger.warn("Skipping missing phenotyped_colony information for dcc-supplied colony '" + colonyId + "'");
         }
 
+        Iterator<String> noBackgroundStrainIt = missingBackgroundStrains.iterator();
+        while (noBackgroundStrainIt.hasNext()) {
+            String colonyId = noBackgroundStrainIt.next();
+            logger.warn("Skipping colonyId " + colonyId + " because background strain is missing");
+        }
+
         Iterator<String> unexpectedStageIt = unexpectedStage.iterator();
         while (unexpectedStageIt.hasNext()) {
             String stage = unexpectedStageIt.next();
@@ -286,7 +293,7 @@ public class SampleLoader implements Step, Tasklet, InitializingBean {
         String sampleGroup = (specimen.isIsBaseline()) ? "control" : "experimental";
 
         try {
-            biologicalModel = cdaSqlUtils.selectOrInsertBiologicalModel(phenotypedColony, euroPhenomeStrainMapper, zygosity, sampleGroup, allelesBySymbolMap);
+            biologicalModel = cdaSqlUtils.selectOrInsertBiologicalModel(phenotypedColony, strainMapper, zygosity, sampleGroup, allelesBySymbolMap);
         } catch (DataLoadException e) {
             switch (e.getDetail()) {
                 case NO_GENE_FOR_ALLELE:
@@ -296,6 +303,10 @@ public class SampleLoader implements Step, Tasklet, InitializingBean {
                 case NONEXISTENT_COLONY_ID:
                     missingColonyIds.add(specimen.getColonyID());
                     break;
+
+                case NO_BACKGROUND_STRAIN:
+                    missingBackgroundStrains.add(specimen.getColonyID());
+                    return counts;
 
                 default:
                     logger.error("Unable to get/create biological model for colonyId '" + specimen.getColonyID() + "'.");
@@ -385,7 +396,7 @@ public class SampleLoader implements Step, Tasklet, InitializingBean {
         }
 
         try {
-            backgroundStrainName = euroPhenomeStrainMapper.filterEuroPhenomeGeneticBackground(backgroundStrainName);
+            backgroundStrainName = strainMapper.parseMultipleBackgroundStrainNames(backgroundStrainName);
             backgroundStrain = cdaSqlUtils.getStrainByNameOrMgiAccessionId(backgroundStrainName);
             if (backgroundStrain == null) {
                 backgroundStrain = cdaSqlUtils.createAndInsertStrain(backgroundStrainName);
@@ -409,6 +420,7 @@ public class SampleLoader implements Step, Tasklet, InitializingBean {
 
         String allelicComposition;
         Strain backgroundStrain;
+        String geneticBackground;
         int biologicalSampleId;
         Date dateOfBirth;
         OntologyTerm developmentalStage;
@@ -430,8 +442,7 @@ public class SampleLoader implements Step, Tasklet, InitializingBean {
         // NEED FOR biological_model:
         //      allelicComposition
         //      zygosity
-        //      backgroundStrainName
-        //      backgroundStrain.getId().getAccession());
+        //      geneticBackground
 
         // NEED FOR biological_sample:
         //      externalId
@@ -454,6 +465,7 @@ public class SampleLoader implements Step, Tasklet, InitializingBean {
         allelicComposition = "";
         zygosity = ZygosityType.homozygote.getName();
         backgroundStrain = getBackgroundStrain(specimen);
+        geneticBackground = backgroundStrain.getGeneticBackground();
 
         externalId = specimen.getSpecimenID();
         sampleType = (specimen instanceof Mouse ? sampleTypePostnatalMouse : sampleTypeMouseEmbryoStage);
@@ -505,11 +517,11 @@ public class SampleLoader implements Step, Tasklet, InitializingBean {
 
 
         // Get the biological model. Create one if it is not found.
-        BiologicalModel biologicalModel = cdaSqlUtils.getBiologicalModel(allelicComposition, backgroundStrain.getName());
+        BiologicalModel biologicalModel = cdaSqlUtils.getBiologicalModel(allelicComposition, geneticBackground);
         if (biologicalModel == null) {
             BiologicalModelAggregator biologicalModelAggregator = new BiologicalModelAggregator(
                     allelicComposition,
-                    backgroundStrain.getName(),
+                    geneticBackground,
                     zygosity,
                     backgroundStrain.getId().getAccession());
             List<BiologicalModelAggregator> biologicalModelAggregators = new ArrayList<>();
@@ -517,9 +529,9 @@ public class SampleLoader implements Step, Tasklet, InitializingBean {
 
             cdaSqlUtils.insertBiologicalModel(biologicalModelAggregators);
 
-            biologicalModel = cdaSqlUtils.getBiologicalModel(allelicComposition, backgroundStrain.getName());
+            biologicalModel = cdaSqlUtils.getBiologicalModel(allelicComposition, geneticBackground);
             if (biologicalModel == null) {
-                throw new DataLoadException("Inserted biological model (" + allelicComposition + ", " + backgroundStrain.getName() + ") but INSERT failed.");
+                throw new DataLoadException("Inserted biological model (" + allelicComposition + ", " + geneticBackground + ") but INSERT failed.");
             }
 
             counts.put("biologicalModel", counts.get("biologicalModel") + 1);

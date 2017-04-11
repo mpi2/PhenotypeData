@@ -623,7 +623,7 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
 		int result = drupalBaseUrl != null ? drupalBaseUrl.hashCode() : 0;
 		result = 31 * result + (phenotypeTerm != null ? phenotypeTerm.hashCode() : 0);
 		result = 31 * result + (gene != null ? gene.hashCode() : 0);
-		// result = 31 * result + (allele != null ? allele.hashCode() : 0);
+		result = 31 * result + (allele != null ? allele.hashCode() : 0);
 		// result = 31 * result + (sexes != null ? sexes.hashCode() : 0);
 		result = 31 * result + (zygosity != null ? zygosity.hashCode() : 0);
 		result = 31 * result + (lifeStageName != null ? lifeStageName.hashCode() : 0);

@@ -23,7 +23,7 @@ import org.mousephenotype.cda.db.utilities.SqlUtils;
 import org.mousephenotype.cda.enumerations.DbIdType;
 import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.loads.create.extract.cdabase.support.BiologicalModelAggregator;
-import org.mousephenotype.cda.loads.create.load.support.EuroPhenomeStrainMapper;
+import org.mousephenotype.cda.loads.create.load.support.StrainMapper;
 import org.mousephenotype.cda.loads.exceptions.DataLoadException;
 import org.mousephenotype.cda.utilities.RunStatus;
 import org.mousephenotype.dcc.exportlibrary.datastructure.core.procedure.*;
@@ -3068,12 +3068,12 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
      * @param zygosity
      * @param sampleGroup
      * @param allelesBySymbol
-     * @return {@link BiologicalModel} matching the input parameters. Creates it if necessary.
+     * @return {@link BiologicalModel} matching the input parameters. Creates it if necessary. NOTE: if the colony has no background strain, a null BiologicalModel is returned. This can and does happen.
      * @throws DataLoadException
      */
     public BiologicalModel selectOrInsertBiologicalModel (
             PhenotypedColony colony,
-            EuroPhenomeStrainMapper strainMapper,
+            StrainMapper strainMapper,
             String zygosity,
             String sampleGroup,
             Map<String, Allele> allelesBySymbol) throws DataLoadException
@@ -3104,26 +3104,22 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
             allele = createAndInsertAllele(colony.getAlleleSymbol(), gene);
         }
 
-        // Get the background strain from iMits. EuroPhenome background strains require manual curation/remapping and
-        // may be comprised of multiple strains separated by semicolons. Treat any background strains with semicolons
-        // as a single strain; do not split them into separate strains.
-        // Recap:
-        //  - Get background strain from iMits
-        //  - Filter the iMits background strain name through the EuroPhenomeStrainMapper
-        //  - If the filtered background strain does not exist, create it and add it to the strain table.
-        try {
-            geneticBackground = strainMapper.filterEuroPhenomeGeneticBackground(colony.getBackgroundStrain());
-            backgroundStrain = getStrainByNameOrMgiAccessionId(colony.getBackgroundStrain());
-            if (backgroundStrain == null) {
-                backgroundStrain = createAndInsertStrain(geneticBackground);
-            }
+        // Get the background strain from iMits. Some EuroPhenome background strains require translation because
+        // they are comprised of multiple strains separated by semicolons (or other reasons.
+        // strainMapper.parseMultipleBackgroundStrainNames takes care of this translation
 
-        } catch (DataLoadException e) {
-
-            message = "Insert strain " + colony.getBackgroundStrain() + " for dcc-supplied colony '" + colony.getColonyName() + "' failed. Reason: " + e.getLocalizedMessage() + ". Skipping...";
-            logger.error(message);
-            throw new DataLoadException(message, e);
+        String backgroundStrainName = strainMapper.parseMultipleBackgroundStrainNames(colony.getBackgroundStrain());
+        if ((backgroundStrainName == null) || backgroundStrainName.trim().isEmpty()) {
+            throw new DataLoadException("parseMultipleBackgroundStrainNames returned null/empty backgroundStrainName for colony " + colony.getColonyName(), DataLoadException.DETAIL.NO_BACKGROUND_STRAIN);
         }
+        backgroundStrain = getStrainByNameOrMgiAccessionId(backgroundStrainName);
+
+        if (backgroundStrain == null) {
+            backgroundStrain = createAndInsertStrain(backgroundStrainName);
+        }
+
+        geneticBackground = backgroundStrain.getGeneticBackground();
+
 
         // Get the biological model. Create one if it is not found.
         String allelicComposition = strainMapper.createAllelicComposition(zygosity, allele.getSymbol(), gene.getSymbol(), sampleGroup);

@@ -20,6 +20,7 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
 import org.mousephenotype.cda.indexers.utils.PhisService;
+import org.mousephenotype.cda.owl.AnatomogramMapper;
 import org.mousephenotype.cda.owl.OntologyParser;
 import org.mousephenotype.cda.owl.OntologyParserFactory;
 import org.mousephenotype.cda.owl.OntologyTermDTO;
@@ -105,11 +106,12 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 
 	private String impcAnnotationBaseUrl;
 
-	private Map<String, Map<String, List<String>>> maUberonEfoMap = new HashMap<>(); // key: MA id
+	private Map<String, Set<String>> maUberonEfoMap = new HashMap<>(); // key: MA id
 
 	private final String fieldSeparator = "___";
 
 	private OntologyParser maParser;
+	private OntologyParser uberonParser;
 	private OntologyParser mpParser;
 	private OntologyParser emapaParser;
 	OntologyParserFactory ontologyParserFactory;
@@ -138,6 +140,7 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 			ontologyParserFactory = new OntologyParserFactory(komp2DataSource, owlpath);
 			mpParser = ontologyParserFactory.getMpParser();
 			maParser = ontologyParserFactory.getMaParser();
+			uberonParser = ontologyParserFactory.getUberonParser();
 			emapaParser = ontologyParserFactory.getEmapaParser();
 		} catch (OWLOntologyCreationException | OWLOntologyStorageException e) {
 			e.printStackTrace();
@@ -182,10 +185,12 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 		// logger.info("  omeroRootUrl=" + impcMediaBaseUrl);
 		impcAnnotationBaseUrl = impcMediaBaseUrl.replace("webgateway", "webclient");
 
+
 		try {
-			maUberonEfoMap = IndexerMap.mapMaToUberronOrEfoForAnatomogram(anatomogramResource);
-		} catch (SQLException | IOException e) {
+			maUberonEfoMap = AnatomogramMapper.getMapping(maParser, uberonParser, "UBERON", "MA");
+		} catch (OWLOntologyCreationException e) {
 			e.printStackTrace();
+			runStatus.addError("UBERON map could not be filled. ");
 		}
 
 		try {

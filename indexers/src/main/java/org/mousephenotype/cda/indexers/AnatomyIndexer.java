@@ -19,7 +19,7 @@ package org.mousephenotype.cda.indexers;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
-import org.mousephenotype.cda.indexers.utils.IndexerMap;
+import org.mousephenotype.cda.owl.AnatomogramMapper;
 import org.mousephenotype.cda.owl.OntologyParser;
 import org.mousephenotype.cda.owl.OntologyParserFactory;
 import org.mousephenotype.cda.owl.OntologyTermDTO;
@@ -41,7 +41,6 @@ import javax.sql.DataSource;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -71,9 +70,10 @@ public class AnatomyIndexer extends AbstractIndexer implements CommandLineRunner
     DataSource komp2DataSource;
 
     private OntologyParser maParser;
+    private OntologyParser uberonParser;
     private OntologyParser emapaParser;
 
-    private Map<String, Map<String,List<String>>> maUberonEfoMap = new HashMap<>();      // key = term_id.
+    private Map<String, Set<String>> maUberonEfoMap = new HashMap<>();      // key = term_id.
 
     protected OntologyParserFactory ontologyParserFactory;
 
@@ -118,18 +118,19 @@ public class AnatomyIndexer extends AbstractIndexer implements CommandLineRunner
                 addBasicFields(anatomyTerm, maTerm);
 
                 // index UBERON/EFO id for MA id
-                //TODO replace file for uberon mapping, use OntologyParser directly
-//                if (maUberonEfoMap.containsKey(maId)) {
-//                    if (maUberonEfoMap.get(maId).containsKey("uberon_id")) {
-//                        anatomyTerm.setUberonIds(maUberonEfoMap.get(maId).get("uberon_id"));
-//                    }
-//                    if (maUberonEfoMap.get(maId).containsKey("efo_id")) {
-//                        anatomyTerm.setEfoIds(maUberonEfoMap.get(maId).get("efo_id"));
-//                    }
-//                }
-//
-//
-//                // also index all UBERON/EFO ids for intermediate MA ids
+
+                if (maUberonEfoMap.containsKey(maId)) {
+                    for (String id : maUberonEfoMap.get(maId)){
+                        if (id.startsWith("UBERON")){
+                            anatomyTerm.addUberonIds(id);
+                        } else if (id.startsWith("EFO")){
+                            anatomyTerm.addEfoIds(id);
+                        }
+                    }
+                }
+
+                //I don't think we need the terms for the intermediate terms, the mapper should already get the best hit. Not sure if we use these at all.
+                // also index all UBERON/EFO ids for intermediate MA ids
 //                Set<String> all_ae_mapped_uberonIds = new HashSet<>();
 //                Set<String> all_ae_mapped_efoIds = new HashSet<>();
 //
@@ -196,8 +197,7 @@ public class AnatomyIndexer extends AbstractIndexer implements CommandLineRunner
 
         anatomyDTO.setAnatomyTermSynonym(termDTO.getSynonyms());
 
-        // TODO top level for anatomy are NOT selected top levels, but organ, organ sytem, anatomic region, postnatal mouse, ... (not including nodeId 0)
-
+        // top level for anatomy are NOT selected top levels, but organ, organ sytem, anatomic region, postnatal mouse, ... (not including nodeId 0). Not sure they're needed though.
         anatomyDTO.setTopLevelAnatomyId(termDTO.getTopLevelIds());
         anatomyDTO.setTopLevelAnatomyTerm(termDTO.getTopLevelNames());
         anatomyDTO.setTopLevelAnatomyTermSynonym(termDTO.getTopLevelSynonyms());
@@ -228,9 +228,11 @@ public class AnatomyIndexer extends AbstractIndexer implements CommandLineRunner
 
         try {
             ontologyParserFactory = new OntologyParserFactory(komp2DataSource, owlpath);
-            maUberonEfoMap = IndexerMap.mapMaToUberronOrEfoForAnatomogram(anatomogramResource);
             emapaParser = ontologyParserFactory.getEmapaParserWithTreeJson();
             maParser = ontologyParserFactory.getMaParserWithTreeJson();
+            uberonParser = ontologyParserFactory.getUberonParser();
+            maUberonEfoMap = AnatomogramMapper.getMapping(maParser, uberonParser, "UBERON", "MA");
+
         } catch (SQLException | IOException | OWLOntologyCreationException | OWLOntologyStorageException e1) {
             e1.printStackTrace();
         }

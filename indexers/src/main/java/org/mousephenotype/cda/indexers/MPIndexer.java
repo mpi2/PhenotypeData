@@ -250,7 +250,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
 //                    System.out.println("Added " + documentCount);
 //                }
 
-                mpParser.fillJsonTreePath("MP:0000001", "/data/phenotype/", mpGeneVariantCount, ontologyParserFactory.TOP_LEVEL_MP_TERMS, false); // call this if you want node ids from the objects
+                mpParser.fillJsonTreePath("MP:0000001", "/data/phenotypes/", mpGeneVariantCount, ontologyParserFactory.TOP_LEVEL_MP_TERMS, false); // call this if you want node ids from the objects
             }
 
             // Send a final commit
@@ -941,7 +941,10 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
                     mp.addInferredSelectedTopLevelMaId(ma.getTopLevelIds());
                     mp.addInferredSelectedTopLevelMaTerm(ma.getTopLevelNames());
                 }
-                //TODO intermediate terms - can't do this before merge to master as fields were not in schema
+                if (ma.getIntermediateIds() != null){
+                    mp.addInferredIntermediatedMaId(ma.getIntermediateIds());
+                    mp.addInferredIntermediateMaTerm(ma.getIntermediateNames());
+                }
             } else {
                 logger.info("Term not found in MA : " + maId);
             }

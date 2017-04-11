@@ -24,6 +24,7 @@ import org.mousephenotype.cda.db.pojo.Datasource;
 import org.mousephenotype.cda.db.pojo.Procedure;
 import org.mousephenotype.cda.db.pojo.Xref;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
+import org.mousephenotype.cda.indexers.utils.DmddDataUnit;
 import org.mousephenotype.cda.indexers.utils.EmbryoStrain;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
 import org.mousephenotype.cda.solr.SolrUtils;
@@ -69,6 +70,11 @@ public class GeneIndexer extends AbstractIndexer implements CommandLineRunner {
     @NotNull
    	@Value("${embryoViewerFilename}")
     private String embryoViewerFilename;
+    
+    @NotNull
+   	@Value("${dmddDataFilename}")
+    private String dmddDataFilename;
+
 
     @Autowired
     @Qualifier("geneCore")
@@ -96,6 +102,9 @@ public class GeneIndexer extends AbstractIndexer implements CommandLineRunner {
     private Map<String, List<EmbryoStrain>>        embryoRestData                               = null;
     private IndexerMap                             indexerMap                                   = new IndexerMap();
     private Set<String> idgGenes=new HashSet<>();
+
+	private Map<String, List<DmddDataUnit>> dmddImageData;
+	private Map<String, List<DmddDataUnit>> dmddLethalData;
 
 
     @PostConstruct
@@ -237,6 +246,15 @@ public class GeneIndexer extends AbstractIndexer implements CommandLineRunner {
                 		gene.setEmbryoModalities(embryoModalitiesForGene);
                 	}
 
+                }
+                
+                if(dmddImageData.containsKey(gene.getMgiAccessionId())){
+                	//add dmdd image data here
+                	gene.setDmddImageDataAvailable(true);
+                }
+                if(dmddLethalData.containsKey(gene.getMgiAccessionId())){
+                	//add dmdd image data here
+                	gene.setDmddLethalDataAvailable(true);
                 }
                 
                 if(idgGenes.contains(gene.getMgiAccessionId())){
@@ -610,6 +628,8 @@ public class GeneIndexer extends AbstractIndexer implements CommandLineRunner {
         genomicFeatureCoordinates=this.populateGeneGenomicCoords();
         genomicFeatureXrefs=this.populateXrefs();
         idgGenes=this.populateIdgGeneList();
+        dmddImageData=indexerMap.populateDmddImagedData(dmddDataFilename);
+        dmddLethalData = indexerMap.populateDmddLethalData(dmddDataFilename);
         
     }
 

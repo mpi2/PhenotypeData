@@ -141,8 +141,8 @@
 					                 	<jsp:include page="anatomyFrag.jsp"></jsp:include>						 
 									</div>
 						    	</div>
-							</div>	
-				 
+							</div>
+
 							<c:if test="${genesTested > 0}">
 						 		<div class="section" id="phenotypes"> 
 									<h2 class="title">Phenotypes associated with ${anatomy.getAnatomyTerm()}</h2>
