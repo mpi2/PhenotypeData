@@ -28,11 +28,8 @@ import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
 import org.mousephenotype.cda.solr.service.dto.SangerImageDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.io.Resource;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -62,53 +59,12 @@ public class IndexerMap {
     private static Map<Integer, ParameterDTO> parameterMap = null;
     private static Map<Integer, OrganisationBean> organisationMap = null;
     private static Map<String, Map<String,List<String>>> maUberonEfoMap = null;
+    private static DmddRestData dmddRestData;
     
     private static final Logger logger = LoggerFactory.getLogger(IndexerMap.class);
+    
 
     // PUBLIC METHODS
-
-    /**
-	 * ontology mapper: MA term id to UBERON or EFO id
-	 * @throws IOException 
-	 * @returns a map, where key is MA is and value is either UBERON or EFO (can be multi-valued) 
-	 */
-	
-    public static Map<String, Map<String,List<String>>> mapMaToUberronOrEfoForAnatomogram(Resource anatomogramResource) throws SQLException, IOException {
-        
-    	if ( maUberonEfoMap == null || maUberonEfoMap.isEmpty() ){
-    		
-    		maUberonEfoMap = new HashMap<>();
-    		
-	    	InputStreamReader in = new InputStreamReader(anatomogramResource.getInputStream());
-	    	
-			try (BufferedReader bin = new BufferedReader(in)) {
-			
-				String line;
-				while ((line = bin.readLine()) != null) {
-
-                    String[] kv = line.split("\\t");
-					if ( kv.length == 2 ){
-						String mappedId = kv[1];
-						String maId = kv[0].replace("_", ":");
-
-                        if ( ! maUberonEfoMap.containsKey(maId) ){
-							maUberonEfoMap.put(maId, new HashMap<>());
-						}	
-						String key = mappedId.startsWith("U") ? "uberon_id" : "efo_id";
-						if ( ! maUberonEfoMap.get(maId).containsKey(key) ){
-							maUberonEfoMap.get(maId).put(key, new ArrayList<>());
-						}
-						maUberonEfoMap.get(maId).get(key).add(mappedId);
-					}
-				}	
-			}	
-			
-			logger.debug(" Converted " + maUberonEfoMap.size() + " MA Ids");
-//			logger.debug(" " + maUberonEfoMap.toString());
-    	}
-		return maUberonEfoMap;
-	        
-    }
 
 	public Map<String, List<EmbryoStrain>> populateEmbryoData(String embryoViewerFilename) {
     	EmbryoRestGetter embryoGetter=new EmbryoRestGetter(embryoViewerFilename);
@@ -117,7 +73,6 @@ public class IndexerMap {
 		try {
 			restData = embryoGetter.getEmbryoRestData();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		List<EmbryoStrain> strains = restData.getStrains();
@@ -130,6 +85,48 @@ public class IndexerMap {
 			mgiToEmbryoMap.get(mgi).add(strain);
 		}
 		return mgiToEmbryoMap;
+	}
+	
+	public Map<String, List<DmddDataUnit>> populateDmddImagedData(String embryoViewerFilename) {
+    	DmddRestGetter dmddGetter=new DmddRestGetter(embryoViewerFilename);
+    	
+		
+		try {
+			dmddRestData = dmddGetter.getEmbryoRestData();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		List<DmddDataUnit> imaged = dmddRestData.getImaged();
+		Map<String,List<DmddDataUnit>> mgiToDmddImagedMap=new HashMap<>();
+		for(DmddDataUnit strain: imaged){
+			String mgi=strain.getGeneAccession();
+			if(!mgiToDmddImagedMap.containsKey(mgi)){
+				mgiToDmddImagedMap.put(mgi,new ArrayList<>());
+			}
+			mgiToDmddImagedMap.get(mgi).add(strain);
+		}
+		return mgiToDmddImagedMap;
+	}
+	
+	public Map<String, List<DmddDataUnit>> populateDmddLethalData(String dmddFileName) {
+    	if (dmddRestData==null) {//should have this data already from imaged data call so don't do again if so.
+			DmddRestGetter dmddGetter = new DmddRestGetter(dmddFileName);
+			try {
+				dmddRestData = dmddGetter.getEmbryoRestData();
+			} catch (Exception e) {
+				e.printStackTrace();
+			} 
+		}
+		List<DmddDataUnit> lethal = dmddRestData.getEarlyLethal();
+		Map<String,List<DmddDataUnit>> mgiToDmddLethalMap=new HashMap<>();
+		for(DmddDataUnit strain: lethal){
+			String mgi=strain.getGeneAccession();
+			if(!mgiToDmddLethalMap.containsKey(mgi)){
+				mgiToDmddLethalMap.put(mgi,new ArrayList<>());
+			}
+			mgiToDmddLethalMap.get(mgi).add(strain);
+		}
+		return mgiToDmddLethalMap;
 	}
     
     

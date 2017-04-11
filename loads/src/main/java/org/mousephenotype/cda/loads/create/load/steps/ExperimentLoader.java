@@ -28,7 +28,7 @@ import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.loads.common.*;
-import org.mousephenotype.cda.loads.create.load.support.EuroPhenomeStrainMapper;
+import org.mousephenotype.cda.loads.create.load.support.StrainMapper;
 import org.mousephenotype.cda.loads.exceptions.DataLoadException;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.mousephenotype.dcc.exportlibrary.datastructure.core.procedure.*;
@@ -60,7 +60,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
     private CommonUtils                commonUtils = new CommonUtils();
     private CdaSqlUtils                cdaSqlUtils;
     private DccSqlUtils                dccSqlUtils;
-    private EuroPhenomeStrainMapper    euroPhenomeStrainMapper;
+    private StrainMapper               strainMapper;
     private NamedParameterJdbcTemplate jdbcCda;
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -69,6 +69,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
 
     private Set<String> badDates                     = new HashSet<>();
     private Set<String> experimentsMissingSamples    = new HashSet<>();        // value = specimenId + "_" + cda phenotypingCenterPk
+    private Set<String> missingBackgroundStrains     = new HashSet<>();
     private Set<String> missingColonyIds             = new HashSet<>();
     private Set<String> experimentsMissingColonyIds  = new HashSet<>();
     private Set<String> missingProjects              = new HashSet<>();
@@ -201,7 +202,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         List<DccExperimentDTO> dccExperiments = dccSqlUtils.getExperiments();
         Map<String, Integer>   counts;
 
-        euroPhenomeStrainMapper = new EuroPhenomeStrainMapper(cdaSqlUtils);
+        strainMapper = new StrainMapper(cdaSqlUtils);
 
         // Initialise maps. If they are not null, clear them first, as this method gets called multiple times to
         // load data from different dcc databases.
@@ -323,6 +324,11 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         Iterator<String> experimentsMissingColonyIdsIt = experimentsMissingColonyIds.iterator();
         while (experimentsMissingColonyIdsIt.hasNext()) {
             logger.warn(experimentsMissingColonyIdsIt.next());
+        }
+
+        Iterator<String> missingBackgroundStrainsIt = missingBackgroundStrains.iterator();
+        while (missingBackgroundStrainsIt.hasNext()) {
+            logger.info(missingBackgroundStrainsIt.next());
         }
 
         Iterator<String> experimentsMissingSamplesIt = experimentsMissingSamples.iterator();
@@ -559,8 +565,19 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
             List<SimpleParameter> simpleParameters = dccSqlUtils.getSimpleParameters(dccExperiment.getDcc_procedure_pk());
             try {
                 biologicalModelPk = getBiologicalModelId(phenotypedColony, simpleParameters);
+
             } catch (DataLoadException e) {
-                logger.warn("Skipping line-level experiment {}", dccExperiment.getExperimentId());
+
+                switch (e.getDetail()) {
+                    case NO_BACKGROUND_STRAIN:
+                        missingBackgroundStrains.add(phenotypedColony.getColonyName());
+                        return null;
+
+                    default:
+                        logger.warn("Skipping line-level experiment {}", dccExperiment.getExperimentId());
+                        break;
+                }
+
                 return null;
             }
 
@@ -811,7 +828,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
 
         String zygosity = getZygosity(simpleParameters);
         String sampleGroup = "experimental";
-        biological_model_id = cdaSqlUtils.selectOrInsertBiologicalModel(phenotypedColony, euroPhenomeStrainMapper, zygosity, sampleGroup, allelesBySymbolMap).getId();
+        biological_model_id = cdaSqlUtils.selectOrInsertBiologicalModel(phenotypedColony, strainMapper, zygosity, sampleGroup, allelesBySymbolMap).getId();
 
         return biological_model_id;
     }

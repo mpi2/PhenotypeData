@@ -1834,6 +1834,7 @@ public class ObservationService extends BasicService implements WebStatus {
                 .addFilterQuery(ObservationDTO.PROCEDURE_NAME +":\""+ procedureName+"\"")
 				.addFilterQuery(ObservationDTO.GENE_ACCESSION_ID +":\""+geneAccession+"\"");
 
+		System.out.println("solr query in getObservationByProcedureNameAndGene="+q);
         return solr.query(q).getBeans(ObservationDTO.class);
 
 	}

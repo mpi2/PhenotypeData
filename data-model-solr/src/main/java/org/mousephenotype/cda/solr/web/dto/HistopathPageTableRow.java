@@ -233,16 +233,10 @@ public void setMpathDiagnosticOntologyBeans(Map<String, List<OntologyBean>> mpat
 		return severity;
 	}
 	
-	public void addSeveirty(ImpressBaseDTO parameter, String category) {
+	public void addSeverity(ImpressBaseDTO parameter, String category) {
 		this.severity.add(new ParameterValueBean(parameter, category));
 		
 	}
-	
-	
-	
-	
-	
-	
 	
 	private List<ParameterValueBean> categoryList=new ArrayList<>();
 	

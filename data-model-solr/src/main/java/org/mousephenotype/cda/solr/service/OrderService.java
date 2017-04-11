@@ -38,7 +38,6 @@ public class OrderService {
 	public List<OrderTableRow> getOrderTableRows(String acc, Integer rows, boolean creLine) throws SolrServerException, IOException {
 		List<OrderTableRow> orderTableRows = new ArrayList<>();
 		List<Allele2DTO> allele2DTOs = this.getAllele2DTOs(acc, rows, creLine);
-		System.out.println("size of allele2DTOS"+allele2DTOs.size());
 
 		for (Allele2DTO allele : allele2DTOs) {
 			OrderTableRow row = new OrderTableRow();	
@@ -82,9 +81,7 @@ public class OrderService {
 			query.setRows(Integer.MAX_VALUE);
 		}
 		
-		System.out.println("query for allele2DTOs=" + query);
 		QueryResponse response = allele2Core.query(query);
-		System.out.println("number found of allele2 docs=" + response.getResults().getNumFound());
 		List<Allele2DTO> allele2DTOs = response.getBeans(Allele2DTO.class);
 
 		return allele2DTOs;

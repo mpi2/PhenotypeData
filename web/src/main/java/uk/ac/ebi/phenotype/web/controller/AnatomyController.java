@@ -15,20 +15,9 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.web.controller;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.response.FacetField;
-import org.json.JSONException;
 import org.mousephenotype.cda.solr.generic.util.JSONImageUtils;
 import org.mousephenotype.cda.solr.service.*;
 import org.mousephenotype.cda.solr.service.dto.AnatomyDTO;
@@ -41,18 +30,16 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
 import uk.ac.ebi.phenotype.chart.PieChartCreator;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.*;
 
 @Controller
 public class AnatomyController {
@@ -87,8 +74,6 @@ public class AnatomyController {
 	 * Phenotype controller loads information required for displaying the
 	 * phenotype page or, in the case of an error, redirects to the error page
 	 *
-	 * @param anatomy_id
-	 *            the Mammalian anatomy id of the tissue to display
 	 * @return the name of the view to render, or redirect to search page on
 	 *         error
 	 * @throws URISyntaxException
@@ -98,7 +83,7 @@ public class AnatomyController {
 	 */
 	@RequestMapping(value = "/anatomy/{anatomy}", method = RequestMethod.GET)
 	public String loadMaPage(@PathVariable String anatomy, Model model, HttpServletRequest request, RedirectAttributes attributes)
-			throws SolrServerException, IOException, URISyntaxException, JSONException {
+	throws SolrServerException, IOException , URISyntaxException {
 
 		AnatomyDTO anatomyTerm = anatomyService.getTerm(anatomy);
 
@@ -112,17 +97,12 @@ public class AnatomyController {
 		//now collapse the rows from both the categorical and image data sources
 		ArrayList<AnatomyPageTableRow> collapsedTable = collapseCategoricalAndImageRows(anatomyTable, anatomyRowsFromImages);
 		
-		//List<AnatomyPageTableRow> anatomyTable = is.getImagesForAnatomy(anatomy, null, null, null, null, request.getAttribute("baseUrl").toString());
 		List<PhenotypeTableRowAnatomyPage> phenotypesTable = new ArrayList<>(gpService.getCollapsedPhenotypesForAnatomy(anatomy, request.getAttribute("baseUrl").toString()));
 		Integer genesWithPhenotype = gpService.getGenesByAnatomy(anatomy);
-		Integer genesWithoutPhenotype = srService.getGenesByAnatomy(anatomy) - genesWithPhenotype;
+		Integer testedGenes = srService.getGenesByAnatomy(anatomy);
 		Map<String, Integer> pieData = new HashMap<>();
 		pieData.put("Phenotype present ", genesWithPhenotype);
-		pieData.put("No phenotype ", genesWithoutPhenotype);
-
-        // Ignore anatomogram in anatomy page for now: too many MA terms and EMAPA terms are not supported by anatomogram
-//        List<AnatomogramDataBean> anatomogramDataBeans = getAnatomogramBeanByAnatomyTerm(anatomyTerm);
-//		JSONObject anatomogram = expressionService.getAnatomogramJson(anatomogramDataBeans);
+		pieData.put("No phenotype ", testedGenes - genesWithPhenotype);
 
 		model.addAttribute("anatomy", anatomyTerm);
 		model.addAttribute("expressionImages", expressionImageDocs);
@@ -131,11 +111,10 @@ public class AnatomyController {
         model.addAttribute("phenoFacets", getFacets(anatomy));
 		model.addAttribute("phenotypeTable", phenotypesTable);
 		model.addAttribute("pieChartCode", PieChartCreator.getPieChart(pieData, "phenotypesByAnatomy", "Phenotype penetrance", "Genes with significant phenotype associations in " + anatomyTerm.getAnatomyTerm(), null));
-		model.addAttribute("genesTested", genesWithoutPhenotype + genesWithPhenotype);
+		model.addAttribute("genesTested", testedGenes);
         // Stuff for parent-child display
         model.addAttribute("hasChildren", (anatomyTerm.getChildAnatomyId() != null && anatomyTerm.getChildAnatomyId().size() > 0) ? true : false);
         model.addAttribute("hasParents", (anatomyTerm.getParentAnatomyId() != null && anatomyTerm.getParentAnatomyId().size() > 0) ? true : false);
-		//model.addAttribute("anatomogram", anatomogram);
 
         return "anatomy";
 
@@ -270,7 +249,6 @@ public class AnatomyController {
 		} catch (SolrServerException | IOException e) {
 			e.printStackTrace();
 		}
-		System.out.println("phenoFacets="+phenoFacets);
         return phenoFacets;
     }
 

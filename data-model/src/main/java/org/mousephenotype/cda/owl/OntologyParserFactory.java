@@ -24,6 +24,7 @@ import java.util.*;
 public class OntologyParserFactory {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
     private String owlpath;
     private DataSource komp2DataSource;
 
