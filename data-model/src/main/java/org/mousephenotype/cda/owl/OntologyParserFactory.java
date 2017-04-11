@@ -1,14 +1,17 @@
 package org.mousephenotype.cda.owl;
 
+import org.semanticweb.elk.util.collections.ArrayHashSet;
 import org.semanticweb.owlapi.model.IRI;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.semanticweb.owlapi.model.OWLOntologyStorageException;
-import org.springframework.stereotype.Component;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import uk.ac.manchester.cs.owl.owlapi.OWLObjectPropertyImpl;
 
 import javax.sql.DataSource;
 import java.io.File;
 import java.io.IOException;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -17,10 +20,10 @@ import java.util.*;
 /**
  * Created by ilinca on 29/03/2017.
  */
-@Component
+
 public class OntologyParserFactory {
 
-
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private String owlpath;
     private DataSource komp2DataSource;
 
@@ -73,8 +76,16 @@ public class OntologyParserFactory {
         return new OntologyParser(owlpath + "/ma.owl", "MA", TOP_LEVEL_MA_TERMS, getMaWantedIds());
     }
 
+    public OntologyParser getHpParser(DataSource phenodigmDB) throws OWLOntologyCreationException, OWLOntologyStorageException, IOException, SQLException {
+        return new OntologyParser(owlpath + "/hp.owl", "HP", null, getHpWantedIds(phenodigmDB));
+    }
+
     public OntologyParser getEmapaParser() throws OWLOntologyCreationException, OWLOntologyStorageException, IOException, SQLException {
         return new OntologyParser(owlpath + "/emapa.owl", "EMAPA", TOP_LEVEL_EMAPA_TERMS, getEmapaWantedIds());
+    }
+
+    public OntologyParser getUberonParser() throws OWLOntologyCreationException, OWLOntologyStorageException, IOException, SQLException {
+        return new OntologyParser(owlpath + "/uberon.owl", "UBERON", null, null);
     }
 
     public OntologyParser getMaParserWithTreeJson() throws OWLOntologyStorageException, IOException, SQLException, OWLOntologyCreationException {
@@ -84,12 +95,60 @@ public class OntologyParserFactory {
         return parser;
     }
 
-
     public OntologyParser getEmapaParserWithTreeJson() throws OWLOntologyStorageException, IOException, SQLException, OWLOntologyCreationException {
 
         OntologyParser parser = getEmapaParser();
         parser.fillJsonTreePath("EMAPA:25765", "/data/anatomy/", null, TREE_TOP_LEVEL_EMAPA_TERMS, true); // mouse
         return parser;
+    }
+
+    protected Set<String> getHpWantedIds(DataSource phenodigm) throws SQLException, OWLOntologyCreationException, OWLOntologyStorageException, IOException {
+
+        OntologyParser mpParser = getMpParser();
+        OntologyParser mpHpParser = getMpHpParser();
+
+        int hpCount = 0;
+
+        Set<String> hpWanted = new ArrayHashSet<>();
+
+        // first get the hp from chris mungals hybrid mp-hp ontology
+        // this is a mapping of hp to ALL mps
+        for (String wantedMpId : mpParser.getTermsInSlim()){
+            OntologyTermDTO mpDTO = mpHpParser.getOntologyTerm(wantedMpId);
+            Set<OntologyTermDTO> hpDTOs =  mpDTO.getEquivalentClasses();
+            for (OntologyTermDTO hp : hpDTOs){
+                String termId = hp.getAccessionId();
+                if (termId.startsWith("HP:")) {
+                    hpCount++;
+                    hpWanted.add(termId);
+                }
+            }
+        }
+        logger.info("Mp-Hp hybrid ontology has {} hps", hpWanted.size());
+
+        int seen =0;
+        // then get the hps from phenodigm: disease_hp
+        String qry = "SELECT DISTINCT hp_id FROM disease_hp";  // all IMPC disease related hps only
+
+        try (Connection connection = phenodigm.getConnection();
+             PreparedStatement p = connection.prepareStatement(qry)) {
+
+            ResultSet r = p.executeQuery();
+            while (r.next()) {
+                String hpId = r.getString("hp_id");
+                if (hpWanted.contains(hpId)){
+                    seen++;
+                }
+                else {
+                    hpWanted.add(hpId);
+                }
+            }
+        }
+
+        logger.info("Mp-Hp hybrid ontology has {} hps overlapping with phenodigm", seen);
+        logger.info("Got total of {} wanted hps from Mp-Hp hybrid ontology and phenodigm disease_hp table", hpWanted.size());
+
+        return hpWanted;
     }
 
     protected Set<String> getMaWantedIds() throws SQLException, OWLOntologyCreationException, OWLOntologyStorageException, IOException {

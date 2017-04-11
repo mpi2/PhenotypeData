@@ -18,12 +18,16 @@ public class Hp {
     private String hpId;
     private String hpTerm;
     private String hpDefinition;
+    private Boolean topLevelStatus;
 
     @Relationship(type="HP_SYNONYM", direction=Relationship.OUTGOING)
-    private Set<OntoSynonym> hpSynonyms;
+    private Set<OntoSynonym> ontoSynonyms;
 
     @Relationship(type="MOUSE", direction=Relationship.OUTGOING)
     private Set<Mp> mousePhenotypes;
+
+    @Relationship(type="PARENT", direction=Relationship.OUTGOING)
+    private Set<Hp> hpParentIds;
 
     public Long getId() {
         return id;
@@ -57,12 +61,20 @@ public class Hp {
         this.hpDefinition = hpDefinition;
     }
 
-    public Set<OntoSynonym> getHpSynonyms() {
-        return hpSynonyms;
+    public Boolean getTopLevelStatus() {
+        return topLevelStatus;
     }
 
-    public void setHpSynonyms(Set<OntoSynonym> hpSynonyms) {
-        this.hpSynonyms = hpSynonyms;
+    public void setTopLevelStatus(Boolean topLevelStatus) {
+        this.topLevelStatus = topLevelStatus;
+    }
+
+    public Set<OntoSynonym> getOntoSynonyms() {
+        return ontoSynonyms;
+    }
+
+    public void setOntoSynonyms(Set<OntoSynonym> ontoSynonyms) {
+        this.ontoSynonyms = ontoSynonyms;
     }
 
     public Set<Mp> getMousePhenotypes() {
@@ -73,6 +85,14 @@ public class Hp {
         this.mousePhenotypes = mousePhenotypes;
     }
 
+    public Set<Hp> getHpParentIds() {
+        return hpParentIds;
+    }
+
+    public void setHpParentIds(Set<Hp> hpParentIds) {
+        this.hpParentIds = hpParentIds;
+    }
+
     @Override
     public String toString() {
         return "Hp{" +
@@ -80,8 +100,10 @@ public class Hp {
                 ", hpId='" + hpId + '\'' +
                 ", hpTerm='" + hpTerm + '\'' +
                 ", hpDefinition='" + hpDefinition + '\'' +
-                ", hpSynonyms=" + hpSynonyms +
+                ", topLevelStatus=" + topLevelStatus +
+                ", ontoSynonyms=" + ontoSynonyms +
                 ", mousePhenotypes=" + mousePhenotypes +
+                ", hpParentIds=" + hpParentIds +
                 '}';
     }
 }

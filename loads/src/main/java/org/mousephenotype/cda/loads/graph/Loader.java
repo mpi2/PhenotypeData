@@ -3,11 +3,13 @@ package org.mousephenotype.cda.loads.graph;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.annotations.ComponentScanNonParticipant;
+import org.mousephenotype.cda.db.pojo.OntologyTerm;
 import org.mousephenotype.cda.neo4j.entity.*;
 import org.mousephenotype.cda.neo4j.repository.*;
 import org.mousephenotype.cda.owl.OntologyParser;
 import org.mousephenotype.cda.owl.OntologyParserFactory;
 import org.mousephenotype.cda.owl.OntologyTermDTO;
+import org.semanticweb.elk.util.collections.ArrayHashSet;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.semanticweb.owlapi.model.OWLOntologyStorageException;
 import org.slf4j.Logger;
@@ -121,6 +123,7 @@ public class Loader implements CommandLineRunner {
 
     private OntologyParser mpHpParser;
     private OntologyParser mpParser;
+    private OntologyParser hpParser;
 
     private static final int LEVELS_FOR_NARROW_SYNONYMS = 2;
 
@@ -137,17 +140,17 @@ public class Loader implements CommandLineRunner {
         logger.info("Start deleting all repositories ...");
 //        FileUtils.deleteDirectory(new File(neo4jDbPath));
 
-//        geneRepository.deleteAll();
-//        alleleRepository.deleteAll();
-//        ensemblGeneIdRepository.deleteAll();
-//        markerSynonymRepository.deleteAll();
-//        ontoSynonymRepository.deleteAll();
-//        humanGeneSymbolRepository.deleteAll();
-//        mpRepository.deleteAll();
-//        hpRepository.deleteAll();
-//        diseaseGeneRepository.deleteAll();
-//        diseaseModelRepository.deleteAll();
-//        mouseModelRepository.deleteAll();
+        geneRepository.deleteAll();
+        alleleRepository.deleteAll();
+        ensemblGeneIdRepository.deleteAll();
+        markerSynonymRepository.deleteAll();
+        ontoSynonymRepository.deleteAll();
+        humanGeneSymbolRepository.deleteAll();
+        mpRepository.deleteAll();
+        hpRepository.deleteAll();
+        diseaseGeneRepository.deleteAll();
+        diseaseModelRepository.deleteAll();
+        mouseModelRepository.deleteAll();
         logger.info("Done deleting all repositories");
 
         Connection komp2Conn = komp2DataSource.getConnection();
@@ -156,27 +159,26 @@ public class Loader implements CommandLineRunner {
         //----------- STEP 1 -----------//
         // loading Gene, Allele, EnsemblGeneId, MarkerSynonym, human orthologs
         // based on Peter's allele2 flatfile
-//        loadGenes();
-//
-//        //----------- STEP 2 -----------//
-//        populateHpIdTermMap();            // STEP 2.1
-//        populateBestMpIdHpMap();          // STEP 2.2
-//        extendLoadedHpAndConnectHp2Mp();  // STEP 2.3
-//        loadMousePhenotypes();            // STEP 2.4
-//
-//        //----------- STEP 3 -----------//
-//        populateMouseModelIdMpMap(); // run this before loadMouseModel()
-//        loadMouseModels();
-//
-//        //----------- STEP 4 -----------//
-//        // load disease and Gene, Hp, Mp relationships
-//        populateDiseaseIdPhenotypeMap();
-//        loadDiseaseGenes();
-//
-//        //----------- STEP 5 -----------//
-//        loadDiseaseModels();
+        loadGenes();
 
-        loadHumanPhenotypes();
+        //----------- STEP 2 -----------//
+        populateHpIdTermMapAndLoadHumanPhenotypes();  // STEP 2.1
+        populateBestMpIdHpMap();          // STEP 2.2
+        extendLoadedHpAndConnectHp2Mp();  // STEP 2.3
+        loadMousePhenotypes();            // STEP 2.4
+
+        //----------- STEP 3 -----------//
+        populateMouseModelIdMpMap(); // run this before loadMouseModel()
+        loadMouseModels();
+
+        //----------- STEP 4 -----------//
+        // load disease and Gene, Hp, Mp relationships
+        populateDiseaseIdPhenotypeMap();
+        loadDiseaseGenes();
+
+        //----------- STEP 5 -----------//
+        loadDiseaseModels();
+
     }
 
     public void loadGenes() throws IOException, SolrServerException {
@@ -386,24 +388,6 @@ public class Loader implements CommandLineRunner {
         loadHumanOrtholog();
     }
 
-    public void loadHumanPhenotypes() throws IOException, OWLOntologyCreationException, OWLOntologyStorageException, SQLException, URISyntaxException, SolrServerException {
-        long begin = System.currentTimeMillis();
-
-        mpParser = ontologyParserFactory.getMpParser();
-        mpHpParser = ontologyParserFactory.getMpHpParser();
-        logger.info("Loaded mp hp parser");
-
-        int hpCount = 0;
-
-        for (String term : mpParser.getTermsInSlim()){
-            System.out.println(term);
-
-           //OntologyTermDTO mpDTO = mpHpParser.getOntologyTerm(term);
-           //Set<OntologyTermDTO> hpDTOs =  mpDTO.getEquivalentClasses();
-
-        }
-    }
-
     public void loadMousePhenotypes() throws IOException, OWLOntologyCreationException, OWLOntologyStorageException, SQLException, URISyntaxException, SolrServerException {
         long begin = System.currentTimeMillis();
 
@@ -572,24 +556,81 @@ public class Loader implements CommandLineRunner {
         loadTime(begin, System.currentTimeMillis(), job);
     }
 
-    public void populateHpIdTermMap() throws SolrServerException, IOException, SQLException {
+    public void populateHpIdTermMapAndLoadHumanPhenotypes() throws SolrServerException, IOException, SQLException, OWLOntologyCreationException, OWLOntologyStorageException {
 
         long begin = System.currentTimeMillis();
-        String query = "SELECT DISTINCT hp_id, term FROM hp ";
 
-        try (Connection connection = phenodigmDataSource.getConnection();
-            PreparedStatement p = connection.prepareStatement(query)) {
+        hpParser = ontologyParserFactory.getHpParser(phenodigmDataSource);
 
-            ResultSet r = p.executeQuery();
-            while (r.next()) {
-                String hpId = r.getString("hp_id");
-                String hpTerm = r.getString("term");
-                // human Phenotype id to term mapping
-                hpIdTermMap.put(hpId, hpTerm);
+        int hpCount = 0;
+
+        for(String wantedHpId : hpParser.getTermsInSlim()){
+            OntologyTermDTO hpDTO = hpParser.getOntologyTerm(wantedHpId);
+
+            Hp hp = hpRepository.findByHpId(wantedHpId);
+            if (hp == null){
+                hp = new Hp();
+                hp.setHpId(wantedHpId);
+            }
+            if (hp.getHpTerm() == null) {
+                hp.setHpTerm(hpDTO.getName());
+            }
+            if (hp.getHpDefinition() == null) {
+                hp.setHpDefinition(hpDTO.getDefinition());
+            }
+
+            if (hp.getOntoSynonyms() == null) {
+
+                Set<OntoSynonym> ontosyms = new HashSet<>();
+
+                for (String hpsym : hpDTO.getSynonyms()) {
+                    OntoSynonym hs = new OntoSynonym();
+                    hs.setOntoSynonym(hpsym);
+                    ontosyms.add(hs);
+                }
+
+                hp.setOntoSynonyms(ontosyms);
+            }
+
+            // MP PARENT
+            if (hp.getHpParentIds() == null) {
+                if ( hpDTO.getParentIds() != null) {
+                    Set<Hp> parentHps = new HashSet<>();
+
+                    for (String parId : hpDTO.getParentIds()) {
+                        Hp thisHp = hpRepository.findByHpId(parId);
+                        if (thisHp == null) {
+                            thisHp = new Hp();
+                        }
+                        thisHp.setHpId(parId);
+                        parentHps.add(thisHp);
+                    }
+                    hp.setHpParentIds(parentHps);
+                }
+            }
+
+            // MARK HP WHICH IS TOP LEVEL
+            if (hpDTO.getTopLevelIds() == null || hpDTO.getTopLevelIds().size() == 0){
+                // add self as top level
+                hp.setTopLevelStatus(true);
+            }
+
+            // TO DO ?
+
+            hpRepository.save(hp);
+            loadedHps.put(hp.getHpId(), hp);
+            hpIdTermMap.put(hp.getHpId(), hp.getHpTerm());
+
+            hpCount++;
+
+            if (hpCount % 1000 == 0) {
+                logger.info("Added {} hp nodes",  hpCount);
             }
         }
 
-        String job = "populateHpIdTermMap";
+        logger.info("Added total of {} hp nodes",  hpCount);
+
+        String job = "populateHpIdTermMapAndLoadHumanPhenotypes";
         loadTime(begin, System.currentTimeMillis(), job);
     }
 
