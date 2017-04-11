@@ -213,7 +213,8 @@ public class AdvancedSearchController {
             @RequestParam(value = "datatypeProperties", required = true) String datatypeProperties,
             @RequestParam(value = "dataType", required = true) String dataType,
             @RequestParam(value = "childLevel", required = false) String childLevel,
-            @RequestParam(value = "chrRange", required = false) String chrRange,
+           // @RequestParam(value = "chrRange", required = false) String chrRange,
+            @RequestParam(value = "chr", required = false) String chr,
             HttpServletRequest request,
             HttpServletResponse response,
             Model model) throws Exception {
@@ -249,11 +250,12 @@ public class AdvancedSearchController {
         System.out.println("idlist: " + idlist);
 
         String content = null;
+
         String regionId = null;
         int regionStart = 0;
         int regionEnd = 0;
 
-        if (idlistStr.matches("^chr(\\w*):(\\d+)-(\\d+)$") || chrRange != null) {
+        if (idlistStr.matches("^chr(\\w*):(\\d+)-(\\d+)$") ) {
             System.out.println("find chr range");
 
             Pattern pattern = Pattern.compile("^chr(\\w*):(\\d+)-(\\d+)$");
@@ -266,6 +268,15 @@ public class AdvancedSearchController {
             }
 
             String mode = "nonExport";
+        }
+
+        // chr filter for mp, hp, disease input type
+        if (chr != null){
+            regionId = chr;
+            System.out.println("chr filter: " + chr);
+        }
+        else {
+            System.out.println("chr filter is null");
         }
 
         baseUrl = request.getAttribute("baseUrl").toString();
@@ -336,6 +347,7 @@ public class AdvancedSearchController {
 
                     // first get all children mps (including self)
                     objs = mpRepository.findAllChildrenMpsByMpId(kw);
+                    System.out.println("1. Got " + objs.size() + "children");
 
                     // then query data by each mp and put together
                     objs = fetchMps(objs);
@@ -347,6 +359,7 @@ public class AdvancedSearchController {
                     int level = Integer.parseInt(childLevel);
                     objs = mpRepository.findChildrenMpsByMpId(kw, level);
 
+                    System.out.println("2. Got " + objs.size() + "children");
                     // then query data by each mp and put together
                     objs = fetchMps(objs);
                 }
@@ -431,7 +444,7 @@ public class AdvancedSearchController {
                         rowData.add("<ul>" + StringUtils.join(vals, "") + "</ul>");
                     }
 
-                    System.out.println("col: " + col);
+                    //System.out.println("col: " + col);
                     if (col.equals("ontoSynonym")) {
                         System.out.println(col + " -- " + vals);
                     }
@@ -470,7 +483,7 @@ public class AdvancedSearchController {
 
             if (jDatatypeProperties.containsKey(className)) {
 
-                System.out.println("className: " + className);
+                //System.out.println("className: " + className);
 
                 List<String> nodeProperties = jDatatypeProperties.getJSONArray(className);
 
@@ -537,7 +550,7 @@ public class AdvancedSearchController {
 
             char first = Character.toUpperCase(property.charAt(0));
             String property2 = first + property.substring(1);
-            System.out.println("property: " + property);
+            //System.out.println("property: " + property);
 
             Method method = o.getClass().getMethod("get"+property2);
             if (! colValMap.containsKey(property)) {
@@ -556,7 +569,7 @@ public class AdvancedSearchController {
                     colVal = Tools.superscriptify(colVal);
                 }
 
-                System.out.println(property + " : " +  colVal);
+                //System.out.println(property + " : " +  colVal);
 
             } catch(Exception e) {
                 System.out.println(property + " set to " + colVal);

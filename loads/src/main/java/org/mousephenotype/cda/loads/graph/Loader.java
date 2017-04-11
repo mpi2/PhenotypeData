@@ -394,10 +394,10 @@ public class Loader implements CommandLineRunner {
 
         int hpCount = 0;
 
-        for (OntologyTermDTO term : mpHpParser.getTerms()){
+        for (String term : mpHpParser.getTermsInSlim()){
+            System.out.println(term);
 
-
-//            OntologyTermDTO mpDTO = mpHpParser.getOntologyTerm(mpId);
+//            OntologyTermDTO mpDTO = mpHpParser.getOntologyTerm(term);
 //            String termId = mpDTO.getAccessionId();
 
         }

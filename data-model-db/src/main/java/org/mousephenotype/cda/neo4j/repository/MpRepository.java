@@ -37,10 +37,10 @@ public interface MpRepository extends Neo4jRepository<Mp, Long> {
 
 
     //@Query("MATCH (mp:Mp)<-[:PARENT*0..{childLevel}]-(cmp) WHERE mp.mpId={mpId} with mp, cmp RETURN collect(distinct mp.mpId), collect(distinct cmp.mpId)")
-    @Query("MATCH (mp:Mp)<-[:PARENT*0..3]-(cmp) WHERE mp.mpId={mpId} with mp, cmp RETURN collect(distinct cmp)")
+    @Query("MATCH (mp:Mp)<-[:PARENT*0..3]-(cmp) WHERE mp.mpId={mpId} RETURN cmp")
     List<Object> findChildrenMpsByMpId(@Param( "mpId" ) String mpId, @Param( "childLevel" ) int childLevel);
 
-    @Query("MATCH (mp:Mp)<-[:PARENT*0..]-(cmp) WHERE mp.mpId={mpId} RETURN collect(distinct mp), collect(distinct cmp)")
+    @Query("MATCH (mp:Mp)<-[:PARENT*0..]-(cmp) WHERE mp.mpId={mpId} RETURN cmp")
     List<Object> findAllChildrenMpsByMpId(@Param( "mpId" ) String mpId);
 
 
@@ -99,6 +99,7 @@ public interface MpRepository extends Neo4jRepository<Mp, Long> {
             + "RETURN mp, markerSynonym, humanGeneSymbol, ensemblGeneId, gene, mouseModel, diseaseModel, allele, hp, mpSynonym")
     List<Object> findDataByMpTerm(@Param( "mpTerm" ) String mpTerm);
 
+//    @Query("MATCH (mp:Mp)<-[:PARENT*0..{childLevel: {childLevel}]-(cmp) WHERE mp.mpTerm =~ ('(?i)'+'.*'+{mpTerm}+'.*') with mp, cmp RETURN collect(distinct cmp)")
     @Query("MATCH (mp:Mp)<-[:PARENT*0..3]-(cmp) WHERE mp.mpTerm =~ ('(?i)'+'.*'+{mpTerm}+'.*') with mp, cmp RETURN collect(distinct cmp)")
     List<Object> findChildrenMpsByMpTerm(@Param( "mpTerm" ) String mpTerm, @Param( "childLevel" ) int childLevel);
 

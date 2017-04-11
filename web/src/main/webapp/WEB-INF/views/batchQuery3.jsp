@@ -765,15 +765,19 @@
                     }
                     if ($('fieldset#chromosome').is(":visible")) {
                         var chrId = $('select#chrSel2').val();
-                        var chrStart = $('input#rstart2').val();
-                        var chrEnd = $('input#rend2').val();
-                        if ( chrStart + chrEnd != 0) {
-                            console.log("check chr" + chrId + ":" + chrStart + "-" + chrEnd);
-							kv = checkChrCoords(chrId, chrStart, chrEnd, kv);
-							if (kv == false) {
-								return false;
-							}
-                    	}
+                        if (chrId != 0){
+                            kv['chr'] = chrId;
+                        }
+                        //var chrStart = $('input#rstart2').val();
+                        //var chrEnd = $('input#rend2').val();
+//                        if ( chrStart + chrEnd != 0) {
+//                            console.log("check chr" + chrId + ":" + chrStart + "-" + chrEnd);
+//							kv = checkChrCoords(chrId, chrStart, chrEnd, kv);
+//							if (kv == false) {
+//								return false;
+//							}
+//                    	}
+
                     }
                     if ($('fieldset#mpLevel').is(":visible")) {
                         var level = $('select#childLevel').val();
@@ -1056,7 +1060,7 @@
 
                     console.log("properties: " + datatypeProperties.properties);
 					console.log("childLevel: " + datatypeProperties.childLevel);
-                    console.log("chrRange: " + datatypeProperties.chrRange);
+                    //console.log("chrRange: " + datatypeProperties.chrRange);
 
                     refreshResult(); // refresh first
 
@@ -1068,9 +1072,10 @@
                     oConf.idlist = idList;
                     oConf.properties = datatypeProperties.properties.join(","); // order is important
 					oConf.childLevel = datatypeProperties.childLevel;
-					oConf.chrRange = datatypeProperties.chrRange;
+					//oConf.chrRange = datatypeProperties.chrRange;
+					oConf.chr = datatypeProperties.chr;
 
-					var excludes = ["properties", "childLevel", "chrRange"];
+					var excludes = ["properties", "childLevel", "chr"];
 					for(var e=0; e < excludes.length; e++) {
                         delete datatypeProperties[excludes[e]];
                     }
@@ -1486,7 +1491,7 @@
 
                     // add chromosome range filter
                     var chrs = [];
-                    chrs.push("none")
+                    chrs.push("")
                     for (var r = 1; r < 20; r++) {
                         chrs.push(r);
                     }
@@ -1502,8 +1507,8 @@
                         }
                     }
 
-                    var legend = '<legend>Mouse chromosomal range</legend>';
-                    var inputs = 'Chr:<select id="chrSel2">' + chrSel + '</select> (restricts phenotype(s) on genes of this chromosome)';
+                    var legend = '<legend>Mouse chromosome</legend>';
+                    var inputs = 'Chr:<select id="chrSel2">' + chrSel + '</select> (restricts phenotype(s) of genes on this chromosome)';
                         //'Start: <input id="rstart2" type="text" name="chr">' +
                         //'End: <input id="rend2" type="text" name="chr">';
                     var filter = '<fieldset id="chromosome">' + legend + inputs + '</fieldset>';
