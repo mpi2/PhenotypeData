@@ -393,14 +393,15 @@ public class Loader implements CommandLineRunner {
         logger.info("Loaded mp hp parser");
 
         int hpCount = 0;
-
-        for (String term : mpHpParser.getTermsInSlim()){
-            System.out.println(term);
-
-//            OntologyTermDTO mpDTO = mpHpParser.getOntologyTerm(term);
-//            String termId = mpDTO.getAccessionId();
-
-        }
+        // mpParser = factory.getmpParser()
+        // mpParser.getTermsInSlim();
+//        for (String term : mpParser.getTermsInSlim()){
+//            System.out.println(term);
+//
+////            OntologyTermDTO mpDTO = mpHpParser.getOntologyTerm(term);
+////            String termId = mpDTO.getAccessionId();
+//              // Set <OntologyTermDTO> hpTerms = mpTerm.getEquivalentClasses(); // Look in MPIndexer
+//        }
     }
 
     public void loadMousePhenotypes() throws IOException, OWLOntologyCreationException, OWLOntologyStorageException, SQLException, URISyntaxException, SolrServerException {
