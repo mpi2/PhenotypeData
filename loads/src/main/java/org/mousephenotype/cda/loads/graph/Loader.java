@@ -389,16 +389,17 @@ public class Loader implements CommandLineRunner {
     public void loadHumanPhenotypes() throws IOException, OWLOntologyCreationException, OWLOntologyStorageException, SQLException, URISyntaxException, SolrServerException {
         long begin = System.currentTimeMillis();
 
+        mpParser = ontologyParserFactory.getMpParser();
         mpHpParser = ontologyParserFactory.getMpHpParser();
         logger.info("Loaded mp hp parser");
 
         int hpCount = 0;
 
-        for (String term : mpHpParser.getTermsInSlim()){
+        for (String term : mpParser.getTermsInSlim()){
             System.out.println(term);
 
-//            OntologyTermDTO mpDTO = mpHpParser.getOntologyTerm(term);
-//            String termId = mpDTO.getAccessionId();
+           //OntologyTermDTO mpDTO = mpHpParser.getOntologyTerm(term);
+           //Set<OntologyTermDTO> hpDTOs =  mpDTO.getEquivalentClasses();
 
         }
     }
