@@ -243,17 +243,31 @@ public class GraphQueryTest {
     }
 
     @Test
+    public void mpChildrenTest() throws Exception {
+        List<String> mpIds = Arrays.asList("MP:0005385");
+//        List<String> mpIds = Arrays.asList("cardiovascular system phenotype");
+        for (String mpId : mpIds) {
+//           List<Mp> objs = mpRepository.findChildrenMpsByMpId(mpId, 3);
+            List<Object> mps = mpRepository.findAllChildrenMpsByMpId(mpId);
+            System.out.println("found " + mps.size());
+        }
+
+    }
+
+
+    //@Test
     public void mpGraphQueryTest() throws Exception {
-        List<String> hgsyms = Arrays.asList("ADCK4");
-//        List<String> mpIds = Arrays.asList("MP:0005385");
+//        List<String> hgsyms = Arrays.asList("ADCK4");
+        List<String> mpIds = Arrays.asList("MP:0005385");
 //        List<String> mpIds = Arrays.asList("cardiovascular system phenotype");
        // List<String> mpIds = Arrays.asList("glucose");
-        for(String hgsym : hgsyms) {
-//        for(String mpId : mpIds) {
+//        for(String hgsym : hgsyms) {
+        for(String mpId : mpIds) {
 //            List<Object> objs = humanGeneSymbolRepository.findDataByHumanGeneSymbol(hgsym);
-            //        List<Object> objs = mpRepository.findChildrenMpsByMpTerm(mpId, 3);
+//                    List<Mp> objs = mpRepository.findChildrenMpsByMpId(mpId, 3);
+            List<Object> objs = mpRepository.findAllChildrenMpsByMpId(mpId);
 //            List<Object> objs = mpRepository.findDataByMpTerm(mpId);
-            List<Object> objs = geneRepository.findDataByMarkerSymbol(hgsym);
+//            List<Object> objs = geneRepository.findDataByMarkerSymbol(hgsym);
             System.out.println("found " + objs.size());
             System.out.println(objs.get(0));
       //      List<Object> objs = mpRepository.findDataByMpTermWithTopLevel(mpId);
@@ -279,7 +293,7 @@ public class GraphQueryTest {
 
             for (Object obj : objs) {
                 String className = obj.getClass().getSimpleName();
-
+                System.out.println("classname: " + className);
 
                 if (className.equals("Gene")) {
                     Gene g = (Gene) obj;
