@@ -153,9 +153,6 @@ public class Loader implements CommandLineRunner {
         mouseModelRepository.deleteAll();
         logger.info("Done deleting all repositories");
 
-        Connection komp2Conn = komp2DataSource.getConnection();
-        Connection diseaseConn = phenodigmDataSource.getConnection();
-
         //----------- STEP 1 -----------//
         // loading Gene, Allele, EnsemblGeneId, MarkerSynonym, human orthologs
         // based on Peter's allele2 flatfile
