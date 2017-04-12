@@ -156,7 +156,7 @@ public class Loader implements CommandLineRunner {
         //----------- STEP 1 -----------//
         // loading Gene, Allele, EnsemblGeneId, MarkerSynonym, human orthologs
         // based on Peter's allele2 flatfile
-        //loadGenes();
+        loadGenes();
 
         //----------- STEP 2 -----------//
         populateHpIdTermMapAndLoadHumanPhenotypes();  // STEP 2.1
@@ -174,6 +174,7 @@ public class Loader implements CommandLineRunner {
         loadDiseaseGenes();
 
         //----------- STEP 5 -----------//
+        // load diseaseModel to gene/hp/mp/alleles
         loadDiseaseModels();
 
     }
