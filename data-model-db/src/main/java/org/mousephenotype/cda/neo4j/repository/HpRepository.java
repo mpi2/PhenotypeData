@@ -19,132 +19,128 @@ public interface HpRepository extends Neo4jRepository<Hp, Long> {
 
 
     //---------------------------------------
-    // FIND BY MP ID (INCLUDES SELF)
+    // FIND BY HP ID (INCLUDES SELF)
     //---------------------------------------
 
-    @Query("MATCH (mp:Mp) WHERE hp.hpId={hpId} WITH mp, "
-            + "[(mp)<-[:MOUSE_PHENOTYPE]-(mm:MouseModel)-[:GENE]->(g:Gene)-[:MARKER_SYNONYM]->(ms:MarkerSynonym) | ms] as markerSynonym, "
-            + "[(mp)<-[:MOUSE_PHENOTYPE]-(mm:MouseModel)-[:GENE]->(g:Gene)-[:HUMAN_GENE_SYMBOL]->(hgs:HumanGeneSymbol) | hgs] as humanGeneSymbol, "
-            + "[(mp)<-[:MOUSE_PHENOTYPE]-(mm:MouseModel)-[:GENE]->(g:Gene)-[:ENSEMBL_GENE_ID]->(ensg:EnsemblGeneId) | ensg] as ensemblGeneId, "
-            + "[(mp)<-[:MOUSE_PHENOTYPE]-(mm:MouseModel)-[:GENE]->(g:Gene) | g] as gene, "
-            + "[(mp)<-[:MOUSE_PHENOTYPE]-(mm:MouseModel) | mm] as mouseModel, "
-            + "[(mp)<-[:MOUSE_PHENOTYPE]-(d:DiseaseModel) | d] as diseaseModel , "
-            + "[(mp)<-[:MOUSE_PHENOTYPE]-(d:DiseaseModel)-[:ALLELE]->(a:Allele) | a] as allele, "
-            + "[(mp)-[:HUMAN]->(h:Hp) | h] as hp, "
-            + "[(mp)-[:MP_SYNONYM]->(mps:OntoSynonym) | mps] as mpSynonym "
-            + "RETURN mp, markerSynonym, humanGeneSymbol, ensemblGeneId, gene, mouseModel, diseaseModel, allele, hp, mpSynonym")
+    @Query("MATCH (hp:Hp) WHERE hp.hpId={hpId} WITH hp, "
+            + "[(hp)<-[:HUMAN_PHENOTYPE]-(d:DiseaseModel)-[:GENE]->(g:Gene) | g] as gene, "
+            + "[(hp)<-[:HUMAN_PHENOTYPE]-(d:DiseaseModel)-[:GENE]->(g:Gene)-[:MARKER_SYNONYM]->(ms:MarkerSynonym) | ms] as markerSynonym, "
+            + "[(hp)<-[:HUMAN_PHENOTYPE]-(d:DiseaseModel)-[:GENE]->(g:Gene)-[:HUMAN_GENE_SYMBOL]->(hgs:HumanGeneSymbol) | hgs] as humanGeneSymbol, "
+            + "[(hp)<-[:HUMAN_PHENOTYPE]-(d:DiseaseModel)-[:GENE]->(g:Gene)-[:ENSEMBL_GENE_ID]->(ensg:EnsemblGeneId) | ensg] as ensemblGeneId, "
+            + "[(hp)<-[:HUMAN_PHENOTYPE]-(d:DiseaseModel)-[:MOUSE_MODEL]->(mm:MouseModel)| mm] as mouseModel, "
+            + "[(hp)<-[:HUMAN_PHENOTYPE]-(d:DiseaseModel)| d] as diseaseModel , "
+            + "[(hp)<-[:HUMAN_PHENOTYPE]-(d:DiseaseModel)-[:ALLELE]->(a:Allele) | a] as allele, "
+            + "[(hp)<-[:HUMAN]-(mp:Mp) | mp] as mp, "
+            + "[(hp)<-[:HUMAN]-(mp:Mp)-[:MpSynonym]->(mps:OntoSynonym) | mps] as mpSynonym, "
+            + "[(hp)->[:HpSynonym]->(hps:OntoSynonym) | hps] as hpSynonym "
+            + "RETURN hp, gene, markerSynonym, humanGeneSymbol, ensemblGeneId, mouseModel, diseaseModel, allele, mp, mpSynonym, hpSynonym")
     List<Object> findDataByHpId(@Param( "hpId" ) String hpId);
 
-
-    //@Query("MATCH (mp:Mp)<-[:PARENT*0..{childLevel}]-(cmp) WHERE hp.hpId={hpId} with mp, cmp RETURN collect(distinct hp.hpId), collect(distinct chp.hpId)")
-    @Query("MATCH (mp:Mp)<-[:PARENT*0..3]-(cmp) WHERE hp.hpId={hpId} RETURN cmp")
-    List<Object> findChildrenHpsByHpId(@Param( "hpId" ) String hpId, @Param( "childLevel" ) int childLevel);
-
-    @Query("MATCH (mp:Mp)<-[:PARENT*0..]-(cmp) WHERE hp.hpId={hpId} RETURN cmp")
-    List<Object> findAllChildrenHpsByHpId(@Param( "hpId" ) String hpId);
-
-
-    @Query("MATCH (cmp)-[:PARENT*0..]->(mp:Mp)<-[:MOUSE_PHENOTYPE]-(mm:MouseModel)-[:GENE]->(g:Gene) "
-            + "WHERE g.chrId = {chrId} "
-            + "AND hp.hpId={hpId} "
-            + "RETURN collect(distinct cmp)")
-    List<Object> findAllChildrenHpsByHpIdChr(@Param( "hpId" ) String hpId,
-                                             @Param( "chrId" ) String chrId
-//                                               @Param( "chrStart" ) int chrStart,
-//                                               @Param( "chrEnd" ) int chrEnd
-    );
-
-    @Query("MATCH (cmp)-[:PARENT*0..3]->(mp:Mp)<-[:MOUSE_PHENOTYPE]-(mm:MouseModel)-[:GENE]->(g:Gene) "
-            + "WHERE g.chrId = {chrId} "
-            + "AND hp.hpId={hpId} "
-            + "RETURN collect(distinct cmp)")
-    List<Object> findChildrenHpsByHpIdChr(@Param( "hpId" ) String hpId,
-                                          @Param( "chrId" ) String chrId,
-//                                               @Param( "chrStart" ) int chrStart,
-//                                               @Param( "chrEnd" ) int chrEnd,
-                                          @Param( "childLevel" ) int childLevel);
-
-    @Query("MATCH (mp:Mp)<-[:MOUSE_PHENOTYPE]-(mm:MouseModel)-[:GENE]->(g:Gene) WHERE hp.hpId={hpId} "
-            + " AND g.chrId = {chrId} with mp, g, "
-            + "[(g:Gene)-[:MARKER_SYNONYM]->(ms:MarkerSynonym) | ms] as markerSynonym, "
-            + "[(g:Gene)-[:HUMAN_GENE_SYMBOL]->(hgs:HumanGeneSymbol) | hgs] as humanGeneSymbol, "
-            + "[(g:Gene)-[:ENSEMBL_GENE_ID]->(ensg:EnsemblGeneId) | ensg] as ensemblGeneId, "
-            + "[(mp)<-[:MOUSE_PHENOTYPE]-(mm:MouseModel) | mm] as mouseModel, "
-            + "[(mp)<-[:MOUSE_PHENOTYPE]-(d:DiseaseModel) | d] as diseaseModel , "
-            + "[(mp)<-[:MOUSE_PHENOTYPE]-(d:DiseaseModel)-[:ALLELE]->(a:Allele) | a] as allele, "
-            + "[(mp)-[:HUMAN]->(h:Hp) | h] as hp, "
-            + "[(mp)-[:MP_SYNONYM]->(mps:OntoSynonym) | mps] as mpSynonym "
-            + "RETURN mp, markerSynonym, humanGeneSymbol, ensemblGeneId, g, mouseModel, diseaseModel, allele, hp, mpSynonym")
+    @Query("MATCH (hp)<-[:HUMAN_PHENOTYPE]-(d:DiseaseModel)-[:GENE]->(g:Gene) WHERE hp.hpId={hpId} "
+            + " AND g.chrId = {chrId} with hp, g, "
+            + "[(g)-[:MARKER_SYNONYM]->(ms:MarkerSynonym) | ms] as markerSynonym, "
+            + "[(g)-[:HUMAN_GENE_SYMBOL]->(hgs:HumanGeneSymbol) | hgs] as humanGeneSymbol, "
+            + "[(g)-[:ENSEMBL_GENE_ID]->(ensg:EnsemblGeneId) | ensg] as ensemblGeneId, "
+            + "[(hp)<-[:HUMAN_PHENOTYPE]-(d:DiseaseModel)-[:MOUSE_MODEL]->(mm:MouseModel)| mm] as mouseModel, "
+            + "[(hp)<-[:HUMAN_PHENOTYPE]-(d:DiseaseModel)| d] as diseaseModel , "
+            + "[(hp)<-[:HUMAN_PHENOTYPE]-(d:DiseaseModel)-[:ALLELE]->(a:Allele) | a] as allele, "
+            + "[(hp)<-[:HUMAN]-(mp:Mp) | mp] as mp, "
+            + "[(hp)<-[:HUMAN]-(mp:Mp)-[:MpSynonym]->(mps:OntoSynonym) | mps] as mpSynonym, "
+            + "[(hp)->[:HpSynonym]->(hps:OntoSynonym) | hps] as hpSynonym "
+            + "RETURN hp, g, markerSynonym, humanGeneSymbol, ensemblGeneId, mouseModel, diseaseModel, allele, mp, mpSynonym, hpSynonym")
     List<Object> findDataByHpIdChr(@Param( "hpId" ) String hpId,
                                    @Param( "chrId" ) String chrId
 //                                        @Param( "chrStart" ) int chrStart,
 //                                        @Param( "chrEnd" ) int chrEnd
     );
 
+    @Query("MATCH (hp:Hp)<-[:PARENT*0..3]-(chp) WHERE hp.hpId={hpId} RETURN collect(distinct chp)")
+    List<Object> findChildrenHpsByHpId(@Param( "hpId" ) String hpId, @Param( "childLevel" ) int childLevel);
+
+    @Query("MATCH (hp:Hp)<-[:PARENT*0..]-(chp) WHERE hp.hpId={hpId} RETURN collect(distinct chp)")
+    List<Object> findAllChildrenHpsByHpId(@Param( "hpId" ) String hpId);
+
+
+    @Query("MATCH (chp)-[:PARENT*0..]->(hp)<-[:HUMAN_PHENOTYPE]-(d:DiseaseModel)-[:GENE]->(g:Gene) "
+            + "WHERE g.chrId = {chrId} "
+            + "AND hp.hpId={hpId} "
+            + "RETURN collect(distinct chp)")
+    List<Object> findAllChildrenHpsByHpIdChr(@Param( "hpId" ) String hpId,
+                                             @Param( "chrId" ) String chrId
+//                                               @Param( "chrStart" ) int chrStart,
+//                                               @Param( "chrEnd" ) int chrEnd
+    );
+
+    @Query("MATCH (chp)-[:PARENT*0..3]->(hp)<-[:HUMAN_PHENOTYPE]-(d:DiseaseModel)-[:GENE]->(g:Gene) "
+            + "WHERE g.chrId = {chrId} "
+            + "AND hp.hpId={hpId} "
+            + "RETURN collect(distinct chp)")
+    List<Object> findChildrenHpsByHpIdChr(@Param( "hpId" ) String hpId,
+                                          @Param( "chrId" ) String chrId,
+//                                               @Param( "chrStart" ) int chrStart,
+//                                               @Param( "chrEnd" ) int chrEnd,
+                                          @Param( "childLevel" ) int childLevel);
 
     //---------------------------------------
     // FIND BY MP TERM (INCLUDES SELF)
     //---------------------------------------
 
-    @Query("MATCH (mp:Mp) WHERE hp.hpTerm =~ ('(?i)'+'.*'+{hpTerm}+'.*')  WITH mp, "
-            + "[(mp)<-[:MOUSE_PHENOTYPE]-(mm:MouseModel)-[:GENE]->(g:Gene)-[:MARKER_SYNONYM]->(ms:MarkerSynonym) | ms] as markerSynonym, "
-            + "[(mp)<-[:MOUSE_PHENOTYPE]-(mm:MouseModel)-[:GENE]->(g:Gene)-[:HUMAN_GENE_SYMBOL]->(hgs:HumanGeneSymbol) | hgs] as humanGeneSymbol, "
-            + "[(mp)<-[:MOUSE_PHENOTYPE]-(mm:MouseModel)-[:GENE]->(g:Gene)-[:ENSEMBL_GENE_ID]->(ensg:EnsemblGeneId) | ensg] as ensemblGeneId, "
-            + "[(mp)<-[:MOUSE_PHENOTYPE]-(mm:MouseModel)-[:GENE]->(g:Gene) | g] as gene, "
-            + "[(mp)<-[:MOUSE_PHENOTYPE]-(mm:MouseModel) | mm] as mouseModel, "
-            + "[(mp)<-[:MOUSE_PHENOTYPE]-(d:DiseaseModel) | d] as diseaseModel , "
-            + "[(mp)<-[:MOUSE_PHENOTYPE]-(d:DiseaseModel)-[:ALLELE]->(a:Allele) | a] as allele, "
-            + "[(mp)-[:HUMAN]->(h:Hp) | h] as hp, "
-            + "[(mp)-[:MP_SYNONYM]->(mps:OntoSynonym) | mps] as mpSynonym "
-            + "RETURN mp, markerSynonym, humanGeneSymbol, ensemblGeneId, gene, mouseModel, diseaseModel, allele, hp, mpSynonym")
+    @Query("MATCH (hp:Hp) WHERE hp.hpTerm =~ ('(?i)'+'.*'+{hpTerm}+'.*')  WITH hp, "
+            + "[(hp)<-[:HUMAN_PHENOTYPE]-(d:DiseaseModel)-[:GENE]->(g:Gene) | g] as gene, "
+            + "[(hp)<-[:HUMAN_PHENOTYPE]-(d:DiseaseModel)-[:GENE]->(g:Gene)-[:MARKER_SYNONYM]->(ms:MarkerSynonym) | ms] as markerSynonym, "
+            + "[(hp)<-[:HUMAN_PHENOTYPE]-(d:DiseaseModel)-[:GENE]->(g:Gene)-[:HUMAN_GENE_SYMBOL]->(hgs:HumanGeneSymbol) | hgs] as humanGeneSymbol, "
+            + "[(hp)<-[:HUMAN_PHENOTYPE]-(d:DiseaseModel)-[:GENE]->(g:Gene)-[:ENSEMBL_GENE_ID]->(ensg:EnsemblGeneId) | ensg] as ensemblGeneId, "
+            + "[(hp)<-[:HUMAN_PHENOTYPE]-(d:DiseaseModel)-[:MOUSE_MODEL]->(mm:MouseModel)| mm] as mouseModel, "
+            + "[(hp)<-[:HUMAN_PHENOTYPE]-(d:DiseaseModel)| d] as diseaseModel , "
+            + "[(hp)<-[:HUMAN_PHENOTYPE]-(d:DiseaseModel)-[:ALLELE]->(a:Allele) | a] as allele, "
+            + "[(hp)<-[:HUMAN]-(mp:Mp) | mp] as mp, "
+            + "[(hp)<-[:HUMAN]-(mp:Mp)-[:MpSynonym]->(mps:OntoSynonym) | mps] as mpSynonym, "
+            + "[(hp)->[:HpSynonym]->(hps:OntoSynonym) | hps] as hpSynonym "
+            + "RETURN hp, gene, markerSynonym, humanGeneSymbol, ensemblGeneId, mouseModel, diseaseModel, allele, mp, mpSynonym, hpSynonym")
     List<Object> findDataByHpTerm(@Param( "hpTerm" ) String hpTerm);
 
-    //    @Query("MATCH (mp:Mp)<-[:PARENT*0..{childLevel: {childLevel}]-(cmp) WHERE hp.hpTerm =~ ('(?i)'+'.*'+{hpTerm}+'.*') with mp, cmp RETURN collect(distinct cmp)")
-    @Query("MATCH (hp:Hp)<-[:PARENT*0..3]-(cmp) WHERE hp.hpTerm =~ ('(?i)'+'.*'+{hpTerm}+'.*') with hp, cmp RETURN collect(distinct cmp)")
-    List<Object> findChildrenHpsByHpTerm(@Param( "hpTerm" ) String hpTerm, @Param( "childLevel" ) int childLevel);
-
-    @Query("MATCH (mp:Mp)<-[:PARENT*0..]-(cmp) WHERE hp.hpTerm =~ ('(?i)'+'.*'+{hpTerm}+'.*') RETURN collect(distinct mp), collect(distinct cmp)")
-    List<Object> findAllChildrenHpsByHpTerm(@Param( "hpTerm" ) String hpTerm);
-
-    @Query("MATCH (cmp)-[:PARENT*0..]->(mp:Mp)<-[:MOUSE_PHENOTYPE]-(mm:MouseModel)-[:GENE]->(g:Gene) "
-            + "WHERE g.chrId = {chrId} "
-            + "AND hp.hpTerm =~ ('(?i)'+'.*'+{hpTerm}+'.*') "
-            + "RETURN collect(distinct cmp)")
-    List<Object> findAllChildrenHpsByHpTermChr(@Param( "hpTerm" ) String hpTerm,
-                                               @Param( "chrId" ) String chrId
-//                                                    @Param( "chrStart" ) int chrStart,
-//                                                    @Param( "chrEnd" ) int chrEnd
-    );
-
-    @Query("MATCH (cmp)-[:PARENT*0..3]->(hp:Hp)<-[:MOUSE_PHENOTYPE]-(mm:MouseModel)-[:GENE]->(g:Gene) "
-            + "WHERE g.chrId = {chrId} "
-            + "AND hp.hpTerm =~ ('(?i)'+'.*'+{hpTerm}+'.*') "
-            + "RETURN collect(distinct cmp)")
-    List<Object> findChildrenHpsByHpTermChr(@Param( "hpTerm" ) String hpTerm,
-                                            @Param( "chrId" ) String chrId,
-//                                                 @Param( "chrStart" ) int chrStart,
-//                                                 @Param( "chrEnd" ) int chrEnd,
-                                            @Param( "childLevel" ) int childLevel);
-
-    @Query("MATCH (mp:Mp)<-[:MOUSE_PHENOTYPE]-(mm:MouseModel)-[:GENE]->(g:Gene) WHERE hp.hpTerm =~ ('(?i)'+'.*'+{hpTerm}+'.*') "
-            + "AND g.chrId = {chrId} with mp, g, "
-            + "[(g:Gene)-[:MARKER_SYNONYM]->(ms:MarkerSynonym) | ms] as markerSynonym, "
-            + "[(g:Gene)-[:HUMAN_GENE_SYMBOL]->(hgs:HumanGeneSymbol) | hgs] as humanGeneSymbol, "
-            + "[(g:Gene)-[:ENSEMBL_GENE_ID]->(ensg:EnsemblGeneId) | ensg] as ensemblGeneId, "
-            + "[(mp)<-[:MOUSE_PHENOTYPE]-(mm:MouseModel) | mm] as mouseModel, "
-            + "[(mp)<-[:MOUSE_PHENOTYPE]-(d:DiseaseModel) | d] as diseaseModel , "
-            + "[(mp)<-[:MOUSE_PHENOTYPE]-(d:DiseaseModel)-[:ALLELE]->(a:Allele) | a] as allele, "
-            + "[(mp)-[:HUMAN]->(h:Hp) | h] as hp, "
-            + "[(mp)-[:MP_SYNONYM]->(mps:OntoSynonym) | mps] as mpSynonym "
-            + "RETURN mp, markerSynonym, humanGeneSymbol, ensemblGeneId, g, mouseModel, diseaseModel, allele, hp, mpSynonym")
+    @Query("MATCH (hp)<-[:HUMAN_PHENOTYPE]-(d:DiseaseModel)-[:GENE]->(g:Gene) WHERE hp.hpTerm =~ ('(?i)'+'.*'+{hpTerm}+'.*') "
+            + "AND g.chrId = {chrId} with hp, g, "
+            + "[(g)-[:MARKER_SYNONYM]->(ms:MarkerSynonym) | ms] as markerSynonym, "
+            + "[(g)-[:HUMAN_GENE_SYMBOL]->(hgs:HumanGeneSymbol) | hgs] as humanGeneSymbol, "
+            + "[(g)-[:ENSEMBL_GENE_ID]->(ensg:EnsemblGeneId) | ensg] as ensemblGeneId, "
+            + "[(hp)<-[:HUMAN_PHENOTYPE]-(d:DiseaseModel)-[:MOUSE_MODEL]->(mm:MouseModel)| mm] as mouseModel, "
+            + "[(hp)<-[:HUMAN_PHENOTYPE]-(d:DiseaseModel)| d] as diseaseModel , "
+            + "[(hp)<-[:HUMAN_PHENOTYPE]-(d:DiseaseModel)-[:ALLELE]->(a:Allele) | a] as allele, "
+            + "[(hp)<-[:HUMAN]-(mp:Mp) | mp] as mp, "
+            + "[(hp)<-[:HUMAN]-(mp:Mp)-[:MpSynonym]->(mps:OntoSynonym) | mps] as mpSynonym, "
+            + "[(hp)->[:HpSynonym]->(hps:OntoSynonym) | hps] as hpSynonym "
+            + "RETURN hp, g, markerSynonym, humanGeneSymbol, ensemblGeneId, mouseModel, diseaseModel, allele, mp, mpSynonym, hpSynonym")
     List<Object> findDataByHpTermChr(@Param( "hpTerm" ) String hpTerm,
                                      @Param( "chrId" ) String chrId
 //                                        @Param( "chrStart" ) int chrStart,
 //                                        @Param( "chrEnd" ) int chrEnd
     );
 
+    @Query("MATCH (hp:Hp)<-[:PARENT*0..3]-(chp) WHERE hp.hpTerm =~ ('(?i)'+'.*'+{hpTerm}+'.*') RETURN collect(distinct chp)")
+    List<Object> findChildrenHpsByHpTerm(@Param( "hpTerm" ) String hpTerm, @Param( "childLevel" ) int childLevel);
 
+    @Query("MATCH (hp:Hp)<-[:PARENT*0..]-(chp) WHERE hp.hpTerm =~ ('(?i)'+'.*'+{hpTerm}+'.*') RETURN collect(distinct chp)")
+    List<Object> findAllChildrenHpsByHpTerm(@Param( "hpTerm" ) String hpTerm);
 
+    @Query("MATCH (chp)-[:PARENT*0..]->(hp:Hp)<-[:HUMAN_PHENOTYPE]-(d:DiseaseModel)-[:GENE]->(g:Gene) "
+            + "WHERE g.chrId = {chrId} "
+            + "AND hp.hpTerm =~ ('(?i)'+'.*'+{hpTerm}+'.*') "
+            + "RETURN collect(distinct chp)")
+    List<Object> findAllChildrenHpsByHpTermChr(@Param( "hpTerm" ) String hpTerm,
+                                               @Param( "chrId" ) String chrId
+//                                                    @Param( "chrStart" ) int chrStart,
+//                                                    @Param( "chrEnd" ) int chrEnd
+    );
 
+    @Query("MATCH (chp)-[:PARENT*0..3]->(hp:Hp)<-[:HUMAN_PHENOTYPE]-(d:DiseaseModel)-[:GENE]->(g:Gene) "
+            + "WHERE g.chrId = {chrId} "
+            + "AND hp.hpTerm =~ ('(?i)'+'.*'+{hpTerm}+'.*') "
+            + "RETURN collect(distinct cmh)")
+    List<Object> findChildrenHpsByHpTermChr(@Param( "hpTerm" ) String hpTerm,
+                                            @Param( "chrId" ) String chrId,
+//                                                 @Param( "chrStart" ) int chrStart,
+//                                                 @Param( "chrEnd" ) int chrEnd,
+                                            @Param( "childLevel" ) int childLevel);
 
 }
