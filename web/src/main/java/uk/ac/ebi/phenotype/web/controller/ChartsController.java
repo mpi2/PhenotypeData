@@ -379,7 +379,7 @@ public class ChartsController {
     
     private String createCharts(String[] accessionsParams, String[] pipelineStableIdsArray, String[] parameterIds, String[] gender, String[] phenotypingCenter,
     			String[] strains, String[] metadataGroup, String[] zygosity, Model model, ChartType chartType, String[] alleleAccession)
-    throws SolrServerException, IOException, GenomicFeatureNotFoundException, ParameterNotFoundException {
+            throws SolrServerException, IOException, GenomicFeatureNotFoundException, ParameterNotFoundException, URISyntaxException {
 
         Long time = System.currentTimeMillis();
         GraphUtils graphUtils = new GraphUtils(experimentService, srService);
@@ -437,10 +437,9 @@ public class ChartsController {
 
                 ParameterDTO parameter = is.getParameterByStableId(parameterId);
                 pNames.add(StringUtils.capitalize(parameter.getName()) + " (" + parameter.getStableId() + ")");
-                //TODO change to get only valid combinations from core
 				// instead of an experiment list here we need just the outline
                 // of the experiments - how many, observation types
-                Set<String> graphUrlsForParam = graphUtils.getGraphUrls(geneId, parameter, pipelineStableIds, genderList, zyList, phenotypingCentersList,
+                Set<String> graphUrlsForParam = graphUtils.getGraphUrls(geneId, parameter, pipelineStableIds, zyList, phenotypingCentersList,
                 								strainsList, metadataGroups, chartType, alleleAccessions);
                 allGraphUrlSet.addAll(graphUrlsForParam);
 
@@ -449,10 +448,9 @@ public class ChartsController {
             allParameters = StringUtils.join(pNames, ", ");
 
         }// end of gene iterations
-        System.out.println(allGraphUrlSet.size() + " all graphs ");
+        log.info(allGraphUrlSet.size() + " chart links.");
         model.addAttribute("allGraphUrlSet", allGraphUrlSet);
         model.addAttribute("allParameters", allParameters);
-        System.out.println("Time to return charts links  " + (System.currentTimeMillis() - time));
         return "stats";
     }
 
