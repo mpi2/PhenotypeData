@@ -413,16 +413,18 @@ public class Loader implements CommandLineRunner {
             }
 
             if (mp.getOntoSynonyms() == null) {
-                for (String mpsym : mpDTO.getSynonyms()) {
-                    OntoSynonym ms = new OntoSynonym();
-                    ms.setOntoSynonym(mpsym);
-                    ms.setMousePhenotype(mp);
-                    //ontoSynonymRepository.save(ms);
+                if(mpDTO.getSynonyms() != null) {
+                    for (String mpsym : mpDTO.getSynonyms()) {
+                        OntoSynonym ms = new OntoSynonym();
+                        ms.setOntoSynonym(mpsym);
+                        ms.setMousePhenotype(mp);
+                        //ontoSynonymRepository.save(ms);
 
-                    if (mp.getOntoSynonyms() == null) {
-                        mp.setOntoSynonyms(new HashSet<OntoSynonym>());
+                        if (mp.getOntoSynonyms() == null) {
+                            mp.setOntoSynonyms(new HashSet<OntoSynonym>());
+                        }
+                        mp.getOntoSynonyms().add(ms);
                     }
-                    mp.getOntoSynonyms().add(ms);
                 }
             }
 
@@ -432,11 +434,13 @@ public class Loader implements CommandLineRunner {
                     Set<Mp> parentMps = new HashSet<>();
 
                     for (String parId : mpDTO.getParentIds()) {
+
                         Mp thisMp = mpRepository.findByMpId(parId);
                         if (thisMp == null) {
                             thisMp = new Mp();
+                            thisMp.setMpId(parId);
                         }
-                        thisMp.setMpId(parId);
+
                         parentMps.add(thisMp);
                     }
                     if (parentMps.size() > 0) {
@@ -604,6 +608,7 @@ public class Loader implements CommandLineRunner {
                     Set<Hp> parentHps = new HashSet<>();
 
                     for (String parId : hpDTO.getParentIds()) {
+
                         Hp thisHp = hpRepository.findByHpId(parId);
                         if (thisHp == null) {
                             thisHp = new Hp();
