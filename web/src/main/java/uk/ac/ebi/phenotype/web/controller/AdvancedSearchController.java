@@ -324,9 +324,19 @@ public class AdvancedSearchController {
             else if (kw.startsWith("ENSMUSG")){
                 objs = ensemblGeneIdRepository.findDataByEnsemblGeneId(kw);
             }
+            else if (kw.startsWith("OMIM:") || kw.startsWith("ORPHANET:") || kw.startsWith("DECIPHER:")){
+                System.out.println("search disease id and chr");
+                objs = diseaseModelRepository.findDataByDiseaseId(kw);
+            }
+            else if ((kw.startsWith("OMIM:") || kw.startsWith("ORPHANET:") || kw.startsWith("DECIPHER:")) && regionId != null){
+                System.out.println("search disease id and chr");
+                objs = diseaseModelRepository.findDataByDiseaseIdChr(kw, regionId);
+                System.out.println("objs found: "+objs.size());
+            }
 
             // MP ID
             else if (kw.startsWith("MP:") && regionId != null && childLevel != null) {
+
                 if (childLevel.equals("all")) {
                     System.out.println("MP id with region and ALL children");
                     objs = mpRepository.findAllChildrenMpsByMpIdChr(kw, regionId);
@@ -336,6 +346,7 @@ public class AdvancedSearchController {
                     int level = Integer.parseInt(childLevel);
                     objs = mpRepository.findChildrenMpsByMpIdChr(kw, regionId, level);
                 }
+                objs = fetchTerms(objs);
             }
             else if (kw.startsWith("MP:") && regionId != null && childLevel == null) {
                 System.out.println("MP id with region");
@@ -348,9 +359,6 @@ public class AdvancedSearchController {
                     // first get all children mps (including self)
                     objs = mpRepository.findAllChildrenMpsByMpId(kw);
                     System.out.println("1. Got " + objs.size() + "children");
-
-                    // then query data by each mp and put together
-                    objs = fetchTerms(objs);
                 }
                 else if (childLevel != "0"){
                     System.out.println("MP Id with " + childLevel + " children level");
@@ -358,11 +366,11 @@ public class AdvancedSearchController {
                     // first get all children mps (including self)
                     int level = Integer.parseInt(childLevel);
                     objs = mpRepository.findChildrenMpsByMpId(kw, level);
-
                     System.out.println("2. Got " + objs.size() + "children");
-                    // then query data by each mp and put together
-                    objs = fetchTerms(objs);
                 }
+
+                // then query data by each mp and put together
+                objs = fetchTerms(objs);
             }
             else if (kw.startsWith("MP:") && regionId == null && childLevel == null){
                 System.out.println("MP id normal");
@@ -381,10 +389,9 @@ public class AdvancedSearchController {
                     // first get all children mps (including self)
                     int level = Integer.parseInt(childLevel);
                     objs = mpRepository.findChildrenMpsByMpTermChr(kw, regionId, level);
-
-                    // then query data by each mp and put together
-                    objs = fetchTerms(objs);
                 }
+                // then query data by each mp and put together
+                objs = fetchTerms(objs);
             }
             else if (dataType.equals("MP") && regionId != null && childLevel == null){
                 System.out.println("MP term with region");
@@ -396,9 +403,6 @@ public class AdvancedSearchController {
 
                     // first get all children mps (including self)
                     objs = mpRepository.findAllChildrenMpsByMpTerm(kw);
-
-                    // then query data by each mp and put together
-                    objs = fetchTerms(objs);
                 }
                 else if (childLevel != "0"){
                     System.out.println("MP term with " + childLevel + " children level");
@@ -406,10 +410,10 @@ public class AdvancedSearchController {
                     // first get all children mps (including self)
                     int level = Integer.parseInt(childLevel);
                     objs = mpRepository.findChildrenMpsByMpTerm(kw, level);
-
-                    // then query data by each mp and put together
-                    objs = fetchTerms(objs);
                 }
+
+                // then query data by each mp and put together
+                objs = fetchTerms(objs);
             }
             else if (dataType.equals("Mp") && regionId == null && childLevel == null) {
                 System.out.println("MP term normal");
@@ -426,6 +430,9 @@ public class AdvancedSearchController {
                     int level = Integer.parseInt(childLevel);
                     objs = hpRepository.findChildrenHpsByHpIdChr(kw, regionId, level);
                 }
+
+                // then query data by each mp and put together
+                objs = fetchTerms(objs);
             }
             else if (kw.startsWith("HP:") && regionId != null && childLevel == null) {
                 System.out.println("HP id with region");
@@ -438,9 +445,6 @@ public class AdvancedSearchController {
                     // first get all children hps (including self)
                     objs = hpRepository.findAllChildrenHpsByHpId(kw);
                     System.out.println("1. Got " + objs.size() + "children");
-
-                    // then query data by each hp and put together
-                    objs = fetchTerms(objs);
                 }
                 else if (childLevel != "0"){
                     System.out.println("HP Id with " + childLevel + " children level");
@@ -450,9 +454,10 @@ public class AdvancedSearchController {
                     objs = hpRepository.findChildrenHpsByHpId(kw, level);
 
                     System.out.println("2. Got " + objs.size() + "children");
-                    // then query data by each hp and put together
-                    objs = fetchTerms(objs);
                 }
+
+                // then query data by each mp and put together
+                objs = fetchTerms(objs);
             }
             else if (kw.startsWith("HP:") && regionId == null && childLevel == null){
                 System.out.println("HP id normal");
@@ -471,10 +476,9 @@ public class AdvancedSearchController {
                     // first get all children hps (including self)
                     int level = Integer.parseInt(childLevel);
                     objs = hpRepository.findChildrenHpsByHpTermChr(kw, regionId, level);
-
-                    // then query data by each hp and put together
-                    objs = fetchTerms(objs);
                 }
+                // then query data by each hp and put together
+                objs = fetchTerms(objs);
             }
             else if (dataType.equals("HP") && regionId != null && childLevel == null){
                 System.out.println("HP term with region");
@@ -486,9 +490,6 @@ public class AdvancedSearchController {
 
                     // first get all children hps (including self)
                     objs = hpRepository.findAllChildrenHpsByHpTerm(kw);
-
-                    // then query data by each hp and put together
-                    objs = fetchTerms(objs);
                 }
                 else if (childLevel != "0"){
                     System.out.println("HP term with " + childLevel + " children level");
@@ -496,17 +497,15 @@ public class AdvancedSearchController {
                     // first get all children hps (including self)
                     int level = Integer.parseInt(childLevel);
                     objs = hpRepository.findChildrenHpsByHpTerm(kw, level);
-
-                    // then query data by each hp and put together
-                    objs = fetchTerms(objs);
                 }
+
+                // then query data by each hp and put together
+                objs = fetchTerms(objs);
             }
             else if (dataType.equals("Hp") && regionId == null && childLevel == null) {
                 System.out.println("HP term normal");
                 objs = hpRepository.findDataByHpTerm(kw);
             }
-
-
             else if (dataType.equals("HumanGeneSymbol")){
                 objs = humanGeneSymbolRepository.findDataByHumanGeneSymbol(kw);
             }
@@ -618,8 +617,8 @@ public class AdvancedSearchController {
                     getValues(nodeProperties, mp, colValMap);
                 }
                 else if (className.equals("OntoSynonym")) {
-                    OntoSynonym mpsyn = (OntoSynonym) obj;
-                    getValues(nodeProperties, mpsyn, colValMap);
+                    OntoSynonym ontosyn = (OntoSynonym) obj;
+                    getValues(nodeProperties, ontosyn, colValMap);
                 }
                 else if (className.equals("Hp")) {
                     Hp hp = (Hp) obj;

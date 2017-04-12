@@ -303,6 +303,10 @@
 			input#rstart {width: 55px;}
 			input#rend {width: 55px;}
 
+			a#bqdoc, i.pheno, i.disease {
+				cursor: pointer;
+			}
+
 		</style>
 
  		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/raphael/2.2.7/raphael.min.js"></script>
@@ -327,7 +331,7 @@
 
 
                 // initialze search example qTip with close button and proper positioning
-                var bqDoc = '<h3 id="bqdoc">How to use batch search</h3>'
+                var bqDoc = '<h4 id="bqdoc">How to use batch search</h4>'
 
                     + '<div id="docTabs">'
                     + '<ul>'
@@ -353,35 +357,61 @@
                     + '</div>'
                     + '</div>';
 
-                $("a#bqdoc").qtip({
-                    hide: false,
-                    content: {
-                        text: bqDoc,
-                        title: {'button': 'close'}
-                    },
-                    style: {
-                        classes: 'qtipimpc',
-                        tip: {corner: 'center top'}
-                    },
-                    position: {my: 'left top',
-                        adjust: {x: 0, y: 0}
-                    },
-                    show: {
-                        event: 'click' //override the default mouseover
-                    },
-                    events: {
-                        show: function(event, api) {
-                            $('div#docTabs').tabs();
-                            $('ul.ui-tabs-nav li a').click(function(){
-                                $('ul.ui-tabs-nav li a').css({'border-bottom':'none', 'background-color':'#F4F4F4', 'border':'none'});
-                                $(this).css({'border':'1px solid #666', 'border-bottom':'1px solid white', 'background-color':'white', 'color':'#666'});
-                            });
+                var ontologyHelp = '<h4 id="pheno">About phenotypes</h4>'
+                    + '<a target="_blank" href="http://www.ebi.ac.uk/ols/ontologies/hp">Human</a> and <a target="_blank" href="http://www.ebi.ac.uk/ols/ontologies/hp">mouse</a> phenotypes are described by a structrued and controlled vocabulary for the phenotypic features encountered in human and mouse hereditary and other disease, respectively.<br>'
 
-                            $('ul.ui-tabs-nav li:nth-child(1) a').click();  // activate this by default
+                var diseaseHelp = '<h4 id="pheno">About diseases</h4>'
+				+ 'IMPC has disease details contains known gene associations (via orthology to human disease genes) and known mouse models from the literature (from MGI) for the disease as well as predicted gene candidates and mouse models based on the phenotypic similarity of the disease clinical symptoms and the mouse phenotype annotations. '
+                + 'The diseases can be search by<br><b>name</b>: eg. Apert syndrome or<br><b>unique identifiers (Id)</b>:<a href="http://www.omim.org/">OMIM</a> (Online Mendelian Inheritance in Man) or '
+                + '<a href="http://www.orpha.net/">Orphanet</a> (The portal for rare diseases and orphan drugs<) or '
+                + '<a href="http://decipher.sanger.ac.uk/">DECIPHER</a> (DatabasE of genomiC varIation and Phenotype in Humans using Ensembl Resource).';
+
+                var tipMap = {'a#bqdoc':bqDoc, 'i.pheno':ontologyHelp, 'i.disease':diseaseHelp};
+                for(var selector in tipMap) {
+                    console.log(selector + ' - ' + tipMap[selector])
+                    activateQtip(selector, tipMap[selector]);
+                }
+
+                function activateQtip(selector, tip) {
+                    $(selector).qtip({
+                        hide: false,
+                        content: {
+                            text: tip,
+                            title: {'button': 'close'}
+                        },
+                        style: {
+                            classes: 'qtipimpc',
+                            tip: {corner: 'center top'}
+                        },
+                        position: {
+                            my: 'left top',
+                            adjust: {x: 0, y: 0}
+                        },
+                        show: {
+                            event: 'click' //override the default mouseover
+                        },
+                        events: {
+                            show: function (event, api) {
+                                $('div#docTabs').tabs();
+                                $('ul.ui-tabs-nav li a').click(function () {
+                                    $('ul.ui-tabs-nav li a').css({
+                                        'border-bottom': 'none',
+                                        'background-color': '#F4F4F4',
+                                        'border': 'none'
+                                    });
+                                    $(this).css({
+                                        'border': '1px solid #666',
+                                        'border-bottom': '1px solid white',
+                                        'background-color': 'white',
+                                        'color': '#666'
+                                    });
+                                });
+
+                                $('ul.ui-tabs-nav li:nth-child(1) a').click();  // activate this by default
+                            }
                         }
-                    }
-                });
-
+                    });
+                }
                 //----------------------
                 // Raphael JS stuff
                 //----------------------
@@ -602,7 +632,7 @@
 
 
                 addChomosomeRangerFilter();
-                addMpChildrenLevelFilter();
+                addOntologyChildrenLevelFilter();
 
                 $('button#clearAllDt').click(function(){
                     var nodeType = mapInputId2NodeType($('input.bq:checked').attr('id'));
@@ -661,7 +691,7 @@
                     // assign to hidden field in fileupload section
                     $('input#datatype').val(currDataType);
 
-                    if (currDataType == "mpTerm" || currDataType == "hpTerm" || currDataType == "disease"){
+                    if (currDataType == "mpTerm" || currDataType == "hpTerm" || currDataType == "diseaseTerm"){
                         var theSrchBox = $(this).next().next().next();
                         var theInput = theSrchBox.find('input');
 
@@ -721,7 +751,7 @@
 
                     var line = paper.path(linePath(c1i.x, c1i.y, c2i.x, c2i.y));
 
-                    var lineColor = "#c1d7d7";
+                    var lineColor = "#c1d7d7";  // different color to distinguish between DiseaeGene and DiseaseModel
                     if ( (id1=="DiseaseGene" && id2=="Hp") || (id1=="DiseaseGene" && id2=="Gene") ){
                         lineColor = "#507c7c";
                     }
@@ -831,7 +861,8 @@
                         "human_marker_symbol":"HumanGeneSymbol",
                         "hpTerm":"Hp",
 						"hpId":"Hp",
-                        "disease":"DiseaseModel"
+                        "diseaseTerm":"DiseaseModel",
+						"diseaseId":"DiseaseModel"
                     };
                     return map[key];
 
@@ -1180,7 +1211,7 @@
                     val = val.trim();
 
                     var aVals = [];
-                    if (dataType == 'mpTerm'){
+                    if (dataType == 'mpTerm' || dataType == 'diseaseTerm' || dataType == 'hpTerm'){
                         aVals.push(val);
 					}
 					else {
@@ -1197,7 +1228,7 @@
                         var uppercaseId = aVals[i].toUpperCase().trim();
                         var errMsg = "ERROR - " + uppercaseId + " is not an expected " + dataType + " identifier. Please try changing the datatype input.";
 
-                        if ( dataType == 'disease' ){
+                        if ( dataType == 'diseaseId' ){
                             if ( ! (uppercaseId.indexOf('OMIM') == 0 ||
                                 uppercaseId.indexOf('ORPHANET') == 0 ||
                                 uppercaseId.indexOf('DECIPHER') == 0) ){
@@ -1474,11 +1505,11 @@
                     $('div#bqFilter').append(filter);
 
                     var inputId = $('input.bq:checked').attr('id');
-                    if (inputId == "hpTerm" || inputId == "hpId" || inputId == "mpTerm" || inputId == "mpId" || inputId == "disease") {
+                    if (inputId == "hpTerm" || inputId == "hpId" || inputId == "mpTerm" || inputId == "mpId" || inputId == "diseaseTerm" || inputId == "diseaseId") {
                         $('fieldset#chromosome').show();
                         $('fieldset#ontoLevel').show();
                     }
-                    if (inputId == "disease") {
+                    if (inputId == "diseaseTerm" || inputId == "diseaseId") {
                         $('fieldset#ontoLevel').hide();
                     }
 
@@ -1523,7 +1554,7 @@
                     $('div#bqFilter').append(filter);
                 }
 
-                function addMpChildrenLevelFilter(){
+                function addOntologyChildrenLevelFilter(){
                     var levels = [0,1,2,3,4,5,'all'];
                     var levelSel = "";
                     for (var i = 0; i < levels.length; i++) {
@@ -1623,13 +1654,13 @@
 														End: <input id='rend' type="text" name="pin" size="8">
 													</div>
 
-													<input type="radio" id="mpTerm" value="Eg. cardiovascular system phenotype" name="dataType" class='bq'>Mouse phenotype by name <i class="fa fa-info-circle" aria-hidden="true"></i><br>
+													<input type="radio" id="mpTerm" value="Eg. cardiovascular system phenotype" name="dataType" class='bq'>Mouse phenotype by name  <i class="fa fa-info-circle pheno" aria-hidden="true"></i><br>
 													<div class='block srchBox'>
 														<i class='fa fa-search'></i>
 														<input id='srchMp' value="search">
 														<i class='fa fa-times'></i>
 													</div>
-													<input type="radio" id="mpId" value="Eg. MP:0001926" name="dataType" class='bq'>Mouse phenotype by id <i class="fa fa-info-circle" aria-hidden="true"></i><br>
+													<input type="radio" id="mpId" value="Eg. MP:0001926" name="dataType" class='bq'>Mouse phenotype by id  <i class="fa fa-info-circle pheno" aria-hidden="true"></i><br>
 												</td>
 											</tr>
 											<tr id="humantr">
@@ -1637,20 +1668,21 @@
 												<td>
 													<input type="radio" id="human_marker_symbol" value="Eg. Car4 or CAR4 (case insensitive). Synonym search supported" name="dataType" class='bq'>HGNC gene symbol<br>
 
-													<input type="radio" id="hpTerm" value="Eg. Hyperchloremia" name="dataType" class='bq'>Human phenotype name <i class="fa fa-info-circle" aria-hidden="true"></i><br>
+													<input type="radio" id="hpTerm" value="Eg. Hyperchloremia" name="dataType" class='bq'>Human phenotype name  <i class="fa fa-info-circle pheno" aria-hidden="true"></i><br>
 													<div class='block srchBox'>
 														<i class='fa fa-search'></i>
 														<input id='srchHp' value="search">
 														<i class='fa fa-times'></i>
 													</div>
-													<input type="radio" id="hpId" value="Eg. HP:0000400" name="dataType" class='bq'>Human phenotype id<i class="fa fa-info-circle" aria-hidden="true"></i><br>
+													<input type="radio" id="hpId" value="Eg. HP:0000400" name="dataType" class='bq'>Human phenotype id  <i class="fa fa-info-circle pheno" aria-hidden="true"></i><br>
 
-													<input type="radio" id="disease" value="Eg. Apert syndrome or OMIM:100300 or ORPHANET:10 or DECIPHER:38" name="dataType" class='bq'>Human disease<i></i><br>
+													<input type="radio" id="diseaseTerm" value="Eg. Apert syndrome" name="dataType" class='bq'>Human disease name   <i class="fa fa-info-circle disease" aria-hidden="true"></i><br>
 													<div class='block srchBox'>
 														<i class='fa fa-search'></i>
 														<input id='srchDisease' value="search">
 														<i class='fa fa-times'></i>
 													</div>
+													<input type="radio" id="diseaseId" value="Eg. OMIM:100300 or ORPHANET:10 or DECIPHER:38" name="dataType" class='bq'>Human disease id   <i class="fa fa-info-circle disease" aria-hidden="true"></i><br>
 												</td>
 											</tr>
 										</table>
