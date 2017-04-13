@@ -352,9 +352,18 @@ public class OntologyParserTest {
     public void testTopLevelsForHp() throws OWLOntologyCreationException, OWLOntologyStorageException, IOException {
         Set<String> wantedIds = new HashSet<>();
         wantedIds.add("HP:0001892");
+        wantedIds.add("HP:0001477");
+        wantedIds.add("HP:0000164");
+        wantedIds.add("HP:0006202"); // child of HP:0001495
         OntologyParser hpParser = new OntologyParser(downloads.get("hp").target, "HP", OntologyParserFactory.TOP_LEVEL_HP_TERMS, wantedIds);
-        System.out.println(hpParser.getOntologyTerm("HP:0001892").getTopLevelIds());
-        Assert.assertTrue(hpParser.getOntologyTerm("HP:0001892").getTopLevelIds() != null);
+        System.out.println("1  - " + hpParser.getOntologyTerm("HP:0001892").getTopLevelIds());
+        System.out.println("2  - " + hpParser.getOntologyTerm("HP:0001495").getTopLevelIds());
+        System.out.println("3  - " + hpParser.getOntologyTerm("HP:0000164").getTopLevelIds());
+        System.out.println("4  - " + hpParser.getOntologyTerm("HP:0001477").getTopLevelIds());
+        Assert.assertTrue(hpParser.getOntologyTerm("HP:0001892").getTopLevelIds().size() > 0);
+        Assert.assertTrue(hpParser.getOntologyTerm("HP:0001495").getTopLevelIds().size() > 0);
+        Assert.assertTrue(hpParser.getOntologyTerm("HP:0000164").getTopLevelIds().size() > 0);
+        Assert.assertTrue(hpParser.getOntologyTerm("HP:0001477").getTopLevelIds().size() > 0);
     }
 
 }
