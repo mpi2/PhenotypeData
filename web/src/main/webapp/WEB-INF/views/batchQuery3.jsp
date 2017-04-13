@@ -1055,7 +1055,7 @@
                             // and it is not essential to escape space
                             input = input.replace(/\\?%20/g, ' ');
 
-                            $('textarea#pastedList').val(input);
+                            $('textarea#pastedList').val('"'+ input + '"');
                             $(".ui-menu-item").hide();
                         }
                     });
@@ -1654,7 +1654,7 @@
 														End: <input id='rend' type="text" name="pin" size="8">
 													</div>
 
-													<input type="radio" id="mpTerm" value="Eg. cardiovascular system phenotype" name="dataType" class='bq'>Mouse phenotype by name  <i class="fa fa-info-circle pheno" aria-hidden="true"></i><br>
+													<input type="radio" id="mpTerm" value='Eg. "cardiovascular system phenotype"' name="dataType" class='bq'>Mouse phenotype by name  <i class="fa fa-info-circle pheno" aria-hidden="true"></i><br>
 													<div class='block srchBox'>
 														<i class='fa fa-search'></i>
 														<input id='srchMp' value="search">
@@ -1668,7 +1668,7 @@
 												<td>
 													<input type="radio" id="human_marker_symbol" value="Eg. Car4 or CAR4 (case insensitive). Synonym search supported" name="dataType" class='bq'>HGNC gene symbol<br>
 
-													<input type="radio" id="hpTerm" value="Eg. Hyperchloremia" name="dataType" class='bq'>Human phenotype name  <i class="fa fa-info-circle pheno" aria-hidden="true"></i><br>
+													<input type="radio" id="hpTerm" value='Eg. "Hyperchloremia"' name="dataType" class='bq'>Human phenotype name  <i class="fa fa-info-circle pheno" aria-hidden="true"></i><br>
 													<div class='block srchBox'>
 														<i class='fa fa-search'></i>
 														<input id='srchHp' value="search">
@@ -1676,13 +1676,13 @@
 													</div>
 													<input type="radio" id="hpId" value="Eg. HP:0000400" name="dataType" class='bq'>Human phenotype id  <i class="fa fa-info-circle pheno" aria-hidden="true"></i><br>
 
-													<input type="radio" id="diseaseTerm" value="Eg. Apert syndrome" name="dataType" class='bq'>Human disease name   <i class="fa fa-info-circle disease" aria-hidden="true"></i><br>
+													<input type="radio" id="diseaseTerm" value='Eg. "Apert syndrome"' name="dataType" class='bq'>Human disease name   <i class="fa fa-info-circle disease" aria-hidden="true"></i><br>
 													<div class='block srchBox'>
 														<i class='fa fa-search'></i>
 														<input id='srchDisease' value="search">
 														<i class='fa fa-times'></i>
 													</div>
-													<input type="radio" id="diseaseId" value="Eg. OMIM:100300 or ORPHANET:10 or DECIPHER:38" name="dataType" class='bq'>Human disease id   <i class="fa fa-info-circle disease" aria-hidden="true"></i><br>
+													<input type="radio" id="diseaseId" value="Eg. OMIM:100300 or ORPHANET:10 or DECIPHER:16" name="dataType" class='bq'>Human disease id   <i class="fa fa-info-circle disease" aria-hidden="true"></i><br>
 												</td>
 											</tr>
 										</table>

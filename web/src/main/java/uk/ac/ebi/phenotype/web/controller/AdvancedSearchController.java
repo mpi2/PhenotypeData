@@ -307,7 +307,8 @@ public class AdvancedSearchController {
 
             rowCount++;
 
-            System.out.println("Working on " + kw);
+            System.out.println("-- Working on " + kw);
+            System.out.println("-- region id " + regionId);
 
             List<Object> objs = null;
 
@@ -323,14 +324,25 @@ public class AdvancedSearchController {
             else if (kw.startsWith("ENSMUSG")){
                 objs = ensemblGeneIdRepository.findDataByEnsemblGeneId(kw);
             }
-            else if (kw.startsWith("OMIM:") || kw.startsWith("ORPHANET:") || kw.startsWith("DECIPHER:")){
-                System.out.println("search disease id and chr");
-                objs = diseaseModelRepository.findDataByDiseaseId(kw);
-            }
+
+            // DiseaseModel ID
             else if ((kw.startsWith("OMIM:") || kw.startsWith("ORPHANET:") || kw.startsWith("DECIPHER:")) && regionId != null){
-                System.out.println("search disease id and chr");
+                System.out.println("search disease " + kw + " and chr " + regionId);
                 objs = diseaseModelRepository.findDataByDiseaseIdChr(kw, regionId);
                 System.out.println("objs found: "+objs.size());
+            }
+            else if (kw.startsWith("OMIM:") || kw.startsWith("ORPHANET:") || kw.startsWith("DECIPHER:")){
+                System.out.println("search disease");
+                objs = diseaseModelRepository.findDataByDiseaseId(kw);
+            }
+            // DiseaseModel term
+            else if (dataType.equals("DiseaseModel") && regionId != null) {
+                System.out.println("Disease id normal");
+                objs = diseaseModelRepository.findDataByDiseaseTermChr(kw, regionId);
+            }
+            else if (dataType.equals("DiseaseModel")) {
+                System.out.println("Disease term normal");
+                objs = diseaseModelRepository.findDataByDiseaseTerm(kw);
             }
 
             // MP ID
