@@ -156,26 +156,26 @@ public class Loader implements CommandLineRunner {
         //----------- STEP 1 -----------//
         // loading Gene, Allele, EnsemblGeneId, MarkerSynonym, human orthologs
         // based on Peter's allele2 flatfile
-       // loadGenes();
+        loadGenes();
 
         //----------- STEP 2 -----------//
         populateHpIdTermMapAndLoadHumanPhenotypes();  //  STEP 2.1
-//        populateBestMpIdHpMap();          // STEP 2.2
-//        extendLoadedHpAndConnectHp2Mp();  // STEP 2.3
-//        loadMousePhenotypes();            // STEP 2.4
-//
-//        //----------- STEP 3 -----------//
-//        populateMouseModelIdMpMap(); // run this before loadMouseModel()
-//        loadMouseModels();
-//
-//        //----------- STEP 4 -----------//
-//        // load disease and Gene, Hp, Mp relationships
-//        populateDiseaseIdPhenotypeMap();
-//        loadDiseaseGenes();
-//
-//        //----------- STEP 5 -----------//
-//        // load diseaseModel to gene/hp/mp/alleles
-//        loadDiseaseModels();
+        populateBestMpIdHpMap();          // STEP 2.2
+        extendLoadedHpAndConnectHp2Mp();  // STEP 2.3
+        loadMousePhenotypes();            // STEP 2.4
+
+        //----------- STEP 3 -----------//
+        populateMouseModelIdMpMap(); // run this before loadMouseModel()
+        loadMouseModels();
+
+        //----------- STEP 4 -----------//
+        // load disease and Gene, Hp, Mp relationships
+        populateDiseaseIdPhenotypeMap();
+        loadDiseaseGenes();
+
+        //----------- STEP 5 -----------//
+        // load diseaseModel to gene/hp/mp/alleles
+        loadDiseaseModels();
 
     }
 
@@ -624,11 +624,9 @@ public class Loader implements CommandLineRunner {
             }
 
             // MARK HP WHICH IS TOP LEVEL
-//            System.out.println(hpDTO.getTopLevelIds() == null);
-//            System.out.println(hpDTO.getTopLevelIds().size() == 0);
             if (hpDTO.getTopLevelIds() == null || hpDTO.getTopLevelIds().size() == 0){
                 // add self as top level
-                System.out.println(hpId + " set as top level");
+                // Note: this may include terms not in the top level hp id list as the parser sees terms whose hierarchy is not in the path of the selected top level list
                 hp.setTopLevelStatus(true);
             }
 
