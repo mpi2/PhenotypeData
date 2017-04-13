@@ -600,7 +600,7 @@ public class OntologyParser {
             // Intersect list of ancestors with list of top Levels
             Set<OWLClass> localTopLevels = classAncestors.stream()
                     .filter(item -> {
-                        return topLevelIds.contains(getIdentifierShortForm(item));
+                        return topLevelIds.contains(getIdentifierShortForm(item)); // filter out ancestors that are not top levels
                     }).collect(Collectors.toSet());
 
             for (OWLClass topLevel : localTopLevels) {
