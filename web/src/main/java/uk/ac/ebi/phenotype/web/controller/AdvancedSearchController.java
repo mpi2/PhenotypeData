@@ -305,7 +305,6 @@ public class AdvancedSearchController {
             colValMap.put("searchBy", new HashSet<>());
             colValMap.get("searchBy").add(kw);
 
-
             rowCount++;
 
             System.out.println("Working on " + kw);

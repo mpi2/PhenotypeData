@@ -159,7 +159,7 @@ public class Loader implements CommandLineRunner {
        // loadGenes();
 
         //----------- STEP 2 -----------//
-        populateHpIdTermMapAndLoadHumanPhenotypes();  // STEP 2.1
+        populateHpIdTermMapAndLoadHumanPhenotypes();  //  STEP 2.1
 //        populateBestMpIdHpMap();          // STEP 2.2
 //        extendLoadedHpAndConnectHp2Mp();  // STEP 2.3
 //        loadMousePhenotypes();            // STEP 2.4
@@ -566,18 +566,18 @@ public class Loader implements CommandLineRunner {
 
         int hpCount = 0;
 
-        for(String wantedHpId : hpParser.getTermsInSlim()){
-            OntologyTermDTO hpDTO = hpParser.getOntologyTerm(wantedHpId);
+        for(String hpId : hpParser.getTermsInSlim()){
+            OntologyTermDTO hpDTO = hpParser.getOntologyTerm(hpId);
 
             if (hpDTO == null){
-                System.out.println(wantedHpId + " is not parsed");
+                System.out.println(hpId + " is not parsed");
                 continue;
             }
 
-            Hp hp = hpRepository.findByHpId(wantedHpId);
+            Hp hp = hpRepository.findByHpId(hpId);
             if (hp == null){
                 hp = new Hp();
-                hp.setHpId(wantedHpId);
+                hp.setHpId(hpId);
             }
             if (hp.getHpTerm() == null) {
                 if (hpDTO.getName() != null) {
@@ -624,9 +624,11 @@ public class Loader implements CommandLineRunner {
             }
 
             // MARK HP WHICH IS TOP LEVEL
+//            System.out.println(hpDTO.getTopLevelIds() == null);
+//            System.out.println(hpDTO.getTopLevelIds().size() == 0);
             if (hpDTO.getTopLevelIds() == null || hpDTO.getTopLevelIds().size() == 0){
                 // add self as top level
-                System.out.println(wantedHpId + " set as top level");
+                System.out.println(hpId + " set as top level");
                 hp.setTopLevelStatus(true);
             }
 

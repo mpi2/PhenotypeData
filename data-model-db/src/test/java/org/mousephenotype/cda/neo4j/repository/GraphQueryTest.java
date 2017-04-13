@@ -243,6 +243,35 @@ public class GraphQueryTest {
     }
 
     @Test
+    public void diseaseTest() throws Exception {
+        List<String> diseaseIds = Arrays.asList("ORPHANET:10");
+        //    List<String> mpIds = Arrays.asList("cardiovascular system phenotype");
+        for (String diseaseId : diseaseIds) {
+//            List<Object> ds = diseaseModelRepository.findDataByDiseaseId(diseaseId);
+            List<Object> ds = diseaseModelRepository.findDataByDiseaseIdChr(diseaseId, "16");
+            // List<Mp> mps = mpRepository.findChildrenMpsByMpTerm(mpId, 3);
+            // List<Mp> mps = mpRepository.findAllChildrenMpsByMpTerm(mpId);
+            System.out.println("found " + ds.size());
+
+            for (Object d : ds) {
+                String className = d.getClass().getSimpleName();
+                //System.out.println("classname: " + className);
+
+                if (className.equals("Gene")){
+                    Gene g = (Gene) d;
+                    System.out.println("chrId: " + g.getChrId());
+                }
+                else if (className.equals("DiseaseModel")){
+                    DiseaseModel dm = (DiseaseModel) d;
+                    System.out.println("disease id: " + dm.getDiseaseId());
+                    System.out.println("disease term: " + dm.getDiseaseTerm());
+                }
+            }
+        }
+    }
+
+
+    //@Test
     public void mpChildrenTest() throws Exception {
         List<String> mpIds = Arrays.asList("MP:0005385");
     //    List<String> mpIds = Arrays.asList("cardiovascular system phenotype");
