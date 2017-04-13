@@ -348,4 +348,13 @@ public class OntologyParserTest {
 
     }
 
+    @Test
+    public void testTopLevelsForHp() throws OWLOntologyCreationException, OWLOntologyStorageException, IOException {
+        Set<String> wantedIds = new HashSet<>();
+        wantedIds.add("HP:0001892");
+        OntologyParser hpParser = new OntologyParser(downloads.get("hp").target, "HP", OntologyParserFactory.TOP_LEVEL_HP_TERMS, wantedIds);
+        System.out.println(hpParser.getOntologyTerm("HP:0001892").getTopLevelIds());
+        Assert.assertTrue(hpParser.getOntologyTerm("HP:0001892").getTopLevelIds() != null);
+    }
+
 }
