@@ -126,8 +126,8 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 		return retVal;
 	}
 
-	public Set<String> getChartPivots(String acc, ParameterDTO parameter, List<String> pipelineStableIds, List<String> genderList, List<String> zyList, List<String> phenotypingCentersList,
-						  List<String> strainsParams, List<String> metaDataGroup, List<String> alleleAccession){
+	public Set<String> getChartPivots(String baseUrl, String acc, ParameterDTO parameter, List<String> pipelineStableIds, List<String> zyList, List<String> phenotypingCentersList,
+						  List<String> strainsParams, List<String> metaDataGroup, List<String> alleleAccession) throws IOException, SolrServerException, URISyntaxException {
 
 		SolrQuery query = new SolrQuery();
 		query.setQuery("*:*");
@@ -137,33 +137,66 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 		if (parameter != null){
 			query.addFilterQuery(StatisticalResultDTO.PARAMETER_STABLE_ID + ":" + parameter.getStableId() );
 		}
-		if (pipelineStableIds != null){
-			query.addFilterQuery(pipelineStableIds.stream().collect(Collectors.joining(" OR ", "(" + StatisticalResultDTO.PIPELINE_STABLE_ID, ")")));
+		if (pipelineStableIds != null & pipelineStableIds.size() > 0){
+			query.addFilterQuery(pipelineStableIds.stream().collect(Collectors.joining(" OR ",  StatisticalResultDTO.PIPELINE_STABLE_ID + ":(", ")")));
 		}
-		if (genderList != null){
-			query.addFilterQuery(genderList.stream().collect(Collectors.joining(" OR ", "(" + StatisticalResultDTO.SEX, ")")));
+		if (zyList != null && zyList.size() > 0){
+			query.addFilterQuery(zyList.stream().collect(Collectors.joining(" OR ",  StatisticalResultDTO.ZYGOSITY + ":(", ")")));
 		}
-		if (zyList != null){
-			query.addFilterQuery(zyList.stream().collect(Collectors.joining(" OR ", "(" + StatisticalResultDTO.ZYGOSITY, ")")));
+		if (phenotypingCentersList != null && phenotypingCentersList.size() > 0){
+			query.addFilterQuery(phenotypingCentersList.stream().collect(Collectors.joining("\" OR \"",  StatisticalResultDTO.PHENOTYPING_CENTER + ":(\"", "\")")));
 		}
-		if (phenotypingCentersList != null){
-			query.addFilterQuery(phenotypingCentersList.stream().collect(Collectors.joining("\" OR \"", "(\"" + StatisticalResultDTO.PHENOTYPING_CENTER, "\")")));
+		if (strainsParams != null && strainsParams.size() > 0){
+			query.addFilterQuery(strainsParams.stream().collect(Collectors.joining("\" OR \"", StatisticalResultDTO.STRAIN_ACCESSION_ID + ":(\"", "\")")));
 		}
-		if (strainsParams != null){
-			query.addFilterQuery(strainsParams.stream().collect(Collectors.joining(" OR ", "(" + StatisticalResultDTO.STRAIN_ACCESSION_ID, ")")));
+		if (metaDataGroup != null && metaDataGroup.size() > 0){
+			query.addFilterQuery(metaDataGroup.stream().collect(Collectors.joining("\" OR \"",  StatisticalResultDTO.METADATA_GROUP + ":(\"", "\")")));
 		}
+		if (alleleAccession != null && alleleAccession.size() > 0){
+			query.addFilterQuery(alleleAccession.stream().collect(Collectors.joining("\" OR \"", StatisticalResultDTO.ALLELE_ACCESSION_ID + ":(\"", "\")")));
+		}
+		query.setFacet(true);
+
+		// If you add/change order of pivots, make sure you do the same in the for loops below
+		String pivotFacet = StatisticalResultDTO.PIPELINE_STABLE_ID + "," +
+				StatisticalResultDTO.ZYGOSITY + "," +
+				StatisticalResultDTO.PHENOTYPING_CENTER + "," +
+				StatisticalResultDTO.STRAIN_ACCESSION_ID + "," +
+				StatisticalResultDTO.ALLELE_ACCESSION_ID;
 		if (metaDataGroup != null){
-			query.addFilterQuery(metaDataGroup.stream().collect(Collectors.joining("\" OR \"", "(\"" + StatisticalResultDTO.METADATA_GROUP, "\")")));
+			pivotFacet += "," + StatisticalResultDTO.METADATA_GROUP;
+
 		}
-		if (alleleAccession != null){
-			query.addFilterQuery(alleleAccession.stream().collect(Collectors.joining("\" OR \"", "(\"" + StatisticalResultDTO.ALLELE_ACCESSION_ID, "\")")));
+		query.add("facet.pivot", pivotFacet );
+
+		query.setFacetLimit(-1);
+
+		Set<String> resultParametersForCharts = new HashSet<>();
+		NamedList<List<PivotField>> facetPivot = solr.query(query).getFacetPivot();
+		for( PivotField pivot : facetPivot.get(pivotFacet)){
+			getParametersForChartFromPivot(pivot, baseUrl, resultParametersForCharts);
 		}
 
-		//TODO
-
-		return new HashSet<>();
+		return resultParametersForCharts;
 	}
 
+
+	private Set<String> getParametersForChartFromPivot(PivotField pivot, String urlParams, Set<String> set){
+
+		if ( pivot != null){
+			urlParams += pivot.getField() + "=" + pivot.getValue().toString() + "&";
+			if (pivot.getPivot() != null) {
+				for (PivotField p : pivot.getPivot()) {
+					getParametersForChartFromPivot(p, urlParams, set);
+				}
+			} else {
+				set.add(urlParams);
+			}
+		}
+
+		return set;
+
+	}
 
 	public static Double getMalePercentageChange(String token) {
 		Double retVal = null;
