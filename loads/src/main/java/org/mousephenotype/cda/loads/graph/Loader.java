@@ -156,26 +156,26 @@ public class Loader implements CommandLineRunner {
         //----------- STEP 1 -----------//
         // loading Gene, Allele, EnsemblGeneId, MarkerSynonym, human orthologs
         // based on Peter's allele2 flatfile
-        loadGenes();
+       // loadGenes();
 
         //----------- STEP 2 -----------//
         populateHpIdTermMapAndLoadHumanPhenotypes();  // STEP 2.1
-        populateBestMpIdHpMap();          // STEP 2.2
-        extendLoadedHpAndConnectHp2Mp();  // STEP 2.3
-        loadMousePhenotypes();            // STEP 2.4
-
-        //----------- STEP 3 -----------//
-        populateMouseModelIdMpMap(); // run this before loadMouseModel()
-        loadMouseModels();
-
-        //----------- STEP 4 -----------//
-        // load disease and Gene, Hp, Mp relationships
-        populateDiseaseIdPhenotypeMap();
-        loadDiseaseGenes();
-
-        //----------- STEP 5 -----------//
-        // load diseaseModel to gene/hp/mp/alleles
-        loadDiseaseModels();
+//        populateBestMpIdHpMap();          // STEP 2.2
+//        extendLoadedHpAndConnectHp2Mp();  // STEP 2.3
+//        loadMousePhenotypes();            // STEP 2.4
+//
+//        //----------- STEP 3 -----------//
+//        populateMouseModelIdMpMap(); // run this before loadMouseModel()
+//        loadMouseModels();
+//
+//        //----------- STEP 4 -----------//
+//        // load disease and Gene, Hp, Mp relationships
+//        populateDiseaseIdPhenotypeMap();
+//        loadDiseaseGenes();
+//
+//        //----------- STEP 5 -----------//
+//        // load diseaseModel to gene/hp/mp/alleles
+//        loadDiseaseModels();
 
     }
 
@@ -606,6 +606,7 @@ public class Loader implements CommandLineRunner {
             // HP PARENT
             if (hp.getHpParentIds() == null) {
                 if ( hpDTO.getParentIds() != null) {
+
                     Set<Hp> parentHps = new HashSet<>();
 
                     for (String parId : hpDTO.getParentIds()) {
@@ -619,11 +620,13 @@ public class Loader implements CommandLineRunner {
                     }
                     hp.setHpParentIds(parentHps);
                 }
+
             }
 
             // MARK HP WHICH IS TOP LEVEL
             if (hpDTO.getTopLevelIds() == null || hpDTO.getTopLevelIds().size() == 0){
                 // add self as top level
+                System.out.println(wantedHpId + " set as top level");
                 hp.setTopLevelStatus(true);
             }
 

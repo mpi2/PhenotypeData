@@ -59,10 +59,10 @@ public class OntologyParserFactory {
     protected static final List<String> TREE_TOP_LEVEL_EMAPA_TERMS = new ArrayList<>(Arrays.asList("EMAPA:16039", "EMAPA:36040", "EMAPA:36037",
             "EMAPA:36031", "EMAPA:16042", "EMAPA:35949", "EMAPA:16103", "EMAPA:35868"));
 
-    protected static final Set<String> TOP_LEVEL_HP_TERMS = new HashSet<>(Arrays.asList( "HP0002086",
-            "HP0045027", "HP0001871", "HP0001939", "HP0001574", "HP0001608", "HP0001626", "HP0025354", "HP0001507", "HP0025142",
-            "HP0001197", "HP0003549", "HP0025031", "HP0003011", "HP0040064", "HP0000924", "HP0000769", "HP0000707", "HP0000818",
-            "HP0000478", "HP0000598", "HP0002664", "HP0002715", "HP0000119", "HP0000152"));
+    protected static final Set<String> TOP_LEVEL_HP_TERMS = new HashSet<>(Arrays.asList( "HP:0002086",
+            "HP:0045027", "HP:0001871", "HP:0001939", "HP:0001574", "HP:001608", "HP:001626", "HP:025354", "HP:001507", "HP:025142",
+            "HP:001197", "HP:003549", "HP:025031", "HP:003011", "HP:040064", "HP:000924", "HP:000769", "HP:000707", "HP:000818",
+            "HP:000478", "HP:000598", "HP:002664", "HP:002715", "HP:000119", "HP:000152"));
 
     // These aprsers are used by several indexers so it makes sense to initialize them in one place, so that they don't get out of synch.
     public OntologyParser getMpParser() throws OWLOntologyCreationException, OWLOntologyStorageException, IOException, SQLException {
