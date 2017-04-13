@@ -56,7 +56,7 @@ public class AbrChartAndTableProvider {
 
 
 	public String getChart(String pipelineStableId, String acc, List<String> genderList, List<String> zyList,
-			String phenotypingCenter, String strain, String metadataGroup, String alleleAccession, String chartId) throws SolrServerException, IOException {
+			String phenotypingCenter, String strain, String metadataGroup, String alleleAccession, String chartId, String ebiMappedSolrUrl) throws SolrServerException, IOException {
 
     	Map<String, ArrayList<UnidimensionalStatsObject>> data = new HashMap<>(); // <control/experim, ArrayList<dataToPlot>>
     	data.put(ChartUtils.getLabel(null, SexType.female), new ArrayList<UnidimensionalStatsObject>() );
@@ -78,7 +78,7 @@ public class AbrChartAndTableProvider {
 
     		ParameterDTO parameter = impressService.getParameterByStableId(parameterStableId);
     		try {
-    			ExperimentDTO experiment = es.getSpecificExperimentDTO(parameterStableId, pipelineStableId, acc, genderList, zyList, phenotypingCenter, strain, metadataGroup, alleleAccession);
+    			ExperimentDTO experiment = es.getSpecificExperimentDTO(parameterStableId, pipelineStableId, acc, genderList, zyList, phenotypingCenter, strain, metadataGroup, alleleAccession, ebiMappedSolrUrl);
 
     			if (experiment != null){
 			    	zygosities = experiment.getZygosities();
