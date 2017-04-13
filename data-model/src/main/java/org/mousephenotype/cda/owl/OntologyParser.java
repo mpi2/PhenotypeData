@@ -602,7 +602,6 @@ public class OntologyParser {
                     .filter(item -> {
                         return topLevelIds.contains(getIdentifierShortForm(item));
                     }).collect(Collectors.toSet());
-
             for (OWLClass topLevel : localTopLevels) {
                 term.addTopLevelId(getIdentifierShortForm(topLevel));
                 term.addTopLevelName(getLabel(topLevel));
