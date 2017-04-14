@@ -114,7 +114,7 @@ public interface MpRepository extends Neo4jRepository<Mp, Long> {
 //                                        @Param( "chrEnd" ) int chrEnd
     );
 
-    @Query("MATCH (mp:Mp)<-[:PARENT*0..{childLevel}]-(cmp) WHERE mp.mpTerm =~ ('(?i)'+'.*'+{mpTerm}+'.*') with cmp RETURN collect(distinct cmp)")
+    @Query("MATCH (mp:Mp)<-[:PARENT*0..{childLevel:{childLevel}}]-(cmp) WHERE mp.mpTerm =~ ('(?i)'+'.*'+{mpTerm}+'.*') with cmp RETURN collect(distinct cmp)")
    // @Query("MATCH (mp:Mp)<-[:PARENT*0..3]-(cmp) WHERE mp.mpTerm =~ ('(?i)'+'.*'+{mpTerm}+'.*') with mp, cmp RETURN collect(distinct cmp)")
     List<Object> findChildrenMpsByMpTerm(@Param( "mpTerm" ) String mpTerm, @Param( "childLevel" ) int childLevel);
 

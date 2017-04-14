@@ -278,7 +278,7 @@ public class GraphQueryTest {
         for (String mpId : mpIds) {
   //         List<Mp> mps = mpRepository.findChildrenMpsByMpId(mpId, 3);
 //            List<Object> mps = mpRepository.findAllChildrenMpsByMpId(mpId);
-            List<Object> mps = mpRepository.findChildrenMpsByMpTerm(mpId, 3);
+            List<Object> mps = mpRepository.findChildrenMpsByMpTerm(mpId, 5);
            // List<Mp> mps = mpRepository.findAllChildrenMpsByMpTerm(mpId);
             System.out.println("found " + mps.size());
         }
