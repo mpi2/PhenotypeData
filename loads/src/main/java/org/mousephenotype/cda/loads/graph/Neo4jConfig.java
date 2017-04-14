@@ -1,5 +1,7 @@
 package org.mousephenotype.cda.loads.graph;
 
+import org.apache.solr.client.solrj.SolrClient;
+import org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrClient;
 import org.neo4j.ogm.session.SessionFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -26,6 +28,8 @@ public class Neo4jConfig {
     @NotNull
     @Value("${owlpath}")
     protected String owlpath;
+
+
 
     @Bean
     public org.neo4j.ogm.config.Configuration getConfiguration() {

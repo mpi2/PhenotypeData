@@ -1,14 +1,20 @@
 package org.mousephenotype.cda.loads.graph;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.solr.client.solrj.SolrClient;
+import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.impl.HttpSolrClient;
+import org.apache.solr.client.solrj.response.QueryResponse;
 import org.mousephenotype.cda.annotations.ComponentScanNonParticipant;
 import org.mousephenotype.cda.db.pojo.OntologyTerm;
+import org.mousephenotype.cda.db.pojo.StatisticalResult;
 import org.mousephenotype.cda.neo4j.entity.*;
 import org.mousephenotype.cda.neo4j.repository.*;
 import org.mousephenotype.cda.owl.OntologyParser;
 import org.mousephenotype.cda.owl.OntologyParserFactory;
 import org.mousephenotype.cda.owl.OntologyTermDTO;
+import org.mousephenotype.cda.solr.service.dto.StatisticalResultDTO;
 import org.semanticweb.elk.util.collections.ArrayHashSet;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.semanticweb.owlapi.model.OWLOntologyStorageException;
@@ -62,10 +68,6 @@ public class Loader implements CommandLineRunner {
     @NotNull
     @Value("${human2mouseFilename}")
     private String pathToHuman2mouseFilename;
-
-//    @NotNull
-//    @Value("${mpListPath}")
-//    private String mpListPath;
 
     @NotNull
     @Value("${owlpath}")
@@ -140,42 +142,69 @@ public class Loader implements CommandLineRunner {
         logger.info("Start deleting all repositories ...");
 //        FileUtils.deleteDirectory(new File(neo4jDbPath));
 
-        geneRepository.deleteAll();
-        alleleRepository.deleteAll();
-        ensemblGeneIdRepository.deleteAll();
-        markerSynonymRepository.deleteAll();
-        ontoSynonymRepository.deleteAll();
-        humanGeneSymbolRepository.deleteAll();
-        mpRepository.deleteAll();
-        hpRepository.deleteAll();
-        diseaseGeneRepository.deleteAll();
-        diseaseModelRepository.deleteAll();
-        mouseModelRepository.deleteAll();
+//        geneRepository.deleteAll();
+//        alleleRepository.deleteAll();
+//        ensemblGeneIdRepository.deleteAll();
+//        markerSynonymRepository.deleteAll();
+//        ontoSynonymRepository.deleteAll();
+//        humanGeneSymbolRepository.deleteAll();
+//        mpRepository.deleteAll();
+//        hpRepository.deleteAll();
+//        diseaseGeneRepository.deleteAll();
+//        diseaseModelRepository.deleteAll();
+//        mouseModelRepository.deleteAll();
         logger.info("Done deleting all repositories");
 
         //----------- STEP 1 -----------//
         // loading Gene, Allele, EnsemblGeneId, MarkerSynonym, human orthologs
         // based on Peter's allele2 flatfile
-        loadGenes();
+//        loadGenes();
+//
+//        //----------- STEP 2 -----------//
+//        populateHpIdTermMapAndLoadHumanPhenotypes();  //  STEP 2.1
+//        populateBestMpIdHpMap();          // STEP 2.2
+//        extendLoadedHpAndConnectHp2Mp();  // STEP 2.3
+//        loadMousePhenotypes();            // STEP 2.4
+//
+//        //----------- STEP 3 -----------//
+//        populateMouseModelIdMpMap(); // run this before loadMouseModel()
+//        loadMouseModels();
+//
+//        //----------- STEP 4 -----------//
+//        // load disease and Gene, Hp, Mp relationships
+//        populateDiseaseIdPhenotypeMap();
+//        loadDiseaseGenes();
+//
+//        //----------- STEP 5 -----------//
+//        // load diseaseModel to gene/hp/mp/alleles
+//        loadDiseaseModels();
 
-        //----------- STEP 2 -----------//
-        populateHpIdTermMapAndLoadHumanPhenotypes();  //  STEP 2.1
-        populateBestMpIdHpMap();          // STEP 2.2
-        extendLoadedHpAndConnectHp2Mp();  // STEP 2.3
-        loadMousePhenotypes();            // STEP 2.4
+        loadStatisticalResults();
 
-        //----------- STEP 3 -----------//
-        populateMouseModelIdMpMap(); // run this before loadMouseModel()
-        loadMouseModels();
+    }
 
-        //----------- STEP 4 -----------//
-        // load disease and Gene, Hp, Mp relationships
-        populateDiseaseIdPhenotypeMap();
-        loadDiseaseGenes();
+    public void loadStatisticalResults() throws IOException, SolrServerException {
 
-        //----------- STEP 5 -----------//
-        // load diseaseModel to gene/hp/mp/alleles
-        loadDiseaseModels();
+        SolrClient solr = new HttpSolrClient("http://ves-ebi-d0:8090/mi/impc/dev/solr/statistical-result");
+        SolrQuery query = new SolrQuery();
+        query.setQuery("*:*");
+        query.setStart(0);
+        query.setRows(10);
+
+        QueryResponse response = solr.query(query);
+        long rows = response.getResults().getNumFound();
+        System.out.println("docs found: "+rows);
+
+        List<StatisticalResultDTO> docs = response.getBeans(StatisticalResultDTO.class);
+        for(StatisticalResultDTO doc : docs){
+            System.out.println(doc.getMarkerSymbol());
+
+
+
+        }
+
+
+
 
     }
 
