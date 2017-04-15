@@ -368,7 +368,6 @@
 
                 var tipMap = {'a#bqdoc':bqDoc, 'i.pheno':ontologyHelp, 'i.disease':diseaseHelp};
                 for(var selector in tipMap) {
-                    console.log(selector + ' - ' + tipMap[selector])
                     activateQtip(selector, tipMap[selector]);
                 }
 
@@ -430,7 +429,9 @@
                             {"chromosome id": "chrId"},
                             {"chromosome start": "chrStart"},
                             { "chromosome end": "chrEnd"},
-                            {"chromosome strand": "chrStrand"}
+                            {"chromosome strand": "chrStrand"},
+                            {"MGI gene synonym":"markerSynonym"}
+
                         ],
                         findBy: [
                             {"symbol":{
@@ -479,15 +480,15 @@
                             }
                         ]
                     },
-                    "MarkerSynonym": {
-                        text: "MGI Marker\nSynonym",
-                        x: 470,
-                        y: 40,
-                        r:30,
-                        fields: [
-                            {"MGI gene synonym":"markerSynonym"}
-                        ]
-                    },
+//                    "MarkerSynonym": {
+//                        text: "MGI Marker\nSynonym",
+//                        x: 470,
+//                        y: 40,
+//                        r:30,
+//                        fields: [
+//                            {"MGI gene synonym":"markerSynonym"}
+//                        ]
+//                    },
                     "Allele": {
                         text: "Mouse\nAllele",
                         x: 340,
@@ -579,7 +580,8 @@
                             {"mouse phenotype ontology term":"mpTerm"},
                             {"mouse phenotype ontology definition":"mpDefinition"},
                             {"top level mouse phenotype ontology id":"topLevelMpId"},
-                            {"top level mouse phenotype ontology term":"topLevelMpTerm"}
+                            {"top level mouse phenotype ontology term":"topLevelMpTerm"},
+                            {"mouse phenotype ontology term synonym": "ontoSynonym"}
 
                         ],
                         findBy: [
@@ -594,16 +596,16 @@
                             }
                             }
                         ]
-                    },
-                    "OntoSynonym": {
-                        text: "Mouse\nPhenotype\nSynonym",
-                        x: 45,
-                        y: 60,
-                        r: 30,
-                        fields: [
-                            {"mouse phenotype ontology term synonym": "ontoSynonym"}
-                        ]
                     }
+//                    "OntoSynonym": {
+//                        text: "Mouse\nPhenotype\nSynonym",
+//                        x: 45,
+//                        y: 60,
+//                        r: 30,
+//                        fields: [
+//                            {"mouse phenotype ontology term synonym": "ontoSynonym"}
+//                        ]
+//                    }
                 };
 
                 paper = new Raphael(document.getElementById('graph'), 300, 230);
@@ -616,7 +618,7 @@
                 // connect circles
                 connectCircle("Gene", "HumanGeneSymbol");
                 connectCircle("Gene", "EnsemblGeneId");
-                connectCircle("Gene", "MarkerSynonym");
+                //connectCircle("Gene", "MarkerSynonym");
                 connectCircle("Gene", "Allele");
                 connectCircle("MouseModel", "Gene");
                 connectCircle("MouseModel", "Mp");
@@ -628,7 +630,7 @@
                 connectCircle("DiseaseModel", "Hp");
                 connectCircle("DiseaseModel", "Mp");
                 connectCircle("Mp", "Hp");
-                connectCircle("Mp", "OntoSynonym");
+                //connectCircle("Mp", "OntoSynonym");
 
 
                 addChomosomeRangerFilter();
@@ -778,6 +780,18 @@
                     $('fieldset input:checked').each(function () {
                         var dataType = $(this).parent().attr('id');
                         var property = $(this).val();
+
+                        // some converion here for markerSynonym and Ontosynonym
+						// as they are includded in gene or mp, hp for user friendly
+						// purpose, but they themselves are nodeEntities
+						// other than gene, mp or hp
+                        if (property == "markerSynonym"){
+                            dataType = "MarkerSynonym";
+						}
+						else if (property == "ontoSynonym"){
+                            dataType = "OntoSynonym";
+						}
+
                         console.log(dataType + " --- " + property);
 
                         if (!kv.hasOwnProperty(dataType)) {
