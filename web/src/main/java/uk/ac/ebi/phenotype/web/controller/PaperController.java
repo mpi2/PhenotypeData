@@ -578,11 +578,10 @@ public class PaperController {
             // bar chart: monthly increments (weekly drilldown) by counts (merge of datasources)
             //-----------------------------------------------------------------------------------
 
-            String querySum2 = "select date, count(*) as count " +
-                    "from datasource_by_year_weekly_increase " +
-                    "where date > '2017-02-09' " +
-                    "group by date";
-
+            String querySum2 = "SELECT date, sum(count) AS counts  "
+                + "FROM datasource_by_year_weekly_increase "
+                + "WHERE date > '2017-02-09' "
+                + "GROUP BY date";
 
             PreparedStatement p5 = conn.prepareStatement(querySum2);
             ResultSet resultSet5 = p5.executeQuery();
@@ -592,7 +591,7 @@ public class PaperController {
 
             while (resultSet5.next()) {
                 String date = resultSet5.getString("date");
-                Integer count = resultSet5.getInt("count");
+                Integer count = resultSet5.getInt("counts");
 
                 String[] dateParts = StringUtils.split(date, "-");
                 String yyyy = dateParts[0];
@@ -783,6 +782,7 @@ public class PaperController {
                 Map.Entry pair = (Map.Entry) it.next();
                 String pmidStr = pair.getKey().toString();
 
+                System.out.println("Working on "+ pmidStr);
                 foundPmids.add(pmidStr);
 
                 Pubmed pub = (Pubmed) pair.getValue();
@@ -1231,7 +1231,7 @@ public class PaperController {
 
         // attach pubmed info to pmid
         for( String q : pmidQrys ){
-            //System.out.println("Working on filter: "+ q);
+            System.out.println("Working on filter: "+ q);
             String dbfetchUrl = "http://www.ebi.ac.uk/europepmc/webservices/rest/search/query=" + q + "%20and%20src:MED&format=json&resulttype=core";
             //System.out.println(dbfetchUrl);
 
