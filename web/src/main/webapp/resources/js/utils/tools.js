@@ -516,7 +516,7 @@
                                                             $(this).text("Show abstract");
                                                         }
                                                         else if ($(this).attr('id') == "citedBy") {
-                                                            $(this).text("Show citations");
+                                                            $(this).text("Cited by (" + $(this).attr('rel') + ")");
                                                         }
                                                         else if ($(this).attr('id') == "meshTree") {
                                                             $(this).text("Show mesh terms");
@@ -1021,7 +1021,7 @@
                             $(this).text("Show abstract");
                         }
                         else if ($(this).attr('id') == "citedBy") {
-                            $(this).text("Show citations");
+                            $(this).text("Cited by (" + $(this).attr('rel') + ")");
                         }
                         else if ($(this).attr('id') == "meshTree") {
                             $(this).text("Show mesh terms");

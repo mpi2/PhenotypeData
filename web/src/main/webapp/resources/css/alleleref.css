@@ -52,6 +52,9 @@ div.saveTable {
 tr.hiddenMesh {
     display: none;
 }
+table.dataTable tr:nth-child(even) {
+    background-color: #F2F2F2;
+}
 table.dataTable tr td {
     border-bottom: 1px solid lightgrey;
 }
