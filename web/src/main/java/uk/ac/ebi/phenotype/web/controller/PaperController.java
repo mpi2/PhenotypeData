@@ -122,7 +122,7 @@ public class PaperController {
         j.put("iTotalRecords", references.size());
         j.put("iTotalDisplayRecords", references.size());
 
-        for (org.mousephenotype.cda.db.pojo.ReferenceDTO reference : references) {
+        for (ReferenceDTO reference : references) {
 
             List<String> rowData = new ArrayList<>();
             List<String> alleleSymbolinks = new ArrayList<>();
@@ -234,6 +234,17 @@ public class PaperController {
                 rowData.add("<p><a href='" + paperLink + "'>" + reference.getTitle() + "</a></p>");
             }
 
+            rowData.add("<p><i>" + reference.getJournal() + "</i>, " + reference.getDateOfPublication() + "</p>");
+
+            // papers citing this paper
+            if (! reference.getCitedBy().isEmpty()) {
+                String delimiter = "|||";
+                String citations = reference.getCitedBy().replace(delimiter, "");
+                String[] num = StringUtils.split(reference.getCitedBy(), delimiter);
+                int len = num.length;
+                rowData.add("<div id='citedBy' class='valToggle' rel=" + len + ">Cited by (" + len + ")</div><div class='valHide'><ul>" + citations + "</ul></div>");
+            }
+
             rowData.add("<p class='author'>" + reference.getAuthor() + "</p>");
 
             // hidden by default abstract, toggle to show/hide
@@ -241,14 +252,7 @@ public class PaperController {
                 rowData.add("<div id='abstract' class='valToggle'>Show abstract</div><div class='valHide'>" + reference.getAbstractTxt() + "</div>");
             }
 
-            rowData.add("<p><i>" + reference.getJournal() + "</i>, " + reference.getDateOfPublication() + "</p>");
             rowData.add("<p>PMID: " + Integer.toString(reference.getPmid()) + "</p>");
-
-            // papers citing this paper
-            if (! reference.getCitedBy().isEmpty()) {
-                rowData.add("<div id='citedBy'  class='valToggle'>Show citations</div><div class='valHide'>" + reference.getCitedBy() + "</div>");
-            }
-
 
             if (alleleSymbolinks.size() > 0){
                 if (totalAlleleCount > DISPLAY_THRESHOLD) {
@@ -319,6 +323,28 @@ public class PaperController {
 
         return fetchPaperStats(); // json string
     }
+
+//    private String fetchCitationTitle(String citationPmids) throws SQLException {
+//
+//        String delimiter = "|||";
+//        Connection conn = admintoolsDataSource.getConnection();
+//        String sql = "select title, paper_url from allele_ref where pmid in (" + citationPmids.replace(delimiter, ",") + ")";
+//        //System.out.println(sql);
+//        PreparedStatement p = conn.prepareStatement(sql);
+//        ResultSet resultSet = p.executeQuery();
+//
+//        List<String> links = new ArrayList<>();
+//
+//        while (resultSet.next()) {
+//            String title = resultSet.getString("title");
+//            List<String> paperUrls = Arrays.asList(StringUtils.split(resultSet.getString("paper_url"), delimiter));
+//
+//            if (paperUrls.size() > 0) {
+//                links.add("<li><a target='_blank' href='" + paperUrls.get(0) + "'>" + title + "</a></li>");
+//            }
+//        }
+//        return StringUtils.join(links, "");
+//    }
 
     public String fetchMeshToTopMeshMapping() throws SQLException {
         Connection conn = admintoolsDataSource.getConnection();

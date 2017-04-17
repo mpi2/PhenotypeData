@@ -199,9 +199,13 @@ public class ReferenceDTO {
         this.abstractTxt = abstractTxt;
     }
 
-    public String getCitedBy() {return citedBy; }
+    public String getCitedBy() {
+        return citedBy;
+    }
 
-    public void setCitedBy(String citedBy) {this.citedBy = citedBy;}
+    public void setCitedBy(String citedBy) {
+        this.citedBy = citedBy;
+    }
 
     @Override
     public boolean equals(Object o) {
