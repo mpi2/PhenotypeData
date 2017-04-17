@@ -53,6 +53,7 @@ public class ReferenceDTO {
     private String author;
     private String consortiumPaper;
     private String abstractTxt;
+    private String citedBy;
 
     public List<String> getAlleleSymbols() {
         return alleleSymbols;
@@ -198,6 +199,10 @@ public class ReferenceDTO {
         this.abstractTxt = abstractTxt;
     }
 
+    public String getCitedBy() {return citedBy; }
+
+    public void setCitedBy(String citedBy) {this.citedBy = citedBy;}
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -230,7 +235,8 @@ public class ReferenceDTO {
         if (author != null ? !author.equals(that.author) : that.author != null) return false;
         if (consortiumPaper != null ? !consortiumPaper.equals(that.consortiumPaper) : that.consortiumPaper != null)
             return false;
-        return abstractTxt != null ? abstractTxt.equals(that.abstractTxt) : that.abstractTxt == null;
+        if (abstractTxt != null ? !abstractTxt.equals(that.abstractTxt) : that.abstractTxt != null) return false;
+        return citedBy != null ? citedBy.equals(that.citedBy) : that.citedBy == null;
     }
 
     @Override
@@ -253,6 +259,7 @@ public class ReferenceDTO {
         result = 31 * result + (author != null ? author.hashCode() : 0);
         result = 31 * result + (consortiumPaper != null ? consortiumPaper.hashCode() : 0);
         result = 31 * result + (abstractTxt != null ? abstractTxt.hashCode() : 0);
+        result = 31 * result + (citedBy != null ? citedBy.hashCode() : 0);
         return result;
     }
 
@@ -277,6 +284,7 @@ public class ReferenceDTO {
                 ", author='" + author + '\'' +
                 ", consortiumPaper='" + consortiumPaper + '\'' +
                 ", abstractTxt='" + abstractTxt + '\'' +
+                ", citedBy='" + citedBy + '\'' +
                 '}';
     }
 }
