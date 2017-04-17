@@ -55,7 +55,8 @@ public class ReferenceDAO {
         + "\tPaper link"
         + "\tMesh term"
         + "\tConsortium paper"
-        + "\tabstract";
+        + "\tabstract"
+        + "\tcited_by";
 
     @Autowired
     @Qualifier("admintoolsDataSource")
@@ -133,6 +134,7 @@ public class ReferenceDAO {
                 + ", mesh\n"
                 + ", author\n"
                 + ", abstract\n"
+                + ", cited_by\n"
                 + " FROM allele_ref\n"
                 + " WHERE agency LIKE '%" + filter + "%'\n"
                 + " ORDER BY " + orderBy + "\n";
@@ -168,6 +170,7 @@ public class ReferenceDAO {
                 referenceRow.setMeshTerms(Arrays.asList(resultSet.getString("mesh").split(delimeter)));
                 referenceRow.setAuthor(resultSet.getString("author"));
                 referenceRow.setAbstractTxt(resultSet.getString("abstract"));
+                referenceRow.setCitedBy(resultSet.getString("cited_by"));
 
                 results.add(referenceRow);
             }
@@ -244,10 +247,11 @@ public class ReferenceDAO {
                         + ", meshtree\n"
                         + ", author\n"
                         + ", consortium_paper\n"
-                        + ", abstract\n"
+                        + ", abstract"
+                        + ", cited_by\n"
                         + "FROM allele_ref\n"
                         + whereClause
-                        + "ORDER BY date_of_publication DESC\n";
+                        + " ORDER BY date_of_publication DESC\n";
 
         System.out.println("alleleRef query 3: " + query);
         List<ReferenceDTO> results = new ArrayList<>();
@@ -291,6 +295,7 @@ public class ReferenceDAO {
                 referenceRow.setAuthor(resultSet.getString("author"));
                 referenceRow.setConsortiumPaper(resultSet.getString("consortium_paper"));
                 referenceRow.setAbstractTxt(resultSet.getString("abstract"));
+                referenceRow.setCitedBy(resultSet.getString("cited_by"));
 
                 results.add(referenceRow);
             }
@@ -403,10 +408,11 @@ public class ReferenceDAO {
                     + ", meshtree\n"
                     + ", author\n"
                     + ", consortium_paper\n"
-                    + ", abstract\n"
+                    + ", abstract"
+                    + ", cited_by\n"
                     + "FROM allele_ref AS ar\n"
                     + whereClause
-                    + "ORDER BY " + orderBy + "\n";
+                    + " ORDER BY " + orderBy + "\n";
 
         System.out.println("alleleRef query 2: " + query);
         List<ReferenceDTO> results = new ArrayList<>();
@@ -462,6 +468,7 @@ public class ReferenceDAO {
                 referenceRow.setAuthor(resultSet.getString("author"));
                 referenceRow.setConsortiumPaper(resultSet.getString("consortium_paper"));
                 referenceRow.setAbstractTxt(resultSet.getString("abstract"));
+                referenceRow.setCitedBy(resultSet.getString("cited_by"));
 
                 results.add(referenceRow);
             }
@@ -585,7 +592,8 @@ public class ReferenceDAO {
               + ", mesh\n"
               + ", meshtree\n"
               + ", consortium_paper\n"
-              + ", abstract\n"
+              + ", abstract"
+              + ", cited_by\n"
               + "FROM allele_ref \n"
               + whereClause
               //+ "GROUP BY pmid\n"
@@ -646,6 +654,7 @@ public class ReferenceDAO {
                 referenceRow.setMeshJsonStr(resultSet.getString("meshtree"));
                 referenceRow.setConsortiumPaper(resultSet.getString("consortium_paper"));
                 referenceRow.setAbstractTxt(resultSet.getString("abstract"));
+                referenceRow.setCitedBy(resultSet.getString("cited_by"));
 
                 results.add(referenceRow);
             }

@@ -485,7 +485,7 @@
                                         var id = oConf.id;
 
                                         $.ajax({
-                                            'url': baseUrl + '/fetchAgencyPapers?doAlleleRef=' + JSON.stringify(oConf),
+                                            'url': baseUrl + '/dataTableAlleleRef2?doAlleleRef=' + JSON.stringify(oConf),
                                             'async': true,
                                             'jsonp': 'json.wrf',
                                             'success': function (json) {
@@ -507,27 +507,33 @@
 
                                                 });
 
-                                                $('table#agency').on("click", "div.abstxt", function(){
-                                                    if ($(this).next().is(":visible")){
+                                                $('table#agency').on("click", "div.valToggle", function(){
+                                                    console.log("ciicked for "+ $(this).attr('id'));
+                                                    if ($(this).next().is(":visible")) {
                                                         $(this).next().hide();
-                                                        $(this).text("Show abstract");
-                                                    }
-                                                    else {
-                                                        $(this).next().show();
-                                                        $(this).text("Hide abstract");
-                                                    }
-                                                });
 
-                                                $('table#agency').on("click", "div.meshTree", function(){
-                                                    //console.log("mesh: "+ $(this).next().text());
-                                                    if ($(this).next().is(":visible")){
-                                                        $(this).next().hide();
-                                                        $(this).text("Show mesh terms");
+                                                        if ($(this).attr('id') == "abstract") {
+                                                            $(this).text("Show abstract");
+                                                        }
+                                                        else if ($(this).attr('id') == "citedBy") {
+                                                            $(this).text("Show citations");
+                                                        }
+                                                        else if ($(this).attr('id') == "meshTree") {
+                                                            $(this).text("Show mesh terms");
+                                                        }
                                                     }
                                                     else {
                                                         $(this).next().show();
-                                                        $(this).text("Hide mesh terms");
-                                                        //showMeshTree($(this).next().text());
+
+                                                        if ($(this).attr('id') == "abstract") {
+                                                            $(this).text("Hide abstract");
+                                                        }
+                                                        else if ($(this).attr('id') == "citedBy") {
+                                                            $(this).text("Hide citations");
+                                                        }
+                                                        else if ($(this).attr('id') == "meshTree") {
+                                                            $(this).text("Hide mesh terms");
+                                                        }
                                                     }
                                                 });
 
@@ -592,7 +598,8 @@
 
                                                 // sort by date_of_publication and reload table with new content
                                                 $('table#'+ id + ' > caption button').on('click', function(){
-                                                    oConf.id = $(this).parent().parent().siblings('div.dataTables_processing').attr('id').replace('_processing','');
+                                                    //oConf.id = $(this).parent().parent().siblings('div.dataTables_processing').attr('id').replace('_processing','');
+                                                    oConf.id = id;
                                                     oConf.consortium = oConf.id == "consortiumPapers" ? true : false;
 
                                                     if ($(this).siblings("i").hasClass("fa-caret-down")){
@@ -605,7 +612,7 @@
                                                     }
 
                                                     $.ajax({
-                                                        'url': baseUrl + '/fetchAgencyPapers?doAlleleRef=' + JSON.stringify(oConf),
+                                                        'url': baseUrl + '/dataTableAlleleRef2?doAlleleRef=' + JSON.stringify(oConf),
                                                         'async': true,
                                                         'jsonp': 'json.wrf',
                                                         'success': function (json) {
@@ -925,26 +932,11 @@
             ],
             "initComplete": function (oSettings, json) {  // when dataTable is loaded
 
-                // // so that the event works with pagination
-                $('table#'+id).on("click", "div.meshTree", function(){
-                    //console.log("mesh: "+ $(this).next().text());
-                    if ($(this).next().is(":visible")){
-                        $(this).next().hide();
-                        $(this).text("Show mesh terms");
-                    }
-                    else {
-                        $(this).next().show();
-                        $(this).text("Hide mesh terms");
-                        //showMeshTree($(this).next().text());
-                    }
-                });
-
                 // download tool
                 oConf.fileName = 'impc_publications';
                 oConf.iDisplayStart = 0;
                 oConf.iDisplayLength = 5000;
                 oConf.dataType = "alleleRef";
-                oConf.rowFormat = true;
 
                 var fileTypeTsv = "fileType=tsv";
                 var fileTypeXls = "fileType=xls";
@@ -984,8 +976,12 @@
 
 				// sort by date_of_publication and reload table with new content
 				$('table#'+ id + ' > caption button').on('click', function(){
-                    oConf.id = $('div.saveTable').siblings('div.dataTables_processing').attr('id').replace('_processing','');
+                    //oConf.id = $('div.saveTable').siblings('div.dataTables_processing').attr('id').replace('_processing','');
+                    oConf.id = id;
                     oConf.consortium = oConf.id == "consortiumPapers" ? true : false;
+
+                    console.log("id: "+ oConf.id);
+                    console.log("consortium: "+ oConf.consortium);
 
 					if ($(this).siblings("i").hasClass("fa-caret-down")){
                         $(this).siblings("i").removeClass("fa-caret-down").addClass("fa-caret-up");
@@ -996,17 +992,18 @@
                         oConf.orderBy = "date_of_publication DESC";
 					}
 
+                    console.log("id: "+ oConf.id);
+                    console.log("consortium: "+ oConf.consortium);
+                    console.log("order: " + oConf.orderBy);
 
 					$.ajax({
 						'url': baseUrl + '/dataTableAlleleRef2?doAlleleRef=' + JSON.stringify(oConf),
 						'async': true,
 						'jsonp': 'json.wrf',
-						'success': function (jsonstr) {
+						'success': function (json) {
 							// utf encoded
-							var j = JSON.parse(jsonstr);
-							oTable.fnClearTable();
-							oTable.fnAddData(j.aaData)
-
+                            oTable.fnClearTable();
+                            oTable.fnAddData(json.aaData)
 						},
                         'error' : function(jqXHR, textStatus, errorThrown) {
                            alert("error: " + errorThrown);
@@ -1015,16 +1012,36 @@
 				});
 
 				// so that the event works with pagination
-                $('table#'+ id).on("click", "div.abstxt", function(){
-                    if ($(this).next().is(":visible")){
+                $('table#'+ id).on("click", "div.valToggle", function(){
+
+                    if ($(this).next().is(":visible")) {
                         $(this).next().hide();
-                        $(this).text("Show abstract");
+
+                        if ($(this).attr('id') == "abstract") {
+                            $(this).text("Show abstract");
+                        }
+                        else if ($(this).attr('id') == "citedBy") {
+                            $(this).text("Show citations");
+                        }
+                        else if ($(this).attr('id') == "meshTree") {
+                            $(this).text("Show mesh terms");
+                        }
                     }
                     else {
                         $(this).next().show();
-                        $(this).text("Hide abstract");
+
+                        if ($(this).attr('id') == "abstract") {
+                            $(this).text("Hide abstract");
+                        }
+                        else if ($(this).attr('id') == "citedBy") {
+                            $(this).text("Hide citations");
+                        }
+                        else if ($(this).attr('id') == "meshTree") {
+                            $(this).text("Hide mesh terms");
+                        }
                     }
                 });
+
 
                 $('table#'+ id).on("click", "div.alleleToggle", function(){
 
