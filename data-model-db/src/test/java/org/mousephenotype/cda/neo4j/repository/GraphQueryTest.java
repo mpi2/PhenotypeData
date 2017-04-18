@@ -268,37 +268,7 @@ public class GraphQueryTest {
         }
     }
 
-    @Test
-    public void testString(){
-        final String heading =
-                "MGI allele symbol"
-                        + "\tMGI allele id"
-                        + "\tIMPC gene link"
-                        + "\tMGI allele name"
-                        + "\tTitle"
-                        + "\tjournal"
-                        + "\tPMID"
-                        + "\tDate of publication"
-                        + "\tGrant id"
-                        + "\tGrant agency"
-                        + "\tPaper link"
-                        + "\tMesh term"
-                        + "\tConsortium paper"
-                        + "\tabstract"
-                        + "\tcited_by";
 
-
-
-        List<String> cols = Arrays.asList(heading.split("\\t"));
-        List<String> cols2 = new ArrayList<>();
-        for (String col : cols){
-            if (!(col.equals("abstract") || col.equals("cited_by")) ){
-                cols2.add(col);
-            }
-        }
-        System.out.println(cols2.size());
-        System.out.println("****" + StringUtils.join(cols2,"\\t"));
-    }
     //@Test
     public void mpChildrenTest() throws Exception {
         List<String> mpIds = Arrays.asList("MP:0005385");
