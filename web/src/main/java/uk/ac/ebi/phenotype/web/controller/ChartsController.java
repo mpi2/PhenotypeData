@@ -36,6 +36,7 @@ import org.mousephenotype.cda.web.ChartType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -90,6 +91,11 @@ public class ChartsController {
     
     @Resource(name = "globalConfiguration")
     private Map<String, String> config;
+
+
+    @Value("${solr_url}")
+    public String SOLR_URL;
+
 
     /**
      * Runs when the request missing an accession ID. This redirects to the
@@ -257,7 +263,7 @@ public class ChartsController {
 //            return "chart";
 //        }
 
-        experiment = experimentService.getSpecificExperimentDTO(parameterStableId, pipelineStableId, accession[0], genderList, zyList, phenotypingCenter, strain, metaDataGroupString, alleleAccession);
+        experiment = experimentService.getSpecificExperimentDTO(parameterStableId, pipelineStableId, accession[0], genderList, zyList, phenotypingCenter, strain, metaDataGroupString, alleleAccession, SOLR_URL);
 
         if (parameterStableId.startsWith("IMPC_VIA_")) {
 			// Its a viability outcome param which means its a line level query
@@ -315,7 +321,7 @@ public class ChartsController {
                         case UNIDIMENSIONAL_ABR_PLOT:
 
                             // get experiments for other parameters too
-                            model.addAttribute("abrChart", abrChartAndTableProvider.getChart(pipelineStableId, accession[0], genderList, zyList, phenotypingCenter, strain, metaDataGroupString, alleleAccession, "abrChart" + experimentNumber));
+                            model.addAttribute("abrChart", abrChartAndTableProvider.getChart(pipelineStableId, accession[0], genderList, zyList, phenotypingCenter, strain, metaDataGroupString, alleleAccession, "abrChart" + experimentNumber, SOLR_URL));
                             break;
 
 	                    case UNIDIMENSIONAL_BOX_PLOT:

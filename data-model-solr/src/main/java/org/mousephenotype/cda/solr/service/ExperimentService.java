@@ -491,7 +491,7 @@ public class ExperimentService{
      * @throws URISyntaxException
      * @throws SpecificExperimentException
      */
-    public ExperimentDTO getSpecificExperimentDTO(String parameterStableId, String pipelineStableId, String acc, List<String> genderList, List<String> zyList, String phenotypingCenter, String strain, String metadataGroup, String alleleAccession)
+    public ExperimentDTO getSpecificExperimentDTO(String parameterStableId, String pipelineStableId, String acc, List<String> genderList, List<String> zyList, String phenotypingCenter, String strain, String metadataGroup, String alleleAccession, String ebiMappedSolrUrl)
     throws SolrServerException, IOException , URISyntaxException, SpecificExperimentException {
 
     	List<ExperimentDTO> experimentList = new ArrayList<>();
@@ -524,21 +524,21 @@ public class ExperimentService{
         }
 
         ExperimentDTO experiment = experimentList.get(0);
-        experiment = setUrls(experiment, parameterStableId, pipelineStableId, acc, zyList, phenotypingCenter, strain, metadataGroup, alleleAccession);
+        experiment = setUrls(experiment, parameterStableId, pipelineStableId, acc, zyList, phenotypingCenter, strain, metadataGroup, alleleAccession, ebiMappedSolrUrl);
 
         return experiment;
 
     }
 
-    private ExperimentDTO setUrls(ExperimentDTO experiment, String parameterStableId, String pipelineStableId, String acc, List<String> zyList, String phenotypingCenter, String strain, String metadataGroup, String alleleAccession){
+    private ExperimentDTO setUrls(ExperimentDTO experiment, String parameterStableId, String pipelineStableId, String acc, List<String> zyList, String phenotypingCenter, String strain, String metadataGroup, String alleleAccession, String ebiMappedSolrUrl){
 
         List<String> phenotypingCenters = new ArrayList<>();
         phenotypingCenters.add(phenotypingCenter);
 
-        experiment.setStatisticalResultUrl(statisticalResultService.getHttpSolrClient().getBaseURL() + "/select?" + statisticalResultService.buildQuery(acc, null, null, phenotypingCenters, null, null, null, null, null,
+        experiment.setStatisticalResultUrl(ebiMappedSolrUrl + "/statistical-result/select?" + statisticalResultService.buildQuery(acc, null, null, phenotypingCenters, null, null, null, null, null,
             null, zyList, strain, parameterStableId, pipelineStableId, metadataGroup, alleleAccession));
 
-        experiment.setGenotypePhenotypeUrl(gpService.getHttpSolrClient().getBaseURL() + "/select?" + gpService.buildQuery(acc, null, null, phenotypingCenters, null, null, null, null, null,
+        experiment.setGenotypePhenotypeUrl(ebiMappedSolrUrl  + "/genotype-phenotype/select?" + gpService.buildQuery(acc, null, null, phenotypingCenters, null, null, null, null, null,
                 null, zyList, strain, parameterStableId, pipelineStableId, null, alleleAccession));
 
         String experimentRawDataUrl = "/exportraw?";
