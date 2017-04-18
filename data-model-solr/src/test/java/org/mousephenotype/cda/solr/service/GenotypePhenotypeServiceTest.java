@@ -27,9 +27,11 @@ import org.junit.runner.RunWith;
 import org.mousephenotype.cda.solr.TestConfigSolr;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.test.SpringApplicationConfiguration;
+//import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit4.SpringRunner;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -43,9 +45,10 @@ import static org.junit.Assert.fail;
 /**
  * @author ilinca
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = {TestConfigSolr.class} )
-@TestPropertySource(locations = {"file:${user.home}/configfiles/${profile:dev}/test.properties"})
+
+@RunWith(SpringRunner.class)
+@TestPropertySource("file:${user.home}/configfiles/${profile:dev}/test.properties")
+@SpringBootTest(classes = TestConfigSolr.class)
 public class GenotypePhenotypeServiceTest {
 
     @Autowired

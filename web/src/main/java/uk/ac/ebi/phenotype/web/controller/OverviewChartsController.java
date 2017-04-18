@@ -18,6 +18,7 @@ package uk.ac.ebi.phenotype.web.controller;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.hibernate.Hibernate;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.mousephenotype.cda.constants.OverviewChartsConstants;
 import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.db.impress.Utilities;
@@ -99,7 +100,11 @@ public class OverviewChartsController {
 			RedirectAttributes attributes) {
 
 		try {
-			return gpService.getPleiotropyMatrix(phenotypeName, idg, idgClass).toString();
+			try {
+				return gpService.getPleiotropyMatrix(phenotypeName, idg, idgClass).toString();
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
 		} catch (IOException | SolrServerException e) {
 			e.printStackTrace();
 		}

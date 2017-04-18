@@ -18,6 +18,7 @@ package uk.ac.ebi.phenotype.web.controller;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.json.JSONException;
 import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
@@ -325,8 +326,12 @@ public class ChartsController {
 
 	                    case UNIDIMENSIONAL_BOX_PLOT:
 
-		                    unidimensionalChartDataSet = continousChartAndTableProvider.doUnidimensionalData(experiment, experimentNumber, parameter, ChartType.UNIDIMENSIONAL_BOX_PLOT, false, xAxisTitle);
-		                    model.addAttribute("unidimensionalChartDataSet", unidimensionalChartDataSet);
+                            try {
+                                unidimensionalChartDataSet = continousChartAndTableProvider.doUnidimensionalData(experiment, experimentNumber, parameter, ChartType.UNIDIMENSIONAL_BOX_PLOT, false, xAxisTitle);
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                            model.addAttribute("unidimensionalChartDataSet", unidimensionalChartDataSet);
 
 		                    scatterChartAndData = scatterChartAndTableProvider.doScatterData(experiment, unidimensionalChartDataSet.getMin(), unidimensionalChartDataSet.getMax(), parameter, experimentNumber);
 		                    model.addAttribute("scatterChartAndData", scatterChartAndData);

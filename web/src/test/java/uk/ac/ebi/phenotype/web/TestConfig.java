@@ -118,7 +118,7 @@ public class TestConfig {
 		return ds;
 	}
 
-	//    <bean id="phenoDigmWebDao" class="uk.ac.sanger.phenodigm2.dao.PhenoDigmWebDaoSolrImpl" />
+	//    <bean id="phenoDigmWebDao" class="uk.ac.sanger.phenodigm2.entity.PhenoDigmWebDaoSolrImpl" />
 
 	@Bean (name="phenoDigmWebDao")
 	public PhenoDigmWebDao phenoDigm(){
@@ -131,7 +131,7 @@ public class TestConfig {
 	public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
 		LocalContainerEntityManagerFactoryBean emf = new LocalContainerEntityManagerFactoryBean();
 		emf.setDataSource(komp2DataSource());
-		emf.setPackagesToScan("org.mousephenotype.cda.db.pojo", "org.mousephenotype.cda.db.dao");
+		emf.setPackagesToScan("org.mousephenotype.cda.db.pojo", "org.mousephenotype.cda.db.entity");
 
 		JpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
 		emf.setJpaVendorAdapter(vendorAdapter);
