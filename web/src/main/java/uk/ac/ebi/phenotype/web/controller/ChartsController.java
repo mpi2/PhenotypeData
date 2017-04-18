@@ -24,6 +24,7 @@ import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.service.ExperimentService;
 import org.mousephenotype.cda.solr.service.GeneService;
 import org.mousephenotype.cda.solr.service.ImpressService;
+import org.mousephenotype.cda.solr.service.StatisticalResultService;
 import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
 import org.mousephenotype.cda.solr.service.dto.GeneDTO;
 import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
@@ -34,6 +35,7 @@ import org.mousephenotype.cda.web.ChartType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -49,6 +51,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Controller
 public class ChartsController {
@@ -77,6 +80,9 @@ public class ChartsController {
     private ExperimentService experimentService;
 
     @Autowired
+    private StatisticalResultService srService;
+
+    @Autowired
     private GeneService geneService;
     
     @Autowired
@@ -84,6 +90,11 @@ public class ChartsController {
     
     @Resource(name = "globalConfiguration")
     private Map<String, String> config;
+
+
+    @Value("${solr_url}")
+    public String SOLR_URL;
+
 
     /**
      * Runs when the request missing an accession ID. This redirects to the
@@ -128,19 +139,22 @@ public class ChartsController {
                          @RequestParam(required = false, value = "chart_type") ChartType chartType,
                          @RequestParam(required = false, value = "pipeline_stable_id") String[] pipelineStableIds,
                          @RequestParam(required = false, value = "allele_accession_id") String[] alleleAccession,
-                         Model model)
-            throws GenomicFeatureNotFoundException, ParameterNotFoundException, IOException, URISyntaxException, SolrServerException {
-
-        if ((accessionsParams != null) && (accessionsParams.length > 0) && (parameterIds != null) && (parameterIds.length > 0)) {
-            for (String parameterStableId : parameterIds) {
-                if (parameterStableId.contains("_FER_")) {
-                    String url = config.get("baseUrl") + "/genes/" + accessionsParams[0];
-                    return "redirect:" + url;
+                         Model model) {
+        try {
+            if ((accessionsParams != null) && (accessionsParams.length > 0) && (parameterIds != null) && (parameterIds.length > 0)) {
+                for (String parameterStableId : parameterIds) {
+                    if (parameterStableId.contains("_FER_")) {
+                        String url = config.get("baseUrl") + "/genes/" + accessionsParams[0];
+                        return "redirect:" + url;
+                    }
                 }
             }
-        }
 
-        return createCharts(accessionsParams, pipelineStableIds, parameterIds, gender, phenotypingCenter, strains, metadataGroup, zygosity, model, chartType, alleleAccession);
+            return createCharts(accessionsParams, pipelineStableIds, parameterIds, gender, phenotypingCenter, strains, metadataGroup, zygosity, model, chartType, alleleAccession);
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        return "";
     }
 
     /**
@@ -248,7 +262,7 @@ public class ChartsController {
 //            return "chart";
 //        }
 
-        experiment = experimentService.getSpecificExperimentDTO(parameterStableId, pipelineStableId, accession[0], genderList, zyList, phenotypingCenter, strain, metaDataGroupString, alleleAccession);
+        experiment = experimentService.getSpecificExperimentDTO(parameterStableId, pipelineStableId, accession[0], genderList, zyList, phenotypingCenter, strain, metaDataGroupString, alleleAccession, SOLR_URL);
 
         if (parameterStableId.startsWith("IMPC_VIA_")) {
 			// Its a viability outcome param which means its a line level query
@@ -306,7 +320,7 @@ public class ChartsController {
                         case UNIDIMENSIONAL_ABR_PLOT:
 
                             // get experiments for other parameters too
-                            model.addAttribute("abrChart", abrChartAndTableProvider.getChart(pipelineStableId, accession[0], genderList, zyList, phenotypingCenter, strain, metaDataGroupString, alleleAccession, "abrChart" + experimentNumber));
+                            model.addAttribute("abrChart", abrChartAndTableProvider.getChart(pipelineStableId, accession[0], genderList, zyList, phenotypingCenter, strain, metaDataGroupString, alleleAccession, "abrChart" + experimentNumber, SOLR_URL));
                             break;
 
 	                    case UNIDIMENSIONAL_BOX_PLOT:
@@ -371,9 +385,10 @@ public class ChartsController {
     
     private String createCharts(String[] accessionsParams, String[] pipelineStableIdsArray, String[] parameterIds, String[] gender, String[] phenotypingCenter,
     			String[] strains, String[] metadataGroup, String[] zygosity, Model model, ChartType chartType, String[] alleleAccession)
-    throws SolrServerException, IOException, GenomicFeatureNotFoundException, ParameterNotFoundException {
+            throws SolrServerException, IOException, GenomicFeatureNotFoundException, ParameterNotFoundException, URISyntaxException {
 
-        GraphUtils graphUtils = new GraphUtils(experimentService);
+        Long time = System.currentTimeMillis();
+        GraphUtils graphUtils = new GraphUtils(experimentService, srService);
         List<String> geneIds = getParamsAsList(accessionsParams);
         List<String> paramIds = getParamsAsList(parameterIds);
         List<String> genderList = getParamsAsList(gender);
@@ -399,6 +414,17 @@ public class ChartsController {
         Set<String> allGraphUrlSet = new LinkedHashSet<>();
         String allParameters = "";
 
+        // All ABR parameters are displayed on the same chart so we don't want to duplicate an identical chart for every ABR parameter
+        List<String> abrParameters =  new ArrayList<>();
+        abrParameters.addAll(paramIds);
+        abrParameters.retainAll(Constants.ABR_PARAMETERS);
+        if (abrParameters.size() > 1){
+            for (int i = 1; i < abrParameters.size(); i++) { // remove all ABR params but the first one
+                paramIds.remove(abrParameters.get(i));
+            }
+        }
+
+
         for (String geneId : geneIds) {
 
             GeneDTO gene = geneService.getGeneById(geneId);
@@ -417,10 +443,9 @@ public class ChartsController {
 
                 ParameterDTO parameter = is.getParameterByStableId(parameterId);
                 pNames.add(StringUtils.capitalize(parameter.getName()) + " (" + parameter.getStableId() + ")");
-
 				// instead of an experiment list here we need just the outline
                 // of the experiments - how many, observation types
-                Set<String> graphUrlsForParam = graphUtils.getGraphUrls(geneId, parameter, pipelineStableIds, genderList, zyList, phenotypingCentersList,
+                Set<String> graphUrlsForParam = graphUtils.getGraphUrls(geneId, parameter, pipelineStableIds, zyList, phenotypingCentersList,
                 								strainsList, metadataGroups, chartType, alleleAccessions);
                 allGraphUrlSet.addAll(graphUrlsForParam);
 
@@ -429,10 +454,9 @@ public class ChartsController {
             allParameters = StringUtils.join(pNames, ", ");
 
         }// end of gene iterations
-        System.out.println("all graphs=" + StringUtils.join(allGraphUrlSet, "\n"));
+        log.info(allGraphUrlSet.size() + " chart links.");
         model.addAttribute("allGraphUrlSet", allGraphUrlSet);
         model.addAttribute("allParameters", allParameters);
-
         return "stats";
     }
 
@@ -504,11 +528,9 @@ public class ChartsController {
      */
     private List<String> getParamsAsList(String[] parameterIds) {
 
-        List<String> paramIds;
-        if (parameterIds == null) {
-            paramIds = new ArrayList<String>();
-        } else {
-            paramIds = Arrays.asList(parameterIds);
+        List<String> paramIds = new ArrayList<String>();
+        if (parameterIds != null) {
+            paramIds.addAll(Arrays.stream(parameterIds).collect(Collectors.toSet()));
         }
         return paramIds;
     }
