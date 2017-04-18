@@ -643,7 +643,7 @@ protected void addAbnormalEmapOntology(){
 	 * @throws SolrServerException
 	 */
 	// Method copied from org.mousephenotype.cda.db.impress.Utilities.
-	// Adjusted to avoid use of Parameter dao obj.
+	// Adjusted to avoid use of Parameter entity obj.
 	// Method should only be used at indexing time. After that query pipeline core to find type.
 	protected ObservationType assignType(ParameterDTO parameter, RunStatus runStatus)
 	throws SolrServerException {
