@@ -87,8 +87,8 @@ public class IndexerMap {
 		return mgiToEmbryoMap;
 	}
 	
-	public Map<String, List<DmddDataUnit>> populateDmddImagedData(String embryoViewerFilename) {
-    	DmddRestGetter dmddGetter=new DmddRestGetter(embryoViewerFilename);
+	public Map<String, List<DmddDataUnit>> populateDmddImagedData(String dmddFileName) {
+    	DmddRestGetter dmddGetter=new DmddRestGetter(dmddFileName);
     	
 		
 		try {
