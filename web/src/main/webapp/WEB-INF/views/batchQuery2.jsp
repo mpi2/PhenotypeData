@@ -429,58 +429,58 @@
 
                     //if ( $(this).is(':checked') ){
 
-						$('div.srchBox').hide();
+                    $('div.srchBox').hide();
 
-                        currDataType = $(this).attr('id');
-                    	checkDataTypeDefaultFields(currDataType);
+                    currDataType = $(this).attr('id');
+                    checkDataTypeDefaultFields(currDataType);
 
-                        // check fields as default when search datatype changes
+                    // check fields as default when search datatype changes
 
-                        // assign to hidden field in fileupload section
-                        $('input#datatype').val(currDataType);
+                    // assign to hidden field in fileupload section
+                    $('input#datatype').val(currDataType);
 
-                        if (currDataType == "mp" || currDataType == "hp" || currDataType == "disease"){
-                            var theSrchBox = $(this).next().next().next();
-                            var theInput = theSrchBox.find('input');
+                    if (currDataType == "mp" || currDataType == "hp" || currDataType == "disease"){
+                        var theSrchBox = $(this).next().next().next();
+                        var theInput = theSrchBox.find('input');
 //                            if (theInput.val() == ''){
 //                                theInput.val('search');
 //                            }
 
-                            theSrchBox.show();
+                        theSrchBox.show();
 
-                            addAutosuggest(theInput);
-                        }
-                        else if (currDataType == "geneChr"){
-                            $(this).next().next().show();
+                        addAutosuggest(theInput);
+                    }
+                    else if (currDataType == "geneChr"){
+                        $(this).next().next().show();
 
-                            //when input change, update $('textarea#pastedList')
-                            $('select#chrSel').change(function() {
-                                var chrStart = $('input#rstart').val() == "" ? "empty" : $('input#rstart').val();
-                                var chrEnd = $('input#rend').val() == "" ? "empty" : $('input#rend').val();
-                                $('textarea#pastedList').val("chr" + this.value + ":" + chrStart + "-" + chrEnd);
-                            });
+                        //when input change, update $('textarea#pastedList')
+                        $('select#chrSel').change(function() {
+                            var chrStart = $('input#rstart').val() == "" ? "empty" : $('input#rstart').val();
+                            var chrEnd = $('input#rend').val() == "" ? "empty" : $('input#rend').val();
+                            $('textarea#pastedList').val("chr" + this.value + ":" + chrStart + "-" + chrEnd);
+                        });
 
-							$('input#rstart, input#rend').keyup(function() {
-							    console.log("getting " + this.val);
-                                var chr = $('select#chrSel').val();
-							    var chrStart = $('input#rstart').val() == "" ? "empty" : $('input#rstart').val();
-                                var chrEnd = $('input#rend').val() == "" ? "empty" : $('input#rend').val();
+                        $('input#rstart, input#rend').keyup(function() {
+                            console.log("getting " + this.val);
+                            var chr = $('select#chrSel').val();
+                            var chrStart = $('input#rstart').val() == "" ? "empty" : $('input#rstart').val();
+                            var chrEnd = $('input#rend').val() == "" ? "empty" : $('input#rend').val();
 
-                                $('textarea#pastedList').val("chr" + chr + ":" + chrStart + "-" + chrEnd);
-                            });
-                        }
+                            $('textarea#pastedList').val("chr" + chr + ":" + chrStart + "-" + chrEnd);
+                        });
+                    }
 
-                        $('textarea#pastedList').val($(this).attr("value"));
+                    $('textarea#pastedList').val($(this).attr("value"));
 
 
-                        //currDataType = parseCurrDataDype(currDataType);
+                    //currDataType = parseCurrDataDype(currDataType);
 
-                        //console.log($(this).attr('id'));
-                        //var id = $(this).attr('id');
-                        //$('div#fullDump').html("<input type='checkbox' id='fulldata' name='fullDump' value='" + id + "'>" + "Export full IMPC dataset via " + currDataType2 + " identifiers");
-                        $('div#fullDump').html("Please refer to our FTP site");
+                    //console.log($(this).attr('id'));
+                    //var id = $(this).attr('id');
+                    //$('div#fullDump').html("<input type='checkbox' id='fulldata' name='fullDump' value='" + id + "'>" + "Export full IMPC dataset via " + currDataType2 + " identifiers");
+                    $('div#fullDump').html("Please refer to our FTP site");
 
-                        // reload dataset fields for selected datatype Id
+                    // reload dataset fields for selected datatype Id
 
 //                        $.ajax({
 //                            url: baseUrl + '/batchquery2-1?core=' + currDataType,
@@ -496,7 +496,7 @@
 //                                window.alert('AJAX error trying to fetch data');
 //                            }
 //                        });
-                   // }
+                    // }
                 });
 
                 // $('textarea#pastedList').val(''); // reset
@@ -508,13 +508,13 @@
             function checkDataTypeDefaultFields(currDataType){
                 var map = {
                     geneId: "mgi_accession_id",
-                	ensembl: "ensembl_gene_id",
-                	geneChr: "marker_symbol",
-                	mp: "mp_id",
-                	human_marker_symbol: "human_gene_symbol",
-                	hp: "hp_id",
-                	disease: "disease_id"
-            	};
+                    ensembl: "ensembl_gene_id",
+                    geneChr: "marker_symbol",
+                    mp: "mp_id",
+                    human_marker_symbol: "human_gene_symbol",
+                    hp: "hp_id",
+                    disease: "disease_id"
+                };
 
                 $('fieldset input').prop('checked', false); // reset first before checking for new field
 
@@ -523,30 +523,30 @@
                 }
                 else if (currDataType == "geneChr"){
                     $('fieldset.mouse').find("input[value='" + map[currDataType] + "']").prop('checked', true);
-				}
+                }
                 else {
                     $('fieldset').find("input[value='" + map[currDataType] + "']").prop('checked', true);
-				}
+                }
 
-				// default
-				if ( ! $('fieldset.mouse').find("input[value='marker_symbol']").is(':checked') ) {
+                // default
+                if ( ! $('fieldset.mouse').find("input[value='marker_symbol']").is(':checked') ) {
                     $('fieldset.mouse').find("input[value='marker_symbol']").prop('checked', true);
                 }
 
             }
 
-//            function parseCurrDataDype(currDataType){
-//                if (currDataType.startsWith("mp")){
-//                    currDataType = "mp";
-//                }
-//                else if (currDataType.startsWith("phenodigm")){
-//                    currDataType = "phenodigm";
-//                }
-//                else if (currDataType.startsWith("gene")){
-//                    currDataType = "gene";
-//                }
-//                return currDataType;
-//            }
+            //            function parseCurrDataDype(currDataType){
+            //                if (currDataType.startsWith("mp")){
+            //                    currDataType = "mp";
+            //                }
+            //                else if (currDataType.startsWith("phenodigm")){
+            //                    currDataType = "phenodigm";
+            //                }
+            //                else if (currDataType.startsWith("gene")){
+            //                    currDataType = "gene";
+            //                }
+            //                return currDataType;
+            //            }
 
             function addAttrChecker() {
                 $('fieldset i').click(function () {
@@ -790,7 +790,7 @@
             }
 
             function submitPastedList(){
-
+alert("do submit query 2")
                 // verify chromosome coords
                 if ($('input.bq:checked').attr('id') == "geneChr"){
                     var chr = $('select#chrSel').val();
@@ -813,10 +813,10 @@
                             }
                             else if (chrStart > chrEnd){
                                 alert("ERROR: start coord is larger than end coord");
-							}
-							else if (chrStart == chrEnd){
+                            }
+                            else if (chrStart == chrEnd){
                                 alert("ERROR: start coord is same as end coord");
-							}
+                            }
                             else if (chrStart > chrlen) {
                                 alert("ERROR: start coord exceeds chromosome range: " + easyReadChrLen);
                             }
@@ -825,7 +825,7 @@
                             }
                             else if (chrStart < 1 || chrEnd < 1){
                                 alert("ERROR: coordinate cannot be less than 1");
-							}
+                            }
                             return false;
                         },
                         error: function() {

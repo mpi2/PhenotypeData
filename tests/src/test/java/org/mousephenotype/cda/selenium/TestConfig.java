@@ -55,7 +55,7 @@ import javax.sql.DataSource;
 
 @Configuration
 @ComponentScan(value = "org.mousephenotype.cda",
-               excludeFilters = @ComponentScan.Filter(type = FilterType.ASPECTJ, pattern = {"org.mousephenotype.cda.db.dao.*OntologyDAO"})
+               excludeFilters = @ComponentScan.Filter(type = FilterType.ASPECTJ, pattern = {"org.mousephenotype.cda.db.entity.*OntologyDAO"})
 )
 @PropertySource("file:${user.home}/configfiles/${profile:dev}/test.properties")
 @EnableAutoConfiguration

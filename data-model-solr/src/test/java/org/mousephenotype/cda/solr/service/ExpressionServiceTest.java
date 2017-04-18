@@ -6,18 +6,20 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.solr.TestConfigSolr;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.SpringApplicationConfiguration;
+//import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit4.SpringRunner;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = {TestConfigSolr.class})
-@TestPropertySource("file:${user.home}/configfiles/${profile:dev}/application.properties")
+@RunWith(SpringRunner.class)
+@TestPropertySource("file:${user.home}/configfiles/${profile:dev}/test.properties")
+@SpringBootTest(classes = TestConfigSolr.class)
 public class ExpressionServiceTest {
 
 

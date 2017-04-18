@@ -9,10 +9,12 @@ import org.mousephenotype.cda.solr.TestConfigSolr;
 import org.mousephenotype.cda.solr.repositories.image.ImagesSolrDao;
 import org.mousephenotype.cda.solr.repositories.image.ImagesSolrJ;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.SpringApplicationConfiguration;
+//import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit4.SpringRunner;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -25,9 +27,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = {TestConfigSolr.class} )
-@TestPropertySource(locations = {"file:${user.home}/configfiles/${profile:dev}/test.properties"})
+@RunWith(SpringRunner.class)
+@TestPropertySource("file:${user.home}/configfiles/${profile:dev}/test.properties")
+@SpringBootTest(classes = TestConfigSolr.class)
 public class ImagesSolrjTest extends AbstractTransactionalJUnit4SpringContextTests{
 
 	@Autowired
