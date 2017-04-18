@@ -1,3 +1,6 @@
+DROP SCHEMA IF EXISTS dcc2test;
+CREATE SCHEMA dcc2test;
+SET SCHEMA dcc2test;
 CREATE TABLE test (id INTEGER, message VARCHAR(64));
 
 --
