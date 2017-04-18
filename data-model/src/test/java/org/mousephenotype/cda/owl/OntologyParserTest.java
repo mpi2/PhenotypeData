@@ -57,6 +57,7 @@ public class OntologyParserTest {
         downloads.put("efo", new Download("EFO", "http://www.ebi.ac.uk/efo/efo.owl", owlpath + "/efo.owl"));
         downloads.put("mphp", new Download("MP", "http://build-artifacts.berkeleybop.org/build-mp-hp-view/latest/mp-hp-view.owl", owlpath + "/mp-hp.owl"));
         downloads.put("mp", new Download("MP", "http://purl.obolibrary.org/obo/mp.owl", owlpath + "/mp.owl"));
+        downloads.put("hp", new Download("HP", "http://purl.obolibrary.org/obo/hp.owl", owlpath + "/hp.owl"));
 
         if ( ! downloadFiles) {
             downloadFiles();
@@ -332,6 +333,34 @@ public class OntologyParserTest {
         Assert.assertTrue(ma.size() == 1);
         Assert.assertTrue(ma.contains("MA:0000009"));
 
+        Set<String> maBrain = mpMaParser.getReferencedClasses("MP:0002152", viaProperties, "MA");
+        Assert.assertTrue(maBrain.contains("MA:0000168"));
+
+    }
+
+    @Test
+    public void testPrefixCheck() throws OWLOntologyCreationException, OWLOntologyStorageException, IOException {
+
+        Set<String> wantedIds = new HashSet<>();
+        wantedIds.add("HP:0001892");
+        OntologyParser hpParser = new OntologyParser(downloads.get("hp").target, "HP", null, wantedIds);
+        Assert.assertTrue(!hpParser.getTermsInSlim().contains("UPHENO:0001002"));
+
+    }
+
+    @Test
+    public void testTopLevelsForHp() throws OWLOntologyCreationException, OWLOntologyStorageException, IOException {
+        Set<String> wantedIds = new HashSet<>();
+        wantedIds.add("HP:0001892");
+        wantedIds.add("HP:0001477");
+        wantedIds.add("HP:0000164");
+        wantedIds.add("HP:0006202"); // child of HP:0001495
+        OntologyParser hpParser = new OntologyParser(downloads.get("hp").target, "HP", OntologyParserFactory.TOP_LEVEL_HP_TERMS, wantedIds);
+        Assert.assertTrue(hpParser.getOntologyTerm("HP:0001892").getTopLevelIds().size() > 0);
+        Assert.assertTrue(hpParser.getOntologyTerm("HP:0001495").getTopLevelIds().size() > 0);
+        Assert.assertTrue(hpParser.getOntologyTerm("HP:0000164").getTopLevelIds().size() > 0);
+        Assert.assertTrue(hpParser.getOntologyTerm("HP:0001477").getTopLevelIds().size() > 0);
+        Assert.assertTrue(hpParser.getOntologyTerm("HP:0001477").getTopLevelIds().contains("HP:0000478"));
     }
 
 }

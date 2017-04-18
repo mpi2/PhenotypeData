@@ -100,7 +100,6 @@ public class AnatomyController {
 		List<PhenotypeTableRowAnatomyPage> phenotypesTable = new ArrayList<>(gpService.getCollapsedPhenotypesForAnatomy(anatomy, request.getAttribute("baseUrl").toString()));
 		Integer genesWithPhenotype = gpService.getGenesByAnatomy(anatomy);
 		Integer testedGenes = srService.getGenesByAnatomy(anatomy);
-		System.out.println("look " + genesWithPhenotype + testedGenes);
 		Map<String, Integer> pieData = new HashMap<>();
 		pieData.put("Phenotype present ", genesWithPhenotype);
 		pieData.put("No phenotype ", testedGenes - genesWithPhenotype);
@@ -250,7 +249,6 @@ public class AnatomyController {
 		} catch (SolrServerException | IOException e) {
 			e.printStackTrace();
 		}
-		System.out.println("phenoFacets="+phenoFacets);
         return phenoFacets;
     }
 

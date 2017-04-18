@@ -442,6 +442,16 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
         // Biological details
         addBiologicalData(doc, doc.getMutantBiologicalModelId());
 
+        // We need life stage to get anatomy mappings from MP.
+        BasicBean stage = getDevelopmentalStage(doc.getPipelineStableId(), doc.getProcedureStableId(), doc.getColonyId());
+        if (stage != null) {
+            doc.setLifeStageAcc(stage.getId());
+            doc.setLifeStageName(stage.getName());
+        } else {
+            logger.info("  Stage is NULL for doc id" + doc.getDocId());
+        }
+
+
         // MP Term details
         addMpTermData(r, doc);
 
@@ -552,51 +562,57 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
                 doc.addIntermediateMpTermId(mpTerm.getIntermediateIds());
                 doc.addIntermediateMpTermName(mpTerm.getIntermediateNames());
 
-                // mp-anatomy mappings (all MA at the moment)
-                if (doc.getLifeStageAcc() != null && doc.getLifeStageAcc().equalsIgnoreCase(POSTPARTUM_STAGE)) {
-                    Set<String> referencedClasses = mpMaParser.getReferencedClasses(mpId, ontologyParserFactory.VIA_PROPERTIES, "MA");
-                    if (referencedClasses != null && referencedClasses.size() > 0) {
-                        for (String id : referencedClasses) {
-                            OntologyTermDTO maTerm = maParser.getOntologyTerm(id);
+                addAnatomyMapping(doc, mpTerm);
+            }
+        }
+    }
 
-                            if (maTerm != null) {
-                                doc.addAnatomyTermId(id);
-                                doc.addAnatomyTermName(maTerm.getName());
-                            } if (maTerm.getIntermediateIds() != null) {
-                                doc.addIntermediateAnatomyTermId(maTerm.getIntermediateIds());
-                                doc.addIntermediateAnatomyTermName(maTerm.getIntermediateNames());
-                            } if (maTerm.getTopLevelIds() != null){
-                                doc.addTopLevelAnatomyTermId(maTerm.getTopLevelIds());
-                                doc.addTopLevelAnatomyTermName(maTerm.getTopLevelNames());
-                            }
-                        }
-                    }
-                    // Also check mappings up the tree, as a leaf term might not have a mapping, but the parents might.
-                    Set<String> anatomyIdsForAncestors = new HashSet<>();
-                    for (String mpAncestorId : mpTerm.getIntermediateIds()) {
-                        if (mpMaParser.getReferencedClasses(mpAncestorId, ontologyParserFactory.VIA_PROPERTIES, "MA") != null) {
-                            anatomyIdsForAncestors.addAll(mpMaParser.getReferencedClasses(mpAncestorId, ontologyParserFactory.VIA_PROPERTIES, "MA") );
-                        }
-                    }
+    private void addAnatomyMapping(StatisticalResultDTO doc, OntologyTermDTO mpTerm){
 
-                    for (String id : anatomyIdsForAncestors) {
-                        OntologyTermDTO maTerm = maParser.getOntologyTerm(id);
-                        if (maTerm != null) {
-                            doc.addIntermediateAnatomyTermId(id);
-                            doc.addIntermediateAnatomyTermName(maTerm.getName());
-                        }
-                        if (maTerm.getIntermediateIds() != null){
-                            doc.addIntermediateAnatomyTermId(maTerm.getIntermediateIds());
-                            doc.addIntermediateAnatomyTermName(maTerm.getIntermediateNames());
-                        }
-                        if (maTerm.getTopLevelIds() != null){
-                            doc.addTopLevelAnatomyTermId(maTerm.getTopLevelIds());
-                            doc.addTopLevelAnatomyTermName(maTerm.getTopLevelNames());
-                        }
+        // mp-anatomy mappings (all MA at the moment)
+        if (doc.getLifeStageAcc() != null && doc.getLifeStageAcc().equalsIgnoreCase(POSTPARTUM_STAGE)) {
+            Set<String> referencedClasses = mpMaParser.getReferencedClasses(doc.getMpTermId(), ontologyParserFactory.VIA_PROPERTIES, "MA");
+            if (referencedClasses != null && referencedClasses.size() > 0) {
+                for (String id : referencedClasses) {
+                    OntologyTermDTO maTerm = maParser.getOntologyTerm(id);
+
+                    if (maTerm != null) {
+                        doc.addAnatomyTermId(id);
+                        doc.addAnatomyTermName(maTerm.getName());
+                    } if (maTerm.getIntermediateIds() != null) {
+                        doc.addIntermediateAnatomyTermId(maTerm.getIntermediateIds());
+                        doc.addIntermediateAnatomyTermName(maTerm.getIntermediateNames());
+                    } if (maTerm.getTopLevelIds() != null){
+                        doc.addTopLevelAnatomyTermId(maTerm.getTopLevelIds());
+                        doc.addTopLevelAnatomyTermName(maTerm.getTopLevelNames());
                     }
                 }
             }
+            // Also check mappings up the tree, as a leaf term might not have a mapping, but the parents might.
+            Set<String> anatomyIdsForAncestors = new HashSet<>();
+            for (String mpAncestorId : mpTerm.getIntermediateIds()) {
+                if (mpMaParser.getReferencedClasses(mpAncestorId, ontologyParserFactory.VIA_PROPERTIES, "MA") != null) {
+                    anatomyIdsForAncestors.addAll(mpMaParser.getReferencedClasses(mpAncestorId, ontologyParserFactory.VIA_PROPERTIES, "MA") );
+                }
+            }
+
+            for (String id : anatomyIdsForAncestors) {
+                OntologyTermDTO maTerm = maParser.getOntologyTerm(id);
+                if (maTerm != null) {
+                    doc.addIntermediateAnatomyTermId(id);
+                    doc.addIntermediateAnatomyTermName(maTerm.getName());
+                }
+                if (maTerm.getIntermediateIds() != null){
+                    doc.addIntermediateAnatomyTermId(maTerm.getIntermediateIds());
+                    doc.addIntermediateAnatomyTermName(maTerm.getIntermediateNames());
+                }
+                if (maTerm.getTopLevelIds() != null){
+                    doc.addTopLevelAnatomyTermId(maTerm.getTopLevelIds());
+                    doc.addTopLevelAnatomyTermName(maTerm.getTopLevelNames());
+                }
+            }
         }
+
     }
 
     /**
