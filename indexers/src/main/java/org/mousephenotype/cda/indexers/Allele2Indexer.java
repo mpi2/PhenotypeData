@@ -47,6 +47,7 @@ public class Allele2Indexer  extends AbstractIndexer implements CommandLineRunne
     @Override
     public RunStatus run() throws IndexerException, IOException, SolrServerException, SQLException {
 
+
         RunStatus runStatus = new RunStatus();
 
         allele2Core.deleteByQuery("*:*");

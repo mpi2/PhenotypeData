@@ -17,6 +17,7 @@ package uk.ac.ebi.phenotype.web.controller;
 
 import org.apache.commons.lang.StringUtils;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -162,9 +163,18 @@ public class PresentationsController {
 
         List<String> tds = new ArrayList<>();
         for(String key : colsOrder.get(secName)){
-            String val = thisValSet.getString(key);
+            String val = null;
+            try {
+                val = thisValSet.getString(key);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
             if (key.equals("file")) {
-                val = "<a href='" + ftpPath + secName + "/" + thisValSet.getString(key) + "'>" + val + "</a>";
+                try {
+                    val = "<a href='" + ftpPath + secName + "/" + thisValSet.getString(key) + "'>" + val + "</a>";
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
             }
             tds.add("<td>" + val + "</td>");
         }
