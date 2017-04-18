@@ -292,8 +292,16 @@ public class GraphQueryTest {
 
 
 
-        List<String> cols = Arrays.asList(StringUtils.split(heading, "\\\\t"));
-        System.out.println("****" + cols);
+        List<String> cols = Arrays.asList(heading.split("\\t"));
+        int index = 0;
+        for (String col : cols){
+            if (col.equals("abstract") || cols.equals("cited_by")){
+                cols.remove(index);
+            }
+            index++;
+        }
+        System.out.println(cols.size());
+        System.out.println("****" + StringUtils.join(cols,","));
     }
     //@Test
     public void mpChildrenTest() throws Exception {
