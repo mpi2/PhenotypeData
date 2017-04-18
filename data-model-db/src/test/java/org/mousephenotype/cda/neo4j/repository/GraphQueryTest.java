@@ -1,5 +1,6 @@
 package org.mousephenotype.cda.neo4j.repository;
 
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.db.TestConfig;
@@ -270,8 +271,31 @@ public class GraphQueryTest {
         }
     }
 
-
     @Test
+    public void testString(){
+        final String heading =
+                "MGI allele symbol"
+                        + "\tMGI allele id"
+                        + "\tIMPC gene link"
+                        + "\tMGI allele name"
+                        + "\tTitle"
+                        + "\tjournal"
+                        + "\tPMID"
+                        + "\tDate of publication"
+                        + "\tGrant id"
+                        + "\tGrant agency"
+                        + "\tPaper link"
+                        + "\tMesh term"
+                        + "\tConsortium paper"
+                        + "\tabstract"
+                        + "\tcited_by";
+
+
+
+        List<String> cols = Arrays.asList(StringUtils.split(heading, "\\\\t"));
+        System.out.println("****" + cols);
+    }
+    //@Test
     public void mpChildrenTest() throws Exception {
         List<String> mpIds = Arrays.asList("MP:0005385");
     //    List<String> mpIds = Arrays.asList("cardiovascular system phenotype");
