@@ -18,7 +18,6 @@
 package org.mousephenotype.cda.db.dao;
 
 import junit.framework.TestCase;
-import org.hibernate.SessionFactory;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.db.TestConfig;
@@ -40,10 +39,6 @@ public class BiologicalModelDAOTest extends TestCase {
 	@NotNull
 	@Autowired
 	BiologicalModelDAO bmDao;
-
-	@NotNull
-	@Autowired
-	SessionFactory sf;
 
 	@Test
 	public void testGetAllBiologicalModels() throws Exception {

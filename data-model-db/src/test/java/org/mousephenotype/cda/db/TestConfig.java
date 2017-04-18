@@ -125,6 +125,7 @@ public class TestConfig {
 		return new EmbeddedDatabaseBuilder().setType(EmbeddedDatabaseType.H2)
 			.ignoreFailedDrops(true)
 			.setName("dcc1test")
+			.addScript("sql/dcc1-test-data.sql")
 			.build();
 	}
 
@@ -180,6 +181,7 @@ public class TestConfig {
 		return new EmbeddedDatabaseBuilder().setType(EmbeddedDatabaseType.H2)
 			.ignoreFailedDrops(true)
 			.setName("dcc2test")
+			.addScript("sql/dcc2-test-data.sql")
 			.build();
 	}
 
