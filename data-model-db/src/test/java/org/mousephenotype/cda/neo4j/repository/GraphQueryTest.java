@@ -14,10 +14,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -293,15 +290,14 @@ public class GraphQueryTest {
 
 
         List<String> cols = Arrays.asList(heading.split("\\t"));
-        int index = 0;
+        List<String> cols2 = new ArrayList<>();
         for (String col : cols){
-            if (col.equals("abstract") || cols.equals("cited_by")){
-                cols.remove(index);
+            if (!(col.equals("abstract") || col.equals("cited_by")) ){
+                cols2.add(col);
             }
-            index++;
         }
-        System.out.println(cols.size());
-        System.out.println("****" + StringUtils.join(cols,","));
+        System.out.println(cols2.size());
+        System.out.println("****" + StringUtils.join(cols2,"\\t"));
     }
     //@Test
     public void mpChildrenTest() throws Exception {
