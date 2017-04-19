@@ -14,10 +14,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -271,38 +268,7 @@ public class GraphQueryTest {
         }
     }
 
-    @Test
-    public void testString(){
-        final String heading =
-                "MGI allele symbol"
-                        + "\tMGI allele id"
-                        + "\tIMPC gene link"
-                        + "\tMGI allele name"
-                        + "\tTitle"
-                        + "\tjournal"
-                        + "\tPMID"
-                        + "\tDate of publication"
-                        + "\tGrant id"
-                        + "\tGrant agency"
-                        + "\tPaper link"
-                        + "\tMesh term"
-                        + "\tConsortium paper"
-                        + "\tabstract"
-                        + "\tcited_by";
 
-
-
-        List<String> cols = Arrays.asList(heading.split("\\t"));
-        int index = 0;
-        for (String col : cols){
-            if (col.equals("abstract") || cols.equals("cited_by")){
-                cols.remove(index);
-            }
-            index++;
-        }
-        System.out.println(cols.size());
-        System.out.println("****" + StringUtils.join(cols,","));
-    }
     //@Test
     public void mpChildrenTest() throws Exception {
         List<String> mpIds = Arrays.asList("MP:0005385");
