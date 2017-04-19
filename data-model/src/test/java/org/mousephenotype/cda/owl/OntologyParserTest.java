@@ -16,6 +16,8 @@ import org.semanticweb.owlapi.model.OWLOntologyStorageException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import uk.ac.manchester.cs.owl.owlapi.OWLObjectPropertyImpl;
@@ -54,6 +56,8 @@ public class OntologyParserTest {
     @Before
     public void setUp() throws Exception {
 
+        String mpExtMerged = owlpath + "/mp-ext-merged.owl";
+
         downloads.put("efo", new Download("EFO", "http://www.ebi.ac.uk/efo/efo.owl", owlpath + "/efo.owl"));
         downloads.put("mphp", new Download("MP", "http://build-artifacts.berkeleybop.org/build-mp-hp-view/latest/mp-hp-view.owl", owlpath + "/mp-hp.owl"));
         downloads.put("mp", new Download("MP", "http://purl.obolibrary.org/obo/mp.owl", owlpath + "/mp.owl"));
@@ -63,6 +67,10 @@ public class OntologyParserTest {
             downloadFiles();
             downloadFiles = true;
         }
+
+        // Copy static owl file for testMpMaMapping()
+        Resource resource = new ClassPathResource("mp-ext-merged.owl");
+        Files.copy(resource.getInputStream(), Paths.get(mpExtMerged), StandardCopyOption.REPLACE_EXISTING);
     }
 
     private class Download {
@@ -118,8 +126,7 @@ public class OntologyParserTest {
         }
     }
 
-
-    @Ignore
+@Ignore
     @Test
     public void testOwlOntologyDownloads() throws Exception {
         String message;
