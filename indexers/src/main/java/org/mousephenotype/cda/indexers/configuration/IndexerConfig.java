@@ -193,7 +193,7 @@ public class IndexerConfig {
     }
 
 
-	@Bean(name = "sessionFactory")
+	@Bean(name = "sessionFactoryHibernate")
 	@Primary
 	public SessionFactory getSessionFactory() {
 
