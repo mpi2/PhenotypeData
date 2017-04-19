@@ -75,7 +75,7 @@
 		                        	
 		                        	</div>
 		                        	
-		                        	<div class="clear both"></div>
+		                        	
 		                        
 		                    	</div>
 		                    	
@@ -103,6 +103,55 @@
 		                        	</div>
 		                        	
 		                        	<div class="clear both"></div>
+		                        
+		                    	</div>
+		                    	
+		                    	
+		                    	<div class="section">
+		                        <h2>
+		                        Approach
+
+		                        </h2>
+		                        	<div class="inner">
+		                        	<p>Historically, medical research has typically ignored the potential effect of sex on disease and assumed that findings for one sex would apply to the other. However, evidence has accumulated that indicates that sex has an effect on the prevalence, course and severity of the majority of common diseases. The latter view has started to influence the way in which research is conducted, with both sexes assessed separately. However, concerns have also been raised about the increasing costs associated to this approach and its relevance.
+
+Previously and newly released IMPC data from 14,250 wildtype and 40,192 mutant mice, from 2,186 single gene knockout lines, has been analysed taking sex into consideration. These analyses revealed that 9.9% of categorical (qualitative) and 56.6% of continuous (quantitative) datasets were sexually dimorphic in wildtype mice. In addition, sex modified the genotype effect on mutant phenotypes in 13.3% of qualitative datasets and up to 17.7% of quantitative datasets. 
+</p>
+<ul>
+<li>Weight was included as a covariate in the continuous data set analyses, as body size is dimorphic between male and female mice and many continuous traits correlate with body weight.</li>
+<li>
+2,186 mutant lines were analysed to determine: (1) whether the genotype significantly influenced the phenotype; and (2) if significant, whether sex influenced the phenotype.</li>
+</ul>
+<p>Weight will be included as a covariate in all future IMPC production analysis.</p>
+		                        	
+			                        	 
+		                        	</div>
+		                        	
+		                        	
+		                        
+		                    	</div>
+		                    	
+		                    	<div class="section">
+		                        <h2>
+		                        Vignettes
+								</h2>
+		                        	<div class="inner">
+		                        	<p>
+		                        		Of the sexually dimorphic calls in knockout mice, 3.5% demonstrated a phenotype that was significant in both sexes but with opposing changes
+		                        		
+		                        	</p>
+			                        	 <div class="third">
+			                				
+			            				</div>
+			           					<div class="third">
+			                				
+			            				</div>
+			            				<div class="third">
+			                				
+			            				</div>
+		                        	</div>
+		                        	
+		                        	
 		                        
 		                    	</div>
 
