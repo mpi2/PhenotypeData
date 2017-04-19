@@ -20,7 +20,7 @@ public class SexualDimorphismController {
     throws SolrServerException, IOException {
 
         //model.addAttribute("manuscriptLink", ));
-        return "sd";
+        return "sexualDimorphism";
     }
 
 }
