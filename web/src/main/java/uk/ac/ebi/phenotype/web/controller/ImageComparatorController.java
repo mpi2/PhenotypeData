@@ -172,8 +172,12 @@ public class ImageComparatorController {
 			url2=urlList[2];
 		}
 		System.out.println("calling image imageComparatorUrls with "+url1+" url2= "+url2);
+		if(url1.contains("omeroweb.jax.org")){
 		model.addAttribute("url1", url1);
+		}
+		if(url2.contains("omeroweb.jax.org")){
 		model.addAttribute("url2", url2);
+		}
 		return "comparatorUrls";//js viewport used to view images in this view.
 	}
 	
