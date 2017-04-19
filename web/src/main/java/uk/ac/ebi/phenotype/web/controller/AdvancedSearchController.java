@@ -130,7 +130,7 @@ public class AdvancedSearchController {
 
     }
 
-    @RequestMapping(value="/batchQuery3", method=RequestMethod.GET)
+    @RequestMapping(value="/advancedSearch", method=RequestMethod.GET)
     public String loadBatchQueryPage3(
             @RequestParam(value = "core", required = false) String core,
             @RequestParam(value = "fllist", required = false) String fllist,
@@ -148,7 +148,7 @@ public class AdvancedSearchController {
         }
 
 
-        return "batchQuery3";
+        return "advancedSearch";
     }
     @RequestMapping(value="/batchQuery2", method=RequestMethod.GET)
     public String loadBatchQueryPage2(

@@ -2814,7 +2814,8 @@ public class DataTableController {
 //					+ "acronym AS acronym,"
 					+ "title,"
 					+ "paper_url, "
-					+ "consortium_paper "
+					+ "consortium_paper, "
+					+ "cites_consortium_paper "
 					+ "FROM allele_ref "
 					+ "WHERE falsepositive='no' "
 					+ "AND (symbol LIKE ? "
@@ -2836,7 +2837,8 @@ public class DataTableController {
 //					+ "agency AS agency,"
 					+ "title,"
 					+ "paper_url, "
-					+ "consortium_paper "
+					+ "consortium_paper, "
+					+ "cites_consortium_paper "
 					+ "FROM allele_ref "
 					+ "WHERE falsepositive='no' "
 					+ "ORDER BY reviewed DESC limit ?,?";
@@ -2878,12 +2880,21 @@ public class DataTableController {
 				if (editMode){
 					String falsePositive = "<input type='checkbox' name='falsepositive'>False positive<br>";
 					String reviewed = resultSet.getString("reviewed").equals("yes") ? "<input type='checkbox' checked name='reviewed'>Reviewed<br>" : "<input type='checkbox' name='reviewed'>Reviewed<br>";
-					String consortiumPaper = resultSet.getString("consortium_paper").equals("yes") ? "<input type='checkbox' checked name='consortium_paper'>Consortium paper<br><br>" : "<input type='checkbox' name='consortium_paper'>Consortium paper<br><br>";
+					String consortiumPaper = resultSet.getString("consortium_paper").equals("yes") ? "<input type='checkbox' checked name='consortium_paper'>Consortium paper<br><br>" : "<input type='checkbox' name='consortium_paper'>Consortium paper<br>";
+					String yesNo = resultSet.getString("cites_consortium_paper");
+					String citesConsortiumPaper = "<span class='citation'>Cites consortium paper: "+ yesNo + "</span><br><br>";
+
+					String reason = "";
+//					if (yesNo.equals("yes")){
+//						reason = "<textarea name='citeReason'>Reasons citing a consortium paper</textarea><br><br>";
+//					}
 
 					alleleSymbol = "<form class='alleleSub'>"
 							+ falsePositive
 							+ reviewed
 							+ consortiumPaper
+							+ citesConsortiumPaper
+							+ reason
 							+ "<textarea name='asymbolForm'>" + alleleSymbol + "</textarea><br><br>"
 							+ "<input class='update' type='button' value='Update'>"
 							+ "<a><i class='fa fa-question-circle fa-1x howto'></i></a>"
