@@ -23,6 +23,9 @@
 			button#clearAllDt {
 				margin-left: 50px;
 			}
+			fieldset.fsfilter {
+				background-color: aliceblue;
+			}
 			fieldset {
 				padding: 3px 10px;
 				border: 1px solid lightgrey;
@@ -47,6 +50,22 @@
 			}
 			fieldset.dfilter {
 				border: 1px solid darkslategray;
+			}
+			form#goSubmit {
+				padding: 0;
+				border: none;
+			}
+			form#goSubmit input[type="submit"] {
+				background: lightgrey;
+				cursor: not-allowed;
+			}
+			form#goSubmit input[type="submit"].active {
+				background: #0978A1;
+				cursor: pointer;
+			}
+			div#sq {
+				text-align: center;
+				margin-top: 20px;
 			}
 			div#tableTool {
 				position: relative;
@@ -84,17 +103,20 @@
 				cursor: pointer;
 				color: #0978A1;
 			}
+			div.srchBox {
+				margin: 2px !important;
+			}
 			div.srchBox input {
 				height: 25px !important;
 				padding: 0 0 0 25px;
-				width: 350px;
+				width: 450px;
 			}
 			div.srchBox {position: relative;}
 			div.srchBox i.fa-search {position: absolute; top: 10px; left: 10px;}
 			div.srchBox i.fa-times {
 				position: absolute;
 				top: 10px;
-				left: 360px;
+				left: 460px;
 				cursor: pointer;
 			}
 			span.sugListPheno {
@@ -404,7 +426,8 @@
                             {"chromosome start": "chrStart"},
                             { "chromosome end": "chrEnd"},
                             {"chromosome strand": "chrStrand"},
-                            {"MGI gene synonym":"markerSynonym"}
+                            {"MGI gene synonym":"markerSynonym"},
+                            {"Ensembl gene id":"ensemblGeneId"}
 
                         ],
                         findBy: [
@@ -437,23 +460,23 @@
                             }
                         ]
                     },
-                    "EnsemblGeneId": {
-                        text: "Ensembl\nGene Id",
-                        x: 800,
-                        y: 40,
-                        r:30,
-                        fields: [
-                            {"Ensembl gene id":"ensemblGeneId"}
-                        ],
-                        findBy: [
-                            {
-                                "ID": {
-                                    "property": "ensemblGeneId",
-                                    "eg": "ENSMUSG00000020844"
-                                }
-                            }
-                        ]
-                    },
+//                    "EnsemblGeneId": {
+//                        text: "Ensembl\nGene Id",
+//                        x: 800,
+//                        y: 40,
+//                        r:30,
+//                        fields: [
+//                            {"Ensembl gene id":"ensemblGeneId"}
+//                        ],
+//                        findBy: [
+//                            {
+//                                "ID": {
+//                                    "property": "ensemblGeneId",
+//                                    "eg": "ENSMUSG00000020844"
+//                                }
+//                            }
+//                        ]
+//                    },
 //                    "MarkerSynonym": {
 //                        text: "MGI Marker\nSynonym",
 //                        x: 470,
@@ -591,7 +614,7 @@
 
                 // connect circles
                 connectCircle("Gene", "HumanGeneSymbol");
-                connectCircle("Gene", "EnsemblGeneId");
+                //connectCircle("Gene", "EnsemblGeneId");
                 //connectCircle("Gene", "MarkerSynonym");
                 connectCircle("Gene", "Allele");
                 connectCircle("MouseModel", "Gene");
@@ -617,89 +640,12 @@
                             removeDatatypeFiltersAttributes(circle.data("id"));
                         }
                     }
-//                paper.forEach(function (el) {
-//                });
+                	// grayout submit button as there is no filters/attributes selected
+                    $("input[type='submit']").prop('disabled', true).removeClass('active');
+                    return false;
                 });
 
                 $( "#accordion" ).accordion();
-
-
-                // reset to default when page loads
-                $('input#mouseMarkerSymbol').prop("checked", true) // check datatyep ID as gene by default
-                $('textarea#pastedList').val($('input#mouseMarkerSymbol').attr("value"));
-                $('fieldset#ontoLevel').hide();
-
-
-                var nodeType = mapInputId2NodeType($('input.bq:checked').attr('id'));
-                drawnCircles[nodeType].click();
-
-                var currDataType  = false;
-
-                $('div.srchBox input').click(function(){
-                    if ($(this).val()=="search"){
-                        $(this).val("");
-                    }
-                    $('textarea#pastedList').val('');
-                });
-
-                $('div.srchBox i.fa-times').click(function(){
-                    $(this).siblings('input').val('');
-                    $('textarea#pastedList').val('');
-                });
-
-                // fetch dynamic data fields as radios
-                $('input.bq').click(function(){
-
-                    var nodeType = mapInputId2NodeType($('input.bq:checked').attr('id'));
-                    $('span#restriction').text(nodeType == 'DiseaseModel' ? 'diseases' : 'phenotypes');
-
-                    $('button#clearAllDt').click(); // clear first
-                    drawnCircles[nodeType].click();
-
-                    $('div.srchBox').hide();
-
-                    currDataType = $(this).attr('id');
-
-                    // assign to hidden field in fileupload section
-                    $('input#datatype').val(currDataType);
-
-                    if (currDataType == "mpTerm" || currDataType == "hpTerm" || currDataType == "diseaseTerm"){
-                        var theSrchBox = $(this).next().next().next();
-                        var theInput = theSrchBox.find('input');
-
-                        theSrchBox.show();
-
-                        // also check that customed filter contains chromosome range filter
-                        addAutosuggest(theInput);
-                    }
-                    else if (currDataType == "geneChr"){
-                        $(this).next().next().show();
-
-                        //when input change, update $('textarea#pastedList')
-                        $('select#chrSel').change(function() {
-                            console.log('chr changed')
-                            var chrStart = $('input#rstart').val() == "" ? "empty" : $('input#rstart').val();
-                            var chrEnd = $('input#rend').val() == "" ? "empty" : $('input#rend').val();
-                            $('textarea#pastedList').val("chr" + this.value + ":" + chrStart + "-" + chrEnd);
-                        });
-
-                        $('input#rstart, input#rend').keyup(function() {
-                            var chr = $('select#chrSel').val();
-                            var chrStart = $('input#rstart').val() == "" ? "empty" : $('input#rstart').val();
-                            var chrEnd = $('input#rend').val() == "" ? "empty" : $('input#rend').val();
-
-                            $('textarea#pastedList').val("chr" + chr + ":" + chrStart + "-" + chrEnd);
-                        });
-                    }
-
-                    $('textarea#pastedList').val($(this).attr("value"));
-
-                    $('div#fullDump').html("Please refer to our FTP site");
-
-                });
-
-                $('input#fileupload').val(''); // reset
-                $('input#fulldata').attr('checked', false); // reset
 
             });
                 function connectCircle(id1, id2) {
@@ -745,14 +691,16 @@
 
                     var kv = {};
                     kv["properties"] = [];
-                    kv["properties"].push("searchBy"); // default 1st column
 
+                    //-----------------
+                    //   attributes
+                    //-----------------
                     $('fieldset input:checked').each(function () {
                         var dataType = $(this).parent().attr('id');
                         var property = $(this).val();
 
-                        // some converion here for markerSynonym and Ontosynonym
-						// as they are includded in gene or mp, hp for user friendly
+                        // some conversion here for markerSynonym and Ontosynonym
+						// as they are included in gene or mp, hp for user friendly
 						// purpose, but they themselves are nodeEntities
 						// other than gene, mp or hp
                         if (property == "markerSynonym"){
@@ -760,6 +708,9 @@
 						}
 						else if (property == "ontoSynonym"){
                             dataType = "OntoSynonym";
+						}
+						else if (property == "ensemblGeneId"){
+						    dataType = "EnsemblGeneId";
 						}
 
                         console.log(dataType + " --- " + property);
@@ -772,37 +723,40 @@
                         kv["properties"].push(property);
                     });
 
-                    if ($('input.bq:checked').attr('id') == "geneChr") {
+                    //-----------------
+                    //     filters
+					//-----------------
+					// chr range for genes
+                    if ($('fieldset#chromosome').is(":visible")) {
                         var chrId = $('select#chrSel').val();
                         var chrStart = $('input#rstart').val();
                         var chrEnd = $('input#rend').val();
-                        kv = checkChrCoords(chrId, chrStart, chrEnd, kv);
-                        if ( kv == false){
-                            return false;
-                        }
-                    }
-                    if ($('fieldset#chromosome').is(":visible")) {
-                        var chrId = $('select#chrSel2').val();
-                        if (chrId != 0){
-                            kv['chr'] = chrId;
-                        }
-                        //var chrStart = $('input#rstart2').val();
-                        //var chrEnd = $('input#rend2').val();
-//                        if ( chrStart + chrEnd != 0) {
-//                            console.log("check chr" + chrId + ":" + chrStart + "-" + chrEnd);
-//							kv = checkChrCoords(chrId, chrStart, chrEnd, kv);
-//							if (kv == false) {
-//								return false;
-//							}
-//                    	}
 
+						kv = checkChrCoords(chrId, chrStart, chrEnd, kv);
+						if (kv == false) {
+							return false;
+						}
                     }
-                    if ($('fieldset#ontoLevel').is(":visible")) {
-                        var level = $('select#childLevel').val();
-                        console.log("children level down: "+ level);
-                        if (level != 0) {
-                            kv['childLevel'] = level;
+
+                    // phenotype child level
+                    $('select.inputlevel').each(function() {
+                        var fs = $(this).parent();
+                        if (fs.is(":visible")) {
+                            kv[fs.find('select').attr('id')] = fs.find('select').val();
                         }
+                    });
+
+                    // disease, mp, hp autosuggest
+					var srchSugs = ["Mp", "Hp", "DiseaseModel"];
+					for (var s=0; s<srchSugs.length; s++) {
+					    var v = srchSugs[s];
+                        var type = 'srch' + v;
+                        kv[type] = [];
+                        if ($('fieldset#'+v).is(":visible")){
+							$('input.'+type).each(function(){
+								kv[type].push($(this).val());
+							});
+						}
                     }
 
                     console.log("check kv");
@@ -810,28 +764,41 @@
                     return kv;
                 }
 
-                function checkChrCoords(chrId, chrStart, chrEnd, kv){
+                function checkChrCoords(chrId, chrStart, chrEnd, kv) {
+					if (chrId == "" && chrStart == "" && chrEnd == ""){
+					    return kv;
+					}
+                    else if (chrId == "") {
+                        alert("ERROR: chromosome is not chosen");
+                        return false;
+                    }
+                    else if (chrStart != "" || chrEnd != "") {
 
-                    if (chrStart == 0 || chrEnd == 0){
-                        alert("ERROR: chromosome coordinate cannot be 0");
-                        return false;
-                    }
-                    else if (! $.isNumeric(chrStart) || ! $.isNumeric(chrEnd)){
-                        alert("ERROR: chromosome coordinate must be numeric");
-                        return false;
-                    }
-                    else if (chrStart == chrEnd){
-                        alert("ERROR: chromosome start and end cannot be the same");
-                        return false;
-                    }
-                    else if (parseInt(chrStart) > parseInt(chrEnd)){
-                        alert("ERROR: chromosome range is not right");
-                        return false;
-                    }
-                    else {
-                        kv['chrRange'] = "chr" + chrId + ":" + chrStart + "-" + chrEnd;
-                        return kv;
-                    }
+						if (chrStart == 0 || chrEnd == 0) {
+							alert("ERROR: chromosome coordinate cannot be 0");
+							return false;
+						}
+						else if (!$.isNumeric(chrStart) || !$.isNumeric(chrEnd)) {
+							alert("ERROR: chromosome coordinate must be numeric");
+							return false;
+						}
+						else if (chrStart == chrEnd) {
+							alert("ERROR: chromosome start and end cannot be the same");
+							return false;
+						}
+						else if (parseInt(chrStart) > parseInt(chrEnd)) {
+							alert("ERROR: chromosome range is not right");
+							return false;
+						}
+						else {
+							kv['chrRange'] = "chr" + chrId + ":" + chrStart + "-" + chrEnd;
+							return kv;
+						}
+                	}
+                	else if (chrId != "" && chrStart == "" && chrEnd == ""){
+						kv["chr"] = chrId;
+						return kv;
+					}
                 }
 
                 function mapInputId2NodeType(key){
@@ -872,17 +839,17 @@
 
                     // generic search input autocomplete javascript
                     var docType = null;
-                    var inputType = thisInput.attr('id');
+                    //var inputType = thisInput.attr('id');
                     var solrBq = "";
-                    if ( inputType == 'srchMp'){
+                    if ( thisInput.hasClass('srchMp') ){
                         docType = 'mp';
                         solrBq = "&bq=mp_term:*^90 mp_term_synonym:*^80 mp_narrow_synonym:*^75";
                     }
-                    else if ( inputType == 'srchHp'){
+                    else if ( thisInput.hasClass('srchHp') ){
                         docType = 'hp';
                         solrBq = "&bq=hp_term:*^90 hp_term_synonym:*^80";
                     }
-                    else if ( inputType == 'srchDisease'){
+                    else if ( thisInput.hasClass('srchDiseaseModel') ){
                         docType = 'disease';
                     }
 
@@ -914,6 +881,10 @@
                                             if ( key != 'docType' ){
 
                                                 var term = docs[i][key].toString();
+                                                if (docType == 'hp' && term.startsWith("MP:")){
+                                                    continue;  // due to hp-mp hybrid ontology, but we don't need mp here
+												}
+
                                                 var termHl = term;
 
                                                 // highlight multiple matches
@@ -926,7 +897,7 @@
                                                 // ').split('
                                                 // ').join('|').replace(/\*|"|'/g,
                                                 // '');
-                                                var termStr = $('input#s').val().trim(' ').split(' ').join('|').replace(/\*|"|'/g, '').replace(/\(/g,'\\(').replace(/\)/g,'\\)');
+                                                var termStr = thisInput.val().trim(' ').split(' ').join('|').replace(/\*|"|'/g, '').replace(/\(/g,'\\(').replace(/\)/g,'\\)');
 
                                                 var re = new RegExp("(" + termStr + ")", "gi") ;
                                                 var termHl = termHl.replace(re,"<b class='sugTerm'>$1</b>");
@@ -954,9 +925,9 @@
                             });
                         },
                         focus: function (event, ui) {
-                            var thisInput = $(ui.item.label).text().replace(/<\/?span>|^\w* : /g,'');
+                            var inputVal = $(ui.item.label).text().replace(/<\/?span>|^\w* : /g,'');
                             // assign value to input box
-                            this.value = thisInput.trim();
+                            this.value = inputVal.trim();
 
                             event.preventDefault(); // Prevent the default focus behavior.
                         },
@@ -985,7 +956,6 @@
                         }
                     }).data("ui-autocomplete")._renderItem = function( ul, item) {
                         // prevents HTML tags being escaped
-
                         return $( "<li></li>" )
                             .data( "item.autocomplete", item )
                             .append( $( "<a></a>" ).html( item.label ) )
@@ -1050,59 +1020,53 @@
 				// SUBMIT THE FORM
 				//-------------------
 
-                function submitPastedList(){
+                function submitQuery(){
 
-                    if ( $('textarea#pastedList').val() == ''){
-                        alert('Oops, search keyword is missing...');
+                   	var hasUnchecked = [];
+                    $('fieldset.fsfilter').each(function(){
+                       if ($(this).find('input:checked').length == 0){
+                           hasUnchecked.push($(this).find('legend').text());
+					   }
+					});
+                    if (hasUnchecked.length != 0){
+                        alert('Oops,\n' + hasUnchecked.join(",\n") + ' unchecked...');
                         return false;
-                    }
-//
-                    var datatypeProperties;
-                    if ($('fieldset input:checked').length == 0){
-                        alert('Oops, customized output filter is not checked...');
-                        return false;
-                    }
-                    else {
-                        datatypeProperties = fetchDatatypeProperties();
-                        if ( datatypeProperties == false){
-                            return false;
-                        }
-                    }
-
-                    var currDataType = $('input.bq:checked').attr('id');
-
-                    var idList = parsePastedList($('textarea#pastedList').val(), currDataType);
-					if (idList == false){
-					    return false; // no page refresh
 					}
 
-					console.log(datatypeProperties);
+                    var oJson = fetchDatatypeProperties();
+					if ( oJson == false){
+						return false;
+					}
 
-                    console.log("properties: " + datatypeProperties.properties);
-					console.log("childLevel: " + datatypeProperties.childLevel);
-                    //console.log("chrRange: " + datatypeProperties.chrRange);
+//                    if ($('fieldset.fsfilter input:checked').length == 0){
+//                        alert('Oops, customized output filter is not checked...');
+//                        return false;
+//                    }
+//                    else {
+//                        oJson = fetchDatatypeProperties();
+//                        if ( oJson == false){
+//                            return false;
+//                        }
+//                    }
 
                     refreshResult(); // refresh first
 
 					//alert('before table')
-                    prepare_dataTable(datatypeProperties.properties);
-
+                    prepare_dataTable(oJson.properties);
 
                     var oConf = {};
-                    oConf.idlist = idList;
-                    oConf.properties = datatypeProperties.properties.join(","); // order is important
-					oConf.childLevel = datatypeProperties.childLevel;
-					//oConf.chrRange = datatypeProperties.chrRange;
-					oConf.chr = datatypeProperties.chr;
+                    oConf.properties = oJson.properties.join(","); // order is important
 
-					var excludes = ["properties", "childLevel", "chr"];
-					for(var e=0; e < excludes.length; e++) {
-                        delete datatypeProperties[excludes[e]];
-                    }
 
-                    oConf.datatypeProperties = JSON.stringify(datatypeProperties);
-                    oConf.dataType = mapInputId2NodeType(currDataType);
+//					var excludes = ["properties", "childLevel", "chr"];
+//					for(var e=0; e < excludes.length; e++) {
+//                        delete datatypeProperties[excludes[e]];
+//                    }
 
+                    oConf.params = JSON.stringify(oJson);
+                   // oConf.dataType = mapInputId2NodeType(currDataType);
+
+					console.log(oConf);
                     fetchBatchQueryDataTable(oConf);
 
                     return false;
@@ -1144,7 +1108,7 @@
                                 oConf.idlist = j.goodIdList;
                                 //oConf.labelFllist = kv.labelFllist
 
-                                fetchBatchQueryDataTable(oConf);
+                                //fetchBatchQueryDataTable(oConf);
                             },
                             dataType:"text"
                         }).submit();
@@ -1191,59 +1155,6 @@
                     $('div#bqResult').append(dTable);
                 }
 
-                function parsePastedList(val, dataType){
-                    val = val.trim();
-
-                    var aVals = [];
-                    if (dataType == 'mpTerm' || dataType == 'diseaseTerm' || dataType == 'hpTerm'){
-                        aVals.push(val);
-					}
-					else {
-                        aVals = val.split(/\n|,|\t|\s+/);
-                    }
-
-                    var aVals2 = [];
-
-                    for ( var i=0; i<aVals.length; i++){
-                        if ( aVals[i] == "" ){
-                            continue;
-                        }
-                        var oriId = aVals[i].trim();
-                        var uppercaseId = aVals[i].toUpperCase().trim();
-                        var errMsg = "ERROR - " + uppercaseId + " is not an expected " + dataType + " identifier. Please try changing the datatype input.";
-
-                        if ( dataType == 'diseaseId' ){
-                            if ( ! (uppercaseId.indexOf('OMIM') == 0 ||
-                                uppercaseId.indexOf('ORPHANET') == 0 ||
-                                uppercaseId.indexOf('DECIPHER') == 0) ){
-
-                                alert(errMsg);
-                                return false;
-                            }
-                        }
-                        else if ( dataType == 'mouseGeneId' && uppercaseId.indexOf('MGI:') != 0 ){
-                            alert(errMsg);
-                            return false;
-                        }
-                        else if ( dataType == 'ensembl' && uppercaseId.indexOf('ENSMUSG') != 0 ){
-                            alert(errMsg);
-                            return false;
-                        }
-                        else if ( dataType == 'mpId' && uppercaseId.indexOf('MP:') !== 0 ){
-                            alert(errMsg);
-                            return false;
-                        }
-                        else if ( dataType == 'hpId' && uppercaseId.indexOf('HP:') !== 0 ){
-                            alert(errMsg);
-                            return false;
-                        }
-                        var thisId = dataType=="human_marker_symbol" ? uppercaseId : oriId;
-                        aVals2.push(thisId);
-                    }
-
-                    return aVals2.join(",");
-                }
-
                 function getUniqIdsStr(inputIdListStr) {
                     var ids = inputIdListStr.split(",");
                     return $.fn.getUnique(ids).join(",");
@@ -1256,9 +1167,9 @@
                 function fetchBatchQueryDataTable(oConf) {
                     //console.log(oConf);
                     // deals with duplicates and take a max of first 10 records to show the users
-                    oConf.idlist = getFirstTenUniqIdsStr(getUniqIdsStr(oConf.idlist));
+                    //oConf.idlist = getFirstTenUniqIdsStr(getUniqIdsStr(oConf.idlist));
                     //oConf.idlist = getUniqIdsStr(oConf.idlist);
-                    console.log(oConf);
+                    //console.log(oConf);
 
 //                    console.log($('table#batchq'));
 //                    console.log($('table#batchq').html())
@@ -1352,13 +1263,13 @@
                                         type: 'POST',
                                     }).submit();
                                 }
-                                else if ( formId == 'pastedIds' ){
-                                    idList = parsePastedList($('textarea#pastedList').val(), currDataType);
-                                    doExport(currDataType, fileType, fllist, idList, isForm);
+                                else if ( formId == 'goSubmit' ){
+                                    //idList = parsePastedList($('textarea#pastedList').val(), currDataType);
+                                    //doExport(currDataType, fileType, fllist, idList, isForm);
                                 }
                                 else {
-                                    idList = '*';
-                                    doExport(currDataType, fileType, fllist, idList, isForm);
+                                    //idList = '*';
+                                    //doExport(currDataType, fileType, fllist, idList, isForm);
                                 }
 
                                 if (formId == 'ajaxForm' ){
@@ -1369,7 +1280,7 @@
                             $('body').removeClass('footerToBottom');
                         },
                         "ajax": {
-                            "url": baseUrl + "/dataTableNeo4jBq?",
+                            "url": baseUrl + "/dataTableNeo4jAdvSrch?",
                             "data": oConf,
                             "type": "POST",
                             "error": function() {
@@ -1418,8 +1329,6 @@
 
                     jCircle.click(function () {
 
-                        var nodeType = mapInputId2NodeType($('input.bq:checked').attr('id'));
-
                         if ($(this).attr("stroke") == "darkorange") {
 							$(this).attr({"stroke":"black", "stroke-width": 1});
 							removeDatatypeFiltersAttributes(circle.data("id"));
@@ -1430,6 +1339,13 @@
                             }
                             $(this).attr({"stroke":"darkorange", "stroke-width": 5});
                             addDatatypeFiltersAttributes(circle.data("id"));
+                        }
+
+                        if ($('fieldset.fsfilter').size() > 0){
+                            $("input[type='submit']").prop('disabled', false).addClass('active');
+                        }
+                        else {
+                            $("input[type='submit']").prop('disabled', true).removeClass('active');
                         }
                     });
 
@@ -1470,15 +1386,15 @@
                         addChomosomeRangerFilter();
 					}
                     if (dataType == "Mp"){
-                        addPhenotypeFilter(dataType);
+                        addAutosuggestFilter(dataType);
                         addOntologyChildrenLevelFilter("Mouse");
                     }
                     if (dataType == "Hp"){
-                        addPhenotypeFilter(dataType);
+                        addAutosuggestFilter(dataType);
                         addOntologyChildrenLevelFilter("Human");
                     }
                     if (dataType == "DiseaseModel"){
-                        addDiseaseFilter();
+                        addAutosuggestFilter(dataType);
                     }
 
                 }
@@ -1490,15 +1406,15 @@
                         $('fieldset#chromosome').remove();
 					}
                     if (dataType == "Mp"){
-                        $('fieldset#ontoLevel').remove();
-                        $('fieldset#mpFilter').remove();
+                        $('fieldset#MouseOntoLevel').remove();
+                        $('fieldset#MpFilter').remove();
                     }
                     if (dataType == "Hp"){
-                        $('fieldset#ontoLevel').remove();
-                        $('fieldset#hpFilter').remove();
+                        $('fieldset#HumanOntoLevel').remove();
+                        $('fieldset#HpFilter').remove();
                     }
                     if (dataType == "DiseaseModel"){
-                        $('fieldset#diseaseFilter').remove();
+                        $('fieldset#DiseaseModelFilter').remove();
                     }
                 }
 
@@ -1523,16 +1439,16 @@
                     }
 
                     var legend = '<legend>Mouse chromosome filter</legend>';
-                    var inputs = 'Chr: <select id="chrSel2">' + chrSel + '</select> ' +
-                        'Start: <input id="rstart2" type="text" name="chr"> ' +
-                        'End: <input id="rend2" type="text" name="chr"> (restricts genes on region of this chromosome)';
+                    var inputs = 'Chr: <select id="chrSel">' + chrSel + '</select> ' +
+                        'Start: <input id="rstart" type="text" name="chr"> ' +
+                        'End: <input id="rend" type="text" name="chr"> (restricts genes on region of this chromosome)';
                     var filter = "<fieldset id='chromosome' class='dfilter'>" + legend + inputs + "</fieldset>";
 
                     $('div#dataAttributes').append(filter);
                 }
 
                 function addOntologyChildrenLevelFilter(species){
-                    var levels = [0,1,2,3,4,5,'all'];
+                    var levels = [0,3,'all'];
                     var levelSel = "";
                     for (var i = 0; i < levels.length; i++) {
                         if (i == 0) {
@@ -1544,50 +1460,72 @@
                     }
 
                     var id = species + "ChildLevel";
-                    var legend = "<legend>" + species + " children phenotype depth filter</legend>";
-                    var input = "level:<select id=" + id + ">" + levelSel + "</select>";
-                    var filter = "<fieldset id='ontoLevel' class='dfilter'>" + legend + input + " (0 means none, 1 means one level down in the ontology hierarchy, etc.)</fieldset>";
+                    var legend = "<legend>" + species + " phenotype filter (depth of children)</legend>";
+                    var input = "level:<select class='inputlevel' id=" + id + ">" + levelSel + "</select>";
+                    var filter = "<fieldset id='" + species + "OntoLevel' class='dfilter'>" + legend + input + " (0 means none, 3 means three levels down in the ontology hierarchy, etc.)</fieldset>";
 
                     $('div#dataAttributes').append(filter);
 				}
 
-				function addDiseaseFilter(){
-                    var input = "<div class='block srchBox'>" +
-						"<i class='fa fa-search'></i>" +
-						"<input id='srchDisease' value='search'> (restricts to the disease you are interested in)" +
-						"<i class='fa fa-times' id='diseaseClear'></i>  " +
-                    	"</div>";
-
-                    var legend = "<legend>Human disease filter</legend>";
-                    var filter = "<fieldset id='diseaseFilter' class='dfilter'>" + legend + input + "</fieldset>";
-					$('div#dataAttributes').append(filter);
-
-                    addAutosuggest($("input#srchDisease"));
-
-                    $("i#diseaseClear").click(function(){
-                    	$("input#srchDisease").val("");
-					});
-				}
-
-				function addPhenotypeFilter(dataType){
+				function addAutosuggestFilter(dataType){
 				    var idname = dataType.toLowerCase();
 					var input = "<div class='block srchBox'>" +
 						"<i class='fa fa-search'></i>" +
-						"<input id='srch" + dataType + "' value='search'> (restricts to the mouse phenotype you are interested in)" +
+						"<input class='inputfilter srch" + dataType + "' value='search'>" +
 						"<i class='fa fa-times' id='" + idname + "Clear'></i>  " +
 						"</div>";
 
-					var species = dataType == "Mp" ? "Mouse" : "Human";
-					var legend = "<legend>" + species + " phenotype filter</legend>";
-					var filter = "<fieldset id='" + idname + "Filter' class='dfilter'>" + legend + input + "</fieldset>";
+					var legendLabel, buttLabel, restriction = null;
+					//var buttLabel = null;
+                    //var restriction = null;
+					if (dataType == "Mp"){
+                        legendLabel = "Mouse phenotype filter";
+                        buttLabel = "Add phenotype";
+                        restriction = "Narrow your query to the mouse phenotype you are interested in";
+					}
+					else if (dataType == "Hp"){
+                        legendLabel = "Human phenotype filter";
+                        buttLabel = "Add phenotype";
+                        restriction = "Narrow your query to the human phenotype you are interested in";
+					}
+                    else if (dataType == "DiseaseModel"){
+                        legendLabel = "Human disease filter";
+                        buttLabel = "Add disease";
+                        restriction = "Narrow your query to the human disease you are interested in";
+                    }
+
+					var legend = "<legend>"+ legendLabel + "</legend>";
+                    var butt = "<button class='ap'>" + buttLabel + "</button>";
+					var filter = "<fieldset id='" + dataType + "Filter' class='dfilter'>" + legend + restriction + input + butt + "</fieldset>";
+
 					$('div#dataAttributes').append(filter);
 
-					addAutosuggest($("input#srch" + dataType));
+                    addAutosuggest($('input.srch' + dataType));
 
-					$("i#" + idname + "Clear").click(function(){
-						$("input#srch" + dataType).val("");
+					// clear input
+                    $("fieldset#" + dataType + "Filter").on("click", "input.srch" + dataType, function(){
+                        if ($(this).val() == "search"){
+                            $(this).val("");
+						}
+                    });
+                    $("fieldset#" + dataType + "Filter").on("click", "i#" + idname + "Clear", function(){
+						$(this).siblings($("input.srch" + dataType)).val("");
 					});
-				}
+
+                    // add new input
+                    $("fieldset#" + dataType + "Filter button.ap").click(function(){
+                        $(input).insertAfter($("fieldset#" + dataType + "Filter .srchBox").last());
+                        // allow remove input just added
+                        $("<button class='pr'>Remove</button>").insertAfter($("fieldset#" + dataType + "Filter .inputfilter").last());
+                        $('button.pr').click(function(){
+                           $(this).siblings('input').parent().remove();
+						});
+
+                        addAutosuggest($('input.srch' + dataType).last());
+
+                        return false;
+                    });
+                }
 
 		</script>
 
@@ -1612,7 +1550,7 @@
 				<div class="content">
 					<div class="node node-gene">
 						<h1 class="title" id="top">IMPC Dataset Advanced Search<a id="bqdoc" class=""><i class="fa fa-question-circle pull-right"></i></a></h1>
-
+						<form id='goSubmit'>
 						<div class="section">
 
 							<!--  <h2 id="section-gostats" class="title ">IMPC Dataset Batch Query</h2>-->
@@ -1621,130 +1559,18 @@
 								<div class='fl2'>
 
 									<h6 class='bq'>IMPC Data Model</h6><hr>
-									<div id="graphInfo">Click the datatypes to add/remove attributes or filters.  <button id="clearAllDt">Clear all selections</button></div>
+									<div id="graphInfo">Click the datatypes to add/remove filters or attributes.  <button id="clearAllDt">Clear all selections</button></div>
 									<div id='graph'></div>
 									<h6 class='bq'>Customized data filter and attributes</h6><hr>
 									<div id="dataAttributes"></div>
 								</div>
-								<%--<div class='fl1'>--%>
-									<%--<h6 class='bq'>Datatype Input</h6><hr>--%>
-									<%--<div id='query'>--%>
-										<%--<table id='dataInput'>--%>
-											<%--<tr>--%>
-												<%--<td><span class='cat'><i class="icon icon-species">M</i>Mouse<br>&nbsp;&nbsp;GRCm38</span></td>--%>
-												<%--<td>--%>
-													<%--<input type="radio" id="mouseMarkerSymbol" value="Nxn Dst" name="dataType" class='bq' checked="checked">MGI gene symbol<br>--%>
-
-													<%--&lt;%&ndash;<input type="radio" id="mouseMarkerSymbol" value="Eg. Car4 or CAR4 (case insensitive). Synonym search supported" name="dataType" class='bq' checked="checked">MGI gene symbol<br>&ndash;%&gt;--%>
-													<%--<input type="radio" id="mouseGeneId" value="Eg. MGI:106209" name="dataType" class='bq' >MGI id<br>--%>
-													<%--<input type="radio" id="ensembl" value="Eg. ENSMUSG00000011257" name="dataType" class='bq'>Ensembl id<br>--%>
-													<%--<input type="radio" id="geneChr" value="Eg. chr12:53694976-56714605" name="dataType" class='bq'>Chromosomal coordinates<br>--%>
-													<%--<div id="rangeBox" class="srchBox">--%>
-														<%--Chr:--%>
-														<%--<select id="chrSel">--%>
-															<%--<option value="1" selected="selected">1</option>--%>
-															<%--<option value="2">2</option>--%>
-															<%--<option value="3">3</option>--%>
-															<%--<option value="4">4</option>--%>
-															<%--<option value="5">5</option>--%>
-															<%--<option value="6">6</option>--%>
-															<%--<option value="7">7</option>--%>
-															<%--<option value="8">8</option>--%>
-															<%--<option value="9">9</option>--%>
-															<%--<option value="10">10</option>--%>
-															<%--<option value="11">11</option>--%>
-															<%--<option value="12">12</option>--%>
-															<%--<option value="13">13</option>--%>
-															<%--<option value="14">14</option>--%>
-															<%--<option value="15">15</option>--%>
-															<%--<option value="16">16</option>--%>
-															<%--<option value="17">17</option>--%>
-															<%--<option value="18">18</option>--%>
-															<%--<option value="19">19</option>--%>
-															<%--<option value="X">X</option>--%>
-															<%--<option value="Y">Y</option>--%>
-															<%--<option value="MT">MT</option>--%>
-														<%--</select>--%>
-														<%--Start: <input id='rstart' type="text" name="pin" size="8">--%>
-														<%--End: <input id='rend' type="text" name="pin" size="8">--%>
-													<%--</div>--%>
-
-													<%--<input type="radio" id="mpTerm" value='Eg. "cardiovascular system phenotype"' name="dataType" class='bq'>Mouse phenotype by name  <i class="fa fa-info-circle pheno" aria-hidden="true"></i><br>--%>
-													<%--<div class='block srchBox'>--%>
-														<%--<i class='fa fa-search'></i>--%>
-														<%--<input id='srchMp' value="search">--%>
-														<%--<i class='fa fa-times'></i>--%>
-													<%--</div>--%>
-													<%--<input type="radio" id="mpId" value="Eg. MP:0001926" name="dataType" class='bq'>Mouse phenotype by id  <i class="fa fa-info-circle pheno" aria-hidden="true"></i><br>--%>
-												<%--</td>--%>
-											<%--</tr>--%>
-											<%--<tr id="humantr">--%>
-												<%--<td><span class='cat'><i class="icon icon-species">H</i>Human<br>&nbsp;&nbsp;&nbsp;GRCh38</span></td>--%>
-												<%--<td>--%>
-													<%--<input type="radio" id="human_marker_symbol" value="Eg. Car4 or CAR4 (case insensitive). Synonym search supported" name="dataType" class='bq'>HGNC gene symbol<br>--%>
-
-													<%--<input type="radio" id="hpTerm" value='Eg. "Hyperchloremia"' name="dataType" class='bq'>Human phenotype name  <i class="fa fa-info-circle pheno" aria-hidden="true"></i><br>--%>
-													<%--<div class='block srchBox'>--%>
-														<%--<i class='fa fa-search'></i>--%>
-														<%--<input id='srchHp' value="search">--%>
-														<%--<i class='fa fa-times'></i>--%>
-													<%--</div>--%>
-													<%--<input type="radio" id="hpId" value="Eg. HP:0000400" name="dataType" class='bq'>Human phenotype id  <i class="fa fa-info-circle pheno" aria-hidden="true"></i><br>--%>
-
-													<%--<input type="radio" id="diseaseTerm" value='Eg. "Apert syndrome"' name="dataType" class='bq'>Human disease name   <i class="fa fa-info-circle disease" aria-hidden="true"></i><br>--%>
-													<%--<div class='block srchBox'>--%>
-														<%--<i class='fa fa-search'></i>--%>
-														<%--<input id='srchDisease' value="search">--%>
-														<%--<i class='fa fa-times'></i>--%>
-													<%--</div>--%>
-													<%--<input type="radio" id="diseaseId" value="Eg. OMIM:100300 or ORPHANET:10 or DECIPHER:16" name="dataType" class='bq'>Human disease id   <i class="fa fa-info-circle disease" aria-hidden="true"></i><br>--%>
-												<%--</td>--%>
-											<%--</tr>--%>
-										<%--</table>--%>
-
-										<%--<div id="accordion">--%>
-											<%--<p class='header'>Paste in your list or single query</p>--%>
-											<%--<div>--%>
-												<%--<p>--%>
-													<%--<form id='pastedIds'>--%>
-														<%--<textarea id='pastedList' rows="5" cols="50"></textarea>--%>
-														<%--<input type="submit" id="pastedlistSubmit" name="" value="Submit" onclick="return submitPastedList()" />--%>
-															<%--&lt;%&ndash;<input type="submit" id="pastedlistSubmit" name="" value="Submit" />&ndash;%&gt;--%>
-														<%--<input type="reset" name="reset" value="Reset"><p>--%>
-												<%--<p class='notes'>Supports space, comma, tab or new line separated identifier list</p>--%>
-												<%--<p class='notes'>Please DO NOT submit a mix of identifiers from different datatypes</p>--%>
-												<%--</form>--%>
-												<%--</p>--%>
-											<%--</div>--%>
-											<%--<p class='header'>Upload your list from file</p>--%>
-											<%--<div>--%>
-
-												<%--<form id="ajaxForm" method="post" action="${baseUrl}/batchQuery" enctype="multipart/form-data">--%>
-													<%--<!-- File input -->--%>
-													<%--<input name="fileupload" id="fileupload" type="file" /><br/>--%>
-													<%--<input name="dataType" id="dtype" value="" type="hidden" /><br/>--%>
-													<%--<input type="submit" id="upload" name="upload" value="Upload" onclick="return uploadJqueryForm()" />--%>
-													<%--<input type="reset" name="reset" value="Reset"><p>--%>
-													<%--<p class='notes'>Supports comma, tab or new line separated identifier list</p>--%>
-													<%--<p class='notes'>Please DO NOT submit a mix of identifiers from different datatypes</p>--%>
-												<%--</form>--%>
-
-											<%--</div>--%>
-											<%--<p class='header'>Full dataset</p>--%>
-											<%--<form>--%>
-												<%--<div id='fullDump'></div>--%>
-												<%--Please use our <a id='ftp' href='ftp://ftp.ebi.ac.uk/pub/databases/impc/' target='_blank'>FTP</a> site for large dataset.--%>
-												<%--<!-- <input type="submit" id="fulldata" name="" value="Submit" onclick="return fetchFullDataset()" /><p> -->--%>
-											<%--</form>--%>
-										<%--</div>--%>
-
-									<%--</div>--%>
-
-								<%--</div>--%>
-								<%--<div style="clear: both"></div>--%>
 							</div>
 						</div> <!-- end of section -->
-
+							<div id='sq'>
+								<input type="submit" id="pastedlistSubmit" onclick="return submitQuery()" />
+								<input type="reset" name="reset" value="Reset">
+							</div>
+						</form>
 						<div class="section" id="sec2">
 							<h2 id="section-gotable" class="title ">Batch Query Result</h2>
 
