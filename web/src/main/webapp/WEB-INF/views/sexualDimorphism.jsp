@@ -179,8 +179,8 @@ For the mutant mice, lines were selected (1) if there was an abnormal phenotype 
  series: [{ color: 'rgba(239, 123, 11,0.7)' , name: 'Observations', data:[[41.5595,63.0158,70.3612,77.32,98.7763]],  tooltip: { headerFormat: '<em>Genotype No. {point.key}</em><br/>' }  },{ color: 'rgba(9, 120, 161,1.0)' , name: 'Observations', data:[[], [64.3689,68.4282,69.2014,71.1344,75.1937]],  tooltip: { headerFormat: '<em>Genotype No. {point.key}</em><br/>' }  },{ color: 'rgba(239, 123, 11,0.7)' , name: 'Observations', data:[[], [], [51.3211,74.8071,83.8922,90.4644,113.9504]],  tooltip: { headerFormat: '<em>Genotype No. {point.key}</em><br/>' }  },{ color: 'rgba(9, 120, 161,1.0)' , name: 'Observations', data:[[], [], [], [95.491,103.609,107.088,109.021,117.139]],  tooltip: { headerFormat: '<em>Genotype No. {point.key}</em><br/>' }  },] });
  </script>
 			                				</div>
-			                				<a href="${baseUrl}/charts?accession=MGI:1922246&allele_accession_id=MGI:5605792&zygosity=homozygote&parameter_stable_id=IMPC_CBC_016_001&pipeline_stable_id=IMPC_001&phenotyping_center=NING">Original Chart</a>
-			            				Usp47<sup>tm1b(EUCOMM)Wtsi</sup>
+			                				<a href="${baseUrl}/charts?accession=MGI:1922246&allele_accession_id=MGI:5605792&zygosity=homozygote&parameter_stable_id=IMPC_CBC_016_001&pipeline_stable_id=IMPC_001&phenotyping_center=NING">Usp47<sup>tm1b(EUCOMM)Wtsi</sup></a>
+			         
 			            				</div>
 			           					<div class="onethird" style="text-align:center">
 			                				Significant decrease in males, non-significant effect in females
@@ -194,8 +194,8 @@ For the mutant mice, lines were selected (1) if there was an abnormal phenotype 
 			                				
 			                				</script>
 			                				</div>
-			                				<a href="${baseUrl}/charts?accession=MGI:1890081&allele_accession_id=MGI:5471395&zygosity=homozygote&parameter_stable_id=IMPC_DXA_004_001&pipeline_stable_id=JAX_001&phenotyping_center=JAX">Original Chart</a>
-			            				<a href="${baseUrl}/genes/MGI:1890081">Foxo3<sup>tm1.1(KOMP)Vlcg</sup></a>
+			                				<a href="${baseUrl}/charts?accession=MGI:1890081&allele_accession_id=MGI:5471395&zygosity=homozygote&parameter_stable_id=IMPC_DXA_004_001&pipeline_stable_id=JAX_001&phenotyping_center=JAX">Foxo3<sup>tm1.1(KOMP)Vlcg</sup></a>
+			            				<%-- <a href="${baseUrl}/genes/MGI:1890081">Foxo3<sup>tm1.1(KOMP)Vlcg</sup></a> --%>
 			            				</div>
 			            				<div class="onethird" style="text-align:center">
 			                				Significant decrease in males, significant increase in females
@@ -207,8 +207,8 @@ For the mutant mice, lines were selected (1) if there was an abnormal phenotype 
 
 			                				</script>
 			                				</div>
-			                			<a href="${baseUrl}/charts?accession=MGI:2446239&allele_accession_id=MGI:5637158&zygosity=homozygote&parameter_stable_id=IMPC_CBC_020_001&pipeline_stable_id=MGP_001&phenotyping_center=WTSI">Original Chart</a>
-			            				<a href="${baseUrl}/genes/MGI:2446239">Galnt18<sup>tm1b(KOMP)Wtsi</sup></a>
+			                			<a href="${baseUrl}/charts?accession=MGI:2446239&allele_accession_id=MGI:5637158&zygosity=homozygote&parameter_stable_id=IMPC_CBC_020_001&pipeline_stable_id=MGP_001&phenotyping_center=WTSI">Galnt18<sup>tm1b(KOMP)Wtsi</sup></a>
+			            				<%-- <a href="${baseUrl}/genes/MGI:2446239">Galnt18<sup>tm1b(KOMP)Wtsi</sup></a> --%>
 			            				</div>
 			            				<div class="clear both"></div>
 		                        	</div>
