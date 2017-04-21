@@ -1048,17 +1048,6 @@
 						return false;
 					}
 
-//                    if ($('fieldset.fsAttrs input:checked').length == 0){
-//                        alert('Oops, customized output filter is not checked...');
-//                        return false;
-//                    }
-//                    else {
-//                        oJson = fetchDatatypeProperties();
-//                        if ( oJson == false){
-//                            return false;
-//                        }
-//                    }
-
                     refreshResult(); // refresh first
 
 					//alert('before table')
@@ -1415,26 +1404,15 @@
                 function removeDatatypeFiltersAttributes(dataType) {
                     $('fieldSet#' + dataType).remove();
 
-                    if (dataType == "Gene"){
-                        $('fieldset#chromosome').remove();
+                    if (dataType == "Gene" || dataType == "Mp" || dataType == "Hp" || dataType == "DiseaseModel"){
+                        $('table#c' + dataType).remove();
 					}
-                    if (dataType == "Mp"){
-                        $('fieldset#MouseOntoLevel').remove();
-                        $('fieldset#MpFilter').remove();
-                    }
-                    if (dataType == "Hp"){
-                        $('fieldset#HumanOntoLevel').remove();
-                        $('fieldset#HpFilter').remove();
-                    }
-                    if (dataType == "DiseaseModel"){
-                        $('fieldset#DiseaseModelFilter').remove();
-                    }
                 }
 
                 function compartmentAttrsFilters(dataType, name){
-                    var table = $("<table class='nbox'><td></td><td></td></table>");
+                    var table = $("<table id='c" + dataType + "' class='nbox'><td></td><td></td></table>");
 
-					table.find('td:first-child').html(name);
+                    table.find('td:first-child').html(name);
 					$('fieldset.'+ dataType).appendTo(table.find('td:nth-child(2)'));
 
 					table.appendTo($('div#dataAttributes'));
