@@ -156,6 +156,7 @@ public class UnidimensionalChartAndTableProvider {
 		String chartString = createContinuousBoxPlotChartsString(chartId, yMin, yMax, parameter, yAxisTitle, chartsSeriesElementsList, experiment);
 		ChartData cNTable = new ChartData();
 		cNTable.setChart(chartString);
+		System.out.println("chartString="+chartString);
 		return cNTable;
 	}
 
