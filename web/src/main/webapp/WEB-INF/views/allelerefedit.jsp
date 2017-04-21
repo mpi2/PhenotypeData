@@ -54,7 +54,7 @@
 				border-bottom: 1px solid gray;
 			}
 			table.dataTable th:first-child {
-				min-width: 180px;
+				min-width: 300px;
 			}
 			form#pmidbox, form#pmidAllelebox{
 				/*padding: 0;*/
@@ -68,6 +68,13 @@
 			}
 			form#pmidbox legend {
 				font-size: 14px;
+			}
+			span.citation {
+				font-weight: bold;
+				font-size: 12px;
+				background-color: #fbe8ad;
+				padding: 2px 5px;
+				margin-left: 3px;
 			}
 			[type='button'] {
 				cursor: pointer;

@@ -147,8 +147,27 @@ public class AdvancedSearchController {
             model.addAttribute("idlist", idlist);
         }
 
-
         return "batchQuery3";
+    }
+    @RequestMapping(value="/advancedSearch", method=RequestMethod.GET)
+    public String loadAdvSrchPage(
+            @RequestParam(value = "core", required = false) String core,
+            @RequestParam(value = "fllist", required = false) String fllist,
+            @RequestParam(value = "idlist", required = false) String idlist,
+            HttpServletRequest request,
+            Model model) {
+
+        String outputFieldsHtml = Tools.fetchOutputFieldsCheckBoxesHtml2(core);
+        model.addAttribute("outputFields", outputFieldsHtml);
+
+        if ( idlist != null) {
+            model.addAttribute("core", core);
+            model.addAttribute("fllist", fllist);
+            model.addAttribute("idlist", idlist);
+        }
+
+
+        return "advancedSearch";
     }
     @RequestMapping(value="/batchQuery2", method=RequestMethod.GET)
     public String loadBatchQueryPage2(
@@ -204,6 +223,28 @@ public class AdvancedSearchController {
 //        }
 
         return null;
+    }
+
+
+
+    @RequestMapping(value = "/dataTableNeo4jAdvSrch", method = RequestMethod.POST)
+    public ResponseEntity<String> advSrchDataTableJson2(
+            @RequestParam(value = "properties", required = true) String properties,
+            @RequestParam(value = "params", required = true) String params,
+            HttpServletRequest request,
+            HttpServletResponse response,
+            Model model) throws Exception {
+
+        JSONObject jParams = (JSONObject) JSONSerializer.toJSON(params);
+        System.out.println(jParams.toString());
+
+
+
+
+        String content = null;
+        //content = fetchGraphData(dataType, idlist, labels, jDatatypeProperties, properties, regionId, regionStart, regionEnd, childLevel);
+
+        return new ResponseEntity<String>(content, createResponseHeaders(), HttpStatus.CREATED);
     }
 
     @RequestMapping(value = "/dataTableNeo4jBq", method = RequestMethod.POST)

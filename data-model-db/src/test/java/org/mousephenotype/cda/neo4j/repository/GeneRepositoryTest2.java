@@ -49,7 +49,7 @@ public class GeneRepositoryTest2 {
         SpringApplication.run(GeneRepositoryTest2.class, args);
     }
 
-    @Test
+   // @Test
     public void testGeneRepository() {
 
 //    CommandLineRunner demo(GeneRepository geneRepository) {
