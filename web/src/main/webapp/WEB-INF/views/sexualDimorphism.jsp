@@ -170,7 +170,7 @@ For the mutant mice, lines were selected (1) if there was an abnormal phenotype 
 								</h2>
 		                        	<div class="inner">
 		                        	
-			                        	 <div class="onethird">
+			                        	 <div class="onethird" style="text-align:center">
 			                				Significant increase in males, non-significant effect in females
 			                				<div id="hdlCholesterol">
 			                				<script type="text/javascript">chart = new Highcharts.Chart({  colors:['rgba(239, 123, 11,0.7)', 'rgba(9, 120, 161,0.7)', 'rgba(247, 157, 70,0.7)', 'rgba(61, 167, 208,0.7)', 'rgba(247, 181, 117,0.7)', 'rgba(100, 178, 208,0.7)', 'rgba(191, 75, 50,0.7)', 'rgba(3, 77, 105,0.7)', 'rgba(166, 30, 1,0.7)', 'rgba(36, 139, 75,0.7)', 'rgba(255, 201, 67,0.7)', 'rgba(1, 121, 46,0.7)', 'rgba(144, 195, 212,0.7)', 'rgba(51, 51, 51,0.7)', 'rgba(119, 119, 119,0.7)', 'rgba(191, 151, 50,0.7)'], chart: { type: 'boxplot', renderTo: 'hdlCholesterol'},   tooltip: { formatter: function () { if(typeof this.point.high === 'undefined'){ return '<b>Observation</b><br/>' + this.point.y; } else { return '<b>Genotype: ' + this.key + '</b><br/>UQ + 1.5 * IQR: ' + this.point.options.high + '<br/>Upper Quartile: ' + this.point.options.q3 + '<br/>Median: ' + this.point.options.median + '<br/>Lower Quartile: ' + this.point.options.q1 +'<br/>LQ - 1.5 * IQR: ' + this.point.low; } } }    , 
@@ -182,7 +182,7 @@ For the mutant mice, lines were selected (1) if there was an abnormal phenotype 
 			                				<a href="${baseUrl}/charts?accession=MGI:1922246&allele_accession_id=MGI:5605792&zygosity=homozygote&parameter_stable_id=IMPC_CBC_016_001&pipeline_stable_id=IMPC_001&phenotyping_center=NING">Original Chart</a>
 			            				Usp47<sup>tm1b(EUCOMM)Wtsi</sup>
 			            				</div>
-			           					<div class="onethird">
+			           					<div class="onethird" style="text-align:center">
 			                				Significant decrease in males, non-significant effect in females
 			                				<div id="boneMineralDensity">
 			                				<script type="text/javascript">
@@ -195,8 +195,9 @@ For the mutant mice, lines were selected (1) if there was an abnormal phenotype 
 			                				</script>
 			                				</div>
 			                				<a href="${baseUrl}/charts?accession=MGI:1890081&allele_accession_id=MGI:5471395&zygosity=homozygote&parameter_stable_id=IMPC_DXA_004_001&pipeline_stable_id=JAX_001&phenotyping_center=JAX">Original Chart</a>
+			            				<a href="${baseUrl}/genes/MGI:1890081">Foxo3<sup>tm1.1(KOMP)Vlcg</sup></a>
 			            				</div>
-			            				<div class="onethird">
+			            				<div class="onethird" style="text-align:center">
 			                				Significant decrease in males, significant increase in females
 			                				<div id="fructose">
 			                				<script type="text/javascript">
@@ -207,6 +208,7 @@ For the mutant mice, lines were selected (1) if there was an abnormal phenotype 
 			                				</script>
 			                				</div>
 			                			<a href="${baseUrl}/charts?accession=MGI:2446239&allele_accession_id=MGI:5637158&zygosity=homozygote&parameter_stable_id=IMPC_CBC_020_001&pipeline_stable_id=MGP_001&phenotyping_center=WTSI">Original Chart</a>
+			            				<a href="${baseUrl}/genes/MGI:2446239">Galnt18<sup>tm1b(KOMP)Wtsi</sup></a>
 			            				</div>
 			            				<div class="clear both"></div>
 		                        	</div>
