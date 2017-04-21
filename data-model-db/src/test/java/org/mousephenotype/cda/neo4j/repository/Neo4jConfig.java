@@ -43,6 +43,9 @@ public class Neo4jConfig {
         return config;
     }
 
+
+
+
     @Bean
     public SessionFactory sessionFactory() {
         return new SessionFactory(getConfiguration(), "org.mousephenotype.cda.neo4j");  // both entity and repository
