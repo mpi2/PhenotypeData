@@ -23,14 +23,13 @@
 			button#clearAllDt {
 				margin-left: 50px;
 			}
-			fieldset.fsfilter {
+			fieldset.fsAttrs {
 				background-color: aliceblue;
 			}
 			fieldset {
 				padding: 3px 10px;
 				border: 1px solid lightgrey;
 				font-size: 12px;
-				margin-top: 15px;
 			}
 			legend {
 				padding: 0 15px;
@@ -50,6 +49,17 @@
 			}
 			fieldset.dfilter {
 				border: 1px solid darkslategray;
+			}
+			table.nbox {
+				border-spacing: 5px;
+			}
+			table.nbox td:first-child {
+				background-color: #5F93AF;
+				vertical-align: middle;
+				text-align: center;
+				padding: 0 5px;
+				width: 50px;
+				color: white;
 			}
 			form#goSubmit {
 				padding: 0;
@@ -1023,7 +1033,7 @@
                 function submitQuery(){
 
                    	var hasUnchecked = [];
-                    $('fieldset.fsfilter').each(function(){
+                    $('fieldset.fsAttrs').each(function(){
                        if ($(this).find('input:checked').length == 0){
                            hasUnchecked.push($(this).find('legend').text());
 					   }
@@ -1038,7 +1048,7 @@
 						return false;
 					}
 
-//                    if ($('fieldset.fsfilter input:checked').length == 0){
+//                    if ($('fieldset.fsAttrs input:checked').length == 0){
 //                        alert('Oops, customized output filter is not checked...');
 //                        return false;
 //                    }
@@ -1341,7 +1351,7 @@
                             addDatatypeFiltersAttributes(circle.data("id"));
                         }
 
-                        if ($('fieldset.fsfilter').size() > 0){
+                        if ($('fieldset.fsAttrs').size() > 0){
                             $("input[type='submit']").prop('disabled', false).addClass('active');
                         }
                         else {
@@ -1372,29 +1382,32 @@
                             var display = k;
                             var dbproperty = objs[i][k];
                             //console.log(k + " - " + objs[i][k]);
-                            inputs += '<input type="checkbox" name="' + display + '" value="' + dbproperty + '">' + display;
+                            inputs += "<input type='checkbox' name='" + display + "' value='" + dbproperty + "'>" + display;
                         }
                     }
-                    var legend = '<legend>' + idsVar[dataType].text + ' attributes ' + '</legend>';
-                    var filter = '<fieldset class="fsfilter" id="' + dataType + '">' + legend + inputs + '</fieldset>';
-                    $('div#dataAttributes').append(filter);
+                    var legend = "<legend>" + idsVar[dataType].text + " attributes</legend>";
+                    var attr = "<fieldset class='fsAttrs " + dataType + "' id='" + dataType + "'>" + legend + inputs + "</fieldset>";
+                    $('div#dataAttributes').append(attr);
 
-                    var inputId = $('input.bq:checked').attr('id');
-                    console.log(dataType);
+                    console.log("clicked on: "+ dataType);
 
                     if (dataType == "Gene"){
-                        addChomosomeRangerFilter();
+                        addChomosomeRangerFilter(dataType);
+						compartmentAttrsFilters(dataType, "Gene");
 					}
-                    if (dataType == "Mp"){
+                    else if (dataType == "Mp"){
                         addAutosuggestFilter(dataType);
-                        addOntologyChildrenLevelFilter("Mouse");
+                        addOntologyChildrenLevelFilter(dataType);
+                        compartmentAttrsFilters(dataType, "MP");
                     }
-                    if (dataType == "Hp"){
+                    else if (dataType == "Hp"){
                         addAutosuggestFilter(dataType);
-                        addOntologyChildrenLevelFilter("Human");
+                        addOntologyChildrenLevelFilter(dataType);
+                        compartmentAttrsFilters(dataType, "HP");
                     }
-                    if (dataType == "DiseaseModel"){
+                    else if (dataType == "DiseaseModel"){
                         addAutosuggestFilter(dataType);
+                        compartmentAttrsFilters(dataType, "Disease");
                     }
 
                 }
@@ -1418,7 +1431,16 @@
                     }
                 }
 
-                function addChomosomeRangerFilter(){
+                function compartmentAttrsFilters(dataType, name){
+                    var table = $("<table class='nbox'><td></td><td></td></table>");
+
+					table.find('td:first-child').html(name);
+					$('fieldset.'+ dataType).appendTo(table.find('td:nth-child(2)'));
+
+					table.appendTo($('div#dataAttributes'));
+				}
+
+                function addChomosomeRangerFilter(dataType){
 
                     // add chromosome range filter
                     var chrs = [];
@@ -1442,12 +1464,12 @@
                     var inputs = 'Chr: <select id="chrSel">' + chrSel + '</select> ' +
                         'Start: <input id="rstart" type="text" name="chr"> ' +
                         'End: <input id="rend" type="text" name="chr"> (restricts genes on region of this chromosome)';
-                    var filter = "<fieldset id='chromosome' class='dfilter'>" + legend + inputs + "</fieldset>";
+                    var filter = "<fieldset id='chromosome' class='dfilter " + dataType + "'>" + legend + inputs + "</fieldset>";
 
                     $('div#dataAttributes').append(filter);
                 }
 
-                function addOntologyChildrenLevelFilter(species){
+                function addOntologyChildrenLevelFilter(dataType){
                     var levels = [0,3,'all'];
                     var levelSel = "";
                     for (var i = 0; i < levels.length; i++) {
@@ -1459,10 +1481,18 @@
                         }
                     }
 
-                    var id = species + "ChildLevel";
+                    var id, species = null;
+                    if ( dataType == 'Mp'){
+                        id = "MouseChildLevel";
+                        species = "Mouse";
+					}
+					else if ( dataType == 'Hp'){
+                        id = "HumanChildLevel";
+                        species = "Human";
+                    }
                     var legend = "<legend>" + species + " phenotype filter (depth of children)</legend>";
                     var input = "level:<select class='inputlevel' id=" + id + ">" + levelSel + "</select>";
-                    var filter = "<fieldset id='" + species + "OntoLevel' class='dfilter'>" + legend + input + " (0 means none, 3 means three levels down in the ontology hierarchy, etc.)</fieldset>";
+                    var filter = "<fieldset id='" + species + "OntoLevel' class='dfilter " + dataType + "'>" + legend + input + " (0 means none, 3 means three levels down in the ontology hierarchy, etc.)</fieldset>";
 
                     $('div#dataAttributes').append(filter);
 				}
@@ -1496,7 +1526,7 @@
 
 					var legend = "<legend>"+ legendLabel + "</legend>";
                     var butt = "<button class='ap'>" + buttLabel + "</button>";
-					var filter = "<fieldset id='" + dataType + "Filter' class='dfilter'>" + legend + restriction + input + butt + "</fieldset>";
+					var filter = "<fieldset id='" + dataType + "Filter' class='dfilter " + dataType + "'>" + legend + restriction + input + butt + "</fieldset>";
 
 					$('div#dataAttributes').append(filter);
 

@@ -499,7 +499,7 @@ public class PaperController {
             //----------------------------------------------------------------------------
             // bar data: agency by number of papers and drilldown to year of that number
             //----------------------------------------------------------------------------
-            String agentQry = "select left(date_of_publication, 4) as yyyy, pmid, agency from allele_ref where falsepositive = 'no'";
+            String agentQry = "select left(date_of_publication, 4) as yyyy, pmid, agency from allele_ref where falsepositive = 'no' and reviewed = 'yes'";
 
             PreparedStatement pAgent = conn.prepareStatement(agentQry);
             ResultSet resultSetAgent = pAgent.executeQuery();
