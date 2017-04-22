@@ -2,6 +2,9 @@ package org.mousephenotype.cda.neo4j.entity;
 
 import org.neo4j.ogm.annotation.GraphId;
 import org.neo4j.ogm.annotation.NodeEntity;
+import org.neo4j.ogm.annotation.Relationship;
+
+import java.util.Set;
 
 /**
  * Created by ckchen on 14/03/2017.
@@ -12,10 +15,13 @@ public class Procedure {
     @GraphId
     Long id;
 
-    private String procedureId;
-    private String procedureStableId;
-    private String procedureStableKey;
-    private String procedureName;
+    private String stableId;
+    private String stableKey;
+    private String name;
+    private String stage;
+
+    @Relationship(type = "PARAMETER", direction = Relationship.OUTGOING)
+    private Set<Parameter> parameters;
 
     public Long getId() {
         return id;
@@ -25,46 +31,55 @@ public class Procedure {
         this.id = id;
     }
 
-    public String getProcedureId() {
-        return procedureId;
+    public String getStableId() {
+        return stableId;
     }
 
-    public void setProcedureId(String procedureId) {
-        this.procedureId = procedureId;
+    public void setStableId(String stableId) {
+        this.stableId = stableId;
     }
 
-    public String getProcedureStableId() {
-        return procedureStableId;
+    public String getStableKey() {
+        return stableKey;
     }
 
-    public void setProcedureStableId(String procedureStableId) {
-        this.procedureStableId = procedureStableId;
+    public void setStableKey(String stableKey) {
+        this.stableKey = stableKey;
     }
 
-    public String getProcedureStableKey() {
-        return procedureStableKey;
+    public String getName() {
+        return name;
     }
 
-    public void setProcedureStableKey(String procedureStableKey) {
-        this.procedureStableKey = procedureStableKey;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public String getProcedureName() {
-        return procedureName;
+    public String getStage() {
+        return stage;
     }
 
-    public void setProcedureName(String procedureName) {
-        this.procedureName = procedureName;
+    public void setStage(String stage) {
+        this.stage = stage;
+    }
+
+    public Set<Parameter> getParameters() {
+        return parameters;
+    }
+
+    public void setParameters(Set<Parameter> parameters) {
+        this.parameters = parameters;
     }
 
     @Override
     public String toString() {
         return "Procedure{" +
                 "id=" + id +
-                ", procedureId='" + procedureId + '\'' +
-                ", procedureStableId='" + procedureStableId + '\'' +
-                ", procedureStableKey='" + procedureStableKey + '\'' +
-                ", procedureName='" + procedureName + '\'' +
+                ", stableId='" + stableId + '\'' +
+                ", stableKey='" + stableKey + '\'' +
+                ", name='" + name + '\'' +
+                ", stage='" + stage + '\'' +
+                ", parameters=" + parameters +
                 '}';
     }
 }

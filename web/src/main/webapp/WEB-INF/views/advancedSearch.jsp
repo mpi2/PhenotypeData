@@ -17,9 +17,20 @@
 			div#graphInfo {
 				font-size: 12px;
 			}
-			div#bqFilter {
-				margin: 2px;
-			}
+            .fl2 {
+                width: 82%;
+                float: right;
+				border-left: 1px solid #C1C1C1;
+				padding-left: 10px;
+            }
+            .fl1 {
+                float: none; /* not needed, just for clarification */
+                /* the next props are meant to keep this block independent from the other floated one */
+                width: 160px;
+                /*padding-right: 10px;*/
+                /*border-right: 1px solid #C1C1C1;*/
+				font-size: 12px;
+            }
 			button#clearAllDt {
 				margin-left: 50px;
 			}
@@ -30,6 +41,7 @@
 				padding: 3px 10px;
 				border: 1px solid lightgrey;
 				font-size: 12px;
+                margin-bottom: 3px;
 			}
 			legend {
 				padding: 0 15px;
@@ -424,8 +436,8 @@
                 idsVar = {
                     "Gene": {
                         text: "MGI\nGene",
-                        x: 480,
-                        y: 130,
+                        x: 400,
+                        y: 140,
                         r:30,
                         fields: [
                             {"MGI gene id": "mgiAccessionId"},
@@ -455,8 +467,8 @@
                     },
                     "HumanGeneSymbol": {
                         text: "Human\nOrtholog",
-                        x: 720,
-                        y: 110,
+                        x: 660,
+                        y: 130,
                         r:30,
                         fields: [
                             {"HGNC gene symbol":"humanGeneSymbol"}
@@ -498,7 +510,7 @@
 //                    },
                     "Allele": {
                         text: "Mouse\nAllele",
-                        x: 540,
+                        x: 500,
                         y: 40,
                         r:30,
                         fields: [
@@ -519,7 +531,7 @@
 //                    },
                     "DiseaseModel": {
                         text: "Human\nDisease",
-                        x: 380,
+                        x: 350,
                         y: 50,
                         r:30,
                         fields: [
@@ -546,7 +558,7 @@
                     },
                     "MouseModel": {
                         text: "Mouse\nModel",
-                        x: 250,
+                        x: 230,
                         y: 120,
                         r:30,
                         fields: [
@@ -557,7 +569,7 @@
                     },
                     "Hp": {
                         text: "Human\nPhenotype",
-                        x: 210,
+                        x: 190,
                         y: 40,
                         r:30,
                         fields: [
@@ -579,7 +591,7 @@
                     },
                     "Mp": {
                         text: "Mouse\nPhenotype",
-                        x: 120,
+                        x: 60,
                         y: 100,
                         r:30,
                         fields: [
@@ -615,7 +627,7 @@
 //                    }
                 };
 
-                paper = new Raphael(document.getElementById('graph'), 600, 180);
+                paper = new Raphael(document.getElementById('graph'), 570, 180);
 
                 for (var id in idsVar) {
                     var text = id;
@@ -639,6 +651,24 @@
                 connectCircle("Mp", "Hp");
                 //connectCircle("Mp", "OntoSynonym");
 
+				// default search type
+				$("input[name='queryType'][value='Gene']").prop("checked", true);
+                drawnCircles["Gene"].click();
+
+				// gene or phenotype centric search
+				$("input[name='queryType']").on('change', function () {
+					// remove overlay on top of graph to make circles clickable after a query type is chosen
+                    $('#overlay').hide();
+
+                    var dataType = $("input[name='queryType']:checked").val();
+                    var circle = drawnCircles[dataType];
+
+                    // select if not yet
+                    if (circle.attr("stroke") != "darkorange") {
+                        drawnCircles[dataType].click();
+                    }
+				});
+
                 $('button#clearAllDt').click(function(){
                     var nodeType = mapInputId2NodeType($('input.bq:checked').attr('id'));
                     for(var c=0; c<selectedCircles.length; c++){
@@ -658,6 +688,13 @@
                 $( "#accordion" ).accordion();
 
             });
+
+            function catchOnReset(){
+                var dataType = $("input[name='queryType']:checked").val();
+				    console.log(dataType);
+                $("input[name=mygroup][value=" + dataType + "]").prop('checked', true);
+
+			}
                 function connectCircle(id1, id2) {
 
                     var x1 = idsVar[id1].x;
@@ -1382,16 +1419,17 @@
 
                     if (dataType == "Gene"){
                         addChomosomeRangerFilter(dataType);
+                        addMgiGeneListBox(dataType);
 						compartmentAttrsFilters(dataType, "Gene");
 					}
                     else if (dataType == "Mp"){
                         addAutosuggestFilter(dataType);
-                        addOntologyChildrenLevelFilter(dataType);
+                        //addOntologyChildrenLevelFilter(dataType);
                         compartmentAttrsFilters(dataType, "MP");
                     }
                     else if (dataType == "Hp"){
                         addAutosuggestFilter(dataType);
-                        addOntologyChildrenLevelFilter(dataType);
+                        //addOntologyChildrenLevelFilter(dataType);
                         compartmentAttrsFilters(dataType, "HP");
                     }
                     else if (dataType == "DiseaseModel"){
@@ -1535,6 +1573,15 @@
                     });
                 }
 
+                function addMgiGeneListBox(dataType){
+                    var legend = "<legend>MGI gene list</legend>";
+                    var hint = "Eg. Nxn (symbol) or MGI:109331 (ID). Please do not mix symbol and ID in your list. Use comma, space, tab or new line as separator."
+                    var input = "<textarea id='geneList' rows='3' cols=''></textarea>"
+                    var filter = "<fieldset id='" + dataType + "Filter' class='dfilter " + dataType + "'>" + legend + hint + input + "</fieldset>";
+
+                    $('div#dataAttributes').append(filter);
+                }
+
 		</script>
 
 
@@ -1558,7 +1605,7 @@
 				<div class="content">
 					<div class="node node-gene">
 						<h1 class="title" id="top">IMPC Dataset Advanced Search<a id="bqdoc" class=""><i class="fa fa-question-circle pull-right"></i></a></h1>
-						<form id='goSubmit'>
+						<form id='goSubmit' onreset="catchOnReset()">
 						<div class="section">
 
 							<!--  <h2 id="section-gostats" class="title ">IMPC Dataset Batch Query</h2>-->
@@ -1572,6 +1619,12 @@
 									<h6 class='bq'>Customized data filter and attributes</h6><hr>
 									<div id="dataAttributes"></div>
 								</div>
+
+                                <div class='fl1'>
+                                    This search is<br><input type="radio" name="queryType" value="Gene"> Mouse-gene centric<br>
+                                    <input type="radio" name="queryType" value="Mp"> Mouse-phenotype centric<br>
+                                </div>
+                                <div style="clear: both"></div>
 							</div>
 						</div> <!-- end of section -->
 							<div id='sq'>

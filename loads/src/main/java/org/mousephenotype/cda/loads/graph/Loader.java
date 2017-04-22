@@ -106,6 +106,13 @@ public class Loader implements CommandLineRunner {
     @Autowired
     MouseModelRepository mouseModelRepository;
 
+    @Autowired
+    ProcedureRepository procedureRepository;
+
+    @Autowired
+    ParameterRepository parameterRepository;
+
+
     OntologyParserFactory ontologyParserFactory;
 
 
@@ -122,6 +129,8 @@ public class Loader implements CommandLineRunner {
     Map<String, String> hpIdTermMap = new HashMap<>();
     Map<String, Set<Hp>> bestMpIdHpMap = new HashMap<>();
     Map<String, Set<Hp>> diseaseIdPhenotypeMap = new HashMap<>();
+    Map<String, Procedure> loadedProcedures = new HashMap<>();
+
 
     private OntologyParser mpHpParser;
     private OntologyParser mpParser;
@@ -153,6 +162,9 @@ public class Loader implements CommandLineRunner {
 //        diseaseGeneRepository.deleteAll();
 //        diseaseModelRepository.deleteAll();
 //        mouseModelRepository.deleteAll();
+        procedureRepository.deleteAll();
+        parameterRepository.deleteAll();
+
         logger.info("Done deleting all repositories");
 
         //----------- STEP 1 -----------//
@@ -179,8 +191,74 @@ public class Loader implements CommandLineRunner {
 //        // load diseaseModel to gene/hp/mp/alleles
 //        loadDiseaseModels();
 
-        loadStatisticalResults();
+        //----------- STEP 6 -----------//
+        loadProceduresParameters();
 
+        //loadStatisticalResults();
+
+    }
+
+
+    public void loadProceduresParameters() throws SQLException {
+        long begin = System.currentTimeMillis();
+
+        String query = "SELECT ppr.stable_id AS procedure_stable_id, " +
+                "ppr.name AS procedure_name, " +
+                "ppr.stage AS procedure_stage, " +
+                "pp.stable_id as parameter_stable_id, " +
+                "pp.name as parameter_name " +
+                "FROM phenotype_procedure ppr " +
+                "JOIN phenotype_procedure_parameter ppp ON ppr.id=ppp.procedure_id  " +
+                "JOIN phenotype_parameter pp ON ppp.parameter_id=pp.id";
+
+        System.out.println(query);
+        int parameterCount = 0;
+
+        try (Connection connection = komp2DataSource.getConnection();
+             PreparedStatement ps = connection.prepareStatement(query)) {
+
+            ResultSet r = ps.executeQuery();
+            while (r.next()) {
+                String procedureStableId = r.getString("procedure_stable_id");
+                String procedureName = r.getString("procedure_name");
+                String procedureStage = r.getString("procedure_stage");
+
+                String parameterStableId = r.getString("parameter_stable_id");
+                String parameterName = r.getString("parameter_name");
+
+                Parameter p = new Parameter();
+                p.setStableId(parameterStableId);
+                p.setName(parameterName);
+
+                parameterCount++;
+
+                Procedure proc = new Procedure();
+
+                if (! loadedProcedures.containsKey(procedureStableId)) {
+
+                    proc.setStableId(procedureStableId);
+                    proc.setName(procedureName);
+                    proc.setStage(procedureStage);
+
+                    if (proc.getParameters() == null){
+                        proc.setParameters(new HashSet<>());
+                    }
+                    proc.getParameters().add(p);
+
+                    loadedProcedures.put(procedureStableId, proc);
+                }
+                else {
+                    proc = loadedProcedures.get(procedureStableId);
+                    proc.getParameters().add(p);
+                }
+
+                procedureRepository.save(proc);
+            }
+        }
+
+        logger.info("Loaded {} procedures and {} parameters", loadedProcedures.size(), parameterCount);
+        String job = "loadProceduresParameters";
+        loadTime(begin, System.currentTimeMillis(), job);
     }
 
     public void loadStatisticalResults() throws IOException, SolrServerException {
