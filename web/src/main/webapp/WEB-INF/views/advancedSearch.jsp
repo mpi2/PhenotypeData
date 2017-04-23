@@ -73,6 +73,10 @@
 				width: 50px;
 				color: white;
 			}
+			i.pr {
+				margin-left: 3px;
+				cursor: pointer;
+			}
 			form#goSubmit {
 				padding: 0;
 				border: none;
@@ -128,7 +132,7 @@
 			div.srchBox {
 				margin: 2px !important;
 			}
-			div.srchBox input {
+			div.srchBox input.termFilter {
 				height: 25px !important;
 				padding: 0 0 0 25px;
 				width: 450px;
@@ -140,6 +144,18 @@
 				top: 10px;
 				left: 460px;
 				cursor: pointer;
+			}
+			input.andOr {
+				position: absolute;
+				top: 6px;
+				left: 490px;
+				display: none;
+			}
+			.andOr2 {
+				display: none;
+			}
+			button.andOr2 {
+				margin-left: 5px;
 			}
 			span.sugListPheno {
 				font-size: 10px;
@@ -690,10 +706,10 @@
             });
 
             function catchOnReset(){
-                var dataType = $("input[name='queryType']:checked").val();
-				    console.log(dataType);
-                $("input[name=mygroup][value=" + dataType + "]").prop('checked', true);
-
+//                var dataType = $("input[name='queryType']:checked").val();
+//				    console.log(dataType);
+//                $("input[name=mygroup][value=" + dataType + "]").prop('checked', true);
+				//$('textarea').val("");
 			}
                 function connectCircle(id1, id2) {
 
@@ -1515,10 +1531,12 @@
 
 				function addAutosuggestFilter(dataType){
 				    var idname = dataType.toLowerCase();
+
 					var input = "<div class='block srchBox'>" +
 						"<i class='fa fa-search'></i>" +
-						"<input class='inputfilter srch" + dataType + "' value='search'>" +
-						"<i class='fa fa-times' id='" + idname + "Clear'></i>  " +
+						"<input class='termFilter srch" + dataType + "' value='search'>" +
+						"<i class='fa fa-times' id='" + idname + "Clear'></i>" +
+						"<input class='andOr " + dataType + "' type='checkbox' name='term'>" +
 						"</div>";
 
 					var legendLabel, buttLabel, restriction = null;
@@ -1541,8 +1559,13 @@
                     }
 
 					var legend = "<legend>"+ legendLabel + "</legend>";
+
                     var butt = "<button class='ap'>" + buttLabel + "</button>";
-					var filter = "<fieldset id='" + dataType + "Filter' class='dfilter " + dataType + "'>" + legend + restriction + input + butt + "</fieldset>";
+                    //var butt2 = "<button class='apAndOr'>Define And/Or for " + legendLabel + "</button>";
+                    var andButt = "<button class='andOr2 " + dataType + "'>AND</button>";
+                    var orButt = "<button class='andOr2 " + dataType + "'>OR</button>";
+                    var boolText = "<textarea class='andOr2 " + dataType + "' rows='2' cols=''></textarea>";
+					var filter = "<fieldset id='" + dataType + "Filter' class='dfilter " + dataType + "'>" + legend + restriction + input + butt + andButt + orButt + boolText + "</fieldset>";
 
 					$('div#dataAttributes').append(filter);
 
@@ -1554,17 +1577,62 @@
                             $(this).val("");
 						}
                     });
+
+                    // clear input when the value is not default: "search"
                     $("fieldset#" + dataType + "Filter").on("click", "i#" + idname + "Clear", function(){
 						$(this).siblings($("input.srch" + dataType)).val("");
 					});
 
+                    // define and/or for term filters
+                    $("fieldset#" + dataType + "Filter button.andOr2").click(function(){
+
+                        var valList = [];
+
+                        $("input." + dataType + "[name='term']:checked").each(function(){
+                            console.log($(this).siblings('.termFilter').val());
+                            valList.push('term="' + $(this).siblings('.termFilter').val() + '"');
+                        })
+
+                        var bool = $(this).text();
+                        var boolStr = null;
+
+                        if (valList.length == 0){
+                            boolStr = bool + " ";
+                        }
+                        else if (valList.length > 1) {
+                            boolStr = "(" + valList.join(" " + bool + " ") + ") ";
+                        }
+                        else if (valList.length == 1){
+                            boolStr = valList[0] + " " + bool + " ";
+                        }
+
+                        var boolTextarea = $("fieldset#" + dataType + "Filter textarea.andOr2");
+                        boolTextarea.val(boolTextarea.val() + boolStr);
+
+                        return false;
+
+                    });
+
+
                     // add new input
                     $("fieldset#" + dataType + "Filter button.ap").click(function(){
                         $(input).insertAfter($("fieldset#" + dataType + "Filter .srchBox").last());
+
+
+                        if ($("fieldset#" + dataType + "Filter .srchBox").size() > 1 ){
+                            $("fieldset#" + dataType + "Filter .andOr").show();
+                            $("fieldset#" + dataType + "Filter .andOr2").show();
+                        }
+
                         // allow remove input just added
-                        $("<button class='pr'>Remove</button>").insertAfter($("fieldset#" + dataType + "Filter .inputfilter").last());
-                        $('button.pr').click(function(){
-                           $(this).siblings('input').parent().remove();
+                        $("<i class='pr fa fa-minus-square-o' aria-hidden='true'></i>").insertAfter($("fieldset#" + dataType + "Filter .termFilter").last());
+
+                        $('i.pr').click(function(){
+                           $(this).siblings('input.termFilter').parent().remove();
+                            if ($("fieldset#" + dataType + "Filter .srchBox").size() == 1){
+                                $("fieldset#" + dataType + "Filter .andOr").hide();
+                                $("fieldset#" + dataType + "Filter .andOr2").hide();
+                            }
 						});
 
                         addAutosuggest($('input.srch' + dataType).last());
