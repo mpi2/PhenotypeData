@@ -11,7 +11,7 @@ import org.springframework.stereotype.Repository;
 @Repository
  public interface ProcedureRepository extends GraphRepository<Procedure> {
 
-    Procedure findByProcedureStableId(String procedureStableId);
+    Procedure findByStableId(String procedureStableId);
 
 
 

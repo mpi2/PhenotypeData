@@ -12,10 +12,8 @@ public class Parameter {
     @GraphId
     Long id;
 
-    private String parameterId;
-    private String parameterStableId;
-    private String parameterStableKey;
-    private String parameterName;
+    private String stableId;
+    private String name;
 
     public Long getId() {
         return id;
@@ -25,46 +23,28 @@ public class Parameter {
         this.id = id;
     }
 
-    public String getParameterId() {
-        return parameterId;
+    public String getStableId() {
+        return stableId;
     }
 
-    public void setParameterId(String parameterId) {
-        this.parameterId = parameterId;
+    public void setStableId(String stableId) {
+        this.stableId = stableId;
     }
 
-    public String getParameterStableId() {
-        return parameterStableId;
+    public String getName() {
+        return name;
     }
 
-    public void setParameterStableId(String parameterStableId) {
-        this.parameterStableId = parameterStableId;
-    }
-
-    public String getParameterStableKey() {
-        return parameterStableKey;
-    }
-
-    public void setParameterStableKey(String parameterStableKey) {
-        this.parameterStableKey = parameterStableKey;
-    }
-
-    public String getParameterName() {
-        return parameterName;
-    }
-
-    public void setParameterName(String parameterName) {
-        this.parameterName = parameterName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     @Override
     public String toString() {
         return "Parameter{" +
                 "id=" + id +
-                ", parameterId='" + parameterId + '\'' +
-                ", parameterStableId='" + parameterStableId + '\'' +
-                ", parameterStableKey='" + parameterStableKey + '\'' +
-                ", parameterName='" + parameterName + '\'' +
+                ", stableId='" + stableId + '\'' +
+                ", name='" + name + '\'' +
                 '}';
     }
 }

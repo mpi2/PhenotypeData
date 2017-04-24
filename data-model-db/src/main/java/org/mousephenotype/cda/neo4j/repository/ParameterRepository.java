@@ -11,7 +11,7 @@ import org.springframework.stereotype.Repository;
 @Repository
  public interface ParameterRepository extends GraphRepository<Parameter> {
 
-    Parameter findByParameterStableId(String parameterStableId);
+    Parameter findByStableId(String parameterStableId);
 
 
 
