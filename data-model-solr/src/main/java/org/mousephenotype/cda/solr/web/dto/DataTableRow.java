@@ -342,6 +342,10 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
 																		// gene.getSymbol(),
 																		// procedure.getName(),
 																		// this.colonyId);
+				if(phenotypeTerm.getId()!=null){
+					System.out.println("phenotype term id="+phenotypeTerm.getId());
+					url+="/"+phenotypeTerm.getId();
+				}
 				evidenceLink.setDisplay(true);
 			} else {
 

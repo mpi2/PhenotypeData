@@ -12,6 +12,8 @@ import org.mousephenotype.cda.solr.web.dto.GrossPathPageTableRow;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import static org.mockito.Matchers.contains;
+
 import java.io.IOException;
 import java.util.*;
 
@@ -39,7 +41,7 @@ public class GrossPathService {
 
 	}
 	
-	public List<GrossPathPageTableRow> getSummaryTableData(List<ObservationDTO> allObservations, List<SolrDocument> images, List<ObservationDTO> abnormaObservations, boolean abnormalOnly) throws SolrServerException, IOException {
+	public List<GrossPathPageTableRow> getSummaryTableData(List<ObservationDTO> allObservations, List<SolrDocument> images, List<ObservationDTO> abnormaObservations, boolean abnormalOnly, List<String> mpChildren) throws SolrServerException, IOException {
 		List<GrossPathPageTableRow> rows = new ArrayList<>();
 		System.out.println("observations for GrossPath size with abnormal=" + allObservations.size());
 		Map<String, List<ObservationDTO>> anatomyToObservationMap = this.getAnatomyNamesToObservationsMap(allObservations);//only look at abnormal anatomies now as summary view
@@ -74,10 +76,13 @@ public class GrossPathService {
 										row.addOntologicalParam(parameter, subOntologyBean);
 										//System.out.println(subOntologyBean);
 										if(!obs.getSubTermName().get(i).equals("no abnormal phenotype detected")){
-											
+											if(mpChildren.contains(obs.getSubTermId().get(i))){
+											row.setMpId(obs.getSubTermId().get(i));
+											}
 											abnormalObservations++;
 										}else{
 											normalObservations++;
+											
 										}
 										}
 									}
@@ -100,7 +105,12 @@ public class GrossPathService {
 						row.setNumberOfAbnormalObservations(abnormalObservations);
 						row.setNumberOfNormalObservations(normalObservations);
 						if(abnormalOnly && abnormalObservations>0){
-						rows.add(row);
+//							if(mpChildren==null){
+								rows.add(row);
+							//}
+//							else if(row.getMpId()!=null && row.getMpId().equals(mpChildren)){//if mpId specified is equal to or below in the MP tree then add the row....
+//								rows.add(row);
+//							}
 						}
 						if(!abnormalOnly){
 							rows.add(row);
@@ -312,8 +322,8 @@ public class GrossPathService {
 				}
 			}
 		}
-		System.out.println("abnormalObservations size in getString="+abnormalObservations);
-		System.out.println("normal or abnormal="+normalOrAbnormal);
+		//System.out.println("abnormalObservations size in getString="+abnormalObservations);
+		//System.out.println("normal or abnormal="+normalOrAbnormal);
 		if(abnormalObservations>0){
 			return "Abnormal";
 		}
