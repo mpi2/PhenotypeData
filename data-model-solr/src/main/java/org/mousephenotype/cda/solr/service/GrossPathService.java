@@ -1,21 +1,21 @@
 package org.mousephenotype.cda.solr.service;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.WordUtils;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
+
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
-import org.mousephenotype.cda.solr.service.dto.ImageDTO;
 import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.mousephenotype.cda.solr.web.dto.GrossPathPageTableRow;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import static org.mockito.Matchers.contains;
-
-import java.io.IOException;
-import java.util.*;
 
 @Service
 public class GrossPathService {
