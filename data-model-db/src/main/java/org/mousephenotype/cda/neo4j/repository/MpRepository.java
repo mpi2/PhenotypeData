@@ -84,6 +84,9 @@ public interface MpRepository extends Neo4jRepository<Mp, Long> {
     // FIND BY MP TERM (INCLUDES SELF)
     //---------------------------------------
 
+    @Query("MATCH (mp:Mp) WHERE mp.mpTerm =~ ('(?i)'+'.*'+{keyword}+'.*') return mp.mpTerm limit 10")
+    List<String> findMpTermByKeyword(@Param( "keyword" ) String keyword);
+
     @Query("MATCH (mp:Mp) WHERE mp.mpTerm =~ ('(?i)'+'.*'+{mpTerm}+'.*')  WITH mp, "
             + "[(mp)<-[:MOUSE_PHENOTYPE]-(mm:MouseModel)-[:GENE]->(g:Gene)-[:MARKER_SYNONYM]->(ms:MarkerSynonym) | ms] as markerSynonym, "
             + "[(mp)<-[:MOUSE_PHENOTYPE]-(mm:MouseModel)-[:GENE]->(g:Gene)-[:HUMAN_GENE_SYMBOL]->(hgs:HumanGeneSymbol) | hgs] as humanGeneSymbol, "

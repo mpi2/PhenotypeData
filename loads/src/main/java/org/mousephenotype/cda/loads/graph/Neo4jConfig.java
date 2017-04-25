@@ -2,6 +2,7 @@ package org.mousephenotype.cda.loads.graph;
 
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrClient;
+import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.neo4j.ogm.session.SessionFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -29,7 +30,14 @@ public class Neo4jConfig {
     @Value("${owlpath}")
     protected String owlpath;
 
+    @NotNull
+    @Value("${solr.host}")
+    private String solrBaseUrl;
 
+    @Bean(name = "statisticalResultCore")
+    HttpSolrClient getExperimentCore() {
+        return new HttpSolrClient(solrBaseUrl + "/statistical-result");
+    }
 
     @Bean
     public org.neo4j.ogm.config.Configuration getConfiguration() {

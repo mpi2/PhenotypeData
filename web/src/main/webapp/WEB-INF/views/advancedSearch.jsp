@@ -8,6 +8,7 @@
 	<jsp:attribute name="header">
 
         <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+		<link rel="stylesheet" href="${baseUrl}/css/vendor/jquery.range.css">
 
         <style type="text/css">
 
@@ -17,20 +18,22 @@
 			div#graphInfo {
 				font-size: 12px;
 			}
+
+			/* two col div */
             .fl2 {
-                width: 82%;
-                float: right;
-				border-left: 1px solid #C1C1C1;
-				padding-left: 10px;
+                /*width: 82%;*/
+                /*float: right;*/
+				/*border-left: 1px solid #C1C1C1;*/
+				/*padding-left: 10px;*/
             }
-            .fl1 {
-                float: none; /* not needed, just for clarification */
-                /* the next props are meant to keep this block independent from the other floated one */
-                width: 160px;
-                /*padding-right: 10px;*/
-                /*border-right: 1px solid #C1C1C1;*/
-				font-size: 12px;
-            }
+            /*.fl1 {*/
+                /*float: none; !* not needed, just for clarification *!*/
+                /*!* the next props are meant to keep this block independent from the other floated one *!*/
+                /*width: 160px;*/
+                /*!*padding-right: 10px;*!*/
+                /*!*border-right: 1px solid #C1C1C1;*!*/
+				/*font-size: 12px;*/
+            /*}*/
 			button#clearAllDt {
 				margin-left: 50px;
 			}
@@ -70,8 +73,12 @@
 				vertical-align: middle;
 				text-align: center;
 				padding: 0 5px;
-				width: 50px;
+				width: 80px !important;
 				color: white;
+			}
+			i.pr {
+				margin-left: 45px;
+				cursor: pointer;
 			}
 			form#goSubmit {
 				padding: 0;
@@ -128,7 +135,7 @@
 			div.srchBox {
 				margin: 2px !important;
 			}
-			div.srchBox input {
+			div.srchBox input.termFilter {
 				height: 25px !important;
 				padding: 0 0 0 25px;
 				width: 450px;
@@ -140,6 +147,18 @@
 				top: 10px;
 				left: 460px;
 				cursor: pointer;
+			}
+			button.andOr {
+				position: absolute;
+				top: 6px;
+				left: 480px;
+				display: none;
+			}
+			.andOr2 {
+				display: none;
+			}
+			button.andOr2 {
+				margin-left: 5px;
 			}
 			span.sugListPheno {
 				font-size: 10px;
@@ -323,6 +342,9 @@
 
 			a#bqdoc, i.pheno, i.disease {
 				cursor: pointer;
+			}
+			div.sliderBox {
+				margin: 20px 0 30px 10px;
 			}
 
 		</style>
@@ -600,7 +622,7 @@
                             {"mouse phenotype ontology definition":"mpDefinition"},
                             {"top level mouse phenotype ontology id":"topLevelMpId"},
                             {"top level mouse phenotype ontology term":"topLevelMpTerm"},
-                            {"mouse phenotype ontology term synonym": "ontoSynonym"}
+                            {"mouse phenotype ontology term synonym": "ontoSynonym"},
 
                         ],
                         findBy: [
@@ -627,73 +649,78 @@
 //                    }
                 };
 
-                paper = new Raphael(document.getElementById('graph'), 570, 180);
 
-                for (var id in idsVar) {
-                    var text = id;
-                    drawCircle(id, idsVar[id].text, idsVar[id].x, idsVar[id].y, idsVar[id].r, paper);
-                }
+                addDatatypeFiltersAttributes("Mp");
+                addDatatypeFiltersAttributes("Gene");
+                addDatatypeFiltersAttributes("DiseaseModel");
 
-                // connect circles
-                connectCircle("Gene", "HumanGeneSymbol");
-                //connectCircle("Gene", "EnsemblGeneId");
-                //connectCircle("Gene", "MarkerSynonym");
-                connectCircle("Gene", "Allele");
-                connectCircle("MouseModel", "Gene");
-                connectCircle("MouseModel", "Mp");
-//                connectCircle("DiseaseGene", "Gene");
-//                connectCircle("DiseaseGene", "Hp");
-                connectCircle("DiseaseModel", "Gene");
-                connectCircle("DiseaseModel", "Allele");
-                connectCircle("DiseaseModel", "MouseModel");
-                connectCircle("DiseaseModel", "Hp");
-                connectCircle("DiseaseModel", "Mp");
-                connectCircle("Mp", "Hp");
-                //connectCircle("Mp", "OntoSynonym");
+//                paper = new Raphael(document.getElementById('graph'), 570, 180);
+//
+//                for (var id in idsVar) {
+//                    var text = id;
+//                    drawCircle(id, idsVar[id].text, idsVar[id].x, idsVar[id].y, idsVar[id].r, paper);
+//                }
 
-				// default search type
-				$("input[name='queryType'][value='Gene']").prop("checked", true);
-                drawnCircles["Gene"].click();
+//                // connect circles
+//                connectCircle("Gene", "HumanGeneSymbol");
+//                //connectCircle("Gene", "EnsemblGeneId");
+//                //connectCircle("Gene", "MarkerSynonym");
+//                connectCircle("Gene", "Allele");
+//                connectCircle("MouseModel", "Gene");
+//                connectCircle("MouseModel", "Mp");
+////                connectCircle("DiseaseGene", "Gene");
+////                connectCircle("DiseaseGene", "Hp");
+//                connectCircle("DiseaseModel", "Gene");
+//                connectCircle("DiseaseModel", "Allele");
+//                connectCircle("DiseaseModel", "MouseModel");
+//                connectCircle("DiseaseModel", "Hp");
+//                connectCircle("DiseaseModel", "Mp");
+//                connectCircle("Mp", "Hp");
+//                //connectCircle("Mp", "OntoSynonym");
 
-				// gene or phenotype centric search
-				$("input[name='queryType']").on('change', function () {
-					// remove overlay on top of graph to make circles clickable after a query type is chosen
-                    $('#overlay').hide();
+//				// default search type
+//				$("input[name='queryType'][value='Gene']").prop("checked", true);
+//                drawnCircles["Gene"].click();
 
-                    var dataType = $("input[name='queryType']:checked").val();
-                    var circle = drawnCircles[dataType];
+//				// gene or phenotype centric search
+//				$("input[name='queryType']").on('change', function () {
+//					// remove overlay on top of graph to make circles clickable after a query type is chosen
+//                    $('#overlay').hide();
+//
+//                    var dataType = $("input[name='queryType']:checked").val();
+//                    var circle = drawnCircles[dataType];
+//
+//                    // select if not yet
+//                    if (circle.attr("stroke") != "darkorange") {
+//                        drawnCircles[dataType].click();
+//                    }
+//				});
 
-                    // select if not yet
-                    if (circle.attr("stroke") != "darkorange") {
-                        drawnCircles[dataType].click();
-                    }
-				});
-
-                $('button#clearAllDt').click(function(){
-                    var nodeType = mapInputId2NodeType($('input.bq:checked').attr('id'));
-                    for(var c=0; c<selectedCircles.length; c++){
-                        if (selectedCircles[c].data('id') != nodeType) {
-                            var circle = selectedCircles[c];
-                            selectedCircles.slice(c, 1);
-                            // now remove color and filter
-                            circle.attr({"stroke":"black", "stroke-width": 1});
-                            removeDatatypeFiltersAttributes(circle.data("id"));
-                        }
-                    }
-                	// grayout submit button as there is no filters/attributes selected
-                    $("input[type='submit']").prop('disabled', true).removeClass('active');
-                    return false;
-                });
+//                $('button#clearAllDt').click(function(){
+//                    var nodeType = mapInputId2NodeType($('input.bq:checked').attr('id'));
+//                    for(var c=0; c<selectedCircles.length; c++){
+//                        if (selectedCircles[c].data('id') != nodeType) {
+//                            var circle = selectedCircles[c];
+//                            selectedCircles.slice(c, 1);
+//                            // now remove color and filter
+//                            circle.attr({"stroke":"black", "stroke-width": 1});
+//                            removeDatatypeFiltersAttributes(circle.data("id"));
+//                        }
+//                    }
+//                	// grayout submit button as there is no filters/attributes selected
+//                    $("input[type='submit']").prop('disabled', true).removeClass('active');
+//                    return false;
+//                });
 
                 $( "#accordion" ).accordion();
 
             });
 
             function catchOnReset(){
-                var dataType = $("input[name='queryType']:checked").val();
-				    console.log(dataType);
-                $("input[name=mygroup][value=" + dataType + "]").prop('checked', true);
-
+//                var dataType = $("input[name='queryType']:checked").val();
+//				    console.log(dataType);
+//                $("input[name=mygroup][value=" + dataType + "]").prop('checked', true);
+				//$('textarea').val("");
 			}
                 function connectCircle(id1, id2) {
 
@@ -1420,12 +1447,14 @@
                     if (dataType == "Gene"){
                         addChomosomeRangerFilter(dataType);
                         addMgiGeneListBox(dataType);
+                        addAlleleTypes(dataType);
 						compartmentAttrsFilters(dataType, "Gene");
 					}
                     else if (dataType == "Mp"){
+                        addSex(dataType);
                         addAutosuggestFilter(dataType);
                         //addOntologyChildrenLevelFilter(dataType);
-                        compartmentAttrsFilters(dataType, "MP");
+                        compartmentAttrsFilters(dataType, "Phenotype");
                     }
                     else if (dataType == "Hp"){
                         addAutosuggestFilter(dataType);
@@ -1433,12 +1462,28 @@
                         compartmentAttrsFilters(dataType, "HP");
                     }
                     else if (dataType == "DiseaseModel"){
-                        addAutosuggestFilter(dataType);
+                        addDiseaseUi(dataType);
                         compartmentAttrsFilters(dataType, "Disease");
+
+                        addSliderJs();
+
                     }
 
                 }
 
+                function addSliderJs(){
+                    $('.range-slider').jRange({
+                        from: 0,
+                        to: 100,
+                        step: 1,
+                        scale: [0,25,50,75,100],
+                        format: '%s',
+                        width: 200,
+                        showLabels: true,
+                        isRange : true
+                    });
+
+				}
                 function removeDatatypeFiltersAttributes(dataType) {
                     $('fieldSet#' + dataType).remove();
 
@@ -1455,6 +1500,15 @@
 
 					table.appendTo($('div#dataAttributes'));
 				}
+
+				function addSex(dataType){
+                    var legend = "Sex";
+                    var male = "<input type='radio' name='sex' value='male'> Male";
+                    var female = "<input type='radio' name='sex' value='female'> Female";
+                    var filter = "<fieldset id='" + dataType + "Filter' class='dfilter " + dataType + "'>" + legend + male + female + "</fieldset>";
+
+                    $('div#dataAttributes').append(filter);
+                }
 
                 function addChomosomeRangerFilter(dataType){
 
@@ -1513,12 +1567,55 @@
                     $('div#dataAttributes').append(filter);
 				}
 
+				function addDiseaseUi(dataType){
+
+                    var assoc = "<b>Association by</b>: " +
+						"<input type='checkbox' name='asssoc' value='ortholog'> Gene ortholog" +
+						"<input type='checkbox' name='asssoc' value='phenotypicSimilarity'> Phenotypic similarity<br><br>";
+
+                    var slider = "<b>Phenodigm score</b>:<div class='sliderBox'><input type='hidden' class='range-slider' value='23' /></div>";
+
+                    var input = "<div class='block srchBox'>" +
+                        "<i class='fa fa-search'></i>" +
+                        "<input class='termFilter srch" + dataType + "' value='search'>" +
+                        "<i class='fa fa-times' id='" + dataType + "Clear'></i>" +
+                        "</div>";
+
+					var legendLabel = "Human disease filter";
+					var restriction = "Narrow your query to the human disease you are interested in";
+
+                    var legend = "<legend>"+ legendLabel + "</legend>";
+
+                    var filter = "<fieldset id='" + dataType + "Filter' class='dfilter " + dataType + "'>" + legend + assoc + slider + restriction + input + "</fieldset>";
+
+                    $('div#dataAttributes').append(filter);
+
+                    // clear input
+                    $("fieldset#" + dataType + "Filter").on("click", "input.srch" + dataType, function(){
+                        if ($(this).val() == "search"){
+                            $(this).val("");
+                        }
+                    });
+
+                    // clear input when the value is not default: "search"
+                    $("fieldset#" + dataType + "Filter").on("click", "i#" + dataType + "Clear", function(){
+                        $(this).siblings($("input.srch" + dataType)).val("");
+                    });
+
+                    addAutosuggest($('input.srch' + dataType));
+
+
+
+				}
+
 				function addAutosuggestFilter(dataType){
 				    var idname = dataType.toLowerCase();
+
 					var input = "<div class='block srchBox'>" +
 						"<i class='fa fa-search'></i>" +
-						"<input class='inputfilter srch" + dataType + "' value='search'>" +
-						"<i class='fa fa-times' id='" + idname + "Clear'></i>  " +
+						"<input class='termFilter srch" + dataType + "' value='search'>" +
+						"<i class='fa fa-times' id='" + idname + "Clear'></i>" +
+						"<button class='andOr " + dataType + "'>1</button>" +
 						"</div>";
 
 					var legendLabel, buttLabel, restriction = null;
@@ -1541,8 +1638,14 @@
                     }
 
 					var legend = "<legend>"+ legendLabel + "</legend>";
+
                     var butt = "<button class='ap'>" + buttLabel + "</button>";
-					var filter = "<fieldset id='" + dataType + "Filter' class='dfilter " + dataType + "'>" + legend + restriction + input + butt + "</fieldset>";
+                    var andButt = "<button class='andOr2 " + dataType + "'>AND</button>";
+                    var orButt = "<button class='andOr2 " + dataType + "'>OR</button>";
+                    var oqButt = "<button class='andOr2 " + dataType + "'>(</button>";
+                    var cqButt = "<button class='andOr2 " + dataType + "'>)</button>";
+                    var boolText = "<textarea class='andOr2 " + dataType + "' rows='2' cols=''></textarea>";
+					var filter = "<fieldset id='" + dataType + "Filter' class='dfilter " + dataType + "'>" + legend + restriction + input + butt + andButt + orButt + oqButt + cqButt + boolText + "</fieldset>";
 
 					$('div#dataAttributes').append(filter);
 
@@ -1554,17 +1657,54 @@
                             $(this).val("");
 						}
                     });
+
+                    // clear input when the value is not default: "search"
                     $("fieldset#" + dataType + "Filter").on("click", "i#" + idname + "Clear", function(){
 						$(this).siblings($("input.srch" + dataType)).val("");
 					});
 
+                    var boolTextarea = $("fieldset#" + dataType + "Filter textarea.andOr2");
+
+                    // define and/or for term filters
+                    $("fieldset#" + dataType + "Filter button.andOr").click(function(){
+                        var termVal = $(this).siblings('.termFilter').val();
+                        boolTextarea.val(boolTextarea.val() + "term='" + termVal + "' ");
+                        return false;
+                    });
+                    $("fieldset#" + dataType + "Filter button.andOr2").click(function(){
+                        var bool = $(this).text();
+                        boolTextarea.val(boolTextarea.val() + bool + " ");
+                        return false;
+                    });
+
+
                     // add new input
                     $("fieldset#" + dataType + "Filter button.ap").click(function(){
                         $(input).insertAfter($("fieldset#" + dataType + "Filter .srchBox").last());
+
+                        var lastButt = $("fieldset#" + dataType + "Filter button.andOr").last();
+                        lastButt.text($("fieldset#" + dataType + "Filter .srchBox").size());
+
+                        lastButt.click(function(){
+                            var termVal = $(this).siblings('.termFilter').val();
+                            boolTextarea.val(boolTextarea.val() + "term='" + termVal + "' ");
+                            return false;
+                        });
+
+                        if ($("fieldset#" + dataType + "Filter .srchBox").size() > 1 ){
+                            $("fieldset#" + dataType + "Filter .andOr").show();
+                            $("fieldset#" + dataType + "Filter .andOr2").show();
+                        }
+
                         // allow remove input just added
-                        $("<button class='pr'>Remove</button>").insertAfter($("fieldset#" + dataType + "Filter .inputfilter").last());
-                        $('button.pr').click(function(){
-                           $(this).siblings('input').parent().remove();
+                        $("<i class='pr fa fa-minus-square-o' aria-hidden='true'></i>").insertAfter($("fieldset#" + dataType + "Filter button.andOr").last());
+
+                        $('i.pr').click(function(){
+                           $(this).siblings('input.termFilter').parent().remove();
+                            if ($("fieldset#" + dataType + "Filter .srchBox").size() == 1){
+                                $("fieldset#" + dataType + "Filter .andOr").hide();
+                                $("fieldset#" + dataType + "Filter .andOr2").hide();
+                            }
 						});
 
                         addAutosuggest($('input.srch' + dataType).last());
@@ -1573,14 +1713,43 @@
                     });
                 }
 
+                function addAlleleTypes(dataType){
+                    var legend = "<legend>Genotype and allele type filter</legend>";
+
+					var genotypes = ["Homozygote","Heterozygote","Hemizygote"];
+                    var genotypesStr = "<b>Genotype</b>:";
+                    for(var g=0; g<genotypes.length; g++){
+                        genotypesStr += "<input type='checkbox' name='genotype'> " + genotypes[g];
+                    }
+
+
+					var alleletypesStr = "<b>Allele type</b>: ";
+					var types = ["CRISPR(em)", "KOMP", "KOMP.1", "EUCOMM A", "EUCOMM B", "EUCOMM C", "EUCOMM D", "EUCOMM E"];
+                    for(var t=0; t<types.length; t++){
+                        alleletypesStr += "<input type='checkbox' name='aleletype'> " + types[t];
+					}
+
+                    var filter = "<fieldset id='" + dataType + "Filter' class='dfilter " + dataType + "'>" + legend + genotypesStr + "<br>" + alleletypesStr + "</fieldset>";
+
+                    $('div#dataAttributes').append(filter);
+				}
+
                 function addMgiGeneListBox(dataType){
-                    var legend = "<legend>MGI gene list</legend>";
-                    var hint = "Eg. Nxn (symbol) or MGI:109331 (ID). Please do not mix symbol and ID in your list. Use comma, space, tab or new line as separator."
+                    var legend = "<legend>Mouse or Human gene list filter</legend>";
+                    var mouse = "<input class='species' type='radio' name='species' value='mouse' checked> Mouse";
+                    var human = "<input class='species' type='radio' name='species' value='human'> Human ortholog";
+                    var hint = "<br>Eg. Nxn (symbol) or MGI:109331 (ID). Please do not mix symbol and ID in your list. Use comma, space, tab or new line as separator."
                     var input = "<textarea id='geneList' rows='3' cols=''></textarea>"
-                    var filter = "<fieldset id='" + dataType + "Filter' class='dfilter " + dataType + "'>" + legend + hint + input + "</fieldset>";
+                    var filter = "<fieldset id='" + dataType + "Filter' class='dfilter " + dataType + "'>" + legend + mouse + human + hint + input + "</fieldset>";
 
                     $('div#dataAttributes').append(filter);
                 }
+
+                function addSlider(sliderId){
+
+
+                }
+
 
 		</script>
 
@@ -1589,6 +1758,7 @@
         <script type='text/javascript' src='https://bartaz.github.io/sandbox.js/jquery.highlight.js'></script>
         <script type='text/javascript' src='https://cdn.datatables.net/plug-ins/f2c75b7247b/features/searchHighlight/dataTables.searchHighlight.min.js'></script>
         <script type='text/javascript' src='${baseUrl}/js/utils/tools.js'></script>
+		<script type='text/javascript' src='${baseUrl}/js/vendor/jquery.range-min.js'></script>
 
     </jsp:attribute>
 
@@ -1613,18 +1783,18 @@
 
 								<div class='fl2'>
 
-									<h6 class='bq'>IMPC Data Model</h6><hr>
-									<div id="graphInfo">Click the datatypes to add/remove filters or attributes.  <button id="clearAllDt">Clear all selections</button></div>
-									<div id='graph'></div>
-									<h6 class='bq'>Customized data filter and attributes</h6><hr>
+									<%--<h6 class='bq'>IMPC Data Model</h6><hr>--%>
+									<%--<div id="graphInfo">Click the datatypes to add/remove filters or attributes.  <button id="clearAllDt">Clear all selections</button></div>--%>
+									<%--<div id='graph'></div>--%>
+									<%--<h6 class='bq'>Customized data filter and attributes</h6><hr>--%>
 									<div id="dataAttributes"></div>
 								</div>
 
-                                <div class='fl1'>
-                                    This search is<br><input type="radio" name="queryType" value="Gene"> Mouse-gene centric<br>
-                                    <input type="radio" name="queryType" value="Mp"> Mouse-phenotype centric<br>
-                                </div>
-                                <div style="clear: both"></div>
+                                <%--<div class='fl1'>--%>
+                                    <%--This search is<br><input type="radio" name="queryType" value="Gene"> Mouse-gene centric<br>--%>
+                                    <%--<input type="radio" name="queryType" value="Mp"> Mouse-phenotype centric<br>--%>
+                                <%--</div>--%>
+                                <%--<div style="clear: both"></div>--%>
 							</div>
 						</div> <!-- end of section -->
 							<div id='sq'>
