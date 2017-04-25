@@ -311,6 +311,8 @@
 
 
 		<field name="embryo_data_available" type="boolean" indexed="true" stored="true" multiValued="false"/>
+		
+		<field name="embryo_analysis_view_url" type="string" indexed="true" stored="true" multiValued="false"/>
 
 		<field name="seq_region_id" type="string" indexed="true" stored="true" multiValued="false"/>
 		<field name="seq_region_start" type="int" indexed="true" stored="true" multiValued="false"/>

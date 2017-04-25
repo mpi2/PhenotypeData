@@ -48,6 +48,10 @@ public class EmbryoRestGetter {
             embryoStrain.setMgi(jsonObject.getString("mgi"));
             embryoStrain.setCentre(jsonObject.getString("centre"));
             embryoStrain.setUrl(jsonObject.getString("url"));
+            if(jsonObject.has("analysis_view_url")){
+            	embryoStrain.setAnalysisViewUrl(jsonObject.getString("analysis_view_url"));
+            }
+            
 
             List<String> procedureStableKeys = new ArrayList<String>();
             List<String> parameterStableKeys = new ArrayList<String>();
