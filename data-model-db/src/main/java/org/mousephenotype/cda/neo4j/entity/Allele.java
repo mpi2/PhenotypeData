@@ -15,6 +15,7 @@ public class Allele {
 
     private String alleleMgiAccessionId;
     private String alleleSymbol;
+    private String alleleType;
     private String alleleDescription;
     private String mutationType;
     private String esCellStatus;
@@ -97,18 +98,27 @@ public class Allele {
         this.gene = gene;
     }
 
+    public String getAlleleType() {
+        return alleleType;
+    }
+
+    public void setAlleleType(String alleleType) {
+        this.alleleType = alleleType;
+    }
+
     @Override
     public String toString() {
         return "Allele{" +
                 "id=" + id +
                 ", alleleMgiAccessionId='" + alleleMgiAccessionId + '\'' +
                 ", alleleSymbol='" + alleleSymbol + '\'' +
+                ", alleleType='" + alleleType + '\'' +
                 ", alleleDescription='" + alleleDescription + '\'' +
                 ", mutationType='" + mutationType + '\'' +
                 ", esCellStatus='" + esCellStatus + '\'' +
                 ", mouseStatus='" + mouseStatus + '\'' +
                 ", phenotypeStatus='" + phenotypeStatus + '\'' +
-                ", gene=" + (gene!=null && gene.getMarkerSymbol()!=null?gene.getMarkerSymbol():"null") +
+                ", gene=" + gene +
                 '}';
     }
 }

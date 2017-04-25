@@ -4,18 +4,13 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.HttpSolrClient;
-import org.apache.solr.client.solrj.response.QueryResponse;
 import org.mousephenotype.cda.annotations.ComponentScanNonParticipant;
-import org.mousephenotype.cda.db.pojo.OntologyTerm;
-import org.mousephenotype.cda.db.pojo.StatisticalResult;
 import org.mousephenotype.cda.neo4j.entity.*;
 import org.mousephenotype.cda.neo4j.repository.*;
 import org.mousephenotype.cda.owl.OntologyParser;
 import org.mousephenotype.cda.owl.OntologyParserFactory;
 import org.mousephenotype.cda.owl.OntologyTermDTO;
 import org.mousephenotype.cda.solr.service.dto.StatisticalResultDTO;
-import org.semanticweb.elk.util.collections.ArrayHashSet;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.semanticweb.owlapi.model.OWLOntologyStorageException;
 import org.slf4j.Logger;
@@ -112,6 +107,13 @@ public class Loader implements CommandLineRunner {
     @Autowired
     ParameterRepository parameterRepository;
 
+    @Autowired
+    StatisticalResultRepository statisticalResultRepository;
+
+    @Autowired
+    @Qualifier("statisticalResultCore")
+    private SolrClient statisticalResultCore;
+
 
     OntologyParserFactory ontologyParserFactory;
 
@@ -129,8 +131,9 @@ public class Loader implements CommandLineRunner {
     Map<String, String> hpIdTermMap = new HashMap<>();
     Map<String, Set<Hp>> bestMpIdHpMap = new HashMap<>();
     Map<String, Set<Hp>> diseaseIdPhenotypeMap = new HashMap<>();
-    Map<String, Procedure> loadedProcedures = new HashMap<>();
 
+    Map<String, Procedure> loadedProcedures = new HashMap<>();
+    Map<String, Parameter> loadedParameters = new HashMap<>();
 
     private OntologyParser mpHpParser;
     private OntologyParser mpParser;
@@ -151,50 +154,51 @@ public class Loader implements CommandLineRunner {
         logger.info("Start deleting all repositories ...");
 //        FileUtils.deleteDirectory(new File(neo4jDbPath));
 
-//        geneRepository.deleteAll();
-//        alleleRepository.deleteAll();
-//        ensemblGeneIdRepository.deleteAll();
-//        markerSynonymRepository.deleteAll();
-//        ontoSynonymRepository.deleteAll();
-//        humanGeneSymbolRepository.deleteAll();
-//        mpRepository.deleteAll();
-//        hpRepository.deleteAll();
-//        diseaseGeneRepository.deleteAll();
-//        diseaseModelRepository.deleteAll();
-//        mouseModelRepository.deleteAll();
+        geneRepository.deleteAll();
+        alleleRepository.deleteAll();
+        ensemblGeneIdRepository.deleteAll();
+        markerSynonymRepository.deleteAll();
+        ontoSynonymRepository.deleteAll();
+        humanGeneSymbolRepository.deleteAll();
+        mpRepository.deleteAll();
+        hpRepository.deleteAll();
+        diseaseGeneRepository.deleteAll();
+        diseaseModelRepository.deleteAll();
+        mouseModelRepository.deleteAll();
         procedureRepository.deleteAll();
         parameterRepository.deleteAll();
+        statisticalResultRepository.deleteAll();
 
         logger.info("Done deleting all repositories");
 
         //----------- STEP 1 -----------//
         // loading Gene, Allele, EnsemblGeneId, MarkerSynonym, human orthologs
         // based on Peter's allele2 flatfile
-//        loadGenes();
-//
-//        //----------- STEP 2 -----------//
-//        populateHpIdTermMapAndLoadHumanPhenotypes();  //  STEP 2.1
-//        populateBestMpIdHpMap();          // STEP 2.2
-//        extendLoadedHpAndConnectHp2Mp();  // STEP 2.3
-//        loadMousePhenotypes();            // STEP 2.4
-//
-//        //----------- STEP 3 -----------//
-//        populateMouseModelIdMpMap(); // run this before loadMouseModel()
-//        loadMouseModels();
-//
-//        //----------- STEP 4 -----------//
-//        // load disease and Gene, Hp, Mp relationships
-//        populateDiseaseIdPhenotypeMap();
-//        loadDiseaseGenes();
-//
-//        //----------- STEP 5 -----------//
-//        // load diseaseModel to gene/hp/mp/alleles
-//        loadDiseaseModels();
+        loadGenes();
+
+        //----------- STEP 2 -----------//
+        populateHpIdTermMapAndLoadHumanPhenotypes();  //  STEP 2.1
+        populateBestMpIdHpMap();          // STEP 2.2
+        extendLoadedHpAndConnectHp2Mp();  // STEP 2.3
+        loadMousePhenotypes();            // STEP 2.4
+
+        //----------- STEP 3 -----------//
+        populateMouseModelIdMpMap(); // run this before loadMouseModel()
+        loadMouseModels();
+
+        //----------- STEP 4 -----------//
+        // load disease and Gene, Hp, Mp relationships
+        populateDiseaseIdPhenotypeMap();
+        //loadDiseaseGenes();
+
+        //----------- STEP 5 -----------//
+        // load diseaseModel to gene/hp/mp/alleles
+        loadDiseaseModels();
 
         //----------- STEP 6 -----------//
         loadProceduresParameters();
 
-        //loadStatisticalResults();
+        loadStatisticalResults();
 
     }
 
@@ -230,6 +234,8 @@ public class Loader implements CommandLineRunner {
                 p.setStableId(parameterStableId);
                 p.setName(parameterName);
 
+                loadedParameters.put(parameterStableId, p);
+
                 parameterCount++;
 
                 Procedure proc = new Procedure();
@@ -263,27 +269,55 @@ public class Loader implements CommandLineRunner {
 
     public void loadStatisticalResults() throws IOException, SolrServerException {
 
-        SolrClient solr = new HttpSolrClient("http://ves-ebi-d0:8090/mi/impc/dev/solr/statistical-result");
-        SolrQuery query = new SolrQuery();
-        query.setQuery("*:*");
-        query.setStart(0);
-        query.setRows(10);
+        long begin = System.currentTimeMillis();
 
-        QueryResponse response = solr.query(query);
-        long rows = response.getResults().getNumFound();
-        System.out.println("docs found: "+rows);
+        SolrQuery query = new SolrQuery()
+                .setQuery("*:*")
+                .setRows(5000000);
 
-        List<StatisticalResultDTO> docs = response.getBeans(StatisticalResultDTO.class);
-        for(StatisticalResultDTO doc : docs){
-            System.out.println(doc.getMarkerSymbol());
+        int srCount = 0;
+        List<StatisticalResultDTO> srdto = statisticalResultCore.query(query).getBeans(StatisticalResultDTO.class);
+        for (StatisticalResultDTO result : srdto) {
 
+            if (result.getpValue() != null) {
+                StatisticalResult sr = new StatisticalResult();
 
+                sr.setpValue(result.getpValue());
+                sr.setPhenotypeSex(result.getPhenotypeSex());
+                sr.setPhenotypingCenter(result.getPhenotypingCenter());
+                sr.setColonyId(result.getColonyId());
+                sr.setZygosity(result.getZygosity());
+                sr.setEffectSize(result.getEffectSize());
+                sr.setSignificant(result.getSignificant());
 
+                // through relationships
+                sr.setGene(loadedGenes.get(result.getMarkerAccessionId()));
+                sr.setAllele(loadedAlleles.get(result.getAlleleAccessionId()));
+
+                Set<Mp> mps = new HashSet<>();
+                if (result.getMpTermId() != null){
+                    mps.add(loadedMps.get(result.getMpTermId()));
+                }
+                if (result.getMaleMpTermId() != null){
+                    mps.add(loadedMps.get(result.getMaleMpTermId()));
+                }
+                if (result.getFemaleMpTermId() != null){
+                    mps.add(loadedMps.get(result.getFemaleMpTermId()));
+                }
+                sr.setMps(mps);
+
+                sr.setProcedure(loadedProcedures.get(result.getProcedureStableId()));
+                sr.setParameter(loadedParameters.get(result.getParameterStableId()));
+
+                srCount++;
+                statisticalResultRepository.save(sr);
+            }
         }
 
+        logger.info("Loaded total of {} Stats-result nodes", srCount);
 
-
-
+        String job = "loadStatisticalResults";
+        loadTime(begin, System.currentTimeMillis(), job);
     }
 
     public void loadGenes() throws IOException, SolrServerException {
@@ -447,6 +481,10 @@ public class Loader implements CommandLineRunner {
 
                 String alleleSymbol = array[columns.get("allele_symbol")];
                 allele.setAlleleSymbol(alleleSymbol);
+
+                if (!array[columns.get("allele_type")].isEmpty()) {
+                    allele.setAlleleType(array[columns.get("allele_type")]);
+                }
 
                 if (!array[columns.get("allele_description")].isEmpty()) {
                     allele.setAlleleDescription(array[columns.get("allele_description")]);
@@ -1020,7 +1058,8 @@ public class Loader implements CommandLineRunner {
                 "  mdma.hp_matched_terms, " +
                 "  mdma.mp_matched_terms, " +
                 "  mdgshq.mod_predicted, " +
-                "  mdgshq.htpc_predicted " +
+                "  mdgshq.htpc_predicted, " +
+                "  mdgshq.human_curated " +
                 "FROM mouse_disease_gene_summary_high_quality mdgshq " +
                 "  JOIN mouse_model_gene_ortholog mmgo ON mdgshq.model_gene_id = mmgo.model_gene_id " +
                 "  JOIN mouse_disease_model_association mdma ON mdgshq.disease_id = mdma.disease_id AND mmgo.model_id = mdma.model_id " +
@@ -1050,6 +1089,7 @@ public class Loader implements CommandLineRunner {
                     d.setDiseaseId(diseaseId);
                     d.setDiseaseTerm(r.getString("disease_term"));
                     d.setDiseaseClasses(r.getString("disease_classes"));
+                    d.setHumanCurated(r.getInt("human_curated") == 1 ? true : false);
 
                     d.setMouseModel(mm);
 

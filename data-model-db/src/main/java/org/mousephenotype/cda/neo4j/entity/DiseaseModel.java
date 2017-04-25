@@ -22,6 +22,7 @@ public class DiseaseModel {
     //private List<String> diseaseAlts;
     private Boolean impcPredicted;
     private Boolean mgiPredicted;
+    private Boolean humanCurated;
     private Double rawScore;
     private Double diseaseToModelScore;
     private Double modelToDiseaseScore;
@@ -153,6 +154,14 @@ public class DiseaseModel {
         this.allele = allele;
     }
 
+    public Boolean getHumanCurated() {
+        return humanCurated;
+    }
+
+    public void setHumanCurated(Boolean humanCurated) {
+        this.humanCurated = humanCurated;
+    }
+
     @Override
     public String toString() {
         return "DiseaseModel{" +
@@ -162,11 +171,12 @@ public class DiseaseModel {
                 ", diseaseClasses='" + diseaseClasses + '\'' +
                 ", impcPredicted=" + impcPredicted +
                 ", mgiPredicted=" + mgiPredicted +
+                ", humanCurated=" + humanCurated +
                 ", rawScore=" + rawScore +
                 ", diseaseToModelScore=" + diseaseToModelScore +
                 ", modelToDiseaseScore=" + modelToDiseaseScore +
-                ", gene=" + ((gene!=null && gene.getMarkerSymbol()!=null)?gene.getMarkerSymbol():"null") +
-                ", allele=" + ((allele!=null && allele.getAlleleSymbol()!=null)?allele.getAlleleSymbol():"null") +
+                ", gene=" + gene +
+                ", allele=" + allele +
                 ", mousePhenotypes=" + mousePhenotypes +
                 ", humanPhenotypes=" + humanPhenotypes +
                 ", mouseModel=" + mouseModel +

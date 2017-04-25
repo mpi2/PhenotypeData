@@ -24,7 +24,9 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.neo4j.entity.*;
 import org.mousephenotype.cda.neo4j.repository.*;
+import org.mousephenotype.cda.solr.SolrUtils;
 import org.mousephenotype.cda.solr.generic.util.Tools;
+import org.mousephenotype.cda.solr.service.AutoSuggestService;
 import org.mousephenotype.cda.solr.service.SolrIndex;
 
 import org.slf4j.Logger;
@@ -113,10 +115,61 @@ public class AdvancedSearchController {
     @Autowired
     MouseModelRepository mouseModelRepository;
 
+    @Autowired
+    AutoSuggestService autoSuggestService;
+
     private String NA = "not available";
     private String baseUrl = null;
 
-    @RequestMapping(value="/meshtree", method=RequestMethod.GET)
+
+//    @RequestMapping(value = "/graph/nodeName?", method = RequestMethod.POST)
+//    public ResponseEntity<String> dataTableNeo4jBq(
+//            @RequestParam(value = "docType", required = true) String docType,
+//            @RequestParam(value = "q", required = true) String query,
+//            HttpServletResponse response,
+//            Model model) throws IOException, URISyntaxException, SolrServerException{
+//
+//        String sortStr = "&sort=score desc";
+//        String solrBq = null;
+//        String qfStr = query.contains("*") ? "auto_suggest" : "string auto_suggest";
+//
+////        if ( thisInput.hasClass('srchMp') ){
+////            docType = 'mp';
+////            solrBq = "&bq=mp_term:*^90 mp_term_synonym:*^80 mp_narrow_synonym:*^75";
+////        }
+////        else if ( thisInput.hasClass('srchHp') ){
+////            docType = 'hp';
+////            solrBq = "&bq=hp_term:*^90 hp_term_synonym:*^80";
+////        }
+////        else if ( thisInput.hasClass('srchDiseaseModel') ){
+////            docType = 'disease';
+////        }
+////
+////        thisInput.autocomplete({
+////                source: function( request, response ) {
+////            var qfStr = request.term.indexOf("*") != -1 ? "auto_suggest" : "string auto_suggest";
+////            // var facetStr = "&facet=on&facet.field=docType&facet.mincount=1&facet.limit=-1";
+////            var sortStr = "&sort=score desc";
+////            // alert(solrUrl + "/autosuggest/select?rows=10&fq=docType:" + docType + "&wt=json&qf=" + qfStr + "&defType=edismax" + solrBq + sortStr);                        )
+////
+////            $.ajax({
+////                    //url: solrUrl + "/autosuggest/select?wt=json&qf=string auto_suggest&defType=edismax" + solrBq,
+////                    url: solrUrl + "/autosuggest/select?rows=10&fq=docType:" + docType + "&wt=json&qf=" + qfStr + "&defType=edismax" + solrBq + sortStr,
+////                    dataType
+//
+//        if(docType.equals("mp")){
+//            solrBq = "&bq=mp_term:*^90 mp_term_synonym:*^80 mp_narrow_synonym:*^75";
+////            autoSuggestService.getMpTermByKeyword(docType, qfStr, solrBq);
+//            String solrurl = SolrUtils.getBaseURL(solrIndex.getSolrServer("autosuggest"))
+//                    + "/select?q=" + query +
+//
+//            //System.out.println("QueryBroker url: "+ solrurl);
+//            JSONObject json = solrIndex.getResults(solrurl);
+//        }
+//        return null;
+//    }
+
+        @RequestMapping(value="/meshtree", method=RequestMethod.GET)
     public String loadmeshtreePage(
             @RequestParam(value = "core", required = false) String core,
             HttpServletRequest request,
