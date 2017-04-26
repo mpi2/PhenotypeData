@@ -114,6 +114,7 @@ public class PaperController {
             references = referenceDAO.getReferenceRows(sSearch, orderByStr);
         }
         else {
+            System.out.println("paper here");
             references = referenceDAO.getReferenceRows(sSearch, orderByStr, consortium);
         }
 
