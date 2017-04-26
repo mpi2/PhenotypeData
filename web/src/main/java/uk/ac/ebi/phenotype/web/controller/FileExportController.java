@@ -1258,10 +1258,17 @@ public class FileExportController {
 
 	private List<String> composeAlleleRefExportRows(int iDisplayLength, int iDisplayStart, String sSearch, String dumpMode, Boolean consortium, String filter) throws SQLException {
 		List<String> rowData = new ArrayList<>();
-		rowData.add(referenceDAO.heading);
 
-		System.out.print("**** :");
-		System.out.println(sSearch == null);
+		// don't want abstract and cited_by for now, unless users want to see them
+		List<String> cols = Arrays.asList(referenceDAO.heading.split("\\t"));
+		List<String> cols2 = new ArrayList<>();
+		for (String col : cols){
+			if (!(col.equals("abstract") || col.equals("cited_by")) ){
+				cols2.add(col);
+			}
+		}
+		rowData.add(StringUtils.join(cols2,"\\t"));
+
 		List<ReferenceDTO> references = null;
 		if (filter != null) {
 			boolean agencyOnly = true;

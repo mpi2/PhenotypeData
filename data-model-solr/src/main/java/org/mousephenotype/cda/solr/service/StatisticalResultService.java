@@ -28,6 +28,7 @@ import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.util.NamedList;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.mousephenotype.cda.constants.OverviewChartsConstants;
 import org.mousephenotype.cda.db.dao.BiologicalModelDAO;
@@ -224,7 +225,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 	 * @throws SolrServerException, IOException
 	 */
 	public Integer getGenesByAnatomy(String anatomyId)
-			throws SolrServerException, IOException {
+			throws SolrServerException, IOException, JSONException {
 
 		SolrQuery query = new SolrQuery();
 		query.setQuery("(" + StatisticalResultDTO.ANATOMY_TERM_ID + ":\"" + anatomyId + "\" OR " +

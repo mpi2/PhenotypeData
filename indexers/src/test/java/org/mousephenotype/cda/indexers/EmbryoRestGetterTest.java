@@ -1,5 +1,6 @@
 package org.mousephenotype.cda.indexers;
 
+import org.json.JSONException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.indexers.utils.EmbryoRestData;
@@ -28,7 +29,7 @@ public class EmbryoRestGetterTest {
 	private String embryoViewerFilename;
 
 	@Test
-	public void getEmbryDataTest(){
+	public void getEmbryDataTest() throws JSONException {
 		System.out.println("in getEmbryoDataTest blah");
 		EmbryoRestGetter embryoRest=new EmbryoRestGetter(embryoViewerFilename);
 		EmbryoRestData embryoDataSet = embryoRest.getEmbryoRestData();

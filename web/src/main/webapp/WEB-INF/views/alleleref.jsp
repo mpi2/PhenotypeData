@@ -80,6 +80,7 @@
                 margin: 10px 0;
             }
 
+
          </style>
 
         <%--<script type='text/javascript' src='${baseUrl}/js/charts/highcharts.js?v=${version}'></script>--%>

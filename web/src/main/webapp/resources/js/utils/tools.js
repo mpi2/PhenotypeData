@@ -185,89 +185,89 @@
                 });
 
                 //----------------------------------------
-                // chart quarter by year of publication
+                //  monthly increase (weekly breakdown)
                 //----------------------------------------
-                var monthSeriesData = [];
-                var weekDrillDownSeriesData = [];
-                var monthTotal = 0;
-                Object.keys(j.paperMonthlyIncrementWeekDrilldown).sort().forEach(function (yearmm, index) {
-                    var ymo = {};
-                    var wo = {};
-                    wo.name = yearmm;
-                    var parts = yearmm.split("-");
-                    var year = parts[0];
-                    wo.id = yearmm;
-                    wo.data = [];
-                    var sum = 0;
-                    Object.keys(j.paperMonthlyIncrementWeekDrilldown[yearmm]).sort().forEach(function (mmdd, index) {
-                        var wc = [];
-                        var weekCnt = j.paperMonthlyIncrementWeekDrilldown[yearmm][mmdd];
-                        sum += weekCnt;
-                        monthTotal += weekCnt;
-                        wc.push(year + "-" + mmdd);
-                        wc.push(weekCnt)
-                        wo.data.push(wc);
-                    });
-                    weekDrillDownSeriesData.push(wo);
-
-                    ymo.name = yearmm;
-                    ymo.y = sum;
-                    ymo.drilldown = yearmm;
-                    monthSeriesData.push(ymo);
-                });
-
-                Highcharts.chart(chartMonthIncrease, {
-                    chart: {
-                        type: 'column'
-                    },
-                    title: {
-                        text: 'Monthly increase of IKMC/IMPC related publications'
-                    },
-                    subtitle: {
-                        text: 'Click the month columns for weekly breakdown'
-                    },
-                    xAxis: {
-                        type: 'category'
-                    },
-                    yAxis: {
-                        title: {
-                            text: 'Number of publications'
-                        }
-
-                    },
-                    legend: {
-                        enabled: false
-                    },
-                    plotOptions: {
-                        series: {
-                            borderWidth: 0,
-                            pointWidth: 20,
-                            dataLabels: {
-                                enabled: true,
-                                format: '{point.y}',
-                                // formatter:function() {
-                                //     var pcnt = (this.y / monthTotal) * 100;
-                                //     return Highcharts.numberFormat(pcnt) + '%';
-                                // }
-                            }
-                        }
-                    },
-                    tooltip: {
-                        headerFormat: '<span style="font-size:11px">{series.name}</span><br>',
-                        pointFormat: '<span style="color:{point.color}">{point.name}</span>: <b>{point.y}</b> of ' + monthTotal + '<br/>'
-                    },
-                    credits: {
-                        enabled: false
-                    },
-                    series: [{
-                        name: 'month column',
-                        colorByPoint: true,
-                        data: monthSeriesData
-                    }],
-                    drilldown: {
-                        series: weekDrillDownSeriesData
-                    }
-                });
+                // var monthSeriesData = [];
+                // var weekDrillDownSeriesData = [];
+                // var monthTotal = 0;
+                // Object.keys(j.paperMonthlyIncrementWeekDrilldown).sort().forEach(function (yearmm, index) {
+                //     var ymo = {};
+                //     var wo = {};
+                //     wo.name = yearmm;
+                //     var parts = yearmm.split("-");
+                //     var year = parts[0];
+                //     wo.id = yearmm;
+                //     wo.data = [];
+                //     var sum = 0;
+                //     Object.keys(j.paperMonthlyIncrementWeekDrilldown[yearmm]).sort().forEach(function (mmdd, index) {
+                //         var wc = [];
+                //         var weekCnt = j.paperMonthlyIncrementWeekDrilldown[yearmm][mmdd];
+                //         sum += weekCnt;
+                //         monthTotal += weekCnt;
+                //         wc.push(year + "-" + mmdd);
+                //         wc.push(weekCnt)
+                //         wo.data.push(wc);
+                //     });
+                //     weekDrillDownSeriesData.push(wo);
+                //
+                //     ymo.name = yearmm;
+                //     ymo.y = sum;
+                //     ymo.drilldown = yearmm;
+                //     monthSeriesData.push(ymo);
+                // });
+                //
+                // Highcharts.chart(chartMonthIncrease, {
+                //     chart: {
+                //         type: 'column'
+                //     },
+                //     title: {
+                //         text: 'Monthly increase of IKMC/IMPC related publications'
+                //     },
+                //     subtitle: {
+                //         text: 'Click the month columns for weekly breakdown'
+                //     },
+                //     xAxis: {
+                //         type: 'category'
+                //     },
+                //     yAxis: {
+                //         title: {
+                //             text: 'Number of publications'
+                //         }
+                //
+                //     },
+                //     legend: {
+                //         enabled: false
+                //     },
+                //     plotOptions: {
+                //         series: {
+                //             borderWidth: 0,
+                //             pointWidth: 20,
+                //             dataLabels: {
+                //                 enabled: true,
+                //                 format: '{point.y}',
+                //                 // formatter:function() {
+                //                 //     var pcnt = (this.y / monthTotal) * 100;
+                //                 //     return Highcharts.numberFormat(pcnt) + '%';
+                //                 // }
+                //             }
+                //         }
+                //     },
+                //     tooltip: {
+                //         headerFormat: '<span style="font-size:11px">{series.name}</span><br>',
+                //         pointFormat: '<span style="color:{point.color}">{point.name}</span>: <b>{point.y}</b> of ' + monthTotal + '<br/>'
+                //     },
+                //     credits: {
+                //         enabled: false
+                //     },
+                //     series: [{
+                //         name: 'month column',
+                //         colorByPoint: true,
+                //         data: monthSeriesData
+                //     }],
+                //     drilldown: {
+                //         series: weekDrillDownSeriesData
+                //     }
+                // });
 
                 // ---------------------------------------
                 // chart quarter by year of publication
@@ -485,7 +485,7 @@
                                         var id = oConf.id;
 
                                         $.ajax({
-                                            'url': baseUrl + '/fetchAgencyPapers?doAlleleRef=' + JSON.stringify(oConf),
+                                            'url': baseUrl + '/dataTableAlleleRef2?doAlleleRef=' + JSON.stringify(oConf),
                                             'async': true,
                                             'jsonp': 'json.wrf',
                                             'success': function (json) {
@@ -507,27 +507,33 @@
 
                                                 });
 
-                                                $('table#agency').on("click", "div.abstxt", function(){
-                                                    if ($(this).next().is(":visible")){
+                                                $('table#agency').on("click", "div.valToggle", function(){
+                                                    console.log("ciicked for "+ $(this).attr('id'));
+                                                    if ($(this).next().is(":visible")) {
                                                         $(this).next().hide();
-                                                        $(this).text("Show abstract");
-                                                    }
-                                                    else {
-                                                        $(this).next().show();
-                                                        $(this).text("Hide abstract");
-                                                    }
-                                                });
 
-                                                $('table#agency').on("click", "div.meshTree", function(){
-                                                    //console.log("mesh: "+ $(this).next().text());
-                                                    if ($(this).next().is(":visible")){
-                                                        $(this).next().hide();
-                                                        $(this).text("Show mesh terms");
+                                                        if ($(this).attr('id') == "abstract") {
+                                                            $(this).text("Show abstract");
+                                                        }
+                                                        else if ($(this).attr('id') == "citedBy") {
+                                                            $(this).text("Cited by (" + $(this).attr('rel') + ")");
+                                                        }
+                                                        else if ($(this).attr('id') == "meshTree") {
+                                                            $(this).text("Show mesh terms");
+                                                        }
                                                     }
                                                     else {
                                                         $(this).next().show();
-                                                        $(this).text("Hide mesh terms");
-                                                        //showMeshTree($(this).next().text());
+
+                                                        if ($(this).attr('id') == "abstract") {
+                                                            $(this).text("Hide abstract");
+                                                        }
+                                                        else if ($(this).attr('id') == "citedBy") {
+                                                            $(this).text("Hide citations");
+                                                        }
+                                                        else if ($(this).attr('id') == "meshTree") {
+                                                            $(this).text("Hide mesh terms");
+                                                        }
                                                     }
                                                 });
 
@@ -592,7 +598,8 @@
 
                                                 // sort by date_of_publication and reload table with new content
                                                 $('table#'+ id + ' > caption button').on('click', function(){
-                                                    oConf.id = $(this).parent().parent().siblings('div.dataTables_processing').attr('id').replace('_processing','');
+                                                    //oConf.id = $(this).parent().parent().siblings('div.dataTables_processing').attr('id').replace('_processing','');
+                                                    oConf.id = id;
                                                     oConf.consortium = oConf.id == "consortiumPapers" ? true : false;
 
                                                     if ($(this).siblings("i").hasClass("fa-caret-down")){
@@ -605,7 +612,7 @@
                                                     }
 
                                                     $.ajax({
-                                                        'url': baseUrl + '/fetchAgencyPapers?doAlleleRef=' + JSON.stringify(oConf),
+                                                        'url': baseUrl + '/dataTableAlleleRef2?doAlleleRef=' + JSON.stringify(oConf),
                                                         'async': true,
                                                         'jsonp': 'json.wrf',
                                                         'success': function (json) {
@@ -925,26 +932,11 @@
             ],
             "initComplete": function (oSettings, json) {  // when dataTable is loaded
 
-                // // so that the event works with pagination
-                $('table#'+id).on("click", "div.meshTree", function(){
-                    //console.log("mesh: "+ $(this).next().text());
-                    if ($(this).next().is(":visible")){
-                        $(this).next().hide();
-                        $(this).text("Show mesh terms");
-                    }
-                    else {
-                        $(this).next().show();
-                        $(this).text("Hide mesh terms");
-                        //showMeshTree($(this).next().text());
-                    }
-                });
-
                 // download tool
                 oConf.fileName = 'impc_publications';
                 oConf.iDisplayStart = 0;
                 oConf.iDisplayLength = 5000;
                 oConf.dataType = "alleleRef";
-                oConf.rowFormat = true;
 
                 var fileTypeTsv = "fileType=tsv";
                 var fileTypeXls = "fileType=xls";
@@ -984,8 +976,12 @@
 
 				// sort by date_of_publication and reload table with new content
 				$('table#'+ id + ' > caption button').on('click', function(){
-                    oConf.id = $('div.saveTable').siblings('div.dataTables_processing').attr('id').replace('_processing','');
+                    //oConf.id = $('div.saveTable').siblings('div.dataTables_processing').attr('id').replace('_processing','');
+                    oConf.id = id;
                     oConf.consortium = oConf.id == "consortiumPapers" ? true : false;
+
+                    console.log("id: "+ oConf.id);
+                    console.log("consortium: "+ oConf.consortium);
 
 					if ($(this).siblings("i").hasClass("fa-caret-down")){
                         $(this).siblings("i").removeClass("fa-caret-down").addClass("fa-caret-up");
@@ -996,17 +992,18 @@
                         oConf.orderBy = "date_of_publication DESC";
 					}
 
+                    console.log("id: "+ oConf.id);
+                    console.log("consortium: "+ oConf.consortium);
+                    console.log("order: " + oConf.orderBy);
 
 					$.ajax({
 						'url': baseUrl + '/dataTableAlleleRef2?doAlleleRef=' + JSON.stringify(oConf),
 						'async': true,
 						'jsonp': 'json.wrf',
-						'success': function (jsonstr) {
+						'success': function (json) {
 							// utf encoded
-							var j = JSON.parse(jsonstr);
-							oTable.fnClearTable();
-							oTable.fnAddData(j.aaData)
-
+                            oTable.fnClearTable();
+                            oTable.fnAddData(json.aaData)
 						},
                         'error' : function(jqXHR, textStatus, errorThrown) {
                            alert("error: " + errorThrown);
@@ -1015,16 +1012,36 @@
 				});
 
 				// so that the event works with pagination
-                $('table#'+ id).on("click", "div.abstxt", function(){
-                    if ($(this).next().is(":visible")){
+                $('table#'+ id).on("click", "div.valToggle", function(){
+
+                    if ($(this).next().is(":visible")) {
                         $(this).next().hide();
-                        $(this).text("Show abstract");
+
+                        if ($(this).attr('id') == "abstract") {
+                            $(this).text("Show abstract");
+                        }
+                        else if ($(this).attr('id') == "citedBy") {
+                            $(this).text("Cited by (" + $(this).attr('rel') + ")");
+                        }
+                        else if ($(this).attr('id') == "meshTree") {
+                            $(this).text("Show mesh terms");
+                        }
                     }
                     else {
                         $(this).next().show();
-                        $(this).text("Hide abstract");
+
+                        if ($(this).attr('id') == "abstract") {
+                            $(this).text("Hide abstract");
+                        }
+                        else if ($(this).attr('id') == "citedBy") {
+                            $(this).text("Hide citations");
+                        }
+                        else if ($(this).attr('id') == "meshTree") {
+                            $(this).text("Hide mesh terms");
+                        }
                     }
                 });
+
 
                 $('table#'+ id).on("click", "div.alleleToggle", function(){
 

@@ -22,6 +22,7 @@ import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.lang.StringUtils;
 import org.mousephenotype.cda.db.dao.GenomicFeatureDAO;
 import org.mousephenotype.cda.db.dao.ReferenceDAO;
+import org.mousephenotype.cda.db.pojo.ReferenceDTO;
 import org.mousephenotype.cda.solr.generic.util.Tools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -84,9 +85,6 @@ public class PaperController {
 
     @RequestMapping(value = "/dataTableAlleleRef2", method = RequestMethod.GET)
     public ResponseEntity<String> dataTableAlleleRefJson2(
-            //@RequestParam(value = "iDisplayStart", required = false, defaultValue = "0") int iDisplayStart,
-            //@RequestParam(value = "iDisplayLength", required = false, defaultValue = "-1") int iDisplayLength,
-            //@RequestParam(value = "sSearch", required = false) String sSearch,
             @RequestParam(value = "doAlleleRef", required = false) String params,
             HttpServletRequest request,
             HttpServletResponse response,
@@ -95,29 +93,36 @@ public class PaperController {
 
         JSONObject jParams = (JSONObject) JSONSerializer.toJSON(params);
 
-        int iDisplayLength = jParams.getInt("iDisplayLength");
-        int iDisplayStart = jParams.getInt("iDisplayStart");
         String searchKw = jParams.getString("kw");
-        Boolean rowFormat = jParams.getBoolean("rowFormat");
         String orderByStr = jParams.getString("orderBy");
+        Boolean doAgencyPaper =  false;
+        if (jParams.getString("id") != null && jParams.getString("id").equals("agency")){
+            doAgencyPaper = true;
+        }
         Boolean consortium = jParams.containsKey("consortium") ? jParams.getBoolean("consortium") : false;
 
-        String content = fetch_allele_ref2(iDisplayLength, iDisplayStart, searchKw, rowFormat, orderByStr, consortium);
+        String content = fetch_allele_ref2(searchKw, orderByStr, consortium, doAgencyPaper);
         return new ResponseEntity<String>(content, createResponseHeaders(), HttpStatus.CREATED);
 
     }
 
-    public String fetch_allele_ref2(int iDisplayLength, int iDisplayStart, String sSearch, Boolean rowFormat, String orderByStr, Boolean consortium) throws SQLException, UnsupportedEncodingException {
+    public String fetch_allele_ref2(String sSearch, String orderByStr, Boolean consortium, Boolean doAgencyPaper) throws SQLException, UnsupportedEncodingException {
         final int DISPLAY_THRESHOLD = 5;
 
-        List<org.mousephenotype.cda.db.pojo.ReferenceDTO> references = referenceDAO.getReferenceRows(sSearch, orderByStr, consortium);
+        List<ReferenceDTO> references = new ArrayList<>();
+        if (doAgencyPaper){
+            references = referenceDAO.getReferenceRows(sSearch, orderByStr);
+        }
+        else {
+            references = referenceDAO.getReferenceRows(sSearch, orderByStr, consortium);
+        }
 
         JSONObject j = new JSONObject();
         j.put("aaData", new Object[0]);
         j.put("iTotalRecords", references.size());
         j.put("iTotalDisplayRecords", references.size());
 
-        for (org.mousephenotype.cda.db.pojo.ReferenceDTO reference : references) {
+        for (ReferenceDTO reference : references) {
 
             List<String> rowData = new ArrayList<>();
             List<String> alleleSymbolinks = new ArrayList<>();
@@ -229,14 +234,24 @@ public class PaperController {
                 rowData.add("<p><a href='" + paperLink + "'>" + reference.getTitle() + "</a></p>");
             }
 
+            rowData.add("<p><i>" + reference.getJournal() + "</i>, " + reference.getDateOfPublication() + "</p>");
+
+            // papers citing this paper
+            if (! reference.getCitedBy().isEmpty()) {
+                String delimiter = "|||";
+                String citations = reference.getCitedBy().replace(delimiter, "");
+                String[] num = StringUtils.split(reference.getCitedBy(), delimiter);
+                int len = num.length;
+                rowData.add("<div id='citedBy' class='valToggle' rel=" + len + ">Cited by (" + len + ")</div><div class='valHide'><ul>" + citations + "</ul></div>");
+            }
+
             rowData.add("<p class='author'>" + reference.getAuthor() + "</p>");
 
             // hidden by default abstract, toggle to show/hide
             if (! reference.getAbstractTxt().isEmpty()) {
-                rowData.add("<div class='abstxt'>Show abstract</div><div class='abs'>" + reference.getAbstractTxt() + "</div>");
+                rowData.add("<div id='abstract' class='valToggle'>Show abstract</div><div class='valHide'>" + reference.getAbstractTxt() + "</div>");
             }
 
-            rowData.add("<p><i>" + reference.getJournal() + "</i>, " + reference.getDateOfPublication() + "</p>");
             rowData.add("<p>PMID: " + Integer.toString(reference.getPmid()) + "</p>");
 
             if (alleleSymbolinks.size() > 0){
@@ -259,27 +274,24 @@ public class PaperController {
                 }
             }
 
-
             if (agencyList.size() >0) {
                 rowData.add("<p>Grant agency: " + StringUtils.join(agencyList, ", ") + "</p>");
             }
 
-
             // hidden in datatable: mesh terms
             if (! (reference.getMeshTerms().size() == 1 && reference.getMeshTerms().get(0).isEmpty())) {
                 String meshTerms = StringUtils.join(reference.getMeshTerms(), ", ");
-                rowData.add("<div class='meshTree'>Show mesh terms</div><div class='meshTerms'>" + meshTerms + "</div>");
+                rowData.add("<div id='meshTree' class='valToggle'>Show mesh terms</div><div class='valHide'>" + meshTerms + "</div>");
                 //rowData.add("<span class='meshTree'>Show mesh tree</span><div class='meshTerms'>" + reference.getMeshJsonStr() + "</div>");
                 //rowData.add("<div class='meshTree'>Show mesh tree</div><div class='meshTerms'>" + reference.getMeshJsonStr() + "</div><div class='meshTreeDiv'></div>");
             }
 
-            if (rowFormat){
-                // single column
-                String inOneRow = StringUtils.join(rowData, "");
-                List<String> rowData2 = new ArrayList<>();
-                rowData2.add("<div class='innerData'>" + inOneRow + "</div>");
-                rowData = rowData2;
-            }
+            // single column
+            String inOneRow = StringUtils.join(rowData, "");
+            List<String> rowData2 = new ArrayList<>();
+            rowData2.add("<div class='innerData'>" + inOneRow + "</div>");
+            rowData = rowData2;
+
             j.getJSONArray("aaData").add(rowData);
 
         }
@@ -287,24 +299,6 @@ public class PaperController {
 //		System.out.println(j.toString());
         return j.toString();
     }
-
-    @RequestMapping(value = "/fetchAgencyPapers", method = RequestMethod.GET)
-    public ResponseEntity<String> dataTableAlleleRefJson(
-           @RequestParam(value = "doAlleleRef", required = false) String params,
-           //@RequestParam(value = "kw", required = false) String searchKw,
-           HttpServletRequest request,
-           HttpServletResponse response,
-           Model model) throws IOException, URISyntaxException, SQLException {
-
-        JSONObject jParams = (JSONObject) JSONSerializer.toJSON(params);
-        String searchKw = jParams.getString("kw");
-        String orderByStr = jParams.getString("orderBy");
-
-        String content = fetchAgencyPapers(searchKw, orderByStr);
-
-        return new ResponseEntity<String>(content, createResponseHeaders(), HttpStatus.CREATED);
-    }
-
 
     @RequestMapping(value = "/fetchMeshMapping", method = RequestMethod.GET)
     public @ResponseBody
@@ -330,174 +324,27 @@ public class PaperController {
         return fetchPaperStats(); // json string
     }
 
-    public String  fetchAgencyPapers(String kw, String orderByStr) throws SQLException {
-
-        final int DISPLAY_THRESHOLD = 5;
-        List<org.mousephenotype.cda.db.pojo.ReferenceDTO> references = referenceDAO.getReferenceRows(kw, orderByStr);
-
-        JSONObject j = new JSONObject();
-        j.put("aaData", new Object[0]);
-        j.put("iTotalRecords", references.size());
-        j.put("iTotalDisplayRecords", references.size());
-
-        for (org.mousephenotype.cda.db.pojo.ReferenceDTO reference : references) {
-
-            List<String> rowData = new ArrayList<>();
-            List<String> alleleSymbolinks = new ArrayList<>();
-
-            int totalAlleleCount = 0;
-
-            if (reference.getAlleleAccessionIds() != null) {
-
-                totalAlleleCount = reference.getAlleleAccessionIds().size();
-                // show max of 10 alleles for a paper
-                int showCount = totalAlleleCount > DISPLAY_THRESHOLD ? DISPLAY_THRESHOLD : totalAlleleCount;
-
-                for (int i = 0; i < totalAlleleCount; i++) {
-                    String symbol = Tools.superscriptify(reference.getAlleleSymbols().get(i));
-
-                    if (symbol.equals("N/A")) {
-                        continue;
-                    }
-
-                    String cssClass = "class='" + (i < DISPLAY_THRESHOLD ? "showMe" : "hideMe") + "'";
-
-                    if (reference.getImpcGeneLinks() != null && reference.getImpcGeneLinks().size() != 0) {
-
-                        String alleleLink = null;
-                        if (i < reference.getImpcGeneLinks().size()) {
-                            alleleLink = "<span " + cssClass + "><a target='_blank' href='" + reference.getImpcGeneLinks().get(i) + "'>" + symbol + "</a></span>";
-                        } else {
-                            if (i > 0) {
-                                alleleLink = "<span " + cssClass + "><a target='_blank' href='" + reference.getImpcGeneLinks().get(0) + "'>" + symbol + "</a></span>";
-                            } else {
-                                alleleLink = "<span " + cssClass + ">" + symbol + "</span>";
-                            }
-                        }
-
-                        alleleSymbolinks.add(alleleLink);
-                    }
-                    else {
-                        // some allele id does not associate with a gene id in database yet
-                        alleleSymbolinks.add("<span " + cssClass + ">" + symbol + "</span>");
-                    }
-                }
-            }
-
-            int pmid = reference.getPmid();
-            List<String> paperLinks = new ArrayList<>();
-            List<String> paperLinksOther = new ArrayList<>();
-            List<String> paperLinksPubmed = new ArrayList<>();
-            List<String> paperLinksEuroPubmed = new ArrayList<>();
-            String[] urlList = (reference.getPaperUrls() != null) ? reference.getPaperUrls().toArray(new String[0]) : new String[0];
-
-            for (int i = 0; i < urlList.length; i ++) {
-                String[] urls = urlList[i].split(",");
-
-                int pubmedSeen = 0;
-                int eupubmedSeen = 0;
-                int otherSeen = 0;
-
-                for (int k = 0; k < urls.length; k ++) {
-                    String url = urls[k];
-
-                    if (pubmedSeen != 1) {
-                        if (url.startsWith("http://www.pubmedcentral.nih.gov") && url.endsWith("pdf")) {
-                            paperLinksPubmed.add(url);
-
-                            pubmedSeen ++;
-                        } else if (url.startsWith("http://www.pubmedcentral.nih.gov") && url.endsWith(Integer.toString(pmid))) {
-                            paperLinksPubmed.add(url);
-                            pubmedSeen ++;
-                        }
-                    }
-                    if (eupubmedSeen != 1) {
-                        if (url.startsWith("http://europepmc.org/") && url.endsWith("pdf=render")) {
-                            paperLinksEuroPubmed.add(url);
-                            eupubmedSeen ++;
-                        } else if (url.startsWith("http://europepmc.org/")) {
-                            paperLinksEuroPubmed.add(url);
-                            eupubmedSeen ++;
-                        }
-                    }
-                    if (otherSeen != 1 &&  ! url.startsWith("http://www.pubmedcentral.nih.gov") &&  ! url.startsWith("http://europepmc.org/")) {
-                        paperLinksOther.add(url);
-                        otherSeen ++;
-                    }
-                }
-            }
-
-
-            // for now show only one paper link even if there is multiple sources
-            String paperLink = null;
-            if (paperLinksEuroPubmed.size()>0){
-                paperLink = paperLinksEuroPubmed.get(0);
-            }
-            else if (paperLinksPubmed.size()>0){
-                paperLink = paperLinksPubmed.get(0);
-            }
-            else {
-                paperLink = paperLinksOther.get(0);
-            }
-
-            rowData.add("<p><a href='" + paperLink + "'>" + reference.getTitle() + "</a></p>");
-            rowData.add("<p class='author'>" + reference.getAuthor() + "</p>");
-
-            // hidden by default abstract, toggle to show/hide
-            if (! reference.getAbstractTxt().isEmpty()) {
-                rowData.add("<div class='abstxt'>Show abstract</div><div class='abs'>" + reference.getAbstractTxt() + "</div>");
-            }
-
-            rowData.add("<p><i>" + reference.getJournal() + "</i>, " + reference.getDateOfPublication() + "</p>");
-            rowData.add("<p>PMID: " + Integer.toString(reference.getPmid()) + "</p>");
-
-            if (alleleSymbolinks.size() > 0){
-                if (totalAlleleCount > DISPLAY_THRESHOLD) {
-                    alleleSymbolinks.add("<div class='alleleToggle' rel=" + alleleSymbolinks.size() + ">Show all " + alleleSymbolinks.size() + " alleles</div>");
-                }
-                rowData.add("<div class='alleles'>IMPC allele: " + StringUtils.join(alleleSymbolinks, "&nbsp;&nbsp;&nbsp;&nbsp;") + "</div>");
-            }
-
-            List<String> agencyList = new ArrayList();
-            int agencyCount = reference.getGrantAgencies().size();
-
-            // unique agency
-            for (int i = 0; i < agencyCount; i++) {
-                String grantAgency = reference.getGrantAgencies().get(i);
-                if ( ! grantAgency.isEmpty()) {
-                    if ( ! agencyList.contains(grantAgency)) {
-                        agencyList.add(grantAgency);
-                    }
-                }
-            }
-
-            if (agencyList.size() >0) {
-                rowData.add("<p>Grant agency: " + StringUtils.join(agencyList, ", ") + "</p>");
-            }
-
-            // hidden in datatable: mesh terms
-            if (! (reference.getMeshTerms().size() == 1 && reference.getMeshTerms().get(0).isEmpty())) {
-                String meshTerms = StringUtils.join(reference.getMeshTerms(), ", ");
-                rowData.add("<div class='meshTree'>Show mesh terms</div><div class='meshTerms'>" + meshTerms + "</div>");
-                //rowData.add("<span class='meshTree'>Show mesh tree</span><div class='meshTerms'>" + reference.getMeshJsonStr() + "</div>");
-                //rowData.add("<div class='meshTree'>Show mesh tree</div><div class='meshTerms'>" + reference.getMeshJsonStr() + "</div><div class='meshTreeDiv'></div>");
-            }
-
-            // single column
-            String inOneRow = "<tr>" + StringUtils.join(rowData, "") + "</tr>";
-
-            List<String> rowData2 = new ArrayList<>();
-            rowData2.add("<div class='innerData'>" + inOneRow + "</div>");
-            rowData = rowData2;
-
-            j.getJSONArray("aaData").add(rowData);
-
-        }
-
-//		System.out.println(j.toString());
-        return j.toString();
-
-    }
+//    private String fetchCitationTitle(String citationPmids) throws SQLException {
+//
+//        String delimiter = "|||";
+//        Connection conn = admintoolsDataSource.getConnection();
+//        String sql = "select title, paper_url from allele_ref where pmid in (" + citationPmids.replace(delimiter, ",") + ")";
+//        //System.out.println(sql);
+//        PreparedStatement p = conn.prepareStatement(sql);
+//        ResultSet resultSet = p.executeQuery();
+//
+//        List<String> links = new ArrayList<>();
+//
+//        while (resultSet.next()) {
+//            String title = resultSet.getString("title");
+//            List<String> paperUrls = Arrays.asList(StringUtils.split(resultSet.getString("paper_url"), delimiter));
+//
+//            if (paperUrls.size() > 0) {
+//                links.add("<li><a target='_blank' href='" + paperUrls.get(0) + "'>" + title + "</a></li>");
+//            }
+//        }
+//        return StringUtils.join(links, "");
+//    }
 
     public String fetchMeshToTopMeshMapping() throws SQLException {
         Connection conn = admintoolsDataSource.getConnection();
@@ -578,11 +425,10 @@ public class PaperController {
             // bar chart: monthly increments (weekly drilldown) by counts (merge of datasources)
             //-----------------------------------------------------------------------------------
 
-            String querySum2 = "select date, count(*) as count " +
-                    "from datasource_by_year_weekly_increase " +
-                    "where date > '2017-02-09' " +
-                    "group by date";
-
+            String querySum2 = "SELECT date, sum(count) AS counts  "
+                + "FROM datasource_by_year_weekly_increase "
+                + "WHERE date > '2017-02-09' "
+                + "GROUP BY date";
 
             PreparedStatement p5 = conn.prepareStatement(querySum2);
             ResultSet resultSet5 = p5.executeQuery();
@@ -592,7 +438,7 @@ public class PaperController {
 
             while (resultSet5.next()) {
                 String date = resultSet5.getString("date");
-                Integer count = resultSet5.getInt("count");
+                Integer count = resultSet5.getInt("counts");
 
                 String[] dateParts = StringUtils.split(date, "-");
                 String yyyy = dateParts[0];
@@ -653,7 +499,7 @@ public class PaperController {
             //----------------------------------------------------------------------------
             // bar data: agency by number of papers and drilldown to year of that number
             //----------------------------------------------------------------------------
-            String agentQry = "select left(date_of_publication, 4) as yyyy, pmid, agency from allele_ref where falsepositive = 'no'";
+            String agentQry = "select left(date_of_publication, 4) as yyyy, pmid, agency from allele_ref where falsepositive = 'no' and reviewed = 'yes'";
 
             PreparedStatement pAgent = conn.prepareStatement(agentQry);
             ResultSet resultSetAgent = pAgent.executeQuery();
@@ -783,6 +629,7 @@ public class PaperController {
                 Map.Entry pair = (Map.Entry) it.next();
                 String pmidStr = pair.getKey().toString();
 
+                System.out.println("Working on "+ pmidStr);
                 foundPmids.add(pmidStr);
 
                 Pubmed pub = (Pubmed) pair.getValue();
@@ -1231,7 +1078,7 @@ public class PaperController {
 
         // attach pubmed info to pmid
         for( String q : pmidQrys ){
-            //System.out.println("Working on filter: "+ q);
+            System.out.println("Working on filter: "+ q);
             String dbfetchUrl = "http://www.ebi.ac.uk/europepmc/webservices/rest/search/query=" + q + "%20and%20src:MED&format=json&resulttype=core";
             //System.out.println(dbfetchUrl);
 
