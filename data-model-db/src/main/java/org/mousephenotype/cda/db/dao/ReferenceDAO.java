@@ -335,24 +335,25 @@ public class ReferenceDAO {
 //    	PreparedStatement pst = connection.prepareStatement(gcsql);
 //    	pst.executeQuery();
 
-        if (filter == null)
+        if (filter == null) {
             filter = "";
-
+        }
         String impcGeneBaseUrl = "http://www.mousephenotype.org/data/genes/";
         String pmidsToOmit = getPmidsToOmit();
         String notInClause = (pmidsToOmit.isEmpty() ? "" : "  AND pmid NOT IN (" + pmidsToOmit + ")\n");
         String searchClause = "";
+        List<String> srchCols = new ArrayList<>(Arrays.asList("title", "mesh", "abstract"));
 
         if ( ! filter.isEmpty()) {
             int occurrence = findOccurrenceOfSubstr(filter, "|");
             int loop = occurrence + 1;
 
-            List<String> cols = new ArrayList<>(Arrays.asList("title", "mesh", "abstract"));
+
             List<String> titleLikes = new ArrayList<>();
             List<String> meshLikes = new ArrayList<>();
             List<String> abstractLikes = new ArrayList<>();
             for( int oc=0; oc< loop; oc++){
-                for (String col : cols){
+                for (String col : srchCols){
                     if (col.equals("title")){
                         titleLikes.add(col + " LIKE ? ");
                     }
@@ -368,7 +369,7 @@ public class ReferenceDAO {
             searchClause =
                     "  AND (\n"
                     + "(" + StringUtils.join(titleLikes, " OR ") +")\n"
-                    + "(" + StringUtils.join(meshLikes, " OR ") +")\n"
+                    + " OR (" + StringUtils.join(meshLikes, " OR ") +")\n"
                     + " OR (" +  StringUtils.join(abstractLikes, " OR ") + "))\n";
         }
 
@@ -421,20 +422,14 @@ public class ReferenceDAO {
             if ( ! searchClause.isEmpty()) {
                 // Replace the parameter holder ? with the values.
 
-                if (filter.contains("|")){
-                    List<String> fltrs = Arrays.asList(StringUtils.split(filter,"|"));
-                    int ctr = 0;
-                    for(String fltr : fltrs){
-                        ctr++;
-                        ps.setString(ctr, "%" + fltr + "%");
-                        ps.setString(ctr+1, "%" + fltr + "%");
-                        ctr++;
+                List<String> fltrs = Arrays.asList(StringUtils.split(filter,"|"));
+
+                int colCount = 0;
+                for (int i=0; i<fltrs.size(); i++){
+                    for (int j=0; j<srchCols.size(); j++) {
+                        colCount++;
+                        ps.setString(colCount, "%" + fltrs.get(i) + "%");
                     }
-                }
-                else {
-                    String like = "%" + filter + "%";
-                    ps.setString(1, like);
-                    ps.setString(2, like);
                 }
             }
 
