@@ -44,6 +44,10 @@
             <a id="embryoViewerBtn" class="btn" href="${drupalBaseUrl}/embryoviewer/?mgi=${acc}">3D Embryo Imaging</a>
         </c:if>
         
+        <c:if test="${gene.embryoAnalysisUrl!=null}">
+            <a id="embryoAnalysisBtn" class="btn" href="${gene.embryoAnalysisUrl}">3D Embryo Vol Analysis</a>
+        </c:if>
+        
         <c:if test="${gene.dmddImageDataAvailable}">
             <a id="DmddViewerBtn" class="btn" href="https://dmdd.org.uk/mutants/${gene.markerSymbol}" target="_blank" >DMDD Embryo Images</a>
         </c:if> 
