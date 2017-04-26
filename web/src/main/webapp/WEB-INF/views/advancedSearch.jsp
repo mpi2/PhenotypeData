@@ -84,14 +84,14 @@
 				padding: 0;
 				border: none;
 			}
-			form#goSubmit input[type="submit"] {
-				background: lightgrey;
-				cursor: not-allowed;
-			}
-			form#goSubmit input[type="submit"].active {
-				background: #0978A1;
-				cursor: pointer;
-			}
+			/*form#goSubmit input[type="submit"] {*/
+				/*background: lightgrey;*/
+				/*!*cursor: not-allowed;*!*/
+			/*}*/
+			/*form#goSubmit input[type="submit"].active {*/
+				/*background: #0978A1;*/
+				/*cursor: pointer;*/
+			/*}*/
 			div#sq {
 				text-align: center;
 				margin-top: 20px;
@@ -1404,12 +1404,12 @@
                             addDatatypeFiltersAttributes(circle.data("id"));
                         }
 
-                        if ($('fieldset.fsAttrs').size() > 0){
-                            $("input[type='submit']").prop('disabled', false).addClass('active');
-                        }
-                        else {
-                            $("input[type='submit']").prop('disabled', true).removeClass('active');
-                        }
+//                        if ($('fieldset.fsAttrs').size() > 0){
+//                            $("input[type='submit']").prop('disabled', false).addClass('active');
+//                        }
+//                        else {
+//                            $("input[type='submit']").prop('disabled', true).removeClass('active');
+//                        }
                     });
 
                     jLabel.click(function () {
@@ -1642,10 +1642,11 @@
                     var butt = "<button class='ap'>" + buttLabel + "</button>";
                     var andButt = "<button class='andOr2 " + dataType + "'>AND</button>";
                     var orButt = "<button class='andOr2 " + dataType + "'>OR</button>";
+                    var notButt = "<button class='andOr2 " + dataType + "'>NOT</button>";
                     var oqButt = "<button class='andOr2 " + dataType + "'>(</button>";
                     var cqButt = "<button class='andOr2 " + dataType + "'>)</button>";
                     var boolText = "<textarea class='andOr2 " + dataType + "' rows='2' cols=''></textarea>";
-					var filter = "<fieldset id='" + dataType + "Filter' class='dfilter " + dataType + "'>" + legend + restriction + input + butt + andButt + orButt + oqButt + cqButt + boolText + "</fieldset>";
+					var filter = "<fieldset id='" + dataType + "Filter' class='dfilter " + dataType + "'>" + legend + restriction + input + butt + andButt + orButt + notButt + oqButt + cqButt + boolText + "</fieldset>";
 
 					$('div#dataAttributes').append(filter);
 
