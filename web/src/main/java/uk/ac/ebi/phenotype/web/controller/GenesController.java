@@ -688,6 +688,7 @@ public class GenesController {
 				}
 				pr.setTopLevelMpGroups(topLevelMpGroups);
 			}
+			
 			//We need to build the urls now we have more parameters for multiple graphs
 			//this should be refactored so we make fewer requests
 			//pr.buildEvidenceLink(request.getAttribute("baseUrl").toString());
@@ -717,6 +718,10 @@ public class GenesController {
 					 imageLink.setUrl(url);
 					 row.setImagesEvidenceLink(imageLink);
 				}
+			}
+			
+			if(row.getPhenotypeTerm()!=null){
+				System.out.println("phenotype term="+row.getPhenotypeTerm().getId());
 			}
 			
 		}

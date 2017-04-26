@@ -15,6 +15,15 @@ public class  EmbryoStrain{
 				+ ", procedureStableKeys=" + procedureStableKeys + ", parameterStableKeys=" + parameterStableKeys
 				+ ", modalities=" + modalities + "]";
 	}
+	
+	String analysisViewUrl;
+	public String getAnalysisViewUrl() {
+		return analysisViewUrl;
+	}
+	public void setAnalysisViewUrl(String analysisViewUrl) {
+		this.analysisViewUrl = analysisViewUrl;
+	}
+
 	String centre;
 	public String getCentre() {
 		return centre;
