@@ -193,12 +193,12 @@ public class IndexerConfig {
     }
 
 
-	@Bean(name = "sessionFactory")
+	@Bean(name = "sessionFactoryHibernate")
 	@Primary
 	public SessionFactory getSessionFactory() {
 
 		LocalSessionFactoryBuilder sessionBuilder = new LocalSessionFactoryBuilder(komp2DataSource());
-		sessionBuilder.scanPackages("org.mousephenotype.cda.db.dao");
+		sessionBuilder.scanPackages("org.mousephenotype.cda.db.entity");
 		sessionBuilder.scanPackages("org.mousephenotype.cda.db.pojo");
 
 		return sessionBuilder.buildSessionFactory();
@@ -208,7 +208,7 @@ public class IndexerConfig {
 	public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
 		LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
 		em.setDataSource(komp2DataSource());
-		em.setPackagesToScan("org.mousephenotype.cda.db.dao", "org.mousephenotype.cda.db.pojo");
+		em.setPackagesToScan("org.mousephenotype.cda.db.entity", "org.mousephenotype.cda.db.pojo");
 
 		JpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
 		em.setJpaVendorAdapter(vendorAdapter);

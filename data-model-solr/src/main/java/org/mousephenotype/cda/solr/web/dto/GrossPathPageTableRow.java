@@ -243,7 +243,11 @@ public class GrossPathPageTableRow {
 	}
 
 	private int numberOfNormalObservations=0;
+	private String mpId;
 	
+	public String getMpId() {
+		return mpId;
+	}
 	public Integer getSequenceId() {
 		return sequenceId;
 	}
@@ -276,6 +280,15 @@ public void setNumberOfNormalObservations(int normalObservations) {
 		
 		this.numberOfNormalObservations=normalObservations;
 	}
+
+/**
+ * used for gross path table
+ * @param string
+ */
+public void setMpId(String mpId) {
+	this.mpId=mpId;
+	
+}
 	
 	
 	

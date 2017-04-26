@@ -33,7 +33,7 @@ table.dataTable td {
     font-size: 14px !important;
 }
 
-div.alleleToggle, div.meshTree, div.abstxt {
+div.valToggle, div.alleleToggle {
     cursor: pointer;
     font-size: 11px;
     font-weight: bold;
@@ -52,14 +52,12 @@ div.saveTable {
 tr.hiddenMesh {
     display: none;
 }
+table.dataTable tr:nth-child(even) {
+    background-color: #F2F2F2;
+}
 table.dataTable tr td {
     border-bottom: 1px solid lightgrey;
 }
-/*table.dataTable {*/
-    /*!*border-collapse: collapse;*!*/
-    /*margin: 0;*/
-    /*padding: 0;*/
-/*}*/
 table.dataTable div.dataTables_length {
     padding-left: 5px;
 }
@@ -72,7 +70,8 @@ div.innerData p {
     padding: 0;
     margin: 0;
 }
-div.meshTerms, div.abs {
+/*div.meshTerms, div.abs {*/
+div.valHide {
     display: none;
     margin-bottom: 10px;
 }

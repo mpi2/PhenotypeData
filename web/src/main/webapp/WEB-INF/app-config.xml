@@ -125,7 +125,7 @@
 
 
 	<!--this is the phenodigm DAO implementation we are looking for... -->
-	<!--<bean id="phenoDigmDao" class="uk.ac.ebi.phenodigm.dao.PhenoDigmWebDaoSolrImpl" />-->
+	<!--<bean id="phenoDigmDao" class="uk.ac.ebi.phenodigm.entity.PhenoDigmWebDaoSolrImpl" />-->
 
 
 	<!--<bean id="globalConfiguration" class="org.springframework.beans.factory.config.MapFactoryBean">-->

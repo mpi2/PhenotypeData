@@ -74,9 +74,9 @@
 							<%-- <th>
 							Diagnostic
 							</th> --%>
-							<th>
+							<%-- <th>
 							Description
-							</th>
+							</th> --%>
 							<th>
 							Free Text
 							</th>
@@ -196,13 +196,13 @@
 									</c:choose>  --%>
 									
 									
-									<td>
+									<%-- <td>
 										<c:forEach var="parameter" items="${histRow.descriptionTextParameters }">
 										
 										${parameter.textValue }
 										
 										</c:forEach>
-									</td> 
+									</td>  --%>
 									<td>
 										<c:forEach var="parameter" items="${histRow.freeTextParameters }">
 										
@@ -217,7 +217,7 @@
 									${histRow.zygosity}
 									</td>
 									<td>
-									${histRow.sampleId}/ ${histRow.sequenceId}
+									${histRow.sampleId}<%-- / ${histRow.sequenceId} --%>
 									
 									</td>
 									

@@ -37,6 +37,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.util.*;
 
 @Controller
@@ -144,6 +145,40 @@ public class ImageComparatorController {
 			return "comparatorFrames";
 		}
 		return "comparatorFrames";//js viewport used to view images in this view.
+	}
+	
+	/**
+	 * just for testing for jax to see what area of their images are being shown
+	 * @param model
+	 * @param request
+	 * @return
+	 * @throws SolrServerException
+	 * @throws IOException
+	 */
+	@RequestMapping("/imageComparatorUrls")
+	public String imageComparatorUrls(
+				Model model, HttpServletRequest request)
+			throws SolrServerException, IOException {
+		String url1="";
+		String url2="";
+		
+		System.out.println("query="+request.getQueryString());
+		String[] urlList = request.getQueryString().split("url=");
+		System.out.println(urlList);
+		if(urlList.length>0){
+			url1=urlList[1];
+		}
+		if(urlList.length>2){
+			url2=urlList[2];
+		}
+		System.out.println("calling image imageComparatorUrls with "+url1+" url2= "+url2);
+		if(url1.contains("omeroweb.jax.org")){
+		model.addAttribute("url1", url1);
+		}
+		if(url2.contains("omeroweb.jax.org")){
+		model.addAttribute("url2", url2);
+		}
+		return "comparatorUrls";//js viewport used to view images in this view.
 	}
 	
 	private boolean isFederated(List<ImageDTO> filteredMutants) {
