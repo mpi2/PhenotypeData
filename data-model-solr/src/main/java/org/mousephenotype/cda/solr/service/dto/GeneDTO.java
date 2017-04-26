@@ -152,6 +152,7 @@ public class GeneDTO {
 	public static final String PFAMA_GO_TERM = "pfama_go_term";
 	public static final String PFAMA_GO_CAT = "pfama_go_cat";
 	public static final String EMBRYO_DATA_AVAILABLE = "embryo_data_available";
+	public static final String EMBRYO_ANALYSIS_URL="embryo_analysis_view_url";
 	public static final String DMDD_IMAGE_DATA_AVAILABLE="dmdd_image_data_available";
 	public static final String DMDD_LETHAL_DATA_AVAILABLE="dmdd_lethal_data_available";
 	public static final String SEQ_REGION_ID = "seq_region_id";
@@ -170,6 +171,19 @@ public class GeneDTO {
 	public static final String IS_IDG_GENE ="is_idg_gene";
 	
 	
+	@Field(EMBRYO_ANALYSIS_URL)
+	private String embryoAnalysisUrl;
+	
+	
+	
+	public String getEmbryoAnalysisUrl() {
+		return embryoAnalysisUrl;
+	}
+
+	public void setEmbryoAnalysisUrl(String embryoAnalysisUrl) {
+		this.embryoAnalysisUrl = embryoAnalysisUrl;
+	}
+
 	@Field(IS_IDG_GENE)
 	private Boolean isIdgGene;
 
