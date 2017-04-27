@@ -786,6 +786,9 @@
 						else if (property == "ensemblGeneId"){
 						    dataType = "EnsemblGeneId";
 						}
+						else if (property == "male"){
+                            dataType = "EnsemblGeneId";
+                        }
 
                         console.log(dataType + " --- " + property);
 
@@ -1502,7 +1505,7 @@
 				}
 
 				function addSex(dataType){
-                    var legend = "Sex";
+                    var legend = "<legend>Mouse sex filter</legend>";
                     var male = "<input type='radio' name='sex' value='male'> Male";
                     var female = "<input type='radio' name='sex' value='female'> Female";
                     var filter = "<fieldset id='" + dataType + "Filter' class='dfilter " + dataType + "'>" + legend + male + female + "</fieldset>";
