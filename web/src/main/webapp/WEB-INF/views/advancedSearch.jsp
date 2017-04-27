@@ -786,8 +786,9 @@
 						else if (property == "ensemblGeneId"){
 						    dataType = "EnsemblGeneId";
 						}
-						else if (property == "male"){
-                            dataType = "EnsemblGeneId";
+						else if (property == "male" || property == 'female'){
+						    property = "phenotypeSex"
+                            dataType = "StatisticalResult";
                         }
 
                         console.log(dataType + " --- " + property);
@@ -1723,7 +1724,8 @@
 					var genotypes = ["Homozygote","Heterozygote","Hemizygote"];
                     var genotypesStr = "<b>Genotype</b>:";
                     for(var g=0; g<genotypes.length; g++){
-                        genotypesStr += "<input type='checkbox' name='genotype'> " + genotypes[g];
+                        var val = genotypes[g];
+                        genotypesStr += "<input type='checkbox' name='genotype' val='" + val + "'> " + val;
                     }
 
 
