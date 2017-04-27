@@ -35,7 +35,7 @@
 		                                    <li> <a href="http://doi.org/10.5281/zenodo.160267?">Supporting material to enable replicable analysis</a></li>
 		                                    <li>Manuscript and Supplemental Information</li>
 		                                </ul>
-		                                <br/> <br/> <br/>
+		                               
 		                                <!-- <p class="smallerAlleleFont">
 		
 		                                    1. Beery, Annaliese K., and Irving Zucker. "Sex bias in neuroscience and biomedical research." <i>Neuroscience & Biobehavioral Reviews</i> 35.3 (2011): 565-572.
