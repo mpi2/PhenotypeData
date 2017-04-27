@@ -17,11 +17,6 @@
     <name>neo4j-load</name>
     <description>Code for loading the neo4j graph database</description>
 
-    <properties>
-        <!-- The main class to start by executing java -jar -->
-        <start-class>org.mousephenotype.cda.neo4jLoad.graph.Application</start-class>
-    </properties>
-
     <dependencies>
 
         <dependency>
@@ -34,11 +29,11 @@
             <artifactId>data-model-solr</artifactId>
         </dependency>
 
-        <!--<dependency>-->
-            <!--<groupId>org.springframework.boot</groupId>-->
-            <!--<artifactId>spring-boot-starter-test</artifactId>-->
-            <!--<scope>test</scope>-->
-        <!--</dependency>-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
 
     </dependencies>
 
@@ -48,7 +43,7 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
-                    <mainClass>org.springframework.boot.loader.PropertiesLauncher</mainClass>
+                    <mainClass>org.mousephenotype.cda.neo4jLoad.graph.Application</mainClass>
                 </configuration>
                 <executions>
                     <execution>
