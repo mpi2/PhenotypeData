@@ -110,6 +110,12 @@
                 <version>${phenotypedata.version}</version>
             </dependency>
 
+            <dependency>
+                <groupId>org.mousephenotype.cda</groupId>
+                <artifactId>neo4j-load</artifactId>
+                <version>${phenotypedata.version}</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 
