@@ -772,6 +772,7 @@
                     $('fieldset input:checked').each(function () {
                         var dataType = $(this).parent().attr('id');
                         var property = $(this).val();
+                        var name = $(this).attr('name');
 
                         // some conversion here for markerSynonym and Ontosynonym
 						// as they are included in gene or mp, hp for user friendly
@@ -790,6 +791,14 @@
 						    property = "phenotypeSex"
                             dataType = "StatisticalResult";
                         }
+                        else if (name == "genotype"){
+                            dataType = "StatisticalResult";
+                        }
+
+                        if (name == "alleletype"){
+                            property = 'alleleType';
+                            dataType = 'Allele';
+						}
 
                         console.log(dataType + " --- " + property);
 
@@ -1431,21 +1440,6 @@
 
                 function addDatatypeFiltersAttributes(dataType) {
 
-                    var objs = idsVar[dataType].fields;
-
-                    var inputs = "";
-                    for (var i = 0; i < objs.length; i++) {
-                        for (var k in objs[i]) {
-                            var display = k;
-                            var dbproperty = objs[i][k];
-                            //console.log(k + " - " + objs[i][k]);
-                            inputs += "<input type='checkbox' name='" + display + "' value='" + dbproperty + "'>" + display;
-                        }
-                    }
-                    var legend = "<legend>" + idsVar[dataType].text + " attributes</legend>";
-                    var attr = "<fieldset class='fsAttrs " + dataType + "' id='" + dataType + "'>" + legend + inputs + "</fieldset>";
-                    $('div#dataAttributes').append(attr);
-
                     console.log("clicked on: "+ dataType);
 
                     if (dataType == "Gene"){
@@ -1497,6 +1491,23 @@
                 }
 
                 function compartmentAttrsFilters(dataType, name){
+
+                    var objs = idsVar[dataType].fields;
+
+                    var inputs = "";
+                    for (var i = 0; i < objs.length; i++) {
+                        for (var k in objs[i]) {
+                            var display = k;
+                            var dbproperty = objs[i][k];
+                            //console.log(k + " - " + objs[i][k]);
+                            inputs += "<input type='checkbox' name='" + display + "' value='" + dbproperty + "'>" + display;
+                        }
+                    }
+                    var legend = "<legend>" + idsVar[dataType].text + " customized output columns</legend>";
+                    var attr = "<fieldset class='fsAttrs " + dataType + "' id='" + dataType + "'>" + legend + inputs + "</fieldset>";
+                    $('div#dataAttributes').append(attr);
+
+
                     var table = $("<table id='c" + dataType + "' class='nbox'><td></td><td></td></table>");
 
                     table.find('td:first-child').html(name);
@@ -1732,7 +1743,8 @@
 					var alleletypesStr = "<b>Allele type</b>: ";
 					var types = ["CRISPR(em)", "KOMP", "KOMP.1", "EUCOMM A", "EUCOMM B", "EUCOMM C", "EUCOMM D", "EUCOMM E"];
                     for(var t=0; t<types.length; t++){
-                        alleletypesStr += "<input type='checkbox' name='aleletype'> " + types[t];
+                        var val = types[t];
+                        alleletypesStr += "<input type='checkbox' name='aleletype' value='" + val +"'> " + val;
 					}
 
                     var filter = "<fieldset id='" + dataType + "Filter' class='dfilter " + dataType + "'>" + legend + genotypesStr + "<br>" + alleletypesStr + "</fieldset>";
