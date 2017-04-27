@@ -17,7 +17,6 @@
 package org.mousephenotype.cda.loads.common;
 
 import org.apache.commons.dbcp.BasicDataSource;
-import org.mousephenotype.cda.loads.graph.Neo4jConfig;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -43,8 +42,8 @@ import javax.sql.DataSource;
         DataSourceAutoConfiguration.class,
         HibernateJpaAutoConfiguration.class,
         JpaRepositoriesAutoConfiguration.class,
-        DataSourceTransactionManagerAutoConfiguration.class,
-        Neo4jConfig.class})
+        DataSourceTransactionManagerAutoConfiguration.class
+        })
 /**
  * This configuration class holds configuration information shared by the data load create process.
  *
