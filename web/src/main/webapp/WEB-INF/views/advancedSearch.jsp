@@ -474,17 +474,8 @@
                             {"Ensembl gene id":"ensemblGeneId"}
 
                         ],
-                        findBy: [
-                            {"symbol":{
-                                "property":"markerSymbol",
-                                "eg":"Nxn",
-                            }
-                            },
-                            {"ID":{
-                                "property":"mgiAccessionId",
-                                "eg":"MGI:109331"
-                            }
-                            }
+                        selected: [
+                            "mgiAccessionId", "markerSymbol"
                         ]
                     },
                     "HumanGeneSymbol": {
@@ -495,13 +486,8 @@
                         fields: [
                             {"HGNC gene symbol":"humanGeneSymbol"}
                         ],
-                        findBy: [
-                            {
-                                "symbol": {
-                                    "property": "humanGeneSymbol",
-                                    "eg": "NXN"
-                                }
-                            }
+                        selected: [
+
                         ]
                     },
 //                    "EnsemblGeneId": {
@@ -565,17 +551,8 @@
                             {"disease to model score":"diseaseToModelScore"}
                            // {"model to disease score":"modelToDiseaseScore"}
                         ],
-                        findBy: [
-                            {"name":{
-                                "property":"diseaseTerm",
-                                "eg":"Atrial Standstill",
-                            }
-                            },
-                            {"ID":{
-                                "property":"diseaseId",
-                                "eg":"OMIM:108770"
-                            }
-                            }
+                        selected: [
+                            "diseaseId", "diseaseTerm"
                         ]
                     },
                     "MouseModel": {
@@ -598,17 +575,8 @@
                             {"human phenotype ontology id":"hpId"},
                             {"human phenotype ontology term":"hpTerm"}
                         ],
-                        findBy: [
-                            {"name":{
-                                "property":"hpTerm",
-                                "eg":"Hypocalcemia",
-                            }
-                            },
-                            {"ID":{
-                                "property":"hpId",
-                                "eg":"HP:0002901"
-                            }
-                            }
+                        selected: [
+
                         ]
                     },
                     "Mp": {
@@ -625,17 +593,8 @@
                             {"mouse phenotype ontology term synonym": "ontoSynonym"},
 
                         ],
-                        findBy: [
-                            {"name":{
-                                "property":"mpTerm",
-                                "eg":"abnormal midbrain development",
-                            }
-                            },
-                            {"ID":{
-                                "property":"mpId",
-                                "eg":"MP:0003864"
-                            }
-                            }
+                        selected: [
+                           "mpId", "mpTerm"
                         ]
                     }
 //                    "OntoSynonym": {
@@ -769,10 +728,9 @@
                     //-----------------
                     //   attributes
                     //-----------------
-                    $('fieldset input:checked').each(function () {
+                    $('fieldset input.column:checked').each(function () {
                         var dataType = $(this).parent().attr('id');
                         var property = $(this).val();
-                        var name = $(this).attr('name');
 
                         // some conversion here for markerSynonym and Ontosynonym
 						// as they are included in gene or mp, hp for user friendly
@@ -788,19 +746,13 @@
 						    dataType = "EnsemblGeneId";
 						}
 
-						//---
-
-                        if (name == "genotype"){
-                            dataType = "StatisticalResult";
-                        }
-                        else if (name == "alleletype"){
-                            property = 'alleleType';
-                            dataType = 'Allele';
-						}
-                        else if (name == "assoc"){
-                            property = 'humanCurated';
-                            dataType = 'DiseaseModel';
-                        }
+//						//---
+//
+//
+//                        else if (name == "assoc"){
+//                            property = 'humanCurated';
+//                            dataType = 'DiseaseModel';
+//                        }
 
 
 
@@ -829,12 +781,50 @@
 						}
                     }
 
-                    if ($("fieldset.MpFilter input[name='sex']").prop("checked") == "male" || property == 'female'){
-                        property = "phenotypeSex"
-                        dataType = "StatisticalResult";
+                    var phenotypeSex = $("fieldset.MpFilter input[name='sex']:checked").val();
+					if ( phenotypeSex != undefined){
+					    kv['phenotypeSex'] = phenotypeSex;
+					}
+
+					// mouse or human gene list
+                    var species = $("fieldset.GeneFilter input[name='species']:checked").val();
+					var geneList = $('textarea#geneList').val().split(/[,\s{1,}\t\n]/);
+					var geneList2 = [];
+
+					for (var i=0; i<geneList.length; i++){
+					    var val = geneList[i];
+					    if (val != "") {
+                            geneList2.push(geneList[i].trim());
+                        }
+					}
+					if (geneList2.length>0) {
+                        kv[species + 'GeneList'] = geneList2.join(",");
                     }
 
+					// zygosity
+                    var genotypes = [];
+                    $("fieldset.GeneFilter input[name='genotype']:checked").each(function(){
+                        console.log("genotype: "+ $(this).val());
+                        genotypes.push($(this).val());
+					})
+					if (genotypes.length > 0){
+                        kv['zygosity'] = genotypes.join(",");
+					}
 
+					// disease - gene association
+					var dgAssoc = [];
+					$("fieldset.DiseaseModelFilter input[name='assoc']:checked").each(function () {
+                        dgAssoc.push($(this).val());
+                    });
+                    if ( dgAssoc.length > 0){
+                        kv['diseaseGeneAssoc'] = dgAssoc;
+                    }
+
+                    // phenotypic similarity slider
+					var sliderLow = $('div.slider-container div.low').text();
+                    var sliderHigh = $('div.slider-container div.high').text();
+
+                    kv['sliderRange'] = sliderLow + "," + sliderHigh;
 
 
 //                    // phenotype child level
@@ -1455,10 +1445,11 @@
                     console.log("clicked on: "+ dataType);
 
                     if (dataType == "Gene"){
-                        addChomosomeRangerFilter(dataType);
+                        addChomosomeRangeFilter(dataType);
                         addMgiGeneListBox(dataType);
                         addAlleleTypes(dataType);
 						compartmentAttrsFilters(dataType, "Gene");
+
 					}
                     else if (dataType == "Mp"){
                         addSex(dataType);
@@ -1505,6 +1496,7 @@
                 function compartmentAttrsFilters(dataType, name){
 
                     var objs = idsVar[dataType].fields;
+                    var defaultFields = idsVar[dataType].selected;
 
                     var inputs = "";
                     for (var i = 0; i < objs.length; i++) {
@@ -1512,7 +1504,10 @@
                             var display = k;
                             var dbproperty = objs[i][k];
                             //console.log(k + " - " + objs[i][k]);
-                            inputs += "<input type='checkbox' name='" + display + "' value='" + dbproperty + "'>" + display;
+
+                            var checked = $.fn.inArray(dbproperty, defaultFields) ? "checked" : "";
+
+                            inputs += "<input class='column' type='checkbox' name='" + display + "' value='" + dbproperty + "'" + checked + ">" + display;
                         }
                     }
                     var legend = "<legend>" + idsVar[dataType].text + " customized output columns</legend>";
@@ -1530,14 +1525,14 @@
 
 				function addSex(dataType){
                     var legend = "<legend>Mouse sex filter</legend>";
-                    var male = "<input type='radio' name='sex' value='male'> Male";
-                    var female = "<input type='radio' name='sex' value='female'> Female";
+                    var male = "<input class='filter' type='radio' name='sex' value='male'> Male";
+                    var female = "<input class='filter' type='radio' name='sex' value='female'> Female";
                     var filter = "<fieldset class='" + dataType + "Filter dfilter " + dataType + "'>" + legend + male + female + "</fieldset>";
 
                     $('div#dataAttributes').append(filter);
                 }
 
-                function addChomosomeRangerFilter(dataType){
+                function addChomosomeRangeFilter(dataType){
 
                     // add chromosome range filter
                     var chrs = [];
@@ -1600,7 +1595,7 @@
 						"<input type='checkbox' name='assoc' value='humanCurated'> Gene ortholog" +
 						"<input type='checkbox' name='assoc' value='phenotypicSimilarity'> Phenotypic similarity<br><br>";
 
-                    var slider = "<b>Phenodigm score</b>:<div class='sliderBox'><input type='hidden' class='range-slider' value='23' /></div>";
+                    var slider = "<b>Phenodigm score range</b>:<div class='sliderBox'><input type='hidden' class='range-slider' value='23' /></div>";
 
                     var input = "<div class='block srchBox'>" +
                         "<i class='fa fa-search'></i>" +
@@ -1613,7 +1608,7 @@
 
                     var legend = "<legend>"+ legendLabel + "</legend>";
 
-                    var filter = "<fieldset id='" + dataType + "Filter' class='dfilter " + dataType + "'>" + legend + assoc + slider + restriction + input + "</fieldset>";
+                    var filter = "<fieldset class='" + dataType + "Filter dfilter " + dataType + "'>" + legend + assoc + slider + restriction + input + "</fieldset>";
 
                     $('div#dataAttributes').append(filter);
 
@@ -1745,7 +1740,7 @@
                     var genotypesStr = "<b>Genotype</b>:";
                     for(var g=0; g<genotypes.length; g++){
                         var val = genotypes[g];
-                        genotypesStr += "<input type='checkbox' name='genotype' val='" + val + "'> " + val;
+                        genotypesStr += "<input type='checkbox' name='genotype' value='" + val + "'> " + val;
                     }
 
 
@@ -1756,21 +1751,21 @@
                         alleletypesStr += "<input type='checkbox' name='aleletype' value='" + val +"'> " + val;
 					}
 
-                    var filter = "<fieldset id='" + dataType + "Filter' class='dfilter " + dataType + "'>" + legend + genotypesStr + "<br>" + alleletypesStr + "</fieldset>";
+                    var filter = "<fieldset class='" + dataType + "Filter dfilter " + dataType + "'>" + legend + genotypesStr + "<br>" + alleletypesStr + "</fieldset>";
 
                     $('div#dataAttributes').append(filter);
 				}
 
-                function addMgiGeneListBox(dataType){
-                    var legend = "<legend>Mouse or Human gene list filter</legend>";
-                    var mouse = "<input class='species' type='radio' name='species' value='mouse' checked> Mouse";
-                    var human = "<input class='species' type='radio' name='species' value='human'> Human ortholog";
-                    var hint = "<br>Eg. Nxn (symbol) or MGI:109331 (ID). Please do not mix symbol and ID in your list. Use comma, space, tab or new line as separator."
-                    var input = "<textarea id='geneList' rows='3' cols=''></textarea>"
-                    var filter = "<fieldset id='" + dataType + "Filter' class='dfilter " + dataType + "'>" + legend + mouse + human + hint + input + "</fieldset>";
+            function addMgiGeneListBox(dataType){
+                var legend = "<legend>Mouse or Human gene list filter</legend>";
+                var mouse = "<input class='species' type='radio' name='species' value='mouse' checked> Mouse";
+                var human = "<input class='species' type='radio' name='species' value='human'> Human ortholog";
+                var hint = "<br>Eg. Nxn (symbol) or MGI:109331 (ID) for Mouse. <b>Symbol only for Human</b>. Please do not mix symbol and ID in your list. Use comma, space, tab or new line as separator."
+                var input = "<textarea id='geneList' rows='3' cols=''></textarea>"
+                var filter = "<fieldset class='" + dataType + "Filter dfilter " + dataType + "'>" + legend + mouse + human + hint + input + "</fieldset>";
 
-                    $('div#dataAttributes').append(filter);
-                }
+                $('div#dataAttributes').append(filter);
+            }
 
                 function addSlider(sliderId){
 
