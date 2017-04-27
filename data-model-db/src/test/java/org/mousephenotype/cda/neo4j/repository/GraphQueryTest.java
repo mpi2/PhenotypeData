@@ -63,6 +63,7 @@ public class GraphQueryTest {
     @Autowired
     MouseModelRepository mouseModelRepository;
 
+
     //@Before
     public void before() {
 

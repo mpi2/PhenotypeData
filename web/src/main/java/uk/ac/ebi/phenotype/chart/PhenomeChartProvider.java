@@ -548,13 +548,16 @@ public class PhenomeChartProvider {
 				for (String parameterStableId : parametersByProcedure.get(procedure)) {
 
 					if (statisticalResults.containsKey(parameterStableId)) {
-
-						int resultIndex = 0;
-						long tempTime = System.currentTimeMillis();
+						// Solr sorts empty fields first when ASC so we might need to loop over the results
 						ExperimentsDataTableRow statsResult = statisticalResults.get(parameterStableId).get(0);
+						int i = 1;
+						while(statsResult.getpValue() == null && i < statisticalResults.get(parameterStableId).size()){
+							statsResult = statisticalResults.get(parameterStableId).get(i);
+							i++;
+						}
 
-						// smallest p-value sis the first (solr docs are sorted)
-						if (statsResult.getStatus().equalsIgnoreCase("SUCCESS") && resultIndex == 0 && statsResult.getpValue()!=null) {
+						// smallest p-value is the first (solr docs are sorted)
+						if (statsResult.getStatus().equalsIgnoreCase("SUCCESS") && !categories.contains(statsResult.getParameter().getName()) && statsResult.getpValue() != null) {
 
 							// create the point first
 							JSONObject dataPoint = new JSONObject();
@@ -577,7 +580,6 @@ public class PhenomeChartProvider {
 								categories.add(statsResult.getParameter().getName());
 								dataArray.put(dataPoint);
 								procedureLabels.add(statsResult.getProcedure().getName());
-								resultIndex++;
 								index++;
 							}
 						}
