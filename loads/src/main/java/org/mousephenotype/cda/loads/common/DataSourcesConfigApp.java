@@ -42,7 +42,8 @@ import javax.sql.DataSource;
         DataSourceAutoConfiguration.class,
         HibernateJpaAutoConfiguration.class,
         JpaRepositoriesAutoConfiguration.class,
-        DataSourceTransactionManagerAutoConfiguration.class})
+        DataSourceTransactionManagerAutoConfiguration.class
+        })
 /**
  * This configuration class holds configuration information shared by the data load create process.
  *

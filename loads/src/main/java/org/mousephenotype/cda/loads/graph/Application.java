@@ -1,6 +1,7 @@
 package org.mousephenotype.cda.loads.graph;
 
 import org.mousephenotype.cda.annotations.ComponentScanNonParticipant;
+import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.data.jpa.JpaRepositoriesAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
@@ -21,6 +22,8 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 public class Application {
 
     public static void main(String[] args) throws Exception {
-        new SpringApplicationBuilder(Application.class).web(false).run(args);
+        System.out.println("About to start application");
+
+        SpringApplication.run(Application.class, args);
     }
 }

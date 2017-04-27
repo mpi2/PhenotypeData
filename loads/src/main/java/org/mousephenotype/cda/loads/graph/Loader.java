@@ -34,6 +34,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 
+import static java.lang.Math.toIntExact;
+
 /**
  * Created by ckchen on 17/03/2017.
  */
@@ -215,7 +217,7 @@ public class Loader implements CommandLineRunner {
                 "JOIN phenotype_procedure_parameter ppp ON ppr.id=ppp.procedure_id  " +
                 "JOIN phenotype_parameter pp ON ppp.parameter_id=pp.id";
 
-        System.out.println(query);
+        //System.out.println(query);
         int parameterCount = 0;
 
         try (Connection connection = komp2DataSource.getConnection();
@@ -268,53 +270,130 @@ public class Loader implements CommandLineRunner {
     }
 
     public void loadStatisticalResults() throws IOException, SolrServerException {
-
+        logger.info("Found {} loaded MouseModels, {} loaded Genes, {} loaded HPs, {} loaded Mps, {} loadedAlleles",
+                loadedMouseModels.size(), loadedGenes.size(), loadedHps.size(), loadedMps.size(), loadedAlleles.size());
         long begin = System.currentTimeMillis();
 
-        SolrQuery query = new SolrQuery()
+        SolrQuery query1 = new SolrQuery()
                 .setQuery("*:*")
-                .setRows(5000000);
+                .setRows(0);
+
+        int batch = 5000;
+        int docNum = toIntExact(statisticalResultCore.query(query1).getResults().getNumFound());
+        int residue = toIntExact(docNum % batch); // 500 doc at a time;
 
         int srCount = 0;
-        List<StatisticalResultDTO> srdto = statisticalResultCore.query(query).getBeans(StatisticalResultDTO.class);
-        for (StatisticalResultDTO result : srdto) {
+        int cycles = docNum / batch;
+        logger.info("Got {} stats results to load...Loading in {} batches, {} results at a time", docNum, cycles, batch);
 
-            if (result.getpValue() != null) {
-                StatisticalResult sr = new StatisticalResult();
+        int count = 0;
+        for (int i=0; i< cycles; i++){
 
-                sr.setpValue(result.getpValue());
-                sr.setPhenotypeSex(result.getPhenotypeSex());
-                sr.setPhenotypingCenter(result.getPhenotypingCenter());
-                sr.setColonyId(result.getColonyId());
-                sr.setZygosity(result.getZygosity());
-                sr.setEffectSize(result.getEffectSize());
-                sr.setSignificant(result.getSignificant());
+            int start = i*batch;
+            int row = batch;
 
-                // through relationships
-                sr.setGene(loadedGenes.get(result.getMarkerAccessionId()));
-                sr.setAllele(loadedAlleles.get(result.getAlleleAccessionId()));
-
-                Set<Mp> mps = new HashSet<>();
-                if (result.getMpTermId() != null){
-                    mps.add(loadedMps.get(result.getMpTermId()));
-                }
-                if (result.getMaleMpTermId() != null){
-                    mps.add(loadedMps.get(result.getMaleMpTermId()));
-                }
-                if (result.getFemaleMpTermId() != null){
-                    mps.add(loadedMps.get(result.getFemaleMpTermId()));
-                }
-                sr.setMps(mps);
-
-                sr.setProcedure(loadedProcedures.get(result.getProcedureStableId()));
-                sr.setParameter(loadedParameters.get(result.getParameterStableId()));
-
-                srCount++;
-                statisticalResultRepository.save(sr);
+            if (cycles -1 == i){
+                row = row + residue;
             }
+
+            //System.out.println("cycle " + i + " start: "+ start + " row count: "+ row);
+
+            SolrQuery query = new SolrQuery()
+                    .setQuery("*:*")
+                    .setStart(start)
+                    .setRows(row);
+
+            List<StatisticalResultDTO> srdto = statisticalResultCore.query(query).getBeans(StatisticalResultDTO.class);
+            //logger.info("Got {} stats results to load...", srdto.size());
+
+            for (StatisticalResultDTO result : srdto) {
+
+                // only want results that have p value
+                if (result.getpValue() != null) {
+
+                    StatisticalResult sr = new StatisticalResult();
+
+                    sr.setpValue(result.getpValue());
+                    sr.setPhenotypeSex(result.getPhenotypeSex());
+                    sr.setPhenotypingCenter(result.getPhenotypingCenter());
+                    sr.setColonyId(result.getColonyId());
+                    sr.setZygosity(result.getZygosity());
+                    sr.setEffectSize(result.getEffectSize());
+
+                    sr.setSignificant(result.getSignificant() != null ? result.getSignificant() : false);
+
+                    // load through relationships
+                    String mgiAcc = result.getMarkerAccessionId();
+                    if (loadedGenes.containsKey(mgiAcc)){
+                        sr.setGene(loadedGenes.get(mgiAcc));
+                    }
+                    else {
+                        logger.warn(mgiAcc + " is not one of IMPC genes");
+                    }
+
+                    String alleleAcc = result.getAlleleAccessionId();
+                    String alleleSymbol = result.getAlleleSymbol();
+                    if (loadedAlleles.containsKey(alleleSymbol)) {
+                        sr.setAllele(loadedAlleles.get(alleleSymbol));
+                    }
+                    else {
+                        logger.warn(alleleAcc + " (" + alleleSymbol + ") is not one of IMPC alleles");
+                    }
+
+                    Set<Mp> mps = new HashSet<>();
+                    if (result.getMpTermId() != null){
+                        if (loadedMps.containsKey(result.getMpTermId())) {
+                            mps.add(loadedMps.get(result.getMpTermId()));
+                        }
+                        else {
+                            logger.warn(result.getMpTermId() + " is not one of IMPC MPs");
+                        }
+                    }
+                    if (result.getMaleMpTermId() != null){
+                        if (loadedMps.containsKey(result.getMaleMpTermId())) {
+                            mps.add(loadedMps.get(result.getMaleMpTermId()));
+                        }
+                        else {
+                            logger.warn("Male MP id " + result.getMaleMpTermId() + " is not one of IMPC MPs");
+                        }
+                    }
+                    if (result.getFemaleMpTermId() != null){
+                        if (loadedMps.containsKey(result.getFemaleMpTermId())) {
+                            mps.add(loadedMps.get(result.getFemaleMpTermId()));
+                        }
+                        else {
+                            logger.warn("Female MP id " + result.getFemaleMpTermId() + " is not one of IMPC MPs");
+                        }
+                    }
+                    sr.setMps(mps);
+
+                    if (loadedProcedures.containsKey(result.getProcedureStableId())) {
+                        sr.setProcedure(loadedProcedures.get(result.getProcedureStableId()));
+                    }
+                    else {
+                        logger.warn(result.getProcedureStableId() + " is not one of IMPC procedures");
+                    }
+
+                    if (loadedParameters.containsKey(result.getParameterStableId())) {
+                        sr.setParameter(loadedParameters.get(result.getParameterStableId()));
+                    }
+                    else {
+                        logger.warn(result.getParameterStableId() + " is not one of IMPC parameters");
+                    }
+
+                    //System.out.println(sr.toString());
+                    srCount++;
+                    statisticalResultRepository.save(sr);
+
+                    if (srCount % batch == 0) {
+                        logger.info("Added {} StatisticalResult nodes", srCount);
+                    }
+                }
+            }
+
         }
 
-        logger.info("Loaded total of {} Stats-result nodes", srCount);
+        logger.info("Loaded total of {} StatisticalResult nodes", srCount);
 
         String job = "loadStatisticalResults";
         loadTime(begin, System.currentTimeMillis(), job);
