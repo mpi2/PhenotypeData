@@ -17,6 +17,7 @@
 package org.mousephenotype.cda.loads.common;
 
 import org.apache.commons.dbcp.BasicDataSource;
+import org.hibernate.SessionFactory;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -33,6 +34,7 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
+import org.springframework.orm.hibernate5.LocalSessionFactoryBuilder;
 
 import javax.sql.DataSource;
 
@@ -95,6 +97,18 @@ public class DataSourcesConfigApp {
         } catch (Exception e) { }
 
         return ds;
+    }
+
+
+    @Bean(name = "sessionFactoryHibernate")
+    @Primary
+    public SessionFactory getSessionFactory() {
+
+        LocalSessionFactoryBuilder sessionBuilder = new LocalSessionFactoryBuilder(cdabaseDataSource());
+        sessionBuilder.scanPackages("org.mousephenotype.cda.db.entity");
+        sessionBuilder.scanPackages("org.mousephenotype.cda.db.pojo");
+
+        return sessionBuilder.buildSessionFactory();
     }
 
 // 2017-02-14 (mrelac) The data source below consistently causes a DataLoadException. Using the BasicDataSource above works, and it completes in 7 minutes, as opposed to over an hour!
