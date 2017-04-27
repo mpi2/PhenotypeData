@@ -39,6 +39,9 @@
 		<c:if test="${phenotypeDisplayStatus.displayHeatmap}">
         	<jsp:include page="heatmapFrag.jsp"/>
         </c:if>
+        <c:if test="${bodyWeight}">
+        <a id="bodyWeightBtn" class="btn" href="${baseUrl}/charts?accession=${acc}&parameter_stable_id=IMPC_BWT_008_001">Body Weight Data</a>
+        </c:if>
         
         <c:if test="${gene.embryoDataAvailable}">
             <a id="embryoViewerBtn" class="btn" href="${drupalBaseUrl}/embryoviewer/?mgi=${acc}">3D Embryo Imaging</a>
