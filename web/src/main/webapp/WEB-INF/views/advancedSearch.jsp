@@ -346,6 +346,17 @@
 			div.sliderBox {
 				margin: 20px 0 30px 10px;
 			}
+			i.fa-info-circle {
+				cursor: pointer;
+				font-size: 18px;
+				padding-left: 15px;
+			}
+			img.boolHow {
+				display: none;
+				border: 1px solid orange;
+				margin-top: 20px;
+				padding-top: 10px;
+			}
 
 		</style>
 
@@ -733,27 +744,18 @@
                         var property = $(this).val();
 
                         // some conversion here for markerSynonym and Ontosynonym
-						// as they are included in gene or mp, hp for user friendly
-						// purpose, but they themselves are nodeEntities
-						// other than gene, mp or hp
-                        if (property == "markerSynonym"){
+                        // as they are included in gene or mp, hp for user friendly
+                        // purpose, but they themselves are nodeEntities
+                        // other than gene, mp or hp
+                        if (property == "markerSynonym") {
                             dataType = "MarkerSynonym";
-						}
-						else if (property == "ontoSynonym"){
+                        }
+                        else if (property == "ontoSynonym") {
                             dataType = "OntoSynonym";
-						}
-						else if (property == "ensemblGeneId"){
-						    dataType = "EnsemblGeneId";
-						}
-
-//						//---
-//
-//
-//                        else if (name == "assoc"){
-//                            property = 'humanCurated';
-//                            dataType = 'DiseaseModel';
-//                        }
-
+                        }
+                        else if (property == "ensemblGeneId") {
+                            dataType = "EnsemblGeneId";
+                        }
 
 
                         console.log(dataType + " --- " + property);
@@ -768,23 +770,28 @@
 
                     //-----------------
                     //     filters
-					//-----------------
-					// chr range for genes
+                    //-----------------
+                    // chr range for genes
                     if ($('fieldset#chromosome').is(":visible")) {
                         var chrId = $('select#chrSel').val();
                         var chrStart = $('input#rstart').val();
                         var chrEnd = $('input#rend').val();
 
-						kv = checkChrCoords(chrId, chrStart, chrEnd, kv);
-						if (kv == false) {
-							return false;
-						}
+                        kv = checkChrCoords(chrId, chrStart, chrEnd, kv);
+                        if (kv == false) {
+                            return false;
+                        }
                     }
 
-                    var phenotypeSex = $("fieldset.MpFilter input[name='sex']:checked").val();
-					if ( phenotypeSex != undefined){
-					    kv['phenotypeSex'] = phenotypeSex;
-					}
+                    var phenotypeSex = [];
+                    $("fieldset.MpFilter input[name='sex']:checked").each(function () {
+                        if ($(this).val() != undefined) {
+                            phenotypeSex.push($(this).val());
+                        }
+                    });
+                    if (phenotypeSex.length > 0) {
+                    	kv['phenotypeSex'] = phenotypeSex.join(",");
+                	}
 
 					// mouse or human gene list
                     var species = $("fieldset.GeneFilter input[name='species']:checked").val();
@@ -1524,13 +1531,13 @@
 				}
 
 				function addSex(dataType){
-                    var legend = "<legend>Mouse sex filter</legend>";
-                    var male = "<input class='filter' type='radio' name='sex' value='male'> Male";
-                    var female = "<input class='filter' type='radio' name='sex' value='female'> Female";
-                    var filter = "<fieldset class='" + dataType + "Filter dfilter " + dataType + "'>" + legend + male + female + "</fieldset>";
+					var legend = "<legend>Mouse sex filter</legend>";
+					var male = "<input type='checkbox' name='sex' value='male'> Male";
+					var female = "<input type='checkbox' name='sex' value='female'> Female";
+					var filter = "<fieldset class='" + dataType + "Filter dfilter " + dataType + "'>" + legend + male + female + "</fieldset>";
 
-                    $('div#dataAttributes').append(filter);
-                }
+					$('div#dataAttributes').append(filter);
+				}
 
                 function addChomosomeRangeFilter(dataType){
 
@@ -1643,17 +1650,17 @@
 					if (dataType == "Mp"){
                         legendLabel = "Mouse phenotype filter";
                         buttLabel = "Add phenotype";
-                        restriction = "Narrow your query to the mouse phenotype you are interested in";
+                        restriction = "Narrow your query to the mouse phenotype you are interested in <i class='fa fa-info-circle'></i>";
 					}
 					else if (dataType == "Hp"){
                         legendLabel = "Human phenotype filter";
                         buttLabel = "Add phenotype";
-                        restriction = "Narrow your query to the human phenotype you are interested in";
+                        restriction = "Narrow your query to the human phenotype you are interested in <i class='fa fa-info-circle'></i>";
 					}
                     else if (dataType == "DiseaseModel"){
                         legendLabel = "Human disease filter";
                         buttLabel = "Add disease";
-                        restriction = "Narrow your query to the human disease you are interested in";
+                        restriction = "Narrow your query to the human disease you are interested in <i class='fa fa-info-circle'></i>";
                     }
 
 					var legend = "<legend>"+ legendLabel + "</legend>";
@@ -1665,33 +1672,46 @@
                     var oqButt = "<button class='andOr2 " + dataType + "'>(</button>";
                     var cqButt = "<button class='andOr2 " + dataType + "'>)</button>";
                     var boolText = "<textarea class='andOr2 " + dataType + "' rows='2' cols=''></textarea>";
-					var filter = "<fieldset class='" + dataType + "Filter dfilter " + dataType + "'>" + legend + restriction + input + butt + andButt + orButt + notButt + oqButt + cqButt + boolText + "</fieldset>";
+                    var help = "<img class='boolHow' src='${baseUrl}/img/how-to-build-boolean-query.png' />";
+					var filter = "<fieldset class='" + dataType + "Filter dfilter " + dataType + "'>" + legend + restriction + input + butt + andButt + orButt + notButt + oqButt + cqButt + boolText + help + "</fieldset>";
 
 					$('div#dataAttributes').append(filter);
 
                     addAutosuggest($('input.srch' + dataType));
 
+                    var fieldsetFilter = "fieldset." + dataType + "Filter ";
+
+                    $(fieldsetFilter + ".fa-info-circle").click(function(){
+                    	var imgHow = $(fieldsetFilter + "img.boolHow");
+                       	if (imgHow.is(":visible")) {
+                        	imgHow.hide();
+                       	}
+                       	else {
+                            imgHow.show();
+					   	}
+					});
+
 					// clear input
-                    $("fieldset#" + dataType + "Filter").on("click", "input.srch" + dataType, function(){
+                    $(fieldsetFilter).on("click", "input.srch" + dataType, function(){
                         if ($(this).val() == "search"){
                             $(this).val("");
 						}
                     });
 
                     // clear input when the value is not default: "search"
-                    $("fieldset#" + dataType + "Filter").on("click", "i#" + idname + "Clear", function(){
+                    $(fieldsetFilter).on("click", "i#" + idname + "Clear", function(){
 						$(this).siblings($("input.srch" + dataType)).val("");
 					});
 
-                    var boolTextarea = $("fieldset#" + dataType + "Filter textarea.andOr2");
+                    var boolTextarea = $(fieldsetFilter +"textarea.andOr2");
 
                     // define and/or for term filters
-                    $("fieldset#" + dataType + "Filter button.andOr").click(function(){
+                    $(fieldsetFilter + "button.andOr").click(function(){
                         var termVal = $(this).siblings('.termFilter').val();
                         boolTextarea.val(boolTextarea.val() + "term='" + termVal + "' ");
                         return false;
                     });
-                    $("fieldset#" + dataType + "Filter button.andOr2").click(function(){
+                    $(fieldsetFilter + "button.andOr2").click(function(){
                         var bool = $(this).text();
                         boolTextarea.val(boolTextarea.val() + bool + " ");
                         return false;
@@ -1699,11 +1719,11 @@
 
 
                     // add new input
-                    $("fieldset#" + dataType + "Filter button.ap").click(function(){
-                        $(input).insertAfter($("fieldset#" + dataType + "Filter .srchBox").last());
+                    $(fieldsetFilter + "button.ap").click(function(){
+                        $(input).insertAfter($(fieldsetFilter + ".srchBox").last());
 
-                        var lastButt = $("fieldset#" + dataType + "Filter button.andOr").last();
-                        lastButt.text($("fieldset#" + dataType + "Filter .srchBox").size());
+                        var lastButt = $(fieldsetFilter + "button.andOr").last();
+                        lastButt.text($(fieldsetFilter +".srchBox").size());
 
                         lastButt.click(function(){
                             var termVal = $(this).siblings('.termFilter').val();
@@ -1711,19 +1731,19 @@
                             return false;
                         });
 
-                        if ($("fieldset#" + dataType + "Filter .srchBox").size() > 1 ){
-                            $("fieldset#" + dataType + "Filter .andOr").show();
-                            $("fieldset#" + dataType + "Filter .andOr2").show();
+                        if ($(fieldsetFilter + ".srchBox").size() > 1 ){
+                            $(fieldsetFilter + ".andOr").show();
+                            $(fieldsetFilter + ".andOr2").show();
                         }
 
                         // allow remove input just added
-                        $("<i class='pr fa fa-minus-square-o' aria-hidden='true'></i>").insertAfter($("fieldset#" + dataType + "Filter button.andOr").last());
+                        $("<i class='pr fa fa-minus-square-o' aria-hidden='true'></i>").insertAfter($(fieldsetFilter + "button.andOr").last());
 
                         $('i.pr').click(function(){
                            $(this).siblings('input.termFilter').parent().remove();
-                            if ($("fieldset#" + dataType + "Filter .srchBox").size() == 1){
-                                $("fieldset#" + dataType + "Filter .andOr").hide();
-                                $("fieldset#" + dataType + "Filter .andOr2").hide();
+                            if ($(fieldsetFilter + ".srchBox").size() == 1){
+                                $(fieldsetFilter + ".andOr").hide();
+                                $(fieldsetFilter + ".andOr2").hide();
                             }
 						});
 
