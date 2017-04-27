@@ -1,4 +1,4 @@
-package org.mousephenotype.cda.loads.graph;
+package org.mousephenotype.cda.neo4jLoad.graph;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrClient;
