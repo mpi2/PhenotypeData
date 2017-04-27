@@ -23,6 +23,7 @@ import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
+import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
 import org.mousephenotype.cda.solr.service.exception.SpecificExperimentException;
 import org.mousephenotype.cda.solr.stats.strategy.AllControlsStrategy;
 import org.mousephenotype.cda.solr.stats.strategy.ControlSelectionStrategy;
@@ -581,5 +582,13 @@ public class ExperimentService{
         // object
         return new AllControlsStrategy();
     }
+
+
+
+	public Collection<? extends String> getChartPivots(String accessionAndParam, String acc, ParameterDTO parameter,
+			List<String> pipelineStableIds, List<String> zyList, List<String> phenotypingCentersList,
+			List<String> strainsParams, List<String> metaDataGroup, List<String> alleleAccession) throws IOException, SolrServerException, URISyntaxException {
+		return os.getChartPivots(accessionAndParam, acc, parameter, pipelineStableIds, zyList, phenotypingCentersList, strainsParams, metaDataGroup, alleleAccession);
+	}
 
 }
