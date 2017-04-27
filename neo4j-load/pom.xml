@@ -17,6 +17,11 @@
     <name>neo4j-load</name>
     <description>Code for loading the neo4j graph database</description>
 
+    <properties>
+        <!-- The main class to start by executing java -jar -->
+        <start-class>org.mousephenotype.cda.neo4jLoad.graph.Application</start-class>
+    </properties>
+
     <dependencies>
 
         <dependency>

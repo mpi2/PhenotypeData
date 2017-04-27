@@ -117,11 +117,18 @@ public class TimeSeriesChartAndTableProvider {
 		String title = "Mean " + parameter.getName();
 		if (lines.size() > 1) {
 			// if lines are greater than one i.e. more than just control create charts and tables
-			String xAxisLabel = (parameter.getName().contains("Body Weight Curve ")) ? "Age - rounded to nearest week" : parameter.getUnitX();
+			System.out.println("Body weight curve?"+ parameter.getName()+" xUnit="+ parameter.getUnitX()+" yUnit="+parameter.getUnitY());
+			String xAxisLabel =parameter.getUnitX();
+			String yAxisLabel=parameter.getUnitY();
+			if(parameter.getName().contains("Body weight curve")){
+				xAxisLabel= "Age - rounded to nearest week";
+				yAxisLabel= "g";
+			}
+			System.out.println("xAxis label="+xAxisLabel);
 			int decimalPlaces = ChartUtils.getDecimalPlaces(experiment);
 			chartNTableForParameter = creatDiscretePointTimeSeriesChart(
 					experimentNumber, title, lines, xAxisLabel,
-					parameter.getUnitY(), decimalPlaces,
+					yAxisLabel, decimalPlaces,
 					experiment.getOrganisation(), parameter);
 			chartNTableForParameter.setExperiment(experiment);
 		}
