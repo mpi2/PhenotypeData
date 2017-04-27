@@ -1,4 +1,4 @@
-package org.mousephenotype.cda.loads.graph;
+package org.mousephenotype.cda.neo4jLoad.graph;
 
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;

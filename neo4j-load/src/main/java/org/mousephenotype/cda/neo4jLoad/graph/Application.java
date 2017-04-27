@@ -1,4 +1,4 @@
-package org.mousephenotype.cda.loads.graph;
+package org.mousephenotype.cda.neo4jLoad.graph;
 
 import org.mousephenotype.cda.annotations.ComponentScanNonParticipant;
 import org.springframework.boot.SpringApplication;
@@ -7,7 +7,6 @@ import org.springframework.boot.autoconfigure.data.jpa.JpaRepositoriesAutoConfig
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
 import org.springframework.boot.autoconfigure.web.WebMvcAutoConfiguration;
-import org.springframework.boot.builder.SpringApplicationBuilder;
 
 /**
  * Created by ckchen on 17/03/2017.
