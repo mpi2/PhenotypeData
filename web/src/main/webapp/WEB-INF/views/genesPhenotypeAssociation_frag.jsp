@@ -36,14 +36,14 @@
 		        <span class="label">All Data:</span> 
 		        <c:if test="${phenotypeDisplayStatus.postQcDataAvailable}">
 		            <!-- best example http://localhost:8080/PhenotypeArchive/genes/MGI:1913955 -->
-		            <a id="allAdultDataBtn" class="btn" href='${baseUrl}/experiments?geneAccession=${gene.mgiAccessionId}'>${gene.markerSymbol} Measurements</a>
+		            <a id="allAdultDataBtn" class="btn" href='${baseUrl}/experiments?geneAccession=${gene.mgiAccessionId}' title="all data">${gene.markerSymbol} Measurements</a>
 		        </c:if>
 		       
 				<c:if test="${phenotypeDisplayStatus.displayHeatmap}">
 		        	<jsp:include page="heatmapFrag.jsp"/>
 		        </c:if>
 		        <c:if test="${bodyWeight}">
-		        <a id="bodyWeightBtn" class="btn" href="${baseUrl}/charts?accession=${acc}&parameter_stable_id=IMPC_BWT_008_001&&chart_type=TIME_SERIES_LINE">Body Weight Data</a>
+		        <a id="bodyWeightBtn" class="btn" href="${baseUrl}/charts?accession=${acc}&parameter_stable_id=IMPC_BWT_008_001&&chart_type=TIME_SERIES_LINE" title="body weight curves">Body Weight Data</a>
 		        </c:if>
 	        </div>
         </c:if>
@@ -51,19 +51,19 @@
         	<div id="embryo" class="with-label">
         	<span class="label">Embryo Data: </span>
 		        <c:if test="${gene.embryoDataAvailable}">
-		            <a id="embryoViewerBtn" class="btn" href="${drupalBaseUrl}/embryoviewer/?mgi=${acc}">3D Embryo Imaging</a>
+		            <a id="embryoViewerBtn" class="btn" href="${drupalBaseUrl}/embryoviewer/?mgi=${acc}" title="3D embryo images are available">3D Embryo Imaging</a>
 		        </c:if>
 		        
 		        <c:if test="${gene.embryoAnalysisUrl!=null}">
-		            <a id="embryoAnalysisBtn" class="btn" href="${gene.embryoAnalysisUrl}">3D Embryo Vol Analysis</a>
+		            <a id="embryoAnalysisBtn" class="btn" href="${gene.embryoAnalysisUrl}" title="Automated 3D Volumetric Analysis of Embryo images">3D Embryo Vol Analysis</a>
 		        </c:if>
 		        
 		        <c:if test="${gene.dmddImageDataAvailable}">
-		            <a id="DmddViewerBtn" class="btn" href="https://dmdd.org.uk/mutants/${gene.markerSymbol}" target="_blank" >DMDD Embryo Images</a>
+		            <a id="DmddViewerBtn" class="btn" href="https://dmdd.org.uk/mutants/${gene.markerSymbol}" target="_blank" title="placental, HREM images, annotation, transcriptomics from the DMDD project" >DMDD Embryo Images</a>
 		        </c:if> 
 		
 		        <c:if test="${hasVignette}">
-		            <a class="btn" href="${baseUrl}/embryo/vignettes#${acc}">Embryo Vignette</a>
+		            <a class="btn" href="${baseUrl}/embryo/vignettes#${acc}" title="embryo vignette exists for this gene">Embryo Vignette</a>
 		        </c:if>
 			</div>
 		</c:if>			
