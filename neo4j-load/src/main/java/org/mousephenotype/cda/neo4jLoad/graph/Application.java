@@ -20,9 +20,12 @@ import org.springframework.boot.autoconfigure.web.WebMvcAutoConfiguration;
 @ComponentScanNonParticipant
 public class Application {
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args){
         System.out.println("About to start application");
-
-        SpringApplication.run(Application.class, args);
+        try {
+            SpringApplication.run(Application.class, args);
+        } catch (Exception e){
+            e.printStackTrace();
+        }
     }
 }
