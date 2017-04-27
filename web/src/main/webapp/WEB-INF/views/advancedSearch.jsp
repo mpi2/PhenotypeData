@@ -562,8 +562,8 @@
                             {"disease classes":"diseaseClasses"},
                             {"predicted by IMPC":"impcPredicted"},
                             {"predicted by MGI":"mgiPredicted"},
-                            {"disease to model score":"diseaseToModelScore"},
-                            {"model to disease score":"modelToDiseaseScore"}
+                            {"disease to model score":"diseaseToModelScore"}
+                           // {"model to disease score":"modelToDiseaseScore"}
                         ],
                         findBy: [
                             {"name":{
@@ -787,18 +787,22 @@
 						else if (property == "ensemblGeneId"){
 						    dataType = "EnsemblGeneId";
 						}
-						else if (property == "male" || property == 'female'){
-						    property = "phenotypeSex"
-                            dataType = "StatisticalResult";
-                        }
-                        else if (name == "genotype"){
-                            dataType = "StatisticalResult";
-                        }
 
-                        if (name == "alleletype"){
+						//---
+
+                        if (name == "genotype"){
+                            dataType = "StatisticalResult";
+                        }
+                        else if (name == "alleletype"){
                             property = 'alleleType';
                             dataType = 'Allele';
 						}
+                        else if (name == "assoc"){
+                            property = 'humanCurated';
+                            dataType = 'DiseaseModel';
+                        }
+
+
 
                         console.log(dataType + " --- " + property);
 
@@ -825,13 +829,21 @@
 						}
                     }
 
-                    // phenotype child level
-                    $('select.inputlevel').each(function() {
-                        var fs = $(this).parent();
-                        if (fs.is(":visible")) {
-                            kv[fs.find('select').attr('id')] = fs.find('select').val();
-                        }
-                    });
+                    if ($("fieldset.MpFilter input[name='sex']").prop("checked") == "male" || property == 'female'){
+                        property = "phenotypeSex"
+                        dataType = "StatisticalResult";
+                    }
+
+
+
+
+//                    // phenotype child level
+//                    $('select.inputlevel').each(function() {
+//                        var fs = $(this).parent();
+//                        if (fs.is(":visible")) {
+//                            kv[fs.find('select').attr('id')] = fs.find('select').val();
+//                        }
+//                    });
 
                     // disease, mp, hp autosuggest
 					var srchSugs = ["Mp", "Hp", "DiseaseModel"];
@@ -1520,7 +1532,7 @@
                     var legend = "<legend>Mouse sex filter</legend>";
                     var male = "<input type='radio' name='sex' value='male'> Male";
                     var female = "<input type='radio' name='sex' value='female'> Female";
-                    var filter = "<fieldset id='" + dataType + "Filter' class='dfilter " + dataType + "'>" + legend + male + female + "</fieldset>";
+                    var filter = "<fieldset class='" + dataType + "Filter dfilter " + dataType + "'>" + legend + male + female + "</fieldset>";
 
                     $('div#dataAttributes').append(filter);
                 }
@@ -1585,8 +1597,8 @@
 				function addDiseaseUi(dataType){
 
                     var assoc = "<b>Association by</b>: " +
-						"<input type='checkbox' name='asssoc' value='ortholog'> Gene ortholog" +
-						"<input type='checkbox' name='asssoc' value='phenotypicSimilarity'> Phenotypic similarity<br><br>";
+						"<input type='checkbox' name='assoc' value='humanCurated'> Gene ortholog" +
+						"<input type='checkbox' name='assoc' value='phenotypicSimilarity'> Phenotypic similarity<br><br>";
 
                     var slider = "<b>Phenodigm score</b>:<div class='sliderBox'><input type='hidden' class='range-slider' value='23' /></div>";
 
@@ -1618,9 +1630,6 @@
                     });
 
                     addAutosuggest($('input.srch' + dataType));
-
-
-
 				}
 
 				function addAutosuggestFilter(dataType){
@@ -1661,7 +1670,7 @@
                     var oqButt = "<button class='andOr2 " + dataType + "'>(</button>";
                     var cqButt = "<button class='andOr2 " + dataType + "'>)</button>";
                     var boolText = "<textarea class='andOr2 " + dataType + "' rows='2' cols=''></textarea>";
-					var filter = "<fieldset id='" + dataType + "Filter' class='dfilter " + dataType + "'>" + legend + restriction + input + butt + andButt + orButt + notButt + oqButt + cqButt + boolText + "</fieldset>";
+					var filter = "<fieldset class='" + dataType + "Filter dfilter " + dataType + "'>" + legend + restriction + input + butt + andButt + orButt + notButt + oqButt + cqButt + boolText + "</fieldset>";
 
 					$('div#dataAttributes').append(filter);
 
