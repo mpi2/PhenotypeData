@@ -63,30 +63,6 @@ public class GraphQueryTest {
     @Autowired
     MouseModelRepository mouseModelRepository;
 
-    @Test
-    public void numtest(){
-        Integer num = 2200;
-        int batch = 500;
-        int residue = num % batch;
-        int cycles = num / batch;
-        System.out.println("cycle " + cycles);
-
-
-        int count = 0;
-        for (int i=0; i< cycles; i++){
-
-            int start = i*batch;
-           int row = batch;
-
-            if (cycles -1 == i){
-                row = row + residue;
-            }
-
-            System.out.println("cycle " + i + "start: "+ start + " row count: "+ row);
-
-        }
-
-    }
 
     //@Before
     public void before() {
