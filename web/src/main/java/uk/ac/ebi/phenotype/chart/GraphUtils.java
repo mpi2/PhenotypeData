@@ -75,9 +75,13 @@ public class GraphUtils {
         }
 		accessionAndParam += seperator + "parameter_stable_id=" + parameterStableId;
 		accessionAndParam += seperator + "chart_type=" + chartType + seperator;
-
-		urls.addAll(srService.getChartPivots( accessionAndParam, acc, parameter, pipelineStableIds, zyList, phenotypingCentersList,
+		if(parameter.getStableId().equals("IMPC_BWT_008_001")){
+			urls.addAll(experimentService.getChartPivots( accessionAndParam, acc, parameter, pipelineStableIds, zyList, phenotypingCentersList,
+					 strainsParams, metaDataGroup, alleleAccession));
+		}else{
+				urls.addAll(srService.getChartPivots( accessionAndParam, acc, parameter, pipelineStableIds, zyList, phenotypingCentersList,
 				 strainsParams, metaDataGroup, alleleAccession));
+		}
 
 		return urls;
 	}
