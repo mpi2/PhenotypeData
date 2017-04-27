@@ -35,6 +35,7 @@ import org.mousephenotype.cda.solr.repositories.image.ImagesSolrDao;
 import org.mousephenotype.cda.solr.service.*;
 import org.mousephenotype.cda.solr.service.dto.BasicBean;
 import org.mousephenotype.cda.solr.service.dto.GeneDTO;
+import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
 import org.mousephenotype.cda.solr.web.dto.*;
 import org.mousephenotype.cda.utilities.DataReaderTsv;
 import org.mousephenotype.cda.utilities.HttpProxy;
@@ -100,6 +101,8 @@ public class GenesController {
 
 	@Autowired
 	ObservationService observationService;
+	
+	
 
 	@Autowired
 	SolrIndex solrIndex;
@@ -128,6 +131,9 @@ public class GenesController {
 	
 	@Autowired
 	OrderService orderService;
+	
+	@Autowired
+	private ImpressService impressService;
 
 	@Resource(name = "globalConfiguration")
 	Map<String, String> config;
@@ -145,6 +151,7 @@ public class GenesController {
 	}
 
 	HttpProxy proxy = new HttpProxy();
+
 	
 	private static final List<String> genesWithVignettes=Arrays.asList(new String[]{"MGI:1913761","MGI:97491" , "MGI:1922814","MGI:3039593" ,"MGI:1915138" , "MGI:1915138","MGI:1195985" ,"MGI:102806", "MGI:1195985","MGI:1915138", "MGI:1337104", "MGI:3039593","MGI:1922814", "MGI:97491","MGI:1928849","MGI:2151064","MGI:104606","MGI:103226","MGI:1920939","MGI:95698","MGI:1915091","MGI:1924285","MGI:1914797","MGI:1351614","MGI:2147810" });
 
@@ -311,6 +318,12 @@ public class GenesController {
 			prodStatusIcons += (status.get("phenotypingIcons").equalsIgnoreCase("")) ? "" : status.get("phenotypingIcons");
 
 			model.addAttribute("orderPossible", status.get("orderPossible"));
+			
+			//bodyweight parameter to see if we have bodyweight data for button to link to
+			ParameterDTO parameter = impressService.getParameterByStableId("IMPC_BWT_008_001");
+			if(observationService.getChartPivots("accession="+acc, acc, parameter, null, null, null, null, null, null).size()>0){
+				model.addAttribute("bodyWeight", true);
+			}
 
 
 		} catch (Exception e) {
