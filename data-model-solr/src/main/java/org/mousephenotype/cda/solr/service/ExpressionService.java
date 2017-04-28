@@ -846,6 +846,10 @@ public class ExpressionService extends BasicService {
 			if (row.getSpecimenImageOnly().keySet().size() > 0) {
 				row.setImageOnly(true);
 			}
+			if (row.getSpecimenAmbiguous().keySet().size() > 0) {
+				row.setAmbiguous(true);
+			}
+		
 
 		}
 		row.anatomy = anatomy;
@@ -894,6 +898,10 @@ public class ExpressionService extends BasicService {
 				}
 				else if (paramAssValue.equalsIgnoreCase("imageOnly")) {
 					row.addImageOnly(sampleId, zyg);
+
+				}
+				else if (paramAssValue.equalsIgnoreCase("ambiguous")) {
+					row.addSpecimenAmbiguous(sampleId, zyg);
 
 				}
 			}
@@ -954,6 +962,8 @@ public class ExpressionService extends BasicService {
 	 *
 	 */
 	public class ExpressionRowBean {
+		
+
 		@Override
 		public String toString() {
 			return "ExpressionRowBean [anatomy=" + anatomy + ", abnormalAnatomyId=" + abnormalAnatomyId + ", numberOfImages="
@@ -964,6 +974,29 @@ public class ExpressionService extends BasicService {
 					+ ", specimen=" + specimen + ", numberOfHetSpecimens=" + numberOfHetSpecimens
 					+ ", specimenNotExpressed=" + specimenNotExpressed + ", specimenNoTissueAvailable="
 					+ specimenNoTissueAvailable + "]";
+		}
+
+		
+
+		public void setAmbiguous(boolean b) {
+			this.ambiguous=b;
+		}
+
+
+
+		public Map<String, Specimen> getSpecimenAmbiguous() {
+			return this.specimenAmbiguous;
+			
+		}
+		
+		public void addSpecimenAmbiguous(String specimenId, String zyg) {
+			if (!this.getSpecimenAmbiguous().containsKey(specimenId)) {
+				this.getSpecimenAmbiguous().put(specimenId, new Specimen());
+			}
+			Specimen specimen = this.getSpecimenAmbiguous().get(specimenId);
+			specimen.setZyg(zyg);
+			this.specimenAmbiguous.put(specimenId, specimen);
+			
 		}
 
 		public void addImageOnly(String specimenId, String zyg) {
@@ -1028,7 +1061,14 @@ public class ExpressionService extends BasicService {
 		boolean homImages = false;
 		boolean wildTypeExpression = false;
 		boolean expression = false;
-		private boolean imageOnly=false;;
+		private boolean imageOnly=false;
+		private boolean ambiguous=false;
+
+		public boolean isAmbiguous() {
+			return ambiguous;
+		}
+
+
 
 		public boolean isImageOnly() {
 			return imageOnly;
@@ -1119,6 +1159,7 @@ public class ExpressionService extends BasicService {
 		int numberOfHetSpecimens;
 		private Map<String, Specimen> specimenNotExpressed = new HashMap<>();
 		private Map<String, Specimen> specimenNoTissueAvailable = new HashMap<>();
+		private Map<String, Specimen> specimenAmbiguous = new HashMap<>();
 		private Map<String, Specimen> specimenImageOnly = new HashMap<>();
 
 		public int getNumberOfHetSpecimens() {
