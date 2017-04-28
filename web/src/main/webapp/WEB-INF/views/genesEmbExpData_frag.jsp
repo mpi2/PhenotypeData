@@ -84,11 +84,22 @@
                            class="${noTissueIcon}"
                            style="color:${noColor}"></i>
                     </c:when>
+                    <c:when
+                            test="${embryoWtAnatomyToRow[mapEntry.key].imageOnly}">
+                       <%--  <i title="Image Only"
+                           class="${noTissueIcon}"
+                           style="color:${noColor}"> --%>Image Only<!-- </i> -->
+                    </c:when>
+                     <c:when
+                            test="${embryoWtAnatomyToRow[mapEntry.key].ambiguous}">
+                       <span title="Ambiguous"
+                                                          class="${ambiguousIcon}" style="color:${noColor}">Wrong data???</span>
+                    
+                    </c:when>
 
                     <c:otherwise>
-                                     				<span title="Ambiguous"
-                                                          class="${ambiguousIcon}" style="color:${noColor}"></span>
-                    </c:otherwise>
+                                     No Data				
+                                     				</c:otherwise>
                 </c:choose>
             </td>
             <td>
@@ -111,10 +122,20 @@
                           							<span title="No Tissue Available"
                                                           class="${noTissueIcon}" style="color:${noColor}"></span>
                     </c:when>
-
-                    <c:otherwise>
+                    
+                    <c:when
+                            test="${mapEntry.value.imageOnly}">
+                          							<%-- <span title="Image Only"
+                                                          class="${noTissueIcon}" style="color:${noColor}"> --%>Image Only<!-- </span> -->
+                    </c:when>
+                    
+                    <c:when test="${mapEntry.value.ambiguous}">
                                      				<span title="Ambiguous"
                                                           class="${ambiguousIcon}" style="color:${noColor}"></span>
+                    </c:when>
+
+                    <c:otherwise>
+                                     				No Data
                     </c:otherwise>
                 </c:choose>
             </td>
