@@ -785,7 +785,7 @@ public class ExpressionService extends BasicService {
 		if (anatomyToDocs.containsKey(anatomy)) {
 
 			for (SolrDocument doc : anatomyToDocs.get(anatomy)) {
-
+//if(!embryo)System.out.println("anatomy="+anatomy+"embryo ? "+embryo+" doc="+doc);
 				if (doc.containsKey(ObservationDTO.OBSERVATION_TYPE)
 						&& doc.get(ObservationDTO.OBSERVATION_TYPE).equals("categorical")) {
 
@@ -843,6 +843,9 @@ public class ExpressionService extends BasicService {
 			if (row.getSpecimenNoTissueAvailable().keySet().size() > 0) {
 				row.setNoTissueAvailable(true);
 			}
+			if (row.getSpecimenImageOnly().keySet().size() > 0) {
+				row.setImageOnly(true);
+			}
 
 		}
 		row.anatomy = anatomy;
@@ -887,6 +890,10 @@ public class ExpressionService extends BasicService {
 
 				} else if (paramAssValue.equalsIgnoreCase("no expression")) {
 					row.addNotExpressed(sampleId, zyg);
+
+				}
+				else if (paramAssValue.equalsIgnoreCase("imageOnly")) {
+					row.addImageOnly(sampleId, zyg);
 
 				}
 			}
@@ -959,6 +966,20 @@ public class ExpressionService extends BasicService {
 					+ specimenNoTissueAvailable + "]";
 		}
 
+		public void addImageOnly(String specimenId, String zyg) {
+			if (!this.getSpecimenImageOnly().containsKey(specimenId)) {
+				this.getSpecimenImageOnly().put(specimenId, new Specimen());
+			}
+			Specimen specimen = this.getSpecimenImageOnly().get(specimenId);
+			specimen.setZyg(zyg);
+			this.specimenImageOnly.put(specimenId, specimen);
+			
+		}
+
+		private Map<String, Specimen> getSpecimenImageOnly() {
+			return this.specimenImageOnly;
+		}
+
 		String anatomy;
 		String abnormalAnatomyId;
 		private int numberOfImages;
@@ -1007,6 +1028,11 @@ public class ExpressionService extends BasicService {
 		boolean homImages = false;
 		boolean wildTypeExpression = false;
 		boolean expression = false;
+		private boolean imageOnly=false;;
+
+		public boolean isImageOnly() {
+			return imageOnly;
+		}
 
 		public boolean isExpression() {
 			return expression;
@@ -1030,6 +1056,10 @@ public class ExpressionService extends BasicService {
 
 		public void setNoTissueAvailable(boolean noTissueAvailable) {
 			this.noTissueAvailable = noTissueAvailable;
+		}
+		
+		public void setImageOnly(boolean imageOnly) {
+			this.imageOnly = imageOnly;
 		}
 
 		boolean notExpressed = false;
@@ -1087,8 +1117,9 @@ public class ExpressionService extends BasicService {
 		}
 
 		int numberOfHetSpecimens;
-		private Map<String, Specimen> specimenNotExpressed = new HashMap<>();;
-		private Map<String, Specimen> specimenNoTissueAvailable = new HashMap<>();;
+		private Map<String, Specimen> specimenNotExpressed = new HashMap<>();
+		private Map<String, Specimen> specimenNoTissueAvailable = new HashMap<>();
+		private Map<String, Specimen> specimenImageOnly = new HashMap<>();
 
 		public int getNumberOfHetSpecimens() {
 			return numberOfHetSpecimens;
