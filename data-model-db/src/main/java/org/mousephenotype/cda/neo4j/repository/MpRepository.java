@@ -17,7 +17,156 @@ public interface MpRepository extends Neo4jRepository<Mp, Long> {
     Mp findByMpId(String mpId);
     Mp findByMpTerm (String mpTerm);
 
+    private Entitym
 
+    //-----------------------
+    //  BOOLEAN MP QUERIES
+    //-----------------------
+    // A AND B
+
+    String aANDb = "MATCH (g:Gene)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp) "
+           + "WHERE mp.mpTerm =~ ('(?i)'+'.*'+{A}+'.*') WITH g "
+           + "MATCH (g)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp) WHERE mp.mpTerm =~ ('(?i)'+'.*'+{B}+'.*') ";
+
+    String aANDbANDc = "MATCH (g:Gene)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp) "
+            + "WHERE mp.mpTerm =~ ('(?i)'+'.*'+{A}+'.*') WITH g "
+            + "MATCH (g)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp) WHERE mp.mpTerm =~ ('(?i)'+'.*'+{B}+'.*') WITH g "
+            + "MATCH (g)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp) WHERE mp.mpTerm =~ ('(?i)'+'.*'+{C}+'.*') WITH g ";
+
+    String aORb = "MATCH (g:Gene)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp) "
+            + "WHERE mp.mpTerm =~ ('(?i)'+'.*'+{A}+'.*') OR mp.mpTerm =~ ('(?i)'+'.*'+{B}+'.*') WITH g ";
+
+    String aORbORc = "MATCH (g:Gene)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp) "
+            + "WHERE mp.mpTerm =~ ('(?i)'+'.*'+{A}+'.*') OR mp.mpTerm =~ ('(?i)'+'.*'+{B}+'.*') OR mp.mpTerm =~ ('(?i)'+'.*'+{C}+'.*') WITH g ";
+
+    // (A AND B) OR C, A OR (B AND C) ---> need to change the order of terms to MATCH the pattern
+//    String aANDb_ORc = "MATCH (g:Gene)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp) "
+//            + "WHERE mp.mpTerm =~ ('(?i)'+'.*'+{A}+'.*') WITH g "
+//            + "MATCH (g)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp) WHERE mp.mpTerm =~ ('(?i)'+'.*'+{B}+'.*') WITH g ";
+
+    String aANDb_ORc = "MATCH (g:Gene)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp) "
+        + "WHERE mp.mpTerm =~ ('(?i)'+'.*'+{A}+'.*') WITH g "
+        + "MATCH (g)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp) WHERE mp.mpTerm =~ ('(?i)'+'.*'+{B}+'.*') "
+        + "WITH collect({genes:g, mps:mp, srs:sr}) as list1 "
+        + "MATCH (g2:Gene)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp) "
+        + "WHERE mp.mpTerm =~ ('(?i)'+'.*'+{B}+'.*') "
+        + "WITH list1 + collect({genes: g2, mps:mp, srs:sr}) as alllist "
+        + "UNWIND alllist as nodes ";
+      //  + "RETURN nodes.genes, nodes.mps, nodes.srs,
+
+
+    String aAND_bORc = "MATCH (g:Gene)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp) "
+            + "WHERE mp.mpTerm =~ ('(?i)'+'.*'+{A}+'.*') WITH g "
+            + "MATCH (g)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp) "
+            + "WHERE mp.mpTerm =~ ('(?i)'+'.*'+{B}+'.*') OR mp.mpTerm =~ ('(?i)'+'.*'+{C}+'.*') WITH g ";
+
+    String aORb_ANDc = "MATCH (g:Gene)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp) "
+            + "WHERE mp.mpTerm =~ ('(?i)'+'.*'+{C}+'.*') WITH g "
+            + "MATCH (g)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp) "
+            + "WHERE mp.mpTerm =~ ('(?i)'+'.*'+{A}+'.*') OR mp.mpTerm =~ ('(?i)'+'.*'+{B}+'.*') WITH g ";
+
+
+    String otherFilters = "{significant} + {phenotypeSexes} + {chrRange} + {geneList} + {genotypes} + {alleleTypes} "
+            + "WITH g, sr, mp, a, "
+            + "[(g)-[:MARKER_SYNONYM]->(ms:MarkerSynonym) | ms] as markerSynonym, "
+            + "[(g)-[:HUMAN_GENE_SYMBOL]->(hgs:HumanGeneSymbol) | hgs] as humanGeneSymbol, "
+            + "[(g)-[:ENSEMBL_GENE_ID]->(ensg:EnsemblGeneId) | ensg] as ensemblGeneId "
+            + "OPTIONAL MATCH (g)<-[:GENE]-(dm:DiseaseMode) WHERE "
+            + "{phenodigmScore} + {diseaseGeneAssociation} + {humanDiseaseTerm} "
+            + "WITH g, sr, mp, a, dm, markerSynonym, humanGeneSymbol, ensemblGeneId "
+            + "RETURN g, a, markerSynonym, humanGeneSymbol, ensemblGeneId, sr, dm, mp";
+
+//            "// chr range\n" +
+//            "\n" +
+//            "// gene list\n" +
+//            "\n" +
+//            "// zygosity (geneotype)\n" +
+//            "AND (\"homozygote\" in sr.zygosity or \"heterozygote\" in sr.zygosity)\n" +
+//            "\n" +
+//            "// allele type\n" +
+//            "AND\n" +
+//            "\n" +
+//            "\n" +
+//            "AND   sr.significant = true\n" +
+//            "//\n" +
+//            "\n" +
+//            "WITH g, sr, mp\n" +
+//            "MATCH(g)<-[:GENE]-(dm:DiseaseModel)\n" +
+//            "// phenotypic similarity\n" +
+//            "WHERE dm.diseaseToModelScore > 60 AND  dm.diseaseToModelScore < 100\n" +
+//            "\n" +
+//            "// disease gene association\n" +
+//            "AND dm.humanCurated\n" +
+//            "\n" +
+//            "// human disease\n" +
+//            "//AND dm.diseaseTerm =~ \"(?i).*Glucocorticoid Deficiency 2.*\"\n" +
+//            "return g, sr, dm, mp\n" +
+//            "//return count(distinct g), count(distinct sr), count(dm), count(mp)\n" +
+//            "\n" +
+//            "\n" +
+//            "\n" +
+//            "-------------\n" +
+//            "\n" +
+//            "\n" +
+//            "\n" +
+//            "MATCH (g:Gene)<-[:GENE]-(sr:StatisticalResult)-[:MP]->(mp:Mp) WHERE mp.mpTerm =~ \"(?i).*decreased circulating total protein level.*\" WITH g\n" +
+//            "MATCH (g)<-[:GENE]-(sr:StatisticalResult)-[:MP]->(mp:Mp) WHERE mp.mpTerm =~ \"(?i).*decreased circulating cholesterol level.*\" AND (\"homozygote\" in sr.zygosity or \"heterozygote\" in sr.zygosity) and (\"male\" in sr.phenotypeSex or \"female\" in sr.phenotypeSex) and  sr.significant = true WITH g, sr, mp\n" +
+//            "MATCH(g)<-[:GENE]-(dm:DiseaseModel)\n" +
+//            "return g, sr, dm, mp\n" +
+//            "\n" +
+//            "\n" +
+
+
+
+
+
+    @Query(aANDb + otherFilters)
+    List<Object> fetchDataByMpsBoolean_aANDb(@Param("A") String mpA, @Param("B") String mpB,  @Param("phenotypeSexes") String phenotypeSexes, @Param("chrRange") String chrRange,
+                                            @Param("geneList") String geneList, @Param("genotypes") String genotypes,
+                                            @Param("alleleTypes") String alleleTypes, @Param("significant") String significant,
+                                            @Param("phenodigmScore") String phenodigmScore, @Param("diseaseGeneAssociation") String diseaseGeneAssociation,
+                                            @Param("humanDiseaseTerm") String humanDiseaseTerm);
+
+    @Query(aANDbANDc + otherFilters)
+    List<Object> fetchDataByMpsBoolean_aANDbANDc(@Param("A") String mpA, @Param("B") String mpB, @Param("C") String mpC, @Param("phenotypeSexes") String phenotypeSexes,
+                                            @Param("chrRange") String chrRange,
+                                            @Param("geneList") String geneList, @Param("genotypes") String genotypes,
+                                            @Param("alleleTypes") String alleleTypes, @Param("significant") String significant,
+                                            @Param("phenodigmScore") String phenodigmScore, @Param("diseaseGeneAssociation") String diseaseGeneAssociation,
+                                            @Param("humanDiseaseTerm") String humanDiseaseTerm);
+
+    @Query(aORb + otherFilters)
+    List<Object> fetchDataByMpsBoolean_aORb(@Param("A") String mpA, @Param("B") String mpB,  @Param("phenotypeSexes") String phenotypeSexes, @Param("chrRange") String chrRange,
+                                            @Param("geneList") String geneList, @Param("genotypes") String genotypes,
+                                            @Param("alleleTypes") String alleleTypes, @Param("significant") String significant,
+                                            @Param("phenodigmScore") String phenodigmScore, @Param("diseaseGeneAssociation") String diseaseGeneAssociation,
+                                            @Param("humanDiseaseTerm") String humanDiseaseTerm);
+
+    @Query(aORbORc + otherFilters)
+    List<Object> fetchDataByMpsBoolean_aORbORc(@Param("A") String mpA, @Param("B") String mpB, @Param("C") String mpC, @Param("phenotypeSexes") String phenotypeSexes,
+                                            @Param("chrRange") String chrRange,
+                                            @Param("geneList") String geneList, @Param("genotypes") String genotypes,
+                                            @Param("alleleTypes") String alleleTypes, @Param("significant") String significant,
+                                            @Param("phenodigmScore") String phenodigmScore, @Param("diseaseGeneAssociation") String diseaseGeneAssociation,
+                                            @Param("humanDiseaseTerm") String humanDiseaseTerm);
+
+
+    @Query(aAND_bORc + otherFilters)
+    List<Object> fetchDataByMpsBoolean_aAND_bORc(@Param("A") String mpA, @Param("B") String mpB, @Param("C") String mpC, @Param("phenotypeSexes") String phenotypeSexes,
+                                               @Param("chrRange") String chrRange,
+                                               @Param("geneList") String geneList, @Param("genotypes") String genotypes,
+                                               @Param("alleleTypes") String alleleTypes, @Param("significant") String significant,
+                                               @Param("phenodigmScore") String phenodigmScore, @Param("diseaseGeneAssociation") String diseaseGeneAssociation,
+                                               @Param("humanDiseaseTerm") String humanDiseaseTerm);
+
+
+    @Query(aORb_ANDc + otherFilters)
+    List<Object> fetchDataByMpsBoolean_aORb_ANDc(@Param("A") String mpA, @Param("B") String mpB, @Param("C") String mpC, @Param("phenotypeSexes") String phenotypeSexes,
+                                                 @Param("chrRange") String chrRange,
+                                                 @Param("geneList") String geneList, @Param("genotypes") String genotypes,
+                                                 @Param("alleleTypes") String alleleTypes, @Param("significant") String significant,
+                                                 @Param("phenodigmScore") String phenodigmScore, @Param("diseaseGeneAssociation") String diseaseGeneAssociation,
+                                                 @Param("humanDiseaseTerm") String humanDiseaseTerm);
     //---------------------------------------
     // FIND BY MP ID (INCLUDES SELF)
     //---------------------------------------
@@ -36,7 +185,7 @@ public interface MpRepository extends Neo4jRepository<Mp, Long> {
     List<Object> findDataByMpId(@Param( "mpId" ) String mpId);
 
     @Query("MATCH (mp:Mp)<-[:MOUSE_PHENOTYPE]-(mm:MouseModel)-[:GENE]->(g:Gene) WHERE mp.mpId={mpId} "
-            + " AND g.chrId = {chrId} with mp, g, "
+            + " AND g.chrId = {chrId} WITH mp, g, "
             + "[(g:Gene)-[:MARKER_SYNONYM]->(ms:MarkerSynonym) | ms] as markerSynonym, "
             + "[(g:Gene)-[:HUMAN_GENE_SYMBOL]->(hgs:HumanGeneSymbol) | hgs] as humanGeneSymbol, "
             + "[(g:Gene)-[:ENSEMBL_GENE_ID]->(ensg:EnsemblGeneId) | ensg] as ensemblGeneId, "
@@ -52,7 +201,7 @@ public interface MpRepository extends Neo4jRepository<Mp, Long> {
 //                                        @Param( "chrEnd" ) int chrEnd
     );
 
-    //@Query("MATCH (mp:Mp)<-[:PARENT*0..{childLevel}]-(cmp) WHERE mp.mpId={mpId} with mp, cmp RETURN collect(distinct mp.mpId), collect(distinct cmp.mpId)")
+    //@Query("MATCH (mp:Mp)<-[:PARENT*0..{childLevel}]-(cmp) WHERE mp.mpId={mpId} WITH mp, cmp RETURN collect(distinct mp.mpId), collect(distinct cmp.mpId)")
     @Query("MATCH (mp:Mp)<-[:PARENT*0..3]-(cmp) WHERE mp.mpId={mpId} RETURN collect(distinct cmp)")
     List<Object> findChildrenMpsByMpId(@Param( "mpId" ) String mpId, @Param( "childLevel" ) int childLevel);
 
@@ -101,7 +250,7 @@ public interface MpRepository extends Neo4jRepository<Mp, Long> {
     List<Object> findDataByMpTerm(@Param( "mpTerm" ) String mpTerm);
 
     @Query("MATCH (mp:Mp)<-[:MOUSE_PHENOTYPE]-(mm:MouseModel)-[:GENE]->(g:Gene) WHERE mp.mpTerm =~ ('(?i)'+'.*'+{mpTerm}+'.*') "
-            + "AND g.chrId = {chrId} with mp, g, "
+            + "AND g.chrId = {chrId} WITH mp, g, "
             + "[(g:Gene)-[:MARKER_SYNONYM]->(ms:MarkerSynonym) | ms] as markerSynonym, "
             + "[(g:Gene)-[:HUMAN_GENE_SYMBOL]->(hgs:HumanGeneSymbol) | hgs] as humanGeneSymbol, "
             + "[(g:Gene)-[:ENSEMBL_GENE_ID]->(ensg:EnsemblGeneId) | ensg] as ensemblGeneId, "
@@ -117,8 +266,8 @@ public interface MpRepository extends Neo4jRepository<Mp, Long> {
 //                                        @Param( "chrEnd" ) int chrEnd
     );
 
-    @Query("MATCH (mp:Mp)<-[:PARENT*0..{childLevel:{childLevel}}]-(cmp) WHERE mp.mpTerm =~ ('(?i)'+'.*'+{mpTerm}+'.*') with cmp RETURN collect(distinct cmp)")
-   // @Query("MATCH (mp:Mp)<-[:PARENT*0..3]-(cmp) WHERE mp.mpTerm =~ ('(?i)'+'.*'+{mpTerm}+'.*') with mp, cmp RETURN collect(distinct cmp)")
+    @Query("MATCH (mp:Mp)<-[:PARENT*0..{childLevel:{childLevel}}]-(cmp) WHERE mp.mpTerm =~ ('(?i)'+'.*'+{mpTerm}+'.*') WITH cmp RETURN collect(distinct cmp)")
+   // @Query("MATCH (mp:Mp)<-[:PARENT*0..3]-(cmp) WHERE mp.mpTerm =~ ('(?i)'+'.*'+{mpTerm}+'.*') WITH mp, cmp RETURN collect(distinct cmp)")
     List<Object> findChildrenMpsByMpTerm(@Param( "mpTerm" ) String mpTerm, @Param( "childLevel" ) int childLevel);
 
     @Query("MATCH (mp:Mp)<-[:PARENT*0..]-(cmp) WHERE mp.mpTerm =~ ('(?i)'+'.*'+{mpTerm}+'.*') RETURN collect(distinct mp), collect(distinct cmp)")

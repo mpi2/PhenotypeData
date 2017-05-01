@@ -35,6 +35,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -121,7 +122,7 @@ public class AdvancedSearchController {
     private String NA = "not available";
     private String baseUrl = null;
 
-
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 //    @RequestMapping(value = "/graph/nodeName?", method = RequestMethod.POST)
 //    public ResponseEntity<String> dataTableNeo4jBq(
 //            @RequestParam(value = "docType", required = true) String docType,
@@ -282,23 +283,408 @@ public class AdvancedSearchController {
 
     @RequestMapping(value = "/dataTableNeo4jAdvSrch", method = RequestMethod.POST)
     public ResponseEntity<String> advSrchDataTableJson2(
-            @RequestParam(value = "properties", required = true) String properties,
             @RequestParam(value = "params", required = true) String params,
             HttpServletRequest request,
             HttpServletResponse response,
             Model model) throws Exception {
 
+
+
+
         JSONObject jParams = (JSONObject) JSONSerializer.toJSON(params);
         System.out.println(jParams.toString());
 
-
-
+        JSONArray properties = jParams.getJSONArray("properties");
+        System.out.println("columns: " + properties);
 
         String content = null;
-        //content = fetchGraphData(dataType, idlist, labels, jDatatypeProperties, properties, regionId, regionStart, regionEnd, childLevel);
+        content = fetchGraphDataAdvSrch(jParams);
 
         return new ResponseEntity<String>(content, createResponseHeaders(), HttpStatus.CREATED);
     }
+
+    public String fetchGraphDataAdvSrch(JSONObject jParams) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+
+        String significant = " AND sr.significant = true ";
+        String phenotypeSexes = composePhenotypeSexStr(jParams);
+        String chrRange = composeChrRangeStr(jParams);
+        String geneList = composeGeneListStr(jParams);
+        String genotypes = composeGenotypesStr(jParams);
+        String alleleTypes = composeAlleleTypesStr(jParams);
+
+        // disease
+        String phenodigmScore = composePhenodigmScoreStr(jParams);  // always non-empty
+        String diseaseGeneAssociation = composeDiseaseGeneAssociation(jParams);
+        String humanDiseaseTerm = composeHumanDiseaseTermStr(jParams);
+
+        String mpSearchCypher = "";
+
+        String mpStr = null;
+        if (jParams.containsKey("srchMp")) {
+            mpStr = jParams.getString("srchMp");
+        }
+
+        //String mpStr = "  ( APERT-CROUZON DISEASE, INCLUDED  AND mpb alcohokl  )OR  mapasdfkl someting "; // (a and b) or c
+        //String mpStr = " dfkdfkdfk kdkk AND ( sfjjjj ii OR kkkk, ) "; // a and (b or c)
+        //String mpStr = " ( asdfsdaf OR erueuru asdfsda ,  sdfa ) AND sakdslfjie dfd ";  // (a or b) and c
+        //String mpStr = " asdfsdaf OR  ( erueuru asdfsda ,  sdfa AND sakdslfjie dfd ) ";  // a or (b and c)
+        //String mpStr = "asdfsdaf AND erueuru asdfsda ,  sdfa AND sakdslfjie dfd "; // a and b and c
+        //String mpStr = "asdfsdaf AND erueuru asdfsda ,  sdfa  "; // a and b
+        //String mpStr = "asdfsdaf OR erueuru asdfsda ,  sdfa OR sakdslfjie dfd ";  // a or b or c
+        //String mpStr = "asdfsdaf OR erueuru asdfsda ,  sdfa ";  // a or b
+
+        System.out.println(mpStr);
+
+        String regex_aAndb_Orc = "\\s*\\(([A-Za-z0-9-\\\\,;:\\s]{1,})\\s*AND\\s*([A-Za-z0-9-\\\\,;:\\s]{1,})\\)\\s*OR\\s*([A-Za-z0-9-\\\\,;:\\s]{1,})\\s*";
+        String regex_aAnd_bOrc = "\\s*([A-Za-z0-9-\\\\,;:\\s]{1,})\\s*AND\\s*\\(([A-Za-z0-9-\\\\,;:\\s]{1,})\\s*OR\\s*([A-Za-z0-9-\\\\,;:\\s]{1,})\\)\\s*";
+        String regex_aOrb_andc = "\\s*\\(([A-Za-z0-9-\\\\,;:\\s]{1,})\\s*OR\\s*([A-Za-z0-9-\\\\,;:\\s]{1,})\\)\\s*AND\\s*([A-Za-z0-9-\\\\,;:\\s]{1,})\\s*";
+        String regex_aOr_bAndc = "\\s*([A-Za-z0-9-\\\\,;:\\s]{1,})\\s*OR\\s*\\(([A-Za-z0-9-\\\\,;:\\s]{1,})\\s*AND\\s*([A-Za-z0-9-\\\\,;:\\s]{1,})\\)\\s*";
+        String regex_aAndb = "\\s*\\(*([A-Za-z0-9-\\\\,;:\\s]{1,})\\s*AND\\s*([A-Za-z0-9-\\\\,;:\\s]{1,})\\)*\\s*";
+        String regex_aAndbAndc = "\\s*\\(*([A-Za-z0-9-\\\\,;:\\s]{1,})\\s*AND\\s*([A-Za-z0-9-\\\\,;:\\s]{1,})\\)*\\s*AND\\s*([A-Za-z0-9-\\\\,;:\\s]{1,})\\)*\\s*";
+        String regex_aOrb = "\\s*\\(*([A-Za-z0-9-\\\\,;:\\s]{1,})\\s*OR\\s*([A-Za-z0-9-\\\\,;:\\s]{1,})\\)*\\s*";
+        String regex_aOrbOrc = "\\s*\\(*([A-Za-z0-9-\\\\,;:\\s]{1,})\\s*OR\\s*([A-Za-z0-9-\\\\,;:\\s]{1,})\\)*\\s*OR\\s*([A-Za-z0-9-\\\\,;:\\s]{1,})\\)*\\s*";
+
+        List<Object> objs = null;
+
+        if (mpStr.matches(regex_aAndb_Orc)) {
+            System.out.println("matches (a and b) or c");
+            Pattern pattern = Pattern.compile(regex_aAndb_Orc);
+            Matcher matcher = pattern.matcher(mpStr);
+            while (matcher.find()) {
+                System.out.println("found: " + matcher.group(0));
+                String mpA = matcher.group(1).trim();;
+                String mpB = matcher.group(2).trim();;
+                String mpC = matcher.group(3).trim();;
+
+
+
+                logger.info("A: '{}', B: '{}', C: '{}'", mpA, mpB, mpC);
+            }
+        }
+        else if (mpStr.matches(regex_aAnd_bOrc)) {
+            logger.info("matches a and (b or c)");
+            Pattern pattern = Pattern.compile(regex_aAnd_bOrc);
+            Matcher matcher = pattern.matcher(mpStr);
+            while (matcher.find()) {
+                System.out.println("found: " + matcher.group(0));
+                String mpA = matcher.group(1).trim();
+                String mpB = matcher.group(2).trim();;
+                String mpC = matcher.group(3).trim();;
+                //logger.info("A: '{}', B: '{}', C: '{}'", mpA, mpB, mpC);
+
+                objs = mpRepository.fetchDataByMpsBoolean_aAND_bORc(mpA, mpB, mpC, phenotypeSexes, chrRange, geneList, genotypes, alleleTypes, significant, phenodigmScore, diseaseGeneAssociation, humanDiseaseTerm);
+            }
+        }
+        else if (mpStr.matches(regex_aOrb_andc)) {
+            logger.info("matches (a or b) and c");
+            Pattern pattern = Pattern.compile(regex_aOrb_andc);
+            Matcher matcher = pattern.matcher(mpStr);
+            while (matcher.find()) {
+                System.out.println("found: " + matcher.group(0));
+                String mpA = matcher.group(1).trim();
+                String mpB = matcher.group(2).trim();;
+                String mpC = matcher.group(3).trim();;
+                logger.info("A: '{}', B: '{}', C: '{}'", mpA, mpB, mpC);
+
+                objs = mpRepository.fetchDataByMpsBoolean_aORb_ANDc(mpA, mpB, mpC, phenotypeSexes, chrRange, geneList, genotypes, alleleTypes, significant, phenodigmScore, diseaseGeneAssociation, humanDiseaseTerm);
+            }
+        }
+        else if (mpStr.matches(regex_aOr_bAndc)) {
+            System.out.println("matches a or (b and c)");
+            Pattern pattern = Pattern.compile(regex_aOr_bAndc);
+            Matcher matcher = pattern.matcher(mpStr);
+            while (matcher.find()) {
+                System.out.println("found: " + matcher.group(0));
+                String mpA = matcher.group(1).trim();
+                String mpB = matcher.group(2).trim();;
+                String mpC = matcher.group(3).trim();;
+
+                logger.info("A: '{}', B: '{}', C: '{}'", mpA, mpB, mpC);
+            }
+        }
+        else if (mpStr.matches(regex_aAndbAndc)) {
+            logger.info("matches a and b and c");
+            Pattern pattern = Pattern.compile(regex_aAndbAndc);
+            Matcher matcher = pattern.matcher(mpStr);
+            while (matcher.find()) {
+                System.out.println("found: " + matcher.group(0));
+                String mpA = matcher.group(1).trim();;
+                String mpB = matcher.group(2).trim();;
+                String mpC = matcher.group(3).trim();;
+                logger.info("A: '{}', B: '{}', C: '{}'", mpA, mpB, mpC);
+
+                objs = mpRepository.fetchDataByMpsBoolean_aANDbANDc(mpA, mpB, mpC, phenotypeSexes, chrRange, geneList, genotypes, alleleTypes, significant, phenodigmScore, diseaseGeneAssociation, humanDiseaseTerm);
+            }
+        }
+        else if (mpStr.matches(regex_aAndb)) {
+            logger.info("matches a and b");
+            Pattern pattern = Pattern.compile(regex_aAndb);
+            Matcher matcher = pattern.matcher(mpStr);
+            while (matcher.find()) {
+                String mpA = matcher.group(1).trim();;
+                String mpB = matcher.group(2).trim();;
+                logger.info("A: '{}', B: '{}'", mpA, mpB);
+
+                logger.info("mpA: '{}'\n mpB: '{}'\n phenotypeSexes: '{}'\n chrRange: '{}'\n geneList: '{}'\n genotypes: '{}'\n alleleTypes: '{}'\n significant: '{}'\n phenodigmScore: '{}'\n diseaseGeneAssociation: '{}'\n humanDiseaseTerm: '{}'\n",
+                        mpA, mpB, phenotypeSexes, chrRange, geneList, genotypes, alleleTypes, significant, phenodigmScore, diseaseGeneAssociation, humanDiseaseTerm);
+
+                objs = mpRepository.fetchDataByMpsBoolean_aANDb(mpA, mpB, phenotypeSexes, chrRange, geneList, genotypes, alleleTypes, significant, phenodigmScore, diseaseGeneAssociation, humanDiseaseTerm);
+
+                System.out.println("Found " + objs.size());
+
+            }
+
+        }
+        else if (mpStr.matches(regex_aOrbOrc)) {
+            logger.info("matches a or b or c");
+            Pattern pattern = Pattern.compile(regex_aOrbOrc);
+            Matcher matcher = pattern.matcher(mpStr);
+            while (matcher.find()) {
+                System.out.println("found: " + matcher.group(0));
+                String mpA = matcher.group(1).trim();;
+                String mpB = matcher.group(2).trim();;
+                String mpC = matcher.group(3).trim();;
+                logger.info("A: '{}', B: '{}', C: '{}'", mpA, mpB, mpC);
+
+                objs = mpRepository.fetchDataByMpsBoolean_aORbORc(mpA, mpB, mpC, phenotypeSexes, chrRange, geneList, genotypes, alleleTypes, significant, phenodigmScore, diseaseGeneAssociation, humanDiseaseTerm);
+            }
+        }
+        else if (mpStr.matches(regex_aOrb)) {
+            logger.info("matches a or b");
+            Pattern pattern = Pattern.compile(regex_aOrb);
+            Matcher matcher = pattern.matcher(mpStr);
+            while (matcher.find()) {
+                String mpA = matcher.group(1).trim();;
+                String mpB = matcher.group(2).trim();;
+                logger.info("A: '{}', B: '{}'", mpA, mpB);
+
+                logger.info("mpA: '{}'\n mpB: '{}'\n phenotypeSexes: '{}'\n chrRange: '{}'\n geneList: '{}'\n genotypes: '{}'\n alleleTypes: '{}'\n significant: '{}'\n, phenodigmScore: '{}'\n, diseaseGeneAssociation: '{}'\n, humanDiseaseTerm: '{}'\n",
+                        mpA, mpB, phenotypeSexes, chrRange, geneList, genotypes, alleleTypes, significant, phenodigmScore, diseaseGeneAssociation, humanDiseaseTerm);
+
+                objs = mpRepository.fetchDataByMpsBoolean_aORb(mpA, mpB, phenotypeSexes, chrRange, geneList, genotypes, alleleTypes, significant, phenodigmScore, diseaseGeneAssociation, humanDiseaseTerm);
+
+            }
+        }
+
+        List<String> cols = new ArrayList<>();
+
+        for (Object property : jParams.getJSONArray("properties")){
+            cols.add(property.toString());
+        }
+
+        Map<String, Set<String>> colValMap = new HashedMap();
+
+        int rowCount = 0;
+        JSONObject j = new JSONObject();
+        j.put("aaData", new Object[0]);
+
+        System.out.println("Data objects found: "+ objs.size());
+
+        populateColValMap(objs, colValMap, jParams);
+
+        System.out.println("About to prepare for rows");
+
+
+        List<String> rowData = new ArrayList<>();
+
+        for (String col : cols){
+            if (colValMap.containsKey(col)) {
+                List<String> vals = new ArrayList<>(colValMap.get(col));
+
+                int valSize = vals.size();
+
+                if (valSize > 2) {
+                    // add showmore
+                    vals.add("<button rel=" + valSize + " class='showMore'>show all (" + valSize + ")</button>");
+                }
+                if (valSize == 1) {
+                    rowData.add(StringUtils.join(vals, ""));
+                } else {
+                    rowData.add("<ul>" + StringUtils.join(vals, "") + "</ul>");
+                }
+
+                //System.out.println("col: " + col);
+                if (col.equals("ontoSynonym")) {
+                    System.out.println(col + " -- " + vals);
+                }
+            }
+            else {
+                rowData.add(NA);
+            }
+        }
+
+        j.getJSONArray("aaData").add(rowData);
+
+        System.out.println("rows done");
+
+        j.put("iTotalRecords", rowCount);
+        j.put("iTotalDisplayRecords", rowCount);
+
+
+        return j.toString();
+    }
+
+    private String composePhenotypeSexStr(JSONObject jParams){
+
+        String phenotypeSexes = "";
+        if (jParams.containsKey("phenotypeSexes")) {
+            JSONArray sexes = jParams.getJSONArray("phenotypeSexes");
+            List<String> list = new ArrayList<>();
+            for(Object sex : sexes) {
+                list.add("'" + sex.toString() + "' in sr.phenotypeSex");
+            }
+
+            phenotypeSexes = " AND (" + StringUtils.join(list, " OR ") + ")";
+        }
+        return phenotypeSexes;
+    }
+
+    private String composeChrRangeStr(JSONObject jParams){
+        String chrRange = "";
+
+        if (jParams.containsKey("chrRange")) {
+            String range = jParams.getString("chrRange");
+            if (range.matches("^chr(\\w*):(\\d+)-(\\d+)$")) {
+                System.out.println("find chr range");
+
+                Pattern pattern = Pattern.compile("^chr(\\w*):(\\d+)-(\\d+)$");
+                Matcher matcher = pattern.matcher(range);
+                while (matcher.find()) {
+                    System.out.println("found: " + matcher.group(1));
+                    String regionId = matcher.group(1);
+                    int regionStart = Integer.parseInt(matcher.group(2));
+                    int regionEnd = Integer.parseInt(matcher.group(3));
+
+                    chrRange = " AND g.chrId='" + regionId + "' AND g.chrStart >= " + regionStart + " AND g.chrEnd <= " + regionEnd;
+                }
+            }
+        }
+        else if (jParams.containsKey("chr")) {
+            chrRange = " AND g.chrId='" + jParams.getString("chr") + "'";
+        }
+
+        return chrRange;
+    }
+
+    private String composeGeneListStr(JSONObject jParams) {
+        String genelist = "";
+
+        if (jParams.containsKey("mouseGeneList")) {
+           // genelist = "AND g.markerSymbol in [" +
+            List<String> list = new ArrayList<>();
+
+            for (Object name : jParams.getJSONArray("mouseGeneList")){
+               list.add("'" + name.toString() + "'");
+           }
+
+           String glist = StringUtils.join(list, ",");
+           boolean isSym = glist.contains("MGI:") ? false : true;
+           if (isSym) {
+               genelist = " AND g.markerSymbol in [" + glist + "]";
+           }
+           else {
+               genelist = " AND g.mgiAccessionId in [" + glist + "]";
+           }
+        }
+        return genelist;
+    }
+
+    private String composeGenotypesStr(JSONObject jParams) {
+        String genotypes = "";
+
+        if (jParams.containsKey("genotypes")) {
+            // genelist = "AND g.markerSymbol in [" +
+            List<String> list = new ArrayList<>();
+            for (Object name : jParams.getJSONArray("genotypes")) {
+                list.add("'" + name.toString() + "'");
+            }
+            genotypes = " AND sr.zygosity IN [" + StringUtils.join(list, ",") + "]";
+        }
+        return genotypes;
+    }
+
+    private String composeAlleleTypesStr(JSONObject jParams){
+        String alleleTypes = "";
+
+        Map<String, String> alleleTypeMapping = new HashMap<>();
+        alleleTypeMapping.put("CRISPR(em)", "Endonuclease-mediated"); // mutation_type
+        alleleTypeMapping.put("KOMP", "deletion");  // mutation_type
+        alleleTypeMapping.put("KOMP.1", ".1");
+        alleleTypeMapping.put("EUCOMM A", "a");
+        alleleTypeMapping.put("EUCOMM B", "b");
+        alleleTypeMapping.put("EUCOMM C", "c");
+        alleleTypeMapping.put("EUCOMM D", "d");
+        alleleTypeMapping.put("EUCOMM E", "e");
+
+        List<String> mutationTypes = new ArrayList<>();
+
+        if (jParams.containsKey("alleleTypes")) {
+            // genelist = "AND g.markerSymbol in [" +
+            List<String> list = new ArrayList<>();
+            for (Object name : jParams.getJSONArray("alleleTypes")) {
+                String atype = name.toString();
+
+                if (atype.equals("CRISPR(em)") || atype.equals("KOMP")){
+                    mutationTypes.add("'" + alleleTypeMapping.get(atype) + "'");
+                }
+                else {
+                    list.add("'" + alleleTypeMapping.get(atype) + "'");
+                }
+            }
+
+            if (list.size() > 0){
+                alleleTypes = "a.alleleType IN [" + StringUtils.join(list, ",") + "]";
+                if (mutationTypes.size() > 0) {
+                    alleleTypes += " OR a.mutation_type IN [" + StringUtils.join(mutationTypes, ",") + "]";
+                }
+            }
+            else {
+                if (mutationTypes.size() > 0) {
+                    alleleTypes += "a.mutation_type IN [" + StringUtils.join(mutationTypes, ",") + "]";
+                }
+            }
+        }
+        return " AND (" + alleleTypes + ")";
+    }
+
+    private String composePhenodigmScoreStr(JSONObject jParams){
+        String phenodigmScore = "";
+
+        if (jParams.containsKey("phenodigmScore")) {
+            String[] scores = jParams.getString("phenodigmScore").split(",");
+            int low = Integer.parseInt(scores[0]);
+            int high = Integer.parseInt(scores[1]);
+            phenodigmScore = " dm.diseaseToModelScore >= " + low + " AND dm.diseaseToModelScore <= " + high + " ";
+        }
+        return phenodigmScore;
+    }
+    private String composeDiseaseGeneAssociation(JSONObject jParams){
+        String diseaeGeneAssoc = "";
+
+        if (jParams.containsKey("diseaseGeneAssociation")) {
+            JSONArray assocs = jParams.getJSONArray("diseaseGeneAssociation");
+
+            if (assocs.size() < 2 ){
+                if (assocs.get(0).toString().equals("humanCurated")){
+                    diseaeGeneAssoc = " AND dm.humanCurated = true ";
+                }
+                else {
+                    diseaeGeneAssoc = " AND dm.humanCurated = false ";
+                }
+            }
+        }
+        return diseaeGeneAssoc;
+    }
+    private String composeHumanDiseaseTermStr(JSONObject jParams){
+        String humanDiseaseTerm = "";
+
+        if (jParams.containsKey("srchDiseaseModel")) {
+            String name = jParams.getString("srchDiseaseModel");
+            humanDiseaseTerm = " AND dm.diseaseTerm = '" + name.toString() + "' ";
+        }
+        return humanDiseaseTerm;
+    }
+   
 
     @RequestMapping(value = "/dataTableNeo4jBq", method = RequestMethod.POST)
     public ResponseEntity<String> bqDataTableJson2(
@@ -379,7 +765,6 @@ public class AdvancedSearchController {
 
         return new ResponseEntity<String>(content, createResponseHeaders(), HttpStatus.CREATED);
     }
-
 
     public String fetchGraphData(String dataType, Set<String> srchKw, Set<String> labels, JSONObject jDatatypeProperties, String properties, String regionId, int regionStart, int regionEnd, String childLevel) throws Exception {
 
