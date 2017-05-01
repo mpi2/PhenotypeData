@@ -102,6 +102,9 @@ public class GraphQueryTest {
 
     }
 
+
+
+
     //@Test
     public void testTraverseDiseaseModelRepository() throws Exception {
         DiseaseModel testDiseaseModelFind = diseaseModelRepository.findByDiseaseId("TEST_DISEASE");
