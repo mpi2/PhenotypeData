@@ -75,12 +75,16 @@ public class GraphUtils {
         }
 		accessionAndParam += seperator + "parameter_stable_id=" + parameterStableId;
 		accessionAndParam += seperator + "chart_type=" + chartType + seperator;
-		if(parameter.getStableId().equals("IMPC_BWT_008_001")){
+		if(parameter.getStableId().equals("IMPC_BWT_008_001")){//if bodywieght we don't have stats results so can't use the srService to pivot and have to use exmperiment service instead
 			urls.addAll(experimentService.getChartPivots( accessionAndParam, acc, parameter, pipelineStableIds, zyList, phenotypingCentersList,
 					 strainsParams, metaDataGroup, alleleAccession));
 		}else{
 				urls.addAll(srService.getChartPivots( accessionAndParam, acc, parameter, pipelineStableIds, zyList, phenotypingCentersList,
 				 strainsParams, metaDataGroup, alleleAccession));
+		}
+		
+		for(String url:urls){
+			System.out.println("url="+url);
 		}
 
 		return urls;
