@@ -143,7 +143,6 @@ $(document).ready(function(){
 		if (paramValues != null && paramValues != ""){
 			url += paramName + "=" + paramValues.join("&" + paramName + "=");
 		}
-		console.log("params " + url)
 		return url;
 	}
 	
