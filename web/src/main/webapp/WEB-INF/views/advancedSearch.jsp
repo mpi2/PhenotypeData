@@ -1788,50 +1788,58 @@
 
                     // add new input
                     $(fieldsetFilter + "button.ap").click(function(){
-                        $(input).insertAfter($(fieldsetFilter + ".srchBox").last());
 
-                        var lastButt = $(fieldsetFilter + "button.andOr").last();
-                        //lastButt.text($(fieldsetFilter +".srchBox").size());
-                        lastButt.text('add to query');
+                        // only allow max of 3, otherwise it gets to complicated with the AND/OR combinataions
+                        if ($(fieldsetFilter +".srchBox").size() < 3){
+							$(input).insertAfter($(fieldsetFilter + ".srchBox").last());
 
-                        lastButt.click(function(){
-                            var termVal = $(this).siblings('.termFilter').val();
-                            if (termVal == 'search'){
-                                alert("INFO: please enter a more meaningful term");
+							var lastButt = $(fieldsetFilter + "button.andOr").last();
+							//lastButt.text($(fieldsetFilter +".srchBox").size());
+							lastButt.text('add to query');
+
+							lastButt.click(function () {
+								var termVal = $(this).siblings('.termFilter').val();
+								if (termVal == 'search') {
+									alert("INFO: please enter a more meaningful term");
+								}
+								else {
+									boolTextarea.val(boolTextarea.val() + termVal + " ");
+								}
+								return false;
+							});
+
+							if ($(fieldsetFilter + ".srchBox").size() > 1) {
+								$(fieldsetFilter + ".andOr").show();
+								$(fieldsetFilter + ".andOr2").show();
+								$(fieldsetFilter + ".msg").show();
+								$(fieldsetFilter + ".andOrClear").show();
 							}
-							else {
-                                boolTextarea.val(boolTextarea.val() + termVal + " ");
-                            }
+							$(fieldsetFilter + ".andOrClear").click(function () {
+								boolTextarea.val("");
+								return false;
+							});
+
+							// allow remove input just added
+							$("<i class='pr fa fa-minus-square-o' aria-hidden='true'></i>").insertAfter($(fieldsetFilter + "button.andOr").last());
+
+							$('i.pr').click(function () {
+								$(this).siblings('input.termFilter').parent().remove();
+								if ($(fieldsetFilter + ".srchBox").size() == 1) {
+									$(fieldsetFilter + ".andOr").hide();
+									$(fieldsetFilter + ".andOr2").hide();
+									$(fieldsetFilter + ".msg").hide();
+									$(fieldsetFilter + ".andOrClear").hide();
+								}
+							});
+
+                        	addAutosuggest($('input.srch' + dataType).last());
+
+                        	return false;
+                    	}
+                    	else {
+                            alert("Due to performance issues, maximum of 3 phenotypes is supported for now");
                             return false;
-                        });
-
-                        if ($(fieldsetFilter + ".srchBox").size() > 1 ){
-                            $(fieldsetFilter + ".andOr").show();
-                            $(fieldsetFilter + ".andOr2").show();
-                            $(fieldsetFilter + ".msg").show();
-                            $(fieldsetFilter + ".andOrClear").show();
-                        }
-                        $(fieldsetFilter + ".andOrClear").click(function(){
-                            boolTextarea.val("");
-                            return false;
-						});
-
-                        // allow remove input just added
-                        $("<i class='pr fa fa-minus-square-o' aria-hidden='true'></i>").insertAfter($(fieldsetFilter + "button.andOr").last());
-
-                        $('i.pr').click(function(){
-                           $(this).siblings('input.termFilter').parent().remove();
-                            if ($(fieldsetFilter + ".srchBox").size() == 1){
-                                $(fieldsetFilter + ".andOr").hide();
-                                $(fieldsetFilter + ".andOr2").hide();
-                                $(fieldsetFilter + ".msg").hide();
-                                $(fieldsetFilter + ".andOrClear").hide();
-                            }
-						});
-
-                        addAutosuggest($('input.srch' + dataType).last());
-
-                        return false;
+						}
                     });
                 }
 
