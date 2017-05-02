@@ -179,28 +179,28 @@ public class Loader implements CommandLineRunner {
         loadGenes();
 
         //----------- STEP 2 -----------//
-//        populateHpIdTermMapAndLoadHumanPhenotypes();  //  STEP 2.1
-//        populateBestMpIdHpMap();          // STEP 2.2
-//        extendLoadedHpAndConnectHp2Mp();  // STEP 2.3
-//        loadMousePhenotypes();            // STEP 2.4
-//
-//        //----------- STEP 3 -----------//
-//        populateMouseModelIdMpMap(); // run this before loadMouseModel()
-//        loadMouseModels();
-//
-//        //----------- STEP 4 -----------//
-//        // load disease and Gene, Hp, Mp relationships
-//        populateDiseaseIdPhenotypeMap();
-//        //loadDiseaseGenes();
-//
-//        //----------- STEP 5 -----------//
-//        // load diseaseModel to gene/hp/mp/alleles
-//        loadDiseaseModels();
-//
-//        //----------- STEP 6 -----------//
-//        loadProceduresParameters();
-//
-//        loadStatisticalResults();
+        populateHpIdTermMapAndLoadHumanPhenotypes();  //  STEP 2.1
+        populateBestMpIdHpMap();          // STEP 2.2
+        extendLoadedHpAndConnectHp2Mp();  // STEP 2.3
+        loadMousePhenotypes();            // STEP 2.4
+
+        //----------- STEP 3 -----------//
+        populateMouseModelIdMpMap(); // run this before loadMouseModel()
+        loadMouseModels();
+
+        //----------- STEP 4 -----------//
+        // load disease and Gene, Hp, Mp relationships
+        populateDiseaseIdPhenotypeMap();
+        //loadDiseaseGenes();
+
+        //----------- STEP 5 -----------//
+        // load diseaseModel to gene/hp/mp/alleles
+        loadDiseaseModels();
+
+        //----------- STEP 6 -----------//
+        loadProceduresParameters();
+
+        loadStatisticalResults();
 
     }
 
