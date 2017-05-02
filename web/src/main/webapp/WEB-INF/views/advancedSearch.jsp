@@ -364,6 +364,30 @@
 			.andOrClear {
 				display: none;
 			}
+			div.modal {
+				display:    none;
+				position:   fixed;
+				z-index:    1000;
+				top:        0;
+				left:       0;
+				height:     100%;
+				width:      100%;
+				background: rgba( 255, 255, 255, .8 )
+				url('img/ajax-spinner.gif')
+				50% 50%
+				no-repeat;
+			}
+			/* When the body has the loading class, we turn
+               the scrollbar off with overflow:hidden */
+			body.loading {
+				overflow: hidden;
+			}
+
+			/* Anytime the body has the loading class, our
+               modal element will be visible */
+			body.loading .modal {
+				display: block;
+			}
 
 		</style>
 
@@ -498,7 +522,9 @@
                             {"allele mutation type":"mutationType"},
                             {"ES cell available?":"esCellStatus"},
                             {"mouse available?":"mouseStatus"},
-                            {"phenotyping data available?":"phenotypeStatus"}
+                            {"phenotyping data available?":"phenotypeStatus"},
+							// human ortholog
+                            {"HGNC gene symbol (human ortholog)":"humanGeneSymbol"}
 
 
                         ],
@@ -838,6 +864,10 @@
                         var vals = $('textarea.Mp').val();
                         kv['srchMp'] = $('textarea.Mp').val();
 					}
+					else if ($('input.srchMp').val() != 'search' && $('input.srchMp').val() != ''){
+                        console.log("check mp: "+ $('input.srchMp').val());
+                        kv['srchMp'] = $('input.srchMp').val();
+                    }
 
 
 					// mouse or human gene list
@@ -1310,6 +1340,8 @@
                 }
 
                 function fetchBatchQueryDataTable(oConf) {
+
+                    $('body').addClass("loading");  // to activate modal
                     //console.log(oConf);
                     // deals with duplicates and take a max of first 10 records to show the users
                     //oConf.idlist = getFirstTenUniqIdsStr(getUniqIdsStr(oConf.idlist));
@@ -1332,7 +1364,8 @@
                         "iDisplayLength": 50,
                         "oLanguage": {
                             "sSearch": "Filter: ",
-                            "sInfo": "Showing _START_ to _END_ of _TOTAL_ genes (for complete dataset of your search, please use export buttons)"
+                            //"sInfo": "Showing _START_ to _END_ of _TOTAL_ genes (for complete dataset of your search, please use export buttons)"
+                            "sInfo": "Data in all columns are collapsed to show only unique values"
                         },
 //                        "aoColumns": [
 //                            {"bSearchable": true, "sType": "html", "bSortable": true}
@@ -1350,6 +1383,8 @@
 						 {"bSearchable": false, "sType": "html", "bSortable": true}
 						 ],*/
                         "initComplete": function (oSettings) {  // when dataTable is loaded
+
+                            $('body').removeClass("loading");  // when table loads, remove modal
 
                             $('div#sec2').show();
 
@@ -1709,17 +1744,17 @@
                     //var restriction = null;
 					if (dataType == "Mp"){
                         legendLabel = "Mouse phenotype filter";
-                        buttLabel = "Add phenotype";
+                        buttLabel = "Add another phenotype";
                         restriction = "Narrow your query to the mouse phenotype you are interested in <i class='fa fa-info-circle' title='toggle help'></i>";
 					}
 					else if (dataType == "Hp"){
                         legendLabel = "Human phenotype filter";
-                        buttLabel = "Add phenotype";
+                        buttLabel = "Add another phenotype";
                         restriction = "Narrow your query to the human phenotype you are interested in <i class='fa fa-info-circle' title='toggle help'></i>";
 					}
                     else if (dataType == "DiseaseModel"){
                         legendLabel = "Human disease filter";
-                        buttLabel = "Add disease";
+                        buttLabel = "Add another disease";
                         restriction = "Narrow your query to the human disease you are interested in <i class='fa fa-info-circle' title='toggle help'></i>";
                     }
 
@@ -1902,6 +1937,7 @@
     </jsp:attribute>
 
 	<jsp:body>
+		<div class="modal"></div>
 		<div class="region region-content">
 			<div class="block block-system">
 				<div class="content">

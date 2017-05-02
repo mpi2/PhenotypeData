@@ -293,8 +293,7 @@ public class AdvancedSearchController {
             HttpServletResponse response,
             Model model) throws Exception {
 
-
-
+        baseUrl = request.getAttribute("baseUrl").toString();
 
         JSONObject jParams = (JSONObject) JSONSerializer.toJSON(params);
         System.out.println(jParams.toString());
@@ -338,7 +337,7 @@ public class AdvancedSearchController {
         //String mpStr = "asdfsdaf OR erueuru asdfsda ,  sdfa OR sakdslfjie dfd ";  // a or b or c
         //String mpStr = "asdfsdaf OR erueuru asdfsda ,  sdfa ";  // a or b
 
-        System.out.println(mpStr);
+        System.out.println("mp query: "+ mpStr);
 
         String regex_aAndb_Orc = "\\s*\\(([A-Za-z0-9-\\\\,;:\\s]{1,})\\s*AND\\s*([A-Za-z0-9-\\\\,;:\\s]{1,})\\)\\s*OR\\s*([A-Za-z0-9-\\\\,;:\\s]{1,})\\s*";
         String regex_aAnd_bOrc = "\\s*([A-Za-z0-9-\\\\,;:\\s]{1,})\\s*AND\\s*\\(([A-Za-z0-9-\\\\,;:\\s]{1,})\\s*OR\\s*([A-Za-z0-9-\\\\,;:\\s]{1,})\\)\\s*";
@@ -360,21 +359,37 @@ public class AdvancedSearchController {
 
 
         HashedMap params = new HashedMap();
-//        params.put("phenotypeSexes", phenotypeSexes);
-//        params.put("chrRange", chrRange);
-//        params.put("geneList", geneList);
-//        params.put("genotypes", genotypes);
-//        params.put("alleleTypes", alleleTypes);
-//        params.put("significant", significant);
-//        params.put("phenodigmScore", phenodigmScore);
-//        params.put("diseaseGeneAssociation", diseaseGeneAssociation);
-//        params.put("humanDiseaseTerm", humanDiseaseTerm);
-
 
         //List<Object> objs = null;
         Result result = null;
+        if (mpStr == null ){
+            String query = "MATCH (g:Gene)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp) "
+                    + "WHERE sr.significant = true "
+                    + phenotypeSexes + chrRange + geneList + genotypes + alleleTypes
+                    + "WITH g, sr, mp, a "
+                    + "OPTIONAL MATCH (g)<-[:GENE]-(dm:DiseaseMode) WHERE "
+                    + phenodigmScore + diseaseGeneAssociation + humanDiseaseTerm
+                    + "RETURN g, a, sr, dm, mp";
 
-        if (mpStr.matches(regex_aAndb_Orc)) {
+            System.out.println("Query: "+ query);
+            result =  neo4jSession.query(query, params);
+        }
+        else if (! mpStr.contains("AND") && ! mpStr.contains("OR") ) {
+                mpStr = mpStr.trim();
+                String query = "MATCH (g:Gene)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp) "
+                        + "WHERE mp.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') "
+                        + significant + phenotypeSexes + chrRange + geneList + genotypes + alleleTypes
+                        + "WITH g, sr, mp, a "
+                        + "OPTIONAL MATCH (g)<-[:GENE]-(dm:DiseaseMode) WHERE "
+                        + phenodigmScore + diseaseGeneAssociation + humanDiseaseTerm
+                        + "RETURN g, a, sr, dm, mp";
+
+                params.put("mpA", mpStr);
+
+                System.out.println("Query: "+ query);
+                result =  neo4jSession.query(query, params);
+        }
+        else if (mpStr.matches(regex_aAndb_Orc)) {
             System.out.println("matches (a and b) or c");
             Pattern pattern = Pattern.compile(regex_aAndb_Orc);
             Matcher matcher = pattern.matcher(mpStr);
@@ -383,7 +398,6 @@ public class AdvancedSearchController {
                 String mpA = matcher.group(1).trim();;
                 String mpB = matcher.group(2).trim();;
                 String mpC = matcher.group(3).trim();;
-
 
 
                 logger.info("A: '{}', B: '{}', C: '{}'", mpA, mpB, mpC);
@@ -542,19 +556,8 @@ public class AdvancedSearchController {
             for (Map.Entry<String, Object> entry : row.entrySet()) {
                 System.out.println(entry.getKey() + " / " + entry.getValue());
                 if (entry.getValue() != null) {
-                    //objs.add((Object) entry.getValue());
-                    List<Object> objs = null;
-                    String classname = entry.getValue().getClass().getSimpleName();
-                    System.out.println(classname);
-
-//                    if ( classname.equals("StatisticalResult")){
-//                        StatisticalResult sr = (StatisticalResult) entry.getValue();
-//                        System.out.println("****" + sr.getZygosity());
-//                    }
-
-
-                    //populateColValMap(objs, colValMap, jParams);
-
+                    Object obj = entry.getValue();
+                    populateColValMapAdvSrch(obj, colValMap, jParams);
                 }
             }
         }
@@ -611,7 +614,9 @@ public class AdvancedSearchController {
                 list.add("'" + sex.toString() + "' in sr.phenotypeSex");
             }
 
-            phenotypeSexes = " AND (" + StringUtils.join(list, " OR ") + ")";
+            if (list.size() > 0) {
+                phenotypeSexes = " AND (" + StringUtils.join(list, " OR ") + ")";
+            }
         }
         return phenotypeSexes;
     }
@@ -632,12 +637,12 @@ public class AdvancedSearchController {
                     int regionStart = Integer.parseInt(matcher.group(2));
                     int regionEnd = Integer.parseInt(matcher.group(3));
 
-                    chrRange = " AND g.chrId='" + regionId + "' AND g.chrStart >= " + regionStart + " AND g.chrEnd <= " + regionEnd;
+                    chrRange = " AND g.chrId='" + regionId + "' AND g.chrStart >= " + regionStart + " AND g.chrEnd <= " + regionEnd + " ";
                 }
             }
         }
         else if (jParams.containsKey("chr")) {
-            chrRange = " AND g.chrId='" + jParams.getString("chr") + "'";
+            chrRange = " AND g.chrId='" + jParams.getString("chr") + "' ";
         }
 
         return chrRange;
@@ -675,7 +680,9 @@ public class AdvancedSearchController {
             for (Object name : jParams.getJSONArray("genotypes")) {
                 list.add("'" + name.toString() + "'");
             }
-            genotypes = " AND sr.zygosity IN [" + StringUtils.join(list, ",") + "]";
+            if (list.size() > 0) {
+                genotypes = " AND sr.zygosity IN [" + StringUtils.join(list, ",") + "]";
+            }
         }
         return genotypes;
     }
@@ -714,14 +721,16 @@ public class AdvancedSearchController {
                 if (mutationTypes.size() > 0) {
                     alleleTypes += " OR a.mutation_type IN [" + StringUtils.join(mutationTypes, ",") + "]";
                 }
+                alleleTypes = " AND (" + alleleTypes + ")";
             }
             else {
                 if (mutationTypes.size() > 0) {
                     alleleTypes += "a.mutation_type IN [" + StringUtils.join(mutationTypes, ",") + "]";
                 }
+                alleleTypes = " AND (" + alleleTypes + ")";
             }
         }
-        return " AND (" + alleleTypes + ")";
+        return alleleTypes;
     }
 
     private String composePhenodigmScoreStr(JSONObject jParams){
@@ -1141,56 +1150,55 @@ public class AdvancedSearchController {
         return childTerms;
     }
 
-    public void populateColValMap2(List<Object> objs, Map<String, Set<String>> colValMap, JSONObject jDatatypeProperties) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
-        for (Object obj : objs) {
-            String className = obj.getClass().getSimpleName();
+    public void populateColValMapAdvSrch(Object obj, Map<String, Set<String>> colValMap, JSONObject jParam) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
 
-            if (jDatatypeProperties.containsKey(className)) {
+        String className = obj.getClass().getSimpleName();
 
-                //System.out.println("className: " + className);
+        System.out.println("ok with "+ className);
+        if (jParam.containsKey(className)) {
 
-                List<String> nodeProperties = jDatatypeProperties.getJSONArray(className);
+            System.out.println("className: " + className);
+            List<String> nodeProperties = jParam.getJSONArray(className);
 
-                if (className.equals("Gene")) {
-                    Gene g = (Gene) obj;
-                    getValues(nodeProperties, g, colValMap);  // convert to class ???
-                }
-                else if (className.equals("EnsemblGeneId")) {
-                    EnsemblGeneId ensg = (EnsemblGeneId) obj;
-                    getValues(nodeProperties, ensg, colValMap);
-                }
-                else if (className.equals("MarkerSynonym")) {
-                    MarkerSynonym m = (MarkerSynonym) obj;
-                    getValues(nodeProperties, m, colValMap);
-                }
-                else if (className.equals("HumanGeneSymbol")) {
-                    HumanGeneSymbol hg = (HumanGeneSymbol) obj;
-                    getValues(nodeProperties, hg, colValMap);
-                }
-                else if (className.equals("DiseaseModel")) {
-                    DiseaseModel dm = (DiseaseModel) obj;
-                    getValues(nodeProperties, dm, colValMap);
-                }
-                else if (className.equals("MouseModel")) {
-                    MouseModel mm = (MouseModel) obj;
-                    getValues(nodeProperties, mm, colValMap);
-                }
-                else if (className.equals("Allele")) {
-                    Allele allele = (Allele) obj;
-                    getValues(nodeProperties, allele, colValMap);
-                }
-                else if (className.equals("Mp")) {
-                    Mp mp = (Mp) obj;
-                    getValues(nodeProperties, mp, colValMap);
-                }
-                else if (className.equals("OntoSynonym")) {
-                    OntoSynonym ontosyn = (OntoSynonym) obj;
-                    getValues(nodeProperties, ontosyn, colValMap);
-                }
-                else if (className.equals("Hp")) {
-                    Hp hp = (Hp) obj;
-                    getValues(nodeProperties, hp, colValMap);
-                }
+            if (className.equals("Gene")) {
+                Gene g = (Gene) obj;
+                getValues(nodeProperties, g, colValMap);  // convert to class ???
+            }
+            else if (className.equals("EnsemblGeneId")) {
+                EnsemblGeneId ensg = (EnsemblGeneId) obj;
+                getValues(nodeProperties, ensg, colValMap);
+            }
+            else if (className.equals("MarkerSynonym")) {
+                MarkerSynonym m = (MarkerSynonym) obj;
+                getValues(nodeProperties, m, colValMap);
+            }
+            else if (className.equals("HumanGeneSymbol")) {
+                HumanGeneSymbol hg = (HumanGeneSymbol) obj;
+                getValues(nodeProperties, hg, colValMap);
+            }
+            else if (className.equals("DiseaseModel")) {
+                DiseaseModel dm = (DiseaseModel) obj;
+                getValues(nodeProperties, dm, colValMap);
+            }
+            else if (className.equals("MouseModel")) {
+                MouseModel mm = (MouseModel) obj;
+                getValues(nodeProperties, mm, colValMap);
+            }
+            else if (className.equals("Allele")) {
+                Allele allele = (Allele) obj;
+                getValues(nodeProperties, allele, colValMap);
+            }
+            else if (className.equals("Mp")) {
+                Mp mp = (Mp) obj;
+                getValues(nodeProperties, mp, colValMap);
+            }
+            else if (className.equals("OntoSynonym")) {
+                OntoSynonym ontosyn = (OntoSynonym) obj;
+                getValues(nodeProperties, ontosyn, colValMap);
+            }
+            else if (className.equals("Hp")) {
+                Hp hp = (Hp) obj;
+                getValues(nodeProperties, hp, colValMap);
             }
         }
 
@@ -1269,7 +1277,7 @@ public class AdvancedSearchController {
 
             char first = Character.toUpperCase(property.charAt(0));
             String property2 = first + property.substring(1);
-            //System.out.println("property: " + property);
+            System.out.println("property: " + property);
 
             Method method = o.getClass().getMethod("get"+property2);
             if (! colValMap.containsKey(property)) {
@@ -1301,6 +1309,7 @@ public class AdvancedSearchController {
                 }
                 else if (property.equals("mpId")){
                     colVal = "<a target='_blank' href='" + mpBaseUrl + colVal + "'>" + colVal + "</a>";
+                    System.out.println("colVal: "  + colVal);
                 }
                 else if (property.equals("diseaseId")){
                     colVal = "<a target='_blank' href='" + diseaseBaseUrl + colVal + "'>" + colVal + "</a>";
