@@ -51,3 +51,20 @@ INSERT INTO ontology_term (acc, db_id, name, description, is_obsolete) VALUES ('
 INSERT INTO phenotype_parameter (stable_id, db_id, name, description, major_version, minor_version, unit, datatype, parameter_type, formula, required, metadata, important, derived, annotate, increment, options, sequence, media, data_analysis, data_analysis_notes, stable_key) VALUES ('ESLIM_003_001_006', 6, 'Heat production (metabolic rate)', 'Heat_Production_Metabolic_Rate', 1, 0, 'kJ/h/animal', '', 'seriesParameter', null, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, '', 196);
 
 
+
+
+
+
+DROP SCHEMA IF EXISTS jaja;
+CREATE SCHEMA jaja;
+SET SCHEMA jaja;
+CREATE TABLE test (id INTEGER, message VARCHAR(64));
+
+--
+--  Insert 5 rows of test data to the dcc1.test. table.
+--
+INSERT INTO test (id, message) VALUES (1, 'dcc line 1');
+INSERT INTO test (id, message) VALUES (2, 'dcc line 2');
+INSERT INTO test (id, message) VALUES (3, 'dcc line 3');
+INSERT INTO test (id, message) VALUES (4, 'dcc line 4');
+INSERT INTO test (id, message) VALUES (5, 'dcc line 5');
