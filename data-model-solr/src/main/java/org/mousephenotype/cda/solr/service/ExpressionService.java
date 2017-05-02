@@ -785,7 +785,7 @@ public class ExpressionService extends BasicService {
 		if (anatomyToDocs.containsKey(anatomy)) {
 
 			for (SolrDocument doc : anatomyToDocs.get(anatomy)) {
-
+//if(!embryo)System.out.println("anatomy="+anatomy+"embryo ? "+embryo+" doc="+doc);
 				if (doc.containsKey(ObservationDTO.OBSERVATION_TYPE)
 						&& doc.get(ObservationDTO.OBSERVATION_TYPE).equals("categorical")) {
 
@@ -843,6 +843,13 @@ public class ExpressionService extends BasicService {
 			if (row.getSpecimenNoTissueAvailable().keySet().size() > 0) {
 				row.setNoTissueAvailable(true);
 			}
+			if (row.getSpecimenImageOnly().keySet().size() > 0) {
+				row.setImageOnly(true);
+			}
+			if (row.getSpecimenAmbiguous().keySet().size() > 0) {
+				row.setAmbiguous(true);
+			}
+		
 
 		}
 		row.anatomy = anatomy;
@@ -887,6 +894,14 @@ public class ExpressionService extends BasicService {
 
 				} else if (paramAssValue.equalsIgnoreCase("no expression")) {
 					row.addNotExpressed(sampleId, zyg);
+
+				}
+				else if (paramAssValue.equalsIgnoreCase("imageOnly")) {
+					row.addImageOnly(sampleId, zyg);
+
+				}
+				else if (paramAssValue.equalsIgnoreCase("ambiguous")) {
+					row.addSpecimenAmbiguous(sampleId, zyg);
 
 				}
 			}
@@ -947,6 +962,8 @@ public class ExpressionService extends BasicService {
 	 *
 	 */
 	public class ExpressionRowBean {
+		
+
 		@Override
 		public String toString() {
 			return "ExpressionRowBean [anatomy=" + anatomy + ", abnormalAnatomyId=" + abnormalAnatomyId + ", numberOfImages="
@@ -957,6 +974,43 @@ public class ExpressionService extends BasicService {
 					+ ", specimen=" + specimen + ", numberOfHetSpecimens=" + numberOfHetSpecimens
 					+ ", specimenNotExpressed=" + specimenNotExpressed + ", specimenNoTissueAvailable="
 					+ specimenNoTissueAvailable + "]";
+		}
+
+		
+
+		public void setAmbiguous(boolean b) {
+			this.ambiguous=b;
+		}
+
+
+
+		public Map<String, Specimen> getSpecimenAmbiguous() {
+			return this.specimenAmbiguous;
+			
+		}
+		
+		public void addSpecimenAmbiguous(String specimenId, String zyg) {
+			if (!this.getSpecimenAmbiguous().containsKey(specimenId)) {
+				this.getSpecimenAmbiguous().put(specimenId, new Specimen());
+			}
+			Specimen specimen = this.getSpecimenAmbiguous().get(specimenId);
+			specimen.setZyg(zyg);
+			this.specimenAmbiguous.put(specimenId, specimen);
+			
+		}
+
+		public void addImageOnly(String specimenId, String zyg) {
+			if (!this.getSpecimenImageOnly().containsKey(specimenId)) {
+				this.getSpecimenImageOnly().put(specimenId, new Specimen());
+			}
+			Specimen specimen = this.getSpecimenImageOnly().get(specimenId);
+			specimen.setZyg(zyg);
+			this.specimenImageOnly.put(specimenId, specimen);
+			
+		}
+
+		private Map<String, Specimen> getSpecimenImageOnly() {
+			return this.specimenImageOnly;
 		}
 
 		String anatomy;
@@ -1007,6 +1061,18 @@ public class ExpressionService extends BasicService {
 		boolean homImages = false;
 		boolean wildTypeExpression = false;
 		boolean expression = false;
+		private boolean imageOnly=false;
+		private boolean ambiguous=false;
+
+		public boolean isAmbiguous() {
+			return ambiguous;
+		}
+
+
+
+		public boolean isImageOnly() {
+			return imageOnly;
+		}
 
 		public boolean isExpression() {
 			return expression;
@@ -1030,6 +1096,10 @@ public class ExpressionService extends BasicService {
 
 		public void setNoTissueAvailable(boolean noTissueAvailable) {
 			this.noTissueAvailable = noTissueAvailable;
+		}
+		
+		public void setImageOnly(boolean imageOnly) {
+			this.imageOnly = imageOnly;
 		}
 
 		boolean notExpressed = false;
@@ -1087,8 +1157,10 @@ public class ExpressionService extends BasicService {
 		}
 
 		int numberOfHetSpecimens;
-		private Map<String, Specimen> specimenNotExpressed = new HashMap<>();;
-		private Map<String, Specimen> specimenNoTissueAvailable = new HashMap<>();;
+		private Map<String, Specimen> specimenNotExpressed = new HashMap<>();
+		private Map<String, Specimen> specimenNoTissueAvailable = new HashMap<>();
+		private Map<String, Specimen> specimenAmbiguous = new HashMap<>();
+		private Map<String, Specimen> specimenImageOnly = new HashMap<>();
 
 		public int getNumberOfHetSpecimens() {
 			return numberOfHetSpecimens;

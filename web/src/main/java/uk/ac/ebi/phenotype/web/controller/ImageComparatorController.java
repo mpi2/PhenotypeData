@@ -144,7 +144,7 @@ public class ImageComparatorController {
 			System.out.println("using frames based comparator to pdfs");
 			return "comparatorFrames";
 		}
-		return "comparatorFrames";//js viewport used to view images in this view.
+		return "comparator";//js viewport used to view images in this view.
 	}
 	
 	/**
