@@ -4,6 +4,7 @@ import org.neo4j.ogm.annotation.GraphId;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -24,6 +25,9 @@ public class Gene {
     private int chrStart;
     private int chrEnd;
     private String chrStrand;
+    private List<String> ensemblGeneId;
+    private List<String> markerSynonym;
+    private List<String> humanGeneSymbol;
 
     @Relationship(type = "ENSEMBL_GENE_ID", direction = Relationship.OUTGOING)
     private Set<EnsemblGeneId> ensemblGeneIds;
@@ -174,6 +178,30 @@ public class Gene {
         this.humanPhenotypes = humanPhenotypes;
     }
 
+    public List<String> getEnsemblGeneId() {
+        return ensemblGeneId;
+    }
+
+    public void setEnsemblGeneId(List<String> ensemblGeneId) {
+        this.ensemblGeneId = ensemblGeneId;
+    }
+
+    public List<String> getMarkerSynonym() {
+        return markerSynonym;
+    }
+
+    public void setMarkerSynonym(List<String> markerSynonym) {
+        this.markerSynonym = markerSynonym;
+    }
+
+    public List<String> getHumanGeneSymbol() {
+        return humanGeneSymbol;
+    }
+
+    public void setHumanGeneSymbol(List<String> humanGeneSymbol) {
+        this.humanGeneSymbol = humanGeneSymbol;
+    }
+
     @Override
     public String toString() {
         return "Gene{" +
@@ -186,6 +214,9 @@ public class Gene {
                 ", chrStart=" + chrStart +
                 ", chrEnd=" + chrEnd +
                 ", chrStrand='" + chrStrand + '\'' +
+                ", ensemblGeneId=" + ensemblGeneId +
+                ", markerSynonym=" + markerSynonym +
+                ", humanGeneSymbol=" + humanGeneSymbol +
                 ", ensemblGeneIds=" + ensemblGeneIds +
                 ", markerSynonyms=" + markerSynonyms +
                 ", humanGeneSymbols=" + humanGeneSymbols +

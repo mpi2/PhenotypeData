@@ -17,8 +17,6 @@ public interface MpRepository extends Neo4jRepository<Mp, Long> {
     Mp findByMpId(String mpId);
     Mp findByMpTerm (String mpTerm);
 
-    private Entitym
-
     //-----------------------
     //  BOOLEAN MP QUERIES
     //-----------------------
@@ -66,58 +64,15 @@ public interface MpRepository extends Neo4jRepository<Mp, Long> {
             + "WHERE mp.mpTerm =~ ('(?i)'+'.*'+{A}+'.*') OR mp.mpTerm =~ ('(?i)'+'.*'+{B}+'.*') WITH g ";
 
 
-    String otherFilters = "{significant} + {phenotypeSexes} + {chrRange} + {geneList} + {genotypes} + {alleleTypes} "
-            + "WITH g, sr, mp, a, "
-            + "[(g)-[:MARKER_SYNONYM]->(ms:MarkerSynonym) | ms] as markerSynonym, "
-            + "[(g)-[:HUMAN_GENE_SYMBOL]->(hgs:HumanGeneSymbol) | hgs] as humanGeneSymbol, "
-            + "[(g)-[:ENSEMBL_GENE_ID]->(ensg:EnsemblGeneId) | ensg] as ensemblGeneId "
+    String otherFilters = "{significant} {phenotypeSexes} {chrRange} {geneList} {genotypes} {alleleTypes} "
+            + "WITH g, sr, mp, a"
+//            + "[(g)-[:MARKER_SYNONYM]->(ms:MarkerSynonym) | ms] as markerSynonym, "
+//            + "[(g)-[:HUMAN_GENE_SYMBOL]->(hgs:HumanGeneSymbol) | hgs] as humanGeneSymbol, "
+//            + "[(g)-[:ENSEMBL_GENE_ID]->(ensg:EnsemblGeneId) | ensg] as ensemblGeneId "
             + "OPTIONAL MATCH (g)<-[:GENE]-(dm:DiseaseMode) WHERE "
-            + "{phenodigmScore} + {diseaseGeneAssociation} + {humanDiseaseTerm} "
+            + "{phenodigmScore} {diseaseGeneAssociation} {humanDiseaseTerm} "
             + "WITH g, sr, mp, a, dm, markerSynonym, humanGeneSymbol, ensemblGeneId "
-            + "RETURN g, a, markerSynonym, humanGeneSymbol, ensemblGeneId, sr, dm, mp";
-
-//            "// chr range\n" +
-//            "\n" +
-//            "// gene list\n" +
-//            "\n" +
-//            "// zygosity (geneotype)\n" +
-//            "AND (\"homozygote\" in sr.zygosity or \"heterozygote\" in sr.zygosity)\n" +
-//            "\n" +
-//            "// allele type\n" +
-//            "AND\n" +
-//            "\n" +
-//            "\n" +
-//            "AND   sr.significant = true\n" +
-//            "//\n" +
-//            "\n" +
-//            "WITH g, sr, mp\n" +
-//            "MATCH(g)<-[:GENE]-(dm:DiseaseModel)\n" +
-//            "// phenotypic similarity\n" +
-//            "WHERE dm.diseaseToModelScore > 60 AND  dm.diseaseToModelScore < 100\n" +
-//            "\n" +
-//            "// disease gene association\n" +
-//            "AND dm.humanCurated\n" +
-//            "\n" +
-//            "// human disease\n" +
-//            "//AND dm.diseaseTerm =~ \"(?i).*Glucocorticoid Deficiency 2.*\"\n" +
-//            "return g, sr, dm, mp\n" +
-//            "//return count(distinct g), count(distinct sr), count(dm), count(mp)\n" +
-//            "\n" +
-//            "\n" +
-//            "\n" +
-//            "-------------\n" +
-//            "\n" +
-//            "\n" +
-//            "\n" +
-//            "MATCH (g:Gene)<-[:GENE]-(sr:StatisticalResult)-[:MP]->(mp:Mp) WHERE mp.mpTerm =~ \"(?i).*decreased circulating total protein level.*\" WITH g\n" +
-//            "MATCH (g)<-[:GENE]-(sr:StatisticalResult)-[:MP]->(mp:Mp) WHERE mp.mpTerm =~ \"(?i).*decreased circulating cholesterol level.*\" AND (\"homozygote\" in sr.zygosity or \"heterozygote\" in sr.zygosity) and (\"male\" in sr.phenotypeSex or \"female\" in sr.phenotypeSex) and  sr.significant = true WITH g, sr, mp\n" +
-//            "MATCH(g)<-[:GENE]-(dm:DiseaseModel)\n" +
-//            "return g, sr, dm, mp\n" +
-//            "\n" +
-//            "\n" +
-
-
-
+            + "RETURN g, a, sr, dm, mp";
 
 
     @Query(aANDb + otherFilters)
