@@ -349,13 +349,13 @@ public class AdvancedSearchController {
         String regex_aOrbOrc = "\\s*\\(*([A-Za-z0-9-\\\\,;:\\s]{1,})\\s*OR\\s*([A-Za-z0-9-\\\\,;:\\s]{1,})\\)*\\s*OR\\s*([A-Za-z0-9-\\\\,;:\\s]{1,})\\)*\\s*";
 
         String otherFilters = "{significant} {phenotypeSexes} {chrRange} {geneList} {genotypes} {alleleTypes} "
-                + "WITH g, sr, mp, a "
+                + " WITH g, sr, mp, a "
                // + "[(g)-[:MARKER_SYNONYM]->(ms:MarkerSynonym) | ms] as markerSynonym, "
                // + "[(g)-[:HUMAN_GENE_SYMBOL]->(hgs:HumanGeneSymbol) | hgs] as humanGeneSymbol, "
                // + "[(g)-[:ENSEMBL_GENE_ID]->(ensg:EnsemblGeneId) | ensg] as ensemblGeneId "
-                + "OPTIONAL MATCH (g)<-[:GENE]-(dm:DiseaseMode) WHERE "
-                + "{phenodigmScore} {diseaseGeneAssociation} {humanDiseaseTerm} "
-                + "RETURN g, a, sr, dm, mp";
+                + " OPTIONAL MATCH (g)<-[:GENE]-(dm:DiseaseMode) WHERE "
+                + " {phenodigmScore} {diseaseGeneAssociation} {humanDiseaseTerm} "
+                + " RETURN g, a, sr, dm, mp";
 
 
         HashedMap params = new HashedMap();
@@ -364,12 +364,12 @@ public class AdvancedSearchController {
         Result result = null;
         if (mpStr == null ){
             String query = "MATCH (g:Gene)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp) "
-                    + "WHERE sr.significant = true "
+                    + " WHERE sr.significant = true "
                     + phenotypeSexes + chrRange + geneList + genotypes + alleleTypes
-                    + "WITH g, sr, mp, a "
-                    + "OPTIONAL MATCH (g)<-[:GENE]-(dm:DiseaseMode) WHERE "
+                    + " WITH g, sr, mp, a "
+                    + " OPTIONAL MATCH (g)<-[:GENE]-(dm:DiseaseMode) WHERE "
                     + phenodigmScore + diseaseGeneAssociation + humanDiseaseTerm
-                    + "RETURN g, a, sr, dm, mp";
+                    + " RETURN g, a, sr, dm, mp";
 
             System.out.println("Query: "+ query);
             result =  neo4jSession.query(query, params);
@@ -377,12 +377,12 @@ public class AdvancedSearchController {
         else if (! mpStr.contains("AND") && ! mpStr.contains("OR") ) {
                 mpStr = mpStr.trim();
                 String query = "MATCH (g:Gene)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp) "
-                        + "WHERE mp.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') "
+                        + " WHERE mp.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') "
                         + significant + phenotypeSexes + chrRange + geneList + genotypes + alleleTypes
-                        + "WITH g, sr, mp, a "
-                        + "OPTIONAL MATCH (g)<-[:GENE]-(dm:DiseaseMode) WHERE "
+                        + " WITH g, sr, mp, a "
+                        + " OPTIONAL MATCH (g)<-[:GENE]-(dm:DiseaseMode) WHERE "
                         + phenodigmScore + diseaseGeneAssociation + humanDiseaseTerm
-                        + "RETURN g, a, sr, dm, mp";
+                        + " RETURN g, a, sr, dm, mp";
 
                 params.put("mpA", mpStr);
 
@@ -721,13 +721,13 @@ public class AdvancedSearchController {
                 if (mutationTypes.size() > 0) {
                     alleleTypes += " OR a.mutation_type IN [" + StringUtils.join(mutationTypes, ",") + "]";
                 }
-                alleleTypes = " AND (" + alleleTypes + ")";
+                alleleTypes = " AND (" + alleleTypes + ") ";
             }
             else {
                 if (mutationTypes.size() > 0) {
                     alleleTypes += "a.mutation_type IN [" + StringUtils.join(mutationTypes, ",") + "]";
                 }
-                alleleTypes = " AND (" + alleleTypes + ")";
+                alleleTypes = " AND (" + alleleTypes + ") ";
             }
         }
         return alleleTypes;

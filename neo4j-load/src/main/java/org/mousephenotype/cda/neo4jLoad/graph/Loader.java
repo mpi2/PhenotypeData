@@ -121,6 +121,7 @@ public class Loader implements CommandLineRunner {
 
 
     Map<String, Allele> loadedAlleles = new HashMap<>();
+    Map<String, Allele> loadedAlleleIdAllele = new HashMap<>();
     Map<String, Gene> loadedGenes = new HashMap<>();
     Map<String, Gene> loadedMouseSymbolGenes = new HashMap<>();
     Map<String, Mp> loadedMps = new HashMap<>();
@@ -333,8 +334,8 @@ public class Loader implements CommandLineRunner {
 
                     String alleleAcc = result.getAlleleAccessionId();
                     String alleleSymbol = result.getAlleleSymbol();
-                    if (loadedAlleles.containsKey(alleleSymbol)) {
-                        sr.setAllele(loadedAlleles.get(alleleSymbol));
+                    if (loadedAlleleIdAllele.containsKey(alleleAcc)) {
+                        sr.setAllele(loadedAlleleIdAllele.get(alleleAcc));
                     }
                     else {
                         logger.warn(alleleAcc + " (" + alleleSymbol + ") is not one of IMPC alleles");
@@ -594,6 +595,7 @@ public class Loader implements CommandLineRunner {
                 alleleRepository.save(allele);
 
                 loadedAlleles.put(alleleSymbol, allele);
+                loadedAlleleIdAllele.put(alleleAcc, allele);
 
                 alleleCount++;
                 if (alleleCount % 5000 == 0){
