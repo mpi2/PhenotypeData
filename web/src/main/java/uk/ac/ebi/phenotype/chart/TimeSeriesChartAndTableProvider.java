@@ -60,7 +60,7 @@ public class TimeSeriesChartAndTableProvider {
 	throws IOException,	URISyntaxException {
 
 		ChartData chartNTableForParameter = null;
-		Map<String, List<DiscreteTimePoint>> lines = new HashMap<String, List<DiscreteTimePoint>>();
+		Map<String, List<DiscreteTimePoint>> lines = new TreeMap<String, List<DiscreteTimePoint>>();
 
 		for (SexType sex : experiment.getSexes()) {
 
@@ -122,7 +122,7 @@ public class TimeSeriesChartAndTableProvider {
 			String yAxisLabel=parameter.getUnitY();
 			if(parameter.getName().contains("Body weight curve")){
 				xAxisLabel= "Age - rounded to nearest week";
-				yAxisLabel= "g";
+				yAxisLabel= "Mass (g)";
 			}
 			System.out.println("xAxis label="+xAxisLabel);
 			int decimalPlaces = ChartUtils.getDecimalPlaces(experiment);
