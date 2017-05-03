@@ -49,7 +49,7 @@
 
 								</c:forEach>
 
-									<c:if test="${data!=true}">no data</c:if>
+									<c:if test="${data!=true}">-</c:if>
 
 								</td>
 							</c:forEach>
