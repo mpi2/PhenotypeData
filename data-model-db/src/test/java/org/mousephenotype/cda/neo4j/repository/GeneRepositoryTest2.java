@@ -27,6 +27,7 @@ import org.springframework.data.neo4j.repository.config.EnableNeo4jRepositories;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 
 /**
@@ -35,7 +36,7 @@ import org.springframework.test.context.support.DependencyInjectionTestExecution
 
 //
 //@RunWith(SpringRunner.class)
-//@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
+//@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.N ONE)
 //@ContextConfiguration(classes = {Neo4jTestConfig.class})
 ////@TestPropertySource(locations = {"classpath:ogm.properties"})
 //@Transactional
@@ -49,7 +50,7 @@ import org.springframework.test.context.support.DependencyInjectionTestExecution
 
 
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@RunWith(SpringRunner.class)
 @ContextConfiguration(classes = {Neo4jConfig.class})
 public class GeneRepositoryTest2 {
 
