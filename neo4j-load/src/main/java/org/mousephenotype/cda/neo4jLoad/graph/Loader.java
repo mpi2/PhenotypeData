@@ -121,6 +121,7 @@ public class Loader implements CommandLineRunner {
 
 
     Map<String, Allele> loadedAlleles = new HashMap<>();
+    Map<String, Allele> loadedAlleleIdAllele = new HashMap<>();
     Map<String, Gene> loadedGenes = new HashMap<>();
     Map<String, Gene> loadedMouseSymbolGenes = new HashMap<>();
     Map<String, Mp> loadedMps = new HashMap<>();
@@ -328,16 +329,16 @@ public class Loader implements CommandLineRunner {
                         sr.setGene(loadedGenes.get(mgiAcc));
                     }
                     else {
-                        logger.warn(mgiAcc + " is not one of IMPC genes");
+                        logger.warn(mgiAcc + " is not an IMPC gene");
                     }
 
                     String alleleAcc = result.getAlleleAccessionId();
                     String alleleSymbol = result.getAlleleSymbol();
-                    if (loadedAlleles.containsKey(alleleSymbol)) {
-                        sr.setAllele(loadedAlleles.get(alleleSymbol));
+                    if (loadedAlleleIdAllele.containsKey(alleleAcc)) {
+                        sr.setAllele(loadedAlleleIdAllele.get(alleleAcc));
                     }
                     else {
-                        logger.warn(alleleAcc + " (" + alleleSymbol + ") is not one of IMPC alleles");
+                        logger.warn(alleleAcc + " (" + alleleSymbol + ") is not an IMPC alleles");
                     }
 
                     Set<Mp> mps = new HashSet<>();
@@ -346,7 +347,7 @@ public class Loader implements CommandLineRunner {
                             mps.add(loadedMps.get(result.getMpTermId()));
                         }
                         else {
-                            logger.warn(result.getMpTermId() + " is not one of IMPC MPs");
+                            logger.warn(result.getMpTermId() + " is not an IMPC MP");
                         }
                     }
                     if (result.getMaleMpTermId() != null){
@@ -354,7 +355,7 @@ public class Loader implements CommandLineRunner {
                             mps.add(loadedMps.get(result.getMaleMpTermId()));
                         }
                         else {
-                            logger.warn("Male MP id " + result.getMaleMpTermId() + " is not one of IMPC MPs");
+                            logger.warn("Male MP id " + result.getMaleMpTermId() + " is not an IMPC MP");
                         }
                     }
                     if (result.getFemaleMpTermId() != null){
@@ -362,7 +363,7 @@ public class Loader implements CommandLineRunner {
                             mps.add(loadedMps.get(result.getFemaleMpTermId()));
                         }
                         else {
-                            logger.warn("Female MP id " + result.getFemaleMpTermId() + " is not one of IMPC MPs");
+                            logger.warn("Female MP id " + result.getFemaleMpTermId() + " is not an IMPC MP");
                         }
                     }
                     sr.setMps(mps);
@@ -371,14 +372,14 @@ public class Loader implements CommandLineRunner {
                         sr.setProcedure(loadedProcedures.get(result.getProcedureStableId()));
                     }
                     else {
-                        logger.warn(result.getProcedureStableId() + " is not one of IMPC procedures");
+                        logger.warn(result.getProcedureStableId() + " is not an IMPC procedure");
                     }
 
                     if (loadedParameters.containsKey(result.getParameterStableId())) {
                         sr.setParameter(loadedParameters.get(result.getParameterStableId()));
                     }
                     else {
-                        logger.warn(result.getParameterStableId() + " is not one of IMPC parameters");
+                        logger.warn(result.getParameterStableId() + " is not an IMPC parameter");
                     }
 
                     //System.out.println(sr.toString());
@@ -594,6 +595,7 @@ public class Loader implements CommandLineRunner {
                 alleleRepository.save(allele);
 
                 loadedAlleles.put(alleleSymbol, allele);
+                loadedAlleleIdAllele.put(alleleAcc, allele);
 
                 alleleCount++;
                 if (alleleCount % 5000 == 0){
