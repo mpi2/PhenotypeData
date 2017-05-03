@@ -1744,12 +1744,12 @@
 					//var buttLabel = null;
                     //var restriction = null;
 					if (dataType == "Mp"){
-                        legendLabel = "Mouse phenotype filter";
+                        legendLabel = "Mouse phenotype (MP) filter";
                         buttLabel = "Add another phenotype";
                         restriction = "Narrow your query to the mouse phenotype you are interested in <i class='fa fa-info-circle' title='toggle help'></i>";
 					}
 					else if (dataType == "Hp"){
-                        legendLabel = "Human phenotype filter";
+                        legendLabel = "Human phenotype (HP) filter";
                         buttLabel = "Add another phenotype";
                         restriction = "Narrow your query to the human phenotype you are interested in <i class='fa fa-info-circle' title='toggle help'></i>";
 					}
