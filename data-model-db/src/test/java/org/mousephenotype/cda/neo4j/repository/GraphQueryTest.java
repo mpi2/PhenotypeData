@@ -1,6 +1,7 @@
 package org.mousephenotype.cda.neo4j.repository;
 
 import org.apache.commons.lang3.StringUtils;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.db.TestConfig;
@@ -104,8 +105,8 @@ public class GraphQueryTest {
 
 
 
-
-    //@Test
+    @Ignore
+    @Test
     public void testTraverseDiseaseModelRepository() throws Exception {
         DiseaseModel testDiseaseModelFind = diseaseModelRepository.findByDiseaseId("TEST_DISEASE");
 
