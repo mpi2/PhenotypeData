@@ -60,7 +60,7 @@ public class TimeSeriesChartAndTableProvider {
 	throws IOException,	URISyntaxException {
 
 		ChartData chartNTableForParameter = null;
-		Map<String, List<DiscreteTimePoint>> lines = new HashMap<String, List<DiscreteTimePoint>>();
+		Map<String, List<DiscreteTimePoint>> lines = new TreeMap<String, List<DiscreteTimePoint>>();
 
 		for (SexType sex : experiment.getSexes()) {
 
