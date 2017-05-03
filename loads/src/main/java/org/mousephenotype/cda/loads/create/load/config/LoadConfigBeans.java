@@ -19,7 +19,7 @@ package org.mousephenotype.cda.loads.create.load.config;
 import org.mousephenotype.cda.db.pojo.Allele;
 import org.mousephenotype.cda.db.pojo.PhenotypedColony;
 import org.mousephenotype.cda.loads.common.CdaSqlUtils;
-import org.mousephenotype.cda.loads.common.DataSourcesConfigApp;
+import org.mousephenotype.cda.loads.common.config.DataSourcesConfigApp;
 import org.mousephenotype.cda.loads.common.DccSqlUtils;
 import org.mousephenotype.cda.loads.create.load.steps.ExperimentLoader;
 import org.mousephenotype.cda.loads.create.load.steps.ImpressUpdater;

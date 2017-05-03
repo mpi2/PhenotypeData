@@ -17,7 +17,7 @@
 package org.mousephenotype.cda.loads.create.extract.dcc.config;
 
 import org.mousephenotype.cda.loads.common.DccSqlUtils;
-import org.mousephenotype.cda.loads.common.DataSourcesConfigApp;
+import org.mousephenotype.cda.loads.common.config.DataSourcesConfigApp;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
