@@ -872,12 +872,13 @@
 
 					// mouse or human gene list
                     var species = $("fieldset.GeneFilter input[name='species']:checked").val();
-					var geneList = $('textarea#geneList').val().split(/[,\s{1,}\t\n]/);
+					var geneList = $('textarea#geneList').val().split(/\n|,|\t|\s+|;/);
 					var geneList2 = [];
 
 					for (var i=0; i<geneList.length; i++){
 					    var val = geneList[i];
 					    if (val != "") {
+					        console.log("gene: "+ val);
                             geneList2.push(geneList[i].trim());
                         }
 					}
@@ -1864,6 +1865,7 @@
 									$(fieldsetFilter + ".andOr2").hide();
 									$(fieldsetFilter + ".msg").hide();
 									$(fieldsetFilter + ".andOrClear").hide();
+                                	$('textarea.andOr2').val("");
 								}
 							});
 

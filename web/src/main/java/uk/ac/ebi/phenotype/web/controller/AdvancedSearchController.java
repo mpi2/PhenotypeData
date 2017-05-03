@@ -648,11 +648,11 @@ public class AdvancedSearchController {
         j.put("aaData", new Object[0]);
 
         for (Map<String,Object> row : result) {
-            System.out.println(row.toString());
-            System.out.println("cols: " + row.size());
+            //System.out.println(row.toString());
+            //System.out.println("cols: " + row.size());
 
             for (Map.Entry<String, Object> entry : row.entrySet()) {
-                System.out.println(entry.getKey() + " / " + entry.getValue());
+                //System.out.println(entry.getKey() + " / " + entry.getValue());
                 if (entry.getValue() != null) {
                     Object obj = entry.getValue();
                     populateColValMapAdvSrch(obj, colValMap, jParams);
@@ -760,12 +760,24 @@ public class AdvancedSearchController {
            String glist = StringUtils.join(list, ",");
            boolean isSym = glist.contains("MGI:") ? false : true;
            if (isSym) {
-               genelist = " AND g.markerSymbol in [" + glist + "]";
+               genelist = " AND g.markerSymbol in [" + glist + "] ";
            }
            else {
-               genelist = " AND g.mgiAccessionId in [" + glist + "]";
+               genelist = " AND g.mgiAccessionId in [" + glist + "] ";
            }
         }
+        else if (jParams.containsKey("humanGeneList")) {
+            List<String> list = new ArrayList<>();
+
+            for (Object name : jParams.getJSONArray("humanGeneList")){
+                list.add("'" + name.toString() + "' in g.humanGeneSymbol");
+            }
+
+            if (list.size() > 0) {
+                genelist = " AND (" + StringUtils.join(list, " OR ") + ") ";
+            }
+        }
+
         return genelist;
     }
 
@@ -1252,10 +1264,9 @@ public class AdvancedSearchController {
 
         String className = obj.getClass().getSimpleName();
 
-        System.out.println("ok with "+ className);
         if (jParam.containsKey(className)) {
 
-            System.out.println("className: " + className);
+            //System.out.println("className: " + className);
             List<String> nodeProperties = jParam.getJSONArray(className);
 
             if (className.equals("Gene")) {
@@ -1375,7 +1386,7 @@ public class AdvancedSearchController {
 
             char first = Character.toUpperCase(property.charAt(0));
             String property2 = first + property.substring(1);
-            System.out.println("property: " + property);
+            //System.out.println("property: " + property);
 
             Method method = o.getClass().getMethod("get"+property2);
             if (! colValMap.containsKey(property)) {
@@ -1384,7 +1395,7 @@ public class AdvancedSearchController {
             String colVal = NA;
 
             if (method.invoke(o) == null){
-                System.out.println(property + " is null");
+                //System.out.println(property + " is null");
             }
 
             try {
@@ -1397,7 +1408,7 @@ public class AdvancedSearchController {
                 //System.out.println(property + " : " +  colVal);
 
             } catch(Exception e) {
-                System.out.println(property + " set to " + colVal);
+                //System.out.println(property + " set to " + colVal);
             }
 
 
@@ -1407,7 +1418,7 @@ public class AdvancedSearchController {
                 }
                 else if (property.equals("mpId")){
                     colVal = "<a target='_blank' href='" + mpBaseUrl + colVal + "'>" + colVal + "</a>";
-                    System.out.println("colVal: "  + colVal);
+                    //System.out.println("colVal: "  + colVal);
                 }
                 else if (property.equals("diseaseId")){
                     colVal = "<a target='_blank' href='" + diseaseBaseUrl + colVal + "'>" + colVal + "</a>";
