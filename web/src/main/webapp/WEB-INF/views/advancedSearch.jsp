@@ -791,13 +791,13 @@
                         // purpose, but they themselves are nodeEntities
                         // other than gene, mp or hp
                         if (property == "markerSynonym") {
-                            dataType = "MarkerSynonym";
+                            dataType = "Gene";
                         }
                         else if (property == "ontoSynonym") {
                             dataType = "OntoSynonym";
                         }
                         else if (property == "ensemblGeneId") {
-                            dataType = "EnsemblGeneId";
+                            dataType = "Gene";
                         }
                         else if (property == "alleleMgiAccessionId") {
                             dataType = "Allele";
@@ -1971,7 +1971,7 @@
 							</div>
 						</form>
 						<div class="section" id="sec2">
-							<h2 id="section-gotable" class="title ">Batch Query Result</h2>
+							<h2 id="section-gotable" class="title ">Advanced Search Result</h2>
 
 							<div class="inner">
 								<div id='infoBlock'></div>
