@@ -31,7 +31,7 @@ public class GeneRepositoryTest {
     @Autowired
     GeneRepository geneRepository;
 
-    //@Test
+    @Test
     public void testGeneRepository() {
         geneRepository.deleteAll();
 
