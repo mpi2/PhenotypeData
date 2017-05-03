@@ -27,7 +27,7 @@ import org.springframework.util.Assert;
 
 
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@RunWith(SpringRunner.class)
 @ContextConfiguration(classes = {Neo4jConfig.class})
 public class GeneRepositoryTest {
 
