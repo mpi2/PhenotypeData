@@ -6,6 +6,9 @@
 	<c:if test="${timeSeriesChartsAndTable.chart!=null}">
 	
     <br/> <br/>
+    
+    <p class = "chartTitle">${timeSeriesChartsAndTable.title}</p>
+	<p class = "chartSubtitle">${timeSeriesChartsAndTable.subtitle}</p>
 		<div id="timechart${experimentNumber}"> </div>		
 		    
 	  <div>
@@ -15,9 +18,11 @@
 
 		<div class="toggle-div hidden">
 			<p>
+			<c:if test="${param.parameter_stable_id != 'IMPC_BWT_008_001' }">
 				<a href='${srUrl}'> Statistical result raw XML </a> &nbsp;&nbsp;
 				<a href='${gpUrl}'> Genotype phenotype raw XML </a>&nbsp;&nbsp;
 				<a href='${baseUrl}${phenStatDataUrl}'> PhenStat-ready raw experiment data</a>
+				</c:if>
 			</p>
 			<table id="timeTable">
 				<tr>

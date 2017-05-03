@@ -32,6 +32,26 @@ public class ChartData {
                 + "]";
     }
 
+    
+private String title;
+public String getTitle() {
+	return title;
+}
+
+public void setTitle(String title) {
+	this.title = title;
+}
+
+public String getSubtitle() {
+	return subtitle;
+}
+
+public void setSubTitle(String subtitle) {
+	this.subtitle = subtitle;
+}
+
+
+private String subtitle;
     BiologicalModel expBiologicalModel;
     private ExperimentDTO experiment;
     private String chart;
