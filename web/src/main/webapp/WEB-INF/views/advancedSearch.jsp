@@ -1807,8 +1807,8 @@
                     // define and/or for term filters
                     $(fieldsetFilter + "button.andOr").click(function(){
                         var termVal = $(this).siblings('.termFilter').val();
-                        if (termVal == 'search'){
-                            alert("INFO: please enter a more meaningful term");
+                        if (termVal == 'search' || termVal == ""){
+                            alert("INFO: please enter a phenotype");
                         }
                         else {
                             boolTextarea.val(boolTextarea.val() + termVal + " ");
@@ -1836,7 +1836,7 @@
 							lastButt.click(function () {
 								var termVal = $(this).siblings('.termFilter').val();
 								if (termVal == 'search') {
-									alert("INFO: please enter a more meaningful term");
+									alert("INFO: please enter a phenotype");
 								}
 								else {
 									boolTextarea.val(boolTextarea.val() + termVal + " ");
