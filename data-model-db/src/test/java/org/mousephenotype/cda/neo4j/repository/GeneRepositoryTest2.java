@@ -11,6 +11,7 @@ package org.mousephenotype.cda.neo4j.repository;
 //import org.springframework.transaction.annotation.Transactional;
 //import org.springframework.util.Assert;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mousephenotype.cda.neo4j.entity.Gene;
 import org.slf4j.Logger;
@@ -49,7 +50,8 @@ public class GeneRepositoryTest2 {
         SpringApplication.run(GeneRepositoryTest2.class, args);
     }
 
-   // @Test
+    @Ignore
+    @Test
     public void testGeneRepository() {
 
 //    CommandLineRunner demo(GeneRepository geneRepository) {
