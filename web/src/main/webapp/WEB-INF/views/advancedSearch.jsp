@@ -152,12 +152,16 @@
 				position: absolute;
 				top: 6px;
 				left: 480px;
+				margin-left: 5px;
 				display: none;
 			}
 			.andOr2 {
 				display: none;
 			}
-			button.andOr2 {
+			button.ontoview {
+				position: absolute;
+				top: 6px;
+				left: 600px;
 				margin-left: 5px;
 			}
 			span.sugListPheno {
@@ -595,8 +599,8 @@
                         y: 50,
                         r:30,
                         fields: [
-                            {"disease id":"diseaseId"},
                             {"disease term":"diseaseTerm"},
+                            {"disease id":"diseaseId"},
                             {"disease to model score":"diseaseToModelScore"},
                             {"disease classes":"diseaseClasses"},
                             {"predicted by IMPC":"impcPredicted"},
@@ -604,7 +608,7 @@
                            // {"model to disease score":"modelToDiseaseScore"}
                         ],
                         selected: [
-                            "diseaseId", "diseaseTerm"
+                            "diseaseTerm"
                         ]
                     },
                     "MouseModel": {
@@ -1363,7 +1367,7 @@
                         "oLanguage": {
                             "sSearch": "Filter: ",
                             //"sInfo": "Showing _START_ to _END_ of _TOTAL_ genes (for complete dataset of your search, please use export buttons)"
-                            "sInfo": "Data in all columns are collapsed to show only unique values<br>Please use Export for details"
+                            "sInfo": "Data overview: all columns are collapsed to show only unique values<br>Please use Export for row by row details"
                         },
 //                        "aoColumns": [
 //                            {"bSearchable": true, "sType": "html", "bSortable": true}
@@ -1735,6 +1739,7 @@
 						"<input class='termFilter srch" + dataType + "' value='search'>" +
 						"<i class='fa fa-times' id='" + idname + "Clear'></i>" +
 						"<button class='andOr " + dataType + "'>add to query</button>" +
+                        "<button class='ontoview " + dataType + "'>ontology view</button>" +
 						"</div>";
 
 					var legendLabel, buttLabel, restriction = null;
@@ -1776,6 +1781,27 @@
                     addAutosuggest($('input.srch' + dataType));
 
                     var fieldsetFilter = "fieldset." + dataType + "Filter ";
+
+                    $(fieldsetFilter + ' button.ontoview').first().click(function(){
+                        // ajax call to fetch for mp id
+                        var termName = $(fieldsetFilter + " input.termFilter").val();
+
+                        $.ajax({
+                            'url': baseUrl + '/fetchmpid?name=' + termName,
+                            'async': true,
+                            'jsonp': 'json.wrf',
+                            'success': function (id) {
+                                console.log(id);
+                                window.open(baseUrl + "/ontologyBrowser?termId=" + id, '_blank');
+                            },
+                            'error' : function(jqXHR, textStatus, errorThrown) {
+                                alert("error: " + errorThrown);
+                            }
+                        });
+
+                        return false;
+                    })
+
 
                     $(fieldsetFilter + ".fa-info-circle").click(function(){
                     	var imgHow = $(fieldsetFilter + "img.boolHow");
@@ -1851,6 +1877,26 @@
 								boolTextarea.val("");
 								return false;
 							});
+
+							$(fieldsetFilter + "button.ontoview").last().click(function(){
+                                // ajax call to fetch for mp id
+                                var termName = $(fieldsetFilter + " input.termFilter").last().val();
+
+                                $.ajax({
+                                    'url': baseUrl + '/fetchmpid?name=' + termName,
+                                    'async': true,
+                                    'jsonp': 'json.wrf',
+                                    'success': function (id) {
+                                        console.log(id);
+                                        window.open(baseUrl + "/ontologyBrowser?termId=" + id, '_blank');
+                                    },
+                                    'error' : function(jqXHR, textStatus, errorThrown) {
+                                        alert("error: " + errorThrown);
+                                    }
+                                });
+
+                                return false;
+                            })
 
 							// allow remove input just added
 							$("<i class='pr fa fa-minus-square-o' aria-hidden='true'></i>").insertAfter($(fieldsetFilter + "button.andOr").last());

@@ -284,9 +284,21 @@ public class AdvancedSearchController {
         return null;
     }
 
+    @RequestMapping(value = "/fetchmpid", method = RequestMethod.GET)
+    public ResponseEntity<String> fetchmpid(
+            @RequestParam(value = "name", required = true) String termName,
+            HttpServletRequest request,
+            HttpServletResponse response,
+            Model model) throws Exception {
+
+        System.out.println("****"+ termName);
+            Mp mp = mpRepository.findByMpTerm(termName);
+        System.out.println(mp.toString());
+            return new ResponseEntity<String>(mp.getMpId(), createResponseHeaders(), HttpStatus.CREATED);
+    }
 
 
-    @RequestMapping(value = "/dataTableNeo4jAdvSrch", method = RequestMethod.POST)
+        @RequestMapping(value = "/dataTableNeo4jAdvSrch", method = RequestMethod.POST)
     public ResponseEntity<String> advSrchDataTableJson2(
             @RequestParam(value = "params", required = true) String params,
             HttpServletRequest request,
@@ -357,7 +369,7 @@ public class AdvancedSearchController {
                     + " WHERE sr.significant = true "
                     + phenotypeSexes + chrRange + geneList + genotypes + alleleTypes
                     + " WITH g, a, sr, mp "
-                    + " OPTIONAL MATCH (g)<-[:GENE]-(dm:DiseaseModel) WHERE "
+                    + " MATCH (g)<-[:GENE]-(dm:DiseaseModel) WHERE "
                     + phenodigmScore + diseaseGeneAssociation + humanDiseaseTerm
                     + " RETURN g, a, sr, dm, mp";
 
@@ -372,7 +384,7 @@ public class AdvancedSearchController {
                     + " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') "
                     + significant + phenotypeSexes + chrRange + geneList + genotypes + alleleTypes
                     + " WITH g, a, sr, mp "
-                    + " OPTIONAL MATCH (g)<-[:GENE]-(dm:DiseaseModel) WHERE "
+                    + " MATCH (g)<-[:GENE]-(dm:DiseaseModel) WHERE "
                     + phenodigmScore + diseaseGeneAssociation + humanDiseaseTerm
                     + " RETURN g, a, sr, dm, mp";
 
@@ -424,7 +436,7 @@ public class AdvancedSearchController {
                 + " MATCH (g)<-[:GENE]-(a1:Allele)<-[:ALLELE]-(sr1:StatisticalResult)-[:MP]->(mp1:Mp)-[:PARENT*0..]->(mp0:Mp) WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') "
                 + significant + phenotypeSexes + chrRange + geneList + genotypes + alleleTypes
                 + " WITH g, a, sr, mp, a1, sr1, mp1 "
-                + " OPTIONAL MATCH (g)<-[:GENE]-(dm:DiseaseModel) WHERE "
+                + " MATCH (g)<-[:GENE]-(dm:DiseaseModel) WHERE "
                 + phenodigmScore + diseaseGeneAssociation + humanDiseaseTerm
                 + " RETURN g, a, sr, dm, mp, a1, sr1, mp1";
 
@@ -457,7 +469,7 @@ public class AdvancedSearchController {
                     + " MATCH (g)<-[:GENE]-(a1:Allele)<-[:ALLELE]-(sr1:StatisticalResult)-[:MP]->(mp1:Mp)-[:PARENT*0..]->(mp0:Mp) WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpC}+'.*') "
                     + significant + phenotypeSexes + chrRange + geneList + genotypes + alleleTypes
                     + " WITH g, a, sr, mp, a1, sr1, mp1 "
-                    + "OPTIONAL MATCH (g)<-[:GENE]-(dm:DiseaseModel) WHERE "
+                    + "MATCH (g)<-[:GENE]-(dm:DiseaseModel) WHERE "
                     + phenodigmScore + diseaseGeneAssociation + humanDiseaseTerm
                     + "RETURN g, a, sr, dm, mp, a1, sr1, mp1";
 
@@ -526,7 +538,7 @@ public class AdvancedSearchController {
                 + " MATCH (g)<-[:GENE]-(a2:Allele)<-[:ALLELE]-(sr2:StatisticalResult)-[:MP]->(mp2:Mp)-[:PARENT*0..]->(mp0:Mp) WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpC}+'.*') "
                 + significant + phenotypeSexes + chrRange + geneList + genotypes + alleleTypes
                 + " WITH g, a, sr, mp, a1, sr1, mp1, a2, sr2, mp2 "
-                + " OPTIONAL MATCH (g)<-[:GENE]-(dm:DiseaseModel) WHERE "
+                + " MATCH (g)<-[:GENE]-(dm:DiseaseModel) WHERE "
                 + phenodigmScore + diseaseGeneAssociation + humanDiseaseTerm
                 + " RETURN g, a, sr, dm, mp, a1, sr1, mp1, a2, sr2, mp2";
 
@@ -558,7 +570,7 @@ public class AdvancedSearchController {
                 + " MATCH (g)<-[:GENE]-(a1:Allele)<-[:ALLELE]-(sr1:StatisticalResult)-[:MP]->(mp1:Mp)-[:PARENT*0..]->(mp0:Mp) WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*') "
                 + significant + phenotypeSexes + chrRange + geneList + genotypes + alleleTypes
                 + " WITH g, a, sr, mp, a1, sr1, mp1 "
-                + " OPTIONAL MATCH (g)<-[:GENE]-(dm:DiseaseModel) WHERE "
+                + " MATCH (g)<-[:GENE]-(dm:DiseaseModel) WHERE "
                 + phenodigmScore + diseaseGeneAssociation + humanDiseaseTerm
                 + " RETURN g, a, sr, dm, mp, a1, sr1, mp1";
 
@@ -585,7 +597,7 @@ public class AdvancedSearchController {
                 + "WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') OR mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*') OR mp0.mpTerm =~ ('(?i)'+'.*'+{mpC}+'.*') "
                 + significant + phenotypeSexes + chrRange + geneList + genotypes + alleleTypes
                 + " WITH g, a, sr, mp "
-                + " OPTIONAL MATCH (g)<-[:GENE]-(dm:DiseaseModel) WHERE "
+                + " MATCH (g)<-[:GENE]-(dm:DiseaseModel) WHERE "
                 + phenodigmScore + diseaseGeneAssociation + humanDiseaseTerm
                 + " RETURN g, a, sr, dm, mp";
 
@@ -615,7 +627,7 @@ public class AdvancedSearchController {
                 + "WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') OR mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*') "
                 + significant + phenotypeSexes + chrRange + geneList + genotypes + alleleTypes
                 + " WITH g, a, sr, mp "
-                + " OPTIONAL MATCH (g)<-[:GENE]-(dm:DiseaseModel) WHERE "
+                + " MATCH (g)<-[:GENE]-(dm:DiseaseModel) WHERE "
                 + phenodigmScore + diseaseGeneAssociation + humanDiseaseTerm
                 + " RETURN g, a, sr, dm, mp";
 
@@ -641,63 +653,122 @@ public class AdvancedSearchController {
             cols.add(property.toString());
         }
 
-        Map<String, Set<String>> colValMap = new HashedMap();
+        //Map<String, Set<String>> colValMap = new HashedMap();  // for overview
 
         int rowCount = 0;
         JSONObject j = new JSONObject();
         j.put("aaData", new Object[0]);
+        j.put("iDisplayStart", 0);
+        j.put("iDisplayLength", 10);
 
         for (Map<String,Object> row : result) {
-            //System.out.println(row.toString());
+            System.out.println(row.toString());
             //System.out.println("cols: " + row.size());
+
+            if (rowCount == 10){
+                break;
+            }
+
+            List<String> rowData = new ArrayList<>(); // for export
 
             for (Map.Entry<String, Object> entry : row.entrySet()) {
                 //System.out.println(entry.getKey() + " / " + entry.getValue());
                 if (entry.getValue() != null) {
                     Object obj = entry.getValue();
+                    System.out.println("col: "+ obj.toString());
+
+                    Map<String, Set<String>> colValMap = new HashedMap(); // for export
+
                     populateColValMapAdvSrch(obj, colValMap, jParams);
+
+
+                    //-------- start of export
+                    System.out.println("colValMap: " + colValMap.toString());
+
+                    if (colValMap.size() > 0) {
+
+                        for (String col : cols) {
+
+                            if (colValMap.containsKey(col)) {
+                               // System.out.println("col now: " + col);
+                                List<String> vals = new ArrayList<>(colValMap.get(col));
+
+                                int valSize = vals.size();
+
+                                if (valSize > 2) {
+                                    // add showmore
+                                    vals.add("<button rel=" + valSize + " class='showMore'>show all (" + valSize + ")</button>");
+                                }
+                                if (valSize == 1) {
+                                    rowData.add(StringUtils.join(vals, ""));
+                                } else {
+                                    rowData.add("<ul>" + StringUtils.join(vals, "") + "</ul>");
+                                }
+
+
+                                if (col.equals("ontoSynonym")) {
+                                    System.out.println(col + " -- " + vals);
+                                }
+                            } else {
+                                //  rowData.add(NA);
+                            }
+                        }
+                        System.out.println("row: " + rowData);
+
+                    }
+                    // end of export
+
                 }
             }
+
+
+            j.getJSONArray("aaData").add(rowData);  // for export
+            rowCount++;
+            System.out.println("");
+            System.out.println("");
+
         }
 
         System.out.println("About to prepare for rows");
 
 
-        List<String> rowData = new ArrayList<>();
+        // for overview
+//        List<String> rowData = new ArrayList<>();
+//
+//        for (String col : cols){
+//            if (colValMap.containsKey(col)) {
+//                List<String> vals = new ArrayList<>(colValMap.get(col));
+//
+//                int valSize = vals.size();
+//
+//                if (valSize > 2) {
+//                    // add showmore
+//                    vals.add("<button rel=" + valSize + " class='showMore'>show all (" + valSize + ")</button>");
+//                }
+//                if (valSize == 1) {
+//                    rowData.add(StringUtils.join(vals, ""));
+//                } else {
+//                    rowData.add("<ul>" + StringUtils.join(vals, "") + "</ul>");
+//                }
+//
+//                //System.out.println("col: " + col);
+//                if (col.equals("ontoSynonym")) {
+//                    System.out.println(col + " -- " + vals);
+//                }
+//            }
+//            else {
+//                rowData.add(NA);
+//            }
+//        }
 
-        for (String col : cols){
-            if (colValMap.containsKey(col)) {
-                List<String> vals = new ArrayList<>(colValMap.get(col));
-
-                int valSize = vals.size();
-
-                if (valSize > 2) {
-                    // add showmore
-                    vals.add("<button rel=" + valSize + " class='showMore'>show all (" + valSize + ")</button>");
-                }
-                if (valSize == 1) {
-                    rowData.add(StringUtils.join(vals, ""));
-                } else {
-                    rowData.add("<ul>" + StringUtils.join(vals, "") + "</ul>");
-                }
-
-                //System.out.println("col: " + col);
-                if (col.equals("ontoSynonym")) {
-                    System.out.println(col + " -- " + vals);
-                }
-            }
-            else {
-                rowData.add(NA);
-            }
-        }
-
-        j.getJSONArray("aaData").add(rowData);
+//        j.getJSONArray("aaData").add(rowData);
 
         System.out.println("rows done");
 
         j.put("iTotalRecords", rowCount);
         j.put("iTotalDisplayRecords", rowCount);
 
+        System.out.println(j.toString());
 
         return j.toString();
     }
