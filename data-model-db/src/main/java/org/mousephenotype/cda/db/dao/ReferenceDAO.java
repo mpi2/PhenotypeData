@@ -137,9 +137,11 @@ public class ReferenceDAO {
                 + ", cited_by\n"
                 + " FROM allele_ref\n"
                 + " WHERE agency LIKE '%" + filter + "%'\n"
+                + " AND falsepositive='no'\n"
+                + " AND reviewed='yes'\n"
                 + " ORDER BY " + orderBy + "\n";
 
-        //System.out.println("alleleRef query: " + sql);
+        System.out.println("alleleRef query: " + sql);
         List<ReferenceDTO> results = new ArrayList<>();
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
