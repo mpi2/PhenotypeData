@@ -8,9 +8,10 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@RunWith(SpringRunner.class)
 @TestExecutionListeners( { DependencyInjectionTestExecutionListener.class })
 @ContextConfiguration(classes={TestConfigSolr.class})
 @TestPropertySource(locations = {"file:${user.home}/configfiles/${profile:dev}/application.properties"})

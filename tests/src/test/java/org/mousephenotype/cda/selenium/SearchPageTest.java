@@ -24,6 +24,7 @@ import net.sf.json.JSONObject;
 import org.junit.*;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
+import org.mousephenotype.cda.selenium.config.TestConfig;
 import org.mousephenotype.cda.selenium.exception.TestException;
 import org.mousephenotype.cda.solr.generic.util.JSONRestUtil;
 import org.mousephenotype.cda.solr.service.GeneService;

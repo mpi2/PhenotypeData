@@ -14,8 +14,8 @@ import javax.validation.constraints.NotNull;
  */
 @Configuration
 @EnableNeo4jRepositories(basePackages = "org.mousephenotype.cda.neo4j.repository")
-@ComponentScan(value = "org.mousephenotype.cda.neo4j")
-@PropertySource("file:${user.home}/configfiles/${profile:dev}/application.properties")
+//@ComponentScan(value = "org.mousephenotype.cda.neo4j")
+@PropertySource("file:${user.home}/configfiles/${profile:dev}/test.properties")
 public class Neo4jConfig {
 
     @NotNull

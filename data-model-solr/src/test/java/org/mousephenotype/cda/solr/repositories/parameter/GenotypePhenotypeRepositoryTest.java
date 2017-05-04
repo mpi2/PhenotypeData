@@ -1,5 +1,6 @@
 package org.mousephenotype.cda.solr.repositories.parameter;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.solr.TestConfigSolr;
@@ -9,10 +10,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.List;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@RunWith(SpringRunner.class)
 @ContextConfiguration(classes={TestConfigSolr.class})
 @TestPropertySource(locations = {"file:${user.home}/configfiles/${profile:dev}/test.properties"})
 public class GenotypePhenotypeRepositoryTest {
@@ -28,5 +30,4 @@ public class GenotypePhenotypeRepositoryTest {
 		}
 		assert(genoPhenoDTOs.size()>0);
 	}
-
 }

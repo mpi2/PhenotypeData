@@ -29,7 +29,6 @@ import org.mousephenotype.cda.solr.stats.strategy.AllControlsStrategy;
 import org.mousephenotype.cda.solr.stats.strategy.ControlSelectionStrategy;
 import org.mousephenotype.cda.solr.web.dto.FertilityDTO;
 import org.mousephenotype.cda.solr.web.dto.ViabilityDTO;
-import org.parboiled.trees.GraphUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
