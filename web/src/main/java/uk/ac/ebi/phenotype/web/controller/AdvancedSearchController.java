@@ -368,8 +368,8 @@ public class AdvancedSearchController {
             // single mp term
 
             mpStr = mpStr.trim();
-            String query = "MATCH (g:Gene)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp) "
-                    + " WHERE mp.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') "
+            String query = "MATCH (g:Gene)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp)-[:PARENT*0..]->(mp0:Mp) "
+                    + " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') "
                     + significant + phenotypeSexes + chrRange + geneList + genotypes + alleleTypes
                     + " WITH g, a, sr, mp "
                     + " OPTIONAL MATCH (g)<-[:GENE]-(dm:DiseaseModel) WHERE "
@@ -384,12 +384,12 @@ public class AdvancedSearchController {
         else if (mpStr.matches(regex_aAndb_Orc)) {
             System.out.println("matches (a and b) or c");
 
-            String query = "MATCH (g:Gene)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp) "
-                + " WHERE mp.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') WITH g, a, sr, mp "
-                + " MATCH (g)<-[:GENE]-(a1:Allele)<-[:ALLELE]-(sr1:StatisticalResult)-[:MP]->(mp1:Mp) WHERE mp1.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*') "
+            String query = "MATCH (g:Gene)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp)-[:PARENT*0..]->(mp0:Mp) "
+                + " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') WITH g, a, sr, mp "
+                + " MATCH (g)<-[:GENE]-(a1:Allele)<-[:ALLELE]-(sr1:StatisticalResult)-[:MP]->(mp1:Mp)-[:PARENT*0..]->(mp0:Mp) WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*') "
                 + " WITH collect({genes:g, mps:mp, srs:sr, alleles:a, mps1:mp1, srs1:sr1, alleles1:a1}) as list1 "
-                + " MATCH (g2:Gene)<-[:GENE]-(a2:Allele)<-[:ALLELE]-(sr2:StatisticalResult)-[:MP]->(mp2:Mp) "
-                + " WHERE mp2.mpTerm =~ ('(?i)'+'.*'+{mpC}+'.*') "
+                + " MATCH (g2:Gene)<-[:GENE]-(a2:Allele)<-[:ALLELE]-(sr2:StatisticalResult)-[:MP]->(mp2:Mp)-[:PARENT*0..]->(mp0:Mp) "
+                + " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpC}+'.*') "
                 + " WITH list1 + collect({genes: g2, mps:mp2, srs:sr2, alleles:a2, mps1:'', srs1:'', alleles1:''}) as alllist "
                 + " unwind alllist as nodes "
                 + " WITH nodes.genes as g, nodes "
@@ -417,11 +417,11 @@ public class AdvancedSearchController {
         else if (mpStr.matches(regex_aAnd_bOrc)) {
             logger.info("matches a and (b or c)");
 
-            String query = "MATCH (g:Gene)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp) "
-                + "WHERE mp.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*') OR mp.mpTerm =~ ('(?i)'+'.*'+{mpC}+'.*') "
+            String query = "MATCH (g:Gene)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp)-[:PARENT*0..]->(mp0:Mp) "
+                + "WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*') OR mp0.mpTerm =~ ('(?i)'+'.*'+{mpC}+'.*') "
                 + significant + phenotypeSexes + chrRange + geneList + genotypes + alleleTypes
                 + " WITH g, a, sr, mp "
-                + " MATCH (g)<-[:GENE]-(a1:Allele)<-[:ALLELE]-(sr1:StatisticalResult)-[:MP]->(mp1:Mp) WHERE mp1.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') "
+                + " MATCH (g)<-[:GENE]-(a1:Allele)<-[:ALLELE]-(sr1:StatisticalResult)-[:MP]->(mp1:Mp)-[:PARENT*0..]->(mp0:Mp) WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') "
                 + significant + phenotypeSexes + chrRange + geneList + genotypes + alleleTypes
                 + " WITH g, a, sr, mp, a1, sr1, mp1 "
                 + " OPTIONAL MATCH (g)<-[:GENE]-(dm:DiseaseModel) WHERE "
@@ -450,11 +450,11 @@ public class AdvancedSearchController {
         else if (mpStr.matches(regex_aOrb_andc)) {
             logger.info("matches (a or b) and c");
 
-            String query = "MATCH (g:Gene)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp) "
-                    + "WHERE mp.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') OR mp.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*') "
+            String query = "MATCH (g:Gene)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp)-[:PARENT*0..]->(mp0:Mp) "
+                    + "WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') OR mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*') "
                     + significant + phenotypeSexes + chrRange + geneList + genotypes + alleleTypes
                     + " WITH g, a, sr, mp "
-                    + " MATCH (g)<-[:GENE]-(a1:Allele)<-[:ALLELE]-(sr1:StatisticalResult)-[:MP]->(mp1:Mp) WHERE mp1.mpTerm =~ ('(?i)'+'.*'+{mpC}+'.*') "
+                    + " MATCH (g)<-[:GENE]-(a1:Allele)<-[:ALLELE]-(sr1:StatisticalResult)-[:MP]->(mp1:Mp)-[:PARENT*0..]->(mp0:Mp) WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpC}+'.*') "
                     + significant + phenotypeSexes + chrRange + geneList + genotypes + alleleTypes
                     + " WITH g, a, sr, mp, a1, sr1, mp1 "
                     + "OPTIONAL MATCH (g)<-[:GENE]-(dm:DiseaseModel) WHERE "
@@ -482,12 +482,12 @@ public class AdvancedSearchController {
         else if (mpStr.matches(regex_aOr_bAndc)) {
             System.out.println("matches a or (b and c)");
 
-            String query = "MATCH (g:Gene)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp) "
-                    + " WHERE mp.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*') WITH g, a, sr, mp "
-                    + " MATCH (g)<-[:GENE]-(a1:Allele)<-[:ALLELE]-(sr1:StatisticalResult)-[:MP]->(mp1:Mp) WHERE mp1.mpTerm =~ ('(?i)'+'.*'+{mpC}+'.*') "
+            String query = "MATCH (g:Gene)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp)-[:PARENT*0..]->(mp0:Mp) "
+                    + " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*') WITH g, a, sr, mp "
+                    + " MATCH (g)<-[:GENE]-(a1:Allele)<-[:ALLELE]-(sr1:StatisticalResult)-[:MP]->(mp1:Mp)-[:PARENT*0..]->(mp0:Mp) WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpC}+'.*') "
                     + " WITH collect({genes:g, mps:mp, srs:sr, alleles:a, mps1:mp1, srs1:sr1, alleles1:a1}) as list1 "
-                    + " MATCH (g2:Gene)<-[:GENE]-(a2:Allele)<-[:ALLELE]-(sr2:StatisticalResult)-[:MP]->(mp2:Mp) "
-                    + " WHERE mp2.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') "
+                    + " MATCH (g2:Gene)<-[:GENE]-(a2:Allele)<-[:ALLELE]-(sr2:StatisticalResult)-[:MP]->(mp2:Mp)-[:PARENT*0..]->(mp0:Mp) "
+                    + " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') "
                     + " WITH list1 + collect({genes: g2, mps:mp2, srs:sr2, alleles:a2, mps1:'', srs1:'', alleles1:''}) as alllist "
                     + " unwind alllist as nodes "
                     + " WITH nodes.genes as g, nodes "
@@ -516,14 +516,14 @@ public class AdvancedSearchController {
         else if (mpStr.matches(regex_aAndbAndc)) {
             logger.info("matches a and b and c");
 
-            String query = "MATCH (g:Gene)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp) "
-                + " WHERE mp.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') "
+            String query = "MATCH (g:Gene)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp)-[:PARENT*0..]->(mp0:Mp) "
+                + " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') "
                 + significant + phenotypeSexes + chrRange + geneList + genotypes + alleleTypes
                 + " WITH g, a, sr, mp "
-                + " MATCH (g)<-[:GENE]-(a1:Allele)<-[:ALLELE]-(sr1:StatisticalResult)-[:MP]->(mp1:Mp) WHERE mp1.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*') "
+                + " MATCH (g)<-[:GENE]-(a1:Allele)<-[:ALLELE]-(sr1:StatisticalResult)-[:MP]->(mp1:Mp)-[:PARENT*0..]->(mp0:Mp) WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*') "
                 + significant + phenotypeSexes + chrRange + geneList + genotypes + alleleTypes
                 + " WITH g, a, sr, mp, a1, sr1, mp1 "
-                + " MATCH (g)<-[:GENE]-(a2:Allele)<-[:ALLELE]-(sr2:StatisticalResult)-[:MP]->(mp2:Mp) WHERE mp2.mpTerm =~ ('(?i)'+'.*'+{mpC}+'.*') "
+                + " MATCH (g)<-[:GENE]-(a2:Allele)<-[:ALLELE]-(sr2:StatisticalResult)-[:MP]->(mp2:Mp)-[:PARENT*0..]->(mp0:Mp) WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpC}+'.*') "
                 + significant + phenotypeSexes + chrRange + geneList + genotypes + alleleTypes
                 + " WITH g, a, sr, mp, a1, sr1, mp1, a2, sr2, mp2 "
                 + " OPTIONAL MATCH (g)<-[:GENE]-(dm:DiseaseModel) WHERE "
@@ -551,11 +551,11 @@ public class AdvancedSearchController {
         else if (mpStr.matches(regex_aAndb)) {
             logger.info("matches a and b");
 
-            String query = "MATCH (g:Gene)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp) "
-                + "WHERE mp.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') "
+            String query = "MATCH (g:Gene)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp)-[:PARENT*0..]->(mp0:Mp) "
+                + "WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') "
                 + significant + phenotypeSexes + chrRange + geneList + genotypes + alleleTypes
                 + " WITH g, a, sr, mp "
-                + " MATCH (g)<-[:GENE]-(a1:Allele)<-[:ALLELE]-(sr1:StatisticalResult)-[:MP]->(mp1:Mp) WHERE mp1.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*') "
+                + " MATCH (g)<-[:GENE]-(a1:Allele)<-[:ALLELE]-(sr1:StatisticalResult)-[:MP]->(mp1:Mp)-[:PARENT*0..]->(mp0:Mp) WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*') "
                 + significant + phenotypeSexes + chrRange + geneList + genotypes + alleleTypes
                 + " WITH g, a, sr, mp, a1, sr1, mp1 "
                 + " OPTIONAL MATCH (g)<-[:GENE]-(dm:DiseaseModel) WHERE "
@@ -581,8 +581,8 @@ public class AdvancedSearchController {
         else if (mpStr.matches(regex_aOrbOrc)) {
             logger.info("matches a or b or c");
 
-            String query = "MATCH (g:Gene)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp) "
-                + "WHERE mp.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') OR mp.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*') OR mp.mpTerm =~ ('(?i)'+'.*'+{mpC}+'.*') "
+            String query = "MATCH (g:Gene)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp)-[:PARENT*0..]->(mp0:Mp) "
+                + "WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') OR mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*') OR mp0.mpTerm =~ ('(?i)'+'.*'+{mpC}+'.*') "
                 + significant + phenotypeSexes + chrRange + geneList + genotypes + alleleTypes
                 + " WITH g, a, sr, mp "
                 + " OPTIONAL MATCH (g)<-[:GENE]-(dm:DiseaseModel) WHERE "
@@ -611,8 +611,8 @@ public class AdvancedSearchController {
         else if (mpStr.matches(regex_aOrb)) {
             logger.info("matches a or b");
 
-            String query = "MATCH (g:Gene)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp) "
-                + "WHERE mp.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') OR mp.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*') "
+            String query = "MATCH (g:Gene)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp)-[:PARENT*0..]->(mp0:Mp) "
+                + "WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') OR mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*') "
                 + significant + phenotypeSexes + chrRange + geneList + genotypes + alleleTypes
                 + " WITH g, a, sr, mp "
                 + " OPTIONAL MATCH (g)<-[:GENE]-(dm:DiseaseModel) WHERE "
