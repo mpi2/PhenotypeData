@@ -4,21 +4,21 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mousephenotype.cda.solr.TestConfigSolr;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.mousephenotype.cda.solr.web.dto.HistopathPageTableRow;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.support.AnnotationConfigContextLoader;
+import org.springframework.test.context.junit4.SpringRunner;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(loader = AnnotationConfigContextLoader.class)
+@RunWith(SpringRunner.class)
+@ContextConfiguration(classes = {TestConfigSolr.class})
 @TestPropertySource("file:${user.home}/configfiles/${profile:dev}/test.properties")
 public class HistopathServiceTest {
 
@@ -43,7 +43,7 @@ public class HistopathServiceTest {
         List<ObservationDTO> allObservations = histopathService.getObservationsForHistopathForGene(geneAccession);
 
         for (ObservationDTO obs : allObservations) {
-            System.out.println(obs);
+//            System.out.println(obs);
         }
         
         Map<String, List<ObservationDTO>> uniqueSampleSequeneAndAnatomyName = histopathService
