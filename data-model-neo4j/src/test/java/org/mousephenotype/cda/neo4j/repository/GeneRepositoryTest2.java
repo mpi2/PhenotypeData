@@ -14,7 +14,6 @@ package org.mousephenotype.cda.neo4j.repository;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mousephenotype.cda.db.TestConfig;
 import org.mousephenotype.cda.neo4j.entity.Gene;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
