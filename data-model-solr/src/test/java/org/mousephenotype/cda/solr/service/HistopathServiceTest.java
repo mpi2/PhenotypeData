@@ -43,7 +43,7 @@ public class HistopathServiceTest {
         List<ObservationDTO> allObservations = histopathService.getObservationsForHistopathForGene(geneAccession);
 
         for (ObservationDTO obs : allObservations) {
-            System.out.println(obs);
+//            System.out.println(obs);
         }
         
         Map<String, List<ObservationDTO>> uniqueSampleSequeneAndAnatomyName = histopathService
