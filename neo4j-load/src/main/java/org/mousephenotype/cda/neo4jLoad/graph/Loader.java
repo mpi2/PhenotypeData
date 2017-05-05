@@ -634,7 +634,7 @@ public class Loader implements CommandLineRunner {
             }
             if (mp.getMpTerm() == null) {
                 mp.setMpTerm(mpDTO.getName());
-                System.out.println(termId + " -- " + mp.getMpTerm());
+               // System.out.println(termId + " -- " + mp.getMpTerm());
             }
             if (mp.getMpDefinition() == null) {
                 mp.setMpDefinition(mpDTO.getDefinition());
