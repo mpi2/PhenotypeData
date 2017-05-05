@@ -1232,7 +1232,7 @@
                     prepare_dataTable(oJson.properties);
 
                     var oConf = {};
-                    oConf.properties = oJson.properties.join(","); // order is important
+                    //oConf.properties = oJson.properties.join(","); // order is important
 
 
 //					var excludes = ["properties", "childLevel", "chr"];
@@ -1344,16 +1344,7 @@
                 function fetchBatchQueryDataTable(oConf) {
 
                     $('body').addClass("loading");  // to activate modal
-                    //console.log(oConf);
-                    // deals with duplicates and take a max of first 10 records to show the users
-                    //oConf.idlist = getFirstTenUniqIdsStr(getUniqIdsStr(oConf.idlist));
-                    //oConf.idlist = getUniqIdsStr(oConf.idlist);
-                    //console.log(oConf);
 
-//                    console.log($('table#batchq'));
-//                    console.log($('table#batchq').html())
-
-                    //alert("here")
                     var oTable = $('table#batchq').dataTable({
                         "bSort": false, // true is default
                         "processing": true,
@@ -1398,7 +1389,6 @@
                                     $(this).removeClass("hideMe");
                                     $(this).text("show all (" + $(this).attr('rel') + ")");
                                     $(this).siblings('li:gt(1)').hide();
-
 								}
 								else {
 							        $(this).addClass("hideMe");
@@ -1407,56 +1397,30 @@
 								}
 							});
 
-
-                            var endPoint = baseUrl + '/bqExport';
+                            var endPoint = baseUrl + '/exportAdvancedSearch?';//?param=' + JSON.stringify(oConf);
 
                             $('div#tableTool').html("<span id='expoWait'></span><form id='dnld' method='POST' action='" + endPoint + "'>"
                                 + "<span class='export2'>Export full dataset as</span>"
-                                + "<input name='coreName' value='' type='hidden' />"
                                 + "<input name='fileType' value='' type='hidden' />"
-                                + "<input name='gridFields' value='' type='hidden' />"
-                                + "<input name='idList' value='' type='hidden' />"
+                                + "<input name='fileName' value='' type='hidden' />"
+                                + "<input name='param' value='' type='hidden' />"
                                 + "<button class='tsv fa fa-download gridDump'>TSV</button>"
                                 + " or<button class='xls fa fa-download gridDump'>XLS</button>"
                                 + "</form>");
 
                             $('button.gridDump').click(function(){
 
-                                var kv = fetchSelectedFieldList();
-                                var fllist = kv.fllist;
-                                var errMsg = 'AJAX error trying to export dataset';
-                                var currDataType = $('input.bq:checked').attr('id');
-                                var idList = null;
                                 var fileType = $(this).hasClass('tsv') ? 'tsv' : 'xls';
 
-                                var formId = $('div#accordion').find('form:visible').attr('id');
-                                var isForm = false;
+                                $("form#dnld input[name='fileType']").val(fileType);
+                                $("form#dnld input[name='fileName']").val("IMPC_advancedSearch");
+                                $("form#dnld input[name='param']").val(oConf.params);
 
-                                if ( formId == 'ajaxForm' ){
-                                    isForm = true;
-                                    $("#ajaxForm").ajaxForm({
-                                        url: baseUrl + '/batchQuery?dataType=' + currDataType,
-                                        success:function(jsonStr) {
-                                            var j = JSON.parse(jsonStr);
-                                            idList = j.goodIdList;
-                                            doExport(currDataType, fileType, fllist, idList, isForm);
-                                        },
-                                        dataType:"text",
-                                        type: 'POST',
-                                    }).submit();
-                                }
-                                else if ( formId == 'goSubmit' ){
-                                    //idList = parsePastedList($('textarea#pastedList').val(), currDataType);
-                                    //doExport(currDataType, fileType, fllist, idList, isForm);
-                                }
-                                else {
-                                    //idList = '*';
-                                    //doExport(currDataType, fileType, fllist, idList, isForm);
-                                }
 
-                                if (formId == 'ajaxForm' ){
-                                    return false;
-                                }
+                                //$('button').unbind('click');
+                                $("form#dnld").submit();
+
+                                return false;
                             });
 
                             $('body').removeClass('footerToBottom');
@@ -1471,29 +1435,6 @@
                             }
                         }
                     });
-                }
-                function doExport(currDataType, fileType, fllist, idList, isForm, phenoSimilarity_id, phenoSimilarity_term,
-                                  wantHumanCurated_id, wantHumanCurated_term){
-
-                    // deals with duplicates
-                    if ( idList.split(",").length > 500 ){
-                        var isOk = window.confirm("Please be aware that you have submitted > 500 identifiers and it will take longer to download\n\nWould you like to proceed?");
-                        if ( !isOk ){
-                            return false; // won't do the rest
-                        }
-                    }
-
-                    idList = getUniqIdsStr(idList);
-
-                    $("form#dnld input[name='coreName']").val(currDataType);
-                    $("form#dnld input[name='fileType']").val(fileType);
-                    $("form#dnld input[name='gridFields']").val(fllist);
-                    $("form#dnld input[name='idList']").val(idList);
-
-                    if ( isForm ) {
-                        $('button').unbind('click');
-                        $("form#dnld").submit();
-                    }
                 }
 
                 function drawCircle(id, text, x, y, r, paper) {
@@ -1522,13 +1463,6 @@
                             $(this).attr({"stroke":"darkorange", "stroke-width": 5});
                             addDatatypeFiltersAttributes(circle.data("id"));
                         }
-
-//                        if ($('fieldset.fsAttrs').size() > 0){
-//                            $("input[type='submit']").prop('disabled', false).addClass('active');
-//                        }
-//                        else {
-//                            $("input[type='submit']").prop('disabled', true).removeClass('active');
-//                        }
                     });
 
                     jLabel.click(function () {
