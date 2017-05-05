@@ -3,8 +3,9 @@ package org.mousephenotype.cda.db.dao;
 import junit.framework.TestCase;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mousephenotype.cda.db.TestConfig;
+import org.mousephenotype.cda.config.TestConfig;
 import org.mousephenotype.cda.db.pojo.OntologyTerm;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
@@ -23,6 +24,8 @@ import java.util.List;
 @ContextConfiguration(classes = {TestConfig.class})
 public class OntologyTermDAOImplTest extends TestCase {
 
+	private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
+
 	@Autowired
 	OntologyTermDAO ontologyTermDAO;
 
@@ -32,7 +35,7 @@ public class OntologyTermDAOImplTest extends TestCase {
 	throws Exception {
 
 		List<OntologyTerm> terms = ontologyTermDAO.getAllOntologyTerms();
-		System.out.println("Terms count is: " + terms.size());
+		logger.debug("Terms count is: " + terms.size());
 		assertTrue(terms.size() >= 10);
 
 	}
@@ -46,7 +49,7 @@ public class OntologyTermDAOImplTest extends TestCase {
 
 		for (String termTestString : testTerms) {
 			OntologyTerm term = ontologyTermDAO.getOntologyTermByName(termTestString);
-			System.out.println(String.format("Term test string is '%s', Term is: %s", termTestString, term));
+			logger.debug(String.format("Term test string is '%s', Term is: %s", termTestString, term));
 			String testedValue = term.getName();
 			assertTrue(testedValue.equals(termTestString));
 		}
@@ -62,7 +65,7 @@ public class OntologyTermDAOImplTest extends TestCase {
 
 		for (String termTestString : testTerms) {
 			OntologyTerm term = ontologyTermDAO.getOntologyTermByAccession(termTestString);
-			System.out.println(String.format("Term test string is '%s', Term is: %s", termTestString, term));
+			logger.debug(String.format("Term test string is '%s', Term is: %s", termTestString, term));
 			String testedValue = term.getId().getAccession();
 			assertTrue(testedValue.equals(termTestString));
 		}
@@ -78,11 +81,9 @@ public class OntologyTermDAOImplTest extends TestCase {
 
 		for (String termTestString : testTerms) {
 			OntologyTerm term = ontologyTermDAO.getOntologyTermByAccessionAndDatabaseId(termTestString, 5);
-			System.out.println(String.format("Term test string is '%s', Term is: %s", termTestString, term));
+			logger.debug(String.format("Term test string is '%s', Term is: %s", termTestString, term));
 			String testedValue = term.getId().getAccession();
 			assertTrue(testedValue.equals(termTestString));
 		}
-
 	}
-
 }

@@ -9,7 +9,7 @@
  * specific language governing permissions and limitations under the License.
  ******************************************************************************/
 
-package org.mousephenotype.cda.db;
+package org.mousephenotype.cda.config;
 
 import org.hibernate.SessionFactory;
 import org.springframework.context.annotation.*;
@@ -36,14 +36,19 @@ import java.util.Properties;
  */
 
 @Configuration
-@ComponentScan(value = {"org.mousephenotype.cda.db","org.mousephenotype.cda.neo4j"},
+@ComponentScan(value = {"org.mousephenotype.cda.db"},
 	excludeFilters = @ComponentScan.Filter(type = FilterType.ASPECTJ, pattern = {"org.mousephenotype.cda.db.entity.*OntologyDAO"})
 )
 @EnableJpaRepositories
 @EnableTransactionManagement
 public class TestConfig {
 
-	public static final String INTERNAL = "internal";
+	// UtilitiesTest requires two separate database connections containing the same table (in structure and name).
+	// When using only H2 or only HSQL, separate database connections actually seem to point to the same database;
+	// thus the testQueryDiffTwoDiffs() test fails because it is expecting the result count to be different and it is not.
+	// Using two separate database vendors insures the databases are different.
+	EmbeddedDatabaseType dcc1Type = EmbeddedDatabaseType.H2;
+	EmbeddedDatabaseType dcc2Type = EmbeddedDatabaseType.HSQL;
 
 
 	@Bean(name = "komp2DataSource")
@@ -58,6 +63,7 @@ public class TestConfig {
 	@Bean(name = "admintoolsDataSource")
 	public DataSource admintoolsDataSource() {
 		return new EmbeddedDatabaseBuilder().setType(EmbeddedDatabaseType.H2)
+			.ignoreFailedDrops(true)
 			.setName("admintoolstest")
 			.build();
 	}
@@ -122,51 +128,10 @@ public class TestConfig {
 	// dcc1
 	@Bean(name = "dcc1DataSource")
 	public DataSource dcc1DataSource() {
-		return new EmbeddedDatabaseBuilder().setType(EmbeddedDatabaseType.H2)
+		return new EmbeddedDatabaseBuilder().setType(dcc1Type)
 			.ignoreFailedDrops(true)
-			.setName("dcc1test")
 			.addScript("sql/dcc1-test-data.sql")
 			.build();
-	}
-
-	protected Properties buildHibernatePropertiesDcc1() {
-		Properties hibernateProperties = new Properties();
-
-		hibernateProperties.setProperty("hibernate.dialect", "org.hibernate.dialect.H2Dialect");
-		hibernateProperties.put("hibernate.hbm2ddl.import_files", "sql/dcc1-test-data.sql");
-		hibernateProperties.setProperty("hibernate.show_sql", "false");
-		hibernateProperties.setProperty("hibernate.use_sql_comments", "true");
-		hibernateProperties.setProperty("hibernate.format_sql", "true");
-		hibernateProperties.setProperty("hibernate.hbm2ddl.auto", "create-drop");
-		hibernateProperties.setProperty("hibernate.generate_statistics", "false");
-		hibernateProperties.setProperty("hibernate.current_session_context_class", "thread");
-		hibernateProperties.setProperty("hibernate.ejb.entitymanager_factory_name", "emfDcc1");
-
-		return hibernateProperties;
-	}
-
-
-	@Bean(name = "sessionFactorydcc1")
-	public SessionFactory getSessionFactoryDcc1() {
-
-		LocalSessionFactoryBuilder sessionBuilder = new LocalSessionFactoryBuilder(dcc1DataSource());
-		sessionBuilder.scanPackages("org.mousephenotype.cda.db.entity");
-		sessionBuilder.scanPackages("org.mousephenotype.cda.db.pojo");
-
-		return sessionBuilder.buildSessionFactory();
-	}
-
-	@Bean
-	public LocalContainerEntityManagerFactoryBean entityManagerFactoryDcc1() {
-		LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
-		em.setDataSource(dcc1DataSource());
-		em.setPackagesToScan("org.mousephenotype.cda.db.entity", "org.mousephenotype.cda.db.pojo");
-
-		JpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
-		em.setJpaVendorAdapter(vendorAdapter);
-		em.setJpaProperties(buildHibernatePropertiesDcc1());
-
-		return em;
 	}
 
 	@Bean
@@ -175,53 +140,14 @@ public class TestConfig {
 	}
 
 
+
 	// dcc2
 	@Bean(name = "DataSourceDcc2")
 	public DataSource dcc2DataSource() {
-		return new EmbeddedDatabaseBuilder().setType(EmbeddedDatabaseType.H2)
+		return new EmbeddedDatabaseBuilder().setType(dcc2Type)
 			.ignoreFailedDrops(true)
-			.setName("dcc2test")
 			.addScript("sql/dcc2-test-data.sql")
 			.build();
-	}
-
-	protected Properties buildHibernatePropertiesdcc2() {
-		Properties hibernateProperties = new Properties();
-
-		hibernateProperties.setProperty("hibernate.dialect", "org.hibernate.dialect.H2Dialect");
-		hibernateProperties.put("hibernate.hbm2ddl.import_files", "sql/dcc2-test-data.sql");
-		hibernateProperties.setProperty("hibernate.show_sql", "false");
-		hibernateProperties.setProperty("hibernate.use_sql_comments", "true");
-		hibernateProperties.setProperty("hibernate.format_sql", "true");
-		hibernateProperties.setProperty("hibernate.hbm2ddl.auto", "create-drop");
-		hibernateProperties.setProperty("hibernate.generate_statistics", "false");
-		hibernateProperties.setProperty("hibernate.current_session_context_class", "thread");
-		hibernateProperties.setProperty("hibernate.ejb.entitymanager_factory_name", "emfDcc2");
-
-		return hibernateProperties;
-	}
-
-	@Bean(name = "sessionFactorydcc2")
-	public SessionFactory getSessionFactorydcc2() {
-
-		LocalSessionFactoryBuilder sessionBuilder = new LocalSessionFactoryBuilder(dcc2DataSource());
-		sessionBuilder.scanPackages("org.mousephenotype.cda.db.entity");
-		sessionBuilder.scanPackages("org.mousephenotype.cda.db.pojo");
-
-		return sessionBuilder.buildSessionFactory();
-	}
-
-	@Bean
-	public LocalContainerEntityManagerFactoryBean entityManagerFactorydcc2() {
-		LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
-		em.setDataSource(dcc2DataSource());
-		em.setPackagesToScan("org.mousephenotype.cda.db.entity", "org.mousephenotype.cda.db.pojo");
-
-		JpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
-		em.setJpaVendorAdapter(vendorAdapter);
-		em.setJpaProperties(buildHibernatePropertiesdcc2());
-
-		return em;
 	}
 
 	@Bean
