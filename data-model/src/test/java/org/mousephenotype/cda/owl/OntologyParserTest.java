@@ -110,9 +110,9 @@ public class OntologyParserTest {
                 try {
                     url = new URL(UrlUtils.getRedirectedUrl(download.url));
                     if (download.url.equals(url.toString())) {
-                        System.out.println("DOWNLOADING " + url.toString() + " to " + download.target);
+                        logger.debug("DOWNLOADING " + url.toString() + " to " + download.target);
                     } else {
-                        System.out.println("DOWNLOADING " + download.url + " (remapped to " + url.toString() + ") to " + download.target);
+                        logger.debug("DOWNLOADING " + download.url + " (remapped to " + url.toString() + ") to " + download.target);
                     }
                     rbc = Channels.newChannel(url.openStream());
                     fos = new FileOutputStream(targetTemp);
@@ -152,11 +152,10 @@ public class OntologyParserTest {
             }
             List<OntologyTermDTO> terms = ontologyParser.getTerms();
             if (terms.size() > 700) {
-                System.out.println("[PASS - " + prefix + "] - " + file.getPath() + ". Size: " + terms.size());
+                logger.debug("[PASS - " + prefix + "] - " + file.getPath() + ". Size: " + terms.size());
             } else {
-                System.out.println("[FAIL - " + prefix + "] - " + file.getPath() + ". Size: " + terms.size());
+                logger.debug("[FAIL - " + prefix + "] - " + file.getPath() + ". Size: " + terms.size());
             }
-            System.out.println();
         }
 
         if ( ! exception.isEmpty()) {
@@ -179,8 +178,8 @@ public class OntologyParserTest {
     @Test
     public void testNarrowSynonyms() throws Exception {
 
-        System.out.println("target: " + downloads.get("mphp").target);
-        System.out.println("name:   " + downloads.get("mphp").name);
+        logger.debug("target: " + downloads.get("mphp").target);
+        logger.debug("name:   " + downloads.get("mphp").name);
         ontologyParser = new OntologyParser(downloads.get("mphp").target, downloads.get("mphp").name, null, null);
         OntologyTermDTO term = ontologyParser.getOntologyTerm("MP:0006325");
 
@@ -286,12 +285,12 @@ public class OntologyParserTest {
         ontologyParser = new OntologyParser(downloads.get("mp").target, downloads.get("mp").name, null, null);
         OntologyTermDTO term = ontologyParser.getOntologyTerm("MP:0005452");  // abnormal adipose tissue amount
         Assert.assertTrue(term.getChildIds().contains("MP:0010024"));
-        System.out.println("term.getChildIds().size() " + term.getChildIds().size() + term.getChildIds());
+        logger.debug("term.getChildIds().size() " + term.getChildIds().size() + term.getChildIds());
         Assert.assertTrue(term.getChildIds().size() == 4); // 4 child terms in the ontology without reasoning
         Assert.assertTrue(term.getChildNames().size() == 4);
 
         term =ontologyParser.getOntologyTerm("MP:0000003");
-        System.out.println("term.getChildIds().size() " + term.getChildIds().size() + term.getChildIds());
+        logger.debug("term.getChildIds().size() " + term.getChildIds().size() + term.getChildIds());
         Assert.assertTrue(term.getChildIds().size() == 11); // 11 child terms in the ontology without reasoning
         Assert.assertTrue(term.getChildNames().size() == 11);
 

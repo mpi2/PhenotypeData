@@ -262,7 +262,7 @@ public class Utilities {
 
 		String termAcc = "NULL-" + DigestUtils.md5Hex(termName).substring(0,9).toUpperCase();
 
-		logger.info("Creating EFO term for name '{}' (Accession: {})", termName, termAcc);
+		logger.debug("Creating EFO term for name '{}' (Accession: {})", termName, termAcc);
 
 		OntologyTerm term;
 		term = new OntologyTerm();
