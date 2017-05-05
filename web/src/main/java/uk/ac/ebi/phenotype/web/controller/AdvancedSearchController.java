@@ -210,21 +210,8 @@ public class AdvancedSearchController {
     }
     @RequestMapping(value="/advancedSearch", method=RequestMethod.GET)
     public String loadAdvSrchPage(
-            @RequestParam(value = "core", required = false) String core,
-            @RequestParam(value = "fllist", required = false) String fllist,
-            @RequestParam(value = "idlist", required = false) String idlist,
             HttpServletRequest request,
             Model model) {
-
-        String outputFieldsHtml = Tools.fetchOutputFieldsCheckBoxesHtml2(core);
-        model.addAttribute("outputFields", outputFieldsHtml);
-
-        if ( idlist != null) {
-            model.addAttribute("core", core);
-            model.addAttribute("fllist", fllist);
-            model.addAttribute("idlist", idlist);
-        }
-
 
         return "advancedSearch";
     }
@@ -667,7 +654,7 @@ public class AdvancedSearchController {
 
         if (isExport){
 
-            rowDataExport.add(StringUtils.join(cols, "\\t")); // column
+            rowDataExport.add(StringUtils.join(cols, "\t")); // column
 
             for (Map<String,Object> row : result) {
                 System.out.println(row.toString());
@@ -679,15 +666,15 @@ public class AdvancedSearchController {
                     //System.out.println(entry.getKey() + " / " + entry.getValue());
                     if (entry.getValue() != null) {
                         Object obj = entry.getValue();
-                        System.out.println("col: "+ obj.toString());
+                        //System.out.println("col: "+ obj.toString());
 
                         Map<String, Set<String>> colValMap = new HashedMap();
 
-                        populateColValMapAdvSrch(obj, colValMap, jParams);
+                        populateColValMapAdvSrch(obj, colValMap, jParams, isExport);
 
 
                         //-------- start of export
-                        System.out.println("colValMap: " + colValMap.toString());
+                        //System.out.println("colValMap: " + colValMap.toString());
 
                         if (colValMap.size() > 0) {
 
@@ -696,26 +683,10 @@ public class AdvancedSearchController {
                                 if (colValMap.containsKey(col)) {
                                     // System.out.println("col now: " + col);
                                     List<String> vals = new ArrayList<>(colValMap.get(col));
-
-                                    int valSize = vals.size();
-
-                                    if (valSize > 2) {
-                                        // add showmore
-                                        vals.add("<button rel=" + valSize + " class='showMore'>show all (" + valSize + ")</button>");
-                                    }
-                                    if (valSize == 1) {
-                                        data.add(StringUtils.join(vals, ""));
-                                    } else {
-                                        data.add("<ul>" + StringUtils.join(vals, "") + "</ul>");
-                                    }
-
-
-                                    if (col.equals("ontoSynonym")) {
-                                        System.out.println(col + " -- " + vals);
-                                    }
+                                    data.add(StringUtils.join(vals, ""));
                                 }
                             }
-                            System.out.println("row: " + data);
+                            //System.out.println("row: " + data);
                         }
                     }
                 }
@@ -741,7 +712,7 @@ public class AdvancedSearchController {
                         Object obj = entry.getValue();
                         System.out.println("col: " + obj.toString());
 
-                        populateColValMapAdvSrch(obj, colValMap, jParams);
+                        populateColValMapAdvSrch(obj, colValMap, jParams, isExport);
                     }
                 }
             }
@@ -1346,7 +1317,7 @@ public class AdvancedSearchController {
         return childTerms;
     }
 
-    public void populateColValMapAdvSrch(Object obj, Map<String, Set<String>> colValMap, JSONObject jParam) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+    public void populateColValMapAdvSrch(Object obj, Map<String, Set<String>> colValMap, JSONObject jParam, Boolean isExport) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
 
         String className = obj.getClass().getSimpleName();
 
@@ -1357,49 +1328,51 @@ public class AdvancedSearchController {
 
             if (className.equals("Gene")) {
                 Gene g = (Gene) obj;
-                getValues(nodeProperties, g, colValMap);  // convert to class ???
+                getValues(nodeProperties, g, colValMap, isExport);  // convert to class ???
             }
             else if (className.equals("EnsemblGeneId")) {
                 EnsemblGeneId ensg = (EnsemblGeneId) obj;
-                getValues(nodeProperties, ensg, colValMap);
+                getValues(nodeProperties, ensg, colValMap, isExport);
             }
             else if (className.equals("MarkerSynonym")) {
                 MarkerSynonym m = (MarkerSynonym) obj;
-                getValues(nodeProperties, m, colValMap);
+                getValues(nodeProperties, m, colValMap, isExport);
             }
             else if (className.equals("HumanGeneSymbol")) {
                 HumanGeneSymbol hg = (HumanGeneSymbol) obj;
-                getValues(nodeProperties, hg, colValMap);
+                getValues(nodeProperties, hg, colValMap, isExport);
             }
             else if (className.equals("DiseaseModel")) {
                 DiseaseModel dm = (DiseaseModel) obj;
-                getValues(nodeProperties, dm, colValMap);
+                getValues(nodeProperties, dm, colValMap, isExport);
             }
             else if (className.equals("MouseModel")) {
                 MouseModel mm = (MouseModel) obj;
-                getValues(nodeProperties, mm, colValMap);
+                getValues(nodeProperties, mm, colValMap, isExport);
             }
             else if (className.equals("Allele")) {
                 Allele allele = (Allele) obj;
-                getValues(nodeProperties, allele, colValMap);
+                getValues(nodeProperties, allele, colValMap, isExport);
             }
             else if (className.equals("Mp")) {
                 Mp mp = (Mp) obj;
-                getValues(nodeProperties, mp, colValMap);
+                getValues(nodeProperties, mp, colValMap, isExport);
             }
             else if (className.equals("OntoSynonym")) {
                 OntoSynonym ontosyn = (OntoSynonym) obj;
-                getValues(nodeProperties, ontosyn, colValMap);
+                getValues(nodeProperties, ontosyn, colValMap, isExport);
             }
             else if (className.equals("Hp")) {
                 Hp hp = (Hp) obj;
-                getValues(nodeProperties, hp, colValMap);
+                getValues(nodeProperties, hp, colValMap, isExport);
             }
         }
 
     }
 
     public void populateColValMap(List<Object> objs, Map<String, Set<String>> colValMap, JSONObject jDatatypeProperties) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+
+        Boolean isExport = false;
         for (Object obj : objs) {
             String className = obj.getClass().getSimpleName();
 
@@ -1411,50 +1384,50 @@ public class AdvancedSearchController {
 
                 if (className.equals("Gene")) {
                     Gene g = (Gene) obj;
-                    getValues(nodeProperties, g, colValMap);  // convert to class ???
+                    getValues(nodeProperties, g, colValMap, isExport);  // convert to class ???
                 }
                 else if (className.equals("EnsemblGeneId")) {
                     EnsemblGeneId ensg = (EnsemblGeneId) obj;
-                    getValues(nodeProperties, ensg, colValMap);
+                    getValues(nodeProperties, ensg, colValMap, isExport);
                 }
                 else if (className.equals("MarkerSynonym")) {
                     MarkerSynonym m = (MarkerSynonym) obj;
-                    getValues(nodeProperties, m, colValMap);
+                    getValues(nodeProperties, m, colValMap, isExport);
                 }
                 else if (className.equals("HumanGeneSymbol")) {
                     HumanGeneSymbol hg = (HumanGeneSymbol) obj;
-                    getValues(nodeProperties, hg, colValMap);
+                    getValues(nodeProperties, hg, colValMap, isExport);
                 }
                 else if (className.equals("DiseaseModel")) {
                     DiseaseModel dm = (DiseaseModel) obj;
-                    getValues(nodeProperties, dm, colValMap);
+                    getValues(nodeProperties, dm, colValMap, isExport);
                 }
                 else if (className.equals("MouseModel")) {
                     MouseModel mm = (MouseModel) obj;
-                    getValues(nodeProperties, mm, colValMap);
+                    getValues(nodeProperties, mm, colValMap, isExport);
                 }
                 else if (className.equals("Allele")) {
                     Allele allele = (Allele) obj;
-                    getValues(nodeProperties, allele, colValMap);
+                    getValues(nodeProperties, allele, colValMap, isExport);
                 }
                 else if (className.equals("Mp")) {
                     Mp mp = (Mp) obj;
-                    getValues(nodeProperties, mp, colValMap);
+                    getValues(nodeProperties, mp, colValMap, isExport);
                 }
                 else if (className.equals("OntoSynonym")) {
                     OntoSynonym ontosyn = (OntoSynonym) obj;
-                    getValues(nodeProperties, ontosyn, colValMap);
+                    getValues(nodeProperties, ontosyn, colValMap, isExport);
                 }
                 else if (className.equals("Hp")) {
                     Hp hp = (Hp) obj;
-                    getValues(nodeProperties, hp, colValMap);
+                    getValues(nodeProperties, hp, colValMap, isExport);
                 }
             }
         }
         
     }
 
-    public void getValues(List<String> nodeProperties, Object o, Map<String, Set<String>> colValMap) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+    public void getValues(List<String> nodeProperties, Object o, Map<String, Set<String>> colValMap, Boolean isExport) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
 
         int showCutOff = 3;
         ;
@@ -1523,7 +1496,12 @@ public class AdvancedSearchController {
                     colVal = colVal.replaceAll("\\[", "").replaceAll("\\]","");
                 }
 
-                colValMap.get(property).add("<li>" + colVal + "</li>");
+                if (isExport){
+                    colValMap.get(property).add(colVal);
+                }
+                else {
+                    colValMap.get(property).add("<li>" + colVal + "</li>");
+                }
             }
         }
 
