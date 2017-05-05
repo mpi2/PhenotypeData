@@ -486,7 +486,7 @@ public class OntologyParser {
         }
 
         termsInSlim = classesInSlim;
-        logger.info("Set termsInSlim " + termsInSlim.size());
+        logger.debug("Set termsInSlim " + termsInSlim.size());
         return classesInSlim;
 
     }

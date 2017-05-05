@@ -44,4 +44,10 @@
 
     <logger name="org.hibernate.validator.messageinterpolation.ParameterMessageInterpolator"                                    level="ERROR" />
 
+    <!-- Quiets this message: "[DEPRECATION] Encountered positional parameter near line 1, column 77 in HQL:" in BiologicalModelDAOTest -->
+    <logger name="org.hibernate.hql.internal.ast.HqlSqlWalker"                                                                  level="ERROR" />
+
+    <!-- Quiets "HHH000436: Entity manager factory name (default) is already registered.  If entity manager will be clustered or passivated, specify a unique value for property 'hibernate.ejb.entitymanager_factory_name'". -->
+    <logger name="org.hibernate.jpa.internal.EntityManagerFactoryRegistry"                                                      level="ERROR" />
+
 </configuration>
