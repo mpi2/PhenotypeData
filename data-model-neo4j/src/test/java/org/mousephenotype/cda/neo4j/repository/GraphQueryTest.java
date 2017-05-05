@@ -4,7 +4,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mousephenotype.cda.db.TestConfig;
 import org.mousephenotype.cda.neo4j.entity.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +25,7 @@ import java.util.regex.Pattern;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
 @EnableNeo4jRepositories(basePackages = "org.mousephenotype.cda.neo4j.repository")
 @Transactional
-@ContextConfiguration(classes = {TestConfig.class, Neo4jConfig.class})
+@ContextConfiguration(classes = {Neo4jConfig.class, Neo4jConfig.class})
 public class GraphQueryTest {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());

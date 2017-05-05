@@ -26,9 +26,6 @@ public class ExpressionServiceTest {
 	@Autowired
 	private ExpressionService expressionService;
 
-	@Autowired
-	ExperimentService experimentService;
-
 
 	@Test
 	public void getLacDataForAnatomogram() throws IOException, SolrServerException {
