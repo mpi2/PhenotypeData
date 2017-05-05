@@ -527,6 +527,10 @@ public class PaperController {
             }
 
 
+            TreeMap<String, Map<String, String>> treeMap = new TreeMap<String, Map<String, String>>();
+            treeMap.putAll(agencyPmidYear);
+            System.out.println("UNIQUE AGENCIES SORTED: " + treeMap.keySet());
+
             // a map with number of papers as key and list of agency as values: for sorting purpose
             Map<String, List<String>> numAgency = new HashedMap();
             Iterator itAg = agencyPmidYear.entrySet().iterator();
