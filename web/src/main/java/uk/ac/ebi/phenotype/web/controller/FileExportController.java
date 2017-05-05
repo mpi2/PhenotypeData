@@ -18,6 +18,7 @@ package uk.ac.ebi.phenotype.web.controller;
 
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
+import net.sf.json.JSONSerializer;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
@@ -118,6 +119,34 @@ public class FileExportController {
 
 	@Autowired
 	private SearchController searchController;
+
+	@Autowired
+	private AdvancedSearchController advancedSearchController;
+
+	/**
+	 * Return a TSV or XLS formatted response of advanced search result
+	 */
+
+	@RequestMapping(value = "/exportAdvancedSearch", method = RequestMethod.POST)
+	public void exportTableAsExcelTsv2(
+			@RequestParam(value = "param", required = true) String params,
+			@RequestParam(value = "fileType", required = true) String fileType,
+			@RequestParam(value = "fileName", required = true) String fileName,
+			HttpServletRequest request, HttpServletResponse response, Model model) throws Exception {
+
+		hostName = request.getAttribute("mappedHostname").toString().replace("https:", "http:");
+		JSONObject jParams = (JSONObject) JSONSerializer.toJSON(params);
+		System.out.println(fileName);
+		System.out.println(fileType);
+		System.out.println(jParams.toString());
+
+		boolean isExport = true;
+		JSONObject jcontent = advancedSearchController.fetchGraphDataAdvSrch(jParams, isExport);
+
+		FileExportUtils.writeOutputFile(response, jcontent.getJSONArray("rows"), fileType, fileName);
+
+	}
+
 	/**
 	 * Return a TSV formatted response which contains all datapoints
 	 *

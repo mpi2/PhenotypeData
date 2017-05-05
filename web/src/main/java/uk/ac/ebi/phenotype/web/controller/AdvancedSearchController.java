@@ -298,7 +298,7 @@ public class AdvancedSearchController {
     }
 
 
-        @RequestMapping(value = "/dataTableNeo4jAdvSrch", method = RequestMethod.POST)
+    @RequestMapping(value = "/dataTableNeo4jAdvSrch", method = RequestMethod.POST)
     public ResponseEntity<String> advSrchDataTableJson2(
             @RequestParam(value = "params", required = true) String params,
             HttpServletRequest request,
@@ -314,12 +314,13 @@ public class AdvancedSearchController {
         System.out.println("columns: " + properties);
 
         String content = null;
-        content = fetchGraphDataAdvSrch(jParams);
+        Boolean isExport = false;
+        JSONObject jcontent = fetchGraphDataAdvSrch(jParams, isExport);
 
-        return new ResponseEntity<String>(content, createResponseHeaders(), HttpStatus.CREATED);
+        return new ResponseEntity<String>(jcontent.toString(), createResponseHeaders(), HttpStatus.CREATED);
     }
 
-    public String fetchGraphDataAdvSrch(JSONObject jParams) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+    public JSONObject fetchGraphDataAdvSrch(JSONObject jParams, Boolean isExport) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
 
         String significant = " AND sr.significant = true ";
         String phenotypeSexes = composePhenotypeSexStr(jParams);
@@ -661,116 +662,130 @@ public class AdvancedSearchController {
         j.put("iDisplayStart", 0);
         j.put("iDisplayLength", 10);
 
-        for (Map<String,Object> row : result) {
-            System.out.println(row.toString());
-            //System.out.println("cols: " + row.size());
+        List<String> rowDataExport = new ArrayList<>(); // for export
+        List<String> rowDataOverview = new ArrayList<>(); // for overview
 
-            if (rowCount == 10){
-                break;
-            }
+        if (isExport){
 
-            List<String> rowData = new ArrayList<>(); // for export
+            rowDataExport.add(StringUtils.join(cols, "\\t")); // column
 
-            for (Map.Entry<String, Object> entry : row.entrySet()) {
-                //System.out.println(entry.getKey() + " / " + entry.getValue());
-                if (entry.getValue() != null) {
-                    Object obj = entry.getValue();
-                    System.out.println("col: "+ obj.toString());
+            for (Map<String,Object> row : result) {
+                System.out.println(row.toString());
+                //System.out.println("cols: " + row.size());
 
-                    Map<String, Set<String>> colValMap = new HashedMap(); // for export
+                List<String> data = new ArrayList<>(); // for export
 
-                    populateColValMapAdvSrch(obj, colValMap, jParams);
+                for (Map.Entry<String, Object> entry : row.entrySet()) {
+                    //System.out.println(entry.getKey() + " / " + entry.getValue());
+                    if (entry.getValue() != null) {
+                        Object obj = entry.getValue();
+                        System.out.println("col: "+ obj.toString());
+
+                        Map<String, Set<String>> colValMap = new HashedMap();
+
+                        populateColValMapAdvSrch(obj, colValMap, jParams);
 
 
-                    //-------- start of export
-                    System.out.println("colValMap: " + colValMap.toString());
+                        //-------- start of export
+                        System.out.println("colValMap: " + colValMap.toString());
 
-                    if (colValMap.size() > 0) {
+                        if (colValMap.size() > 0) {
 
-                        for (String col : cols) {
+                            for (String col : cols) {
 
-                            if (colValMap.containsKey(col)) {
-                               // System.out.println("col now: " + col);
-                                List<String> vals = new ArrayList<>(colValMap.get(col));
+                                if (colValMap.containsKey(col)) {
+                                    // System.out.println("col now: " + col);
+                                    List<String> vals = new ArrayList<>(colValMap.get(col));
 
-                                int valSize = vals.size();
+                                    int valSize = vals.size();
 
-                                if (valSize > 2) {
-                                    // add showmore
-                                    vals.add("<button rel=" + valSize + " class='showMore'>show all (" + valSize + ")</button>");
+                                    if (valSize > 2) {
+                                        // add showmore
+                                        vals.add("<button rel=" + valSize + " class='showMore'>show all (" + valSize + ")</button>");
+                                    }
+                                    if (valSize == 1) {
+                                        data.add(StringUtils.join(vals, ""));
+                                    } else {
+                                        data.add("<ul>" + StringUtils.join(vals, "") + "</ul>");
+                                    }
+
+
+                                    if (col.equals("ontoSynonym")) {
+                                        System.out.println(col + " -- " + vals);
+                                    }
                                 }
-                                if (valSize == 1) {
-                                    rowData.add(StringUtils.join(vals, ""));
-                                } else {
-                                    rowData.add("<ul>" + StringUtils.join(vals, "") + "</ul>");
-                                }
-
-
-                                if (col.equals("ontoSynonym")) {
-                                    System.out.println(col + " -- " + vals);
-                                }
-                            } else {
-                                //  rowData.add(NA);
                             }
+                            System.out.println("row: " + data);
                         }
-                        System.out.println("row: " + rowData);
-
                     }
-                    // end of export
+                }
+                rowDataExport.add(StringUtils.join(data, "\t"));
+            }
+            j.put("rows", rowDataExport);
+        }
+        else {
 
+            Map<String, Set<String>> colValMap = new HashedMap(); // for export
+
+            for (Map<String, Object> row : result) {
+                System.out.println(row.toString());
+                //System.out.println("cols: " + row.size());
+
+                if (rowCount == 10) {
+                    break;
+                }
+
+                for (Map.Entry<String, Object> entry : row.entrySet()) {
+                    //System.out.println(entry.getKey() + " / " + entry.getValue());
+                    if (entry.getValue() != null) {
+                        Object obj = entry.getValue();
+                        System.out.println("col: " + obj.toString());
+
+                        populateColValMapAdvSrch(obj, colValMap, jParams);
+                    }
                 }
             }
 
+            System.out.println("About to prepare for rows");
 
-            j.getJSONArray("aaData").add(rowData);  // for export
-            rowCount++;
-            System.out.println("");
-            System.out.println("");
+            // for overview
+            List<String> rowData = new ArrayList<>();
 
+            for (String col : cols){
+                if (colValMap.containsKey(col)) {
+                    List<String> vals = new ArrayList<>(colValMap.get(col));
+
+                    int valSize = vals.size();
+
+                    if (valSize > 2) {
+                        // add showmore
+                        vals.add("<button rel=" + valSize + " class='showMore'>show all (" + valSize + ")</button>");
+                    }
+                    if (valSize == 1) {
+                        rowDataOverview.add(StringUtils.join(vals, ""));
+                    } else {
+                        rowDataOverview.add("<ul>" + StringUtils.join(vals, "") + "</ul>");
+                    }
+
+                    //System.out.println("col: " + col);
+                    if (col.equals("ontoSynonym")) {
+                        System.out.println(col + " -- " + vals);
+                    }
+                }
+                else {
+                    rowDataOverview.add(NA);
+                }
+            }
+
+            System.out.println("rows done");
+
+            j.put("iTotalRecords", rowCount);
+            j.put("iTotalDisplayRecords", rowCount);
+            j.getJSONArray("aaData").add(rowDataOverview);
+
+            //System.out.println(j.toString());
         }
-
-        System.out.println("About to prepare for rows");
-
-
-        // for overview
-//        List<String> rowData = new ArrayList<>();
-//
-//        for (String col : cols){
-//            if (colValMap.containsKey(col)) {
-//                List<String> vals = new ArrayList<>(colValMap.get(col));
-//
-//                int valSize = vals.size();
-//
-//                if (valSize > 2) {
-//                    // add showmore
-//                    vals.add("<button rel=" + valSize + " class='showMore'>show all (" + valSize + ")</button>");
-//                }
-//                if (valSize == 1) {
-//                    rowData.add(StringUtils.join(vals, ""));
-//                } else {
-//                    rowData.add("<ul>" + StringUtils.join(vals, "") + "</ul>");
-//                }
-//
-//                //System.out.println("col: " + col);
-//                if (col.equals("ontoSynonym")) {
-//                    System.out.println(col + " -- " + vals);
-//                }
-//            }
-//            else {
-//                rowData.add(NA);
-//            }
-//        }
-
-//        j.getJSONArray("aaData").add(rowData);
-
-        System.out.println("rows done");
-
-        j.put("iTotalRecords", rowCount);
-        j.put("iTotalDisplayRecords", rowCount);
-
-        System.out.println(j.toString());
-
-        return j.toString();
+        return j;
     }
 
     private String composePhenotypeSexStr(JSONObject jParams){
@@ -1484,15 +1499,21 @@ public class AdvancedSearchController {
 
 
             if (! colVal.isEmpty()) {
-                if (property.equals("mgiAccessionId")){
-                    colVal = "<a target='_blank' href='" + geneBaseUrl + colVal + "'>" + colVal + "</a>";
+                if (property.equals("markerSymbol")){
+                    Gene gene = (Gene) o;
+                    String mgiAcc = gene.getMgiAccessionId();
+                    colVal = "<a target='_blank' href='" + geneBaseUrl + mgiAcc + "'>" + colVal + "</a>";
                 }
-                else if (property.equals("mpId")){
-                    colVal = "<a target='_blank' href='" + mpBaseUrl + colVal + "'>" + colVal + "</a>";
+                else if (property.equals("mpTerm")){
+                    Mp mp = (Mp) o;
+                    String mpId = mp.getMpId();
+                    colVal = "<a target='_blank' href='" + mpBaseUrl + mpId + "'>" + colVal + "</a>";
                     //System.out.println("colVal: "  + colVal);
                 }
-                else if (property.equals("diseaseId")){
-                    colVal = "<a target='_blank' href='" + diseaseBaseUrl + colVal + "'>" + colVal + "</a>";
+                else if (property.equals("diseaseTerm")){
+                    DiseaseModel dm = (DiseaseModel) o;
+                    String dt = dm.getDiseaseTerm();
+                    colVal = "<a target='_blank' href='" + diseaseBaseUrl + dt + "'>" + colVal + "</a>";
                 }
                 else if (property.equals("ensemblGeneId")){
                     colVal = colVal.replaceAll("\\[", "").replaceAll("\\]","");
