@@ -354,76 +354,78 @@ public class ObservationService extends BasicService implements WebStatus {
         return res;
     }
 
-    public Map<String, List<String>> getExperimentKeys(String mgiAccession, String parameterStableId, List<String> pipelineStableId, List<String> phenotypingCenterParams, List<String> strainParams, List<String> metaDataGroups, List<String> alleleAccessions)
-            throws SolrServerException, IOException {
-
-        // Example of key
-        // String experimentKey = observation.getPhenotypingCenter()
-        // + observation.getStrain()
-        // + observation.getParameterStableId()
-        // + observation.getGeneAccession()
-        // + observation.getMetadataGroup();
-        Map<String, List<String>> map = new LinkedHashMap<>();
-
-        SolrQuery query = new SolrQuery();
-
-        query.setQuery(ObservationDTO.GENE_ACCESSION_ID + ":\"" + mgiAccession + "\"").addFilterQuery(ObservationDTO.PARAMETER_STABLE_ID + ":" + parameterStableId).addFacetField(ObservationDTO.PHENOTYPING_CENTER).addFacetField(ObservationDTO.STRAIN_ACCESSION_ID).addFacetField(ObservationDTO.METADATA_GROUP).addFacetField(ObservationDTO.PIPELINE_STABLE_ID).addFacetField(ObservationDTO.ALLELE_ACCESSION_ID).setRows(0).setFacet(true).setFacetMinCount(1).setFacetLimit(-1).setFacetSort(FacetParams.FACET_SORT_COUNT);
-
-        if (phenotypingCenterParams != null && !phenotypingCenterParams.isEmpty()) {
-            List<String> spaceSafeStringsList = new ArrayList<>();
-            for (String pCenter : phenotypingCenterParams) {
-                if (!pCenter.endsWith("\"") && !pCenter.startsWith("\"")) {
-                    spaceSafeStringsList.add("\"" + pCenter + "\"");
-                }
-            }
-            query.addFilterQuery(ObservationDTO.PHENOTYPING_CENTER + ":(" + StringUtils.join(spaceSafeStringsList, " OR ") + ")");
-        }
-
-        if (strainParams != null && !strainParams.isEmpty()) {
-            query.addFilterQuery(ObservationDTO.STRAIN_ACCESSION_ID + ":(" + StringUtils.join(strainParams, " OR ").replace(":", "\\:") + ")");
-        }
-
-        if (metaDataGroups != null && !metaDataGroups.isEmpty()) {
-            query.addFilterQuery(ObservationDTO.METADATA_GROUP + ":(" + StringUtils.join(metaDataGroups, " OR ") + ")");
-        }
-
-        if (pipelineStableId != null && !pipelineStableId.isEmpty()) {
-            query.addFilterQuery(ObservationDTO.PIPELINE_STABLE_ID + ":(" + StringUtils.join(pipelineStableId, " OR ") + ")");
-        }
-
-        if (alleleAccessions != null && !alleleAccessions.isEmpty()) {
-            String alleleFilter = ObservationDTO.ALLELE_ACCESSION_ID + ":(" + StringUtils.join(alleleAccessions, " OR ").replace(":", "\\:") + ")";
-            logger.debug("alleleFilter=" + alleleFilter);
-            query.addFilterQuery(alleleFilter);
-
-        }
-
-        QueryResponse response = solr.query(query);
-        logger.debug("experiment key query=" + query);
-        List<FacetField> fflist = response.getFacetFields();
-
-        for (FacetField ff : fflist) {
-
-            // If there are no face results, the values will be null
-            // skip this facet field in that case
-            // if (ff.getValues() == null) {
-            // continue;
-            // }
-            for (Count count : ff.getValues()) {
-                if (map.containsKey(ff.getName())) {
-                    map.get(ff.getName()).add(count.getName());
-                } else {
-                    List<String> newList = new ArrayList<>();
-                    newList.add(count.getName());
-                    map.put(ff.getName(), newList);
-                }
-
-            }
-        }
-
-        logger.info("experimentKeys=" + map);
-        return map;
-    }
+//    no longer use this code as done with faceting by Ilinca to improve speed - JW
+    //we should remove....
+    //public Map<String, List<String>> getExperimentKeys(String mgiAccession, String parameterStableId, List<String> pipelineStableId, List<String> phenotypingCenterParams, List<String> strainParams, List<String> metaDataGroups, List<String> alleleAccessions)
+//            throws SolrServerException, IOException {
+//
+//        // Example of key
+//        // String experimentKey = observation.getPhenotypingCenter()
+//        // + observation.getStrain()
+//        // + observation.getParameterStableId()
+//        // + observation.getGeneAccession()
+//        // + observation.getMetadataGroup();
+//        Map<String, List<String>> map = new LinkedHashMap<>();
+//
+//        SolrQuery query = new SolrQuery();
+//
+//        query.setQuery(ObservationDTO.GENE_ACCESSION_ID + ":\"" + mgiAccession + "\"").addFilterQuery(ObservationDTO.PARAMETER_STABLE_ID + ":" + parameterStableId).addFacetField(ObservationDTO.PHENOTYPING_CENTER).addFacetField(ObservationDTO.STRAIN_ACCESSION_ID).addFacetField(ObservationDTO.METADATA_GROUP).addFacetField(ObservationDTO.PIPELINE_STABLE_ID).addFacetField(ObservationDTO.ALLELE_ACCESSION_ID).setRows(0).setFacet(true).setFacetMinCount(1).setFacetLimit(-1).setFacetSort(FacetParams.FACET_SORT_COUNT);
+//
+//        if (phenotypingCenterParams != null && !phenotypingCenterParams.isEmpty()) {
+//            List<String> spaceSafeStringsList = new ArrayList<>();
+//            for (String pCenter : phenotypingCenterParams) {
+//                if (!pCenter.endsWith("\"") && !pCenter.startsWith("\"")) {
+//                    spaceSafeStringsList.add("\"" + pCenter + "\"");
+//                }
+//            }
+//            query.addFilterQuery(ObservationDTO.PHENOTYPING_CENTER + ":(" + StringUtils.join(spaceSafeStringsList, " OR ") + ")");
+//        }
+//
+//        if (strainParams != null && !strainParams.isEmpty()) {
+//            query.addFilterQuery(ObservationDTO.STRAIN_ACCESSION_ID + ":(" + StringUtils.join(strainParams, " OR ").replace(":", "\\:") + ")");
+//        }
+//
+//        if (metaDataGroups != null && !metaDataGroups.isEmpty()) {
+//            query.addFilterQuery(ObservationDTO.METADATA_GROUP + ":(" + StringUtils.join(metaDataGroups, " OR ") + ")");
+//        }
+//
+//        if (pipelineStableId != null && !pipelineStableId.isEmpty()) {
+//            query.addFilterQuery(ObservationDTO.PIPELINE_STABLE_ID + ":(" + StringUtils.join(pipelineStableId, " OR ") + ")");
+//        }
+//
+//        if (alleleAccessions != null && !alleleAccessions.isEmpty()) {
+//            String alleleFilter = ObservationDTO.ALLELE_ACCESSION_ID + ":(" + StringUtils.join(alleleAccessions, " OR ").replace(":", "\\:") + ")";
+//            logger.debug("alleleFilter=" + alleleFilter);
+//            query.addFilterQuery(alleleFilter);
+//
+//        }
+//
+//        QueryResponse response = solr.query(query);
+//        logger.debug("experiment key query=" + query);
+//        List<FacetField> fflist = response.getFacetFields();
+//
+//        for (FacetField ff : fflist) {
+//
+//            // If there are no face results, the values will be null
+//            // skip this facet field in that case
+//            // if (ff.getValues() == null) {
+//            // continue;
+//            // }
+//            for (Count count : ff.getValues()) {
+//                if (map.containsKey(ff.getName())) {
+//                    map.get(ff.getName()).add(count.getName());
+//                } else {
+//                    List<String> newList = new ArrayList<>();
+//                    newList.add(count.getName());
+//                    map.put(ff.getName(), newList);
+//                }
+//
+//            }
+//        }
+//
+//        logger.info("experimentKeys=" + map);
+//        return map;
+//    }
 
     /**
      * for testing - not for users
@@ -1886,55 +1888,55 @@ public class ObservationService extends BasicService implements WebStatus {
 	public Set<String> getChartPivots(String baseUrl, String acc, ParameterDTO parameter, List<String> pipelineStableIds, List<String> zyList, List<String> phenotypingCentersList,
 			  List<String> strainsParams, List<String> metaDataGroup, List<String> alleleAccession) throws IOException, SolrServerException, URISyntaxException {
 
-SolrQuery query = new SolrQuery();
-query.setQuery("*:*");
-if (acc != null){
-query.addFilterQuery("gene_accession_id"+ ":\"" + acc + "\"");
-}
-if (parameter != null){
-query.addFilterQuery(StatisticalResultDTO.PARAMETER_STABLE_ID + ":" + parameter.getStableId() );
-}
-if (pipelineStableIds != null && pipelineStableIds.size() > 0){
-query.addFilterQuery(pipelineStableIds.stream().collect(Collectors.joining(" OR ",  StatisticalResultDTO.PIPELINE_STABLE_ID + ":(", ")")));
-}
-if (zyList != null && zyList.size() > 0){
-query.addFilterQuery(zyList.stream().collect(Collectors.joining(" OR ",  StatisticalResultDTO.ZYGOSITY + ":(", ")")));
-}
-if (phenotypingCentersList != null && phenotypingCentersList.size() > 0){
-query.addFilterQuery(phenotypingCentersList.stream().collect(Collectors.joining("\" OR \"",  StatisticalResultDTO.PHENOTYPING_CENTER + ":(\"", "\")")));
-}
-if (strainsParams != null && strainsParams.size() > 0){
-query.addFilterQuery(strainsParams.stream().collect(Collectors.joining("\" OR \"", StatisticalResultDTO.STRAIN_ACCESSION_ID + ":(\"", "\")")));
-}
-if (metaDataGroup != null && metaDataGroup.size() > 0){
-query.addFilterQuery(metaDataGroup.stream().collect(Collectors.joining("\" OR \"",  StatisticalResultDTO.METADATA_GROUP + ":(\"", "\")")));
-}
-if (alleleAccession != null && alleleAccession.size() > 0){
-query.addFilterQuery(alleleAccession.stream().collect(Collectors.joining("\" OR \"", StatisticalResultDTO.ALLELE_ACCESSION_ID + ":(\"", "\")")));
-}
-query.setFacet(true);
-
-// If you add/change order of pivots, make sure you do the same in the for loops below
-String pivotFacet = StatisticalResultDTO.PIPELINE_STABLE_ID + "," +
-	StatisticalResultDTO.ZYGOSITY + "," +
-	StatisticalResultDTO.PHENOTYPING_CENTER + "," +
-	StatisticalResultDTO.STRAIN_ACCESSION_ID + "," +
-	StatisticalResultDTO.ALLELE_ACCESSION_ID;
-if (metaDataGroup != null){
-pivotFacet += "," + StatisticalResultDTO.METADATA_GROUP;
-
-}
-query.add("facet.pivot", pivotFacet );
-
-query.setFacetLimit(-1);
-
-Set<String> resultParametersForCharts = new HashSet<>();
-NamedList<List<PivotField>> facetPivot = solr.query(query).getFacetPivot();
-for( PivotField pivot : facetPivot.get(pivotFacet)){
-getParametersForChartFromPivot(pivot, baseUrl, resultParametersForCharts);
-}
-
-return resultParametersForCharts;
+			SolrQuery query = new SolrQuery();
+			query.setQuery("*:*");
+			if (acc != null){
+			query.addFilterQuery("gene_accession_id"+ ":\"" + acc + "\"");
+			}
+			if (parameter != null){
+			query.addFilterQuery(StatisticalResultDTO.PARAMETER_STABLE_ID + ":" + parameter.getStableId() );
+			}
+			if (pipelineStableIds != null && pipelineStableIds.size() > 0){
+			query.addFilterQuery(pipelineStableIds.stream().collect(Collectors.joining(" OR ",  StatisticalResultDTO.PIPELINE_STABLE_ID + ":(", ")")));
+			}
+			if (zyList != null && zyList.size() > 0){
+			query.addFilterQuery(zyList.stream().collect(Collectors.joining(" OR ",  StatisticalResultDTO.ZYGOSITY + ":(", ")")));
+			}
+			if (phenotypingCentersList != null && phenotypingCentersList.size() > 0){
+			query.addFilterQuery(phenotypingCentersList.stream().collect(Collectors.joining("\" OR \"",  StatisticalResultDTO.PHENOTYPING_CENTER + ":(\"", "\")")));
+			}
+			if (strainsParams != null && strainsParams.size() > 0){
+			query.addFilterQuery(strainsParams.stream().collect(Collectors.joining("\" OR \"", StatisticalResultDTO.STRAIN_ACCESSION_ID + ":(\"", "\")")));
+			}
+			if (metaDataGroup != null && metaDataGroup.size() > 0){
+			query.addFilterQuery(metaDataGroup.stream().collect(Collectors.joining("\" OR \"",  StatisticalResultDTO.METADATA_GROUP + ":(\"", "\")")));
+			}
+			if (alleleAccession != null && alleleAccession.size() > 0){
+			query.addFilterQuery(alleleAccession.stream().collect(Collectors.joining("\" OR \"", StatisticalResultDTO.ALLELE_ACCESSION_ID + ":(\"", "\")")));
+			}
+			query.setFacet(true);
+			
+			// If you add/change order of pivots, make sure you do the same in the for loops below
+			String pivotFacet = StatisticalResultDTO.PIPELINE_STABLE_ID + "," +
+				StatisticalResultDTO.ZYGOSITY + "," +
+				StatisticalResultDTO.PHENOTYPING_CENTER + "," +
+				StatisticalResultDTO.STRAIN_ACCESSION_ID + "," +
+				StatisticalResultDTO.ALLELE_ACCESSION_ID;
+			if (metaDataGroup != null  && metaDataGroup.size() > 0){
+			pivotFacet += "," + StatisticalResultDTO.METADATA_GROUP;
+			
+			}
+			query.add("facet.pivot", pivotFacet );
+			
+			query.setFacetLimit(-1);
+			
+			Set<String> resultParametersForCharts = new HashSet<>();
+			NamedList<List<PivotField>> facetPivot = solr.query(query).getFacetPivot();
+			for( PivotField pivot : facetPivot.get(pivotFacet)){
+			getParametersForChartFromPivot(pivot, baseUrl, resultParametersForCharts);
+			}
+			System.out.println("resultParametersForCharts="+resultParametersForCharts);
+			return resultParametersForCharts;
 }
 	
 	private Set<String> getParametersForChartFromPivot(PivotField pivot, String urlParams, Set<String> set){

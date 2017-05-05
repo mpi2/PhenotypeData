@@ -23,6 +23,7 @@
 package org.mousephenotype.cda.db.dao;
 
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.db.TestConfig;
@@ -105,6 +106,7 @@ public class UtilitiesTest {
 
 
     // Test identical results. No difference is expected.
+    @Ignore
     @Test
     public void testQueryDiffNoDiffsIdentical() throws Exception{
         SqlUtils sqlUtils = new SqlUtils();
@@ -118,6 +120,7 @@ public class UtilitiesTest {
 
 
     // Test more results in jdbc2 than jdbc1. No difference is expected.
+    @Ignore
     @Test
     public void testQueryDiffNoDiffsMoreResultsInJdbc2() throws Exception{
         SqlUtils sqlUtils = new SqlUtils();
@@ -132,6 +135,7 @@ public class UtilitiesTest {
     }
 
     // Test fewer results in jdbc2 than jdbc1. The extra rows in jdbc1 should be returned.
+    @Ignore
     @Test
     public void testQueryDiffTwoDiffs() throws Exception{
         SqlUtils sqlUtils = new SqlUtils();

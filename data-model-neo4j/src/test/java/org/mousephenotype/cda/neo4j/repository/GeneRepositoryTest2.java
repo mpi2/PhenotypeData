@@ -11,7 +11,9 @@ package org.mousephenotype.cda.neo4j.repository;
 //import org.springframework.transaction.annotation.Transactional;
 //import org.springframework.util.Assert;
 
+import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mousephenotype.cda.neo4j.entity.Gene;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +23,11 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.neo4j.repository.config.EnableNeo4jRepositories;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestExecutionListeners;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 
 /**
  * Created by ckchen on 14/03/2017.
@@ -28,13 +35,22 @@ import org.springframework.data.neo4j.repository.config.EnableNeo4jRepositories;
 
 //
 //@RunWith(SpringRunner.class)
-//@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
+//@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.N ONE)
 //@ContextConfiguration(classes = {Neo4jTestConfig.class})
 ////@TestPropertySource(locations = {"classpath:ogm.properties"})
 //@Transactional
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
-@SpringBootApplication
-@EnableNeo4jRepositories
+
+
+
+//@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
+//@SpringBootApplication
+//@EnableNeo4jRepositories
+
+
+
+
+@RunWith(SpringRunner.class)
+@ContextConfiguration(classes = {Neo4jConfig.class})
 public class GeneRepositoryTest2 {
 
     private final static Logger log = LoggerFactory.getLogger(GeneRepositoryTest2.class);
@@ -45,11 +61,12 @@ public class GeneRepositoryTest2 {
     GeneRepository geneRepository;
 
 
-    public static void main(String[] args) throws Exception {
-        SpringApplication.run(GeneRepositoryTest2.class, args);
-    }
+//    public static void main(String[] args) throws Exception {
+//        SpringApplication.run(GeneRepositoryTest2.class, args);
+//    }
 
-   // @Test
+//    @Ignore
+    @Test
     public void testGeneRepository() {
 
 //    CommandLineRunner demo(GeneRepository geneRepository) {

@@ -423,7 +423,7 @@ public class ImpressService extends BasicService implements WebStatus {
 
 	public String getProcedureUrlByKey(String procedureStableKey) {
 
-		return DRUPAL_BASE_URL + "/impress/impress/displaySOP/" + procedureStableKey;
+		return DRUPAL_BASE_URL + "/impress/protocol/" + procedureStableKey;
 	}
 
 

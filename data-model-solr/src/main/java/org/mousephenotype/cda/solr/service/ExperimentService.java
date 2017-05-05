@@ -520,12 +520,24 @@ public class ExperimentService{
         if (experimentList.isEmpty()) {
             return null;// return null if no experiments
         }
-        if (experimentList.size() > 1) {
+        if (experimentList.size() > 1 && !parameterStableId.equals("IMPC_BWT_008_001")) {
             throw new SpecificExperimentException("Too many experiments returned - should only be one from this method call");
         }
-
-        ExperimentDTO experiment = experimentList.get(0);
-        experiment = setUrls(experiment, parameterStableId, pipelineStableId, acc, zyList, phenotypingCenter, strain, metadataGroup, alleleAccession, ebiMappedSolrUrl);
+        ExperimentDTO experiment=null;
+        //if parameter is the bodyweight parameter we can merge the results as currently it's the only one that we don't want to have a meta data split
+        if(parameterStableId.equals("IMPC_BWT_008_001")){
+        	 experiment = experimentList.get(0);
+        	for(ExperimentDTO exp: experimentList){
+        		experiment.getControls().addAll(exp.getControls());
+        		experiment.getHomozygoteMutants().addAll(exp.getHomozygoteMutants());
+        		experiment.getHeterozygoteMutants().addAll(exp.getHeterozygoteMutants());
+        		experiment.getHemizygoteMutants().addAll(exp.getHemizygoteMutants());
+        		
+        	}
+        }else{
+	        experiment = experimentList.get(0);
+	        experiment = setUrls(experiment, parameterStableId, pipelineStableId, acc, zyList, phenotypingCenter, strain, metadataGroup, alleleAccession, ebiMappedSolrUrl);
+        }
 
         return experiment;
 
@@ -561,10 +573,10 @@ public class ExperimentService{
     }
 
 
-    public Map<String, List<String>> getExperimentKeys(String mgiAccession, String parameterStableIds, List<String> pipelineStableIds, List<String> phenotypingCenter, List<String> strain, List<String> metaDataGroup, List<String> alleleAccession) 
-    throws SolrServerException, IOException  {
-        return os.getExperimentKeys(mgiAccession, parameterStableIds, pipelineStableIds, phenotypingCenter, strain, metaDataGroup, alleleAccession);
-    }
+//    public Map<String, List<String>> getExperimentKeys(String mgiAccession, String parameterStableIds, List<String> pipelineStableIds, List<String> phenotypingCenter, List<String> strain, List<String> metaDataGroup, List<String> alleleAccession) 
+//    throws SolrServerException, IOException  {
+//        return os.getExperimentKeys(mgiAccession, parameterStableIds, pipelineStableIds, phenotypingCenter, strain, metaDataGroup, alleleAccession);
+//    }
 
     /**
      * Control strategy selection based on phenotyping center and user supplied

@@ -26,6 +26,11 @@
 
         <dependency>
             <groupId>org.mousephenotype.cda</groupId>
+            <artifactId>data-model-neo4j</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.mousephenotype.cda</groupId>
             <artifactId>data-model-solr</artifactId>
         </dependency>
 

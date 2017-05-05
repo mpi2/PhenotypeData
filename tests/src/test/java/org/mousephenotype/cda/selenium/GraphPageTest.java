@@ -28,6 +28,7 @@ import org.junit.*;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.enumerations.ObservationType;
+import org.mousephenotype.cda.selenium.config.TestConfig;
 import org.mousephenotype.cda.selenium.exception.TestException;
 import org.mousephenotype.cda.solr.service.*;
 import org.mousephenotype.cda.solr.web.dto.GraphTestDTO;
