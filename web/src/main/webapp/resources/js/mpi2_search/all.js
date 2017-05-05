@@ -826,7 +826,7 @@
                     name: 'procedure',
                     title: 'Procedure',
                     cellRenderer: function (doc) {
-                        var url = '/impress/impress/displaySOP/' + doc.solrDoc.procedure_stable_key;
+                        var url = '/impress/protocol/' + doc.solrDoc.procedure_stable_key;
                         var link = '<a href="' + url + '" target="_blank">' + doc.solrDoc.procedure_name + '</a>';
                         return $('<span>' + link + '</span>');
                     }

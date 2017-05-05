@@ -1348,7 +1348,7 @@ public class DataTableController {
 		j.put("iDisplayStart", request.getAttribute("displayStart"));
 		j.put("iDisplayLength", request.getAttribute("displayLength"));
 
-		String impressBaseUrl = request.getAttribute("drupalBaseUrl") + "/impress/impress/displaySOP/";
+		String impressBaseUrl = request.getAttribute("drupalBaseUrl") + "/impress/protocol/";
 
 		for (int i = 0; i < docs.size(); i ++) {
 			List<String> rowData = new ArrayList<String>();
