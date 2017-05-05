@@ -2,7 +2,9 @@ package org.mousephenotype.cda.solr;
 
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
+import org.mousephenotype.cda.solr.service.GrossPathService;
 import org.mousephenotype.cda.solr.service.ImpressService;
+import org.mousephenotype.cda.solr.service.ObservationService;
 import org.mousephenotype.cda.solr.service.PhenotypeCenterService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -97,14 +99,11 @@ public class TestConfigSolr {
 		return new HttpSolrClient(solrBaseUrl + "/configuration");
 	}
 
-
-
 	//Allele
 	@Bean(name = "alleleCore")
 	public HttpSolrClient getAlleleCore() {
 		return new HttpSolrClient(solrBaseUrl + "/allele");
 	}
-
 
 	//Autosuggest
 	@Bean(name = "autosuggestCore")
@@ -129,13 +128,6 @@ public class TestConfigSolr {
 	HttpSolrClient getGenotypePhenotypeCore() {
 		return new HttpSolrClient(solrBaseUrl + "/genotype-phenotype");
 	}
-
-	//DELETEME
-//	//GenotypePhenotype
-//	@Bean(name = "genotypePhenotypeCore")
-//	HttpSolrClient getGenotypePhenotypeCore() {
-//		return new HttpSolrClient("http://ves-hx-d1:8090/mi/impc/beta/solr/genotype-phenotype");
-//	}
 
 	// Impc images core
 	@Bean(name = "impcImagesCore")
@@ -180,12 +172,6 @@ public class TestConfigSolr {
 		return new HttpSolrClient(solrBaseUrl + "/preqc");
 	}
 
-
-//	@Bean(name = "preqcCore") //DELETEME
-//	HttpSolrClient getPreqcCore() {
-//		return new HttpSolrClient(solrBaseUrl + "/genotype-phenotype");
-//	}
-
 	//StatisticalResult
 	@Bean(name = "statisticalResultCore")
 	HttpSolrClient getStatisticalResultCore() {
@@ -201,12 +187,6 @@ public class TestConfigSolr {
 	PhenotypeCenterService preQcPhenotypeCenterService() {
 		return new PhenotypeCenterService(solrBaseUrl + "/preqc", impressService);
 	}
-
-
-
-
-
-
 
 
 	@Bean
@@ -255,7 +235,7 @@ public class TestConfigSolr {
 		return hibernateProperties;
 	}
 
-	@Bean(name = "sessionFactory")
+	@Bean(name = "sessionFactoryHibernate")
 	public LocalSessionFactoryBean sessionFactory() {
 		LocalSessionFactoryBean sessionFactory = new LocalSessionFactoryBean();
 		sessionFactory.setDataSource(komp2DataSource());
@@ -270,5 +250,15 @@ public class TestConfigSolr {
 		tm.setEntityManagerFactory(emf);
 		tm.setDataSource(komp2DataSource());
 		return tm;
+	}
+
+	@Bean
+	public GrossPathService grossPathService() {
+		return new GrossPathService();
+	}
+
+	@Bean
+	public ObservationService observationService() {
+		return new ObservationService();
 	}
 }
