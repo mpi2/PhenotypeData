@@ -581,7 +581,7 @@ public class GenePageTest {
         String[] buttonLabelsArray = {
                 "Login to register interest",
                 "Order",
-                "All Akt2 Measurements",
+                "Akt2 Measurements",
                 "",
                 "",
                 ""

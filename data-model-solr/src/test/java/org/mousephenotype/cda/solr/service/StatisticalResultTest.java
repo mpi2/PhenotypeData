@@ -50,9 +50,6 @@ public class StatisticalResultTest {
 	StatisticalResultService statisticalResultService;
 
 	@Autowired
-	PostQcService genotypePhenotypeService;
-
-	@Autowired
 	GenotypePhenotypeRepository genotypePhenotypeRepository;
 
 	@Autowired
@@ -73,12 +70,12 @@ public class StatisticalResultTest {
 				.setRows(1);
 
 		QueryResponse response = statisticalResultService.getSolrServer().query(query);
-		System.out.println("query in allDocumentsHaveTopLevelmp=" + query);
+		logger.debug("query in allDocumentsHaveTopLevelmp=" + query);
 
 		long numberFound = response.getResults().getNumFound();
-		System.out.println("number of documents in SR core without a top level mp=" + numberFound);
+		logger.debug("number of documents in SR core without a top level mp=" + numberFound);
 		if(numberFound > 0) {
-			System.out.println(response.getBeans(StatisticalResultDTO.class).get(0));
+			logger.debug(response.getBeans(StatisticalResultDTO.class).get(0).toString());
 
 		}
 
