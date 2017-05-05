@@ -152,12 +152,16 @@
 				position: absolute;
 				top: 6px;
 				left: 480px;
+				margin-left: 5px;
 				display: none;
 			}
 			.andOr2 {
 				display: none;
 			}
-			button.andOr2 {
+			button.ontoview {
+				position: absolute;
+				top: 6px;
+				left: 600px;
 				margin-left: 5px;
 			}
 			span.sugListPheno {
@@ -504,8 +508,12 @@
                         y: 140,
                         r:30,
                         fields: [
-                            {"MGI gene id": "mgiAccessionId"},
+                            {"MGI allele symbol":"alleleSymbol"},
+                            {"MGI allele id":"alleleMgiAccessionId"},
                             {"MGI gene symbol": "markerSymbol"},
+                            {"MGI gene id": "mgiAccessionId"},
+                            // human ortholog
+                            {"HGNC gene symbol (human ortholog)":"humanGeneSymbol"},
                             {"MGI gene type": "markerType"},
                             {"MGI gene name": "markerName"},
                             {"chromosome id": "chrId"},
@@ -515,21 +523,15 @@
                             {"MGI gene synonym":"markerSynonym"},
                             {"Ensembl gene id":"ensemblGeneId"},
 							// allele
-                            {"MGI allele id":"alleleMgiAccessionId"},
-                            {"MGI allele symbol":"alleleSymbol"},
                             {"allele description":"alleleDescription"},
                             {"allele type":"alleleType"},  // tm1a, tm1b, etc
                             {"allele mutation type":"mutationType"},
                             {"ES cell available?":"esCellStatus"},
                             {"mouse available?":"mouseStatus"},
-                            {"phenotyping data available?":"phenotypeStatus"},
-							// human ortholog
-                            {"HGNC gene symbol (human ortholog)":"humanGeneSymbol"}
-
-
+                            {"phenotyping data available?":"phenotypeStatus"}
                         ],
                         selected: [
-                            "mgiAccessionId", "markerSymbol"
+                            "alleleSymbol", "markerSymbol"
                         ]
                     },
                     "HumanGeneSymbol": {
@@ -597,16 +599,16 @@
                         y: 50,
                         r:30,
                         fields: [
-                            {"disease id":"diseaseId"},
                             {"disease term":"diseaseTerm"},
+                            {"disease id":"diseaseId"},
+                            {"disease to model score":"diseaseToModelScore"},
                             {"disease classes":"diseaseClasses"},
                             {"predicted by IMPC":"impcPredicted"},
-                            {"predicted by MGI":"mgiPredicted"},
-                            {"disease to model score":"diseaseToModelScore"}
+                            {"predicted by MGI":"mgiPredicted"}
                            // {"model to disease score":"modelToDiseaseScore"}
                         ],
                         selected: [
-                            "diseaseId", "diseaseTerm"
+                            "diseaseTerm"
                         ]
                     },
                     "MouseModel": {
@@ -639,16 +641,15 @@
                         y: 100,
                         r:30,
                         fields: [
-                            {"mouse phenotype ontology id":"mpId"},
                             {"mouse phenotype ontology term":"mpTerm"},
+                            {"mouse phenotype ontology id":"mpId"},
                             {"mouse phenotype ontology definition":"mpDefinition"},
                             {"top level mouse phenotype ontology id":"topLevelMpId"},
                             {"top level mouse phenotype ontology term":"topLevelMpTerm"},
                             {"mouse phenotype ontology term synonym": "ontoSynonym"},
-
                         ],
                         selected: [
-                           "mpId", "mpTerm"
+                           "mpTerm"
                         ]
                     }
 //                    "OntoSynonym": {
@@ -1359,14 +1360,14 @@
                         "paging": false,
                         //"serverSide": false,  // do not want sorting to be processed from server, false by default
                         //"sDom": "<<'#exportSpinner'>l<f><'#tableTool'>r>tip",
-                        "sDom": "<<'#exportSpinner'>l<'#tableTool'>r>tip",
+                        "sDom": "<<'#exportSpinner'>l<'#tableTool'>r>itp",
                         "sPaginationType": "bootstrap",
                         "searchHighlight": true,
                         "iDisplayLength": 50,
                         "oLanguage": {
                             "sSearch": "Filter: ",
                             //"sInfo": "Showing _START_ to _END_ of _TOTAL_ genes (for complete dataset of your search, please use export buttons)"
-                            "sInfo": "Data in all columns are collapsed to show only unique values"
+                            "sInfo": "Data overview: all columns are collapsed to show only unique values<br>Please use Export for row by row details"
                         },
 //                        "aoColumns": [
 //                            {"bSearchable": true, "sType": "html", "bSortable": true}
@@ -1738,6 +1739,7 @@
 						"<input class='termFilter srch" + dataType + "' value='search'>" +
 						"<i class='fa fa-times' id='" + idname + "Clear'></i>" +
 						"<button class='andOr " + dataType + "'>add to query</button>" +
+                        "<button class='ontoview " + dataType + "'>ontology view</button>" +
 						"</div>";
 
 					var legendLabel, buttLabel, restriction = null;
@@ -1779,6 +1781,27 @@
                     addAutosuggest($('input.srch' + dataType));
 
                     var fieldsetFilter = "fieldset." + dataType + "Filter ";
+
+                    $(fieldsetFilter + ' button.ontoview').first().click(function(){
+                        // ajax call to fetch for mp id
+                        var termName = $(fieldsetFilter + " input.termFilter").val();
+
+                        $.ajax({
+                            'url': baseUrl + '/fetchmpid?name=' + termName,
+                            'async': true,
+                            'jsonp': 'json.wrf',
+                            'success': function (id) {
+                                console.log(id);
+                                window.open(baseUrl + "/ontologyBrowser?termId=" + id, '_blank');
+                            },
+                            'error' : function(jqXHR, textStatus, errorThrown) {
+                                alert("error: " + errorThrown);
+                            }
+                        });
+
+                        return false;
+                    })
+
 
                     $(fieldsetFilter + ".fa-info-circle").click(function(){
                     	var imgHow = $(fieldsetFilter + "img.boolHow");
@@ -1854,6 +1877,26 @@
 								boolTextarea.val("");
 								return false;
 							});
+
+							$(fieldsetFilter + "button.ontoview").last().click(function(){
+                                // ajax call to fetch for mp id
+                                var termName = $(fieldsetFilter + " input.termFilter").last().val();
+
+                                $.ajax({
+                                    'url': baseUrl + '/fetchmpid?name=' + termName,
+                                    'async': true,
+                                    'jsonp': 'json.wrf',
+                                    'success': function (id) {
+                                        console.log(id);
+                                        window.open(baseUrl + "/ontologyBrowser?termId=" + id, '_blank');
+                                    },
+                                    'error' : function(jqXHR, textStatus, errorThrown) {
+                                        alert("error: " + errorThrown);
+                                    }
+                                });
+
+                                return false;
+                            })
 
 							// allow remove input just added
 							$("<i class='pr fa fa-minus-square-o' aria-hidden='true'></i>").insertAfter($(fieldsetFilter + "button.andOr").last());
