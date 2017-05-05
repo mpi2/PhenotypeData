@@ -28,10 +28,6 @@ public class Neo4jConfig {
     @Value("${neo4jDbPath}")
     private String neo4jDbPath;
 
-    @NotNull
-    @Value("${owlpath}")
-    protected String owlpath;
-
     @Bean
     public org.neo4j.ogm.config.Configuration getConfiguration() {
         org.neo4j.ogm.config.Configuration config = new org.neo4j.ogm.config.Configuration();
