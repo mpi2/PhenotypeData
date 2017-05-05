@@ -360,14 +360,14 @@ public class PhenotypePageTest {
         };
         PhenotypeProcedure[][] procedures = new PhenotypeProcedure[][] {
                   { null }
-                , { new PhenotypeProcedure("Dysmorphology (ESLIM, v1)", "/impress/impress/displaySOP/1") }
+                , { new PhenotypeProcedure("Dysmorphology (ESLIM, v1)", "/impress/protocol/1") }
                 , { null }
-                , { new PhenotypeProcedure("Dysmorphology (ESLIM, v1)", "/impress/impress/displaySOP/1"),
-                    new PhenotypeProcedure("Dysmorphology (M-G-P, v1)", "/impress/impress/displaySOP/48") }
+                , { new PhenotypeProcedure("Dysmorphology (ESLIM, v1)", "/impress/protocol/1"),
+                    new PhenotypeProcedure("Dysmorphology (M-G-P, v1)", "/impress/protocol/48") }
                 , { null }
-                , { new PhenotypeProcedure("Combined SHIRPA and Dysmorphology (IMPC, v3)", "/impress/impress/displaySOP/186"),
-                    new PhenotypeProcedure("Combined SHIRPA and Dysmorphology (IMPC, v1)", "/impress/impress/displaySOP/82"),
-                    new PhenotypeProcedure("Combined SHIRPA and Dysmorphology (IMPC, v2)", "/impress/impress/displaySOP/155"),}
+                , { new PhenotypeProcedure("Combined SHIRPA and Dysmorphology (IMPC, v3)", "/impress/protocol/186"),
+                    new PhenotypeProcedure("Combined SHIRPA and Dysmorphology (IMPC, v1)", "/impress/protocol/82"),
+                    new PhenotypeProcedure("Combined SHIRPA and Dysmorphology (IMPC, v2)", "/impress/protocol/155"),}
         };
 
         testUtils.logTestStartup(logger, this.getClass(), testName, targets.length, targets.length);
