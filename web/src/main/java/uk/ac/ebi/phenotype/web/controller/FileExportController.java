@@ -499,10 +499,8 @@ public class FileExportController {
 		JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
 
 		String impressBaseUrl = request.getAttribute("drupalBaseUrl").toString().replace("https", "http")
-				+ "/impress/impress/displaySOP/";
-		// String impressBaseUrl = request.getAttribute("drupalBaseUrl") +
-		// "/impress/impress/displaySOP/";
-
+				+ "/impress/protocol/";
+		
 		List<String> rowData = new ArrayList<>();
 		rowData.add("Parameter\tProcedure\tProcedure Impress link\tPipeline"); // column
 																				// names

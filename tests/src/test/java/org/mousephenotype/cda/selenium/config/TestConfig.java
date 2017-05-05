@@ -14,7 +14,7 @@
  *  License.
  ******************************************************************************/
 
-package org.mousephenotype.cda.selenium;
+package org.mousephenotype.cda.selenium.config;
 
 /**
  * This class acts as a spring bootstrap. No code requiring spring should be placed in this class, as, at this
@@ -23,6 +23,7 @@ package org.mousephenotype.cda.selenium;
  * Created by mrelac on 29/06/2015.
  */
 
+import org.hibernate.SessionFactory;
 import org.mousephenotype.cda.selenium.exception.TestException;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.slf4j.LoggerFactory;
@@ -33,6 +34,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder;
 import org.springframework.context.annotation.*;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.orm.hibernate5.LocalSessionFactoryBuilder;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaSessionFactoryBean;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -175,4 +177,17 @@ public class TestConfig {
 	public DataSource admintoolsDataSource() {
 		return DataSourceBuilder.create().build();
 	}
+
+    @Bean(name = "sessionFactoryHibernate")
+    @Primary
+    public SessionFactory getSessionFactory() {
+
+        LocalSessionFactoryBuilder sessionBuilder = new LocalSessionFactoryBuilder(komp2DataSource());
+        sessionBuilder.scanPackages("org.mousephenotype.cda.db.entity");
+        sessionBuilder.scanPackages("org.mousephenotype.cda.db.pojo");
+
+        return sessionBuilder.buildSessionFactory();
+    }
+
+
 }

@@ -57,7 +57,7 @@ public class HistopathService {
 					row.setSampleId(observations.get(0).getExternalSampleId());
 					
 					
-					System.out.println("number of observations with key="+observations.size());
+//					System.out.println("number of observations with key="+observations.size());
 				for (ObservationDTO obs : observations) {
 				
 						row.setZygosity(obs.getZygosity());
@@ -77,7 +77,7 @@ public class HistopathService {
 						if (obs.getObservationType().equalsIgnoreCase("categorical")) {
 							row.addCategoricalParam(parameter, obs.getCategory());
 							if (parameter.getName().contains("Significance")) {
-								System.out.println(parameter+" "+ obs.getCategory());
+//								System.out.println(parameter+" "+ obs.getCategory());
 								row.addSignficiance(parameter, obs.getCategory());
 								row.setSignficant();
 								
@@ -297,7 +297,7 @@ public class HistopathService {
 		
 		for(ObservationDTO obs: allObservations){
 			String key=this.getAnatomyStringFromObservation(obs)+histoDelimeter+obs.getExternalSampleId()+histoDelimeter+obs.getSequenceId();
-			System.out.println("key="+key);
+//			System.out.println("key="+key);
 			//System.out.println("observation="+obs);
 			if(uniqueDataSets.containsKey(key)){
 				uniqueDataSets.get(key).add(obs);

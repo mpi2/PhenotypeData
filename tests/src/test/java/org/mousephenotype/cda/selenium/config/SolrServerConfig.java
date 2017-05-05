@@ -1,4 +1,4 @@
-package org.mousephenotype.cda.selenium;
+package org.mousephenotype.cda.selenium.config;
 
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;

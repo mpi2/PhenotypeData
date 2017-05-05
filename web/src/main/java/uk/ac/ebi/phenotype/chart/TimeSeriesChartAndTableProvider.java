@@ -23,6 +23,7 @@ import org.mousephenotype.cda.db.pojo.DiscreteTimePoint;
 import org.mousephenotype.cda.db.pojo.Parameter;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
+import org.mousephenotype.cda.solr.service.ImpressService;
 import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
@@ -34,9 +35,14 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.*;
 
+
+
+
 @Service
 public class TimeSeriesChartAndTableProvider {
 
+	
+	
 	private final Logger logger = LoggerFactory.getLogger(this.getClass().getCanonicalName());
 
 	public ChartData doTimeSeriesOverviewData(
@@ -60,7 +66,7 @@ public class TimeSeriesChartAndTableProvider {
 	throws IOException,	URISyntaxException {
 
 		ChartData chartNTableForParameter = null;
-		Map<String, List<DiscreteTimePoint>> lines = new HashMap<String, List<DiscreteTimePoint>>();
+		Map<String, List<DiscreteTimePoint>> lines = new TreeMap<String, List<DiscreteTimePoint>>();
 
 		for (SexType sex : experiment.getSexes()) {
 
@@ -120,9 +126,9 @@ public class TimeSeriesChartAndTableProvider {
 			System.out.println("Body weight curve?"+ parameter.getName()+" xUnit="+ parameter.getUnitX()+" yUnit="+parameter.getUnitY());
 			String xAxisLabel =parameter.getUnitX();
 			String yAxisLabel=parameter.getUnitY();
-			if(parameter.getName().contains("Body weight curve")){
+			if(parameter.getStableId().equals("IMPC_BWT_008_001")){
 				xAxisLabel= "Age - rounded to nearest week";
-				yAxisLabel= "g";
+				yAxisLabel= "Mass (g)";
 			}
 			System.out.println("xAxis label="+xAxisLabel);
 			int decimalPlaces = ChartUtils.getDecimalPlaces(experiment);
@@ -257,8 +263,8 @@ public class TimeSeriesChartAndTableProvider {
 				+" chart: {  zoomType: 'x', renderTo: 'timechart"
 				+ expNumber
 				+ "', type: 'line' }, title: { text: '"
-				+ title				+ "', x: -20  }, credits: { enabled: false },  subtitle: { text: '"
-				+ parameter.getStableId()
+				+ ""				+ "', x: -20  }, credits: { enabled: false },  subtitle: { text: '"
+				+ ""
 				+ "', x: -20 }, xAxis: { "
 				+ noDecimalsString
 				+ " labels: { style:{ fontSize:"
@@ -276,6 +282,12 @@ public class TimeSeriesChartAndTableProvider {
 				+ seriesString
 				+ " }); });  ";
 		ChartData chartAndTable = new ChartData();
+		chartAndTable.setTitle(title);
+		String parameterLink = "";
+		if (parameter != null) {
+			parameterLink = "<a href=\""+ImpressService.getParameterUrl(parameter.getStableKey()).toString()+"\">"+parameter.getStableId()+"</a>";
+		}
+		chartAndTable.setSubTitle(parameterLink);
 		chartAndTable.setChart(javascript);
 		chartAndTable.setOrganisation(organisation);
 		chartAndTable.setId(expNumber);

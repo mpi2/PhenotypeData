@@ -33,6 +33,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mousephenotype.cda.selenium.config.TestConfig;
 import org.mousephenotype.cda.selenium.support.TestUtils;
 import org.mousephenotype.cda.solr.service.MpService;
 import org.mousephenotype.cda.utilities.CommonUtils;
