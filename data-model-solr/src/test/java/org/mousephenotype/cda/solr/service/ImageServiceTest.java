@@ -6,6 +6,7 @@ import org.apache.solr.client.solrj.response.Group;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -32,6 +33,7 @@ import static org.junit.Assert.assertTrue;
 @TestPropertySource("file:${user.home}/configfiles/${profile:dev}/test.properties")
 public class ImageServiceTest {
 
+    private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private ImageService imageService;
@@ -70,9 +72,9 @@ public class ImageServiceTest {
         Map<String, Set<String>> mpToColonies = imageService.getImagePropertiesThatHaveMp(acc);
         assertTrue(mpToColonies.size() > 0);
         for (String mp : mpToColonies.keySet()) {
-            System.out.println(mp);
+            logger.debug(mp);
             for (String colony : mpToColonies.get(mp)) {
-                System.out.println("colony=" + colony);
+                logger.debug("colony=" + colony);
             }
         }
 
