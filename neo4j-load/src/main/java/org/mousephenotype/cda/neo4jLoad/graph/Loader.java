@@ -55,10 +55,6 @@ public class Loader implements CommandLineRunner {
     DataSource phenodigmDataSource;
 
     @NotNull
-    @Value("${neo4jDbPath}")
-    private String neo4jDbPath;
-
-    @NotNull
     @Value("${allele2File}")
     private String pathToAlleleFile;
 
@@ -185,7 +181,7 @@ public class Loader implements CommandLineRunner {
         extendLoadedHpAndConnectHp2Mp();  // STEP 2.3
         loadMousePhenotypes();            // STEP 2.4
 
-        //----------- STEP 3 -----------//
+//        //----------- STEP 3 -----------//
         populateMouseModelIdMpMap(); // run this before loadMouseModel()
         loadMouseModels();
 
@@ -638,6 +634,7 @@ public class Loader implements CommandLineRunner {
             }
             if (mp.getMpTerm() == null) {
                 mp.setMpTerm(mpDTO.getName());
+                System.out.println(termId + " -- " + mp.getMpTerm());
             }
             if (mp.getMpDefinition() == null) {
                 mp.setMpDefinition(mpDTO.getDefinition());
