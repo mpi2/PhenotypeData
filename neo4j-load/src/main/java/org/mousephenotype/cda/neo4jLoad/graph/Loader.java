@@ -667,6 +667,9 @@ public class Loader implements CommandLineRunner {
                         if (thisMp == null) {
                             thisMp = new Mp();
                             thisMp.setMpId(parId);
+
+                            OntologyTermDTO pid = mpParser.getOntologyTerm(parId);
+                            thisMp.setMpTerm(pid.getName());
                         }
 
                         parentMps.add(thisMp);
