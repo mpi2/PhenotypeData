@@ -1228,8 +1228,20 @@
 
                     refreshResult(); // refresh first
 
-					//alert('before table')
-                    prepare_dataTable(oJson.properties);
+
+
+
+                    var flList = [];
+                    var dtypes = ["Allele", "Gene", "Mp", "DiseaseModel"];
+                    for (var d=0; d<dtypes.length; d++){
+                        console.log(oJson[dtypes[d]]);
+                        flList.push(oJson[dtypes[d]]);
+                    }
+
+                    console.log("check: "+ flList);
+
+                    //alert('before table')
+                    prepare_dataTable(flList);
 
                     var oConf = {};
                     //oConf.properties = oJson.properties.join(","); // order is important
@@ -1319,7 +1331,7 @@
                     console.log("list: "+ flList);
                     var th = '';
                     for ( var i=0; i<flList.length; i++){
-                        var colname = flList[i].replace(/_/g, " ");
+                        var colname = flList[i];//.replace(/_/g, " ");
                         th += "<th>" + colname + "</th>";
                     }
 
