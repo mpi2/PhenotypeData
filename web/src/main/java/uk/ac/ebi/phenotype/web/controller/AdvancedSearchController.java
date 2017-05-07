@@ -795,10 +795,6 @@ public class AdvancedSearchController {
                 //System.out.println(row.toString());
                 //System.out.println("cols: " + row.size());
 
-                if (rowCount == 10) {
-                    break;
-                }
-
                 for (Map.Entry<String, Object> entry : row.entrySet()) {
                     //System.out.println(entry.getKey() + " / " + entry.getValue());
                     if (entry.getValue() != null) {
@@ -810,8 +806,7 @@ public class AdvancedSearchController {
                 }
             }
 
-            //System.out.println("About to prepare for rows");
-
+            System.out.println("keys: "+ colValMap.keySet());
             // for overview
             List<String> rowData = new ArrayList<>();
 

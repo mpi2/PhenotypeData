@@ -8,6 +8,7 @@ import org.neo4j.ogm.annotation.GraphId;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 
+import java.util.List;
 import java.util.Set;
 
 @NodeEntity
@@ -20,7 +21,10 @@ public class Mp {
     private String mpTerm;
     private String mpDefinition;
     private Boolean topLevelStatus;
+    private List<String> topLevelMpIds;
+    private List<String> mpSynonyms;
 
+    private List<String> topLevelMpTerms;
     @Relationship(type="GENE", direction=Relationship.OUTGOING)
     private Set<Gene> genes;
 
@@ -116,6 +120,30 @@ public class Mp {
         this.mpParentIds = mpParentIds;
     }
 
+    public List<String> getTopLevelMpIds() {
+        return topLevelMpIds;
+    }
+
+    public void setTopLevelMpIds(List<String> topLevelMpIds) {
+        this.topLevelMpIds = topLevelMpIds;
+    }
+
+    public List<String> getTopLevelMpTerms() {
+        return topLevelMpTerms;
+    }
+
+    public void setTopLevelMpTerms(List<String> topLevelMpTerms) {
+        this.topLevelMpTerms = topLevelMpTerms;
+    }
+
+    public List<String> getMpSynonyms() {
+        return mpSynonyms;
+    }
+
+    public void setMpSynonyms(List<String> mpSynonyms) {
+        this.mpSynonyms = mpSynonyms;
+    }
+
     @Override
     public String toString() {
         return "Mp{" +
@@ -124,6 +152,9 @@ public class Mp {
                 ", mpTerm='" + mpTerm + '\'' +
                 ", mpDefinition='" + mpDefinition + '\'' +
                 ", topLevelStatus=" + topLevelStatus +
+                ", topLevelMpIds=" + topLevelMpIds +
+                ", mpSynonyms=" + mpSynonyms +
+                ", topLevelMpTerms=" + topLevelMpTerms +
                 ", genes=" + genes +
                 ", humanPhenotypes=" + humanPhenotypes +
                 ", ontoSynonyms=" + ontoSynonyms +
