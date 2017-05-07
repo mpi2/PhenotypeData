@@ -641,6 +641,7 @@ public class Loader implements CommandLineRunner {
             }
 
             if (mp.getOntoSynonyms() == null) {
+                mp.setOntoSynonyms(new HashSet<OntoSynonym>());
                 if(mpDTO.getSynonyms() != null) {
                     for (String mpsym : mpDTO.getSynonyms()) {
                         OntoSynonym ms = new OntoSynonym();
@@ -648,9 +649,6 @@ public class Loader implements CommandLineRunner {
                         ms.setMousePhenotype(mp);
                         //ontoSynonymRepository.save(ms);
 
-                        if (mp.getOntoSynonyms() == null) {
-                            mp.setOntoSynonyms(new HashSet<OntoSynonym>());
-                        }
                         mp.getOntoSynonyms().add(ms);
                     }
                 }
@@ -670,6 +668,18 @@ public class Loader implements CommandLineRunner {
 
                             OntologyTermDTO pid = mpParser.getOntologyTerm(parId);
                             thisMp.setMpTerm(pid.getName());
+                            thisMp.setMpDefinition(pid.getDefinition());
+
+                            if(pid.getSynonyms() != null) {
+                                thisMp.setOntoSynonyms(new HashSet<OntoSynonym>());
+                                for (String mpsym : pid.getSynonyms()) {
+                                    OntoSynonym ms = new OntoSynonym();
+                                    ms.setOntoSynonym(mpsym);
+                                    ms.setMousePhenotype(thisMp);
+
+                                    thisMp.getOntoSynonyms().add(ms);
+                                }
+                            }
                         }
 
                         parentMps.add(thisMp);
