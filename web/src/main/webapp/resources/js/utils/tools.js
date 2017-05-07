@@ -960,15 +960,18 @@
 
                     var paramStr = "mode=all";
                     if ($("#" + oConf.id +"_filter").find('input').val() != "") {
-                        oConf.kw = $("#" + oConf.id +"_filter").find('input').val().trim();
+                        //oConf.kw = $("#" + oConf.id +"_filter").find('input').val().trim();
+                        oConf.filter = $("#" + oConf.id +"_filter").find('input').val().trim();
                     }
                     else {
-                        oConf.kw = "";
+                        //oConf.kw = "";
+                        oConf.filter = "";
                     }
 
                     $.each(oConf, function (i, val) {
                         paramStr += "&" + i + "=" + val;
                     });
+
 
                     if ($(this).attr('id') == 'tsvA'){
                         $(this).attr('href', baseUrl+"/export2?" + fileTypeTsv + "&" + paramStr);
@@ -976,7 +979,7 @@
                     else {
                         $(this).attr('href', baseUrl+"/export2?" + fileTypeXls + "&" + paramStr);
                     }
-                    // alert($(this).attr('href'));
+                    //alert($(this).attr('href'));
                 });
 
 				// sort by date_of_publication and reload table with new content
