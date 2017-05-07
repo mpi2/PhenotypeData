@@ -405,7 +405,7 @@ public class PaperController {
             //----------------------------------------------------
 
             String qry = "select left(date_of_publication,4) as year, count(*) as count " +
-                    "from allele_ref where falsepositive = 'no' group by left(date_of_publication,4) order by year";
+                    "from allele_ref where falsepositive = 'no' and reviewed ='yes' group by left(date_of_publication,4) order by year";
 
             PreparedStatement py = conn.prepareStatement(qry);
             ResultSet resultSety = py.executeQuery();
@@ -467,7 +467,7 @@ public class PaperController {
             //-----------------------------------------------------------
 
             String querySum3 = "select left(date_of_publication, 7) as yyyymm, count(*) as count " +
-                    "from allele_ref where falsepositive = 'no' group by left(date_of_publication , 7);";
+                    "from allele_ref where falsepositive = 'no' and reviewed = 'yes' group by left(date_of_publication , 7);";
 
             PreparedStatement pQuarter = conn.prepareStatement(querySum3);
             ResultSet resultSetQ = pQuarter.executeQuery();
