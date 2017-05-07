@@ -642,7 +642,7 @@ public class Loader implements CommandLineRunner {
 
             if (mp.getOntoSynonyms() == null) {
 
-                mp.setMpSynonyms((List<String>) mpDTO.getSynonyms());
+                mp.setMpSynonyms(new ArrayList<String>(mpDTO.getSynonyms()));
 
                 mp.setOntoSynonyms(new HashSet<OntoSynonym>());
                 if(mpDTO.getSynonyms() != null) {
@@ -659,8 +659,8 @@ public class Loader implements CommandLineRunner {
 
             if (mp.getTopLevelMpIds() == null) {
                 if (mpDTO.getTopLevelIds().size() > 0){
-                    mp.setTopLevelMpIds((List<String>) mpDTO.getTopLevelIds());
-                    mp.setTopLevelMpTerms((List<String>) mpDTO.getTopLevelNames());
+                    mp.setTopLevelMpIds(new ArrayList<String>(mpDTO.getTopLevelIds()));
+                    mp.setTopLevelMpTerms(new ArrayList<String>(mpDTO.getTopLevelNames()));
                 }
             }
 
@@ -682,7 +682,7 @@ public class Loader implements CommandLineRunner {
 
                             if(pid.getSynonyms() != null) {
 
-                                thisMp.setMpSynonyms((List<String>) pid.getSynonyms());
+                                thisMp.setMpSynonyms(new ArrayList<String>(pid.getSynonyms()));
 
                                 thisMp.setOntoSynonyms(new HashSet<OntoSynonym>());
                                 for (String mpsym : pid.getSynonyms()) {
@@ -696,8 +696,8 @@ public class Loader implements CommandLineRunner {
                             }
 
                             if (pid.getTopLevelIds().size() > 0){
-                                thisMp.setTopLevelMpIds((List<String>) pid.getTopLevelIds());
-                                thisMp.setTopLevelMpTerms((List<String>) pid.getTopLevelNames());
+                                thisMp.setTopLevelMpIds(new ArrayList<String>(pid.getTopLevelIds()));
+                                thisMp.setTopLevelMpTerms(new ArrayList<String>(pid.getTopLevelNames()));
                             }
                         }
 

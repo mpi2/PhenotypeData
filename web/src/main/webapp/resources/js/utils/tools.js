@@ -184,90 +184,95 @@
                     series: yearSeries
                 });
 
-                //----------------------------------------
-                //  monthly increase (weekly breakdown)
-                //----------------------------------------
-                // var monthSeriesData = [];
-                // var weekDrillDownSeriesData = [];
-                // var monthTotal = 0;
-                // Object.keys(j.paperMonthlyIncrementWeekDrilldown).sort().forEach(function (yearmm, index) {
-                //     var ymo = {};
-                //     var wo = {};
-                //     wo.name = yearmm;
-                //     var parts = yearmm.split("-");
-                //     var year = parts[0];
-                //     wo.id = yearmm;
-                //     wo.data = [];
-                //     var sum = 0;
-                //     Object.keys(j.paperMonthlyIncrementWeekDrilldown[yearmm]).sort().forEach(function (mmdd, index) {
-                //         var wc = [];
-                //         var weekCnt = j.paperMonthlyIncrementWeekDrilldown[yearmm][mmdd];
-                //         sum += weekCnt;
-                //         monthTotal += weekCnt;
-                //         wc.push(year + "-" + mmdd);
-                //         wc.push(weekCnt)
-                //         wo.data.push(wc);
-                //     });
-                //     weekDrillDownSeriesData.push(wo);
-                //
-                //     ymo.name = yearmm;
-                //     ymo.y = sum;
-                //     ymo.drilldown = yearmm;
-                //     monthSeriesData.push(ymo);
-                // });
-                //
-                // Highcharts.chart(chartMonthIncrease, {
-                //     chart: {
-                //         type: 'column'
-                //     },
-                //     title: {
-                //         text: 'Monthly increase of IKMC/IMPC related publications'
-                //     },
-                //     subtitle: {
-                //         text: 'Click the month columns for weekly breakdown'
-                //     },
-                //     xAxis: {
-                //         type: 'category'
-                //     },
-                //     yAxis: {
-                //         title: {
-                //             text: 'Number of publications'
-                //         }
-                //
-                //     },
-                //     legend: {
-                //         enabled: false
-                //     },
-                //     plotOptions: {
-                //         series: {
-                //             borderWidth: 0,
-                //             pointWidth: 20,
-                //             dataLabels: {
-                //                 enabled: true,
-                //                 format: '{point.y}',
-                //                 // formatter:function() {
-                //                 //     var pcnt = (this.y / monthTotal) * 100;
-                //                 //     return Highcharts.numberFormat(pcnt) + '%';
-                //                 // }
-                //             }
-                //         }
-                //     },
-                //     tooltip: {
-                //         headerFormat: '<span style="font-size:11px">{series.name}</span><br>',
-                //         pointFormat: '<span style="color:{point.color}">{point.name}</span>: <b>{point.y}</b> of ' + monthTotal + '<br/>'
-                //     },
-                //     credits: {
-                //         enabled: false
-                //     },
-                //     series: [{
-                //         name: 'month column',
-                //         colorByPoint: true,
-                //         data: monthSeriesData
-                //     }],
-                //     drilldown: {
-                //         series: weekDrillDownSeriesData
-                //     }
-                // });
+
+                var hostname = window.location.hostname;
+                if ( hostname.indexOf("localhost") != -1 || hostname.indexOf("dev.mousephenotype.org") != -1) {
+
+                    //----------------------------------------
+                    // monthly increase (weekly breakdown)
+                    //----------------------------------------
+                    var monthSeriesData = [];
+                    var weekDrillDownSeriesData = [];
+                    var monthTotal = 0;
+                    Object.keys(j.paperMonthlyIncrementWeekDrilldown).sort().forEach(function (yearmm, index) {
+                        var ymo = {};
+                        var wo = {};
+                        wo.name = yearmm;
+                        var parts = yearmm.split("-");
+                        var year = parts[0];
+                        wo.id = yearmm;
+                        wo.data = [];
+                        var sum = 0;
+                        Object.keys(j.paperMonthlyIncrementWeekDrilldown[yearmm]).sort().forEach(function (mmdd, index) {
+                            var wc = [];
+                            var weekCnt = j.paperMonthlyIncrementWeekDrilldown[yearmm][mmdd];
+                            sum += weekCnt;
+                            monthTotal += weekCnt;
+                            wc.push(year + "-" + mmdd);
+                            wc.push(weekCnt)
+                            wo.data.push(wc);
+                        });
+                        weekDrillDownSeriesData.push(wo);
+
+                        ymo.name = yearmm;
+                        ymo.y = sum;
+                        ymo.drilldown = yearmm;
+                        monthSeriesData.push(ymo);
+                    });
+
+                    Highcharts.chart(chartMonthIncrease, {
+                        chart: {
+                            type: 'column'
+                        },
+                        title: {
+                            text: 'Monthly increase of IKMC/IMPC related publications'
+                        },
+                        subtitle: {
+                            text: 'Click the month columns for weekly breakdown'
+                        },
+                        xAxis: {
+                            type: 'category'
+                        },
+                        yAxis: {
+                            title: {
+                                text: 'Number of publications'
+                            }
+
+                        },
+                        legend: {
+                            enabled: false
+                        },
+                        plotOptions: {
+                            series: {
+                                borderWidth: 0,
+                                pointWidth: 20,
+                                dataLabels: {
+                                    enabled: true,
+                                    format: '{point.y}',
+                                    // formatter:function() {
+                                    //     var pcnt = (this.y / monthTotal) * 100;
+                                    //     return Highcharts.numberFormat(pcnt) + '%';
+                                    // }
+                                }
+                            }
+                        },
+                        tooltip: {
+                            headerFormat: '<span style="font-size:11px">{series.name}</span><br>',
+                            pointFormat: '<span style="color:{point.color}">{point.name}</span>: <b>{point.y}</b> of ' + monthTotal + '<br/>'
+                        },
+                        credits: {
+                            enabled: false
+                        },
+                        series: [{
+                            name: 'month column',
+                            colorByPoint: true,
+                            data: monthSeriesData
+                        }],
+                        drilldown: {
+                            series: weekDrillDownSeriesData
+                        }
+                    });
+                }
 
                 // ---------------------------------------
                 // chart quarter by year of publication
