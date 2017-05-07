@@ -207,7 +207,7 @@ public class ReferenceDAO {
 
         String impcGeneBaseUrl = "http://www.mousephenotype.org/data/genes/";
 
-        String whereClause = "WHERE agency LIKE '%" + agencySrch + "%'\n";
+        String whereClause = "WHERE agency LIKE '%" + agencySrch + "%'\nAND falsepositive = 'no' AND reviewed = 'yes'";
         int colCount = 0;
         String filterClause = "";
 
