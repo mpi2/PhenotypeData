@@ -1228,17 +1228,17 @@
 
                     refreshResult(); // refresh first
 
-
-
-
                     var flList = [];
                     var dtypes = ["Allele", "Gene", "Mp", "DiseaseModel"];
                     for (var d=0; d<dtypes.length; d++){
-                        console.log(oJson[dtypes[d]]);
-                        flList.push(oJson[dtypes[d]]);
+                        var cols = oJson[dtypes[d]];
+                        console.log(cols);
+                        for(var c=0; c<cols.length; c++) {
+                            flList.push(cols[c]);
+                        }
                     }
 
-                    console.log("check: "+ flList);
+					console.log("size: " + flList.length);
 
                     //alert('before table')
                     prepare_dataTable(flList);
@@ -1340,6 +1340,7 @@
 
 
                     var dTable = $.fn.fetchEmptyTable(tableHeader, tableCols, "batchq");
+                    console.log(dTable);
 
                     $('div#bqResult').append(dTable);
                 }
