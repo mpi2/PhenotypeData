@@ -23,7 +23,7 @@ import javax.validation.constraints.NotNull;
 public class Neo4jConfig {
 
     @NotNull
-    @Value("${neo4jDbPathTest}")
+    @Value("${neo4jDbPath2}")
     private String neo4jDbPath;
 
     @NotNull
