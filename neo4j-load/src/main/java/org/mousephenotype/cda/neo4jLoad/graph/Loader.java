@@ -634,13 +634,17 @@ public class Loader implements CommandLineRunner {
             }
             if (mp.getMpTerm() == null) {
                 mp.setMpTerm(mpDTO.getName());
-                System.out.println(termId + " -- " + mp.getMpTerm());
+               // System.out.println(termId + " -- " + mp.getMpTerm());
             }
             if (mp.getMpDefinition() == null) {
                 mp.setMpDefinition(mpDTO.getDefinition());
             }
 
             if (mp.getOntoSynonyms() == null) {
+
+                mp.setMpSynonyms(new ArrayList<String>(mpDTO.getSynonyms()));
+
+                mp.setOntoSynonyms(new HashSet<OntoSynonym>());
                 if(mpDTO.getSynonyms() != null) {
                     for (String mpsym : mpDTO.getSynonyms()) {
                         OntoSynonym ms = new OntoSynonym();
@@ -648,11 +652,15 @@ public class Loader implements CommandLineRunner {
                         ms.setMousePhenotype(mp);
                         //ontoSynonymRepository.save(ms);
 
-                        if (mp.getOntoSynonyms() == null) {
-                            mp.setOntoSynonyms(new HashSet<OntoSynonym>());
-                        }
                         mp.getOntoSynonyms().add(ms);
                     }
+                }
+            }
+
+            if (mp.getTopLevelMpIds() == null) {
+                if (mpDTO.getTopLevelIds().size() > 0){
+                    mp.setTopLevelMpIds(new ArrayList<String>(mpDTO.getTopLevelIds()));
+                    mp.setTopLevelMpTerms(new ArrayList<String>(mpDTO.getTopLevelNames()));
                 }
             }
 
@@ -667,6 +675,30 @@ public class Loader implements CommandLineRunner {
                         if (thisMp == null) {
                             thisMp = new Mp();
                             thisMp.setMpId(parId);
+
+                            OntologyTermDTO pid = mpParser.getOntologyTerm(parId);
+                            thisMp.setMpTerm(pid.getName());
+                            thisMp.setMpDefinition(pid.getDefinition());
+
+                            if(pid.getSynonyms() != null) {
+
+                                thisMp.setMpSynonyms(new ArrayList<String>(pid.getSynonyms()));
+
+                                thisMp.setOntoSynonyms(new HashSet<OntoSynonym>());
+                                for (String mpsym : pid.getSynonyms()) {
+                                    OntoSynonym ms = new OntoSynonym();
+                                    ms.setOntoSynonym(mpsym);
+                                    ms.setMousePhenotype(thisMp);
+
+                                    thisMp.getOntoSynonyms().add(ms);
+
+                                }
+                            }
+
+                            if (pid.getTopLevelIds().size() > 0){
+                                thisMp.setTopLevelMpIds(new ArrayList<String>(pid.getTopLevelIds()));
+                                thisMp.setTopLevelMpTerms(new ArrayList<String>(pid.getTopLevelNames()));
+                            }
                         }
 
                         parentMps.add(thisMp);

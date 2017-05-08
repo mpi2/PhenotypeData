@@ -21,7 +21,6 @@ import org.springframework.boot.autoconfigure.web.WebMvcAutoConfiguration;
 public class Application {
 
     public static void main(String[] args){
-        System.out.println("About to start application");
         try {
             SpringApplication.run(Application.class, args);
         } catch (Exception e){

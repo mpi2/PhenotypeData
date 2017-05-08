@@ -18,6 +18,7 @@ package uk.ac.ebi.phenotype.web.controller;
 
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
+import net.sf.json.JSONSerializer;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
@@ -118,6 +119,34 @@ public class FileExportController {
 
 	@Autowired
 	private SearchController searchController;
+
+	@Autowired
+	private AdvancedSearchController advancedSearchController;
+
+	/**
+	 * Return a TSV or XLS formatted response of advanced search result
+	 */
+
+	@RequestMapping(value = "/exportAdvancedSearch", method = RequestMethod.POST)
+	public void exportTableAsExcelTsv2(
+			@RequestParam(value = "param", required = true) String params,
+			@RequestParam(value = "fileType", required = true) String fileType,
+			@RequestParam(value = "fileName", required = true) String fileName,
+			HttpServletRequest request, HttpServletResponse response, Model model) throws Exception {
+
+		hostName = request.getAttribute("mappedHostname").toString().replace("https:", "http:");
+		JSONObject jParams = (JSONObject) JSONSerializer.toJSON(params);
+		System.out.println(fileName);
+		System.out.println(fileType);
+		System.out.println(jParams.toString());
+
+		boolean isExport = true;
+		JSONObject jcontent = advancedSearchController.fetchGraphDataAdvSrch(jParams, isExport);
+
+		FileExportUtils.writeOutputFile(response, jcontent.getJSONArray("rows"), fileType, fileName);
+
+	}
+
 	/**
 	 * Return a TSV formatted response which contains all datapoints
 	 *
@@ -220,6 +249,7 @@ public class FileExportController {
 	public void exportTableAsExcelTsv2(
 		// used for search Version 2
 		@RequestParam(value = "kw", required = true) String query,
+		@RequestParam(value = "id", required = true) String id,
 		@RequestParam(value = "fq", required = false) String fqStr,
 		@RequestParam(value = "dataType", required = true) String dataType,
 		@RequestParam(value = "mode", required = false) String mode,
@@ -241,7 +271,7 @@ public class FileExportController {
 
 		if ( dataType.equals("alleleRef") ){
 			// query is * by default
-			dataRows = composeAlleleRefExportRows(iDisplayLength, iDisplayStart, query, mode, consortium, filter);
+			dataRows = composeAlleleRefExportRows(iDisplayLength, iDisplayStart, query, mode, consortium, filter, id);
 		}
 		else {
 
@@ -396,7 +426,8 @@ public class FileExportController {
 				dataRows = composeGene2PfamClansDataRows(json, request);
 			} else if (doAlleleRef) {
 				String filter = "";
-				dataRows = composeAlleleRefExportRows(length, rowStart, filterStr, dumpMode, false, filter);
+				String id= "";
+				dataRows = composeAlleleRefExportRows(length, rowStart, filterStr, dumpMode, false, filter, id);
 			} else {
 				JSONObject json = solrIndex.getDataTableExportRows(solrCoreName, solrFilters, gridFields, rowStart,
 						length, showImgView);
@@ -1254,7 +1285,7 @@ public class FileExportController {
 		return rowData;
 	}
 
-	private List<String> composeAlleleRefExportRows(int iDisplayLength, int iDisplayStart, String sSearch, String dumpMode, Boolean consortium, String filter) throws SQLException {
+	private List<String> composeAlleleRefExportRows(int iDisplayLength, int iDisplayStart, String sSearch, String dumpMode, Boolean consortium, String filter, String id) throws SQLException {
 		List<String> rowData = new ArrayList<>();
 
 		// don't want abstract and cited_by for now, unless users want to see them
@@ -1265,10 +1296,10 @@ public class FileExportController {
 				cols2.add(col);
 			}
 		}
-		rowData.add(StringUtils.join(cols2,"\\t"));
+		rowData.add(StringUtils.join(cols2,"\t"));
 
 		List<ReferenceDTO> references = null;
-		if (filter != null) {
+		if (filter != null && id.equals("agency")) {
 			boolean agencyOnly = true;
 			references = referenceDAO.getReferenceRows(agencyOnly, sSearch, filter); // for agency papers
 		}
