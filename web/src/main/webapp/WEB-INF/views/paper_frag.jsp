@@ -47,11 +47,11 @@
             var tableCols = 1;
             var isAlleleRef = true;
 
-            var dTable = $.fn.fetchEmptyTable(tableHeader, tableCols, "alleleRef", isAlleleRef);
+            var dTable = $.fn.fetchEmptyTable(tableHeader, tableCols, "cardio", isAlleleRef);
             $('div#alleleRef').append(dTable);
 
             var oConf = {};
-            oConf.id = "alleleRef";
+            oConf.id = "cardio";
             oConf.iDisplayLength = 10;
             oConf.iDisplayStart = 0;
             oConf.kw = kw;
