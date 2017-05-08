@@ -95,27 +95,29 @@ public class PaperController {
 
         String searchKw = jParams.getString("kw");
         String orderByStr = jParams.getString("orderBy");
+        String filter = jParams.getString("filter");
+
         Boolean doAgencyPaper =  false;
         if (jParams.getString("id") != null && jParams.getString("id").equals("agency")){
             doAgencyPaper = true;
         }
         Boolean consortium = jParams.containsKey("consortium") ? jParams.getBoolean("consortium") : false;
 
-        String content = fetch_allele_ref2(searchKw, orderByStr, consortium, doAgencyPaper);
+        String content = fetch_allele_ref2(searchKw, filter, orderByStr, consortium, doAgencyPaper);
         return new ResponseEntity<String>(content, createResponseHeaders(), HttpStatus.CREATED);
 
     }
 
-    public String fetch_allele_ref2(String sSearch, String orderByStr, Boolean consortium, Boolean doAgencyPaper) throws SQLException, UnsupportedEncodingException {
+    public String fetch_allele_ref2(String sSearch, String filter, String orderByStr, Boolean consortium, Boolean doAgencyPaper) throws SQLException, UnsupportedEncodingException {
         final int DISPLAY_THRESHOLD = 5;
 
         List<ReferenceDTO> references = new ArrayList<>();
         if (doAgencyPaper){
-            references = referenceDAO.getReferenceRows(sSearch, orderByStr);
+            references = referenceDAO.getReferenceRows(sSearch, filter, orderByStr);
         }
         else {
-            System.out.println("paper here");
-            references = referenceDAO.getReferenceRows(sSearch, orderByStr, consortium);
+            System.out.println("fetching non-agency papers ....");
+            references = referenceDAO.getReferenceRows(sSearch, filter, orderByStr, consortium);
         }
 
         JSONObject j = new JSONObject();

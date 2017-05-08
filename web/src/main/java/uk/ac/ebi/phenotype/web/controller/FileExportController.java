@@ -270,7 +270,14 @@ public class FileExportController {
 		Boolean export = true;
 
 		if ( dataType.equals("alleleRef") ){
-			// query is * by default
+			System.out.println("id: "+ id);
+			if (!id.equals("agency")){
+				query = "";
+			}
+			if (id.equals("consortiumPapers")){
+				consortium = true;
+			}
+			System.out.println("query / kw: " + query);
 			dataRows = composeAlleleRefExportRows(iDisplayLength, iDisplayStart, query, mode, consortium, filter, id);
 		}
 		else {
@@ -1298,13 +1305,21 @@ public class FileExportController {
 		}
 		rowData.add(StringUtils.join(cols2,"\t"));
 
+		System.out.println("export2");
+		String orderByStr = "date_of_publication DESC";
+
 		List<ReferenceDTO> references = null;
 		if (filter != null && id.equals("agency")) {
 			boolean agencyOnly = true;
-			references = referenceDAO.getReferenceRows(agencyOnly, sSearch, filter); // for agency papers
+			System.out.println("kw: " + sSearch + " - filter " + filter);;
+			//references = referenceDAO.getReferenceRows(agencyOnly, sSearch, filter); // for agency papers
+			references = referenceDAO.getReferenceRows(sSearch, filter, orderByStr);
 		}
 		else {
-			references = referenceDAO.getReferenceRows(sSearch, consortium);
+			System.out.println("fetching non-agency papers ....");
+			//references = referenceDAO.getReferenceRows(sSearch, consortium);
+
+			references = referenceDAO.getReferenceRows(sSearch, filter, orderByStr, consortium);
 		}
 
 		for (ReferenceDTO reference : references) {
@@ -1317,11 +1332,23 @@ public class FileExportController {
 			row.add(reference.getJournal()); //6
 			row.add(Integer.toString(reference.getPmid())); //7
 			row.add(reference.getDateOfPublication());  //8
-			row.add(StringUtils.join(reference.getGrantIds(), "|")); //9
-			row.add(StringUtils.join(reference.getGrantAgencies(), "|"));  //10
-			row.add(StringUtils.join(reference.getPaperUrls(), "|")); //11
 
-			if (reference.getMeshTerms() == null || reference.getMeshJsonStr().isEmpty() ){
+			if (reference.getGrantIds() != null) {
+				row.add(StringUtils.join(reference.getGrantIds(), "|")); //9
+			}
+			else {
+				row.add("");
+			}
+
+			if (reference.getGrantAgencies() != null) {
+				row.add(StringUtils.join(reference.getGrantAgencies(), "|")); //9
+			}
+			else {
+				row.add("");
+			}
+
+			row.add(StringUtils.join(reference.getPaperUrls(), "|")); //11
+			if (reference.getMeshTerms() == null || reference.getMeshTerms().size() == 0 ){
 				row.add("not available"); //11
 			}
 			else {
@@ -1332,6 +1359,7 @@ public class FileExportController {
 			rowData.add(StringUtils.join(row, "\t"));
 		}
 
+		System.out.println("row: " + rowData);
 		return rowData;
 	}
 

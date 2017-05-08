@@ -488,6 +488,7 @@
                                         oConf.kw = agencyName;
                                         oConf.orderBy = "date_of_publication DESC";
                                         var id = oConf.id;
+                                        oConf.filter = "";
 
                                         $.ajax({
                                             'url': baseUrl + '/dataTableAlleleRef2?doAlleleRef=' + JSON.stringify(oConf),
@@ -563,7 +564,7 @@
                                                 oConf.iDisplayLength = 5000;
                                                 oConf.dataType = "alleleRef";
                                                 oConf.rowFormat = true;
-
+                                                oConf.kw = agencyName;
 
                                                 var fileTypeTsv = "fileType=tsv";
                                                 var fileTypeXls = "fileType=xls";
@@ -577,13 +578,15 @@
 
                                                 $('a.gridDump').on('click', function(){
 
-                                                    oConf.id = $(this).parent().parent().siblings('div.dataTables_processing').attr('id').replace('_processing','');
+                                                    id = $(this).parent().parent().siblings('div.dataTables_processing').attr('id').replace('_processing','');
+                                                    oConf.id = id;
                                                     oConf.consortium = false;
+                                                    oConf.filter = ""; // reset first
 
                                                     var paramStr = "mode=all";
                                                     if ($("#" + id +"_filter").find('input').val() != "") {
                                                         oConf.filter = $("#" + id +"_filter").find('input').val().trim();
-                                                        alert(oConf.filter)
+                                                        alert(588 + " "+ id + "  "+ oConf.filter)
                                                     }
                                                     else {
                                                         delete oConf.filter;
@@ -606,6 +609,15 @@
                                                     //oConf.id = $(this).parent().parent().siblings('div.dataTables_processing').attr('id').replace('_processing','');
                                                     oConf.id = id;
                                                     oConf.consortium = oConf.id == "consortiumPapers" ? true : false;
+
+                                                    if ($("#" + id +"_filter").find('input').val() != "") {
+                                                        oConf.filter = $("#" + id +"_filter").find('input').val().trim();
+                                                        alert(oConf.filter)
+                                                    }
+                                                    else {
+                                                        delete oConf.filter;
+                                                    }
+
 
                                                     if ($(this).siblings("i").hasClass("fa-caret-down")){
                                                         $(this).siblings("i").removeClass("fa-caret-down").addClass("fa-caret-up");
@@ -901,6 +913,8 @@
         var baseUrl = oConf.baseUrl;
         var id = oConf.id;
 
+        oConf.filter = "";
+
         var oTable = $('table#' + id).dataTable({
             "bSort": false, // true is default
             "processing": true,
@@ -938,6 +952,7 @@
             "initComplete": function (oSettings, json) {  // when dataTable is loaded
 
                 // download tool
+                oConf.kw = oConf.kw;
                 oConf.fileName = 'impc_publications';
                 oConf.iDisplayStart = 0;
                 oConf.iDisplayLength = 5000;
@@ -955,16 +970,20 @@
 
                 $('a.gridDump').on('click', function(){
 
-                    oConf.id = $(this).parent().parent().siblings('div.dataTables_processing').attr('id').replace('_processing','');
-                    oConf.consortium = oConf.id == "consortiumPapers" ? true : false;
+                    id = $(this).parent().parent().siblings('div.dataTables_processing').attr('id').replace('_processing','');
+                    oConf.id = id;
+                    oConf.consortium = false;
+                    oConf.kw = '';
+
+                    if (id == 'consortiumPapers'){
+                        oConf.consortium = true;
+                    }
 
                     var paramStr = "mode=all";
-                    if ($("#" + oConf.id +"_filter").find('input').val() != "") {
-                        //oConf.kw = $("#" + oConf.id +"_filter").find('input').val().trim();
-                        oConf.filter = $("#" + oConf.id +"_filter").find('input').val().trim();
+                    if ($("#" + id +"_filter").find('input').val() != "") {
+                        oConf.filter = $("#" + id +"_filter").find('input').val().trim();
                     }
                     else {
-                        //oConf.kw = "";
                         oConf.filter = "";
                     }
 
@@ -973,11 +992,13 @@
                     });
 
 
+                    //alert(991 + " " + id + " - " + oConf.kw + "\n" +oConf.filter );
+
                     if ($(this).attr('id') == 'tsvA'){
-                        $(this).attr('href', baseUrl+"/export2?" + fileTypeTsv + "&" + paramStr);
+                       $(this).attr('href', baseUrl+"/export2?" + fileTypeTsv + "&" + paramStr);
                     }
                     else {
-                        $(this).attr('href', baseUrl+"/export2?" + fileTypeXls + "&" + paramStr);
+                       $(this).attr('href', baseUrl+"/export2?" + fileTypeXls + "&" + paramStr);
                     }
                     //alert($(this).attr('href'));
                 });
@@ -988,8 +1009,8 @@
                     oConf.id = id;
                     oConf.consortium = oConf.id == "consortiumPapers" ? true : false;
 
-                    console.log("id: "+ oConf.id);
-                    console.log("consortium: "+ oConf.consortium);
+                    // console.log("id: "+ oConf.id);
+                    // console.log("consortium: "+ oConf.consortium);
 
 					if ($(this).siblings("i").hasClass("fa-caret-down")){
                         $(this).siblings("i").removeClass("fa-caret-down").addClass("fa-caret-up");
@@ -1000,9 +1021,17 @@
                         oConf.orderBy = "date_of_publication DESC";
 					}
 
-                    console.log("id: "+ oConf.id);
-                    console.log("consortium: "+ oConf.consortium);
-                    console.log("order: " + oConf.orderBy);
+                    if ($("#" + id +"_filter").find('input').val() != "") {
+                        oConf.filter = $("#" + id +"_filter").find('input').val().trim();
+                        alert(oConf.filter)
+                    }
+                    else {
+                        delete oConf.filter;
+                    }
+
+                    // console.log("id: "+ oConf.id);
+                    // console.log("consortium: "+ oConf.consortium);
+                    // console.log("order: " + oConf.orderBy);
 
 					$.ajax({
 						'url': baseUrl + '/dataTableAlleleRef2?doAlleleRef=' + JSON.stringify(oConf),
