@@ -11,6 +11,8 @@ import org.junit.runner.RunWith;
 import org.mousephenotype.cda.enumerations.OrderType;
 import org.mousephenotype.cda.solr.service.dto.ProductDTO;
 import org.mousephenotype.cda.solr.web.dto.OrderTableRow;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -32,6 +34,8 @@ import java.util.Map;
 @ContextConfiguration(loader=AnnotationConfigContextLoader.class)
 @TestPropertySource("file:${user.home}/configfiles/${profile:dev}/test.properties")
 public class OrderServiceTest {
+
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	@Autowired
 	private OrderService orderService;
@@ -95,8 +99,8 @@ public class OrderServiceTest {
 		try {
 			Map<String, List<ProductDTO>> storeToMap = orderService.getStoreNameToProductsMap(acc, allele, orderType, false);
 			for(String store: storeToMap.keySet()){
-				System.out.println("store="+store);
-				System.out.println("products="+storeToMap.get(store));
+				logger.info("store="+store);
+				logger.info("products="+storeToMap.get(store));
 			}
 			assertTrue(storeToMap.size()>0);
 		} catch (SolrServerException e) {
@@ -118,8 +122,8 @@ public class OrderServiceTest {
 		try {
 			Map<String, List<ProductDTO>> storeToMap = orderService.getStoreNameToProductsMap(acc, allele, orderType, creLine);
 			for(String store: storeToMap.keySet()){
-				System.out.println("store="+store);
-				System.out.println("products="+storeToMap.get(store));
+				logger.info("store="+store);
+				logger.info("products="+storeToMap.get(store));
 			}
 			assertTrue(storeToMap.size()>0);
 		} catch (SolrServerException e) {
@@ -139,7 +143,7 @@ public class OrderServiceTest {
 			
 			boolean creLine=true;
 			orderRows = orderService.getOrderTableRows(acc, null, creLine);
-			System.out.println("order rows size in test="+orderRows.size());
+			logger.info("order rows size in test="+orderRows.size());
 		} catch (SolrServerException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -149,5 +153,4 @@ public class OrderServiceTest {
 		}
 		assertTrue(orderRows.size()>1);
 	}
-	
 }

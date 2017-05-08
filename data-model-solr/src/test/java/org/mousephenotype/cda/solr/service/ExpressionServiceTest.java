@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 //import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -20,11 +21,11 @@ import java.util.Map;
 
 
 @RunWith(SpringRunner.class)
-@TestPropertySource("file:${user.home}/configfiles/${profile:dev}/test.properties")
-@SpringBootTest(classes = TestConfigSolr.class)
+@ContextConfiguration(classes={TestConfigSolr.class})
+@TestPropertySource(locations = {"file:${user.home}/configfiles/${profile:dev}/test.properties"})
 public class ExpressionServiceTest {
 
-	private final Logger logger = LoggerFactory.getLogger(ObservationServiceTest.class);
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 
 	@Autowired
@@ -48,13 +49,10 @@ public class ExpressionServiceTest {
 		for (String topMa : anatomogramDataBeans.keySet()) {
 			logger.debug("topMa=" + topMa + " total count " + anatomogramDataBeans.get(topMa));
 		}
-
 	}
 
 	@Test
 	public void getDataForAnatomyPage() throws SolrServerException, IOException {
 		expressionService.getFacets("MA:0000004");
 	}
-
-
 }

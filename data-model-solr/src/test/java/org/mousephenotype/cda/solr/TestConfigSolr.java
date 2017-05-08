@@ -208,9 +208,22 @@ public class TestConfigSolr {
 		return DataSourceBuilder.create().build();
 	}
 
+	@Bean
+	public GrossPathService grossPathService() {
+		return new GrossPathService();
+	}
 
 	@Bean
-	public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
+	public ObservationService observationService() {
+		return new ObservationService();
+	}
+
+
+	// PRIVATE AND PROTECTED METHODS
+
+
+	@Bean
+	protected LocalContainerEntityManagerFactoryBean entityManagerFactory() {
 		LocalContainerEntityManagerFactoryBean emf = new LocalContainerEntityManagerFactoryBean();
 		emf.setDataSource(komp2DataSource());
 		emf.setPackagesToScan(new String[]{"org.mousephenotype.cda.db.pojo", "org.mousephenotype.cda.db.entity"});
@@ -222,7 +235,7 @@ public class TestConfigSolr {
 		return emf;
 	}
 
-	protected Properties buildHibernateProperties() {
+	private Properties buildHibernateProperties() {
 		Properties hibernateProperties = new Properties();
 
 		hibernateProperties.setProperty("hibernate.dialect", "org.hibernate.dialect.MySQLDialect");
@@ -236,7 +249,7 @@ public class TestConfigSolr {
 	}
 
 	@Bean(name = "sessionFactoryHibernate")
-	public LocalSessionFactoryBean sessionFactory() {
+	protected LocalSessionFactoryBean sessionFactory() {
 		LocalSessionFactoryBean sessionFactory = new LocalSessionFactoryBean();
 		sessionFactory.setDataSource(komp2DataSource());
 		sessionFactory.setPackagesToScan("org.mousephenotype.cda.db");
@@ -245,20 +258,10 @@ public class TestConfigSolr {
 
 	@Bean(name = "komp2TxManager")
 	@Primary
-	public PlatformTransactionManager transactionManager(EntityManagerFactory emf) {
+	protected PlatformTransactionManager transactionManager(EntityManagerFactory emf) {
 		JpaTransactionManager tm = new JpaTransactionManager();
 		tm.setEntityManagerFactory(emf);
 		tm.setDataSource(komp2DataSource());
 		return tm;
-	}
-
-	@Bean
-	public GrossPathService grossPathService() {
-		return new GrossPathService();
-	}
-
-	@Bean
-	public ObservationService observationService() {
-		return new ObservationService();
 	}
 }

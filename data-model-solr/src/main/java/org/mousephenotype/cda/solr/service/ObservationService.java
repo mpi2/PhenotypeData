@@ -68,7 +68,7 @@ import java.util.stream.Collectors;
 @Service
 public class ObservationService extends BasicService implements WebStatus {
 
-    private final Logger logger = LoggerFactory.getLogger(ObservationService.class);
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     @Qualifier("experimentCore")

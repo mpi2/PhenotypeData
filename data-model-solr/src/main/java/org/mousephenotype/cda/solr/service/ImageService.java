@@ -504,7 +504,7 @@ public class ImageService implements WebStatus{
             header.add("Sex");
             header.add("Phenotyping Centre");
 
-            System.out.println(SolrUtils.getBaseURL(solr) + "/select?" + query);
+            logger.info(SolrUtils.getBaseURL(solr) + "/select?" + query);
 
             // Get facets as we need to turn them into columns
             for (Count facet : solrResult.getFacetField(
@@ -850,7 +850,7 @@ public class ImageService implements WebStatus{
 													// of the
 													// gene page
 					if (!count.getName().equals(excludedProcedureName)) {
-						System.out.println("balh");
+						logger.info("balh");
 						QueryResponse responseExperimental = this
 								.getImagesForGeneByParameter(acc,count.getName(),
 										"experimental", 1,null, null,
