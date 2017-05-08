@@ -8,6 +8,8 @@ import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.mousephenotype.cda.solr.web.dto.HistopathPageTableRow;
 import org.mousephenotype.cda.solr.web.dto.HistopathPageTableRow.ParameterValueBean;
 import org.mousephenotype.cda.solr.web.dto.HistopathSumPageTableRow;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,11 +19,10 @@ import java.util.*;
 @Service
 public class HistopathService {
 
-	@Autowired
-	ObservationService observationService;
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	@Autowired
-	ImageService imageService;
+	ObservationService observationService;
 
 	Map<String, List<ObservationDTO>> extSampleIdToObservations;
 
@@ -108,7 +109,7 @@ public class HistopathService {
 									}
 								}
 							}else{
-								System.out.println("subterms are null for ontological data="+obs);
+								logger.info("subterms are null for ontological data="+obs);
 							}
 						}
 						if (obs.getObservationType().equalsIgnoreCase("text")) {
@@ -307,8 +308,7 @@ public class HistopathService {
 				uniqueDataSets.put(key, newList );
 			}
 		}
-		System.out.println("uniqe datasets for his size="+uniqueDataSets.size());
+		logger.info("unique datasets for histopath size = "+uniqueDataSets.size());
 		return uniqueDataSets;
 	}
-
 }

@@ -5,9 +5,12 @@ import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.solr.TestConfigSolr;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 //import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -18,9 +21,11 @@ import java.util.Map;
 
 
 @RunWith(SpringRunner.class)
-@TestPropertySource("file:${user.home}/configfiles/${profile:dev}/test.properties")
-@SpringBootTest(classes = TestConfigSolr.class)
+@ContextConfiguration(classes={TestConfigSolr.class})
+@TestPropertySource(locations = {"file:${user.home}/configfiles/${profile:dev}/test.properties"})
 public class ExpressionServiceTest {
+
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 
 	@Autowired
@@ -36,21 +41,18 @@ public class ExpressionServiceTest {
 		List<Count> parameterCounts = expressionService.getLaczCategoricalParametersForGene(geneAccession);
 		List<AnatomogramDataBean> beans = expressionService.getAnatomogramDataBeans(parameterCounts);
 		for (AnatomogramDataBean bean : beans) {
-			System.out.println("AnatomogramDataBean" + bean);
+			logger.debug("AnatomogramDataBean" + bean);
 		}
 
 
 		Map<String, Long> anatomogramDataBeans = expressionService.getLacSelectedTopLevelMaCountsForAnatomogram(beans);
 		for (String topMa : anatomogramDataBeans.keySet()) {
-			System.out.println("topMa=" + topMa + " total count " + anatomogramDataBeans.get(topMa));
+			logger.debug("topMa=" + topMa + " total count " + anatomogramDataBeans.get(topMa));
 		}
-
 	}
 
 	@Test
 	public void getDataForAnatomyPage() throws SolrServerException, IOException {
 		expressionService.getFacets("MA:0000004");
 	}
-
-
 }

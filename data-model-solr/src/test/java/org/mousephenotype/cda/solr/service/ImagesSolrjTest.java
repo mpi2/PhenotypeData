@@ -9,8 +9,7 @@ import org.mousephenotype.cda.solr.TestConfigSolr;
 import org.mousephenotype.cda.solr.repositories.image.ImagesSolrDao;
 import org.mousephenotype.cda.solr.repositories.image.ImagesSolrJ;
 import org.springframework.beans.factory.annotation.Autowired;
-//import org.springframework.boot.test.SpringApplicationConfiguration;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -28,9 +27,9 @@ import static org.junit.Assert.assertTrue;
 
 
 @RunWith(SpringRunner.class)
-@TestPropertySource("file:${user.home}/configfiles/${profile:dev}/test.properties")
-@SpringBootTest(classes = TestConfigSolr.class)
-public class ImagesSolrjTest extends AbstractTransactionalJUnit4SpringContextTests{
+@ContextConfiguration(classes={TestConfigSolr.class})
+@TestPropertySource(locations = {"file:${user.home}/configfiles/${profile:dev}/test.properties"})
+public class ImagesSolrjTest extends AbstractTransactionalJUnit4SpringContextTests {
 
 	@Autowired
 	ImagesSolrDao imagesSolrDao;
@@ -115,6 +114,5 @@ public class ImagesSolrjTest extends AbstractTransactionalJUnit4SpringContextTes
             String processed = imgJ.processValueForSolr(key);
             assertEquals(expected, processed);
         }
-
 	}
 }
