@@ -43,7 +43,7 @@ import java.util.List;
 @Service
 public class ImagesSolrJ implements ImagesSolrDao,  WebStatus{
 
-	private final Logger log = LoggerFactory.getLogger(this.getClass().getCanonicalName());
+	private Logger log = LoggerFactory.getLogger(this.getClass());
 
 	private long numberFound;
 

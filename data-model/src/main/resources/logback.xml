@@ -27,13 +27,19 @@
 
     <!-- OTHER -->
     <logger name="org.springframework.boot.autoconfigure.logging.AutoConfigurationReportLoggingInitializer" level="ERROR" />
+
+    <!-- Quiets WARN [main] o.s.aop.framework.CglibAopProxy : Unable to proxy interface-implementing method
+         [public final void org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests.setApplicationContext(org.springframework.context.ApplicationContext)]
+         because it is marked as final: Consider using interface-based JDK proxies instead! -->
+    <logger name="org.springframework.aop.framework.CglibAopProxy"                                                               level="ERROR" />
+
     <!-- Suppress the annoying ConfigurationClassEnhancer warning (below). See https://jira.spring.io/browse/BATCH-2161
     2016-11-02 14:46:43.921  WARN 2611 [           main] o.s.c.a.ConfigurationClassEnhancer       :
         @Bean method ScopeConfiguration.stepScope is non-static and returns an object assignable to Spring's BeanFactoryPostProcessor interface.
         This will result in a failure to process annotations such as @Autowired, @Resource and @PostConstruct within the method's declaring
-        @Configuration class. Add the 'static' modifier to this method to avoid these container lifecycle issues; see @Bean javadoc for complete details.
-    -->
+        @Configuration class. Add the 'static' modifier to this method to avoid these container lifecycle issues; see @Bean javadoc for complete details. -->
     <logger name="org.springframework.context.annotation.ConfigurationClassEnhancer"                                             level="ERROR" />
+
     <logger name="org.springframework.test.context.support.DirtiesContextBeforeModesTestExecutionListener"                       level="WARN" />
 
     <logger name="org.semanticweb.owlapi.util.SAXParsers"                                                                        level="ERROR" />
@@ -41,7 +47,7 @@
     <include resource="org/springframework/boot/logging/logback/base.xml"/>
 
     <logger name="org.springframework.data.neo4j.mapping.Neo4jPersistentProperty"                                                level="ERROR" />
-    <logger name="org.springframework.boot"                                                                                      level="INFO" />
+    <logger name="org.springframework.boot.test"                                                                                 level="WARN" />
     <logger name="org.neo4j.ogm.drivers"                                                                                         level="WARN" />
 
     <logger name="org.hibernate.validator.messageinterpolation.ParameterMessageInterpolator"                                     level="ERROR" />

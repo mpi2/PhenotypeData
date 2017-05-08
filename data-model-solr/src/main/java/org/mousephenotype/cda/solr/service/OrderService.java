@@ -8,6 +8,8 @@ import org.mousephenotype.cda.enumerations.OrderType;
 import org.mousephenotype.cda.solr.service.dto.Allele2DTO;
 import org.mousephenotype.cda.solr.service.dto.ProductDTO;
 import org.mousephenotype.cda.solr.web.dto.OrderTableRow;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,6 +24,8 @@ import java.util.Map;
 @Service
 public class OrderService {
 
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
 	@Autowired
 	@Qualifier("allele2Core")
 	private SolrClient allele2Core;
@@ -29,11 +33,11 @@ public class OrderService {
 	@Autowired
 	@Qualifier("productCore")
 	private SolrClient productCore;
-	
-	 @Value("${imits.solr.host}")
-	 private String IMITS_SOLR_CORE_URL;
-	 
-	 public static String selectCre="/selectCre";
+
+	@Value("${imits.solr.host}")
+	private String IMITS_SOLR_CORE_URL;
+
+	public static String selectCre = "/selectCre";
 
 	public List<OrderTableRow> getOrderTableRows(String acc, Integer rows, boolean creLine) throws SolrServerException, IOException {
 		List<OrderTableRow> orderTableRows = new ArrayList<>();
@@ -111,11 +115,11 @@ public class OrderService {
 		query.addFilterQuery("type:Allele");
 		query.addFilterQuery("allele_name:\"" + allele + "\"");
 		query.setRows(1);
-		//System.out.println("query for alleles=" + query);
+		//logger.info("query for alleles=" + query);
 		QueryResponse response = allele2Core.query(query);
-		System.out.println("number found of allele2 docs=" + response.getResults().getNumFound());
+		logger.info("number found of allele2 docs=" + response.getResults().getNumFound());
 		List<Allele2DTO> allele2DTOs = response.getBeans(Allele2DTO.class);
-		System.out.println("number of alleles should be 1 but is " + allele2DTOs.size());
+		logger.info("number of alleles should be 1 but is " + allele2DTOs.size());
 		return allele2DTOs.get(0);
 	}
 
@@ -213,11 +217,11 @@ public class OrderService {
 			query.addFilterQuery(ProductDTO.ALLELE_NAME+":\"" + alleleName+"\"");
 		}
 		query.setRows(Integer.MAX_VALUE);
-		System.out.println("query for products=" + query);
+		logger.info("query for products=" + query);
 		QueryResponse response = productCore.query(query);
-		System.out.println("number found of products docs=" + response.getResults().getNumFound());
+		logger.info("number found of products docs=" + response.getResults().getNumFound());
 		List<ProductDTO> productDTOs = response.getBeans(ProductDTO.class);
-		System.out.println("number of productDTOs is " + productDTOs.size());
+		logger.info("number of productDTOs is " + productDTOs.size());
 		if(productDTOs.size()>1){
 			System.err.println("too many products returned for qc method");
 		}else{
@@ -225,7 +229,7 @@ public class OrderService {
 			qcData=prod.getQcData();
 		}
 		for(String qc:qcData){
-			System.out.println("qc="+qc);
+			logger.info("qc="+qc);
 		}
 		
 		HashMap<String, HashMap<String, List<String>>> qcMap = extractQcData(qcData);
@@ -279,10 +283,10 @@ public class OrderService {
 		 //
 		 // TODO: Update for displaying the CRELINE products at the bottom of the gene page
 		 //
-			
-			System.out.println("query for cre  products=" + query);
+
+		 logger.info("query for cre  products=" + query);
 			QueryResponse response = productCore.query(query);
-			System.out.println("number found of products docs=" + response.getResults().getNumFound());
+		 logger.info("number found of products docs=" + response.getResults().getNumFound());
 			List<ProductDTO> productDTOs = response.getBeans(ProductDTO.class);
 			for(ProductDTO prod:productDTOs){
 				 String creType = prod.getType();
