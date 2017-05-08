@@ -23,6 +23,7 @@
    	<logger name="org.mousephenotype.cda.tests" level="INFO" />
     <logger name="org.mousephenotype.cda.utilities.HttpProxy"                   level="WARN" />
     <logger name="org.mousephenotype.cda.loads"                                 level="INFO" />
+    <logger name="org.mousephenotype.cda.solr.service"                          level="WARN" />
 
     <!-- OTHER -->
     <logger name="org.springframework.boot.autoconfigure.logging.AutoConfigurationReportLoggingInitializer" level="ERROR" />
@@ -32,22 +33,25 @@
         This will result in a failure to process annotations such as @Autowired, @Resource and @PostConstruct within the method's declaring
         @Configuration class. Add the 'static' modifier to this method to avoid these container lifecycle issues; see @Bean javadoc for complete details.
     -->
-    <logger name="org.springframework.context.annotation.ConfigurationClassEnhancer"                                            level="ERROR" />
-    <logger name="org.springframework.test.context.support.DirtiesContextBeforeModesTestExecutionListener"                      level="WARN" />
+    <logger name="org.springframework.context.annotation.ConfigurationClassEnhancer"                                             level="ERROR" />
+    <logger name="org.springframework.test.context.support.DirtiesContextBeforeModesTestExecutionListener"                       level="WARN" />
 
-    <logger name="org.semanticweb.owlapi.util.SAXParsers"                                                                       level="ERROR" />
+    <logger name="org.semanticweb.owlapi.util.SAXParsers"                                                                        level="ERROR" />
 
     <include resource="org/springframework/boot/logging/logback/base.xml"/>
 
-    <logger name="org.springframework.data.neo4j.mapping.Neo4jPersistentProperty"                                               level="ERROR" />
-    <logger name="org.neo4j.ogm.drivers"                                                                                        level="WARN" />
+    <logger name="org.springframework.data.neo4j.mapping.Neo4jPersistentProperty"                                                level="ERROR" />
+    <logger name="org.springframework.boot"                                                                                      level="INFO" />
+    <logger name="org.neo4j.ogm.drivers"                                                                                         level="WARN" />
 
-    <logger name="org.hibernate.validator.messageinterpolation.ParameterMessageInterpolator"                                    level="ERROR" />
+    <logger name="org.hibernate.validator.messageinterpolation.ParameterMessageInterpolator"                                     level="ERROR" />
 
     <!-- Quiets this message: "[DEPRECATION] Encountered positional parameter near line 1, column 77 in HQL:" in BiologicalModelDAOTest -->
-    <logger name="org.hibernate.hql.internal.ast.HqlSqlWalker"                                                                  level="ERROR" />
+    <logger name="org.hibernate.hql.internal.ast.HqlSqlWalker"                                                                   level="ERROR" />
 
     <!-- Quiets "HHH000436: Entity manager factory name (default) is already registered.  If entity manager will be clustered or passivated, specify a unique value for property 'hibernate.ejb.entitymanager_factory_name'". -->
-    <logger name="org.hibernate.jpa.internal.EntityManagerFactoryRegistry"                                                      level="ERROR" />
+    <logger name="org.hibernate.jpa.internal.EntityManagerFactoryRegistry"                                                       level="ERROR" />
+
+    <logger name="org.springframework.boot.logging.ClasspathLoggingApplicationListener"                                          level="INFO" />
 
 </configuration>

@@ -1839,7 +1839,7 @@ public class ObservationService extends BasicService implements WebStatus {
                 .addFilterQuery(ObservationDTO.PROCEDURE_NAME +":\""+ procedureName+"\"")
 				.addFilterQuery(ObservationDTO.GENE_ACCESSION_ID +":\""+geneAccession+"\"");
 
-		System.out.println("solr query in getObservationByProcedureNameAndGene="+q);
+		logger.debug("solr query in getObservationByProcedureNameAndGene="+q);
         return solr.query(q).getBeans(ObservationDTO.class);
 
 	}
@@ -1848,44 +1848,44 @@ public class ObservationService extends BasicService implements WebStatus {
 	 * Get stats for the baseline graphs on the phenotype pages for each parameter/center
 	 * if phenotypingCenter is null just return all stats for the center otherwise filter on that center
 	 */
-	public List<FieldStatsInfo> getStatisticsForParameterFromCenter(String parameterStableId, String phenotypingCenter) throws SolrServerException, IOException{
-		//http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/experiment/select?q=*:*&stats=true&stats.field=data_point&stats.facet=parameter_stable_id&rows=0&indent=true&fq=phenotyping_center:HMGU&fq=parameter_stable_id:IMPC_CBC_010_001
-		//http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/experiment/select?q=*:*&stats=true&stats.field=data_point&stats.facet=phenotyping_center&rows=0&indent=true&fq=parameter_stable_id:IMPC_CBC_010_001
-		System.out.println("calling getStats for baseline");
-		SolrQuery query = new SolrQuery()
-				.setQuery("*:*");
-		query.setGetFieldStatistics(true);
-		query.setGetFieldStatistics(ObservationDTO.DATA_POINT);
-		query.setParam("stats.facet", ObservationDTO.PHENOTYPING_CENTER); 
-		query.setFacetLimit(-1);
-		query.addFilterQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":control");
-		if (parameterStableId != null) {
-			query.addFilterQuery(ObservationDTO.PARAMETER_STABLE_ID + ":"+  parameterStableId);
-		}
+    public List<FieldStatsInfo> getStatisticsForParameterFromCenter(String parameterStableId, String phenotypingCenter) throws SolrServerException, IOException {
+        //http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/experiment/select?q=*:*&stats=true&stats.field=data_point&stats.facet=parameter_stable_id&rows=0&indent=true&fq=phenotyping_center:HMGU&fq=parameter_stable_id:IMPC_CBC_010_001
+        //http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/experiment/select?q=*:*&stats=true&stats.field=data_point&stats.facet=phenotyping_center&rows=0&indent=true&fq=parameter_stable_id:IMPC_CBC_010_001
+        logger.debug("calling getStats for baseline");
+        SolrQuery query = new SolrQuery()
+                .setQuery("*:*");
+        query.setGetFieldStatistics(true);
+        query.setGetFieldStatistics(ObservationDTO.DATA_POINT);
+        query.setParam("stats.facet", ObservationDTO.PHENOTYPING_CENTER);
+        query.setFacetLimit(-1);
+        query.addFilterQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":control");
+        if (parameterStableId != null) {
+            query.addFilterQuery(ObservationDTO.PARAMETER_STABLE_ID + ":" + parameterStableId);
+        }
 
-		if (phenotypingCenter != null) {
-			query.addFilterQuery(ObservationDTO.PHENOTYPING_CENTER + ":\"" + phenotypingCenter + "\"");
-		}
+        if (phenotypingCenter != null) {
+            query.addFilterQuery(ObservationDTO.PHENOTYPING_CENTER + ":\"" + phenotypingCenter + "\"");
+        }
 
-			query.setRows(0);
-			
-	        logger.info("SOLR URL getPipelines " + SolrUtils.getBaseURL(solr) + "/select?" + query);
+        query.setRows(0);
 
-	        QueryResponse response = solr.query(query);
-	        FieldStatsInfo statsInfo=response.getFieldStatsInfo().get(ObservationDTO.DATA_POINT);
-	        Map<String, List<FieldStatsInfo>> facetToStatsMap = statsInfo.getFacets();
-	       
-	        List<FieldStatsInfo> centerStatsList=null;
-			//just get the first result as we only expect 1
-	        for(String facet: facetToStatsMap.keySet()){
-	        	centerStatsList=facetToStatsMap.get(facet);
-	        }
-	        
-	        return centerStatsList;
-	
-	}
-	
-	public Set<String> getChartPivots(String baseUrl, String acc, ParameterDTO parameter, List<String> pipelineStableIds, List<String> zyList, List<String> phenotypingCentersList,
+        logger.debug("SOLR URL getPipelines " + SolrUtils.getBaseURL(solr) + "/select?" + query);
+
+        QueryResponse response = solr.query(query);
+        FieldStatsInfo statsInfo = response.getFieldStatsInfo().get(ObservationDTO.DATA_POINT);
+        Map<String, List<FieldStatsInfo>> facetToStatsMap = statsInfo.getFacets();
+
+        List<FieldStatsInfo> centerStatsList = null;
+        //just get the first result as we only expect 1
+        for (String facet : facetToStatsMap.keySet()) {
+            centerStatsList = facetToStatsMap.get(facet);
+        }
+
+        return centerStatsList;
+
+    }
+
+    public Set<String> getChartPivots(String baseUrl, String acc, ParameterDTO parameter, List<String> pipelineStableIds, List<String> zyList, List<String> phenotypingCentersList,
 			  List<String> strainsParams, List<String> metaDataGroup, List<String> alleleAccession) throws IOException, SolrServerException, URISyntaxException {
 
 			SolrQuery query = new SolrQuery();
