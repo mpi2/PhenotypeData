@@ -30,6 +30,7 @@ import org.mousephenotype.cda.solr.service.dto.AnatomyDTO;
 import org.mousephenotype.cda.solr.service.dto.BasicBean;
 import org.mousephenotype.cda.solr.service.dto.MpDTO;
 import org.mousephenotype.cda.web.WebStatus;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -39,6 +40,8 @@ import java.util.*;
 
 @Service
 public class AnatomyService extends BasicService implements WebStatus {
+
+	private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	@Autowired
 	@Qualifier("anatomyCore")
@@ -199,7 +202,7 @@ public class AnatomyService extends BasicService implements WebStatus {
 		solrQuery.addFacetField("top_level_mp_term_id");
 		solrQuery.setRows(0);
 		QueryResponse rsp = solr.query(solrQuery);
-		System.out.println("solr query in basicbean=" + solrQuery);
+		logger.debug("solr query in basicbean=" + solrQuery);
 
 		HashSet<BasicBean> allTopLevelPhenotypes = new LinkedHashSet<BasicBean>();
 		for (FacetField ff : rsp.getFacetFields()) {

@@ -25,7 +25,7 @@ import java.util.Set;
 @TestPropertySource(locations = {"file:${user.home}/configfiles/${profile:dev}/test.properties"})
 public class AlleleServiceTest extends TestCase {
 
-	private static final Logger logger = LoggerFactory.getLogger(AlleleServiceTest.class);
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	@Autowired
 	AlleleService as;
@@ -41,11 +41,11 @@ public class AlleleServiceTest extends TestCase {
 		genes.add("MGI:1328357");
 		genes.add("MGI:2442115");
 		genes.add("MGI:105090");
+		final int expectedStatusCount = genes.size();
 
-		final HashMap<String, Long> statusCount = as.getStatusCount(genes, AlleleDTO.LATEST_PHENOTYPE_STATUS);
-		System.out.println("status count is: " + statusCount);
-		assertTrue(statusCount.get("Phenotyping Complete") >= 3);
+		final HashMap<String, Long> actualStatusCount = as.getStatusCount(genes, AlleleDTO.LATEST_PHENOTYPE_STATUS);
+		logger.debug("status count is: " + actualStatusCount);
 
-
+		assertTrue("Expected at least " + expectedStatusCount + " 'Phenotyping Complete' statuses but found " + actualStatusCount, actualStatusCount.get("Phenotyping Complete") >= expectedStatusCount);
 	}
 }

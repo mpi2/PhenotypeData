@@ -25,10 +25,13 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.solr.TestConfigSolr;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 //import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -47,9 +50,11 @@ import static org.junit.Assert.fail;
  */
 
 @RunWith(SpringRunner.class)
-@TestPropertySource("file:${user.home}/configfiles/${profile:dev}/test.properties")
-@SpringBootTest(classes = TestConfigSolr.class)
+@ContextConfiguration(classes={TestConfigSolr.class})
+@TestPropertySource(locations = {"file:${user.home}/configfiles/${profile:dev}/test.properties"})
 public class GenotypePhenotypeServiceTest {
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
 	@Qualifier("postqcService")
@@ -87,7 +92,7 @@ public class GenotypePhenotypeServiceTest {
     @Test
     public void testAllGPGenesInGeneCore()
     throws SolrServerException, IOException {
-    	System.out.println("Test if all genes in genotype-phenotype core are indexed in the gene core.");
+    	logger.debug("Test if all genes in genotype-phenotype core are indexed in the gene core.");
 
         Set<String> gpGenes = gpService.getAllGenesWithPhenotypeAssociations();
 
@@ -101,7 +106,7 @@ public class GenotypePhenotypeServiceTest {
         res = CollectionUtils.subtract(res, knownToMiss);
 
         if (res.size() > 0) {
-        	System.out.println("The following genes are in in the genotype-phenotype core but not in the gene core: " + res);
+            logger.warn("The following genes are in in the genotype-phenotype core but not in the gene core: " + res);
         	fail("The following genes are in in the genotype-phenotype core but not in the gene core: " + res);
         }
     }
@@ -110,7 +115,7 @@ public class GenotypePhenotypeServiceTest {
     public void testAllExperimentGenesInGeneCore()
     throws SolrServerException, IOException {
 
-    	System.out.println("Test if all genes in experiment core are indexed in the gene core.");
+        logger.debug("Test if all genes in experiment core are indexed in the gene core.");
 
         Set<String> experimentGenes = oService.getAllGeneIdsByResource(null, true);
 
@@ -122,14 +127,14 @@ public class GenotypePhenotypeServiceTest {
         res = CollectionUtils.subtract(res, knownToMiss);
 
         if (res.size() > 0) {
-        	System.out.println("The following genes are in in the genotype-phenotype core but not in the gene core: " + res);
+            logger.warn("The following genes are in in the genotype-phenotype core but not in the gene core: " + res);
         	fail("The following genes are in in the genotype-phenotype core but not in the gene core: " + res);
         }
     }
 
     @Test
     public void testAllGPPhenotypeInMP() throws SolrServerException, IOException {
-    	System.out.println("Test if all phenotypes in genotype-phenotype core are indexed in the mp core.");
+        logger.debug("Test if all phenotypes in genotype-phenotype core are indexed in the mp core.");
 
         Set<String> gpPhen = gpService.getAllPhenotypesWithGeneAssociations();
 
