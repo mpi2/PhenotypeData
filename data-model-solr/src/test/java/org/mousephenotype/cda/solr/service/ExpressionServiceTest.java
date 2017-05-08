@@ -5,6 +5,8 @@ import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.solr.TestConfigSolr;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 //import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -22,6 +24,8 @@ import java.util.Map;
 @SpringBootTest(classes = TestConfigSolr.class)
 public class ExpressionServiceTest {
 
+	private final Logger logger = LoggerFactory.getLogger(ObservationServiceTest.class);
+
 
 	@Autowired
 	private ExpressionService expressionService;
@@ -36,13 +40,13 @@ public class ExpressionServiceTest {
 		List<Count> parameterCounts = expressionService.getLaczCategoricalParametersForGene(geneAccession);
 		List<AnatomogramDataBean> beans = expressionService.getAnatomogramDataBeans(parameterCounts);
 		for (AnatomogramDataBean bean : beans) {
-			System.out.println("AnatomogramDataBean" + bean);
+			logger.debug("AnatomogramDataBean" + bean);
 		}
 
 
 		Map<String, Long> anatomogramDataBeans = expressionService.getLacSelectedTopLevelMaCountsForAnatomogram(beans);
 		for (String topMa : anatomogramDataBeans.keySet()) {
-			System.out.println("topMa=" + topMa + " total count " + anatomogramDataBeans.get(topMa));
+			logger.debug("topMa=" + topMa + " total count " + anatomogramDataBeans.get(topMa));
 		}
 
 	}

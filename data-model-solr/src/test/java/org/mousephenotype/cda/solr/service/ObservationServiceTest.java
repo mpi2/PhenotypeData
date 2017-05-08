@@ -73,7 +73,7 @@ public class ObservationServiceTest {
 		try {
 			List<ObservationDTO> result = observationService.getObservationsByProcedureNameAndGene(procedureName, geneAccession);
 //			for(ObservationDTO obs: result){
-//				System.out.println(obs);
+//				logger.debug(obs);
 //			}
 			assert(result.size()>5);
 
@@ -105,7 +105,7 @@ public class ObservationServiceTest {
 		String acc = "MGI:1924291";
 		List<Map<String, String>> dataMapList = observationService.getDistinctPipelineAlleleCenterListByGeneAccession(acc);
 
-		logger.info("datamaplist: " + dataMapList);
+		logger.debug("datamaplist: " + dataMapList);
 
 
 	}

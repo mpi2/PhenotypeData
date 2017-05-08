@@ -436,7 +436,7 @@ public class ImageService implements WebStatus{
 		}
 		
 		solrQuery.setRows(numberOfImagesToRetrieve);
-		System.out.println("solr Query in image service"+solrQuery);
+		logger.debug("solr Query in image service"+solrQuery);
 		QueryResponse response = solr.query(solrQuery);
 		return response;
 	}

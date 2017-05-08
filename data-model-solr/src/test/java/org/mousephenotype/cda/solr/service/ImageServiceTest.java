@@ -90,24 +90,21 @@ public class ImageServiceTest {
 		QueryResponse response =null;
 			response = imageService.getImagesForGeneByParameter(acc, parameterStableId, "experimental", 100000, null, null, null, anatomyId, parameterAsscociationValue, null, null);
 			long resultsSize=response.getResults().size();
-			System.out.println("resultsSize="+resultsSize);
-			assertTrue(resultsSize>12);
-
+			logger.debug("resultsSize="+resultsSize);
+			assertTrue("Expected at least 12 results. Actual count: " + resultsSize, resultsSize > 12);
 
 	}
 
 	@Test
 	public void testGetPhenotypeAssociatedImages() throws IOException, SolrServerException{
 
-		String acc="MGI:1891341";//should be 8 parameters for this gene at least.
-		int rows=1;
-		List<Group> response=null;
-			response = imageService.getPhenotypeAssociatedImages(acc, null, null, true, rows);
-			System.out.println(response.size());
+        final int expectedSize = 8;
+		String acc="MGI:1891341";       //should be 8 parameters for this gene at least.
+        int rows = 1;
+        List<Group> response = imageService.getPhenotypeAssociatedImages(acc, null, null, true, rows);
+        int size = (response != null ? response.size() : 0);
 
-		assertTrue(response != null);
+        assertTrue("Expected at least " + expectedSize + " parameters. Found " + size, size >= 8);
 
 	}
-
-
 }
