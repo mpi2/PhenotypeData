@@ -249,7 +249,7 @@ public class FileExportController {
 	public void exportTableAsExcelTsv2(
 		// used for search Version 2
 		@RequestParam(value = "kw", required = true) String query,
-		@RequestParam(value = "id", required = true) String id,
+		@RequestParam(value = "id", required = false) String id,
 		@RequestParam(value = "fq", required = false) String fqStr,
 		@RequestParam(value = "dataType", required = true) String dataType,
 		@RequestParam(value = "mode", required = false) String mode,
@@ -277,6 +277,11 @@ public class FileExportController {
 			if (id.equals("consortiumPapers")){
 				consortium = true;
 			}
+			if (id.equals("cardio")){
+				id = "biosystem";
+				query = "cardio|cardia|heart"; // use this to filter for cardiovascular system papers
+			}
+
 			System.out.println("query / kw: " + query);
 			dataRows = composeAlleleRefExportRows(iDisplayLength, iDisplayStart, query, mode, consortium, filter, id);
 		}
@@ -1309,11 +1314,14 @@ public class FileExportController {
 		String orderByStr = "date_of_publication DESC";
 
 		List<ReferenceDTO> references = null;
-		if (filter != null && id.equals("agency")) {
+		if ( id.equals("agency")) {
 			boolean agencyOnly = true;
 			System.out.println("kw: " + sSearch + " - filter " + filter);;
 			//references = referenceDAO.getReferenceRows(agencyOnly, sSearch, filter); // for agency papers
-			references = referenceDAO.getReferenceRows(sSearch, filter, orderByStr);
+			references = referenceDAO.getReferenceRowsAgencyPaper(sSearch, filter, orderByStr);
+		}
+		else if (id.equals("biosystem")){
+			references = referenceDAO.getReferenceRowsForBiologicalSystemPapers(sSearch, filter, orderByStr);
 		}
 		else {
 			System.out.println("fetching non-agency papers ....");

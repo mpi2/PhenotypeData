@@ -952,7 +952,7 @@
             "initComplete": function (oSettings, json) {  // when dataTable is loaded
 
                 // download tool
-                oConf.kw = oConf.kw;
+                //oConf.kw = oConf.kw;
                 oConf.fileName = 'impc_publications';
                 oConf.iDisplayStart = 0;
                 oConf.iDisplayLength = 5000;
@@ -966,14 +966,13 @@
                     + '<a id="xlsA" class="fa fa-download gridDump" href="">XLS</a></span>';//+
                 // '<span>For more information, consider <a href=${baseUrl}/batchQuery>Batch search</a></span>';
 
-                $("div#"+id + " div.saveTable").html(toolBox);
+                $("div.saveTable").html(toolBox);
 
                 $('a.gridDump').on('click', function(){
 
                     id = $(this).parent().parent().siblings('div.dataTables_processing').attr('id').replace('_processing','');
                     oConf.id = id;
                     oConf.consortium = false;
-                    oConf.kw = '';
 
                     if (id == 'consortiumPapers'){
                         oConf.consortium = true;

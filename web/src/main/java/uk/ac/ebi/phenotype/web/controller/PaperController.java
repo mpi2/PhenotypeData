@@ -98,22 +98,29 @@ public class PaperController {
         String filter = jParams.getString("filter");
 
         Boolean doAgencyPaper =  false;
+        Boolean doBioSystemPaper = false;
         if (jParams.getString("id") != null && jParams.getString("id").equals("agency")){
             doAgencyPaper = true;
         }
+        if (jParams.getString("id") != null && jParams.getString("id").equals("cardio")){
+            doBioSystemPaper = true;
+        }
         Boolean consortium = jParams.containsKey("consortium") ? jParams.getBoolean("consortium") : false;
 
-        String content = fetch_allele_ref2(searchKw, filter, orderByStr, consortium, doAgencyPaper);
+        String content = fetch_allele_ref2(searchKw, filter, orderByStr, consortium, doAgencyPaper, doBioSystemPaper);
         return new ResponseEntity<String>(content, createResponseHeaders(), HttpStatus.CREATED);
 
     }
 
-    public String fetch_allele_ref2(String sSearch, String filter, String orderByStr, Boolean consortium, Boolean doAgencyPaper) throws SQLException, UnsupportedEncodingException {
+    public String fetch_allele_ref2(String sSearch, String filter, String orderByStr, Boolean consortium, Boolean doAgencyPaper, Boolean doBioSystemPaper) throws SQLException, UnsupportedEncodingException {
         final int DISPLAY_THRESHOLD = 5;
 
         List<ReferenceDTO> references = new ArrayList<>();
         if (doAgencyPaper){
-            references = referenceDAO.getReferenceRows(sSearch, filter, orderByStr);
+            references = referenceDAO.getReferenceRowsAgencyPaper(sSearch, filter, orderByStr);
+        }
+        else if (doBioSystemPaper){
+            references = referenceDAO.getReferenceRowsForBiologicalSystemPapers(sSearch, filter, orderByStr);
         }
         else {
             System.out.println("fetching non-agency papers ....");
