@@ -116,10 +116,63 @@ public class ReferenceDAO {
      *
      */
 
-    public List<ReferenceDTO> getReferenceRows(String filter, String orderBy) throws SQLException {
+    public List<ReferenceDTO> getReferenceRows(String searchKw, String filter, String orderBy) throws SQLException {
         Connection connection = admintoolsDataSource.getConnection();
 
         String impcGeneBaseUrl = "http://www.mousephenotype.org/data/genes/";
+
+        List<String> srchCols = new ArrayList<>();
+        String searchClause = "";
+        if (! filter.isEmpty()){
+            srchCols = new ArrayList<>(Arrays.asList("title", "mesh", "abstract", "cited_by", "author", "journal", "symbol"));
+
+            int occurrence = findOccurrenceOfSubstr(filter, "|");
+            int loop = occurrence + 1;
+
+            List<String> titleLikes = new ArrayList<>();
+            List<String> meshLikes = new ArrayList<>();
+            List<String> abstractLikes = new ArrayList<>();
+            List<String> citedByLikes = new ArrayList<>();
+            List<String> authorByLikes = new ArrayList<>();
+            List<String> agencyByLikes = new ArrayList<>();
+            List<String> journalByLikes = new ArrayList<>();
+            List<String> alleleSymbolByLikes = new ArrayList<>();
+
+            for (int oc = 0; oc < loop; oc++) {
+                for (String col : srchCols) {
+                    if (col.equals("title")) {
+                        titleLikes.add(col + " LIKE ? ");
+                    } else if (col.equals("mesh")) {
+                        meshLikes.add(col + " LIKE ? ");
+                    } else if (col.equals("abstract")) {
+                        abstractLikes.add(col + " LIKE ? ");
+                    }
+                    else if (col.equals("cited_by")) {
+                        citedByLikes.add(col + " LIKE ? ");
+                    }
+                    else if (col.equals("author")) {
+                        authorByLikes.add(col + " LIKE ? ");
+                    }
+                    else if (col.equals("journal")) {
+                        journalByLikes.add(col + " LIKE ? ");
+                    }
+                    else if (col.equals("symbol")) {
+                        alleleSymbolByLikes.add(col + " LIKE ? ");
+                    }
+                }
+            }
+
+            searchClause =
+                    "  AND (\n"
+                            + "(" + StringUtils.join(titleLikes, " OR ") + ")\n"
+                            + " OR (" + StringUtils.join(meshLikes, " OR ") + ")\n"
+                            + " OR (" + StringUtils.join(abstractLikes, " OR ") + ")\n"
+                            + " OR (" + StringUtils.join(citedByLikes, " OR ") + ")\n"
+                            + " OR (" + StringUtils.join(authorByLikes, " OR ") + ")\n"
+                            + " OR (" + StringUtils.join(journalByLikes, " OR ") + ")\n"
+                            + " OR (" + StringUtils.join(alleleSymbolByLikes, " OR ") + "))\n";
+        }
+
 
         String sql =  "SELECT\n"
                 + "  symbol AS alleleSymbols\n"
@@ -133,18 +186,33 @@ public class ReferenceDAO {
                 + ", paper_url AS paperUrls\n"
                 + ", mesh\n"
                 + ", author\n"
+                + ", consortium_paper\n"
                 + ", abstract\n"
                 + ", cited_by\n"
                 + " FROM allele_ref\n"
-                + " WHERE agency LIKE '%" + filter + "%'\n"
+                + " WHERE agency LIKE '%" + searchKw + "%'\n"
+                + searchClause + "\n"
                 + " AND falsepositive='no'\n"
                 + " AND reviewed='yes'\n"
                 + " ORDER BY " + orderBy + "\n";
 
-        System.out.println("alleleRef query: " + sql);
+        System.out.println("alleleRef agency paper query: " + sql);
         List<ReferenceDTO> results = new ArrayList<>();
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            if ( ! searchClause.isEmpty()) {
+                // Replace the parameter holder ? with the values.
+
+                List<String> fltrs = Arrays.asList(StringUtils.split(filter,"|"));
+
+                int colCount = 0;
+                for (int i=0; i<fltrs.size(); i++){
+                    for (int j=0; j<srchCols.size(); j++) {
+                        colCount++;
+                        ps.setString(colCount, "%" + fltrs.get(i) + "%");
+                    }
+                }
+            }
 
             ResultSet resultSet = ps.executeQuery();
             while (resultSet.next()) {
@@ -171,6 +239,7 @@ public class ReferenceDAO {
                 referenceRow.setPaperUrls(Arrays.asList(resultSet.getString("paperUrls").split(delimeter)));
                 referenceRow.setMeshTerms(Arrays.asList(resultSet.getString("mesh").split(delimeter)));
                 referenceRow.setAuthor(resultSet.getString("author"));
+                referenceRow.setConsortiumPaper(resultSet.getString("consortium_paper"));
                 referenceRow.setAbstractTxt(resultSet.getString("abstract"));
                 referenceRow.setCitedBy(resultSet.getString("cited_by"));
 
@@ -185,6 +254,7 @@ public class ReferenceDAO {
             e.printStackTrace();
         }
 
+        System.out.println("Found " + results.size() + " papers");
         return results;
     }
 
@@ -329,7 +399,7 @@ public class ReferenceDAO {
      *
      */
 
-    public List<ReferenceDTO> getReferenceRows(String filter, String orderBy, Boolean consortium) throws SQLException {
+    public List<ReferenceDTO> getReferenceRows(String searchKw, String filter, String orderBy, Boolean consortium) throws SQLException {
         Connection connection = admintoolsDataSource.getConnection();
         // need to set max length for group_concat() otherwise some values would get chopped off !!
 //    	String gcsql = "SET SESSION GROUP_CONCAT_MAX_LEN = 100000000";
@@ -337,49 +407,96 @@ public class ReferenceDAO {
 //    	PreparedStatement pst = connection.prepareStatement(gcsql);
 //    	pst.executeQuery();
 
+        if (searchKw == null) {
+            searchKw = "";
+        }
         if (filter == null) {
             filter = "";
         }
+
+        System.out.println("Kw: " + searchKw + ", filter: " + filter);
+
         String impcGeneBaseUrl = "http://www.mousephenotype.org/data/genes/";
         String pmidsToOmit = getPmidsToOmit();
         String notInClause = (pmidsToOmit.isEmpty() ? "" : "  AND pmid NOT IN (" + pmidsToOmit + ")\n");
         String searchClause = "";
-        List<String> srchCols = new ArrayList<>(Arrays.asList("title", "mesh", "abstract"));
+        List<String> srchCols = new ArrayList<>(Arrays.asList("title", "mesh", "abstract", "cited_by", "author", "agency", "journal", "symbol"));
 
-        if ( ! filter.isEmpty()) {
-            int occurrence = findOccurrenceOfSubstr(filter, "|");
-            int loop = occurrence + 1;
+        List<String> filters = new ArrayList<>();
+        if (! searchKw.isEmpty()){
+            filters.add(searchKw);
+        }
+        if (! filter.isEmpty()){
+            filters.add(filter);
+        }
+
+        for(String flt : filters ) {
+
+            if (!flt.isEmpty()) {
+                int occurrence = findOccurrenceOfSubstr(flt, "|");
+                int loop = occurrence + 1;
 
 
-            List<String> titleLikes = new ArrayList<>();
-            List<String> meshLikes = new ArrayList<>();
-            List<String> abstractLikes = new ArrayList<>();
-            for( int oc=0; oc< loop; oc++){
-                for (String col : srchCols){
-                    if (col.equals("title")){
-                        titleLikes.add(col + " LIKE ? ");
-                    }
-                    else if (col.equals("mesh")) {
-                        meshLikes.add(col + " LIKE ? ");
-                    }
-                    else if (col.equals("abstract")){
-                        abstractLikes.add(col + " LIKE ? ");
+                List<String> titleLikes = new ArrayList<>();
+                List<String> meshLikes = new ArrayList<>();
+                List<String> abstractLikes = new ArrayList<>();
+                List<String> citedByLikes = new ArrayList<>();
+                List<String> authorByLikes = new ArrayList<>();
+                List<String> agencyByLikes = new ArrayList<>();
+                List<String> journalByLikes = new ArrayList<>();
+                List<String> alleleSymbolByLikes = new ArrayList<>();
+
+                for (int oc = 0; oc < loop; oc++) {
+                    for (String col : srchCols) {
+                        if (col.equals("title")) {
+                            titleLikes.add(col + " LIKE ? ");
+                        }
+                        else if (col.equals("mesh")) {
+                            meshLikes.add(col + " LIKE ? ");
+                        }
+                        else if (col.equals("abstract")) {
+                            abstractLikes.add(col + " LIKE ? ");
+                        }
+                        else if (col.equals("cited_by")) {
+                            citedByLikes.add(col + " LIKE ? ");
+                        }
+                        else if (col.equals("author")) {
+                            authorByLikes.add(col + " LIKE ? ");
+                        }
+                        else if (col.equals("agency")) {
+                            agencyByLikes.add(col + " LIKE ? ");
+                        }
+                        else if (col.equals("journal")) {
+                            journalByLikes.add(col + " LIKE ? ");
+                        }
+                        else if (col.equals("symbol")) {
+                            alleleSymbolByLikes.add(col + " LIKE ? ");
+                        }
                     }
                 }
-            }
 
-            searchClause =
-                    "  AND (\n"
-                    + "(" + StringUtils.join(titleLikes, " OR ") +")\n"
-                    + " OR (" + StringUtils.join(meshLikes, " OR ") +")\n"
-                    + " OR (" +  StringUtils.join(abstractLikes, " OR ") + "))\n";
+                searchClause +=
+                        "  AND (\n"
+                                + "(" + StringUtils.join(titleLikes, " OR ") + ")\n"
+                                + " OR (" + StringUtils.join(meshLikes, " OR ") + ")\n"
+                                + " OR (" + StringUtils.join(abstractLikes, " OR ") + ")\n"
+                                + " OR (" + StringUtils.join(citedByLikes, " OR ") + ")\n"
+                                + " OR (" + StringUtils.join(authorByLikes, " OR ") + ")\n"
+                                + " OR (" + StringUtils.join(agencyByLikes, " OR ") + ")\n"
+                                + " OR (" + StringUtils.join(journalByLikes, " OR ") + ")\n"
+                                + " OR (" + StringUtils.join(alleleSymbolByLikes, " OR ") + "))\n";
+            }
         }
 
 
         String whereClause = "";
 
         if (consortium){
-            whereClause = "WHERE consortium_paper='yes' ";
+            whereClause = "WHERE consortium_paper='yes' AND reviewed='yes' AND falsepositive='no'\n";
+            if (! filter.isEmpty()) {
+                whereClause += searchClause;
+            }
+
         }
         else {
             whereClause = "WHERE\n"
@@ -424,13 +541,11 @@ public class ReferenceDAO {
             if ( ! searchClause.isEmpty()) {
                 // Replace the parameter holder ? with the values.
 
-                List<String> fltrs = Arrays.asList(StringUtils.split(filter,"|"));
-
                 int colCount = 0;
-                for (int i=0; i<fltrs.size(); i++){
+                for (int i=0; i<filters.size(); i++){
                     for (int j=0; j<srchCols.size(); j++) {
                         colCount++;
-                        ps.setString(colCount, "%" + fltrs.get(i) + "%");
+                        ps.setString(colCount, "%" + filters.get(i) + "%");
                     }
                 }
             }
@@ -477,6 +592,8 @@ public class ReferenceDAO {
             log.error("download rowData extract failed: " + e.getLocalizedMessage());
             e.printStackTrace();
         }
+
+        System.out.println("Found " + results.size() + " papers");
 
         return results;
     }
