@@ -612,10 +612,9 @@
 
                                                     if ($("#" + id +"_filter").find('input').val() != "") {
                                                         oConf.filter = $("#" + id +"_filter").find('input').val().trim();
-                                                        alert(oConf.filter)
                                                     }
                                                     else {
-                                                        delete oConf.filter;
+                                                        oConf.filter = '';
                                                     }
 
 
@@ -1022,15 +1021,10 @@
 
                     if ($("#" + id +"_filter").find('input').val() != "") {
                         oConf.filter = $("#" + id +"_filter").find('input').val().trim();
-                        alert(oConf.filter)
                     }
                     else {
-                        delete oConf.filter;
+                        oConf.filter = '';
                     }
-
-                    // console.log("id: "+ oConf.id);
-                    // console.log("consortium: "+ oConf.consortium);
-                    // console.log("order: " + oConf.orderBy);
 
 					$.ajax({
 						'url': baseUrl + '/dataTableAlleleRef2?doAlleleRef=' + JSON.stringify(oConf),
