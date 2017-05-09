@@ -79,6 +79,7 @@ public class AutosuggestBean {
 	public static final String SELECTED_TOP_LEVEL_ANATOMY_TERM = "selected_top_level_anatomy_term";
 	public static final String SELECTED_TOP_LEVEL_ANATOMY_TERM_SYNONYM = "selected_top_level_anatomy_term_synonym";
 
+	public static final String PARAMETER_NAME = "parameter_name";
 
 	public static final String DISEASE_ID = "disease_id";
 	public static final String DISEASE_TERM = "disease_term";
@@ -128,6 +129,9 @@ public class AutosuggestBean {
 
 	@Field(HUMAN_GENE_SYMBOL)
 	private String humanGeneSymbol;
+
+	@Field(PARAMETER_NAME)
+	private String parameterName;
 
 	@Field(HP_ID)
 	private String hpId;
@@ -422,6 +426,14 @@ public class AutosuggestBean {
 
 	public void setHpmpTerm(String hpmpTerm) {
 		this.hpmpTerm = hpmpTerm;
+	}
+
+	public String getParameterName() {
+		return parameterName;
+	}
+
+	public void setParameterName(String parameterName) {
+		this.parameterName = parameterName;
 	}
 
 	public String getAltMpId() {
@@ -884,6 +896,8 @@ public class AutosuggestBean {
 			return false;
 		if (humanGeneSymbol != null ? !humanGeneSymbol.equals(that.humanGeneSymbol) : that.humanGeneSymbol != null)
 			return false;
+		if (parameterName != null ? !parameterName.equals(that.parameterName) : that.parameterName != null)
+			return false;
 		if (hpId != null ? !hpId.equals(that.hpId) : that.hpId != null) return false;
 		if (hpTerm != null ? !hpTerm.equals(that.hpTerm) : that.hpTerm != null) return false;
 		if (hpSynonym != null ? !hpSynonym.equals(that.hpSynonym) : that.hpSynonym != null) return false;
@@ -981,7 +995,6 @@ public class AutosuggestBean {
 		if (gwasDownstreamGene != null ? !gwasDownstreamGene.equals(that.gwasDownstreamGene) : that.gwasDownstreamGene != null)
 			return false;
 		return gwasSnpId != null ? gwasSnpId.equals(that.gwasSnpId) : that.gwasSnpId == null;
-
 	}
 
 	@Override
@@ -994,6 +1007,7 @@ public class AutosuggestBean {
 		result = 31 * result + (markerName != null ? markerName.hashCode() : 0);
 		result = 31 * result + (markerSynonym != null ? markerSynonym.hashCode() : 0);
 		result = 31 * result + (humanGeneSymbol != null ? humanGeneSymbol.hashCode() : 0);
+		result = 31 * result + (parameterName != null ? parameterName.hashCode() : 0);
 		result = 31 * result + (hpId != null ? hpId.hashCode() : 0);
 		result = 31 * result + (hpTerm != null ? hpTerm.hashCode() : 0);
 		result = 31 * result + (hpSynonym != null ? hpSynonym.hashCode() : 0);
@@ -1069,6 +1083,7 @@ public class AutosuggestBean {
 				", markerName='" + markerName + '\'' +
 				", markerSynonym='" + markerSynonym + '\'' +
 				", humanGeneSymbol='" + humanGeneSymbol + '\'' +
+				", parameterName='" + parameterName + '\'' +
 				", hpId='" + hpId + '\'' +
 				", hpTerm='" + hpTerm + '\'' +
 				", hpSynonym='" + hpSynonym + '\'' +

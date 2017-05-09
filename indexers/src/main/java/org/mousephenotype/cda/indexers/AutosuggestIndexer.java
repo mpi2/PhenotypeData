@@ -21,6 +21,8 @@ import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.solr.common.SolrDocument;
+import org.apache.solr.common.SolrDocumentList;
 import org.mousephenotype.cda.db.dao.GwasDAO;
 import org.mousephenotype.cda.db.dao.GwasDTO;
 import org.mousephenotype.cda.indexers.beans.AutosuggestBean;
@@ -69,6 +71,10 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
     @Qualifier("anatomyCore")
     private SolrClient anatomyCore;
 
+    @Autowired
+    @Qualifier("pipelineCore")
+    private SolrClient pipelineCore;
+
 	@Autowired
 	@Qualifier("phenodigmCore")
 	private SolrClient phenodigmCore;
@@ -107,6 +113,9 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
     Set<String> anatomyTermSet = new HashSet();
     Set<String> anatomyTermSynonymSet = new HashSet();
     Set<String> anatomyAltIdSet = new HashSet();
+
+    // pipeline (parameter_name only)
+    Set<String> parameterNameSet = new HashSet();
 
     // hp
     Set<String> hpIdSet = new HashSet();
@@ -158,6 +167,7 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
 
             autosuggestCore.deleteByQuery("*:*");
 
+            populateParameterNameAutosuggestTerms();
             populateGeneAutosuggestTerms();
             populateMpAutosuggestTerms();
             populateDiseaseAutosuggestTerms();
@@ -165,6 +175,7 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
             populateProductAutosuggestTerms(); // must run after populateGeneAutosuggestTerms to use the map markerSymbolSynonymsMap
             populateHpAutosuggestTerms();
             populateGwasAutosuggestTerms();
+
 
             // Final commit
             autosuggestCore.commit();
@@ -275,6 +286,35 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
 //        System.out.println("chk syn: " + markerSymbolSynonymsMap.get("P2rx4"));
 
     }
+
+    private void populateParameterNameAutosuggestTerms() throws SolrServerException, IOException {
+
+        List<String> pipelineFields = Arrays.asList("pipeline_name", "procedure_name", "parameter_name");
+
+        SolrQuery query = new SolrQuery()
+                .setQuery("*:*")
+                .setFields(StringUtils.join(pipelineFields, ","))
+                .setRows(Integer.MAX_VALUE);
+
+
+        QueryResponse rsp = pipelineCore.query(query);
+        SolrDocumentList pipelineDocs = rsp.getResults();
+
+        Set<AutosuggestBean> beans = new HashSet<>();
+
+        for(SolrDocument pd : pipelineDocs){
+
+            AutosuggestBean a = new AutosuggestBean();
+            a.setDocType("pipeline");
+            a.setParameterName(pd.getFieldValue("parameter_name").toString());
+            beans.add(a);
+        }
+        if ( ! beans.isEmpty()) {
+            documentCount += beans.size();
+            autosuggestCore.addBeans(beans, 60000);
+        }
+    }
+
 
     private void populateMpAutosuggestTerms() throws SolrServerException, IOException {
 

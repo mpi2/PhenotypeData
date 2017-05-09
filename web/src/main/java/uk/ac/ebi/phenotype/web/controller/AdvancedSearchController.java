@@ -22,6 +22,8 @@ import net.sf.json.JSONSerializer;
 import org.apache.commons.collections.ArrayStack;
 import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.lang.StringUtils;
+import org.apache.solr.client.solrj.SolrClient;
+import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.neo4j.entity.*;
 import org.mousephenotype.cda.neo4j.repository.*;
@@ -29,6 +31,8 @@ import org.mousephenotype.cda.solr.generic.util.Tools;
 import org.mousephenotype.cda.solr.service.AutoSuggestService;
 import org.mousephenotype.cda.solr.service.SolrIndex;
 
+import org.mousephenotype.cda.solr.service.dto.MpDTO;
+import org.mousephenotype.cda.solr.service.dto.PipelineDTO;
 import org.neo4j.ogm.model.GraphRowListModel;
 import org.neo4j.ogm.model.Result;
 import org.neo4j.ogm.session.Session;
@@ -91,6 +95,10 @@ public class AdvancedSearchController {
     @Autowired
     @Qualifier("komp2DataSource")
     private DataSource komp2DataSource;
+
+    @Autowired
+    @Qualifier("mpCore")
+    private SolrClient mpCore;
 
     @Autowired
     GeneRepository geneRepository;
@@ -281,10 +289,15 @@ public class AdvancedSearchController {
             HttpServletResponse response,
             Model model) throws Exception {
 
-        System.out.println("****"+ termName);
-            Mp mp = mpRepository.findByMpTerm(termName);
-        System.out.println(mp.getMpId());
-            return new ResponseEntity<String>(mp.getMpId(), createResponseHeaders(), HttpStatus.CREATED);
+        //System.out.println("****"+ termName);
+        SolrQuery query = new SolrQuery()
+                .setQuery("mp_term:\"" + termName + "\"")
+                .setFields("mp_id");
+
+        List<MpDTO> mp = mpCore.query(query).getBeans(MpDTO.class);
+        String mpId = mp.get(0).getMpId();
+
+        return new ResponseEntity<String>(mpId, createResponseHeaders(), HttpStatus.CREATED);
     }
 
 
