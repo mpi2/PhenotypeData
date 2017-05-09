@@ -3,11 +3,13 @@ package org.mousephenotype.cda.indexers;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mousephenotype.cda.config.TestConfigIndexers;
 import org.mousephenotype.cda.indexers.utils.PhisService;
 import org.mousephenotype.cda.solr.service.ImpressService;
 import org.mousephenotype.cda.solr.service.dto.ImageDTO;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringRunner;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -18,8 +20,8 @@ import java.util.Set;
 import static org.junit.Assert.assertTrue;
 
 //import org.springframework.web.client.RestTemplate;
-@RunWith(SpringJUnit4ClassRunner.class)
-
+@RunWith(SpringRunner.class)
+@ContextConfiguration(classes=TestConfigIndexers.class)
 public class PhisServiceTest {
 
 	@Autowired
