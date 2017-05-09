@@ -96,13 +96,19 @@ public class PaperController {
         String searchKw = jParams.getString("kw");
         String orderByStr = jParams.getString("orderBy");
         String filter = jParams.getString("filter");
+        String id = jParams.getString("id");
+
+//        System.out.println("id - : "+ id);
+//        System.out.println("kw - : "+ searchKw);
+//        System.out.println("filter - : "+ filter);
+//        System.out.println("order - : "+ orderByStr);
 
         Boolean doAgencyPaper =  false;
         Boolean doBioSystemPaper = false;
-        if (jParams.getString("id") != null && jParams.getString("id").equals("agency")){
+        if (id != null && id.equals("agency")){
             doAgencyPaper = true;
         }
-        if (jParams.getString("id") != null && jParams.getString("id").equals("cardio")){
+        if (id != null && id.equals("cardio")){
             doBioSystemPaper = true;
         }
         Boolean consortium = jParams.containsKey("consortium") ? jParams.getBoolean("consortium") : false;
@@ -123,7 +129,7 @@ public class PaperController {
             references = referenceDAO.getReferenceRowsForBiologicalSystemPapers(sSearch, filter, orderByStr);
         }
         else {
-            System.out.println("fetching non-agency papers ....");
+            //System.out.println("fetching non-agency papers ....");
             references = referenceDAO.getReferenceRows(sSearch, filter, orderByStr, consortium);
         }
 
