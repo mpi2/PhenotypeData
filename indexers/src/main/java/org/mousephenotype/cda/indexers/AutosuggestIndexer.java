@@ -21,6 +21,8 @@ import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.solr.common.SolrDocument;
+import org.apache.solr.common.SolrDocumentList;
 import org.mousephenotype.cda.db.dao.GwasDAO;
 import org.mousephenotype.cda.db.dao.GwasDTO;
 import org.mousephenotype.cda.indexers.beans.AutosuggestBean;
@@ -293,38 +295,24 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
                 .setQuery("*:*")
                 .setFields(StringUtils.join(pipelineFields, ","))
                 .setRows(Integer.MAX_VALUE);
-        System.out.println("QRY: " + query);
-
-        List<PipelineDTO> pipelines = pipelineCore.query(query).getBeans(PipelineDTO.class);
-        System.out.println("pipeline size: "+ pipelines.size());
 
 
-        for (PipelineDTO pipeline : pipelines) {
+        QueryResponse rsp = pipelineCore.query(query);
+        SolrDocumentList pipelineDocs = rsp.getResults();
 
-            Set<AutosuggestBean> beans = new HashSet<>();
-            System.out.println(pipeline.toString());
-            System.out.println("pipeline name: " + pipeline.getName());
+        Set<AutosuggestBean> beans = new HashSet<>();
 
+        for(SolrDocument pd : pipelineDocs){
+
+            AutosuggestBean a = new AutosuggestBean();
+            a.setDocType("pipeline");
+            a.setParameterName(pd.getFieldValue("parameter_name").toString());
+            beans.add(a);
         }
-        //            for(ProcedureDTO procedure : pipeline.getProcedures()) {
-//                for (ParameterDTO parameter : procedure.getParameters()) {
-//
-//
-//                        AutosuggestBean a = new AutosuggestBean();
-//                        a.setDocType("pipeline");
-//                        System.out.println(parameter.getName());
-//
-//                        a.setParameterName(parameter.getName());
-//                        beans.add(a);
-//
-//                }
-//            }
-//
-//            if ( ! beans.isEmpty()) {
-//                documentCount += beans.size();
-//                autosuggestCore.addBeans(beans, 60000);
-//            }
-//        }
+        if ( ! beans.isEmpty()) {
+            documentCount += beans.size();
+            autosuggestCore.addBeans(beans, 60000);
+        }
     }
 
 
