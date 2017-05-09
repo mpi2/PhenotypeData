@@ -4,11 +4,12 @@ import org.apache.solr.client.solrj.SolrClient;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mousephenotype.cda.config.TestConfigIndexers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.sql.DataSource;
 import java.util.Map;
@@ -20,15 +21,15 @@ import static org.junit.Assert.assertThat;
 /**
  * Created by jmason on 30/06/2016.
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = {TestConfigIndexers.class} )
+@RunWith(SpringRunner.class)
+@ContextConfiguration(classes = {TestConfigIndexers.class} )
 @TestPropertySource(locations = {"file:${user.home}/configfiles/${profile:dev}/test.properties"})
 public class PhenodigmIndexerTest {
 
 	private PhenodigmIndexer phenodigmIndexer;
 
 	@Autowired
-	@Qualifier("phenodigmIndexing")
+	@Qualifier("phenodigmIndexingSolrClient")
 	private SolrClient phenodigmIndexing;
 
 	@Autowired

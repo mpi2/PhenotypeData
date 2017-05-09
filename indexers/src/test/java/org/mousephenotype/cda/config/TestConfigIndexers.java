@@ -1,7 +1,9 @@
-package org.mousephenotype.cda.indexers;
+package org.mousephenotype.cda.config;
 
 import org.apache.solr.client.solrj.SolrClient;
+import org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrClient;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
@@ -22,6 +24,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import javax.persistence.PersistenceContext;
 import javax.sql.DataSource;
+import javax.validation.constraints.NotNull;
 import java.util.Properties;
 
 
@@ -36,6 +39,13 @@ import java.util.Properties;
 @ComponentScan({"org.mousephenotype.cda"})
 @EnableSolrRepositories(basePackages = {"org.mousephenotype.cda.solr.repositories"}, multicoreSupport = true)
 public class TestConfigIndexers {
+
+	public static final int QUEUE_SIZE = 10000;
+	public static final int THREAD_COUNT = 3;
+
+	@NotNull
+	@Value("${buildIndexesSolrUrl}")
+	private String writeSolrBaseUrl;
 
 	@Value("http:${solr_url}")
 	String solrBaseUrl;
@@ -108,13 +118,9 @@ public class TestConfigIndexers {
 		return sessionFactory;
 	}
 
-//	@Bean(name = "komp2TxManager")
-//	@Primary
-//	public PlatformTransactionManager transactionManager(EntityManagerFactory emf) {
-//		JpaTransactionManager tm = new JpaTransactionManager();
-//		tm.setEntityManagerFactory(emf);
-//		tm.setDataSource(komp2DataSource());
-//		return tm;
-//	}
-
+	@Bean
+	@Qualifier("phenodigmIndexingSolrClient")
+	SolrClient phenodigmCore() {
+		return new ConcurrentUpdateSolrClient(writeSolrBaseUrl + "/phenodigm", QUEUE_SIZE, THREAD_COUNT);
+	}
 }

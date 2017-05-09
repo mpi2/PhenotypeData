@@ -23,6 +23,7 @@ package org.mousephenotype.cda.indexers;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mousephenotype.cda.config.TestConfigIndexers;
 import org.springframework.beans.BeansException;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
