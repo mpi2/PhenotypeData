@@ -3,6 +3,7 @@ package org.mousephenotype.cda.config;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrClient;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
+import org.mousephenotype.cda.owl.OntologyParserFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -49,6 +50,10 @@ public class TestConfigIndexers {
 
 	@Value("http:${solr_url}")
 	String solrBaseUrl;
+
+	@NotNull
+	@Value("${owlpath}")
+	protected String owlpath;
 
 	// Required for spring-data-solr repositories
 	@Bean
@@ -120,7 +125,12 @@ public class TestConfigIndexers {
 
 	@Bean
 	@Qualifier("phenodigmIndexingSolrClient")
-	SolrClient phenodigmCore() {
+	public SolrClient phenodigmCore() {
 		return new ConcurrentUpdateSolrClient(writeSolrBaseUrl + "/phenodigm", QUEUE_SIZE, THREAD_COUNT);
 	}
+
+	@Bean
+    public OntologyParserFactory ontologyParserFactory() {
+	    return new OntologyParserFactory(komp2DataSource(), owlpath);
+    }
 }
