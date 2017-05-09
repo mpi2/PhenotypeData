@@ -130,6 +130,7 @@ public class TestConfig {
 	public DataSource dcc1DataSource() {
 		return new EmbeddedDatabaseBuilder().setType(dcc1Type)
 			.ignoreFailedDrops(true)
+			.setName("dcc1")
 			.addScript("sql/dcc1-test-data.sql")
 			.build();
 	}
@@ -146,6 +147,7 @@ public class TestConfig {
 	public DataSource dcc2DataSource() {
 		return new EmbeddedDatabaseBuilder().setType(dcc2Type)
 			.ignoreFailedDrops(true)
+			.setName("dcc2")
 			.addScript("sql/dcc2-test-data.sql")
 			.build();
 	}
