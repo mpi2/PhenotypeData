@@ -283,7 +283,7 @@ public class AdvancedSearchController {
 
         System.out.println("****"+ termName);
             Mp mp = mpRepository.findByMpTerm(termName);
-        System.out.println(mp.toString());
+        System.out.println(mp.getMpId());
             return new ResponseEntity<String>(mp.getMpId(), createResponseHeaders(), HttpStatus.CREATED);
     }
 
