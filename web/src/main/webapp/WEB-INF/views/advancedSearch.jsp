@@ -1040,6 +1040,9 @@
                     else if ( thisInput.hasClass('srchDiseaseModel') ){
                         docType = 'disease';
                     }
+                    else if ( thisInput.hasClass('srchPipeliine') ){
+                        docType = 'pipeline';
+                    }
 
                     thisInput.autocomplete({
                         source: function( request, response ) {
@@ -1500,13 +1503,15 @@
                         addMgiGeneListBox(dataType);
                         addAlleleTypes(dataType);
 						compartmentAttrsFilters(dataType, "Gene");
-
 					}
                     else if (dataType == "Mp"){
                         addSex(dataType);
+                        addParameterFilter(dataType);
                         addAutosuggestFilter(dataType);
                         //addOntologyChildrenLevelFilter(dataType);
                         compartmentAttrsFilters(dataType, "Phenotype");
+
+                        addParameterSliderJs();
                     }
                     else if (dataType == "Hp"){
                         addAutosuggestFilter(dataType);
@@ -1518,9 +1523,7 @@
                         compartmentAttrsFilters(dataType, "Disease");
 
                         addSliderJs();
-
                     }
-
                 }
 
                 function addSliderJs(){
@@ -1534,8 +1537,29 @@
                         showLabels: true,
                         isRange : true
                     });
-
 				}
+
+            	function addParameterSliderJs(){
+					$('.range-slider').jRange({
+                        from: 0,
+                        to: 1,
+                        step: 100,
+                        scale: [0,0.25,0.50,0.75,1],
+                       // format: '%s',
+                        width: 200,
+                        showLabels: true,
+                        isRange : true
+//						from: 0,
+//						to: 1,
+//						step: 10,
+//						scale: [0,0.25,0.5,0.75,1],
+//						format: '%s',
+//						width: 200,
+//						showLabels: true,
+//						isRange : true
+					});
+				}
+
                 function removeDatatypeFiltersAttributes(dataType) {
                     $('fieldSet#' + dataType).remove();
 
@@ -1581,6 +1605,24 @@
 					var filter = "<fieldset class='" + dataType + "Filter dfilter " + dataType + "'>" + legend + male + female + "</fieldset>";
 
 					$('div#dataAttributes').append(filter);
+				}
+
+				function addParameterFilter(dataType){
+                    var legend = "<legend>IMPReSS parameter filter</legend>";
+                    var input = "<div class='block srchBox'>" +
+                        "<i class='fa fa-search'></i>" +
+                        "<input class='termFilter srch" + dataType + "' value='search'>" +
+                        "<i class='fa fa-times' id='" + dataType + "Clear'></i>" +
+                        "</div>";
+
+                    var slider = "<b>p value range</b>:<div class='sliderBox'><input type='hidden' class='range-slider' value='1' /></div>";
+
+                    var filter = "<fieldset class='" + dataType + "Filter dfilter " + dataType + "'>" + legend + input + slider + "</fieldset>";
+
+                    $('div#dataAttributes').append(filter);
+
+                    addAutosuggest($('input.srchPipeline'));
+
 				}
 
                 function addChomosomeRangeFilter(dataType){
@@ -1905,12 +1947,6 @@
 
                 $('div#dataAttributes').append(filter);
             }
-
-                function addSlider(sliderId){
-
-
-                }
-
 
 		</script>
 
