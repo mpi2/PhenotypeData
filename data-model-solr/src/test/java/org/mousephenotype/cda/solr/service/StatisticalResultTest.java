@@ -91,6 +91,7 @@ public class StatisticalResultTest {
 		System.out.println(ppDAo.getParameterByStableId("IMPC_DXA_006_002"));
 	}
 
+	@Ignore
 	@Test
 	public void verifyAllGpEntriesAppearInSrCore(){
 
