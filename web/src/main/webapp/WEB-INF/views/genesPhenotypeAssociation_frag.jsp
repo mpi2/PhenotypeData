@@ -34,18 +34,37 @@
 	        <div id="all_data" class="with-label">
 	        
 		        <span class="label">All Data:</span> 
+		         <c:if test="${bodyWeight}">
+		        <a id="bodyWeightBtn" class="btn" href="${baseUrl}/charts?accession=${acc}&parameter_stable_id=IMPC_BWT_008_001&&chart_type=TIME_SERIES_LINE" title="Body Weight Curves">Body Weight Data</a>
+		        </c:if>
 		        <c:if test="${phenotypeDisplayStatus.postQcDataAvailable}">
 		            <!-- best example http://localhost:8080/PhenotypeArchive/genes/MGI:1913955 -->
 		            <a id="allAdultDataBtn" class="btn" href='${baseUrl}/experiments?geneAccession=${gene.mgiAccessionId}' title="All Data">${gene.markerSymbol} Measurements</a>
 		        </c:if>
 		       
 				<c:if test="${phenotypeDisplayStatus.displayHeatmap}">
-		        	<jsp:include page="heatmapFrag.jsp"/>
+		        	<%-- <jsp:include page="heatmapFrag.jsp"/> split out from frag as need to display heatmap in different location to button --%>
+		        	<c:if test="${phenotypeStarted}">
+	 						<a id="heatmap_link" class="btn">Heatmap / Table</a>
+					
+					</c:if>
 		        </c:if>
-		        <c:if test="${bodyWeight}">
-		        <a id="bodyWeightBtn" class="btn" href="${baseUrl}/charts?accession=${acc}&parameter_stable_id=IMPC_BWT_008_001&&chart_type=TIME_SERIES_LINE" title="Body Weight Curves">Body Weight Data</a>
-		        </c:if>
+		       
 	        </div>
+	        
+	        <c:if test="${phenotypeDisplayStatus.displayHeatmap}">
+		        <div id="heatmap_toggle_div" class="section hidden">
+							<h2 class="title" id="heatmap">Phenotype Heatmap of Preliminary Data
+								<span class="documentation"><a href='' id='heatmapSection' class="fa fa-question-circle pull-right"></a></span>
+							</h2>
+	
+							<div class="dcc-heatmap-root">
+								<div class="phenodcc-heatmap"
+									 id="phenodcc-heatmap"></div>
+							</div>
+				</div><!-- end of Pre-QC phenotype heatmap -->
+			</c:if>				
+								
         </c:if>
         <c:if test="${gene.embryoDataAvailable || gene.embryoAnalysisUrl!=null || gene.dmddImageDataAvailable || hasVignette}">
         	<div id="embryo" class="with-label">
