@@ -4,6 +4,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
@@ -56,6 +57,7 @@ public class StatisticalResultTest {
 	StatisticalResultRepository statisticalResultRepository;
 
 
+	@Ignore
 	@Test
 	public void allDocumentsHaveATopLevelMpTermId() throws IOException, SolrServerException {
 
