@@ -1732,12 +1732,14 @@
                     $(fieldsetFilter + ' button.ontoview').first().click(function(){
                         // ajax call to fetch for mp id
                         var termName = $(fieldsetFilter + " input.termFilter").val();
+                        //$('body').addClass("loading");  // to activate modal
 
                         $.ajax({
                             'url': baseUrl + '/fetchmpid?name=' + termName,
                             'async': true,
                             'jsonp': 'json.wrf',
                             'success': function (id) {
+                               // $('body').removeClass("loading");  // to activate modal
                                 console.log(id);
                                 window.open(baseUrl + "/ontologyBrowser?termId=" + id, '_blank');
                             },

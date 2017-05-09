@@ -147,6 +147,9 @@
 		<field name="disease_term" type="string" indexed="true" stored="true" multiValued="false" />
 		<field name="disease_alts" type="string" indexed="true" stored="true" multiValued="false"/>
 
+		<!-- pipeline fields -->
+		<field name="parameter_name" type="string" indexed="true" stored="true" multiValued="false" />
+
 		<!-- gwas annotations -->
 		<field name="gwas_mgi_gene_id" type="string" indexed="true" stored="true" multiValued="false" />;
 		<field name="gwas_mgi_gene_symbol" type="string" indexed="true" stored="true" multiValued="false" />;
@@ -244,6 +247,8 @@
 	<copyField source="selected_top_level_anatomy_id" dest="auto_suggest" />
 	<copyField source="selected_top_level_anatomy_term" dest="auto_suggest" />
 	<copyField source="selected_top_level_anatomy_term_synonym" dest="auto_suggest" />
+
+	<copyField source="parameter_name" dest="auto_suggest"/>
 
 	<copyField source="disease_id" dest="auto_suggest"/>
 	<copyField source="disease_term" dest="auto_suggest"/>
