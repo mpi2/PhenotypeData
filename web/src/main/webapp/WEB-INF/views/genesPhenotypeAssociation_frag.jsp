@@ -50,20 +50,7 @@
 					</c:if>
 		        </c:if>
 		       
-	        </div>
-	        
-	        <c:if test="${phenotypeDisplayStatus.displayHeatmap}">
-		        <div id="heatmap_toggle_div" class="section hidden">
-							<h2 class="title" id="heatmap">Phenotype Heatmap of Preliminary Data
-								<span class="documentation"><a href='' id='heatmapSection' class="fa fa-question-circle pull-right"></a></span>
-							</h2>
-	
-							<div class="dcc-heatmap-root">
-								<div class="phenodcc-heatmap"
-									 id="phenodcc-heatmap"></div>
-							</div>
-				</div><!-- end of Pre-QC phenotype heatmap -->
-			</c:if>				
+	        </div>			
 								
         </c:if>
         <c:if test="${gene.embryoDataAvailable || gene.embryoAnalysisUrl!=null || gene.dmddImageDataAvailable || hasVignette}">
@@ -85,6 +72,20 @@
 		            <a class="btn" href="${baseUrl}/embryo/vignettes#${acc}" title="embryo vignette exists for this gene">Embryo Vignette</a>
 		        </c:if>
 			</div>
+		</c:if>		
+		
+		<c:if test="${phenotypeDisplayStatus.displayHeatmap}">
+		        <div id="heatmap_toggle_div" class="section hidden">
+		        
+							<h2 class="title" id="heatmap">Phenotype Heatmap of Preliminary Data
+								<span class="documentation"><a href='' id='heatmapSection' class="fa fa-question-circle pull-right"></a></span>
+							</h2>
+	
+							<div class="dcc-heatmap-root">
+								<div class="phenodcc-heatmap"
+									 id="phenodcc-heatmap"></div>
+							</div>
+				</div><!-- end of Pre-QC phenotype heatmap -->
 		</c:if>			
 				
        
