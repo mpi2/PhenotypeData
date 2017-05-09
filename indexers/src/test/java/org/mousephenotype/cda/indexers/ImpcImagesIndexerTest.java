@@ -7,6 +7,7 @@ import org.springframework.beans.BeansException;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -14,7 +15,7 @@ import org.springframework.test.context.junit4.SpringRunner;
  * Created by jmason on 01/12/2016.
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = {TestConfigIndexers.class})
+@ContextConfiguration(classes={TestConfigIndexers.class})
 @TestPropertySource(locations = {"file:${user.home}/configfiles/${profile:dev}/test.properties"})
 public class ImpcImagesIndexerTest implements ApplicationContextAware {
 
