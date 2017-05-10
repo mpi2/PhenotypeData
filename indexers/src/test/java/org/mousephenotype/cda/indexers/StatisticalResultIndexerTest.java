@@ -35,6 +35,7 @@ import java.util.stream.Collectors;
 @SpringBootTest(classes = {TestConfigIndexers.class})
 @TestPropertySource(locations = {"file:${user.home}/configfiles/${profile:dev}/test.properties"})
 @Transactional
+@Ignore
 public class StatisticalResultIndexerTest implements ApplicationContextAware {
 
     @Autowired
