@@ -28,7 +28,8 @@
 		                        	${phenotypeDto.getMpTerm()}<c:if test="${!loop.last}">, </c:if>
 		                        </c:forEach>
 							 data for ${allelePageDTO.getGeneSymbol()}</h1>
-						</c:if>
+							 
+							 </c:if>
 						<%-- <c:if test="${phenotypeFilters == null || phenotypeFilters.size() == 0}">
 							<h1 id="top">All data for ${allelePageDTO.getGeneSymbol()}</h1>
 						</c:if> --%>

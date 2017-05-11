@@ -7,6 +7,8 @@
 
 	<!-- Associations table -->
 	<c:if test="${chart != null}">
+	<p>Hints: Use the dropdown filters to filter both the chart and the table. Hover over points in chart to see the parameter name and information. Click on a point to view the chart for that data point. Click and drag on the chart to zoom to that area.
+		</p>				
 		<!-- chart here -->
 		
 		<a id="checkAll" class="buttonForHighcharts"><i class="fa fa-check" aria-hidden="true"></i> Select all</a>
