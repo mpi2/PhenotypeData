@@ -3,15 +3,15 @@
 <%@taglib prefix="t" tagdir="/WEB-INF/tags"%>
 
 
-	<p class="resultCount">Total number of results: ${rows}</p>
+	<%-- <p class="resultCount">Total number of results: ${rows}</p> --%>
 
 	<!-- Associations table -->
 	<c:if test="${chart != null}">
 		<!-- chart here -->
-		<div id="chartDiv"></div>
+		
 		<a id="checkAll" class="buttonForHighcharts"><i class="fa fa-check" aria-hidden="true"></i> Select all</a>
 	    <a id="uncheckAll"  class="buttonForHighcharts"><i class="fa fa-times" aria-hidden="true"></i> Deselect all</a>
-	    
+	    <div id="chartDiv"></div>
 	    <div class="clear both"></div>
 	    
 		<script type="text/javascript" async>${chart}</script>
