@@ -6,8 +6,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.config.TestConfigIndexers;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
+import org.mousephenotype.cda.owl.OntologyParserFactory;
 import org.mousephenotype.cda.solr.service.AbstractGenotypePhenotypeService;
 import org.mousephenotype.cda.solr.service.dto.StatisticalResultDTO;
+import org.semanticweb.owlapi.model.OWLOntologyCreationException;
+import org.semanticweb.owlapi.model.OWLOntologyStorageException;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -19,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.*;
@@ -31,14 +35,18 @@ import java.util.stream.Collectors;
 @SpringBootTest(classes = {TestConfigIndexers.class})
 @TestPropertySource(locations = {"file:${user.home}/configfiles/${profile:dev}/test.properties"})
 @Transactional
+@Ignore
 public class StatisticalResultIndexerTest implements ApplicationContextAware {
 
     @Autowired
-    DataSource komp2DataSource;
+    private DataSource komp2DataSource;
 
-    StatisticalResultsIndexer statisticalResultIndexer;
+    private StatisticalResultsIndexer statisticalResultIndexer;
 
-    ApplicationContext applicationContext;
+    private ApplicationContext applicationContext;
+
+    @Autowired
+    private OntologyParserFactory ontologyParserFactory;
 
     @PostConstruct
     void postConstruct() {
@@ -60,7 +68,12 @@ public class StatisticalResultIndexerTest implements ApplicationContextAware {
             statisticalResultIndexer.populateParameterMpTermMap();
             statisticalResultIndexer.populateEmbryoSignificanceMap();
 
-        } catch (IllegalAccessException | InstantiationException | SQLException e) {
+            statisticalResultIndexer.setOntologyParserFactory(ontologyParserFactory);
+            statisticalResultIndexer.setMpParser(ontologyParserFactory.getMpParser());
+            statisticalResultIndexer.setMpMaParser(ontologyParserFactory.getMpParser());
+            statisticalResultIndexer.setMaParser(ontologyParserFactory.getMpParser());
+
+        } catch (IllegalAccessException | InstantiationException | SQLException | OWLOntologyCreationException | OWLOntologyStorageException | IOException e) {
             e.printStackTrace();
         }
     }

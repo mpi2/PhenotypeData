@@ -115,6 +115,26 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
     private OntologyParser maParser;
     OntologyParserFactory ontologyParserFactory;
 
+    public void setMpParser(OntologyParser mpParser) {
+        this.mpParser = mpParser;
+    }
+
+    public void setMpMaParser(OntologyParser mpMaParser) {
+        this.mpMaParser = mpMaParser;
+    }
+
+    public void setMaParser(OntologyParser maParser) {
+        this.maParser = maParser;
+    }
+
+    public OntologyParserFactory getOntologyParserFactory() {
+        return ontologyParserFactory;
+    }
+
+    public void setOntologyParserFactory(OntologyParserFactory ontologyParserFactory) {
+        this.ontologyParserFactory = ontologyParserFactory;
+    }
+
     @Override
     public RunStatus validateBuild() throws IndexerException {
         return super.validateBuild(statisticalResultCore);
