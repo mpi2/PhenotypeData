@@ -587,7 +587,7 @@ public class PhenomeChartProvider {
 							if (!categories.contains(statsResult.getParameter().getName())) {
 								categories.add(statsResult.getParameter().getName());
 								dataArray.put(dataPoint);
-								procedureLabels.add(statsResult.getProcedure().getName());
+								procedureLabels.add(statsResult.getParameter().getName());
 								index++;
 							}
 						}
