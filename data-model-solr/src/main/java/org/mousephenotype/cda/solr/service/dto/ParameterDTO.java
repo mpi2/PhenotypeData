@@ -55,6 +55,18 @@ public class ParameterDTO  extends ImpressBaseDTO{
 	
 	private String emapId;
 	private String emapName;
+	
+	
+	public Integer getParameterStableKey() {
+		return parameterStableKey;
+	}
+
+	public void setParameterStableKey(Integer parameterStableKey) {
+		this.parameterStableKey = parameterStableKey;
+	}
+
+
+	private Integer parameterStableKey;
 
 
 	public String getUnitY() {
@@ -273,6 +285,11 @@ public class ParameterDTO  extends ImpressBaseDTO{
 				", emapId='" + emapId + '\'' +
 				", emapName='" + emapName + '\'' +
 				'}';
+	}
+
+	public Integer getProcedureStableKey() {
+		return super.getStableKey();
+		
 	}
 
 }

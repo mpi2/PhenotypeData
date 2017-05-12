@@ -634,5 +634,16 @@ public class ImpressService extends BasicService implements WebStatus {
 	public static String getParameterUrl(Integer parameterStableKey){
 		return "/impress/parameterontologies/" + parameterStableKey ;
 	}
+
+
+
+	
+
+
+
+	public String getParameterUrlByProcedureAndParameterKey(Integer procedureKey,Integer parameterKey) {
+		
+		return DRUPAL_BASE_URL + "/impress/parameterontologies/"+parameterKey + "/"+procedureKey;
+	}
 	
 }
