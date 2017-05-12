@@ -53,7 +53,10 @@ public class ImpressBaseDTO {
 		this.id = id;
 	}
 
-
+	/**
+	 * This is the procedure stable key
+	 * @return
+	 */
 	public Integer getStableKey() {
 
 		return stableKey;

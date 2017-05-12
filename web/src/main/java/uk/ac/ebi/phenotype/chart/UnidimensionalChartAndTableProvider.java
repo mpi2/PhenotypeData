@@ -117,7 +117,11 @@ public class UnidimensionalChartAndTableProvider {
 		ProcedureDTO proc = impressService.getProcedureByStableId(experiment.getProcedureStableId()) ;
 		String procedureDescription = "";
 		if (proc != null) {
-			procedureDescription = String.format("<a href=\"%s\">%s</a>", impressService.getProcedureUrlByKey(((Integer)proc.getStableKey()).toString()), proc.getName());
+			procedureDescription = String.format("<a href=\"%s\">%s</a>", impressService.getProcedureUrlByKey(((Integer)proc.getStableKey()).toString()),  "Procedure: "+ proc.getName());
+		}
+		if (parameter.getStableKey() != null) {
+			System.out.println("parameter stable key still not null "+parameter.getStableKey());
+			title = String.format("<a href=\"%s\">%s</a>", impressService.getParameterUrlByProcedureAndParameterKey(proc.getStableKey(),parameter.getStableKey()),  "Parameter: "+ parameter.getName());
 		}
 
 		unidimensionalDataSet.setChartData(chartAndTable);
