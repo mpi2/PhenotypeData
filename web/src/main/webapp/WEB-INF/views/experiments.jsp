@@ -23,12 +23,15 @@
 				<div class="content">
 					<div class="node node-gene">
 						<c:if test="${phenotypeFilters != null || phenotypeFilters.size() > 0}">
-							<h1 id="top">All
+							<h1 class="title" id="top">All
 								<c:forEach var="phenotypeDto" items="${phenotypeFilters}"  varStatus="loop">
 		                        	${phenotypeDto.getMpTerm()}<c:if test="${!loop.last}">, </c:if>
 		                        </c:forEach>
-							 data for ${allelePageDTO.getGeneSymbol()}</h1>
-						</c:if>
+							 data for ${allelePageDTO.getGeneSymbol()}  
+							 <span class="documentation"><a href='' id='phenoAssocSection' class="fa fa-question-circle pull-right"></a></span>
+							</h1>
+							 
+							 </c:if>
 						<%-- <c:if test="${phenotypeFilters == null || phenotypeFilters.size() == 0}">
 							<h1 id="top">All data for ${allelePageDTO.getGeneSymbol()}</h1>
 						</c:if> --%>

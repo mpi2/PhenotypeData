@@ -50,19 +50,22 @@ public class IndexerManager  {
     protected CommonUtils commonUtils = new CommonUtils();
 
     // core names.
-    //      These are built only for a new data release.
+
+    // The phenodigm core is built on a completely separate schedule, whenever Damian gives us a new release.
+    static final String PHENODIGM_CORE = "phenodigm";
+
+    // These are built only for a new data release.
     static final String PIPELINE_CORE = "pipeline";
     static final String OBSERVATION_CORE = "experiment";                 // For historic reasons, the core's actual name is 'experiment'.
     static final String GENOTYPE_PHENOTYPE_CORE = "genotype-phenotype";
     static final String STATSTICAL_RESULT_CORE = "statistical-result";
 	static final String MGI_PHENOTYPE_CORE = "mgi-phenotype";
-	static final String PHENODIGM_CORE = "phenodigm";
     static final String ANATOMY_CORE = "anatomy";
 
-    //      These are built daily.
-    static final String PRODUCT_CORE = "product";
+    // These are built daily.
     static final String ALLELE2_CORE = "allele2";
     static final String PREQC_CORE = "preqc";
+    static final String PRODUCT_CORE = "product";
     static final String ALLELE_CORE = "allele";
     static final String IMAGES_CORE = "images";
     static final String IMPC_IMAGES_CORE = "impc_images";
@@ -106,13 +109,12 @@ public class IndexerManager  {
         , GENOTYPE_PHENOTYPE_CORE
 	    , STATSTICAL_RESULT_CORE
 	    , MGI_PHENOTYPE_CORE
-	    , PHENODIGM_CORE
         , ANATOMY_CORE
 
           // These are built daily.
         , ALLELE2_CORE
-        , PRODUCT_CORE
         , PREQC_CORE
+        , PRODUCT_CORE
         , ALLELE_CORE
         , IMAGES_CORE
         , IMPC_IMAGES_CORE
@@ -123,11 +125,11 @@ public class IndexerManager  {
     };
     private final List<String> allCoresList = Arrays.asList(allCoresArray);
 
-    static final String[] allDailyCoresArray = new String[] {
+    static final String[] dailyCoresArray = new String[] {
           // In dependency order. These are built daily.
           ALLELE2_CORE
-        , PRODUCT_CORE
         , PREQC_CORE
+        , PRODUCT_CORE
         , ALLELE_CORE
         , IMAGES_CORE
         , IMPC_IMAGES_CORE
@@ -506,9 +508,9 @@ public class IndexerManager  {
             cores = new ArrayList();
 
             if (options.has(ALL_ARG)) {
-                firstCore = OBSERVATION_CORE;
+                firstCore = PIPELINE_CORE;
             } else if (options.has(DAILY_ARG)) {
-                firstCore = PREQC_CORE;
+                firstCore = ALLELE2_CORE;
             } else if (options.has(CORES_ARG)) {
                 if ((nodeps) || coresRequested.size() > 1) {
                     cores.addAll(coresRequested);

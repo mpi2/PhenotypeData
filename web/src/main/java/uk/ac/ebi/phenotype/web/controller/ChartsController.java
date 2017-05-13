@@ -207,7 +207,8 @@ public class ChartsController {
 		// TODO need to check we don't have more than one accession and one
         // parameter throw and exception if we do
         // get the parameter object from the stable id
-        ParameterDTO parameter = is.getParameterByStableId(parameterStableId);
+        ParameterDTO parameter = is.getParameterByStableId(parameterStableId);     
+        
         if (parameter == null) {
             throw new ParameterNotFoundException("Parameter " + parameterStableId + " can't be found.", parameterStableId);
         }

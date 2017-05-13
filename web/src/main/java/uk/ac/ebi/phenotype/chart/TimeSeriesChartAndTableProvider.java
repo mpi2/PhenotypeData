@@ -286,7 +286,13 @@ public class TimeSeriesChartAndTableProvider {
 		String parameterLink = "";
 		if (parameter != null) {
 			parameterLink = "<a href=\""+ImpressService.getParameterUrl(parameter.getStableKey()).toString()+"\">"+parameter.getStableId()+"</a>";
+			if (parameter.getProcedureNames() != null) {
+				parameter.getProcedureStableKey();
+				parameterLink = "<a href=\""+ImpressService.getParameterUrl(parameter.getStableKey()).toString()+"\">"+parameter.getStableId()+"</a>";
+			}
 		}
+		
+		chartAndTable.setTitle(parameterLink);
 		chartAndTable.setSubTitle(parameterLink);
 		chartAndTable.setChart(javascript);
 		chartAndTable.setOrganisation(organisation);

@@ -44,11 +44,12 @@ public class PhenomeChartProvider {
 		+ "         zoomType: 'xy',\n"
 		+ "         height: 800\n"
 		+ "     },\n"
+			
 		+ "   title: {\n"
-		+ "        text: ' " + "P-values Overview' \n"
+		+ "        text: '' \n"
 		+ "    },\n"
 		+ "     subtitle: {\n"
-		+ "        text: 'Parameter by parameter' \n"
+		+ "        text: '' \n"
 		+ "    },\n"
 		+ " yAxis: {\n"
 		+ "     categories: " + categories.toString() + ",\n"
@@ -56,15 +57,7 @@ public class PhenomeChartProvider {
 		+ "           enabled: true,\n"
 		+ "           text: 'Parameters' \n"
 		+ "        }, \n"
-		+ "       labels: { \n"
-//		+ "           rotation: -90, \n"
-//		+ "           align: 'right', \n"
-		+ "           style: { \n"
-		+ "              fontSize: '11px', \n"
-		+ "              fontFamily: 'Verdana, sans-serif' \n"
-		+ "         } \n"
-		+ "     }, \n"
-		+ "      showLastLabel: true \n"
+		
 		+ "  }, \n"
 		+ "    xAxis: { floor: 0, minRange: 6, ceiling: 22, \n"
 		+ "         title: { \n"
@@ -76,12 +69,25 @@ public class PhenomeChartProvider {
 		+ "		dashStyle : 'shortdash',\n"
 		+ "		width : 2,\n"
 		+ "		label : { text : 'Significance threshold " + minimalPValue + "' }\n"
-		+ "		}] \n"
+		+ "		}"
+		+ ",{\n"
+		+ "		value : " + -Math.log10(minimalPValue)/2 + ",\n"
+		
+		+ "		width : 2,\n"
+		+ "		label : { text : 'Not Significant ' }\n"
+		+ "		}"
+		+ ",{\n"
+		+ "		value : " + -Math.log10(minimalPValue)*2 + ",\n"
+				+ "		useHTML : true, opacity: 0.5, \n"
+		+ "		width : 2,\n"
+		+ "		label : { text : 'Significant ' }\n"
+		+ "		}"
+		+ "] \n"
 		+ "       }, \n"
 		+ "      credits: { \n"
 		+ "         enabled: false \n"
 		+ "      }, \n"
-		+ "     legend: { layout: 'horizontal', align: 'center',	verticalAlign: 'bottom', borderWidth: 0	},"
+		+ "     legend: { layout: 'horizontal', align: 'right',	verticalAlign: 'top', borderWidth: 0	},"
 		+ "     tooltip: {\n"
 		+ "        headerFormat: '<span style=\"font-size:10px\">{point.name}</span><table>',\n"
 		+ "        pointFormat: '" + pointFormat + "',\n"
@@ -91,6 +97,7 @@ public class PhenomeChartProvider {
 		+ "     }, \n"
 		+ "      plotOptions: { \n"
 		+ "        scatter: { \n"
+		+" 			cursor: 'pointer',\n"
 		+ "            marker: { \n"
 		+ "                radius: 5, \n"
 		+ "                states: { \n"
@@ -209,6 +216,7 @@ public class PhenomeChartProvider {
 		+ "     }, \n"
 		+ "      plotOptions: { \n"
 		+ "        scatter: { \n"
+		+" cursor: 'pointer',"
 		+ "            marker: { \n"
 		+ "                radius: 5, \n"
 		+ "                states: { \n"
@@ -579,7 +587,7 @@ public class PhenomeChartProvider {
 							if (!categories.contains(statsResult.getParameter().getName())) {
 								categories.add(statsResult.getParameter().getName());
 								dataArray.put(dataPoint);
-								procedureLabels.add(statsResult.getProcedure().getName());
+								procedureLabels.add(statsResult.getParameter().getName());
 								index++;
 							}
 						}

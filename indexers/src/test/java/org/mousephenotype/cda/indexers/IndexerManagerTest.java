@@ -25,6 +25,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.junit.*;
 import org.junit.runner.RunWith;
+import org.mousephenotype.cda.config.TestConfigIndexers;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.indexers.exceptions.InvalidCoreNameException;
 import org.mousephenotype.cda.indexers.exceptions.MissingRequiredArgumentException;
@@ -551,10 +552,10 @@ public class IndexerManagerTest {
       */
      @Test
 //@Ignore
-     public void testInstanceFirstCore() {
+     public void testInstanceFirstAllCore() {
         String testName = "testInstanceFirstCore";
         System.out.println("-------------------" + testName + "-------------------");
-        String[] args = new String[] { "--cores=experiment" };
+        String[] args = new String[] { "--cores=pipeline" };
         System.out.println("Command line = " + StringUtils.join(args, ","));
         IndexerManager indexerManager = new IndexerManager();
 
@@ -607,31 +608,20 @@ public class IndexerManagerTest {
      public void testInstanceFirstDailyCore() {
         String testName = "testInstanceFirstDailyCore";
         System.out.println("-------------------" + testName + "-------------------");
-        String[] args = new String[] { "--cores=preqc" };
-        System.out.println("Command line = " + StringUtils.join(args, ","));
-        IndexerManager indexerManager = new IndexerManager();
 
-        // Determine which cores to build.
-        try {
-            indexerManager.initialise(args);
-        } catch (IndexerException ie) {
-            fail(ie.getLocalizedMessage());
-        }
+         String[] args = new String[] { "--cores=allele2" };
+         System.out.println("Command line = " + StringUtils.join(args, ","));
+         IndexerManager indexerManager = new IndexerManager();
 
-        String[] actualCores = indexerManager.getCores().toArray(new String[0]);
-        String[] expectedCores = new String[] {
-          IndexerManager.PREQC_CORE
-        , IndexerManager.ALLELE_CORE
-        , IndexerManager.IMAGES_CORE
-        , IndexerManager.IMPC_IMAGES_CORE
-        , IndexerManager.MP_CORE
-        , IndexerManager.ANATOMY_CORE
-        , IndexerManager.PIPELINE_CORE
-        , IndexerManager.GENE_CORE
-        , IndexerManager.DISEASE_CORE
-        , IndexerManager.AUTOSUGGEST_CORE
-        };
-        assertArrayEquals(expectedCores, actualCores);
+         // Determine which cores to build.
+         try {
+             indexerManager.initialise(args);
+         } catch (IndexerException ie) {
+             fail(ie.getLocalizedMessage());
+         }
+
+         String[] actualCores = indexerManager.getCores().toArray(new String[0]);
+         assertArrayEquals(IndexerManager.dailyCoresArray, actualCores);
      }
 
      /**
@@ -830,7 +820,7 @@ public class IndexerManagerTest {
         }
 
         String[] actualCores = indexerManager.getCores().toArray(new String[0]);
-        assertArrayEquals(IndexerManager.allDailyCoresArray, actualCores);
+        assertArrayEquals(IndexerManager.dailyCoresArray, actualCores);
      }
 
      /**

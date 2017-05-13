@@ -85,10 +85,12 @@ public class StatisticalResultTest {
 
 	}
 
+	// WHAT IS THIS TEST INTENDED TO DO? CURRENTLY IT DOESN'T TEST ANYTHING. CHANGED System.out.println() to logger.debug.
+	@Ignore
 	@Test
 	public void verifyDatabaseWiring() {
-		System.out.println(ppDAo.getParameterByStableId("IMPC_DXA_006_001"));
-		System.out.println(ppDAo.getParameterByStableId("IMPC_DXA_006_002"));
+		logger.debug(ppDAo.getParameterByStableId("IMPC_DXA_006_001").toString());
+		logger.debug(ppDAo.getParameterByStableId("IMPC_DXA_006_002").toString());
 	}
 
 	@Ignore
