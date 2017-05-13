@@ -1,7 +1,10 @@
-package org.mousephenotype.cda.indexers;
+package org.mousephenotype.cda.config;
 
 import org.apache.solr.client.solrj.SolrClient;
+import org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrClient;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
+import org.mousephenotype.cda.owl.OntologyParserFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
@@ -22,6 +25,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import javax.persistence.PersistenceContext;
 import javax.sql.DataSource;
+import javax.validation.constraints.NotNull;
 import java.util.Properties;
 
 
@@ -37,8 +41,19 @@ import java.util.Properties;
 @EnableSolrRepositories(basePackages = {"org.mousephenotype.cda.solr.repositories"}, multicoreSupport = true)
 public class TestConfigIndexers {
 
+	public static final int QUEUE_SIZE = 10000;
+	public static final int THREAD_COUNT = 3;
+
+	@NotNull
+	@Value("${buildIndexesSolrUrl}")
+	private String writeSolrBaseUrl;
+
 	@Value("http:${solr_url}")
 	String solrBaseUrl;
+
+	@NotNull
+	@Value("${owlpath}")
+	protected String owlpath;
 
 	// Required for spring-data-solr repositories
 	@Bean
@@ -108,13 +123,14 @@ public class TestConfigIndexers {
 		return sessionFactory;
 	}
 
-//	@Bean(name = "komp2TxManager")
-//	@Primary
-//	public PlatformTransactionManager transactionManager(EntityManagerFactory emf) {
-//		JpaTransactionManager tm = new JpaTransactionManager();
-//		tm.setEntityManagerFactory(emf);
-//		tm.setDataSource(komp2DataSource());
-//		return tm;
-//	}
+	@Bean
+	@Qualifier("phenodigmIndexingSolrClient")
+	public SolrClient phenodigmCore() {
+		return new ConcurrentUpdateSolrClient(writeSolrBaseUrl + "/phenodigm", QUEUE_SIZE, THREAD_COUNT);
+	}
 
+	@Bean
+    public OntologyParserFactory ontologyParserFactory() {
+	    return new OntologyParserFactory(komp2DataSource(), owlpath);
+    }
 }

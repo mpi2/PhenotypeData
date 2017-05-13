@@ -139,7 +139,7 @@ h3 a {
 	font-family: 'Lucida Grande', 'Lucida Sans Unicode', Arial, Helvetica, sans-serif;
 	font-size: 12px;
 	font-weight:bold;
-	float:right;
+	/* float:right; */
 	color:black;
 	margin-left:2em;
 	text-decoration: none;

@@ -305,6 +305,7 @@ public class CategoricalChartAndTableProvider {
 		JSONArray seriesArray = new JSONArray();
 		JSONArray xAxisCategoriesArray = new JSONArray();
 		String title = parameter.getName();
+		
 		List<CategoricalSet> catSets = chartData.getCategoricalSets();
 		// get a list of unique categories
 		HashMap<String, List<Long>> categories = new LinkedHashMap<String, List<Long>>();
@@ -353,7 +354,10 @@ public class CategoricalChartAndTableProvider {
 		ProcedureDTO proc = impressService.getProcedureByStableId(experiment.getProcedureStableId()) ;
 		String procedureDescription = "";
 		if (proc != null) {
-			procedureDescription = String.format("<a href=\"%s\">%s</a>", impressService.getProcedureUrlByKey(((Integer)proc.getStableKey()).toString()), proc.getName());
+			procedureDescription = String.format("<a href=\"%s\">%s</a>", impressService.getProcedureUrlByKey(((Integer)proc.getStableKey()).toString()), "Procedure: "+proc.getName());
+		}
+		if (parameter.getStableKey() != null) {
+			title = String.format("<a href=\"%s\">%s</a>", impressService.getParameterUrlByProcedureAndParameterKey(proc.getStableKey(),parameter.getStableKey()),  "Parameter: "+ parameter.getName());
 		}
 
 
@@ -369,7 +373,7 @@ public class CategoricalChartAndTableProvider {
 			+ "tooltip : "+ toolTipFunction
 			+ ", colors:" + colors
 			+ ", chart: { renderTo: 'chart"	+ chartId + "', type: 'column' }, "
-			+ "title: {  text: '<span data-parameterStableId=\"" + parameter.getStableId() + "\">" + WordUtils.capitalize(title) + "</span>', useHTML:true  }, "
+			+ "title: {  text: ' "+ title +"', useHTML:true  }, "
 			+ "credits: { enabled: false }, "
 			+ "subtitle: {  useHTML: true,  text: '" + procedureDescription + "', x: -20 }, "
 			+ "xAxis: { categories: "+ xAxisCategoriesArray+ "}, "

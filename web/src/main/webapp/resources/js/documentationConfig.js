@@ -65,6 +65,12 @@ MDOC.phenotypes = {
 		'geneVariantSectionDocUrl' 			: docuBase + '/doc-explore#geneVariantSection1',
 
 };
+
+MDOC.experiments = {
+		'phenoAssocSection'              	: '<p>Mammalian Phenotype (MP) associations made to this gene.</p><p>Click the help icon for more detail.</p>',	
+
+};
+
 MDOC.diseases = {
 	'summarySection'         				: "<p> Disease summary.<p> <p>Click the help icon for more detail.</p>",
 	'summarySectionDocUrl'   				: docuBase + '/doc-explore#summarySection2',
