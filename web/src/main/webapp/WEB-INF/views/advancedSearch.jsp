@@ -164,6 +164,9 @@
 				left: 600px;
 				margin-left: 5px;
 			}
+			button {
+
+			}
 			span.sugListPheno {
 				font-size: 10px;
 			}
@@ -339,6 +342,7 @@
 			}
 			#chrSel {
 				display: inline;
+				width: 40px;
 			}
 			div#rangeBox input {padding: 0 3px;}
 			input#rstart {width: 55px;}
@@ -647,6 +651,8 @@
                             {"top level mouse phenotype ontology id":"topLevelMpId"},
                             {"top level mouse phenotype ontology term":"topLevelMpTerm"},
                             {"mouse phenotype ontology term synonym": "ontoSynonym"},
+                            {"IMPReSS parameter name": "parameterName"},
+                            {"p value": "pvalue"}
                         ],
                         selected: [
                            "mpTerm"
@@ -800,6 +806,12 @@
                         else if (property == "ensemblGeneId") {
                             dataType = "Gene";
                         }
+                        else if (property == 'parameterName'){
+                            dataType = 'StatisticalResult';
+						}
+                        else if (property == 'pvalue'){
+                            dataType = 'StatisticalResult';
+                        }
                         else if (property == "alleleMgiAccessionId") {
                             dataType = "Allele";
                         }
@@ -859,6 +871,21 @@
                     if (phenotypeSexes.length > 0) {
                     	kv['phenotypeSexes'] = phenotypeSexes;
                 	}
+
+                	// IMPReSS parameter name
+                   	if ($('input.srchPipeline').val() != 'search' && $('input.srchPipeline').val() != ''){
+                        console.log("check parameter: "+ $('input.srchPipeline').val());
+                        kv['srchPipeline'] = $('input.srchPipeline').val();
+                    }
+
+                    if ( $('input#gtpvalue').val() != '' && $('input#ltpvalue').val() != '' ){
+                   	    if ($('input#gtpvalue').val() != ''){
+                   	        kv['gtpvalue'] = $('input#gtpvalue').val();
+						}
+                        if ($('input#ltpvalue').val() != ''){
+                            kv['ltpvalue'] = $('input#ltpvalue').val();
+                        }
+					}
 
                 	// mouse phenotype
 					if ($('textarea.Mp').val() != ''){
@@ -1040,7 +1067,7 @@
                     else if ( thisInput.hasClass('srchDiseaseModel') ){
                         docType = 'disease';
                     }
-                    else if ( thisInput.hasClass('srchPipeliine') ){
+                    else if ( thisInput.hasClass('srchPipeline') ){
                         docType = 'pipeline';
                     }
 
@@ -1232,7 +1259,7 @@
                     refreshResult(); // refresh first
 
                     var flList = [];
-                    var dtypes = ["Allele", "Gene", "Mp", "DiseaseModel"];
+                    var dtypes = ["Allele", "Gene", "Mp", "DiseaseModel", "StatisticalResult"];
                     for (var d=0; d<dtypes.length; d++){
                         var cols = oJson[dtypes[d]];
                         console.log(cols);
@@ -1511,7 +1538,6 @@
                         //addOntologyChildrenLevelFilter(dataType);
                         compartmentAttrsFilters(dataType, "Phenotype");
 
-                        addParameterSliderJs();
                     }
                     else if (dataType == "Hp"){
                         addAutosuggestFilter(dataType);
@@ -1537,27 +1563,6 @@
                         showLabels: true,
                         isRange : true
                     });
-				}
-
-            	function addParameterSliderJs(){
-					$('.range-slider').jRange({
-                        from: 0,
-                        to: 1,
-                        step: 100,
-                        scale: [0,0.25,0.50,0.75,1],
-                       // format: '%s',
-                        width: 200,
-                        showLabels: true,
-                        isRange : true
-//						from: 0,
-//						to: 1,
-//						step: 10,
-//						scale: [0,0.25,0.5,0.75,1],
-//						format: '%s',
-//						width: 200,
-//						showLabels: true,
-//						isRange : true
-					});
 				}
 
                 function removeDatatypeFiltersAttributes(dataType) {
@@ -1608,19 +1613,41 @@
 				}
 
 				function addParameterFilter(dataType){
-                    var legend = "<legend>IMPReSS parameter filter</legend>";
+
+                    var legend = "<legend>IMPReSS parameter and p value filter</legend>";
+                    var msg = "Find the parameter of experiment:";
                     var input = "<div class='block srchBox'>" +
                         "<i class='fa fa-search'></i>" +
-                        "<input class='termFilter srch" + dataType + "' value='search'>" +
+                        "<input class='termFilter srchPipeline' value='search'>" +
                         "<i class='fa fa-times' id='" + dataType + "Clear'></i>" +
                         "</div>";
 
-                    var slider = "<b>p value range</b>:<div class='sliderBox'><input type='hidden' class='range-slider' value='1' /></div>";
+                    //var slider = "<b>p value range</b>:<div class='sliderBox'><input type='hidden' class='range-slider' value='1' /></div>";
 
-                    var filter = "<fieldset class='" + dataType + "Filter dfilter " + dataType + "'>" + legend + input + slider + "</fieldset>";
+                	var pValueRange = "p value range: <input id='gtpvalue' type='text'></input> < P < <input id='ltpvalue' type='text'></input>";
+                    var filter = "<fieldset class='" + dataType + "Filter dfilter " + dataType + "'>" + legend + msg + input + pValueRange + "</fieldset>";
 
                     $('div#dataAttributes').append(filter);
 
+
+                    $('#rangeInput').on('input change', function () {
+                        $('#rangeText').text(rangeValues[$(this).val()]);
+                    });
+
+
+                    // clear input
+                    $("fieldset." + dataType + "Filter").on("click", "input.srchPipeline", function(){
+                        if ($(this).val() == "search"){
+                            $(this).val("");
+                        }
+                    });
+
+                    // clear input when the value is not default: "search"
+                    $("fieldset." + dataType + "Filter").on("click", "i#" + dataType + "Clear", function(){
+                        $(this).siblings($("input.srchPipeline")).val("");
+                    });
+
+                    // exception
                     addAutosuggest($('input.srchPipeline'));
 
 				}
@@ -1646,7 +1673,7 @@
                     }
 
                     var legend = '<legend>Mouse chromosome filter</legend>';
-                    var inputs = 'Chr: <select id="chrSel">' + chrSel + '</select> ' +
+                    var inputs = 'Chr (multiples ok): <select multiple size="4" id="chrSel">' + chrSel + '</select> ' +
                         'Start: <input id="rstart" type="text" name="chr"> ' +
                         'End: <input id="rend" type="text" name="chr"> (restricts genes on region of this chromosome)';
                     var filter = "<fieldset id='chromosome' class='dfilter " + dataType + "'>" + legend + inputs + "</fieldset>";
@@ -1786,7 +1813,7 @@
                                 window.open(baseUrl + "/ontologyBrowser?termId=" + id, '_blank');
                             },
                             'error' : function(jqXHR, textStatus, errorThrown) {
-                                alert("error: " + errorThrown);
+                                alert("Sorry, this phenotype does not have Ontology View");
                             }
                         });
 
@@ -1840,7 +1867,7 @@
                     $(fieldsetFilter + "button.ap").click(function(){
 
                         // only allow max of 3, otherwise it gets to complicated with the AND/OR combinataions
-                        if ($(fieldsetFilter +".srchBox").size() < 3){
+                        if ($(fieldsetFilter +".srchBox").size() < 4){
 							$(input).insertAfter($(fieldsetFilter + ".srchBox").last());
 
 							var lastButt = $(fieldsetFilter + "button.andOr").last();

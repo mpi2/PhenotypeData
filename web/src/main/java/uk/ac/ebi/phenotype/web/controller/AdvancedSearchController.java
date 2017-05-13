@@ -42,6 +42,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.data.neo4j.annotation.QueryResult;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -135,6 +136,7 @@ public class AdvancedSearchController {
 
     @Autowired
     AutoSuggestService autoSuggestService;
+
 
     private String NA = "not available";
     private String hostname = null;
@@ -328,6 +330,8 @@ public class AdvancedSearchController {
 
         String significant = " AND sr.significant = true ";
         String phenotypeSexes = composePhenotypeSexStr(jParams);
+        String parameter = composeParameter(jParams);
+        String pvalues = composePvalues(jParams);
         String chrRange = composeChrRangeStr(jParams);
         String geneList = composeGeneListStr(jParams);
         String genotypes = composeGenotypesStr(jParams);
@@ -338,7 +342,6 @@ public class AdvancedSearchController {
         String diseaseGeneAssociation = composeDiseaseGeneAssociation(jParams);
         String humanDiseaseTerm = composeHumanDiseaseTermStr(jParams);
 
-        String mpSearchCypher = "";
 
         String mpStr = null;
         if (jParams.containsKey("srchMp")) {
@@ -370,35 +373,51 @@ public class AdvancedSearchController {
         Result result = null;
 
         String sortStr = geneList.isEmpty() ? " ORDER BY g.markerSymbol " : "";
+        String query = null;
 
         if (mpStr == null ){
-            String query = "MATCH (g:Gene)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp) "
-                    + " WHERE sr.significant = true "
-                    + phenotypeSexes + chrRange + geneList + genotypes + alleleTypes
-                    + " WITH g, a, sr, mp "
-                    + " MATCH (g)<-[:GENE]-(dm:DiseaseModel) WHERE "
-                    + phenodigmScore + diseaseGeneAssociation + humanDiseaseTerm;
-                    //+ " RETURN a, g, mp, dm";
 
+            if (geneList.isEmpty()) {
+                query = "MATCH (sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g:Gene)"
+                        + " WHERE sr.significant = true "
+                        + phenotypeSexes + pvalues + chrRange + geneList + genotypes + alleleTypes
+                        + " WITH sr, a, g "
+                        + " MATCH (sr)-[:MP]->(mp:Mp) "
+                        + " WITH g, a, mp, sr "
+                        + " MATCH (g)<-[:GENE]-(dm:DiseaseModel) WHERE "
+                        + phenodigmScore + diseaseGeneAssociation + humanDiseaseTerm;
+            }
+            else {
+                query = "MATCH (g:Gene)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp) "
+                        + " WHERE sr.significant = true "
+                        + phenotypeSexes + pvalues + chrRange + geneList + genotypes + alleleTypes
+                        + " WITH g, a, mp, sr "
+                        + " MATCH (g)<-[:GENE]-(dm:DiseaseModel) WHERE "
+                        + phenodigmScore + diseaseGeneAssociation + humanDiseaseTerm;
+            }
 
-            query += isExport ? " RETURN g, a, collect(distinct mp), collect(distinct dm)" + sortStr : " RETURN a, g, mp, dm" + sortStr;
+            query += isExport ? " RETURN distinct g, a, sr, collect(distinct mp), collect(distinct dm)" + sortStr : " RETURN distinct a, g, mp, dm, sr" + sortStr;
 
             System.out.println("Query: "+ query);
-            result =  neo4jSession.query(query, params);
+            result = neo4jSession.query(query, params);
         }
         else if (! mpStr.contains("AND") && ! mpStr.contains("OR") ) {
             // single mp term
 
             mpStr = mpStr.trim();
-            String query = "MATCH (g:Gene)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp)-[:PARENT*0..]->(mp0:Mp) "
-                    + " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') "
-                    + significant + phenotypeSexes + chrRange + geneList + genotypes + alleleTypes
-                    + " WITH g, a, sr, mp "
-                    + " MATCH (g)<-[:GENE]-(dm:DiseaseModel) WHERE "
-                    + phenodigmScore + diseaseGeneAssociation + humanDiseaseTerm;
 
-            query += isExport ? " RETURN a, g, collect(distinct mp), collect(distinct dm)" + sortStr
-                    : " RETURN a, g, mp, dm" + sortStr;
+            query = "MATCH (mp0:Mp)<-[:PARENT*0..]-(mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:GENE]->(g:Gene) "
+                + " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') "
+                + significant + phenotypeSexes + pvalues + chrRange + geneList + genotypes
+                + " WiTH g, mp, sr "
+                + " MATCH (sr)-[:ALLELE]->(a:Allele) "
+                + alleleTypes
+                + " WITH distinct a, g, mp, sr "
+                + " MATCH (g)<-[:GENE]-(dm:DiseaseModel) WHERE "
+                + phenodigmScore + diseaseGeneAssociation + humanDiseaseTerm;
+
+            query += isExport ? " RETURN distinct a, g, sr, collect(distinct mp), collect(distinct dm)" + sortStr
+                    : " RETURN distinct a, g, mp, dm, sr" + sortStr;
 
             params.put("mpA", mpStr);
 
@@ -408,17 +427,40 @@ public class AdvancedSearchController {
         else if (mpStr.matches(regex_aAndb_Orc)) {
             System.out.println("matches (a and b) or c");
 
-            String query = "MATCH (g:Gene)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp)-[:PARENT*0..]->(mp0:Mp) "
-                + " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') WITH g, a, sr, mp "
-                + " MATCH (g)<-[:GENE]-(a1:Allele)<-[:ALLELE]-(sr1:StatisticalResult)-[:MP]->(mp1:Mp)-[:PARENT*0..]->(mp0:Mp) WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*') "
-                + " WITH collect({genes:g, mps:mp, srs:sr, alleles:a, mps1:mp1, srs1:sr1, alleles1:a1}) as list1 "
-                + " MATCH (g2:Gene)<-[:GENE]-(a2:Allele)<-[:ALLELE]-(sr2:StatisticalResult)-[:MP]->(mp2:Mp)-[:PARENT*0..]->(mp0:Mp) "
-                + " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpC}+'.*') "
-                + " WITH list1 + collect({genes: g2, mps:mp2, srs:sr2, alleles:a2, mps1:'', srs1:'', alleles1:''}) as alllist "
-                + " unwind alllist as nodes "
-                + " WITH nodes.genes as g, nodes "
-                + " MATCH (g)<-[:GENE]-(dm:DiseaseModel) ";
+            if (geneList.isEmpty()) {
+                query = "MATCH (mp0:Mp)<-[:PARENT*0..]-(mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g:Gene) "
+                    + " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') "
+                    + significant + phenotypeSexes + pvalues + chrRange + geneList + genotypes + alleleTypes
+                    + " WITH g, a, sr, mp "
+                    + " (mp0:Mp)<-[:PARENT*0..]-(mp1:Mp)<-[:MP]-(sr1:StatisticalResult)-[:ALLELE]->(a1:Allele)-[:GENE]->(g) WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*') "
+                    + significant + phenotypeSexes + pvalues + chrRange + geneList + genotypes + alleleTypes
+                    + " WITH collect({genes:g, mps:mp, srs:sr, alleles:a, mps1:mp1, srs1:sr1, alleles1:a1}) as list1 "
+
+                    + " MATCH (mp0:Mp)<-[:PARENT*0..]-(mp2:Mp)<-[:MP]-(sr2:StatisticalResult)-[:ALLELE]->(a2:Allele)-[:GENE]->(g2:Gene)  "
+                    + " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpC}+'.*') "
+                    + significant + phenotypeSexes + pvalues + chrRange + geneList + genotypes + alleleTypes
+                    + " WITH list1 + collect({genes: g2, mps:mp2, srs:sr2, alleles:a2, mps1:'', srs1:'', alleles1:''}) as alllist "
+                    + " unwind alllist as nodes "
+                    + " WITH nodes.genes as g, nodes "
+                    + " MATCH (g)<-[:GENE]-(dm:DiseaseModel) ";
+            }
+            else {
+                query = "MATCH (g:Gene)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp)-[:PARENT*0..]->(mp0:Mp) "
+                    + " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') "
+                    + " WITH g, a, sr, mp "
+                    + significant + phenotypeSexes + pvalues + chrRange + geneList + genotypes + alleleTypes
+                    + " MATCH (g)<-[:GENE]-(a1:Allele)<-[:ALLELE]-(sr1:StatisticalResult)-[:MP]->(mp1:Mp)-[:PARENT*0..]->(mp0:Mp) WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*') "
+                    + significant + phenotypeSexes + pvalues + chrRange + geneList + genotypes + alleleTypes
+                    + " WITH collect({genes:g, mps:mp, srs:sr, alleles:a, mps1:mp1, srs1:sr1, alleles1:a1}) as list1 "
+                    + " MATCH (g2:Gene)<-[:GENE]-(a2:Allele)<-[:ALLELE]-(sr2:StatisticalResult)-[:MP]->(mp2:Mp)-[:PARENT*0..]->(mp0:Mp) "
+                    + " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpC}+'.*') "
+                    + significant + phenotypeSexes + pvalues + chrRange + geneList + genotypes + alleleTypes
+                    + " WITH list1 + collect({genes: g2, mps:mp2, srs:sr2, alleles:a2, mps1:'', srs1:'', alleles1:''}) as alllist "
+                    + " unwind alllist as nodes "
+                    + " WITH nodes.genes as g, nodes "
+                    + " MATCH (g)<-[:GENE]-(dm:DiseaseModel) ";
                 //+ " RETURN g, nodes.mps, nodes.srs, nodes.alleles, dm, nodes.mps1, nodes.srs1, nodes.alleles1";
+            }
 
             query += isExport ? " RETURN g, collect(distinct nodes.alleles), collect(distinct nodes.alleles1), collect(distinct nodes.mps), collect(distinct nodes.mps1), collect(distinct dm)" + sortStr
                     : " RETURN g, nodes.alleles, nodes.alleles1, dm, nodes.mps, nodes.mps1" + sortStr;
@@ -441,89 +483,44 @@ public class AdvancedSearchController {
                 result =  neo4jSession.query(query, params);
             }
         }
-        else if (mpStr.matches(regex_aAnd_bOrc)) {
-            logger.info("matches a and (b or c)");
-
-            String query = "MATCH (g:Gene)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp)-[:PARENT*0..]->(mp0:Mp) "
-                + "WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*') OR mp0.mpTerm =~ ('(?i)'+'.*'+{mpC}+'.*') "
-                + significant + phenotypeSexes + chrRange + geneList + genotypes + alleleTypes
-                + " WITH g, a, sr, mp "
-                + " MATCH (g)<-[:GENE]-(a1:Allele)<-[:ALLELE]-(sr1:StatisticalResult)-[:MP]->(mp1:Mp)-[:PARENT*0..]->(mp0:Mp) WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') "
-                + significant + phenotypeSexes + chrRange + geneList + genotypes + alleleTypes
-                + " WITH g, a, sr, mp, a1, sr1, mp1 "
-                + " MATCH (g)<-[:GENE]-(dm:DiseaseModel) WHERE "
-                + phenodigmScore + diseaseGeneAssociation + humanDiseaseTerm;
-
-            query += isExport ? "RETURN g, collect(distinct a), collect(distinct a1), collect(distinct mp), collect(distinct mp1), collect(distinct dm)" + sortStr
-                    : " RETURN g, a, dm, mp, a1, mp1" + sortStr;
-
-            Pattern pattern = Pattern.compile(regex_aAnd_bOrc);
-            Matcher matcher = pattern.matcher(mpStr);
-
-            while (matcher.find()) {
-                System.out.println("found: " + matcher.group(0));
-                String mpA = matcher.group(1).trim();
-                String mpB = matcher.group(2).trim();;
-                String mpC = matcher.group(3).trim();;
-                //logger.info("A: '{}', B: '{}', C: '{}'", mpA, mpB, mpC);
-
-                params.put("mpA", mpA);
-                params.put("mpB", mpB);
-                params.put("mpC", mpC);
-
-                System.out.println("Query: "+ query);
-                result =  neo4jSession.query(query, params);
-            }
-        }
-        else if (mpStr.matches(regex_aOrb_andc)) {
-            logger.info("matches (a or b) and c");
-
-            String query = "MATCH (g:Gene)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp)-[:PARENT*0..]->(mp0:Mp) "
-                    + "WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') OR mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*') "
-                    + significant + phenotypeSexes + chrRange + geneList + genotypes + alleleTypes
-                    + " WITH g, a, sr, mp "
-                    + " MATCH (g)<-[:GENE]-(a1:Allele)<-[:ALLELE]-(sr1:StatisticalResult)-[:MP]->(mp1:Mp)-[:PARENT*0..]->(mp0:Mp) WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpC}+'.*') "
-                    + significant + phenotypeSexes + chrRange + geneList + genotypes + alleleTypes
-                    + " WITH g, a, sr, mp, a1, sr1, mp1 "
-                    + "MATCH (g)<-[:GENE]-(dm:DiseaseModel) WHERE "
-                    + phenodigmScore + diseaseGeneAssociation + humanDiseaseTerm;
-                    //+ "RETURN g, a, sr, dm, mp, a1, sr1, mp1";
-
-            query += isExport ? " RETURN g, collect(distinct a), collect(distinct a1), collect(distinct mp), collect(distinct mp1), collect(distinct dm)" + sortStr
-                    : " RETURN g, a, a1, dm, mp, mp1" + sortStr;
-
-            Pattern pattern = Pattern.compile(regex_aOrb_andc);
-            Matcher matcher = pattern.matcher(mpStr);
-
-            while (matcher.find()) {
-                System.out.println("found: " + matcher.group(0));
-                String mpA = matcher.group(1).trim();
-                String mpB = matcher.group(2).trim();;
-                String mpC = matcher.group(3).trim();;
-                logger.info("A: '{}', B: '{}', C: '{}'", mpA, mpB, mpC);
-
-                params.put("mpA", mpA);
-                params.put("mpB", mpB);
-                params.put("mpC", mpC);
-
-                System.out.println("Query: "+ query);
-                result =  neo4jSession.query(query, params);
-            }
-        }
         else if (mpStr.matches(regex_aOr_bAndc)) {
             System.out.println("matches a or (b and c)");
 
-            String query = "MATCH (g:Gene)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp)-[:PARENT*0..]->(mp0:Mp) "
-                    + " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*') WITH g, a, sr, mp "
-                    + " MATCH (g)<-[:GENE]-(a1:Allele)<-[:ALLELE]-(sr1:StatisticalResult)-[:MP]->(mp1:Mp)-[:PARENT*0..]->(mp0:Mp) WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpC}+'.*') "
-                    + " WITH collect({genes:g, mps:mp, srs:sr, alleles:a, mps1:mp1, srs1:sr1, alleles1:a1}) as list1 "
-                    + " MATCH (g2:Gene)<-[:GENE]-(a2:Allele)<-[:ALLELE]-(sr2:StatisticalResult)-[:MP]->(mp2:Mp)-[:PARENT*0..]->(mp0:Mp) "
-                    + " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') "
-                    + " WITH list1 + collect({genes: g2, mps:mp2, srs:sr2, alleles:a2, mps1:'', srs1:'', alleles1:''}) as alllist "
-                    + " unwind alllist as nodes "
-                    + " WITH nodes.genes as g, nodes "
-                    + " MATCH (g)<-[:GENE]-(dm:DiseaseModel) WITH nodes, dm ";
-                    //+ " RETURN g, nodes.mps, nodes.srs, nodes.alleles, dm, nodes.mps1, nodes.srs1, nodes.alleles1";
+            if (geneList.isEmpty()){
+                query = "MATCH (mp0:Mp)<-[:PARENT*0..]-(mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g:Gene) "
+                        + " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*') "
+                        + significant + phenotypeSexes + pvalues + chrRange + geneList + genotypes + alleleTypes
+                        + " WITH g, a, sr, mp "
+                        + " (mp0:Mp)<-[:PARENT*0..]-(mp1:Mp)<-[:MP]-(sr1:StatisticalResult)-[:ALLELE]->(a1:Allele)-[:GENE]->(g) WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpC}+'.*') "
+                        + significant + phenotypeSexes + pvalues + chrRange + geneList + genotypes + alleleTypes
+                        + " WITH collect({genes:g, mps:mp, srs:sr, alleles:a, mps1:mp1, srs1:sr1, alleles1:a1}) as list1 "
+
+                        + " MATCH (mp0:Mp)<-[:PARENT*0..]-(mp2:Mp)<-[:MP]-(sr2:StatisticalResult)-[:ALLELE]->(a2:Allele)-[:GENE]->(g2:Gene)  "
+                        + " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') "
+                        + significant + phenotypeSexes + pvalues + chrRange + geneList + genotypes + alleleTypes
+                        + " WITH list1 + collect({genes: g2, mps:mp2, srs:sr2, alleles:a2, mps1:'', srs1:'', alleles1:''}) as alllist "
+                        + " unwind alllist as nodes "
+                        + " WITH nodes.genes as g, nodes "
+                        + " MATCH (g)<-[:GENE]-(dm:DiseaseModel) ";
+            }
+            else {
+                query = "MATCH (g:Gene)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp)-[:PARENT*0..]->(mp0:Mp) "
+                        + " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*') "
+                        + significant + phenotypeSexes + pvalues + chrRange + geneList + genotypes + alleleTypes
+                        + " WITH g, a, sr, mp "
+                        + " MATCH (g)<-[:GENE]-(a1:Allele)<-[:ALLELE]-(sr1:StatisticalResult)-[:MP]->(mp1:Mp)-[:PARENT*0..]->(mp0:Mp) WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpC}+'.*') "
+                        + significant + phenotypeSexes + pvalues + chrRange + geneList + genotypes + alleleTypes
+                        + " WITH collect({genes:g, mps:mp, srs:sr, alleles:a, mps1:mp1, srs1:sr1, alleles1:a1}) as list1 "
+
+                        + " MATCH (g2:Gene)<-[:GENE]-(a2:Allele)<-[:ALLELE]-(sr2:StatisticalResult)-[:MP]->(mp2:Mp)-[:PARENT*0..]->(mp0:Mp) "
+                        + " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') "
+                        + significant + phenotypeSexes + pvalues + chrRange + geneList + genotypes + alleleTypes
+                        + " WITH list1 + collect({genes: g2, mps:mp2, srs:sr2, alleles:a2, mps1:'', srs1:'', alleles1:''}) as alllist "
+                        + " unwind alllist as nodes "
+                        + " WITH nodes.genes as g, nodes "
+                        + " MATCH (g)<-[:GENE]-(dm:DiseaseModel) WITH nodes, dm ";
+                //+ " RETURN g, nodes.mps, nodes.srs, nodes.alleles, dm, nodes.mps1, nodes.srs1, nodes.alleles1";
+            }
 
             query += isExport ? " RETURN g, collect(distinct nodes.alleles), collect(distinct nodes.alleles1), collect(distinct dm), collect(distinct nodes.mps), collect(distinct nodes.mps1)" + sortStr
                     : " RETURN g, nodes.alleles, nodes.alleles1, nodes.mps, nodes.mps1, dm" + sortStr;
@@ -548,25 +545,125 @@ public class AdvancedSearchController {
                 result =  neo4jSession.query(query, params);
             }
         }
+        else if (mpStr.matches(regex_aOrb_andc)) {
+            logger.info("matches (a or b) and c");
+
+            if (geneList.isEmpty()){
+                query = "MATCH (mp0:Mp)<-[:PARENT*0..]-(mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g:Gene) "
+                        + "WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') OR mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*') "
+                        + significant + phenotypeSexes + pvalues + chrRange + geneList + genotypes + alleleTypes
+                        + " WITH g, a, sr, mp "
+                        + " MATCH (mp0:Mp)<-[:PARENT*0..]-(mp1:Mp)<-[:MP]-(sr1:StatisticalResult)-[:ALLELE]->(a1:Allele)-[:GENE]->(g) WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpC}+'.*') "
+                        + significant + phenotypeSexes + pvalues + chrRange + geneList + genotypes + alleleTypes
+                        + " WITH g, a, sr, mp, a1, sr1, mp1 "
+                        + "MATCH (g)<-[:GENE]-(dm:DiseaseModel) WHERE "
+                        + phenodigmScore + diseaseGeneAssociation + humanDiseaseTerm;
+            }
+            else {
+                query = "MATCH (g:Gene)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp)-[:PARENT*0..]->(mp0:Mp) "
+                        + "WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') OR mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*') "
+                        + significant + phenotypeSexes + pvalues + chrRange + geneList + genotypes + alleleTypes
+                        + " WITH g, a, sr, mp "
+                        + " MATCH (g)<-[:GENE]-(a1:Allele)<-[:ALLELE]-(sr1:StatisticalResult)-[:MP]->(mp1:Mp)-[:PARENT*0..]->(mp0:Mp) WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpC}+'.*') "
+                        + significant + phenotypeSexes + pvalues + chrRange + geneList + genotypes + alleleTypes
+                        + " WITH g, a, sr, mp, a1, sr1, mp1 "
+                        + "MATCH (g)<-[:GENE]-(dm:DiseaseModel) WHERE "
+                        + phenodigmScore + diseaseGeneAssociation + humanDiseaseTerm;
+                //+ "RETURN g, a, sr, dm, mp, a1, sr1, mp1";
+            }
+
+            query += isExport ? " RETURN g, collect(distinct a), collect(distinct a1), collect(distinct mp), collect(distinct mp1), collect(distinct dm)" + sortStr
+                    : " RETURN g, a, a1, dm, mp, mp1" + sortStr;
+
+            Pattern pattern = Pattern.compile(regex_aOrb_andc);
+            Matcher matcher = pattern.matcher(mpStr);
+
+            while (matcher.find()) {
+                System.out.println("found: " + matcher.group(0));
+                String mpA = matcher.group(1).trim();
+                String mpB = matcher.group(2).trim();;
+                String mpC = matcher.group(3).trim();;
+                logger.info("A: '{}', B: '{}', C: '{}'", mpA, mpB, mpC);
+
+                params.put("mpA", mpA);
+                params.put("mpB", mpB);
+                params.put("mpC", mpC);
+
+                System.out.println("Query: "+ query);
+                result =  neo4jSession.query(query, params);
+            }
+        }
+        else if (mpStr.matches(regex_aAnd_bOrc)) {
+            logger.info("matches a and (b or c)");
+
+            if (geneList.isEmpty()){
+                query = "MATCH (mp0:Mp)<-[:PARENT*0..]-(mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g:Gene) "
+                        + "WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*') OR mp0.mpTerm =~ ('(?i)'+'.*'+{mpC}+'.*') "
+                        + significant + phenotypeSexes + pvalues + chrRange + geneList + genotypes + alleleTypes
+                        + " WITH g, a, sr, mp "
+                        + " MATCH (mp0:Mp)<-[:PARENT*0..]-(mp1:Mp)<-[:MP]-(sr1:StatisticalResult)-[:ALLELE]->(a1:Allele)-[:GENE]->(g) WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') "
+                        + significant + phenotypeSexes + pvalues + chrRange + geneList + genotypes + alleleTypes
+                        + " WITH g, a, sr, mp, a1, sr1, mp1 "
+                        + " MATCH (g)<-[:GENE]-(dm:DiseaseModel) WHERE "
+                        + phenodigmScore + diseaseGeneAssociation + humanDiseaseTerm;
+            }
+            else {
+                query = "MATCH (g:Gene)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp)-[:PARENT*0..]->(mp0:Mp) "
+                        + "WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*') OR mp0.mpTerm =~ ('(?i)'+'.*'+{mpC}+'.*') "
+                        + significant + phenotypeSexes + pvalues + chrRange + geneList + genotypes + alleleTypes
+                        + " WITH g, a, sr, mp "
+                        + " MATCH (g)<-[:GENE]-(a1:Allele)<-[:ALLELE]-(sr1:StatisticalResult)-[:MP]->(mp1:Mp)-[:PARENT*0..]->(mp0:Mp) WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') "
+                        + significant + phenotypeSexes + pvalues + chrRange + geneList + genotypes + alleleTypes
+                        + " WITH g, a, sr, mp, a1, sr1, mp1 "
+                        + " MATCH (g)<-[:GENE]-(dm:DiseaseModel) WHERE "
+                        + phenodigmScore + diseaseGeneAssociation + humanDiseaseTerm;
+            }
+
+            query += isExport ? "RETURN g, collect(distinct a), collect(distinct a1), collect(distinct mp), collect(distinct mp1), collect(distinct dm)" + sortStr
+                    : " RETURN g, a, dm, mp, a1, mp1" + sortStr;
+
+            Pattern pattern = Pattern.compile(regex_aAnd_bOrc);
+            Matcher matcher = pattern.matcher(mpStr);
+
+            while (matcher.find()) {
+                System.out.println("found: " + matcher.group(0));
+                String mpA = matcher.group(1).trim();
+                String mpB = matcher.group(2).trim();;
+                String mpC = matcher.group(3).trim();;
+                //logger.info("A: '{}', B: '{}', C: '{}'", mpA, mpB, mpC);
+
+                params.put("mpA", mpA);
+                params.put("mpB", mpB);
+                params.put("mpC", mpC);
+
+                System.out.println("Query: "+ query);
+                result =  neo4jSession.query(query, params);
+            }
+        }
+
         else if (mpStr.matches(regex_aAndbAndc)) {
             logger.info("matches a and b and c");
 
-            String query = "MATCH (g:Gene)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp)-[:PARENT*0..]->(mp0:Mp) "
-                + " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') "
-                + significant + phenotypeSexes + chrRange + geneList + genotypes + alleleTypes
-                + " WITH g, a, sr, mp "
-                + " MATCH (g)<-[:GENE]-(a1:Allele)<-[:ALLELE]-(sr1:StatisticalResult)-[:MP]->(mp1:Mp)-[:PARENT*0..]->(mp0:Mp) WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*') "
-                + significant + phenotypeSexes + chrRange + geneList + genotypes + alleleTypes
-                + " WITH g, a, sr, mp, a1, sr1, mp1 "
-                + " MATCH (g)<-[:GENE]-(a2:Allele)<-[:ALLELE]-(sr2:StatisticalResult)-[:MP]->(mp2:Mp)-[:PARENT*0..]->(mp0:Mp) WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpC}+'.*') "
-                + significant + phenotypeSexes + chrRange + geneList + genotypes + alleleTypes
-                + " WITH g, a, sr, mp, a1, sr1, mp1, a2, sr2, mp2 "
-                + " MATCH (g)<-[:GENE]-(dm:DiseaseModel) WHERE "
-                + phenodigmScore + diseaseGeneAssociation + humanDiseaseTerm;
-                //+ " RETURN g, a, dm, mp, a1, sr1, mp1, a2, sr2, mp2";
+            query = "MATCH (mp0:Mp)<-[:PARENT*0..]-(mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g:Gene) "
+                    + " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') "
+                    + significant + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
+                    + " WITH g "
 
-            query += isExport ? " RETURN g, a2, collect(distinct dm), collect(distinct mp), collect(distinct mp1), collect(distinct mp2)" + sortStr
-                    : " RETURN g, a2, dm, mp, mp1, mp2" + sortStr;
+                    + " MATCH (mp0:Mp)<-[:PARENT*0..]-(mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g) "
+                    + " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*') "
+                    + significant + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
+                    + " WITH g "
+
+                    + " MATCH (mp0:Mp)<-[:PARENT*0..]-(mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g) "
+                    + " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpC}+'.*') "
+                    + significant + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
+                    + " WITH g, a, mp, sr "
+
+                    + " MATCH (g)<-[:GENE]-(dm:DiseaseModel) WHERE "
+                    +  phenodigmScore + diseaseGeneAssociation + humanDiseaseTerm;
+
+            query += isExport ? " RETURN distinct a, g, sr, collect(distinct mp), collect(distinct dm)" + sortStr
+                    : " RETURN distinct a, g, mp, dm, sr" + sortStr;
 
             Pattern pattern = Pattern.compile(regex_aAndbAndc);
             Matcher matcher = pattern.matcher(mpStr);;
@@ -589,19 +686,21 @@ public class AdvancedSearchController {
         else if (mpStr.matches(regex_aAndb)) {
             logger.info("matches a and b");
 
-            String query = "MATCH (g:Gene)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp)-[:PARENT*0..]->(mp0:Mp) "
-                + "WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') "
-                + significant + phenotypeSexes + chrRange + geneList + genotypes + alleleTypes
-                + " WITH g, a, sr, mp "
-                + " MATCH (g)<-[:GENE]-(a1:Allele)<-[:ALLELE]-(sr1:StatisticalResult)-[:MP]->(mp1:Mp)-[:PARENT*0..]->(mp0:Mp) WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*') "
-                + significant + phenotypeSexes + chrRange + geneList + genotypes + alleleTypes
-                + " WITH g, sr, mp, a1, sr1, mp1 "
-                + " MATCH (g)<-[:GENE]-(dm:DiseaseModel) WHERE "
-                + phenodigmScore + diseaseGeneAssociation + humanDiseaseTerm;
-//                + " RETURN g, a1, dm, mp, mp1";
+            query = "MATCH (mp0:Mp)<-[:PARENT*0..]-(mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g:Gene) "
+                  + " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') "
+                  + significant + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
+                  + " WITH g "
 
-            query += isExport ? " RETURN a1, g, collect(distinct mp), collect(distinct mp1), collect(distinct dm)" + sortStr
-                    : "RETURN g, a1, dm, mp, mp1" + sortStr;
+                  + " MATCH (mp0:Mp)<-[:PARENT*0..]-(mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g) "
+                  + " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*') "
+                  + significant + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
+                  + " WITH distinct g, a, mp, sr "
+
+                  + " MATCH (g)<-[:GENE]-(dm:DiseaseModel) WHERE "
+                  + phenodigmScore + diseaseGeneAssociation + humanDiseaseTerm;
+
+            query += isExport ? " RETURN distinct a, g, sr, collect(distinct mp), collect(distinct dm)" + sortStr
+                    : " RETURN distinct a, g, mp, dm, sr" + sortStr;
 
             Pattern pattern = Pattern.compile(regex_aAndb);
             Matcher matcher = pattern.matcher(mpStr);
@@ -622,15 +721,20 @@ public class AdvancedSearchController {
         else if (mpStr.matches(regex_aOrbOrc)) {
             logger.info("matches a or b or c");
 
-            String query = "MATCH (g:Gene)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp)-[:PARENT*0..]->(mp0:Mp) "
-                + "WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') OR mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*') OR mp0.mpTerm =~ ('(?i)'+'.*'+{mpC}+'.*') "
-                + significant + phenotypeSexes + chrRange + geneList + genotypes + alleleTypes
-                + " WITH g, a, sr, mp "
+            if (geneList.isEmpty()){
+                query = "MATCH (mp0:Mp)<-[:PARENT*0..]-(mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g:Gene) ";
+            }
+            else {
+                query = "MATCH (g:Gene)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp)-[:PARENT*0..]->(mp0:Mp) ";
+            }
+
+            query += "WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') OR mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*') OR mp0.mpTerm =~ ('(?i)'+'.*'+{mpC}+'.*') "
+                + significant + phenotypeSexes + pvalues + chrRange + geneList + genotypes + alleleTypes
+                + " WITH g, a, mp, sr "
                 + " MATCH (g)<-[:GENE]-(dm:DiseaseModel) WHERE "
                 + phenodigmScore + diseaseGeneAssociation + humanDiseaseTerm;
-                //+ " RETURN g, a, sr, dm, mp";
 
-            query += isExport ? " RETURN g, a, collect(distinct dm), collect(distinct mp)" + sortStr : " RETURN g, a, dm, mp" + sortStr;
+            query += isExport ? " RETURN distinct g, a, sr, collect(distinct dm), collect(distinct mp)" + sortStr : " RETURN distinct g, a, dm, mp, sr" + sortStr;
 
             Pattern pattern = Pattern.compile(regex_aOrbOrc);
             Matcher matcher = pattern.matcher(mpStr);
@@ -653,15 +757,20 @@ public class AdvancedSearchController {
         else if (mpStr.matches(regex_aOrb)) {
             logger.info("matches a or b");
 
-            String query = "MATCH (g:Gene)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp)-[:PARENT*0..]->(mp0:Mp) "
-                + "WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') OR mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*') "
-                + significant + phenotypeSexes + chrRange + geneList + genotypes + alleleTypes
-                + " WITH g, a, sr, mp "
+            if (geneList.isEmpty()){
+                query = "MATCH (mp0:Mp)<-[:PARENT*0..]-(mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g:Gene) ";
+            }
+            else {
+                query = "MATCH (g:Gene)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp)-[:PARENT*0..]->(mp0:Mp) ";
+            }
+
+            query += "WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') OR mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*') "
+                + significant + phenotypeSexes + pvalues + chrRange + geneList + genotypes + alleleTypes
+                + " WITH g, a, mp, sr "
                 + " MATCH (g)<-[:GENE]-(dm:DiseaseModel) WHERE "
                 + phenodigmScore + diseaseGeneAssociation + humanDiseaseTerm;
-                //+ " RETURN g, a, sr, dm, mp";
 
-            query += isExport ? " RETURN g, a, collect(distinct dm), collect(distinct mp)" + sortStr : " RETURN g, a, dm, mp" + sortStr;
+            query += isExport ? " RETURN distinct g, a, sr, collect(distinct dm), collect(distinct mp)" + sortStr : " RETURN distinct g, a, dm, mp, sr" + sortStr;
 
             Pattern pattern = Pattern.compile(regex_aOrb);
             Matcher matcher = pattern.matcher(mpStr);
@@ -689,11 +798,11 @@ public class AdvancedSearchController {
 
         List<String> rowDataExport = new ArrayList<>(); // for export
         List<String> rowDataOverview = new ArrayList<>(); // for overview
+        List<String> dtypes = Arrays.asList("Allele", "Gene", "Mp", "DiseaseModel", "StatisticalResult");
 
         if (isExport){
 
             List<String> cols = new ArrayList<>();
-            List<String> dtypes = Arrays.asList("Allele", "Gene", "Mp", "DiseaseModel");
             Map<String, List<String>> node2Properties = new LinkedHashMap<>();
 
             for (String dtype : dtypes){
@@ -749,9 +858,9 @@ public class AdvancedSearchController {
                     //System.out.println(entry.getKey() + " / " + entry.getValue());
 
                     if (entry.getValue() != null) {
-                        if (entry.getKey().startsWith("collect(distinct")) {
-                            List<Object> objs = (List<Object>) entry.getValue();
 
+                        if (entry.getKey().startsWith("collect")) {
+                            List<Object> objs = (List<Object>) entry.getValue();
                             for (Object obj : objs) {
                                 populateColValMapAdvSrch(node2Properties, obj, colValMap, jParams, isExport);
                             }
@@ -771,7 +880,7 @@ public class AdvancedSearchController {
                         if (colValMap.containsKey(col)) {
                             //System.out.println("col now-2: " + col);
                             List<String> vals = new ArrayList<>(colValMap.get(col));
-                            //.out.println(vals);
+                            //System.out.println("vals: "+ vals);
                             data.add(StringUtils.join(vals, "|"));
                         }
                     }
@@ -789,7 +898,6 @@ public class AdvancedSearchController {
             List<String> cols = new ArrayList<>();
             Map<String, List<String>> node2Properties = new LinkedHashMap<>();
 
-            List<String> dtypes = Arrays.asList("Allele", "Gene", "Mp", "DiseaseModel");
             for (String dtype : dtypes) {
 
                 node2Properties.put(dtype, new ArrayList<String>());
@@ -801,7 +909,7 @@ public class AdvancedSearchController {
                 }
             }
 
-            System.out.println("columns: " + cols);
+            //System.out.println("columns: " + cols);
             Map<String, Set<String>> colValMap = new HashedMap(); // for export
 
             for (Map<String, Object> row : result) {
@@ -821,7 +929,6 @@ public class AdvancedSearchController {
 
             System.out.println("keys: "+ colValMap.keySet());
             // for overview
-            List<String> rowData = new ArrayList<>();
 
             for (String col : cols){
                 if (colValMap.containsKey(col)) {
@@ -860,6 +967,28 @@ public class AdvancedSearchController {
         return j;
     }
 
+    private String composeParameter(JSONObject jParams){
+        String parameter = "";
+        if (jParams.containsKey("srchPipeline")) {
+            String name = jParams.getString("srchPipeline");
+            parameter = " sr.parameterName ='" + name + "' ";
+        }
+        return parameter;
+    }
+
+    private String composePvalues(JSONObject jParams){
+        String pvalues = "";
+        if (jParams.containsKey("gtpvalue")) {
+            double gtpvalue = jParams.getDouble("gtpvalue");
+            pvalues = " AND sr.pValue > " + gtpvalue + " ";
+        }
+        if (jParams.containsKey("ltpvalue")) {
+            double ltpvalue = jParams.getDouble("ltpvalue");
+            pvalues += " AND sr.pValue < " + ltpvalue + " ";
+        }
+        return pvalues;
+    }
+
     private String composePhenotypeSexStr(JSONObject jParams){
 
         String phenotypeSexes = "";
@@ -882,10 +1011,10 @@ public class AdvancedSearchController {
 
         if (jParams.containsKey("chrRange")) {
             String range = jParams.getString("chrRange");
-            if (range.matches("^chr(\\w*):(\\d+)-(\\d+)$")) {
+            if (range.matches("^chr(\\w*,?\\w*):(\\d+)-(\\d+)$")) {
                 System.out.println("find chr range");
 
-                Pattern pattern = Pattern.compile("^chr(\\w*):(\\d+)-(\\d+)$");
+                Pattern pattern = Pattern.compile("^chr(\\w*,?\\w*):(\\d+)-(\\d+)$");
                 Matcher matcher = pattern.matcher(range);
                 while (matcher.find()) {
                     System.out.println("found: " + matcher.group(1));
@@ -893,12 +1022,20 @@ public class AdvancedSearchController {
                     int regionStart = Integer.parseInt(matcher.group(2));
                     int regionEnd = Integer.parseInt(matcher.group(3));
 
-                    chrRange = " AND g.chrId='" + regionId + "' AND g.chrStart >= " + regionStart + " AND g.chrEnd <= " + regionEnd + " ";
+
+                    String[] ids = org.apache.commons.lang3.StringUtils.split(regionId, ",");
+                    List<String> chrs = new ArrayList<>();
+                    for (int i=0; i<ids.length; i++){
+                        chrs.add("'" + ids[i] + "'");
+                    }
+                    regionId = org.apache.commons.lang3.StringUtils.join(chrs, ",");
+
+                    chrRange = " AND g.chrId IN [" + regionId + "] AND g.chrStart >= " + regionStart + " AND g.chrEnd <= " + regionEnd + " ";
                 }
             }
         }
         else if (jParams.containsKey("chr")) {
-            chrRange = " AND g.chrId='" + jParams.getString("chr") + "' ";
+                chrRange = " AND g.chrId IN " + jParams.getString("chr") + " ";
         }
 
         return chrRange;
@@ -960,7 +1097,7 @@ public class AdvancedSearchController {
 
         Map<String, String> alleleTypeMapping = new HashMap<>();
         alleleTypeMapping.put("CRISPR(em)", "Endonuclease-mediated"); // mutation_type
-        alleleTypeMapping.put("KOMP", "deletion");  // mutation_type
+        alleleTypeMapping.put("KOMP", "");  // empty allele_type
         alleleTypeMapping.put("KOMP.1", ".1");
         alleleTypeMapping.put("EUCOMM A", "a");
         alleleTypeMapping.put("EUCOMM B", "b");
@@ -976,7 +1113,7 @@ public class AdvancedSearchController {
             for (Object name : jParams.getJSONArray("alleleTypes")) {
                 String atype = name.toString();
 
-                if (atype.equals("CRISPR(em)") || atype.equals("KOMP")){
+                if (atype.equals("CRISPR(em)")){
                     mutationTypes.add("'" + alleleTypeMapping.get(atype) + "'");
                 }
                 else {
@@ -1460,6 +1597,10 @@ public class AdvancedSearchController {
                 Mp mp = (Mp) obj;
                 getValues(nodeProperties, mp, colValMap, isExport);
             }
+            else if (className.equals("StatisticalResult")) {
+                StatisticalResult sr = (StatisticalResult) obj;
+                getValues(nodeProperties, sr, colValMap, isExport);
+            }
             else if (className.equals("OntoSynonym")) {
                 OntoSynonym ontosyn = (OntoSynonym) obj;
                 getValues(nodeProperties, ontosyn, colValMap, isExport);
@@ -1548,7 +1689,7 @@ public class AdvancedSearchController {
 
             char first = Character.toUpperCase(property.charAt(0));
             String property2 = first + property.substring(1);
-            //System.out.println("property: " + property);
+            //System.out.println("property method: " + property2);
 
             Method method = o.getClass().getMethod("get"+property2);
             if (! colValMap.containsKey(property)) {
@@ -1557,7 +1698,7 @@ public class AdvancedSearchController {
             String colVal = NA;
 
             if (method.invoke(o) == null){
-                //System.out.println(property + " is null");
+                System.out.println(property + " is null");
             }
 
             try {
@@ -1565,7 +1706,7 @@ public class AdvancedSearchController {
                 //System.out.println(property + " : " +  colVal);
 
             } catch(Exception e) {
-                //System.out.println(property + " set to " + colVal);
+               // System.out.println(property + " set to " + colVal);
             }
 
 

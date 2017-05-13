@@ -1,7 +1,5 @@
 package uk.ac.ebi;
 
-import org.neo4j.ogm.model.Result;
-import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -9,11 +7,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.data.neo4j.repository.config.EnableNeo4jRepositories;
-import org.springframework.data.neo4j.template.Neo4jOperations;
 import org.springframework.data.neo4j.transaction.Neo4jTransactionManager;
 
 import javax.validation.constraints.NotNull;
-import java.util.Map;
 
 /**
  * Created by jmason on 18/03/2017.
@@ -28,11 +24,25 @@ public class Neo4jConfig {
     @Value("${neo4jDbPath}")
     private String neo4jDbPath;
 
+    @NotNull
+    @Value("${neoUser}")
+    private String neoUser;
+    @NotNull
+    @Value("${neoPass}")
+    private String neoPass;
+    @NotNull
+    @Value("${neoServer}")
+    private String neoServer;
+    @NotNull
+    @Value("${neoPort}")
+    private String neoPort;
+
 
     @Bean
     public org.neo4j.ogm.config.Configuration getConfiguration() {
         org.neo4j.ogm.config.Configuration config = new org.neo4j.ogm.config.Configuration();
 
+        System.out.println(neoUser + " " + neoPass);
 
         // TODO: Change to the server neo4j config
 
@@ -43,10 +53,10 @@ public class Neo4jConfig {
                 .driverConfiguration()
                 .setDriverClassName("org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver")
                 .setURI("file://" + pathToDb);
-
+//
 //                .driverConfiguration()
 //                .setDriverClassName("org.neo4j.ogm.drivers.http.driver.HttpDriver")
-//                .setURI("http://<neo4j-server-username>:<neo4j-server-password@<neo4j-host>:<neo4j-port>");
+//                .setURI("http://" + neoUser + ":" + neoPass + "@" + neoServer + ":" + neoPort);
 
         System.out.println(config);
 

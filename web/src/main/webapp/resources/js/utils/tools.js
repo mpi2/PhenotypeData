@@ -586,7 +586,7 @@
                                                     var paramStr = "mode=all";
                                                     if ($("#" + id +"_filter").find('input').val() != "") {
                                                         oConf.filter = $("#" + id +"_filter").find('input').val().trim();
-                                                        alert(588 + " "+ id + "  "+ oConf.filter)
+                                                      //  alert(588 + " "+ id + "  "+ oConf.filter)
                                                     }
                                                     else {
                                                         delete oConf.filter;

@@ -33,6 +33,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static java.lang.Math.toIntExact;
 
@@ -310,7 +312,7 @@ public class Loader implements CommandLineRunner {
 
                     StatisticalResult sr = new StatisticalResult();
 
-                    sr.setpValue(result.getpValue());
+                    sr.setPvalue(result.getpValue());
                     sr.setPhenotypeSex(result.getPhenotypeSex());
                     sr.setPhenotypingCenter(result.getPhenotypingCenter());
                     sr.setColonyId(result.getColonyId());
@@ -366,13 +368,16 @@ public class Loader implements CommandLineRunner {
 
                     if (loadedProcedures.containsKey(result.getProcedureStableId())) {
                         sr.setProcedure(loadedProcedures.get(result.getProcedureStableId()));
+                        sr.setProcedureName(loadedProcedures.get(result.getProcedureStableId()).getName());
                     }
                     else {
                         logger.warn(result.getProcedureStableId() + " is not an IMPC procedure");
+
                     }
 
                     if (loadedParameters.containsKey(result.getParameterStableId())) {
                         sr.setParameter(loadedParameters.get(result.getParameterStableId()));
+                        sr.setParameterName(loadedParameters.get(result.getParameterStableId()).getName());
                     }
                     else {
                         logger.warn(result.getParameterStableId() + " is not an IMPC parameter");

@@ -21,9 +21,12 @@ public class StatisticalResult {
     private String phenotypingCenter;
     private String colonyId;
     private String zygosity;
-    private Double pValue;
+    private String parameterName;
+    private String procedureName;
+    private Double pvalue;
     private Double effectSize;
     private boolean significant;
+
 
     @Relationship(type="GENE", direction=Relationship.OUTGOING)
     private Gene gene;
@@ -44,16 +47,16 @@ public class StatisticalResult {
         return id;
     }
 
+    public void setId(Long id) {
+        this.id = id;
+    }
+
     public Integer getDbId() {
         return dbId;
     }
 
     public void setDbId(Integer dbId) {
         this.dbId = dbId;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public List<String> getPhenotypeSex() {
@@ -88,12 +91,28 @@ public class StatisticalResult {
         this.zygosity = zygosity;
     }
 
-    public Double getpValue() {
-        return pValue;
+    public String getParameterName() {
+        return parameterName;
     }
 
-    public void setpValue(Double pValue) {
-        this.pValue = pValue;
+    public void setParameterName(String parameterName) {
+        this.parameterName = parameterName;
+    }
+
+    public String getProcedureName() {
+        return procedureName;
+    }
+
+    public void setProcedureName(String procedureName) {
+        this.procedureName = procedureName;
+    }
+
+    public Double getPvalue() {
+        return pvalue;
+    }
+
+    public void setPvalue(Double pvalue) {
+        this.pvalue = pvalue;
     }
 
     public Double getEffectSize() {
@@ -161,7 +180,9 @@ public class StatisticalResult {
                 ", phenotypingCenter='" + phenotypingCenter + '\'' +
                 ", colonyId='" + colonyId + '\'' +
                 ", zygosity='" + zygosity + '\'' +
-                ", pValue=" + pValue +
+                ", parameterName='" + parameterName + '\'' +
+                ", procedureName='" + procedureName + '\'' +
+                ", pvalue=" + pvalue +
                 ", effectSize=" + effectSize +
                 ", significant=" + significant +
                 ", gene=" + gene +
