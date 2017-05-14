@@ -655,7 +655,9 @@
                             {"p value": "pvalue"}
                         ],
                         selected: [
-                           "mpTerm"
+                           	"mpTerm",
+							"parameterName",
+                        	"pvalue"
                         ]
                     }
 //                    "OntoSynonym": {
@@ -793,6 +795,7 @@
                         var dataType = $(this).parent().attr('id');
                         var property = $(this).val();
 
+                        console.log("check property: " + property);
                         // some conversion here for markerSynonym and Ontosynonym
                         // as they are included in gene or mp, hp for user friendly
                         // purpose, but they themselves are nodeEntities
@@ -837,7 +840,7 @@
                             dataType = "Allele";
                         }
 
-                        console.log(dataType + " --- " + property);
+                        console.log("datatype: "+ dataType + " --- " + property);
 
                         if (!kv.hasOwnProperty(dataType)) {
                             kv[dataType] = [];
@@ -1274,18 +1277,10 @@
                     prepare_dataTable(flList);
 
                     var oConf = {};
-                    //oConf.properties = oJson.properties.join(","); // order is important
-
-
-//					var excludes = ["properties", "childLevel", "chr"];
-//					for(var e=0; e < excludes.length; e++) {
-//                        delete datatypeProperties[excludes[e]];
-//                    }
 
                     oConf.params = JSON.stringify(oJson);
-                   // oConf.dataType = mapInputId2NodeType(currDataType);
 
-					console.log(oConf);
+					//console.log(oConf);
                     fetchBatchQueryDataTable(oConf);
 
                     return false;

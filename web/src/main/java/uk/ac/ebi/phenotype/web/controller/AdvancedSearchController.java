@@ -313,6 +313,9 @@ public class AdvancedSearchController {
         baseUrl = request.getAttribute("baseUrl").toString();
         hostname = request.getAttribute("mappedHostname").toString();
 
+        System.out.println("hostname: " + hostname);
+        System.out.println("baseUrl: " + baseUrl);
+
         JSONObject jParams = (JSONObject) JSONSerializer.toJSON(params);
         System.out.println(jParams.toString());
 
@@ -380,7 +383,7 @@ public class AdvancedSearchController {
             if (geneList.isEmpty()) {
                 query = "MATCH (sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g:Gene)"
                         + " WHERE sr.significant = true "
-                        + phenotypeSexes + pvalues + chrRange + geneList + genotypes + alleleTypes
+                        + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
                         + " WITH sr, a, g "
                         + " MATCH (sr)-[:MP]->(mp:Mp) "
                         + " WITH g, a, mp, sr "
@@ -390,7 +393,7 @@ public class AdvancedSearchController {
             else {
                 query = "MATCH (g:Gene)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp) "
                         + " WHERE sr.significant = true "
-                        + phenotypeSexes + pvalues + chrRange + geneList + genotypes + alleleTypes
+                        + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
                         + " WITH g, a, mp, sr "
                         + " MATCH (g)<-[:GENE]-(dm:DiseaseModel) WHERE "
                         + phenodigmScore + diseaseGeneAssociation + humanDiseaseTerm;
@@ -408,7 +411,7 @@ public class AdvancedSearchController {
 
             query = "MATCH (mp0:Mp)<-[:PARENT*0..]-(mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:GENE]->(g:Gene) "
                 + " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') "
-                + significant + phenotypeSexes + pvalues + chrRange + geneList + genotypes
+                + significant + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes
                 + " WiTH g, mp, sr "
                 + " MATCH (sr)-[:ALLELE]->(a:Allele) "
                 + alleleTypes
@@ -430,15 +433,15 @@ public class AdvancedSearchController {
             if (geneList.isEmpty()) {
                 query = "MATCH (mp0:Mp)<-[:PARENT*0..]-(mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g:Gene) "
                     + " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') "
-                    + significant + phenotypeSexes + pvalues + chrRange + geneList + genotypes + alleleTypes
+                    + significant + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
                     + " WITH g, a, sr, mp "
                     + " (mp0:Mp)<-[:PARENT*0..]-(mp1:Mp)<-[:MP]-(sr1:StatisticalResult)-[:ALLELE]->(a1:Allele)-[:GENE]->(g) WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*') "
-                    + significant + phenotypeSexes + pvalues + chrRange + geneList + genotypes + alleleTypes
+                    + significant + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
                     + " WITH collect({genes:g, mps:mp, srs:sr, alleles:a, mps1:mp1, srs1:sr1, alleles1:a1}) as list1 "
 
                     + " MATCH (mp0:Mp)<-[:PARENT*0..]-(mp2:Mp)<-[:MP]-(sr2:StatisticalResult)-[:ALLELE]->(a2:Allele)-[:GENE]->(g2:Gene)  "
                     + " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpC}+'.*') "
-                    + significant + phenotypeSexes + pvalues + chrRange + geneList + genotypes + alleleTypes
+                    + significant + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
                     + " WITH list1 + collect({genes: g2, mps:mp2, srs:sr2, alleles:a2, mps1:'', srs1:'', alleles1:''}) as alllist "
                     + " unwind alllist as nodes "
                     + " WITH nodes.genes as g, nodes "
@@ -448,13 +451,13 @@ public class AdvancedSearchController {
                 query = "MATCH (g:Gene)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp)-[:PARENT*0..]->(mp0:Mp) "
                     + " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') "
                     + " WITH g, a, sr, mp "
-                    + significant + phenotypeSexes + pvalues + chrRange + geneList + genotypes + alleleTypes
+                    + significant + phenotypeSexes + parameter +pvalues + chrRange + geneList + genotypes + alleleTypes
                     + " MATCH (g)<-[:GENE]-(a1:Allele)<-[:ALLELE]-(sr1:StatisticalResult)-[:MP]->(mp1:Mp)-[:PARENT*0..]->(mp0:Mp) WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*') "
-                    + significant + phenotypeSexes + pvalues + chrRange + geneList + genotypes + alleleTypes
+                    + significant + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
                     + " WITH collect({genes:g, mps:mp, srs:sr, alleles:a, mps1:mp1, srs1:sr1, alleles1:a1}) as list1 "
                     + " MATCH (g2:Gene)<-[:GENE]-(a2:Allele)<-[:ALLELE]-(sr2:StatisticalResult)-[:MP]->(mp2:Mp)-[:PARENT*0..]->(mp0:Mp) "
                     + " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpC}+'.*') "
-                    + significant + phenotypeSexes + pvalues + chrRange + geneList + genotypes + alleleTypes
+                    + significant + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
                     + " WITH list1 + collect({genes: g2, mps:mp2, srs:sr2, alleles:a2, mps1:'', srs1:'', alleles1:''}) as alllist "
                     + " unwind alllist as nodes "
                     + " WITH nodes.genes as g, nodes "
@@ -489,15 +492,15 @@ public class AdvancedSearchController {
             if (geneList.isEmpty()){
                 query = "MATCH (mp0:Mp)<-[:PARENT*0..]-(mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g:Gene) "
                         + " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*') "
-                        + significant + phenotypeSexes + pvalues + chrRange + geneList + genotypes + alleleTypes
+                        + significant + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
                         + " WITH g, a, sr, mp "
                         + " (mp0:Mp)<-[:PARENT*0..]-(mp1:Mp)<-[:MP]-(sr1:StatisticalResult)-[:ALLELE]->(a1:Allele)-[:GENE]->(g) WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpC}+'.*') "
-                        + significant + phenotypeSexes + pvalues + chrRange + geneList + genotypes + alleleTypes
+                        + significant + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
                         + " WITH collect({genes:g, mps:mp, srs:sr, alleles:a, mps1:mp1, srs1:sr1, alleles1:a1}) as list1 "
 
                         + " MATCH (mp0:Mp)<-[:PARENT*0..]-(mp2:Mp)<-[:MP]-(sr2:StatisticalResult)-[:ALLELE]->(a2:Allele)-[:GENE]->(g2:Gene)  "
                         + " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') "
-                        + significant + phenotypeSexes + pvalues + chrRange + geneList + genotypes + alleleTypes
+                        + significant + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
                         + " WITH list1 + collect({genes: g2, mps:mp2, srs:sr2, alleles:a2, mps1:'', srs1:'', alleles1:''}) as alllist "
                         + " unwind alllist as nodes "
                         + " WITH nodes.genes as g, nodes "
@@ -506,15 +509,15 @@ public class AdvancedSearchController {
             else {
                 query = "MATCH (g:Gene)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp)-[:PARENT*0..]->(mp0:Mp) "
                         + " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*') "
-                        + significant + phenotypeSexes + pvalues + chrRange + geneList + genotypes + alleleTypes
+                        + significant + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
                         + " WITH g, a, sr, mp "
                         + " MATCH (g)<-[:GENE]-(a1:Allele)<-[:ALLELE]-(sr1:StatisticalResult)-[:MP]->(mp1:Mp)-[:PARENT*0..]->(mp0:Mp) WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpC}+'.*') "
-                        + significant + phenotypeSexes + pvalues + chrRange + geneList + genotypes + alleleTypes
+                        + significant + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
                         + " WITH collect({genes:g, mps:mp, srs:sr, alleles:a, mps1:mp1, srs1:sr1, alleles1:a1}) as list1 "
 
                         + " MATCH (g2:Gene)<-[:GENE]-(a2:Allele)<-[:ALLELE]-(sr2:StatisticalResult)-[:MP]->(mp2:Mp)-[:PARENT*0..]->(mp0:Mp) "
                         + " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') "
-                        + significant + phenotypeSexes + pvalues + chrRange + geneList + genotypes + alleleTypes
+                        + significant + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
                         + " WITH list1 + collect({genes: g2, mps:mp2, srs:sr2, alleles:a2, mps1:'', srs1:'', alleles1:''}) as alllist "
                         + " unwind alllist as nodes "
                         + " WITH nodes.genes as g, nodes "
@@ -551,10 +554,10 @@ public class AdvancedSearchController {
             if (geneList.isEmpty()){
                 query = "MATCH (mp0:Mp)<-[:PARENT*0..]-(mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g:Gene) "
                         + "WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') OR mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*') "
-                        + significant + phenotypeSexes + pvalues + chrRange + geneList + genotypes + alleleTypes
+                        + significant + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
                         + " WITH g, a, sr, mp "
                         + " MATCH (mp0:Mp)<-[:PARENT*0..]-(mp1:Mp)<-[:MP]-(sr1:StatisticalResult)-[:ALLELE]->(a1:Allele)-[:GENE]->(g) WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpC}+'.*') "
-                        + significant + phenotypeSexes + pvalues + chrRange + geneList + genotypes + alleleTypes
+                        + significant + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
                         + " WITH g, a, sr, mp, a1, sr1, mp1 "
                         + "MATCH (g)<-[:GENE]-(dm:DiseaseModel) WHERE "
                         + phenodigmScore + diseaseGeneAssociation + humanDiseaseTerm;
@@ -562,10 +565,10 @@ public class AdvancedSearchController {
             else {
                 query = "MATCH (g:Gene)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp)-[:PARENT*0..]->(mp0:Mp) "
                         + "WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') OR mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*') "
-                        + significant + phenotypeSexes + pvalues + chrRange + geneList + genotypes + alleleTypes
+                        + significant + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
                         + " WITH g, a, sr, mp "
                         + " MATCH (g)<-[:GENE]-(a1:Allele)<-[:ALLELE]-(sr1:StatisticalResult)-[:MP]->(mp1:Mp)-[:PARENT*0..]->(mp0:Mp) WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpC}+'.*') "
-                        + significant + phenotypeSexes + pvalues + chrRange + geneList + genotypes + alleleTypes
+                        + significant + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
                         + " WITH g, a, sr, mp, a1, sr1, mp1 "
                         + "MATCH (g)<-[:GENE]-(dm:DiseaseModel) WHERE "
                         + phenodigmScore + diseaseGeneAssociation + humanDiseaseTerm;
@@ -599,10 +602,10 @@ public class AdvancedSearchController {
             if (geneList.isEmpty()){
                 query = "MATCH (mp0:Mp)<-[:PARENT*0..]-(mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g:Gene) "
                         + "WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*') OR mp0.mpTerm =~ ('(?i)'+'.*'+{mpC}+'.*') "
-                        + significant + phenotypeSexes + pvalues + chrRange + geneList + genotypes + alleleTypes
+                        + significant + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
                         + " WITH g, a, sr, mp "
                         + " MATCH (mp0:Mp)<-[:PARENT*0..]-(mp1:Mp)<-[:MP]-(sr1:StatisticalResult)-[:ALLELE]->(a1:Allele)-[:GENE]->(g) WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') "
-                        + significant + phenotypeSexes + pvalues + chrRange + geneList + genotypes + alleleTypes
+                        + significant + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
                         + " WITH g, a, sr, mp, a1, sr1, mp1 "
                         + " MATCH (g)<-[:GENE]-(dm:DiseaseModel) WHERE "
                         + phenodigmScore + diseaseGeneAssociation + humanDiseaseTerm;
@@ -610,10 +613,10 @@ public class AdvancedSearchController {
             else {
                 query = "MATCH (g:Gene)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp)-[:PARENT*0..]->(mp0:Mp) "
                         + "WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*') OR mp0.mpTerm =~ ('(?i)'+'.*'+{mpC}+'.*') "
-                        + significant + phenotypeSexes + pvalues + chrRange + geneList + genotypes + alleleTypes
+                        + significant + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
                         + " WITH g, a, sr, mp "
                         + " MATCH (g)<-[:GENE]-(a1:Allele)<-[:ALLELE]-(sr1:StatisticalResult)-[:MP]->(mp1:Mp)-[:PARENT*0..]->(mp0:Mp) WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') "
-                        + significant + phenotypeSexes + pvalues + chrRange + geneList + genotypes + alleleTypes
+                        + significant + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
                         + " WITH g, a, sr, mp, a1, sr1, mp1 "
                         + " MATCH (g)<-[:GENE]-(dm:DiseaseModel) WHERE "
                         + phenodigmScore + diseaseGeneAssociation + humanDiseaseTerm;
@@ -729,7 +732,7 @@ public class AdvancedSearchController {
             }
 
             query += "WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') OR mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*') OR mp0.mpTerm =~ ('(?i)'+'.*'+{mpC}+'.*') "
-                + significant + phenotypeSexes + pvalues + chrRange + geneList + genotypes + alleleTypes
+                + significant + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
                 + " WITH g, a, mp, sr "
                 + " MATCH (g)<-[:GENE]-(dm:DiseaseModel) WHERE "
                 + phenodigmScore + diseaseGeneAssociation + humanDiseaseTerm;
@@ -765,7 +768,7 @@ public class AdvancedSearchController {
             }
 
             query += "WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') OR mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*') "
-                + significant + phenotypeSexes + pvalues + chrRange + geneList + genotypes + alleleTypes
+                + significant + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
                 + " WITH g, a, mp, sr "
                 + " MATCH (g)<-[:GENE]-(dm:DiseaseModel) WHERE "
                 + phenodigmScore + diseaseGeneAssociation + humanDiseaseTerm;
@@ -971,7 +974,7 @@ public class AdvancedSearchController {
         String parameter = "";
         if (jParams.containsKey("srchPipeline")) {
             String name = jParams.getString("srchPipeline");
-            parameter = " sr.parameterName ='" + name + "' ";
+            parameter = " AND sr.parameterName ='" + name + "' ";
         }
         return parameter;
     }
@@ -1567,47 +1570,47 @@ public class AdvancedSearchController {
 
             if (className.equals("Gene")) {
                 Gene g = (Gene) obj;
-                getValues(nodeProperties, g, colValMap, isExport);
+                getValues(nodeProperties, g, colValMap, isExport, jParam);
             }
             else if (className.equals("EnsemblGeneId")) {
                 EnsemblGeneId ensg = (EnsemblGeneId) obj;
-                getValues(nodeProperties, ensg, colValMap, isExport);
+                getValues(nodeProperties, ensg, colValMap, isExport, jParam);
             }
             else if (className.equals("MarkerSynonym")) {
                 MarkerSynonym m = (MarkerSynonym) obj;
-                getValues(nodeProperties, m, colValMap, isExport);
+                getValues(nodeProperties, m, colValMap, isExport, jParam);
             }
             else if (className.equals("HumanGeneSymbol")) {
                 HumanGeneSymbol hg = (HumanGeneSymbol) obj;
-                getValues(nodeProperties, hg, colValMap, isExport);
+                getValues(nodeProperties, hg, colValMap, isExport, jParam);
             }
             else if (className.equals("DiseaseModel")) {
                 DiseaseModel dm = (DiseaseModel) obj;
-                getValues(nodeProperties, dm, colValMap, isExport);
+                getValues(nodeProperties, dm, colValMap, isExport, jParam);
             }
             else if (className.equals("MouseModel")) {
                 MouseModel mm = (MouseModel) obj;
-                getValues(nodeProperties, mm, colValMap, isExport);
+                getValues(nodeProperties, mm, colValMap, isExport, jParam);
             }
             else if (className.equals("Allele")) {
                 Allele allele = (Allele) obj;
-                getValues(nodeProperties, allele, colValMap, isExport);
+                getValues(nodeProperties, allele, colValMap, isExport, jParam);
             }
             else if (className.equals("Mp")) {
                 Mp mp = (Mp) obj;
-                getValues(nodeProperties, mp, colValMap, isExport);
+                getValues(nodeProperties, mp, colValMap, isExport, jParam);
             }
             else if (className.equals("StatisticalResult")) {
                 StatisticalResult sr = (StatisticalResult) obj;
-                getValues(nodeProperties, sr, colValMap, isExport);
+                getValues(nodeProperties, sr, colValMap, isExport, jParam);
             }
             else if (className.equals("OntoSynonym")) {
                 OntoSynonym ontosyn = (OntoSynonym) obj;
-                getValues(nodeProperties, ontosyn, colValMap, isExport);
+                getValues(nodeProperties, ontosyn, colValMap, isExport, jParam);
             }
             else if (className.equals("Hp")) {
                 Hp hp = (Hp) obj;
-                getValues(nodeProperties, hp, colValMap, isExport);
+                getValues(nodeProperties, hp, colValMap, isExport, jParam);
             }
         }
 
@@ -1627,53 +1630,60 @@ public class AdvancedSearchController {
 
                 if (className.equals("Gene")) {
                     Gene g = (Gene) obj;
-                    getValues(nodeProperties, g, colValMap, isExport);  // convert to class ???
+                    getValues(nodeProperties, g, colValMap, isExport, jDatatypeProperties);  // convert to class ???
                 }
                 else if (className.equals("EnsemblGeneId")) {
                     EnsemblGeneId ensg = (EnsemblGeneId) obj;
-                    getValues(nodeProperties, ensg, colValMap, isExport);
+                    getValues(nodeProperties, ensg, colValMap, isExport, jDatatypeProperties);
                 }
                 else if (className.equals("MarkerSynonym")) {
                     MarkerSynonym m = (MarkerSynonym) obj;
-                    getValues(nodeProperties, m, colValMap, isExport);
+                    getValues(nodeProperties, m, colValMap, isExport, jDatatypeProperties);
                 }
                 else if (className.equals("HumanGeneSymbol")) {
                     HumanGeneSymbol hg = (HumanGeneSymbol) obj;
-                    getValues(nodeProperties, hg, colValMap, isExport);
+                    getValues(nodeProperties, hg, colValMap, isExport, jDatatypeProperties);
                 }
                 else if (className.equals("DiseaseModel")) {
                     DiseaseModel dm = (DiseaseModel) obj;
-                    getValues(nodeProperties, dm, colValMap, isExport);
+                    getValues(nodeProperties, dm, colValMap, isExport, jDatatypeProperties);
                 }
                 else if (className.equals("MouseModel")) {
                     MouseModel mm = (MouseModel) obj;
-                    getValues(nodeProperties, mm, colValMap, isExport);
+                    getValues(nodeProperties, mm, colValMap, isExport, jDatatypeProperties);
                 }
                 else if (className.equals("Allele")) {
                     Allele allele = (Allele) obj;
-                    getValues(nodeProperties, allele, colValMap, isExport);
+                    getValues(nodeProperties, allele, colValMap, isExport, jDatatypeProperties);
                 }
                 else if (className.equals("Mp")) {
                     Mp mp = (Mp) obj;
-                    getValues(nodeProperties, mp, colValMap, isExport);
+                    getValues(nodeProperties, mp, colValMap, isExport, jDatatypeProperties);
                 }
                 else if (className.equals("OntoSynonym")) {
                     OntoSynonym ontosyn = (OntoSynonym) obj;
-                    getValues(nodeProperties, ontosyn, colValMap, isExport);
+                    getValues(nodeProperties, ontosyn, colValMap, isExport, jDatatypeProperties);
                 }
                 else if (className.equals("Hp")) {
                     Hp hp = (Hp) obj;
-                    getValues(nodeProperties, hp, colValMap, isExport);
+                    getValues(nodeProperties, hp, colValMap, isExport, jDatatypeProperties);
                 }
             }
         }
         
     }
 
-    public void getValues(List<String> nodeProperties, Object o, Map<String, Set<String>> colValMap, Boolean isExport) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+    public void getValues(List<String> nodeProperties, Object o, Map<String, Set<String>> colValMap, Boolean isExport, JSONObject jParam) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
 
         int showCutOff = 3;
-        ;
+
+        if (hostname == null) {
+            hostname = jParam.getString("hostname").toString();
+        }
+        if  (baseUrl == null) {
+            baseUrl = jParam.getString("baseUrl").toString();
+        }
+
         String geneBaseUrl = baseUrl + "/genes/";
         String alleleBaseUrl = baseUrl + "/alleles/"; //MGI:2676828/tm1(mirKO)Wtsi
         String mpBaseUrl = baseUrl + "/phenotypes/";
@@ -1730,11 +1740,11 @@ public class AdvancedSearchController {
                         colVal = "<a target='_blank' href='" + mpBaseUrl + mpId + "'>" + colVal + "</a>";
                     }
                 }
-                else if (property.equals("mpId")){
-                    if (isExport){
-                        colVal = hostname + mpBaseUrl + colVal;
-                    }
-                }
+//                else if (property.equals("mpId")){
+//                    if (isExport){
+//                        colVal = hostname + mpBaseUrl + colVal;
+//                    }
+//                }
                 else if (property.equals("diseaseTerm")){
                     DiseaseModel dm = (DiseaseModel) o;
                     if (! isExport) {
@@ -1742,11 +1752,12 @@ public class AdvancedSearchController {
                         colVal = "<a target='_blank' href='" + diseaseBaseUrl + dt + "'>" + colVal + "</a>";
                     }
                 }
-                else if (property.equals("diseaseId")){
-                    if (isExport){
-                        colVal = hostname + diseaseBaseUrl + colVal;
-                    }
-                }
+                // multiple http links won't work in excel cell
+//                else if (property.equals("diseaseId")){
+//                    if (isExport){
+//                        colVal = hostname + diseaseBaseUrl + colVal;
+//                    }
+//                }
                 else if (property.equals("alleleSymbol")){
 
                     Allele al = (Allele) o;

@@ -50,13 +50,19 @@ public class Neo4jConfig {
         //String pathToDb = Paths.get(".").toAbsolutePath().normalize().toString() + "/target//Users/ckchen/Documents/Neo4j/impc.neo4";
         String pathToDb = neo4jDbPath;
         config
-                .driverConfiguration()
-                .setDriverClassName("org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver")
-                .setURI("file://" + pathToDb);
-//
 //                .driverConfiguration()
-//                .setDriverClassName("org.neo4j.ogm.drivers.http.driver.HttpDriver")
-//                .setURI("http://" + neoUser + ":" + neoPass + "@" + neoServer + ":" + neoPort);
+//                .setDriverClassName("org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver")
+//                .setURI("file://" + pathToDb);
+//
+                .driverConfiguration()
+                .setDriverClassName("org.neo4j.ogm.drivers.http.driver.HttpDriver")
+                .setURI("http://" + neoUser + ":" + neoPass + "@" + neoServer + ":" + neoPort);
+
+                // not working
+//                .driverConfiguration()
+//                .setDriverClassName("org.neo4j.ogm.drivers.bolt.driver.BoltDriver")
+//                .setURI("bolt://" + neoUser + ":" + neoPass + "@" + neoServer) // .setURI("bolt://neo4j:password@localhost")
+//                .setConnectionPoolSize(150);
 
         System.out.println(config);
 
