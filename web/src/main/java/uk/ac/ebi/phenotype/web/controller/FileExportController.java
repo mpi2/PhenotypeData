@@ -123,6 +123,9 @@ public class FileExportController {
 	@Autowired
 	private AdvancedSearchController advancedSearchController;
 
+	private String hostname = null;
+	private String baseUrl = null;
+
 	/**
 	 * Return a TSV or XLS formatted response of advanced search result
 	 */
@@ -134,8 +137,15 @@ public class FileExportController {
 			@RequestParam(value = "fileName", required = true) String fileName,
 			HttpServletRequest request, HttpServletResponse response, Model model) throws Exception {
 
-		hostName = request.getAttribute("mappedHostname").toString().replace("https:", "http:");
+
+		baseUrl = request.getAttribute("baseUrl").toString();
+		hostname = request.getAttribute("mappedHostname").toString();
+		//hostName = request.getAttribute("mappedHostname").toString().replace("https:", "http:");
+
 		JSONObject jParams = (JSONObject) JSONSerializer.toJSON(params);
+		jParams.put("baseUrl", baseUrl);
+		jParams.put("hostname", hostname);
+
 		System.out.println(fileName);
 		System.out.println(fileType);
 		System.out.println(jParams.toString());
