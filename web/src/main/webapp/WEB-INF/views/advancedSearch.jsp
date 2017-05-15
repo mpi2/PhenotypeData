@@ -1916,7 +1916,8 @@
 
 							$('i.pr').click(function () {
 								$(this).siblings('input.termFilter').parent().remove();
-								if ($(fieldsetFilter + ".srchBox").size() == 1) {
+
+								if ($(fieldsetFilter + ".srchMp").size() == 1) {
 									$(fieldsetFilter + ".andOr").hide();
 									$(fieldsetFilter + ".andOr2").hide();
 									$(fieldsetFilter + ".msg").hide();
