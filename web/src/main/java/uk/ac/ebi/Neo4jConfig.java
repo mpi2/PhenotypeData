@@ -25,16 +25,16 @@ public class Neo4jConfig {
     private String neo4jDbPath;
 
     @NotNull
-    @Value("${neoUser}")
+    @Value("${datasource.neo4j.user}")
     private String neoUser;
     @NotNull
-    @Value("${neoPass}")
+    @Value("${datasource.neo4j.pass}")
     private String neoPass;
     @NotNull
-    @Value("${neoServer}")
+    @Value("${datasource.neo4j.server}")
     private String neoServer;
     @NotNull
-    @Value("${neoPort}")
+    @Value("${datasource.neo4j.port}")
     private String neoPort;
 
 
