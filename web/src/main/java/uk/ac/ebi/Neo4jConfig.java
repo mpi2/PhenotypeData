@@ -42,8 +42,6 @@ public class Neo4jConfig {
     public org.neo4j.ogm.config.Configuration getConfiguration() {
         org.neo4j.ogm.config.Configuration config = new org.neo4j.ogm.config.Configuration();
 
-        System.out.println(neoUser + " " + neoPass);
-
         // TODO: Change to the server neo4j config
 
         // To persist the database, uncomment this section

@@ -409,18 +409,24 @@ public class AdvancedSearchController {
 
             mpStr = mpStr.trim();
 
-            query = "MATCH (mp0:Mp)<-[:PARENT*0..]-(mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:GENE]->(g:Gene) "
-                + " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') "
-                + significant + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes
-                + " WiTH g, mp, sr "
-                + " MATCH (sr)-[:ALLELE]->(a:Allele) "
-                + alleleTypes
-                + " WITH distinct a, g, mp, sr "
-                + " MATCH (g)<-[:GENE]-(dm:DiseaseModel) WHERE "
-                + phenodigmScore + diseaseGeneAssociation + humanDiseaseTerm;
-
-            query += isExport ? " RETURN distinct a, g, sr, collect(distinct mp), collect(distinct dm)" + sortStr
-                    : " RETURN distinct a, g, mp, dm, sr" + sortStr;
+            if (geneList.isEmpty()) {
+                query = "MATCH (mp0:Mp)<-[:PARENT*0..]-(mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g:Gene)"
+                        + " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') "
+                        + significant + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
+                        + " WITH g, a, mp, sr "
+                        + " MATCH (g)<-[:GENE]-(dm:DiseaseModel) WHERE "
+                        + phenodigmScore + diseaseGeneAssociation + humanDiseaseTerm;
+            }
+            else {
+                query = "MATCH (g:Gene)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp)-[:PARENT*0..]->(mp0:Mp) "
+                        + " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') "
+                        + " WHERE sr.significant = true "
+                        + significant + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
+                        + " WITH g, a, mp, sr "
+                        + " MATCH (g)<-[:GENE]-(dm:DiseaseModel) WHERE "
+                        + phenodigmScore + diseaseGeneAssociation + humanDiseaseTerm;
+            }
+            query += isExport ? " RETURN distinct g, a, sr, collect(distinct mp), collect(distinct dm)" + sortStr : " RETURN distinct a, g, mp, dm, sr" + sortStr;
 
             params.put("mpA", mpStr);
 
@@ -430,43 +436,49 @@ public class AdvancedSearchController {
         else if (mpStr.matches(regex_aAndb_Orc)) {
             System.out.println("matches (a and b) or c");
 
-            if (geneList.isEmpty()) {
-                query = "MATCH (mp0:Mp)<-[:PARENT*0..]-(mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g:Gene) "
-                    + " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') "
-                    + significant + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
-                    + " WITH g, a, sr, mp "
-                    + " (mp0:Mp)<-[:PARENT*0..]-(mp1:Mp)<-[:MP]-(sr1:StatisticalResult)-[:ALLELE]->(a1:Allele)-[:GENE]->(g) WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*') "
-                    + significant + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
-                    + " WITH collect({genes:g, mps:mp, srs:sr, alleles:a, mps1:mp1, srs1:sr1, alleles1:a1}) as list1 "
+            if (geneList.isEmpty()){
 
-                    + " MATCH (mp0:Mp)<-[:PARENT*0..]-(mp2:Mp)<-[:MP]-(sr2:StatisticalResult)-[:ALLELE]->(a2:Allele)-[:GENE]->(g2:Gene)  "
-                    + " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpC}+'.*') "
-                    + significant + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
-                    + " WITH list1 + collect({genes: g2, mps:mp2, srs:sr2, alleles:a2, mps1:'', srs1:'', alleles1:''}) as alllist "
-                    + " unwind alllist as nodes "
-                    + " WITH nodes.genes as g, nodes "
-                    + " MATCH (g)<-[:GENE]-(dm:DiseaseModel) ";
+                query = "MATCH (mp0:Mp)<-[:PARENT*0..]-(mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g:Gene) "
+                        + " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') "
+                        + significant + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
+                        + " WITH g "
+
+                        + " MATCH (mp0:Mp)<-[:PARENT*0..]-(mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g) "
+                        + " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*') "
+                        + significant + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
+                        + " WITH collect({genes:g, mps:mp, srs:sr, alleles:a}) as list1 "
+
+                        + " MATCH (mp0:Mp)<-[:PARENT*0..]-(mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g:Gene)  "
+                        + " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpC}+'.*') "
+                        + significant + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
+                        + " WITH list1 + collect({genes: g, mps:mp, srs:sr, alleles:}) as list2 "
+                        + " unwind list2 as nodes "
+                        + " WITH nodes.genes as g, nodes "
+                        + " MATCH (g)<-[:GENE]-(dm:DiseaseModel) ";
             }
             else {
                 query = "MATCH (g:Gene)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp)-[:PARENT*0..]->(mp0:Mp) "
-                    + " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') "
-                    + " WITH g, a, sr, mp "
-                    + significant + phenotypeSexes + parameter +pvalues + chrRange + geneList + genotypes + alleleTypes
-                    + " MATCH (g)<-[:GENE]-(a1:Allele)<-[:ALLELE]-(sr1:StatisticalResult)-[:MP]->(mp1:Mp)-[:PARENT*0..]->(mp0:Mp) WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*') "
-                    + significant + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
-                    + " WITH collect({genes:g, mps:mp, srs:sr, alleles:a, mps1:mp1, srs1:sr1, alleles1:a1}) as list1 "
-                    + " MATCH (g2:Gene)<-[:GENE]-(a2:Allele)<-[:ALLELE]-(sr2:StatisticalResult)-[:MP]->(mp2:Mp)-[:PARENT*0..]->(mp0:Mp) "
-                    + " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpC}+'.*') "
-                    + significant + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
-                    + " WITH list1 + collect({genes: g2, mps:mp2, srs:sr2, alleles:a2, mps1:'', srs1:'', alleles1:''}) as alllist "
-                    + " unwind alllist as nodes "
-                    + " WITH nodes.genes as g, nodes "
-                    + " MATCH (g)<-[:GENE]-(dm:DiseaseModel) ";
-                //+ " RETURN g, nodes.mps, nodes.srs, nodes.alleles, dm, nodes.mps1, nodes.srs1, nodes.alleles1";
+                        + " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') "
+                        + significant + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
+                        + " WITH g "
+
+                        + " MATCH (g)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp)-[:PARENT*0..]->(mp0:Mp) "
+                        + " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*') "
+                        + significant + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
+                        + " WITH collect({genes:g, mps:mp, srs:sr, alleles:a}) as list1 "
+
+                        + " MATCH (g:Gene)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp)-[:PARENT*0..]->(mp0:Mp) "
+                        + " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpC}+'.*') "
+                        + significant + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
+                        + " WITH list1 + collect({genes: g, mps:mp, srs:sr, alleles:a}) as list2 "
+                        + " unwind list2 as nodes "
+                        + " WITH nodes.genes as g, nodes "
+                        + " MATCH (g)<-[:GENE]-(dm:DiseaseModel) WITH nodes, dm ";
             }
 
-            query += isExport ? " RETURN g, collect(distinct nodes.alleles), collect(distinct nodes.alleles1), collect(distinct nodes.mps), collect(distinct nodes.mps1), collect(distinct dm)" + sortStr
-                    : " RETURN g, nodes.alleles, nodes.alleles1, dm, nodes.mps, nodes.mps1" + sortStr;
+            query += isExport ? " RETURN nodes.alleles, g, collect(distinct nodes.mps), collect(distinct nodes.srs), collect(distinct dm)" + sortStr
+                    : " RETURN nodes.alleles, g, nodes.mps, nodes.srs, dm" + sortStr;
+
 
             Pattern pattern = Pattern.compile(regex_aAndb_Orc);
             Matcher matcher = pattern.matcher(mpStr);
@@ -490,43 +502,47 @@ public class AdvancedSearchController {
             System.out.println("matches a or (b and c)");
 
             if (geneList.isEmpty()){
-                query = "MATCH (mp0:Mp)<-[:PARENT*0..]-(mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g:Gene) "
-                        + " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*') "
-                        + significant + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
-                        + " WITH g, a, sr, mp "
-                        + " (mp0:Mp)<-[:PARENT*0..]-(mp1:Mp)<-[:MP]-(sr1:StatisticalResult)-[:ALLELE]->(a1:Allele)-[:GENE]->(g) WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpC}+'.*') "
-                        + significant + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
-                        + " WITH collect({genes:g, mps:mp, srs:sr, alleles:a, mps1:mp1, srs1:sr1, alleles1:a1}) as list1 "
 
-                        + " MATCH (mp0:Mp)<-[:PARENT*0..]-(mp2:Mp)<-[:MP]-(sr2:StatisticalResult)-[:ALLELE]->(a2:Allele)-[:GENE]->(g2:Gene)  "
-                        + " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') "
-                        + significant + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
-                        + " WITH list1 + collect({genes: g2, mps:mp2, srs:sr2, alleles:a2, mps1:'', srs1:'', alleles1:''}) as alllist "
-                        + " unwind alllist as nodes "
-                        + " WITH nodes.genes as g, nodes "
-                        + " MATCH (g)<-[:GENE]-(dm:DiseaseModel) ";
+                query = "MATCH (mp0:Mp)<-[:PARENT*0..]-(mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g:Gene) "
+                    + " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*') "
+                    + significant + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
+                    + " WITH g "
+
+                    + " MATCH (mp0:Mp)<-[:PARENT*0..]-(mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g) "
+                    + " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpC}+'.*') "
+                    + significant + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
+                    + " WITH collect({genes:g, mps:mp, srs:sr, alleles:a}) as list1 "
+
+                    + " MATCH (mp0:Mp)<-[:PARENT*0..]-(mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g:Gene)  "
+                    + " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') "
+                    + significant + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
+                    + " WITH list1 + collect({genes: g, mps:mp, srs:sr, alleles:}) as list2 "
+                    + " unwind list2 as nodes "
+                    + " WITH nodes.genes as g, nodes "
+                    + " MATCH (g)<-[:GENE]-(dm:DiseaseModel) ";
             }
             else {
                 query = "MATCH (g:Gene)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp)-[:PARENT*0..]->(mp0:Mp) "
-                        + " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*') "
-                        + significant + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
-                        + " WITH g, a, sr, mp "
-                        + " MATCH (g)<-[:GENE]-(a1:Allele)<-[:ALLELE]-(sr1:StatisticalResult)-[:MP]->(mp1:Mp)-[:PARENT*0..]->(mp0:Mp) WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpC}+'.*') "
-                        + significant + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
-                        + " WITH collect({genes:g, mps:mp, srs:sr, alleles:a, mps1:mp1, srs1:sr1, alleles1:a1}) as list1 "
+                    + " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*') "
+                    + significant + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
+                    + " WITH g "
 
-                        + " MATCH (g2:Gene)<-[:GENE]-(a2:Allele)<-[:ALLELE]-(sr2:StatisticalResult)-[:MP]->(mp2:Mp)-[:PARENT*0..]->(mp0:Mp) "
-                        + " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') "
-                        + significant + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
-                        + " WITH list1 + collect({genes: g2, mps:mp2, srs:sr2, alleles:a2, mps1:'', srs1:'', alleles1:''}) as alllist "
-                        + " unwind alllist as nodes "
-                        + " WITH nodes.genes as g, nodes "
-                        + " MATCH (g)<-[:GENE]-(dm:DiseaseModel) WITH nodes, dm ";
-                //+ " RETURN g, nodes.mps, nodes.srs, nodes.alleles, dm, nodes.mps1, nodes.srs1, nodes.alleles1";
+                    + " MATCH (g)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp)-[:PARENT*0..]->(mp0:Mp) "
+                    + " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpC}+'.*') "
+                    + significant + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
+                    + " WITH collect({genes:g, mps:mp, srs:sr, alleles:a}) as list1 "
+
+                    + " MATCH (g:Gene)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp)-[:PARENT*0..]->(mp0:Mp) "
+                    + " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') "
+                    + significant + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
+                    + " WITH list1 + collect({genes: g, mps:mp, srs:sr, alleles:a}) as list2 "
+                    + " unwind list2 as nodes "
+                    + " WITH nodes.genes as g, nodes "
+                    + " MATCH (g)<-[:GENE]-(dm:DiseaseModel) WITH nodes, dm ";
             }
 
-            query += isExport ? " RETURN g, collect(distinct nodes.alleles), collect(distinct nodes.alleles1), collect(distinct dm), collect(distinct nodes.mps), collect(distinct nodes.mps1)" + sortStr
-                    : " RETURN g, nodes.alleles, nodes.alleles1, nodes.mps, nodes.mps1, dm" + sortStr;
+            query += isExport ? " RETURN nodes.alleles, g, collect(distinct nodes.mps), collect(distinct nodes.srs), collect(distinct dm)" + sortStr
+                    : " RETURN nodes.alleles, g, nodes.mps, nodes.srs, dm" + sortStr;
 
 
             Pattern pattern = Pattern.compile(regex_aOr_bAndc);
@@ -555,28 +571,35 @@ public class AdvancedSearchController {
                 query = "MATCH (mp0:Mp)<-[:PARENT*0..]-(mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g:Gene) "
                         + "WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') OR mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*') "
                         + significant + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
-                        + " WITH g, a, sr, mp "
-                        + " MATCH (mp0:Mp)<-[:PARENT*0..]-(mp1:Mp)<-[:MP]-(sr1:StatisticalResult)-[:ALLELE]->(a1:Allele)-[:GENE]->(g) WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpC}+'.*') "
+                        + " WITH g, collect({allele:a, srs:sr, mps:mp}) as list1 "
+
+                        + " MATCH (mp0:Mp)<-[:PARENT*0..]-(mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g) "
+                        + " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpC}+'.*') "
                         + significant + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
-                        + " WITH g, a, sr, mp, a1, sr1, mp1 "
-                        + "MATCH (g)<-[:GENE]-(dm:DiseaseModel) WHERE "
-                        + phenodigmScore + diseaseGeneAssociation + humanDiseaseTerm;
+                        + " WITH g, list1 + collect({allele:a, srs:sr, mps:mp}) as list2 "
+
+                        + " MATCH (g)<-[:GENE]-(dm:DiseaseModel) WHERE "
+                        + phenodigmScore + diseaseGeneAssociation + humanDiseaseTerm
+                        + " UNWIND list2 as nodes ";
             }
             else {
                 query = "MATCH (g:Gene)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp)-[:PARENT*0..]->(mp0:Mp) "
                         + "WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') OR mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*') "
                         + significant + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
-                        + " WITH g, a, sr, mp "
-                        + " MATCH (g)<-[:GENE]-(a1:Allele)<-[:ALLELE]-(sr1:StatisticalResult)-[:MP]->(mp1:Mp)-[:PARENT*0..]->(mp0:Mp) WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpC}+'.*') "
+                        + " WITH g, collect({allele:a, srs:sr, mps:mp}) as list1 "
+
+                        + " MATCH (g)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp)-[:PARENT*0..]->(mp0:Mp) "
+                        + " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpC}+'.*') "
                         + significant + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
-                        + " WITH g, a, sr, mp, a1, sr1, mp1 "
-                        + "MATCH (g)<-[:GENE]-(dm:DiseaseModel) WHERE "
-                        + phenodigmScore + diseaseGeneAssociation + humanDiseaseTerm;
-                //+ "RETURN g, a, sr, dm, mp, a1, sr1, mp1";
+                        + " WITH g, list1 + collect({allele:a, srs:sr, mps:mp}) as list2 "
+
+                        + " MATCH (g)<-[:GENE]-(dm:DiseaseModel) WHERE "
+                        + phenodigmScore + diseaseGeneAssociation + humanDiseaseTerm
+                        + " UNWIND list2 as nodes ";
             }
 
-            query += isExport ? " RETURN g, collect(distinct a), collect(distinct a1), collect(distinct mp), collect(distinct mp1), collect(distinct dm)" + sortStr
-                    : " RETURN g, a, a1, dm, mp, mp1" + sortStr;
+            query += isExport ? "RETURN nodes.allele, g, collect(distinct nodes.mps), collect(distinct dm), collect(distinct srs)" + sortStr
+                    : " RETURN nodes.allele, g, nodes.srs, dm, nodes.mps" + sortStr;
 
             Pattern pattern = Pattern.compile(regex_aOrb_andc);
             Matcher matcher = pattern.matcher(mpStr);
@@ -603,27 +626,35 @@ public class AdvancedSearchController {
                 query = "MATCH (mp0:Mp)<-[:PARENT*0..]-(mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g:Gene) "
                         + "WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*') OR mp0.mpTerm =~ ('(?i)'+'.*'+{mpC}+'.*') "
                         + significant + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
-                        + " WITH g, a, sr, mp "
-                        + " MATCH (mp0:Mp)<-[:PARENT*0..]-(mp1:Mp)<-[:MP]-(sr1:StatisticalResult)-[:ALLELE]->(a1:Allele)-[:GENE]->(g) WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') "
+                        + " WITH g, collect({allele:a, srs:sr, mps:mp}) as list1 "
+
+                        + " MATCH (mp0:Mp)<-[:PARENT*0..]-(mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g) "
+                        + " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') "
                         + significant + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
-                        + " WITH g, a, sr, mp, a1, sr1, mp1 "
+                        + " WITH g, list1 + collect({allele:a, srs:sr, mps:mp}) as list2 "
+
                         + " MATCH (g)<-[:GENE]-(dm:DiseaseModel) WHERE "
-                        + phenodigmScore + diseaseGeneAssociation + humanDiseaseTerm;
+                        + phenodigmScore + diseaseGeneAssociation + humanDiseaseTerm
+                        + " UNWIND list2 as nodes ";
             }
             else {
                 query = "MATCH (g:Gene)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp)-[:PARENT*0..]->(mp0:Mp) "
                         + "WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*') OR mp0.mpTerm =~ ('(?i)'+'.*'+{mpC}+'.*') "
                         + significant + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
-                        + " WITH g, a, sr, mp "
-                        + " MATCH (g)<-[:GENE]-(a1:Allele)<-[:ALLELE]-(sr1:StatisticalResult)-[:MP]->(mp1:Mp)-[:PARENT*0..]->(mp0:Mp) WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') "
+                        + " WITH g, collect({allele:a, srs:sr, mps:mp}) as list1 "
+
+                        + " MATCH (g)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp)-[:PARENT*0..]->(mp0:Mp) "
+                        + " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') "
                         + significant + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
-                        + " WITH g, a, sr, mp, a1, sr1, mp1 "
+                        + " WITH g, list1 + collect({allele:a, srs:sr, mps:mp}) as list2 "
+
                         + " MATCH (g)<-[:GENE]-(dm:DiseaseModel) WHERE "
-                        + phenodigmScore + diseaseGeneAssociation + humanDiseaseTerm;
+                        + phenodigmScore + diseaseGeneAssociation + humanDiseaseTerm
+                        + " UNWIND list2 as nodes ";
             }
 
-            query += isExport ? "RETURN g, collect(distinct a), collect(distinct a1), collect(distinct mp), collect(distinct mp1), collect(distinct dm)" + sortStr
-                    : " RETURN g, a, dm, mp, a1, mp1" + sortStr;
+            query += isExport ? "RETURN nodes.allele, g, collect(distinct nodes.mps), collect(distinct dm), collect(distinct srs)" + sortStr
+                    : " RETURN nodes.allele, g, nodes.srs, dm, nodes.mps" + sortStr;
 
             Pattern pattern = Pattern.compile(regex_aAnd_bOrc);
             Matcher matcher = pattern.matcher(mpStr);
@@ -855,7 +886,7 @@ public class AdvancedSearchController {
 
                 List<String> data = new ArrayList<>(); // for export
 
-                Map<String, Set<String>> colValMap = new HashedMap();
+                Map<String, Set<String>> colValMap = new TreeMap();
 
                 for (Map.Entry<String, Object> entry : row.entrySet()) {
                     //System.out.println(entry.getKey() + " / " + entry.getValue());
@@ -913,14 +944,14 @@ public class AdvancedSearchController {
             }
 
             //System.out.println("columns: " + cols);
-            Map<String, Set<String>> colValMap = new HashedMap(); // for export
+            Map<String, Set<String>> colValMap = new TreeMap<>(); // for export
 
             for (Map<String, Object> row : result) {
-                //System.out.println(row.toString());
+                System.out.println(row.toString());
                 //System.out.println("cols: " + row.size());
 
                 for (Map.Entry<String, Object> entry : row.entrySet()) {
-                    //System.out.println(entry.getKey() + " / " + entry.getValue());
+                    System.out.println(entry.getKey() + " / " + entry.getValue());
                     if (entry.getValue() != null) {
                         Object obj = entry.getValue();
                         //System.out.println("col: " + obj.toString());
