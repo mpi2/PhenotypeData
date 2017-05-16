@@ -514,10 +514,9 @@
                         fields: [
                             {"MGI allele symbol":"alleleSymbol"},
                             {"MGI allele id":"alleleMgiAccessionId"},
+                            {"HGNC gene symbol (human ortholog)":"humanGeneSymbol"},   // human ortholog
                             {"MGI gene symbol": "markerSymbol"},
                             {"MGI gene id": "mgiAccessionId"},
-                            // human ortholog
-                            {"HGNC gene symbol (human ortholog)":"humanGeneSymbol"},
                             {"MGI gene type": "markerType"},
                             {"MGI gene name": "markerName"},
                             {"chromosome id": "chrId"},
@@ -840,7 +839,7 @@
                             dataType = "Allele";
                         }
 
-                        console.log("datatype: "+ dataType + " --- " + property);
+                        //console.log("datatype: "+ dataType + " --- " + property);
 
                         if (!kv.hasOwnProperty(dataType)) {
                             kv[dataType] = [];

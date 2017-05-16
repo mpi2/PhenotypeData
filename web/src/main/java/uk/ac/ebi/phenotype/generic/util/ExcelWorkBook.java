@@ -109,8 +109,8 @@ public class ExcelWorkBook {
     				cellStr = cellStr.replace("%3F","?");  // so that url link would work
 
     				XSSFHyperlink url_link = (XSSFHyperlink)createHelper.createHyperlink(Hyperlink.LINK_URL);
-    				
-    				url_link.setAddress(cellStr);
+
+					url_link.setAddress(cellStr);
     				
                     cell.setCellValue(cellStr);         
                     cell.setHyperlink(url_link);
@@ -134,8 +134,8 @@ public class ExcelWorkBook {
 					cell.setCellValue(StringUtils.join(shownVal, "|"));
 				}
     			else {
-    				cell.setCellValue(cellStr);  
-    			}
+    				cell.setCellValue(cellStr);
+				}
 				//System.out.println("cell value: "+ cell.getStringCellValue());
     			//System.out.println((String)tableData[k][l]);
     		}
