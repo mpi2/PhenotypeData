@@ -140,15 +140,16 @@ public class FileExportController {
 
 		baseUrl = request.getAttribute("baseUrl").toString();
 		hostname = request.getAttribute("mappedHostname").toString();
-		//hostName = request.getAttribute("mappedHostname").toString().replace("https:", "http:");
+
+		System.out.println("hostname: " + hostname);
 
 		JSONObject jParams = (JSONObject) JSONSerializer.toJSON(params);
 		jParams.put("baseUrl", baseUrl);
 		jParams.put("hostname", hostname);
 
-		System.out.println(fileName);
-		System.out.println(fileType);
-		System.out.println(jParams.toString());
+//		System.out.println(fileName);
+//		System.out.println(fileType);
+//		System.out.println(jParams.toString());
 
 		boolean isExport = true;
 		JSONObject jcontent = advancedSearchController.fetchGraphDataAdvSrch(jParams, isExport);

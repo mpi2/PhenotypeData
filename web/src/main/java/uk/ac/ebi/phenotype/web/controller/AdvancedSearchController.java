@@ -372,14 +372,26 @@ public class AdvancedSearchController {
 
         long begin = System.currentTimeMillis();
 
-        if (mpStr == null ){
+        if (mpStr == null && ! humanDiseaseTerm.isEmpty()){
+            query = "MATCH (mp0:Mp)<-[:PARENT*0..]-(mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g:Gene)<-[:GENE]-(dm:DiseaseModel) "
+                + " WHERE sr.significant = true "
+                + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
+                + " AND "
+                + phenodigmScore + diseaseGeneAssociation + humanDiseaseTerm;
+
+            query += isExport ? " RETURN distinct g, a, sr, collect(distinct mp), collect(distinct dm)" + sortStr : " RETURN distinct a, g, mp, dm, sr" + sortStr;
+
+            System.out.println("Query: "+ query);
+            result = neo4jSession.query(query, params);
+        }
+        else if (mpStr == null ){
 
             if (geneList.isEmpty()) {
                 query = "MATCH (sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g:Gene)"
                         + " WHERE sr.significant = true "
                         + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
                         + " WITH sr, a, g "
-                        + " MATCH (sr)-[:MP]->(mp:Mp) "
+                        + " MATCH (sr)-[:MP]->(mp:Mp)-[:PARENT*0..]->(mp0:Mp) "
                         + " WITH g, a, mp, sr, "
                         + " extract(x in collect(distinct g) | x.markerSymbol) as symbols "
                         + " MATCH (g)<-[:GENE]-(dm:DiseaseModel) WHERE "
@@ -387,7 +399,7 @@ public class AdvancedSearchController {
                         + " AND g.markerSymbol in symbols ";
             }
             else {
-                query = "MATCH (g:Gene)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp) "
+                query = "MATCH (g:Gene)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp)-[:PARENT*0..]->(mp0:Mp) "
                         + " WHERE sr.significant = true "
                         + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
                         + " WITH g, a, mp, sr, "
@@ -1738,9 +1750,14 @@ public class AdvancedSearchController {
         if (hostname == null) {
             hostname = jParam.getString("hostname").toString();
         }
+        if ( ! hostname.startsWith("http")){
+            hostname = "http:" + hostname;
+        }
         if  (baseUrl == null) {
             baseUrl = jParam.getString("baseUrl").toString();
         }
+
+        //System.out.println("TEST hostname: " + hostname);
 
         String geneBaseUrl = baseUrl + "/genes/";
         String alleleBaseUrl = baseUrl + "/alleles/"; //MGI:2676828/tm1(mirKO)Wtsi
@@ -1765,9 +1782,9 @@ public class AdvancedSearchController {
             }
             String colVal = NA;
 
-            if (method.invoke(o) == null){
-                System.out.println(property + " is null");
-            }
+//            if (method.invoke(o) == null){
+//                System.out.println(property + " is null");
+//            }
 
             try {
                 colVal = method.invoke(o).toString();
@@ -1820,16 +1837,22 @@ public class AdvancedSearchController {
 
                     Allele al = (Allele) o;
                     if (! isExport) {
+                        int index = colVal.indexOf('<');
+                        String wantedSymbol = colVal.replace(colVal.substring(0, index+1), "").replace(">","");
                         colVal = Tools.superscriptify(colVal);
-                        String aid = al.getAlleleMgiAccessionId() + "/" + colVal;
+                        String aid = al.getAlleleMgiAccessionId() + "/" + wantedSymbol;
                         colVal = "<a target='_blank' href='" + alleleBaseUrl + aid + "'>" + colVal + "</a>";
                     }
                 }
                 else if (property.equals("alleleMgiAccessionId")){
+
                     if (isExport){
                         Allele al = (Allele) o;
                         String asym = al.getAlleleSymbol();
-                        colVal = hostname + alleleBaseUrl + colVal + "/" + asym;
+                        int index = asym.indexOf('<');
+                        String wantedSymbol = asym.replace(asym.substring(0, index+1), "").replace(">","");
+                       // System.out.println("asym: " + asym + " wanted: " + wantedSymbol);
+                        colVal = hostname + alleleBaseUrl + colVal + "/" + wantedSymbol;
                     }
                 }
                 else if (property.equals("ensemblGeneId")){
