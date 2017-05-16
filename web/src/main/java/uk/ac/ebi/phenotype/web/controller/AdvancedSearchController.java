@@ -79,19 +79,11 @@ public class AdvancedSearchController {
     @Autowired
     private Session neo4jSession;
 
-//    @Autowired
-//    Neo4jTemplate neo4jSession;
-
-
     @Resource(name = "globalConfiguration")
     private Map<String, String> config;
 
     @Autowired
     private SolrIndex solrIndex;
-
-    @NotNull
-    @Value("${neo4jDbPath}")
-    private String neo4jDbPath;
 
     @Autowired
     @Qualifier("komp2DataSource")
@@ -313,8 +305,8 @@ public class AdvancedSearchController {
         baseUrl = request.getAttribute("baseUrl").toString();
         hostname = request.getAttribute("mappedHostname").toString();
 
-        System.out.println("hostname: " + hostname);
-        System.out.println("baseUrl: " + baseUrl);
+//        System.out.println("hostname: " + hostname);
+//        System.out.println("baseUrl: " + baseUrl);
 
         JSONObject jParams = (JSONObject) JSONSerializer.toJSON(params);
         System.out.println(jParams.toString());
@@ -378,6 +370,8 @@ public class AdvancedSearchController {
         String sortStr = geneList.isEmpty() ? " ORDER BY g.markerSymbol " : "";
         String query = null;
 
+        long begin = System.currentTimeMillis();
+
         if (mpStr == null ){
 
             if (geneList.isEmpty()) {
@@ -386,17 +380,21 @@ public class AdvancedSearchController {
                         + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
                         + " WITH sr, a, g "
                         + " MATCH (sr)-[:MP]->(mp:Mp) "
-                        + " WITH g, a, mp, sr "
+                        + " WITH g, a, mp, sr, "
+                        + " extract(x in collect(distinct g) | x.markerSymbol) as symbols "
                         + " MATCH (g)<-[:GENE]-(dm:DiseaseModel) WHERE "
-                        + phenodigmScore + diseaseGeneAssociation + humanDiseaseTerm;
+                        + phenodigmScore + diseaseGeneAssociation + humanDiseaseTerm
+                        + " AND g.markerSymbol in symbols ";
             }
             else {
                 query = "MATCH (g:Gene)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp) "
                         + " WHERE sr.significant = true "
                         + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
-                        + " WITH g, a, mp, sr "
+                        + " WITH g, a, mp, sr, "
+                        + " extract(x in collect(distinct g) | x.markerSymbol) as symbols "
                         + " MATCH (g)<-[:GENE]-(dm:DiseaseModel) WHERE "
-                        + phenodigmScore + diseaseGeneAssociation + humanDiseaseTerm;
+                        + phenodigmScore + diseaseGeneAssociation + humanDiseaseTerm
+                        + " AND g.markerSymbol in symbols ";
             }
 
             query += isExport ? " RETURN distinct g, a, sr, collect(distinct mp), collect(distinct dm)" + sortStr : " RETURN distinct a, g, mp, dm, sr" + sortStr;
@@ -413,18 +411,22 @@ public class AdvancedSearchController {
                 query = "MATCH (mp0:Mp)<-[:PARENT*0..]-(mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g:Gene)"
                         + " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') "
                         + significant + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
-                        + " WITH g, a, mp, sr "
+                        + " WITH g, a, mp, sr, "
+                        + " extract(x in collect(distinct g) | x.markerSymbol) as symbols "
                         + " MATCH (g)<-[:GENE]-(dm:DiseaseModel) WHERE "
-                        + phenodigmScore + diseaseGeneAssociation + humanDiseaseTerm;
+                        + phenodigmScore + diseaseGeneAssociation + humanDiseaseTerm
+                        + " AND g.markerSymbol in symbols " ;
             }
             else {
                 query = "MATCH (g:Gene)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp)-[:PARENT*0..]->(mp0:Mp) "
                         + " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') "
                         + " WHERE sr.significant = true "
                         + significant + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
-                        + " WITH g, a, mp, sr "
+                        + " WITH g, a, mp, sr, "
+                        + " extract(x in collect(distinct g) | x.markerSymbol) as symbols "
                         + " MATCH (g)<-[:GENE]-(dm:DiseaseModel) WHERE "
-                        + phenodigmScore + diseaseGeneAssociation + humanDiseaseTerm;
+                        + phenodigmScore + diseaseGeneAssociation + humanDiseaseTerm
+                        + " AND g.markerSymbol in symbols " ;
             }
             query += isExport ? " RETURN distinct g, a, sr, collect(distinct mp), collect(distinct dm)" + sortStr : " RETURN distinct a, g, mp, dm, sr" + sortStr;
 
@@ -452,9 +454,12 @@ public class AdvancedSearchController {
                         + " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpC}+'.*') "
                         + significant + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
                         + " WITH list1 + collect({genes: g, mps:mp, srs:sr, alleles:}) as list2 "
-                        + " unwind list2 as nodes "
-                        + " WITH nodes.genes as g, nodes "
-                        + " MATCH (g)<-[:GENE]-(dm:DiseaseModel) ";
+                        + " UNWIND list2 as nodes "
+                        + " WITH nodes.genes as g, nodes, "
+                        + " extract(x in collect(distinct g) | x.markerSymbol) as symbols "
+                        + " MATCH (g)<-[:GENE]-(dm:DiseaseModel) "
+                        + phenodigmScore + diseaseGeneAssociation + humanDiseaseTerm
+                        + " AND g.markerSymbol in symbols " ;
             }
             else {
                 query = "MATCH (g:Gene)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp)-[:PARENT*0..]->(mp0:Mp) "
@@ -471,13 +476,16 @@ public class AdvancedSearchController {
                         + " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpC}+'.*') "
                         + significant + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
                         + " WITH list1 + collect({genes: g, mps:mp, srs:sr, alleles:a}) as list2 "
-                        + " unwind list2 as nodes "
-                        + " WITH nodes.genes as g, nodes "
-                        + " MATCH (g)<-[:GENE]-(dm:DiseaseModel) WITH nodes, dm ";
+                        + " UNWIND list2 as nodes "
+                        + " WITH nodes.genes as g, nodes, "
+                        + " extract(x in collect(distinct g) | x.markerSymbol) as symbols "
+                        + " MATCH (g)<-[:GENE]-(dm:DiseaseModel) "
+                        + phenodigmScore + diseaseGeneAssociation + humanDiseaseTerm
+                        + " AND g.markerSymbol in symbols " ;
             }
 
-            query += isExport ? " RETURN nodes.alleles, g, collect(distinct nodes.mps), collect(distinct nodes.srs), collect(distinct dm)" + sortStr
-                    : " RETURN nodes.alleles, g, nodes.mps, nodes.srs, dm" + sortStr;
+            query += isExport ? " RETURN nodes.alleles, g, nodes.srs, collect(distinct nodes.mps), collect(distinct dm)" + sortStr
+                    : " RETURN nodes.alleles, g, nodes.srs, nodes.mps, dm" + sortStr;
 
 
             Pattern pattern = Pattern.compile(regex_aAndb_Orc);
@@ -517,9 +525,12 @@ public class AdvancedSearchController {
                     + " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') "
                     + significant + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
                     + " WITH list1 + collect({genes: g, mps:mp, srs:sr, alleles:}) as list2 "
-                    + " unwind list2 as nodes "
-                    + " WITH nodes.genes as g, nodes "
-                    + " MATCH (g)<-[:GENE]-(dm:DiseaseModel) ";
+                    + " UNWIND list2 as nodes "
+                    + " WITH nodes.genes as g, nodes, "
+                    + " extract(x in collect(distinct g) | x.markerSymbol) as symbols "
+                    + " MATCH (g)<-[:GENE]-(dm:DiseaseModel) "
+                    + phenodigmScore + diseaseGeneAssociation + humanDiseaseTerm
+                    + " AND g.markerSymbol in symbols ";
             }
             else {
                 query = "MATCH (g:Gene)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp)-[:PARENT*0..]->(mp0:Mp) "
@@ -536,13 +547,16 @@ public class AdvancedSearchController {
                     + " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') "
                     + significant + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
                     + " WITH list1 + collect({genes: g, mps:mp, srs:sr, alleles:a}) as list2 "
-                    + " unwind list2 as nodes "
-                    + " WITH nodes.genes as g, nodes "
-                    + " MATCH (g)<-[:GENE]-(dm:DiseaseModel) WITH nodes, dm ";
+                    + " UNWIND list2 as nodes "
+                    + " WITH nodes.genes as g, nodes, "
+                    + " extract(x in collect(distinct g) | x.markerSymbol) as symbols "
+                    + " MATCH (g)<-[:GENE]-(dm:DiseaseModel) "
+                    + phenodigmScore + diseaseGeneAssociation + humanDiseaseTerm
+                    + " AND g.markerSymbol in symbols ";
             }
 
-            query += isExport ? " RETURN nodes.alleles, g, collect(distinct nodes.mps), collect(distinct nodes.srs), collect(distinct dm)" + sortStr
-                    : " RETURN nodes.alleles, g, nodes.mps, nodes.srs, dm" + sortStr;
+            query += isExport ? " RETURN nodes.alleles, g, nodes.srs, collect(distinct nodes.mps), collect(distinct dm)" + sortStr
+                    : " RETURN nodes.alleles, g, nodes.srs, nodes.mps, dm" + sortStr;
 
 
             Pattern pattern = Pattern.compile(regex_aOr_bAndc);
@@ -571,35 +585,39 @@ public class AdvancedSearchController {
                 query = "MATCH (mp0:Mp)<-[:PARENT*0..]-(mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g:Gene) "
                         + "WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') OR mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*') "
                         + significant + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
-                        + " WITH g, collect({allele:a, srs:sr, mps:mp}) as list1 "
+                        + " WITH g, collect({alleles:a, srs:sr, mps:mp}) as list1 "
 
                         + " MATCH (mp0:Mp)<-[:PARENT*0..]-(mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g) "
                         + " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpC}+'.*') "
                         + significant + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
-                        + " WITH g, list1 + collect({allele:a, srs:sr, mps:mp}) as list2 "
+                        + " WITH g, list1 + collect({alleles:a, srs:sr, mps:mp}) as list2, "
+                        + " extract(x in collect(distinct g) | x.markerSymbol) as symbols "
 
-                        + " MATCH (g)<-[:GENE]-(dm:DiseaseModel) WHERE "
+                        + " MATCH (g)<-[:GENE]-(dm:DiseaseModel) "
                         + phenodigmScore + diseaseGeneAssociation + humanDiseaseTerm
+                        + " AND g.markerSymbol in symbols "
                         + " UNWIND list2 as nodes ";
             }
             else {
                 query = "MATCH (g:Gene)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp)-[:PARENT*0..]->(mp0:Mp) "
                         + "WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') OR mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*') "
                         + significant + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
-                        + " WITH g, collect({allele:a, srs:sr, mps:mp}) as list1 "
+                        + " WITH g, collect({alleles:a, srs:sr, mps:mp}) as list1 "
 
                         + " MATCH (g)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp)-[:PARENT*0..]->(mp0:Mp) "
                         + " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpC}+'.*') "
                         + significant + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
-                        + " WITH g, list1 + collect({allele:a, srs:sr, mps:mp}) as list2 "
+                        + " WITH g, list1 + collect({alleles:a, srs:sr, mps:mp}) as list2, "
+                        + " extract(x in collect(distinct g) | x.markerSymbol) as symbols "
 
-                        + " MATCH (g)<-[:GENE]-(dm:DiseaseModel) WHERE "
+                        + " MATCH (g)<-[:GENE]-(dm:DiseaseModel) "
                         + phenodigmScore + diseaseGeneAssociation + humanDiseaseTerm
+                        + " AND g.markerSymbol in symbols "
                         + " UNWIND list2 as nodes ";
             }
 
-            query += isExport ? "RETURN nodes.allele, g, collect(distinct nodes.mps), collect(distinct dm), collect(distinct srs)" + sortStr
-                    : " RETURN nodes.allele, g, nodes.srs, dm, nodes.mps" + sortStr;
+            query += isExport ? "RETURN nodes.alleles, g, nodes.srs, collect(distinct nodes.mps), collect(distinct dm)" + sortStr
+                    : " RETURN nodes.alleles, g, nodes.srs, dm, nodes.mps" + sortStr;
 
             Pattern pattern = Pattern.compile(regex_aOrb_andc);
             Matcher matcher = pattern.matcher(mpStr);
@@ -626,35 +644,39 @@ public class AdvancedSearchController {
                 query = "MATCH (mp0:Mp)<-[:PARENT*0..]-(mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g:Gene) "
                         + "WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*') OR mp0.mpTerm =~ ('(?i)'+'.*'+{mpC}+'.*') "
                         + significant + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
-                        + " WITH g, collect({allele:a, srs:sr, mps:mp}) as list1 "
+                        + " WITH g, collect({alleles:a, srs:sr, mps:mp}) as list1 "
 
                         + " MATCH (mp0:Mp)<-[:PARENT*0..]-(mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g) "
                         + " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') "
                         + significant + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
-                        + " WITH g, list1 + collect({allele:a, srs:sr, mps:mp}) as list2 "
+                        + " WITH g, list1 + collect({alleles:a, srs:sr, mps:mp}) as list2, "
+                        + " extract(x in collect(distinct g) | x.markerSymbol) as symbols "
 
-                        + " MATCH (g)<-[:GENE]-(dm:DiseaseModel) WHERE "
+                        + " MATCH (g)<-[:GENE]-(dm:DiseaseModel) "
                         + phenodigmScore + diseaseGeneAssociation + humanDiseaseTerm
+                        + " AND g.markerSymbol in symbols "
                         + " UNWIND list2 as nodes ";
             }
             else {
                 query = "MATCH (g:Gene)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp)-[:PARENT*0..]->(mp0:Mp) "
                         + "WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*') OR mp0.mpTerm =~ ('(?i)'+'.*'+{mpC}+'.*') "
                         + significant + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
-                        + " WITH g, collect({allele:a, srs:sr, mps:mp}) as list1 "
+                        + " WITH g, collect({alleles:a, srs:sr, mps:mp}) as list1 "
 
                         + " MATCH (g)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp)-[:PARENT*0..]->(mp0:Mp) "
                         + " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') "
                         + significant + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
-                        + " WITH g, list1 + collect({allele:a, srs:sr, mps:mp}) as list2 "
+                        + " WITH g, list1 + collect({alleles:a, srs:sr, mps:mp}) as list2, "
+                        + " extract(x in collect(distinct g) | x.markerSymbol) as symbols "
 
-                        + " MATCH (g)<-[:GENE]-(dm:DiseaseModel) WHERE "
+                        + " MATCH (g)<-[:GENE]-(dm:DiseaseModel) "
                         + phenodigmScore + diseaseGeneAssociation + humanDiseaseTerm
+                        + " AND g.markerSymbol in symbols "
                         + " UNWIND list2 as nodes ";
             }
 
-            query += isExport ? "RETURN nodes.allele, g, collect(distinct nodes.mps), collect(distinct dm), collect(distinct srs)" + sortStr
-                    : " RETURN nodes.allele, g, nodes.srs, dm, nodes.mps" + sortStr;
+            query += isExport ? "RETURN nodes.alleles, g, nodes.srs, collect(distinct nodes.mps), collect(distinct dm)" + sortStr
+                    : " RETURN nodes.alleles, g, nodes.srs, dm, nodes.mps" + sortStr;
 
             Pattern pattern = Pattern.compile(regex_aAnd_bOrc);
             Matcher matcher = pattern.matcher(mpStr);
@@ -691,13 +713,14 @@ public class AdvancedSearchController {
                     + " MATCH (mp0:Mp)<-[:PARENT*0..]-(mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g) "
                     + " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpC}+'.*') "
                     + significant + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
-                    + " WITH g, a, mp, sr "
-
-                    + " MATCH (g)<-[:GENE]-(dm:DiseaseModel) WHERE "
-                    +  phenodigmScore + diseaseGeneAssociation + humanDiseaseTerm;
+                    + " WITH g, a, mp, sr, "
+                    + " extract(x in collect(distinct g) | x.markerSymbol) as symbols "
+                    + " MATCH (g)<-[:GENE]-(dm:DiseaseModel) "
+                    + phenodigmScore + diseaseGeneAssociation + humanDiseaseTerm
+                    + " AND g.markerSymbol in symbols ";
 
             query += isExport ? " RETURN distinct a, g, sr, collect(distinct mp), collect(distinct dm)" + sortStr
-                    : " RETURN distinct a, g, mp, dm, sr" + sortStr;
+                    : " RETURN distinct a, g, sr, mp, dm" + sortStr;
 
             Pattern pattern = Pattern.compile(regex_aAndbAndc);
             Matcher matcher = pattern.matcher(mpStr);;
@@ -728,13 +751,14 @@ public class AdvancedSearchController {
                   + " MATCH (mp0:Mp)<-[:PARENT*0..]-(mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g) "
                   + " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*') "
                   + significant + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
-                  + " WITH distinct g, a, mp, sr "
-
-                  + " MATCH (g)<-[:GENE]-(dm:DiseaseModel) WHERE "
-                  + phenodigmScore + diseaseGeneAssociation + humanDiseaseTerm;
+                  + " WITH g, a, mp, sr, "
+                  + " extract(x in collect(distinct g) | x.markerSymbol) as symbols "
+                  + " MATCH (g)<-[:GENE]-(dm:DiseaseModel) "
+                  + phenodigmScore + diseaseGeneAssociation + humanDiseaseTerm
+                  + " AND g.markerSymbol in symbols ";
 
             query += isExport ? " RETURN distinct a, g, sr, collect(distinct mp), collect(distinct dm)" + sortStr
-                    : " RETURN distinct a, g, mp, dm, sr" + sortStr;
+                    : " RETURN distinct a, g, sr, mp, dm" + sortStr;
 
             Pattern pattern = Pattern.compile(regex_aAndb);
             Matcher matcher = pattern.matcher(mpStr);
@@ -764,11 +788,13 @@ public class AdvancedSearchController {
 
             query += "WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') OR mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*') OR mp0.mpTerm =~ ('(?i)'+'.*'+{mpC}+'.*') "
                 + significant + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
-                + " WITH g, a, mp, sr "
-                + " MATCH (g)<-[:GENE]-(dm:DiseaseModel) WHERE "
-                + phenodigmScore + diseaseGeneAssociation + humanDiseaseTerm;
+                + " WITH g, a, mp, sr, "
+                + " extract(x in collect(distinct g) | x.markerSymbol) as symbols "
+                + " MATCH (g)<-[:GENE]-(dm:DiseaseModel) "
+                + phenodigmScore + diseaseGeneAssociation + humanDiseaseTerm
+                + " AND g.markerSymbol in symbols ";
 
-            query += isExport ? " RETURN distinct g, a, sr, collect(distinct dm), collect(distinct mp)" + sortStr : " RETURN distinct g, a, dm, mp, sr" + sortStr;
+            query += isExport ? " RETURN distinct g, a, sr, collect(distinct mp), collect(distinct dm)" + sortStr : " RETURN distinct g, a, sr, mp, dm" + sortStr;
 
             Pattern pattern = Pattern.compile(regex_aOrbOrc);
             Matcher matcher = pattern.matcher(mpStr);
@@ -800,11 +826,11 @@ public class AdvancedSearchController {
 
             query += "WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') OR mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*') "
                 + significant + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
-                + " WITH g, a, mp, sr "
-                + " MATCH (g)<-[:GENE]-(dm:DiseaseModel) WHERE "
-                + phenodigmScore + diseaseGeneAssociation + humanDiseaseTerm;
-
-            query += isExport ? " RETURN distinct g, a, sr, collect(distinct dm), collect(distinct mp)" + sortStr : " RETURN distinct g, a, dm, mp, sr" + sortStr;
+                    + " WITH g, a, mp, sr, "
+                    + " extract(x in collect(distinct g) | x.markerSymbol) as symbols "
+                    + " MATCH (g)<-[:GENE]-(dm:DiseaseModel) "
+                    + phenodigmScore + diseaseGeneAssociation + humanDiseaseTerm
+                    + " AND g.markerSymbol in symbols ";
 
             Pattern pattern = Pattern.compile(regex_aOrb);
             Matcher matcher = pattern.matcher(mpStr);
@@ -822,7 +848,8 @@ public class AdvancedSearchController {
             }
         }
 
-        System.out.println("Done with query");
+        long end = System.currentTimeMillis();
+        System.out.println("Done with query in " + (end - begin) + " ms");
 
         int rowCount = 0;
         JSONObject j = new JSONObject();
@@ -947,11 +974,11 @@ public class AdvancedSearchController {
             Map<String, Set<String>> colValMap = new TreeMap<>(); // for export
 
             for (Map<String, Object> row : result) {
-                System.out.println(row.toString());
+                //System.out.println(row.toString());
                 //System.out.println("cols: " + row.size());
 
                 for (Map.Entry<String, Object> entry : row.entrySet()) {
-                    System.out.println(entry.getKey() + " / " + entry.getValue());
+                    //System.out.println(entry.getKey() + " / " + entry.getValue());
                     if (entry.getValue() != null) {
                         Object obj = entry.getValue();
                         //System.out.println("col: " + obj.toString());
