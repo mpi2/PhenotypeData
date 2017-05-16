@@ -1395,7 +1395,7 @@
                         "oLanguage": {
                             "sSearch": "Filter: ",
                             //"sInfo": "Showing _START_ to _END_ of _TOTAL_ genes (for complete dataset of your search, please use export buttons)"
-                            "sInfo": "Data overview: all columns are collapsed to show only unique values<br>Please use Export for row by row details"
+                            "sInfo": "<b>Data overview</b>: all columns are collapsed to show only unique values<br>Please use 'Export full dataset' for row by row details"
                         },
 //                        "aoColumns": [
 //                            {"bSearchable": true, "sType": "html", "bSortable": true}
@@ -1667,10 +1667,11 @@
                     }
 
                     var legend = '<legend>Mouse chromosome filter</legend>';
-                    var inputs = 'Chr (multiples ok): <select multiple size="4" id="chrSel">' + chrSel + '</select> ' +
+                    var msg = "Filter genes either by chromosome only OR both chromosome and region coordinates. Supports selecting multiple chromosomes.<br>";
+                    var inputs = 'Chr: <select multiple size="4" id="chrSel">' + chrSel + '</select> ' +
                         'Start: <input id="rstart" type="text" name="chr"> ' +
-                        'End: <input id="rend" type="text" name="chr"> (restricts genes on region of this chromosome)';
-                    var filter = "<fieldset id='chromosome' class='dfilter " + dataType + "'>" + legend + inputs + "</fieldset>";
+                        'End: <input id="rend" type="text" name="chr">';
+                    var filter = "<fieldset id='chromosome' class='dfilter " + dataType + "'>" + legend + msg + inputs + "</fieldset>";
 
                     $('div#dataAttributes').append(filter);
                 }
