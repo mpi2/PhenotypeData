@@ -70,7 +70,17 @@ public class LandingPageController {
 		cardiovascular.setDescription(
 				"This page aims to present cardiovascular system related phenotypes lines which have been produced by IMPC.");
 		cardiovascular.setLink("biological-system/cardiovascular");
+		
+		LandingPageDTO deafness = new LandingPageDTO();
+
+		deafness.setTitle("Deafness");
+		deafness.setImage("render_thumbnail/211474/400/");
+		deafness.setDescription(
+				"This page aims to relate deafnessnes to phenotypes which have been produced by IMPC.");
+		deafness.setLink("biological-system/deafness");
+		
 		bsPages.add(cardiovascular);
+		bsPages.add(deafness);
 
 		model.addAttribute("pages", bsPages);
 
@@ -107,14 +117,14 @@ public class LandingPageController {
         MpDTO mpDTO = null;
 
 
-//        if (page.equalsIgnoreCase("deafness")) { // Need to decide if we want deafness only or top level hearing/vestibular phen
-//            mpDTO = mpService.getPhenotype("MP:0005377");
-//            anatomyIds.add("MA:0002443");
-//            anatomyIds.add("EMAPA:36002");
-//            model.addAttribute("shortDescription", "We have undertaken a deafness screen in the IMPC cohort of mouse knockout strains. We detected known deafness genes and the vast majority of loci were novel.");
-//            pageTitle = "Hearing/Vestibular/Ear";
-//
-//        } else
+        if (page.equalsIgnoreCase("deafness")) { // Need to decide if we want deafness only or top level hearing/vestibular phen
+            mpDTO = mpService.getPhenotype("MP:0005377");
+            anatomyIds.add("MA:0002443");
+            anatomyIds.add("EMAPA:36002");
+            model.addAttribute("shortDescription", "We have undertaken a deafness screen in the IMPC cohort of mouse knockout strains. We detected known deafness genes and the vast majority of loci were novel.");
+            pageTitle = "Hearing/Vestibular/Ear";
+
+        } else
         if (page.equalsIgnoreCase("cardiovascular")) {
             mpDTO = mpService.getPhenotype("MP:0005385");
             anatomyIds.add("MA:0000010");
