@@ -66,7 +66,7 @@ The information displayed includes:
 
 <p class="intraSectBr">
 
-<h4>(1) See all adult phenotypes:</h4>
+<h4 id="all-adult">(1) See all adult phenotypes:</h4>
 Press the "All Adult Data" button.<br />
 <p>You will be taken to a separate page for details of the statistical analysis. Significant P values appear to the right of the green dashed vertical line; insignificant values to the left.
     Hovering over any point shows some important experiment details. Clicking on any point shows a graph of the experiment data.

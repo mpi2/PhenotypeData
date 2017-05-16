@@ -93,6 +93,18 @@
     				</div>
     			</div>
    			</div>
+   			
+   			<script>
+   			$(document).ready(function(){
+				'use strict';
+
+				console.log('running js in all data page');
+
+				$.fn.qTip({'pageName':'experiments', 'linkUrl':'phenoSectionDocUrl'});
+				
+   			});
+   			</script>
+
  	</jsp:body>
   
 </t:genericpage>
