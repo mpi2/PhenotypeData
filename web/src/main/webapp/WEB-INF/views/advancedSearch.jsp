@@ -889,7 +889,19 @@
 
                 	// mouse phenotype
 					if ($('textarea.Mp').val() != ''){
-                        var vals = $('textarea.Mp').val();
+                        var vals = $('textarea.Mp').val().toLowerCase();
+
+                        if (vals.indexOf(" or ") != -1 && vals.toLowerCase().indexOf(" and ") != -1
+                            && (vals.toLowerCase().indexOf("(") == -1 || vals.toLowerCase().indexOf(")") == -1)){
+                            alert("Found ambiguous boolean relationship. Please specify");
+                            return false;
+                        }
+                        else {
+                            if ( (vals.match(/ or /g) || []).length == 2 || (vals.match(/ and /g) || []).length == 2) {
+                                $('textarea.Mp').val( $('textarea.Mp').val().replace(/\)|\(/g, ""));
+                            }
+                        }
+
                         kv['srchMp'] = $('textarea.Mp').val();
 					}
 					else if ($('input.srchMp').val() != 'search' && $('input.srchMp').val() != ''){
@@ -1354,6 +1366,9 @@
                     var th = '';
                     for ( var i=0; i<flList.length; i++){
                         var colname = flList[i];//.replace(/_/g, " ");
+                        if (colname == 'parameterName'){
+                            colname = '(procedureName) parameterName';
+                        }
                         th += "<th>" + colname + "</th>";
                     }
 
@@ -1393,7 +1408,7 @@
                         "oLanguage": {
                             "sSearch": "Filter: ",
                             //"sInfo": "Showing _START_ to _END_ of _TOTAL_ genes (for complete dataset of your search, please use export buttons)"
-                            "sInfo": "<b>Data overview</b>: all columns are collapsed to show only unique values<br>Please use 'Export full dataset' for row by row details"
+                            "sInfo": "<b>Data overview</b>: all columns are collapsed to show only unique values.<br>It shows you how many genes, phenotypes and diseases are related based on your search criteria.<br><br>Please use 'Export full dataset' for row by row details"
                         },
 //                        "aoColumns": [
 //                            {"bSearchable": true, "sType": "html", "bSortable": true}
@@ -1417,6 +1432,19 @@
                             $('div#sec2').show();
 
                             document.getElementById('sec2').scrollIntoView(true); // scrolls to results when datatable loads
+
+                            // show pvalue as float via tooltip
+                            $('table#batchq li span.pv').each(function(){
+                                var val = $(this).text();
+                                var index = val.indexOf('E');
+                                var exp = val.replace(val.substr(0, index+2), "");
+                                console.log(index + " -- " + exp)
+                                $(this).qtip({ // Grab all elements with a title attribute
+                                    content: {
+                                        text: parseFloat($(this).text()).toFixed(exp)
+                                    }
+                                });
+                            });
 
 							// js to toggle hidden values in cells
 							$('button.showMore').click(function(){

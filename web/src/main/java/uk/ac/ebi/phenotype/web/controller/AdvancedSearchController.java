@@ -974,7 +974,7 @@ public class AdvancedSearchController {
 
                 List<String> data = new ArrayList<>(); // for export
 
-                Map<String, TreeSet<String>> colValMap = new TreeMap();
+                Map<String, Set<String>> colValMap = new TreeMap();
 
                 for (Map.Entry<String, Object> entry : row.entrySet()) {
                     //System.out.println(entry.getKey() + " / " + entry.getValue());
@@ -1032,7 +1032,7 @@ public class AdvancedSearchController {
             }
 
             //System.out.println("columns: " + cols);
-            Map<String, TreeSet<String>> colValMap = new TreeMap<>(); // for export
+            Map<String, Set<String>> colValMap = new TreeMap<>(); // for export
 
             for (Map<String, Object> row : result) {
                 //System.out.println(row.toString());
@@ -1040,8 +1040,8 @@ public class AdvancedSearchController {
 
                 for (Map.Entry<String, Object> entry : row.entrySet()) {
                     //System.out.println(entry.getKey() + " / " + entry.getValue());
-                    if (entry.getValue() != null) {
 
+                    if (entry.getValue() != null && ! entry.getValue().toString().startsWith("[Ljava.lang.Object")) {
                         if (entry.getKey().startsWith("collect")) {
                             List<Object> objs = (List<Object>) entry.getValue();
                             for (Object obj : objs) {
@@ -1055,7 +1055,7 @@ public class AdvancedSearchController {
                 }
             }
 
-            System.out.println("keys: "+ colValMap.keySet());
+            //System.out.println("keys: "+ colValMap.keySet());
             // for overview
 
             for (String col : cols){
@@ -1398,7 +1398,7 @@ public class AdvancedSearchController {
 
         for(String kw : srchKw) {
 
-            Map<String, TreeSet<String>> colValMap = new HashedMap();
+            Map<String, Set<String>> colValMap = new HashedMap();
 
             colValMap.put("searchBy", new TreeSet<>());
             colValMap.get("searchBy").add(kw);
@@ -1683,7 +1683,7 @@ public class AdvancedSearchController {
         return childTerms;
     }
 
-    public void populateColValMapAdvSrch(Map<String, List<String>> node2Properties,  Object obj, Map<String, TreeSet<String>> colValMap, JSONObject jParam, Boolean isExport) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+    public void populateColValMapAdvSrch(Map<String, List<String>> node2Properties,  Object obj, Map<String, Set<String>> colValMap, JSONObject jParam, Boolean isExport) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
 
         String className = obj.getClass().getSimpleName();
 
@@ -1741,7 +1741,7 @@ public class AdvancedSearchController {
 
     }
 
-    public void populateColValMap(List<Object> objs, Map<String, TreeSet<String>> colValMap, JSONObject jDatatypeProperties) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+    public void populateColValMap(List<Object> objs, Map<String, Set<String>> colValMap, JSONObject jDatatypeProperties) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
 
         Boolean isExport = false;
         for (Object obj : objs) {
@@ -1798,7 +1798,7 @@ public class AdvancedSearchController {
         
     }
 
-    public void getValues(List<String> nodeProperties, Object o, Map<String, TreeSet<String>> colValMap, Boolean isExport, JSONObject jParam) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+    public void getValues(List<String> nodeProperties, Object o, Map<String, Set<String>> colValMap, Boolean isExport, JSONObject jParam) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
 
         int showCutOff = 3;
 
@@ -1833,7 +1833,7 @@ public class AdvancedSearchController {
 
             Method method = o.getClass().getMethod("get"+property2);
             if (! colValMap.containsKey(property)) {
-                colValMap.put(property, new TreeSet<String>());
+                colValMap.put(property, new LinkedHashSet<>());
             }
             String colVal = NA;
 
@@ -1917,7 +1917,22 @@ public class AdvancedSearchController {
                 else if (property.equals("markerSynonym") || property.equals("humanGeneSymbol")){
                     colVal = colVal.replaceAll("\\[", "").replaceAll("\\]","");
                 }
+                else if (property.equals("parameterName")){
+                    StatisticalResult sr = (StatisticalResult) o;
+                    String procedureName = sr.getProcedureName();
 
+                    if (isExport){
+                        colVal = "(" + procedureName + ") " + colVal;
+                    }
+                    else {
+                        colVal = "<b>(" + procedureName + ")</b> " + colVal;
+                    }
+                }
+                else if (property.equals("pvalue")){
+                    if (! isExport) {
+                        colVal = "<span class='pv'>" + colVal + "</span>";
+                    }
+                }
 
                 if (isExport){
                     colValMap.get(property).add(colVal);
