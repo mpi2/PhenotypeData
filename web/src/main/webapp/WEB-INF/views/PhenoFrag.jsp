@@ -22,10 +22,7 @@
         </c:if>
     </c:forEach>
 </c:forEach>
-<p class="resultCount">
-    <%-- Total number of significant genotype-phenotype associations: ${count} --%>
-    Total number of significant genotype-phenotype associations: female(${femaleCount}) , male(${maleCount}), no sex(${noSexCount})
-</p>
+
 
 <script>
     var resTemp = document.getElementsByClassName("resultCount");

@@ -67,8 +67,8 @@ MDOC.phenotypes = {
 };
 
 MDOC.experiments = {
-		'phenoAssocSection'              	: '<p>Mammalian Phenotype (MP) associations made to this gene.</p><p>Click the help icon for more detail.</p>',	
-
+		'phenoAssocSection'              	: '<p>Continuous and Categorical data associated to this gene</p><p>Click the help icon for more detail.</p>',	
+		'phenoAssocSectionDocUrl'   			: docuBase + '/doc-explore#all-adult',
 };
 
 MDOC.diseases = {
