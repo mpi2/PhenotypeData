@@ -154,6 +154,7 @@
 				left: 480px;
 				margin-left: 5px;
 				display: none;
+                color: #0a6aa1;
 			}
 			.andOr2 {
 				display: none;
@@ -163,9 +164,6 @@
 				top: 6px;
 				left: 600px;
 				margin-left: 5px;
-			}
-			button {
-
 			}
 			span.sugListPheno {
 				font-size: 10px;
@@ -909,7 +907,7 @@
 					    var val = geneList[i];
 					    if (val != "") {
 					        console.log("gene: "+ val);
-                            geneList2.push(geneList[i].trim());
+                            geneList2.push($.fn.upperCaseFirstLetter(val).trim());
                         }
 					}
 					if (geneList2.length>0) {
