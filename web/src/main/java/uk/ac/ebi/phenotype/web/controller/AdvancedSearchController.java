@@ -420,6 +420,7 @@ public class AdvancedSearchController {
             // single mp term
 
             mpStr = mpStr.trim();
+            params.put("mpA", mpStr);
 
             if (geneList.isEmpty()) {
                 query = "MATCH (mp0:Mp)<-[:PARENT*0..]-(mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g:Gene)"
@@ -447,8 +448,6 @@ public class AdvancedSearchController {
 
             query += isExport ? " RETURN distinct a, g, sr, collect(distinct mp), collect(distinct dm)" + sortStr :
                      " RETURN collect(distinct a), collect(distinct g), collect(distinct sr), collect(distinct mp), collect(distinct dm)";
-
-            params.put("mpA", mpStr);
 
             System.out.println("Query: "+ query);
             result =  neo4jSession.query(query, params);
