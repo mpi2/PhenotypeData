@@ -561,7 +561,7 @@ public class Loader implements CommandLineRunner {
                 allele.setMgiAccessionId(mgiAcc);  // to get gene id from allele node straight w/o graph traversal
 
                 // allele rel to gene
-                allele.setGene(gene);
+                allele.setGene(gene); // for graph traversal purpose
 
                 String alleleSymbol = array[columns.get("allele_symbol")];
                 allele.setAlleleSymbol(alleleSymbol);
