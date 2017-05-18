@@ -113,7 +113,7 @@
 			}
 			table.dataTable tr {
 				 /*width: 100% !important;*/
-			 }
+			}
 			table.dataTable td > li {
 				list-style: none;
 			}
@@ -127,6 +127,15 @@
 				/* 0 based */
 				min-width: 120px;
 				display: none;
+			}
+			table.dataTable {
+				border-collapse: collapse;
+			}
+			table.dataTable td {
+				border: 1px solid #F2F2F2;
+			}
+			table.dataTable td:last-child {
+				border-right: none;
 			}
 			button.showMore {
 				cursor: pointer;
@@ -154,16 +163,19 @@
 				left: 480px;
 				margin-left: 5px;
 				display: none;
-                color: #0a6aa1;
 			}
 			.andOr2 {
 				display: none;
+				color: #942a25;
 			}
 			button.ontoview {
 				position: absolute;
 				top: 6px;
 				left: 600px;
 				margin-left: 5px;
+			}
+			button {
+				cursor: pointer;
 			}
 			span.sugListPheno {
 				font-size: 10px;
@@ -216,6 +228,7 @@
 			/*}*/
 			div#sec2 {
 				display: none;
+				margin-top: 15px;
 			}
 			h6.bq {
 				color: gray;
@@ -393,6 +406,9 @@
                modal element will be visible */
 			body.loading .modal {
 				display: block;
+			}
+			div#single {
+				margin-bottom: 8px;
 			}
 
 		</style>
@@ -850,6 +866,13 @@
                     //-----------------
                     //     filters
                     //-----------------
+
+					// noDefault for mp search (no children)
+
+                    if ($('input#noMpChild').is(':checked')){
+                        kv['noMpChild'] = true;
+					}
+
                     // chr range for genes
                     if ($('fieldset#chromosome').is(":visible")) {
                         var chrId = $('select#chrSel').val();
@@ -1785,7 +1808,8 @@
 					if (dataType == "Mp"){
                         legendLabel = "Mouse phenotype (MP) filter";
                         buttLabel = "Add another phenotype";
-                        restriction = "Narrow your query to the mouse phenotype you are interested in <i class='fa fa-info-circle' title='toggle help'></i>";
+                        restriction = "Narrow your query to the mouse phenotype you are interested in. <i class='fa fa-info-circle' title='toggle help'></i><br>"
+							+ "<b>By default</b>, all child phenotypes of a given term will be included in the search. Eg. querying for 'abnormal retina morphology' will include 'retinal hemorrhage'.<br>";
 					}
 					else if (dataType == "Hp"){
                         legendLabel = "Human phenotype (HP) filter";
@@ -1800,6 +1824,7 @@
 
 					var legend = "<legend>"+ legendLabel + "</legend>";
 
+                    var noMpChild = "<div id='single'><input type='checkbox' id='noMpChild'> turn off default</div>";
                     var butt = "<button class='ap'>" + buttLabel + "</button><br>";
                     var msg = "<span class='msg'>Build your query with boolean relationships (refer to info button above for help)<br>Eg. (A OR B) and C</span>";
                     var boolButts =
@@ -1811,7 +1836,7 @@
 						+ "<button class='andOrClear " + dataType + "'>clear</button>";
                     var boolText = "<textarea class='andOr2 " + dataType + "' rows='2' cols=''></textarea>";
                     var help = "<img class='boolHow' src='${baseUrl}/img/how-to-build-boolean-query.png' />";
-					var filter = "<fieldset class='" + dataType + "Filter dfilter " + dataType + "'>" + legend + restriction + input + butt + msg + boolButts + boolText + help + "</fieldset>";
+					var filter = "<fieldset class='" + dataType + "Filter dfilter " + dataType + "'>" + legend + restriction + noMpChild + input + butt + msg + boolButts + boolText + help + "</fieldset>";
 
 					$('div#dataAttributes').append(filter);
 
@@ -1821,7 +1846,7 @@
 
                     $(fieldsetFilter + ' button.ontoview').first().click(function(){
                         // ajax call to fetch for mp id
-                        var termName = $(fieldsetFilter + " input.termFilter").val();
+                        var termName = $(fieldsetFilter + " input.srchMp").val();
                         //$('body').addClass("loading");  // to activate modal
 
                         $.ajax({
