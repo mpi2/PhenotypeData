@@ -247,7 +247,8 @@ public class SearchConfig {
                 "latest_phenotyping_centre",
                 "marker_type",
                 "embryo_data_available",
-                "embryo_modalities"
+                "embryo_modalities",
+                "embryo_analysis_view_url"
                 );
         List<String> mpFacets =  Arrays.asList("top_level_mp_term_inclusive");
         List<String> diseaseFacets =  Arrays.asList("disease_source",

@@ -153,6 +153,8 @@ public class GeneDTO {
 	public static final String PFAMA_GO_CAT = "pfama_go_cat";
 	public static final String EMBRYO_DATA_AVAILABLE = "embryo_data_available";
 	public static final String EMBRYO_ANALYSIS_URL="embryo_analysis_view_url";
+	public static final String EMBRYO_ANALYSIS_NAME="embryo_analysis_view_name";
+
 	public static final String DMDD_IMAGE_DATA_AVAILABLE="dmdd_image_data_available";
 	public static final String DMDD_LETHAL_DATA_AVAILABLE="dmdd_lethal_data_available";
 	public static final String SEQ_REGION_ID = "seq_region_id";
@@ -173,8 +175,9 @@ public class GeneDTO {
 	
 	@Field(EMBRYO_ANALYSIS_URL)
 	private String embryoAnalysisUrl;
-	
-	
+
+	@Field(EMBRYO_ANALYSIS_NAME)
+	private String embryoAnalysisName;
 	
 	public String getEmbryoAnalysisUrl() {
 		return embryoAnalysisUrl;
@@ -182,6 +185,14 @@ public class GeneDTO {
 
 	public void setEmbryoAnalysisUrl(String embryoAnalysisUrl) {
 		this.embryoAnalysisUrl = embryoAnalysisUrl;
+	}
+
+	public String getEmbryoAnalysisName() {
+		return embryoAnalysisName;
+	}
+
+	public void setEmbryoAnalysisName(String embryoAnalysisName) {
+		this.embryoAnalysisName = embryoAnalysisName;
 	}
 
 	@Field(IS_IDG_GENE)
@@ -2119,6 +2130,13 @@ public class GeneDTO {
 		if (seqRegionStart != geneDTO.seqRegionStart) return false;
 		if (seqRegionEnd != geneDTO.seqRegionEnd) return false;
 		if (isEmbryoDataAvailable != geneDTO.isEmbryoDataAvailable) return false;
+		if (isDmddImageDataAvailable != geneDTO.isDmddImageDataAvailable) return false;
+		if (isDmddLethalDataAvailable != geneDTO.isDmddLethalDataAvailable) return false;
+		if (embryoAnalysisUrl != null ? !embryoAnalysisUrl.equals(geneDTO.embryoAnalysisUrl) : geneDTO.embryoAnalysisUrl != null)
+			return false;
+		if (embryoAnalysisName != null ? !embryoAnalysisName.equals(geneDTO.embryoAnalysisName) : geneDTO.embryoAnalysisName != null)
+			return false;
+		if (isIdgGene != null ? !isIdgGene.equals(geneDTO.isIdgGene) : geneDTO.isIdgGene != null) return false;
 		if (vegaIds != null ? !vegaIds.equals(geneDTO.vegaIds) : geneDTO.vegaIds != null) return false;
 		if (ncbiIds != null ? !ncbiIds.equals(geneDTO.ncbiIds) : geneDTO.ncbiIds != null) return false;
 		if (ccdsIds != null ? !ccdsIds.equals(geneDTO.ccdsIds) : geneDTO.ccdsIds != null) return false;
@@ -2320,7 +2338,10 @@ public class GeneDTO {
 
 	@Override
 	public int hashCode() {
-		int result = vegaIds != null ? vegaIds.hashCode() : 0;
+		int result = embryoAnalysisUrl != null ? embryoAnalysisUrl.hashCode() : 0;
+		result = 31 * result + (embryoAnalysisName != null ? embryoAnalysisName.hashCode() : 0);
+		result = 31 * result + (isIdgGene != null ? isIdgGene.hashCode() : 0);
+		result = 31 * result + (vegaIds != null ? vegaIds.hashCode() : 0);
 		result = 31 * result + (ncbiIds != null ? ncbiIds.hashCode() : 0);
 		result = 31 * result + (ccdsIds != null ? ccdsIds.hashCode() : 0);
 		result = 31 * result + (seqRegionId != null ? seqRegionId.hashCode() : 0);
@@ -2444,6 +2465,8 @@ public class GeneDTO {
 		result = 31 * result + (pfama_go_terms != null ? pfama_go_terms.hashCode() : 0);
 		result = 31 * result + (pfama_go_cats != null ? pfama_go_cats.hashCode() : 0);
 		result = 31 * result + (isEmbryoDataAvailable ? 1 : 0);
+		result = 31 * result + (isDmddImageDataAvailable ? 1 : 0);
+		result = 31 * result + (isDmddLethalDataAvailable ? 1 : 0);
 		result = 31 * result + (embryoModalities != null ? embryoModalities.hashCode() : 0);
 		return result;
 	}
@@ -2451,7 +2474,10 @@ public class GeneDTO {
 	@Override
 	public String toString() {
 		return "GeneDTO{" +
-				"vegaIds=" + vegaIds +
+				"embryoAnalysisUrl='" + embryoAnalysisUrl + '\'' +
+				", embryoAnalysisName='" + embryoAnalysisName + '\'' +
+				", isIdgGene=" + isIdgGene +
+				", vegaIds=" + vegaIds +
 				", ncbiIds=" + ncbiIds +
 				", ccdsIds=" + ccdsIds +
 				", seqRegionId='" + seqRegionId + '\'' +
@@ -2575,10 +2601,11 @@ public class GeneDTO {
 				", pfama_go_terms=" + pfama_go_terms +
 				", pfama_go_cats=" + pfama_go_cats +
 				", isEmbryoDataAvailable=" + isEmbryoDataAvailable +
+				", isDmddImageDataAvailable=" + isDmddImageDataAvailable +
+				", isDmddLethalDataAvailable=" + isDmddLethalDataAvailable +
 				", embryoModalities=" + embryoModalities +
 				'}';
 	}
-
 
 
 }
