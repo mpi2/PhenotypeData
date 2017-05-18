@@ -410,7 +410,6 @@ public class Loader implements CommandLineRunner {
         ES_CELL_STATUS_MAPPINGS.put("ES Cell Production in Progress", "Assigned for ES Cell Production");
         ES_CELL_STATUS_MAPPINGS.put("ES Cell Targeting Confirmed", "ES Cells Produced");
 
-
         final Map<String, String> MOUSE_STATUS_MAPPINGS = new HashMap<>();
         MOUSE_STATUS_MAPPINGS.put("Chimeras obtained", "Assigned for Mouse Production and Phenotyping");
         MOUSE_STATUS_MAPPINGS.put("Micro-injection in progress", "Assigned for Mouse Production and Phenotyping");
@@ -420,7 +419,6 @@ public class Loader implements CommandLineRunner {
         MOUSE_STATUS_MAPPINGS.put("Genotype confirmed", "Mice Produced");
         MOUSE_STATUS_MAPPINGS.put("Cre Excision Complete", "Mice Produced");
         MOUSE_STATUS_MAPPINGS.put("Phenotype Attempt Registered", "Mice Produced");
-
 
         Map<String, Integer> columns = new HashMap<>();
 
@@ -560,6 +558,7 @@ public class Loader implements CommandLineRunner {
 
                 Allele allele = new Allele();
                 allele.setAlleleMgiAccessionId(alleleAcc);
+                allele.setMgiAccessionId(mgiAcc);  // to get gene id from allele node straight w/o graph traversal
 
                 // allele rel to gene
                 allele.setGene(gene);
