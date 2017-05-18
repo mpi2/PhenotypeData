@@ -288,8 +288,11 @@ public class AdvancedSearchController {
                 .setQuery("mp_term:\"" + termName + "\"")
                 .setFields("mp_id");
 
+        System.out.println("query for : " + termName);
         List<MpDTO> mp = mpCore.query(query).getBeans(MpDTO.class);
         String mpId = mp.get(0).getMpId();
+
+        System.out.println("mpid: " + mpId);
 
         return new ResponseEntity<String>(mpId, createResponseHeaders(), HttpStatus.CREATED);
     }
@@ -337,6 +340,7 @@ public class AdvancedSearchController {
         String diseaseGeneAssociation = composeDiseaseGeneAssociation(jParams);
         String humanDiseaseTerm = composeHumanDiseaseTermStr(jParams);
 
+        Boolean noMpChild = jParams.containsKey("noMpChild") ? true : false;
 
         String mpStr = null;
         if (jParams.containsKey("srchMp")) {
@@ -373,7 +377,11 @@ public class AdvancedSearchController {
         long begin = System.currentTimeMillis();
 
         if (mpStr == null && ! humanDiseaseTerm.isEmpty()){
-            query = "MATCH (mp0:Mp)<-[:PARENT*0..]-(mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g:Gene)<-[:GENE]-(dm:DiseaseModel) "
+
+            String path = noMpChild ? "MATCH (mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g:Gene)<-[:GENE]-(dm:DiseaseModel) "
+                    : "MATCH (mp0:Mp)<-[:PARENT*0..]-(mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g:Gene)<-[:GENE]-(dm:DiseaseModel) ";
+
+            query = path
                 + " WHERE sr.significant = true "
                 + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
                 + " AND "
@@ -388,11 +396,14 @@ public class AdvancedSearchController {
         else if (mpStr == null ){
 
             if (geneList.isEmpty()) {
+
+                String path = noMpChild ? " MATCH (sr)-[:MP]->(mp:Mp) " : " MATCH (sr)-[:MP]->(mp:Mp)-[:PARENT*0..]->(mp0:Mp) ";
+
                 query = "MATCH (sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g:Gene)"
                         + " WHERE sr.significant = true "
                         + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
                         + " WITH sr, a, g "
-                        + " MATCH (sr)-[:MP]->(mp:Mp)-[:PARENT*0..]->(mp0:Mp) "
+                        + path
                         + " WITH g, a, mp, sr, "
                         + " extract(x in collect(distinct g) | x.markerSymbol) as symbols "
                         + " MATCH (g)<-[:GENE]-(dm:DiseaseModel) WHERE "
@@ -400,7 +411,10 @@ public class AdvancedSearchController {
                         + " AND g.markerSymbol in symbols ";
             }
             else {
-                query = "MATCH (g:Gene)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp)-[:PARENT*0..]->(mp0:Mp) "
+                String path = noMpChild ? "MATCH (g:Gene)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp) "
+                        :  "MATCH (g:Gene)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp)-[:PARENT*0..]->(mp0:Mp) ";
+
+                query = path
                         + " WHERE sr.significant = true "
                         + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
                         + " WITH g, a, mp, sr, "
@@ -423,9 +437,13 @@ public class AdvancedSearchController {
             params.put("mpA", mpStr);
 
             if (geneList.isEmpty()) {
-                query = "MATCH (mp0:Mp)<-[:PARENT*0..]-(mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g:Gene)"
+
+                String path = noMpChild ? "MATCH (mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g:Gene) WHERE mp.mpTerm ='" + params.get("mpA") + "'"
+                        : "MATCH (mp0:Mp)<-[:PARENT*0..]-(mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g:Gene) WHERE mp0.mpTerm ='" + params.get("mpA") + "'";
+
+                query = path
                         //+ " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') "
-                        + " WHERE mp0.mpTerm = '" + params.get("mpA") + "'"
+                        //+ " WHERE mp0.mpTerm = '" + params.get("mpA") + "'"
                         + significant + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
                         + " WITH g, a, mp, sr, "
                         + " extract(x in collect(distinct g) | x.markerSymbol) as symbols "
@@ -434,9 +452,13 @@ public class AdvancedSearchController {
                         + " AND g.markerSymbol in symbols " ;
             }
             else {
-                query = "MATCH (g:Gene)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp)-[:PARENT*0..]->(mp0:Mp) "
+
+                String path = noMpChild ? "MATCH (g:Gene)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp) WHERE mp.mpTerm ='" + params.get("mpA") + "'"
+                        : "MATCH (g:Gene)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp)-[:PARENT*0..]->(mp0:Mp) WHERE mp0.mpTerm ='" + params.get("mpA") + "'";
+
+                query = path
                         //+ " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') "
-                        + " WHERE mp0.mpTerm = '" + params.get("mpA") + "'"
+                        //+ " WHERE mp0.mpTerm = '" + params.get("mpA") + "'"
                         + " WHERE sr.significant = true "
                         + significant + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
                         + " WITH g, a, mp, sr, "
