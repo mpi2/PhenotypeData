@@ -21,6 +21,7 @@ public class Allele {
     private String esCellStatus;
     private String mouseStatus;
     private String phenotypeStatus;
+    private String mgiAccessionId;
 
     @Relationship(type="GENE", direction=Relationship.OUTGOING)
     private Gene gene;
@@ -106,6 +107,14 @@ public class Allele {
         this.alleleType = alleleType;
     }
 
+    public String getMgiAccessionId() {
+        return mgiAccessionId;
+    }
+
+    public void setMgiAccessionId(String mgiAccessionId) {
+        this.mgiAccessionId = mgiAccessionId;
+    }
+
     @Override
     public String toString() {
         return "Allele{" +
@@ -118,6 +127,7 @@ public class Allele {
                 ", esCellStatus='" + esCellStatus + '\'' +
                 ", mouseStatus='" + mouseStatus + '\'' +
                 ", phenotypeStatus='" + phenotypeStatus + '\'' +
+                ", mgiAccessionId='" + mgiAccessionId + '\'' +
                 ", gene=" + gene +
                 '}';
     }
