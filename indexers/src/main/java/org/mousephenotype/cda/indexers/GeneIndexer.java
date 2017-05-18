@@ -226,6 +226,7 @@ public class GeneIndexer extends AbstractIndexer implements CommandLineRunner {
                 			}
                 			if(strain.getAnalysisViewUrl()!=null){
                 				gene.setEmbryoAnalysisUrl(strain.getAnalysisViewUrl());
+                				gene.setEmbryoAnalysisName("volumetric analysis");
                 			}
                 			for ( String procedureStableKey : strain .getProcedureStableKeys() ){
                                 Procedure procedure = phenotypePipelineDAO.getProcedureByStableKey(procedureStableKey);

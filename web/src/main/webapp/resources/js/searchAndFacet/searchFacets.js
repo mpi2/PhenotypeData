@@ -284,6 +284,7 @@
 
 			var embview_modalities_facets = json.facet_fields['embryo_modalities'];
 
+            var embryo_analysis_view_url_facets = json.facet_fields['embryo_analysis_view_url'];
 
 			var viewerUlContainer = $("<ul></ul>");
 
@@ -329,6 +330,27 @@
 				viewerUlContainer.append(liContainer);
 
 			}
+
+            for ( var i=0; i<embryo_analysis_view_url_facets.length; i+=2 ){
+                var volumetry = embryo_analysis_view_url_facets[i];
+
+                var liContainer = $("<li></li>").attr({'class':'fcat embryo_analysis_view_url'});
+
+                var type_label = volumetry;
+                var count = embryo_analysis_view_url_facets[i+1];
+                var coreField = 'gene|embryo_analysis_view_url|';
+                var isGrayout = count == 0 ? 'grayout' : '';
+                liContainer.removeClass('grayout').addClass(isGrayout);
+
+                var chkbox = $('<input></input>').attr({'type': 'checkbox', 'rel': coreField + volumetry + '|' + count + '|embryo_analysis_view_url'});
+                var flabel = $('<span></span>').attr({'class':'flabel'}).text(type_label);
+                var fcount = $('<span></span>').attr({'class':'fcount'}).text(count);
+
+                liContainer.append(chkbox, flabel, fcount);
+
+                viewerUlContainer.append(liContainer);
+
+            }
 
 			embryoViewerSect.append(viewerUlContainer);
 			$('div.flist li#gene > ul').append(embryoViewerSect);
