@@ -1824,7 +1824,7 @@
 
 					var legend = "<legend>"+ legendLabel + "</legend>";
 
-                    var noMpChild = "<div id='single'><input type='checkbox' id='noMpChild'> turn off default</div>";
+                    var noMpChild = "<div id='single'><input type='checkbox' id='noMpChild'> exclude child phenotypes</div>";
                     var butt = "<button class='ap'>" + buttLabel + "</button><br>";
                     var msg = "<span class='msg'>Build your query with boolean relationships (refer to info button above for help)<br>Eg. (A OR B) and C</span>";
                     var boolButts =
@@ -1982,7 +1982,7 @@
                         	return false;
                     	}
                     	else {
-                            alert("Due to performance issues, maximum of 3 phenotypes is supported for now");
+                            alert("Currently, the query takes maximum of 3 phenotypes");
                             return false;
 						}
                     });
