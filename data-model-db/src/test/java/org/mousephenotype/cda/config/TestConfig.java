@@ -143,7 +143,7 @@ public class TestConfig {
 
 
 	// dcc2
-	@Bean(name = "DataSourceDcc2")
+	@Bean(name = "dcc2DataSource")
 	public DataSource dcc2DataSource() {
 		return new EmbeddedDatabaseBuilder().setType(dcc2Type)
 			.ignoreFailedDrops(true)
