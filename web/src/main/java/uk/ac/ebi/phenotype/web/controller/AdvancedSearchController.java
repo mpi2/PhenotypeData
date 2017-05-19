@@ -1949,7 +1949,7 @@ public class AdvancedSearchController {
                         int index = colVal.indexOf('<');
                         String wantedSymbol = colVal.replace(colVal.substring(0, index+1), "").replace(">","");
                         colVal = Tools.superscriptify(colVal);
-                        String aid = al.getAlleleMgiAccessionId() + "/" + wantedSymbol;
+                        String aid = al.getMgiAccessionId() + "/" + wantedSymbol;
                         colVal = "<a target='_blank' href='" + alleleBaseUrl + aid + "'>" + colVal + "</a>";
                     }
                 }
@@ -1960,8 +1960,10 @@ public class AdvancedSearchController {
                         String asym = al.getAlleleSymbol();
                         int index = asym.indexOf('<');
                         String wantedSymbol = asym.replace(asym.substring(0, index+1), "").replace(">","");
+                        String aid = al.getMgiAccessionId() + "/" + wantedSymbol;
+
                        // System.out.println("asym: " + asym + " wanted: " + wantedSymbol);
-                        colVal = hostname + alleleBaseUrl + colVal + "/" + wantedSymbol;
+                        colVal = hostname + alleleBaseUrl + aid;
                     }
                 }
                 else if (property.equals("ensemblGeneId")){
