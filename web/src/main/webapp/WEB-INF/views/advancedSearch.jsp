@@ -901,13 +901,11 @@
                         kv['srchPipeline'] = $('input.srchPipeline').val();
                     }
 
-                    if ( $('input#gtpvalue').val() != '' && $('input#ltpvalue').val() != '' ){
-                   	    if ($('input#gtpvalue').val() != ''){
-                   	        kv['gtpvalue'] = $('input#gtpvalue').val();
-						}
-                        if ($('input#ltpvalue').val() != ''){
-                            kv['ltpvalue'] = $('input#ltpvalue').val();
-                        }
+					if ($('input#gtpvalue').val() != ''){
+						kv['gtpvalue'] = $('input#gtpvalue').val();
+					}
+					if ($('input#ltpvalue').val() != ''){
+						kv['ltpvalue'] = $('input#ltpvalue').val();
 					}
 
                 	// mouse phenotype
@@ -1461,7 +1459,6 @@
                                 var val = $(this).text();
                                 var index = val.indexOf('E');
                                 var exp = val.replace(val.substr(0, index+2), "");
-                                console.log(index + " -- " + exp)
                                 $(this).qtip({ // Grab all elements with a title attribute
                                     content: {
                                         text: parseFloat($(this).text()).toFixed(exp)
