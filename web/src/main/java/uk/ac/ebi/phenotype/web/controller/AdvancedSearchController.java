@@ -1162,11 +1162,11 @@ public class AdvancedSearchController {
         String pvalues = "";
         if (jParams.containsKey("gtpvalue")) {
             double gtpvalue = jParams.getDouble("gtpvalue");
-            pvalues = " AND sr.pValue > " + gtpvalue + " ";
+            pvalues = " AND sr.pvalue > " + gtpvalue + " ";
         }
         if (jParams.containsKey("ltpvalue")) {
             double ltpvalue = jParams.getDouble("ltpvalue");
-            pvalues += " AND sr.pValue < " + ltpvalue + " ";
+            pvalues += " AND sr.pvalue < " + ltpvalue + " ";
         }
         return pvalues;
     }
