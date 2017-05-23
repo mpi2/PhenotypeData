@@ -11,6 +11,7 @@ import org.mousephenotype.cda.owl.OntologyParser;
 import org.mousephenotype.cda.owl.OntologyParserFactory;
 import org.mousephenotype.cda.owl.OntologyTermDTO;
 import org.mousephenotype.cda.solr.service.dto.StatisticalResultDTO;
+import org.neo4j.ogm.session.Session;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.semanticweb.owlapi.model.OWLOntologyStorageException;
 import org.slf4j.Logger;
@@ -19,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.data.neo4j.template.Neo4jOperations;
 import org.springframework.stereotype.Component;
 
 import javax.sql.DataSource;
@@ -114,6 +116,8 @@ public class Loader implements CommandLineRunner {
     @Qualifier("statisticalResultCore")
     private SolrClient statisticalResultCore;
 
+    @Autowired
+    private Session neo4jSession;
 
     OntologyParserFactory ontologyParserFactory;
 
@@ -183,7 +187,7 @@ public class Loader implements CommandLineRunner {
         extendLoadedHpAndConnectHp2Mp();  // STEP 2.3
         loadMousePhenotypes();            // STEP 2.4
 
-//        //----------- STEP 3 -----------//
+        //----------- STEP 3 -----------//
         populateMouseModelIdMpMap(); // run this before loadMouseModel()
         loadMouseModels();
 
@@ -201,8 +205,22 @@ public class Loader implements CommandLineRunner {
 
         loadStatisticalResults();
 
+        // ----- FINAL STEP -------- //
+        addIndexes();
+
     }
 
+    public void addIndexes() {
+
+        Map<String, String> map = new HashMap<>();
+        neo4jSession.query("CREATE INDEX ON :Mp(mpTerm)", map);
+        neo4jSession.query("CREATE INDEX ON :Mp(mpId)", map);
+        neo4jSession.query("CREATE INDEX ON :Gene(markerSymbol)", map);
+        neo4jSession.query("CREATE INDEX ON :Gene(mgiAccessionId)", map);
+        neo4jSession.query("CREATE INDEX ON :DiseaseModel(diseaseId)", map);
+        neo4jSession.query("CREATE INDEX ON :DiseaseModel(diseaseTerm)", map);
+
+    }
 
     public void loadProceduresParameters() throws SQLException {
         long begin = System.currentTimeMillis();
