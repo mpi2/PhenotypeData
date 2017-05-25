@@ -523,12 +523,13 @@ public class GenePage {
         List<WebElement> elements;
 
 
-        // Check for phenotype associations. If any, get the results count.
+        // Check for phenotype associations. If any, determine whether or not the page has graphs by looking for one or
+        // more post qc links.
         try {
             elements = driver.findElements(By.xpath("//table[@id='genes']"));
             hasGenesTable = ! elements.isEmpty();
             if (hasGenesTable) {
-                elements = driver.findElements(By.xpath("//*[@id='phenotypesDiv']//p[@class='resultCount']"));
+                elements = driver.findElements(By.xpath("//*[@id='phenotypesDiv']//td[@class='postQcLink']/a"));
                 String totResultsString = elements.get(0).getText();
                 int index = totResultsString.lastIndexOf(":");
                 String[] counts = totResultsString.substring(index + 1).split(",");
