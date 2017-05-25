@@ -160,7 +160,11 @@
 										<c:set var="count" value="0" scope="page"/>
 											<c:forEach var="procedure" items="${procedures}" varStatus="firstLoop">
 		 										<c:set var="count" value="${count+1}" />
-		  										<li><a href="${drupalBaseUrl}/impress/protocol/${procedure.procedureStableKey}">
+		 										<c:set var="hrefVar" value="${drupalBaseUrl}/impress/protocol/${procedure.procedureStableKey}"/>
+		 										<c:if test="${fn:contains(procedure.procedureStableId,'M-G-P')}">
+		 											<c:set var="hrefVar" value="${drupalBaseUrl}/impress/parameters/${procedure.procedureStableKey}/4"/>
+		 										</c:if>
+		  										<li><a href="${hrefVar}">
 		  											${procedure.procedureName} (${procedure.procedureStableId.split("_")[0]},
 		  											v${procedure.procedureStableId.substring(procedure.procedureStableId.length()-1, procedure.procedureStableId.length())})
 		  										</a></li>
