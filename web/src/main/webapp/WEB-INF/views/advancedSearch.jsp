@@ -1574,11 +1574,21 @@
                                 + "<input name='param' value='' type='hidden' />"
                                 + "<button class='tsv fa fa-download gridDump'>TSV</button>"
                                 + " or<button class='xls fa fa-download gridDump'>XLS</button>"
+                                + " or<button class='html fa fa-download gridDump'>HTML</button>"
                                 + "</form>");
 
                             $('button.gridDump').click(function(){
 
-                                var fileType = $(this).hasClass('tsv') ? 'tsv' : 'xls';
+                                var fileType = null;
+								if ( $(this).hasClass('tsv') ){
+								    fileType = 'tsv';
+								}
+								else if ( $(this).hasClass('xls') ){
+                                    fileType = 'xls';
+                                }
+                                else if ( $(this).hasClass('html') ){
+                                    fileType = 'html';
+                                }
 
                                 $("form#dnld input[name='fileType']").val(fileType);
                                 $("form#dnld input[name='fileName']").val("IMPC_advancedSearch");
@@ -2152,7 +2162,7 @@
 				<div class="content">
 					<div class="node node-gene">
 						<h1 class="title" id="top">IMPC Dataset Advanced Search<a id="bqdoc" class=""><i class="fa fa-question-circle pull-right"></i></a></h1>
-						<form id='goSubmit' onreset="catchOnReset()">
+						<form id='goSubmit' method='post' onreset="catchOnReset()">
 						<div class="section">
 
 							<!--  <h2 id="section-gostats" class="title ">IMPC Dataset Batch Query</h2>-->
