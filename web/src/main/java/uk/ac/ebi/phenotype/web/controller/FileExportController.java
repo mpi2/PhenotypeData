@@ -147,12 +147,12 @@ public class FileExportController {
 		jParams.put("baseUrl", baseUrl);
 		jParams.put("hostname", hostname);
 
-//		System.out.println(fileName);
-//		System.out.println(fileType);
+		System.out.println(fileName);
+		System.out.println(fileType);
 		System.out.println(jParams.toString());
 
-		boolean isExport = true;
-		JSONObject jcontent = advancedSearchController.fetchGraphDataAdvSrch(jParams, isExport);
+		JSONObject jcontent = advancedSearchController.fetchGraphDataAdvSrch(jParams, fileType);
+
 		String filters = "Search filters: " + jParams.getString("shownFilter");
 
 		FileExportUtils.writeOutputFile(response, jcontent.getJSONArray("rows"), fileType, fileName, filters);

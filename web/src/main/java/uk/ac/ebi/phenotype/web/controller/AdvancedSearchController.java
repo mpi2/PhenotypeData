@@ -319,13 +319,13 @@ public class AdvancedSearchController {
         System.out.println("columns: " + properties);
 
         String content = null;
-        Boolean isExport = false;
-        JSONObject jcontent = fetchGraphDataAdvSrch(jParams, isExport);
+        String fileType = null;
+        JSONObject jcontent = fetchGraphDataAdvSrch(jParams, fileType);
 
         return new ResponseEntity<String>(jcontent.toString(), createResponseHeaders(), HttpStatus.CREATED);
     }
 
-    public JSONObject fetchGraphDataAdvSrch(JSONObject jParams, Boolean isExport) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+    public JSONObject fetchGraphDataAdvSrch(JSONObject jParams, String fileType) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
 
         String significant = " AND sr.significant = true ";
         String phenotypeSexes = composePhenotypeSexStr(jParams);
@@ -400,7 +400,7 @@ public class AdvancedSearchController {
                 + " AND "
                 + phenodigmScore + diseaseGeneAssociation + humanDiseaseTerm;
 
-            query += isExport ? " RETURN distinct a, g, sr, collect(distinct mp), collect(distinct dm)" + sortStr :
+            query += fileType != null ? " RETURN distinct a, g, sr, collect(distinct mp), collect(distinct dm)" + sortStr :
                     " RETURN collect(distinct a), collect(distinct g), collect(distinct sr), collect(distinct mp), collect(distinct dm)";
 
             System.out.println("Query: "+ query);
@@ -430,7 +430,7 @@ public class AdvancedSearchController {
                         + geneToDmPathClause;
             }
 
-            query += isExport ? " RETURN distinct a, g, sr, collect(distinct mp), collect(distinct dm)" + sortStr :
+            query += fileType != null ? " RETURN distinct a, g, sr, collect(distinct mp), collect(distinct dm)" + sortStr :
                     " RETURN collect(distinct a), collect(distinct g), collect(distinct sr), collect(distinct mp), collect(distinct dm)";
 
             System.out.println("Query: "+ query);
@@ -463,7 +463,7 @@ public class AdvancedSearchController {
                         + geneToDmPathClause;
             }
 
-            query += isExport ? " RETURN distinct a, g, sr, collect(distinct mp), collect(distinct dm)" + sortStr :
+            query += fileType != null ? " RETURN distinct a, g, sr, collect(distinct mp), collect(distinct dm)" + sortStr :
                      " RETURN collect(distinct a), collect(distinct g), collect(distinct sr), collect(distinct mp), collect(distinct dm)";
 
             System.out.println("Query: "+ query);
@@ -556,7 +556,7 @@ public class AdvancedSearchController {
                         + geneToDmPathClause;
             }
 
-            query += isExport ? " RETURN distinct nodes.alleles, g, nodes.srs, collect(distinct nodes.mps), collect(distinct dm)" + sortStr
+            query += fileType != null ? " RETURN distinct nodes.alleles, g, nodes.srs, collect(distinct nodes.mps), collect(distinct dm)" + sortStr
                     : " RETURN collect(distinct nodes.alleles), collect(distinct g), collect(distinct nodes.srs), collect(distinct nodes.mps), collect(distinct dm)";
 
             System.out.println("Query: "+ query);
@@ -643,7 +643,7 @@ public class AdvancedSearchController {
                     + geneToDmPathClause;
             }
 
-            query += isExport ? " RETURN distinct nodes.alleles, g, nodes.srs, collect(distinct nodes.mps), collect(distinct dm)" + sortStr
+            query += fileType != null ? " RETURN distinct nodes.alleles, g, nodes.srs, collect(distinct nodes.mps), collect(distinct dm)" + sortStr
                     : " RETURN collect(distinct nodes.alleles), collect(distinct g), collect(distinct nodes.srs), collect(distinct nodes.mps), collect(distinct dm)";
 
             System.out.println("Query: "+ query);
@@ -717,7 +717,7 @@ public class AdvancedSearchController {
                         + " UNWIND list2 as nodes ";
             }
 
-            query += isExport ? " RETURN distinct nodes.alleles, g, nodes.srs, collect(distinct nodes.mps), collect(distinct dm)" + sortStr
+            query += fileType != null ? " RETURN distinct nodes.alleles, g, nodes.srs, collect(distinct nodes.mps), collect(distinct dm)" + sortStr
                     : " RETURN collect(distinct nodes.alleles), collect(distinct g), collect(distinct nodes.srs), collect(distinct nodes.mps), collect(distinct dm)";
 
             System.out.println("Query: "+ query);
@@ -791,7 +791,7 @@ public class AdvancedSearchController {
                         + " UNWIND list2 as nodes ";
             }
 
-            query += isExport ? " RETURN distinct nodes.alleles, g, nodes.srs, collect(distinct nodes.mps), collect(distinct dm)" + sortStr
+            query += fileType != null ? " RETURN distinct nodes.alleles, g, nodes.srs, collect(distinct nodes.mps), collect(distinct dm)" + sortStr
                     : " RETURN collect(distinct nodes.alleles), collect(distinct g), collect(distinct nodes.srs), collect(distinct nodes.mps), collect(distinct dm)";
 
 
@@ -849,7 +849,7 @@ public class AdvancedSearchController {
                     + geneToDmPathClause
                     + "UNWIND list3 as nodes";
 
-            query += isExport ? " RETURN distinct nodes.alleles, g, nodes.srs, collect(distinct nodes.mps), collect(distinct dm)" + sortStr
+            query += fileType != null ? " RETURN distinct nodes.alleles, g, nodes.srs, collect(distinct nodes.mps), collect(distinct dm)" + sortStr
                     : " RETURN collect(distinct nodes.alleles), collect(distinct g), collect(distinct nodes.srs), collect(distinct nodes.mps), collect(distinct dm)";
 
             System.out.println("Query: "+ query);
@@ -894,7 +894,7 @@ public class AdvancedSearchController {
                   + geneToDmPathClause
                   + "UNWIND list2 as nodes";
 
-            query += isExport ? " RETURN distinct nodes.alleles, g, nodes.srs, collect(distinct nodes.mps), collect(distinct dm)" + sortStr
+            query += fileType != null ? " RETURN distinct nodes.alleles, g, nodes.srs, collect(distinct nodes.mps), collect(distinct dm)" + sortStr
                     : " RETURN collect(distinct nodes.alleles), collect(distinct g), collect(distinct nodes.srs), collect(distinct nodes.mps), collect(distinct dm)";
 
             System.out.println("Query: "+ query);
@@ -952,7 +952,7 @@ public class AdvancedSearchController {
                 + " WITH g, a, mp, sr, extract(x in collect(distinct g) | x.markerSymbol) as symbols "
                 + geneToDmPathClause;
 
-            query += isExport ? " RETURN distinct a, g, sr, collect(distinct mp), collect(distinct dm)" + sortStr :
+            query += fileType != null ? " RETURN distinct a, g, sr, collect(distinct mp), collect(distinct dm)" + sortStr :
                     " RETURN collect(distinct a), collect(distinct g), collect(distinct sr), collect(distinct mp), collect(distinct dm)";
 
             System.out.println("Query: "+ query);
@@ -994,7 +994,7 @@ public class AdvancedSearchController {
                 + " extract(x in collect(distinct g) | x.markerSymbol) as symbols "
                 + geneToDmPathClause;
 
-            query += isExport ? " RETURN distinct a, g, sr, collect(distinct mp), collect(distinct dm)" + sortStr :
+            query += fileType != null ? " RETURN distinct a, g, sr, collect(distinct mp), collect(distinct dm)" + sortStr :
                     " RETURN collect(distinct a), collect(distinct g), collect(distinct sr), collect(distinct mp), collect(distinct dm)";
 
             System.out.println("Query: "+ query);
@@ -1014,7 +1014,7 @@ public class AdvancedSearchController {
         List<String> rowDataOverview = new ArrayList<>(); // for overview
         List<String> dtypes = Arrays.asList("Allele", "Gene", "Mp", "DiseaseModel", "StatisticalResult");
 
-        if (isExport){
+        if (fileType != null){
 
             List<String> cols = new ArrayList<>();
             Map<String, List<String>> node2Properties = new LinkedHashMap<>();
@@ -1076,11 +1076,11 @@ public class AdvancedSearchController {
                         if (entry.getKey().startsWith("collect")) {
                             List<Object> objs = (List<Object>) entry.getValue();
                             for (Object obj : objs) {
-                                populateColValMapAdvSrch(node2Properties, obj, colValMap, jParams, isExport);
+                                populateColValMapAdvSrch(node2Properties, obj, colValMap, jParams, fileType);
                             }
                         } else {
                             Object obj = entry.getValue();
-                            populateColValMapAdvSrch(node2Properties, obj, colValMap, jParams, isExport);
+                            populateColValMapAdvSrch(node2Properties, obj, colValMap, jParams, fileType);
                         }
                     }
                 }
@@ -1137,11 +1137,11 @@ public class AdvancedSearchController {
                         if (entry.getKey().startsWith("collect")) {
                             List<Object> objs = (List<Object>) entry.getValue();
                             for (Object obj : objs) {
-                                populateColValMapAdvSrch(node2Properties, obj, colValMap, jParams, isExport);
+                                populateColValMapAdvSrch(node2Properties, obj, colValMap, jParams, fileType);
                             }
                         } else {
                             Object obj = entry.getValue();
-                            populateColValMapAdvSrch(node2Properties, obj, colValMap, jParams, isExport);
+                            populateColValMapAdvSrch(node2Properties, obj, colValMap, jParams, fileType);
                         }
                     }
                 }
@@ -1801,7 +1801,7 @@ public class AdvancedSearchController {
         return childTerms;
     }
 
-    public void populateColValMapAdvSrch(Map<String, List<String>> node2Properties,  Object obj, Map<String, Set<String>> colValMap, JSONObject jParam, Boolean isExport) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+    public void populateColValMapAdvSrch(Map<String, List<String>> node2Properties,  Object obj, Map<String, Set<String>> colValMap, JSONObject jParam, String fileType) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
 
         String className = obj.getClass().getSimpleName();
 
@@ -1813,47 +1813,47 @@ public class AdvancedSearchController {
 
             if (className.equals("Gene")) {
                 Gene g = (Gene) obj;
-                getValues(nodeProperties, g, colValMap, isExport, jParam);
+                getValues(nodeProperties, g, colValMap, fileType, jParam);
             }
             else if (className.equals("EnsemblGeneId")) {
                 EnsemblGeneId ensg = (EnsemblGeneId) obj;
-                getValues(nodeProperties, ensg, colValMap, isExport, jParam);
+                getValues(nodeProperties, ensg, colValMap, fileType, jParam);
             }
             else if (className.equals("MarkerSynonym")) {
                 MarkerSynonym m = (MarkerSynonym) obj;
-                getValues(nodeProperties, m, colValMap, isExport, jParam);
+                getValues(nodeProperties, m, colValMap, fileType, jParam);
             }
             else if (className.equals("HumanGeneSymbol")) {
                 HumanGeneSymbol hg = (HumanGeneSymbol) obj;
-                getValues(nodeProperties, hg, colValMap, isExport, jParam);
+                getValues(nodeProperties, hg, colValMap, fileType, jParam);
             }
             else if (className.equals("DiseaseModel")) {
                 DiseaseModel dm = (DiseaseModel) obj;
-                getValues(nodeProperties, dm, colValMap, isExport, jParam);
+                getValues(nodeProperties, dm, colValMap, fileType, jParam);
             }
             else if (className.equals("MouseModel")) {
                 MouseModel mm = (MouseModel) obj;
-                getValues(nodeProperties, mm, colValMap, isExport, jParam);
+                getValues(nodeProperties, mm, colValMap, fileType, jParam);
             }
             else if (className.equals("Allele")) {
                 Allele allele = (Allele) obj;
-                getValues(nodeProperties, allele, colValMap, isExport, jParam);
+                getValues(nodeProperties, allele, colValMap, fileType, jParam);
             }
             else if (className.equals("Mp")) {
                 Mp mp = (Mp) obj;
-                getValues(nodeProperties, mp, colValMap, isExport, jParam);
+                getValues(nodeProperties, mp, colValMap, fileType, jParam);
             }
             else if (className.equals("StatisticalResult")) {
                 StatisticalResult sr = (StatisticalResult) obj;
-                getValues(nodeProperties, sr, colValMap, isExport, jParam);
+                getValues(nodeProperties, sr, colValMap, fileType, jParam);
             }
             else if (className.equals("OntoSynonym")) {
                 OntoSynonym ontosyn = (OntoSynonym) obj;
-                getValues(nodeProperties, ontosyn, colValMap, isExport, jParam);
+                getValues(nodeProperties, ontosyn, colValMap, fileType, jParam);
             }
             else if (className.equals("Hp")) {
                 Hp hp = (Hp) obj;
-                getValues(nodeProperties, hp, colValMap, isExport, jParam);
+                getValues(nodeProperties, hp, colValMap, fileType, jParam);
             }
         }
 
@@ -1861,7 +1861,7 @@ public class AdvancedSearchController {
 
     public void populateColValMap(List<Object> objs, Map<String, Set<String>> colValMap, JSONObject jDatatypeProperties) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
 
-        Boolean isExport = false;
+        String fileType = null;
         for (Object obj : objs) {
             String className = obj.getClass().getSimpleName();
 
@@ -1873,50 +1873,50 @@ public class AdvancedSearchController {
 
                 if (className.equals("Gene")) {
                     Gene g = (Gene) obj;
-                    getValues(nodeProperties, g, colValMap, isExport, jDatatypeProperties);  // convert to class ???
+                    getValues(nodeProperties, g, colValMap, fileType, jDatatypeProperties);  // convert to class ???
                 }
                 else if (className.equals("EnsemblGeneId")) {
                     EnsemblGeneId ensg = (EnsemblGeneId) obj;
-                    getValues(nodeProperties, ensg, colValMap, isExport, jDatatypeProperties);
+                    getValues(nodeProperties, ensg, colValMap, fileType, jDatatypeProperties);
                 }
                 else if (className.equals("MarkerSynonym")) {
                     MarkerSynonym m = (MarkerSynonym) obj;
-                    getValues(nodeProperties, m, colValMap, isExport, jDatatypeProperties);
+                    getValues(nodeProperties, m, colValMap, fileType, jDatatypeProperties);
                 }
                 else if (className.equals("HumanGeneSymbol")) {
                     HumanGeneSymbol hg = (HumanGeneSymbol) obj;
-                    getValues(nodeProperties, hg, colValMap, isExport, jDatatypeProperties);
+                    getValues(nodeProperties, hg, colValMap, fileType, jDatatypeProperties);
                 }
                 else if (className.equals("DiseaseModel")) {
                     DiseaseModel dm = (DiseaseModel) obj;
-                    getValues(nodeProperties, dm, colValMap, isExport, jDatatypeProperties);
+                    getValues(nodeProperties, dm, colValMap, fileType, jDatatypeProperties);
                 }
                 else if (className.equals("MouseModel")) {
                     MouseModel mm = (MouseModel) obj;
-                    getValues(nodeProperties, mm, colValMap, isExport, jDatatypeProperties);
+                    getValues(nodeProperties, mm, colValMap, fileType, jDatatypeProperties);
                 }
                 else if (className.equals("Allele")) {
                     Allele allele = (Allele) obj;
-                    getValues(nodeProperties, allele, colValMap, isExport, jDatatypeProperties);
+                    getValues(nodeProperties, allele, colValMap, fileType, jDatatypeProperties);
                 }
                 else if (className.equals("Mp")) {
                     Mp mp = (Mp) obj;
-                    getValues(nodeProperties, mp, colValMap, isExport, jDatatypeProperties);
+                    getValues(nodeProperties, mp, colValMap, fileType, jDatatypeProperties);
                 }
                 else if (className.equals("OntoSynonym")) {
                     OntoSynonym ontosyn = (OntoSynonym) obj;
-                    getValues(nodeProperties, ontosyn, colValMap, isExport, jDatatypeProperties);
+                    getValues(nodeProperties, ontosyn, colValMap, fileType, jDatatypeProperties);
                 }
                 else if (className.equals("Hp")) {
                     Hp hp = (Hp) obj;
-                    getValues(nodeProperties, hp, colValMap, isExport, jDatatypeProperties);
+                    getValues(nodeProperties, hp, colValMap, fileType, jDatatypeProperties);
                 }
             }
         }
         
     }
 
-    public void getValues(List<String> nodeProperties, Object o, Map<String, Set<String>> colValMap, Boolean isExport, JSONObject jParam) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+    public void getValues(List<String> nodeProperties, Object o, Map<String, Set<String>> colValMap, String fileType, JSONObject jParam) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
 
         int showCutOff = 3;
 
@@ -1971,21 +1971,21 @@ public class AdvancedSearchController {
             if (! colVal.isEmpty()) {
                 if (property.equals("markerSymbol")){
                     Gene gene = (Gene) o;
-                    if (! isExport){
+                    if (fileType == null || fileType.equals("html")){
                         String mgiAcc = gene.getMgiAccessionId();
-                        colVal = "<a target='_blank' href='" + geneBaseUrl + mgiAcc + "'>" + colVal + "</a>";
+                        colVal = "<a target='_blank' href='" + hostname + geneBaseUrl + mgiAcc + "'>" + colVal + "</a>";
                     }
                 }
                 else if (property.equals("mgiAccessionId")){
-                    if (isExport){
+                    if (fileType != null  && ! fileType.equals("html")){
                         colVal = hostname + geneBaseUrl + colVal;
                     }
                 }
                 else if (property.equals("mpTerm")){
                     Mp mp = (Mp) o;
-                    if (! isExport) {
+                    if (fileType == null || fileType.equals("html")) {
                         String mpId = mp.getMpId();
-                        colVal = "<a target='_blank' href='" + mpBaseUrl + mpId + "'>" + colVal + "</a>";
+                        colVal = "<a target='_blank' href='" + hostname + mpBaseUrl + mpId + "'>" + colVal + "</a>";
                     }
                 }
 //                else if (property.equals("mpId")){
@@ -1995,9 +1995,10 @@ public class AdvancedSearchController {
 //                }
                 else if (property.equals("diseaseTerm")){
                     DiseaseModel dm = (DiseaseModel) o;
-                    if (! isExport) {
-                        String dt = dm.getDiseaseTerm();
-                        colVal = "<a target='_blank' href='" + diseaseBaseUrl + dt + "'>" + colVal + "</a>";
+
+                    if (fileType == null || fileType.equals("html")) {
+                        String dId = dm.getDiseaseId();
+                        colVal = "<a target='_blank' href='" + hostname + diseaseBaseUrl + dId + "'>" + colVal + "</a>";
                     }
                 }
                 // multiple http links won't work in excel cell
@@ -2009,17 +2010,18 @@ public class AdvancedSearchController {
                 else if (property.equals("alleleSymbol")){
 
                     Allele al = (Allele) o;
-                    if (! isExport) {
+                    if (fileType == null || fileType.equals("html")) {
+
                         int index = colVal.indexOf('<');
                         String wantedSymbol = colVal.replace(colVal.substring(0, index+1), "").replace(">","");
                         colVal = Tools.superscriptify(colVal);
                         String aid = al.getMgiAccessionId() + "/" + wantedSymbol;
-                        colVal = "<a target='_blank' href='" + alleleBaseUrl + aid + "'>" + colVal + "</a>";
+                        colVal = "<a target='_blank' href='" + hostname + alleleBaseUrl + aid + "'>" + colVal + "</a>";
                     }
                 }
                 else if (property.equals("alleleMgiAccessionId")){
 
-                    if (isExport){
+                    if (fileType != null && ! fileType.equals("html")){
                         Allele al = (Allele) o;
                         String asym = al.getAlleleSymbol();
                         int index = asym.indexOf('<');
@@ -2041,24 +2043,24 @@ public class AdvancedSearchController {
                     StatisticalResult sr = (StatisticalResult) o;
                     String procedureName = sr.getProcedureName();
 
-                    if (isExport){
-                        colVal = "(" + procedureName + ") " + colVal;
+                    if (fileType == null || fileType.equals("html")){
+                        colVal = "<b>(" + procedureName + ")</b> " + colVal;
                     }
                     else {
-                        colVal = "<b>(" + procedureName + ")</b> " + colVal;
+                        colVal = "(" + procedureName + ") " + colVal;
                     }
                 }
                 else if (property.equals("pvalue")){
-                    if (! isExport) {
+                    if (fileType == null || fileType.equals("html")) {
                         colVal = "<span class='pv'>" + colVal + "</span>";
                     }
                 }
 
-                if (isExport){
-                    colValMap.get(property).add(colVal);
+                if (fileType == null || fileType.equals("html")){
+                    colValMap.get(property).add("<li>" + colVal + "</li>");
                 }
                 else {
-                    colValMap.get(property).add("<li>" + colVal + "</li>");
+                    colValMap.get(property).add(colVal);
                 }
 
                // System.out.println("colval: "+colValMap);
