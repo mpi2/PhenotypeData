@@ -149,12 +149,13 @@ public class FileExportController {
 
 //		System.out.println(fileName);
 //		System.out.println(fileType);
-//		System.out.println(jParams.toString());
+		System.out.println(jParams.toString());
 
 		boolean isExport = true;
 		JSONObject jcontent = advancedSearchController.fetchGraphDataAdvSrch(jParams, isExport);
+		String filters = "Search filters: " + jParams.getString("shownFilter");
 
-		FileExportUtils.writeOutputFile(response, jcontent.getJSONArray("rows"), fileType, fileName);
+		FileExportUtils.writeOutputFile(response, jcontent.getJSONArray("rows"), fileType, fileName, filters);
 
 	}
 
@@ -334,7 +335,8 @@ public class FileExportController {
 			}
 		}
 
-		FileExportUtils.writeOutputFile(response, dataRows, fileType, fileName);
+		String filters = null;
+		FileExportUtils.writeOutputFile(response, dataRows, fileType, fileName, filters);
 
 	}
 
@@ -459,8 +461,8 @@ public class FileExportController {
 			}
 		}
 
-		FileExportUtils.writeOutputFile(response, dataRows, fileType, fileName);
-
+		String filters = null;
+		FileExportUtils.writeOutputFile(response, dataRows, fileType, fileName, filters);
 	}
 
 
@@ -1505,7 +1507,9 @@ public class FileExportController {
 
 		List<String> dataRows = fetchImpc2GwasMappingData(request, mgiGeneSymbol, gridFields, currentTraitName);
 		String fileName = "impc_to_Gwas_mapping_dataset";
-		FileExportUtils.writeOutputFile(response, dataRows, fileType, fileName);
+
+		String filters = null;
+		FileExportUtils.writeOutputFile(response, dataRows, fileType, fileName, filters);
 	}
 
 	private List<String> fetchImpc2GwasMappingData(HttpServletRequest request, String mgiGeneSymbol, String gridFields,
@@ -1632,7 +1636,9 @@ public class FileExportController {
 		List<String> dataRows = composeBatchQueryDataTableRows(solrResponses, dataTypeName, gridFields, request, queryIds);
 
 		String fileName = "batch_query_dataset";
-		FileExportUtils.writeOutputFile(response, dataRows, fileType, fileName);
+
+		String filters = null;
+		FileExportUtils.writeOutputFile(response, dataRows, fileType, fileName, filters);
 	}
 
 	private List<String> composeBatchQueryDataTableRows(List<QueryResponse> solrResponses, String dataTypeName,

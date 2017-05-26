@@ -184,26 +184,27 @@ public class SecondaryProjectController {
             tableHeaders.add("Human gene");
 			tableHeaders.add("Family");
 	        tableHeaders.add("Availability");//and 4 tabs to cover all availability options - no I don't like this either JW
-			 List<String> dataRows = new ArrayList<>();
-			 List<BasicBean> xAxisBeans = idg.getXAxisForHeatMap();
-			 List<String> phenotypeHeaders=new ArrayList<>();
-			 for(BasicBean xAxisBean: xAxisBeans){
-				 phenotypeHeaders.add(xAxisBean.getName());
-			 }
-			 tableHeaders.addAll(phenotypeHeaders);
-			 dataRows.add(StringUtils.join(tableHeaders, "\t"));
-			// dataRows.add(GenePageTableRow.getTabbedHeader());
-			 for (GeneRowForHeatMap row : geneRows) {
-				List<String> phenotypeStatus=new ArrayList<>();
-			 	for(String phenoHeader: phenotypeHeaders){
-					HeatMapCell phenotypeStatusCell=row.getXAxisToCellMap().get(phenoHeader);
-					phenotypeStatus.add(phenotypeStatusCell.getStatus());
-				}
-			 	
-			 	 dataRows.add(row.toTabbedString() + StringUtils.join(phenotypeStatus, "\t"));
-			 }
+            List<String> dataRows = new ArrayList<>();
+            List<BasicBean> xAxisBeans = idg.getXAxisForHeatMap();
+            List<String> phenotypeHeaders=new ArrayList<>();
+            for(BasicBean xAxisBean: xAxisBeans){
+             phenotypeHeaders.add(xAxisBean.getName());
+            }
+            tableHeaders.addAll(phenotypeHeaders);
+            dataRows.add(StringUtils.join(tableHeaders, "\t"));
+            // dataRows.add(GenePageTableRow.getTabbedHeader());
+            for (GeneRowForHeatMap row : geneRows) {
+            List<String> phenotypeStatus=new ArrayList<>();
+            for(String phenoHeader: phenotypeHeaders){
+                HeatMapCell phenotypeStatusCell=row.getXAxisToCellMap().get(phenoHeader);
+                phenotypeStatus.add(phenotypeStatusCell.getStatus());
+            }
+
+             dataRows.add(row.toTabbedString() + StringUtils.join(phenotypeStatus, "\t"));
+            }
 			
-			 FileExportUtils.writeOutputFile(response, dataRows, fileType, fileName);
+            String filters = null;
+            FileExportUtils.writeOutputFile(response, dataRows, fileType, fileName, filters);
 		}
 	}
 	

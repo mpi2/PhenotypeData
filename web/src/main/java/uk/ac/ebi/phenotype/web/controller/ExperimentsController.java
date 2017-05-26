@@ -177,7 +177,8 @@ public class ExperimentsController {
 			dataRows.add(row.toTabbedString());
 		}
 		
-		FileExportUtils.writeOutputFile(response, dataRows, fileType, fileName);
+		String filters = null;
+		FileExportUtils.writeOutputFile(response, dataRows, fileType, fileName, filters);
 
 	}
 	
