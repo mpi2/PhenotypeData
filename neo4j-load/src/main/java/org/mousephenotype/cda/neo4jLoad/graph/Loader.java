@@ -1223,7 +1223,7 @@ public class Loader implements CommandLineRunner {
                     String diseaseId = r.getString("disease_id");
                     DiseaseModel d = new DiseaseModel();
                     d.setDiseaseId(diseaseId);
-                    d.setDiseaseTerm(r.getString("disease_term"));
+                    d.setDiseaseTerm(r.getString("disease_term").trim());
                     d.setDiseaseClasses(r.getString("disease_classes"));
                     d.setHumanCurated(r.getInt("human_curated") == 1 ? true : false);
 

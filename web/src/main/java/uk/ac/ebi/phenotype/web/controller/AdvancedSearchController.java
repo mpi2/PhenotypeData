@@ -15,6 +15,7 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.web.controller;
 
+import net.sf.json.JSON;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import net.sf.json.JSONSerializer;
@@ -385,6 +386,10 @@ public class AdvancedSearchController {
                 + phenodigmScore + diseaseGeneAssociation + humanDiseaseTerm
                 + " AND g.markerSymbol in symbols ";
 
+        String pvaluesA = "";
+        String pvaluesB = "";
+        String pvaluesC = "";
+
         long begin = System.currentTimeMillis();
 
         if (mpStr == null && ! humanDiseaseTerm.isEmpty()){
@@ -480,18 +485,22 @@ public class AdvancedSearchController {
                 params.put("mpA", mpA);
                 params.put("mpB", mpB);
                 params.put("mpC", mpC);
+                
+                pvaluesA = composePvalues(mpA, jParams);
+                pvaluesB = composePvalues(mpB, jParams);
+                pvaluesC = composePvalues(mpC, jParams);
             }
 
-            String whereClause1 = noMpChild ? " WHERE mp.mpTerm = '" + params.get("mpA") + "' " : " WHERE mp0.mpTerm = '" + params.get("mpA") + "' ";
-            String whereClause2 = noMpChild ? " WHERE mp.mpTerm = '" + params.get("mpB") + "' " : " WHERE mp0.mpTerm = '" + params.get("mpB") + "' ";
-            String whereClause3 = noMpChild ? " WHERE mp.mpTerm = '" + params.get("mpC") + "' " : " WHERE mp0.mpTerm = '" + params.get("mpC") + "' ";
+            String whereClause1 = noMpChild ? " WHERE mp.mpTerm = '" + params.get("mpA") + "' AND (" + pvaluesA + ")" : " WHERE mp0.mpTerm = '" + params.get("mpA") + "' AND (" + pvaluesA + ")";
+            String whereClause2 = noMpChild ? " WHERE mp.mpTerm = '" + params.get("mpB") + "' AND (" + pvaluesB + ")" : " WHERE mp0.mpTerm = '" + params.get("mpB") + "' AND (" + pvaluesB + ")";
+            String whereClause3 = noMpChild ? " WHERE mp.mpTerm = '" + params.get("mpC") + "' AND (" + pvaluesC + ")" : " WHERE mp0.mpTerm = '" + params.get("mpC") + "' AND (" + pvaluesC + ")";
+
 
             String matchClause1 = noMpChild ? " MATCH (mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g) "
                     : " MATCH (mp0:Mp)<-[:PARENT*0..]-(mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g) ";
 
             String matchClause2 = noMpChild ? " MATCH (g)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp) "
                     : " MATCH (g)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp)-[:PARENT*0..]->(mp0:Mp) ";
-
 
             if (geneList.isEmpty()){
 
@@ -500,19 +509,19 @@ public class AdvancedSearchController {
                 query = mpToGenePath
                         //+ " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') "
                         + whereClause1
-                        + significant + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
+                        + significant + phenotypeSexes + parameter + chrRange + geneList + genotypes + alleleTypes
                         + " WITH g, collect({genes:g, alleles:a, srs:sr, mps:mp}) as list1 "
 
                         + matchClause1
                         //+ " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*') "
                         + whereClause2
-                        + significant + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
+                        + significant + phenotypeSexes + parameter + chrRange + geneList + genotypes + alleleTypes
                         + " WITH list1 + collect({genes:g, alleles:a, srs:sr, mps:mp}) as list2 "
 
                         + " OPTIONAL " + mpToGenePath
                         //+ " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpC}+'.*') "
                         + whereClause3
-                        + significant + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
+                        + significant + phenotypeSexes + parameter + chrRange + geneList + genotypes + alleleTypes
                         + " WITH list2 + collect({genes:g, alleles:a, srs:sr, mps:mp}) as list3 "
 
                         + " UNWIND list3 as nodes "
@@ -525,19 +534,19 @@ public class AdvancedSearchController {
                 query = geneToMpPath
                         //+ " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') "
                         + whereClause1
-                        + significant + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
+                        + significant + phenotypeSexes + parameter + chrRange + geneList + genotypes + alleleTypes
                         + " WITH g, collect({genes:g, alleles:a, srs:sr, mps:mp}) as list1 "
 
                         + matchClause2
                         //+ " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*') "
                         + whereClause2
-                        + significant + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
+                        + significant + phenotypeSexes + parameter + chrRange + geneList + genotypes + alleleTypes
                         + " WITH list1 + collect({genes:g, alleles:a, srs:sr, mps:mp}) as list2 "
 
                         + " OPTIONAL " + geneToMpPath
                         //+ " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpC}+'.*') "
                         + whereClause3
-                        + significant + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
+                        + significant + phenotypeSexes + parameter + chrRange + geneList + genotypes + alleleTypes
 
                         + " WITH list2 + collect({genes:g, alleles:a, srs:sr, mps:mp}) as list3 "
                         + " UNWIND list3 as nodes "
@@ -570,11 +579,15 @@ public class AdvancedSearchController {
                 params.put("mpA", mpA);
                 params.put("mpB", mpB);
                 params.put("mpC", mpC);
+                pvaluesA = composePvalues(mpA, jParams);
+                pvaluesB = composePvalues(mpB, jParams);
+                pvaluesC = composePvalues(mpC, jParams);
             }
 
-            String whereClause1 = noMpChild ? " WHERE mp.mpTerm = '" + params.get("mpB") + "' " : " WHERE mp0.mpTerm = '" + params.get("mpB") + "' ";
-            String whereClause2 = noMpChild ? " WHERE mp.mpTerm = '" + params.get("mpC") + "' " : " WHERE mp0.mpTerm = '" + params.get("mpC") + "' ";
-            String whereClause3 = noMpChild ? " WHERE mp.mpTerm = '" + params.get("mpA") + "' " : " WHERE mp0.mpTerm = '" + params.get("mpA") + "' ";
+            String whereClause1 = noMpChild ? " WHERE mp.mpTerm = '" + params.get("mpB") + "' AND (" + pvaluesB + ")" : " WHERE mp0.mpTerm = '" + params.get("mpB") + "' AND (" + pvaluesB + ")";
+            String whereClause2 = noMpChild ? " WHERE mp.mpTerm = '" + params.get("mpC") + "' AND (" + pvaluesC + ")" : " WHERE mp0.mpTerm = '" + params.get("mpC") + "' AND (" + pvaluesC + ")";
+            String whereClause3 = noMpChild ? " WHERE mp.mpTerm = '" + params.get("mpA") + "' AND (" + pvaluesA + ")" : " WHERE mp0.mpTerm = '" + params.get("mpA") + "' AND (" + pvaluesA + ")";
+
 
             String matchClause1 = noMpChild ? " MATCH (mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g) "
                     : " MATCH (mp0:Mp)<-[:PARENT*0..]-(mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g) ";
@@ -587,19 +600,19 @@ public class AdvancedSearchController {
                 query = mpToGenePath
                     //+ " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*') "
                     + whereClause1
-                    + significant + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
+                    + significant + phenotypeSexes + parameter + chrRange + geneList + genotypes + alleleTypes
                     + " WITH g, collect({genes: g, alleles:a, srs:sr, mps:mp}) as list1 "
 
                     + matchClause1
                     //+ " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpC}+'.*') "
                     + whereClause2
-                    + significant + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
+                    + significant + phenotypeSexes + parameter + chrRange + geneList + genotypes + alleleTypes
                     + " WITH list1 + collect({genes:g, alleles:a, srs:sr, mps:mp}) as list2 "
 
                     + " OPTIONAL " + mpToGenePath
                     //+ " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') "
                     + whereClause3
-                    + significant + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
+                    + significant + phenotypeSexes + parameter + chrRange + geneList + genotypes + alleleTypes
                     + " WITH list2 + collect({genes: g, alleles:a, srs:sr, mps:mp}) as list3 "
                     + " UNWIND list3 as nodes "
                     + " WITH nodes.genes as g, nodes, "
@@ -610,19 +623,19 @@ public class AdvancedSearchController {
                 query = geneToMpPath
                     //+ " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*') "
                     + whereClause1
-                    + significant + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
+                    + significant + phenotypeSexes + parameter + chrRange + geneList + genotypes + alleleTypes
                     + " WITH g, collect({genes: g, alleles:a, srs:sr, mps:mp}) as list1 "
 
                     + matchClause2
                     //+ " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpC}+'.*') "
                     + whereClause2
-                    + significant + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
+                    + significant + phenotypeSexes + parameter + chrRange + geneList + genotypes + alleleTypes
                     + " WITH list1 + collect({genes:g, alleles:a, srs:sr, mps:mp}) as list2 "
 
                     + " OPTIONAL " + geneToMpPath
                     //+ " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') "
                     + whereClause3
-                    + significant + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
+                    + significant + phenotypeSexes + parameter + chrRange + geneList + genotypes + alleleTypes
                     + " WITH list2 + collect({genes: g, alleles:a, srs:sr, mps:mp}) as list3 "
                     + " UNWIND list3 as nodes "
                     + " WITH nodes.genes as g, nodes, "
@@ -652,12 +665,16 @@ public class AdvancedSearchController {
                 params.put("mpA", mpA);
                 params.put("mpB", mpB);
                 params.put("mpC", mpC);
+
+                pvaluesA = composePvalues(mpA, jParams);
+                pvaluesB = composePvalues(mpB, jParams);
+                pvaluesC = composePvalues(mpC, jParams);
             }
 
-            String whereClause1 = noMpChild ? " WHERE (mp.mpTerm = '" + params.get("mpA") + "' OR mp.mpTerm ='" + params.get("mpB") + "') "
-                    : " WHERE (mp0.mpTerm = '" + params.get("mpA") + "' OR mp0.mpTerm ='" + params.get("mpB") + "') ";
+            String whereClause1 = noMpChild ? " WHERE ((mp.mpTerm = '" + params.get("mpA") + "' AND (" + pvaluesA + ")) OR (mp.mpTerm ='" + params.get("mpB") + "' AND (" + pvaluesB + ") )) "
+                    : " WHERE ((mp0.mpTerm = '" + params.get("mpA") + "' AND (" + pvaluesA + ")) OR (mp0.mpTerm ='" + params.get("mpB") + "' AND (" + pvaluesB + ")) )";
 
-            String whereClause2 = noMpChild ? " WHERE mp.mpTerm = '" + params.get("mpC") + "'" : " WHERE mp0.mpTerm = '" + params.get("mpC") + "'";
+            String whereClause2 = noMpChild ? " WHERE mp.mpTerm = '" + params.get("mpC") + "' AND (" + pvaluesC + ")" : " WHERE mp0.mpTerm = '" + params.get("mpC") + "' AND (" + pvaluesC + ")";
 
             String matchClause1 = noMpChild ? " MATCH (mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g) "
                     : " MATCH (mp0:Mp)<-[:PARENT*0..]-(mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g) ";
@@ -669,13 +686,13 @@ public class AdvancedSearchController {
                 query = mpToGenePath
                         //+ "WHERE (mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') OR mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*')) "
                         + whereClause1
-                        + significant + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
+                        + significant + phenotypeSexes + parameter + chrRange + geneList + genotypes + alleleTypes
                         + " WITH g, collect({alleles:a, srs:sr, mps:mp}) as list1 "
 
                         + matchClause1
                         //+ " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpC}+'.*') "
                         + whereClause2
-                        + significant + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
+                        + significant + phenotypeSexes + parameter + chrRange + geneList + genotypes + alleleTypes
                         + " WITH g, list1 + collect({alleles:a, srs:sr, mps:mp}) as list2, "
                         + " extract(x in collect(distinct g) | x.markerSymbol) as symbols "
 
@@ -686,13 +703,13 @@ public class AdvancedSearchController {
                 query = geneToMpPath
                         //+ "WHERE (mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') OR mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*')) "
                         + whereClause1
-                        + significant + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
+                        + significant + phenotypeSexes + parameter + chrRange + geneList + genotypes + alleleTypes
                         + " WITH g, collect({alleles:a, srs:sr, mps:mp}) as list1 "
 
                         + matchClause2
                         //+ " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpC}+'.*') "
                         + whereClause2
-                        + significant + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
+                        + significant + phenotypeSexes + parameter + chrRange + geneList + genotypes + alleleTypes
                         + " WITH g, list1 + collect({alleles:a, srs:sr, mps:mp}) as list2, "
                         + " extract(x in collect(distinct g) | x.markerSymbol) as symbols "
 
@@ -722,12 +739,16 @@ public class AdvancedSearchController {
                 params.put("mpA", mpA);
                 params.put("mpB", mpB);
                 params.put("mpC", mpC);
+
+                pvaluesA = composePvalues(mpA, jParams);
+                pvaluesB = composePvalues(mpB, jParams);
+                pvaluesC = composePvalues(mpC, jParams);
             }
 
-            String whereClause1 = noMpChild ? " WHERE (mp.mpTerm = '" + params.get("mpB") + "' OR mp.mpTerm ='" + params.get("mpC") + "') "
-                    : " WHERE (mp0.mpTerm = '" + params.get("mpB") + "' OR mp0.mpTerm ='" + params.get("mpC") + "') ";
+            String whereClause1 = noMpChild ? " WHERE ((mp.mpTerm = '" + params.get("mpB") + "' AND (" + pvaluesB + ")) OR (mp.mpTerm ='" + params.get("mpC") + "' AND (" + pvaluesC + ") )) "
+                    : " WHERE ((mp0.mpTerm = '" + params.get("mpB") + "' AND (" + pvaluesB + ")) OR (mp0.mpTerm ='" + params.get("mpC") + "' AND (" + pvaluesC + ")) )";
 
-            String whereClause2 = noMpChild ? " WHERE mp.mpTerm = '" + params.get("mpA") + "'" : " WHERE mp0.mpTerm = '" + params.get("mpA") + "'";
+            String whereClause2 = noMpChild ? " WHERE mp.mpTerm = '" + params.get("mpA") + "' AND (" + pvaluesA + ")" : " WHERE mp0.mpTerm = '" + params.get("mpA") + "' AND (" + pvaluesA + ")";
 
             String matchClause1 = noMpChild ? " MATCH (mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g) "
                     : " MATCH (mp0:Mp)<-[:PARENT*0..]-(mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g) ";
@@ -739,13 +760,13 @@ public class AdvancedSearchController {
                 query = mpToGenePath
                         //+ "WHERE (mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*') OR mp0.mpTerm =~ ('(?i)'+'.*'+{mpC}+'.*')) "
                         + whereClause1
-                        + significant + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
+                        + significant + phenotypeSexes + parameter + chrRange + geneList + genotypes + alleleTypes
                         + " WITH g, collect({alleles:a, srs:sr, mps:mp}) as list1 "
 
                         + matchClause1
                         //+ " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') "
                         + whereClause2
-                        + significant + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
+                        + significant + phenotypeSexes + parameter + chrRange + geneList + genotypes + alleleTypes
                         + " WITH g, list1 + collect({alleles:a, srs:sr, mps:mp}) as list2, "
                         + " extract(x in collect(distinct g) | x.markerSymbol) as symbols "
 
@@ -756,13 +777,13 @@ public class AdvancedSearchController {
                 query = geneToMpPath
                         //+ "WHERE (mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*') OR mp0.mpTerm =~ ('(?i)'+'.*'+{mpC}+'.*')) "
                         + whereClause1
-                        + significant + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
+                        + significant + phenotypeSexes + parameter + chrRange + geneList + genotypes + alleleTypes
                         + " WITH g, collect({alleles:a, srs:sr, mps:mp}) as list1 "
 
                         + matchClause2
                         //+ " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') "
                         + whereClause2
-                        + significant + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
+                        + significant + phenotypeSexes + parameter + chrRange + geneList + genotypes + alleleTypes
                         + " WITH g, list1 + collect({alleles:a, srs:sr, mps:mp}) as list2, "
                         + " extract(x in collect(distinct g) | x.markerSymbol) as symbols "
 
@@ -794,11 +815,15 @@ public class AdvancedSearchController {
                 params.put("mpA", mpA);
                 params.put("mpB", mpB);
                 params.put("mpC", mpC);
+
+                pvaluesA = composePvalues(mpA, jParams);
+                pvaluesB = composePvalues(mpB, jParams);
+                pvaluesC = composePvalues(mpC, jParams);
             }
 
-            String whereClause1 = noMpChild ? " WHERE mp.mpTerm = '" + params.get("mpA") + "'" : " WHERE mp0.mpTerm = '" + params.get("mpA") + "'";
-            String whereClause2 = noMpChild ? " WHERE mp.mpTerm = '" + params.get("mpB") + "'" : " WHERE mp0.mpTerm = '" + params.get("mpB") + "'";
-            String whereClause3 = noMpChild ? " WHERE mp.mpTerm = '" + params.get("mpC") + "'" : " WHERE mp0.mpTerm = '" + params.get("mpC") + "'";
+            String whereClause1 = noMpChild ? " WHERE mp.mpTerm = '" + params.get("mpA") + "' AND (" + pvaluesA + ")" : " WHERE mp0.mpTerm = '" + params.get("mpA") + "' AND (" + pvaluesA + ")";
+            String whereClause2 = noMpChild ? " WHERE mp.mpTerm = '" + params.get("mpB") + "' AND (" + pvaluesB + ")" : " WHERE mp0.mpTerm = '" + params.get("mpB") + "' AND (" + pvaluesB + ")";
+            String whereClause3 = noMpChild ? " WHERE mp.mpTerm = '" + params.get("mpC") + "' AND (" + pvaluesC + ")" : " WHERE mp0.mpTerm = '" + params.get("mpC") + "' AND (" + pvaluesC + ")";
 
             String mpMatchClause = noMpChild ? " MATCH (mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g) "
                     : " MATCH (mp0:Mp)<-[:PARENT*0..]-(mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g) ";
@@ -806,19 +831,19 @@ public class AdvancedSearchController {
             query = mpToGenePath
                     //+ " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') "
                     + whereClause1
-                    + significant + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
+                    + significant + phenotypeSexes + parameter + chrRange + geneList + genotypes + alleleTypes
                     + " WITH g, collect({alleles:a, mps:mp, srs:sr}) as list1 "
 
                     + mpMatchClause
                     //+ " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*') "
                     + whereClause2
-                    + significant + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
+                    + significant + phenotypeSexes + parameter + chrRange + geneList + genotypes + alleleTypes
                     + " WITH g, list1 + collect({alleles:a, mps:mp, srs:sr}) as list2 "
 
                     + mpMatchClause
                     //+ " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpC}+'.*') "
                     + whereClause3
-                    + significant + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
+                    + significant + phenotypeSexes + parameter + chrRange + geneList + genotypes + alleleTypes
                     + " WITH g, list2 + collect({alleles:a, mps:mp, srs:sr}) as list3, "
                     + " extract(x in collect(distinct g) | x.markerSymbol) as symbols "
                     + geneToDmPathClause
@@ -843,10 +868,13 @@ public class AdvancedSearchController {
 
                 params.put("mpA", mpA);
                 params.put("mpB", mpB);
+
+                pvaluesA = composePvalues(mpA, jParams);
+                pvaluesB = composePvalues(mpB, jParams);
             }
 
-            String whereClause1 = noMpChild ? " WHERE mp.mpTerm = '" + params.get("mpA") + "'" : " WHERE mp0.mpTerm = '" + params.get("mpA") + "'";
-            String whereClause2 = noMpChild ? " WHERE mp.mpTerm = '" + params.get("mpB") + "'" : " WHERE mp0.mpTerm = '" + params.get("mpB") + "'";
+            String whereClause1 = noMpChild ? " WHERE mp.mpTerm = '" + params.get("mpA") + "' AND (" + pvaluesA + ")" : " WHERE mp0.mpTerm = '" + params.get("mpA") + "' AND (" + pvaluesA + ")";
+            String whereClause2 = noMpChild ? " WHERE mp.mpTerm = '" + params.get("mpB") + "' AND (" + pvaluesB + ")" : " WHERE mp0.mpTerm = '" + params.get("mpB") + "' AND (" + pvaluesB + ")";
 
             String mpMatchClause = noMpChild ? " MATCH (mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g) "
                     : " MATCH (mp0:Mp)<-[:PARENT*0..]-(mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g) ";
@@ -854,13 +882,13 @@ public class AdvancedSearchController {
             query = mpToGenePath
                   //+ " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') "
                   + whereClause1
-                  + significant + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
+                  + significant + phenotypeSexes + parameter + chrRange + geneList + genotypes + alleleTypes
                   + " WITH g, collect({alleles:a, mps:mp, srs:sr}) as list1 "
 
                   + mpMatchClause
                   //+ " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*') "
                   + whereClause2
-                  + significant + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
+                  + significant + phenotypeSexes + parameter + chrRange + geneList + genotypes + alleleTypes
                   + " WITH g, list1 + collect({alleles:a, mps:mp, srs:sr}) as list2, "
                   + " extract(x in collect(distinct g) | x.markerSymbol) as symbols "
                   + geneToDmPathClause
@@ -887,6 +915,10 @@ public class AdvancedSearchController {
                 params.put("mpA", mpA);
                 params.put("mpB", mpB);
                 params.put("mpC", mpC);
+
+                pvaluesA = composePvalues(mpA, jParams);
+                pvaluesB = composePvalues(mpB, jParams);
+                pvaluesC = composePvalues(mpC, jParams);
             }
 
 //            query = "MATCH (g:Gene)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp)-[:PARENT*0..]->(mp0:Mp)  " +
@@ -905,14 +937,18 @@ public class AdvancedSearchController {
                 query = geneToMpPath;
             }
 
-            String whereClause = noMpChild ?  " WHERE (mp.mpTerm = '" + params.get("mpA") + "' OR mp.mpTerm ='" + params.get("mpB")  + "' OR mp.mpTerm ='" +  params.get("mpC")  + "') "
-                    :  " WHERE (mp0.mpTerm = '" + params.get("mpA") + "' OR mp0.mpTerm ='" + params.get("mpB")  + "' OR mp0.mpTerm ='" +  params.get("mpC")  + "') ";
+            String whereClause = noMpChild ? " WHERE ((mp.mpTerm = '" + params.get("mpA") + "' AND (" + pvaluesA + ")) OR (mp.mpTerm ='" + params.get("mpB") + "' AND (" + pvaluesB + ")) OR (mp.mpTerm = '" + params.get("mpC") + "' AND (" + pvaluesC + ")) ) "
+                    : " WHERE ((mp0.mpTerm = '" + params.get("mpA") + "' AND (" + pvaluesA + ")) OR (mp0.mpTerm ='" + params.get("mpB") + "' AND (" + pvaluesB + ")) OR (mp.mpTerm = '" + params.get("mpC") + "' AND (" + pvaluesC + ")) )";
+
+            System.out.println("A:  "+ pvaluesA);
+            System.out.println("B:  "+ pvaluesB);
+            System.out.println("whereClause: " + whereClause);
 
             // using regular expression to match mp term name drastically lowers the performance, use exact match instead
             query +=
                   //  " WHERE (mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') OR mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*') OR mp0.mpTerm =~ ('(?i)'+'.*'+{mpC}+'.*')) "
                   whereClause
-                + significant + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
+                + significant + phenotypeSexes + parameter + chrRange + geneList + genotypes + alleleTypes
                 + " WITH g, a, mp, sr, extract(x in collect(distinct g) | x.markerSymbol) as symbols "
                 + geneToDmPathClause;
 
@@ -936,6 +972,8 @@ public class AdvancedSearchController {
 
                 params.put("mpA", mpA);
                 params.put("mpB", mpB);
+                pvaluesA = composePvalues(mpA, jParams);
+                pvaluesB = composePvalues(mpB, jParams);
             }
 
             if (geneList.isEmpty()){
@@ -945,13 +983,13 @@ public class AdvancedSearchController {
                 query = geneToMpPath;
             }
 
-            String whereClause = noMpChild ? " WHERE (mp.mpTerm = '" + params.get("mpA") + "' OR mp.mpTerm ='" + params.get("mpB") + "') "
-                    : " WHERE (mp0.mpTerm = '" + params.get("mpA") + "' OR mp0.mpTerm ='" + params.get("mpB") + "') ";
+            String whereClause = noMpChild ? " WHERE ((mp.mpTerm = '" + params.get("mpA") + "' AND (" + pvaluesA + ")) OR (mp.mpTerm ='" + params.get("mpB") + "' AND (" + pvaluesB + "))) "
+                    : " WHERE ((mp0.mpTerm = '" + params.get("mpA") + "' AND (" + pvaluesA + ")) OR (mp0.mpTerm ='" + params.get("mpB") + "' AND (" + pvaluesB + ")))";
 
             query +=
                   //  " WHERE (mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') OR mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*')) "
                   whereClause
-                + significant + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
+                + significant + phenotypeSexes + parameter + chrRange + geneList + genotypes + alleleTypes
                 + " WITH g, a, mp, sr, "
                 + " extract(x in collect(distinct g) | x.markerSymbol) as symbols "
                 + geneToDmPathClause;
@@ -1148,7 +1186,7 @@ public class AdvancedSearchController {
         }
         return j;
     }
-
+    
     private String composeParameter(JSONObject jParams){
         String parameter = "";
         if (jParams.containsKey("srchPipeline")) {
@@ -1160,6 +1198,7 @@ public class AdvancedSearchController {
 
     private String composePvalues(JSONObject jParams){
         String pvalues = "";
+
         if (jParams.containsKey("gtpvalue")) {
             double gtpvalue = jParams.getDouble("gtpvalue");
             pvalues = " AND sr.pvalue > " + gtpvalue + " ";
@@ -1168,6 +1207,31 @@ public class AdvancedSearchController {
             double ltpvalue = jParams.getDouble("ltpvalue");
             pvalues += " AND sr.pvalue < " + ltpvalue + " ";
         }
+
+        return pvalues;
+    }
+
+    private String composePvalues(String mpTerm, JSONObject jParams) {
+        String pvalues = "";
+
+        List<String> pvals = new ArrayList<>();
+        if (jParams.containsKey("pvaluesMap")) {
+            JSONObject map = jParams.getJSONObject("pvaluesMap").getJSONObject(mpTerm);
+            System.out.println("MAP: " + map.toString());
+            if (map.containsKey("gtpvalue")){
+                double gtpvalue = map.getDouble("gtpvalue");
+                pvals.add("sr.pvalue > " + gtpvalue);
+            }
+            if (map.containsKey("ltpvalue")){
+                double ltpvalue = map.getDouble("ltpvalue");
+                pvals.add("sr.pvalue < " + ltpvalue);
+            }
+        }
+
+        if (pvals.size() > 0){
+            pvalues = StringUtils.join(pvals, " AND ");
+        }
+        System.out.println("----- pvalue: " + pvalues);
         return pvalues;
     }
 
@@ -2026,28 +2090,49 @@ public class AdvancedSearchController {
         return responseHeaders;
     }
 
+
     @RequestMapping(value = "/chrlen", method = RequestMethod.GET)
     public @ResponseBody
-    Integer chrlen(
-            @RequestParam(value = "chr", required = true) String chr,
+    String chrlen(
+            @RequestParam(value = "chr", required = false) String chr,
             HttpServletRequest request,
             HttpServletResponse response,
             Model model) throws IOException, URISyntaxException, SolrServerException, SQLException {
 
         //fetchChrLenJson();
         Connection connKomp2 = komp2DataSource.getConnection();
+        String len = null;
 
-        String sql = "SELECT length FROM seq_region WHERE name ='" + chr + "'";
-        Integer len = null;
+        if (chr == null){
+            String sql = "select name, length from seq_region where name not like '%patch'";
 
-        try (PreparedStatement p = connKomp2.prepareStatement(sql)) {
-            ResultSet resultSet = p.executeQuery();
+            List<String> nameLen = new ArrayList<>();
+            try (PreparedStatement p = connKomp2.prepareStatement(sql)) {
+                ResultSet resultSet = p.executeQuery();
 
-            while (resultSet.next()) {
-                len = resultSet.getInt("length");
+                while (resultSet.next()) {
+                    String name = resultSet.getString("name");
+                    String length = Integer.toString(resultSet.getInt("length"));
+                    nameLen.add("<span class='chrname'>Chr: " + name + "</span><span class='chrlen'>" + length + "</span>");
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+            len = StringUtils.join(nameLen, "<br>");
+
+        }
+        else {
+            String sql = "SELECT length FROM seq_region WHERE name ='" + chr + "'";
+
+            try (PreparedStatement p = connKomp2.prepareStatement(sql)) {
+                ResultSet resultSet = p.executeQuery();
+
+                while (resultSet.next()) {
+                    len = Integer.toString(resultSet.getInt("length"));
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
 
         return len;
