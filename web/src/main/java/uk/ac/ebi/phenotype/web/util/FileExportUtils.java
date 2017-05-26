@@ -25,10 +25,10 @@ public class FileExportUtils {
 	private static final Logger log = LoggerFactory.getLogger(FileExportUtils.class.getCanonicalName());
 	
 	
-	public static void writeOutputFile(HttpServletResponse response, List<String> dataRows, String fileType, String fileName)
+	public static void writeOutputFile(HttpServletResponse response, List<String> dataRows, String fileType, String fileName, String filters)
 	throws IOException, URISyntaxException {
 
-		Workbook wb;
+		Workbook wb = null;
 		response.setHeader("Pragma", "no-cache");
 		response.setHeader("Expires", "0");
 
@@ -75,7 +75,12 @@ public class FileExportUtils {
             }
             String[] titles = dataRows.get(0).split("\t");
 
-			wb = new ExcelWorkBook(titles, noTitleRows, fileName).fetchWorkBook();
+            if (filters != null){
+				wb = new ExcelWorkBook(titles, noTitleRows, fileName, filters).fetchWorkBook();
+			}
+			else {
+				wb = new ExcelWorkBook(titles, noTitleRows, fileName).fetchWorkBook();
+			}
 			wb.write(output);
             output.close();
             System.out.println(outfile + " written successfully");

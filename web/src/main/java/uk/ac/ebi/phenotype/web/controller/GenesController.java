@@ -234,8 +234,9 @@ public class GenesController {
 		for (GenePageTableRow row : phenotypes) {
 			dataRows.add(row.toTabbedString());
 		}
-		
-		FileExportUtils.writeOutputFile(response, dataRows, fileType, fileName);
+
+		String filters = null;
+		FileExportUtils.writeOutputFile(response, dataRows, fileType, fileName, filters);
 	}
 	
 
