@@ -105,7 +105,7 @@ public class ImageComparatorController {
 			imgDoc = mutants.get(0);
 		}
 		
-		int numberOfControlsPerSex = 100;
+		int numberOfControlsPerSex = 25;
 		// int daysEitherSide = 30;// get a month either side
 		SexType sexType=null;
 		if(gender!=null && !gender.equals("all")){
