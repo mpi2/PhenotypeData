@@ -1192,18 +1192,19 @@
 
                     thisInput.autocomplete({
                         source: function( request, response ) {
-                            var qfStr = request.term.indexOf("*") != -1 ? "auto_suggest" : "string auto_suggest";
+                            //var qfStr = request.term.indexOf("*") != -1 ? "auto_suggest" : "string auto_suggest";
+							var qfStr = "auto_suggest"; // works for proximity search, string as qf will not work with proximity search
                             // var facetStr = "&facet=on&facet.field=docType&facet.mincount=1&facet.limit=-1";
                             var sortStr = "&sort=score desc";
                             // alert(solrUrl + "/autosuggest/select?rows=10&fq=docType:" + docType + "&wt=json&qf=" + qfStr + "&defType=edismax" + solrBq + sortStr);                        )
 
                             $.ajax({
                                 //url: solrUrl + "/autosuggest/select?wt=json&qf=string auto_suggest&defType=edismax" + solrBq,
-                                url: solrUrl + "/autosuggest/select?rows=10&fq=docType:" + docType + "&wt=json&qf=" + qfStr + "&defType=edismax" + solrBq + sortStr,
+                                url: solrUrl + "/autosuggest/select?rows=20&fq=docType:" + docType + "&wt=json&qf=" + qfStr + "&defType=edismax" + solrBq + sortStr,
                                 dataType: "jsonp",
                                 'jsonp': 'json.wrf',
                                 data: {
-                                    q: '"'+request.term+'"'
+                                    q: '"'+request.term+'"~2'
                                 },
                                 success: function( data ) {
 
@@ -1218,6 +1219,8 @@
                                             if ( key != 'docType' ){
 
                                                 var term = docs[i][key].toString();
+                                                //console.log(key + " --- " + term);
+
                                                 if (docType == 'hp' && term.startsWith("MP:")){
                                                     continue;  // due to hp-mp hybrid ontology, but we don't need mp here
 												}
