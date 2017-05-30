@@ -1200,7 +1200,7 @@
 
                             $.ajax({
                                 //url: solrUrl + "/autosuggest/select?wt=json&qf=string auto_suggest&defType=edismax" + solrBq,
-                                url: solrUrl + "/autosuggest/select?rows=20&fq=docType:" + docType + "&wt=json&qf=" + qfStr + "&defType=edismax" + solrBq + sortStr,
+                                url: solrUrl + "/autosuggest/select?rows=15&fq=docType:" + docType + "&wt=json&qf=" + qfStr + "&defType=edismax" + solrBq + sortStr,
                                 dataType: "jsonp",
                                 'jsonp': 'json.wrf',
                                 data: {
