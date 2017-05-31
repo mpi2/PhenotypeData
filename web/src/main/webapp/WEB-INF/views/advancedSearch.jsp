@@ -1015,7 +1015,7 @@
 
                     // IMPReSS parameter name
                     if ($('input.srchPipeline').val() != 'search' && $('input.srchPipeline').val() != ''){
-                        console.log("check parameter: "+ $('input.srchPipeline').val());
+                       // console.log("check parameter: "+ $('input.srchPipeline').val());
                         kv['srchPipeline'] = $('input.srchPipeline').val();
                         shownFilter.push("measured parameter = '" + kv.srchPipeline + "'");
                     }
@@ -1410,7 +1410,6 @@
                         }
                     }
 
-                    //alert('before table')
                     prepare_dataTable(flList);
 
                     var oConf = {};
@@ -1777,7 +1776,7 @@
                     var input = "<div class='block srchBox'>" +
                         "<i class='fa fa-search'></i>" +
                         "<input class='termFilter srchPipeline' value='search'>" +
-                        "<i class='fa fa-times' id='" + dataType + "Clear'></i>" +
+                        "<i class='fa fa-times' id='paramClear'></i>" +
                         "</div>";
 
                     //var filter = "<fieldset class='" + dataType + "Filter dfilter " + dataType + "'>" + legend + msg + input + "</fieldset>";
@@ -1787,14 +1786,14 @@
 
 
                     // clear input
-                    $("fieldset." + dataType + "Filter").on("click", "input.srchPipeline", function(){
+                    $("input.srchPipeline").click(function(){
                         if ($(this).val() == "search"){
                             $(this).val("");
                         }
                     });
 
                     // clear input when the value is not default: "search"
-                    $("fieldset." + dataType + "Filter").on("click", "i#" + dataType + "Clear", function(){
+                    $("#paramClear").click(function(){
                         $(this).siblings($("input.srchPipeline")).val("");
                     });
 
@@ -2084,13 +2083,12 @@
 							$(fieldsetFilter + "button.ontoview").last().click(function() {
                                 // ajax call to fetch for mp id
                                 var termName = $(this).siblings('input.srchMp').val();
-                                alert(termName)
                                 $.ajax({
                                     'url': baseUrl + '/fetchmpid?name=' + termName,
                                     'async': true,
                                     'jsonp': 'json.wrf',
                                     'success': function (id) {
-                                        console.log(id);
+                                        //console.log(id);
                                         window.open(baseUrl + "/ontologyBrowser?termId=" + id, '_blank');
                                     },
                                     'error': function (jqXHR, textStatus, errorThrown) {
