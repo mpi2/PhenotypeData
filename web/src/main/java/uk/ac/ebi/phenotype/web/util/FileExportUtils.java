@@ -111,7 +111,7 @@ public class FileExportUtils {
 					+ "table, th, td {border: 1px solid black;}"
 					+ "caption {margin-bottom: 10px}"
 					+ "th {padding: 0 5px;}"
-					+ "td {font-size: 12px; padding: 0 3px;}"
+					+ "td {font-size: 12px; padding: 0 3px; vertical-align: top;}"
 					+ "li {list-style-type: none;}"
 					+ "li.multi {list-style-type: square;}"
 					+ "</style>";
