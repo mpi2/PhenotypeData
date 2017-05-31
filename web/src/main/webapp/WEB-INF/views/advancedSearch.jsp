@@ -167,7 +167,19 @@
 			}
 			.andOr2 {
 				display: none;
+			}
+			button.andOr2, button.andOrClear {
+
 				color: #942a25;
+				border: 1px solid white;
+				border-radius: 3px;
+				padding: 1px;
+				margin-left: 10px;
+				width: 35px;
+			}
+			.andOrClear {
+				color: black;
+				width: 45px;
 			}
 			button.ontoview {
 				position: absolute;
@@ -178,6 +190,14 @@
 			}
 			button {
 				cursor: pointer;
+			}
+			button.ap{
+				background-color: darkorange;
+				color: white;
+				border: none;
+				border-radius: 3px;
+				padding: 5px 12px;
+				margin: 3px 0 10px 3px;
 			}
             span.pvalue input {
                 padding: 3px !important;

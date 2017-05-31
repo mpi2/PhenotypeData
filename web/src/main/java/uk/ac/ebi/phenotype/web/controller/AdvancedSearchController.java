@@ -491,9 +491,9 @@ public class AdvancedSearchController {
                 pvaluesC = composePvalues(mpC, jParams);
             }
 
-            String whereClause1 = noMpChild ? " WHERE mp.mpTerm = '" + params.get("mpA") + "' AND (" + pvaluesA + ")" : " WHERE mp0.mpTerm = '" + params.get("mpA") + "' AND (" + pvaluesA + ")";
-            String whereClause2 = noMpChild ? " WHERE mp.mpTerm = '" + params.get("mpB") + "' AND (" + pvaluesB + ")" : " WHERE mp0.mpTerm = '" + params.get("mpB") + "' AND (" + pvaluesB + ")";
-            String whereClause3 = noMpChild ? " WHERE mp.mpTerm = '" + params.get("mpC") + "' AND (" + pvaluesC + ")" : " WHERE mp0.mpTerm = '" + params.get("mpC") + "' AND (" + pvaluesC + ")";
+            String whereClause1 = noMpChild ? " WHERE mp.mpTerm = '" + params.get("mpA") + "'" + pvaluesA : " WHERE mp0.mpTerm = '" + params.get("mpA") + "'" + pvaluesA;
+            String whereClause2 = noMpChild ? " WHERE mp.mpTerm = '" + params.get("mpB") + "'" + pvaluesB : " WHERE mp0.mpTerm = '" + params.get("mpB") + "'" + pvaluesB;
+            String whereClause3 = noMpChild ? " WHERE mp.mpTerm = '" + params.get("mpC") + "'" + pvaluesC : " WHERE mp0.mpTerm = '" + params.get("mpC") + "'" + pvaluesC;
 
 
             String matchClause1 = noMpChild ? " MATCH (mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g) "
@@ -584,9 +584,9 @@ public class AdvancedSearchController {
                 pvaluesC = composePvalues(mpC, jParams);
             }
 
-            String whereClause1 = noMpChild ? " WHERE mp.mpTerm = '" + params.get("mpB") + "' AND (" + pvaluesB + ")" : " WHERE mp0.mpTerm = '" + params.get("mpB") + "' AND (" + pvaluesB + ")";
-            String whereClause2 = noMpChild ? " WHERE mp.mpTerm = '" + params.get("mpC") + "' AND (" + pvaluesC + ")" : " WHERE mp0.mpTerm = '" + params.get("mpC") + "' AND (" + pvaluesC + ")";
-            String whereClause3 = noMpChild ? " WHERE mp.mpTerm = '" + params.get("mpA") + "' AND (" + pvaluesA + ")" : " WHERE mp0.mpTerm = '" + params.get("mpA") + "' AND (" + pvaluesA + ")";
+            String whereClause1 = noMpChild ? " WHERE mp.mpTerm = '" + params.get("mpB") + "'" + pvaluesB : " WHERE mp0.mpTerm = '" + params.get("mpB") + "'" + pvaluesB;
+            String whereClause2 = noMpChild ? " WHERE mp.mpTerm = '" + params.get("mpC") + "'" + pvaluesC : " WHERE mp0.mpTerm = '" + params.get("mpC") + "'" + pvaluesC;
+            String whereClause3 = noMpChild ? " WHERE mp.mpTerm = '" + params.get("mpA") + "'" + pvaluesA : " WHERE mp0.mpTerm = '" + params.get("mpA") + "'" + pvaluesA;
 
 
             String matchClause1 = noMpChild ? " MATCH (mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g) "
@@ -650,7 +650,7 @@ public class AdvancedSearchController {
             result =  neo4jSession.query(query, params);
         }
         else if (mpStr.matches(regex_aOrb_andc)) {
-            logger.info("matches (a or b) and c");
+            System.out.println("matches (a or b) and c");
 
             Pattern pattern = Pattern.compile(regex_aOrb_andc);
             Matcher matcher = pattern.matcher(mpStr);
@@ -671,10 +671,10 @@ public class AdvancedSearchController {
                 pvaluesC = composePvalues(mpC, jParams);
             }
 
-            String whereClause1 = noMpChild ? " WHERE ((mp.mpTerm = '" + params.get("mpA") + "' AND (" + pvaluesA + ")) OR (mp.mpTerm ='" + params.get("mpB") + "' AND (" + pvaluesB + ") )) "
-                    : " WHERE ((mp0.mpTerm = '" + params.get("mpA") + "' AND (" + pvaluesA + ")) OR (mp0.mpTerm ='" + params.get("mpB") + "' AND (" + pvaluesB + ")) )";
+            String whereClause1 = noMpChild ? " WHERE ((mp.mpTerm = '" + params.get("mpA") + "'" + pvaluesA + ") OR (mp.mpTerm ='" + params.get("mpB") + "'" + pvaluesB + ")) "
+                    : " WHERE ((mp0.mpTerm = '" + params.get("mpA") + "'" + pvaluesA + ") OR (mp0.mpTerm ='" + params.get("mpB") + "'" + pvaluesB + ")) ";
 
-            String whereClause2 = noMpChild ? " WHERE mp.mpTerm = '" + params.get("mpC") + "' AND (" + pvaluesC + ")" : " WHERE mp0.mpTerm = '" + params.get("mpC") + "' AND (" + pvaluesC + ")";
+            String whereClause2 = noMpChild ? " WHERE mp.mpTerm = '" + params.get("mpC") + "'" + pvaluesC : " WHERE mp0.mpTerm = '" + params.get("mpC") + "'" + pvaluesC;
 
             String matchClause1 = noMpChild ? " MATCH (mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g) "
                     : " MATCH (mp0:Mp)<-[:PARENT*0..]-(mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g) ";
@@ -724,7 +724,7 @@ public class AdvancedSearchController {
             result =  neo4jSession.query(query, params);
         }
         else if (mpStr.matches(regex_aAnd_bOrc)) {
-            logger.info("matches a and (b or c)");
+            System.out.println("matches a and (b or c)");
 
             Pattern pattern = Pattern.compile(regex_aAnd_bOrc);
             Matcher matcher = pattern.matcher(mpStr);
@@ -745,10 +745,10 @@ public class AdvancedSearchController {
                 pvaluesC = composePvalues(mpC, jParams);
             }
 
-            String whereClause1 = noMpChild ? " WHERE ((mp.mpTerm = '" + params.get("mpB") + "' AND (" + pvaluesB + ")) OR (mp.mpTerm ='" + params.get("mpC") + "' AND (" + pvaluesC + ") )) "
-                    : " WHERE ((mp0.mpTerm = '" + params.get("mpB") + "' AND (" + pvaluesB + ")) OR (mp0.mpTerm ='" + params.get("mpC") + "' AND (" + pvaluesC + ")) )";
+            String whereClause1 = noMpChild ? " WHERE ((mp.mpTerm = '" + params.get("mpB") + "'" + pvaluesB + ") OR (mp.mpTerm ='" + params.get("mpC") + "'" + pvaluesC + ")) "
+                    : " WHERE ((mp0.mpTerm = '" + params.get("mpB") + "'" + pvaluesB + ") OR (mp0.mpTerm ='" + params.get("mpC") + "'" + pvaluesC + ")) ";
 
-            String whereClause2 = noMpChild ? " WHERE mp.mpTerm = '" + params.get("mpA") + "' AND (" + pvaluesA + ")" : " WHERE mp0.mpTerm = '" + params.get("mpA") + "' AND (" + pvaluesA + ")";
+            String whereClause2 = noMpChild ? " WHERE mp.mpTerm = '" + params.get("mpA") + "'" + pvaluesA : " WHERE mp0.mpTerm = '" + params.get("mpA") + "'" + pvaluesA;
 
             String matchClause1 = noMpChild ? " MATCH (mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g) "
                     : " MATCH (mp0:Mp)<-[:PARENT*0..]-(mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g) ";
@@ -800,7 +800,7 @@ public class AdvancedSearchController {
         }
 
         else if (mpStr.matches(regex_aAndbAndc)) {
-            logger.info("matches a and b and c");
+            System.out.println("matches a and b and c");
 
             Pattern pattern = Pattern.compile(regex_aAndbAndc);
             Matcher matcher = pattern.matcher(mpStr);;
@@ -821,9 +821,9 @@ public class AdvancedSearchController {
                 pvaluesC = composePvalues(mpC, jParams);
             }
 
-            String whereClause1 = noMpChild ? " WHERE mp.mpTerm = '" + params.get("mpA") + "' AND (" + pvaluesA + ")" : " WHERE mp0.mpTerm = '" + params.get("mpA") + "' AND (" + pvaluesA + ")";
-            String whereClause2 = noMpChild ? " WHERE mp.mpTerm = '" + params.get("mpB") + "' AND (" + pvaluesB + ")" : " WHERE mp0.mpTerm = '" + params.get("mpB") + "' AND (" + pvaluesB + ")";
-            String whereClause3 = noMpChild ? " WHERE mp.mpTerm = '" + params.get("mpC") + "' AND (" + pvaluesC + ")" : " WHERE mp0.mpTerm = '" + params.get("mpC") + "' AND (" + pvaluesC + ")";
+            String whereClause1 = noMpChild ? " WHERE mp.mpTerm = '" + params.get("mpA") + "'" + pvaluesA : " WHERE mp0.mpTerm = '" + params.get("mpA") + "'" + pvaluesA;
+            String whereClause2 = noMpChild ? " WHERE mp.mpTerm = '" + params.get("mpB") + "'" + pvaluesB : " WHERE mp0.mpTerm = '" + params.get("mpB") + "'" + pvaluesB;
+            String whereClause3 = noMpChild ? " WHERE mp.mpTerm = '" + params.get("mpC") + "'" + pvaluesC : " WHERE mp0.mpTerm = '" + params.get("mpC") + "'" + pvaluesC;
 
             String mpMatchClause = noMpChild ? " MATCH (mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g) "
                     : " MATCH (mp0:Mp)<-[:PARENT*0..]-(mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g) ";
@@ -856,7 +856,7 @@ public class AdvancedSearchController {
             result =  neo4jSession.query(query, params);
         }
         else if (mpStr.matches(regex_aAndb)) {
-            logger.info("matches a and b");
+            System.out.println("matches a and b");
 
             Pattern pattern = Pattern.compile(regex_aAndb);
             Matcher matcher = pattern.matcher(mpStr);
@@ -873,8 +873,8 @@ public class AdvancedSearchController {
                 pvaluesB = composePvalues(mpB, jParams);
             }
 
-            String whereClause1 = noMpChild ? " WHERE mp.mpTerm = '" + params.get("mpA") + "' AND (" + pvaluesA + ")" : " WHERE mp0.mpTerm = '" + params.get("mpA") + "' AND (" + pvaluesA + ")";
-            String whereClause2 = noMpChild ? " WHERE mp.mpTerm = '" + params.get("mpB") + "' AND (" + pvaluesB + ")" : " WHERE mp0.mpTerm = '" + params.get("mpB") + "' AND (" + pvaluesB + ")";
+            String whereClause1 = noMpChild ? " WHERE mp.mpTerm = '" + params.get("mpA") + "'" + pvaluesA : " WHERE mp0.mpTerm = '" + params.get("mpA") + "'" + pvaluesA;
+            String whereClause2 = noMpChild ? " WHERE mp.mpTerm = '" + params.get("mpB") + "'" + pvaluesB : " WHERE mp0.mpTerm = '" + params.get("mpB") + "'" + pvaluesB;
 
             String mpMatchClause = noMpChild ? " MATCH (mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g) "
                     : " MATCH (mp0:Mp)<-[:PARENT*0..]-(mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g) ";
@@ -901,7 +901,7 @@ public class AdvancedSearchController {
             result =  neo4jSession.query(query, params);
         }
         else if (mpStr.matches(regex_aOrbOrc)) {
-            logger.info("matches a or b or c");
+            System.out.println("matches a or b or c");
 
             Pattern pattern = Pattern.compile(regex_aOrbOrc);
             Matcher matcher = pattern.matcher(mpStr);
@@ -937,8 +937,8 @@ public class AdvancedSearchController {
                 query = geneToMpPath;
             }
 
-            String whereClause = noMpChild ? " WHERE ((mp.mpTerm = '" + params.get("mpA") + "' AND (" + pvaluesA + ")) OR (mp.mpTerm ='" + params.get("mpB") + "' AND (" + pvaluesB + ")) OR (mp.mpTerm = '" + params.get("mpC") + "' AND (" + pvaluesC + ")) ) "
-                    : " WHERE ((mp0.mpTerm = '" + params.get("mpA") + "' AND (" + pvaluesA + ")) OR (mp0.mpTerm ='" + params.get("mpB") + "' AND (" + pvaluesB + ")) OR (mp.mpTerm = '" + params.get("mpC") + "' AND (" + pvaluesC + ")) )";
+            String whereClause = noMpChild ? " WHERE ((mp.mpTerm = '" + params.get("mpA") + "'" + pvaluesA + ") OR (mp.mpTerm ='" + params.get("mpB") + "'" + pvaluesB + ") OR (mp.mpTerm = '" + params.get("mpC") + "'" + pvaluesC + ") ) "
+                    : " WHERE ((mp0.mpTerm = '" + params.get("mpA") + "'" + pvaluesA + ") OR (mp0.mpTerm ='" + params.get("mpB") + "'" + pvaluesB + ") OR (mp.mpTerm = '" + params.get("mpC") + "'" + pvaluesC + ")) ";
 
             System.out.println("A:  "+ pvaluesA);
             System.out.println("B:  "+ pvaluesB);
@@ -960,7 +960,7 @@ public class AdvancedSearchController {
 
         }
         else if (mpStr.matches(regex_aOrb)) {
-            logger.info("matches a or b");
+            System.out.println("matches a or b");
 
             Pattern pattern = Pattern.compile(regex_aOrb);
             Matcher matcher = pattern.matcher(mpStr);
@@ -983,9 +983,8 @@ public class AdvancedSearchController {
                 query = geneToMpPath;
             }
 
-            String whereClause = noMpChild ? " WHERE ((mp.mpTerm = '" + params.get("mpA") + "' AND (" + pvaluesA + ")) OR (mp.mpTerm ='" + params.get("mpB") + "' AND (" + pvaluesB + "))) "
-                    : " WHERE ((mp0.mpTerm = '" + params.get("mpA") + "' AND (" + pvaluesA + ")) OR (mp0.mpTerm ='" + params.get("mpB") + "' AND (" + pvaluesB + ")))";
-
+            String whereClause = noMpChild ? " WHERE ((mp.mpTerm = '" + params.get("mpA") + "'" + pvaluesA + ") OR (mp.mpTerm ='" + params.get("mpB") + "'" + pvaluesB + ")) "
+                    : " WHERE ((mp0.mpTerm = '" + params.get("mpA") + "'" + pvaluesA + ") OR (mp0.mpTerm ='" + params.get("mpB") + "'" + pvaluesB + "))";
             query +=
                   //  " WHERE (mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') OR mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*')) "
                   whereClause
@@ -1229,7 +1228,7 @@ public class AdvancedSearchController {
         }
 
         if (pvals.size() > 0){
-            pvalues = StringUtils.join(pvals, " AND ");
+            pvalues = " AND (" +  StringUtils.join(pvals, " AND ") + ")";
         }
         System.out.println("----- pvalue: " + pvalues);
         return pvalues;
