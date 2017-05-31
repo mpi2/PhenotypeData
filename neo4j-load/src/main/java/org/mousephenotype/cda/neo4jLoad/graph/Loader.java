@@ -219,6 +219,7 @@ public class Loader implements CommandLineRunner {
         neo4jSession.query("CREATE INDEX ON :Gene(mgiAccessionId)", map);
         neo4jSession.query("CREATE INDEX ON :DiseaseModel(diseaseId)", map);
         neo4jSession.query("CREATE INDEX ON :DiseaseModel(diseaseTerm)", map);
+        neo4jSession.query("CREATE INDEX ON :StatisticalResult(parameterName)", map);
 
     }
 
