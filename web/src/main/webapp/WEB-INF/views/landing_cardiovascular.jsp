@@ -173,10 +173,10 @@
                                             url: tableUrl,
                                             cache: false
                                         })
-                                            .done(function( html ) {
-                                                $( '#spinner' ).hide();
-                                                $( '#chart-and-table' ).html( html );
-                                            });
+                                        .done(function( html ) {
+                                            $( '#spinner' ).hide();
+                                            $( '#chart-and-table' ).html( html );
+                                        });
                                     })
                                 </script>
                             </div>
