@@ -372,7 +372,7 @@ public class AdvancedSearchController {
 
         Result result = null;
 
-        String sortStr = geneList.isEmpty() ? " ORDER BY g.markerSymbol " : "";
+        String sortStr = geneList.isEmpty() ? "" : " ORDER BY g.markerSymbol ";
         String query = null;
 
 
@@ -1310,11 +1310,11 @@ public class AdvancedSearchController {
             List<String> list = new ArrayList<>();
 
             for (Object name : jParams.getJSONArray("humanGeneList")){
-                list.add("'" + name.toString() + "' in g.humanGeneSymbol");
+                list.add("'" + name.toString() + "'");
             }
 
             if (list.size() > 0) {
-                genelist = " AND (" + StringUtils.join(list, " OR ") + ") ";
+                genelist = " AND ANY (hs in g.humanGeneSymbol WHERE hs IN [" + StringUtils.join(list, ", ") + "]) ";
             }
         }
 

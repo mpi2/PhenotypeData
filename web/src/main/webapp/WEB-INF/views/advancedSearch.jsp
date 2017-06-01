@@ -1052,7 +1052,8 @@
 					    var val = geneList[i];
 					    if (val != "") {
 					        //console.log("gene: "+ val);
-                            geneList2.push($.fn.upperCaseFirstLetter(val).trim());
+                            //geneList2.push($.fn.upperCaseFirstLetter(val).trim());
+                            geneList2.push(val.trim());
                         }
 					}
 					if (geneList2.length>0) {
@@ -1536,7 +1537,7 @@
                         "oLanguage": {
                             "sSearch": "Filter: ",
                             //"sInfo": "Showing _START_ to _END_ of _TOTAL_ genes (for complete dataset of your search, please use export buttons)"
-                            "sInfo": "<b>Data overview</b>: all columns are collapsed to show only unique values.<br>It shows you how many genes, phenotypes and diseases are related based on your search criteria.<br><br>Please use 'Export full dataset' for row by row details"
+                            "sInfo": "<b>Data overview</b>: all columns are collapsed to show only unique values.<br>It shows you ONLY genes that have associations with phenotypes and diseases.<br><br>Please use 'Export full dataset' for row by row details"
                         },
 //                        "aoColumns": [
 //                            {"bSearchable": true, "sType": "html", "bSortable": true}
