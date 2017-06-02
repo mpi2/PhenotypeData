@@ -3,7 +3,7 @@
 <%@ taglib prefix="t" tagdir="/WEB-INF/tags" %>
 
 <t:genericpage>
-	<jsp:attribute name="title">IMPC dataset batch query</jsp:attribute>
+	<jsp:attribute name="title">IMPC advanced search</jsp:attribute>
 	<jsp:attribute name="breadcrumb">&nbsp;&raquo;<a href="${baseUrl}/batchQuery">&nbsp;Advanced search</a></jsp:attribute>
 	<jsp:attribute name="header">
 
