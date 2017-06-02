@@ -525,27 +525,11 @@ public class GenePage {
 
         // Check for phenotype associations. If any, determine whether or not the page has graphs by looking for one or
         // more post qc links.
-        try {
-            elements = driver.findElements(By.xpath("//table[@id='genes']"));
-            hasGenesTable = ! elements.isEmpty();
-            if (hasGenesTable) {
-                elements = driver.findElements(By.xpath("//*[@id='phenotypesDiv']//td[@class='postQcLink']/a"));
-                String totResultsString = elements.get(0).getText();
-                int index = totResultsString.lastIndexOf(":");
-                String[] counts = totResultsString.substring(index + 1).split(",");
-                if ((counts != null) && (counts.length > 0)) {
-                    for (String count : counts) {
-                        if (count.contains("female")) {
-                            resultsCount.setFemales(commonUtils.extractIntFromParens(count));
-                        } else if (count.contains("male")) {
-                            resultsCount.setMales(commonUtils.extractIntFromParens(count));
-                        }
-                    }
-                }
-            }
-            hasGraphs = (resultsCount.getTotals() > 0);
-        } catch (Exception e) {
-            throw new TestException("GenePage.load(): page appears to have a 'genes' HTML table but it was not found.");
+        elements = driver.findElements(By.xpath("//table[@id='genes']"));
+        hasGenesTable = !elements.isEmpty();
+        if (hasGenesTable) {
+            elements = driver.findElements(By.xpath("//*[@id='phenotypesDiv']//td[@class='postQcLink']/a"));
+            hasGraphs = (elements.size() > 0);
         }
 
         // Check for expression.
