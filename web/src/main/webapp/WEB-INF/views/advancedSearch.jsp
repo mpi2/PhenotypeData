@@ -464,6 +464,9 @@
 				margin-bottom: 10px;
 				border: 1px solid gray;
 			}
+			img.advsrchHow {
+				width: 440px;
+			}
 		</style>
 
  		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/raphael/2.2.7/raphael.min.js"></script>
@@ -488,34 +491,17 @@
 
 
                 // initialze search example qTip with close button and proper positioning
-                var bqDoc = '<h4 id="bqdoc">How to use batch search</h4>'
-
-                    + '<div id="docTabs">'
-                    + '<ul>'
-                    + '<li><a href="#tabs-1">Interface</a></li>'
-                    + '<li><a href="#tabs-2">Data fields</a></li>'
-                    + '</ul>'
-                    + '<div id="tabs-1">'
-                    + '<p>Query keywords can be either datatype-specific ID (eg, mouse gene id: MGI:2682306) or text (eg. mouse gene symbol).<p>'
-                    + '<p>Simply click on one of the radio buttons on the left (the<b> Datatype Input panel</b>) to choose the datatype you want to search for.'
-                    + '</p>'
-                    + '<p>The data fields for the chosen datatype are shown on the right (the <b>Customized Output panel</b>) and can be added/removed using checkboxes.'
-                    + '<p>'
-                    + '<p>The sample of results (<b>maximum of 10 records</b>) will be updated automatically after checking checkboxes.'
-                    + '<p>'
-                    + '</div>'
-                    + '<div id="tabs-2">'
-                    + '<p>The data fields in additional annotations of the customized output panel are based on their being annotated to a datatype of your search.</p>'
-                    + '<p>For example, an MP term is annotated to an IMPC gene via phenotypic observations or experiments.</p>'
-                    + '<p>A disease term (human disease) is annotated to an IMPC mouse phenotype via <a href="http://database.oxfordjournals.org/content/2013/bat025" target="_blank">Phenodigm</a>, which is a semantic approach to map between clinical features observed in humans and mouse phenotype annotations.</p>'
-                    + '<p>An HP term is mapped to an MP term using similar Phenodigm semantic approach.</p>'
-                    + '<p><b>hasQc</b>: IMPC lines with phenotyping data that has been quality controlled by the IMPC Data Coordination Center</p>'
-                    + '<p><b>p value</b>: statistical confidence that the result is not due to chance. Lower is more significant. IMPC significant threshold value is 0.0001.</p>'
-                    + '</div>'
-                    + '</div>';
+                var bqDoc = '<h4 id="bqdoc">How to use the advanced search</h4>'
+					+ "<p>The interface allows you to <b>search for genes that have associations with one or more mouse phenotypes AND one or more human diseases</b>.</p>"
+                + "<p>You can apply <b>filters</b> on one or all of the Phenotype / Gene / Disease section on the interface by ticking the checkboxes or radio buttons.</p>"
+                + "<p>The '<b>Customized output columns</b>' allows you to view your results in different levels of granularity.</p>"
+                + "<p>After you have applied filters and selected columns to display, simply hit the '<b>Submit Query' button</b> at the bottom of the interface for the result. The result will then appear below the 'Submit Query' button.<br>See figure below.</p>"
+                + "<p>On top of the result, your <b>search filters</b> will be shown to provide you a handy recap of how you have done the search.</p>"
+                + "<p>On the upper right hand corner, there are <b>3 download buttons</b> for popular output formats to export the full dataset.</p><p>"
+				+ "<img class='advsrchHow' src='${baseUrl}/img/advSearch/advsrch_result.png'/>";
 
                 var ontologyHelp = '<h4 id="pheno">About phenotypes</h4>'
-                    + '<a target="_blank" href="http://www.ebi.ac.uk/ols/ontologies/hp">Human</a> and <a target="_blank" href="http://www.ebi.ac.uk/ols/ontologies/hp">mouse</a> phenotypes are described by a structrued and controlled vocabulary for the phenotypic features encountered in human and mouse hereditary and other disease, respectively.<br>'
+                + '<a target="_blank" href="http://www.ebi.ac.uk/ols/ontologies/hp">Human</a> and <a target="_blank" href="http://www.ebi.ac.uk/ols/ontologies/hp">mouse</a> phenotypes are described by a structrued and controlled vocabulary for the phenotypic features encountered in human and mouse hereditary and other disease, respectively.<br>'
 
                 var diseaseHelp = '<h4 id="pheno">About diseases</h4>'
 				+ 'IMPC has disease details contains known gene associations (via orthology to human disease genes) and known mouse models from the literature (from MGI) for the disease as well as predicted gene candidates and mouse models based on the phenotypic similarity of the disease clinical symptoms and the mouse phenotype annotations. '
@@ -1763,9 +1749,10 @@
 
 				function addSex(dataType){
 					var legend = "<legend>Mouse sex</legend>";
+					var msg = "<div>Restrict results done with male or female samples or both</div>";
 					var male = "<input type='checkbox' name='sex' value='male'> Male";
 					var female = "<input type='checkbox' name='sex' value='female'> Female";
-					var filter = "<fieldset class='" + dataType + "Filter dfilter " + dataType + "'>" + legend + male + female + "</fieldset>";
+					var filter = "<fieldset class='" + dataType + "Filter dfilter " + dataType + "'>" + legend + msg + male + female + "</fieldset>";
 
 					$('div#dataAttributes').append(filter);
 				}
@@ -1973,7 +1960,7 @@
                     	+ "<button class='andOr2 " + dataType + "'>)</button>"
 						+ "<button class='andOrClear " + dataType + "'>clear</button>";
                     var boolText = "<textarea class='andOr2 " + dataType + "' rows='2' cols=''></textarea>";
-                    var help = "<img class='boolHow' src='${baseUrl}/img/how-to-build-boolean-query.png' />";
+                    var help = "<img class='boolHow' src='${baseUrl}/img/advSearch/how-to-build-boolean-query.png' />";
 					var filter = "<fieldset class='" + dataType + "Filter dfilter " + dataType + "'>" + legend + restriction + noMpChild + input + butt + msg + boolButts + boolText + help + "</fieldset>";
 
 					$('div#dataAttributes').append(filter);
