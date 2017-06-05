@@ -382,7 +382,10 @@ public class AdvancedSearchController {
         String mpToGenePath = noMpChild ? "MATCH (mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g:Gene) "
                 : " MATCH (mp0:Mp)<-[:PARENT*0..]-(mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g:Gene) ";
 
-        String geneToDmPathClause = " MATCH (g)<-[:GENE]-(dm:DiseaseModel) WHERE "
+        String geneToDmPathClause = noMpChild ? " MATCH (g)<-[:GENE]-(dm:DiseaseModel)-[:MOUSE_PHENOTYPE]->(mp1:Mp) WHERE "
+                + phenodigmScore + diseaseGeneAssociation + humanDiseaseTerm
+                + " AND g.markerSymbol in symbols " :
+                " MATCH (g)<-[:GENE]-(dm:DiseaseModel)-[:MOUSE_PHENOTYPE]->(dmp:Mp)-[:PARENT*0..]->(mp1:Mp) WHERE "
                 + phenodigmScore + diseaseGeneAssociation + humanDiseaseTerm
                 + " AND g.markerSymbol in symbols ";
 
@@ -451,7 +454,8 @@ public class AdvancedSearchController {
                         + significant + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
                         + " WITH g, a, mp, sr, "
                         + " extract(x in collect(distinct g) | x.markerSymbol) as symbols "
-                        + geneToDmPathClause;
+                        + geneToDmPathClause
+                        + " AND mp1.mpTerm = '" + params.get("mpA") + "'";
             }
             else {
                 query = geneToMpPath
@@ -460,7 +464,8 @@ public class AdvancedSearchController {
                         + significant + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
                         + " WITH g, a, mp, sr, "
                         + " extract(x in collect(distinct g) | x.markerSymbol) as symbols "
-                        + geneToDmPathClause;
+                        + geneToDmPathClause
+                        + " AND mp1.mpTerm = '" + params.get("mpA") + "'";
             }
 
             query += fileType != null ? " RETURN distinct a, g, sr, collect(distinct mp), collect(distinct dm)" + sortStr :
@@ -522,13 +527,20 @@ public class AdvancedSearchController {
                         //+ " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpC}+'.*') "
                         + whereClause3
                         + significant + phenotypeSexes + parameter + chrRange + geneList + genotypes + alleleTypes
-                        + " WITH list2 + collect({genes:g, alleles:a, srs:sr, mps:mp}) as list3 "
+                        + " WITH g, list2 + collect({genes:g, alleles:a, srs:sr, mps:mp}) as list3 "
 
                         + " UNWIND list3 as nodes "
                         + " WITH nodes.genes as g, nodes, "
                         + " extract(x in collect(distinct nodes.genes) | x.markerSymbol) as symbols "
 
-                        + geneToDmPathClause;
+                        + geneToDmPathClause
+                        + " AND mp1.mpTerm = '" + params.get("mpA") + "'"
+                        + " WITH g, nodes, dm "
+                        + " MATCH (g)<-[:GENE]-(dm)-[:MOUSE_PHENOTYPE]->(dmp:Mp)-[:PARENT*0..]->(mp1:Mp)"
+                        + " WHERE mp1.mpTerm = '" + params.get("mpB") + "'"
+                        + " WITH g, nodes, dm "
+                        + " OPTIONAL MATCH (g)<-[:GENE]-(dm)-[:MOUSE_PHENOTYPE]->(dmp:Mp)-[:PARENT*0..]->(mp1:Mp)"
+                        + " WHERE mp1.mpTerm = '" + params.get("mpC") + "'";
             }
             else {
                 query = geneToMpPath
@@ -548,12 +560,19 @@ public class AdvancedSearchController {
                         + whereClause3
                         + significant + phenotypeSexes + parameter + chrRange + geneList + genotypes + alleleTypes
 
-                        + " WITH list2 + collect({genes:g, alleles:a, srs:sr, mps:mp}) as list3 "
+                        + " WITH g, list2 + collect({genes:g, alleles:a, srs:sr, mps:mp}) as list3 "
                         + " UNWIND list3 as nodes "
                         + " WITH nodes.genes as g, nodes, "
                         + " extract(x in collect(distinct nodes.genes) | x.markerSymbol) as symbols "
 
-                        + geneToDmPathClause;
+                        + geneToDmPathClause
+                        + " AND mp1.mpTerm = '" + params.get("mpA") + "'"
+                        + " WITH g, nodes, dm "
+                        + " MATCH (g)<-[:GENE]-(dm)-[:MOUSE_PHENOTYPE]->(dmp:Mp)-[:PARENT*0..]->(mp1:Mp)"
+                        + " WHERE mp1.mpTerm = '" + params.get("mpB") + "'"
+                        + " WITH g, nodes, dm "
+                        + " OPTIONAL MATCH (g)<-[:GENE]-(dm)-[:MOUSE_PHENOTYPE]->(dmp:Mp)-[:PARENT*0..]->(mp1:Mp)"
+                        + " WHERE mp1.mpTerm = '" + params.get("mpC") + "'";
             }
 
             query += fileType != null ? " RETURN distinct nodes.alleles, g, nodes.srs, collect(distinct nodes.mps), collect(distinct dm)" + sortStr
@@ -607,17 +626,24 @@ public class AdvancedSearchController {
                     //+ " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpC}+'.*') "
                     + whereClause2
                     + significant + phenotypeSexes + parameter + chrRange + geneList + genotypes + alleleTypes
-                    + " WITH list1 + collect({genes:g, alleles:a, srs:sr, mps:mp}) as list2 "
+                    + " WITH g, list1 + collect({genes:g, alleles:a, srs:sr, mps:mp}) as list2 "
 
                     + " OPTIONAL " + mpToGenePath
                     //+ " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') "
                     + whereClause3
                     + significant + phenotypeSexes + parameter + chrRange + geneList + genotypes + alleleTypes
-                    + " WITH list2 + collect({genes: g, alleles:a, srs:sr, mps:mp}) as list3 "
+                    + " WITH g, list2 + collect({genes: g, alleles:a, srs:sr, mps:mp}) as list3, "
                     + " UNWIND list3 as nodes "
                     + " WITH nodes.genes as g, nodes, "
                     + " extract(x in collect(distinct nodes.genes) | x.markerSymbol) as symbols "
-                    + geneToDmPathClause;
+                    + geneToDmPathClause
+                    + " AND mp1.mpTerm = '" + params.get("mpB") + "'"
+                    + " WITH g, nodes, dm "
+                    + " MATCH (g)<-[:GENE]-(dm)-[:MOUSE_PHENOTYPE]->(dmp:Mp)-[:PARENT*0..]->(mp1:Mp)"
+                    + " WHERE mp1.mpTerm = '" + params.get("mpC") + "'"
+                    + " WITH g, nodes, dm "
+                    + " OPTIONAL MATCH (g)<-[:GENE]-(dm)-[:MOUSE_PHENOTYPE]->(dmp:Mp)-[:PARENT*0..]->(mp1:Mp)"
+                    + " WHERE mp1.mpTerm = '" + params.get("mpA") + "'";
             }
             else {
                 query = geneToMpPath
@@ -640,7 +666,14 @@ public class AdvancedSearchController {
                     + " UNWIND list3 as nodes "
                     + " WITH nodes.genes as g, nodes, "
                     + " extract(x in collect(distinct nodes.genes) | x.markerSymbol) as symbols "
-                    + geneToDmPathClause;
+                    + geneToDmPathClause
+                    + " AND mp1.mpTerm = '" + params.get("mpB") + "'"
+                    + " WITH g, nodes, dm "
+                    + " MATCH (g)<-[:GENE]-(dm)-[:MOUSE_PHENOTYPE]->(dmp:Mp)-[:PARENT*0..]->(mp1:Mp)"
+                    + " WHERE mp1.mpTerm = '" + params.get("mpC") + "'"
+                    + " WITH g, nodes, dm "
+                    + " OPTIONAL MATCH (g)<-[:GENE]-(dm)-[:MOUSE_PHENOTYPE]->(dmp:Mp)-[:PARENT*0..]->(mp1:Mp)"
+                    + " WHERE mp1.mpTerm = '" + params.get("mpA") + "'";
             }
 
             query += fileType != null ? " RETURN distinct nodes.alleles, g, nodes.srs, collect(distinct nodes.mps), collect(distinct dm)" + sortStr
@@ -697,6 +730,10 @@ public class AdvancedSearchController {
                         + " extract(x in collect(distinct g) | x.markerSymbol) as symbols "
 
                         + geneToDmPathClause
+                        + " AND (mp1.mpTerm = '" + params.get("mpA") + "' OR mp1.mpTerm = '" + params.get("mpB") + "')"
+                        + " WITH g, list2, dm "
+                        + " MATCH (g)<-[:GENE]-(dm)-[:MOUSE_PHENOTYPE]->(dmp:Mp)-[:PARENT*0..]->(mp1:Mp)"
+                        + " WHERE mp1.mpTerm = '" + params.get("mpC") + "'"
                         + " UNWIND list2 as nodes ";
             }
             else {
@@ -714,6 +751,10 @@ public class AdvancedSearchController {
                         + " extract(x in collect(distinct g) | x.markerSymbol) as symbols "
 
                         + geneToDmPathClause
+                        + " AND (mp1.mpTerm = '" + params.get("mpA") + "' OR mp1.mpTerm = '" + params.get("mpB") + "')"
+                        + " WITH g, list2, dm "
+                        + " MATCH (g)<-[:GENE]-(dm)-[:MOUSE_PHENOTYPE]->(dmp:Mp)-[:PARENT*0..]->(mp1:Mp)"
+                        + " WHERE mp1.mpTerm = '" + params.get("mpC") + "'"
                         + " UNWIND list2 as nodes ";
             }
 
@@ -771,6 +812,10 @@ public class AdvancedSearchController {
                         + " extract(x in collect(distinct g) | x.markerSymbol) as symbols "
 
                         + geneToDmPathClause
+                        + " AND (mp1.mpTerm = '" + params.get("mpB") + "' OR mp1.mpTerm = '" + params.get("mpC") + "')"
+                        + " WITH g, list2, dm "
+                        + " MATCH (g)<-[:GENE]-(dm)-[:MOUSE_PHENOTYPE]->(dmp:Mp)-[:PARENT*0..]->(mp1:Mp)"
+                        + " WHERE mp1.mpTerm = '" + params.get("mpA") + "'"
                         + " UNWIND list2 as nodes ";
             }
             else {
@@ -788,6 +833,10 @@ public class AdvancedSearchController {
                         + " extract(x in collect(distinct g) | x.markerSymbol) as symbols "
 
                         + geneToDmPathClause
+                        + " AND (mp1.mpTerm = '" + params.get("mpB") + "' OR mp1.mpTerm = '" + params.get("mpC") + "')"
+                        + " WITH g, list2, dm "
+                        + " MATCH (g)<-[:GENE]-(dm)-[:MOUSE_PHENOTYPE]->(dmp:Mp)-[:PARENT*0..]->(mp1:Mp)"
+                        + " WHERE mp1.mpTerm = '" + params.get("mpA") + "'"
                         + " UNWIND list2 as nodes ";
             }
 
@@ -847,7 +896,14 @@ public class AdvancedSearchController {
                     + " WITH g, list2 + collect({alleles:a, mps:mp, srs:sr}) as list3, "
                     + " extract(x in collect(distinct g) | x.markerSymbol) as symbols "
                     + geneToDmPathClause
-                    + "UNWIND list3 as nodes";
+                    + " AND mp1.mpTerm = '" + params.get("mpA") + "'"
+                    + " WITH g, list2, dm "
+                    + " MATCH (g)<-[:GENE]-(dm)-[:MOUSE_PHENOTYPE]->(dmp:Mp)-[:PARENT*0..]->(mp1:Mp)"
+                    + " WHERE mp1.mpTerm = '" + params.get("mpB") + "'"
+                    + " WITH g, list2, dm "
+                    + " MATCH (g)<-[:GENE]-(dm)-[:MOUSE_PHENOTYPE]->(dmp:Mp)-[:PARENT*0..]->(mp1:Mp)"
+                    + " WHERE mp1.mpTerm = '" + params.get("mpC") + "'"
+                    + " UNWIND list2 as nodes";
 
             query += fileType != null ? " RETURN distinct nodes.alleles, g, nodes.srs, collect(distinct nodes.mps), collect(distinct dm)" + sortStr
                     : " RETURN collect(distinct nodes.alleles), collect(distinct g), collect(distinct nodes.srs), collect(distinct nodes.mps), collect(distinct dm)";
@@ -892,7 +948,11 @@ public class AdvancedSearchController {
                   + " WITH g, list1 + collect({alleles:a, mps:mp, srs:sr}) as list2, "
                   + " extract(x in collect(distinct g) | x.markerSymbol) as symbols "
                   + geneToDmPathClause
-                  + "UNWIND list2 as nodes";
+                  + " AND mp1.mpTerm = '" + params.get("mpA") + "'"
+                  + " WITH g, list2, dm "
+                  + " MATCH (g)<-[:GENE]-(dm)-[:MOUSE_PHENOTYPE]->(dmp:Mp)-[:PARENT*0..]->(mp1:Mp)"
+                  + " WHERE mp1.mpTerm = '" + params.get("mpB") + "'"
+                  + " UNWIND list2 as nodes";
 
             query += fileType != null ? " RETURN distinct nodes.alleles, g, nodes.srs, collect(distinct nodes.mps), collect(distinct dm)" + sortStr
                     : " RETURN collect(distinct nodes.alleles), collect(distinct g), collect(distinct nodes.srs), collect(distinct nodes.mps), collect(distinct dm)";
@@ -950,7 +1010,8 @@ public class AdvancedSearchController {
                   whereClause
                 + significant + phenotypeSexes + parameter + chrRange + geneList + genotypes + alleleTypes
                 + " WITH g, a, mp, sr, extract(x in collect(distinct g) | x.markerSymbol) as symbols "
-                + geneToDmPathClause;
+                + geneToDmPathClause
+                + " AND (mp1.mpTerm = '" + params.get("mpA") + "' OR mp1.mpTerm = '" + params.get("mpB") + "' OR mp1.mpTerm = '" + params.get("mpC") + "')";
 
             query += fileType != null ? " RETURN distinct a, g, sr, collect(distinct mp), collect(distinct dm)" + sortStr :
                     " RETURN collect(distinct a), collect(distinct g), collect(distinct sr), collect(distinct mp), collect(distinct dm)";
@@ -991,7 +1052,8 @@ public class AdvancedSearchController {
                 + significant + phenotypeSexes + parameter + chrRange + geneList + genotypes + alleleTypes
                 + " WITH g, a, mp, sr, "
                 + " extract(x in collect(distinct g) | x.markerSymbol) as symbols "
-                + geneToDmPathClause;
+                + geneToDmPathClause
+                + " AND (mp1.mpTerm = '" + params.get("mpA") + "' OR mp1.mpTerm = '" + params.get("mpB") + "')";
 
             query += fileType != null ? " RETURN distinct a, g, sr, collect(distinct mp), collect(distinct dm)" + sortStr :
                     " RETURN collect(distinct a), collect(distinct g), collect(distinct sr), collect(distinct mp), collect(distinct dm)";
@@ -2055,7 +2117,26 @@ public class AdvancedSearchController {
                     }
                 }
 
-                if (fileType == null || fileType.equals("html")){
+
+                if (property.equals("diseaseClasses")) {
+
+                    List<String> dcls = Arrays.asList(StringUtils.split(colVal, ","));
+                    List<String> vals = new ArrayList<>();
+
+                    if (fileType == null){
+                        for (String dcl : dcls) {
+                            vals.add("<li>" + dcl + "</li>");
+                        }
+                        colValMap.get(property).addAll(vals);
+                    }
+                    else {
+                        for (String dcl : dcls) {
+                            vals.add(dcl);
+                        }
+                        colValMap.get(property).add(colVal);
+                    }
+                }
+                else if (fileType == null || fileType.equals("html")){
                     colValMap.get(property).add("<li>" + colVal + "</li>");
                 }
                 else {
