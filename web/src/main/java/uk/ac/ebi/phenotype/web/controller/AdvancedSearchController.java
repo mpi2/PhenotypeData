@@ -411,6 +411,13 @@ public class AdvancedSearchController {
         }
         else if (mpStr == null ){
 
+            geneToDmPathClause = noMpChild ? " MATCH (g)<-[:GENE]-(dm:DiseaseModel) WHERE "
+                    + phenodigmScore + diseaseGeneAssociation + humanDiseaseTerm
+                    + " AND g.markerSymbol in symbols " :
+                    " MATCH (g)<-[:GENE]-(dm:DiseaseModel) WHERE "
+                            + phenodigmScore + diseaseGeneAssociation + humanDiseaseTerm
+                            + " AND g.markerSymbol in symbols ";
+
             if (geneList.isEmpty()) {
 
                 String path = noMpChild ? " MATCH (sr)-[:MP]->(mp:Mp) " : " MATCH (sr)-[:MP]->(mp:Mp)-[:PARENT*0..]->(mp0:Mp) ";
