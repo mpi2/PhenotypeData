@@ -1005,6 +1005,14 @@
                         kv['srchPipeline'] = $('input.srchPipeline').val();
                         shownFilter.push("measured parameter = '" + kv.srchPipeline + "'");
                     }
+                    if ($("input[name='significance']").is(":checked")){
+						shownFilter.push("Only significant p values = 'true");
+						kv['onlySignificantPvalue'] = true;
+					}
+					else {
+                        shownFilter.push("Only significant p values = 'false");
+                        kv['onlySignificantPvalue'] = false;
+					}
 
                     // chr range for genes
                     if ($('fieldset#chromosome').is(":visible")) {
@@ -1761,11 +1769,13 @@
 
                     var legend = "<legend>Measured parameter</legend>";
                     var msg = "Find the parameter of experiment:";
+                    var significance = "<input type='checkbox' name='significance' value='yes' checked> Only measurements with significant p values";
                     var input = "<div class='block srchBox'>" +
                         "<i class='fa fa-search'></i>" +
                         "<input class='termFilter srchPipeline' value='search'>" +
-                        "<i class='fa fa-times' id='paramClear'></i>" +
+                        "<i class='fa fa-times' id='paramClear'></i>" + significance +
                         "</div>";
+
 
                     //var filter = "<fieldset class='" + dataType + "Filter dfilter " + dataType + "'>" + legend + msg + input + "</fieldset>";
                     var filter = "<fieldset class='parameter"  + "Filter dfilter " + dataType + "'>" + legend + msg + input + "</fieldset>";

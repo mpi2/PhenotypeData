@@ -327,7 +327,7 @@ public class AdvancedSearchController {
 
     public JSONObject fetchGraphDataAdvSrch(JSONObject jParams, String fileType) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
 
-        String significant = " AND sr.significant = true ";
+        String significant = composeSignificance(jParams);
         String phenotypeSexes = composePhenotypeSexStr(jParams);
         String parameter = composeParameter(jParams);
         String pvalues = composePvalues(jParams);
@@ -398,7 +398,7 @@ public class AdvancedSearchController {
         if (mpStr == null && ! humanDiseaseTerm.isEmpty()){
 
             query = mpToGenePath + "<-[:GENE]-(dm:DiseaseModel) "
-                + " WHERE sr.significant = true "
+                + " WHERE " + significant
                 + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
                 + " AND "
                 + phenodigmScore + diseaseGeneAssociation + humanDiseaseTerm;
@@ -423,7 +423,7 @@ public class AdvancedSearchController {
                 String path = noMpChild ? " MATCH (sr)-[:MP]->(mp:Mp) " : " MATCH (sr)-[:MP]->(mp:Mp)-[:PARENT*0..]->(mp0:Mp) ";
 
                 query = "MATCH (sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g:Gene)"
-                        + " WHERE sr.significant = true "
+                        + " WHERE " + significant
                         + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
                         + " WITH sr, a, g "
                         + path
@@ -433,7 +433,7 @@ public class AdvancedSearchController {
             }
             else {
                 query = geneToMpPath
-                        + " WHERE sr.significant = true "
+                        + " WHERE " + significant
                         + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
                         + " WITH g, a, mp, sr, "
                         + " extract(x in collect(distinct g) | x.markerSymbol) as symbols "
@@ -458,7 +458,7 @@ public class AdvancedSearchController {
                 query = mpToGenePath
                         //+ " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') "
                         + whereClause
-                        + significant + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
+                        + " AND " + significant + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
                         + " WITH g, a, mp, sr, "
                         + " extract(x in collect(distinct g) | x.markerSymbol) as symbols "
                         + geneToDmPathClause
@@ -468,7 +468,7 @@ public class AdvancedSearchController {
                 query = geneToMpPath
                         //+ " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') "
                         + whereClause
-                        + significant + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
+                        + " AND " + significant + phenotypeSexes + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
                         + " WITH g, a, mp, sr, "
                         + " extract(x in collect(distinct g) | x.markerSymbol) as symbols "
                         + geneToDmPathClause
@@ -521,19 +521,19 @@ public class AdvancedSearchController {
                 query = mpToGenePath
                         //+ " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') "
                         + whereClause1
-                        + significant + phenotypeSexes + parameter + chrRange + geneList + genotypes + alleleTypes
+                        + " AND " + significant + phenotypeSexes + parameter + chrRange + geneList + genotypes + alleleTypes
                         + " WITH g, collect({genes:g, alleles:a, srs:sr, mps:mp}) as list1 "
 
                         + matchClause1
                         //+ " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*') "
                         + whereClause2
-                        + significant + phenotypeSexes + parameter + chrRange + geneList + genotypes + alleleTypes
+                        + " AND " + significant + phenotypeSexes + parameter + chrRange + geneList + genotypes + alleleTypes
                         + " WITH list1 + collect({genes:g, alleles:a, srs:sr, mps:mp}) as list2 "
 
                         + " OPTIONAL " + mpToGenePath
                         //+ " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpC}+'.*') "
                         + whereClause3
-                        + significant + phenotypeSexes + parameter + chrRange + geneList + genotypes + alleleTypes
+                        + " AND " + significant + phenotypeSexes + parameter + chrRange + geneList + genotypes + alleleTypes
                         + " WITH g, list2 + collect({genes:g, alleles:a, srs:sr, mps:mp}) as list3 "
 
                         + " UNWIND list3 as nodes "
@@ -553,19 +553,19 @@ public class AdvancedSearchController {
                 query = geneToMpPath
                         //+ " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') "
                         + whereClause1
-                        + significant + phenotypeSexes + parameter + chrRange + geneList + genotypes + alleleTypes
+                        + " AND " + significant + phenotypeSexes + parameter + chrRange + geneList + genotypes + alleleTypes
                         + " WITH g, collect({genes:g, alleles:a, srs:sr, mps:mp}) as list1 "
 
                         + matchClause2
                         //+ " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*') "
                         + whereClause2
-                        + significant + phenotypeSexes + parameter + chrRange + geneList + genotypes + alleleTypes
+                        + " AND " + significant + phenotypeSexes + parameter + chrRange + geneList + genotypes + alleleTypes
                         + " WITH list1 + collect({genes:g, alleles:a, srs:sr, mps:mp}) as list2 "
 
                         + " OPTIONAL " + geneToMpPath
                         //+ " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpC}+'.*') "
                         + whereClause3
-                        + significant + phenotypeSexes + parameter + chrRange + geneList + genotypes + alleleTypes
+                        + " AND " + significant + phenotypeSexes + parameter + chrRange + geneList + genotypes + alleleTypes
 
                         + " WITH g, list2 + collect({genes:g, alleles:a, srs:sr, mps:mp}) as list3 "
                         + " UNWIND list3 as nodes "
@@ -626,19 +626,19 @@ public class AdvancedSearchController {
                 query = mpToGenePath
                     //+ " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*') "
                     + whereClause1
-                    + significant + phenotypeSexes + parameter + chrRange + geneList + genotypes + alleleTypes
+                    + " AND " + significant + phenotypeSexes + parameter + chrRange + geneList + genotypes + alleleTypes
                     + " WITH g, collect({genes: g, alleles:a, srs:sr, mps:mp}) as list1 "
 
                     + matchClause1
                     //+ " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpC}+'.*') "
                     + whereClause2
-                    + significant + phenotypeSexes + parameter + chrRange + geneList + genotypes + alleleTypes
+                    + " AND " + significant + phenotypeSexes + parameter + chrRange + geneList + genotypes + alleleTypes
                     + " WITH g, list1 + collect({genes:g, alleles:a, srs:sr, mps:mp}) as list2 "
 
                     + " OPTIONAL " + mpToGenePath
                     //+ " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') "
                     + whereClause3
-                    + significant + phenotypeSexes + parameter + chrRange + geneList + genotypes + alleleTypes
+                    + " AND " + significant + phenotypeSexes + parameter + chrRange + geneList + genotypes + alleleTypes
                     + " WITH g, list2 + collect({genes: g, alleles:a, srs:sr, mps:mp}) as list3, "
                     + " UNWIND list3 as nodes "
                     + " WITH nodes.genes as g, nodes, "
@@ -656,19 +656,19 @@ public class AdvancedSearchController {
                 query = geneToMpPath
                     //+ " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*') "
                     + whereClause1
-                    + significant + phenotypeSexes + parameter + chrRange + geneList + genotypes + alleleTypes
+                    + " AND " + significant + phenotypeSexes + parameter + chrRange + geneList + genotypes + alleleTypes
                     + " WITH g, collect({genes: g, alleles:a, srs:sr, mps:mp}) as list1 "
 
                     + matchClause2
                     //+ " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpC}+'.*') "
                     + whereClause2
-                    + significant + phenotypeSexes + parameter + chrRange + geneList + genotypes + alleleTypes
+                    + " AND " + significant + phenotypeSexes + parameter + chrRange + geneList + genotypes + alleleTypes
                     + " WITH list1 + collect({genes:g, alleles:a, srs:sr, mps:mp}) as list2 "
 
                     + " OPTIONAL " + geneToMpPath
                     //+ " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') "
                     + whereClause3
-                    + significant + phenotypeSexes + parameter + chrRange + geneList + genotypes + alleleTypes
+                    + " AND " + significant + phenotypeSexes + parameter + chrRange + geneList + genotypes + alleleTypes
                     + " WITH list2 + collect({genes: g, alleles:a, srs:sr, mps:mp}) as list3 "
                     + " UNWIND list3 as nodes "
                     + " WITH nodes.genes as g, nodes, "
@@ -726,13 +726,13 @@ public class AdvancedSearchController {
                 query = mpToGenePath
                         //+ "WHERE (mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') OR mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*')) "
                         + whereClause1
-                        + significant + phenotypeSexes + parameter + chrRange + geneList + genotypes + alleleTypes
+                        + " AND " + significant + phenotypeSexes + parameter + chrRange + geneList + genotypes + alleleTypes
                         + " WITH g, collect({alleles:a, srs:sr, mps:mp}) as list1 "
 
                         + matchClause1
                         //+ " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpC}+'.*') "
                         + whereClause2
-                        + significant + phenotypeSexes + parameter + chrRange + geneList + genotypes + alleleTypes
+                        + " AND " + significant + phenotypeSexes + parameter + chrRange + geneList + genotypes + alleleTypes
                         + " WITH g, list1 + collect({alleles:a, srs:sr, mps:mp}) as list2, "
                         + " extract(x in collect(distinct g) | x.markerSymbol) as symbols "
 
@@ -747,13 +747,13 @@ public class AdvancedSearchController {
                 query = geneToMpPath
                         //+ "WHERE (mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') OR mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*')) "
                         + whereClause1
-                        + significant + phenotypeSexes + parameter + chrRange + geneList + genotypes + alleleTypes
+                        + " AND " + significant + phenotypeSexes + parameter + chrRange + geneList + genotypes + alleleTypes
                         + " WITH g, collect({alleles:a, srs:sr, mps:mp}) as list1 "
 
                         + matchClause2
                         //+ " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpC}+'.*') "
                         + whereClause2
-                        + significant + phenotypeSexes + parameter + chrRange + geneList + genotypes + alleleTypes
+                        + " AND " + significant + phenotypeSexes + parameter + chrRange + geneList + genotypes + alleleTypes
                         + " WITH g, list1 + collect({alleles:a, srs:sr, mps:mp}) as list2, "
                         + " extract(x in collect(distinct g) | x.markerSymbol) as symbols "
 
@@ -808,13 +808,13 @@ public class AdvancedSearchController {
                 query = mpToGenePath
                         //+ "WHERE (mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*') OR mp0.mpTerm =~ ('(?i)'+'.*'+{mpC}+'.*')) "
                         + whereClause1
-                        + significant + phenotypeSexes + parameter + chrRange + geneList + genotypes + alleleTypes
+                        + " AND " + significant + phenotypeSexes + parameter + chrRange + geneList + genotypes + alleleTypes
                         + " WITH g, collect({alleles:a, srs:sr, mps:mp}) as list1 "
 
                         + matchClause1
                         //+ " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') "
                         + whereClause2
-                        + significant + phenotypeSexes + parameter + chrRange + geneList + genotypes + alleleTypes
+                        + " AND " + significant + phenotypeSexes + parameter + chrRange + geneList + genotypes + alleleTypes
                         + " WITH g, list1 + collect({alleles:a, srs:sr, mps:mp}) as list2, "
                         + " extract(x in collect(distinct g) | x.markerSymbol) as symbols "
 
@@ -829,13 +829,13 @@ public class AdvancedSearchController {
                 query = geneToMpPath
                         //+ "WHERE (mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*') OR mp0.mpTerm =~ ('(?i)'+'.*'+{mpC}+'.*')) "
                         + whereClause1
-                        + significant + phenotypeSexes + parameter + chrRange + geneList + genotypes + alleleTypes
+                        + " AND " + significant + phenotypeSexes + parameter + chrRange + geneList + genotypes + alleleTypes
                         + " WITH g, collect({alleles:a, srs:sr, mps:mp}) as list1 "
 
                         + matchClause2
                         //+ " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') "
                         + whereClause2
-                        + significant + phenotypeSexes + parameter + chrRange + geneList + genotypes + alleleTypes
+                        + " AND " + significant + phenotypeSexes + parameter + chrRange + geneList + genotypes + alleleTypes
                         + " WITH g, list1 + collect({alleles:a, srs:sr, mps:mp}) as list2, "
                         + " extract(x in collect(distinct g) | x.markerSymbol) as symbols "
 
@@ -887,19 +887,19 @@ public class AdvancedSearchController {
             query = mpToGenePath
                     //+ " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') "
                     + whereClause1
-                    + significant + phenotypeSexes + parameter + chrRange + geneList + genotypes + alleleTypes
+                    + " AND " + significant + phenotypeSexes + parameter + chrRange + geneList + genotypes + alleleTypes
                     + " WITH g, collect({alleles:a, mps:mp, srs:sr}) as list1 "
 
                     + mpMatchClause
                     //+ " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*') "
                     + whereClause2
-                    + significant + phenotypeSexes + parameter + chrRange + geneList + genotypes + alleleTypes
+                    + " AND " + significant + phenotypeSexes + parameter + chrRange + geneList + genotypes + alleleTypes
                     + " WITH g, list1 + collect({alleles:a, mps:mp, srs:sr}) as list2 "
 
                     + mpMatchClause
                     //+ " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpC}+'.*') "
                     + whereClause3
-                    + significant + phenotypeSexes + parameter + chrRange + geneList + genotypes + alleleTypes
+                    + " AND " + significant + phenotypeSexes + parameter + chrRange + geneList + genotypes + alleleTypes
                     + " WITH g, list2 + collect({alleles:a, mps:mp, srs:sr}) as list3, "
                     + " extract(x in collect(distinct g) | x.markerSymbol) as symbols "
                     + geneToDmPathClause
@@ -945,13 +945,13 @@ public class AdvancedSearchController {
             query = mpToGenePath
                   //+ " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') "
                   + whereClause1
-                  + significant + phenotypeSexes + parameter + chrRange + geneList + genotypes + alleleTypes
+                  + " AND " + significant + phenotypeSexes + parameter + chrRange + geneList + genotypes + alleleTypes
                   + " WITH g, collect({alleles:a, mps:mp, srs:sr}) as list1 "
 
                   + mpMatchClause
                   //+ " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*') "
                   + whereClause2
-                  + significant + phenotypeSexes + parameter + chrRange + geneList + genotypes + alleleTypes
+                  + " AND " + significant + phenotypeSexes + parameter + chrRange + geneList + genotypes + alleleTypes
                   + " WITH g, list1 + collect({alleles:a, mps:mp, srs:sr}) as list2, "
                   + " extract(x in collect(distinct g) | x.markerSymbol) as symbols "
                   + geneToDmPathClause
@@ -1015,7 +1015,7 @@ public class AdvancedSearchController {
             query +=
                   //  " WHERE (mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') OR mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*') OR mp0.mpTerm =~ ('(?i)'+'.*'+{mpC}+'.*')) "
                   whereClause
-                + significant + phenotypeSexes + parameter + chrRange + geneList + genotypes + alleleTypes
+                + " AND " + significant + phenotypeSexes + parameter + chrRange + geneList + genotypes + alleleTypes
                 + " WITH g, a, mp, sr, extract(x in collect(distinct g) | x.markerSymbol) as symbols "
                 + geneToDmPathClause
                 + " AND (mp1.mpTerm = '" + params.get("mpA") + "' OR mp1.mpTerm = '" + params.get("mpB") + "' OR mp1.mpTerm = '" + params.get("mpC") + "')";
@@ -1056,7 +1056,7 @@ public class AdvancedSearchController {
             query +=
                   //  " WHERE (mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') OR mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*')) "
                   whereClause
-                + significant + phenotypeSexes + parameter + chrRange + geneList + genotypes + alleleTypes
+                + " AND " + significant + phenotypeSexes + parameter + chrRange + geneList + genotypes + alleleTypes
                 + " WITH g, a, mp, sr, "
                 + " extract(x in collect(distinct g) | x.markerSymbol) as symbols "
                 + geneToDmPathClause
@@ -1301,6 +1301,15 @@ public class AdvancedSearchController {
         }
         System.out.println("----- pvalue: " + pvalues);
         return pvalues;
+    }
+
+    private String composeSignificance(JSONObject jParams) {
+        String significantPvalue = "";
+
+        if (jParams.containsKey("onlySignificantPvalue")) {
+            significantPvalue = jParams.getBoolean("onlySignificantPvalue") == true ? " sr.significant = true " : " exists(sr.significant) ";
+        }
+        return significantPvalue;
     }
 
     private String composePhenotypeSexStr(JSONObject jParams){
