@@ -382,12 +382,17 @@ public class AdvancedSearchController {
         String mpToGenePath = noMpChild ? "MATCH (mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g:Gene) "
                 : " MATCH (mp0:Mp)<-[:PARENT*0..]-(mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g:Gene) ";
 
-        String geneToDmPathClause = noMpChild ? " MATCH (g)<-[:GENE]-(dm:DiseaseModel)-[:MOUSE_PHENOTYPE]->(mp1:Mp) WHERE "
-                + phenodigmScore + diseaseGeneAssociation + humanDiseaseTerm
-                + " AND g.markerSymbol in symbols " :
-                " MATCH (g)<-[:GENE]-(dm:DiseaseModel)-[:MOUSE_PHENOTYPE]->(dmp:Mp)-[:PARENT*0..]->(mp1:Mp) WHERE "
-                + phenodigmScore + diseaseGeneAssociation + humanDiseaseTerm
-                + " AND g.markerSymbol in symbols ";
+//        String geneToDmPathClause = noMpChild ? " MATCH (g)<-[:GENE]-(dm:DiseaseModel)-[:MOUSE_PHENOTYPE]->(mp1:Mp) WHERE "
+//                + phenodigmScore + diseaseGeneAssociation + humanDiseaseTerm
+//                + " AND g.markerSymbol in symbols " :
+//                " MATCH (g)<-[:GENE]-(dm:DiseaseModel)-[:MOUSE_PHENOTYPE]->(dmp:Mp)-[:PARENT*0..]->(mp1:Mp) WHERE "
+//                + phenodigmScore + diseaseGeneAssociation + humanDiseaseTerm
+//                + " AND g.markerSymbol in symbols ";
+
+        String geneToDmPathClause = " MATCH (g)<-[:GENE]-(dm:DiseaseModel)-[:MOUSE_PHENOTYPE]->(mp:Mp) WHERE "
+                + phenodigmScore + diseaseGeneAssociation + humanDiseaseTerm;
+
+
 
         String pvaluesA = "";
         String pvaluesB = "";
@@ -528,13 +533,13 @@ public class AdvancedSearchController {
                         //+ " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*') "
                         + whereClause2
                         + " AND " + significant + phenotypeSexes + parameter + chrRange + geneList + genotypes + alleleTypes
-                        + " WITH list1 + collect({genes:g, alleles:a, srs:sr, mps:mp}) as list2 "
+                        + " WITH collect({genes:g, alleles:a, srs:sr, mps:mp}) as list2 "
 
                         + " OPTIONAL " + mpToGenePath
                         //+ " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpC}+'.*') "
                         + whereClause3
                         + " AND " + significant + phenotypeSexes + parameter + chrRange + geneList + genotypes + alleleTypes
-                        + " WITH g, list2 + collect({genes:g, alleles:a, srs:sr, mps:mp}) as list3 "
+                        + " WITH list2 + collect({genes:g, alleles:a, srs:sr, mps:mp}) as list3 "
 
                         + " UNWIND list3 as nodes "
                         + " WITH nodes.genes as g, nodes, "
@@ -560,14 +565,14 @@ public class AdvancedSearchController {
                         //+ " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*') "
                         + whereClause2
                         + " AND " + significant + phenotypeSexes + parameter + chrRange + geneList + genotypes + alleleTypes
-                        + " WITH list1 + collect({genes:g, alleles:a, srs:sr, mps:mp}) as list2 "
+                        + " WITH collect({genes:g, alleles:a, srs:sr, mps:mp}) as list2 "
 
                         + " OPTIONAL " + geneToMpPath
                         //+ " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpC}+'.*') "
                         + whereClause3
                         + " AND " + significant + phenotypeSexes + parameter + chrRange + geneList + genotypes + alleleTypes
 
-                        + " WITH g, list2 + collect({genes:g, alleles:a, srs:sr, mps:mp}) as list3 "
+                        + " WITH list2 + collect({genes:g, alleles:a, srs:sr, mps:mp}) as list3 "
                         + " UNWIND list3 as nodes "
                         + " WITH nodes.genes as g, nodes, "
                         + " extract(x in collect(distinct nodes.genes) | x.markerSymbol) as symbols "
@@ -633,13 +638,13 @@ public class AdvancedSearchController {
                     //+ " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpC}+'.*') "
                     + whereClause2
                     + " AND " + significant + phenotypeSexes + parameter + chrRange + geneList + genotypes + alleleTypes
-                    + " WITH g, list1 + collect({genes:g, alleles:a, srs:sr, mps:mp}) as list2 "
+                    + " WITH collect({genes:g, alleles:a, srs:sr, mps:mp}) as list2 "
 
                     + " OPTIONAL " + mpToGenePath
                     //+ " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') "
                     + whereClause3
                     + " AND " + significant + phenotypeSexes + parameter + chrRange + geneList + genotypes + alleleTypes
-                    + " WITH g, list2 + collect({genes: g, alleles:a, srs:sr, mps:mp}) as list3, "
+                    + " WITH list2 + collect({genes: g, alleles:a, srs:sr, mps:mp}) as list3 "
                     + " UNWIND list3 as nodes "
                     + " WITH nodes.genes as g, nodes, "
                     + " extract(x in collect(distinct nodes.genes) | x.markerSymbol) as symbols "
@@ -663,7 +668,7 @@ public class AdvancedSearchController {
                     //+ " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpC}+'.*') "
                     + whereClause2
                     + " AND " + significant + phenotypeSexes + parameter + chrRange + geneList + genotypes + alleleTypes
-                    + " WITH list1 + collect({genes:g, alleles:a, srs:sr, mps:mp}) as list2 "
+                    + " WITH collect({genes:g, alleles:a, srs:sr, mps:mp}) as list2 "
 
                     + " OPTIONAL " + geneToMpPath
                     //+ " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') "
@@ -733,7 +738,7 @@ public class AdvancedSearchController {
                         //+ " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpC}+'.*') "
                         + whereClause2
                         + " AND " + significant + phenotypeSexes + parameter + chrRange + geneList + genotypes + alleleTypes
-                        + " WITH g, list1 + collect({alleles:a, srs:sr, mps:mp}) as list2, "
+                        + " WITH g, collect({alleles:a, srs:sr, mps:mp}) as list2, "
                         + " extract(x in collect(distinct g) | x.markerSymbol) as symbols "
 
                         + geneToDmPathClause
@@ -754,7 +759,7 @@ public class AdvancedSearchController {
                         //+ " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpC}+'.*') "
                         + whereClause2
                         + " AND " + significant + phenotypeSexes + parameter + chrRange + geneList + genotypes + alleleTypes
-                        + " WITH g, list1 + collect({alleles:a, srs:sr, mps:mp}) as list2, "
+                        + " WITH g, collect({alleles:a, srs:sr, mps:mp}) as list2, "
                         + " extract(x in collect(distinct g) | x.markerSymbol) as symbols "
 
                         + geneToDmPathClause
@@ -765,8 +770,8 @@ public class AdvancedSearchController {
                         + " UNWIND list2 as nodes ";
             }
 
-            query += fileType != null ? " RETURN distinct nodes.alleles, g, nodes.srs, collect(distinct nodes.mps), collect(distinct dm)" + sortStr
-                    : " RETURN collect(distinct nodes.alleles), collect(distinct g), collect(distinct nodes.srs), collect(distinct nodes.mps), collect(distinct dm)";
+            query += fileType != null ? " RETURN distinct nodes.alleles, g, nodes.srs, collect(distinct dmp), collect(distinct dm)" + sortStr
+                    : " RETURN collect(distinct nodes.alleles), collect(distinct g), collect(distinct nodes.srs), collect(distinct dmp), collect(distinct dm)";
 
             System.out.println("Query: "+ query);
             result =  neo4jSession.query(query, params);
@@ -894,26 +899,22 @@ public class AdvancedSearchController {
                     //+ " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*') "
                     + whereClause2
                     + " AND " + significant + phenotypeSexes + parameter + chrRange + geneList + genotypes + alleleTypes
-                    + " WITH g, list1 + collect({alleles:a, mps:mp, srs:sr}) as list2 "
+                    + " WITH g, list1, collect({alleles:a, mps:mp, srs:sr}) as list2 "
 
                     + mpMatchClause
                     //+ " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpC}+'.*') "
                     + whereClause3
                     + " AND " + significant + phenotypeSexes + parameter + chrRange + geneList + genotypes + alleleTypes
-                    + " WITH g, list2 + collect({alleles:a, mps:mp, srs:sr}) as list3, "
-                    + " extract(x in collect(distinct g) | x.markerSymbol) as symbols "
+                    + " WITH g, list1, list2, collect({alleles:a, mps:mp, srs:sr}) as list3 "
+                    + " WHERE ALL (x IN list1 WHERE x IN list2) AND ALL (x IN list2 WHERE x IN list3) "
+                    + " WITH g, list1+list2+list3 as list "
+                    + " UNWIND list as nodes "
+                    + " WITH g, nodes, extract(x in collect(distinct nodes.mps) | x.mpTerm) as mps "
                     + geneToDmPathClause
-                    + " AND mp1.mpTerm = '" + params.get("mpA") + "'"
-                    + " WITH g, list2, dm "
-                    + " MATCH (g)<-[:GENE]-(dm)-[:MOUSE_PHENOTYPE]->(dmp:Mp)-[:PARENT*0..]->(mp1:Mp)"
-                    + " WHERE mp1.mpTerm = '" + params.get("mpB") + "'"
-                    + " WITH g, list2, dm "
-                    + " MATCH (g)<-[:GENE]-(dm)-[:MOUSE_PHENOTYPE]->(dmp:Mp)-[:PARENT*0..]->(mp1:Mp)"
-                    + " WHERE mp1.mpTerm = '" + params.get("mpC") + "'"
-                    + " UNWIND list2 as nodes";
+                    + " AND mp.mpTerm IN mps";
 
             query += fileType != null ? " RETURN distinct nodes.alleles, g, nodes.srs, collect(distinct nodes.mps), collect(distinct dm)" + sortStr
-                    : " RETURN collect(distinct nodes.alleles), collect(distinct g), collect(distinct nodes.srs), collect(distinct nodes.mps), collect(distinct dm)";
+                    : " RETURN collect(distinct nodes.alleles), collect(distinct g), collect(distinct nodes.srs), collect(distinct nodes.mps), collect(distinct dm)" + sortStr;
 
             System.out.println("Query: "+ query);
             result =  neo4jSession.query(query, params);
@@ -952,17 +953,19 @@ public class AdvancedSearchController {
                   //+ " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*') "
                   + whereClause2
                   + " AND " + significant + phenotypeSexes + parameter + chrRange + geneList + genotypes + alleleTypes
-                  + " WITH g, list1 + collect({alleles:a, mps:mp, srs:sr}) as list2, "
-                  + " extract(x in collect(distinct g) | x.markerSymbol) as symbols "
+                  + " WITH g, list1, collect({alleles:a, mps:mp, srs:sr}) as list2 "
+                  + " WHERE ALL (x IN list1 WHERE x IN list2) "
+                  + " WITH g, list1+list2 as list "
+                  + " UNWIND list as nodes "
+                  + " WITH g, nodes, extract(x in collect(distinct nodes.mps) | x.mpTerm) as mps "
                   + geneToDmPathClause
-                  + " AND mp1.mpTerm = '" + params.get("mpA") + "'"
-                  + " WITH g, list2, dm "
-                  + " MATCH (g)<-[:GENE]-(dm)-[:MOUSE_PHENOTYPE]->(dmp:Mp)-[:PARENT*0..]->(mp1:Mp)"
-                  + " WHERE mp1.mpTerm = '" + params.get("mpB") + "'"
-                  + " UNWIND list2 as nodes";
+                  + " AND mp.mpTerm IN mps";
+
+            //query += fileType != null ? " RETURN distinct nodes.alleles, g, nodes.srs, collect(distinct nodes.mps), collect(distinct dm)" + sortStr
+              //      : " RETURN collect(distinct nodes.alleles), collect(distinct g), collect(distinct nodes.srs), collect(distinct nodes.mps), collect(distinct dm)";
 
             query += fileType != null ? " RETURN distinct nodes.alleles, g, nodes.srs, collect(distinct nodes.mps), collect(distinct dm)" + sortStr
-                    : " RETURN collect(distinct nodes.alleles), collect(distinct g), collect(distinct nodes.srs), collect(distinct nodes.mps), collect(distinct dm)";
+                    : " RETURN collect(distinct nodes.alleles), collect(distinct g), collect(distinct nodes.srs), collect(distinct nodes.mps), collect(distinct dm)" + sortStr;
 
             System.out.println("Query: "+ query);
             result =  neo4jSession.query(query, params);
@@ -1016,9 +1019,9 @@ public class AdvancedSearchController {
                   //  " WHERE (mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') OR mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*') OR mp0.mpTerm =~ ('(?i)'+'.*'+{mpC}+'.*')) "
                   whereClause
                 + " AND " + significant + phenotypeSexes + parameter + chrRange + geneList + genotypes + alleleTypes
-                + " WITH g, a, mp, sr, extract(x in collect(distinct g) | x.markerSymbol) as symbols "
+                + " WITH g, a, sr, mp, extract(x in collect(distinct mp) | x.mpTerm) as mps "
                 + geneToDmPathClause
-                + " AND (mp1.mpTerm = '" + params.get("mpA") + "' OR mp1.mpTerm = '" + params.get("mpB") + "' OR mp1.mpTerm = '" + params.get("mpC") + "')";
+                + " AND mp.mpTerm IN mps";
 
             query += fileType != null ? " RETURN distinct a, g, sr, collect(distinct mp), collect(distinct dm)" + sortStr :
                     " RETURN collect(distinct a), collect(distinct g), collect(distinct sr), collect(distinct mp), collect(distinct dm)";
@@ -1057,10 +1060,9 @@ public class AdvancedSearchController {
                   //  " WHERE (mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') OR mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*')) "
                   whereClause
                 + " AND " + significant + phenotypeSexes + parameter + chrRange + geneList + genotypes + alleleTypes
-                + " WITH g, a, mp, sr, "
-                + " extract(x in collect(distinct g) | x.markerSymbol) as symbols "
+                + " WITH g, a, sr, mp, extract(x in collect(distinct mp) | x.mpTerm) as mps "
                 + geneToDmPathClause
-                + " AND (mp1.mpTerm = '" + params.get("mpA") + "' OR mp1.mpTerm = '" + params.get("mpB") + "')";
+                + " AND mp.mpTerm IN mps";
 
             query += fileType != null ? " RETURN distinct a, g, sr, collect(distinct mp), collect(distinct dm)" + sortStr :
                     " RETURN collect(distinct a), collect(distinct g), collect(distinct sr), collect(distinct mp), collect(distinct dm)";
