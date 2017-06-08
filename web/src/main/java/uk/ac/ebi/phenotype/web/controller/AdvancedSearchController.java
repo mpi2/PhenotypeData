@@ -473,7 +473,7 @@ public class AdvancedSearchController {
             result =  neo4jSession.query(query, params);
         }
         else if (mpStr.matches(regex_aAndb_Orc)) {
-            System.out.println("matches (a and b) or c");
+            System.out.println("matches (a and b) or c"); // TODO
 
             Pattern pattern = Pattern.compile(regex_aAndb_Orc);
             Matcher matcher = pattern.matcher(mpStr);
@@ -580,7 +580,7 @@ public class AdvancedSearchController {
             result =  neo4jSession.query(query, params);
         }
         else if (mpStr.matches(regex_aOr_bAndc)) {
-            System.out.println("matches a or (b and c)");
+            System.out.println("matches a or (b and c)"); // TODO
 
             Pattern pattern = Pattern.compile(regex_aOr_bAndc);
             Matcher matcher = pattern.matcher(mpStr);
