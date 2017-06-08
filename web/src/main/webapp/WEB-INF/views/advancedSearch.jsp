@@ -1006,11 +1006,11 @@
                         shownFilter.push("measured parameter = '" + kv.srchPipeline + "'");
                     }
                     if ($("input[name='significance']").is(":checked")){
-						shownFilter.push("Only significant p values = 'true");
+						shownFilter.push("Only significant p values = true");
 						kv['onlySignificantPvalue'] = true;
 					}
 					else {
-                        shownFilter.push("Only significant p values = 'false");
+                        shownFilter.push("Only significant p values = false");
                         kv['onlySignificantPvalue'] = false;
 					}
 
