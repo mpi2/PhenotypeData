@@ -442,6 +442,7 @@ public class AdvancedSearchController {
 
             mpStr = mpStr.trim();
             params.put("mpA", mpStr);
+            logger.info("A: '{}'", mpStr);
 
             String whereClause = noMpChild ? " WHERE mp.mpTerm = '" + params.get("mpA") + "'" : " WHERE mp0.mpTerm = '" + params.get("mpA") + "'";
 
