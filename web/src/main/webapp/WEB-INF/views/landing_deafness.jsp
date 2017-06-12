@@ -146,42 +146,45 @@
                         </div>
 
 
-                        <div class="section">
 
-                            <h2 id="disease-associations" class="title">Hearing/Vestibular/Ear disease associations by orthology and phenotypic similarity</h2>
-                            <div class="inner">
 
-                                <p>Venn diagrams showing different sets of mouse genes potentially associated to hearing/vestibular/ear (HVE) system diseases using different methodologies.</p>
-                                <ul>
-                                    <li>The <b>IMPC HVE phenotypes set</b> contains all mouse genes associated to abnormal? hearing/vestibular/ear system phenotypes using the IMPC pipeline of dedicated screens (above).</li>
-                                    <li>The <b>IMPC HVE disease predicted set</b> contains all mouse gene that are candidates for hearing/vestibular/ear system diseases based on the phenotypic similarity between the disease clinical symptoms described for humans and the phenotype annotations from the IMPC. The phenotypic similarity is calculated using the PhenoDigm algorithm, which allows the integration of data from model organisms and humans to identify gene candidates for human genetic diseases.
-                                    </li>
-                                    <li>The <b>orthologs to HVE human genes set</b> contains mouse gene orthologs to known genes causing HVE system diseases in humans.</li>
-                                </ul>
+                        <%-- commented out venn diaggram for now as disease classification that it relies on is problematic in phenodigm --%>
+                        <%--<div class="section">--%>
 
-                                <p>These data sets as well as the data at the intersections can be obtained using the download icon below.</p>
-                                <div class="half">
-                                    <jsp:include page="gene_orthologs_frag.jsp" >
-                                        <jsp:param name="currentSet" value="impcSets"/>
-                                        <jsp:param name="divId" value="impcVenn"/>
-                                    </jsp:include>
-                                </div>
-                                    <%--<div class="half">--%>
+                            <%--<h2 id="disease-associations" class="title">Hearing/Vestibular/Ear disease associations by orthology and phenotypic similarity</h2>--%>
+                            <%--<div class="inner">--%>
+
+                                <%--<p>Venn diagrams showing different sets of mouse genes potentially associated to hearing/vestibular/ear (HVE) system diseases using different methodologies.</p>--%>
+                                <%--<ul>--%>
+                                    <%--<li>The <b>IMPC HVE phenotypes set</b> contains all mouse genes associated to abnormal? hearing/vestibular/ear system phenotypes using the IMPC pipeline of dedicated screens (above).</li>--%>
+                                    <%--<li>The <b>IMPC HVE disease predicted set</b> contains all mouse gene that are candidates for hearing/vestibular/ear system diseases based on the phenotypic similarity between the disease clinical symptoms described for humans and the phenotype annotations from the IMPC. The phenotypic similarity is calculated using the PhenoDigm algorithm, which allows the integration of data from model organisms and humans to identify gene candidates for human genetic diseases.--%>
+                                    <%--</li>--%>
+                                    <%--<li>The <b>orthologs to HVE human genes set</b> contains mouse gene orthologs to known genes causing HVE system diseases in humans.</li>--%>
+                                <%--</ul>--%>
+
+                                <%--<p>These data sets as well as the data at the intersections can be obtained using the download icon below.</p>--%>
+                                <%--<div class="half">--%>
                                     <%--<jsp:include page="gene_orthologs_frag.jsp" >--%>
-                                    <%--<jsp:param name="currentSet" value="mgiSets"/>--%>
-                                    <%--<jsp:param name="divId" value="mgiVenn"/>--%>
+                                        <%--<jsp:param name="currentSet" value="impcSets"/>--%>
+                                        <%--<jsp:param name="divId" value="impcVenn"/>--%>
                                     <%--</jsp:include>--%>
-                                    <%--</div>--%>
+                                <%--</div>--%>
+                                    <%--&lt;%&ndash;<div class="half">&ndash;%&gt;--%>
+                                    <%--&lt;%&ndash;<jsp:include page="gene_orthologs_frag.jsp" >&ndash;%&gt;--%>
+                                    <%--&lt;%&ndash;<jsp:param name="currentSet" value="mgiSets"/>&ndash;%&gt;--%>
+                                    <%--&lt;%&ndash;<jsp:param name="divId" value="mgiVenn"/>&ndash;%&gt;--%>
+                                    <%--&lt;%&ndash;</jsp:include>&ndash;%&gt;--%>
+                                    <%--&lt;%&ndash;</div>&ndash;%&gt;--%>
 
-                                <div class="clear both"></div>
+                                <%--<div class="clear both"></div>--%>
 
-                                <%--<a id="tsvDownload" href="${baseUrl}/orthology.tsv?diseaseClasses=cardiac&diseaseClasses=circulatory system&diseaseClasses=cardiac malformations&mpId=MP:0005385&phenotypeShort=CV" download="diseases_${systemName}" target="_blank" class="button fa fa-download">Download</a>--%>
-                                <a id="tsvDownload"  download="diseases_${systemName}" target="_blank" class="button fa fa-download">Download will be updated</a>
+                                <%--&lt;%&ndash;<a id="tsvDownload" href="${baseUrl}/orthology.tsv?diseaseClasses=cardiac&diseaseClasses=circulatory system&diseaseClasses=cardiac malformations&mpId=MP:0005385&phenotypeShort=CV" download="diseases_${systemName}" target="_blank" class="button fa fa-download">Download</a>&ndash;%&gt;--%>
+                                <%--<a id="tsvDownload"  download="diseases_${systemName}" target="_blank" class="button fa fa-download">Download will be updated</a>--%>
 
 
-                            </div>
+                            <%--</div>--%>
 
-                        </div>
+                        <%--</div>--%>
 
 
                         <div class="section">
