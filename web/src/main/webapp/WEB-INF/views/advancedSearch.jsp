@@ -77,7 +77,7 @@
 				color: white;
 			}
 			i.pr {
-				margin-left: 320px;
+				margin-left: 90px;
 				cursor: pointer;
 			}
 			form#goSubmit {
@@ -2097,7 +2097,7 @@
                             })
 
 							// allow remove input just added
-							$("<i class='pr fa fa-times' aria-hidden='true'></i>").insertAfter($(fieldsetFilter + "button.andOr").last());
+							$("<i class='pr fa fa-minus-square-o' aria-hidden='true'></i>").insertAfter($(fieldsetFilter + "button.andOr").last());
 
 							$('i.pr').click(function () {
 								$(this).siblings('input.termFilter').parent().remove();
