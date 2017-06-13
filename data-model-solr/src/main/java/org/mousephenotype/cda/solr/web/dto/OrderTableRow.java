@@ -1,5 +1,7 @@
 package org.mousephenotype.cda.solr.web.dto;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.List;
 
 import org.apache.solr.client.solrj.beans.Field;
@@ -135,6 +137,19 @@ public class OrderTableRow {
 	public void setMgiAccessionId(String mgiAccessionId) {
 		this.mgiAccessionId=mgiAccessionId;
 		
+	}
+	
+	public String getEncodedAlleleName(){
+		String encodedAlleleName="";
+		try {
+			encodedAlleleName= URLEncoder.encode(alleleName, "UTF-8");
+			encodedAlleleName= URLEncoder.encode(encodedAlleleName, "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			
+		}
+		return encodedAlleleName;
 	}
 	
 
