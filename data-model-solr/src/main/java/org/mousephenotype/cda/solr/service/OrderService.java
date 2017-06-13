@@ -120,6 +120,7 @@ public class OrderService {
 		logger.info("number found of allele2 docs=" + response.getResults().getNumFound());
 		List<Allele2DTO> allele2DTOs = response.getBeans(Allele2DTO.class);
 		logger.info("number of alleles should be 1 but is " + allele2DTOs.size());
+		System.out.println("request = "+query);
 		return allele2DTOs.get(0);
 	}
 
