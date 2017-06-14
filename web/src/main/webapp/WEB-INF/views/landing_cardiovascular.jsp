@@ -183,41 +183,42 @@
                         </div>
 
 
-                        <div class="section">
+                        <%-- commented out for now as the disease classification that venn diagram relies on is problematic in phenodigm --%>
+                        <%--<div class="section">--%>
 
-                            <h2 id="disease-associations" class="title">Cardiovascular disease associations by orthology and phenotypic similarity</h2>
-                            <div class="inner">
-                            
-                            <p>
-                                <b>These Venn diagrams represent different sets of mouse genes potentially associated to ${systemName} system diseases using different methodologies.</b>
-                            </p>
-                            <ul>
-                                <li>The <b>Human curated (orthology) in CVD orthologs set</b> contains mouse gene orthologs to known genes causing cardiovascular system diseases in humans.</li>
-                                <li>The <b>IMPC CV phenotypes set</b> contains all genes displaying cardiovascular system phenotypes.</li>
-                                <li>The <b>IMPC CVD predicted set</b> contains predicted mouse gene candidates for cardiovascular system diseases based on the phenotypic similarity of the disease clinical symptoms compared to the mouse phenotype annotations from IMPC. The phenotypic similarity is calculated using the PhenoDigm algorithm which allows integration of data from model organisms to identify gene candidates for human genetic diseases.</li>
-                            </ul>
+                            <%--<h2 id="disease-associations" class="title">Cardiovascular disease associations by orthology and phenotypic similarity</h2>--%>
+                            <%--<div class="inner">--%>
+                            <%----%>
+                            <%--<p>--%>
+                                <%--<b>These Venn diagrams represent different sets of mouse genes potentially associated to ${systemName} system diseases using different methodologies.</b>--%>
+                            <%--</p>--%>
+                            <%--<ul>--%>
+                                <%--<li>The <b>Human curated (orthology) in CVD orthologs set</b> contains mouse gene orthologs to known genes causing cardiovascular system diseases in humans.</li>--%>
+                                <%--<li>The <b>IMPC CV phenotypes set</b> contains all genes displaying cardiovascular system phenotypes.</li>--%>
+                                <%--<li>The <b>IMPC CVD predicted set</b> contains predicted mouse gene candidates for cardiovascular system diseases based on the phenotypic similarity of the disease clinical symptoms compared to the mouse phenotype annotations from IMPC. The phenotypic similarity is calculated using the PhenoDigm algorithm which allows integration of data from model organisms to identify gene candidates for human genetic diseases.</li>--%>
+                            <%--</ul>--%>
 
-                            <p>The dataset intersections can be downloaded using the download icon.</p>
-                            <div class="half">
-                                <jsp:include page="gene_orthologs_frag.jsp" >
-                                    <jsp:param name="currentSet" value="impcSets"/>
-                                    <jsp:param name="divId" value="impcVenn"/>
-                                </jsp:include>
-                            </div>
+                            <%--<p>The dataset intersections can be downloaded using the download icon.</p>--%>
                             <%--<div class="half">--%>
                                 <%--<jsp:include page="gene_orthologs_frag.jsp" >--%>
-                                    <%--<jsp:param name="currentSet" value="mgiSets"/>--%>
-                                    <%--<jsp:param name="divId" value="mgiVenn"/>--%>
+                                    <%--<jsp:param name="currentSet" value="impcSets"/>--%>
+                                    <%--<jsp:param name="divId" value="impcVenn"/>--%>
                                 <%--</jsp:include>--%>
                             <%--</div>--%>
+                            <%--&lt;%&ndash;<div class="half">&ndash;%&gt;--%>
+                                <%--&lt;%&ndash;<jsp:include page="gene_orthologs_frag.jsp" >&ndash;%&gt;--%>
+                                    <%--&lt;%&ndash;<jsp:param name="currentSet" value="mgiSets"/>&ndash;%&gt;--%>
+                                    <%--&lt;%&ndash;<jsp:param name="divId" value="mgiVenn"/>&ndash;%&gt;--%>
+                                <%--&lt;%&ndash;</jsp:include>&ndash;%&gt;--%>
+                            <%--&lt;%&ndash;</div>&ndash;%&gt;--%>
 
-                            <div class="clear both"></div>
+                            <%--<div class="clear both"></div>--%>
 
-                            <a id="tsvDownload" href="${baseUrl}/orthology.tsv?diseaseClasses=cardiac&diseaseClasses=circulatory system&diseaseClasses=cardiac malformations&mpId=MP:0005385&phenotypeShort=CV" download="diseases_${systemName}" target="_blank" class="button fa fa-download">Download</a>
+                            <%--<a id="tsvDownload" href="${baseUrl}/orthology.tsv?diseaseClasses=cardiac&diseaseClasses=circulatory system&diseaseClasses=cardiac malformations&mpId=MP:0005385&phenotypeShort=CV" download="diseases_${systemName}" target="_blank" class="button fa fa-download">Download</a>--%>
 
-                            </div>
-       
-                        </div>
+                            <%--</div>--%>
+       <%----%>
+                        <%--</div>--%>
 
                         <div class="section">
                             <jsp:include page="paper_frag.jsp"></jsp:include>
