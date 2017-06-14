@@ -168,6 +168,10 @@
 			.andOr2 {
 				display: none;
 			}
+            textarea.Mphide {
+                /*display: hidden;*/
+                /*height: 1px;*/
+            }
 			button.andOr2, button.andOrClear {
 
 				color: #942a25;
@@ -942,14 +946,18 @@
                             }
                         }
 
+                        shownFilter.push("mouse phenotype = '" + $('textarea.Mp').val()+ "'");
+
+
+
                         kv['srchMp'] = $('textarea.Mp').val();
-    	                shownFilter.push("mouse phenotype = '" + kv.srchMp + "'");
+                        console.log("query mp2: " + kv['srchMp']);
 
                         // TODO: work out mp term and pvalue pairs
 						var mpPval = {};
                         $('input.srchMp').each(function(){
 
-                            var mpVal = $(this).val();
+                            var mpVal = $(this).val().replace(/.+ -> /, '');
                             var gtval = $(this).siblings('span.pvalue').find('input.gtpvalue').val();
                             var ltval = $(this).siblings('span.pvalue').find('input.ltpvalue').val();
                             mpPval[mpVal] = {};
@@ -973,20 +981,20 @@
 						kv["pvaluesMap"] = mpPval;
 
 					}
-					else if ($('input.srchMp').size() > 1){
+					else if ($('input.srchMp').size() >= 1){
 						var mpCount = 0;
                         $('input.srchMp').each(function() {
-                            console.log('this mp: ' + $(this).val() );
+                            console.log('this mp: ' + $(this).val().replace(/.+ -> /, '') );
                             if ($(this).val() != 'search' && $(this).val() != '') {
                                 mpCount++;
-                                kv['srchMp'] = $(this).val();
+                                kv['srchMp'] = $(this).val().replace(/.+ -> /, '');
                                 shownFilter.push("mouse phenotype = '" + kv.srchMp + "'");
 
-                                var gtval = $('input.srchMp').siblings('span.pvalue').find('input.gtpvalue').val();
+                                var gtval = $(this).siblings('span.pvalue').find('input.gtpvalue').val();
                                 if (gtval != '') {
                                     kv['gtpvalue'] = gtval;
                                 }
-                                var ltval = $('input.srchMp').siblings('span.pvalue').find('input.ltpvalue').val();
+                                var ltval = $(this).siblings('span.pvalue').find('input.ltpvalue').val();
                                 if (ltval != '') {
                                     kv['ltpvalue'] = ltval;
                                 }
@@ -1267,21 +1275,31 @@
 
                                     var suggests = [];
                                     var seenTerm = {};
+
                                     for ( var i=0; i<docs.length; i++ ){
                                         var facet = null;
 
+                                        //console.log("keys: " + Object.keys(docs[i]));
+                                        var keylen = Object.keys(docs[i]).length;
                                         for ( var key in docs[i] ){
+
+                                            var term = docs[i][key].toString();
+
                                             if ( key != 'docType' ){
+                                                //console.log(key + " --- " + term);
 
-                                                var term = docs[i][key].toString();
-                                                console.log(key + " --- " + term);
-
-                                                if (docType == 'hp' && term.startsWith("MP:")){
+                                                if ( (docType == ('hp' && term.startsWith("MP:")) || (key == 'mp_term') && keylen == 3 )){
                                                     continue;  // due to hp-mp hybrid ontology, but we don't need mp here
 												}
 
-                                                var termHl = term;
+												var termHl = null;
 
+												if (key == "mp_narrow_synonym"){
+                                                    termHl = term + " -> " + docs[i]['mp_term'].toString();
+                                                }
+                                                else {
+                                                    termHl = term;
+                                                }
                                                 // highlight multiple matches
                                                 // (partial matches) while users
                                                 // typing in search keyword(s)
@@ -1296,14 +1314,12 @@
 
                                                 var re = new RegExp("(" + termStr + ")", "gi") ;
                                                 var termHl = termHl.replace(re,"<b class='sugTerm'>$1</b>");
-
                                                 // add only once with the top score
                                                 var lowerCaseTerm = term.toLowerCase();
                                                 if ( seenTerm[lowerCaseTerm] == undefined){
                                                     seenTerm[lowerCaseTerm]++;
                                                     suggests.push("<span class='" + facet + " sugListPheno'>" + termHl + "</span>");
                                                 }
-
                                             }
                                         }
                                     }
@@ -2010,8 +2026,9 @@
                     	+ "<button class='andOr2 " + dataType + "'>)</button>"
 						+ "<button class='andOrClear " + dataType + "'>clear</button>";
                     var boolText = "<textarea class='andOr2 " + dataType + "' rows='2' cols=''></textarea>";
+                    var boolTextHidden = "<textarea class='" + dataType + "hide' rows='2' cols=''></textarea>";
                     var help = "<img class='boolHow' src='${baseUrl}/img/advSearch/how-to-build-boolean-query.png' />";
-					var filter = "<fieldset class='" + dataType + "Filter dfilter " + dataType + "'>" + legend + restriction + noMpChild + input + butt + msg + boolButts + boolText + help + "</fieldset>";
+					var filter = "<fieldset class='" + dataType + "Filter dfilter " + dataType + "'>" + legend + restriction + noMpChild + input + butt + msg + boolButts + boolText + boolTextHidden + help + "</fieldset>";
 
 					$('div#dataAttributes').append(filter);
 
@@ -2060,27 +2077,33 @@
 						}
                     });
 
+                    var boolTextarea = $(fieldsetFilter +"textarea.andOr2");
+                    var boolTextareaHidden = $(fieldsetFilter +"textarea.Mphide");
+
                     // clear input when the value is not default: "search"
                     $(fieldsetFilter).on("click", "i#" + idname + "Clear", function(){
 						$(this).siblings($("input.srch" + dataType)).val("");
+                        boolTextarea.val('');
+                        boolTextareaHidden.val('');
 					});
-
-                    var boolTextarea = $(fieldsetFilter +"textarea.andOr2");
 
                     // define and/or for term filters
                     $(fieldsetFilter + "button.andOr").click(function(){
+                        //var termVal = $(this).siblings('.termFilter').val().replace(/.+ -> /, '');
                         var termVal = $(this).siblings('.termFilter').val();
                         if (termVal == 'search' || termVal == ""){
                             alert("INFO: please enter a phenotype");
                         }
                         else {
                             boolTextarea.val(boolTextarea.val() + termVal + " ");
+                            boolTextareaHidden.val(boolTextareaHidden.val() + termVal.replace(/.+ -> /, '') + " ");
                         }
                         return false;
                     });
                     $(fieldsetFilter + "button.andOr2").click(function(){
                         var bool = $(this).text();
                         boolTextarea.val(boolTextarea.val() + bool + " ");
+                        boolTextareaHidden.val(boolTextareaHidden.val() + bool + " ");
                         return false;
                     });
 
@@ -2097,12 +2120,14 @@
 							lastButt.text('add to query');
 
 							lastButt.click(function () {
-								var termVal = $(this).siblings('.termFilter').val();
+								//var termVal = $(this).siblings('.termFilter').val().replace(/.+ -> /, '');
+                                var termVal = $(this).siblings('.termFilter').val();
 								if (termVal == 'search') {
 									alert("INFO: please enter a phenotype");
 								}
 								else {
 									boolTextarea.val(boolTextarea.val() + termVal + " ");
+                                    boolTextareaHidden.val(boolTextareaHidden.val() + termVal.replace(/.+ -> /, '') + " ");
 								}
 								return false;
 							});
@@ -2115,6 +2140,7 @@
 							}
 							$(fieldsetFilter + ".andOrClear").click(function () {
 								boolTextarea.val("");
+                                boolTextareaHidden.val("");
 								return false;
 							});
 
@@ -2147,8 +2173,9 @@
 									$(fieldsetFilter + ".andOr2").hide();
 									$(fieldsetFilter + ".msg").hide();
 									$(fieldsetFilter + ".andOrClear").hide();
-                                	$('textarea.andOr2').val("");
 								}
+                                $('textarea.Mp').val("");
+                                $('textarea.Mphide').val("");
 							});
 
                         	addAutosuggest($('input.srch' + dataType).last());
