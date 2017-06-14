@@ -5,7 +5,17 @@
 <t:genericpage>
 
     <jsp:attribute name="title">Allele details </jsp:attribute>
-    <jsp:attribute name="breadcrumb">&nbsp;&raquo; <a href="${baseUrl}/search#q=*:*&fq=*:*&facet=gene">Genes</a> &raquo; <a href = "${baseUrl}/genes/${acc}">${acc}</a> &raquo; <a id = "alleles_link" href ="${baseUrl}/alleles/${acc}" >Alleles</a> &raquo; ${allele_name}</jsp:attribute>
+    <jsp:attribute name="breadcrumb">&nbsp;&raquo; 
+    
+    <c:choose>
+    <c:when  test="${param.creLine}">
+    	</c:when>
+	<c:otherwise>
+	<a href="${baseUrl}/search#q=*:*&fq=*:*&facet=gene">Genes</a> &raquo; <a href = "${baseUrl}/genes/${acc}">${acc}</a> &raquo; <a id = "alleles_link" href ="${baseUrl}/alleles/${acc}" >Alleles</a> &raquo; ${allele_name}
+	
+	</c:otherwise>
+	</c:choose>
+	</jsp:attribute>
 	<jsp:attribute name="bodyTag"><body  class="gene-node no-sidebars small-header"></jsp:attribute>
 	<jsp:attribute name="addToFooter">    
 
