@@ -246,15 +246,12 @@ public class AbstractGenotypePhenotypeService extends BasicService {
 
         QueryResponse response = solr.query(q);
         for (PivotField p : response.getFacetPivot().get(pivot)){
-        	//System.out.println("new pivot fields");
             String mpTermId = p.getValue().toString();
             String mpName = p.getPivot().get(0).getValue().toString();
-            //System.out.println("first mp name="+mpName);
             List<PivotField> pivotFields = p.getPivot().get(0).getPivot();
             Set<String> uniqueAccessions=new HashSet<>();
             for(PivotField accessionField: pivotFields){
             	String accession=accessionField.getValue().toString();
-            	//System.out.println(accessionField.getValue().toString());
             	uniqueAccessions.add(accession);
             }
             int count=uniqueAccessions.size();//we are setting this to the size of the unique set of gene accessions for this MP term and not the count as the count has male and female results and doesn't relate to the number of unique genes which is what we are currently displaying on the interface
