@@ -973,31 +973,71 @@
 						kv["pvaluesMap"] = mpPval;
 
 					}
-					else if ($('input.srchMp').val() != 'search' && $('input.srchMp').val() != ''){
+					else if ($('input.srchMp').size() > 1){
+						var mpCount = 0;
+                        $('input.srchMp').each(function() {
+                            console.log('this mp: ' + $(this).val() );
+                            if ($(this).val() != 'search' && $(this).val() != '') {
+                                mpCount++;
+                                kv['srchMp'] = $(this).val();
+                                shownFilter.push("mouse phenotype = '" + kv.srchMp + "'");
 
-                        kv['srchMp'] = $('input.srchMp').val();
-                        shownFilter.push("mouse phenotype = '" + kv.srchMp + "'");
+                                var gtval = $('input.srchMp').siblings('span.pvalue').find('input.gtpvalue').val();
+                                if (gtval != '') {
+                                    kv['gtpvalue'] = gtval;
+                                }
+                                var ltval = $('input.srchMp').siblings('span.pvalue').find('input.ltpvalue').val();
+                                if (ltval != '') {
+                                    kv['ltpvalue'] = ltval;
+                                }
 
-                        var gtval = $('input.srchMp').siblings('span.pvalue').find('input.gtpvalue').val();
-                        if (gtval != ''){
-                            kv['gtpvalue'] = gtval;
+                                var mpVal = kv.srchMp;
+                                if (gtval != '' && ltval != '') {
+                                    shownFilter.push("pvalue: " + mpVal + " - " + gtval + "< P <" + ltval);
+                                }
+                                else if (gtval != '') {
+                                    shownFilter.push("pvalue: " + mpVal + " - " + "p > " + gtval);
+                                }
+                                else if (ltval != '') {
+                                    shownFilter.push("pvalue: " + mpVal + " - " + "p < " + ltval);
+                                }
+                            }
+                        });
+                        if (mpCount > 1){
+                            alert("AMBIGUITY: please specify your boolean relationship for phenotypes");
+                            return false;
                         }
-                        var ltval = $('input.srchMp').siblings('span.pvalue').find('input.ltpvalue').val();
-                        if (ltval != ''){
-                            kv['ltpvalue'] = ltval;
-                        }
-
-                        var mpVal = kv.srchMp;
-                        if (gtval != '' && ltval != ''){
-                            shownFilter.push("pvalue: " + mpVal + " - " + gtval + "< P <" + ltval);
-                        }
-                        else if (gtval != ''){
-                            shownFilter.push("pvalue: " + mpVal + " - " + "p > " + gtval);
-                        }
-                        else if (ltval != ''){
-                            shownFilter.push("pvalue: " + mpVal + " - " + "p < " + ltval);
-                        }
-                    }
+					}
+//					else {
+//                        $('input.srchMp').each(function(){
+//
+//							if ($(this).val() != 'search' && $(this).val() != '') {
+//
+//								kv['srchMp'] = $('input.srchMp').val();
+//								shownFilter.push("mouse phenotype = '" + kv.srchMp + "'");
+//
+//								var gtval = $('input.srchMp').siblings('span.pvalue').find('input.gtpvalue').val();
+//								if (gtval != '') {
+//									kv['gtpvalue'] = gtval;
+//								}
+//								var ltval = $('input.srchMp').siblings('span.pvalue').find('input.ltpvalue').val();
+//								if (ltval != '') {
+//									kv['ltpvalue'] = ltval;
+//								}
+//
+//								var mpVal = kv.srchMp;
+//								if (gtval != '' && ltval != '') {
+//									shownFilter.push("pvalue: " + mpVal + " - " + gtval + "< P <" + ltval);
+//								}
+//								else if (gtval != '') {
+//									shownFilter.push("pvalue: " + mpVal + " - " + "p > " + gtval);
+//								}
+//								else if (ltval != '') {
+//									shownFilter.push("pvalue: " + mpVal + " - " + "p < " + ltval);
+//								}
+//							}
+//                        });
+//                    }
 
                     // IMPReSS parameter name
                     if ($('input.srchPipeline').val() != 'search' && $('input.srchPipeline').val() != ''){
@@ -1234,7 +1274,7 @@
                                             if ( key != 'docType' ){
 
                                                 var term = docs[i][key].toString();
-                                                //console.log(key + " --- " + term);
+                                                console.log(key + " --- " + term);
 
                                                 if (docType == 'hp' && term.startsWith("MP:")){
                                                     continue;  // due to hp-mp hybrid ontology, but we don't need mp here
