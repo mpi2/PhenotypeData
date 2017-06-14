@@ -372,6 +372,7 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
                                     AutosuggestBean asyn = new AutosuggestBean();
                                     asyn.setMpNarrowSynonym(mpNarrowSynonym);
                                     asyn.setDocType("mp");
+                                    asyn.setMpTerm(mp.getMpTerm());
                                     beans.add(asyn);
                                 }
                             }
