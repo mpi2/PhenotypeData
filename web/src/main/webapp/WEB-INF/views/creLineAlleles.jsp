@@ -8,7 +8,8 @@
 
 	<jsp:attribute name="title">IMPC Software/Web Release Notes</jsp:attribute>
 
-	<jsp:attribute name="breadcrumb">&nbsp;&raquo; Release Notes</jsp:attribute>
+	 <jsp:attribute name="breadcrumb"></jsp:attribute>
+	
 
 	<jsp:attribute name="header">
 

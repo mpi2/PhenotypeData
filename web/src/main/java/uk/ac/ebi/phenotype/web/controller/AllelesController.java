@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLDecoder;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -98,7 +99,7 @@ public class AllelesController {
             Model model,
             HttpServletRequest request,
             RedirectAttributes attributes) throws Exception {
-
+System.out.println("controller here");
         log.info("#### alleles1...");
         String redirectUrl="redirect:/search/allele2?kw=*";
         //redirect this url to the new search page for products to support old links that will still use the bare parameter to specify creline products rather than default ones of IMPC
@@ -121,6 +122,7 @@ public class AllelesController {
         log.info("#### AllelesController::alleles2");
         log.info("#### acc: " + acc);
         log.info("#### allele_name: " + allele_name);
+        model.addAttribute("allele_name",URLDecoder.decode(allele_name, "UTF-8"));
         System.out.println("creline is "+creLine);
         String debug = request.getParameter("debug");
         log.info("#### alleles1: debug: " + debug);
@@ -428,7 +430,7 @@ public class AllelesController {
 
         Map<String, String> allele_identifier = new HashMap();
         allele_identifier.put("accession", acc);
-        allele_identifier.put("allele_name", allele_name);
+        allele_identifier.put("allele_name", URLDecoder.decode(allele_name, "UTF-8"));
         allele_identifier.put("cassette", cassette);
         allele_identifier.put("design_id", design_id);
 

@@ -242,7 +242,7 @@ public class AbstractGenotypePhenotypeService extends BasicService {
         q.add("facet.pivot", pivot);
 
 
-        logger.info("Solr url for getAssociationsCount " + SolrUtils.getBaseURL(solr) + "/select?" + q);
+        logger.warn("Solr url for getAssociationsCount " + SolrUtils.getBaseURL(solr) + "/select?" + q);
 
         QueryResponse response = solr.query(q);
         for (PivotField p : response.getFacetPivot().get(pivot)){
