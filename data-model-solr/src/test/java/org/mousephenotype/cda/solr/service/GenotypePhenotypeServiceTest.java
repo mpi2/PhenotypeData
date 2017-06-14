@@ -46,6 +46,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 /**
@@ -103,9 +104,10 @@ public class GenotypePhenotypeServiceTest {
 //			}
 			
 			TreeSet<CountTableRow> result2 = gpService.getAssociationsCount("MP:0005377", resources);
-			for(CountTableRow row : result2){
-				System.out.println(row.getMpId()+" "+ row.getCategory()+" "+row.getCount());
-			}
+//			for(CountTableRow row : result2){
+//				System.out.println(row.getMpId()+" "+ row.getCategory()+" "+row.getCount());
+//			}
+			assertTrue(result2.iterator().next().getCount()>133);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
