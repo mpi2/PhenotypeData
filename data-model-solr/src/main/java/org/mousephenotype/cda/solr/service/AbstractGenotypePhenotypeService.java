@@ -225,7 +225,7 @@ public class AbstractGenotypePhenotypeService extends BasicService {
     public TreeSet<CountTableRow> getAssociationsCount(String mpId, List<String> resourceName) throws IOException, SolrServerException {
 
         TreeSet<CountTableRow> list = new TreeSet<>(CountTableRow.getComparatorByCount());
-        SolrQuery q = new SolrQuery().setFacet(true).setRows(1);
+        SolrQuery q = new SolrQuery().setFacet(true).setRows(0);
         q.set("facet.limit", -1);
 
         if (resourceName != null){
@@ -238,7 +238,7 @@ public class AbstractGenotypePhenotypeService extends BasicService {
             q.addFilterQuery(GenotypePhenotypeDTO.MP_TERM_ID + ":\"" + mpId + "\" OR " + GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_ID + ":\"" + mpId + "\" OR " + GenotypePhenotypeDTO.INTERMEDIATE_MP_TERM_ID + ":\"" + mpId + "\"" );
         }
 
-        String pivot = GenotypePhenotypeDTO.MP_TERM_ID + "," + GenotypePhenotypeDTO.MP_TERM_NAME;
+        String pivot = GenotypePhenotypeDTO.MP_TERM_ID + "," + GenotypePhenotypeDTO.MP_TERM_NAME+","+GenotypePhenotypeDTO.MARKER_ACCESSION_ID;
         q.add("facet.pivot", pivot);
 
 
@@ -248,7 +248,13 @@ public class AbstractGenotypePhenotypeService extends BasicService {
         for (PivotField p : response.getFacetPivot().get(pivot)){
             String mpTermId = p.getValue().toString();
             String mpName = p.getPivot().get(0).getValue().toString();
-            int count = p.getPivot().get(0).getCount();
+            List<PivotField> pivotFields = p.getPivot().get(0).getPivot();
+            Set<String> uniqueAccessions=new HashSet<>();
+            for(PivotField accessionField: pivotFields){
+            	String accession=accessionField.getValue().toString();
+            	uniqueAccessions.add(accession);
+            }
+            int count=uniqueAccessions.size();//we are setting this to the size of the unique set of gene accessions for this MP term and not the count as the count has male and female results and doesn't relate to the number of unique genes which is what we are currently displaying on the interface
             list.add(new CountTableRow(mpName, mpTermId, count));
         }
 

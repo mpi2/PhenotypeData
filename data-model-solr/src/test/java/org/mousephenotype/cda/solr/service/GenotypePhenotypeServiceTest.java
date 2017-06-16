@@ -25,6 +25,7 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.solr.TestConfigSolr;
+import org.mousephenotype.cda.solr.service.dto.CountTableRow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,11 +39,14 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 /**
@@ -87,6 +91,31 @@ public class GenotypePhenotypeServiceTest {
 //			e.printStackTrace();
 //		}
 //    }
+    
+    @Test
+    public void testgetAssociationsCount(){
+    	System.out.println("running test");
+    	List<String> resources = new ArrayList<>();
+        resources.add("IMPC");
+    	try {
+//			TreeSet<CountTableRow> result = gpService.getAssociationsCount("MP:0000269", resources);
+//			for(CountTableRow row : result){
+//				System.out.println(row.getMpId()+" "+ row.getCategory()+" "+row.getCount());
+//			}
+			
+			TreeSet<CountTableRow> result2 = gpService.getAssociationsCount("MP:0005377", resources);
+//			for(CountTableRow row : result2){
+//				System.out.println(row.getMpId()+" "+ row.getCategory()+" "+row.getCount());
+//			}
+			assertTrue(result2.iterator().next().getCount()>133);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (SolrServerException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    }
     
 
     @Test
