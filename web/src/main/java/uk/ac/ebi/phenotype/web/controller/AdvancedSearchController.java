@@ -26,6 +26,9 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.solr.common.SolrDocument;
+import org.apache.solr.common.SolrDocumentList;
 import org.mousephenotype.cda.neo4j.entity.*;
 import org.mousephenotype.cda.neo4j.repository.*;
 import org.mousephenotype.cda.solr.generic.util.Tools;
@@ -128,7 +131,8 @@ public class AdvancedSearchController {
     MouseModelRepository mouseModelRepository;
 
     @Autowired
-    AutoSuggestService autoSuggestService;
+    @Qualifier("autosuggestCore")
+    private SolrClient autosuggestCore;
 
 
     private String NA = "not available";
@@ -322,10 +326,11 @@ public class AdvancedSearchController {
         String fileType = null;
         JSONObject jcontent = fetchGraphDataAdvSrch(jParams, fileType);
 
+        System.out.println(jcontent.get("narrowMapping"));
         return new ResponseEntity<String>(jcontent.toString(), createResponseHeaders(), HttpStatus.CREATED);
     }
 
-    public JSONObject fetchGraphDataAdvSrch(JSONObject jParams, String fileType) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+    public JSONObject fetchGraphDataAdvSrch(JSONObject jParams, String fileType) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, IOException, SolrServerException {
 
         String significant = composeSignificance(jParams);
         String phenotypeSexes = composePhenotypeSexStr(jParams);
@@ -389,6 +394,7 @@ public class AdvancedSearchController {
         String pvaluesA = "";
         String pvaluesB = "";
         String pvaluesC = "";
+        List<String> narrowMappig = new ArrayList<>();
 
         long begin = System.currentTimeMillis();
 
@@ -441,8 +447,11 @@ public class AdvancedSearchController {
             // single mp term
 
             mpStr = mpStr.trim();
+            mpStr = mapNarrowSynonym2MpTerm(narrowMappig, mpStr, autosuggestCore);
+
             params.put("mpA", mpStr);
             logger.info("A: '{}'", mpStr);
+
 
             String whereClause = noMpChild ? " WHERE mp.mpTerm = '" + params.get("mpA") + "'" : " WHERE mp0.mpTerm = '" + params.get("mpA") + "'";
 
@@ -486,9 +495,9 @@ public class AdvancedSearchController {
                 String mpC = matcher.group(3).trim();;
                 logger.info("A: '{}', B: '{}', C: '{}'", mpA, mpB, mpC);
 
-                params.put("mpA", mpA);
-                params.put("mpB", mpB);
-                params.put("mpC", mpC);
+                params.put("mpA", mapNarrowSynonym2MpTerm(narrowMappig, mpA, autosuggestCore));
+                params.put("mpB", mapNarrowSynonym2MpTerm(narrowMappig, mpB, autosuggestCore));
+                params.put("mpC", mapNarrowSynonym2MpTerm(narrowMappig, mpC, autosuggestCore));
                 
                 pvaluesA = composePvalues(mpA, jParams);
                 pvaluesB = composePvalues(mpB, jParams);
@@ -573,9 +582,9 @@ public class AdvancedSearchController {
 
                 logger.info("A: '{}', B: '{}', C: '{}'", mpA, mpB, mpC);
 
-                params.put("mpA", mpA);
-                params.put("mpB", mpB);
-                params.put("mpC", mpC);
+                params.put("mpA", mapNarrowSynonym2MpTerm(narrowMappig, mpA, autosuggestCore));
+                params.put("mpB", mapNarrowSynonym2MpTerm(narrowMappig, mpB, autosuggestCore));
+                params.put("mpC", mapNarrowSynonym2MpTerm(narrowMappig, mpC, autosuggestCore));
                 pvaluesA = composePvalues(mpA, jParams);
                 pvaluesB = composePvalues(mpB, jParams);
                 pvaluesC = composePvalues(mpC, jParams);
@@ -658,9 +667,9 @@ public class AdvancedSearchController {
                 String mpC = matcher.group(3).trim();;
                 logger.info("A: '{}', B: '{}', C: '{}'", mpA, mpB, mpC);
 
-                params.put("mpA", mpA);
-                params.put("mpB", mpB);
-                params.put("mpC", mpC);
+                params.put("mpA", mapNarrowSynonym2MpTerm(narrowMappig, mpA, autosuggestCore));
+                params.put("mpB", mapNarrowSynonym2MpTerm(narrowMappig, mpB, autosuggestCore));
+                params.put("mpC", mapNarrowSynonym2MpTerm(narrowMappig, mpC, autosuggestCore));
 
                 pvaluesA = composePvalues(mpA, jParams);
                 pvaluesB = composePvalues(mpB, jParams);
@@ -736,10 +745,9 @@ public class AdvancedSearchController {
                 String mpC = matcher.group(3).trim();;
                 //logger.info("A: '{}', B: '{}', C: '{}'", mpA, mpB, mpC);
 
-                params.put("mpA", mpA);
-                params.put("mpB", mpB);
-                params.put("mpC", mpC);
-
+                params.put("mpA", mapNarrowSynonym2MpTerm(narrowMappig, mpA, autosuggestCore));
+                params.put("mpB", mapNarrowSynonym2MpTerm(narrowMappig, mpB, autosuggestCore));
+                params.put("mpC", mapNarrowSynonym2MpTerm(narrowMappig, mpC, autosuggestCore));
                 pvaluesA = composePvalues(mpA, jParams);
                 pvaluesB = composePvalues(mpB, jParams);
                 pvaluesC = composePvalues(mpC, jParams);
@@ -816,9 +824,9 @@ public class AdvancedSearchController {
                 String mpC = matcher.group(3).trim();
                 logger.info("A: '{}', B: '{}', C: '{}'", mpA, mpB, mpC);
 
-                params.put("mpA", mpA);
-                params.put("mpB", mpB);
-                params.put("mpC", mpC);
+                params.put("mpA", mapNarrowSynonym2MpTerm(narrowMappig, mpA, autosuggestCore));
+                params.put("mpB", mapNarrowSynonym2MpTerm(narrowMappig, mpB, autosuggestCore));
+                params.put("mpC", mapNarrowSynonym2MpTerm(narrowMappig, mpC, autosuggestCore));
 
                 pvaluesA = composePvalues(mpA, jParams);
                 pvaluesB = composePvalues(mpB, jParams);
@@ -873,8 +881,8 @@ public class AdvancedSearchController {
                 String mpB = matcher.group(2).trim();;
                 logger.info("A: '{}', B: '{}'", mpA, mpB);
 
-                params.put("mpA", mpA);
-                params.put("mpB", mpB);
+                params.put("mpA", mapNarrowSynonym2MpTerm(narrowMappig, mpA, autosuggestCore));
+                params.put("mpB", mapNarrowSynonym2MpTerm(narrowMappig, mpB, autosuggestCore));
 
                 pvaluesA = composePvalues(mpA, jParams);
                 pvaluesB = composePvalues(mpB, jParams);
@@ -925,9 +933,9 @@ public class AdvancedSearchController {
                 String mpC = matcher.group(3).trim();
                 logger.info("A: '{}', B: '{}', C: '{}'", mpA, mpB, mpC);
 
-                params.put("mpA", mpA);
-                params.put("mpB", mpB);
-                params.put("mpC", mpC);
+                params.put("mpA", mapNarrowSynonym2MpTerm(narrowMappig, mpA, autosuggestCore));
+                params.put("mpB", mapNarrowSynonym2MpTerm(narrowMappig, mpB, autosuggestCore));
+                params.put("mpC", mapNarrowSynonym2MpTerm(narrowMappig, mpC, autosuggestCore));
 
                 pvaluesA = composePvalues(mpA, jParams);
                 pvaluesB = composePvalues(mpB, jParams);
@@ -975,8 +983,8 @@ public class AdvancedSearchController {
                 String mpB = matcher.group(2).trim();
                 logger.info("A: '{}', B: '{}'", mpA, mpB);
 
-                params.put("mpA", mpA);
-                params.put("mpB", mpB);
+                params.put("mpA", mapNarrowSynonym2MpTerm(narrowMappig, mpA, autosuggestCore));
+                params.put("mpB", mapNarrowSynonym2MpTerm(narrowMappig, mpB, autosuggestCore));
                 pvaluesA = composePvalues(mpA, jParams);
                 pvaluesB = composePvalues(mpB, jParams);
             }
@@ -1013,6 +1021,7 @@ public class AdvancedSearchController {
         j.put("aaData", new Object[0]);
         j.put("iDisplayStart", 0);
         j.put("iDisplayLength", 10);
+        j.put("narrowMapping", StringUtils.join(narrowMappig, ", "));
 
         List<String> rowDataExport = new ArrayList<>(); // for export
         List<String> rowDataOverview = new ArrayList<>(); // for overview
@@ -1189,6 +1198,36 @@ public class AdvancedSearchController {
             //System.out.println(j.toString());
         }
         return j;
+    }
+
+    private String mapNarrowSynonym2MpTerm(List<String> narrowMappig, String mpTerm, SolrClient autosuggestCore) throws IOException, SolrServerException {
+
+        String mpStr = null;
+        SolrQuery query = new SolrQuery();
+        query.setQuery("\"" + mpTerm + "\"");
+        query.set("qf", "auto_suggest");
+        query.set("defType", "edismax");
+        query.setStart(0);
+        query.setRows(100);
+        query.setFilterQueries("docType:mp");
+
+        QueryResponse response = autosuggestCore.query(query);
+        System.out.println("response: " + response);
+        SolrDocumentList results = response.getResults();
+
+        for(SolrDocument doc : results){
+            if (doc.getFieldValue("mp_term").equals(mpTerm)){
+                mpStr = mpTerm;
+                break;
+            }
+            else if (doc.getFieldValue("mp_narrow_synonym").equals(mpTerm)){
+                mpStr = doc.getFieldValue("mp_term").toString();
+                narrowMappig.add(mpTerm + " is a child term of " + mpStr);
+                break;
+            }
+        }
+
+        return mpStr;
     }
     
     private String composeParameter(JSONObject jParams){
