@@ -364,14 +364,14 @@ public class AdvancedSearchController {
 
         System.out.println("mp query: "+ mpStr);
 
-        String regex_aAndb_Orc = "\\s*\\(([A-Za-z0-9-\\\\,;:\\s]{1,})\\s*AND\\s*([A-Za-z0-9-\\\\,;:\\s]{1,})\\)\\s*OR\\s*([A-Za-z0-9-\\\\,;:\\s]{1,})\\s*";
-        String regex_aAnd_bOrc = "\\s*([A-Za-z0-9-\\\\,;:\\s]{1,})\\s*AND\\s*\\(([A-Za-z0-9-\\\\,;:\\s]{1,})\\s*OR\\s*([A-Za-z0-9-\\\\,;:\\s]{1,})\\)\\s*";
-        String regex_aOrb_andc = "\\s*\\(([A-Za-z0-9-\\\\,;:\\s]{1,})\\s*OR\\s*([A-Za-z0-9-\\\\,;:\\s]{1,})\\)\\s*AND\\s*([A-Za-z0-9-\\\\,;:\\s]{1,})\\s*";
-        String regex_aOr_bAndc = "\\s*([A-Za-z0-9-\\\\,;:\\s]{1,})\\s*OR\\s*\\(([A-Za-z0-9-\\\\,;:\\s]{1,})\\s*AND\\s*([A-Za-z0-9-\\\\,;:\\s]{1,})\\)\\s*";
-        String regex_aAndb = "\\s*\\(*([A-Za-z0-9-\\\\,;:\\s]{1,})\\s*AND\\s*([A-Za-z0-9-\\\\,;:\\s]{1,})\\)*\\s*";
-        String regex_aAndbAndc = "\\s*\\(*([A-Za-z0-9-\\\\,;:\\s]{1,})\\s*AND\\s*([A-Za-z0-9-\\\\,;:\\s]{1,})\\)*\\s*AND\\s*([A-Za-z0-9-\\\\,;:\\s]{1,})\\)*\\s*";
-        String regex_aOrb = "\\s*\\(*([A-Za-z0-9-\\\\,;:\\s]{1,})\\s*OR\\s*([A-Za-z0-9-\\\\,;:\\s]{1,})\\)*\\s*";
-        String regex_aOrbOrc = "\\s*\\(*([A-Za-z0-9-\\\\,;:\\s]{1,})\\s*OR\\s*([A-Za-z0-9-\\\\,;:\\s]{1,})\\)*\\s*OR\\s*([A-Za-z0-9-\\\\,;:\\s]{1,})\\)*\\s*";
+        String regex_aAndb_Orc = "\\s*\\(([A-Za-z0-9-\\\\,;:\\s]{1,})\\s*\\b(AND|and)\\b\\s*([A-Za-z0-9-\\\\,;:\\s]{1,})\\)\\s*\\b(OR|or)\\b\\s*([A-Za-z0-9-\\\\,;:\\s]{1,})\\s*";
+        String regex_aAnd_bOrc = "\\s*([A-Za-z0-9-\\\\,;:\\s]{1,})\\s*\\b(AND|and)\\b\\s*\\(([A-Za-z0-9-\\\\,;:\\s]{1,})\\s*\\b(OR|or)\\b\\s*([A-Za-z0-9-\\\\,;:\\s]{1,})\\)\\s*";
+        String regex_aOrb_andc = "\\s*\\(([A-Za-z0-9-\\\\,;:\\s]{1,})\\s*\\b(OR|or)\\b\\s*([A-Za-z0-9-\\\\,;:\\s]{1,})\\)\\s*\\b(AND|and)\\b\\s*([A-Za-z0-9-\\\\,;:\\s]{1,})\\s*";
+        String regex_aOr_bAndc = "\\s*([A-Za-z0-9-\\\\,;:\\s]{1,})\\s*\\b(OR|or)\\b\\s*\\(([A-Za-z0-9-\\\\,;:\\s]{1,})\\s*\\b(AND|and)\\b\\s*([A-Za-z0-9-\\\\,;:\\s]{1,})\\)\\s*";
+        String regex_aAndb = "\\s*\\(*([A-Za-z0-9-\\\\,;:\\s]{1,})\\s*\\b(AND|and)\\b\\s*([A-Za-z0-9-\\\\,;:\\s]{1,})\\)*\\s*";
+        String regex_aAndbAndc = "\\s*\\(*([A-Za-z0-9-\\\\,;:\\s]{1,})\\s*\\b(AND|and)\\b\\s*([A-Za-z0-9-\\\\,;:\\s]{1,})\\)*\\s*\\b(AND|and)\\b\\s*([A-Za-z0-9-\\\\,;:\\s]{1,})\\)*\\s*";
+        String regex_aOrb = "\\s*\\(*([A-Za-z0-9-\\\\,;:\\s]{1,})\\s*\\b(OR|or)\\b\\s*([A-Za-z0-9-\\\\,;:\\s]{1,})\\)*\\s*";
+        String regex_aOrbOrc = "\\s*\\(*([A-Za-z0-9-\\\\,;:\\s]{1,})\\s*\\b(OR|or)\\b\\s*([A-Za-z0-9-\\\\,;:\\s]{1,})\\)*\\s*\\b(OR|or)\\b\\s*([A-Za-z0-9-\\\\,;:\\s]{1,})\\)*\\s*";
 
         HashedMap params = new HashedMap();
 
@@ -491,17 +491,17 @@ public class AdvancedSearchController {
             while (matcher.find()) {
                 System.out.println("found: " + matcher.group(0));
                 String mpA = matcher.group(1).trim();;
-                String mpB = matcher.group(2).trim();;
-                String mpC = matcher.group(3).trim();;
+                String mpB = matcher.group(3).trim();;
+                String mpC = matcher.group(5).trim();;
                 logger.info("A: '{}', B: '{}', C: '{}'", mpA, mpB, mpC);
 
                 params.put("mpA", mapNarrowSynonym2MpTerm(narrowMappig, mpA, autosuggestCore));
                 params.put("mpB", mapNarrowSynonym2MpTerm(narrowMappig, mpB, autosuggestCore));
                 params.put("mpC", mapNarrowSynonym2MpTerm(narrowMappig, mpC, autosuggestCore));
-                
-                pvaluesA = composePvalues(mpA, jParams);
-                pvaluesB = composePvalues(mpB, jParams);
-                pvaluesC = composePvalues(mpC, jParams);
+
+                pvaluesA = composePvalues(params.get("mpA").toString(), jParams);
+                pvaluesB = composePvalues(params.get("mpB").toString(), jParams);
+                pvaluesC = composePvalues(params.get("mpC").toString(), jParams);
             }
 
             String whereClause1 = noMpChild ? " WHERE ((mp.mpTerm = '" + params.get("mpA") + "'" + pvaluesA + ") OR (mp.mpTerm ='" + params.get("mpC") + "'" + pvaluesC + ")) "
@@ -577,17 +577,18 @@ public class AdvancedSearchController {
             while (matcher.find()) {
                 System.out.println("found: " + matcher.group(0));
                 String mpA = matcher.group(1).trim();
-                String mpB = matcher.group(2).trim();;
-                String mpC = matcher.group(3).trim();;
+                String mpB = matcher.group(3).trim();;
+                String mpC = matcher.group(5).trim();;
 
                 logger.info("A: '{}', B: '{}', C: '{}'", mpA, mpB, mpC);
 
                 params.put("mpA", mapNarrowSynonym2MpTerm(narrowMappig, mpA, autosuggestCore));
                 params.put("mpB", mapNarrowSynonym2MpTerm(narrowMappig, mpB, autosuggestCore));
                 params.put("mpC", mapNarrowSynonym2MpTerm(narrowMappig, mpC, autosuggestCore));
-                pvaluesA = composePvalues(mpA, jParams);
-                pvaluesB = composePvalues(mpB, jParams);
-                pvaluesC = composePvalues(mpC, jParams);
+
+                pvaluesA = composePvalues(params.get("mpA").toString(), jParams);
+                pvaluesB = composePvalues(params.get("mpB").toString(), jParams);
+                pvaluesC = composePvalues(params.get("mpC").toString(), jParams);
             }
 
             String whereClause1 = noMpChild ? " WHERE ((mp.mpTerm = '" + params.get("mpB") + "'" + pvaluesB + ") OR (mp.mpTerm ='" + params.get("mpA") + "'" + pvaluesA + ")) "
@@ -663,17 +664,17 @@ public class AdvancedSearchController {
             while (matcher.find()) {
                 System.out.println("found: " + matcher.group(0));
                 String mpA = matcher.group(1).trim();
-                String mpB = matcher.group(2).trim();;
-                String mpC = matcher.group(3).trim();;
+                String mpB = matcher.group(3).trim();;
+                String mpC = matcher.group(5).trim();;
                 logger.info("A: '{}', B: '{}', C: '{}'", mpA, mpB, mpC);
 
                 params.put("mpA", mapNarrowSynonym2MpTerm(narrowMappig, mpA, autosuggestCore));
                 params.put("mpB", mapNarrowSynonym2MpTerm(narrowMappig, mpB, autosuggestCore));
                 params.put("mpC", mapNarrowSynonym2MpTerm(narrowMappig, mpC, autosuggestCore));
 
-                pvaluesA = composePvalues(mpA, jParams);
-                pvaluesB = composePvalues(mpB, jParams);
-                pvaluesC = composePvalues(mpC, jParams);
+                pvaluesA = composePvalues(params.get("mpA").toString(), jParams);
+                pvaluesB = composePvalues(params.get("mpB").toString(), jParams);
+                pvaluesC = composePvalues(params.get("mpC").toString(), jParams);
             }
 
             String whereClause1 = noMpChild ? " WHERE ((mp.mpTerm = '" + params.get("mpA") + "'" + pvaluesA + ") OR (mp.mpTerm ='" + params.get("mpB") + "'" + pvaluesB + ")) "
@@ -741,16 +742,17 @@ public class AdvancedSearchController {
             while (matcher.find()) {
                 System.out.println("found: " + matcher.group(0));
                 String mpA = matcher.group(1).trim();
-                String mpB = matcher.group(2).trim();;
-                String mpC = matcher.group(3).trim();;
+                String mpB = matcher.group(3).trim();;
+                String mpC = matcher.group(5).trim();;
                 //logger.info("A: '{}', B: '{}', C: '{}'", mpA, mpB, mpC);
 
                 params.put("mpA", mapNarrowSynonym2MpTerm(narrowMappig, mpA, autosuggestCore));
                 params.put("mpB", mapNarrowSynonym2MpTerm(narrowMappig, mpB, autosuggestCore));
                 params.put("mpC", mapNarrowSynonym2MpTerm(narrowMappig, mpC, autosuggestCore));
-                pvaluesA = composePvalues(mpA, jParams);
-                pvaluesB = composePvalues(mpB, jParams);
-                pvaluesC = composePvalues(mpC, jParams);
+
+                pvaluesA = composePvalues(params.get("mpA").toString(), jParams);
+                pvaluesB = composePvalues(params.get("mpB").toString(), jParams);
+                pvaluesC = composePvalues(params.get("mpC").toString(), jParams);
             }
 
             String whereClause1 = noMpChild ? " WHERE ((mp.mpTerm = '" + params.get("mpB") + "'" + pvaluesB + ") OR (mp.mpTerm ='" + params.get("mpC") + "'" + pvaluesC + ")) "
@@ -820,17 +822,17 @@ public class AdvancedSearchController {
             while (matcher.find()) {
                 System.out.println("found: " + matcher.group(0));
                 String mpA = matcher.group(1).trim();
-                String mpB = matcher.group(2).trim();
-                String mpC = matcher.group(3).trim();
+                String mpB = matcher.group(3).trim();
+                String mpC = matcher.group(5).trim();
                 logger.info("A: '{}', B: '{}', C: '{}'", mpA, mpB, mpC);
 
                 params.put("mpA", mapNarrowSynonym2MpTerm(narrowMappig, mpA, autosuggestCore));
                 params.put("mpB", mapNarrowSynonym2MpTerm(narrowMappig, mpB, autosuggestCore));
                 params.put("mpC", mapNarrowSynonym2MpTerm(narrowMappig, mpC, autosuggestCore));
 
-                pvaluesA = composePvalues(mpA, jParams);
-                pvaluesB = composePvalues(mpB, jParams);
-                pvaluesC = composePvalues(mpC, jParams);
+                pvaluesA = composePvalues(params.get("mpA").toString(), jParams);
+                pvaluesB = composePvalues(params.get("mpB").toString(), jParams);
+                pvaluesC = composePvalues(params.get("mpC").toString(), jParams);
             }
 
             String whereClause1 = noMpChild ? " WHERE mp.mpTerm = '" + params.get("mpA") + "'" + pvaluesA : " WHERE mp0.mpTerm = '" + params.get("mpA") + "'" + pvaluesA;
@@ -878,14 +880,14 @@ public class AdvancedSearchController {
 
             while (matcher.find()) {
                 String mpA = matcher.group(1).trim();;
-                String mpB = matcher.group(2).trim();;
+                String mpB = matcher.group(3).trim();;
                 logger.info("A: '{}', B: '{}'", mpA, mpB);
 
                 params.put("mpA", mapNarrowSynonym2MpTerm(narrowMappig, mpA, autosuggestCore));
                 params.put("mpB", mapNarrowSynonym2MpTerm(narrowMappig, mpB, autosuggestCore));
 
-                pvaluesA = composePvalues(mpA, jParams);
-                pvaluesB = composePvalues(mpB, jParams);
+                pvaluesA = composePvalues(params.get("mpA").toString(), jParams);
+                pvaluesB = composePvalues(params.get("mpB").toString(), jParams);
             }
 
             String whereClause1 = noMpChild ? " WHERE mp.mpTerm = '" + params.get("mpA") + "'" + pvaluesA : " WHERE mp0.mpTerm = '" + params.get("mpA") + "'" + pvaluesA;
@@ -929,17 +931,17 @@ public class AdvancedSearchController {
             while (matcher.find()) {
                 System.out.println("found: " + matcher.group(0));
                 String mpA = matcher.group(1).trim();
-                String mpB = matcher.group(2).trim();
-                String mpC = matcher.group(3).trim();
+                String mpB = matcher.group(3).trim();
+                String mpC = matcher.group(5).trim();
                 logger.info("A: '{}', B: '{}', C: '{}'", mpA, mpB, mpC);
 
                 params.put("mpA", mapNarrowSynonym2MpTerm(narrowMappig, mpA, autosuggestCore));
                 params.put("mpB", mapNarrowSynonym2MpTerm(narrowMappig, mpB, autosuggestCore));
                 params.put("mpC", mapNarrowSynonym2MpTerm(narrowMappig, mpC, autosuggestCore));
 
-                pvaluesA = composePvalues(mpA, jParams);
-                pvaluesB = composePvalues(mpB, jParams);
-                pvaluesC = composePvalues(mpC, jParams);
+                pvaluesA = composePvalues(params.get("mpA").toString(), jParams);
+                pvaluesB = composePvalues(params.get("mpB").toString(), jParams);
+                pvaluesC = composePvalues(params.get("mpC").toString(), jParams);
             }
 
             if (geneList.isEmpty()){
@@ -980,13 +982,14 @@ public class AdvancedSearchController {
 
             while (matcher.find()) {
                 String mpA = matcher.group(1).trim();
-                String mpB = matcher.group(2).trim();
+                String mpB = matcher.group(3).trim();
                 logger.info("A: '{}', B: '{}'", mpA, mpB);
 
                 params.put("mpA", mapNarrowSynonym2MpTerm(narrowMappig, mpA, autosuggestCore));
                 params.put("mpB", mapNarrowSynonym2MpTerm(narrowMappig, mpB, autosuggestCore));
-                pvaluesA = composePvalues(mpA, jParams);
-                pvaluesB = composePvalues(mpB, jParams);
+
+                pvaluesA = composePvalues(params.get("mpA").toString(), jParams);
+                pvaluesB = composePvalues(params.get("mpB").toString(), jParams);
             }
 
             if (geneList.isEmpty()){
