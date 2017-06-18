@@ -1300,8 +1300,11 @@ public class AdvancedSearchController {
                 list.add("'" + sex.toString() + "' in sr.phenotypeSex");
             }
 
-            if (list.size() > 0) {
-                phenotypeSexes = " AND (" + StringUtils.join(list, " OR ") + ")";
+            if (list.size() == 1) {
+                phenotypeSexes = " AND (" + list.get(0) + ")";
+            }
+            else if (list.size() > 1) {
+                phenotypeSexes = " AND ALL (tag in sr.phenotypeSex WHERE tag IN ['male','female'])";
             }
         }
         return phenotypeSexes;
