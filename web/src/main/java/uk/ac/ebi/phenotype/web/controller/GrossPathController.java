@@ -36,10 +36,11 @@ public class GrossPathController {
 	MpService mpService;
 	
 	
-	@RequestMapping("/grosspath/{acc}/{mpId}")
-	public String grossPath(@PathVariable String acc, @PathVariable String mpId, Model model) throws SolrServerException, IOException {
+	@RequestMapping("/grosspath/{acc}/{parameterStableId}")
+	public String grossPath(@PathVariable String acc, @PathVariable String parameterStableId, Model model) throws SolrServerException, IOException {
 		//exmple Lpin2 MGI:1891341
 		//best example is MGI:2148793
+		System.out.println("calling gross path controller");
 		GeneDTO gene = geneService.getGeneById(acc);
 		model.addAttribute("gene", gene);
 		
@@ -50,9 +51,7 @@ public class GrossPathController {
 		//abnormal observations informs us of which Anatomy terms we need stats for both normal and abnormal numbers
 		List<ObservationDTO> abnormalObservations = grossPathService.getAbnormalObservations(allObservations);
 		//grossPathService.processForAbnormalAnatomies(allObservations, abnormalObservations);
-		List<String> mpChildren = mpService.getChildrenFor(mpId);
-		List<OntologyBean> mpChildren2 = mpService.getChildren(mpId);
-		List<GrossPathPageTableRow> grossPathRows = grossPathService.getSummaryTableData(allObservations, images, abnormalObservations, true, mpChildren);
+		List<GrossPathPageTableRow> grossPathRows = grossPathService.getSummaryTableData(allObservations, images, abnormalObservations, true, parameterStableId);
 		model.addAttribute("sampleSize",sampleSize);
 		model.addAttribute("pathRows", grossPathRows);
 		model.addAttribute("extSampleIdToObservations", allObservations);

@@ -41,16 +41,15 @@ public class GrossPathService {
 
 	}
 	
-	public List<GrossPathPageTableRow> getSummaryTableData(List<ObservationDTO> allObservations, List<SolrDocument> images, List<ObservationDTO> abnormaObservations, boolean abnormalOnly, List<String> mpChildren) throws SolrServerException, IOException {
+	public List<GrossPathPageTableRow> getSummaryTableData(List<ObservationDTO> allObservations, List<SolrDocument> images, List<ObservationDTO> abnormaObservations, boolean abnormalOnly, String parameterStableId) throws SolrServerException, IOException {
 		List<GrossPathPageTableRow> rows = new ArrayList<>();
 		System.out.println("observations for GrossPath size with abnormal=" + allObservations.size());
 		Map<String, List<ObservationDTO>> anatomyToObservationMap = this.getAnatomyNamesToObservationsMap(allObservations);//only look at abnormal anatomies now as summary view
-			ArrayList<String> textValuesForSampleId = new ArrayList<String>();
 			for (String anatomyName : anatomyToObservationMap.keySet()) {				
 				int abnormalObservations=0;
 				int normalObservations=0;
 				//for summary we want the rows split on a key of anatomy||zygosity||normal/abnormal
-				Map<String, List<ObservationDTO>> keysForRow = this.generateKeyMapForAnatomy(anatomyToObservationMap.get(anatomyName));
+				Map<String, List<ObservationDTO>> keysForRow = this.generateKeyMapForAnatomy(anatomyToObservationMap.get(anatomyName), parameterStableId);
 				for (String key : keysForRow.keySet()) {	
 					System.out.println("key for row is "+key);
 					GrossPathPageTableRow row = new GrossPathPageTableRow();
@@ -61,6 +60,7 @@ public class GrossPathService {
 						//row.setSampleId(obs.getExternalSampleId());				
 						Set<String> parameterNames = new TreeSet<>();
 							row.setZygosity(obs.getZygosity().substring(0, 3).toUpperCase());
+							
 							ImpressBaseDTO parameter = new ImpressBaseDTO(null, null, obs.getParameterStableId(),
 									obs.getParameterName());
 							parameterNames.add(obs.getParameterName());
@@ -76,9 +76,6 @@ public class GrossPathService {
 										row.addOntologicalParam(parameter, subOntologyBean);
 										//System.out.println(subOntologyBean);
 										if(!obs.getSubTermName().get(i).equals("no abnormal phenotype detected")){
-											if(mpChildren.contains(obs.getSubTermId().get(i))){
-											row.setMpId(obs.getSubTermId().get(i));
-											}
 											abnormalObservations++;
 										}else{
 											normalObservations++;
@@ -158,17 +155,22 @@ public class GrossPathService {
 
 	}
 
-	private Map<String, List<ObservationDTO>> generateKeyMapForAnatomy(List<ObservationDTO> list) {
-		//for summary we want the rows split on a key of anatomy||zygosity||normal/abnormal
-		Map<String, List<ObservationDTO> >keyMap=new HashMap<>();
-		for(ObservationDTO obs:list){
-			String key=this.getAnatomyStringFromObservation(obs)+"||"+obs.getZygosity()+"||"+this.getNormalOrAbnormalStringFromObservation(obs);
-			if(keyMap.containsKey(key)){
-				keyMap.get(key).add(obs);
-			}else{
-				List<ObservationDTO> tempList=new ArrayList<>();
-				tempList.add(obs);
-				keyMap.put(key, tempList);
+	private Map<String, List<ObservationDTO>> generateKeyMapForAnatomy(List<ObservationDTO> list,
+			String parameterStableIdFilter) {
+		// for summary we want the rows split on a key of
+		// anatomy||zygosity||normal/abnormal
+		Map<String, List<ObservationDTO>> keyMap = new HashMap<>();
+		for (ObservationDTO obs : list) {
+			if (obs.getParameterStableId().equals(parameterStableIdFilter)) {
+				String key = this.getAnatomyStringFromObservation(obs) + "||" + obs.getZygosity() + "||"
+						+ this.getNormalOrAbnormalStringFromObservation(obs) + "||" + obs.getParameterStableId();
+				if (keyMap.containsKey(key)) {
+					keyMap.get(key).add(obs);
+				} else {
+					List<ObservationDTO> tempList = new ArrayList<>();
+					tempList.add(obs);
+					keyMap.put(key, tempList);
+				}
 			}
 		}
 		return keyMap;
