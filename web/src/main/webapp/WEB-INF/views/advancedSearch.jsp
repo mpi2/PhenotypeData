@@ -1562,7 +1562,10 @@
                     "initComplete": function (oSettings) {  // when dataTable is loaded
 
                         var json = oSettings.json;
-                        $("div#userFilters").append("<br><br><b>NOTE: </b>" +json.narrowMapping);
+
+                        if (json.narrowMapping != '') {
+                            $("div#userFilters").append("<br><br><b>NOTE: </b>" + json.narrowMapping);
+                        }
 
                         $('body').removeClass("loading");  // when table loads, remove modal
 
