@@ -153,7 +153,7 @@ public class FileExportController {
 
 		JSONObject jcontent = advancedSearchController.fetchGraphDataAdvSrch(jParams, fileType);
 
-		String filters = "Search filters: " + jParams.getString("shownFilter");
+		String filters = "Search filters: " + jParams.getString("shownFilter") + jcontent.get("narrowMapping");
 
 		FileExportUtils.writeOutputFile(response, jcontent.getJSONArray("rows"), fileType, fileName, filters);
 
