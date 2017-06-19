@@ -910,17 +910,13 @@
 
                 var shownFilter = [];
 
-                var phenotypeSexes = [];
+                var phenotypeSex = null;
                 $("fieldset.MpFilter input[name='sex']:checked").each(function () {
                     if ($(this).val() != undefined) {
-                        phenotypeSexes.push($(this).val());
+                        kv['phenotypeSex'] = $(this).val();
+                        shownFilter.push("mouse sex = '" + kv['phenotypeSex'] + "'");
                     }
                 });
-                if (phenotypeSexes.length > 0) {
-                    kv['phenotypeSexes'] = phenotypeSexes;
-                    shownFilter.push("mouse sex = '" + phenotypeSexes + "'");
-                }
-
 
                 if ($('input#noMpChild').is(':checked')){
                     kv['noMpChild'] = true;
@@ -1772,9 +1768,10 @@
             function addSex(dataType){
                 var legend = "<legend>Mouse sex</legend>";
                 var msg = "<div>Restrict results done with male or female samples or both</div>";
-                var male = "<input type='checkbox' name='sex' value='male'> Male";
-                var female = "<input type='checkbox' name='sex' value='female'> Female";
-                var filter = "<fieldset class='" + dataType + "Filter dfilter " + dataType + "'>" + legend + msg + male + female + "</fieldset>";
+                var male = "<input type='radio' name='sex' value='male'> Male";
+                var female = "<input type='radio' name='sex' value='female'> Female";
+                var both = "<input type='radio' name='sex' value='both'> Both";
+                var filter = "<fieldset class='" + dataType + "Filter dfilter " + dataType + "'>" + legend + msg + male + female + both + "</fieldset>";
 
                 $('div#dataAttributes').append(filter);
             }

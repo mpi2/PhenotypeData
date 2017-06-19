@@ -1292,22 +1292,21 @@ public class AdvancedSearchController {
 
     private String composePhenotypeSexStr(JSONObject jParams){
 
-        String phenotypeSexes = "";
-        if (jParams.containsKey("phenotypeSexes")) {
-            JSONArray sexes = jParams.getJSONArray("phenotypeSexes");
-            List<String> list = new ArrayList<>();
-            for(Object sex : sexes) {
-                list.add("'" + sex.toString() + "' in sr.phenotypeSex");
-            }
+        String phenotypeSex = "";
+        if (jParams.containsKey("phenotypeSex")) {
+            String sex = jParams.getString("phenotypeSex");
 
-            if (list.size() == 1) {
-                phenotypeSexes = " AND (" + list.get(0) + ")";
+            if (sex.equals("female")){
+                phenotypeSex = " AND none (tag IN sr.phenotypeSex WHERE tag IN ['male','both']) ";
             }
-            else if (list.size() > 1) {
-                phenotypeSexes = " AND ALL (tag in sr.phenotypeSex WHERE tag IN ['male','female'])";
+            else if (sex.equals("male")){
+                phenotypeSex = " AND none (tag IN sr.phenotypeSex WHERE tag IN ['female','both']) ";
+            }
+            else if (sex.equals("both")) {
+                phenotypeSex = " AND ('both' IN sr.phenotypeSex) ";
             }
         }
-        return phenotypeSexes;
+        return phenotypeSex;
     }
 
     private String composeChrRangeStr(JSONObject jParams){
