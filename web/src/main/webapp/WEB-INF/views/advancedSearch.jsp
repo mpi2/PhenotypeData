@@ -1560,6 +1560,9 @@
                      ],*/
                     "initComplete": function (oSettings) {  // when dataTable is loaded
 
+                        var json = oSettings.json;
+                        $("div#userFilters").append("<br><br><b>NOTE: </b>" +json.narrowMapping);
+
                         $('body').removeClass("loading");  // when table loads, remove modal
 
                         $('div#sec2').show();
@@ -1635,6 +1638,7 @@
                         "data": oConf,
                         "type": "POST",
                         "error": function() {
+                            $('body').removeClass("loading");
                             $('div.dataTables_processing').text("Failed to fetch your query: keyword not found");
                             $('td.dataTables_empty').text("");
                         }
