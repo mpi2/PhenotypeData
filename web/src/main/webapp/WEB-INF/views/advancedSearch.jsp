@@ -12,6 +12,11 @@
 
         <style type="text/css">
 
+            div#aboutAdvSrch {
+                margin: 10px;
+                font-size: 16px;
+
+            }
             div.region-content {
                 margin-top: 53px;
             }
@@ -2192,6 +2197,8 @@
                 <div class="content">
                     <div class="node node-gene">
                         <h1 class="title" id="top">IMPC Dataset Advanced Search<a id="bqdoc" class=""><i class="fa fa-question-circle pull-right"></i></a></h1>
+                        <div id="aboutAdvSrch">This is a gene-centric search tool to allow users find mouse phenotypes and human diseases that are associated with a mouse gene in IMPC.</div>
+
                         <form id='goSubmit' method='post' onreset="catchOnReset()">
                             <div class="section">
 
