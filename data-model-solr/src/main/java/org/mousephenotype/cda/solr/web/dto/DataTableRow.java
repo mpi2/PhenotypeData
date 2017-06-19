@@ -337,15 +337,15 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
 			} else if (procedure.getName().startsWith("Gross Pathology and Tissue Collection")) {
 				evidenceLink.setAlt("Table");
 				evidenceLink.setIconType(EvidenceLink.IconType.TABLE);
-				url = baseUrl + "/grosspath/" + gene.getAccessionId();// getMpathImagesUrlPostQc(baseUrl,
+				url = baseUrl + "/grosspath/" + gene.getAccessionId()+"/"+parameter.getStableId();// getMpathImagesUrlPostQc(baseUrl,
 																		// gene.getAccessionId(),
 																		// gene.getSymbol(),
 																		// procedure.getName(),
 																		// this.colonyId);
-				if(phenotypeTerm.getId()!=null){
-//					System.out.println("phenotype term id="+phenotypeTerm.getId());
-					url+="/"+phenotypeTerm.getId();
-				}
+//				if(phenotypeTerm.getId()!=null){
+////					System.out.println("phenotype term id="+phenotypeTerm.getId());
+//					url+="/"+phenotypeTerm.getId();
+//				}
 				evidenceLink.setDisplay(true);
 			} else {
 
