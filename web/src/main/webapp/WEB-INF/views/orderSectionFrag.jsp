@@ -7,7 +7,7 @@
 	<c:if test="${creLine}">
 		<c:set var="creLineParam" value="&creLine=true"/>
 	</c:if>
-<table>        
+<table id="creLineTable" class="table tableSorter">        
         <thead>
         		 <tr>
                         <th style="border-bottom:0px;"></th>
@@ -32,7 +32,7 @@
         </thead>
         <tbody>
                 <c:forEach var="row" items="${orderRows}" varStatus="status">
-                <c:set var="rowSpan" value="2"></c:set>
+                <c:set var="rowSpan" value="1"></c:set>
                 <c:if test="${row.geneMapLink || row.vectorMapLink }">
                 	<c:set var="rowSpan" value="2"></c:set>
                 </c:if>
@@ -102,7 +102,15 @@
                         <%-- <c:if test="${rowSpan==2 }"> --%>
                          
                         <tr>
-                     
+				                     <td rowspan="${rowSpan}">
+                         	<a href="${baseUrl}/alleles/${row.mgiAccessionId}/${row.encodedAlleleName}?${creLineParam}">${row.markerSymbol}<sup>${row.alleleName}</sup></a>
+                         </td>
+                         <%-- <td>
+                         	${row.strainOfOrigin}
+                         </td> --%>
+                         <td rowspan="${rowSpan}">
+                         	${row.alleleDescription}
+                         </td>
                         
 		                            <td style="text-align: center;">Gene</td>
                                		<td >
@@ -117,6 +125,12 @@
 		                               		<a href="${row.geneGenbankLink}" target="_blank"><i class="fa fa-file-text fa-lg" title="Genbank File"></i></a>
 		                                
 	                               		</c:if>
+	                               	</td>
+	                               	<td>
+	                               	</td>
+	                               	<td>
+	                               	</td>
+	                               	<td>
 	                               	</td>
 	                               	
                        
