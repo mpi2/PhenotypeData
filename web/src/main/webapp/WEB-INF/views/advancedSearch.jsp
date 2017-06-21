@@ -54,9 +54,9 @@
             legend {
                 padding: 0 15px;
                 border: 1px solid lightgrey;
-                background-color: #6196B4;
+                background-color: #E0E0E0;
                 border-radius: 4px;
-                color: white;
+                color: black;
             }
             fieldset input[type=checkbox] {
                 height: 10px;
@@ -66,6 +66,9 @@
             input[type=text] {
                 height: 10px;
                 width: 60px;
+            }
+            input[type=reset]{
+                cursor: pointer;
             }
             fieldset.dfilter {
                 border: 1px solid darkslategray;
@@ -162,19 +165,24 @@
                 left: 360px;
                 cursor: pointer;
             }
-            button.andOr {
+            button.ontoview {
                 position: absolute;
                 top: 6px;
-                left: 590px;
+                left: 600px;
                 margin-left: 5px;
                 padding: 0 !important;
-                display: none;
             }
-            .andOr2 {
-                display: none;
+            button.killRow {
+                position: absolute;
+                top: 6px;
+                left: 690px;
+                margin-left: 5px;
+                padding: 0 !important;
+            }
+            textarea.andOr2 {
+                display: block;
             }
             button.andOr2, button.andOrClear {
-
                 color: #942a25;
                 border: 1px solid white;
                 border-radius: 3px;
@@ -182,27 +190,17 @@
                 margin-left: 10px;
                 width: 35px;
             }
-            .andOrClear {
-                color: black;
-                width: 45px;
-            }
-            button.ontoview {
-                position: absolute;
-                top: 6px;
-                left: 700px;
-                margin-left: 5px;
-                padding: 0 !important;
-            }
             button {
                 cursor: pointer;
             }
             button.ap{
-                background-color: darkorange;
+                background-color: #6196B4;
                 color: white;
                 border: none;
                 border-radius: 3px;
                 padding: 5px 12px;
                 margin: 3px 0 10px 3px;
+                display: block;
             }
             span.pvalue input {
                 padding: 3px !important;
@@ -210,12 +208,7 @@
             span.sugListPheno {
                 font-size: 10px;
             }
-            .ui-menu-item:hover {
-                background-color: unset !important;
-                background-image: none;
-                border: none;
-                outline-color: unset;
-            }
+
             div#saveTable {
                 top: 34px;
                 left: -25px;
@@ -224,26 +217,7 @@
                 top: -58px;
                 right: 35px;
             }
-            #pasteList {
-                font-size: 12px;
-            }
-            .notes {
-                font-size: 10px;
-            }
-            #accordion {
-                font-size: 11px;
-                background-color: white;
-            }
-            #pastedList, #srcfile {
-                padding-left: 0;
-            }
-            #srcfile  {
-                border: 0;
-            }
-            .lbl {
-                font-size: 12px;
-                font-weight: bold;
-            }
+
             div#query {
                 font-size: 11px !important;
             }
@@ -493,7 +467,6 @@
                 var solrUrl = "${internalSolrUrl}";
 
                 $('div#batchQryLink').hide(); // hide batchquery link for batchquery page
-
 
                 // initialze search example qTip with close button and proper positioning
                 var bqDoc = '<h4 id="bqdoc">How to use the advanced search</h4>'
@@ -795,50 +768,50 @@
 
             });
 
-            function catchOnReset(){
-//                var dataType = $("input[name='queryType']:checked").val();
-//				    console.log(dataType);
-//                $("input[name=mygroup][value=" + dataType + "]").prop('checked', true);
-                //$('textarea').val("");
-            }
-            function connectCircle(id1, id2) {
-
-                var x1 = idsVar[id1].x;
-                var y1 = idsVar[id1].y;
-                var r1 = idsVar[id1].r;
-                var x2 = idsVar[id2].x;
-                var y2 = idsVar[id2].y;
-                var r2 = idsVar[id2].r;
-
-                // Compute the path strings
-                var c1path = circlePath(x1, y1, r1);
-                var c2path = circlePath(x2, y2, r2);
-                var linepath = linePath(x1, y1, x2, y2);
-
-                // Get the path intersections
-                // In this case we are guaranteed 1 intersection, but you could find any intersection of interest
-                var c1i = Raphael.pathIntersection(linepath, c1path)[0];
-                var c2i = Raphael.pathIntersection(linepath, c2path)[0];
-
-                var line = paper.path(linePath(c1i.x, c1i.y, c2i.x, c2i.y));
-
-                var lineColor = "#c1d7d7";  // different color to distinguish between DiseaeGene and DiseaseModel
-                if ( (id1=="DiseaseGene" && id2=="Hp") || (id1=="DiseaseGene" && id2=="Gene") ){
-                    lineColor = "#507c7c";
-                }
-
-                line.attr ("stroke", lineColor);
-            }
-
-            // Computes a path string for a circle
-            function circlePath(x, y, r) {
-                return "M" + x + "," + (y - r) + "A" + r + "," + r + ",0,1,1," + (x - 0.1) + "," + (y - r) + " z";
-            }
-
-            // Computes a path string for a line
-            function linePath(x1, y1, x2, y2) {
-                return "M" + x1 + "," + y1 + "L" + x2 + "," + y2;
-            }
+//            function catchOnReset(){
+////                var dataType = $("input[name='queryType']:checked").val();
+////				    console.log(dataType);
+////                $("input[name=mygroup][value=" + dataType + "]").prop('checked', true);
+//                //$('textarea').val("");
+//            }
+//            function connectCircle(id1, id2) {
+//
+//                var x1 = idsVar[id1].x;
+//                var y1 = idsVar[id1].y;
+//                var r1 = idsVar[id1].r;
+//                var x2 = idsVar[id2].x;
+//                var y2 = idsVar[id2].y;
+//                var r2 = idsVar[id2].r;
+//
+//                // Compute the path strings
+//                var c1path = circlePath(x1, y1, r1);
+//                var c2path = circlePath(x2, y2, r2);
+//                var linepath = linePath(x1, y1, x2, y2);
+//
+//                // Get the path intersections
+//                // In this case we are guaranteed 1 intersection, but you could find any intersection of interest
+//                var c1i = Raphael.pathIntersection(linepath, c1path)[0];
+//                var c2i = Raphael.pathIntersection(linepath, c2path)[0];
+//
+//                var line = paper.path(linePath(c1i.x, c1i.y, c2i.x, c2i.y));
+//
+//                var lineColor = "#c1d7d7";  // different color to distinguish between DiseaeGene and DiseaseModel
+//                if ( (id1=="DiseaseGene" && id2=="Hp") || (id1=="DiseaseGene" && id2=="Gene") ){
+//                    lineColor = "#507c7c";
+//                }
+//
+//                line.attr ("stroke", lineColor);
+//            }
+//
+//            // Computes a path string for a circle
+//            function circlePath(x, y, r) {
+//                return "M" + x + "," + (y - r) + "A" + r + "," + r + ",0,1,1," + (x - 0.1) + "," + (y - r) + " z";
+//            }
+//
+//            // Computes a path string for a line
+//            function linePath(x1, y1, x2, y2) {
+//                return "M" + x1 + "," + y1 + "L" + x2 + "," + y2;
+//            }
 
             function fetchDatatypeProperties() {
 
@@ -1161,38 +1134,38 @@
                 }
             }
 
-            function mapInputId2NodeType(key){
-                var map = {
-                    "mouseMarkerSymbol":"Gene",
-                    "mouseGeneId":"Gene",
-                    "geneChr":"Gene",
-                    "ensembl":"EnsemblGeneId",
-                    "mpTerm":"Mp",
-                    "mpId":"Mp",
-                    "human_marker_symbol":"HumanGeneSymbol",
-                    "hpTerm":"Hp",
-                    "hpId":"Hp",
-                    "diseaseTerm":"DiseaseModel",
-                    "diseaseId":"DiseaseModel"
-                };
-                return map[key];
+//            function mapInputId2NodeType(key){
+//                var map = {
+//                    "mouseMarkerSymbol":"Gene",
+//                    "mouseGeneId":"Gene",
+//                    "geneChr":"Gene",
+//                    "ensembl":"EnsemblGeneId",
+//                    "mpTerm":"Mp",
+//                    "mpId":"Mp",
+//                    "human_marker_symbol":"HumanGeneSymbol",
+//                    "hpTerm":"Hp",
+//                    "hpId":"Hp",
+//                    "diseaseTerm":"DiseaseModel",
+//                    "diseaseId":"DiseaseModel"
+//                };
+//                return map[key];
+//
+//            }
 
-            }
-
-            function convertParamToObject(params){
-                var oConf = {};
-                var paramsStr = params.replace("?", "");
-                var kv = paramsStr.split("&");
-                for ( var i=0; i<kv.length; i++){
-                    var kv2 = kv[i].split("=");
-                    oConf[kv2[0]] = kv2[1];
-                }
-                return oConf;
-            }
-
-            function easyReadBp(bp){
-                return bp.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-            }
+//            function convertParamToObject(params){
+//                var oConf = {};
+//                var paramsStr = params.replace("?", "");
+//                var kv = paramsStr.split("&");
+//                for ( var i=0; i<kv.length; i++){
+//                    var kv2 = kv[i].split("=");
+//                    oConf[kv2[0]] = kv2[1];
+//                }
+//                return oConf;
+//            }
+//
+//            function easyReadBp(bp){
+//                return bp.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+//            }
 
 
             function addAutosuggest(thisInput){
@@ -1303,10 +1276,25 @@
                         var q = this.value;
                         q = encodeURIComponent(q).replace("%3A", "\\%3A");
 
-                        $('textarea#pastedList').val('"'+ decodeURIComponent(q) + '"');
+                        if ($('textarea.Mp').val() == '') {
+                            $('textarea.Mp').val(decodeURIComponent(q));
+                        }
+                        else {
+                            var count = ($('textarea.Mp').val().match(/AND|OR/g) || []).length;
+
+                            if ( (count == 1 && $('input.srchMp').size() == 2) || (count==2 && $('input.srchMp').size() == 3) ) {
+                                $('textarea.Mp').val($('textarea.Mp').val() + decodeURIComponent(q));
+                            }
+                            else {
+                                alert("Sorry, you need to click 'AND' or 'OR' button first to build your boolean query");
+                                thisInput.val('');
+                                return false;
+                            }
+                        }
 
                         // prevents escaped html tag displayed in input box
-                        event.preventDefault(); return false;
+                        event.preventDefault();
+                        return false;
 
                     },
                     open: function(event, ui) {
@@ -1330,6 +1318,7 @@
 
                 // User press ENTER
                 thisInput.keyup(function (e) {
+                    console.log('enter')
                     if (e.keyCode == 13) { // user hits enter
                         $(".ui-menu-item").hide();
                         //$('ul#ul-id-1').remove();
@@ -1375,7 +1364,6 @@
                         // and it is not essential to escape space
                         input = input.replace(/\\?%20/g, ' ');
 
-                        $('textarea#pastedList').val('"'+ input + '"');
                         $(".ui-menu-item").hide();
                     }
                 });
@@ -1702,7 +1690,7 @@
                     compartmentAttrsFilters(dataType, "Gene");
                 }
                 else if (dataType == "Mp"){
-                    addSex(dataType);
+                    //addSex(dataType); skip for now
                     addAutosuggestFilter(dataType);
                     addParameterFilter(dataType);
                     //addOntologyChildrenLevelFilter(dataType);
@@ -1952,8 +1940,8 @@
                     "<input class='termFilter srch" + dataType + "' value='search'>" +
                     "<i class='fa fa-times' id='" + idname + "Clear'></i>" +
                     "<span class='pvalue'> p value: <input class='gtpvalue' type='text'> < P < <input class='ltpvalue' type='text'></span>" +
-                    "<button class='andOr " + dataType + "'>add to query</button>" +
                     "<button class='ontoview " + dataType + "'>ontology view</button>" +
+                    "<button class='killRow " + dataType + "'>Delete row</button>" +
                     "</div>";
 
                 var legendLabel, buttLabel, restriction = null;
@@ -1979,24 +1967,25 @@
                 var legend = "<legend>"+ legendLabel + "</legend>";
 
                 var noMpChild = "<div id='single'><input type='checkbox' id='noMpChild'> exclude nested phenotypes</div>";
-                var butt = "<button class='ap'>" + buttLabel + "</button><br>";
+                var butt = "<button class='ap'>" + buttLabel + "</button>";
                 var msg = "<span class='msg'>Build your query with boolean relationships (refer to info button above for help)<br>Eg. (A OR B) and C</span>";
-                var boolButts =
-                    "<button class='andOr2 " + dataType + "'>AND</button>"
-                    + "<button class='andOr2 " + dataType + "'>OR</button>"
+//                var boolButts =
+//                    "<button class='andOr2 " + dataType + "'>AND</button>"
+//                    + "<button class='andOr2 " + dataType + "'>OR</button>";
                     //+ "<button class='andOr2 " + dataType + "'>NOT</button>"
-                    + "<button class='andOr2 " + dataType + "'>(</button>"
-                    + "<button class='andOr2 " + dataType + "'>)</button>"
-                    + "<button class='andOrClear " + dataType + "'>clear</button>";
+//                    + "<button class='andOr2 " + dataType + "'>(</button>"
+//                    + "<button class='andOr2 " + dataType + "'>)</button>"
+//                    + "<button class='andOrClear " + dataType + "'>clear</button>";
                 var boolText = "<textarea class='andOr2 " + dataType + "' rows='2' cols=''></textarea>";
                 var help = "<img class='boolHow' src='${baseUrl}/img/advSearch/how-to-build-boolean-query.png' />";
-                var filter = "<fieldset class='" + dataType + "Filter dfilter " + dataType + "'>" + legend + restriction + noMpChild + input + butt + msg + boolButts + boolText + help + "</fieldset>";
+                var filter = "<fieldset class='" + dataType + "Filter dfilter " + dataType + "'>" + legend + restriction + noMpChild + input + butt + msg + boolText + help + "</fieldset>";
 
                 $('div#dataAttributes').append(filter);
 
                 addAutosuggest($('input.srch' + dataType));
 
                 var fieldsetFilter = "fieldset." + dataType + "Filter ";
+                $(fieldsetFilter + ' div.srchBox').first().find('button.killRow').hide();
 
                 $(fieldsetFilter + ' button.ontoview').first().click(function(){
                     // ajax call to fetch for mp id
@@ -2046,101 +2035,96 @@
 
                 var boolTextarea = $(fieldsetFilter +"textarea.andOr2");
 
-                // define and/or for term filters
-                $(fieldsetFilter + "button.andOr").click(function(){
-                    var termVal = $(this).siblings('.termFilter').val();
-                    if (termVal == 'search' || termVal == ""){
-                        alert("INFO: please enter a phenotype");
-                    }
-                    else {
-                        boolTextarea.val(boolTextarea.val() + termVal + " ");
-                    }
-                    return false;
-                });
-                $(fieldsetFilter + "button.andOr2").click(function(){
-                    var bool = $(this).text();
-                    boolTextarea.val(boolTextarea.val() + bool + " ");
-                    return false;
-                });
-
-
-                // add new input
+                // append AND/OR and add new phenotype
                 $(fieldsetFilter + "button.ap").click(function(){
 
-                    // only allow max of 3, otherwise it gets to complicated with the AND/OR combinataions
-                    if ($(fieldsetFilter +".srchBox").size() < 3){
-                        $(input).insertAfter($(fieldsetFilter + ".srchBox").last());
+                    var srchBox = $(fieldsetFilter +"div.srchBox");
+                    var boxCount = srchBox.size();
 
-                        var lastButt = $(fieldsetFilter + "button.andOr").last();
-                        //lastButt.text($(fieldsetFilter +".srchBox").size());
-                        lastButt.text('add to query');
+                    if (boxCount < 4 ){
 
-                        lastButt.click(function () {
-                            var termVal = $(this).siblings('.termFilter').val();
-                            if (termVal == 'search') {
-                                alert("INFO: please enter a phenotype");
-                            }
-                            else {
-                                boolTextarea.val(boolTextarea.val() + termVal + " ");
-                            }
+                        if (srchBox.last().find('input.srchMp').val() == 'search' || srchBox.last().find('input.srchMp').val() == ''){
+                            alert('Oops, phenotype is not selected');
                             return false;
-                        });
-
-                        if ($(fieldsetFilter + ".srchBox").size() > 1) {
-                            $(fieldsetFilter + ".andOr").show();
-                            $(fieldsetFilter + ".andOr2").show();
-                            $(fieldsetFilter + ".msg").show();
-                            $(fieldsetFilter + ".andOrClear").show();
                         }
-                        $(fieldsetFilter + ".andOrClear").click(function () {
-                            boolTextarea.val("");
-                            return false;
-                        });
 
-                        $(fieldsetFilter + "button.ontoview").last().click(function() {
-                            // ajax call to fetch for mp id
-                            var termName = $(this).siblings('input.srchMp').val();
-                            $.ajax({
-                                'url': baseUrl + '/fetchmpid?name=' + termName,
-                                'async': true,
-                                'jsonp': 'json.wrf',
-                                'success': function (id) {
-                                    //console.log(id);
-                                    window.open(baseUrl + "/ontologyBrowser?termId=" + id, '_blank');
-                                },
-                                'error': function (jqXHR, textStatus, errorThrown) {
-                                    alert("Sorry, this phenotype does not have Ontology View");
-                                }
-                            });
-                            return false;
-                        })
+                        addBools(srchBox.last(), boolTextarea);
 
-                        // allow remove input just added
-                        $("<i class='pr fa fa-minus-square-o' aria-hidden='true'></i>").insertAfter($(fieldsetFilter + "button.andOr").last());
-
-                        $('i.pr').click(function () {
-                            $(this).siblings('input.termFilter').parent().remove();
-
-                            if ($(fieldsetFilter + ".srchMp").size() == 1) {
-                                $(fieldsetFilter + ".andOr").hide();
-                                $(fieldsetFilter + ".andOr2").hide();
-                                $(fieldsetFilter + ".msg").hide();
-                                $(fieldsetFilter + ".andOrClear").hide();
-                                $('textarea.andOr2').val("");
-                            }
-                        });
-
+                        $(input).insertAfter(srchBox.last());
                         addAutosuggest($('input.srch' + dataType).last());
 
-                        return false;
+                        $(fieldsetFilter +"input.srchMp").last().siblings('.killRow').click(function(){
+
+                            if ( $('button.killRow').size() == 3  && boxCount == 1){
+                                alert("INFO: you need to remove the last phenotype before removing the second one");
+                                return false;
+                            }
+
+                            srchBox.last().find('div.bools').detach();
+                            $(fieldsetFilter +"div.srchBox").last().detach();
+
+                            updateQueryBox(boolTextarea, boxCount+1);
+
+                            return false;
+                        });
                     }
                     else {
                         alert("Currently, the query takes maximum of 3 phenotypes");
                         return false;
                     }
+                    return false;
+//
                 });
             }
 
+            function updateQueryBox(boolTextarea, boxCount){
+                var query = boolTextarea.val();
+                if (boxCount == 2){
+                    var parts = query.match(/(.*) (AND|OR) (.*)/);
+                    //var parts = query.match(/\((\w+) (AND|OR) (\w+)\)/);
+//                    console.log("2-0: "+parts[0]);
+//                    console.log("2-1: "+parts[1]);
+//                    console.log("2-2: "+parts[2]);
+//                    console.log(parts[1]);
+                    boolTextarea.val(parts[1]);
+                }
+                else if (boxCount == 3){
+                    var parts = query.match(/(\()(.*) (AND|OR) (.*)(\)) (AND|OR) (.*)/);
+//                    console.log("3-0: "+parts[0]);
+//                    console.log("3-1: "+parts[1]);
+//                    console.log("3-2: "+parts[2]);
+//                    console.log("3-3: "+parts[3]);
+//                    console.log("3-4: "+parts[4]);
+//                    console.log("3-5: "+parts[5]);
+//                    console.log("3-6: "+parts[6]);
+//                    console.log("3-7: "+parts[7]);
+//                    console.log(parts[2] + " " + parts[3] + " " + parts[4]);
+                    boolTextarea.val(parts[2] + " " + parts[3] + " " + parts[4]);
+                }
+            }
+
+            function addBools(srchBox, boolTextarea){
+                var bools = "<div class='bools'><button class='andOr2'>AND</button>" +
+                            "<button class='andOr2'>OR</button></div>";
+
+                srchBox.append(bools);
+                var butts = srchBox.find('button.andOr2');
+                butts.click(function() {
+                    butts.css('color', 'gray');
+                    $(this).css('color', '#942a25;');
+
+                    var count = ($('textarea.Mp').val().match(/AND|OR/g) || []).length;
+                    if (count == 0 || count == 2) {
+                        boolTextarea.val(boolTextarea.val() + " " + $(this).text() + " ");
+                    }
+                    else if (count == 1) {
+                        boolTextarea.val("(" + boolTextarea.val() + ") " + $(this).text() + " ");
+                    }
+
+                    return false;
+                });
+
+            }
             function addAlleleTypes(dataType){
                 var legend = "<legend>Genotype and allele type</legend>";
 

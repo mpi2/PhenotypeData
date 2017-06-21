@@ -124,6 +124,8 @@ public class FileExportUtils {
 			String thead = null;
 			String trs = "";
 			int rownum = 0;
+			System.out.println("rows: " + dataRows.size());
+			long tstart = System.currentTimeMillis();
 			for (String line : dataRows) {
 				rownum++;
 				List<String> row = new ArrayList<>();
@@ -140,6 +142,7 @@ public class FileExportUtils {
 					openTag = "<td>";
 					endTag = "</td>";
 				}
+
 				for (String val : vals) {
 					if (val.equals("parameterName")){
 						val = "(procedureName) parameterName";
@@ -168,6 +171,8 @@ public class FileExportUtils {
 				}
 			}
 
+			long tend = System.currentTimeMillis();
+			System.out.println("done with rows in " + (tend - tstart) + " sec");
 			String html = "<html><head>" + css + "</head><table>" + caption + thead + "<tbody>" + trs + "</tbody></table></html>";
 			output.println(html);
 			output.flush();

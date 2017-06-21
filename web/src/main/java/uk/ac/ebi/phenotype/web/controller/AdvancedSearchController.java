@@ -408,7 +408,9 @@ public class AdvancedSearchController {
                 + " AND " + phenodigmScore + diseaseGeneAssociation + humanDiseaseTerm
                 + " AND dmp.mpTerm in mp.mpTerm";
 
-            query += fileType != null ? " RETURN distinct a, g, sr, collect(distinct mp), collect(distinct dm)" + sortStr :
+            query += fileType != null ?
+                   // " RETURN distinct a, g, sr, collect(distinct mp), collect(distinct dm)" + sortStr :
+                    " RETURN distinct a, g, sr, mp, dm" + sortStr :
                     " RETURN collect(distinct a), collect(distinct g), collect(distinct sr), collect(distinct mp), collect(distinct dm)";
 
             System.out.println("Query: "+ query);
@@ -437,7 +439,9 @@ public class AdvancedSearchController {
                         + " AND dmp.mpTerm IN mps";
             }
 
-            query += fileType != null ? " RETURN distinct a, g, sr, collect(distinct mp), collect(distinct dm)" + sortStr :
+            query += fileType != null ?
+                    //" RETURN distinct a, g, sr, collect(distinct mp), collect(distinct dm)" + sortStr :
+                    " RETURN distinct a, g, sr, mp, dm" + sortStr :
                     " RETURN collect(distinct a), collect(distinct g), collect(distinct sr), collect(distinct mp), collect(distinct dm)";
 
             System.out.println("Query: "+ query);
@@ -476,8 +480,10 @@ public class AdvancedSearchController {
                         + " AND dmp.mpTerm IN mps";
             }
 
-            query += fileType != null ? " RETURN distinct a, g, sr, collect(distinct mp), collect(distinct dm)" + sortStr :
-                     " RETURN collect(distinct a), collect(distinct g), collect(distinct sr), collect(distinct mp), collect(distinct dm)";
+            query += fileType != null ?
+                    //" RETURN distinct a, g, sr, collect(distinct mp), collect(distinct dm)" + sortStr :
+                    " RETURN distinct a, g, sr, mp, dm" + sortStr :
+                    " RETURN collect(distinct a), collect(distinct g), collect(distinct sr), collect(distinct mp), collect(distinct dm)";
 
             System.out.println("Query: "+ query);
             result =  neo4jSession.query(query, params);
@@ -562,8 +568,10 @@ public class AdvancedSearchController {
                         + " AND dmp.mpTerm IN mps";
             }
 
-            query += fileType != null ? " RETURN distinct nodes.alleles, g, nodes.srs, collect(distinct nodes.mps), collect(distinct dm)" + sortStr
-                    : " RETURN collect(distinct nodes.alleles), collect(distinct g), collect(distinct nodes.srs), collect(distinct nodes.mps), collect(distinct dm)";
+            query += fileType != null ?
+                    //" RETURN distinct nodes.alleles, g, nodes.srs, collect(distinct nodes.mps), collect(distinct dm)" + sortStr
+                    " RETURN distinct a, g, sr, mp, dm" + sortStr :
+                    " RETURN collect(distinct nodes.alleles), collect(distinct g), collect(distinct nodes.srs), collect(distinct nodes.mps), collect(distinct dm)";
 
             System.out.println("Query: "+ query);
             result =  neo4jSession.query(query, params);
@@ -649,8 +657,10 @@ public class AdvancedSearchController {
                         + " AND dmp.mpTerm IN mps";
             }
 
-            query += fileType != null ? " RETURN distinct nodes.alleles, g, nodes.srs, collect(distinct nodes.mps), collect(distinct dm)" + sortStr
-                    : " RETURN collect(distinct nodes.alleles), collect(distinct g), collect(distinct nodes.srs), collect(distinct nodes.mps), collect(distinct dm)";
+            query += fileType != null ?
+                    //" RETURN distinct nodes.alleles, g, nodes.srs, collect(distinct nodes.mps), collect(distinct dm)" + sortStr
+                    " RETURN distinct a, g, sr, mp, dm" + sortStr :
+                    " RETURN collect(distinct nodes.alleles), collect(distinct g), collect(distinct nodes.srs), collect(distinct nodes.mps), collect(distinct dm)";
 
             System.out.println("Query: "+ query);
             result =  neo4jSession.query(query, params);
@@ -727,8 +737,10 @@ public class AdvancedSearchController {
                         + " AND dmp.mpTerm IN mps";
             }
 
-            query += fileType != null ? " RETURN distinct nodes.alleles, g, nodes.srs, collect(distinct nodes.mps), collect(distinct dm)" + sortStr
-                    : " RETURN collect(distinct nodes.alleles), collect(distinct g), collect(distinct nodes.srs), collect(distinct nodes.mps), collect(distinct dm)";
+            query += fileType != null ?
+                    //" RETURN distinct nodes.alleles, g, nodes.srs, collect(distinct nodes.mps), collect(distinct dm)" + sortStr :
+                    " RETURN distinct a, g, sr, mp, dm" + sortStr :
+                    " RETURN collect(distinct nodes.alleles), collect(distinct g), collect(distinct nodes.srs), collect(distinct nodes.mps), collect(distinct dm)";
 
             System.out.println("Query: "+ query);
             result =  neo4jSession.query(query, params);
@@ -805,8 +817,10 @@ public class AdvancedSearchController {
                         + " AND dmp.mpTerm IN mps";
             }
 
-            query += fileType != null ? " RETURN distinct nodes.alleles, g, nodes.srs, collect(distinct nodes.mps), collect(distinct dm)" + sortStr
-                    : " RETURN collect(distinct nodes.alleles), collect(distinct g), collect(distinct nodes.srs), collect(distinct nodes.mps), collect(distinct dm)";
+            query += fileType != null ?
+                    //" RETURN distinct nodes.alleles, g, nodes.srs, collect(distinct nodes.mps), collect(distinct dm)" + sortStr
+                    " RETURN distinct a, g, sr, mp, dm" + sortStr :
+                    " RETURN collect(distinct nodes.alleles), collect(distinct g), collect(distinct nodes.srs), collect(distinct nodes.mps), collect(distinct dm)";
 
 
             System.out.println("Query: "+ query);
@@ -866,8 +880,10 @@ public class AdvancedSearchController {
                     + geneToDmPathClause
                     + " AND dmp.mpTerm IN mps";
 
-            query += fileType != null ? " RETURN distinct nodes.alleles, g, nodes.srs, collect(distinct nodes.mps), collect(distinct dm)" + sortStr
-                    : " RETURN collect(distinct nodes.alleles), collect(distinct g), collect(distinct nodes.srs), collect(distinct nodes.mps), collect(distinct dm)";
+            query += fileType != null ?
+                    //" RETURN distinct nodes.alleles, g, nodes.srs, collect(distinct nodes.mps), collect(distinct dm)" + sortStr
+                    " RETURN distinct a, g, sr, mp, dm" + sortStr :
+                    " RETURN collect(distinct nodes.alleles), collect(distinct g), collect(distinct nodes.srs), collect(distinct nodes.mps), collect(distinct dm)";
 
             System.out.println("Query: "+ query);
             result =  neo4jSession.query(query, params);
@@ -917,8 +933,10 @@ public class AdvancedSearchController {
             //query += fileType != null ? " RETURN distinct nodes.alleles, g, nodes.srs, collect(distinct nodes.mps), collect(distinct dm)" + sortStr
               //      : " RETURN collect(distinct nodes.alleles), collect(distinct g), collect(distinct nodes.srs), collect(distinct nodes.mps), collect(distinct dm)";
 
-            query += fileType != null ? " RETURN distinct nodes.alleles, g, nodes.srs, collect(distinct nodes.mps), collect(distinct dm)" + sortStr
-                    : " RETURN collect(distinct nodes.alleles), collect(distinct g), collect(distinct nodes.srs), collect(distinct nodes.mps), collect(distinct dm)";
+            query += fileType != null ?
+                    //" RETURN distinct nodes.alleles, g, nodes.srs, collect(distinct nodes.mps), collect(distinct dm)" + sortStr
+                    " RETURN distinct a, g, sr, mp, dm" + sortStr :
+                    " RETURN collect(distinct nodes.alleles), collect(distinct g), collect(distinct nodes.srs), collect(distinct nodes.mps), collect(distinct dm)";
 
             System.out.println("Query: "+ query);
             result =  neo4jSession.query(query, params);
@@ -967,7 +985,9 @@ public class AdvancedSearchController {
                 + geneToDmPathClause
                 + " AND dmp.mpTerm IN mps";
 
-            query += fileType != null ? " RETURN distinct a, g, sr, collect(distinct mp), collect(distinct dm)" + sortStr :
+            query += fileType != null ?
+                    //" RETURN distinct a, g, sr, collect(distinct mp), collect(distinct dm)" + sortStr :
+                    " RETURN distinct a, g, sr, mp, dm" + sortStr :
                     " RETURN collect(distinct a), collect(distinct g), collect(distinct sr), collect(distinct mp), collect(distinct dm)";
 
             System.out.println("Query: "+ query);
@@ -1009,7 +1029,9 @@ public class AdvancedSearchController {
                 + geneToDmPathClause
                 + " AND dmp.mpTerm IN mps";
 
-            query += fileType != null ? " RETURN distinct a, g, sr, collect(distinct mp), collect(distinct dm)" + sortStr :
+            query += fileType != null ?
+                    //" RETURN distinct a, g, sr, collect(distinct mp), collect(distinct dm)" + sortStr :
+                    " RETURN distinct a, g, sr, mp, dm" + sortStr :
                     " RETURN collect(distinct a), collect(distinct g), collect(distinct sr), collect(distinct mp), collect(distinct dm)";
 
             System.out.println("Query: "+ query);
@@ -1030,7 +1052,9 @@ public class AdvancedSearchController {
         List<String> rowDataOverview = new ArrayList<>(); // for overview
         List<String> dtypes = Arrays.asList("Allele", "Gene", "Mp", "DiseaseModel", "StatisticalResult");
 
+        long tstart = System.currentTimeMillis();
         if (fileType != null){
+
 
             List<String> cols = new ArrayList<>();
             Map<String, List<String>> node2Properties = new LinkedHashMap<>();
@@ -1200,6 +1224,9 @@ public class AdvancedSearchController {
 
             //System.out.println(j.toString());
         }
+        long tend = System.currentTimeMillis();
+
+        System.out.println((tend - tstart) + " ms taken");
         return j;
     }
 
