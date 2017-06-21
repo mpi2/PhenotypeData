@@ -28,7 +28,7 @@
 		                        <div class="section">
 		                            <div class=inner>
 		                                
-		                                <h4>IMPC data demonstrates the effect of sex on many phenotypes, supporting the importance of treating males and females in biomedical studies
+		                                <h4>IMPC data demonstrates the effect of sex on many phenotypes, supporting the importance of including males and females in biomedical research
 										</h4>
 		                                <ul class="pad10px">
 		                                    <li><a href="">In the News</a></li>
