@@ -13,6 +13,9 @@
 
 	<jsp:attribute name="header">
 
+		<%-- <link rel="stylesheet" href="${baseUrl}/css/parallelCoordinates/style.css" type="text/css" /> --%>
+
+
 		<script type="text/javascript">
 			var drupalBaseUrl = '${drupalBaseUrl}';
 		</script>
@@ -104,6 +107,34 @@ $('.iFrameFancy').click(function()
                   });
         }
     );
+    
+	/* $(document).ready(function() {
+	    $('#creLineTable').DataTable();
+	} ); */
+	
+	initCreLineTable();
+	
+	function initCreLineTable(){
+		var aDataTblCols = [0,1,2,3,4,5,6,7];
+		//	var oDataTable = $.fn.initDataTable($('table#phenotypes'), {
+	    $('#creLineTable').dataTable( {
+			"aoColumns": [{ "sType": "string"},
+			              { "sType": "string"},
+			              { "sType": "string"},
+			              { "sType": "string"},
+			              { "sType": "string"},
+			              { "sType": "string"},
+	                      { "sType": "string"},
+	                      { "sType": "string"}
+			              ],
+			"bDestroy": true,
+			"bFilter":false,
+			"searching":true,
+			"bPaginate":true,
+	        "sPaginationType": "bootstrap"
+		});
+    }
+
     
 });
 
