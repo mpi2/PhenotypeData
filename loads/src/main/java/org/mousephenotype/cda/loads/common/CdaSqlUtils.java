@@ -589,7 +589,7 @@ public class CdaSqlUtils {
                 if (count > 0) {
                     countsMap.put("bioModelsUpdated", countsMap.get("bioModelsUpdated") + count);
                 } else {
-                    throw new DataLoadException("Insert and Update failed for bioModel " + bioModel.toString() + "'. Skipping...");
+                    throw new DataLoadException("Insert and Update failed for bioModel " + bioModel.toString() + "'. Skipping..");
                 }
 
                 return countsMap;
