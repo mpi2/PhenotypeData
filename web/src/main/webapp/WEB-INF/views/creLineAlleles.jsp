@@ -120,7 +120,7 @@ $('.iFrameFancy').click(function()
 	    $('#creLineTable').dataTable( {
 			"aoColumns": [{ "sType": "string"},
 			              { "sType": "string"},
-			              { "sType": "string"},
+			              { "sType": "html"},
 			              { "sType": "string"},
 			              { "sType": "string"},
 			              { "sType": "string"}
