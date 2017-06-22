@@ -115,7 +115,7 @@ $('.iFrameFancy').click(function()
 	initCreLineTable();
 	
 	function initCreLineTable(){
-		var aDataTblCols = [0,1,2,3,4,5,6,7];
+		var aDataTblCols = [0,1,2,3,4,5,6];
 		//	var oDataTable = $.fn.initDataTable($('table#phenotypes'), {
 	    $('#creLineTable').dataTable( {
 			"aoColumns": [{ "sType": "string"},
@@ -123,12 +123,12 @@ $('.iFrameFancy').click(function()
 			              { "sType": "string"},
 			              { "sType": "string"},
 			              { "sType": "string"},
-			              { "sType": "string"},
-	                      { "sType": "string"},
-	                      { "sType": "string"}
+			              { "sType": "string"}
+			          
 			              ],
 			"bDestroy": true,
 			"bFilter":false,
+			"ordering": false,
 			"searching":true,
 			"bPaginate":true,
 	        "sPaginationType": "bootstrap"
