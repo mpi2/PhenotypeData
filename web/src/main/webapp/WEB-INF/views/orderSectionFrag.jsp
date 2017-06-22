@@ -12,30 +12,32 @@
         		 <tr>
                         <th style="border-bottom:0px;"></th>
                         <th style="border-bottom:0px;"></th>
-                        <th colspan="3" style="border-bottom:0px;  text-align:center;">Targeting Detail</th>
-                        <th colspan="3" style="border-bottom:0px; text-align:center;">Product Ordering</th>
+                        <th colspan="1" style="border-bottom:0px;  text-align:center;">Targeting Detail</th>
+                        <th colspan="1" style="border-bottom:0px; text-align:center;">Product Ordering</th>
                         
                       
                 </tr>
                 <tr>
                         <th>MGI Allele</th>
-                        <th style="width:22%">Allele Type</th>
+                        <th>Allele Type</th>
                         
-                        <th >Type</th>
-                        <th>Map</th>
-                        <th>Seq
+                        <th>
+                        <span>Type</span>
+                        <span>Map</span>
+                        <span>Seq</span>
                         <th>Vector</th>
                         <th>ES Cell</th>
                         <th>Mouse</th>
+                        
                       
                 </tr>
         </thead>
         <tbody>
                 <c:forEach var="row" items="${orderRows}" varStatus="status">
                 <c:set var="rowSpan" value="1"></c:set>
-                <c:if test="${row.geneMapLink || row.vectorMapLink }">
+                <%-- <c:if test="${row.geneMapLink || row.vectorMapLink }">
                 	<c:set var="rowSpan" value="2"></c:set>
-                </c:if>
+                </c:if> --%>
                       <tr>
                         <!-- /alleles/MGI:2443967/tm1a(EUCOMM)Hmgu -->
                          <td rowspan="${rowSpan}">
@@ -49,26 +51,43 @@
                          </td>
                           
                           
-                          
-                               
-                               <td style="text-align: center;">Vector</td>
-                               <td>
-                               		<c:if test="${not empty row.vectorMapLink}">
-                               			<a class="fancybox" target="_blank" style="text-align:right" href="${row.vectorMapLink}" fullRes="${row.vectorMapLink}" original="${row.vectorMapLink}">
-	                                   
-	                                   		<i class="fa fa-th-list fa-lg" title="Image"></i>
-	                                   
-	                                   </a>
-	                                 </c:if>
-	                            </td>
-	                            <td >
-	                                <c:if test="${not empty row.vectorGenbankLink}">
-		                               		<a href="${row.vectorGenbankLink}" target="_blank"><i class="fa fa-file-text fa-lg" title="Genbank File"></i></a>
-	                               	</c:if>
-	                            </td>
-	                              
-                               
-                              
+                          <td>
+                               <table>
+                               <tr>
+	                               <td style="text-align: center;">Vector</td>
+	                               <td>
+	                               		<c:if test="${not empty row.vectorMapLink}">
+	                               			<a class="fancybox" target="_blank" style="text-align:right" href="${row.vectorMapLink}" fullRes="${row.vectorMapLink}" original="${row.vectorMapLink}">
+		                                   
+		                                   		<i class="fa fa-th-list fa-lg" title="Image"></i>
+		                                   
+		                                   </a>
+		                                 </c:if>
+		                            </td>
+		                            <td >
+		                                <c:if test="${not empty row.vectorGenbankLink}">
+			                               		<a href="${row.vectorGenbankLink}" target="_blank"><i class="fa fa-file-text fa-lg" title="Genbank File"></i></a>
+		                               	</c:if>
+		                            </td>
+	                            </tr>
+	                            <tr>
+	                            	<td style="text-align: center;">Gene</td>
+                               		<td >
+                               			<c:if test="${not empty row.geneMapLink}">
+	                               			<a class="fancybox" target="_blank" style="text-align:right" href="${row.geneMapLink}" fullRes="${row.geneMapLink}" original="${row.geneMapLink}">
+	                                   			<i class="fa fa-th-list fa-lg" title="Image"></i>
+	                                   		</a>
+	                                   </c:if>
+	                                </td>
+	                                <td>
+	                                	<c:if test="${not empty row.geneGenbankLink}">
+		                               		<a href="${row.geneGenbankLink}" target="_blank"><i class="fa fa-file-text fa-lg" title="Genbank File"></i></a>
+		                                
+	                               		</c:if>
+	                               	</td>
+	                            </tr>  
+                               </table>
+                            </td>
                               
                                <%-- <c:if test="${not empty alleleProduct['genbank_file']}">
                                	<div style="padding:3px;"><a href="${alleleProduct['genbank_file']}"><i class="fa fa-file-text fa-lg"></i></a><span>&nbsp;&nbsp;&nbsp;genbank file</span></div>
@@ -97,44 +116,9 @@
 	                           <c:if test="${row.mouseAvailable}">
 	                          	<a class="iFrameFancy btn" data-url="${baseUrl}/order?acc=${row.mgiAccessionId}&allele=${row.alleleName}&type=mouse${creLineParam}&bare=true"><i class="fa fa-shopping-cart"></i></a>
 	                           </c:if>
-                          </td> 
-                        </tr>
-                        <%-- <c:if test="${rowSpan==2 }"> --%>
-                         
-                        <tr>
-				                     <td rowspan="${rowSpan}">
-                         	<a href="${baseUrl}/alleles/${row.mgiAccessionId}/${row.encodedAlleleName}?${creLineParam}">${row.markerSymbol}<sup>${row.alleleName}</sup></a>
-                         </td>
-                         <%-- <td>
-                         	${row.strainOfOrigin}
-                         </td> --%>
-                         <td rowspan="${rowSpan}">
-                         	${row.alleleDescription}
-                         </td>
-                        
-		                            <td style="text-align: center;">Gene</td>
-                               		<td >
-                               			<c:if test="${not empty row.geneMapLink}">
-	                               			<a class="fancybox" target="_blank" style="text-align:right" href="${row.geneMapLink}" fullRes="${row.geneMapLink}" original="${row.geneMapLink}">
-	                                   			<i class="fa fa-th-list fa-lg" title="Image"></i>
-	                                   		</a>
-	                                   </c:if>
-	                                </td>
-	                                <td>
-	                                	<c:if test="${not empty row.geneGenbankLink}">
-		                               		<a href="${row.geneGenbankLink}" target="_blank"><i class="fa fa-file-text fa-lg" title="Genbank File"></i></a>
-		                                
-	                               		</c:if>
-	                               	</td>
-	                               	<td>
-	                               	</td>
-	                               	<td>
-	                               	</td>
-	                               	<td>
-	                               	</td>
-	                               	
-                       
-                        
+                          
+                          
+                          
                         </tr>    
                         
                        <%--  </c:if> --%>
