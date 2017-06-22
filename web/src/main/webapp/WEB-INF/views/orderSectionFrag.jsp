@@ -13,7 +13,7 @@
                         <th style="border-bottom:0px;"></th>
                         <th style="border-bottom:0px;"></th>
                         <th colspan="1" style="border-bottom:0px;  text-align:center;">Targeting Detail</th>
-                        <th colspan="1" style="border-bottom:0px; text-align:center;">Product Ordering</th>
+                        <th colspan="3" style="border-bottom:0px; text-align:center;">Product Ordering</th>
                         
                       
                 </tr>
