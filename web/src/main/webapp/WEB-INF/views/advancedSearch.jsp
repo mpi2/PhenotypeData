@@ -565,7 +565,8 @@
                             {"phenotyping data available?":"phenotypeStatus"}
                         ],
                         selected: [
-                            "alleleSymbol", "markerSymbol"
+                            //"alleleSymbol", "markerSymbol"
+                            "markerSymbol"
                         ]
                     },
                     "HumanGeneSymbol": {
@@ -642,7 +643,7 @@
                             // {"model to disease score":"modelToDiseaseScore"}
                         ],
                         selected: [
-                            "diseaseTerm"
+                            //"diseaseTerm"
                         ]
                     },
                     "MouseModel": {
@@ -685,9 +686,9 @@
                             {"p value": "pvalue"}
                         ],
                         selected: [
-                            "mpTerm",
-                            "parameterName",
-                            "pvalue"
+//                            "mpTerm",
+//                            "parameterName",
+//                            "pvalue"
                         ]
                     }
 //                    "OntoSynonym": {
@@ -870,7 +871,7 @@
                         dataType = "Allele";
                     }
 
-                    //console.log("datatype: "+ dataType + " --- " + property);
+                    console.log("datatype: "+ dataType + " --- " + property);
 
                     if (!kv.hasOwnProperty(dataType)) {
                         kv[dataType] = [];
@@ -1376,16 +1377,18 @@
 
             function submitQuery(){
 
-                var hasUnchecked = [];
-                $('fieldset.fsAttrs').each(function(){
-                    if ($(this).find('input:checked').length == 0){
-                        hasUnchecked.push($(this).find('legend').text());
-                    }
-                });
-                if (hasUnchecked.length != 0){
-                    alert('Oops,\n' + hasUnchecked.join(",\n") + ' unchecked...');
-                    return false;
-                }
+                // check for default customized output columns
+
+//                var hasUnchecked = [];
+//                $('fieldset.fsAttrs').each(function(){
+//                    if ($(this).find('input:checked').length == 0){
+//                        hasUnchecked.push($(this).find('legend').text());
+//                    }
+//                });
+//                if (hasUnchecked.length != 0){
+//                    alert('Oops,\n' + hasUnchecked.join(",\n") + ' unchecked...');
+//                    return false;
+//                }
 
                 var oJson = fetchDatatypeProperties();
                 if ( oJson == false){
@@ -1393,14 +1396,15 @@
                 }
 
                 refreshResult(); // refresh first
-
+                console.log(oJson)
                 var flList = [];
                 var dtypes = ["Allele", "Gene", "Mp", "DiseaseModel", "StatisticalResult"];
                 for (var d=0; d<dtypes.length; d++){
                     var cols = oJson[dtypes[d]];
-                    console.log(cols);
-                    for(var c=0; c<cols.length; c++) {
-                        flList.push(cols[c]);
+                    if (cols != undefined) {
+                        for (var c = 0; c < cols.length; c++) {
+                            flList.push(cols[c]);
+                        }
                     }
                 }
 
@@ -1422,43 +1426,43 @@
                 //$('div#infoBlock').html("Your datatype of search: " + parseCurrDataDype($('input.bq:checked').attr('id')).toUpperCase() + sampleData);
             }
 
-            function uploadJqueryForm(){
-
-                refreshResult(); // refresh first
-
-                var currDataType = $('input.bq:checked').attr('id');
-                $('input#dtype').val(currDataType);
-
-                if ( $('input#fileupload').val() == '' ){
-                    alert("Please upload a file with a list of identifiers");
-                }
-                else {
-                    $('#bqResult').html('');
-
-                    $("#ajaxForm").ajaxForm({
-                        success:function(jsonStr) {
-                            //$('#bqResult').html(idList);
-                            //console.log(jsonStr)
-                            var j = JSON.parse(jsonStr);
-
-                            if ( j.badIdList != ''){
-                                $('div#errBlock').html("UPLOAD ERROR: unprocessed identifier(s): " + j.badIdList).show();
-                            }
-
-                            var kv = fetchSelectedFieldList();
-                            prepare_dataTable(kv.fllist);
-
-                            var oConf = {};
-                            oConf.idlist = j.goodIdList;
-                            //oConf.labelFllist = kv.labelFllist
-
-                            //fetchBatchQueryDataTable(oConf);
-                        },
-                        dataType:"text"
-                    }).submit();
-                }
-                return false; // so that the form can only be submitted via ajax
-            }
+//            function uploadJqueryForm(){
+//
+//                refreshResult(); // refresh first
+//
+//                var currDataType = $('input.bq:checked').attr('id');
+//                $('input#dtype').val(currDataType);
+//
+//                if ( $('input#fileupload').val() == '' ){
+//                    alert("Please upload a file with a list of identifiers");
+//                }
+//                else {
+//                    $('#bqResult').html('');
+//
+//                    $("#ajaxForm").ajaxForm({
+//                        success:function(jsonStr) {
+//                            //$('#bqResult').html(idList);
+//                            //console.log(jsonStr)
+//                            var j = JSON.parse(jsonStr);
+//
+//                            if ( j.badIdList != ''){
+//                                $('div#errBlock').html("UPLOAD ERROR: unprocessed identifier(s): " + j.badIdList).show();
+//                            }
+//
+//                            var kv = fetchSelectedFieldList();
+//                            prepare_dataTable(kv.fllist);
+//
+//                            var oConf = {};
+//                            oConf.idlist = j.goodIdList;
+//                            //oConf.labelFllist = kv.labelFllist
+//
+//                            //fetchBatchQueryDataTable(oConf);
+//                        },
+//                        dataType:"text"
+//                    }).submit();
+//                }
+//                return false; // so that the form can only be submitted via ajax
+//            }
 
             function fetchSelectedFieldList(){
                 var kv = {};
@@ -1586,6 +1590,11 @@
                                 $(this).siblings('li:gt(1)').show();
                             }
                         });
+
+                        if ( $('table#batchq th').size() == 1){
+                            $('button.showMore').click().hide();
+                        }
+
 
                         var endPoint = baseUrl + '/exportAdvancedSearch?';//?param=' + JSON.stringify(oConf);
 

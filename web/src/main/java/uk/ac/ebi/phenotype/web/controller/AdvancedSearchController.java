@@ -1063,37 +1063,35 @@ public class AdvancedSearchController {
 
                 node2Properties.put(dtype, new ArrayList<String>());
 
-                for(Object obj : jParams.getJSONArray(dtype)) {
-                    String colName = obj.toString();
+                if (jParams.containsKey(dtype)) {
+                    for (Object obj : jParams.getJSONArray(dtype)) {
+                        String colName = obj.toString();
 
-                    //System.out.println("colname: " + colName);
-                    if (colName.equals("alleleSymbol") &&  !jParams.getJSONArray(dtype).contains("alleleMgiAccessionId")){
-                        cols.add(colName);
-                        cols.add("alleleMgiAccessionId");
-                        node2Properties.get(dtype).add(colName);
-                        node2Properties.get(dtype).add("alleleMgiAccessionId");
-                    }
-                    else if (colName.equals("markerSymbol") &&  !jParams.getJSONArray(dtype).contains("mgiAccessionId")){
-                        cols.add(colName);
-                        cols.add("mgiAccessionId");
-                        node2Properties.get(dtype).add(colName);
-                        node2Properties.get(dtype).add("mgiAccessionId");
-                    }
-                    else if (colName.equals("mpTerm") &&  !jParams.getJSONArray(dtype).contains("mpId")){
-                        cols.add(colName);
-                        cols.add("mpId");
-                        node2Properties.get(dtype).add(colName);
-                        node2Properties.get(dtype).add("mpId");
-                    }
-                    else if (colName.equals("diseaseTerm") &&  !jParams.getJSONArray(dtype).contains("diseaseId")){
-                        cols.add(colName);
-                        cols.add("diseaseId");
-                        node2Properties.get(dtype).add(colName);
-                        node2Properties.get(dtype).add("diseaseId");
-                    }
-                    else {
-                        cols.add(colName);
-                        node2Properties.get(dtype).add(colName);
+                        //System.out.println("colname: " + colName);
+                        if (colName.equals("alleleSymbol") && !jParams.getJSONArray(dtype).contains("alleleMgiAccessionId")) {
+                            cols.add(colName);
+                            cols.add("alleleMgiAccessionId");
+                            node2Properties.get(dtype).add(colName);
+                            node2Properties.get(dtype).add("alleleMgiAccessionId");
+                        } else if (colName.equals("markerSymbol") && !jParams.getJSONArray(dtype).contains("mgiAccessionId")) {
+                            cols.add(colName);
+                            cols.add("mgiAccessionId");
+                            node2Properties.get(dtype).add(colName);
+                            node2Properties.get(dtype).add("mgiAccessionId");
+                        } else if (colName.equals("mpTerm") && !jParams.getJSONArray(dtype).contains("mpId")) {
+                            cols.add(colName);
+                            cols.add("mpId");
+                            node2Properties.get(dtype).add(colName);
+                            node2Properties.get(dtype).add("mpId");
+                        } else if (colName.equals("diseaseTerm") && !jParams.getJSONArray(dtype).contains("diseaseId")) {
+                            cols.add(colName);
+                            cols.add("diseaseId");
+                            node2Properties.get(dtype).add(colName);
+                            node2Properties.get(dtype).add("diseaseId");
+                        } else {
+                            cols.add(colName);
+                            node2Properties.get(dtype).add(colName);
+                        }
                     }
                 }
             }
@@ -1156,10 +1154,12 @@ public class AdvancedSearchController {
 
                 node2Properties.put(dtype, new ArrayList<String>());
 
-                for (Object obj : jParams.getJSONArray(dtype)) {
-                    String colName = obj.toString();
-                    cols.add(colName);
-                    node2Properties.get(dtype).add(colName);
+                if (jParams.containsKey(dtype)) {
+                    for (Object obj : jParams.getJSONArray(dtype)) {
+                        String colName = obj.toString();
+                        cols.add(colName);
+                        node2Properties.get(dtype).add(colName);
+                    }
                 }
             }
 
