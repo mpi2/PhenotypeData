@@ -133,7 +133,7 @@
 
 <c:choose>
     <c:when test="${creLineAvailable}">
-        <div><a href="${baseUrl}/order/creline?acc=${row.mgiAccessionId}" target="_blank">Cre Knockin ${alleleProductsCre2.get("product_type")} are available for this gene.</a></div>       
+        <div><a href="${baseUrl}/order/creline?acc=${acc}" target="_blank">Cre Knockin ${alleleProductsCre2.get("product_type")} are available for this gene.</a></div>       
     </c:when>
 </c:choose>
                             	
