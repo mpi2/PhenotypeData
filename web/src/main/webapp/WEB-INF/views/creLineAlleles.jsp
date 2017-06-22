@@ -124,7 +124,6 @@ $('.iFrameFancy').click(function()
 			              { "sType": "string"},
 			              { "sType": "string"},
 			              { "sType": "string"}
-			          
 			              ],
 			"bDestroy": true,
 			"bFilter":false,
