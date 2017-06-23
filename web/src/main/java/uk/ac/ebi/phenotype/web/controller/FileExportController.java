@@ -156,7 +156,6 @@ public class FileExportController {
 		String filters = "Search filters: " + jParams.getString("shownFilter") + narrowMapping;
 
 		FileExportUtils.writeOutputFile(response, jcontent.getJSONArray("rows"), fileType, fileName, filters);
-
 	}
 
 	/**

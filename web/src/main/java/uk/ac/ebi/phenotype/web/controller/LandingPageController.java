@@ -121,15 +121,17 @@ public class LandingPageController {
             mpDTO = mpService.getPhenotype("MP:0005377");
             anatomyIds.add("MA:0002443");
             anatomyIds.add("EMAPA:36002");
-            model.addAttribute("shortDescription", "We have undertaken a deafness screen in the IMPC cohort of mouse knockout strains. We detected known deafness genes and the vast majority of loci were novel.");
-            pageTitle = "Hearing/Vestibular/Ear";
+            model.addAttribute("shortDescription", "This page introduces <b>hearing</b> related phenotypes present in mouse lines produced by the IMPC. A deafness screen has allowed to detect known genes associated with deafness, but the vast majority of the loci are novel.");
+            pageTitle = "Hearing";
 
         } else
         if (page.equalsIgnoreCase("cardiovascular")) {
             mpDTO = mpService.getPhenotype("MP:0005385");
             anatomyIds.add("MA:0000010");
             anatomyIds.add("EMAPA:16104");
-            pageTitle = "Cardiovascular";
+            model.addAttribute("shortDescription", "This page introduces <b>cardiovascular</b> related phenotypes present in mouse lines produced by the IMPC. " +
+                    "The cardiovascular system refers to the observable morphological and physiological characteristics of the mammalian heart, blood vessels, or circulatory system that are manifested through development and lifespan.");
+            pageTitle = "Cardiovascular system";
         }
 //        } else if (page.equalsIgnoreCase("metabolism")) {
 //            mpDTO = mpService.getPhenotype("MP:0005376");
@@ -171,7 +173,12 @@ public class LandingPageController {
         model.addAttribute("phenotypes", gpService.getAssociationsCount(mpDTO.getMpId(), resources));
         model.addAttribute("mpId", mpDTO.getMpId());
         model.addAttribute("mpDTO", mpDTO);
-        model.addAttribute("systemName", mpDTO.getMpTerm().replace(" phenotype", ""));
+
+        String systemNAme = mpDTO.getMpTerm();
+        if (mpDTO.getMpTerm().contains("hearing/vestibular/ear")) {
+            systemNAme = "hearing";
+        }
+        model.addAttribute("systemName", systemNAme.replace(" phenotype", ""));
         model.addAttribute("procedures", procedures);
 
 //        model.addAttribute("dataJs", getData(null, null, null, mpDTO.getAccession(), request) + ";");

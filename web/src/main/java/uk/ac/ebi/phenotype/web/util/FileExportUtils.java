@@ -3,6 +3,7 @@ package uk.ac.ebi.phenotype.web.util;
 import com.ctc.wstx.util.StringUtil;
 import jdk.nashorn.internal.runtime.regexp.joni.Regex;
 import org.apache.commons.lang.StringUtils;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.mousephenotype.cda.solr.generic.util.Tools;
 import org.slf4j.Logger;
@@ -11,8 +12,7 @@ import uk.ac.ebi.phenotype.generic.util.ExcelWorkBook;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -118,7 +118,7 @@ public class FileExportUtils {
 
 			String caption = null;
 			if (filters != null){
-				 caption = "<caption>" + filters + "</caption>";
+				caption = "<caption>" + filters + "</caption>";
 			}
 
 			String thead = null;
@@ -126,57 +126,38 @@ public class FileExportUtils {
 			int rownum = 0;
 			System.out.println("rows: " + dataRows.size());
 			long tstart = System.currentTimeMillis();
-			for (String line : dataRows) {
-				rownum++;
-				List<String> row = new ArrayList<>();
-				List<String> vals = Arrays.asList(StringUtils.split(line, "\t"));
-				String openTag = null;
-				String endTag = null;
 
-				String tr = null;
-				if (rownum == 1) {
-					openTag = "<th>";
-					endTag = "</th>";
-				}
-				else {
-					openTag = "<td>";
-					endTag = "</td>";
-				}
-
-				for (String val : vals) {
-					if (val.equals("parameterName")){
-						val = "(procedureName) parameterName";
-					}
-
-					if (rownum == 1){
-						// split camelcase
-						LinkedList<String> words = new LinkedList<String>();
-						for (String w : val.split("(?<!(^|[A-Z]))(?=[A-Z])|(?<!^)(?=[A-Z][a-z])")) {
-							words.add(w.toLowerCase());
-						}
-						val = StringUtils.join(words, " ");
-					}
-
-					if (val.contains("|")) {
-						val = val.replaceAll("\\|", "").replaceAll("<li>", "<li class='multi'>");
-					}
-					row.add(openTag + val + endTag);
-				}
-
-				if (rownum == 1){
-					thead = "<thead><tr>" + StringUtils.join(row, "") + "</tr></thead>";
-				}
-				else {
-					trs += "<tr>" + StringUtils.join(row, "") + "</tr>";
-				}
+			List<String> noTitleRows = null;
+			if (! dataRows.isEmpty()) {
+				noTitleRows = dataRows.subList(1,dataRows.size());
 			}
 
+			String ths = "";
+			for(String colname : StringUtils.split(dataRows.get(0), "\t") ){
+				LinkedList<String> words = new LinkedList<String>();
+				for (String w : colname.split("(?<!(^|[A-Z]))(?=[A-Z])|(?<!^)(?=[A-Z][a-z])")) {
+					words.add(w.toLowerCase());
+				}
+				ths += "<th>" + StringUtils.join(words," ") + "</th>";
+			}
+			thead = "<thead>" + ths + "</thead>";
+
+			trs = StringUtils.join(noTitleRows, "");
+
 			long tend = System.currentTimeMillis();
-			System.out.println("done with rows in " + (tend - tstart) + " sec");
+			System.out.println("done in " + (tend - tstart) + " msec");
 			String html = "<html><head>" + css + "</head><table>" + caption + thead + "<tbody>" + trs + "</tbody></table></html>";
-			output.println(html);
-			output.flush();
-			output.close();
+//			output.println(html);
+//			output.flush();
+//			output.close();
+
+
+			InputStream is = new ByteArrayInputStream(html.getBytes("UTF-8"));
+			HSSFWorkbook wb2 = new HSSFWorkbook(is);
+			FileOutputStream fileOut = new FileOutputStream("somefile.xls");
+			wb2.write(fileOut);
+			fileOut.close();
+
 		}
 	}
 	

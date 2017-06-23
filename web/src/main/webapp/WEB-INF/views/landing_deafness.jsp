@@ -46,7 +46,41 @@
 
     <jsp:attribute name="addToFooter">
 
+		 <div class="region region-pinned">
 
+             <div id="flyingnavi" class="block smoothScroll">
+
+                 <a href="#top"><i class="fa fa-chevron-up"
+                                   title="scroll to top"></i></a>
+
+                 <ul>
+                     <li><a href="#top">Hearing</a></li>
+                     <li><a href="#approach">Approach</a></li>
+                     <!--  always a section for this even if says no phenotypes found - do not putting in check here -->
+
+                     <li><a href="#manuscript">Manuscript</a></li>
+                     <li><a href="#phenotypes-distribution">Phenotypes Distribution</a></li>
+
+                         <%--<c:if test="${not empty impcImageFacets}">--%>
+                     <li><a href="#gene-ko-effect">Gene KO Effect</a></li>
+                     <li><a href="#vignettes">Vignettes</a></li>
+                         <%--</c:if>--%>
+
+                         <%--<c:if test="${not empty orthologousDiseaseAssociations}">--%>
+                         <%--<li><a href="#disease-associations">Disease Associations</a></li>--%>
+                         <%--</c:if>--%>
+
+                         <%--<c:if test="${!countIKMCAllelesError}">--%>
+                     <li><a href="#paper">Publications</a></li>
+                         <%--</c:if>--%>
+                 </ul>
+
+                 <div class="clear"></div>
+
+             </div>
+
+         </div>
+				<!--  end of floating menu for genes page -->
 
 	</jsp:attribute>
     <jsp:body>
@@ -55,75 +89,65 @@
             <div class="block block-system">
                 <div class="content">
                     <div class="node node-gene">
-                        <h1 class="title" id="top">${pageTitle} </h1>
+                        <h1 class="title" id="top">Hearing</h1>
 
                         <c:import url="landing_overview_frag.jsp"/>
 
                         <div class="section">
-                            <h2 class="title">Approach</h2>
+                            <h2 class="title" id="approach">Approach</h2>
                             <div class="inner">
-                                <p>In order to identify genes required for hearing function, the consortium uses an
-                                    auditory brainstem response (ABR) test in the adult pipeline at week 14 that
-                                    assesses hearing at five frequencies – 6kHz, 12kHz, 18kHz, 24kHz and 30kHz – as well
-                                    as a broadband click stimulus. The consortium aimed to analyse a minimum of 4 mutant
-                                    mice for each gene and, in most cases, mutant males and females were analysed.</p>
-                                <p>For the statistical analysis of the IMPC ABR dataset, we used a reference range
-                                    approach with the aim of eliminating false positives (see Methods). Briefly, we used
-                                    the total set of matched baseline control data from wild-type C57BL/6N mice that is
-                                    generated at each IMPC centre to establish a reference range. For each mutant a
-                                    contingency table is employed for both appropriate wild-type control mice and
-                                    mutants, and a Fisher’s exact test performed to identify if mutants deviate
-                                    significantly from the wild-type distribution. We determined a suitable reference
-                                    range and critical p value by the examination of known deafness genes, and selected
-                                    a stringent 98% reference range and p value of 0.01 for the initial selection of
-                                    putative deafness loci. </p>
-                                <p>Details of the experimental design of <a
-                                        href="https://www.mousephenotype.org/impress/protocol/176/7"> acoustic startle
-                                    and Pre-pulse Inhibition </a> and <a
-                                        href="https://www.mousephenotype.org/impress/protocol/149/7">Auditory Brain Stem
-                                    Response</a> are available on IMPRESS.</p>
+                                <p>In order to identify the function of genes, the consortium uses a series of
+                                    standardised protocols as described in IMPReSS (International Mouse Phenotyping Resource of Standardised Screens).</p>
+                                <p>Hearing capacity is assessed using an <a
+                                        href="https://www.mousephenotype.org/impress/protocol/149/7">auditory brain stem
+                                    response</a> (ABR) test conducted
+                                    at 14 weeks of age. Hearing is assessed at five frequencies – 6kHz, 12kHz, 18kHz, 24kHz and 30kHz –
+                                    as well as a broadband click stimulus.  Increased thresholds are indicative of abnormal hearing.
+                                    Abnormalities in adult ear morphology are
+                                    recorded as part of the “Combined SHIRPA and Dysmorphology” protocol and in the developing embryo during gross pathology examination.
+                                    Full procedures details are provided in the list below.
+                                </p>
+                                </p>
+
                                 <c:import url="landing_procedures_frag.jsp"/>
                             </div>
                         </div>
 
-                        <div class="section">
-                                <%--IMPC images--%>
-                            <c:if test="${not empty impcImageGroups}">
-                                <div class="section" id="imagesSection">
-                                    <h2 class="title">Associated Images </h2>
-                                    <div class="inner">
-                                        <jsp:include page="impcImagesByParameter_frag.jsp"></jsp:include>
-                                    </div>
-                                </div>
-                            </c:if>
+                        <div class="section" id="manuscript">
+                            <%--deafness manuscript --%>
+                            <h2 class="title">IMPC Deafness Manuscript</h2>
+                            <div class="inner">
+                                Coming soon.....
+                            </div>
                         </div>
 
                         <div class="section">
-                            <h2 class="title">Phenotypes distribution</h2>
+                            <h2 class="title" id="phenotypes-distribution">Phenotypes distribution</h2>
                             <div class="inner">
+                                <p>This graph shows genes with a significant effect on at least one hearing phenotype.</p>
+                                <p></p>
                                 <div id="phenotypeChart">
                                     <script type="text/javascript"> $(function () {  ${phenotypeChart} }); </script>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="section">
+                        <div class="section" id="gene-ko-effect">
 
-                            <h2 id="gene-ko-effect" class="title">Gene KO effect comparator for ${systemName} continuous parameters</h2>
+                            <h2 class="title">Gene KO effect comparator for ${systemName} continuous parameters</h2>
 
                             <div class="inner">
 
-                                <p>Visualize multiple strain across several continuous parameters used for ${systemName} phenotyping.
-                                    The measurement values are corrected to account for batch effects to represent the true genotype effect thus allowing
-                                    a side by side comparison/visualisation. Only continuous parameters can be visualized using this methodology.
-                                    Results are represented with a graph and a table.</p>
+                                <p>Visualize continuous parameters used by the consortium to assess hearing phenotypes.
+                                    The measurement values are corrected to account for batch effects to represent the true genotype effect
+                                    thus allowing a side by side comparison/visualisation.</p>
+                                <p>Use this interactive graph and table:</p>
 
-                                <p>How to use the tool?</p>
-                                <p>You can unselect/select ${systemName} procedures by clicking on the term directly.
-                                    The graph is interactive and allows filtering on each axis (parameter) by selecting the region of interest. Several regions of interests can be selected one by one.
-                                    Clicking on a chosen line on the graph or on a gene row from the table will highlight the corresponding gene. For a selected gene,
-                                    if any significant phenotype is associated with a parameter, the parameter colour will change to orange.
-                                </p>
+
+                                <li>Drag your mouse pointer on any parameter axis to select a region of interest, while the associated gene/s will be automatically filtered for in the gene table below. You can click on a line to highlight it and filter by procedure from the “Procedures” list. Click on the parameter name to know more about it – you get redirected to the IMPReSS pages.</li>
+                                <li>Click on any row in the gene table (space next to the gene name) to highlight the corresponding values in the graph above, or click on the gene name to open the associated gene page. When you select a gene row, the parameter name in the graph will change to orange if genotype is significant.</li>
+                                <li>Click “Clear filters” to return to the default view.</li>
+                                <p></p><p></p>
 
                                 <div id="widgets_pc" class="widgets">	</div>
                                 <div id="spinner"><i class="fa fa-refresh fa-spin"></i></div>
@@ -145,8 +169,17 @@
                             </div>
                         </div>
 
-
-
+                        <div class="section">
+                                <%--IMPC images--%>
+                            <c:if test="${not empty impcImageGroups}">
+                                <div class="section" id="vignettes">
+                                    <h2 class="title">Vignettes </h2>
+                                    <div class="inner">
+                                        <jsp:include page="impcImagesByParameter_frag.jsp"></jsp:include>
+                                    </div>
+                                </div>
+                            </c:if>
+                        </div>
 
                         <%-- commented out venn diaggram for now as disease classification that it relies on is problematic in phenodigm --%>
                         <%--<div class="section">--%>
@@ -187,7 +220,7 @@
                         <%--</div>--%>
 
 
-                        <div class="section">
+                        <div class="section" id="paper">
                             <jsp:include page="paper_frag.jsp"></jsp:include>
                         </div>
 

@@ -59,7 +59,7 @@
 		$('#widgets_pc').append('<a href="#" id="export_selected" class="button right filter_control btn" title = "Export raw data in the table">Export</a>');
 		$('#widgets_pc').append('<a href="#" id="remove_filters" class="button right filter_control btn" title = "Remove filters">Clear filters</a>');
         $('#widgets_pc').append('<textarea onfocus="if(this.value==this.defaultValue)this.value=\'\'" onblur="if(this.value==\'\')this.value=this.defaultValue" id="geneIdsSoft" rows="2" cols="100" style="width:40%">Filter table by gene symbols comma separated.	</textarea>');
-        $('#widgets_pc').append('<a href="#" id="geneSoftFilterButton" class="button btn" title="Filter by gene">Soft filter</a>');
+        $('#widgets_pc').append('<a href="#" id="geneSoftFilterButton" class="button btn" title="Filter by gene">Gene filter</a>');
 //		$('#widgets_pc').append('<br/>');
 //		$('#widgets_pc').append('<div class="right"><input type="range" min="0" max="1" value="0.2" step="0.01"	name="power" list="powers" id="line_opacity"></input>Opacity: <span id="opacity_level">20%</span></div>');
 		
