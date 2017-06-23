@@ -11,6 +11,7 @@ import org.mousephenotype.cda.solr.service.dto.CountTableRow;
 import org.mousephenotype.cda.solr.service.dto.ImpressDTO;
 import org.mousephenotype.cda.solr.service.dto.MpDTO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -21,6 +22,7 @@ import uk.ac.ebi.phenotype.chart.ScatterChartAndTableProvider;
 import uk.ac.ebi.phenotype.error.OntologyTermNotFoundException;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.sql.SQLException;
@@ -59,32 +61,39 @@ public class LandingPageController {
     @Autowired
     ImpressService is;
 
+    @NotNull
+    @Value("${impc_media_base_url}")
+    private String impcMediaBaseUrl;
+
 	@RequestMapping("/biological-system")
 	public String getAlleles(Model model, HttpServletRequest request) throws IOException {
 
-		List<LandingPageDTO> bsPages = new ArrayList<>();
-		LandingPageDTO cardiovascular = new LandingPageDTO();
+        String baseUrl = request.getAttribute("baseUrl").toString();
+        List<LandingPageDTO> bsPages = new ArrayList<>();
+        LandingPageDTO cardiovascular = new LandingPageDTO();
 
-		cardiovascular.setTitle("Cardiovascular");
-		cardiovascular.setImage("render_thumbnail/211474/400/");
-		cardiovascular.setDescription(
-				"This page aims to present cardiovascular system related phenotypes lines which have been produced by IMPC.");
-		cardiovascular.setLink("biological-system/cardiovascular");
-		
-		LandingPageDTO deafness = new LandingPageDTO();
+        cardiovascular.setTitle("Cardiovascular");
+        //cardiovascular.setImage("render_thumbnail/211474/400/");
+        cardiovascular.setImage(impcMediaBaseUrl + "/render_thumbnail/211474/400/");
+        cardiovascular.setDescription(
+                "This page aims to present cardiovascular system related phenotypes lines which have been produced by IMPC.");
+        cardiovascular.setLink("biological-system/cardiovascular");
 
-		deafness.setTitle("Deafness");
-		deafness.setImage("render_thumbnail/211474/400/");
-		deafness.setDescription(
-				"This page aims to relate deafnessnes to phenotypes which have been produced by IMPC.");
-		deafness.setLink("biological-system/deafness");
-		
-		bsPages.add(cardiovascular);
-		bsPages.add(deafness);
+        LandingPageDTO deafness = new LandingPageDTO();
 
-		model.addAttribute("pages", bsPages);
+        deafness.setTitle("Deafness");
+        deafness.setImage("render_thumbnail/211474/400/");
+        //cardiovascular.setImage(baseUrl + "/img/deafness.png");
+        deafness.setDescription(
+                "This page aims to relate deafnessnes to phenotypes which have been produced by IMPC.");
+        deafness.setLink("biological-system/deafness");
 
-		return "landing";
+        bsPages.add(cardiovascular);
+        bsPages.add(deafness);
+
+        model.addAttribute("pages", bsPages);
+
+        return "landing";
 	}
 
     @RequestMapping(value = "/embryo", method = RequestMethod.GET)
