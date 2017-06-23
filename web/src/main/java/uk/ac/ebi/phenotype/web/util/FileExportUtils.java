@@ -147,17 +147,9 @@ public class FileExportUtils {
 			long tend = System.currentTimeMillis();
 			System.out.println("done in " + (tend - tstart) + " msec");
 			String html = "<html><head>" + css + "</head><table>" + caption + thead + "<tbody>" + trs + "</tbody></table></html>";
-//			output.println(html);
-//			output.flush();
-//			output.close();
-
-
-			InputStream is = new ByteArrayInputStream(html.getBytes("UTF-8"));
-			HSSFWorkbook wb2 = new HSSFWorkbook(is);
-			FileOutputStream fileOut = new FileOutputStream("somefile.xls");
-			wb2.write(fileOut);
-			fileOut.close();
-
+			output.println(html);
+			output.flush();
+			output.close();
 		}
 	}
 	

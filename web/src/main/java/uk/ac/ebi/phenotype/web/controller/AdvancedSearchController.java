@@ -571,7 +571,7 @@ public class AdvancedSearchController {
 
             query += fileType != null ?
                     //" RETURN distinct nodes.alleles, g, nodes.srs, collect(distinct nodes.mps), collect(distinct dm)" + sortStr
-                    " RETURN distinct a, g, sr, mp, dm" + sortStr :
+                    " RETURN distinct nodes.alleles, g, nodes.srs, nodes.mps, dm" + sortStr :
                     " RETURN collect(distinct nodes.alleles), collect(distinct g), collect(distinct nodes.srs), collect(distinct nodes.mps), collect(distinct dm)";
 
             System.out.println("Query: "+ query);
@@ -660,7 +660,7 @@ public class AdvancedSearchController {
 
             query += fileType != null ?
                     //" RETURN distinct nodes.alleles, g, nodes.srs, collect(distinct nodes.mps), collect(distinct dm)" + sortStr
-                    " RETURN distinct a, g, sr, mp, dm" + sortStr :
+                    " RETURN distinct nodes.alleles, g, nodes.srs, nodes.mps, dm" + sortStr :
                     " RETURN collect(distinct nodes.alleles), collect(distinct g), collect(distinct nodes.srs), collect(distinct nodes.mps), collect(distinct dm)";
 
             System.out.println("Query: "+ query);
@@ -740,7 +740,7 @@ public class AdvancedSearchController {
 
             query += fileType != null ?
                     //" RETURN distinct nodes.alleles, g, nodes.srs, collect(distinct nodes.mps), collect(distinct dm)" + sortStr :
-                    " RETURN distinct a, g, sr, mp, dm" + sortStr :
+                    " RETURN distinct nodes.alleles, g, nodes.srs, nodes.mps, dm" + sortStr :
                     " RETURN collect(distinct nodes.alleles), collect(distinct g), collect(distinct nodes.srs), collect(distinct nodes.mps), collect(distinct dm)";
 
             System.out.println("Query: "+ query);
@@ -820,7 +820,7 @@ public class AdvancedSearchController {
 
             query += fileType != null ?
                     //" RETURN distinct nodes.alleles, g, nodes.srs, collect(distinct nodes.mps), collect(distinct dm)" + sortStr
-                    " RETURN distinct a, g, sr, mp, dm" + sortStr :
+                    " RETURN distinct nodes.alleles, g, nodes.srs, nodes.mps, dm" + sortStr :
                     " RETURN collect(distinct nodes.alleles), collect(distinct g), collect(distinct nodes.srs), collect(distinct nodes.mps), collect(distinct dm)";
 
 
@@ -883,7 +883,7 @@ public class AdvancedSearchController {
 
             query += fileType != null ?
                     //" RETURN distinct nodes.alleles, g, nodes.srs, collect(distinct nodes.mps), collect(distinct dm)" + sortStr
-                    " RETURN distinct a, g, sr, mp, dm" + sortStr :
+                    " RETURN distinct nodes.alleles, g, nodes.srs, nodes.mps, dm" + sortStr :
                     " RETURN collect(distinct nodes.alleles), collect(distinct g), collect(distinct nodes.srs), collect(distinct nodes.mps), collect(distinct dm)";
 
             System.out.println("Query: "+ query);
@@ -936,7 +936,7 @@ public class AdvancedSearchController {
 
             query += fileType != null ?
                     //" RETURN distinct nodes.alleles, g, nodes.srs, collect(distinct nodes.mps), collect(distinct dm)" + sortStr
-                    " RETURN distinct a, g, sr, mp, dm" + sortStr :
+                    " RETURN distinct nodes.alleles, g, nodes.srs, nodes.mps, dm" + sortStr :
                     " RETURN collect(distinct nodes.alleles), collect(distinct g), collect(distinct nodes.srs), collect(distinct nodes.mps), collect(distinct dm)";
 
             System.out.println("Query: "+ query);
