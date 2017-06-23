@@ -957,7 +957,7 @@ public class GenesController {
 	@ExceptionHandler(GenomicFeatureNotFoundException.class)
 	public ModelAndView handleGenomicFeatureNotFoundException(GenomicFeatureNotFoundException exception) {
 
-		ModelAndView mv = new ModelAndView("identifierError");
+		ModelAndView mv = new ModelAndView("identifierErrorGenes");
 		mv.addObject("errorMessage", exception.getMessage());
 		mv.addObject("acc", exception.getAcc());
 		mv.addObject("type", "MGI gene");
@@ -988,10 +988,10 @@ public class GenesController {
 	/**
 	 * Display an identifier error page
 	 */
-	@RequestMapping("/identifierError")
+	@RequestMapping("/identifierErrorGenes")
 	public String identifierError(@PathVariable String acc, Model model, HttpServletRequest request, RedirectAttributes attributes) {
 
-		return "identifierError";
+		return "identifierErrorGenes";
 	}
 
 
