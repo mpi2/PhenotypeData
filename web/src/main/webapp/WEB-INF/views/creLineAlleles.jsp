@@ -15,7 +15,6 @@
 
 		<%-- <link rel="stylesheet" href="${baseUrl}/css/parallelCoordinates/style.css" type="text/css" /> --%>
 
-
 		<script type="text/javascript">
 			var drupalBaseUrl = '${drupalBaseUrl}';
 		</script>
@@ -67,7 +66,32 @@
 			        <h1 class="title" id="top">Cre alleles from CREATE (coordination of resources for conditional expression of mutated mouse alleles)</h1>
                     <div class="section">
                         <div class="inner">
-
+							<p>
+							Mutant mouse ES cell lines are produced, each of which carries an altered or "floxed" allele of a single gene. These mutant ES cell mutations can be readily transformed into mice using blastocyst injection, and the mutation activated by crossing the mouse bearing the floxed allele with a Cre recombinase driver strain to induce the mutation in spatially and temporally determined patterns.
+							</p>
+							<p>
+							Intricate conditional and inducible gene manipulation approaches have led to the generation of cell lineage- or developmental stage-specific alterations under temporal control. The vast number of Cre recombinase-expressing mouse lines - often referred to as "Cre-Zoo" animals - has greatly contributed to these accomplishments by allowing Cre recombinase to be expressed in specific cell types, in some cases in an inducible manner.
+							</p>
+							<p>
+							The full power of conditional mutant ES cell libraries and mice can therefore only be exploited with the availability of well characterised mouse lines expressing Cre-recombinase in tissue, organ and cell type-specific patterns, to allow the creation of somatic mutations in defined genes.
+							</p>
+							<!-- <p>
+							Although several privately curated and locally held databases currently provide a limited catalog of existing Cre driver strains, common problems are: 
+							<uL>
+							<li>
+							These are not well integrated and often outdated, so that much of the field works by "word of mouth" to locate the necessary reagents for generating their conditional mutations.
+							</li>
+							<li>
+							Published data on Cre driver mice from disparate groups do not always capture critical details such as the efficiency of recombination, cell and tissue specificity, or genetic background effects.
+							</li>
+							</uL>
+							</p>
+							<p>
+							CREATE addresses these combined shortcomings - inaccessibility to existing Cre driver strains, their incomplete characterisation, and an inadequate coverage of cell and tissue types in which they are active by enlisting major mouse stakeholders dedicated to collecting, integrating and curating, expanding and disseminating the currently scattered Cre driver mouse databases through a unified portal to provide the necessary structure for worldwide access to these critical resources.
+							</p>
+								 -->
+								<br/>
+								<br/>
 								<jsp:include page="orderSectionFrag.jsp"></jsp:include>
 
 							</div>
