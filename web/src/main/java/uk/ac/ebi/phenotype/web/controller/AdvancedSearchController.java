@@ -23,6 +23,7 @@ import net.sf.json.JSONSerializer;
 import org.apache.commons.collections.ArrayStack;
 import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.lang.StringUtils;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -1055,7 +1056,6 @@ public class AdvancedSearchController {
         long tstart = System.currentTimeMillis();
         if (fileType != null){
 
-
             List<String> cols = new ArrayList<>();
             Map<String, List<String>> node2Properties = new LinkedHashMap<>();
 
@@ -1133,13 +1133,25 @@ public class AdvancedSearchController {
                             //System.out.println("col now-2: " + col);
                             List<String> vals = new ArrayList<>(colValMap.get(col));
                             //System.out.println("vals: "+ vals);
-                            data.add(StringUtils.join(vals, "|"));
+
+                            if (fileType.equals("html")){
+                                data.add("<td>" + StringUtils.join(vals, "|") + "</td>");
+                            }
+                            else {
+                                data.add(StringUtils.join(vals, "|"));
+                            }
+
                         }
                     }
                     //System.out.println("row: " + data);
                 }
 
-                rowDataExport.add(StringUtils.join(data, "\t"));
+                if (fileType.equals("html")){
+                    rowDataExport.add("<tr>" + StringUtils.join(data, "") + "<tr>");
+                }
+                else {
+                    rowDataExport.add(StringUtils.join(data, "\t"));
+                }
             }
             j.put("rows", rowDataExport);
         }

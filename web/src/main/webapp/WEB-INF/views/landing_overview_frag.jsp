@@ -3,8 +3,8 @@
 <div class="section">
     <div class="inner">
         <p> ${shortDescription} </p>
-        <p><b>${systemName}</b> refers to ${mpDTO.getMpDefinition()}</p>
-        <p>This page aims to present ${systemName} related phenotypes lines which have been produced by IMPC. </p>
+        <%--<p><b>${systemName}</b> refers to ${mpDTO.getMpDefinition()}</p>--%>
+        <%--<p>This page aims to present ${systemName} related phenotypes lines which have been produced by IMPC. </p>--%>
         <br/> <br/>
 
         <c:if test="${genePercentage.getDisplay()}">
