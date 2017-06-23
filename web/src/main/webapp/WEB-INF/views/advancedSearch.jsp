@@ -1996,28 +1996,32 @@
                 var fieldsetFilter = "fieldset." + dataType + "Filter ";
                 $(fieldsetFilter + ' div.srchBox').first().find('button.killRow').hide();
 
-                $(fieldsetFilter + ' button.ontoview').first().click(function(){
-                    // ajax call to fetch for mp id
-                    //var termName = $(fieldsetFilter + " input.srchMp").val();
-                    var termName = $(this).siblings("input.srchMp").val();
-                    //$('body').addClass("loading");  // to activate modal
+                mpOntoView($(fieldsetFilter + ' button.ontoview').first());
 
-                    $.ajax({
-                        'url': baseUrl + '/fetchmpid?name=' + termName,
-                        'async': true,
-                        'jsonp': 'json.wrf',
-                        'success': function (id) {
-                            // $('body').removeClass("loading");  // to activate modal
-                            console.log(id);
-                            window.open(baseUrl + "/ontologyBrowser?termId=" + id, '_blank');
-                        },
-                        'error' : function(jqXHR, textStatus, errorThrown) {
-                            alert("Sorry, this phenotype does not have Ontology View");
-                        }
-                    });
-
-                    return false;
-                })
+//                $(fieldsetFilter + ' button.ontoview').click(function(){
+//                    alert('ontoview')
+//                //$(fieldsetFilter + ' button.ontoview').first().click(function(){
+//                    // ajax call to fetch for mp id
+//                    //var termName = $(fieldsetFilter + " input.srchMp").val();
+//                    var termName = $(this).siblings("input.srchMp").val();
+//                    //$('body').addClass("loading");  // to activate modal
+//
+//                    $.ajax({
+//                        'url': baseUrl + '/fetchmpid?name=' + termName,
+//                        'async': true,
+//                        'jsonp': 'json.wrf',
+//                        'success': function (id) {
+//                            // $('body').removeClass("loading");  // to activate modal
+//                            console.log(id);
+//                            window.open(baseUrl + "/ontologyBrowser?termId=" + id, '_blank');
+//                        },
+//                        'error' : function(jqXHR, textStatus, errorThrown) {
+//                            alert("Sorry, this phenotype does not have Ontology View");
+//                        }
+//                    });
+//
+//                    return false;
+//                })
 
 
                 $(fieldsetFilter + ".fa-info-circle").click(function(){
@@ -2062,6 +2066,8 @@
                         $(input).insertAfter(srchBox.last());
                         addAutosuggest($('input.srch' + dataType).last());
 
+                        mpOntoView($(fieldsetFilter +"button.ontoview").last());
+
                         $(fieldsetFilter +"input.srchMp").last().siblings('.killRow').click(function(){
 
                             if ( $('button.killRow').size() == 3  && boxCount == 1){
@@ -2086,6 +2092,33 @@
                 });
             }
 
+            function mpOntoView(ontoButt){
+                ontoButt.click(function(){
+                    //$(fieldsetFilter + ' button.ontoview').first().click(function(){
+                    // ajax call to fetch for mp id
+                    //var termName = $(fieldsetFilter + " input.srchMp").val();
+                    var termName = $(this).siblings("input.srchMp").val();
+                    alert(termName);
+                    //$('body').addClass("loading");  // to activate modal
+
+                    $.ajax({
+                        'url': baseUrl + '/fetchmpid?name=' + termName,
+                        'async': true,
+                        'jsonp': 'json.wrf',
+                        'success': function (id) {
+                            // $('body').removeClass("loading");  // to activate modal
+                            console.log(id);
+                            window.open(baseUrl + "/ontologyBrowser?termId=" + id, '_blank');
+                        },
+                        'error' : function(jqXHR, textStatus, errorThrown) {
+                            alert("Sorry, this phenotype does not have Ontology View");
+                        }
+                    });
+
+                    return false;
+                })
+
+            }
             function updateQueryBox(boolTextarea, boxCount){
                 var query = boolTextarea.val();
                 if (boxCount == 2){
