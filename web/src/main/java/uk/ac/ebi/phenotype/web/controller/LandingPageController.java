@@ -82,7 +82,7 @@ public class LandingPageController {
         LandingPageDTO deafness = new LandingPageDTO();
 
         deafness.setTitle("Deafness");
-        deafness.setImage("render_thumbnail/211474/400/");
+        deafness.setImage("../img/landing/deafnessIcon.png");
         //cardiovascular.setImage(baseUrl + "/img/deafness.png");
         deafness.setDescription(
                 "This page aims to relate deafnessnes to phenotypes which have been produced by IMPC.");
