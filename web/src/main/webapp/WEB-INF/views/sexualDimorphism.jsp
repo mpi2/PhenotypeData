@@ -40,7 +40,7 @@
 		                                <h4>IMPC data demonstrates the effect of sex on many phenotypes, supporting the importance of including males and females in biomedical research
 										</h4>
 		                                <ul class="pad10px">
-		                                    <li><a href="">In the News</a></li>
+		                                    <li><a href="http://www.sanger.ac.uk/news/view/study-reveals-how-sex-blindspot-could-misdirect-medical-research">In the News</a></li>
 		                                    <li> <a href="http://doi.org/10.5281/zenodo.160267?">Supporting material to enable replicable analysis</a></li>
 		                                    <li>Manuscript and Supplemental Information</li>
 		                                </ul>
