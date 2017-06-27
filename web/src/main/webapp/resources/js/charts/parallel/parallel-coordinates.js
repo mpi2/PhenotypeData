@@ -178,7 +178,7 @@
 				d3.select(this).call(axis.scale(y[d]));
 			}).append("a").attr("xlink:href", function(d) {
 				return links[d];
-			}).append("svg:text").attr("text-anchor", "start").attr("y", 0).attr("x", 5).attr("transform", function(d) {
+			}).attr("target", "_blank").append("svg:text").attr("text-anchor", "start").attr("y", 0).attr("x", 5).attr("transform", function(d) {
 				return "rotate(-90)";
 			}).text(String).classed("axis-label", true).attr("class", function(d) {
 				return replaceCharaceters(groups[d]) + " " + axisColors[groups[d]];
