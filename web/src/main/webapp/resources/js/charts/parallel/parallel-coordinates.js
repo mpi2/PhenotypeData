@@ -51,7 +51,7 @@
                 .attr("dy", ".35em")
                 .attr("x", 0)
                 .attr("y", 5)
-				.text("Procedures");
+				.text("Filter by Procedure");
 			var labelXStart = []; 
 			
 			legend.selectAll("g.legendCells")
@@ -93,6 +93,29 @@
 				}
 			});
 			
+			// e.g. Mutant, No effect, Mean
+			var lineLegend = container.append("svg:svg").attr("width", w + m[1] + m[3]).attr("height", (cellHeight*2 + cellPadding)).append("svg:g").attr("class", "highcharts-legend");
+			labelXStart = []; 
+			lineLegend.selectAll("g.lineLegendCells")
+			    .data(Object.keys(colors))
+			    .enter()
+			    .append("g").attr("width", cellWidth).attr("height", cellHeight).classed("lineLegendCells", "true")
+			    .attr("transform", function(d,i) { return "translate(" + getXTransform(d,i) + ", 0)"})
+			    .append("line").attr("x1", 0).attr("y1", cellHeight/2).attr("x2", cellWidth).attr("y2", cellHeight/2)
+			    .style("stroke", function(d,i){return colors[d];}).style("stroke-width", "2");
+			lineLegend.selectAll("g.lineLegendCells")
+	    		.append("text")
+	    		.attr("class", "legendLabels");
+			lineLegend.selectAll("g.lineLegendCells")
+				.select("text.legendLabels").style("display", "block")
+				.style("text-anchor", "start").attr("x", cellWidth + cellPadding)
+				.attr("y", 5 + (cellHeight / 2)).text(function(d) {return 'Legend';});
+			//lines above returns the legends for the lines drawn e.g. Mutant, No effect, Mean
+		
+			lineLegend.append("text").attr("id","geneHover").attr("transform", "translate(0,28)").classed("legendLabels", "true");
+			
+			
+			//some new stuff here just for the label "Legend"
 			var lineLegend = container.append("svg:svg").attr("width", w + m[1] + m[3]).attr("height", (cellHeight*2 + cellPadding)).append("svg:g").attr("class", "highcharts-legend");
 			labelXStart = []; 
 			lineLegend.selectAll("g.lineLegendCells")
@@ -109,8 +132,10 @@
 				.select("text.legendLabels").style("display", "block")
 				.style("text-anchor", "start").attr("x", cellWidth + cellPadding)
 				.attr("y", 5 + (cellHeight / 2)).text(function(d) {return d;});
+			//lines above returns the legends for the lines drawn e.g. Mutant, No effect, Mean
 		
 			lineLegend.append("text").attr("id","geneHover").attr("transform", "translate(0,28)").classed("legendLabels", "true");
+			
 			
 			function getXTransform(d,i){ 
 				var res = labelXStart.reduce(function(a, b) {
