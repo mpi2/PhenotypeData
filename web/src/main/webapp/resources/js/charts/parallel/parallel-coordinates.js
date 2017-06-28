@@ -199,13 +199,20 @@
 			
 			function getStyles(d, plan){
 				var style = "";
-				if (d.group == "No effect" || d.group == "Mean") {
+				if (d.group == "No effect") {
 					style = "stroke-opacity: 1;";
 					if (plan == "background"){
-						style += " stroke:" + colors[d.group] + ";"
+						style += " stroke:" + "black" + ";"
 					}
 					
-				} else {
+				} else 
+					if ( d.group == "Mean") {
+						style = "stroke-opacity: 1;";
+						if (plan == "background"){
+							style += " stroke:" + colors[d.group] + ";"
+						}
+						
+					} else {
 					if (plan == "foreground"){
 						style = "stroke-opacity: 0.35;";
 					} else if (plan == "background"){

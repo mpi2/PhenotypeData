@@ -80,7 +80,7 @@
 		var foodgroups = [ "Mutant", "Mean"];
 		var colors = {
 		    "Mutant" : '#0978A1',
-			"No effect" :'#808080',
+			"No effect" :'#000000',
 			"Mean" : '#00b3b3'/*,
 			"MRC Harwell" : 'rgb(119, 119, 119)',
 			"TCP" : '#16532D',
