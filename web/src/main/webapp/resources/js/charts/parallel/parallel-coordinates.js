@@ -93,7 +93,7 @@
 				}
 			});
 			
-			var lineLegend = container.append("svg:svg").attr("width", w + m[1] + m[3]).attr("height", (cellHeight*2 + cellPadding)).append("svg:g").attr("class", "highcharts-legend");
+			var lineLegend = container.append("svg:svg").attr("width", w + m[1] + m[3]).attr("height", (cellHeight*4 + cellPadding)).append("svg:g").attr("class", "highcharts-legend");
 			lineLegend.append("text")
             .attr("dy", ".35em")
             .attr("x", 0)
@@ -118,7 +118,7 @@
 				.attr("y", 5 + (cellHeight / 2)).text(function(d) {return d;});
 			//lines above returns the legends for the lines drawn e.g. Mutant, No effect, Mean
 		
-			lineLegend.append("text").attr("id","geneHover").attr("transform", "translate(0,28)").classed("legendLabels", "true");
+			lineLegend.append("text").attr("id","geneHover").attr("transform", "translate(0,45)").classed("legendLabels", "true");
 			
 			
 			function getXTransform(d,i){ 
