@@ -81,12 +81,12 @@ public class LandingPageController {
 
         LandingPageDTO deafness = new LandingPageDTO();
 
-        deafness.setTitle("Deafness");
-        deafness.setImage("../img/landing/deafnessIcon.png");
+        deafness.setTitle("Hearing");
+        deafness.setImage("img/landing/deafnessIcon.png");
         //cardiovascular.setImage(baseUrl + "/img/deafness.png");
         deafness.setDescription(
                 "This page aims to relate deafnessnes to phenotypes which have been produced by IMPC.");
-        deafness.setLink("biological-system/deafness");
+        deafness.setLink("biological-system/hearing");
 
         bsPages.add(cardiovascular);
         bsPages.add(deafness);
@@ -126,7 +126,7 @@ public class LandingPageController {
         MpDTO mpDTO = null;
 
 
-        if (page.equalsIgnoreCase("deafness")) { // Need to decide if we want deafness only or top level hearing/vestibular phen
+        if (page.equalsIgnoreCase("hearing")) { // Need to decide if we want deafness only or top level hearing/vestibular phen
             mpDTO = mpService.getPhenotype("MP:0005377");
             anatomyIds.add("MA:0002443");
             anatomyIds.add("EMAPA:36002");
