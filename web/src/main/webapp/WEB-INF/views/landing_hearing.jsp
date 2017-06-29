@@ -99,12 +99,13 @@
                                 <p>In order to identify the function of genes, the consortium uses a series of
                                     standardised protocols as described in IMPReSS (International Mouse Phenotyping Resource of Standardised Screens).</p>
                                 <p>Hearing capacity is assessed using an <a
-                                        href="https://www.mousephenotype.org/impress/protocol/149/7">auditory brain stem
-                                    response</a> (ABR) test conducted
+                                        href="https://www.mousephenotype.org/impress/protocol/149/7">Auditory Brain Stem
+                                    response (ABR)</a> protocol conducted
                                     at 14 weeks of age. Hearing is assessed at five frequencies – 6kHz, 12kHz, 18kHz, 24kHz and 30kHz –
                                     as well as a broadband click stimulus.  Increased thresholds are indicative of abnormal hearing.
                                     Abnormalities in adult ear morphology are
-                                    recorded as part of the “Combined SHIRPA and Dysmorphology” protocol and in the developing embryo during gross pathology examination.
+                                    recorded as part of the <a href="http://www.mousephenotype.org/impress/protocol/186">Combined SHIRPA and Dysmorphology (CSD)</a> protocol and in the developing embryo during gross pathology examination.
+                                    The CSD protocol includes response to a click box test (absence is indicative of a strong hearing deficit) and  visual inspection for behavioural signs that may indicate vestibular dysfunction e.g. head bobbing or circling.
                                     Full procedures details are provided in the list below.
                                 </p>
                                 </p>
@@ -117,9 +118,67 @@
                             <%--deafness manuscript --%>
                             <h2 class="title">IMPC Deafness Manuscript</h2>
                             <div class="inner">
-                                Coming soon.....
+                               <h3>IMPC data reveals a large and unexplored genetic landscape involved in auditory function</h3>
+                               <ul>
+	                               <li>
+	                               Around 360 million people worldwide live with mild to profound hearing loss, of which approximately half have a genetic basis 
+	                               </li>
+	                               <li>
+	                               The extent of the mammalian gene set that impacts auditory function is unknown
+	                               </li>
+                               </ul>
+                              	<ul class="pad10px">
+		                                <li>Press releases: <a href="https://www.mousephenotype.org/news/study-unprecedented-size-reveals-how-sex-%E2%80%98blindspot%E2%80%99-could-misdirect-medical-research">IMPC</a>&nbsp;|&nbsp;<a href="http://www.ebi.ac.uk/about/news/press-releases/sexual-dimorphism-dilemma">EMBL-EBI</a>&nbsp;|&nbsp;<a href="http://www.sanger.ac.uk/news/view/study-reveals-how-sex-blindspot-could-misdirect-medical-research">Sanger</a></li>
+		                                <li><a href="http://em.rdcu.be/wf/click?upn=KP7O1RED-2BlD0F9LDqGVeSJ-2BYK13AOQwsehfu7fiqrAw-3D_rlS5NjXTpmOl66SHsP12rLQI7Hycd1QZjA7AhdQ2b6-2FS-2FPWAuljWGaoUUyQdBhNd5qzu1OSDRnDXa0UviCH1ywsoXX2HEGPW67FIlbNWZVB87NAsEeYQQ3F2GD8bvwBOk-2BPkbKRPqfrgHP4barsF-2BrLfjDnMD0fmPe675sK7phkS3L5CVy1mUUmp4mw-2Fgzbv1ueMSvy-2FUyo41KChqsXtnXKcvriwPUvjZxg6BOMnIFU-3D">Manuscript</a></li>
+		                                <li> <a href="https://zenodo.org/record/260398#.WVIkChPys-c">Supporting material to enable replicable analysis</a></li>
+		                        </ul>
+                               	<h3>Hearing loss investigated in 3,006 knockout mouse lines
+                               	</h3>
+                               	<ul>
+                               	<li>
+                               		67 genes identified as candidate hearing loss genes
+                               	</li>
+                               	<li>
+                               		52 genes are not previously associated with hearing loss and encompass a wide range of functions from structural proteins to transcription factors                               	
+                               	</li>
+                               	<li>
+                               		Among the novel candidate genes, Atp2b1 is expressed in the inner ear and Sema3f plays a role in sensory hair cell innervation in the cochlea
+                               	</li>
+                               	<li>
+                               		The IMPC has currently explored 15% of the mouse genome suggesting a minimum of 450 genes required for hearing function in the mammalian genome
+                               	
+                               	</li>
+                               	<li>
+                               		The IMPC will continue screening for hearing loss mutants in its second 5 year phase
+                               		
+                               	</li>
+                               	</ul>
+                               	
+                               	<h3>
+                               		Approach
+                               	</h3>
+                               		Response data from the auditory brainstem response (ABR) test was used – hearing at five frequencies, 6kHz, 12kHz, 18kHz, 24kHz and 30kHz, was measured.
+								<ul>
+								<li>
+									Control wildtype mice from each phenotypic centre included, matched for gender, age, phenotypic pipeline and metadata (e.g. instrument)
+								</li>
+								<li>
+									Our production statistical approach that automatically detects mutants with abnormal hearing was manually curated to yield 67 genes with profound hearing loss
+								</li>
+								</ul>
+                         
                             </div>
                         </div>
+                        
+                        <div class="section">
+                            <h2 class="title" id="vignettes">Vignettes</h2>
+                            <div class="inner">
+                                <p>[Vignettes here, in addition, or instead of, some figures in the Publication section]</p>
+                                <p>Coming soon.....</p>
+                                
+                            </div>
+                        </div>
+                        
 
                         <div class="section">
                             <h2 class="title" id="phenotypes-distribution">Phenotypes distribution</h2>
@@ -169,17 +228,7 @@
                             </div>
                         </div>
 
-                        <div class="section">
-                                <%--IMPC images--%>
-                            <c:if test="${not empty impcImageGroups}">
-                                <div class="section" id="vignettes">
-                                    <h2 class="title">Vignettes </h2>
-                                    <div class="inner">
-                                        <jsp:include page="impcImagesByParameter_frag.jsp"></jsp:include>
-                                    </div>
-                                </div>
-                            </c:if>
-                        </div>
+                       
 
                         <%-- commented out venn diaggram for now as disease classification that it relies on is problematic in phenodigm --%>
                         <%--<div class="section">--%>
