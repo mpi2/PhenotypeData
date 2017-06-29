@@ -52,6 +52,9 @@ public class GrossPathController {
 		List<ObservationDTO> abnormalObservations = grossPathService.getAbnormalObservations(allObservations);
 		//grossPathService.processForAbnormalAnatomies(allObservations, abnormalObservations);
 		List<GrossPathPageTableRow> grossPathRows = grossPathService.getSummaryTableData(allObservations, images, abnormalObservations, true, parameterStableId);
+		for (GrossPathPageTableRow row : grossPathRows) {
+            System.out.println("row="+row);
+        }
 		model.addAttribute("sampleSize",sampleSize);
 		model.addAttribute("pathRows", grossPathRows);
 		model.addAttribute("extSampleIdToObservations", allObservations);
