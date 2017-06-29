@@ -46,8 +46,10 @@ public class GrossPathService {
 		System.out.println("observations for GrossPath size with abnormal=" + allObservations.size());
 		Map<String, List<ObservationDTO>> anatomyToObservationMap = this.getAnatomyNamesToObservationsMap(allObservations);//only look at abnormal anatomies now as summary view
 			for (String anatomyName : anatomyToObservationMap.keySet()) {				
-				int abnormalObservations=0;
-				int normalObservations=0;
+				int numberOfAbnormalTerms=0;//more than one term per observation often - so these are not abnormal observations
+				int numberOfNormalTerms=0;
+				int numberOfnormalObservationsForRow=0;
+				int numberOfAbnormalObservationsForRow=0;
 				//for summary we want the rows split on a key of anatomy||zygosity||normal/abnormal
 				Map<String, List<ObservationDTO>> keysForRow = this.generateKeyMapForAnatomy(anatomyToObservationMap.get(anatomyName), parameterStableId);
 				for (String key : keysForRow.keySet()) {	
@@ -55,15 +57,11 @@ public class GrossPathService {
 					GrossPathPageTableRow row = new GrossPathPageTableRow();
 					row.setAnatomyName(anatomyName);
 						for(ObservationDTO obs: keysForRow.get(key)){
-						
-						
-						//row.setSampleId(obs.getExternalSampleId());				
-						Set<String> parameterNames = new TreeSet<>();
 							row.setZygosity(obs.getZygosity().substring(0, 3).toUpperCase());
-							
+		
 							ImpressBaseDTO parameter = new ImpressBaseDTO(null, null, obs.getParameterStableId(),
 									obs.getParameterName());
-							parameterNames.add(obs.getParameterName());
+							
 							
 							if (obs.getObservationType().equalsIgnoreCase("ontological")) {
 	
@@ -76,13 +74,17 @@ public class GrossPathService {
 										row.addOntologicalParam(parameter, subOntologyBean);
 										//System.out.println(subOntologyBean);
 										if(!obs.getSubTermName().get(i).equals("no abnormal phenotype detected")){
-											abnormalObservations++;
+											numberOfAbnormalTerms++;
 										}else{
-											normalObservations++;
+											numberOfNormalTerms++;//we get multiple subterms per observation e.g. abnormal ovary, missing ovary - but these are only one observation
 											
 										}
 										}
-									}
+									}//end of subterm loop
+									//do we have a normal or abnormal observation?
+									if(numberOfAbnormalTerms>0)numberOfAbnormalObservationsForRow++;
+									if(numberOfNormalTerms>0)numberOfnormalObservationsForRow++;
+									
 								}else{
 									System.out.println("subterms are null for ontological data="+obs);
 								}
@@ -92,65 +94,19 @@ public class GrossPathService {
 								row.setTextValue(obs.getTextValue());
 							}
 	
-						if (parameterNames.size() != 0) {
-//							row.setParameterNames(parameterNames);
-//							//row.setNumberOfAbnormalPhenotypes();
-//							rows.add(row);
-						}
+						
 					}
 						//row.setParameterNames(parameterNames);
-						row.setNumberOfAbnormalObservations(abnormalObservations);
-						row.setNumberOfNormalObservations(normalObservations);
-						if(abnormalOnly && abnormalObservations>0){
-//							if(mpChildren==null){
+						row.setNumberOfAbnormalObservations(numberOfAbnormalObservationsForRow);
+						row.setNumberOfNormalObservations(numberOfnormalObservationsForRow);
+						if(abnormalOnly && numberOfAbnormalObservationsForRow>0){
 								rows.add(row);
-							//}
-//							else if(row.getMpId()!=null && row.getMpId().equals(mpChildren)){//if mpId specified is equal to or below in the MP tree then add the row....
-//								rows.add(row);
-//							}
 						}
 						if(!abnormalOnly){
 							rows.add(row);
 						}
 				}
 			}
-//			if (!abnormalAnatomyMapPerSampleId.isEmpty()) {// only bother
-//															// checking if we
-//															// have abnormal
-//															// phenotypes for
-//															// this sampleId
-//				for (GrossPathPageTableRow row : rows) {
-//					if (row.getSampleId().equals(sampleId)) {// filter by sample
-//																// id as well
-//						// System.out.println("checking rows with
-//						// size="+rows.size()+" abnormal phenotypes with
-//						// size="+abnormalAnatomyMapPerSampleId.size());
-//						if (abnormalAnatomyMapPerSampleId.contains(row.getAnatomyName())) {
-//							for (String text : textValuesForSampleId) {
-//								// System.out.println("Text="+text);
-//								String[] words = text.split(" ");
-//								for (String word : words) {
-//									// System.out.println("word="+word);
-//									for (String anatomyWord : row.getAnatomyName().split(" ")) {
-//										if (anatomyWord.equalsIgnoreCase(word)) {
-//											// System.out.println("Text matches
-//											// row!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-//											row.setTextValue(text);
-//											
-//										}
-//									}
-//								}
-//							}
-//							
-//							if(sampleToImages.containsKey(sampleId)){
-//								row.addImages(sampleToImages.get(sampleId));
-//							}
-//						}
-//					}
-//				}
-//			}
-		//}
-
 		return rows;
 
 	}
@@ -163,7 +119,7 @@ public class GrossPathService {
 		for (ObservationDTO obs : list) {
 			if (obs.getParameterStableId().equals(parameterStableIdFilter)) {
 				String key = this.getAnatomyStringFromObservation(obs) + "||" + obs.getZygosity() + "||"
-						+ this.getNormalOrAbnormalStringFromObservation(obs) + "||" + obs.getParameterStableId();
+						 + obs.getParameterStableId();
 				if (keyMap.containsKey(key)) {
 					keyMap.get(key).add(obs);
 				} else {
@@ -208,7 +164,7 @@ public class GrossPathService {
 				
 				GrossPathPageTableRow row = new GrossPathPageTableRow();
 				row.setAnatomyName(anatomyName);
-				row.setSampleId(sampleId);
+				//row.setSampleId(sampleId);
 				
 				Set<String> parameterNames = new TreeSet<>();
 
@@ -256,10 +212,10 @@ public class GrossPathService {
 					
 				}
 
-				if (parameterNames.size() != 0) {
-					row.setParameterNames(parameterNames);
-					rows.add(row);
-				}
+//				if (parameterNames.size() != 0) {
+//					row.setParameterNames(parameterNames);
+//					rows.add(row);
+//				}
 				
 				
 				
