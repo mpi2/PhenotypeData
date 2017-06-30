@@ -57,7 +57,7 @@ public abstract class AbstractIndexer implements CommandLineRunner {
     public static String EMBRYONIC_DAY_12_5 = "EFO:0002563";    // -> embryonic day 12.5
     public static String EMBRYONIC_DAY_14_5 = "EFO:0002565";    // -> embryonic day 14.5
     public static String EMBRYONIC_DAY_18_5 = "EFO:0002570";    // -> embryonic day 18.5
-    public static String POSTPARTUM_STAGE   = "MmusDv:0000092"; // -> postpartum stage
+    public static String POSTPARTUM_STAGE   = "UBERON:0000066"; // -> fully formed stage - "The stage of development at which the animal is fully formed, including immaturity and maturity. Includes both sexually immature stage, and adult stage."
 
     @Autowired
     OntologyTermDAO ontologyTermDAO;
