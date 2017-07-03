@@ -89,6 +89,10 @@ $(document).ready(function(){
 		$( "#other_procedures" ).toggle( "slow", function() {
 		// Animation complete.
 		 });
+		
+		var text = $('#procedureToogleLink').text();
+		$('#procedureToogleLink').text(
+                text == "Show more" ? "Show less" : "Show more");
 	});
 	
 	        
