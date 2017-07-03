@@ -52,7 +52,7 @@
                     <tr>
                         <td>
                             <c:if test="${phenotypes.size() > 10}"> <a id="showMore">Show more</a> </c:if> </td>
-                        </td>
+                        
                         <td>
                             <a id="tsvDownload" href="${baseUrl}/phenotypes/export/${mpId}?fileType=tsv&fileName=IMPC_${pageTitle}" target="_blank" class="button fa fa-download">Download</a>
                         </td>
