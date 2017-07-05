@@ -73,7 +73,7 @@
                         <div class="inner">
 							
 							The EUCOMMTOOLS project created a new inducible Cre Driver mouse line resource that is available to researchers via <a href="https://www.infrafrontier.eu/search?keyword=EUCOMMToolsCre">INFRAFRONTIER repository</a>.
-							 This resource contains over 220 Cre Driver mouse lines where tamoxifin inducible Cre expression vectors have replaced the coding elements of genes with restricted tissue expression. Individual gene drivers were selected by community surveys and gene expression studies with the resulting mouse lines being characterised to confirm restricted Cre expression (http://www.imib.es/AnotadorWeb).
+							 This resource contains over 220 Cre Driver mouse lines where tamoxifin inducible Cre expression vectors have replaced the coding elements of genes with restricted tissue expression. Individual gene drivers were selected by community surveys and gene expression studies with the resulting mouse lines being characterised to confirm restricted Cre expression (<a href="http://www.imib.es/AnotadorWeb">http://www.imib.es/AnotadorWeb</a>).
 							  All EUCOMMTOOL Cre Driver mouse lines are generated on a pure C57BL/6N genetic background making this a unique resource for IMPC researchers.<a class="read-more-show hide" href="#"> Read more....</a>
 							
 							
@@ -86,9 +86,7 @@
 								<p>
 								The full potential of conditional knockout models mice is only realized with the availability of well characterised mouse lines expressing Cre-recombinase in tissue, organ and cell type-specific patterns. This is best achieved by substituting a Cre recombinase expression vector for the coding exons of genes that have the desired spatial and temporal restricted expression. The promoter and other genomic elements that control expression of the native gene will "drive" expression of the Cre recombinase instead.   These "Cre Driver" mice can then be bred with mice carrying a floxed allele to generate the desired conditional knockout. Variants of Cre Driver mice allow temporal control of Cre activity by employing fusion proteins of the Cre enzyme with modified versions of the ligand binding domains of the estrogen receptor that are responsive to the synthetic ligand tamoxifen. 
 								</p>
-								<p>
-								The EUCOMMTOOLS project created a new inducible Cre Driver mouse line resource that is available to researchers via INFRAFRONTIER repository (https://www.infrafrontier.eu/search?keyword=EUCOMMToolsCre). This resource contains over 220 Cre Driver mouse lines where tamoxifin inducible Cre expression vectors have replaced the coding elements of genes with restricted tissue expression. Individual gene drivers were selected by community surveys and gene expression studies with the resulting mouse lines being characterised to confirm restricted Cre expression (http://www.imib.es/AnotadorWeb). All EUCOMMTOOL Cre Driver mouse lines are generated on a pure C57BL/6N genetic background making this a unique resource for IMPC researchers. 
-								</p>
+								
 								<a class="read-more-hide hide" href="#">...Read less</a>
 							</div>
 							<!-- <p>
