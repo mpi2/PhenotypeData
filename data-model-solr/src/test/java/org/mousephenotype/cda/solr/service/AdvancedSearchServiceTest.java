@@ -73,9 +73,9 @@ public class AdvancedSearchServiceTest {
 		}
 		System.out.println("resultsOfAndQuery size for phenotype is "+resultsOfAndQuery.size());
 		assertTrue(resultsOfAndQuery.size()>0);
-		for(String geneSymbol: resultsOfAndQuery){
-			System.out.println("intersection symbol is "+geneSymbol);
-		}
+//		for(String geneSymbol: resultsOfAndQuery){
+//			System.out.println("intersection symbol is "+geneSymbol);
+//		}
 		//Ncald is a gene contained on both phenotype pages. 57 currently in common
 	}
 	
@@ -91,11 +91,11 @@ public class AdvancedSearchServiceTest {
 			e.printStackTrace();
 		}
 		System.out.println("resultsOfORQuery size for phenotype is "+resultsOfAndQuery.size());
-		assertTrue(resultsOfAndQuery.size()>679);
-		for(String geneSymbol: resultsOfAndQuery){
-			System.out.println("union symbol is "+geneSymbol);
-		}
-		//Ncald is a gene contained on both phenotype pages. 57 currently in common 331 + 406 -(57*2)=355
+		assertTrue(resultsOfAndQuery.size()>=680);
+//		for(String geneSymbol: resultsOfAndQuery){
+//			System.out.println("union symbol is "+geneSymbol);
+		//}
+		//Ncald is a gene contained on both phenotype pages. 57 currently in common 331 + 406 -(57)=680
 	}
 
 }
