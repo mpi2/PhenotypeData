@@ -4,6 +4,7 @@ import static org.junit.Assert.*;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.Collection;
 import java.util.List;
 
 import org.apache.solr.client.solrj.SolrServerException;
@@ -82,17 +83,17 @@ public class AdvancedSearchServiceTest {
 	public void testGetGenesForPhenotypeORPhenotype(){
 		String phenotypeId="MP:0002078";//"abnormal glucose homeostasis
 		String phenotypeId2="MP:0003956";//abnormal body size
-		List<String> resultsOfAndQuery=null;
+		Collection<String> resultsOfAndQuery=null;
 		try {
 			resultsOfAndQuery=searchSolrDao.getGenesForPhenotypeORPhenotype(phenotypeId, phenotypeId2);
 		} catch (IOException | URISyntaxException | SolrServerException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		System.out.println("resultsOfAndQuery size for phenotype is "+resultsOfAndQuery.size());
-		assertTrue(resultsOfAndQuery.size()>736);
+		System.out.println("resultsOfORQuery size for phenotype is "+resultsOfAndQuery.size());
+		assertTrue(resultsOfAndQuery.size()>679);
 		for(String geneSymbol: resultsOfAndQuery){
-			System.out.println("intersection symbol is "+geneSymbol);
+			System.out.println("union symbol is "+geneSymbol);
 		}
 		//Ncald is a gene contained on both phenotype pages. 57 currently in common 331 + 406 -(57*2)=355
 	}
