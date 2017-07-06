@@ -30,7 +30,8 @@ public class AdvancedSearchService {
 		 List<String> geneSymbols=genotypePhenotypeService.getGenesForMpId(phenotypeId);
 		 System.out.println(geneSymbols.size());
 		 List<String> geneSymbols2=genotypePhenotypeService.getGenesForMpId(phenotypeId2);
-		 List<String> list=(List<String>) CollectionUtils.intersection(geneSymbols, geneSymbols2);
+		 @SuppressWarnings("unchecked")
+		List<String> list=(List<String>) CollectionUtils.intersection(geneSymbols, geneSymbols2);
 		 System.out.println(geneSymbols2.size());
 		return list;
 	 }
@@ -39,8 +40,10 @@ public class AdvancedSearchService {
 		 List<String> geneSymbols=genotypePhenotypeService.getGenesForMpId(phenotypeId);
 		 System.out.println(geneSymbols.size());
 		 List<String> geneSymbols2=genotypePhenotypeService.getGenesForMpId(phenotypeId2);
-		 List<String> list=(List<String>) CollectionUtils.union(geneSymbols, geneSymbols2);
 		 System.out.println(geneSymbols2.size());
+		 @SuppressWarnings("unchecked")
+		List<String> list=(List<String>) CollectionUtils.union(geneSymbols, geneSymbols2);
+		 
 		return list;
 	 }
 }
