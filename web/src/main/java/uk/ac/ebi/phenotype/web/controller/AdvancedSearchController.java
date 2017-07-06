@@ -223,6 +223,8 @@ public class AdvancedSearchController {
     public String loadAdvSrchPage(
             HttpServletRequest request,
             Model model) {
+    	
+    	
 
         return "advancedSearch";
     }
@@ -310,6 +312,8 @@ public class AdvancedSearchController {
             HttpServletRequest request,
             HttpServletResponse response,
             Model model) throws Exception {
+    	//main return method of advanced search
+    	
 
         baseUrl = request.getAttribute("baseUrl").toString();
         hostname = request.getAttribute("mappedHostname").toString();
@@ -332,7 +336,7 @@ public class AdvancedSearchController {
     }
 
     public JSONObject fetchGraphDataAdvSrch(JSONObject jParams, String fileType) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, IOException, SolrServerException {
-
+System.out.println("jParams="+jParams);
         String significant = composeSignificance(jParams);
         String phenotypeSexes = composePhenotypeSexStr(jParams);
         String parameter = composeParameter(jParams);
@@ -1037,6 +1041,8 @@ public class AdvancedSearchController {
 
             System.out.println("Query: "+ query);
             result =  neo4jSession.query(query, params);
+            
+            
         }
 
         long end = System.currentTimeMillis();
