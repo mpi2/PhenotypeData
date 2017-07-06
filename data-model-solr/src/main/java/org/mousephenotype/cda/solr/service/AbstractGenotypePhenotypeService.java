@@ -904,7 +904,7 @@ public class AbstractGenotypePhenotypeService extends BasicService {
     	        
     	        QueryResponse response = solr.query(q);
     	        for( Count facet : response.getFacetField(GenotypePhenotypeDTO.MARKER_SYMBOL).getValues()){
-    	        	System.out.println("facet="+facet.getName());
+    	        	//System.out.println("facet="+facet.getName());
     	        	results.add(facet.getName());
     	        }
     	        return results;
