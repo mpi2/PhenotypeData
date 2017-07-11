@@ -835,15 +835,15 @@
 
 
                         var mpVal = $(this).val();
-                        var gtval = $(this).siblings('span.pvalue').find('input.gtpvalue').val();
-                        var ltval = $(this).siblings('span.pvalue').find('input.ltpvalue').val();
+                        var gtval = $(this).siblings('span.pvalue').find('input.lowerPvalue').val();
+                        var ltval = $(this).siblings('span.pvalue').find('input.upperPvalue').val();
                         mpPval[mpVal] = {};
 
                         if (gtval.indexOf('Eg:') != 0 && gtval != ""){
-                            mpPval[mpVal]["gtpvalue"] = gtval;
+                            mpPval[mpVal]["lowerPvalue"] = gtval;
                         }
                         if (ltval.indexOf('Eg:') != 0 && ltval != ""){
-                            mpPval[mpVal]["ltpvalue"] = ltval;
+                            mpPval[mpVal]["upperPvalue"] = ltval;
                         }
 
                         if ( (gtval.indexOf('Eg:') != 0 && gtval != '') && (ltval.indexOf('Eg:') != 0 && ltval != '') ){
@@ -868,13 +868,13 @@
                             kv['srchMp'] = $(this).val();
                             shownFilter.push("mouse phenotype = '" + kv.srchMp + "'");
 
-                            var gtval = $('input.srchMp').siblings('span.pvalue').find('input.gtpvalue').val();
+                            var gtval = $('input.srchMp').siblings('span.pvalue').find('input.lowerPvalue').val();
                             if (gtval != '') {
-                                kv['gtpvalue'] = gtval;
+                                kv['lowerPvalue'] = gtval;
                             }
-                            var ltval = $('input.srchMp').siblings('span.pvalue').find('input.ltpvalue').val();
+                            var ltval = $('input.srchMp').siblings('span.pvalue').find('input.upperPvalue').val();
                             if (ltval != '') {
-                                kv['ltpvalue'] = ltval;
+                                kv['upperPvalue'] = ltval;
                             }
 
                             var mpVal = kv.srchMp;
@@ -1864,7 +1864,7 @@
                     "<i class='fa fa-search'></i>" +
                     "<input class='termFilter srch" + dataType + "' value='search'>" +
                     "<i class='fa fa-times' id='" + idname + "Clear'></i>" +
-                    "<span class='pvalue'> p value: <input class='gtpvalue pvalue' type='text' value='Eg: 0.00001'> < P < <input class='ltpvalue pvalue' type='text' value='Eg: 0.00001'></span>" +
+                    "<span class='pvalue'> p value: <input class='lowerPvalue pvalue' type='text' value='Eg: 0.0001'> < P < <input class='upperPvalue pvalue' type='text' value='Eg: 0.0005'></span>" +
                     "<button class='ontoview " + dataType + "'>ontology view</button>" +
                     "<button class='killRow " + dataType + "'>Delete row</button>" +
                     "</div>";

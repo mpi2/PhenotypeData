@@ -1367,13 +1367,13 @@ public class AdvancedSearchController {
     private String composePvalues(JSONObject jParams){
         String pvalues = "";
 
-        if (jParams.containsKey("gtpvalue")) {
-            double gtpvalue = jParams.getDouble("gtpvalue");
-            pvalues = " AND sr.pvalue > " + gtpvalue + " ";
+        if (jParams.containsKey("lowerPvalue")) {
+            double lowerPvalue = jParams.getDouble("lowerPvalue");
+            pvalues = " AND sr.pvalue > " + lowerPvalue + " ";
         }
-        if (jParams.containsKey("ltpvalue")) {
-            double ltpvalue = jParams.getDouble("ltpvalue");
-            pvalues += " AND sr.pvalue < " + ltpvalue + " ";
+        if (jParams.containsKey("upperPvalue")) {
+            double upperPvalue = jParams.getDouble("upperPvalue");
+            pvalues += " AND sr.pvalue < " + upperPvalue + " ";
         }
 
         return pvalues;
@@ -1386,13 +1386,13 @@ public class AdvancedSearchController {
         if (jParams.containsKey("pvaluesMap")) {
             JSONObject map = jParams.getJSONObject("pvaluesMap").getJSONObject(mpTerm);
             System.out.println("MAP: " + map.toString());
-            if (map.containsKey("gtpvalue")){
-                double gtpvalue = map.getDouble("gtpvalue");
-                pvals.add("sr.pvalue > " + gtpvalue);
+            if (map.containsKey("lowerPvalue")){
+                double lowerPvalue = map.getDouble("lowerPvalue");
+                pvals.add("sr.pvalue > " + lowerPvalue);
             }
-            if (map.containsKey("ltpvalue")){
-                double ltpvalue = map.getDouble("ltpvalue");
-                pvals.add("sr.pvalue < " + ltpvalue);
+            if (map.containsKey("upperPvalue")){
+                double upperPvalue = map.getDouble("upperPvalue");
+                pvals.add("sr.pvalue < " + upperPvalue);
             }
         }
 
