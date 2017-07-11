@@ -291,8 +291,8 @@ public class OntologyParserTest {
 
         term =ontologyParser.getOntologyTerm("MP:0000003");
         logger.debug("term.getChildIds().size() " + term.getChildIds().size() + term.getChildIds());
-        Assert.assertTrue(term.getChildIds().size() == 11); // 11 child terms in the ontology without reasoning
-        Assert.assertTrue(term.getChildNames().size() == 11);
+        Assert.assertTrue(term.getChildIds().size() >= 12); // 11 child terms in the ontology without reasoning
+        Assert.assertTrue(term.getChildNames().size() >= 12);
 
     }
 
