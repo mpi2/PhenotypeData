@@ -296,7 +296,7 @@ public class AdvancedSearchController {
 
         if (mp.size() == 0){
             // use parent instead if term does not exits in slim (mpCore) but in narrowSynonym in the autoSuggestCore
-            String narrowMapping = null;
+            List<String> narrowMapping = new ArrayList<>();
             termName = mapNarrowSynonym2MpTerm(narrowMapping, termName, autosuggestCore);
             mp = getMpIdByTerm(termName);
             mpId = "narrow synonym of " + mp.get(0).getMpId()+ "," + termName;
@@ -332,7 +332,7 @@ public class AdvancedSearchController {
         String fileType = null;
         JSONObject jcontent = fetchGraphDataAdvSrch(jParams, fileType);
 
-        System.out.println(jcontent.get("narrowMapping"));
+        System.out.println("narrow synonym msg: " + jcontent.get("narrowMapping"));
         return new ResponseEntity<String>(jcontent.toString(), createResponseHeaders(), HttpStatus.CREATED);
     }
 
@@ -354,10 +354,14 @@ public class AdvancedSearchController {
         JSONArray properties = jParams.getJSONArray("properties");
         System.out.println("columns: " + properties);
 
+        Map<String, String> dtypeMap = new HashMap<>();
         JSONArray dataTypes = jParams.getJSONArray("dataTypes");
         List<String> dts = new ArrayList<>();
         for (int d = 0; d < dataTypes.size(); d++){
             dts.add(dataTypes.get(d).toString());
+            dtypeMap.put("a", "nodes.alleles");
+            dtypeMap.put("sr", "nodes.srs");
+            dtypeMap.put("mp", "nodes.mps");
         }
         String returnDtypes = StringUtils.join(dts, ", ");
         System.out.println("return types: " + returnDtypes);
@@ -424,7 +428,7 @@ public class AdvancedSearchController {
         String pvaluesA = "";
         String pvaluesB = "";
         String pvaluesC = "";
-        String narrowMapping = null;
+        List<String> narrowMapping = new ArrayList<>();
 
         long begin = System.currentTimeMillis();
 
@@ -598,9 +602,17 @@ public class AdvancedSearchController {
                         + " AND dmp.mpTerm IN mps";
             }
 
+            dts = new ArrayList<>();
+            for (int d = 0; d < dataTypes.size(); d++){
+                String dt = dataTypes.get(d).toString();
+                dts.add(dtypeMap.containsKey(dt) ? dt : dtypeMap.get(dt));
+            }
+            returnDtypes = StringUtils.join(dts, ", ");
+
             query += fileType != null ?
                     //" RETURN distinct nodes.alleles, g, nodes.srs, collect(distinct nodes.mps), collect(distinct dm)" + sortStr
-                    " RETURN distinct nodes.alleles, g, nodes.srs, nodes.mps, dm" + sortStr :
+                    //" RETURN distinct nodes.alleles, g, nodes.srs, nodes.mps, dm" + sortStr :
+                    " RETURN distinct " + returnDtypes + sortStr :
                     " RETURN collect(distinct nodes.alleles), collect(distinct g), collect(distinct nodes.srs), collect(distinct nodes.mps), collect(distinct dm)";
 
             System.out.println("Query: "+ query);
@@ -687,9 +699,17 @@ public class AdvancedSearchController {
                         + " AND dmp.mpTerm IN mps";
             }
 
+            dts = new ArrayList<>();
+            for (int d = 0; d < dataTypes.size(); d++){
+                String dt = dataTypes.get(d).toString();
+                dts.add(dtypeMap.containsKey(dt) ? dt : dtypeMap.get(dt));
+            }
+            returnDtypes = StringUtils.join(dts, ", ");
+
             query += fileType != null ?
                     //" RETURN distinct nodes.alleles, g, nodes.srs, collect(distinct nodes.mps), collect(distinct dm)" + sortStr
-                    " RETURN distinct nodes.alleles, g, nodes.srs, nodes.mps, dm" + sortStr :
+                    //" RETURN distinct nodes.alleles, g, nodes.srs, nodes.mps, dm" + sortStr :
+                    " RETURN distinct " + returnDtypes + sortStr :
                     " RETURN collect(distinct nodes.alleles), collect(distinct g), collect(distinct nodes.srs), collect(distinct nodes.mps), collect(distinct dm)";
 
             System.out.println("Query: "+ query);
@@ -767,9 +787,17 @@ public class AdvancedSearchController {
                         + " AND dmp.mpTerm IN mps";
             }
 
+            dts = new ArrayList<>();
+            for (int d = 0; d < dataTypes.size(); d++){
+                String dt = dataTypes.get(d).toString();
+                dts.add(dtypeMap.containsKey(dt) ? dt : dtypeMap.get(dt));
+            }
+            returnDtypes = StringUtils.join(dts, ", ");
+
             query += fileType != null ?
                     //" RETURN distinct nodes.alleles, g, nodes.srs, collect(distinct nodes.mps), collect(distinct dm)" + sortStr :
-                    " RETURN distinct nodes.alleles, g, nodes.srs, nodes.mps, dm" + sortStr :
+                    //" RETURN distinct nodes.alleles, g, nodes.srs, nodes.mps, dm" + sortStr :
+                    " RETURN distinct " + returnDtypes + sortStr :
                     " RETURN collect(distinct nodes.alleles), collect(distinct g), collect(distinct nodes.srs), collect(distinct nodes.mps), collect(distinct dm)";
 
             System.out.println("Query: "+ query);
@@ -847,9 +875,17 @@ public class AdvancedSearchController {
                         + " AND dmp.mpTerm IN mps";
             }
 
+            dts = new ArrayList<>();
+            for (int d = 0; d < dataTypes.size(); d++){
+                String dt = dataTypes.get(d).toString();
+                dts.add(dtypeMap.containsKey(dt) ? dt : dtypeMap.get(dt));
+            }
+            returnDtypes = StringUtils.join(dts, ", ");
+
             query += fileType != null ?
                     //" RETURN distinct nodes.alleles, g, nodes.srs, collect(distinct nodes.mps), collect(distinct dm)" + sortStr
-                    " RETURN distinct nodes.alleles, g, nodes.srs, nodes.mps, dm" + sortStr :
+                    //" RETURN distinct nodes.alleles, g, nodes.srs, nodes.mps, dm" + sortStr :
+                    " RETURN distinct " + returnDtypes + sortStr :
                     " RETURN collect(distinct nodes.alleles), collect(distinct g), collect(distinct nodes.srs), collect(distinct nodes.mps), collect(distinct dm)";
 
 
@@ -910,9 +946,17 @@ public class AdvancedSearchController {
                     + geneToDmPathClause
                     + " AND dmp.mpTerm IN mps";
 
+            dts = new ArrayList<>();
+            for (int d = 0; d < dataTypes.size(); d++){
+                String dt = dataTypes.get(d).toString();
+                dts.add(dtypeMap.containsKey(dt) ? dt : dtypeMap.get(dt));
+            }
+            returnDtypes = StringUtils.join(dts, ", ");
+
             query += fileType != null ?
                     //" RETURN distinct nodes.alleles, g, nodes.srs, collect(distinct nodes.mps), collect(distinct dm)" + sortStr
-                    " RETURN distinct nodes.alleles, g, nodes.srs, nodes.mps, dm" + sortStr :
+                    //" RETURN distinct nodes.alleles, g, nodes.srs, nodes.mps, dm" + sortStr :
+                    " RETURN distinct " + returnDtypes + sortStr :
                     " RETURN collect(distinct nodes.alleles), collect(distinct g), collect(distinct nodes.srs), collect(distinct nodes.mps), collect(distinct dm)";
 
             System.out.println("Query: "+ query);
@@ -963,9 +1007,17 @@ public class AdvancedSearchController {
             //query += fileType != null ? " RETURN distinct nodes.alleles, g, nodes.srs, collect(distinct nodes.mps), collect(distinct dm)" + sortStr
               //      : " RETURN collect(distinct nodes.alleles), collect(distinct g), collect(distinct nodes.srs), collect(distinct nodes.mps), collect(distinct dm)";
 
+            dts = new ArrayList<>();
+            for (int d = 0; d < dataTypes.size(); d++){
+                String dt = dataTypes.get(d).toString();
+                dts.add(dtypeMap.containsKey(dt) ? dt : dtypeMap.get(dt));
+            }
+            returnDtypes = StringUtils.join(dts, ", ");
+
             query += fileType != null ?
                     //" RETURN distinct nodes.alleles, g, nodes.srs, collect(distinct nodes.mps), collect(distinct dm)" + sortStr
-                    " RETURN distinct nodes.alleles, g, nodes.srs, nodes.mps, dm" + sortStr :
+                    //" RETURN distinct nodes.alleles, g, nodes.srs, nodes.mps, dm" + sortStr :
+                    " RETURN distinct " + returnDtypes + sortStr :
                     " RETURN collect(distinct nodes.alleles), collect(distinct g), collect(distinct nodes.srs), collect(distinct nodes.mps), collect(distinct dm)";
 
             System.out.println("Query: "+ query);
@@ -1017,7 +1069,7 @@ public class AdvancedSearchController {
 
             query += fileType != null ?
                     //" RETURN distinct a, g, sr, collect(distinct mp), collect(distinct dm)" + sortStr :
-                    " RETURN distinct a, g, sr, mp, dm" + sortStr :
+                    " RETURN distinct " + returnDtypes + sortStr :
                     " RETURN collect(distinct a), collect(distinct g), collect(distinct sr), collect(distinct mp), collect(distinct dm)";
 
             System.out.println("Query: "+ query);
@@ -1061,7 +1113,7 @@ public class AdvancedSearchController {
 
             query += fileType != null ?
                     //" RETURN distinct a, g, sr, collect(distinct mp), collect(distinct dm)" + sortStr :
-                    " RETURN distinct a, g, sr, mp, dm" + sortStr :
+                    " RETURN distinct " + returnDtypes + sortStr :
                     " RETURN collect(distinct a), collect(distinct g), collect(distinct sr), collect(distinct mp), collect(distinct dm)";
 
             System.out.println("Query: "+ query);
@@ -1076,7 +1128,7 @@ public class AdvancedSearchController {
         j.put("aaData", new Object[0]);
         j.put("iDisplayStart", 0);
         j.put("iDisplayLength", 10);
-        j.put("narrowMapping", narrowMapping);
+        j.put("narrowMapping", StringUtils.join(narrowMapping, ", "));
 
         List<String> rowDataExport = new ArrayList<>(); // for export
         List<String> rowDataOverview = new ArrayList<>(); // for overview
@@ -1271,7 +1323,7 @@ public class AdvancedSearchController {
         return j;
     }
 
-    private String mapNarrowSynonym2MpTerm(String narrowMapping, String mpTerm, SolrClient autosuggestCore) throws IOException, SolrServerException {
+    private String mapNarrowSynonym2MpTerm(List<String> narrowMapping, String mpTerm, SolrClient autosuggestCore) throws IOException, SolrServerException {
 
         String mpStr = null;
         SolrQuery query = new SolrQuery();
@@ -1295,7 +1347,7 @@ public class AdvancedSearchController {
             else if (doc.containsKey("mp_narrow_synonym") && doc.getFieldValue("mp_narrow_synonym").equals(mpTerm)){
                 System.out.println("NS: "+ doc.getFieldValue("mp_narrow_synonym"));
                 mpStr = doc.getFieldValue("mp_term").toString();
-                narrowMapping = mpTerm + " is a child term of " + mpStr;
+                narrowMapping.add(mpTerm + " is not directly annotated in IMPC and is a child term of " + mpStr);
                 break;
             }
         }
