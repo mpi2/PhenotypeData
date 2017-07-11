@@ -19,14 +19,14 @@
 
             <c:forEach var="procedure" items="${procedures}" varStatus="firstLoop">
                 <c:if test="${lastProcedure.equalsIgnoreCase(procedure.getProcedureName())}">
-                    <c:if test="${! lastProcedure.contains(\"Embryo\") && ! lastProcedure.contains(\"Gross Morphology\")}">
+                    <c:if test="${!lastProcedure.contains('Embryo') && !lastProcedure.contains('Gross Morphology')}">
                         <a href="${drupalBaseUrl}/impress/protocol/${procedure.procedureStableKey}">
                                 , ${procedure.procedureStableId.split("_")[0]} v${procedure.procedureStableId.substring(procedure.procedureStableId.length()-1, procedure.procedureStableId.length())}
                         </a>
                     </c:if>
                 </c:if>
                 <c:if test="${!lastProcedure.equalsIgnoreCase(procedure.getProcedureName())}">
-                    <c:if test="${! procedure.procedureName.contains(\"Embryo\") && ! procedure.procedureName.contains(\"Gross Morphology\")}">
+                    <c:if test="${! procedure.procedureName.contains('Embryo') && ! procedure.procedureName.contains('Gross Morphology')}">
                         </li>
                         <li>
                             ${procedure.procedureName}
@@ -47,14 +47,14 @@
 
             <c:forEach var="procedure" items="${procedures}" varStatus="firstLoop">
                 <c:if test="${lastProcedure.equalsIgnoreCase(procedure.getProcedureName())}">
-                    <c:if test="${lastProcedure.contains(\"Embryo\") || lastProcedure.contains(\"Gross Morphology\")}">
+                    <c:if test="${lastProcedure.contains('Embryo') || lastProcedure.contains('Gross Morphology')}">
                         <a href="${drupalBaseUrl}/impress/protocol/${procedure.procedureStableKey}">
                             , ${procedure.procedureStableId.split("_")[0]} v${procedure.procedureStableId.substring(procedure.procedureStableId.length()-1, procedure.procedureStableId.length())}
                         </a>
                     </c:if>
                 </c:if>
                 <c:if test="${!lastProcedure.equalsIgnoreCase(procedure.getProcedureName())}">
-                    <c:if test="${procedure.procedureName.contains(\"Embryo\") || procedure.procedureName.contains(\"Gross Morphology\")}">
+                    <c:if test="${procedure.procedureName.contains('Embryo') || procedure.procedureName.contains('Gross Morphology')}">
                     </li>
                     <li>
                             ${procedure.procedureName}

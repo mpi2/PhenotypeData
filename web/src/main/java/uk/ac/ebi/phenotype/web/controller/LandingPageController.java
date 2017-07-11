@@ -78,19 +78,18 @@ public class LandingPageController {
         cardiovascular.setDescription(
                 "This page aims to present cardiovascular system related phenotypes lines which have been produced by IMPC.");
         cardiovascular.setLink("biological-system/cardiovascular");
-
+        bsPages.add(cardiovascular);
+        Boolean isLive= new Boolean((String) request.getAttribute("liveSite"));
+        if(!isLive){//don't show deafness page on live until ready with paper etc.
         LandingPageDTO deafness = new LandingPageDTO();
-
-        deafness.setTitle("Deafness");
-        deafness.setImage("render_thumbnail/211474/400/");
+        deafness.setTitle("Hearing");
+        deafness.setImage("img/landing/deafnessIcon.png");
         //cardiovascular.setImage(baseUrl + "/img/deafness.png");
         deafness.setDescription(
                 "This page aims to relate deafnessnes to phenotypes which have been produced by IMPC.");
-        deafness.setLink("biological-system/deafness");
-
-        bsPages.add(cardiovascular);
+        deafness.setLink("biological-system/hearing");
         bsPages.add(deafness);
-
+        }
         model.addAttribute("pages", bsPages);
 
         return "landing";
@@ -126,7 +125,7 @@ public class LandingPageController {
         MpDTO mpDTO = null;
 
 
-        if (page.equalsIgnoreCase("deafness")) { // Need to decide if we want deafness only or top level hearing/vestibular phen
+        if (page.equalsIgnoreCase("hearing")) { // Need to decide if we want deafness only or top level hearing/vestibular phen
             mpDTO = mpService.getPhenotype("MP:0005377");
             anatomyIds.add("MA:0002443");
             anatomyIds.add("EMAPA:36002");
