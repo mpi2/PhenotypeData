@@ -62,7 +62,8 @@
                                     </div>
                                     <c:if test="${page.image != null}">
                                         <div class="half">
-                                            <a href="${baseUrl}/${page.link}"><img src="${impcMediaBaseUrl}/${page.image}" width="80%"></a>
+                                            <%--<a href="${baseUrl}/${page.link}"><img src="${impcMediaBaseUrl}/${page.image}" width="80%"></a>--%>
+                                            <a href="${baseUrl}/${page.link}"><img src="${page.image}" width="80%"></a>
                                         </div>
                                     </c:if>
                                     </div>

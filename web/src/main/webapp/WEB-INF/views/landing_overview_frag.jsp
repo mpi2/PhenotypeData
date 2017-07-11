@@ -3,8 +3,8 @@
 <div class="section">
     <div class="inner">
         <p> ${shortDescription} </p>
-        <p><b>${systemName}</b> refers to ${mpDTO.getMpDefinition()}</p>
-        <p>This page aims to present ${systemName} related phenotypes lines which have been produced by IMPC. </p>
+        <%--<p><b>${systemName}</b> refers to ${mpDTO.getMpDefinition()}</p>--%>
+        <%--<p>This page aims to present ${systemName} related phenotypes lines which have been produced by IMPC. </p>--%>
         <br/> <br/>
 
         <c:if test="${genePercentage.getDisplay()}">
@@ -52,7 +52,7 @@
                     <tr>
                         <td>
                             <c:if test="${phenotypes.size() > 10}"> <a id="showMore">Show more</a> </c:if> </td>
-                        </td>
+                        
                         <td>
                             <a id="tsvDownload" href="${baseUrl}/phenotypes/export/${mpId}?fileType=tsv&fileName=IMPC_${pageTitle}" target="_blank" class="button fa fa-download">Download</a>
                         </td>

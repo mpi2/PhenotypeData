@@ -37,15 +37,19 @@ public class GrossPathPageTableRow {
 
 	private Set<String> parameterNames;
 	
-	
 	@Override
 	public String toString() {
 		return "GrossPathPageTableRow [sampleId=" + sampleId + ", anatomyName=" + anatomyName + ", parameterNames="
 				+ parameterNames + ", parameterStableId=" + parameterStableId + ", observationType=" + observationType
-				+ ", textValue=" + textValue + ", subOntologyBeans=" + subOntologyBeans +", patoOntologyBeans=" + patoOntologyBeans + ", descriptionTextParameters="
-				+ descriptionTextParameters + ", freeTextParameters=" + freeTextParameters + ", textParameters="
-				+ textParameters + ", significance=" + significance + ", severity=" + severity + ", imageList=" + imageList + "]";
+				+ ", textValue=" + textValue + ", subOntologyBeans=" + subOntologyBeans + ", patoOntologyBeans="
+				+ patoOntologyBeans + ", descriptionTextParameters=" + descriptionTextParameters
+				+ ", freeTextParameters=" + freeTextParameters + ", textParameters=" + textParameters
+				+ ", significance=" + significance + ", severity=" + severity + ", imageList=" + imageList
+				+ ", sequenceId=" + sequenceId + ", zygosity=" + zygosity + ", numberOfAbnormalObservations="
+				+ numberOfAbnormalObservations + ", numberOfNormalObservations=" + numberOfNormalObservations
+				+ ", mpId=" + mpId + "]";
 	}
+	
 	public GrossPathPageTableRow(String sampleId, Set<String> parameterNames, String parameterStableId,
 			String observationType, List<ParameterValueBean> category, String textValue, Map<String, List<OntologyBean>> subOntologyBeans) {
 		super();
