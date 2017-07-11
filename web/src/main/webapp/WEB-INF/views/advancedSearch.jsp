@@ -204,6 +204,7 @@
             }
             span.pvalue input {
                 padding: 3px !important;
+                height: 15px;
             }
             span.sugListPheno {
                 font-size: 10px;
@@ -381,7 +382,6 @@
                 padding-top: 10px;
             }
             span.msg {
-                display: none;
                 margin-right: 50px;
             }
             .andOrClear {
@@ -455,7 +455,6 @@
             var selectedCircles = [];
             var drawnCircles = {};
             var idsVar = null;
-            var paper = null;
 
             $(document).ready(function () {
                 'use strict';
@@ -532,6 +531,8 @@
                         }
                     });
                 }
+
+
                 //----------------------
                 // Raphael JS stuff
                 //----------------------
@@ -707,117 +708,23 @@
                 addDatatypeFiltersAttributes("Gene");
                 addDatatypeFiltersAttributes("DiseaseModel");
 
-//                paper = new Raphael(document.getElementById('graph'), 570, 180);
-//
-//                for (var id in idsVar) {
-//                    var text = id;
-//                    drawCircle(id, idsVar[id].text, idsVar[id].x, idsVar[id].y, idsVar[id].r, paper);
-//                }
-
-//                // connect circles
-//                connectCircle("Gene", "HumanGeneSymbol");
-//                //connectCircle("Gene", "EnsemblGeneId");
-//                //connectCircle("Gene", "MarkerSynonym");
-//                connectCircle("Gene", "Allele");
-//                connectCircle("MouseModel", "Gene");
-//                connectCircle("MouseModel", "Mp");
-////                connectCircle("DiseaseGene", "Gene");
-////                connectCircle("DiseaseGene", "Hp");
-//                connectCircle("DiseaseModel", "Gene");
-//                connectCircle("DiseaseModel", "Allele");
-//                connectCircle("DiseaseModel", "MouseModel");
-//                connectCircle("DiseaseModel", "Hp");
-//                connectCircle("DiseaseModel", "Mp");
-//                connectCircle("Mp", "Hp");
-//                //connectCircle("Mp", "OntoSynonym");
-
-//				// default search type
-//				$("input[name='queryType'][value='Gene']").prop("checked", true);
-//                drawnCircles["Gene"].click();
-
-//				// gene or phenotype centric search
-//				$("input[name='queryType']").on('change', function () {
-//					// remove overlay on top of graph to make circles clickable after a query type is chosen
-//                    $('#overlay').hide();
-//
-//                    var dataType = $("input[name='queryType']:checked").val();
-//                    var circle = drawnCircles[dataType];
-//
-//                    // select if not yet
-//                    if (circle.attr("stroke") != "darkorange") {
-//                        drawnCircles[dataType].click();
-//                    }
-//				});
-
-//                $('button#clearAllDt').click(function(){
-//                    var nodeType = mapInputId2NodeType($('input.bq:checked').attr('id'));
-//                    for(var c=0; c<selectedCircles.length; c++){
-//                        if (selectedCircles[c].data('id') != nodeType) {
-//                            var circle = selectedCircles[c];
-//                            selectedCircles.slice(c, 1);
-//                            // now remove color and filter
-//                            circle.attr({"stroke":"black", "stroke-width": 1});
-//                            removeDatatypeFiltersAttributes(circle.data("id"));
-//                        }
-//                    }
-//                	// grayout submit button as there is no filters/attributes selected
-//                    $("input[type='submit']").prop('disabled', true).removeClass('active');
-//                    return false;
-//                });
-
                 $( "#accordion" ).accordion();
 
-            });
-
-//            function catchOnReset(){
-////                var dataType = $("input[name='queryType']:checked").val();
-////				    console.log(dataType);
-////                $("input[name=mygroup][value=" + dataType + "]").prop('checked', true);
-//                //$('textarea').val("");
-//            }
-//            function connectCircle(id1, id2) {
-//
-//                var x1 = idsVar[id1].x;
-//                var y1 = idsVar[id1].y;
-//                var r1 = idsVar[id1].r;
-//                var x2 = idsVar[id2].x;
-//                var y2 = idsVar[id2].y;
-//                var r2 = idsVar[id2].r;
-//
-//                // Compute the path strings
-//                var c1path = circlePath(x1, y1, r1);
-//                var c2path = circlePath(x2, y2, r2);
-//                var linepath = linePath(x1, y1, x2, y2);
-//
-//                // Get the path intersections
-//                // In this case we are guaranteed 1 intersection, but you could find any intersection of interest
-//                var c1i = Raphael.pathIntersection(linepath, c1path)[0];
-//                var c2i = Raphael.pathIntersection(linepath, c2path)[0];
-//
-//                var line = paper.path(linePath(c1i.x, c1i.y, c2i.x, c2i.y));
-//
-//                var lineColor = "#c1d7d7";  // different color to distinguish between DiseaeGene and DiseaseModel
-//                if ( (id1=="DiseaseGene" && id2=="Hp") || (id1=="DiseaseGene" && id2=="Gene") ){
-//                    lineColor = "#507c7c";
-//                }
-//
-//                line.attr ("stroke", lineColor);
-//            }
-//
-//            // Computes a path string for a circle
-//            function circlePath(x, y, r) {
-//                return "M" + x + "," + (y - r) + "A" + r + "," + r + ",0,1,1," + (x - 0.1) + "," + (y - r) + " z";
-//            }
-//
-//            // Computes a path string for a line
-//            function linePath(x1, y1, x2, y2) {
-//                return "M" + x1 + "," + y1 + "L" + x2 + "," + y2;
-//            }
+            })
 
             function fetchDatatypeProperties() {
 
                 var kv = {};
                 kv["properties"] = [];
+                kv["dataTypes"] = [];
+
+                var dTypeMap = {
+                    Allele : "a",
+                    Gene : "g",
+                    StatisticalResult : "sr",
+                    Mp : "mp",
+                    DiseaseModel : "dm"
+                }
 
                 //-------------------------
                 //   columns (attributes)
@@ -875,6 +782,7 @@
 
                     if (!kv.hasOwnProperty(dataType)) {
                         kv[dataType] = [];
+                        kv["dataTypes"].push(dTypeMap[dataType]);
                     }
                     kv[dataType].push(property);
 
@@ -920,28 +828,31 @@
                     kv['srchMp'] = $('textarea.Mp').val();
                     shownFilter.push("mouse phenotype = '" + kv.srchMp + "'");
 
-                    // TODO: work out mp term and pvalue pairs
+                    // work out mp term and pvalue pairs
                     var mpPval = {};
                     $('input.srchMp').each(function(){
+                        var tval = "Eg:0000";
+
 
                         var mpVal = $(this).val();
                         var gtval = $(this).siblings('span.pvalue').find('input.gtpvalue').val();
                         var ltval = $(this).siblings('span.pvalue').find('input.ltpvalue').val();
                         mpPval[mpVal] = {};
-                        if (gtval != ""){
+
+                        if (gtval.indexOf('Eg:') != 0 && gtval != ""){
                             mpPval[mpVal]["gtpvalue"] = gtval;
                         }
-                        if (ltval != ""){
+                        if (ltval.indexOf('Eg:') != 0 && ltval != ""){
                             mpPval[mpVal]["ltpvalue"] = ltval;
                         }
 
-                        if (gtval != '' && ltval != ''){
+                        if ( (gtval.indexOf('Eg:') != 0 && gtval != '') && (ltval.indexOf('Eg:') != 0 && ltval != '') ){
                             shownFilter.push("pvalue: " + mpVal + " - " + gtval + "< P <" + ltval);
                         }
-                        else if (gtval != ''){
+                        else if ( gtval.indexOf('Eg:') != 0 && gtval != '' ){
                             shownFilter.push("pvalue: " + mpVal + " - " + "p > " + gtval);
                         }
-                        else if (ltval != ''){
+                        else if ( ltval.indexOf('Eg:') != 0 && ltval != '' ){
                             shownFilter.push("pvalue: " + mpVal + " - " + "p < " + ltval);
                         }
                     });
@@ -1135,40 +1046,6 @@
                 }
             }
 
-//            function mapInputId2NodeType(key){
-//                var map = {
-//                    "mouseMarkerSymbol":"Gene",
-//                    "mouseGeneId":"Gene",
-//                    "geneChr":"Gene",
-//                    "ensembl":"EnsemblGeneId",
-//                    "mpTerm":"Mp",
-//                    "mpId":"Mp",
-//                    "human_marker_symbol":"HumanGeneSymbol",
-//                    "hpTerm":"Hp",
-//                    "hpId":"Hp",
-//                    "diseaseTerm":"DiseaseModel",
-//                    "diseaseId":"DiseaseModel"
-//                };
-//                return map[key];
-//
-//            }
-
-//            function convertParamToObject(params){
-//                var oConf = {};
-//                var paramsStr = params.replace("?", "");
-//                var kv = paramsStr.split("&");
-//                for ( var i=0; i<kv.length; i++){
-//                    var kv2 = kv[i].split("=");
-//                    oConf[kv2[0]] = kv2[1];
-//                }
-//                return oConf;
-//            }
-//
-//            function easyReadBp(bp){
-//                return bp.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-//            }
-
-
             function addAutosuggest(thisInput){
 
                 // generic search input autocomplete javascript
@@ -1277,19 +1154,22 @@
                         var q = this.value;
                         q = encodeURIComponent(q).replace("%3A", "\\%3A");
 
-                        if ($('textarea.Mp').val() == '') {
-                            $('textarea.Mp').val(decodeURIComponent(q));
-                        }
-                        else {
-                            var count = ($('textarea.Mp').val().match(/AND|OR/g) || []).length;
+                        if ( thisInput.hasClass('srchMp') ) {
 
-                            if ( (count == 1 && $('input.srchMp').size() == 2) || (count==2 && $('input.srchMp').size() == 3) ) {
-                                $('textarea.Mp').val($('textarea.Mp').val() + decodeURIComponent(q));
+                            if ($('textarea.Mp').val() == '') {
+                                $('textarea.Mp').val(decodeURIComponent(q));
                             }
                             else {
-                                alert("Sorry, you need to click 'AND' or 'OR' button first to build your boolean query");
-                                thisInput.val('');
-                                return false;
+                                var count = ($('textarea.Mp').val().match(/AND|OR/g) || []).length;
+
+                                if ((count == 1 && $('input.srchMp').size() == 2) || (count == 2 && $('input.srchMp').size() == 3)) {
+                                    $('textarea.Mp').val($('textarea.Mp').val() + decodeURIComponent(q));
+                                }
+                                else {
+                                    alert("Sorry, you need to click 'AND' or 'OR' button first to build your boolean query");
+                                    thisInput.val('');
+                                    return false;
+                                }
                             }
                         }
 
@@ -1305,24 +1185,24 @@
                         });
 
                         $( this ).removeClass( "ui-corner-all" ).addClass( "ui-corner-top" );
+                        $(this).data("selectVisible", true);
+                       // alert("test open: " + $(this).data("selectVisible"));
                     },
                     close: function() {
                         $( this ).removeClass( "ui-corner-top" ).addClass( "ui-corner-all" );
+                        $(this).data("selectVisible", false);
+                       // alert("test close: " + $(this).data("selectVisible"));
                     }
-                }).data("ui-autocomplete")._renderItem = function( ul, item) {
-                    // prevents HTML tags being escaped
-                    return $( "<li></li>" )
-                        .data( "item.autocomplete", item )
-                        .append( $( "<a></a>" ).html( item.label ) )
-                        .appendTo( ul );
-                };
+                }).keydown(function (e) {
 
-                // User press ENTER
-                thisInput.keyup(function (e) {
-                    console.log('enter')
                     if (e.keyCode == 13) { // user hits enter
-                        $(".ui-menu-item").hide();
+
+                        //e.stopPropagation();
+
+                        //$(".ui-menu-item").hide();
                         //$('ul#ul-id-1').remove();
+
+                        //alert($(this).autocomplete.selectedItem )
 
                         //alert('enter: '+ MPI2.searchAndFacetConfig.matchedFacet)
                         var input = thisInput.val().trim();
@@ -1365,9 +1245,83 @@
                         // and it is not essential to escape space
                         input = input.replace(/\\?%20/g, ' ');
 
+                        //$(".ui-menu-item").hide();
+                        if ( $(this).data("selectVisible")) {
+                            alert("Please choose a phenotype from the dropdown list");
+                        }
+
+                        return false;
+                    }
+                }).keyup(function (e) {
+                    if (e.keyCode == 13) { // user hit ENTER
                         $(".ui-menu-item").hide();
                     }
-                });
+                }).data("ui-autocomplete")._renderItem = function( ul, item) {
+                    // prevents HTML tags being escaped
+                    return $( "<li></li>" )
+                        .data( "item.autocomplete", item )
+                        .append( $( "<a></a>" ).html( item.label ) )
+                        .appendTo( ul );
+                };
+
+//                // User press ENTER
+//                thisInput.keydown(function (e) {
+//
+//                    if (e.keyCode == 13) { // user hits enter
+//
+//                        e.stopPropagation();
+//
+//                        $(".ui-menu-item").hide();
+//                        //$('ul#ul-id-1').remove();
+//
+//                        //alert('enter: '+ MPI2.searchAndFacetConfig.matchedFacet)
+//                        var input = thisInput.val().trim();
+//
+//                        //alert(input + ' ' + solrUrl)
+//                        input = /^\*\**?\*??$/.test(input) ? '' : input;  // lazy matching
+//
+//                        var re = new RegExp("^'(.*)'$");
+//                        input = input.replace(re, "\"$1\""); // only use double quotes for phrase query
+//
+//                        // NOTE: solr special characters to escape
+//                        // + - && || ! ( ) { } [ ] ^ " ~ * ? : \
+//
+//                        input = encodeURIComponent(input);
+//
+//                        input = input.replace("%5B", "\\[");
+//                        input = input.replace("%5D", "\\]");
+//                        input = input.replace("%7B", "\\{");
+//                        input = input.replace("%7D", "\\}");
+//                        input = input.replace("%7C", "\\|");
+//                        input = input.replace("%5C", "\\\\");
+//                        input = input.replace("%3C", "\\<");
+//                        input = input.replace("%3E", "\\>");
+//                        input = input.replace(".", "\\.");
+//                        input = input.replace("(", "\\(");
+//                        input = input.replace(")", "\\)");
+//                        input = input.replace("%2F", "\\/");
+//                        input = input.replace("%60", "\\`");
+//                        input = input.replace("~", "\\~");
+//                        input = input.replace("%", "\\%");
+//                        input = input.replace("!", "\\!");
+//                        input = input.replace("%21", "\\!");
+//                        input = input.replace("-", "\\-");
+//
+//                        if (/^\\%22.+%22$/.test(input)) {
+//                            input = input.replace(/\\/g, ''); //remove starting \ before double quotes
+//                        }
+//
+//                        // no need to escape space - looks cleaner to the users
+//                        // and it is not essential to escape space
+//                        input = input.replace(/\\?%20/g, ' ');
+//
+//                        $(".ui-menu-item").hide();
+//
+//                        alert("Please choose a phenotype from the dropdown list");
+//                        return false;
+//
+//                    }
+//                });
 
             }
 
@@ -1415,7 +1369,7 @@
                 oConf.params = JSON.stringify(oJson);
 
                 //console.log(oConf);
-                fetchBatchQueryDataTable(oConf);
+                fetchDataTable(oConf);
 
                 return false;
             }
@@ -1426,43 +1380,6 @@
                 //$('div#infoBlock').html("Your datatype of search: " + parseCurrDataDype($('input.bq:checked').attr('id')).toUpperCase() + sampleData);
             }
 
-//            function uploadJqueryForm(){
-//
-//                refreshResult(); // refresh first
-//
-//                var currDataType = $('input.bq:checked').attr('id');
-//                $('input#dtype').val(currDataType);
-//
-//                if ( $('input#fileupload').val() == '' ){
-//                    alert("Please upload a file with a list of identifiers");
-//                }
-//                else {
-//                    $('#bqResult').html('');
-//
-//                    $("#ajaxForm").ajaxForm({
-//                        success:function(jsonStr) {
-//                            //$('#bqResult').html(idList);
-//                            //console.log(jsonStr)
-//                            var j = JSON.parse(jsonStr);
-//
-//                            if ( j.badIdList != ''){
-//                                $('div#errBlock').html("UPLOAD ERROR: unprocessed identifier(s): " + j.badIdList).show();
-//                            }
-//
-//                            var kv = fetchSelectedFieldList();
-//                            prepare_dataTable(kv.fllist);
-//
-//                            var oConf = {};
-//                            oConf.idlist = j.goodIdList;
-//                            //oConf.labelFllist = kv.labelFllist
-//
-//                            //fetchBatchQueryDataTable(oConf);
-//                        },
-//                        dataType:"text"
-//                    }).submit();
-//                }
-//                return false; // so that the form can only be submitted via ajax
-//            }
 
             function fetchSelectedFieldList(){
                 var kv = {};
@@ -1517,7 +1434,7 @@
                 return $.fn.getUnique(ids.slice(0,10)).join(",");
             }
 
-            function fetchBatchQueryDataTable(oConf) {
+            function fetchDataTable(oConf) {
 
                 $('body').addClass("loading");  // to activate modal
 
@@ -1706,11 +1623,11 @@
                     compartmentAttrsFilters(dataType, "Phenotype");
 
                 }
-                else if (dataType == "Hp"){
-                    addAutosuggestFilter(dataType);
-                    //addOntologyChildrenLevelFilter(dataType);
-                    compartmentAttrsFilters(dataType, "HP");
-                }
+//                else if (dataType == "Hp"){
+//                    addAutosuggestFilter(dataType);
+//                    //addOntologyChildrenLevelFilter(dataType);
+//                    compartmentAttrsFilters(dataType, "HP");
+//                }
                 else if (dataType == "DiseaseModel"){
                     addDiseaseUi(dataType);
                     compartmentAttrsFilters(dataType, "Disease");
@@ -1811,7 +1728,6 @@
                     $(this).siblings($("input.srchPipeline")).val("");
                 });
 
-                // exception
                 addAutosuggest($('input.srchPipeline'));
 
             }
@@ -1948,7 +1864,7 @@
                     "<i class='fa fa-search'></i>" +
                     "<input class='termFilter srch" + dataType + "' value='search'>" +
                     "<i class='fa fa-times' id='" + idname + "Clear'></i>" +
-                    "<span class='pvalue'> p value: <input class='gtpvalue' type='text'> < P < <input class='ltpvalue' type='text'></span>" +
+                    "<span class='pvalue'> p value: <input class='gtpvalue pvalue' type='text' value='Eg: 0.00001'> < P < <input class='ltpvalue pvalue' type='text' value='Eg: 0.00001'></span>" +
                     "<button class='ontoview " + dataType + "'>ontology view</button>" +
                     "<button class='killRow " + dataType + "'>Delete row</button>" +
                     "</div>";
@@ -1977,14 +1893,7 @@
 
                 var noMpChild = "<div id='single'><input type='checkbox' id='noMpChild'> exclude nested phenotypes</div>";
                 var butt = "<button class='ap'>" + buttLabel + "</button>";
-                var msg = "<span class='msg'>Build your query with boolean relationships (refer to info button above for help)<br>Eg. (A OR B) and C</span>";
-//                var boolButts =
-//                    "<button class='andOr2 " + dataType + "'>AND</button>"
-//                    + "<button class='andOr2 " + dataType + "'>OR</button>";
-                    //+ "<button class='andOr2 " + dataType + "'>NOT</button>"
-//                    + "<button class='andOr2 " + dataType + "'>(</button>"
-//                    + "<button class='andOr2 " + dataType + "'>)</button>"
-//                    + "<button class='andOrClear " + dataType + "'>clear</button>";
+                var msg = "<span class='msg'>Build your query (refer to info button above for help)</span><button id='qryClear'>Clear query</button>";
                 var boolText = "<textarea class='andOr2 " + dataType + "' rows='2' cols=''></textarea>";
                 var help = "<img class='boolHow' src='${baseUrl}/img/advSearch/how-to-build-boolean-query.png' />";
                 var filter = "<fieldset class='" + dataType + "Filter dfilter " + dataType + "'>" + legend + restriction + noMpChild + input + butt + msg + boolText + help + "</fieldset>";
@@ -1996,33 +1905,28 @@
                 var fieldsetFilter = "fieldset." + dataType + "Filter ";
                 $(fieldsetFilter + ' div.srchBox').first().find('button.killRow').hide();
 
+                var boolTextarea = $(fieldsetFilter +"textarea.Mp");
+
+                $('button#qryClear').click(function(){
+                    boolTextarea.val("");
+
+                    // also remove phenotype, pvalue and ontology view row
+                    var counts = $('button.killRow').size();
+                    for (var c=0; c<counts; c++){
+                        var srchBox = $(fieldsetFilter +"div.srchBox");
+                        srchBox.last().find('div.bools').detach();
+                        if (srchBox.size() > 1) {
+                            srchBox.last().detach();
+                        }
+                        else {
+                           $('input.srchMp').val('');
+                        }
+                    }
+
+                    return false;
+                });
+
                 mpOntoView($(fieldsetFilter + ' button.ontoview').first());
-
-//                $(fieldsetFilter + ' button.ontoview').click(function(){
-//                    alert('ontoview')
-//                //$(fieldsetFilter + ' button.ontoview').first().click(function(){
-//                    // ajax call to fetch for mp id
-//                    //var termName = $(fieldsetFilter + " input.srchMp").val();
-//                    var termName = $(this).siblings("input.srchMp").val();
-//                    //$('body').addClass("loading");  // to activate modal
-//
-//                    $.ajax({
-//                        'url': baseUrl + '/fetchmpid?name=' + termName,
-//                        'async': true,
-//                        'jsonp': 'json.wrf',
-//                        'success': function (id) {
-//                            // $('body').removeClass("loading");  // to activate modal
-//                            console.log(id);
-//                            window.open(baseUrl + "/ontologyBrowser?termId=" + id, '_blank');
-//                        },
-//                        'error' : function(jqXHR, textStatus, errorThrown) {
-//                            alert("Sorry, this phenotype does not have Ontology View");
-//                        }
-//                    });
-//
-//                    return false;
-//                })
-
 
                 $(fieldsetFilter + ".fa-info-circle").click(function(){
                     var imgHow = $(fieldsetFilter + "img.boolHow");
@@ -2044,9 +1948,14 @@
                 // clear input when the value is not default: "search"
                 $(fieldsetFilter).on("click", "i#" + idname + "Clear", function(){
                     $(this).siblings($("input.srch" + dataType)).val("");
+                    boolTextarea.val("");
                 });
 
-                var boolTextarea = $(fieldsetFilter +"textarea.andOr2");
+                // clear pvalue default input
+                $(fieldsetFilter).on("click", "input.pvalue", function(){
+                   $(this).val("");
+                });
+
 
                 // append AND/OR and add new phenotype
                 $(fieldsetFilter + "button.ap").click(function(){
@@ -2092,14 +2001,12 @@
                 });
             }
 
+
             function mpOntoView(ontoButt){
-                ontoButt.click(function(){
-                    //$(fieldsetFilter + ' button.ontoview').first().click(function(){
+                ontoButt.click(function(e){
+
                     // ajax call to fetch for mp id
-                    //var termName = $(fieldsetFilter + " input.srchMp").val();
                     var termName = $(this).siblings("input.srchMp").val();
-                    alert(termName);
-                    //$('body').addClass("loading");  // to activate modal
 
                     $.ajax({
                         'url': baseUrl + '/fetchmpid?name=' + termName,
@@ -2108,6 +2015,14 @@
                         'success': function (id) {
                             // $('body').removeClass("loading");  // to activate modal
                             console.log(id);
+                            var prefix = "narrow synonym of ";
+                            if (id.indexOf(prefix) == 0){
+                                var vals = id.replace(prefix, "").split(",");
+                                console.log(vals);
+                                id = vals[0];
+                                var term = vals[1];
+                                alert("Note: '" + termName + "' is not directly annotated as a phenotype in IMPC,\nbut its parent term '" + term + "' is." );
+                            }
                             window.open(baseUrl + "/ontologyBrowser?termId=" + id, '_blank');
                         },
                         'error' : function(jqXHR, textStatus, errorThrown) {
