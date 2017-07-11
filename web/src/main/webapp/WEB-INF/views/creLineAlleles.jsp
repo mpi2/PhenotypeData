@@ -18,6 +18,11 @@
 		<script type="text/javascript">
 			var drupalBaseUrl = '${drupalBaseUrl}';
 		</script>
+		<style>
+			.hide {
+			  display: none;
+			}
+		</style>
 
         <!-- <script type="text/javascript">
 		    $(document).ready(function() {
@@ -66,15 +71,24 @@
 			        <h1 class="title" id="top">Cre alleles from CREATE (coordination of resources for conditional expression of mutated mouse alleles)</h1>
                     <div class="section">
                         <div class="inner">
-							<p>
-							Mutant mouse ES cell lines are produced, each of which carries an altered or "floxed" allele of a single gene. These mutant ES cell mutations can be readily transformed into mice using blastocyst injection, and the mutation activated by crossing the mouse bearing the floxed allele with a Cre recombinase driver strain to induce the mutation in spatially and temporally determined patterns.
-							</p>
-							<p>
-							Intricate conditional and inducible gene manipulation approaches have led to the generation of cell lineage- or developmental stage-specific alterations under temporal control. The vast number of Cre recombinase-expressing mouse lines - often referred to as "Cre-Zoo" animals - has greatly contributed to these accomplishments by allowing Cre recombinase to be expressed in specific cell types, in some cases in an inducible manner.
-							</p>
-							<p>
-							The full power of conditional mutant ES cell libraries and mice can therefore only be exploited with the availability of well characterised mouse lines expressing Cre-recombinase in tissue, organ and cell type-specific patterns, to allow the creation of somatic mutations in defined genes.
-							</p>
+							
+							The EUCOMMTOOLS project created a new inducible Cre Driver mouse line resource that is available to researchers via <a href="https://www.infrafrontier.eu/search?keyword=EUCOMMToolsCre">INFRAFRONTIER repository</a>.
+							 This resource contains over 220 Cre Driver mouse lines where tamoxifin inducible Cre expression vectors have replaced the coding elements of genes with restricted tissue expression. Individual gene drivers were selected by community surveys and gene expression studies with the resulting mouse lines being characterised to confirm restricted Cre expression (<a href="http://www.imib.es/AnotadorWeb">http://www.imib.es/AnotadorWeb</a>).
+							  All EUCOMMTOOL Cre Driver mouse lines are generated on a pure C57BL/6N genetic background making this a unique resource for IMPC researchers.<a class="read-more-show hide" href="#"> Read more....</a>
+							
+							
+							
+							<div class="read-more-content">
+								<br/>
+								<p>
+								Conditional knockout models have greatly contributed to studies into gene function and disease processess by allowing the inactivation of gene function in specific tissues and/or developmental timepoints in mice. This is generally achieved by flanking a critical gene exon with loxP sites (e.g. a "floxed" allele) in such a manner that does not interfere with gene transcription. In the presence of the Cre recombinase, recombination occurs between the loxP sites resulting in the removal of the critical gene segment and inactivating the gene.
+								</p>
+								<p>
+								The full potential of conditional knockout models mice is only realized with the availability of well characterised mouse lines expressing Cre-recombinase in tissue, organ and cell type-specific patterns. This is best achieved by substituting a Cre recombinase expression vector for the coding exons of genes that have the desired spatial and temporal restricted expression. The promoter and other genomic elements that control expression of the native gene will "drive" expression of the Cre recombinase instead.   These "Cre Driver" mice can then be bred with mice carrying a floxed allele to generate the desired conditional knockout. Variants of Cre Driver mice allow temporal control of Cre activity by employing fusion proteins of the Cre enzyme with modified versions of the ligand binding domains of the estrogen receptor that are responsive to the synthetic ligand tamoxifen. 
+								</p>
+								
+								<a class="read-more-hide hide" href="#">...Read less</a>
+							</div>
 							<!-- <p>
 							Although several privately curated and locally held databases currently provide a limited catalog of existing Cre driver strains, common problems are: 
 							<uL>
@@ -158,6 +172,28 @@ $('.iFrameFancy').click(function()
 		});
     }
 
+		
+		
+		
+		
+	// Hide the extra content initially, using JS so that if JS is disabled, no problemo:
+	$('.read-more-content').addClass('hide')
+	$('.read-more-show, .read-more-hide').removeClass('hide')
+
+	// Set up the toggle effect:
+	$('.read-more-show').on('click', function(e) {
+	  $(this).next('.read-more-content').removeClass('hide');
+	  $(this).addClass('hide');
+	  e.preventDefault();
+	});
+
+	// Changes contributed by @diego-rzg
+	$('.read-more-hide').on('click', function(e) {
+	  var p = $(this).parent('.read-more-content');
+	  p.addClass('hide');
+	  p.prev('.read-more-show').removeClass('hide'); // Hide only the preceding "Read More"
+	  e.preventDefault();
+	});
     
 });
 
