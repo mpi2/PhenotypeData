@@ -12,6 +12,15 @@
         <script type='text/javascript' src='${baseUrl}/js/charts/highcharts.js?v=${version}'></script>
         <script type='text/javascript' src='${baseUrl}/js/charts/highcharts-more.js?v=${version}'></script>
         <script type='text/javascript' src='${baseUrl}/js/charts/exporting.js?v=${version}'></script>
+		<link href="${baseUrl}/css/vendor/font-awesome/font-awesome.min.css" rel="stylesheet" type="text/css" />
+
+		<!-- Specific styling for the SD graphs -->
+		<style>
+			.large-arrow { font-size: 20px; padding: 0 5px; }
+			.inner .onethird img { padding: 0 5px; }
+		</style>
+
+
     </jsp:attribute>
  		
 
@@ -31,9 +40,9 @@
 		                                <h4>IMPC data demonstrates the effect of sex on many phenotypes, supporting the importance of including males and females in biomedical research
 										</h4>
 		                                <ul class="pad10px">
-		                                    <li><a href="">In the News</a></li>
-		                                    <li> <a href="http://doi.org/10.5281/zenodo.160267?">Supporting material to enable replicable analysis</a></li>
-		                                    <li>Manuscript and Supplemental Information</li>
+		                                    <li>Press releases: <a href="https://www.nature.com/articles/ncomms15475">Nature</a>&nbsp;|&nbsp;<a href="http://www.bbc.co.uk/programmes/b08vwn6w">BBC Radio 4 - "inside Science"</a>&nbsp;|&nbsp;<a href="https://www.newscientist.com/article/2138671-research-on-male-animals-prevents-women-from-getting-best-drugs/">New Scientist</a>&nbsp;|&nbsp;<a href="http://www.dailymail.co.uk/wires/reuters/article-4640316/Sexual-equality-medical-research-long-overdue-study-finds.html">Daily Mail</a>&nbsp;|&nbsp;<a href="https://www.sciencedaily.com/releases/2017/06/170626124505.htm">Science Daily</a>&nbsp;|&nbsp;<a href="http://fortune.com/2017/06/26/sexual-bias-medical-research/">Fortune</a>&nbsp;|&nbsp;<a href="https://www.mousephenotype.org/news/study-unprecedented-size-reveals-how-sex-%E2%80%98blindspot%E2%80%99-could-misdirect-medical-research">IMPC</a>&nbsp;|&nbsp;<a href="http://www.ebi.ac.uk/about/news/press-releases/sexual-dimorphism-dilemma">EMBL-EBI</a>&nbsp;|&nbsp;<a href="http://www.sanger.ac.uk/news/view/study-reveals-how-sex-blindspot-could-misdirect-medical-research">Sanger</a></li>
+						    <li> <a href="https://zenodo.org/record/260398#.WVIkChPys-c">Supporting material to enable replicable analysis</a></li>
+		                                    <li><a href="http://em.rdcu.be/wf/click?upn=KP7O1RED-2BlD0F9LDqGVeSJ-2BYK13AOQwsehfu7fiqrAw-3D_rlS5NjXTpmOl66SHsP12rLQI7Hycd1QZjA7AhdQ2b6-2FS-2FPWAuljWGaoUUyQdBhNd5qzu1OSDRnDXa0UviCH1ywsoXX2HEGPW67FIlbNWZVB87NAsEeYQQ3F2GD8bvwBOk-2BPkbKRPqfrgHP4barsF-2BrLfjDnMD0fmPe675sK7phkS3L5CVy1mUUmp4mw-2Fgzbv1ueMSvy-2FUyo41KChqsXtnXKcvriwPUvjZxg6BOMnIFU-3D">Manuscript</a></li>
 		                                </ul>
 		                               
 		                                <!-- <p class="smallerAlleleFont">
@@ -169,9 +178,8 @@ For the mutant mice, lines were selected (1) if there was an abnormal phenotype 
 		                        Vignettes
 								</h2>
 		                        	<div class="inner">
-		                        	
 			                        	 <div class="onethird" style="text-align:center">
-			                				Significant increase in males, non-significant effect in females
+			                				<i class="fa fa-long-arrow-up large-arrow" aria-hidden="true"></i> in <img src="${baseUrl}/img/male.jpg">, no effect in <img src="${baseUrl}/img/female.jpg">
 			                				<div id="hdlCholesterol">
 			                				<script type="text/javascript">chart = new Highcharts.Chart({  colors:['rgba(239, 123, 11,0.7)', 'rgba(9, 120, 161,0.7)', 'rgba(247, 157, 70,0.7)', 'rgba(61, 167, 208,0.7)', 'rgba(247, 181, 117,0.7)', 'rgba(100, 178, 208,0.7)', 'rgba(191, 75, 50,0.7)', 'rgba(3, 77, 105,0.7)', 'rgba(166, 30, 1,0.7)', 'rgba(36, 139, 75,0.7)', 'rgba(255, 201, 67,0.7)', 'rgba(1, 121, 46,0.7)', 'rgba(144, 195, 212,0.7)', 'rgba(51, 51, 51,0.7)', 'rgba(119, 119, 119,0.7)', 'rgba(191, 151, 50,0.7)'], chart: { type: 'boxplot', renderTo: 'hdlCholesterol'},   tooltip: { formatter: function () { if(typeof this.point.high === 'undefined'){ return '<b>Observation</b><br/>' + this.point.y; } else { return '<b>Genotype: ' + this.key + '</b><br/>UQ + 1.5 * IQR: ' + this.point.options.high + '<br/>Upper Quartile: ' + this.point.options.q3 + '<br/>Median: ' + this.point.options.median + '<br/>Lower Quartile: ' + this.point.options.q1 +'<br/>LQ - 1.5 * IQR: ' + this.point.low; } } }    , 
 			                					title: {  text: 'HDL Cholesterol', useHTML:true } ,  credits: { enabled: false },   legend: { enabled: false },  xAxis: { categories:  ["Female WT","Female HOM","Male WT","Male HOM","Female WT","Female HOM","Male WT","Male HOM"], labels: {            rotation: -45,            align: 'right',            style: {               fontSize: '15px',              fontFamily: 'Verdana, sans-serif'         }      },  }, 
@@ -183,7 +191,7 @@ For the mutant mice, lines were selected (1) if there was an abnormal phenotype 
 			         
 			            				</div>
 			           					<div class="onethird" style="text-align:center">
-			                				Significant decrease in males, non-significant effect in females
+											<i class="fa fa-long-arrow-down large-arrow" aria-hidden="true"></i> in <img src="${baseUrl}/img/male.jpg">, no effect in <img src="${baseUrl}/img/female.jpg">
 			                				<div id="boneMineralDensity">
 			                				<script type="text/javascript">
 			                				
@@ -198,7 +206,7 @@ For the mutant mice, lines were selected (1) if there was an abnormal phenotype 
 			            				<%-- <a href="${baseUrl}/genes/MGI:1890081">Foxo3<sup>tm1.1(KOMP)Vlcg</sup></a> --%>
 			            				</div>
 			            				<div class="onethird" style="text-align:center">
-			                				Significant decrease in males, significant increase in females
+											<i class="fa fa-long-arrow-down large-arrow" aria-hidden="true"></i> in <img src="${baseUrl}/img/male.jpg">, <i class="fa fa-long-arrow-up large-arrow" aria-hidden="true"></i> in <img src="${baseUrl}/img/female.jpg">
 			                				<div id="fructose">
 			                				<script type="text/javascript">
 			                				chart = new Highcharts.Chart({  colors:['rgba(239, 123, 11,0.7)', 'rgba(9, 120, 161,0.7)', 'rgba(247, 157, 70,0.7)', 'rgba(61, 167, 208,0.7)', 'rgba(247, 181, 117,0.7)', 'rgba(100, 178, 208,0.7)', 'rgba(191, 75, 50,0.7)', 'rgba(3, 77, 105,0.7)', 'rgba(166, 30, 1,0.7)', 'rgba(36, 139, 75,0.7)', 'rgba(255, 201, 67,0.7)', 'rgba(1, 121, 46,0.7)', 'rgba(144, 195, 212,0.7)', 'rgba(51, 51, 51,0.7)', 'rgba(119, 119, 119,0.7)', 'rgba(191, 151, 50,0.7)'], chart: { type: 'boxplot', renderTo: 'fructose'},   tooltip: { formatter: function () { if(typeof this.point.high === 'undefined'){ return '<b>Observation</b><br/>' + this.point.y; } else { return '<b>Genotype: ' + this.key + '</b><br/>UQ + 1.5 * IQR: ' + this.point.options.high + '<br/>Upper Quartile: ' + this.point.options.q3 + '<br/>Median: ' + this.point.options.median + '<br/>Lower Quartile: ' + this.point.options.q1 +'<br/>LQ - 1.5 * IQR: ' + this.point.low; } } }    , title: {  text: 'Fructosamine', useHTML:true } ,  credits: { enabled: false },   legend: { enabled: false },  xAxis: { categories:  ["Female WT","Female HOM","Male WT","Male HOM","Female WT","Female HOM","Male WT","Male HOM"], labels: {            rotation: -45,            align: 'right',            style: {               fontSize: '15px',              fontFamily: 'Verdana, sans-serif'         }      },  }, 
@@ -228,4 +236,5 @@ For the mutant mice, lines were selected (1) if there was an abnormal phenotype 
 
 
 </t:genericpage>
+
 

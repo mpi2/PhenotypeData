@@ -11,6 +11,7 @@ import org.mousephenotype.cda.solr.service.dto.CountTableRow;
 import org.mousephenotype.cda.solr.service.dto.ImpressDTO;
 import org.mousephenotype.cda.solr.service.dto.MpDTO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -21,6 +22,7 @@ import uk.ac.ebi.phenotype.chart.ScatterChartAndTableProvider;
 import uk.ac.ebi.phenotype.error.OntologyTermNotFoundException;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.sql.SQLException;
@@ -59,32 +61,38 @@ public class LandingPageController {
     @Autowired
     ImpressService is;
 
+    @NotNull
+    @Value("${impc_media_base_url}")
+    private String impcMediaBaseUrl;
+
 	@RequestMapping("/biological-system")
 	public String getAlleles(Model model, HttpServletRequest request) throws IOException {
 
-		List<LandingPageDTO> bsPages = new ArrayList<>();
-		LandingPageDTO cardiovascular = new LandingPageDTO();
+        String baseUrl = request.getAttribute("baseUrl").toString();
+        List<LandingPageDTO> bsPages = new ArrayList<>();
+        LandingPageDTO cardiovascular = new LandingPageDTO();
 
-		cardiovascular.setTitle("Cardiovascular");
-		cardiovascular.setImage("render_thumbnail/211474/400/");
-		cardiovascular.setDescription(
-				"This page aims to present cardiovascular system related phenotypes lines which have been produced by IMPC.");
-		cardiovascular.setLink("biological-system/cardiovascular");
-		
-		LandingPageDTO deafness = new LandingPageDTO();
+        cardiovascular.setTitle("Cardiovascular");
+        //cardiovascular.setImage("render_thumbnail/211474/400/");
+        cardiovascular.setImage(impcMediaBaseUrl + "/render_thumbnail/211474/400/");
+        cardiovascular.setDescription(
+                "This page aims to present cardiovascular system related phenotypes lines which have been produced by IMPC.");
+        cardiovascular.setLink("biological-system/cardiovascular");
+        bsPages.add(cardiovascular);
+        Boolean isLive= new Boolean((String) request.getAttribute("liveSite"));
+        if(!isLive){//don't show deafness page on live until ready with paper etc.
+        LandingPageDTO deafness = new LandingPageDTO();
+        deafness.setTitle("Hearing");
+        deafness.setImage("img/landing/deafnessIcon.png");
+        //cardiovascular.setImage(baseUrl + "/img/deafness.png");
+        deafness.setDescription(
+                "This page aims to relate deafnessnes to phenotypes which have been produced by IMPC.");
+        deafness.setLink("biological-system/hearing");
+        bsPages.add(deafness);
+        }
+        model.addAttribute("pages", bsPages);
 
-		deafness.setTitle("Deafness");
-		deafness.setImage("render_thumbnail/211474/400/");
-		deafness.setDescription(
-				"This page aims to relate deafnessnes to phenotypes which have been produced by IMPC.");
-		deafness.setLink("biological-system/deafness");
-		
-		bsPages.add(cardiovascular);
-		bsPages.add(deafness);
-
-		model.addAttribute("pages", bsPages);
-
-		return "landing";
+        return "landing";
 	}
 
     @RequestMapping(value = "/embryo", method = RequestMethod.GET)
@@ -117,19 +125,21 @@ public class LandingPageController {
         MpDTO mpDTO = null;
 
 
-        if (page.equalsIgnoreCase("deafness")) { // Need to decide if we want deafness only or top level hearing/vestibular phen
+        if (page.equalsIgnoreCase("hearing")) { // Need to decide if we want deafness only or top level hearing/vestibular phen
             mpDTO = mpService.getPhenotype("MP:0005377");
             anatomyIds.add("MA:0002443");
             anatomyIds.add("EMAPA:36002");
-            model.addAttribute("shortDescription", "We have undertaken a deafness screen in the IMPC cohort of mouse knockout strains. We detected known deafness genes and the vast majority of loci were novel.");
-            pageTitle = "Hearing/Vestibular/Ear";
+            model.addAttribute("shortDescription", "This page introduces <b>hearing</b> related phenotypes present in mouse lines produced by the IMPC. A deafness screen has allowed to detect known genes associated with deafness, but the vast majority of the loci are novel.");
+            pageTitle = "Hearing";
 
         } else
         if (page.equalsIgnoreCase("cardiovascular")) {
             mpDTO = mpService.getPhenotype("MP:0005385");
             anatomyIds.add("MA:0000010");
             anatomyIds.add("EMAPA:16104");
-            pageTitle = "Cardiovascular";
+            model.addAttribute("shortDescription", "This page introduces <b>cardiovascular</b> related phenotypes present in mouse lines produced by the IMPC. " +
+                    "The cardiovascular system refers to the observable morphological and physiological characteristics of the mammalian heart, blood vessels, or circulatory system that are manifested through development and lifespan.");
+            pageTitle = "Cardiovascular system";
         }
 //        } else if (page.equalsIgnoreCase("metabolism")) {
 //            mpDTO = mpService.getPhenotype("MP:0005376");
@@ -171,7 +181,12 @@ public class LandingPageController {
         model.addAttribute("phenotypes", gpService.getAssociationsCount(mpDTO.getMpId(), resources));
         model.addAttribute("mpId", mpDTO.getMpId());
         model.addAttribute("mpDTO", mpDTO);
-        model.addAttribute("systemName", mpDTO.getMpTerm().replace(" phenotype", ""));
+
+        String systemNAme = mpDTO.getMpTerm();
+        if (mpDTO.getMpTerm().contains("hearing/vestibular/ear")) {
+            systemNAme = "hearing";
+        }
+        model.addAttribute("systemName", systemNAme.replace(" phenotype", ""));
         model.addAttribute("procedures", procedures);
 
 //        model.addAttribute("dataJs", getData(null, null, null, mpDTO.getAccession(), request) + ";");

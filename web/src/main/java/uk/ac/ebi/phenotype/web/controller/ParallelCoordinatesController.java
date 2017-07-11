@@ -107,6 +107,7 @@ public class ParallelCoordinatesController {
 				model.addAttribute("procedure", "");
 				model.addAttribute("dataJs", getJsonForParallelCoordinates(null, null) + ";");
 			} else {
+
 				String procedures;
 				if (procedureIds == null) {
 					procedures = "{}";
@@ -123,7 +124,6 @@ public class ParallelCoordinatesController {
 				model.addAttribute("dataJs", getData(procedureIds, phenotypingCenter, geneList, topLevelMpId, request) + ";");
 				model.addAttribute("selectedProcedures", procedures);
 				model.addAttribute("phenotypingCenter", StringUtils.join(phenotypingCenter, ", "));
-
 			}
 
 			System.out.println("Generating data for parallel coordinates took " + (System.currentTimeMillis() - totalTime) + " ms.");
@@ -134,6 +134,7 @@ public class ParallelCoordinatesController {
 
 		return "parallelFrag";
 	}
+
 
 
 	@RequestMapping(value = "/parallel/cache", method = RequestMethod.GET)
@@ -167,6 +168,7 @@ public class ParallelCoordinatesController {
 			List<ParameterDTO> parameters = impressService.getParameters(procedureIds, "unidimensional", topLevelMpId);
 			String data = getJsonForParallelCoordinates(srs.getGenotypeEffectFor(procedureIds, phenotypingCenter, false, mappedHostname, genes, topLevelMpId), parameters);
 			cache.put(key, data);
+
 		}
 		return cache.get(key);
 	}
@@ -218,11 +220,14 @@ public class ParallelCoordinatesController {
 	    		String groups = "var groups = {";
 	    		Set<String> parameterNames =  new HashSet<>();
 	    		for (ParameterDTO p : parameters){
-	    			if (!parameterNames.contains(p.getName())){
+					System.out.println("Parameter: " + p.getName());
+					if (!parameterNames.contains(p.getName())){
 	    				parameterNames.add(p.getName());
 	    				res.append("\"").append(p.getName()).append("\":\"").append(ImpressService.getParameterUrl(p.getStableKey())).append("\", ");
 	    				for (String procedure : p.getProcedureNames()){
-	    					groups += "\"" + p.getName() + "\":\"" + procedure  + "\", ";
+	    					if (! procedure.equals("No effect")) {
+								groups += "\"" + p.getName() + "\":\"" + procedure + "\", ";
+							}
 	    				}
 	    			}
 	    		}
@@ -233,6 +238,7 @@ public class ParallelCoordinatesController {
 
 		}
 
+		System.out.println(res.toString());
 		return res.toString();
 	}
 

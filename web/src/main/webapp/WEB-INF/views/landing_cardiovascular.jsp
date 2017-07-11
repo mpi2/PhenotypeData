@@ -64,11 +64,11 @@
 						<%--</c:if>--%>
 
 						<%--<c:if test="${not empty orthologousDiseaseAssociations}">--%>
-							<li><a href="#disease-associations">Disease Associations</a></li>
+							<%--<li><a href="#disease-associations">Disease Associations</a></li>--%>
 						<%--</c:if>--%>
 
 						<%--<c:if test="${!countIKMCAllelesError}">--%>
-							<li><a href="#publications">Publications</a></li>
+							<li><a href="#paper">Publications</a></li>
 						<%--</c:if>--%>
 						</ul>
 
@@ -87,6 +87,7 @@
             <div class="block block-system">
                 <div class="content">
                     <div class="node node-gene">
+
                         <h1 class="title capitalize" id="top">${systemName} </h1>
 
                         <c:import url="landing_overview_frag.jsp"/>
@@ -96,8 +97,12 @@
                             <h2 id="approach" class="title">Approach</h2>
                              <div class="inner">
 
-                                <p> To measure ${systemName} function in the mouse, IMPC uses a series of standardised protolcols. These protocols are described in <a href="${baseUrl}/../impress">IMPReSS</a> (International Mouse Phenotyping Resource of Standardised Screens). </p>
-                                <p>Heart and vascular function/physiology are measured through several procedures like echocardiography and electrocardiogram, Non-Invasive blood pressure for example. Cardiovascular system morphology is assessed through macroscopic and microscopic measurements, like heart weight, gross pathology and gross morphology in both embryo and adult animals. A complete list of protocols and related phenotypes are presented in the table below. Links to impress are provided for more details on the procedure. </p>
+                                 <p>In order to identify the function of genes, the consortium uses a series of
+                                     standardised protocols as described in <a href="${baseUrl}/../impress">IMPReSS</a> (International Mouse Phenotyping Resource of Standardised Screens).</p>
+                                <p>Heart and vascular function/physiology are measured through several procedures like echocardiography and electrocardiogram and non-invasive blood pressure.
+                                    Cardiovascular system morphology is assessed through macroscopic and microscopic measurements, like heart weight,
+                                    gross pathology and gross morphology in both embryo and adult animals. A complete list of protocols and related phenotypes are
+                                    presented in the table below. Links to impress are provided for more details on the procedure. </p>
                                 <br/><br/>
                                 <c:import url="landing_procedures_frag.jsp"/>
                             </div>
@@ -118,12 +123,12 @@
                         </div> --%>
 
 
-                        <div class="section">
+                        <div class="section" id="phenotypes-distribution">
 
-                            <h2 id="phenotypes-distribution" class="title">Phenotypes distribution</h2>
+                            <h2 class="title">Phenotypes distribution</h2>
                             <div class="inner">
-                                <p>The following graph represents the distribution of genes according to their phenotypes. Genes have at least one phenotype linked to cardiovascular system.
-                                </p>
+                                <p>This graph shows genes with a significant effect on at least one cardiovascular system phenotype.</p>
+                                <p></p>
                                 <br/> <br/>
                                 <div id="phenotypeChart">
                                     <script type="text/javascript"> $(function () {  ${phenotypeChart} }); </script>
@@ -145,22 +150,20 @@
                         </div>
 
 
-                        <div class="section">
+                        <div class="section" id="gene-ko-effect" >
 
-                            <h2 id="gene-ko-effect" class="title">Gene KO effect comparator for ${systemName} continuous parameters</h2>
+                            <h2 class="title">Gene KO effect comparator for ${systemName} continuous parameters</h2>
 
                             <div class="inner">
-                                <p>Visualize multiple strain across several continuous parameters used for ${systemName} phenotyping.
-                                The measurement values are corrected to account for batch effects to represent the true genotype effect thus allowing
-                                a side by side comparison/visualisation. Only continuous parameters can be visualized using this methodology.
-                                Results are represented with a graph and a table.</p>
+                                <p>This tool allows you to visualize continuous parameters used by the consortium to assess cardiovascular phenotypes.
+                                    The measurement values are corrected to account for batch effects to represent the true genotype effect thus allowing a side by side
+                                    comparison/visualisation.</p>
 
-                                <p>How to use the tool?</p>
-                                <p>You can unselect/select ${systemName} procedures by clicking on the term directly.
-                                    The graph is interactive and allows filtering on each axis (parameter) by selecting the region of interest. Several regions of interests can be selected one by one.
-                                    Clicking on a chosen line on the graph or on a gene row from the table will highlight the corresponding gene. For a selected gene,
-                                    if any significant phenotype is associated with a parameter, the parameter colour will change to orange.
-                                </p>
+                                <p>Use this interactive graph and table:</p>
+                                <li>Drag your mouse pointer on any parameter axis to select a region of interest, while the associated gene/s will be automatically filtered for in the gene table below. You can click on a line to highlight it and filter by procedure from the “Procedures” list. Click on the parameter name to know more about it – you get redirected to the IMPReSS pages.</li>
+                                <li>Click on any row in the gene table (space next to the gene name) to highlight the corresponding values in the graph above, or click on the gene name to open the associated gene page. When you select a gene row, the parameter name in the graph will change to orange if genotype is significant.</li>
+                                <li>Click “Clear filters” to return to the default view.</li>
+                                <p></p><p></p>
 
                                 <div id="widgets_pc" class="widgets">	</div>
                                 <div id="spinner"><i class="fa fa-refresh fa-spin"></i></div>
@@ -220,7 +223,7 @@
        <%----%>
                         <%--</div>--%>
 
-                        <div class="section">
+                        <div class="section" id="paper">
                             <jsp:include page="paper_frag.jsp"></jsp:include>
                         </div>
 
