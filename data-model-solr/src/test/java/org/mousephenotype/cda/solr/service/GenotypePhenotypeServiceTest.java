@@ -38,6 +38,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -174,5 +175,28 @@ public class GenotypePhenotypeServiceTest {
         if (res.size() > 0){
         	fail("The following phenotypes are in in the genotype-phenotype core but not in the MP core: " + res);
         }
+    }
+    
+    @Test
+    public void testGetGenesForMpId(){
+    	String phenotypeId="MP:0002078";
+    	List<String> geneSymbols=null;
+    	try {
+			geneSymbols=gpService.getGenesForMpId(phenotypeId);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (URISyntaxException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (SolrServerException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    	//currently 4056 genes in the gp core are associated to abnormal glucose Homeostasis
+    	System.out.println("geneSymbols size for phenotype is "+geneSymbols.size());
+    	assertTrue(geneSymbols.size()>405);
+    	
+    	
     }
 }
