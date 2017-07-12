@@ -238,7 +238,7 @@ public class ParallelCoordinatesController {
 
 		}
 
-		System.out.println(res.toString());
+		
 		return res.toString();
 	}
 

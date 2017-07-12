@@ -29,6 +29,7 @@ import org.apache.solr.client.solrj.response.PivotField;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
+import org.apache.solr.common.util.NamedList;
 import org.mousephenotype.cda.constants.OverviewChartsConstants;
 import org.mousephenotype.cda.db.beans.AggregateCountXYBean;
 import org.mousephenotype.cda.db.pojo.*;
@@ -863,6 +864,51 @@ public class AbstractGenotypePhenotypeService extends BasicService {
         return createPhenotypeResultFromSolrResponse(url, isPreQc);
 
     }
+    /**
+     * Get a list of gene symbols for this phenotype
+     * @param phenotype_id
+     * @return
+     * @throws IOException
+     * @throws URISyntaxException
+     * @throws SolrServerException
+     */
+    public List<String> getGenesForMpId(String phenotype_id)
+    	    throws IOException, URISyntaxException, SolrServerException {
+    		List<String>results=new ArrayList<>();
+    	        String url = SolrUtils.getBaseURL(solr) + "/select/?";
+    	        SolrQuery q = new SolrQuery();
+    	        
+    	        q.setQuery("*:*");
+    	        q.addFilterQuery("(" + GenotypePhenotypeDTO.MP_TERM_ID + ":\"" + phenotype_id + "\" OR " + GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_ID + ":\"" + phenotype_id + 
+    	        		"\" OR " + GenotypePhenotypeDTO.INTERMEDIATE_MP_TERM_ID + ":\"" + phenotype_id + "\")");
+    	        q.setRows(10000000);
+    	        q.setFacet(true);
+    	        q.setFacetMinCount(1);
+    	        q.setFacetLimit(-1);
+    	        //q.addFacetField(GenotypePhenotypeDTO.MARKER_ACCESSION_ID);
+    	        q.addFacetField(GenotypePhenotypeDTO.MARKER_SYMBOL);
+    	       // q.addFacetField(GenotypePhenotypeDTO.MP_TERM_NAME );
+    	        q.set("wt", "json");
+    	        q.setSort(GenotypePhenotypeDTO.P_VALUE, ORDER.asc);
+    	        q.setFields(GenotypePhenotypeDTO.MARKER_SYMBOL);
+//    	        q.setFields(GenotypePhenotypeDTO.MP_TERM_NAME, GenotypePhenotypeDTO.MP_TERM_ID, GenotypePhenotypeDTO.MPATH_TERM_NAME, GenotypePhenotypeDTO.MPATH_TERM_ID, GenotypePhenotypeDTO.EXTERNAL_ID,
+//    	        		GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_ID, GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME, GenotypePhenotypeDTO.ALLELE_SYMBOL, 
+//    	        		GenotypePhenotypeDTO.PHENOTYPING_CENTER, GenotypePhenotypeDTO.ALLELE_ACCESSION_ID, GenotypePhenotypeDTO.MARKER_SYMBOL,
+//    	        		GenotypePhenotypeDTO.MARKER_ACCESSION_ID, GenotypePhenotypeDTO.PHENOTYPING_CENTER, GenotypePhenotypeDTO.ZYGOSITY, 
+//    	        		GenotypePhenotypeDTO.SEX, GenotypePhenotypeDTO.LIFE_STAGE_NAME, GenotypePhenotypeDTO.RESOURCE_NAME, GenotypePhenotypeDTO.PARAMETER_STABLE_ID, GenotypePhenotypeDTO.PARAMETER_NAME,
+//    	        		GenotypePhenotypeDTO.PIPELINE_STABLE_ID, GenotypePhenotypeDTO.PROJECT_NAME, GenotypePhenotypeDTO.PROJECT_EXTERNAL_ID,
+//    	        		GenotypePhenotypeDTO.P_VALUE, GenotypePhenotypeDTO.EFFECT_SIZE, GenotypePhenotypeDTO.PROCEDURE_STABLE_ID,
+//    	        		GenotypePhenotypeDTO.PROCEDURE_NAME, GenotypePhenotypeDTO.PIPELINE_NAME);
+    	       
+    	        
+    	        
+    	        QueryResponse response = solr.query(q);
+    	        for( Count facet : response.getFacetField(GenotypePhenotypeDTO.MARKER_SYMBOL).getValues()){
+    	        	//System.out.println("facet="+facet.getName());
+    	        	results.add(facet.getName());
+    	        }
+    	        return results;
+    	    }
 
     private List<? extends StatisticalResult> createStatsResultFromSolr(String url, ObservationType observationType)
         throws IOException, URISyntaxException {
