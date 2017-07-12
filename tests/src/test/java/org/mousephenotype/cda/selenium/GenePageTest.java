@@ -443,7 +443,7 @@ public class GenePageTest {
         String message;
         Date start = new Date();
         String geneId = "junkBadGene";
-        final String EXPECTED_ERROR_MESSAGE = "Oops! junkBadGene is not a valid MGI gene identifier.";
+        final String EXPECTED_ERROR_MESSAGE = "Oops! The marker junkBadGene is not currently part of the IMPC project.";
 
         testUtils.logTestStartup(logger, this.getClass(), testName, targetCount, 1);
 
