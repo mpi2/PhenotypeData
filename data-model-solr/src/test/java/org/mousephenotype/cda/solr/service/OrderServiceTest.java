@@ -115,7 +115,7 @@ public class OrderServiceTest {
 	@Test
 	public void testGetStoreNameToProductsMapWithCreLine() {
 		String acc = "MGI:95771";
-		String allele = "tm2(EGFP_CreERT2)Wtsi";
+		String allele = "tm2(EGFP/cre/ERT2)Wtsi";
 		OrderType orderType = OrderType.mouse;
 		boolean creLine=true;
 
