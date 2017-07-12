@@ -13,10 +13,10 @@
 			<div class="block block-system">
 				<div class="content">
 					<div class="node">
-						<h1>Oops! IMPC lists only protein-coding genes.</h1>
+						<h1>Oops! The marker ${acc} is not currently part of the IMPC project.</h1>
 						<c:choose>
 						<c:when test="${fn:containsIgnoreCase(acc , 'MGI:')  }">
-							<p>Try <a href="http://www.informatics.jax.org/marker/${acc}">http://www.informatics.jax.org/marker/${acc}</a> to find out if this is the case.</p>
+							<p>Try <a href="http://www.informatics.jax.org/marker/${acc}">http://www.informatics.jax.org/marker/${acc}</a> to search MGI for this accession.</p>
 						</c:when>
 						<c:otherwise>
 							<p>A gene identifier should start with MGI: to be valid</p>	
