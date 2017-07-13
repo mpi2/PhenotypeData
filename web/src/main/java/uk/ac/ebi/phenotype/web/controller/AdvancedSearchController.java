@@ -448,7 +448,6 @@ public class AdvancedSearchController {
                     " RETURN collect(distinct a), collect(distinct g), collect(distinct sr), collect(distinct mp), collect(distinct dm)";
 
             System.out.println("Query: "+ query);
-            result = neo4jSession.query(query, params);
         }
         else if (mpStr == null ){
 
@@ -479,7 +478,6 @@ public class AdvancedSearchController {
                     " RETURN collect(distinct a), collect(distinct g), collect(distinct sr), collect(distinct mp), collect(distinct dm)";
 
             System.out.println("Query: "+ query);
-            result = neo4jSession.query(query, params);
         }
         else if (! mpStr.contains("AND") && ! mpStr.contains("OR") ) {
             // single mp term
@@ -520,7 +518,6 @@ public class AdvancedSearchController {
                     " RETURN collect(distinct a), collect(distinct g), collect(distinct sr), collect(distinct mp), collect(distinct dm)";
 
             System.out.println("Query: "+ query);
-            result =  neo4jSession.query(query, params);
         }
         else if (mpStr.matches(regex_aAndb_Orc)) {
             System.out.println("matches (a and b) or c"); // due to join empty list to a non-empty list evals to empty, convert this to (a or c) + (b or c)
@@ -616,7 +613,6 @@ public class AdvancedSearchController {
                     " RETURN collect(distinct nodes.alleles), collect(distinct g), collect(distinct nodes.srs), collect(distinct nodes.mps), collect(distinct dm)";
 
             System.out.println("Query: "+ query);
-            result =  neo4jSession.query(query, params);
         }
         else if (mpStr.matches(regex_aOr_bAndc)) {
             System.out.println("matches a or (b and c)"); // due to join empty list to a non-empty list evals to empty, convert this to (b or a) + (c or a)
@@ -676,7 +672,6 @@ public class AdvancedSearchController {
                         + " WITH g, nodes, extract(x in collect(distinct nodes.mps) | x.mpTerm) as mps "
                         + geneToDmPathClause
                         + " AND dmp.mpTerm IN mps";
-
             }
             else {
                 query = geneToMpPath
@@ -711,9 +706,6 @@ public class AdvancedSearchController {
                     //" RETURN distinct nodes.alleles, g, nodes.srs, nodes.mps, dm" + sortStr :
                     " RETURN distinct " + returnDtypes + sortStr :
                     " RETURN collect(distinct nodes.alleles), collect(distinct g), collect(distinct nodes.srs), collect(distinct nodes.mps), collect(distinct dm)";
-
-            System.out.println("Query: "+ query);
-            result =  neo4jSession.query(query, params);
         }
         else if (mpStr.matches(regex_aOrb_andc)) {
             System.out.println("matches (a or b) and c");
@@ -799,9 +791,6 @@ public class AdvancedSearchController {
                     //" RETURN distinct nodes.alleles, g, nodes.srs, nodes.mps, dm" + sortStr :
                     " RETURN distinct " + returnDtypes + sortStr :
                     " RETURN collect(distinct nodes.alleles), collect(distinct g), collect(distinct nodes.srs), collect(distinct nodes.mps), collect(distinct dm)";
-
-            System.out.println("Query: "+ query);
-            result =  neo4jSession.query(query, params);
         }
         else if (mpStr.matches(regex_aAnd_bOrc)) {
             System.out.println("matches a and (b or c)");
@@ -887,10 +876,6 @@ public class AdvancedSearchController {
                     //" RETURN distinct nodes.alleles, g, nodes.srs, nodes.mps, dm" + sortStr :
                     " RETURN distinct " + returnDtypes + sortStr :
                     " RETURN collect(distinct nodes.alleles), collect(distinct g), collect(distinct nodes.srs), collect(distinct nodes.mps), collect(distinct dm)";
-
-
-            System.out.println("Query: "+ query);
-            result =  neo4jSession.query(query, params);
         }
 
         else if (mpStr.matches(regex_aAndbAndc)) {
@@ -958,9 +943,6 @@ public class AdvancedSearchController {
                     //" RETURN distinct nodes.alleles, g, nodes.srs, nodes.mps, dm" + sortStr :
                     " RETURN distinct " + returnDtypes + sortStr :
                     " RETURN collect(distinct nodes.alleles), collect(distinct g), collect(distinct nodes.srs), collect(distinct nodes.mps), collect(distinct dm)";
-
-            System.out.println("Query: "+ query);
-            result =  neo4jSession.query(query, params);
         }
         else if (mpStr.matches(regex_aAndb)) {
             System.out.println("matches a and b");
@@ -1019,9 +1001,6 @@ public class AdvancedSearchController {
                     //" RETURN distinct nodes.alleles, g, nodes.srs, nodes.mps, dm" + sortStr :
                     " RETURN distinct " + returnDtypes + sortStr :
                     " RETURN collect(distinct nodes.alleles), collect(distinct g), collect(distinct nodes.srs), collect(distinct nodes.mps), collect(distinct dm)";
-
-            System.out.println("Query: "+ query);
-            result =  neo4jSession.query(query, params);
         }
         else if (mpStr.matches(regex_aOrbOrc)) {
             System.out.println("matches a or b or c");
@@ -1071,10 +1050,6 @@ public class AdvancedSearchController {
                     //" RETURN distinct a, g, sr, collect(distinct mp), collect(distinct dm)" + sortStr :
                     " RETURN distinct " + returnDtypes + sortStr :
                     " RETURN collect(distinct a), collect(distinct g), collect(distinct sr), collect(distinct mp), collect(distinct dm)";
-
-            System.out.println("Query: "+ query);
-            result =  neo4jSession.query(query, params);
-
         }
         else if (mpStr.matches(regex_aOrb)) {
             System.out.println("matches a or b");
@@ -1115,11 +1090,10 @@ public class AdvancedSearchController {
                     //" RETURN distinct a, g, sr, collect(distinct mp), collect(distinct dm)" + sortStr :
                     " RETURN distinct " + returnDtypes + sortStr :
                     " RETURN collect(distinct a), collect(distinct g), collect(distinct sr), collect(distinct mp), collect(distinct dm)";
-
-            System.out.println("Query: "+ query);
-            result =  neo4jSession.query(query, params);
         }
 
+        System.out.println("Query: "+ query);
+        result = neo4jSession.query(query, params);
         long end = System.currentTimeMillis();
         System.out.println("Done with query in " + (end - begin) + " ms");
 
@@ -2150,64 +2124,47 @@ public class AdvancedSearchController {
             if (! colVal.isEmpty()) {
                 if (property.equals("markerSymbol")){
                     Gene gene = (Gene) o;
+                    String mgiAcc = gene.getMgiAccessionId();
                     if (fileType == null || fileType.equals("html")){
-                        String mgiAcc = gene.getMgiAccessionId();
                         colVal = "<a target='_blank' href='" + hostname + geneBaseUrl + mgiAcc + "'>" + colVal + "</a>";
                     }
-                }
-                else if (property.equals("mgiAccessionId")){
-                    if (fileType != null  && ! fileType.equals("html")){
-                        colVal = hostname + geneBaseUrl + colVal;
+                    else if (fileType != null  && ! fileType.equals("html")){
+                        colVal = hostname + geneBaseUrl + mgiAcc;
                     }
                 }
                 else if (property.equals("mpTerm")){
                     Mp mp = (Mp) o;
-                    if (fileType == null || fileType.equals("html")) {
-                        String mpId = mp.getMpId();
+                    String mpId = mp.getMpId();
+                    if (fileType == null || fileType.equals("html")){
                         colVal = "<a target='_blank' href='" + hostname + mpBaseUrl + mpId + "'>" + colVal + "</a>";
                     }
-                }
-//                else if (property.equals("mpId")){
-//                    if (isExport){
-//                        colVal = hostname + mpBaseUrl + colVal;
-//                    }
-//                }
-                else if (property.equals("diseaseTerm")){
-                    DiseaseModel dm = (DiseaseModel) o;
-
-                    if (fileType == null || fileType.equals("html")) {
-                        String dId = dm.getDiseaseId();
-                        colVal = "<a target='_blank' href='" + hostname + diseaseBaseUrl + dId + "'>" + colVal + "</a>";
+                    else if (fileType != null  && ! fileType.equals("html")){
+                        colVal = hostname + mpBaseUrl + mpId;
                     }
                 }
-                // multiple http links won't work in excel cell
-//                else if (property.equals("diseaseId")){
-//                    if (isExport){
-//                        colVal = hostname + diseaseBaseUrl + colVal;
-//                    }
-//                }
+                else if (property.equals("diseaseTerm")){
+                    DiseaseModel dm = (DiseaseModel) o;
+                    String dId = dm.getDiseaseId();
+
+                    if (fileType == null || fileType.equals("html")){
+                        colVal = "<a target='_blank' href='" + hostname + diseaseBaseUrl + dId + "'>" + colVal + "</a>";
+                    }
+                    else if (fileType != null  && ! fileType.equals("html")){
+                        colVal = hostname + diseaseBaseUrl + dId;
+                    }
+                }
                 else if (property.equals("alleleSymbol")){
 
                     Allele al = (Allele) o;
-                    if (fileType == null || fileType.equals("html")) {
+                    int index = colVal.indexOf('<');
+                    String wantedSymbol = colVal.replace(colVal.substring(0, index+1), "").replace(">","");
+                    String aid = al.getMgiAccessionId() + "/" + wantedSymbol;
+                    colVal = Tools.superscriptify(colVal);
 
-                        int index = colVal.indexOf('<');
-                        String wantedSymbol = colVal.replace(colVal.substring(0, index+1), "").replace(">","");
-                        colVal = Tools.superscriptify(colVal);
-                        String aid = al.getMgiAccessionId() + "/" + wantedSymbol;
+                    if (fileType == null || fileType.equals("html")) {
                         colVal = "<a target='_blank' href='" + hostname + alleleBaseUrl + aid + "'>" + colVal + "</a>";
                     }
-                }
-                else if (property.equals("alleleMgiAccessionId")){
-
-                    if (fileType != null && ! fileType.equals("html")){
-                        Allele al = (Allele) o;
-                        String asym = al.getAlleleSymbol();
-                        int index = asym.indexOf('<');
-                        String wantedSymbol = asym.replace(asym.substring(0, index+1), "").replace(">","");
-                        String aid = al.getMgiAccessionId() + "/" + wantedSymbol;
-
-                       // System.out.println("asym: " + asym + " wanted: " + wantedSymbol);
+                    else if (fileType != null  && ! fileType.equals("html")){
                         colVal = hostname + alleleBaseUrl + aid;
                     }
                 }
