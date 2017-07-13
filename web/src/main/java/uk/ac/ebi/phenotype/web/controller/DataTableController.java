@@ -998,7 +998,7 @@ public class DataTableController {
 			showImgView = jParams.getBoolean("showImgView");
 		}
 
-		//System.out.println("DataTableController SOLRPARAMS: " + solrParamStr);
+		System.out.println("DataTableController SOLRPARAMS: " + solrParamStr);
 		JSONObject json = solrIndex.getQueryJson(query, solrCoreName, solrParamStr, mode, iDisplayStart, iDisplayLength, showImgView);
 
 		String content = fetchDataTableJson(request, json, mode, queryOri, fqOri, iDisplayStart, iDisplayLength, solrParamStr, showImgView, solrCoreName, legacyOnly, evidRank);
@@ -1410,6 +1410,7 @@ public class DataTableController {
 			String mpLink = "<a href='" + baseUrl + "/phenotypes/" + mpId + "'>" + mpTerm + "</a>";
 			String mpCol = null;
 
+			//System.out.println("DOC: "+ doc.toString());
 			if (doc.containsKey("mixSynQf")) {
 
 				mpCol = "<div class='title'>" + mpLink + "</div>";

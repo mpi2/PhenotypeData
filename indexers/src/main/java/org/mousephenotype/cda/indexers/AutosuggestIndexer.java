@@ -321,7 +321,8 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
         List<String> mpFields = Arrays.asList(
                 MpDTO.MP_ID, MpDTO.MP_TERM, MpDTO.MP_TERM_SYNONYM, MpDTO.MP_NARROW_SYNONYM, MpDTO.ALT_MP_ID, MpDTO.TOP_LEVEL_MP_ID, MpDTO.TOP_LEVEL_MP_TERM,
                 MpDTO.TOP_LEVEL_MP_TERM_SYNONYM, MpDTO.INTERMEDIATE_MP_ID, MpDTO.INTERMEDIATE_MP_TERM, MpDTO.PARENT_MP_ID, MpDTO.PARENT_MP_TERM, MpDTO.PARENT_MP_TERM_SYNONYM,
-                MpDTO.INTERMEDIATE_MP_TERM_SYNONYM, MpDTO.CHILD_MP_ID, MpDTO.CHILD_MP_TERM, MpDTO.CHILD_MP_TERM_SYNONYM, MpDTO.HP_ID, MpDTO.HP_TERM, MpDTO.HP_TERM_SYNONYM);
+                MpDTO.MIX_SYN_QF, MpDTO.INTERMEDIATE_MP_TERM_SYNONYM, MpDTO.CHILD_MP_ID, MpDTO.CHILD_MP_TERM, MpDTO.CHILD_MP_TERM_SYNONYM, MpDTO.HP_ID, MpDTO.HP_TERM,
+                MpDTO.HP_TERM_SYNONYM);
 
         SolrQuery query = new SolrQuery()
             .setQuery("*:*")
@@ -360,6 +361,21 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
                                     AutosuggestBean asyn = new AutosuggestBean();
                                     asyn.setMpTermSynonym(s);
                                     asyn.setDocType("mp");
+                                    asyn.setMpTerm(mp.getMpTerm());
+                                    beans.add(asyn);
+                                }
+                            }
+                        }
+                        break;
+                    case MpDTO.MIX_SYN_QF:
+                        if (mp.getMixedSynonyms() != null) {
+                            for (String s : mp.getMixedSynonyms()) {
+                                mapKey = s;
+                                if (mpTermSynonymSet.add(mapKey)) {
+                                    AutosuggestBean asyn = new AutosuggestBean();
+                                    asyn.setMpTermSynonym(s);
+                                    asyn.setDocType("mp");
+                                    asyn.setMpTerm(mp.getMpTerm());
                                     beans.add(asyn);
                                 }
                             }
