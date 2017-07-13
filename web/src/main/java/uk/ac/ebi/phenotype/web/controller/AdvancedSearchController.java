@@ -446,8 +446,6 @@ public class AdvancedSearchController {
                    // " RETURN distinct a, g, sr, collect(distinct mp), collect(distinct dm)" + sortStr :
                     " RETURN distinct " + returnDtypes + sortStr :
                     " RETURN collect(distinct a), collect(distinct g), collect(distinct sr), collect(distinct mp), collect(distinct dm)";
-
-            System.out.println("Query: "+ query);
         }
         else if (mpStr == null ){
 
@@ -476,8 +474,6 @@ public class AdvancedSearchController {
                     //" RETURN distinct a, g, sr, collect(distinct mp), collect(distinct dm)" + sortStr :
                     " RETURN distinct " + returnDtypes + sortStr :
                     " RETURN collect(distinct a), collect(distinct g), collect(distinct sr), collect(distinct mp), collect(distinct dm)";
-
-            System.out.println("Query: "+ query);
         }
         else if (! mpStr.contains("AND") && ! mpStr.contains("OR") ) {
             // single mp term
@@ -516,8 +512,6 @@ public class AdvancedSearchController {
                     //" RETURN distinct a, g, sr, collect(distinct mp), collect(distinct dm)" + sortStr :
                     " RETURN distinct " + returnDtypes + sortStr :
                     " RETURN collect(distinct a), collect(distinct g), collect(distinct sr), collect(distinct mp), collect(distinct dm)";
-
-            System.out.println("Query: "+ query);
         }
         else if (mpStr.matches(regex_aAndb_Orc)) {
             System.out.println("matches (a and b) or c"); // due to join empty list to a non-empty list evals to empty, convert this to (a or c) + (b or c)
@@ -611,8 +605,6 @@ public class AdvancedSearchController {
                     //" RETURN distinct nodes.alleles, g, nodes.srs, nodes.mps, dm" + sortStr :
                     " RETURN distinct " + returnDtypes + sortStr :
                     " RETURN collect(distinct nodes.alleles), collect(distinct g), collect(distinct nodes.srs), collect(distinct nodes.mps), collect(distinct dm)";
-
-            System.out.println("Query: "+ query);
         }
         else if (mpStr.matches(regex_aOr_bAndc)) {
             System.out.println("matches a or (b and c)"); // due to join empty list to a non-empty list evals to empty, convert this to (b or a) + (c or a)
