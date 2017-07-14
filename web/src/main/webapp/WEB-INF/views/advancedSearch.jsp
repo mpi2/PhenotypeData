@@ -1472,8 +1472,8 @@
 
                         var json = oSettings.json;
 
-                        if (json.narrowMapping != '') {
-                            $("div#userFilters").append("<br><br><b>NOTE: </b>" + json.narrowMapping);
+                        if (json.narrowOrSynonymMapping != '') {
+                            $("div#userFilters").append("<br><br><b>NOTE: </b>" + json.narrowOrSynonymMapping);
                         }
 
                         $('body').removeClass("loading");  // when table loads, remove modal
@@ -2015,13 +2015,13 @@
                         'success': function (id) {
                             // $('body').removeClass("loading");  // to activate modal
                             console.log(id);
-                            var prefix = "narrow synonym of ";
+                            var prefix = "mapped term of ";
                             if (id.indexOf(prefix) == 0){
                                 var vals = id.replace(prefix, "").split(",");
                                 console.log(vals);
                                 id = vals[0];
                                 var term = vals[1];
-                                alert("Note: '" + termName + "' is not directly annotated as a phenotype in IMPC,\nbut its parent term '" + term + "' is." );
+                                alert("Note: '" + termName + "' is not directly annotated as a phenotype in IMPC,\nbut its parent or canonical term '" + term + "' is." );
                             }
                             window.open(baseUrl + "/ontologyBrowser?termId=" + id, '_blank');
                         },
