@@ -424,7 +424,6 @@ public class AdvancedSearchController {
         String geneToDmPathClause = " OPTIONAL MATCH (g)<-[:GENE]-(dm:DiseaseModel)-[:MOUSE_PHENOTYPE]->(dmp:Mp) WHERE "
                 + phenodigmScore + diseaseGeneAssociation + humanDiseaseTerm;
 
-
         String pvaluesA = "";
         String pvaluesB = "";
         String pvaluesC = "";
@@ -563,7 +562,7 @@ public class AdvancedSearchController {
                         + whereClause2
                         + " AND " + significant + phenotypeSexes + parameter + chrRange + geneList + genotypes + alleleTypes
                         + " WITH g, list1, collect({genes:g, alleles:a, srs:sr, mps:mp}) as list2 "
-                        + " WHERE ALL (x IN list1 WHERE x IN list2) "
+                      //  + " WHERE ALL (x IN list1 WHERE x IN list2) "
                         + " WITH g, list1+list2 as list "
                         + " UNWIND list as nodes "
 
@@ -584,7 +583,7 @@ public class AdvancedSearchController {
                         + whereClause2
                         + " AND " + significant + phenotypeSexes + parameter + chrRange + geneList + genotypes + alleleTypes
                         + " WITH g, list1, collect({genes:g, alleles:a, srs:sr, mps:mp}) as list2 "
-                        + " WHERE ALL (x IN list1 WHERE x IN list2) "
+                       // + " WHERE ALL (x IN list1 WHERE x IN list2) "
                         + " WITH g, list1+list2 as list "
                         + " UNWIND list as nodes "
 
@@ -593,12 +592,7 @@ public class AdvancedSearchController {
                         + " AND dmp.mpTerm IN mps";
             }
 
-            dts = new ArrayList<>();
-            for (int d = 0; d < dataTypes.size(); d++){
-                String dt = dataTypes.get(d).toString();
-                dts.add(dtypeMap.containsKey(dt) ? dt : dtypeMap.get(dt));
-            }
-            returnDtypes = StringUtils.join(dts, ", ");
+            returnDtypes = fetchReturnTypes(dataTypes, dtypeMap);
 
             query += fileType != null ?
                     //" RETURN distinct nodes.alleles, g, nodes.srs, collect(distinct nodes.mps), collect(distinct dm)" + sortStr
@@ -657,7 +651,7 @@ public class AdvancedSearchController {
                         + whereClause2
                         + " AND " + significant + phenotypeSexes + parameter + chrRange + geneList + genotypes + alleleTypes
                         + " WITH g, list1, collect({genes:g, alleles:a, srs:sr, mps:mp}) as list2 "
-                        + " WHERE ALL (x IN list1 WHERE x IN list2) "
+                       // + " WHERE ALL (x IN list1 WHERE x IN list2) "
                         + " WITH g, list1+list2 as list "
                         + " UNWIND list as nodes "
 
@@ -677,7 +671,7 @@ public class AdvancedSearchController {
                         + whereClause2
                         + " AND " + significant + phenotypeSexes + parameter + chrRange + geneList + genotypes + alleleTypes
                         + " WITH g, list1, collect({genes:g, alleles:a, srs:sr, mps:mp}) as list2 "
-                        + " WHERE ALL (x IN list1 WHERE x IN list2) "
+                       // + " WHERE ALL (x IN list1 WHERE x IN list2) "
                         + " WITH g, list1+list2 as list "
                         + " UNWIND list as nodes "
 
@@ -686,12 +680,7 @@ public class AdvancedSearchController {
                         + " AND dmp.mpTerm IN mps";
             }
 
-            dts = new ArrayList<>();
-            for (int d = 0; d < dataTypes.size(); d++){
-                String dt = dataTypes.get(d).toString();
-                dts.add(dtypeMap.containsKey(dt) ? dt : dtypeMap.get(dt));
-            }
-            returnDtypes = StringUtils.join(dts, ", ");
+            returnDtypes = fetchReturnTypes(dataTypes, dtypeMap);
 
             query += fileType != null ?
                     //" RETURN distinct nodes.alleles, g, nodes.srs, collect(distinct nodes.mps), collect(distinct dm)" + sortStr
@@ -744,7 +733,7 @@ public class AdvancedSearchController {
                         + whereClause2
                         + " AND " + significant + phenotypeSexes + parameter + chrRange + geneList + genotypes + alleleTypes
                         + " WITH g, list1, collect({alleles:a, srs:sr, mps:mp}) as list2 "
-                        + " WHERE ALL (x IN list1 WHERE x IN list2) "
+                       // + " WHERE ALL (x IN list1 WHERE x IN list2) "
                         + " WITH g, list1+list2 as list "
                         + " UNWIND list as nodes "
                         + " WITH g, nodes, extract(x in collect(distinct nodes.mps) | x.mpTerm) as mps "
@@ -763,7 +752,7 @@ public class AdvancedSearchController {
                         + whereClause2
                         + " AND " + significant + phenotypeSexes + parameter + chrRange + geneList + genotypes + alleleTypes
                         + " WITH g, list1, collect({alleles:a, srs:sr, mps:mp}) as list2 "
-                        + " WHERE ALL (x IN list1 WHERE x IN list2) "
+                       // + " WHERE ALL (x IN list1 WHERE x IN list2) "
                         + " WITH g, list1+list2 as list "
                         + " UNWIND list as nodes "
                         + " WITH g, nodes, extract(x in collect(distinct nodes.mps) | x.mpTerm) as mps "
@@ -771,12 +760,7 @@ public class AdvancedSearchController {
                         + " AND dmp.mpTerm IN mps";
             }
 
-            dts = new ArrayList<>();
-            for (int d = 0; d < dataTypes.size(); d++){
-                String dt = dataTypes.get(d).toString();
-                dts.add(dtypeMap.containsKey(dt) ? dt : dtypeMap.get(dt));
-            }
-            returnDtypes = StringUtils.join(dts, ", ");
+            returnDtypes = fetchReturnTypes(dataTypes, dtypeMap);
 
             query += fileType != null ?
                     //" RETURN distinct nodes.alleles, g, nodes.srs, collect(distinct nodes.mps), collect(distinct dm)" + sortStr :
@@ -829,7 +813,7 @@ public class AdvancedSearchController {
                         + whereClause2
                         + " AND " + significant + phenotypeSexes + parameter + chrRange + geneList + genotypes + alleleTypes
                         + " WITH g, list1, collect({alleles:a, srs:sr, mps:mp}) as list2 "
-                        + " WHERE ALL (x IN list1 WHERE x IN list2) "
+                        //+ " WHERE ALL (x IN list1 WHERE x IN list2) "
                         + " WITH g, list1+list2 as list "
                         + " UNWIND list as nodes "
                         + " WITH g, nodes, extract(x in collect(distinct nodes.mps) | x.mpTerm) as mps "
@@ -848,7 +832,7 @@ public class AdvancedSearchController {
                         + whereClause2
                         + " AND " + significant + phenotypeSexes + parameter + chrRange + geneList + genotypes + alleleTypes
                         + " WITH g, list1, collect({alleles:a, srs:sr, mps:mp}) as list2 "
-                        + " WHERE ALL (x IN list1 WHERE x IN list2) "
+                       // + " WHERE ALL (x IN list1 WHERE x IN list2) "
                         + " WITH g, list1+list2 as list "
                         + " UNWIND list as nodes "
                         + " WITH g, nodes, extract(x in collect(distinct nodes.mps) | x.mpTerm) as mps "
@@ -856,12 +840,7 @@ public class AdvancedSearchController {
                         + " AND dmp.mpTerm IN mps";
             }
 
-            dts = new ArrayList<>();
-            for (int d = 0; d < dataTypes.size(); d++){
-                String dt = dataTypes.get(d).toString();
-                dts.add(dtypeMap.containsKey(dt) ? dt : dtypeMap.get(dt));
-            }
-            returnDtypes = StringUtils.join(dts, ", ");
+            returnDtypes = fetchReturnTypes(dataTypes, dtypeMap);
 
             query += fileType != null ?
                     //" RETURN distinct nodes.alleles, g, nodes.srs, collect(distinct nodes.mps), collect(distinct dm)" + sortStr
@@ -916,19 +895,14 @@ public class AdvancedSearchController {
                     + whereClause3
                     + " AND " + significant + phenotypeSexes + parameter + chrRange + geneList + genotypes + alleleTypes
                     + " WITH g, list1, list2, collect({alleles:a, mps:mp, srs:sr}) as list3 "
-                    + " WHERE ALL (x IN list1 WHERE x IN list2) AND ALL (x IN list2 WHERE x IN list3) "
+                   // + " WHERE ALL (x IN list1 WHERE x IN list2) AND ALL (x IN list2 WHERE x IN list3) "
                     + " WITH g, list1+list2+list3 as list "
                     + " UNWIND list as nodes "
                     + " WITH g, nodes, extract(x in collect(distinct nodes.mps) | x.mpTerm) as mps "
                     + geneToDmPathClause
                     + " AND dmp.mpTerm IN mps";
 
-            dts = new ArrayList<>();
-            for (int d = 0; d < dataTypes.size(); d++){
-                String dt = dataTypes.get(d).toString();
-                dts.add(dtypeMap.containsKey(dt) ? dt : dtypeMap.get(dt));
-            }
-            returnDtypes = StringUtils.join(dts, ", ");
+            returnDtypes = fetchReturnTypes(dataTypes, dtypeMap);
 
             query += fileType != null ?
                     //" RETURN distinct nodes.alleles, g, nodes.srs, collect(distinct nodes.mps), collect(distinct dm)" + sortStr
@@ -971,22 +945,14 @@ public class AdvancedSearchController {
                   + whereClause2
                   + " AND " + significant + phenotypeSexes + parameter + chrRange + geneList + genotypes + alleleTypes
                   + " WITH g, list1, collect({alleles:a, mps:mp, srs:sr}) as list2 "
-                  + " WHERE ALL (x IN list1 WHERE x IN list2) "
+                 // + " WHERE ALL (x IN list1 WHERE x IN list2) "
                   + " WITH g, list1+list2 as list "
                   + " UNWIND list as nodes "
                   + " WITH g, nodes, extract(x in collect(distinct nodes.mps) | x.mpTerm) as mps "
                   + geneToDmPathClause
                   + " AND dmp.mpTerm IN mps";
 
-            //query += fileType != null ? " RETURN distinct nodes.alleles, g, nodes.srs, collect(distinct nodes.mps), collect(distinct dm)" + sortStr
-              //      : " RETURN collect(distinct nodes.alleles), collect(distinct g), collect(distinct nodes.srs), collect(distinct nodes.mps), collect(distinct dm)";
-
-            dts = new ArrayList<>();
-            for (int d = 0; d < dataTypes.size(); d++){
-                String dt = dataTypes.get(d).toString();
-                dts.add(dtypeMap.containsKey(dt) ? dt : dtypeMap.get(dt));
-            }
-            returnDtypes = StringUtils.join(dts, ", ");
+            returnDtypes = fetchReturnTypes(dataTypes, dtypeMap);
 
             query += fileType != null ?
                     //" RETURN distinct nodes.alleles, g, nodes.srs, collect(distinct nodes.mps), collect(distinct dm)" + sortStr
@@ -1038,6 +1004,8 @@ public class AdvancedSearchController {
                 + geneToDmPathClause
                 + " AND dmp.mpTerm IN mps";
 
+            returnDtypes = fetchReturnTypes(dataTypes, dtypeMap);
+
             query += fileType != null ?
                     //" RETURN distinct a, g, sr, collect(distinct mp), collect(distinct dm)" + sortStr :
                     " RETURN distinct " + returnDtypes + sortStr :
@@ -1077,6 +1045,8 @@ public class AdvancedSearchController {
                 + " WITH g, a, sr, mp, extract(x in collect(distinct mp) | x.mpTerm) as mps "
                 + geneToDmPathClause
                 + " AND dmp.mpTerm IN mps";
+
+            returnDtypes = fetchReturnTypes(dataTypes, dtypeMap);
 
             query += fileType != null ?
                     //" RETURN distinct a, g, sr, collect(distinct mp), collect(distinct dm)" + sortStr :
@@ -1289,6 +1259,15 @@ public class AdvancedSearchController {
         return j;
     }
 
+    private String fetchReturnTypes(JSONArray dataTypes, Map<String, String> dtypeMap) {
+        List<String> dts = new ArrayList<>();
+
+        for (int d = 0; d < dataTypes.size(); d++) {
+            String dt = dataTypes.get(d).toString();
+            dts.add(dtypeMap.containsKey(dt) ? dtypeMap.get(dt) : dt);
+        }
+        return StringUtils.join(dts, ", ");
+    }
     private String mapNarrowSynonym2MpTerm(List<String> narrowOrSynonymMapping, String mpTerm, SolrClient autosuggestCore) throws IOException, SolrServerException {
 
         String mpStr = null;
