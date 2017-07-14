@@ -152,8 +152,8 @@ public class FileExportController {
 		System.out.println(jParams.toString());
 
 		JSONObject jcontent = advancedSearchController.fetchGraphDataAdvSrch(jParams, fileType);
-		String narrowMapping = jcontent.get("narrowMapping").equals("") ? "" : "\n\nNOTE: " + jcontent.get("narrowMapping");
-		String filters = "Search filters: " + jParams.getString("shownFilter") + narrowMapping;
+		String narrowOrSynonymMapping = jcontent.get("narrowOrSynonymMapping").equals("") ? "" : "\n\nNOTE: " + jcontent.get("narrowOrSynonymMapping");
+		String filters = "Search filters: " + jParams.getString("shownFilter") + narrowOrSynonymMapping;
 
 		FileExportUtils.writeOutputFile(response, jcontent.getJSONArray("rows"), fileType, fileName, filters);
 	}
