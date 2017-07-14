@@ -187,6 +187,7 @@ public class TestConfigSolr {
 	PhenotypeCenterService preQcPhenotypeCenterService() {
 		return new PhenotypeCenterService(solrBaseUrl + "/preqc", impressService);
 	}
+	
 
 
 	@Bean
