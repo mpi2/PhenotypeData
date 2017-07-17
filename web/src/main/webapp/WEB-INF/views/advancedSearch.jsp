@@ -1160,16 +1160,7 @@
                                 $('textarea.Mp').val(decodeURIComponent(q));
                             }
                             else {
-                                var count = ($('textarea.Mp').val().match(/AND|OR/g) || []).length;
-
-                                if ((count == 1 && $('input.srchMp').size() == 2) || (count == 2 && $('input.srchMp').size() == 3)) {
-                                    $('textarea.Mp').val($('textarea.Mp').val() + decodeURIComponent(q));
-                                }
-                                else {
-                                    alert("Sorry, you need to click 'AND' or 'OR' button first to build your boolean query");
-                                    thisInput.val('');
-                                    return false;
-                                }
+                                $('textarea.Mp').val($('textarea.Mp').val() + decodeURIComponent(q));
                             }
                         }
 
@@ -1253,8 +1244,17 @@
                         return false;
                     }
                 }).keyup(function (e) {
+                    // user types in the input box
                     if (e.keyCode == 13) { // user hit ENTER
                         $(".ui-menu-item").hide();
+                    }
+                    else {
+                        if ($('input.srchMp').size() == 2 && $('textarea.Mp').val().match(/(.*) (AND|OR)/) == undefined){
+                            alert("Please click 'AND' or 'OR' before adding a 2nd phenotype")
+                        }
+                        else if ($('input.srchMp').size() == 3 && $('textarea.Mp').val().match(/(\()(.*) (AND|OR) (.*)(\)) (AND|OR)/) == undefined){
+                            alert("Please click 'AND' or 'OR' before adding a 3rd phenotype")
+                        }
                     }
                 }).data("ui-autocomplete")._renderItem = function( ul, item) {
                     // prevents HTML tags being escaped
@@ -1263,66 +1263,6 @@
                         .append( $( "<a></a>" ).html( item.label ) )
                         .appendTo( ul );
                 };
-
-//                // User press ENTER
-//                thisInput.keydown(function (e) {
-//
-//                    if (e.keyCode == 13) { // user hits enter
-//
-//                        e.stopPropagation();
-//
-//                        $(".ui-menu-item").hide();
-//                        //$('ul#ul-id-1').remove();
-//
-//                        //alert('enter: '+ MPI2.searchAndFacetConfig.matchedFacet)
-//                        var input = thisInput.val().trim();
-//
-//                        //alert(input + ' ' + solrUrl)
-//                        input = /^\*\**?\*??$/.test(input) ? '' : input;  // lazy matching
-//
-//                        var re = new RegExp("^'(.*)'$");
-//                        input = input.replace(re, "\"$1\""); // only use double quotes for phrase query
-//
-//                        // NOTE: solr special characters to escape
-//                        // + - && || ! ( ) { } [ ] ^ " ~ * ? : \
-//
-//                        input = encodeURIComponent(input);
-//
-//                        input = input.replace("%5B", "\\[");
-//                        input = input.replace("%5D", "\\]");
-//                        input = input.replace("%7B", "\\{");
-//                        input = input.replace("%7D", "\\}");
-//                        input = input.replace("%7C", "\\|");
-//                        input = input.replace("%5C", "\\\\");
-//                        input = input.replace("%3C", "\\<");
-//                        input = input.replace("%3E", "\\>");
-//                        input = input.replace(".", "\\.");
-//                        input = input.replace("(", "\\(");
-//                        input = input.replace(")", "\\)");
-//                        input = input.replace("%2F", "\\/");
-//                        input = input.replace("%60", "\\`");
-//                        input = input.replace("~", "\\~");
-//                        input = input.replace("%", "\\%");
-//                        input = input.replace("!", "\\!");
-//                        input = input.replace("%21", "\\!");
-//                        input = input.replace("-", "\\-");
-//
-//                        if (/^\\%22.+%22$/.test(input)) {
-//                            input = input.replace(/\\/g, ''); //remove starting \ before double quotes
-//                        }
-//
-//                        // no need to escape space - looks cleaner to the users
-//                        // and it is not essential to escape space
-//                        input = input.replace(/\\?%20/g, ' ');
-//
-//                        $(".ui-menu-item").hide();
-//
-//                        alert("Please choose a phenotype from the dropdown list");
-//                        return false;
-//
-//                    }
-//                });
-
             }
 
             //-------------------
@@ -1557,7 +1497,7 @@
                         "type": "POST",
                         "error": function() {
                             $('body').removeClass("loading");
-                            $('div.dataTables_processing').text("Failed to fetch your query: keyword not found");
+                            $('div.dataTables_processing').text("Found no data based on your search filters");
                             $('td.dataTables_empty').text("");
                         }
                     }
