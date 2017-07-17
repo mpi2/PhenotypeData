@@ -73,6 +73,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import net.sf.json.JSONSerializer;
 import uk.ac.ebi.phenotype.service.AdvancedSearchService;
@@ -343,15 +344,22 @@ public class AdvancedSearchController {
         baseUrl = request.getAttribute("baseUrl").toString();
         hostname = request.getAttribute("mappedHostname").toString();
 
+        
 //        System.out.println("hostname: " + hostname);
 //        System.out.println("baseUrl: " + baseUrl);
-        Map<String, String[]> parameters = request.getParameterMap();
-        for( String paramName: parameters.keySet()){
-        	System.out.println("parameter name="+paramName+" value="+parameters.get(paramName));
-        }
+//        Map<String, String[]> parameters = request.getParameterMap();
+//        for( String paramName: parameters.keySet()){
+//        	System.out.println("parameter name="+paramName+" value="+parameters.get(paramName));
+//        }
         
         JSONObject jParams = (JSONObject) JSONSerializer.toJSON(params);
         System.out.println("jparams="+jParams.toString());
+        
+        List<String> dataTypes=new ArrayList<>();
+        JSONArray dataTypesJson = jParams.getJSONArray("dataTypes");
+        for( int i=0; i< dataTypesJson.size(); i++){
+        	dataTypes.add(dataTypesJson.getString(i));
+        }
         
         Boolean significantPValue=false;//default is false
         if (jParams.containsKey("onlySignificantPvalue")) {
@@ -372,8 +380,8 @@ public class AdvancedSearchController {
 		}
          
 		
-		Double lowerPvalue=null;//this only puts in one set - need a java object here to pass in multiple p values with mps - but at moment only these used.
-		Double upperPvalue=null;
+		Double lowerPvalue=new Double(0);//this only puts in one set - need a java object here to pass in multiple p values with mps - but at moment only these used.
+		Double upperPvalue=new Double(1);
 		if (jParams.containsKey("lowerPvalue")) {
 			lowerPvalue = jParams.getDouble("lowerPvalue");
 
@@ -414,27 +422,23 @@ public class AdvancedSearchController {
 		
 		
 		//get the gene lists for mouse or human from here
-		Boolean isMouseGenes=null;//defaults to mouse
-		List<String> geneList = new ArrayList<>();
-        if (jParams.containsKey("mouseGeneList")) {
-           isMouseGenes=true;
-        }
-        else if (jParams.containsKey("humanGeneList")) {
-        	isMouseGenes=false;
-        }
-        
-		if (isMouseGenes != null) {//only do this if a gene list has been specified in interface in which case boolean will not be null
-			if (isMouseGenes) {
+		Boolean isMouseGenes=true;//defaults to mouse
+		List<String> geneList = new ArrayList<>(); 
+       if (jParams.containsKey("mouseGeneList")) {
+			
 				for (Object name : jParams.getJSONArray("mouseGeneList")) {
 					geneList.add("'" + name.toString() + "'");
 				}
-			} else {
+			
+       }
+       if (jParams.containsKey("humanGeneList")) {
+    	   isMouseGenes=false;
 				for (Object name : jParams.getJSONArray("humanGeneList")) {
 					geneList.add("'" + name.toString() + "'");
 				}
 
 			}
-		}
+		
         
         List<String> genotypeList = new ArrayList<>();
         if (jParams.containsKey("genotypes")) {
@@ -468,11 +472,36 @@ public class AdvancedSearchController {
             phenodigmScoreLow = Integer.parseInt(scores[0]);
             phenodigmScoreHigh = Integer.parseInt(scores[1]);
         }
+        
+        String diseaseTerm = "";
+        boolean humanCurated=false;
+        if (jParams.containsKey("diseaseGeneAssociation")) {
+            JSONArray assocs = jParams.getJSONArray("diseaseGeneAssociation");
+
+            if (assocs.size() < 2 ){
+                if (assocs.get(0).toString().equals("humanCurated")){
+                    humanCurated = true ;
+                }
+            }
+        }
+        
+        String humanDiseaseTerm = "";
+
+        if (jParams.containsKey("srchDiseaseModel")) {
+           humanDiseaseTerm = jParams.getString("srchDiseaseModel");
+            
+        }
+        
+        String mpStr = null;
+        if (jParams.containsKey("srchMp")) {
+            mpStr = jParams.getString("srchMp");
+        }
+        
 		     
         String fileType = null;
         JSONObject jcontent=null;
 		try {
-			jcontent = advancedSearchService.fetchGraphDataAdvSrch(hostname, baseUrl,jParams, significantPValue, sexType, impressParameter, lowerPvalue, upperPvalue, chrs, regionStart, regionEnd, isMouseGenes, geneList, genotypeList, alleleTypes, mutationTypes, phenodigmScoreLow, phenodigmScoreHigh, fileType);
+			jcontent = advancedSearchService.fetchGraphDataAdvSrch(dataTypes, hostname, baseUrl,jParams, significantPValue, sexType, impressParameter, lowerPvalue, upperPvalue, chrs, regionStart, regionEnd, isMouseGenes, geneList, genotypeList, alleleTypes, mutationTypes, phenodigmScoreLow, phenodigmScoreHigh, diseaseTerm, humanCurated, humanDiseaseTerm, mpStr,  fileType);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

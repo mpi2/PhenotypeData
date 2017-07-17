@@ -56,7 +56,7 @@ public class AdvancedSearchService {
 	 @Autowired
 	 private Session neo4jSession;
 	 
-	 @Autowired
+	 //@Autowired
 	    @Qualifier("autosuggestCore")
 	    private SolrClient autosuggestCore;
 	
@@ -68,20 +68,26 @@ public class AdvancedSearchService {
 	
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	
-	public AdvancedSearchService(PostQcService genotypePhenotypeService){
+	public AdvancedSearchService(PostQcService genotypePhenotypeService, SolrClient autosuggestCore, Session neo4jSession){
 		this.genotypePhenotypeService=genotypePhenotypeService;
+		this.autosuggestCore=autosuggestCore;
+		this.neo4jSession=neo4jSession;
 	}
 	
 	
 	
 
-    public JSONObject fetchGraphDataAdvSrch(String hostname, String baseUrl,JSONObject jParams, Boolean significantPValue, SexType sexType, String impressParameter, Double lowerPvalue, Double upperPvalue, List<String> chromosome,  Integer regionStart, Integer regionEnd, boolean isMouseGenes, List<String> geneList, List<String> genotypeList,  List<String> alleleTypesFilter, List<String> mutationTypesFilter, int phenodigmScoreLow, int phenodigmScoreHigh, String fileType) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, IOException, SolrServerException {
+    public JSONObject fetchGraphDataAdvSrch(List<String> dataTypes, String hostname, String baseUrl,JSONObject jParams, Boolean significantPValue, SexType sexType, String impressParameter, Double lowerPvalue, Double upperPvalue, List<String> chromosomes,  Integer regionStart, Integer regionEnd, boolean isMouseGenes, List<String> geneList, List<String> genotypeList,  List<String> alleleTypesFilter, List<String> mutationTypesFilter, int phenodigmScoreLow, int phenodigmScoreHigh, String diseaseTerm, boolean humanCuratedDisease, String searchDiseaseModel, String mpStr, String fileType) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, IOException, SolrServerException {
 
 //        JSONArray properties = jParams.getJSONArray("properties");
 //        System.out.println("columns: " + properties);
 
         Map<String, String> dtypeMap = new HashMap<>();
-        JSONArray dataTypes = jParams.getJSONArray("dataTypes");
+       //JSONArray dataTypes = jParams.getJSONArray("dataTypes");
+        if(dataTypes.isEmpty()){
+        	System.err.println("dataTypes is empty or null");
+        }
+        	
         List<String> dts = new ArrayList<>();
         for (int d = 0; d < dataTypes.size(); d++){
             dts.add(dataTypes.get(d).toString());
@@ -97,22 +103,15 @@ public class AdvancedSearchService {
         String phenotypeSexesCypher= composePhenotypeSexCypher(sexType);
         String impressParameterNameCypher= composeImpressParameterCypher(impressParameter);
         String pvaluesCypher = composePvaluesCypher(lowerPvalue, upperPvalue);//looks like we don't have one of these for each phenotype at the moment - need to implement this at some point JW. we need to use the other method with MP ids as param?
-        String chrRangeCypher= composeChrRangeCypher(chromosome, regionStart, regionEnd);
+        String chrRangeCypher= composeChrRangeCypher(chromosomes, regionStart, regionEnd);
         String geneListCypher = composeGeneListCypher(isMouseGenes, geneList);
         String genotypesCypher = composeGenotypesCypher(genotypeList);
         String alleleTypesCypher= composeAlleleTypesCypher(alleleTypesFilter, mutationTypesFilter);
 
         // disease
         String phenodigmScoreCypher = composePhenodigmScoreStr(phenodigmScoreLow, phenodigmScoreHigh);  // always non-empty
-        String diseaseGeneAssociation = composeDiseaseGeneAssociation(jParams);
-        String humanDiseaseTerm = composeHumanDiseaseTermStr(jParams);
-
-        Boolean noMpChild = jParams.containsKey("noMpChild") ? true : false;
-
-        String mpStr = null;
-        if (jParams.containsKey("srchMp")) {
-            mpStr = jParams.getString("srchMp");
-        }
+        String diseaseGeneAssociation = composeDiseaseGeneAssociationCypher(diseaseTerm, humanCuratedDisease);
+        String humanDiseaseTerm = composeHumanDiseaseTermCypher(searchDiseaseModel);
 
         //String mpStr = "  ( APERT-CROUZON DISEASE, INCLUDED  AND mpb alcohokl  )OR  mapasdfkl someting "; // (a and b) or c
         //String mpStr = " dfkdfkdfk kdkk AND ( sfjjjj ii OR kkkk, ) "; // a and (b or c)
@@ -142,11 +141,9 @@ public class AdvancedSearchService {
         String query = null;
 
 
-        String geneToMpPath = noMpChild ? "MATCH (g:Gene)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp) "
-                : " MATCH (g:Gene)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp)-[:PARENT*0..]->(mp0:Mp) ";
+        String geneToMpPath = " MATCH (g:Gene)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp)-[:PARENT*0..]->(mp0:Mp) ";
 
-        String mpToGenePath = noMpChild ? "MATCH (mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g:Gene) "
-                : " MATCH (mp0:Mp)<-[:PARENT*0..]-(mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g:Gene) ";
+        String mpToGenePath = " MATCH (mp0:Mp)<-[:PARENT*0..]-(mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g:Gene) ";
 
         String geneToDmPathClause = " OPTIONAL MATCH (g)<-[:GENE]-(dm:DiseaseModel)-[:MOUSE_PHENOTYPE]->(dmp:Mp) WHERE "
                 + phenodigmScoreCypher + diseaseGeneAssociation + humanDiseaseTerm;
@@ -161,7 +158,7 @@ public class AdvancedSearchService {
 
         if (mpStr == null && ! humanDiseaseTerm.isEmpty()){
 
-            String where = noMpChild ? " WHERE mp.mpTerm =~ '.*' " : " WHERE mp0.mpTerm =~ '.*' ";
+            String where = " WHERE mp0.mpTerm =~ '.*' ";
 
             query = mpToGenePath + "<-[:GENE]-(dm:DiseaseModel)-[:MOUSE_PHENOTYPE]->(dmp:Mp)"
                 + where
@@ -179,7 +176,7 @@ public class AdvancedSearchService {
         }
         else if (mpStr == null ){
 
-            String where = noMpChild ? " WHERE mp.mpTerm =~ '.*' " : " WHERE mp0.mpTerm =~ '.*' ";
+            String where = " WHERE mp0.mpTerm =~ '.*' ";
 
             if (geneList.isEmpty()) {
                 query = mpToGenePath
@@ -218,7 +215,7 @@ public class AdvancedSearchService {
             logger.info("A: '{}'", mpStr);
 
 
-            String whereClause = noMpChild ? " WHERE mp.mpTerm = '" + params.get("mpA") + "'" : " WHERE mp0.mpTerm = '" + params.get("mpA") + "'";
+            String whereClause =  " WHERE mp0.mpTerm = '" + params.get("mpA") + "'";
 
             if (geneList.isEmpty()) {
                 query = mpToGenePath
@@ -271,18 +268,14 @@ public class AdvancedSearchService {
                 pvaluesC = composePvalues(params.get("mpC").toString(), jParams);
             }
 
-            String whereClause1 = noMpChild ? " WHERE ((mp.mpTerm = '" + params.get("mpA") + "'" + pvaluesA + ") OR (mp.mpTerm ='" + params.get("mpC") + "'" + pvaluesC + ")) "
-                    : " WHERE ((mp0.mpTerm = '" + params.get("mpA") + "'" + pvaluesA + ") OR (mp0.mpTerm ='" + params.get("mpC") + "'" + pvaluesC + "))";
+            String whereClause1 = " WHERE ((mp0.mpTerm = '" + params.get("mpA") + "'" + pvaluesA + ") OR (mp0.mpTerm ='" + params.get("mpC") + "'" + pvaluesC + "))";
 
-            String whereClause2 = noMpChild ? " WHERE ((mp.mpTerm = '" + params.get("mpB") + "'" + pvaluesB + ") OR (mp.mpTerm ='" + params.get("mpC") + "'" + pvaluesC + ")) "
-                    : " WHERE ((mp0.mpTerm = '" + params.get("mpB") + "'" + pvaluesB + ") OR (mp0.mpTerm ='" + params.get("mpC") + "'" + pvaluesC + "))";
+            String whereClause2 =  " WHERE ((mp0.mpTerm = '" + params.get("mpB") + "'" + pvaluesB + ") OR (mp0.mpTerm ='" + params.get("mpC") + "'" + pvaluesC + "))";
 
 
-            String matchClause1 = noMpChild ? " MATCH (mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g) "
-                    : " MATCH (mp0:Mp)<-[:PARENT*0..]-(mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g) ";
+            String matchClause1 = " MATCH (mp0:Mp)<-[:PARENT*0..]-(mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g) ";
 
-            String matchClause2 = noMpChild ? " MATCH (g)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp) "
-                    : " MATCH (g)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp)-[:PARENT*0..]->(mp0:Mp) ";
+            String matchClause2 = " MATCH (g)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp)-[:PARENT*0..]->(mp0:Mp) ";
 
             if (geneList.isEmpty()){
 
@@ -368,18 +361,14 @@ public class AdvancedSearchService {
                 pvaluesC = composePvalues(params.get("mpC").toString(), jParams);
             }
 
-            String whereClause1 = noMpChild ? " WHERE ((mp.mpTerm = '" + params.get("mpB") + "'" + pvaluesB + ") OR (mp.mpTerm ='" + params.get("mpA") + "'" + pvaluesA + ")) "
-                    : " WHERE ((mp0.mpTerm = '" + params.get("mpB") + "'" + pvaluesB + ") OR (mp0.mpTerm ='" + params.get("mpA") + "'" + pvaluesA + "))";
+            String whereClause1 = " WHERE ((mp0.mpTerm = '" + params.get("mpB") + "'" + pvaluesB + ") OR (mp0.mpTerm ='" + params.get("mpA") + "'" + pvaluesA + "))";
 
-            String whereClause2 = noMpChild ? " WHERE ((mp.mpTerm = '" + params.get("mpC") + "'" + pvaluesC + ") OR (mp.mpTerm ='" + params.get("mpA") + "'" + pvaluesA + ")) "
-                    : " WHERE ((mp0.mpTerm = '" + params.get("mpC") + "'" + pvaluesC + ") OR (mp0.mpTerm ='" + params.get("mpA") + "'" + pvaluesA + "))";
+            String whereClause2 = " WHERE ((mp0.mpTerm = '" + params.get("mpC") + "'" + pvaluesC + ") OR (mp0.mpTerm ='" + params.get("mpA") + "'" + pvaluesA + "))";
 
 
-            String matchClause1 = noMpChild ? " MATCH (mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g) "
-                    : " MATCH (mp0:Mp)<-[:PARENT*0..]-(mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g) ";
+            String matchClause1 =" MATCH (mp0:Mp)<-[:PARENT*0..]-(mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g) ";
 
-            String matchClause2 = noMpChild ? " MATCH (g)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp) "
-                    : " MATCH (g)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp)-[:PARENT*0..]->(mp0:Mp) ";
+            String matchClause2 = " MATCH (g)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp)-[:PARENT*0..]->(mp0:Mp) ";
 
             if (geneList.isEmpty()){
 
@@ -464,16 +453,13 @@ public class AdvancedSearchService {
                 pvaluesC = composePvalues(params.get("mpC").toString(), jParams);
             }
 
-            String whereClause1 = noMpChild ? " WHERE ((mp.mpTerm = '" + params.get("mpA") + "'" + pvaluesA + ") OR (mp.mpTerm ='" + params.get("mpB") + "'" + pvaluesB + ")) "
-                    : " WHERE ((mp0.mpTerm = '" + params.get("mpA") + "'" + pvaluesA + ") OR (mp0.mpTerm ='" + params.get("mpB") + "'" + pvaluesB + ")) ";
+            String whereClause1 = " WHERE ((mp0.mpTerm = '" + params.get("mpA") + "'" + pvaluesA + ") OR (mp0.mpTerm ='" + params.get("mpB") + "'" + pvaluesB + ")) ";
 
-            String whereClause2 = noMpChild ? " WHERE mp.mpTerm = '" + params.get("mpC") + "'" + pvaluesC : " WHERE mp0.mpTerm = '" + params.get("mpC") + "'" + pvaluesC;
+            String whereClause2 = " WHERE mp0.mpTerm = '" + params.get("mpC") + "'" + pvaluesC;
 
-            String matchClause1 = noMpChild ? " MATCH (mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g) "
-                    : " MATCH (mp0:Mp)<-[:PARENT*0..]-(mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g) ";
+            String matchClause1 = " MATCH (mp0:Mp)<-[:PARENT*0..]-(mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g) ";
 
-            String matchClause2 = noMpChild ? " MATCH (g)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp) "
-                    : " MATCH (g)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp)-[:PARENT*0..]->(mp0:Mp) ";
+            String matchClause2 =" MATCH (g)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp)-[:PARENT*0..]->(mp0:Mp) ";
 
             if (geneList.isEmpty()){
                 query = mpToGenePath
@@ -552,16 +538,13 @@ public class AdvancedSearchService {
                 pvaluesC = composePvalues(params.get("mpC").toString(), jParams);
             }
 
-            String whereClause1 = noMpChild ? " WHERE ((mp.mpTerm = '" + params.get("mpB") + "'" + pvaluesB + ") OR (mp.mpTerm ='" + params.get("mpC") + "'" + pvaluesC + ")) "
-                    : " WHERE ((mp0.mpTerm = '" + params.get("mpB") + "'" + pvaluesB + ") OR (mp0.mpTerm ='" + params.get("mpC") + "'" + pvaluesC + ")) ";
+            String whereClause1 = " WHERE ((mp0.mpTerm = '" + params.get("mpB") + "'" + pvaluesB + ") OR (mp0.mpTerm ='" + params.get("mpC") + "'" + pvaluesC + ")) ";
 
-            String whereClause2 = noMpChild ? " WHERE mp.mpTerm = '" + params.get("mpA") + "'" + pvaluesA : " WHERE mp0.mpTerm = '" + params.get("mpA") + "'" + pvaluesA;
+            String whereClause2 = " WHERE mp0.mpTerm = '" + params.get("mpA") + "'" + pvaluesA;
 
-            String matchClause1 = noMpChild ? " MATCH (mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g) "
-                    : " MATCH (mp0:Mp)<-[:PARENT*0..]-(mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g) ";
+            String matchClause1 =" MATCH (mp0:Mp)<-[:PARENT*0..]-(mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g) ";
 
-            String matchClause2 = noMpChild ? " MATCH (g)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp) "
-                    : " MATCH (g)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp)-[:PARENT*0..]->(mp0:Mp) ";
+            String matchClause2 = " MATCH (g)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp)-[:PARENT*0..]->(mp0:Mp) ";
 
             if (geneList.isEmpty()){
                 query = mpToGenePath
@@ -642,12 +625,11 @@ public class AdvancedSearchService {
                 pvaluesC = composePvalues(params.get("mpC").toString(), jParams);
             }
 
-            String whereClause1 = noMpChild ? " WHERE mp.mpTerm = '" + params.get("mpA") + "'" + pvaluesA : " WHERE mp0.mpTerm = '" + params.get("mpA") + "'" + pvaluesA;
-            String whereClause2 = noMpChild ? " WHERE mp.mpTerm = '" + params.get("mpB") + "'" + pvaluesB : " WHERE mp0.mpTerm = '" + params.get("mpB") + "'" + pvaluesB;
-            String whereClause3 = noMpChild ? " WHERE mp.mpTerm = '" + params.get("mpC") + "'" + pvaluesC : " WHERE mp0.mpTerm = '" + params.get("mpC") + "'" + pvaluesC;
+            String whereClause1 =  " WHERE mp0.mpTerm = '" + params.get("mpA") + "'" + pvaluesA;
+            String whereClause2 = " WHERE mp0.mpTerm = '" + params.get("mpB") + "'" + pvaluesB;
+            String whereClause3 = " WHERE mp0.mpTerm = '" + params.get("mpC") + "'" + pvaluesC;
 
-            String mpMatchClause = noMpChild ? " MATCH (mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g) "
-                    : " MATCH (mp0:Mp)<-[:PARENT*0..]-(mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g) ";
+            String mpMatchClause = " MATCH (mp0:Mp)<-[:PARENT*0..]-(mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g) ";
 
             query = mpToGenePath
                     //+ " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') "
@@ -707,11 +689,10 @@ public class AdvancedSearchService {
                 pvaluesB = composePvalues(params.get("mpB").toString(), jParams);
             }
 
-            String whereClause1 = noMpChild ? " WHERE mp.mpTerm = '" + params.get("mpA") + "'" + pvaluesA : " WHERE mp0.mpTerm = '" + params.get("mpA") + "'" + pvaluesA;
-            String whereClause2 = noMpChild ? " WHERE mp.mpTerm = '" + params.get("mpB") + "'" + pvaluesB : " WHERE mp0.mpTerm = '" + params.get("mpB") + "'" + pvaluesB;
+            String whereClause1 =  " WHERE mp0.mpTerm = '" + params.get("mpA") + "'" + pvaluesA;
+            String whereClause2 = " WHERE mp0.mpTerm = '" + params.get("mpB") + "'" + pvaluesB;
 
-            String mpMatchClause = noMpChild ? " MATCH (mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g) "
-                    : " MATCH (mp0:Mp)<-[:PARENT*0..]-(mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g) ";
+            String mpMatchClause = " MATCH (mp0:Mp)<-[:PARENT*0..]-(mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g) ";
 
             query = mpToGenePath
                   //+ " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') "
@@ -778,8 +759,7 @@ public class AdvancedSearchService {
                 query = geneToMpPath;
             }
 
-            String whereClause = noMpChild ? " WHERE ((mp.mpTerm = '" + params.get("mpA") + "'" + pvaluesA + ") OR (mp.mpTerm ='" + params.get("mpB") + "'" + pvaluesB + ") OR (mp.mpTerm = '" + params.get("mpC") + "'" + pvaluesC + ") ) "
-                    : " WHERE ((mp0.mpTerm = '" + params.get("mpA") + "'" + pvaluesA + ") OR (mp0.mpTerm ='" + params.get("mpB") + "'" + pvaluesB + ") OR (mp.mpTerm = '" + params.get("mpC") + "'" + pvaluesC + ")) ";
+            String whereClause = " WHERE ((mp0.mpTerm = '" + params.get("mpA") + "'" + pvaluesA + ") OR (mp0.mpTerm ='" + params.get("mpB") + "'" + pvaluesB + ") OR (mp.mpTerm = '" + params.get("mpC") + "'" + pvaluesC + ")) ";
 
             System.out.println("A:  "+ pvaluesA);
             System.out.println("B:  "+ pvaluesB);
@@ -828,8 +808,7 @@ public class AdvancedSearchService {
                 query = geneToMpPath;
             }
 
-            String whereClause = noMpChild ? " WHERE ((mp.mpTerm = '" + params.get("mpA") + "'" + pvaluesA + ") OR (mp.mpTerm ='" + params.get("mpB") + "'" + pvaluesB + ")) "
-                    : " WHERE ((mp0.mpTerm = '" + params.get("mpA") + "'" + pvaluesA + ") OR (mp0.mpTerm ='" + params.get("mpB") + "'" + pvaluesB + "))";
+            String whereClause = " WHERE ((mp0.mpTerm = '" + params.get("mpA") + "'" + pvaluesA + ") OR (mp0.mpTerm ='" + params.get("mpB") + "'" + pvaluesB + "))";
             query +=
                   //  " WHERE (mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') OR mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*')) "
                   whereClause
@@ -1061,7 +1040,7 @@ public class AdvancedSearchService {
         query.setStart(0);
         query.setRows(100);
         query.setFilterQueries("docType:mp");
-
+        System.out.println("mapNarrow query="+query);
         QueryResponse response = autosuggestCore.query(query);
         System.out.println("response: " + response);
         SolrDocumentList results = response.getResults();
@@ -1156,7 +1135,7 @@ public class AdvancedSearchService {
     private String composeChrRangeCypher(List<String> chromosomes, Integer regionStart, Integer regionEnd){
         String chrRange = "";
 //@TODO this needs refactoring to make sure it works and with multiple phenotypes.
-        if (!chromosomes.isEmpty() && regionStart!=null && regionEnd!=null) 
+        if (chromosomes!=null && !chromosomes.isEmpty() && regionStart!=null && regionEnd!=null) 
         {
             String range = "";
            
@@ -1170,7 +1149,7 @@ public class AdvancedSearchService {
 
                     chrRange = " AND g.chrId IN [" + chromosomes.get(0) + "] AND g.chrStart >= " + regionStart + " AND g.chrEnd <= " + regionEnd + " ";
          }
-        else if (chromosomes.size()>0 && chromosomes.size()<2) {// is this for the case where chromosome has been specified but region hasn't??
+        else if (chromosomes!=null && chromosomes.size()>0 && chromosomes.size()<2) {// is this for the case where chromosome has been specified but region hasn't??
                 chrRange = " AND g.chrId IN " + chromosomes.get(0) + " ";
         }
 
@@ -1274,29 +1253,29 @@ public class AdvancedSearchService {
     }
     
     
-    private String composeDiseaseGeneAssociation(JSONObject jParams){
+    private String composeDiseaseGeneAssociationCypher(String diseaseTerm, boolean humanCurated){
         String diseaeGeneAssoc = "";
 
-        if (jParams.containsKey("diseaseGeneAssociation")) {
-            JSONArray assocs = jParams.getJSONArray("diseaseGeneAssociation");
+        if (diseaseTerm!=null && diseaseTerm!="") {
+            
 
-            if (assocs.size() < 2 ){
-                if (assocs.get(0).toString().equals("humanCurated")){
+           
+                if (humanCurated){
                     diseaeGeneAssoc = " AND dm.humanCurated = true ";
                 }
                 else {
                     diseaeGeneAssoc = " AND dm.humanCurated = false ";
                 }
-            }
+            
         }
         return diseaeGeneAssoc;
     }
-    private String composeHumanDiseaseTermStr(JSONObject jParams){
+    private String composeHumanDiseaseTermCypher(String searchDiseaseModel){
         String humanDiseaseTerm = "";
 
-        if (jParams.containsKey("srchDiseaseModel")) {
-            String name = jParams.getString("srchDiseaseModel");
-            humanDiseaseTerm = " AND dm.diseaseTerm = '" + name.toString() + "' ";
+        if (searchDiseaseModel!=null && !searchDiseaseModel.equals("")) {
+            
+            humanDiseaseTerm = " AND dm.diseaseTerm = '" + searchDiseaseModel + "' ";
         }
         return humanDiseaseTerm;
     }

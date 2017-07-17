@@ -5,16 +5,18 @@ import static org.junit.Assert.*;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.enumerations.SexType;
-import org.mousephenotype.cda.solr.TestConfigSolr;
 import org.mousephenotype.cda.solr.service.PostQcService;
+import org.neo4j.ogm.session.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
@@ -24,21 +26,32 @@ import org.springframework.test.context.junit4.SpringRunner;
 import net.sf.json.JSONObject;
 
 @RunWith(SpringRunner.class)
-@ContextConfiguration(classes={TestConfigSolr.class})
+@ContextConfiguration(classes={TestAdvancedSearchConfig.class})
 @TestPropertySource(locations = {"file:${user.home}/configfiles/${profile:dev}/test.properties"})
 public class AdvancedSearchServiceTest {
+	
+	@Autowired
+	Session neo4jSession;
+	
 	@Autowired
 	@Qualifier("postqcService")
     private PostQcService gpService;
 	
+	@Autowired
+	 @Qualifier("autosuggestCore")
+	 private SolrClient autosuggestCore;
+	
 	private AdvancedSearchService advancedSearchService;
 	@Before
 	public void setUp(){
-		advancedSearchService=new AdvancedSearchService(gpService);
+		advancedSearchService=new AdvancedSearchService(gpService, autosuggestCore, neo4jSession);
 	}
 	
 	@Test
 	public void getResult(){
+		
+		List<String> dataTypes=new ArrayList<>();
+		dataTypes.add("g");
 		String hostname="http://localhost";
 		String baseUrl="/";
 		JSONObject jParams = null;//@TODO need to set a dummy object here still
@@ -49,21 +62,25 @@ public class AdvancedSearchServiceTest {
 		
 		Double lowerPvalue = null;
 		Double upperPvalue = null;
-		List<String> chrs = null;
+		List<String> chrs = new ArrayList<>();
 		Integer regionStart = null;
 		Integer regionEnd = null;
 		boolean isMouseGenes = false;
-		List<String> geneList = null;
-		List<String> genotypeList = null;
-		List<String> alleleTypes = null;
-		List<String> mutationTypes = null;
+		List<String> geneList = new ArrayList<>();
+		List<String> genotypeList =  new ArrayList<>();
+		List<String> alleleTypes =  new ArrayList<>();
+		List<String> mutationTypes =  new ArrayList<>();
 		int phenodigmScoreLow = 0;
 		int phenodigmScoreHigh = 0;
+		String diseaseTerm="";
+		boolean humanCurated=false;
 		String fileType = null;
 		JSONObject jcontent=null;
+		String humanDiseaseTerm="";//not sure what diseaseTerm is if we have a humand one and disease one?
+		String mpStr="abnormal circulating glucose level";//what is this?
 		
 		try {
-			jcontent = advancedSearchService.fetchGraphDataAdvSrch(hostname, baseUrl,jParams, significantPValue, sexType, impressParameter, lowerPvalue, upperPvalue, chrs, regionStart, regionEnd, isMouseGenes, geneList, genotypeList, alleleTypes, mutationTypes, phenodigmScoreLow, phenodigmScoreHigh, fileType);
+			jcontent = advancedSearchService.fetchGraphDataAdvSrch(dataTypes, hostname, baseUrl,jParams, significantPValue, sexType, impressParameter, lowerPvalue, upperPvalue, chrs, regionStart, regionEnd, isMouseGenes, geneList, genotypeList, alleleTypes, mutationTypes, phenodigmScoreLow, phenodigmScoreHigh, diseaseTerm, humanCurated, humanDiseaseTerm, mpStr, fileType);
 		} catch (NoSuchMethodException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -80,7 +97,7 @@ public class AdvancedSearchServiceTest {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+		System.out.println("jcontent from test is "+jcontent);
 	}
 	
 	@Test
@@ -88,7 +105,7 @@ public class AdvancedSearchServiceTest {
 		
 		//Test "abnormal glucose homeostasis" only
 
-		AdvancedSearchService searchSolrDao=new AdvancedSearchService(gpService);
+		AdvancedSearchService searchSolrDao=new AdvancedSearchService(gpService, autosuggestCore, neo4jSession);
     	String phenotypeId="MP:0002078";
     	List<String> geneSymbols=null;
     	try {
