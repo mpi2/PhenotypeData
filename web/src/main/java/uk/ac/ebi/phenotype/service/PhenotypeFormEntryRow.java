@@ -3,7 +3,15 @@ package uk.ac.ebi.phenotype.service;
 public class PhenotypeFormEntryRow {
 
 	private String phenotypeTerm;
-	private Double pValueCutoff=new Double(0.0001);//default set here.
+	private Double pValueCutoffLow=new Double(0);//default set here.
+	public Double getpValueCutoffLow() {
+		return pValueCutoffLow;
+	}
+
+	public void setpValueCutoffLow(Double pValueCutoffLow) {
+		this.pValueCutoffLow = pValueCutoffLow;
+	}
+	private Double pValueCutoffHigh=new Double(0.0001);//default set here.
 	
 	public PhenotypeFormEntryRow(String mpTerm){
 		this.phenotypeTerm=mpTerm;
@@ -11,13 +19,13 @@ public class PhenotypeFormEntryRow {
 	
 	public PhenotypeFormEntryRow(String mpTerm, Double pValueCutoff){
 		this.phenotypeTerm=mpTerm;
-		this.pValueCutoff=pValueCutoff;
+		this.pValueCutoffHigh=pValueCutoff;
 	}
-	public Double getpValueCutoff() {
-		return pValueCutoff;
+	public Double getpValueCutoffHigh() {
+		return pValueCutoffHigh;
 	}
-	public void setpValueCutoff(Double pValueCutoff) {
-		this.pValueCutoff = pValueCutoff;
+	public void setpValueCutoffHigh(Double pValueCutoff) {
+		this.pValueCutoffHigh = pValueCutoff;
 	}
 	public String getPhenotypeTerm() {
 		return phenotypeTerm;
