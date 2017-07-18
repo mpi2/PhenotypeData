@@ -678,11 +678,11 @@
                         r:30,
                         fields: [
                             {"mouse phenotype ontology term":"mpTerm"},
+                            {"mouse phenotype ontology term synonym": "ontoSynonym"},
                             {"mouse phenotype ontology id":"mpId"},
                             {"mouse phenotype ontology definition":"mpDefinition"},
-                            {"top level mouse phenotype ontology id":"topLevelMpId"},
                             {"top level mouse phenotype ontology term":"topLevelMpTerm"},
-                            {"mouse phenotype ontology term synonym": "ontoSynonym"},
+                            {"top level mouse phenotype ontology id":"topLevelMpId"},
                             {"measured parameter name": "parameterName"},
                             {"p value": "pvalue"}
                         ],
@@ -832,7 +832,6 @@
                     var mpPval = {};
                     $('input.srchMp').each(function(){
                         var tval = "Eg:0000";
-
 
                         var mpVal = $(this).val();
                         var gtval = $(this).siblings('span.pvalue').find('input.lowerPvalue').val();

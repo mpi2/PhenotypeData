@@ -1,6 +1,6 @@
 package uk.ac.ebi.phenotype.service;
 
-public class PhenotypeFormEntryRow {
+public class AdvancedSearchMpRow {
 
 	private String phenotypeTerm;
 	private Double pValueCutoffLow=new Double(0);//default set here.
@@ -13,11 +13,11 @@ public class PhenotypeFormEntryRow {
 	}
 	private Double pValueCutoffHigh=new Double(0.0001);//default set here.
 	
-	public PhenotypeFormEntryRow(String mpTerm){
+	public AdvancedSearchMpRow(String mpTerm){
 		this.phenotypeTerm=mpTerm;
 	}
 	
-	public PhenotypeFormEntryRow(String mpTerm, Double pValueCutoff){
+	public AdvancedSearchMpRow(String mpTerm, Double pValueCutoff){
 		this.phenotypeTerm=mpTerm;
 		this.pValueCutoffHigh=pValueCutoff;
 	}
@@ -33,5 +33,13 @@ public class PhenotypeFormEntryRow {
 	public void setPhenotypeTerm(String phenotypeTerm) {
 		this.phenotypeTerm = phenotypeTerm;
 	}
-	
+
+	@Override
+	public String toString() {
+		return "AdvancedSearchMpRow{" +
+				"phenotypeTerm='" + phenotypeTerm + '\'' +
+				", pValueCutoffLow=" + pValueCutoffLow +
+				", pValueCutoffHigh=" + pValueCutoffHigh +
+				'}';
+	}
 }

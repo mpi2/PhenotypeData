@@ -47,7 +47,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 @Service
@@ -77,7 +76,7 @@ public class AdvancedSearchService {
 	
 	
 
-    public JSONObject fetchGraphDataAdvSrch(PhenotypeFormObject phenotypeFormSection, List<String> dataTypes, String hostname, String baseUrl,JSONObject jParams, Boolean significantPValue, SexType sexType, String impressParameter, Double lowerPvalue, Double upperPvalue, List<String> chromosomes,  Integer regionStart, Integer regionEnd, boolean isMouseGenes, List<String> geneList, List<String> genotypeList,  List<String> alleleTypesFilter, List<String> mutationTypesFilter, int phenodigmScoreLow, int phenodigmScoreHigh, String diseaseTerm, boolean humanCuratedDisease, String searchDiseaseModel, String mpStr, String fileType) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, IOException, SolrServerException {
+    public JSONObject fetchGraphDataAdvSrch(AdvancedSearchPhenotypeForm phenotypeFormSection, List<String> dataTypes, String hostname, String baseUrl, JSONObject jParams, Boolean significantPValue, SexType sexType, String impressParameter, Double lowerPvalue, Double upperPvalue, List<String> chromosomes, Integer regionStart, Integer regionEnd, boolean isMouseGenes, List<String> geneList, List<String> genotypeList, List<String> alleleTypesFilter, List<String> mutationTypesFilter, int phenodigmScoreLow, int phenodigmScoreHigh, String diseaseTerm, boolean humanCuratedDisease, String searchDiseaseModel, String mpStr, String fileType) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, IOException, SolrServerException {
 
 //        JSONArray properties = jParams.getJSONArray("properties");
 //        System.out.println("columns: " + properties);

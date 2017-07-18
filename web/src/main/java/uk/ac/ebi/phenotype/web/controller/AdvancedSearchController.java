@@ -77,8 +77,8 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import net.sf.json.JSONSerializer;
 import uk.ac.ebi.phenotype.service.AdvancedSearchService;
-import uk.ac.ebi.phenotype.service.PhenotypeFormEntryRow;
-import uk.ac.ebi.phenotype.service.PhenotypeFormObject;
+import uk.ac.ebi.phenotype.service.AdvancedSearchMpRow;
+import uk.ac.ebi.phenotype.service.AdvancedSearchPhenotypeForm;
 
 @Controller
 @PropertySource("file:${user.home}/configfiles/${profile}/application.properties")
@@ -334,7 +334,24 @@ public class AdvancedSearchController {
         return mp;
     }
 
-
+//    public AdvancedSearchPhenotypeForm parsePhenotypeForm(JSONObject jParams){
+//
+//        AdvancedSearchPhenotypeForm mpForm =new AdvancedSearchPhenotypeForm();
+//
+//        mpForm.setExcludeNestedPhenotype(jParams.containsKey("noMpChild") ? true : false);
+//        if (jParams.containsKey("srchMp")){
+//
+//        }
+//
+//
+//
+//
+//        AdvancedSearchMpRow row=new AdvancedSearchMpRow("abnormal circulating glucose level");//default cuttoff
+//
+//        advancedSearchPhenotypeForm.addPhenotypeFormRows(row);
+//
+//
+//    }
 
     @RequestMapping(value = "/dataTableNeo4jAdvSrch", method = RequestMethod.POST)
     public ResponseEntity<String> advSrchDataTableJson2(
@@ -353,169 +370,174 @@ public class AdvancedSearchController {
 //        for( String paramName: parameters.keySet()){
 //        	System.out.println("parameter name="+paramName+" value="+parameters.get(paramName));
 //        }
-        
+
+
         JSONObject jParams = (JSONObject) JSONSerializer.toJSON(params);
         System.out.println("jparams="+jParams.toString());
-        
-        List<String> dataTypes=new ArrayList<>();
-        JSONArray dataTypesJson = jParams.getJSONArray("dataTypes");
-        for( int i=0; i< dataTypesJson.size(); i++){
-        	dataTypes.add(dataTypesJson.getString(i));
-        }
-        
-        Boolean significantPValue=false;//default is false
-        if (jParams.containsKey("onlySignificantPvalue")) {
-        	significantPValue = jParams.getBoolean("onlySignificantPvalue");
-        }
-        
-        SexType sexType=SexType.both;//say both by default
-        if (jParams.containsKey("phenotypeSex")) {
-            String sex = jParams.getString("phenotypeSex");
-            sexType=SexType.valueOf(sex);
-        }
-        
-//        private String composeParameter(JSONObject jParams){
-//            String parameter = "";
-		String impressParameter = "";
-		if (jParams.containsKey("srchPipeline")) {
-			impressParameter = jParams.getString("srchPipeline");
-		}
-         
-		
-		Double lowerPvalue=new Double(0);//this only puts in one set - need a java object here to pass in multiple p values with mps - but at moment only these used.
-		Double upperPvalue=new Double(1);
-		if (jParams.containsKey("lowerPvalue")) {
-			lowerPvalue = jParams.getDouble("lowerPvalue");
 
-		}
-		if (jParams.containsKey("upperPvalue")) {
-			upperPvalue = jParams.getDouble("upperPvalue");
+//        AdvancedSearchPhenotypeForm phenotypeForm = parsePhenotypeForm(jParams);
+//
+//        List<String> dataTypes=new ArrayList<>();
+//        JSONArray dataTypesJson = jParams.getJSONArray("dataTypes");
+//        for( int i=0; i< dataTypesJson.size(); i++){
+//        	dataTypes.add(dataTypesJson.getString(i));
+//        }
+//
+//        Boolean significantPValue=false;//default is false
+//        if (jParams.containsKey("onlySignificantPvalue")) {
+//        	significantPValue = jParams.getBoolean("onlySignificantPvalue");
+//        }
+//
+//        SexType sexType=SexType.both;//say both by default
+//        if (jParams.containsKey("phenotypeSex")) {
+//            String sex = jParams.getString("phenotypeSex");
+//            sexType=SexType.valueOf(sex);
+//        }
+//
+////        private String composeParameter(JSONObject jParams){
+////            String parameter = "";
+//		String impressParameter = "";
+//		if (jParams.containsKey("srchPipeline")) {
+//			impressParameter = jParams.getString("srchPipeline");
+//		}
+//
+//
+//		Double lowerPvalue=new Double(0);//this only puts in one set - need a java object here to pass in multiple p values with mps - but at moment only these used.
+//		Double upperPvalue=new Double(1);
+//		if (jParams.containsKey("lowerPvalue")) {
+//			lowerPvalue = jParams.getDouble("lowerPvalue");
+//
+//		}
+//		if (jParams.containsKey("upperPvalue")) {
+//			upperPvalue = jParams.getDouble("upperPvalue");
+//
+//		}
+//
+//		List<String> chrs = new ArrayList<>();
+//        Integer regionStart=null;
+//		Integer regionEnd=null;
+//		//could simplify this just by getting parameters from post then construct cypher query - like others.
+//		if (jParams.containsKey("chrRange")) {
+//            String range = jParams.getString("chrRange");
+//            if (range.matches("^chr(\\w*,?\\w*):(\\d+)-(\\d+)$")) {
+//                System.out.println("find chr range");
+//
+//                Pattern pattern = Pattern.compile("^chr(\\w*,?\\w*):(\\d+)-(\\d+)$");
+//                Matcher matcher = pattern.matcher(range);
+//                while (matcher.find()) {
+//                    System.out.println("found: " + matcher.group(1));
+//                    String regionId = matcher.group(1);
+//                    regionStart = Integer.parseInt(matcher.group(2));
+//                    regionEnd = Integer.parseInt(matcher.group(3));
+//
+//
+//                    String[] ids = org.apache.commons.lang3.StringUtils.split(regionId, ",");
+//                    for (int i=0; i<ids.length; i++){
+//                        chrs.add("'" + ids[i] + "'");
+//                    }
+//                    regionId = org.apache.commons.lang3.StringUtils.join(chrs, ",");
+//                }
+//            }
+//        }else if (jParams.containsKey("chr")) {//just set the chomosome here without start stop?
+//            chrs.add(jParams.getString("chr"));
+//        }
+//
+//
+//		//get the gene lists for mouse or human from here
+//		Boolean isMouseGenes=true;//defaults to mouse
+//		List<String> geneList = new ArrayList<>();
+//       if (jParams.containsKey("mouseGeneList")) {
+//
+//				for (Object name : jParams.getJSONArray("mouseGeneList")) {
+//					geneList.add("'" + name.toString() + "'");
+//				}
+//
+//       }
+//       if (jParams.containsKey("humanGeneList")) {
+//    	   isMouseGenes=false;
+//				for (Object name : jParams.getJSONArray("humanGeneList")) {
+//					geneList.add("'" + name.toString() + "'");
+//				}
+//
+//			}
+//
+//
+//        List<String> genotypeList = new ArrayList<>();
+//        if (jParams.containsKey("genotypes")) {
+//            // genelist = "AND g.markerSymbol in [" +
+//
+//            for (Object name : jParams.getJSONArray("genotypes")) {
+//            	genotypeList.add(name.toString());
+//            }
+//        }
+//
+//        List<String> alleleTypes=new ArrayList<>();
+//        List<String> mutationTypes = new ArrayList<>();
+//        if (jParams.containsKey("alleleTypes")) {
+//
+//            for (Object name : jParams.getJSONArray("alleleTypes")) {
+//                String atype = name.toString();
+//
+//                if (atype.equals("CRISPR(em)")){
+//                    mutationTypes.add(atype);
+//                }
+//                else {
+//                	alleleTypes.add(atype);
+//                }
+//            }
+//        }
+//
+//        int phenodigmScoreLow = 0;//defaults here
+//        int phenodigmScoreHigh = 100;
+//        if (jParams.containsKey("phenodigmScore")) {
+//            String[] scores = jParams.getString("phenodigmScore").split(",");
+//            phenodigmScoreLow = Integer.parseInt(scores[0]);
+//            phenodigmScoreHigh = Integer.parseInt(scores[1]);
+//        }
+//
+//        String diseaseTerm = "";
+//        boolean humanCurated=false;
+//        if (jParams.containsKey("diseaseGeneAssociation")) {
+//            JSONArray assocs = jParams.getJSONArray("diseaseGeneAssociation");
+//
+//            if (assocs.size() < 2 ){
+//                if (assocs.get(0).toString().equals("humanCurated")){
+//                    humanCurated = true ;
+//                }
+//            }
+//        }
+//
+//        String humanDiseaseTerm = "";
+//
+//        if (jParams.containsKey("srchDiseaseModel")) {
+//           humanDiseaseTerm = jParams.getString("srchDiseaseModel");
+//
+//        }
+//
+//        String mpStr = null;
+//        if (jParams.containsKey("srchMp")) {
+//            mpStr = jParams.getString("srchMp");
+//        }
+//
+//
+//        String fileType = null;
+//        JSONObject jcontent=null;
+//
+//        AdvancedSearchPhenotypeForm advancedSearchPhenotypeForm =new AdvancedSearchPhenotypeForm();
+//		AdvancedSearchMpRow row=new AdvancedSearchMpRow("abnormal circulating glucose level");//default cuttoff
+//
+//		advancedSearchPhenotypeForm.addPhenotypeFormRows(row);
+//		try {
+//			jcontent = advancedSearchService.fetchGraphDataAdvSrch(advancedSearchPhenotypeForm, dataTypes, hostname, baseUrl,jParams, significantPValue, sexType, impressParameter, lowerPvalue, upperPvalue, chrs, regionStart, regionEnd, isMouseGenes, geneList, genotypeList, alleleTypes, mutationTypes, phenodigmScoreLow, phenodigmScoreHigh, diseaseTerm, humanCurated, humanDiseaseTerm, mpStr,  fileType);
+//		} catch (Exception e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 
-		}
-		
-		List<String> chrs = new ArrayList<>();
-        Integer regionStart=null;
-		Integer regionEnd=null;
-		//could simplify this just by getting parameters from post then construct cypher query - like others.
-		if (jParams.containsKey("chrRange")) {
-            String range = jParams.getString("chrRange");
-            if (range.matches("^chr(\\w*,?\\w*):(\\d+)-(\\d+)$")) {
-                System.out.println("find chr range");
+        //System.out.println("narrow synonym msg: " + jcontent.get("narrowMapping"));
+//        return new ResponseEntity<String>(jcontent.toString(), createResponseHeaders(), HttpStatus.CREATED);
 
-                Pattern pattern = Pattern.compile("^chr(\\w*,?\\w*):(\\d+)-(\\d+)$");
-                Matcher matcher = pattern.matcher(range);
-                while (matcher.find()) {
-                    System.out.println("found: " + matcher.group(1));
-                    String regionId = matcher.group(1);
-                    regionStart = Integer.parseInt(matcher.group(2));
-                    regionEnd = Integer.parseInt(matcher.group(3));
-
-
-                    String[] ids = org.apache.commons.lang3.StringUtils.split(regionId, ",");
-                    for (int i=0; i<ids.length; i++){
-                        chrs.add("'" + ids[i] + "'");
-                    }
-                    regionId = org.apache.commons.lang3.StringUtils.join(chrs, ",");
-                }
-            }
-        }else if (jParams.containsKey("chr")) {//just set the chomosome here without start stop?
-            chrs.add(jParams.getString("chr"));
-        }
-		
-		
-		//get the gene lists for mouse or human from here
-		Boolean isMouseGenes=true;//defaults to mouse
-		List<String> geneList = new ArrayList<>(); 
-       if (jParams.containsKey("mouseGeneList")) {
-			
-				for (Object name : jParams.getJSONArray("mouseGeneList")) {
-					geneList.add("'" + name.toString() + "'");
-				}
-			
-       }
-       if (jParams.containsKey("humanGeneList")) {
-    	   isMouseGenes=false;
-				for (Object name : jParams.getJSONArray("humanGeneList")) {
-					geneList.add("'" + name.toString() + "'");
-				}
-
-			}
-		
-        
-        List<String> genotypeList = new ArrayList<>();
-        if (jParams.containsKey("genotypes")) {
-            // genelist = "AND g.markerSymbol in [" +
-            
-            for (Object name : jParams.getJSONArray("genotypes")) {
-            	genotypeList.add(name.toString());
-            }   
-        }
-        
-        List<String> alleleTypes=new ArrayList<>();
-        List<String> mutationTypes = new ArrayList<>();
-        if (jParams.containsKey("alleleTypes")) {
-            
-            for (Object name : jParams.getJSONArray("alleleTypes")) {
-                String atype = name.toString();
-
-                if (atype.equals("CRISPR(em)")){
-                    mutationTypes.add(atype);
-                }
-                else {
-                	alleleTypes.add(atype);
-                }
-            }
-        }
-
-        int phenodigmScoreLow = 0;//defaults here
-        int phenodigmScoreHigh = 100;
-        if (jParams.containsKey("phenodigmScore")) {
-            String[] scores = jParams.getString("phenodigmScore").split(",");
-            phenodigmScoreLow = Integer.parseInt(scores[0]);
-            phenodigmScoreHigh = Integer.parseInt(scores[1]);
-        }
-        
-        String diseaseTerm = "";
-        boolean humanCurated=false;
-        if (jParams.containsKey("diseaseGeneAssociation")) {
-            JSONArray assocs = jParams.getJSONArray("diseaseGeneAssociation");
-
-            if (assocs.size() < 2 ){
-                if (assocs.get(0).toString().equals("humanCurated")){
-                    humanCurated = true ;
-                }
-            }
-        }
-        
-        String humanDiseaseTerm = "";
-
-        if (jParams.containsKey("srchDiseaseModel")) {
-           humanDiseaseTerm = jParams.getString("srchDiseaseModel");
-            
-        }
-        
-        String mpStr = null;
-        if (jParams.containsKey("srchMp")) {
-            mpStr = jParams.getString("srchMp");
-        }
-        
-		     
-        String fileType = null;
-        JSONObject jcontent=null;
-        
-        PhenotypeFormObject phenotypeFormObject=new PhenotypeFormObject();
-		PhenotypeFormEntryRow row=new PhenotypeFormEntryRow("abnormal circulating glucose level");//default cuttoff
-		
-		phenotypeFormObject.addPhenotypeFormRows(row);
-		try {
-			jcontent = advancedSearchService.fetchGraphDataAdvSrch(phenotypeFormObject, dataTypes, hostname, baseUrl,jParams, significantPValue, sexType, impressParameter, lowerPvalue, upperPvalue, chrs, regionStart, regionEnd, isMouseGenes, geneList, genotypeList, alleleTypes, mutationTypes, phenodigmScoreLow, phenodigmScoreHigh, diseaseTerm, humanCurated, humanDiseaseTerm, mpStr,  fileType);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-        System.out.println("narrow synonym msg: " + jcontent.get("narrowMapping"));
-        return new ResponseEntity<String>(jcontent.toString(), createResponseHeaders(), HttpStatus.CREATED);
+        return new ResponseEntity<String>("test", createResponseHeaders(), HttpStatus.CREATED);
     }
 
 	

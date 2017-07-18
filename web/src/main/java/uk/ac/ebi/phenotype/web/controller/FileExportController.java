@@ -151,11 +151,12 @@ public class FileExportController {
 		System.out.println(fileType);
 		System.out.println(jParams.toString());
 
-		JSONObject jcontent = advancedSearchController.fetchGraphDataAdvSrch(jParams, fileType);
-		String narrowMapping = jcontent.get("narrowMapping").equals("") ? "" : "\n\nNOTE: " + jcontent.get("narrowMapping");
-		String filters = "Search filters: " + jParams.getString("shownFilter") + narrowMapping;
-
-		FileExportUtils.writeOutputFile(response, jcontent.getJSONArray("rows"), fileType, fileName, filters);
+//		JSONObject jcontent = advancedSearchController.fetchGraphDataAdvSrch(jParams, fileType);
+//
+//		String narrowMapping = jcontent.get("narrowMapping").equals("") ? "" : "\n\nNOTE: " + jcontent.get("narrowMapping");
+//		String filters = "Search filters: " + jParams.getString("shownFilter") + narrowMapping;
+//
+//		FileExportUtils.writeOutputFile(response, jcontent.getJSONArray("rows"), fileType, fileName, filters);
 	}
 
 	/**

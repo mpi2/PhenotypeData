@@ -3,12 +3,12 @@ package uk.ac.ebi.phenotype.service;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PhenotypeFormObject {
+public class AdvancedSearchPhenotypeForm {
 
 	// inputs and checkboxes
 	private Logical logical1;
 	private Logical logical2;
-	private List<PhenotypeFormEntryRow> phenotypeFormRows=new ArrayList<>();
+	private List<AdvancedSearchMpRow> phenotypeFormRows=new ArrayList<>();
 	private Boolean excludeNestedPhenotype;
 	private String parameterName;
 	private Boolean significantPvaluesOnly;
@@ -40,13 +40,13 @@ public class PhenotypeFormObject {
 		this.logical2 = logical2;
 	}
 
-	public List<PhenotypeFormEntryRow> getPhenotypeFormRows() {
+	public List<AdvancedSearchMpRow> getPhenotypeFormRows() {
 		return phenotypeFormRows;
 	}
-	public void setPhenotypeFormRows(List<PhenotypeFormEntryRow> phenotypeFormRows) {
+	public void setPhenotypeFormRows(List<AdvancedSearchMpRow> phenotypeFormRows) {
 		this.phenotypeFormRows = phenotypeFormRows;
 	}
-	public void addPhenotypeFormRows(PhenotypeFormEntryRow row) {
+	public void addPhenotypeFormRows(AdvancedSearchMpRow row) {
 		this.phenotypeFormRows.add(row);
 		if(this.phenotypeFormRows.size()>3){
 			System.err.println("Phenotype form rows exceeds 3 - max is currently set to 3");
@@ -139,5 +139,25 @@ public class PhenotypeFormObject {
 
 	public void setShowPvalue(Boolean showPvalue) {
 		this.showPvalue = showPvalue;
+	}
+
+	@Override
+	public String toString() {
+		return "AdvancedSearchPhenotypeForm{" +
+				"logical1=" + logical1 +
+				", logical2=" + logical2 +
+				", phenotypeFormRows=" + phenotypeFormRows +
+				", excludeNestedPhenotype=" + excludeNestedPhenotype +
+				", parameterName='" + parameterName + '\'' +
+				", significantPvaluesOnly=" + significantPvaluesOnly +
+				", showMpTerm=" + showMpTerm +
+				", showMpTermSynonym=" + showMpTermSynonym +
+				", showMpId=" + showMpId +
+				", showMpDefinition=" + showMpDefinition +
+				", showTopLevelMpTerm=" + showTopLevelMpTerm +
+				", showTopLevelMpId=" + showTopLevelMpId +
+				", showParameterName=" + showParameterName +
+				", showPvalue=" + showPvalue +
+				'}';
 	}
 }
