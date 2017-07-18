@@ -75,6 +75,12 @@
             style: {classes: 'qtipimpc flat'},
             position: {my: 'top center', at: 'bottom center'}
         });
+        //want it to display on the right for control image thumnails in comparator and orange sprites on gene page phenotype rows (system icons)
+        $('.thumb, .sprite_orange').qtip({
+            style: {classes: 'qtipimpc flat'},
+            position: {my: 'top left', at: 'bottom center'}
+        });
+        
     }
 
     function initAccordions() {
