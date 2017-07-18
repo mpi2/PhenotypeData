@@ -77,7 +77,7 @@ public class AdvancedSearchService {
 	
 	
 
-    public JSONObject fetchGraphDataAdvSrch(List<String> dataTypes, String hostname, String baseUrl,JSONObject jParams, Boolean significantPValue, SexType sexType, String impressParameter, Double lowerPvalue, Double upperPvalue, List<String> chromosomes,  Integer regionStart, Integer regionEnd, boolean isMouseGenes, List<String> geneList, List<String> genotypeList,  List<String> alleleTypesFilter, List<String> mutationTypesFilter, int phenodigmScoreLow, int phenodigmScoreHigh, String diseaseTerm, boolean humanCuratedDisease, String searchDiseaseModel, String mpStr, String fileType) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, IOException, SolrServerException {
+    public JSONObject fetchGraphDataAdvSrch(PhenotypeFormObject phenotypeFormSection, List<String> dataTypes, String hostname, String baseUrl,JSONObject jParams, Boolean significantPValue, SexType sexType, String impressParameter, Double lowerPvalue, Double upperPvalue, List<String> chromosomes,  Integer regionStart, Integer regionEnd, boolean isMouseGenes, List<String> geneList, List<String> genotypeList,  List<String> alleleTypesFilter, List<String> mutationTypesFilter, int phenodigmScoreLow, int phenodigmScoreHigh, String diseaseTerm, boolean humanCuratedDisease, String searchDiseaseModel, String mpStr, String fileType) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, IOException, SolrServerException {
 
 //        JSONArray properties = jParams.getJSONArray("properties");
 //        System.out.println("columns: " + properties);

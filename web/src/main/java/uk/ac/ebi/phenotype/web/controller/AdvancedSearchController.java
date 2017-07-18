@@ -77,6 +77,8 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import net.sf.json.JSONSerializer;
 import uk.ac.ebi.phenotype.service.AdvancedSearchService;
+import uk.ac.ebi.phenotype.service.PhenotypeFormEntryRow;
+import uk.ac.ebi.phenotype.service.PhenotypeFormObject;
 
 @Controller
 @PropertySource("file:${user.home}/configfiles/${profile}/application.properties")
@@ -500,8 +502,13 @@ public class AdvancedSearchController {
 		     
         String fileType = null;
         JSONObject jcontent=null;
+        
+        PhenotypeFormObject phenotypeFormObject=new PhenotypeFormObject();
+		PhenotypeFormEntryRow row=new PhenotypeFormEntryRow("abnormal circulating glucose level");//default cuttoff
+		
+		phenotypeFormObject.addPhenotypeFormRows(row);
 		try {
-			jcontent = advancedSearchService.fetchGraphDataAdvSrch(dataTypes, hostname, baseUrl,jParams, significantPValue, sexType, impressParameter, lowerPvalue, upperPvalue, chrs, regionStart, regionEnd, isMouseGenes, geneList, genotypeList, alleleTypes, mutationTypes, phenodigmScoreLow, phenodigmScoreHigh, diseaseTerm, humanCurated, humanDiseaseTerm, mpStr,  fileType);
+			jcontent = advancedSearchService.fetchGraphDataAdvSrch(phenotypeFormObject, dataTypes, hostname, baseUrl,jParams, significantPValue, sexType, impressParameter, lowerPvalue, upperPvalue, chrs, regionStart, regionEnd, isMouseGenes, geneList, genotypeList, alleleTypes, mutationTypes, phenodigmScoreLow, phenodigmScoreHigh, diseaseTerm, humanCurated, humanDiseaseTerm, mpStr,  fileType);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

@@ -16,6 +16,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.solr.service.PostQcService;
+import org.neo4j.cypher.internal.frontend.v2_3.perty.recipe.Pretty.nestWith;
 import org.neo4j.ogm.session.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -50,6 +51,10 @@ public class AdvancedSearchServiceTest {
 	@Test
 	public void getResult(){
 		
+		PhenotypeFormObject phenotypeFormObject=new PhenotypeFormObject();
+		PhenotypeFormEntryRow row=new PhenotypeFormEntryRow("abnormal circulating glucose level");//default cuttoff
+		
+		phenotypeFormObject.addPhenotypeFormRows(row);
 		List<String> dataTypes=new ArrayList<>();
 		dataTypes.add("g");
 		String hostname="http://localhost";
@@ -80,7 +85,7 @@ public class AdvancedSearchServiceTest {
 		String mpStr="abnormal circulating glucose level";//what is this?
 		
 		try {
-			jcontent = advancedSearchService.fetchGraphDataAdvSrch(dataTypes, hostname, baseUrl,jParams, significantPValue, sexType, impressParameter, lowerPvalue, upperPvalue, chrs, regionStart, regionEnd, isMouseGenes, geneList, genotypeList, alleleTypes, mutationTypes, phenodigmScoreLow, phenodigmScoreHigh, diseaseTerm, humanCurated, humanDiseaseTerm, mpStr, fileType);
+			jcontent = advancedSearchService.fetchGraphDataAdvSrch(phenotypeFormObject, dataTypes, hostname, baseUrl,jParams, significantPValue, sexType, impressParameter, lowerPvalue, upperPvalue, chrs, regionStart, regionEnd, isMouseGenes, geneList, genotypeList, alleleTypes, mutationTypes, phenodigmScoreLow, phenodigmScoreHigh, diseaseTerm, humanCurated, humanDiseaseTerm, mpStr, fileType);
 		} catch (NoSuchMethodException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

@@ -27,5 +27,11 @@ public class PhenotypeFormObject {
 	public void setPhenotypeFormRows(List<PhenotypeFormEntryRow> phenotypeFormRows) {
 		this.phenotypeFormRows = phenotypeFormRows;
 	}
+	public void addPhenotypeFormRows(PhenotypeFormEntryRow row) {
+		this.phenotypeFormRows.add(row);
+		if(this.phenotypeFormRows.size()>3){
+			System.err.println("Phenotype form rows exceeds 3 - max is currently set to 3");
+		}
+	}
 	
 }
