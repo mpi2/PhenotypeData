@@ -245,6 +245,7 @@ public class AdvancedSearchService {
 
             System.out.println("Query: "+ query);
             result =  neo4jSession.query(query, params);
+            System.out.println("result from basic query="+result);
         }
         else if (mpStr.matches(regex_aAndb_Orc)) {
             System.out.println("matches (a and b) or c"); // due to join empty list to a non-empty list evals to empty, convert this to (a or c) + (b or c)
@@ -949,18 +950,20 @@ public class AdvancedSearchService {
             List<String> cols = new ArrayList<>();
             Map<String, List<String>> node2Properties = new LinkedHashMap<>();
 
-            for (String dtype : dtypes) {
+			for (String dtype : dtypes) {
 
-                node2Properties.put(dtype, new ArrayList<String>());
+				node2Properties.put(dtype, new ArrayList<String>());
 
-                if (jParams.containsKey(dtype)) {
-                    for (Object obj : jParams.getJSONArray(dtype)) {
-                        String colName = obj.toString();
-                        cols.add(colName);
-                        node2Properties.get(dtype).add(colName);
-                    }
-                }
-            }
+				if (jParams != null) {
+					if (jParams.containsKey(dtype)) {
+						for (Object obj : jParams.getJSONArray(dtype)) {
+							String colName = obj.toString();
+							cols.add(colName);
+							node2Properties.get(dtype).add(colName);
+						}
+					}
+				}
+			}
 
             //System.out.println("columns: " + cols);
             Map<String, Set<String>> colValMap = new TreeMap<>(); // for export
