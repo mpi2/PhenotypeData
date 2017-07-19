@@ -309,11 +309,10 @@ public class PreqcIndexer extends AbstractIndexer implements CommandLineRunner {
 
                         // Skip if we already have this data postQC
                         phenotypingCenter = dccMapping.dccCenterMap.containsKey(phenotypingCenter) ? dccMapping.dccCenterMap.get(phenotypingCenter) : phenotypingCenter;
+                        if ((phenotypingCenter == null) || (phenotypingCenter.trim().isEmpty())) {
+                            throw new IndexerException("phenotypingCenter is missing!");
+                        }
 
-                        System.out.println("postQcData = " + postQcData);
-                        System.out.println("colonyId   = " + colonyId);
-                        System.out.println("parameter   = " + parameter);
-                        System.out.println("phenotypingCenter   = " + phenotypingCenter);
                         if (postQcData.contains(StringUtils.join(Arrays.asList(new String[]{colonyId, parameter, phenotypingCenter.toUpperCase()}), "_"))) {
                             continue;
                         }
