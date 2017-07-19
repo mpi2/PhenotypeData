@@ -421,23 +421,6 @@ public class AdvancedSearchController {
 
         return mpForm;
     }
-    public AdvancedSearchDiseaseForm parseDiseaseForm(JSONObject jParams) {
-
-        AdvancedSearchDiseaseForm diseaseForm = new AdvancedSearchDiseaseForm();
-
-        if (jParams.containsKey("phenodigmScore")) {
-            String[] scores = jParams.getString("phenodigmScore").split(",");
-            int phenodigmScoreLow =
-            int phenodigmScoreHigh = Integer.parseInt(scores[1]);
-
-            diseaseForm.setPhenodigmLowerScore(Integer.parseInt(scores[0]););
-        }
-
-
-
-        return diseaseForm;
-    }
-
     public AdvancedSearchGeneForm parseGeneForm(JSONObject jParams) {
 
         AdvancedSearchGeneForm geneForm = new AdvancedSearchGeneForm();
@@ -551,6 +534,23 @@ public class AdvancedSearchController {
 
         return geneForm;
     }
+    public AdvancedSearchDiseaseForm parseDiseaseForm(JSONObject jParams) {
+
+        AdvancedSearchDiseaseForm diseaseForm = new AdvancedSearchDiseaseForm();
+
+        if (jParams.containsKey("phenodigmScore")) {
+            String[] scores = jParams.getString("phenodigmScore").split(",");
+            int phenodigmScoreLow =
+            int phenodigmScoreHigh = Integer.parseInt(scores[1]);
+
+            diseaseForm.setPhenodigmLowerScore(Integer.parseInt(scores[0]););
+        }
+
+
+
+        return diseaseForm;
+    }
+
 
     @RequestMapping(value = "/dataTableNeo4jAdvSrch", method = RequestMethod.POST)
     public ResponseEntity<String> advSrchDataTableJson2(

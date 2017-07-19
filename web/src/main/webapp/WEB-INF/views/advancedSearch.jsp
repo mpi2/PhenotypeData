@@ -841,7 +841,7 @@
 
                         kv['mp'+mpCount] = mpVal;
 
-                        console.log("---- mp: " + mpVal);
+                        //console.log("---- mp: " + mpVal);
                         mpPval[mpVal] = {};
 
                         if (gtval.indexOf('Eg:') != 0 && gtval != ""){
@@ -939,7 +939,7 @@
                         else if ( kv.hasOwnProperty("chrRange")) {
                             shownFilter.push("chromosome range = '" + kv.chrRange + "'");
                         }
-                        else {
+                        else if ( kv.hasOwnProperty("all")) {
                             shownFilter.push("chromosome = 'all'");
                         }
                     }
@@ -1046,6 +1046,15 @@
                     else if (parseInt(chrStart) > parseInt(chrEnd)) {
                         alert("ERROR: chromosome range is not right");
                         return false;
+                    }
+                    else if (chrId.length > 1){
+                        // multiple chrs selected
+                        console.log("multiple chrs selected");
+                        kv["chr"] = chrId;
+                        return kv;
+                    }
+                    else if (chrId[0] == 'All'){
+                        return kv;
                     }
                     else {
                         kv['chrRange'] = "chr" + chrId + ":" + chrStart + "-" + chrEnd;
@@ -1403,7 +1412,7 @@
                     "oLanguage": {
                         "sSearch": "Filter: ",
                         //"sInfo": "Showing _START_ to _END_ of _TOTAL_ genes (for complete dataset of your search, please use export buttons)"
-                        "sInfo": "<b>Data overview</b>: all columns are collapsed to show only unique values.<br>It shows you ONLY genes that have associations with phenotypes and diseases.<br><br>Please use 'Export full dataset' for row by row details"
+                        "sInfo": "<b>Data overview</b>: all columns are collapsed to show only unique values.<br>It shows you ONLY genes that have associations with phenotypes and/or diseases.<br><br>Please use 'Export full dataset' for row by row details"
                     },
 //                        "aoColumns": [
 //                            {"bSearchable": true, "sType": "html", "bSortable": true}
@@ -1704,11 +1713,10 @@
                     }
                 }
 
+                var startEnd = '<span id="startEnd">Start: <input id="rstart" type="text" name="chr"> End: <input id="rend" type="text" name="chr"></span>';
                 var legend = '<legend>Mouse chromosome</legend>';
                 var msg = "Filter genes either by chromosome only OR both chromosome and region coordinates. Supports selecting multiple chromosomes.<br>";
-                var inputs = 'Chr: <select multiple size="4" id="chrSel">' + chrSel + '</select> ' +
-                    'Start: <input id="rstart" type="text" name="chr"> ' +
-                    'End: <input id="rend" type="text" name="chr">';
+                var inputs = 'Chr: <select multiple size="4" id="chrSel">' + chrSel + '</select> ' + startEnd;
 
                 var chrInfo = "<i class='fa fa-info-circle' title='toggle chromosome coordinates'></i><div id='chrinfo'></div>";
 
@@ -1716,6 +1724,17 @@
 
                 $('div#dataAttributes').append(filter);
 
+                // hide start, end coords input boxes if multiple chrs are selected
+                $('select#chrSel').change(function(){
+                    if ($('select#chrSel option').filter(':selected').size() > 1){
+                        $('span#startEnd').hide();
+                    }
+                    else {
+                        $('span#startEnd').show();
+                    }
+                });
+
+                // show all chromosomes' start/end info
                 $("fieldset#chromosome .fa-info-circle").click(function(){
                     var info = $('div#chrinfo');
                     if (info.is(":visible")) {
@@ -2093,7 +2112,7 @@
                 <div class="content">
                     <div class="node node-gene">
                         <h1 class="title" id="top">IMPC Dataset Advanced Search<a id="bqdoc" class=""><i class="fa fa-question-circle pull-right"></i></a></h1>
-                        <div id="aboutAdvSrch">This is a gene-centric search tool to allow users find mouse phenotypes and human diseases that are associated with a mouse gene in IMPC.</div>
+                        <div id="aboutAdvSrch">This is a gene-centric search tool to allow users find mouse phenotypes and/or human diseases that are associated with a mouse gene in IMPC.</div>
 
                         <form id='goSubmit' method='post' onreset="catchOnReset()">
                             <div class="section">
