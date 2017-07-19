@@ -1391,7 +1391,7 @@
                     "oLanguage": {
                         "sSearch": "Filter: ",
                         //"sInfo": "Showing _START_ to _END_ of _TOTAL_ genes (for complete dataset of your search, please use export buttons)"
-                        "sInfo": "<b>Data overview</b>: all columns are collapsed to show only unique values.<br>It shows you ONLY genes that have associations with phenotypes and diseases.<br><br>Please use 'Export full dataset' for row by row details"
+                        "sInfo": "<b>Data overview</b>: all columns are collapsed to show only unique values.<br>It shows you ONLY genes that have associations with phenotypes and optional diseases.<br><br>Please use 'Export full dataset' for row by row details"
                     },
 //                        "aoColumns": [
 //                            {"bSearchable": true, "sType": "html", "bSortable": true}
@@ -2081,7 +2081,7 @@
                 <div class="content">
                     <div class="node node-gene">
                         <h1 class="title" id="top">IMPC Dataset Advanced Search<a id="bqdoc" class=""><i class="fa fa-question-circle pull-right"></i></a></h1>
-                        <div id="aboutAdvSrch">This is a gene-centric search tool to allow users find mouse phenotypes and human diseases that are associated with a mouse gene in IMPC.</div>
+                        <div id="aboutAdvSrch">This is a gene-centric search tool to allow users find mouse phenotypes and optional human diseases that are associated with a mouse gene in IMPC.</div>
 
                         <form id='goSubmit' method='post' onreset="catchOnReset()">
                             <div class="section">
