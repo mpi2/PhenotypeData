@@ -10,6 +10,7 @@ public class AdvancedSearchGeneForm {
 
     // inputs and checkboxes
     private String chrId;
+    private List<String> chrIds;
     private Integer chrStart;
     private Integer chrEnd;
 
@@ -52,6 +53,14 @@ public class AdvancedSearchGeneForm {
 
     public void setChrId(String chrId) {
         this.chrId = chrId;
+    }
+
+    public List<String> getChrIds() {
+        return chrIds;
+    }
+
+    public void setChrIds(List<String> chrIds) {
+        this.chrIds = chrIds;
     }
 
     public Integer getChrStart() {
@@ -266,6 +275,7 @@ public class AdvancedSearchGeneForm {
     public String toString() {
         return "AdvancedSearchGeneForm{" +
                 "chrId='" + chrId + '\'' +
+                ", chrIds=" + chrIds +
                 ", chrStart=" + chrStart +
                 ", chrEnd=" + chrEnd +
                 ", mouseMarkerSymbols=" + mouseMarkerSymbols +

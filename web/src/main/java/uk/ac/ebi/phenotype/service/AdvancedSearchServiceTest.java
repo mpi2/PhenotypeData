@@ -53,7 +53,7 @@ package uk.ac.ebi.phenotype.service;
 //		AdvancedSearchPhenotypeForm advancedSearchPhenotypeForm =new AdvancedSearchPhenotypeForm();
 //		AdvancedSearchMpRow row=new AdvancedSearchMpRow("abnormal circulating glucose level");//default cuttoff
 //
-//		advancedSearchPhenotypeForm.addPhenotypeFormRows(row);
+//		advancedSearchPhenotypeForm.addPhenotypeRows(row);
 //		List<String> dataTypes=new ArrayList<>();
 //		dataTypes.add("g");
 //		String hostname="http://localhost";

@@ -9,10 +9,10 @@ import java.util.List;
 public class AdvancedSearchDiseaseForm {
 
     // inputs and checkboxes
-    private List<String> diseaseAssociationBy = new ArrayList<>();
+    private Boolean isHumanCurated;
     private Integer phenodigmLowerScore;
     private Integer phenodigmUpperScore;
-    private String diseaseName;
+    private String humanDiseaseTerm;
 
     //customed output columns
 
@@ -21,15 +21,15 @@ public class AdvancedSearchDiseaseForm {
     private Boolean showDiseaseClasses;
     private Boolean showDiseaseToModelScore;
 
-    private Boolean showPredictedByImpc;
-    private Boolean showPredictedByMgi;
+    private Boolean showImpcPredicted;
+    private Boolean showMgiPredicted;
 
-    public List<String> getDiseaseAssociationBy() {
-        return diseaseAssociationBy;
+    public Boolean getHumanCurated() {
+        return isHumanCurated;
     }
 
-    public void setDiseaseAssociationBy(List<String> diseaseAssociationBy) {
-        this.diseaseAssociationBy = diseaseAssociationBy;
+    public void setHumanCurated(Boolean humanCurated) {
+        isHumanCurated = humanCurated;
     }
 
     public Integer getPhenodigmLowerScore() {
@@ -48,12 +48,12 @@ public class AdvancedSearchDiseaseForm {
         this.phenodigmUpperScore = phenodigmUpperScore;
     }
 
-    public String getDiseaseName() {
-        return diseaseName;
+    public String getHumanDiseaseTerm() {
+        return humanDiseaseTerm;
     }
 
-    public void setDiseaseName(String diseaseName) {
-        this.diseaseName = diseaseName;
+    public void setHumanDiseaseTerm(String humanDiseaseTerm) {
+        this.humanDiseaseTerm = humanDiseaseTerm;
     }
 
     public Boolean getShowDiseaseTerm() {
@@ -88,35 +88,35 @@ public class AdvancedSearchDiseaseForm {
         this.showDiseaseToModelScore = showDiseaseToModelScore;
     }
 
-    public Boolean getShowPredictedByImpc() {
-        return showPredictedByImpc;
+    public Boolean getShowImpcPredicted() {
+        return showImpcPredicted;
     }
 
-    public void setShowPredictedByImpc(Boolean showPredictedByImpc) {
-        this.showPredictedByImpc = showPredictedByImpc;
+    public void setShowImpcPredicted(Boolean showImpcPredicted) {
+        this.showImpcPredicted = showImpcPredicted;
     }
 
-    public Boolean getShowPredictedByMgi() {
-        return showPredictedByMgi;
+    public Boolean getShowMgiPredicted() {
+        return showMgiPredicted;
     }
 
-    public void setShowPredictedByMgi(Boolean showPredictedByMgi) {
-        this.showPredictedByMgi = showPredictedByMgi;
+    public void setShowMgiPredicted(Boolean showMgiPredicted) {
+        this.showMgiPredicted = showMgiPredicted;
     }
 
     @Override
     public String toString() {
         return "AdvancedSearchDiseaseForm{" +
-                "diseaseAssociationBy=" + diseaseAssociationBy +
+                "isHumanCurated=" + isHumanCurated +
                 ", phenodigmLowerScore=" + phenodigmLowerScore +
                 ", phenodigmUpperScore=" + phenodigmUpperScore +
-                ", diseaseName='" + diseaseName + '\'' +
+                ", humanDiseaseTerm='" + humanDiseaseTerm + '\'' +
                 ", showDiseaseTerm=" + showDiseaseTerm +
                 ", showDiseaseId=" + showDiseaseId +
                 ", showDiseaseClasses=" + showDiseaseClasses +
                 ", showDiseaseToModelScore=" + showDiseaseToModelScore +
-                ", showPredictedByImpc=" + showPredictedByImpc +
-                ", showPredictedByMgi=" + showPredictedByMgi +
+                ", showImpcPredicted=" + showImpcPredicted +
+                ", showMgiPredicted=" + showMgiPredicted +
                 '}';
     }
 }

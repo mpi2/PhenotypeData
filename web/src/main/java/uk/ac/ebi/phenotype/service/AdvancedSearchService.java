@@ -72,9 +72,235 @@ public class AdvancedSearchService {
 		this.autosuggestCore=autosuggestCore;
 		this.neo4jSession=neo4jSession;
 	}
-	
-	
-	
+
+    private String composeSignificance(AdvancedSearchPhenotypeForm mpForm) {
+	    return mpForm.getSignificantPvaluesOnly() ? " sr.significant = true " : " exists(sr.significant) ";
+    }
+    private String composeParameter(AdvancedSearchPhenotypeForm mpForm){
+        String parameter = "";
+        if (mpForm.getImpressParameterName() != null) {
+            parameter = " AND sr.parameterName ='" + mpForm.getImpressParameterName() + "' ";
+        }
+        return parameter;
+    }
+    private String composePvalues(AdvancedSearchPhenotypeForm mpForm, String mpTerm){
+        String pvalues = "";
+        List<String> pvals = new ArrayList<>();
+        Map<String, String> mpPvalue = new HashMap<>();
+
+        System.out.println("size check: " + mpPvalue.size());
+        for(AdvancedSearchMpRow row : mpForm.getPhenotypeRows()) {
+            if (row.getLowerPvalue() != null) {
+                pvals.add("sr.pvalue > " + row.getLowerPvalue());
+            }
+            if (row.getUpperPvalue() != null) {
+                pvals.add("sr.pvalue < " + row.getUpperPvalue());
+            }
+
+            if (pvals.size() > 0) {
+                pvalues = " AND (" + StringUtils.join(pvals, " AND ") + ")";
+            }
+
+            mpPvalue.put(row.getPhenotypeTerm(), pvalues);
+        }
+
+        if (mpPvalue.size() > 0) {
+            pvalues = mpPvalue.get(mpTerm);
+        }
+
+        return pvalues;
+    }
+    private String composeChrRangeStr(AdvancedSearchGeneForm geneForm){
+        String chrRange = "";
+
+        if (geneForm.getChrId() != null && geneForm.getChrStart() != null && geneForm.getChrEnd() != null) {
+            chrRange = " AND g.chrId IN [" + geneForm.getChrId() + "] AND g.chrStart >= " + geneForm.getChrStart() + " AND g.chrEnd <= " + geneForm.getChrEnd() + " ";
+        }
+        else if (geneForm.getChrIds() != null){
+            chrRange = " AND g.chrId IN [" + StringUtils.join(geneForm.getChrIds(), ",")  + "] ";
+        }
+
+        return chrRange;
+    }
+
+    private String composeGeneListStr(AdvancedSearchGeneForm geneForm) {
+        String genelist = "";
+
+        if (geneForm.getMouseMarkerSymbols() != null) {
+            // genelist = "AND g.markerSymbol in [" +
+            List<String> list = new ArrayList<>();
+
+            for (String symbol : geneForm.getMouseMarkerSymbols()) {
+                list.add("'" + symbol + "'");
+            }
+            String glist = StringUtils.join(list, ",");
+            genelist = " AND g.markerSymbol in [" + glist + "] ";
+        }
+        else if (geneForm.getMouseMgiGeneIds() != null) {
+            // genelist = "AND g.markerSymbol in [" +
+            List<String> list = new ArrayList<>();
+
+            for (String id : geneForm.getMouseMgiGeneIds()) {
+                list.add("'" + id + "'");
+            }
+            String glist = StringUtils.join(list, ",");
+            genelist = " AND g.mgiAccessionId in [" + glist + "] ";
+        }
+        else if (geneForm.getHumanMarkerSymbols() != null){
+            List<String> list = new ArrayList<>();
+
+            for (String hsymbol : geneForm.getHumanMarkerSymbols()) {
+                list.add("'" + hsymbol + "'");
+            }
+            genelist = " AND ANY (hs in g.humanGeneSymbol WHERE hs IN [" + StringUtils.join(list, ", ") + "]) ";
+        }
+
+        return genelist;
+    }
+
+    private String composeGenotypesStr(AdvancedSearchGeneForm geneForm) {
+        String genotypes = "";
+
+        if (geneForm.getGenotypes() != null) {
+            // genelist = "AND g.markerSymbol in [" +
+            List<String> list = new ArrayList<>();
+            for (String gt : geneForm.getGenotypes()) {
+                list.add("'" + gt + "'");
+            }
+
+            genotypes = " AND sr.zygosity IN [" + StringUtils.join(list, ",") + "]";
+        }
+
+        return genotypes;
+    }
+
+    private String composeAlleleTypesStr(AdvancedSearchGeneForm geneForm){
+        String alleleTypes = "";
+
+        Map<String, String> alleleTypeMapping = new HashMap<>();
+        alleleTypeMapping.put("CRISPR(em)", "Endonuclease-mediated"); // mutation_type
+        alleleTypeMapping.put("KOMP", "");  // empty allele_type
+        alleleTypeMapping.put("KOMP.1", ".1");
+        alleleTypeMapping.put("EUCOMM A", "a");
+        alleleTypeMapping.put("EUCOMM B", "b");
+        alleleTypeMapping.put("EUCOMM C", "c");
+        alleleTypeMapping.put("EUCOMM D", "d");
+        alleleTypeMapping.put("EUCOMM E", "e");
+
+        List<String> mutationTypes = new ArrayList<>();
+
+        if (geneForm.getAlleleTypes() != null) {
+            // genelist = "AND g.markerSymbol in [" +
+            List<String> list = new ArrayList<>();
+            for (String atype : geneForm.getAlleleTypes()) {
+                if (atype.equals("CRISPR(em)")){
+                    mutationTypes.add("'" + alleleTypeMapping.get(atype) + "'");
+                }
+                else {
+                    list.add("'" + alleleTypeMapping.get(atype) + "'");
+                }
+            }
+
+            if (list.size() > 0){
+                alleleTypes = "a.alleleType IN [" + StringUtils.join(list, ",") + "]";
+                if (mutationTypes.size() > 0) {
+                    alleleTypes += " OR a.mutationType IN [" + StringUtils.join(mutationTypes, ",") + "]";
+                }
+                alleleTypes = " AND (" + alleleTypes + ") ";
+            }
+            else {
+                if (mutationTypes.size() > 0) {
+                    alleleTypes += "a.mutationType IN [" + StringUtils.join(mutationTypes, ",") + "]";
+                }
+                alleleTypes = " AND (" + alleleTypes + ") ";
+            }
+        }
+        return alleleTypes;
+    }
+
+    private String composePhenodigmScoreStr(AdvancedSearchDiseaseForm diseaseForm){
+        String phenodigmScore = "";
+
+        if (! diseaseForm.getPhenodigmLowerScore().equals("")){
+            return " dm.diseaseToModelScore >= " + diseaseForm.getPhenodigmLowerScore() + " AND dm.diseaseToModelScore <= " + diseaseForm.getPhenodigmUpperScore() + " ";
+        }
+        return phenodigmScore;
+    }
+
+    private String composeDiseaseGeneAssociation(AdvancedSearchDiseaseForm diseaseForm){
+        String diseaeGeneAssoc = "";
+
+        if (diseaseForm.getHumanCurated()) {
+            diseaeGeneAssoc = " AND dm.humanCurated = true ";
+        }
+        else {
+            diseaeGeneAssoc = " AND dm.humanCurated = false ";
+        }
+        return diseaeGeneAssoc;
+    }
+    private String composeHumanDiseaseTermStr(AdvancedSearchDiseaseForm diseaseForm){
+        String humanDiseaseTerm = "";
+
+        if (diseaseForm.getHumanDiseaseTerm() != null) {
+            humanDiseaseTerm = " AND dm.diseaseTerm = '" + diseaseForm.getHumanDiseaseTerm() + "' ";
+        }
+        return humanDiseaseTerm;
+    }
+
+    public String composeCypherQueryStr(AdvancedSearchPhenotypeForm mpForm, AdvancedSearchGeneForm geneForm, AdvancedSearchDiseaseForm diseaseForm){
+
+        String sortStr = " ORDER BY g.markerSymbol ";
+        String query = null;
+        String fileType = null;
+
+        // phenotype form
+        Boolean noMpChild = mpForm.getExcludeNestedPhenotype();
+        String significant = composeSignificance(mpForm);
+        String parameter = composeParameter(mpForm);
+
+        // gene form
+        String chrRange = composeChrRangeStr(geneForm);
+        String geneList = composeGeneListStr(geneForm);
+        String genotypes = composeGenotypesStr(geneForm);
+        String alleleTypes = composeAlleleTypesStr(geneForm);
+
+        // disease
+        String phenodigmScore = composePhenodigmScoreStr(diseaseForm);  // always non-empty
+        String diseaseGeneAssociation = composeDiseaseGeneAssociation(diseaseForm);
+        String humanDiseaseTerm = composeHumanDiseaseTermStr(diseaseForm);
+
+
+        String geneToMpPath = noMpChild ? "MATCH (g:Gene)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp) "
+                : " MATCH (g:Gene)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp)-[:PARENT*0..]->(mp0:Mp) ";
+
+        String mpToGenePath = noMpChild ? "MATCH (mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g:Gene) "
+                : " MATCH (mp0:Mp)<-[:PARENT*0..]-(mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g:Gene) ";
+
+        String geneToDmPathClause = " OPTIONAL MATCH (g)<-[:GENE]-(dm:DiseaseModel)-[:MOUSE_PHENOTYPE]->(dmp:Mp) WHERE "
+                + phenodigmScore + diseaseGeneAssociation + humanDiseaseTerm;
+
+        // search by disease term AND NO phenotype
+        if (mpForm.getPhenotypeRows().size() == 0 && diseaseForm.getHumanDiseaseTerm() != null){
+            String where = noMpChild ? " WHERE mp.mpTerm =~ '.*' " : " WHERE mp0.mpTerm =~ '.*' ";
+            String mpTerm = null;
+            String pvalues = composePvalues(mpForm, mpTerm);
+
+            query = mpToGenePath + "<-[:GENE]-(dm:DiseaseModel)-[:MOUSE_PHENOTYPE]->(dmp:Mp)"
+                    + where
+                    + " AND " + significant + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
+                    + " AND " + phenodigmScore + diseaseGeneAssociation + humanDiseaseTerm
+                    + " AND dmp.mpTerm in mp.mpTerm";
+
+            query += fileType != null ?
+                    // " RETURN distinct a, g, sr, collect(distinct mp), collect(distinct dm)" + sortStr :
+                    " RETURN distinct " + returnDtypes + sortStr :
+                    " RETURN collect(distinct a), collect(distinct g), collect(distinct sr), collect(distinct mp), collect(distinct dm)";
+        }
+
+
+
+	    return query;
+    }
 
     public JSONObject fetchGraphDataAdvSrch(AdvancedSearchPhenotypeForm phenotypeFormSection, List<String> dataTypes, String hostname, String baseUrl, JSONObject jParams, Boolean significantPValue, SexType sexType, String impressParameter, Double lowerPvalue, Double upperPvalue, List<String> chromosomes, Integer regionStart, Integer regionEnd, boolean isMouseGenes, List<String> geneList, List<String> genotypeList, List<String> alleleTypesFilter, List<String> mutationTypesFilter, int phenodigmScoreLow, int phenodigmScoreHigh, String diseaseTerm, boolean humanCuratedDisease, String searchDiseaseModel, String mpStr, String fileType) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, IOException, SolrServerException {
 

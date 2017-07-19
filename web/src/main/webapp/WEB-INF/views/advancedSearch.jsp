@@ -986,11 +986,11 @@
                 }
 
                 // disease - gene association
-                var dgAssoc = [];
+                var dgAssoc = "";
                 $("fieldset.DiseaseModelFilter input[name='assoc']:checked").each(function () {
-                    dgAssoc.push($(this).val());
+                    dgAssoc = $(this).val();
                 });
-                if ( dgAssoc.length > 0){
+                if ( dgAssoc != ""){
                     kv['diseaseGeneAssociation'] = dgAssoc;
                     var assocVal =  dgAssoc == 'humanCurated' ? "gene ortholog" : "phenotypic similarity";
                     shownFilter.push("disease gene association = '" + assocVal + "'");
@@ -1793,8 +1793,8 @@
             function addDiseaseUi(dataType){
 
                 var assoc = "<b>Association by</b>: " +
-                    "<input type='checkbox' name='assoc' value='humanCurated'> Gene ortholog" +
-                    "<input type='checkbox' name='assoc' value='phenotypicSimilarity'> Phenotypic similarity<br><br>";
+                    "<input type='radio' name='assoc' value='humanCurated'> Gene ortholog" +
+                    "<input type='radio' name='assoc' value='phenotypicSimilarity'> Phenotypic similarity<br><br>";
 
                 var slider = "<b>Phenodigm score range</b>:<div class='sliderBox'><input type='hidden' class='range-slider' value='100' /></div>";
 
