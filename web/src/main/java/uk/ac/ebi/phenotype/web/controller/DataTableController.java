@@ -1374,6 +1374,8 @@ public class DataTableController {
 			String pipeline = doc.getString("pipeline_name");
 			rowData.add(pipeline);
 
+
+
 			j.getJSONArray("aaData").add(rowData);
 		}
 
@@ -1402,7 +1404,9 @@ public class DataTableController {
 		for (int i = 0; i < docs.size(); i ++) {
 			List<String> rowData = new ArrayList<String>();
 
-			// array element is an alternate of facetField and facetCount
+			// array element is an alternate of facetField and facet
+			//
+			// Count
 			JSONObject doc = docs.getJSONObject(i);
 
 			String mpId = doc.getString("mp_id");
