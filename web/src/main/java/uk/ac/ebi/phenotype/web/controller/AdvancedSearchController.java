@@ -41,7 +41,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.neo4j.entity.Hp;
 import org.mousephenotype.cda.neo4j.entity.Mp;
 import org.mousephenotype.cda.neo4j.repository.AlleleRepository;
@@ -76,9 +75,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import net.sf.json.JSONSerializer;
-import uk.ac.ebi.phenotype.service.AdvancedSearchService;
-import uk.ac.ebi.phenotype.service.AdvancedSearchMpRow;
-import uk.ac.ebi.phenotype.service.AdvancedSearchPhenotypeForm;
+import uk.ac.ebi.phenotype.service.*;
 
 @Controller
 @PropertySource("file:${user.home}/configfiles/${profile}/application.properties")
@@ -334,24 +331,226 @@ public class AdvancedSearchController {
         return mp;
     }
 
-//    public AdvancedSearchPhenotypeForm parsePhenotypeForm(JSONObject jParams){
-//
-//        AdvancedSearchPhenotypeForm mpForm =new AdvancedSearchPhenotypeForm();
-//
-//        mpForm.setExcludeNestedPhenotype(jParams.containsKey("noMpChild") ? true : false);
-//        if (jParams.containsKey("srchMp")){
-//
-//        }
-//
-//
-//
-//
-//        AdvancedSearchMpRow row=new AdvancedSearchMpRow("abnormal circulating glucose level");//default cuttoff
-//
-//        advancedSearchPhenotypeForm.addPhenotypeFormRows(row);
-//
-//
-//    }
+    public AdvancedSearchPhenotypeForm parsePhenotypeForm(JSONObject jParams){
+
+        AdvancedSearchPhenotypeForm mpForm = new AdvancedSearchPhenotypeForm();
+
+        // exclude nested phenotypes
+        mpForm.setExcludeNestedPhenotype(jParams.containsKey("noMpChild") ? true : false);
+
+        // phenotype rows
+        for(int i=1; i<4; i++) {
+            String mpKey = "mp" + i;
+
+            System.out.println("mpKey: " + mpKey);
+            if (jParams.containsKey(mpKey)){
+                String mpTerm = jParams.getString(mpKey);
+
+                System.out.println("mp now: " + mpTerm);
+                Double lowerPvalue = null;
+                Double upperPvalue = null;
+
+                System.out.println(" jParams.containsKey pvaluesMap: " + jParams.containsKey("pvaluesMap"));
+                if (jParams.containsKey("pvaluesMap")) {
+                    JSONObject map = jParams.getJSONObject("pvaluesMap").getJSONObject(mpTerm);
+                    System.out.println("map: " + map.toString());
+                    if (map.containsKey("lowerPvalue")){
+                        lowerPvalue = map.getDouble("lowerPvalue");
+                        System.out.println("lower: " + lowerPvalue);
+                        //pvals.add("sr.pvalue > " + lowerPvalue);
+                    }
+                    if (map.containsKey("upperPvalue")){
+                        upperPvalue = map.getDouble("upperPvalue");
+                        System.out.println("upper: " + upperPvalue);
+                        //pvals.add("sr.pvalue < " + upperPvalue);
+                    }
+                }
+                AdvancedSearchMpRow mpRow = new AdvancedSearchMpRow(mpTerm, lowerPvalue, upperPvalue);
+                mpForm.addPhenotypeFormRows(mpRow);
+            }
+        }
+
+        // MP booleans
+        if (jParams.containsKey("logical1")){
+            Logical logical1 = null;
+            mpForm.setLogical1(logical1.valueOf(jParams.getString("logical1")));
+        }
+        if (jParams.containsKey("logical2")){
+            Logical logical2 = null;
+            mpForm.setLogical2(logical2.valueOf(jParams.getString("logical2")));
+        }
+
+        // measured parameters
+        if (jParams.containsKey("srchPipeline")) {
+            mpForm.setParameterName(jParams.getString("srchPipeline"));
+        }
+
+        // only significant pvalue for measured parameter
+        mpForm.onlySignificantPvalue(jParams.containsKey("onlySignificantPvalue") ? true : false);
+
+        // customed output columns
+        if (jParams.containsKey("properties")) {
+            JSONArray cols = jParams.getJSONArray("properties");
+            if (cols.contains("mpTerm")){
+                mpForm.setShowMpTerm(true);
+            }
+            if (cols.contains("mpId")){
+                mpForm.setShowMpId(true);
+            }
+            if (cols.contains("mpDefinition")){
+                mpForm.setShowMpDefinition(true);
+            }
+            if (cols.contains("topLevelMpId")){
+                mpForm.setShowTopLevelMpId(true);
+            }
+            if (cols.contains("topLevelMpTerm")){
+                mpForm.setShowTopLevelMpTerm(true);
+            }
+            if (cols.contains("ontoSynonym")) {
+                mpForm.setShowMpTermSynonym(true);
+            }
+            if (cols.contains("parameterName")) {
+                mpForm.setShowParameterName(true);
+            }
+            if (cols.contains("pvalue")) {
+                mpForm.setShowPvalue(true);
+            }
+        }
+
+        System.out.println("FORM: "+ mpForm.toString());
+
+        return mpForm;
+    }
+    public AdvancedSearchDiseaseForm parseDiseaseForm(JSONObject jParams) {
+
+        AdvancedSearchDiseaseForm diseaseForm = new AdvancedSearchDiseaseForm();
+
+        if (jParams.containsKey("phenodigmScore")) {
+            String[] scores = jParams.getString("phenodigmScore").split(",");
+            int phenodigmScoreLow =
+            int phenodigmScoreHigh = Integer.parseInt(scores[1]);
+
+            diseaseForm.setPhenodigmLowerScore(Integer.parseInt(scores[0]););
+        }
+
+
+
+        return diseaseForm;
+    }
+
+    public AdvancedSearchGeneForm parseGeneForm(JSONObject jParams) {
+
+        AdvancedSearchGeneForm geneForm = new AdvancedSearchGeneForm();
+
+        if (jParams.containsKey("genotypes")) {
+            JSONArray genotypes = jParams.getJSONArray("genotypes");
+            List<String> gtypes = new ArrayList<>();
+            for(int i=0; i<genotypes.size(); i++) {
+                gtypes.add(genotypes.get(i).toString());
+            }
+            geneForm.setGenotypes(gtypes);
+        }
+
+        if (jParams.containsKey("alleleTypes")) {
+            JSONArray alleleTypes = jParams.getJSONArray("alleleTypes");
+            List<String> atypes = new ArrayList<>();
+            for(int i=0; i<alleleTypes.size(); i++) {
+                atypes.add(alleleTypes.get(i).toString());
+            }
+            geneForm.setAlleleTypes(atypes);
+        }
+
+        if (jParams.containsKey("chr")) {
+            geneForm.setChrId(jParams.getString("chr"));
+        }
+        else if (jParams.containsKey("chrRange")) {
+            String range = jParams.getString("chrRange");
+            if (range.matches("^chr(\\w*,?\\w*):(\\d+)-(\\d+)$")) {
+                System.out.println("find chr range");
+
+                Pattern pattern = Pattern.compile("^chr(\\w*,?\\w*):(\\d+)-(\\d+)$");
+                Matcher matcher = pattern.matcher(range);
+                while (matcher.find()) {
+                    System.out.println("found: " + matcher.group(1));
+                    String regionId = matcher.group(1);
+                    regionStart = Integer.parseInt(matcher.group(2));
+                    regionEnd = Integer.parseInt(matcher.group(3));
+
+
+                    String[] ids = StringUtils.split(regionId, ",");
+                    for (int i=0; i<ids.length; i++){
+                        chrs.add("'" + ids[i] + "'");
+                    }
+                    regionId = org.apache.commons.lang3.StringUtils.join(chrs, ",");
+                }
+            }
+        }
+
+        // customed output columns
+        if (jParams.containsKey("properties")) {
+            JSONArray cols = jParams.getJSONArray("properties");
+            if (cols.contains("alleleSymbol")){
+                geneForm.setShowAlleleSymbol(true);
+            }
+            if (cols.contains("alleleMgiAccessionId")){
+                geneForm.setShowAlleleId(true);
+            }
+            if (cols.contains("alleleDescription")){
+                geneForm.setShowAlleleDesc(true);
+            }
+            if (cols.contains("alleleType")){
+                geneForm.setShowAlleleType(true);
+            }
+            if (cols.contains("mutationType")){
+                geneForm.setShowAlleleMutationType(true);
+            }
+            if (cols.contains("esCellStatus")) {
+                geneForm.setShowEsCellAvailable(true);
+            }
+            if (cols.contains("mouseStatus")) {
+                geneForm.setShowMouseAvailable(true);
+            }
+            if (cols.contains("phenotypeStatus")) {
+                geneForm.setShowPhenotypingAvailable(true);
+            }
+            if (cols.contains("humanGeneSymbol")){
+                geneForm.setShowHgncGeneSymbol(true);
+            }
+            if (cols.contains("markerSymbol")){
+                geneForm.setShowMgiGeneSymbol(true);
+            }
+            if (cols.contains("mgiAccessionId")){
+                geneForm.setShowMgiGeneId(true);
+            }
+            if (cols.contains("markerType")){
+                geneForm.setShowMgiGeneType(true);
+            }
+            if (cols.contains("markerName")){
+                geneForm.setShowMgiGeneName(true);
+            }
+            if (cols.contains("markerSynonym")) {
+                geneForm.setShowMgiGeneSynonym(true);
+            }
+            if (cols.contains("chrId")) {
+                geneForm.setShowChrId(true);
+            }
+            if (cols.contains("chrStart")) {
+                geneForm.setShowChrStart(true);
+            }
+            if (cols.contains("chrEnd")) {
+                geneForm.setShowChrEnd(true);
+            }
+            if (cols.contains("chrStrand")) {
+                geneForm.setShowChrStrand(true);
+            }
+            if (cols.contains("ensemblGeneId")) {
+                geneForm.setShowEnsemblGeneId(true);
+            }
+        }
+
+
+        return geneForm;
+    }
 
     @RequestMapping(value = "/dataTableNeo4jAdvSrch", method = RequestMethod.POST)
     public ResponseEntity<String> advSrchDataTableJson2(
@@ -374,6 +573,9 @@ public class AdvancedSearchController {
 
         JSONObject jParams = (JSONObject) JSONSerializer.toJSON(params);
         System.out.println("jparams="+jParams.toString());
+
+        AdvancedSearchPhenotypeForm phenotypeForm = parsePhenotypeForm(jParams);
+        AdvancedSearchGeneForm geneForm = parseGeneForm(jParams);
 
 //        AdvancedSearchPhenotypeForm phenotypeForm = parsePhenotypeForm(jParams);
 //

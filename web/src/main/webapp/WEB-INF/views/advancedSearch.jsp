@@ -681,8 +681,8 @@
                             {"mouse phenotype ontology term synonym": "ontoSynonym"},
                             {"mouse phenotype ontology id":"mpId"},
                             {"mouse phenotype ontology definition":"mpDefinition"},
-                            {"top level mouse phenotype ontology term":"topLevelMpTerm"},
                             {"top level mouse phenotype ontology id":"topLevelMpId"},
+                            {"top level mouse phenotype ontology term":"topLevelMpTerm"},
                             {"measured parameter name": "parameterName"},
                             {"p value": "pvalue"}
                         ],
@@ -830,12 +830,18 @@
 
                     // work out mp term and pvalue pairs
                     var mpPval = {};
+                    var mpCount = 0;
                     $('input.srchMp').each(function(){
                         var tval = "Eg:0000";
+                        mpCount++;
 
                         var mpVal = $(this).val();
                         var gtval = $(this).siblings('span.pvalue').find('input.lowerPvalue').val();
                         var ltval = $(this).siblings('span.pvalue').find('input.upperPvalue').val();
+
+                        kv['mp'+mpCount] = mpVal;
+
+                        console.log("---- mp: " + mpVal);
                         mpPval[mpVal] = {};
 
                         if (gtval.indexOf('Eg:') != 0 && gtval != ""){
@@ -893,6 +899,13 @@
                         return false;
                     }
                 }
+
+                // MP booleans
+                var boolCount = 0;
+                $('button.selected').each(function() {
+                    boolCount++;
+                    kv["logical"+boolCount] = $(this).text();
+                });
 
                 // IMPReSS parameter name
                 if ($('input.srchPipeline').val() != 'search' && $('input.srchPipeline').val() != ''){
@@ -1159,16 +1172,7 @@
                                 $('textarea.Mp').val(decodeURIComponent(q));
                             }
                             else {
-                                var count = ($('textarea.Mp').val().match(/AND|OR/g) || []).length;
-
-                                if ((count == 1 && $('input.srchMp').size() == 2) || (count == 2 && $('input.srchMp').size() == 3)) {
-                                    $('textarea.Mp').val($('textarea.Mp').val() + decodeURIComponent(q));
-                                }
-                                else {
-                                    alert("Sorry, you need to click 'AND' or 'OR' button first to build your boolean query");
-                                    thisInput.val('');
-                                    return false;
-                                }
+                                $('textarea.Mp').val($('textarea.Mp').val() + decodeURIComponent(q));
                             }
                         }
 
@@ -1185,12 +1189,12 @@
 
                         $( this ).removeClass( "ui-corner-all" ).addClass( "ui-corner-top" );
                         $(this).data("selectVisible", true);
-                       // alert("test open: " + $(this).data("selectVisible"));
+                        // alert("test open: " + $(this).data("selectVisible"));
                     },
                     close: function() {
                         $( this ).removeClass( "ui-corner-top" ).addClass( "ui-corner-all" );
                         $(this).data("selectVisible", false);
-                       // alert("test close: " + $(this).data("selectVisible"));
+                        // alert("test close: " + $(this).data("selectVisible"));
                     }
                 }).keydown(function (e) {
 
@@ -1252,8 +1256,17 @@
                         return false;
                     }
                 }).keyup(function (e) {
+                    // user types in the input box
                     if (e.keyCode == 13) { // user hit ENTER
                         $(".ui-menu-item").hide();
+                    }
+                    else {
+                        if ($('input.srchMp').size() == 2 && $('textarea.Mp').val().match(/(.*) (AND|OR)/) == undefined){
+                            alert("Please click 'AND' or 'OR' before adding a 2nd phenotype")
+                        }
+                        else if ($('input.srchMp').size() == 3 && $('textarea.Mp').val().match(/(\()(.*) (AND|OR) (.*)(\)) (AND|OR)/) == undefined){
+                            alert("Please click 'AND' or 'OR' before adding a 3rd phenotype")
+                        }
                     }
                 }).data("ui-autocomplete")._renderItem = function( ul, item) {
                     // prevents HTML tags being escaped
@@ -1262,66 +1275,6 @@
                         .append( $( "<a></a>" ).html( item.label ) )
                         .appendTo( ul );
                 };
-
-//                // User press ENTER
-//                thisInput.keydown(function (e) {
-//
-//                    if (e.keyCode == 13) { // user hits enter
-//
-//                        e.stopPropagation();
-//
-//                        $(".ui-menu-item").hide();
-//                        //$('ul#ul-id-1').remove();
-//
-//                        //alert('enter: '+ MPI2.searchAndFacetConfig.matchedFacet)
-//                        var input = thisInput.val().trim();
-//
-//                        //alert(input + ' ' + solrUrl)
-//                        input = /^\*\**?\*??$/.test(input) ? '' : input;  // lazy matching
-//
-//                        var re = new RegExp("^'(.*)'$");
-//                        input = input.replace(re, "\"$1\""); // only use double quotes for phrase query
-//
-//                        // NOTE: solr special characters to escape
-//                        // + - && || ! ( ) { } [ ] ^ " ~ * ? : \
-//
-//                        input = encodeURIComponent(input);
-//
-//                        input = input.replace("%5B", "\\[");
-//                        input = input.replace("%5D", "\\]");
-//                        input = input.replace("%7B", "\\{");
-//                        input = input.replace("%7D", "\\}");
-//                        input = input.replace("%7C", "\\|");
-//                        input = input.replace("%5C", "\\\\");
-//                        input = input.replace("%3C", "\\<");
-//                        input = input.replace("%3E", "\\>");
-//                        input = input.replace(".", "\\.");
-//                        input = input.replace("(", "\\(");
-//                        input = input.replace(")", "\\)");
-//                        input = input.replace("%2F", "\\/");
-//                        input = input.replace("%60", "\\`");
-//                        input = input.replace("~", "\\~");
-//                        input = input.replace("%", "\\%");
-//                        input = input.replace("!", "\\!");
-//                        input = input.replace("%21", "\\!");
-//                        input = input.replace("-", "\\-");
-//
-//                        if (/^\\%22.+%22$/.test(input)) {
-//                            input = input.replace(/\\/g, ''); //remove starting \ before double quotes
-//                        }
-//
-//                        // no need to escape space - looks cleaner to the users
-//                        // and it is not essential to escape space
-//                        input = input.replace(/\\?%20/g, ' ');
-//
-//                        $(".ui-menu-item").hide();
-//
-//                        alert("Please choose a phenotype from the dropdown list");
-//                        return false;
-//
-//                    }
-//                });
-
             }
 
             //-------------------
@@ -1471,8 +1424,8 @@
 
                         var json = oSettings.json;
 
-                        if (json.narrowMapping != '') {
-                            $("div#userFilters").append("<br><br><b>NOTE: </b>" + json.narrowMapping);
+                        if (json.narrowOrSynonymMapping != '') {
+                            $("div#userFilters").append("<br><br><b>NOTE: </b>" + json.narrowOrSynonymMapping);
                         }
 
                         $('body').removeClass("loading");  // when table loads, remove modal
@@ -1556,7 +1509,7 @@
                         "type": "POST",
                         "error": function() {
                             $('body').removeClass("loading");
-                            $('div.dataTables_processing').text("Failed to fetch your query: keyword not found");
+                            $('div.dataTables_processing').text("Found no data based on your search filters");
                             $('td.dataTables_empty').text("");
                         }
                     }
@@ -1918,7 +1871,7 @@
                             srchBox.last().detach();
                         }
                         else {
-                           $('input.srchMp').val('');
+                            $('input.srchMp').val('');
                         }
                     }
 
@@ -1952,7 +1905,7 @@
 
                 // clear pvalue default input
                 $(fieldsetFilter).on("click", "input.pvalue", function(){
-                   $(this).val("");
+                    $(this).val("");
                 });
 
 
@@ -2014,13 +1967,13 @@
                         'success': function (id) {
                             // $('body').removeClass("loading");  // to activate modal
                             console.log(id);
-                            var prefix = "narrow synonym of ";
+                            var prefix = "mapped term of ";
                             if (id.indexOf(prefix) == 0){
                                 var vals = id.replace(prefix, "").split(",");
                                 console.log(vals);
                                 id = vals[0];
                                 var term = vals[1];
-                                alert("Note: '" + termName + "' is not directly annotated as a phenotype in IMPC,\nbut its parent term '" + term + "' is." );
+                                alert("Note: '" + termName + "' is not directly annotated as a phenotype in IMPC,\nbut its parent or canonical term '" + term + "' is." );
                             }
                             window.open(baseUrl + "/ontologyBrowser?termId=" + id, '_blank');
                         },
@@ -2061,13 +2014,13 @@
 
             function addBools(srchBox, boolTextarea){
                 var bools = "<div class='bools'><button class='andOr2'>AND</button>" +
-                            "<button class='andOr2'>OR</button></div>";
+                    "<button class='andOr2'>OR</button></div>";
 
                 srchBox.append(bools);
                 var butts = srchBox.find('button.andOr2');
                 butts.click(function() {
-                    butts.css('color', 'gray');
-                    $(this).css('color', '#942a25;');
+                    butts.css('color', 'gray').removeClass('selected');
+                    $(this).css('color', '#942a25;').addClass('selected')
 
                     var count = ($('textarea.Mp').val().match(/AND|OR/g) || []).length;
                     if (count == 0 || count == 2) {

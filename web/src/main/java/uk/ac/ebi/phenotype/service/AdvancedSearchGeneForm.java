@@ -23,9 +23,9 @@ public class AdvancedSearchGeneForm {
     //customed output columns
     private Boolean showAlleleSymbol;
     private Boolean showAlleleId;
-    private Boolean shwoAlleleDesc;
-    private Boolean shwoAlleleType;
-    private Boolean shwoAlleleMutationType;
+    private Boolean showAlleleDesc;
+    private Boolean showAlleleType;
+    private Boolean showAlleleMutationType;
 
     private Boolean showHgncGeneSymbol;
 
@@ -42,9 +42,9 @@ public class AdvancedSearchGeneForm {
 
     private Boolean showEnsemblGeneId;
 
-    private Boolean shwoEsCellAvailable;
-    private Boolean shwoMouseAvailable;
-    private Boolean shwoPhenotypingAvailable;
+    private Boolean showEsCellAvailable;
+    private Boolean showMouseAvailable;
+    private Boolean showPhenotypingAvailable;
 
     public String getChrId() {
         return chrId;
@@ -126,28 +126,28 @@ public class AdvancedSearchGeneForm {
         this.showAlleleId = showAlleleId;
     }
 
-    public Boolean getShwoAlleleDesc() {
-        return shwoAlleleDesc;
+    public Boolean getShowAlleleDesc() {
+        return showAlleleDesc;
     }
 
-    public void setShwoAlleleDesc(Boolean shwoAlleleDesc) {
-        this.shwoAlleleDesc = shwoAlleleDesc;
+    public void setShowAlleleDesc(Boolean showAlleleDesc) {
+        this.showAlleleDesc = showAlleleDesc;
     }
 
-    public Boolean getShwoAlleleType() {
-        return shwoAlleleType;
+    public Boolean getShowAlleleType() {
+        return showAlleleType;
     }
 
-    public void setShwoAlleleType(Boolean shwoAlleleType) {
-        this.shwoAlleleType = shwoAlleleType;
+    public void setShowAlleleType(Boolean showAlleleType) {
+        this.showAlleleType = showAlleleType;
     }
 
-    public Boolean getShwoAlleleMutationType() {
-        return shwoAlleleMutationType;
+    public Boolean getShowAlleleMutationType() {
+        return showAlleleMutationType;
     }
 
-    public void setShwoAlleleMutationType(Boolean shwoAlleleMutationType) {
-        this.shwoAlleleMutationType = shwoAlleleMutationType;
+    public void setShowAlleleMutationType(Boolean showAlleleMutationType) {
+        this.showAlleleMutationType = showAlleleMutationType;
     }
 
     public Boolean getShowHgncGeneSymbol() {
@@ -238,28 +238,28 @@ public class AdvancedSearchGeneForm {
         this.showEnsemblGeneId = showEnsemblGeneId;
     }
 
-    public Boolean getShwoEsCellAvailable() {
-        return shwoEsCellAvailable;
+    public Boolean getShowEsCellAvailable() {
+        return showEsCellAvailable;
     }
 
-    public void setShwoEsCellAvailable(Boolean shwoEsCellAvailable) {
-        this.shwoEsCellAvailable = shwoEsCellAvailable;
+    public void setShowEsCellAvailable(Boolean showEsCellAvailable) {
+        this.showEsCellAvailable = showEsCellAvailable;
     }
 
-    public Boolean getShwoMouseAvailable() {
-        return shwoMouseAvailable;
+    public Boolean getShowMouseAvailable() {
+        return showMouseAvailable;
     }
 
-    public void setShwoMouseAvailable(Boolean shwoMouseAvailable) {
-        this.shwoMouseAvailable = shwoMouseAvailable;
+    public void setShowMouseAvailable(Boolean showMouseAvailable) {
+        this.showMouseAvailable = showMouseAvailable;
     }
 
-    public Boolean getShwoPhenotypingAvailable() {
-        return shwoPhenotypingAvailable;
+    public Boolean getShowPhenotypingAvailable() {
+        return showPhenotypingAvailable;
     }
 
-    public void setShwoPhenotypingAvailable(Boolean shwoPhenotypingAvailable) {
-        this.shwoPhenotypingAvailable = shwoPhenotypingAvailable;
+    public void setShowPhenotypingAvailable(Boolean showPhenotypingAvailable) {
+        this.showPhenotypingAvailable = showPhenotypingAvailable;
     }
 
     @Override
@@ -275,9 +275,9 @@ public class AdvancedSearchGeneForm {
                 ", alleleTypes=" + alleleTypes +
                 ", showAlleleSymbol=" + showAlleleSymbol +
                 ", showAlleleId=" + showAlleleId +
-                ", shwoAlleleDesc=" + shwoAlleleDesc +
-                ", shwoAlleleType=" + shwoAlleleType +
-                ", shwoAlleleMutationType=" + shwoAlleleMutationType +
+                ", showAlleleDesc=" + showAlleleDesc +
+                ", showAlleleType=" + showAlleleType +
+                ", showAlleleMutationType=" + showAlleleMutationType +
                 ", showHgncGeneSymbol=" + showHgncGeneSymbol +
                 ", showMgiGeneSymbol=" + showMgiGeneSymbol +
                 ", showMgiGeneSynonym=" + showMgiGeneSynonym +
@@ -289,9 +289,9 @@ public class AdvancedSearchGeneForm {
                 ", showChrEnd=" + showChrEnd +
                 ", showChrStrand=" + showChrStrand +
                 ", showEnsemblGeneId=" + showEnsemblGeneId +
-                ", shwoEsCellAvailable=" + shwoEsCellAvailable +
-                ", shwoMouseAvailable=" + shwoMouseAvailable +
-                ", shwoPhenotypingAvailable=" + shwoPhenotypingAvailable +
+                ", showEsCellAvailable=" + showEsCellAvailable +
+                ", showMouseAvailable=" + showMouseAvailable +
+                ", showPhenotypingAvailable=" + showPhenotypingAvailable +
                 '}';
     }
 }

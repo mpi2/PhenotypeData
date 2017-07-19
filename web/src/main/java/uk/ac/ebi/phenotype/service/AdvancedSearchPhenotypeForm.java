@@ -73,7 +73,7 @@ public class AdvancedSearchPhenotypeForm {
 		return significantPvaluesOnly;
 	}
 
-	public void setSignificantPvaluesOnly(Boolean significantPvaluesOnly) {
+	public void onlySignificantPvalue(Boolean significantPvaluesOnly) {
 		this.significantPvaluesOnly = significantPvaluesOnly;
 	}
 
