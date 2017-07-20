@@ -381,7 +381,7 @@ public class AdvancedSearchService {
         return dataTypeColsMap;
     }
 
-    public String fetchGraphDataAdvSrch(AdvancedSearchPhenotypeForm mpForm, AdvancedSearchGeneForm geneForm, AdvancedSearchDiseaseForm diseaseForm, String fileType) throws IOException, SolrServerException {
+    public JSONObject fetchGraphDataAdvSrch(AdvancedSearchPhenotypeForm mpForm, AdvancedSearchGeneForm geneForm, AdvancedSearchDiseaseForm diseaseForm, String fileType) throws IOException, SolrServerException {
 
         String sortStr = " ORDER BY g.markerSymbol ";
         String query = null;
