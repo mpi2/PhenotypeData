@@ -17,7 +17,9 @@ package uk.ac.ebi.phenotype.ontology;
 
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
+import org.mousephenotype.cda.solr.service.MpService;
 import org.mousephenotype.cda.solr.service.StatisticalResultService;
+import org.mousephenotype.cda.solr.service.dto.BasicBean;
 import org.mousephenotype.cda.solr.service.dto.StatisticalResultDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -31,6 +33,9 @@ public class PhenotypeSummaryDAO  {
 
 	@Autowired
 	private StatisticalResultService srService;
+	
+	@Autowired
+	MpService mpService;
 	
 	public PhenotypeSummaryDAO() throws MalformedURLException {
 	}
@@ -87,7 +92,12 @@ public class PhenotypeSummaryDAO  {
 		for (ZygosityType zyg : ZygosityType.values()){
 			
 			PhenotypeSummaryBySex resSummary = new PhenotypeSummaryBySex();
-			Map<String, String> mps = srService.getTopLevelMPTerms(gene, zyg);
+			//Map<String, String> mps = srService.getTopLevelMPTerms(gene, zyg);
+			Map<String, String> mps=new HashMap<>();
+			Set<BasicBean> mpBeans = mpService.getAllTopLevelPhenotypesAsBasicBeans();
+			for(BasicBean bean:mpBeans){
+				mps.put(bean.getId(), bean.getName());
+			}
 			Map<String, List<StatisticalResultDTO>> summary = srService.getPhenotypesForTopLevelTerm(gene, zyg);
 						
 			for (String id: summary.keySet()){

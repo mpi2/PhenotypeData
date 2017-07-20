@@ -1132,11 +1132,12 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 		if (zygosity != null) {
 			solrQuery.addFilterQuery(StatisticalResultDTO.ZYGOSITY + ":" + zygosity.getName());
 		}
-
+		//System.out.println("solrQuery="+solrQuery);
 		List<StatisticalResultDTO> dtos = solr.query(solrQuery).getBeans(StatisticalResultDTO.class);
+		//System.out.println("SRDTOS size="+dtos.size());
 
 		for (StatisticalResultDTO dto : dtos) {
-
+			System.out.println("dto mp and sig="+dto.getSignificant()+"|"+dto.getMpTermId()+"|"+dto.getMpTermName()+"|"+dto.getFemaleTopLevelMpTermName() +"|"+dto.getFemaleTopLevelMpTermId()+"|getTopLevelMpTermId="+dto.getTopLevelMpTermId()+"|");
 			if (dto.getTopLevelMpTermId() != null || dto.getFemaleTopLevelMpTermId() != null || dto.getMaleTopLevelMpTermId() != null) {
 
 				// Collect all the top level terms into a single list
@@ -1144,17 +1145,20 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 						.filter(Objects::nonNull)
 						.flatMap(Collection::stream)
 						.collect(Collectors.toList());
-
+				System.out.println("top level term ids="+topLevelTermIds);
 				for (String id : topLevelTermIds ) {
 					if (!res.containsKey(id)) {
 						res.put(id, new ArrayList<>());
 					}
+					if(id.equals("MP:0005390") && res.containsKey(id))System.out.println("hurrahhh skeleton phenotype found "+dto.getSignificant());
 					res.get(id).add(dto);
 				}
 
-			} else if (dto.getMpTermId()!=null) {
-
+			} 
+			else if (dto.getMpTermId()!=null) {
+				
 				String id = dto.getMpTermId();
+				if(id.equals("MP:0005390") && res.containsKey(id))System.out.println("mpterm id hurrahhh skeleton phenotype found "+dto.getSignificant());
 				if (!res.containsKey(id)) {
 					res.put(id, new ArrayList<>());
 				}

@@ -647,7 +647,7 @@ public class AbstractGenotypePhenotypeService extends BasicService {
                 GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_ID, GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME,
                 StatisticalResultDTO.FEMALE_TOP_LEVEL_MP_TERM_ID, StatisticalResultDTO.FEMALE_TOP_LEVEL_MP_TERM_NAME,
                 StatisticalResultDTO.MALE_TOP_LEVEL_MP_TERM_ID, StatisticalResultDTO.MALE_TOP_LEVEL_MP_TERM_NAME);
-
+        System.out.println("query for top level mp is "+query);
         List<StatisticalResultDTO> dtos = solr.query(query).getBeans(StatisticalResultDTO.class);
 
         for (StatisticalResultDTO dto : dtos) {

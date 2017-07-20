@@ -260,7 +260,7 @@ public class MpService extends BasicService implements WebStatus{
 		HashSet<BasicBean> allTopLevelPhenotypes = new LinkedHashSet<BasicBean>();
 		for (FacetField ff:rsp.getFacetFields()){
 			for(Count count: ff.getValues()){
-				String mpArray[]=count.getName().split("__");
+				String mpArray[]=count.getName().split("___");
 				BasicBean bean=new BasicBean();
 				bean.setName(mpArray[1]);
 				bean.setId(mpArray[0]);
