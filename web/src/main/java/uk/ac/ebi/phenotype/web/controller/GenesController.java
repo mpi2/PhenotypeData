@@ -734,9 +734,6 @@ public class GenesController {
 				}
 			}
 			
-			if(row.getPhenotypeTerm()!=null){
-				System.out.println("phenotype term="+row.getPhenotypeTerm().getId());
-			}
 			
 		}
 		
