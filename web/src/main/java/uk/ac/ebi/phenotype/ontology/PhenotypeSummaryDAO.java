@@ -15,6 +15,7 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.ontology;
 
+import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.service.MpService;
@@ -24,6 +25,7 @@ import org.mousephenotype.cda.solr.service.dto.StatisticalResultDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -35,9 +37,17 @@ public class PhenotypeSummaryDAO  {
 	private StatisticalResultService srService;
 	
 	@Autowired
-	MpService mpService;
+	private MpService mpService;
+	
+	Map<String, String> topLevelMpIdsToNames;
 	
 	public PhenotypeSummaryDAO() throws MalformedURLException {
+//		try {
+//			this.getTopLevelMpIdToNames();
+//		} catch (SolrServerException | IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 	}
 
 	public String getSexesRepresentationForPhenotypesSet(List<StatisticalResultDTO> resp) {
@@ -93,11 +103,7 @@ public class PhenotypeSummaryDAO  {
 			
 			PhenotypeSummaryBySex resSummary = new PhenotypeSummaryBySex();
 			//Map<String, String> mps = srService.getTopLevelMPTerms(gene, zyg);
-			Map<String, String> mps=new HashMap<>();
-			Set<BasicBean> mpBeans = mpService.getAllTopLevelPhenotypesAsBasicBeans();
-			for(BasicBean bean:mpBeans){
-				mps.put(bean.getId(), bean.getName());
-			}
+			Map<String, String> mps = getTopLevelMpIdToNames();
 			Map<String, List<StatisticalResultDTO>> summary = srService.getPhenotypesForTopLevelTerm(gene, zyg);
 						
 			for (String id: summary.keySet()){
@@ -122,6 +128,20 @@ public class PhenotypeSummaryDAO  {
 		}
 
 		return res;
+	}
+
+	private Map<String, String> getTopLevelMpIdToNames() throws SolrServerException, IOException {
+		//if mps empty then fill them otherwise return a cashed version
+		if (this.topLevelMpIdsToNames == null || this.topLevelMpIdsToNames.isEmpty()) {
+			this.topLevelMpIdsToNames = new HashMap<>();
+			System.out.println("cash empty refreshing top level mp cash in PhenotypeSummaryDao");
+			Set<BasicBean> mpBeans = mpService.getAllTopLevelPhenotypesAsBasicBeans();
+			for (BasicBean bean : mpBeans) {
+				this.topLevelMpIdsToNames.put(bean.getId(), bean.getName());
+			}
+
+		}
+		return this.topLevelMpIdsToNames;
 	}
 	
 	}
