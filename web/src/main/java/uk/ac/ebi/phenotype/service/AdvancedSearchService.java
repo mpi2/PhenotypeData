@@ -63,7 +63,8 @@ public class AdvancedSearchService {
 	@Qualifier("postqcService")
 	PostQcService genotypePhenotypeService;
 	
-	 private String NA = "not available";
+    private String NA = "not available";
+
 	
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	
@@ -117,7 +118,11 @@ public class AdvancedSearchService {
             chrRange = " AND g.chrId IN [" + geneForm.getChrId() + "] AND g.chrStart >= " + geneForm.getChrStart() + " AND g.chrEnd <= " + geneForm.getChrEnd() + " ";
         }
         else if (geneForm.getChrIds() != null){
-            chrRange = " AND g.chrId IN [" + StringUtils.join(geneForm.getChrIds(), ",")  + "] ";
+            List<String> chrIds = new ArrayList<>();
+            for(String id : geneForm.getChrIds() ){
+                chrIds.add("'" + id + "'");
+            }
+            chrRange = " AND g.chrId IN [" + StringUtils.join(chrIds, ",")  + "] ";
         }
 
         return chrRange;
@@ -126,7 +131,7 @@ public class AdvancedSearchService {
     private String composeGeneListStr(AdvancedSearchGeneForm geneForm) {
         String genelist = "";
 
-        if (geneForm.getMouseMarkerSymbols() != null) {
+        if (geneForm.getMouseMarkerSymbols().size() > 0) {
             // genelist = "AND g.markerSymbol in [" +
             List<String> list = new ArrayList<>();
 
@@ -136,7 +141,7 @@ public class AdvancedSearchService {
             String glist = StringUtils.join(list, ",");
             genelist = " AND g.markerSymbol in [" + glist + "] ";
         }
-        else if (geneForm.getMouseMgiGeneIds() != null) {
+        else if (geneForm.getMouseMgiGeneIds().size() > 0) {
             // genelist = "AND g.markerSymbol in [" +
             List<String> list = new ArrayList<>();
 
@@ -146,7 +151,7 @@ public class AdvancedSearchService {
             String glist = StringUtils.join(list, ",");
             genelist = " AND g.mgiAccessionId in [" + glist + "] ";
         }
-        else if (geneForm.getHumanMarkerSymbols() != null){
+        else if (geneForm.getHumanMarkerSymbols().size() > 0){
             List<String> list = new ArrayList<>();
 
             for (String hsymbol : geneForm.getHumanMarkerSymbols()) {
@@ -161,7 +166,7 @@ public class AdvancedSearchService {
     private String composeGenotypesStr(AdvancedSearchGeneForm geneForm) {
         String genotypes = "";
 
-        if (geneForm.getGenotypes() != null) {
+        if (geneForm.getGenotypes().size() > 0) {
             // genelist = "AND g.markerSymbol in [" +
             List<String> list = new ArrayList<>();
             for (String gt : geneForm.getGenotypes()) {
@@ -189,7 +194,7 @@ public class AdvancedSearchService {
 
         List<String> mutationTypes = new ArrayList<>();
 
-        if (geneForm.getAlleleTypes() != null) {
+        if (geneForm.getAlleleTypes().size() > 0) {
             // genelist = "AND g.markerSymbol in [" +
             List<String> list = new ArrayList<>();
             for (String atype : geneForm.getAlleleTypes()) {
@@ -230,10 +235,10 @@ public class AdvancedSearchService {
     private String composeDiseaseGeneAssociation(AdvancedSearchDiseaseForm diseaseForm){
         String diseaeGeneAssoc = "";
 
-        if (diseaseForm.getHumanCurated()) {
+        if (diseaseForm.getHumanCurated() != null && diseaseForm.getHumanCurated() == true) {
             diseaeGeneAssoc = " AND dm.humanCurated = true ";
         }
-        else {
+        else if (diseaseForm.getHumanCurated() != null && diseaseForm.getHumanCurated() == false){
             diseaeGeneAssoc = " AND dm.humanCurated = false ";
         }
         return diseaeGeneAssoc;
@@ -246,28 +251,189 @@ public class AdvancedSearchService {
         }
         return humanDiseaseTerm;
     }
+    private String fetchReturnTypes(List<String> dataTypes, Map<String, String> dtypeMap) {
+        List<String> dts = new ArrayList<>();
 
-    public String composeCypherQueryStr(AdvancedSearchPhenotypeForm mpForm, AdvancedSearchGeneForm geneForm, AdvancedSearchDiseaseForm diseaseForm){
+        for (String dt : dataTypes) {
+            dts.add(dtypeMap.containsKey(dt) ? dtypeMap.get(dt) : dt);
+        }
+        return StringUtils.join(dts, ", ");
+    }
+
+    private Map<String, List<String>> doDataTypeColumnsMap(AdvancedSearchPhenotypeForm mpForm, AdvancedSearchGeneForm geneForm, AdvancedSearchDiseaseForm diseaseForm){
+        Map<String, List<String>> dataTypeColsMap = new HashMap<>();
+        if (mpForm.getHasOutputColumn()){
+            
+            dataTypeColsMap.put("Mp", new ArrayList<>());
+            dataTypeColsMap.put("StatisticalResult", new ArrayList<>());
+            
+            if (mpForm.getShowMpTerm() != null){
+                dataTypeColsMap.get("Mp").add("mpTerm");
+            }
+            if (mpForm.getShowMpId() != null ){
+                dataTypeColsMap.get("Mp").add("mpId");
+            }
+            if (mpForm.getShowMpTermSynonym() != null ){
+                dataTypeColsMap.get("Mp").add("mpSynonym");
+            }
+            if (mpForm.getShowMpDefinition() != null ){
+                dataTypeColsMap.get("Mp").add("mpDefinition");
+            }
+            if (mpForm.getShowTopLevelMpTerm() != null ){
+                dataTypeColsMap.get("Mp").add("topLevelMpTerms");
+            }
+            if (mpForm.getShowTopLevelMpId() != null ){
+                dataTypeColsMap.get("Mp").add("topLevelMpIds");
+            }
+            if (mpForm.getShowParameterName() != null ){
+                dataTypeColsMap.get("StatisticalResult").add("parameterName");
+            }
+            if (mpForm.getShowPvalue() != null ){
+                dataTypeColsMap.get("StatisticalResult").add("pvalue");
+            }
+        }
+        if (geneForm.getHasOutputColumn()){
+            
+            dataTypeColsMap.put("Allele", new ArrayList<>());
+            dataTypeColsMap.put("Gene", new ArrayList<>());
+           
+            if (geneForm.getShowAlleleSymbol() != null){
+                dataTypeColsMap.get("Allele").add("alleleSymbol");
+            }
+            if (geneForm.getShowAlleleId() != null){
+                dataTypeColsMap.get("Allele").add("alleleMgiAccessionId");
+            }
+            if (geneForm.getShowAlleleDesc() != null){
+                dataTypeColsMap.get("Allele").add("alleleDescription");
+            }
+            if (geneForm.getShowAlleleType() != null){
+                dataTypeColsMap.get("Allele").add("alleleType");
+            }
+            if (geneForm.getShowAlleleMutationType() != null){
+                dataTypeColsMap.get("Allele").add("mutationType");
+            }
+            if (geneForm.getShowEsCellAvailable() != null){
+                dataTypeColsMap.get("Gene").add("esCellStatus");
+            }
+            if (geneForm.getShowMouseAvailable() != null){
+                dataTypeColsMap.get("Gene").add("mouseStatus");
+            }
+            if (geneForm.getShowPhenotypingAvailable() != null){
+                dataTypeColsMap.get("Gene").add("phenotypeStatus");
+            }
+            if (geneForm.getShowHgncGeneSymbol() != null){
+                dataTypeColsMap.get("Gene").add("humanGeneSymbol");
+            }
+            if (geneForm.getShowMgiGeneSymbol() != null){
+                dataTypeColsMap.get("Gene").add("markerSymbol");
+            }
+            if (geneForm.getShowMgiGeneId() != null){
+                dataTypeColsMap.get("Gene").add("mgiAccessionId");
+            }
+            if (geneForm.getShowMgiGeneType() != null){
+                dataTypeColsMap.get("Gene").add("markerType");
+            }
+            if (geneForm.getShowMgiGeneName() != null){
+                dataTypeColsMap.get("Gene").add("markerName");
+            }
+            if (geneForm.getShowMgiGeneSynonym() != null){
+                dataTypeColsMap.get("Gene").add("markerSynonym");
+            }
+            if (geneForm.getShowChrId() != null){
+                dataTypeColsMap.get("Gene").add("chrId");
+            }
+            if (geneForm.getShowChrStart() != null){
+                dataTypeColsMap.get("Gene").add("chrStart");
+            }
+            if (geneForm.getShowChrEnd() != null){
+                dataTypeColsMap.get("Gene").add("chrEnd");
+            }
+            if (geneForm.getShowChrStrand() != null){
+                dataTypeColsMap.get("Gene").add("chrStrand");
+            }
+            if (geneForm.getShowEnsemblGeneId() != null){
+                dataTypeColsMap.get("Gene").add("ensemblGeneId");
+            }
+        }
+        if (diseaseForm.getHasOutputColumn()){
+
+            dataTypeColsMap.put("DiseaseModel", new ArrayList<>());
+
+            if (diseaseForm.getShowDiseaseTerm() != null){
+                dataTypeColsMap.get("DiseaseModel").add("diseaseTerm");
+            }
+            if (diseaseForm.getShowDiseaseId() != null){
+                dataTypeColsMap.get("DiseaseModel").add("diseaseId");
+            }
+            if (diseaseForm.getShowDiseaseToModelScore() != null){
+                dataTypeColsMap.get("DiseaseModel").add("diseaseToModelScore");
+            }
+            if (diseaseForm.getShowDiseaseClasses() != null){
+                dataTypeColsMap.get("DiseaseModel").add("diseaseClasses");
+            }
+            if (diseaseForm.getShowImpcPredicted() != null){
+                dataTypeColsMap.get("DiseaseModel").add("impcPredicted");
+            }
+            if (diseaseForm.getShowMgiPredicted() != null){
+                dataTypeColsMap.get("DiseaseModel").add("mgiPredicted");
+            }
+        }
+        return dataTypeColsMap;
+    }
+
+    public String fetchGraphDataAdvSrch(AdvancedSearchPhenotypeForm mpForm, AdvancedSearchGeneForm geneForm, AdvancedSearchDiseaseForm diseaseForm, String fileType) throws IOException, SolrServerException {
 
         String sortStr = " ORDER BY g.markerSymbol ";
         String query = null;
-        String fileType = null;
+
+        // for cypher column output
+        Map<String, List<String>> dataTypeColsMap = doDataTypeColumnsMap(mpForm, geneForm, diseaseForm);
+
+        Map<String, String> dtypeMap = new HashMap<>();
+        List<String> dataTypes = new ArrayList<>();
+        if (mpForm.getHasOutputColumn()){
+            dataTypes.add("mp");
+            dtypeMap.put("mp", "nodes.mps");
+            if (mpForm.getShowParameterName() != null || mpForm.getShowPvalue() != null){
+                dataTypes.add("sr");
+                dtypeMap.put("sr", "nodes.srs");
+            }
+        }
+        if (geneForm.getHasOutputColumn()){
+            dataTypes.add("g");
+
+            if (geneForm.getShowAlleleSymbol() != null ||
+                geneForm.getShowAlleleId() != null  ||
+                geneForm.getShowAlleleDesc() != null  ||
+                geneForm.getShowAlleleMutationType() != null  ||
+                geneForm.getShowAlleleType() != null  ){
+                dataTypes.add("a");
+                dtypeMap.put("a", "nodes.alleles");
+            }
+        }
+        if (diseaseForm.getHasOutputColumn()){
+            dataTypes.add("dm");
+        }
+
+        String returnDtypes = StringUtils.join(dataTypes, ", ");
+        System.out.println("return types: " + returnDtypes);
 
         // phenotype form
         Boolean noMpChild = mpForm.getExcludeNestedPhenotype();
-        String significant = composeSignificance(mpForm);
-        String parameter = composeParameter(mpForm);
+        String significantCypher = composeSignificance(mpForm);
+        String parameterCypher = composeParameter(mpForm);
 
         // gene form
-        String chrRange = composeChrRangeStr(geneForm);
-        String geneList = composeGeneListStr(geneForm);
-        String genotypes = composeGenotypesStr(geneForm);
-        String alleleTypes = composeAlleleTypesStr(geneForm);
+        String chrRangeCypher = composeChrRangeStr(geneForm);
+        String geneListCypher = composeGeneListStr(geneForm);
+        String genotypesCypher = composeGenotypesStr(geneForm);
+        String alleleTypesCypher = composeAlleleTypesStr(geneForm);
 
         // disease
-        String phenodigmScore = composePhenodigmScoreStr(diseaseForm);  // always non-empty
-        String diseaseGeneAssociation = composeDiseaseGeneAssociation(diseaseForm);
-        String humanDiseaseTerm = composeHumanDiseaseTermStr(diseaseForm);
+        String phenodigmScoreCypher = composePhenodigmScoreStr(diseaseForm);  // always non-empty
+        String diseaseGeneAssociationCypher = composeDiseaseGeneAssociation(diseaseForm);
+        String humanDiseaseTermCypher = composeHumanDiseaseTermStr(diseaseForm);
+        System.out.println("here-10");
 
 
         String geneToMpPath = noMpChild ? "MATCH (g:Gene)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp) "
@@ -277,781 +443,343 @@ public class AdvancedSearchService {
                 : " MATCH (mp0:Mp)<-[:PARENT*0..]-(mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g:Gene) ";
 
         String geneToDmPathClause = " OPTIONAL MATCH (g)<-[:GENE]-(dm:DiseaseModel)-[:MOUSE_PHENOTYPE]->(dmp:Mp) WHERE "
-                + phenodigmScore + diseaseGeneAssociation + humanDiseaseTerm;
+                + phenodigmScoreCypher + diseaseGeneAssociationCypher + humanDiseaseTermCypher;
 
-        // search by disease term AND NO phenotype
+        List<String> narrowOrSynonymMapping = new ArrayList<>();
+
+        //------------------------------------------------------
+        //   Building cypher for each of the search use cases
+        //------------------------------------------------------
+
         if (mpForm.getPhenotypeRows().size() == 0 && diseaseForm.getHumanDiseaseTerm() != null){
-            String where = noMpChild ? " WHERE mp.mpTerm =~ '.*' " : " WHERE mp0.mpTerm =~ '.*' ";
+            // CASE 1 - search by disease term AND NO phenotype
+            System.out.println("Search by disease term AND NO phenotype");
+
+            String whereClause = noMpChild ? " WHERE mp.mpTerm =~ '.*' " : " WHERE mp0.mpTerm =~ '.*' ";
             String mpTerm = null;
-            String pvalues = composePvalues(mpForm, mpTerm);
 
             query = mpToGenePath + "<-[:GENE]-(dm:DiseaseModel)-[:MOUSE_PHENOTYPE]->(dmp:Mp)"
-                    + where
-                    + " AND " + significant + parameter + pvalues + chrRange + geneList + genotypes + alleleTypes
-                    + " AND " + phenodigmScore + diseaseGeneAssociation + humanDiseaseTerm
+                    + whereClause
+                    + " AND " + significantCypher + parameterCypher + chrRangeCypher + geneListCypher + genotypesCypher + alleleTypesCypher
+                    + " AND " + phenodigmScoreCypher + diseaseGeneAssociationCypher + humanDiseaseTermCypher
                     + " AND dmp.mpTerm in mp.mpTerm";
-
-            query += fileType != null ?
-                    // " RETURN distinct a, g, sr, collect(distinct mp), collect(distinct dm)" + sortStr :
-                    " RETURN distinct " + returnDtypes + sortStr :
-                    " RETURN collect(distinct a), collect(distinct g), collect(distinct sr), collect(distinct mp), collect(distinct dm)";
         }
-
-
-
-	    return query;
-    }
-
-    public JSONObject fetchGraphDataAdvSrch(AdvancedSearchPhenotypeForm phenotypeFormSection, List<String> dataTypes, String hostname, String baseUrl, JSONObject jParams, Boolean significantPValue, SexType sexType, String impressParameter, Double lowerPvalue, Double upperPvalue, List<String> chromosomes, Integer regionStart, Integer regionEnd, boolean isMouseGenes, List<String> geneList, List<String> genotypeList, List<String> alleleTypesFilter, List<String> mutationTypesFilter, int phenodigmScoreLow, int phenodigmScoreHigh, String diseaseTerm, boolean humanCuratedDisease, String searchDiseaseModel, String mpStr, String fileType) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, IOException, SolrServerException {
-
-//        JSONArray properties = jParams.getJSONArray("properties");
-//        System.out.println("columns: " + properties);
-
-        Map<String, String> dtypeMap = new HashMap<>();
-       //JSONArray dataTypes = jParams.getJSONArray("dataTypes");
-        if(dataTypes.isEmpty()){
-        	System.err.println("dataTypes is empty or null");
-        }
-        	
-        List<String> dts = new ArrayList<>();
-        for (int d = 0; d < dataTypes.size(); d++){
-            dts.add(dataTypes.get(d).toString());
-            dtypeMap.put("a", "nodes.alleles");
-            dtypeMap.put("sr", "nodes.srs");
-            dtypeMap.put("mp", "nodes.mps");
-        }
-        String returnDtypes = StringUtils.join(dts, ", ");
-        System.out.println("return types: " + returnDtypes);
-
-        //compose cipher based on input parameters here from Java parameters
-        String significantCypher= composeSignificanceCypher(significantPValue);
-        String phenotypeSexesCypher= composePhenotypeSexCypher(sexType);
-        String impressParameterNameCypher= composeImpressParameterCypher(impressParameter);
-        String pvaluesCypher = composePvaluesCypher(lowerPvalue, upperPvalue);//looks like we don't have one of these for each phenotype at the moment - need to implement this at some point JW. we need to use the other method with MP ids as param?
-        String chrRangeCypher= composeChrRangeCypher(chromosomes, regionStart, regionEnd);
-        String geneListCypher = composeGeneListCypher(isMouseGenes, geneList);
-        String genotypesCypher = composeGenotypesCypher(genotypeList);
-        String alleleTypesCypher= composeAlleleTypesCypher(alleleTypesFilter, mutationTypesFilter);
-
-        // disease
-        String phenodigmScoreCypher = composePhenodigmScoreStr(phenodigmScoreLow, phenodigmScoreHigh);  // always non-empty
-        String diseaseGeneAssociation = composeDiseaseGeneAssociationCypher(diseaseTerm, humanCuratedDisease);
-        String humanDiseaseTerm = composeHumanDiseaseTermCypher(searchDiseaseModel);
-
-        //String mpStr = "  ( APERT-CROUZON DISEASE, INCLUDED  AND mpb alcohokl  )OR  mapasdfkl someting "; // (a and b) or c
-        //String mpStr = " dfkdfkdfk kdkk AND ( sfjjjj ii OR kkkk, ) "; // a and (b or c)
-        //String mpStr = " ( asdfsdaf OR erueuru asdfsda ,  sdfa ) AND sakdslfjie dfd ";  // (a or b) and c
-        //String mpStr = " asdfsdaf OR  ( erueuru asdfsda ,  sdfa AND sakdslfjie dfd ) ";  // a or (b and c)
-        //String mpStr = "asdfsdaf AND erueuru asdfsda ,  sdfa AND sakdslfjie dfd "; // a and b and c
-        //String mpStr = "asdfsdaf AND erueuru asdfsda ,  sdfa  "; // a and b
-        //String mpStr = "asdfsdaf OR erueuru asdfsda ,  sdfa OR sakdslfjie dfd ";  // a or b or c
-        //String mpStr = "asdfsdaf OR erueuru asdfsda ,  sdfa ";  // a or b
-
-        System.out.println("mp query: "+ mpStr);
-
-        String regex_aAndb_Orc = "\\s*\\(([A-Za-z0-9-\\\\,;:\\s]{1,})\\s*\\b(AND|and)\\b\\s*([A-Za-z0-9-\\\\,;:\\s]{1,})\\)\\s*\\b(OR|or)\\b\\s*([A-Za-z0-9-\\\\,;:\\s]{1,})\\s*";
-        String regex_aAnd_bOrc = "\\s*([A-Za-z0-9-\\\\,;:\\s]{1,})\\s*\\b(AND|and)\\b\\s*\\(([A-Za-z0-9-\\\\,;:\\s]{1,})\\s*\\b(OR|or)\\b\\s*([A-Za-z0-9-\\\\,;:\\s]{1,})\\)\\s*";
-        String regex_aOrb_andc = "\\s*\\(([A-Za-z0-9-\\\\,;:\\s]{1,})\\s*\\b(OR|or)\\b\\s*([A-Za-z0-9-\\\\,;:\\s]{1,})\\)\\s*\\b(AND|and)\\b\\s*([A-Za-z0-9-\\\\,;:\\s]{1,})\\s*";
-        String regex_aOr_bAndc = "\\s*([A-Za-z0-9-\\\\,;:\\s]{1,})\\s*\\b(OR|or)\\b\\s*\\(([A-Za-z0-9-\\\\,;:\\s]{1,})\\s*\\b(AND|and)\\b\\s*([A-Za-z0-9-\\\\,;:\\s]{1,})\\)\\s*";
-        String regex_aAndb = "\\s*\\(*([A-Za-z0-9-\\\\,;:\\s]{1,})\\s*\\b(AND|and)\\b\\s*([A-Za-z0-9-\\\\,;:\\s]{1,})\\)*\\s*";
-        String regex_aAndbAndc = "\\s*\\(*([A-Za-z0-9-\\\\,;:\\s]{1,})\\s*\\b(AND|and)\\b\\s*([A-Za-z0-9-\\\\,;:\\s]{1,})\\)*\\s*\\b(AND|and)\\b\\s*([A-Za-z0-9-\\\\,;:\\s]{1,})\\)*\\s*";
-        String regex_aOrb = "\\s*\\(*([A-Za-z0-9-\\\\,;:\\s]{1,})\\s*\\b(OR|or)\\b\\s*([A-Za-z0-9-\\\\,;:\\s]{1,})\\)*\\s*";
-        String regex_aOrbOrc = "\\s*\\(*([A-Za-z0-9-\\\\,;:\\s]{1,})\\s*\\b(OR|or)\\b\\s*([A-Za-z0-9-\\\\,;:\\s]{1,})\\)*\\s*\\b(OR|or)\\b\\s*([A-Za-z0-9-\\\\,;:\\s]{1,})\\)*\\s*";
-
-        HashedMap params = new HashedMap();
-
-        Result result = null;
-
-        String sortStr = " ORDER BY g.markerSymbol ";
-        String query = null;
-
-
-        String geneToMpPath = " MATCH (g:Gene)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp)-[:PARENT*0..]->(mp0:Mp) ";
-
-        String mpToGenePath = " MATCH (mp0:Mp)<-[:PARENT*0..]-(mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g:Gene) ";
-
-        String geneToDmPathClause = " OPTIONAL MATCH (g)<-[:GENE]-(dm:DiseaseModel)-[:MOUSE_PHENOTYPE]->(dmp:Mp) WHERE "
-                + phenodigmScoreCypher + diseaseGeneAssociation + humanDiseaseTerm;
-
-
-        String pvaluesA = "";
-        String pvaluesB = "";
-        String pvaluesC = "";
-        List<String> narrowMapping = new ArrayList<>();
-
-        long begin = System.currentTimeMillis();
-
-        if (mpStr == null && ! humanDiseaseTerm.isEmpty()){
-
-            String where = " WHERE mp0.mpTerm =~ '.*' ";
-
-            query = mpToGenePath + "<-[:GENE]-(dm:DiseaseModel)-[:MOUSE_PHENOTYPE]->(dmp:Mp)"
-                + where
-                + " AND " + significantCypher + phenotypeSexesCypher + impressParameterNameCypher + pvaluesCypher + chrRangeCypher + geneListCypher + genotypesCypher + alleleTypesCypher
-                + " AND " + phenodigmScoreCypher + diseaseGeneAssociation + humanDiseaseTerm
-                + " AND dmp.mpTerm in mp.mpTerm";
-
-            query += fileType != null ?
-                   // " RETURN distinct a, g, sr, collect(distinct mp), collect(distinct dm)" + sortStr :
-                    " RETURN distinct " + returnDtypes + sortStr :
-                    " RETURN collect(distinct a), collect(distinct g), collect(distinct sr), collect(distinct mp), collect(distinct dm)";
-
-            System.out.println("Query: "+ query);
-            result = neo4jSession.query(query, params);
-        }
-        else if (mpStr == null ){
-
-            String where = " WHERE mp0.mpTerm =~ '.*' ";
-
-            if (geneList.isEmpty()) {
-                query = mpToGenePath
-                        + where
-                        + " AND " + significantCypher + phenotypeSexesCypher + impressParameterNameCypher + pvaluesCypher + chrRangeCypher + geneListCypher + genotypesCypher + alleleTypesCypher
-                        + " WITH g, a, mp, sr, "
-                        + " extract(x in collect(distinct mp) | x.mpTerm) as mps "
-                        + geneToDmPathClause
-                        + " AND dmp.mpTerm IN mps";
-            }
-            else {
-                query = geneToMpPath
-                        + where
-                        + " AND " + significantCypher + phenotypeSexesCypher + impressParameterNameCypher + pvaluesCypher + chrRangeCypher + geneListCypher + genotypesCypher + alleleTypesCypher
-                        + " WITH g, a, mp, sr, "
-                        + " extract(x in collect(distinct mp) | x.mpTerm) as mps "
-                        + geneToDmPathClause
-                        + " AND dmp.mpTerm IN mps";
-            }
-
-            query += fileType != null ?
-                    //" RETURN distinct a, g, sr, collect(distinct mp), collect(distinct dm)" + sortStr :
-                    " RETURN distinct " + returnDtypes + sortStr :
-                    " RETURN collect(distinct a), collect(distinct g), collect(distinct sr), collect(distinct mp), collect(distinct dm)";
-
-            System.out.println("Query: "+ query);
-            result = neo4jSession.query(query, params);
-        }
-        else if (! mpStr.contains("AND") && ! mpStr.contains("OR") ) {
-            // single mp term
-
-            mpStr = mpStr.trim();
-            mpStr = mapNarrowSynonym2MpTerm(narrowMapping, mpStr, autosuggestCore);
-
-            params.put("mpA", mpStr);
-            logger.info("A: '{}'", mpStr);
-
-
-            String whereClause =  " WHERE mp0.mpTerm = '" + params.get("mpA") + "'";
-
-            if (geneList.isEmpty()) {
-                query = mpToGenePath
-                        //+ " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') "
-                        + whereClause
-                        + " AND " + significantCypher + phenotypeSexesCypher + impressParameterNameCypher + pvaluesCypher + chrRangeCypher + geneListCypher + genotypesCypher + alleleTypesCypher
-                        + " WITH g, a, mp, sr, "
-                        + " extract(x in collect(distinct mp) | x.mpTerm) as mps "
-                        + geneToDmPathClause
-                        + " AND dmp.mpTerm IN mps";
-            }
-            else {
-                query = geneToMpPath
-                        //+ " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') "
-                        + whereClause
-                        + " AND " + significantCypher + phenotypeSexesCypher + impressParameterNameCypher + pvaluesCypher + chrRangeCypher + geneListCypher + genotypesCypher + alleleTypesCypher
-                        + " WITH g, a, mp, sr, "
-                        + " extract(x in collect(distinct mp) | x.mpTerm) as mps "
-                        + geneToDmPathClause
-                        + " AND dmp.mpTerm IN mps";
-            }
-
-            query += fileType != null ?
-                    //" RETURN distinct a, g, sr, collect(distinct mp), collect(distinct dm)" + sortStr :
-                    " RETURN distinct " + returnDtypes + sortStr :
-                    " RETURN collect(distinct a), collect(distinct g), collect(distinct sr), collect(distinct mp), collect(distinct dm)";
-
-            System.out.println("Query: "+ query);
-            result =  neo4jSession.query(query, params);
-            System.out.println("result from basic query="+result);
-        }
-        else if (mpStr.matches(regex_aAndb_Orc)) {
-            System.out.println("matches (a and b) or c"); // due to join empty list to a non-empty list evals to empty, convert this to (a or c) + (b or c)
-
-            Pattern pattern = Pattern.compile(regex_aAndb_Orc);
-            Matcher matcher = pattern.matcher(mpStr);
-
-            while (matcher.find()) {
-                System.out.println("found: " + matcher.group(0));
-                String mpA = matcher.group(1).trim();;
-                String mpB = matcher.group(3).trim();;
-                String mpC = matcher.group(5).trim();;
-                logger.info("A: '{}', B: '{}', C: '{}'", mpA, mpB, mpC);
-
-                params.put("mpA", mapNarrowSynonym2MpTerm(narrowMapping, mpA, autosuggestCore));
-                params.put("mpB", mapNarrowSynonym2MpTerm(narrowMapping, mpB, autosuggestCore));
-                params.put("mpC", mapNarrowSynonym2MpTerm(narrowMapping, mpC, autosuggestCore));
-
-                pvaluesA = composePvalues(params.get("mpA").toString(), jParams);
-                pvaluesB = composePvalues(params.get("mpB").toString(), jParams);
-                pvaluesC = composePvalues(params.get("mpC").toString(), jParams);
-            }
-
-            String whereClause1 = " WHERE ((mp0.mpTerm = '" + params.get("mpA") + "'" + pvaluesA + ") OR (mp0.mpTerm ='" + params.get("mpC") + "'" + pvaluesC + "))";
-
-            String whereClause2 =  " WHERE ((mp0.mpTerm = '" + params.get("mpB") + "'" + pvaluesB + ") OR (mp0.mpTerm ='" + params.get("mpC") + "'" + pvaluesC + "))";
-
-
-            String matchClause1 = " MATCH (mp0:Mp)<-[:PARENT*0..]-(mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g) ";
-
-            String matchClause2 = " MATCH (g)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp)-[:PARENT*0..]->(mp0:Mp) ";
-
-            if (geneList.isEmpty()){
-
-                // collect() will be null if one of the list is empty, to avoid this, use OPTIONAL MATCH instead
-
-                query = mpToGenePath
-                        //+ " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') "
-                        + whereClause1
-                        + " AND " + significantCypher + phenotypeSexesCypher + impressParameterNameCypher + chrRangeCypher + geneList + genotypesCypher + alleleTypesCypher
-                        + " WITH g, collect({genes:g, alleles:a, srs:sr, mps:mp}) as list1 "
-
-                        + matchClause1
-                        //+ " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*') "
-                        + whereClause2
-                        + " AND " + significantCypher + phenotypeSexesCypher + impressParameterNameCypher + chrRangeCypher + geneList + genotypesCypher + alleleTypesCypher
-                        + " WITH g, list1, collect({genes:g, alleles:a, srs:sr, mps:mp}) as list2 "
-                        + " WHERE ALL (x IN list1 WHERE x IN list2) "
-                        + " WITH g, list1+list2 as list "
-                        + " UNWIND list as nodes "
-
-                        + " WITH g, nodes, extract(x in collect(distinct nodes.mps) | x.mpTerm) as mps "
-                        + geneToDmPathClause
-                        + " AND dmp.mpTerm IN mps";
-
-            }
-            else {
-                query = geneToMpPath
-                        //+ " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') "
-                        + whereClause1
-                        + " AND " + significantCypher + phenotypeSexesCypher + impressParameterNameCypher + chrRangeCypher + geneList + genotypesCypher + alleleTypesCypher
-                        + " WITH g, collect({genes:g, alleles:a, srs:sr, mps:mp}) as list1 "
-
-                        + matchClause2
-                        //+ " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*') "
-                        + whereClause2
-                        + " AND " + significantCypher + phenotypeSexesCypher + impressParameterNameCypher + chrRangeCypher + geneList + genotypesCypher + alleleTypesCypher
-                        + " WITH g, list1, collect({genes:g, alleles:a, srs:sr, mps:mp}) as list2 "
-                        + " WHERE ALL (x IN list1 WHERE x IN list2) "
-                        + " WITH g, list1+list2 as list "
-                        + " UNWIND list as nodes "
-
-                        + " WITH g, nodes, extract(x in collect(distinct nodes.mps) | x.mpTerm) as mps "
-                        + geneToDmPathClause
-                        + " AND dmp.mpTerm IN mps";
-            }
-
-            dts = new ArrayList<>();
-            for (int d = 0; d < dataTypes.size(); d++){
-                String dt = dataTypes.get(d).toString();
-                dts.add(dtypeMap.containsKey(dt) ? dt : dtypeMap.get(dt));
-            }
-            returnDtypes = StringUtils.join(dts, ", ");
-
-            query += fileType != null ?
-                    //" RETURN distinct nodes.alleles, g, nodes.srs, collect(distinct nodes.mps), collect(distinct dm)" + sortStr
-                    //" RETURN distinct nodes.alleles, g, nodes.srs, nodes.mps, dm" + sortStr :
-                    " RETURN distinct " + returnDtypes + sortStr :
-                    " RETURN collect(distinct nodes.alleles), collect(distinct g), collect(distinct nodes.srs), collect(distinct nodes.mps), collect(distinct dm)";
-
-            System.out.println("Query: "+ query);
-            result =  neo4jSession.query(query, params);
-        }
-        else if (mpStr.matches(regex_aOr_bAndc)) {
-            System.out.println("matches a or (b and c)"); // due to join empty list to a non-empty list evals to empty, convert this to (b or a) + (c or a)
-
-            Pattern pattern = Pattern.compile(regex_aOr_bAndc);
-            Matcher matcher = pattern.matcher(mpStr);
-
-            while (matcher.find()) {
-                System.out.println("found: " + matcher.group(0));
-                String mpA = matcher.group(1).trim();
-                String mpB = matcher.group(3).trim();;
-                String mpC = matcher.group(5).trim();;
-
-                logger.info("A: '{}', B: '{}', C: '{}'", mpA, mpB, mpC);
-
-                params.put("mpA", mapNarrowSynonym2MpTerm(narrowMapping, mpA, autosuggestCore));
-                params.put("mpB", mapNarrowSynonym2MpTerm(narrowMapping, mpB, autosuggestCore));
-                params.put("mpC", mapNarrowSynonym2MpTerm(narrowMapping, mpC, autosuggestCore));
-
-                pvaluesA = composePvalues(params.get("mpA").toString(), jParams);
-                pvaluesB = composePvalues(params.get("mpB").toString(), jParams);
-                pvaluesC = composePvalues(params.get("mpC").toString(), jParams);
-            }
-
-            String whereClause1 = " WHERE ((mp0.mpTerm = '" + params.get("mpB") + "'" + pvaluesB + ") OR (mp0.mpTerm ='" + params.get("mpA") + "'" + pvaluesA + "))";
-
-            String whereClause2 = " WHERE ((mp0.mpTerm = '" + params.get("mpC") + "'" + pvaluesC + ") OR (mp0.mpTerm ='" + params.get("mpA") + "'" + pvaluesA + "))";
-
-
-            String matchClause1 =" MATCH (mp0:Mp)<-[:PARENT*0..]-(mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g) ";
-
-            String matchClause2 = " MATCH (g)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp)-[:PARENT*0..]->(mp0:Mp) ";
-
-            if (geneList.isEmpty()){
-
-                // collect() will be null if one of the list is empty, to avoid this, use OPTIONAL MATCH instead
-
-                query = mpToGenePath
-                        //+ " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') "
-                        + whereClause1
-                        + " AND " + significantCypher + phenotypeSexesCypher + impressParameterNameCypher + chrRangeCypher + geneList + genotypesCypher + alleleTypesCypher
-                        + " WITH g, collect({genes:g, alleles:a, srs:sr, mps:mp}) as list1 "
-
-                        + matchClause1
-                        //+ " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*') "
-                        + whereClause2
-                        + " AND " + significantCypher + phenotypeSexesCypher + impressParameterNameCypher + chrRangeCypher + geneList + genotypesCypher + alleleTypesCypher
-                        + " WITH g, list1, collect({genes:g, alleles:a, srs:sr, mps:mp}) as list2 "
-                        + " WHERE ALL (x IN list1 WHERE x IN list2) "
-                        + " WITH g, list1+list2 as list "
-                        + " UNWIND list as nodes "
-
-                        + " WITH g, nodes, extract(x in collect(distinct nodes.mps) | x.mpTerm) as mps "
-                        + geneToDmPathClause
-                        + " AND dmp.mpTerm IN mps";
-
-            }
-            else {
-                query = geneToMpPath
-                        //+ " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') "
-                        + whereClause1
-                        + " AND " + significantCypher + phenotypeSexesCypher + impressParameterNameCypher + chrRangeCypher + geneList + genotypesCypher + alleleTypesCypher
-                        + " WITH g, collect({genes:g, alleles:a, srs:sr, mps:mp}) as list1 "
-
-                        + matchClause2
-                        //+ " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*') "
-                        + whereClause2
-                        + " AND " + significantCypher + phenotypeSexesCypher + impressParameterNameCypher + chrRangeCypher + geneList + genotypesCypher + alleleTypesCypher
-                        + " WITH g, list1, collect({genes:g, alleles:a, srs:sr, mps:mp}) as list2 "
-                        + " WHERE ALL (x IN list1 WHERE x IN list2) "
-                        + " WITH g, list1+list2 as list "
-                        + " UNWIND list as nodes "
-
-                        + " WITH g, nodes, extract(x in collect(distinct nodes.mps) | x.mpTerm) as mps "
-                        + geneToDmPathClause
-                        + " AND dmp.mpTerm IN mps";
-            }
-
-            dts = new ArrayList<>();
-            for (int d = 0; d < dataTypes.size(); d++){
-                String dt = dataTypes.get(d).toString();
-                dts.add(dtypeMap.containsKey(dt) ? dt : dtypeMap.get(dt));
-            }
-            returnDtypes = StringUtils.join(dts, ", ");
-
-            query += fileType != null ?
-                    //" RETURN distinct nodes.alleles, g, nodes.srs, collect(distinct nodes.mps), collect(distinct dm)" + sortStr
-                    //" RETURN distinct nodes.alleles, g, nodes.srs, nodes.mps, dm" + sortStr :
-                    " RETURN distinct " + returnDtypes + sortStr :
-                    " RETURN collect(distinct nodes.alleles), collect(distinct g), collect(distinct nodes.srs), collect(distinct nodes.mps), collect(distinct dm)";
-
-            System.out.println("Query: "+ query);
-            result =  neo4jSession.query(query, params);
-        }
-        else if (mpStr.matches(regex_aOrb_andc)) {
-            System.out.println("matches (a or b) and c");
-
-            Pattern pattern = Pattern.compile(regex_aOrb_andc);
-            Matcher matcher = pattern.matcher(mpStr);
-
-            while (matcher.find()) {
-                System.out.println("found: " + matcher.group(0));
-                String mpA = matcher.group(1).trim();
-                String mpB = matcher.group(3).trim();;
-                String mpC = matcher.group(5).trim();;
-                logger.info("A: '{}', B: '{}', C: '{}'", mpA, mpB, mpC);
-
-                params.put("mpA", mapNarrowSynonym2MpTerm(narrowMapping, mpA, autosuggestCore));
-                params.put("mpB", mapNarrowSynonym2MpTerm(narrowMapping, mpB, autosuggestCore));
-                params.put("mpC", mapNarrowSynonym2MpTerm(narrowMapping, mpC, autosuggestCore));
-
-                pvaluesA = composePvalues(params.get("mpA").toString(), jParams);
-                pvaluesB = composePvalues(params.get("mpB").toString(), jParams);
-                pvaluesC = composePvalues(params.get("mpC").toString(), jParams);
-            }
-
-            String whereClause1 = " WHERE ((mp0.mpTerm = '" + params.get("mpA") + "'" + pvaluesA + ") OR (mp0.mpTerm ='" + params.get("mpB") + "'" + pvaluesB + ")) ";
-
-            String whereClause2 = " WHERE mp0.mpTerm = '" + params.get("mpC") + "'" + pvaluesC;
-
-            String matchClause1 = " MATCH (mp0:Mp)<-[:PARENT*0..]-(mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g) ";
-
-            String matchClause2 =" MATCH (g)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp)-[:PARENT*0..]->(mp0:Mp) ";
-
-            if (geneList.isEmpty()){
-                query = mpToGenePath
-                        //+ "WHERE (mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') OR mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*')) "
-                        + whereClause1
-                        + " AND " + significantCypher + phenotypeSexesCypher + impressParameterNameCypher + chrRangeCypher + geneList + genotypesCypher + alleleTypesCypher
-                        + " WITH g, collect({alleles:a, srs:sr, mps:mp}) as list1 "
-
-                        + matchClause1
-                        //+ " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpC}+'.*') "
-                        + whereClause2
-                        + " AND " + significantCypher + phenotypeSexesCypher + impressParameterNameCypher + chrRangeCypher + geneList + genotypesCypher + alleleTypesCypher
-                        + " WITH g, list1, collect({alleles:a, srs:sr, mps:mp}) as list2 "
-                        + " WHERE ALL (x IN list1 WHERE x IN list2) "
-                        + " WITH g, list1+list2 as list "
-                        + " UNWIND list as nodes "
-                        + " WITH g, nodes, extract(x in collect(distinct nodes.mps) | x.mpTerm) as mps "
-                        + geneToDmPathClause
-                        + " AND dmp.mpTerm IN mps";
-            }
-            else {
-                query = geneToMpPath
-                        //+ "WHERE (mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') OR mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*')) "
-                        + whereClause1
-                        + " AND " + significantCypher + phenotypeSexesCypher + impressParameterNameCypher + chrRangeCypher + geneList + genotypesCypher + alleleTypesCypher
-                        + " WITH g, collect({alleles:a, srs:sr, mps:mp}) as list1 "
-
-                        + matchClause2
-                        //+ " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpC}+'.*') "
-                        + whereClause2
-                        + " AND " + significantCypher + phenotypeSexesCypher + impressParameterNameCypher + chrRangeCypher + geneList + genotypesCypher + alleleTypesCypher
-                        + " WITH g, list1, collect({alleles:a, srs:sr, mps:mp}) as list2 "
-                        + " WHERE ALL (x IN list1 WHERE x IN list2) "
-                        + " WITH g, list1+list2 as list "
-                        + " UNWIND list as nodes "
-                        + " WITH g, nodes, extract(x in collect(distinct nodes.mps) | x.mpTerm) as mps "
-                        + geneToDmPathClause
-                        + " AND dmp.mpTerm IN mps";
-            }
-
-            dts = new ArrayList<>();
-            for (int d = 0; d < dataTypes.size(); d++){
-                String dt = dataTypes.get(d).toString();
-                dts.add(dtypeMap.containsKey(dt) ? dt : dtypeMap.get(dt));
-            }
-            returnDtypes = StringUtils.join(dts, ", ");
-
-            query += fileType != null ?
-                    //" RETURN distinct nodes.alleles, g, nodes.srs, collect(distinct nodes.mps), collect(distinct dm)" + sortStr :
-                    //" RETURN distinct nodes.alleles, g, nodes.srs, nodes.mps, dm" + sortStr :
-                    " RETURN distinct " + returnDtypes + sortStr :
-                    " RETURN collect(distinct nodes.alleles), collect(distinct g), collect(distinct nodes.srs), collect(distinct nodes.mps), collect(distinct dm)";
-
-            System.out.println("Query: "+ query);
-            result =  neo4jSession.query(query, params);
-        }
-        else if (mpStr.matches(regex_aAnd_bOrc)) {
-            System.out.println("matches a and (b or c)");
-
-            Pattern pattern = Pattern.compile(regex_aAnd_bOrc);
-            Matcher matcher = pattern.matcher(mpStr);
-
-            while (matcher.find()) {
-                System.out.println("found: " + matcher.group(0));
-                String mpA = matcher.group(1).trim();
-                String mpB = matcher.group(3).trim();;
-                String mpC = matcher.group(5).trim();;
-                //logger.info("A: '{}', B: '{}', C: '{}'", mpA, mpB, mpC);
-
-                params.put("mpA", mapNarrowSynonym2MpTerm(narrowMapping, mpA, autosuggestCore));
-                params.put("mpB", mapNarrowSynonym2MpTerm(narrowMapping, mpB, autosuggestCore));
-                params.put("mpC", mapNarrowSynonym2MpTerm(narrowMapping, mpC, autosuggestCore));
-
-                pvaluesA = composePvalues(params.get("mpA").toString(), jParams);
-                pvaluesB = composePvalues(params.get("mpB").toString(), jParams);
-                pvaluesC = composePvalues(params.get("mpC").toString(), jParams);
-            }
-
-            String whereClause1 = " WHERE ((mp0.mpTerm = '" + params.get("mpB") + "'" + pvaluesB + ") OR (mp0.mpTerm ='" + params.get("mpC") + "'" + pvaluesC + ")) ";
-
-            String whereClause2 = " WHERE mp0.mpTerm = '" + params.get("mpA") + "'" + pvaluesA;
-
-            String matchClause1 =" MATCH (mp0:Mp)<-[:PARENT*0..]-(mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g) ";
-
-            String matchClause2 = " MATCH (g)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp)-[:PARENT*0..]->(mp0:Mp) ";
-
-            if (geneList.isEmpty()){
-                query = mpToGenePath
-                        //+ "WHERE (mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*') OR mp0.mpTerm =~ ('(?i)'+'.*'+{mpC}+'.*')) "
-                        + whereClause1
-                        + " AND " + significantCypher + phenotypeSexesCypher + impressParameterNameCypher + chrRangeCypher + geneList + genotypesCypher + alleleTypesCypher
-                        + " WITH g, collect({alleles:a, srs:sr, mps:mp}) as list1 "
-
-                        + matchClause1
-                        //+ " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') "
-                        + whereClause2
-                        + " AND " + significantCypher + phenotypeSexesCypher + impressParameterNameCypher + chrRangeCypher + geneList + genotypesCypher + alleleTypesCypher
-                        + " WITH g, list1, collect({alleles:a, srs:sr, mps:mp}) as list2 "
-                        + " WHERE ALL (x IN list1 WHERE x IN list2) "
-                        + " WITH g, list1+list2 as list "
-                        + " UNWIND list as nodes "
-                        + " WITH g, nodes, extract(x in collect(distinct nodes.mps) | x.mpTerm) as mps "
-                        + geneToDmPathClause
-                        + " AND dmp.mpTerm IN mps";
-            }
-            else {
-                query = geneToMpPath
-                        //+ "WHERE (mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*') OR mp0.mpTerm =~ ('(?i)'+'.*'+{mpC}+'.*')) "
-                        + whereClause1
-                        + " AND " + significantCypher + phenotypeSexesCypher + impressParameterNameCypher + chrRangeCypher + geneList + genotypesCypher + alleleTypesCypher
-                        + " WITH g, collect({alleles:a, srs:sr, mps:mp}) as list1 "
-
-                        + matchClause2
-                        //+ " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') "
-                        + whereClause2
-                        + " AND " + significantCypher + phenotypeSexesCypher + impressParameterNameCypher + chrRangeCypher + geneList + genotypesCypher + alleleTypesCypher
-                        + " WITH g, list1, collect({alleles:a, srs:sr, mps:mp}) as list2 "
-                        + " WHERE ALL (x IN list1 WHERE x IN list2) "
-                        + " WITH g, list1+list2 as list "
-                        + " UNWIND list as nodes "
-                        + " WITH g, nodes, extract(x in collect(distinct nodes.mps) | x.mpTerm) as mps "
-                        + geneToDmPathClause
-                        + " AND dmp.mpTerm IN mps";
-            }
-
-            dts = new ArrayList<>();
-            for (int d = 0; d < dataTypes.size(); d++){
-                String dt = dataTypes.get(d).toString();
-                dts.add(dtypeMap.containsKey(dt) ? dt : dtypeMap.get(dt));
-            }
-            returnDtypes = StringUtils.join(dts, ", ");
-
-            query += fileType != null ?
-                    //" RETURN distinct nodes.alleles, g, nodes.srs, collect(distinct nodes.mps), collect(distinct dm)" + sortStr
-                    //" RETURN distinct nodes.alleles, g, nodes.srs, nodes.mps, dm" + sortStr :
-                    " RETURN distinct " + returnDtypes + sortStr :
-                    " RETURN collect(distinct nodes.alleles), collect(distinct g), collect(distinct nodes.srs), collect(distinct nodes.mps), collect(distinct dm)";
-
-
-            System.out.println("Query: "+ query);
-            result =  neo4jSession.query(query, params);
-        }
-
-        else if (mpStr.matches(regex_aAndbAndc)) {
-            System.out.println("matches a and b and c");
-
-            Pattern pattern = Pattern.compile(regex_aAndbAndc);
-            Matcher matcher = pattern.matcher(mpStr);;
-
-            while (matcher.find()) {
-                System.out.println("found: " + matcher.group(0));
-                String mpA = matcher.group(1).trim();
-                String mpB = matcher.group(3).trim();
-                String mpC = matcher.group(5).trim();
-                logger.info("A: '{}', B: '{}', C: '{}'", mpA, mpB, mpC);
-
-                params.put("mpA", mapNarrowSynonym2MpTerm(narrowMapping, mpA, autosuggestCore));
-                params.put("mpB", mapNarrowSynonym2MpTerm(narrowMapping, mpB, autosuggestCore));
-                params.put("mpC", mapNarrowSynonym2MpTerm(narrowMapping, mpC, autosuggestCore));
-
-                pvaluesA = composePvalues(params.get("mpA").toString(), jParams);
-                pvaluesB = composePvalues(params.get("mpB").toString(), jParams);
-                pvaluesC = composePvalues(params.get("mpC").toString(), jParams);
-            }
-
-            String whereClause1 =  " WHERE mp0.mpTerm = '" + params.get("mpA") + "'" + pvaluesA;
-            String whereClause2 = " WHERE mp0.mpTerm = '" + params.get("mpB") + "'" + pvaluesB;
-            String whereClause3 = " WHERE mp0.mpTerm = '" + params.get("mpC") + "'" + pvaluesC;
-
-            String mpMatchClause = " MATCH (mp0:Mp)<-[:PARENT*0..]-(mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g) ";
+        else if (mpForm.getPhenotypeRows().size() == 0 ){
+            // CASE 2 - search by no phenotype and no disease
+            System.out.println("Search by no phenotype and no disease");
+
+            String whereClause = noMpChild ? " WHERE mp.mpTerm =~ '.*' " : " WHERE mp0.mpTerm =~ '.*' ";
+            String mpTerm = null;
 
             query = mpToGenePath
-                    //+ " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') "
-                    + whereClause1
-                    + " AND " + significantCypher + phenotypeSexesCypher + impressParameterNameCypher + chrRangeCypher + geneList + genotypesCypher + alleleTypesCypher
-                    + " WITH g, collect({alleles:a, mps:mp, srs:sr}) as list1 "
-
-                    + mpMatchClause
-                    //+ " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*') "
-                    + whereClause2
-                    + " AND " + significantCypher + phenotypeSexesCypher + impressParameterNameCypher + chrRangeCypher + geneList + genotypesCypher + alleleTypesCypher
-                    + " WITH g, list1, collect({alleles:a, mps:mp, srs:sr}) as list2 "
-
-                    + mpMatchClause
-                    //+ " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpC}+'.*') "
-                    + whereClause3
-                    + " AND " + significantCypher + phenotypeSexesCypher + impressParameterNameCypher + chrRangeCypher + geneList + genotypesCypher + alleleTypesCypher
-                    + " WITH g, list1, list2, collect({alleles:a, mps:mp, srs:sr}) as list3 "
-                    + " WHERE ALL (x IN list1 WHERE x IN list2) AND ALL (x IN list2 WHERE x IN list3) "
-                    + " WITH g, list1+list2+list3 as list "
-                    + " UNWIND list as nodes "
-                    + " WITH g, nodes, extract(x in collect(distinct nodes.mps) | x.mpTerm) as mps "
+                    + whereClause
+                    + " AND " + significantCypher + parameterCypher + chrRangeCypher + geneListCypher + genotypesCypher + alleleTypesCypher
+                    + " WITH g, a, mp, sr, "
+                    + " extract(x in collect(distinct mp) | x.mpTerm) as mps "
                     + geneToDmPathClause
                     + " AND dmp.mpTerm IN mps";
-
-            dts = new ArrayList<>();
-            for (int d = 0; d < dataTypes.size(); d++){
-                String dt = dataTypes.get(d).toString();
-                dts.add(dtypeMap.containsKey(dt) ? dt : dtypeMap.get(dt));
-            }
-            returnDtypes = StringUtils.join(dts, ", ");
-
-            query += fileType != null ?
-                    //" RETURN distinct nodes.alleles, g, nodes.srs, collect(distinct nodes.mps), collect(distinct dm)" + sortStr
-                    //" RETURN distinct nodes.alleles, g, nodes.srs, nodes.mps, dm" + sortStr :
-                    " RETURN distinct " + returnDtypes + sortStr :
-                    " RETURN collect(distinct nodes.alleles), collect(distinct g), collect(distinct nodes.srs), collect(distinct nodes.mps), collect(distinct dm)";
-
-            System.out.println("Query: "+ query);
-            result =  neo4jSession.query(query, params);
         }
-        else if (mpStr.matches(regex_aAndb)) {
-            System.out.println("matches a and b");
+        else if (mpForm.getPhenotypeRows().size() == 1){
+            // CASE 3 - search by only 1 mp
 
-            Pattern pattern = Pattern.compile(regex_aAndb);
-            Matcher matcher = pattern.matcher(mpStr);
+            System.out.println("Search by A");
 
-            while (matcher.find()) {
-                String mpA = matcher.group(1).trim();;
-                String mpB = matcher.group(3).trim();;
-                logger.info("A: '{}', B: '{}'", mpA, mpB);
+            String mpTerm = mpForm.getPhenotypeRows().get(0).getPhenotypeTerm();
+            mpTerm = mapNarrowSynonym2MpTerm(narrowOrSynonymMapping, mpTerm, autosuggestCore);
+            String pvaluesCypher = composePvalues(mpForm, mpTerm);
+            String whereClause = noMpChild ? " WHERE mp.mpTerm = '" + mpTerm + "'" : " WHERE mp0.mpTerm = '" + mpTerm + "'";
 
-                params.put("mpA", mapNarrowSynonym2MpTerm(narrowMapping, mpA, autosuggestCore));
-                params.put("mpB", mapNarrowSynonym2MpTerm(narrowMapping, mpB, autosuggestCore));
-
-                pvaluesA = composePvalues(params.get("mpA").toString(), jParams);
-                pvaluesB = composePvalues(params.get("mpB").toString(), jParams);
-            }
-
-            String whereClause1 =  " WHERE mp0.mpTerm = '" + params.get("mpA") + "'" + pvaluesA;
-            String whereClause2 = " WHERE mp0.mpTerm = '" + params.get("mpB") + "'" + pvaluesB;
-
-            String mpMatchClause = " MATCH (mp0:Mp)<-[:PARENT*0..]-(mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g) ";
-
-            query = mpToGenePath
-                  //+ " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') "
-                  + whereClause1
-                  + " AND " + significantCypher + phenotypeSexesCypher + impressParameterNameCypher + chrRangeCypher + geneList + genotypesCypher + alleleTypesCypher
-                  + " WITH g, collect({alleles:a, mps:mp, srs:sr}) as list1 "
-
-                  + mpMatchClause
-                  //+ " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*') "
-                  + whereClause2
-                  + " AND " + significantCypher + phenotypeSexesCypher + impressParameterNameCypher + chrRangeCypher + geneList + genotypesCypher + alleleTypesCypher
-                  + " WITH g, list1, collect({alleles:a, mps:mp, srs:sr}) as list2 "
-                  + " WHERE ALL (x IN list1 WHERE x IN list2) "
-                  + " WITH g, list1+list2 as list "
-                  + " UNWIND list as nodes "
-                  + " WITH g, nodes, extract(x in collect(distinct nodes.mps) | x.mpTerm) as mps "
-                  + geneToDmPathClause
-                  + " AND dmp.mpTerm IN mps";
-
-            //query += fileType != null ? " RETURN distinct nodes.alleles, g, nodes.srs, collect(distinct nodes.mps), collect(distinct dm)" + sortStr
-              //      : " RETURN collect(distinct nodes.alleles), collect(distinct g), collect(distinct nodes.srs), collect(distinct nodes.mps), collect(distinct dm)";
-
-            dts = new ArrayList<>();
-            for (int d = 0; d < dataTypes.size(); d++){
-                String dt = dataTypes.get(d).toString();
-                dts.add(dtypeMap.containsKey(dt) ? dt : dtypeMap.get(dt));
-            }
-            returnDtypes = StringUtils.join(dts, ", ");
-
-            query += fileType != null ?
-                    //" RETURN distinct nodes.alleles, g, nodes.srs, collect(distinct nodes.mps), collect(distinct dm)" + sortStr
-                    //" RETURN distinct nodes.alleles, g, nodes.srs, nodes.mps, dm" + sortStr :
-                    " RETURN distinct " + returnDtypes + sortStr :
-                    " RETURN collect(distinct nodes.alleles), collect(distinct g), collect(distinct nodes.srs), collect(distinct nodes.mps), collect(distinct dm)";
-
-            System.out.println("Query: "+ query);
-            result =  neo4jSession.query(query, params);
-        }
-        else if (mpStr.matches(regex_aOrbOrc)) {
-            System.out.println("matches a or b or c");
-
-            Pattern pattern = Pattern.compile(regex_aOrbOrc);
-            Matcher matcher = pattern.matcher(mpStr);
-            while (matcher.find()) {
-                System.out.println("found: " + matcher.group(0));
-                String mpA = matcher.group(1).trim();
-                String mpB = matcher.group(3).trim();
-                String mpC = matcher.group(5).trim();
-                logger.info("A: '{}', B: '{}', C: '{}'", mpA, mpB, mpC);
-
-                params.put("mpA", mapNarrowSynonym2MpTerm(narrowMapping, mpA, autosuggestCore));
-                params.put("mpB", mapNarrowSynonym2MpTerm(narrowMapping, mpB, autosuggestCore));
-                params.put("mpC", mapNarrowSynonym2MpTerm(narrowMapping, mpC, autosuggestCore));
-
-                pvaluesA = composePvalues(params.get("mpA").toString(), jParams);
-                pvaluesB = composePvalues(params.get("mpB").toString(), jParams);
-                pvaluesC = composePvalues(params.get("mpC").toString(), jParams);
-            }
-
-            if (geneList.isEmpty()){
-                query = mpToGenePath;
+            if (geneListCypher.isEmpty()) {
+                query = mpToGenePath
+                        //+ " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') "
+                        + whereClause
+                        + " AND " + significantCypher + parameterCypher + pvaluesCypher + chrRangeCypher + geneListCypher + genotypesCypher + alleleTypesCypher
+                        + " WITH g, a, mp, sr, "
+                        + " extract(x in collect(distinct mp) | x.mpTerm) as mps "
+                        + geneToDmPathClause
+                        + " AND dmp.mpTerm IN mps";
             }
             else {
-                query = geneToMpPath;
+                query = geneToMpPath
+                        //+ " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') "
+                        + whereClause
+                        + " AND " + significantCypher + parameterCypher + pvaluesCypher + chrRangeCypher + geneListCypher + genotypesCypher + alleleTypesCypher
+                        + " WITH g, a, mp, sr, "
+                        + " extract(x in collect(distinct mp) | x.mpTerm) as mps "
+                        + geneToDmPathClause
+                        + " AND dmp.mpTerm IN mps";
             }
+        }
+        else if (mpForm.getPhenotypeRows().size() == 2){
+            // search by 2 phenotypes
 
-            String whereClause = " WHERE ((mp0.mpTerm = '" + params.get("mpA") + "'" + pvaluesA + ") OR (mp0.mpTerm ='" + params.get("mpB") + "'" + pvaluesB + ") OR (mp.mpTerm = '" + params.get("mpC") + "'" + pvaluesC + ")) ";
+            String mpA = mpForm.getPhenotypeRows().get(0).getPhenotypeTerm();
+            String pvaluesACypher = composePvalues(mpForm, mpA);
+            mpA = mapNarrowSynonym2MpTerm(narrowOrSynonymMapping, mpA, autosuggestCore);
 
-            System.out.println("A:  "+ pvaluesA);
-            System.out.println("B:  "+ pvaluesB);
-            System.out.println("whereClause: " + whereClause);
+            String mpB = mpForm.getPhenotypeRows().get(1).getPhenotypeTerm();
+            String pvaluesBCypher = composePvalues(mpForm, mpB);
+            mpB = mapNarrowSynonym2MpTerm(narrowOrSynonymMapping, mpB, autosuggestCore);
 
-            // using regular expression to match mp term name drastically lowers the performance, use exact match instead
-            query +=
-                  //  " WHERE (mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') OR mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*') OR mp0.mpTerm =~ ('(?i)'+'.*'+{mpC}+'.*')) "
-                  whereClause
-                + " AND " + significantCypher + phenotypeSexesCypher + impressParameterNameCypher + chrRangeCypher + geneList + genotypesCypher + alleleTypesCypher
-                + " WITH g, a, sr, mp, extract(x in collect(distinct mp) | x.mpTerm) as mps "
-                + geneToDmPathClause
-                + " AND dmp.mpTerm IN mps";
+            Logical logical1 = mpForm.getLogical1();
+            switch(logical1){
+                // CASE 4 - mpA AND mpB
+                case AND:
+                    System.out.println("Search by A AND B");
 
-            query += fileType != null ?
-                    //" RETURN distinct a, g, sr, collect(distinct mp), collect(distinct dm)" + sortStr :
-                    " RETURN distinct " + returnDtypes + sortStr :
-                    " RETURN collect(distinct a), collect(distinct g), collect(distinct sr), collect(distinct mp), collect(distinct dm)";
+                    String whereClause1 = noMpChild ? " WHERE mp.mpTerm = '" + mpA + "'" + pvaluesACypher : " WHERE mp0.mpTerm = '" + mpA + "'" + pvaluesACypher;
+                    String whereClause2 = noMpChild ? " WHERE mp.mpTerm = '" + mpB + "'" + pvaluesBCypher : " WHERE mp0.mpTerm = '" + mpB + "'" + pvaluesBCypher;
 
-            System.out.println("Query: "+ query);
-            result =  neo4jSession.query(query, params);
+                    String mpMatchClause = noMpChild ? " MATCH (mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g) "
+                            : " MATCH (mp0:Mp)<-[:PARENT*0..]-(mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g) ";
+
+                    query = mpToGenePath
+                            //+ " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') "
+                            + whereClause1
+                            + " AND " + significantCypher + parameterCypher + chrRangeCypher + geneListCypher + genotypesCypher + alleleTypesCypher
+                            + " WITH g, collect({alleles:a, mps:mp, srs:sr}) as list1 "
+
+                            + mpMatchClause
+                            //+ " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*') "
+                            + whereClause2
+                            + " AND " + significantCypher + parameterCypher + chrRangeCypher + geneListCypher + genotypesCypher + alleleTypesCypher
+                            + " WITH g, list1, collect({alleles:a, mps:mp, srs:sr}) as list2 "
+                            // + " WHERE ALL (x IN list1 WHERE x IN list2) "
+                            + " WITH g, list1+list2 as list "
+                            + " UNWIND list as nodes "
+                            + " WITH g, nodes, extract(x in collect(distinct nodes.mps) | x.mpTerm) as mps "
+                            + geneToDmPathClause
+                            + " AND dmp.mpTerm IN mps";
+                    break;
+
+                // CASE 5 - mpA OR mpB
+                case OR:
+                    System.out.println("Search by A OR B");
+                    if (geneListCypher.isEmpty()){
+                        query = mpToGenePath;
+                    }
+                    else {
+                        query = geneToMpPath;
+                    }
+
+                    String whereClause = noMpChild ? " WHERE ((mp.mpTerm = '" + mpA + "'" + pvaluesACypher + ") OR (mp.mpTerm ='" + mpB + "'" + pvaluesBCypher + ")) "
+                            : " WHERE ((mp0.mpTerm = '" + mpA + "'" + pvaluesACypher + ") OR (mp0.mpTerm ='" + mpB + "'" + pvaluesBCypher + "))";
+                    query +=
+                            //  " WHERE (mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') OR mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*')) "
+                            whereClause
+                            + " AND " + significantCypher + parameterCypher + chrRangeCypher+ geneListCypher + genotypesCypher + alleleTypesCypher
+                            + " WITH g, a, sr, mp, extract(x in collect(distinct mp) | x.mpTerm) as mps "
+                            + geneToDmPathClause
+                            + " AND dmp.mpTerm IN mps";
+                    break;
+            }
 
         }
-        else if (mpStr.matches(regex_aOrb)) {
-            System.out.println("matches a or b");
+        else if (mpForm.getPhenotypeRows().size() == 3 ) {
+            // search by 3  phenotypes
 
-            Pattern pattern = Pattern.compile(regex_aOrb);
-            Matcher matcher = pattern.matcher(mpStr);
+            String mpA = mpForm.getPhenotypeRows().get(0).getPhenotypeTerm();
+            String pvaluesACypher = composePvalues(mpForm, mpA);
+            mpA = mapNarrowSynonym2MpTerm(narrowOrSynonymMapping, mpA, autosuggestCore);
 
-            while (matcher.find()) {
-                String mpA = matcher.group(1).trim();
-                String mpB = matcher.group(3).trim();
-                logger.info("A: '{}', B: '{}'", mpA, mpB);
+            String mpB = mpForm.getPhenotypeRows().get(1).getPhenotypeTerm();
+            String pvaluesBCypher = composePvalues(mpForm, mpB);
+            mpB = mapNarrowSynonym2MpTerm(narrowOrSynonymMapping, mpB, autosuggestCore);
 
-                params.put("mpA", mapNarrowSynonym2MpTerm(narrowMapping, mpA, autosuggestCore));
-                params.put("mpB", mapNarrowSynonym2MpTerm(narrowMapping, mpB, autosuggestCore));
+            String mpC = mpForm.getPhenotypeRows().get(1).getPhenotypeTerm();
+            String pvaluesCCypher = composePvalues(mpForm, mpC);
+            mpC = mapNarrowSynonym2MpTerm(narrowOrSynonymMapping, mpC, autosuggestCore);
 
-                pvaluesA = composePvalues(params.get("mpA").toString(), jParams);
-                pvaluesB = composePvalues(params.get("mpB").toString(), jParams);
+            // CASE 6 - mpA AND mpB AND mpC
+            if (mpForm.getLogical1().equals("AND") && mpForm.getLogical2().equals("AND")) {
+                System.out.println("Search by A AND B AND C");
+
+                String whereClause1 = noMpChild ? " WHERE mp.mpTerm = '" + mpA + "'" + pvaluesACypher : " WHERE mp0.mpTerm = '" + mpA + "'" + pvaluesACypher;
+                String whereClause2 = noMpChild ? " WHERE mp.mpTerm = '" + mpB + "'" + pvaluesBCypher : " WHERE mp0.mpTerm = '" + mpB + "'" + pvaluesBCypher;
+                String whereClause3 = noMpChild ? " WHERE mp.mpTerm = '" + mpC + "'" + pvaluesCCypher : " WHERE mp0.mpTerm = '" + mpC + "'" + pvaluesCCypher;
+
+                String mpMatchClause = noMpChild ? " MATCH (mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g) "
+                        : " MATCH (mp0:Mp)<-[:PARENT*0..]-(mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g) ";
+
+                query = mpToGenePath
+                        //+ " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') "
+                        + whereClause1
+                        + " AND " + significantCypher + parameterCypher + chrRangeCypher + geneListCypher + genotypesCypher + alleleTypesCypher
+                        + " WITH g, collect({alleles:a, mps:mp, srs:sr}) as list1 "
+
+                        + mpMatchClause
+                        //+ " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*') "
+                        + whereClause2
+                        + " AND " + significantCypher + parameterCypher + chrRangeCypher + geneListCypher + genotypesCypher + alleleTypesCypher
+                        + " WITH g, list1, collect({alleles:a, mps:mp, srs:sr}) as list2 "
+
+                        + mpMatchClause
+                        //+ " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpC}+'.*') "
+                        + whereClause3
+                        + " AND " + significantCypher + parameterCypher + chrRangeCypher + geneListCypher + genotypesCypher + alleleTypesCypher
+                        + " WITH g, list1, list2, collect({alleles:a, mps:mp, srs:sr}) as list3 "
+                        // + " WHERE ALL (x IN list1 WHERE x IN list2) AND ALL (x IN list2 WHERE x IN list3) "
+                        + " WITH g, list1+list2+list3 as list "
+                        + " UNWIND list as nodes "
+                        + " WITH g, nodes, extract(x in collect(distinct nodes.mps) | x.mpTerm) as mps "
+                        + geneToDmPathClause
+                        + " AND dmp.mpTerm IN mps";
+
+            }
+            // CASE 7 - mpA OR mpB OR mpC
+            else if (mpForm.getLogical1().equals("OR") && mpForm.getLogical2().equals("OR")) {
+                System.out.println("Search by A OR B OR C");
+
+                if (geneListCypher.isEmpty()) {
+                    query = mpToGenePath;
+                } else {
+                    query = geneToMpPath;
+                }
+
+                String whereClause = noMpChild ? " WHERE ((mp.mpTerm = '" + mpA + "'" + pvaluesACypher + ") OR (mp.mpTerm ='" + mpB + "'" + pvaluesBCypher + ") OR (mp.mpTerm = '" + mpC + "'" + pvaluesCCypher + ") ) "
+                        : " WHERE ((mp0.mpTerm = '" + mpA + "'" + pvaluesACypher + ") OR (mp0.mpTerm ='" + mpB + "'" + pvaluesBCypher + ") OR (mp.mpTerm = '" + mpC + "'" + pvaluesCCypher + ")) ";
+
+                query +=
+                        //  " WHERE (mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') OR mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*') OR mp0.mpTerm =~ ('(?i)'+'.*'+{mpC}+'.*')) "
+                        whereClause
+                                + " AND " + significantCypher + parameterCypher + chrRangeCypher + geneListCypher + genotypesCypher + alleleTypesCypher
+                                + " WITH g, a, sr, mp, extract(x in collect(distinct mp) | x.mpTerm) as mps "
+                                + geneToDmPathClause
+                                + " AND dmp.mpTerm IN mps";
+
+            }
+            // CASE 8 - (mpA AND mpB) OR mpC
+            else if (mpForm.getLogical1().equals("AND") && mpForm.getLogical2().equals("OR")) {
+                System.out.println("Search by (A AND B) OR C)");
+
+                String whereClause1 = noMpChild ? " WHERE ((mp.mpTerm = '" + mpA + "'" + pvaluesACypher + ") OR (mp.mpTerm ='" + mpC + "'" + pvaluesCCypher + ")) "
+                        : " WHERE ((mp0.mpTerm = '" + mpA + "'" + pvaluesACypher + ") OR (mp0.mpTerm ='" + mpC + "'" + pvaluesCCypher + "))";
+
+                String whereClause2 = noMpChild ? " WHERE ((mp.mpTerm = '" + mpB + "'" + pvaluesBCypher + ") OR (mp.mpTerm ='" + mpC + "'" + pvaluesCCypher + ")) "
+                        : " WHERE ((mp0.mpTerm = '" + mpB + "'" + pvaluesBCypher + ") OR (mp0.mpTerm ='" + mpC + "'" + pvaluesCCypher + "))";
+
+                String matchClause1 = noMpChild ? " MATCH (mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g) "
+                        : " MATCH (mp0:Mp)<-[:PARENT*0..]-(mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g) ";
+
+                String matchClause2 = noMpChild ? " MATCH (g)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp) "
+                        : " MATCH (g)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp)-[:PARENT*0..]->(mp0:Mp) ";
+
+                if (geneListCypher.isEmpty()) {
+
+                    // collect() will be null if one of the list is empty, to avoid this, use OPTIONAL MATCH instead
+
+                    query = mpToGenePath
+                            //+ " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') "
+                            + whereClause1
+                            + " AND " + significantCypher + parameterCypher + chrRangeCypher + geneListCypher + genotypesCypher + alleleTypesCypher
+                            + " WITH g, collect({genes:g, alleles:a, srs:sr, mps:mp}) as list1 "
+
+                            + matchClause1
+                            //+ " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*') "
+                            + whereClause2
+                            + " AND " + significantCypher + parameterCypher + chrRangeCypher + geneListCypher + genotypesCypher + alleleTypesCypher
+                            + " WITH g, list1, collect({genes:g, alleles:a, srs:sr, mps:mp}) as list2 "
+                            //  + " WHERE ALL (x IN list1 WHERE x IN list2) "
+                            + " WITH g, list1+list2 as list "
+                            + " UNWIND list as nodes "
+
+                            + " WITH g, nodes, extract(x in collect(distinct nodes.mps) | x.mpTerm) as mps "
+                            + geneToDmPathClause
+                            + " AND dmp.mpTerm IN mps";
+                } else {
+                    query = geneToMpPath
+                            //+ " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') "
+                            + whereClause1
+                            + " AND " + significantCypher + parameterCypher + chrRangeCypher + geneListCypher + genotypesCypher + alleleTypesCypher
+                            + " WITH g, collect({genes:g, alleles:a, srs:sr, mps:mp}) as list1 "
+
+                            + matchClause2
+                            //+ " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*') "
+                            + whereClause2
+                            + " AND " + significantCypher + parameterCypher + chrRangeCypher + geneListCypher + genotypesCypher + alleleTypesCypher
+                            + " WITH g, list1, collect({genes:g, alleles:a, srs:sr, mps:mp}) as list2 "
+                            // + " WHERE ALL (x IN list1 WHERE x IN list2) "
+                            + " WITH g, list1+list2 as list "
+                            + " UNWIND list as nodes "
+
+                            + " WITH g, nodes, extract(x in collect(distinct nodes.mps) | x.mpTerm) as mps "
+                            + geneToDmPathClause
+                            + " AND dmp.mpTerm IN mps";
+                }
+
+            }
+            // CASE 9 - (mpA OR mpB) AND mpC
+            else if (mpForm.getLogical1().equals("OR") && mpForm.getLogical2().equals("AND")) {
+                System.out.println("Search by (A OR B) AND C)");
+
+                String whereClause1 = noMpChild ? " WHERE ((mp.mpTerm = '" + mpA + "'" + pvaluesACypher + ") OR (mp.mpTerm ='" + mpB + "'" + pvaluesBCypher + ")) "
+                        : " WHERE ((mp0.mpTerm = '" + mpA + "'" + pvaluesACypher + ") OR (mp0.mpTerm ='" + mpB + "'" + pvaluesBCypher + ")) ";
+
+                String whereClause2 = noMpChild ? " WHERE mp.mpTerm = '" + mpC + "'" + pvaluesCCypher : " WHERE mp0.mpTerm = '" + mpC + "'" + pvaluesCCypher;
+
+                String matchClause1 = noMpChild ? " MATCH (mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g) "
+                        : " MATCH (mp0:Mp)<-[:PARENT*0..]-(mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g) ";
+
+                String matchClause2 = noMpChild ? " MATCH (g)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp) "
+                        : " MATCH (g)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp)-[:PARENT*0..]->(mp0:Mp) ";
+
+                if (geneListCypher.isEmpty()) {
+                    query = mpToGenePath
+                            //+ "WHERE (mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') OR mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*')) "
+                            + whereClause1
+                            + " AND " + significantCypher + parameterCypher + chrRangeCypher + geneListCypher + genotypesCypher + alleleTypesCypher
+                            + " WITH g, collect({alleles:a, srs:sr, mps:mp}) as list1 "
+
+                            + matchClause1
+                            //+ " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpC}+'.*') "
+                            + whereClause2
+                            + " AND " + significantCypher + parameterCypher + chrRangeCypher + geneListCypher + genotypesCypher + alleleTypesCypher
+                            + " WITH g, list1, collect({alleles:a, srs:sr, mps:mp}) as list2 "
+                            // + " WHERE ALL (x IN list1 WHERE x IN list2) "
+                            + " WITH g, list1+list2 as list "
+                            + " UNWIND list as nodes "
+                            + " WITH g, nodes, extract(x in collect(distinct nodes.mps) | x.mpTerm) as mps "
+                            + geneToDmPathClause
+                            + " AND dmp.mpTerm IN mps";
+                } else {
+                    query = geneToMpPath
+                            //+ "WHERE (mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') OR mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*')) "
+                            + whereClause1
+                            + " AND " + significantCypher + parameterCypher + chrRangeCypher + geneListCypher + genotypesCypher + alleleTypesCypher
+                            + " WITH g, collect({alleles:a, srs:sr, mps:mp}) as list1 "
+
+                            + matchClause2
+                            //+ " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpC}+'.*') "
+                            + whereClause2
+                            + " AND " + significantCypher + parameterCypher + chrRangeCypher + geneListCypher + genotypesCypher + alleleTypesCypher
+                            + " WITH g, list1, collect({alleles:a, srs:sr, mps:mp}) as list2 "
+                            // + " WHERE ALL (x IN list1 WHERE x IN list2) "
+                            + " WITH g, list1+list2 as list "
+                            + " UNWIND list as nodes "
+                            + " WITH g, nodes, extract(x in collect(distinct nodes.mps) | x.mpTerm) as mps "
+                            + geneToDmPathClause
+                            + " AND dmp.mpTerm IN mps";
+                }
             }
 
-            if (geneList.isEmpty()){
-                query = mpToGenePath;
-            }
-            else {
-                query = geneToMpPath;
-            }
-
-            String whereClause = " WHERE ((mp0.mpTerm = '" + params.get("mpA") + "'" + pvaluesA + ") OR (mp0.mpTerm ='" + params.get("mpB") + "'" + pvaluesB + "))";
-            query +=
-                  //  " WHERE (mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') OR mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*')) "
-                  whereClause
-                + " AND " + significantCypher + phenotypeSexesCypher + impressParameterNameCypher + chrRangeCypher + geneList + genotypesCypher + alleleTypesCypher
-                + " WITH g, a, sr, mp, extract(x in collect(distinct mp) | x.mpTerm) as mps "
-                + geneToDmPathClause
-                + " AND dmp.mpTerm IN mps";
-
-            query += fileType != null ?
-                    //" RETURN distinct a, g, sr, collect(distinct mp), collect(distinct dm)" + sortStr :
-                    " RETURN distinct " + returnDtypes + sortStr :
-                    " RETURN collect(distinct a), collect(distinct g), collect(distinct sr), collect(distinct mp), collect(distinct dm)";
-
-            System.out.println("Query: "+ query);
-            result =  neo4jSession.query(query, params);
         }
 
+        returnDtypes = fetchReturnTypes(dataTypes, dtypeMap);
+
+        query += fileType != null ?
+                //" RETURN distinct nodes.alleles, g, nodes.srs, collect(distinct nodes.mps), collect(distinct dm)" + sortStr
+                //" RETURN distinct nodes.alleles, g, nodes.srs, nodes.mps, dm" + sortStr :
+                " RETURN distinct " + returnDtypes + sortStr :
+                " RETURN collect(distinct nodes.alleles), collect(distinct g), collect(distinct nodes.srs), collect(distinct nodes.mps), collect(distinct dm)";
+
+
+        System.out.println("QUERY: " + query);
+
+        HashedMap params = new HashedMap();
+        Result result = null;
+
+        long begin = System.currentTimeMillis();
+        result = neo4jSession.query(query, params); // params is empty, I don't need it in my case, but method needs it as 2nd argument
         long end = System.currentTimeMillis();
         System.out.println("Done with query in " + (end - begin) + " ms");
 
@@ -1060,11 +788,12 @@ public class AdvancedSearchService {
         j.put("aaData", new Object[0]);
         j.put("iDisplayStart", 0);
         j.put("iDisplayLength", 10);
-        j.put("narrowMapping", StringUtils.join(narrowMapping, ", "));
+        j.put("narrowOrSynonymMapping", StringUtils.join(narrowOrSynonymMapping, ", "));
 
         List<String> rowDataExport = new ArrayList<>(); // for export
         List<String> rowDataOverview = new ArrayList<>(); // for overview
         List<String> dtypes = Arrays.asList("Allele", "Gene", "Mp", "DiseaseModel", "StatisticalResult");
+        //List<String> dtypes = Arrays.asList("a", "g", "mp", "dm", "sr");
 
         long tstart = System.currentTimeMillis();
         if (fileType != null){
@@ -1076,27 +805,26 @@ public class AdvancedSearchService {
 
                 node2Properties.put(dtype, new ArrayList<String>());
 
-                if (jParams.containsKey(dtype)) {
-                    for (Object obj : jParams.getJSONArray(dtype)) {
-                        String colName = obj.toString();
+                if (dataTypeColsMap.containsKey(dtype)) {
+                    for (String colName : dataTypeColsMap.get(dtype)) {
 
                         //System.out.println("colname: " + colName);
-                        if (colName.equals("alleleSymbol") && !jParams.getJSONArray(dtype).contains("alleleMgiAccessionId")) {
+                        if (colName.equals("alleleSymbol") && ! dataTypeColsMap.get(dtype).contains("alleleMgiAccessionId")) {
                             cols.add(colName);
                             cols.add("alleleMgiAccessionId");
                             node2Properties.get(dtype).add(colName);
                             node2Properties.get(dtype).add("alleleMgiAccessionId");
-                        } else if (colName.equals("markerSymbol") && !jParams.getJSONArray(dtype).contains("mgiAccessionId")) {
+                        } else if (colName.equals("markerSymbol") && ! dataTypeColsMap.get(dtype).contains("mgiAccessionId")) {
                             cols.add(colName);
                             cols.add("mgiAccessionId");
                             node2Properties.get(dtype).add(colName);
                             node2Properties.get(dtype).add("mgiAccessionId");
-                        } else if (colName.equals("mpTerm") && !jParams.getJSONArray(dtype).contains("mpId")) {
+                        } else if (colName.equals("mpTerm") && ! dataTypeColsMap.get(dtype).contains("mpId")) {
                             cols.add(colName);
                             cols.add("mpId");
                             node2Properties.get(dtype).add(colName);
                             node2Properties.get(dtype).add("mpId");
-                        } else if (colName.equals("diseaseTerm") && !jParams.getJSONArray(dtype).contains("diseaseId")) {
+                        } else if (colName.equals("diseaseTerm") && ! dataTypeColsMap.get(dtype).contains("diseaseId")) {
                             cols.add(colName);
                             cols.add("diseaseId");
                             node2Properties.get(dtype).add(colName);
@@ -1268,19 +996,19 @@ public class AdvancedSearchService {
         query.setStart(0);
         query.setRows(100);
         query.setFilterQueries("docType:mp");
-        System.out.println("mapNarrow query="+query);
+        //System.out.println("mapNarrow query="+query);
         QueryResponse response = autosuggestCore.query(query);
-        System.out.println("response: " + response);
+        //System.out.println("response: " + response);
         SolrDocumentList results = response.getResults();
 
         for(SolrDocument doc : results){
             if (doc.containsKey("mp_term") && doc.getFieldValue("mp_term").equals(mpTerm)){
-                System.out.println(doc.getFieldValue("mp_term"));
+                //System.out.println(doc.getFieldValue("mp_term"));
                 mpStr = mpTerm;
                 break;
             }
             else if (doc.containsKey("mp_narrow_synonym") && doc.getFieldValue("mp_narrow_synonym").equals(mpTerm)){
-                System.out.println("NS: "+ doc.getFieldValue("mp_narrow_synonym"));
+                //System.out.println("NS: "+ doc.getFieldValue("mp_narrow_synonym"));
                 mpStr = doc.getFieldValue("mp_term").toString();
                 narrowMapping.add(mpTerm + " is not directly annotated in IMPC and is a child term of " + mpStr);
                 break;

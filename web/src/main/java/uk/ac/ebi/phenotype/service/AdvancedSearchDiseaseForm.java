@@ -24,6 +24,8 @@ public class AdvancedSearchDiseaseForm {
     private Boolean showImpcPredicted;
     private Boolean showMgiPredicted;
 
+    private Boolean hasOutputColumn;
+
     public Boolean getHumanCurated() {
         return isHumanCurated;
     }
@@ -104,6 +106,14 @@ public class AdvancedSearchDiseaseForm {
         this.showMgiPredicted = showMgiPredicted;
     }
 
+    public Boolean getHasOutputColumn() {
+        return hasOutputColumn;
+    }
+
+    public void setHasOutputColumn(Boolean hasOutputColumn) {
+        this.hasOutputColumn = hasOutputColumn;
+    }
+
     @Override
     public String toString() {
         return "AdvancedSearchDiseaseForm{" +
@@ -117,6 +127,7 @@ public class AdvancedSearchDiseaseForm {
                 ", showDiseaseToModelScore=" + showDiseaseToModelScore +
                 ", showImpcPredicted=" + showImpcPredicted +
                 ", showMgiPredicted=" + showMgiPredicted +
+                ", hasOutputColumn=" + hasOutputColumn +
                 '}';
     }
 }

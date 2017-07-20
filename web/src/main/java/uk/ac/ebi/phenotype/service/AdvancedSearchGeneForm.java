@@ -47,6 +47,8 @@ public class AdvancedSearchGeneForm {
     private Boolean showMouseAvailable;
     private Boolean showPhenotypingAvailable;
 
+    private Boolean hasOutputColumn;
+
     public String getChrId() {
         return chrId;
     }
@@ -271,6 +273,14 @@ public class AdvancedSearchGeneForm {
         this.showPhenotypingAvailable = showPhenotypingAvailable;
     }
 
+    public Boolean getHasOutputColumn() {
+        return hasOutputColumn;
+    }
+
+    public void setHasOutputColumn(Boolean hasOutputColumn) {
+        this.hasOutputColumn = hasOutputColumn;
+    }
+
     @Override
     public String toString() {
         return "AdvancedSearchGeneForm{" +
@@ -302,6 +312,7 @@ public class AdvancedSearchGeneForm {
                 ", showEsCellAvailable=" + showEsCellAvailable +
                 ", showMouseAvailable=" + showMouseAvailable +
                 ", showPhenotypingAvailable=" + showPhenotypingAvailable +
+                ", hasOutputColumn=" + hasOutputColumn +
                 '}';
     }
 }

@@ -8,7 +8,7 @@ public class AdvancedSearchPhenotypeForm {
 	// inputs and checkboxes
 	private Logical logical1;
 	private Logical logical2;
-	private List<AdvancedSearchMpRow> phenotypeRows =new ArrayList<>();
+	private List<AdvancedSearchMpRow> phenotypeRows = new ArrayList<>();
 	private Boolean excludeNestedPhenotype;
 	private String impressParameterName;
 	private Boolean significantPvaluesOnly;
@@ -24,6 +24,8 @@ public class AdvancedSearchPhenotypeForm {
 
 	private Boolean showParameterName;
 	private Boolean showPvalue;
+
+	private Boolean hasOutputColumn;
 
 
 	public void addPhenotypeRows(AdvancedSearchMpRow row) {
@@ -145,6 +147,14 @@ public class AdvancedSearchPhenotypeForm {
 		this.showPvalue = showPvalue;
 	}
 
+	public Boolean getHasOutputColumn() {
+		return hasOutputColumn;
+	}
+
+	public void setHasOutputColumn(Boolean hasOutputColumn) {
+		this.hasOutputColumn = hasOutputColumn;
+	}
+
 	@Override
 	public String toString() {
 		return "AdvancedSearchPhenotypeForm{" +
@@ -162,6 +172,7 @@ public class AdvancedSearchPhenotypeForm {
 				", showTopLevelMpId=" + showTopLevelMpId +
 				", showParameterName=" + showParameterName +
 				", showPvalue=" + showPvalue +
+				", hasOutputColumn=" + hasOutputColumn +
 				'}';
 	}
 

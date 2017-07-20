@@ -949,18 +949,31 @@
                 var species = $("fieldset.GeneFilter input[name='species']:checked").val();
                 var geneList = $('textarea#geneList').val().split(/\n|,|\t|\s+|;/);
                 var geneList2 = [];
+                var seenMgiId = false;
+                var seenMgiSymbol = false;
 
                 for (var i=0; i<geneList.length; i++){
                     var val = geneList[i];
+
                     if (val != "") {
                         //console.log("gene: "+ val);
                         //geneList2.push($.fn.upperCaseFirstLetter(val).trim());
+                        if (val.indexOf("MGI:") != -1){
+                            seenMgiId = true;
+                        }
+                        else {
+                            seenMgiSymbol = true;
+                        }
                         geneList2.push(val.trim());
                     }
                 }
+                if (seenMgiSymbol && seenMgiId){
+                    alert("Sorry, please make sure gene list dose not contain both symbol and ID");
+                    return false;
+                }
                 if (geneList2.length>0) {
                     kv[species + 'GeneList'] = geneList2;
-                    shownFilter.push("search with " + species + " gene list = 'yes'");
+                    shownFilter.push("search with " + species + " gene list: " + geneList2);
                 }
 
                 // zygosity
@@ -1309,9 +1322,17 @@
                 if ( oJson == false){
                     return false;
                 }
+                console.log(oJson);
+
+                if (oJson.shownFilter == "Only significant p values = true,  phenodigm score = '0 - 100'"){
+                    var c = confirm("NOTE: You are searching by none of the phenotype/Gene/Disease input or filters.\nThis could take a while. Proceed? ");
+                    if (c == false){
+                        return false;
+                    }
+                }
 
                 refreshResult(); // refresh first
-                console.log(oJson)
+
                 var flList = [];
                 var dtypes = ["Allele", "Gene", "Mp", "DiseaseModel", "StatisticalResult"];
                 for (var d=0; d<dtypes.length; d++){
