@@ -1,52 +1,75 @@
 package uk.ac.ebi.phenotype.service;
 
-//import static org.junit.Assert.*;
-//
-//import java.io.IOException;
-//import java.lang.reflect.InvocationTargetException;
-//import java.net.URISyntaxException;
-//import java.util.ArrayList;
-//import java.util.Collection;
-//import java.util.List;
-//
-//import org.apache.solr.client.solrj.SolrClient;
-//import org.apache.solr.client.solrj.SolrServerException;
-//import org.junit.Before;
-//import org.junit.Test;
-//import org.junit.runner.RunWith;
-//import org.mousephenotype.cda.enumerations.SexType;
-//import org.mousephenotype.cda.solr.service.PostQcService;
-//import org.neo4j.ogm.session.Session;
-//import org.springframework.beans.factory.annotation.Autowired;
-//import org.springframework.beans.factory.annotation.Qualifier;
-//import org.springframework.test.context.ContextConfiguration;
-//import org.springframework.test.context.TestPropertySource;
-//import org.springframework.test.context.junit4.SpringRunner;
-//
-//import net.sf.json.JSONObject;
-//
-//@RunWith(SpringRunner.class)
-//@ContextConfiguration(classes={TestAdvancedSearchConfig.class})
-//@TestPropertySource(locations = {"file:${user.home}/configfiles/${profile:dev}/test.properties"})
-//public class AdvancedSearchServiceTest {
-//
-//	@Autowired
-//	Session neo4jSession;
-//
-//	@Autowired
-//	@Qualifier("postqcService")
-//    private PostQcService gpService;
-//
-//	@Autowired
-//	 @Qualifier("autosuggestCore")
-//	 private SolrClient autosuggestCore;
-//
-//	private AdvancedSearchService advancedSearchService;
-//	@Before
-//	public void setUp(){
-//		advancedSearchService=new AdvancedSearchService(gpService, autosuggestCore, neo4jSession);
-//	}
-//
+import static org.junit.Assert.*;
+
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
+import org.apache.solr.client.solrj.SolrClient;
+import org.apache.solr.client.solrj.SolrServerException;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mousephenotype.cda.enumerations.SexType;
+import org.mousephenotype.cda.solr.service.PostQcService;
+import org.neo4j.ogm.session.Session;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.junit4.SpringRunner;
+
+import net.sf.json.JSONObject;
+
+@RunWith(SpringRunner.class)
+@ContextConfiguration(classes={TestAdvancedSearchConfig.class})
+@TestPropertySource(locations = {"file:${user.home}/configfiles/${profile:dev}/test.properties"})
+public class AdvancedSearchServiceTest {
+
+	@Autowired
+	Session neo4jSession;
+
+	@Autowired
+	@Qualifier("postqcService")
+    private PostQcService gpService;
+
+	@Autowired
+	 @Qualifier("autosuggestCore")
+	 private SolrClient autosuggestCore;
+
+	private AdvancedSearchService advancedSearchService;
+	@Before
+	public void setUp(){
+		advancedSearchService = new AdvancedSearchService(gpService, autosuggestCore, neo4jSession);
+	}
+
+	@Test
+    public void testGenesByMpTerm() throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, SolrServerException, IOException {
+
+        AdvancedSearchPhenotypeForm mpForm = new AdvancedSearchPhenotypeForm();
+
+        AdvancedSearchMpRow mpRow = new AdvancedSearchMpRow("abnormal glucose homeostasis", 0.00001, 0.0001);
+        mpForm.addPhenotypeRows(mpRow);
+
+        AdvancedSearchGeneForm geneForm = new AdvancedSearchGeneForm();
+        AdvancedSearchDiseaseForm diseaseForm = new AdvancedSearchDiseaseForm();
+
+        String fileType = null; // only needed for export
+        String baseUrl = "";    // only needed for export and interface
+        String hostname = "";   // only needed for export and interface
+
+        JSONObject jcontent = advancedSearchService.fetchGraphDataAdvSrch(mpForm, geneForm, diseaseForm, fileType, baseUrl, hostname);
+
+        System.out.println(jcontent.getJSONObject("aaData"));
+
+
+    }
+
+
 //	@Test
 //	public void getResult(){
 //
@@ -168,5 +191,5 @@ package uk.ac.ebi.phenotype.service;
 //		//}
 //		//Ncald is a gene contained on both phenotype pages. 57 currently in common 331 + 406 -(57)=680
 //	}
-//
-//}
+
+}

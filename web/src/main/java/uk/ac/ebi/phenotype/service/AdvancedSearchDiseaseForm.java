@@ -10,8 +10,8 @@ public class AdvancedSearchDiseaseForm {
 
     // inputs and checkboxes
     private Boolean isHumanCurated;
-    private Integer phenodigmLowerScore;
-    private Integer phenodigmUpperScore;
+    private Integer phenodigmLowerScore = 0; // default
+    private Integer phenodigmUpperScore = 100; // default
     private String humanDiseaseTerm;
 
     //customed output columns

@@ -9,9 +9,9 @@ public class AdvancedSearchPhenotypeForm {
 	private Logical logical1;
 	private Logical logical2;
 	private List<AdvancedSearchMpRow> phenotypeRows = new ArrayList<>();
-	private Boolean excludeNestedPhenotype;
+	private Boolean excludeNestedPhenotype = false;
 	private String impressParameterName;
-	private Boolean significantPvaluesOnly;
+	private Boolean significantPvaluesOnly = true;
 
 	//customed output columns
 	private Boolean showMpTerm;

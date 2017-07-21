@@ -30,7 +30,7 @@ public class AdvancedSearchGeneForm {
 
     private Boolean showHgncGeneSymbol;
 
-    private Boolean showMgiGeneSymbol;
+    private Boolean showMgiGeneSymbol = true;
     private Boolean showMgiGeneSynonym;
     private Boolean showMgiGeneId;
     private Boolean showMgiGeneType;
@@ -47,7 +47,7 @@ public class AdvancedSearchGeneForm {
     private Boolean showMouseAvailable;
     private Boolean showPhenotypingAvailable;
 
-    private Boolean hasOutputColumn;
+    private Boolean hasOutputColumn = true;
 
     public String getChrId() {
         return chrId;

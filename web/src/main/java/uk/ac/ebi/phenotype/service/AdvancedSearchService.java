@@ -90,7 +90,6 @@ public class AdvancedSearchService {
         List<String> pvals = new ArrayList<>();
         Map<String, String> mpPvalue = new HashMap<>();
 
-        System.out.println("size check: " + mpPvalue.size());
         for(AdvancedSearchMpRow row : mpForm.getPhenotypeRows()) {
             if (row.getLowerPvalue() != null) {
                 pvals.add("sr.pvalue > " + row.getLowerPvalue());
@@ -263,20 +262,19 @@ public class AdvancedSearchService {
                 dts.add(dtypeMap.containsKey(dt) ? dtypeMap.get(dt) : dt);
             }
             returnTypes = StringUtils.join(dts, ", ");
-            System.out.println("> 1");
-            System.out.println(returnTypes);
         }
         else {
             returnTypes = StringUtils.join(dataTypes, ", ");
-            System.out.println("<= 1");
-            System.out.println(returnTypes);
         }
+        System.out.println("returntypes: " + returnTypes);
         return returnTypes;
     }
 
     private Map<String, List<String>> doDataTypeColumnsMap(AdvancedSearchPhenotypeForm mpForm, AdvancedSearchGeneForm geneForm, AdvancedSearchDiseaseForm diseaseForm){
+
         Map<String, List<String>> dataTypeColsMap = new HashMap<>();
-        if (mpForm.getHasOutputColumn()){
+
+        if (mpForm.getHasOutputColumn() != null){
             
             dataTypeColsMap.put("Mp", new ArrayList<>());
             dataTypeColsMap.put("StatisticalResult", new ArrayList<>());
@@ -306,7 +304,7 @@ public class AdvancedSearchService {
                 dataTypeColsMap.get("StatisticalResult").add("pvalue");
             }
         }
-        if (geneForm.getHasOutputColumn()){
+        if (geneForm.getHasOutputColumn() != null){
             
             dataTypeColsMap.put("Allele", new ArrayList<>());
             dataTypeColsMap.put("Gene", new ArrayList<>());
@@ -369,7 +367,7 @@ public class AdvancedSearchService {
                 dataTypeColsMap.get("Gene").add("ensemblGeneId");
             }
         }
-        if (diseaseForm.getHasOutputColumn()){
+        if (diseaseForm.getHasOutputColumn() != null){
 
             dataTypeColsMap.put("DiseaseModel", new ArrayList<>());
 
@@ -402,10 +400,10 @@ public class AdvancedSearchService {
 
         // for cypher column output
         Map<String, List<String>> dataTypeColsMap = doDataTypeColumnsMap(mpForm, geneForm, diseaseForm);
-
         Map<String, String> dtypeMap = new HashMap<>();
         List<String> dataTypes = new ArrayList<>();
-        if (mpForm.getHasOutputColumn()){
+
+        if (mpForm.getHasOutputColumn() != null){
             dataTypes.add("mp");
             dtypeMap.put("mp", "nodes.mps");
             if (mpForm.getShowParameterName() != null || mpForm.getShowPvalue() != null){
@@ -413,7 +411,7 @@ public class AdvancedSearchService {
                 dtypeMap.put("sr", "nodes.srs");
             }
         }
-        if (geneForm.getHasOutputColumn()){
+        if (geneForm.getHasOutputColumn() != null){
             dataTypes.add("g");
 
             if (geneForm.getShowAlleleSymbol() != null ||
@@ -425,12 +423,11 @@ public class AdvancedSearchService {
                 dtypeMap.put("a", "nodes.alleles");
             }
         }
-        if (diseaseForm.getHasOutputColumn()){
+        if (diseaseForm.getHasOutputColumn() != null){
             dataTypes.add("dm");
         }
 
-        String returnDtypes = StringUtils.join(dataTypes, ", ");
-        System.out.println("return types: " + returnDtypes);
+        String returnDtypes = null;
 
         // phenotype form
         Boolean noMpChild = mpForm.getExcludeNestedPhenotype();
@@ -846,7 +843,7 @@ public class AdvancedSearchService {
 
         }
 
-        System.out.println("QUERY: " + query);
+        System.out.println("CYPHER QUERY: " + query);
 
         HashedMap params = new HashedMap();
         Result result = null;
@@ -854,7 +851,7 @@ public class AdvancedSearchService {
         long begin = System.currentTimeMillis();
         result = neo4jSession.query(query, params); // params is empty, I don't need it in my case, but method needs it as 2nd argument
         long end = System.currentTimeMillis();
-        System.out.println("Done with query in " + (end - begin) + " ms");
+        System.out.println("Server processed query in " + (end - begin) + " ms");
 
         int rowCount = 0;
         JSONObject j = new JSONObject();
@@ -1065,11 +1062,10 @@ public class AdvancedSearchService {
         }
         long tend = System.currentTimeMillis();
 
-        System.out.println((tend - tstart) + " ms taken");
+        System.out.println("Processed result in " + (tend - tstart) + " ms");
         return j;
     }
 
-    
     public String mapNarrowSynonym2MpTerm(List<String> narrowMapping, String mpTerm, SolrClient autosuggestCore) throws IOException, SolrServerException {
 
         String mpStr = null;
@@ -1080,9 +1076,10 @@ public class AdvancedSearchService {
         query.setStart(0);
         query.setRows(100);
         query.setFilterQueries("docType:mp");
-        //System.out.println("mapNarrow query="+query);
+        System.out.println("mapNarrow query="+query);
+        System.out.println(autosuggestCore);
         QueryResponse response = autosuggestCore.query(query);
-        //System.out.println("response: " + response);
+        System.out.println("response: " + response);
         SolrDocumentList results = response.getResults();
 
         for(SolrDocument doc : results){
@@ -1159,7 +1156,7 @@ public class AdvancedSearchService {
         mpForm.setSignificantPvaluesOnly(jParams.containsKey("onlySignificantPvalue") ? true : false);
 
         // customed output columns
-        if (jParams.containsKey("properties")) {
+        if (jParams.containsKey("Mp")) {
             mpForm.setHasOutputColumn(true);
 
             JSONArray cols = jParams.getJSONArray("properties");
@@ -1260,7 +1257,7 @@ public class AdvancedSearchService {
         }
 
         // customed output columns
-        if (jParams.containsKey("properties")) {
+        if (jParams.containsKey("Gene")) {
             geneForm.setHasOutputColumn(true);
 
             JSONArray cols = jParams.getJSONArray("properties");
@@ -1346,7 +1343,7 @@ public class AdvancedSearchService {
 
 
         // customed output columns
-        if (jParams.containsKey("properties")) {
+        if (jParams.containsKey("DiseaseModel")) {
 
             diseaseForm.setHasOutputColumn(true);
 
