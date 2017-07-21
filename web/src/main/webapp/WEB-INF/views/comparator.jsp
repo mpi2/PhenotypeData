@@ -108,6 +108,21 @@
              			<option value="${zyg.name}" <c:if test="${param.zygosity eq zyg.name}">selected</c:if>>${zyg.name}</option>
             		</c:forEach>
             		</select>
+            		Organ:
+            		<select name="organ">
+             		<option  <c:if test="${param.organ eq null}">selected</c:if> >all</option>
+             		<c:forEach var="expression" items="${organ}">
+             			<option value="${organ}" <c:if test="${param.organ eq organ}">selected</c:if>>${organ}</option>
+            		</c:forEach>
+            		</select>
+            		Expression:
+            		<select name="expression">
+             		<option  <c:if test="${param.expression eq null}">selected</c:if> >all</option>
+             		<c:forEach var="expression" items="${expression}">
+             			<option value="${expression.displayName}" <c:if test="${param.expression eq expression.displayName}">selected</c:if>>${expression.displayName}</option>
+            		</c:forEach>
+            		</select>
+            		
             		<input type="submit" value="Go"> <span class="btn" id="mutant_only_button">Display Mutant Only</span>&nbsp;&nbsp;&nbsp;<span class="btn" id="overlap">Overlap Mode</span>
             	</div>
             		<div id="control_box" class="box half_box_left">
