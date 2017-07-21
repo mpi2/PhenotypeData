@@ -5,6 +5,10 @@ public enum Expression {
 	
 	private final String displayName;
 
+	public String getDisplayName() {
+		return displayName;
+	}
+
 	Expression(String displayName) {
 		this.displayName = displayName;
 	}

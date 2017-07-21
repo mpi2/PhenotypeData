@@ -20,6 +20,7 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
+import org.mousephenotype.cda.enumerations.Expression;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.service.AnatomyService;
@@ -80,6 +81,15 @@ public class ImageComparatorController {
 		//example link from gene page phenotype table that should work through this method with mpId and colonyId
 		//http://localhost:8080/phenotype-archive/imageComparator?acc=MGI:1913955&mpId=MP:0000572&colony_id=RIKEN_EPD0296_2_A10
 		
+		
+		int numberOfControlsPerSex = 25;
+		
+		// int daysEitherSide = 30;// get a month either side
+				SexType sexType=null;
+				if(gender!=null && !gender.equals("all")){
+					sexType = getSexTypesForFilter(gender);
+				}
+				
 		if(mediaType!=null) System.out.println("mediaType= "+mediaType);
 		// get experimental images
 		// we will also want to call the getControls method and display side by
@@ -93,44 +103,18 @@ public class ImageComparatorController {
 				e.printStackTrace();
 			}
 		}
-		List<ImageDTO> mutants=new ArrayList<>();
-		QueryResponse responseExperimental = imageService
-				.getImagesForGeneByParameter(acc, parameterStableId,"experimental", Integer.MAX_VALUE, 
-						null, null, null, anatomyId, parameterAssociationValue, mpId, colonyId);
+		List<ImageDTO> filteredMutants = getMutantImages(acc, parameterStableId, parameterAssociationValue, anatomyId,
+				zygosity, colonyId, mpId, sexType);
+		
 		ImageDTO imgDoc =null;
-		if (responseExperimental != null && responseExperimental.getResults().size()>0) {
-			//mutants=responseExperimental.getResults();
-			mutants=responseExperimental.getBeans(ImageDTO.class);
-			
-			imgDoc = mutants.get(0);
+		if (!filteredMutants.isEmpty()) {
+			imgDoc = filteredMutants.get(0);
 		}
-		
-		int numberOfControlsPerSex = 25;
-		// int daysEitherSide = 30;// get a month either side
-		SexType sexType=null;
-		if(gender!=null && !gender.equals("all")){
-			sexType = getSexTypesForFilter(gender);
-		}
-		
-		
 		//this filters controls by the sex and things like procedure and phenotyping center - based on first image - this may not be a good idea - there maybe multiple phenotyping centers for a procedure which woudln't show???
-		List<ImageDTO> controls=null;
-		if(imgDoc!=null){
-		controls = filterControlsBySexAndOthers(imgDoc, numberOfControlsPerSex, sexType, parameterStableId, anatomyId);
-		}
-		List<ImageDTO> filteredMutants = filterMutantsBySex(mutants, imgDoc, sexType);
-		
-		List<ZygosityType> zygosityTypes=null;
-		if(zygosity!=null && !zygosity.equals("all")){
-			zygosityTypes=getZygosityTypesForFilter(zygosity);
-			//only filter mutants by zygosity as all controls are homs.
-			filteredMutants=filterImagesByZygosity(filteredMutants, zygosityTypes);
-		}
-		
-		boolean federated=this.isFederated(filteredMutants);
-		
-
-		
+				List<ImageDTO> controls=null;
+				if(imgDoc!=null){
+				controls = filterControlsBySexAndOthers(imgDoc, numberOfControlsPerSex, sexType, parameterStableId, anatomyId);
+				}
 		
 
 		this.addGeneToPage(acc, model);
@@ -138,13 +122,45 @@ public class ImageComparatorController {
 		model.addAttribute("sexTypes",SexType.values());
 		model.addAttribute("zygTypes",ZygosityType.values());
 		model.addAttribute("mutants", filteredMutants);
+		model.addAttribute("expression", Expression.values());
 		//System.out.println("controls size=" + controls.size());
 		model.addAttribute("controls", controls);
+		
+		boolean federated=this.isFederated(filteredMutants);
+		
 		if(mediaType!=null && mediaType.equals("pdf") || federated){//we need iframes to load google pdf viewer so switch to this view for the pdfs.
 			System.out.println("using frames based comparator to pdfs");
 			return "comparatorFrames";
 		}
 		return "comparator";//js viewport used to view images in this view.
+	}
+
+	private List<ImageDTO> getMutantImages(String acc, String parameterStableId, String parameterAssociationValue,
+			String anatomyId, String zygosity, String colonyId, String mpId, SexType sexType)
+			throws SolrServerException, IOException {
+		List<ImageDTO> mutants=new ArrayList<>();
+		QueryResponse responseExperimental = imageService
+				.getImagesForGeneByParameter(acc, parameterStableId,"experimental", Integer.MAX_VALUE, 
+						null, null, null, anatomyId, parameterAssociationValue, mpId, colonyId);
+		
+		if (responseExperimental != null && responseExperimental.getResults().size()>0) {
+			//mutants=responseExperimental.getResults();
+			mutants=responseExperimental.getBeans(ImageDTO.class);
+			
+			
+		}
+		
+		
+		
+		List<ImageDTO> filteredMutants = filterMutantsBySex(mutants, sexType);
+		
+		List<ZygosityType> zygosityTypes=null;
+		if(zygosity!=null && !zygosity.equals("all")){
+			zygosityTypes=getZygosityTypesForFilter(zygosity);
+			//only filter mutants by zygosity as all controls are homs.
+			filteredMutants=filterImagesByZygosity(filteredMutants, zygosityTypes);
+		}
+		return filteredMutants;
 	}
 	
 	/**
@@ -220,14 +236,14 @@ public class ImageComparatorController {
 		return filteredImages;
 	}
 
-	private List filterMutantsBySex(List<ImageDTO> mutants, ImageDTO imgDoc, SexType sexType) {
+	private List filterMutantsBySex(List<ImageDTO> mutants, SexType sexType) {
 		if(sexType==null){
 			return mutants;
 		}
 		
 		List<ImageDTO> filteredMutants = new ArrayList<>();
 		
-		if (imgDoc != null) {
+		
 			
 				for(ImageDTO mutant:mutants){
 					if(mutant.getSex().equals(sexType.getName())){
@@ -236,7 +252,7 @@ public class ImageComparatorController {
 				}
 				
 			
-		}
+		
 		return filteredMutants;
 	}
 
