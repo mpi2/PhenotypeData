@@ -16,6 +16,7 @@ import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import net.sf.json.JSONArray;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.lang.StringUtils;
@@ -251,13 +252,26 @@ public class AdvancedSearchService {
         }
         return humanDiseaseTerm;
     }
-    private String fetchReturnTypes(List<String> dataTypes, Map<String, String> dtypeMap) {
+    private String fetchReturnTypes(List<String> dataTypes, Map<String, String> dtypeMap, AdvancedSearchPhenotypeForm mpForm) {
         List<String> dts = new ArrayList<>();
 
-        for (String dt : dataTypes) {
-            dts.add(dtypeMap.containsKey(dt) ? dtypeMap.get(dt) : dt);
+        String returnTypes = null;
+
+
+        if (mpForm.getPhenotypeRows().size() > 1) {
+            for (String dt : dataTypes) {
+                dts.add(dtypeMap.containsKey(dt) ? dtypeMap.get(dt) : dt);
+            }
+            returnTypes = StringUtils.join(dts, ", ");
+            System.out.println("> 1");
+            System.out.println(returnTypes);
         }
-        return StringUtils.join(dts, ", ");
+        else {
+            returnTypes = StringUtils.join(dataTypes, ", ");
+            System.out.println("<= 1");
+            System.out.println(returnTypes);
+        }
+        return returnTypes;
     }
 
     private Map<String, List<String>> doDataTypeColumnsMap(AdvancedSearchPhenotypeForm mpForm, AdvancedSearchGeneForm geneForm, AdvancedSearchDiseaseForm diseaseForm){
@@ -381,7 +395,7 @@ public class AdvancedSearchService {
         return dataTypeColsMap;
     }
 
-    public JSONObject fetchGraphDataAdvSrch(AdvancedSearchPhenotypeForm mpForm, AdvancedSearchGeneForm geneForm, AdvancedSearchDiseaseForm diseaseForm, String fileType) throws IOException, SolrServerException {
+    public JSONObject fetchGraphDataAdvSrch(AdvancedSearchPhenotypeForm mpForm, AdvancedSearchGeneForm geneForm, AdvancedSearchDiseaseForm diseaseForm, String fileType, String baseUrl, String hostname) throws IOException, SolrServerException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
 
         String sortStr = " ORDER BY g.markerSymbol ";
         String query = null;
@@ -463,6 +477,13 @@ public class AdvancedSearchService {
                     + " AND " + significantCypher + parameterCypher + chrRangeCypher + geneListCypher + genotypesCypher + alleleTypesCypher
                     + " AND " + phenodigmScoreCypher + diseaseGeneAssociationCypher + humanDiseaseTermCypher
                     + " AND dmp.mpTerm in mp.mpTerm";
+
+            returnDtypes = fetchReturnTypes(dataTypes, dtypeMap, mpForm);
+
+            query += fileType != null ?
+                    //" RETURN distinct a, g, sr, collect(distinct mp), collect(distinct dm)" + sortStr :
+                    " RETURN distinct " + returnDtypes + sortStr :
+                    " RETURN collect(distinct a), collect(distinct g), collect(distinct sr), collect(distinct mp), collect(distinct dm)";
         }
         else if (mpForm.getPhenotypeRows().size() == 0 ){
             // CASE 2 - search by no phenotype and no disease
@@ -478,6 +499,14 @@ public class AdvancedSearchService {
                     + " extract(x in collect(distinct mp) | x.mpTerm) as mps "
                     + geneToDmPathClause
                     + " AND dmp.mpTerm IN mps";
+
+            returnDtypes = fetchReturnTypes(dataTypes, dtypeMap, mpForm);
+
+            query += fileType != null ?
+                    //" RETURN distinct a, g, sr, collect(distinct mp), collect(distinct dm)" + sortStr :
+                    " RETURN distinct " + returnDtypes + sortStr :
+                    " RETURN collect(distinct a), collect(distinct g), collect(distinct sr), collect(distinct mp), collect(distinct dm)";
+
         }
         else if (mpForm.getPhenotypeRows().size() == 1){
             // CASE 3 - search by only 1 mp
@@ -509,6 +538,13 @@ public class AdvancedSearchService {
                         + geneToDmPathClause
                         + " AND dmp.mpTerm IN mps";
             }
+
+            returnDtypes = fetchReturnTypes(dataTypes, dtypeMap, mpForm);
+
+            query += fileType != null ?
+                    //" RETURN distinct a, g, sr, collect(distinct mp), collect(distinct dm)" + sortStr :
+                    " RETURN distinct " + returnDtypes + sortStr :
+                    " RETURN collect(distinct a), collect(distinct g), collect(distinct sr), collect(distinct mp), collect(distinct dm)";
         }
         else if (mpForm.getPhenotypeRows().size() == 2){
             // search by 2 phenotypes
@@ -522,56 +558,71 @@ public class AdvancedSearchService {
             mpB = mapNarrowSynonym2MpTerm(narrowOrSynonymMapping, mpB, autosuggestCore);
 
             Logical logical1 = mpForm.getLogical1();
-            switch(logical1){
+
+            if (logical1.equals(Logical.AND)) {
                 // CASE 4 - mpA AND mpB
-                case AND:
-                    System.out.println("Search by A AND B");
 
-                    String whereClause1 = noMpChild ? " WHERE mp.mpTerm = '" + mpA + "'" + pvaluesACypher : " WHERE mp0.mpTerm = '" + mpA + "'" + pvaluesACypher;
-                    String whereClause2 = noMpChild ? " WHERE mp.mpTerm = '" + mpB + "'" + pvaluesBCypher : " WHERE mp0.mpTerm = '" + mpB + "'" + pvaluesBCypher;
+                System.out.println("Search by A AND B");
 
-                    String mpMatchClause = noMpChild ? " MATCH (mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g) "
-                            : " MATCH (mp0:Mp)<-[:PARENT*0..]-(mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g) ";
+                String whereClause1 = noMpChild ? " WHERE mp.mpTerm = '" + mpA + "'" + pvaluesACypher : " WHERE mp0.mpTerm = '" + mpA + "'" + pvaluesACypher;
+                String whereClause2 = noMpChild ? " WHERE mp.mpTerm = '" + mpB + "'" + pvaluesBCypher : " WHERE mp0.mpTerm = '" + mpB + "'" + pvaluesBCypher;
 
-                    query = mpToGenePath
-                            //+ " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') "
-                            + whereClause1
-                            + " AND " + significantCypher + parameterCypher + chrRangeCypher + geneListCypher + genotypesCypher + alleleTypesCypher
-                            + " WITH g, collect({alleles:a, mps:mp, srs:sr}) as list1 "
+                String mpMatchClause = noMpChild ? " MATCH (mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g) "
+                        : " MATCH (mp0:Mp)<-[:PARENT*0..]-(mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g) ";
 
-                            + mpMatchClause
-                            //+ " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*') "
-                            + whereClause2
-                            + " AND " + significantCypher + parameterCypher + chrRangeCypher + geneListCypher + genotypesCypher + alleleTypesCypher
-                            + " WITH g, list1, collect({alleles:a, mps:mp, srs:sr}) as list2 "
-                            // + " WHERE ALL (x IN list1 WHERE x IN list2) "
-                            + " WITH g, list1+list2 as list "
-                            + " UNWIND list as nodes "
-                            + " WITH g, nodes, extract(x in collect(distinct nodes.mps) | x.mpTerm) as mps "
-                            + geneToDmPathClause
-                            + " AND dmp.mpTerm IN mps";
-                    break;
+                query = mpToGenePath
+                        //+ " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') "
+                        + whereClause1
+                        + " AND " + significantCypher + parameterCypher + chrRangeCypher + geneListCypher + genotypesCypher + alleleTypesCypher
+                        + " WITH g, collect({alleles:a, mps:mp, srs:sr}) as list1 "
 
+                        + mpMatchClause
+                        //+ " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*') "
+                        + whereClause2
+                        + " AND " + significantCypher + parameterCypher + chrRangeCypher + geneListCypher + genotypesCypher + alleleTypesCypher
+                        + " WITH g, list1, collect({alleles:a, mps:mp, srs:sr}) as list2 "
+                        // + " WHERE ALL (x IN list1 WHERE x IN list2) "
+                        + " WITH g, list1+list2 as list "
+                        + " UNWIND list as nodes "
+                        + " WITH g, nodes, extract(x in collect(distinct nodes.mps) | x.mpTerm) as mps "
+                        + geneToDmPathClause
+                        + " AND dmp.mpTerm IN mps";
+
+                returnDtypes = fetchReturnTypes(dataTypes, dtypeMap, mpForm);
+
+                query += fileType != null ?
+                        //" RETURN distinct nodes.alleles, g, nodes.srs, collect(distinct nodes.mps), collect(distinct dm)" + sortStr
+                        //" RETURN distinct nodes.alleles, g, nodes.srs, nodes.mps, dm" + sortStr :
+                        " RETURN distinct " + returnDtypes + sortStr :
+                        " RETURN collect(distinct nodes.alleles), collect(distinct g), collect(distinct nodes.srs), collect(distinct nodes.mps), collect(distinct dm)";
+            }
+            else if (logical1.equals(Logical.OR)) {
                 // CASE 5 - mpA OR mpB
-                case OR:
-                    System.out.println("Search by A OR B");
-                    if (geneListCypher.isEmpty()){
-                        query = mpToGenePath;
-                    }
-                    else {
-                        query = geneToMpPath;
-                    }
 
-                    String whereClause = noMpChild ? " WHERE ((mp.mpTerm = '" + mpA + "'" + pvaluesACypher + ") OR (mp.mpTerm ='" + mpB + "'" + pvaluesBCypher + ")) "
-                            : " WHERE ((mp0.mpTerm = '" + mpA + "'" + pvaluesACypher + ") OR (mp0.mpTerm ='" + mpB + "'" + pvaluesBCypher + "))";
-                    query +=
-                            //  " WHERE (mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') OR mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*')) "
-                            whereClause
-                            + " AND " + significantCypher + parameterCypher + chrRangeCypher+ geneListCypher + genotypesCypher + alleleTypesCypher
-                            + " WITH g, a, sr, mp, extract(x in collect(distinct mp) | x.mpTerm) as mps "
-                            + geneToDmPathClause
-                            + " AND dmp.mpTerm IN mps";
-                    break;
+                System.out.println("Search by A OR B");
+                if (geneListCypher.isEmpty()){
+                    query = mpToGenePath;
+                }
+                else {
+                    query = geneToMpPath;
+                }
+
+                String whereClause = noMpChild ? " WHERE ((mp.mpTerm = '" + mpA + "'" + pvaluesACypher + ") OR (mp.mpTerm ='" + mpB + "'" + pvaluesBCypher + ")) "
+                        : " WHERE ((mp0.mpTerm = '" + mpA + "'" + pvaluesACypher + ") OR (mp0.mpTerm ='" + mpB + "'" + pvaluesBCypher + "))";
+                query +=
+                        //  " WHERE (mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') OR mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*')) "
+                        whereClause
+                        + " AND " + significantCypher + parameterCypher + chrRangeCypher+ geneListCypher + genotypesCypher + alleleTypesCypher
+                        + " WITH g, a, sr, mp, extract(x in collect(distinct mp) | x.mpTerm) as mps "
+                        + geneToDmPathClause
+                        + " AND dmp.mpTerm IN mps";
+
+                returnDtypes = fetchReturnTypes(dataTypes, dtypeMap, mpForm);
+
+                query += fileType != null ?
+                        //" RETURN distinct a, g, sr, collect(distinct mp), collect(distinct dm)" + sortStr :
+                        " RETURN distinct " + returnDtypes + sortStr :
+                        " RETURN collect(distinct a), collect(distinct g), collect(distinct sr), collect(distinct mp), collect(distinct dm)";
             }
 
         }
@@ -586,12 +637,15 @@ public class AdvancedSearchService {
             String pvaluesBCypher = composePvalues(mpForm, mpB);
             mpB = mapNarrowSynonym2MpTerm(narrowOrSynonymMapping, mpB, autosuggestCore);
 
-            String mpC = mpForm.getPhenotypeRows().get(1).getPhenotypeTerm();
+            String mpC = mpForm.getPhenotypeRows().get(2).getPhenotypeTerm();
             String pvaluesCCypher = composePvalues(mpForm, mpC);
             mpC = mapNarrowSynonym2MpTerm(narrowOrSynonymMapping, mpC, autosuggestCore);
 
+            Logical logical1 = mpForm.getLogical1();
+            Logical logical2 = mpForm.getLogical2();
+
             // CASE 6 - mpA AND mpB AND mpC
-            if (mpForm.getLogical1().equals("AND") && mpForm.getLogical2().equals("AND")) {
+            if (logical1.equals(Logical.AND) && logical2.equals(Logical.AND)) {
                 System.out.println("Search by A AND B AND C");
 
                 String whereClause1 = noMpChild ? " WHERE mp.mpTerm = '" + mpA + "'" + pvaluesACypher : " WHERE mp0.mpTerm = '" + mpA + "'" + pvaluesACypher;
@@ -625,9 +679,16 @@ public class AdvancedSearchService {
                         + geneToDmPathClause
                         + " AND dmp.mpTerm IN mps";
 
+                returnDtypes = fetchReturnTypes(dataTypes, dtypeMap, mpForm);
+
+                query += fileType != null ?
+                        //" RETURN distinct nodes.alleles, g, nodes.srs, collect(distinct nodes.mps), collect(distinct dm)" + sortStr
+                        //" RETURN distinct nodes.alleles, g, nodes.srs, nodes.mps, dm" + sortStr :
+                        " RETURN distinct " + returnDtypes + sortStr :
+                        " RETURN collect(distinct nodes.alleles), collect(distinct g), collect(distinct nodes.srs), collect(distinct nodes.mps), collect(distinct dm)";
             }
             // CASE 7 - mpA OR mpB OR mpC
-            else if (mpForm.getLogical1().equals("OR") && mpForm.getLogical2().equals("OR")) {
+            else if (logical1.equals(Logical.OR) && logical2.equals(Logical.OR)) {
                 System.out.println("Search by A OR B OR C");
 
                 if (geneListCypher.isEmpty()) {
@@ -647,9 +708,15 @@ public class AdvancedSearchService {
                                 + geneToDmPathClause
                                 + " AND dmp.mpTerm IN mps";
 
+                returnDtypes = fetchReturnTypes(dataTypes, dtypeMap, mpForm);
+
+                query += fileType != null ?
+                        //" RETURN distinct a, g, sr, collect(distinct mp), collect(distinct dm)" + sortStr :
+                        " RETURN distinct " + returnDtypes + sortStr :
+                        " RETURN collect(distinct a), collect(distinct g), collect(distinct sr), collect(distinct mp), collect(distinct dm)";
             }
             // CASE 8 - (mpA AND mpB) OR mpC
-            else if (mpForm.getLogical1().equals("AND") && mpForm.getLogical2().equals("OR")) {
+            else if (logical1.equals(Logical.AND) && logical2.equals(Logical.OR)) {
                 System.out.println("Search by (A AND B) OR C)");
 
                 String whereClause1 = noMpChild ? " WHERE ((mp.mpTerm = '" + mpA + "'" + pvaluesACypher + ") OR (mp.mpTerm ='" + mpC + "'" + pvaluesCCypher + ")) "
@@ -707,9 +774,16 @@ public class AdvancedSearchService {
                             + " AND dmp.mpTerm IN mps";
                 }
 
+                returnDtypes = fetchReturnTypes(dataTypes, dtypeMap, mpForm);
+
+                query += fileType != null ?
+                        //" RETURN distinct nodes.alleles, g, nodes.srs, collect(distinct nodes.mps), collect(distinct dm)" + sortStr
+                        //" RETURN distinct nodes.alleles, g, nodes.srs, nodes.mps, dm" + sortStr :
+                        " RETURN distinct " + returnDtypes + sortStr :
+                        " RETURN collect(distinct nodes.alleles), collect(distinct g), collect(distinct nodes.srs), collect(distinct nodes.mps), collect(distinct dm)";
             }
             // CASE 9 - (mpA OR mpB) AND mpC
-            else if (mpForm.getLogical1().equals("OR") && mpForm.getLogical2().equals("AND")) {
+            else if (logical1.equals(Logical.OR) && logical2.equals(Logical.AND)) {
                 System.out.println("Search by (A OR B) AND C)");
 
                 String whereClause1 = noMpChild ? " WHERE ((mp.mpTerm = '" + mpA + "'" + pvaluesACypher + ") OR (mp.mpTerm ='" + mpB + "'" + pvaluesBCypher + ")) "
@@ -760,18 +834,17 @@ public class AdvancedSearchService {
                             + geneToDmPathClause
                             + " AND dmp.mpTerm IN mps";
                 }
+
+                returnDtypes = fetchReturnTypes(dataTypes, dtypeMap, mpForm);
+
+                query += fileType != null ?
+                        //" RETURN distinct nodes.alleles, g, nodes.srs, collect(distinct nodes.mps), collect(distinct dm)" + sortStr :
+                        //" RETURN distinct nodes.alleles, g, nodes.srs, nodes.mps, dm" + sortStr :
+                        " RETURN distinct " + returnDtypes + sortStr :
+                        " RETURN collect(distinct nodes.alleles), collect(distinct g), collect(distinct nodes.srs), collect(distinct nodes.mps), collect(distinct dm)";
             }
 
         }
-
-        returnDtypes = fetchReturnTypes(dataTypes, dtypeMap);
-
-        query += fileType != null ?
-                //" RETURN distinct nodes.alleles, g, nodes.srs, collect(distinct nodes.mps), collect(distinct dm)" + sortStr
-                //" RETURN distinct nodes.alleles, g, nodes.srs, nodes.mps, dm" + sortStr :
-                " RETURN distinct " + returnDtypes + sortStr :
-                " RETURN collect(distinct nodes.alleles), collect(distinct g), collect(distinct nodes.srs), collect(distinct nodes.mps), collect(distinct dm)";
-
 
         System.out.println("QUERY: " + query);
 
@@ -796,7 +869,9 @@ public class AdvancedSearchService {
         //List<String> dtypes = Arrays.asList("a", "g", "mp", "dm", "sr");
 
         long tstart = System.currentTimeMillis();
+
         if (fileType != null){
+            // export result
 
             List<String> cols = new ArrayList<>();
             Map<String, List<String>> node2Properties = new LinkedHashMap<>();
@@ -855,11 +930,11 @@ public class AdvancedSearchService {
                         if (entry.getKey().startsWith("collect")) {
                             List<Object> objs = (List<Object>) entry.getValue();
                             for (Object obj : objs) {
-                                populateColValMapAdvSrch(hostname, baseUrl,node2Properties, obj, colValMap, jParams, fileType);
+                                populateColValMapAdvSrch(hostname, baseUrl,node2Properties, obj, colValMap, fileType, mpForm, geneForm, diseaseForm);
                             }
                         } else {
                             Object obj = entry.getValue();
-                            populateColValMapAdvSrch(hostname, baseUrl,node2Properties, obj, colValMap, jParams, fileType);
+                            populateColValMapAdvSrch(hostname, baseUrl,node2Properties, obj, colValMap, fileType, mpForm, geneForm, diseaseForm);
                         }
                     }
                 }
@@ -907,15 +982,22 @@ public class AdvancedSearchService {
 
 				node2Properties.put(dtype, new ArrayList<String>());
 
-				if (jParams != null) {
-					if (jParams.containsKey(dtype)) {
-						for (Object obj : jParams.getJSONArray(dtype)) {
-							String colName = obj.toString();
-							cols.add(colName);
-							node2Properties.get(dtype).add(colName);
-						}
-					}
-				}
+//				if (jParams != null) {
+//					if (jParams.containsKey(dtype)) {
+//						for (Object obj : jParams.getJSONArray(dtype)) {
+//							String colName = obj.toString();
+//							cols.add(colName);
+//							node2Properties.get(dtype).add(colName);
+//						}
+//					}
+//				}
+                if (dataTypeColsMap.containsKey(dtype)) {
+                    for(String colName : dataTypeColsMap.get(dtype)){
+                        cols.add(colName);
+						node2Properties.get(dtype).add(colName);
+                    }
+
+                }
 			}
 
             //System.out.println("columns: " + cols);
@@ -932,11 +1014,13 @@ public class AdvancedSearchService {
                         if (entry.getKey().startsWith("collect")) {
                             List<Object> objs = (List<Object>) entry.getValue();
                             for (Object obj : objs) {
-                                populateColValMapAdvSrch(hostname, baseUrl,node2Properties, obj, colValMap, jParams, fileType);
+                                //populateColValMapAdvSrch(hostname, baseUrl,node2Properties, obj, colValMap, jParams, fileType);
+                                populateColValMapAdvSrch(hostname, baseUrl,node2Properties, obj, colValMap, fileType, mpForm, geneForm, diseaseForm);
                             }
                         } else {
                             Object obj = entry.getValue();
-                            populateColValMapAdvSrch(hostname, baseUrl,node2Properties, obj, colValMap, jParams, fileType);
+                            //populateColValMapAdvSrch(hostname, baseUrl,node2Properties, obj, colValMap, jParams, fileType);
+                            populateColValMapAdvSrch(hostname, baseUrl,node2Properties, obj, colValMap, fileType, mpForm, geneForm, diseaseForm);
                         }
                     }
                 }
@@ -1017,8 +1101,281 @@ public class AdvancedSearchService {
 
         return mpStr;
     }
-    
-	private String composeImpressParameterCypher(String impressParameter) {
+
+    public AdvancedSearchPhenotypeForm parsePhenotypeForm(JSONObject jParams){
+
+        AdvancedSearchPhenotypeForm mpForm = new AdvancedSearchPhenotypeForm();
+
+        // exclude nested phenotypes
+        mpForm.setExcludeNestedPhenotype(jParams.containsKey("noMpChild") ? true : false);
+
+        // phenotype rows
+        for(int i=1; i<4; i++) {
+            String mpKey = "mp" + i;
+
+            if (jParams.containsKey(mpKey)){
+                String mpTerm = jParams.getString(mpKey);
+
+                System.out.println(mpKey + ":" + mpTerm);
+                Double lowerPvalue = null;
+                Double upperPvalue = null;
+
+                System.out.println(" jParams.containsKey pvaluesMap: " + jParams.containsKey("pvaluesMap"));
+                if (jParams.containsKey("pvaluesMap")) {
+                    JSONObject map = jParams.getJSONObject("pvaluesMap").getJSONObject(mpTerm);
+                    System.out.println("map: " + map.toString());
+                    if (map.containsKey("lowerPvalue")){
+                        lowerPvalue = map.getDouble("lowerPvalue");
+                        System.out.println("lower: " + lowerPvalue);
+                        //pvals.add("sr.pvalue > " + lowerPvalue);
+                    }
+                    if (map.containsKey("upperPvalue")){
+                        upperPvalue = map.getDouble("upperPvalue");
+                        System.out.println("upper: " + upperPvalue);
+                        //pvals.add("sr.pvalue < " + upperPvalue);
+                    }
+                }
+                AdvancedSearchMpRow mpRow = new AdvancedSearchMpRow(mpTerm, lowerPvalue, upperPvalue);
+                mpForm.addPhenotypeRows(mpRow);
+            }
+        }
+
+        // MP booleans
+        if (jParams.containsKey("logical1")){
+            Logical logical1 = null;
+            mpForm.setLogical1(jParams.getString("logical1").equals("AND") ? Logical.AND : Logical.OR);
+        }
+        if (jParams.containsKey("logical2")){
+            Logical logical2 = null;
+            mpForm.setLogical2(jParams.getString("logical2").equals("AND") ? Logical.AND : Logical.OR);
+        }
+
+        // measured parameters
+        if (jParams.containsKey("srchPipeline")) {
+            mpForm.setImpressParameterName(jParams.getString("srchPipeline"));
+        }
+
+        // only significant pvalue for measured parameter
+        mpForm.setSignificantPvaluesOnly(jParams.containsKey("onlySignificantPvalue") ? true : false);
+
+        // customed output columns
+        if (jParams.containsKey("properties")) {
+            mpForm.setHasOutputColumn(true);
+
+            JSONArray cols = jParams.getJSONArray("properties");
+            if (cols.contains("mpTerm")){
+                mpForm.setShowMpTerm(true);
+            }
+            if (cols.contains("mpId")){
+                mpForm.setShowMpId(true);
+            }
+            if (cols.contains("mpDefinition")){
+                mpForm.setShowMpDefinition(true);
+            }
+            if (cols.contains("topLevelMpId")){
+                mpForm.setShowTopLevelMpId(true);
+            }
+            if (cols.contains("topLevelMpTerm")){
+                mpForm.setShowTopLevelMpTerm(true);
+            }
+            if (cols.contains("ontoSynonym")) {
+                mpForm.setShowMpTermSynonym(true);
+            }
+            if (cols.contains("parameterName")) {
+                mpForm.setShowParameterName(true);
+            }
+            if (cols.contains("pvalue")) {
+                mpForm.setShowPvalue(true);
+            }
+        }
+
+        System.out.println("MP FORM: "+ mpForm.toString());
+
+        return mpForm;
+    }
+    public AdvancedSearchGeneForm parseGeneForm(JSONObject jParams) {
+
+        AdvancedSearchGeneForm geneForm = new AdvancedSearchGeneForm();
+
+        if (jParams.containsKey("chrRange")) {
+            String range = jParams.getString("chrRange");
+            if (range.matches("^chr(\\w*):(\\d+)-(\\d+)$")) {
+                System.out.println("find chr range");
+
+                Pattern pattern = Pattern.compile("^chr(\\w*):(\\d+)-(\\d+)$");
+                Matcher matcher = pattern.matcher(range);
+                while (matcher.find()) {
+                    String regionId = matcher.group(1);
+                    int regionStart = Integer.parseInt(matcher.group(2));
+                    int regionEnd = Integer.parseInt(matcher.group(3));
+
+                    geneForm.setChrId(regionId);
+                    geneForm.setChrStart(regionStart);
+                    geneForm.setChrEnd(regionEnd);
+
+                    //chrRange = " AND g.chrId IN [" + regionId + "] AND g.chrStart >= " + regionStart + " AND g.chrEnd <= " + regionEnd + " ";
+                }
+            }
+        }
+        else if (jParams.containsKey("chr")) {
+            geneForm.setChrIds(jParams.getJSONArray("chr"));
+        }
+
+        if (jParams.containsKey("mouseGeneList")){
+            JSONArray glist = jParams.getJSONArray("mouseGeneList");
+
+            if (glist.get(0).toString().contains("MGI:")){
+                geneForm.setMouseMgiGeneIds(glist);
+            }
+            else {
+                geneForm.setMouseMarkerSymbols(glist);
+            }
+        }
+        if (jParams.containsKey("humanGeneList")){
+            JSONArray glist = jParams.getJSONArray("humanGeneList");
+            List<String> symbols = new ArrayList<>();
+            for(int i=0; i<glist.size(); i++) {
+                symbols.add(glist.get(i).toString());
+            }
+
+            geneForm.setHumanMarkerSymbols(symbols);
+        }
+
+        if (jParams.containsKey("genotypes")) {
+            JSONArray genotypes = jParams.getJSONArray("genotypes");
+            List<String> gtypes = new ArrayList<>();
+            for(int i=0; i<genotypes.size(); i++) {
+                gtypes.add(genotypes.get(i).toString());
+            }
+            geneForm.setGenotypes(gtypes);
+        }
+
+        if (jParams.containsKey("alleleTypes")) {
+            JSONArray alleleTypes = jParams.getJSONArray("alleleTypes");
+            List<String> atypes = new ArrayList<>();
+            for(int i=0; i<alleleTypes.size(); i++) {
+                atypes.add(alleleTypes.get(i).toString());
+            }
+            geneForm.setAlleleTypes(atypes);
+        }
+
+        // customed output columns
+        if (jParams.containsKey("properties")) {
+            geneForm.setHasOutputColumn(true);
+
+            JSONArray cols = jParams.getJSONArray("properties");
+            if (cols.contains("alleleSymbol")){
+                geneForm.setShowAlleleSymbol(true);
+            }
+            if (cols.contains("alleleMgiAccessionId")){
+                geneForm.setShowAlleleId(true);
+            }
+            if (cols.contains("alleleDescription")){
+                geneForm.setShowAlleleDesc(true);
+            }
+            if (cols.contains("alleleType")){
+                geneForm.setShowAlleleType(true);
+            }
+            if (cols.contains("mutationType")){
+                geneForm.setShowAlleleMutationType(true);
+            }
+            if (cols.contains("esCellStatus")) {
+                geneForm.setShowEsCellAvailable(true);
+            }
+            if (cols.contains("mouseStatus")) {
+                geneForm.setShowMouseAvailable(true);
+            }
+            if (cols.contains("phenotypeStatus")) {
+                geneForm.setShowPhenotypingAvailable(true);
+            }
+            if (cols.contains("humanGeneSymbol")){
+                geneForm.setShowHgncGeneSymbol(true);
+            }
+            if (cols.contains("markerSymbol")){
+                geneForm.setShowMgiGeneSymbol(true);
+            }
+            if (cols.contains("mgiAccessionId")){
+                geneForm.setShowMgiGeneId(true);
+            }
+            if (cols.contains("markerType")){
+                geneForm.setShowMgiGeneType(true);
+            }
+            if (cols.contains("markerName")){
+                geneForm.setShowMgiGeneName(true);
+            }
+            if (cols.contains("markerSynonym")) {
+                geneForm.setShowMgiGeneSynonym(true);
+            }
+            if (cols.contains("chrId")) {
+                geneForm.setShowChrId(true);
+            }
+            if (cols.contains("chrStart")) {
+                geneForm.setShowChrStart(true);
+            }
+            if (cols.contains("chrEnd")) {
+                geneForm.setShowChrEnd(true);
+            }
+            if (cols.contains("chrStrand")) {
+                geneForm.setShowChrStrand(true);
+            }
+            if (cols.contains("ensemblGeneId")) {
+                geneForm.setShowEnsemblGeneId(true);
+            }
+        }
+
+        System.out.println("GENE FORM: "+ geneForm);
+        return geneForm;
+    }
+    public AdvancedSearchDiseaseForm parseDiseaseForm(JSONObject jParams) {
+
+        AdvancedSearchDiseaseForm diseaseForm = new AdvancedSearchDiseaseForm();
+
+        if (jParams.containsKey("diseaseGeneAssociation")) {
+            diseaseForm.setHumanCurated(jParams.getString("diseaseGeneAssociation").equals("humanCurated") ? true : false);
+        }
+
+        if (jParams.containsKey("phenodigmScore")) {
+            String[] scores = jParams.getString("phenodigmScore").split(",");
+            diseaseForm.setPhenodigmLowerScore(Integer.parseInt(scores[0]));
+            diseaseForm.setPhenodigmUpperScore(Integer.parseInt(scores[1]));
+        }
+
+        if (jParams.containsKey("srchDiseaseModel")) {
+            diseaseForm.setHumanDiseaseTerm(jParams.getString("srchDiseaseModel"));
+        }
+
+
+        // customed output columns
+        if (jParams.containsKey("properties")) {
+
+            diseaseForm.setHasOutputColumn(true);
+
+            JSONArray cols = jParams.getJSONArray("properties");
+            if (cols.contains("diseaseTerm")) {
+                diseaseForm.setShowDiseaseTerm(true);
+            }
+            if (cols.contains("diseaseId")) {
+                diseaseForm.setShowDiseaseId(true);
+            }
+            if (cols.contains("diseaseToModelScore")) {
+                diseaseForm.setShowDiseaseToModelScore(true);
+            }
+            if (cols.contains("diseaseClasses")) {
+                diseaseForm.setShowDiseaseClasses(true);
+            }
+            if (cols.contains("impcPredicted")) {
+                diseaseForm.setShowImpcPredicted(true);
+            }
+            if (cols.contains("mgiPredicted")) {
+                diseaseForm.setShowMgiPredicted(true);
+            }
+        }
+
+        System.out.println("DISEASE FORM: "+ diseaseForm);
+        return diseaseForm;
+    }
+
+    private String composeImpressParameterCypher(String impressParameter) {
 
 		String parameter = " AND sr.parameterName ='" + impressParameter + "' ";
 
@@ -1237,76 +1594,76 @@ public class AdvancedSearchService {
     }
     
     
-    public void populateColValMap(String hostname, String baseUrl, List<Object> objs, Map<String, Set<String>> colValMap, JSONObject jDatatypeProperties) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
-
-        String fileType = null;
-        for (Object obj : objs) {
-            String className = obj.getClass().getSimpleName();
-
-            if (jDatatypeProperties.containsKey(className)) {
-
-                //System.out.println("className: " + className);
-
-                List<String> nodeProperties = jDatatypeProperties.getJSONArray(className);
-
-                if (className.equals("Gene")) {
-                    Gene g = (Gene) obj;
-                    getValues(hostname, baseUrl, nodeProperties, g, colValMap, fileType, jDatatypeProperties);  // convert to class ???
-                }
-                else if (className.equals("EnsemblGeneId")) {
-                    EnsemblGeneId ensg = (EnsemblGeneId) obj;
-                    getValues(hostname, baseUrl,nodeProperties, ensg, colValMap, fileType, jDatatypeProperties);
-                }
-                else if (className.equals("MarkerSynonym")) {
-                    MarkerSynonym m = (MarkerSynonym) obj;
-                    getValues(hostname, baseUrl,nodeProperties, m, colValMap, fileType, jDatatypeProperties);
-                }
-                else if (className.equals("HumanGeneSymbol")) {
-                    HumanGeneSymbol hg = (HumanGeneSymbol) obj;
-                    getValues(hostname, baseUrl,nodeProperties, hg, colValMap, fileType, jDatatypeProperties);
-                }
-                else if (className.equals("DiseaseModel")) {
-                    DiseaseModel dm = (DiseaseModel) obj;
-                    getValues(hostname, baseUrl,nodeProperties, dm, colValMap, fileType, jDatatypeProperties);
-                }
-                else if (className.equals("MouseModel")) {
-                    MouseModel mm = (MouseModel) obj;
-                    getValues(hostname, baseUrl,nodeProperties, mm, colValMap, fileType, jDatatypeProperties);
-                }
-                else if (className.equals("Allele")) {
-                    Allele allele = (Allele) obj;
-                    getValues(hostname, baseUrl,nodeProperties, allele, colValMap, fileType, jDatatypeProperties);
-                }
-                else if (className.equals("Mp")) {
-                    Mp mp = (Mp) obj;
-                    getValues(hostname, baseUrl,nodeProperties, mp, colValMap, fileType, jDatatypeProperties);
-                }
-                else if (className.equals("OntoSynonym")) {
-                    OntoSynonym ontosyn = (OntoSynonym) obj;
-                    getValues(hostname, baseUrl,nodeProperties, ontosyn, colValMap, fileType, jDatatypeProperties);
-                }
-                else if (className.equals("Hp")) {
-                    Hp hp = (Hp) obj;
-                    getValues(hostname, baseUrl,nodeProperties, hp, colValMap, fileType, jDatatypeProperties);
-                }
-            }
-        }
-        
-    }
+//    public void populateColValMap(String hostname, String baseUrl, List<Object> objs, Map<String, Set<String>> colValMap, JSONObject jDatatypeProperties) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+//
+//        String fileType = null;
+//        for (Object obj : objs) {
+//            String className = obj.getClass().getSimpleName();
+//
+//            if (jDatatypeProperties.containsKey(className)) {
+//
+//                //System.out.println("className: " + className);
+//
+//                List<String> nodeProperties = jDatatypeProperties.getJSONArray(className);
+//
+//                if (className.equals("Gene")) {
+//                    Gene g = (Gene) obj;
+//                    getValues(hostname, baseUrl, nodeProperties, g, colValMap, fileType, jDatatypeProperties);  // convert to class ???
+//                }
+//                else if (className.equals("EnsemblGeneId")) {
+//                    EnsemblGeneId ensg = (EnsemblGeneId) obj;
+//                    getValues(hostname, baseUrl,nodeProperties, ensg, colValMap, fileType, jDatatypeProperties);
+//                }
+//                else if (className.equals("MarkerSynonym")) {
+//                    MarkerSynonym m = (MarkerSynonym) obj;
+//                    getValues(hostname, baseUrl,nodeProperties, m, colValMap, fileType, jDatatypeProperties);
+//                }
+//                else if (className.equals("HumanGeneSymbol")) {
+//                    HumanGeneSymbol hg = (HumanGeneSymbol) obj;
+//                    getValues(hostname, baseUrl,nodeProperties, hg, colValMap, fileType, jDatatypeProperties);
+//                }
+//                else if (className.equals("DiseaseModel")) {
+//                    DiseaseModel dm = (DiseaseModel) obj;
+//                    getValues(hostname, baseUrl,nodeProperties, dm, colValMap, fileType, jDatatypeProperties);
+//                }
+//                else if (className.equals("MouseModel")) {
+//                    MouseModel mm = (MouseModel) obj;
+//                    getValues(hostname, baseUrl,nodeProperties, mm, colValMap, fileType, jDatatypeProperties);
+//                }
+//                else if (className.equals("Allele")) {
+//                    Allele allele = (Allele) obj;
+//                    getValues(hostname, baseUrl,nodeProperties, allele, colValMap, fileType, jDatatypeProperties);
+//                }
+//                else if (className.equals("Mp")) {
+//                    Mp mp = (Mp) obj;
+//                    getValues(hostname, baseUrl,nodeProperties, mp, colValMap, fileType, jDatatypeProperties);
+//                }
+//                else if (className.equals("OntoSynonym")) {
+//                    OntoSynonym ontosyn = (OntoSynonym) obj;
+//                    getValues(hostname, baseUrl,nodeProperties, ontosyn, colValMap, fileType, jDatatypeProperties);
+//                }
+//                else if (className.equals("Hp")) {
+//                    Hp hp = (Hp) obj;
+//                    getValues(hostname, baseUrl,nodeProperties, hp, colValMap, fileType, jDatatypeProperties);
+//                }
+//            }
+//        }
+//
+//    }
     
-    public Map<String, Set<String>> getValues(String hostname, String baseUrl, List<String> nodeProperties, Object o, Map<String, Set<String>> colValMap, String fileType, JSONObject jParam) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+    public Map<String, Set<String>> getValues(String hostname, String baseUrl, List<String> nodeProperties, Object o, Map<String, Set<String>> colValMap, String fileType) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
 
         int showCutOff = 3;
 
-        if (hostname == null) {
-            hostname = jParam.getString("hostname").toString();
-        }
-        if ( ! hostname.startsWith("http")){
-            hostname = "http:" + hostname;
-        }
-        if  (baseUrl == null) {
-            baseUrl = jParam.getString("baseUrl").toString();
-        }
+//        if (hostname == null) {
+//            hostname = jParam.getString("hostname").toString();
+//        }
+//        if ( ! hostname.startsWith("http")){
+//            hostname = "http:" + hostname;
+//        }
+//        if  (baseUrl == null) {
+//            baseUrl = jParam.getString("baseUrl").toString();
+//        }
 
         //System.out.println("TEST hostname: " + hostname);
 
@@ -1315,7 +1672,6 @@ public class AdvancedSearchService {
         String mpBaseUrl = baseUrl + "/phenotypes/";
         String diseaseBaseUrl = baseUrl + "/disease/";
         String ensemblGeneBaseUrl = "http://www.ensembl.org/Mus_musculus/Gene/Summary?db=core;g=";
-
 
         for(String property : nodeProperties) {
 
@@ -1467,11 +1823,11 @@ public class AdvancedSearchService {
         return colValMap;
     }
     
-    public void populateColValMapAdvSrch(String hostname, String baseUrl, Map<String, List<String>> node2Properties,  Object obj, Map<String, Set<String>> colValMap, JSONObject jParam, String fileType) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+    public void populateColValMapAdvSrch(String hostname, String baseUrl, Map<String, List<String>> node2Properties, Object obj, Map<String, Set<String>> colValMap, String fileType, AdvancedSearchPhenotypeForm mpForm, AdvancedSearchGeneForm geneForm, AdvancedSearchDiseaseForm diseaseForm) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
 
         String className = obj.getClass().getSimpleName();
 
-        if (jParam.containsKey(className)) {
+        //if (jParam.containsKey(className)) {
 
             List<String> nodeProperties = node2Properties.get(className);
 //            System.out.println("className: " + className);
@@ -1479,56 +1835,52 @@ public class AdvancedSearchService {
 
             if (className.equals("Gene")) {
                 Gene g = (Gene) obj;
-                getValues(hostname, baseUrl,nodeProperties, g, colValMap, fileType, jParam);
+                getValues(hostname, baseUrl,nodeProperties, g, colValMap, fileType);
             }
             else if (className.equals("EnsemblGeneId")) {
                 EnsemblGeneId ensg = (EnsemblGeneId) obj;
-                getValues(hostname, baseUrl,nodeProperties, ensg, colValMap, fileType, jParam);
+                getValues(hostname, baseUrl,nodeProperties, ensg, colValMap, fileType);
             }
             else if (className.equals("MarkerSynonym")) {
                 MarkerSynonym m = (MarkerSynonym) obj;
-                getValues(hostname, baseUrl,nodeProperties, m, colValMap, fileType, jParam);
+                getValues(hostname, baseUrl,nodeProperties, m, colValMap, fileType);
             }
             else if (className.equals("HumanGeneSymbol")) {
                 HumanGeneSymbol hg = (HumanGeneSymbol) obj;
-                getValues(hostname, baseUrl,nodeProperties, hg, colValMap, fileType, jParam);
+                getValues(hostname, baseUrl,nodeProperties, hg, colValMap, fileType);
             }
             else if (className.equals("DiseaseModel")) {
                 DiseaseModel dm = (DiseaseModel) obj;
-                getValues(hostname, baseUrl,nodeProperties, dm, colValMap, fileType, jParam);
+                getValues(hostname, baseUrl,nodeProperties, dm, colValMap, fileType);
             }
             else if (className.equals("MouseModel")) {
                 MouseModel mm = (MouseModel) obj;
-                getValues(hostname, baseUrl,nodeProperties, mm, colValMap, fileType, jParam);
+                getValues(hostname, baseUrl,nodeProperties, mm, colValMap, fileType);
             }
             else if (className.equals("Allele")) {
                 Allele allele = (Allele) obj;
-                getValues(hostname, baseUrl,nodeProperties, allele, colValMap, fileType, jParam);
+                getValues(hostname, baseUrl,nodeProperties, allele, colValMap, fileType);
             }
             else if (className.equals("Mp")) {
                 Mp mp = (Mp) obj;
-                getValues(hostname, baseUrl,nodeProperties, mp, colValMap, fileType, jParam);
+                getValues(hostname, baseUrl,nodeProperties, mp, colValMap, fileType);
             }
             else if (className.equals("StatisticalResult")) {
                 StatisticalResult sr = (StatisticalResult) obj;
-                getValues(hostname, baseUrl,nodeProperties, sr, colValMap, fileType, jParam);
+                getValues(hostname, baseUrl,nodeProperties, sr, colValMap, fileType);
             }
             else if (className.equals("OntoSynonym")) {
                 OntoSynonym ontosyn = (OntoSynonym) obj;
-                getValues(hostname, baseUrl,nodeProperties, ontosyn, colValMap, fileType, jParam);
+                getValues(hostname, baseUrl,nodeProperties, ontosyn, colValMap, fileType);
             }
             else if (className.equals("Hp")) {
                 Hp hp = (Hp) obj;
-                getValues(hostname, baseUrl,nodeProperties, hp, colValMap, fileType, jParam);
+                getValues(hostname, baseUrl,nodeProperties, hp, colValMap, fileType);
             }
-        }
+       // }
 
     }
 
-	
-	
-
-	
 	//get the number of genes associated with phenotypes - the same way as we do for the phenotypes pages?
 	 public List<String> getGenesForPhenotype(String phenotypeId) throws IOException, URISyntaxException, SolrServerException{
 		List<String> geneSymbols=genotypePhenotypeService.getGenesForMpId(phenotypeId);

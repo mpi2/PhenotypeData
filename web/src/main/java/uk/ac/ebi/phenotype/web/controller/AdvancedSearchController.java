@@ -331,696 +331,414 @@ public class AdvancedSearchController {
         return mp;
     }
 
-    public AdvancedSearchPhenotypeForm parsePhenotypeForm(JSONObject jParams){
-
-        AdvancedSearchPhenotypeForm mpForm = new AdvancedSearchPhenotypeForm();
-
-        // exclude nested phenotypes
-        mpForm.setExcludeNestedPhenotype(jParams.containsKey("noMpChild") ? true : false);
-
-        // phenotype rows
-        for(int i=1; i<4; i++) {
-            String mpKey = "mp" + i;
-
-            if (jParams.containsKey(mpKey)){
-                String mpTerm = jParams.getString(mpKey);
-
-                System.out.println(mpKey + ":" + mpTerm);
-                Double lowerPvalue = null;
-                Double upperPvalue = null;
-
-                System.out.println(" jParams.containsKey pvaluesMap: " + jParams.containsKey("pvaluesMap"));
-                if (jParams.containsKey("pvaluesMap")) {
-                    JSONObject map = jParams.getJSONObject("pvaluesMap").getJSONObject(mpTerm);
-                    System.out.println("map: " + map.toString());
-                    if (map.containsKey("lowerPvalue")){
-                        lowerPvalue = map.getDouble("lowerPvalue");
-                        System.out.println("lower: " + lowerPvalue);
-                        //pvals.add("sr.pvalue > " + lowerPvalue);
-                    }
-                    if (map.containsKey("upperPvalue")){
-                        upperPvalue = map.getDouble("upperPvalue");
-                        System.out.println("upper: " + upperPvalue);
-                        //pvals.add("sr.pvalue < " + upperPvalue);
-                    }
-                }
-                AdvancedSearchMpRow mpRow = new AdvancedSearchMpRow(mpTerm, lowerPvalue, upperPvalue);
-                mpForm.addPhenotypeRows(mpRow);
-            }
-        }
-
-        // MP booleans
-        if (jParams.containsKey("logical1")){
-            Logical logical1 = null;
-            mpForm.setLogical1(logical1.valueOf(jParams.getString("logical1")));
-        }
-        if (jParams.containsKey("logical2")){
-            Logical logical2 = null;
-            mpForm.setLogical2(logical2.valueOf(jParams.getString("logical2")));
-        }
-
-        // measured parameters
-        if (jParams.containsKey("srchPipeline")) {
-            mpForm.setImpressParameterName(jParams.getString("srchPipeline"));
-        }
-
-        // only significant pvalue for measured parameter
-        mpForm.setSignificantPvaluesOnly(jParams.containsKey("onlySignificantPvalue") ? true : false);
-
-        // customed output columns
-        if (jParams.containsKey("properties")) {
-            mpForm.setHasOutputColumn(true);
-
-            JSONArray cols = jParams.getJSONArray("properties");
-            if (cols.contains("mpTerm")){
-                mpForm.setShowMpTerm(true);
-            }
-            if (cols.contains("mpId")){
-                mpForm.setShowMpId(true);
-            }
-            if (cols.contains("mpDefinition")){
-                mpForm.setShowMpDefinition(true);
-            }
-            if (cols.contains("topLevelMpId")){
-                mpForm.setShowTopLevelMpId(true);
-            }
-            if (cols.contains("topLevelMpTerm")){
-                mpForm.setShowTopLevelMpTerm(true);
-            }
-            if (cols.contains("ontoSynonym")) {
-                mpForm.setShowMpTermSynonym(true);
-            }
-            if (cols.contains("parameterName")) {
-                mpForm.setShowParameterName(true);
-            }
-            if (cols.contains("pvalue")) {
-                mpForm.setShowPvalue(true);
-            }
-        }
-
-        System.out.println("MP FORM: "+ mpForm.toString());
-
-        return mpForm;
-    }
-    public AdvancedSearchGeneForm parseGeneForm(JSONObject jParams) {
-
-        AdvancedSearchGeneForm geneForm = new AdvancedSearchGeneForm();
-
-        if (jParams.containsKey("chrRange")) {
-            String range = jParams.getString("chrRange");
-            if (range.matches("^chr(\\w*):(\\d+)-(\\d+)$")) {
-                System.out.println("find chr range");
-
-                Pattern pattern = Pattern.compile("^chr(\\w*):(\\d+)-(\\d+)$");
-                Matcher matcher = pattern.matcher(range);
-                while (matcher.find()) {
-                    String regionId = matcher.group(1);
-                    int regionStart = Integer.parseInt(matcher.group(2));
-                    int regionEnd = Integer.parseInt(matcher.group(3));
-
-                    geneForm.setChrId(regionId);
-                    geneForm.setChrStart(regionStart);
-                    geneForm.setChrEnd(regionEnd);
-
-                    //chrRange = " AND g.chrId IN [" + regionId + "] AND g.chrStart >= " + regionStart + " AND g.chrEnd <= " + regionEnd + " ";
-                }
-            }
-        }
-        else if (jParams.containsKey("chr")) {
-            geneForm.setChrIds(jParams.getJSONArray("chr"));
-        }
-
-        if (jParams.containsKey("mouseGeneList")){
-            JSONArray glist = jParams.getJSONArray("mouseGeneList");
-
-            if (glist.get(0).toString().contains("MGI:")){
-                geneForm.setMouseMgiGeneIds(glist);
-            }
-            else {
-                geneForm.setMouseMarkerSymbols(glist);
-            }
-        }
-        if (jParams.containsKey("humanGeneList")){
-            JSONArray glist = jParams.getJSONArray("humanGeneList");
-            List<String> symbols = new ArrayList<>();
-            for(int i=0; i<glist.size(); i++) {
-                symbols.add(glist.get(i).toString());
-            }
-
-            geneForm.setHumanMarkerSymbols(symbols);
-        }
-
-        if (jParams.containsKey("genotypes")) {
-            JSONArray genotypes = jParams.getJSONArray("genotypes");
-            List<String> gtypes = new ArrayList<>();
-            for(int i=0; i<genotypes.size(); i++) {
-                gtypes.add(genotypes.get(i).toString());
-            }
-            geneForm.setGenotypes(gtypes);
-        }
-
-        if (jParams.containsKey("alleleTypes")) {
-            JSONArray alleleTypes = jParams.getJSONArray("alleleTypes");
-            List<String> atypes = new ArrayList<>();
-            for(int i=0; i<alleleTypes.size(); i++) {
-                atypes.add(alleleTypes.get(i).toString());
-            }
-            geneForm.setAlleleTypes(atypes);
-        }
-
-        // customed output columns
-        if (jParams.containsKey("properties")) {
-            geneForm.setHasOutputColumn(true);
-
-            JSONArray cols = jParams.getJSONArray("properties");
-            if (cols.contains("alleleSymbol")){
-                geneForm.setShowAlleleSymbol(true);
-            }
-            if (cols.contains("alleleMgiAccessionId")){
-                geneForm.setShowAlleleId(true);
-            }
-            if (cols.contains("alleleDescription")){
-                geneForm.setShowAlleleDesc(true);
-            }
-            if (cols.contains("alleleType")){
-                geneForm.setShowAlleleType(true);
-            }
-            if (cols.contains("mutationType")){
-                geneForm.setShowAlleleMutationType(true);
-            }
-            if (cols.contains("esCellStatus")) {
-                geneForm.setShowEsCellAvailable(true);
-            }
-            if (cols.contains("mouseStatus")) {
-                geneForm.setShowMouseAvailable(true);
-            }
-            if (cols.contains("phenotypeStatus")) {
-                geneForm.setShowPhenotypingAvailable(true);
-            }
-            if (cols.contains("humanGeneSymbol")){
-                geneForm.setShowHgncGeneSymbol(true);
-            }
-            if (cols.contains("markerSymbol")){
-                geneForm.setShowMgiGeneSymbol(true);
-            }
-            if (cols.contains("mgiAccessionId")){
-                geneForm.setShowMgiGeneId(true);
-            }
-            if (cols.contains("markerType")){
-                geneForm.setShowMgiGeneType(true);
-            }
-            if (cols.contains("markerName")){
-                geneForm.setShowMgiGeneName(true);
-            }
-            if (cols.contains("markerSynonym")) {
-                geneForm.setShowMgiGeneSynonym(true);
-            }
-            if (cols.contains("chrId")) {
-                geneForm.setShowChrId(true);
-            }
-            if (cols.contains("chrStart")) {
-                geneForm.setShowChrStart(true);
-            }
-            if (cols.contains("chrEnd")) {
-                geneForm.setShowChrEnd(true);
-            }
-            if (cols.contains("chrStrand")) {
-                geneForm.setShowChrStrand(true);
-            }
-            if (cols.contains("ensemblGeneId")) {
-                geneForm.setShowEnsemblGeneId(true);
-            }
-        }
-
-        System.out.println("GENE FORM: "+ geneForm);
-        return geneForm;
-    }
-    public AdvancedSearchDiseaseForm parseDiseaseForm(JSONObject jParams) {
-
-        AdvancedSearchDiseaseForm diseaseForm = new AdvancedSearchDiseaseForm();
-
-        if (jParams.containsKey("diseaseGeneAssociation")) {
-            diseaseForm.setHumanCurated(jParams.getString("diseaseGeneAssociation").equals("humanCurated") ? true : false);
-        }
-
-        if (jParams.containsKey("phenodigmScore")) {
-            String[] scores = jParams.getString("phenodigmScore").split(",");
-            diseaseForm.setPhenodigmLowerScore(Integer.parseInt(scores[0]));
-            diseaseForm.setPhenodigmUpperScore(Integer.parseInt(scores[1]));
-        }
-
-        if (jParams.containsKey("srchDiseaseModel")) {
-            diseaseForm.setHumanDiseaseTerm(jParams.getString("srchDiseaseModel"));
-        }
-
-
-        // customed output columns
-        if (jParams.containsKey("properties")) {
-
-            diseaseForm.setHasOutputColumn(true);
-
-            JSONArray cols = jParams.getJSONArray("properties");
-            if (cols.contains("diseaseTerm")) {
-                diseaseForm.setShowDiseaseTerm(true);
-            }
-            if (cols.contains("diseaseId")) {
-                diseaseForm.setShowDiseaseId(true);
-            }
-            if (cols.contains("diseaseToModelScore")) {
-                diseaseForm.setShowDiseaseToModelScore(true);
-            }
-            if (cols.contains("diseaseClasses")) {
-                diseaseForm.setShowDiseaseClasses(true);
-            }
-            if (cols.contains("impcPredicted")) {
-                diseaseForm.setShowImpcPredicted(true);
-            }
-            if (cols.contains("mgiPredicted")) {
-                diseaseForm.setShowMgiPredicted(true);
-            }
-        }
-
-        System.out.println("DISEASE FORM: "+ diseaseForm);
-        return diseaseForm;
-    }
-
-
-
     @RequestMapping(value = "/dataTableNeo4jAdvSrch", method = RequestMethod.POST)
     public ResponseEntity<String> advSrchDataTableJson2(
             @RequestParam(value = "params", required = true) String params,
             HttpServletRequest request,
             HttpServletResponse response,
             Model model) throws Exception {
+
     	System.out.println("calling dataTableNeo4jAdvSrch");
+
         baseUrl = request.getAttribute("baseUrl").toString();
         hostname = request.getAttribute("mappedHostname").toString();
-
-
-//        System.out.println("hostname: " + hostname);
-//        System.out.println("baseUrl: " + baseUrl);
-//        Map<String, String[]> parameters = request.getParameterMap();
-//        for( String paramName: parameters.keySet()){
-//        	System.out.println("parameter name="+paramName+" value="+parameters.get(paramName));
-//        }
-
 
         JSONObject jParams = (JSONObject) JSONSerializer.toJSON(params);
         System.out.println("jparams="+jParams.toString());
 
-        AdvancedSearchPhenotypeForm phenotypeForm = parsePhenotypeForm(jParams);
-        AdvancedSearchGeneForm geneForm = parseGeneForm(jParams);
-        AdvancedSearchDiseaseForm diseaseForm = parseDiseaseForm(jParams);
+        AdvancedSearchPhenotypeForm phenotypeForm = advancedSearchService.parsePhenotypeForm(jParams);
+        AdvancedSearchGeneForm geneForm = advancedSearchService.parseGeneForm(jParams);
+        AdvancedSearchDiseaseForm diseaseForm = advancedSearchService.parseDiseaseForm(jParams);
         String fileType = null;
 
-        JSONObject jcontent = advancedSearchService.fetchGraphDataAdvSrch(phenotypeForm, geneForm, diseaseForm, fileType);
-/
-        //System.out.println("narrow synonym msg: " + jcontent.get("narrowMapping"));
-//        return new ResponseEntity<String>(jcontent.toString(), createResponseHeaders(), HttpStatus.CREATED);
+        JSONObject jcontent = advancedSearchService.fetchGraphDataAdvSrch(phenotypeForm, geneForm, diseaseForm, fileType, baseUrl, hostname);
 
-        return new ResponseEntity<String>("test", createResponseHeaders(), HttpStatus.CREATED);
+        System.out.println("narrowSynonym or synonym Mapping msg: " + jcontent.get("narrowOrSynonymMapping"));
+        return new ResponseEntity<String>(jcontent.toString(), createResponseHeaders(), HttpStatus.CREATED);
+
+        //return new ResponseEntity<String>("test", createResponseHeaders(), HttpStatus.CREATED);
     }
 
-    @RequestMapping(value = "/dataTableNeo4jBq", method = RequestMethod.POST)
-    public ResponseEntity<String> bqDataTableJson2(
-            @RequestParam(value = "idlist", required = true) String idlistStr,
-            @RequestParam(value = "properties", required = true) String properties,
-            @RequestParam(value = "datatypeProperties", required = true) String datatypeProperties,
-            @RequestParam(value = "dataType", required = true) String dataType,
-            @RequestParam(value = "childLevel", required = false) String childLevel,
-           // @RequestParam(value = "chrRange", required = false) String chrRange,
-            @RequestParam(value = "chr", required = false) String chr,
-            HttpServletRequest request,
-            HttpServletResponse response,
-            Model model) throws Exception {
+//    @RequestMapping(value = "/dataTableNeo4jBq", method = RequestMethod.POST)
+//    public ResponseEntity<String> bqDataTableJson2(
+//            @RequestParam(value = "idlist", required = true) String idlistStr,
+//            @RequestParam(value = "properties", required = true) String properties,
+//            @RequestParam(value = "datatypeProperties", required = true) String datatypeProperties,
+//            @RequestParam(value = "dataType", required = true) String dataType,
+//            @RequestParam(value = "childLevel", required = false) String childLevel,
+//           // @RequestParam(value = "chrRange", required = false) String chrRange,
+//            @RequestParam(value = "chr", required = false) String chr,
+//            HttpServletRequest request,
+//            HttpServletResponse response,
+//            Model model) throws Exception {
+//
+//        System.out.println("dataType: " +  dataType);
+//
+//        if (dataType.equals("EnsemblGeneId")){
+//            dataType = "Gene";
+//        }
+//
+//        if (childLevel != null){
+//            System.out.println("MP childLevel: " + childLevel);
+//        }
+//
+//        JSONObject jDatatypeProperties = (JSONObject) JSONSerializer.toJSON(datatypeProperties);
+//        System.out.println(jDatatypeProperties.toString());
+//
+//        System.out.println("properties: "+ properties);
+//
+//        Set<String> labels = new LinkedHashSet<>(jDatatypeProperties.keySet());
+//        System.out.println("Labels: "+ labels);
+//
+//        System.out.println("idlistStr: " + idlistStr);
+//        Set<String> idlist = new LinkedHashSet<>();
+//        if (idlistStr.matches("^\".*\"$")){
+//            // ontology term name is quoted
+//
+//            idlist.add(idlistStr.replaceAll("\"",""));
+//        }
+//        else {
+//            idlist = new LinkedHashSet<>(Arrays.asList(idlistStr.split(",")));
+//        }
+//        System.out.println("idlist: " + idlist);
+//
+//        String content = null;
+//
+//        String regionId = null;
+//        int regionStart = 0;
+//        int regionEnd = 0;
+//
+//        if (idlistStr.matches("^chr(\\w*):(\\d+)-(\\d+)$") ) {
+//            System.out.println("find chr range");
+//
+//            Pattern pattern = Pattern.compile("^chr(\\w*):(\\d+)-(\\d+)$");
+//            Matcher matcher = pattern.matcher(idlistStr);
+//            while(matcher.find()) {
+//                System.out.println("found: " + matcher.group(1));
+//                regionId = matcher.group(1);
+//                regionStart = Integer.parseInt(matcher.group(2));
+//                regionEnd = Integer.parseInt(matcher.group(3));
+//            }
+//
+//            String mode = "nonExport";
+//        }
+//
+//        // chr filter for mp, hp, disease input type
+//        if (chr != null){
+//            regionId = chr;
+//            System.out.println("chr filter: " + chr);
+//        }
+//        else {
+//            System.out.println("chr filter is null");
+//        }
+//
+//        baseUrl = request.getAttribute("baseUrl").toString();
+//
+//        content = fetchGraphData(dataType, idlist, labels, jDatatypeProperties, properties, regionId, regionStart, regionEnd, childLevel);
+//
+//        return new ResponseEntity<String>(content, createResponseHeaders(), HttpStatus.CREATED);
+//    }
 
-        System.out.println("dataType: " +  dataType);
-
-        if (dataType.equals("EnsemblGeneId")){
-            dataType = "Gene";
-        }
-
-        if (childLevel != null){
-            System.out.println("MP childLevel: " + childLevel);
-        }
-
-        JSONObject jDatatypeProperties = (JSONObject) JSONSerializer.toJSON(datatypeProperties);
-        System.out.println(jDatatypeProperties.toString());
-
-        System.out.println("properties: "+ properties);
-
-        Set<String> labels = new LinkedHashSet<>(jDatatypeProperties.keySet());
-        System.out.println("Labels: "+ labels);
-
-        System.out.println("idlistStr: " + idlistStr);
-        Set<String> idlist = new LinkedHashSet<>();
-        if (idlistStr.matches("^\".*\"$")){
-            // ontology term name is quoted
-
-            idlist.add(idlistStr.replaceAll("\"",""));
-        }
-        else {
-            idlist = new LinkedHashSet<>(Arrays.asList(idlistStr.split(",")));
-        }
-        System.out.println("idlist: " + idlist);
-
-        String content = null;
-
-        String regionId = null;
-        int regionStart = 0;
-        int regionEnd = 0;
-
-        if (idlistStr.matches("^chr(\\w*):(\\d+)-(\\d+)$") ) {
-            System.out.println("find chr range");
-
-            Pattern pattern = Pattern.compile("^chr(\\w*):(\\d+)-(\\d+)$");
-            Matcher matcher = pattern.matcher(idlistStr);
-            while(matcher.find()) {
-                System.out.println("found: " + matcher.group(1));
-                regionId = matcher.group(1);
-                regionStart = Integer.parseInt(matcher.group(2));
-                regionEnd = Integer.parseInt(matcher.group(3));
-            }
-
-            String mode = "nonExport";
-        }
-
-        // chr filter for mp, hp, disease input type
-        if (chr != null){
-            regionId = chr;
-            System.out.println("chr filter: " + chr);
-        }
-        else {
-            System.out.println("chr filter is null");
-        }
-
-        baseUrl = request.getAttribute("baseUrl").toString();
-
-        content = fetchGraphData(dataType, idlist, labels, jDatatypeProperties, properties, regionId, regionStart, regionEnd, childLevel);
-
-        return new ResponseEntity<String>(content, createResponseHeaders(), HttpStatus.CREATED);
-    }
-
-    public String fetchGraphData(String dataType, Set<String> srchKw, Set<String> labels, JSONObject jDatatypeProperties, String properties, String regionId, int regionStart, int regionEnd, String childLevel) throws Exception {
-
-        List<String> cols = new ArrayList<>();
-        for (String property : properties.split(",")){
-            cols.add(property);
-        }
-
-        int rowCount = 0;
-        JSONObject j = new JSONObject();
-        j.put("aaData", new Object[0]);
-
-        for(String kw : srchKw) {
-
-            Map<String, Set<String>> colValMap = new HashedMap();
-
-            colValMap.put("searchBy", new TreeSet<>());
-            colValMap.get("searchBy").add(kw);
-
-            rowCount++;
-
-            System.out.println("-- Working on " + kw);
-            System.out.println("-- region id " + regionId);
-
-            List<Object> objs = null;
-
-            if (kw.matches("^chr(\\w*):(\\d+)-(\\d+)$") && dataType.equals("Gene")) {
-                objs = geneRepository.findDataByChrRange(regionId, regionStart, regionEnd);
-            }
-            else if (kw.startsWith("MGI:")){
-                objs = geneRepository.findDataByMgiId(kw);
-            }
-            else if (dataType.equals("Gene")) {
-                objs = geneRepository.findDataByMarkerSymbol(kw);
-            }
-            else if (kw.startsWith("ENSMUSG")){
-                objs = ensemblGeneIdRepository.findDataByEnsemblGeneId(kw);
-            }
-
-            // DiseaseModel ID
-            else if ((kw.startsWith("OMIM:") || kw.startsWith("ORPHANET:") || kw.startsWith("DECIPHER:")) && regionId != null){
-                System.out.println("search disease " + kw + " and chr " + regionId);
-                objs = diseaseModelRepository.findDataByDiseaseIdChr(kw, regionId);
-                System.out.println("objs found: "+objs.size());
-            }
-            else if (kw.startsWith("OMIM:") || kw.startsWith("ORPHANET:") || kw.startsWith("DECIPHER:")){
-                System.out.println("search disease");
-                objs = diseaseModelRepository.findDataByDiseaseId(kw);
-            }
-            // DiseaseModel term
-            else if (dataType.equals("DiseaseModel") && regionId != null) {
-                System.out.println("Disease id normal");
-                objs = diseaseModelRepository.findDataByDiseaseTermChr(kw, regionId);
-            }
-            else if (dataType.equals("DiseaseModel")) {
-                System.out.println("Disease term normal");
-                objs = diseaseModelRepository.findDataByDiseaseTerm(kw);
-            }
-
-            // MP ID
-            else if (kw.startsWith("MP:") && regionId != null && childLevel != null) {
-
-                if (childLevel.equals("all")) {
-                    System.out.println("MP id with region and ALL children");
-                    objs = mpRepository.findAllChildrenMpsByMpIdChr(kw, regionId);
-                }
-                else {
-                    System.out.println("MP id with region and " + childLevel + " children level");
-                    int level = Integer.parseInt(childLevel);
-                    objs = mpRepository.findChildrenMpsByMpIdChr(kw, regionId, level);
-                }
-                objs = fetchTerms(objs);
-            }
-            else if (kw.startsWith("MP:") && regionId != null && childLevel == null) {
-                System.out.println("MP id with region");
-                objs = mpRepository.findDataByMpIdChr(kw, regionId);
-            }
-            else if (kw.startsWith("MP:") && regionId == null && childLevel != null) {
-                if (childLevel.equals("all")){
-                    System.out.println("MP id with ALL children");
-
-                    // first get all children mps (including self)
-                    objs = mpRepository.findAllChildrenMpsByMpId(kw);
-                    System.out.println("1. Got " + objs.size() + "children");
-                }
-                else if (childLevel != "0"){
-                    System.out.println("MP Id with " + childLevel + " children level");
-
-                    // first get all children mps (including self)
-                    int level = Integer.parseInt(childLevel);
-                    objs = mpRepository.findChildrenMpsByMpId(kw, level);
-                    System.out.println("2. Got " + objs.size() + "children");
-                }
-
-                // then query data by each mp and put together
-                objs = fetchTerms(objs);
-            }
-            else if (kw.startsWith("MP:") && regionId == null && childLevel == null){
-                System.out.println("MP id normal");
-                objs = mpRepository.findDataByMpId(kw);
-            }
-
-            // MP term
-            else if (dataType.equals("MP") && regionId != null && childLevel != null) {
-                System.out.println("MP term with all children and chr filter");
-                if (childLevel.equals("all")) {
-                    objs = mpRepository.findAllChildrenMpsByMpTermChr(kw, regionId);
-                }
-                else if (childLevel != "0"){
-                    System.out.println("MP term with " + childLevel + " children level and chr filter");
-
-                    // first get all children mps (including self)
-                    int level = Integer.parseInt(childLevel);
-                    objs = mpRepository.findChildrenMpsByMpTermChr(kw, regionId, level);
-                }
-                // then query data by each mp and put together
-                objs = fetchTerms(objs);
-            }
-            else if (dataType.equals("MP") && regionId != null && childLevel == null){
-                System.out.println("MP term with region");
-                objs = mpRepository.findDataByMpTermChr(kw, regionId);
-            }
-            else if (dataType.equals("Mp") && regionId == null && childLevel != null) {
-                if (childLevel.equals("all")){
-                    System.out.println("MP term with ALL children");
-
-                    // first get all children mps (including self)
-                    objs = mpRepository.findAllChildrenMpsByMpTerm(kw);
-                }
-                else if (childLevel != "0"){
-                    System.out.println("MP term with " + childLevel + " children level");
-
-                    // first get all children mps (including self)
-                    int level = Integer.parseInt(childLevel);
-                    objs = mpRepository.findChildrenMpsByMpTerm(kw, level);
-                }
-
-                // then query data by each mp and put together
-                objs = fetchTerms(objs);
-            }
-            else if (dataType.equals("Mp") && regionId == null && childLevel == null) {
-                System.out.println("MP term normal");
-                objs = mpRepository.findDataByMpTerm(kw);
-            }
-            // HP ID
-            else if (kw.startsWith("HP:") && regionId != null && childLevel != null) {
-                if (childLevel.equals("all")) {
-                    System.out.println("HP id with region and ALL children");
-                    objs = hpRepository.findAllChildrenHpsByHpIdChr(kw, regionId);
-                }
-                else {
-                    System.out.println("HP id with region and " + childLevel + " children level");
-                    int level = Integer.parseInt(childLevel);
-                    objs = hpRepository.findChildrenHpsByHpIdChr(kw, regionId, level);
-                }
-
-                // then query data by each mp and put together
-                objs = fetchTerms(objs);
-            }
-            else if (kw.startsWith("HP:") && regionId != null && childLevel == null) {
-                System.out.println("HP id with region");
-                objs = hpRepository.findDataByHpIdChr(kw, regionId);
-            }
-            else if (kw.startsWith("HP:") && regionId == null && childLevel != null) {
-                if (childLevel.equals("all")){
-                    System.out.println("HP id with ALL children");
-
-                    // first get all children hps (including self)
-                    objs = hpRepository.findAllChildrenHpsByHpId(kw);
-                    System.out.println("1. Got " + objs.size() + "children");
-                }
-                else if (childLevel != "0"){
-                    System.out.println("HP Id with " + childLevel + " children level");
-
-                    // first get all children hps (including self)
-                    int level = Integer.parseInt(childLevel);
-                    objs = hpRepository.findChildrenHpsByHpId(kw, level);
-
-                    System.out.println("2. Got " + objs.size() + "children");
-                }
-
-                // then query data by each mp and put together
-                objs = fetchTerms(objs);
-            }
-            else if (kw.startsWith("HP:") && regionId == null && childLevel == null){
-                System.out.println("HP id normal");
-                objs = hpRepository.findDataByHpId(kw);
-            }
-
-            // HP term
-            else if (dataType.equals("HP") && regionId != null && childLevel != null) {
-                System.out.println("HP term with all children and chr filter");
-                if (childLevel.equals("all")) {
-                    objs = hpRepository.findAllChildrenHpsByHpTermChr(kw, regionId);
-                }
-                else if (childLevel != "0"){
-                    System.out.println("HP term with " + childLevel + " children level and chr filter");
-
-                    // first get all children hps (including self)
-                    int level = Integer.parseInt(childLevel);
-                    objs = hpRepository.findChildrenHpsByHpTermChr(kw, regionId, level);
-                }
-                // then query data by each hp and put together
-                objs = fetchTerms(objs);
-            }
-            else if (dataType.equals("HP") && regionId != null && childLevel == null){
-                System.out.println("HP term with region");
-                objs = hpRepository.findDataByHpTermChr(kw, regionId);
-            }
-            else if (dataType.equals("Hp") && regionId == null && childLevel != null) {
-                if (childLevel.equals("all")){
-                    System.out.println("HP term with ALL children");
-
-                    // first get all children hps (including self)
-                    objs = hpRepository.findAllChildrenHpsByHpTerm(kw);
-                }
-                else if (childLevel != "0"){
-                    System.out.println("HP term with " + childLevel + " children level");
-
-                    // first get all children hps (including self)
-                    int level = Integer.parseInt(childLevel);
-                    objs = hpRepository.findChildrenHpsByHpTerm(kw, level);
-                }
-
-                // then query data by each hp and put together
-                objs = fetchTerms(objs);
-            }
-            else if (dataType.equals("Hp") && regionId == null && childLevel == null) {
-                System.out.println("HP term normal");
-                objs = hpRepository.findDataByHpTerm(kw);
-            }
-            else if (dataType.equals("HumanGeneSymbol")){
-                objs = humanGeneSymbolRepository.findDataByHumanGeneSymbol(kw);
-            }
-
-
-            System.out.println("Data objects found: "+ objs.size());
-
-            advancedSearchService.populateColValMap(hostname, baseUrl,objs, colValMap, jDatatypeProperties);
-
-            System.out.println("About to prepare for rows");
-
-
-            List<String> rowData = new ArrayList<>();
-            for (String col : cols){
-                if (colValMap.containsKey(col)) {
-                    List<String> vals = new ArrayList<>(colValMap.get(col));
-
-                    int valSize = vals.size();
-
-                    if (valSize > 2) {
-                        // add showmore
-                        vals.add("<button rel=" + valSize + " class='showMore'>show all (" + valSize + ")</button>");
-                    }
-                    if (valSize == 1) {
-                        rowData.add(StringUtils.join(vals, ""));
-                    } else {
-                        rowData.add("<ul>" + StringUtils.join(vals, "") + "</ul>");
-                    }
-
-                    //System.out.println("col: " + col);
-                    if (col.equals("ontoSynonym")) {
-                        System.out.println(col + " -- " + vals);
-                    }
-                }
-                else {
-                    rowData.add(NA);
-                }
-
-            }
-            j.getJSONArray("aaData").add(rowData);
-
-        }
-
-        System.out.println("rows done");
-
-        j.put("iTotalRecords", rowCount);
-        j.put("iTotalDisplayRecords", rowCount);
-
-
-        return j.toString();
-    }
+//    public String fetchGraphData(String dataType, Set<String> srchKw, Set<String> labels, JSONObject jDatatypeProperties, String properties, String regionId, int regionStart, int regionEnd, String childLevel) throws Exception {
+//
+//        List<String> cols = new ArrayList<>();
+//        for (String property : properties.split(",")){
+//            cols.add(property);
+//        }
+//
+//        int rowCount = 0;
+//        JSONObject j = new JSONObject();
+//        j.put("aaData", new Object[0]);
+//
+//        for(String kw : srchKw) {
+//
+//            Map<String, Set<String>> colValMap = new HashedMap();
+//
+//            colValMap.put("searchBy", new TreeSet<>());
+//            colValMap.get("searchBy").add(kw);
+//
+//            rowCount++;
+//
+//            System.out.println("-- Working on " + kw);
+//            System.out.println("-- region id " + regionId);
+//
+//            List<Object> objs = null;
+//
+//            if (kw.matches("^chr(\\w*):(\\d+)-(\\d+)$") && dataType.equals("Gene")) {
+//                objs = geneRepository.findDataByChrRange(regionId, regionStart, regionEnd);
+//            }
+//            else if (kw.startsWith("MGI:")){
+//                objs = geneRepository.findDataByMgiId(kw);
+//            }
+//            else if (dataType.equals("Gene")) {
+//                objs = geneRepository.findDataByMarkerSymbol(kw);
+//            }
+//            else if (kw.startsWith("ENSMUSG")){
+//                objs = ensemblGeneIdRepository.findDataByEnsemblGeneId(kw);
+//            }
+//
+//            // DiseaseModel ID
+//            else if ((kw.startsWith("OMIM:") || kw.startsWith("ORPHANET:") || kw.startsWith("DECIPHER:")) && regionId != null){
+//                System.out.println("search disease " + kw + " and chr " + regionId);
+//                objs = diseaseModelRepository.findDataByDiseaseIdChr(kw, regionId);
+//                System.out.println("objs found: "+objs.size());
+//            }
+//            else if (kw.startsWith("OMIM:") || kw.startsWith("ORPHANET:") || kw.startsWith("DECIPHER:")){
+//                System.out.println("search disease");
+//                objs = diseaseModelRepository.findDataByDiseaseId(kw);
+//            }
+//            // DiseaseModel term
+//            else if (dataType.equals("DiseaseModel") && regionId != null) {
+//                System.out.println("Disease id normal");
+//                objs = diseaseModelRepository.findDataByDiseaseTermChr(kw, regionId);
+//            }
+//            else if (dataType.equals("DiseaseModel")) {
+//                System.out.println("Disease term normal");
+//                objs = diseaseModelRepository.findDataByDiseaseTerm(kw);
+//            }
+//
+//            // MP ID
+//            else if (kw.startsWith("MP:") && regionId != null && childLevel != null) {
+//
+//                if (childLevel.equals("all")) {
+//                    System.out.println("MP id with region and ALL children");
+//                    objs = mpRepository.findAllChildrenMpsByMpIdChr(kw, regionId);
+//                }
+//                else {
+//                    System.out.println("MP id with region and " + childLevel + " children level");
+//                    int level = Integer.parseInt(childLevel);
+//                    objs = mpRepository.findChildrenMpsByMpIdChr(kw, regionId, level);
+//                }
+//                objs = fetchTerms(objs);
+//            }
+//            else if (kw.startsWith("MP:") && regionId != null && childLevel == null) {
+//                System.out.println("MP id with region");
+//                objs = mpRepository.findDataByMpIdChr(kw, regionId);
+//            }
+//            else if (kw.startsWith("MP:") && regionId == null && childLevel != null) {
+//                if (childLevel.equals("all")){
+//                    System.out.println("MP id with ALL children");
+//
+//                    // first get all children mps (including self)
+//                    objs = mpRepository.findAllChildrenMpsByMpId(kw);
+//                    System.out.println("1. Got " + objs.size() + "children");
+//                }
+//                else if (childLevel != "0"){
+//                    System.out.println("MP Id with " + childLevel + " children level");
+//
+//                    // first get all children mps (including self)
+//                    int level = Integer.parseInt(childLevel);
+//                    objs = mpRepository.findChildrenMpsByMpId(kw, level);
+//                    System.out.println("2. Got " + objs.size() + "children");
+//                }
+//
+//                // then query data by each mp and put together
+//                objs = fetchTerms(objs);
+//            }
+//            else if (kw.startsWith("MP:") && regionId == null && childLevel == null){
+//                System.out.println("MP id normal");
+//                objs = mpRepository.findDataByMpId(kw);
+//            }
+//
+//            // MP term
+//            else if (dataType.equals("MP") && regionId != null && childLevel != null) {
+//                System.out.println("MP term with all children and chr filter");
+//                if (childLevel.equals("all")) {
+//                    objs = mpRepository.findAllChildrenMpsByMpTermChr(kw, regionId);
+//                }
+//                else if (childLevel != "0"){
+//                    System.out.println("MP term with " + childLevel + " children level and chr filter");
+//
+//                    // first get all children mps (including self)
+//                    int level = Integer.parseInt(childLevel);
+//                    objs = mpRepository.findChildrenMpsByMpTermChr(kw, regionId, level);
+//                }
+//                // then query data by each mp and put together
+//                objs = fetchTerms(objs);
+//            }
+//            else if (dataType.equals("MP") && regionId != null && childLevel == null){
+//                System.out.println("MP term with region");
+//                objs = mpRepository.findDataByMpTermChr(kw, regionId);
+//            }
+//            else if (dataType.equals("Mp") && regionId == null && childLevel != null) {
+//                if (childLevel.equals("all")){
+//                    System.out.println("MP term with ALL children");
+//
+//                    // first get all children mps (including self)
+//                    objs = mpRepository.findAllChildrenMpsByMpTerm(kw);
+//                }
+//                else if (childLevel != "0"){
+//                    System.out.println("MP term with " + childLevel + " children level");
+//
+//                    // first get all children mps (including self)
+//                    int level = Integer.parseInt(childLevel);
+//                    objs = mpRepository.findChildrenMpsByMpTerm(kw, level);
+//                }
+//
+//                // then query data by each mp and put together
+//                objs = fetchTerms(objs);
+//            }
+//            else if (dataType.equals("Mp") && regionId == null && childLevel == null) {
+//                System.out.println("MP term normal");
+//                objs = mpRepository.findDataByMpTerm(kw);
+//            }
+//            // HP ID
+//            else if (kw.startsWith("HP:") && regionId != null && childLevel != null) {
+//                if (childLevel.equals("all")) {
+//                    System.out.println("HP id with region and ALL children");
+//                    objs = hpRepository.findAllChildrenHpsByHpIdChr(kw, regionId);
+//                }
+//                else {
+//                    System.out.println("HP id with region and " + childLevel + " children level");
+//                    int level = Integer.parseInt(childLevel);
+//                    objs = hpRepository.findChildrenHpsByHpIdChr(kw, regionId, level);
+//                }
+//
+//                // then query data by each mp and put together
+//                objs = fetchTerms(objs);
+//            }
+//            else if (kw.startsWith("HP:") && regionId != null && childLevel == null) {
+//                System.out.println("HP id with region");
+//                objs = hpRepository.findDataByHpIdChr(kw, regionId);
+//            }
+//            else if (kw.startsWith("HP:") && regionId == null && childLevel != null) {
+//                if (childLevel.equals("all")){
+//                    System.out.println("HP id with ALL children");
+//
+//                    // first get all children hps (including self)
+//                    objs = hpRepository.findAllChildrenHpsByHpId(kw);
+//                    System.out.println("1. Got " + objs.size() + "children");
+//                }
+//                else if (childLevel != "0"){
+//                    System.out.println("HP Id with " + childLevel + " children level");
+//
+//                    // first get all children hps (including self)
+//                    int level = Integer.parseInt(childLevel);
+//                    objs = hpRepository.findChildrenHpsByHpId(kw, level);
+//
+//                    System.out.println("2. Got " + objs.size() + "children");
+//                }
+//
+//                // then query data by each mp and put together
+//                objs = fetchTerms(objs);
+//            }
+//            else if (kw.startsWith("HP:") && regionId == null && childLevel == null){
+//                System.out.println("HP id normal");
+//                objs = hpRepository.findDataByHpId(kw);
+//            }
+//
+//            // HP term
+//            else if (dataType.equals("HP") && regionId != null && childLevel != null) {
+//                System.out.println("HP term with all children and chr filter");
+//                if (childLevel.equals("all")) {
+//                    objs = hpRepository.findAllChildrenHpsByHpTermChr(kw, regionId);
+//                }
+//                else if (childLevel != "0"){
+//                    System.out.println("HP term with " + childLevel + " children level and chr filter");
+//
+//                    // first get all children hps (including self)
+//                    int level = Integer.parseInt(childLevel);
+//                    objs = hpRepository.findChildrenHpsByHpTermChr(kw, regionId, level);
+//                }
+//                // then query data by each hp and put together
+//                objs = fetchTerms(objs);
+//            }
+//            else if (dataType.equals("HP") && regionId != null && childLevel == null){
+//                System.out.println("HP term with region");
+//                objs = hpRepository.findDataByHpTermChr(kw, regionId);
+//            }
+//            else if (dataType.equals("Hp") && regionId == null && childLevel != null) {
+//                if (childLevel.equals("all")){
+//                    System.out.println("HP term with ALL children");
+//
+//                    // first get all children hps (including self)
+//                    objs = hpRepository.findAllChildrenHpsByHpTerm(kw);
+//                }
+//                else if (childLevel != "0"){
+//                    System.out.println("HP term with " + childLevel + " children level");
+//
+//                    // first get all children hps (including self)
+//                    int level = Integer.parseInt(childLevel);
+//                    objs = hpRepository.findChildrenHpsByHpTerm(kw, level);
+//                }
+//
+//                // then query data by each hp and put together
+//                objs = fetchTerms(objs);
+//            }
+//            else if (dataType.equals("Hp") && regionId == null && childLevel == null) {
+//                System.out.println("HP term normal");
+//                objs = hpRepository.findDataByHpTerm(kw);
+//            }
+//            else if (dataType.equals("HumanGeneSymbol")){
+//                objs = humanGeneSymbolRepository.findDataByHumanGeneSymbol(kw);
+//            }
+//
+//
+//            System.out.println("Data objects found: "+ objs.size());
+//
+//            advancedSearchService.populateColValMap(hostname, baseUrl,objs, colValMap, jDatatypeProperties);
+//
+//            System.out.println("About to prepare for rows");
+//
+//
+//            List<String> rowData = new ArrayList<>();
+//            for (String col : cols){
+//                if (colValMap.containsKey(col)) {
+//                    List<String> vals = new ArrayList<>(colValMap.get(col));
+//
+//                    int valSize = vals.size();
+//
+//                    if (valSize > 2) {
+//                        // add showmore
+//                        vals.add("<button rel=" + valSize + " class='showMore'>show all (" + valSize + ")</button>");
+//                    }
+//                    if (valSize == 1) {
+//                        rowData.add(StringUtils.join(vals, ""));
+//                    } else {
+//                        rowData.add("<ul>" + StringUtils.join(vals, "") + "</ul>");
+//                    }
+//
+//                    //System.out.println("col: " + col);
+//                    if (col.equals("ontoSynonym")) {
+//                        System.out.println(col + " -- " + vals);
+//                    }
+//                }
+//                else {
+//                    rowData.add(NA);
+//                }
+//
+//            }
+//            j.getJSONArray("aaData").add(rowData);
+//
+//        }
+//
+//        System.out.println("rows done");
+//
+//        j.put("iTotalRecords", rowCount);
+//        j.put("iTotalDisplayRecords", rowCount);
+//
+//
+//        return j.toString();
+//    }
     
     
     
-
-    private List<Object> fetchTerms(List<Object> objs){
-        
-        List<Object> childTerms = new ArrayList<>();
-        for(Object o : objs){
-            if (o.getClass().getSimpleName().equals("Mp")) {
-                Mp m = (Mp) o;
-                childTerms.addAll(mpRepository.findDataByMpId(m.getMpId()));
-            }
-            else {
-                Hp h = (Hp) o;
-                childTerms.addAll(hpRepository.findDataByHpId(h.getHpId()));
-            }
-        }
-        return childTerms;
-    }
+//
+//    private List<Object> fetchTerms(List<Object> objs){
+//
+//        List<Object> childTerms = new ArrayList<>();
+//        for(Object o : objs){
+//            if (o.getClass().getSimpleName().equals("Mp")) {
+//                Mp m = (Mp) o;
+//                childTerms.addAll(mpRepository.findDataByMpId(m.getMpId()));
+//            }
+//            else {
+//                Hp h = (Hp) o;
+//                childTerms.addAll(hpRepository.findDataByHpId(h.getHpId()));
+//            }
+//        }
+//        return childTerms;
+//    }
 
     
     

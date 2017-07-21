@@ -22,6 +22,7 @@ import net.sf.json.JSONSerializer;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
@@ -51,6 +52,10 @@ import uk.ac.ebi.phenodigm.dao.PhenoDigmWebDao;
 import uk.ac.ebi.phenodigm.model.GeneIdentifier;
 import uk.ac.ebi.phenodigm.web.AssociationSummary;
 import uk.ac.ebi.phenodigm.web.DiseaseAssociationSummary;
+import uk.ac.ebi.phenotype.service.AdvancedSearchDiseaseForm;
+import uk.ac.ebi.phenotype.service.AdvancedSearchGeneForm;
+import uk.ac.ebi.phenotype.service.AdvancedSearchPhenotypeForm;
+import uk.ac.ebi.phenotype.service.AdvancedSearchService;
 import uk.ac.ebi.phenotype.web.util.FileExportUtils;
 
 import javax.annotation.Resource;
@@ -123,6 +128,10 @@ public class FileExportController {
 	@Autowired
 	private AdvancedSearchController advancedSearchController;
 
+	@Autowired
+	private AdvancedSearchService advancedSearchService;
+
+
 	private String hostname = null;
 	private String baseUrl = null;
 
@@ -144,19 +153,23 @@ public class FileExportController {
 		System.out.println("hostname: " + hostname);
 
 		JSONObject jParams = (JSONObject) JSONSerializer.toJSON(params);
-		jParams.put("baseUrl", baseUrl);
-		jParams.put("hostname", hostname);
 
 		System.out.println(fileName);
 		System.out.println(fileType);
 		System.out.println(jParams.toString());
 
-//		JSONObject jcontent = advancedSearchController.fetchGraphDataAdvSrch(jParams, fileType);
-//
-//		String narrowMapping = jcontent.get("narrowMapping").equals("") ? "" : "\n\nNOTE: " + jcontent.get("narrowMapping");
-//		String filters = "Search filters: " + jParams.getString("shownFilter") + narrowMapping;
-//
-//		FileExportUtils.writeOutputFile(response, jcontent.getJSONArray("rows"), fileType, fileName, filters);
+		AdvancedSearchPhenotypeForm phenotypeForm = advancedSearchService.parsePhenotypeForm(jParams);
+		AdvancedSearchGeneForm geneForm = advancedSearchService.parseGeneForm(jParams);
+		AdvancedSearchDiseaseForm diseaseForm = advancedSearchService.parseDiseaseForm(jParams);
+
+		JSONObject jcontent = advancedSearchService.fetchGraphDataAdvSrch(phenotypeForm, geneForm, diseaseForm, fileType, baseUrl, hostname);
+
+		System.out.println("narrowSynonym or synonym Mapping msg: " + jcontent.get("narrowOrSynonymMapping"));
+
+		String narrowOrSynonymMapping = jcontent.get("narrowOrSynonymMapping").equals("") ? "" : "\n\nNOTE: " + jcontent.get("narrowOrSynonymMapping");
+		String filters = "Search filters: " + jParams.getString("shownFilter") + narrowOrSynonymMapping;
+
+		FileExportUtils.writeOutputFile(response, jcontent.getJSONArray("rows"), fileType, fileName, filters);
 	}
 
 	/**
