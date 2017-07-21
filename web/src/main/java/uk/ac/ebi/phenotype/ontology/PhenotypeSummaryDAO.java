@@ -102,11 +102,6 @@ public class PhenotypeSummaryDAO  {
 		for (ZygosityType zyg : ZygosityType.values()){
 			
 			PhenotypeSummaryBySex resSummary = new PhenotypeSummaryBySex();
-			//Map<String, String> mps = srService.getTopLevelMPTerms(gene, zyg);
-			
-			//System.out.println("mps="+mps);
-			
-			//System.out.println("mpsNew="+mpsNew);
 			Map<String, List<StatisticalResultDTO>> summary = srService.getPhenotypesForTopLevelTerm(gene, zyg);
 						
 			for (String id: summary.keySet()){
