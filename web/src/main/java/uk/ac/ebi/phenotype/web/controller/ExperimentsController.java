@@ -129,6 +129,7 @@ public class ExperimentsController {
 		}
 
 		String chart = phenomeChartProvider.generatePvaluesOverviewChart(experimentRows, Constants.SIGNIFICANT_P_VALUE, allelePageDTO.getParametersByProcedure());
+		//top level mp names often are not in same order as ids so this mehod if used for getting name from id is wrong. SR indexer needs fixing.
 		Map<String, String> phenotypeTopLevels = srService.getTopLevelMPTerms(geneAccession, null);
 		List<MpDTO> mpTerms = new ArrayList<>();
 		
