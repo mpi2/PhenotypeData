@@ -103,13 +103,16 @@ public class PhenotypeSummaryDAO  {
 			
 			PhenotypeSummaryBySex resSummary = new PhenotypeSummaryBySex();
 			//Map<String, String> mps = srService.getTopLevelMPTerms(gene, zyg);
-			Map<String, String> mps = getTopLevelMpIdToNames();
+			
+			//System.out.println("mps="+mps);
+			
+			//System.out.println("mpsNew="+mpsNew);
 			Map<String, List<StatisticalResultDTO>> summary = srService.getPhenotypesForTopLevelTerm(gene, zyg);
 						
 			for (String id: summary.keySet()){
 				List<StatisticalResultDTO> resp = summary.get(id);
 				String sex = getSexesRepresentationForPhenotypesSet(resp);
-				String mpName = mps.get(id);
+				String mpName = getTopLevelNameFromId(id);
 				long n = getNumSignificantCalls(resp);
 				boolean significant = (n > 0) ? true : false;
 				PhenotypeSummaryType phen;
@@ -130,8 +133,23 @@ public class PhenotypeSummaryDAO  {
 		return res;
 	}
 
-	private Map<String, String> getTopLevelMpIdToNames() throws SolrServerException, IOException {
+	private  String getTopLevelNameFromId(String mpId) throws SolrServerException, IOException {
 		//if mps empty then fill them otherwise return a cashed version
+		String mpName=null;
+		loadTopLevelMpIdToNamesMap();
+		if(mpId!=null && !mpId.equals("")){
+			mpName=this.topLevelMpIdsToNames.get(mpId);
+			if(mpName==null){
+				System.err.println("mp id not found in top level terms id="+mpId);
+				mpName= "obsolete other phenotype";
+			}
+		}
+		return mpName;
+	}
+
+	private void loadTopLevelMpIdToNamesMap() throws SolrServerException, IOException {
+		
+		//only load cache if empty
 		if (this.topLevelMpIdsToNames == null || this.topLevelMpIdsToNames.isEmpty()) {
 			this.topLevelMpIdsToNames = new HashMap<>();
 			System.out.println("cash empty refreshing top level mp cash in PhenotypeSummaryDao");
@@ -141,7 +159,6 @@ public class PhenotypeSummaryDAO  {
 			}
 
 		}
-		return this.topLevelMpIdsToNames;
 	}
 	
 	}
