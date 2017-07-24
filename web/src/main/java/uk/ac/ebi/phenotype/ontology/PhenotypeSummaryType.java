@@ -88,7 +88,6 @@ public class PhenotypeSummaryType {
 
 	public String getTopLevelIds(){// grouping of mp top level terms done by Terry
 		
-		
 		if (this.id == null){
 			return null;
 		} else {
