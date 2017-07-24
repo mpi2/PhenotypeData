@@ -525,9 +525,19 @@ public class PreqcIndexer extends AbstractIndexer implements CommandLineRunner {
                     String name = rs.getString("name");
 
                     if (tableName.equals("phenotype_procedure")) {
-						// Harwell does not include version in
-                        // procedure_stable_id
-                        sid = sid.replaceAll("_\\d+$", "");
+
+                        if (sid.contains("_")) {
+
+                            // Harwell does not include version in
+                            // procedure_stable_id
+                            sid = sid.replaceAll("_\\d+$", "");
+                        } else {
+
+                            // Harwell now does not include version OR pipeline in
+                            // procedure_stable_id
+                            String[] pieces = sid.split("_");
+                            sid = pieces[1];
+                        }
                     }
 
                     mapping.put(sid, name);
