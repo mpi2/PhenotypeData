@@ -1132,11 +1132,11 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 		if (zygosity != null) {
 			solrQuery.addFilterQuery(StatisticalResultDTO.ZYGOSITY + ":" + zygosity.getName());
 		}
-
+		//System.out.println("solrQuery="+solrQuery);
 		List<StatisticalResultDTO> dtos = solr.query(solrQuery).getBeans(StatisticalResultDTO.class);
+		//System.out.println("SRDTOS size="+dtos.size());
 
 		for (StatisticalResultDTO dto : dtos) {
-
 			if (dto.getTopLevelMpTermId() != null || dto.getFemaleTopLevelMpTermId() != null || dto.getMaleTopLevelMpTermId() != null) {
 
 				// Collect all the top level terms into a single list
@@ -1144,16 +1144,18 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 						.filter(Objects::nonNull)
 						.flatMap(Collection::stream)
 						.collect(Collectors.toList());
-
+				
 				for (String id : topLevelTermIds ) {
 					if (!res.containsKey(id)) {
 						res.put(id, new ArrayList<>());
 					}
+					
 					res.get(id).add(dto);
 				}
 
-			} else if (dto.getMpTermId()!=null) {
-
+			} 
+			else if (dto.getMpTermId()!=null) {
+				
 				String id = dto.getMpTermId();
 				if (!res.containsKey(id)) {
 					res.put(id, new ArrayList<>());

@@ -120,7 +120,6 @@ public class UnidimensionalChartAndTableProvider {
 			procedureDescription = String.format("<a href=\"%s\">%s</a>", impressService.getProcedureUrlByKey(((Integer)proc.getStableKey()).toString()),  "Procedure: "+ proc.getName());
 		}
 		if (parameter.getStableKey() != null) {
-			System.out.println("parameter stable key still not null "+parameter.getStableKey());
 			title = String.format("<a href=\"%s\">%s</a>", impressService.getParameterUrlByProcedureAndParameterKey(proc.getStableKey(),parameter.getStableKey()),  "Parameter: "+ parameter.getName());
 		}
 
