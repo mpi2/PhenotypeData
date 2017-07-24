@@ -525,7 +525,7 @@ public class PreqcIndexer extends AbstractIndexer implements CommandLineRunner {
                     String sid = rs.getString("stable_id");
                     String name = rs.getString("name");
 
-                    //if (tableName.equals("phenotype_procedure")) {
+                    if (tableName.equals("phenotype_procedure")) {
 
                         //if (sid.contains("_")) {
 
@@ -539,7 +539,7 @@ public class PreqcIndexer extends AbstractIndexer implements CommandLineRunner {
                             String[] pieces = sid.split("_");
                             sid = pieces[1];
                        // }
-                    //}
+                    }
 
                     mapping.put(sid, name);
                     System.out.println("adding procedure id to name="+sid+"|"+name);
