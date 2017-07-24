@@ -518,6 +518,7 @@ public class PreqcIndexer extends AbstractIndexer implements CommandLineRunner {
             try {
                 statement = conn_komp2.createStatement();
                 rs = statement.executeQuery(query);
+                System.out.println("query for mapping="+query);
 
                 while (rs.next()) {
                     // Retrieve by column name
