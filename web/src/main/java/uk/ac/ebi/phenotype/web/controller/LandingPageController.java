@@ -83,12 +83,22 @@ public class LandingPageController {
         if(!isLive){//don't show deafness page on live until ready with paper etc.
         LandingPageDTO deafness = new LandingPageDTO();
         deafness.setTitle("Hearing");
-        deafness.setImage("img/landing/deafnessIcon.png");
+        deafness.setImage("../img/landing/deafnessIcon.png");
         //cardiovascular.setImage(baseUrl + "/img/deafness.png");
         deafness.setDescription(
                 "This page aims to relate deafnessnes to phenotypes which have been produced by IMPC.");
         deafness.setLink("biological-system/hearing");
         bsPages.add(deafness);
+        
+        
+        LandingPageDTO vision = new LandingPageDTO();
+        vision.setTitle("Vision");
+        vision.setImage("../img/landing/deafnessIcon.png");
+        //cardiovascular.setImage(baseUrl + "/img/deafness.png");
+        vision.setDescription(
+                "This page aims to relate vision to phenotypes which have been produced by IMPC.");
+        vision.setLink("biological-system/vision");
+        bsPages.add(vision);
         }
         model.addAttribute("pages", bsPages);
 
@@ -141,6 +151,12 @@ public class LandingPageController {
                     "The cardiovascular system refers to the observable morphological and physiological characteristics of the mammalian heart, blood vessels, or circulatory system that are manifested through development and lifespan.");
             pageTitle = "Cardiovascular system";
         }
+        else if (page.equalsIgnoreCase("vision")) {
+          mpDTO = mpService.getPhenotype("MP:0005391");
+          anatomyIds.add("EMAPA:36003");
+          anatomyIds.add("MA:0002444");
+          pageTitle = "Vision";
+      }
 //        } else if (page.equalsIgnoreCase("metabolism")) {
 //            mpDTO = mpService.getPhenotype("MP:0005376");
 //            pageTitle = "Metabolism";
