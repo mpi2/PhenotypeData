@@ -1111,7 +1111,7 @@ public class ImageService implements WebStatus{
 	}
 
 	
-	public List<ImageDTO> getMutantImagesForComparator(String acc, String parameterStableId, String parameterAssociationValue,
+	public List<ImageDTO> getMutantImagesForComparisonViewer(String acc, String parameterStableId, String parameterAssociationValue,
 			String anatomyId, String zygosity, String colonyId, String mpId, SexType sexType)
 			throws SolrServerException, IOException {
 		List<ImageDTO> mutants=new ArrayList<>();
@@ -1174,7 +1174,7 @@ public class ImageService implements WebStatus{
 		return filteredMutants;
 	}
 
-	public List<ImageDTO> getControlsBySexAndOthers(ImageDTO imgDoc, int numberOfControlsPerSex,
+	public List<ImageDTO> getControlsBySexAndOthersForComparisonViewer(ImageDTO imgDoc, int numberOfControlsPerSex,
 			SexType sex, String parameterStableId, String anatomyId) throws SolrServerException, IOException {
 		
 		List<ImageDTO> controls = new ArrayList<>();
