@@ -132,24 +132,29 @@ public class OrderService {
 		return this.getProducts(geneAcc, null, null, false);
 	}
 
-	public Map<String, List<ProductDTO>> getStoreNameToProductsMap(String geneAcc, String alleleName, OrderType productType, boolean creLine)  throws SolrServerException, IOException {
+	public Map<String, List<ProductDTO>> getStoreNameToProductsMap(String geneAcc, String alleleName,
+			OrderType productType, boolean creLine) throws SolrServerException, IOException {
 		List<ProductDTO> productList = null;
 		Map<String, List<ProductDTO>> productsMap = this.getProducts(geneAcc, alleleName, productType, creLine);
 		if (productsMap.keySet().size() > 1) {
 			System.err.println("more than one key for products - should only be one");
 		}
-		for (String key : productsMap.keySet()) {//just get a list of products
+		for (String key : productsMap.keySet()) {// just get a list of products
 			productList = productsMap.get(key);
 		}
 
 		HashMap<String, List<ProductDTO>> orderNameToProductList = new HashMap<String, List<ProductDTO>>();
 		if (productList != null) {
 			for (ProductDTO prod : productList) {
-				for (String orderName : prod.getOrderNames()) {
-					if (!orderNameToProductList.containsKey(orderName)) {
-						orderNameToProductList.put(orderName, new ArrayList<ProductDTO>());
+				if (prod.getOrderNames() != null) {
+					for (String orderName : prod.getOrderNames()) {
+						if (!orderNameToProductList.containsKey(orderName)) {
+							orderNameToProductList.put(orderName, new ArrayList<ProductDTO>());
+						}
+						orderNameToProductList.get(orderName).add(prod);
 					}
-					orderNameToProductList.get(orderName).add(prod);
+				}else{
+					System.err.println("No order names were found for this product "+prod.getAlleleName()+" this is unusual and should not happen");
 				}
 			}
 		}

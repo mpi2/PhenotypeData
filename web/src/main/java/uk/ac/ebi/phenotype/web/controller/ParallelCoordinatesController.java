@@ -220,7 +220,6 @@ public class ParallelCoordinatesController {
 	    		String groups = "var groups = {";
 	    		Set<String> parameterNames =  new HashSet<>();
 	    		for (ParameterDTO p : parameters){
-					System.out.println("Parameter: " + p.getName());
 					if (!parameterNames.contains(p.getName())){
 	    				parameterNames.add(p.getName());
 	    				res.append("\"").append(p.getName()).append("\":\"").append(ImpressService.getParameterUrl(p.getStableKey())).append("\", ");
