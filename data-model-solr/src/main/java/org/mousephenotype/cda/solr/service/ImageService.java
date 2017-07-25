@@ -25,6 +25,7 @@ import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.mousephenotype.cda.enumerations.BiologicalSampleType;
 import org.mousephenotype.cda.enumerations.SexType;
+import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.SolrUtils;
 import org.mousephenotype.cda.solr.service.dto.ImageDTO;
 import org.mousephenotype.cda.solr.service.dto.MpDTO;
@@ -1109,5 +1110,118 @@ public class ImageService implements WebStatus{
 
 	}
 
+	
+	public List<ImageDTO> getMutantImagesForComparator(String acc, String parameterStableId, String parameterAssociationValue,
+			String anatomyId, String zygosity, String colonyId, String mpId, SexType sexType)
+			throws SolrServerException, IOException {
+		List<ImageDTO> mutants=new ArrayList<>();
+		QueryResponse responseExperimental = this
+				.getImagesForGeneByParameter(acc, parameterStableId,"experimental", Integer.MAX_VALUE, 
+						null, null, null, anatomyId, parameterAssociationValue, mpId, colonyId);
+		
+		if (responseExperimental != null && responseExperimental.getResults().size()>0) {
+			//mutants=responseExperimental.getResults();
+			mutants=responseExperimental.getBeans(ImageDTO.class);
+			
+			
+		}
+		
+		
+		
+		List<ImageDTO> filteredMutants = filterMutantsBySex(mutants, sexType);
+		
+		List<ZygosityType> zygosityTypes=null;
+		if(zygosity!=null && !zygosity.equals("all")){
+			zygosityTypes=getZygosityTypesForFilter(zygosity);
+			//only filter mutants by zygosity as all controls are homs.
+			filteredMutants=filterImagesByZygosity(filteredMutants, zygosityTypes);
+		}
+		return filteredMutants;
+	}
+	
+	private List<ImageDTO> filterImagesByZygosity(List<ImageDTO> filteredMutants, List<ZygosityType> zygosityTypes) {
+		List<ImageDTO> filteredImages=new ArrayList<>();
+		if(zygosityTypes==null || (zygosityTypes.get(0).getName().equals("not_applicable"))){//just return don't filter if not applicable default is found
+			return filteredMutants;
+		}
+		for(ZygosityType zygosityType:zygosityTypes){
+			for(ImageDTO image:filteredMutants){
+				if(image.getZygosity().equals(zygosityType.getName())){
+					filteredImages.add(image);
+				}
+			}
+		}
+		return filteredImages;
+	}
+
+	private List filterMutantsBySex(List<ImageDTO> mutants, SexType sexType) {
+		if(sexType==null){
+			return mutants;
+		}
+		
+		List<ImageDTO> filteredMutants = new ArrayList<>();
+		
+		
+			
+				for(ImageDTO mutant:mutants){
+					if(mutant.getSex().equals(sexType.getName())){
+						filteredMutants.add(mutant);
+					}
+				}
+				
+			
+		
+		return filteredMutants;
+	}
+
+	public List<ImageDTO> getControlsBySexAndOthers(ImageDTO imgDoc, int numberOfControlsPerSex,
+			SexType sex, String parameterStableId, String anatomyId) throws SolrServerException, IOException {
+		
+		List<ImageDTO> controls = new ArrayList<>();
+		Set<ImageDTO> uniqueControls=new HashSet<>();
+		if (imgDoc != null) {
+			
+				List<ImageDTO> controlsTemp = this.getControls(numberOfControlsPerSex, sex, imgDoc, parameterStableId,  anatomyId);
+				uniqueControls.addAll(controlsTemp);
+			
+		}
+		
+		
+			controls.addAll(uniqueControls);//add a unique set only so we don't have duplicate omero ids!!!
+		
+		return controls;
+	}
+
+	public SexType getSexTypesForFilter(String gender) {
+		SexType chosenSex=null;
+		for(SexType sex:SexType.values()){
+			if(sex.name().equals(gender)){
+				chosenSex=sex;
+				return sex;
+			}
+		}
+		return chosenSex;
+	}
+	
+	private List<ZygosityType> getZygosityTypesForFilter(String zygosity) {
+		List<ZygosityType> zygosityTypes=new ArrayList<>();
+		if(zygosity.equals("homozygote")){
+			zygosityTypes.add(ZygosityType.homozygote);
+		}else
+		if(zygosity.equals("heterozygote")){
+			zygosityTypes.add(ZygosityType.heterozygote);
+		}else if(zygosity.equals("hemizygote")){
+				zygosityTypes.add(ZygosityType.hemizygote);
+		}else
+		if(zygosity.equals("not_applicable") || zygosity.equals("notapplicable")){
+			zygosityTypes.addAll(Arrays.asList(ZygosityType.values()));
+			
+		}else
+		if(zygosity.equals("all")){
+			zygosityTypes.addAll(Arrays.asList(ZygosityType.values()));
+			
+		}
+		return zygosityTypes;
+	}
 
 }
