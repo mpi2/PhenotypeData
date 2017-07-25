@@ -6,6 +6,8 @@ import org.apache.solr.client.solrj.response.Group;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mousephenotype.cda.enumerations.SexType;
+import org.mousephenotype.cda.solr.service.dto.ImageDTO;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -106,5 +108,23 @@ public class ImageServiceTest {
 
         assertTrue("Expected at least " + expectedSize + " parameters. Found " + size, size >= 8);
 
+	}
+	
+	@Test
+	public void testGetComparisonViewerMethods(){
+		int numberOfControlsPerSex=10;
+		String anatomyId=null;
+		String parameterStableId=null;
+		SexType sex=null;
+		ImageDTO imgDoc=null;
+		List<ImageDTO> controlImages=null;
+		try {
+			controlImages = imageService.getControlsBySexAndOthersForComparisonViewer(imgDoc, numberOfControlsPerSex, sex, parameterStableId, anatomyId);
+		} catch (SolrServerException | IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		//no information has been given so we would expect null or an empty array - empty array safest
+		assertTrue(controlImages.size()==0);
 	}
 }

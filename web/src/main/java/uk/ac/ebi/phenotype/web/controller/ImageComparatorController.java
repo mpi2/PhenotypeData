@@ -103,7 +103,7 @@ public class ImageComparatorController {
 				e.printStackTrace();
 			}
 		}
-		List<ImageDTO> filteredMutants = imageService.getMutantImagesForComparator(acc, parameterStableId, parameterAssociationValue, anatomyId,
+		List<ImageDTO> filteredMutants = imageService.getMutantImagesForComparisonViewer(acc, parameterStableId, parameterAssociationValue, anatomyId,
 				zygosity, colonyId, mpId, sexType);
 		
 		ImageDTO imgDoc =null;
@@ -113,7 +113,7 @@ public class ImageComparatorController {
 		//this filters controls by the sex and things like procedure and phenotyping center - based on first image - this may not be a good idea - there maybe multiple phenotyping centers for a procedure which woudln't show???
 				List<ImageDTO> controls=null;
 				if(imgDoc!=null){
-				controls = imageService.getControlsBySexAndOthers(imgDoc, numberOfControlsPerSex, sexType, parameterStableId, anatomyId);
+				controls = imageService.getControlsBySexAndOthersForComparisonViewer(imgDoc, numberOfControlsPerSex, sexType, parameterStableId, anatomyId);
 				}
 		
 
