@@ -33,7 +33,7 @@ public class MpDTO {
 	public static final String MP_TERM_SYNONYM = "mp_term_synonym";
 	public static final String MP_NODE_ID = "mp_node_id";
 	public static final String ALT_MP_ID = "alt_mp_id";
-    public static final String MP_NARROW_SYNONYM = "mp_narrow_synonym";
+	public static final String MP_NARROW_SYNONYM = "mp_narrow_synonym";
 
 	public static final String CHILD_MP_ID = "child_mp_id";
 	public static final String CHILD_MP_TERM = "child_mp_term";
@@ -134,7 +134,7 @@ public class MpDTO {
 	public static final String GENE_VARIANT_COUNT = "gene_variant_count";
 	public static final String GENE_VARIANT_MALE_COUNT = "gene_variant_male_count";
 	public static final String GENE_VARIANT_FEMALE_COUNT = "gene_variant_female_count";
-
+	public static final String MIX_SYN_QF = "mixSynQf";
 
 	@Field(MP_ID)
 	private String mpId;
@@ -148,8 +148,8 @@ public class MpDTO {
 	@Field(MP_TERM_SYNONYM)
 	private List<String> mpTermSynonym;
 
-    @Field(MP_NARROW_SYNONYM)
-    private List<String> mpNarrowSynonym;
+	@Field(MP_NARROW_SYNONYM)
+	private List<String> mpNarrowSynonym;
 
 	@Field(MP_NODE_ID)
 	private List<Integer> mpNodeId;
@@ -159,7 +159,7 @@ public class MpDTO {
 
 	@Field(CHILDREN_JSON)
 	private String childrenJson;
-	
+
 	@Field(SCROLL_NODE)
 	private String scrollNode;
 
@@ -273,7 +273,7 @@ public class MpDTO {
 
 	@Field(PHENO_CALLS)
 	private Long phenoCalls;
-	
+
 	@Field(MARKER_SYMBOL)
 	private List<String> markerSymbol;
 
@@ -448,6 +448,24 @@ public class MpDTO {
 	@Field(PARAMETER_STABLE_KEY)
 	private List<String> parameterStableKey;
 
+	@Field(MIX_SYN_QF)
+	private List<String> mixedSynonyms;
+
+	public void setMpTermSynonym(List<String> mpTermSynonym) {
+		this.mpTermSynonym = mpTermSynonym;
+	}
+
+	public void setMpNodeId(List<Integer> mpNodeId) {
+		this.mpNodeId = mpNodeId;
+	}
+
+	public List<String> getMixedSynonyms() {
+		return mixedSynonyms;
+	}
+
+	public void setMixedSynonyms(List<String> mixedSynonyms) {
+		this.mixedSynonyms = mixedSynonyms;
+	}
 
 	public String getMpId() {
 
@@ -534,15 +552,15 @@ public class MpDTO {
 
 	}
 
-    public List<String> getMpNarrowSynonym() {
-        return mpNarrowSynonym;
-    }
+	public List<String> getMpNarrowSynonym() {
+		return mpNarrowSynonym;
+	}
 
-    public void setMpNarrowSynonym(List<String> mpNarrowSynonym) {
-        this.mpNarrowSynonym = mpNarrowSynonym;
-    }
+	public void setMpNarrowSynonym(List<String> mpNarrowSynonym) {
+		this.mpNarrowSynonym = mpNarrowSynonym;
+	}
 
-    public List<Integer> getMpNodeId() {
+	public List<Integer> getMpNodeId() {
 
 		return mpNodeId;
 	}
@@ -1046,13 +1064,13 @@ public class MpDTO {
 
 		return phenoCalls;
 	}
-	
+
 	public void setPhenoCalls(Long mpCalls) {
-		
+
 		this.phenoCalls = mpCalls;
 	}
 
-	
+
 	public List<String> getMarkerSymbol() {
 
 		return markerSymbol;
@@ -1843,6 +1861,10 @@ public class MpDTO {
 			return false;
 		if (inferredSelectedTopLevelMaTerm != null ? !inferredSelectedTopLevelMaTerm.equals(mpDTO.inferredSelectedTopLevelMaTerm) : mpDTO.inferredSelectedTopLevelMaTerm != null)
 			return false;
+		if (inferredIntermediatedMaId != null ? !inferredIntermediatedMaId.equals(mpDTO.inferredIntermediatedMaId) : mpDTO.inferredIntermediatedMaId != null)
+			return false;
+		if (inferredIntermediateMaTerm != null ? !inferredIntermediateMaTerm.equals(mpDTO.inferredIntermediateMaTerm) : mpDTO.inferredIntermediateMaTerm != null)
+			return false;
 		if (goId != null ? !goId.equals(mpDTO.goId) : mpDTO.goId != null) return false;
 		if (pValue != null ? !pValue.equals(mpDTO.pValue) : mpDTO.pValue != null) return false;
 		if (mgiAccessionId != null ? !mgiAccessionId.equals(mpDTO.mgiAccessionId) : mpDTO.mgiAccessionId != null)
@@ -1933,8 +1955,9 @@ public class MpDTO {
 			return false;
 		if (parameterStableId != null ? !parameterStableId.equals(mpDTO.parameterStableId) : mpDTO.parameterStableId != null)
 			return false;
-		return parameterStableKey != null ? parameterStableKey.equals(mpDTO.parameterStableKey) : mpDTO.parameterStableKey == null;
-
+		if (parameterStableKey != null ? !parameterStableKey.equals(mpDTO.parameterStableKey) : mpDTO.parameterStableKey != null)
+			return false;
+		return mixedSynonyms != null ? mixedSynonyms.equals(mpDTO.mixedSynonyms) : mpDTO.mixedSynonyms == null;
 	}
 
 	@Override
@@ -1979,6 +2002,8 @@ public class MpDTO {
 		result = 31 * result + (inferredMaTerm != null ? inferredMaTerm.hashCode() : 0);
 		result = 31 * result + (inferredSelectedTopLevelMaId != null ? inferredSelectedTopLevelMaId.hashCode() : 0);
 		result = 31 * result + (inferredSelectedTopLevelMaTerm != null ? inferredSelectedTopLevelMaTerm.hashCode() : 0);
+		result = 31 * result + (inferredIntermediatedMaId != null ? inferredIntermediatedMaId.hashCode() : 0);
+		result = 31 * result + (inferredIntermediateMaTerm != null ? inferredIntermediateMaTerm.hashCode() : 0);
 		result = 31 * result + (goId != null ? goId.hashCode() : 0);
 		result = 31 * result + (pValue != null ? pValue.hashCode() : 0);
 		result = 31 * result + (mgiAccessionId != null ? mgiAccessionId.hashCode() : 0);
@@ -2041,6 +2066,7 @@ public class MpDTO {
 		result = 31 * result + (parameterName != null ? parameterName.hashCode() : 0);
 		result = 31 * result + (parameterStableId != null ? parameterStableId.hashCode() : 0);
 		result = 31 * result + (parameterStableKey != null ? parameterStableKey.hashCode() : 0);
+		result = 31 * result + (mixedSynonyms != null ? mixedSynonyms.hashCode() : 0);
 		return result;
 	}
 
@@ -2151,6 +2177,7 @@ public class MpDTO {
 				", parameterName=" + parameterName +
 				", parameterStableId=" + parameterStableId +
 				", parameterStableKey=" + parameterStableKey +
+				", mixedSynonyms=" + mixedSynonyms +
 				'}';
 	}
 }

@@ -4,15 +4,7 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -49,6 +41,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import net.sf.json.JSONObject;
+
+import javax.swing.text.html.HTMLDocument;
 
 @Service
 public class AdvancedSearchService {
@@ -109,6 +103,9 @@ public class AdvancedSearchService {
             pvalues = mpPvalue.get(mpTerm);
         }
 
+        if (pvalues == null){
+            pvalues = "";
+        }
         return pvalues;
     }
     private String composeChrRangeStr(AdvancedSearchGeneForm geneForm){
@@ -393,7 +390,23 @@ public class AdvancedSearchService {
         return dataTypeColsMap;
     }
 
-    public JSONObject fetchGraphDataAdvSrch(AdvancedSearchPhenotypeForm mpForm, AdvancedSearchGeneForm geneForm, AdvancedSearchDiseaseForm diseaseForm, String fileType, String baseUrl, String hostname) throws IOException, SolrServerException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+    public List<Object> fetchGraphDataAdvSrchResult(AdvancedSearchPhenotypeForm mpForm, AdvancedSearchGeneForm geneForm, AdvancedSearchDiseaseForm diseaseForm, String fileType) throws IOException, SolrServerException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InterruptedException {
+
+//        // test neo4j
+//        Result result1 = neo4jSession.query("MATCH (g:Gene) return count g", null);
+//
+//        for (Map<String,Object> row : result1) {
+////
+//            System.out.println(row.toString());
+//            System.out.println("cols: " + row.size());
+////            Thread.sleep(10000);
+//            for (Map.Entry<String, Object> entry : row.entrySet()) {
+//                if (entry.getValue() != null && ! entry.getValue().toString().startsWith("[Ljava.lang.Object")) {
+//                    System.out.println("---------- " + entry.getKey() + " / " + entry.getValue());
+//                    System.out.println("---------- " + entry.getKey() + " / " +  entry.getValue().toString());
+//                }
+//            }
+//        }
 
         String sortStr = " ORDER BY g.markerSymbol ";
         String query = null;
@@ -403,27 +416,27 @@ public class AdvancedSearchService {
         Map<String, String> dtypeMap = new HashMap<>();
         List<String> dataTypes = new ArrayList<>();
 
-        if (mpForm.getHasOutputColumn() != null){
+        if (mpForm.getHasOutputColumn() != null) {
             dataTypes.add("mp");
             dtypeMap.put("mp", "nodes.mps");
-            if (mpForm.getShowParameterName() != null || mpForm.getShowPvalue() != null){
+            if (mpForm.getShowParameterName() != null || mpForm.getShowPvalue() != null) {
                 dataTypes.add("sr");
                 dtypeMap.put("sr", "nodes.srs");
             }
         }
-        if (geneForm.getHasOutputColumn() != null){
+        if (geneForm.getHasOutputColumn() != null) {
             dataTypes.add("g");
 
             if (geneForm.getShowAlleleSymbol() != null ||
-                geneForm.getShowAlleleId() != null  ||
-                geneForm.getShowAlleleDesc() != null  ||
-                geneForm.getShowAlleleMutationType() != null  ||
-                geneForm.getShowAlleleType() != null  ){
+                    geneForm.getShowAlleleId() != null ||
+                    geneForm.getShowAlleleDesc() != null ||
+                    geneForm.getShowAlleleMutationType() != null ||
+                    geneForm.getShowAlleleType() != null) {
                 dataTypes.add("a");
                 dtypeMap.put("a", "nodes.alleles");
             }
         }
-        if (diseaseForm.getHasOutputColumn() != null){
+        if (diseaseForm.getHasOutputColumn() != null) {
             dataTypes.add("dm");
         }
 
@@ -444,8 +457,6 @@ public class AdvancedSearchService {
         String phenodigmScoreCypher = composePhenodigmScoreStr(diseaseForm);  // always non-empty
         String diseaseGeneAssociationCypher = composeDiseaseGeneAssociation(diseaseForm);
         String humanDiseaseTermCypher = composeHumanDiseaseTermStr(diseaseForm);
-        System.out.println("here-10");
-
 
         String geneToMpPath = noMpChild ? "MATCH (g:Gene)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp) "
                 : " MATCH (g:Gene)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp)-[:PARENT*0..]->(mp0:Mp) ";
@@ -462,7 +473,7 @@ public class AdvancedSearchService {
         //   Building cypher for each of the search use cases
         //------------------------------------------------------
 
-        if (mpForm.getPhenotypeRows().size() == 0 && diseaseForm.getHumanDiseaseTerm() != null){
+        if (mpForm.getPhenotypeRows().size() == 0 && diseaseForm.getHumanDiseaseTerm() != null) {
             // CASE 1 - search by disease term AND NO phenotype
             System.out.println("Search by disease term AND NO phenotype");
 
@@ -473,7 +484,7 @@ public class AdvancedSearchService {
                     + whereClause
                     + " AND " + significantCypher + parameterCypher + chrRangeCypher + geneListCypher + genotypesCypher + alleleTypesCypher
                     + " AND " + phenodigmScoreCypher + diseaseGeneAssociationCypher + humanDiseaseTermCypher
-                    + " AND dmp.mpTerm in mp.mpTerm";
+                    + " AND dmp.mpTerm IN mp.mpTerm";
 
             returnDtypes = fetchReturnTypes(dataTypes, dtypeMap, mpForm);
 
@@ -481,8 +492,7 @@ public class AdvancedSearchService {
                     //" RETURN distinct a, g, sr, collect(distinct mp), collect(distinct dm)" + sortStr :
                     " RETURN distinct " + returnDtypes + sortStr :
                     " RETURN collect(distinct a), collect(distinct g), collect(distinct sr), collect(distinct mp), collect(distinct dm)";
-        }
-        else if (mpForm.getPhenotypeRows().size() == 0 ){
+        } else if (mpForm.getPhenotypeRows().size() == 0) {
             // CASE 2 - search by no phenotype and no disease
             System.out.println("Search by no phenotype and no disease");
 
@@ -493,7 +503,7 @@ public class AdvancedSearchService {
                     + whereClause
                     + " AND " + significantCypher + parameterCypher + chrRangeCypher + geneListCypher + genotypesCypher + alleleTypesCypher
                     + " WITH g, a, mp, sr, "
-                    + " extract(x in collect(distinct mp) | x.mpTerm) as mps "
+                    + " extract(x IN collect(DISTINCT mp) | x.mpTerm) AS mps "
                     + geneToDmPathClause
                     + " AND dmp.mpTerm IN mps";
 
@@ -504,8 +514,7 @@ public class AdvancedSearchService {
                     " RETURN distinct " + returnDtypes + sortStr :
                     " RETURN collect(distinct a), collect(distinct g), collect(distinct sr), collect(distinct mp), collect(distinct dm)";
 
-        }
-        else if (mpForm.getPhenotypeRows().size() == 1){
+        } else if (mpForm.getPhenotypeRows().size() == 1) {
             // CASE 3 - search by only 1 mp
 
             System.out.println("Search by A");
@@ -515,23 +524,25 @@ public class AdvancedSearchService {
             String pvaluesCypher = composePvalues(mpForm, mpTerm);
             String whereClause = noMpChild ? " WHERE mp.mpTerm = '" + mpTerm + "'" : " WHERE mp0.mpTerm = '" + mpTerm + "'";
 
+//            System.out.println("1: "+  significantCypher + "2: "+  parameterCypher + "3: "+  pvaluesCypher + "4: "+  chrRangeCypher +
+//                    "5: "+  geneListCypher + "6: "+  genotypesCypher + "7: "+  alleleTypesCypher);
+
             if (geneListCypher.isEmpty()) {
                 query = mpToGenePath
                         //+ " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') "
                         + whereClause
                         + " AND " + significantCypher + parameterCypher + pvaluesCypher + chrRangeCypher + geneListCypher + genotypesCypher + alleleTypesCypher
                         + " WITH g, a, mp, sr, "
-                        + " extract(x in collect(distinct mp) | x.mpTerm) as mps "
+                        + " extract(x IN collect(DISTINCT mp) | x.mpTerm) AS mps "
                         + geneToDmPathClause
                         + " AND dmp.mpTerm IN mps";
-            }
-            else {
+            } else {
                 query = geneToMpPath
                         //+ " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') "
                         + whereClause
                         + " AND " + significantCypher + parameterCypher + pvaluesCypher + chrRangeCypher + geneListCypher + genotypesCypher + alleleTypesCypher
                         + " WITH g, a, mp, sr, "
-                        + " extract(x in collect(distinct mp) | x.mpTerm) as mps "
+                        + " extract(x IN collect(DISTINCT mp) | x.mpTerm) AS mps "
                         + geneToDmPathClause
                         + " AND dmp.mpTerm IN mps";
             }
@@ -542,8 +553,7 @@ public class AdvancedSearchService {
                     //" RETURN distinct a, g, sr, collect(distinct mp), collect(distinct dm)" + sortStr :
                     " RETURN distinct " + returnDtypes + sortStr :
                     " RETURN collect(distinct a), collect(distinct g), collect(distinct sr), collect(distinct mp), collect(distinct dm)";
-        }
-        else if (mpForm.getPhenotypeRows().size() == 2){
+        } else if (mpForm.getPhenotypeRows().size() == 2) {
             // search by 2 phenotypes
 
             String mpA = mpForm.getPhenotypeRows().get(0).getPhenotypeTerm();
@@ -571,17 +581,17 @@ public class AdvancedSearchService {
                         //+ " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') "
                         + whereClause1
                         + " AND " + significantCypher + parameterCypher + chrRangeCypher + geneListCypher + genotypesCypher + alleleTypesCypher
-                        + " WITH g, collect({alleles:a, mps:mp, srs:sr}) as list1 "
+                        + " WITH g, collect({alleles:a, mps:mp, srs:sr}) AS list1 "
 
                         + mpMatchClause
                         //+ " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*') "
                         + whereClause2
                         + " AND " + significantCypher + parameterCypher + chrRangeCypher + geneListCypher + genotypesCypher + alleleTypesCypher
-                        + " WITH g, list1, collect({alleles:a, mps:mp, srs:sr}) as list2 "
+                        + " WITH g, list1, collect({alleles:a, mps:mp, srs:sr}) AS list2 "
                         // + " WHERE ALL (x IN list1 WHERE x IN list2) "
-                        + " WITH g, list1+list2 as list "
-                        + " UNWIND list as nodes "
-                        + " WITH g, nodes, extract(x in collect(distinct nodes.mps) | x.mpTerm) as mps "
+                        + " WITH g, list1+list2 AS list "
+                        + " UNWIND list AS nodes "
+                        + " WITH g, nodes, extract(x IN collect(DISTINCT nodes.mps) | x.mpTerm) AS mps "
                         + geneToDmPathClause
                         + " AND dmp.mpTerm IN mps";
 
@@ -592,15 +602,13 @@ public class AdvancedSearchService {
                         //" RETURN distinct nodes.alleles, g, nodes.srs, nodes.mps, dm" + sortStr :
                         " RETURN distinct " + returnDtypes + sortStr :
                         " RETURN collect(distinct nodes.alleles), collect(distinct g), collect(distinct nodes.srs), collect(distinct nodes.mps), collect(distinct dm)";
-            }
-            else if (logical1.equals(Logical.OR)) {
+            } else if (logical1.equals(Logical.OR)) {
                 // CASE 5 - mpA OR mpB
 
                 System.out.println("Search by A OR B");
-                if (geneListCypher.isEmpty()){
+                if (geneListCypher.isEmpty()) {
                     query = mpToGenePath;
-                }
-                else {
+                } else {
                     query = geneToMpPath;
                 }
 
@@ -609,10 +617,10 @@ public class AdvancedSearchService {
                 query +=
                         //  " WHERE (mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') OR mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*')) "
                         whereClause
-                        + " AND " + significantCypher + parameterCypher + chrRangeCypher+ geneListCypher + genotypesCypher + alleleTypesCypher
-                        + " WITH g, a, sr, mp, extract(x in collect(distinct mp) | x.mpTerm) as mps "
-                        + geneToDmPathClause
-                        + " AND dmp.mpTerm IN mps";
+                                + " AND " + significantCypher + parameterCypher + chrRangeCypher + geneListCypher + genotypesCypher + alleleTypesCypher
+                                + " WITH g, a, sr, mp, extract(x in collect(distinct mp) | x.mpTerm) as mps "
+                                + geneToDmPathClause
+                                + " AND dmp.mpTerm IN mps";
 
                 returnDtypes = fetchReturnTypes(dataTypes, dtypeMap, mpForm);
 
@@ -622,8 +630,7 @@ public class AdvancedSearchService {
                         " RETURN collect(distinct a), collect(distinct g), collect(distinct sr), collect(distinct mp), collect(distinct dm)";
             }
 
-        }
-        else if (mpForm.getPhenotypeRows().size() == 3 ) {
+        } else if (mpForm.getPhenotypeRows().size() == 3) {
             // search by 3  phenotypes
 
             String mpA = mpForm.getPhenotypeRows().get(0).getPhenotypeTerm();
@@ -656,23 +663,23 @@ public class AdvancedSearchService {
                         //+ " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') "
                         + whereClause1
                         + " AND " + significantCypher + parameterCypher + chrRangeCypher + geneListCypher + genotypesCypher + alleleTypesCypher
-                        + " WITH g, collect({alleles:a, mps:mp, srs:sr}) as list1 "
+                        + " WITH g, collect({alleles:a, mps:mp, srs:sr}) AS list1 "
 
                         + mpMatchClause
                         //+ " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*') "
                         + whereClause2
                         + " AND " + significantCypher + parameterCypher + chrRangeCypher + geneListCypher + genotypesCypher + alleleTypesCypher
-                        + " WITH g, list1, collect({alleles:a, mps:mp, srs:sr}) as list2 "
+                        + " WITH g, list1, collect({alleles:a, mps:mp, srs:sr}) AS list2 "
 
                         + mpMatchClause
                         //+ " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpC}+'.*') "
                         + whereClause3
                         + " AND " + significantCypher + parameterCypher + chrRangeCypher + geneListCypher + genotypesCypher + alleleTypesCypher
-                        + " WITH g, list1, list2, collect({alleles:a, mps:mp, srs:sr}) as list3 "
+                        + " WITH g, list1, list2, collect({alleles:a, mps:mp, srs:sr}) AS list3 "
                         // + " WHERE ALL (x IN list1 WHERE x IN list2) AND ALL (x IN list2 WHERE x IN list3) "
-                        + " WITH g, list1+list2+list3 as list "
-                        + " UNWIND list as nodes "
-                        + " WITH g, nodes, extract(x in collect(distinct nodes.mps) | x.mpTerm) as mps "
+                        + " WITH g, list1+list2+list3 AS list "
+                        + " UNWIND list AS nodes "
+                        + " WITH g, nodes, extract(x IN collect(DISTINCT nodes.mps) | x.mpTerm) AS mps "
                         + geneToDmPathClause
                         + " AND dmp.mpTerm IN mps";
 
@@ -736,18 +743,18 @@ public class AdvancedSearchService {
                             //+ " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') "
                             + whereClause1
                             + " AND " + significantCypher + parameterCypher + chrRangeCypher + geneListCypher + genotypesCypher + alleleTypesCypher
-                            + " WITH g, collect({genes:g, alleles:a, srs:sr, mps:mp}) as list1 "
+                            + " WITH g, collect({genes:g, alleles:a, srs:sr, mps:mp}) AS list1 "
 
                             + matchClause1
                             //+ " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*') "
                             + whereClause2
                             + " AND " + significantCypher + parameterCypher + chrRangeCypher + geneListCypher + genotypesCypher + alleleTypesCypher
-                            + " WITH g, list1, collect({genes:g, alleles:a, srs:sr, mps:mp}) as list2 "
+                            + " WITH g, list1, collect({genes:g, alleles:a, srs:sr, mps:mp}) AS list2 "
                             //  + " WHERE ALL (x IN list1 WHERE x IN list2) "
-                            + " WITH g, list1+list2 as list "
-                            + " UNWIND list as nodes "
+                            + " WITH g, list1+list2 AS list "
+                            + " UNWIND list AS nodes "
 
-                            + " WITH g, nodes, extract(x in collect(distinct nodes.mps) | x.mpTerm) as mps "
+                            + " WITH g, nodes, extract(x IN collect(DISTINCT nodes.mps) | x.mpTerm) AS mps "
                             + geneToDmPathClause
                             + " AND dmp.mpTerm IN mps";
                 } else {
@@ -755,18 +762,18 @@ public class AdvancedSearchService {
                             //+ " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') "
                             + whereClause1
                             + " AND " + significantCypher + parameterCypher + chrRangeCypher + geneListCypher + genotypesCypher + alleleTypesCypher
-                            + " WITH g, collect({genes:g, alleles:a, srs:sr, mps:mp}) as list1 "
+                            + " WITH g, collect({genes:g, alleles:a, srs:sr, mps:mp}) AS list1 "
 
                             + matchClause2
                             //+ " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*') "
                             + whereClause2
                             + " AND " + significantCypher + parameterCypher + chrRangeCypher + geneListCypher + genotypesCypher + alleleTypesCypher
-                            + " WITH g, list1, collect({genes:g, alleles:a, srs:sr, mps:mp}) as list2 "
+                            + " WITH g, list1, collect({genes:g, alleles:a, srs:sr, mps:mp}) AS list2 "
                             // + " WHERE ALL (x IN list1 WHERE x IN list2) "
-                            + " WITH g, list1+list2 as list "
-                            + " UNWIND list as nodes "
+                            + " WITH g, list1+list2 AS list "
+                            + " UNWIND list AS nodes "
 
-                            + " WITH g, nodes, extract(x in collect(distinct nodes.mps) | x.mpTerm) as mps "
+                            + " WITH g, nodes, extract(x IN collect(DISTINCT nodes.mps) | x.mpTerm) AS mps "
                             + geneToDmPathClause
                             + " AND dmp.mpTerm IN mps";
                 }
@@ -799,17 +806,17 @@ public class AdvancedSearchService {
                             //+ "WHERE (mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') OR mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*')) "
                             + whereClause1
                             + " AND " + significantCypher + parameterCypher + chrRangeCypher + geneListCypher + genotypesCypher + alleleTypesCypher
-                            + " WITH g, collect({alleles:a, srs:sr, mps:mp}) as list1 "
+                            + " WITH g, collect({alleles:a, srs:sr, mps:mp}) AS list1 "
 
                             + matchClause1
                             //+ " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpC}+'.*') "
                             + whereClause2
                             + " AND " + significantCypher + parameterCypher + chrRangeCypher + geneListCypher + genotypesCypher + alleleTypesCypher
-                            + " WITH g, list1, collect({alleles:a, srs:sr, mps:mp}) as list2 "
+                            + " WITH g, list1, collect({alleles:a, srs:sr, mps:mp}) AS list2 "
                             // + " WHERE ALL (x IN list1 WHERE x IN list2) "
-                            + " WITH g, list1+list2 as list "
-                            + " UNWIND list as nodes "
-                            + " WITH g, nodes, extract(x in collect(distinct nodes.mps) | x.mpTerm) as mps "
+                            + " WITH g, list1+list2 AS list "
+                            + " UNWIND list AS nodes "
+                            + " WITH g, nodes, extract(x IN collect(DISTINCT nodes.mps) | x.mpTerm) AS mps "
                             + geneToDmPathClause
                             + " AND dmp.mpTerm IN mps";
                 } else {
@@ -817,17 +824,17 @@ public class AdvancedSearchService {
                             //+ "WHERE (mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') OR mp0.mpTerm =~ ('(?i)'+'.*'+{mpB}+'.*')) "
                             + whereClause1
                             + " AND " + significantCypher + parameterCypher + chrRangeCypher + geneListCypher + genotypesCypher + alleleTypesCypher
-                            + " WITH g, collect({alleles:a, srs:sr, mps:mp}) as list1 "
+                            + " WITH g, collect({alleles:a, srs:sr, mps:mp}) AS list1 "
 
                             + matchClause2
                             //+ " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpC}+'.*') "
                             + whereClause2
                             + " AND " + significantCypher + parameterCypher + chrRangeCypher + geneListCypher + genotypesCypher + alleleTypesCypher
-                            + " WITH g, list1, collect({alleles:a, srs:sr, mps:mp}) as list2 "
+                            + " WITH g, list1, collect({alleles:a, srs:sr, mps:mp}) AS list2 "
                             // + " WHERE ALL (x IN list1 WHERE x IN list2) "
-                            + " WITH g, list1+list2 as list "
-                            + " UNWIND list as nodes "
-                            + " WITH g, nodes, extract(x in collect(distinct nodes.mps) | x.mpTerm) as mps "
+                            + " WITH g, list1+list2 AS list "
+                            + " UNWIND list AS nodes "
+                            + " WITH g, nodes, extract(x IN collect(DISTINCT nodes.mps) | x.mpTerm) AS mps "
                             + geneToDmPathClause
                             + " AND dmp.mpTerm IN mps";
                 }
@@ -853,6 +860,39 @@ public class AdvancedSearchService {
         long end = System.currentTimeMillis();
         System.out.println("Server processed query in " + (end - begin) + " ms");
 
+        List<Object> objects = new ArrayList<>();
+        objects.add( result);
+        objects.add(narrowOrSynonymMapping);
+        objects.add(dataTypeColsMap);
+
+
+        int dataCount = 0;
+        for (Map<String,Object> row : result) {
+//
+//            System.out.println(row.toString());
+//            System.out.println("cols: " + row.size());
+//            Thread.sleep(10000);
+            for (Map.Entry<String, Object> entry : row.entrySet()) {
+                if (entry.getValue() != null && ! entry.getValue().toString().startsWith("[Ljava.lang.Object")) {
+
+                    dataCount++;
+                    //System.out.println("---------- " + entry.getKey() + " / " + entry.getValue());
+                    //System.out.println("---------- " + entry.getKey() + " / " +  entry.getValue().toString());
+                }
+            }
+        }
+
+        if (dataCount == 0){
+            System.out.println("No data found based on your query");
+        }
+        return objects;
+    }
+
+    public JSONObject parseGraphResult(Result result, AdvancedSearchPhenotypeForm mpForm, AdvancedSearchGeneForm geneForm, AdvancedSearchDiseaseForm diseaseForm,
+                                       String fileType, String baseUrl, String hostname, List<String> narrowOrSynonymMapping, Map<String, List<String>> dataTypeColsMap)
+            throws IOException, SolrServerException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InterruptedException {
+
+        System.out.println("Parsing result.....");
         int rowCount = 0;
         JSONObject j = new JSONObject();
         j.put("aaData", new Object[0]);
@@ -912,8 +952,6 @@ public class AdvancedSearchService {
             rowDataExport.add(StringUtils.join(cols, "\t")); // column
 
             for (Map<String,Object> row : result) {
-                //System.out.println(row.toString());
-                //System.out.println("cols: " + row.size());
 
                 List<String> data = new ArrayList<>(); // for export
 
@@ -969,8 +1007,8 @@ public class AdvancedSearchService {
             j.put("rows", rowDataExport);
         }
         else {
-
             // overview
+            System.out.println("overview");
 
             List<String> cols = new ArrayList<>();
             Map<String, List<String>> node2Properties = new LinkedHashMap<>();
@@ -978,16 +1016,6 @@ public class AdvancedSearchService {
 			for (String dtype : dtypes) {
 
 				node2Properties.put(dtype, new ArrayList<String>());
-
-//				if (jParams != null) {
-//					if (jParams.containsKey(dtype)) {
-//						for (Object obj : jParams.getJSONArray(dtype)) {
-//							String colName = obj.toString();
-//							cols.add(colName);
-//							node2Properties.get(dtype).add(colName);
-//						}
-//					}
-//				}
                 if (dataTypeColsMap.containsKey(dtype)) {
                     for(String colName : dataTypeColsMap.get(dtype)){
                         cols.add(colName);
@@ -1001,22 +1029,25 @@ public class AdvancedSearchService {
             Map<String, Set<String>> colValMap = new TreeMap<>(); // for export
 
             for (Map<String, Object> row : result) {
-                //System.out.println(row.toString());
-                //System.out.println("cols: " + row.size());
+//                System.out.println(row.toString());
+//                System.out.println("cols: " + row.size());
 
                 for (Map.Entry<String, Object> entry : row.entrySet()) {
-                    //System.out.println(entry.getKey() + " / " + entry.getValue());
 
                     if (entry.getValue() != null && ! entry.getValue().toString().startsWith("[Ljava.lang.Object")) {
+                        // value is empty if startsWith("[Ljava.lang.Object")
+
                         if (entry.getKey().startsWith("collect")) {
                             List<Object> objs = (List<Object>) entry.getValue();
+
+//                            System.out.println("---------- " + entry.getKey() + " / " + entry.getValue());
+//                            System.out.println("---------- " + entry.getKey() + " / " + ((List<Object>) entry.getValue()).size());
+
                             for (Object obj : objs) {
-                                //populateColValMapAdvSrch(hostname, baseUrl,node2Properties, obj, colValMap, jParams, fileType);
                                 populateColValMapAdvSrch(hostname, baseUrl,node2Properties, obj, colValMap, fileType, mpForm, geneForm, diseaseForm);
                             }
                         } else {
                             Object obj = entry.getValue();
-                            //populateColValMapAdvSrch(hostname, baseUrl,node2Properties, obj, colValMap, jParams, fileType);
                             populateColValMapAdvSrch(hostname, baseUrl,node2Properties, obj, colValMap, fileType, mpForm, geneForm, diseaseForm);
                         }
                     }
@@ -1027,6 +1058,7 @@ public class AdvancedSearchService {
             // for overview
 
             for (String col : cols){
+
                 if (colValMap.containsKey(col)) {
                     List<String> vals = new ArrayList<>(colValMap.get(col));
 
@@ -1044,7 +1076,7 @@ public class AdvancedSearchService {
 
                     //System.out.println("col: " + col);
                     if (col.equals("ontoSynonym")) {
-                        System.out.println(col + " -- " + vals);
+                      //  System.out.println(col + " -- " + vals);
                     }
                 }
                 else {
@@ -1060,13 +1092,14 @@ public class AdvancedSearchService {
 
             //System.out.println(j.toString());
         }
+
         long tend = System.currentTimeMillis();
 
         System.out.println("Processed result in " + (tend - tstart) + " ms");
         return j;
     }
 
-    public String mapNarrowSynonym2MpTerm(List<String> narrowMapping, String mpTerm, SolrClient autosuggestCore) throws IOException, SolrServerException {
+    public String mapNarrowSynonym2MpTerm(List<String> termMapping, String mpTerm, SolrClient autosuggestCore) throws IOException, SolrServerException {
 
         String mpStr = null;
         SolrQuery query = new SolrQuery();
@@ -1077,7 +1110,7 @@ public class AdvancedSearchService {
         query.setRows(100);
         query.setFilterQueries("docType:mp");
         System.out.println("mapNarrow query="+query);
-        System.out.println(autosuggestCore);
+        //System.out.println(autosuggestCore);
         QueryResponse response = autosuggestCore.query(query);
         System.out.println("response: " + response);
         SolrDocumentList results = response.getResults();
@@ -1088,10 +1121,16 @@ public class AdvancedSearchService {
                 mpStr = mpTerm;
                 break;
             }
+            else if (doc.containsKey("mp_term_synonym") && doc.getFieldValue("mp_term_synonym").equals(mpTerm)){
+                //System.out.println("NS: "+ doc.getFieldValue("mp_narrow_synonym"));
+                mpStr = doc.getFieldValue("mp_term").toString();
+                termMapping.add(mpTerm + " is a synonym of " + mpStr);
+                break;
+            }
             else if (doc.containsKey("mp_narrow_synonym") && doc.getFieldValue("mp_narrow_synonym").equals(mpTerm)){
                 //System.out.println("NS: "+ doc.getFieldValue("mp_narrow_synonym"));
                 mpStr = doc.getFieldValue("mp_term").toString();
-                narrowMapping.add(mpTerm + " is not directly annotated in IMPC and is a child term of " + mpStr);
+                termMapping.add(mpTerm + " is not directly annotated in IMPC and is a child term of " + mpStr);
                 break;
             }
         }

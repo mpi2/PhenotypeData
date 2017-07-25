@@ -23,26 +23,19 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeSet;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
 
-import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.mousephenotype.cda.neo4j.entity.Hp;
-import org.mousephenotype.cda.neo4j.entity.Mp;
 import org.mousephenotype.cda.neo4j.repository.AlleleRepository;
 import org.mousephenotype.cda.neo4j.repository.DiseaseGeneRepository;
 import org.mousephenotype.cda.neo4j.repository.DiseaseModelRepository;
@@ -72,10 +65,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import net.sf.json.JSONSerializer;
 import uk.ac.ebi.phenotype.service.*;
+import org.neo4j.ogm.model.Result;
 
 @Controller
 @PropertySource("file:${user.home}/configfiles/${profile}/application.properties")
@@ -140,7 +133,6 @@ public class AdvancedSearchController {
     private AdvancedSearchService advancedSearchService;
 
 
-   
     private String hostname = null;
     private String baseUrl = null;
 
@@ -346,13 +338,18 @@ public class AdvancedSearchController {
         JSONObject jParams = (JSONObject) JSONSerializer.toJSON(params);
         System.out.println("jparams="+jParams.toString());
 
-        AdvancedSearchPhenotypeForm phenotypeForm = advancedSearchService.parsePhenotypeForm(jParams);
+        AdvancedSearchPhenotypeForm mpForm = advancedSearchService.parsePhenotypeForm(jParams);
         AdvancedSearchGeneForm geneForm = advancedSearchService.parseGeneForm(jParams);
         AdvancedSearchDiseaseForm diseaseForm = advancedSearchService.parseDiseaseForm(jParams);
         String fileType = null;
 
-        JSONObject jcontent = advancedSearchService.fetchGraphDataAdvSrch(phenotypeForm, geneForm, diseaseForm, fileType, baseUrl, hostname);
+        List<Object> objects = advancedSearchService.fetchGraphDataAdvSrchResult(mpForm, geneForm, diseaseForm, fileType);
+        Result result = (Result) objects.get(0);
+        List<String> narrowOrSynonymMappingList = (List<String>) objects.get(1);
+        Map<String, List<String>> dataTypeColsMap = (Map<String, List<String>>) objects.get(2);
 
+        JSONObject jcontent = advancedSearchService.parseGraphResult(result, mpForm, geneForm, diseaseForm, fileType, baseUrl, hostname, narrowOrSynonymMappingList, dataTypeColsMap);
+        System.out.println("--- " + jcontent.toString());
         System.out.println("narrowSynonym or synonym Mapping msg: " + jcontent.get("narrowOrSynonymMapping"));
         return new ResponseEntity<String>(jcontent.toString(), createResponseHeaders(), HttpStatus.CREATED);
 

@@ -5,9 +5,7 @@ import static org.junit.Assert.*;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -22,6 +20,21 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
+
+import org.mousephenotype.cda.neo4j.entity.Allele;
+import org.mousephenotype.cda.neo4j.entity.DiseaseModel;
+import org.mousephenotype.cda.neo4j.entity.EnsemblGeneId;
+import org.mousephenotype.cda.neo4j.entity.Gene;
+import org.mousephenotype.cda.neo4j.entity.Hp;
+import org.mousephenotype.cda.neo4j.entity.HumanGeneSymbol;
+import org.mousephenotype.cda.neo4j.entity.MarkerSynonym;
+import org.mousephenotype.cda.neo4j.entity.MouseModel;
+import org.mousephenotype.cda.neo4j.entity.Mp;
+import org.mousephenotype.cda.neo4j.entity.OntoSynonym;
+import org.mousephenotype.cda.neo4j.entity.StatisticalResult;
+import org.neo4j.ogm.model.Result;
+import org.neo4j.ogm.session.Session;
+
 
 import net.sf.json.JSONObject;
 
@@ -48,24 +61,30 @@ public class AdvancedSearchServiceTest {
 	}
 
 	@Test
-    public void testGenesByMpTerm() throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, SolrServerException, IOException {
+    public void testGenesByMpTerm() throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, SolrServerException, IOException, InterruptedException {
 
         AdvancedSearchPhenotypeForm mpForm = new AdvancedSearchPhenotypeForm();
 
-        AdvancedSearchMpRow mpRow = new AdvancedSearchMpRow("abnormal glucose homeostasis", 0.00001, 0.0001);
+        //AdvancedSearchMpRow mpRow = new AdvancedSearchMpRow("abnormal glucose homeostasis", 0.00001, 0.0001);
+        AdvancedSearchMpRow mpRow = new AdvancedSearchMpRow("abnormal retina morphology", null, null);
         mpForm.addPhenotypeRows(mpRow);
+//        mpForm.setHasOutputColumn(true);
+//        mpForm.setShowMpTerm(true);
+        System.out.println("MP FORM: " + mpForm.toString());
 
         AdvancedSearchGeneForm geneForm = new AdvancedSearchGeneForm();
+        //geneForm.setChrIds(Arrays.asList("1"));
+        System.out.println("GENE FORM: " + geneForm.toString());
+
         AdvancedSearchDiseaseForm diseaseForm = new AdvancedSearchDiseaseForm();
+        System.out.println("DISEASE FORM: " + diseaseForm.toString());
 
         String fileType = null; // only needed for export
-        String baseUrl = "";    // only needed for export and interface
-        String hostname = "";   // only needed for export and interface
 
-        JSONObject jcontent = advancedSearchService.fetchGraphDataAdvSrch(mpForm, geneForm, diseaseForm, fileType, baseUrl, hostname);
+        List<Object> objects = advancedSearchService.fetchGraphDataAdvSrchResult(mpForm, geneForm, diseaseForm, fileType);
+        Result result = (Result) objects.get(0);
 
-        System.out.println(jcontent.getJSONObject("aaData"));
-
+        // do something with the result
 
     }
 
@@ -107,7 +126,7 @@ public class AdvancedSearchServiceTest {
 //		String mpStr="abnormal circulating glucose level";//what is this?
 //
 //		try {
-//			jcontent = advancedSearchService.fetchGraphDataAdvSrch(advancedSearchPhenotypeForm, dataTypes, hostname, baseUrl,jParams, significantPValue, sexType, impressParameter, lowerPvalue, upperPvalue, chrs, regionStart, regionEnd, isMouseGenes, geneList, genotypeList, alleleTypes, mutationTypes, phenodigmScoreLow, phenodigmScoreHigh, diseaseTerm, humanCurated, humanDiseaseTerm, mpStr, fileType);
+//			jcontent = advancedSearchService.fetchGraphDataAdvSrchResult(advancedSearchPhenotypeForm, dataTypes, hostname, baseUrl,jParams, significantPValue, sexType, impressParameter, lowerPvalue, upperPvalue, chrs, regionStart, regionEnd, isMouseGenes, geneList, genotypeList, alleleTypes, mutationTypes, phenodigmScoreLow, phenodigmScoreHigh, diseaseTerm, humanCurated, humanDiseaseTerm, mpStr, fileType);
 //		} catch (NoSuchMethodException e) {
 //			// TODO Auto-generated catch block
 //			e.printStackTrace();

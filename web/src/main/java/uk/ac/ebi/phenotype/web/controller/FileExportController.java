@@ -22,7 +22,6 @@ import net.sf.json.JSONSerializer;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
-import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
@@ -38,6 +37,7 @@ import org.mousephenotype.cda.solr.service.SolrIndex.AnnotNameValCount;
 import org.mousephenotype.cda.solr.service.dto.*;
 import org.mousephenotype.cda.solr.web.dto.SimpleOntoTerm;
 import org.mousephenotype.cda.utilities.CommonUtils;
+import org.neo4j.ogm.model.Result;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -158,11 +158,16 @@ public class FileExportController {
 		System.out.println(fileType);
 		System.out.println(jParams.toString());
 
-		AdvancedSearchPhenotypeForm phenotypeForm = advancedSearchService.parsePhenotypeForm(jParams);
+		AdvancedSearchPhenotypeForm mpForm = advancedSearchService.parsePhenotypeForm(jParams);
 		AdvancedSearchGeneForm geneForm = advancedSearchService.parseGeneForm(jParams);
 		AdvancedSearchDiseaseForm diseaseForm = advancedSearchService.parseDiseaseForm(jParams);
 
-		JSONObject jcontent = advancedSearchService.fetchGraphDataAdvSrch(phenotypeForm, geneForm, diseaseForm, fileType, baseUrl, hostname);
+		List<Object> objects = advancedSearchService.fetchGraphDataAdvSrchResult(mpForm, geneForm, diseaseForm, fileType);
+		Result result = (Result) objects.get(0);
+		List<String> narrowOrSynonymMappingList = (List<String>) objects.get(1);
+		Map<String, List<String>> dataTypeColsMap = (Map<String, List<String>>) objects.get(2);
+
+		JSONObject jcontent = advancedSearchService.parseGraphResult(result, mpForm, geneForm, diseaseForm, fileType, baseUrl, hostname, narrowOrSynonymMappingList, dataTypeColsMap);
 
 		System.out.println("narrowSynonym or synonym Mapping msg: " + jcontent.get("narrowOrSynonymMapping"));
 
