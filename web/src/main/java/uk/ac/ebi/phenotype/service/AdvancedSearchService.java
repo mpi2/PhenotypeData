@@ -112,7 +112,7 @@ public class AdvancedSearchService {
         String chrRange = "";
 
         if (geneForm.getChrId() != null && geneForm.getChrStart() != null && geneForm.getChrEnd() != null) {
-            chrRange = " AND g.chrId IN [" + geneForm.getChrId() + "] AND g.chrStart >= " + geneForm.getChrStart() + " AND g.chrEnd <= " + geneForm.getChrEnd() + " ";
+            chrRange = " AND g.chrId IN ['" + geneForm.getChrId() + "'] AND g.chrStart >= " + geneForm.getChrStart() + " AND g.chrEnd <= " + geneForm.getChrEnd() + " ";
         }
         else if (geneForm.getChrIds() != null){
             List<String> chrIds = new ArrayList<>();
