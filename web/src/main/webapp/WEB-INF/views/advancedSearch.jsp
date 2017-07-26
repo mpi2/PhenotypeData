@@ -678,11 +678,11 @@
                         r:30,
                         fields: [
                             {"mouse phenotype ontology term":"mpTerm"},
+                            {"mouse phenotype ontology term synonym": "ontoSynonym"},
                             {"mouse phenotype ontology id":"mpId"},
                             {"mouse phenotype ontology definition":"mpDefinition"},
                             {"top level mouse phenotype ontology id":"topLevelMpId"},
                             {"top level mouse phenotype ontology term":"topLevelMpTerm"},
-                            {"mouse phenotype ontology term synonym": "ontoSynonym"},
                             {"measured parameter name": "parameterName"},
                             {"p value": "pvalue"}
                         ],
@@ -830,13 +830,18 @@
 
                     // work out mp term and pvalue pairs
                     var mpPval = {};
+                    var mpCount = 0;
                     $('input.srchMp').each(function(){
                         var tval = "Eg:0000";
-
+                        mpCount++;
 
                         var mpVal = $(this).val();
                         var gtval = $(this).siblings('span.pvalue').find('input.lowerPvalue').val();
                         var ltval = $(this).siblings('span.pvalue').find('input.upperPvalue').val();
+
+                        kv['mp'+mpCount] = mpVal;
+
+                        //console.log("---- mp: " + mpVal);
                         mpPval[mpVal] = {};
 
                         if (gtval.indexOf('Eg:') != 0 && gtval != ""){
@@ -895,6 +900,13 @@
                     }
                 }
 
+                // MP booleans
+                var boolCount = 0;
+                $('button.selected').each(function() {
+                    boolCount++;
+                    kv["logical"+boolCount] = $(this).text();
+                });
+
                 // IMPReSS parameter name
                 if ($('input.srchPipeline').val() != 'search' && $('input.srchPipeline').val() != ''){
                     // console.log("check parameter: "+ $('input.srchPipeline').val());
@@ -927,7 +939,7 @@
                         else if ( kv.hasOwnProperty("chrRange")) {
                             shownFilter.push("chromosome range = '" + kv.chrRange + "'");
                         }
-                        else {
+                        else if ( kv.hasOwnProperty("all")) {
                             shownFilter.push("chromosome = 'all'");
                         }
                     }
@@ -937,18 +949,31 @@
                 var species = $("fieldset.GeneFilter input[name='species']:checked").val();
                 var geneList = $('textarea#geneList').val().split(/\n|,|\t|\s+|;/);
                 var geneList2 = [];
+                var seenMgiId = false;
+                var seenMgiSymbol = false;
 
                 for (var i=0; i<geneList.length; i++){
                     var val = geneList[i];
+
                     if (val != "") {
                         //console.log("gene: "+ val);
                         //geneList2.push($.fn.upperCaseFirstLetter(val).trim());
+                        if (val.indexOf("MGI:") != -1){
+                            seenMgiId = true;
+                        }
+                        else {
+                            seenMgiSymbol = true;
+                        }
                         geneList2.push(val.trim());
                     }
                 }
+                if (seenMgiSymbol && seenMgiId){
+                    alert("Sorry, please make sure gene list dose not contain both symbol and ID");
+                    return false;
+                }
                 if (geneList2.length>0) {
                     kv[species + 'GeneList'] = geneList2;
-                    shownFilter.push("search with " + species + " gene list = 'yes'");
+                    shownFilter.push("search with " + species + " gene list: " + geneList2);
                 }
 
                 // zygosity
@@ -974,11 +999,11 @@
                 }
 
                 // disease - gene association
-                var dgAssoc = [];
+                var dgAssoc = "";
                 $("fieldset.DiseaseModelFilter input[name='assoc']:checked").each(function () {
-                    dgAssoc.push($(this).val());
+                    dgAssoc = $(this).val();
                 });
-                if ( dgAssoc.length > 0){
+                if ( dgAssoc != ""){
                     kv['diseaseGeneAssociation'] = dgAssoc;
                     var assocVal =  dgAssoc == 'humanCurated' ? "gene ortholog" : "phenotypic similarity";
                     shownFilter.push("disease gene association = '" + assocVal + "'");
@@ -1034,6 +1059,15 @@
                     else if (parseInt(chrStart) > parseInt(chrEnd)) {
                         alert("ERROR: chromosome range is not right");
                         return false;
+                    }
+                    else if (chrId.length > 1){
+                        // multiple chrs selected
+                        console.log("multiple chrs selected");
+                        kv["chr"] = chrId;
+                        return kv;
+                    }
+                    else if (chrId[0] == 'All'){
+                        return kv;
                     }
                     else {
                         kv['chrRange'] = "chr" + chrId + ":" + chrStart + "-" + chrEnd;
@@ -1177,12 +1211,12 @@
 
                         $( this ).removeClass( "ui-corner-all" ).addClass( "ui-corner-top" );
                         $(this).data("selectVisible", true);
-                       // alert("test open: " + $(this).data("selectVisible"));
+                        // alert("test open: " + $(this).data("selectVisible"));
                     },
                     close: function() {
                         $( this ).removeClass( "ui-corner-top" ).addClass( "ui-corner-all" );
                         $(this).data("selectVisible", false);
-                       // alert("test close: " + $(this).data("selectVisible"));
+                        // alert("test close: " + $(this).data("selectVisible"));
                     }
                 }).keydown(function (e) {
 
@@ -1288,9 +1322,17 @@
                 if ( oJson == false){
                     return false;
                 }
+                console.log(oJson);
+
+                if (oJson.shownFilter == "Only significant p values = true,  phenodigm score = '0 - 100'"){
+                    var c = confirm("NOTE: You are searching by none of the phenotype/Gene/Disease input or filters.\nThis could take a while. Proceed? ");
+                    if (c == false){
+                        return false;
+                    }
+                }
 
                 refreshResult(); // refresh first
-                console.log(oJson)
+
                 var flList = [];
                 var dtypes = ["Allele", "Gene", "Mp", "DiseaseModel", "StatisticalResult"];
                 for (var d=0; d<dtypes.length; d++){
@@ -1391,7 +1433,7 @@
                     "oLanguage": {
                         "sSearch": "Filter: ",
                         //"sInfo": "Showing _START_ to _END_ of _TOTAL_ genes (for complete dataset of your search, please use export buttons)"
-                        "sInfo": "<b>Data overview</b>: all columns are collapsed to show only unique values.<br>It shows you ONLY genes that have associations with phenotypes and optional diseases.<br><br>Please use 'Export full dataset' for row by row details"
+                        "sInfo": "<b>Data overview</b>: all columns are collapsed to show only unique values.<br>It shows you ONLY genes that have associations with phenotypes and/or diseases.<br><br>Please use 'Export full dataset' for row by row details"
                     },
 //                        "aoColumns": [
 //                            {"bSearchable": true, "sType": "html", "bSortable": true}
@@ -1692,11 +1734,10 @@
                     }
                 }
 
+                var startEnd = '<span id="startEnd">Start: <input id="rstart" type="text" name="chr"> End: <input id="rend" type="text" name="chr"></span>';
                 var legend = '<legend>Mouse chromosome</legend>';
                 var msg = "Filter genes either by chromosome only OR both chromosome and region coordinates. Supports selecting multiple chromosomes.<br>";
-                var inputs = 'Chr: <select multiple size="4" id="chrSel">' + chrSel + '</select> ' +
-                    'Start: <input id="rstart" type="text" name="chr"> ' +
-                    'End: <input id="rend" type="text" name="chr">';
+                var inputs = 'Chr: <select multiple size="4" id="chrSel">' + chrSel + '</select> ' + startEnd;
 
                 var chrInfo = "<i class='fa fa-info-circle' title='toggle chromosome coordinates'></i><div id='chrinfo'></div>";
 
@@ -1704,6 +1745,17 @@
 
                 $('div#dataAttributes').append(filter);
 
+                // hide start, end coords input boxes if multiple chrs are selected
+                $('select#chrSel').change(function(){
+                    if ($('select#chrSel option').filter(':selected').size() > 1){
+                        $('span#startEnd').hide();
+                    }
+                    else {
+                        $('span#startEnd').show();
+                    }
+                });
+
+                // show all chromosomes' start/end info
                 $("fieldset#chromosome .fa-info-circle").click(function(){
                     var info = $('div#chrinfo');
                     if (info.is(":visible")) {
@@ -1762,8 +1814,8 @@
             function addDiseaseUi(dataType){
 
                 var assoc = "<b>Association by</b>: " +
-                    "<input type='checkbox' name='assoc' value='humanCurated'> Gene ortholog" +
-                    "<input type='checkbox' name='assoc' value='phenotypicSimilarity'> Phenotypic similarity<br><br>";
+                    "<input type='radio' name='assoc' value='humanCurated'> Gene ortholog" +
+                    "<input type='radio' name='assoc' value='phenotypicSimilarity'> Phenotypic similarity<br><br>";
 
                 var slider = "<b>Phenodigm score range</b>:<div class='sliderBox'><input type='hidden' class='range-slider' value='100' /></div>";
 
@@ -1859,7 +1911,7 @@
                             srchBox.last().detach();
                         }
                         else {
-                           $('input.srchMp').val('');
+                            $('input.srchMp').val('');
                         }
                     }
 
@@ -1893,7 +1945,7 @@
 
                 // clear pvalue default input
                 $(fieldsetFilter).on("click", "input.pvalue", function(){
-                   $(this).val("");
+                    $(this).val("");
                 });
 
 
@@ -2002,13 +2054,13 @@
 
             function addBools(srchBox, boolTextarea){
                 var bools = "<div class='bools'><button class='andOr2'>AND</button>" +
-                            "<button class='andOr2'>OR</button></div>";
+                    "<button class='andOr2'>OR</button></div>";
 
                 srchBox.append(bools);
                 var butts = srchBox.find('button.andOr2');
                 butts.click(function() {
-                    butts.css('color', 'gray');
-                    $(this).css('color', '#942a25;');
+                    butts.css('color', 'gray').removeClass('selected');
+                    $(this).css('color', '#942a25;').addClass('selected')
 
                     var count = ($('textarea.Mp').val().match(/AND|OR/g) || []).length;
                     if (count == 0 || count == 2) {
@@ -2081,7 +2133,7 @@
                 <div class="content">
                     <div class="node node-gene">
                         <h1 class="title" id="top">IMPC Dataset Advanced Search<a id="bqdoc" class=""><i class="fa fa-question-circle pull-right"></i></a></h1>
-                        <div id="aboutAdvSrch">This is a gene-centric search tool to allow users find mouse phenotypes and optional human diseases that are associated with a mouse gene in IMPC.</div>
+                        <div id="aboutAdvSrch">This is a gene-centric search tool to allow users find mouse phenotypes and/or human diseases that are associated with a mouse gene in IMPC.</div>
 
                         <form id='goSubmit' method='post' onreset="catchOnReset()">
                             <div class="section">
