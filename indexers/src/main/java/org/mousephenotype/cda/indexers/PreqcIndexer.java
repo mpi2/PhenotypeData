@@ -51,9 +51,9 @@ import java.util.*;
 @EnableAutoConfiguration
 public class PreqcIndexer extends AbstractIndexer implements CommandLineRunner {
 
-	private final Logger logger = LoggerFactory.getLogger(PreqcIndexer.class);
+    private final Logger logger = LoggerFactory.getLogger(PreqcIndexer.class);
 
-	@NotNull
+    @NotNull
     @Value("${preqcXmlFilename}")
     private String preqcXmlFilename;
 
@@ -104,7 +104,7 @@ public class PreqcIndexer extends AbstractIndexer implements CommandLineRunner {
     private Connection conn_ontodb = null;
 
 
-	@Override
+    @Override
     public RunStatus validateBuild() throws IndexerException {
         return super.validateBuild(preqcCore);
     }
@@ -309,6 +309,10 @@ public class PreqcIndexer extends AbstractIndexer implements CommandLineRunner {
 
                         // Skip if we already have this data postQC
                         phenotypingCenter = dccMapping.dccCenterMap.containsKey(phenotypingCenter) ? dccMapping.dccCenterMap.get(phenotypingCenter) : phenotypingCenter;
+                        if ((phenotypingCenter == null) || (phenotypingCenter.trim().isEmpty())) {
+                            throw new IndexerException("phenotypingCenter is missing!");
+                        }
+
                         if (postQcData.contains(StringUtils.join(Arrays.asList(new String[]{colonyId, parameter, phenotypingCenter.toUpperCase()}), "_"))) {
                             continue;
                         }
@@ -359,13 +363,13 @@ public class PreqcIndexer extends AbstractIndexer implements CommandLineRunner {
                         }
                         o.setZygosity(zygosityMapping.get(zygosity));
 
-                if (alleleSymbol2NameIdMapping.get(allele) == null || alleleSymbol2NameIdMapping.get(allele).acc == null) {
-                    // use fake id if we cannot find the symbol from komp2
-                    o.setAlleleAccessionId(createFakeIdFromSymbol(allele));
-                } else {
-                    o.setAlleleAccessionId(alleleSymbol2NameIdMapping.get(allele).acc);
-                }
-                o.setAlleleSymbol(allele);
+                        if (alleleSymbol2NameIdMapping.get(allele) == null || alleleSymbol2NameIdMapping.get(allele).acc == null) {
+                            // use fake id if we cannot find the symbol from komp2
+                            o.setAlleleAccessionId(createFakeIdFromSymbol(allele));
+                        } else {
+                            o.setAlleleAccessionId(alleleSymbol2NameIdMapping.get(allele).acc);
+                        }
+                        o.setAlleleSymbol(allele);
 
                         if (dccMapping.dccCenterMap.containsKey(phenotypingCenter)) {
                             o.setPhenotypingCenter(dccMapping.dccCenterMap.get(phenotypingCenter));
@@ -514,6 +518,7 @@ public class PreqcIndexer extends AbstractIndexer implements CommandLineRunner {
             try {
                 statement = conn_komp2.createStatement();
                 rs = statement.executeQuery(query);
+                System.out.println("query for mapping="+query);
 
                 while (rs.next()) {
                     // Retrieve by column name
@@ -521,12 +526,23 @@ public class PreqcIndexer extends AbstractIndexer implements CommandLineRunner {
                     String name = rs.getString("name");
 
                     if (tableName.equals("phenotype_procedure")) {
-						// Harwell does not include version in
+
+                        //if (sid.contains("_")) {
+
+                        // Harwell does not include version in
                         // procedure_stable_id
-                        sid = sid.replaceAll("_\\d+$", "");
+                        // sid = sid.replaceAll("_\\d+$", "");
+                        // } else {
+
+                        // Harwell now does not include version OR pipeline in
+                        // procedure_stable_id
+                        String[] pieces = sid.split("_");
+                        sid = pieces[1];
+                        // }
                     }
 
                     mapping.put(sid, name);
+                    System.out.println("adding procedure id to name="+sid+"|"+name);
                 }
 
             } catch (SQLException e) {
@@ -595,7 +611,7 @@ public class PreqcIndexer extends AbstractIndexer implements CommandLineRunner {
 
         try {
 
-			// we need to create a new state for each query
+            // we need to create a new state for each query
             // otherwise we get "Operation not allowed after ResultSet closed"
             // error
             statement = conn_ontodb.createStatement();
@@ -614,7 +630,7 @@ public class PreqcIndexer extends AbstractIndexer implements CommandLineRunner {
                 String mp_term_id = rs1.getString("term_id");
                 String mp_term_name = rs1.getString("name");
                 int mp_node_id = rs1.getInt("node_id");
-				// logger.error("rs1: " + mp_term_id + " -- "+ mp_term_name);
+                // logger.error("rs1: " + mp_term_id + " -- "+ mp_term_name);
                 // logger.error("rs1: " + mp_node_id + " -- "+ mp_term_name);
                 mpId2TermMapping.put(mp_term_id, mp_term_name);
                 mpNodeId2MpIdMapping.put(mp_node_id, mp_term_id);
@@ -625,7 +641,7 @@ public class PreqcIndexer extends AbstractIndexer implements CommandLineRunner {
                 int top_level_mp_node_id = rs2.getInt("mp_node_id");
                 String top_level_mp_term_id = rs2.getString("term_id");
                 String top_level_mp_term_name = rs2.getString("name");
-				// logger.error("rs2: " + top_level_mp_node_id + " --> " +
+                // logger.error("rs2: " + top_level_mp_node_id + " --> " +
 
                 Node2TopDTO n2t = new Node2TopDTO();
                 n2t.topLevelMpTermId = top_level_mp_term_id;
@@ -644,7 +660,7 @@ public class PreqcIndexer extends AbstractIndexer implements CommandLineRunner {
             while (rs4.next()) {
                 int child_node_id = rs4.getInt("child_node_id");
                 String intermediate_nodeIds = rs4.getString("intermediate_nodeIds");
-				// logger.error("rs4: " + child_node_id + " -- > " +
+                // logger.error("rs4: " + child_node_id + " -- > " +
                 // intermediate_nodeIds);
                 mpNodeId2IntermediateNodeIdsMapping.put(child_node_id, intermediate_nodeIds);
             }
@@ -667,28 +683,28 @@ public class PreqcIndexer extends AbstractIndexer implements CommandLineRunner {
 
                 List<MpTermDTO> mps = new ArrayList<>();
 
-	            for (String aNodeIdsStr : nodeIdsStr) {
-		            int childNodeId = Integer.parseInt(aNodeIdsStr);
-		            List<MpTermDTO> top = getTopMpTerms(mpId);
+                for (String aNodeIdsStr : nodeIdsStr) {
+                    int childNodeId = Integer.parseInt(aNodeIdsStr);
+                    List<MpTermDTO> top = getTopMpTerms(mpId);
 
-		            // top level mp do not have intermediate mp
-		            if (mpNodeId2IntermediateNodeIdsMapping.get(childNodeId) != null) {
-			            String[] intermediateNodeIdsStr = mpNodeId2IntermediateNodeIdsMapping.get(childNodeId).split(",");
+                    // top level mp do not have intermediate mp
+                    if (mpNodeId2IntermediateNodeIdsMapping.get(childNodeId) != null) {
+                        String[] intermediateNodeIdsStr = mpNodeId2IntermediateNodeIdsMapping.get(childNodeId).split(",");
 
-			            for (String anIntermediateNodeIdsStr : intermediateNodeIdsStr) {
-				            int intermediateNodeId = Integer.parseInt(anIntermediateNodeIdsStr);
+                        for (String anIntermediateNodeIdsStr : intermediateNodeIdsStr) {
+                            int intermediateNodeId = Integer.parseInt(anIntermediateNodeIdsStr);
 
-				            MpTermDTO mp = new MpTermDTO();
-				            mp.id = mpNodeId2MpIdMapping.get(intermediateNodeId);
-				            mp.name = mpId2TermMapping.get(mp.id);
+                            MpTermDTO mp = new MpTermDTO();
+                            mp.id = mpNodeId2MpIdMapping.get(intermediateNodeId);
+                            mp.name = mpId2TermMapping.get(mp.id);
 
-				            // don't want to include self as intermediate parent
-				            if (childNodeId != intermediateNodeId && !top.contains(mp)) {
-					            mps.add(mp);
-				            }
-			            }
-		            }
-	            }
+                            // don't want to include self as intermediate parent
+                            if (childNodeId != intermediateNodeId && !top.contains(mp)) {
+                                mps.add(mp);
+                            }
+                        }
+                    }
+                }
 
                 // added only we got intermediates
                 if (mps.size() != 0) {
@@ -714,21 +730,21 @@ public class PreqcIndexer extends AbstractIndexer implements CommandLineRunner {
 
                 List<MpTermDTO> mps = new ArrayList<>();
 
-	            for (String aNodeIdsStr : nodeIdsStr) {
+                for (String aNodeIdsStr : nodeIdsStr) {
 
-		            int topLevelMpNodeId = Integer.parseInt(aNodeIdsStr);
-		            // System.out.println(mpId + " - top_level_node_id: " +
-		            // topLevelMpNodeId);
+                    int topLevelMpNodeId = Integer.parseInt(aNodeIdsStr);
+                    // System.out.println(mpId + " - top_level_node_id: " +
+                    // topLevelMpNodeId);
 
-		            if (mpNodeId2TopLevelMapping.containsKey(topLevelMpNodeId)) {
+                    if (mpNodeId2TopLevelMapping.containsKey(topLevelMpNodeId)) {
 
-			            MpTermDTO mp = new MpTermDTO();
-			            mp.id = mpNodeId2TopLevelMapping.get(topLevelMpNodeId).topLevelMpTermId;
-			            mp.name = mpNodeId2TopLevelMapping.get(topLevelMpNodeId).topLevelMpTermName;
-			            mps.add(mp);
-		            }
+                        MpTermDTO mp = new MpTermDTO();
+                        mp.id = mpNodeId2TopLevelMapping.get(topLevelMpNodeId).topLevelMpTermId;
+                        mp.name = mpNodeId2TopLevelMapping.get(topLevelMpNodeId).topLevelMpTermName;
+                        mps.add(mp);
+                    }
 
-	            }
+                }
 
                 topMpTerms.put(mpId, mps);
 
@@ -744,19 +760,19 @@ public class PreqcIndexer extends AbstractIndexer implements CommandLineRunner {
 
         // Gather all line level data
         queries.add("SELECT CONCAT(e.colony_id, '_', o.parameter_stable_id, '_', UPPER(org.name)) AS data_value " +
-            "FROM observation o " +
-            "INNER JOIN experiment_observation eo ON eo.observation_id=o.id " +
-            "INNER JOIN experiment e ON e.id=eo.experiment_id " +
-            "INNER JOIN organisation org ON org.id=e.organisation_id " +
-            "WHERE e.colony_id IS NOT NULL ");
+                "FROM observation o " +
+                "INNER JOIN experiment_observation eo ON eo.observation_id=o.id " +
+                "INNER JOIN experiment e ON e.id=eo.experiment_id " +
+                "INNER JOIN organisation org ON org.id=e.organisation_id " +
+                "WHERE e.colony_id IS NOT NULL ");
 
         // Gather all specimen level data
         queries.add("SELECT CONCAT(ls.colony_id, '_', o.parameter_stable_id, '_', UPPER(org.name)) AS data_value " +
-            "FROM observation o " +
-            "INNER JOIN live_sample ls ON ls.id=o.biological_sample_id " +
-            "INNER JOIN biological_sample bs ON bs.id=o.biological_sample_id " +
-            "INNER JOIN organisation org ON org.id=bs.organisation_id " +
-            "WHERE bs.sample_group='experimental' ");
+                "FROM observation o " +
+                "INNER JOIN live_sample ls ON ls.id=o.biological_sample_id " +
+                "INNER JOIN biological_sample bs ON bs.id=o.biological_sample_id " +
+                "INNER JOIN organisation org ON org.id=bs.organisation_id " +
+                "WHERE bs.sample_group='experimental' ");
 
         for (String query : queries){
 

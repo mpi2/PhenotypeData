@@ -1,4 +1,4 @@
-package uk.ac.ebi.phenotype.service;
+package uk.ac.ebi.phenotype.web;
 
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;

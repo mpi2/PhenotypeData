@@ -44,7 +44,7 @@ import java.util.*;
 @EnableAutoConfiguration
 public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRunner {
 
-	private final Logger logger = LoggerFactory.getLogger(AutosuggestIndexer.class);
+    private final Logger logger = LoggerFactory.getLogger(AutosuggestIndexer.class);
 
 
     @Autowired
@@ -75,12 +75,12 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
     @Qualifier("pipelineCore")
     private SolrClient pipelineCore;
 
-	@Autowired
-	@Qualifier("phenodigmCore")
-	private SolrClient phenodigmCore;
+    @Autowired
+    @Qualifier("phenodigmCore")
+    private SolrClient phenodigmCore;
 
-	@Autowired
-   	private GwasDAO gwasDao;
+    @Autowired
+    private GwasDAO gwasDao;
 
 
     public static final long MIN_EXPECTED_ROWS = 218000;
@@ -193,9 +193,9 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
         List<String> geneFields = Arrays.asList(GeneDTO.MGI_ACCESSION_ID, GeneDTO.MARKER_SYMBOL, GeneDTO.MARKER_NAME, GeneDTO.MARKER_SYNONYM, GeneDTO.HUMAN_GENE_SYMBOL, GeneDTO.ALLELE_ACCESSION_ID);
 
         SolrQuery query = new SolrQuery()
-            .setQuery("*:*")
-            .setFields(StringUtils.join(geneFields, ","))
-            .setRows(Integer.MAX_VALUE);
+                .setQuery("*:*")
+                .setFields(StringUtils.join(geneFields, ","))
+                .setRows(Integer.MAX_VALUE);
 
         List<GeneDTO> genes = geneCore.query(query).getBeans(GeneDTO.class);
         for (GeneDTO gene : genes) {
@@ -325,9 +325,9 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
                 MpDTO.HP_TERM_SYNONYM);
 
         SolrQuery query = new SolrQuery()
-            .setQuery("*:*")
-            .setFields(StringUtils.join(mpFields, ","))
-            .setRows(Integer.MAX_VALUE);
+                .setQuery("*:*")
+                .setFields(StringUtils.join(mpFields, ","))
+                .setRows(Integer.MAX_VALUE);
         //System.out.println("QRY: " + query);
         List<MpDTO> mps = mpCore.query(query).getBeans(MpDTO.class);
         for (MpDTO mp : mps) {
@@ -361,6 +361,21 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
                                     AutosuggestBean asyn = new AutosuggestBean();
                                     asyn.setMpTermSynonym(s);
                                     asyn.setDocType("mp");
+                                    asyn.setMpTerm(mp.getMpTerm());
+                                    beans.add(asyn);
+                                }
+                            }
+                        }
+                        break;
+                    case MpDTO.MIX_SYN_QF:
+                        if (mp.getMixedSynonyms() != null) {
+                            for (String s : mp.getMixedSynonyms()) {
+                                mapKey = s;
+                                if (mpTermSynonymSet.add(mapKey)) {
+                                    AutosuggestBean asyn = new AutosuggestBean();
+                                    asyn.setMpTermSynonym(s);
+                                    asyn.setDocType("mp");
+                                    asyn.setMpTerm(mp.getMpTerm());
                                     beans.add(asyn);
                                 }
                             }
@@ -592,9 +607,9 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
         List<String> diseaseFields = Arrays.asList(DiseaseDTO.DISEASE_ID, DiseaseDTO.DISEASE_TERM, DiseaseDTO.DISEASE_ALTS);
 
         SolrQuery query = new SolrQuery()
-            .setQuery("*:*")
-            .setFields(StringUtils.join(diseaseFields, ","))
-            .setRows(Integer.MAX_VALUE);
+                .setQuery("*:*")
+                .setFields(StringUtils.join(diseaseFields, ","))
+                .setRows(Integer.MAX_VALUE);
 
         List<DiseaseDTO> diseases = diseaseCore.query(query).getBeans(DiseaseDTO.class);
         for (DiseaseDTO disease : diseases) {
@@ -657,9 +672,9 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
                 AnatomyDTO.SELECTED_TOP_LEVEL_ANATOMY_TERM, AnatomyDTO.SELECTED_TOP_LEVEL_ANATOMY_TERM_SYNONYM);
 
         SolrQuery query = new SolrQuery()
-            .setQuery("*:*")
-            .setFields(StringUtils.join(anatomyFields, ","))
-            .setRows(Integer.MAX_VALUE);
+                .setQuery("*:*")
+                .setFields(StringUtils.join(anatomyFields, ","))
+                .setRows(Integer.MAX_VALUE);
 
 
         List<AnatomyDTO> anatomies = anatomyCore.query(query).getBeans(AnatomyDTO.class);
@@ -1044,36 +1059,36 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
     private void populateGwasAutosuggestTerms() throws SolrServerException, IOException, SQLException {
 
         List<String> gwasFields = Arrays.asList(
-        		GwasDTO.MGI_GENE_ID,
-        		GwasDTO.MGI_GENE_SYMBOL,
-        		GwasDTO.MP_TERM_ID,
-        		GwasDTO.MP_TERM_NAME,
-        		GwasDTO.DISEASE_TRAIT,
-        		GwasDTO.SNP_ID,
-        		GwasDTO.REPORTED_GENE,
-        		GwasDTO.MAPPED_GENE,
-        		GwasDTO.UPSTREAM_GENE,
-        		GwasDTO.DOWNSTREAM_GENE
-                );
+                GwasDTO.MGI_GENE_ID,
+                GwasDTO.MGI_GENE_SYMBOL,
+                GwasDTO.MP_TERM_ID,
+                GwasDTO.MP_TERM_NAME,
+                GwasDTO.DISEASE_TRAIT,
+                GwasDTO.SNP_ID,
+                GwasDTO.REPORTED_GENE,
+                GwasDTO.MAPPED_GENE,
+                GwasDTO.UPSTREAM_GENE,
+                GwasDTO.DOWNSTREAM_GENE
+        );
 
         List<GwasDTO> gwasMappings = gwasDao.getGwasMappingRows();
 
         for (GwasDTO gw : gwasMappings) {
 
-        	Set<AutosuggestBean> beans = new HashSet<>();
+            Set<AutosuggestBean> beans = new HashSet<>();
             for (String field : gwasFields) {
 
                 AutosuggestBean a = new AutosuggestBean();
                 a.setDocType("gwas");
 
                 switch (field) {
-                	case GwasDTO.MGI_GENE_ID:
-                		mapKey = gw.getMgiGeneId();
-                		if (gwasMgiGeneIdSet.add(mapKey)) {
-	                        a.setGwasMgiGeneId(mapKey);
-	                        beans.add(a);
-	                    }
-	                    break;
+                    case GwasDTO.MGI_GENE_ID:
+                        mapKey = gw.getMgiGeneId();
+                        if (gwasMgiGeneIdSet.add(mapKey)) {
+                            a.setGwasMgiGeneId(mapKey);
+                            beans.add(a);
+                        }
+                        break;
                     case GwasDTO.MGI_GENE_SYMBOL:
                         mapKey = gw.getMgiGeneSymbol();
                         if (gwasMgiGeneSymbolSet.add(mapKey)) {
@@ -1082,14 +1097,14 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
                         }
                         break;
                     case GwasDTO.MP_TERM_ID:
-                    	mapKey = gw.getMpTermId();
+                        mapKey = gw.getMpTermId();
                         if (gwasMpIdSet.add(mapKey)) {
                             a.setGwasMpTermId(mapKey);
                             beans.add(a);
                         }
                         break;
                     case GwasDTO.MP_TERM_NAME:
-                    	mapKey = gw.getMpTermName();
+                        mapKey = gw.getMpTermName();
                         if (gwasMpTermSet.add(mapKey)) {
                             a.setGwasMpTermName(mapKey);
                             beans.add(a);
@@ -1103,7 +1118,7 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
                         }
                         break;
                     case GwasDTO.SNP_ID:
-                    	mapKey = gw.getSnpId();
+                        mapKey = gw.getSnpId();
                         if (gwasSnipIdSet.add(mapKey)) {
                             a.setGwasSnpId(mapKey);
                             beans.add(a);
@@ -1111,42 +1126,42 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
                         break;
                     case GwasDTO.REPORTED_GENE:
                         if ( !gw.getReportedGene().isEmpty()) {
-                        	mapKey = gw.getReportedGene();
+                            mapKey = gw.getReportedGene();
                             if (gwasReportedGeneSymbolSet.add(mapKey)) {
-                            	a.setGwasReportedGene(mapKey);
+                                a.setGwasReportedGene(mapKey);
                                 beans.add(a);
                             }
                         }
                         break;
 
                     case GwasDTO.MAPPED_GENE:
-                    	if ( !gw.getMappedGene().isEmpty()) {
-	                    	mapKey = gw.getMappedGene();
-	                        if (gwasMappedGeneSymbolSet.add(mapKey)) {
-	                        	a.setGwasMappedGene(mapKey);
-	                            beans.add(a);
-	                        }
-                    	}
-                    	break;
+                        if ( !gw.getMappedGene().isEmpty()) {
+                            mapKey = gw.getMappedGene();
+                            if (gwasMappedGeneSymbolSet.add(mapKey)) {
+                                a.setGwasMappedGene(mapKey);
+                                beans.add(a);
+                            }
+                        }
+                        break;
 
                     case GwasDTO.DOWNSTREAM_GENE:
-                    	if ( !gw.getDownstreamGene().isEmpty()) {
-	                    	mapKey = gw.getDownstreamGene();
-	                        if (gwasDownstreamGeneSymbolSet.add(mapKey)) {
-	                        	a.setGwasDownstreamGene(mapKey);
-	                            beans.add(a);
-	                        }
-                    	}
-                    	break;
+                        if ( !gw.getDownstreamGene().isEmpty()) {
+                            mapKey = gw.getDownstreamGene();
+                            if (gwasDownstreamGeneSymbolSet.add(mapKey)) {
+                                a.setGwasDownstreamGene(mapKey);
+                                beans.add(a);
+                            }
+                        }
+                        break;
                     case GwasDTO.UPSTREAM_GENE:
-                    	if ( !gw.getUpstreamGene().isEmpty()) {
-	                    	mapKey = gw.getUpstreamGene();
-	                        if (gwasUpstreamGeneSymbolSet.add(mapKey)) {
-	                        	a.setGwasUpstreamGene(mapKey);
-	                            beans.add(a);
-	                        }
-                    	}
-                    	break;
+                        if ( !gw.getUpstreamGene().isEmpty()) {
+                            mapKey = gw.getUpstreamGene();
+                            if (gwasUpstreamGeneSymbolSet.add(mapKey)) {
+                                a.setGwasUpstreamGene(mapKey);
+                                beans.add(a);
+                            }
+                        }
+                        break;
                 }
             }
 

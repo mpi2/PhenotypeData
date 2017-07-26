@@ -1,10 +1,7 @@
 package uk.ac.ebi.phenotype.service;
 
-import static org.junit.Assert.*;
-
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.net.URISyntaxException;
 import java.util.*;
 
 import org.apache.solr.client.solrj.SolrClient;
@@ -12,7 +9,6 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.solr.service.PostQcService;
 import org.neo4j.ogm.session.Session;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,25 +17,12 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import org.mousephenotype.cda.neo4j.entity.Allele;
-import org.mousephenotype.cda.neo4j.entity.DiseaseModel;
-import org.mousephenotype.cda.neo4j.entity.EnsemblGeneId;
-import org.mousephenotype.cda.neo4j.entity.Gene;
-import org.mousephenotype.cda.neo4j.entity.Hp;
-import org.mousephenotype.cda.neo4j.entity.HumanGeneSymbol;
-import org.mousephenotype.cda.neo4j.entity.MarkerSynonym;
-import org.mousephenotype.cda.neo4j.entity.MouseModel;
-import org.mousephenotype.cda.neo4j.entity.Mp;
-import org.mousephenotype.cda.neo4j.entity.OntoSynonym;
-import org.mousephenotype.cda.neo4j.entity.StatisticalResult;
 import org.neo4j.ogm.model.Result;
-import org.neo4j.ogm.session.Session;
-
-
-import net.sf.json.JSONObject;
+import uk.ac.ebi.phenotype.web.Neo4jConfig;
+import uk.ac.ebi.phenotype.web.TestAdvancedSearchConfig;
 
 @RunWith(SpringRunner.class)
-@ContextConfiguration(classes={TestAdvancedSearchConfig.class})
+@ContextConfiguration(classes={TestAdvancedSearchConfig.class, Neo4jConfig.class})
 @TestPropertySource(locations = {"file:${user.home}/configfiles/${profile:dev}/test.properties"})
 public class AdvancedSearchServiceTest {
 
@@ -85,6 +68,16 @@ public class AdvancedSearchServiceTest {
         Result result = (Result) objects.get(0);
 
         // do something with the result
+        for (Map<String,Object> row : result) {
+            for (Map.Entry<String, Object> entry : row.entrySet()) {
+                if (entry.getValue() != null && ! entry.getValue().toString().startsWith("[Ljava.lang.Object")) {
+                    List<Object> objs = (List<Object>) entry.getValue();
+
+                    System.out.println(entry.getKey() + " -- " + objs.size());
+                }
+            }
+        }
+
 
     }
 

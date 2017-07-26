@@ -392,22 +392,6 @@ public class AdvancedSearchService {
 
     public List<Object> fetchGraphDataAdvSrchResult(AdvancedSearchPhenotypeForm mpForm, AdvancedSearchGeneForm geneForm, AdvancedSearchDiseaseForm diseaseForm, String fileType) throws IOException, SolrServerException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InterruptedException {
 
-//        // test neo4j
-//        Result result1 = neo4jSession.query("MATCH (g:Gene) return count g", null);
-//
-//        for (Map<String,Object> row : result1) {
-////
-//            System.out.println(row.toString());
-//            System.out.println("cols: " + row.size());
-////            Thread.sleep(10000);
-//            for (Map.Entry<String, Object> entry : row.entrySet()) {
-//                if (entry.getValue() != null && ! entry.getValue().toString().startsWith("[Ljava.lang.Object")) {
-//                    System.out.println("---------- " + entry.getKey() + " / " + entry.getValue());
-//                    System.out.println("---------- " + entry.getKey() + " / " +  entry.getValue().toString());
-//                }
-//            }
-//        }
-
         String sortStr = " ORDER BY g.markerSymbol ";
         String query = null;
 
