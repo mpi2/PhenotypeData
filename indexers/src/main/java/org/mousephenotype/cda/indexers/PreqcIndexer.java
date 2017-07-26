@@ -523,7 +523,8 @@ public class PreqcIndexer extends AbstractIndexer implements CommandLineRunner {
                     if (tableName.equals("phenotype_procedure")) {
 						// Harwell does not include version in
                         // procedure_stable_id
-                        sid = sid.replaceAll("_\\d+$", "");
+                       String[] pieces = sid.split("_");
+                            sid = pieces[1];
                     }
 
                     mapping.put(sid, name);
