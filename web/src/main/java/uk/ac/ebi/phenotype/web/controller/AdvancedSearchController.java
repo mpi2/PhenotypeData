@@ -333,7 +333,7 @@ public class AdvancedSearchController {
         System.out.println("calling dataTableNeo4jAdvSrch");
 
         baseUrl = request.getAttribute("baseUrl").toString();
-        hostname = request.getAttribute("mappedHostname").toString();
+        hostname = "http:" + request.getAttribute("mappedHostname").toString();
 
         JSONObject jParams = (JSONObject) JSONSerializer.toJSON(params);
         System.out.println("jparams="+jParams.toString());
@@ -349,11 +349,8 @@ public class AdvancedSearchController {
         Map<String, List<String>> dataTypeColsMap = (Map<String, List<String>>) objects.get(2);
 
         JSONObject jcontent = advancedSearchService.parseGraphResult(result, mpForm, geneForm, diseaseForm, fileType, baseUrl, hostname, narrowOrSynonymMappingList, dataTypeColsMap);
-        System.out.println("--- " + jcontent.toString());
-        System.out.println("narrowSynonym or synonym Mapping msg: " + jcontent.get("narrowOrSynonymMapping"));
+        //System.out.println("narrowSynonym or synonym Mapping msg: " + jcontent.get("narrowOrSynonymMapping"));
         return new ResponseEntity<String>(jcontent.toString(), createResponseHeaders(), HttpStatus.CREATED);
-
-        //return new ResponseEntity<String>("test", createResponseHeaders(), HttpStatus.CREATED);
     }
 
 //    @RequestMapping(value = "/dataTableNeo4jBq", method = RequestMethod.POST)
