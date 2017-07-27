@@ -37,6 +37,7 @@ import org.mousephenotype.cda.solr.service.SolrIndex.AnnotNameValCount;
 import org.mousephenotype.cda.solr.service.dto.*;
 import org.mousephenotype.cda.solr.web.dto.SimpleOntoTerm;
 import org.mousephenotype.cda.utilities.CommonUtils;
+import org.neo4j.ogm.model.Result;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,6 +52,10 @@ import uk.ac.ebi.phenodigm.dao.PhenoDigmWebDao;
 import uk.ac.ebi.phenodigm.model.GeneIdentifier;
 import uk.ac.ebi.phenodigm.web.AssociationSummary;
 import uk.ac.ebi.phenodigm.web.DiseaseAssociationSummary;
+import uk.ac.ebi.phenotype.service.AdvancedSearchDiseaseForm;
+import uk.ac.ebi.phenotype.service.AdvancedSearchGeneForm;
+import uk.ac.ebi.phenotype.service.AdvancedSearchPhenotypeForm;
+import uk.ac.ebi.phenotype.service.AdvancedSearchService;
 import uk.ac.ebi.phenotype.web.util.FileExportUtils;
 
 import javax.annotation.Resource;
@@ -123,6 +128,10 @@ public class FileExportController {
 	@Autowired
 	private AdvancedSearchController advancedSearchController;
 
+	@Autowired
+	private AdvancedSearchService advancedSearchService;
+
+
 	private String hostname = null;
 	private String baseUrl = null;
 
@@ -144,14 +153,24 @@ public class FileExportController {
 		System.out.println("hostname: " + hostname);
 
 		JSONObject jParams = (JSONObject) JSONSerializer.toJSON(params);
-		jParams.put("baseUrl", baseUrl);
-		jParams.put("hostname", hostname);
 
 		System.out.println(fileName);
 		System.out.println(fileType);
 		System.out.println(jParams.toString());
 
-		JSONObject jcontent = advancedSearchController.fetchGraphDataAdvSrch(jParams, fileType);
+		AdvancedSearchPhenotypeForm mpForm = advancedSearchService.parsePhenotypeForm(jParams);
+		AdvancedSearchGeneForm geneForm = advancedSearchService.parseGeneForm(jParams);
+		AdvancedSearchDiseaseForm diseaseForm = advancedSearchService.parseDiseaseForm(jParams);
+
+		List<Object> objects = advancedSearchService.fetchGraphDataAdvSrchResult(mpForm, geneForm, diseaseForm, fileType);
+		Result result = (Result) objects.get(0);
+		List<String> narrowOrSynonymMappingList = (List<String>) objects.get(1);
+		Map<String, List<String>> dataTypeColsMap = (Map<String, List<String>>) objects.get(2);
+
+		JSONObject jcontent = advancedSearchService.parseGraphResult(result, mpForm, geneForm, diseaseForm, fileType, baseUrl, hostname, narrowOrSynonymMappingList, dataTypeColsMap);
+
+		System.out.println("narrowSynonym or synonym Mapping msg: " + jcontent.get("narrowOrSynonymMapping"));
+
 		String narrowOrSynonymMapping = jcontent.get("narrowOrSynonymMapping").equals("") ? "" : "\n\nNOTE: " + jcontent.get("narrowOrSynonymMapping");
 		String filters = "Search filters: " + jParams.getString("shownFilter") + narrowOrSynonymMapping;
 
@@ -185,7 +204,7 @@ public class FileExportController {
 			@RequestParam(value = "sex", required = false) String[] sexesParameter,
 			@RequestParam(value = "zygosity", required = false) String[] zygositiesParameter,
 			@RequestParam(value = "strain", required = false) String strainParameter)
-					throws SolrServerException, IOException , URISyntaxException {
+			throws SolrServerException, IOException , URISyntaxException {
 
 		if (alleleAccession!=null) {
 			alleleAccessionId = alleleAccession;
@@ -209,7 +228,7 @@ public class FileExportController {
 
 		List<String> rows = new ArrayList<>();
 		rows.add(StringUtils.join(new String[] { "Experiment", "Center", "Pipeline", "Procedure", "Parameter", "Strain",
-				"Colony", "Gene", "Allele", "MetadataGroup", "Zygosity", "Sex", "AssayDate", "Value", "Metadata", "Weight" },
+						"Colony", "Gene", "Allele", "MetadataGroup", "Zygosity", "Sex", "AssayDate", "Value", "Metadata", "Weight" },
 				","));
 
 		Integer i = 1;
@@ -258,20 +277,20 @@ public class FileExportController {
 
 	@RequestMapping(value = "/export2", method = RequestMethod.GET)
 	public void exportTableAsExcelTsv2(
-		// used for search Version 2
-		@RequestParam(value = "kw", required = true) String query,
-		@RequestParam(value = "id", required = false) String id,
-		@RequestParam(value = "fq", required = false) String fqStr,
-		@RequestParam(value = "dataType", required = true) String dataType,
-		@RequestParam(value = "mode", required = false) String mode,
-		@RequestParam(value = "filter", required = false) String filter,
-		@RequestParam(value = "fileType", required = true) String fileType,
-		@RequestParam(value = "fileName", required = true) String fileName,
-		@RequestParam(value = "showImgView", required = false, defaultValue = "false") Boolean showImgView,
-		@RequestParam(value = "iDisplayStart", required = true) Integer iDisplayStart,
-		@RequestParam(value = "iDisplayLength", required = true) Integer iDisplayLength,
-		@RequestParam(value = "consortium", required = false) Boolean consortium,
-		HttpServletRequest request, HttpServletResponse response, Model model) throws Exception {
+			// used for search Version 2
+			@RequestParam(value = "kw", required = true) String query,
+			@RequestParam(value = "id", required = false) String id,
+			@RequestParam(value = "fq", required = false) String fqStr,
+			@RequestParam(value = "dataType", required = true) String dataType,
+			@RequestParam(value = "mode", required = false) String mode,
+			@RequestParam(value = "filter", required = false) String filter,
+			@RequestParam(value = "fileType", required = true) String fileType,
+			@RequestParam(value = "fileName", required = true) String fileName,
+			@RequestParam(value = "showImgView", required = false, defaultValue = "false") Boolean showImgView,
+			@RequestParam(value = "iDisplayStart", required = true) Integer iDisplayStart,
+			@RequestParam(value = "iDisplayLength", required = true) Integer iDisplayLength,
+			@RequestParam(value = "consortium", required = false) Boolean consortium,
+			HttpServletRequest request, HttpServletResponse response, Model model) throws Exception {
 
 		hostName = request.getAttribute("mappedHostname").toString().replace("https:", "http:");
 		Boolean legacyOnly = false;
@@ -305,7 +324,7 @@ public class FileExportController {
 				int rows = 1000;
 				int cycles = (int) Math.ceil(iDisplayLength / 1000.0); // do 1000 per cycle
 
-					for (int i = 0; i < cycles; i++) {
+				for (int i = 0; i < cycles; i++) {
 
 					iDisplayStart = i * rows;
 					if (cycles - 1 == i) {
@@ -387,7 +406,7 @@ public class FileExportController {
 			@RequestParam(value = "doAlleleRef", required = false, defaultValue = "false") Boolean doAlleleRef,
 			@RequestParam(value = "filterStr", required = false) String filterStr, HttpSession session,
 			HttpServletRequest request, HttpServletResponse response, Model model)
-		throws Exception {
+			throws Exception {
 
 		hostName = request.getAttribute("mappedHostname").toString().replace("https:", "http:");
 
@@ -466,9 +485,9 @@ public class FileExportController {
 
 
 	public List<String> composeExperimentDataExportRows(String[] parameterStableId, String[] geneAccession,
-			String allele[], String gender, List<String> phenotypingCenters, List<String> zygosity,
-			String[] strain, String[] pipelines)
-					throws SolrServerException, IOException , URISyntaxException, SQLException {
+														String allele[], String gender, List<String> phenotypingCenters, List<String> zygosity,
+														String[] strain, String[] pipelines)
+			throws SolrServerException, IOException , URISyntaxException, SQLException {
 
 		List<String> rows = new ArrayList<>();
 		SexType sex = null;
@@ -523,8 +542,8 @@ public class FileExportController {
 	}
 
 	public List<String> composeDataTableExportRows(String query, String solrCoreName, JSONObject json,
-			Integer iDisplayStart, Integer iDisplayLength, boolean showImgView, String solrParams,
-			HttpServletRequest request, boolean legacyOnly, String fqStr) throws IOException, URISyntaxException {
+												   Integer iDisplayStart, Integer iDisplayLength, boolean showImgView, String solrParams,
+												   HttpServletRequest request, boolean legacyOnly, String fqStr) throws IOException, URISyntaxException {
 		List<String> rows = null;
 
 		if (solrCoreName.equals("gene")) {
@@ -555,10 +574,10 @@ public class FileExportController {
 
 		String impressBaseUrl = request.getAttribute("drupalBaseUrl").toString().replace("https", "http")
 				+ "/impress/protocol/";
-		
+
 		List<String> rowData = new ArrayList<>();
 		rowData.add("Parameter\tProcedure\tProcedure Impress link\tPipeline"); // column
-																				// names
+		// names
 
 		for (int i = 0; i < docs.size(); i++) {
 			List<String> data = new ArrayList<>();
@@ -592,7 +611,7 @@ public class FileExportController {
 	}
 
 	private List<String> composeImageDataTableRows(String query, JSONObject json, Integer iDisplayStart,
-			Integer iDisplayLength, boolean showImgView, String solrParams, HttpServletRequest request) {
+												   Integer iDisplayLength, boolean showImgView, String solrParams, HttpServletRequest request) {
 		// System.out.println("query: "+ query + " -- "+ solrParams);
 
 		String mediaBaseUrl = config.get("mediaBaseUrl").replace("https:", "http:");
@@ -607,7 +626,7 @@ public class FileExportController {
 
 			JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
 			rowData.add("Annotation term\tAnnotation id\tAnnotation id link\tImage link"); // column
-																							// names
+			// names
 
 			for (int i = 0; i < docs.size(); i++) {
 
@@ -675,7 +694,7 @@ public class FileExportController {
 				}
 
 				data.add(termLists.size() == 0 ? NO_INFO_MSG : StringUtils.join(termLists, "|")); // term
-																									// names
+				// names
 				data.add(StringUtils.join(lists, "|"));
 				data.add(StringUtils.join(link_lists, "|"));
 
@@ -688,7 +707,7 @@ public class FileExportController {
 			// annotation view: images group by annotationTerm per row
 			rowData.add(
 					"Annotation type\tAnnotation term\tAnnotation id\tAnnotation id link\tRelated image count\tImages link"); // column
-																																// names
+			// names
 			JSONObject facetFields = json.getJSONObject("facet_counts").getJSONObject("facet_fields");
 
 			JSONArray sumFacets = solrIndex.mergeFacets(facetFields);
@@ -697,7 +716,7 @@ public class FileExportController {
 			int quotient = (numFacets / 2) / iDisplayLength - ((numFacets / 2) % iDisplayLength) / iDisplayLength;
 			int remainder = (numFacets / 2) % iDisplayLength;
 			int start = iDisplayStart * 2; // 2 elements(name, count), hence
-											// multiply by 2
+			// multiply by 2
 			int end = iDisplayStart == quotient * iDisplayLength ? (iDisplayStart + remainder) * 2
 					: (iDisplayStart + iDisplayLength) * 2;
 
@@ -740,15 +759,15 @@ public class FileExportController {
 	}
 
 	private List<String> composeImpcImageDataTableRows(String query, JSONObject json, Integer iDisplayStart,
-			Integer iDisplayLength, boolean showImgView, String fqStrOri, HttpServletRequest request)
-					throws IOException, URISyntaxException {
+													   Integer iDisplayLength, boolean showImgView, String fqStrOri, HttpServletRequest request)
+			throws IOException, URISyntaxException {
 
 		//System.out.println("***JSON: "+json.toString());
 		// currently just use the solr field value
 		// String mediaBaseUrl = config.get("impcMediaBaseUrl").replace("https:", "http:");
 		List<String> rowData = new ArrayList<>();
 
-        //String mediaBaseUrl = config.get("mediaBaseUrl");
+		//String mediaBaseUrl = config.get("mediaBaseUrl");
 
 		String baseUrl = request.getAttribute("baseUrl").toString();
 		String maBaseUrl = baseUrl + "/anatomy/";
@@ -825,7 +844,7 @@ public class FileExportController {
 
 			rowData.add(
 					"Annotation type\tAnnotation term\tAnnotation id\tAnnotation id link\tRelated image count\tImages link"); // column
-																																// name
+			// name
 			String defaultQStr = "observation_type:image_record&qf=imgQf&defType=edismax";
 
 			if (query != "") {
@@ -839,7 +858,7 @@ public class FileExportController {
 
 			int numFacets = annots.size();
 			int start = iDisplayStart; // 2 elements(name, count), hence
-										// multiply by 2
+			// multiply by 2
 			int end = iDisplayStart + iDisplayLength;
 			end = end > numFacets ? numFacets : end;
 
@@ -986,7 +1005,7 @@ public class FileExportController {
 						"\tMouse anatomy synonym" +
 						"\tStage" +
 						"\tLacZ Expression Images"); // column
-																																						// names
+		// names
 
 		for (int i = 0; i < docs.size(); i++) {
 			List<String> data = new ArrayList<>();
@@ -1031,11 +1050,11 @@ public class FileExportController {
 		List<String> rowData = new ArrayList<>();
 		rowData.add( // columns
 				"Allele name"
-				+ "\tMutation Type"
-				+ "\tVector map"
-				+ "\tOrder Targeting vector"
-				+ "\tOrder ES cell"
-				+ "\tOrder Mouse"
+						+ "\tMutation Type"
+						+ "\tVector map"
+						+ "\tOrder Targeting vector"
+						+ "\tOrder ES cell"
+						+ "\tOrder Mouse"
 		);
 
 //		System.out.println("No. docs: "+docs.size());
@@ -1091,7 +1110,7 @@ public class FileExportController {
 
 		rowData.add(
 				"Gene symbol\tHuman ortholog\tGene id\tGene name\tGene synonym\tProduction status\tPhenotype status\tPhenotype status link"); // column
-																																				// names
+		// names
 
 		for (int i = 0; i < docs.size(); i++) {
 			List<String> data = new ArrayList<>();
@@ -1135,16 +1154,16 @@ public class FileExportController {
 					synData.add(syn.getString(s));
 				}
 				data.add(StringUtils.join(synData, "|")); // use | as a
-															// multiValue
-															// separator in CSV
-															// output
+				// multiValue
+				// separator in CSV
+				// output
 			} else {
 				data.add(NO_INFO_MSG);
 			}
 
 			// ES/Mice production status
 			boolean toExport = true;
-            String mgiId = doc.getString(GeneDTO.MGI_ACCESSION_ID);
+			String mgiId = doc.getString(GeneDTO.MGI_ACCESSION_ID);
 			String genePageUrl = request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl").toString() + "/genes/" + mgiId;
 			String prodStatus = geneService.getProductionStatusForEsCellAndMice(doc, genePageUrl, toExport);
 
@@ -1383,9 +1402,9 @@ public class FileExportController {
 		return rowData;
 	}
 
-	
+
 	private List<String> composeGene2GoAnnotationDataRows(JSONObject json, HttpServletRequest request,
-			boolean hasgoterm, boolean gocollapse) {
+														  boolean hasgoterm, boolean gocollapse) {
 
 		JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
 		// System.out.println(" GOT " + docs.size() + " docs");
@@ -1512,7 +1531,7 @@ public class FileExportController {
 	}
 
 	private List<String> fetchImpc2GwasMappingData(HttpServletRequest request, String mgiGeneSymbol, String gridFields,
-			String currentTraitName) throws SQLException {
+												   String currentTraitName) throws SQLException {
 		// GWAS Gene to IMPC gene mapping
 		List<GwasDTO> gwasMappings = gwasDao.getGwasMappingRows("mgi_gene_symbol", mgiGeneSymbol.toUpperCase());
 
@@ -1564,7 +1583,7 @@ public class FileExportController {
 			@RequestParam(value = "idList", required = true) String idlist,
 			@RequestParam(value = "gridFields", required = true) String gridFields,
 
-		HttpSession session, HttpServletRequest request, HttpServletResponse response, Model model) throws Exception {
+			HttpSession session, HttpServletRequest request, HttpServletResponse response, Model model) throws Exception {
 		List<String> queryIds = Arrays.asList(idlist.split(","));
 		List<QueryResponse> solrResponses = new ArrayList<>();
 		List<String> batchIdList = new ArrayList<>();
@@ -1641,7 +1660,7 @@ public class FileExportController {
 	}
 
 	private List<String> composeBatchQueryDataTableRows(List<QueryResponse> solrResponses, String dataTypeName,
-			String gridFields, HttpServletRequest request, List<String> queryIds) throws UnsupportedEncodingException {
+														String gridFields, HttpServletRequest request, List<String> queryIds) throws UnsupportedEncodingException {
 
 		Set<String> foundIds = new HashSet<>();
 
@@ -1699,8 +1718,8 @@ public class FileExportController {
 		// String idLinkColName = dataTypeId.get(dataType) + "_link";
 		String idLinkColName = "id_link";
 		gridFields = idLinkColName + "," + gridFields; // xx_id_link column only
-														// for export, not
-														// dataTable
+		// for export, not
+		// dataTable
 
 		String[] cols = StringUtils.split(gridFields, ",");
 
@@ -1724,10 +1743,10 @@ public class FileExportController {
 			SolrDocument doc = results.get(i);
 
 			Map<String, Collection<Object>> docMap = doc.getFieldValuesMap(); // Note
-																				// getFieldValueMap()
-																				// returns
-																				// only
-																				// String
+			// getFieldValueMap()
+			// returns
+			// only
+			// String
 			// System.out.println("DOCMAP: "+docMap.toString());
 
 			List<String> orthologousDiseaseIdAssociations = new ArrayList<>();
@@ -1770,7 +1789,7 @@ public class FileExportController {
 			// for (String fieldName : doc.getFieldNames()) {
 			for (int k = 0; k < cols.length; k++) {
 				String fieldName = cols[k];
-				 //System.out.println("DataTableController: "+ fieldName + " - value: " + docMap.get(fieldName));
+				//System.out.println("DataTableController: "+ fieldName + " - value: " + docMap.get(fieldName));
 
 				if (fieldName.equals("id_link")) {
 
@@ -1779,7 +1798,7 @@ public class FileExportController {
 					for (Object acc : accs) {
 						accStr = (String) acc;
 					}
-					 //System.out.println("idlink id: " + accStr);
+					//System.out.println("idlink id: " + accStr);
 
 					if (!oriDataTypeName.equals("ensembl") && !dataTypeName.equals("marker_symbol")) {
 						foundIds.add("\"" + accStr + "\"");
