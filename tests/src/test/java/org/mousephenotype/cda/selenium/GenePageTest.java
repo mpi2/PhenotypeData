@@ -429,6 +429,20 @@ public class GenePageTest {
     }
 
     /**
+     * Tests specific gene pages that have historically thrown errors because of bugs but should work.
+     *
+     * @throws SolrServerException, IOException
+     */
+    @Test
+@Ignore
+    public void testPageForSpecificGeneIds() throws SolrServerException, IOException {
+        String testName = "testPageForGeneIds";
+        List<String> geneIds = Arrays.asList(new String[] { "MGI:2385191" });
+
+        geneIdsTestEngine(testName, geneIds);
+    }
+
+    /**
      * Tests that a sensible page is returned for an invalid gene id.
      *
      * @throws SolrServerException
