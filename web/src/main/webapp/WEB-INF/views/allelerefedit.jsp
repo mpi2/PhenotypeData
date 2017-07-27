@@ -444,6 +444,33 @@
    	            }
    	        });
 
+   		  	function revertValues(thisObj, pmid){
+                // then fetch original values to replace users
+                textarea = thisObj.siblings('textarea');
+
+                $.ajax({
+                    method: "post",
+                    url: baseUrl + "/fetchAlleleRefPmidData?pmid=" + pmid,
+                    success: function (jsonStr) {
+                        //alert(jsonStr);
+                        var j = JSON.parse(jsonStr);
+                        var isReviewed = j.reviewed=='yes' ? true : false;
+                        thisObj.siblings("input[name='reviewed']").prop('checked', isReviewed);
+
+                        var isFalsepositive = j.falsepositive =='yes' ? true : false;
+                        thisObj.siblings("input[name='falsepositive']").prop('checked', isFalsepositive);
+
+                        var isConsortiumPaper = j.consortium_paper=='yes' ? true : false;
+                        thisObj.siblings("input[name='consortium_paper']").prop('checked', isConsortiumPaper);
+
+                        textarea.val(j.symbol == "" ? defaultLabel : j.symbol);
+                    },
+                    error: function () {
+                        alert('AJAX error trying to reset allele info');
+                    }
+                });
+			}
+
 			function submitAlleleSymbol(thisObj, defaultLabel, currSymbol){
 				textarea = thisObj.siblings('textarea');
 
@@ -456,34 +483,19 @@
 
 				var symbolVal = textarea.val();
 
-				if ( (symbolVal == "" || symbolVal == defaultLabel) && reviewed != 'yes' && falsepositive != 'yes') {
+				if ( (symbolVal == "" || symbolVal == defaultLabel) && reviewed == 'no' && falsepositive == 'no') {
 					alert("Sorry, allele symbol is missing");
 					textarea.val(defaultLabel);
 				}
-				else if (symbolVal != "" && reviewed == 'yes' && falsepositive == 'yes') {
-					alert("Sorry, you cannot set a symbol and make it as false positive");
+				else if (reviewed == 'yes' && falsepositive == 'yes') {
+					alert("Sorry, you cannot set a paper as reviewed and make it false positive");
 
 					// then fetch original values to replace users
-					$.ajax({
-						method: "post",
-						url: baseUrl + "/fetchAlleleRefPmidData?pmid=" + pmid,
-						success: function (jsonStr) {
-							//alert(jsonStr);
-							var j = JSON.parse(jsonStr);
-							var isReviewed = j.reviewed=='yes' ? true : false;
-							thisObj.siblings("input[name='reviewed']").prop('checked', isReviewed);
-
-							var isFalsepositive = j.falsepositive =='yes' ? true : false;
-							thisObj.siblings("input[name='falsepositive']").prop('checked', isFalsepositive);
-							textarea.val(j.symbol == "" ? defaultLabel : j.symbol);
-						},
-						error: function () {
-							alert('AJAX error trying to reset allele info');
-						}
-					});
+                    revertValues(thisObj, pmid);
 				}
-                else if (consortium_paper == 'yes' && (reviewed == 'no' || falsepositive == 'yes')){
-                    alert("Sorry, you cannot set a consortium paper as false positive or not reviewed");
+                else if (consortium_paper == 'yes' && falsepositive == 'yes'){
+                    alert("Sorry, you cannot set consortium paper as TRUE and make it falsepositive");
+                    revertValues(thisObj, pmid);
                 }
 				else {
 

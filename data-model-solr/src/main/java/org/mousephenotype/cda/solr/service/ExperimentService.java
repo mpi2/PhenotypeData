@@ -532,6 +532,8 @@ public class ExperimentService{
         		experiment.getHomozygoteMutants().addAll(exp.getHomozygoteMutants());
         		experiment.getHeterozygoteMutants().addAll(exp.getHeterozygoteMutants());
         		experiment.getHemizygoteMutants().addAll(exp.getHemizygoteMutants());
+
+        		experiment.getSexes().addAll(exp.getSexes());
         		
         	}
         }else{
