@@ -24,6 +24,7 @@ import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.mousephenotype.cda.enumerations.BiologicalSampleType;
+import org.mousephenotype.cda.enumerations.Expression;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.SolrUtils;
@@ -389,7 +390,24 @@ public class ImageService implements WebStatus{
 		return response;
 	}
 
-	public QueryResponse getImagesForGeneByParameter(String mgiAccession, String parameterStableId,
+	/**
+	 * get images and filter by many properties - main method used by comparison viewer
+	 * @param mgiAccession
+	 * @param parameterStableId
+	 * @param experimentOrControl
+	 * @param numberOfImagesToRetrieve
+	 * @param sex
+	 * @param metadataGroup
+	 * @param strain
+	 * @param anatomyId
+	 * @param parameterAssociationValue
+	 * @param mpId
+	 * @param colonyId
+	 * @return
+	 * @throws SolrServerException
+	 * @throws IOException
+	 */
+	public QueryResponse getImages(String mgiAccession, String parameterStableId,
 			String experimentOrControl, int numberOfImagesToRetrieve, SexType sex,
 			String metadataGroup, String strain, String anatomyId,
 			String parameterAssociationValue, String mpId, String colonyId) throws SolrServerException, IOException {
@@ -417,7 +435,7 @@ public class ImageService implements WebStatus{
 		}
 		if (StringUtils.isNotEmpty(parameterAssociationValue)) {
 			solrQuery.addFilterQuery(ObservationDTO.PARAMETER_ASSOCIATION_VALUE + ":"
-					+ parameterAssociationValue);
+					+ "\""+parameterAssociationValue+"\"");//put in quotes for "no expression" query
 		}
 		if(StringUtils.isNotEmpty(anatomyId)){
 			solrQuery.addFilterQuery(ObservationDTO.ANATOMY_ID + ":\""
@@ -437,7 +455,7 @@ public class ImageService implements WebStatus{
 		}
 		
 		solrQuery.setRows(numberOfImagesToRetrieve);
-		logger.debug("solr Query in image service"+solrQuery);
+		System.out.println("solr Query in image service"+solrQuery);
 		QueryResponse response = solr.query(solrQuery);
 		return response;
 	}
@@ -638,11 +656,12 @@ public class ImageService implements WebStatus{
 	 *
 	 * @param numberOfImagesToRetrieve
 	 * @param parameterStableId TODO
+	 * @param expression TODO
 	 * @param anatomy if this is specified then filter by parameter_association_name and don't filter on date
 	 * @return
 	 * @throws SolrServerException, IOException
 	 */
-	public QueryResponse getControlImagesForExpressionData(int numberOfImagesToRetrieve, String parameterStableId, String anatomyId) throws SolrServerException, IOException {
+	public QueryResponse getControlImagesForExpressionData(int numberOfImagesToRetrieve, String parameterStableId, String anatomyId, String parameterAssociationValue) throws SolrServerException, IOException {
 
 		SolrQuery solrQuery = new SolrQuery();
 
@@ -650,6 +669,10 @@ public class ImageService implements WebStatus{
 
 		solrQuery.addFilterQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP
 				+ ":control");
+		if(parameterAssociationValue!=null){
+		solrQuery.addFilterQuery(ObservationDTO.PARAMETER_ASSOCIATION_VALUE
+				+ ":\""+parameterAssociationValue+"\"");
+		}
 		if (StringUtils.isNotEmpty(anatomyId)) {
 			//note - parameter_associations are already handled by the addOntology method in the ImpcImagesIndexer and are anatomy_id associated already.
 			solrQuery.addFilterQuery(ObservationDTO.ANATOMY_ID + ":\""
@@ -662,6 +685,7 @@ public class ImageService implements WebStatus{
 					+ parameterStableId+"\"");
 		}
 		solrQuery.setRows(numberOfImagesToRetrieve);
+		System.out.println("solr query for expression images="+solrQuery);
 		QueryResponse response = solr.query(solrQuery);
 
 		return response;
@@ -759,30 +783,36 @@ public class ImageService implements WebStatus{
 	 * @param parameterStableId TODO
 	 * @param anatomy
 	 *            TODO
+	 * @param expression TODO
 	 * @return solr document list, now updated to include all appropriate
 	 *         control images
 	 * @throws SolrServerException, IOException
 	 */
 	public List<ImageDTO> getControls(int numberOfControls, SexType sex,
-			ImageDTO imgDoc, String parameterStableId, String anatomy) throws SolrServerException, IOException {
+			ImageDTO imgDoc, String parameterStableId, String anatomy, String parameterAssociationValue) throws SolrServerException, IOException {
 		List<ImageDTO> list = new ArrayList<>();
-		final String metadataGroup = imgDoc.getMetadataGroup();
-				
-		final String center = imgDoc.getPhenotypingCenter();
-		final String strain = imgDoc.getStrainName();
-		final String procedureName = imgDoc.getProcedureName();
-		final String parameter = imgDoc.getParameterStableId();
-		final Date date = (Date) imgDoc.getDateOfExperiment();
+		
 
 
 		QueryResponse responseControl =null;
 		if(StringUtils.isNotEmpty(anatomy)){
-			responseControl=this.getControlImagesForExpressionData(numberOfControls, parameterStableId, anatomy);
+			responseControl=this.getControlImagesForExpressionData(numberOfControls, parameterStableId, anatomy, parameterAssociationValue);
 		}else{
+			if(imgDoc!=null){
+			final String metadataGroup = imgDoc.getMetadataGroup();
+			
+			final String center = imgDoc.getPhenotypingCenter();
+			final String strain = imgDoc.getStrainName();
+			final String procedureName = imgDoc.getProcedureName();
+			final String parameter = imgDoc.getParameterStableId();
+			final Date date = (Date) imgDoc.getDateOfExperiment();
 			responseControl=this.getControlImagesForProcedure(metadataGroup, center, strain, procedureName, parameter, date, numberOfControls, sex);
+			}
 		}
 
-		list.addAll(responseControl.getBeans(ImageDTO.class));
+		if(responseControl!=null && responseControl.getResults().size()>0){
+			list.addAll(responseControl.getBeans(ImageDTO.class));
+		}
 
 		return list;
 	}
@@ -853,7 +883,7 @@ public class ImageService implements WebStatus{
 					if (!count.getName().equals(excludedProcedureName)) {
 						logger.info("balh");
 						QueryResponse responseExperimental = this
-								.getImagesForGeneByParameter(acc,count.getName(),
+								.getImages(acc,count.getName(),
 										"experimental", 1,null, null,
 										null, anatomyId, null, null, null);
 						if (responseExperimental.getResults().size() > 0) {
@@ -861,7 +891,7 @@ public class ImageService implements WebStatus{
 							ImageDTO imgDoc = responseExperimental
 									.getBeans(ImageDTO.class).get(0);
 							QueryResponse responseExperimental2 = this
-									.getImagesForGeneByParameter(
+									.getImages(
 											acc, imgDoc
 													.getParameterStableId(),
 											"experimental",
@@ -875,7 +905,7 @@ public class ImageService implements WebStatus{
 											null, null, null);
 
 							list = getControls(numberOfControls, null, imgDoc,
-									null, null);
+									null, null, null);
 
 							if (responseExperimental2 != null) {
 								list.addAll(responseExperimental2.getBeans(ImageDTO.class));
@@ -1112,11 +1142,11 @@ public class ImageService implements WebStatus{
 
 	
 	public List<ImageDTO> getMutantImagesForComparisonViewer(String acc, String parameterStableId, String parameterAssociationValue,
-			String anatomyId, String zygosity, String colonyId, String mpId, SexType sexType)
+			String anatomyId, String zygosity, String colonyId, String mpId, SexType sexType, String organ)
 			throws SolrServerException, IOException {
 		List<ImageDTO> mutants=new ArrayList<>();
-		QueryResponse responseExperimental = this
-				.getImagesForGeneByParameter(acc, parameterStableId,"experimental", Integer.MAX_VALUE, 
+	
+		QueryResponse responseExperimental = this.getImages(acc, parameterStableId,"experimental", Integer.MAX_VALUE, 
 						null, null, null, anatomyId, parameterAssociationValue, mpId, colonyId);
 		
 		if (responseExperimental != null && responseExperimental.getResults().size()>0) {
@@ -1129,6 +1159,16 @@ public class ImageService implements WebStatus{
 		
 		
 		List<ImageDTO> filteredMutants = filterMutantsBySex(mutants, sexType);
+		
+//		if(expression!=null && organ!=null){//we will need to filter by organ and expression so we match them up - can't do that with a solr query alone
+//			for(ImageDTO image:filteredMutants){
+//				if(image.getParameterAssociationValue()!=null){
+//					if(expression==Expression.EXPRESSION){
+//						
+//					}
+//				}
+//			}
+//		}
 		
 		List<ZygosityType> zygosityTypes=null;
 		if(zygosity!=null && !zygosity.equals("all")){
@@ -1175,20 +1215,19 @@ public class ImageService implements WebStatus{
 	}
 
 	public List<ImageDTO> getControlsBySexAndOthersForComparisonViewer(ImageDTO imgDoc, int numberOfControlsPerSex,
-			SexType sex, String parameterStableId, String anatomyId) throws SolrServerException, IOException {
-		
+			SexType sex, String parameterStableId, String anatomyId, String parameterAssociationValue)
+			throws SolrServerException, IOException {
+
 		List<ImageDTO> controls = new ArrayList<>();
-		Set<ImageDTO> uniqueControls=new HashSet<>();
-		if (imgDoc != null) {
-			
-				List<ImageDTO> controlsTemp = this.getControls(numberOfControlsPerSex, sex, imgDoc, parameterStableId,  anatomyId);
-				uniqueControls.addAll(controlsTemp);
-			
-		}
-		
-		
-			controls.addAll(uniqueControls);//add a unique set only so we don't have duplicate omero ids!!!
-		
+		Set<ImageDTO> uniqueControls = new HashSet<>();
+
+		List<ImageDTO> controlsTemp = this.getControls(numberOfControlsPerSex, sex, imgDoc, parameterStableId,
+				anatomyId, parameterAssociationValue);
+		uniqueControls.addAll(controlsTemp);
+
+		controls.addAll(uniqueControls);// add a unique set only so we don't
+										// have duplicate omero ids!!!
+
 		return controls;
 	}
 

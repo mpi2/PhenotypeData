@@ -38,6 +38,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.*;
 
@@ -103,18 +104,28 @@ public class ImageComparatorController {
 				e.printStackTrace();
 			}
 		}
+		
+		if (parameterAssociationValue != null) {
+			if (parameterAssociationValue.equalsIgnoreCase("all")) {
+
+				parameterAssociationValue = null;
+			}
+		}
+		
+		System.out.println("acc="+acc+", parameterStableId="+ parameterStableId+", parameterAssociationValue"+ parameterAssociationValue+", anatomyId="+ anatomyId+", zygosity="+
+				zygosity+", colonyId="+ colonyId+", mpId="+ mpId+", sex="+ sexType);
 		List<ImageDTO> filteredMutants = imageService.getMutantImagesForComparisonViewer(acc, parameterStableId, parameterAssociationValue, anatomyId,
-				zygosity, colonyId, mpId, sexType);
+				zygosity, colonyId, mpId, sexType,  null);
 		
 		ImageDTO imgDoc =null;
 		if (!filteredMutants.isEmpty()) {
 			imgDoc = filteredMutants.get(0);
 		}
 		//this filters controls by the sex and things like procedure and phenotyping center - based on first image - this may not be a good idea - there maybe multiple phenotyping centers for a procedure which woudln't show???
+		
 				List<ImageDTO> controls=null;
-				if(imgDoc!=null){
-				controls = imageService.getControlsBySexAndOthersForComparisonViewer(imgDoc, numberOfControlsPerSex, sexType, parameterStableId, anatomyId);
-				}
+								controls = imageService.getControlsBySexAndOthersForComparisonViewer(imgDoc, numberOfControlsPerSex, sexType, parameterStableId, anatomyId, parameterAssociationValue);
+				
 		
 
 		this.addGeneToPage(acc, model);
