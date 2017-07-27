@@ -764,7 +764,7 @@ public class GenesController {
 
 		List<FacetField> expressionfacets = solrExpressionR.getFacetFields();
 		if (expressionfacets == null) {
-			log.error("no expression facets from solr data source for acc=" + acc);
+			log.info("no expression facets from solr data source for acc=" + acc);
 			return;
 		}
 
