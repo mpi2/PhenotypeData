@@ -69,11 +69,15 @@ public class AdvancedSearchServiceTest {
 
         // do something with the result
         for (Map<String,Object> row : result) {
+        	//System.out.println("row="+row);
             for (Map.Entry<String, Object> entry : row.entrySet()) {
                 if (entry.getValue() != null && ! entry.getValue().toString().startsWith("[Ljava.lang.Object")) {
                     List<Object> objs = (List<Object>) entry.getValue();
 
                     System.out.println(entry.getKey() + " -- " + objs.size());
+                    //for(Object obj: objs){
+                    //System.out.println(obj);
+                    //}
                 }
             }
         }
