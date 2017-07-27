@@ -2505,17 +2505,38 @@ public class DataTableController {
 		String updateSql = "UPDATE allele_ref SET acc=?, gacc=?, symbol=?, reviewed=?, datasource=?, falsepositive=?, mesh=?, meshtree=?, consortium_paper=? WHERE dbid=?";
 
 		// when symbol is set to be empty, reviewed should have been set to "yes" by curator
-		if (reviewed.equals("yes") && (alleleSymbol.isEmpty() || alleleSymbol.equals("N/A"))) {
+
+		System.out.println("reviewed: "+ reviewed + " allelesymbol: " + alleleSymbol + " FP: "+ falsepositive);
+
+		if (reviewed.equals("yes") && (alleleSymbol.isEmpty() || alleleSymbol.equals(NA)) && falsepositive.equals("no")) {
+			System.out.println("case 1");
 			alleleSymbol = NA;
-			updatePaper(conn, updateSql, "", "", alleleSymbol, falsepositive, dbid, meshTerms, meshTree, consortium_paper);
+			updatePaper(conn, updateSql, "", "", NA, reviewed, falsepositive, dbid, meshTerms, meshTree, consortium_paper);
 			j.put("reviewed", "yes");
-			j.put("falsepositive", falsepositive.equals("yes") ? "yes" : "no");
-			j.put("symbol", NA);
-			j.put("consortium_paper", consortium_paper);
+			j.put("falsepositive", "no");
+			j.put("symbol", NA);  // if reviewed is yes
+			j.put("consortium_paper", "no");
 		}
-
-		else if (! alleleSymbol.contains(",")) { // single symbol
-
+		else if (reviewed.equals("no") && (alleleSymbol.isEmpty() || alleleSymbol.equals(NA)) && falsepositive.equals("no")) {
+			System.out.println("case 2");
+			alleleSymbol = NA;
+			updatePaper(conn, updateSql, "", "", "", reviewed, falsepositive, dbid, meshTerms, meshTree, consortium_paper);
+			j.put("reviewed", "no");
+			j.put("falsepositive", "no");
+			j.put("symbol", "Symbol needs hand curation");  // if reviewed is no
+			j.put("consortium_paper", "no");
+		}
+		else if (falsepositive.equals("yes")){
+			System.out.println("case 3");
+			reviewed = "no";
+			updatePaper(conn, updateSql, "", "", alleleSymbol, reviewed, falsepositive, dbid, meshTerms, meshTree, consortium_paper);
+			j.put("reviewed", "no");
+			j.put("falsepositive", "yes");
+			j.put("symbol", alleleSymbol);
+			j.put("consortium_paper", "no");
+		}
+		else if (!alleleSymbol.isEmpty() && ! alleleSymbol.contains(",") && !alleleSymbol.equals(NA)) { // single symbol
+			System.out.println("case 4");
 			// single allele symbols
 			String alleleAcc = null;
 			String geneAcc = null;
@@ -2536,7 +2557,7 @@ public class DataTableController {
 
 			try {
 				if (alleleAcc != null && geneAcc != null) {
-					updatePaper(conn, updateSql, alleleAcc, geneAcc, alleleSymbol, falsepositive, dbid, meshTerms, meshTree, consortium_paper);
+					updatePaper(conn, updateSql, alleleAcc, geneAcc, alleleSymbol, reviewed, falsepositive, dbid, meshTerms, meshTree, consortium_paper);
 
 					j.put("reviewed", "yes");
 					j.put("falsepositive", "no");
@@ -2620,7 +2641,7 @@ public class DataTableController {
 			String geneAccsStr = StringUtils.join(geneAccs, delimiter);
 
 			try{
-				updatePaper(conn, updateSql, alleleAccsStr, geneAccsStr, StringUtils.join(matchedAlleleSymbols, delimiter), falsepositive, dbid, meshTerms, meshTree, consortium_paper);
+				updatePaper(conn, updateSql, alleleAccsStr, geneAccsStr, StringUtils.join(matchedAlleleSymbols, delimiter), reviewed, falsepositive, dbid, meshTerms, meshTree, consortium_paper);
 			}
 			catch (SQLException se) {
 				//Handle errors for JDBC
@@ -2699,8 +2720,11 @@ public class DataTableController {
 	private void updatePaper(
 			Connection conn, String updateSql,
 			String alleleAccsStr, String geneAccsStr,
-			String alleleSymbol, String falsepositive, Integer dbid,
+			String alleleSymbol, String reviewed, String falsepositive, Integer dbid,
 			String meshTerms, String meshTree, String consortium_paper) throws SQLException {
+
+		//String updateSql = "UPDATE allele_ref SET acc=?, gacc=?, symbol=?, reviewed=?, datasource=?, falsepositive=?, mesh=?, meshtree=?, consortium_paper=? WHERE dbid=?";
+
 		//System.out.println(updateSql + " 1: " + alleleAccsStr + " 2: " + geneAccsStr + " 3: " + alleleSymbol + " 6: "  + falsepositive + " 7: " + meshTerms  + " 8: " +  dbid);
 		//String updateSql = "UPDATE allele_ref SET 1. acc=?, 2. gacc=?, 3. symbol=?, 4. reviewed=?, 5. datasource=?, 6. falsepositive=?, 7. mesh=? WHERE 8. dbid=?";
 
@@ -2708,7 +2732,7 @@ public class DataTableController {
 		stmt.setString(1, alleleAccsStr);
 		stmt.setString(2, geneAccsStr);
 		stmt.setString(3, alleleSymbol);
-		stmt.setString(4, "yes");
+		stmt.setString(4, reviewed);
 		//stmt.setString(5, String.valueOf(new Timestamp(System.currentTimeMillis()))); // leave time as it is for stats purpose
 		stmt.setString(5, "manual");
 		stmt.setString(6, falsepositive);
