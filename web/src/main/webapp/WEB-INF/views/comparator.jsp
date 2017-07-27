@@ -77,14 +77,17 @@
 	            <c:if test="${param.parameter_stable_id!=null}">
 	            	<input type="hidden" name="parameter_stable_id" value="${param.parameter_stable_id}">
 	            </c:if>
-	            <c:if test="${param.parameter_association_value!=null}">
+	            <%-- <c:if test="${param.parameter_association_value!=null}">
 	            	<input type="hidden" name="parameter_association_value" value="${param.parameter_association_value}">
-	            </c:if>
+	            </c:if> --%>
 	            <c:if test="${param.anatomy_id!=null}">
 	            	<input type="hidden" name="anatomy_id" value="${param.anatomy_id}">
 	            </c:if>
 	             <c:if test="${param.mp_id!=null}">
 	            	<input type="hidden" name="mp_id" value="${param.mp_id}">
+	            </c:if>
+	             <c:if test="${param.anatomy_term!=null}">
+	            	<input type="hidden" name="anatomy_term" value="${param.anatomy_term}">
 	            </c:if>
 	            <div id="control_key" class="key-annotation">
 	            		<span class="clickbox_male">&nbsp;&nbsp;&nbsp;</span>male
@@ -108,18 +111,18 @@
              			<option value="${zyg.name}" <c:if test="${param.zygosity eq zyg.name}">selected</c:if>>${zyg.name}</option>
             		</c:forEach>
             		</select>
-            		Organ:
+            		<%-- Organ:
             		<select name="organ">
              		<option  <c:if test="${param.organ eq null}">selected</c:if> >all</option>
-             		<c:forEach var="expression" items="${organ}">
+             		<c:forEach var="organ" items="${organ}">
              			<option value="${organ}" <c:if test="${param.organ eq organ}">selected</c:if>>${organ}</option>
             		</c:forEach>
-            		</select>
+            		</select> --%>
             		Expression:
-            		<select name="expression">
-             		<option  <c:if test="${param.expression eq null}">selected</c:if> >all</option>
+            		<select name="parameter_association_value"><!-- expression is stored in the param ass value -->
+             		<option  <c:if test="${param.parameter_association_value eq null}">selected</c:if> >all</option>
              		<c:forEach var="expression" items="${expression}">
-             			<option value="${expression.displayName}" <c:if test="${param.expression eq expression.displayName}">selected</c:if>>${expression.displayName}</option>
+             			<option value="${expression.displayName}" <c:if test="${param.parameter_association_value eq expression.displayName}">selected</c:if>>${expression.displayName}</option>
             		</c:forEach>
             		</select>
             		
