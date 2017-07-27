@@ -6,7 +6,9 @@ import org.apache.solr.client.solrj.response.Group;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mousephenotype.cda.enumerations.Expression;
 import org.mousephenotype.cda.enumerations.SexType;
+import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.service.dto.ImageDTO;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -90,7 +92,7 @@ public class ImageServiceTest {
 		String anatomyId="EMAPA:16105";
 		String parameterAsscociationValue="ambiguous";
 		QueryResponse response =null;
-			response = imageService.getImagesForGeneByParameter(acc, parameterStableId, "experimental", 100000, null, null, null, anatomyId, parameterAsscociationValue, null, null);
+			response = imageService.getImages(acc, parameterStableId, "experimental", 100000, null, null, null, anatomyId, parameterAsscociationValue, null, null);
 			long resultsSize=response.getResults().size();
 			logger.debug("resultsSize="+resultsSize);
 			assertTrue("Expected at least 12 results. Actual count: " + resultsSize, resultsSize > 12);
@@ -111,20 +113,169 @@ public class ImageServiceTest {
 	}
 	
 	@Test
-	public void testGetComparisonViewerMethods(){
+	public void testGetComparisonViewerMethodsWithNulls(){
+		String acc=null;
 		int numberOfControlsPerSex=10;
 		String anatomyId=null;
 		String parameterStableId=null;
 		SexType sex=null;
 		ImageDTO imgDoc=null;
 		List<ImageDTO> controlImages=null;
+		String organ=null;
+		Expression expression=null;
+		String parameterAssociationValue=null;
+		String zygosity=null;
+		String colonyId=null;
+		String mpId=null;
+		
 		try {
-			controlImages = imageService.getControlsBySexAndOthersForComparisonViewer(imgDoc, numberOfControlsPerSex, sex, parameterStableId, anatomyId);
+			controlImages = imageService.getControlsBySexAndOthersForComparisonViewer(imgDoc, numberOfControlsPerSex, sex, parameterStableId, anatomyId, null);
 		} catch (SolrServerException | IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		//no information has been given so we would expect null or an empty array - empty array safest
 		assertTrue(controlImages.size()==0);
+		
+		
+		List<ImageDTO> mutantImages=null;
+		try {
+			mutantImages=imageService.getMutantImagesForComparisonViewer(acc, parameterStableId, parameterAssociationValue, anatomyId, zygosity, colonyId, mpId, sex,  organ);
+		} catch (SolrServerException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		assertTrue(mutantImages.size()>0);//currently we are returning everything mutatn related if no filters
 	}
+	
+	@Test
+	public void testGetComparisonViewerMethodsWithExpression(){
+		String acc="MGI:109331";
+		int numberOfControlsPerSex=10;
+		String anatomyId="MA:0000327";
+		String parameterStableId=null;
+		SexType sex=null;
+		ImageDTO imgDoc=null;
+		List<ImageDTO> controlImages=null;
+		String organ=null;
+		Expression expression=Expression.EXPRESSION;
+		String parameterAssociationValue=expression.getDisplayName();
+		String zygosity=null;
+		String colonyId=null;
+		String mpId=null;
+		
+		try {
+			controlImages = imageService.getControlsBySexAndOthersForComparisonViewer(imgDoc, numberOfControlsPerSex, sex, parameterStableId, anatomyId, expression.getDisplayName());
+		} catch (SolrServerException | IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		//no information has been given so we would expect null or an empty array - empty array safest
+		assertTrue(controlImages.size()>=3);//there are no images with expression for this "respiratory system" and Nxn
+		
+		
+		List<ImageDTO> mutantImages=null;
+		try {
+			mutantImages=imageService.getMutantImagesForComparisonViewer(acc, parameterStableId, parameterAssociationValue, anatomyId, zygosity, colonyId, mpId, sex, organ);
+		} catch (SolrServerException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		assertTrue(mutantImages.size()>0);//we have mutant images for nxn 29 currently
+	}
+	
+	
+	@Test
+	public void testGetComparisonViewerMethodsWithAmbiguous(){
+		String acc="MGI:109331";
+		int numberOfControlsPerSex=10;
+		String anatomyId="MA:0000327";
+		String parameterStableId="IMPC_ALZ_076_001";
+		SexType sex=null;
+		ImageDTO imgDoc=null;
+		List<ImageDTO> controlImages=null;
+		String organ=null;
+		Expression expression=Expression.AMBIGUOUS;
+		String parameterAssociationValue=Expression.AMBIGUOUS.getDisplayName();
+		String zygosity=null;
+		String colonyId=null;
+		String mpId=null;
+		
+		try {
+			controlImages = imageService.getControlsBySexAndOthersForComparisonViewer(imgDoc, numberOfControlsPerSex, sex, parameterStableId, anatomyId, parameterAssociationValue);
+		} catch (SolrServerException | IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		//no information has been given so we would expect null or an empty array - empty array safest
+		assertTrue(controlImages.size()>0);//there are currently 25 images with ambiguous expression for this "respiratory system" and Nxn
+		assertTrue(controlImages.size()>=2);
+		
+		List<ImageDTO> mutantImages=null;
+		try {
+			mutantImages=imageService.getMutantImagesForComparisonViewer(acc, parameterStableId, parameterAssociationValue, anatomyId, zygosity, colonyId, mpId, sex, organ);
+		} catch (SolrServerException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		System.out.println("mutant images size="+mutantImages.size());
+		assertTrue(mutantImages.size()>=2);//we have 2 mutant images for nxn that match this test currently with ambiguous expression in mutants
+		}
+	
+	@Test
+	public void testGetComparisonViewerMethodsWithNoExpression(){
+		String acc="MGI:109331";
+		int numberOfControlsPerSex=10;
+		String anatomyId="MA:0000327";
+		String parameterStableId="IMPC_ALZ_076_001";
+		SexType sex=null;
+		ImageDTO imgDoc=null;
+		List<ImageDTO> controlImages=null;
+		String organ=null;
+		Expression expression=Expression.NO_EXPRESSION;
+		String parameterAssociationValue=null;//Expression.AMBIGUOUS.getDisplayName();
+		String zygosity=null;
+		String colonyId=null;
+		String mpId=null;
+		
+		try {
+			controlImages = imageService.getControlsBySexAndOthersForComparisonViewer(imgDoc, numberOfControlsPerSex, sex, parameterStableId, anatomyId, expression.getDisplayName());
+		} catch (SolrServerException | IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		//no information has been given so we would expect null or an empty array - empty array safest
+		System.out.println("control images size="+controlImages.size());
+		for(ImageDTO image:controlImages){
+			for(String value: image.getParameterAssociationValue()){
+				System.out.println("value="+value);
+			}
+		}
+		assertTrue(controlImages.size()==0);//there are currently 25 images with ambiguous expression for this "respiratory system" and Nxn
+		//assertTrue(controlImages.size()>=2);
+		
+		List<ImageDTO> mutantImages=null;
+		try {
+			mutantImages=imageService.getMutantImagesForComparisonViewer(acc, parameterStableId, parameterAssociationValue, anatomyId, zygosity, colonyId, mpId, sex, organ);
+		} catch (SolrServerException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		System.out.println("mutant images size="+mutantImages.size());
+		assertTrue(mutantImages.size()==0);//we have 2 mutant images for nxn that match this test currently with ambiguous expression in mutants
+		}
+	
+	
 }
