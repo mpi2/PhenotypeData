@@ -148,7 +148,7 @@ public class FileExportController {
 
 
 		baseUrl = request.getAttribute("baseUrl").toString();
-		hostname = request.getAttribute("mappedHostname").toString();
+		hostname = "http:" + request.getAttribute("mappedHostname").toString();
 
 		System.out.println("hostname: " + hostname);
 
