@@ -29,7 +29,6 @@ import org.apache.solr.client.solrj.response.*;
 import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
-import org.apache.solr.common.params.FacetParams;
 import org.apache.solr.common.util.NamedList;
 import org.mousephenotype.cda.constants.Constants;
 import org.mousephenotype.cda.db.pojo.DiscreteTimePoint;
@@ -40,12 +39,7 @@ import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.SolrUtils;
 import org.mousephenotype.cda.solr.generic.util.JSONRestUtil;
-import org.mousephenotype.cda.solr.service.dto.CountTableRow;
-import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
-import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
-import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
-import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
-import org.mousephenotype.cda.solr.service.dto.StatisticalResultDTO;
+import org.mousephenotype.cda.solr.service.dto.*;
 import org.mousephenotype.cda.solr.web.dto.CategoricalDataObject;
 import org.mousephenotype.cda.solr.web.dto.CategoricalSet;
 import org.mousephenotype.cda.web.WebStatus;
@@ -788,6 +782,22 @@ public class ObservationService extends BasicService implements WebStatus {
 
     }
 
+    /**
+     * buildQuery constructs the solr query to get the experiment back
+     *
+     *   At least gene and parameterStableId must not be null, everything else is optional
+     *
+     * @param parameterStableId NOT NULL
+     * @param pipelineStableId null optional
+     * @param gene NOT NULL
+     * @param zygosities null optional
+     * @param phenotypingCenter null optional
+     * @param strain null optional
+     * @param sex null optional
+     * @param metaDataGroup null optional
+     * @param alleleAccession null optional
+     * @return
+     */
     public SolrQuery buildQuery(String parameterStableId, String pipelineStableId, String gene, List<String> zygosities, String phenotypingCenter, String strain, SexType sex, String metaDataGroup, String alleleAccession){
 
         SolrQuery query = new SolrQuery()
