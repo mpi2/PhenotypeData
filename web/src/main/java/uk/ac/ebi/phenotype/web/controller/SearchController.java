@@ -79,6 +79,17 @@ public class SearchController {
 	 *
 	 */
 
+	/**
+	 * redirect calls to the base url or /search path to the search page with the version 2 URL path
+	 *
+	 * @return
+	 */
+	@RequestMapping("/search/")  // appended slash
+	public String searchForward(HttpServletRequest request) {
+		String redirectUrl = request.getScheme() + ":" + request.getAttribute("mappedHostname") + request.getAttribute("baseUrl") + "/search";
+		return "redirect:" + redirectUrl;
+	}
+
 	@RequestMapping("/search")
 	public String searchResult2(
 			HttpServletRequest request,
