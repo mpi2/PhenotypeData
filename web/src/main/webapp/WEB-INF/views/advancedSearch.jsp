@@ -551,13 +551,13 @@
                             {"MGI gene id": "mgiAccessionId"},
                             {"MGI gene type": "markerType"},
                             {"MGI gene name": "markerName"},
+                            {"Ensembl gene id":"ensemblGeneId"},
                             {"chromosome id": "chrId"},
                             {"chromosome start": "chrStart"},
                             { "chromosome end": "chrEnd"},
                             {"chromosome strand": "chrStrand"},
                             {"MGI gene synonym":"markerSynonym"},
-                            {"Ensembl gene id":"ensemblGeneId"},
-                            // allele
+
                             {"allele description":"alleleDescription"},
                             {"allele type":"alleleType"},  // tm1a, tm1b, etc
                             {"allele mutation type":"mutationType"},
@@ -567,21 +567,21 @@
                         ],
                         selected: [
                             //"alleleSymbol", "markerSymbol"
-                            "markerSymbol"
+                            "markerSymbol", "markerName", "humanGeneSymbol", "chrId", "chrStart", "chrEnd", "ensemblGeneId"
                         ]
                     },
-                    "HumanGeneSymbol": {
-                        text: "Human\nOrtholog",
-                        x: 660,
-                        y: 130,
-                        r:30,
-                        fields: [
-                            {"HGNC gene symbol":"humanGeneSymbol"}
-                        ],
-                        selected: [
-
-                        ]
-                    },
+//                    "HumanGeneSymbol": {
+//                        text: "Human\nOrtholog",
+//                        x: 660,
+//                        y: 130,
+//                        r:30,
+//                        fields: [
+//                            {"HGNC gene symbol":"humanGeneSymbol"}
+//                        ],
+//                        selected: [
+//
+//                        ]
+//                    },
 //                    "EnsemblGeneId": {
 //                        text: "Ensembl\nGene Id",
 //                        x: 800,
@@ -608,21 +608,21 @@
 //                            {"MGI gene synonym":"markerSynonym"}
 //                        ]
 //                    },
-                    "Allele": {
-                        text: "Mouse\nAllele",
-                        x: 500,
-                        y: 40,
-                        r:30,
-                        fields: [
-                            {"MGI allele id":"alleleMgiAccessionId"},
-                            {"MGI allele symbol":"alleleSymbol"},
-                            {"allele description":"alleleDescription"},
-                            {"allele mutation type":"mutationType"},
-                            {"ES cell available?":"esCellStatus"},
-                            {"mouse available?":"mouseStatus"},
-                            {"phenotyping data available?":"phenotypeStatus"}
-                        ]
-                    },
+//                    "Allele": {
+//                        text: "Mouse\nAllele",
+//                        x: 500,
+//                        y: 40,
+//                        r:30,
+//                        fields: [
+//                            {"MGI allele id":"alleleMgiAccessionId"},
+//                            {"MGI allele symbol":"alleleSymbol"},
+//                            {"allele description":"alleleDescription"},
+//                            {"allele mutation type":"mutationType"},
+//                            {"ES cell available?":"esCellStatus"},
+//                            {"mouse available?":"mouseStatus"},
+//                            {"phenotyping data available?":"phenotypeStatus"}
+//                        ]
+//                    },
 //                    "DiseaseGene": {
 //                        text: "Disease-\nGene",
 //                        x: 570,
@@ -647,30 +647,30 @@
                             //"diseaseTerm"
                         ]
                     },
-                    "MouseModel": {
-                        text: "Mouse\nModel",
-                        x: 230,
-                        y: 120,
-                        r:30,
-                        fields: [
-                            {"allelic composition":"allelicComposition"},
-                            {"genetic background":"geneticBackground"},
-                            {"homozygous or heterozygous":"homHet"}
-                        ]
-                    },
-                    "Hp": {
-                        text: "Human\nPhenotype",
-                        x: 190,
-                        y: 40,
-                        r:30,
-                        fields: [
-                            {"human phenotype ontology id":"hpId"},
-                            {"human phenotype ontology term":"hpTerm"}
-                        ],
-                        selected: [
-
-                        ]
-                    },
+//                    "MouseModel": {
+//                        text: "Mouse\nModel",
+//                        x: 230,
+//                        y: 120,
+//                        r:30,
+//                        fields: [
+//                            {"allelic composition":"allelicComposition"},
+//                            {"genetic background":"geneticBackground"},
+//                            {"homozygous or heterozygous":"homHet"}
+//                        ]
+//                    },
+//                    "Hp": {
+//                        text: "Human\nPhenotype",
+//                        x: 190,
+//                        y: 40,
+//                        r:30,
+//                        fields: [
+//                            {"human phenotype ontology id":"hpId"},
+//                            {"human phenotype ontology term":"hpTerm"}
+//                        ],
+//                        selected: [
+//
+//                        ]
+//                    },
                     "Mp": {
                         text: "Mouse\nPhenotype",
                         x: 60,
@@ -678,7 +678,7 @@
                         r:30,
                         fields: [
                             {"mouse phenotype ontology term":"mpTerm"},
-                            {"mouse phenotype ontology term synonym": "ontoSynonym"},
+                            {"mouse phenotype ontology term synonym": "mpSynonyms"},
                             {"mouse phenotype ontology id":"mpId"},
                             {"mouse phenotype ontology definition":"mpDefinition"},
                             {"top level mouse phenotype ontology id":"topLevelMpId"},
@@ -786,8 +786,30 @@
                     }
                     kv[dataType].push(property);
 
-                    kv["properties"].push(property);
+                   // kv["properties"].push(property);
                 });
+
+                // properties kept in this order
+                $("fieldset#Gene input.column:checked").each(function () {
+                    kv["properties"].push($(this).val());
+                });
+                $("fieldset#Mp input.column:checked").each(function () {
+                    kv["properties"].push($(this).val());
+                });
+                $("fieldset#DiseaseModel input.column:checked").each(function () {
+                    kv["properties"].push($(this).val());
+                });
+
+//                kv["properties"] = kv["Allele"];
+//                if (kv["Mp"] != undefined){
+//                    kv["properties"] = kv["properties"].concat(kv["Mp"]);
+//                }
+//                if (kv["Mp"] != undefined){
+//                    kv["properties"] = kv["properties"].concat(kv["Mp"]);
+//                }
+//                if (kv["DiseaseModel"] != undefined){
+//                    kv["properties"] = kv["properties"].concat(kv["DiseaseModel"]);
+//                }
 
                 //-----------------
                 //     filters
@@ -1325,7 +1347,7 @@
                 console.log(oJson);
 
                 if (oJson.shownFilter == "Only significant p values = true,  phenodigm score = '0 - 100'"){
-                    var c = confirm("NOTE: You are searching by none of the phenotype/Gene/Disease input or filters.\nThis could take a while. Proceed? ");
+                    var c = confirm("NOTE: You are searching none of the phenotype/Gene/Disease keyword\nThis could take a while. Proceed? ");
                     if (c == false){
                         return false;
                     }
@@ -1333,18 +1355,7 @@
 
                 refreshResult(); // refresh first
 
-                var flList = [];
-                var dtypes = ["Allele", "Gene", "Mp", "DiseaseModel", "StatisticalResult"];
-                for (var d=0; d<dtypes.length; d++){
-                    var cols = oJson[dtypes[d]];
-                    if (cols != undefined) {
-                        for (var c = 0; c < cols.length; c++) {
-                            flList.push(cols[c]);
-                        }
-                    }
-                }
-
-                prepare_dataTable(flList);
+                prepare_dataTable(oJson.properties);
 
                 var oConf = {};
 
@@ -1589,7 +1600,7 @@
 
             function addDatatypeFiltersAttributes(dataType) {
 
-                console.log("clicked on: "+ dataType);
+                //console.log("clicked on: "+ dataType);
 
                 if (dataType == "Gene"){
                     addChomosomeRangeFilter(dataType);
