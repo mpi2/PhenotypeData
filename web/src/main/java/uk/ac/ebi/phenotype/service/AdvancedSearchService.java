@@ -1815,7 +1815,7 @@ public class AdvancedSearchService {
         //if (jParam.containsKey(className)) {
 
         List<String> nodeProperties = node2Properties.get(className);
-            System.out.println("className: " + className);
+//            System.out.println("className: " + className);
 //            System.out.println("properties:" + nodeProperties);
 
         if (className.equals("Gene")) {
