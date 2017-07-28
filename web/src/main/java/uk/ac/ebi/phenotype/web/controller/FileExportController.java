@@ -158,6 +158,8 @@ public class FileExportController {
 		System.out.println(fileType);
 		System.out.println(jParams.toString());
 
+		List<String> colOrder = jParams.getJSONArray("properties");
+
 		AdvancedSearchPhenotypeForm mpForm = advancedSearchService.parsePhenotypeForm(jParams);
 		AdvancedSearchGeneForm geneForm = advancedSearchService.parseGeneForm(jParams);
 		AdvancedSearchDiseaseForm diseaseForm = advancedSearchService.parseDiseaseForm(jParams);
@@ -167,7 +169,7 @@ public class FileExportController {
 		List<String> narrowOrSynonymMappingList = (List<String>) objects.get(1);
 		Map<String, List<String>> dataTypeColsMap = (Map<String, List<String>>) objects.get(2);
 
-		JSONObject jcontent = advancedSearchService.parseGraphResult(result, mpForm, geneForm, diseaseForm, fileType, baseUrl, hostname, narrowOrSynonymMappingList, dataTypeColsMap);
+		JSONObject jcontent = advancedSearchService.parseGraphResult(result, mpForm, geneForm, diseaseForm, fileType, baseUrl, hostname, narrowOrSynonymMappingList, dataTypeColsMap, colOrder);
 
 		System.out.println("narrowSynonym or synonym Mapping msg: " + jcontent.get("narrowOrSynonymMapping"));
 

@@ -343,12 +343,14 @@ public class AdvancedSearchController {
         AdvancedSearchDiseaseForm diseaseForm = advancedSearchService.parseDiseaseForm(jParams);
         String fileType = null;
 
+        List<String> colOrder = jParams.getJSONArray("properties");
+
         List<Object> objects = advancedSearchService.fetchGraphDataAdvSrchResult(mpForm, geneForm, diseaseForm, fileType);
         Result result = (Result) objects.get(0);
         List<String> narrowOrSynonymMappingList = (List<String>) objects.get(1);
         Map<String, List<String>> dataTypeColsMap = (Map<String, List<String>>) objects.get(2);
 
-        JSONObject jcontent = advancedSearchService.parseGraphResult(result, mpForm, geneForm, diseaseForm, fileType, baseUrl, hostname, narrowOrSynonymMappingList, dataTypeColsMap);
+        JSONObject jcontent = advancedSearchService.parseGraphResult(result, mpForm, geneForm, diseaseForm, fileType, baseUrl, hostname, narrowOrSynonymMappingList, dataTypeColsMap, colOrder);
         //System.out.println("narrowSynonym or synonym Mapping msg: " + jcontent.get("narrowOrSynonymMapping"));
         return new ResponseEntity<String>(jcontent.toString(), createResponseHeaders(), HttpStatus.CREATED);
     }

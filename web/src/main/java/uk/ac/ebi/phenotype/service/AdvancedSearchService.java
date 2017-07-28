@@ -849,7 +849,6 @@ public class AdvancedSearchService {
         objects.add(narrowOrSynonymMapping);
         objects.add(dataTypeColsMap);
 
-
         int dataCount = 0;
         for (Map<String,Object> row : result) {
 //
@@ -873,7 +872,7 @@ public class AdvancedSearchService {
     }
 
     public JSONObject parseGraphResult(Result result, AdvancedSearchPhenotypeForm mpForm, AdvancedSearchGeneForm geneForm, AdvancedSearchDiseaseForm diseaseForm,
-                                       String fileType, String baseUrl, String hostname, List<String> narrowOrSynonymMapping, Map<String, List<String>> dataTypeColsMap)
+                                       String fileType, String baseUrl, String hostname, List<String> narrowOrSynonymMapping, Map<String, List<String>> dataTypeColsMap, List<String> colOrder)
             throws IOException, SolrServerException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InterruptedException {
 
         int rowCount = 0;
@@ -962,11 +961,9 @@ public class AdvancedSearchService {
                 //System.out.println("cols: " + cols);
                 if (colValMap.size() > 0) {
                     for (String col : cols) {
-                        //System.out.println("col now-1: " + col);
                         if (colValMap.containsKey(col)) {
                             //System.out.println("col now-2: " + col);
                             List<String> vals = new ArrayList<>(colValMap.get(col));
-                            System.out.println("vals: "+ vals);
 
                             if (fileType.equals("html")){
                                 data.add("<td>" + StringUtils.join(vals, "|") + "</td>");
@@ -992,7 +989,6 @@ public class AdvancedSearchService {
         else {
             // overview
 
-            List<String> cols = new ArrayList<>();
             Map<String, List<String>> node2Properties = new LinkedHashMap<>();
 
             for (String dtype : dtypes) {
@@ -1000,14 +996,13 @@ public class AdvancedSearchService {
                 node2Properties.put(dtype, new ArrayList<String>());
                 if (dataTypeColsMap.containsKey(dtype)) {
                     for(String colName : dataTypeColsMap.get(dtype)){
-                        cols.add(colName);
                         node2Properties.get(dtype).add(colName);
                     }
 
                 }
             }
 
-            //System.out.println("columns: " + cols);
+            //System.out.println("columns: " + colOrder);
             Map<String, Set<String>> colValMap = new TreeMap<>(); // for export
 
             for (Map<String, Object> row : result) {
@@ -1039,8 +1034,7 @@ public class AdvancedSearchService {
             //System.out.println("keys: "+ colValMap.keySet());
             // for overview
 
-            for (String col : cols){
-
+            for (String col : colOrder){
                 if (colValMap.containsKey(col)) {
                     List<String> vals = new ArrayList<>(colValMap.get(col));
 
@@ -1787,7 +1781,7 @@ public class AdvancedSearchService {
                     List<String> dcls = Arrays.asList(StringUtils.split(colVal, ","));
                     List<String> vals = new ArrayList<>();
 
-                    if (fileType == null){
+                    if (fileType == null || fileType.equals("html")){
                         for (String dcl : dcls) {
                             vals.add("<li>" + dcl + "</li>");
                         }
@@ -1821,7 +1815,7 @@ public class AdvancedSearchService {
         //if (jParam.containsKey(className)) {
 
         List<String> nodeProperties = node2Properties.get(className);
-//            System.out.println("className: " + className);
+            System.out.println("className: " + className);
 //            System.out.println("properties:" + nodeProperties);
 
         if (className.equals("Gene")) {
