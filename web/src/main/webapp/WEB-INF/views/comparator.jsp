@@ -93,8 +93,7 @@
 	            		<span class="clickbox_male">&nbsp;&nbsp;&nbsp;</span>male
 	            		<span class="clickbox_female">&nbsp;&nbsp;&nbsp;</span> female
 	            </div>
-	            <div id="filters">Filter Images by gender: 
-	            	${param.gender}
+	            <div id="filters">Filter Images by gender:
 	            	<select name="gender">
 	            	<option value="all" <c:if test="${param.gender eq null || 'all'}">selected</c:if> >all</option>
 	            	<c:forEach var="genderType" items="${sexTypes}">
@@ -104,7 +103,6 @@
 	            	</c:forEach>
 	            	</select>
             		zygosity: 
-            		${param.zygosity}
              		<select name="zygosity">
              		<option  <c:if test="${param.zygosity eq null}">selected</c:if> >all</option>
              		<c:forEach var="zyg" items="${zygTypes}">
