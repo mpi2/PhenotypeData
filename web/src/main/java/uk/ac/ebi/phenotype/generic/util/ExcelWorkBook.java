@@ -204,7 +204,6 @@ public class ExcelWorkBook {
 
 				// make hyperlink in cell
 				if ( ( cellStr.startsWith("http://") || cellStr.startsWith("https://") ) && !cellStr.contains("|") ){
-					//System.out.println("chk cellStr: " + cellStr);
 
 					if ( cellStr.contains("?") ) {
 						String[] parts = cellStr.split("\\?");
