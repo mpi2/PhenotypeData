@@ -79,7 +79,11 @@ public class TimeSeriesChartAndTableProvider {
 					Float dataPoint = control.getDataPoint();
 					logger.debug("data value=" + dataPoint);
 					Float discreteTimePoint = control.getDiscretePoint();
-					controlDataPoints.add(new DiscreteTimePoint(discreteTimePoint, dataPoint));
+
+					// Ensure the timepoint is valid
+					if (discreteTimePoint > 0) {
+						controlDataPoints.add(new DiscreteTimePoint(discreteTimePoint, dataPoint));
+					}
 				}
 			}
 
@@ -108,8 +112,12 @@ public class TimeSeriesChartAndTableProvider {
 					if (SexType.valueOf(docGender).equals(sex)) {
 						Float dataPoint = expDto.getDataPoint();
 						logger.debug("data value=" + dataPoint);
-						Float discreateTimePoint = expDto.getDiscretePoint();
-						mutantData.add(new DiscreteTimePoint(discreateTimePoint, new Float(dataPoint)));
+						Float discreteTimePoint = expDto.getDiscretePoint();
+
+						// Ensure the timepoint is valid
+						if (discreteTimePoint > 0) {
+							mutantData.add(new DiscreteTimePoint(discreteTimePoint, new Float(dataPoint)));
+						}
 					}
 				}
 
