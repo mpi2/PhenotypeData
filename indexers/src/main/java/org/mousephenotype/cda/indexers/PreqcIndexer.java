@@ -542,7 +542,7 @@ public class PreqcIndexer extends AbstractIndexer implements CommandLineRunner {
                     }
 
                     mapping.put(sid, name);
-                    System.out.println("adding procedure id to name="+sid+"|"+name);
+                    
                 }
 
             } catch (SQLException e) {
