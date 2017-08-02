@@ -201,7 +201,7 @@ public class ImageServiceTest {
 		ImageDTO imgDoc=null;
 		List<ImageDTO> controlImages=null;
 		String organ=null;
-		Expression expression=Expression.AMBIGUOUS;
+		//Expression expression=Expression.AMBIGUOUS;
 		String parameterAssociationValue=Expression.AMBIGUOUS.getDisplayName();
 		String zygosity=null;
 		String colonyId=null;
@@ -242,7 +242,7 @@ public class ImageServiceTest {
 		List<ImageDTO> controlImages=null;
 		String organ=null;
 		Expression expression=Expression.NO_EXPRESSION;
-		String parameterAssociationValue=null;//Expression.AMBIGUOUS.getDisplayName();
+		String parameterAssociationValue=Expression.NO_EXPRESSION.getDisplayName();//Expression.AMBIGUOUS.getDisplayName();
 		String zygosity=null;
 		String colonyId=null;
 		String mpId=null;
@@ -260,7 +260,7 @@ public class ImageServiceTest {
 				System.out.println("value="+value);
 			}
 		}
-		assertTrue(controlImages.size()==0);//there are currently 25 images with ambiguous expression for this "respiratory system" and Nxn
+		assertTrue(controlImages.size()>=10);//there are currently 25 images with ambiguous expression for this "respiratory system" and Nxn
 		//assertTrue(controlImages.size()>=2);
 		
 		List<ImageDTO> mutantImages=null;

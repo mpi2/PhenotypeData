@@ -11,8 +11,14 @@
 
  <jsp:attribute name="title">${gene.markerSymbol} Image Picker</jsp:attribute>
 <jsp:attribute name="header">
-
-  <link href="${baseUrl}/css/comparator/comparator.css" rel="stylesheet" type="text/css" />
+  
+  <!-- <style type="text/css">
+    .viewport {
+        height: 100px;
+        width: 800px;
+        padding: 10px;
+    }
+</style> -->
   <!-- This min.css contains all the smaller css files below... ->
     <!-- <link href="https://wwwdev.ebi.ac.uk/mi/media/static/omeroweb.viewer.min.css" type="text/css" rel="stylesheet"></link> -->
 
@@ -22,6 +28,8 @@
     <!-- <link href="https://wwwdev.ebi.ac.uk/mi/media/static/webgateway/css/ome.body.css" type="text/css" rel="stylesheet"></link> -->
     <!-- <link href="https://wwwdev.ebi.ac.uk/mi/media/static/webclient/css/dusty.css" type="text/css" rel="stylesheet"></link> -->
     <link href="${omeroStaticUrl}webgateway/css/ome.viewport.css" type="text/css" rel="stylesheet"></link>
+    
+    <link href="${baseUrl}/css/comparator/comparator.css" rel="stylesheet" type="text/css" /><!-- put after default omero css so we can override -->
     <!-- <link href="https://wwwdev.ebi.ac.uk/mi/media/static/webgateway/css/ome.toolbar.css" type="text/css" rel="stylesheet"></link> -->
   
     <!-- <link href="https://wwwdev.ebi.ac.uk/mi/media/static/webgateway/css/base.css" type="text/css" rel="stylesheet"></link> -->
@@ -94,7 +102,7 @@
 	            		<span class="clickbox_female">&nbsp;&nbsp;&nbsp;</span> female
 	            </div>
 	            <div id="filters">Filter Images by gender: 
-	            	${param.gender}
+	         
 	            	<select name="gender">
 	            	<option value="all" <c:if test="${param.gender eq null || 'all'}">selected</c:if> >all</option>
 	            	<c:forEach var="genderType" items="${sexTypes}">
@@ -103,8 +111,7 @@
 	            	</c:if>
 	            	</c:forEach>
 	            	</select>
-            		zygosity: 
-            		${param.zygosity}
+            		zygosity:
              		<select name="zygosity">
              		<option  <c:if test="${param.zygosity eq null}">selected</c:if> >all</option>
              		<c:forEach var="zyg" items="${zygTypes}">
@@ -129,9 +136,9 @@
             		<input type="submit" value="Go"> <span class="btn" id="mutant_only_button">Display Mutant Only</span>&nbsp;&nbsp;&nbsp;<span class="btn" id="overlap">Overlap Mode</span>
             	</div>
             		<div id="control_box" class="box half_box_left">
-            		<div class="thumbList" style="float:left">
+            		<!-- <div class="thumbList" style="float:left"> -->
 					        <div id="viewport" class="viewport"></div>
-					    </div>
+					   <!--  </div> -->
 		            	
 	            		<div id="control_annotation" class="annotation">
 	            		
@@ -177,9 +184,9 @@
 	            		
 					<div id="mutant_box" class="half_box_right">
 						
-						 <div class="thumbList" style="float:left">
+						 <!-- <div class="thumbList" style="float:left"> -->
 					        <div id="viewport2" class="viewport"></div>
-					    </div>
+					    <!-- </div> -->
 		            	<div id="mutant_annotation" class="annotation">
 		            	</div> 
 					 
