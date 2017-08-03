@@ -842,13 +842,12 @@ public class AdvancedSearchService {
         long begin = System.currentTimeMillis();
         result = neo4jSession.query(query, params); // params is empty, I don't need it in my case, but method needs it as 2nd argument
         long end = System.currentTimeMillis();
-        System.out.println("Server processed query in " + (end - begin) + " ms");
+        System.out.println("Neo4j returned query in " + (end - begin) + " ms");
 
         List<Object> objects = new ArrayList<>();
         objects.add( result);
         objects.add(narrowOrSynonymMapping);
         objects.add(dataTypeColsMap);
-
 
         int dataCount = 0;
         for (Map<String,Object> row : result) {
@@ -873,10 +872,9 @@ public class AdvancedSearchService {
     }
 
     public JSONObject parseGraphResult(Result result, AdvancedSearchPhenotypeForm mpForm, AdvancedSearchGeneForm geneForm, AdvancedSearchDiseaseForm diseaseForm,
-                                       String fileType, String baseUrl, String hostname, List<String> narrowOrSynonymMapping, Map<String, List<String>> dataTypeColsMap)
+                                       String fileType, String baseUrl, String hostname, List<String> narrowOrSynonymMapping, Map<String, List<String>> dataTypeColsMap, List<String> colOrder)
             throws IOException, SolrServerException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InterruptedException {
 
-        System.out.println("Parsing result.....");
         int rowCount = 0;
         JSONObject j = new JSONObject();
         j.put("aaData", new Object[0]);
@@ -963,11 +961,9 @@ public class AdvancedSearchService {
                 //System.out.println("cols: " + cols);
                 if (colValMap.size() > 0) {
                     for (String col : cols) {
-                        //System.out.println("col now-1: " + col);
                         if (colValMap.containsKey(col)) {
                             //System.out.println("col now-2: " + col);
                             List<String> vals = new ArrayList<>(colValMap.get(col));
-                            //System.out.println("vals: "+ vals);
 
                             if (fileType.equals("html")){
                                 data.add("<td>" + StringUtils.join(vals, "|") + "</td>");
@@ -992,9 +988,7 @@ public class AdvancedSearchService {
         }
         else {
             // overview
-            System.out.println("overview");
 
-            List<String> cols = new ArrayList<>();
             Map<String, List<String>> node2Properties = new LinkedHashMap<>();
 
             for (String dtype : dtypes) {
@@ -1002,14 +996,13 @@ public class AdvancedSearchService {
                 node2Properties.put(dtype, new ArrayList<String>());
                 if (dataTypeColsMap.containsKey(dtype)) {
                     for(String colName : dataTypeColsMap.get(dtype)){
-                        cols.add(colName);
                         node2Properties.get(dtype).add(colName);
                     }
 
                 }
             }
 
-            //System.out.println("columns: " + cols);
+            //System.out.println("columns: " + colOrder);
             Map<String, Set<String>> colValMap = new TreeMap<>(); // for export
 
             for (Map<String, Object> row : result) {
@@ -1041,8 +1034,7 @@ public class AdvancedSearchService {
             //System.out.println("keys: "+ colValMap.keySet());
             // for overview
 
-            for (String col : cols){
-
+            for (String col : colOrder){
                 if (colValMap.containsKey(col)) {
                     List<String> vals = new ArrayList<>(colValMap.get(col));
 
@@ -1068,7 +1060,7 @@ public class AdvancedSearchService {
                 }
             }
 
-            System.out.println("rows done");
+            //System.out.println("rows done");
 
             j.put("iTotalRecords", rowCount);
             j.put("iTotalDisplayRecords", rowCount);
@@ -1079,7 +1071,7 @@ public class AdvancedSearchService {
 
         long tend = System.currentTimeMillis();
 
-        System.out.println("Processed result in " + (tend - tstart) + " ms");
+        System.out.println("Parsing Neo4j result in " + (tend - tstart) + " ms");
         return j;
     }
 
@@ -1143,16 +1135,14 @@ public class AdvancedSearchService {
                 System.out.println(" jParams.containsKey pvaluesMap: " + jParams.containsKey("pvaluesMap"));
                 if (jParams.containsKey("pvaluesMap")) {
                     JSONObject map = jParams.getJSONObject("pvaluesMap").getJSONObject(mpTerm);
-                    System.out.println("map: " + map.toString());
+                    //System.out.println("map: " + map.toString());
                     if (map.containsKey("lowerPvalue")){
                         lowerPvalue = map.getDouble("lowerPvalue");
-                        System.out.println("lower: " + lowerPvalue);
-                        //pvals.add("sr.pvalue > " + lowerPvalue);
+                        //System.out.println("lower: " + lowerPvalue);
                     }
                     if (map.containsKey("upperPvalue")){
                         upperPvalue = map.getDouble("upperPvalue");
-                        System.out.println("upper: " + upperPvalue);
-                        //pvals.add("sr.pvalue < " + upperPvalue);
+                        //System.out.println("upper: " + upperPvalue);
                     }
                 }
                 AdvancedSearchMpRow mpRow = new AdvancedSearchMpRow(mpTerm, lowerPvalue, upperPvalue);
@@ -1423,7 +1413,6 @@ public class AdvancedSearchService {
         List<String> pvals = new ArrayList<>();
         if (jParams.containsKey("pvaluesMap")) {
             JSONObject map = jParams.getJSONObject("pvaluesMap").getJSONObject(mpTerm);
-            System.out.println("MAP: " + map.toString());
             if (map.containsKey("lowerPvalue")){
                 double lowerPvalue = map.getDouble("lowerPvalue");
                 pvals.add("sr.pvalue > " + lowerPvalue);
@@ -1437,7 +1426,6 @@ public class AdvancedSearchService {
         if (pvals.size() > 0){
             pvalues = " AND (" +  StringUtils.join(pvals, " AND ") + ")";
         }
-        System.out.println("----- pvalue: " + pvalues);
         return pvalues;
     }
 
@@ -1675,16 +1663,6 @@ public class AdvancedSearchService {
 
         int showCutOff = 3;
 
-//        if (hostname == null) {
-//            hostname = jParam.getString("hostname").toString();
-//        }
-//        if ( ! hostname.startsWith("http")){
-//            hostname = "http:" + hostname;
-//        }
-//        if  (baseUrl == null) {
-//            baseUrl = jParam.getString("baseUrl").toString();
-//        }
-
         //System.out.println("TEST hostname: " + hostname);
 
         String geneBaseUrl = baseUrl + "/genes/";
@@ -1725,66 +1703,53 @@ public class AdvancedSearchService {
             if (! colVal.isEmpty()) {
                 if (property.equals("markerSymbol")){
                     Gene gene = (Gene) o;
+                    String mgiAcc = gene.getMgiAccessionId();
                     if (fileType == null || fileType.equals("html")){
-                        String mgiAcc = gene.getMgiAccessionId();
                         colVal = "<a target='_blank' href='" + hostname + geneBaseUrl + mgiAcc + "'>" + colVal + "</a>";
                     }
-                }
-                else if (property.equals("mgiAccessionId")){
-                    if (fileType != null  && ! fileType.equals("html")){
-                        colVal = hostname + geneBaseUrl + colVal;
+                    else if (fileType != null){
+                        colVal = hostname + geneBaseUrl + mgiAcc;
                     }
+                    //System.out.println(fileType+ " mgi symbol link: " + colVal);
                 }
                 else if (property.equals("mpTerm")){
                     Mp mp = (Mp) o;
+                    String mpId = mp.getMpId();
                     if (fileType == null || fileType.equals("html")) {
-                        String mpId = mp.getMpId();
                         colVal = "<a target='_blank' href='" + hostname + mpBaseUrl + mpId + "'>" + colVal + "</a>";
                     }
+                    else if (fileType != null){
+                        colVal = hostname + geneBaseUrl + mpId;
+                    }
+                    //System.out.println(fileType+ " mp term link: " + colVal);
                 }
-//                else if (property.equals("mpId")){
-//                    if (isExport){
-//                        colVal = hostname + mpBaseUrl + colVal;
-//                    }
-//                }
                 else if (property.equals("diseaseTerm")){
                     DiseaseModel dm = (DiseaseModel) o;
-
+                    String dId = dm.getDiseaseId();
                     if (fileType == null || fileType.equals("html")) {
-                        String dId = dm.getDiseaseId();
                         colVal = "<a target='_blank' href='" + hostname + diseaseBaseUrl + dId + "'>" + colVal + "</a>";
                     }
+                    else if (fileType != null){
+                        colVal = hostname + diseaseBaseUrl + dId;
+                    }
+                    //System.out.println(fileType+ " disease term link: " + colVal);
                 }
-                // multiple http links won't work in excel cell
-//                else if (property.equals("diseaseId")){
-//                    if (isExport){
-//                        colVal = hostname + diseaseBaseUrl + colVal;
-//                    }
-//                }
                 else if (property.equals("alleleSymbol")){
 
                     Allele al = (Allele) o;
-                    if (fileType == null || fileType.equals("html")) {
 
-                        int index = colVal.indexOf('<');
-                        String wantedSymbol = colVal.replace(colVal.substring(0, index+1), "").replace(">","");
-                        colVal = Tools.superscriptify(colVal);
-                        String aid = al.getMgiAccessionId() + "/" + wantedSymbol;
+                    int index = colVal.indexOf('<');
+                    String wantedSymbol = colVal.replace(colVal.substring(0, index+1), "").replace(">","");
+                    colVal = Tools.superscriptify(colVal);
+                    String aid = al.getMgiAccessionId() + "/" + wantedSymbol;
+
+                    if (fileType == null || fileType.equals("html")) {
                         colVal = "<a target='_blank' href='" + hostname + alleleBaseUrl + aid + "'>" + colVal + "</a>";
                     }
-                }
-                else if (property.equals("alleleMgiAccessionId")){
-
-                    if (fileType != null && ! fileType.equals("html")){
-                        Allele al = (Allele) o;
-                        String asym = al.getAlleleSymbol();
-                        int index = asym.indexOf('<');
-                        String wantedSymbol = asym.replace(asym.substring(0, index+1), "").replace(">","");
-                        String aid = al.getMgiAccessionId() + "/" + wantedSymbol;
-
-                        // System.out.println("asym: " + asym + " wanted: " + wantedSymbol);
-                        colVal = hostname + alleleBaseUrl + aid;
+                    else if (fileType != null){
+                        colVal = hostname + alleleBaseUrl + colVal;
                     }
+                    //System.out.println(fileType+ " disease term link: " + colVal);
                 }
                 else if (property.equals("ensemblGeneId")){
                     colVal = colVal.replaceAll("\\[", "").replaceAll("\\]","");
@@ -1816,7 +1781,7 @@ public class AdvancedSearchService {
                     List<String> dcls = Arrays.asList(StringUtils.split(colVal, ","));
                     List<String> vals = new ArrayList<>();
 
-                    if (fileType == null){
+                    if (fileType == null || fileType.equals("html")){
                         for (String dcl : dcls) {
                             vals.add("<li>" + dcl + "</li>");
                         }
@@ -1836,7 +1801,7 @@ public class AdvancedSearchService {
                     colValMap.get(property).add(colVal);
                 }
 
-                // System.out.println("colval: "+colValMap);
+//                System.out.println("colval: "+colValMap);
 
             }
         }

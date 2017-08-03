@@ -148,7 +148,7 @@ public class FileExportController {
 
 
 		baseUrl = request.getAttribute("baseUrl").toString();
-		hostname = request.getAttribute("mappedHostname").toString();
+		hostname = "http:" + request.getAttribute("mappedHostname").toString();
 
 		System.out.println("hostname: " + hostname);
 
@@ -157,6 +157,8 @@ public class FileExportController {
 		System.out.println(fileName);
 		System.out.println(fileType);
 		System.out.println(jParams.toString());
+
+		List<String> colOrder = jParams.getJSONArray("properties");
 
 		AdvancedSearchPhenotypeForm mpForm = advancedSearchService.parsePhenotypeForm(jParams);
 		AdvancedSearchGeneForm geneForm = advancedSearchService.parseGeneForm(jParams);
@@ -167,7 +169,7 @@ public class FileExportController {
 		List<String> narrowOrSynonymMappingList = (List<String>) objects.get(1);
 		Map<String, List<String>> dataTypeColsMap = (Map<String, List<String>>) objects.get(2);
 
-		JSONObject jcontent = advancedSearchService.parseGraphResult(result, mpForm, geneForm, diseaseForm, fileType, baseUrl, hostname, narrowOrSynonymMappingList, dataTypeColsMap);
+		JSONObject jcontent = advancedSearchService.parseGraphResult(result, mpForm, geneForm, diseaseForm, fileType, baseUrl, hostname, narrowOrSynonymMappingList, dataTypeColsMap, colOrder);
 
 		System.out.println("narrowSynonym or synonym Mapping msg: " + jcontent.get("narrowOrSynonymMapping"));
 
@@ -444,21 +446,14 @@ public class FileExportController {
 			}
 
 			if (solrCoreName.equalsIgnoreCase("experiment")) {
-				List<String> phenotypingCenters = new ArrayList<String>();
-				try {
-					for (int i = 0; i < phenotypingCenter.length; i++) {
-						phenotypingCenters.add(phenotypingCenter[i].replaceAll("%20", " "));
-					}
-				} catch (NullPointerException e) {
-					log.error("Cannot find organisation ID for org with name " + phenotypingCenter);
+				for (int i = 0; i < phenotypingCenter.length; i++) {
+					phenotypingCenter[i] = phenotypingCenter[i].replaceAll("%20", " ");
 				}
-				List<String> zygList = null;
-				if (zygosities != null) {
-					zygList = Arrays.asList(zygosities);
-				}
+
 				String s = (sex.equalsIgnoreCase("null")) ? null : sex;
 				dataRows = composeExperimentDataExportRows(parameterStableId, mgiGeneId, allele, s,
-						phenotypingCenters, zygList, strains, pipelineStableId);
+						phenotypingCenter, zygosities, strains, pipelineStableId);
+
 			} else if (dogoterm) {
 				JSONObject json = solrIndex.getDataTableExportRows(solrCoreName, solrFilters, gridFields, rowStart,
 						length, showImgView);
@@ -484,60 +479,57 @@ public class FileExportController {
 	}
 
 
-	public List<String> composeExperimentDataExportRows(String[] parameterStableId, String[] geneAccession,
-														String allele[], String gender, List<String> phenotypingCenters, List<String> zygosity,
-														String[] strain, String[] pipelines)
+	public List<String> composeExperimentDataExportRows(String[] parameterArray,
+														String[] geneAccessionArray,
+														String[] alleleArray,
+														String gender,
+														String[] centerArray,
+														String[] zygosityArray,
+														String[] strainArray, String[] pipelineArray)
 			throws SolrServerException, IOException , URISyntaxException, SQLException {
 
 		List<String> rows = new ArrayList<>();
-		SexType sex = null;
-		if (gender != null) {
-			sex = SexType.valueOf(gender);
-		}
-		if (phenotypingCenters == null) {
-			throw new RuntimeException("ERROR: phenotypingCenterIds is null. Expected non-null value.");
-		}
-		if (phenotypingCenters.isEmpty()) {
-			phenotypingCenters.add(null);
-		}
 
-		if (strain == null || strain.length == 0) {
-			strain = new String[1];
-			strain[0] = null;
-		}
-		if (allele == null || allele.length == 0) {
-			allele = new String[1];
-			allele[0] = null;
-		}
-		List<String> pipelineStableIds = new ArrayList<>();
-		if (pipelines != null) {
-			for (String pipe : pipelines) {
-				pipelineStableIds.add(pipe);
-			}
-		} else {
-			pipelineStableIds.add(null);
-		}
+		//
+		// Recast all variables to java types for easy iteration
+		//
 
-		List<ExperimentDTO> experimentList;
-		for (int k = 0; k < parameterStableId.length; k++) {
-			for (int mgiI = 0; mgiI < geneAccession.length; mgiI++) {
-				for (String pCenter : phenotypingCenters) {
-					for (String pipelineId : pipelineStableIds) {
-						for (int strainI = 0; strainI < strain.length; strainI++) {
-							for (int alleleI = 0; alleleI < allele.length; alleleI++) {
-								experimentList = experimentService.getExperimentDTO(parameterStableId[k], pipelineId, geneAccession[mgiI], sex,
-										pCenter, zygosity, strain[strainI], null, false, allele[alleleI]);
+		SexType sex = (gender != null) ? SexType.valueOf(gender) : null;
+		List<String> centers = (centerArray != null && centerArray.length != 0) ? Arrays.asList(centerArray) : Collections.singletonList(null);
+		List<String> pipelines = (pipelineArray != null && pipelineArray.length != 0) ? Arrays.asList(pipelineArray) : Collections.singletonList(null);
+		List<String> parameters = (parameterArray != null && parameterArray.length != 0) ? Arrays.asList(parameterArray) : Collections.singletonList(null);
+		List<String> genes = (geneAccessionArray != null && geneAccessionArray.length != 0) ? Arrays.asList(geneAccessionArray) : Collections.singletonList(null);
+		List<String> alleles = (alleleArray != null && alleleArray.length != 0) ? Arrays.asList(alleleArray) : Collections.singletonList(null);
+		List<String> strains = (strainArray != null && strainArray.length != 0) ? Arrays.asList(strainArray) : Collections.singletonList(null);
+
+		// Zygosities
+		List<String> zygosities = (zygosityArray != null && zygosityArray.length != 0) ? Arrays.asList(zygosityArray) : null;
+
+
+		for (String parameter: parameters) {
+			for (String gene : genes) {
+				for (String center : centers) {
+					for (String pipeline : pipelines) {
+						for (String strain : strains) {
+							for (String allele : alleles) {
+
+								List<ExperimentDTO> experimentList = experimentService.getExperimentDTO(
+										parameter, pipeline, gene, sex,
+										center, zygosities, strain, null, false, allele);
+
 								if (experimentList.size() > 0) {
 									for (ExperimentDTO experiment : experimentList) {
 										rows.addAll(experiment.getTabbedToString());
 									}
 								}
+
 							}
 						}
 					}
 				}
 			}
 		}
+
 		return rows;
 	}
 

@@ -810,6 +810,22 @@ public class ObservationService extends BasicService implements WebStatus {
 
     }
 
+    /**
+     * buildQuery constructs the solr query to get the experiment back
+     *
+     *   At least gene and parameterStableId must not be null, everything else is optional
+     *
+     * @param parameterStableId NOT NULL
+     * @param pipelineStableId null optional
+     * @param gene NOT NULL
+     * @param zygosities null optional
+     * @param phenotypingCenter null optional
+     * @param strain null optional
+     * @param sex null optional
+     * @param metaDataGroup null optional
+     * @param alleleAccession null optional
+     * @return
+     */
     public SolrQuery buildQuery(String parameterStableId, String pipelineStableId, String gene, List<String> zygosities, String phenotypingCenter, String strain, SexType sex, String metaDataGroup, String alleleAccession){
 
         SolrQuery query = new SolrQuery()

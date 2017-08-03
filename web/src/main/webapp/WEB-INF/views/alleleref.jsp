@@ -130,8 +130,8 @@
                 var matches = window.location.hash.match(/(\d)$/);
                 var tabIndex = matches == null ? 0 : matches[0];
 
-                $( "#tabs" ).tabs({
-                    active: tabIndex,
+                var tabs = $( "#tabs" ).tabs({
+                    active: 0,
                     activate: function(event, ui) {
                         if (ui.newTab.index() == 0) {
                             $('div#agencyBox').hide();
@@ -155,6 +155,7 @@
                         }
                     }
                 });
+                tabs.tabs({active: tabIndex});
 
             });
 
