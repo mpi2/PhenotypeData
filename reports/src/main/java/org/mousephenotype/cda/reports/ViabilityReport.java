@@ -141,8 +141,8 @@ public class ViabilityReport extends AbstractReport {
             csvWriter.writeNext(EMPTY_ROW);
 
             // Build and write detail section.
-            csvWriter.writeRow(Arrays.asList(new String[] { "List of genes that result in a lethal, subviable or viable phenotype. A gene may appear more than once  if there are results for different colonies or the results are different for each sex or there are different alleles." }));
-            csvWriter.writeRow(Arrays.asList(new String[] { "Gene Symbol", "Gene Accession Id", "Allele Symbol", "Allele Accession Id", "Colony Id", "Sex", "Zygosity", "Phenotype", "Comment" } ));
+            csvWriter.writeRow(Arrays.asList(new String[] { "List of genes that result in a lethal, subviable or viable phenotype. A gene may appear more than once if there are results for different colonies or for different alleles." }));
+            csvWriter.writeRow(Arrays.asList(new String[] { "Gene Symbol", "Gene Accession Id", "Allele Symbol", "Allele Accession Id", "Phenotyping Centre", "Colony Id", "Sex", "Zygosity", "Phenotype", "Comment" } ));
             details = data.getData();
             details.sort(Comparator
                     .comparing(ObservationDTO::getGeneSymbol)
@@ -156,6 +156,7 @@ public class ViabilityReport extends AbstractReport {
                 row.add(detail.getGeneAccession());
                 row.add(detail.getAlleleSymbol());
                 row.add(detail.getAlleleAccession());
+                row.add(detail.getPhenotypingCenter());
                 row.add(detail.getColonyId());
                 row.add(detail.getSex());
                 row.add(detail.getZygosity());

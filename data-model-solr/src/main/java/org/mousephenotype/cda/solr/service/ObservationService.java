@@ -247,6 +247,7 @@ public class ObservationService extends BasicService implements WebStatus {
                     String geneSymbol = (doc.getFieldValue(ObservationDTO.GENE_SYMBOL) == null ? "" : doc.getFieldValue(ObservationDTO.GENE_SYMBOL).toString());
                     String geneAccessionId = (doc.getFieldValue(ObservationDTO.GENE_ACCESSION_ID) == null ? "" : doc.getFieldValue(ObservationDTO.GENE_ACCESSION_ID).toString());
                     String colonyId = (doc.getFieldValue(ObservationDTO.COLONY_ID) == null ? "" : doc.getFieldValue(ObservationDTO.COLONY_ID).toString());
+                    String phenotypingCenter = (doc.getFieldValue(ObservationDTO.PHENOTYPING_CENTER) == null ? "" : doc.getFieldValue(ObservationDTO.PHENOTYPING_CENTER).toString());
                     String sex = (doc.getFieldValue(ObservationDTO.SEX) == null ? "" : doc.getFieldValue(ObservationDTO.SEX).toString());
                     String category = doc.getFieldValue(ObservationDTO.CATEGORY).toString();
                     String[] parts = category.split("-");
@@ -259,6 +260,7 @@ public class ObservationService extends BasicService implements WebStatus {
                     ObservationDTO observationDTO = new ObservationDTO();
                     observationDTO.setGeneSymbol(geneSymbol);
                     observationDTO.setGeneAccession(geneAccessionId);
+                    observationDTO.setPhenotypingCenter(phenotypingCenter);
                     observationDTO.setColonyId(colonyId);
                     observationDTO.setSex(sex);
                     observationDTO.setZygosity(zygosity);
@@ -328,6 +330,7 @@ public class ObservationService extends BasicService implements WebStatus {
             if ((maxRows != null) && (maxRows > 0)){
                 query.addField(ObservationDTO.GENE_SYMBOL);
                 query.addField(ObservationDTO.GENE_ACCESSION_ID);
+                query.addField(ObservationDTO.PHENOTYPING_CENTER);
                 query.addField(ObservationDTO.COLONY_ID);
                 query.addField(ObservationDTO.CATEGORY);
                 query.addField(ObservationDTO.SEX);
