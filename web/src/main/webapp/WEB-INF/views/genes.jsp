@@ -15,43 +15,43 @@
             <!--  start of floating menu for genes page -->
             <div class="region region-pinned">
 
-	            <div id="flyingnavi" class="block smoothScroll">
+				<div id="flyingnavi" class="block smoothScroll">
 
-		            <a href="#top"><i class="fa fa-chevron-up"
-		                              title="scroll to top"></i></a>
+					<a href="#top"><i class="fa fa-chevron-up"
+									  title="scroll to top"></i></a>
 
-		            <ul>
-			            <li><a href="#top">Gene</a></li>
-			            <li><a href="#section-associations">Phenotype Associations</a></li>
-			            <!--  always a section for this even if says no phenotypes found - do not putting in check here -->
+					<ul>
+						<li><a href="#top">Gene</a></li>
+						<li><a href="#section-associations">Phenotype Associations</a></li>
+						<!--  always a section for this even if says no phenotypes found - do not putting in check here -->
 
 
 						<li><a href="#section-expression">Expression</a></li>
 
-						<%--<c:if test="${not empty impcImageFacets}">--%>
-							<li><a href="#section-images">Associated Images</a></li>
-						<%--</c:if>--%>
+							<%--<c:if test="${not empty impcImageFacets}">--%>
+						<li><a href="#section-images">Associated Images</a></li>
+							<%--</c:if>--%>
 
-						<%--<c:if test="${not empty orthologousDiseaseAssociations}">--%>
-							<li><a href="#section-disease-models">Disease Models</a></li>
-						<%--</c:if>--%>
+							<%--<c:if test="${not empty orthologousDiseaseAssociations}">--%>
+						<li><a href="#section-disease-models">Disease Models</a></li>
+							<%--</c:if>--%>
 
-						<%--<c:if test="${!countIKMCAllelesError}">--%>
-							<li><a href="#order2">Order Mouse and ES Cells</a></li>
-						<%--</c:if>--%>
-						</ul>
+							<%--<c:if test="${!countIKMCAllelesError}">--%>
+						<li><a href="#order2">Order Mouse and ES Cells</a></li>
+							<%--</c:if>--%>
+					</ul>
 
-						<div class="clear"></div>
-
-					</div>
+					<div class="clear"></div>
 
 				</div>
+
+			</div>
 				<!--  end of floating menu for genes page -->
 
 			</jsp:attribute>
 
 
-		<jsp:attribute name="header">
+	<jsp:attribute name="header">
 
 				<!-- JavaScript Local Imports -->
 
@@ -60,114 +60,114 @@
 				<script type="text/javascript" src="${baseUrl}/js/general/allele.js"></script>
 
 				<script type="text/javascript">
-					var gene_id = '${acc}';
+                    var gene_id = '${acc}';
 
-					$(document).ready(function() {
-						var heatmap_generated=0;
-						var expressionTab = 0;
-						var hash = location.hash;
-						if (hash.indexOf("tabs-") > -1){
-							expressionTab = $('a[href="' + hash + '"]').parent().index();
-							$("#section-expression").focus();
-						}
-						
-						$("#exptabs").tabs({ active: expressionTab});
-						$("#diseasetabs").tabs({ active: 0 });
-						$("#tabs").tabs();
-						//$("#diseasetabs").find("td[class!='shown']").css('color','#666');
+                    $(document).ready(function() {
+                        var heatmap_generated=0;
+                        var expressionTab = 0;
+                        var hash = location.hash;
+                        if (hash.indexOf("tabs-") > -1){
+                            expressionTab = $('a[href="' + hash + '"]').parent().index();
+                            $("#section-expression").focus();
+                        }
 
-						$('div#anatomo1').hide(); // by default
+                        $("#exptabs").tabs({ active: expressionTab});
+                        $("#diseasetabs").tabs({ active: 0 });
+                        $("#tabs").tabs();
+                        //$("#diseasetabs").find("td[class!='shown']").css('color','#666');
 
-						$('.wtExp').hide();
-						$('div#toggleWt').click(function(){
-							if ($('.wtExp').is(':visible')) {
-								$('.wtExp').hide();
-								$(this).text("Show Wildtype Expression");
-							}
-							else {
-								$('.wtExp').show();
-								$(this).text("Hide Wildtype Expression");
-							}
-						});
+                        $('div#anatomo1').hide(); // by default
 
-						$('div#expDataView').click(function(){
-							if ($('#anatomo1').is(':visible')) {
-								$('#anatomo1').hide();
-								$('#anatomo2').show();
-								$(this).text("Show expression table");
-							}
-							else {
-								$('#anatomo1').show();
-								$('#anatomo2').hide();
-								$(this).text("Hide expression table");
-							}
-						});
-						
-						$('#heatmap_link').click(function(){
-							console.log('heatmap link clicked');
-							
+                        $('.wtExp').hide();
+                        $('div#toggleWt').click(function(){
+                            if ($('.wtExp').is(':visible')) {
+                                $('.wtExp').hide();
+                                $(this).text("Show Wildtype Expression");
+                            }
+                            else {
+                                $('.wtExp').show();
+                                $(this).text("Hide Wildtype Expression");
+                            }
+                        });
+
+                        $('div#expDataView').click(function(){
+                            if ($('#anatomo1').is(':visible')) {
+                                $('#anatomo1').hide();
+                                $('#anatomo2').show();
+                                $(this).text("Show expression table");
+                            }
+                            else {
+                                $('#anatomo1').show();
+                                $('#anatomo2').hide();
+                                $(this).text("Hide expression table");
+                            }
+                        });
+
+                        $('#heatmap_link').click(function(){
+                            console.log('heatmap link clicked');
+
 							/* //load the css
-							var cssId = 'myCss';  // you could encode the css path itself to generate id..
-							if (!document.getElementById(cssId))
-							{
-							    var head  = document.getElementsByTagName('head')[0];
-							    var link  = document.createElement('link');
-							    link.id   = cssId;
-							    link.rel  = 'stylesheet';
-							    link.type = 'text/css';
-							    link.href = '${drupalBaseUrl}/heatmap/css/heatmap.1.3.1.css';
-							    link.media = 'all';
-							    head.appendChild(link);
-							} */
+							 var cssId = 'myCss';  // you could encode the css path itself to generate id..
+							 if (!document.getElementById(cssId))
+							 {
+							 var head  = document.getElementsByTagName('head')[0];
+							 var link  = document.createElement('link');
+							 link.id   = cssId;
+							 link.rel  = 'stylesheet';
+							 link.type = 'text/css';
+							 link.href = '${drupalBaseUrl}/heatmap/css/heatmap.1.3.1.css';
+							 link.media = 'all';
+							 head.appendChild(link);
+							 } */
 
-							if($('#heatmap_toggle_div').length){//check if this div exists first as this will ony exist if phenotypeStarted and we don't want to do this if not.
-								$('#heatmap_toggle_div').toggleClass('hidden');//toggle the div whether the heatmap has been generated or not.
-								$('#phenotypeTableDiv').toggleClass('hidden');
-								if(!heatmap_generated){
+                            if($('#heatmap_toggle_div').length){//check if this div exists first as this will ony exist if phenotypeStarted and we don't want to do this if not.
+                                $('#heatmap_toggle_div').toggleClass('hidden');//toggle the div whether the heatmap has been generated or not.
+                                $('#phenotypeTableDiv').toggleClass('hidden');
+                                if(!heatmap_generated){
 
-									var script = document.createElement('script');
-									script.src = "${drupalBaseUrl}/heatmap/js/heatmap.1.3.1.js";
-									script.onload = function () {
+                                    var script = document.createElement('script');
+                                    script.src = "${drupalBaseUrl}/heatmap/js/heatmap.1.3.1.js";
+                                    script.onload = function () {
 
-										//do stuff with the script
-										new dcc.PhenoHeatMap({
+                                        //do stuff with the script
+                                        new dcc.PhenoHeatMap({
 											/* identifier of <div> node that will host the heatmap */
-											'container': 'phenodcc-heatmap',
+                                            'container': 'phenodcc-heatmap',
 											/* colony identifier (MGI identifier) */
-											'mgiid': '${gene.mgiAccessionId}',
+                                            'mgiid': '${gene.mgiAccessionId}',
 											/* default usage mode: ontological or procedural */
-											'mode': 'ontological',
+                                            'mode': 'ontological',
 											/* number of phenotype columns to use per section */
-											'ncol': 5,
+                                            'ncol': 5,
 											/* heatmap title to use */
-											'title': '${gene.markerSymbol}',
-											'url': {
+                                            'title': '${gene.markerSymbol}',
+                                            'url': {
 												/* the base URL of the heatmap javascript source */
-												'jssrc': '${fn:replace(drupalBaseUrl, "https:", "")}/heatmap/js/',
+                                                'jssrc': '${fn:replace(drupalBaseUrl, "https:", "")}/heatmap/js/',
 												/* the base URL of the heatmap data source */
-												'json': '${fn:replace(drupalBaseUrl, "https:", "")}/heatmap/rest/',
+                                                'json': '${fn:replace(drupalBaseUrl, "https:", "")}/heatmap/rest/',
 												/* function that generates target URL for data visualisation */
-												'viz': dcc.heatmapUrlGenerator
-											}
-										});
-										heatmap_generated=1;
+                                                'viz': dcc.heatmapUrlGenerator
+                                            }
+                                        });
+                                        heatmap_generated=1;
 
-									};
-
-
-								document.head.appendChild(script);
-
-		
-
-								}//end of if heatmap generated
-
-						}
-							
+                                    };
 
 
-						});
-						 
-					});
+                                    document.head.appendChild(script);
+
+
+
+                                }//end of if heatmap generated
+
+                            }
+
+
+
+                        });
+
+                    });
 				</script>
 				<style>
 					li.showAdultImage {
@@ -300,7 +300,7 @@
 						border: none;
 					}
 					/*div.ui-dropdownchecklist-dropcontainer-wrapper.ui-widget.filtersMoreLikeNicolas.open {*/
-						/*border: 1px solid gray;*/
+					/*border: 1px solid gray;*/
 					/*}*/
 
 					div.ui-dropdownchecklist-selector {
@@ -344,21 +344,21 @@
 					ul#expList li a.mahighlight {
 						color: #E2701E;
 					}
-					
+
 					/*li.ui-menu-divider {*/
-						/*display: none;*/
+					/*display: none;*/
 					/*}*/
-                        #fancybox-close {
-	position: absolute;
-	top: -15px;
-	right: -15px;
-	width: 30px;
-	height: 30px;
-	background: transparent url('fancybox.png') -40px 0px;
-	cursor: pointer;
-	z-index: 51103;
-	display: none;
-}
+					#fancybox-close {
+						position: absolute;
+						top: -15px;
+						right: -15px;
+						width: 30px;
+						height: 30px;
+						background: transparent url('fancybox.png') -40px 0px;
+						cursor: pointer;
+						z-index: 51103;
+						display: none;
+					}
 
 
 				</style>
@@ -379,251 +379,251 @@
 
 			</jsp:attribute>
 
-		<jsp:body>
-			<div class="region region-content">
-				<div class="block">
-					<div class="content">
-						<div class="node node-gene">
-							<h1 class="title" id="top">Gene: ${gene.markerSymbol}
-								<span class="documentation">
+	<jsp:body>
+		<div class="region region-content">
+			<div class="block">
+				<div class="content">
+					<div class="node node-gene">
+						<h1 class="title" id="top">Gene: ${gene.markerSymbol}
+							<span class="documentation">
 									<a href='' id='summarySection' class="fa fa-question-circle pull-right"></a>
 								</span>
-							</h1>
+						</h1>
 
-							<!-- general Gene info -->
-							<div class="section">
+						<!-- general Gene info -->
+						<div class="section">
 								<%--<a href='' id='detailsPanel' class="fa fa-question-circle pull-right"></a>--%>
-								<div class="inner">
+							<div class="inner">
 
-									<jsp:include page="genesGene_frag.jsp"/>
-								</div>
+								<jsp:include page="genesGene_frag.jsp"/>
 							</div>
-							<!-- end of general Gene info -->
+						</div>
+						<!-- end of general Gene info -->
 
-							<!--  Phenotype Associations -->
-							<div class="section">
+						<!--  Phenotype Associations -->
+						<div class="section">
 
-								<h2 class="title "
-									id="section-associations"> Phenotype associations for ${gene.markerSymbol}
-										<span class="documentation"><a
-												href='' id='phenoAssocSection' class="fa fa-question-circle pull-right"></a></span>
-									<!--  this works, but need js to drive tip position -->
-								</h2>
+							<h2 class="title "
+								id="section-associations"> Phenotype associations for ${gene.markerSymbol}
+								<span class="documentation"><a
+										href='' id='phenoAssocSection' class="fa fa-question-circle pull-right"></a></span>
+								<!--  this works, but need js to drive tip position -->
+							</h2>
 
-								<div class="inner">
-									<jsp:include page="genesPhenotypeAssociation_frag.jsp"/>
-								</div>
-
+							<div class="inner">
+								<jsp:include page="genesPhenotypeAssociation_frag.jsp"/>
 							</div>
-							<!-- end of Phenotype Associations -->
+
+						</div>
+						<!-- end of Phenotype Associations -->
 
 
-							
-
-							<c:if test="${not empty imageErrors}">
-								<div class="row-fluid dataset">
-									<div class="alert">
-										<strong>Warning!</strong>${imageErrors }</div>
-								</div>
-							</c:if>
-
-							<div class="clear"></div>
-							<br/> <br/>
 
 
-							<!-- IMPC / legacy Expressions -->
-							<div class="section">
+						<c:if test="${not empty imageErrors}">
+							<div class="row-fluid dataset">
+								<div class="alert">
+									<strong>Warning!</strong>${imageErrors }</div>
+							</div>
+						</c:if>
 
-								<h2 class="title" id="section-expression">Expression
-									<span class="documentation"><a href='' id='expressionSection' goto="geneTab" class="fa fa-question-circle pull-right"></a></span>
-								</h2>
+						<div class="clear"></div>
+						<br/> <br/>
 
-								<div class="inner" style="display: block;">
-									<c:if test="${empty impcAdultExpressionImageFacetsWholemount
+
+						<!-- IMPC / legacy Expressions -->
+						<div class="section">
+
+							<h2 class="title" id="section-expression">Expression
+								<span class="documentation"><a href='' id='expressionSection' goto="geneTab" class="fa fa-question-circle pull-right"></a></span>
+							</h2>
+
+							<div class="inner" style="display: block;">
+								<c:if test="${empty impcAdultExpressionImageFacetsWholemount
 										and empty impcAdultExpressionImageFacetsSection
 										and empty expressionAnatomyToRow
 										and empty impcEmbryoExpressionImageFacets
 										and empty embryoExpressionAnatomyToRow
 										and empty expressionFacets}">
-										<div class="alert alert_info">Expression data not available</div>
-									</c:if>
+									<div class="alert alert_info">Expression data not available</div>
+								</c:if>
 
 
-									<c:if test="${not empty impcAdultExpressionImageFacetsWholemount
+								<c:if test="${not empty impcAdultExpressionImageFacetsWholemount
 										or not empty impcAdultExpressionImageFacetsSection
 										or not empty expressionAnatomyToRow
 										or not empty impcEmbryoExpressionImageFacets
 										or not empty embryoExpressionAnatomyToRow}">
 
-											<h5 class="sectHint">IMPC lacZ Expression Data</h5>
-											<!-- section for expression data here -->
-											<div id="exptabs">
-												<ul class='tabs'>
-													<li><a href="#tabs-1">Adult Expression</a></li>
+									<h5 class="sectHint">IMPC lacZ Expression Data</h5>
+									<!-- section for expression data here -->
+									<div id="exptabs">
+										<ul class='tabs'>
+											<li><a href="#tabs-1">Adult Expression</a></li>
 
-													<%--<c:if test="${not empty expressionAnatomyToRow }">--%>
-														<%--<li><a href="#tabs-1">Adult Expression</a></li>--%>
-													<%--</c:if>--%>
+												<%--<c:if test="${not empty expressionAnatomyToRow }">--%>
+												<%--<li><a href="#tabs-1">Adult Expression</a></li>--%>
+												<%--</c:if>--%>
 
-													<%--<c:if test="${not empty impcAdultExpressionImageFacets}">--%>
-														<li><a href="#tabs-3">Adult Expression Image</a></li>
-													<%--</c:if>--%>
+												<%--<c:if test="${not empty impcAdultExpressionImageFacets}">--%>
+											<li><a href="#tabs-3">Adult Expression Image</a></li>
+												<%--</c:if>--%>
 
-													<%--<c:if test="${not empty embryoExpressionAnatomyToRow}">--%>
-														<li><a href="#tabs-4">Embryo Expression</a></li>
-													<%--</c:if>--%>
+												<%--<c:if test="${not empty embryoExpressionAnatomyToRow}">--%>
+											<li><a href="#tabs-4">Embryo Expression</a></li>
+												<%--</c:if>--%>
 
-													<%--<c:if test="${not empty impcEmbryoExpressionImageFacets}">--%>
-														<li><a href="#tabs-5">Embryo Expression Image</a></li>
-													<%--</c:if>--%>
+												<%--<c:if test="${not empty impcEmbryoExpressionImageFacets}">--%>
+											<li><a href="#tabs-5">Embryo Expression Image</a></li>
+												<%--</c:if>--%>
 
-												</ul>
+										</ul>
 
-												<c:choose>
-													<c:when test="${not empty expressionAnatomyToRow }">
-														<div id="tabs-1">
-															<!-- Expression in Anatomogram -->
-                                                            <jsp:include page="genesAnatomogram_frag.jsp"></jsp:include>
-														</div>
-													</c:when>
-													<c:otherwise>
-														<div id="tabs-1">
-															<!-- Expression in Anatomogram -->
-															No expression data was found for this adult tab
-														</div>
-													</c:otherwise>
-												</c:choose>
-													<%--<c:if test="${ not empty expressionAnatomyToRow}"><!-- if size greater than 1 we have more data than just unassigned which we will -->--%>
-													<%--<div id="tabs-2">--%>
-													<%--<jsp:include page="genesAdultExpEata_frag.jsp"></jsp:include>--%>
-													<%--</div>--%>
-													<%--</c:if>--%>
+										<c:choose>
+											<c:when test="${not empty expressionAnatomyToRow }">
+												<div id="tabs-1">
+													<!-- Expression in Anatomogram -->
+													<jsp:include page="genesAnatomogram_frag.jsp"></jsp:include>
+												</div>
+											</c:when>
+											<c:otherwise>
+												<div id="tabs-1">
+													<!-- Expression in Anatomogram -->
+													No expression data was found for this adult tab
+												</div>
+											</c:otherwise>
+										</c:choose>
+											<%--<c:if test="${ not empty expressionAnatomyToRow}"><!-- if size greater than 1 we have more data than just unassigned which we will -->--%>
+											<%--<div id="tabs-2">--%>
+											<%--<jsp:include page="genesAdultExpEata_frag.jsp"></jsp:include>--%>
+											<%--</div>--%>
+											<%--</c:if>--%>
 
-												<!-- section for expression data here -->
-												<c:choose>
-													<c:when test="${not empty wholemountExpressionImagesBean.filteredTopLevelAnatomyTerms || not empty sectionExpressionImagesBean.filteredTopLevelAnatomyTerms}">
-														<div id="tabs-3">
-															<jsp:include page="genesAdultLacZ+ExpImg_frag.jsp"></jsp:include>
-														</div>
-													</c:when>
-													<c:otherwise>
-														<div id="tabs-3">
-															No expression image was found for this adult tab
-														</div>
-													</c:otherwise>
-												</c:choose>
+										<!-- section for expression data here -->
+										<c:choose>
+											<c:when test="${not empty wholemountExpressionImagesBean.filteredTopLevelAnatomyTerms && not empty sectionExpressionImagesBean.filteredTopLevelAnatomyTerms}">
+												<div id="tabs-3">
+													<jsp:include page="genesAdultLacZ+ExpImg_frag.jsp"></jsp:include>
+												</div>
+											</c:when>
+											<c:otherwise>
+												<div id="tabs-3">
+													No expression image was found for this adult tab
+												</div>
+											</c:otherwise>
+										</c:choose>
 
-												<c:choose>
-													<c:when test="${not empty embryoExpressionAnatomyToRow}">
-														<div id="tabs-4" style="height: 500px; overflow: auto;">
-															<jsp:include page="genesEmbExpData_frag.jsp"></jsp:include>
-														</div>
-													</c:when>
-													<c:otherwise>
-														<div id="tabs-4">
-															No expression data was found for this embryo tab
-														</div>
-													</c:otherwise>
-												</c:choose>
-												<c:choose>
-													<c:when  test="${not empty wholemountExpressionImagesEmbryoBean.expFacetToDocs || not empty sectionExpressionEmbryoImagesBean.expFacetToDocs}">
-														<div id="tabs-5">
-															<jsp:include page="genesEmbExpImg_frag.jsp"></jsp:include>
-														</div>
-													</c:when>
-													<c:otherwise>
-														<div id="tabs-5">
-															No expression image was found for this embryo tab
-														</div>
-													</c:otherwise>
-												</c:choose>
+										<c:choose>
+											<c:when test="${not empty embryoExpressionAnatomyToRow}">
+												<div id="tabs-4" style="height: 500px; overflow: auto;">
+													<jsp:include page="genesEmbExpData_frag.jsp"></jsp:include>
+												</div>
+											</c:when>
+											<c:otherwise>
+												<div id="tabs-4">
+													No expression data was found for this embryo tab
+												</div>
+											</c:otherwise>
+										</c:choose>
+										<c:choose>
+											<c:when  test="${not empty wholemountExpressionImagesEmbryoBean.expFacetToDocs || not empty sectionExpressionEmbryoImagesBean.expFacetToDocs}">
+												<div id="tabs-5">
+													<jsp:include page="genesEmbExpImg_frag.jsp"></jsp:include>
+												</div>
+											</c:when>
+											<c:otherwise>
+												<div id="tabs-5">
+													No expression image was found for this embryo tab
+												</div>
+											</c:otherwise>
+										</c:choose>
 
-												<br style="clear: both">
-											</div><!-- end of tabs -->
-									</c:if>
+										<br style="clear: both">
+									</div><!-- end of tabs -->
+								</c:if>
 
-									<c:if test="${not empty expressionFacets and (not empty impcAdultExpressionImageFacets
+								<c:if test="${not empty expressionFacets and (not empty impcAdultExpressionImageFacets
 										or not empty expressionAnatomyToRow
 										or not empty impcEmbryoExpressionImageFacets
 										or not empty embryoExpressionAnatomyToRow)}">
+									<hr>
+								</c:if>
+
+								<!-- Expression (legacy) -->
+								<c:if test="${not empty expressionFacets}">
+									<h5 class="sectHint">Secondary lacZ Expression Data</h5>
+
+									<!-- thumbnail scroller markup begin -->
+									<c:forEach var="entry" items="${expressionFacets}" varStatus="status">
+										<div class="accordion-group">
+											<div class="accordion-heading">
+													${entry.name} (${entry.count})
+											</div>
+											<div class="accordion-body">
+												<ul>
+													<c:forEach var="doc" items="${expFacetToDocs[entry.name]}">
+														<li>
+															<t:imgdisplay
+																	img="${doc}"
+																	mediaBaseUrl="${mediaBaseUrl}"></t:imgdisplay>
+														</li>
+													</c:forEach>
+												</ul>
+												<div class="clear"></div>
+												<c:if test="${entry.count>5}">
+													<p class="textright">
+														<a href='${baseUrl}/images?gene_id=${acc}&fq=sangerProcedureName:"Wholemount Expression"&fq=selected_top_level_ma_term:"${entry.name}"'>show
+															all ${entry.count} images</a>
+													</p>
+												</c:if>
+											</div>
+										</div>
+									</c:forEach>
+									<%--</div>--%>
+								</c:if>
+								<br style="clear: both">
+							</div>
+						</div><!-- end of IMPC / legacy Expressions -->
+
+
+
+
+						<!-- nicolas accordion for IMPC / Legacy phenotype associated images here -->
+						<div class="section">
+							<h2 class="title" id="section-images">Associated Images
+								<span class="documentation"><a href="" id="phenoAssocImgSection" class="fa fa-question-circle pull-right"></a></span>
+							</h2>
+
+							<div class="inner" style="display: block;">
+								<c:if test="${empty impcImageGroups and empty solrFacets}">
+									<div class="alert alert_info">Phenotype associated images not available</div>
+								</c:if>
+
+								<c:if test="${not empty impcImageGroups or not empty solrFacets}">
+									<c:if test="${not empty impcImageGroups}">
+										<h5 class="sectHint">Associated Images</h5>
+										<jsp:include page="impcImagesByParameter_frag.jsp"></jsp:include>
+									</c:if>
+
+									<c:if test="${not empty impcImageFacets and not empty solrFacets}">
 										<hr>
 									</c:if>
 
-									<!-- Expression (legacy) -->
-									<c:if test="${not empty expressionFacets}">
-											<h5 class="sectHint">Secondary lacZ Expression Data</h5>
-
-											<!-- thumbnail scroller markup begin -->
-											<c:forEach var="entry" items="${expressionFacets}" varStatus="status">
-												<div class="accordion-group">
-													<div class="accordion-heading">
-															${entry.name} (${entry.count})
-													</div>
-													<div class="accordion-body">
-														<ul>
-															<c:forEach var="doc" items="${expFacetToDocs[entry.name]}">
-																<li>
-																	<t:imgdisplay
-																			img="${doc}"
-																			mediaBaseUrl="${mediaBaseUrl}"></t:imgdisplay>
-																</li>
-															</c:forEach>
-														</ul>
-														<div class="clear"></div>
-														<c:if test="${entry.count>5}">
-															<p class="textright">
-																<a href='${baseUrl}/images?gene_id=${acc}&fq=sangerProcedureName:"Wholemount Expression"&fq=selected_top_level_ma_term:"${entry.name}"'>show
-																	all ${entry.count} images</a>
-															</p>
-														</c:if>
-													</div>
-												</div>
-											</c:forEach>
-										<%--</div>--%>
-									</c:if>
-									<br style="clear: both">
-								</div>
-							</div><!-- end of IMPC / legacy Expressions -->
-
-						
-							
-							
-							<!-- nicolas accordion for IMPC / Legacy phenotype associated images here -->
-							<div class="section">
-								<h2 class="title" id="section-images">Associated Images
-									<span class="documentation"><a href="" id="phenoAssocImgSection" class="fa fa-question-circle pull-right"></a></span>
-								</h2>
-
-								<div class="inner" style="display: block;">
-									<c:if test="${empty impcImageGroups and empty solrFacets}">
-										<div class="alert alert_info">Phenotype associated images not available</div>
+									<c:if test="${not empty solrFacets}">
+										<h5 class="sectHint">Legacy Phenotype Associated Images</h5>
+										<jsp:include page="genesLegacyPhenoAssocImg_frag.jsp"></jsp:include>
 									</c:if>
 
-									<c:if test="${not empty impcImageGroups or not empty solrFacets}">
-										<c:if test="${not empty impcImageGroups}">
-											<h5 class="sectHint">Associated Images</h5>
-											<jsp:include page="impcImagesByParameter_frag.jsp"></jsp:include>
-										</c:if>
-
-										<c:if test="${not empty impcImageFacets and not empty solrFacets}">
-											<hr>
-										</c:if>
-
-										<c:if test="${not empty solrFacets}">
-											<h5 class="sectHint">Legacy Phenotype Associated Images</h5>
-											<jsp:include page="genesLegacyPhenoAssocImg_frag.jsp"></jsp:include>
-										</c:if>
-
-									</c:if>
-								</div>
+								</c:if>
 							</div>
+						</div>
 
 						<!--Disease Sections-->
 						<div class="section">
 							<h2 class="title" id="section-disease-models">Disease Models
 
 								<a target="_blank" href='http://www.sanger.ac.uk/resources/databases/phenodigm/'></a>
-                                <span class="documentation">
+								<span class="documentation">
 	                                <a href="" id="diseaseSection" class="mpPanel">
 		                                <i class="fa fa-question-circle pull-right"></i>
 	                                </a>
@@ -675,17 +675,17 @@
 
 
 						<!-- End of Order Mouse and ES Cells -->
-						
-						
+
+
 						<div class="section" id="order2">
 							<h2 class="title documentation" id="order-panel">Order Mouse and ES Cells<span
 									class="documentation"><a href='' id='orderSection' class="fa fa-question-circle pull-right"></a></span>
 							</h2>
 
 							<div class="inner">
-								
+
 								<jsp:include page="orderSectionFrag.jsp"></jsp:include>
-								
+
 							</div>
 						</div>
 
@@ -699,68 +699,61 @@
 		<link rel="stylesheet" type="text/css" href="${baseUrl}/js/phenogrid-1.3.1/dist/phenogrid-bundle.css?v=${version}">
 
 
-        <%-- for anatomogram released in 201609 --%>
-		<%--<script type="text/javascript" src="${baseUrl}/js/anatomogram/old/vendorCommons.bundle.js?v=${version}"></script>--%>
-		<%--<script type="text/javascript" src="${baseUrl}/js/anatomogram/old/anatomogramBuilder.bundle.js?v=${version}"></script>--%>
-		<script type="text/javascript" src="vendorCommons.bundle.js?v=${version}"></script>
-		<script type="text/javascript" src="anatomogram.bundle.js?v=${version}"></script>
+		<%-- for anatomogram released in 201609 --%>
+		<script type="text/javascript" src="${baseUrl}/js/anatomogram/vendorCommons.bundle.js?v=${version}"></script>
+		<script type="text/javascript" src="${baseUrl}/js/anatomogram/anatomogramBuilder.bundle.js?v=${version}"></script>
 
-        <%-- these copies have the http:// changed to // --%>
-        <%--<script type="text/javascript" src="${baseUrl}/js/vendorCommons.bundle.js?v=${version}"></script>--%>
-        <%--<script type="text/javascript" src="${baseUrl}/js/expressionAtlasAnatomogram.bundle.js?v=${version}"></script>--%>
+		<%-- these copies have the http:// changed to // --%>
+		<%--<script type="text/javascript" src="${baseUrl}/js/vendorCommons.bundle.js?v=${version}"></script>--%>
+		<%--<script type="text/javascript" src="${baseUrl}/js/expressionAtlasAnatomogram.bundle.js?v=${version}"></script>--%>
 
 
-        <%--reinvoke this when atlas people are ready supporting https--%>
+		<%--reinvoke this when atlas people are ready supporting https--%>
 		<%--<script language="JavaScript" type="text/javascript" src="//www.ebi.ac.uk/gxa/resources/js-bundles/vendorCommons.bundle.js"></script>--%>
 		<%--<script language="JavaScript" type="text/javascript" src="//www.ebi.ac.uk/gxa/resources/js-bundles/expressionAtlasAnatomogram.bundle.js"></script>--%>
 
 
 		<script type="text/javascript">
-			var diseaseTables = [{
-				id: '#orthologous_diseases_table',
-				tableConf: {
-					paging: false,
-					info: false,
-					searching: false,
-					order: [[2, 'desc'], [4, 'desc'], [3, 'desc']],
-					"sPaginationType": "bootstrap"
-				}
-			}, {
-				id: '#predicted_diseases_table',
-				tableConf: {
-					order: [[2, 'desc'], [4, 'desc'], [3, 'desc']],
-					"sPaginationType": "bootstrap"
-				}
-			}];
+            var diseaseTables = [{
+                id: '#orthologous_diseases_table',
+                tableConf: {
+                    paging: false,
+                    info: false,
+                    searching: false,
+                    order: [[2, 'desc'], [4, 'desc'], [3, 'desc']],
+                    "sPaginationType": "bootstrap"
+                }
+            }, {
+                id: '#predicted_diseases_table',
+                tableConf: {
+                    order: [[2, 'desc'], [4, 'desc'], [3, 'desc']],
+                    "sPaginationType": "bootstrap"
+                }
+            }];
 
 
-			$(document).ready(function () {
+            $(document).ready(function () {
 
-				for (var i = 0; i < diseaseTables.length; i++) {
-					var diseaseTable = diseaseTables[i];
-					var dataTable = $(diseaseTable.id).DataTable(diseaseTable.tableConf);
-					$.fn.addTableClickCallbackHandler(diseaseTable.id, dataTable);
-				}
+                for (var i = 0; i < diseaseTables.length; i++) {
+                    var diseaseTable = diseaseTables[i];
+                    var dataTable = $(diseaseTable.id).DataTable(diseaseTable.tableConf);
+                    $.fn.addTableClickCallbackHandler(diseaseTable.id, dataTable);
+                }
 
-				console.log(${anatomogram});
-				// invoke anatomogram only when
-				// this check is not empty: impcAdultExpressionImageFacets
+                console.log(${anatomogram});
+                // invoke anatomogram only when
+                // this check is not empty: impcAdultExpressionImageFacets
 
-				if ($('div#anatomogramContainer').size() == 1) {
+                if ($('div#anatomogramContainer').size() == 1) {
 
-					// anatomogram stuff
-					//var expData = JSON.parse(${anatomogram});
-					var expData = ${anatomogram};
+                    // anatomogram stuff
+                    //var expData = JSON.parse(${anatomogram});
+                    var expData = ${anatomogram};
                     console.log(expData);
-					var topLevelName2maIdMap = expData.topLevelName2maIdMap;
-					var maId2UberonEfoMap = expData.maId2UberonEfoMap;
-					var uberonEfo2MaIdMap = expData.uberonEfo2MaIdMap;
-					var maId2topLevelNameMap = expData.maId2topLevelNameMap;
-
-					// ---- new anatomogram released in 2017-07-22  ------
-
-                    mouseAnatomogram([], []);
-
+                    var topLevelName2maIdMap = expData.topLevelName2maIdMap;
+                    var maId2UberonEfoMap = expData.maId2UberonEfoMap;
+                    var uberonEfo2MaIdMap = expData.uberonEfo2MaIdMap;
+                    var maId2topLevelNameMap = expData.maId2topLevelNameMap;
 
 
                     //------------ anatomogram 201609 version ----------
@@ -768,65 +761,63 @@
                     //specify the colour in each of your calls to the anatomogram renderer like this:
                     //anatomogramBuilder.render({mountNode: 'main', hoveredTissueColour: 'blue', highlightIDs: ['UBERON_0002107', 'UBERON_0001242']});
 
-//                    var anatomogramConfig = {mountNode: 'anatomogramContainer', hoveredTissueColour: 'red'};
-//                    anatomogramBuilder.render(anatomogramConfig);
-//
-//                    anatomogramBuilder.eventEmitter.on('gxaAnatomogramTissueMouseEnter', function(pathID) {
-//
-//                        console.log('Entering ' + pathID)
-//                        //console.log('Ma? '+ uberonEfo2MaIdMap[pathID]);
-//                        var maIds = uberonEfo2MaIdMap[pathID];
-//
-//                        if (maIds != undefined) {
-//                            var topLevelNames = [];
-//                            for (var i = 0; i < maIds.length; i++) {
-//                                var tops = maId2topLevelNameMap[maIds[i]];
-//                                for (var j = 0; j < tops.length; j++) {
-//                                    topLevelNames.push(tops[j].trim());
-//                                }
-//                            }
-//
-//                            topLevelNames = $.fn.getUnique(topLevelNames);
-//                            $('ul#expList li a,ul#expList li').each(function () {
-//                                if ($.fn.inArray($(this).text().trim(), topLevelNames)) {
-//                                    $(this).addClass("mahighlight");
-//                                }
-//                            });
-//                        }
-//                    });
-//                    anatomogramBuilder.eventEmitter.on('gxaAnatomogramTissueMouseLeave', function(pathID) {
-//                        console.log('Leaving ' + pathID)
-//                        $('ul#expList li a,ul#expList li').removeClass("mahighlight");
-//                    });
-//
-//
-//                    // top level MA term talks to anatomogram
-//					$("ul#expList li a,ul#expList li").on("mouseover", function() {
-//						var topname = $(this).text().trim();
-//                        console.log("top:"+topname+"--")
-//						var maIds = topLevelName2maIdMap[topname];
-//						//log(topname + " - " + maIds);
-//						var uberonIds = [];
-//						for( var a=0; a<maIds.length; a++){
-//							uberonIds = uberonIds.concat(maId2UberonEfoMap[maIds[a]]);
-//						}
-//						uberonIds = $.fn.getUnique(uberonIds);
-//
-//						//console.log(topname + " : " + uberonIds);
-//
-//                        $(this).addClass("mahighlight");
-//
-//                        // change tissue color
-//                        anatomogramBuilder.render($.extend(anatomogramConfig, {highlightIDs: uberonIds}));
-//
-//					}).on("mouseout", function(){
-//                        // revert text color
-//                        $('ul#expList li a,ul#expList li').removeClass("mahighlight");
-//                        // revert tissue color
-//                        anatomogramBuilder.render($.extend(anatomogramConfig, {highlightIDs: []}));
-//					});
+                    var anatomogramConfig = {mountNode: 'anatomogramContainer', hoveredTissueColour: 'red'};
+                    anatomogramBuilder.render(anatomogramConfig);
+
+                    anatomogramBuilder.eventEmitter.on('gxaAnatomogramTissueMouseEnter', function(pathID) {
+
+                        console.log('Entering ' + pathID)
+                        //console.log('Ma? '+ uberonEfo2MaIdMap[pathID]);
+                        var maIds = uberonEfo2MaIdMap[pathID];
+
+                        if (maIds != undefined) {
+                            var topLevelNames = [];
+                            for (var i = 0; i < maIds.length; i++) {
+                                var tops = maId2topLevelNameMap[maIds[i]];
+                                for (var j = 0; j < tops.length; j++) {
+                                    topLevelNames.push(tops[j].trim());
+                                }
+                            }
+
+                            topLevelNames = $.fn.getUnique(topLevelNames);
+                            $('ul#expList li a,ul#expList li').each(function () {
+                                if ($.fn.inArray($(this).text().trim(), topLevelNames)) {
+                                    $(this).addClass("mahighlight");
+                                }
+                            });
+                        }
+                    });
+                    anatomogramBuilder.eventEmitter.on('gxaAnatomogramTissueMouseLeave', function(pathID) {
+                        console.log('Leaving ' + pathID)
+                        $('ul#expList li a,ul#expList li').removeClass("mahighlight");
+                    });
 
 
+                    // top level MA term talks to anatomogram
+                    $("ul#expList li a,ul#expList li").on("mouseover", function() {
+                        var topname = $(this).text().trim();
+                        console.log("top:"+topname+"--")
+                        var maIds = topLevelName2maIdMap[topname];
+                        //log(topname + " - " + maIds);
+                        var uberonIds = [];
+                        for( var a=0; a<maIds.length; a++){
+                            uberonIds = uberonIds.concat(maId2UberonEfoMap[maIds[a]]);
+                        }
+                        uberonIds = $.fn.getUnique(uberonIds);
+
+                        //console.log(topname + " : " + uberonIds);
+
+                        $(this).addClass("mahighlight");
+
+                        // change tissue color
+                        anatomogramBuilder.render($.extend(anatomogramConfig, {highlightIDs: uberonIds}));
+
+                    }).on("mouseout", function(){
+                        // revert text color
+                        $('ul#expList li a,ul#expList li').removeClass("mahighlight");
+                        // revert tissue color
+                        anatomogramBuilder.render($.extend(anatomogramConfig, {highlightIDs: []}));
+                    });
 
                     //------------ end of anatomogram 201609 version ----------
 
@@ -916,112 +907,39 @@
 //					eventEmitter.addListener("gxaAnatomogramTissueMouseLeave", function(e) {
 //						$('ul#expList li a').removeClass("mahighlight");
 //					});
-				}
-
-                function mouseAnatomogram(highlightIds, selectIds) {
-                    anatomogram.render({
-                        showColour: 'grey',
-                        highlightColour: 'red',
-                        selectColour: 'purple',
-                        showOpacity: '0.3',
-                        highlightOpacity: '0.6',
-                        selectOpacity: '0.8',
-                        //species: 'mus_musculus', // can ignore as svgs are built using the anatomogram mouse branch
-						// these are all the available mouse tissues (male,female,brain)
-                        showIds: ["UBERON_0000947",
-                            "UBERON_0001348",
-                            "UBERON_0001347",
-                            "UBERON_0000945",
-                            "UBERON_0002114",
-                            "UBERON_0001264",
-                            "UBERON_0002106",
-                            "UBERON_0002369",
-                            "UBERON_0002113",
-                            "UBERON_0001155",
-                            "UBERON_0002108",
-                            "UBERON_0001153",
-                            "UBERON_0002115",
-                            "UBERON_0002116",
-                            "UBERON_0001043",
-                            "UBERON_0002110",
-                            "UBERON_0001831",
-                            "UBERON_0001736",
-                            "UBERON_0000029",
-                            "UBERON_0000998",
-                            "UBERON_0000989",
-                            "UBERON_0000981",
-                            "UBERON_0002371",
-                            "UBERON_0007844",
-                            "UBERON_0001377",
-                            "UBERON_0002240",
-                            "UBERON_0002048",
-                            "UBERON_0001103",
-                            "UBERON_0003126",
-                            "UBERON_0002103",
-                            "UBERON_0001645",
-                            "UBERON_0001322",
-                            "UBERON_0001242",
-                            "UBERON_0002107",
-                            "UBERON_0000948",
-                            "UBERON_0000955",
-                            "UBERON_0014892",
-                            "UBERON_0001009",
-                            "UBERON_0001981",
-                            "UBERON_0000014",
-                            "UBERON_0001132",
-                            "UBERON_0001211",
-                            "UBERON_0002367",
-                            "UBERON_0001000",
-                            "UBERON_0001301",
-                            "UBERON_0000473",
-                            "UBERON_0001255",
-                            "UBERON_0002370",
-                            "UBERON_0000010",
-                            "UBERON_0000970",
-                            "UBERON_0001723"
-                        ],
-                        highlightIds: highlightIds,
-                        selectIds: selectIds,
-                        onMouseOver: function(id) {console.log("over") },
-                        onMouseOut: function(id) {console.log("out")  },
-                        onClick: function(id) { console.log("click")  }
-                    }, 'anatomogramContainer')
                 }
 
+                $("img.ui-button").each(function () {
+                    // hide brain toggle for now
+                    if ($(this).attr('src').indexOf('brain') != -1) {
+                        $(this).hide();
+                    }
+                });
 
-
-
-//				$("img.ui-button").each(function () {
-//					// hide brain toggle for now
-//					if ($(this).attr('src').indexOf('brain') != -1) {
-//						$(this).hide();
-//					}
-//				});
-				
-				$('.iFrameFancy').click(function()
+                $('.iFrameFancy').click(function()
                     {
                         $.fancybox.open([
-                              {
-                                 href : $(this).attr('data-url'),
-                                 
-                              }
-                              ],
-                               {
-                                 'maxWidth'          : 1000,
-                                 'maxHeight'         : 1900,
-                                 'fitToView'         : false,
-                                 'width'             : '100%',
-                                 'height'            : '85%',
-                                 'autoSize'          : true,
-                                 'transitionIn'      : 'none',
-                                 'transitionOut'     : 'none',
-                                 'type'              : 'iframe',
-                                 scrolling           : 'auto'
-                              });
+                                {
+                                    href : $(this).attr('data-url'),
+
+                                }
+                            ],
+                            {
+                                'maxWidth'          : 1000,
+                                'maxHeight'         : 1900,
+                                'fitToView'         : false,
+                                'width'             : '100%',
+                                'height'            : '85%',
+                                'autoSize'          : true,
+                                'transitionIn'      : 'none',
+                                'transitionOut'     : 'none',
+                                'type'              : 'iframe',
+                                scrolling           : 'auto'
+                            });
                     }
                 );
 
-			});
+            });
 
 
 		</script>
