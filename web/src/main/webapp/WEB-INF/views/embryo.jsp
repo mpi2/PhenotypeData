@@ -52,7 +52,7 @@
 					            			</c:if>	        	
 					            		</tr>
 									</c:forEach>
-									<tr> 
+									<tr>
 										<td><a href="ftp://ftp.ebi.ac.uk/pub/databases/impc/latest/reports/viabilityReport.csv" style="text-decoration:none;" download> <i class="fa fa-download" alt="Download"> Download</i></a></td>
 										<td></td>	
 									</tr>

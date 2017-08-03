@@ -447,7 +447,7 @@ public class PreqcIndexer extends AbstractIndexer implements CommandLineRunner {
         logger.info("  Done reading the file");
 
         if (missingPhenotypeTerm.size() > 0) {
-            runStatus.addWarning(" Phenotype terms are missing for " + missingPhenotypeTerm.size() + " record(s):\n " + StringUtils.join(missingPhenotypeTerm, ", "));
+            logger.info(" Phenotype terms are missing for " + missingPhenotypeTerm.size() + " record(s).");
         }
 
         if (bad.size() > 0) {
@@ -518,7 +518,6 @@ public class PreqcIndexer extends AbstractIndexer implements CommandLineRunner {
             try {
                 statement = conn_komp2.createStatement();
                 rs = statement.executeQuery(query);
-                System.out.println("query for mapping="+query);
 
                 while (rs.next()) {
                     // Retrieve by column name
