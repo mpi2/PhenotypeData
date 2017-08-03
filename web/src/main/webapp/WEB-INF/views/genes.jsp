@@ -702,10 +702,6 @@
 		<link rel="stylesheet" type="text/css" href="${baseUrl}/js/phenogrid-1.3.1/dist/phenogrid-bundle.css?v=${version}">
 
 
-		<%-- for anatomogram released in 201609 --%>
-		<%--<script type="text/javascript" src="${baseUrl}/js/anatomogram/vendorCommons.bundle.js?v=${version}"></script>--%>
-		<%--<script type="text/javascript" src="${baseUrl}/js/anatomogram/anatomogramBuilder.bundle.js?v=${version}"></script>--%>
-
         <script type="text/javascript" src="${baseUrl}/js/newanatomogram/vendorCommons.bundle.js"></script>
         <script type="text/javascript" src="${baseUrl}/js/newanatomogram/anatomogram.bundle.js"></script>
 
