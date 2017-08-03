@@ -304,6 +304,10 @@ public class Loader implements CommandLineRunner {
         int cycles = docNum / batch;
         logger.info("Got {} stats results to load...Loading in {} batches, {} results at a time", docNum, cycles, batch);
 
+        Set<String> nonMatchingAlleleSymbols = new HashSet<>();
+        Set<String> nonMatchingGeneSymbols = new HashSet<>();
+        Set<String> nonMatchingMpIds = new HashSet<>();
+
         int count = 0;
         for (int i=0; i< cycles; i++){
 
@@ -346,7 +350,9 @@ public class Loader implements CommandLineRunner {
                         sr.setGene(loadedGenes.get(mgiAcc));
                     }
                     else {
-                        logger.warn(mgiAcc + " is not an IMPC gene");
+                        String gs = result.getMarkerSymbol();
+                        nonMatchingGeneSymbols.add(gs);
+                        logger.warn(mgiAcc + " (" + gs + ") is not an IMPC gene");
                     }
 
                     String alleleAcc = result.getAlleleAccessionId();
@@ -355,32 +361,39 @@ public class Loader implements CommandLineRunner {
                         sr.setAllele(loadedAlleleIdAllele.get(alleleAcc));
                     }
                     else {
+                        nonMatchingAlleleSymbols.add(alleleSymbol);
                         logger.warn(alleleAcc + " (" + alleleSymbol + ") is not an IMPC alleles");
                     }
 
                     Set<Mp> mps = new HashSet<>();
                     if (result.getMpTermId() != null){
-                        if (loadedMps.containsKey(result.getMpTermId())) {
-                            mps.add(loadedMps.get(result.getMpTermId()));
+                        String mpId = result.getMpTermId();
+                        if (loadedMps.containsKey(mpId)) {
+                            mps.add(loadedMps.get(mpId));
                         }
                         else {
-                            logger.warn(result.getMpTermId() + " is not an IMPC MP");
+                            nonMatchingMpIds.add(mpId);
+                            logger.warn(mpId + " is not an IMPC MP");
                         }
                     }
-                    if (result.getMaleMpTermId() != null){
-                        if (loadedMps.containsKey(result.getMaleMpTermId())) {
-                            mps.add(loadedMps.get(result.getMaleMpTermId()));
+                    else {
+                        if (result.getMaleMpTermId() != null) {
+                            String maleMpId = result.getMaleMpTermId();
+                            if (loadedMps.containsKey(maleMpId)) {
+                                mps.add(loadedMps.get(maleMpId));
+                            } else {
+                                nonMatchingMpIds.add(maleMpId);
+                                logger.warn("Male MP id " + maleMpId + " is not an IMPC MP");
+                            }
                         }
-                        else {
-                            logger.warn("Male MP id " + result.getMaleMpTermId() + " is not an IMPC MP");
-                        }
-                    }
-                    if (result.getFemaleMpTermId() != null){
-                        if (loadedMps.containsKey(result.getFemaleMpTermId())) {
-                            mps.add(loadedMps.get(result.getFemaleMpTermId()));
-                        }
-                        else {
-                            logger.warn("Female MP id " + result.getFemaleMpTermId() + " is not an IMPC MP");
+                        if (result.getFemaleMpTermId() != null) {
+                            String femaleMpId = result.getFemaleMpTermId();
+                            if (loadedMps.containsKey(femaleMpId)) {
+                                mps.add(loadedMps.get(femaleMpId));
+                            } else {
+                                nonMatchingMpIds.add(femaleMpId);
+                                logger.warn("Female MP id " + femaleMpId + " is not an IMPC MP");
+                            }
                         }
                     }
                     sr.setMps(mps);
@@ -412,12 +425,18 @@ public class Loader implements CommandLineRunner {
                 }
             }
 
+
         }
 
         logger.info("Loaded total of {} StatisticalResult nodes", srCount);
 
         String job = "loadStatisticalResults";
         loadTime(begin, System.currentTimeMillis(), job);
+
+        logger.info("{} non matching gene symbols: {}",  nonMatchingGeneSymbols.size(), nonMatchingGeneSymbols);
+        logger.info("{} non matching allele symbols: {}",  nonMatchingAlleleSymbols.size(), nonMatchingAlleleSymbols);
+        logger.info("{} non matching MP ids: {}",  nonMatchingMpIds.size(), nonMatchingMpIds);
+
     }
 
     public void loadGenes() throws IOException, SolrServerException {
