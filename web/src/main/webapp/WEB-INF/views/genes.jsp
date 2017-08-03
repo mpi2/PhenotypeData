@@ -700,8 +700,10 @@
 
 
         <%-- for anatomogram released in 201609 --%>
-		<script type="text/javascript" src="${baseUrl}/js/anatomogram/vendorCommons.bundle.js?v=${version}"></script>
-		<script type="text/javascript" src="${baseUrl}/js/anatomogram/anatomogramBuilder.bundle.js?v=${version}"></script>
+		<%--<script type="text/javascript" src="${baseUrl}/js/anatomogram/old/vendorCommons.bundle.js?v=${version}"></script>--%>
+		<%--<script type="text/javascript" src="${baseUrl}/js/anatomogram/old/anatomogramBuilder.bundle.js?v=${version}"></script>--%>
+		<script type="text/javascript" src="vendorCommons.bundle.js?v=${version}"></script>
+		<script type="text/javascript" src="anatomogram.bundle.js?v=${version}"></script>
 
         <%-- these copies have the http:// changed to // --%>
         <%--<script type="text/javascript" src="${baseUrl}/js/vendorCommons.bundle.js?v=${version}"></script>--%>
@@ -755,69 +757,76 @@
 					var uberonEfo2MaIdMap = expData.uberonEfo2MaIdMap;
 					var maId2topLevelNameMap = expData.maId2topLevelNameMap;
 
+					// ---- new anatomogram released in 2017-07-22  ------
+
+                    mouseAnatomogram([], []);
+
+
 
                     //------------ anatomogram 201609 version ----------
 
                     //specify the colour in each of your calls to the anatomogram renderer like this:
                     //anatomogramBuilder.render({mountNode: 'main', hoveredTissueColour: 'blue', highlightIDs: ['UBERON_0002107', 'UBERON_0001242']});
 
-                    var anatomogramConfig = {mountNode: 'anatomogramContainer', hoveredTissueColour: 'red'};
-                    anatomogramBuilder.render(anatomogramConfig);
+//                    var anatomogramConfig = {mountNode: 'anatomogramContainer', hoveredTissueColour: 'red'};
+//                    anatomogramBuilder.render(anatomogramConfig);
+//
+//                    anatomogramBuilder.eventEmitter.on('gxaAnatomogramTissueMouseEnter', function(pathID) {
+//
+//                        console.log('Entering ' + pathID)
+//                        //console.log('Ma? '+ uberonEfo2MaIdMap[pathID]);
+//                        var maIds = uberonEfo2MaIdMap[pathID];
+//
+//                        if (maIds != undefined) {
+//                            var topLevelNames = [];
+//                            for (var i = 0; i < maIds.length; i++) {
+//                                var tops = maId2topLevelNameMap[maIds[i]];
+//                                for (var j = 0; j < tops.length; j++) {
+//                                    topLevelNames.push(tops[j].trim());
+//                                }
+//                            }
+//
+//                            topLevelNames = $.fn.getUnique(topLevelNames);
+//                            $('ul#expList li a,ul#expList li').each(function () {
+//                                if ($.fn.inArray($(this).text().trim(), topLevelNames)) {
+//                                    $(this).addClass("mahighlight");
+//                                }
+//                            });
+//                        }
+//                    });
+//                    anatomogramBuilder.eventEmitter.on('gxaAnatomogramTissueMouseLeave', function(pathID) {
+//                        console.log('Leaving ' + pathID)
+//                        $('ul#expList li a,ul#expList li').removeClass("mahighlight");
+//                    });
+//
+//
+//                    // top level MA term talks to anatomogram
+//					$("ul#expList li a,ul#expList li").on("mouseover", function() {
+//						var topname = $(this).text().trim();
+//                        console.log("top:"+topname+"--")
+//						var maIds = topLevelName2maIdMap[topname];
+//						//log(topname + " - " + maIds);
+//						var uberonIds = [];
+//						for( var a=0; a<maIds.length; a++){
+//							uberonIds = uberonIds.concat(maId2UberonEfoMap[maIds[a]]);
+//						}
+//						uberonIds = $.fn.getUnique(uberonIds);
+//
+//						//console.log(topname + " : " + uberonIds);
+//
+//                        $(this).addClass("mahighlight");
+//
+//                        // change tissue color
+//                        anatomogramBuilder.render($.extend(anatomogramConfig, {highlightIDs: uberonIds}));
+//
+//					}).on("mouseout", function(){
+//                        // revert text color
+//                        $('ul#expList li a,ul#expList li').removeClass("mahighlight");
+//                        // revert tissue color
+//                        anatomogramBuilder.render($.extend(anatomogramConfig, {highlightIDs: []}));
+//					});
 
-                    anatomogramBuilder.eventEmitter.on('gxaAnatomogramTissueMouseEnter', function(pathID) {
 
-                        console.log('Entering ' + pathID)
-                        //console.log('Ma? '+ uberonEfo2MaIdMap[pathID]);
-                        var maIds = uberonEfo2MaIdMap[pathID];
-
-                        if (maIds != undefined) {
-                            var topLevelNames = [];
-                            for (var i = 0; i < maIds.length; i++) {
-                                var tops = maId2topLevelNameMap[maIds[i]];
-                                for (var j = 0; j < tops.length; j++) {
-                                    topLevelNames.push(tops[j].trim());
-                                }
-                            }
-
-                            topLevelNames = $.fn.getUnique(topLevelNames);
-                            $('ul#expList li a,ul#expList li').each(function () {
-                                if ($.fn.inArray($(this).text().trim(), topLevelNames)) {
-                                    $(this).addClass("mahighlight");
-                                }
-                            });
-                        }
-                    });
-                    anatomogramBuilder.eventEmitter.on('gxaAnatomogramTissueMouseLeave', function(pathID) {
-                        console.log('Leaving ' + pathID)
-                        $('ul#expList li a,ul#expList li').removeClass("mahighlight");
-                    });
-
-
-                    // top level MA term talks to anatomogram
-					$("ul#expList li a,ul#expList li").on("mouseover", function() {
-						var topname = $(this).text().trim();
-                        console.log("top:"+topname+"--")
-						var maIds = topLevelName2maIdMap[topname];
-						//log(topname + " - " + maIds);
-						var uberonIds = [];
-						for( var a=0; a<maIds.length; a++){
-							uberonIds = uberonIds.concat(maId2UberonEfoMap[maIds[a]]);
-						}
-						uberonIds = $.fn.getUnique(uberonIds);
-
-						//console.log(topname + " : " + uberonIds);
-
-                        $(this).addClass("mahighlight");
-
-                        // change tissue color
-                        anatomogramBuilder.render($.extend(anatomogramConfig, {highlightIDs: uberonIds}));
-
-					}).on("mouseout", function(){
-                        // revert text color
-                        $('ul#expList li a,ul#expList li').removeClass("mahighlight");
-                        // revert tissue color
-                        anatomogramBuilder.render($.extend(anatomogramConfig, {highlightIDs: []}));
-					});
 
                     //------------ end of anatomogram 201609 version ----------
 
@@ -909,12 +918,85 @@
 //					});
 				}
 
-				$("img.ui-button").each(function () {
-					// hide brain toggle for now
-					if ($(this).attr('src').indexOf('brain') != -1) {
-						$(this).hide();
-					}
-				});
+                function mouseAnatomogram(highlightIds, selectIds) {
+                    anatomogram.render({
+                        showColour: 'grey',
+                        highlightColour: 'red',
+                        selectColour: 'purple',
+                        showOpacity: '0.3',
+                        highlightOpacity: '0.6',
+                        selectOpacity: '0.8',
+                        //species: 'mus_musculus', // can ignore as svgs are built using the anatomogram mouse branch
+						// these are all the available mouse tissues (male,female,brain)
+                        showIds: ["UBERON_0000947",
+                            "UBERON_0001348",
+                            "UBERON_0001347",
+                            "UBERON_0000945",
+                            "UBERON_0002114",
+                            "UBERON_0001264",
+                            "UBERON_0002106",
+                            "UBERON_0002369",
+                            "UBERON_0002113",
+                            "UBERON_0001155",
+                            "UBERON_0002108",
+                            "UBERON_0001153",
+                            "UBERON_0002115",
+                            "UBERON_0002116",
+                            "UBERON_0001043",
+                            "UBERON_0002110",
+                            "UBERON_0001831",
+                            "UBERON_0001736",
+                            "UBERON_0000029",
+                            "UBERON_0000998",
+                            "UBERON_0000989",
+                            "UBERON_0000981",
+                            "UBERON_0002371",
+                            "UBERON_0007844",
+                            "UBERON_0001377",
+                            "UBERON_0002240",
+                            "UBERON_0002048",
+                            "UBERON_0001103",
+                            "UBERON_0003126",
+                            "UBERON_0002103",
+                            "UBERON_0001645",
+                            "UBERON_0001322",
+                            "UBERON_0001242",
+                            "UBERON_0002107",
+                            "UBERON_0000948",
+                            "UBERON_0000955",
+                            "UBERON_0014892",
+                            "UBERON_0001009",
+                            "UBERON_0001981",
+                            "UBERON_0000014",
+                            "UBERON_0001132",
+                            "UBERON_0001211",
+                            "UBERON_0002367",
+                            "UBERON_0001000",
+                            "UBERON_0001301",
+                            "UBERON_0000473",
+                            "UBERON_0001255",
+                            "UBERON_0002370",
+                            "UBERON_0000010",
+                            "UBERON_0000970",
+                            "UBERON_0001723"
+                        ],
+                        highlightIds: highlightIds,
+                        selectIds: selectIds,
+                        onMouseOver: function(id) {console.log("over") },
+                        onMouseOut: function(id) {console.log("out")  },
+                        onClick: function(id) { console.log("click")  }
+                    }, 'anatomogramContainer')
+                }
+
+
+
+
+//				$("img.ui-button").each(function () {
+//					// hide brain toggle for now
+//					if ($(this).attr('src').indexOf('brain') != -1) {
+//						$(this).hide();
+//					}
+//				});
 				
 				$('.iFrameFancy').click(function()
                     {
