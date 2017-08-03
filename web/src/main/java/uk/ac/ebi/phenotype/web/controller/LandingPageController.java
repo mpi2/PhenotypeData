@@ -110,8 +110,7 @@ public class LandingPageController {
             throws OntologyTermNotFoundException, IOException, URISyntaxException, SolrServerException, SQLException {
 
         AnalyticsChartProvider chartsProvider = new AnalyticsChartProvider();
-        List<String> resources = new ArrayList<>();
-        resources.add("IMPC");
+        List<String> resources = Arrays.asList(new String[] { "IMPC" } );
         Map<String, Set<String>> viabilityRes = os.getViabilityCategories(resources, true);
 
         Map<String, Long> viabilityMap = os.getViabilityCategories(viabilityRes);

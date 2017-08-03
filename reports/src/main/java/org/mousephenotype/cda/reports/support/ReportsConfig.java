@@ -1,5 +1,6 @@
 package org.mousephenotype.cda.reports.support;
 
+import org.hibernate.SessionFactory;
 import org.mousephenotype.cda.annotations.ComponentScanNonParticipant;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
@@ -8,6 +9,7 @@ import org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder;
 import org.springframework.context.annotation.*;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.orm.hibernate5.LocalSessionFactoryBuilder;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaSessionFactoryBean;
 
@@ -32,7 +34,6 @@ import javax.sql.DataSource;
         "file:${user.home}/configfiles/${profile:jenkins}/application.properties",
         "file:${user.home}/configfiles/${profile:jenkins}/datarelease.properties"
 })
-@Import(SolrServerConfig.class)
 public class ReportsConfig {
 
     @Bean
@@ -66,6 +67,17 @@ public class ReportsConfig {
         factory.setEntityManagerFactory(emf);
         return factory;
     }
+
+    @Bean(name = "sessionFactoryHibernate")
+	@Primary
+	public SessionFactory getSessionFactory() {
+
+		LocalSessionFactoryBuilder sessionBuilder = new LocalSessionFactoryBuilder(komp2DataSource());
+		sessionBuilder.scanPackages("org.mousephenotype.cda.db.entity");
+		sessionBuilder.scanPackages("org.mousephenotype.cda.db.pojo");
+
+		return sessionBuilder.buildSessionFactory();
+	}
 
     @Bean
     @ConfigurationProperties(prefix = "datasource.admintools")
