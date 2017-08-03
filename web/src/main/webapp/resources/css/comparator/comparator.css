@@ -1,16 +1,14 @@
 
  .viewport {
-    width: 560px;
+    width: 600px;
         height: 600px;
-        
+        margin: auto;
+        padding-right:10px
     }
-    .thumbList {
-       width: 560px;
-       /*  height: 600px; */
-        float: left;
-        margin: 20px;
-    }
-
+    
+.weblitz-viewport-vp {
+	left:0px;
+	}
 
 
 #comparator{
