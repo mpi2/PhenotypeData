@@ -476,9 +476,12 @@ public class ExpressionService extends BasicService {
 			bean.setCount(count.getCount());
 			
 			if (abnormalMaFromImpress.containsKey(count.getName())) {
+
 				OntologyBean ontologyBean = abnormalMaFromImpress.get(count.getName());
 				bean.setMaId(ontologyBean.getId());
 				bean.setMaTerm(ontologyBean.getName());
+
+				System.out.println("BEAN: "+ ontologyBean);
 				// this method for getting uberon ids needs to be changed so
 				// we get the associated intermediate terms so we include
 				// all possible uberon ids
@@ -511,7 +514,11 @@ public class ExpressionService extends BasicService {
 
 
 		for (AnatomogramDataBean dataBean : anatomogramDataBeans) {
-			if (dataBean.getMaId() != null && dataBean.getUberonIds() != null) {
+			System.out.println("dataBean: "+ dataBean.toString());
+			System.out.println("mpid: "+ dataBean.getMaId());
+			System.out.println("mapped uberon: "+ dataBean.getMappedUberonIdsForAnatomogram());
+			if (dataBean.getMaId() != null && dataBean.getMappedUberonIdsForAnatomogram() != null) {
+				System.out.println("ANATOMODATA: " + dataBean);
 
 				List<String> uberonIdsForAnatomogram = dataBean.getMappedUberonIdsForAnatomogram();
 
@@ -536,7 +543,7 @@ public class ExpressionService extends BasicService {
 		anatomogram.put("maId2topLevelNameMap", maId2topLevelName);
 
 
-		//System.out.println("ANATOMOGRAM: " + anatomogram);
+		System.out.println("ANATOMOGRAM: " + anatomogram);
 		return anatomogram;
 	}
 
@@ -553,11 +560,6 @@ public class ExpressionService extends BasicService {
 		String maTermId = dataBean.getMaId();
 
 		maId2MappedUberonEfo.put(maTermId, new HashSet(dataBean.getMappedUberonIdsForAnatomogram()));
-
-//		for ( String uberonId : dataBean.getMappedUberonIdsForAnatomogram() ){
-//
-//		}
-
 
 		maId2maName.put(maTermId, dataBean.getMaTerm());
 		maName2maId.put(dataBean.getMaTerm(), maTermId);

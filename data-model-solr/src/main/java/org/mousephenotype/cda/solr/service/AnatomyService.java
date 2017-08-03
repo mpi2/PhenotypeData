@@ -288,7 +288,6 @@ public class AnatomyService extends BasicService implements WebStatus {
 				bean.addEfoIds(efoIds);
 			}
 
-
 		}
 		return bean;
 	}

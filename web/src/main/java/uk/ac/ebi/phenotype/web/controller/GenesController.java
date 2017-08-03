@@ -881,6 +881,8 @@ public class GenesController {
 		boolean overview=true;
 		boolean embryoOnly=false;
 		List<Count> parameterCounts = expressionService.getLaczCategoricalParametersForGene(acc);
+
+		System.out.println("PARAM counts: "+ parameterCounts);
 		List<AnatomogramDataBean> anatomogramDataBeans = expressionService.getAnatomogramDataBeans(parameterCounts);
 		Map<String, Long> topLevelMaCounts = expressionService.getLacSelectedTopLevelMaCountsForAnatomogram(anatomogramDataBeans);
 		Set<String> topLevelMaIds = expressionService.getLacSelectedTopLevelMaIdsForAnatomogram(anatomogramDataBeans);
