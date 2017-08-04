@@ -67,8 +67,10 @@ public class ObservationDTO extends ObservationDTOBase {
                 // + "\t" + observationType
                 + "\t" + phenotypingCenter
                 + "\t" + colonyId
-                + "\t" + dateOfExperiment
-                // + "\t" + dateOfBirth
+                + "\t" + this.getDateOfExperimentString()
+                + "\t" + this.getDateOfBirthString()
+                + "\t" + this.getAgeInWeeks()
+                + "\t" + this.getDevelopmentalStageName()
                 // + "\t" + biologicalSampleId
                 // + "\t" + biologicalModelId
                 + "\t" + zygosity
@@ -82,7 +84,7 @@ public class ObservationDTO extends ObservationDTOBase {
                 // + "\t" + discretePoint
                 + "\t" + externalSampleId
                 + "\t\"" + metadata + "\""
-                +"\t" + metadataGroup;
+                + "\t" + metadataGroup;
         ;
 
         if (observationType.equalsIgnoreCase("unidimensional")) {
@@ -98,52 +100,54 @@ public class ObservationDTO extends ObservationDTOBase {
     }
 
     public String getTabbedFields() {
-        String tabbed = "pipeline name"
-                + "\t pipelineStableId"
-                + "\t procedureStableId"
-                + "\t procedureName"
-                + "\t parameterStableId"
-                + "\t parameterName"
+        String tabbed = PARAMETER_NAME
+                + "\t" + PIPELINE_STABLE_ID
+                + "\t" + PROCEDURE_STABLE_ID
+                + "\t" + PROCEDURE_NAME
+                + "\t" + PARAMETER_STABLE_ID
+                + "\t" + PARAMETER_NAME
                 // + "\t pipeline id"
                 // + "\t procedureId"
                 // + "\t parameterId"
-                + "\t strainId"
-                + "\t strain"
-                + "\t backgroundStrain"
+                + "\t" + STRAIN_ACCESSION_ID
+                + "\t" + STRAIN_NAME
+                + "\t" + GENETIC_BACKGROUND
                 // + "\t experimentSourceId"
-                + "\t geneSymbol"
-                + "\t geneAccession"
-                + "\t alleleSymbol"
-                + "\t alleleAccession"
+                + "\t" + GENE_SYMBOL
+                + "\t" + GENE_ACCESSION_ID
+                + "\t" + ALLELE_SYMBOL
+                + "\t" + ALLELE_ACCESSION_ID
                 // + "\t experimentId"
                 // + "\t organisationId"
                 // + "\t observationType"
-                + "\t phenotypingCenter"
-                + "\t colonyId"
-                + "\t dateOfExperiment"
-                // + "\t dateOfBirth"
+                + "\t" + PHENOTYPING_CENTER
+                + "\t" + COLONY_ID
+                + "\t" + DATE_OF_EXPERIMENT
+                + "\t" + DATE_OF_BIRTH
+                + "\t" + AGE_IN_WEEKS
+                + "\t" + DEVELOPMENTAL_STAGE_NAME
                 // + "\t biologicalSampleId"
                 // + "\t biologicalModelId"
-                + "\t zygosity"
-                + "\t sex"
-                + "\t group"
+                + "\t" + ZYGOSITY
+                + "\t" + SEX
+                + "\t" + BIOLOGICAL_SAMPLE_GROUP
                 // + "\t category"
                 // + "\t dataPoint"
                 // + "\t orderIndex"
                 // + "\t dimension"
                 // + "\t timePoint"
                 // + "\t discretePoint"
-                + "\t externalSampleId"
-                + "\t metadata"
-                + "\t metadataGroup";
+                + "\t" + EXTERNAL_SAMPLE_ID
+                + "\t" + METADATA
+                + "\t" + METADATA_GROUP;
         if (observationType.equalsIgnoreCase("unidimensional")) {
-            tabbed += "\t" + "dataPoint";
+            tabbed += "\t" + DATA_POINT;
         }
         else if (observationType.equalsIgnoreCase("categorical")) {
-            tabbed += "\t" + "category";
+            tabbed += "\t" + CATEGORY;
         }
         else if (observationType.equalsIgnoreCase("time_series")) {
-            tabbed += "\t" + "dataPoint" + "\t" + "discretePoint";
+            tabbed += "\t" + DATA_POINT + "\t" + DISCRETE_POINT;
         }
         return tabbed;
     }
@@ -156,11 +160,11 @@ public class ObservationDTO extends ObservationDTOBase {
      * @return string representation of the date the experiment was performed
      */
     public String getDateOfExperimentString() {
-        return new SimpleDateFormat("dd/MM/yyyy").format(dateOfExperiment);
+        return new SimpleDateFormat("yyyy-MM-dd").format(dateOfExperiment);
     }
 
     public String getDateOfBirthString() {
-        return new SimpleDateFormat("dd/MM/yyyy").format(dateOfBirth);
+        return new SimpleDateFormat("yyyy-MM-dd").format(dateOfBirth);
 
     }
 

@@ -709,57 +709,6 @@ public class ObservationDTOBase {
      */
 
 
-    public String getTabbedFields() {
-        String tabbed = "pipeline name"
-                + "\t pipelineStableId"
-                + "\t procedureStableId"
-                + "\t procedureName"
-                + "\t parameterStableId"
-                + "\t parameterName"
-                // + "\t pipeline id"
-                // + "\t procedureId"
-                // + "\t parameterId"
-                + "\t strainId"
-                + "\t strain"
-                + "\t backgroundStrain"
-                // + "\t experimentSourceId"
-                + "\t geneSymbol"
-                + "\t geneAccession"
-                + "\t alleleSymbol"
-                + "\t alleleAccession"
-                // + "\t experimentId"
-                // + "\t organisationId"
-                // + "\t observationType"
-                + "\t phenotypingCenter"
-                + "\t colonyId"
-                + "\t dateOfExperiment"
-                // + "\t dateOfBirth"
-                // + "\t biologicalSampleId"
-                // + "\t biologicalModelId"
-                + "\t zygosity"
-                + "\t sex"
-                + "\t group"
-                // + "\t category"
-                // + "\t dataPoint"
-                // + "\t orderIndex"
-                // + "\t dimension"
-                // + "\t timePoint"
-                // + "\t discretePoint"
-                + "\t externalSampleId"
-                + "\t metadata"
-                + "\t metadataGroup";
-        if (observationType.equalsIgnoreCase("unidimensional")) {
-            tabbed += "\t" + "dataPoint";
-        }
-        else if (observationType.equalsIgnoreCase("categorical")) {
-            tabbed += "\t" + "category";
-        }
-        else if (observationType.equalsIgnoreCase("time_series")) {
-            tabbed += "\t" + "dataPoint" + "\t" + "discretePoint";
-        }
-        return tabbed;
-    }
-
     public String getParameterName() {
         return parameterName;
     }
