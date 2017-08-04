@@ -246,7 +246,7 @@ public class LandingPageController {
             throws OntologyTermNotFoundException, IOException, URISyntaxException, SolrServerException, SQLException, ExecutionException, InterruptedException {
 
         StringBuffer result = new StringBuffer();
-        result.append("IMPC sets\t Set label\t Genes \n");
+        result.append("IMPC sets\tSet label\tGenes\n");
 
         JSONArray jsonArray = getOrtologyDiseaseModelVennDiagram(mpId, diseaseClasses, false, true, true, phenotypeShort);
         for (int i = 0; i < jsonArray.size(); i++){

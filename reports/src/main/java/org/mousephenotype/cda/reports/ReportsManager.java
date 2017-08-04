@@ -34,10 +34,15 @@ import java.util.List;
  * Example command used to build the 3.1 reports:
  *  java -Dprofile=reports3.1 -jar /Users/mrelac/workspace/PhenotypeData/reports/target/reports-1.0.0-exec.jar --targetDirectory=/Users/mrelac/reports/3.1
  *
+ * NOTE: The ReportsManager is invoked by the data load process; thus datarelease.properties is included in the PropertySource below.
+ *
  * Created by mrelac on 23/06/2015.
  */
 
-@PropertySource("file:${user.home}/configfiles/${profile}/application.properties")
+@PropertySource({
+        "file:${user.home}/configfiles/${profile}/application.properties",
+        "file:${user.home}/configfiles/${profile}/datarelease.properties"
+})
 @SpringBootApplication
 public class ReportsManager implements CommandLineRunner {
 
