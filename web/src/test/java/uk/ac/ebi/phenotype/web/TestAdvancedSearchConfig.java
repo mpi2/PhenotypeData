@@ -67,13 +67,13 @@ public class TestAdvancedSearchConfig {
     // Required for spring-data-solr repositories
 
 
-//	@Bean(name = "allele2Core")
-//	HttpSolrClient getAllele2Core() {
-//
-//		//return new HttpSolrClient("http://localhost:8086/solr-example/allele");
-//		return new HttpSolrClient(solrBaseUrl + "/allele2");
-//
-//	}
+	@Bean(name = "allele2Core")
+	HttpSolrClient getAllele2Core() {
+
+		//return new HttpSolrClient("http://localhost:8086/solr-example/allele");
+		return new HttpSolrClient(solrBaseUrl + "/allele2");
+
+	}
 //
 //	@Bean(name = "productCore")
 //	HttpSolrClient getProductCore() {
@@ -172,11 +172,11 @@ public class TestAdvancedSearchConfig {
         return new HttpSolrClient(solrBaseUrl + "/preqc");
     }
 
-//	//StatisticalResult
-//	@Bean(name = "statisticalResultCore")
-//	HttpSolrClient getStatisticalResultCore() {
-//		return new HttpSolrClient(solrBaseUrl + "/statistical-result");
-//	}
+	//StatisticalResult
+	@Bean(name = "statisticalResultCore")
+	HttpSolrClient getStatisticalResultCore() {
+		return new HttpSolrClient(solrBaseUrl + "/statistical-result");
+	}
 //
 //	@Bean(name = "phenotypeCenterService")
 //	PhenotypeCenterService phenotypeCenterService() {

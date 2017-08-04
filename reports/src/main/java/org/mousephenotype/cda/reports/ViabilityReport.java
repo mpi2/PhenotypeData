@@ -43,7 +43,6 @@ import java.util.*;
 public class ViabilityReport extends AbstractReport {
 
     protected Logger logger = LoggerFactory.getLogger(this.getClass());
-    private final String VIABILITY_PARAMETER_STABLE_ID = "IMPC_VIA_001_001";
 
     @Autowired
     ObservationService observationService;
@@ -71,79 +70,110 @@ public class ViabilityReport extends AbstractReport {
         long start = System.currentTimeMillis();
 
         try {
-            QueryResponse response = observationService.getData(resources, Arrays.asList( new String[] { VIABILITY_PARAMETER_STABLE_ID } ), null);
-            List<Map<String, String>> viabilityResourceList = observationService.getCategories(resources, Arrays.asList(new String[] { VIABILITY_PARAMETER_STABLE_ID }), "category,gene_symbol");
 
-            // Gather collections for summary.
-            Map<String, List<String>> categoriesMap = new TreeMap<>();
-            Set<String> conflictingViability = new TreeSet<>();
-            for (Map<String, String> viabilityResourceMap : viabilityResourceList) {
-                String category = "";
-                String geneSymbol = "";
-                for (Map.Entry<String, String> entry : viabilityResourceMap.entrySet()) {
-                    switch (entry.getKey()) {
-                        case "gene_symbol":
-                            geneSymbol = entry.getValue();
+            ObservationService.ViabilityData data = observationService.getViabilityData(resources, true, 1000000);
+            TreeMap<String, Set<String>> categoryData = new TreeMap<>(data.getViabilityCategories());                   // Using a TreeMap causes the categories to be sorted for better presentation.
+
+            // Build summary section.
+            List<List<String>> summaryGrid = new ArrayList<>();
+
+            for (Map.Entry<String, Set<String>> category : categoryData.entrySet()) {
+                List<String> row = new ArrayList<>();
+                row.add(category.getKey());
+                Set<String> symbols = category.getValue();
+                List<String> symbolsList = new ArrayList<>(symbols);
+                row.add(Integer.toString(symbolsList.size()));
+                Collections.sort(symbolsList);
+                for (String symbol : symbolsList) {
+                    row.add(symbol);
+                }
+                summaryGrid.add(row);
+            }
+
+            // Build conflicting data section.
+            Set<String> conflictingSet = new TreeSet<>();
+            Map<String, List<ObservationDTO>> genesMap = new HashMap<>();
+            List<ObservationDTO> details = data.getData();
+            for (ObservationDTO detail : details) {
+                List<ObservationDTO> oList = genesMap.get(detail.getGeneSymbol());
+                if (oList == null) {
+                    oList = new ArrayList<>();
+                    genesMap.put(detail.getGeneSymbol(), oList);
+                }
+
+                oList.add(detail);
+            }
+            for (List<ObservationDTO> genes : genesMap.values()) {
+                if (genes.size() > 1) {
+                    ObservationDTO expectedGene = genes.get(0);
+                    for (int i = 1; i < genes.size(); i++) {
+                        ObservationDTO actualGene = genes.get(i);
+                        if (actualGene.getZygosity().equals(expectedGene.getZygosity()) &&
+                           (actualGene.getCategory().equals(expectedGene.getCategory()))) {
+                            // Do nothing
+                        } else {
+                            conflictingSet.add(expectedGene.getGeneSymbol());
                             break;
-                        case "category":
-                            category = entry.getValue().toLowerCase();
-                            break;
-                        default:
-                            throw new ReportException("Unexpected facet '" + entry.getKey() + "'");
+                        }
                     }
                 }
-
-                if ( ! categoriesMap.containsKey(category)) {
-                    categoriesMap.put(category, new ArrayList<>());
-                }
-
-                categoriesMap.get(category).add(geneSymbol);
             }
-            // Conflicts summary
-            for (String category : categoriesMap.keySet()){
-                for (String categoryCopy : categoriesMap.keySet()){
-                    if ( ! categoryCopy.equalsIgnoreCase(category)){
-                        Set<String> conflictingGenes = new HashSet(categoriesMap.get(categoryCopy));
-                        conflictingGenes.retainAll(categoriesMap.get(category));
-                        conflictingViability.addAll(conflictingGenes);
-                    }
-                }
-            }
+
+            List<String> conflictingList = new ArrayList<>(conflictingSet);
+            Collections.sort(conflictingList);
+            List<String> conflictingRow = new ArrayList<>();
+            conflictingRow.add("Conflicting data");
+            conflictingRow.add(Integer.toString(conflictingSet.size()));
+            conflictingRow.addAll(conflictingSet);
 
             // Write summary section.
-            csvWriter.writeRow(Arrays.asList(new String[] {  "Phenotype", "# Genes", "Gene Symbols"  }));
-            for (String category : categoriesMap.keySet()) {
-                csvWriter.writeRow(Arrays.asList(new String[] { category, "" + categoriesMap.get(category).size(), StringUtils.join(categoriesMap.get(category), ", ") }));
-            }
+            csvWriter.writeRow(Arrays.asList(new String[] {  "Phenotype", "# Genes*", "Gene Symbols"  }));
+            csvWriter.writeRows(summaryGrid);
 
             csvWriter.writeNext(EMPTY_ROW);
 
             // Write conflicting section.
-            csvWriter.writeRow(Arrays.asList(new String[] { "Conflicting", "" + conflictingViability.size(), StringUtils.join(conflictingViability, ", ") } ));
-            csvWriter.writeRow(Arrays.asList(new String[] { "NOTE: Symbols in the conflicting list represent genes that are included in more than one viability category." } ));
+            csvWriter.writeRow(Arrays.asList(new String[] { "* includes conflicting data. Conflicting data are genes that appear in more than one viability category." }));
+            csvWriter.writeRow(conflictingRow);
 
             csvWriter.writeNext(EMPTY_ROW);
+            csvWriter.writeNext(EMPTY_ROW);
+            csvWriter.writeNext(EMPTY_ROW);
 
-            // Write detail section.
-            csvWriter.writeRow(Arrays.asList(new String[] { "Gene Symbol", "MGI Gene Id", "Colony Id", "Sex", "Zygosity", "Phenotype", "Comment" } ));//            allTable.add(header);
-            for ( SolrDocument doc : response.getResults()) {
-                String category = doc.getFieldValue(ObservationDTO.CATEGORY).toString();
-                String geneSymbol = doc.getFieldValue(ObservationDTO.GENE_SYMBOL).toString();
+            // Build and write detail section.
+            csvWriter.writeRow(Arrays.asList(new String[] { "List of genes that result in a lethal, subviable or viable phenotype. A gene may appear more than once if there are results for different colonies or for different alleles." }));
+            csvWriter.writeRow(Arrays.asList(new String[] { "Gene Symbol", "Gene Accession Id", "Allele Symbol", "Allele Accession Id", "Phenotyping Centre", "Colony Id", "Sex", "Zygosity", "Phenotype", "Comment" } ));
+            details = data.getData();
+            details.sort(Comparator
+                    .comparing(ObservationDTO::getGeneSymbol)
+                    .thenComparing(ObservationDTO::getAlleleSymbol)
+                    .thenComparing(ObservationDTO::getZygosity)
+                    .thenComparing(ObservationDTO::getCategory));
+
+            for (ObservationDTO detail : details) {
                 List<String> row = new ArrayList<>();
-                row.add(doc.getFieldValue(ObservationDTO.GENE_SYMBOL) != null ? geneSymbol : "");
-                row.add(doc.getFieldValue(ObservationDTO.GENE_ACCESSION_ID) != null ? doc.getFieldValue(ObservationDTO.GENE_ACCESSION_ID).toString() : "");
-                row.add(doc.getFieldValue(ObservationDTO.COLONY_ID).toString());
-                row.add(doc.getFieldValue(ObservationDTO.SEX).toString());
-                row.add(doc.getFieldValue(ObservationDTO.ZYGOSITY).toString());
-                row.add(category.split(" - ")[1]);                          // Phenotype (category)
-                if (conflictingViability.contains(geneSymbol)) {
-                    row.add("Conflicting Data");
+                row.add(detail.getGeneSymbol());
+                row.add(detail.getGeneAccession());
+                row.add(detail.getAlleleSymbol());
+                row.add(detail.getAlleleAccession());
+                row.add(detail.getPhenotypingCenter());
+                row.add(detail.getColonyId());
+                row.add(detail.getSex());
+                row.add(detail.getZygosity());
+                row.add(detail.getCategory());
+                String comment = "";
+                if ((detail.getGeneSymbol() != null) && ( ! detail.getGeneSymbol().trim().isEmpty())) {
+                    if (conflictingSet.contains(detail.getGeneSymbol().trim())) {
+                        comment = "Conflicting data";
+                    }
                 }
+                row.add(comment);
 
                 csvWriter.writeRow(row);
             }
 
         } catch (SolrServerException | IOException e) {
+
             throw new ReportException("Exception creating " + this.getClass().getCanonicalName() + ". Reason: " + e.getLocalizedMessage());
         }
 

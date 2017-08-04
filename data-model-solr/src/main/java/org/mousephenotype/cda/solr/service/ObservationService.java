@@ -17,7 +17,7 @@ package org.mousephenotype.cda.solr.service;
 
 import net.sf.json.JSONArray;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.apache.solr.client.solrj.SolrClient;
@@ -39,7 +39,11 @@ import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.SolrUtils;
 import org.mousephenotype.cda.solr.generic.util.JSONRestUtil;
-import org.mousephenotype.cda.solr.service.dto.*;
+import org.mousephenotype.cda.solr.service.dto.CountTableRow;
+import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
+import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
+import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
+import org.mousephenotype.cda.solr.service.dto.StatisticalResultDTO;
 import org.mousephenotype.cda.solr.web.dto.CategoricalDataObject;
 import org.mousephenotype.cda.solr.web.dto.CategoricalSet;
 import org.mousephenotype.cda.web.WebStatus;
@@ -193,51 +197,151 @@ public class ObservationService extends BasicService implements WebStatus {
 
         logger.info("getViabilityForGene Url" + SolrUtils.getBaseURL(solr) + "/select?" + query);
 
-        HashSet<String> viabilityCategories = new HashSet<String>();
+        HashSet<String> viabilityCategories = new HashSet<>();
 
         for (SolrDocument doc : solr.query(query).getResults()) {
             viabilityCategories.add(doc.getFieldValue(ObservationDTO.CATEGORY).toString());
         }
 
         return viabilityCategories;
-
     }
 
+    public Map<String, Set<String>> getViabilityCategories(List<String> resources, Boolean adultOnly) throws SolrServerException, IOException {
 
-    public HashMap<String, Set<String>> getViabilityCategories(List<String> resources, Boolean adultOnly) throws SolrServerException, IOException {
+        ViabilityData data = new ViabilityData(resources, adultOnly, null);
 
-        SolrQuery query = new SolrQuery();
-        HashMap<String, Set<String>> res = new HashMap<>();
-        String pivot = ObservationDTO.CATEGORY + "," + ObservationDTO.GENE_SYMBOL;
+        return data.getViabilityCategories();
+    }
 
-        if (resources != null) {
-            query.setFilterQueries(ObservationDTO.DATASOURCE_NAME + ":"
-                    + StringUtils.join(resources, " OR " + ObservationDTO.DATASOURCE_NAME + ":"));
+    public ViabilityData getViabilityData(List<String> resources, Boolean adultOnly, Integer maxRows) {
+
+        ViabilityData data = new ViabilityData(resources, adultOnly, 1000000);
+
+        return data;
+    }
+
+    public class ViabilityData {
+
+        private SolrQuery          query;
+        private QueryResponse      response;
+
+
+        public ViabilityData(List<String> resources, Boolean adultOnly, Integer maxRows) {
+            query = buildViabilityQuery(resources, adultOnly, maxRows);
+
+            logger.info("ViabilityData Url: " + SolrUtils.getBaseURL(solr) + "/select?" + query);
         }
-        if (adultOnly){
-            query.setQuery(Constants.adultViabilityParameters.stream().collect(Collectors.joining(" OR ", ObservationDTO.PARAMETER_STABLE_ID + ":(", ")")));
-        } else {
-            query.setQuery(Constants.viabilityParameters.stream().collect(Collectors.joining(" OR ", ObservationDTO.PARAMETER_STABLE_ID + ":(", ")")));
-        }
-        query.setRows(0);
-        query.setFacet(true);
-        query.setFacetMinCount(1);
-        query.setFacetLimit(-1);
-        query.set("facet.pivot", pivot);
 
-        logger.info("getViabilityCategories Url: " + SolrUtils.getBaseURL(solr) + "/select?" + query);
+        public List<ObservationDTO> getData() {
 
-        try {
-            Map<String, List<String>> facets = getFacetPivotResults(solr.query(query), pivot);
-            for (String category : facets.keySet()) {
-                res.put(category, new HashSet<>(facets.get(category).subList(0, facets.get(category).size())));
+            List<ObservationDTO> list = new ArrayList<>();
+
+            try {
+                if (response == null) {
+                    response = solr.query(query);
+                }
+
+                SolrDocumentList docs = response.getResults();
+                for (SolrDocument doc : docs) {
+
+                    String geneSymbol = (doc.getFieldValue(ObservationDTO.GENE_SYMBOL) == null ? "" : doc.getFieldValue(ObservationDTO.GENE_SYMBOL).toString());
+                    String geneAccessionId = (doc.getFieldValue(ObservationDTO.GENE_ACCESSION_ID) == null ? "" : doc.getFieldValue(ObservationDTO.GENE_ACCESSION_ID).toString());
+                    String colonyId = (doc.getFieldValue(ObservationDTO.COLONY_ID) == null ? "" : doc.getFieldValue(ObservationDTO.COLONY_ID).toString());
+                    String phenotypingCenter = (doc.getFieldValue(ObservationDTO.PHENOTYPING_CENTER) == null ? "" : doc.getFieldValue(ObservationDTO.PHENOTYPING_CENTER).toString());
+                    String sex = (doc.getFieldValue(ObservationDTO.SEX) == null ? "" : doc.getFieldValue(ObservationDTO.SEX).toString());
+                    String category = doc.getFieldValue(ObservationDTO.CATEGORY).toString();
+                    String[] parts = category.split("-");
+                    String zygosity = (((parts != null) && (parts.length > 0)) ? parts[0] : "");
+                    String phenotype = (((parts != null) && (parts.length > 1)) ? parts[1] : "");
+                    String alleleSymbol = (doc.getFieldValue(ObservationDTO.ALLELE_SYMBOL) == null ? "" : doc.getFieldValue(ObservationDTO.ALLELE_SYMBOL).toString());
+                    Object alleleAccessionValue = doc.getFieldValue(ObservationDTO.ALLELE_ACCESSION_ID);
+                    String alleleAccession = ((alleleAccessionValue != null) && (alleleAccessionValue.toString().trim().toUpperCase().startsWith("MGI:")) ? alleleAccessionValue.toString().trim() : "-");
+
+                    ObservationDTO observationDTO = new ObservationDTO();
+                    observationDTO.setGeneSymbol(geneSymbol);
+                    observationDTO.setGeneAccession(geneAccessionId);
+                    observationDTO.setPhenotypingCenter(phenotypingCenter);
+                    observationDTO.setColonyId(colonyId);
+                    observationDTO.setSex(sex);
+                    observationDTO.setZygosity(zygosity);
+                    observationDTO.setCategory(phenotype);
+                    observationDTO.setAlleleSymbol(alleleSymbol);
+                    observationDTO.setAlleleAccession(alleleAccession);
+
+                    list.add(observationDTO);
+                }
+
+            } catch (SolrServerException | IOException e) {
+                e.printStackTrace();
             }
 
-        } catch (SolrServerException | IOException e) {
-            e.printStackTrace();
+            return list;
         }
 
-        return res;
+        public Map<String, Set<String>> getViabilityCategories() throws SolrServerException, IOException {
+
+            Map<String, Set<String>> results = new HashMap<>();
+
+            try {
+
+                String pivot = ObservationDTO.CATEGORY + "," + ObservationDTO.GENE_SYMBOL;
+                if (response == null) {
+                    response = solr.query(query);
+                }
+                Map<String, List<String>> facets = getFacetPivotResults(response, pivot);
+
+                for (String category : facets.keySet()) {
+                    results.put(category, new HashSet<>(facets.get(category).subList(0, facets.get(category).size())));
+                }
+
+            } catch (SolrServerException | IOException e) {
+                e.printStackTrace();
+            }
+
+            return results;
+        }
+
+
+        // PRIVATE METHODS
+
+
+        private SolrQuery buildViabilityQuery(List<String> resources, boolean adultOnly, Integer maxRows) {
+
+            SolrQuery query = new SolrQuery();
+            HashMap<String, Set<String>> res = new HashMap<>();
+            String pivot = ObservationDTO.CATEGORY + "," + ObservationDTO.GENE_SYMBOL;
+
+            if (resources != null) {
+                query.setFilterQueries(ObservationDTO.DATASOURCE_NAME + ":"
+                        + StringUtils.join(resources, " OR " + ObservationDTO.DATASOURCE_NAME + ":"));
+            }
+            if (adultOnly){
+                query.setQuery(Constants.adultViabilityParameters.stream().collect(Collectors.joining(" OR ", ObservationDTO.PARAMETER_STABLE_ID + ":(", ")")));
+            } else {
+                query.setQuery(Constants.viabilityParameters.stream().collect(Collectors.joining(" OR ", ObservationDTO.PARAMETER_STABLE_ID + ":(", ")")));
+            }
+
+            query.setRows((maxRows != null) && (maxRows > 0) ? maxRows : 0);
+            query.setFacet(true);
+            query.setFacetMinCount(1);
+            query.setFacetLimit(-1);
+            query.set("facet.pivot", pivot);
+
+            if ((maxRows != null) && (maxRows > 0)){
+                query.addField(ObservationDTO.GENE_SYMBOL);
+                query.addField(ObservationDTO.GENE_ACCESSION_ID);
+                query.addField(ObservationDTO.PHENOTYPING_CENTER);
+                query.addField(ObservationDTO.COLONY_ID);
+                query.addField(ObservationDTO.CATEGORY);
+                query.addField(ObservationDTO.SEX);
+                query.addField(ObservationDTO.ZYGOSITY);
+                query.addField(ObservationDTO.ALLELE_SYMBOL);
+                query.addField(ObservationDTO.ALLELE_ACCESSION_ID);
+                query.setSort(ObservationDTO.ID, SolrQuery.ORDER.asc);
+            }
+
+            return query;
+        }
     }
 
     /**
@@ -347,79 +451,6 @@ public class ObservationService extends BasicService implements WebStatus {
         }
         return res;
     }
-
-//    no longer use this code as done with faceting by Ilinca to improve speed - JW
-    //we should remove....
-    //public Map<String, List<String>> getExperimentKeys(String mgiAccession, String parameterStableId, List<String> pipelineStableId, List<String> phenotypingCenterParams, List<String> strainParams, List<String> metaDataGroups, List<String> alleleAccessions)
-//            throws SolrServerException, IOException {
-//
-//        // Example of key
-//        // String experimentKey = observation.getPhenotypingCenter()
-//        // + observation.getStrain()
-//        // + observation.getParameterStableId()
-//        // + observation.getGeneAccession()
-//        // + observation.getMetadataGroup();
-//        Map<String, List<String>> map = new LinkedHashMap<>();
-//
-//        SolrQuery query = new SolrQuery();
-//
-//        query.setQuery(ObservationDTO.GENE_ACCESSION_ID + ":\"" + mgiAccession + "\"").addFilterQuery(ObservationDTO.PARAMETER_STABLE_ID + ":" + parameterStableId).addFacetField(ObservationDTO.PHENOTYPING_CENTER).addFacetField(ObservationDTO.STRAIN_ACCESSION_ID).addFacetField(ObservationDTO.METADATA_GROUP).addFacetField(ObservationDTO.PIPELINE_STABLE_ID).addFacetField(ObservationDTO.ALLELE_ACCESSION_ID).setRows(0).setFacet(true).setFacetMinCount(1).setFacetLimit(-1).setFacetSort(FacetParams.FACET_SORT_COUNT);
-//
-//        if (phenotypingCenterParams != null && !phenotypingCenterParams.isEmpty()) {
-//            List<String> spaceSafeStringsList = new ArrayList<>();
-//            for (String pCenter : phenotypingCenterParams) {
-//                if (!pCenter.endsWith("\"") && !pCenter.startsWith("\"")) {
-//                    spaceSafeStringsList.add("\"" + pCenter + "\"");
-//                }
-//            }
-//            query.addFilterQuery(ObservationDTO.PHENOTYPING_CENTER + ":(" + StringUtils.join(spaceSafeStringsList, " OR ") + ")");
-//        }
-//
-//        if (strainParams != null && !strainParams.isEmpty()) {
-//            query.addFilterQuery(ObservationDTO.STRAIN_ACCESSION_ID + ":(" + StringUtils.join(strainParams, " OR ").replace(":", "\\:") + ")");
-//        }
-//
-//        if (metaDataGroups != null && !metaDataGroups.isEmpty()) {
-//            query.addFilterQuery(ObservationDTO.METADATA_GROUP + ":(" + StringUtils.join(metaDataGroups, " OR ") + ")");
-//        }
-//
-//        if (pipelineStableId != null && !pipelineStableId.isEmpty()) {
-//            query.addFilterQuery(ObservationDTO.PIPELINE_STABLE_ID + ":(" + StringUtils.join(pipelineStableId, " OR ") + ")");
-//        }
-//
-//        if (alleleAccessions != null && !alleleAccessions.isEmpty()) {
-//            String alleleFilter = ObservationDTO.ALLELE_ACCESSION_ID + ":(" + StringUtils.join(alleleAccessions, " OR ").replace(":", "\\:") + ")";
-//            logger.debug("alleleFilter=" + alleleFilter);
-//            query.addFilterQuery(alleleFilter);
-//
-//        }
-//
-//        QueryResponse response = solr.query(query);
-//        logger.debug("experiment key query=" + query);
-//        List<FacetField> fflist = response.getFacetFields();
-//
-//        for (FacetField ff : fflist) {
-//
-//            // If there are no face results, the values will be null
-//            // skip this facet field in that case
-//            // if (ff.getValues() == null) {
-//            // continue;
-//            // }
-//            for (Count count : ff.getValues()) {
-//                if (map.containsKey(ff.getName())) {
-//                    map.get(ff.getName()).add(count.getName());
-//                } else {
-//                    List<String> newList = new ArrayList<>();
-//                    newList.add(count.getName());
-//                    map.put(ff.getName(), newList);
-//                }
-//
-//            }
-//        }
-//
-//        logger.info("experimentKeys=" + map);
-//        return map;
-//    }
 
     /**
      * for testing - not for users

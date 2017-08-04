@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Observation weight parameter constants.
+ * Observation parameter constants.
  *
  * Created by mrelac on 02/07/2015.
  */
@@ -14,8 +14,10 @@ public class Constants {
             "IMPC_VIA_001_001", "IMPC_VIA_002_001", "IMPC_EVL_001_001",
             "IMPC_EVM_001_001", "IMPC_EVP_001_001", "IMPC_EVO_001_001");
 
+    // 03-Aug-2017 (mrelac) Do not include IMPC_VIA_002_001 in this list unless you want duplicate genes that qualify for both
+    // IMPC_VIA_001_001 and IMPC_VIA_002_001 (see gene_symbol App or Ctsd, for example)
     public static final List<String> adultViabilityParameters = Arrays.asList(
-            "IMPC_VIA_001_001", "IMPC_VIA_002_001");
+            "IMPC_VIA_001_001");
 
 
     public static final List<String> weightParameters = Arrays.asList(
