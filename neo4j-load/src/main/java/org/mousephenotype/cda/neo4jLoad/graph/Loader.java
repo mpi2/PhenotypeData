@@ -332,7 +332,7 @@ public class Loader implements CommandLineRunner {
                 int srDbid = result.getDbId();
 
                 // only want results that have p value
-                if (result.getpValue() != null) {
+                if (result.getpValue() != null && (result.getMpTermId() != null || result.getMaleMpTermId() != null || result.getFemaleMpTermId() != null) ) {
 
                     StatisticalResult sr = new StatisticalResult();
 
@@ -352,7 +352,7 @@ public class Loader implements CommandLineRunner {
                     }
                     else {
                         String gs = result.getMarkerSymbol();
-                        nonMatchingGeneSymbols.add(gs);
+                        nonMatchingGeneSymbols.add(gs + " (" + srDbid + ")");
                         logger.warn("({}) {} ({}) is not an IMPC gene", srDbid, mgiAcc, gs);
                     }
 
@@ -362,7 +362,7 @@ public class Loader implements CommandLineRunner {
                         sr.setAllele(loadedAlleleIdAllele.get(alleleAcc));
                     }
                     else {
-                        nonMatchingAlleles.add(alleleSymbol + " -- " + alleleAcc);
+                        nonMatchingAlleles.add(alleleSymbol + " -- " + alleleAcc + " (" + srDbid + ")");
                         logger.warn("({}) {} ({}) is not an IMPC allele", srDbid, alleleAcc, alleleSymbol);
                     }
 
@@ -373,7 +373,7 @@ public class Loader implements CommandLineRunner {
                             mps.add(loadedMps.get(mpId));
                         }
                         else {
-                            nonMatchingMpIds.add(mpId);
+                            nonMatchingMpIds.add(mpId + " (" + srDbid + ")");
                             logger.warn("({}) MP id {} is not an IMPC MP", srDbid, mpId);
                         }
                     }
@@ -383,7 +383,7 @@ public class Loader implements CommandLineRunner {
                             if (loadedMps.containsKey(maleMpId)) {
                                 mps.add(loadedMps.get(maleMpId));
                             } else {
-                                nonMatchingMpIds.add(maleMpId);
+                                nonMatchingMpIds.add(maleMpId + " (" + srDbid + ")");
                                 logger.warn("({}) Male MP id {} is not an IMPC MP", srDbid, maleMpId);
                             }
                         }
@@ -392,7 +392,7 @@ public class Loader implements CommandLineRunner {
                             if (loadedMps.containsKey(femaleMpId)) {
                                 mps.add(loadedMps.get(femaleMpId));
                             } else {
-                                nonMatchingMpIds.add(femaleMpId);
+                                nonMatchingMpIds.add(femaleMpId + " (" + srDbid + ")");
                                 logger.warn("Female MP id " + femaleMpId + " is not an IMPC MP");
                                 logger.warn("({}) Female MP id {} is not an IMPC MP", srDbid, femaleMpId);
                             }
@@ -426,7 +426,6 @@ public class Loader implements CommandLineRunner {
                     }
                 }
             }
-
 
         }
 
