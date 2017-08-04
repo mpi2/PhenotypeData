@@ -702,7 +702,20 @@
 		<link rel="stylesheet" type="text/css" href="${baseUrl}/js/phenogrid-1.3.1/dist/phenogrid-bundle.css?v=${version}">
 
 
-        <script type="text/javascript" src="${baseUrl}/js/newanatomogram/vendorCommons.bundle.js"></script>
+
+        <!-- new anatomogram built using npm run dist -- --output-public-path /path/to/new anatomogram js/
+             this should take of of https -->
+        <c:choose>
+            <c:when test='${baseUrl.startsWith("/phenotype-archive")}'>
+                <%-- path: /phenotype-archive/js/newanatomogram/ --%>
+                <script type="text/javascript" src="${baseUrl}/js/newanatomogram/vendorCommons.bundle.local.js"></script>
+            </c:when>
+            <c:otherwise>
+                <%-- path: /data/js/newanatomogram/ --%>
+                <script type="text/javascript" src="${baseUrl}/js/newanatomogram/vendorCommons.bundle.js"></script>
+            </c:otherwise>
+        </c:choose>
+
         <script type="text/javascript" src="${baseUrl}/js/newanatomogram/anatomogram.bundle.js"></script>
 
 		<script type="text/javascript">
@@ -733,7 +746,7 @@
                 }
 
                 // --- new anatomogram as of 2017-07 ------
-                console.log(${anatomogram});
+                //console.log(${anatomogram});
                 // invoke anatomogram only when
                 // this check is not empty: impcAdultExpressionImageFacets
 
@@ -742,13 +755,11 @@
                     // anatomogram stuff
                     //var expData = JSON.parse(${anatomogram});
                     var expData = ${anatomogram};
-                    console.log(expData);
+                    //console.log(expData);
                     var topLevelName2maIdMap = expData.topLevelName2maIdMap;
                     var maId2UberonEfoMap = expData.maId2UberonEfoMap;
                     var uberonEfo2MaIdMap = expData.uberonEfo2MaIdMap;
                     var maId2topLevelNameMap = expData.maId2topLevelNameMap;
-                    console.log("check")
-                    console.log(uberonEfo2MaIdMap);
 
                     var uberons2Gene = expData.allPaths;
 
@@ -758,7 +769,7 @@
 					$("ul#expList table td").on("mouseover", function() {
 						var topname = $(this).text().trim();
 						var maIds = topLevelName2maIdMap[topname];
-						console.log(topname + " - " + maIds);
+						//console.log(topname + " - " + maIds);
 						var uberonIds = [];
 						for( var a=0; a<maIds.length; a++){
 							uberonIds = uberonIds.concat(maId2UberonEfoMap[maIds[a]]);
