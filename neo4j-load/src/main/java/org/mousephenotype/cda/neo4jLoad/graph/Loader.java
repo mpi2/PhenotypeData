@@ -304,7 +304,7 @@ public class Loader implements CommandLineRunner {
         int cycles = docNum / batch;
         logger.info("Got {} stats results to load...Loading in {} batches, {} results at a time", docNum, cycles, batch);
 
-        Set<String> nonMatchingAlleleSymbols = new HashSet<>();
+        Set<String> nonMatchingAlleles = new HashSet<>();
         Set<String> nonMatchingGeneSymbols = new HashSet<>();
         Set<String> nonMatchingMpIds = new HashSet<>();
 
@@ -329,6 +329,7 @@ public class Loader implements CommandLineRunner {
             //logger.info("Got {} stats results to load...", srdto.size());
 
             for (StatisticalResultDTO result : srdto) {
+                int srDbid = result.getDbId();
 
                 // only want results that have p value
                 if (result.getpValue() != null) {
@@ -352,7 +353,7 @@ public class Loader implements CommandLineRunner {
                     else {
                         String gs = result.getMarkerSymbol();
                         nonMatchingGeneSymbols.add(gs);
-                        logger.warn(mgiAcc + " (" + gs + ") is not an IMPC gene");
+                        logger.warn("({}) {} ({}) is not an IMPC gene", srDbid, mgiAcc, gs);
                     }
 
                     String alleleAcc = result.getAlleleAccessionId();
@@ -361,8 +362,8 @@ public class Loader implements CommandLineRunner {
                         sr.setAllele(loadedAlleleIdAllele.get(alleleAcc));
                     }
                     else {
-                        nonMatchingAlleleSymbols.add(alleleSymbol);
-                        logger.warn(alleleAcc + " (" + alleleSymbol + ") is not an IMPC alleles");
+                        nonMatchingAlleles.add(alleleSymbol + " -- " + alleleAcc);
+                        logger.warn("({}) {} ({}) is not an IMPC allele", srDbid, alleleAcc, alleleSymbol);
                     }
 
                     Set<Mp> mps = new HashSet<>();
@@ -373,7 +374,7 @@ public class Loader implements CommandLineRunner {
                         }
                         else {
                             nonMatchingMpIds.add(mpId);
-                            logger.warn(mpId + " is not an IMPC MP");
+                            logger.warn("({}) MP id {} is not an IMPC MP", srDbid, mpId);
                         }
                     }
                     else {
@@ -383,7 +384,7 @@ public class Loader implements CommandLineRunner {
                                 mps.add(loadedMps.get(maleMpId));
                             } else {
                                 nonMatchingMpIds.add(maleMpId);
-                                logger.warn("Male MP id " + maleMpId + " is not an IMPC MP");
+                                logger.warn("({}) Male MP id {} is not an IMPC MP", srDbid, maleMpId);
                             }
                         }
                         if (result.getFemaleMpTermId() != null) {
@@ -393,6 +394,7 @@ public class Loader implements CommandLineRunner {
                             } else {
                                 nonMatchingMpIds.add(femaleMpId);
                                 logger.warn("Female MP id " + femaleMpId + " is not an IMPC MP");
+                                logger.warn("({}) Female MP id {} is not an IMPC MP", srDbid, femaleMpId);
                             }
                         }
                     }
@@ -434,7 +436,7 @@ public class Loader implements CommandLineRunner {
         loadTime(begin, System.currentTimeMillis(), job);
 
         logger.info("{} non matching gene symbols: {}",  nonMatchingGeneSymbols.size(), nonMatchingGeneSymbols);
-        logger.info("{} non matching allele symbols: {}",  nonMatchingAlleleSymbols.size(), nonMatchingAlleleSymbols);
+        logger.info("{} non matching allele symbols: {}",  nonMatchingAlleles.size(), nonMatchingAlleles);
         logger.info("{} non matching MP ids: {}",  nonMatchingMpIds.size(), nonMatchingMpIds);
 
     }
