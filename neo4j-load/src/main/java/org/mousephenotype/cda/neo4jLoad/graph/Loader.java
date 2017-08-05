@@ -304,8 +304,8 @@ public class Loader implements CommandLineRunner {
         int cycles = docNum / batch;
         logger.info("Got {} stats results to load...Loading in {} batches, {} results at a time", docNum, cycles, batch);
 
-        Map<String, List<Integer>> nonMatchingAlleles = new HashMap<>();
-        Map<String, List<Integer>> nonMatchingGeneSymbols = new HashMap<>();
+        Map<String, List<String>> nonMatchingAlleles = new HashMap<>();
+        Map<String, List<String>> nonMatchingGeneSymbols = new HashMap<>();
         Map<String, List<Integer>> nonMatchingMpIds = new HashMap<>();
 
         int count = 0;
@@ -336,6 +336,18 @@ public class Loader implements CommandLineRunner {
 
                     StatisticalResult sr = new StatisticalResult();
 
+                    String thisMpId = null;
+                    if (result.getMpTermId() != null ){
+                        thisMpId = result.getMpTermId();
+                    }
+                    else if (result.getMaleMpTermId() != null){
+                        thisMpId = result.getMaleMpTermId();
+                    }
+                    else if (result.getFemaleMpTermId() != null){
+                        thisMpId = result.getFemaleMpTermId();
+                    }
+
+
                     sr.setPvalue(result.getpValue());
                     sr.setPhenotypeSex(result.getPhenotypeSex());
                     sr.setPhenotypingCenter(result.getPhenotypingCenter());
@@ -355,7 +367,7 @@ public class Loader implements CommandLineRunner {
                         if (! nonMatchingGeneSymbols.containsKey(gs)){
                             nonMatchingGeneSymbols.put(gs, new ArrayList<>());
                         }
-                        nonMatchingGeneSymbols.get(gs).add(srDbid);
+                        nonMatchingGeneSymbols.get(gs).add(srDbid + " - " + thisMpId);
                         //logger.warn("({}) {} ({}) is not an IMPC gene", srDbid, mgiAcc, gs);
                     }
 
@@ -368,7 +380,7 @@ public class Loader implements CommandLineRunner {
                         if (! nonMatchingAlleles.containsKey(alleleSymbol + " -- " + alleleAcc)){
                             nonMatchingAlleles.put(alleleSymbol + " -- " + alleleAcc, new ArrayList<>());
                         }
-                        nonMatchingAlleles.get(alleleSymbol + " -- " + alleleAcc).add(srDbid);
+                        nonMatchingAlleles.get(alleleSymbol + " -- " + alleleAcc).add(srDbid + " - " + thisMpId);
                         //logger.warn("({}) {} ({}) is not an IMPC allele", srDbid, alleleAcc, alleleSymbol);
                     }
 
@@ -449,12 +461,12 @@ public class Loader implements CommandLineRunner {
         loadTime(begin, System.currentTimeMillis(), job);
 
         logger.info("{} non matching gene symbols: ",  nonMatchingGeneSymbols.size());
-        for (Map.Entry<String, List<Integer>> entry : nonMatchingGeneSymbols.entrySet()) {
+        for (Map.Entry<String, List<String>> entry : nonMatchingGeneSymbols.entrySet()) {
             logger.info("{}, [{}]", entry.getKey(), StringUtils.join(entry.getValue(), ", "));
         }
 
         logger.info("{} non matching allele symbols: ",  nonMatchingAlleles.size());
-        for (Map.Entry<String, List<Integer>> entry : nonMatchingAlleles.entrySet()) {
+        for (Map.Entry<String, List<String>> entry : nonMatchingAlleles.entrySet()) {
             logger.info("{}, [{}]", entry.getKey(), StringUtils.join(entry.getValue(), ", "));
         }
 
