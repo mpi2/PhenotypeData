@@ -15,10 +15,10 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.service.dto;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.beans.Field;
 import org.mousephenotype.cda.enumerations.ObservationType;
 
-import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
@@ -28,7 +28,9 @@ import java.util.stream.Collectors;
 
 public class ObservationDTO extends ObservationDTOBase {
 
-	@Field(DATE_OF_EXPERIMENT)
+    private static final String EXPORT_DATE_PATTERN = "yyyy-MM-dd";
+
+    @Field(DATE_OF_EXPERIMENT)
 	private Date dateOfExperiment;
 
     @Field(DATE_OF_BIRTH)
@@ -40,12 +42,11 @@ public class ObservationDTO extends ObservationDTOBase {
 
 
     /**
-     * helper methods
+     * tabbedToString method used to get this object in a representation for exporting
      *
-     * @throws SQLException
+     * @return string of fields separated by TAB characters
      */
-
-    public String tabbedToString() throws SQLException {
+    public String tabbedToString() {
 
         List<String> fields = new ArrayList<>(Arrays.asList(
                 pipelineName,
@@ -57,17 +58,17 @@ public class ObservationDTO extends ObservationDTOBase {
                 strainAccessionId,
                 strainName,
                 geneticBackground,
-                geneSymbol!=null?geneSymbol:"-",
-                geneAccession!=null?geneAccession:"-",
-                alleleSymbol!=null?alleleSymbol:"-",
-                alleleAccession!=null?alleleAccession:"-",
+                geneSymbol,
+                geneAccession,
+                alleleSymbol,
+                alleleAccession,
                 phenotypingCenter,
-                colonyId!=null?colonyId:"-",
+                colonyId,
                 getDateOfExperimentString(),
                 getDateOfBirthString(),
                 getAgeInWeeks().toString(),
                 developmentalStageName,
-                zygosity!=null?zygosity:"-",
+                zygosity,
                 sex,
                 group,
                 externalSampleId,
@@ -90,9 +91,17 @@ public class ObservationDTO extends ObservationDTOBase {
                 break;
         }
 
-        return fields.stream().collect(Collectors.joining("\t"));
+        return fields
+                .parallelStream()
+                .map(x -> StringUtils.isBlank(x) ? "-" : x)
+                .collect(Collectors.joining("\t"));
     }
 
+    /**
+     * getTabbedFields method used to get the report headers for exporting
+     *
+     * @return string of field headers separated by TAB characters
+     */
     public String getTabbedFields() {
 
         List<String> fields = new ArrayList<>(Arrays.asList(
@@ -149,11 +158,11 @@ public class ObservationDTO extends ObservationDTOBase {
      * @return string representation of the date the experiment was performed
      */
     public String getDateOfExperimentString() {
-        return new SimpleDateFormat("yyyy-MM-dd").format(dateOfExperiment);
+        return new SimpleDateFormat(EXPORT_DATE_PATTERN).format(dateOfExperiment);
     }
 
     public String getDateOfBirthString() {
-        return new SimpleDateFormat("yyyy-MM-dd").format(dateOfBirth);
+        return new SimpleDateFormat(EXPORT_DATE_PATTERN).format(dateOfBirth);
 
     }
 
