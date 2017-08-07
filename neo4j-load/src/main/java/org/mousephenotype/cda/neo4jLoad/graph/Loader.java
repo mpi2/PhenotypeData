@@ -331,10 +331,11 @@ public class Loader implements CommandLineRunner {
             for (StatisticalResultDTO result : srdto) {
                 int srDbid = result.getDbId();
 
-                // only want results that have p value
-                if (result.getpValue() != null && (result.getMpTermId() != null || result.getMaleMpTermId() != null || result.getFemaleMpTermId() != null) ) {
+                if (result.getMpTermId() != null || result.getMaleMpTermId() != null || result.getFemaleMpTermId() != null) {
 
                     StatisticalResult sr = new StatisticalResult();
+
+                    sr.setDbId(srDbid);
 
                     String thisMpId = null;
                     if (result.getMpTermId() != null ){

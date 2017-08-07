@@ -517,6 +517,8 @@ public class AdvancedSearchService {
                         + whereClause
                         + " AND " + significantCypher + parameterCypher + pvaluesCypher + chrRangeCypher + geneListCypher + genotypesCypher + alleleTypesCypher
                         + " WITH g, a, mp, sr, "
+                        //+ " OPTIONAL MATCH (mp)<-[:MOUSE_PHENOTYPE]-(dm:DiseaseModel) "
+                        //+ " WHERE  dm.diseaseToModelScore >= 0 AND dm.diseaseToModelScore <= 100 ";
                         + " extract(x IN collect(DISTINCT mp) | x.mpTerm) AS mps "
                         + geneToDmPathClause
                         + " AND dmp.mpTerm IN mps";
@@ -526,6 +528,8 @@ public class AdvancedSearchService {
                         + whereClause
                         + " AND " + significantCypher + parameterCypher + pvaluesCypher + chrRangeCypher + geneListCypher + genotypesCypher + alleleTypesCypher
                         + " WITH g, a, mp, sr, "
+                        //+ " OPTIONAL MATCH (mp)<-[:MOUSE_PHENOTYPE]-(dm:DiseaseModel) "
+                        //+ " WHERE  dm.diseaseToModelScore >= 0 AND dm.diseaseToModelScore <= 100 ";
                         + " extract(x IN collect(DISTINCT mp) | x.mpTerm) AS mps "
                         + geneToDmPathClause
                         + " AND dmp.mpTerm IN mps";
@@ -1166,7 +1170,7 @@ public class AdvancedSearchService {
         }
 
         // only significant pvalue for measured parameter
-        mpForm.setSignificantPvaluesOnly(jParams.containsKey("onlySignificantPvalue") ? true : false);
+        mpForm.setSignificantPvaluesOnly(jParams.getBoolean("onlySignificantPvalue") ? true : false);
 
         // customed output columns
         if (jParams.containsKey("Mp")) {

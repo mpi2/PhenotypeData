@@ -76,7 +76,7 @@ public class AdvancedSearchServiceTest {
 
         //AdvancedSearchMpRow mpRow = new AdvancedSearchMpRow("abnormal glucose homeostasis", 0.00001, 0.0001);
         AdvancedSearchMpRow mpRow = new AdvancedSearchMpRow(mpTerm, null, null);
-        //mpForm.addPhenotypeRows(mpRow);
+        mpForm.addPhenotypeRows(mpRow);
         mpForm.setSignificantPvaluesOnly(true);
 //        mpForm.setHasOutputColumn(true);
 //        mpForm.setShowMpTerm(true);
@@ -112,9 +112,9 @@ public class AdvancedSearchServiceTest {
                         for (Object obj : objs) {
                             //System.out.println(obj);
                             Gene g = (Gene) obj;
+                            //System.out.println("check: "+ g.getMarkerSymbol());
                             n4jGeneSymbols.add(g.getMarkerSymbol());
                         }
-                        break;
                     }
                     else if (entry.getKey().equals("collect(distinct a)")) {
                         genesFoundNeo4j = objs.size();
@@ -124,9 +124,7 @@ public class AdvancedSearchServiceTest {
                             Allele a = (Allele) obj;
                             n4jAlleleSymbols.add(a.getAlleleSymbol());
                         }
-                        break;
                     }
-
                 }
             }
         }
@@ -134,10 +132,10 @@ public class AdvancedSearchServiceTest {
         // get result from SOLR
         SolrQuery query = new SolrQuery();
         query.setQuery("*:*");
-        //query.addFilterQuery("mp_term_name:\"" + mpTerm + "\" OR intermediate_mp_term_name:\"" + mpTerm + "\" OR top_level_mp_term_name:\"" + mpTerm + "\"");
+        query.addFilterQuery("mp_term_name:\"" + mpTerm + "\" OR intermediate_mp_term_name:\"" + mpTerm + "\" OR top_level_mp_term_name:\"" + mpTerm + "\"");
         query.setStart(0);
         query.setRows(99999);
-        query.setParam("fl", "marker_symbol, allele_symbol");
+        query.setParam("fl", "marker_symbol, allele_symbol", "mp_term_name", "intermediate_mp_term_name", "top_level_mp_term_name");
 
         System.out.println("SOLR QUERY: " + query);
         QueryResponse response = genotypePhenotypeCore.query(query);
@@ -145,11 +143,15 @@ public class AdvancedSearchServiceTest {
 
         Set<String> geneSymbolsGP = new HashSet<>();
         Set<String> alleleSymbolsGP = new HashSet<>();
+        Map<String, String> alleleMp = new HashMap<>();
 
         //long genesFoundSolr = response.getResults().getNumFound();
         for (SolrDocument doc : response.getResults()) {
-            geneSymbolsGP.add(doc.getFieldValue("marker_symbol").toString());
-            alleleSymbolsGP.add(doc.getFieldValue("allele_symbol").toString());
+            String makerSymbol = doc.getFieldValue("marker_symbol").toString();
+            String alleleSymbol = doc.getFieldValue("allele_symbol").toString();
+            geneSymbolsGP.add(makerSymbol);
+            alleleSymbolsGP.add(alleleSymbol);
+            //alleleMp.put(alleleSymbol, )
         }
 
         int genesFoundSolr = geneSymbolsGP.size();
@@ -174,10 +176,17 @@ public class AdvancedSearchServiceTest {
             }
         }
 
-        System.out.println(missingGeneSymbolN4j.size() + " Neo4j gene symbols not in GP\n");
-        System.out.println(missingGeneSymbolN4j);
+        Set intersect = new TreeSet(n4jGeneSymbols);
+        intersect.retainAll(geneSymbolsGP);
 
-        System.out.println(missingAlleleSymbolN4j.size() + " Neo4j allele symbols not in GP\n");
+        System.out.println(intersect.size() + " common gene symbols: ");
+        System.out.println(intersect);
+        System.out.println();
+
+        System.out.println(missingGeneSymbolN4j.size() + " Neo4j gene symbols not in GP");
+        System.out.println(missingGeneSymbolN4j);
+        System.out.println();
+        System.out.println(missingAlleleSymbolN4j.size() + " Neo4j allele symbols not in GP");
         System.out.println(missingAlleleSymbolN4j);
 
     }
@@ -185,10 +194,10 @@ public class AdvancedSearchServiceTest {
     //@Test
     public void testMarkerSymbolsInGPAndStatisticalResultCoreWithMp() throws IOException, SolrServerException {
 
-        //String mpTerm = "cardiovascular system phenotype";
+        String mpTerm = "cardiovascular system phenotype";
         //String mpTerm = "abnormal glucose homeostasis";
         //String mpTerm = "abnormal retina morphology";
-        String mpTerm = "rib fusion";
+        //String mpTerm = "rib fusion";
 
         // get result from SOLR
         SolrQuery query = new SolrQuery();
