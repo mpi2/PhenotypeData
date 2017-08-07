@@ -15,19 +15,22 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.service.dto;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.beans.Field;
+import org.mousephenotype.cda.enumerations.ObservationType;
 
-import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
-import java.util.Date;
-import java.util.TimeZone;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class ObservationDTO extends ObservationDTOBase {
 
-	@Field(DATE_OF_EXPERIMENT)
+    private static final String EXPORT_DATE_PATTERN = "yyyy-MM-dd";
+
+    @Field(DATE_OF_EXPERIMENT)
 	private Date dateOfExperiment;
 
     @Field(DATE_OF_BIRTH)
@@ -39,117 +42,112 @@ public class ObservationDTO extends ObservationDTOBase {
 
 
     /**
-     * helper methods
+     * tabbedToString method used to get this object in a representation for exporting
      *
-     * @throws SQLException
+     * @return string of fields separated by TAB characters
      */
+    public String tabbedToString() {
 
-    public String tabbedToString() throws SQLException {
-        String tabbed = pipelineName
-                + "\t" + pipelineStableId
-                + "\t" + procedureStableId
-                + "\t" + procedureName
-                + "\t" + parameterStableId
-                + "\t" + parameterName
-                // + "\t" + pipelineId
-                // + "\t" + procedureId
-                // + "\t" + parameterId
-                + "\t" + strainAccessionId
-                + "\t" + strainName
-                + "\t" + geneticBackground
-                // + "\t" + experimentSourceId
-                + "\t" + geneSymbol
-                + "\t" + geneAccession
-                + "\t" + alleleSymbol
-                + "\t" + alleleAccession
-                // + "\t" + experimentId
-                // + "\t" + organisationId
-                // + "\t" + observationType
-                + "\t" + phenotypingCenter
-                + "\t" + colonyId
-                + "\t" + this.getDateOfExperimentString()
-                + "\t" + this.getDateOfBirthString()
-                + "\t" + this.getAgeInWeeks()
-                + "\t" + this.getDevelopmentalStageName()
-                // + "\t" + biologicalSampleId
-                // + "\t" + biologicalModelId
-                + "\t" + zygosity
-                + "\t" + sex
-                + "\t" + group
-                // + "\t" + category
-                // + "\t" + dataPoint
-                // + "\t" + orderIndex
-                // + "\t" + dimension
-                // + "\t" + timePoint
-                // + "\t" + discretePoint
-                + "\t" + externalSampleId
-                + "\t\"" + metadata + "\""
-                + "\t" + metadataGroup;
-        ;
+        List<String> fields = new ArrayList<>(Arrays.asList(
+                pipelineName,
+                pipelineStableId,
+                procedureName,
+                procedureStableId,
+                parameterName,
+                parameterStableId,
+                strainAccessionId,
+                strainName,
+                geneticBackground,
+                geneSymbol,
+                geneAccession,
+                alleleSymbol,
+                alleleAccession,
+                phenotypingCenter,
+                colonyId,
+                getDateOfExperimentString(),
+                getDateOfBirthString(),
+                getAgeInWeeks().toString(),
+                developmentalStageName,
+                zygosity,
+                sex,
+                group,
+                externalSampleId,
+                "\"" + metadata.toString() + "\"",
+                metadataGroup
+        ));
 
-        if (observationType.equalsIgnoreCase("unidimensional")) {
-            tabbed += "\t" + dataPoint;
+        switch (ObservationType.valueOf(observationType)) {
+            case unidimensional:
+                fields.add(dataPoint.toString());
+                break;
+            case categorical:
+                fields.add(category);
+                break;
+            case time_series:
+                fields.add(dataPoint.toString());
+                fields.add(discretePoint.toString());
+                break;
+            default:
+                break;
         }
-        else if (observationType.equalsIgnoreCase("categorical")) {
-            tabbed += "\t" + category;
-        }
-        else if (observationType.equalsIgnoreCase("time_series")) {
-            tabbed += "\t" + dataPoint + "\t" + discretePoint;
-        }
-        return tabbed;
+
+        return fields
+                .parallelStream()
+                .map(x -> StringUtils.isBlank(x) ? "-" : x)
+                .collect(Collectors.joining("\t"));
     }
 
+    /**
+     * getTabbedFields method used to get the report headers for exporting
+     *
+     * @return string of field headers separated by TAB characters
+     */
     public String getTabbedFields() {
-        String tabbed = PARAMETER_NAME
-                + "\t" + PIPELINE_STABLE_ID
-                + "\t" + PROCEDURE_STABLE_ID
-                + "\t" + PROCEDURE_NAME
-                + "\t" + PARAMETER_STABLE_ID
-                + "\t" + PARAMETER_NAME
-                // + "\t pipeline id"
-                // + "\t procedureId"
-                // + "\t parameterId"
-                + "\t" + STRAIN_ACCESSION_ID
-                + "\t" + STRAIN_NAME
-                + "\t" + GENETIC_BACKGROUND
-                // + "\t experimentSourceId"
-                + "\t" + GENE_SYMBOL
-                + "\t" + GENE_ACCESSION_ID
-                + "\t" + ALLELE_SYMBOL
-                + "\t" + ALLELE_ACCESSION_ID
-                // + "\t experimentId"
-                // + "\t organisationId"
-                // + "\t observationType"
-                + "\t" + PHENOTYPING_CENTER
-                + "\t" + COLONY_ID
-                + "\t" + DATE_OF_EXPERIMENT
-                + "\t" + DATE_OF_BIRTH
-                + "\t" + AGE_IN_WEEKS
-                + "\t" + DEVELOPMENTAL_STAGE_NAME
-                // + "\t biologicalSampleId"
-                // + "\t biologicalModelId"
-                + "\t" + ZYGOSITY
-                + "\t" + SEX
-                + "\t" + BIOLOGICAL_SAMPLE_GROUP
-                // + "\t category"
-                // + "\t dataPoint"
-                // + "\t orderIndex"
-                // + "\t dimension"
-                // + "\t timePoint"
-                // + "\t discretePoint"
-                + "\t" + EXTERNAL_SAMPLE_ID
-                + "\t" + METADATA
-                + "\t" + METADATA_GROUP;
-        if (observationType.equalsIgnoreCase("unidimensional")) {
-            tabbed += "\t" + DATA_POINT;
+
+        List<String> fields = new ArrayList<>(Arrays.asList(
+                PIPELINE_NAME,
+                PIPELINE_STABLE_ID,
+                PROCEDURE_NAME,
+                PROCEDURE_STABLE_ID,
+                PARAMETER_NAME,
+                PARAMETER_STABLE_ID,
+                STRAIN_ACCESSION_ID,
+                STRAIN_NAME,
+                GENETIC_BACKGROUND,
+                GENE_SYMBOL,
+                GENE_ACCESSION_ID,
+                ALLELE_SYMBOL,
+                ALLELE_ACCESSION_ID,
+                PHENOTYPING_CENTER,
+                COLONY_ID,
+                DATE_OF_EXPERIMENT,
+                DATE_OF_BIRTH,
+                AGE_IN_WEEKS,
+                DEVELOPMENTAL_STAGE_NAME,
+                ZYGOSITY,
+                SEX,
+                BIOLOGICAL_SAMPLE_GROUP,
+                EXTERNAL_SAMPLE_ID,
+                METADATA,
+                METADATA_GROUP
+        ));
+
+        switch (ObservationType.valueOf(observationType)) {
+            case unidimensional:
+                fields.add(DATA_POINT);
+                break;
+            case categorical:
+                fields.add(CATEGORY);
+                break;
+            case time_series:
+                fields.add(DATA_POINT);
+                fields.add(DISCRETE_POINT);
+                break;
+            default:
+                break;
         }
-        else if (observationType.equalsIgnoreCase("categorical")) {
-            tabbed += "\t" + CATEGORY;
-        }
-        else if (observationType.equalsIgnoreCase("time_series")) {
-            tabbed += "\t" + DATA_POINT + "\t" + DISCRETE_POINT;
-        }
-        return tabbed;
+
+        return fields.stream().collect(Collectors.joining("\t"));
     }
 
 
@@ -160,11 +158,11 @@ public class ObservationDTO extends ObservationDTOBase {
      * @return string representation of the date the experiment was performed
      */
     public String getDateOfExperimentString() {
-        return new SimpleDateFormat("yyyy-MM-dd").format(dateOfExperiment);
+        return new SimpleDateFormat(EXPORT_DATE_PATTERN).format(dateOfExperiment);
     }
 
     public String getDateOfBirthString() {
-        return new SimpleDateFormat("yyyy-MM-dd").format(dateOfBirth);
+        return new SimpleDateFormat(EXPORT_DATE_PATTERN).format(dateOfBirth);
 
     }
 
