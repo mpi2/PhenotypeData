@@ -14,19 +14,25 @@
  * License.
  ******************************************************************************/
 
-package org.mousephenotype.cda.reports;
+package org.mousephenotype.cda.loads.reports;
 
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.mousephenotype.cda.reports.support.*;
+import org.mousephenotype.cda.db.utilities.SqlUtils;
+import org.mousephenotype.cda.loads.reports.support.LoadValidateCountsQuery;
+import org.mousephenotype.cda.loads.reports.support.LoadValidateMissingQuery;
+import org.mousephenotype.cda.loads.reports.support.LoadsQuery;
+import org.mousephenotype.cda.loads.reports.support.LoadsQueryDelta;
+import org.mousephenotype.cda.reports.AbstractReport;
+import org.mousephenotype.cda.reports.support.ReportException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.stereotype.Component;
+import org.springframework.boot.Banner;
+import org.springframework.boot.SpringApplication;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
-import javax.validation.constraints.NotNull;
+import javax.inject.Inject;
 import java.beans.Introspector;
 import java.io.IOException;
 import java.util.List;
@@ -36,22 +42,23 @@ import java.util.List;
  *
  * Created by mrelac on 24/07/2015.
  */
-@Component
+@ComponentScan("org.mousephenotype.cda.loads.reports")
 public class ExtractValidateDccReport extends AbstractReport {
 
     private LoadValidateMissingQuery loadValidateMissingQuery;
-    private LoadValidateCountsQuery loadValidateCountsQuery;
+    private LoadValidateCountsQuery  loadValidateCountsQuery;
     private Logger   logger   = LoggerFactory.getLogger(this.getClass());
 
-    @Autowired
-    @NotNull
-    @Qualifier("jdbcDccPrevious")
-    private JdbcTemplate jdbcPrevious;
+    private NamedParameterJdbcTemplate jdbcDccPrevious;
+    private NamedParameterJdbcTemplate jdbcDccCurrent;
+    private SqlUtils                   sqlUtils;
 
-    @Autowired
-    @NotNull
-    @Qualifier("jdbcDccCurrent")
-    private JdbcTemplate jdbcCurrent;
+    @Inject
+    public ExtractValidateDccReport(NamedParameterJdbcTemplate jdbcDccPrevious, NamedParameterJdbcTemplate jdbcDccCurrent, SqlUtils sqlUtils) {
+        this.jdbcDccPrevious = jdbcDccPrevious;
+        this.jdbcDccCurrent = jdbcDccCurrent;
+        this.sqlUtils = sqlUtils;
+    }
 
     /**********************
      * DATABASES: DCC, 3I
@@ -65,7 +72,7 @@ public class ExtractValidateDccReport extends AbstractReport {
             "    WHERE parameterId like 'IMPC_%'\n" +
             ") AS o1";
 
-    private final double DELTA = 0.8;
+    private final double      DELTA        = 0.8;
     private LoadsQueryDelta[] deltaQueries = new LoadsQueryDelta[] {
             new LoadsQueryDelta("specimen COUNTS", DELTA, "SELECT count(*) FROM specimen"),
             new LoadsQueryDelta("embryo COUNTS", DELTA, "SELECT count(*) FROM embryo"),
@@ -117,9 +124,9 @@ public class ExtractValidateDccReport extends AbstractReport {
     @Override
     protected void initialise(String[] args) throws ReportException {
         super.initialise(args);
-        loadValidateCountsQuery = new LoadValidateCountsQuery(jdbcPrevious, jdbcCurrent, csvWriter);
+        loadValidateCountsQuery = new LoadValidateCountsQuery(jdbcDccPrevious, jdbcDccCurrent, csvWriter);
         loadValidateCountsQuery.addQueries(deltaQueries);
-        loadValidateMissingQuery = new LoadValidateMissingQuery(jdbcPrevious, jdbcCurrent, csvWriter);
+        loadValidateMissingQuery = new LoadValidateMissingQuery(jdbcDccPrevious, jdbcDccCurrent, csvWriter);
         loadValidateMissingQuery.addQueries(queries);
     }
 
@@ -131,6 +138,14 @@ public class ExtractValidateDccReport extends AbstractReport {
     @Override
     public String getDefaultFilename() {
         return Introspector.decapitalize(ClassUtils.getShortClassName(this.getClass()));
+    }
+
+    public static void main(String[] args) throws Exception {
+        SpringApplication app = new SpringApplication(ExtractValidateDccReport.class);
+        app.setBannerMode(Banner.Mode.OFF);
+        app.setLogStartupInfo(false);
+        app.setWebEnvironment(false);
+        app.run(args);
     }
 
     public void run(String[] args) throws ReportException {
@@ -145,9 +160,10 @@ public class ExtractValidateDccReport extends AbstractReport {
         long start = System.currentTimeMillis();
 
         try {
-            String db1Name = jdbcPrevious.getDataSource().getConnection().getCatalog();
-            String db2Name = jdbcCurrent.getDataSource().getConnection().getCatalog();
-            logger.info("VALIDATION STARTED AGAINST DATABASES {} AND {}", db1Name, db2Name);
+            String db1Info    = sqlUtils.getDbInfoString(jdbcDccPrevious);
+            String db2Info    = sqlUtils.getDbInfoString(jdbcDccCurrent);
+
+            logger.info("VALIDATION STARTED AGAINST DATABASES {} AND {}", db1Info, db2Info);
 
         } catch (Exception e) { }
 

@@ -14,14 +14,16 @@
  * License.
  ******************************************************************************/
 
-package org.mousephenotype.cda.reports.support;
+package org.mousephenotype.cda.loads.reports.support;
 
 import org.mousephenotype.cda.db.utilities.SqlUtils;
 import org.mousephenotype.cda.reports.AbstractReport;
+import org.mousephenotype.cda.reports.support.MpCSVWriter;
+import org.mousephenotype.cda.reports.support.ReportException;
 import org.mousephenotype.cda.utilities.RunStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -43,11 +45,11 @@ public class LoadValidateMissingQuery {
     private SqlUtils sqlUtils = new SqlUtils();
 
     private List<LoadsQuery> loadsQueryList = new ArrayList<>();
-    private JdbcTemplate     jdbcPrevious;
-    private JdbcTemplate     jdbcCurrent;
-    private MpCSVWriter      csvWriter;
+    private NamedParameterJdbcTemplate jdbcPrevious;
+    private NamedParameterJdbcTemplate jdbcCurrent;
+    private MpCSVWriter                csvWriter;
 
-    public LoadValidateMissingQuery(JdbcTemplate jdbcPrevious, JdbcTemplate jdbcCurrent, MpCSVWriter  csvWriter) {
+    public LoadValidateMissingQuery(NamedParameterJdbcTemplate jdbcPrevious, NamedParameterJdbcTemplate jdbcCurrent, MpCSVWriter  csvWriter) {
         this.jdbcPrevious = jdbcPrevious;
         this.jdbcCurrent = jdbcCurrent;
         this.csvWriter = csvWriter;

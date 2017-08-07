@@ -122,6 +122,15 @@
                 <version>${phenotypedata.version}</version>
             </dependency>
 
+
+
+            <!-- https://mvnrepository.com/artifact/net.sf.jopt-simple/jopt-simple -->
+            <dependency>
+                <groupId>net.sf.jopt-simple</groupId>
+                <artifactId>jopt-simple</artifactId>
+                <version>5.0.4</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 

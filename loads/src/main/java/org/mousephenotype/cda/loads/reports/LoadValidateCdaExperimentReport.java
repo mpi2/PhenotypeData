@@ -14,25 +14,27 @@
  * License.
  ******************************************************************************/
 
-package org.mousephenotype.cda.reports;
+package org.mousephenotype.cda.loads.reports;
 
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.mousephenotype.cda.db.utilities.SqlUtils;
-import org.mousephenotype.cda.reports.support.LoadValidateExperimentsQuery;
+import org.mousephenotype.cda.loads.reports.support.LoadValidateExperimentsQuery;
+import org.mousephenotype.cda.reports.AbstractReport;
 import org.mousephenotype.cda.reports.support.ReportException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.Banner;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.SpringApplication;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.core.env.PropertySource;
 import org.springframework.core.env.SimpleCommandLinePropertySource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import org.springframework.stereotype.Component;
 
-import javax.validation.constraints.NotNull;
+import javax.inject.Inject;
 import java.beans.Introspector;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -45,12 +47,12 @@ import java.util.Set;
  *
  * Created by mrelac on 20/02/2017.
  */
-@Component
-public class LoadValidateCdaExperimentReport extends AbstractReport {
+@ComponentScan("org.mousephenotype.cda.loads.reports")
+public class LoadValidateCdaExperimentReport extends AbstractReport implements CommandLineRunner {
+
 
     private Logger                       logger   = LoggerFactory.getLogger(this.getClass());
     private LoadValidateExperimentsQuery loadValidateExperimentsQuery;
-    private SqlUtils                     sqlUtils = new SqlUtils();
 
     private int          count            = 100;
     private boolean      includeDerived   = false;
@@ -58,15 +60,9 @@ public class LoadValidateCdaExperimentReport extends AbstractReport {
     private Set<String>  skipColumns      = new HashSet<>();
     private Set<String>  skipParameters   = new HashSet<>();
 
-    @Autowired
-    @NotNull
-    @Qualifier("jdbcCda1")
-    private NamedParameterJdbcTemplate jdbc1;
-
-    @Autowired
-    @NotNull
-    @Qualifier("jdbcCda2")
-    private NamedParameterJdbcTemplate jdbc2;
+    private NamedParameterJdbcTemplate jdbcCdaPrevious;
+    private NamedParameterJdbcTemplate jdbcCdaCurrent;
+    private SqlUtils                   sqlUtils;
 
 
     public static final String COUNT_ARG           = "count";
@@ -75,19 +71,23 @@ public class LoadValidateCdaExperimentReport extends AbstractReport {
     public static final String EXPERIMENT_ARG      = "experiment";
     public static final String INCLUDE_DERIVED_ARG = "includederived";
 
+    @Inject
+    public LoadValidateCdaExperimentReport(NamedParameterJdbcTemplate jdbcCdaPrevious, NamedParameterJdbcTemplate jdbcCdaCurrent, SqlUtils sqlUtils) {
+        this.jdbcCdaPrevious = jdbcCdaPrevious;
+        this.jdbcCdaCurrent = jdbcCdaCurrent;
+        this.sqlUtils = sqlUtils;
+    }
+
     /****************************
      * DATABASES: e.g. cda, komp2_base
      ****************************
-    */
+     */
 
     @Override
     protected void initialise(String[] args) throws ReportException {
         String message;
 
         super.initialise(args);
-
-
-        PropertySource ps = new SimpleCommandLinePropertySource(args);
 
         // Possible properties for this report: --count, --skipcolumn, --skipparameter
         OptionParser parser = new OptionParser();
@@ -146,7 +146,7 @@ public class LoadValidateCdaExperimentReport extends AbstractReport {
 
         logger.info("{} derived experiments", includeDerived ? "Including " : "Omitting ");
 
-        loadValidateExperimentsQuery = new LoadValidateExperimentsQuery(jdbc1, jdbc2, csvWriter, experimentIdList, count, skipColumns, skipParameters, includeDerived);
+        loadValidateExperimentsQuery = new LoadValidateExperimentsQuery(jdbcCdaPrevious, jdbcCdaCurrent, csvWriter, experimentIdList, count, skipColumns, skipParameters, includeDerived);
     }
 
     @Override
@@ -154,6 +154,15 @@ public class LoadValidateCdaExperimentReport extends AbstractReport {
         return Introspector.decapitalize(ClassUtils.getShortClassName(this.getClass()));
     }
 
+    public static void main(String[] args) throws Exception {
+        SpringApplication app = new SpringApplication(LoadValidateCdaExperimentReport.class);
+        app.setBannerMode(Banner.Mode.OFF);
+        app.setLogStartupInfo(false);
+        app.setWebEnvironment(false);
+        app.run(args);
+    }
+
+    @Override
     public void run(String[] args) throws ReportException {
 
         List<String> errors = parser.validate(parser.parse(args));
@@ -166,9 +175,10 @@ public class LoadValidateCdaExperimentReport extends AbstractReport {
         long start = System.currentTimeMillis();
 
         try {
-            String db1Name = sqlUtils.getDatabaseName(jdbc1);
-            String db2Name = sqlUtils.getDatabaseName(jdbc2);
-            logger.info("VALIDATION STARTED AGAINST DATABASES {} AND {}", db1Name, db2Name);
+            String db1Info    = sqlUtils.getDbInfoString(jdbcCdaPrevious);
+            String db2Info    = sqlUtils.getDbInfoString(jdbcCdaCurrent);
+
+            logger.info("VALIDATION STARTED AGAINST DATABASES {} AND {}", db1Info, db2Info);
 
         } catch (Exception e) { }
 

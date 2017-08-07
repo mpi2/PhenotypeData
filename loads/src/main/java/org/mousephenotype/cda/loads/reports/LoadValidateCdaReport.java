@@ -14,21 +14,24 @@
  * License.
  ******************************************************************************/
 
-package org.mousephenotype.cda.reports;
+package org.mousephenotype.cda.loads.reports;
 
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.mousephenotype.cda.reports.support.LoadValidateCountsQuery;
-import org.mousephenotype.cda.reports.support.LoadsQueryDelta;
+import org.mousephenotype.cda.db.utilities.SqlUtils;
+import org.mousephenotype.cda.loads.reports.support.LoadValidateCountsQuery;
+import org.mousephenotype.cda.loads.reports.support.LoadsQueryDelta;
+import org.mousephenotype.cda.reports.AbstractReport;
 import org.mousephenotype.cda.reports.support.ReportException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.stereotype.Component;
+import org.springframework.boot.Banner;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.SpringApplication;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
-import javax.validation.constraints.NotNull;
+import javax.inject.Inject;
 import java.beans.Introspector;
 import java.io.IOException;
 import java.util.List;
@@ -38,21 +41,22 @@ import java.util.List;
  *
  * Created by mrelac on 24/07/2015.
  */
-@Component
-public class LoadValidateCdaReport extends AbstractReport {
+@ComponentScan("org.mousephenotype.cda.loads.reports")
+public class LoadValidateCdaReport extends AbstractReport implements CommandLineRunner {
 
     private Logger   logger   = LoggerFactory.getLogger(this.getClass());
     private LoadValidateCountsQuery loadValidateCountsQuery;
 
-    @Autowired
-    @NotNull
-    @Qualifier("jdbcCdaPrevious")
-    private JdbcTemplate jdbcPrevious;
+    private NamedParameterJdbcTemplate jdbcCdaPrevious;
+    private NamedParameterJdbcTemplate jdbcCdaCurrent;
+    private SqlUtils                   sqlUtils;
 
-    @Autowired
-    @NotNull
-    @Qualifier("jdbcCdaCurrent")
-    private JdbcTemplate jdbcCurrent;
+    @Inject
+    public LoadValidateCdaReport(NamedParameterJdbcTemplate jdbcCdaPrevious, NamedParameterJdbcTemplate jdbcCdaCurrent, SqlUtils sqlUtils) {
+        this.jdbcCdaPrevious = jdbcCdaPrevious;
+        this.jdbcCdaCurrent = jdbcCdaCurrent;
+        this.sqlUtils = sqlUtils;
+    }
 
     /****************************
      * DATABASES: cda, komp2_base
@@ -80,13 +84,21 @@ public class LoadValidateCdaReport extends AbstractReport {
     @Override
     protected void initialise(String[] args) throws ReportException {
         super.initialise(args);
-        loadValidateCountsQuery = new LoadValidateCountsQuery(jdbcPrevious, jdbcCurrent, csvWriter);
+        loadValidateCountsQuery = new LoadValidateCountsQuery(jdbcCdaPrevious, jdbcCdaCurrent, csvWriter);
         loadValidateCountsQuery.addQueries(queries);
     }
 
     @Override
     public String getDefaultFilename() {
         return Introspector.decapitalize(ClassUtils.getShortClassName(this.getClass()));
+    }
+
+    public static void main(String[] args) throws Exception {
+        SpringApplication app = new SpringApplication(LoadValidateCdaReport.class);
+        app.setBannerMode(Banner.Mode.OFF);
+        app.setLogStartupInfo(false);
+        app.setWebEnvironment(false);
+        app.run(args);
     }
 
     public void run(String[] args) throws ReportException {
@@ -101,9 +113,10 @@ public class LoadValidateCdaReport extends AbstractReport {
         long start = System.currentTimeMillis();
 
         try {
-            String db1Name = jdbcPrevious.getDataSource().getConnection().getCatalog();
-            String db2Name = jdbcCurrent.getDataSource().getConnection().getCatalog();
-            logger.info("VALIDATION STARTED AGAINST DATABASES {} AND {}", db1Name, db2Name);
+            String db1Info    = sqlUtils.getDbInfoString(jdbcCdaPrevious);
+            String db2Info    = sqlUtils.getDbInfoString(jdbcCdaCurrent);
+
+            logger.info("VALIDATION STARTED AGAINST DATABASES {} AND {}", db1Info, db2Info);
 
         } catch (Exception e) { }
 

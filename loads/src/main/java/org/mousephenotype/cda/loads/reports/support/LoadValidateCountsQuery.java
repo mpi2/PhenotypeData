@@ -14,13 +14,15 @@
  * License.
  ******************************************************************************/
 
-package org.mousephenotype.cda.reports.support;
+package org.mousephenotype.cda.loads.reports.support;
 
 import org.mousephenotype.cda.db.utilities.SqlUtils;
+import org.mousephenotype.cda.reports.support.MpCSVWriter;
+import org.mousephenotype.cda.reports.support.ReportException;
 import org.mousephenotype.cda.utilities.RunStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -42,15 +44,17 @@ public class LoadValidateCountsQuery {
     private SqlUtils sqlUtils = new SqlUtils();
 
     private List<LoadsQueryDelta> loadsQueryList = new ArrayList<>();
-    private JdbcTemplate     jdbcPrevious;
-    private JdbcTemplate     jdbcCurrent;
-    private MpCSVWriter      csvWriter;
+    private NamedParameterJdbcTemplate jdbcPrevious;
+    private NamedParameterJdbcTemplate jdbcCurrent;
+    private MpCSVWriter                csvWriter;
 
-    public LoadValidateCountsQuery(JdbcTemplate jdbcPrevious, JdbcTemplate jdbcCurrent, MpCSVWriter  csvWriter) {
+    public LoadValidateCountsQuery(NamedParameterJdbcTemplate jdbcPrevious, NamedParameterJdbcTemplate jdbcCurrent, MpCSVWriter  csvWriter) {
         this.jdbcPrevious = jdbcPrevious;
         this.jdbcCurrent = jdbcCurrent;
         this.csvWriter = csvWriter;
     }
+
+
 
     /**
      * Add a query to the list of queries to be executed.
