@@ -55,39 +55,33 @@ public class ExperimentDTO {
     private Set<ObservationDTO> femaleControls;
     private String alleleAccession;
 
-    String statisticalResultUrl;
-    String genotypePhenotypeUrl;
-    String DataPhenStatFormatUrl;
+    private String statisticalResultUrl;
+    private String genotypePhenotypeUrl;
+    private String DataPhenStatFormatUrl;
 
     public List<String> getTabbedToString() throws SQLException {
-        List<String> rows = new ArrayList<String>();
-        for (ObservationDTO obs : homozygoteMutants) {
-            if (rows.size() == 0) {
-                rows.add(obs.getTabbedFields());
+
+        List<String> rows = new ArrayList<>();
+        boolean headerAdded = false;
+
+        // Iterate through the sets in this order:
+        //   homozygoteMutants, heterozygoteMutants, hemizygoteMutants, controls
+        //
+        for (Set<ObservationDTO> data : Arrays.asList(homozygoteMutants, heterozygoteMutants, hemizygoteMutants, controls)) {
+            for (ObservationDTO obs : data) {
+
+                if ( ! headerAdded) {
+                    rows.add(obs.getTabbedFields());
+                    headerAdded = true;
+                }
+
+                rows.add(obs.tabbedToString());
             }
-            rows.add(obs.tabbedToString());
-        }
-        for (ObservationDTO obs : heterozygoteMutants) {
-            if (rows.size() == 0) {
-                rows.add(obs.getTabbedFields());
-            }
-            rows.add(obs.tabbedToString());
-        }
-        for (ObservationDTO obs : hemizygoteMutants) {
-            if (rows.size() == 0) {
-                rows.add(obs.getTabbedFields());
-            }
-            rows.add(obs.tabbedToString());
-        }
-        for (ObservationDTO obs : controls) {
-            if (rows.size() == 0) {
-                rows.add(obs.getTabbedFields());
-            }
-            rows.add(obs.tabbedToString());
         }
 
         return rows;
     }
+
 
 
     @Override
