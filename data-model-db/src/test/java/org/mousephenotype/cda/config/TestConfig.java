@@ -16,6 +16,7 @@ import org.springframework.context.annotation.*;
 import org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 import org.springframework.orm.hibernate5.HibernateTransactionManager;
@@ -136,8 +137,8 @@ public class TestConfig {
 	}
 
 	@Bean
-	public JdbcTemplate jdbc1() {
-		return new JdbcTemplate(dcc1DataSource());
+	public NamedParameterJdbcTemplate jdbc1() {
+		return new NamedParameterJdbcTemplate(dcc1DataSource());
 	}
 
 
@@ -153,7 +154,7 @@ public class TestConfig {
 	}
 
 	@Bean
-	public JdbcTemplate jdbc2() {
-		return new JdbcTemplate(dcc2DataSource());
+	public NamedParameterJdbcTemplate jdbc2() {
+		return new NamedParameterJdbcTemplate(dcc2DataSource());
 	}
 }
