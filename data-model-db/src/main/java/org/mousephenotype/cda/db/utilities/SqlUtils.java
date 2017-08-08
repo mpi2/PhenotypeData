@@ -145,17 +145,17 @@ public class SqlUtils {
      *
      * @throws Exception
      */
-    public List<String[]> queryDiff(JdbcTemplate jdbc1, JdbcTemplate jdbc2, String query) throws Exception {
+    public List<String[]> queryDiff(NamedParameterJdbcTemplate jdbc1, NamedParameterJdbcTemplate jdbc2, String query) throws Exception {
         List<String[]> results = new ArrayList<>();
 
         Set<List<String>> results1 = new HashSet<>();
-        SqlRowSet         rs1      = jdbc1.queryForRowSet(query);
+        SqlRowSet         rs1      = jdbc1.queryForRowSet(query, new HashMap<>());
         while (rs1.next()) {
             results1.add(getData(rs1));
         }
 
         Set<List<String>> results2 = new HashSet<>();
-        SqlRowSet rs2 = jdbc2.queryForRowSet(query);
+        SqlRowSet rs2 = jdbc2.queryForRowSet(query, new HashMap<>());
         while (rs2.next()) {
             results2.add(getData(rs2));
         }
@@ -177,17 +177,59 @@ public class SqlUtils {
     }
 
     /**
+     * Given a valid {@link NamedParameterJdbcTemplate} instance, returns that connection's database name, database
+     * server name, and database port number in a {@link Map}:
+     * <ul>
+     *     <li>key: dbname</li>
+     *     <li>key: dbserver</li>
+     *     <li>key: dbport</li>
+     * </ul>
+     *
+     * @param jdbc the {@link NamedParameterJdbcTemplate} instance to query
+     *
+     * @return the connection's database name, database server name, and database port number
+     */
+    public Map<String, String> getDbInfo(NamedParameterJdbcTemplate jdbc) {
+
+        Map<String, String> results = new HashMap<>();
+
+        String s = jdbc.getJdbcOperations().queryForObject("SELECT DATABASE()", String.class);
+        results.put("dbname", s);
+
+        s = jdbc.getJdbcOperations().queryForObject("SELECT @@HOSTNAME", String.class);
+        results.put("dbserver", s);
+
+        s = jdbc.getJdbcOperations().queryForObject("SELECT @@PORT", String.class);
+        results.put("dbport", s);
+
+        return results;
+    }
+
+    /**
+     * Given a valid {@link NamedParameterJdbcTemplate} instance, returns that connection's database name, database
+     * server name, and database port number in a {@link String} in the format <i>dbserver:dbport/dbname</i>
+     *
+     * @param jdbc the {@link NamedParameterJdbcTemplate} instance to query
+     *
+     * @return the connection's database name, database server name, and database port number in a {@link String} in the
+     * format <i>dbserver:dbport/dbname</i>
+     */
+    public String getDbInfoString(NamedParameterJdbcTemplate jdbc) {
+        Map<String, String> info = getDbInfo(jdbc);
+
+        return info.get("dbserver") + ":" + info.get("dbport") + "/" + info.get("dbname");
+    }
+
+    /**
      *
      * @param jdbc valid {@link NamedParameterJdbcTemplate} instance
      *
      * @return the database name
      */
     public String getDatabaseName(NamedParameterJdbcTemplate jdbc) {
-        String query = "SELECT DATABASE()";
+        Map<String, String> dbinfo = getDbInfo(jdbc);
 
-        String dbName = jdbc.queryForObject(query, new HashMap<>(), String.class);
-
-        return dbName;
+        return dbinfo.get("dbname");
     }
 
     /**
@@ -205,11 +247,11 @@ public class SqlUtils {
      * @return a {@link List} of strings with the results. The first list element is the heading. The second list
      * element is the results, encapsulated as a set of strings.
      */
-    public List<String[]> queryForLongValue(JdbcTemplate jdbcPrevious, JdbcTemplate jdbcCurrent, Double delta, String query) {
+    public List<String[]> queryForLongValue(NamedParameterJdbcTemplate jdbcPrevious, NamedParameterJdbcTemplate jdbcCurrent, Double delta, String query) {
         List<String[]> results = new ArrayList<>();
 
-        long previousValue = jdbcPrevious.queryForObject(query, Long.class);
-        long currentValue = jdbcCurrent.queryForObject(query, Long.class);
+        long previousValue = jdbcPrevious.queryForObject(query, new HashMap<>(), Long.class);
+        long currentValue = jdbcCurrent.queryForObject(query, new HashMap<>(), Long.class);
 
         // Let's not divide by zero.
         double ratio = 1;

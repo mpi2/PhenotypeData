@@ -30,10 +30,7 @@ import javax.sql.DataSource;
         "org.mousephenotype.cda.db",
         "org.mousephenotype.cda.solr",
         "org.mousephenotype.cda.utilities" })
-@PropertySource({
-        "file:${user.home}/configfiles/${profile:jenkins}/application.properties",
-        "file:${user.home}/configfiles/${profile:jenkins}/datarelease.properties"
-})
+@PropertySource("file:${user.home}/configfiles/${profile:jenkins}/application.properties")
 public class ReportsConfig {
 
     @Bean

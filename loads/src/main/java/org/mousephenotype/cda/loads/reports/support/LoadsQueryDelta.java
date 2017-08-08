@@ -14,37 +14,32 @@
  * License.
  ******************************************************************************/
 
-package org.mousephenotype.cda.reports.support;
+package org.mousephenotype.cda.loads.reports.support;
 
 /**
+ * This class extends LoadsQuery, adding a delta, which is the ratio of the query result from the current database
+ * divided by the query result from the previous database. Any values below this threshold will cause a warning to be
+ * generated.
+ *
  * Created by mrelac on 22/09/16.
  */
-public class LoadsQuery {
-    private String name;
-    private String query;
+public class LoadsQueryDelta extends LoadsQuery {
+    private Double delta;
 
-    public LoadsQuery() {
-
+    public LoadsQueryDelta() {
+        super();
     }
 
-    public LoadsQuery(String name, String query) {
-        this.name = name;
-        this.query = query;
+    public LoadsQueryDelta(String name, Double delta, String query) {
+        super(name, query);
+        this.delta = delta;
     }
 
-    public String getName() {
-        return name;
+    public Double getDelta() {
+        return delta;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getQuery() {
-        return query;
-    }
-
-    public void setQuery(String query) {
-        this.query = query;
+    public void setDelta(Double delta) {
+        this.delta = delta;
     }
 }

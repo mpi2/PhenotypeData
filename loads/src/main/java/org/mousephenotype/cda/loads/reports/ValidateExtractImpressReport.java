@@ -14,21 +14,24 @@
  * License.
  ******************************************************************************/
 
-package org.mousephenotype.cda.reports;
+package org.mousephenotype.cda.loads.reports;
 
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.mousephenotype.cda.reports.support.LoadValidateCountsQuery;
-import org.mousephenotype.cda.reports.support.LoadsQueryDelta;
+import org.mousephenotype.cda.db.utilities.SqlUtils;
+import org.mousephenotype.cda.loads.reports.support.LoadValidateCountsQuery;
+import org.mousephenotype.cda.loads.reports.support.LoadsQueryDelta;
+import org.mousephenotype.cda.reports.AbstractReport;
 import org.mousephenotype.cda.reports.support.ReportException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.stereotype.Component;
+import org.springframework.boot.Banner;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.SpringApplication;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
-import javax.validation.constraints.NotNull;
+import javax.inject.Inject;
 import java.beans.Introspector;
 import java.io.IOException;
 import java.util.List;
@@ -38,21 +41,23 @@ import java.util.List;
  *
  * Created by mrelac on 24/07/2015.
  */
-@Component
-public class ExtractValidateImpressReport extends AbstractReport {
+@ComponentScan("org.mousephenotype.cda.loads.reports")
+public class ValidateExtractImpressReport extends AbstractReport implements CommandLineRunner {
 
     private Logger   logger   = LoggerFactory.getLogger(this.getClass());
     private LoadValidateCountsQuery loadValidateCountsQuery;
 
-    @Autowired
-    @NotNull
-    @Qualifier("jdbcImpressPrevious")
-    private JdbcTemplate jdbcPrevious;
+    private NamedParameterJdbcTemplate jdbcImpressPrevious;
+    private NamedParameterJdbcTemplate jdbcImpressCurrent;
+    private SqlUtils                   sqlUtils;
 
-    @Autowired
-    @NotNull
-    @Qualifier("jdbcImpressCurrent")
-    private JdbcTemplate jdbcCurrent;
+    @Inject
+    public ValidateExtractImpressReport(NamedParameterJdbcTemplate jdbcImpressPrevious, NamedParameterJdbcTemplate jdbcImpressCurrent, SqlUtils sqlUtils) {
+        this.jdbcImpressPrevious = jdbcImpressPrevious;
+        this.jdbcImpressCurrent = jdbcImpressCurrent;
+        this.sqlUtils = sqlUtils;
+    }
+
 
     /**********************
      * DATABASE: impress
@@ -78,7 +83,7 @@ public class ExtractValidateImpressReport extends AbstractReport {
     @Override
     protected void initialise(String[] args) throws ReportException {
         super.initialise(args);
-        loadValidateCountsQuery = new LoadValidateCountsQuery(jdbcPrevious, jdbcCurrent, csvWriter);
+        loadValidateCountsQuery = new LoadValidateCountsQuery(jdbcImpressPrevious, jdbcImpressCurrent, csvWriter);
         loadValidateCountsQuery.addQueries(queries);
     }
 
@@ -87,11 +92,20 @@ public class ExtractValidateImpressReport extends AbstractReport {
         return Introspector.decapitalize(ClassUtils.getShortClassName(this.getClass()));
     }
 
+    public static void main(String[] args) throws Exception {
+        SpringApplication app = new SpringApplication(ValidateExtractImpressReport.class);
+        app.setBannerMode(Banner.Mode.OFF);
+        app.setLogStartupInfo(false);
+        app.setWebEnvironment(false);
+        app.run(args);
+    }
+
+    @Override
     public void run(String[] args) throws ReportException {
 
         List<String> errors = parser.validate(parser.parse(args));
         if ( ! errors.isEmpty()) {
-            logger.error("ExtractValidateDccReport parser validation error: " + StringUtils.join(errors, "\n"));
+            logger.error("Parser validation error: " + StringUtils.join(errors, "\n"));
             return;
         }
         initialise(args);
@@ -99,9 +113,10 @@ public class ExtractValidateImpressReport extends AbstractReport {
         long start = System.currentTimeMillis();
 
         try {
-            String db1Name = jdbcPrevious.getDataSource().getConnection().getCatalog();
-            String db2Name = jdbcCurrent.getDataSource().getConnection().getCatalog();
-            logger.info("VALIDATION STARTED AGAINST DATABASES {} AND {}", db1Name, db2Name);
+            String db1Info    = sqlUtils.getDbInfoString(jdbcImpressPrevious);
+            String db2Info    = sqlUtils.getDbInfoString(jdbcImpressCurrent);
+
+            logger.info("VALIDATION STARTED AGAINST DATABASES {} AND {}", db1Info, db2Info);
 
         } catch (Exception e) { }
 

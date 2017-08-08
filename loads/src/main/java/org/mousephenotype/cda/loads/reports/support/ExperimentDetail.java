@@ -14,7 +14,7 @@
  *  License.
  ******************************************************************************/
 
-package org.mousephenotype.cda.reports.support;
+package org.mousephenotype.cda.loads.reports.support;
 
 import java.util.List;
 
