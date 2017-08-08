@@ -264,7 +264,7 @@
 						margin-left: 250px;
 					}
 
-					ul#expList {
+					ul#expList table {
 						/*Dividing long list of <li> tags into columns*/
 						-moz-column-count: 2;
 						-moz-column-gap: 30px;
@@ -273,10 +273,8 @@
 						column-count: 2;
 						column-gap: 30px;
 					}
-
-					ul#expList li {
-						padding-left: 0;
-						width: auto;
+					td.showAdultImage:hover {
+						color: #E2701E !important;
 					}
 
 					/* override the anatomogram .ui-widget font */
