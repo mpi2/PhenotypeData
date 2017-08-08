@@ -264,15 +264,21 @@
 						margin-left: 250px;
 					}
 
-					ul#expList table {
-						/*Dividing long list of <li> tags into columns*/
-						-moz-column-count: 2;
-						-moz-column-gap: 30px;
-						-webkit-column-count: 2;
-						-webkit-column-gap: 30px;
-						column-count: 2;
-						column-gap: 30px;
-					}
+					/*ul#expList table {*/
+						/*!*Dividing long list of <li> tags into columns*!*/
+						/*-moz-column-count: 2;*/
+						/*-moz-column-gap: 30px;*/
+						/*-webkit-column-count: 2;*/
+						/*-webkit-column-gap: 30px;*/
+						/*column-count: 2;*/
+						/*column-gap: 30px;*/
+					/*}*/
+                    /*ul#expList table td {*/
+                        /*width: 10px !important;*/
+                    /*}*/
+                    /*ul#expList table td:first-child {*/
+                        /*max-width: 250px !important;*/
+                    }
 					td.showAdultImage:hover {
 						color: #E2701E !important;
 					}
