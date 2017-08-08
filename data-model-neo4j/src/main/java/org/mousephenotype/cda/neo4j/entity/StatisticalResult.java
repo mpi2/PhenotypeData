@@ -17,6 +17,7 @@ public class StatisticalResult {
     Long id;
 
     private Integer dbId;
+    private String docId;
     private List<String> phenotypeSex; // male/female or both
     private String phenotypingCenter;
     private String colonyId;
@@ -57,6 +58,14 @@ public class StatisticalResult {
 
     public void setDbId(Integer dbId) {
         this.dbId = dbId;
+    }
+
+    public String getDocId() {
+        return docId;
+    }
+
+    public void setDocId(String docId) {
+        this.docId = docId;
     }
 
     public List<String> getPhenotypeSex() {
@@ -176,6 +185,7 @@ public class StatisticalResult {
         return "StatisticalResult{" +
                 "id=" + id +
                 ", dbId=" + dbId +
+                ", docId='" + docId + '\'' +
                 ", phenotypeSex=" + phenotypeSex +
                 ", phenotypingCenter='" + phenotypingCenter + '\'' +
                 ", colonyId='" + colonyId + '\'' +

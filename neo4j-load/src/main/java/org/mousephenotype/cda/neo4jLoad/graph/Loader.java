@@ -304,9 +304,9 @@ public class Loader implements CommandLineRunner {
         int cycles = docNum / batch;
         logger.info("Got {} stats results to load...Loading in {} batches, {} results at a time", docNum, cycles, batch);
 
-        Map<String, List<String>> nonMatchingAlleles = new HashMap<>();
-        Map<String, List<String>> nonMatchingGeneSymbols = new HashMap<>();
-        Map<String, List<Integer>> nonMatchingMpIds = new HashMap<>();
+        Map<String, Set<String>> nonMatchingAlleles = new HashMap<>();
+        Map<String, Set<String>> nonMatchingGeneSymbols = new HashMap<>();
+        Map<String, Set<String>> nonMatchingMpIds = new HashMap<>();
 
         int count = 0;
         for (int i=0; i< cycles; i++){
@@ -330,24 +330,22 @@ public class Loader implements CommandLineRunner {
 
             for (StatisticalResultDTO result : srdto) {
                 int srDbid = result.getDbId();
+                String srDocId = result.getDocId();
 
                 if (result.getMpTermId() != null || result.getMaleMpTermId() != null || result.getFemaleMpTermId() != null) {
 
                     StatisticalResult sr = new StatisticalResult();
 
-                    sr.setDbId(srDbid);
+                    sr.setDocId(srDocId);
 
                     String thisMpId = null;
-                    if (result.getMpTermId() != null ){
+                    if (result.getMpTermId() != null) {
                         thisMpId = result.getMpTermId();
-                    }
-                    else if (result.getMaleMpTermId() != null){
+                    } else if (result.getMaleMpTermId() != null) {
                         thisMpId = result.getMaleMpTermId();
-                    }
-                    else if (result.getFemaleMpTermId() != null){
+                    } else if (result.getFemaleMpTermId() != null) {
                         thisMpId = result.getFemaleMpTermId();
                     }
-
 
                     sr.setPvalue(result.getpValue());
                     sr.setPhenotypeSex(result.getPhenotypeSex());
@@ -360,56 +358,52 @@ public class Loader implements CommandLineRunner {
 
                     // load through relationships
                     String mgiAcc = result.getMarkerAccessionId();
-                    if (loadedGenes.containsKey(mgiAcc)){
+                    if (loadedGenes.containsKey(mgiAcc)) {
                         sr.setGene(loadedGenes.get(mgiAcc));
-                    }
-                    else {
+                    } else {
                         String gs = result.getMarkerSymbol();
-                        if (! nonMatchingGeneSymbols.containsKey(gs)){
-                            nonMatchingGeneSymbols.put(gs, new ArrayList<>());
+                        if (!nonMatchingGeneSymbols.containsKey(gs)) {
+                            nonMatchingGeneSymbols.put(gs, new HashSet<>());
                         }
-                        nonMatchingGeneSymbols.get(gs).add(srDbid + " - " + thisMpId);
-                        //logger.warn("({}) {} ({}) is not an IMPC gene", srDbid, mgiAcc, gs);
+                        nonMatchingGeneSymbols.get(gs).add(thisMpId + " - " + srDocId);
+                        //logger.warn("({}) {} ({}) is not an IMPC gene", srDocId, mgiAcc, gs);
                     }
 
                     String alleleAcc = result.getAlleleAccessionId();
                     String alleleSymbol = result.getAlleleSymbol();
                     if (loadedAlleleIdAllele.containsKey(alleleAcc)) {
                         sr.setAllele(loadedAlleleIdAllele.get(alleleAcc));
-                    }
-                    else {
-                        if (! nonMatchingAlleles.containsKey(alleleSymbol + " -- " + alleleAcc)){
-                            nonMatchingAlleles.put(alleleSymbol + " -- " + alleleAcc, new ArrayList<>());
+                    } else {
+                        if (!nonMatchingAlleles.containsKey(alleleSymbol + " -- " + alleleAcc)) {
+                            nonMatchingAlleles.put(alleleSymbol + " -- " + alleleAcc, new HashSet<>());
                         }
-                        nonMatchingAlleles.get(alleleSymbol + " -- " + alleleAcc).add(srDbid + " - " + thisMpId);
-                        //logger.warn("({}) {} ({}) is not an IMPC allele", srDbid, alleleAcc, alleleSymbol);
+                        nonMatchingAlleles.get(alleleSymbol + " -- " + alleleAcc).add(thisMpId + " - " + srDocId);
+                        //logger.warn("({}) {} ({}) is not an IMPC allele", srDocId, alleleAcc, alleleSymbol);
                     }
 
                     Set<Mp> mps = new HashSet<>();
-                    if (result.getMpTermId() != null){
+                    if (result.getMpTermId() != null) {
                         String mpId = result.getMpTermId();
                         if (loadedMps.containsKey(mpId)) {
                             mps.add(loadedMps.get(mpId));
-                        }
-                        else {
-                            if (! nonMatchingMpIds.containsKey(mpId)){
-                                nonMatchingMpIds.put(mpId, new ArrayList<>());
+                        } else {
+                            if (!nonMatchingMpIds.containsKey(mpId)) {
+                                nonMatchingMpIds.put(mpId, new HashSet<>());
                             }
-                            nonMatchingMpIds.get(mpId).add(srDbid);
-                            //logger.warn("({}) MP id {} is not an IMPC MP", srDbid, mpId);
+                            nonMatchingMpIds.get(mpId).add(srDocId);
+                            //logger.warn("({}) MP id {} is not an IMPC MP", srDocId, mpId);
                         }
-                    }
-                    else {
+                    } else {
                         if (result.getMaleMpTermId() != null) {
                             String maleMpId = result.getMaleMpTermId();
                             if (loadedMps.containsKey(maleMpId)) {
                                 mps.add(loadedMps.get(maleMpId));
                             } else {
-                                if (! nonMatchingMpIds.containsKey(maleMpId)){
-                                    nonMatchingMpIds.put(maleMpId, new ArrayList<>());
+                                if (!nonMatchingMpIds.containsKey(maleMpId)) {
+                                    nonMatchingMpIds.put(maleMpId, new HashSet<>());
                                 }
-                                nonMatchingMpIds.get(maleMpId).add(srDbid);
-                                //logger.warn("({}) Male MP id {} is not an IMPC MP", srDbid, maleMpId);
+                                nonMatchingMpIds.get(maleMpId).add(srDocId);
+                                //logger.warn("({}) Male MP id {} is not an IMPC MP", srDocId, maleMpId);
                             }
                         }
                         if (result.getFemaleMpTermId() != null) {
@@ -417,11 +411,11 @@ public class Loader implements CommandLineRunner {
                             if (loadedMps.containsKey(femaleMpId)) {
                                 mps.add(loadedMps.get(femaleMpId));
                             } else {
-                                if (! nonMatchingMpIds.containsKey(femaleMpId)){
-                                    nonMatchingMpIds.put(femaleMpId, new ArrayList<>());
+                                if (!nonMatchingMpIds.containsKey(femaleMpId)) {
+                                    nonMatchingMpIds.put(femaleMpId, new HashSet<>());
                                 }
-                                nonMatchingMpIds.get(femaleMpId).add(srDbid);
-                                //logger.warn("({}) Female MP id {} is not an IMPC MP", srDbid, femaleMpId);
+                                nonMatchingMpIds.get(femaleMpId).add(srDocId);
+                                //logger.warn("({}) Female MP id {} is not an IMPC MP", srDocId, femaleMpId);
                             }
                         }
                     }
@@ -430,8 +424,7 @@ public class Loader implements CommandLineRunner {
                     if (loadedProcedures.containsKey(result.getProcedureStableId())) {
                         sr.setProcedure(loadedProcedures.get(result.getProcedureStableId()));
                         sr.setProcedureName(loadedProcedures.get(result.getProcedureStableId()).getName());
-                    }
-                    else {
+                    } else {
                         logger.warn(result.getProcedureStableId() + " is not an IMPC procedure");
 
                     }
@@ -439,8 +432,7 @@ public class Loader implements CommandLineRunner {
                     if (loadedParameters.containsKey(result.getParameterStableId())) {
                         sr.setParameter(loadedParameters.get(result.getParameterStableId()));
                         sr.setParameterName(loadedParameters.get(result.getParameterStableId()).getName());
-                    }
-                    else {
+                    } else {
                         logger.warn(result.getParameterStableId() + " is not an IMPC parameter");
                     }
 
@@ -451,6 +443,7 @@ public class Loader implements CommandLineRunner {
                     if (srCount % batch == 0) {
                         logger.info("Added {} StatisticalResult nodes", srCount);
                     }
+
                 }
             }
 
@@ -462,17 +455,17 @@ public class Loader implements CommandLineRunner {
         loadTime(begin, System.currentTimeMillis(), job);
 
         logger.info("{} non matching gene symbols: ",  nonMatchingGeneSymbols.size());
-        for (Map.Entry<String, List<String>> entry : nonMatchingGeneSymbols.entrySet()) {
+        for (Map.Entry<String, Set<String>> entry : nonMatchingGeneSymbols.entrySet()) {
             logger.info("{}, [{}]", entry.getKey(), StringUtils.join(entry.getValue(), ", "));
         }
 
         logger.info("{} non matching allele symbols: ",  nonMatchingAlleles.size());
-        for (Map.Entry<String, List<String>> entry : nonMatchingAlleles.entrySet()) {
+        for (Map.Entry<String, Set<String>> entry : nonMatchingAlleles.entrySet()) {
             logger.info("{}, [{}]", entry.getKey(), StringUtils.join(entry.getValue(), ", "));
         }
 
         logger.info("{} non matching MP ids: ",  nonMatchingMpIds.size());
-        for (Map.Entry<String, List<Integer>> entry : nonMatchingMpIds.entrySet()) {
+        for (Map.Entry<String, Set<String>> entry : nonMatchingMpIds.entrySet()) {
             logger.info("{}, [{}]", entry.getKey(), StringUtils.join(entry.getValue(), ", "));
         }
 

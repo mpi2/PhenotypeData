@@ -451,6 +451,9 @@ public class AdvancedSearchService {
         String geneToDmPathClause = " OPTIONAL MATCH (g)<-[:GENE]-(dm:DiseaseModel)-[:MOUSE_PHENOTYPE]->(dmp:Mp) WHERE "
                 + phenodigmScoreCypher + diseaseGeneAssociationCypher + humanDiseaseTermCypher;
 
+        String mpToDmClause = " OPTIONAL MATCH (mp)<-[:MOUSE_PHENOTYPE]-(dm:DiseaseModel) WHERE "
+                + phenodigmScoreCypher + diseaseGeneAssociationCypher + humanDiseaseTermCypher;
+
         List<String> narrowOrSynonymMapping = new ArrayList<>();
 
         //------------------------------------------------------
@@ -516,23 +519,21 @@ public class AdvancedSearchService {
                         //+ " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') "
                         + whereClause
                         + " AND " + significantCypher + parameterCypher + pvaluesCypher + chrRangeCypher + geneListCypher + genotypesCypher + alleleTypesCypher
-                        + " WITH g, a, mp, sr, "
-                        //+ " OPTIONAL MATCH (mp)<-[:MOUSE_PHENOTYPE]-(dm:DiseaseModel) "
-                        //+ " WHERE  dm.diseaseToModelScore >= 0 AND dm.diseaseToModelScore <= 100 ";
-                        + " extract(x IN collect(DISTINCT mp) | x.mpTerm) AS mps "
-                        + geneToDmPathClause
-                        + " AND dmp.mpTerm IN mps";
+                        + " WITH g, a, mp, sr "
+                        + mpToDmClause;
+//                        + " extract(x IN collect(DISTINCT mp) | x.mpTerm) AS mps "
+//                        + geneToDmPathClause
+//                        + " AND dmp.mpTerm IN mps";
             } else {
                 query = geneToMpPath
                         //+ " WHERE mp0.mpTerm =~ ('(?i)'+'.*'+{mpA}+'.*') "
                         + whereClause
                         + " AND " + significantCypher + parameterCypher + pvaluesCypher + chrRangeCypher + geneListCypher + genotypesCypher + alleleTypesCypher
-                        + " WITH g, a, mp, sr, "
-                        //+ " OPTIONAL MATCH (mp)<-[:MOUSE_PHENOTYPE]-(dm:DiseaseModel) "
-                        //+ " WHERE  dm.diseaseToModelScore >= 0 AND dm.diseaseToModelScore <= 100 ";
-                        + " extract(x IN collect(DISTINCT mp) | x.mpTerm) AS mps "
-                        + geneToDmPathClause
-                        + " AND dmp.mpTerm IN mps";
+                        + " WITH g, a, mp, sr "
+                        + mpToDmClause;
+//                        + " extract(x IN collect(DISTINCT mp) | x.mpTerm) AS mps "
+//                        + geneToDmPathClause
+//                        + " AND dmp.mpTerm IN mps";
             }
 
             returnDtypes = fetchReturnTypes(dataTypes, dtypeMap, mpForm);
