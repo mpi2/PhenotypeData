@@ -43,7 +43,7 @@ import java.util.List;
  * Created by mrelac on 24/07/2015.
  */
 @ComponentScan("org.mousephenotype.cda.loads.reports")
-public class ExtractValidateDccReport extends AbstractReport {
+public class ValidateExtractDccReport extends AbstractReport {
 
     private LoadValidateMissingQuery loadValidateMissingQuery;
     private LoadValidateCountsQuery  loadValidateCountsQuery;
@@ -54,7 +54,7 @@ public class ExtractValidateDccReport extends AbstractReport {
     private SqlUtils                   sqlUtils;
 
     @Inject
-    public ExtractValidateDccReport(NamedParameterJdbcTemplate jdbcDccPrevious, NamedParameterJdbcTemplate jdbcDccCurrent, SqlUtils sqlUtils) {
+    public ValidateExtractDccReport(NamedParameterJdbcTemplate jdbcDccPrevious, NamedParameterJdbcTemplate jdbcDccCurrent, SqlUtils sqlUtils) {
         this.jdbcDccPrevious = jdbcDccPrevious;
         this.jdbcDccCurrent = jdbcDccCurrent;
         this.sqlUtils = sqlUtils;
@@ -131,7 +131,7 @@ public class ExtractValidateDccReport extends AbstractReport {
     }
 
 
-    public ExtractValidateDccReport() {
+    public ValidateExtractDccReport() {
         super();
     }
 
@@ -141,7 +141,7 @@ public class ExtractValidateDccReport extends AbstractReport {
     }
 
     public static void main(String[] args) throws Exception {
-        SpringApplication app = new SpringApplication(ExtractValidateDccReport.class);
+        SpringApplication app = new SpringApplication(ValidateExtractDccReport.class);
         app.setBannerMode(Banner.Mode.OFF);
         app.setLogStartupInfo(false);
         app.setWebEnvironment(false);
@@ -152,7 +152,7 @@ public class ExtractValidateDccReport extends AbstractReport {
 
         List<String> errors = parser.validate(parser.parse(args));
         if ( ! errors.isEmpty()) {
-            logger.error("ExtractValidateDccReport parser validation error: " + StringUtils.join(errors, "\n"));
+            logger.error("ValidateExtractDccReport parser validation error: " + StringUtils.join(errors, "\n"));
             return;
         }
         initialise(args);

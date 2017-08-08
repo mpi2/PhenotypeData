@@ -37,53 +37,51 @@ import java.io.IOException;
 import java.util.List;
 
 /**
- ** This report produces a file of impress database differences between a previous version and the current one.
+ ** This report produces a file of cda_base database differences between a previous version and the current one.
  *
  * Created by mrelac on 24/07/2015.
  */
 @ComponentScan("org.mousephenotype.cda.loads.reports")
-public class ExtractValidateImpressReport extends AbstractReport implements CommandLineRunner {
+public class ValidateExtractCdabaseReport extends AbstractReport implements CommandLineRunner {
 
     private Logger   logger   = LoggerFactory.getLogger(this.getClass());
     private LoadValidateCountsQuery loadValidateCountsQuery;
 
-    private NamedParameterJdbcTemplate jdbcImpressPrevious;
-    private NamedParameterJdbcTemplate jdbcImpressCurrent;
+    private NamedParameterJdbcTemplate jdbcCdabasePrevious;
+    private NamedParameterJdbcTemplate               jdbcCdabaseCurrent;
     private SqlUtils                   sqlUtils;
 
     @Inject
-    public ExtractValidateImpressReport(NamedParameterJdbcTemplate jdbcImpressPrevious, NamedParameterJdbcTemplate jdbcImpressCurrent, SqlUtils sqlUtils) {
-        this.jdbcImpressPrevious = jdbcImpressPrevious;
-        this.jdbcImpressCurrent = jdbcImpressCurrent;
+    public ValidateExtractCdabaseReport(NamedParameterJdbcTemplate jdbcCdabasePrevious, NamedParameterJdbcTemplate jdbcCdabaseCurrent, SqlUtils sqlUtils) {
+        this.jdbcCdabasePrevious = jdbcCdabasePrevious;
+        this.jdbcCdabaseCurrent = jdbcCdabaseCurrent;
         this.sqlUtils = sqlUtils;
     }
 
 
-    /**********************
-     * DATABASE: impress
-     **********************
+    /********************
+     * DATABASE: cda_base
+     ********************
     */
-    private final double      DELTA   = 1.0;
+    private final double      DELTA   = 0.8;
     private LoadsQueryDelta[] queries = new LoadsQueryDelta[] {
-            new LoadsQueryDelta("phenotype_parameter COUNTS", DELTA, "SELECT count(*) FROM phenotype_parameter"),
-            new LoadsQueryDelta("phenotype_parameter_eq_annotation COUNTS", DELTA, "SELECT count(*) FROM phenotype_parameter_eq_annotation"),
-            new LoadsQueryDelta("phenotype_parameter_lnk_eq_annotation COUNTS", DELTA, "SELECT count(*) FROM phenotype_parameter_lnk_eq_annotation"),
-            new LoadsQueryDelta("phenotype_parameter_lnk_increment COUNTS", DELTA, "SELECT count(*) FROM phenotype_parameter_lnk_increment"),
-            new LoadsQueryDelta("phenotype_parameter_lnk_ontology_annotation COUNTS", DELTA, "SELECT count(*) FROM phenotype_parameter_lnk_ontology_annotation"),
-            new LoadsQueryDelta("phenotype_parameter_lnk_option COUNTS", DELTA, "SELECT count(*) FROM phenotype_parameter_lnk_option"),
-            new LoadsQueryDelta("phenotype_parameter_ontology_annotation COUNTS", DELTA, "SELECT count(*) FROM phenotype_parameter_ontology_annotation"),
-            new LoadsQueryDelta("phenotype_parameter_option COUNTS", DELTA, "SELECT count(*) FROM phenotype_parameter_option"),
-            new LoadsQueryDelta("phenotype_pipeline COUNTS", DELTA, "SELECT count(*) FROM phenotype_pipeline"),
-            new LoadsQueryDelta("phenotype_pipeline_procedure COUNTS", DELTA, "SELECT count(*) FROM phenotype_pipeline_procedure"),
-            new LoadsQueryDelta("phenotype_procedure COUNTS", DELTA, "SELECT count(*) FROM phenotype_procedure"),
-            new LoadsQueryDelta("phenotype_procedure_meta_data COUNTS", DELTA, "SELECT count(*) FROM phenotype_procedure_meta_data"),
-            new LoadsQueryDelta("phenotype_procedure_parameter COUNTS", DELTA, "SELECT count(*) FROM phenotype_procedure_parameter")
+            new LoadsQueryDelta("allele COUNTS", DELTA, "SELECT count(*) FROM allele"),
+            new LoadsQueryDelta("biological_model COUNTS", DELTA, "SELECT count(*) FROM biological_model"),
+            new LoadsQueryDelta("biological_model_allele COUNTS", DELTA, "SELECT count(*) FROM biological_model_allele"),
+            new LoadsQueryDelta("biological_model_genomic_feature COUNTS", DELTA, "SELECT count(*) FROM biological_model_genomic_feature"),
+            new LoadsQueryDelta("biological_model_phenotype COUNTS", DELTA, "SELECT count(*) FROM biological_model_phenotype"),
+            new LoadsQueryDelta("external_db COUNTS", DELTA, "SELECT count(*) FROM external_db"),
+            new LoadsQueryDelta("genomic_feature COUNTS", DELTA, "SELECT count(*) FROM genomic_feature"),
+            new LoadsQueryDelta("ontology_term COUNTS", DELTA, "SELECT count(*) FROM ontology_term"),
+            new LoadsQueryDelta("organisation COUNTS", DELTA, "SELECT count(*) FROM organisation"),
+            new LoadsQueryDelta("project COUNTS", DELTA, "SELECT count(*) FROM project"),
+            new LoadsQueryDelta("strain COUNTS", DELTA, "SELECT count(*) FROM strain")
     };
 
     @Override
     protected void initialise(String[] args) throws ReportException {
         super.initialise(args);
-        loadValidateCountsQuery = new LoadValidateCountsQuery(jdbcImpressPrevious, jdbcImpressCurrent, csvWriter);
+        loadValidateCountsQuery = new LoadValidateCountsQuery(jdbcCdabasePrevious, jdbcCdabaseCurrent, csvWriter);
         loadValidateCountsQuery.addQueries(queries);
     }
 
@@ -93,19 +91,18 @@ public class ExtractValidateImpressReport extends AbstractReport implements Comm
     }
 
     public static void main(String[] args) throws Exception {
-        SpringApplication app = new SpringApplication(ExtractValidateImpressReport.class);
+        SpringApplication app = new SpringApplication(ValidateExtractCdabaseReport.class);
         app.setBannerMode(Banner.Mode.OFF);
         app.setLogStartupInfo(false);
         app.setWebEnvironment(false);
         app.run(args);
     }
 
-    @Override
     public void run(String[] args) throws ReportException {
 
         List<String> errors = parser.validate(parser.parse(args));
         if ( ! errors.isEmpty()) {
-            logger.error("Parser validation error: " + StringUtils.join(errors, "\n"));
+            logger.error("ValidateExtractDccReport parser validation error: " + StringUtils.join(errors, "\n"));
             return;
         }
         initialise(args);
@@ -113,8 +110,8 @@ public class ExtractValidateImpressReport extends AbstractReport implements Comm
         long start = System.currentTimeMillis();
 
         try {
-            String db1Info    = sqlUtils.getDbInfoString(jdbcImpressPrevious);
-            String db2Info    = sqlUtils.getDbInfoString(jdbcImpressCurrent);
+            String db1Info    = sqlUtils.getDbInfoString(jdbcCdabasePrevious);
+            String db2Info    = sqlUtils.getDbInfoString(jdbcCdabaseCurrent);
 
             logger.info("VALIDATION STARTED AGAINST DATABASES {} AND {}", db1Info, db2Info);
 

@@ -42,7 +42,7 @@ import java.util.List;
  * Created by mrelac on 24/07/2015.
  */
 @ComponentScan("org.mousephenotype.cda.loads.reports")
-public class LoadValidateCdaReport extends AbstractReport implements CommandLineRunner {
+public class ValidateLoadCdaReport extends AbstractReport implements CommandLineRunner {
 
     private Logger   logger   = LoggerFactory.getLogger(this.getClass());
     private LoadValidateCountsQuery loadValidateCountsQuery;
@@ -52,7 +52,7 @@ public class LoadValidateCdaReport extends AbstractReport implements CommandLine
     private SqlUtils                   sqlUtils;
 
     @Inject
-    public LoadValidateCdaReport(NamedParameterJdbcTemplate jdbcCdaPrevious, NamedParameterJdbcTemplate jdbcCdaCurrent, SqlUtils sqlUtils) {
+    public ValidateLoadCdaReport(NamedParameterJdbcTemplate jdbcCdaPrevious, NamedParameterJdbcTemplate jdbcCdaCurrent, SqlUtils sqlUtils) {
         this.jdbcCdaPrevious = jdbcCdaPrevious;
         this.jdbcCdaCurrent = jdbcCdaCurrent;
         this.sqlUtils = sqlUtils;
@@ -94,7 +94,7 @@ public class LoadValidateCdaReport extends AbstractReport implements CommandLine
     }
 
     public static void main(String[] args) throws Exception {
-        SpringApplication app = new SpringApplication(LoadValidateCdaReport.class);
+        SpringApplication app = new SpringApplication(ValidateLoadCdaReport.class);
         app.setBannerMode(Banner.Mode.OFF);
         app.setLogStartupInfo(false);
         app.setWebEnvironment(false);
@@ -105,7 +105,7 @@ public class LoadValidateCdaReport extends AbstractReport implements CommandLine
 
         List<String> errors = parser.validate(parser.parse(args));
         if ( ! errors.isEmpty()) {
-            logger.error("LoadValidateCdaReport parser validation error: " + StringUtils.join(errors, "\n"));
+            logger.error("ValidateLoadCdaReport parser validation error: " + StringUtils.join(errors, "\n"));
             return;
         }
         initialise(args);

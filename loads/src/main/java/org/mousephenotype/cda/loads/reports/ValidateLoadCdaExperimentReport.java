@@ -30,8 +30,6 @@ import org.springframework.boot.Banner;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.core.env.PropertySource;
-import org.springframework.core.env.SimpleCommandLinePropertySource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import javax.inject.Inject;
@@ -48,7 +46,7 @@ import java.util.Set;
  * Created by mrelac on 20/02/2017.
  */
 @ComponentScan("org.mousephenotype.cda.loads.reports")
-public class LoadValidateCdaExperimentReport extends AbstractReport implements CommandLineRunner {
+public class ValidateLoadCdaExperimentReport extends AbstractReport implements CommandLineRunner {
 
 
     private Logger                       logger   = LoggerFactory.getLogger(this.getClass());
@@ -72,7 +70,7 @@ public class LoadValidateCdaExperimentReport extends AbstractReport implements C
     public static final String INCLUDE_DERIVED_ARG = "includederived";
 
     @Inject
-    public LoadValidateCdaExperimentReport(NamedParameterJdbcTemplate jdbcCdaPrevious, NamedParameterJdbcTemplate jdbcCdaCurrent, SqlUtils sqlUtils) {
+    public ValidateLoadCdaExperimentReport(NamedParameterJdbcTemplate jdbcCdaPrevious, NamedParameterJdbcTemplate jdbcCdaCurrent, SqlUtils sqlUtils) {
         this.jdbcCdaPrevious = jdbcCdaPrevious;
         this.jdbcCdaCurrent = jdbcCdaCurrent;
         this.sqlUtils = sqlUtils;
@@ -155,7 +153,7 @@ public class LoadValidateCdaExperimentReport extends AbstractReport implements C
     }
 
     public static void main(String[] args) throws Exception {
-        SpringApplication app = new SpringApplication(LoadValidateCdaExperimentReport.class);
+        SpringApplication app = new SpringApplication(ValidateLoadCdaExperimentReport.class);
         app.setBannerMode(Banner.Mode.OFF);
         app.setLogStartupInfo(false);
         app.setWebEnvironment(false);
@@ -167,7 +165,7 @@ public class LoadValidateCdaExperimentReport extends AbstractReport implements C
 
         List<String> errors = parser.validate(parser.parse(args));
         if ( ! errors.isEmpty()) {
-            logger.error("LoadValidateCdaExperimentReport parser validation error: " + StringUtils.join(errors, "\n"));
+            logger.error("ValidateLoadCdaExperimentReport parser validation error: " + StringUtils.join(errors, "\n"));
             return;
         }
         initialise(args);
