@@ -208,7 +208,7 @@ public class SampleLoader implements Step, Tasklet, InitializingBean {
         Iterator<String> missingColonyIdsIt = missingColonyIds.iterator();
         while (missingColonyIdsIt.hasNext()) {
             String colonyId = missingColonyIdsIt.next();
-            logger.warn("Skipping missing phenotyped_colony information for dcc-supplied colony '" + colonyId + "'");
+            logger.info("Skipping missing phenotyped_colony information for dcc-supplied colony '" + colonyId + "'");
         }
 
         Iterator<String> missingBackgroundStrainsIt = missingBackgroundStrains.iterator();
