@@ -242,7 +242,6 @@ public class AbstractGenotypePhenotypeService extends BasicService {
         String pivot = GenotypePhenotypeDTO.MP_TERM_ID + "," + GenotypePhenotypeDTO.MP_TERM_NAME+","+GenotypePhenotypeDTO.MARKER_ACCESSION_ID;
         q.add("facet.pivot", pivot);
 
-
         logger.info("Solr url for getAssociationsCount " + SolrUtils.getBaseURL(solr) + "/select?" + q);
 
         QueryResponse response = solr.query(q);
