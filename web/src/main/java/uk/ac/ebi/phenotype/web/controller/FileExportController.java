@@ -30,6 +30,8 @@ import org.mousephenotype.cda.db.dao.*;
 import org.mousephenotype.cda.db.pojo.Allele;
 import org.mousephenotype.cda.db.pojo.ReferenceDTO;
 import org.mousephenotype.cda.db.pojo.Strain;
+import org.mousephenotype.cda.enumerations.BiologicalSampleType;
+import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.solr.generic.util.JSONImageUtils;
 import org.mousephenotype.cda.solr.service.*;
@@ -71,6 +73,7 @@ import java.sql.SQLException;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Controller
 public class FileExportController {
@@ -195,7 +198,7 @@ public class FileExportController {
 	 * @throws URISyntaxException
 	 */
 	@ResponseBody
-	@RequestMapping(value = "/exportraw", method = RequestMethod.GET)
+	@RequestMapping(value = "/exportraw", method = RequestMethod.GET, produces = "text/plain")
 	public String getExperimentalData(
 			@RequestParam(value = "phenotyping_center", required = true) String phenotypingCenter, // assume reuired in code
 			@RequestParam(value = "pipeline_stable_id", required = true) String pipelineStableId, // assume reuired in code
@@ -205,14 +208,15 @@ public class FileExportController {
 			@RequestParam(value = "allele_accession", required = false) String alleleAccession,
 			@RequestParam(value = "sex", required = false) String[] sexesParameter,
 			@RequestParam(value = "zygosity", required = false) String[] zygositiesParameter,
-			@RequestParam(value = "strain", required = false) String strainParameter)
-			throws SolrServerException, IOException , URISyntaxException {
+			@RequestParam(value = "strain", required = false) String strainParameter,
+			HttpServletResponse response)
+			throws SolrServerException, IOException, URISyntaxException, SQLException {
 
 		if (alleleAccession!=null) {
 			alleleAccessionId = alleleAccession;
 		}
 		Allele allele = alleleDAO.getAlleleByAccession(alleleAccessionId);
-		SexType sex = (sexesParameter != null && sexesParameter.length > 1) ? SexType.valueOf(sexesParameter[0]) : null;
+		String sex = (sexesParameter != null && sexesParameter.length > 1) ? SexType.valueOf(sexesParameter[0]).getName() : "null";
 		List<String> zygosities = (zygositiesParameter == null) ? null : Arrays.asList(zygositiesParameter);
 		String geneAcc = allele.getGene().getId().getAccession();
 		String alleleAcc = allele.getId().getAccession();
@@ -225,56 +229,122 @@ public class FileExportController {
 			}
 		}
 
-		List<ExperimentDTO> experiments = experimentService.getExperimentDTO(parameterStableId, pipelineStableId,
-				geneAcc, sex, phenotypingCenter, zygosities, strainAccession, null, Boolean.FALSE, alleleAcc);
+//		List<ExperimentDTO> experiments = experimentService.getExperimentDTO(parameterStableId, pipelineStableId,
+//				geneAcc, sex, phenotypingCenter, zygosities, strainAccession, null, Boolean.FALSE, alleleAcc);
 
-		List<String> rows = new ArrayList<>();
-		rows.add(StringUtils.join(new String[] { "Experiment", "Center", "Pipeline", "Procedure", "Parameter", "Strain",
-						"Colony", "Gene", "Allele", "MetadataGroup", "Zygosity", "Sex", "AssayDate", "Value", "Metadata", "Weight" },
-				","));
+//		List<String> rows = new ArrayList<>();
+//		rows.add(StringUtils.join(new String[] { "Experiment", "Center", "Pipeline", "Procedure", "Parameter", "Strain",
+//						"Colony", "Gene", "Allele", "MetadataGroup", "Zygosity", "Sex", "AssayDate", "Value", "Metadata", "Weight" },
+//				","));
 
-		Integer i = 1;
+//		Integer i = 1;
 
-		for (ExperimentDTO experiment : experiments) {
 
-			// Adding all data points to the export
-			Set<ObservationDTO> observations = experiment.getControls();
-			observations.addAll(experiment.getMutants());
 
-			for (ObservationDTO observation : observations) {
-				List<String> row = new ArrayList<>();
-				row.add("Exp" + i.toString());
-				row.add(phenotypingCenter);
-				row.add(pipelineStableId);
-				row.add(observation.getProcedureStableId());
-				row.add(parameterStableId);
-				row.add(observation.getStrain());
-				row.add((observation.getGroup().equals("control")) ? "+/+" : observation.getColonyId());
-				row.add((observation.getGroup().equals("control")) ? "\"\"" : geneAcc);
-				row.add((observation.getGroup().equals("control")) ? "\"\"" : alleleAcc);
-				row.add(StringUtils.isNotEmpty(observation.getMetadataGroup()) ? observation.getMetadataGroup() : "\"\"");
-				row.add(StringUtils.isNotEmpty(observation.getZygosity()) ? observation.getZygosity() : "\"\"");
-				row.add(observation.getSex());
-				row.add(observation.getDateOfExperimentString());
 
-				String dataValue = observation.getCategory();
-				if (dataValue == null) {
-					dataValue = observation.getDataPoint().toString();
-				}
+		String[] alleleArray = {alleleAcc};
+		String[] geneArray = {geneAcc};
+		String[] parameterArray = {parameterStableId};
+		String[] strainArray = {strainAccession};
+		String[] centerArray = {phenotypingCenter};
+		String[] pipelineArray = {pipelineStableId};
 
-				row.add(dataValue);
-				row.add("\"" + StringUtils.join(observation.getMetadata(), "::") + "\"");
+		List<String> dataRowsForExperiment = getDataRowsForExperiment(alleleArray, geneArray, parameterArray, zygositiesParameter, strainArray, sex, centerArray, pipelineArray);
 
-				row.add((observation.getWeight() != null && StringUtils.isNotEmpty(observation.getWeight().toString())) ? observation.getWeight().toString() : "");
 
-				rows.add(StringUtils.join(row, ","));
+		// Update the header rows to have more PhenStat friendly names
+		String header = dataRowsForExperiment.get(0);
+
+		header = header.replaceAll(ObservationDTO.PHENOTYPING_CENTER, "Center");
+		header = header.replaceAll(ObservationDTO.PIPELINE_STABLE_ID, "Pipeline");
+		header = header.replaceAll(ObservationDTO.PROCEDURE_STABLE_ID, "Procedure");
+		header = header.replaceAll(ObservationDTO.PARAMETER_STABLE_ID, "Parameter");
+		header = header.replaceAll(ObservationDTO.STRAIN_NAME, "Strain");
+		header = header.replaceAll(ObservationDTO.COLONY_ID, "Genotype");
+		header = header.replaceAll(ObservationDTO.GENE_ACCESSION_ID, "Gene");
+		header = header.replaceAll(ObservationDTO.ALLELE_ACCESSION_ID, "Allele");
+		header = header.replaceAll(ObservationDTO.METADATA_GROUP, "MetadataGroup");
+		header = header.replaceAll(ObservationDTO.ZYGOSITY, "Zygosity");
+		header = header.replaceAll(ObservationDTO.SEX, "Sex");
+		header = header.replaceAll(ObservationDTO.DATE_OF_EXPERIMENT, "Assay.Date");
+		header = header.replaceAll(ObservationDTO.DATA_POINT, "Value");
+		header = header.replaceAll(ObservationDTO.CATEGORY, "Value");
+		header = header.replaceAll(ObservationDTO.METADATA, "Metadata");
+		header = header.replaceAll(ObservationDTO.WEIGHT, "Weight");
+
+		dataRowsForExperiment.remove(0);
+		dataRowsForExperiment.add(0, header);
+
+		int i = 0;
+		int genotypeColumnIdx = 0;
+		int sampleGroupColumnIdx = 0;
+
+		List<String> newRows = new ArrayList<>();
+		newRows.add(header);
+
+		for (String row : dataRowsForExperiment) {
+
+			// Gets the Genotype column index
+			if (i==0) {
+				i++;
+				List fields = Arrays.asList(row.split("\t"));
+				genotypeColumnIdx = fields.indexOf("Genotype");
+				sampleGroupColumnIdx = fields.indexOf(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP);
+				continue;
 			}
 
-			// Next experiment
-			i++;
+			List fields = Arrays.asList(row.split("\t"));
+
+			if (fields.get(sampleGroupColumnIdx).equals(BiologicalSampleType.control.getName())) {
+				fields.set(genotypeColumnIdx, "+/+");
+			}
+
+			newRows.add(StringUtils.join(fields, "\t"));
+
 		}
 
-		return StringUtils.join(rows, "\n");
+		dataRowsForExperiment = newRows;
+
+//		for (ExperimentDTO experiment : experiments) {
+//
+//			// Adding all data points to the export
+//			Set<ObservationDTO> observations = experiment.getControls();
+//			observations.addAll(experiment.getMutants());
+//
+//			for (ObservationDTO observation : observations) {
+//				List<String> row = new ArrayList<>();
+//				row.add("Exp" + i.toString());
+//				row.add(phenotypingCenter);
+//				row.add(pipelineStableId);
+//				row.add(observation.getProcedureStableId());
+//				row.add(parameterStableId);
+//				row.add(observation.getStrain());
+//				row.add((observation.getGroup().equals("control")) ? "+/+" : observation.getColonyId());
+//				row.add((observation.getGroup().equals("control")) ? "\"\"" : geneAcc);
+//				row.add((observation.getGroup().equals("control")) ? "\"\"" : alleleAcc);
+//				row.add(StringUtils.isNotEmpty(observation.getMetadataGroup()) ? observation.getMetadataGroup() : "\"\"");
+//				row.add(StringUtils.isNotEmpty(observation.getZygosity()) ? observation.getZygosity() : "\"\"");
+//				row.add(observation.getSex());
+//				row.add(observation.getDateOfExperimentString());
+//
+//				String dataValue = observation.getCategory();
+//				if (dataValue == null) {
+//					dataValue = observation.getDataPoint().toString();
+//				}
+//
+//				row.add(dataValue);
+//				row.add("\"" + StringUtils.join(observation.getMetadata(), "::") + "\"");
+//
+//				row.add((observation.getWeight() != null && StringUtils.isNotEmpty(observation.getWeight().toString())) ? observation.getWeight().toString() : "");
+//
+//				rows.add(StringUtils.join(row, ","));
+//			}
+//
+//			// Next experiment
+//			i++;
+//		}
+
+		return StringUtils.join(dataRowsForExperiment.stream().map(x -> x.replaceAll("\t", ",")).collect(Collectors.toList()), "\n");
 	}
 
 	@RequestMapping(value = "/export2", method = RequestMethod.GET)
@@ -446,13 +516,7 @@ public class FileExportController {
 			}
 
 			if (solrCoreName.equalsIgnoreCase("experiment")) {
-				for (int i = 0; i < phenotypingCenter.length; i++) {
-					phenotypingCenter[i] = phenotypingCenter[i].replaceAll("%20", " ");
-				}
-
-				String s = (sex.equalsIgnoreCase("null")) ? null : sex;
-				dataRows = composeExperimentDataExportRows(parameterStableId, mgiGeneId, allele, s,
-						phenotypingCenter, zygosities, strains, pipelineStableId);
+				dataRows = getDataRowsForExperiment(allele, mgiGeneId, parameterStableId, zygosities, strains, sex, phenotypingCenter, pipelineStableId);
 
 			} else if (dogoterm) {
 				JSONObject json = solrIndex.getDataTableExportRows(solrCoreName, solrFilters, gridFields, rowStart,
@@ -476,6 +540,27 @@ public class FileExportController {
 
 		String filters = null;
 		FileExportUtils.writeOutputFile(response, dataRows, fileType, fileName, filters);
+	}
+
+	private List<String> getDataRowsForExperiment(String[] allele,
+												  String[] mgiGeneId,
+												  String[] parameterStableId,
+												  String[] zygosities,
+												  String[] strains,
+												  String sex,
+												  String[] phenotypingCenter,
+												  String[] pipelineStableId) throws SolrServerException, IOException, URISyntaxException, SQLException {
+		List<String> dataRows;
+
+		// Replace URL encoded spaces ("%20") with actual spaces in the phenotype center names
+		for (int i = 0; i < phenotypingCenter.length; i++) {
+            phenotypingCenter[i] = phenotypingCenter[i].replaceAll("%20", " ");
+        }
+
+		String s = (sex.equalsIgnoreCase("null")) ? null : sex;
+		dataRows = composeExperimentDataExportRows(parameterStableId, mgiGeneId, allele, s, phenotypingCenter, zygosities, strains, pipelineStableId);
+
+		return dataRows;
 	}
 
 

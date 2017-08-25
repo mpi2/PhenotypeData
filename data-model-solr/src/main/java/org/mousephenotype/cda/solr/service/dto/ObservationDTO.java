@@ -73,7 +73,8 @@ public class ObservationDTO extends ObservationDTOBase {
                 group,
                 externalSampleId,
                 "\"" + metadata.toString() + "\"",
-                metadataGroup
+                metadataGroup,
+                weight!=null ? weight.toString() : "-"
         ));
 
         switch (ObservationType.valueOf(observationType)) {
@@ -129,7 +130,8 @@ public class ObservationDTO extends ObservationDTOBase {
                 BIOLOGICAL_SAMPLE_GROUP,
                 EXTERNAL_SAMPLE_ID,
                 METADATA,
-                METADATA_GROUP
+                METADATA_GROUP,
+                WEIGHT
         ));
 
         switch (ObservationType.valueOf(observationType)) {
