@@ -14,8 +14,7 @@
     <jsp:attribute name="header">
 
         <!-- CSS Local Imports -->
-        <link rel="stylesheet" href="${baseUrl}/css/vendor/slick.grid.css" type="text/css" media="screen"/>
-        <link rel="stylesheet" href="${baseUrl}/css/parallelCoordinates/style.css" type="text/css" />
+  
         <link href="${baseUrl}/css/alleleref.css" rel="stylesheet" />
         <link href="${baseUrl}/css/biological_system/style.css" rel="stylesheet" />
 
@@ -29,15 +28,7 @@
 
         <!-- parallel coordinates JavaScriptdependencies -->
 
-        <script type="text/javascript" src="${baseUrl}/js/vendor/d3/d3.v3.js"></script>
-        <script type="text/javascript" src="${baseUrl}/js/vendor/d3/d3.js"></script>
-        <script type="text/javascript" src="${baseUrl}/js/vendor/d3/d3.csv.js"></script>
-        <script type="text/javascript" src="${baseUrl}/js/vendor/d3/d3.layout.js"></script>
-        <script src="${baseUrl}/js/vendor/jquery/jquery.event.drag-2.0.min.js"></script>
-        <script src="${baseUrl}/js/vendor/slick/slick.core.js"></script>
-        <script src="${baseUrl}/js/vendor/slick/slick.grid.js"></script>
-        <script src="${baseUrl}/js/vendor/slick/slick.dataview.js"></script>
-        <script src="${baseUrl}/js/vendor/slick/slick.pager.js"></script>
+
 
 	</jsp:attribute>
 
@@ -191,7 +182,7 @@
                             </div>
                         </div>
 
-                        <div class="section" id="gene-ko-effect">
+                        <%-- <div class="section" id="gene-ko-effect"> removed this section as per TM instructions
 
                             <h2 class="title">Gene KO effect comparator for ${systemName} continuous parameters</h2>
 
@@ -226,7 +217,7 @@
                                     })
                                 </script>
                             </div>
-                        </div>
+                        </div> --%>
 
                        
 

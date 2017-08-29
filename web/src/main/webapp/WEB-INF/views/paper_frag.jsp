@@ -27,7 +27,7 @@
 
             var pageKw = {
                 embryo: 'embryo',
-                deafness : 'deaf|hearing|vestibular',
+                hearing : 'deaf|hearing|vestibular',
                 metabolism : 'metaboli',
                 cardiovascular : 'cardio|cardia|heart',
                 vision : 'vision|eye',

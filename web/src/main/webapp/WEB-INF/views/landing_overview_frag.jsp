@@ -10,6 +10,7 @@
         <c:if test="${genePercentage.getDisplay()}">
 
             <div class="half">
+            <div>Current Total Number of Genes Tested: ${genePercentage.totalGenesTested}</div>
                 <div id="pieChart">
                     <script type="text/javascript">${genePercentage.getPieChartCode()}</script>
                 </div>
@@ -38,6 +39,7 @@
                         <tr> <th class="headerSort"> Phenotype </th> <th> # Genes </th> </tr>
                     </thead>
                     <tbody>
+             
                     <c:forEach var="row" items="${phenotypes}"  varStatus="loop">
                         <tr <c:if test="${loop.index >= 10}"> class="hidden hideable" </c:if> >
                             <td class="capitalize"><a href="${baseUrl}/phenotypes/${row.getMpId()}">${row.getCategory()}</a></td>

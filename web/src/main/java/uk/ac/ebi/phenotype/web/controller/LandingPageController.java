@@ -138,7 +138,7 @@ public class LandingPageController {
             mpDTO = mpService.getPhenotype("MP:0005377");
             anatomyIds.add("MA:0002443");
             anatomyIds.add("EMAPA:36002");
-            model.addAttribute("shortDescription", "This page introduces <b>hearing</b> related phenotypes present in mouse lines produced by the IMPC. A deafness screen has allowed to detect known genes associated with deafness, but the vast majority of the loci are novel.");
+            model.addAttribute("shortDescription", "The developmental and physiological complexity of the auditory system is likely reflected in the underlying set of genes involved in auditory function. In humans, over 150 non-syndromic loci have been identified, and there are more than 400 human genetic syndromes with a hearing loss component. Over 100 non-syndromic hearing loss genes have been identified in mouse and human, but we remain ignorant of the full extent of the genetic landscape involved in auditory dysfunction. As part of the International Mouse Phenotyping Consortium we undertake a hearing loss screen in thousands of cohort mouse knockout strains. We detect known hearing loss genes, but the vast majority, of the candidate genes are novel.");
             pageTitle = "Hearing";
 
         } else

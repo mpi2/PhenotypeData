@@ -204,7 +204,7 @@ public class SexualDimorphismDAOImpl extends HibernateDAOImpl implements SexualD
 			+ " AND pp.stable_id NOT IN (" + StringUtils.join(Constants.weightParameters, ",") + ")"
 			+ " AND null_test_significance < 0.0001 LIMIT 100000" ;
 
-		System.out.println(command);
+		logger.debug(command);
 		try (Connection connection = getConnection()) {
 			statement = connection.prepareStatement(command);
 		} catch (Exception e) {

@@ -160,6 +160,7 @@ public class AdvancedSearchServiceTest {
         String comp = genesFoundNeo4j == genesFoundSolr ? "SUCCESS: " : "FAILED: ";
         comp += "Neo4j [" + genesFoundNeo4j + "] vs SOLR: [" + genesFoundSolr + "]";
         System.out.println(comp + "\n\n");
+        assertTrue(genesFoundNeo4j==genesFoundSolr);
 
         Set<String> missingGeneSymbolN4j = new HashSet<>();
         Set<String> missingAlleleSymbolN4j = new HashSet<>();
@@ -191,7 +192,7 @@ public class AdvancedSearchServiceTest {
 
     }
 
-    //@Test
+    @Test
     public void testMarkerSymbolsInGPAndStatisticalResultCoreWithMp() throws IOException, SolrServerException {
 
         String mpTerm = "cardiovascular system phenotype";
@@ -259,11 +260,13 @@ public class AdvancedSearchServiceTest {
         else {
             System.out.println("FAILED: '" + mpTerm + "' associated with genes INconsistent in GP core and SR core ");
         }
+        assertTrue(missing==0);
+        
 
 
     }
 
-    //@Test
+    @Test
     public void testMarkerSymbolsInGPCoreMissingInAllele2Core() throws IOException, SolrServerException {
 
         // get result from SOLR
@@ -321,10 +324,11 @@ public class AdvancedSearchServiceTest {
         else {
             System.out.println("SUCCESS");
         }
+        assertTrue(missingGeneSymbolsAllele2.size()==0);
 
     }
 
-    //@Test
+    @Test
     public void testAllelesInSRCoreMissingInAllele2Core() throws IOException, SolrServerException {
 
         // get result from SOLR
