@@ -142,6 +142,11 @@
 								</li>
 								</ul>
                          
+                               	<h3>
+                               		Gene table
+                               	</h3>
+				<p>Sixty-seven deafness genes were identified:</p>
+				    
                             </div>
                         </div>
                         
