@@ -185,8 +185,21 @@ public class LandingPageController {
                 paramToNumber.put(group.getGroupValue(), Long.toString(group.getResult().getNumFound()));
             }
         }
-        ArrayList<ImpressDTO> procedures = new ArrayList<>();
+
+
+        List<ImpressDTO> procedures = new ArrayList<>();
         procedures.addAll(is.getProceduresByMpTerm(mpDTO.getMpId(), true));
+
+        // Per Terry 2017-08-31
+        // On the hearing landing page, filter out all procedures excepy Shirpa and ABR
+        if (page.equalsIgnoreCase("hearing")) {
+            procedures = procedures
+                    .stream()
+                    .filter(x -> "Combined SHIRPA and Dysmorphology".equals(x.getProcedureName()) || "Auditory Brain Stem Response".equals(x.getProcedureName()))
+                    .collect(Collectors.toList());
+            model.addAttribute("adultOnly", true);
+        }
+
         Collections.sort(procedures, ImpressDTO.getComparatorByProcedureName());
 
         model.addAttribute("phenotypeChart", ScatterChartAndTableProvider.getScatterChart("phenotypeChart", gpService.getTopLevelPhenotypeIntersection(mpDTO.getMpId()), "Gene pleiotropy",
