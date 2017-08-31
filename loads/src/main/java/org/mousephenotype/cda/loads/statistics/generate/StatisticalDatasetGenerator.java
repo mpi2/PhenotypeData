@@ -1,4 +1,4 @@
-package org.mousephenotype.cda.loads.statistics;
+package org.mousephenotype.cda.loads.statistics.generate;
 
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
@@ -47,18 +47,26 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
     public StatisticalDatasetGenerator(
             @Named("experimentCore") SolrClient experimentCore,
             @Named("pipelineCore") SolrClient pipelineCore) {
-        Assert.notNull(experimentCore);
-        Assert.notNull(pipelineCore);
+        Assert.notNull(experimentCore, "Experiment core cannot be null");
+        Assert.notNull(pipelineCore, "Pipeline core cannot be null");
 
         this.experimentCore = experimentCore;
         this.pipelineCore = pipelineCore;
     }
 
 
-    public final static List<String> PIVOT = Arrays.asList(ObservationDTO.PHENOTYPING_CENTER, ObservationDTO.PIPELINE_STABLE_ID, ObservationDTO.PROCEDURE_GROUP, ObservationDTO.STRAIN_ACCESSION_ID);
+    public final static List<String> PIVOT = Arrays.asList(
+            ObservationDTO.DATASOURCE_NAME,
+            ObservationDTO.PROJECT_NAME,
+            ObservationDTO.PHENOTYPING_CENTER,
+            ObservationDTO.PIPELINE_STABLE_ID,
+            ObservationDTO.PROCEDURE_GROUP,
+            ObservationDTO.STRAIN_ACCESSION_ID);
 
     @Override
     public void run(String... strings) throws Exception {
+
+        logger.info("Starting statistical dataset generation");
 
         try {
 
@@ -92,7 +100,18 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
                     continue;
                 }
 
-                String filename = "tsvs/" + Stream.of(result.get(ObservationDTO.PHENOTYPING_CENTER).replace(" ",""), result.get(ObservationDTO.PIPELINE_STABLE_ID), result.get(ObservationDTO.PROCEDURE_GROUP), result.get(ObservationDTO.STRAIN_ACCESSION_ID).replace(":","")).collect(Collectors.joining("-")) + ".tsv";
+                if (i > 100) {
+                    // Short circuit after 10 iterations
+                    break;
+                }
+
+                String filename = "tsvs/" + Stream.of(
+                        result.get(ObservationDTO.DATASOURCE_NAME).replace(" ","_"),
+                        result.get(ObservationDTO.PROJECT_NAME).replace(" ","_"),
+                        result.get(ObservationDTO.PHENOTYPING_CENTER).replace(" ","_"),
+                        result.get(ObservationDTO.PIPELINE_STABLE_ID),
+                        result.get(ObservationDTO.PROCEDURE_GROUP),
+                        result.get(ObservationDTO.STRAIN_ACCESSION_ID).replace(":","")).collect(Collectors.joining("-")) + ".tsv";
                 Path p = new File(filename).toPath();
                 logger.info("Writing file {} ({})", filename, p);
 
@@ -169,6 +188,8 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
                 lines.add(headers);
 
                 for (String key : specimenParameterMap.keySet()) {
+
+                    // If the specimen doesn't have any parameters associated, skip it
                     if (specimenParameterMap.get(key).values().stream().count() < 1) {
                         continue;
                     }
@@ -177,7 +198,7 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
 
                     List<String> line = new ArrayList<>();
                     line.addAll(Arrays.asList(key.split("\t")));
-                    line.add("::"); // Seperator column
+                    line.add("::"); // Separator column
 
                     for (String parameter : sortedParameters) {
                         line.add( data.containsKey(parameter) ? data.get(parameter) : "" );
