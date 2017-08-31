@@ -132,7 +132,9 @@
                                	<h3>
                                		Methods
                                	</h3>
-                               		Response data from the auditory brainstem response (ABR) test was used – hearing at five frequencies, 6kHz, 12kHz, 18kHz, 24kHz and 30kHz was measured.
+                               		Response data from the <a
+                                        href="https://www.mousephenotype.org/impress/protocol/149/7">Auditory Brain Stem
+                                    response (ABR)</a> test was used – hearing at five frequencies, 6kHz, 12kHz, 18kHz, 24kHz and 30kHz was measured.
 								<ul>
 								<li>
 									Control wildtype mice from each phenotypic centre included, matched for gender, age, phenotypic pipeline and metadata (e.g. instrument)
