@@ -138,7 +138,10 @@ public class LandingPageController {
             mpDTO = mpService.getPhenotype("MP:0005377");
             anatomyIds.add("MA:0002443");
             anatomyIds.add("EMAPA:36002");
-            model.addAttribute("shortDescription", "The developmental and physiological complexity of the auditory system is likely reflected in the underlying set of genes involved in auditory function. In humans, over 150 non-syndromic loci have been identified, and there are more than 400 human genetic syndromes with a hearing loss component. Over 100 non-syndromic hearing loss genes have been identified in mouse and human, but we remain ignorant of the full extent of the genetic landscape involved in auditory dysfunction. As part of the International Mouse Phenotyping Consortium we undertake a hearing loss screen in thousands of cohort mouse knockout strains. We detect known hearing loss genes, but the vast majority, of the candidate genes are novel.");
+            model.addAttribute("shortDescription", "<ul><li> 360 million people worldwide live with mild to profound hearing loss</li>" +
+			      "<li> 70% hearing loss occurs as an isolated condition (non-syndromic) and 30% with additional phenotypes (syndromic)</li>" +
+			      "<li> The vast majority of genes responsible for hearing loss are unknown </li>" +
+			      "<li> The IMPC is hunting these unknown genes by screening our knockout mice for hearing loss </li></ul>");
             pageTitle = "Hearing";
 
         } else
