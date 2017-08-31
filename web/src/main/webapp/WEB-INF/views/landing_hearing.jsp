@@ -241,13 +241,7 @@
                         <script>
                             $(document).ready(function(){
                                 $('#hearing-genes').DataTable({
-                                    "aoColumns": [{ "sType": "string"},
-                                        { "sType": "string"},
-                                        { "sType": "string"},
-                                        { "sType": "string"},
-                                    ],
-                                    "bFilter":false,
-                                    "ordering": true,
+                                    "bDestroy": true,
                                     "searching":false,
                                     "bPaginate":true,
                                     "sPaginationType": "bootstrap"
