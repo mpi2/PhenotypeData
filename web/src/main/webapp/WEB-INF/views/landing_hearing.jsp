@@ -90,6 +90,8 @@
 
                         <c:import url="landing_overview_frag.jsp"/>
 
+                        <div style="padding:30px;" class="clear both"></div>
+
                         <div class="section">
                             <h2 class="title" id="approach">Approach</h2>
                             <div class="inner">
@@ -248,14 +250,79 @@
                                 });
                             });
                         </script>
-                        
+
+
+                        <style>
+                            /* required for the graphs to not clip the axis labels */
+                            .highcharts-root {padding:10px;}
+                            .inner .half h3 {font-weight: bold; color: rgb(191, 75, 50);}
+                        </style>
+
+                        <div style="padding:30px;" class="clear both"></div>
+
                         <div class="section">
-                            <h2 class="title" id="vignettes">Vignettes</h2>
+                            <h2>
+                                Vignettes
+                            </h2>
                             <div class="inner">
-                                <p>[Vignettes here, in addition, or instead of, some figures in the Publication section]</p>
-                                <p>Coming soon.....</p>
-                                
+                                <div class="half" style="text-align:center">
+                                    <h3>Novel, mild hearing loss</h3>
+                                    <a href="${baseUrl}/genes/MGI:1924817">Tram2<sup>tm1a(EUCOMM)Wtsi</sup></a>
+                                    <div class="chart" id="tram2"  graphUrl="${baseUrl}/chart?accession=MGI:1924817&parameter_stable_id=IMPC_ABR_006_001&chart_type=UNIDIMENSIONAL_ABR_PLOT&pipeline_stable_id=MGP_001&zygosity=homozygote&phenotyping_center=WTSI&strain_accession_id=MGI:2159965&allele_accession_id=MGI:4949327&metadata_group=ab8371fc819db4209ca1a10186a8a6ef&chart_only=true">
+                                        <div id="spinner_tram2"><i class="fa fa-refresh fa-spin"></i></div>
+                                    </div>
+
+                                </div>
+                                <div class="half" style="text-align:center">
+                                    <h3>Novel, severe hearing loss</h3>
+                                    <a href="${baseUrl}/genes/MGI:1919338">Ush1c<sup>tm1a(KOMP)Wtsi</sup></a>
+                                    <div class="chart" id="ush1c" graphUrl="${baseUrl}/chart?accession=MGI:1919338&parameter_stable_id=IMPC_ABR_006_001&chart_type=UNIDIMENSIONAL_ABR_PLOT&pipeline_stable_id=MGP_001&zygosity=homozygote&phenotyping_center=WTSI&strain_accession_id=MGI:2159965&allele_accession_id=MGI:4363497&metadata_group=ab8371fc819db4209ca1a10186a8a6ef&chart_only=true">
+                                        <div id="spinner_ush1c"><i class="fa fa-refresh fa-spin"></i></div>
+                                    </div>
+                                </div>
+
+                            <div style="padding:30px;" class="clear both"></div>
+
+                                <div class="half" style="text-align:center">
+                                    <h3>Novel, high-frequency hearing loss</h3>
+                                    <a href="${baseUrl}/genes/MGI:2685541">Wdtc1<sup>tm1a(KOMP)Wtsi</sup></a>
+                                    <div class="chart" id="wdtc1" graphUrl="${baseUrl}/chart?accession=MGI:2685541&parameter_stable_id=IMPC_ABR_012_001&chart_type=UNIDIMENSIONAL_ABR_PLOT&pipeline_stable_id=MGP_001&zygosity=homozygote&phenotyping_center=WTSI&strain_accession_id=MGI:2159965&allele_accession_id=MGI:4362336&metadata_group=ab8371fc819db4209ca1a10186a8a6ef&chart_only=true">
+                                        <div id="spinner_wdtc1"><i class="fa fa-refresh fa-spin"></i></div>
+                                    </div>
+                                </div>
+
+                            <div class="half" style="text-align:center">
+                                <h3>Novel, severe hearing loss</h3>
+                                <a href="${baseUrl}/genes/MGI:2444708">Zfp719<sup>tm1b(EUCOMM)Wtsi</sup></a>
+                                <div class="chart" id="zfp719" graphUrl="${baseUrl}/chart?accession=MGI:2444708&parameter_stable_id=IMPC_ABR_012_001&chart_type=UNIDIMENSIONAL_ABR_PLOT&pipeline_stable_id=MGP_001&zygosity=homozygote&phenotyping_center=WTSI&strain_accession_id=MGI:2159965&allele_accession_id=MGI:5548829&metadata_group=ab8371fc819db4209ca1a10186a8a6ef&chart_only=true">
+                                    <div id="spinner_zfp719"><i class="fa fa-refresh fa-spin"></i></div>
+                                </div>
                             </div>
+
+                            <div class="clear both"></div>
+                            </div>
+
+                        <script>
+                            //ajax chart caller code
+                            $(document).ready(function() {
+                                $('.chart').each(function(i, obj)
+                                {
+                                    var graphUrl = $(this).attr('graphUrl');
+                                    var id = $(this).attr('id');
+                                    var chartUrl = graphUrl + '&experimentNumber=' + id;
+                                    $.ajax({
+                                        url: chartUrl,
+                                        cache: false
+                                    })
+                                        .done(function(html) {
+                                            $('#' + id).append(html);
+                                            $('#spinner_' + id).html('');
+
+                                        });
+                                });
+                            });
+                        </script>
+
                         </div>
                         
 

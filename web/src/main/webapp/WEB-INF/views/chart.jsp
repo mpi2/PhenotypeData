@@ -14,6 +14,9 @@
 
     <c:otherwise>
 
+        <c:if test="${ ! chartOnly}">
+
+
         <h2 class="title" id="section-associations">
             Allele -<t:formatAllele>${symbol}</t:formatAllele>
             <span class="documentation"><a href="" id='generalPanel'
@@ -36,6 +39,8 @@
         </p>
 
         <br/> <br/>
+
+        </c:if>
 
         <c:choose>
             <c:when test="${param['chart_type'] eq 'UNIDIMENSIONAL_SCATTER_PLOT'}">
