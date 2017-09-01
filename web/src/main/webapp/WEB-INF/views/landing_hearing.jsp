@@ -140,9 +140,9 @@
                                	<h3>
                                		Methods
                                	</h3>
-                               		Response data from the <a
+                               	<p>Response data from the <a
                                         href="https://www.mousephenotype.org/impress/protocol/149/7">Auditory Brain Stem
-                                    response (ABR)</a> test was used – hearing at five frequencies, 6kHz, 12kHz, 18kHz, 24kHz and 30kHz was measured.
+                                    response (ABR)</a> test was used – hearing at five frequencies, 6kHz, 12kHz, 18kHz, 24kHz and 30kHz was measured.</p>
 								<ul>
 								<li>
 									Control wildtype mice from each phenotypic centre included, matched for gender, age, phenotypic pipeline and metadata (e.g. instrument)
@@ -155,6 +155,7 @@
                                	<h3>
                                		Gene table
                                	</h3>
+				<p><a href="http://em.rdcu.be/wf/click?upn=KP7O1RED-2BlD0F9LDqGVeSJ-2BYK13AOQwsehfu7fiqrAw-3D_rlS5NjXTpmOl66SHsP12rLQI7Hycd1QZjA7AhdQ2b6-2FS-2FPWAuljWGaoUUyQdBhNd5qzu1OSDRnDXa0UviCH1ywsoXX2HEGPW67FIlbNWZVB87NAsEeYQQ3F2GD8bvwBOk-2BPkbKRPqfrgHP4barsF-2BrLfjDnMD0fmPe675sK7phkS3L5CVy1mUUmp4mw-2Fgzbv1ueMSvy-2FUyo41KChqsXtnXKcvriwPUvjZxg6BOMnIFU-3D">Supplementary Material</a></p>
 				<p>Sixty-seven deafness genes were identified:</p>
 
                                 <table id="hearing-genes" class="table tableSorter">

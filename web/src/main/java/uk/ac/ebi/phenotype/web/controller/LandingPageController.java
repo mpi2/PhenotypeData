@@ -145,7 +145,7 @@ public class LandingPageController {
             mpDTO = mpService.getPhenotype("MP:0005377");
             anatomyIds.add("MA:0002443");
             anatomyIds.add("EMAPA:36002");
-            model.addAttribute("shortDescription", "<h3>The IMPC is hunting unknown genes responsible for hearing loss by screening knockout mice </h3>" + 
+            model.addAttribute("shortDescription", "<h3 style='margin-top:0;'>The IMPC is hunting unknown genes responsible for hearing loss by screening knockout mice </h3>" + 
 			      "<ul><li> 360 million people worldwide live with mild to profound hearing loss</li>" +
 			      "<li> 70% hearing loss occurs as an isolated condition (non-syndromic) and 30% with additional phenotypes (syndromic)</li>" +
 			      "<li> The vast majority of genes responsible for hearing loss are unknown </li></ul>");
