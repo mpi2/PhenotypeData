@@ -274,7 +274,7 @@
 
                                 </div>
                                 <div class="half" style="text-align:center">
-                                    <h3>Novel, severe hearing loss</h3>
+                                    <h3>Known, severe hearing loss</h3>
                                     <a href="${baseUrl}/genes/MGI:1919338">Ush1c<sup>tm1a(KOMP)Wtsi</sup></a>
                                     <div class="chart" id="ush1c" graphUrl="${baseUrl}/chart?accession=MGI:1919338&parameter_stable_id=IMPC_ABR_006_001&chart_type=UNIDIMENSIONAL_ABR_PLOT&pipeline_stable_id=MGP_001&zygosity=homozygote&phenotyping_center=WTSI&strain_accession_id=MGI:2159965&allele_accession_id=MGI:4363497&metadata_group=ab8371fc819db4209ca1a10186a8a6ef&chart_only=true">
                                         <div id="spinner_ush1c"><i class="fa fa-refresh fa-spin"></i></div>

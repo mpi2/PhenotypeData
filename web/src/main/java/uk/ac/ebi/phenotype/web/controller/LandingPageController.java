@@ -10,10 +10,10 @@ import org.mousephenotype.cda.solr.service.*;
 import org.mousephenotype.cda.solr.service.dto.CountTableRow;
 import org.mousephenotype.cda.solr.service.dto.ImpressDTO;
 import org.mousephenotype.cda.solr.service.dto.MpDTO;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import uk.ac.ebi.phenotype.bean.LandingPageDTO;
@@ -21,6 +21,7 @@ import uk.ac.ebi.phenotype.chart.AnalyticsChartProvider;
 import uk.ac.ebi.phenotype.chart.ScatterChartAndTableProvider;
 import uk.ac.ebi.phenotype.error.OntologyTermNotFoundException;
 
+import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
@@ -37,69 +38,75 @@ import java.util.stream.Collectors;
 @Controller
 public class LandingPageController {
 
-    @Autowired
-    ObservationService os;
-
-    @Autowired
-    PostQcService gpService;
-
-    @Autowired
-    StatisticalResultService srService;
-
-    @Autowired
-    GeneService geneService;
-
-    @Autowired
-    ImageService imageService;
-
-    @Autowired
-    PhenodigmService phenodigmService;
-
-    @Autowired
-    MpService mpService;
-
-    @Autowired
-    ImpressService is;
-
     @NotNull
     @Value("${impc_media_base_url}")
     private String impcMediaBaseUrl;
+
+    private ObservationService os;
+    private PostQcService gpService;
+    private StatisticalResultService srService;
+    private GeneService geneService;
+    private ImageService imageService;
+    private PhenodigmService phenodigmService;
+    private MpService mpService;
+    private ImpressService is;
+
+    @Inject
+    public LandingPageController(ObservationService os, PostQcService gpService, StatisticalResultService srService, GeneService geneService, ImageService imageService, PhenodigmService phenodigmService, MpService mpService, ImpressService is) {
+
+        Assert.notNull(os, "Observationservice cannot be null");
+        Assert.notNull(gpService, "Genotype phenotype service cannot be null");
+        Assert.notNull(srService, "Statistical result service cannot be null");
+        Assert.notNull(geneService, "Gene service cannot be null");
+        Assert.notNull(imageService, "Image service cannot be null");
+        Assert.notNull(phenodigmService, "Phenodigm service cannot be null");
+        Assert.notNull(mpService, "MP service cannot be null");
+        Assert.notNull(is, "Impress service cannot be null");
+
+        this.os = os;
+        this.gpService = gpService;
+        this.srService = srService;
+        this.geneService = geneService;
+        this.imageService = imageService;
+        this.phenodigmService = phenodigmService;
+        this.mpService = mpService;
+        this.is = is;
+
+    }
+
 
 	@RequestMapping("/biological-system")
 	public String getAlleles(Model model, HttpServletRequest request) throws IOException {
 
         String baseUrl = request.getAttribute("baseUrl").toString();
+
         List<LandingPageDTO> bsPages = new ArrayList<>();
         LandingPageDTO cardiovascular = new LandingPageDTO();
 
         cardiovascular.setTitle("Cardiovascular");
-        //cardiovascular.setImage("render_thumbnail/211474/400/");
         cardiovascular.setImage(impcMediaBaseUrl + "/render_thumbnail/211474/400/");
-        cardiovascular.setDescription(
-                "This page aims to present cardiovascular system related phenotypes lines which have been produced by IMPC.");
+        cardiovascular.setDescription("This page aims to present cardiovascular system related phenotypes lines which have been produced by IMPC.");
         cardiovascular.setLink("biological-system/cardiovascular");
         bsPages.add(cardiovascular);
-        Boolean isLive= new Boolean((String) request.getAttribute("liveSite"));
-        if(!isLive){//don't show deafness page on live until ready with paper etc.
-        LandingPageDTO deafness = new LandingPageDTO();
-        deafness.setTitle("Hearing");
-        deafness.setImage("../img/landing/deafnessIcon.png");
-        //cardiovascular.setImage(baseUrl + "/img/deafness.png");
-        deafness.setDescription(
-                "This page aims to relate deafnessnes to phenotypes which have been produced by IMPC.");
-        deafness.setLink("biological-system/hearing");
-        bsPages.add(deafness);
-        
-        
-        LandingPageDTO vision = new LandingPageDTO();
-        vision.setTitle("Vision");
-        vision.setImage("../img/landing/deafnessIcon.png");
-        //cardiovascular.setImage(baseUrl + "/img/deafness.png");
-        vision.setDescription(
-                "This page aims to relate vision to phenotypes which have been produced by IMPC.");
-        vision.setLink("biological-system/vision");
-        bsPages.add(vision);
+
+        // don't show deafness or vision pages on live until ready
+        Boolean isLive= Boolean.valueOf((String) request.getAttribute("liveSite"));
+        if (!isLive) {
+            LandingPageDTO deafness = new LandingPageDTO();
+            deafness.setTitle("Hearing");
+            deafness.setImage(baseUrl + "/img/landing/deafnessIcon.png");
+            deafness.setDescription("This page aims to relate deafnessnes to phenotypes which have been produced by IMPC.");
+            deafness.setLink("biological-system/hearing");
+            bsPages.add(deafness);
+
+            LandingPageDTO vision = new LandingPageDTO();
+            vision.setTitle("Vision");
+            vision.setImage(baseUrl + "/img/landing/deafnessIcon.png");
+            vision.setDescription("This page aims to relate vision to phenotypes which have been produced by IMPC.");
+            vision.setLink("biological-system/vision");
+            bsPages.add(vision);
         }
+
         model.addAttribute("pages", bsPages);
 
         return "landing";
@@ -110,7 +117,7 @@ public class LandingPageController {
             throws OntologyTermNotFoundException, IOException, URISyntaxException, SolrServerException, SQLException {
 
         AnalyticsChartProvider chartsProvider = new AnalyticsChartProvider();
-        List<String> resources = Arrays.asList(new String[] { "IMPC" } );
+        List<String> resources = Arrays.asList( "IMPC"  );
         Map<String, Set<String>> viabilityRes = os.getViabilityCategories(resources, true);
 
         Map<String, Long> viabilityMap = os.getViabilityCategories(viabilityRes);
