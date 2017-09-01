@@ -137,13 +137,13 @@ public class MetabolismCalorimetryReport extends AbstractReport {
             Collection<String> biologicalSampleIds = observationService.getMetabolismReportBiologicalSampleIds("IMPC_CAL_*");
             int count = 0;
             for (String biologicalSampleId : biologicalSampleIds) {
-//if (count >= 100) break;
+
                 Integer lBiologicalSampleId = commonUtils.tryParseInt(biologicalSampleId);
                 if (lBiologicalSampleId != null) {
                     List<ObservationDTO> mouseInfoDTOs = observationService.getMetabolismReportBiologicalSampleId("IMPC_CAL_*", lBiologicalSampleId);
                     csvWriter.writeRow(createReportRow(mouseInfoDTOs));
-                    if (++count % 1000 == 0)
-                        logger.info(new Date().toString() + ": " + count + " records written.");
+                    if (++count % 10000 == 0)
+                        logger.info("  " + count + " records written.");
                 }
             }
 

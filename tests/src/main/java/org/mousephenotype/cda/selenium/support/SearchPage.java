@@ -59,44 +59,80 @@ public class SearchPage {
     private SearchImageTable     imageTable;
     private Map<SearchFacetTable.TableComponent, By> map;
 
-    // Facet/core names.
-    public static final String GENE_FACET = "gene";
-    public static final String PHENOTYPE_FACET = "mp";
-    public static final String DISEASE_FACET = "disease";
-    public static final String ANATOMY_FACET = "anatomy";
-    public static final String IMPC_IMAGES_FACET = "impc_images";
-    public static final String IMAGES_FACET = "images";
+    // core names.
+    public static final String GENE_CORE_NAME        = "gene";
+    public static final String PHENOTYPE_CORE_NAME   = "mp";
+    public static final String DISEASE_CORE_NAME     = "disease";
+    public static final String ANATOMY_CORE_NAME     = "anatomy";
+    public static final String IMPC_IMAGES_CORE_NAME = "impc_images";
+    public static final String ALLELE2_CORE_NAME     = "allele2";
 
-    // Facet/core names.
-    public static final String GENE_TAB_NAME = "Genes";
-    public static final String PHENOTYPE_TAB_NAME = "Phenotypes";
-    public static final String DISEASE_TAB_NAME = "Diseases";
-    public static final String ANATOMY_TAB_NAME = "Anatomy";
+    // tab ids (core name with 'T" appended)
+    public static final String GENE_TAB_ID        = "geneT";
+    public static final String PHENOTYPE_TAB_ID   = "mpT";
+    public static final String DISEASE_TAB_ID     = "diseaseT";
+    public static final String ANATOMY_TAB_ID     = "anatomyT";
+    public static final String IMPC_IMAGES_TAB_ID = "impc_imagesT";
+    public static final String PRODUCT_TAB_ID     = "allele2T";
+
+    // Tab names as shown on search page.
+    public static final String GENE_TAB_NAME        = "Genes";
+    public static final String PHENOTYPE_TAB_NAME   = "Phenotypes";
+    public static final String DISEASE_TAB_NAME     = "Diseases";
+    public static final String ANATOMY_TAB_NAME     = "Anatomy";
     public static final String IMPC_IMAGES_TAB_NAME = "IMPC Images";
+    public static final String PRODUCT_TAB_NAME     = "Products";
+
+    // solr qf filter values.
+    public static final String GENE_QF_VALUE        = "geneQf";
+    public static final String PHENOTYPE_QF_VALUE   = "mixSynQf";
+    public static final String DISEASE_QF_VALUE     = "diseaseQf";
+    public static final String ANATOMY_QF_VALUE     = "anatomyQf";
+    public static final String IMPC_IMAGES_QF_VALUE = "imgQf";
+    public static final String PRODUCT_QF_VALUE     = "auto_suggest";
 
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
 
     // Facets.
-    public enum Facet {
-        GENES(GENE_FACET, GENE_TAB_NAME),
-        PHENOTYPES(PHENOTYPE_FACET, PHENOTYPE_TAB_NAME),
-        DISEASES(DISEASE_FACET, DISEASE_TAB_NAME),
-        ANATOMY(ANATOMY_FACET, ANATOMY_TAB_NAME),
-        IMPC_IMAGES(IMPC_IMAGES_FACET, IMPC_IMAGES_TAB_NAME);
+//    public enum Facet {
+//        GENES(GENE_FACET, GENE_TAB_NAME),
+//        PHENOTYPES(PHENOTYPE_FACET, PHENOTYPE_TAB_NAME),
+//        DISEASES(DISEASE_FACET, DISEASE_TAB_NAME),
+//        ANATOMY(ANATOMY_FACET, ANATOMY_TAB_NAME),
+//        IMPC_IMAGES(IMPC_IMAGES_FACET, IMPC_IMAGES_TAB_NAME),
+//        PRODUCTS(PRODUCTS_FACET, PRODUCTS_TAB_NAME);
+//
+//        private String facetName;
+//        private String tabName;
+//
+//        Facet(String facetName, String tabName) {
+//            this.facetName = facetName;
+//            this.tabName = tabName;
+//        }
+//        public String getCoreName() { return facetName; }
+//        public String getFacetName() {
+//            return facetName;
+//        }
+//        public String getTabId() { return facetName + "T"; }
+//        public String getTabName() { return tabName; }
+//    }
 
-        private String facetName;
-        private String tabName;
+    private Map<String, Facet> facetsByTabId;       // key = tabId on page
 
-        Facet(String facetName, String tabName) {
-            this.facetName = facetName;
-            this.tabName = tabName;
-        }
-        public String getCoreName() { return facetName; }
-        public String getFacetName() {
-            return facetName;
-        }
-        public String getTabId() { return facetName + "T"; }
-        public String getTabName() { return tabName; }
+
+    private void initialiseFacets() {
+        facetsByTabId = new HashMap<>();
+        facetsByTabId.put(GENE_TAB_ID, new Facet(driver, GENE_CORE_NAME, GENE_TAB_NAME, GENE_TAB_ID));
+        facetsByTabId.put(PHENOTYPE_TAB_ID, new Facet(driver, PHENOTYPE_CORE_NAME, PHENOTYPE_TAB_NAME, PHENOTYPE_TAB_ID));
+        facetsByTabId.put(DISEASE_TAB_ID, new Facet(driver, DISEASE_CORE_NAME, DISEASE_TAB_NAME, DISEASE_TAB_ID));
+        facetsByTabId.put(ANATOMY_TAB_ID, new Facet(driver, ANATOMY_CORE_NAME, ANATOMY_TAB_NAME, ANATOMY_TAB_ID));
+        facetsByTabId.put(IMPC_IMAGES_TAB_ID, new Facet(driver, IMPC_IMAGES_CORE_NAME, IMPC_IMAGES_TAB_NAME, IMPC_IMAGES_TAB_ID));
+        facetsByTabId.put(PRODUCT_TAB_ID, new Facet(driver, ALLELE2_CORE_NAME, PRODUCT_TAB_NAME, PRODUCT_TAB_ID));
+    }
+
+
+    public Map<String, Facet> getFacetsByTabId() {
+        return facetsByTabId;
     }
 
     public FacetFilter getFacetFilter() {
@@ -416,6 +452,9 @@ public class SearchPage {
             }
             this.target = target;
         }
+
+        // Initialise facets map.
+        initialiseFacets();
     }
 
 //    /**
@@ -476,21 +515,21 @@ public class SearchPage {
 //        return results;
 //    }
 
-    public void clearFilters() {
-        if (hasFilters()) {
-            driver.findElement(By.xpath("//span[@id='rmFilters']")).click();
-        }
-    }
+//    public void clearFilters() {
+//        if (hasFilters()) {
+//            driver.findElement(By.xpath("//span[@id='rmFilters']")).click();
+//        }
+//    }
 
-    /**
-     * Returns true if there are any filters; false otherwise.
-     * @return true if there are any filters; false otherwise.
-     */
-    public boolean hasFilters() {
-        // If there are no filters, div.filter's style property will be 'display: none;'.
-        WebElement ffilterElement = driver.findElement(By.xpath("//div[@class='ffilter']"));
-        return ! (ffilterElement.getAttribute("style").contains("display: none"));
-    }
+//    /**
+//     * Returns true if there are any filters; false otherwise.
+//     * @return true if there are any filters; false otherwise.
+//     */
+//    public boolean hasFilters() {
+//        // If there are no filters, div.filter's style property will be 'display: none;'.
+//        WebElement ffilterElement = driver.findElement(By.xpath("//div[@class='ffilter']"));
+//        return ! (ffilterElement.getAttribute("style").contains("display: none"));
+//    }
 
     public void clickDownloadButton(DownloadType downloadType) {
         String className = "";
@@ -504,16 +543,16 @@ public class SearchPage {
         driver.findElement(By.xpath("//button[contains(@class, '" + className + "')]")).click();
     }
 
-    /**
-     * Clicks the facet and returns the result count. This has the side effect of
-     * waiting for the page to finish loading.
-     *
-     * @param facet desired facet to click
-     * @return the [total] results count
-     */
-    public int clickFacet(Facet facet) throws TestException {
-        return clickFacetById(getFacetId(facet));
-    }
+//    /**
+//     * Clicks the facet and returns the result count. This has the side effect of
+//     * waiting for the page to finish loading.
+//     *
+//     * @param facet desired facet to click
+//     * @return the [total] results count
+//     */
+//    public int clickFacet(Facet facet) throws TestException {
+//        return clickFacetById(getFacetId(facet));
+//    }
 
     /**
      * Clicks the facet and returns the result count. This has the side effect of
@@ -680,25 +719,6 @@ public class SearchPage {
         return anatomyTable;
     }
 
-    public class AutosuggestRow {
-        public final String annotationType;
-        public final String value          ;
-
-        public AutosuggestRow() {
-            this.annotationType = "";
-            this.value          = "";
-        }
-        public AutosuggestRow(String annotationType, String value) {
-            this.annotationType = annotationType;
-            this.value          = value;
-        }
-
-        @Override
-        public String toString() {
-            return "annotationType " + annotationType + ": '" + annotationType + "'.\tvalue: '" + value + "'";
-        }
-    }
-
     /**
      * Fetches the autosuggest components matching <code>searchString</code>
      *
@@ -708,22 +728,21 @@ public class SearchPage {
      *
      * @throws TestException
      */
-    public List<AutosuggestRow> getAutosuggest(String searchString) throws TestException {
-        List<AutosuggestRow> results = new ArrayList();
+    public List<String> getAutosuggest(String searchString) throws TestException {
+        List<String> results = new ArrayList();
 
         if ((searchString == null) || (searchString.trim().isEmpty()))
             return results;
 
         submitSearch(searchString);
         List<WebElement> autosuggestBlockList;
-        commonUtils.sleep(10000);              // Sleep for 10 seconds to let autosuggest complete.
+        commonUtils.sleep(2000);              // Sleep for 2 seconds to let autosuggest complete.
         autosuggestBlockList = driver.findElements(By.cssSelector("ul#ui-id-1"));
 
         if ( ! autosuggestBlockList.isEmpty()) {
             List<WebElement> autosuggestElements = autosuggestBlockList.get(0).findElements(By.cssSelector("li"));
             for (WebElement autosuggestElement : autosuggestElements) {
-                String[] parts = autosuggestElement.getText().split(":");
-                results.add(new AutosuggestRow(parts[0].trim(), parts[1].trim()));
+                results.add(autosuggestElement.getText());
             }
         }
 
@@ -768,151 +787,151 @@ public class SearchPage {
         return diseaseTable;
     }
 
-    /**
-     *
-     * @param facet desired facet
-     *
-     */
-    public Integer getFacetCount(Facet facet) {
+//    /**
+//     *
+//     * @param facet desired facet
+//     *
+//     */
+//    public Integer getFacetCount(Facet facet) {
+//
+//        WebElement element = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//li[@id='" + getFacetId(facet) + "']/span[contains(@class, 'fcount')]")));
+//
+//        return commonUtils.tryParseInt(element.getText());
+//    }
 
-        WebElement element = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//li[@id='" + getFacetId(facet) + "']/span[contains(@class, 'fcount')]")));
-
-        return commonUtils.tryParseInt(element.getText());
-    }
-
-    public Integer getFacetCount(String coreName) {
-        return getFacetCount(getFacetByCoreName(coreName));
-    }
-
-    /**
-     * Returns the <code>Facet</code> matching <code>coreName</code>.
-     * @param coreName The core name, as a string
-     * @return the <code>Facet</code> matching <code>coreName</code>
-     * @throws RuntimeException if <code>coreName</code> doesn't map to a facet.
-     */
-    public Facet getFacetByCoreName(String coreName) throws RuntimeException {
-        switch (coreName) {
-            case "gene":
-                return Facet.GENES;
-
-            case "mp":
-                return Facet.PHENOTYPES;
-
-            case "disease":
-                return Facet.DISEASES;
-
-            case "ma":
-                return Facet.ANATOMY;
-
-            case "impc_images":
-                return Facet.IMPC_IMAGES;
-        }
-
-        throw new RuntimeException("No matching facet for coreName'" + coreName + "'.");
-    }
-
-    /**
-     * Returns the <code>Facet</code> matching <code>tabId</code>, or null if unknown tabId.
-     * @param tabId The HTML tab id, as a string
-     * @return the <code>Facet</code> matching <code>tabId</code>, or null if unknown tabId.
-     */
-    public Facet getFacetByTabId(String tabId) {
-        switch (tabId) {
-            case "geneT":
-                return Facet.GENES;
-
-            case "mpT":
-                return Facet.PHENOTYPES;
-
-            case "diseaseT":
-                return Facet.DISEASES;
-
-            case "maT":
-                return Facet.ANATOMY;
-
-            case "impc_imagesT":
-                return Facet.IMPC_IMAGES;
-
-            default:
-                System.out.println("No matching facet for tabName'" + tabId + "'.");
-                return null;
-        }
-    }
-
-    /**
-     * Given a <code>Facet</code> instance, returns the HTML id of the li element.
-     * @param facet
-     * @return
-     */
-    public String getFacetId(Facet facet) {
-        String id = "";
-
-        switch (facet) {
-            case GENES:
-                id = "gene";
-                break;
-
-            case PHENOTYPES:
-                id = "mp";
-                break;
-
-            case DISEASES:
-                id = "disease";
-                break;
-
-            case ANATOMY:
-                id = "ma";
-                break;
-
-            case IMPC_IMAGES:
-                id = "impc_images";
-                break;
-        }
-
-        return id;
-    }
-
-    /**
-     * Returns an array of facet names.
-     *
-     * @param facet the facet whose names are to be returned
-     *
-     * @return an array of facet names
-     *
-     * @throws TestException
-     */
-    public String[] getFacetNames(Facet facet) throws TestException {
-        ArrayList<String> names = new ArrayList();
-        String xpath = "";
-
-        switch (facet) {
-            case GENES:
-                throw new TestException("Not implemented yet.");
-
-            case PHENOTYPES:
-                xpath = "//*[@id='mp']//li";
-                break;
-
-            case DISEASES:
-                throw new TestException("Not implemented yet.");
-
-            case ANATOMY:
-                xpath = "//*[@id='ma']//li";
-                break;
-// FIXME FIXME FIXME
-            case IMPC_IMAGES:
-                throw new TestException("Not implemented yet.");
-        }
-
-        List<WebElement> elements = driver.findElements(By.xpath(xpath));
-        if ( ! elements.isEmpty()) {
-            for (WebElement element: elements) {
-                names.add(element.getText());
-            }
-        }
-
-        return names.toArray(new String[0]);
-    }
+//    public Integer getFacetCount(String coreName) {
+//        return getFacetCount(getFacetByCoreName(coreName));
+//    }
+//
+//    /**
+//     * Returns the <code>Facet</code> matching <code>coreName</code>.
+//     * @param coreName The core name, as a string
+//     * @return the <code>Facet</code> matching <code>coreName</code>
+//     * @throws RuntimeException if <code>coreName</code> doesn't map to a facet.
+//     */
+//    public Facet getFacetByCoreName(String coreName) throws RuntimeException {
+//        switch (coreName) {
+//            case "gene":
+//                return Facet.GENES;
+//
+//            case "mp":
+//                return Facet.PHENOTYPES;
+//
+//            case "disease":
+//                return Facet.DISEASES;
+//
+//            case "ma":
+//                return Facet.ANATOMY;
+//
+//            case "impc_images":
+//                return Facet.IMPC_IMAGES;
+//        }
+//
+//        throw new RuntimeException("No matching facet for coreName'" + coreName + "'.");
+//    }
+//
+//    /**
+//     * Returns the <code>Facet</code> matching <code>tabId</code>, or null if unknown tabId.
+//     * @param tabId The HTML tab id, as a string
+//     * @return the <code>Facet</code> matching <code>tabId</code>, or null if unknown tabId.
+//     */
+//    public Facet getFacetByTabId(String tabId) {
+//        switch (tabId) {
+//            case "geneT":
+//                return Facet.GENES;
+//
+//            case "mpT":
+//                return Facet.PHENOTYPES;
+//
+//            case "diseaseT":
+//                return Facet.DISEASES;
+//
+//            case "maT":
+//                return Facet.ANATOMY;
+//
+//            case "impc_imagesT":
+//                return Facet.IMPC_IMAGES;
+//
+//            default:
+//                System.out.println("No matching facet for tabName'" + tabId + "'.");
+//                return null;
+//        }
+//    }
+//
+//    /**
+//     * Given a <code>Facet</code> instance, returns the HTML id of the li element.
+//     * @param facet
+//     * @return
+//     */
+//    public String getFacetId(Facet facet) {
+//        String id = "";
+//
+//        switch (facet) {
+//            case GENES:
+//                id = "gene";
+//                break;
+//
+//            case PHENOTYPES:
+//                id = "mp";
+//                break;
+//
+//            case DISEASES:
+//                id = "disease";
+//                break;
+//
+//            case ANATOMY:
+//                id = "ma";
+//                break;
+//
+//            case IMPC_IMAGES:
+//                id = "impc_images";
+//                break;
+//        }
+//
+//        return id;
+//    }
+//
+//    /**
+//     * Returns an array of facet names.
+//     *
+//     * @param facet the facet whose names are to be returned
+//     *
+//     * @return an array of facet names
+//     *
+//     * @throws TestException
+//     */
+//    public String[] getFacetNames(Facet facet) throws TestException {
+//        ArrayList<String> names = new ArrayList();
+//        String xpath = "";
+//
+//        switch (facet) {
+//            case GENES:
+//                throw new TestException("Not implemented yet.");
+//
+//            case PHENOTYPES:
+//                xpath = "//*[@id='mp']//li";
+//                break;
+//
+//            case DISEASES:
+//                throw new TestException("Not implemented yet.");
+//
+//            case ANATOMY:
+//                xpath = "//*[@id='ma']//li";
+//                break;
+//// FIXME FIXME FIXME
+//            case IMPC_IMAGES:
+//                throw new TestException("Not implemented yet.");
+//        }
+//
+//        List<WebElement> elements = driver.findElements(By.xpath(xpath));
+//        if ( ! elements.isEmpty()) {
+//            for (WebElement element: elements) {
+//                names.add(element.getText());
+//            }
+//        }
+//
+//        return names.toArray(new String[0]);
+//    }
 
     /**
      * @return Returns the GENES table [geneGrid], if there is one; or an
@@ -1116,7 +1135,7 @@ public class SearchPage {
     public Facet getSelectedTab(){
         String tabId = getSelectedTabElement().getAttribute("id");
 
-        return getFacetByTabId(tabId);
+        return facetsByTabId.get(tabId);
     }
 
     /**
@@ -1275,12 +1294,18 @@ public class SearchPage {
         weInput.clear();
         testUtils.seleniumSendKeysHack(weInput, searchString);
 
-        WebElement resultMsg = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//div[@id='mpi2-search']")));
+        try {
+            WebElement resultMsg = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//div[contains(@class, 'mpi2-search')]")));
 
-        if (resultMsg.getText().contains("returned no entry"))
+            if (resultMsg.getText().contains("returned no entry"))
+                return 0;
+            else
+                return getTabResultCountFooter();
+
+        } catch (Exception e) {
+
             return 0;
-        else
-            return getTabResultCountFooter();
+        }
     }
 
     /**
@@ -1288,37 +1313,37 @@ public class SearchPage {
      * with each of the download data streams (page/all and tsv/xls). Any
      * errors are returned in the <code>RunStatus</code> instance.
 
-     * @param facet facet
-     * @return page status instance
-     */
-    public RunStatus validateDownload(Facet facet) {
-        RunStatus status = new RunStatus();
-
-        DownloadType[] downloadTypes = {
-              DownloadType.TSV
-            , DownloadType.XLS
-        };
-
-        String[][] downloadData = new String[0][0];
-        // Validate the download types for this facet.
-        for (DownloadType downloadType : downloadTypes) {
-            SearchFacetTable table = null;
-            try {
-                downloadData = getDownload(downloadType, baseUrl);                  // Get the data for this download type.
-                table = getFacetTable(facet);                                       // Get the facet table.
-            } catch (Exception e) {
-                String message = "Error getting download data for " + downloadType + " from URL: " + baseUrl;
-                status.addError(message);
-                System.out.println(message);
-            }
-
-            if (table != null) {
-                status.add(table.validateDownload(downloadData, downloadType)); // Validate it.
-            }
-        }
-
-        return status;
-    }
+//     * @param facet facet
+//     * @return page status instance
+//     */
+//    public RunStatus validateDownload(Facet facet) {
+//        RunStatus status = new RunStatus();
+//
+//        DownloadType[] downloadTypes = {
+//              DownloadType.TSV
+//            , DownloadType.XLS
+//        };
+//
+//        String[][] downloadData = new String[0][0];
+//        // Validate the download types for this facet.
+//        for (DownloadType downloadType : downloadTypes) {
+//            SearchFacetTable table = null;
+//            try {
+//                downloadData = getDownload(downloadType, baseUrl);                  // Get the data for this download type.
+//                table = getFacetTable(facet);                                       // Get the facet table.
+//            } catch (Exception e) {
+//                String message = "Error getting download data for " + downloadType + " from URL: " + baseUrl;
+//                status.addError(message);
+//                System.out.println(message);
+//            }
+//
+//            if (table != null) {
+//                status.add(table.validateDownload(downloadData, downloadType)); // Validate it.
+//            }
+//        }
+//
+//        return status;
+//    }
 
     /**
      * Returns the production status order button elements (e.g. 'ES Cells',
@@ -1514,21 +1539,21 @@ public class SearchPage {
         return attr;
     }
 
-    /**
-     * Given a facet, returns the matching generic <code>SearchFacetTable</code>.
-     * @param facet facet
-     * @return The matching generic <code>SearchFacetTable</code>.
-     */
-    private SearchFacetTable getFacetTable(Facet facet) throws TestException {
-        switch (facet) {
-            case ANATOMY:       return getAnatomyTable();
-            case DISEASES:      return getDiseaseTable();
-            case GENES:         return getGeneTable();
-            case IMPC_IMAGES:   return getImpcImageTable();
-            case PHENOTYPES:    return getPhenotypeTable();
-        }
-
-        throw new RuntimeException("SearchPage.getFacetTable(): Invalid facet " + facet + ".");
-    }
+//    /**
+//     * Given a facet, returns the matching generic <code>SearchFacetTable</code>.
+//     * @param facet facet
+//     * @return The matching generic <code>SearchFacetTable</code>.
+//     */
+//    private SearchFacetTable getFacetTable(Facet facet) throws TestException {
+//        switch (facet) {
+//            case ANATOMY:       return getAnatomyTable();
+//            case DISEASES:      return getDiseaseTable();
+//            case GENES:         return getGeneTable();
+//            case IMPC_IMAGES:   return getImpcImageTable();
+//            case PHENOTYPES:    return getPhenotypeTable();
+//        }
+//
+//        throw new RuntimeException("SearchPage.getFacetTable(): Invalid facet " + facet + ".");
+//    }
 
 }
