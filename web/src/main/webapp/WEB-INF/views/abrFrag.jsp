@@ -7,10 +7,14 @@
 
 <c:if test="${abrChart != null}">
 
+
+
 	<div id="abrChart${experimentNumber}"></div>
 	<script type="text/javascript">
 		${abrChart}
 	</script>
+
+	<c:if test="${ ! chartOnly}">
 
 	<div>
 		<p>
@@ -26,5 +30,6 @@
 		</div>
 	</div>
 
+		</c:if>
 
 </c:if>

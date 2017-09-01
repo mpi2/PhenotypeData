@@ -38,8 +38,11 @@
                 <c:set var="lastProcedure" value="${procedure.getProcedureName()}" scope="page"/>
 
             </c:forEach>
-        </ul><p></p>
+        </ul>
 
+        <p></p>
+
+        <c:if test="${! adultOnly}">
         <h6>Embryo:</h6>
         <ul>
             <c:set var="count" value="0" scope="page"/>
@@ -67,6 +70,7 @@
 
             </c:forEach>
         </ul>
+        </c:if>
 
 
     </c:if>

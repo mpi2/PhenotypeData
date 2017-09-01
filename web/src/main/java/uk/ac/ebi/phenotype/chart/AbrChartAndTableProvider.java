@@ -226,6 +226,7 @@ public class AbrChartAndTableProvider {
 				"$('#" + chartId + "').highcharts({"+
 				"  title: { text: '" + title + "' },"+
 				"  subtitle: {  useHTML: true,  text: '" + procedureLink + "'}, " +
+				"  plotOptions: { column: {\"clip\": false} }, " +
 				"  xAxis: {   categories: "  + categories + "},"+
 				"  yAxis: {   title: {    text: '" + unit + "'  }  },"+
 				"  tooltip: {valueSuffix: ' " + unit + "', shared:true },"+

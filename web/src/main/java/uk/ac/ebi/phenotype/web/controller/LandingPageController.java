@@ -138,7 +138,10 @@ public class LandingPageController {
             mpDTO = mpService.getPhenotype("MP:0005377");
             anatomyIds.add("MA:0002443");
             anatomyIds.add("EMAPA:36002");
-            model.addAttribute("shortDescription", "The developmental and physiological complexity of the auditory system is likely reflected in the underlying set of genes involved in auditory function. In humans, over 150 non-syndromic loci have been identified, and there are more than 400 human genetic syndromes with a hearing loss component. Over 100 non-syndromic hearing loss genes have been identified in mouse and human, but we remain ignorant of the full extent of the genetic landscape involved in auditory dysfunction. As part of the International Mouse Phenotyping Consortium we undertake a hearing loss screen in thousands of cohort mouse knockout strains. We detect known hearing loss genes, but the vast majority, of the candidate genes are novel.");
+            model.addAttribute("shortDescription", "<h3 style='margin-top:0;'>The IMPC is hunting unknown genes responsible for hearing loss by screening knockout mice </h3>" + 
+			      "<ul><li> 360 million people worldwide live with mild to profound hearing loss</li>" +
+			      "<li> 70% hearing loss occurs as an isolated condition (non-syndromic) and 30% with additional phenotypes (syndromic)</li>" +
+			      "<li> The vast majority of genes responsible for hearing loss are unknown </li></ul>");
             pageTitle = "Hearing";
 
         } else
@@ -182,8 +185,21 @@ public class LandingPageController {
                 paramToNumber.put(group.getGroupValue(), Long.toString(group.getResult().getNumFound()));
             }
         }
-        ArrayList<ImpressDTO> procedures = new ArrayList<>();
+
+
+        List<ImpressDTO> procedures = new ArrayList<>();
         procedures.addAll(is.getProceduresByMpTerm(mpDTO.getMpId(), true));
+
+        // Per Terry 2017-08-31
+        // On the hearing landing page, filter out all procedures excepy Shirpa and ABR
+        if (page.equalsIgnoreCase("hearing")) {
+            procedures = procedures
+                    .stream()
+                    .filter(x -> "Combined SHIRPA and Dysmorphology".equals(x.getProcedureName()) || "Auditory Brain Stem Response".equals(x.getProcedureName()))
+                    .collect(Collectors.toList());
+            model.addAttribute("adultOnly", true);
+        }
+
         Collections.sort(procedures, ImpressDTO.getComparatorByProcedureName());
 
         model.addAttribute("phenotypeChart", ScatterChartAndTableProvider.getScatterChart("phenotypeChart", gpService.getTopLevelPhenotypeIntersection(mpDTO.getMpId()), "Gene pleiotropy",

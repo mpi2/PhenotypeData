@@ -28,6 +28,12 @@
 
         <!-- parallel coordinates JavaScriptdependencies -->
 
+        <style>
+            /* Override allele ref style for datatable */
+            table.dataTable thead tr {
+                display: table-row;
+            }
+        </style>
 
 
 	</jsp:attribute>
@@ -84,6 +90,8 @@
 
                         <c:import url="landing_overview_frag.jsp"/>
 
+                        <div style="padding:30px;" class="clear both"></div>
+
                         <div class="section">
                             <h2 class="title" id="approach">Approach</h2>
                             <div class="inner">
@@ -91,13 +99,12 @@
                                     standardised protocols as described in IMPReSS (International Mouse Phenotyping Resource of Standardised Screens).</p>
                                 <p>Hearing capacity is assessed using an <a
                                         href="https://www.mousephenotype.org/impress/protocol/149/7">Auditory Brain Stem
-                                    response (ABR)</a> protocol conducted
+                                    response (ABR)</a> test conducted
                                     at 14 weeks of age. Hearing is assessed at five frequencies – 6kHz, 12kHz, 18kHz, 24kHz and 30kHz –
                                     as well as a broadband click stimulus.  Increased thresholds are indicative of abnormal hearing.
                                     Abnormalities in adult ear morphology are
-                                    recorded as part of the <a href="http://www.mousephenotype.org/impress/protocol/186">Combined SHIRPA and Dysmorphology (CSD)</a> protocol and in the developing embryo during gross pathology examination.
-                                    The CSD protocol includes response to a click box test (absence is indicative of a strong hearing deficit) and  visual inspection for behavioural signs that may indicate vestibular dysfunction e.g. head bobbing or circling.
-                                    Full procedures details are provided in the list below.
+                                    recorded as part of the <a href="http://www.mousephenotype.org/impress/protocol/186">Combined SHIRPA and Dysmorphology (CSD)</a> protocol, which 
+                                    includes a response to a click box test (absence is indicative of a strong hearing deficit) and  visual inspection for behavioural signs that may indicate vestibular dysfunction e.g. head bobbing or circling.
                                 </p>
                                 </p>
 
@@ -107,24 +114,11 @@
 
                         <div class="section" id="manuscript">
                             <%--deafness manuscript --%>
-                            <h2 class="title">IMPC Deafness Manuscript</h2>
+                            <h2 class="title">IMPC Deafness Publication</h2>
                             <div class="inner">
-                               <h3>IMPC data reveals a large and unexplored genetic landscape involved in auditory function</h3>
-                               <ul>
-	                               <li>
-	                               Around 360 million people worldwide live with mild to profound hearing loss, of which approximately half have a genetic basis 
-	                               </li>
-	                               <li>
-	                               The extent of the mammalian gene set that impacts auditory function is unknown
-	                               </li>
-                               </ul>
-                              	<ul class="pad10px">
-		                                <li>Press releases: <a href="https://www.mousephenotype.org/news/study-unprecedented-size-reveals-how-sex-%E2%80%98blindspot%E2%80%99-could-misdirect-medical-research">IMPC</a>&nbsp;|&nbsp;<a href="http://www.ebi.ac.uk/about/news/press-releases/sexual-dimorphism-dilemma">EMBL-EBI</a>&nbsp;|&nbsp;<a href="http://www.sanger.ac.uk/news/view/study-reveals-how-sex-blindspot-could-misdirect-medical-research">Sanger</a></li>
-		                                <li><a href="http://em.rdcu.be/wf/click?upn=KP7O1RED-2BlD0F9LDqGVeSJ-2BYK13AOQwsehfu7fiqrAw-3D_rlS5NjXTpmOl66SHsP12rLQI7Hycd1QZjA7AhdQ2b6-2FS-2FPWAuljWGaoUUyQdBhNd5qzu1OSDRnDXa0UviCH1ywsoXX2HEGPW67FIlbNWZVB87NAsEeYQQ3F2GD8bvwBOk-2BPkbKRPqfrgHP4barsF-2BrLfjDnMD0fmPe675sK7phkS3L5CVy1mUUmp4mw-2Fgzbv1ueMSvy-2FUyo41KChqsXtnXKcvriwPUvjZxg6BOMnIFU-3D">Manuscript</a></li>
-		                                <li> <a href="https://zenodo.org/record/260398#.WVIkChPys-c">Supporting material to enable replicable analysis</a></li>
-		                        </ul>
-                               	<h3>Hearing loss investigated in 3,006 knockout mouse lines
-                               	</h3>
+                               <h3>Hearing loss investigated in 3,006 knockout mouse lines</h3>
+                               <p><a href="http://em.rdcu.be/wf/click?upn=KP7O1RED-2BlD0F9LDqGVeSJ-2BYK13AOQwsehfu7fiqrAw-3D_rlS5NjXTpmOl66SHsP12rLQI7Hycd1QZjA7AhdQ2b6-2FS-2FPWAuljWGaoUUyQdBhNd5qzu1OSDRnDXa0UviCH1ywsoXX2HEGPW67FIlbNWZVB87NAsEeYQQ3F2GD8bvwBOk-2BPkbKRPqfrgHP4barsF-2BrLfjDnMD0fmPe675sK7phkS3L5CVy1mUUmp4mw-2Fgzbv1ueMSvy-2FUyo41KChqsXtnXKcvriwPUvjZxg6BOMnIFU-3D">Nature Communications</a></p>
+
                                	<ul>
                                	<li>
                                		67 genes identified as candidate hearing loss genes
@@ -133,22 +127,22 @@
                                		52 genes are not previously associated with hearing loss and encompass a wide range of functions from structural proteins to transcription factors                               	
                                	</li>
                                	<li>
-                               		Among the novel candidate genes, Atp2b1 is expressed in the inner ear and Sema3f plays a role in sensory hair cell innervation in the cochlea
-                               	</li>
-                               	<li>
-                               		The IMPC has currently explored 15% of the mouse genome suggesting a minimum of 450 genes required for hearing function in the mammalian genome
-                               	
+					Among the novel candidate genes, <i>Atp2b1</i> is expressed in the inner ear and <i>Sema3f</i> plays a role in sensory hair cell innervation in the cochlea
                                	</li>
                                	<li>
                                		The IMPC will continue screening for hearing loss mutants in its second 5 year phase
                                		
                                	</li>
                                	</ul>
-                               	
+                                
+				<p>Press releases: <a href="https://www.mousephenotype.org/news/study-unprecedented-size-reveals-how-sex-%E2%80%98blindspot%E2%80%99-could-misdirect-medical-research">IMPC</a>&nbsp;|&nbsp;<a href="http://www.ebi.ac.uk/about/news/press-releases/sexual-dimorphism-dilemma">EMBL-EBI</a>&nbsp;|&nbsp;<a href="http://www.sanger.ac.uk/news/view/study-reveals-how-sex-blindspot-could-misdirect-medical-research">Sanger</a></p>
+
                                	<h3>
-                               		Approach
+                               		Methods
                                	</h3>
-                               		Response data from the auditory brainstem response (ABR) test was used – hearing at five frequencies, 6kHz, 12kHz, 18kHz, 24kHz and 30kHz, was measured.
+                               	<p>Response data from the <a
+                                        href="https://www.mousephenotype.org/impress/protocol/149/7">Auditory Brain Stem
+                                    response (ABR)</a> test was used – hearing at five frequencies, 6kHz, 12kHz, 18kHz, 24kHz and 30kHz was measured.</p>
 								<ul>
 								<li>
 									Control wildtype mice from each phenotypic centre included, matched for gender, age, phenotypic pipeline and metadata (e.g. instrument)
@@ -158,16 +152,178 @@
 								</li>
 								</ul>
                          
+                               	<h3>
+                               		Gene table
+                               	</h3>
+				<p><a href="http://em.rdcu.be/wf/click?upn=KP7O1RED-2BlD0F9LDqGVeSJ-2BYK13AOQwsehfu7fiqrAw-3D_rlS5NjXTpmOl66SHsP12rLQI7Hycd1QZjA7AhdQ2b6-2FS-2FPWAuljWGaoUUyQdBhNd5qzu1OSDRnDXa0UviCH1ywsoXX2HEGPW67FIlbNWZVB87NAsEeYQQ3F2GD8bvwBOk-2BPkbKRPqfrgHP4barsF-2BrLfjDnMD0fmPe675sK7phkS3L5CVy1mUUmp4mw-2Fgzbv1ueMSvy-2FUyo41KChqsXtnXKcvriwPUvjZxg6BOMnIFU-3D">Supplementary Material</a></p>
+				<p>Sixty-seven deafness genes were identified:</p>
+
+                                <table id="hearing-genes" class="table tableSorter">
+                                    <thead>
+                                    <tr>
+                                        <th class="headerSort ">Gene symbol</th>
+                                        <th class="headerSort">Zygosity</th>
+                                        <th class="headerSort">Status</th>
+                                        <th class="headerSort">Hearing loss</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr><td><a href="http://www.mousephenotype.org/data/genes/MGI:2442934">A730017C20Rik</a></td><td>Hom</td><td>Novel</td><td>Severe</td></tr>
+                                    <tr><td><a href="http://www.mousephenotype.org/data/genes/MGI:1098687">Aak1</a></td><td>Hom</td><td>Novel</td><td>High</td></tr>
+                                    <tr><td><a href="http://www.mousephenotype.org/data/genes/MGI:1354713">Acsl4</a></td><td>Hom</td><td>Novel</td><td>High</td></tr>
+                                    <tr><td><a href="http://www.mousephenotype.org/data/genes/MGI:102806">Acvr2a</a></td><td>Hom</td><td>Novel</td><td>Mild</td></tr>
+                                    <tr><td><a href="http://www.mousephenotype.org/data/genes/MGI:1933736">Adgrb1</a></td><td>Hom</td><td>Novel</td><td>Mild</td></tr>
+                                    <tr><td><a href="http://www.mousephenotype.org/data/genes/MGI:1274784">Adgrv1</a></td><td>Hom</td><td>Known</td><td>Severe</td></tr>
+                                    <tr><td><a href="http://www.mousephenotype.org/data/genes/MGI:107189">Ahsg</a></td><td>Hom</td><td>Novel</td><td>High</td></tr>
+                                    <tr><td><a href="http://www.mousephenotype.org/data/genes/MGI:1924337">Ankrd11</a></td><td>Het</td><td>Novel</td><td>Mild</td></tr>
+                                    <tr><td><a href="http://www.mousephenotype.org/data/genes/MGI:1929214">Ap3m2</a></td><td>Hom</td><td>Novel</td><td>Mild</td></tr>
+                                    <tr><td><a href="http://www.mousephenotype.org/data/genes/MGI:1337062">Ap3s1</a></td><td>Hom</td><td>Novel</td><td>Mild</td></tr>
+                                    <tr><td><a href="http://www.mousephenotype.org/data/genes/MGI:104653">Atp2b1</a></td><td>Het</td><td>Novel</td><td>Low</td></tr>
+                                    <tr><td><a href="http://www.mousephenotype.org/data/genes/MGI:3588238">B020004J07Rik</a></td><td>Hom</td><td>Novel</td><td>Low</td></tr>
+                                    <tr><td><a href="http://www.mousephenotype.org/data/genes/MGI:2652819">Baiap2l2</a></td><td>Hom</td><td>Novel</td><td>Mild</td></tr>
+                                    <tr><td><a href="http://www.mousephenotype.org/data/genes/MGI:1915589">Ccdc88c</a></td><td>Hom</td><td>Novel</td><td>High</td></tr>
+                                    <tr><td><a href="http://www.mousephenotype.org/data/genes/MGI:106485">Ccdc92</a></td><td>Hom</td><td>Novel</td><td>Mild</td></tr>
+                                    <tr><td><a href="http://www.mousephenotype.org/data/genes/MGI:1929293">Cib2</a></td><td>Hom</td><td>Known</td><td>Severe</td></tr>
+                                    <tr><td><a href="http://www.mousephenotype.org/data/genes/MGI:2388124">Clrn1</a></td><td>Hom</td><td>Known</td><td>Severe</td></tr>
+                                    <tr><td><a href="http://www.mousephenotype.org/data/genes/MGI:88466">Col9a2</a></td><td>Hom</td><td>Known</td><td>Severe</td></tr>
+                                    <tr><td><a href="http://www.mousephenotype.org/data/genes/MGI:2444415">Cyb5r2</a></td><td>Hom</td><td>Novel</td><td>Mild</td></tr>
+                                    <tr><td><a href="http://www.mousephenotype.org/data/genes/MGI:103157">Dnase1</a></td><td>Hom</td><td>Novel</td><td>High</td></tr>
+                                    <tr><td><a href="http://www.mousephenotype.org/data/genes/MGI:1914061">Duoxa2</a></td><td>Hom</td><td>Novel</td><td>Severe</td></tr>
+                                    <tr><td><a href="http://www.mousephenotype.org/data/genes/MGI:3583900">Elmod1</a></td><td>Hom</td><td>Known</td><td>Severe</td></tr>
+                                    <tr><td><a href="http://www.mousephenotype.org/data/genes/MGI:95321">Emb</a></td><td>Hom</td><td>Novel</td><td>High</td></tr>
+                                    <tr><td><a href="http://www.mousephenotype.org/data/genes/MGI:1914675">Eps8l1</a></td><td>Hom</td><td>Novel</td><td>Severe</td></tr>
+                                    <tr><td><a href="http://www.mousephenotype.org/data/genes/MGI:99960">Ewsr1</a></td><td>Het</td><td>Novel</td><td>High</td></tr>
+                                    <tr><td><a href="http://www.mousephenotype.org/data/genes/MGI:95662">Gata2</a></td><td>Het</td><td>Known</td><td>Low</td></tr>
+                                    <tr><td><a href="http://www.mousephenotype.org/data/genes/MGI:2146207">Gga1</a></td><td>Hom</td><td>Novel</td><td>Mild</td></tr>
+                                    <tr><td><a href="http://www.mousephenotype.org/data/genes/MGI:2387006">Gipc3</a></td><td>Hom</td><td>Known</td><td>Severe</td></tr>
+                                    <tr><td><a href="http://www.mousephenotype.org/data/genes/MGI:2685519">Gpr152</a></td><td>Hom</td><td>Novel</td><td>High</td></tr>
+                                    <tr><td><a href="http://www.mousephenotype.org/data/genes/MGI:1333877">Gpr50</a></td><td>Hom</td><td>Novel</td><td>Low</td></tr>
+                                    <tr><td><a href="http://www.mousephenotype.org/data/genes/MGI:1914393">Ikzf5</a></td><td>Hom</td><td>Novel</td><td>High</td></tr>
+                                    <tr><td><a href="http://www.mousephenotype.org/data/genes/MGI:96546">Il1r2</a></td><td>Hom</td><td>Novel</td><td>Low</td></tr>
+                                    <tr><td><a href="http://www.mousephenotype.org/data/genes/MGI:2146574">Ildr1</a></td><td>Hom</td><td>Known</td><td>Severe</td></tr>
+                                    <tr><td><a href="http://www.mousephenotype.org/data/genes/MGI:107953">Klc2</a></td><td>Hom</td><td>Novel</td><td>Severe</td></tr>
+                                    <tr><td><a href="http://www.mousephenotype.org/data/genes/MGI:2143315">Klhl18</a></td><td>Hom</td><td>Novel</td><td>Low</td></tr>
+                                    <tr><td><a href="http://www.mousephenotype.org/data/genes/MGI:2446166">Marveld2</a></td><td>Hom</td><td>Known</td><td>Severe</td></tr>
+                                    <tr><td><a href="http://www.mousephenotype.org/data/genes/MGI:1914249">Med28</a></td><td>Het</td><td>Novel</td><td>Low</td></tr>
+                                    <tr><td><a href="http://www.mousephenotype.org/data/genes/MGI:1343489">Mpdz</a></td><td>Hom</td><td>Novel</td><td>Mild</td></tr>
+                                    <tr><td><a href="http://www.mousephenotype.org/data/genes/MGI:1339711">Myh1</a></td><td>Hom</td><td>Novel</td><td>Mild</td></tr>
+                                    <tr><td><a href="http://www.mousephenotype.org/data/genes/MGI:104510">Myo7a</a></td><td>Hom</td><td>Known</td><td>Severe</td></tr>
+                                    <tr><td><a href="http://www.mousephenotype.org/data/genes/MGI:1933754">Nedd4l</a></td><td>Hom</td><td>Novel</td><td>Severe</td></tr>
+                                    <tr><td><a href="http://www.mousephenotype.org/data/genes/MGI:103296">Nfatc3</a></td><td>Het</td><td>Novel</td><td>Low</td></tr>
+                                    <tr><td><a href="http://www.mousephenotype.org/data/genes/MGI:105108">Nin</a></td><td>Hom</td><td>Novel</td><td>High</td></tr>
+                                    <tr><td><a href="http://www.mousephenotype.org/data/genes/MGI:1928323">Nisch</a></td><td>Hom</td><td>Novel</td><td>Mild</td></tr>
+                                    <tr><td><a href="http://www.mousephenotype.org/data/genes/MGI:108077">Nptn</a></td><td>Hom</td><td>Novel</td><td>Severe</td></tr>
+                                    <tr><td><a href="http://www.mousephenotype.org/data/genes/MGI:97401">Ocm</a></td><td>Hom</td><td>Known</td><td>Severe</td></tr>
+                                    <tr><td><a href="http://www.mousephenotype.org/data/genes/MGI:2686003">Odf3l2</a></td><td>Hom</td><td>Novel</td><td>Mild</td></tr>
+                                    <tr><td><a href="http://www.mousephenotype.org/data/genes/MGI:2149209">Otoa</a></td><td>Hom</td><td>Known</td><td>Severe</td></tr>
+                                    <tr><td><a href="http://www.mousephenotype.org/data/genes/MGI:1918248">Phf6</a></td><td>Het</td><td>Novel</td><td>High</td></tr>
+                                    <tr><td><a href="http://www.mousephenotype.org/data/genes/MGI:99878">Ppm1a</a></td><td>Hom</td><td>Novel</td><td>High</td></tr>
+                                    <tr><td><a href="http://www.mousephenotype.org/data/genes/MGI:1096347">Sema3f</a></td><td>Hom</td><td>Novel</td><td>Low</td></tr>
+                                    <tr><td><a href="http://www.mousephenotype.org/data/genes/MGI:2150150">Slc4a10</a></td><td>Hom</td><td>Novel</td><td>Mild</td></tr>
+                                    <tr><td><a href="http://www.mousephenotype.org/data/genes/MGI:2149330">Slc5a5</a></td><td>Hom</td><td>Novel</td><td>Severe</td></tr>
+                                    <tr><td><a href="http://www.mousephenotype.org/data/genes/MGI:2384936">Spns2</a></td><td>Hom</td><td>Novel</td><td>Severe</td></tr>
+                                    <tr><td><a href="http://www.mousephenotype.org/data/genes/MGI:1916205">Srrm4</a></td><td>Hom</td><td>Known</td><td>Mild</td></tr>
+                                    <tr><td><a href="http://www.mousephenotype.org/data/genes/MGI:2442082">Tmem30b</a></td><td>Hom</td><td>Novel</td><td>Severe</td></tr>
+                                    <tr><td><a href="http://www.mousephenotype.org/data/genes/MGI:1921050">Tmtc4</a></td><td>Hom</td><td>Novel</td><td>Severe</td></tr>
+                                    <tr><td><a href="http://www.mousephenotype.org/data/genes/MGI:2181659">Tox</a></td><td>Hom</td><td>Novel</td><td>Severe</td></tr>
+                                    <tr><td><a href="http://www.mousephenotype.org/data/genes/MGI:2139535">Tprn</a></td><td>Hom</td><td>Known</td><td>Severe</td></tr>
+                                    <tr><td><a href="http://www.mousephenotype.org/data/genes/MGI:1924817">Tram2</a></td><td>Hom</td><td>Novel</td><td>Mild</td></tr>
+                                    <tr><td><a href="http://www.mousephenotype.org/data/genes/MGI:102944">Ube2b</a></td><td>Het</td><td>Novel</td><td>Mild</td></tr>
+                                    <tr><td><a href="http://www.mousephenotype.org/data/genes/MGI:1914378">Ube2g1</a></td><td>Hom</td><td>Novel</td><td>Mild</td></tr>
+                                    <tr><td><a href="http://www.mousephenotype.org/data/genes/MGI:1919338">Ush1c</a></td><td>Hom</td><td>Known</td><td>Severe</td></tr>
+                                    <tr><td><a href="http://www.mousephenotype.org/data/genes/MGI:1855699">Vti1a</a></td><td>Hom</td><td>Novel</td><td>Mild</td></tr>
+                                    <tr><td><a href="http://www.mousephenotype.org/data/genes/MGI:2685541">Wdtc1</a></td><td>Hom</td><td>Novel</td><td>High</td></tr>
+                                    <tr><td><a href="http://www.mousephenotype.org/data/genes/MGI:2159407">Zcchc14</a></td><td>Hom</td><td>Novel</td><td>Low</td></tr>
+                                    <tr><td><a href="http://www.mousephenotype.org/data/genes/MGI:2444708">Zfp719</a></td><td>Hom</td><td>Novel</td><td>Severe</td></tr>
+                                    </tbody>
+                                </table>
+				    
                             </div>
                         </div>
-                        
+
+                        <script>
+                            $(document).ready(function(){
+                                $('#hearing-genes').DataTable({
+                                    "bDestroy": true,
+                                    "searching":false,
+                                    "bPaginate":true,
+                                    "sPaginationType": "bootstrap"
+                                });
+                            });
+                        </script>
+
+
+                        <style>
+                            /* required for the graphs to not clip the axis labels */
+                            .highcharts-root {padding:10px;}
+                            .inner .half h3 {font-weight: bold; color: rgb(191, 75, 50);}
+                        </style>
+
+                        <div style="padding:30px;" class="clear both"></div>
+
                         <div class="section">
-                            <h2 class="title" id="vignettes">Vignettes</h2>
+                            <h2>
+                                Vignettes
+                            </h2>
                             <div class="inner">
-                                <p>[Vignettes here, in addition, or instead of, some figures in the Publication section]</p>
-                                <p>Coming soon.....</p>
-                                
+                                <div class="half" style="text-align:center">
+                                    <h3>Novel, mild hearing loss</h3>
+                                    <a href="${baseUrl}/genes/MGI:1924817">Tram2<sup>tm1a(EUCOMM)Wtsi</sup></a>
+                                    <div class="chart" id="tram2"  graphUrl="${baseUrl}/chart?accession=MGI:1924817&parameter_stable_id=IMPC_ABR_006_001&chart_type=UNIDIMENSIONAL_ABR_PLOT&pipeline_stable_id=MGP_001&zygosity=homozygote&phenotyping_center=WTSI&strain_accession_id=MGI:2159965&allele_accession_id=MGI:4949327&metadata_group=ab8371fc819db4209ca1a10186a8a6ef&chart_only=true">
+                                        <div id="spinner_tram2"><i class="fa fa-refresh fa-spin"></i></div>
+                                    </div>
+
+                                </div>
+                                <div class="half" style="text-align:center">
+                                    <h3>Novel, severe hearing loss</h3>
+                                    <a href="${baseUrl}/genes/MGI:1919338">Ush1c<sup>tm1a(KOMP)Wtsi</sup></a>
+                                    <div class="chart" id="ush1c" graphUrl="${baseUrl}/chart?accession=MGI:1919338&parameter_stable_id=IMPC_ABR_006_001&chart_type=UNIDIMENSIONAL_ABR_PLOT&pipeline_stable_id=MGP_001&zygosity=homozygote&phenotyping_center=WTSI&strain_accession_id=MGI:2159965&allele_accession_id=MGI:4363497&metadata_group=ab8371fc819db4209ca1a10186a8a6ef&chart_only=true">
+                                        <div id="spinner_ush1c"><i class="fa fa-refresh fa-spin"></i></div>
+                                    </div>
+                                </div>
+
+                            <div style="padding:30px;" class="clear both"></div>
+
+                                <div class="half" style="text-align:center">
+                                    <h3>Novel, high-frequency hearing loss</h3>
+                                    <a href="${baseUrl}/genes/MGI:2685541">Wdtc1<sup>tm1a(KOMP)Wtsi</sup></a>
+                                    <div class="chart" id="wdtc1" graphUrl="${baseUrl}/chart?accession=MGI:2685541&parameter_stable_id=IMPC_ABR_012_001&chart_type=UNIDIMENSIONAL_ABR_PLOT&pipeline_stable_id=MGP_001&zygosity=homozygote&phenotyping_center=WTSI&strain_accession_id=MGI:2159965&allele_accession_id=MGI:4362336&metadata_group=ab8371fc819db4209ca1a10186a8a6ef&chart_only=true">
+                                        <div id="spinner_wdtc1"><i class="fa fa-refresh fa-spin"></i></div>
+                                    </div>
+                                </div>
+
+                            <div class="half" style="text-align:center">
+                                <h3>Novel, severe hearing loss</h3>
+                                <a href="${baseUrl}/genes/MGI:2444708">Zfp719<sup>tm1b(EUCOMM)Wtsi</sup></a>
+                                <div class="chart" id="zfp719" graphUrl="${baseUrl}/chart?accession=MGI:2444708&parameter_stable_id=IMPC_ABR_012_001&chart_type=UNIDIMENSIONAL_ABR_PLOT&pipeline_stable_id=MGP_001&zygosity=homozygote&phenotyping_center=WTSI&strain_accession_id=MGI:2159965&allele_accession_id=MGI:5548829&metadata_group=ab8371fc819db4209ca1a10186a8a6ef&chart_only=true">
+                                    <div id="spinner_zfp719"><i class="fa fa-refresh fa-spin"></i></div>
+                                </div>
                             </div>
+
+                            <div class="clear both"></div>
+                            </div>
+
+                        <script>
+                            //ajax chart caller code
+                            $(document).ready(function() {
+                                $('.chart').each(function(i, obj)
+                                {
+                                    var graphUrl = $(this).attr('graphUrl');
+                                    var id = $(this).attr('id');
+                                    var chartUrl = graphUrl + '&experimentNumber=' + id;
+                                    $.ajax({
+                                        url: chartUrl,
+                                        cache: false
+                                    })
+                                        .done(function(html) {
+                                            $('#' + id).append(html);
+                                            $('#spinner_' + id).html('');
+
+                                        });
+                                });
+                            });
+                        </script>
+
                         </div>
                         
 

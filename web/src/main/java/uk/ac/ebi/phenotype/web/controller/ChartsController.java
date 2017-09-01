@@ -190,6 +190,7 @@ public class ChartsController {
                         @RequestParam(required = false, value = "strategy") String[] strategies,
                         @RequestParam(required = false, value = "pipeline_stable_id") String pipelineStableId,
                         @RequestParam(required = false, value = "chart_type") ChartType chartType,
+                        @RequestParam(required = false, value = "chart_only", defaultValue = "false") boolean chartOnly,
                         @RequestParam(required = false, value = "standAlone") boolean standAlone, Model model)
             throws GenomicFeatureNotFoundException, ParameterNotFoundException, IOException, URISyntaxException, SolrServerException, SpecificExperimentException {
 
@@ -371,6 +372,7 @@ public class ChartsController {
             model.addAttribute("gpUrl", experiment.getGenotypePhenotypeUrl());
             model.addAttribute("srUrl", experiment.getStatisticalResultUrl());
             model.addAttribute("phenStatDataUrl", experiment.getDataPhenStatFormatUrl());
+            model.addAttribute("chartOnly", chartOnly);
 
         } else {
             System.out.println("empty experiment");
