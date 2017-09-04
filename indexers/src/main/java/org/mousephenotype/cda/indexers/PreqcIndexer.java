@@ -217,7 +217,22 @@ public class PreqcIndexer extends AbstractIndexer implements CommandLineRunner {
 
                         // nextEvent() gives the text of the child element
                         xmlEvent = xmlEventReader.nextEvent();
-                        String data = xmlEvent.asCharacters().getData();
+
+                        String data = "";
+                        try {
+                            if (xmlEvent.isCharacters()) {
+                                data = xmlEvent.asCharacters().getData();
+                            } else {
+
+                                String tagName = startElement.getName().getLocalPart();
+                                logger.info("xmlEvent " + xmlEvent.toString() + "for tag name " + tagName + " is not characters. Skipping... Location: " + xmlEvent.getLocation().toString());
+                                continue;
+                            }
+                        } catch (Exception e) {
+
+                            e.printStackTrace();
+
+                        }
 
                         switch (startElement.getName().getLocalPart()) {
                             case "id":
@@ -447,12 +462,12 @@ public class PreqcIndexer extends AbstractIndexer implements CommandLineRunner {
         logger.info("  Done reading the file");
 
         if (missingPhenotypeTerm.size() > 0) {
-            runStatus.addWarning(" Phenotype terms are missing for " + missingPhenotypeTerm.size() + " record(s):\n " + StringUtils.join(missingPhenotypeTerm, ", "));
+            logger.info(" Phenotype terms are missing for " + missingPhenotypeTerm.size() + " record(s).");
         }
 
         if (bad.size() > 0) {
-            runStatus.addWarning(" Found " + bad.size() + " unique mps not in ontodb");
-            runStatus.addWarning(" MP terms not found: " + StringUtils.join(bad, ","));
+            logger.info(" Found " + bad.size() + " unique mps not in ontodb");
+            logger.info(" MP terms not found: " + StringUtils.join(bad, ","));
         }
 
         logger.info(" Added {} total beans in {}", count, commonUtils.msToHms(System.currentTimeMillis() - start));
@@ -518,7 +533,7 @@ public class PreqcIndexer extends AbstractIndexer implements CommandLineRunner {
             try {
                 statement = conn_komp2.createStatement();
                 rs = statement.executeQuery(query);
-                System.out.println("query for mapping="+query);
+//                System.out.println("query for mapping="+query);
 
                 while (rs.next()) {
                     // Retrieve by column name
@@ -542,7 +557,7 @@ public class PreqcIndexer extends AbstractIndexer implements CommandLineRunner {
                     }
 
                     mapping.put(sid, name);
-                    System.out.println("adding procedure id to name="+sid+"|"+name);
+//                    System.out.println("adding procedure id to name="+sid+"|"+name);
                 }
 
             } catch (SQLException e) {
