@@ -20,7 +20,7 @@
     <logger name="org.mousephenotype"                                           level="INFO"/>
    	<logger name="org.mousephenotype.cda.solr"                                  level="INFO" />
     <logger name="org.mousephenotype.cda.reports"                               level="INFO" />
-   	<logger name="org.mousephenotype.cda.tests" level="INFO" />
+   	<logger name="org.mousephenotype.cda.tests"                                 level="INFO" />
     <logger name="org.mousephenotype.cda.utilities.HttpProxy"                   level="WARN" />
     <logger name="org.mousephenotype.cda.loads"                                 level="INFO" />
     <logger name="org.mousephenotype.cda.solr.service"                          level="WARN" />
