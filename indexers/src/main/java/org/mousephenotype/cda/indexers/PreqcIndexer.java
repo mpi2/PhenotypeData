@@ -217,7 +217,22 @@ public class PreqcIndexer extends AbstractIndexer implements CommandLineRunner {
 
                         // nextEvent() gives the text of the child element
                         xmlEvent = xmlEventReader.nextEvent();
-                        String data = xmlEvent.asCharacters().getData();
+
+                        String data = "";
+                        try {
+                            if (xmlEvent.isCharacters()) {
+                                data = xmlEvent.asCharacters().getData();
+                            } else {
+
+                                String tagName = startElement.getName().getLocalPart();
+                                logger.info("xmlEvent " + xmlEvent.toString() + "for tag name " + tagName + " is not characters. Skipping... Location: " + xmlEvent.getLocation().toString());
+                                continue;
+                            }
+                        } catch (Exception e) {
+
+                            e.printStackTrace();
+
+                        }
 
                         switch (startElement.getName().getLocalPart()) {
                             case "id":
@@ -451,8 +466,8 @@ public class PreqcIndexer extends AbstractIndexer implements CommandLineRunner {
         }
 
         if (bad.size() > 0) {
-            runStatus.addWarning(" Found " + bad.size() + " unique mps not in ontodb");
-            runStatus.addWarning(" MP terms not found: " + StringUtils.join(bad, ","));
+            logger.info(" Found " + bad.size() + " unique mps not in ontodb");
+            logger.info(" MP terms not found: " + StringUtils.join(bad, ","));
         }
 
         logger.info(" Added {} total beans in {}", count, commonUtils.msToHms(System.currentTimeMillis() - start));

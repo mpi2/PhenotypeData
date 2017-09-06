@@ -534,18 +534,13 @@ public class Loader implements CommandLineRunner {
                 }
                 if (! array[columns.get("synonym")].isEmpty()) {
                     List<String> syms = Arrays.asList(StringUtils.split(array[columns.get("synonym")], "|"));
-                    Set<MarkerSynonym> mss = new HashSet<>();
+                    Set<String> mss = new HashSet<>();
 
                     for (String sym : syms) {
-                        MarkerSynonym ms = new MarkerSynonym();
-                        ms.setMarkerSynonym(sym);
-
                         // ms rel to gene
-                        ms.setGene(gene);
-                        mss.add(ms);
+                        mss.add(sym);
                     }
                     gene.setMarkerSynonyms(mss);
-                    gene.setMarkerSynonym(syms);
                 }
                 if (! array[columns.get("feature_chromosome")].isEmpty()) {
                     gene.setChrId(array[columns.get("feature_chromosome")]);
@@ -557,7 +552,7 @@ public class Loader implements CommandLineRunner {
 
                 if (! array[columns.get("gene_model_ids")].isEmpty()) {
 
-                    Set<EnsemblGeneId> ensgs = new HashSet<>();
+                    Set<String> ensgs = new HashSet<>();
 
                     List<String> ensgids = new ArrayList<>();
                     String[] ids = StringUtils.split(array[columns.get("gene_model_ids")], "|");
@@ -569,25 +564,20 @@ public class Loader implements CommandLineRunner {
                                 String ensgId = vals[1];
                                 //System.out.println("Found " + ensgId);
 
-                                EnsemblGeneId ensg = new EnsemblGeneId();
-                                if (! ensGidEnsemblGeneIdMap.containsKey(ensgId)) {
-                                    ensg.setEnsemblGeneId(ensgId);
+//                                if (! ensGidEnsemblGeneIdMap.containsKey(ensgId)) {
+//
+//                                    // ensg rel to gene
+//                                    ensGidEnsemblGeneIdMap.put(ensgId, ensg);
+//                                } else {
+//                                    ensg = ensGidEnsemblGeneIdMap.get(ensgId);
+//                                }
 
-                                    // ensg rel to gene
-                                    ensg.setGene(gene);
-                                    ensGidEnsemblGeneIdMap.put(ensgId, ensg);
-                                } else {
-                                    ensg = ensGidEnsemblGeneIdMap.get(ensgId);
-                                }
-
-                                ensgs.add(ensg);
-                                ensgids.add(ensgId);
+                                ensgs.add(ensgId);
                             }
                         }
                     }
                     if (ensgs.size() > 0){
                         gene.setEnsemblGeneIds(ensgs);
-                        gene.setEnsemblGeneId(ensgids);
                     }
                 }
 
@@ -1375,20 +1365,19 @@ public class Loader implements CommandLineRunner {
                         hgs = loadedHumanSymbolHGS.get(humanSym);
                     }
 
-                    if (hgs.getGenes() == null){
-                        hgs.setGenes(new HashSet<Gene>());
-                    }
+//                    if (hgs.getGenes() == null){
+//                        hgs.setGenes(new HashSet<Gene>());
+//                    }
 
                     // one human symbol can be associated with multiple mouse symbols
                     // hgs to gene relationship
-                    hgs.getGenes().add(gene);
+                    //hgs.getGenes().add(gene);
 
 
                     if (gene.getHumanGeneSymbols() == null) {
-                        gene.setHumanGeneSymbols(new HashSet<HumanGeneSymbol>());
+                        gene.setHumanGeneSymbols(new HashSet<>());
                     }
-                    gene.getHumanGeneSymbols().add(hgs);
-                    gene.setHumanGeneSymbol(humanSymbols);
+                    gene.getHumanGeneSymbols().addAll(humanSymbols);
 
                     geneRepository.save(gene);
 

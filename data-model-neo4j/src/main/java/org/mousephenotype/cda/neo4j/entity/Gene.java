@@ -25,18 +25,18 @@ public class Gene {
     private int chrStart;
     private int chrEnd;
     private String chrStrand;
-    private List<String> ensemblGeneId;
-    private List<String> markerSynonym;
-    private List<String> humanGeneSymbol;
+    private Set<String> ensemblGeneIds;
+    private Set<String> markerSynonyms;
+    private Set<String> humanGeneSymbols;
 
-    @Relationship(type = "ENSEMBL_GENE_ID", direction = Relationship.OUTGOING)
-    private Set<EnsemblGeneId> ensemblGeneIds;
+//    @Relationship(type = "ENSEMBL_GENE_ID", direction = Relationship.OUTGOING)
+//    private Set<EnsemblGeneId> ensemblGeneIds;
 
-    @Relationship(type = "MARKER_SYNONYM", direction = Relationship.OUTGOING)
-    private Set<MarkerSynonym> markerSynonyms;
-
-    @Relationship(type = "HUMAN_GENE_SYMBOL", direction = Relationship.OUTGOING)
-    private Set<HumanGeneSymbol> humanGeneSymbols;
+//    @Relationship(type = "MARKER_SYNONYM", direction = Relationship.OUTGOING)
+//    private Set<MarkerSynonym> markerSynonyms;
+//
+//    @Relationship(type = "HUMAN_GENE_SYMBOL", direction = Relationship.OUTGOING)
+//    private Set<HumanGeneSymbol> humanGeneSymbols;
 
     @Relationship(type = "ALLELE", direction = Relationship.OUTGOING)
     private Set<Allele> alleles;
@@ -122,27 +122,27 @@ public class Gene {
         this.chrStrand = chrStrand;
     }
 
-    public Set<EnsemblGeneId> getEnsemblGeneIds() {
+    public Set<String> getEnsemblGeneIds() {
         return ensemblGeneIds;
     }
 
-    public void setEnsemblGeneIds(Set<EnsemblGeneId> ensemblGeneIds) {
+    public void setEnsemblGeneIds(Set<String> ensemblGeneIds) {
         this.ensemblGeneIds = ensemblGeneIds;
     }
 
-    public Set<MarkerSynonym> getMarkerSynonyms() {
+    public Set<String> getMarkerSynonyms() {
         return markerSynonyms;
     }
 
-    public void setMarkerSynonyms(Set<MarkerSynonym> markerSynonyms) {
+    public void setMarkerSynonyms(Set<String> markerSynonyms) {
         this.markerSynonyms = markerSynonyms;
     }
 
-    public Set<HumanGeneSymbol> getHumanGeneSymbols() {
+    public Set<String> getHumanGeneSymbols() {
         return humanGeneSymbols;
     }
 
-    public void setHumanGeneSymbols(Set<HumanGeneSymbol> humanGeneSymbols) {
+    public void setHumanGeneSymbols(Set<String> humanGeneSymbols) {
         this.humanGeneSymbols = humanGeneSymbols;
     }
 
@@ -178,30 +178,6 @@ public class Gene {
         this.humanPhenotypes = humanPhenotypes;
     }
 
-    public List<String> getEnsemblGeneId() {
-        return ensemblGeneId;
-    }
-
-    public void setEnsemblGeneId(List<String> ensemblGeneId) {
-        this.ensemblGeneId = ensemblGeneId;
-    }
-
-    public List<String> getMarkerSynonym() {
-        return markerSynonym;
-    }
-
-    public void setMarkerSynonym(List<String> markerSynonym) {
-        this.markerSynonym = markerSynonym;
-    }
-
-    public List<String> getHumanGeneSymbol() {
-        return humanGeneSymbol;
-    }
-
-    public void setHumanGeneSymbol(List<String> humanGeneSymbol) {
-        this.humanGeneSymbol = humanGeneSymbol;
-    }
-
     @Override
     public String toString() {
         return "Gene{" +
@@ -214,9 +190,6 @@ public class Gene {
                 ", chrStart=" + chrStart +
                 ", chrEnd=" + chrEnd +
                 ", chrStrand='" + chrStrand + '\'' +
-                ", ensemblGeneId=" + ensemblGeneId +
-                ", markerSynonym=" + markerSynonym +
-                ", humanGeneSymbol=" + humanGeneSymbol +
                 ", ensemblGeneIds=" + ensemblGeneIds +
                 ", markerSynonyms=" + markerSynonyms +
                 ", humanGeneSymbols=" + humanGeneSymbols +
