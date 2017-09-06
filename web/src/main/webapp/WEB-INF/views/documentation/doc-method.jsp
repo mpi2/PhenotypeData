@@ -40,23 +40,26 @@
 
       <div id="tabs">
           <ul>
-              <li ><a id="statistics" href="#doc-methods-statistics">Statistics</a></li>
-              <li ><a id="tools" href="#doc-methods-tools">Tools</a></li>
+              <li ><a id="statistics" href="#tabs-1">Statistics</a></li>
+              <li ><a id="tools" href="#tabs-2">Tools</a></li>
           </ul>
 
-          <div id="doc-methods-statistics" class="srchdocTab">
+          <div id="tabs-1" class="srchdocTab">
               <%@ include file="doc-methods-statistics.jsp" %>
           </div>
-          <div id="doc-methods-tools" class="srchdocTab">
+          <div id="tabs-2" class="srchdocTab">
               <%@ include file="doc-methods-tools.jsp" %>
           </div>
       </div>
 
       <script>
           $(function() {
+
               // find out which tab to open from hash tag
-              var matches = window.location.hash.match(/(\d*\w*)+$/);
-              $( matches.input ).trigger( "click" );
+              var matches = window.location.hash.match(/(\d)$/);
+              var tabIndex = matches == null ? 0 : matches[0]-1;
+              var tabs = $( "#tabs" ).tabs({ active: 0 });
+              tabs.tabs({active: tabIndex});
           });
       </script>
 
