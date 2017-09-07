@@ -41,9 +41,6 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
     final private SolrClient experimentCore;
     final private SolrClient pipelineCore;
 
-    private Map<String, String> normalEyeCategory = new HashMap<>();
-
-
 
     @Inject
     public StatisticalDatasetGenerator(
@@ -57,7 +54,7 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
     }
 
 
-    public final static List<String> PIVOT = Arrays.asList(
+    private final static List<String> PIVOT = Arrays.asList(
             ObservationDTO.DATASOURCE_NAME,
             ObservationDTO.PROJECT_NAME,
             ObservationDTO.PHENOTYPING_CENTER,
@@ -71,7 +68,7 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
         logger.info("Starting statistical dataset generation");
 
         logger.info("Populating normal category lookup");
-        normalEyeCategory = getNormalEyeCategories();
+        Map<String, String> normalEyeCategory = getNormalEyeCategories();
 
 
         try {
@@ -188,7 +185,7 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
                         ) {
 
                         // Get mapped data category
-                        String mappedDataValue = "";
+                        String mappedDataValue = observationDTO.getCategory();
                         switch (observationDTO.getCategory()) {
 
                             case "imageOnly":
@@ -223,7 +220,6 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
                                 break;
 
                             default:
-                                mappedDataValue = observationDTO.getCategory();
                                 break;
                         }
 
@@ -252,7 +248,7 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
                 for (String key : specimenParameterMap.keySet()) {
 
                     // If the specimen doesn't have any parameters associated, skip it
-                    if (specimenParameterMap.get(key).values().stream().count() < 1) {
+                    if (specimenParameterMap.get(key).values().size() < 1) {
                         continue;
                     }
 
@@ -263,7 +259,7 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
                     line.add("::"); // Separator column
 
                     for (String parameter : sortedParameters) {
-                        line.add( data.containsKey(parameter) ? data.get(parameter) : "" );
+                        line.add(data.getOrDefault(parameter, ""));
                     }
 
                     lines.add(line);
