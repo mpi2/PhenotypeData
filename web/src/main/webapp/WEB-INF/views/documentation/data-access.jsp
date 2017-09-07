@@ -58,7 +58,12 @@
 
         <script>
             $(function() {
-                $( "#tabs" ).tabs({ active: 0 });
+
+                // find out which tab to open from hash tag
+                var matches = window.location.hash.match(/(\d)$/);
+                var tabIndex = matches == null ? 0 : matches[0]-1;
+                var tabs = $( "#tabs" ).tabs({ active: 0 });
+                tabs.tabs({active: tabIndex});
             });
         </script>
 
