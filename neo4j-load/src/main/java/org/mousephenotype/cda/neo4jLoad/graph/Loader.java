@@ -296,6 +296,8 @@ public class Loader implements CommandLineRunner {
                 .setQuery("*:*")
                 .setRows(0);
 
+        System.out.println(query1);
+
         int batch = 5000;
         int docNum = toIntExact(statisticalResultCore.query(query1).getResults().getNumFound());
         int residue = toIntExact(docNum % batch); // 500 doc at a time;
@@ -318,7 +320,7 @@ public class Loader implements CommandLineRunner {
                 row = row + residue;
             }
 
-            //System.out.println("cycle " + i + " start: "+ start + " row count: "+ row);
+            logger.info("cycle " + i + " start: "+ start + " row count: "+ row);
 
             SolrQuery query = new SolrQuery()
                     .setQuery("*:*")
@@ -326,11 +328,15 @@ public class Loader implements CommandLineRunner {
                     .setRows(row);
 
             List<StatisticalResultDTO> srdto = statisticalResultCore.query(query).getBeans(StatisticalResultDTO.class);
-            //logger.info("Got {} stats results to load...", srdto.size());
+            logger.info("Got {} stats results to load...", srdto.size());
 
             for (StatisticalResultDTO result : srdto) {
                 int srDbid = result.getDbId();
                 String srDocId = result.getDocId();
+
+                if (srDocId.equals("IMPC_OFD_010_001_CONT_150699")){
+                    System.out.println("1. found IMPC_OFD_010_001_CONT_150699");
+                }
 
                 if (result.getMpTermId() != null || result.getMaleMpTermId() != null || result.getFemaleMpTermId() != null) {
 
@@ -345,6 +351,12 @@ public class Loader implements CommandLineRunner {
                         thisMpId = result.getMaleMpTermId();
                     } else if (result.getFemaleMpTermId() != null) {
                         thisMpId = result.getFemaleMpTermId();
+                    }
+
+                    if (srDocId.equals("IMPC_OFD_010_001_CONT_150699")){
+                        System.out.println("2. found IMPC_OFD_010_001_CONT_150699");
+                        System.out.println("MP: " + thisMpId);
+                        System.out.println(result.toString());
                     }
 
                     sr.setPvalue(result.getpValue());
@@ -362,7 +374,7 @@ public class Loader implements CommandLineRunner {
                         sr.setGene(loadedGenes.get(mgiAcc));
                     } else {
                         String gs = result.getMarkerSymbol();
-                        if (!nonMatchingGeneSymbols.containsKey(gs)) {
+                        if (! nonMatchingGeneSymbols.containsKey(gs)) {
                             nonMatchingGeneSymbols.put(gs, new HashSet<>());
                         }
                         nonMatchingGeneSymbols.get(gs).add(thisMpId + " - " + srDocId);
@@ -371,10 +383,20 @@ public class Loader implements CommandLineRunner {
 
                     String alleleAcc = result.getAlleleAccessionId();
                     String alleleSymbol = result.getAlleleSymbol();
-                    if (loadedAlleleIdAllele.containsKey(alleleAcc)) {
-                        sr.setAllele(loadedAlleleIdAllele.get(alleleAcc));
-                    } else {
-                        if (!nonMatchingAlleles.containsKey(alleleSymbol + " -- " + alleleAcc)) {
+                    if (loadedAlleles.containsKey(alleleSymbol)) {
+                        sr.setAllele(loadedAlleles.get(alleleSymbol));
+
+                        if (srDocId.equals("IMPC_OFD_010_001_CONT_150699")){
+                            System.out.println("SR node: "+ sr.toString());
+                        }
+
+                    }
+
+//                    if (loadedAlleleIdAllele.containsKey(alleleAcc)) {
+//                        sr.setAllele(loadedAlleleIdAllele.get(alleleAcc));
+//                    }
+                    else {
+                        if (! nonMatchingAlleles.containsKey(alleleSymbol + " -- " + alleleAcc)) {
                             nonMatchingAlleles.put(alleleSymbol + " -- " + alleleAcc, new HashSet<>());
                         }
                         nonMatchingAlleles.get(alleleSymbol + " -- " + alleleAcc).add(thisMpId + " - " + srDocId);
@@ -387,7 +409,7 @@ public class Loader implements CommandLineRunner {
                         if (loadedMps.containsKey(mpId)) {
                             mps.add(loadedMps.get(mpId));
                         } else {
-                            if (!nonMatchingMpIds.containsKey(mpId)) {
+                            if (! nonMatchingMpIds.containsKey(mpId)) {
                                 nonMatchingMpIds.put(mpId, new HashSet<>());
                             }
                             nonMatchingMpIds.get(mpId).add(srDocId);
@@ -399,7 +421,7 @@ public class Loader implements CommandLineRunner {
                             if (loadedMps.containsKey(maleMpId)) {
                                 mps.add(loadedMps.get(maleMpId));
                             } else {
-                                if (!nonMatchingMpIds.containsKey(maleMpId)) {
+                                if (! nonMatchingMpIds.containsKey(maleMpId)) {
                                     nonMatchingMpIds.put(maleMpId, new HashSet<>());
                                 }
                                 nonMatchingMpIds.get(maleMpId).add(srDocId);
@@ -411,7 +433,7 @@ public class Loader implements CommandLineRunner {
                             if (loadedMps.containsKey(femaleMpId)) {
                                 mps.add(loadedMps.get(femaleMpId));
                             } else {
-                                if (!nonMatchingMpIds.containsKey(femaleMpId)) {
+                                if (! nonMatchingMpIds.containsKey(femaleMpId)) {
                                     nonMatchingMpIds.put(femaleMpId, new HashSet<>());
                                 }
                                 nonMatchingMpIds.get(femaleMpId).add(srDocId);
@@ -425,7 +447,7 @@ public class Loader implements CommandLineRunner {
                         sr.setProcedure(loadedProcedures.get(result.getProcedureStableId()));
                         sr.setProcedureName(loadedProcedures.get(result.getProcedureStableId()).getName());
                     } else {
-                        logger.warn(result.getProcedureStableId() + " is not an IMPC procedure");
+                        //logger.warn(result.getProcedureStableId() + " is not an IMPC procedure");
 
                     }
 
@@ -433,7 +455,7 @@ public class Loader implements CommandLineRunner {
                         sr.setParameter(loadedParameters.get(result.getParameterStableId()));
                         sr.setParameterName(loadedParameters.get(result.getParameterStableId()).getName());
                     } else {
-                        logger.warn(result.getParameterStableId() + " is not an IMPC parameter");
+                        //logger.warn(result.getParameterStableId() + " is not an IMPC parameter");
                     }
 
                     //System.out.println(sr.toString());
