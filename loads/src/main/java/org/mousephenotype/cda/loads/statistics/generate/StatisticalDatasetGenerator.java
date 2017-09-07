@@ -41,6 +41,8 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
     final private SolrClient experimentCore;
     final private SolrClient pipelineCore;
 
+    private Map<String, String> normalEyeCategory = new HashMap<>();
+
 
 
     @Inject
@@ -67,6 +69,10 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
     public void run(String... strings) throws Exception {
 
         logger.info("Starting statistical dataset generation");
+
+        logger.info("Populating normal category lookup");
+        normalEyeCategory = getNormalEyeCategories();
+
 
         try {
 
@@ -171,6 +177,62 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
 
                     specimenParameterMap.get(key).put(observationDTO.getParameterStableId(), dataValue);
 
+
+                    // Add a column for the MAPPED category for EYE parameters
+                    if (ObservationType.valueOf(observationDTO.getObservationType()) == ObservationType.categorical &&
+                            (
+                                observationDTO.getParameterStableId().toLowerCase().contains("_EYE_") ||
+                                observationDTO.getParameterStableId().toLowerCase().contains("M-G-P_014") ||
+                                observationDTO.getParameterStableId().toLowerCase().contains("ESLIM_014")
+                            )
+                        ) {
+
+                        // Get mapped data category
+                        String mappedDataValue = "";
+                        switch (observationDTO.getCategory()) {
+
+                            case "imageOnly":
+                            case "no data":
+                            case "no data for both eyes":
+                            case "No data":
+                            case "not defined":
+                            case "unobservable":
+                                mappedDataValue = "";
+                                break;
+
+                            case "no data left eye":
+                            case "no data right eye":
+                                // Map to normal category
+                                mappedDataValue = normalEyeCategory.get(observationDTO.getParameterStableId());
+                                break;
+
+                            case "no data left eye, present right eye":
+                                mappedDataValue = "present right eye";
+                                break;
+
+                            case "no data right eye, present left eye":
+                                mappedDataValue = "present left eye";
+                                break;
+
+                            case "no data left eye, right eye abnormal":
+                                mappedDataValue = "right eye abnormal";
+                                break;
+
+                            case "no data right eye, left eye abnormal":
+                                mappedDataValue = "left eye abnormal";
+                                break;
+
+                            default:
+                                mappedDataValue = observationDTO.getCategory();
+                                break;
+                        }
+
+                        String mappedCategory = observationDTO.getParameterStableId() + "_MAPPED";
+                        specimenParameterMap.get(key).put(mappedCategory, mappedDataValue);
+
+                    }
+
+
                 }
 
                 logger.info("  Has {} specimens with {} parameters", specimenParameterMap.size(), specimenParameterMap.values().stream().mapToInt(value -> value.keySet().size()).sum());
@@ -232,6 +294,80 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
     }
 
     /**
+     * Get list of "normal" category
+     * @return map of categories
+     */
+    private Map<String,String> getNormalEyeCategories() {
+
+    Map<String,String> map = new HashMap<>();
+
+        map.put("ESLIM_014_001_001", "normal");
+        map.put("ESLIM_014_001_003", "normal");
+        map.put("ESLIM_014_001_004", "absent");
+        map.put("ESLIM_014_001_005", "normal");
+        map.put("ESLIM_014_001_006", "normal");
+        map.put("ESLIM_014_001_007", "normal");
+        map.put("ESLIM_014_001_008", "absent");
+        map.put("ESLIM_014_001_009", "normal");
+        map.put("ESLIM_014_001_010", "normal");
+        map.put("ESLIM_014_001_011", "normal");
+        map.put("ESLIM_014_001_012", "normal");
+        map.put("ESLIM_014_001_013", "normal");
+        map.put("ESLIM_014_001_014", "normal");
+        map.put("ESLIM_014_001_015", "normal");
+        map.put("IMPC_EYE_001_001",  "present");
+        map.put("IMPC_EYE_002_001",  "absent");
+        map.put("IMPC_EYE_003_001",  "absent");
+        map.put("IMPC_EYE_004_001",  "normal");
+        map.put("IMPC_EYE_005_001",  "normal");
+        map.put("IMPC_EYE_006_001",  "normal");
+        map.put("IMPC_EYE_007_001",  "normal");
+        map.put("IMPC_EYE_008_001",  "absent");
+        map.put("IMPC_EYE_009_001",  "absent");
+        map.put("IMPC_EYE_010_001",  "normal");
+        map.put("IMPC_EYE_011_001",  "normal");
+        map.put("IMPC_EYE_012_001",  "normal");
+        map.put("IMPC_EYE_013_001",  "normal");
+        map.put("IMPC_EYE_014_001",  "normal");
+        map.put("IMPC_EYE_015_001",  "normal");
+        map.put("IMPC_EYE_016_001",  "normal");
+        map.put("IMPC_EYE_017_001",  "absent");
+        map.put("IMPC_EYE_018_001",  "absent");
+        map.put("IMPC_EYE_019_001",  "absent");
+        map.put("IMPC_EYE_020_001",  "normal");
+        map.put("IMPC_EYE_021_001",  "normal");
+        map.put("IMPC_EYE_022_001",  "normal");
+        map.put("IMPC_EYE_023_001",  "normal");
+        map.put("IMPC_EYE_024_001",  "normal");
+        map.put("IMPC_EYE_025_001",  "normal");
+        map.put("IMPC_EYE_026_001",  "normal");
+        map.put("IMPC_EYE_027_001",  "absent");
+        map.put("IMPC_EYE_080_001",  "absent");
+        map.put("IMPC_EYE_081_001",  "absent");
+        map.put("IMPC_EYE_082_001",  "normal");
+        map.put("IMPC_EYE_083_001",  "normal");
+        map.put("IMPC_EYE_084_001",  "absent");
+        map.put("IMPC_EYE_085_001",  "absent");
+        map.put("IMPC_EYE_086_001",  "absent");
+        map.put("M-G-P_014_001_001", "normal");
+        map.put("M-G-P_014_001_003", "normal");
+        map.put("M-G-P_014_001_004", "absent");
+        map.put("M-G-P_014_001_005", "normal");
+        map.put("M-G-P_014_001_006", "normal");
+        map.put("M-G-P_014_001_007", "normal");
+        map.put("M-G-P_014_001_008", "absent");
+        map.put("M-G-P_014_001_009", "normal");
+        map.put("M-G-P_014_001_010", "normal");
+        map.put("M-G-P_014_001_011", "normal");
+        map.put("M-G-P_014_001_012", "normal");
+        map.put("M-G-P_014_001_013", "normal");
+        map.put("M-G-P_014_001_014", "normal");
+        map.put("M-G-P_014_001_015", "normal");
+
+        return map;
+    }
+
+    /**
      * Gets a map of procedure group -> SortedSet(paramter stable IDs) for each procedure group
      * The parameters that are not to be annotated have been removed
      *
@@ -262,6 +398,15 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
                 }
 
                 parameters.get(procedureGroup).add(x.getParameterStableId());
+
+                // Add another column to the EYE procedures to store the mapped categories (or slit lamp for legacy procedures)
+                // as agreed at the 20170824 Dev call
+                if (x.getParameterStableId().toLowerCase().contains("_EYE_") || procedureGroup.equals("M-G-P_014") || procedureGroup.equals("ESLIM_014")) {
+                    String mappedCategory = x.getParameterStableId() + "_MAPPED";
+                    parameters.get(procedureGroup).add(mappedCategory);
+
+                }
+
 
             });
 
