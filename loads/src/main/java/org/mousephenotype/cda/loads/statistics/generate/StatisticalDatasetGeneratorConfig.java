@@ -14,7 +14,7 @@
  * License.
  ******************************************************************************/
 
-package org.mousephenotype.cda.loads.statistics;
+package org.mousephenotype.cda.loads.statistics.generate;
 
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.slf4j.LoggerFactory;

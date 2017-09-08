@@ -1,4 +1,4 @@
-package org.mousephenotype.cda.loads.statistics;
+package org.mousephenotype.cda.loads.statistics.generate;
 
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
@@ -42,23 +42,34 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
     final private SolrClient pipelineCore;
 
 
-
     @Inject
     public StatisticalDatasetGenerator(
             @Named("experimentCore") SolrClient experimentCore,
             @Named("pipelineCore") SolrClient pipelineCore) {
-        Assert.notNull(experimentCore);
-        Assert.notNull(pipelineCore);
+        Assert.notNull(experimentCore, "Experiment core cannot be null");
+        Assert.notNull(pipelineCore, "Pipeline core cannot be null");
 
         this.experimentCore = experimentCore;
         this.pipelineCore = pipelineCore;
     }
 
 
-    public final static List<String> PIVOT = Arrays.asList(ObservationDTO.PHENOTYPING_CENTER, ObservationDTO.PIPELINE_STABLE_ID, ObservationDTO.PROCEDURE_GROUP, ObservationDTO.STRAIN_ACCESSION_ID);
+    private final static List<String> PIVOT = Arrays.asList(
+            ObservationDTO.DATASOURCE_NAME,
+            ObservationDTO.PROJECT_NAME,
+            ObservationDTO.PHENOTYPING_CENTER,
+            ObservationDTO.PIPELINE_STABLE_ID,
+            ObservationDTO.PROCEDURE_GROUP,
+            ObservationDTO.STRAIN_ACCESSION_ID);
 
     @Override
     public void run(String... strings) throws Exception {
+
+        logger.info("Starting statistical dataset generation");
+
+        logger.info("Populating normal category lookup");
+        Map<String, String> normalEyeCategory = getNormalEyeCategories();
+
 
         try {
 
@@ -74,7 +85,17 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
 
                     // Only processing categorical and unidimensional parameters
                     .addFilterQuery("observation_type:(categorical OR unidimensional)")
+
+                    // Filter out incorrect M-G-P pipeline bodyweight
+                    .addFilterQuery("-parameter_stable_id:M-G-P_022_001_001")
+
+                    // Filter out IMM results unwil we have normalised parameters
+                    .addFilterQuery("-parameter_stable_id:*_IMM_*")
+
+
+                    // Include only parameters for which we have experimental data
                     .addFilterQuery("biological_sample_group:experimental")
+
                     .setRows(0)
                     .setFacet(true)
                     .addFacetPivotField(PIVOT.stream().collect(Collectors.joining(",")));
@@ -92,7 +113,13 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
                     continue;
                 }
 
-                String filename = "tsvs/" + Stream.of(result.get(ObservationDTO.PHENOTYPING_CENTER).replace(" ",""), result.get(ObservationDTO.PIPELINE_STABLE_ID), result.get(ObservationDTO.PROCEDURE_GROUP), result.get(ObservationDTO.STRAIN_ACCESSION_ID).replace(":","")).collect(Collectors.joining("-")) + ".tsv";
+                String filename = "tsvs/" + Stream.of(
+                        result.get(ObservationDTO.DATASOURCE_NAME).replace(" ","_"),
+                        result.get(ObservationDTO.PROJECT_NAME).replace(" ","_"),
+                        result.get(ObservationDTO.PHENOTYPING_CENTER).replace(" ","_"),
+                        result.get(ObservationDTO.PIPELINE_STABLE_ID),
+                        result.get(ObservationDTO.PROCEDURE_GROUP),
+                        result.get(ObservationDTO.STRAIN_ACCESSION_ID).replace(":","")).collect(Collectors.joining("-")) + ".tsv";
                 Path p = new File(filename).toPath();
                 logger.info("Writing file {} ({})", filename, p);
 
@@ -152,6 +179,61 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
 
                     specimenParameterMap.get(key).put(observationDTO.getParameterStableId(), dataValue);
 
+
+                    // Add a column for the MAPPED category for EYE parameters
+                    if (ObservationType.valueOf(observationDTO.getObservationType()) == ObservationType.categorical &&
+                            (
+                                observationDTO.getParameterStableId().toUpperCase().contains("_EYE_") ||
+                                observationDTO.getParameterStableId().toUpperCase().contains("M-G-P_014") ||
+                                observationDTO.getParameterStableId().toUpperCase().contains("ESLIM_014")
+                            )
+                        ) {
+
+                        // Get mapped data category
+                        String mappedDataValue = observationDTO.getCategory();
+                        switch (observationDTO.getCategory()) {
+
+                            case "imageOnly":
+                            case "no data":
+                            case "no data for both eyes":
+                            case "No data":
+                            case "not defined":
+                            case "unobservable":
+                                mappedDataValue = "";
+                                break;
+
+                            case "no data left eye":
+                            case "no data right eye":
+                                // Map to normal category
+                                mappedDataValue = normalEyeCategory.get(observationDTO.getParameterStableId());
+                                break;
+
+                            case "no data left eye, present right eye":
+                                mappedDataValue = "present right eye";
+                                break;
+
+                            case "no data right eye, present left eye":
+                                mappedDataValue = "present left eye";
+                                break;
+
+                            case "no data left eye, right eye abnormal":
+                                mappedDataValue = "right eye abnormal";
+                                break;
+
+                            case "no data right eye, left eye abnormal":
+                                mappedDataValue = "left eye abnormal";
+                                break;
+
+                            default:
+                                break;
+                        }
+
+                        String mappedCategory = observationDTO.getParameterStableId() + "_MAPPED";
+                        specimenParameterMap.get(key).put(mappedCategory, mappedDataValue);
+
+                    }
+
+
                 }
 
                 logger.info("  Has {} specimens with {} parameters", specimenParameterMap.size(), specimenParameterMap.values().stream().mapToInt(value -> value.keySet().size()).sum());
@@ -168,8 +250,10 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
                 List<List<String>> lines = new ArrayList<>();
                 lines.add(headers);
 
-                for (String key : specimenParameterMap.keySet()) {
-                    if (specimenParameterMap.get(key).values().stream().count() < 1) {
+               for (String key : specimenParameterMap.keySet()) {
+
+                    // If the specimen doesn't have any parameters associated, skip it
+                    if (specimenParameterMap.get(key).values().size() < 1) {
                         continue;
                     }
 
@@ -177,10 +261,10 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
 
                     List<String> line = new ArrayList<>();
                     line.addAll(Arrays.asList(key.split("\t")));
-                    line.add("::"); // Seperator column
+                    line.add("::"); // Separator column
 
                     for (String parameter : sortedParameters) {
-                        line.add( data.containsKey(parameter) ? data.get(parameter) : "" );
+                        line.add(data.getOrDefault(parameter, ""));
                     }
 
                     lines.add(line);
@@ -208,6 +292,80 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
             ex.printStackTrace();
         }
 
+    }
+
+    /**
+     * Get list of "normal" category
+     * @return map of categories
+     */
+    private Map<String,String> getNormalEyeCategories() {
+
+    Map<String,String> map = new HashMap<>();
+
+        map.put("ESLIM_014_001_001", "normal");
+        map.put("ESLIM_014_001_003", "normal");
+        map.put("ESLIM_014_001_004", "absent");
+        map.put("ESLIM_014_001_005", "normal");
+        map.put("ESLIM_014_001_006", "normal");
+        map.put("ESLIM_014_001_007", "normal");
+        map.put("ESLIM_014_001_008", "absent");
+        map.put("ESLIM_014_001_009", "normal");
+        map.put("ESLIM_014_001_010", "normal");
+        map.put("ESLIM_014_001_011", "normal");
+        map.put("ESLIM_014_001_012", "normal");
+        map.put("ESLIM_014_001_013", "normal");
+        map.put("ESLIM_014_001_014", "normal");
+        map.put("ESLIM_014_001_015", "normal");
+        map.put("IMPC_EYE_001_001",  "present");
+        map.put("IMPC_EYE_002_001",  "absent");
+        map.put("IMPC_EYE_003_001",  "absent");
+        map.put("IMPC_EYE_004_001",  "normal");
+        map.put("IMPC_EYE_005_001",  "normal");
+        map.put("IMPC_EYE_006_001",  "normal");
+        map.put("IMPC_EYE_007_001",  "normal");
+        map.put("IMPC_EYE_008_001",  "absent");
+        map.put("IMPC_EYE_009_001",  "absent");
+        map.put("IMPC_EYE_010_001",  "normal");
+        map.put("IMPC_EYE_011_001",  "normal");
+        map.put("IMPC_EYE_012_001",  "normal");
+        map.put("IMPC_EYE_013_001",  "normal");
+        map.put("IMPC_EYE_014_001",  "normal");
+        map.put("IMPC_EYE_015_001",  "normal");
+        map.put("IMPC_EYE_016_001",  "normal");
+        map.put("IMPC_EYE_017_001",  "absent");
+        map.put("IMPC_EYE_018_001",  "absent");
+        map.put("IMPC_EYE_019_001",  "absent");
+        map.put("IMPC_EYE_020_001",  "normal");
+        map.put("IMPC_EYE_021_001",  "normal");
+        map.put("IMPC_EYE_022_001",  "normal");
+        map.put("IMPC_EYE_023_001",  "normal");
+        map.put("IMPC_EYE_024_001",  "normal");
+        map.put("IMPC_EYE_025_001",  "normal");
+        map.put("IMPC_EYE_026_001",  "normal");
+        map.put("IMPC_EYE_027_001",  "absent");
+        map.put("IMPC_EYE_080_001",  "absent");
+        map.put("IMPC_EYE_081_001",  "absent");
+        map.put("IMPC_EYE_082_001",  "normal");
+        map.put("IMPC_EYE_083_001",  "normal");
+        map.put("IMPC_EYE_084_001",  "absent");
+        map.put("IMPC_EYE_085_001",  "absent");
+        map.put("IMPC_EYE_086_001",  "absent");
+        map.put("M-G-P_014_001_001", "normal");
+        map.put("M-G-P_014_001_003", "normal");
+        map.put("M-G-P_014_001_004", "absent");
+        map.put("M-G-P_014_001_005", "normal");
+        map.put("M-G-P_014_001_006", "normal");
+        map.put("M-G-P_014_001_007", "normal");
+        map.put("M-G-P_014_001_008", "absent");
+        map.put("M-G-P_014_001_009", "normal");
+        map.put("M-G-P_014_001_010", "normal");
+        map.put("M-G-P_014_001_011", "normal");
+        map.put("M-G-P_014_001_012", "normal");
+        map.put("M-G-P_014_001_013", "normal");
+        map.put("M-G-P_014_001_014", "normal");
+        map.put("M-G-P_014_001_015", "normal");
+
+        return map;
     }
 
     /**
@@ -241,6 +399,17 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
                 }
 
                 parameters.get(procedureGroup).add(x.getParameterStableId());
+
+                // Add another column to the EYE procedures to store the mapped categories (or slit lamp for legacy procedures)
+                // as agreed at the 20170824 Dev call
+                if (x.getParameterStableId().toUpperCase().contains("IMPC_EYE") ||
+                        procedureGroup.toUpperCase().contains("M-G-P_014") ||
+                        procedureGroup.toUpperCase().contains("ESLIM_014")) {
+                    String mappedParameter = x.getParameterStableId() + "_MAPPED";
+                    parameters.get(procedureGroup).add(mappedParameter);
+
+                }
+
 
             });
 
