@@ -75,13 +75,13 @@ public class PreqcIndexer extends AbstractIndexer implements CommandLineRunner {
     @Autowired
     EncodedOrganisationConversionMap dccMapping;
 
-    private static Map<String, String> geneSymbol2IdMapping = new HashMap<>();
+    private static Map<String, String>    geneSymbol2IdMapping       = new HashMap<>();
     private static Map<String, AlleleDTO> alleleSymbol2NameIdMapping = new HashMap<>();
-    private static Map<String, String> strainId2NameMapping = new HashMap<>();
-    private static Map<String, String> pipelineSid2NameMapping = new HashMap<>();
-    private static Map<String, String> procedureSid2NameMapping = new HashMap<>();
-    private static Map<String, String> parameterSid2NameMapping = new HashMap<>();
-    private Set<Integer> missingPhenotypeTerm = new HashSet<>();
+    private static Map<String, String>    strainId2NameMapping       = new HashMap<>();
+    private static Map<String, String>    pipelineSid2NameMapping    = new HashMap<>();
+    private static Map<String, String>    procedureSid2NameMapping   = new HashMap<>();
+    private static Map<String, String>    parameterSid2NameMapping   = new HashMap<>();
+    private Set<Integer>                  missingPhenotypeTerm       = new HashSet<>();
 
     private static Map<String, String> projectMap = new HashMap<>();
     private static Map<String, String> resourceMap = new HashMap<>();
@@ -586,11 +586,9 @@ public class PreqcIndexer extends AbstractIndexer implements CommandLineRunner {
     public void doStrainId2NameMapping() {
 
         ResultSet rs;
-        Statement statement;
 
         String query = "select acc, name from strain";
-        try {
-            statement = conn_komp2.createStatement();
+        try (Statement statement = conn_komp2.createStatement()) {
             rs = statement.executeQuery(query);
 
             while (rs.next()) {

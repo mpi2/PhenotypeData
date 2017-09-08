@@ -1,5 +1,6 @@
 package org.mousephenotype.cda.indexers.configuration;
 
+import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrClient;
 import org.hibernate.SessionFactory;
@@ -46,6 +47,17 @@ public class IndexerConfig {
     @NotNull
     @Value("${buildIndexesSolrUrl}")
     private String writeSolrBaseUrl;
+
+
+    @Value("${datasource.komp2.url}")
+    String riUrl;
+
+    @Value("${datasource.komp2.username}")
+    String username;
+
+    @Value("${datasource.komp2.password}")
+    String password;
+
 
     // Indexers for writing
     @Bean
@@ -129,15 +141,25 @@ public class IndexerConfig {
 	SolrClient phenodigmCore() {
 		return new ConcurrentUpdateSolrClient(writeSolrBaseUrl + "/phenodigm", QUEUE_SIZE, THREAD_COUNT);
 	}
-   
-
 
 	// database connections
     @Bean
     @Primary
-    @ConfigurationProperties(prefix = "datasource.komp2")
     public DataSource komp2DataSource() {
-        return DataSourceBuilder.create().driverClassName("com.mysql.jdbc.Driver").build();
+
+        DataSource ds = DataSourceBuilder
+                .create()
+                .url(riUrl)
+                .username(username)
+                .password(password)
+                .type(BasicDataSource.class)
+                .driverClassName("com.mysql.jdbc.Driver").build();
+
+        ((BasicDataSource) ds).setInitialSize(4);
+        ((BasicDataSource) ds).setTestOnBorrow(true);
+        ((BasicDataSource) ds).setValidationQuery("SELECT 1");
+
+        return ds;
     }
 
     @Bean
