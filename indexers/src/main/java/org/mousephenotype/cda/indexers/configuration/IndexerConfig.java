@@ -48,17 +48,6 @@ public class IndexerConfig {
     @Value("${buildIndexesSolrUrl}")
     private String writeSolrBaseUrl;
 
-
-    @Value("${datasource.komp2.url}")
-    String riUrl;
-
-    @Value("${datasource.komp2.username}")
-    String username;
-
-    @Value("${datasource.komp2.password}")
-    String password;
-
-
     // Indexers for writing
     @Bean
     SolrClient experimentCore() {
@@ -142,24 +131,12 @@ public class IndexerConfig {
 		return new ConcurrentUpdateSolrClient(writeSolrBaseUrl + "/phenodigm", QUEUE_SIZE, THREAD_COUNT);
 	}
 
-	// database connections
+    // database connections
     @Bean
     @Primary
+    @ConfigurationProperties(prefix = "datasource.komp2")
     public DataSource komp2DataSource() {
-
-        DataSource ds = DataSourceBuilder
-                .create()
-                .url(riUrl)
-                .username(username)
-                .password(password)
-                .type(BasicDataSource.class)
-                .driverClassName("com.mysql.jdbc.Driver").build();
-
-        ((BasicDataSource) ds).setInitialSize(4);
-        ((BasicDataSource) ds).setTestOnBorrow(true);
-        ((BasicDataSource) ds).setValidationQuery("SELECT 1");
-
-        return ds;
+        return DataSourceBuilder.create().driverClassName("com.mysql.jdbc.Driver").build();
     }
 
     @Bean
