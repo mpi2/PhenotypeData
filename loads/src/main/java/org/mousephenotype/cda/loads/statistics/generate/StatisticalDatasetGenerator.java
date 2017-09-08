@@ -113,11 +113,6 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
                     continue;
                 }
 
-                if (i > 100) {
-                    // Short circuit after 10 iterations
-                    break;
-                }
-
                 String filename = "tsvs/" + Stream.of(
                         result.get(ObservationDTO.DATASOURCE_NAME).replace(" ","_"),
                         result.get(ObservationDTO.PROJECT_NAME).replace(" ","_"),
