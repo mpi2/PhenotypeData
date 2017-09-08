@@ -23,8 +23,8 @@ public class Allele {
     private String phenotypeStatus;
     private String mgiAccessionId;
 
-    @Relationship(type="GENE", direction=Relationship.OUTGOING)
-    private Gene gene;
+//    @Relationship(type="GENE", direction=Relationship.OUTGOING)
+//    private Gene gene;
 
 
     public Long getId() {
@@ -91,13 +91,6 @@ public class Allele {
         this.phenotypeStatus = phenotypeStatus;
     }
 
-    public Gene getGene() {
-        return gene;
-    }
-
-    public void setGene(Gene gene) {
-        this.gene = gene;
-    }
 
     public String getAlleleType() {
         return alleleType;
@@ -128,7 +121,6 @@ public class Allele {
                 ", mouseStatus='" + mouseStatus + '\'' +
                 ", phenotypeStatus='" + phenotypeStatus + '\'' +
                 ", mgiAccessionId='" + mgiAccessionId + '\'' +
-                ", gene=" + gene +
                 '}';
     }
 }
