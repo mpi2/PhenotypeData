@@ -92,7 +92,6 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
                     // Filter out IMM results unwil we have normalised parameters
                     .addFilterQuery("-parameter_stable_id:*_IMM_*")
 
-
                     // Include only parameters for which we have experimental data
                     .addFilterQuery("biological_sample_group:experimental")
 
