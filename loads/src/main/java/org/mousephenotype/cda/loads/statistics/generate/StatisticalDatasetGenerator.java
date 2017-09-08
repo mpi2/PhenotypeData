@@ -89,6 +89,10 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
                     // Filter out incorrect M-G-P pipeline bodyweight
                     .addFilterQuery("-parameter_stable_id:M-G-P_022_001_001")
 
+                    // Filter out IMM results unwil we have normalised parameters
+                    .addFilterQuery("-parameter_stable_id:*_IMM_*")
+
+
                     // Include only parameters for which we have experimental data
                     .addFilterQuery("biological_sample_group:experimental")
 
