@@ -85,7 +85,13 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
 
                     // Only processing categorical and unidimensional parameters
                     .addFilterQuery("observation_type:(categorical OR unidimensional)")
+
+                    // Filter out incorrect M-G-P pipeline bodyweight
+                    .addFilterQuery("-parameter_stable_id:M-G-P_022_001_001")
+
+                    // Include only parameters for which we have experimental data
                     .addFilterQuery("biological_sample_group:experimental")
+
                     .setRows(0)
                     .setFacet(true)
                     .addFacetPivotField(PIVOT.stream().collect(Collectors.joining(",")));
@@ -178,9 +184,9 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
                     // Add a column for the MAPPED category for EYE parameters
                     if (ObservationType.valueOf(observationDTO.getObservationType()) == ObservationType.categorical &&
                             (
-                                observationDTO.getParameterStableId().toLowerCase().contains("_EYE_") ||
-                                observationDTO.getParameterStableId().toLowerCase().contains("M-G-P_014") ||
-                                observationDTO.getParameterStableId().toLowerCase().contains("ESLIM_014")
+                                observationDTO.getParameterStableId().toUpperCase().contains("_EYE_") ||
+                                observationDTO.getParameterStableId().toUpperCase().contains("M-G-P_014") ||
+                                observationDTO.getParameterStableId().toUpperCase().contains("ESLIM_014")
                             )
                         ) {
 
@@ -245,7 +251,7 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
                 List<List<String>> lines = new ArrayList<>();
                 lines.add(headers);
 
-                for (String key : specimenParameterMap.keySet()) {
+               for (String key : specimenParameterMap.keySet()) {
 
                     // If the specimen doesn't have any parameters associated, skip it
                     if (specimenParameterMap.get(key).values().size() < 1) {
@@ -397,9 +403,11 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
 
                 // Add another column to the EYE procedures to store the mapped categories (or slit lamp for legacy procedures)
                 // as agreed at the 20170824 Dev call
-                if (x.getParameterStableId().toLowerCase().contains("_EYE_") || procedureGroup.equals("M-G-P_014") || procedureGroup.equals("ESLIM_014")) {
-                    String mappedCategory = x.getParameterStableId() + "_MAPPED";
-                    parameters.get(procedureGroup).add(mappedCategory);
+                if (x.getParameterStableId().toUpperCase().contains("IMPC_EYE") ||
+                        procedureGroup.toUpperCase().contains("M-G-P_014") ||
+                        procedureGroup.toUpperCase().contains("ESLIM_014")) {
+                    String mappedParameter = x.getParameterStableId() + "_MAPPED";
+                    parameters.get(procedureGroup).add(mappedParameter);
 
                 }
 
