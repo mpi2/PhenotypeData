@@ -15,11 +15,11 @@ public class OntoSynonym {
 
     private String ontoSynonym;
 
-    @Relationship(type="MOUSE_PHENOTYPE", direction=Relationship.OUTGOING)
-    private Mp mousePhenotype;
-
-    @Relationship(type="HUMAN_PHENOTYPE", direction=Relationship.OUTGOING)
-    private Hp humanPhenotype;
+//    @Relationship(type="MOUSE_PHENOTYPE", direction=Relationship.OUTGOING)
+//    private Mp mousePhenotype;
+//
+//    @Relationship(type="HUMAN_PHENOTYPE", direction=Relationship.OUTGOING)
+//    private Hp humanPhenotype;
 
 
     public Long getId() {
@@ -38,21 +38,6 @@ public class OntoSynonym {
         this.ontoSynonym = ontoSynonym;
     }
 
-    public Mp getMousePhenotype() {
-        return mousePhenotype;
-    }
-
-    public void setMousePhenotype(Mp mousePhenotype) {
-        this.mousePhenotype = mousePhenotype;
-    }
-
-    public Hp getHumanPhenotype() {
-        return humanPhenotype;
-    }
-
-    public void setHumanPhenotype(Hp humanPhenotype) {
-        this.humanPhenotype = humanPhenotype;
-    }
 
 
     @Override
@@ -60,8 +45,6 @@ public class OntoSynonym {
         return "OntoSynonym{" +
                 "id=" + id +
                 ", ontoSynonym='" + ontoSynonym + '\'' +
-                ", mousePhenotype=" + mousePhenotype +
-                ", humanPhenotype=" + humanPhenotype +
                 '}';
     }
 }

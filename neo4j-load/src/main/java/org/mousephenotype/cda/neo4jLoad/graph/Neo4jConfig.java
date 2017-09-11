@@ -39,6 +39,12 @@ public class Neo4jConfig {
         return new HttpSolrClient(solrBaseUrl + "/statistical-result");
     }
 
+    @Bean(name = "allele2Core")
+    HttpSolrClient getAllele2Core() {
+        return new HttpSolrClient(solrBaseUrl + "/allele2");
+    }
+
+
     @Bean
     public org.neo4j.ogm.config.Configuration getConfiguration() {
         org.neo4j.ogm.config.Configuration config = new org.neo4j.ogm.config.Configuration();

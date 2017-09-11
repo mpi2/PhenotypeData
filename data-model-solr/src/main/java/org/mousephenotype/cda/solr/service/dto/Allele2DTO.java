@@ -110,10 +110,10 @@ public class Allele2DTO {
 	private List<String> alleleSymbolSearchVariants;
 
 	@Field(LATEST_PRODUCTION_CENTRE)
-	private String latestProductionCentre;
+	private List<String> latestProductionCentre;
 
 	@Field(LATEST_PHENOTYPING_CENTRE)
-	private String latestPhenotypingCentre;
+	private List<String> latestPhenotypingCentre;
 
 	@Field(LATEST_PHENOTYPE_STATUS)
 	private String latestPhenotypeStatus;
@@ -373,19 +373,19 @@ public class Allele2DTO {
 		this.phenotypingCentres = phenotypingCentres;
 	}
 
-	public String getLatestProductionCentre() {
+	public List<String> getLatestProductionCentre() {
 		return latestProductionCentre;
 	}
 
-	public void setLatestProductionCentre(String latestProductionCentre) {
+	public void setLatestProductionCentre(List<String> latestProductionCentre) {
 		this.latestProductionCentre = latestProductionCentre;
 	}
 
-	public String getLatestPhenotypingCentre() {
+	public List<String> getLatestPhenotypingCentre() {
 		return latestPhenotypingCentre;
 	}
 
-	public void setLatestPhenotypingCentre(String latestPhenotypingCentre) {
+	public void setLatestPhenotypingCentre(List<String> latestPhenotypingCentre) {
 		this.latestPhenotypingCentre = latestPhenotypingCentre;
 	}
 
@@ -644,6 +644,8 @@ public class Allele2DTO {
 
 		Allele2DTO that = (Allele2DTO) o;
 
+		if (alleleDesignProject != null ? !alleleDesignProject.equals(that.alleleDesignProject) : that.alleleDesignProject != null)
+			return false;
 		if (mutationType != null ? !mutationType.equals(that.mutationType) : that.mutationType != null) return false;
 		if (alleleCategory != null ? !alleleCategory.equals(that.alleleCategory) : that.alleleCategory != null)
 			return false;
@@ -678,6 +680,8 @@ public class Allele2DTO {
 		if (geneticMapLinks != null ? !geneticMapLinks.equals(that.geneticMapLinks) : that.geneticMapLinks != null)
 			return false;
 		if (phenotypingCentres != null ? !phenotypingCentres.equals(that.phenotypingCentres) : that.phenotypingCentres != null)
+			return false;
+		if (alleleSymbolSearchVariants != null ? !alleleSymbolSearchVariants.equals(that.alleleSymbolSearchVariants) : that.alleleSymbolSearchVariants != null)
 			return false;
 		if (latestProductionCentre != null ? !latestProductionCentre.equals(that.latestProductionCentre) : that.latestProductionCentre != null)
 			return false;
@@ -728,12 +732,12 @@ public class Allele2DTO {
 		if (vectorAlleleImage != null ? !vectorAlleleImage.equals(that.vectorAlleleImage) : that.vectorAlleleImage != null)
 			return false;
 		return vectorGenbankLink != null ? vectorGenbankLink.equals(that.vectorGenbankLink) : that.vectorGenbankLink == null;
-
 	}
 
 	@Override
 	public int hashCode() {
-		int result = mutationType != null ? mutationType.hashCode() : 0;
+		int result = alleleDesignProject != null ? alleleDesignProject.hashCode() : 0;
+		result = 31 * result + (mutationType != null ? mutationType.hashCode() : 0);
 		result = 31 * result + (alleleCategory != null ? alleleCategory.hashCode() : 0);
 		result = 31 * result + (alleleFeatures != null ? alleleFeatures.hashCode() : 0);
 		result = 31 * result + (withoutAlleleFeatures != null ? withoutAlleleFeatures.hashCode() : 0);
@@ -753,6 +757,7 @@ public class Allele2DTO {
 		result = 31 * result + (latestPhenotypeComplete != null ? latestPhenotypeComplete.hashCode() : 0);
 		result = 31 * result + (geneticMapLinks != null ? geneticMapLinks.hashCode() : 0);
 		result = 31 * result + (phenotypingCentres != null ? phenotypingCentres.hashCode() : 0);
+		result = 31 * result + (alleleSymbolSearchVariants != null ? alleleSymbolSearchVariants.hashCode() : 0);
 		result = 31 * result + (latestProductionCentre != null ? latestProductionCentre.hashCode() : 0);
 		result = 31 * result + (latestPhenotypingCentre != null ? latestPhenotypingCentre.hashCode() : 0);
 		result = 31 * result + (latestPhenotypeStatus != null ? latestPhenotypeStatus.hashCode() : 0);

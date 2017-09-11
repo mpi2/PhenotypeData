@@ -4,12 +4,15 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.response.QueryResponse;
 import org.mousephenotype.cda.annotations.ComponentScanNonParticipant;
 import org.mousephenotype.cda.neo4j.entity.*;
 import org.mousephenotype.cda.neo4j.repository.*;
 import org.mousephenotype.cda.owl.OntologyParser;
 import org.mousephenotype.cda.owl.OntologyParserFactory;
 import org.mousephenotype.cda.owl.OntologyTermDTO;
+import org.mousephenotype.cda.solr.service.dto.Allele2DTO;
+import org.mousephenotype.cda.solr.service.dto.AlleleDTO;
 import org.mousephenotype.cda.solr.service.dto.StatisticalResultDTO;
 import org.neo4j.ogm.session.Session;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
@@ -117,12 +120,13 @@ public class Loader implements CommandLineRunner {
     private SolrClient statisticalResultCore;
 
     @Autowired
+    @Qualifier("allele2Core")
+    private SolrClient allele2Core;
+
+    @Autowired
     private Session neo4jSession;
 
     OntologyParserFactory ontologyParserFactory;
-
-    Map<String, String> komp2GeneAccGeneSymbol = new HashMap<>();
-    Map<String, String> komp2AlleleSymbolAlleleAcc = new HashMap<>();
 
     Map<String, Allele> loadedAlleles = new HashMap<>();
     Map<String, Allele> loadedAlleleIdAllele = new HashMap<>();
@@ -298,14 +302,12 @@ public class Loader implements CommandLineRunner {
                 .setQuery("*:*")
                 .setRows(0);
 
-        System.out.println(query1);
-
         int batch = 5000;
         int docNum = toIntExact(statisticalResultCore.query(query1).getResults().getNumFound());
         int residue = toIntExact(docNum % batch); // 500 doc at a time;
 
         int srCount = 0;
-        int cycles = docNum / batch;
+        int cycles = docNum / batch == 0 ? 1 : docNum / batch;
         logger.info("Got {} stats results to load...Loading in {} batches, {} results at a time", docNum, cycles, batch);
 
         Map<String, Set<String>> nonMatchingAlleles = new HashMap<>();
@@ -318,8 +320,11 @@ public class Loader implements CommandLineRunner {
             int start = i*batch;
             int row = batch;
 
-            if (cycles -1 == i){
+            if (cycles -1 == i && cycles != 1){
                 row = row + residue;
+            }
+            else if (cycles -1 == i && cycles == 1){
+                row = residue;
             }
 
             logger.info("cycle " + i + " start: "+ start + " row count: "+ row);
@@ -335,143 +340,130 @@ public class Loader implements CommandLineRunner {
             for (StatisticalResultDTO result : srdto) {
                 int srDbid = result.getDbId();
                 String srDocId = result.getDocId();
+                //System.out.println(srDocId);
 
-                //if (srDocId.equals("IMPC_OFD_010_001_CONT_150699")) {
-                    //System.out.println("1. found IMPC_OFD_010_001_CONT_150699");
+                if (result.getMpTermId() != null || result.getMaleMpTermId() != null || result.getFemaleMpTermId() != null) {
 
+                    StatisticalResult sr = new StatisticalResult();
 
-                    if (result.getMpTermId() != null || result.getMaleMpTermId() != null || result.getFemaleMpTermId() != null) {
+                    sr.setDocId(srDocId);
 
-                        StatisticalResult sr = new StatisticalResult();
+                    String thisMpId = null;
+                    if (result.getMpTermId() != null) {
+                        thisMpId = result.getMpTermId();
+                    } else if (result.getMaleMpTermId() != null) {
+                        thisMpId = result.getMaleMpTermId();
+                    } else if (result.getFemaleMpTermId() != null) {
+                        thisMpId = result.getFemaleMpTermId();
+                    }
 
-                        sr.setDocId(srDocId);
+                    sr.setPvalue(result.getpValue());
+                    sr.setPhenotypeSex(result.getPhenotypeSex());
+                    sr.setPhenotypingCenter(result.getPhenotypingCenter());
+                    sr.setColonyId(result.getColonyId());
+                    sr.setZygosity(result.getZygosity());
+                    sr.setEffectSize(result.getEffectSize());
 
-                        String thisMpId = null;
-                        if (result.getMpTermId() != null) {
-                            thisMpId = result.getMpTermId();
-                        } else if (result.getMaleMpTermId() != null) {
-                            thisMpId = result.getMaleMpTermId();
-                        } else if (result.getFemaleMpTermId() != null) {
-                            thisMpId = result.getFemaleMpTermId();
+                    sr.setSignificant(result.getSignificant() != null ? result.getSignificant() : false);
+
+                    // load through relationships
+                    String mgiAcc = result.getMarkerAccessionId();
+                    // System.out.println("Gene: " + mgiAcc);
+                    if (loadedGenes.containsKey(mgiAcc)) {
+                        sr.setGene(loadedGenes.get(mgiAcc));
+                    } else {
+                        String gs = result.getMarkerSymbol();
+                        if (!nonMatchingGeneSymbols.containsKey(gs)) {
+                            nonMatchingGeneSymbols.put(gs, new HashSet<>());
                         }
-//
-//                        if (srDocId.equals("IMPC_OFD_010_001_CONT_150699")) {
-//                            System.out.println("2. found IMPC_OFD_010_001_CONT_150699");
-//                            System.out.println("MP: " + thisMpId);
-//                            System.out.println(result.toString());
-//                        }
+                        nonMatchingGeneSymbols.get(gs).add(thisMpId + " - " + srDocId);
+                        //logger.warn("({}) {} ({}) is not an IMPC gene", srDocId, mgiAcc, gs);
+                    }
 
-                        sr.setPvalue(result.getpValue());
-                        sr.setPhenotypeSex(result.getPhenotypeSex());
-                        sr.setPhenotypingCenter(result.getPhenotypingCenter());
-                        sr.setColonyId(result.getColonyId());
-                        sr.setZygosity(result.getZygosity());
-                        sr.setEffectSize(result.getEffectSize());
+                    String alleleAcc = result.getAlleleAccessionId();
+                    String alleleSymbol = result.getAlleleSymbol();
+                    //System.out.println("Allele: " + alleleSymbol + " -- " + alleleAcc);
+                    if (loadedAlleles.containsKey(alleleSymbol)) {
+                        sr.setAllele(loadedAlleles.get(alleleSymbol));
+                    }
+//                      if (loadedAlleleIdAllele.containsKey(alleleAcc)) {
+//                           sr.setAllele(loadedAlleleIdAllele.get(alleleAcc));
+//                      }
+                    else {
+                        if (!nonMatchingAlleles.containsKey(alleleSymbol + " -- " + alleleAcc)) {
+                            nonMatchingAlleles.put(alleleSymbol + " -- " + alleleAcc, new HashSet<>());
+                        }
+                        nonMatchingAlleles.get(alleleSymbol + " -- " + alleleAcc).add(thisMpId + " - " + srDocId);
+                        //logger.warn("({}) {} ({}) is not an IMPC allele", srDocId, alleleAcc, alleleSymbol);
+                    }
 
-                        sr.setSignificant(result.getSignificant() != null ? result.getSignificant() : false);
-
-                        // load through relationships
-                        String mgiAcc = result.getMarkerAccessionId();
-                        if (loadedGenes.containsKey(mgiAcc)) {
-                            sr.setGene(loadedGenes.get(mgiAcc));
+                    Set<Mp> mps = new HashSet<>();
+                    if (result.getMpTermId() != null) {
+                        String mpId = result.getMpTermId();
+                        //System.out.println("mp id: " + mpId);
+                        if (loadedMps.containsKey(mpId)) {
+                            mps.add(loadedMps.get(mpId));
                         } else {
-                            String gs = result.getMarkerSymbol();
-                            if (!nonMatchingGeneSymbols.containsKey(gs)) {
-                                nonMatchingGeneSymbols.put(gs, new HashSet<>());
+                            if (!nonMatchingMpIds.containsKey(mpId)) {
+                                nonMatchingMpIds.put(mpId, new HashSet<>());
                             }
-                            nonMatchingGeneSymbols.get(gs).add(thisMpId + " - " + srDocId);
-                            //logger.warn("({}) {} ({}) is not an IMPC gene", srDocId, mgiAcc, gs);
+                            nonMatchingMpIds.get(mpId).add(srDocId);
+                            //logger.warn("({}) MP id {} is not an IMPC MP", srDocId, mpId);
                         }
-
-                        String alleleAcc = result.getAlleleAccessionId();
-                        String alleleSymbol = result.getAlleleSymbol();
-                        if (loadedAlleles.containsKey(alleleSymbol)) {
-                            sr.setAllele(loadedAlleles.get(alleleSymbol));
-
-//                            if (srDocId.equals("IMPC_OFD_010_001_CONT_150699")) {
-//                                System.out.println("SR node: " + sr.toString());
-//                            }
-
-                        }
-
-//                    if (loadedAlleleIdAllele.containsKey(alleleAcc)) {
-//                        sr.setAllele(loadedAlleleIdAllele.get(alleleAcc));
-//                    }
-                        else {
-                            if (!nonMatchingAlleles.containsKey(alleleSymbol + " -- " + alleleAcc)) {
-                                nonMatchingAlleles.put(alleleSymbol + " -- " + alleleAcc, new HashSet<>());
-                            }
-                            nonMatchingAlleles.get(alleleSymbol + " -- " + alleleAcc).add(thisMpId + " - " + srDocId);
-                            //logger.warn("({}) {} ({}) is not an IMPC allele", srDocId, alleleAcc, alleleSymbol);
-                        }
-
-                        Set<Mp> mps = new HashSet<>();
-                        if (result.getMpTermId() != null) {
-                            String mpId = result.getMpTermId();
-                            if (loadedMps.containsKey(mpId)) {
-                                mps.add(loadedMps.get(mpId));
+                    } else {
+                        if (result.getMaleMpTermId() != null) {
+                            String maleMpId = result.getMaleMpTermId();
+                            //System.out.println("male mp id: " + maleMpId);
+                            if (loadedMps.containsKey(maleMpId)) {
+                                mps.add(loadedMps.get(maleMpId));
                             } else {
-                                if (!nonMatchingMpIds.containsKey(mpId)) {
-                                    nonMatchingMpIds.put(mpId, new HashSet<>());
+                                if (!nonMatchingMpIds.containsKey(maleMpId)) {
+                                    nonMatchingMpIds.put(maleMpId, new HashSet<>());
                                 }
-                                nonMatchingMpIds.get(mpId).add(srDocId);
-                                //logger.warn("({}) MP id {} is not an IMPC MP", srDocId, mpId);
-                            }
-                        } else {
-                            if (result.getMaleMpTermId() != null) {
-                                String maleMpId = result.getMaleMpTermId();
-                                if (loadedMps.containsKey(maleMpId)) {
-                                    mps.add(loadedMps.get(maleMpId));
-                                } else {
-                                    if (!nonMatchingMpIds.containsKey(maleMpId)) {
-                                        nonMatchingMpIds.put(maleMpId, new HashSet<>());
-                                    }
-                                    nonMatchingMpIds.get(maleMpId).add(srDocId);
-                                    //logger.warn("({}) Male MP id {} is not an IMPC MP", srDocId, maleMpId);
-                                }
-                            }
-                            if (result.getFemaleMpTermId() != null) {
-                                String femaleMpId = result.getFemaleMpTermId();
-                                if (loadedMps.containsKey(femaleMpId)) {
-                                    mps.add(loadedMps.get(femaleMpId));
-                                } else {
-                                    if (!nonMatchingMpIds.containsKey(femaleMpId)) {
-                                        nonMatchingMpIds.put(femaleMpId, new HashSet<>());
-                                    }
-                                    nonMatchingMpIds.get(femaleMpId).add(srDocId);
-                                    //logger.warn("({}) Female MP id {} is not an IMPC MP", srDocId, femaleMpId);
-                                }
+                                nonMatchingMpIds.get(maleMpId).add(srDocId);
+                                //logger.warn("({}) Male MP id {} is not an IMPC MP", srDocId, maleMpId);
                             }
                         }
-                        sr.setMps(mps);
-
-                        if (loadedProcedures.containsKey(result.getProcedureStableId())) {
-                            sr.setProcedure(loadedProcedures.get(result.getProcedureStableId()));
-                            sr.setProcedureName(loadedProcedures.get(result.getProcedureStableId()).getName());
-                        } else {
-                            //logger.warn(result.getProcedureStableId() + " is not an IMPC procedure");
-
+                        if (result.getFemaleMpTermId() != null) {
+                            String femaleMpId = result.getFemaleMpTermId();
+                            //System.out.println("female mp id: " + femaleMpId);
+                            if (loadedMps.containsKey(femaleMpId)) {
+                                mps.add(loadedMps.get(femaleMpId));
+                            } else {
+                                if (!nonMatchingMpIds.containsKey(femaleMpId)) {
+                                    nonMatchingMpIds.put(femaleMpId, new HashSet<>());
+                                }
+                                nonMatchingMpIds.get(femaleMpId).add(srDocId);
+                                //logger.warn("({}) Female MP id {} is not an IMPC MP", srDocId, femaleMpId);
+                            }
                         }
+                    }
+                    //System.out.println("MP: "+ mps);
+                    sr.setMps(mps);
 
-                        if (loadedParameters.containsKey(result.getParameterStableId())) {
-                            sr.setParameter(loadedParameters.get(result.getParameterStableId()));
-                            sr.setParameterName(loadedParameters.get(result.getParameterStableId()).getName());
-                        } else {
-                            //logger.warn(result.getParameterStableId() + " is not an IMPC parameter");
-                        }
-
-                        //System.out.println(sr.toString());
-                        srCount++;
-                        statisticalResultRepository.save(sr);
-
-                        if (srCount % batch == 0) {
-                            logger.info("Added {} StatisticalResult nodes", srCount);
-                        }
+                    if (loadedProcedures.containsKey(result.getProcedureStableId())) {
+                        sr.setProcedure(loadedProcedures.get(result.getProcedureStableId()));
+                        sr.setProcedureName(loadedProcedures.get(result.getProcedureStableId()).getName());
+                    } else {
+                        //logger.warn(result.getProcedureStableId() + " is not an IMPC procedure");
 
                     }
-                //}
-            }
 
+                    if (loadedParameters.containsKey(result.getParameterStableId())) {
+                        sr.setParameter(loadedParameters.get(result.getParameterStableId()));
+                        sr.setParameterName(loadedParameters.get(result.getParameterStableId()).getName());
+                    } else {
+                        //logger.warn(result.getParameterStableId() + " is not an IMPC parameter");
+                    }
+
+                    srCount++;
+                    statisticalResultRepository.save(sr);
+
+                    if (srCount % batch == 0) {
+                        logger.info("Added {} StatisticalResult nodes", srCount);
+                    }
+                }
+            }
         }
 
         logger.info("Loaded total of {} StatisticalResult nodes", srCount);
@@ -496,49 +488,9 @@ public class Loader implements CommandLineRunner {
 
     }
 
-    public void fetchKompGeneAccSymbolMapping() throws SQLException {
-
-        String query = "select acc, symbol from genomic_feature";
-
-        try (Connection connection = komp2DataSource.getConnection();
-             PreparedStatement p = connection.prepareStatement(query)) {
-
-            ResultSet r = p.executeQuery();
-            while (r.next()) {
-
-                String acc = r.getString("acc");
-                String symbol = r.getString("symbol");
-                komp2GeneAccGeneSymbol.put(acc, symbol);
-            }
-        }
-    }
-    public void fetchKompAlleleSymbolAlleleAccMapping() throws SQLException {
-
-        String query = "select acc, symbol from allele";
-
-        try (Connection connection = komp2DataSource.getConnection();
-             PreparedStatement p = connection.prepareStatement(query)) {
-
-            ResultSet r = p.executeQuery();
-            while (r.next()) {
-
-                String acc = r.getString("acc");
-                String symbol = r.getString("symbol");
-                komp2AlleleSymbolAlleleAcc.put(symbol, acc);
-            }
-        }
-    }
-
     public void loadGenes() throws IOException, SolrServerException, SQLException {
 
         long begin = System.currentTimeMillis();
-
-        // get list of mgi genes acc from komp2 db
-        fetchKompGeneAccSymbolMapping();
-
-        // get list of mgi alleles
-        fetchKompAlleleSymbolAlleleAccMapping();
-
 
         final Map<String, String> ES_CELL_STATUS_MAPPINGS = new HashMap<>();
         ES_CELL_STATUS_MAPPINGS.put("No ES Cell Production", "Not Assigned for ES Cell Production");
@@ -555,197 +507,176 @@ public class Loader implements CommandLineRunner {
         MOUSE_STATUS_MAPPINGS.put("Cre Excision Complete", "Mice Produced");
         MOUSE_STATUS_MAPPINGS.put("Phenotype Attempt Registered", "Mice Produced");
 
-        Map<String, Integer> columns = new HashMap<>();
-
-        BufferedReader in = new BufferedReader(new FileReader(new File(pathToAlleleFile)));
-        BufferedReader in2 = new BufferedReader(new FileReader(new File(pathToAlleleFile)));
-
-        String[] header = in.readLine().split("\t");
-        for (int i = 0; i < header.length; i++){
-            columns.put(header[i], i);
-        }
-
         int geneCount = 0;
-        int alleleCount = 0;
 
-        String line = in.readLine();
-        while (line != null) {
-//            System.out.println(line);
-            String[] array = line.split("\t", -1);
-            if (array.length == 1) {
-                continue;
-            }
+        String geneQuery = "select acc, symbol from genomic_feature";
 
-            if (array[columns.get("allele_design_project")].equals("IMPC")
-                    && ! array[columns.get("latest_project_status")].isEmpty()
-                    && array[columns.get("type")].equals("Gene")
-                    && ! array[columns.get("marker_type")].isEmpty()) {
+        try (Connection connection = komp2DataSource.getConnection();
+             PreparedStatement p = connection.prepareStatement(geneQuery)) {
 
-                String mgiAcc = array[columns.get("mgi_accession_id")];
+            ResultSet r = p.executeQuery();
+            while (r.next()) {
 
-                if (komp2GeneAccGeneSymbol.containsKey(mgiAcc)) {
+                String mgiAcc = r.getString("acc");
+                String markerSymbol = r.getString("symbol");
+
+                SolrQuery q = new SolrQuery()
+                        //    .setQuery("*:*"
+                        .setQuery("mgi_accession_id:\"" + mgiAcc + "\" AND type:Gene");
+
+                //System.out.println("query: " + q);
+
+                QueryResponse response = allele2Core.query(q);
+                List<Allele2DTO> aldtos = response.getBeans(Allele2DTO.class);
+
+                for (Allele2DTO al : aldtos) {
 
                     Gene gene = new Gene();
                     gene.setMgiAccessionId(mgiAcc);
+                    gene.setMarkerSymbol(markerSymbol);
+                    gene.setMarkerType(al.getMarkerType());
+                    gene.setMarkerName(al.getMarkerName());
 
-                    String thisSymbol = komp2GeneAccGeneSymbol.get(mgiAcc);
-                    gene.setMarkerSymbol(thisSymbol);
-//
-//                if (! array[columns.get("marker_symbol")].isEmpty()) {
-//                    thisSymbol = array[columns.get("marker_symbol")];
-//                    gene.setMarkerSymbol(thisSymbol);
-//                }
+                    if (al.getSynonym() != null) {
+                        List<String> syms = Arrays.asList(StringUtils.split(String.valueOf(al.getSynonym()), "|"));
+                        Set<String> mss = new HashSet<>();
 
-                    // test
-                    //if (thisSymbol.equals("Hirip3")) {
-
-
-                        if (!array[columns.get("feature_type")].isEmpty()) {
-                            gene.setMarkerType(array[columns.get("feature_type")]);
+                        for (String sym : syms) {
+                            // ms rel to gene
+                            mss.add(sym);
                         }
-                        if (!array[columns.get("marker_name")].isEmpty()) {
-                            gene.setMarkerName(array[columns.get("marker_name")]);
-                        }
-                        if (!array[columns.get("synonym")].isEmpty()) {
-                            List<String> syms = Arrays.asList(StringUtils.split(array[columns.get("synonym")], "|"));
-                            Set<String> mss = new HashSet<>();
+                        gene.setMarkerSynonyms(mss);
+                    }
 
-                            for (String sym : syms) {
-                                // ms rel to gene
-                                mss.add(sym);
-                            }
-                            gene.setMarkerSynonyms(mss);
-                        }
-                        if (!array[columns.get("feature_chromosome")].isEmpty()) {
-                            gene.setChrId(array[columns.get("feature_chromosome")]);
-                            gene.setChrStart(Integer.parseInt(array[columns.get("feature_coord_start")]));
-                            gene.setChrEnd(Integer.parseInt(array[columns.get("feature_coord_end")]));
-                            gene.setChrStrand(array[columns.get("feature_strand")]);
-                        }
+                    if (al.getFeatureChromosome() != null) {
+                        gene.setChrId(al.getFeatureChromosome());
+                        gene.setChrStart(al.getFeatureCoordStart());
+                        gene.setChrEnd(al.getFeatureCoordEnd());
+                        gene.setChrStrand(al.getFeatureStrand());
+                    }
 
 
-                        if (!array[columns.get("gene_model_ids")].isEmpty()) {
+                    if (al.getGeneModelIds() != null) {
 
-                            Set<String> ensgs = new HashSet<>();
+                        Set<String> ensgs = new HashSet<>();
 
-                            List<String> ensgids = new ArrayList<>();
-                            String[] ids = StringUtils.split(array[columns.get("gene_model_ids")], "|");
-                            for (int j = 0; j < ids.length; j++) {
-                                String thisId = ids[j];
-                                if (thisId.startsWith("ensembl_ids") || thisId.startsWith("\"ensembl_ids")) {
-                                    String[] vals = StringUtils.split(thisId, ":");
-                                    if (vals.length == 2) {
-                                        String ensgId = vals[1];
-                                        //System.out.println("Found " + ensgId);
-
-//                                if (! ensGidEnsemblGeneIdMap.containsKey(ensgId)) {
-//
-//                                    // ensg rel to gene
-//                                    ensGidEnsemblGeneIdMap.put(ensgId, ensg);
-//                                } else {
-//                                    ensg = ensGidEnsemblGeneIdMap.get(ensgId);
-//                                }
-
-                                        ensgs.add(ensgId);
-                                    }
-                                }
-                            }
-                            if (ensgs.size() > 0) {
-                                gene.setEnsemblGeneIds(ensgs);
+                        List<String> ensgids = new ArrayList<>();
+                        String[] ids = StringUtils.split(String.valueOf(al.getGeneModelIds()), "|");
+                        for (int j = 0; j < ids.length; j++) {
+                            String ensgId = ids[j];
+                            if (ensgId.startsWith("ensembl_ids")) {
+                                ensgs.add(ensgId);
                             }
                         }
-
-
-                        geneRepository.save(gene);
-                        loadedGenes.put(mgiAcc, gene);
-                        loadedMouseSymbolGenes.put(thisSymbol, gene);
-
-                        geneCount++;
-                        if (geneCount % 5000 == 0) {
-                            logger.info("Loaded {} Gene nodes", geneCount);
+                        if (ensgs.size() > 0) {
+                            gene.setEnsemblGeneIds(ensgs);
                         }
-                    //}
+                    }
+
+                    geneRepository.save(gene);
+                    loadedGenes.put(mgiAcc, gene);
+                    loadedMouseSymbolGenes.put(markerSymbol, gene);
+
+                    geneCount++;
+                    if (geneCount % 5000 == 0) {
+                        logger.info("Loaded {} Gene nodes", geneCount);
+                    }
                 }
             }
-
-            line = in.readLine();
         }
+
         logger.info("Loaded total of {} Gene nodes", geneCount);
 
-        String line2 = in2.readLine();
-        while (line2 != null) {
-            //System.out.println(line);
-            String[] array2 = line2.split("\t", -1);
-            if (array2.length == 1) {
-                continue;
-            }
+        // doing alleles
+        int alleleCount = 0;
+        String alleleQuery = "select acc, symbol, gf_acc from allele";
 
-            String alleleSymbol = array2[columns.get("allele_symbol")];
+        try (Connection connection = komp2DataSource.getConnection();
+            PreparedStatement p = connection.prepareStatement(alleleQuery)) {
 
-            if (komp2AlleleSymbolAlleleAcc.containsKey(alleleSymbol)) {
-                String alleleAcc = komp2AlleleSymbolAlleleAcc.get(alleleSymbol);
+            ResultSet r = p.executeQuery();
 
-                String mgiAcc = array2[columns.get("mgi_accession_id")];
+            while (r.next()) {
 
-                // test
-                //if (mgiAcc.equals("MGI:2142364")) {
+                String geneAcc = r.getString("gf_acc");
+                String alleleAcc = r.getString("acc");
+                String alleleSymbol = r.getString("symbol");
 
-                    //System.out.println("Got allele symbol: " + alleleSymbol);
+                if (geneAcc == null){
+                    // only want alleles associated with a gene
+                    continue;
+                }
 
-                    if (array2[columns.get("allele_design_project")].equals("IMPC")
-                            && array2[columns.get("type")].equals("Allele")
-                            && !array2[columns.get("allele_symbol")].isEmpty()
-                            && loadedGenes.containsKey(mgiAcc)
-                            && !array2[columns.get("allele_mgi_accession_id")].isEmpty()) {
+                SolrQuery q = new SolrQuery()
+                        .setQuery("*:*")
+                        .setQuery("type:Allele AND allele_symbol:\"" + alleleSymbol + "\"");
 
-                        Gene gene = loadedGenes.get(mgiAcc);
+                //System.out.println("allele query: " + q);
+                QueryResponse response = allele2Core.query(q);
+                List<Allele2DTO> aldto = response.getBeans(Allele2DTO.class);
 
-                        //String alleleAcc = array2[columns.get("allele_mgi_accession_id")];
+                //System.out.println("Found allele; "+ aldto.size());
+                if ( aldto.size() == 0){
+                    Gene gene = loadedGenes.get(geneAcc);
+
+                    Allele allele = new Allele();
+                    allele.setAlleleMgiAccessionId(alleleAcc);
+                    allele.setMgiAccessionId(geneAcc);
+                    allele.setAlleleSymbol(alleleSymbol);
+
+                    if (gene.getAlleles() == null) {
+                        gene.setAlleles(new HashSet<Allele>());
+                    }
+                    gene.getAlleles().add(allele);
+                    //geneRepository.save(gene);  // let neo4j handles it
+
+                    if (!loadedAlleles.containsKey(alleleSymbol)) {
+                        loadedAlleles.put(alleleSymbol, allele);
+                        // System.out.println("Check01: " + loadedAlleles);
+                    }
+
+                    if (!loadedAlleleIdAllele.containsKey(alleleAcc)) {
+                        loadedAlleleIdAllele.put(alleleAcc, allele);
+                        // System.out.println("Check02: " + loadedAlleleIdAllele);
+                    }
+
+                    alleleRepository.save(allele);
+
+                    alleleCount++;
+                    if (alleleCount % 5000 == 0) {
+                        logger.info("Loaded {} Allele nodes", alleleCount);
+                    }
+
+                }
+                else {
+                    for (Allele2DTO al : aldto) {
+                        Gene gene = loadedGenes.get(geneAcc);
 
                         Allele allele = new Allele();
                         allele.setAlleleMgiAccessionId(alleleAcc);
-                        allele.setMgiAccessionId(mgiAcc);  // to get gene id from allele node straight w/o graph traversal
-
-                        //String alleleSymbol = array2[columns.get("allele_symbol")];
+                        allele.setMgiAccessionId(geneAcc);  // to get gene id from allele node straight w/o graph traversal
                         allele.setAlleleSymbol(alleleSymbol);
-
-                        if (!array2[columns.get("allele_type")].isEmpty()) {
-                            allele.setAlleleType(array2[columns.get("allele_type")]);
-                        }
-
-                        if (!array2[columns.get("allele_description")].isEmpty()) {
-                            allele.setAlleleDescription(array2[columns.get("allele_description")]);
-                        }
-                        if (!array2[columns.get("mutation_type")].isEmpty()) {
-                            allele.setMutationType(array2[columns.get("mutation_type")]);
-                        }
-                        if (!array2[columns.get("es_cell_status")].isEmpty()) {
-                            allele.setEsCellStatus(ES_CELL_STATUS_MAPPINGS.get(array2[columns.get("es_cell_status")]));
-                        }
-                        if (!array2[columns.get("mouse_status")].isEmpty()) {
-                            allele.setMouseStatus(MOUSE_STATUS_MAPPINGS.get(array2[columns.get("mouse_status")]));
-                        }
-                        if (!array2[columns.get("phenotype_status")].isEmpty()) {
-                            allele.setPhenotypeStatus(array2[columns.get("phenotype_status")]);
-                        }
+                        allele.setAlleleType(al.getAlleleType());
+                        allele.setAlleleDescription(al.getAlleleDescription());
+                        allele.setMutationType(al.getMutationType());
+                        allele.setEsCellStatus(ES_CELL_STATUS_MAPPINGS.get(al.getEsCellStatus()));
+                        allele.setMouseStatus(MOUSE_STATUS_MAPPINGS.get(allele.getMouseStatus()));
+                        allele.setPhenotypeStatus(al.getPhenotypeStatus());
 
                         if (gene.getAlleles() == null) {
                             gene.setAlleles(new HashSet<Allele>());
                         }
                         gene.getAlleles().add(allele);
-                        geneRepository.save(gene);
-
-                        // allele rel to gene
-                        //allele.setGene(gene); // for graph traversal purpose
+                        //geneRepository.save(gene); // let neo4j handles it
 
                         if (!loadedAlleles.containsKey(alleleSymbol)) {
                             loadedAlleles.put(alleleSymbol, allele);
-                           // System.out.println("Check01: " + loadedAlleles);
+                            // System.out.println("Check01: " + loadedAlleles);
                         }
 
                         if (!loadedAlleleIdAllele.containsKey(alleleAcc)) {
                             loadedAlleleIdAllele.put(alleleAcc, allele);
-                           // System.out.println("Check02: " + loadedAlleleIdAllele);
+                            // System.out.println("Check02: " + loadedAlleleIdAllele);
                         }
 
                         alleleRepository.save(allele);
@@ -755,10 +686,8 @@ public class Loader implements CommandLineRunner {
                             logger.info("Loaded {} Allele nodes", alleleCount);
                         }
                     }
-                //}
+                }
             }
-
-            line2 = in2.readLine();
         }
 
         logger.info("Loaded total of {} Allele nodes", alleleCount);
@@ -799,21 +728,21 @@ public class Loader implements CommandLineRunner {
                 mp.setMpDefinition(mpDTO.getDefinition());
             }
 
-            if (mp.getOntoSynonyms() == null) {
+            if (mp.getMpSynonyms() == null) {
 
                 mp.setMpSynonyms(new ArrayList<String>(mpDTO.getSynonyms()));
 
-                mp.setOntoSynonyms(new HashSet<OntoSynonym>());
-                if(mpDTO.getSynonyms() != null) {
-                    for (String mpsym : mpDTO.getSynonyms()) {
-                        OntoSynonym ms = new OntoSynonym();
-                        ms.setOntoSynonym(mpsym);
-                        ms.setMousePhenotype(mp);
-                        //ontoSynonymRepository.save(ms);
-
-                        mp.getOntoSynonyms().add(ms);
-                    }
-                }
+//                mp.setOntoSynonyms(new HashSet<OntoSynonym>());
+//                if(mpDTO.getSynonyms() != null) {
+//                    for (String mpsym : mpDTO.getSynonyms()) {
+//                        OntoSynonym ms = new OntoSynonym();
+//                        ms.setOntoSynonym(mpsym);
+//                        ms.setMousePhenotype(mp);
+//                        //ontoSynonymRepository.save(ms);
+//
+//                        mp.getOntoSynonyms().add(ms);
+//                    }
+//                }
             }
 
             if (mp.getTopLevelMpIds() == null) {
@@ -843,15 +772,15 @@ public class Loader implements CommandLineRunner {
 
                                 thisMp.setMpSynonyms(new ArrayList<String>(pid.getSynonyms()));
 
-                                thisMp.setOntoSynonyms(new HashSet<OntoSynonym>());
-                                for (String mpsym : pid.getSynonyms()) {
-                                    OntoSynonym ms = new OntoSynonym();
-                                    ms.setOntoSynonym(mpsym);
-                                    ms.setMousePhenotype(thisMp);
-
-                                    thisMp.getOntoSynonyms().add(ms);
-
-                                }
+//                                thisMp.setOntoSynonyms(new HashSet<OntoSynonym>());
+//                                for (String mpsym : pid.getSynonyms()) {
+//                                    OntoSynonym ms = new OntoSynonym();
+//                                    ms.setOntoSynonym(mpsym);
+//                                    ms.setMousePhenotype(thisMp);
+//
+//                                    thisMp.getOntoSynonyms().add(ms);
+//
+//                                }
                             }
 
                             if (pid.getTopLevelIds().size() > 0){
