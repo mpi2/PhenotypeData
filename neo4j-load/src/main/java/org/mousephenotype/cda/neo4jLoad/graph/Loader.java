@@ -633,11 +633,14 @@ public class Loader implements CommandLineRunner {
                     allele.setMgiAccessionId(geneAcc);
                     allele.setAlleleSymbol(alleleSymbol);
 
-                    if (gene.getAlleles() == null) {
-                        gene.setAlleles(new HashSet<Allele>());
+                    if (gene != null) {
+
+                        if (gene.getAlleles() == null) {
+                            gene.setAlleles(new HashSet<Allele>());
+                        }
+                        gene.getAlleles().add(allele);
+                        //geneRepository.save(gene);  // let neo4j handles it
                     }
-                    gene.getAlleles().add(allele);
-                    //geneRepository.save(gene);  // let neo4j handles it
 
                     if (!loadedAlleles.containsKey(alleleSymbol)) {
                         loadedAlleles.put(alleleSymbol, allele);
