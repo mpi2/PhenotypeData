@@ -520,6 +520,7 @@ public class Loader implements CommandLineRunner {
                 String mgiAcc = r.getString("acc");
                 String markerSymbol = r.getString("symbol");
 
+                System.out.println(mgiAcc + " - " + markerSymbol);
                 SolrQuery q = new SolrQuery()
                         //    .setQuery("*:*"
                         .setQuery("mgi_accession_id:\"" + mgiAcc + "\" AND type:Gene");
@@ -549,10 +550,18 @@ public class Loader implements CommandLineRunner {
                     }
 
                     if (al.getFeatureChromosome() != null) {
-                        gene.setChrId(al.getFeatureChromosome());
-                        gene.setChrStart(al.getFeatureCoordStart());
-                        gene.setChrEnd(al.getFeatureCoordEnd());
-                        gene.setChrStrand(al.getFeatureStrand());
+                        if (al.getFeatureChromosome() != null) {
+                            gene.setChrId(al.getFeatureChromosome());
+                        }
+                        if (al.getFeatureCoordStart() != null) {
+                            gene.setChrStart(al.getFeatureCoordStart());
+                        }
+                        if (al.getFeatureCoordEnd() != null) {
+                            gene.setChrEnd(al.getFeatureCoordEnd());
+                        }
+                        if (al.getFeatureStrand() != null) {
+                            gene.setChrStrand(al.getFeatureStrand());
+                        }
                     }
 
 
