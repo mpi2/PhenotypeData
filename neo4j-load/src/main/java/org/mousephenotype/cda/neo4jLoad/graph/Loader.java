@@ -520,7 +520,7 @@ public class Loader implements CommandLineRunner {
                 String mgiAcc = r.getString("acc");
                 String markerSymbol = r.getString("symbol");
 
-                System.out.println(mgiAcc + " - " + markerSymbol);
+                //System.out.println(mgiAcc + " - " + markerSymbol);
                 SolrQuery q = new SolrQuery()
                         //    .setQuery("*:*"
                         .setQuery("mgi_accession_id:\"" + mgiAcc + "\" AND type:Gene");
