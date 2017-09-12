@@ -18,7 +18,6 @@ public class Allele2DTO {
 	public static final String CASSETTE="cassette";
 	public static final String MOUSE_STATUS="mouse_status";
 	public static final String ES_CELL_STATUS="es_cell_status";
-	public static final String PRODUCTION_CENTRE="production_centre";
 	public static final String TYPE="type";
 	public static final String IKMC_PROJECT="ikmc_project";//8856
 	public static final String PIPELINE="pipeline";
@@ -30,7 +29,7 @@ public class Allele2DTO {
 	public static final String VECTOR_GENBANK_LINK="vector_genbank_file";
 	public static final String MARKER_TYPE = "marker_type";
 	public static final String ALLELE_MGI_ACCESSION_ID = "allele_mgi_accession_id";
-	public static final String PHENOTYPING_CENTRE = "phenotyping_centre";
+
 	public static final String PRODUCTION_CENTRES = "production_centres";
 	public static final String PHENOTYPING_CENTRES = "phenotyping_centres";
 	public static final String LATEST_PROJECT_STATUS_LEGACY = "latest_project_status_legacy";
@@ -122,8 +121,7 @@ public class Allele2DTO {
 	private String latestProjectStatusLegacy;
 	@Field(LATEST_PROJECT_STATUS)
 	private String latestProjectStatus;
-	@Field(PHENOTYPING_CENTRE)
-	private String phenotypingCentre;
+
 	@Field(PRODUCTION_CENTRES)
 	private List<String> productionCentres;
 	@Field(MARKER_TYPE)
@@ -165,9 +163,6 @@ public class Allele2DTO {
 
 	@Field(ES_CELL_STATUS)
 	private String esCellStatus;
-
-	@Field(PRODUCTION_CENTRE)
-	private String productionCentre;
 
 	@Field(TYPE)
 	private String type;
@@ -413,14 +408,6 @@ public class Allele2DTO {
 		this.latestProjectStatus = latestProjectStatus;
 	}
 
-	public String getPhenotypingCentre() {
-		return phenotypingCentre;
-	}
-
-	public void setPhenotypingCentre(String phenotypingCentre) {
-		this.phenotypingCentre = phenotypingCentre;
-	}
-
 	public List<String> getProductionCentres() {
 		return productionCentres;
 	}
@@ -557,14 +544,6 @@ public class Allele2DTO {
 		this.esCellStatus = esCellStatus;
 	}
 
-	public String getProductionCentre() {
-		return productionCentre;
-	}
-
-	public void setProductionCentre(String productionCentre) {
-		this.productionCentre = productionCentre;
-	}
-
 	public String getType() {
 		return type;
 	}
@@ -693,8 +672,6 @@ public class Allele2DTO {
 			return false;
 		if (latestProjectStatus != null ? !latestProjectStatus.equals(that.latestProjectStatus) : that.latestProjectStatus != null)
 			return false;
-		if (phenotypingCentre != null ? !phenotypingCentre.equals(that.phenotypingCentre) : that.phenotypingCentre != null)
-			return false;
 		if (productionCentres != null ? !productionCentres.equals(that.productionCentres) : that.productionCentres != null)
 			return false;
 		if (markerType != null ? !markerType.equals(that.markerType) : that.markerType != null) return false;
@@ -717,8 +694,6 @@ public class Allele2DTO {
 		if (cassette != null ? !cassette.equals(that.cassette) : that.cassette != null) return false;
 		if (mouseStatus != null ? !mouseStatus.equals(that.mouseStatus) : that.mouseStatus != null) return false;
 		if (esCellStatus != null ? !esCellStatus.equals(that.esCellStatus) : that.esCellStatus != null) return false;
-		if (productionCentre != null ? !productionCentre.equals(that.productionCentre) : that.productionCentre != null)
-			return false;
 		if (type != null ? !type.equals(that.type) : that.type != null) return false;
 		if (ikmcProject != null ? !ikmcProject.equals(that.ikmcProject) : that.ikmcProject != null) return false;
 		if (pipeline != null ? !pipeline.equals(that.pipeline) : that.pipeline != null) return false;
@@ -763,7 +738,6 @@ public class Allele2DTO {
 		result = 31 * result + (latestPhenotypeStatus != null ? latestPhenotypeStatus.hashCode() : 0);
 		result = 31 * result + (latestProjectStatusLegacy != null ? latestProjectStatusLegacy.hashCode() : 0);
 		result = 31 * result + (latestProjectStatus != null ? latestProjectStatus.hashCode() : 0);
-		result = 31 * result + (phenotypingCentre != null ? phenotypingCentre.hashCode() : 0);
 		result = 31 * result + (productionCentres != null ? productionCentres.hashCode() : 0);
 		result = 31 * result + (markerType != null ? markerType.hashCode() : 0);
 		result = 31 * result + (mgiAccessionId != null ? mgiAccessionId.hashCode() : 0);
@@ -781,7 +755,6 @@ public class Allele2DTO {
 		result = 31 * result + (cassette != null ? cassette.hashCode() : 0);
 		result = 31 * result + (mouseStatus != null ? mouseStatus.hashCode() : 0);
 		result = 31 * result + (esCellStatus != null ? esCellStatus.hashCode() : 0);
-		result = 31 * result + (productionCentre != null ? productionCentre.hashCode() : 0);
 		result = 31 * result + (type != null ? type.hashCode() : 0);
 		result = 31 * result + (ikmcProject != null ? ikmcProject.hashCode() : 0);
 		result = 31 * result + (pipeline != null ? pipeline.hashCode() : 0);
@@ -797,7 +770,8 @@ public class Allele2DTO {
 	@Override
 	public String toString() {
 		return "Allele2DTO{" +
-				"mutationType='" + mutationType + '\'' +
+				"alleleDesignProject='" + alleleDesignProject + '\'' +
+				", mutationType='" + mutationType + '\'' +
 				", alleleCategory='" + alleleCategory + '\'' +
 				", alleleFeatures=" + alleleFeatures +
 				", withoutAlleleFeatures=" + withoutAlleleFeatures +
@@ -817,12 +791,12 @@ public class Allele2DTO {
 				", latestPhenotypeComplete='" + latestPhenotypeComplete + '\'' +
 				", geneticMapLinks=" + geneticMapLinks +
 				", phenotypingCentres=" + phenotypingCentres +
-				", latestProductionCentre='" + latestProductionCentre + '\'' +
-				", latestPhenotypingCentre='" + latestPhenotypingCentre + '\'' +
+				", alleleSymbolSearchVariants=" + alleleSymbolSearchVariants +
+				", latestProductionCentre=" + latestProductionCentre +
+				", latestPhenotypingCentre=" + latestPhenotypingCentre +
 				", latestPhenotypeStatus='" + latestPhenotypeStatus + '\'' +
 				", latestProjectStatusLegacy='" + latestProjectStatusLegacy + '\'' +
 				", latestProjectStatus='" + latestProjectStatus + '\'' +
-				", phenotypingCentre='" + phenotypingCentre + '\'' +
 				", productionCentres=" + productionCentres +
 				", markerType='" + markerType + '\'' +
 				", mgiAccessionId='" + mgiAccessionId + '\'' +
@@ -834,13 +808,12 @@ public class Allele2DTO {
 				", alleleDescription='" + alleleDescription + '\'' +
 				", genbankFile='" + genbankFile + '\'' +
 				", alleleImage='" + alleleImage + '\'' +
-				", alleleSymbol=" + alleleSymbol +
+				", alleleSymbol='" + alleleSymbol + '\'' +
 				", alleleSimpleImage='" + alleleSimpleImage + '\'' +
 				", designId='" + designId + '\'' +
 				", cassette='" + cassette + '\'' +
 				", mouseStatus='" + mouseStatus + '\'' +
 				", esCellStatus='" + esCellStatus + '\'' +
-				", productionCentre='" + productionCentre + '\'' +
 				", type='" + type + '\'' +
 				", ikmcProject=" + ikmcProject +
 				", pipeline=" + pipeline +
