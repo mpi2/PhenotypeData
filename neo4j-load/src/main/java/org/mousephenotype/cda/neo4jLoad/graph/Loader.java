@@ -509,7 +509,9 @@ public class Loader implements CommandLineRunner {
 
         int geneCount = 0;
 
-        String geneQuery = "select acc, symbol from genomic_feature";
+        String geneQuery = "select distinct gf.acc, gf.symbol " +
+                "from genomic_feature gf, biological_model bm, biological_model_genomic_feature bmgf " +
+                "where gf.acc=bmgf.gf_acc and bmgf.biological_model_id=bm.id";
 
         try (Connection connection = komp2DataSource.getConnection();
              PreparedStatement p = connection.prepareStatement(geneQuery)) {
@@ -598,7 +600,7 @@ public class Loader implements CommandLineRunner {
 
         // doing alleles
         int alleleCount = 0;
-        String alleleQuery = "select acc, symbol, gf_acc from allele";
+        String alleleQuery = "select distinct a.acc, a.symbol, a.gf_acc from allele a, biological_model bm, biological_model_allele bma where a.acc=bma.allele_acc and bma.biological_model_id=bm.id ";
 
         try (Connection connection = komp2DataSource.getConnection();
             PreparedStatement p = connection.prepareStatement(alleleQuery)) {
