@@ -122,14 +122,16 @@ public class OntologyParserFactory {
         for (String wantedMpId : mpParser.getTermsInSlim()){
             OntologyTermDTO mpDTO = mpHpParser.getOntologyTerm(wantedMpId);
             if (mpDTO == null){
-                logger.error(wantedMpId + " cannot be parsed by mHpParser");
+                logger.warn(wantedMpId + " cannot be parsed by mHpParser");
             }
-            Set<OntologyTermDTO> hpDTOs =  mpDTO.getEquivalentClasses();
-            for (OntologyTermDTO hp : hpDTOs){
-                String termId = hp.getAccessionId();
-                if (termId.startsWith("HP:")) {
-                    hpCount++;
-                    hpWanted.add(termId);
+            else {
+                Set<OntologyTermDTO> hpDTOs = mpDTO.getEquivalentClasses();
+                for (OntologyTermDTO hp : hpDTOs) {
+                    String termId = hp.getAccessionId();
+                    if (termId.startsWith("HP:")) {
+                        hpCount++;
+                        hpWanted.add(termId);
+                    }
                 }
             }
         }
