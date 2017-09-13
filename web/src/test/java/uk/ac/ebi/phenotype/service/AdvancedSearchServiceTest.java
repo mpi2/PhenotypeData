@@ -70,9 +70,9 @@ public class AdvancedSearchServiceTest {
 
         AdvancedSearchPhenotypeForm mpForm = new AdvancedSearchPhenotypeForm();
 
-        String mpTerm = "cardiovascular system phenotype";
+        //String mpTerm = "cardiovascular system phenotype";
         //String mpTerm = "abnormal glucose homeostasis";
-        //String mpTerm = "abnormal retina morphology";
+        String mpTerm = "abnormal retina morphology";
 
         //AdvancedSearchMpRow mpRow = new AdvancedSearchMpRow("abnormal glucose homeostasis", 0.00001, 0.0001);
         AdvancedSearchMpRow mpRow = new AdvancedSearchMpRow(mpTerm, null, null);
@@ -198,7 +198,7 @@ public class AdvancedSearchServiceTest {
         String mpTerm = "cardiovascular system phenotype";
         //String mpTerm = "abnormal glucose homeostasis";
         //String mpTerm = "abnormal retina morphology";
-        //String mpTerm = "rib fusion";
+        String mpTerm = "rib fusion";
 
         // get result from SOLR
         SolrQuery query = new SolrQuery();
@@ -266,7 +266,7 @@ public class AdvancedSearchServiceTest {
 
     }
 
-    @Test
+//    @Test
     public void testMarkerSymbolsInGPCoreMissingInAllele2Core() throws IOException, SolrServerException {
 
         // get result from SOLR
@@ -328,7 +328,7 @@ public class AdvancedSearchServiceTest {
 
     }
 
-    @Test
+//    @Test
     public void testAllelesInSRCoreMissingInAllele2Core() throws IOException, SolrServerException {
 
         // get result from SOLR
