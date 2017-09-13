@@ -195,7 +195,7 @@ public class AdvancedSearchServiceTest {
     @Test
     public void testMarkerSymbolsInGPAndStatisticalResultCoreWithMp() throws IOException, SolrServerException {
 
-        String mpTerm = "cardiovascular system phenotype";
+        //String mpTerm = "cardiovascular system phenotype";
         //String mpTerm = "abnormal glucose homeostasis";
         //String mpTerm = "abnormal retina morphology";
         String mpTerm = "rib fusion";
