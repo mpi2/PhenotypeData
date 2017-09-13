@@ -711,9 +711,15 @@ i.has-tooltip:hover     { color: #666; }
 .qtipimpc.autowidth     { max-width: none; }
 
 /* Tablesorter */
-table.tablesorter thead tr .headerSort     { background: url(../tablesorter/bg.gif) center right no-repeat; cursor: pointer; }
+table.tablesorter thead tr .headerSort     { 
+    /* This image url is broken and causes in-browser errors.
+    background: url(../tablesorter/bg.gif) center right no-repeat; */
+    cursor: pointer; }
+/*
+These image url are broken and cause in-browser errors.
 table.tablesorter thead tr .headerSortUp   { background-image: url(../tablesorter/asc.gif); }
 table.tablesorter thead tr .headerSortDown { background-image: url(../tablesorter/desc.gif); }
+*/
 
 /* Fancybox */
 .poupcontainer          { min-width: 800px; }
@@ -802,7 +808,7 @@ div.filtertype {
     background-color: lightgrey;
 }
 div.dataTables_filter {
-    padding-left: 5px;
+    /* padding-left: 5px; */
     width: 80%;
 }
 
@@ -890,4 +896,14 @@ span.synToggle {
     font-size: 12px;
     cursor: pointer;
     color: #0978A1;
+}
+
+/* for showing small elements, e.g. withdrawn symbols */
+.small {
+    font-size: 85%;
+}
+/* for styling numeric fields in tables */
+td.numeric {
+    font-weight: 700;
+    color: #ef7b0b;
 }
