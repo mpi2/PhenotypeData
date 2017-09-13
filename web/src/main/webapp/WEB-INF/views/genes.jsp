@@ -60,13 +60,11 @@
 				<script src="${baseUrl}/js/general/dropdownfilters.js"></script>
 				<script type="text/javascript" src="${baseUrl}/js/general/allele.js"></script>
                                 
-                                <%-- Phenodigm2 requirements (to activate later) --%>
-                                <%--
+                                <%-- Phenodigm2 requirements --%>                                
                                 <script src="//d3js.org/d3.v4.min.js"></script>
                                 <script type="text/javascript" src="${baseUrl}/js/vendor/underscore/underscore-1.8.3.min.js"></script>
                                 <script type="text/javascript" src="${baseUrl}/js/phenodigm2/phenodigm2.js?v=${version}"></script>       
-                                <link rel="stylesheet" type="text/css" href="${baseUrl}/css/phenodigm2.css"/>
-                                --%>
+                                <link rel="stylesheet" type="text/css" href="${baseUrl}/css/phenodigm2.css"/>                                
                                 <%-- End of phenodigm2 requirements --%>
                                 
 				<script type="text/javascript">
@@ -82,9 +80,9 @@
                         }
 
                         $("#exptabs").tabs({ active: expressionTab});
-                        $("#diseasetabs").tabs({ active: 0 });
-                        $("#tabs").tabs();
-                        //$("#diseasetabs").find("td[class!='shown']").css('color','#666');
+                        $("#phenotabs").tabs({ active: 0 });
+                        $("#phenotabs2").tabs({ active: 0 });
+                        $("#tabs").tabs();                        
 
                         $('div#anatomo1').hide(); // by default
 
@@ -454,7 +452,7 @@
 									<c:when test="${not empty orthologousDiseaseAssociations || not empty phenotypicDiseaseAssociations}">
 
 										<!-- section for expression data here -->
-										<div id="diseasetabs">
+										<div id="phenotabs">
 											<ul class='tabs'>
 												<li><a href="#dtabs-1">By gene orthology</a></li>
 												<li><a href="#dtabs-2">By phenotypic similarity</a></li>
@@ -492,7 +490,46 @@
 							</div><!-- end of inner -->
 						</div><!-- end of Disease -->
 
+                                                <!--Disease Sections-->
+                                                <div class="section">
+                                                    <h2 class="title" id="section-disease-models">Disease Models <small>(phenodigm2)</small>
+                                                        <a target="_blank" href='http://www.sanger.ac.uk/resources/databases/phenodigm/'></a>
+                                                        <span class="documentation">
+                                                            <a href="" id="diseaseSectio2n" class="mpPanel"><i class="fa fa-question-circle pull-right"></i></a>
+                                                        </span>
+                                                    </h2>
+                                                    <div class="inner">
+                                                        <div id="phenotabs2">
+                                                            <ul class='tabs'>
+                                                                <li><a href="#by-annotation">By annotation and orthology</a></li>
+                                                                <li><a href="#by-phenotype">By phenotypic similarity</a></li>
+                                                            </ul>
+                                                            <div id="by-annotation">
+                                                                <c:choose>
+                                                                    <c:when test="${!hasModelsByOrthology}">                                
+                                                                        No associations by disease annotation and gene orthology found.
+                                                                    </c:when>
+                                                                    <c:otherwise>
+                                                                        <table id="diseases_by_annotation_table" class="table tablesorter disease"></table>
+                                                                    </c:otherwise>
+                                                                </c:choose>                                                                        
+                                                            </div>
+                                                            <div id="by-phenotype">
+                                                                <c:choose>
+                                                                    <c:when test="${empty modelAssociations}">
+                                                                        No associations by phenotypic similarity found.
+                                                                    </c:when>
+                                                                    <c:otherwise>
+                                                                        <table id="disease_by_phenotype_table" class="table tablesorter disease"></table>
+                                                                    </c:otherwise>
+                                                                </c:choose>                                                                        
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
 
+                                                            
+                                                
 						<!-- End of Order Mouse and ES Cells -->
 
 

@@ -85,6 +85,12 @@ public class SolrServerConfig {
 		return new HttpSolrClient(solrBaseUrl + "/phenodigm");
 	}
 
+        //Phenodigm2 server 
+	@Bean(name = "phenodigm2Core")
+	public HttpSolrClient getPhenodigm2Core() {
+		return new HttpSolrClient(solrBaseUrl + "/phenodigm2");
+	}
+        
 	//Configuration
 	@Bean(name = "configurationCore")
 	public HttpSolrClient getConfigurationCore() {
@@ -107,6 +113,7 @@ public class SolrServerConfig {
 	}
 
 	//Disease
+        // TK: this core seem to be used only in test packages - remove?
 	@Bean(name = "diseaseCore")
 	HttpSolrClient getDiseaseCore() {
 		return new HttpSolrClient(solrBaseUrl + "/disease");
@@ -119,6 +126,7 @@ public class SolrServerConfig {
 	}
 
 	//GenotypePhenotype
+        // TK: this core seems to be used only in the test packages - remove?
 	@Bean(name = "genotypePhenotypeCore")
 	HttpSolrClient getGenotypePhenotypeCore() {
 		return new HttpSolrClient(solrBaseUrl + "/genotype-phenotype");
