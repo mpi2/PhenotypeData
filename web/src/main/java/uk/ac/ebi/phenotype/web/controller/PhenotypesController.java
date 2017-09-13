@@ -340,8 +340,8 @@ public class PhenotypesController {
         PhenotypeFacetResult phenoResult = phenotypeSummaryHelper.getPhenotypeCallByMPAccessionAndFilter(acc, procedureName, markerSymbol, mpTermName);
         List<PhenotypeCallSummaryDTO> phenotypeList = phenoResult.getPhenotypeCallSummaries();
         List<PhenotypePageTableRow> phenotypes = new ArrayList<PhenotypePageTableRow>();
-        String url =  request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl").toString();
-        
+        String url =  "http:" + request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl").toString();
+
         for (PhenotypeCallSummaryDTO pcs : phenotypeList) {
             List<String> sex = new ArrayList<String>();
             sex.add(pcs.getSex().toString());
@@ -357,6 +357,7 @@ public class PhenotypesController {
 		}
 
         String filters = null;
+		fileName = fileName.replaceAll(" ", "_");
         FileExportUtils.writeOutputFile(response, dataRows, fileType, fileName, filters);
     }
     

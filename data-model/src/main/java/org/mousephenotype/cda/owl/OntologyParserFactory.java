@@ -121,12 +121,17 @@ public class OntologyParserFactory {
         // this is a mapping of hp to ALL mps
         for (String wantedMpId : mpParser.getTermsInSlim()){
             OntologyTermDTO mpDTO = mpHpParser.getOntologyTerm(wantedMpId);
-            Set<OntologyTermDTO> hpDTOs =  mpDTO.getEquivalentClasses();
-            for (OntologyTermDTO hp : hpDTOs){
-                String termId = hp.getAccessionId();
-                if (termId.startsWith("HP:")) {
-                    hpCount++;
-                    hpWanted.add(termId);
+            if (mpDTO == null){
+                logger.warn(wantedMpId + " cannot be parsed by mHpParser");
+            }
+            else {
+                Set<OntologyTermDTO> hpDTOs = mpDTO.getEquivalentClasses();
+                for (OntologyTermDTO hp : hpDTOs) {
+                    String termId = hp.getAccessionId();
+                    if (termId.startsWith("HP:")) {
+                        hpCount++;
+                        hpWanted.add(termId);
+                    }
                 }
             }
         }
