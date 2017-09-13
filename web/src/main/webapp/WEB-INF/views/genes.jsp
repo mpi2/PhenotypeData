@@ -1,10 +1,11 @@
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@taglib prefix="t" tagdir="/WEB-INF/tags" %>
+<%@ page pageEncoding="UTF-8" %>
 
 <t:genericpage>
 
-	<jsp:attribute name="title">Gene details for ${gene.markerName}</jsp:attribute>
+	<jsp:attribute name="title">${gene.markerSymbol} - ${gene.markerName}</jsp:attribute>
 	<jsp:attribute name="breadcrumb">&nbsp;&raquo; <a
 			href="${baseUrl}/search/gene?kw=*">Genes</a> &raquo; ${gene.markerSymbol}</jsp:attribute>
 	<jsp:attribute name="bodyTag">
@@ -58,7 +59,16 @@
 				<script src="${baseUrl}/js/general/enu.js"></script>
 				<script src="${baseUrl}/js/general/dropdownfilters.js"></script>
 				<script type="text/javascript" src="${baseUrl}/js/general/allele.js"></script>
-
+                                
+                                <%-- Phenodigm2 requirements (to activate later) --%>
+                                <%--
+                                <script src="//d3js.org/d3.v4.min.js"></script>
+                                <script type="text/javascript" src="${baseUrl}/js/vendor/underscore/underscore-1.8.3.min.js"></script>
+                                <script type="text/javascript" src="${baseUrl}/js/phenodigm2/phenodigm2.js?v=${version}"></script>       
+                                <link rel="stylesheet" type="text/css" href="${baseUrl}/css/phenodigm2.css"/>
+                                --%>
+                                <%-- End of phenodigm2 requirements --%>
+                                
 				<script type="text/javascript">
                     var gene_id = '${acc}';
 
@@ -169,206 +179,8 @@
 
                     });
 				</script>
-				<style>
-					li.showAdultImage {
-						cursor: pointer;
-					}
-					div#expDataView, div#toggleWt {
-						font-size: 12px;
-						color: #0978a1;
-						background-color: white;
-						border: 0;
-						border-radius: 4px;
-						padding: 3px 5px;
-						cursor: pointer;
-					}
-					div#expDataView {
-						float: right;
-						margin-bottom: 20px;
-					}
-					#svgHolder div div {
-						z-index: 100;
-					}
-
-					span.direct {
-						color: #698B22;
-					}
-
-					span.indirect {
-						color: #CD8500;
-					}
-
-					div.ui-tabs {
-						border: none;
-						width: 100%;
-					}
-					div#exptabs > ul, div#diseasetabs > ul {
-						border: none;
-						border-bottom: 1px solid #666;
-						border-radius: 0;
-						padding-bottom: 2px;
-						margin-bottom: 0px;
-						background: none;
-						list-style-type: none;
-					}
-					div#exptabs > ul li, div#diseasetabs > ul li {
-						float: left;
-						border: none;
-						background: none;
-					}
-
-					div#exptabs > ul li a, div#diseasetabs > ul li a {
-						margin: 0 0px -3px 20px;
-						border: 1px solid grey;
-						border-bottom: none;
-						font-size: 14px;
-						text-decoration: none;
-						padding: 3px 8px;
-						border-radius: 4px;
-						color: gray;
-						font-family: 'Source Sans Pro', Arial, Helvetica, sans-serif;
-					}
-					#exptabs .ui-tabs-active, #diseasetabs .ui-tabs-active {
-						border: none;
-						background: none;
-					}
-					#exptabs .ui-tabs-active > a, #diseasetabs .ui-tabs-active a {
-						border-bottom: 1px solid white;
-						color: black;
-					}
-					.ui-tabs-panel {
-						margin-top: 10px;
-					}
-					div#exptabs > ul li a:hover, div#diseasetabs > ul li a:hover {
-						background: none;
-					}
-
-					.acontainer {
-						height: auto;
-						overflow: hidden;
-					}
-
-					.aright {
-						width: 200px;
-						float: left;
-						text-align: center;
-						margin-top: -45px;
-					}
-
-					.aleft {
-						float: none;
-						background: white;
-						width: auto;
-						overflow: hidden;
-						margin-top: 0px;
-						margin-left: 250px;
-					}
-
-					/*ul#expList table {*/
-						/*!*Dividing long list of <li> tags into columns*!*/
-						/*-moz-column-count: 2;*/
-						/*-moz-column-gap: 30px;*/
-						/*-webkit-column-count: 2;*/
-						/*-webkit-column-gap: 30px;*/
-						/*column-count: 2;*/
-						/*column-gap: 30px;*/
-					/*}*/
-                    /*ul#expList table td {*/
-                        /*width: 10px !important;*/
-                    /*}*/
-                    /*ul#expList table td:first-child {*/
-                        /*max-width: 250px !important;*/
-                    }
-					td.showAdultImage:hover {
-						color: #E2701E !important;
-					}
-
-					/* override the anatomogram .ui-widget font */
-
-					div.ui-dropdownchecklist-item, div#diseasetabs.ui-widget, div#exptabs.ui-widget {
-						font-family: 'Source Sans Pro', Arial, Helvetica, sans-serif;
-						font-size: 1.0em;
-						color: #333;
-					}
-
-					div.ui-dropdownchecklist-dropcontainer.ui-widget-content {
-						border: none;
-					}
-
-					div.ui-dropdownchecklist-dropcontainer-wrapper.ui-widget.filtersMoreLikeNicolas {
-						overflow: auto;
-						min-width: 21%;
-						max-height: 18em;
-						white-space: nowrap;
-						margin: 0 0 0 -1px;
-						border: none;
-					}
-					/*div.ui-dropdownchecklist-dropcontainer-wrapper.ui-widget.filtersMoreLikeNicolas.open {*/
-					/*border: 1px solid gray;*/
-					/*}*/
-
-					div.ui-dropdownchecklist-selector {
-						background: none;
-						background-color: lightgray;
-						border: none;
-					}
-					div.ui-dropdownchecklist-selector:hover {
-						background-color: white;
-						border: none;
-					}
-
-					div.ui-dropdownchecklist-item.ui-state-default {
-						background: none;
-						border: none;
-						font-weight: normal;
-						padding: 5px 10px;
-					}
-
-					div#genes_wrapper th, div#diseasetabs th, div#exptabs th, div#allele2 th,
-					div#genes_wrapper td, div#diseasetabs td, div#exptabs td, div#allele2 td {
-						color: #666;
-						padding: 0.5em 0.7em 0.5em 0.2em;
-
-					}
-					div#diseasetabs a, div#exptabs a {
-						color: #0978a1;
-					}
-					div#diseasetabs div.dataTables_paginate li a {
-						color: #666;
-					}
-					div#diseasetabs div.dataTables_paginate a:hover {
-						color: white;
-					}
-					div#diseasetabs div.dataTables_paginate li.active a {
-						color: white;
-					}
-					div.gxaAnatomogram {
-						margin-top: 50px;
-					}
-					ul#expList td.mahighlight {
-						color: #E2701E;
-					}
-
-					/*li.ui-menu-divider {*/
-					/*display: none;*/
-					/*}*/
-					#fancybox-close {
-						position: absolute;
-						top: -15px;
-						right: -15px;
-						width: 30px;
-						height: 30px;
-						background: transparent url('fancybox.png') -40px 0px;
-						cursor: pointer;
-						z-index: 51103;
-						display: none;
-					}
-                    #anatomogramContainer {
-                        margin-top: 10px;
-                    }
-
-
-				</style>
+                                                                
+                                <link rel="stylesheet" type="text/css" href="${baseUrl}/css/genes.css"/>				
 
 				<c:if test="${phenotypeStarted}">
 					<!--[if !IE]><!-->

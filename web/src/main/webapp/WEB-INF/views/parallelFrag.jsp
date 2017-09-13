@@ -7,6 +7,7 @@
 <script type="text/javascript" src="${baseUrl}/js/charts/parallel/parallel-coordinates.js"></script>
 
 <script type="text/javascript" src="${baseUrl}/js/vendor/jquery/jquery.js"></script>
+<%-- Consider changing this to underscore-1.8.3.min.js (newer, minimized) --%>
 <script type="text/javascript" src="${baseUrl}/js/vendor/underscore.js"></script>
 <script type="text/javascript" src="${baseUrl}/js/vendor/backbone.js"></script>
 
