@@ -31,8 +31,8 @@ public class Mp {
     @Relationship(type="HUMAN", direction=Relationship.OUTGOING)
     private Set<Hp> humanPhenotypes;
 
-    @Relationship(type="MP_SYNONYM", direction=Relationship.OUTGOING)
-    private Set<OntoSynonym> ontoSynonyms;
+//    @Relationship(type="MP_SYNONYM", direction=Relationship.OUTGOING)
+//    private Set<OntoSynonym> ontoSynonyms;
 
     @Relationship(type="MP_NARROW_SYNONYM", direction=Relationship.OUTGOING)
     private Set<OntoSynonym> mpNarrowSynonyms;
@@ -96,13 +96,13 @@ public class Mp {
         this.humanPhenotypes = humanPhenotypes;
     }
 
-    public Set<OntoSynonym> getOntoSynonyms() {
-        return ontoSynonyms;
-    }
-
-    public void setOntoSynonyms(Set<OntoSynonym> ontoSynonyms) {
-        this.ontoSynonyms = ontoSynonyms;
-    }
+//    public Set<OntoSynonym> getOntoSynonyms() {
+//        return ontoSynonyms;
+//    }
+//
+//    public void setOntoSynonyms(Set<OntoSynonym> ontoSynonyms) {
+//        this.ontoSynonyms = ontoSynonyms;
+//    }
 
     public Set<OntoSynonym> getMpNarrowSynonyms() {
         return mpNarrowSynonyms;
@@ -157,7 +157,6 @@ public class Mp {
                 ", topLevelMpTerms=" + topLevelMpTerms +
                 ", genes=" + genes +
                 ", humanPhenotypes=" + humanPhenotypes +
-                ", ontoSynonyms=" + ontoSynonyms +
                 ", mpNarrowSynonyms=" + mpNarrowSynonyms +
                 ", mpParentIds=" + mpParentIds +
                 '}';

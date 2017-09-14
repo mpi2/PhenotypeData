@@ -331,7 +331,7 @@ public class AdvancedSearchService {
                 dataTypeColsMap.get("Gene").add("phenotypeStatus");
             }
             if (geneForm.getShowHgncGeneSymbol() != null){
-                dataTypeColsMap.get("Gene").add("humanGeneSymbol");
+                dataTypeColsMap.get("Gene").add("humanGeneSymbols");
             }
             if (geneForm.getShowMgiGeneSymbol() != null){
                 dataTypeColsMap.get("Gene").add("markerSymbol");
@@ -346,7 +346,7 @@ public class AdvancedSearchService {
                 dataTypeColsMap.get("Gene").add("markerName");
             }
             if (geneForm.getShowMgiGeneSynonym() != null){
-                dataTypeColsMap.get("Gene").add("markerSynonym");
+                dataTypeColsMap.get("Gene").add("markerSynonyms");
             }
             if (geneForm.getShowChrId() != null){
                 dataTypeColsMap.get("Gene").add("chrId");
@@ -361,7 +361,7 @@ public class AdvancedSearchService {
                 dataTypeColsMap.get("Gene").add("chrStrand");
             }
             if (geneForm.getShowEnsemblGeneId() != null){
-                dataTypeColsMap.get("Gene").add("ensemblGeneId");
+                dataTypeColsMap.get("Gene").add("ensemblGeneIds");
             }
         }
         if (diseaseForm.getHasOutputColumn() != null){
@@ -442,11 +442,12 @@ public class AdvancedSearchService {
         String diseaseGeneAssociationCypher = composeDiseaseGeneAssociation(diseaseForm);
         String humanDiseaseTermCypher = composeHumanDiseaseTermStr(diseaseForm);
 
-        String geneToMpPath = noMpChild ? "MATCH (g:Gene)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp) "
-                : " MATCH (g:Gene)<-[:GENE]-(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp)-[:PARENT*0..]->(mp0:Mp) ";
+        String geneToMpPath = noMpChild ? "MATCH (g:Gene)-[:ALLELE]->(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp) "
+                : " MATCH (g:Gene)-[:ALLELE]->(a:Allele)<-[:ALLELE]-(sr:StatisticalResult)-[:MP]->(mp:Mp)-[:PARENT*0..]->(mp0:Mp) ";
 
-        String mpToGenePath = noMpChild ? "MATCH (mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g:Gene) "
-                : " MATCH (mp0:Mp)<-[:PARENT*0..]-(mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)-[:GENE]->(g:Gene) ";
+        String mpToGenePath = noMpChild ? "MATCH (mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)<-[:ALLELE]-(g:Gene) "
+                : " MATCH (mp0:Mp)<-[:PARENT*0..]-(mp:Mp)<-[:MP]-(sr:StatisticalResult)-[:ALLELE]->(a:Allele)<-[:ALLELE]-(g:Gene) ";
+
 
         String geneToDmPathClause = " OPTIONAL MATCH (g)<-[:GENE]-(dm:DiseaseModel)-[:MOUSE_PHENOTYPE]->(dmp:Mp) WHERE "
                 + phenodigmScoreCypher + diseaseGeneAssociationCypher + humanDiseaseTermCypher;
@@ -850,13 +851,13 @@ public class AdvancedSearchService {
         System.out.println("Neo4j returned query in " + (end - begin) + " ms");
 
         List<Object> objects = new ArrayList<>();
-        objects.add( result);
+        objects.add(result);
         objects.add(narrowOrSynonymMapping);
         objects.add(dataTypeColsMap);
 
         int dataCount = 0;
         for (Map<String,Object> row : result) {
-//
+
 //            System.out.println(row.toString());
 //            System.out.println("cols: " + row.size());
 //            Thread.sleep(10000);
@@ -1011,8 +1012,8 @@ public class AdvancedSearchService {
             Map<String, Set<String>> colValMap = new TreeMap<>(); // for export
 
             for (Map<String, Object> row : result) {
-//                System.out.println(row.toString());
-//                System.out.println("cols: " + row.size());
+                //System.out.println(row.toString());
+                //System.out.println("cols: " + row.size());
 
                 for (Map.Entry<String, Object> entry : row.entrySet()) {
 
@@ -1022,8 +1023,8 @@ public class AdvancedSearchService {
                         if (entry.getKey().startsWith("collect")) {
                             List<Object> objs = (List<Object>) entry.getValue();
 
-//                            System.out.println("---------- " + entry.getKey() + " / " + entry.getValue());
-//                            System.out.println("---------- " + entry.getKey() + " / " + ((List<Object>) entry.getValue()).size());
+                            //System.out.println("---------- " + entry.getKey() + " / " + entry.getValue());
+                            //System.out.println("---------- " + entry.getKey() + " / " + ((List<Object>) entry.getValue()).size());
 
                             for (Object obj : objs) {
                                 populateColValMapAdvSrch(hostname, baseUrl,node2Properties, obj, colValMap, fileType, mpForm, geneForm, diseaseForm);
@@ -1701,7 +1702,7 @@ public class AdvancedSearchService {
                 //System.out.println(property + " : " +  colVal);
 
             } catch(Exception e) {
-                // System.out.println(property + " set to " + colVal);
+                //System.out.println(property + " set to " + colVal);
             }
 
 

@@ -48,6 +48,7 @@ import uk.ac.ebi.phenotype.error.GenomicFeatureNotFoundException;
 import uk.ac.ebi.phenotype.error.ParameterNotFoundException;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.sql.SQLException;
@@ -140,12 +141,13 @@ public class ChartsController {
                          @RequestParam(required = false, value = "chart_type") ChartType chartType,
                          @RequestParam(required = false, value = "pipeline_stable_id") String[] pipelineStableIds,
                          @RequestParam(required = false, value = "allele_accession_id") String[] alleleAccession,
+                         HttpServletRequest request,
                          Model model) {
         try {
             if ((accessionsParams != null) && (accessionsParams.length > 0) && (parameterIds != null) && (parameterIds.length > 0)) {
                 for (String parameterStableId : parameterIds) {
                     if (parameterStableId.contains("_FER_")) {
-                        String url = config.get("baseUrl") + "/genes/" + accessionsParams[0];
+                        String url =  "http:" + request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl").toString() + "/genes/" + accessionsParams[0];
                         return "redirect:" + url;
                     }
                 }

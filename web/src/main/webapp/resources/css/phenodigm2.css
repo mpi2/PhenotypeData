@@ -1,0 +1,58 @@
+/*
+ * Styles applicable for phenodigm2 widgets (tables, scatterplot, etc)
+ */
+
+
+/* Generic elements, but found on phenodigm2 related pages */
+span.semicolon {
+    margin-right: 0.8em;
+}
+
+
+/* Elements within tables with phenodigm data */
+tbody.phenotable  {
+    cursor: pointer;
+}
+.inner_table {
+    font-size: 11px;
+    padding-left: 2em;
+    padding-right: 2em;
+}
+.inner_table th {
+    border-bottom: solid 1px #999;
+}
+tbody.phenotable tr.impc {
+    background-color: #f4f4f6;
+}
+
+
+
+/* Settings for scatter plot with phenodigm scores */ 
+.phenoscatter .leftright {
+    float: left;
+    overflow: hidden;
+}
+.phenoscatter .detail {
+    border: solid 1px #999999; 
+    font-size: 11px;
+}
+.phenoscatter rect.curated {
+    stroke-opacity: 0.8;
+    stroke: #555555;
+    stroke-width: 0.4;
+}
+.phenoscatter .legendmarker {
+    fill-opacity: 0.8;
+}
+.phenoscatter text.legendtext, text.legendsource {
+    dominant-baseline: middle; 
+    font-weight: bolder;
+    font-size: 11px;
+}
+.phenoscatter text.legendtext {
+    opacity: 0.8;
+}
+.phenoscatter text.legendsource {
+    opacity: 0.5;
+}
+

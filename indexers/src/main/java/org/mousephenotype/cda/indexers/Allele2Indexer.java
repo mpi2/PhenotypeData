@@ -96,8 +96,8 @@ public class Allele2Indexer  extends AbstractIndexer implements CommandLineRunne
             doc.setLatestMouseStatus(getValueFor(Allele2DTO.LATEST_MOUSE_STATUS,array, columns, runStatus));
             doc.setLatestPhenotypeComplete(getValueFor(Allele2DTO.LATEST_PHENOTYPE_COMPLETE,array, columns, runStatus));
             doc.setLatestPhenotypeStarted(getValueFor(Allele2DTO.LATEST_PHENOTYPE_STARTED,array, columns, runStatus));
-            doc.setLatestProductionCentre(getValueFor(Allele2DTO.LATEST_PRODUCTION_CENTRE,array, columns, runStatus));
-            doc.setLatestPhenotypingCentre(getValueFor(Allele2DTO.LATEST_PHENOTYPING_CENTRE,array, columns, runStatus));
+            doc.setLatestProductionCentre(getListValueFor(Allele2DTO.LATEST_PRODUCTION_CENTRE,array, columns, runStatus));
+            doc.setLatestPhenotypingCentre(getListValueFor(Allele2DTO.LATEST_PHENOTYPING_CENTRE,array, columns, runStatus));
             doc.setLatestPhenotypeStatus(getValueFor(Allele2DTO.LATEST_PHENOTYPE_STATUS,array, columns, runStatus));
             doc.setLatestProjectStatus(getValueFor(Allele2DTO.LATEST_PROJECT_STATUS,array, columns, runStatus));
             doc.setLatestProjectStatusLegacy(getValueFor(Allele2DTO.LATEST_PROJECT_STATUS_LEGACY,array, columns, runStatus));
@@ -110,9 +110,7 @@ public class Allele2Indexer  extends AbstractIndexer implements CommandLineRunne
             doc.setMutationType(getValueFor(Allele2DTO.MUTATION_TYPE,array,columns, runStatus));
             doc.setMouseStatus(getValueFor(Allele2DTO.MOUSE_STATUS, array,columns, runStatus));
             doc.setPhenotypeStatus(getValueFor(Allele2DTO.PHENOTYPE_STATUS,array, columns, runStatus));
-            doc.setPhenotypingCentre(getValueFor(Allele2DTO.PHENOTYPING_CENTRE,array, columns, runStatus));
             doc.setPhenotypingCentres(getListValueFor(Allele2DTO.PHENOTYPING_CENTRES,array, columns, runStatus));
-            doc.setProductionCentre(getValueFor(Allele2DTO.PRODUCTION_CENTRE,array, columns, runStatus));
             doc.setProductionCentres(getListValueFor(Allele2DTO.PRODUCTION_CENTRES,array, columns, runStatus));
             doc.setPipeline(getListValueFor(Allele2DTO.PIPELINE,array, columns, runStatus));
             doc.setSequenceMapLinks(getListValueFor(Allele2DTO.SEQUENCE_MAP_LINKS, array, columns, runStatus));

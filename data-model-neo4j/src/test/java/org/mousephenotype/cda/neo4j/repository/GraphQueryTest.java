@@ -86,7 +86,7 @@ public class GraphQueryTest {
         // Add a disease model, gene and allele for testing
         Allele a = new Allele();
         a.setAlleleSymbol("TEST_ALLELE_SYMBOL");
-        a.setGene(g);
+       // a.setGene(g);
 
         g.setAlleles(new HashSet<>(Arrays.asList(a)));
 

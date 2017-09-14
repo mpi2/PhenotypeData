@@ -407,7 +407,8 @@
 
 					query = query.replace("\\%3A", ":");
 
-					$('input#s').val(decodeURI(query));
+					//$('input#s').val(decodeURI(query));
+
 				}
 
 				//---------------------- end of parse URL ----------------------------

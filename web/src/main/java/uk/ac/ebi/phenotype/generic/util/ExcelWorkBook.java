@@ -101,7 +101,7 @@ public class ExcelWorkBook {
     			}catch(Exception e){
     				cellStr = "";
     			}
-    			
+
     			// make hyperlink in cell
     			if ( ( cellStr.startsWith("http://") || cellStr.startsWith("https://") ) && !cellStr.contains("|") ){
 					//System.out.println("chk cellStr: " + cellStr);
