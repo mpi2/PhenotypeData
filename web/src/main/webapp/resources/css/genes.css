@@ -40,7 +40,7 @@ div.ui-tabs {
     border: none;
     width: 100%;
 }
-div#exptabs > ul, div#phenotabs > ul {
+div#exptabs > ul, div.phenotabs > ul {
     border: none;
     border-bottom: 1px solid #666;
     border-radius: 0;
@@ -49,13 +49,14 @@ div#exptabs > ul, div#phenotabs > ul {
     background: none;
     list-style-type: none;
 }
-div#exptabs > ul li, div#phenotabs > ul li {
+div#exptabs > ul li, div.phenotabs > ul li {
     float: left;
     border: none;
     background: none;
+    cursor: pointer;
 }
 
-div#exptabs > ul li a, div#phenotabs > ul li a {
+div#exptabs > ul li a, div.phenotabs > ul li a {
     margin: 0 0px -3px 20px;
     border: 1px solid grey;
     border-bottom: none;
@@ -66,18 +67,18 @@ div#exptabs > ul li a, div#phenotabs > ul li a {
     color: gray;
     font-family: 'Source Sans Pro', Arial, Helvetica, sans-serif;
 }
-#exptabs .ui-tabs-active, #phenotabs .ui-tabs-active {
+#exptabs .ui-tabs-active, .phenotabs .ui-tabs-active, .phenotabs .ui-state-default {
     border: none;
     background: none;
 }
-#exptabs .ui-tabs-active > a, #phenotabs .ui-tabs-active a {
+#exptabs .ui-tabs-active > a, .phenotabs .ui-tabs-active a {
     border-bottom: 1px solid white;
     color: black;
 }
 .ui-tabs-panel {
     margin-top: 10px;
 }
-div#exptabs > ul li a:hover, div#phenotabs > ul li a:hover {
+div#exptabs > ul li a:hover, div.phenotabs > ul li a:hover {
     background: none;
 }
 
@@ -109,7 +110,7 @@ td.showAdultImage:hover {
 
 /* override the anatomogram .ui-widget font */
 
-div.ui-dropdownchecklist-item, div#phenotabs.ui-widget, div#exptabs.ui-widget {
+div.ui-dropdownchecklist-item, div.phenotabs.ui-widget, div#exptabs.ui-widget {
     font-family: 'Source Sans Pro', Arial, Helvetica, sans-serif;
     font-size: 1.0em;
     color: #333;
@@ -146,22 +147,22 @@ div.ui-dropdownchecklist-item.ui-state-default {
     padding: 5px 10px;
 }
 
-div#genes_wrapper th, div#phenotabs th, div#exptabs th, div#allele2 th,
-div#genes_wrapper td, div#phenotabs td, div#exptabs td, div#allele2 td {
+div#genes_wrapper th, div.phenotabs th, div#exptabs th, div#allele2 th,
+div#genes_wrapper td, div.phenotabs td, div#exptabs td, div#allele2 td {
     color: #666;
     padding: 0.5em 0.7em 0.5em 0.2em;
 
 }
-div#phenotabs a, div#exptabs a {
+div.phenotabs a, div#exptabs a {
     color: #0978a1;
 }
-div#phenotabs div.dataTables_paginate li a {
+div.phenotabs div.dataTables_paginate li a {
     color: #666;
 }
-div#phenotabs div.dataTables_paginate a:hover {
+div.phenotabs div.dataTables_paginate a:hover {
     color: white;
 }
-div#phenotabs div.dataTables_paginate li.active a {
+div.phenotabs div.dataTables_paginate li.active a {
     color: white;
 }
 div.gxaAnatomogram {

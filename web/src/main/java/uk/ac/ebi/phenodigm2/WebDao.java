@@ -31,9 +31,22 @@ public interface WebDao {
      */
     public Disease getDisease(String diseaseId);
 
+    /**
+     * Fetch a list of phenotypes associated to a disease by curation
+     * 
+     * @param diseaseId
+     * @return 
+     */
     public List<Phenotype> getDiseasePhenotypes(String diseaseId);
 
+    /**
+     * Fetch data about a gene.
+     * 
+     * @param geneId
+     * @return 
+     */
     //public Gene getGene(String geneId);
+    
     /**
      * Fetch curated associations from disease to genes.
      *
@@ -45,27 +58,45 @@ public interface WebDao {
      * gene associated (via curation) to the disease. The information will also
      * contain links to mouse genes that are orthologous to the human gene.
      */
-    public List<GeneAssociation> getDiseaseToGeneAssociations(String diseaseId);
+    public List<Gene> getDiseaseToGeneAssociations(String diseaseId);
 
     /**
-     * Fetch computed disease-model associations.
+     * Fetch curated associations from genes to diseases.
+     *
+     * @param geneId String with a gene identifier (either human or mouse)
+     *
+     * @return
+     *
+     * A list of objects. Each element will contain information about a gene-
+     * disease association (via curation).
+     */
+    public List<Disease> getGeneToDiseaseAssociations(String geneId);
+
+    
+    /**
+     * Fetch computed disease-model associations using a disease as a query.
+     * This is used on the disease pages.
      *
      * @param diseaseId
      *
      * @return
+     * 
+     * list of models with scores that have been linked to the disease
+     * 
      */
-    public List<ModelAssociation> getDiseaseToModelAssociations(String diseaseId);
+    public List<DiseaseModelAssociation> getDiseaseToModelModelAssociations(String diseaseId);
 
     /**
-     * The gene page view. Use the minRawScoreCutoff to set the lower-level
-     * limit for the phenodigm score of a gene-disease association. High
-     * confidence scores are generally above 2.0
+     * Fetch computed disease-model associations using a gene as a query. 
+     * This is used on the gene pages. 
      *
-     * @param geneId
-     * @param minRawScoreCutoff
+     * @param geneId     
      * @return
+     * 
+     * list of objects. Each element will contain 
      */
-    //public List<DiseaseAssociationSummary> getGeneToDiseaseAssociationSummaries(GeneIdentifier geneId, double minRawScoreCutoff);
+    public List<DiseaseModelAssociation> getGeneToDiseaseModelAssociations(String geneId);
+    
     /**
      * Fetch details explaining how a disease and mouse models are related.
      *
@@ -77,7 +108,7 @@ public interface WebDao {
      * explanations for the matched phenotypes bewteen a disease and each model.
      *
      */
-    public List<ModelAssociation> getDiseaseModelDetails(String diseaseId, String markerId);
+    public List<DiseaseModelAssociation> getDiseaseModelDetails(String diseaseId, String markerId);
 
     /**
      * Fetch details of all models that include a certain marker

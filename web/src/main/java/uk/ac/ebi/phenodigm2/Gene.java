@@ -18,9 +18,13 @@ package uk.ac.ebi.phenodigm2;
 import java.util.List;
 
 /**
- * Object describing an association to a gene
+ * Object describing an association of a gene to something (e.g. a disease).
+ * 
+ * This class describes the gene that is associated and the type of association.
+ * The target of the association is not part of this object.
+ * 
  */
-public class GeneAssociation extends AssociationType implements IdUrl {
+public class Gene extends AssociationType implements IdUrl {
 
     private String id;
     private String symbol;
@@ -30,7 +34,7 @@ public class GeneAssociation extends AssociationType implements IdUrl {
     private static String baseUrlMGI = "http://www.informatics.jax.org/accession/MGI:";
     private static String baseUrlHGNC = "http://www.genenames.org/data/hgnc_data.php?hgnc_id=";
 
-    public GeneAssociation(String id, String symbol) {
+    public Gene(String id, String symbol) {
         this.id = id;
         this.symbol = symbol;
     }

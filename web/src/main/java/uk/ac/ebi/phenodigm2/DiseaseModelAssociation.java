@@ -20,18 +20,21 @@ import java.util.List;
 
 /**
  * Object describing an association from a disease to a model.
- * 
- * The class defines many fields, but a constructed object is not guaranteed
- * to have values for all of them. 
- * 
+ *
+ * The class defines many fields, but a constructed object is not guaranteed to
+ * have values for all of them.
+ *
  */
-public class ModelAssociation extends AssociationType implements IdUrl {
-    
+public class DiseaseModelAssociation extends AssociationType implements IdUrl {
+
     // id here stands for model id
     private String id;
     private String modelSource;
     private String modelGeneticBackground;
     private String modelDescription;
+    // data about the disease
+    private String diseaseId;
+    private String diseaseTerm;
     // markers id and symbol refer to the gene modified in the model
     private String markerId;
     private String markerSymbol;
@@ -44,10 +47,11 @@ public class ModelAssociation extends AssociationType implements IdUrl {
     // The lists are denoted as disease and model phenotypes,
     // but solr will use these as matched phenotypes, i.e. only those
     // phenotypes in disease and model that contribute to the scores
+    // DEV NOTE: these are no longer used.
     private List<Phenotype> diseasePhenotypes;
     private List<Phenotype> modelPhenotypes;
 
-    public ModelAssociation(String id) {
+    public DiseaseModelAssociation(String id) {
         this.id = id;
     }
 
@@ -70,13 +74,29 @@ public class ModelAssociation extends AssociationType implements IdUrl {
     public void setModelGeneticBackground(String modelGeneticBackground) {
         this.modelGeneticBackground = modelGeneticBackground;
     }
-    
+
     public String getModelDescription() {
         return modelDescription;
     }
 
     public void setModelDescription(String modelDescription) {
         this.modelDescription = modelDescription;
+    }
+
+    public String getDiseaseId() {
+        return diseaseId;
+    }
+
+    public void setDiseaseId(String diseaseId) {
+        this.diseaseId = diseaseId;
+    }
+
+    public String getDiseaseTerm() {
+        return diseaseTerm;
+    }
+
+    public void setDiseaseTerm(String diseaseTerm) {
+        this.diseaseTerm = diseaseTerm;
     }
 
     public String getMarkerId() {
@@ -116,7 +136,7 @@ public class ModelAssociation extends AssociationType implements IdUrl {
     }
 
     public void setDiseasePhenotypes(List<Phenotype> diseasePhenotypes) {
-        this.diseasePhenotypes = diseasePhenotypes;        
+        this.diseasePhenotypes = diseasePhenotypes;
     }
 
     /**
@@ -124,8 +144,8 @@ public class ModelAssociation extends AssociationType implements IdUrl {
      *
      * @param diseasePhenotypes
      */
-    public void parseDiseasePhenotypes(List<String> diseasePhenotypes) {        
-        this.diseasePhenotypes = new ArrayList<>();        
+    public void parseDiseasePhenotypes(List<String> diseasePhenotypes) {
+        this.diseasePhenotypes = new ArrayList<>();
         for (String phenotype : diseasePhenotypes) {
             this.diseasePhenotypes.add(new Phenotype(phenotype));
         }
@@ -182,14 +202,14 @@ public class ModelAssociation extends AssociationType implements IdUrl {
     public void setMaxRaw(double maxRaw) {
         this.maxRaw = maxRaw;
     }
-    
+
     /**
      * Computes phenodigm score (average of avg and max norm scores)
-     * 
-     * @return 
+     *
+     * @return
      */
     public double getScore() {
-        return (maxNorm+avgNorm)*0.5;
+        return (maxNorm + avgNorm) * 0.5;
     }
 
     @Override
@@ -203,23 +223,44 @@ public class ModelAssociation extends AssociationType implements IdUrl {
     }
 
     /**
-     * Create a json representation of the object.
+     * Create a json representation of the object with focus on models.
      *
      * This renames a few fields with shorter names - saves somes bytes when
      * moving the json around.
      *
      * @return
      */
-    public String getJson() {
+    public String getModelJson() {
         StringBuilder sb = new StringBuilder();
         sb.append("{");
         sb.append("id:\"" + id + "\",");
         sb.append("source:\"" + modelSource + "\",");
         sb.append("description:\"" + modelDescription + "\",");
         sb.append("markerId:\"" + markerId + "\",");
-        sb.append("markerSymbol:\"" + markerSymbol + "\",");
-        sb.append("markerLocus:\"" + markerLocus + "\",");
+        sb.append("markerSymbol:\"" + markerSymbol + "\",");        
         sb.append("markerNumModels:\"" + markerNumModels + "\",");
+        sb.append("avgNorm:" + avgNorm + ",");
+        sb.append("avgRaw:" + avgRaw + ",");
+        sb.append("maxRaw:" + maxRaw + ",");
+        sb.append("maxNorm:" + maxNorm);
+        sb.append("}");
+        return sb.toString();
+    }
+
+    /**
+     * Create a json representation of the object with focus on diseases.
+     *
+     * @return
+     */
+    public String getDiseaseJson() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("{");
+        sb.append("id:\"" + id + "\",");
+        sb.append("source:\"" + modelSource + "\",");
+        sb.append("description:\"" + modelDescription + "\",");
+        sb.append("diseaseId:\"" + diseaseId + "\",");
+        sb.append("diseaseTerm:\"" + diseaseTerm + "\",");
+        sb.append("diseaseUrl:\"" + (new Disease(diseaseId)).getExternalUrl() + "\",");
         sb.append("avgNorm:" + avgNorm + ",");
         sb.append("avgRaw:" + avgRaw + ",");
         sb.append("maxRaw:" + maxRaw + ",");

@@ -28,8 +28,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import uk.ac.ebi.phenodigm2.Disease;
-import uk.ac.ebi.phenodigm2.GeneAssociation;
-import uk.ac.ebi.phenodigm2.ModelAssociation;
+import uk.ac.ebi.phenodigm2.Gene;
+import uk.ac.ebi.phenodigm2.DiseaseModelAssociation;
 import uk.ac.ebi.phenodigm2.WebDao;
 
 /**
@@ -76,7 +76,6 @@ public class DiseaseController2 {
     public String disease(@PathVariable("diseaseId") String diseaseId, Model model) {
 
         diseaseId = normalizeDiseaseId(diseaseId);
-
         LOGGER.info("Making disease2 page for " + diseaseId);
 
         Disease disease = phenoDigm2Dao.getDisease(diseaseId);
@@ -87,15 +86,13 @@ public class DiseaseController2 {
         LOGGER.info(String.format("Found disease: %s %s", disease.getId(), disease.getTerm()));
         model.addAttribute("disease", disease);
 
-        // fetch associations between the disease and known genes
-        LOGGER.info(String.format("%s - getting disease-gene associations", diseaseId));
-        List<GeneAssociation> geneAssociations = phenoDigm2Dao.getDiseaseToGeneAssociations(diseaseId);
-        LOGGER.info(String.format("%s - recieved %s disease-gene associations", diseaseId, geneAssociations.size()));
-        // associated genes due to annotations
-        List<GeneAssociation> curatedAssociations = new ArrayList<>();
-        List<GeneAssociation> orthologousAssociations = new ArrayList<>();
+        // fetch associations between the disease and known genes        
+        List<Gene> geneAssociations = phenoDigm2Dao.getDiseaseToGeneAssociations(diseaseId);        
+        // split the genes into curated/ortholog, i.e. human/mouse 
+        List<Gene> curatedAssociations = new ArrayList<>();
+        List<Gene> orthologousAssociations = new ArrayList<>();
         HashSet<String> orthologousGenes = new HashSet<>();
-        for (GeneAssociation assoc : geneAssociations) {
+        for (Gene assoc : geneAssociations) {
             if (assoc.isCurated()) {                
                 if (assoc.isOrtholog()) {
                     orthologousAssociations.add(assoc);
@@ -105,45 +102,39 @@ public class DiseaseController2 {
                 }
             }
         }
+        // add details about curated genes and orthologous genes (for disease page header)
         model.addAttribute("curatedAssociations", curatedAssociations);
-        model.addAttribute("orthologousAssociations", orthologousAssociations);
-        model.addAttribute("orthologGenes", orthologousGenes);
-        LOGGER.info("ortholog genes are: " + orthologousGenes.toString());
-
-        // create a js object representation of the orthologous genes
-        String relevantGenesObj = String.join("\", \"", orthologousGenes);
+        model.addAttribute("orthologousAssociations", orthologousAssociations);                
+        // stringify the ortholgoous genes into a js array
+        String curatedJsArray = String.join("\", \"", orthologousGenes);
         if (orthologousGenes.size() > 0) {
-            relevantGenesObj = "[\"" + relevantGenesObj + "\"]";
+            curatedJsArray = "[\"" + curatedJsArray + "\"]";
         } else {
-            relevantGenesObj = "[]";
+            curatedJsArray = "[]";
         }
-        model.addAttribute("relevantMouseGenes", relevantGenesObj);
+        model.addAttribute("curatedMouseGenes", curatedJsArray);
 
-        // fetch associations between the disease and models
-        LOGGER.info("");
+        // fetch associations between the disease and models        
         LOGGER.info(String.format("%s - getting disease-model associations", diseaseId));
-        List<ModelAssociation> modelAssociations = phenoDigm2Dao.getDiseaseToModelAssociations(diseaseId);
-        LOGGER.info(String.format("%s - received %s disease-model associations", diseaseId, modelAssociations.size()));
-        model.addAttribute("modelAssociations", modelAssociations);
+        List<DiseaseModelAssociation> modelAssociations = phenoDigm2Dao.getDiseaseToModelModelAssociations(diseaseId);                
 
         // create a js object representation of the models        
-        String modelAssociationsObj = "[]";
+        String modelAssocsJsArray = "[]";
         boolean hasModelsByOrthology = false;
         if (modelAssociations.size() > 0) {
             List<String> jsons = new ArrayList<>();
-            for (ModelAssociation assoc : modelAssociations) {
-                jsons.add(assoc.getJson());
+            for (DiseaseModelAssociation assoc : modelAssociations) {
+                jsons.add(assoc.getModelJson());
                 if (orthologousGenes.contains(assoc.getMarkerSymbol())) {
                     hasModelsByOrthology = true;
                 }
             }
-            modelAssociationsObj = "[" + String.join(", ", jsons) + "]";
+            modelAssocsJsArray = "[" + String.join(", ", jsons) + "]";
         }
-        model.addAttribute("modelAssociationsObj", modelAssociationsObj);
+        model.addAttribute("modelAssociations", modelAssocsJsArray);
         model.addAttribute("hasModelsByOrthology", hasModelsByOrthology);
-        LOGGER.info("hasModelsByOrthology: " + hasModelsByOrthology);
-
-        LOGGER.info("Returning disease2 page for " + diseaseId);
+        model.addAttribute("hasModelAssociations", modelAssociations.size()>0);
+        
         return "disease2";
     }
 }

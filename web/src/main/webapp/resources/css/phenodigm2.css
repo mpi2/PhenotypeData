@@ -60,7 +60,7 @@ tbody.phenotable tr.impc {
 }
 
 /* for styling numeric fields in tables */
-td.numeric, #phenotabs td.numeric {
+td.numeric, .phenotabs td.numeric {
     font-weight: 700;
     color: #ef7b0b;
 }

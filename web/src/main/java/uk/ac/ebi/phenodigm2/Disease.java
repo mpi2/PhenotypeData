@@ -23,7 +23,7 @@ import java.util.List;
  * disease.
  *
  */
-public class Disease implements Comparable<Disease>, IdUrl {
+public class Disease extends AssociationType implements Comparable<Disease>, IdUrl {
 
     private String id;
     private String term;

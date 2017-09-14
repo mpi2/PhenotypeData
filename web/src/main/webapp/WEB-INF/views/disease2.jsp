@@ -204,7 +204,7 @@
                     </div>
                     <div id="by-phenotype">
                         <c:choose>
-                            <c:when test="${empty modelAssociations}">
+                            <c:when test="${!hasModelAssociations}">
                                 No mouse models associated with ${disease.id} by phenotypic similarity.
                             </c:when>
                             <c:otherwise>
@@ -263,17 +263,16 @@
         --%>       
 
         <%-- Prepare js objects: relevant/curated mouse genes, relevant mouse models --%>              
-        <script type="text/javascript">
-            // define data objects
-            var relevantMouseGenes = ${relevantMouseGenes};
-            var modelAssociations = ${modelAssociationsObj};
+        <script type="text/javascript">            
+            var curatedGenes = ${curatedMouseGenes};
+            var modelAssociations = ${modelAssociations};
         </script>
 
         <script type="text/javascript">
             // configuration for scatterplot
-            var diseaseScatter = {
+            var diseaseScatterConf = {
                 id: "#phenoscatter",
-                knowngenes: relevantMouseGenes,
+                knowngenes: curatedGenes,
                 h: 350, // height in pixels 
                 margin: [20, 60, 50, 60], // top, right, bottom, left margins
                 offset: [40, -40], // distance of x, y labels from axes
@@ -290,51 +289,54 @@
                 threshold: 2.2
             };
             // configuration for tables, used by jquery datatable and by phenodigm2
-            var diseaseTables = [
-                {id: '#models_by_annotation_table',
+            var diseaseTableConfs = [
+                {
+                    id: '#models_by_annotation_table',
                     tableConf: {
                         paging: false,
                         info: false,
                         searching: false,
                         order: [[4, 'desc'], [3, 'desc'], [2, 'desc']],
-                        "sPaginationType": "bootstrap"
+                        sPaginationType: "bootstrap"
                     },
                     phenodigm2Conf: {
-                        filter: true,
-                        markerlist: relevantMouseGenes,
+                        groupby: "markerId",
+                        filterkey: "markerSymbol",
+                        filter: curatedGenes,
                         pagetype: "disease",
                         disease: "${disease.id}"
                     }
                 },
-                {id: '#models_by_phenotype_table',
+                {
+                    id: '#models_by_phenotype_table',
                     tableConf: {
                         order: [[4, 'desc'], [3, 'desc'], [2, 'desc']],
                         pageLength: 20,
                         lengthMenu: [20, 50, 100],
-                        "sPaginationType": "bootstrap"
+                        sPaginationType: "bootstrap"
                     },
-                    phenodigm2Conf: {
-                        filter: false,
-                        markerlist: [],
+                    phenodigm2Conf: {  
+                        groupby: "markerId",
+                        filterkey: "markerSymbol",
+                        filter: [],
                         pagetype: "disease",
                         disease: "${disease.id}"
                     }
-                }
-            ];
+                }];
 
             $(document).ready(function () {
                 $("#phenotabs").tabs({ active: 0 });
                 // create visualization at the top
-                impc.phenodigm2.makeScatterplot(modelAssociations, diseaseScatter);
+                impc.phenodigm2.makeScatterplot(modelAssociations, diseaseScatterConf);
                 // create tables 
-                for (var i = 0; i < diseaseTables.length; i++) {
-                    var diseaseTable = diseaseTables[i];
+                for (var i = 0; i < diseaseTableConfs.length; i++) {
+                    var dTable = diseaseTableConfs[i];
                     // create raw table
-                    impc.phenodigm2.makeTable(modelAssociations, diseaseTable.id, diseaseTable.phenodigm2Conf);
+                    impc.phenodigm2.makeTable(modelAssociations, dTable.id, dTable.phenodigm2Conf);
                     // apply jquery transformation (pagination, etc)
-                    var dataTable = $(diseaseTable.id).DataTable(diseaseTable.tableConf);
+                    var dataTable = $(dTable.id).DataTable(dTable.tableConf);
                     // add phenodigm handlers
-                    $.fn.addTableClickPhenogridHandler(diseaseTable.id, dataTable);
+                    $.fn.addTableClickPhenogridHandler(dTable.id, dataTable);
                 }
                 $.fn.qTip({'pageName': 'diseases'});
             });

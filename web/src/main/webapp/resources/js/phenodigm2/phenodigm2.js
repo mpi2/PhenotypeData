@@ -60,40 +60,57 @@ impc.sources = ["IMPC", "EuroPhenome"];
  */
 impc.phenodigm2.makeTable = function (darr, target, config) {
 
+    console.log("\n\n\n\n\n\n");
     console.log("running makeTable " + target);
     var targetdiv = d3.select(target);
 
-    //console.log("mpt " + target + " 2");
-    // setup columns. Last column is blank because 
+    // shorthand for pagetype
+    var pt = config.pagetype;
+    if (pt !== "genes" && pt !== "disease") {
+        console.log("phenodigm2.makeTable - pagetype must be either 'genes' or 'disease'");
+    }
+
+    console.log("starting head with pagetype: " + pt);
+    // setup columns
     var thead = targetdiv.append("thead").append("tr");
-    ["Gene", "Models", "Max Raw", "Avg Raw", "Phenodigm"].map(
+    var colnames = ["Gene", "Models", "Max Raw", "Avg Raw", "Phenodigm"];
+    if (pt === "genes") {
+        colnames = ["Disease", "Source", "Max Raw", "Avg Raw", "Phenodigm"];
+    }
+    colnames.map(
             function (x) {
                 thead.append("th").append("span").classed("main", true).html(x);
             });
     // add a last column with blank title (will contain +extra info button)
     thead.append("th");
 
+    console.log("starting body");
     // setup data body
-    var tbody = targetdiv.append("tbody")
-            .classed("phenotable", true)
+    var tbody = targetdiv.append("tbody").classed("phenotable", true)
             .attr("pagetype", config.pagetype);
-    if (config.pagetype === "disease") {
+    if (pt === "disease") {
         tbody.attr("diseaseid", config.disease);
+    } else {
+        tbody.attr("geneid", config.gene);
     }
 
     // create a subset of the large array with only markers to show
     var dshow = darr;
-    if (config.filter) {
+    if (config.filter.length > 0) {
         dshow = darr.filter(function (x) {
-            return config.markerlist.indexOf(x["markerSymbol"]) >= 0;
+            return config.filter.indexOf(x[config.filterkey]) >= 0;
         });
     }
+    console.log("computed dshow: " + dshow.length + " rows ");
+    //console.log("computed dshow: " + JSON.stringify(dshow));
 
-    // convert from by-model to by-gene representation    
+    // convert from by-model to by-gene or by-disease representation        
     dshow = _.groupBy(dshow, function (x) {
-        return x["markerSymbol"];
+        return x[config.groupby];
     });
-    var dgenes = _.keys(dshow);
+    var dkeys = _.keys(dshow);
+    //console.log("keys for table: " + dkeys.length + " ... " + JSON.stringify(dkeys));
+
 
     var scorecols = ["maxRaw", "avgRaw"];
 
@@ -105,17 +122,8 @@ impc.phenodigm2.makeTable = function (darr, target, config) {
         var phenmax = _.max(phenodigms);
         return phenmax.toPrecision(4);
     };
-
-    // create html table (one line per gene)
-    dgenes.map(function (gene) {
-        // compute a summary for the gene
-        // x is now an array of objects
-        var x = dshow[gene];
-        var trow = tbody.append("tr").attr("class", "phenotable")
-                .attr("geneId", x[0]["markerId"]);
-        trow.append("td").append("a").classed("genelink", true)
-                .attr("href", impc.baseUrl + "/genes/" + x[0]["markerId"]).html(gene);
-        trow.append("td").html(x.length + " <span class='small'>(" + x[0].markerNumModels + ")");
+    // helper to add a series of <td> elements to a row summarizing scores
+    var addScoreTds = function (trow, x) {
         if (x.length > 1) {
             // display ranges for all scores
             scorecols.map(function (y) {
@@ -129,10 +137,36 @@ impc.phenodigm2.makeTable = function (darr, target, config) {
             });
         }
         trow.append("td").classed("numeric", true).html(phenscore(x));
-        trow.append("td").attr("titlef", "Click to display phenotype terms")
+        trow.append("td").attr("titlef", "Click to display phenotype details")
                 .classed("toggleButton", true)
                 .append("i").classed("fa fa-plus-square more", true);
-    });
+    };
+
+    if (pt === "disease") {
+        // create html table (one line per gene)
+        dkeys.map(function (key) {
+            var x = dshow[key];
+            // x is now an array of objects, display a summary row
+            var trow = tbody.append("tr").attr("class", "phenotable").attr("geneid", x[0]["markerId"]);
+            trow.append("td").append("a").classed(pt + "link", true)
+                    .attr("href", impc.baseUrl + "/genes/" + x[0]["markerId"]).html(x[0]["markerSymbol"]);
+            trow.append("td").html(x.length + " <span class='small'>(" + x[0].markerNumModels + ")");
+            addScoreTds(trow, x);
+        });
+    } else {
+        // create html table (one line per disease)    
+        dkeys.map(function (key) {
+            var x = dshow[key];
+            // x is now an array of objects, display a summary row
+            //console.log("x is: " + JSON.stringify(x));
+            var trow = tbody.append("tr").attr("class", "phenotable").attr("diseaseid", x[0]["diseaseId"]);
+            trow.append("td").append("a").classed(pt + "link", true)
+                    .attr("href", impc.baseUrl + "/disease/" + x[0]["diseaseId"]).html(x[0]["diseaseTerm"]);
+            trow.append("td").append("a").classed(pt + "link", true)
+                    .attr("href", x[0]["diseaseUrl"]).html(x[0]["diseaseId"]);
+            addScoreTds(trow, x);
+        });
+    }
 
     // attach a special listener to the gene links. This allows users to click 
     // on links without activating the phenogrid widget (on click bound to tr)
@@ -430,6 +464,7 @@ impc.phenodigm2.makeTableChildRow = function (pagetype, geneId, diseaseId) {
  */
 impc.phenodigm2.getPhenoGridSkeleton = function (geneId, diseaseId, pageType) {
     console.log("starting fetch: " + new Date());
+    console.log("with " + geneId + " " + diseaseId + " " + pageType);
     return $.getJSON(impc.baseUrl + "/phenodigm2/phenogrid",
             {geneId: geneId, diseaseId: diseaseId, pageType: pageType}
     );
@@ -497,7 +532,7 @@ impc.phenodigm2.insertModelDetails = function (tableId, geneId, skeleton) {
     // identify div that should hold the details table
     var targetdiv = d3.select(tableId + " .inner[geneid='" + geneId + "'] .inner_table");
     var tablediv = targetdiv.append("table").classed("table", true);
-    
+
     // identify the rows in modelAssociations that are relevant
     var details = modelAssociations.filter(function (x) {
         return x["markerId"] === geneId;
@@ -620,16 +655,28 @@ impc.phenodigm2.insertPhenogrid = function (tableId, geneId, diseaseId, pageType
  */
 $.fn.addTableClickPhenogridHandler = function (tableId, table) {
 
+    console.log("setup of click");
     var tbody = $(tableId + ' tbody');
     var pagetype = tbody.attr("pagetype");
-    var diseaseId = tbody.attr("diseaseid");
+    var diseaseId = "", geneId = "";
+    if (pagetype === "disease") {
+        diseaseId = tbody.attr("diseaseid");
+    } else if (pagetype === "genes") {
+        geneId = tbody.attr("geneid");
+    }
+    console.log("setup has diseaseId "+diseaseId+" and geneId "+geneId);
 
     // allow users to click on a row and see a PhenoGrid widget
     $(tableId + ' tbody').on('click', 'tr.phenotable', function () {
         var tr = $(this).closest('tr');
         var row = table.row(tr);
-        var geneId = tr.attr("geneid");
-
+        if (pagetype === "disease") {
+            geneId = tr.attr("geneid");
+        } else {
+            diseaseId = tr.attr("diseaseid");
+        }
+        console.log("now clicked and diseaseId "+diseaseId+" and geneId "+geneId);
+        
         if (typeof geneId === "undefined") {
             return;
         }
