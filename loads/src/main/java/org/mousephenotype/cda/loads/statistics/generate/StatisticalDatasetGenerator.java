@@ -97,6 +97,7 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
 
                     .setRows(0)
                     .setFacet(true)
+                    .setFacetLimit(-1)
                     .addFacetPivotField(PIVOT.stream().collect(Collectors.joining(",")));
 
             logger.info(SolrUtils.getBaseURL(experimentCore) + "/select" + query.toQueryString());
@@ -137,6 +138,8 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
                         .setFields(fields)
                         .setRows(Integer.MAX_VALUE)
                 ;
+
+                logger.debug(SolrUtils.getBaseURL(experimentCore) + "/select" + query.toQueryString());
 
                 List<ObservationDTO> observationDTOs = experimentCore.query(query).getBeans(ObservationDTO.class);
 
