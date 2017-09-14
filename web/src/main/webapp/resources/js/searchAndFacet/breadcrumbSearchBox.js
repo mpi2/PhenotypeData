@@ -121,7 +121,9 @@ $(document).ready(function () {
 
 	var srchkw = $.fn.fetchUrlParams('kw') == undefined ? "Search" : $.fn.fetchUrlParams('kw').replace("\\%3A",":").replace("\\-", "-");
     srchkw = srchkw.replace(/%22/g, '');
-    srchkw = srchkw.replace('*', '');
+    if (srchkw == '*') {
+        srchkw = srchkw.replace('*', '');
+    }
 	$("input#s").val(decodeURI(srchkw));
 
 	$("input#s").click(function(){
@@ -140,13 +142,15 @@ $(document).ready(function () {
 			var qfStr = request.term.indexOf("*") != -1 ? "auto_suggest" : "string auto_suggest";
 			var facetStr = "&facet=on&facet.field=docType&facet.mincount=1&facet.limit=-1";
 			var sortStr = "&sort=score desc";
+
 			$.ajax({
 				//url: solrUrl + "/autosuggest/select?wt=json&qf=string auto_suggest&defType=edismax" + solrBq,
 				url: solrUrl + "/autosuggest/select?rows=5&fq=!docType:gwas AND !docType:hp&wt=json&qf=" + qfStr + "&defType=edismax" + solrBq + facetStr + sortStr,
 				dataType: "jsonp",
 				'jsonp': 'json.wrf',
 				data: {
-					q: '"'+request.term+'"'
+					//q: '"'+request.term+'"'
+					q: request.term
 				},
 				success: function( data ) {
 
@@ -210,12 +214,12 @@ $(document).ready(function () {
                     }
 
 					response(dataTypeVal);
-
 				}
 			});
 		},
 		focus: function (event, ui) {
 			var thisInput = $(ui.item.label).text().replace(/<\/?span>|^\w* : /g,'');
+			//alert("input box: " + thisInput);
 			//this.value = '"' + thisInput.trim() + '"';  // double quote value when mouseover or KB UP.DOWN a dropdown list
             // assign value to input box
             this.value = thisInput.trim();
@@ -247,8 +251,16 @@ $(document).ready(function () {
 			q = encodeURIComponent(q).replace("%3A", "\\%3A");
 
             // default to send query to Solr in quotes !!!
+            //alert("q : "+ q);
+			if (q.indexOf("*") != -1 && q.indexOf(" ") == -1) {
+				q = q;
+			}
+			else {
+				q = '"' + q + '"'; // single quotes do NOT work in SOLR query
+			}
 
-			var href = baseUrl + '/search/' + facet  + '?' + "kw=\"" + q + "\"";
+			//var href = baseUrl + '/search/' + facet  + '?' + "kw=\"" + q + "\"";
+            var href = baseUrl + '/search/' + facet  + '?' + 'kw=' + q;
 			if (q.match(/(MGI:|MP:|MA:|EMAP:|EMAPA:|HP:|OMIM:|ORPHANET:|DECIPHER:)\d+/i)) {
 				href += "&fq=" + facet2Fq[facet];
 			}
@@ -289,7 +301,7 @@ $(document).ready(function () {
             //alert('enter: '+ MPI2.searchAndFacetConfig.matchedFacet)
             var input = $('input#s').val().trim();
 
-            //alert(input + ' ' + solrUrl)
+            //alert("check1 - " +  input + ' ' + solrUrl)
             input = /^\*\**?\*??$/.test(input) ? '' : input;  // lazy matching
 
             var re = new RegExp("^'(.*)'$");
@@ -326,6 +338,20 @@ $(document).ready(function () {
             // no need to escape space - looks cleaner to the users
             // and it is not essential to escape space
             input = input.replace(/\\?%20/g, ' ').replace(qRe, "");
+
+            // var qStr = '"'+request.term+'"'
+			//alert("check 2 - input : "+ input);
+
+			// default to search by double quotes in SOLR
+            if (input != '') {
+				if (input.indexOf("*") != -1 && input.indexOf(" ") == -1) {
+					input = input;
+				}
+				else {
+					input = '"' + input + '"';  // single quotes do NOT work in SOLR query
+				}
+        	}
+
 
             // check for current datatype (tab) and use this as default core
             // instead of figuring this out for the user
@@ -366,19 +392,23 @@ $(document).ready(function () {
                             url: baseUrl + '/fetchDefaultCore?q="' + input + '"',
                             type: 'get',
                             success: function (defaultCore) {
-                                document.location.href = baseUrl + '/search/' + defaultCore + '?kw="' + input + '"';
+                                //document.location.href = baseUrl + '/search/' + defaultCore + '?kw="' + input + '"';
+                                document.location.href = baseUrl + '/search/' + defaultCore + '?kw=' + input;
                             }
                         });
                     }
                     else {
-                        // default to search by quotes
                         var fqStr = $.fn.fetchUrlParams("fq");
-                        if (fqStr != undefined) {
-                            document.location.href = baseUrl + '/search/' + facet + '?kw="' + input + '"&fq=' + fqStr;
-                        }
-                        else {
-                            document.location.href = baseUrl + '/search/' + facet + '?kw="' + input + '"';
-                        }
+
+						if (fqStr != undefined) {
+							//document.location.href = baseUrl + '/search/' + facet + '?kw="' + input + '"&fq=' + fqStr;
+							document.location.href = baseUrl + '/search/' + facet + '?kw=' + input + '&fq=' + fqStr;
+						}
+						else {
+						   // document.location.href = baseUrl + '/search/' + facet + '?kw="' + input + '"';
+							document.location.href = baseUrl + '/search/' + facet + '?kw=' + input;
+						}
+
                     }
                 }
 
@@ -395,7 +425,7 @@ $(document).ready(function () {
                         url: baseUrl + '/fetchDefaultCore?q="' + input + '"',
                         type: 'get',
                         success: function (defaultCore) {
-                            document.location.href = baseUrl + '/search/' + defaultCore + '?kw="' + input + '"';
+                            document.location.href = baseUrl + '/search/' + defaultCore + '?kw=' + input;
                         }
                     });
                 }
