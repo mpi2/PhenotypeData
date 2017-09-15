@@ -1885,7 +1885,7 @@ public class FileExportController {
 					if (dataTypePath.get(dataTypeName).isEmpty()) {
 						link = "";
 					} else {
-						link = hostName + baseUrl + "/" + dataTypePath.get(dataTypeName) + "/" + accStr;
+						link = "http:" + hostName + baseUrl + "/" + dataTypePath.get(dataTypeName) + "/" + accStr;
 					}
 //					 System.out.println("idlink: " + link);
 					data.add(link);
