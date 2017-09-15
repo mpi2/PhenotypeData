@@ -119,7 +119,7 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
                         result.get(ObservationDTO.PHENOTYPING_CENTER).replace(" ","_"),
                         result.get(ObservationDTO.PIPELINE_STABLE_ID),
                         result.get(ObservationDTO.PROCEDURE_GROUP),
-                        result.get(ObservationDTO.STRAIN_ACCESSION_ID).replace(":","")).collect(Collectors.joining("-")) + ".tsv";
+                        result.get(ObservationDTO.STRAIN_ACCESSION_ID).replace(":","")).collect(Collectors.joining("::")) + ".tsv";
                 Path p = new File(filename).toPath();
                 logger.info("Writing file {} ({})", filename, p);
 

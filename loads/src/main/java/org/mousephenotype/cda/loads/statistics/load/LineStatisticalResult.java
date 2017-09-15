@@ -8,8 +8,10 @@ public class LineStatisticalResult {
     private String pipeline;
     private String procedure;
     private String strain;
+    private String dataSource;
+    private String project;
 
-    // Contents of the file
+    private String weightAvailable;
     private String metadataGroup;
     private String zygosity;
     private String colonyId;
@@ -61,6 +63,38 @@ public class LineStatisticalResult {
     private String sexMvKOPVal;
     private String classificationTag;
     private String additionalInformation;
+
+    public String getDataSource() {
+        return dataSource;
+    }
+
+    public String getProject() {
+        return project;
+    }
+
+    public String getWeightAvailable() {
+        return weightAvailable;
+    }
+
+    public void setWeightAvailable(String weightAvailable) {
+        this.weightAvailable = weightAvailable;
+    }
+
+    public String getDataSourceName() {
+        return dataSource;
+    }
+
+    public void setDataSource(String dataSource) {
+        this.dataSource = dataSource;
+    }
+
+    public String getProjectName() {
+        return project;
+    }
+
+    public void setProject(String project) {
+        this.project = project;
+    }
 
     public String getWorkflow() {
         return workflow;
@@ -478,6 +512,9 @@ public class LineStatisticalResult {
         this.strain = strain;
     }
 
+    public LineStatisticalResult() {
+    }
+
     @Override
     public String toString() {
         return "LineStatisticalResult{" +
@@ -485,6 +522,9 @@ public class LineStatisticalResult {
                 ", pipeline='" + pipeline + '\'' +
                 ", procedure='" + procedure + '\'' +
                 ", strain='" + strain + '\'' +
+                ", dataSource='" + dataSource + '\'' +
+                ", project='" + project + '\'' +
+                ", weightAvailable='" + weightAvailable + '\'' +
                 ", metadataGroup='" + metadataGroup + '\'' +
                 ", zygosity='" + zygosity + '\'' +
                 ", colonyId='" + colonyId + '\'' +
@@ -536,14 +576,14 @@ public class LineStatisticalResult {
                 '}';
     }
 
-    public LineStatisticalResult() {
-    }
-
-    public LineStatisticalResult(String center, String pipeline, String procedure, String strain, String metadataGroup, String zygosity, String colonyId, String status, String code, Integer countControlMale, Integer countControlFemale, Integer countMutantMale, Integer countMutantFemale, Double maleControlMean, Double femaleControlMean, Double maleMutantMean, Double femaleMutantMean, String controlSelection, String workflow, String statisticalMethod, String dependentVariable, String batchIncluded, String residualVariancesHomogeneity, String genotypeContribution, String genotypeEstimate, String genotypeStandardError, String genotypePVal, String genotypePercentageChange, String sexEstimate, String sexStandardError, String sexPVal, String weightEstimate, String weightStandardError, String weightPVal, String group1Genotype, String group1ResidualsNormalityTest, String group2Genotype, String group2ResidualsNormalityTest, String blupsTest, String rotatedResidualsNormalityTest, String interceptEstimate, String interceptStandardError, String interactionIncluded, String interactionPVal, String sexFvKOEstimate, String sexFvKOStandardError, String sexFvKOPVal, String sexMvKOEstimate, String sexMvKOStandardError, String sexMvKOPVal, String classificationTag, String additionalInformation) {
+    public LineStatisticalResult(String center, String pipeline, String procedure, String strain, String dataSource, String project, String weightAvailable, String metadataGroup, String zygosity, String colonyId, String status, String code, Integer countControlMale, Integer countControlFemale, Integer countMutantMale, Integer countMutantFemale, Double maleControlMean, Double femaleControlMean, Double maleMutantMean, Double femaleMutantMean, String controlSelection, String workflow, String statisticalMethod, String dependentVariable, String batchIncluded, String residualVariancesHomogeneity, String genotypeContribution, String genotypeEstimate, String genotypeStandardError, String genotypePVal, String genotypePercentageChange, String sexEstimate, String sexStandardError, String sexPVal, String weightEstimate, String weightStandardError, String weightPVal, String group1Genotype, String group1ResidualsNormalityTest, String group2Genotype, String group2ResidualsNormalityTest, String blupsTest, String rotatedResidualsNormalityTest, String interceptEstimate, String interceptStandardError, String interactionIncluded, String interactionPVal, String sexFvKOEstimate, String sexFvKOStandardError, String sexFvKOPVal, String sexMvKOEstimate, String sexMvKOStandardError, String sexMvKOPVal, String classificationTag, String additionalInformation) {
         this.center = center;
         this.pipeline = pipeline;
         this.procedure = procedure;
         this.strain = strain;
+        this.dataSource = dataSource;
+        this.project = project;
+        this.weightAvailable = weightAvailable;
         this.metadataGroup = metadataGroup;
         this.zygosity = zygosity;
         this.colonyId = colonyId;
@@ -594,3 +634,4 @@ public class LineStatisticalResult {
         this.additionalInformation = additionalInformation;
     }
 }
+
