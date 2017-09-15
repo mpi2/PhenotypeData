@@ -50,7 +50,7 @@ public class LightweightUnidimensionalResult implements Serializable {
 	protected String markerSymbol;
 	protected String colonyId;
 	protected String dependentVariable;
-	protected String originalStatisticalMethod;
+	protected String statisticalMethod;
 	protected String zygosity;
 	protected String strain;
 	protected String backgroundStrainName;
@@ -85,12 +85,12 @@ public class LightweightUnidimensionalResult implements Serializable {
 		// Genreated methods
 
 
-	public String getOriginalStatisticalMethod() {
-		return originalStatisticalMethod;
+	public String getStatisticalMethod() {
+		return statisticalMethod;
 	}
 
-	public void setOriginalStatisticalMethod(String originalStatisticalMethod) {
-		this.originalStatisticalMethod = originalStatisticalMethod;
+	public void setStatisticalMethod(String statisticalMethod) {
+		this.statisticalMethod = statisticalMethod;
 	}
 
 	public String getParameterName() {
