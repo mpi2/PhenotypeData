@@ -7,7 +7,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-public class StatisticalResultMixedModel implements StatisticalResult, Serializable {
+public class StatisticalResultFailed implements StatisticalResult, Serializable {
 
 	protected static final long serialVersionUID = 4716400683205025616L;
 
@@ -88,7 +88,7 @@ public class StatisticalResultMixedModel implements StatisticalResult, Serializa
 		SqlUtils.setSqlParameter(s, result.getMaleExperimentalMean(), i++);
 
 		SqlUtils.setSqlParameter(s, result.getMetadataGroup(), i++);
-		SqlUtils.setSqlParameter(s, result.getStatisticalMethod(), i++);
+		SqlUtils.setSqlParameter(s, this.getStatisticalMethod(), i++);
 		SqlUtils.setSqlParameter(s, result.getWorkflow().toString(), i++);
 		SqlUtils.setSqlParameter(s, result.getWeightAvailable().toString(), i++);
 		SqlUtils.setSqlParameter(s, result.getStatus(), i++);
@@ -391,7 +391,7 @@ public class StatisticalResultMixedModel implements StatisticalResult, Serializa
 		if (o == null || getClass() != o.getClass()) return false;
 		if (!super.equals(o)) return false;
 
-		StatisticalResultMixedModel that = (StatisticalResultMixedModel) o;
+		StatisticalResultFailed that = (StatisticalResultFailed) o;
 
 		if (insertStatement != null ? !insertStatement.equals(that.insertStatement) : that.insertStatement != null)
 			return false;

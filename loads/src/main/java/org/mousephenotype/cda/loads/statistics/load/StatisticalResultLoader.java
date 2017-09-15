@@ -2,6 +2,9 @@ package org.mousephenotype.cda.loads.statistics.load;
 
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.math.NumberUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.mousephenotype.cda.enumerations.BatchClassification;
 import org.mousephenotype.cda.enumerations.ControlStrategy;
 import org.mousephenotype.cda.enumerations.SexType;
@@ -44,6 +47,61 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
     Map<String, NameIdDTO> procedureMap = new HashMap<>();
     Map<String, NameIdDTO> parameterMap = new HashMap<>();
 
+    Map<String, Integer> datasourceMap = new HashMap<>();
+    Map<String, Integer> projectMap = new HashMap<>();
+    Map<String, String> colonyAlleleMap = new HashMap<>();
+
+
+    void populateColonyAlleleMap() throws SQLException {
+        Map map = colonyAlleleMap;
+
+        String query = "SELECT DISTINCT colony_id, allele_acc " +
+                "FROM live_sample ls " +
+                "INNER JOIN biological_model_sample bms ON bms.biological_sample_id=ls.id " +
+                "INNER JOIN biological_model_allele bma ON bma.biological_model_id=bms.biological_model_id " +
+                "INNER JOIN allele a ON a.acc=bma.allele_acc " ;
+
+        try (Connection connection = komp2DataSource.getConnection(); PreparedStatement p = connection.prepareStatement(query)) {
+            ResultSet r = p.executeQuery();
+            while (r.next()) {
+                map.put(r.getString("colony_id"), r.getString("allele_acc"));
+            }
+        }
+
+        logger.info(" Mapped {} datasource entries", map.size());
+    }
+
+    void populateDatasourceMap() throws SQLException {
+        Map map = datasourceMap;
+
+        String query = "SELECT * FROM external_db";
+
+        try (Connection connection = komp2DataSource.getConnection(); PreparedStatement p = connection.prepareStatement(query)) {
+            ResultSet r = p.executeQuery();
+            while (r.next()) {
+                map.put(r.getString("short_name"), r.getInt("id"));
+            }
+        }
+
+        logger.info(" Mapped {} datasource entries", map.size());
+    }
+
+    void populateProjectMap() throws SQLException {
+        Map map = projectMap;
+
+        String query = "SELECT * FROM project";
+
+        try (Connection connection = komp2DataSource.getConnection(); PreparedStatement p = connection.prepareStatement(query)) {
+            ResultSet r = p.executeQuery();
+            while (r.next()) {
+                map.put(r.getString("name"), r.getInt("id"));
+            }
+        }
+
+        logger.info(" Mapped {} project entries", map.size());
+    }
+
+
 
     void populateOrganisationMap() throws SQLException {
         Map map = organisationMap;
@@ -54,7 +112,7 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
         try (Connection connection = komp2DataSource.getConnection(); PreparedStatement p = connection.prepareStatement(query)) {
             ResultSet r = p.executeQuery();
             while (r.next()) {
-                map.put(r.getString("stable_id"), new NameIdDTO(r.getInt("id"), r.getString("name")));
+                map.put(r.getString("name"), new NameIdDTO(r.getInt("id"), r.getString("name")));
             }
         }
 
@@ -76,15 +134,21 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
         logger.info(" Mapped {} pipeline entries", map.size());
     }
 
+    /**
+     * Lookup procedure by procedure group (split by "_" chop the last element)
+     * @throws SQLException
+     */
     void populateProcedureMap() throws SQLException {
         Map map = procedureMap;
 
+        // Order by ID en
         String query = "SELECT * FROM phenotype_procedure ORDER BY id";
 
         try (Connection connection = komp2DataSource.getConnection(); PreparedStatement p = connection.prepareStatement(query)) {
             ResultSet r = p.executeQuery();
             while (r.next()) {
                 String procGroup = r.getString("stable_id");
+                procGroup = StringUtils.join(ArrayUtils.subarray(procGroup.split("_"), 0, 2), "_");
                 map.put(procGroup, new NameIdDTO(r.getInt("id"), r.getString("name"), r.getString("stable_id")));
             }
         }
@@ -118,15 +182,6 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
     }
 
 
-    private boolean isValid(String check) {
-        if (check.isEmpty()) {
-            return false;
-        }
-        if (check.equals("NA")) {
-            return false;
-        }
-        return true;
-    }
 
     private boolean isValidInt(String str) {
         if (str == null) {
@@ -152,80 +207,193 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
         return true;
     }
 
+    private Double getDoubleField(String str) {
+        return (NumberUtils.isNumber(str)) ? Double.parseDouble(str) : null;
+    }
+
+    private Integer getIntegerField(String str) {
+        if (str == null) {
+            return null;
+        }
+        int length = str.length();
+        if (length == 0) {
+            return null;
+        }
+        int i = 0;
+        if (str.charAt(0) == '-') {
+            if (length == 1) {
+                return null;
+            }
+            i = 1;
+        }
+        for (; i < length; i++) {
+            char c = str.charAt(i);
+            if (c < '0' || c > '9') {
+                return null;
+            }
+        }
+
+        return Integer.parseInt(str);
+    }
+
+    private String getStringField(String str) {
+
+        if (str.isEmpty() || str.equals("NA")) {
+            return "";
+        }
+
+        return str;
+    }
+
+
+    // Will return true only when str is TRUE or true
+    private Boolean getBooleanField(String str) {
+        return Boolean.parseBoolean(str);
+    }
+
 
     /**
      * Process a string from a results file into a LineStatisticalResult object
      *
      * field list
-     0 metadata_group
-     1 zygosity
-     2 colony_id
-     3 depvar
-     4 status
-     5 code
-     6 count cm
-     7 count cf
-     8 count mm
-     9 count mf
-     10 Method
-     11 Dependent variable
-     12 Batch included
-     13 Residual variances homogeneity
-     14 Genotype contribution
-     15 Genotype estimate
-     16 Genotype standard error
-     17 Genotype p-Val
-     18 Genotype percentage change
-     19 Sex estimate
-     20 Sex standard error
-     21 Sex p-val
-     22 Weight estimate
-     23 Weight standard error
-     24 Weight p-val
-     25 Gp1 genotype
-     26 Gp1 Residuals normality test
-     27 Gp2 genotype
-     28 Gp2 Residuals normality test
-     29 Blups test
-     30 Rotated residuals normality test
-     31 Intercept estimate
-     32 Intercept standard error
-     33 Interaction included
-     34 Interaction p-val
-     35 Sex FvKO estimate
-     36 Sex FvKO standard error
-     37 Sex FvKO p-val
-     38 Sex MvKO estimate
-     39 Sex MvKO standard error
-     40 Sex MvKO p-val
-     41 Classification tag
-     42 Additional information
-
+     0	metadata_group
+     1	zygosity
+     2	colony_id
+     3	depvar
+     4	status
+     5	code
+     6	count cm
+     7	count cf
+     8	count mm
+     9	count mf
+     10	mean cm
+     11	mean cf
+     12	mean mm
+     13	mean mf
+     14	control_strategy
+     15	workflow
+     16	weight available
+     17	Method
+     18	Dependent variable
+     19	Batch included
+     20	Residual variances homogeneity
+     21	Genotype contribution
+     22	Genotype estimate
+     23	Genotype standard error
+     24	Genotype p-Val
+     25	Genotype percentage change
+     26	Sex estimate
+     27	Sex standard error
+     28	Sex p-val
+     29	Weight estimate
+     30	Weight standard error
+     31	Weight p-val
+     32	Gp1 genotype
+     33	Gp1 Residuals normality test
+     34	Gp2 genotype
+     35	Gp2 Residuals normality test
+     36	Blups test
+     37	Rotated residuals normality test
+     38	Intercept estimate
+     39	Intercept standard error
+     40	Interaction included
+     41	Interaction p-val
+     42	Sex FvKO estimate
+     43	Sex FvKO standard error
+     44	Sex FvKO p-val
+     45	Sex MvKO estimate
+     46	Sex MvKO standard error
+     47	Sex MvKO p-val
+     48	Classification tag
+     49	Additional information
      * @param data a line from a statistical results file
      * @throws IOException
      */
     LineStatisticalResult getResult(String data) {
 
+        if (data.contains("metadata_group")) {
+            // This is a header
+            return null;
+        }
+
         LineStatisticalResult result = new LineStatisticalResult();
 
+
+        // Several attributes come from the filename
+        String filename = Paths.get(fileLocation).getFileName().toString();
+        filename =  filename.substring(0, filename.indexOf(".tsv"));
+        List<String> fileMetaData = Arrays.asList(filename.trim().split("::"));
+
+        if ( ! filename.contains("::")) {
+            String dataString = filename
+                    .replaceAll("M-G-P", "M:G:P")
+                    .replaceAll("NULL-", "NULL:")
+                    .replaceAll("IMPC-CURATE-", "IMPC:CURATE:")
+                    ;
+            fileMetaData = Arrays.stream(
+                    dataString
+                            .trim()
+                            .split("-"))
+                    .map(x -> x.replaceAll("M:G:P", "M-G-P")
+                            .replaceAll("NULL:", "NULL-")
+                            .replaceAll("IMPC:CURATE:", "IMPC-CURATE-"))
+                    .collect(Collectors.toList());
+        }
+
+        String dataSource = fileMetaData.get(0);
+        String project    = fileMetaData.get(1);
+        String center     = fileMetaData.get(2);
+        String pipeline   = fileMetaData.get(3);
+        String procedure  = fileMetaData.get(4);
+        String strain     = fileMetaData.get(5);
+
+        // Strain in the filename does not include a ":"
+        if (strain.contains("MGI")) {
+            strain = strain.replaceAll("MGI", "MGI:");
+
+        }
+
+        result.setDataSource(dataSource);
+        result.setProject(project);
+        result.setCenter(center);
+        result.setPipeline(pipeline);
+        result.setProcedure(procedure);
+        result.setStrain(strain);
+
+
         String [] fields = data.replace(System.getProperty("line.separator"), "").split("\t", -1);
-        System.out.println(org.apache.commons.lang.StringUtils.join(fields, ","));
+
+        result.setMetadataGroup( getStringField(fields[0]) );
+        result.setZygosity( getStringField(fields[1]) );
+        result.setColonyId( getStringField(fields[2]) );
+
+        // May need to change the output from R
+        String depVar = getStringField(fields[3]).replaceAll("_MAPPED", "");
+        if (depVar.contains(".")) {
+            depVar = depVar.replaceAll("\\.", "-");
+        }
+        result.setDependentVariable( depVar );
+
         StatusCode status = StatusCode.valueOf(fields[4]);
-
-
-        result.setMetadataGroup( (isValid(fields[0])) ? fields[0] : "");
-        result.setZygosity( (isValid(fields[1])) ? fields[1] : "");
-        result.setColonyId( (isValid(fields[2])) ? fields[2] : "");
-        result.setDependentVariable( (isValid(fields[3])) ? fields[3] : "");
         result.setStatus( status.name() );
-        result.setCode( (isValid(fields[5])) ? fields[5] : "");
-        result.setCountControlMale( (isValidInt(fields[6])) ? Integer.parseInt(fields[6]) : null);
-        result.setCountControlFemale( (isValidInt(fields[7])) ? Integer.parseInt(fields[7]) : null);
-        result.setCountMutantMale( (isValidInt(fields[8])) ? Integer.parseInt(fields[8]) : null);
-        result.setCountMutantFemale( (isValidInt(fields[9])) ? Integer.parseInt(fields[9]) : null);
-        result.setStatisticalMethod( (isValid(fields[10])) ? fields[10] : "");
 
-        // fields[11] is a duplicate of fields[3]
+        result.setCode( getStringField(fields[5]) );
+        result.setCountControlMale( getIntegerField(fields[6]) );
+        result.setCountControlFemale( getIntegerField(fields[7]) );
+        result.setCountMutantMale( getIntegerField(fields[8]) );
+        result.setCountMutantFemale( getIntegerField(fields[9]) );
+
+        result.setMaleControlMean ( getDoubleField(fields[10]) );
+        result.setFemaleControlMean ( getDoubleField(fields[11]) );
+        result.setMaleMutantMean ( getDoubleField(fields[12]) );
+        result.setFemaleMutantMean ( getDoubleField(fields[13]) );
+
+        result.setControlSelection( getStringField(fields[14]) );
+        result.setWorkflow( getStringField(fields[15]) );
+        result.setWeightAvailable( getStringField(fields[16]) );
+        result.setStatisticalMethod( getStringField(fields[17]) );
+
+        // fields[18] is a duplicate of fields[3]
 
 
         if (fields.length < 40) {
@@ -236,44 +404,80 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
             case TESTED:
                 // Result was processed successfully by PhenStat, load the result object
 
-                result.setBatchIncluded( (isValid(fields[12])) ? fields[12] : "");
-                result.setResidualVariancesHomogeneity( (isValid(fields[13])) ? fields[13] : "");
-                result.setGenotypeContribution( (isValid(fields[14])) ? fields[14] : "");
-                result.setGenotypeEstimate( (isValid(fields[15])) ? fields[15] : "");
-                result.setGenotypeStandardError( (isValid(fields[16])) ? fields[16] : "");
-                result.setGenotypePVal( (isValid(fields[17])) ? fields[17] : "");
-                result.setGenotypePercentageChange( (isValid(fields[18])) ? fields[18] : "");
-                result.setSexEstimate( (isValid(fields[19])) ? fields[19] : "");
-                result.setSexStandardError( (isValid(fields[20])) ? fields[20] : "");
-                result.setSexPVal( (isValid(fields[21])) ? fields[21] : "");
-                result.setWeightEstimate( (isValid(fields[22])) ? fields[22] : "");
-                result.setWeightStandardError( (isValid(fields[23])) ? fields[23] : "");
-                result.setWeightPVal( (isValid(fields[24])) ? fields[24] : "");
-                result.setGroup1Genotype( (isValid(fields[25])) ? fields[25] : "");
-                result.setGroup1ResidualsNormalityTest( (isValid(fields[26])) ? fields[26] : "");
-                result.setGroup2Genotype( (isValid(fields[27])) ? fields[27] : "");
-                result.setGroup2ResidualsNormalityTest( (isValid(fields[28])) ? fields[28] : "");
-                result.setBlupsTest( (isValid(fields[29])) ? fields[29] : "");
-                result.setRotatedResidualsNormalityTest( (isValid(fields[30])) ? fields[30] : "");
-                result.setInterceptEstimate( (isValid(fields[31])) ? fields[31] : "");
-                result.setInterceptStandardError( (isValid(fields[32])) ? fields[32] : "");
-                result.setInteractionIncluded( (isValid(fields[33])) ? fields[33] : "");
-                result.setInteractionPVal( (isValid(fields[34])) ? fields[34] : "");
-                result.setSexFvKOEstimate( (isValid(fields[35])) ? fields[35] : "");
-                result.setSexFvKOStandardError( (isValid(fields[36])) ? fields[36] : "");
-                result.setSexFvKOPVal( (isValid(fields[37])) ? fields[37] : "");
-                result.setSexMvKOEstimate( (isValid(fields[38])) ? fields[38] : "");
-                result.setSexMvKOStandardError( (isValid(fields[39])) ? fields[39] : "");
-                result.setSexMvKOPVal( (isValid(fields[40])) ? fields[40] : "");
-                result.setClassificationTag( (isValid(fields[41])) ? fields[41] : "");
-                result.setAdditionalInformation( (isValid(fields[42])) ? fields[42] : "");
+                // Vector output results from PhenStat start at field 19
+                int i = 19;
+
+                result.setBatchIncluded( getBooleanField(fields[i++]) );
+                result.setResidualVariancesHomogeneity( getBooleanField(fields[i++]) );
+                result.setGenotypeContribution( getDoubleField(fields[i++]) );
+                result.setGenotypeEstimate( getDoubleField(fields[i++]) );
+                result.setGenotypeStandardError( getDoubleField(fields[i++]) );
+                result.setGenotypePVal( getDoubleField(fields[i++]) );
+                result.setGenotypePercentageChange( getStringField(fields[i++]) );
+                result.setSexEstimate( getDoubleField(fields[i++]) );
+                result.setSexStandardError( getDoubleField(fields[i++]) );
+                result.setSexPVal( getDoubleField(fields[i++]) );
+                result.setWeightEstimate( getDoubleField(fields[i++]) );
+                result.setWeightStandardError( getDoubleField(fields[i++]) );
+                result.setWeightPVal( getDoubleField(fields[i++]) );
+                result.setGroup1Genotype( getStringField(fields[i++]) );
+                result.setGroup1ResidualsNormalityTest( getDoubleField(fields[i++]) );
+                result.setGroup2Genotype( getStringField(fields[i++]) );
+                result.setGroup2ResidualsNormalityTest( getDoubleField(fields[i++]) );
+                result.setBlupsTest( getDoubleField(fields[i++]) );
+                result.setRotatedResidualsNormalityTest( getDoubleField(fields[i++]) );
+                result.setInterceptEstimate( getDoubleField(fields[i++]) );
+                result.setInterceptStandardError( getDoubleField(fields[i++]) );
+                result.setInteractionIncluded( getBooleanField(fields[i++]) );
+                result.setInteractionPVal( getDoubleField(fields[i++]) );
+                result.setSexFvKOEstimate( getDoubleField(fields[i++]) );
+                result.setSexFvKOStandardError( getDoubleField(fields[i++]) );
+                result.setSexFvKOPVal( getDoubleField(fields[i++]) );
+                result.setSexMvKOEstimate( getDoubleField(fields[i++]) );
+                result.setSexMvKOStandardError( getDoubleField(fields[i++]) );
+                result.setSexMvKOPVal( getDoubleField(fields[i++]) );
+                result.setClassificationTag( getStringField(fields[i++]) );
+                result.setAdditionalInformation( getStringField(fields[i++]) );
+
+                logger.debug("Last iteration left index i at: ", i);
 
                 break;
+
+            default:
             case FAILED:
                 // Result failed to be processed by PhenStat
-                break;
-            default:
-                result = null;
+
+                result.setBatchIncluded( null );
+                result.setResidualVariancesHomogeneity( null );
+                result.setGenotypeContribution( null );
+                result.setGenotypeEstimate( null );
+                result.setGenotypeStandardError( null );
+                result.setGenotypePVal( null );
+                result.setGenotypePercentageChange( null );
+                result.setSexEstimate( null );
+                result.setSexStandardError( null );
+                result.setSexPVal( null );
+                result.setWeightEstimate( null );
+                result.setWeightStandardError( null );
+                result.setWeightPVal( null );
+                result.setGroup1Genotype( null );
+                result.setGroup1ResidualsNormalityTest( null );
+                result.setGroup2Genotype( null );
+                result.setGroup2ResidualsNormalityTest( null );
+                result.setBlupsTest( null );
+                result.setRotatedResidualsNormalityTest( null );
+                result.setInterceptEstimate( null );
+                result.setInterceptStandardError( null );
+                result.setInteractionIncluded( null );
+                result.setInteractionPVal( null );
+                result.setSexFvKOEstimate( null );
+                result.setSexFvKOStandardError( null );
+                result.setSexFvKOPVal( null );
+                result.setSexMvKOEstimate( null );
+                result.setSexMvKOStandardError( null );
+                result.setSexMvKOPVal( null );
+                result.setClassificationTag( null );
+                result.setAdditionalInformation( null );
                 break;
         }
 
@@ -337,22 +541,25 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
      */
     public LightweightUnidimensionalResult getBaseResult(LineStatisticalResult data) {
 
+        if (data == null) {
+            return null;
+        }
+
         NameIdDTO center = organisationMap.get(data.getCenter());
         NameIdDTO pipeline = pipelineMap.get(data.getPipeline());
-        NameIdDTO procedure = pipelineMap.get(data.getProcedure()); // Procedure group e.g. IMPC_CAL
+        NameIdDTO procedure = procedureMap.get(data.getProcedure()); // Procedure group e.g. IMPC_CAL
         NameIdDTO parameter = parameterMap.get(data.getDependentVariable());
         ControlStrategy strategy = ControlStrategy.valueOf(data.getControlSelection());
-
 
         // result contains a "statistical result" that has the
         // ability to produce a PreparedStatement ready for database insertion
         LightweightUnidimensionalResult result = new LightweightUnidimensionalResult();
 
         result.setMetadataGroup(data.getMetadataGroup());
+        result.setStatisticalMethod(data.getStatisticalMethod());
 
-        // TODO: how do we get these?
-//        result.setDataSourceId(wrapper.getDataSourceId());
-//        result.setProjectId(wrapper.getProjectId());
+        result.setDataSourceId(datasourceMap.get(data.getDataSourceName()));
+        result.setProjectId(projectMap.get(data.getProjectName()));
 
         result.setOrganisationId(center.getDbId());
         result.setOrganisationName(center.getName());
@@ -378,7 +585,9 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
         // TODO: Lookup from specimen?
 //        result.setControlId(data.getControlBiologicalModelId());
 //        result.setExperimentalId(data.getMutantBiologicalModelId());
-//        result.setAlleleAccessionId(data.getAlleleAccessionId());
+
+        // Lookup from colony ID
+        result.setAlleleAccessionId(colonyAlleleMap.get(data.getColonyId()));
 
         result.setMaleControlCount(data.getCountControlMale());
         result.setMaleMutantCount(data.getCountMutantMale());
@@ -406,9 +615,109 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
 
         BatchClassification batches = BatchClassification.valueOf(data.getWorkflow());
         result.setWorkflow(batches);
-//        result.setWeightAvailable(data.we);
+        result.setWeightAvailable(data.getWeightAvailable() != null && data.getWeightAvailable().equals("TRUE"));
 
         result.setCalculationTimeNanos(0L);
+
+        StatisticalResult statsResult = null;
+
+        if (data.getStatisticalMethod().contains("Fisher Exact Test framework")) {
+
+            // Categorical result
+            StatisticalResultCategorical temp = new StatisticalResultCategorical();
+            temp.setpValue(data.getGenotypePVal());
+            temp.setEffectSize(data.getGenotypeEstimate());
+            statsResult = temp;
+
+        } else if (data.getStatisticalMethod().contains("Mixed Model framework")) {
+
+            // Unidimensional result
+            StatisticalResultMixedModel temp = new StatisticalResultMixedModel();
+            temp.setBatchSignificance(data.getBatchIncluded());
+            temp.setVarianceSignificance(data.getResidualVariancesHomogeneity());
+            temp.setNullTestSignificance(data.getGenotypeContribution());
+            temp.setGenotypeParameterEstimate(data.getGenotypeEstimate());
+            temp.setGenotypeStandardErrorEstimate(data.getGenotypeStandardError());
+            temp.setGenotypeEffectPValue(data.getGenotypePVal());
+            temp.setGenotypePercentageChange(data.getGenotypePercentageChange());
+            temp.setGenderParameterEstimate(data.getSexEstimate());
+            temp.setGenderStandardErrorEstimate(data.getSexStandardError());
+            temp.setGenderEffectPValue(data.getSexPVal());
+            temp.setWeightParameterEstimate(data.getWeightEstimate());
+            temp.setWeightStandardErrorEstimate(data.getWeightStandardError());
+            temp.setWeightEffectPValue(data.getWeightPVal());
+            temp.setGp1Genotype(data.getGroup1Genotype());
+            temp.setGp1ResidualsNormalityTest(data.getGroup1ResidualsNormalityTest());
+            temp.setGp2Genotype(data.getGroup2Genotype());
+            temp.setGp2ResidualsNormalityTest(data.getGroup2ResidualsNormalityTest());
+            temp.setBlupsTest(data.getBlupsTest());
+            temp.setRotatedResidualsNormalityTest(data.getRotatedResidualsNormalityTest());
+            temp.setInterceptEstimate(data.getInterceptEstimate());
+            temp.setInterceptEstimateStandardError(data.getInterceptStandardError());
+            temp.setInteractionSignificance(data.getInteractionIncluded());
+            temp.setInteractionEffectPValue(data.getInteractionPVal());
+            temp.setGenderFemaleKoEstimate(data.getSexFvKOEstimate());
+            temp.setGenderFemaleKoStandardErrorEstimate(data.getSexFvKOStandardError());
+            temp.setGenderFemaleKoPValue(data.getSexFvKOPVal());
+            temp.setGenderMaleKoEstimate(data.getSexMvKOEstimate());
+            temp.setGenderMaleKoStandardErrorEstimate(data.getSexMvKOStandardError());
+            temp.setGenderMaleKoPValue(data.getSexMvKOPVal());
+            temp.setClassificationTag(data.getClassificationTag());
+
+            statsResult = temp;
+        } else if (data.getStatisticalMethod().contains("Reference Ranges Plus framework")) {
+
+            // Reference Range result
+            StatisticalResultReferenceRangePlus temp = new StatisticalResultReferenceRangePlus();
+            temp.setBatchSignificance(data.getBatchIncluded());
+            temp.setVarianceSignificance(data.getResidualVariancesHomogeneity());
+            temp.setNullTestSignificance(data.getGenotypeContribution());
+            temp.setGenotypeParameterEstimate(data.getGenotypeEstimate() != null ? data.getGenotypeEstimate().toString() : null);
+            temp.setGenotypeStandardErrorEstimate(data.getGenotypeStandardError());
+            temp.setGenotypeEffectPValue(data.getGenotypePVal() != null ? data.getGenotypePVal().toString() : null);
+            temp.setGenotypePercentageChange(data.getGenotypePercentageChange());
+            temp.setGenderParameterEstimate(data.getSexEstimate() != null ? data.getSexEstimate().toString() : null);
+            temp.setGenderStandardErrorEstimate(data.getSexStandardError());
+            temp.setGenderEffectPValue(data.getSexPVal() != null ? data.getSexPVal().toString() : null);
+            temp.setWeightParameterEstimate(data.getWeightEstimate());
+            temp.setWeightStandardErrorEstimate(data.getWeightStandardError());
+            temp.setWeightEffectPValue(data.getWeightPVal());
+            temp.setGp1Genotype(data.getGroup1Genotype());
+            temp.setGp1ResidualsNormalityTest(data.getGroup1ResidualsNormalityTest());
+            temp.setGp2Genotype(data.getGroup2Genotype());
+            temp.setGp2ResidualsNormalityTest(data.getGroup2ResidualsNormalityTest());
+            temp.setBlupsTest(data.getBlupsTest());
+            temp.setRotatedResidualsNormalityTest(data.getRotatedResidualsNormalityTest());
+            temp.setInterceptEstimate(data.getInterceptEstimate());
+            temp.setInterceptEstimateStandardError(data.getInterceptStandardError());
+            temp.setInteractionSignificance(data.getInteractionIncluded());
+            temp.setInteractionEffectPValue(data.getInteractionPVal());
+            temp.setGenderFemaleKoEstimate(data.getSexFvKOEstimate() != null ? data.getSexFvKOEstimate().toString() : null);
+            temp.setGenderFemaleKoStandardErrorEstimate(data.getSexFvKOStandardError());
+            temp.setGenderFemaleKoPValue(data.getSexFvKOPVal() != null ? data.getSexFvKOPVal().toString() : null);
+            temp.setGenderMaleKoEstimate(data.getSexMvKOEstimate() != null ? data.getSexMvKOEstimate().toString() : null);
+            temp.setGenderMaleKoStandardErrorEstimate(data.getSexMvKOStandardError());
+            temp.setGenderMaleKoPValue(data.getSexMvKOPVal() != null ? data.getSexMvKOPVal().toString() : null);
+            temp.setClassificationTag(data.getClassificationTag());
+
+            statsResult = temp;
+
+        } else {
+            // Unknown method or failed to process.
+            if (StringUtils.isNotEmpty(data.getStatisticalMethod())) {
+                logger.warn("Unknown statistical method ", data.getStatisticalMethod());
+            }
+
+            StatisticalResultFailed temp = new StatisticalResultFailed();
+            temp.setStatisticalMethod("Not processed");
+            statsResult = temp;
+        }
+
+
+
+        result.setStatisticalResult(statsResult);
+
+        result.setStatus(data.getStatus() + " - " + data.getCode());
 
         return result;
     }
@@ -418,11 +727,24 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
 
         for (String line : Files.readAllLines(Paths.get(loc))) {
 
-//            LineStatisticalResult result = getResult(line);
             LightweightUnidimensionalResult result = getBaseResult(getResult(line));
 
-        }
+            if (result == null) {
+                // Skipping record
+                continue;
+            }
 
+            try (Connection connection = komp2DataSource.getConnection()) {
+
+                PreparedStatement p = result.getSaveResultStatement(connection);
+                p.executeUpdate();
+
+
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+
+        }
     }
 
     @Override
@@ -435,12 +757,19 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
         populatePipelineMap();
         populateProcedureMap();
         populateParameterMap();
+        populateDatasourceMap();
+        populateProjectMap();
+        populateColonyAlleleMap();
 
 
         // parameter to indicate the location of the result file(s)
         OptionParser parser = new OptionParser();
-        parser.accepts("location").withRequiredArg().ofType(String.class);
+        parser.accepts("location").withRequiredArg().ofType(String.class).isRequired();
         OptionSet options = parser.parse(strings);
+        if ( ! options.hasArgument("location") ) {
+            logger.error("location argument missing");
+            return;
+        }
         fileLocation = (String) options.valuesOf("location").get(0);
 
         // If the location is a single file, parse it
@@ -458,10 +787,17 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
             try (Stream<Path> paths = Files.walk(Paths.get(fileLocation), 1)) {
                 for (Path path : paths.collect(Collectors.toList())) {
                     if (path.endsWith("result")) {
+                        if ( ! Files.isRegularFile(path)) {
+                            logger.warn("File " + path + " is not a regular file");
+                            continue;
+                        }
+
                         processFile(path.toString());
                     }
                 }
             }
+        } else {
+            logger.warn("File " + fileLocation + " is not a regular file or a directory");
         }
 
 

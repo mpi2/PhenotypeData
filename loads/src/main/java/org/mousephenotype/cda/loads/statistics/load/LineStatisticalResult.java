@@ -8,8 +8,10 @@ public class LineStatisticalResult {
     private String pipeline;
     private String procedure;
     private String strain;
+    private String dataSource;
+    private String project;
 
-    // Contents of the file
+    private String weightAvailable;
     private String metadataGroup;
     private String zygosity;
     private String colonyId;
@@ -30,37 +32,71 @@ public class LineStatisticalResult {
 
     private String statisticalMethod;
     private String dependentVariable;
-    private String batchIncluded;
-    private String residualVariancesHomogeneity;
-    private String genotypeContribution;
-    private String genotypeEstimate;
-    private String genotypeStandardError;
-    private String genotypePVal;
+
+    private Boolean batchIncluded;
+    private Boolean residualVariancesHomogeneity;
+    private Double genotypeContribution;
+    private Double genotypeEstimate;
+    private Double genotypeStandardError;
+    private Double genotypePVal;
     private String genotypePercentageChange;
-    private String sexEstimate;
-    private String sexStandardError;
-    private String sexPVal;
-    private String weightEstimate;
-    private String weightStandardError;
-    private String weightPVal;
+    private Double sexEstimate;
+    private Double sexStandardError;
+    private Double sexPVal;
+    private Double weightEstimate;
+    private Double weightStandardError;
+    private Double weightPVal;
     private String group1Genotype;
-    private String group1ResidualsNormalityTest;
+    private Double group1ResidualsNormalityTest;
     private String group2Genotype;
-    private String group2ResidualsNormalityTest;
-    private String blupsTest;
-    private String rotatedResidualsNormalityTest;
-    private String interceptEstimate;
-    private String interceptStandardError;
-    private String interactionIncluded;
-    private String interactionPVal;
-    private String sexFvKOEstimate;
-    private String sexFvKOStandardError;
-    private String sexFvKOPVal;
-    private String sexMvKOEstimate;
-    private String sexMvKOStandardError;
-    private String sexMvKOPVal;
+    private Double group2ResidualsNormalityTest;
+    private Double blupsTest;
+    private Double rotatedResidualsNormalityTest;
+    private Double interceptEstimate;
+    private Double interceptStandardError;
+    private Boolean interactionIncluded;
+    private Double interactionPVal;
+    private Double sexFvKOEstimate;
+    private Double sexFvKOStandardError;
+    private Double sexFvKOPVal;
+    private Double sexMvKOEstimate;
+    private Double sexMvKOStandardError;
+    private Double sexMvKOPVal;
+
     private String classificationTag;
     private String additionalInformation;
+
+    public String getDataSource() {
+        return dataSource;
+    }
+
+    public String getProject() {
+        return project;
+    }
+
+    public String getWeightAvailable() {
+        return weightAvailable;
+    }
+
+    public void setWeightAvailable(String weightAvailable) {
+        this.weightAvailable = weightAvailable;
+    }
+
+    public String getDataSourceName() {
+        return dataSource;
+    }
+
+    public void setDataSource(String dataSource) {
+        this.dataSource = dataSource;
+    }
+
+    public String getProjectName() {
+        return project;
+    }
+
+    public void setProject(String project) {
+        this.project = project;
+    }
 
     public String getWorkflow() {
         return workflow;
@@ -198,254 +234,6 @@ public class LineStatisticalResult {
         this.dependentVariable = dependentVariable;
     }
 
-    public String getBatchIncluded() {
-        return batchIncluded;
-    }
-
-    public void setBatchIncluded(String batchIncluded) {
-        this.batchIncluded = batchIncluded;
-    }
-
-    public String getResidualVariancesHomogeneity() {
-        return residualVariancesHomogeneity;
-    }
-
-    public void setResidualVariancesHomogeneity(String residualVariancesHomogeneity) {
-        this.residualVariancesHomogeneity = residualVariancesHomogeneity;
-    }
-
-    public String getGenotypeContribution() {
-        return genotypeContribution;
-    }
-
-    public void setGenotypeContribution(String genotypeContribution) {
-        this.genotypeContribution = genotypeContribution;
-    }
-
-    public String getGenotypeEstimate() {
-        return genotypeEstimate;
-    }
-
-    public void setGenotypeEstimate(String genotypeEstimate) {
-        this.genotypeEstimate = genotypeEstimate;
-    }
-
-    public String getGenotypeStandardError() {
-        return genotypeStandardError;
-    }
-
-    public void setGenotypeStandardError(String genotypeStandardError) {
-        this.genotypeStandardError = genotypeStandardError;
-    }
-
-    public String getGenotypePVal() {
-        return genotypePVal;
-    }
-
-    public void setGenotypePVal(String genotypePVal) {
-        this.genotypePVal = genotypePVal;
-    }
-
-    public String getGenotypePercentageChange() {
-        return genotypePercentageChange;
-    }
-
-    public void setGenotypePercentageChange(String genotypePercentageChange) {
-        this.genotypePercentageChange = genotypePercentageChange;
-    }
-
-    public String getSexEstimate() {
-        return sexEstimate;
-    }
-
-    public void setSexEstimate(String sexEstimate) {
-        this.sexEstimate = sexEstimate;
-    }
-
-    public String getSexStandardError() {
-        return sexStandardError;
-    }
-
-    public void setSexStandardError(String sexStandardError) {
-        this.sexStandardError = sexStandardError;
-    }
-
-    public String getSexPVal() {
-        return sexPVal;
-    }
-
-    public void setSexPVal(String sexPVal) {
-        this.sexPVal = sexPVal;
-    }
-
-    public String getWeightEstimate() {
-        return weightEstimate;
-    }
-
-    public void setWeightEstimate(String weightEstimate) {
-        this.weightEstimate = weightEstimate;
-    }
-
-    public String getWeightStandardError() {
-        return weightStandardError;
-    }
-
-    public void setWeightStandardError(String weightStandardError) {
-        this.weightStandardError = weightStandardError;
-    }
-
-    public String getWeightPVal() {
-        return weightPVal;
-    }
-
-    public void setWeightPVal(String weightPVal) {
-        this.weightPVal = weightPVal;
-    }
-
-    public String getGroup1Genotype() {
-        return group1Genotype;
-    }
-
-    public void setGroup1Genotype(String group1Genotype) {
-        this.group1Genotype = group1Genotype;
-    }
-
-    public String getGroup1ResidualsNormalityTest() {
-        return group1ResidualsNormalityTest;
-    }
-
-    public void setGroup1ResidualsNormalityTest(String group1ResidualsNormalityTest) {
-        this.group1ResidualsNormalityTest = group1ResidualsNormalityTest;
-    }
-
-    public String getGroup2Genotype() {
-        return group2Genotype;
-    }
-
-    public void setGroup2Genotype(String group2Genotype) {
-        this.group2Genotype = group2Genotype;
-    }
-
-    public String getGroup2ResidualsNormalityTest() {
-        return group2ResidualsNormalityTest;
-    }
-
-    public void setGroup2ResidualsNormalityTest(String group2ResidualsNormalityTest) {
-        this.group2ResidualsNormalityTest = group2ResidualsNormalityTest;
-    }
-
-    public String getBlupsTest() {
-        return blupsTest;
-    }
-
-    public void setBlupsTest(String blupsTest) {
-        this.blupsTest = blupsTest;
-    }
-
-    public String getRotatedResidualsNormalityTest() {
-        return rotatedResidualsNormalityTest;
-    }
-
-    public void setRotatedResidualsNormalityTest(String rotatedResidualsNormalityTest) {
-        this.rotatedResidualsNormalityTest = rotatedResidualsNormalityTest;
-    }
-
-    public String getInterceptEstimate() {
-        return interceptEstimate;
-    }
-
-    public void setInterceptEstimate(String interceptEstimate) {
-        this.interceptEstimate = interceptEstimate;
-    }
-
-    public String getInterceptStandardError() {
-        return interceptStandardError;
-    }
-
-    public void setInterceptStandardError(String interceptStandardError) {
-        this.interceptStandardError = interceptStandardError;
-    }
-
-    public String getInteractionIncluded() {
-        return interactionIncluded;
-    }
-
-    public void setInteractionIncluded(String interactionIncluded) {
-        this.interactionIncluded = interactionIncluded;
-    }
-
-    public String getInteractionPVal() {
-        return interactionPVal;
-    }
-
-    public void setInteractionPVal(String interactionPVal) {
-        this.interactionPVal = interactionPVal;
-    }
-
-    public String getSexFvKOEstimate() {
-        return sexFvKOEstimate;
-    }
-
-    public void setSexFvKOEstimate(String sexFvKOEstimate) {
-        this.sexFvKOEstimate = sexFvKOEstimate;
-    }
-
-    public String getSexFvKOStandardError() {
-        return sexFvKOStandardError;
-    }
-
-    public void setSexFvKOStandardError(String sexFvKOStandardError) {
-        this.sexFvKOStandardError = sexFvKOStandardError;
-    }
-
-    public String getSexFvKOPVal() {
-        return sexFvKOPVal;
-    }
-
-    public void setSexFvKOPVal(String sexFvKOPVal) {
-        this.sexFvKOPVal = sexFvKOPVal;
-    }
-
-    public String getSexMvKOEstimate() {
-        return sexMvKOEstimate;
-    }
-
-    public void setSexMvKOEstimate(String sexMvKOEstimate) {
-        this.sexMvKOEstimate = sexMvKOEstimate;
-    }
-
-    public String getSexMvKOStandardError() {
-        return sexMvKOStandardError;
-    }
-
-    public void setSexMvKOStandardError(String sexMvKOStandardError) {
-        this.sexMvKOStandardError = sexMvKOStandardError;
-    }
-
-    public String getSexMvKOPVal() {
-        return sexMvKOPVal;
-    }
-
-    public void setSexMvKOPVal(String sexMvKOPVal) {
-        this.sexMvKOPVal = sexMvKOPVal;
-    }
-
-    public String getClassificationTag() {
-        return classificationTag;
-    }
-
-    public void setClassificationTag(String classificationTag) {
-        this.classificationTag = classificationTag;
-    }
-
-    public String getAdditionalInformation() {
-        return additionalInformation;
-    }
-
-    public void setAdditionalInformation(String additionalInformation) {
-        this.additionalInformation = additionalInformation;
-    }
-
     public String getCenter() {
         return center;
     }
@@ -478,119 +266,252 @@ public class LineStatisticalResult {
         this.strain = strain;
     }
 
-    @Override
-    public String toString() {
-        return "LineStatisticalResult{" +
-                "center='" + center + '\'' +
-                ", pipeline='" + pipeline + '\'' +
-                ", procedure='" + procedure + '\'' +
-                ", strain='" + strain + '\'' +
-                ", metadataGroup='" + metadataGroup + '\'' +
-                ", zygosity='" + zygosity + '\'' +
-                ", colonyId='" + colonyId + '\'' +
-                ", status='" + status + '\'' +
-                ", code='" + code + '\'' +
-                ", countControlMale=" + countControlMale +
-                ", countControlFemale=" + countControlFemale +
-                ", countMutantMale=" + countMutantMale +
-                ", countMutantFemale=" + countMutantFemale +
-                ", maleControlMean=" + maleControlMean +
-                ", femaleControlMean=" + femaleControlMean +
-                ", maleMutantMean=" + maleMutantMean +
-                ", femaleMutantMean=" + femaleMutantMean +
-                ", controlSelection='" + controlSelection + '\'' +
-                ", workflow='" + workflow + '\'' +
-                ", statisticalMethod='" + statisticalMethod + '\'' +
-                ", dependentVariable='" + dependentVariable + '\'' +
-                ", batchIncluded='" + batchIncluded + '\'' +
-                ", residualVariancesHomogeneity='" + residualVariancesHomogeneity + '\'' +
-                ", genotypeContribution='" + genotypeContribution + '\'' +
-                ", genotypeEstimate='" + genotypeEstimate + '\'' +
-                ", genotypeStandardError='" + genotypeStandardError + '\'' +
-                ", genotypePVal='" + genotypePVal + '\'' +
-                ", genotypePercentageChange='" + genotypePercentageChange + '\'' +
-                ", sexEstimate='" + sexEstimate + '\'' +
-                ", sexStandardError='" + sexStandardError + '\'' +
-                ", sexPVal='" + sexPVal + '\'' +
-                ", weightEstimate='" + weightEstimate + '\'' +
-                ", weightStandardError='" + weightStandardError + '\'' +
-                ", weightPVal='" + weightPVal + '\'' +
-                ", group1Genotype='" + group1Genotype + '\'' +
-                ", group1ResidualsNormalityTest='" + group1ResidualsNormalityTest + '\'' +
-                ", group2Genotype='" + group2Genotype + '\'' +
-                ", group2ResidualsNormalityTest='" + group2ResidualsNormalityTest + '\'' +
-                ", blupsTest='" + blupsTest + '\'' +
-                ", rotatedResidualsNormalityTest='" + rotatedResidualsNormalityTest + '\'' +
-                ", interceptEstimate='" + interceptEstimate + '\'' +
-                ", interceptStandardError='" + interceptStandardError + '\'' +
-                ", interactionIncluded='" + interactionIncluded + '\'' +
-                ", interactionPVal='" + interactionPVal + '\'' +
-                ", sexFvKOEstimate='" + sexFvKOEstimate + '\'' +
-                ", sexFvKOStandardError='" + sexFvKOStandardError + '\'' +
-                ", sexFvKOPVal='" + sexFvKOPVal + '\'' +
-                ", sexMvKOEstimate='" + sexMvKOEstimate + '\'' +
-                ", sexMvKOStandardError='" + sexMvKOStandardError + '\'' +
-                ", sexMvKOPVal='" + sexMvKOPVal + '\'' +
-                ", classificationTag='" + classificationTag + '\'' +
-                ", additionalInformation='" + additionalInformation + '\'' +
-                '}';
+    public Boolean getBatchIncluded() {
+        return batchIncluded;
     }
 
-    public LineStatisticalResult() {
-    }
-
-    public LineStatisticalResult(String center, String pipeline, String procedure, String strain, String metadataGroup, String zygosity, String colonyId, String status, String code, Integer countControlMale, Integer countControlFemale, Integer countMutantMale, Integer countMutantFemale, Double maleControlMean, Double femaleControlMean, Double maleMutantMean, Double femaleMutantMean, String controlSelection, String workflow, String statisticalMethod, String dependentVariable, String batchIncluded, String residualVariancesHomogeneity, String genotypeContribution, String genotypeEstimate, String genotypeStandardError, String genotypePVal, String genotypePercentageChange, String sexEstimate, String sexStandardError, String sexPVal, String weightEstimate, String weightStandardError, String weightPVal, String group1Genotype, String group1ResidualsNormalityTest, String group2Genotype, String group2ResidualsNormalityTest, String blupsTest, String rotatedResidualsNormalityTest, String interceptEstimate, String interceptStandardError, String interactionIncluded, String interactionPVal, String sexFvKOEstimate, String sexFvKOStandardError, String sexFvKOPVal, String sexMvKOEstimate, String sexMvKOStandardError, String sexMvKOPVal, String classificationTag, String additionalInformation) {
-        this.center = center;
-        this.pipeline = pipeline;
-        this.procedure = procedure;
-        this.strain = strain;
-        this.metadataGroup = metadataGroup;
-        this.zygosity = zygosity;
-        this.colonyId = colonyId;
-        this.status = status;
-        this.code = code;
-        this.countControlMale = countControlMale;
-        this.countControlFemale = countControlFemale;
-        this.countMutantMale = countMutantMale;
-        this.countMutantFemale = countMutantFemale;
-        this.maleControlMean = maleControlMean;
-        this.femaleControlMean = femaleControlMean;
-        this.maleMutantMean = maleMutantMean;
-        this.femaleMutantMean = femaleMutantMean;
-        this.controlSelection = controlSelection;
-        this.workflow = workflow;
-        this.statisticalMethod = statisticalMethod;
-        this.dependentVariable = dependentVariable;
+    public void setBatchIncluded(Boolean batchIncluded) {
         this.batchIncluded = batchIncluded;
+    }
+
+    public Boolean getResidualVariancesHomogeneity() {
+        return residualVariancesHomogeneity;
+    }
+
+    public void setResidualVariancesHomogeneity(Boolean residualVariancesHomogeneity) {
         this.residualVariancesHomogeneity = residualVariancesHomogeneity;
+    }
+
+    public Double getGenotypeContribution() {
+        return genotypeContribution;
+    }
+
+    public void setGenotypeContribution(Double genotypeContribution) {
         this.genotypeContribution = genotypeContribution;
+    }
+
+    public Double getGenotypeEstimate() {
+        return genotypeEstimate;
+    }
+
+    public void setGenotypeEstimate(Double genotypeEstimate) {
         this.genotypeEstimate = genotypeEstimate;
+    }
+
+    public Double getGenotypeStandardError() {
+        return genotypeStandardError;
+    }
+
+    public void setGenotypeStandardError(Double genotypeStandardError) {
         this.genotypeStandardError = genotypeStandardError;
+    }
+
+    public Double getGenotypePVal() {
+        return genotypePVal;
+    }
+
+    public void setGenotypePVal(Double genotypePVal) {
         this.genotypePVal = genotypePVal;
+    }
+
+    public String getGenotypePercentageChange() {
+        return genotypePercentageChange;
+    }
+
+    public void setGenotypePercentageChange(String genotypePercentageChange) {
         this.genotypePercentageChange = genotypePercentageChange;
+    }
+
+    public Double getSexEstimate() {
+        return sexEstimate;
+    }
+
+    public void setSexEstimate(Double sexEstimate) {
         this.sexEstimate = sexEstimate;
+    }
+
+    public Double getSexStandardError() {
+        return sexStandardError;
+    }
+
+    public void setSexStandardError(Double sexStandardError) {
         this.sexStandardError = sexStandardError;
+    }
+
+    public Double getSexPVal() {
+        return sexPVal;
+    }
+
+    public void setSexPVal(Double sexPVal) {
         this.sexPVal = sexPVal;
+    }
+
+    public Double getWeightEstimate() {
+        return weightEstimate;
+    }
+
+    public void setWeightEstimate(Double weightEstimate) {
         this.weightEstimate = weightEstimate;
+    }
+
+    public Double getWeightStandardError() {
+        return weightStandardError;
+    }
+
+    public void setWeightStandardError(Double weightStandardError) {
         this.weightStandardError = weightStandardError;
+    }
+
+    public Double getWeightPVal() {
+        return weightPVal;
+    }
+
+    public void setWeightPVal(Double weightPVal) {
         this.weightPVal = weightPVal;
+    }
+
+    public String getGroup1Genotype() {
+        return group1Genotype;
+    }
+
+    public void setGroup1Genotype(String group1Genotype) {
         this.group1Genotype = group1Genotype;
+    }
+
+    public Double getGroup1ResidualsNormalityTest() {
+        return group1ResidualsNormalityTest;
+    }
+
+    public void setGroup1ResidualsNormalityTest(Double group1ResidualsNormalityTest) {
         this.group1ResidualsNormalityTest = group1ResidualsNormalityTest;
+    }
+
+    public String getGroup2Genotype() {
+        return group2Genotype;
+    }
+
+    public void setGroup2Genotype(String group2Genotype) {
         this.group2Genotype = group2Genotype;
+    }
+
+    public Double getGroup2ResidualsNormalityTest() {
+        return group2ResidualsNormalityTest;
+    }
+
+    public void setGroup2ResidualsNormalityTest(Double group2ResidualsNormalityTest) {
         this.group2ResidualsNormalityTest = group2ResidualsNormalityTest;
+    }
+
+    public Double getBlupsTest() {
+        return blupsTest;
+    }
+
+    public void setBlupsTest(Double blupsTest) {
         this.blupsTest = blupsTest;
+    }
+
+    public Double getRotatedResidualsNormalityTest() {
+        return rotatedResidualsNormalityTest;
+    }
+
+    public void setRotatedResidualsNormalityTest(Double rotatedResidualsNormalityTest) {
         this.rotatedResidualsNormalityTest = rotatedResidualsNormalityTest;
+    }
+
+    public Double getInterceptEstimate() {
+        return interceptEstimate;
+    }
+
+    public void setInterceptEstimate(Double interceptEstimate) {
         this.interceptEstimate = interceptEstimate;
+    }
+
+    public Double getInterceptStandardError() {
+        return interceptStandardError;
+    }
+
+    public void setInterceptStandardError(Double interceptStandardError) {
         this.interceptStandardError = interceptStandardError;
+    }
+
+    public Boolean getInteractionIncluded() {
+        return interactionIncluded;
+    }
+
+    public void setInteractionIncluded(Boolean interactionIncluded) {
         this.interactionIncluded = interactionIncluded;
+    }
+
+    public Double getInteractionPVal() {
+        return interactionPVal;
+    }
+
+    public void setInteractionPVal(Double interactionPVal) {
         this.interactionPVal = interactionPVal;
+    }
+
+    public Double getSexFvKOEstimate() {
+        return sexFvKOEstimate;
+    }
+
+    public void setSexFvKOEstimate(Double sexFvKOEstimate) {
         this.sexFvKOEstimate = sexFvKOEstimate;
+    }
+
+    public Double getSexFvKOStandardError() {
+        return sexFvKOStandardError;
+    }
+
+    public void setSexFvKOStandardError(Double sexFvKOStandardError) {
         this.sexFvKOStandardError = sexFvKOStandardError;
+    }
+
+    public Double getSexFvKOPVal() {
+        return sexFvKOPVal;
+    }
+
+    public void setSexFvKOPVal(Double sexFvKOPVal) {
         this.sexFvKOPVal = sexFvKOPVal;
+    }
+
+    public Double getSexMvKOEstimate() {
+        return sexMvKOEstimate;
+    }
+
+    public void setSexMvKOEstimate(Double sexMvKOEstimate) {
         this.sexMvKOEstimate = sexMvKOEstimate;
+    }
+
+    public Double getSexMvKOStandardError() {
+        return sexMvKOStandardError;
+    }
+
+    public void setSexMvKOStandardError(Double sexMvKOStandardError) {
         this.sexMvKOStandardError = sexMvKOStandardError;
+    }
+
+    public Double getSexMvKOPVal() {
+        return sexMvKOPVal;
+    }
+
+    public void setSexMvKOPVal(Double sexMvKOPVal) {
         this.sexMvKOPVal = sexMvKOPVal;
+    }
+
+    public String getClassificationTag() {
+        return classificationTag;
+    }
+
+    public void setClassificationTag(String classificationTag) {
         this.classificationTag = classificationTag;
+    }
+
+    public String getAdditionalInformation() {
+        return additionalInformation;
+    }
+
+    public void setAdditionalInformation(String additionalInformation) {
         this.additionalInformation = additionalInformation;
     }
 }
+

@@ -92,12 +92,12 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
                     // Filter out IMM results unwil we have normalised parameters
                     .addFilterQuery("-parameter_stable_id:*_IMM_*")
 
-
                     // Include only parameters for which we have experimental data
                     .addFilterQuery("biological_sample_group:experimental")
 
                     .setRows(0)
                     .setFacet(true)
+                    .setFacetLimit(-1)
                     .addFacetPivotField(PIVOT.stream().collect(Collectors.joining(",")));
 
             logger.info(SolrUtils.getBaseURL(experimentCore) + "/select" + query.toQueryString());
@@ -119,7 +119,7 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
                         result.get(ObservationDTO.PHENOTYPING_CENTER).replace(" ","_"),
                         result.get(ObservationDTO.PIPELINE_STABLE_ID),
                         result.get(ObservationDTO.PROCEDURE_GROUP),
-                        result.get(ObservationDTO.STRAIN_ACCESSION_ID).replace(":","")).collect(Collectors.joining("-")) + ".tsv";
+                        result.get(ObservationDTO.STRAIN_ACCESSION_ID).replace(":","")).collect(Collectors.joining("::")) + ".tsv";
                 Path p = new File(filename).toPath();
                 logger.info("Writing file {} ({})", filename, p);
 
@@ -138,6 +138,8 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
                         .setFields(fields)
                         .setRows(Integer.MAX_VALUE)
                 ;
+
+                logger.debug(SolrUtils.getBaseURL(experimentCore) + "/select" + query.toQueryString());
 
                 List<ObservationDTO> observationDTOs = experimentCore.query(query).getBeans(ObservationDTO.class);
 
