@@ -23,7 +23,6 @@ import javax.inject.Named;
 import javax.sql.DataSource;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -31,7 +30,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @SpringBootApplication
 @Import(value = {StatisticalResultLoaderConfig.class})
@@ -312,7 +310,7 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
      * @param data a line from a statistical results file
      * @throws IOException
      */
-    LineStatisticalResult getResult(String data) {
+    LineStatisticalResult getResult(String data, String filename) {
 
         if (data.contains("metadata_group")) {
             // This is a header
@@ -323,7 +321,6 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
 
 
         // Several attributes come from the filename
-        String filename = Paths.get(fileLocation).getFileName().toString();
         filename =  filename.substring(0, filename.indexOf(".tsv"));
         List<String> fileMetaData = Arrays.asList(filename.trim().split("::"));
 
@@ -823,33 +820,39 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
 
     private void processFile(String loc) throws IOException {
 
-        Map<String, Integer> counts = new HashMap<>();
+        try {
+            Map<String, Integer> counts = new HashMap<>();
 
-        for (String line : Files.readAllLines(Paths.get(loc))) {
+            for (String line : Files.readAllLines(Paths.get(loc))) {
 
-            LightweightResult result = getBaseResult(getResult(line));
+                LightweightResult result = getBaseResult(getResult(line, Paths.get(loc).getFileName().toString()));
 
-            if (result == null) {
-                // Skipping record
-                continue;
+                if (result == null) {
+                    // Skipping record
+                    continue;
+                }
+
+                try (Connection connection = komp2DataSource.getConnection()) {
+
+                    PreparedStatement p = result.getSaveResultStatement(connection);
+                    p.executeUpdate();
+
+                    counts.put(result.getStatisticalMethod(), counts.getOrDefault(result.getStatisticalMethod(), 0) + 1);
+
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+
             }
 
-            try (Connection connection = komp2DataSource.getConnection()) {
-
-                PreparedStatement p = result.getSaveResultStatement(connection);
-                p.executeUpdate();
-
-                counts.put(result.getStatisticalMethod(), counts.getOrDefault(result.getStatisticalMethod(), 0)+1);
-
-            } catch (SQLException e) {
-                e.printStackTrace();
+            for(String method : counts.keySet()) {
+                System.out.println("  ADDED " + counts.get(method) + " statistical results for method: "+method);
             }
 
+        } catch (Exception e) {
+          logger.error("Could not process file: " + loc, e);
         }
 
-        for(String method : counts.keySet()) {
-            System.out.println("  ADDED " + counts.get(method) + " statistical results for method: "+method);
-        }
 
     }
 
@@ -889,19 +892,21 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
 
         } else if (directory) {
 
-            // process all files in the directoy
-            try (Stream<Path> paths = Files.walk(Paths.get(fileLocation, 3))) {
-                for (Path path : paths.collect(Collectors.toList())) {
-                    if (path.endsWith("result")) {
-                        if ( ! Files.isRegularFile(path)) {
-                            logger.warn("File " + path + " is not a regular file");
-                            continue;
-                        }
-
-                        processFile(path.toString());
+            // process all regular files in the directory that end in "result" and have "tsv" in the filename
+            Files
+                .walk(Paths.get(fileLocation))
+                .filter(p -> p.toString().endsWith("result"))
+                .filter(p -> p.toString().contains(".tsv"))
+                .filter(p -> Files.isRegularFile(p.toAbsolutePath()))
+                .forEach(p -> {
+                    logger.info("Processing file: " + p.toAbsolutePath().toString());
+                    try {
+                        processFile(p.toAbsolutePath().toString());
+                    } catch (IOException e) {
+                        logger.warn("IO error proccessing file: " + p.toAbsolutePath().toString());
                     }
-                }
-            }
+                });
+
         } else {
             logger.warn("File " + fileLocation + " is not a regular file or a directory");
         }
