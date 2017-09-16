@@ -837,11 +837,7 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
             try (Connection connection = komp2DataSource.getConnection()) {
 
                 PreparedStatement p = result.getSaveResultStatement(connection);
-//                p.executeUpdate();
-
-                if (! result.getStatus().contains("FAILED")) {
-                    System.out.println(result);
-                }
+                p.executeUpdate();
 
                 counts.put(result.getStatisticalMethod(), counts.getOrDefault(result.getStatisticalMethod(), 0)+1);
 
