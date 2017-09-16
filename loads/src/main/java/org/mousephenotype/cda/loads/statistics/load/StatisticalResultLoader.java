@@ -890,7 +890,7 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
         } else if (directory) {
 
             // process all files in the directoy
-            try (Stream<Path> paths = Files.walk(Paths.get(fileLocation), 1)) {
+            try (Stream<Path> paths = Files.walk(Paths.get(fileLocation))) {
                 for (Path path : paths.collect(Collectors.toList())) {
                     if (path.endsWith("result")) {
                         if ( ! Files.isRegularFile(path)) {
