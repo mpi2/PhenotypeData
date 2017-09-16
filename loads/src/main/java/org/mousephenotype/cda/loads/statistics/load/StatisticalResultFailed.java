@@ -52,14 +52,14 @@ public class StatisticalResultFailed implements StatisticalResult, Serializable 
 	 * @param result the base result object to populate the common parameters
 	 * @throws SQLException
 	 */
-	public PreparedStatement getSaveResultStatement(Connection connection, LightweightUnidimensionalResult result) throws SQLException {
+	public PreparedStatement getSaveResultStatement(Connection connection, LightweightResult result) throws SQLException {
 
 		PreparedStatement s = connection.prepareStatement(insertStatement);
 		int i = 1;
 
 		SqlUtils.setSqlParameter(s, result.getControlId(), i++);
 		SqlUtils.setSqlParameter(s, result.getExperimentalId(), i++);
-		SqlUtils.setSqlParameter(s, result.getExperimentalZygosity(), i++);
+		SqlUtils.setSqlParameter(s, result.getZygosity(), i++);
 		SqlUtils.setSqlParameter(s, result.getColonyId(), i++);
 
 		SqlUtils.setSqlParameter(s, result.getDataSourceId(), i++);
@@ -72,9 +72,9 @@ public class StatisticalResultFailed implements StatisticalResult, Serializable 
 		SqlUtils.setSqlParameter(s, result.getDependentVariable(), i++);
 		SqlUtils.setSqlParameter(s, result.getControlSelectionMethod().name(), i++);
 
-		SqlUtils.setSqlParameter(s, result.getMpAcc(), i++);
-		SqlUtils.setSqlParameter(s, result.getMaleMpAcc(), i++);
-		SqlUtils.setSqlParameter(s, result.getFemaleMpAcc(), i++);
+		SqlUtils.setSqlParameter(s, (String)null, i++);
+		SqlUtils.setSqlParameter(s, (String)null, i++);
+		SqlUtils.setSqlParameter(s, (String)null, i++);
 		SqlUtils.setSqlParameter(s, 5, i++);
 
 		SqlUtils.setSqlParameter(s, result.getMaleControlCount(), i++);
@@ -82,49 +82,49 @@ public class StatisticalResultFailed implements StatisticalResult, Serializable 
 		SqlUtils.setSqlParameter(s, result.getFemaleControlCount(), i++);
 		SqlUtils.setSqlParameter(s, result.getFemaleMutantCount(), i++);
 
-		SqlUtils.setSqlParameter(s, result.getFemaleControlMean(), i++);
-		SqlUtils.setSqlParameter(s, result.getMaleControlMean(), i++);
-		SqlUtils.setSqlParameter(s, result.getFemaleExperimentalMean(), i++);
-		SqlUtils.setSqlParameter(s, result.getMaleExperimentalMean(), i++);
+		SqlUtils.setSqlParameter(s, (Double)null, i++);
+		SqlUtils.setSqlParameter(s, (Double)null, i++);
+		SqlUtils.setSqlParameter(s, (Double)null, i++);
+		SqlUtils.setSqlParameter(s, (Double)null, i++);
 
 		SqlUtils.setSqlParameter(s, result.getMetadataGroup(), i++);
 		SqlUtils.setSqlParameter(s, this.getStatisticalMethod(), i++);
-		SqlUtils.setSqlParameter(s, result.getWorkflow().toString(), i++);
+		SqlUtils.setSqlParameter(s, (result.getWorkflow()!=null) ? result.getWorkflow().toString() : null, i++);
 		SqlUtils.setSqlParameter(s, result.getWeightAvailable().toString(), i++);
 		SqlUtils.setSqlParameter(s, result.getStatus(), i++);
 
-		SqlUtils.setSqlParameter(s, this.getBatchSignificance(), i++);
-		SqlUtils.setSqlParameter(s, this.getVarianceSignificance(), i++);
-		SqlUtils.setSqlParameter(s, this.getNullTestSignificance(), i++);
-		SqlUtils.setSqlParameter(s, this.getGenotypeParameterEstimate(), i++);
-		SqlUtils.setSqlParameter(s, this.getGenotypeStandardErrorEstimate(), i++);
-		SqlUtils.setSqlParameter(s, this.getGenotypeEffectPValue(), i++);
-		SqlUtils.setSqlParameter(s, this.getGenotypePercentageChange(), i++);
-		SqlUtils.setSqlParameter(s, this.getGenderParameterEstimate(), i++);
-		SqlUtils.setSqlParameter(s, this.getGenderStandardErrorEstimate(), i++);
-		SqlUtils.setSqlParameter(s, this.getGenderEffectPValue(), i++);
-		SqlUtils.setSqlParameter(s, this.getWeightParameterEstimate(), i++);
-		SqlUtils.setSqlParameter(s, this.getWeightStandardErrorEstimate(), i++);
-		SqlUtils.setSqlParameter(s, this.getWeightEffectPValue(), i++);
-		SqlUtils.setSqlParameter(s, this.getGp1Genotype(), i++);
-		SqlUtils.setSqlParameter(s, this.getGp1ResidualsNormalityTest(), i++);
-		SqlUtils.setSqlParameter(s, this.getGp2Genotype(), i++);
-		SqlUtils.setSqlParameter(s, this.getGp2ResidualsNormalityTest(), i++);
-		SqlUtils.setSqlParameter(s, this.getBlupsTest(), i++);
-		SqlUtils.setSqlParameter(s, this.getRotatedResidualsNormalityTest(), i++);
-		SqlUtils.setSqlParameter(s, this.getInterceptEstimate(), i++);
-		SqlUtils.setSqlParameter(s, this.getInterceptEstimateStandardError(), i++);
-		SqlUtils.setSqlParameter(s, this.getInteractionSignificance(), i++);
-		SqlUtils.setSqlParameter(s, this.getInteractionEffectPValue(), i++);
-		SqlUtils.setSqlParameter(s, this.getGenderFemaleKoEstimate(), i++);
-		SqlUtils.setSqlParameter(s, this.getGenderFemaleKoStandardErrorEstimate(), i++);
-		SqlUtils.setSqlParameter(s, this.getGenderFemaleKoPValue(), i++);
-		SqlUtils.setSqlParameter(s, this.getGenderMaleKoEstimate(), i++);
-		SqlUtils.setSqlParameter(s, this.getGenderMaleKoStandardErrorEstimate(), i++);
-		SqlUtils.setSqlParameter(s, this.getGenderMaleKoPValue(), i++);
-		SqlUtils.setSqlParameter(s, this.getClassificationTag(), i++);
-		SqlUtils.setSqlParameter(s, result.getAdditionalInformation(), i++);
-		SqlUtils.setSqlParameter(s, result.getRawOutput(), i++);
+		SqlUtils.setSqlParameter(s, (String)null, i++);
+		SqlUtils.setSqlParameter(s, (String)null, i++);
+		SqlUtils.setSqlParameter(s, (String)null, i++);
+		SqlUtils.setSqlParameter(s, (String)null, i++);
+		SqlUtils.setSqlParameter(s, (String)null, i++);
+		SqlUtils.setSqlParameter(s, (String)null, i++);
+		SqlUtils.setSqlParameter(s, (String)null, i++);
+		SqlUtils.setSqlParameter(s, (String)null, i++);
+		SqlUtils.setSqlParameter(s, (String)null, i++);
+		SqlUtils.setSqlParameter(s, (String)null, i++);
+		SqlUtils.setSqlParameter(s, (String)null, i++);
+		SqlUtils.setSqlParameter(s, (String)null, i++);
+		SqlUtils.setSqlParameter(s, (String)null, i++);
+		SqlUtils.setSqlParameter(s, (String)null, i++);
+		SqlUtils.setSqlParameter(s, (String)null, i++);
+		SqlUtils.setSqlParameter(s, (String)null, i++);
+		SqlUtils.setSqlParameter(s, (String)null, i++);
+		SqlUtils.setSqlParameter(s, (String)null, i++);
+		SqlUtils.setSqlParameter(s, (String)null, i++);
+		SqlUtils.setSqlParameter(s, (String)null, i++);
+		SqlUtils.setSqlParameter(s, (String)null, i++);
+		SqlUtils.setSqlParameter(s, (String)null, i++);
+		SqlUtils.setSqlParameter(s, (String)null, i++);
+		SqlUtils.setSqlParameter(s, (String)null, i++);
+		SqlUtils.setSqlParameter(s, (String)null, i++);
+		SqlUtils.setSqlParameter(s, (String)null, i++);
+		SqlUtils.setSqlParameter(s, (String)null, i++);
+		SqlUtils.setSqlParameter(s, (String)null, i++);
+		SqlUtils.setSqlParameter(s, (String)null, i++);
+		SqlUtils.setSqlParameter(s, (String)null, i++);
+		SqlUtils.setSqlParameter(s, (String)null, i++);
+		SqlUtils.setSqlParameter(s, (String)null, i++);
 
 		return s;
 	}

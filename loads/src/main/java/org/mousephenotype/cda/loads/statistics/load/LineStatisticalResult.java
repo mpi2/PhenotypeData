@@ -513,5 +513,66 @@ public class LineStatisticalResult {
     public void setAdditionalInformation(String additionalInformation) {
         this.additionalInformation = additionalInformation;
     }
+
+    @Override
+    public String toString() {
+        return "LineStatisticalResult{" +
+                "center='" + center + '\'' +
+                ", pipeline='" + pipeline + '\'' +
+                ", procedure='" + procedure + '\'' +
+                ", strain='" + strain + '\'' +
+                ", dataSource='" + dataSource + '\'' +
+                ", project='" + project + '\'' +
+                ", weightAvailable='" + weightAvailable + '\'' +
+                ", metadataGroup='" + metadataGroup + '\'' +
+                ", zygosity='" + zygosity + '\'' +
+                ", colonyId='" + colonyId + '\'' +
+                ", status='" + status + '\'' +
+                ", code='" + code + '\'' +
+                ", countControlMale=" + countControlMale +
+                ", countControlFemale=" + countControlFemale +
+                ", countMutantMale=" + countMutantMale +
+                ", countMutantFemale=" + countMutantFemale +
+                ", maleControlMean=" + maleControlMean +
+                ", femaleControlMean=" + femaleControlMean +
+                ", maleMutantMean=" + maleMutantMean +
+                ", femaleMutantMean=" + femaleMutantMean +
+                ", controlSelection='" + controlSelection + '\'' +
+                ", workflow='" + workflow + '\'' +
+                ", statisticalMethod='" + statisticalMethod + '\'' +
+                ", dependentVariable='" + dependentVariable + '\'' +
+                ", batchIncluded=" + batchIncluded +
+                ", residualVariancesHomogeneity=" + residualVariancesHomogeneity +
+                ", genotypeContribution=" + genotypeContribution +
+                ", genotypeEstimate=" + genotypeEstimate +
+                ", genotypeStandardError=" + genotypeStandardError +
+                ", genotypePVal=" + genotypePVal +
+                ", genotypePercentageChange='" + genotypePercentageChange + '\'' +
+                ", sexEstimate=" + sexEstimate +
+                ", sexStandardError=" + sexStandardError +
+                ", sexPVal=" + sexPVal +
+                ", weightEstimate=" + weightEstimate +
+                ", weightStandardError=" + weightStandardError +
+                ", weightPVal=" + weightPVal +
+                ", group1Genotype='" + group1Genotype + '\'' +
+                ", group1ResidualsNormalityTest=" + group1ResidualsNormalityTest +
+                ", group2Genotype='" + group2Genotype + '\'' +
+                ", group2ResidualsNormalityTest=" + group2ResidualsNormalityTest +
+                ", blupsTest=" + blupsTest +
+                ", rotatedResidualsNormalityTest=" + rotatedResidualsNormalityTest +
+                ", interceptEstimate=" + interceptEstimate +
+                ", interceptStandardError=" + interceptStandardError +
+                ", interactionIncluded=" + interactionIncluded +
+                ", interactionPVal=" + interactionPVal +
+                ", sexFvKOEstimate=" + sexFvKOEstimate +
+                ", sexFvKOStandardError=" + sexFvKOStandardError +
+                ", sexFvKOPVal=" + sexFvKOPVal +
+                ", sexMvKOEstimate=" + sexMvKOEstimate +
+                ", sexMvKOStandardError=" + sexMvKOStandardError +
+                ", sexMvKOPVal=" + sexMvKOPVal +
+                ", classificationTag='" + classificationTag + '\'' +
+                ", additionalInformation='" + additionalInformation + '\'' +
+                '}';
+    }
 }
 

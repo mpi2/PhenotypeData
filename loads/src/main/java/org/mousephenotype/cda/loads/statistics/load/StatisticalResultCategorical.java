@@ -20,11 +20,12 @@ public class StatisticalResultCategorical implements StatisticalResult, Serializ
 	 * Prepare the statement to insert this result into the database
 	 *
 	 * @param connection connection object to use to save the result
-	 * @param result the base result object to populate the common parameters
+	 * @param generalResult the base result object to populate the common parameters
 	 * @throws SQLException
 	 */
-	public PreparedStatement getSaveResultStatement(Connection connection, LightweightUnidimensionalResult result) throws SQLException {
+	public PreparedStatement getSaveResultStatement(Connection connection, LightweightResult generalResult) throws SQLException {
 
+		LightweightCategoricalResult result = (LightweightCategoricalResult) generalResult;
 		PreparedStatement s = connection.prepareStatement(insertStatement);
 
 		int i = 1;

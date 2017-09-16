@@ -5,6 +5,7 @@ import joptsimple.OptionSet;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.lang3.ArrayUtils;
+import org.mousephenotype.cda.db.pojo.OntologyTerm;
 import org.mousephenotype.cda.enumerations.BatchClassification;
 import org.mousephenotype.cda.enumerations.ControlStrategy;
 import org.mousephenotype.cda.enumerations.SexType;
@@ -36,10 +37,10 @@ import java.util.stream.Stream;
 @Import(value = {StatisticalResultLoaderConfig.class})
 public class StatisticalResultLoader extends BasicService implements CommandLineRunner {
 
-
-
     final private Logger logger = LoggerFactory.getLogger(getClass());
+
     final private DataSource komp2DataSource;
+    final private MpTermService mpTermService;
 
 
     Map<String, NameIdDTO> organisationMap = new HashMap<>();
@@ -176,9 +177,11 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
     private String fileLocation;
 
     @Inject
-    public StatisticalResultLoader(@Named("komp2DataSource") DataSource komp2DataSource) {
+    public StatisticalResultLoader(@Named("komp2DataSource") DataSource komp2DataSource, MpTermService mpTermService) {
         Assert.notNull(komp2DataSource, "Komp2 datasource cannot be null");
+        Assert.notNull(mpTermService, "mpTermService cannot be null");
         this.komp2DataSource = komp2DataSource;
+        this.mpTermService = mpTermService;
     }
 
 
@@ -342,7 +345,7 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
 
         String dataSource = fileMetaData.get(0);
         String project    = fileMetaData.get(1);
-        String center     = fileMetaData.get(2);
+        String center     = fileMetaData.get(2).replaceAll("_", " ");
         String pipeline   = fileMetaData.get(3);
         String procedure  = fileMetaData.get(4);
         String strain     = fileMetaData.get(5);
@@ -391,7 +394,12 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
         result.setControlSelection( getStringField(fields[14]) );
         result.setWorkflow( getStringField(fields[15]) );
         result.setWeightAvailable( getStringField(fields[16]) );
-        result.setStatisticalMethod( getStringField(fields[17]) );
+
+        try {
+            result.setStatisticalMethod(getStringField(fields[17]));
+        } catch (ArrayIndexOutOfBoundsException e) {
+            result.setStatisticalMethod("-");
+        }
 
         // fields[18] is a duplicate of fields[3]
 
@@ -539,7 +547,7 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
      * @param data    The data result from a stats analysis
      * @return result object partially populated with basic information
      */
-    public LightweightUnidimensionalResult getBaseResult(LineStatisticalResult data) {
+    public LightweightResult getBaseResult(LineStatisticalResult data) {
 
         if (data == null) {
             return null;
@@ -549,81 +557,21 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
         NameIdDTO pipeline = pipelineMap.get(data.getPipeline());
         NameIdDTO procedure = procedureMap.get(data.getProcedure()); // Procedure group e.g. IMPC_CAL
         NameIdDTO parameter = parameterMap.get(data.getDependentVariable());
-        ControlStrategy strategy = ControlStrategy.valueOf(data.getControlSelection());
 
         // result contains a "statistical result" that has the
         // ability to produce a PreparedStatement ready for database insertion
-        LightweightUnidimensionalResult result = new LightweightUnidimensionalResult();
 
-        result.setMetadataGroup(data.getMetadataGroup());
-        result.setStatisticalMethod(data.getStatisticalMethod());
-
-        result.setDataSourceId(datasourceMap.get(data.getDataSourceName()));
-        result.setProjectId(projectMap.get(data.getProjectName()));
-
-        result.setOrganisationId(center.getDbId());
-        result.setOrganisationName(center.getName());
-
-        result.setPipelineId(pipeline.getDbId());
-        result.setPipelineStableId(pipeline.getStableId());
-
-        result.setProcedureId(procedure.getDbId());
-        result.setProcedureGroup(data.getProcedure());
-
-        result.setParameterId(parameter.getDbId());
-        result.setParameterStableId(parameter.getStableId());
-        result.setDependentVariable(parameter.getStableId());
-
-        result.setColonyId(data.getColonyId());
-        result.setStrain(data.getStrain());
-        result.setZygosity(data.getZygosity());
-
-        result.setExperimentalZygosity(data.getZygosity());
-
-        result.setControlSelectionMethod(strategy);
-
-        // TODO: Lookup from specimen?
-//        result.setControlId(data.getControlBiologicalModelId());
-//        result.setExperimentalId(data.getMutantBiologicalModelId());
-
-        // Lookup from colony ID
-        result.setAlleleAccessionId(colonyAlleleMap.get(data.getColonyId()));
-
-        result.setMaleControlCount(data.getCountControlMale());
-        result.setMaleMutantCount(data.getCountMutantMale());
-        result.setFemaleControlCount(data.getCountControlFemale());
-        result.setFemaleMutantCount(data.getCountMutantFemale());
-
-        result.setFemaleControlMean(data.getFemaleControlMean());
-        result.setFemaleExperimentalMean(data.getFemaleMutantMean());
-        result.setMaleControlMean(data.getMaleControlMean());
-        result.setMaleExperimentalMean(data.getMaleMutantMean());
-
-        Set<String> sexes = new HashSet<>();
-        if (data.getCountMutantMale()>3) {
-            sexes.add("male");
-        }
-        if (data.getCountMutantFemale()>3) {
-            sexes.add("female");
-        }
-
-        // Set the sex(es) of the result set
-        result.setSex(SexType.both.getName());
-        if (sexes.size() == 1) {
-            result.setSex(new ArrayList<String>(sexes).get(0));
-        }
-
-        BatchClassification batches = BatchClassification.valueOf(data.getWorkflow());
-        result.setWorkflow(batches);
-        result.setWeightAvailable(data.getWeightAvailable() != null && data.getWeightAvailable().equals("TRUE"));
-
-        result.setCalculationTimeNanos(0L);
-
-        StatisticalResult statsResult = null;
+        LightweightResult result;
+        StatisticalResult statsResult;
 
         if (data.getStatisticalMethod().contains("Fisher Exact Test framework")) {
 
             // Categorical result
+            result = new LightweightCategoricalResult();
+            ((LightweightCategoricalResult)result).setCategoryA("normal");
+            ((LightweightCategoricalResult) result).setpValue(data.getGenotypePVal());
+            ((LightweightCategoricalResult) result).setEffectSize(data.getGenotypeEstimate());
+
             StatisticalResultCategorical temp = new StatisticalResultCategorical();
             temp.setpValue(data.getGenotypePVal());
             temp.setEffectSize(data.getGenotypeEstimate());
@@ -632,6 +580,13 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
         } else if (data.getStatisticalMethod().contains("Mixed Model framework")) {
 
             // Unidimensional result
+            result = new LightweightUnidimensionalResult();
+            ((LightweightUnidimensionalResult)result).setFemaleControlMean(data.getFemaleControlMean());
+            ((LightweightUnidimensionalResult)result).setFemaleExperimentalMean(data.getFemaleMutantMean());
+            ((LightweightUnidimensionalResult)result).setMaleControlMean(data.getMaleControlMean());
+            ((LightweightUnidimensionalResult)result).setMaleExperimentalMean(data.getMaleMutantMean());
+
+
             StatisticalResultMixedModel temp = new StatisticalResultMixedModel();
             temp.setBatchSignificance(data.getBatchIncluded());
             temp.setVarianceSignificance(data.getResidualVariancesHomogeneity());
@@ -668,6 +623,12 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
         } else if (data.getStatisticalMethod().contains("Reference Ranges Plus framework")) {
 
             // Reference Range result
+            result = new LightweightUnidimensionalResult();
+            ((LightweightUnidimensionalResult)result).setFemaleControlMean(data.getFemaleControlMean());
+            ((LightweightUnidimensionalResult)result).setFemaleExperimentalMean(data.getFemaleMutantMean());
+            ((LightweightUnidimensionalResult)result).setMaleControlMean(data.getMaleControlMean());
+            ((LightweightUnidimensionalResult)result).setMaleExperimentalMean(data.getMaleMutantMean());
+
             StatisticalResultReferenceRangePlus temp = new StatisticalResultReferenceRangePlus();
             temp.setBatchSignificance(data.getBatchIncluded());
             temp.setVarianceSignificance(data.getResidualVariancesHomogeneity());
@@ -705,29 +666,168 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
         } else {
             // Unknown method or failed to process.
             if (StringUtils.isNotEmpty(data.getStatisticalMethod())) {
-                logger.warn("Unknown statistical method ", data.getStatisticalMethod());
+                logger.debug("Unknown statistical method '" + data.getStatisticalMethod() + "'");
             }
 
+            result = new LightweightUnidimensionalResult();
             StatisticalResultFailed temp = new StatisticalResultFailed();
             temp.setStatisticalMethod("Not processed");
             statsResult = temp;
         }
 
-
-
         result.setStatisticalResult(statsResult);
 
+
+        ControlStrategy strategy = ControlStrategy.NA;
+        try {
+            strategy = ControlStrategy.valueOf(data.getControlSelection());
+        } catch (IllegalArgumentException e) {
+            // It's ok, stats failed to process so control strat stays as NA
+        }
+
+        result.setMetadataGroup(data.getMetadataGroup());
+        result.setStatisticalMethod(data.getStatisticalMethod().isEmpty() ? "-" : data.getStatisticalMethod());
+
+        result.setDataSourceId(datasourceMap.get(data.getDataSourceName()));
+        result.setProjectId(projectMap.get(data.getProjectName()));
+
+        result.setOrganisationId(center.getDbId());
+        result.setOrganisationName(center.getName());
+
+        result.setPipelineId(pipeline.getDbId());
+        result.setPipelineStableId(pipeline.getStableId());
+
+        result.setProcedureId(procedure.getDbId());
+        result.setProcedureGroup(data.getProcedure());
+
+        result.setParameterId(parameter.getDbId());
+        result.setParameterStableId(parameter.getStableId());
+        result.setDependentVariable(parameter.getStableId());
+
+        result.setColonyId(data.getColonyId());
+        result.setStrain(data.getStrain());
+        result.setZygosity(data.getZygosity());
+
+        result.setZygosity(data.getZygosity());
+
+        result.setControlSelectionMethod(strategy);
+
+        // TODO: Lookup from specimen?
+//        result.setControlId(data.getControlBiologicalModelId());
+//        result.setExperimentalId(data.getMutantBiologicalModelId());
+
+        // Lookup from colony ID
+        result.setAlleleAccessionId(colonyAlleleMap.get(data.getColonyId()));
+
+        result.setMaleControlCount(data.getCountControlMale());
+        result.setMaleMutantCount(data.getCountMutantMale());
+        result.setFemaleControlCount(data.getCountControlFemale());
+        result.setFemaleMutantCount(data.getCountMutantFemale());
+
+        Set<String> sexes = new HashSet<>();
+        if (data.getCountMutantMale()>3) {
+            sexes.add("male");
+        }
+        if (data.getCountMutantFemale()>3) {
+            sexes.add("female");
+        }
+
+        // Set the sex(es) of the result set
+        result.setSex(SexType.both.getName());
+        if (sexes.size() == 1) {
+            result.setSex(new ArrayList<>(sexes).get(0));
+        }
+
+        // Set workflow if it has been provided
+        if (Arrays.stream(BatchClassification.values())
+                .map(Enum::toString)
+                .collect(Collectors.toList())
+                .contains(data.getWorkflow())) {
+
+            BatchClassification batches = BatchClassification.valueOf(data.getWorkflow());
+            result.setWorkflow(batches);
+        } else  {
+            result.setWorkflow(null);
+        }
+
+        result.setWeightAvailable(data.getWeightAvailable() != null && data.getWeightAvailable().equals("TRUE"));
+
+        result.setCalculationTimeNanos(0L);
+
         result.setStatus(data.getStatus() + " - " + data.getCode());
+        setMpTerm(result);
 
         return result;
     }
 
+    /**
+     * Set the appropriate MP term(s) on the result object
+     * <p>
+     * Could set differnet terms for male and female
+     *
+     * @param result the result object to populate
+     * @throws SQLException
+     */
+    public void setMpTerm(LightweightResult result) {
+
+        ResultDTO resultWrapper = new ResultDTO(result);
+
+        try (Connection connection = komp2DataSource.getConnection()) {
+
+            String parameterId = result.getParameterStableId();
+
+            OntologyTerm mpTerm = mpTermService.getMPTerm(parameterId, resultWrapper, null, connection, 1.0f);
+
+            if (mpTerm != null) {
+                result.setMpAcc(mpTerm.getId().getAccession());
+
+            } else {
+
+                OntologyTerm femaleMpTerm = null;
+                OntologyTerm maleMpTerm = null;
+
+                if (resultWrapper.getFemaleEffectSize() != null) {
+                    femaleMpTerm = mpTermService.getMPTerm(parameterId, resultWrapper, SexType.female, connection, 1.0f);
+                }
+                if (resultWrapper.getMaleEffectSize() != null) {
+                    maleMpTerm = mpTermService.getMPTerm(parameterId, resultWrapper, SexType.male, connection, 1.0f);
+                }
+
+                if (femaleMpTerm != null && result instanceof LightweightUnidimensionalResult) {
+                    ((LightweightUnidimensionalResult) result).setFemaleMpAcc(femaleMpTerm.getId().getAccession());
+                }
+                if (maleMpTerm != null && result instanceof LightweightUnidimensionalResult) {
+                    ((LightweightUnidimensionalResult) result).setMaleMpAcc(maleMpTerm.getId().getAccession());
+                }
+
+                if (femaleMpTerm != null && maleMpTerm != null && maleMpTerm.equals(femaleMpTerm)) {
+
+                    // Both female and male terms are defined and the same
+                    result.setMpAcc(femaleMpTerm.getId().getAccession());
+
+                } else {
+
+                    // Sexual dimorphism, get the abnormal term for this parameter
+                    mpTerm = mpTermService.getAbnormalMPTerm(parameterId, resultWrapper, connection, 1.0f);
+
+                    if (mpTerm != null) {
+                        result.setMpAcc(mpTerm.getId().getAccession());
+                    }
+
+                }
+            }
+        } catch (SQLException e) {
+            logger.warn("Cannot retreive MP term for result", result);
+        }
+    }
 
     private void processFile(String loc) throws IOException {
 
+        Map<String, Integer> counts = new HashMap<>();
+
         for (String line : Files.readAllLines(Paths.get(loc))) {
 
-            LightweightUnidimensionalResult result = getBaseResult(getResult(line));
+            LightweightResult result = getBaseResult(getResult(line));
 
             if (result == null) {
                 // Skipping record
@@ -737,14 +837,24 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
             try (Connection connection = komp2DataSource.getConnection()) {
 
                 PreparedStatement p = result.getSaveResultStatement(connection);
-                p.executeUpdate();
+//                p.executeUpdate();
 
+                if (! result.getStatus().contains("FAILED")) {
+                    System.out.println(result);
+                }
+
+                counts.put(result.getStatisticalMethod(), counts.getOrDefault(result.getStatisticalMethod(), 0)+1);
 
             } catch (SQLException e) {
                 e.printStackTrace();
             }
 
         }
+
+        for(String method : counts.keySet()) {
+            System.out.println("  ADDED " + counts.get(method) + " statistical results for method: "+method);
+        }
+
     }
 
     @Override
