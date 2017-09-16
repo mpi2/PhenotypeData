@@ -1091,10 +1091,10 @@ public class AdvancedSearchService {
         query.setStart(0);
         query.setRows(100);
         query.setFilterQueries("docType:mp");
-        System.out.println("mapNarrow query="+query);
+        //System.out.println("mapNarrow query="+query);
         //System.out.println(autosuggestCore);
         QueryResponse response = autosuggestCore.query(query);
-        System.out.println("response: " + response);
+        //System.out.println("response: " + response);
         SolrDocumentList results = response.getResults();
 
         for(SolrDocument doc : results){

@@ -79,6 +79,10 @@
                 font-size: 20px;
                 margin: 10px 0;
             }
+            table#alleleRef {
+                table-layout: fixed;
+                width: 100% !important;
+            }
 
 
          </style>
@@ -125,7 +129,6 @@
                 oConf.id = "alleleRef";
                 $.fn.fetchAlleleRefDataTable2(oConf);
 
-
                 // find out which tab to open from hash tag
                 var matches = window.location.hash.match(/(\d)$/);
                 var tabIndex = matches == null ? 0 : matches[0];
@@ -156,7 +159,6 @@
                     }
                 });
                 tabs.tabs({active: tabIndex});
-
             });
 
         </script>
