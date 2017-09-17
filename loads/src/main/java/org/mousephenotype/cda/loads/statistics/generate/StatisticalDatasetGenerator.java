@@ -1,5 +1,6 @@
 package org.mousephenotype.cda.loads.statistics.generate;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -53,6 +54,19 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
         this.pipelineCore = pipelineCore;
     }
 
+    private final Set<String> skipProcedures = new HashSet<>(Arrays.asList(
+            "SLM_PBI", "SLM_HEM", "IMPC_ABR", "IMPC_ALZ", "IMPC_HIS", "IMPC_GEM",
+            "IMPC_EMA", "IMPC_GEP", "IMPC_GPP", "IMPC_EVP", "IMPC_MAA", "IMPC_GEO",
+            "IMPC_GPO", "IMPC_EMO", "IMPC_GPO", "IMPC_EVO", "IMPC_GPM", "IMPC_EVM",
+            "IMPC_GEL", "IMPC_HPL", "IMPC_HEL", "IMPC_EOL", "IMPC_GPL", "IMPC_EVL",
+            "IMPC_VIA", "IMPC_FER"));
+
+    private final Set<String> skipParameters = new HashSet<>(Arrays.asList(
+           "M-G-P_022_001_001",
+            // Skip these parameters (from Natasha)
+            "JAX_SLW_001_001" ,"JAX_LDT_007_001" ,"ICS_SHO_004_001" ,"IMPC_EYE_056_001",
+            "IMPC_ECG_015_001" ,"IMPC_ECG_003_001" ,"JAX_LDT_006_001" ,"IMPC_ECG_010_001"));
+
 
     private final static List<String> PIVOT = Arrays.asList(
             ObservationDTO.DATASOURCE_NAME,
@@ -81,15 +95,15 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
             query.setQuery("*:*")
 
                     // Filter out line level parameters
-                    .addFilterQuery("-procedure_group:(IMPC_VIA OR IMPC_FER OR IMPC_EVL OR IMPC_EVM OR IMPC_EVO OR IMPC_EVP)")
+                    .addFilterQuery("-procedure_group:(" + StringUtils.join(skipProcedures, " OR ") + ")")
 
                     // Only processing categorical and unidimensional parameters
                     .addFilterQuery("observation_type:(categorical OR unidimensional)")
 
                     // Filter out incorrect M-G-P pipeline bodyweight
-                    .addFilterQuery("-parameter_stable_id:M-G-P_022_001_001")
+                    .addFilterQuery("-parameter_stable_id:(" + StringUtils.join(skipParameters, " OR ") + ")")
 
-                    // Filter out IMM results unwil we have normalised parameters
+                    // Filter out IMM results until we have normalised parameters in IMPRESS
                     .addFilterQuery("-parameter_stable_id:*_IMM_*")
 
                     // Include only parameters for which we have experimental data
