@@ -846,7 +846,7 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
             }
 
             for(String method : counts.keySet()) {
-                System.out.println("  ADDED " + counts.get(method) + " statistical results for method: "+method);
+                logger.info("  ADDED " + counts.get(method) + " statistical results for method: " + method);
             }
 
         } catch (Exception e) {
@@ -898,6 +898,7 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
                 .filter(p -> p.toString().endsWith("result"))
                 .filter(p -> p.toString().contains(".tsv"))
                 .filter(p -> Files.isRegularFile(p.toAbsolutePath()))
+                .parallel()
                 .forEach(p -> {
                     logger.info("Processing file: " + p.toAbsolutePath().toString());
                     try {
