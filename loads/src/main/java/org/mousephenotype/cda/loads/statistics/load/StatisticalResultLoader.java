@@ -417,7 +417,7 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
                 result.setGenotypeContribution( getDoubleField(fields[i++]) );
                 result.setGenotypeEstimate( getStringField(fields[i++]) );
                 result.setGenotypeStandardError( getDoubleField(fields[i++]) );
-                result.setGenotypePVal( getDoubleField(fields[i++]) );
+                result.setGenotypePVal( getStringField(fields[i++]) );
                 result.setGenotypePercentageChange( getStringField(fields[i++]) );
                 result.setSexEstimate( getDoubleField(fields[i++]) );
                 result.setSexStandardError( getDoubleField(fields[i++]) );
@@ -564,21 +564,23 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
         if (data.getStatisticalMethod().contains("Fisher Exact Test framework")) {
 
             Double effectSize = getDoubleField(data.getGenotypeEstimate());
+            Double pValue = getDoubleField(data.getGenotypePVal());
 
             // Categorical result
             result = new LightweightCategoricalResult();
             ((LightweightCategoricalResult)result).setCategoryA("normal");
-            ((LightweightCategoricalResult) result).setpValue(data.getGenotypePVal());
+            ((LightweightCategoricalResult) result).setpValue( pValue );
             ((LightweightCategoricalResult) result).setEffectSize( effectSize );
 
             StatisticalResultCategorical temp = new StatisticalResultCategorical();
-            temp.setpValue(data.getGenotypePVal());
+            temp.setpValue( pValue );
             temp.setEffectSize( effectSize );
             statsResult = temp;
 
         } else if (data.getStatisticalMethod().contains("Mixed Model framework")) {
 
             Double effectSize = getDoubleField(data.getGenotypeEstimate());
+            Double pValue = getDoubleField(data.getGenotypePVal());
 
             // Unidimensional result
             result = new LightweightUnidimensionalResult();
@@ -594,7 +596,7 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
             temp.setNullTestSignificance(data.getGenotypeContribution());
             temp.setGenotypeParameterEstimate( effectSize );
             temp.setGenotypeStandardErrorEstimate(data.getGenotypeStandardError());
-            temp.setGenotypeEffectPValue(data.getGenotypePVal());
+            temp.setGenotypeEffectPValue( pValue );
             temp.setGenotypePercentageChange(data.getGenotypePercentageChange());
             temp.setGenderParameterEstimate(data.getSexEstimate());
             temp.setGenderStandardErrorEstimate(data.getSexStandardError());
@@ -636,7 +638,7 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
             temp.setNullTestSignificance(data.getGenotypeContribution());
             temp.setGenotypeParameterEstimate(data.getGenotypeEstimate());
             temp.setGenotypeStandardErrorEstimate(data.getGenotypeStandardError());
-            temp.setGenotypeEffectPValue(data.getGenotypePVal() != null ? data.getGenotypePVal().toString() : null);
+            temp.setGenotypeEffectPValue(data.getGenotypePVal());
             temp.setGenotypePercentageChange(data.getGenotypePercentageChange());
             temp.setGenderParameterEstimate(data.getSexEstimate() != null ? data.getSexEstimate().toString() : null);
             temp.setGenderStandardErrorEstimate(data.getSexStandardError());

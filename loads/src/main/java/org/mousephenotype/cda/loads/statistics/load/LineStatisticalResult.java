@@ -38,7 +38,7 @@ public class LineStatisticalResult {
     private Double genotypeContribution;
     private String genotypeEstimate;
     private Double genotypeStandardError;
-    private Double genotypePVal;
+    private String genotypePVal;
     private String genotypePercentageChange;
     private Double sexEstimate;
     private Double sexStandardError;
@@ -306,11 +306,11 @@ public class LineStatisticalResult {
         this.genotypeStandardError = genotypeStandardError;
     }
 
-    public Double getGenotypePVal() {
+    public String getGenotypePVal() {
         return genotypePVal;
     }
 
-    public void setGenotypePVal(Double genotypePVal) {
+    public void setGenotypePVal(String genotypePVal) {
         this.genotypePVal = genotypePVal;
     }
 
