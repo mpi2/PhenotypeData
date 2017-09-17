@@ -204,13 +204,17 @@ public class StatisticalResultReferenceRangePlus implements StatisticalResult, S
 
 		String effectString = this.getGenotypeParameterEstimate();
 
-		if (null != sex) {
+		if (null != sex && ( (sex==SexType.female && this.getGenderFemaleKoEstimate()!=null) || (sex==SexType.male && this.getGenderMaleKoEstimate()!=null)) ) {
 			switch (sex) {
 				case female:
 					effectString = this.getGenderFemaleKoEstimate();
 					break;
 				case male:
 					effectString = this.getGenderMaleKoEstimate();
+					break;
+				default:
+					effectString = this.getGenotypeParameterEstimate();
+					break;
 			}
 		}
 

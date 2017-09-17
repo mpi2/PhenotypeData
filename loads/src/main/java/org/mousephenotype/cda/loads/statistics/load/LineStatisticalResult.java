@@ -36,7 +36,7 @@ public class LineStatisticalResult {
     private Boolean batchIncluded;
     private Boolean residualVariancesHomogeneity;
     private Double genotypeContribution;
-    private Double genotypeEstimate;
+    private String genotypeEstimate;
     private Double genotypeStandardError;
     private Double genotypePVal;
     private String genotypePercentageChange;
@@ -290,11 +290,11 @@ public class LineStatisticalResult {
         this.genotypeContribution = genotypeContribution;
     }
 
-    public Double getGenotypeEstimate() {
+    public String getGenotypeEstimate() {
         return genotypeEstimate;
     }
 
-    public void setGenotypeEstimate(Double genotypeEstimate) {
+    public void setGenotypeEstimate(String genotypeEstimate) {
         this.genotypeEstimate = genotypeEstimate;
     }
 

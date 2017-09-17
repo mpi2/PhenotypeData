@@ -415,7 +415,7 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
                 result.setBatchIncluded( getBooleanField(fields[i++]) );
                 result.setResidualVariancesHomogeneity( getBooleanField(fields[i++]) );
                 result.setGenotypeContribution( getDoubleField(fields[i++]) );
-                result.setGenotypeEstimate( getDoubleField(fields[i++]) );
+                result.setGenotypeEstimate( getStringField(fields[i++]) );
                 result.setGenotypeStandardError( getDoubleField(fields[i++]) );
                 result.setGenotypePVal( getDoubleField(fields[i++]) );
                 result.setGenotypePercentageChange( getStringField(fields[i++]) );
@@ -563,18 +563,22 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
 
         if (data.getStatisticalMethod().contains("Fisher Exact Test framework")) {
 
+            Double effectSize = getDoubleField(data.getGenotypeEstimate());
+
             // Categorical result
             result = new LightweightCategoricalResult();
             ((LightweightCategoricalResult)result).setCategoryA("normal");
             ((LightweightCategoricalResult) result).setpValue(data.getGenotypePVal());
-            ((LightweightCategoricalResult) result).setEffectSize(data.getGenotypeEstimate());
+            ((LightweightCategoricalResult) result).setEffectSize( effectSize );
 
             StatisticalResultCategorical temp = new StatisticalResultCategorical();
             temp.setpValue(data.getGenotypePVal());
-            temp.setEffectSize(data.getGenotypeEstimate());
+            temp.setEffectSize( effectSize );
             statsResult = temp;
 
         } else if (data.getStatisticalMethod().contains("Mixed Model framework")) {
+
+            Double effectSize = getDoubleField(data.getGenotypeEstimate());
 
             // Unidimensional result
             result = new LightweightUnidimensionalResult();
@@ -588,7 +592,7 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
             temp.setBatchSignificance(data.getBatchIncluded());
             temp.setVarianceSignificance(data.getResidualVariancesHomogeneity());
             temp.setNullTestSignificance(data.getGenotypeContribution());
-            temp.setGenotypeParameterEstimate(data.getGenotypeEstimate());
+            temp.setGenotypeParameterEstimate( effectSize );
             temp.setGenotypeStandardErrorEstimate(data.getGenotypeStandardError());
             temp.setGenotypeEffectPValue(data.getGenotypePVal());
             temp.setGenotypePercentageChange(data.getGenotypePercentageChange());
@@ -630,7 +634,7 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
             temp.setBatchSignificance(data.getBatchIncluded());
             temp.setVarianceSignificance(data.getResidualVariancesHomogeneity());
             temp.setNullTestSignificance(data.getGenotypeContribution());
-            temp.setGenotypeParameterEstimate(data.getGenotypeEstimate() != null ? data.getGenotypeEstimate().toString() : null);
+            temp.setGenotypeParameterEstimate(data.getGenotypeEstimate());
             temp.setGenotypeStandardErrorEstimate(data.getGenotypeStandardError());
             temp.setGenotypeEffectPValue(data.getGenotypePVal() != null ? data.getGenotypePVal().toString() : null);
             temp.setGenotypePercentageChange(data.getGenotypePercentageChange());
