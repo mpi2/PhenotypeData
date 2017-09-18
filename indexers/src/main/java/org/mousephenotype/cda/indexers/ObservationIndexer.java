@@ -398,7 +398,15 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 				} else {
 					// Specimen level data
 
+
 					BiologicalDataBean b = biologicalData.get(bioSampleId);
+
+					if (b == null) {
+						runStatus.addError(
+								" Cannot find biological data for experiment " + r.getString("experiment_id"));
+						continue;
+					}
+
 					o.setBiologicalModelId(b.biologicalModelId);
 					o.setGeneAccession(b.geneAcc);
 					o.setGeneSymbol(b.geneSymbol);
@@ -415,7 +423,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 					o.setZygosity(b.zygosity);
 					o.setDateOfBirth(b.dateOfBirth);
 					if(b.dateOfBirth!=null && dateOfExperiment !=null ){
-						
+
 						Instant dob=b.dateOfBirth.toInstant();
 						Instant expDate=dateOfExperiment.toInstant();
 						int ageInDays = (int) Duration.between(dob, expDate).toDays();

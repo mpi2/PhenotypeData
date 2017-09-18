@@ -55,17 +55,19 @@ public class StatisticalResultReferenceRangePlus implements StatisticalResult, S
 	 * Prepare the statement to insert this result into the database
 	 *
 	 * @param connection connection object to use to save the result
-	 * @param result the base result object to populate the common parameters
+	 * @param generalResult the base result object to populate the common parameters
 	 * @throws SQLException
 	 */
-	public PreparedStatement getSaveResultStatement(Connection connection, LightweightUnidimensionalResult result) throws SQLException {
+	public PreparedStatement getSaveResultStatement(Connection connection, LightweightResult generalResult) throws SQLException {
+
+		LightweightUnidimensionalResult result = (LightweightUnidimensionalResult) generalResult;
 
 		PreparedStatement s = connection.prepareStatement(insertStatement);
 		int i = 1;
 
 		SqlUtils.setSqlParameter(s, result.getControlId(), i++);
 		SqlUtils.setSqlParameter(s, result.getExperimentalId(), i++);
-		SqlUtils.setSqlParameter(s, result.getExperimentalZygosity(), i++);
+		SqlUtils.setSqlParameter(s, result.getZygosity(), i++);
 		SqlUtils.setSqlParameter(s, result.getColonyId(), i++);
 
 		SqlUtils.setSqlParameter(s, result.getDataSourceId(), i++);
@@ -148,13 +150,17 @@ public class StatisticalResultReferenceRangePlus implements StatisticalResult, S
 
 		String pvalueString = this.getGenotypeEffectPValue();
 
-		if (null != sex) {
+		if (null != sex && ( (sex==SexType.female && this.getGenderFemaleKoPValue()!=null) || (sex==SexType.male && this.getGenderMaleKoPValue()!=null)) ) {
 			switch (sex) {
 				case female:
 					pvalueString = this.getGenderFemaleKoPValue();
 					break;
 				case male:
 					pvalueString = this.getGenderMaleKoPValue();
+					break;
+				default:
+					pvalueString = this.getGenotypeEffectPValue();
+					break;
 			}
 		}
 
@@ -202,13 +208,17 @@ public class StatisticalResultReferenceRangePlus implements StatisticalResult, S
 
 		String effectString = this.getGenotypeParameterEstimate();
 
-		if (null != sex) {
+		if (null != sex && ( (sex==SexType.female && this.getGenderFemaleKoEstimate()!=null) || (sex==SexType.male && this.getGenderMaleKoEstimate()!=null)) ) {
 			switch (sex) {
 				case female:
 					effectString = this.getGenderFemaleKoEstimate();
 					break;
 				case male:
 					effectString = this.getGenderMaleKoEstimate();
+					break;
+				default:
+					effectString = this.getGenotypeParameterEstimate();
+					break;
 			}
 		}
 
