@@ -20,7 +20,6 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.mousephenotype.cda.db.pojo.DatasourceEntityId;
 import org.mousephenotype.cda.db.pojo.OntologyTerm;
 import org.mousephenotype.cda.db.pojo.Strain;
-import org.mousephenotype.cda.db.pojo.Synonym;
 import org.mousephenotype.cda.enumerations.DbIdType;
 import org.mousephenotype.cda.loads.common.CdaSqlUtils;
 import org.mousephenotype.cda.loads.exceptions.DataLoadException;
@@ -45,11 +44,6 @@ public class StrainMapper {
 
     public static final Map<String, String> STRAIN_MAPPING     = new HashMap<>();
     public static final Map<String, String> BACKGROUND_MAPPING = new HashMap<>();
-
-    public Map<String, Strain> strainsByName = new HashMap<>();
-    public Map<String, Strain> strainsBySynonymSymbol = new HashMap<>();
-    public Map<String, Strain> strainsByAccessionId = new HashMap<>();
-
 
     private OntologyTerm uncharacterizedBackgroundStrain;
 
@@ -121,16 +115,10 @@ public class StrainMapper {
     private void initialise() throws DataLoadException {
         uncharacterizedBackgroundStrain = cdaSqlUtils.getOntologyTermByName("IMPC uncharacterized background strain");
 
-        this.strainsByAccessionId = cdaSqlUtils.getStrainsByNameOrMgiAccessionId();
-        for (Strain strain : strainsByAccessionId.values()) {
-            strainsByName.put(strain.getName(), strain);
-            if (strain.getSynonyms() != null) {
-                for (Synonym synonym : strain.getSynonyms()) {
-                    strainsBySynonymSymbol.put(synonym.getSymbol(), strain);
-                }
-            }
-        }
     }
+
+
+
 
     public String createAllelicComposition(String sampleZygosity, String alleleSymbol, String geneSymbol, String sampleGroup) {
 
@@ -211,37 +199,34 @@ public class StrainMapper {
             throw new DataLoadException("Unknown genetic background. No background strain supplied.");
         }
 
-        Strain strain = lookupBackgroundStrain(backgroundStrainName);
-        if (strain != null) {
-            strains.add(strain);
+        Strain strain;
+
+        // The correct background strain is still not found. Remap against known backgrounds.
+        if (backgroundStrainName.contains("_")) {
+            intermediateBackgrounds = backgroundStrainName.split("_");
+        } else if (backgroundStrainName.contains(";")) {
+            intermediateBackgrounds = backgroundStrainName.split(";");
+        } else if (backgroundStrainName.equals("Balb/c.129S2")) {
+            intermediateBackgrounds = "BALB/c;129S2/SvPas".split(";");
+        } else if (backgroundStrainName.equals("B6N.129S2.B6J") || backgroundStrainName.equals("B6J.129S2.B6N") || backgroundStrainName.equals("B6N.B6J.129S2")) {
+            intermediateBackgrounds = "C57BL/6N;129S2/SvPas;C57BL/6J".split(";");
+        } else if (backgroundStrainName.equals("B6J.B6N")) {
+            intermediateBackgrounds = "C57BL/6J;C57BL/6N".split(";");
         } else {
-
-            // The correct background strain is still not found. Remap against known backgrounds.
-            if (backgroundStrainName.contains("_")) {
-                intermediateBackgrounds = backgroundStrainName.split("_");
-            } else if (backgroundStrainName.contains(";")) {
-                intermediateBackgrounds = backgroundStrainName.split(";");
-            } else if (backgroundStrainName.equals("Balb/c.129S2")) {
-                intermediateBackgrounds = "BALB/c;129S2/SvPas".split(";");
-            } else if (backgroundStrainName.equals("B6N.129S2.B6J") || backgroundStrainName.equals("B6J.129S2.B6N") || backgroundStrainName.equals("B6N.B6J.129S2")) {
-                intermediateBackgrounds = "C57BL/6N;129S2/SvPas;C57BL/6J".split(";");
-            } else if (backgroundStrainName.equals("B6J.B6N")) {
-                intermediateBackgrounds = "C57BL/6J;C57BL/6N".split(";");
-            } else {
-                intermediateBackgrounds = new String[1];
-                intermediateBackgrounds[0] = backgroundStrainName;
-            }
-
-            // Iterate through the intermediate background pieces to find appropriate strains
-            for (String intermediateBackground : intermediateBackgrounds) {
-                strain = lookupBackgroundStrain(intermediateBackground);
-                if (strain == null) {
-                    strain = createBackgroundStrain(intermediateBackground);
-                    cdaSqlUtils.insertStrain(strain);
-                }
-                strains.add(strain);
-            }
+            intermediateBackgrounds = new String[1];
+            intermediateBackgrounds[0] = backgroundStrainName;
         }
+
+        // Iterate through the intermediate background pieces to find appropriate strains
+        for (String intermediateBackground : intermediateBackgrounds) {
+            strain = lookupBackgroundStrain(intermediateBackground);
+            if (strain == null) {
+                strain = createBackgroundStrain(intermediateBackground);
+                cdaSqlUtils.insertStrain(strain);
+            }
+            strains.add(strain);
+        }
+
 
         if (strains.isEmpty()) {
             throw new DataLoadException("Unknown genetic background. Strains not found for background " + backgroundStrainName);
@@ -279,13 +264,7 @@ public class StrainMapper {
 
         // Use the background strain name as: strain name, then synonym, then accession id to find the strain.
         // If it is not found, return null.
-        strain = strainsByName.get(backgroundStrainName);
-        if (strain == null) {
-            strain = strainsBySynonymSymbol.get(backgroundStrainName);
-            if (strain == null) {
-                strain = strainsByAccessionId.get(backgroundStrainName);
-            }
-        }
+        strain = cdaSqlUtils.getStrainByNameOrMgiAccessionIdOrSynonym(backgroundStrainName);
 
         return strain;
     }
@@ -300,7 +279,7 @@ public class StrainMapper {
      * @return  a {link Strain} instance, based on available information. This instance probably does not already exist
      * in the database.
      */
-    private Strain createBackgroundStrain(String backgroundStrainName) {
+    public Strain createBackgroundStrain(String backgroundStrainName) {
         Strain strain;
 
         if (backgroundStrainName == null) {

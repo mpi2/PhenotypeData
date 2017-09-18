@@ -184,13 +184,12 @@ public class SampleLoader implements Step, Tasklet, InitializingBean {
         Map<String, Integer>   counts;
 
         for (SpecimenExtended specimenExtended : specimens) {
+
             Specimen specimen = specimenExtended.getSpecimen();
             String sampleGroup = (specimen.isIsBaseline()) ? "control" : "experimental";
             boolean isControl = (sampleGroup.equals("control"));
 
-
             // NOTE: control specimens don't have unique colony ids, so don't use iMits as they won't be found.
-
 
             if (isControl) {
                 counts = insertSampleControlSpecimen(specimenExtended);
@@ -385,7 +384,7 @@ public class SampleLoader implements Step, Tasklet, InitializingBean {
 
         // specimen.strainId can contain an MGI strain accession id in the form "MGI:", or a strain name like C57BL/6N.
         if (specimen.getStrainID().toLowerCase().startsWith("mgi:")) {
-            backgroundStrain = cdaSqlUtils.getStrainByNameOrMgiAccessionId(specimen.getStrainID());
+            backgroundStrain = cdaSqlUtils.getStrainByNameOrMgiAccessionIdOrSynonym(specimen.getStrainID());
             if (backgroundStrain == null) {
                 throw new DataLoadException("No strain table entry found for strain accession id '" + specimen.getStrainID() + "'");
             }
@@ -396,10 +395,12 @@ public class SampleLoader implements Step, Tasklet, InitializingBean {
         }
 
         try {
-            backgroundStrainName = strainMapper.parseMultipleBackgroundStrainNames(backgroundStrainName);
-            backgroundStrain = cdaSqlUtils.getStrainByNameOrMgiAccessionId(backgroundStrainName);
+
+            backgroundStrain = cdaSqlUtils.getStrainByNameOrMgiAccessionIdOrSynonym(backgroundStrainName);
+
             if (backgroundStrain == null) {
-                backgroundStrain = cdaSqlUtils.createAndInsertStrain(backgroundStrainName);
+                backgroundStrain = strainMapper.createBackgroundStrain(backgroundStrainName);
+                cdaSqlUtils.insertStrain(backgroundStrain);
             }
 
         } catch (DataLoadException e) {
@@ -465,7 +466,7 @@ public class SampleLoader implements Step, Tasklet, InitializingBean {
         allelicComposition = "";
         zygosity = ZygosityType.homozygote.getName();
         backgroundStrain = getBackgroundStrain(specimen);
-        geneticBackground = backgroundStrain.getGeneticBackground();
+        geneticBackground = strainMapper.parseMultipleBackgroundStrainNames(backgroundStrain.getName());
 
         externalId = specimen.getSpecimenID();
         sampleType = (specimen instanceof Mouse ? sampleTypePostnatalMouse : sampleTypeMouseEmbryoStage);
