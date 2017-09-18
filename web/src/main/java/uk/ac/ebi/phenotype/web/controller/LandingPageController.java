@@ -105,6 +105,13 @@ public class LandingPageController {
             vision.setDescription("This page aims to relate vision to phenotypes which have been produced by IMPC.");
             vision.setLink("biological-system/vision");
             bsPages.add(vision);
+            
+            LandingPageDTO metabolism = new LandingPageDTO();
+            metabolism.setTitle("Metabolism");
+            metabolism.setImage(baseUrl + "/img/landing/deafnessIcon.png");
+            metabolism.setDescription("This page aims to relate metabolism to phenotypes which have been produced by IMPC.");
+            metabolism.setLink("biological-system/metabolism");
+            bsPages.add(metabolism);
         }
 
         model.addAttribute("pages", bsPages);
@@ -165,11 +172,12 @@ public class LandingPageController {
           anatomyIds.add("EMAPA:36003");
           anatomyIds.add("MA:0002444");
           pageTitle = "Vision";
-      }
-//        } else if (page.equalsIgnoreCase("metabolism")) {
-//            mpDTO = mpService.getPhenotype("MP:0005376");
-//            pageTitle = "Metabolism";
-//        } else if (page.equalsIgnoreCase("vision")) {
+        }
+          else if (page.equalsIgnoreCase("metabolism")) {
+            mpDTO = mpService.getPhenotype("MP:0005376");
+            pageTitle = "Metabolism";
+        } 
+        //else if (page.equalsIgnoreCase("vision")) {
 //            mpDTO = mpService.getPhenotype("MP:0005391");
 //            anatomyIds.add("EMAPA:36003");
 //            anatomyIds.add("MA:0002444");
