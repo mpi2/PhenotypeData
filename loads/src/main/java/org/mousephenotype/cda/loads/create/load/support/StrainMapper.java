@@ -250,7 +250,7 @@ public class StrainMapper {
      *
      * @return a {link Strain} instance, if found; null otherwise
      */
-    private Strain lookupBackgroundStrain(String backgroundStrainName) {
+    public Strain lookupBackgroundStrain(String backgroundStrainName) {
         Strain strain;
 
         if (backgroundStrainName == null) {

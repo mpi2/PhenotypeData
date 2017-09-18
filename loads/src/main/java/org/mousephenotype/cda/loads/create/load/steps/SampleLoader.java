@@ -382,16 +382,20 @@ public class SampleLoader implements Step, Tasklet, InitializingBean {
         String backgroundStrainName;
         String message;
 
+        String lookedupStrainName = (strainMapper.lookupBackgroundStrain(specimen.getStrainID())!=null)
+                ? strainMapper.lookupBackgroundStrain(specimen.getStrainID()).getName()
+                : specimen.getStrainID();
+
         // specimen.strainId can contain an MGI strain accession id in the form "MGI:", or a strain name like C57BL/6N.
         if (specimen.getStrainID().toLowerCase().startsWith("mgi:")) {
-            backgroundStrain = cdaSqlUtils.getStrainByNameOrMgiAccessionIdOrSynonym(specimen.getStrainID());
+            backgroundStrain = cdaSqlUtils.getStrainByNameOrMgiAccessionIdOrSynonym(lookedupStrainName);
             if (backgroundStrain == null) {
-                throw new DataLoadException("No strain table entry found for strain accession id '" + specimen.getStrainID() + "'");
+                throw new DataLoadException("No strain table entry found for strain accession id '" + specimen.getStrainID() + "' ("+lookedupStrainName+")");
             }
-            backgroundStrainName = backgroundStrain.getName();
+            backgroundStrainName = lookedupStrainName;
 
         } else {
-                backgroundStrainName = specimen.getStrainID();
+                backgroundStrainName = lookedupStrainName;
         }
 
         try {

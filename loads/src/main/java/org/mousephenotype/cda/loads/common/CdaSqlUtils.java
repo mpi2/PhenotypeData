@@ -39,7 +39,6 @@ import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
-import sun.jvm.hotspot.utilities.Assert;
 
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
@@ -92,8 +91,6 @@ public class CdaSqlUtils {
 
     @Inject
     public CdaSqlUtils(NamedParameterJdbcTemplate jdbcCda) {
-
-        Assert.that(jdbcCda!=null, "jdbcCda cannot be null");
         this.jdbcCda = jdbcCda;
     }
 
@@ -659,6 +656,12 @@ public class CdaSqlUtils {
                     count = jdbcCda.update(bioModelStrainInsert, parameterMap);
                     countsMap.put("bioModelStrains", countsMap.get("bioModelStrains") + count);
 
+                    List<Strain> strainList = jdbcCda.query("SELECT * FROM strain WHERE acc=:strain_acc", parameterMap, new StrainRowMapper());
+
+                    if (strainList.isEmpty()) {
+                        logger.warn("Biomodel " + bioModel.getAllelicComposition()+ " biological_model_strain was inserted but no corresponding strain was found: " + strainAccessionId);
+                    }
+
                 } catch (DuplicateKeyException e) {
 
                     logger.warn("Duplicate biological_model_strain entry: {}. biological model not added.", bioModels);
@@ -745,6 +748,12 @@ public class CdaSqlUtils {
             parameterMap.put("strain_db_id", strainId.getDatabaseId());
 
             count = jdbcCda.update(insert, parameterMap);
+
+            List<Strain> strainList = jdbcCda.query("SELECT * FROM strain WHERE acc=:strain_acc", parameterMap, new StrainRowMapper());
+
+            if (strainList.isEmpty()) {
+                logger.warn("Biomodel ID " + biologicalModelId + " biological_model_strain was inserted but no corresponding strain was found: " + strainId.getAccession());
+            }
 
         } catch (DuplicateKeyException e) {
 
@@ -3129,7 +3138,13 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
         if ((backgroundStrainName == null) || backgroundStrainName.trim().isEmpty()) {
             throw new DataLoadException("parseMultipleBackgroundStrainNames returned null/empty backgroundStrainName for colony " + colony.getColonyName(), DataLoadException.DETAIL.NO_BACKGROUND_STRAIN);
         }
-        backgroundStrain = getStrainByNameOrMgiAccessionIdOrSynonym(colony.getBackgroundStrain());
+
+        //
+        String lookedupStrainName = (strainMapper.lookupBackgroundStrain(colony.getBackgroundStrain())!=null)
+                ? strainMapper.lookupBackgroundStrain(colony.getBackgroundStrain()).getName()
+                : colony.getBackgroundStrain();
+
+        backgroundStrain = getStrainByNameOrMgiAccessionIdOrSynonym(lookedupStrainName);
 
         // Create the strain if it doesn't exist
         if (backgroundStrain == null) {
