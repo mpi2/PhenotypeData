@@ -72,7 +72,8 @@ public class AdvancedSearchServiceTest {
 
         //String mpTerm = "cardiovascular system phenotype";
         //String mpTerm = "abnormal glucose homeostasis";
-        String mpTerm = "abnormal retina morphology";
+        //String mpTerm = "abnormal retina morphology";
+        String mpTerm = "abnormal coat/hair pigmentation";
 
         //AdvancedSearchMpRow mpRow = new AdvancedSearchMpRow("abnormal glucose homeostasis", 0.00001, 0.0001);
         AdvancedSearchMpRow mpRow = new AdvancedSearchMpRow(mpTerm, null, null);
@@ -203,10 +204,11 @@ public class AdvancedSearchServiceTest {
     @Test
     public void testMarkerSymbolsInGPAndStatisticalResultCoreWithMp() throws IOException, SolrServerException {
 
-        String mpTerm = "cardiovascular system phenotype";
+        //String mpTerm = "cardiovascular system phenotype";
         //String mpTerm = "abnormal glucose homeostasis";
         //String mpTerm = "abnormal retina morphology";
         //String mpTerm = "rib fusion";
+        String mpTerm = "abnormal coat/hair pigmentation";
 
         // get result from SOLR
         SolrQuery query = new SolrQuery();
