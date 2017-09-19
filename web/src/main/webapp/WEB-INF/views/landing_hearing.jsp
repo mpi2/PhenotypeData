@@ -88,7 +88,7 @@
                     <div class="node node-gene">
                         <h1 class="title" id="top">Hearing</h1>
 
-                        <c:import url="landing_overview_frag.jsp"/>
+                        <%-- <c:import url="landing_overview_frag.jsp"/> removed as requested by Mike author of hearing paper --%>
 
                         <div style="padding:30px;" class="clear both"></div>
 
