@@ -5,9 +5,11 @@ import joptsimple.OptionSet;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.lang3.ArrayUtils;
+import org.mousephenotype.cda.db.pojo.OntologyTerm;
 import org.mousephenotype.cda.enumerations.BatchClassification;
 import org.mousephenotype.cda.enumerations.ControlStrategy;
 import org.mousephenotype.cda.enumerations.SexType;
+import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.service.BasicService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,7 +24,6 @@ import javax.inject.Named;
 import javax.sql.DataSource;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -30,16 +31,15 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @SpringBootApplication
 @Import(value = {StatisticalResultLoaderConfig.class})
 public class StatisticalResultLoader extends BasicService implements CommandLineRunner {
 
-
-
     final private Logger logger = LoggerFactory.getLogger(getClass());
+
     final private DataSource komp2DataSource;
+    final private MpTermService mpTermService;
 
 
     Map<String, NameIdDTO> organisationMap = new HashMap<>();
@@ -50,7 +50,34 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
     Map<String, Integer> datasourceMap = new HashMap<>();
     Map<String, Integer> projectMap = new HashMap<>();
     Map<String, String> colonyAlleleMap = new HashMap<>();
+    Map<String, Map<ZygosityType, Integer>> bioModelMap = new HashMap<>();
 
+
+
+    void populateBioModelMap() throws SQLException {
+        Map<String, Map<ZygosityType, Integer>> map = bioModelMap;
+
+        String query = "SELECT DISTINCT colony_id, ls.zygosity, biological_model_id " +
+                "FROM live_sample ls " +
+                "INNER JOIN biological_sample bs ON ls.id=bs.id " +
+                "INNER JOIN biological_model_sample bms ON bms.biological_sample_id=ls.id " +
+                "INNER JOIN biological_model bm ON (bm.id=bms.biological_model_id AND bm.zygosity=ls.zygosity) " ;
+
+        try (Connection connection = komp2DataSource.getConnection(); PreparedStatement p = connection.prepareStatement(query)) {
+            ResultSet r = p.executeQuery();
+            while (r.next()) {
+
+                String colonyId = r.getString("colony_id");
+                ZygosityType zyg = ZygosityType.valueOf(r.getString("zygosity"));
+                Integer modelId = r.getInt("biological_model_id");
+
+                map.putIfAbsent(colonyId, new HashMap<>());
+                map.get(colonyId).put(zyg, modelId);
+            }
+        }
+
+        logger.info(" Mapped {} biological model entries", map.size());
+    }
 
     void populateColonyAlleleMap() throws SQLException {
         Map map = colonyAlleleMap;
@@ -176,9 +203,11 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
     private String fileLocation;
 
     @Inject
-    public StatisticalResultLoader(@Named("komp2DataSource") DataSource komp2DataSource) {
+    public StatisticalResultLoader(@Named("komp2DataSource") DataSource komp2DataSource, MpTermService mpTermService) {
         Assert.notNull(komp2DataSource, "Komp2 datasource cannot be null");
+        Assert.notNull(mpTermService, "mpTermService cannot be null");
         this.komp2DataSource = komp2DataSource;
+        this.mpTermService = mpTermService;
     }
 
 
@@ -309,7 +338,7 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
      * @param data a line from a statistical results file
      * @throws IOException
      */
-    LineStatisticalResult getResult(String data) {
+    LineStatisticalResult getResult(String data, String filename) {
 
         if (data.contains("metadata_group")) {
             // This is a header
@@ -320,7 +349,6 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
 
 
         // Several attributes come from the filename
-        String filename = Paths.get(fileLocation).getFileName().toString();
         filename =  filename.substring(0, filename.indexOf(".tsv"));
         List<String> fileMetaData = Arrays.asList(filename.trim().split("::"));
 
@@ -342,7 +370,7 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
 
         String dataSource = fileMetaData.get(0);
         String project    = fileMetaData.get(1);
-        String center     = fileMetaData.get(2);
+        String center     = fileMetaData.get(2).replaceAll("_", " ");
         String pipeline   = fileMetaData.get(3);
         String procedure  = fileMetaData.get(4);
         String strain     = fileMetaData.get(5);
@@ -391,7 +419,12 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
         result.setControlSelection( getStringField(fields[14]) );
         result.setWorkflow( getStringField(fields[15]) );
         result.setWeightAvailable( getStringField(fields[16]) );
-        result.setStatisticalMethod( getStringField(fields[17]) );
+
+        try {
+            result.setStatisticalMethod(getStringField(fields[17]));
+        } catch (ArrayIndexOutOfBoundsException e) {
+            result.setStatisticalMethod("-");
+        }
 
         // fields[18] is a duplicate of fields[3]
 
@@ -410,9 +443,9 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
                 result.setBatchIncluded( getBooleanField(fields[i++]) );
                 result.setResidualVariancesHomogeneity( getBooleanField(fields[i++]) );
                 result.setGenotypeContribution( getDoubleField(fields[i++]) );
-                result.setGenotypeEstimate( getDoubleField(fields[i++]) );
+                result.setGenotypeEstimate( getStringField(fields[i++]) );
                 result.setGenotypeStandardError( getDoubleField(fields[i++]) );
-                result.setGenotypePVal( getDoubleField(fields[i++]) );
+                result.setGenotypePVal( getStringField(fields[i++]) );
                 result.setGenotypePercentageChange( getStringField(fields[i++]) );
                 result.setSexEstimate( getDoubleField(fields[i++]) );
                 result.setSexStandardError( getDoubleField(fields[i++]) );
@@ -539,7 +572,7 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
      * @param data    The data result from a stats analysis
      * @return result object partially populated with basic information
      */
-    public LightweightUnidimensionalResult getBaseResult(LineStatisticalResult data) {
+    public LightweightResult getBaseResult(LineStatisticalResult data) {
 
         if (data == null) {
             return null;
@@ -549,96 +582,49 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
         NameIdDTO pipeline = pipelineMap.get(data.getPipeline());
         NameIdDTO procedure = procedureMap.get(data.getProcedure()); // Procedure group e.g. IMPC_CAL
         NameIdDTO parameter = parameterMap.get(data.getDependentVariable());
-        ControlStrategy strategy = ControlStrategy.valueOf(data.getControlSelection());
 
         // result contains a "statistical result" that has the
         // ability to produce a PreparedStatement ready for database insertion
-        LightweightUnidimensionalResult result = new LightweightUnidimensionalResult();
 
-        result.setMetadataGroup(data.getMetadataGroup());
-        result.setStatisticalMethod(data.getStatisticalMethod());
-
-        result.setDataSourceId(datasourceMap.get(data.getDataSourceName()));
-        result.setProjectId(projectMap.get(data.getProjectName()));
-
-        result.setOrganisationId(center.getDbId());
-        result.setOrganisationName(center.getName());
-
-        result.setPipelineId(pipeline.getDbId());
-        result.setPipelineStableId(pipeline.getStableId());
-
-        result.setProcedureId(procedure.getDbId());
-        result.setProcedureGroup(data.getProcedure());
-
-        result.setParameterId(parameter.getDbId());
-        result.setParameterStableId(parameter.getStableId());
-        result.setDependentVariable(parameter.getStableId());
-
-        result.setColonyId(data.getColonyId());
-        result.setStrain(data.getStrain());
-        result.setZygosity(data.getZygosity());
-
-        result.setExperimentalZygosity(data.getZygosity());
-
-        result.setControlSelectionMethod(strategy);
-
-        // TODO: Lookup from specimen?
-//        result.setControlId(data.getControlBiologicalModelId());
-//        result.setExperimentalId(data.getMutantBiologicalModelId());
-
-        // Lookup from colony ID
-        result.setAlleleAccessionId(colonyAlleleMap.get(data.getColonyId()));
-
-        result.setMaleControlCount(data.getCountControlMale());
-        result.setMaleMutantCount(data.getCountMutantMale());
-        result.setFemaleControlCount(data.getCountControlFemale());
-        result.setFemaleMutantCount(data.getCountMutantFemale());
-
-        result.setFemaleControlMean(data.getFemaleControlMean());
-        result.setFemaleExperimentalMean(data.getFemaleMutantMean());
-        result.setMaleControlMean(data.getMaleControlMean());
-        result.setMaleExperimentalMean(data.getMaleMutantMean());
-
-        Set<String> sexes = new HashSet<>();
-        if (data.getCountMutantMale()>3) {
-            sexes.add("male");
-        }
-        if (data.getCountMutantFemale()>3) {
-            sexes.add("female");
-        }
-
-        // Set the sex(es) of the result set
-        result.setSex(SexType.both.getName());
-        if (sexes.size() == 1) {
-            result.setSex(new ArrayList<String>(sexes).get(0));
-        }
-
-        BatchClassification batches = BatchClassification.valueOf(data.getWorkflow());
-        result.setWorkflow(batches);
-        result.setWeightAvailable(data.getWeightAvailable() != null && data.getWeightAvailable().equals("TRUE"));
-
-        result.setCalculationTimeNanos(0L);
-
-        StatisticalResult statsResult = null;
+        LightweightResult result;
+        StatisticalResult statsResult;
 
         if (data.getStatisticalMethod().contains("Fisher Exact Test framework")) {
 
+            Double effectSize = getDoubleField(data.getGenotypeEstimate());
+            Double pValue = getDoubleField(data.getGenotypePVal());
+
             // Categorical result
+            result = new LightweightCategoricalResult();
+            ((LightweightCategoricalResult)result).setCategoryA("normal");
+            ((LightweightCategoricalResult) result).setpValue( pValue );
+            ((LightweightCategoricalResult) result).setEffectSize( effectSize );
+
             StatisticalResultCategorical temp = new StatisticalResultCategorical();
-            temp.setpValue(data.getGenotypePVal());
-            temp.setEffectSize(data.getGenotypeEstimate());
+            temp.setpValue( pValue );
+            temp.setEffectSize( effectSize );
             statsResult = temp;
 
         } else if (data.getStatisticalMethod().contains("Mixed Model framework")) {
 
+            Double effectSize = getDoubleField(data.getGenotypeEstimate());
+            Double pValue = getDoubleField(data.getGenotypePVal());
+
             // Unidimensional result
+            result = new LightweightUnidimensionalResult();
+            ((LightweightUnidimensionalResult)result).setFemaleControlMean(data.getFemaleControlMean());
+            ((LightweightUnidimensionalResult)result).setFemaleExperimentalMean(data.getFemaleMutantMean());
+            ((LightweightUnidimensionalResult)result).setMaleControlMean(data.getMaleControlMean());
+            ((LightweightUnidimensionalResult)result).setMaleExperimentalMean(data.getMaleMutantMean());
+
+
             StatisticalResultMixedModel temp = new StatisticalResultMixedModel();
             temp.setBatchSignificance(data.getBatchIncluded());
             temp.setVarianceSignificance(data.getResidualVariancesHomogeneity());
             temp.setNullTestSignificance(data.getGenotypeContribution());
-            temp.setGenotypeParameterEstimate(data.getGenotypeEstimate());
+            temp.setGenotypeParameterEstimate( effectSize );
             temp.setGenotypeStandardErrorEstimate(data.getGenotypeStandardError());
-            temp.setGenotypeEffectPValue(data.getGenotypePVal());
+            temp.setGenotypeEffectPValue( pValue );
             temp.setGenotypePercentageChange(data.getGenotypePercentageChange());
             temp.setGenderParameterEstimate(data.getSexEstimate());
             temp.setGenderStandardErrorEstimate(data.getSexStandardError());
@@ -668,13 +654,19 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
         } else if (data.getStatisticalMethod().contains("Reference Ranges Plus framework")) {
 
             // Reference Range result
+            result = new LightweightUnidimensionalResult();
+            ((LightweightUnidimensionalResult)result).setFemaleControlMean(data.getFemaleControlMean());
+            ((LightweightUnidimensionalResult)result).setFemaleExperimentalMean(data.getFemaleMutantMean());
+            ((LightweightUnidimensionalResult)result).setMaleControlMean(data.getMaleControlMean());
+            ((LightweightUnidimensionalResult)result).setMaleExperimentalMean(data.getMaleMutantMean());
+
             StatisticalResultReferenceRangePlus temp = new StatisticalResultReferenceRangePlus();
             temp.setBatchSignificance(data.getBatchIncluded());
             temp.setVarianceSignificance(data.getResidualVariancesHomogeneity());
             temp.setNullTestSignificance(data.getGenotypeContribution());
-            temp.setGenotypeParameterEstimate(data.getGenotypeEstimate() != null ? data.getGenotypeEstimate().toString() : null);
+            temp.setGenotypeParameterEstimate(data.getGenotypeEstimate());
             temp.setGenotypeStandardErrorEstimate(data.getGenotypeStandardError());
-            temp.setGenotypeEffectPValue(data.getGenotypePVal() != null ? data.getGenotypePVal().toString() : null);
+            temp.setGenotypeEffectPValue(data.getGenotypePVal());
             temp.setGenotypePercentageChange(data.getGenotypePercentageChange());
             temp.setGenderParameterEstimate(data.getSexEstimate() != null ? data.getSexEstimate().toString() : null);
             temp.setGenderStandardErrorEstimate(data.getSexStandardError());
@@ -705,46 +697,198 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
         } else {
             // Unknown method or failed to process.
             if (StringUtils.isNotEmpty(data.getStatisticalMethod())) {
-                logger.warn("Unknown statistical method ", data.getStatisticalMethod());
+                logger.debug("Unknown statistical method '" + data.getStatisticalMethod() + "'");
             }
 
+            result = new LightweightUnidimensionalResult();
             StatisticalResultFailed temp = new StatisticalResultFailed();
             temp.setStatisticalMethod("Not processed");
             statsResult = temp;
         }
 
-
-
         result.setStatisticalResult(statsResult);
 
+
+        ControlStrategy strategy = ControlStrategy.NA;
+        try {
+            strategy = ControlStrategy.valueOf(data.getControlSelection());
+        } catch (IllegalArgumentException e) {
+            // It's ok, stats failed to process so control strat stays as NA
+        }
+
+        result.setMetadataGroup(data.getMetadataGroup());
+        result.setStatisticalMethod(data.getStatisticalMethod().isEmpty() ? "-" : data.getStatisticalMethod());
+
+        result.setDataSourceId(datasourceMap.get(data.getDataSourceName()));
+        result.setProjectId(projectMap.get(data.getProjectName()));
+
+        result.setOrganisationId(center.getDbId());
+        result.setOrganisationName(center.getName());
+
+        result.setPipelineId(pipeline.getDbId());
+        result.setPipelineStableId(pipeline.getStableId());
+
+        result.setProcedureId(procedure.getDbId());
+        result.setProcedureGroup(data.getProcedure());
+
+        result.setParameterId(parameter.getDbId());
+        result.setParameterStableId(parameter.getStableId());
+        result.setDependentVariable(parameter.getStableId());
+
+        result.setColonyId(data.getColonyId());
+        result.setStrain(data.getStrain());
+        result.setZygosity(data.getZygosity());
+
+        result.setZygosity(data.getZygosity());
+
+        result.setControlSelectionMethod(strategy);
+
+        // TODO: Lookup from colony and zygosity?
+//        result.setControlId(data.getControlBiologicalModelId());
+        Integer bioModelId = bioModelMap.get(data.getColonyId()).get(ZygosityType.valueOf(data.getZygosity()));
+        result.setExperimentalId(bioModelId);
+
+        // Lookup from colony ID
+        result.setAlleleAccessionId(colonyAlleleMap.get(data.getColonyId()));
+
+        result.setMaleControlCount(data.getCountControlMale());
+        result.setMaleMutantCount(data.getCountMutantMale());
+        result.setFemaleControlCount(data.getCountControlFemale());
+        result.setFemaleMutantCount(data.getCountMutantFemale());
+
+        Set<String> sexes = new HashSet<>();
+        if (data.getCountMutantMale()>3) {
+            sexes.add("male");
+        }
+        if (data.getCountMutantFemale()>3) {
+            sexes.add("female");
+        }
+
+        // Set the sex(es) of the result set
+        result.setSex(SexType.both.getName());
+        if (sexes.size() == 1) {
+            result.setSex(new ArrayList<>(sexes).get(0));
+        }
+
+        // Set workflow if it has been provided
+        if (Arrays.stream(BatchClassification.values())
+                .map(Enum::toString)
+                .collect(Collectors.toList())
+                .contains(data.getWorkflow())) {
+
+            BatchClassification batches = BatchClassification.valueOf(data.getWorkflow());
+            result.setWorkflow(batches);
+        } else  {
+            result.setWorkflow(null);
+        }
+
+        result.setWeightAvailable(data.getWeightAvailable() != null && data.getWeightAvailable().equals("TRUE"));
+
+        result.setCalculationTimeNanos(0L);
+
         result.setStatus(data.getStatus() + " - " + data.getCode());
+        setMpTerm(result);
 
         return result;
     }
 
+    /**
+     * Set the appropriate MP term(s) on the result object
+     * <p>
+     * Could set differnet terms for male and female
+     *
+     * @param result the result object to populate
+     * @throws SQLException
+     */
+    public void setMpTerm(LightweightResult result) {
+
+        ResultDTO resultWrapper = new ResultDTO(result);
+
+        try (Connection connection = komp2DataSource.getConnection()) {
+
+            String parameterId = result.getParameterStableId();
+
+            OntologyTerm mpTerm = mpTermService.getMPTerm(parameterId, resultWrapper, null, connection, 1.0f);
+
+            if (mpTerm != null) {
+                result.setMpAcc(mpTerm.getId().getAccession());
+
+            } else {
+
+                OntologyTerm femaleMpTerm = null;
+                OntologyTerm maleMpTerm = null;
+
+                if (resultWrapper.getFemaleEffectSize() != null) {
+                    femaleMpTerm = mpTermService.getMPTerm(parameterId, resultWrapper, SexType.female, connection, 1.0f);
+                }
+                if (resultWrapper.getMaleEffectSize() != null) {
+                    maleMpTerm = mpTermService.getMPTerm(parameterId, resultWrapper, SexType.male, connection, 1.0f);
+                }
+
+                if (femaleMpTerm != null && result instanceof LightweightUnidimensionalResult) {
+                    ((LightweightUnidimensionalResult) result).setFemaleMpAcc(femaleMpTerm.getId().getAccession());
+                }
+                if (maleMpTerm != null && result instanceof LightweightUnidimensionalResult) {
+                    ((LightweightUnidimensionalResult) result).setMaleMpAcc(maleMpTerm.getId().getAccession());
+                }
+
+                if (femaleMpTerm != null && maleMpTerm != null && maleMpTerm.equals(femaleMpTerm)) {
+
+                    // Both female and male terms are defined and the same
+                    result.setMpAcc(femaleMpTerm.getId().getAccession());
+
+                } else {
+
+                    // Sexual dimorphism, get the abnormal term for this parameter
+                    mpTerm = mpTermService.getAbnormalMPTerm(parameterId, resultWrapper, connection, 1.0f);
+
+                    if (mpTerm != null) {
+                        result.setMpAcc(mpTerm.getId().getAccession());
+                    }
+
+                }
+            }
+        } catch (SQLException e) {
+            logger.warn("Cannot retreive MP term for result", result);
+        }
+    }
 
     private void processFile(String loc) throws IOException {
 
-        for (String line : Files.readAllLines(Paths.get(loc))) {
+        try {
+            Map<String, Integer> counts = new HashMap<>();
 
-            LightweightUnidimensionalResult result = getBaseResult(getResult(line));
+            for (String line : Files.readAllLines(Paths.get(loc))) {
 
-            if (result == null) {
-                // Skipping record
-                continue;
+                LightweightResult result = getBaseResult(getResult(line, Paths.get(loc).getFileName().toString()));
+
+                if (result == null) {
+                    // Skipping record
+                    continue;
+                }
+
+                try (Connection connection = komp2DataSource.getConnection()) {
+
+                    PreparedStatement p = result.getSaveResultStatement(connection);
+                    p.executeUpdate();
+
+                    counts.put(result.getStatisticalMethod(), counts.getOrDefault(result.getStatisticalMethod(), 0) + 1);
+
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+
             }
 
-            try (Connection connection = komp2DataSource.getConnection()) {
-
-                PreparedStatement p = result.getSaveResultStatement(connection);
-                p.executeUpdate();
-
-
-            } catch (SQLException e) {
-                e.printStackTrace();
+            for(String method : counts.keySet()) {
+                logger.info("  ADDED " + counts.get(method) + " statistical results for method: " + method);
             }
 
+        } catch (Exception e) {
+          logger.error("Could not process file: " + loc, e);
         }
+
+
     }
 
     @Override
@@ -760,6 +904,7 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
         populateDatasourceMap();
         populateProjectMap();
         populateColonyAlleleMap();
+        populateBioModelMap();
 
 
         // parameter to indicate the location of the result file(s)
@@ -783,19 +928,22 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
 
         } else if (directory) {
 
-            // process all files in the directoy
-            try (Stream<Path> paths = Files.walk(Paths.get(fileLocation), 1)) {
-                for (Path path : paths.collect(Collectors.toList())) {
-                    if (path.endsWith("result")) {
-                        if ( ! Files.isRegularFile(path)) {
-                            logger.warn("File " + path + " is not a regular file");
-                            continue;
-                        }
-
-                        processFile(path.toString());
+            // process all regular files in the directory that end in "result" and have "tsv" in the filename
+            Files
+                .walk(Paths.get(fileLocation))
+                .filter(p -> p.toString().endsWith("result"))
+                .filter(p -> p.toString().contains(".tsv"))
+                .filter(p -> Files.isRegularFile(p.toAbsolutePath()))
+                .parallel()
+                .forEach(p -> {
+                    logger.info("Processing file: " + p.toAbsolutePath().toString());
+                    try {
+                        processFile(p.toAbsolutePath().toString());
+                    } catch (IOException e) {
+                        logger.warn("IO error proccessing file: " + p.toAbsolutePath().toString());
                     }
-                }
-            }
+                });
+
         } else {
             logger.warn("File " + fileLocation + " is not a regular file or a directory");
         }

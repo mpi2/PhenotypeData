@@ -9,6 +9,6 @@ import java.sql.SQLException;
  */
 public interface StatisticalResult {
 
-	PreparedStatement getSaveResultStatement(Connection connection, LightweightUnidimensionalResult result) throws SQLException;
+	PreparedStatement getSaveResultStatement(Connection connection, LightweightResult result) throws SQLException;
 
 }

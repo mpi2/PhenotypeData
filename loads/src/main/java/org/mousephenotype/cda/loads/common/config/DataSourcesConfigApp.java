@@ -70,10 +70,30 @@ public class DataSourcesConfigApp {
     String dccEurophenomeFinalUrl;
 
     @Value("${datasource.cdabase.username}")
-    String username;
+    String cdabaseUsername;
 
     @Value("${datasource.cdabase.password}")
-    String password;
+    String cdabasePassword;
+
+    @Value("${datasource.cda.username}")
+    String cdaUsername;
+
+    @Value("${datasource.cda.password}")
+    String cdaPassword;
+
+    @Value("${datasource.dccEurophenomeFinal.username}")
+    String europhenomeUsername;
+
+    @Value("${datasource.dccEurophenomeFinal.password}")
+    String europhenomePassword;
+
+    @Value("${datasource.dcc.username}")
+    String dccUsername;
+
+    @Value("${datasource.dcc.password}")
+    String dccPassword;
+
+
 
     @Bean(name = "cdabaseDataSource", destroyMethod = "close")
     public DataSource cdabaseDataSource() {
@@ -81,8 +101,8 @@ public class DataSourcesConfigApp {
         DataSource ds = DataSourceBuilder
                 .create()
                 .url(cdabaseUrl)
-                .username(username)
-                .password(password)
+                .username(cdabaseUsername)
+                .password(cdabasePassword)
                 .type(BasicDataSource.class)
                 .driverClassName("com.mysql.jdbc.Driver").build();
         ((BasicDataSource) ds).setInitialSize(4);
@@ -111,61 +131,12 @@ public class DataSourcesConfigApp {
         return sessionBuilder.buildSessionFactory();
     }
 
-// 2017-02-14 (mrelac) The data source below consistently causes a DataLoadException. Using the BasicDataSource above works, and it completes in 7 minutes, as opposed to over an hour!
-// DataLoadException: org.springframework.jdbc.CannotGetJdbcConnectionException: Could not get JDBC Connection; nested exception is com.mysql.jdbc.exceptions.jdbc4.MySQLNonTransientConnectionException: Could not create connection to database server. Attempted reconnect 3 times. Giving up.
-
-
-//    @Bean(name = "cdabaseDataSource")
-//    public DataSource cdabaseDataSource() {
-//
-//        DataSource ds = DataSourceBuilder
-//                .create()
-//                .url(cdabaseUrl)
-//                .username(username)
-//                .password(password)
-//                .type(DriverManagerDataSource.class)
-//                .driverClassName("com.mysql.jdbc.Driver").build();
-//
-//        try {
-//            logger.info("Using cdasource database {}", ds.getConnection().getCatalog());
-//
-//        } catch (Exception e) { }
-//
-//        return ds;
-//    }
 
     @Bean(name = "jdbcCdabase")
     public NamedParameterJdbcTemplate jdbcCdabase() {
         return new NamedParameterJdbcTemplate(cdabaseDataSource());
     }
 
-
-
-//    @Bean(name = "cdaDataSource", destroyMethod = "close")
-//    @Primary
-//    public DataSource cdaDataSource() {
-//
-//        DataSource ds = DataSourceBuilder
-//                .create()
-//                .url(cdaUrl)
-//                .username(username)
-//                .password(password)
-//                .type(BasicDataSource.class)
-//                .driverClassName("com.mysql.jdbc.Driver").build();
-//        ((BasicDataSource) ds).setInitialSize(4);
-//
-//
-//        ((BasicDataSource) ds).setLogAbandoned(false);
-//        ((BasicDataSource) ds).setRemoveAbandoned(false);
-//
-//
-//        try {
-//            logger.info("Using cda database {} with initial pool size {}", ds.getConnection().getCatalog(), ((BasicDataSource) ds).getInitialSize());
-//
-//        } catch (Exception e) { }
-//
-//        return ds;
-//    }
 
     @Bean(name = "cdaDataSource")
     @Primary
@@ -174,8 +145,8 @@ public class DataSourcesConfigApp {
         DataSource ds = DataSourceBuilder
                 .create()
                 .url(cdaUrl)
-                .username(username)
-                .password(password)
+                .username(cdaUsername)
+                .password(cdaPassword)
                 .type(DriverManagerDataSource.class)
                 .driverClassName("com.mysql.jdbc.Driver").build();
 
@@ -193,15 +164,14 @@ public class DataSourcesConfigApp {
     }
 
 
-
     @Bean(name = "dccDataSource", destroyMethod = "close")
     public DataSource dccDataSource() {
 
         DataSource ds = DataSourceBuilder
                 .create()
                 .url(dccUrl)
-                .username(username)
-                .password(password)
+                .username(dccUsername)
+                .password(dccPassword)
                 .type(BasicDataSource.class)
                 .driverClassName("com.mysql.jdbc.Driver").build();
 
@@ -218,68 +188,21 @@ public class DataSourcesConfigApp {
         return ds;
     }
 
-    // 2017-02-26 (mrelac) The data source below consistently causes a DataLoadException.
-    // DataLoadException: org.springframework.jdbc.CannotGetJdbcConnectionException: Could not get JDBC Connection; nested exception is com.mysql.jdbc.exceptions.jdbc4.MySQLNonTransientConnectionException: Could not create connection to database server. Attempted reconnect 3 times. Giving up.
-
-
-//    @Bean(name = "dccDataSource", destroyMethod = "close")
-//    @Bean(name = "dccDataSource")
-//    public DataSource dccDataSource() {
-//
-//        DataSource ds = DataSourceBuilder
-//                .create()
-//                .url(dccUrl)
-//                .username(username)
-//                .password(password)
-//                .type(DriverManagerDataSource.class)
-//                .driverClassName("com.mysql.jdbc.Driver").build();
-//
-//        try {
-//            logger.info("Using dcc database {}", ds.getConnection().getCatalog());
-//
-//        } catch (Exception e) { }
-//
-//        return ds;
-//    }
 
     @Bean(name = "jdbcDcc")
     public NamedParameterJdbcTemplate jdbcDcc() {
         return new NamedParameterJdbcTemplate(dccDataSource());
     }
 
-//    @Bean(name = "dccEurophenomeDataSource", destroyMethod = "close")
-//    public DataSource dccEurophenomeDataSource() {
-//
-//        DataSource ds = DataSourceBuilder
-//                .create()
-//                .url(dccEurophenomeFinalUrl)
-//                .username(username)
-//                .password(password)
-//                .type(BasicDataSource.class)
-//                .driverClassName("com.mysql.jdbc.Driver").build();
-//        ((BasicDataSource) ds).setInitialSize(4);
-//
-//
-//        ((BasicDataSource) ds).setLogAbandoned(false);
-//        ((BasicDataSource) ds).setRemoveAbandoned(false);
-//
-//        try {
-//            logger.info("Using dcc europhenome database {} with initial pool size {}", ds.getConnection().getCatalog(), ((BasicDataSource) ds).getInitialSize());
-//
-//        } catch (Exception e) { }
-//
-//        return ds;
-//    }
 
-//    @Bean(name = "dccEurophenomeDataSource", destroyMethod = "close")
     @Bean(name = "dccEurophenomeDataSource")
     public DataSource dccEurophenomeDataSource() {
 
         DataSource ds = DataSourceBuilder
                 .create()
                 .url(dccEurophenomeFinalUrl)
-                .username(username)
-                .password(password)
+                .username(europhenomeUsername)
+                .password(europhenomePassword)
                 .type(DriverManagerDataSource.class)
                 .driverClassName("com.mysql.jdbc.Driver").build();
 
