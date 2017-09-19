@@ -20,6 +20,10 @@ div.facetSrchMsg {
 	margin-top: 10px;
 	width: 75%;
 }
+a#sdoc {
+	text-decoration: underline;
+	color: rgb(9, 120, 161);
+}
 
 /* facet - general */
 .fblock                                 { position: relative; }
