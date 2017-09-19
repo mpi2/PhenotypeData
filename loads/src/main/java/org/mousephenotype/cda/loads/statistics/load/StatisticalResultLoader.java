@@ -9,6 +9,7 @@ import org.mousephenotype.cda.db.pojo.OntologyTerm;
 import org.mousephenotype.cda.enumerations.BatchClassification;
 import org.mousephenotype.cda.enumerations.ControlStrategy;
 import org.mousephenotype.cda.enumerations.SexType;
+import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.service.BasicService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,7 +50,34 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
     Map<String, Integer> datasourceMap = new HashMap<>();
     Map<String, Integer> projectMap = new HashMap<>();
     Map<String, String> colonyAlleleMap = new HashMap<>();
+    Map<String, Map<ZygosityType, Integer>> bioModelMap = new HashMap<>();
 
+
+
+    void populateBioModelMap() throws SQLException {
+        Map<String, Map<ZygosityType, Integer>> map = bioModelMap;
+
+        String query = "SELECT DISTINCT colony_id, ls.zygosity, biological_model_id " +
+                "FROM live_sample ls " +
+                "INNER JOIN biological_sample bs ON ls.id=bs.id " +
+                "INNER JOIN biological_model_sample bms ON bms.biological_sample_id=ls.id " +
+                "INNER JOIN biological_model bm ON (bm.id=bms.biological_model_id AND bm.zygosity=ls.zygosity) " ;
+
+        try (Connection connection = komp2DataSource.getConnection(); PreparedStatement p = connection.prepareStatement(query)) {
+            ResultSet r = p.executeQuery();
+            while (r.next()) {
+
+                String colonyId = r.getString("colony_id");
+                ZygosityType zyg = ZygosityType.valueOf(r.getString("zygosity"));
+                Integer modelId = r.getInt("biological_model_id");
+
+                map.putIfAbsent(colonyId, new HashMap<>());
+                map.get(colonyId).put(zyg, modelId);
+            }
+        }
+
+        logger.info(" Mapped {} biological model entries", map.size());
+    }
 
     void populateColonyAlleleMap() throws SQLException {
         Map map = colonyAlleleMap;
@@ -715,9 +743,10 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
 
         result.setControlSelectionMethod(strategy);
 
-        // TODO: Lookup from specimen?
+        // TODO: Lookup from colony and zygosity?
 //        result.setControlId(data.getControlBiologicalModelId());
-//        result.setExperimentalId(data.getMutantBiologicalModelId());
+        Integer bioModelId = bioModelMap.get(data.getColonyId()).get(ZygosityType.valueOf(data.getZygosity()));
+        result.setExperimentalId(bioModelId);
 
         // Lookup from colony ID
         result.setAlleleAccessionId(colonyAlleleMap.get(data.getColonyId()));
@@ -875,6 +904,7 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
         populateDatasourceMap();
         populateProjectMap();
         populateColonyAlleleMap();
+        populateBioModelMap();
 
 
         // parameter to indicate the location of the result file(s)

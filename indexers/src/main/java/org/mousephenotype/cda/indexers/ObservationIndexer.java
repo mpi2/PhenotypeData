@@ -350,7 +350,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 					BiologicalDataBean b = lineBiologicalData.get(r.getString("experiment_id"));
 					if (b == null) {
 						runStatus.addError(
-								" Cannot find biological data for experiment " + r.getString("experiment_id"));
+								" Cannot find biological data for line level experiment " + r.getString("experiment_id"));
 						continue;
 					}
 					o.setBiologicalModelId(b.biologicalModelId);
@@ -403,7 +403,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 
 					if (b == null) {
 						runStatus.addError(
-								" Cannot find biological data for experiment " + r.getString("experiment_id"));
+								" Cannot find biological data for Cannot find biological data for experiment " + r.getString("experiment_id"));
 						continue;
 					}
 
@@ -660,9 +660,9 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 				+ "(select distinct allele_acc from biological_model_allele bma WHERE bma.biological_model_id=bms.biological_model_id) as allele_accession, "
 				+ "(select distinct a.symbol from biological_model_allele bma INNER JOIN allele a on (a.acc=bma.allele_acc AND a.db_id=bma.allele_db_id) WHERE bma.biological_model_id=bms.biological_model_id)  as allele_symbol, "
 				+ "(select distinct gf_acc from biological_model_genomic_feature bmgf WHERE bmgf.biological_model_id=bms.biological_model_id) as acc, "
-				+ "(select distinct gf.symbol from biological_model_genomic_feature bmgf INNER JOIN genomic_feature gf on gf.acc=bmgf.gf_acc WHERE bmgf.biological_model_id=bms.biological_model_id)  as symbol ";
-
-		query += "FROM biological_sample bs " + "INNER JOIN organisation org ON bs.organisation_id=org.id "
+				+ "(select distinct gf.symbol from biological_model_genomic_feature bmgf INNER JOIN genomic_feature gf on gf.acc=bmgf.gf_acc WHERE bmgf.biological_model_id=bms.biological_model_id)  as symbol "
+				+ "FROM biological_sample bs "
+				+ "INNER JOIN organisation org ON bs.organisation_id=org.id "
 				+ "INNER JOIN live_sample ls ON bs.id=ls.id "
 				+ "INNER JOIN biological_model_sample bms ON bs.id=bms.biological_sample_id "
 				+ "INNER JOIN biological_model_strain bmstrain ON bmstrain.biological_model_id=bms.biological_model_id "
