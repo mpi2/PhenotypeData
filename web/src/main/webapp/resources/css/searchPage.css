@@ -24,6 +24,9 @@ a#sdoc {
 	text-decoration: underline;
 	color: rgb(9, 120, 161);
 }
+img {
+	margin-bottom: 20px;
+}
 
 /* facet - general */
 .fblock                                 { position: relative; }
