@@ -228,7 +228,7 @@ public class AbrChartAndTableProvider {
 				"  subtitle: {  useHTML: true,  text: '" + procedureLink + "'}, " +
 				"  plotOptions: { column: {\"clip\": false} }, " +
 				"  xAxis: {   categories: "  + categories + "},"+
-				"  yAxis: {   title: {    text: '" + unit + "'  }  },"+
+				"  yAxis: {   title: {    text: '" + unit + "'  }, min:0, max:120, tickInterval: 20 },"+
 				"  tooltip: {valueSuffix: ' " + unit + "', shared:true },"+
 				"  legend: { },"+
 				"  credits: { enabled: false },  " +

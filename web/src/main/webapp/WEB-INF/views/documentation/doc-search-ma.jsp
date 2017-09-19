@@ -31,8 +31,16 @@
             <td>This column shows the ontological term of a mouse anatomical tissue/organ with a linkout to the IMPC anatomy page</td>
           </tr>
           <tr>
-            <td>LacZ Expression Images</td>
+             <td>Stage</td>
+             <td>Either embry or adult</td>
+          </tr>
+          <tr>
+            <td>LacZ Expression Data</td>
             <td>This column indicates existence of expression images associated with this anatomy term</td>
+          </tr>
+          <tr>
+            <td>Ontology Tree</td>
+            <td>Shows the tissue/organ in the hierarchy of the Mouse Adult Gross Anatomy Ontology (MA)</td>
           </tr>
         </table>
    </body>

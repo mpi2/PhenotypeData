@@ -21,7 +21,7 @@ As both datatypes can be searched by similar interfaces, the document here refer
 <div>First, click on the "IMPC Images" datatype tab. It will show all images that IMPC knows about if no filters are ticked on the left panel.<br>
     You could enter a mouse anatomy ID/name or procedure name from IMPReSS into the main input box and/or click on a filter on the left panel to narrow down your result to relevant IMPC images.<br>
     IMPReSS contains standardized phenotyping protocols essential for the characterization of mouse phenotypes.<br><br>
-    <p>The screenshot below shows searching the IMPC Images datatype with the mouse anatomy term "trunk":<br>
+    <p>The screenshot below shows searching the IMPC Images datatype with the mouse anatomy term "eye":<br>
 </div><br>
 
 There are two ways to view images data: Annotation View and Image View.<br>
