@@ -1,9 +1,8 @@
 $(document).ready(function () {
 
 	var exampleSearch =
-
-		'<h3 id="samplesrch" id="briefDocCap">Example Searches</h3>'
-
+		'<h4><a id="sdoc" href="' + baseUrl + '/documentation/doc-search">Search page documentation</a></h4><br>'
+		+ '<h3 id="samplesrch" id="briefDocCap">Example Searches</h3>'
 		+ '<p>Sample queries for several fields are shown. Click the desired query to execute one of the samples.'
 		+ '</p>'
 		+ '<h5>Gene query examples</h5>'

@@ -9,7 +9,11 @@
 
 	<jsp:attribute name="header">
       <link href="${baseUrl}/css/impc-doc.css" rel="stylesheet" type="text/css" />
-      <style></style>
+      <style>
+        div#tabs > ul li a {
+          font-size: 14px;
+        }
+      </style>
 
 	</jsp:attribute>
 
@@ -29,6 +33,7 @@
         <li><a href="#tabs-4">Diseases Search</a></li>
         <li><a href="#tabs-5">Anatomy Search</a></li>
         <li><a href="#tabs-6">Images Search</a></li>
+        <li><a href="#tabs-7">Products Search</a></li>
 
       </ul>
 
@@ -51,7 +56,9 @@
       <div id="tabs-6" class="srchdocTab">
         <%@ include file="doc-search-images.jsp" %>
       </div>
-
+      <div id="tabs-7" class="srchdocTab">
+        <%@ include file="doc-search-products.jsp" %>
+      </div>
 
     </div>
 
