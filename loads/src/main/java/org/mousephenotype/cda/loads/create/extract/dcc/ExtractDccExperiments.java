@@ -62,8 +62,8 @@ public class ExtractDccExperiments implements CommandLineRunner {
 
     // These procedures are always meant to be skipped. Additional skipped parameters passed in on the command line are
     // appended to these.
-   	private Set<String> skipProcedures = new HashSet<>(Arrays.asList(
-   		"SLM_SLM", "SLM_AGS", "TRC_TRC", "DSS_DSS", "MGP_ANA", "MGP_BCI", "MGP_BMI", "MGP_EEI", "MGP_MLN", "MGP_PBI", "MGP_IMM"));
+   	private Set<String> skipProcedures = new HashSet<>(Arrays.asList("SLM_SLM", "SLM_AGS", "TRC_TRC", "DSS_DSS", "MGP_ANA", "MGP_BCI", "MGP_BMI", "MGP_EEI", "MGP_MLN", "MGP_PBI", "MGP_IMM"));
+   	private Set<String> skipThreeIProcedures = new HashSet<>(Arrays.asList("SLM_SLM", "SLM_AGS", "TRC_TRC", "DSS_DSS"));
 
     // Required by the Harwell DCC export utilities
     public static final String CONTEXT_PATH = "org.mousephenotype.dcc.exportlibrary.datastructure.core.common:org.mousephenotype.dcc.exportlibrary.datastructure.core.procedure:org.mousephenotype.dcc.exportlibrary.datastructure.core.specimen:org.mousephenotype.dcc.exportlibrary.datastructure.tracker.submission:org.mousephenotype.dcc.exportlibrary.datastructure.tracker.validation";
@@ -125,6 +125,11 @@ public class ExtractDccExperiments implements CommandLineRunner {
         }
         datasourceShortName = (String) options.valuesOf("datasourceShortName").get(0);
         filename = (String) options.valuesOf("filename").get(0);
+
+        // If we're loading 3I data, don't filter out the 3I procedures
+        if (datasourceShortName.toLowerCase().equals("3i")) {
+            skipProcedures = skipThreeIProcedures;
+        }
 
         if (options.has("create")) {
             try {

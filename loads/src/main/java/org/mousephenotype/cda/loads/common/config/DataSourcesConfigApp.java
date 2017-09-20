@@ -57,23 +57,8 @@ public class DataSourcesConfigApp {
 
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @Value("${datasource.cdabase.url}")
-    String cdabaseUrl;
-
     @Value("${datasource.cda.url}")
     String cdaUrl;
-
-    @Value("${datasource.dcc.url}")
-    String dccUrl;
-
-    @Value("${datasource.dccEurophenomeFinal.url}")
-    String dccEurophenomeFinalUrl;
-
-    @Value("${datasource.cdabase.username}")
-    String cdabaseUsername;
-
-    @Value("${datasource.cdabase.password}")
-    String cdabasePassword;
 
     @Value("${datasource.cda.username}")
     String cdaUsername;
@@ -81,11 +66,26 @@ public class DataSourcesConfigApp {
     @Value("${datasource.cda.password}")
     String cdaPassword;
 
+    @Value("${datasource.dccEurophenomeFinal.url}")
+    String dccEurophenomeFinalUrl;
+
     @Value("${datasource.dccEurophenomeFinal.username}")
-    String europhenomeUsername;
+    String dccEurophenomeFinalUsername;
 
     @Value("${datasource.dccEurophenomeFinal.password}")
-    String europhenomePassword;
+    String dccEurophenomeFinalPassword;
+
+    @Value("${datasource.cdabase.url}")
+    String cdabaseUrl;
+
+    @Value("${datasource.cdabase.username}")
+    String cdabaseUsername;
+
+    @Value("${datasource.cdabase.password}")
+    String cdabasePassword;
+
+    @Value("${datasource.dcc.url}")
+    String dccUrl;
 
     @Value("${datasource.dcc.username}")
     String dccUsername;
@@ -201,8 +201,8 @@ public class DataSourcesConfigApp {
         DataSource ds = DataSourceBuilder
                 .create()
                 .url(dccEurophenomeFinalUrl)
-                .username(europhenomeUsername)
-                .password(europhenomePassword)
+                .username(dccEurophenomeFinalUsername)
+                .password(dccEurophenomeFinalPassword)
                 .type(DriverManagerDataSource.class)
                 .driverClassName("com.mysql.jdbc.Driver").build();
 
