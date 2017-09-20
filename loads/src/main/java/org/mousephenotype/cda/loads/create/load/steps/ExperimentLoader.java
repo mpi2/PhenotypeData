@@ -913,14 +913,20 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
     private void insertSimpleParameter(DccExperimentDTO dccExperiment, SimpleParameter simpleParameter, int experimentPk,
                                        int dbId, Integer biologicalSamplePk, int missing) throws DataLoadException {
         String parameterStableId = simpleParameter.getParameterID();
-        int parameterPk = cdaParameter_idMap.get(parameterStableId);
+        Integer parameterPk = cdaParameter_idMap.get(parameterStableId);
+        if (parameterPk == null) {
+            logger.warn("Experiment {}: unknown parameterStableId {} for simpleParameter {}. Skipping...",
+                    dccExperiment, parameterStableId, simpleParameter.getParameterID());
+            return;
+        }
+
         String sequenceId = (simpleParameter.getSequenceID() == null ? null : simpleParameter.getSequenceID().toString());
 
         ObservationType observationType = cdaSqlUtils.computeObservationType(parameterStableId, simpleParameter.getValue());
 
         String[] rawParameterStatus = commonUtils.parseImpressStatus(simpleParameter.getParameterStatus());
-        String parameterStatus = rawParameterStatus[0];
-        String parameterStatusMessage = rawParameterStatus[1];
+        String parameterStatus = ((rawParameterStatus != null) && (rawParameterStatus.length > 0) ? rawParameterStatus[0] : null);
+        String parameterStatusMessage = ((rawParameterStatus != null) && (rawParameterStatus.length > 1) ? rawParameterStatus[1] : null);
 
         if (parameterStatus != null)
             missing = 1;
