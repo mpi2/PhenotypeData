@@ -216,14 +216,17 @@ public class LandingPageController {
         }
 
         Collections.sort(procedures, ImpressDTO.getComparatorByProcedureName());
+        String description="for genes with at least one " + pageTitle + " phenotype";
         
         Set<String>filterOnMarkerAccession=null;
         if(page.equalsIgnoreCase("hearing")){
         	filterOnMarkerAccession = getHearingPublicationGeneSet();
+        	description="for the 67 genes in the gene table above";
         }
 
+        
         model.addAttribute("phenotypeChart", ScatterChartAndTableProvider.getScatterChart("phenotypeChart", gpService.getTopLevelPhenotypeIntersection(mpDTO.getMpId(), filterOnMarkerAccession), "Gene pleiotropy",
-                "for genes with at least one " + pageTitle + " phenotype", "Number of phenotype associations to " + pageTitle, "Number of associations to other phenotypes",
+                description, "Number of phenotype associations to " + pageTitle, "Number of associations to other phenotypes",
                 "Other phenotype calls: ", pageTitle + " phenotype calls: ", "Gene"));
         model.addAttribute("pageTitle", pageTitle);
         model.addAttribute("paramToNumber", paramToNumber);
