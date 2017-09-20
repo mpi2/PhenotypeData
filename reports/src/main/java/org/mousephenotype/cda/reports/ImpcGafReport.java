@@ -127,11 +127,6 @@ public class ImpcGafReport extends AbstractReport {
                 String mpId = gpDTO.getMpTermId();geneDTO.getMpId();
                 String geneName = geneDTO.getMarkerName();
 
-                // If the g-p gene name is different than the gene name from the gene core, log a warning and use the new value.
-                if ( ! geneDTO.getMarkerSymbol().equals(gpDTO.getMarkerSymbol())) {
-                    logger.warn("Mismatch for {} (MP ID " + mpId + " : Gene core: '{}'. g-p core: '{}'", geneDTO.getMgiAccessionId(), geneDTO.getMarkerSymbol(), gpDTO.getMarkerSymbol());
-                }
-
                 List<String> row = Arrays.asList(new String[] {
                     "IMPC"                  // DB
                     , mgiGeneId             // DB Object ID (MGI Gene Id)
