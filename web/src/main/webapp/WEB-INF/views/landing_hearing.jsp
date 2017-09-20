@@ -126,14 +126,6 @@ table.dataTable thead tr {
                             </div>
                         </div>
                         
-                        <div class="section">
-                            <h2 class="title">Phenotypes distribution</h2>
-                            <div class="inner">
-                                <div id="phenotypeChart">
-                                    <script type="text/javascript"> $(function () {  ${phenotypeChart} }); </script>
-                                </div>
-                            </div>
-                        </div>
 
                         <div class="section" id="manuscript">
                             <%--deafness manuscript --%>
@@ -918,6 +910,17 @@ table.dataTable thead tr {
                         <%--</div>--%>
 
 
+
+						<div class="section">
+                            <h2 class="title">Phenotypes distribution</h2>
+                            <div class="inner">
+                                <div id="phenotypeChart">
+                                    <script type="text/javascript"> $(function () {  ${phenotypeChart} }); </script>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        
                         <div class="section" id="paper">
                             <jsp:include page="paper_frag.jsp"></jsp:include>
                         </div>
