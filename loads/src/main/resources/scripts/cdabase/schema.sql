@@ -1940,6 +1940,8 @@ INSERT INTO organisation(id, name, fullname, country) VALUES(33, 'INFRAFRONTIER-
 INSERT INTO organisation(id, name, fullname, country) VALUES(34, 'KMPC', 'Korea Mouse Phenotyping Center', 'Korea');
 INSERT INTO organisation(id, name, fullname, country) VALUES(35, 'MARC', 'Model Animal Research Center', 'Japan');
 INSERT INTO organisation(id, name, fullname, country) VALUES(36, 'NARLabs', 'National Applied Research Laboratories', 'Taiwan');
+INSERT INTO organisation(id, name, fullname, country) VALUES(37, 'BIAT', 'University of Veterinary Medicine Vienna', 'Austria');
+INSERT INTO organisation(id, name, fullname, country) VALUES(38, 'PH', 'Academy of Sciences of the Czech Republic', 'Czech Republic');
 
 
 /**
