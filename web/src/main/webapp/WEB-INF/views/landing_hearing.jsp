@@ -119,10 +119,19 @@ table.dataTable thead tr {
 										href="http://www.mousephenotype.org/impress/protocol/186">Combined SHIRPA and Dysmorphology (CSD)</a> protocol, which 
                                     includes a response to a click box test (absence is indicative of a strong hearing deficit) and  visual inspection for behavioural signs that may indicate vestibular dysfunction e.g. head bobbing or circling.
                                 </p>
-                                </p>
+                                
 
                                 <c:import
 									url="landing_procedures_frag.jsp" />
+                            </div>
+                        </div>
+                        
+                        <div class="section">
+                            <h2 class="title">Phenotypes distribution</h2>
+                            <div class="inner">
+                                <div id="phenotypeChart">
+                                    <script type="text/javascript"> $(function () {  ${phenotypeChart} }); </script>
+                                </div>
                             </div>
                         </div>
 
