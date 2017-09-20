@@ -43,7 +43,6 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.util.Assert;
 
-import javax.inject.Inject;
 import java.util.*;
 
 /**
@@ -81,7 +80,6 @@ public class SampleLoader implements Step, Tasklet, InitializingBean {
     private int efoDbId;
 
 
-    @Inject
     public SampleLoader(NamedParameterJdbcTemplate jdbcCda,
                         StepBuilderFactory stepBuilderFactory,
                         CdaSqlUtils cdaSqlUtils,
