@@ -95,7 +95,11 @@ table.dataTable thead tr {
                 <div class="content">
                     <div class="node node-gene">
                         <h1 class="title" id="top">Hearing</h1>
-
+							<div class="section">
+    							<div class="inner">
+    							 <p> ${shortDescription} </p>
+    							</div>
+    						</div>	
                         <%-- <c:import url="landing_overview_frag.jsp"/> removed as requested by Mike author of hearing paper --%>
 
                         <div style="padding: 30px;" class="clear both"></div>
