@@ -102,6 +102,7 @@ public class DataSourcesConfigApp {
         ds.setDriverClassName("com.mysql.jdbc.Driver");
         ds.setInitialSize(POOL_THREADS);
         ds.setMaxActive(50);
+        ds.setMinIdle(POOL_THREADS);
         ds.setMaxIdle(POOL_THREADS);
         ds.setTestOnBorrow(true);
         ds.setValidationQuery("SELECT 1");
