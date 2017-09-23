@@ -54,7 +54,7 @@ public class DataSourcesConfigApp {
 
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    final private Integer POOL_THREADS = 1;
+    final private Integer INITIAL_POOL_CONNECTIONS = 1;
 
     @Value("${datasource.cda.url}")
     String cdaUrl;
@@ -100,13 +100,17 @@ public class DataSourcesConfigApp {
         ds.setUsername(username);
         ds.setPassword(password);
         ds.setDriverClassName("com.mysql.jdbc.Driver");
-        ds.setInitialSize(POOL_THREADS);
+        ds.setInitialSize(INITIAL_POOL_CONNECTIONS);
         ds.setMaxActive(50);
-        ds.setMinIdle(POOL_THREADS);
-        ds.setMaxIdle(POOL_THREADS);
+        ds.setMinIdle(INITIAL_POOL_CONNECTIONS);
+        ds.setMaxIdle(INITIAL_POOL_CONNECTIONS);
         ds.setTestOnBorrow(true);
         ds.setValidationQuery("SELECT 1");
-        ds.setTimeBetweenEvictionRunsMillis(15000);
+        ds.setValidationInterval(5000);
+        ds.setMaxAge(30000);
+        ds.setMaxWait(35000);
+        ds.setTestWhileIdle(true);
+        ds.setTimeBetweenEvictionRunsMillis(5000);
         ds.setMinEvictableIdleTimeMillis(5000);
         ds.setValidationInterval(30000);
         ds.setRemoveAbandoned(true);
