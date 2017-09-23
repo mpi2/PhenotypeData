@@ -34,6 +34,7 @@ import org.springframework.boot.Banner;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.transaction.annotation.Transactional;
@@ -70,10 +71,12 @@ public class ExtractDccExperiments implements CommandLineRunner {
 
     @NotNull
     @Autowired
+    @Lazy
     private DataSource dcc;
 
     @NotNull
     @Autowired
+    @Lazy
     private DccSqlUtils dccSqlUtils;
 
 

@@ -29,6 +29,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.util.Assert;
 
@@ -55,6 +56,7 @@ public class LoadConfigBeans implements InitializingBean {
 
 
     @Inject
+    @Lazy
     public LoadConfigBeans(
             NamedParameterJdbcTemplate jdbcCda,
             NamedParameterJdbcTemplate jdbcDcc,

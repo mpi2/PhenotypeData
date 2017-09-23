@@ -60,6 +60,9 @@ import java.util.concurrent.Future;
  */
 public class ExperimentLoader implements Step, Tasklet, InitializingBean {
 
+    // How many threads used to process experiments
+    private static final int N_THREADS = 40;
+
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private CommonUtils                commonUtils = new CommonUtils();
@@ -282,7 +285,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         int experimentCount = 0;
         int skippedExperimentsCount = 0;
 
-        ExecutorService executor = Executors.newFixedThreadPool(10);
+        ExecutorService executor = Executors.newFixedThreadPool(N_THREADS);
 
         List<Future<Experiment>> tasks = new ArrayList<>();
 

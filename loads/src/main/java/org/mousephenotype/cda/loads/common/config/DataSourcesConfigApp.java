@@ -26,10 +26,7 @@ import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration;
 import org.springframework.boot.autoconfigure.jms.JndiConnectionFactoryAutoConfiguration;
 import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
-import org.springframework.context.annotation.PropertySource;
+import org.springframework.context.annotation.*;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.orm.hibernate5.LocalSessionFactoryBuilder;
 
@@ -45,6 +42,7 @@ import javax.sql.DataSource;
         DataSourceTransactionManagerAutoConfiguration.class,
         Neo4jDataAutoConfiguration.class
         })
+@Lazy
 /**
  * This configuration class holds configuration information shared by the data load create process.
  *
@@ -125,31 +123,6 @@ public class DataSourcesConfigApp {
     }
 
 
-    @Bean(name = "cdabaseDataSource")
-    public DataSource cdabaseDataSource() {
-
-//        DataSource ds = DataSourceBuilder
-//                .create()
-//                .url(cdabaseUrl)
-//                .username(cdabaseUsername)
-//                .password(cdabasePassword)
-//                .type(BasicDataSource.class)
-//                .driverClassName("com.mysql.jdbc.Driver").build();
-//        ((BasicDataSource) ds).setInitialSize(4);
-//
-//
-//        ((BasicDataSource) ds).setLogAbandoned(false);
-//        ((BasicDataSource) ds).setRemoveAbandoned(false);
-//
-//        try {
-//            logger.info("Using cdasource database {} with initial pool size {}", ds.getConnection().getCatalog(), ((BasicDataSource) ds).getInitialSize());
-//
-//        } catch (Exception e) { }
-
-        return getConfiguredDatasource(cdabaseUrl, cdabaseUsername, cdabasePassword);
-
-    }
-
     @Bean(name = "sessionFactoryHibernate")
     @Primary
     public SessionFactory getSessionFactory() {
@@ -161,6 +134,10 @@ public class DataSourcesConfigApp {
         return sessionBuilder.buildSessionFactory();
     }
 
+    @Bean(name = "cdabaseDataSource")
+    public DataSource cdabaseDataSource() {
+        return getConfiguredDatasource(cdabaseUrl, cdabaseUsername, cdabasePassword);
+    }
 
     @Bean(name = "jdbcCdabase")
     public NamedParameterJdbcTemplate jdbcCdabase() {
@@ -171,24 +148,7 @@ public class DataSourcesConfigApp {
     @Bean(name = "cdaDataSource")
     @Primary
     public DataSource cdaDataSource() {
-
-//        DataSource ds = DataSourceBuilder
-//                .create()
-//                .url(cdaUrl)
-//                .username(cdaUsername)
-//                .password(cdaPassword)
-//                .type(DriverManagerDataSource.class)
-//                .driverClassName("com.mysql.jdbc.Driver").build();
-//
-//        try {
-//            logger.info("Using cda database {}", ds.getConnection().getCatalog());
-//
-//        } catch (Exception e) { }
-//
-//        return ds;
-
         return getConfiguredDatasource(cdaUrl, cdaUsername, cdaPassword);
-
     }
 
     @Bean(name = "jdbcCda")
@@ -199,31 +159,8 @@ public class DataSourcesConfigApp {
 
     @Bean(name = "dccDataSource")
     public DataSource dccDataSource() {
-
-//        DataSource ds = DataSourceBuilder
-//                .create()
-//                .url(dccUrl)
-//                .username(dccUsername)
-//                .password(dccPassword)
-//                .type(BasicDataSource.class)
-//                .driverClassName("com.mysql.jdbc.Driver").build();
-//
-//        ((BasicDataSource) ds).setInitialSize(4);
-//
-//        ((BasicDataSource) ds).setLogAbandoned(false);
-//        ((BasicDataSource) ds).setRemoveAbandoned(false);
-//
-//        try {
-//            logger.info("Using dcc database {} with initial pool size {}", ds.getConnection().getCatalog(), ((BasicDataSource) ds).getInitialSize());
-//
-//        } catch (Exception e) { }
-//
-//        return ds;
-
         return getConfiguredDatasource(dccUrl, dccUsername, dccPassword);
-
     }
-
 
     @Bean(name = "jdbcDcc")
     public NamedParameterJdbcTemplate jdbcDcc() {
@@ -233,24 +170,7 @@ public class DataSourcesConfigApp {
 
     @Bean(name = "dccEurophenomeDataSource")
     public DataSource dccEurophenomeDataSource() {
-
-//        DataSource ds = DataSourceBuilder
-//                .create()
-//                .url(dccEurophenomeFinalUrl)
-//                .username(dccEurophenomeFinalUsername)
-//                .password(dccEurophenomeFinalPassword)
-//                .type(DriverManagerDataSource.class)
-//                .driverClassName("com.mysql.jdbc.Driver").build();
-//
-//        try {
-//            logger.info("Using dcc europhenome database {}", ds.getConnection().getCatalog());
-//
-//        } catch (Exception e) { }
-//
-//        return ds;
-
         return getConfiguredDatasource(dccEurophenomeFinalUrl, dccEurophenomeFinalUsername, dccEurophenomeFinalPassword);
-
     }
 
     @Bean(name = "jdbcDccEurophenome")
