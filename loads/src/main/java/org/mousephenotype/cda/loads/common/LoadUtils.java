@@ -99,6 +99,8 @@ public class LoadUtils {
         put("NorCOMM2",                 "NorCOMM2");                    // center.project -> project.name
         put("Phenomin",                 "Phenomin");                    // center.project -> project.name
         put("RIKEN BRC",                "RBRC");                        // center.project -> project.name
+        put("KMPC",                     "KMPC");                        // center.project -> project.name
+        put("Kmpc",                     "KMPC");                        // center.project -> project.name
     }};
 
 
