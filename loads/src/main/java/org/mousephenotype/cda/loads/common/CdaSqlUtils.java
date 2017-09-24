@@ -1314,9 +1314,15 @@ public class CdaSqlUtils {
      */
     public OntologyTerm getLatestOntologyTerm(String originalAcc, RunStatus status) {
 
+        if (originalAcc == null) {
+            status.addError("Term " + originalAcc + " is obsolete and has no replacement/consider id term.");
+            return null;
+        }
+
         OntologyTerm term;
 
         Map<String, OntologyTerm> terms = getOntologyTerms();
+
         term = terms.get(originalAcc);
         if (term != null) {
             term.setConsiderIds(getConsiderIds(term.getId().getAccession()));
