@@ -18,7 +18,6 @@ package uk.ac.ebi.phenotype.web.controller;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +25,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-
 import uk.ac.ebi.phenodigm2.Disease;
 import uk.ac.ebi.phenodigm2.Gene;
 import uk.ac.ebi.phenodigm2.DiseaseModelAssociation;
@@ -34,7 +32,6 @@ import uk.ac.ebi.phenodigm2.WebDao;
 
 /**
  * Controller for disease pages, uses phenodigm2 core
- *
  *
  * @author Tomasz Konopka <t.konopka@qmul.ac.uk>
  * (based on DiseaseController.java)
@@ -47,7 +44,7 @@ public class DiseaseController2 {
     @Autowired
     private WebDao phenoDigm2Dao;
 
-    @RequestMapping(value = {"/disease2"})
+    @RequestMapping(value = {"/disease, /disease2"})
     public String allDiseases(Model model) {
         LOGGER.info("Making page for all disease2 - for now abort");
         return "404";
@@ -72,7 +69,7 @@ public class DiseaseController2 {
         return diseaseId;
     }
 
-    @RequestMapping(value = {"/disease2/{diseaseId}"})
+    @RequestMapping(value = {"/disease/{diseaseId}", "/disease2/{diseaseId}"})
     public String disease(@PathVariable("diseaseId") String diseaseId, Model model) {
 
         diseaseId = normalizeDiseaseId(diseaseId);

@@ -19,11 +19,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Model bean for phenodigm2 solr documents. Holds data describing one mouse
+ * MouseModel bean for phenodigm2 solr documents. Holds data describing one mouse
  * model.
  *
  */
-public class Model implements Comparable<Model>, IdUrl {
+public class MouseModel implements Comparable<MouseModel>, IdUrl {
 
     private String id;
     private String source;
@@ -33,7 +33,9 @@ public class Model implements Comparable<Model>, IdUrl {
     private String markerSymbol;    
     private List<Phenotype> phenotypes;
 
-    public Model() {
+    private static String baseUrlMGI = "http://www.informatics.jax.org/accession/MGI:";
+        
+    public MouseModel() {
     }
 
     /**
@@ -43,7 +45,7 @@ public class Model implements Comparable<Model>, IdUrl {
      *
      * @param id
      */
-    public Model(String id) {
+    public MouseModel(String id) {
         this.id = id;
     }
 
@@ -117,11 +119,26 @@ public class Model implements Comparable<Model>, IdUrl {
     
     @Override
     public String getExternalUrl() {
-        return "TODO: " + id;
+        if (id.endsWith("hom") || id.endsWith("het")) {
+            return "IMPC model "+id;
+        }
+        String[] tokens = id.split(":");
+        switch (tokens[0]) {
+            case "MGI":
+                return baseUrlMGI + tokens[1];
+            default:
+                return "";
+        }
     }
     
     @Override
-    public int compareTo(Model t) {
+    public int compareTo(MouseModel t) {
         return this.id.compareTo(t.id);
     }
+
+    //@Override
+    //public String toString() {
+    //    return "MouseModel{" + "id=" + id + ", source=" + source + ", description=" + description + ", geneticBackground=" + geneticBackground + ", markerId=" + markerId + ", markerSymbol=" + markerSymbol + ", phenotypes=" + phenotypes + '}';
+    //}
+                  
 }

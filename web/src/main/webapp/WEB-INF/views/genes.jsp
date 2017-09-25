@@ -49,7 +49,8 @@
             <script type="text/javascript" src="${baseUrl}/js/phenodigm2/phenodigm2.js?v=${version}"></script>       
             <link rel="stylesheet" type="text/css" href="${baseUrl}/css/phenodigm2.css"/>                                
             <%-- End of phenodigm2 requirements --%>
-
+            <link rel="stylesheet" type="text/css" href="${baseUrl}/css/dev.css"/>
+            
             <script type="text/javascript">
                 var gene_id = '${acc}';
 
@@ -415,7 +416,7 @@
                                 </div>
                             </div>
 
-                            <%--Disease Section (original) --%>                               
+                            <%--Disease Section (original) --%>                                 
                             <div class="section">
                                 <h2 class="title" id="section-disease-models">Disease Models
                                     <a target="_blank" href='http://www.sanger.ac.uk/resources/databases/phenodigm/'></a>
@@ -467,13 +468,26 @@
                                 </div><!-- end of inner -->
                             </div><!-- end of Disease -->
                             
-                            
+
+                            <%--All mouse models section (phenodigm2) --%>
+                            <div class="section" id="gene-mouse-models">
+                                <h2 class="title" id="mouse-models">Mouse Models <small>(IMPC and literature)</small>
+                                    <a target="_blank" href='http://www.sanger.ac.uk/resources/databases/phenodigm/'></a>
+                                    <span class="documentation">
+                                        <a href="" id="mouseSection" class="mpPanel"><i class="fa fa-question-circle pull-right"></i></a>
+                                    </span>
+                                </h2>
+                                <div class="inner" geneid="${gene.mgiAccessionId}">                                   
+                                    <a id="load-mouse-models" geneid="${gene.mgiAccessionId}">Load mouse models</a>                                    
+                                </div>
+                            </div>
+
                             <%--Disease section (phenodigm2) --%>
                             <div class="section">
                                 <h2 class="title" id="section-disease-models">Disease Models <small>(phenodigm2)</small>
                                     <a target="_blank" href='http://www.sanger.ac.uk/resources/databases/phenodigm/'></a>
                                     <span class="documentation">
-                                        <a href="" id="diseaseSectio2n" class="mpPanel"><i class="fa fa-question-circle pull-right"></i></a>
+                                        <a href="" id="diseaseSection2" class="mpPanel"><i class="fa fa-question-circle pull-right"></i></a>
                                     </span>
                                 </h2>
                                 <div class="inner">
@@ -505,9 +519,6 @@
                                     </div>
                                 </div>
                             </div>
-
-
-
 
 
 
@@ -550,7 +561,7 @@
             <%-- Block augmenting/filling phenodigm tables --%>
             <script type="text/javascript">
                 var curatedDiseases = ${curatedDiseases};
-                var modelAssociations = ${modelAssociations}; // this object name is required in phenodigm2.js
+                var modelAssociations = ${modelAssociations}; // this object name is required in phenodigm2.js                
             </script>
             <script type="text/javascript">
                 var diseaseTables = [{
@@ -583,7 +594,7 @@
                             groupby: "diseaseId",
                             filterkey: "diseaseId",
                             filter: curatedDiseases,
-                            pagetype: "genes",
+                            pagetype: "genes",                            
                             gene: "${gene.mgiAccessionId}"
                         }
                     },
@@ -595,32 +606,36 @@
                             lengthMenu: [20, 50, 100],
                             sPaginationType: "bootstrap"
                         },
-                        phenodigm2Conf: {                            
+                        phenodigm2Conf: {
                             groupby: "diseaseId",
                             filterkey: "diseaseId",
                             filter: [],
-                            pagetype: "genes",
+                            pagetype: "genes",                            
                             gene: "${gene.mgiAccessionId}"
                         }
                     }];
+                var modelsTableConf = {
+                    pagetype: "genes",
+                    gene: "${gene.mgiAccessionId}"
+                };
                 $(document).ready(function () {
+                    // setup button that loads phenotypes of available models
+                    impc.phenodigm2.initLoadModels("load-mouse-models", "gene-mouse-models");
+                    // this loops handles phenodigm1 tables
                     for (var i = 0; i < diseaseTables.length; i++) {
                         var diseaseTable = diseaseTables[i];
                         var dataTable = $(diseaseTable.id).DataTable(diseaseTable.tableConf);
                         $.fn.addTableClickCallbackHandler(diseaseTable.id, dataTable);
                     }
-                    for (var i = 0; i < diseaseTableConfs.length; i++) {
-                        console.log("creating with i "+i);
-                        var dTable = diseaseTableConfs[i];
-                        console.log("creating with tableid "+dTable.id);
+                    // this loop handles phenodigm2 tables
+                    for (var i = 0; i < diseaseTableConfs.length; i++) {                        
+                        var dTable = diseaseTableConfs[i];                        
                         // create raw table
                         impc.phenodigm2.makeTable(modelAssociations, dTable.id, dTable.phenodigm2Conf);
-                        // apply jquery transformation (pagination, etc)
-                        console.log("end of loop with "+i);            
+                        // apply jquery transformation (pagination, etc)                        
                         var dataTable = $(dTable.id).DataTable(dTable.tableConf);
                         // add phenodigm handlers
-                        $.fn.addTableClickPhenogridHandler(dTable.id, dataTable);
-                        console.log("end of loop with "+i);
+                        $.fn.addTableClickPhenogridHandler(dTable.id, dataTable);                        
                     }
                 });
             </script>

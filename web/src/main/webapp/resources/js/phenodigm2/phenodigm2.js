@@ -30,6 +30,8 @@
  * 
  * Parts of the code are based on diseasetableutils.js
  * 
+ * Status: needs cleanup
+ * 
  */
 
 /* global d3, _, $, impc */
@@ -49,7 +51,8 @@ impc.sources = ["IMPC", "EuroPhenome"];
  **************************************************************************** */
 
 /**
- * Generates html for a table.
+ * Generates html for a table. 
+ * Used on disease pages and on genes pages with different column headings.
  * 
  * @param {array} darr - array of objects
  * @param {string} target - id of target table (including #)
@@ -60,8 +63,7 @@ impc.sources = ["IMPC", "EuroPhenome"];
  */
 impc.phenodigm2.makeTable = function (darr, target, config) {
 
-    console.log("\n\n\n\n\n\n");
-    console.log("running makeTable " + target);
+    // start working with d3 selections
     var targetdiv = d3.select(target);
 
     // shorthand for pagetype
@@ -70,21 +72,18 @@ impc.phenodigm2.makeTable = function (darr, target, config) {
         console.log("phenodigm2.makeTable - pagetype must be either 'genes' or 'disease'");
     }
 
-    console.log("starting head with pagetype: " + pt);
     // setup columns
     var thead = targetdiv.append("thead").append("tr");
     var colnames = ["Gene", "Models", "Max Raw", "Avg Raw", "Phenodigm"];
     if (pt === "genes") {
         colnames = ["Disease", "Source", "Max Raw", "Avg Raw", "Phenodigm"];
     }
-    colnames.map(
-            function (x) {
-                thead.append("th").append("span").classed("main", true).html(x);
-            });
-    // add a last column with blank title (will contain +extra info button)
+    colnames.map(function (x) {
+        thead.append("th").append("span").classed("main", true).html(x);
+    });
+    // add a last column with blank title (will contain button indicating expansion)
     thead.append("th");
 
-    console.log("starting body");
     // setup data body
     var tbody = targetdiv.append("tbody").classed("phenotable", true)
             .attr("pagetype", config.pagetype);
@@ -101,16 +100,12 @@ impc.phenodigm2.makeTable = function (darr, target, config) {
             return config.filter.indexOf(x[config.filterkey]) >= 0;
         });
     }
-    console.log("computed dshow: " + dshow.length + " rows ");
-    //console.log("computed dshow: " + JSON.stringify(dshow));
 
     // convert from by-model to by-gene or by-disease representation        
     dshow = _.groupBy(dshow, function (x) {
         return x[config.groupby];
     });
     var dkeys = _.keys(dshow);
-    //console.log("keys for table: " + dkeys.length + " ... " + JSON.stringify(dkeys));
-
 
     var scorecols = ["maxRaw", "avgRaw"];
 
@@ -158,7 +153,6 @@ impc.phenodigm2.makeTable = function (darr, target, config) {
         dkeys.map(function (key) {
             var x = dshow[key];
             // x is now an array of objects, display a summary row
-            //console.log("x is: " + JSON.stringify(x));
             var trow = tbody.append("tr").attr("class", "phenotable").attr("diseaseid", x[0]["diseaseId"]);
             trow.append("td").append("a").classed(pt + "link", true)
                     .attr("href", impc.baseUrl + "/disease/" + x[0]["diseaseId"]).html(x[0]["diseaseTerm"]);
@@ -169,8 +163,8 @@ impc.phenodigm2.makeTable = function (darr, target, config) {
     }
 
     // attach a special listener to the gene links. This allows users to click 
-    // on links without activating the phenogrid widget (on click bound to tr)
-    tbody.selectAll("a").on("click", function (x) {
+    // on links without activating the phenogrid widget
+    tbody.selectAll("a").on("click", function () {
         d3.event.stopPropagation();
     });
 
@@ -247,7 +241,6 @@ d3.selection.prototype.moveToBack = function () {
  */
 impc.phenodigm2.drawScatterplot = function (darr, conf) {
 
-    console.log("running makePhenodigmScatter " + conf.id);
     var outer = d3.select(conf.id).select("svg");
     var detail = d3.select(conf.id).select(".detail");
 
@@ -259,8 +252,7 @@ impc.phenodigm2.drawScatterplot = function (darr, conf) {
     conf.h = parseInt(outer.style("height"));
     conf.winner = +conf.w - conf.margin[1] - conf.margin[3];
     conf.hinner = +conf.h - conf.margin[0] - conf.margin[2];
-
-    console.log("configuration is: " + JSON.stringify(conf));
+    //console.log("configuration is: " + JSON.stringify(conf));
 
     // adjust the svg, create a drawing box inside
     var svg = outer.attr("width", conf.w + "px").attr("height", conf.h + "px")
@@ -272,8 +264,7 @@ impc.phenodigm2.drawScatterplot = function (darr, conf) {
     var ymax = _.max(_.pluck(darr, conf.axes[1]));
     xmax = (xmax > 90) ? 100 : xmax;
     ymax = (ymax > 90) ? 100 : ymax;
-
-    console.log("maximum values are " + xmax + " " + ymax);
+    //console.log("maximum values are " + xmax + " " + ymax);
 
     // create the x axis
     var xscale = d3.scaleLinear().range([0, conf.winner]).domain([0, xmax]);
@@ -286,8 +277,7 @@ impc.phenodigm2.drawScatterplot = function (darr, conf) {
             .attr("x", conf.winner / 2).attr("y", conf.hinner)
             .attr("dy", conf.offset[0]);
 
-    // create the y axis
-    console.log("drawing y axis " + JSON.stringify(ymax));
+    // create the y axis    
     var yscale = d3.scaleLinear().range([0, conf.hinner]).domain([ymax, 0]);
     var yaxis = d3.axisLeft(yscale);
     svg.append("g").attr("class", "yaxis").call(yaxis)
@@ -328,7 +318,7 @@ impc.phenodigm2.drawScatterplot = function (darr, conf) {
 
     // create the annotated functions (fills in the right-hand box)
     var showModelInfo = function (d) {
-        console.log("clicked " + JSON.stringify(d));
+        //console.log("clicked " + JSON.stringify(d));
         detail.style("display", "block");
         detail.select(".source").text(d.source);
         detail.select(".model").text(d.id);
@@ -417,7 +407,6 @@ impc.phenodigm2.drawScatterplot = function (darr, conf) {
             .text("Data sources: IMPC, MGI");
     svg.selectAll(".legendtext").attr("x", conf.legendpos[1]);
 
-    console.log("mp2 end");
 };
 
 
@@ -436,7 +425,7 @@ impc.phenodigm2.drawScatterplot = function (darr, conf) {
  */
 impc.phenodigm2.makeTableChildRow = function (pagetype, geneId, diseaseId) {
     var genenum = geneId.split(":")[1]
-    console.log("creating childrow");
+    //console.log("creating childrow");
     var innerdiv = $(document.createElement('div'))
             .addClass("inner")
             .attr({
@@ -462,22 +451,26 @@ impc.phenodigm2.makeTableChildRow = function (pagetype, geneId, diseaseId) {
  * @param {string} pageType
  * @returns {jqXHR}
  */
-impc.phenodigm2.getPhenoGridSkeleton = function (geneId, diseaseId, pageType) {
-    console.log("starting fetch: " + new Date());
-    console.log("with " + geneId + " " + diseaseId + " " + pageType);
-    return $.getJSON(impc.baseUrl + "/phenodigm2/phenogrid",
-            {geneId: geneId, diseaseId: diseaseId, pageType: pageType}
-    );
-};
+//impc.phenodigm2.getPhenoGridSkeleton = function (geneId, diseaseId, pageType) {
+    //console.log("starting fetch: " + new Date());
+    //console.log("with " + geneId + " " + diseaseId + " " + pageType);
+  //  return $.getJSON(impc.baseUrl + "/phenodigm2/phenogrid",
+  //          {geneId: geneId, diseaseId: diseaseId, pageType: pageType}
+  //  );
+//};
 
 
 /* global modelAssociations */
 
-
 /**
+ * Fills in data into a phenogrid skeleton object. A skeleton obtained from
+ * the IMPC API is incomplete - it lacks some information stored within the
+ * modelAssociations object defined on the page. This function transfers that 
+ * data from the modelAssociations into the skeleton.
  * 
- * @param {type} skeleton
- * @returns {undefined}
+ * @param {object} skeleton - an incomplete phenogrid skeleton as obtained from 
+ * the IMPC API
+ * @returns {object} - a ready-to-use phenogrid skeleton 
  */
 impc.phenodigm2.completeGridSkeleton = function (skeleton) {
 
@@ -505,7 +498,6 @@ impc.phenodigm2.completeGridSkeleton = function (skeleton) {
             }
             return x;
         });
-        //console.log("output group is "+JSON.stringify(group));
         return group;
     };
 
@@ -520,17 +512,16 @@ impc.phenodigm2.completeGridSkeleton = function (skeleton) {
 /* global modelAssociations */
 
 /**
- * Create a small table with details about individual models
+ * Create a table with phenotype details about individual models
  * 
- * @param {type} tableId
- * @param {type} geneId
- * @param {type} skeleton
+ * @param {selection} targetdiv - d3 selection, output will be appended here
+ * @param {string} geneId - gene marker
+ * @param {array} models - array of objects defining mouse models
  * @returns {undefined}
  */
-impc.phenodigm2.insertModelDetails = function (tableId, geneId, skeleton) {
+impc.phenodigm2.insertModelDetails = function (targetdiv, geneId, models) {
 
-    // identify div that should hold the details table
-    var targetdiv = d3.select(tableId + " .inner[geneid='" + geneId + "'] .inner_table");
+    // create a table for the outpt    
     var tablediv = targetdiv.append("table").classed("table", true);
 
     // identify the rows in modelAssociations that are relevant
@@ -538,18 +529,18 @@ impc.phenodigm2.insertModelDetails = function (tableId, geneId, skeleton) {
         return x["markerId"] === geneId;
     });
     details = _.indexBy(details, "id");
-    //console.log("association details: " + JSON.stringify(details));
+    // here, "details" is either an object with markerIds as keys,
+    // or is an empty object
 
-    // identify parts of the phenogrid skeleton that are relevant
-    var models = skeleton.xAxis[0].entities;
-    //console.log("skeleton details " + JSON.stringify(models));
-
-    // setup columns. Last column is blank because 
+    // setup columns. Can have headers with or without scores.
     var thead = tablediv.append("thead").append("tr");
-    ["Model", "Genotype", "Max Raw", "Avg Raw", "Phenodigm", "Phenotypes"].map(
-            function (x) {
-                thead.append("th").append("span").classed("main", true).html(x);
-            });
+    var headcols = ["Model", "Genotype", "Phenotypes"];
+    if ((_.keys(details)).length > 0) {
+        headcols = ["Model", "Genotype", "Max Raw", "Avg Raw", "Phenodigm", "Phenotypes"];
+    }
+    headcols.map(function (x) {
+        thead.append("th").append("span").classed("main", true).html(x);
+    });
 
     // setup data body
     var tbody = tablediv.append("tbody").attr("geneid", geneId);
@@ -565,31 +556,38 @@ impc.phenodigm2.insertModelDetails = function (tableId, geneId, skeleton) {
     // identify whether the info fields contain IMPC
     var isImpc = function (x) {
         var result = false;
-        console.log("checking " + JSON.stringify(x));
-        console.log("info " + JSON.stringify(x.info));
-        console.log("\n\n");
-        x.info.map(function (y) {
-            if (y.id.startsWith("Source")) {
-                result = impc.sources.indexOf(y.value) >= 0;
-            }
-        });
+        if (_.has(x, "source")) {
+            result = impc.sources.indexOf(x.source) >= 0;
+        } else if (_.has(x, "info")) {
+            x.info.map(function (y) {
+                if (y.id.startsWith("Source")) {
+                    result = impc.sources.indexOf(y.value) >= 0;
+                }
+            });
+        }
         return result;
     };
 
     // create html table (one line per model)    
-    models.map(function (modeldata) {
+    models.map(function (modeldata) {        
         var trow = tbody.append("tr");
         var modelid = modeldata["id"];
         trow.append("td").html(modelid);
-        trow.append("td").html(tohtml(modeldata["label"]));
-        if (_.has(details, modelid)) {
-            trow.append("td").classed("numeric", true).html(details[modelid]["maxRaw"]);
-            trow.append("td").classed("numeric", true).html(details[modelid]["avgRaw"]);
-            trow.append("td").classed("numeric", true).html(phenscore(details[modelid]));
+        if (_.has(modeldata, "label")) {
+            trow.append("td").html(tohtml(modeldata["label"]));
         } else {
-            trow.append("td");
-            trow.append("td");
-            trow.append("td");
+            trow.append("td").html(tohtml(modeldata["description"]));
+        }
+        if (headcols.length > 4) {
+            if (_.has(details, modelid)) {
+                trow.append("td").classed("numeric", true).html(details[modelid]["maxRaw"]);
+                trow.append("td").classed("numeric", true).html(details[modelid]["avgRaw"]);
+                trow.append("td").classed("numeric", true).html(phenscore(details[modelid]));
+            } else {
+                trow.append("td");
+                trow.append("td");
+                trow.append("td");
+            }
         }
         var tdpheno = trow.append("td");
         modeldata.phenotypes.map(function (pheno, i) {
@@ -603,9 +601,7 @@ impc.phenodigm2.insertModelDetails = function (tableId, geneId, skeleton) {
             trow.classed("impc", true);
         }
     });
-
 };
-
 
 
 /* global monarchUrl */
@@ -626,11 +622,18 @@ impc.phenodigm2.insertPhenogrid = function (tableId, geneId, diseaseId, pageType
     var gridColumnWidth = 25;
     var gridRowHeight = 50;
 
-    impc.phenodigm2.getPhenoGridSkeleton(geneId, diseaseId, pageType)
-            .done(function (result) {
+    // fetch the core skeleton from the IMPC api
+    var ajax= $.getJSON(impc.baseUrl + "/phenodigm2/phenogrid",
+            {geneId: geneId, diseaseId: diseaseId, pageType: pageType}
+    );
+    // when loaded, use the skeleton data to create an inner table+phenogrid    
+    ajax.done(function (result) {
                 //console.log("raw result is: " + JSON.stringify(result));
                 result = impc.phenodigm2.completeGridSkeleton(result);
-                impc.phenodigm2.insertModelDetails(tableId, geneId, result);
+                if (pageType === "disease") {
+                    var innertab = d3.select(tableId + " .inner[geneid='" + geneId + "'] .inner_table");
+                    impc.phenodigm2.insertModelDetails(innertab, geneId, result.xAxis[0].entities);
+                }
                 Phenogrid.createPhenogridForElement(targetdiv, {
                     //monarchUrl is a global variable provided via Spring from application.properties
                     serverURL: monarchUrl,
@@ -654,8 +657,6 @@ impc.phenodigm2.insertPhenogrid = function (tableId, geneId, diseaseId, pageType
  * 
  */
 $.fn.addTableClickPhenogridHandler = function (tableId, table) {
-
-    console.log("setup of click");
     var tbody = $(tableId + ' tbody');
     var pagetype = tbody.attr("pagetype");
     var diseaseId = "", geneId = "";
@@ -664,7 +665,6 @@ $.fn.addTableClickPhenogridHandler = function (tableId, table) {
     } else if (pagetype === "genes") {
         geneId = tbody.attr("geneid");
     }
-    console.log("setup has diseaseId "+diseaseId+" and geneId "+geneId);
 
     // allow users to click on a row and see a PhenoGrid widget
     $(tableId + ' tbody').on('click', 'tr.phenotable', function () {
@@ -674,23 +674,49 @@ $.fn.addTableClickPhenogridHandler = function (tableId, table) {
             geneId = tr.attr("geneid");
         } else {
             diseaseId = tr.attr("diseaseid");
-        }
-        console.log("now clicked and diseaseId "+diseaseId+" and geneId "+geneId);
-        
+        }        
         if (typeof geneId === "undefined") {
             return;
         }
 
-        if (row.child.isShown()) {
-            // This row is already open - close it
+        // toggle (show/hide) an inner box
+        if (row.child.isShown()) {            
             row.child.hide();
             tr.find("td.toggleButton i").removeClass("fa-minus-square").addClass("fa-plus-square");
-        } else {
-            // Open this row            
+        } else {                  
             row.child(impc.phenodigm2.makeTableChildRow(pagetype, geneId, diseaseId)).show();
             impc.phenodigm2.insertPhenogrid(tableId, geneId, diseaseId, pagetype);
             tr.find("td.toggleButton i").removeClass("fa-plus-square").addClass("fa-minus-square");
         }
+    });
+};
+
+
+/****************************************************************************
+ * Loading of mouse model tables
+ **************************************************************************** */
+
+/**
+ * registers a button to fetch info about mouse models
+ * 
+ * @param linkid - id of element that should be clicked to fetch data
+ * @param targetid - id of element that will hold result. Must have a child div
+ * with class inner
+ */
+impc.phenodigm2.initLoadModels = function (linkid, targetid) {
+    var linkobj = d3.select("#" + linkid);
+    var geneId = linkobj.attr("geneid");
+    // set up a behavior that when user clicks on button, ajax loads a set of 
+    // models with the desired gene
+    linkobj.on("click", function () {
+        var targetdiv = d3.select("#" + targetid + " .inner");
+        targetdiv.html("Fetching data...");
+        var ajax = $.getJSON(impc.baseUrl + "/phenodigm2/mousemodels",
+                {geneId: geneId});
+        ajax.done(function (result) {
+            targetdiv.html("");
+            impc.phenodigm2.insertModelDetails(targetdiv, geneId, result);
+        });
     });
 
 };

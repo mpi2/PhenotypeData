@@ -120,5 +120,5 @@ public interface WebDao {
      * phenotypes associated with the model.
      *
      */
-    public List<Model> getGeneModelDetails(String markerId);
+    public List<MouseModel> getGeneModelDetails(String markerId);
 }

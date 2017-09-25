@@ -367,7 +367,7 @@ public class WebDaoSolrImpl implements WebDao {
      * @return
      */
     @Override
-    public List<Model> getGeneModelDetails(String markerId) {
+    public List<MouseModel> getGeneModelDetails(String markerId) {
 
         LOGGER.info("inside getGeneModelDetails " + markerId);
         String query = String.format("%s:\"%s\"", Phenodigm2DTO.MARKER_ID, markerId);
@@ -383,11 +383,11 @@ public class WebDaoSolrImpl implements WebDao {
                 .addField(Phenodigm2DTO.MODEL_PHENOTYPES)
                 .setRows(ROWLIMIT);
 
-        List<Model> result = new ArrayList<>();
+        List<MouseModel> result = new ArrayList<>();
         try {
             List<Phenodigm2DTO> results = phenodigm2Core.query(solrQuery).getBeans(Phenodigm2DTO.class);
             for (Phenodigm2DTO phenodigm : results) {
-                Model model = new Model(phenodigm.getModelId());
+                MouseModel model = new MouseModel(phenodigm.getModelId());
                 model.setSource(phenodigm.getModelSource());
                 model.setDescription(phenodigm.getModelDescription());
                 model.setGeneticBackground(phenodigm.getModelGeneticBackground());

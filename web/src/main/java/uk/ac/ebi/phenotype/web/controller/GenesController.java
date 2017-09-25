@@ -85,6 +85,7 @@ import java.sql.SQLException;
 import java.util.*;
 import uk.ac.ebi.phenodigm2.Disease;
 import uk.ac.ebi.phenodigm2.DiseaseModelAssociation;
+import uk.ac.ebi.phenodigm2.MouseModel;
 //import uk.ac.ebi.phenodigm2.Gene;
 import uk.ac.ebi.phenodigm2.WebDao;
 
@@ -390,6 +391,7 @@ public class GenesController {
         }
         // add in the disease predictions from phenodigm
         processDisease(acc, model);
+        //processModels(acc, model);
         processDisease2(acc, model);
 
         model.addAttribute("countIKMCAlleles", countIKMCAlleles);
@@ -1076,7 +1078,7 @@ public class GenesController {
 
         // log.info("Added {} disease associations for gene {} to model", diseaseAssociationSummarys.size(), mgiId);
     }
-
+        
     /**
      * Adds disease-related info to the model using the Phenodigm2 core.
      *
@@ -1104,19 +1106,17 @@ public class GenesController {
             curatedJsArray = "[]";
         }
         model.addAttribute("curatedDiseases", curatedJsArray);                
-        LOGGER.info("found curated diseases: " + curatedDiseases.toString());
         
         // fetch models that have this gene
         List<DiseaseModelAssociation> modelAssociations = phenoDigm2Dao.getGeneToDiseaseModelAssociations(acc);
-        LOGGER.info("Found "+modelAssociations.size()+ " associations");
-        
+        LOGGER.info("Found " + modelAssociations.size()+ " associations");
+                        
         // create a js object representation of the models        
         String modelAssocsJsArray = "[]";
         boolean hasModelsByOrthology = false;
         if (modelAssociations.size() > 0) {
             List<String> jsons = new ArrayList<>();
-            for (DiseaseModelAssociation assoc : modelAssociations) {
-                LOGGER.info("Found assoc" + assoc.toString());
+            for (DiseaseModelAssociation assoc : modelAssociations) {                
                 jsons.add(assoc.getDiseaseJson());
                 if (curatedDiseases.contains(assoc.getDiseaseId())) {
                     hasModelsByOrthology = true;
@@ -1126,8 +1126,7 @@ public class GenesController {
         }
         model.addAttribute("modelAssociations", modelAssocsJsArray);
         model.addAttribute("hasModelsByOrthology", hasModelsByOrthology);
-        model.addAttribute("hasModelAssociations", modelAssociations.size()>0);
-                
+        model.addAttribute("hasModelAssociations", modelAssociations.size()>0);                
     }
 
 }

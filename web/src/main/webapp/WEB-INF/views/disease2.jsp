@@ -11,16 +11,16 @@
     <jsp:attribute name="title">${disease.id} - ${disease.term}</jsp:attribute>
 
     <jsp:attribute name="header">
+        <script src="//d3js.org/d3.v4.min.js"></script> 
+        <script type="text/javascript" src="${baseUrl}/js/vendor/underscore/underscore-1.8.3.min.js"></script>        
+        <script type="text/javascript" src="${baseUrl}/js/phenogrid-1.3.1/dist/phenogrid-bundle.js?v=${version}"></script>
+        <link rel="stylesheet" type="text/css" href="${baseUrl}/js/phenogrid-1.3.1/dist/phenogrid-bundle.css?v=${version}">
+        <script type="text/javascript">var impc = {baseUrl: "${baseUrl}"}</script>        
+        <script type="text/javascript" src="${baseUrl}/js/phenodigm2/phenodigm2.js?v=${version}"></script>        
         <link rel="stylesheet" type="text/css" href="${baseUrl}/css/custom.css"/>
         <link rel="stylesheet" type="text/css" href="${baseUrl}/css/dev.css"/>
         <link rel="stylesheet" type="text/css" href="${baseUrl}/css/phenodigm2.css"/>
         <link rel="stylesheet" type="text/css" href="${baseUrl}/css/genes.css"/>
-        <script src="//d3js.org/d3.v4.min.js"></script> 
-        <script type="text/javascript" src="${baseUrl}/js/vendor/underscore/underscore-1.8.3.min.js"></script>
-        <script type="text/javascript">var impc = {baseUrl: "${baseUrl}"}</script>        
-        <script type="text/javascript" src="${baseUrl}/js/phenogrid-1.3.1/dist/phenogrid-bundle.js?v=${version}"></script>
-        <link rel="stylesheet" type="text/css" href="${baseUrl}/js/phenogrid-1.3.1/dist/phenogrid-bundle.css?v=${version}">
-        <script type="text/javascript" src="${baseUrl}/js/phenodigm2/phenodigm2.js?v=${version}"></script>        
     </jsp:attribute>
 
     <jsp:attribute name="addToFooter">		
@@ -187,7 +187,7 @@
                 <span class="documentation"><a href='' id='orthologySection' class="mpPanel fa fa-question-circle pull-right"></a></span>
             </h2>
             <div class="inner">  
-                <div id="phenotabs">
+                <div id="phenotabs" class="phenotabs">
                     <ul class='tabs'>
                         <li><a href="#by-annotation">By disease annotation</a></li>
                         <li><a href="#by-phenotype">By phenotypic similarity</a></li>
@@ -303,7 +303,7 @@
                         groupby: "markerId",
                         filterkey: "markerSymbol",
                         filter: curatedGenes,
-                        pagetype: "disease",
+                        pagetype: "disease",                        
                         disease: "${disease.id}"
                     }
                 },
@@ -319,7 +319,7 @@
                         groupby: "markerId",
                         filterkey: "markerSymbol",
                         filter: [],
-                        pagetype: "disease",
+                        pagetype: "disease",                        
                         disease: "${disease.id}"
                     }
                 }];
