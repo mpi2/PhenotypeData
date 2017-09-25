@@ -79,9 +79,9 @@ public class PhenotypeCallSummarySolr {
 	}
 
 
-	public PhenotypeFacetResult getPreQcPhenotypeCallByGeneAccessionAndFilter(String accId, List<String> topLevelMpTermName, List<String> resourceFullname) throws IOException, URISyntaxException, SolrServerException {
-		return preqcService.getMPByGeneAccessionAndFilter(accId, topLevelMpTermName, resourceFullname);
-	}
+//	removing as no longer used any reason to keep this? public PhenotypeFacetResult getPreQcPhenotypeCallByGeneAccessionAndFilter(String accId, List<String> topLevelMpTermName, List<String> resourceFullname) throws IOException, URISyntaxException, SolrServerException {
+//		return preqcService.getMPByGeneAccessionAndFilter(accId, topLevelMpTermName, resourceFullname);
+//	}
 
 
 	public List<? extends StatisticalResult> getStatisticalResultFor(String accession, String parameterStableId, ObservationType observationType, String strainAccession, String alleleAccession) throws IOException, URISyntaxException {
