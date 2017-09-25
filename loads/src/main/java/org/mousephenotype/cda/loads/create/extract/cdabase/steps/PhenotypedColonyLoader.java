@@ -135,7 +135,12 @@ public class PhenotypedColonyLoader implements InitializingBean, Step {
             phenotypedColony.setBackgroundStrain(fs.readString("backgroundStrainName"));
 
             Organisation phenotypingCentre = new Organisation();
-            phenotypingCentre.setName(fs.readString("phenotypingCentre"));
+
+            // iMits stores the center name as MARC, we receive the center name as Ning, with MARC
+            // being the consortium name
+            String phenotypingCenterName = fs.readString("phenotypingCentre");
+            phenotypingCenterName = (phenotypingCenterName.equalsIgnoreCase("MARC")) ? "Ning" : phenotypingCenterName;
+            phenotypingCentre.setName(phenotypingCenterName);
             phenotypedColony.setPhenotypingCentre(phenotypingCentre);
 
             Project phenotypingConsortium = new Project();
@@ -144,9 +149,13 @@ public class PhenotypedColonyLoader implements InitializingBean, Step {
 
             /**
              * The imits column 'cohortProductionCentre' maps to our productionCentre.
+             // iMits stores the center name as MARC, we receive the center name as Ning, with MARC
+             // being the consortium name
              */
             Organisation productionCentre = new Organisation();
-            productionCentre.setName(fs.readString("cohortProductionCentre"));
+            String productionCenterName = fs.readString("cohortProductionCentre");
+            productionCenterName = (productionCenterName.equalsIgnoreCase("MARC")) ? "Ning" : productionCenterName;
+            productionCentre.setName(productionCenterName);
             phenotypedColony.setProductionCentre(productionCentre);
 
             Project productionConsortium = new Project();

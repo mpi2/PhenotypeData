@@ -134,11 +134,7 @@
             <dependency>
                 <groupId>org.mousephenotype.dcc.exportlibrary.xmlserialization</groupId>
                 <artifactId>exportlibrary.xmlserialization</artifactId>
-                <!-- current version of exportlibrary defines v1.3.1
-                     NOTE: We tried using exportlibrary.xmlserialization-1.3.3.jar from tomasz but it was
-                           missing core generated classes, so have reverted back to 1.3.1.
-                -->
-                <version>1.3.1</version>
+                <version>1.3.4</version>
             </dependency>
 
         </dependencies>

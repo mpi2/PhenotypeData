@@ -70,6 +70,9 @@ public class LoadUtils {
         put("Tcp",                      "TCP");                         // center.centerId -> organisation.name
         put("Ucd",                      "UC Davis");                    // center.centerId -> organisation.name
         put("Wtsi",                     "WTSI");                        // center.centerId -> organisation.name
+        put("Kmpc",                     "KMPC");                        // center.centerId -> organisation.name
+        put("Biat",                     "BIAT");                        // center.centerId -> organisation.name
+        put("Ph",                       "PH");                          // center.centerId -> organisation.name
     }};
 
     public static <K, V> Map<V, K> inverseMap(Map<K, V> sourceMap) {
@@ -96,6 +99,8 @@ public class LoadUtils {
         put("NorCOMM2",                 "NorCOMM2");                    // center.project -> project.name
         put("Phenomin",                 "Phenomin");                    // center.project -> project.name
         put("RIKEN BRC",                "RBRC");                        // center.project -> project.name
+        put("KMPC",                     "KMPC");                        // center.project -> project.name
+        put("Kmpc",                     "KMPC");                        // center.project -> project.name
     }};
 
 

@@ -40,6 +40,8 @@ import org.springframework.boot.Banner;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.Lazy;
+
 import javax.inject.Inject;
 import javax.sql.DataSource;
 import java.text.DateFormat;
@@ -70,6 +72,7 @@ public class LoadFromDcc implements CommandLineRunner {
     private       SqlUtils         sqlUtils = new SqlUtils();
 
     @Inject
+    @Lazy
     public LoadFromDcc(
             JobBuilderFactory jobBuilderFactory,
             StepBuilderFactory stepBuilderFactory,

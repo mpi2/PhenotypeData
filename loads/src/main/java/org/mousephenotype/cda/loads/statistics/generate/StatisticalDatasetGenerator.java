@@ -218,11 +218,13 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
                                 mappedDataValue = "";
                                 break;
 
-                            case "no data left eye":
-                            case "no data right eye":
-                                // Map to normal category
-                                mappedDataValue = normalEyeCategory.get(observationDTO.getParameterStableId());
-                                break;
+                            // Per MPI2 F2F 20170922
+                            // Do not remap the "one eye normal" categories to "normal"
+//                            case "no data left eye":
+//                            case "no data right eye":
+//                                // Map to normal category
+//                                mappedDataValue = normalEyeCategory.get(observationDTO.getParameterStableId());
+//                                break;
 
                             case "no data left eye, present right eye":
                                 mappedDataValue = "present right eye";

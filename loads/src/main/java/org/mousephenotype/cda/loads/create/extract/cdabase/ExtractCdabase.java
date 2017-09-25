@@ -39,6 +39,7 @@ import org.springframework.boot.Banner;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
 
 import javax.annotation.Resource;
@@ -102,6 +103,7 @@ public class ExtractCdabase implements CommandLineRunner {
 
     @Autowired
     @Qualifier("cdabaseDataSource")
+    @Lazy
     private DataSource cdabaseDataSource;
 
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());

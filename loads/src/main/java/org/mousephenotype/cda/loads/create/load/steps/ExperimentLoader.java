@@ -43,11 +43,14 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.util.Assert;
 
-import javax.inject.Inject;
 import java.math.BigInteger;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 /**
  * Loads the experiments from a database with a dcc schema into the cda database.
@@ -57,15 +60,18 @@ import java.util.*;
  */
 public class ExperimentLoader implements Step, Tasklet, InitializingBean {
 
-    private CommonUtils                commonUtils = new CommonUtils();
-    private CdaSqlUtils                cdaSqlUtils;
-    private DccSqlUtils                dccSqlUtils;
-    private StrainMapper               strainMapper;
-    private NamedParameterJdbcTemplate jdbcCda;
+    // How many threads used to process experiments
+    private static final int N_THREADS = 40;
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
-    private StepBuilderFactory            stepBuilderFactory;
 
+    private CommonUtils                commonUtils = new CommonUtils();
+    private StrainMapper               strainMapper;
+
+    final private CdaSqlUtils                cdaSqlUtils;
+    final private DccSqlUtils                dccSqlUtils;
+    final private NamedParameterJdbcTemplate jdbcCda;
+    final private StepBuilderFactory            stepBuilderFactory;
 
     private Set<String> badDates                     = new HashSet<>();
     private Set<String> experimentsMissingSamples    = new HashSet<>();        // value = specimenId + "_" + cda phenotypingCenterPk
@@ -88,12 +94,10 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
     private int sampleLevelProcedureCount = 0;
 
     // lookup maps returning specified parameter type list given cda procedure primary key
-    private Map<String, Allele> allelesBySymbolMap;
+    final private Map<String, Allele> allelesBySymbolMap;
     
     private final boolean INCLUDE_DERIVED_PARAMETERS = false;
 
-
-    @Inject
     public ExperimentLoader(NamedParameterJdbcTemplate jdbcCda,
                             StepBuilderFactory stepBuilderFactory,
                             CdaSqlUtils cdaSqlUtils,
@@ -170,17 +174,17 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
     // lookup maps returning cda table primary key given dca unique string
     // Initialise them here, as this code gets called multiple times for different dcc data sources
     // and these maps must be cleared before their second and subsequent uses.
-    private Map<String, Integer>          cdaDb_idMap = new HashMap<>();
-    private Map<String, Integer>          cdaOrganisation_idMap = new HashMap<>();
-    private Map<String, Integer>          cdaProject_idMap = new HashMap<>();
-    private Map<String, Integer>          cdaPipeline_idMap                 = new HashMap<>();
-    private Map<String, Integer>          cdaProcedure_idMap                = new HashMap<>();
-    private Map<String, Integer>          cdaParameter_idMap                = new HashMap<>();
-    private Map<String, String>           cdaParameterNameMap               = new HashMap<>();              // map of impress parameter names keyed by stable_parameter_id
-    private Set<String>                   derivedImpressParameters          = new HashSet<>();
-    private Set<String>                   metadataAndDataAnalysisParameters = new HashSet<>();
-    private Map<String, BiologicalSample> samplesMap                        = new HashMap<>();                       // keyed by external_id and organisation_id (e.g. "mouseXXX_12345")
-    private Map<String, PhenotypedColony> phenotypedColonyMap               = new HashMap<>();
+    private Map<String, Integer>                cdaDb_idMap = new HashMap<>();
+    final private Map<String, Integer>          cdaOrganisation_idMap;
+    final private Map<String, PhenotypedColony> phenotypedColonyMap;
+    private Map<String, Integer>                cdaProject_idMap = new HashMap<>();
+    private Map<String, Integer>                cdaPipeline_idMap                 = new HashMap<>();
+    private Map<String, Integer>                cdaProcedure_idMap                = new HashMap<>();
+    private Map<String, Integer>                cdaParameter_idMap                = new HashMap<>();
+    private Map<String, String>                 cdaParameterNameMap               = new HashMap<>();              // map of impress parameter names keyed by stable_parameter_id
+    private Set<String>                         derivedImpressParameters          = new HashSet<>();
+    private Set<String>                         metadataAndDataAnalysisParameters = new HashSet<>();
+    private Map<String, BiologicalSample>       samplesMap                        = new HashMap<>();              // keyed by external_id and organisation_id (e.g. "mouseXXX_12345")
 
     // DCC parameter lookup maps, keyed by procedure_pk
     private Map<Long, List<MediaParameter>>       mediaParameterMap = new HashMap<>();
@@ -200,7 +204,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
 
         long startStep = new Date().getTime();
         List<DccExperimentDTO> dccExperiments = dccSqlUtils.getExperiments();
-        Map<String, Integer>   counts;
+        Map<String, Integer> counts;
 
         strainMapper = new StrainMapper(cdaSqlUtils);
 
@@ -280,6 +284,11 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
 
         int experimentCount = 0;
         int skippedExperimentsCount = 0;
+
+        ExecutorService executor = Executors.newFixedThreadPool(N_THREADS);
+
+        List<Future<Experiment>> tasks = new ArrayList<>();
+
         for (DccExperimentDTO dccExperiment : dccExperiments) {
 
             // Skip any experiments with known bad colony ids.
@@ -289,12 +298,56 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
                 continue;
             }
 
-            insertExperiment(dccExperiment);
+            Callable<Experiment> task = () -> insertExperiment(dccExperiment);
+            tasks.add(executor.submit(task));
+
             experimentCount++;
             if (experimentCount % 100000 == 0) {
-                logger.info("Processed {} experiments", experimentCount);
+                logger.info("Submitted {} experiments", experimentCount);
+
+                // Drain the queue so we don't run out of memory
+                while (true) {
+                    Integer done = 0;
+                    Integer left = 0;
+                    for (Future<Experiment> future : tasks) {
+                        if (future.isDone()) {
+                            done += 1;
+
+                        } else {
+                            left += 1;
+                        }
+                    }
+
+                    if (left == 0) {
+                        tasks = new ArrayList<>();
+                        break;
+                    }
+                    Thread.sleep(5000);
+
+                }
             }
         }
+
+        // Drain the final set
+        logger.info("Processing final queue of " + tasks.size());
+        executor.shutdown();
+
+//
+//        for (DccExperimentDTO dccExperiment : dccExperiments) {
+//
+//            // Skip any experiments with known bad colony ids.
+//            if (DccSqlUtils.knownBadColonyIds.contains(dccExperiment.getColonyId())) {
+//                skippedExperiments.add(dccExperiment.getDatasourceShortName() + " experiment " + dccExperiment.getExperimentId());
+//                skippedExperimentsCount++;
+//                continue;
+//            }
+//
+//            insertExperiment(dccExperiment);
+//            experimentCount++;
+//            if (experimentCount % 100000 == 0) {
+//                logger.info("Processed {} experiments", experimentCount);
+//            }
+//        }
 
         // Print out the counts.
         List<List<String>> loadCounts = cdaSqlUtils.getLoadCounts();
@@ -863,14 +916,20 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
     private void insertSimpleParameter(DccExperimentDTO dccExperiment, SimpleParameter simpleParameter, int experimentPk,
                                        int dbId, Integer biologicalSamplePk, int missing) throws DataLoadException {
         String parameterStableId = simpleParameter.getParameterID();
-        int parameterPk = cdaParameter_idMap.get(parameterStableId);
+        Integer parameterPk = cdaParameter_idMap.get(parameterStableId);
+        if (parameterPk == null) {
+            logger.warn("Experiment {}: unknown parameterStableId {} for simpleParameter {}. Skipping...",
+                    dccExperiment, parameterStableId, simpleParameter.getParameterID());
+            return;
+        }
+
         String sequenceId = (simpleParameter.getSequenceID() == null ? null : simpleParameter.getSequenceID().toString());
 
         ObservationType observationType = cdaSqlUtils.computeObservationType(parameterStableId, simpleParameter.getValue());
 
         String[] rawParameterStatus = commonUtils.parseImpressStatus(simpleParameter.getParameterStatus());
-        String parameterStatus = rawParameterStatus[0];
-        String parameterStatusMessage = rawParameterStatus[1];
+        String parameterStatus = ((rawParameterStatus != null) && (rawParameterStatus.length > 0) ? rawParameterStatus[0] : null);
+        String parameterStatusMessage = ((rawParameterStatus != null) && (rawParameterStatus.length > 1) ? rawParameterStatus[1] : null);
 
         if (parameterStatus != null)
             missing = 1;
