@@ -17,13 +17,14 @@
 /**
  * handling of data on phenodigm2-specific pages 
  * 
- * requires d3, _, $, Phenogrid
+ * requires: 
  * 
  * d3 - used to generate visualizations, generate tables from json
  * _ - misc manipulations of objects and arrays
  * $ - jquery, used to manipulate dom (legacy)
  * Phenogrid - used to display phenogrid widget
- * 
+ * modelAssociations - object expected to be defined in page before these
+ *                     functions are called
  * 
  * The code uses an ugly mixture of d3 and jQuery. This is mostly
  * 
@@ -34,7 +35,7 @@
  * 
  */
 
-/* global d3, _, $, impc */
+/* global d3, _, $, impc, monarchUrl, Phenogrid, modelAssociations */
 
 if (typeof impc === "undefined") {
     impc = {};
@@ -424,8 +425,7 @@ impc.phenodigm2.drawScatterplot = function (darr, conf) {
  * @return a jquery div 
  */
 impc.phenodigm2.makeTableChildRow = function (pagetype, geneId, diseaseId) {
-    var genenum = geneId.split(":")[1]
-    //console.log("creating childrow");
+    var genenum = geneId.split(":")[1];    
     var innerdiv = $(document.createElement('div'))
             .addClass("inner")
             .attr({
@@ -439,28 +439,6 @@ impc.phenodigm2.makeTableChildRow = function (pagetype, geneId, diseaseId) {
 };
 
 
-
-/**
- * Fetch data for a phenogrid from server through an ajax call.
- * The result of this query will be a quasi-filled skeleton for the phenogrid.
- * Some fields in the grid will not be accurate and will have to be filled in 
- * separately.
- * 
- * @param {string} geneId
- * @param {string} diseaseId
- * @param {string} pageType
- * @returns {jqXHR}
- */
-//impc.phenodigm2.getPhenoGridSkeleton = function (geneId, diseaseId, pageType) {
-    //console.log("starting fetch: " + new Date());
-    //console.log("with " + geneId + " " + diseaseId + " " + pageType);
-  //  return $.getJSON(impc.baseUrl + "/phenodigm2/phenogrid",
-  //          {geneId: geneId, diseaseId: diseaseId, pageType: pageType}
-  //  );
-//};
-
-
-/* global modelAssociations */
 
 /**
  * Fills in data into a phenogrid skeleton object. A skeleton obtained from
@@ -569,7 +547,7 @@ impc.phenodigm2.insertModelDetails = function (targetdiv, geneId, models) {
     };
 
     // create html table (one line per model)    
-    models.map(function (modeldata) {        
+    models.map(function (modeldata) {
         var trow = tbody.append("tr");
         var modelid = modeldata["id"];
         trow.append("td").html(modelid);
@@ -604,8 +582,6 @@ impc.phenodigm2.insertModelDetails = function (targetdiv, geneId, models) {
 };
 
 
-/* global monarchUrl */
-
 /**
  * Create a phenogrid object and insert it within a clicked div
  * 
@@ -622,29 +598,31 @@ impc.phenodigm2.insertPhenogrid = function (tableId, geneId, diseaseId, pageType
     var gridColumnWidth = 25;
     var gridRowHeight = 50;
 
-    // fetch the core skeleton from the IMPC api
-    var ajax= $.getJSON(impc.baseUrl + "/phenodigm2/phenogrid",
+    // fetch a core skeleton from the IMPC api. 
+    var ajax = $.getJSON(impc.baseUrl + "/phenodigm2/phenogrid",
             {geneId: geneId, diseaseId: diseaseId, pageType: pageType}
     );
-    // when loaded, use the skeleton data to create an inner table+phenogrid    
-    ajax.done(function (result) {
-                //console.log("raw result is: " + JSON.stringify(result));
-                result = impc.phenodigm2.completeGridSkeleton(result);
-                if (pageType === "disease") {
-                    var innertab = d3.select(tableId + " .inner[geneid='" + geneId + "'] .inner_table");
-                    impc.phenodigm2.insertModelDetails(innertab, geneId, result.xAxis[0].entities);
-                }
-                Phenogrid.createPhenogridForElement(targetdiv, {
-                    //monarchUrl is a global variable provided via Spring from application.properties
-                    serverURL: monarchUrl,
-                    // sort method of sources: "Alphabetic", "Frequency and Rarity", "Frequency,
-                    selectedSort: "Frequency and Rarity",
-                    gridSkeletonDataVendor: 'IMPC',
-                    gridSkeletonData: result,
-                    singleTargetModeTargetLengthLimit: gridColumnWidth,
-                    sourceLengthLimit: gridRowHeight
-                });
-            });
+    // when fetch complete, use the skeleton data to create a phenogrid    
+    ajax.done(function (result) {        
+        // complete the skeleton using modelAssociations
+        result = impc.phenodigm2.completeGridSkeleton(result);
+        // perhaps create an inner table (disease pages only)
+        if (pageType === "disease") {
+            var innertab = d3.select(tableId + " .inner[geneid='" + geneId + "'] .inner_table");
+            impc.phenodigm2.insertModelDetails(innertab, geneId, result.xAxis[0].entities);
+        }
+        // generate phenogrid widget (heatmap)
+        Phenogrid.createPhenogridForElement(targetdiv, {
+            //monarchUrl is a global variable provided via Spring from application.properties
+            serverURL: monarchUrl,
+            // sort method of sources: "Alphabetic", "Frequency and Rarity", "Frequency,
+            selectedSort: "Frequency and Rarity",
+            gridSkeletonDataVendor: 'IMPC',
+            gridSkeletonData: result,
+            singleTargetModeTargetLengthLimit: gridColumnWidth,
+            sourceLengthLimit: gridRowHeight
+        });
+    });
 };
 
 /** 
@@ -674,16 +652,16 @@ $.fn.addTableClickPhenogridHandler = function (tableId, table) {
             geneId = tr.attr("geneid");
         } else {
             diseaseId = tr.attr("diseaseid");
-        }        
+        }
         if (typeof geneId === "undefined") {
             return;
         }
 
         // toggle (show/hide) an inner box
-        if (row.child.isShown()) {            
+        if (row.child.isShown()) {
             row.child.hide();
             tr.find("td.toggleButton i").removeClass("fa-minus-square").addClass("fa-plus-square");
-        } else {                  
+        } else {
             row.child(impc.phenodigm2.makeTableChildRow(pagetype, geneId, diseaseId)).show();
             impc.phenodigm2.insertPhenogrid(tableId, geneId, diseaseId, pagetype);
             tr.find("td.toggleButton i").removeClass("fa-plus-square").addClass("fa-minus-square");
