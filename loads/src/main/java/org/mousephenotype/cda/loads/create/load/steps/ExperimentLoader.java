@@ -71,13 +71,12 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
     final private CdaSqlUtils                cdaSqlUtils;
     final private DccSqlUtils                dccSqlUtils;
     final private NamedParameterJdbcTemplate jdbcCda;
-    final private StepBuilderFactory            stepBuilderFactory;
+    final private StepBuilderFactory         stepBuilderFactory;
 
     private Set<String> badDates                     = new HashSet<>();
     private Set<String> experimentsMissingSamples    = new HashSet<>();        // value = specimenId + "_" + cda phenotypingCenterPk
     private Set<String> missingBackgroundStrains     = new HashSet<>();
     private Set<String> missingColonyIds             = new HashSet<>();
-    private Set<String> experimentsMissingColonyIds  = new HashSet<>();
     private Set<String> missingProjects              = new HashSet<>();
     private Set<String> experimentsMissingProjects   = new HashSet<>();
     private Set<String> missingCenters               = new HashSet<>();
@@ -374,11 +373,6 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
             logger.warn(missingColonyIdsIt.next());
         }
 
-        Iterator<String> experimentsMissingColonyIdsIt = experimentsMissingColonyIds.iterator();
-        while (experimentsMissingColonyIdsIt.hasNext()) {
-            logger.warn(experimentsMissingColonyIdsIt.next());
-        }
-
         Iterator<String> missingBackgroundStrainsIt = missingBackgroundStrains.iterator();
         while (missingBackgroundStrainsIt.hasNext()) {
             logger.info(missingBackgroundStrainsIt.next());
@@ -528,9 +522,10 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
 
             PhenotypedColony phenotypedColony = phenotypedColonyMap.get(dccExperiment.getColonyId());
             if ((phenotypedColony == null) || (phenotypedColony.getColonyName() == null)) {
-                logger.warn("Unable to get phenotypedColony for experiment samples for colonyId {} to apply special MGP" +
-                            " remap rule for EuroPhenome. Rule NOT applied.",
-                            dccExperiment.getColonyId());
+                String errMsg = "Unable to get phenotypedColony for experiment samples for colonyId {} to apply special MGP" +
+                                " remap rule for EuroPhenome. Rule NOT applied." + dccExperiment.getColonyId();
+                missingColonyIds.add(errMsg);
+
                 return null;
             }
 
@@ -603,12 +598,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
 
             PhenotypedColony phenotypedColony = phenotypedColonyMap.get(dccExperiment.getColonyId());
             if ((phenotypedColony == null) || (phenotypedColony.getColonyName() == null)) {
-                missingColonyIds.add("Missing colony '" + dccExperiment.getColonyId() + "'");
-                if (dccExperiment.isLineLevel()) {
-                    experimentsMissingColonyIds.add("Null/invalid colony '" + dccExperiment.getColonyId() + "'\tcenter::line\t" + dccExperiment.getPhenotypingCenter() + "::" + dccExperiment.getExperimentId());
-                } else {
-                    experimentsMissingColonyIds.add("Null/invalid colony '" + dccExperiment.getColonyId() + "'\tcenter::experiment\t" + dccExperiment.getPhenotypingCenter() + "::" + dccExperiment.getExperimentId());
-                }
+                missingColonyIds.add("Null/invalid colony '" + dccExperiment.getColonyId() + "'\tcenter\t" + dccExperiment.getPhenotypingCenter());
                 return null;
             }
 
@@ -728,8 +718,8 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
             String bsKey = dccExperiment.getSpecimenId() + "_" + phenotypingCenterPk;
             BiologicalSample bs = samplesMap.get(bsKey);
             if (bs == null) {
-                experimentsMissingSamples.add("Missing sample    phenotypingCenterPk::center::colonyId\t" +
-                                               phenotypingCenterPk + "::" + phenotypingCenter + "::" + dccExperiment.getColonyId());
+                experimentsMissingSamples.add("Missing sample    bsKey::specimenId::phenotypingCenterPk::center::colonyId\t" +
+                                               bsKey + "::" + dccExperiment.getSpecimenId() + "::" + phenotypingCenterPk + "::" + phenotypingCenter + "::" + dccExperiment.getColonyId());
 
                 return;
             }
@@ -838,28 +828,23 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
     }
 
     /**
-     * Validates and returns date of experiment, if valid; null otherwise. Logs null/invalid dates.
-     * @param dccExperiment
-     * @return the date of experiment, if valid; null otherwise.
+     * This method is meant to be called when a non-null, non-zero date is expected. The date is validated to be:
+     * not null, not zero, and between MIN_DATE and MAX_DATE, inclusive. If it is, the date is returned; otherwise,
+     * null is returned.
      */
     private Date getDateOfExperiment(DccExperimentDTO dccExperiment) {
         Date dateOfExperiment;
         SimpleDateFormat dateFormat  = new SimpleDateFormat("yyyy-MM-dd");
 
-        String experimentId = dccExperiment.getExperimentId();
         Date dccDate = dccExperiment.getDateOfExperiment();
-        String message = "Invalid date '" + dccDate + "'    center::experiment    " + dccExperiment.getPhenotypingCenter() + "::" + experimentId;
+        String message = "Invalid date '" + dccDate + "' for center " + dccExperiment.getPhenotypingCenter();
 
         try {
 
             Date maxDate = new Date();
             Date minDate = dateFormat.parse("1975-01-01");
 
-            if (dccDate.before(minDate)) {
-                badDates.add(message);
-                return null;
-
-            } else if (dccDate.after(maxDate)) {
+            if ( ! commonUtils.isDateValid(dccDate, minDate, maxDate)) {
                 badDates.add(message);
                 return null;
             }
@@ -1226,6 +1211,14 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
 
                     try {
                         timePoint = simpleDateFormat.parse(parsedIncrementValue);                                       // timePoint (overridden if increment value represents a date.
+                        SimpleDateFormat ymdFormat = new SimpleDateFormat("yyyy-MM-dd");
+                        Date maxDate = new Date();
+                        Date minDate = ymdFormat.parse("1975-01-01");
+                        String message = "Invalid date '" + ymdFormat.format(timePoint) + "' for center " + dccExperiment.getPhenotypingCenter();
+                        if ( ! commonUtils.isDateValid(timePoint, minDate, maxDate)) {
+                            valueMissing = 1;
+                            badDates.add(message);
+                        }
 
                     } catch (ParseException e) { }
                 }
