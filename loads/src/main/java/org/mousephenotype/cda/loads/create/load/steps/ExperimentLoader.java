@@ -429,7 +429,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         }
 
 
-        logger.info("Skipped {} experiments because of known bad colony id", skippedExperimentsCount);
+//        logger.info("Skipped {} experiments because of known bad colony id", skippedExperimentsCount);
 
         logger.info("Wrote {} sample-Level procedures", sampleLevelProcedureCount);
         logger.info("Wrote {} line-Level procedures", lineLevelProcedureCount);
@@ -862,7 +862,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
     private int getBiologicalModelId(
             PhenotypedColony phenotypedColony,
             List<SimpleParameter> simpleParameters) throws DataLoadException {
-        int biological_model_id = 0;
+        int biological_model_id;
 
         String zygosity = getZygosity(simpleParameters);
         String sampleGroup = "experimental";
