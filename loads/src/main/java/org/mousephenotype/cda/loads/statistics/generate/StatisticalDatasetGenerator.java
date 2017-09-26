@@ -55,7 +55,7 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
     }
 
     private final Set<String> skipProcedures = new HashSet<>(Arrays.asList(
-            "SLM_PBI", "SLM_HEM", "IMPC_ABR", "IMPC_ALZ", "IMPC_HIS", "IMPC_GEM",
+            "SLM_PBI", "SLM_HEM", "IMPC_ALZ", "IMPC_HIS", "IMPC_GEM",
             "IMPC_EMA", "IMPC_GEP", "IMPC_GPP", "IMPC_EVP", "IMPC_MAA", "IMPC_GEO",
             "IMPC_GPO", "IMPC_EMO", "IMPC_GPO", "IMPC_EVO", "IMPC_GPM", "IMPC_EVM",
             "IMPC_GEL", "IMPC_HPL", "IMPC_HEL", "IMPC_EOL", "IMPC_GPL", "IMPC_EVL",
