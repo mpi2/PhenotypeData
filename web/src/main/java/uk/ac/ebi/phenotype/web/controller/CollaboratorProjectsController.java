@@ -15,16 +15,6 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.web.controller;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import javax.servlet.http.HttpServletRequest;
-
 import org.apache.commons.lang.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -39,30 +29,38 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import javax.servlet.http.HttpServletRequest;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
 
 @Controller
-public class ToolsPageController {
+public class CollaboratorProjectsController {
 
-	private static final Logger logger = LoggerFactory.getLogger(ToolsPageController.class);
+	private static final Logger logger = LoggerFactory.getLogger(CollaboratorProjectsController.class);
 
 	/**
 	 * tools page
 	 *
 	 */
 
-	@Value("classpath:tools.txt")
-	Resource toolsResource;
+//	@Value("classpath:tools.txt")
+//	Resource toolsResource;
 
 
-	@RequestMapping(value="/tools", method=RequestMethod.GET)
+	@RequestMapping(value="/collaborators", method=RequestMethod.GET)
 	public String loadToolsPage(
 			HttpServletRequest request,
 			Model model) throws IOException {
 
 		String toolsHtml = composeToolBoxes(request);
-		model.addAttribute("tools", toolsHtml);
+		model.addAttribute("collaborators", toolsHtml);
 
-		return "tools";
+		return "collaborators";
 	}
 
 	private String composeToolBoxes(HttpServletRequest request) throws IOException {
@@ -74,7 +72,7 @@ public class ToolsPageController {
 		List<String> toolBlocks = new ArrayList<>();
 
 		// reads from /sre/main/resources/impcTools.json and compose the page
-		BufferedReader in = new BufferedReader(new FileReader(new ClassPathResource("impcTools.json").getFile()));
+		BufferedReader in = new BufferedReader(new FileReader(new ClassPathResource("collaborators.json").getFile()));
 		if (in != null) {
 			String json = in.lines().collect(Collectors.joining(" "));
 			JSONArray tools = null;
