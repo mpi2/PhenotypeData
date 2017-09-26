@@ -606,7 +606,7 @@ public class GenesController {
 
 		List<PhenotypeCallSummaryDTO> phenotypeList = new ArrayList<PhenotypeCallSummaryDTO>();
 		PhenotypeFacetResult phenoResult = null;
-		PhenotypeFacetResult preQcResult = new PhenotypeFacetResult();
+		//PhenotypeFacetResult preQcResult = new PhenotypeFacetResult();
 		
 		
 		//for image links we need a query that brings back mp terms and colony_ids that have mp terms
@@ -616,21 +616,21 @@ public class GenesController {
 		try {
 
 			phenoResult = phenotypeCallSummaryService.getPhenotypeCallByGeneAccessionAndFilter(acc, topLevelMpTermName, resourceFullname);
-			preQcResult = phenotypeCallSummaryService.getPreQcPhenotypeCallByGeneAccessionAndFilter(acc, topLevelMpTermName, resourceFullname);
+			//preQcResult = phenotypeCallSummaryService.getPreQcPhenotypeCallByGeneAccessionAndFilter(acc, topLevelMpTermName, resourceFullname);
 
 			phenotypeList = phenoResult.getPhenotypeCallSummaries();
-			phenotypeList.addAll(preQcResult.getPhenotypeCallSummaries());
+			//phenotypeList.addAll(preQcResult.getPhenotypeCallSummaries());
 
 			Map<String, Map<String, Integer>> phenoFacets = phenoResult.getFacetResults();
-			Map<String, Map<String, Integer>> preQcFacets = preQcResult.getFacetResults();
+			//Map<String, Map<String, Integer>> preQcFacets = preQcResult.getFacetResults();
 
-			for (String key : preQcFacets.keySet()){
-				if (preQcFacets.get(key).keySet().size() > 0){
-					for (String key2: preQcFacets.get(key).keySet()){
-						phenoFacets.get(key).put(key2, preQcFacets.get(key).get(key2));
-					}
-				}
-			}
+//			for (String key : preQcFacets.keySet()){
+//				if (preQcFacets.get(key).keySet().size() > 0){
+//					for (String key2: preQcFacets.get(key).keySet()){
+//						phenoFacets.get(key).put(key2, preQcFacets.get(key).get(key2));
+//					}
+//				}
+//			}
 
 			// sort facets
 			model.addAttribute("phenoFacets", sortPhenFacets(phenoFacets));
