@@ -534,6 +534,10 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
                 dccExperiment.setDatasourceShortName(CdaSqlUtils.MGP);
                 dbId = cdaDb_idMap.get(dccExperiment.getDatasourceShortName());
             }
+
+            // Make sure to remap the phenotypingCenterPk and phenotypingCenter to the iMits value, which takes precedence.
+            phenotypingCenterPk = phenotypedColony.getPhenotypingCentre().getId();
+            phenotypingCenter = LoadUtils.mappedExternalCenterNames.get(phenotypedColony.getPhenotypingCentre().getName());
         }
 
         projectPk = cdaProject_idMap.get(dccExperiment.getProject());
