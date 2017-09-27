@@ -1896,6 +1896,8 @@ INSERT INTO project(id, name, fullname, description) VALUES(21, 'Infrafrontier-I
 INSERT INTO project(id, name, fullname, description) VALUES(22, 'KMPC', 'Korea Mouse Phenotyping Center', 'Korea Mouse Phenotyping Center');
 INSERT INTO project(id, name, fullname, description) VALUES(23, 'UC Davis', 'University of California at Davis School of Veterinary Medicine', 'UC Davis Veterinary Medicine');
 INSERT INTO project(id, name, fullname, description) VALUES(24, 'NARLabs', 'National Applied Research Laboratories', 'National Applied Research Laboratories');
+INSERT INTO project(id, name, fullname, description) VALUES(25, 'CCP', 'Czech Centre for Phenogenomics', 'Czech Centre for Phenogenomics');
+INSERT INTO project(id, name, fullname, description) VALUES(26, 'IMG', 'Institute of Molecular Genetics of the ASCR, v.v.i', 'Institute of Molecular Genetics of the ASCR, v.v.i');
 
 
 /**
@@ -1942,6 +1944,7 @@ INSERT INTO organisation(id, name, fullname, country) VALUES(35, 'MARC', 'Model 
 INSERT INTO organisation(id, name, fullname, country) VALUES(36, 'NARLabs', 'National Applied Research Laboratories', 'Taiwan');
 INSERT INTO organisation(id, name, fullname, country) VALUES(37, 'BIAT', 'University of Veterinary Medicine Vienna', 'Austria');
 INSERT INTO organisation(id, name, fullname, country) VALUES(38, 'PH', 'Academy of Sciences of the Czech Republic', 'Czech Republic');
+INSERT INTO organisation(id, name, fullname, country) VALUES(39, 'VETMEDUNI', 'University of Veterinary Medicine, Vienna', 'Austria');
 
 
 /**

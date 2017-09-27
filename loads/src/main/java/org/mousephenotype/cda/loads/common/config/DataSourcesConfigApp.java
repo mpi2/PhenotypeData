@@ -115,9 +115,13 @@ public class DataSourcesConfigApp {
         ds.setRemoveAbandonedTimeout(10000); // 10 seconds before abandoning a query
 
         try {
-            logger.info("Using cdasource database {} with initial pool size {}", ds.getConnection().getCatalog(), ds.getInitialSize());
+            logger.info("Using cdasource database {} with initial pool size {}. URL: {}", ds.getConnection().getCatalog(), ds.getInitialSize(), url);
 
-        } catch (Exception e) { }
+        } catch (Exception e) {
+
+            System.err.println(e.getLocalizedMessage());
+            e.printStackTrace();
+        }
 
         return ds;
     }
