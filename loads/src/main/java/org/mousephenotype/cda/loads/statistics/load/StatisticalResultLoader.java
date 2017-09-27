@@ -81,7 +81,7 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
     void populateBioModelMap() throws SQLException {
         Map<String, Map<ZygosityType, Integer>> map = bioModelMap;
 
-        String query = "SELECT DISTINCT colony_id, ls.zygosity, bm.biological_model_id, strain.name " +
+        String query = "SELECT DISTINCT colony_id, ls.zygosity, bm.id as biological_model_id, strain.name " +
                 "FROM live_sample ls " +
                 "INNER JOIN biological_sample bs ON ls.id=bs.id " +
                 "INNER JOIN biological_model_sample bms ON bms.biological_sample_id=ls.id " +
