@@ -35,10 +35,10 @@
     "site":"external"
   },
   {
-    "urlPath": "",
-    "toolName": "KOMP Bone",
-    "imagePath": "/img/xxx.png",
-    "description": "Need description here.",
+    "urlPath": "http://bonebase.org/bonebase/",
+    "toolName": "KOMP Bonebase",
+    "imagePath": "/img/komp-bone-logo.jpg",
+    "description": "This resource is performing in-depth bone phenotyping of IMPC mice produced by the Jackson Laboratory and draws from the expertise of a multi-disciplinary team based at the University of Connecticut, the UCONN Health Center, the University of Rochester Medical Center, and the Jackson Laboratory. IMPC mouse lines are subjected to detailed microCT analysis and those lines determined as having abnormal trabecular or cortical bone are further characterized in dynamic and cellular histomorphometry assays.",
     "site":"external"
   },
   {
