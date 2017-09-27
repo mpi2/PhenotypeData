@@ -51,16 +51,42 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
     Map<String, Integer> projectMap = new HashMap<>();
     Map<String, String> colonyAlleleMap = new HashMap<>();
     Map<String, Map<ZygosityType, Integer>> bioModelMap = new HashMap<>();
+    Map<Integer, String> bioModelStrainMap = new HashMap<>();
+    Map<String, Integer> controlBioModelMap = new HashMap<>();
 
 
+
+    void populateControlBioModelMap() throws SQLException {
+        Map<String, Integer> map = controlBioModelMap;
+
+        String query = "SELECT  * FROM biological_model bm " +
+                "INNER JOIN biological_model_strain bmstrain ON bmstrain.biological_model_id=bm.id " +
+                "INNER JOIN strain ON strain.acc=bmstrain.strain_acc " +
+                "WHERE allelic_composition = '' " ;
+
+        try (Connection connection = komp2DataSource.getConnection(); PreparedStatement p = connection.prepareStatement(query)) {
+            ResultSet r = p.executeQuery();
+            while (r.next()) {
+
+                String background = r.getString("name");
+                Integer modelId = r.getInt("biological_model_id");
+
+                map.put(background, modelId);
+            }
+        }
+
+        logger.info(" Mapped {} biological model entries", map.size());
+    }
 
     void populateBioModelMap() throws SQLException {
         Map<String, Map<ZygosityType, Integer>> map = bioModelMap;
 
-        String query = "SELECT DISTINCT colony_id, ls.zygosity, biological_model_id " +
+        String query = "SELECT DISTINCT colony_id, ls.zygosity, bm.id as biological_model_id, strain.name " +
                 "FROM live_sample ls " +
                 "INNER JOIN biological_sample bs ON ls.id=bs.id " +
                 "INNER JOIN biological_model_sample bms ON bms.biological_sample_id=ls.id " +
+                "INNER JOIN biological_model_strain bmstrain ON bmstrain.biological_model_id=bms.biological_model_id " +
+                "INNER JOIN strain ON strain.acc=bmstrain.strain_acc " +
                 "INNER JOIN biological_model bm ON (bm.id=bms.biological_model_id AND bm.zygosity=ls.zygosity) " ;
 
         try (Connection connection = komp2DataSource.getConnection(); PreparedStatement p = connection.prepareStatement(query)) {
@@ -70,6 +96,9 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
                 String colonyId = r.getString("colony_id");
                 ZygosityType zyg = ZygosityType.valueOf(r.getString("zygosity"));
                 Integer modelId = r.getInt("biological_model_id");
+                String strain = r.getString("name");
+
+                bioModelStrainMap.put(modelId, strain);
 
                 map.putIfAbsent(colonyId, new HashMap<>());
                 map.get(colonyId).put(zyg, modelId);
@@ -743,10 +772,12 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
 
         result.setControlSelectionMethod(strategy);
 
-        // TODO: Lookup from colony and zygosity?
-//        result.setControlId(data.getControlBiologicalModelId());
         Integer bioModelId = bioModelMap.get(data.getColonyId()).get(ZygosityType.valueOf(data.getZygosity()));
         result.setExperimentalId(bioModelId);
+
+        Integer controlBioModelId = controlBioModelMap.get(bioModelStrainMap.get(bioModelId));
+        result.setControlId(controlBioModelId);
+
 
         // Lookup from colony ID
         result.setAlleleAccessionId(colonyAlleleMap.get(data.getColonyId()));
@@ -905,6 +936,7 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
         populateProjectMap();
         populateColonyAlleleMap();
         populateBioModelMap();
+        populateControlBioModelMap();
 
 
         // parameter to indicate the location of the result file(s)
