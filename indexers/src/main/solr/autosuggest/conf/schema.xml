@@ -173,8 +173,6 @@
 		<!-- allele2: for product tab on search page -->
 		<field name="ikmc_project" type="string" indexed="true" stored="true" multiValued="false" />
 		<field name="allele_name" type="string" indexed="true" stored="true" multiValued="false" />
-		<field name="marker_name" type="string" indexed="true" stored="true" multiValued="false" />
-		<field name="marker_synonym" type="string" indexed="true" stored="true" multiValued="false" />
 		<!-- marker_symbol is shared with gene -->
 		<field name="gene_allele" type="string" indexed="true" stored="true" multiValued="false" /><!-- combines marker_symbol and allele_name -->
 
