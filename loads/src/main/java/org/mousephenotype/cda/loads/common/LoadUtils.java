@@ -93,6 +93,7 @@ public class LoadUtils {
         put("Helmholtz GMC",            "Helmholtz GMC");               // center.project -> project.name
         put("JAX",                      "JAX");                         // center.project -> project.name
         put("NING",                     "MARC");                        // center.project -> project.name
+        put("MARC",                     "MARC");                        // center.project -> project.name
         put("MGP",                      "MGP");                         // center.project -> project.name
         put("MGP Legacy",               "MGP");                         // center.project -> project.name
         put("MRC",                      "MRC");                         // center.project -> project.name
