@@ -1060,13 +1060,13 @@ public class DataTableController {
 		} else if (mode.equals("gene2go")) {
 			jsonStr = parseJsonforGoDataTable(json, request, solrCoreName, evidRank);
 		} else if (mode.equals("allele2Grid")) {
-			jsonStr = parseJsonforProductDataTable(json, request, solrCoreName);
+			jsonStr = parseJsonforProductDataTable(json, request, query, solrCoreName);
 		}
 
 		return jsonStr;
 	}
 
-	public String parseJsonforProductDataTable(JSONObject json, HttpServletRequest request, String solrCoreName) throws UnsupportedEncodingException {
+	public String parseJsonforProductDataTable(JSONObject json, HttpServletRequest request, String qryStr, String solrCoreName) throws UnsupportedEncodingException {
 
 		String baseUrl = request.getAttribute("baseUrl").toString();
 
@@ -1095,9 +1095,10 @@ public class DataTableController {
 
 			String markerAcc = doc.getString(Allele2DTO.MGI_ACCESSION_ID);
 			String alleleName = doc.getString(Allele2DTO.ALLELE_NAME);
-			String alleleUrl = request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl").toString() + "/alleles/" + markerAcc + "/" + alleleName;
-			String markerSymbol = doc.getString(Allele2DTO.MARKER_SYMBOL);
-			String alleleLink = "<a href='" + alleleUrl + "'>" + markerSymbol + "<sup>" + alleleName + "</sup></a>";
+//			String alleleUrl = request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl").toString() + "/alleles/" + markerAcc + "/" + alleleName;
+//			String markerSymbol = doc.getString(Allele2DTO.MARKER_SYMBOL);
+			String alleleLink = "";//"<a href='" + alleleUrl + "'>" + markerSymbol + "<sup>" + alleleName + "</sup></a>";
+
 			String mutationType = "";
 			String mt = doc.containsKey(Allele2DTO.MUTATION_TYPE) ? doc.getString(Allele2DTO.MUTATION_TYPE) : "";
 			String desc = doc.containsKey(Allele2DTO.ALLELE_DESCRIPTION) ? doc.getString(Allele2DTO.ALLELE_DESCRIPTION) : "";
@@ -1168,7 +1169,9 @@ public class DataTableController {
 				}
 				order.add("</tr>");
 			}
-			rowData.add(alleleLink);
+
+			// populate the cells
+			rowData.add(concateAlleleNameInfo(doc, request, qryStr));
 			rowData.add(mutationType);
 			rowData.add("<table><tbody>" + StringUtils.join(order, "") + "</tbody></table>");
 
@@ -2280,6 +2283,89 @@ public class DataTableController {
 		}
 
 		return StringUtils.join(imgPath, "");
+
+	}
+	private String concateAlleleNameInfo(JSONObject doc, HttpServletRequest request, String qryStr) {
+
+		List<String> alleleNameInfo = new ArrayList<String>();
+
+		String markerAcc = doc.getString(Allele2DTO.MGI_ACCESSION_ID);
+		String alleleName = doc.getString(Allele2DTO.ALLELE_NAME);
+		String alleleUrl = request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl").toString() + "/alleles/" + markerAcc + "/" + alleleName;
+		String markerSymbol = doc.getString(Allele2DTO.MARKER_SYMBOL);
+		String alleleLink = "<a href='" + alleleUrl + "'>" + markerSymbol + "<sup>" + alleleName + "</sup></a>";
+
+		String[] fields = {"marker_name", "marker_synonym"};
+		for (int i = 0; i < fields.length; i ++) {
+			try {
+				//"highlighting":{"MGI:97489":{"marker_symbol":["<em>Pax</em>5"],"synonym":["<em>Pax</em>-5"]},
+
+				//System.out.println(qryStr);
+				String field = fields[i];
+				List<String> info = new ArrayList<String>();
+
+				if (field.equals("marker_name")) {
+					System.out.println("checking marker_name");
+					info.add(Tools.highlightMatchedStrIfFound(qryStr, doc.getString(field), "span", "subMatch"));
+				}
+				else if (field.equals("marker_synonym")) {
+					System.out.println("checking marker_synonym");
+					JSONArray data = doc.getJSONArray(field);
+					int counter = 0;
+					String synMatch = null;
+					String syn = null;
+
+					for (Object d : data) {
+						counter++;
+						String targetStr = qryStr.toLowerCase().replaceAll("\"", "");
+						if ( d.toString().toLowerCase().contains(targetStr) ) {
+							if ( synMatch == null ) {
+								synMatch = Tools.highlightMatchedStrIfFound(targetStr, d.toString(), "span", "subMatch");
+							}
+						}
+						else {
+							if  (counter == 1) {
+								syn = d.toString();
+							}
+						}
+					}
+
+					if ( synMatch != null ){
+						syn = synMatch;
+					}
+
+					if ( counter > 0 ){
+						info.add(syn);
+					}
+				}
+
+				// field string shown to the users
+				if ( field.equals("marker_name" ) ){
+					field = "gene name";
+				}
+				else if ( field.equals("marker_synonym") ){
+					field = "gene synonym";
+				}
+				String ulClass = "synonym";
+
+				//geneInfo.add("<span class='label'>" + field + "</span>: " + StringUtils.join(info, ", "));
+				if (info.size() > 1) {
+					String fieldDisplay = "<ul class='" + ulClass + "'><li>" + StringUtils.join(info, "</li><li>") + "</li></ul>";
+					alleleNameInfo.add("<span class='label'>" + field + "</span>: " + fieldDisplay);
+				} else {
+					alleleNameInfo.add("<span class='label'>" + field + "</span>: " + StringUtils.join(info, ", "));
+				}
+			} catch (Exception e) {
+				//e.printStackTrace();
+			}
+		}
+		//return "<div class='geneCol'>" + markerSymbolLink + StringUtils.join(geneInfo, "<br>") + "</div>";
+		return "<div class='alleleNameCol'><div class='title'>"
+				+ alleleLink
+				+ "</div>"
+				+ "<div class='subinfo'>"
+				+ StringUtils.join(alleleNameInfo, "<br>")
+				+ "</div>";
 
 	}
 
