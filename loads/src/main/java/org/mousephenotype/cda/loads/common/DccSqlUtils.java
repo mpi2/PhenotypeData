@@ -16,6 +16,7 @@
 
 package org.mousephenotype.cda.loads.common;
 
+import org.apache.commons.lang3.StringUtils;
 import org.mousephenotype.cda.loads.exceptions.DataLoadException;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.mousephenotype.dcc.exportlibrary.datastructure.core.common.*;
@@ -39,6 +40,7 @@ import java.math.BigInteger;
 import java.sql.*;
 import java.sql.Date;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Created by mrelac on 02/03/2016.
@@ -626,12 +628,39 @@ public class DccSqlUtils {
         }
     }
 
+    // The key is the OntologyParameter_pk
+    public Map<Long, List<String>> getOntologyParameterTerms() {
+        Map<Long, List<String>> retVal = new HashMap<>();
+
+        final String termQuery =
+                "SELECT ontologyParameter_pk, term FROM ontologyParameterTerm";
+
+        Map<String, Object> parameterMap = new HashMap<>();
+
+        List<Map<String, Object>> ontologyTerms = npJdbcTemplate.queryForList(termQuery, parameterMap);
+
+        for (Map<String, Object> ontologyTerm : ontologyTerms) {
+            Long pk = (Long)ontologyTerm.get("ontologyParameter_pk");
+            String term = (String)ontologyTerm.get("term");
+
+            if ( ! retVal.containsKey(pk)) {
+                retVal.put(pk, new ArrayList<>());
+            }
+
+            retVal.get(pk).add(term);
+
+        }
+
+        return retVal;
+    }
+
     public Map<Long, List<OntologyParameter>> getOntologyParameters() {
         Map<Long, List<OntologyParameter>> retVal = new HashMap<>();
 
         final String query =
                 "SELECT * FROM ontologyParameter";
 
+        Map<Long, List<String>> ontologyParametersMap = getOntologyParameterTerms();
         Map<String, Object> parameterMap = new HashMap<>();
 
         List<OntologyParameterEx> list = npJdbcTemplate.query(query, parameterMap, new OntologyParameterExRowMapper());
@@ -641,7 +670,22 @@ public class DccSqlUtils {
                 mpList = new ArrayList<>();
                 retVal.put(mpEx.getProcedure_pk(), mpList);
             }
-            mpList.add(mpEx.getOntologyParameter());
+
+            OntologyParameter op = mpEx.getOntologyParameter();
+
+            List<String> ontologyTerms = ontologyParametersMap.get(op.getHjid());
+            ontologyTerms = ontologyTerms
+                    .stream()
+                    .filter(Objects::nonNull)
+                    .filter(StringUtils::isNotEmpty)
+                    .map(x -> {
+                        String[] s = x.split(":");
+                        return s[0] + ":" + s[1];
+                    })
+                    .collect(Collectors.toList());
+            op.setTerm(ontologyTerms);
+
+            mpList.add(op);
         }
 
         return retVal;
