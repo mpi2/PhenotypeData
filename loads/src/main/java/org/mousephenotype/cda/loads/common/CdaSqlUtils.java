@@ -2003,6 +2003,10 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
                     "INSERT INTO ontology_observation (id, parameter_id, sequence_id)" +
                             " VALUES (:observationPk, :parameterId, :sequenceId)";
 
+            final String insertOntologyEntity =
+                    "INSERT INTO ontology_entity (ontology_observation_id, term, term_value)" +
+                            " VALUES (:observationPk, :term, :termValue)";
+
             parameterMap.clear();
             parameterMap.put("observationPk", observationPk);
             parameterMap.put("parameterId", ontologyParameter.getParameterID());
@@ -2010,6 +2014,26 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
 
             try {
                 count = jdbcCda.update(insert, parameterMap);
+
+                for (String term : ontologyParameter.getTerm()) {
+
+                    try {
+                        OntologyTerm t = getOntologyTerm(term);
+
+                        parameterMap.clear();
+                        parameterMap.put("observationPk", observationPk);
+                        parameterMap.put("term", term);
+                        parameterMap.put("termValue", t.getName());
+
+                        count += jdbcCda.update(insertOntologyEntity, parameterMap);
+                    } catch (Exception e) {
+                        logger.warn("INSERT to ontology_entity table failed for parameterStableId {}, parameterId {}, observationType {}, observationPk {}, sequenceId {}. Reason:\n\t{}",
+                                parameterStableId, ontologyParameter.getParameterID(), observationType.toString(), observationPk, ontologyParameter.getSequenceID(), e.getLocalizedMessage());
+
+                    }
+
+                }
+
             } catch (Exception e) {
                 logger.error("INSERT to ontology_observation table failed for parameterStableId {}, parameterId {}, observationType {}, observationPk {}, sequenceId {}. Reason:\n\t{}",
                              parameterStableId, ontologyParameter.getParameterID(), observationType.toString(), observationPk, ontologyParameter.getSequenceID(), e.getLocalizedMessage());

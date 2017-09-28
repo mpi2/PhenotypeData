@@ -168,7 +168,7 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
 
             autosuggestCore.deleteByQuery("*:*");
 
-            populateParameterNameAutosuggestTerms();
+            //populateParameterNameAutosuggestTerms();  // no using pipeline for now
             populateGeneAutosuggestTerms();
             populateMpAutosuggestTerms();
             populateDiseaseAutosuggestTerms();
