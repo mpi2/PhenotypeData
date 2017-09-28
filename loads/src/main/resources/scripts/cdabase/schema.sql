@@ -1083,6 +1083,11 @@ CREATE TABLE stats_categorical_results (
 	effect_size                DOUBLE,
 	raw_output                 MEDIUMTEXT,
 	authoritative              BOOLEAN,
+	female_p_value             DOUBLE,
+	female_effect_size         DOUBLE,
+	male_p_value               DOUBLE,
+	male_effect_size           DOUBLE,
+	classification_tag         VARCHAR(200),
 
 	PRIMARY KEY (id),
 	KEY control_idx (control_id),

@@ -399,6 +399,9 @@ public class ObservationService extends BasicService implements WebStatus {
 
         query.addField(ObservationDTO.GENE_SYMBOL);
         query.addField(ObservationDTO.GENE_ACCESSION_ID);
+        query.addField(ObservationDTO.ALLELE_SYMBOL);
+        query.addField(ObservationDTO.ALLELE_ACCESSION_ID);
+        query.addField(ObservationDTO.PHENOTYPING_CENTER);
         query.addField(ObservationDTO.COLONY_ID);
         query.addField(ObservationDTO.CATEGORY);
         query.addField(ObservationDTO.SEX);

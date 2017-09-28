@@ -400,7 +400,7 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
             .setQuery("*:*")
                 .addFilterQuery("annotate:true")
                 .addFilterQuery("observation_type:(categorical OR unidimensional)")
-            .setFields(ImpressDTO.PROCEDURE_STABLE_ID, ImpressDTO.PARAMETER_STABLE_ID)
+            .setFields(ImpressDTO.PROCEDURE_STABLE_ID, ImpressDTO.PARAMETER_STABLE_ID, ImpressDTO.HAS_OPTIONS)
             .setRows(Integer.MAX_VALUE);
 
         pipelineCore
@@ -420,9 +420,14 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
 
                 // Add another column to the EYE procedures to store the mapped categories (or slit lamp for legacy procedures)
                 // as agreed at the 20170824 Dev call
-                if (x.getParameterStableId().toUpperCase().contains("IMPC_EYE") ||
-                        procedureGroup.toUpperCase().contains("M-G-P_014") ||
-                        procedureGroup.toUpperCase().contains("ESLIM_014")) {
+                if (
+                        (
+                                x.getParameterStableId().toUpperCase().contains("IMPC_EYE") ||
+                                procedureGroup.toUpperCase().contains("M-G-P_014") ||
+                                procedureGroup.toUpperCase().contains("ESLIM_014")
+                        ) &&
+                        x.isHasOptions()
+                    ) {
                     String mappedParameter = x.getParameterStableId() + "_MAPPED";
                     parameters.get(procedureGroup).add(mappedParameter);
 
