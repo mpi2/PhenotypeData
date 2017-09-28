@@ -40,14 +40,15 @@ public class HistopathService {
 
 	}
 
-	public List<HistopathPageTableRow> getTableData(Map<String, List<ObservationDTO>> uniqueSampleSequeneAndAnatomyName) throws SolrServerException, IOException {
+	public List<HistopathPageTableRow> getTableData(Map<String, List<ObservationDTO>> uniqueSampleSequeneAndAnatomyName, Map<String, String> sampleIds) throws SolrServerException, IOException {
 		List<HistopathPageTableRow> rows = new ArrayList<>();
 		downloadToImgMap = new HashMap<String, SolrDocument>();
 		//System.out.println("observations for histopath size with normal and abnormal=" + uniqueSampleSequeneAndAnatomyName.size());
 
 		
+		
 		for (String key : uniqueSampleSequeneAndAnatomyName.keySet()) {
-
+			
 			// just for images here as no anatomy currently
 
 			List<ObservationDTO> observations=uniqueSampleSequeneAndAnatomyName.get(key);
@@ -55,7 +56,8 @@ public class HistopathService {
 					
 					HistopathPageTableRow row = new HistopathPageTableRow();// a row is a unique sampleId and anatomy and sequence id combination
 					row.setAnatomyName(this.getAnatomyStringFromObservation(observations.get(0)));//anatomy should be the same from any in this dataset
-					row.setSampleId(observations.get(0).getExternalSampleId());
+					row.setSampleId(sampleIds.get(observations.get(0).getExternalSampleId()));
+					//row.setSampleId(observations.get(0).getExternalSampleId());
 					
 					
 //					System.out.println("number of observations with key="+observations.size());
@@ -92,11 +94,11 @@ public class HistopathService {
 							if (obs.getSubTermName() != null) {
 								for (int i = 0; i < obs.getSubTermId().size(); i++) {
 									//System.out.println("subtermId=" + obs.getSubTermId() + "subtermname="
-										//	+ obs.getSubTermName().get(i));
+											//+ obs.getSubTermName().get(i));
 
 									OntologyBean subOntologyBean = new OntologyBean(obs.getSubTermId().get(i),
 											obs.getSubTermName().get(i), obs.getSubTermDescription().get(i));// ,
-									// obs.getSubTermDescription().get(i));
+									//obs.getSubTermDescription().get(i));
 									row.addOntologicalParam(parameter, subOntologyBean);
 									if (parameter.getName().contains("MPATH process term")) {
 										row.addMpathProcessParam(parameter, subOntologyBean);
@@ -299,7 +301,7 @@ public class HistopathService {
 		for(ObservationDTO obs: allObservations){
 			String key=this.getAnatomyStringFromObservation(obs)+histoDelimeter+obs.getExternalSampleId()+histoDelimeter+obs.getSequenceId();
 //			System.out.println("key="+key);
-			//System.out.println("observation="+obs);
+//			System.out.println("observation="+obs);
 			if(uniqueDataSets.containsKey(key)){
 				uniqueDataSets.get(key).add(obs);
 			}else{

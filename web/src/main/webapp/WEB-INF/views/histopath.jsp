@@ -59,27 +59,6 @@
 							<thead>
 							<tr>
 							
-
-							<th class="headerSort">
-							Histopathology
-							</th>
-							
-							<th>
-							Severity
-							</th>
-							<th>
-							Observation
-							</th>
-					
-							<%-- <th>
-							Diagnostic
-							</th> --%>
-							<%-- <th>
-							Description
-							</th> --%>
-							<th>
-							Free Text
-							</th>
 							<th>
 							Age in Weeks
 							</th>
@@ -89,6 +68,35 @@
 							<th>
 							SampleId
 							</th>
+							<th> <%-- class="headerSort"> --%>
+							Tissue
+							</th>
+							<th>
+							MPATH Process Term
+							</th>
+							
+							<th>
+							Severity
+							</th>
+							<th>
+							Observation
+							</th>
+							<th>
+							MPATH Diagnostic
+							</th>
+							<th>
+							PATO Descriptor
+							</th>
+							<%-- <th>
+							Diagnostic
+							</th> --%>
+							<%-- <th>
+							Description
+							</th> --%>
+							<th>
+							Free Text
+							</th>
+							
 							<%-- <th>
 							Images
 							</th> --%>
@@ -101,25 +109,21 @@
 								<c:forEach var="histRow" items="${histopathRows}">
 								
 								<tr>
+									<td>
+									${histRow.ageInWeeks}
+									</td>
+									<td>
+									${histRow.zygosity}
+									</td>
+									<td>
+									${histRow.sampleId}<%-- / ${histRow.sequenceId} --%>
 									
+									</td>
 									<td>
 										${histRow.anatomyName}
-										
-										<c:choose>
-											<c:when test="${fn:length(histRow.patoOntologyBeans) == 0}">
-										
-											</c:when>
-										<c:otherwise>
-										,
-											<c:forEach var="parameter" items="${histRow.patoOntologyBeans }">
-												<c:forEach var="value" items="${parameter.value }">
-													${value.name }											
-												</c:forEach>
-											</c:forEach>
-										</c:otherwise>
-										</c:choose> 
+									</td>
 									
-									
+									<td>
 										<c:choose>
 											<c:when test="${fn:length(histRow.mpathProcessOntologyBeans) == 0}">
 										
@@ -140,6 +144,7 @@
 										
 										
 									</td>
+
 									
 									<%-- <td>
 									${histRow.sequenceId}
@@ -172,10 +177,7 @@
 									</c:forEach>
 									</td>
 									
-									
-									
-									
-									<%-- <c:choose>
+									<c:choose>
 									<c:when test="${fn:length(histRow.mpathDiagnosticOntologyBeans) == 0}">
 										<td>
 										</td>
@@ -193,8 +195,25 @@
 										</td>
 									</c:forEach>
 									</c:otherwise>
-									</c:choose>  --%>
+									</c:choose>
 									
+									<td>	
+										<c:choose>
+											<c:when test="${fn:length(histRow.patoOntologyBeans) == 0}">
+										
+											</c:when>
+										<c:otherwise>
+										
+											<c:forEach var="parameter" items="${histRow.patoOntologyBeans }">
+												<c:forEach var="value" items="${parameter.value }">
+													${value.name }											
+												</c:forEach>
+											</c:forEach>
+										</c:otherwise>
+										</c:choose> 
+									
+									</td>
+										
 									
 									<%-- <td>
 										<c:forEach var="parameter" items="${histRow.descriptionTextParameters }">
@@ -210,16 +229,8 @@
 										
 										</c:forEach> 
 									</td>
-									<td>
-									${histRow.ageInWeeks}
-									</td>
-									<td>
-									${histRow.zygosity}
-									</td>
-									<td>
-									${histRow.sampleId}<%-- / ${histRow.sequenceId} --%>
 									
-									</td>
+									
 									
 									<%-- <td>
 										<c:forEach var="image" items="${histRow.imageList }"> --%>
@@ -280,7 +291,7 @@
       <script> 
         $(document).ready(function() {
     $('#histopath').DataTable(
-    		{"paging":   false, "searching": false, "order": [[ 2, "asc" ]]});
+    		{"paging":   false, "searching": false, "order": [[ 3, "asc" ]]});
 } );
         </script> 
     </jsp:body>

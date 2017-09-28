@@ -17,6 +17,11 @@ public class LightweightCategoricalResult extends LightweightResult implements S
 	private String categoryB;
     private Double pValue;
     private Double effectSize;
+    private Double malePValue;
+    private Double maleEffectSize;
+    private Double femalePValue;
+    private Double femaleEffectSize;
+    private String classificationTag;
 
 
 
@@ -65,13 +70,59 @@ public class LightweightCategoricalResult extends LightweightResult implements S
     }
 
     @Override
+    public String getStatisticalMethod() {
+        return statisticalMethod;
+    }
+
+    @Override
+    public void setStatisticalMethod(String statisticalMethod) {
+        this.statisticalMethod = statisticalMethod;
+    }
+
+    public Double getMalePValue() {
+        return malePValue;
+    }
+
+    public void setMalePValue(Double malePValue) {
+        this.malePValue = malePValue;
+    }
+
+    public Double getMaleEffectSize() {
+        return maleEffectSize;
+    }
+
+    public void setMaleEffectSize(Double maleEffectSize) {
+        this.maleEffectSize = maleEffectSize;
+    }
+
+    public Double getFemalePValue() {
+        return femalePValue;
+    }
+
+    public void setFemalePValue(Double femalePValue) {
+        this.femalePValue = femalePValue;
+    }
+
+    public Double getFemaleEffectSize() {
+        return femaleEffectSize;
+    }
+
+    public void setFemaleEffectSize(Double femaleEffectSize) {
+        this.femaleEffectSize = femaleEffectSize;
+    }
+
+    public String getClassificationTag() {
+        return classificationTag;
+    }
+
+    public void setClassificationTag(String classificationTag) {
+        this.classificationTag = classificationTag;
+    }
+
+    @Override
     public String toString() {
         return "LightweightCategoricalResult{" +
-                "categories=" + categories +
-                ", categoryA='" + categoryA + '\'' +
-                ", categoryB='" + categoryB + '\'' +
-                ", pValue=" + pValue +
-                ", effectSize=" + effectSize +
+                "classificationTag='" + classificationTag + '\'' +
                 ", femaleMutantCount=" + femaleMutantCount +
                 ", maleMutantCount=" + maleMutantCount +
                 ", femaleControlCount=" + femaleControlCount +

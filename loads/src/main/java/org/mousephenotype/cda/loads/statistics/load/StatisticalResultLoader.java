@@ -124,7 +124,7 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
             }
         }
 
-        logger.info(" Mapped {} datasource entries", map.size());
+        logger.info(" Mapped {} colony/allele entries", map.size());
     }
 
     void populateDatasourceMap() throws SQLException {
@@ -424,7 +424,8 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
         result.setZygosity( getStringField(fields[1]) );
         result.setColonyId( getStringField(fields[2]) );
 
-        // May need to change the output from R
+        // May need to change the output from R columns that remap some of the eye categories
+        // It relabels the column to parameterStableId_MAPPED
         String depVar = getStringField(fields[3]).replaceAll("_MAPPED", "");
         if (depVar.contains(".")) {
             depVar = depVar.replaceAll("\\.", "-");
@@ -622,6 +623,11 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
 
             Double effectSize = getDoubleField(data.getGenotypeEstimate());
             Double pValue = getDoubleField(data.getGenotypePVal());
+            Double malePValue = data.getSexMvKOPVal();
+            Double maleEffectSize = data.getSexMvKOEstimate();
+            Double femalePValue = data.getSexFvKOPVal();
+            Double femaleEffectSize = data.getSexFvKOEstimate();
+            String classificationTag = data.getClassificationTag();
 
             // Categorical result
             result = new LightweightCategoricalResult();
@@ -629,9 +635,20 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
             ((LightweightCategoricalResult) result).setpValue( pValue );
             ((LightweightCategoricalResult) result).setEffectSize( effectSize );
 
+            ((LightweightCategoricalResult) result).setMalePValue( malePValue );
+            ((LightweightCategoricalResult) result).setMaleEffectSize( maleEffectSize );
+            ((LightweightCategoricalResult) result).setFemalePValue( femalePValue );
+            ((LightweightCategoricalResult) result).setFemaleEffectSize( femaleEffectSize );
+            ((LightweightCategoricalResult) result).setClassificationTag( classificationTag );
+
             StatisticalResultCategorical temp = new StatisticalResultCategorical();
             temp.setpValue( pValue );
             temp.setEffectSize( effectSize );
+            temp.setMalePValue( malePValue );
+            temp.setMaleEffectSize( maleEffectSize );
+            temp.setFemalePValue( femalePValue );
+            temp.setFemaleEffectSize( femaleEffectSize );
+            temp.setClassificationTag( classificationTag );
             statsResult = temp;
 
         } else if (data.getStatisticalMethod().contains("Mixed Model framework")) {

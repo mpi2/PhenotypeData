@@ -11,10 +11,15 @@ public class StatisticalResultCategorical implements StatisticalResult, Serializ
 
 	protected static final long serialVersionUID = 4716400683455025616L;
 
-	public final String insertStatement = "INSERT INTO stats_categorical_results(control_id, control_sex, experimental_id, experimental_sex, experimental_zygosity, external_db_id, project_id, organisation_id, pipeline_id, procedure_id, parameter_id, colony_id, dependent_variable, control_selection_strategy, mp_acc, mp_db_id, male_controls, male_mutants, female_controls, female_mutants, metadata_group, statistical_method, workflow, weight_available, status, category_a, category_b, p_value, effect_size, raw_output) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+	public final String insertStatement = "INSERT INTO stats_categorical_results(control_id, control_sex, experimental_id, experimental_sex, experimental_zygosity, external_db_id, project_id, organisation_id, pipeline_id, procedure_id, parameter_id, colony_id, dependent_variable, control_selection_strategy, mp_acc, mp_db_id, male_controls, male_mutants, female_controls, female_mutants, metadata_group, statistical_method, workflow, weight_available, status, category_a, category_b, p_value, effect_size, male_p_value, male_effect_size, female_p_value, female_effect_size, classification_tag, raw_output) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
 	private Double pValue;
 	private Double effectSize;
+	private Double malePValue;
+	private Double maleEffectSize;
+	private Double femalePValue;
+	private Double femaleEffectSize;
+	private String classificationTag;
 
 	/**
 	 * Prepare the statement to insert this result into the database
@@ -64,6 +69,11 @@ public class StatisticalResultCategorical implements StatisticalResult, Serializ
 		SqlUtils.setSqlParameter(s, (String) null, i++);
 		SqlUtils.setSqlParameter(s, this.getpValue(), i++);
 		SqlUtils.setSqlParameter(s, this.getEffectSize(), i++);
+		SqlUtils.setSqlParameter(s, this.getMalePValue(), i++);
+		SqlUtils.setSqlParameter(s, this.getMaleEffectSize(), i++);
+		SqlUtils.setSqlParameter(s, this.getFemalePValue(), i++);
+		SqlUtils.setSqlParameter(s, this.getFemaleEffectSize(), i++);
+		SqlUtils.setSqlParameter(s, this.getClassificationTag(), i++);
 		SqlUtils.setSqlParameter(s, result.getAdditionalInformation(), i++);
 
 		return s;
@@ -86,5 +96,45 @@ public class StatisticalResultCategorical implements StatisticalResult, Serializ
 
 	public void setEffectSize(Double effectSize) {
 		this.effectSize = effectSize;
+	}
+
+	public Double getMalePValue() {
+		return malePValue;
+	}
+
+	public void setMalePValue(Double malePValue) {
+		this.malePValue = malePValue;
+	}
+
+	public Double getMaleEffectSize() {
+		return maleEffectSize;
+	}
+
+	public void setMaleEffectSize(Double maleEffectSize) {
+		this.maleEffectSize = maleEffectSize;
+	}
+
+	public Double getFemalePValue() {
+		return femalePValue;
+	}
+
+	public void setFemalePValue(Double femalePValue) {
+		this.femalePValue = femalePValue;
+	}
+
+	public Double getFemaleEffectSize() {
+		return femaleEffectSize;
+	}
+
+	public void setFemaleEffectSize(Double femaleEffectSize) {
+		this.femaleEffectSize = femaleEffectSize;
+	}
+
+	public String getClassificationTag() {
+		return classificationTag;
+	}
+
+	public void setClassificationTag(String classificationTag) {
+		this.classificationTag = classificationTag;
 	}
 }
