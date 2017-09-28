@@ -45,13 +45,14 @@ public class HistopathController {
 		model.addAttribute("gene", gene);
 
 		List<ObservationDTO> allObservations = histopathService.getObservationsForHistopathForGene(acc);
-		List<ObservationDTO> abnormalObservationsOnly = histopathService
-				.screenOutObservationsThatAreNormal(allObservations);
+		Map<String, String> sampleIds = getSimpleIds(allObservations);
+//		List<ObservationDTO> abnormalObservationsOnly = histopathService
+//				.screenOutObservationsThatAreNormal(allObservations);
 		//get observations that have the same sampleid, sequence_id and anatomy name
 		Map<String, List<ObservationDTO>> uniqueSampleSequeneAndAnatomyName = histopathService
 				.getUniqueInfo(allObservations);
 		
-		List<HistopathPageTableRow> histopathRows = histopathService.getTableData(uniqueSampleSequeneAndAnatomyName);
+		List<HistopathPageTableRow> histopathRows = histopathService.getTableData(uniqueSampleSequeneAndAnatomyName, sampleIds);
 		Set<String> parameterNames = new TreeSet<>();
 
 		// get image data
@@ -70,6 +71,7 @@ public class HistopathController {
 		// Diagnostic Term" we want to lump all into Brain related
 
 		for (HistopathPageTableRow row : histopathRows) {
+			//System.out.println("histopath row="+row);
 			parameterNames.addAll(row.getParameterNames());
 
 		}
@@ -77,10 +79,20 @@ public class HistopathController {
 		// Collections.sort(histopathRows, new HistopathAnatomyComparator());
 
 		model.addAttribute("histopathRows", histopathRows);
-		model.addAttribute("extSampleIdToObservations", abnormalObservationsOnly);
+		//model.addAttribute("extSampleIdToObservations", abnormalObservationsOnly);
 		model.addAttribute("parameterNames", parameterNames);
 		model.addAttribute("histopathImagesForGene",histopathImagesForGene);
 		return "histopath";
+	}
+
+	private Map<String, String> getSimpleIds(List<ObservationDTO> allObservations) {
+		Map<String, String> sampleIds=new HashMap<>();
+		for(ObservationDTO obs:allObservations){
+			if(!sampleIds.containsKey(obs.getExternalSampleId())){
+				sampleIds.put(obs.getExternalSampleId(), "#"+Integer.toString(sampleIds.keySet().size()+1));
+			}
+		}
+		return sampleIds;
 	}
 
 	@RequestMapping("/histopathsum/{acc}")
@@ -94,7 +106,8 @@ public class HistopathController {
 				.screenOutObservationsThatAreNormal(allObservations);
 		Map<String, List<ObservationDTO>> uniqueSampleSequeneAndAnatomyName = histopathService
 				.getUniqueInfo(allObservations);
-		List<HistopathPageTableRow> histopathRows = histopathService.getTableData(uniqueSampleSequeneAndAnatomyName);
+		Map<String, String> sampleIds = getSimpleIds(allObservations);
+		List<HistopathPageTableRow> histopathRows = histopathService.getTableData(uniqueSampleSequeneAndAnatomyName, sampleIds);
 		// for the summary we add an extra method to count the significant
 		// scores and collapse rows based on Anatomy
 		List<HistopathPageTableRow> collapsedRows = histopathService.collapseHistopathTableRows(histopathRows);
