@@ -77,6 +77,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
     private Set<String> experimentsMissingSamples    = new HashSet<>();        // value = specimenId + "_" + cda phenotypingCenterPk
     private Set<String> missingBackgroundStrains     = new HashSet<>();
     private Set<String> missingColonyIds             = new HashSet<>();
+    private Set<String> missingColonyIdInfo          = new HashSet<>();
     private Set<String> missingProjects              = new HashSet<>();
     private Set<String> experimentsMissingProjects   = new HashSet<>();
     private Set<String> missingCenters               = new HashSet<>();
@@ -366,6 +367,19 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         System.out.println(borderRow);
 
 
+        // Log info sets
+
+        Iterator<String> missingColonyIdInfoIt = missingColonyIdInfo.iterator();
+        while (missingColonyIdInfoIt.hasNext()) {
+            logger.info(missingColonyIdInfoIt.next());
+        }
+
+        Iterator<String> badDatesIt = badDates.iterator();
+        while (badDatesIt.hasNext()) {
+            logger.info(badDatesIt.next());
+        }
+
+
         // Log warning sets
 
         Iterator<String> missingColonyIdsIt = missingColonyIds.iterator();
@@ -381,11 +395,6 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         Iterator<String> experimentsMissingSamplesIt = experimentsMissingSamples.iterator();
         while (experimentsMissingSamplesIt.hasNext()) {
             logger.warn(experimentsMissingSamplesIt.next());
-        }
-
-        Iterator<String> badDatesIt = badDates.iterator();
-        while (badDatesIt.hasNext()) {
-            logger.warn(badDatesIt.next());
         }
         
         Iterator<String> missingProjectsIt = missingProjects.iterator();
@@ -722,8 +731,14 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
             String bsKey = dccExperiment.getSpecimenId() + "_" + phenotypingCenterPk;
             BiologicalSample bs = samplesMap.get(bsKey);
             if (bs == null) {
-                experimentsMissingSamples.add("Missing sample    bsKey::specimenId::phenotypingCenterPk::center::colonyId\t" +
-                                               bsKey + "::" + dccExperiment.getSpecimenId() + "::" + phenotypingCenterPk + "::" + phenotypingCenter + "::" + dccExperiment.getColonyId());
+
+                // If the colonyId isn't in the phenotypedColony map, just log the center.
+                if ( phenotypedColonyMap.containsKey(dccExperiment.getColonyId())) {
+                    experimentsMissingSamples.add("Missing sample bsKey::specimenId::phenotypingCenterPk::center::colonyId\t" +
+                            bsKey + "::" + dccExperiment.getSpecimenId() + "::" + phenotypingCenterPk + "::" + phenotypingCenter + "::" + dccExperiment.getColonyId());
+                } else {
+                    missingColonyIdInfo.add("Missing sample for missing colonyId" + dccExperiment.getColonyId());
+                }
 
                 return;
             }
@@ -841,7 +856,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         SimpleDateFormat dateFormat  = new SimpleDateFormat("yyyy-MM-dd");
 
         Date dccDate = dccExperiment.getDateOfExperiment();
-        String message = "Invalid date '" + dccDate + "' for center " + dccExperiment.getPhenotypingCenter();
+        String message = "Invalid experiment date '" + dccDate + "' for center " + dccExperiment.getPhenotypingCenter();
 
         try {
 
@@ -1218,7 +1233,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
                         SimpleDateFormat ymdFormat = new SimpleDateFormat("yyyy-MM-dd");
                         Date maxDate = new Date();
                         Date minDate = ymdFormat.parse("1975-01-01");
-                        String message = "Invalid date '" + ymdFormat.format(timePoint) + "' for center " + dccExperiment.getPhenotypingCenter();
+                        String message = "Invalid timepoint date '" + ymdFormat.format(timePoint) + "' for center " + dccExperiment.getPhenotypingCenter();
                         if ( ! commonUtils.isDateValid(timePoint, minDate, maxDate)) {
                             valueMissing = 1;
                             badDates.add(message);
