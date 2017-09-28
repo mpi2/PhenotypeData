@@ -124,7 +124,7 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
             }
         }
 
-        logger.info(" Mapped {} datasource entries", map.size());
+        logger.info(" Mapped {} colony/allele entries", map.size());
     }
 
     void populateDatasourceMap() throws SQLException {
@@ -424,7 +424,8 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
         result.setZygosity( getStringField(fields[1]) );
         result.setColonyId( getStringField(fields[2]) );
 
-        // May need to change the output from R
+        // May need to change the output from R columns that remap some of the eye categories
+        // It relabels the column to parameterStableId_MAPPED
         String depVar = getStringField(fields[3]).replaceAll("_MAPPED", "");
         if (depVar.contains(".")) {
             depVar = depVar.replaceAll("\\.", "-");
