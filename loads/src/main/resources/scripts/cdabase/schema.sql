@@ -1083,9 +1083,9 @@ CREATE TABLE stats_categorical_results (
 	effect_size                DOUBLE,
 	raw_output                 MEDIUMTEXT,
 	authoritative              BOOLEAN,
-	female_pvalue              DOUBLE,
+	female_p_value             DOUBLE,
 	female_effect_size         DOUBLE,
-	male_pvalue                DOUBLE,
+	male_p_value               DOUBLE,
 	male_effect_size           DOUBLE,
 	classification_tag         VARCHAR(200),
 
