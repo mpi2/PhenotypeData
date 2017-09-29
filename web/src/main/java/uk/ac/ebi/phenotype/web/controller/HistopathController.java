@@ -89,7 +89,6 @@ public class HistopathController {
 		if(row.getSignificance().size()==0){
 			if(row.getParameterNames().size()==1){
 				for(String tempName:row.getParameterNames()){
-					System.out.println("histopath row="+row);
 					if(tempName.equals("Images"))addRow=false;
 				}
 			}
