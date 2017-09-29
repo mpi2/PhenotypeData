@@ -137,8 +137,8 @@ public class FertilityReport extends AbstractReport {
             csvWriter.writeNext(EMPTY_ROW);
 
              // Write conflicting section.
-            csvWriter.writeRow(Arrays.asList(new String[] { "Conflicting females", Integer.toString(conflictingFemales.size()), StringUtils.join(conflictingFemales, ", ") }));
-            csvWriter.writeRow(Arrays.asList(new String[] { "Conflicting males", Integer.toString(conflictingMales.size()), StringUtils.join(conflictingMales, ", ") }));
+            csvWriter.writeRow(buildList("Conflicting females", conflictingFemales));
+            csvWriter.writeRow(buildList("Conflicting males", conflictingMales));
             csvWriter.writeRow(Arrays.asList(new String[] { "* includes conflicting data. Conflicting data are genes that appear in more than one fertility category." } ));
 
             csvWriter.writeNext(EMPTY_ROW);

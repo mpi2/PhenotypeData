@@ -49,10 +49,10 @@ public class HistopathServiceTest {
         Map<String, List<ObservationDTO>> uniqueSampleSequeneAndAnatomyName = histopathService
 				.getUniqueInfo(allObservations);
 
-        List<HistopathPageTableRow> filteredObservations = histopathService.getTableData(uniqueSampleSequeneAndAnatomyName);
-        for (HistopathPageTableRow row : filteredObservations) {
-            //System.out.println("row="+row);
-        }
+//        List<HistopathPageTableRow> filteredObservations = histopathService.getTableData(uniqueSampleSequeneAndAnatomyName);
+//        for (HistopathPageTableRow row : filteredObservations) {
+//            //System.out.println("row="+row);
+//        }
 
     }
 
