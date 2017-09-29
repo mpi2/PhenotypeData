@@ -68,10 +68,10 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
     private CommonUtils                commonUtils = new CommonUtils();
     private StrainMapper               strainMapper;
 
-    final private CdaSqlUtils                cdaSqlUtils;
-    final private DccSqlUtils                dccSqlUtils;
-    final private NamedParameterJdbcTemplate jdbcCda;
-    final private StepBuilderFactory         stepBuilderFactory;
+    private final CdaSqlUtils                cdaSqlUtils;
+    private final DccSqlUtils                dccSqlUtils;
+    private final NamedParameterJdbcTemplate jdbcCda;
+    private final StepBuilderFactory         stepBuilderFactory;
 
     private Set<String> badDates                     = new HashSet<>();
     private Set<String> experimentsMissingSamples    = new HashSet<>();        // value = specimenId + "_" + cda phenotypingCenterPk
@@ -86,9 +86,19 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
     private Set<String> experimentsMissingPipelines  = new HashSet<>();
     private Set<String> missingProcedures            = new HashSet<>();
     private Set<String> experimentsMissingProcedures = new HashSet<>();
-    
-    private Set<String> skippedExperiments       = new HashSet<>();
+
+    private Set<String> skippedExperiments           = new HashSet<>();         // A set of all experiments that were skipped (exclusive of the experiments in ingoredExperiments)
     private Set<String> unsupportedParametersMap = new HashSet<>();
+
+    private static Set<UniqueExperimentId> ignoredExperiments;                  // Experments purposefully ignored.
+
+    static {
+        Set<UniqueExperimentId> ignoredExperimentSet = new HashSet<>();
+        ignoredExperimentSet.add(new UniqueExperimentId("Ucd", "GRS_2013-10-09_4326"));
+        ignoredExperimentSet.add(new UniqueExperimentId("Ucd", "GRS_2014-07-16_8800"));
+
+        ignoredExperiments = new HashSet<>(ignoredExperimentSet);
+    }
 
     private int lineLevelProcedureCount   = 0;
     private int sampleLevelProcedureCount = 0;
@@ -290,6 +300,20 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         List<Future<Experiment>> tasks = new ArrayList<>();
 
         for (DccExperimentDTO dccExperiment : dccExperiments) {
+
+            // Skip purposefully ignored experiments.
+            UniqueExperimentId uniqueExperiment = new UniqueExperimentId(dccExperiment.getPhenotypingCenter(), dccExperiment.getExperimentId());
+            if (ignoredExperiments.contains(uniqueExperiment)) {
+                logger.info("Ignoring center::experiment " + ignoredExperiments.toString());
+                continue;
+            }
+
+
+
+
+
+
+
 
             // Skip any experiments with known bad colony ids.
             if (DccSqlUtils.knownBadColonyIds.contains(dccExperiment.getColonyId())) {
@@ -1324,5 +1348,55 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
 
         // Insert experiment_observation
         cdaSqlUtils.insertExperiment_observation(experimentPk, observationPk);
+    }
+
+
+    public static class UniqueExperimentId {
+        private String dccCenterName;
+        private String dccExperimentId;
+
+        public UniqueExperimentId(String dccCenterName, String dccExperimentId) {
+            this.dccCenterName = dccCenterName;
+            this.dccExperimentId = dccExperimentId;
+        }
+
+        public String getDccCenterName() {
+            return dccCenterName;
+        }
+
+        public void setDccCenterName(String dccCenterName) {
+            this.dccCenterName = dccCenterName;
+        }
+
+        public String getDccExperimentId() {
+            return dccExperimentId;
+        }
+
+        public void setDccExperimentId(String dccExperimentId) {
+            this.dccExperimentId = dccExperimentId;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            UniqueExperimentId that = (UniqueExperimentId) o;
+
+            if (!dccCenterName.equals(that.dccCenterName)) return false;
+            return dccExperimentId.equals(that.dccExperimentId);
+        }
+
+        @Override
+        public int hashCode() {
+            int result = dccCenterName.hashCode();
+            result = 31 * result + dccExperimentId.hashCode();
+            return result;
+        }
+
+        @Override
+        public String toString() {
+            return dccCenterName + "::" + dccExperimentId;
+        }
     }
 }
