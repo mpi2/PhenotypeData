@@ -69,20 +69,33 @@ public class HistopathController {
 		// chop the parameter names so we have just the beginning as we have
 		// parameter names like "Brain - Description" and "Brain - MPATH
 		// Diagnostic Term" we want to lump all into Brain related
-
+		List<HistopathPageTableRow> histopathRowsFiltered=new ArrayList<>();
 		for (HistopathPageTableRow row : histopathRows) {
-			//System.out.println("histopath row="+row);
+			filterOutImageRows(histopathRowsFiltered, row);//need to remove image parameters as these are dealt with seperately and otherwise show as "not annotated"
 			parameterNames.addAll(row.getParameterNames());
-
 		}
 
 		// Collections.sort(histopathRows, new HistopathAnatomyComparator());
 
-		model.addAttribute("histopathRows", histopathRows);
+		model.addAttribute("histopathRows", histopathRowsFiltered);
 		//model.addAttribute("extSampleIdToObservations", abnormalObservationsOnly);
 		model.addAttribute("parameterNames", parameterNames);
 		model.addAttribute("histopathImagesForGene",histopathImagesForGene);
 		return "histopath";
+	}
+
+	private void filterOutImageRows(List<HistopathPageTableRow> histopathRowsFiltered, HistopathPageTableRow row) {
+		boolean addRow=true;
+		if(row.getSignificance().size()==0){
+			if(row.getParameterNames().size()==1){
+				for(String tempName:row.getParameterNames()){
+					if(tempName.equals("Images"))addRow=false;
+				}
+			}
+		}
+		if(addRow){
+			histopathRowsFiltered.add(row);
+		}
 	}
 
 	private Map<String, String> getSimpleIds(List<ObservationDTO> allObservations) {

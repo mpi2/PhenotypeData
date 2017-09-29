@@ -265,8 +265,27 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
         return true;
     }
 
+    /**
+     * Categorical results represent genotype effect as a percent (i.e. 75%)
+     * This method Convert things with a "%" to a double value between 0 and 1
+     * and a regular number to a double.
+     *
+     * @param str the string to convert to a number
+     * @return A double or null if str does not represent a number
+     */
     private Double getDoubleField(String str) {
-        return (NumberUtils.isNumber(str)) ? Double.parseDouble(str) : null;
+        Double retVal;
+
+        if (str.contains("%")) {
+            String n = str.replaceAll("%", "");
+            retVal = (NumberUtils.isNumber(n)) ? Double.parseDouble(n) : null;
+            if (retVal != null) {
+                retVal = retVal / 100.0;
+            }
+        } else {
+            retVal = (NumberUtils.isNumber(str)) ? Double.parseDouble(str) : null;
+        }
+        return retVal;
     }
 
     private Integer getIntegerField(String str) {
@@ -294,6 +313,11 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
         return Integer.parseInt(str);
     }
 
+    /** Convert "NA" to empty string
+     *
+     * @param str the string to convert
+     * @return the converted string
+     */
     private String getStringField(String str) {
 
         if (str.isEmpty() || str.equals("NA")) {
