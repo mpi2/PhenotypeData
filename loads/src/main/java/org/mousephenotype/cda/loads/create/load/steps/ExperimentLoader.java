@@ -1334,7 +1334,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
             observationPk = cdaSqlUtils.insertObservation(dbId, biologicalSamplePk, parameterStableId, parameterPk,
                                                           sequenceId, populationId, observationType, missing,
                                                           parameterStatus, parameterStatusMessage,
-                                                          ontologyParameter);
+                                                          ontologyParameter, dccExperiment.getExperimentId(), experimentPk);
         } catch (Exception e) {
             logger.warn("Insert of ontology parameter observation for phenotyping center {} failed. Skipping... " +
                                 " biologicalSamplePk {}. parameterStableId {}." +
