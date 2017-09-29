@@ -75,6 +75,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
 
     private Set<String> badDates                     = new HashSet<>();
     private Set<String> experimentsMissingSamples    = new HashSet<>();        // value = specimenId + "_" + cda phenotypingCenterPk
+    private Set<String> ignoredExperimentsInfo       = new HashSet<>();
     private Set<String> missingBackgroundStrains     = new HashSet<>();
     private Set<String> missingColonyIds             = new HashSet<>();
     private Set<String> missingColonyIdInfo          = new HashSet<>();
@@ -303,17 +304,11 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
 
             // Skip purposefully ignored experiments.
             UniqueExperimentId uniqueExperiment = new UniqueExperimentId(dccExperiment.getPhenotypingCenter(), dccExperiment.getExperimentId());
+
             if (ignoredExperiments.contains(uniqueExperiment)) {
-                logger.info("Ignoring center::experiment " + ignoredExperiments.toString());
+                ignoredExperimentsInfo.add("Ignoring center::experiment " + ignoredExperiments.toString());
                 continue;
             }
-
-
-
-
-
-
-
 
             // Skip any experiments with known bad colony ids.
             if (DccSqlUtils.knownBadColonyIds.contains(dccExperiment.getColonyId())) {
@@ -396,6 +391,11 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         Iterator<String> missingColonyIdInfoIt = missingColonyIdInfo.iterator();
         while (missingColonyIdInfoIt.hasNext()) {
             logger.info(missingColonyIdInfoIt.next());
+        }
+
+        Iterator<String> ignoredExperimentsInfoIt = ignoredExperimentsInfo.iterator();
+        while (ignoredExperimentsInfoIt.hasNext()) {
+            logger.info(ignoredExperimentsInfoIt.next());
         }
 
         Iterator<String> badDatesIt = badDates.iterator();
