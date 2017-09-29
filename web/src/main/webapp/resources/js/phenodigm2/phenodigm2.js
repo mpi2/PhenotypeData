@@ -43,8 +43,52 @@ if (typeof impc === "undefined") {
 impc.phenodigm2 = {
     scores: ["avgRaw", "avgNorm", "maxRaw", "maxNorm"]
 };
-impc.sources = ["IMPC", "EuroPhenome"];
+// values for model source that IMPC can take credit for
+impc.sources = ["IMPC", "EuroPhenome", "EUCOMM", "3i", "3i,IMPC"];
+impc.logo = impc.baseUrl + "/img/impc.png";
+console.log("logo url " + impc.logo);
 
+
+/****************************************************************************
+ * General helper functions
+ **************************************************************************** */
+
+// identify whether the info fields contain IMPC
+
+/**
+ * Identify whether x refers to an IMPC model
+ * This function handles multiple cases:
+ *   - when x is an array of objects
+ *   - when x is an object with a source field
+ *   - when x is an object without a source field (but with an info field)
+ * 
+ * @param {type} x
+ * @returns {Boolean}
+ */
+impc.isImpc = function (x) {
+    var result = false;
+    
+    // handle case of an array
+    if (x instanceof Array) {
+        x.map(function (y) {
+            result = result || impc.isImpc(y);
+        });
+        return result;
+    }
+
+    console.log("in here checking impc");
+    if (_.has(x, "source")) {
+        result = impc.sources.indexOf(x.source) >= 0;
+    } else if (_.has(x, "info")) {
+        x.info.map(function (y) {
+            if (y.id.startsWith("Source")) {
+                result = impc.sources.indexOf(y.value) >= 0;
+            }
+        });
+    }
+    
+    return result;
+};
 
 
 /****************************************************************************
@@ -138,6 +182,9 @@ impc.phenodigm2.makeTable = function (darr, target, config) {
                 .append("i").classed("fa fa-plus-square more", true);
     };
 
+    var impcimg = "<img class='small-logo' src='"+impc.logo+"'/>";
+    console.log("imcpimg "+impcimg);
+
     if (pt === "disease") {
         // create html table (one line per gene)
         dkeys.map(function (key) {
@@ -146,7 +193,18 @@ impc.phenodigm2.makeTable = function (darr, target, config) {
             var trow = tbody.append("tr").attr("class", "phenotable").attr("geneid", x[0]["markerId"]);
             trow.append("td").append("a").classed(pt + "link", true)
                     .attr("href", impc.baseUrl + "/genes/" + x[0]["markerId"]).html(x[0]["markerSymbol"]);
-            trow.append("td").html(x.length + " <span class='small'>(" + x[0].markerNumModels + ")");
+            //var modeltd = trow.append("td").html(x.length);
+            //modeltd.append("span").classed("small").html("("+x[0].markerNumModels+")");
+            //console.log("new modeltd");
+            var ximg = "";
+            if (impc.isImpc(x)) {
+                console.log("this gene "+x[0]["markerSymbol"]+" has an impc model");
+                ximg = impcimg;
+            } else {
+                console.log("this gene "+x[0]["markerSymbol"]+" does NOT have an impc model");
+            }
+            
+            trow.append("td").html(x.length + " <span class='small'>(" + x[0].markerNumModels + ") "+ximg);
             addScoreTds(trow, x);
         });
     } else {
@@ -189,7 +247,7 @@ impc.phenodigm2.makeScatterplot = function (darr, conf) {
     var fullwidth = parseInt(container.style("width"));
     // add two side-by-side divs
     var svg = container.append("div").attr("class", "leftright")
-            .style("width", (fullwidth - conf.detailwidth - 2) + "px")
+            .style("width", (fullwidth - conf.detailwidth - 3) + "px")
             .append("svg").style("height", conf.h + "px");
     var detail = container.append("div").attr("class", "leftright detail")
             .style("width", (conf.detailwidth - (2 * conf.detailpad)) + "px")
@@ -263,9 +321,10 @@ impc.phenodigm2.drawScatterplot = function (darr, conf) {
     // find maximum values for axes     
     var xmax = _.max(_.pluck(darr, conf.axes[0]));
     var ymax = _.max(_.pluck(darr, conf.axes[1]));
-    xmax = (xmax > 90) ? 100 : xmax;
-    ymax = (ymax > 90) ? 100 : ymax;
-    //console.log("maximum values are " + xmax + " " + ymax);
+    xmax = xmax < 0 ? conf.threshold : xmax;
+    ymax = ymax < 0 ? conf.threshold : ymax;
+
+    console.log("maximum values are " + xmax + " " + ymax);
 
     // create the x axis
     var xscale = d3.scaleLinear().range([0, conf.winner]).domain([0, xmax]);
@@ -380,6 +439,9 @@ impc.phenodigm2.drawScatterplot = function (darr, conf) {
         d3.select(this).moveToFront();
     });
 
+    // shift the legend position down (avoid overlap with threshold line)
+    var legyshift = Math.max(0, ymax - conf.threshold);
+    conf.legendpos[2] += Math.ceil(yscale(0) - yscale(legyshift));
     // add legend on left-hand corner
     svg.append("circle").attr("class", "legendmarker IMPC")
             .attr("fill", conf.color[0])
@@ -402,7 +464,7 @@ impc.phenodigm2.drawScatterplot = function (darr, conf) {
             .attr("width", 2 * conf.radius)
             .attr("height", 2 * conf.radius);
     svg.append("text").attr("y", conf.legendpos[2] + (2 * conf.legendspacing))
-            .attr("class", "legendtext").text("model with DAG-KO");
+            .attr("class", "legendtext").text("Model w. modification in\ndisease-associated gene");
     svg.append("text").attr("y", conf.legendpos[2] + (3.5 * conf.legendspacing))
             .attr("x", conf.legendpos[0] - conf.radius).attr("class", "legendsource")
             .text("Data sources: IMPC, MGI");
@@ -425,7 +487,7 @@ impc.phenodigm2.drawScatterplot = function (darr, conf) {
  * @return a jquery div 
  */
 impc.phenodigm2.makeTableChildRow = function (pagetype, geneId, diseaseId) {
-    var genenum = geneId.split(":")[1];    
+    var genenum = geneId.split(":")[1];
     var innerdiv = $(document.createElement('div'))
             .addClass("inner")
             .attr({
@@ -530,21 +592,7 @@ impc.phenodigm2.insertModelDetails = function (targetdiv, geneId, models) {
     // pretty printing of models e.g. ABC<xyz>
     var tohtml = function (x) {
         return x.replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\//g, "/ ");
-    };
-    // identify whether the info fields contain IMPC
-    var isImpc = function (x) {
-        var result = false;
-        if (_.has(x, "source")) {
-            result = impc.sources.indexOf(x.source) >= 0;
-        } else if (_.has(x, "info")) {
-            x.info.map(function (y) {
-                if (y.id.startsWith("Source")) {
-                    result = impc.sources.indexOf(y.value) >= 0;
-                }
-            });
-        }
-        return result;
-    };
+    };   
 
     // create html table (one line per model)    
     models.map(function (modeldata) {
@@ -575,7 +623,7 @@ impc.phenodigm2.insertModelDetails = function (targetdiv, geneId, models) {
             tdpheno.append("a").attr("href", monarchUrl + "/phenotype/" + pheno.id).html(pheno.term);
         });
         // identify whether model was impc and highlight it
-        if (isImpc(modeldata)) {
+        if (impc.isImpc(modeldata)) {
             trow.classed("impc", true);
         }
     });
@@ -603,7 +651,7 @@ impc.phenodigm2.insertPhenogrid = function (tableId, geneId, diseaseId, pageType
             {geneId: geneId, diseaseId: diseaseId, pageType: pageType}
     );
     // when fetch complete, use the skeleton data to create a phenogrid    
-    ajax.done(function (result) {        
+    ajax.done(function (result) {
         // complete the skeleton using modelAssociations
         result = impc.phenodigm2.completeGridSkeleton(result);
         // perhaps create an inner table (disease pages only)

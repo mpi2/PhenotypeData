@@ -15,7 +15,7 @@ The package relies or links to the following components:
 
  - a DTO defined in the module data-model-solr
  - web-page controllers in package uk.ac.ebi.phenotype.web-controller 
-(DiseaseController2, Phenodigm2RestController, Phenodigm2GridRestController)
+(DiseaseController2, Phenodigm2RestController)
 
 
 ## Version history

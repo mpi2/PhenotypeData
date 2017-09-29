@@ -112,6 +112,9 @@ public class MouseModel implements Comparable<MouseModel>, IdUrl {
      */
     public void parsePhenotypes(List<String> phenotypes) {
         this.phenotypes = new ArrayList<>();
+        if (phenotypes==null) {            
+            return;
+        }
         for (String phenotype : phenotypes) {
             this.phenotypes.add(new Phenotype(phenotype));
         }

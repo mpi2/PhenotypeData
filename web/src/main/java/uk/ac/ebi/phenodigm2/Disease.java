@@ -36,7 +36,7 @@ public class Disease extends AssociationType implements Comparable<Disease>, IdU
     private static String baseUrlOmim = "http://omim.org/entry/";
     private static String baseUrlOrphanet = "http://www.orpha.net/consor/cgi-bin/OC_Exp.php?lng=en&Expert=";
     private static String baseUrlDecipher = "https://decipher.sanger.ac.uk/syndrome/";
-
+   
     public Disease() {
     }
 
@@ -113,10 +113,13 @@ public class Disease extends AssociationType implements Comparable<Disease>, IdU
      * @param phenotypes
      */
     public void parsePhenotypes(List<String> phenotypes) {
-        this.phenotypes = new ArrayList<>();
+        this.phenotypes = new ArrayList<>();        
+        if (phenotypes==null) {            
+            return;
+        }        
         for (String phenotype : phenotypes) {
             this.phenotypes.add(new Phenotype(phenotype));
-        }
+        }        
     }
 
     @Override
@@ -145,6 +148,8 @@ public class Disease extends AssociationType implements Comparable<Disease>, IdU
             case "OMIM":
                 return baseUrlOmim + tokens[1];
             case "ORPHANET":
+            case "ORPHA":
+                // both ORPHANET and ORPHA prefix lead to orphanet link
                 return baseUrlOrphanet + tokens[1];
             default:
                 return "[unknown]";

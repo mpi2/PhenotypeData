@@ -276,7 +276,7 @@
                 h: 350, // height in pixels 
                 margin: [20, 60, 50, 60], // top, right, bottom, left margins
                 offset: [40, -40], // distance of x, y labels from axes
-                legendpos: [18, 30, 10], // x1, x2, top positions of legend
+                legendpos: [18, 30, 22], // x1, x2, top positions of legend
                 legendspacing: 18, // spacing between legend lines                
                 detailwidth: 200, // width of the detail box on the right
                 detailpad: 10, // internal padding within the details box

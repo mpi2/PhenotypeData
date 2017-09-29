@@ -64,3 +64,10 @@ td.numeric, .phenotabs td.numeric {
     font-weight: 700;
     color: #ef7b0b;
 }
+
+
+
+.small-logo {
+    height: 16px;
+    padding-left: 2px;
+}
