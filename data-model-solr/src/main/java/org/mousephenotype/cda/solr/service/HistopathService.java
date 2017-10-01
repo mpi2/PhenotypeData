@@ -300,8 +300,6 @@ public class HistopathService {
 		
 		for(ObservationDTO obs: allObservations){
 			String key=this.getAnatomyStringFromObservation(obs)+histoDelimeter+obs.getExternalSampleId()+histoDelimeter+obs.getSequenceId();
-//			System.out.println("key="+key);
-//			System.out.println("observation="+obs);
 			if(uniqueDataSets.containsKey(key)){
 				uniqueDataSets.get(key).add(obs);
 			}else{

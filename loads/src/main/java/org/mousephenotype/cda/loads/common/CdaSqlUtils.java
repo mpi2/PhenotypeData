@@ -1970,7 +1970,9 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
             int missing,
             String parameterStatus,
             String parameterStatusMessage,
-            OntologyParameter ontologyParameter
+            OntologyParameter ontologyParameter,
+            String experimentId,                     // Used for logging/debugging purposes only.
+            int experimentPk                         // Used for logging/debugging purposes only.
     ) throws DataLoadException {
 
         KeyHolder keyholder     = new GeneratedKeyHolder();
@@ -2017,8 +2019,9 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
 
                 for (String term : ontologyParameter.getTerm()) {
 
+                    OntologyTerm t = null;
                     try {
-                        OntologyTerm t = getOntologyTerm(term);
+                        t = getOntologyTerm(term);
 
                         parameterMap.clear();
                         parameterMap.put("observationPk", observationPk);
@@ -2026,20 +2029,21 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
                         parameterMap.put("termValue", t.getName());
 
                         count += jdbcCda.update(insertOntologyEntity, parameterMap);
-                    } catch (Exception e) {
-                        logger.warn("INSERT to ontology_entity table failed for parameterStableId {}, parameterId {}, observationType {}, observationPk {}, sequenceId {}. Reason:\n\t{}",
-                                parameterStableId, ontologyParameter.getParameterID(), observationType.toString(), observationPk, ontologyParameter.getSequenceID(), e.getLocalizedMessage());
 
+                    } catch (Exception e) {
+
+                        logger.warn("INSERT to ontology_entity table failed for experimentId {}, experimentPk, observationPk {}, observationType {}, parameterStableId {}, parameterId {}, sequenceId {}, term {}, termValue {}, biologicalSampleId {}. Reason: \n\t{}",
+                                experimentId, experimentPk, observationPk, observationType.toString(), parameterStableId, parameterPk, sequenceId, term, t.getName(), biologicalSamplePk, e.getLocalizedMessage());
                     }
 
                 }
 
             } catch (Exception e) {
-                logger.error("INSERT to ontology_observation table failed for parameterStableId {}, parameterId {}, observationType {}, observationPk {}, sequenceId {}. Reason:\n\t{}",
-                             parameterStableId, ontologyParameter.getParameterID(), observationType.toString(), observationPk, ontologyParameter.getSequenceID(), e.getLocalizedMessage());
+                logger.error("INSERT to ontology_observation table failed for experimentId {}, experimentPk {}, parameterStableId {}, parameterId {}, observationType {}, observationPk {}, sequenceId {}. Reason:\n\t{}",
+                             experimentId, experimentPk, parameterStableId, ontologyParameter.getParameterID(), observationType.toString(), observationPk, ontologyParameter.getSequenceID(), e.getLocalizedMessage());
             }
             if (count == 0) {
-                logger.warn("Insert OntologyParameter failed for parameterSource {}. Marking it as missing ...", parameterSource);
+                logger.warn("Insert OntologyParameter failed for experimentPk {}, observationPk {}, parameterSource {}. Marking it as missing ...", experimentPk, observationPk, parameterSource);
                 updateObservationMissingFlag(observationPk, true);
             }
         }
