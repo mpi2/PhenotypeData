@@ -19,6 +19,7 @@ import org.apache.solr.client.solrj.response.QueryResponse;
 import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.db.pojo.Parameter;
 import org.mousephenotype.cda.db.pojo.PhenotypeAnnotationType;
+import org.mousephenotype.cda.db.utilities.SqlUtils;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
@@ -1047,6 +1048,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
                 + "  male_mutants, female_controls, female_mutants, "
                 + "  metadata_group, statistical_method, workflow, status, "
                 + "  category_a, category_b, "
+                + "  SEX_SPECIFIC_STATS "
                 + "  p_value AS categorical_p_value, effect_size AS categorical_effect_size, "
                 + "  mp_acc, NULL AS male_mp_acc, NULL AS female_mp_acc, "
                 + "  db.short_name AS resource_name, db.name AS resource_fullname, db.id AS resource_id, "
@@ -1063,26 +1065,39 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 
             List<StatisticalResultDTO> docs = new ArrayList<>();
 
-            try (Connection connection = komp2DataSource.getConnection(); PreparedStatement p = connection.prepareStatement(query)) {
+            String additionalColumns = "male_p_value, male_effect_size, female_p_value, female_effect_size, classification_tag, ";
+            try (Connection connection = komp2DataSource.getConnection();) {
 
-                ResultSet r = p.executeQuery();
-                while (r.next()) {
-                    StatisticalResultDTO doc = parseCategoricalResult(r);
-                    docs.add(doc);
-                    if (SAVE) statisticalResultCore.addBean(doc, 30000);
-                    shouldHaveAdded.add(doc.getDocId());
-                    if (docs.size()% REPORT_INTERVAL ==0) {
-                        logger.info(" Added {} categorical doucments", docs.size());
+                SqlUtils sqlUtils = new SqlUtils();
+                Boolean sexSpecificStats = sqlUtils.columnInSchemaMysql(connection, "stats_categorical_result", "male_p_value");
+
+                query = query.replaceAll("SEX_SPECIFIC_STATS", sexSpecificStats ? additionalColumns : "");
+
+                try (PreparedStatement p = connection.prepareStatement(query)) {
+
+                    ResultSet r = p.executeQuery();
+                    while (r.next()) {
+                        StatisticalResultDTO doc = parseCategoricalResult(r, sexSpecificStats);
+                        docs.add(doc);
+                        if (SAVE) statisticalResultCore.addBean(doc, 30000);
+                        shouldHaveAdded.add(doc.getDocId());
+                        if (docs.size() % REPORT_INTERVAL == 0) {
+                            logger.info(" Added {} categorical doucments", docs.size());
+                        }
                     }
+
+                } catch (Exception e) {
+                    logger.warn(" Error occurred getting categorical results", e);
                 }
             } catch (Exception e) {
-                logger.warn(" Error occurred getting unidimensional results", e);
+                logger.warn(" Error occurred getting categorical results", e);
             }
+
             logger.info(" Added {} categorical documents", docs.size());
             return docs;
         }
 
-        private StatisticalResultDTO parseCategoricalResult(ResultSet r) throws SQLException, IOException, SolrServerException {
+        private StatisticalResultDTO parseCategoricalResult(ResultSet r, Boolean additionalColumns) throws SQLException, IOException, SolrServerException {
 
             StatisticalResultDTO doc = parseResultCommonFields(r);
             if (sexesMap.containsKey("categorical-" + doc.getDbId())) {
@@ -1092,6 +1107,16 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
             doc.setSex(r.getString("sex"));
             doc.setpValue(r.getDouble("categorical_p_value"));
             doc.setEffectSize(r.getDouble("categorical_effect_size"));
+
+
+            if (additionalColumns) {
+                doc.setMaleKoEffectPValue(r.getDouble("male_p_value"));
+                doc.setMaleKoParameterEstimate(r.getDouble("male_effect_size"));
+                doc.setFemaleKoEffectPValue(r.getDouble("female_p_value"));
+                doc.setFemaleKoParameterEstimate(r.getDouble("female_effect_size"));
+                doc.setClassificationTag(r.getString("classification_tag"));
+            }
+
             setSignificantFlag(SIGNIFICANCE_THRESHOLD, doc);
 
             Set<String> categories = new HashSet<>();
