@@ -20,10 +20,10 @@ import java.util.List;
 
 /**
  * DTO to facilitate communication with the phenodigm2 solr core
- * 
- * This class follows the structure set out in PhenodigmDTO.java
- * but includes different fields to suit the phenodigm2 core format. 
- * 
+ *
+ * This class follows the structure set out in PhenodigmDTO.java but includes
+ * different fields to suit the phenodigm2 core format.
+ *
  */
 public class Phenodigm2DTO {
 
@@ -36,7 +36,6 @@ public class Phenodigm2DTO {
     public static final String DISEASE_SOURCE = "disease_source";
     public static final String DISEASE_TERM = "disease_term";
     public static final String DISEASE_ALTS = "disease_alts";
-    public static final String DISEASE_LOCUS = "disease_locus";
     public static final String DISEASE_CLASSES = "disease_classes";
     public static final String DISEASE_PHENOTYPES = "disease_phenotypes";
     // fields for genes (mouse and human)        
@@ -59,7 +58,7 @@ public class Phenodigm2DTO {
     public static final String MODEL_SOURCE = "model_source";
     public static final String MODEL_GENETIC_BACKGROUND = "model_genetic_background";
     public static final String MODEL_DESCRIPTION = "model_description";
-    public static final String MODEL_PHENOTYPES = "model_phenotypes";    
+    public static final String MODEL_PHENOTYPES = "model_phenotypes";
     public static final String DISEASE_MODEL_AVG_RAW = "disease_model_avg_raw";
     public static final String DISEASE_MODEL_AVG_NORM = "disease_model_avg_norm";
     public static final String DISEASE_MODEL_MAX_RAW = "disease_model_max_raw";
@@ -90,8 +89,6 @@ public class Phenodigm2DTO {
     private String diseaseTerm;
     @Field(DISEASE_ALTS)
     private List<String> diseaseAlts;
-    @Field(DISEASE_LOCUS)
-    private String diseaseLocus;
     @Field(DISEASE_CLASSES)
     private List<String> diseaseClasses;
     @Field(DISEASE_PHENOTYPES)
@@ -122,7 +119,7 @@ public class Phenodigm2DTO {
     @Field(MARKER_LOCUS)
     private String markerLocus;
     @Field(MARKER_NUM_MODELS)
-    private int markerNumModels;            
+    private int markerNumModels;
     // fields for models
     @Field(MODEL_ID)
     private String modelId;
@@ -212,14 +209,6 @@ public class Phenodigm2DTO {
 
     public void setDiseaseAlts(List<String> diseaseAlts) {
         this.diseaseAlts = diseaseAlts;
-    }
-
-    public String getDiseaseLocus() {
-        return diseaseLocus;
-    }
-
-    public void setDiseaseLocus(String diseaseLocus) {
-        this.diseaseLocus = diseaseLocus;
     }
 
     public List<String> getDiseaseClasses() {
@@ -428,7 +417,7 @@ public class Phenodigm2DTO {
 
     public void setDiseaseModelMaxNorm(double diseaseModelMaxNorm) {
         this.diseaseModelMaxNorm = diseaseModelMaxNorm;
-    }   
+    }
 
     public Boolean getAssociationCurated() {
         return associationCurated;
@@ -457,6 +446,5 @@ public class Phenodigm2DTO {
     /**
      * Original phenodigm has overrides of equals, hashCode, toString Are those
      * really necessary?
-     *
      */
 }

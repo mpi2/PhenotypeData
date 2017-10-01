@@ -112,7 +112,6 @@ public class DiseaseController2 {
         model.addAttribute("curatedMouseGenes", curatedJsArray);
 
         // fetch associations between the disease and models        
-        LOGGER.info(String.format("%s - getting disease-model associations", diseaseId));
         List<DiseaseModelAssociation> modelAssociations = phenoDigm2Dao.getDiseaseToModelModelAssociations(diseaseId);                
 
         // create a js object representation of the models        

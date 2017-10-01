@@ -82,18 +82,21 @@
                     </c:choose>
                 </p>
 
-
+                <%--
                 <p class="with-label">
                     <span class="label">Locus</span>
                     <c:choose>
-                        <c:when test="${empty disease.locus}">
+                        <c:when test="${empty curatedAssociations}">
                             -
                         </c:when>
                         <c:otherwise>
-                            ${disease.locus}
+                            <c:forEach var="assoc" items="${curatedAssociations}" varStatus="loop">                                    
+                                ${assoc.locus}<c:if test="${!loop.last}">, </c:if>
+                            </c:forEach>
                         </c:otherwise>
-                    </c:choose>
+                    </c:choose>                    
                 </p>
+                --%>
 
                 <%-- New section with associated phenotypes --%>
                 <p class="with-label">
@@ -276,7 +279,7 @@
                 h: 350, // height in pixels 
                 margin: [20, 60, 50, 60], // top, right, bottom, left margins
                 offset: [40, -40], // distance of x, y labels from axes
-                legendpos: [18, 30, 22], // x1, x2, top positions of legend
+                legendpos: [18, 30, 30], // x1, x2, top positions of legend
                 legendspacing: 18, // spacing between legend lines                
                 detailwidth: 200, // width of the detail box on the right
                 detailpad: 10, // internal padding within the details box

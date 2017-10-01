@@ -4,7 +4,7 @@
 
 
 /* Generic elements, but found on phenodigm2 related pages */
-span.semicolon {
+span.semicolon, .phenotype-toggle {
     margin-right: 0.8em;
 }
 
@@ -63,11 +63,20 @@ tbody.phenotable tr.impc {
 td.numeric, .phenotabs td.numeric {
     font-weight: 700;
     color: #ef7b0b;
+    text-align: right;
 }
 
-
+/* for styling inner table (model-phenotype details) */
+.th-wide {
+    width: 60%;
+}
+.inner_table .phenotype-hidden {
+    display: none;
+}
 
 .small-logo {
-    height: 16px;
+    height: 12px;
     padding-left: 2px;
+    padding-top: 2px;
+    margin-bottom: -2px;
 }

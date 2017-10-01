@@ -27,8 +27,7 @@ public class Disease extends AssociationType implements Comparable<Disease>, IdU
 
     private String id;
     private String term;
-    private List<String> alts;
-    private String locus;
+    private List<String> alts;    
     private List<String> classes;
     private List<Phenotype> phenotypes;
 
@@ -82,15 +81,7 @@ public class Disease extends AssociationType implements Comparable<Disease>, IdU
     public void setAlts(List<String> alts) {
         this.alts = alts;
     }
-
-    public String getLocus() {
-        return locus;
-    }
-
-    public void setLocus(String locus) {
-        this.locus = locus;
-    }
-
+   
     public List<String> getClasses() {
         return classes;
     }
@@ -129,7 +120,7 @@ public class Disease extends AssociationType implements Comparable<Disease>, IdU
 
     @Override
     public String toString() {
-        return "Disease{" + "id=" + id + ", term=" + term + ", alts=" + alts + ", locus=" + locus + ", classes=" + classes + ", phenotypes=" + phenotypes + '}';
+        return "Disease{" + "id=" + id + ", term=" + term + ", alts=" + alts + ", classes=" + classes + ", phenotypes=" + phenotypes + '}';
     }
 
     /**

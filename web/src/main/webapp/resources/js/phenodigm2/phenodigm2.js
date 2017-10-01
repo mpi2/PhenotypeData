@@ -46,7 +46,14 @@ impc.phenodigm2 = {
 // values for model source that IMPC can take credit for
 impc.sources = ["IMPC", "EuroPhenome", "EUCOMM", "3i", "3i,IMPC"];
 impc.logo = impc.baseUrl + "/img/impc.png";
-console.log("logo url " + impc.logo);
+impc.logohtml = "<img class='small-logo' src='" + impc.logo + "'/>";
+
+// definitions of urls 
+impc.urls = {
+    mgigen0view: "http://www.informatics.jax.org/allele/genoview/",
+    genes: impc.baseUrl + "/genes/",
+    disease: impc.baseUrl + "/disease/"
+};
 
 
 /****************************************************************************
@@ -67,7 +74,7 @@ console.log("logo url " + impc.logo);
  */
 impc.isImpc = function (x) {
     var result = false;
-    
+
     // handle case of an array
     if (x instanceof Array) {
         x.map(function (y) {
@@ -76,7 +83,6 @@ impc.isImpc = function (x) {
         return result;
     }
 
-    console.log("in here checking impc");
     if (_.has(x, "source")) {
         result = impc.sources.indexOf(x.source) >= 0;
     } else if (_.has(x, "info")) {
@@ -86,7 +92,7 @@ impc.isImpc = function (x) {
             }
         });
     }
-    
+
     return result;
 };
 
@@ -160,12 +166,12 @@ impc.phenodigm2.makeTable = function (darr, target, config) {
             return (y["maxNorm"] + y["avgNorm"]) / 2;
         });
         var phenmax = _.max(phenodigms);
-        return phenmax.toPrecision(4);
+        return (phenmax > 0 ? phenmax.toPrecision(4) : phenmax);
     };
     // helper to add a series of <td> elements to a row summarizing scores
     var addScoreTds = function (trow, x) {
         if (x.length > 1) {
-            // display ranges for all scores
+            // display a summary of all scores in x in a single td
             scorecols.map(function (y) {
                 var temp = _.pluck(x, y);
                 var tempmax = _.max(temp);
@@ -182,9 +188,6 @@ impc.phenodigm2.makeTable = function (darr, target, config) {
                 .append("i").classed("fa fa-plus-square more", true);
     };
 
-    var impcimg = "<img class='small-logo' src='"+impc.logo+"'/>";
-    console.log("imcpimg "+impcimg);
-
     if (pt === "disease") {
         // create html table (one line per gene)
         dkeys.map(function (key) {
@@ -192,19 +195,13 @@ impc.phenodigm2.makeTable = function (darr, target, config) {
             // x is now an array of objects, display a summary row
             var trow = tbody.append("tr").attr("class", "phenotable").attr("geneid", x[0]["markerId"]);
             trow.append("td").append("a").classed(pt + "link", true)
-                    .attr("href", impc.baseUrl + "/genes/" + x[0]["markerId"]).html(x[0]["markerSymbol"]);
-            //var modeltd = trow.append("td").html(x.length);
-            //modeltd.append("span").classed("small").html("("+x[0].markerNumModels+")");
-            //console.log("new modeltd");
+                    .attr("href", impc.urls.genes + x[0]["markerId"]).html(x[0]["markerSymbol"]);
             var ximg = "";
             if (impc.isImpc(x)) {
-                console.log("this gene "+x[0]["markerSymbol"]+" has an impc model");
-                ximg = impcimg;
-            } else {
-                console.log("this gene "+x[0]["markerSymbol"]+" does NOT have an impc model");
+                ximg = impc.logohtml;
             }
-            
-            trow.append("td").html(x.length + " <span class='small'>(" + x[0].markerNumModels + ") "+ximg);
+
+            trow.append("td").html(x.length + " <span class='small'>(" + x[0].markerNumModels + ") " + ximg);
             addScoreTds(trow, x);
         });
     } else {
@@ -214,7 +211,7 @@ impc.phenodigm2.makeTable = function (darr, target, config) {
             // x is now an array of objects, display a summary row
             var trow = tbody.append("tr").attr("class", "phenotable").attr("diseaseid", x[0]["diseaseId"]);
             trow.append("td").append("a").classed(pt + "link", true)
-                    .attr("href", impc.baseUrl + "/disease/" + x[0]["diseaseId"]).html(x[0]["diseaseTerm"]);
+                    .attr("href", impc.urls.disease + x[0]["diseaseId"]).html(x[0]["diseaseTerm"]);
             trow.append("td").append("a").classed(pt + "link", true)
                     .attr("href", x[0]["diseaseUrl"]).html(x[0]["diseaseId"]);
             addScoreTds(trow, x);
@@ -311,7 +308,6 @@ impc.phenodigm2.drawScatterplot = function (darr, conf) {
     conf.h = parseInt(outer.style("height"));
     conf.winner = +conf.w - conf.margin[1] - conf.margin[3];
     conf.hinner = +conf.h - conf.margin[0] - conf.margin[2];
-    //console.log("configuration is: " + JSON.stringify(conf));
 
     // adjust the svg, create a drawing box inside
     var svg = outer.attr("width", conf.w + "px").attr("height", conf.h + "px")
@@ -323,8 +319,6 @@ impc.phenodigm2.drawScatterplot = function (darr, conf) {
     var ymax = _.max(_.pluck(darr, conf.axes[1]));
     xmax = xmax < 0 ? conf.threshold : xmax;
     ymax = ymax < 0 ? conf.threshold : ymax;
-
-    console.log("maximum values are " + xmax + " " + ymax);
 
     // create the x axis
     var xscale = d3.scaleLinear().range([0, conf.winner]).domain([0, xmax]);
@@ -378,7 +372,6 @@ impc.phenodigm2.drawScatterplot = function (darr, conf) {
 
     // create the annotated functions (fills in the right-hand box)
     var showModelInfo = function (d) {
-        //console.log("clicked " + JSON.stringify(d));
         detail.style("display", "block");
         detail.select(".source").text(d.source);
         detail.select(".model").text(d.id);
@@ -579,7 +572,8 @@ impc.phenodigm2.insertModelDetails = function (targetdiv, geneId, models) {
         headcols = ["Model", "Genotype", "Max Raw", "Avg Raw", "Phenodigm", "Phenotypes"];
     }
     headcols.map(function (x) {
-        thead.append("th").append("span").classed("main", true).html(x);
+        var xclass = (x == "Phenotypes" ? "th-wide" : "");
+        thead.append("th").classed(xclass, true).append("span").classed("main", true).html(x);
     });
 
     // setup data body
@@ -587,45 +581,64 @@ impc.phenodigm2.insertModelDetails = function (targetdiv, geneId, models) {
 
     // helper function computes the phenodigm score using max/avg components
     var phenscore = function (x) {
-        return ((x["maxNorm"] + x["avgNorm"]) / 2).toPrecision(4);
+        var result = ((x["maxNorm"] + x["avgNorm"]) / 2);
+        return (result > 0 ? result.toPrecision(4) : result);
     };
     // pretty printing of models e.g. ABC<xyz>
     var tohtml = function (x) {
         return x.replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\//g, "/ ");
-    };   
+    };
 
     // create html table (one line per model)    
     models.map(function (modeldata) {
         var trow = tbody.append("tr");
+        var rowimpc = impc.isImpc(modeldata);
         var modelid = modeldata["id"];
-        trow.append("td").html(modelid);
+        if (rowimpc) {
+            trow.append("td").html(modelid + impc.logohtml);
+        } else {
+            trow.append("td").append("a").attr("href", impc.urls.mgigenoview + modelid).html(modelid);
+        }
         if (_.has(modeldata, "label")) {
             trow.append("td").html(tohtml(modeldata["label"]));
         } else {
             trow.append("td").html(tohtml(modeldata["description"]));
         }
+        // helper to insert scored td
+        var tdhtml = function (target, text) {
+            target.append("td").classed("numeric", true).html(text);
+        };
         if (headcols.length > 4) {
             if (_.has(details, modelid)) {
-                trow.append("td").classed("numeric", true).html(details[modelid]["maxRaw"]);
-                trow.append("td").classed("numeric", true).html(details[modelid]["avgRaw"]);
-                trow.append("td").classed("numeric", true).html(phenscore(details[modelid]));
+                tdhtml(trow, details[modelid]["maxRaw"]);
+                tdhtml(trow, details[modelid]["avgRaw"]);
+                tdhtml(trow, phenscore(details[modelid]));
             } else {
-                trow.append("td");
-                trow.append("td");
-                trow.append("td");
+                tdhtml(trow, "BT");
+                tdhtml(trow, "BT");
+                tdhtml(trow, "BT");
             }
         }
-        var tdpheno = trow.append("td");
+        var tdpheno = trow.append("td").attr("state", 0);
+        var ps = modeldata.phenotypes.length !== 1 ? "s" : "";
+        tdpheno.append("a").classed("phenotype-toggle", true)
+                .html("[" + modeldata.phenotypes.length + " phenotype" + ps + "]");
         modeldata.phenotypes.map(function (pheno, i) {
             if (i > 0) {
-                tdpheno.append("span").classed("semicolon", true).html("; ");
+                tdpheno.append("span").classed("semicolon phenotype phenotype-hidden", true).html("; ");
             }
-            tdpheno.append("a").attr("href", monarchUrl + "/phenotype/" + pheno.id).html(pheno.term);
+            tdpheno.append("a").classed("phenotype phenotype-hidden", true)
+                    .attr("href", monarchUrl + "/phenotype/" + pheno.id).html(pheno.term);
         });
-        // identify whether model was impc and highlight it
-        if (impc.isImpc(modeldata)) {
-            trow.classed("impc", true);
-        }
+    });
+
+    // attach click handlers for "a" that toggle phenotype display
+    tbody.selectAll(".phenotype-toggle").on("click", function (d) {
+        var thistd = d3.select(this.parentNode);
+        var phenotypes = thistd.selectAll(".phenotype");
+        var thisstate = +thistd.attr("state");        
+        phenotypes.classed("phenotype-hidden", thisstate === 1);
+        thistd.attr("state", (thisstate + 1) % 2);                
     });
 };
 

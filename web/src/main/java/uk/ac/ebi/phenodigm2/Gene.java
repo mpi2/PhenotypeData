@@ -28,6 +28,7 @@ public class Gene extends AssociationType implements IdUrl {
 
     private String id;
     private String symbol;
+    private String locus;
     private List<String> symbolsWithdrawn;
 
     // used internally to construct URLs
@@ -53,6 +54,14 @@ public class Gene extends AssociationType implements IdUrl {
 
     public void setSymbolsWithdrawn(List<String> symbolsWithdrawn) {
         this.symbolsWithdrawn = symbolsWithdrawn;
+    }
+
+    public String getLocus() {
+        return locus;
+    }
+
+    public void setLocus(String locus) {
+        this.locus = locus;
     }
 
     @Override

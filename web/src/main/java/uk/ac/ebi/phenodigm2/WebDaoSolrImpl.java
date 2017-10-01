@@ -27,6 +27,7 @@ import org.springframework.stereotype.Repository;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import org.mousephenotype.cda.solr.service.dto.Phenodigm2DTO;
 
@@ -57,7 +58,6 @@ public class WebDaoSolrImpl implements WebDao {
                 .addField(Phenodigm2DTO.DISEASE_ID)
                 .addField(Phenodigm2DTO.DISEASE_TERM)
                 .addField(Phenodigm2DTO.DISEASE_ALTS)
-                .addField(Phenodigm2DTO.DISEASE_LOCUS)
                 .addField(Phenodigm2DTO.DISEASE_CLASSES)
                 .addField(Phenodigm2DTO.DISEASE_PHENOTYPES)
                 .setRows(ROWLIMIT);
@@ -74,7 +74,6 @@ public class WebDaoSolrImpl implements WebDao {
             disease = new Disease(diseaseId);
             disease.setTerm(phenodigm.getDiseaseTerm());
             disease.setAlts(phenodigm.getDiseaseAlts());
-            disease.setLocus(phenodigm.getDiseaseLocus());
             disease.setClasses(phenodigm.getDiseaseClasses());
             disease.parsePhenotypes(phenodigm.getDiseasePhenotypes());
 
@@ -127,30 +126,35 @@ public class WebDaoSolrImpl implements WebDao {
 
         List<Gene> genes = new ArrayList<>();
         try {
+            // to avoid transfering the same ids more than once, keep a hashset
+            // duplicate ids can occur with many-to-one human-mouse gene mappings
+            HashSet<String> seenIds = new HashSet();
+
             List<Phenodigm2DTO> results = phenodigm2Core.query(solrQuery).getBeans(Phenodigm2DTO.class);
             for (Phenodigm2DTO phenodigm : results) {
                 // set mouse genes (orthologs to human genes)
                 String markerId = phenodigm.getMarkerId();
                 String markerSymbol = phenodigm.getMarkerSymbol();
-                if (markerId != null) {
+                if (markerId != null && !seenIds.contains(markerId)) {
                     Gene assoc = new Gene(markerId, markerSymbol);
                     assoc.setSymbolsWithdrawn(phenodigm.getMarkerSymbolsWithdrawn());
                     assoc.setCurated(phenodigm.getAssociationCurated());
                     assoc.setOrtholog(true);
-                    //LOGGER.info("Found an association: " + assoc.toString());
                     genes.add(assoc);
+                    seenIds.add(markerId);
                 }
 
                 // set human genes (human annotations)
                 String humanId = phenodigm.getHgncGeneId();
                 String humanSymbol = phenodigm.getHgncGeneSymbol();
-                if (humanId != null) {
+                if (humanId != null && !seenIds.contains(humanId)) {
                     Gene assoc = new Gene(humanId, humanSymbol);
                     assoc.setSymbolsWithdrawn(phenodigm.getHgncGeneSymbolsWithdrawn());
                     assoc.setCurated(phenodigm.getAssociationCurated());
+                    assoc.setLocus(phenodigm.getHgncGeneLocus());
                     assoc.setOrtholog(false);
-                    //LOGGER.info("Found an association: " + assoc.toString());
                     genes.add(assoc);
+                    seenIds.add(humanId);
                 }
 
             }
@@ -216,6 +220,7 @@ public class WebDaoSolrImpl implements WebDao {
                 .addField(Phenodigm2DTO.MARKER_SYMBOL)
                 .addField(Phenodigm2DTO.HGNC_GENE_ID)
                 .addField(Phenodigm2DTO.HGNC_GENE_SYMBOL)
+                .addField(Phenodigm2DTO.HGNC_GENE_LOCUS)
                 .addField(Phenodigm2DTO.ASSOCIATION_CURATED)
                 .setRows(ROWLIMIT);
     }
