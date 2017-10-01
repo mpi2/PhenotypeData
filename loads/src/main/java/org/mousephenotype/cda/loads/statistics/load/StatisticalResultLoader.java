@@ -428,10 +428,14 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
         String procedure  = fileMetaData.get(4);
         String strain     = fileMetaData.get(5);
 
+        // Center Phenomin is ICS
+        if (center.equals("Phenomin")) {
+            center = "ICS";
+        }
+
         // Strain in the filename does not include a ":"
         if (strain.contains("MGI")) {
             strain = strain.replaceAll("MGI", "MGI:");
-
         }
 
         result.setDataSource(dataSource);
