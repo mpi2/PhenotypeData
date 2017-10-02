@@ -31,7 +31,7 @@ import org.springframework.web.bind.annotation.RestController;
 import uk.ac.ebi.phenodigm2.*;
 
 /**
- * Controller that responds to requests for phenodigm data.
+ * Controller that responds to ajax requests for phenodigm data.
  *  
  * Much of this class is copied from PhenogridController.java but includes
  * slight modifications to suit the phenodigm2 format. 

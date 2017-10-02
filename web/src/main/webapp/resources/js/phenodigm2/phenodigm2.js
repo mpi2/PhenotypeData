@@ -243,7 +243,7 @@ impc.phenodigm2.makeScatterplot = function (darr, conf) {
     var container = d3.select(conf.id).classed("phenoscatter", true);
     var fullwidth = parseInt(container.style("width"));
     // add two side-by-side divs
-    var svg = container.append("div").attr("class", "leftright")
+    container.append("div").attr("class", "leftright")
             .style("width", (fullwidth - conf.detailwidth - 3) + "px")
             .append("svg").style("height", conf.h + "px");
     var detail = container.append("div").attr("class", "leftright detail")
@@ -255,15 +255,13 @@ impc.phenodigm2.makeScatterplot = function (darr, conf) {
             .style("display", "none");
 
     var brsection = function (title, classname) {
-        detail.append("strong").text(title);
-        detail.append("br");
-        detail.append("span").attr("class", classname).text(title + " value");
-        detail.append("br");
-        detail.append("br");
+        detail.append("div").classed("infotitle", true).text(title);
+        detail.append("div").classed(classname + " info", true).text(title + " value");
     };
 
     brsection("Model", "model");
     brsection("Source", "source");
+    brsection("Background", "background");
     brsection("Description", "description");
     brsection("Scores", "scores");
 
@@ -372,11 +370,17 @@ impc.phenodigm2.drawScatterplot = function (darr, conf) {
 
     // create the annotated functions (fills in the right-hand box)
     var showModelInfo = function (d) {
+        // cast a highlighting shadow for this model
+        svg.selectAll(".marker").classed("shadow", false).style("fill-opacity", 0.7);
+        d3.select(this).style("fill-opacity", 1).classed("shadow", true);
+        // transfer data about this model into the info box
         detail.style("display", "block");
         detail.select(".source").text(d.source);
+        detail.select(".background").text(d.background);
         detail.select(".model").text(d.id);
         detail.select(".description").text(d.description);
         detail.select(".scores").text("(" + d[conf.axes[0]] + ", " + d[conf.axes[1]] + ")");
+        detail.style("background-color", "#fafafa").transition().duration(800).style("background-color", "#fff");
         d3.event.stopPropagation();
     };
 
@@ -572,7 +576,7 @@ impc.phenodigm2.insertModelDetails = function (targetdiv, geneId, models) {
         headcols = ["Model", "Genotype", "Max Raw", "Avg Raw", "Phenodigm", "Phenotypes"];
     }
     headcols.map(function (x) {
-        var xclass = (x == "Phenotypes" ? "th-wide" : "");
+        var xclass = (x === "Phenotypes" ? "th-wide" : "");
         thead.append("th").classed(xclass, true).append("span").classed("main", true).html(x);
     });
 
@@ -588,9 +592,14 @@ impc.phenodigm2.insertModelDetails = function (targetdiv, geneId, models) {
     var tohtml = function (x) {
         return x.replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\//g, "/ ");
     };
+    // helper to insert table tds with numeric values
+    var tdhtml = function (target, text) {
+        target.append("td").classed("numeric", true).html(text);
+    };
 
     // create html table (one line per model)    
     models.map(function (modeldata) {
+        console.log(JSON.stringify(modeldata));
         var trow = tbody.append("tr");
         var rowimpc = impc.isImpc(modeldata);
         var modelid = modeldata["id"];
@@ -598,25 +607,22 @@ impc.phenodigm2.insertModelDetails = function (targetdiv, geneId, models) {
             trow.append("td").html(modelid + impc.logohtml);
         } else {
             trow.append("td").append("a").attr("href", impc.urls.mgigenoview + modelid).html(modelid);
+        }        
+        if (_.has(modeldata, "label")) {            
+            var bg = details[modelid]["background"] + "<br/>";
+            trow.append("td").html(bg+tohtml(modeldata["label"]));
+        } else {            
+            var bg = modeldata["geneticBackground"] + "<br/>";
+            trow.append("td").html(bg+tohtml(modeldata["description"]));
         }
-        if (_.has(modeldata, "label")) {
-            trow.append("td").html(tohtml(modeldata["label"]));
-        } else {
-            trow.append("td").html(tohtml(modeldata["description"]));
-        }
-        // helper to insert scored td
-        var tdhtml = function (target, text) {
-            target.append("td").classed("numeric", true).html(text);
-        };
+
         if (headcols.length > 4) {
             if (_.has(details, modelid)) {
                 tdhtml(trow, details[modelid]["maxRaw"]);
                 tdhtml(trow, details[modelid]["avgRaw"]);
                 tdhtml(trow, phenscore(details[modelid]));
             } else {
-                tdhtml(trow, "BT");
-                tdhtml(trow, "BT");
-                tdhtml(trow, "BT");
+                trow.append("td").attr("colspan", 3).classed("numeric", true).html("Below threshold");
             }
         }
         var tdpheno = trow.append("td").attr("state", 0);
@@ -636,9 +642,9 @@ impc.phenodigm2.insertModelDetails = function (targetdiv, geneId, models) {
     tbody.selectAll(".phenotype-toggle").on("click", function (d) {
         var thistd = d3.select(this.parentNode);
         var phenotypes = thistd.selectAll(".phenotype");
-        var thisstate = +thistd.attr("state");        
+        var thisstate = +thistd.attr("state");
         phenotypes.classed("phenotype-hidden", thisstate === 1);
-        thistd.attr("state", (thisstate + 1) % 2);                
+        thistd.attr("state", (thisstate + 1) % 2);
     });
 };
 

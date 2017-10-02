@@ -138,10 +138,5 @@ public class MouseModel implements Comparable<MouseModel>, IdUrl {
     public int compareTo(MouseModel t) {
         return this.id.compareTo(t.id);
     }
-
-    //@Override
-    //public String toString() {
-    //    return "MouseModel{" + "id=" + id + ", source=" + source + ", description=" + description + ", geneticBackground=" + geneticBackground + ", markerId=" + markerId + ", markerSymbol=" + markerSymbol + ", phenotypes=" + phenotypes + '}';
-    //}
-                  
+                     
 }

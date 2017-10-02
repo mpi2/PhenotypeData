@@ -88,7 +88,6 @@ public class WebDaoSolrImpl implements WebDao {
     public List<Phenotype> getDiseasePhenotypes(String diseaseId) {
 
         String query = String.format("%s:\"%s\"", PhenodigmDTO.DISEASE_ID, diseaseId);
-
         SolrQuery solrQuery = new SolrQuery(query)
                 .addFilterQuery(Phenodigm2DTO.TYPE + ":disease")
                 .addField(Phenodigm2DTO.DISEASE_PHENOTYPES)
@@ -291,6 +290,7 @@ public class WebDaoSolrImpl implements WebDao {
                 .addField(Phenodigm2DTO.MODEL_ID)
                 .addField(Phenodigm2DTO.MODEL_SOURCE)
                 .addField(Phenodigm2DTO.MODEL_DESCRIPTION)
+                .addField(Phenodigm2DTO.MODEL_GENETIC_BACKGROUND)
                 .addField(Phenodigm2DTO.DISEASE_MODEL_AVG_RAW)
                 .addField(Phenodigm2DTO.DISEASE_MODEL_AVG_NORM)
                 .addField(Phenodigm2DTO.DISEASE_MODEL_MAX_RAW)
@@ -310,6 +310,7 @@ public class WebDaoSolrImpl implements WebDao {
         DiseaseModelAssociation assoc = new DiseaseModelAssociation(phenodigm.getModelId());
         assoc.setModelSource(phenodigm.getModelSource());
         assoc.setModelDescription(phenodigm.getModelDescription());
+        assoc.setModelGeneticBackground(phenodigm.getModelGeneticBackground());
         assoc.setAvgNorm(phenodigm.getDiseaseModelAvgNorm());
         assoc.setAvgRaw(phenodigm.getDiseaseModelAvgRaw());
         assoc.setMaxNorm(phenodigm.getDiseaseModelMaxNorm());
@@ -319,13 +320,10 @@ public class WebDaoSolrImpl implements WebDao {
 
     @Override
     public List<DiseaseModelAssociation> getDiseaseModelDetails(String diseaseId, String markerId) {
-
-        LOGGER.info("inside getDiseaseModelDetails " + diseaseId + " " + markerId);
+        
         String query = String.format("%s:\"%s\" AND %s:\"%s\"",
                 Phenodigm2DTO.DISEASE_ID, diseaseId,
                 Phenodigm2DTO.MARKER_ID, markerId);
-        LOGGER.info("looking for query: " + query);
-
         SolrQuery solrQuery = new SolrQuery(query)
                 .addFilterQuery(Phenodigm2DTO.TYPE + ":disease_model_summary")
                 .addField(Phenodigm2DTO.MODEL_ID)
@@ -360,8 +358,7 @@ public class WebDaoSolrImpl implements WebDao {
         } catch (SolrServerException | IOException e) {
             LOGGER.error(e.getMessage());
         }
-
-        LOGGER.info("from getDiseaseModelDetails: found " + modelAssociations.size());
+        
         return modelAssociations;
     }
 
@@ -374,10 +371,7 @@ public class WebDaoSolrImpl implements WebDao {
     @Override
     public List<MouseModel> getGeneModelDetails(String markerId) {
 
-        LOGGER.info("inside getGeneModelDetails " + markerId);
-        String query = String.format("%s:\"%s\"", Phenodigm2DTO.MARKER_ID, markerId);
-        LOGGER.info("looking for query: " + query);
-
+        String query = String.format("%s:\"%s\"", Phenodigm2DTO.MARKER_ID, markerId);        
         SolrQuery solrQuery = new SolrQuery(query)
                 .addFilterQuery(Phenodigm2DTO.TYPE + ":mouse_model")
                 .addField(Phenodigm2DTO.MODEL_ID)
@@ -404,8 +398,7 @@ public class WebDaoSolrImpl implements WebDao {
         } catch (SolrServerException | IOException e) {
             LOGGER.error(e.getMessage());
         }
-
-        LOGGER.info("from getGeneModelDetails: found " + result.size());
+        
         return result;
     }
 

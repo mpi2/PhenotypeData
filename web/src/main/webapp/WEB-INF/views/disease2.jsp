@@ -98,7 +98,7 @@
                 </p>
                 --%>
 
-                <%-- New section with associated phenotypes --%>
+                <%-- Section with associated phenotypes --%>
                 <p class="with-label">
                     <span class="label">Phenotypes</span>
                     <c:choose>
@@ -112,7 +112,7 @@
                             </c:otherwise>
                         </c:choose>
                 </p>
-                <%-- End of new section on phenotypes --%>
+                <%-- End of section on phenotypes --%>
 
                 <p class="with-label">
                     <span class="label">Associated Genes</span>
@@ -181,7 +181,16 @@
             <h2 class="title">Mouse Models <small class="sub"> visual overview</small>
                 <span class="documentation"><a href='' id='orthologySection' class="mpPanel fa fa-question-circle pull-right"></a></span>
             </h2>
-            <div class="inner" id="phenoscatter"></div>
+            <div class="inner">
+                <div id="phenoscatter"></div>
+                <div id="phenoscatter-help">Disease phenotypes are compared with mouse phenotypes, with each 
+                    mouse model contributing one point to the diagram. Similarity scores are computed according
+                    to phenotype specificity and cross-species similarity. 
+                    <b>X-axis</b> shows the score of the single phenotype that contributes most. 
+                    <b>Y-axis</b> shows an average among all phenotype matches. The <b>curved line</b>
+                    designates a visualization threshold; models below threshold are omitted, except when
+                    their genotype matches one of the disease-associated genes.</div>
+            </div>
         </div>
 
         <%-- A tabbed view of mouse models by orthology/phenotypic similarity --%>
@@ -219,58 +228,15 @@
             </div>
         </div>
 
-
-        <%-- Display models expected to be associated with disease by annotation/orthology --%>
-        <%-- 
-        <div class="section" id="orthologous_mouse_models">                               
-            <h2 class="title">Mouse Models <small class="sub">selected through annotations</small>
-                <span class="documentation"><a href='' id='orthologySection' class="mpPanel fa fa-question-circle pull-right"></a></span>
-            </h2>
-            <div class="inner">                
-                <c:choose>
-                    <c:when test="${!hasModelsByOrthology}">
-                        No mouse models associated with ${disease.id} by orthology to a human gene.
-                    </c:when>
-                    <c:otherwise>                                                
-                        <table id="models_by_annotation_table" class="table tablesorter disease">                            
-                        </table>                        
-                    </c:otherwise>
-                </c:choose>
-            </div>
-        </div>
-        --%>
-            
-        <%-- Display of models that have an above-threshold phenotypic similarity with disease --%>
-        <%-- This system sends all the data in html format. That is not ideal, but most of the old code works --%>
-        <%--
-        <div class="section" id="potential_mouse_models">
-            <h2 class="title">Mouse Models <small class="sub">selected by phenotypic similarity</small>
-                <span class="documentation"><a href='' id='similaritySection' class="mpPanel fa fa-question-circle pull-right"></a></span>
-            </h2>
-            <div class="inner">                
-                <c:choose>
-                    <c:when test="${empty modelAssociations}">
-                        No mouse models associated with ${disease.id} by phenotypic similarity.
-                    </c:when>
-                    <c:otherwise>                        
-                        <table id="models_by_phenotype_table" class="table tablesorter disease">                             
-                        </table>                        
-                    </c:otherwise>
-                </c:choose>
-            </div>
-        </div>
-        --%>
-        
-        <%-- Configuration of tables, e.g. how they appear sorted and paginated.
-             This is executed after pageload, thus page may first appear, then change. 
-        --%>       
-
-        <%-- Prepare js objects: relevant/curated mouse genes, relevant mouse models --%>              
+        <%-- Js objects used to generate html on pageload: 
+             here relevant/curated mouse genes, relevant mouse models --%>              
         <script type="text/javascript">            
             var curatedGenes = ${curatedMouseGenes};
             var modelAssociations = ${modelAssociations};
         </script>
-
+        <%-- Configuration of tables, e.g. how they appear sorted and paginated.
+             This is executed after pageload, thus page may first appear, then change. 
+        --%>       
         <script type="text/javascript">
             // configuration for scatterplot
             var diseaseScatterConf = {
@@ -285,7 +251,7 @@
                 detailpad: 10, // internal padding within the details box
                 linecolor: "#444444", // threshold line
                 linewidth: 3,
-                color: ["#dd0000", "#ddc6c6"], // highlighted, non-highlighted models
+                color: ["#dd0000", "#d2c2c2"], // highlighted, non-highlighted models
                 radius: 4,
                 axes: ["maxRaw", "avgRaw"],
                 labs: ["max Raw", "avg Raw"],

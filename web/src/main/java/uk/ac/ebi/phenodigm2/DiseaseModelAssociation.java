@@ -236,8 +236,9 @@ public class DiseaseModelAssociation extends AssociationType implements IdUrl {
         sb.append("id:\"" + id + "\",");
         sb.append("source:\"" + modelSource + "\",");
         sb.append("description:\"" + modelDescription + "\",");
+        sb.append("background:\"" + modelGeneticBackground + "\",");
         sb.append("markerId:\"" + markerId + "\",");
-        sb.append("markerSymbol:\"" + markerSymbol + "\",");        
+        sb.append("markerSymbol:\"" + markerSymbol + "\",");
         sb.append("markerNumModels:\"" + markerNumModels + "\",");
         sb.append("avgNorm:" + avgNorm + ",");
         sb.append("avgRaw:" + avgRaw + ",");
