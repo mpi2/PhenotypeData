@@ -10,6 +10,7 @@ import org.mousephenotype.cda.enumerations.BatchClassification;
 import org.mousephenotype.cda.enumerations.ControlStrategy;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
+import org.mousephenotype.cda.loads.statistics.generate.StatisticalDatasetGenerator;
 import org.mousephenotype.cda.solr.service.BasicService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -403,22 +404,22 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
 
         // Several attributes come from the filename
         filename =  filename.substring(0, filename.indexOf(".tsv"));
-        List<String> fileMetaData = Arrays.asList(filename.trim().split("::"));
+        List<String> fileMetaData = Arrays.asList(filename.trim().split(StatisticalDatasetGenerator.FILENAME_SEPERATOR));
 
-        if ( ! filename.contains("::")) {
+        if ( ! filename.contains(StatisticalDatasetGenerator.FILENAME_SEPERATOR)) {
             String dataString = filename
-                    .replaceAll("M-G-P", "M:G:P")
-                    .replaceAll("NULL-", "NULL:")
-                    .replaceAll("IMPC-CURATE-", "IMPC:CURATE:")
-                    ;
+                .replaceAll("M-G-P", "M:G:P")
+                .replaceAll("NULL-", "NULL:")
+                .replaceAll("IMPC-CURATE-", "IMPC:CURATE:")
+                ;
             fileMetaData = Arrays.stream(
-                    dataString
-                            .trim()
-                            .split("-"))
-                    .map(x -> x.replaceAll("M:G:P", "M-G-P")
-                            .replaceAll("NULL:", "NULL-")
-                            .replaceAll("IMPC:CURATE:", "IMPC-CURATE-"))
-                    .collect(Collectors.toList());
+                dataString
+                    .trim()
+                    .split("-"))
+                .map(x -> x.replaceAll("M:G:P", "M-G-P")
+                    .replaceAll("NULL:", "NULL-")
+                    .replaceAll("IMPC:CURATE:", "IMPC-CURATE-"))
+                .collect(Collectors.toList());
         }
 
         String dataSource = fileMetaData.get(0);
