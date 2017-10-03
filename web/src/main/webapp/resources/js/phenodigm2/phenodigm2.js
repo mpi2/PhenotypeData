@@ -50,7 +50,7 @@ impc.logohtml = "<img class='small-logo' src='" + impc.logo + "'/>";
 
 // definitions of urls 
 impc.urls = {
-    mgigen0view: "http://www.informatics.jax.org/allele/genoview/",
+    mgigenoview: "http://www.informatics.jax.org/allele/genoview/",
     genes: impc.baseUrl + "/genes/",
     disease: impc.baseUrl + "/disease/"
 };
@@ -125,7 +125,7 @@ impc.phenodigm2.makeTable = function (darr, target, config) {
 
     // setup columns
     var thead = targetdiv.append("thead").append("tr");
-    var colnames = ["Gene", "Models", "Max Raw", "Avg Raw", "Phenodigm"];
+    var colnames = ["Gene", "Models Scored (Total)", "Max Raw", "Avg Raw", "Phenodigm"];
     if (pt === "genes") {
         colnames = ["Disease", "Source", "Max Raw", "Avg Raw", "Phenodigm"];
     }
@@ -557,7 +557,7 @@ impc.phenodigm2.completeGridSkeleton = function (skeleton) {
  * @returns {undefined}
  */
 impc.phenodigm2.insertModelDetails = function (targetdiv, geneId, models) {
-
+    
     // create a table for the outpt    
     var tablediv = targetdiv.append("table").classed("table", true);
 
@@ -598,8 +598,7 @@ impc.phenodigm2.insertModelDetails = function (targetdiv, geneId, models) {
     };
 
     // create html table (one line per model)    
-    models.map(function (modeldata) {
-        console.log(JSON.stringify(modeldata));
+    models.map(function (modeldata) {        
         var trow = tbody.append("tr");
         var rowimpc = impc.isImpc(modeldata);
         var modelid = modeldata["id"];
@@ -607,13 +606,17 @@ impc.phenodigm2.insertModelDetails = function (targetdiv, geneId, models) {
             trow.append("td").html(modelid + impc.logohtml);
         } else {
             trow.append("td").append("a").attr("href", impc.urls.mgigenoview + modelid).html(modelid);
-        }        
+        }
         if (_.has(modeldata, "label")) {            
-            var bg = details[modelid]["background"] + "<br/>";
-            trow.append("td").html(bg+tohtml(modeldata["label"]));
-        } else {            
+            // find background from the modeldata info fields            
+            var bg = modeldata["info"].filter(function(x) {
+                return x["id"].startsWith("Background");
+            });
+            var bg = bg[0]["value"]+"<br/>";                        
+            trow.append("td").html(bg + tohtml(modeldata["label"]));
+        } else {
             var bg = modeldata["geneticBackground"] + "<br/>";
-            trow.append("td").html(bg+tohtml(modeldata["description"]));
+            trow.append("td").html(bg + tohtml(modeldata["description"]));
         }
 
         if (headcols.length > 4) {
