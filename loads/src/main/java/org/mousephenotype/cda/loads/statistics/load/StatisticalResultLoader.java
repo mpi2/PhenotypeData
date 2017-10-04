@@ -6,10 +6,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.mousephenotype.cda.db.pojo.OntologyTerm;
-import org.mousephenotype.cda.enumerations.BatchClassification;
-import org.mousephenotype.cda.enumerations.ControlStrategy;
-import org.mousephenotype.cda.enumerations.SexType;
-import org.mousephenotype.cda.enumerations.ZygosityType;
+import org.mousephenotype.cda.enumerations.*;
 import org.mousephenotype.cda.loads.statistics.generate.StatisticalDatasetGenerator;
 import org.mousephenotype.cda.solr.service.BasicService;
 import org.slf4j.Logger;
@@ -54,8 +51,28 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
     Map<String, Map<ZygosityType, Integer>> bioModelMap = new HashMap<>();
     Map<Integer, String> bioModelStrainMap = new HashMap<>();
     Map<String, Integer> controlBioModelMap = new HashMap<>();
+    Map<String, ObservationType> parameterTypeMap = new HashMap<>();
 
 
+
+    void populateParameterTypeMap() throws SQLException {
+        Map<String, ObservationType> map = parameterTypeMap;
+
+        String query= "select distinct parameter_stable_id, observation_type from observation where observation.missing != 1";
+
+        try (Connection connection = komp2DataSource.getConnection(); PreparedStatement p = connection.prepareStatement(query)) {
+            ResultSet r = p.executeQuery();
+            while (r.next()) {
+
+                String parameterId = r.getString("parameter_stable_id");
+                String obsType=r.getString("observation_type");
+
+                map.put(parameterId, ObservationType.valueOf(obsType));
+            }
+        }
+
+        logger.info(" Mapped {} parameter type entries", map.size());
+    }
 
     void populateControlBioModelMap() throws SQLException {
         Map<String, Integer> map = controlBioModelMap;
@@ -648,7 +665,7 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
         LightweightResult result;
         StatisticalResult statsResult;
 
-        if (data.getStatisticalMethod().contains("Fisher Exact Test framework")) {
+        if (parameterTypeMap.get(data.getDependentVariable()) == ObservationType.categorical) {
 
             Double effectSize = getDoubleField(data.getGenotypeEstimate());
             Double pValue = getDoubleField(data.getGenotypePVal());
@@ -680,7 +697,7 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
             temp.setClassificationTag( classificationTag );
             statsResult = temp;
 
-        } else if (data.getStatisticalMethod().contains("Mixed Model framework")) {
+        } else if (parameterTypeMap.get(data.getDependentVariable()) == ObservationType.unidimensional && data.getStatisticalMethod().contains("Mixed Model framework")) {
 
             Double effectSize = getDoubleField(data.getGenotypeEstimate());
             Double pValue = getDoubleField(data.getGenotypePVal());
@@ -726,7 +743,7 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
             temp.setClassificationTag(data.getClassificationTag());
 
             statsResult = temp;
-        } else if (data.getStatisticalMethod().contains("Reference Ranges Plus framework")) {
+        } else if (parameterTypeMap.get(data.getDependentVariable()) == ObservationType.unidimensional && data.getStatisticalMethod().contains("Reference Ranges Plus framework")) {
 
             // Reference Range result
             result = new LightweightUnidimensionalResult();
@@ -983,6 +1000,7 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
         populateColonyAlleleMap();
         populateBioModelMap();
         populateControlBioModelMap();
+        populateParameterTypeMap();
 
 
         // parameter to indicate the location of the result file(s)
