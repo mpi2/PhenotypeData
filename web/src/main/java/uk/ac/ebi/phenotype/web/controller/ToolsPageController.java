@@ -73,6 +73,7 @@ public class ToolsPageController {
 		//System.out.println("baseurl: " + baseUrl);
 		List<String> toolBlocks = new ArrayList<>();
 
+		// reads from /sre/main/resources/impcTools.json and compose the page
 		BufferedReader in = new BufferedReader(new FileReader(new ClassPathResource("impcTools.json").getFile()));
 		if (in != null) {
 			String json = in.lines().collect(Collectors.joining(" "));

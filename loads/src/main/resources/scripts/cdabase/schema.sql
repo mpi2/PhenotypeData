@@ -1083,6 +1083,11 @@ CREATE TABLE stats_categorical_results (
 	effect_size                DOUBLE,
 	raw_output                 MEDIUMTEXT,
 	authoritative              BOOLEAN,
+	female_p_value             DOUBLE,
+	female_effect_size         DOUBLE,
+	male_p_value               DOUBLE,
+	male_effect_size           DOUBLE,
+	classification_tag         VARCHAR(200),
 
 	PRIMARY KEY (id),
 	KEY control_idx (control_id),
@@ -1896,6 +1901,8 @@ INSERT INTO project(id, name, fullname, description) VALUES(21, 'Infrafrontier-I
 INSERT INTO project(id, name, fullname, description) VALUES(22, 'KMPC', 'Korea Mouse Phenotyping Center', 'Korea Mouse Phenotyping Center');
 INSERT INTO project(id, name, fullname, description) VALUES(23, 'UC Davis', 'University of California at Davis School of Veterinary Medicine', 'UC Davis Veterinary Medicine');
 INSERT INTO project(id, name, fullname, description) VALUES(24, 'NARLabs', 'National Applied Research Laboratories', 'National Applied Research Laboratories');
+INSERT INTO project(id, name, fullname, description) VALUES(25, 'CCP', 'Czech Centre for Phenogenomics', 'Czech Centre for Phenogenomics');
+INSERT INTO project(id, name, fullname, description) VALUES(26, 'IMG', 'Institute of Molecular Genetics of the ASCR, v.v.i', 'Institute of Molecular Genetics of the ASCR, v.v.i');
 
 
 /**
@@ -1940,6 +1947,9 @@ INSERT INTO organisation(id, name, fullname, country) VALUES(33, 'INFRAFRONTIER-
 INSERT INTO organisation(id, name, fullname, country) VALUES(34, 'KMPC', 'Korea Mouse Phenotyping Center', 'Korea');
 INSERT INTO organisation(id, name, fullname, country) VALUES(35, 'MARC', 'Model Animal Research Center', 'Japan');
 INSERT INTO organisation(id, name, fullname, country) VALUES(36, 'NARLabs', 'National Applied Research Laboratories', 'Taiwan');
+INSERT INTO organisation(id, name, fullname, country) VALUES(37, 'BIAT', 'University of Veterinary Medicine Vienna', 'Austria');
+INSERT INTO organisation(id, name, fullname, country) VALUES(38, 'PH', 'Academy of Sciences of the Czech Republic', 'Czech Republic');
+INSERT INTO organisation(id, name, fullname, country) VALUES(39, 'VETMEDUNI', 'University of Veterinary Medicine, Vienna', 'Austria');
 
 
 /**
@@ -2267,9 +2277,14 @@ INSERT INTO ontology_term(acc, db_id, name, description) VALUES('IMPC_PARAMSC_01
 INSERT INTO ontology_term(acc, db_id, name, description) VALUES('IMPC_PARAMSC_012', 22, 'Software failure', 'LIMS says no');
 INSERT INTO ontology_term(acc, db_id, name, description) VALUES('IMPC_PARAMSC_013', 22, 'Uncooperative mouse', 'Mouse is refusing to comply to the test (e.g.: not griping the grid in Grip Strength)');
 INSERT INTO ontology_term(acc, db_id, name, description) VALUES('IMPC_PARAMSC_014', 22, 'Parameter not measured - Equipment Incompatible', 'The phenotyping equipment can not be used to measure a mandatory parameter');
+INSERT INTO ontology_term(acc, db_id, name, description) VALUES('IMPC_PARAMSC_016', 22, 'LIMS error', 'LIMS error resulted in erroneous data submission');
 INSERT INTO ontology_term(acc, db_id, name, description) VALUES('IMPC_SSC_001', 22, 'Genotyping failed', 'Genotyping failed');
 INSERT INTO ontology_term(acc, db_id, name, description) VALUES('IMPC_SSC_002', 22, 'Health Issue', 'Mouse withdrawn because of health issue not related to the targeted mutation; all data to be removed; (ex: health issue discovered during gross pathology, justifying rare values throughout the pipeline)');
 INSERT INTO ontology_term(acc, db_id, name, description) VALUES('IMPC_SSC_003', 22, 'Free Text of Issues', 'Info about a specimen that was removed, not covered by the other specimen status codes; e.g.: duplicated specimen entries (submitted like IMPC_SSC_003:duplicated specimen entry)');
+INSERT INTO ontology_term(acc, db_id, name, description) VALUES('IMPC_SSC_004', 22, 'LIMS error', 'LIMS error resulted in erroneous data submission');
+
+
+
 
 /*
 ** Add hand-curated Europhenome colony ids to phenotyped_colony.

@@ -41,6 +41,25 @@ public class CommonUtils {
     public final static String DATE_FORMAT = "yyyy/MM/dd HH:mm:ss";
 
 
+    private Date zeroDate = new Date(0);
+    /**
+     * Validates a date according to load rules: date must be on or after minDate, and on or before maxDate. Null
+     * dates,  0 dates, and dates outside of minDate or maxDate are NOT considered valid.
+     *
+     * @param date The date to validate
+     * @param minDate The minimum date (inclusive)
+     * @param maxDate The maximum date (inclusive)
+     * @return
+     */
+    public boolean isDateValid(Date date, Date minDate, Date maxDate) {
+
+        if ((date == null) || (date == zeroDate) || (date.before(minDate) || (date.after(maxDate)))) {
+            return false;
+        }
+
+        return true;
+    }
+
     /**
      * Returns the classpath, prefaced by the string 'Classpath:\n'. Each
      * file is separated by a newline.

@@ -36,8 +36,8 @@
               </td>
             </tr>
             <tr>
-              <td>Phenotyping Call(s)</td>
-              <td>This tells you at a glance whether a phenotype has phenotyping data to date
+              <td>Ontology Tree</td>
+              <td>Shows the phenotype in the hierarchy of the Mammalian Phenotype Ontology (MP)
               </td>
             </tr>
             <tr>

@@ -238,7 +238,7 @@ public class PhenotypesController {
 
     	List<PhenotypeCallSummaryDTO> phenotypeList;
         phenotypeList = phenoResult.getPhenotypeCallSummaries();
-        phenotypeList.addAll(preQcResult.getPhenotypeCallSummaries());
+        //phenotypeList.addAll(preQcResult.getPhenotypeCallSummaries());
 
         // This is a map because we need to support lookups
         Map<Integer, DataTableRow> phenotypes = new HashMap<Integer, DataTableRow>();

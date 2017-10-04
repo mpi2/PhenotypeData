@@ -416,7 +416,8 @@
                                 </div>
                             </div>
 
-                            <%--Disease Section (original) --%>                                 
+                            <%--Disease Section (original) --%>    
+                            <%--
                             <div class="section">
                                 <h2 class="title" id="section-disease-models">Disease Models
                                     <a target="_blank" href='http://www.sanger.ac.uk/resources/databases/phenodigm/'></a>
@@ -467,7 +468,7 @@
                                     </c:choose>
                                 </div><!-- end of inner -->
                             </div><!-- end of Disease -->
-                            
+                            --%>
 
                             <%--All mouse models section (phenodigm2) --%>
                             <div class="section" id="gene-mouse-models">
@@ -622,11 +623,11 @@
                     // setup button that loads phenotypes of available models
                     impc.phenodigm2.initLoadModels("load-mouse-models", "gene-mouse-models");
                     // this loops handles phenodigm1 tables
-                    for (var i = 0; i < diseaseTables.length; i++) {
-                        var diseaseTable = diseaseTables[i];
-                        var dataTable = $(diseaseTable.id).DataTable(diseaseTable.tableConf);
-                        $.fn.addTableClickCallbackHandler(diseaseTable.id, dataTable);
-                    }
+                    //for (var i = 0; i < diseaseTables.length; i++) {
+                    //    var diseaseTable = diseaseTables[i];
+                    //    var dataTable = $(diseaseTable.id).DataTable(diseaseTable.tableConf);
+                    //    $.fn.addTableClickCallbackHandler(diseaseTable.id, dataTable);
+                    //}
                     // this loop handles phenodigm2 tables
                     for (var i = 0; i < diseaseTableConfs.length; i++) {                        
                         var dTable = diseaseTableConfs[i];                        

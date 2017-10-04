@@ -46,6 +46,7 @@ public class PhenotypedColonyProcessor implements ItemProcessor<PhenotypedColony
 
     Set<String> missingOrganisations = ConcurrentHashMap.newKeySet();
     Set<String> missingProjects = ConcurrentHashMap.newKeySet();
+    Set<String> ignoredProjects = ConcurrentHashMap.newKeySet();        // Ignore these projects.
 
     private final LoadUtils   loadUtils   = new LoadUtils();
     private final Logger      logger      = LoggerFactory.getLogger(this.getClass());
@@ -71,6 +72,7 @@ public class PhenotypedColonyProcessor implements ItemProcessor<PhenotypedColony
 
     public PhenotypedColonyProcessor(Map<String, GenomicFeature> genes) throws DataLoadException {
         this.genes = genes;
+        ignoredProjects.add("EUCOMMToolsCre");
     }
 
     @Override
@@ -138,7 +140,9 @@ public class PhenotypedColonyProcessor implements ItemProcessor<PhenotypedColony
         String mappedProject = loadUtils.translateTerm(newPhenotypedColony.getProductionConsortium().getName());
         Project productionConsortium = projects.get(mappedProject);
         if (productionConsortium == null) {
-            missingProjects.add("Skipped unknown productionConsortium::translated " + newPhenotypedColony.getProductionConsortium().getName() + "::" + mappedProject);
+            if ( ! ignoredProjects.contains(mappedProject)) {
+                missingProjects.add("Skipped unknown productionConsortium::translated " + newPhenotypedColony.getProductionConsortium().getName() + "::" + mappedProject);
+            }
             return null;
         } else {
             newPhenotypedColony.setProductionConsortium(productionConsortium);
@@ -156,7 +160,9 @@ public class PhenotypedColonyProcessor implements ItemProcessor<PhenotypedColony
         String mappedPhenotypingConsortium = loadUtils.translateTerm(newPhenotypedColony.getPhenotypingConsortium().getName());
         Project phenotypingConsortium = projects.get(mappedPhenotypingConsortium);
         if (phenotypingConsortium == null) {
-            missingProjects.add("Skipped unknown phenotypingConsortium::translated " + newPhenotypedColony.getPhenotypingConsortium().getName() + "::" + mappedPhenotypingConsortium);
+            if ( ! ignoredProjects.contains(mappedProject)) {
+                missingProjects.add("Skipped unknown phenotypingConsortium::translated " + newPhenotypedColony.getPhenotypingConsortium().getName() + "::" + mappedPhenotypingConsortium);
+            }
             return null;
         } else {
             newPhenotypedColony.setPhenotypingConsortium(phenotypingConsortium);

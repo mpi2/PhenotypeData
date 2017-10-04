@@ -72,7 +72,8 @@ public class AdvancedSearchServiceTest {
 
         //String mpTerm = "cardiovascular system phenotype";
         //String mpTerm = "abnormal glucose homeostasis";
-        String mpTerm = "abnormal retina morphology";
+        //String mpTerm = "abnormal retina morphology";
+        String mpTerm = "abnormal coat/hair pigmentation";
 
         //AdvancedSearchMpRow mpRow = new AdvancedSearchMpRow("abnormal glucose homeostasis", 0.00001, 0.0001);
         AdvancedSearchMpRow mpRow = new AdvancedSearchMpRow(mpTerm, null, null);
@@ -156,11 +157,13 @@ public class AdvancedSearchServiceTest {
 
         int genesFoundSolr = geneSymbolsGP.size();
 
-        System.out.println("\nCompare number of unique genes associated with phenotype '" + mpTerm + "'\nfrom Neo4j and SOLR genotype-phenotype core:\n");
-        String comp = genesFoundNeo4j == genesFoundSolr ? "SUCCESS: " : "FAILED: ";
+        System.out.println("\nTest number of unique genes associated with phenotype '" + mpTerm + "'\nfrom Neo4j and SOLR genotype-phenotype core:\n");
+        String comp = (genesFoundNeo4j == genesFoundSolr) ? "SUCCESS: " : "FAILED: ";
         comp += "Neo4j [" + genesFoundNeo4j + "] vs SOLR: [" + genesFoundSolr + "]";
         System.out.println(comp + "\n\n");
-        assertTrue(genesFoundNeo4j==genesFoundSolr);
+
+        // prints only when it is not true
+        assertTrue("Expected Neo4j count: " + genesFoundNeo4j + " g-p core count: " + genesFoundSolr, genesFoundNeo4j == genesFoundSolr);
 
         Set<String> missingGeneSymbolN4j = new HashSet<>();
         Set<String> missingAlleleSymbolN4j = new HashSet<>();
@@ -177,19 +180,25 @@ public class AdvancedSearchServiceTest {
             }
         }
 
-        Set intersect = new TreeSet(n4jGeneSymbols);
-        intersect.retainAll(geneSymbolsGP);
+//        Set intersect = new TreeSet(n4jGeneSymbols);
+//        intersect.retainAll(geneSymbolsGP);
 
-        System.out.println(intersect.size() + " common gene symbols: ");
-        System.out.println(intersect);
-        System.out.println();
+//        System.out.println(intersect.size() + " common gene symbols: ");
+//        System.out.println(intersect);
+//        System.out.println();
 
+        assertTrue(missingGeneSymbolN4j.size() == 0);
         System.out.println(missingGeneSymbolN4j.size() + " Neo4j gene symbols not in GP");
-        System.out.println(missingGeneSymbolN4j);
-        System.out.println();
-        System.out.println(missingAlleleSymbolN4j.size() + " Neo4j allele symbols not in GP");
-        System.out.println(missingAlleleSymbolN4j);
+        if (missingGeneSymbolN4j.size() != 0){
+            System.out.println(missingGeneSymbolN4j);
+        }
 
+        System.out.println();
+        assertTrue(missingAlleleSymbolN4j.size() == 0);
+        System.out.println(missingAlleleSymbolN4j.size() + " Neo4j allele symbols not in GP");
+        if (missingAlleleSymbolN4j.size() != 0){
+            System.out.println(missingAlleleSymbolN4j);
+        }
     }
 
     @Test
@@ -198,7 +207,8 @@ public class AdvancedSearchServiceTest {
         //String mpTerm = "cardiovascular system phenotype";
         //String mpTerm = "abnormal glucose homeostasis";
         //String mpTerm = "abnormal retina morphology";
-        String mpTerm = "rib fusion";
+        //String mpTerm = "rib fusion";
+        String mpTerm = "abnormal coat/hair pigmentation";
 
         // get result from SOLR
         SolrQuery query = new SolrQuery();

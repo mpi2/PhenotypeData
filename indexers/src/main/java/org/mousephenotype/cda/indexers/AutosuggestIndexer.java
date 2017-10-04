@@ -143,6 +143,7 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
     Set<String> allele2MgiAccsSet = new HashSet();
     Set<String> allele2AlleleNameSet = new HashSet();
     Set<String> allele2MarkerSymbolSet = new HashSet();
+    Set<String> allele2MarkerNameSet  = new HashSet();
     Set<String> allele2MarkerSynonymSet = new HashSet();
     Set<String> allele2IkmcProjectSet = new HashSet();
     Set<String> allele2GeneAlleleSet = new HashSet();
@@ -167,7 +168,7 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
 
             autosuggestCore.deleteByQuery("*:*");
 
-            populateParameterNameAutosuggestTerms();
+            //populateParameterNameAutosuggestTerms();  // no using pipeline for now
             populateGeneAutosuggestTerms();
             populateMpAutosuggestTerms();
             populateDiseaseAutosuggestTerms();
@@ -909,11 +910,11 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
                 .setRows(Integer.MAX_VALUE);
 
         QueryResponse response = allele2Core.query(query);
-        List<AlleleDTO> alleles = response.getBeans(AlleleDTO.class);
+        List<Allele2DTO> alleles = response.getBeans(Allele2DTO.class);
 
         String docType = "allele2";
 
-        for (AlleleDTO allele : alleles) {
+        for (Allele2DTO allele : alleles) {
 
             Set<AutosuggestBean> beans = new HashSet<>();
             for (String field : productFields) {
@@ -922,7 +923,7 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
                 a.setDocType(docType);
 
                 switch (field) {
-                    case AlleleDTO.MARKER_SYMBOL:
+                    case Allele2DTO.MARKER_SYMBOL:
                         mapKey = allele.getMarkerSymbol();
                         if (allele2MarkerSymbolSet.add(mapKey)) {
                             a.setMarkerSymbol(mapKey);
@@ -938,21 +939,28 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
                             }
                         }
                         break;
-                    case AlleleDTO.MGI_ACCESSION_ID:
+                    case Allele2DTO.MARKER_NAME:
+                        mapKey = allele.getMarkerName();
+                        if (allele2MarkerNameSet.add(mapKey)) {
+                            a.setMarkerName(mapKey);
+                            beans.add(a);
+                        }
+                        break;
+                    case Allele2DTO.MGI_ACCESSION_ID:
                         mapKey = allele.getMgiAccessionId();
                         if (allele2MgiAccsSet.add(mapKey)) {
                             a.setMgiAccessionId(mapKey);
                             beans.add(a);
                         }
                         break;
-                    case AlleleDTO.ALLELE_MGI_ACCESSION_ID:
+                    case Allele2DTO.ALLELE_MGI_ACCESSION_ID:
                         mapKey = allele.getAlleleMgiAccessionId();
                         if (allele2MgiAccsSet.add(mapKey)) {
                             a.setAlleleMgiAccessionId(mapKey);
                             beans.add(a);
                         }
                         break;
-                    case AlleleDTO.IKMC_PROJECT:
+                    case Allele2DTO.IKMC_PROJECT:
                         List<String> ikmcProjects = allele.getIkmcProject();
                         if ( ikmcProjects != null ) {
                             for (String ikmcProject : ikmcProjects) {
@@ -963,23 +971,22 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
                             }
                         }
                         break;
-                    case AlleleDTO.ALLELE_NAME:
-                        List<String> names = allele.getAlleleName();
-                        for( String mapKey : names) {
+                    case Allele2DTO.ALLELE_NAME:
+                        String mapKey = allele.getAlleleName();
 
-                            String markerSymbol = allele.getMarkerSymbol();
-                            if (allele2GeneAlleleSet.add(markerSymbol + " " + mapKey)) {
-                                AutosuggestBean ga = new AutosuggestBean();
-                                ga.setDocType(docType);
-                                ga.setGeneAllele(markerSymbol + " " + mapKey);
-                                beans.add(ga);
-                            }
-
-                            if (allele2AlleleNameSet.add(mapKey)) {
-                                a.setAlleleName(mapKey);
-                                beans.add(a);
-                            }
+                        String markerSymbol = allele.getMarkerSymbol();
+                        if (allele2GeneAlleleSet.add(markerSymbol + " " + mapKey)) {
+                            AutosuggestBean ga = new AutosuggestBean();
+                            ga.setDocType(docType);
+                            ga.setGeneAllele(markerSymbol + " " + mapKey);
+                            beans.add(ga);
                         }
+
+                        if (allele2AlleleNameSet.add(mapKey)) {
+                            a.setAlleleName(mapKey);
+                            beans.add(a);
+                        }
+
                         break;
                 }
             }

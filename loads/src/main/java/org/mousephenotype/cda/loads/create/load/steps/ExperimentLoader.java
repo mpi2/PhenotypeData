@@ -43,11 +43,14 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.util.Assert;
 
-import javax.inject.Inject;
 import java.math.BigInteger;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 /**
  * Loads the experiments from a database with a dcc schema into the cda database.
@@ -57,21 +60,25 @@ import java.util.*;
  */
 public class ExperimentLoader implements Step, Tasklet, InitializingBean {
 
-    private CommonUtils                commonUtils = new CommonUtils();
-    private CdaSqlUtils                cdaSqlUtils;
-    private DccSqlUtils                dccSqlUtils;
-    private StrainMapper               strainMapper;
-    private NamedParameterJdbcTemplate jdbcCda;
+    // How many threads used to process experiments
+    private static final int N_THREADS = 40;
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
-    private StepBuilderFactory            stepBuilderFactory;
 
+    private CommonUtils                commonUtils = new CommonUtils();
+    private StrainMapper               strainMapper;
+
+    private final CdaSqlUtils                cdaSqlUtils;
+    private final DccSqlUtils                dccSqlUtils;
+    private final NamedParameterJdbcTemplate jdbcCda;
+    private final StepBuilderFactory         stepBuilderFactory;
 
     private Set<String> badDates                     = new HashSet<>();
     private Set<String> experimentsMissingSamples    = new HashSet<>();        // value = specimenId + "_" + cda phenotypingCenterPk
+    private Set<String> ignoredExperimentsInfo       = new HashSet<>();
     private Set<String> missingBackgroundStrains     = new HashSet<>();
     private Set<String> missingColonyIds             = new HashSet<>();
-    private Set<String> experimentsMissingColonyIds  = new HashSet<>();
+    private Set<String> missingColonyIdInfo          = new HashSet<>();
     private Set<String> missingProjects              = new HashSet<>();
     private Set<String> experimentsMissingProjects   = new HashSet<>();
     private Set<String> missingCenters               = new HashSet<>();
@@ -80,20 +87,28 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
     private Set<String> experimentsMissingPipelines  = new HashSet<>();
     private Set<String> missingProcedures            = new HashSet<>();
     private Set<String> experimentsMissingProcedures = new HashSet<>();
-    
-    private Set<String> skippedExperiments       = new HashSet<>();
+
+    private Set<String> skippedExperiments           = new HashSet<>();         // A set of all experiments that were skipped (exclusive of the experiments in ingoredExperiments)
     private Set<String> unsupportedParametersMap = new HashSet<>();
+
+    private static Set<UniqueExperimentId> ignoredExperiments;                  // Experments purposefully ignored.
+
+    static {
+        Set<UniqueExperimentId> ignoredExperimentSet = new HashSet<>();
+        ignoredExperimentSet.add(new UniqueExperimentId("Ucd", "GRS_2013-10-09_4326"));
+        ignoredExperimentSet.add(new UniqueExperimentId("Ucd", "GRS_2014-07-16_8800"));
+
+        ignoredExperiments = new HashSet<>(ignoredExperimentSet);
+    }
 
     private int lineLevelProcedureCount   = 0;
     private int sampleLevelProcedureCount = 0;
 
     // lookup maps returning specified parameter type list given cda procedure primary key
-    private Map<String, Allele> allelesBySymbolMap;
+    final private Map<String, Allele> allelesBySymbolMap;
     
     private final boolean INCLUDE_DERIVED_PARAMETERS = false;
 
-
-    @Inject
     public ExperimentLoader(NamedParameterJdbcTemplate jdbcCda,
                             StepBuilderFactory stepBuilderFactory,
                             CdaSqlUtils cdaSqlUtils,
@@ -170,17 +185,17 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
     // lookup maps returning cda table primary key given dca unique string
     // Initialise them here, as this code gets called multiple times for different dcc data sources
     // and these maps must be cleared before their second and subsequent uses.
-    private Map<String, Integer>          cdaDb_idMap = new HashMap<>();
-    private Map<String, Integer>          cdaOrganisation_idMap = new HashMap<>();
-    private Map<String, Integer>          cdaProject_idMap = new HashMap<>();
-    private Map<String, Integer>          cdaPipeline_idMap                 = new HashMap<>();
-    private Map<String, Integer>          cdaProcedure_idMap                = new HashMap<>();
-    private Map<String, Integer>          cdaParameter_idMap                = new HashMap<>();
-    private Map<String, String>           cdaParameterNameMap               = new HashMap<>();              // map of impress parameter names keyed by stable_parameter_id
-    private Set<String>                   derivedImpressParameters          = new HashSet<>();
-    private Set<String>                   metadataAndDataAnalysisParameters = new HashSet<>();
-    private Map<String, BiologicalSample> samplesMap                        = new HashMap<>();                       // keyed by external_id and organisation_id (e.g. "mouseXXX_12345")
-    private Map<String, PhenotypedColony> phenotypedColonyMap               = new HashMap<>();
+    private Map<String, Integer>                cdaDb_idMap = new HashMap<>();
+    final private Map<String, Integer>          cdaOrganisation_idMap;
+    final private Map<String, PhenotypedColony> phenotypedColonyMap;
+    private Map<String, Integer>                cdaProject_idMap = new HashMap<>();
+    private Map<String, Integer>                cdaPipeline_idMap                 = new HashMap<>();
+    private Map<String, Integer>                cdaProcedure_idMap                = new HashMap<>();
+    private Map<String, Integer>                cdaParameter_idMap                = new HashMap<>();
+    private Map<String, String>                 cdaParameterNameMap               = new HashMap<>();              // map of impress parameter names keyed by stable_parameter_id
+    private Set<String>                         derivedImpressParameters          = new HashSet<>();
+    private Set<String>                         metadataAndDataAnalysisParameters = new HashSet<>();
+    private Map<String, BiologicalSample>       samplesMap                        = new HashMap<>();              // keyed by external_id and organisation_id (e.g. "mouseXXX_12345")
 
     // DCC parameter lookup maps, keyed by procedure_pk
     private Map<Long, List<MediaParameter>>       mediaParameterMap = new HashMap<>();
@@ -200,7 +215,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
 
         long startStep = new Date().getTime();
         List<DccExperimentDTO> dccExperiments = dccSqlUtils.getExperiments();
-        Map<String, Integer>   counts;
+        Map<String, Integer> counts;
 
         strainMapper = new StrainMapper(cdaSqlUtils);
 
@@ -280,7 +295,20 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
 
         int experimentCount = 0;
         int skippedExperimentsCount = 0;
+
+        ExecutorService executor = Executors.newFixedThreadPool(N_THREADS);
+
+        List<Future<Experiment>> tasks = new ArrayList<>();
+
         for (DccExperimentDTO dccExperiment : dccExperiments) {
+
+            // Skip purposefully ignored experiments.
+            UniqueExperimentId uniqueExperiment = new UniqueExperimentId(dccExperiment.getPhenotypingCenter(), dccExperiment.getExperimentId());
+
+            if (ignoredExperiments.contains(uniqueExperiment)) {
+                ignoredExperimentsInfo.add("Ignoring center::experiment " + ignoredExperiments.toString());
+                continue;
+            }
 
             // Skip any experiments with known bad colony ids.
             if (DccSqlUtils.knownBadColonyIds.contains(dccExperiment.getColonyId())) {
@@ -289,12 +317,56 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
                 continue;
             }
 
-            insertExperiment(dccExperiment);
+            Callable<Experiment> task = () -> insertExperiment(dccExperiment);
+            tasks.add(executor.submit(task));
+
             experimentCount++;
             if (experimentCount % 100000 == 0) {
-                logger.info("Processed {} experiments", experimentCount);
+                logger.info("Submitted {} experiments", experimentCount);
+
+                // Drain the queue so we don't run out of memory
+                while (true) {
+                    Integer done = 0;
+                    Integer left = 0;
+                    for (Future<Experiment> future : tasks) {
+                        if (future.isDone()) {
+                            done += 1;
+
+                        } else {
+                            left += 1;
+                        }
+                    }
+
+                    if (left == 0) {
+                        tasks = new ArrayList<>();
+                        break;
+                    }
+                    Thread.sleep(5000);
+
+                }
             }
         }
+
+        // Drain the final set
+        logger.info("Processing final queue of " + tasks.size());
+        executor.shutdown();
+
+//
+//        for (DccExperimentDTO dccExperiment : dccExperiments) {
+//
+//            // Skip any experiments with known bad colony ids.
+//            if (DccSqlUtils.knownBadColonyIds.contains(dccExperiment.getColonyId())) {
+//                skippedExperiments.add(dccExperiment.getDatasourceShortName() + " experiment " + dccExperiment.getExperimentId());
+//                skippedExperimentsCount++;
+//                continue;
+//            }
+//
+//            insertExperiment(dccExperiment);
+//            experimentCount++;
+//            if (experimentCount % 100000 == 0) {
+//                logger.info("Processed {} experiments", experimentCount);
+//            }
+//        }
 
         // Print out the counts.
         List<List<String>> loadCounts = cdaSqlUtils.getLoadCounts();
@@ -314,16 +386,29 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         System.out.println(borderRow);
 
 
+        // Log info sets
+
+        Iterator<String> missingColonyIdInfoIt = missingColonyIdInfo.iterator();
+        while (missingColonyIdInfoIt.hasNext()) {
+            logger.info(missingColonyIdInfoIt.next());
+        }
+
+        Iterator<String> ignoredExperimentsInfoIt = ignoredExperimentsInfo.iterator();
+        while (ignoredExperimentsInfoIt.hasNext()) {
+            logger.info(ignoredExperimentsInfoIt.next());
+        }
+
+        Iterator<String> badDatesIt = badDates.iterator();
+        while (badDatesIt.hasNext()) {
+            logger.info(badDatesIt.next());
+        }
+
+
         // Log warning sets
 
         Iterator<String> missingColonyIdsIt = missingColonyIds.iterator();
         while (missingColonyIdsIt.hasNext()) {
             logger.warn(missingColonyIdsIt.next());
-        }
-
-        Iterator<String> experimentsMissingColonyIdsIt = experimentsMissingColonyIds.iterator();
-        while (experimentsMissingColonyIdsIt.hasNext()) {
-            logger.warn(experimentsMissingColonyIdsIt.next());
         }
 
         Iterator<String> missingBackgroundStrainsIt = missingBackgroundStrains.iterator();
@@ -334,11 +419,6 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         Iterator<String> experimentsMissingSamplesIt = experimentsMissingSamples.iterator();
         while (experimentsMissingSamplesIt.hasNext()) {
             logger.warn(experimentsMissingSamplesIt.next());
-        }
-
-        Iterator<String> badDatesIt = badDates.iterator();
-        while (badDatesIt.hasNext()) {
-            logger.warn(badDatesIt.next());
         }
         
         Iterator<String> missingProjectsIt = missingProjects.iterator();
@@ -382,7 +462,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         }
 
 
-        logger.info("Skipped {} experiments because of known bad colony id", skippedExperimentsCount);
+//        logger.info("Skipped {} experiments because of known bad colony id", skippedExperimentsCount);
 
         logger.info("Wrote {} sample-Level procedures", sampleLevelProcedureCount);
         logger.info("Wrote {} line-Level procedures", lineLevelProcedureCount);
@@ -475,9 +555,10 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
 
             PhenotypedColony phenotypedColony = phenotypedColonyMap.get(dccExperiment.getColonyId());
             if ((phenotypedColony == null) || (phenotypedColony.getColonyName() == null)) {
-                logger.warn("Unable to get phenotypedColony for experiment samples for colonyId {} to apply special MGP" +
-                            " remap rule for EuroPhenome. Rule NOT applied.",
-                            dccExperiment.getColonyId());
+                String errMsg = "Unable to get phenotypedColony for experiment samples for colonyId {} to apply special MGP" +
+                                " remap rule for EuroPhenome. Rule NOT applied." + dccExperiment.getColonyId();
+                missingColonyIds.add(errMsg);
+
                 return null;
             }
 
@@ -486,6 +567,10 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
                 dccExperiment.setDatasourceShortName(CdaSqlUtils.MGP);
                 dbId = cdaDb_idMap.get(dccExperiment.getDatasourceShortName());
             }
+
+            // Make sure to remap the phenotypingCenterPk and phenotypingCenter to the iMits value, which takes precedence.
+            phenotypingCenterPk = phenotypedColony.getPhenotypingCentre().getId();
+            phenotypingCenter = LoadUtils.mappedExternalCenterNames.get(phenotypedColony.getPhenotypingCentre().getName());
         }
 
         projectPk = cdaProject_idMap.get(dccExperiment.getProject());
@@ -550,12 +635,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
 
             PhenotypedColony phenotypedColony = phenotypedColonyMap.get(dccExperiment.getColonyId());
             if ((phenotypedColony == null) || (phenotypedColony.getColonyName() == null)) {
-                missingColonyIds.add("Missing colony '" + dccExperiment.getColonyId() + "'");
-                if (dccExperiment.isLineLevel()) {
-                    experimentsMissingColonyIds.add("Null/invalid colony '" + dccExperiment.getColonyId() + "'\tcenter::line\t" + dccExperiment.getPhenotypingCenter() + "::" + dccExperiment.getExperimentId());
-                } else {
-                    experimentsMissingColonyIds.add("Null/invalid colony '" + dccExperiment.getColonyId() + "'\tcenter::experiment\t" + dccExperiment.getPhenotypingCenter() + "::" + dccExperiment.getExperimentId());
-                }
+                missingColonyIds.add("Null/invalid colony '" + dccExperiment.getColonyId() + "'\tcenter\t" + dccExperiment.getPhenotypingCenter());
                 return null;
             }
 
@@ -675,8 +755,14 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
             String bsKey = dccExperiment.getSpecimenId() + "_" + phenotypingCenterPk;
             BiologicalSample bs = samplesMap.get(bsKey);
             if (bs == null) {
-                experimentsMissingSamples.add("Missing sample    phenotypingCenterPk::center::colonyId\t" +
-                                               phenotypingCenterPk + "::" + phenotypingCenter + "::" + dccExperiment.getColonyId());
+
+                // If the colonyId isn't in the phenotypedColony map, just log the center.
+                if ( phenotypedColonyMap.containsKey(dccExperiment.getColonyId())) {
+                    experimentsMissingSamples.add("Missing sample bsKey::specimenId::phenotypingCenterPk::center::colonyId\t" +
+                            bsKey + "::" + dccExperiment.getSpecimenId() + "::" + phenotypingCenterPk + "::" + phenotypingCenter + "::" + dccExperiment.getColonyId());
+                } else {
+                    missingColonyIdInfo.add("Missing sample for missing colonyId " + dccExperiment.getColonyId());
+                }
 
                 return;
             }
@@ -785,28 +871,23 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
     }
 
     /**
-     * Validates and returns date of experiment, if valid; null otherwise. Logs null/invalid dates.
-     * @param dccExperiment
-     * @return the date of experiment, if valid; null otherwise.
+     * This method is meant to be called when a non-null, non-zero date is expected. The date is validated to be:
+     * not null, not zero, and between MIN_DATE and MAX_DATE, inclusive. If it is, the date is returned; otherwise,
+     * null is returned.
      */
     private Date getDateOfExperiment(DccExperimentDTO dccExperiment) {
         Date dateOfExperiment;
         SimpleDateFormat dateFormat  = new SimpleDateFormat("yyyy-MM-dd");
 
-        String experimentId = dccExperiment.getExperimentId();
         Date dccDate = dccExperiment.getDateOfExperiment();
-        String message = "Invalid date '" + dccDate + "'    center::experiment    " + dccExperiment.getPhenotypingCenter() + "::" + experimentId;
+        String message = "Invalid experiment date '" + dccDate + "' for center " + dccExperiment.getPhenotypingCenter();
 
         try {
 
             Date maxDate = new Date();
             Date minDate = dateFormat.parse("1975-01-01");
 
-            if (dccDate.before(minDate)) {
-                badDates.add(message);
-                return null;
-
-            } else if (dccDate.after(maxDate)) {
+            if ( ! commonUtils.isDateValid(dccDate, minDate, maxDate)) {
                 badDates.add(message);
                 return null;
             }
@@ -824,7 +905,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
     private int getBiologicalModelId(
             PhenotypedColony phenotypedColony,
             List<SimpleParameter> simpleParameters) throws DataLoadException {
-        int biological_model_id = 0;
+        int biological_model_id;
 
         String zygosity = getZygosity(simpleParameters);
         String sampleGroup = "experimental";
@@ -863,14 +944,20 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
     private void insertSimpleParameter(DccExperimentDTO dccExperiment, SimpleParameter simpleParameter, int experimentPk,
                                        int dbId, Integer biologicalSamplePk, int missing) throws DataLoadException {
         String parameterStableId = simpleParameter.getParameterID();
-        int parameterPk = cdaParameter_idMap.get(parameterStableId);
+        Integer parameterPk = cdaParameter_idMap.get(parameterStableId);
+        if (parameterPk == null) {
+            logger.warn("Experiment {}: unknown parameterStableId {} for simpleParameter {}. Skipping...",
+                    dccExperiment, parameterStableId, simpleParameter.getParameterID());
+            return;
+        }
+
         String sequenceId = (simpleParameter.getSequenceID() == null ? null : simpleParameter.getSequenceID().toString());
 
         ObservationType observationType = cdaSqlUtils.computeObservationType(parameterStableId, simpleParameter.getValue());
 
         String[] rawParameterStatus = commonUtils.parseImpressStatus(simpleParameter.getParameterStatus());
-        String parameterStatus = rawParameterStatus[0];
-        String parameterStatusMessage = rawParameterStatus[1];
+        String parameterStatus = ((rawParameterStatus != null) && (rawParameterStatus.length > 0) ? rawParameterStatus[0] : null);
+        String parameterStatusMessage = ((rawParameterStatus != null) && (rawParameterStatus.length > 1) ? rawParameterStatus[1] : null);
 
         if (parameterStatus != null)
             missing = 1;
@@ -1167,6 +1254,14 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
 
                     try {
                         timePoint = simpleDateFormat.parse(parsedIncrementValue);                                       // timePoint (overridden if increment value represents a date.
+                        SimpleDateFormat ymdFormat = new SimpleDateFormat("yyyy-MM-dd");
+                        Date maxDate = new Date();
+                        Date minDate = ymdFormat.parse("1975-01-01");
+                        String message = "Invalid timepoint date '" + ymdFormat.format(timePoint) + "' for center " + dccExperiment.getPhenotypingCenter();
+                        if ( ! commonUtils.isDateValid(timePoint, minDate, maxDate)) {
+                            valueMissing = 1;
+                            badDates.add(message);
+                        }
 
                     } catch (ParseException e) { }
                 }
@@ -1239,7 +1334,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
             observationPk = cdaSqlUtils.insertObservation(dbId, biologicalSamplePk, parameterStableId, parameterPk,
                                                           sequenceId, populationId, observationType, missing,
                                                           parameterStatus, parameterStatusMessage,
-                                                          ontologyParameter);
+                                                          ontologyParameter, dccExperiment.getExperimentId(), experimentPk);
         } catch (Exception e) {
             logger.warn("Insert of ontology parameter observation for phenotyping center {} failed. Skipping... " +
                                 " biologicalSamplePk {}. parameterStableId {}." +
@@ -1253,5 +1348,55 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
 
         // Insert experiment_observation
         cdaSqlUtils.insertExperiment_observation(experimentPk, observationPk);
+    }
+
+
+    public static class UniqueExperimentId {
+        private String dccCenterName;
+        private String dccExperimentId;
+
+        public UniqueExperimentId(String dccCenterName, String dccExperimentId) {
+            this.dccCenterName = dccCenterName;
+            this.dccExperimentId = dccExperimentId;
+        }
+
+        public String getDccCenterName() {
+            return dccCenterName;
+        }
+
+        public void setDccCenterName(String dccCenterName) {
+            this.dccCenterName = dccCenterName;
+        }
+
+        public String getDccExperimentId() {
+            return dccExperimentId;
+        }
+
+        public void setDccExperimentId(String dccExperimentId) {
+            this.dccExperimentId = dccExperimentId;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            UniqueExperimentId that = (UniqueExperimentId) o;
+
+            if (!dccCenterName.equals(that.dccCenterName)) return false;
+            return dccExperimentId.equals(that.dccExperimentId);
+        }
+
+        @Override
+        public int hashCode() {
+            int result = dccCenterName.hashCode();
+            result = 31 * result + dccExperimentId.hashCode();
+            return result;
+        }
+
+        @Override
+        public String toString() {
+            return dccCenterName + "::" + dccExperimentId;
+        }
     }
 }

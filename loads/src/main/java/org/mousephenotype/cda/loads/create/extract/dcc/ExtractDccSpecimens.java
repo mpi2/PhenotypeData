@@ -27,10 +27,12 @@ import org.mousephenotype.dcc.exportlibrary.xmlserialization.exceptions.XMLloadi
 import org.mousephenotype.dcc.utils.xml.XMLUtils;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.Banner;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.transaction.annotation.Transactional;
@@ -61,10 +63,13 @@ public class ExtractDccSpecimens implements CommandLineRunner {
 
     @NotNull
     @Autowired
-    private DataSource dcc;
+    @Qualifier("dccDataSource")
+    @Lazy
+    private DataSource dccDataSource;
 
     @NotNull
     @Autowired
+    @Lazy
     private DccSqlUtils dccSqlUtils;
 
 
@@ -109,7 +114,7 @@ public class ExtractDccSpecimens implements CommandLineRunner {
         filename = (String) options.valuesOf("filename").get(0);
 
         try {
-            dbname = dcc.getConnection().getCatalog();
+            dbname = dccDataSource.getConnection().getCatalog();
         } catch (SQLException e) {
             dbname = "Unknown";
         }
@@ -118,7 +123,7 @@ public class ExtractDccSpecimens implements CommandLineRunner {
             logger.info("Dropping and creating dcc specimen tables for database {} - begin", dbname);
             org.springframework.core.io.Resource r = new ClassPathResource("scripts/dcc/createSpecimen.sql");
             ResourceDatabasePopulator            p = new ResourceDatabasePopulator(r);
-            p.execute(dcc);
+            p.execute(dccDataSource);
             logger.info("Dropping and creating dcc specimen tables for database {} - complete", dbname);
         }
 
@@ -157,6 +162,7 @@ public class ExtractDccSpecimens implements CommandLineRunner {
                 }
             }
         }
+        logger.info("Added " + totalSpecimens + " to the database with " + totalSpecimenFailures + " failures");
     }
 
     @Transactional

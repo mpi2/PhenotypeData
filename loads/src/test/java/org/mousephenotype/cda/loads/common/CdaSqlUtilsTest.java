@@ -4,6 +4,8 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.db.pojo.OntologyTerm;
+import org.mousephenotype.cda.db.pojo.Strain;
+import org.mousephenotype.cda.loads.exceptions.DataLoadException;
 import org.mousephenotype.cda.utilities.RunStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Import;
@@ -154,5 +156,11 @@ public class CdaSqlUtilsTest {
         }
 
         System.out.println();
+    }
+
+    @Test
+    public void testGetStrain() throws DataLoadException {
+        Strain strain = cdaSqlUtils.getStrainByNameOrMgiAccessionIdOrSynonym("C57BL/6J");
+        assert strain.getId().getAccession().equals("MGI:3028467");
     }
 }

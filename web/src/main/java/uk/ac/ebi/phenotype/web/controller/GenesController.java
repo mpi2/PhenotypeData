@@ -85,8 +85,6 @@ import java.sql.SQLException;
 import java.util.*;
 import uk.ac.ebi.phenodigm2.Disease;
 import uk.ac.ebi.phenodigm2.DiseaseModelAssociation;
-import uk.ac.ebi.phenodigm2.MouseModel;
-//import uk.ac.ebi.phenodigm2.Gene;
 import uk.ac.ebi.phenodigm2.WebDao;
 
 @Controller
@@ -390,8 +388,7 @@ public class GenesController {
             model.addAttribute("hasVignette", true);
         }
         // add in the disease predictions from phenodigm
-        processDisease(acc, model);
-        //processModels(acc, model);
+        processDisease(acc, model);        
         processDisease2(acc, model);
 
         model.addAttribute("countIKMCAlleles", countIKMCAlleles);
@@ -597,7 +594,7 @@ public class GenesController {
 
         List<PhenotypeCallSummaryDTO> phenotypeList = new ArrayList<PhenotypeCallSummaryDTO>();
         PhenotypeFacetResult phenoResult = null;
-        PhenotypeFacetResult preQcResult = new PhenotypeFacetResult();
+        //PhenotypeFacetResult preQcResult = new PhenotypeFacetResult();
 
         //for image links we need a query that brings back mp terms and colony_ids that have mp terms
         //http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/impc_images/select?q=gene_accession_id:%22MGI:1913955%22&fq=mp_id:*&facet=true&facet.mincount=1&facet.limit=-1&facet.field=colony_id&facet.field=mp_id&facet.field=mp_term&rows=0
@@ -606,21 +603,21 @@ public class GenesController {
         try {
 
             phenoResult = phenotypeCallSummaryService.getPhenotypeCallByGeneAccessionAndFilter(acc, topLevelMpTermName, resourceFullname);
-            preQcResult = phenotypeCallSummaryService.getPreQcPhenotypeCallByGeneAccessionAndFilter(acc, topLevelMpTermName, resourceFullname);
+            //preQcResult = phenotypeCallSummaryService.getPreQcPhenotypeCallByGeneAccessionAndFilter(acc, topLevelMpTermName, resourceFullname);
 
             phenotypeList = phenoResult.getPhenotypeCallSummaries();
-            phenotypeList.addAll(preQcResult.getPhenotypeCallSummaries());
+            //phenotypeList.addAll(preQcResult.getPhenotypeCallSummaries());
 
             Map<String, Map<String, Integer>> phenoFacets = phenoResult.getFacetResults();
-            Map<String, Map<String, Integer>> preQcFacets = preQcResult.getFacetResults();
+            //Map<String, Map<String, Integer>> preQcFacets = preQcResult.getFacetResults();
 
-            for (String key : preQcFacets.keySet()) {
-                if (preQcFacets.get(key).keySet().size() > 0) {
-                    for (String key2 : preQcFacets.get(key).keySet()) {
-                        phenoFacets.get(key).put(key2, preQcFacets.get(key).get(key2));
-                    }
-                }
-            }
+//            for (String key : preQcFacets.keySet()) {
+//                if (preQcFacets.get(key).keySet().size() > 0) {
+//                    for (String key2 : preQcFacets.get(key).keySet()) {
+//                        phenoFacets.get(key).put(key2, preQcFacets.get(key).get(key2));
+//                    }
+//                }
+//            }
 
             // sort facets
             model.addAttribute("phenoFacets", sortPhenFacets(phenoFacets));

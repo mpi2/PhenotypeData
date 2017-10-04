@@ -214,7 +214,8 @@ public class SearchConfig {
         List<String> allele2Fields = Arrays.asList("marker_symbol",
                 "mgi_accession_id",
                 "allele_name",
-                "synonym",
+                "marker_name",
+                "marker_synonym",
                 "allele_description",
                 "allele_simple_image",  // es cell and mouse vector (gene map)
                 "vector_allele_image",  // targeting vector map

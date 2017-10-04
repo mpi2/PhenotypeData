@@ -375,8 +375,14 @@ public class PostQcService extends AbstractGenotypePhenotypeService implements W
 
     }
 
-
-    public JSONArray getTopLevelPhenotypeIntersection(String mpId) throws JSONException {
+    /**
+     * 
+     * @param mpId
+     * @param filterOnAccessions list of marker accessions to restrict the results by e.g. for the hearing page we only want results for the 67 genes for the paper
+     * @return
+     * @throws JSONException
+     */
+    public JSONArray getTopLevelPhenotypeIntersection(String mpId, Set<String> filterOnAccessions) throws JSONException {
 
         String pivot = GenotypePhenotypeDTO.MARKER_ACCESSION_ID + "," + GenotypePhenotypeDTO.MARKER_SYMBOL;
         SolrQuery query = new SolrQuery();
@@ -402,7 +408,11 @@ public class PostQcService extends AbstractGenotypePhenotypeService implements W
                 obj = addJitter(x, y, jitter, obj);
                 obj.accumulate("markerAcc", markerAcc);
                 obj.accumulate("markerSymbol", geneAccSymbol.get(markerAcc).get(0));
-                array.put(obj);
+                if(filterOnAccessions!=null && filterOnAccessions.contains(markerAcc)){
+                	array.put(obj);
+                }else if(filterOnAccessions==null){
+                	array.put(obj);
+                }
             }
 
             return array;

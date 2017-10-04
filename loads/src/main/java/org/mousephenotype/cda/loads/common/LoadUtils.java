@@ -65,11 +65,14 @@ public class LoadUtils {
         put("Ics",                      "ICS");                         // center.centerId -> organisation.name
         put("J",                        "JAX");                         // center.centerId -> organisation.name
         put("Ncom",                     "CMHD");                        // center.centerId -> organisation.name
-        put("Ning",                     "NING");                        // center.centerId -> organisation.name
+        put("Ning",                     "MARC");                        // center.centerId -> organisation.name
         put("Rbrc",                     "RBRC");                        // center.centerId -> organisation.name
         put("Tcp",                      "TCP");                         // center.centerId -> organisation.name
         put("Ucd",                      "UC Davis");                    // center.centerId -> organisation.name
         put("Wtsi",                     "WTSI");                        // center.centerId -> organisation.name
+        put("Kmpc",                     "KMPC");                        // center.centerId -> organisation.name
+        put("Biat",                     "BIAT");                        // center.centerId -> organisation.name
+        put("Ph",                       "PH");                          // center.centerId -> organisation.name
     }};
 
     public static <K, V> Map<V, K> inverseMap(Map<K, V> sourceMap) {
@@ -89,6 +92,7 @@ public class LoadUtils {
         put("Eumodic",                  "EUMODIC");                     // center.project -> project.name
         put("Helmholtz GMC",            "Helmholtz GMC");               // center.project -> project.name
         put("JAX",                      "JAX");                         // center.project -> project.name
+        put("NING",                     "MARC");                        // center.project -> project.name
         put("MARC",                     "MARC");                        // center.project -> project.name
         put("MGP",                      "MGP");                         // center.project -> project.name
         put("MGP Legacy",               "MGP");                         // center.project -> project.name
@@ -96,6 +100,8 @@ public class LoadUtils {
         put("NorCOMM2",                 "NorCOMM2");                    // center.project -> project.name
         put("Phenomin",                 "Phenomin");                    // center.project -> project.name
         put("RIKEN BRC",                "RBRC");                        // center.project -> project.name
+        put("KMPC",                     "KMPC");                        // center.project -> project.name
+        put("Kmpc",                     "KMPC");                        // center.project -> project.name
     }};
 
 
@@ -111,7 +117,7 @@ public class LoadUtils {
         put("mgp legacy",        "MGP");
         put("monterotondo",      "EMBL Monterotondo");
         put("narlabs",           "NARLabs");
-        put("Ning",              "NING");
+        put("Ning",              "MARC");
         put("riken brc",         "RBRC");
         put("ucd",               "UC Davis");
         put("ucd-komp",          "UC Davis");

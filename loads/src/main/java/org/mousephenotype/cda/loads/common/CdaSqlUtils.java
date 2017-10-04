@@ -16,6 +16,7 @@
 
 package org.mousephenotype.cda.loads.common;
 
+import javafx.util.Pair;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.mousephenotype.cda.db.pojo.*;
@@ -37,6 +38,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
+import org.springframework.jdbc.support.rowset.SqlRowSet;
 
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
@@ -55,7 +57,8 @@ public class CdaSqlUtils {
     private Map<String, OntologyTerm>     ontologyTerms;    // keyed by ontology term accession id
     private Map<String, SequenceRegion>   sequenceRegions;  // keyed by strain id (int)
     private SqlUtils                      sqlUtils = new SqlUtils();
-    private Map<String, Strain>           strainsByNameAndMgiAccessionId;    // keyed by strain name or mgi accession id
+    private Map<String, Strain>           strainsByNameOrMgiAccessionId = new HashMap<>();    // keyed by strain name or mgi accession id
+    private Map<String, Strain>           strainsBySynonym = new HashMap<>();    // keyed by strain synonym
     private Map<String, List<Synonym>>    synonyms;         // keyed by accession id
 
     private final LoadUtils   loadUtils   = new LoadUtils();
@@ -653,9 +656,18 @@ public class CdaSqlUtils {
                     count = jdbcCda.update(bioModelStrainInsert, parameterMap);
                     countsMap.put("bioModelStrains", countsMap.get("bioModelStrains") + count);
 
+                    List<Strain> strainList = jdbcCda.query("SELECT * FROM strain WHERE acc=:strain_acc", parameterMap, new StrainRowMapper());
+
+                    if (strainList.isEmpty()) {
+                        logger.warn("Biomodel " + bioModel.getAllelicComposition()+ " biological_model_strain was inserted but no corresponding strain was found: " + strainAccessionId);
+                    }
+
                 } catch (DuplicateKeyException e) {
 
                     logger.warn("Duplicate biological_model_strain entry: {}. biological model not added.", bioModels);
+
+                    // Indicate to caller that there was already a biological model strain entry.
+                    countsMap.put("bioModelStrainsDuplicateError", 1);
                     return countsMap;
 
                 } catch (Exception e) {
@@ -739,6 +751,12 @@ public class CdaSqlUtils {
             parameterMap.put("strain_db_id", strainId.getDatabaseId());
 
             count = jdbcCda.update(insert, parameterMap);
+
+            List<Strain> strainList = jdbcCda.query("SELECT * FROM strain WHERE acc=:strain_acc", parameterMap, new StrainRowMapper());
+
+            if (strainList.isEmpty()) {
+                logger.warn("Biomodel ID " + biologicalModelId + " biological_model_strain was inserted but no corresponding strain was found: " + strainId.getAccession());
+            }
 
         } catch (DuplicateKeyException e) {
 
@@ -1299,9 +1317,15 @@ public class CdaSqlUtils {
      */
     public OntologyTerm getLatestOntologyTerm(String originalAcc, RunStatus status) {
 
+        if (originalAcc == null) {
+            status.addError("Term " + originalAcc + " is obsolete and has no replacement/consider id term.");
+            return null;
+        }
+
         OntologyTerm term;
 
         Map<String, OntologyTerm> terms = getOntologyTerms();
+
         term = terms.get(originalAcc);
         if (term != null) {
             term.setConsiderIds(getConsiderIds(term.getId().getAccession()));
@@ -1949,7 +1973,9 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
             int missing,
             String parameterStatus,
             String parameterStatusMessage,
-            OntologyParameter ontologyParameter
+            OntologyParameter ontologyParameter,
+            String experimentId,                     // Used for logging/debugging purposes only.
+            int experimentPk                         // Used for logging/debugging purposes only.
     ) throws DataLoadException {
 
         KeyHolder keyholder     = new GeneratedKeyHolder();
@@ -1982,6 +2008,10 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
                     "INSERT INTO ontology_observation (id, parameter_id, sequence_id)" +
                             " VALUES (:observationPk, :parameterId, :sequenceId)";
 
+            final String insertOntologyEntity =
+                    "INSERT INTO ontology_entity (ontology_observation_id, term, term_value)" +
+                            " VALUES (:observationPk, :term, :termValue)";
+
             parameterMap.clear();
             parameterMap.put("observationPk", observationPk);
             parameterMap.put("parameterId", ontologyParameter.getParameterID());
@@ -1989,12 +2019,34 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
 
             try {
                 count = jdbcCda.update(insert, parameterMap);
+
+                for (String term : ontologyParameter.getTerm()) {
+
+                    OntologyTerm t = null;
+                    try {
+                        t = getOntologyTerm(term);
+
+                        parameterMap.clear();
+                        parameterMap.put("observationPk", observationPk);
+                        parameterMap.put("term", term);
+                        parameterMap.put("termValue", t.getName());
+
+                        count += jdbcCda.update(insertOntologyEntity, parameterMap);
+
+                    } catch (Exception e) {
+
+                        logger.warn("INSERT to ontology_entity table failed for experimentId {}, experimentPk, observationPk {}, observationType {}, parameterStableId {}, parameterId {}, sequenceId {}, term {}, termValue {}, biologicalSampleId {}. Reason: \n\t{}",
+                                experimentId, experimentPk, observationPk, observationType.toString(), parameterStableId, parameterPk, sequenceId, term, t.getName(), biologicalSamplePk, e.getLocalizedMessage());
+                    }
+
+                }
+
             } catch (Exception e) {
-                logger.error("INSERT to ontology_observation table failed for parameterStableId {}, parameterId {}, observationType {}, observationPk {}, sequenceId {}. Reason:\n\t{}",
-                             parameterStableId, ontologyParameter.getParameterID(), observationType.toString(), observationPk, ontologyParameter.getSequenceID(), e.getLocalizedMessage());
+                logger.error("INSERT to ontology_observation table failed for experimentId {}, experimentPk {}, parameterStableId {}, parameterId {}, observationType {}, observationPk {}, sequenceId {}. Reason:\n\t{}",
+                             experimentId, experimentPk, parameterStableId, ontologyParameter.getParameterID(), observationType.toString(), observationPk, ontologyParameter.getSequenceID(), e.getLocalizedMessage());
             }
             if (count == 0) {
-                logger.warn("Insert OntologyParameter failed for parameterSource {}. Marking it as missing ...", parameterSource);
+                logger.warn("Insert OntologyParameter failed for experimentPk {}, observationPk {}, parameterSource {}. Marking it as missing ...", experimentPk, observationPk, parameterSource);
                 updateObservationMissingFlag(observationPk, true);
             }
         }
@@ -2488,42 +2540,83 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
     }
 
 
+
+
     /**
-     * @return a list of all strains, keyed by strain name and mgi accession id
+     * @return a strain, keyed by strain name or mgi accession id
      *
-     * @throws DataLoadException
      */
-    public Map<String, Strain> getStrainsByNameOrMgiAccessionId() throws DataLoadException {
+    public Strain getStrainByNameOrMgiAccessionIdOrSynonym(String strainName) {
 
-        if ((strainsByNameAndMgiAccessionId == null) || strainsByNameAndMgiAccessionId.isEmpty()) {
-            strainsByNameAndMgiAccessionId = new ConcurrentHashMap<>();
+        Strain strain = strainsByNameOrMgiAccessionId.get(strainName);
 
-            logger.info("Loading strains by name and mgi accession id.");
+        if (strain == null) {
+            Map<String, Object> parameterMap = new HashMap<>();
+            parameterMap.put("name", strainName);
+            List<Strain> strainList = jdbcCda.query("SELECT * FROM strain WHERE (name=:name OR acc=:name)", parameterMap, new StrainRowMapper());
 
-            List<Strain> strainList = jdbcCda.query("SELECT * FROM strain", new StrainRowMapper());
+            if (strainList.size() == 1) {
 
-            for (Strain strain : strainList) {
-                strainsByNameAndMgiAccessionId.put(strain.getId().getAccession(), strain);
-                strainsByNameAndMgiAccessionId.put(strain.getName(), strain);
+                strain = strainList.get(0);
+                strainsByNameOrMgiAccessionId.put(strainName, strain);
+
+            } else if (strainList.size() > 1) {
+
+                logger.warn("Expected 1, found "
+                        + strainList.size()
+                        + " strains for strain ID "
+                        + strainName
+                        + ". Using first strain"
+                        + strainList.get(0)
+                        + "\n List of strains found: " + StringUtils.join(strainList, ", "));
+
+                strain = strainList.get(0);
+                strainsByNameOrMgiAccessionId.put(strainName, strain);
+
+            } else {
+
+                strain = strainsBySynonym.get(strainName);
+
+                if (strain == null) {
+
+                    SqlRowSet srs = jdbcCda.queryForRowSet("SELECT strain.acc, synonym.symbol FROM strain INNER JOIN synonym ON strain.acc=synonym.acc WHERE (synonym.symbol=:name)", parameterMap);
+
+                    Set<Pair<String, String>> strains = new HashSet<>();
+
+                    while (srs.next()) {
+
+                        String syn = srs.getString("synonym");
+                        String acc = srs.getString("acc");
+                        strains.add(new Pair<>(acc, syn));
+
+                    }
+
+                    if (strains.size() == 1) {
+                        Pair<String, String> pair = new ArrayList<>(strains).get(0);
+                        String acc = pair.getKey();
+                        String syn = pair.getValue();
+
+                        strain = strainsByNameOrMgiAccessionId.get(acc);
+
+                        if (strain != null) {
+                            strainsBySynonym.put(syn, strain);  // syn -> strain
+                        }
+
+                    } else if (strains.size() > 1) {
+
+                        // 2017-09-18
+                        // Checked in MGI and imits.  There are 2 synonyms with multiple strains associated at this
+                        // time: HAR:3280, EM:03573 have synonyms "EPD0001_3_G07", " 129S/SvEvBrd-Tpm1<tm1a(EUCOMM)Wtsi>/WtsiH"
+
+                        logger.warn("Expected 1, found "+ strains.size() + " strains for synonym of strain name " + strainName + ". Skipped.");
+                    }
+                }
             }
-
-            logger.info("Loading strains by name and mgi accession id complete.");
         }
 
-        return strainsByNameAndMgiAccessionId;
+        return strain;
     }
-    /**
-     * Returns the {@code Strain} instance matching {@code strainNameOrMgiAccessionId}, if found; null otherwise
-     *
-     * @param strainNameOrMgiAccessionId the strain name or mgi accession id
-     *
-     * @return the {@code Strain} instance matching {@code strainNameOrMgiAccessionId}, if found; null otherwise
-     *
-     * @throws DataLoadException
-     */
-    public Strain getStrainByNameOrMgiAccessionId(String strainNameOrMgiAccessionId) throws DataLoadException {
-        return getStrainsByNameOrMgiAccessionId().get(strainNameOrMgiAccessionId);
-    }
+
 
     /**
      * Try to insert the strain and, if successful, any synonyms.
@@ -2548,7 +2641,7 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
     public Map<String, Integer> insertStrains(List<Strain> strains) throws DataLoadException {
         int count;
 
-        Map<String, Integer> countsMap = new HashMap<String, Integer>();
+        Map<String, Integer> countsMap = new HashMap<>();
         countsMap.put("strains", 0);
         countsMap.put("synonyms", 0);
 
@@ -3016,36 +3109,6 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
         return allele;
    	}
 
-
-    /**
-   	 * Create a strain record in the database with the supplied strain name
-   	 *
-   	 * @param strainName the strain name
-   	 * @return the {@link Strain} instance representing the newly created strain, or null if the strain name is bad.
-   	 */
-   	public Strain createAndInsertStrain(String strainName) throws DataLoadException {
-
-   		if (strainName == null || strainName.isEmpty()) {
-   			return null;
-   		}
-
-   		// Create the strain acc
-   		String strainAccession = "NULL-" + DigestUtils.md5Hex(strainName).substring(0, 9).toUpperCase();
-
-        // Create the strain based on the strain name
-        Strain strain = new Strain();
-        strain.setId(new DatasourceEntityId(strainAccession, DbIdType.IMPC.intValue()));
-        strain.setName(strainName);
-
-        // insert the strain into the database
-   		Map<String, Integer> count = insertStrain(strain);
-        if (count.get("strains") > 0) {
-            logger.info("Created strain '{}', '{}'", strain.getId().getAccession(), strain.getName());
-        }
-
-   		return strain;
-   	}
-
     /**
      * Enables/disables mysql table indexes.
      */
@@ -3112,10 +3175,18 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
         if ((backgroundStrainName == null) || backgroundStrainName.trim().isEmpty()) {
             throw new DataLoadException("parseMultipleBackgroundStrainNames returned null/empty backgroundStrainName for colony " + colony.getColonyName(), DataLoadException.DETAIL.NO_BACKGROUND_STRAIN);
         }
-        backgroundStrain = getStrainByNameOrMgiAccessionId(backgroundStrainName);
 
+        //
+        String lookedupStrainName = (strainMapper.lookupBackgroundStrain(colony.getBackgroundStrain())!=null)
+                ? strainMapper.lookupBackgroundStrain(colony.getBackgroundStrain()).getName()
+                : colony.getBackgroundStrain();
+
+        backgroundStrain = getStrainByNameOrMgiAccessionIdOrSynonym(lookedupStrainName);
+
+        // Create the strain if it doesn't exist
         if (backgroundStrain == null) {
-            backgroundStrain = createAndInsertStrain(backgroundStrainName);
+            backgroundStrain = strainMapper.createBackgroundStrain(backgroundStrainName);
+            insertStrain(backgroundStrain);
         }
 
         geneticBackground = backgroundStrain.getGeneticBackground();
@@ -3137,15 +3208,23 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
             List<BiologicalModelAggregator> biologicalModelAggregators = new ArrayList<>();
             biologicalModelAggregators.add(biologicalModelAggregator);
 
-            insertBiologicalModel(biologicalModelAggregators);
+            Map<String, Integer> results = insertBiologicalModel(biologicalModelAggregators);
+            if (results.containsKey("bioModelStrainsDuplicateError")) {
+                logger.warn("bioModelStrainsDuplicateError: allelicComposition: " + allelicComposition + ", colonyId: " + colony.getColonyName() + ", sampleGroup: " + sampleGroup);
+            }
 
             biologicalModel = getBiologicalModel(allelicComposition, geneticBackground);
             if (biologicalModel == null) {
                 throw new DataLoadException("Attempt to create biological model for colony '" + colony.getColonyName() + "' failed.");
             }
         } else {
-            // The biological_model_strain table is not inserted when the cda_base database is created, as the info may be obsolete, and the strain is not available. Insert it here.
-            insertBiologicalModelStrain(biologicalModel.getId(), backgroundStrain.getId());
+            if ((biologicalModel.getStrains() == null) || (biologicalModel.getStrains().isEmpty())) {
+
+                logger.info("Inserting biologicalModelStrain entry for biologicalModelId " + biologicalModel.getId() + ", backgroundStrain " + backgroundStrain.getId().getAccession());
+
+                // The biological_model_strain table is not inserted when the cda_base database is created, as the info may be obsolete, and the strain is not available. Insert it here.
+                insertBiologicalModelStrain(biologicalModel.getId(), backgroundStrain.getId());
+            }
 
             // When the cda_base table is created, the biological_model table is inserted, but the zygosity is not known. Now we know it. Update the biological_model.zygosity column here.
             updateBiologicalModelZygosity(biologicalModel.getId(), zygosity);

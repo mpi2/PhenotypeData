@@ -49,17 +49,19 @@ public class StatisticalResultMixedModel implements StatisticalResult, Serializa
 	 * Prepare the statement to insert this result into the database
 	 *
 	 * @param connection connection object to use to save the result
-	 * @param result the base result object to populate the common parameters
+	 * @param generalResult the base result object to populate the common parameters
 	 * @throws SQLException
 	 */
-	public PreparedStatement getSaveResultStatement(Connection connection, LightweightUnidimensionalResult result) throws SQLException {
+	public PreparedStatement getSaveResultStatement(Connection connection, LightweightResult generalResult) throws SQLException {
+
+		LightweightUnidimensionalResult result = (LightweightUnidimensionalResult) generalResult;
 
 		PreparedStatement s = connection.prepareStatement(insertStatement);
 		int i = 1;
 
 		SqlUtils.setSqlParameter(s, result.getControlId(), i++);
 		SqlUtils.setSqlParameter(s, result.getExperimentalId(), i++);
-		SqlUtils.setSqlParameter(s, result.getExperimentalZygosity(), i++);
+		SqlUtils.setSqlParameter(s, result.getZygosity(), i++);
 		SqlUtils.setSqlParameter(s, result.getColonyId(), i++);
 
 		SqlUtils.setSqlParameter(s, result.getDataSourceId(), i++);
@@ -88,7 +90,7 @@ public class StatisticalResultMixedModel implements StatisticalResult, Serializa
 		SqlUtils.setSqlParameter(s, result.getMaleExperimentalMean(), i++);
 
 		SqlUtils.setSqlParameter(s, result.getMetadataGroup(), i++);
-		SqlUtils.setSqlParameter(s, this.getStatisticalMethod(), i++);
+		SqlUtils.setSqlParameter(s, result.getStatisticalMethod(), i++);
 		SqlUtils.setSqlParameter(s, result.getWorkflow().toString(), i++);
 		SqlUtils.setSqlParameter(s, result.getWeightAvailable().toString(), i++);
 		SqlUtils.setSqlParameter(s, result.getStatus(), i++);

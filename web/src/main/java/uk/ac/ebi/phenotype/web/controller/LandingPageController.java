@@ -105,6 +105,13 @@ public class LandingPageController {
             vision.setDescription("This page aims to relate vision to phenotypes which have been produced by IMPC.");
             vision.setLink("biological-system/vision");
             bsPages.add(vision);
+            
+            LandingPageDTO metabolism = new LandingPageDTO();
+            metabolism.setTitle("Metabolism");
+            metabolism.setImage(baseUrl + "/img/landing/deafnessIcon.png");
+            metabolism.setDescription("This page aims to relate metabolism to phenotypes which have been produced by IMPC.");
+            metabolism.setLink("biological-system/metabolism");
+            bsPages.add(metabolism);
         }
 
         model.addAttribute("pages", bsPages);
@@ -165,11 +172,12 @@ public class LandingPageController {
           anatomyIds.add("EMAPA:36003");
           anatomyIds.add("MA:0002444");
           pageTitle = "Vision";
-      }
-//        } else if (page.equalsIgnoreCase("metabolism")) {
-//            mpDTO = mpService.getPhenotype("MP:0005376");
-//            pageTitle = "Metabolism";
-//        } else if (page.equalsIgnoreCase("vision")) {
+        }
+          else if (page.equalsIgnoreCase("metabolism")) {
+            mpDTO = mpService.getPhenotype("MP:0005376");
+            pageTitle = "Metabolism";
+        } 
+        //else if (page.equalsIgnoreCase("vision")) {
 //            mpDTO = mpService.getPhenotype("MP:0005391");
 //            anatomyIds.add("EMAPA:36003");
 //            anatomyIds.add("MA:0002444");
@@ -208,9 +216,17 @@ public class LandingPageController {
         }
 
         Collections.sort(procedures, ImpressDTO.getComparatorByProcedureName());
+        String description="for genes with at least one " + pageTitle + " phenotype";
+        
+        Set<String>filterOnMarkerAccession=null;
+        if(page.equalsIgnoreCase("hearing")){
+        	filterOnMarkerAccession = getHearingPublicationGeneSet();
+        	description="for the 67 genes in the gene table above";
+        }
 
-        model.addAttribute("phenotypeChart", ScatterChartAndTableProvider.getScatterChart("phenotypeChart", gpService.getTopLevelPhenotypeIntersection(mpDTO.getMpId()), "Gene pleiotropy",
-                "for genes with at least one " + pageTitle + " phenotype", "Number of phenotype associations to " + pageTitle, "Number of associations to other phenotypes",
+        
+        model.addAttribute("phenotypeChart", ScatterChartAndTableProvider.getScatterChart("phenotypeChart", gpService.getTopLevelPhenotypeIntersection(mpDTO.getMpId(), filterOnMarkerAccession), "Gene pleiotropy",
+                description, "Number of phenotype associations to " + pageTitle, "Number of associations to other phenotypes",
                 "Other phenotype calls: ", pageTitle + " phenotype calls: ", "Gene"));
         model.addAttribute("pageTitle", pageTitle);
         model.addAttribute("paramToNumber", paramToNumber);
@@ -232,6 +248,80 @@ public class LandingPageController {
         return "landing_" + page;
 
     }
+
+
+	private Set<String> getHearingPublicationGeneSet() {
+		Set<String> filterOnMarkerAccession;
+		filterOnMarkerAccession=new HashSet<String>();
+		filterOnMarkerAccession.add("MGI:2442934");
+				filterOnMarkerAccession.add("MGI:1098687");
+				filterOnMarkerAccession.add("MGI:1354713");
+				filterOnMarkerAccession.add("MGI:102806");
+				filterOnMarkerAccession.add("MGI:1933736");
+				filterOnMarkerAccession.add("MGI:1274784");
+				filterOnMarkerAccession.add("MGI:107189");
+				filterOnMarkerAccession.add("MGI:1924337");
+				filterOnMarkerAccession.add("MGI:1929214");
+				filterOnMarkerAccession.add("MGI:1337062");
+				filterOnMarkerAccession.add("MGI:104653");
+				filterOnMarkerAccession.add("MGI:3588238");
+				filterOnMarkerAccession.add("MGI:2652819");
+				filterOnMarkerAccession.add("MGI:1915589");
+				filterOnMarkerAccession.add("MGI:106485");
+				filterOnMarkerAccession.add("MGI:1929293");
+				filterOnMarkerAccession.add("MGI:2388124");
+				filterOnMarkerAccession.add("MGI:88466");
+				filterOnMarkerAccession.add("MGI:2444415");
+				filterOnMarkerAccession.add("MGI:103157");
+				filterOnMarkerAccession.add("MGI:1914061");
+				filterOnMarkerAccession.add("MGI:3583900");
+				filterOnMarkerAccession.add("MGI:95321");
+				filterOnMarkerAccession.add("MGI:1914675");
+				filterOnMarkerAccession.add("MGI:99960");
+				filterOnMarkerAccession.add("MGI:95662");
+				filterOnMarkerAccession.add("MGI:2146207");
+				filterOnMarkerAccession.add("MGI:2387006");
+				filterOnMarkerAccession.add("MGI:2685519");
+				filterOnMarkerAccession.add("MGI:1333877");
+				filterOnMarkerAccession.add("MGI:1914393");
+				filterOnMarkerAccession.add("MGI:96546");
+				filterOnMarkerAccession.add("MGI:2146574");
+				filterOnMarkerAccession.add("MGI:107953");
+				filterOnMarkerAccession.add("MGI:2143315");
+				filterOnMarkerAccession.add("MGI:2446166");
+				filterOnMarkerAccession.add("MGI:1914249");
+				filterOnMarkerAccession.add("MGI:1343489");
+				filterOnMarkerAccession.add("MGI:1339711");
+				filterOnMarkerAccession.add("MGI:104510");
+				filterOnMarkerAccession.add("MGI:1933754");
+				filterOnMarkerAccession.add("MGI:103296");
+				filterOnMarkerAccession.add("MGI:105108");
+				filterOnMarkerAccession.add("MGI:1928323");
+				filterOnMarkerAccession.add("MGI:108077");
+				filterOnMarkerAccession.add("MGI:97401");
+				filterOnMarkerAccession.add("MGI:2686003");
+				filterOnMarkerAccession.add("MGI:2149209");
+				filterOnMarkerAccession.add("MGI:1918248");
+				filterOnMarkerAccession.add("MGI:99878");
+				filterOnMarkerAccession.add("MGI:1096347");
+				filterOnMarkerAccession.add("MGI:2150150");
+				filterOnMarkerAccession.add("MGI:2149330");
+				filterOnMarkerAccession.add("MGI:2384936");
+				filterOnMarkerAccession.add("MGI:1916205");
+				filterOnMarkerAccession.add("MGI:2442082");
+				filterOnMarkerAccession.add("MGI:1921050");
+				filterOnMarkerAccession.add("MGI:2181659");
+				filterOnMarkerAccession.add("MGI:2139535");
+				filterOnMarkerAccession.add("MGI:1924817");
+				filterOnMarkerAccession.add("MGI:102944");
+				filterOnMarkerAccession.add("MGI:1914378");
+				filterOnMarkerAccession.add("MGI:1919338");
+				filterOnMarkerAccession.add("MGI:1855699");
+				filterOnMarkerAccession.add("MGI:2685541");
+				filterOnMarkerAccession.add("MGI:2159407");
+				filterOnMarkerAccession.add("MGI:2444708");
+		return filterOnMarkerAccession;
+	}
 
 
     @ResponseBody

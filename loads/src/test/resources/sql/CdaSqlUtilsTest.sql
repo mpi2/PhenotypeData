@@ -1,3 +1,13 @@
+DROP TABLE IF EXISTS strain;
+CREATE TABLE strain (
+  acc           VARCHAR(30) NOT NULL,
+  db_id         INT(10) NOT NULL,
+  biotype_acc   VARCHAR(20) DEFAULT NULL,
+  biotype_db_id INT(10) DEFAULT NULL,
+  name          VARCHAR(200) NOT NULL,
+  PRIMARY KEY (acc, db_id)
+);
+
 DROP TABLE IF EXISTS ontology_term;
 CREATE TABLE ontology_term (
 	acc                        VARCHAR(30) NOT NULL,
@@ -46,6 +56,7 @@ CREATE TABLE phenotype_parameter_ontology_annotation (
 );
 
 
+INSERT INTO strain(acc, db_id, biotype_acc, biotype_db_id, name) VALUES ('MGI:3028467', 3, 'CV:00000025', 3, 'C57BL/6J');
 
 
 INSERT INTO ontology_term(acc, is_obsolete, replacement_acc, name) VALUES('MP:0001', 1, 'MP:0010', 'exists-isObsolete-hasReplacement');               										-- use replacement:   MP:0010

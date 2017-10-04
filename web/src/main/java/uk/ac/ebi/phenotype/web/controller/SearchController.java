@@ -160,7 +160,7 @@ public class SearchController {
 		String debug = request.getParameter("debug");
 
 		String paramString = request.getQueryString();
-		//System.out.println("paramString " + paramString);
+		System.out.println("paramString " + paramString);
 		JSONObject facetCountJsonResponse = fetchAllFacetCounts(dataType, query, fqStr, request, model, oriQuery, chrQuery);
 
 		model.addAttribute("facetCount", facetCountJsonResponse);
