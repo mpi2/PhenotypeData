@@ -74,9 +74,8 @@ tbody.phenotable tr.impc {
 .phenoscatter text.legendsource {
     opacity: 0.5;
 }
-.phenoscatter .shadow { 
-    -webkit-filter: drop-shadow( 0px 0px 5px #111 ); 
-            filter: drop-shadow( 0px 0px 5px #111 );    
+.phenoscatter .shadow {     
+    filter: url('#drop-shadow');
 }
 
 /* for styling numeric fields in tables */

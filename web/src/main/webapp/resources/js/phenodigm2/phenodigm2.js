@@ -125,9 +125,9 @@ impc.phenodigm2.makeTable = function (darr, target, config) {
 
     // setup columns
     var thead = targetdiv.append("thead").append("tr");
-    var colnames = ["Gene", "Models Scored (Total)", "Max Raw", "Avg Raw", "Phenodigm"];
+    var colnames = ["Gene", "Models Scored (Total)", "Max Score", "Avg Score", "Phenodigm"];
     if (pt === "genes") {
-        colnames = ["Disease", "Source", "Max Raw", "Avg Raw", "Phenodigm"];
+        colnames = ["Disease", "Source", "Max Score", "Avg Score", "Phenodigm"];
     }
     colnames.map(function (x) {
         thead.append("th").append("span").classed("main", true).html(x);
@@ -243,9 +243,18 @@ impc.phenodigm2.makeScatterplot = function (darr, conf) {
     var container = d3.select(conf.id).classed("phenoscatter", true);
     var fullwidth = parseInt(container.style("width"));
     // add two side-by-side divs
-    container.append("div").attr("class", "leftright")
+    var svg = container.append("div").attr("class", "leftright")
             .style("width", (fullwidth - conf.detailwidth - 3) + "px")
             .append("svg").style("height", conf.h + "px");
+    // create an svg filter for shadows
+    var filter = svg.append("defs").append("filter").attr("id", "drop-shadow")
+            .attr("x", "-50%").attr("y", "-50%").attr("width", "200%").attr("height", "200%");
+    filter.append("feGaussianBlur").attr("in", "SourceAlpha").attr("stdDeviation", 3);
+    filter.append("feOffset").attr("dx", 0).attr("dx", 0); 
+    var filtermerge = filter.append("feMerge");
+    filtermerge.append("feMergeNode");
+    filtermerge.append("feMergeNode").attr("in", "SourceGraphic");
+
     var detail = container.append("div").attr("class", "leftright detail")
             .style("width", (conf.detailwidth - (2 * conf.detailpad)) + "px")
             .style("margin-top", conf.margin[0] + "px")
@@ -299,7 +308,7 @@ impc.phenodigm2.drawScatterplot = function (darr, conf) {
     var detail = d3.select(conf.id).select(".detail");
 
     // clear the contents of the svg
-    outer.html("");
+    outer.selectAll("g").remove();//html("");
 
     // set some additional elements in conf, pertaining to size of page/drawing
     conf.w = parseInt(outer.style("width"));
@@ -380,7 +389,7 @@ impc.phenodigm2.drawScatterplot = function (darr, conf) {
         detail.select(".model").text(d.id);
         detail.select(".description").text(d.description);
         detail.select(".scores").text("(" + d[conf.axes[0]] + ", " + d[conf.axes[1]] + ")");
-        detail.style("background-color", "#fafafa").transition().duration(800).style("background-color", "#fff");
+        detail.style("background-color", "#f8f8f8").transition().duration(1000).style("background-color", "#fff");
         d3.event.stopPropagation();
     };
 
@@ -557,7 +566,7 @@ impc.phenodigm2.completeGridSkeleton = function (skeleton) {
  * @returns {undefined}
  */
 impc.phenodigm2.insertModelDetails = function (targetdiv, geneId, models) {
-    
+
     // create a table for the outpt    
     var tablediv = targetdiv.append("table").classed("table", true);
 
@@ -598,7 +607,7 @@ impc.phenodigm2.insertModelDetails = function (targetdiv, geneId, models) {
     };
 
     // create html table (one line per model)    
-    models.map(function (modeldata) {        
+    models.map(function (modeldata) {
         var trow = tbody.append("tr");
         var rowimpc = impc.isImpc(modeldata);
         var modelid = modeldata["id"];
@@ -607,12 +616,12 @@ impc.phenodigm2.insertModelDetails = function (targetdiv, geneId, models) {
         } else {
             trow.append("td").append("a").attr("href", impc.urls.mgigenoview + modelid).html(modelid);
         }
-        if (_.has(modeldata, "label")) {            
+        if (_.has(modeldata, "label")) {
             // find background from the modeldata info fields            
-            var bg = modeldata["info"].filter(function(x) {
+            var bg = modeldata["info"].filter(function (x) {
                 return x["id"].startsWith("Background");
             });
-            var bg = bg[0]["value"]+"<br/>";                        
+            var bg = bg[0]["value"] + "<br/>";
             trow.append("td").html(bg + tohtml(modeldata["label"]));
         } else {
             var bg = modeldata["geneticBackground"] + "<br/>";

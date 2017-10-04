@@ -178,18 +178,18 @@
 
         <%-- Display visualization of all model (hits) --%>
         <div class="section" id="mouse_models_phenoscatter">
-            <h2 class="title">Mouse Models <small class="sub"> visual overview</small>
+            <h2 class="title">Mouse Models <small class="sub"> phenotype-based associations</small>
                 <span class="documentation"><a href='' id='orthologySection' class="mpPanel fa fa-question-circle pull-right"></a></span>
             </h2>
-            <div class="inner">
+            <div class="inner">                 
                 <div id="phenoscatter"></div>
                 <div id="phenoscatter-help">Disease phenotypes are compared with mouse phenotypes, with each 
-                    mouse model contributing one point to the diagram. Similarity scores are computed according
+                    mouse model contributing one point to the diagram. Scores are computed according
                     to phenotype specificity and cross-species similarity. 
                     <b>X-axis</b> shows the score of the single phenotype that contributes most. 
                     <b>Y-axis</b> shows an average among all phenotype matches. The <b>curved line</b>
                     designates a visualization threshold; models below threshold are omitted, except when
-                    their genotype matches one of the disease-associated genes.</div>
+                    their genotype matches a disease-associated gene.</div>
             </div>
         </div>
 
@@ -230,7 +230,7 @@
 
         <%-- Js objects used to generate html on pageload: 
              here relevant/curated mouse genes, relevant mouse models --%>              
-        <script type="text/javascript">            
+        <script type="text/javascript">
             var curatedGenes = ${curatedMouseGenes};
             var modelAssociations = ${modelAssociations};
         </script>
@@ -254,7 +254,7 @@
                 color: ["#dd0000", "#d2c2c2"], // highlighted, non-highlighted models
                 radius: 4,
                 axes: ["maxRaw", "avgRaw"],
-                labs: ["max Raw", "avg Raw"],
+                labs: ["max score", "avg score"],
                 threshold: 2.2
             };
             // configuration for tables, used by jquery datatable and by phenodigm2
@@ -272,7 +272,7 @@
                         groupby: "markerId",
                         filterkey: "markerSymbol",
                         filter: curatedGenes,
-                        pagetype: "disease",                        
+                        pagetype: "disease",
                         disease: "${disease.id}"
                     }
                 },
@@ -284,17 +284,17 @@
                         lengthMenu: [20, 50, 100],
                         sPaginationType: "bootstrap"
                     },
-                    phenodigm2Conf: {  
+                    phenodigm2Conf: {
                         groupby: "markerId",
                         filterkey: "markerSymbol",
                         filter: [],
-                        pagetype: "disease",                        
+                        pagetype: "disease",
                         disease: "${disease.id}"
                     }
                 }];
 
             $(document).ready(function () {
-                $("#phenotabs").tabs({ active: 0 });
+                $("#phenotabs").tabs({active: 0});
                 // create visualization at the top
                 impc.phenodigm2.makeScatterplot(modelAssociations, diseaseScatterConf);
                 // create tables 
