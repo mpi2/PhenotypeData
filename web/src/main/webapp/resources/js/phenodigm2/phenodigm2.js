@@ -97,6 +97,26 @@ impc.isImpc = function (x) {
 };
 
 
+/**
+ * Compute phenodigm score using max & avg components 
+ * 
+ * @param {type} x can either be object or array
+ * when object, should have keys maxNorm and avgNorm
+ * when array, each component should have those two keys.
+ * @returns {impc.phenscore.phenmax}
+ */
+impc.phenscore = function (x) {
+    // test if x is a simple object with the right fields
+    if (_.has(x, "maxNorm") && _.has(x, "avgNorm")) {
+        var result = ((x["maxNorm"] + x["avgNorm"]) / 2);
+        return (result > 0 ? +result.toPrecision(4) : result);
+    }
+    // interpret x as an array of such objects        
+    var phenmax = _.max(_.map(x, impc.phenscore));       
+    return (phenmax > 0 ? phenmax.toPrecision(4) : phenmax);
+};
+
+
 /****************************************************************************
  * Generation of tables
  **************************************************************************** */
@@ -160,14 +180,6 @@ impc.phenodigm2.makeTable = function (darr, target, config) {
 
     var scorecols = ["maxRaw", "avgRaw"];
 
-    // helper function computes the phenodigm score using max/avg components
-    var phenscore = function (x) {
-        var phenodigms = _.map(x, function (y) {
-            return (y["maxNorm"] + y["avgNorm"]) / 2;
-        });
-        var phenmax = _.max(phenodigms);
-        return (phenmax > 0 ? phenmax.toPrecision(4) : phenmax);
-    };
     // helper to add a series of <td> elements to a row summarizing scores
     var addScoreTds = function (trow, x) {
         if (x.length > 1) {
@@ -182,7 +194,7 @@ impc.phenodigm2.makeTable = function (darr, target, config) {
                 trow.append("td").classed("numeric", true).html(x[0][y]);
             });
         }
-        trow.append("td").classed("numeric", true).html(phenscore(x));
+        trow.append("td").classed("numeric", true).html(impc.phenscore(x));
         trow.append("td").attr("titlef", "Click to display phenotype details")
                 .classed("toggleButton", true)
                 .append("i").classed("fa fa-plus-square more", true);
@@ -250,7 +262,7 @@ impc.phenodigm2.makeScatterplot = function (darr, conf) {
     var filter = svg.append("defs").append("filter").attr("id", "drop-shadow")
             .attr("x", "-50%").attr("y", "-50%").attr("width", "200%").attr("height", "200%");
     filter.append("feGaussianBlur").attr("in", "SourceAlpha").attr("stdDeviation", 3);
-    filter.append("feOffset").attr("dx", 0).attr("dx", 0); 
+    filter.append("feOffset").attr("dx", 0).attr("dx", 0);
     var filtermerge = filter.append("feMerge");
     filtermerge.append("feMergeNode");
     filtermerge.append("feMergeNode").attr("in", "SourceGraphic");
@@ -516,20 +528,36 @@ impc.phenodigm2.makeTableChildRow = function (pagetype, geneId, diseaseId) {
  * 
  * @param {object} skeleton - an incomplete phenogrid skeleton as obtained from 
  * the IMPC API
+ * @param {string} pageType - either disease or genes, breakdown of models by ids 
+ * is handled differently in these two cases. Disease pages have modelAssociations
+ * with exactly one entry per model id. Gene pages can have multiple.
+ * @param {string} geneId
+ * @param {string} diseaseId
  * @returns {object} - a ready-to-use phenogrid skeleton 
  */
-impc.phenodigm2.completeGridSkeleton = function (skeleton) {
+impc.phenodigm2.completeGridSkeleton = function (skeleton, geneId, diseaseId, pageType) {
 
-    // change the modelAssociations array into an indexed object    
-    var scoredModels = _.indexBy(modelAssociations, "id");
+    // find those modelAssociations relevant only to this gene and disease
+    var nowassoc = [];
+    if (pageType === "disease") {
+        nowassoc = modelAssociations.filter(function (x) {
+            return x["markerId"] === geneId;
+        });
+    } else {
+        nowassoc = modelAssociations.filter(function (x) {
+            return x["diseaseId"] === diseaseId;
+        });
+    }
+
+    // change the modelAssociations array into an indexed object        
+    var scoredModels = _.groupBy(nowassoc, "id");
 
     // helper to transfer scores from scoredModels into the skeleton
     var completeEntities = function (group) {
         // fill in missing scores into the entities
         group.entities = group.entities.map(function (x) {
             if (_.has(scoredModels, x.id)) {
-                var xmodel = scoredModels[x.id];
-                x.score.score = (xmodel["maxNorm"] + xmodel["avgNorm"]) / 2;
+                x.score.score = impc.phenscore(scoredModels[x.id]);
             }
             return x;
         });
@@ -592,11 +620,6 @@ impc.phenodigm2.insertModelDetails = function (targetdiv, geneId, models) {
     // setup data body
     var tbody = tablediv.append("tbody").attr("geneid", geneId);
 
-    // helper function computes the phenodigm score using max/avg components
-    var phenscore = function (x) {
-        var result = ((x["maxNorm"] + x["avgNorm"]) / 2);
-        return (result > 0 ? result.toPrecision(4) : result);
-    };
     // pretty printing of models e.g. ABC<xyz>
     var tohtml = function (x) {
         return x.replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\//g, "/ ");
@@ -632,7 +655,7 @@ impc.phenodigm2.insertModelDetails = function (targetdiv, geneId, models) {
             if (_.has(details, modelid)) {
                 tdhtml(trow, details[modelid]["maxRaw"]);
                 tdhtml(trow, details[modelid]["avgRaw"]);
-                tdhtml(trow, phenscore(details[modelid]));
+                tdhtml(trow, impc.phenscore(details[modelid]));
             } else {
                 trow.append("td").attr("colspan", 3).classed("numeric", true).html("Below threshold");
             }
@@ -684,7 +707,7 @@ impc.phenodigm2.insertPhenogrid = function (tableId, geneId, diseaseId, pageType
     // when fetch complete, use the skeleton data to create a phenogrid    
     ajax.done(function (result) {
         // complete the skeleton using modelAssociations
-        result = impc.phenodigm2.completeGridSkeleton(result);
+        result = impc.phenodigm2.completeGridSkeleton(result, geneId, diseaseId, pageType);
         // perhaps create an inner table (disease pages only)
         if (pageType === "disease") {
             var innertab = d3.select(tableId + " .inner[geneid='" + geneId + "'] .inner_table");
