@@ -878,7 +878,7 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
             BatchClassification batches = BatchClassification.valueOf(data.getWorkflow());
             result.setWorkflow(batches);
         } else  {
-            result.setWorkflow(null);
+            result.setWorkflow(BatchClassification.unknown);
         }
 
         result.setWeightAvailable(data.getWeightAvailable() != null && data.getWeightAvailable().equals("TRUE"));
