@@ -292,12 +292,17 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
      * @return A double or null if str does not represent a number
      */
     private Double getDoubleField(String str) {
-        Double retVal;
 
+        if (str == null) {
+            return null;
+        }
+
+        Double retVal;
         if (str.contains("%")) {
             String n = str.replaceAll("%", "");
             retVal = (NumberUtils.isNumber(n)) ? Double.parseDouble(n) : null;
             if (retVal != null) {
+                // Normalize to percent between 0.0 and 1.0
                 retVal = retVal / 100.0;
             }
         } else {
@@ -338,7 +343,7 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
      */
     private String getStringField(String str) {
 
-        if (str.isEmpty() || str.equals("NA")) {
+        if (str==null || str.isEmpty() || str.equals("NA")) {
             return "";
         }
 
