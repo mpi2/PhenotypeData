@@ -886,7 +886,10 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
         result.setCalculationTimeNanos(0L);
 
         result.setStatus(data.getStatus() + " - " + data.getCode());
-        setMpTerm(result);
+
+        if (data.getStatus().equals(StatusCode.TESTED.name())) {
+            setMpTerm(result);
+        }
 
         return result;
     }
