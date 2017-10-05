@@ -44,7 +44,7 @@ impc.phenodigm2 = {
     scores: ["avgRaw", "avgNorm", "maxRaw", "maxNorm"]
 };
 // values for model source that IMPC can take credit for
-impc.sources = ["IMPC", "EuroPhenome", "EUCOMM", "3i", "3i,IMPC"];
+impc.sources = ["IMPC", "EuroPhenome", "EUCOMM", "3i", "3i,IMPC", "IMPC,3i"];
 impc.logo = impc.baseUrl + "/img/impc.png";
 impc.logohtml = "<img class='small-logo' src='" + impc.logo + "'/>";
 
@@ -209,7 +209,7 @@ impc.phenodigm2.makeTable = function (darr, target, config) {
             trow.append("td").append("a").classed(pt + "link", true)
                     .attr("href", impc.urls.genes + x[0]["markerId"]).html(x[0]["markerSymbol"]);
             var ximg = "";
-            if (impc.isImpc(x)) {
+            if (impc.isImpc(x)) {                
                 ximg = impc.logohtml;
             }
 
@@ -336,8 +336,8 @@ impc.phenodigm2.drawScatterplot = function (darr, conf) {
     // find maximum values for axes     
     var xmax = _.max(_.pluck(darr, conf.axes[0]));
     var ymax = _.max(_.pluck(darr, conf.axes[1]));
-    xmax = xmax < 0 ? conf.threshold : xmax;
-    ymax = ymax < 0 ? conf.threshold : ymax;
+    xmax = xmax <= 0 ? conf.threshold : xmax+(conf.threshold*0.01);
+    ymax = ymax <= 0 ? conf.threshold : ymax+(conf.threshold*0.01);
 
     // create the x axis
     var xscale = d3.scaleLinear().range([0, conf.winner]).domain([0, xmax]);
