@@ -105,7 +105,8 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
                 "INNER JOIN biological_model_sample bms ON bms.biological_sample_id=ls.id " +
                 "INNER JOIN biological_model_strain bmstrain ON bmstrain.biological_model_id=bms.biological_model_id " +
                 "INNER JOIN strain ON strain.acc=bmstrain.strain_acc " +
-                "INNER JOIN biological_model bm ON (bm.id=bms.biological_model_id AND bm.zygosity=ls.zygosity) " ;
+                "INNER JOIN biological_model bm ON (bm.id=bms.biological_model_id AND bm.zygosity=ls.zygosity) " +
+                "WHERE bs.sample_group = 'experimental' " ;
 
         try (Connection connection = komp2DataSource.getConnection(); PreparedStatement p = connection.prepareStatement(query)) {
             ResultSet r = p.executeQuery();
