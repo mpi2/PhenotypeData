@@ -194,19 +194,15 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
             if (SAVE) statisticalResultCore.commit();
 
             List<Callable<List<StatisticalResultDTO>>> resultGenerators = Arrays.asList(
-                    getUnidimensionalResults()
+                    getViabilityResults()
+                    , getFertilityResults()
+                    , getReferenceRangePlusResults()
+                    , getEmbryoViabilityResults()
+                    , getEmbryoResults()
+                    , getGrossPathologyResults()
+                    , getUnidimensionalResults()
+                    , getCategoricalResults()
             );
-
-//            List<Callable<List<StatisticalResultDTO>>> resultGenerators = Arrays.asList(
-//                    getViabilityResults()
-//                    , getFertilityResults()
-//                    , getReferenceRangePlusResults()
-//                    , getEmbryoViabilityResults()
-//                    , getEmbryoResults()
-//                    , getGrossPathologyResults()
-//                    , getUnidimensionalResults()
-//                    , getCategoricalResults()
-//            );
 
             ExecutorService pool = Executors.newFixedThreadPool(4);
             List<Future<List<StatisticalResultDTO>>> producers = new ArrayList<>();
