@@ -1,20 +1,18 @@
 package org.mousephenotype.cda.loads.statistics.load;
 
+import org.hibernate.SessionFactory;
 import org.mousephenotype.cda.db.dao.GwasDAO;
 import org.mousephenotype.cda.db.dao.ReferenceDAO;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
-import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder;
 import org.springframework.context.annotation.*;
 import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
-import org.springframework.orm.jpa.JpaVendorAdapter;
+import org.springframework.orm.hibernate5.LocalSessionFactoryBuilder;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
-import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 
 import javax.persistence.PersistenceContext;
 import javax.sql.DataSource;
-import java.util.Properties;
 
 @Configuration
 @PropertySource(value="file:${user.home}/configfiles/${profile:dev}/application.properties")
@@ -24,36 +22,16 @@ import java.util.Properties;
 public class StatisticalResultLoaderConfig {
 
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
+    final private Integer INITIAL_POOL_CONNECTIONS = 1;
 
-    @Bean
-    @Primary
-    @ConfigurationProperties(prefix = "datasource.komp2")
-    public DataSource komp2DataSource() {
-        return DataSourceBuilder.create().build();
-    }
+    @Value("${datasource.komp2.url}")
+    String komp2Url;
 
+    @Value("${datasource.komp2.username}")
+    String komp2Username;
 
-    @Bean
-    public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
-        LocalContainerEntityManagerFactoryBean emf = new LocalContainerEntityManagerFactoryBean();
-        emf.setDataSource(komp2DataSource());
-        emf.setPackagesToScan("org.mousephenotype.cda.db.pojo");
-
-        JpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
-        emf.setJpaVendorAdapter(vendorAdapter);
-
-        Properties hibernateProperties = new Properties();
-        hibernateProperties.setProperty("hibernate.dialect", "org.hibernate.dialect.MySQLDialect");
-        hibernateProperties.setProperty("hibernate.show_sql", "false");
-        hibernateProperties.setProperty("hibernate.use_sql_comments", "false");
-        hibernateProperties.setProperty("hibernate.format_sql", "false");
-        hibernateProperties.setProperty("hibernate.generate_statistics", "false");
-        hibernateProperties.setProperty("hibernate.current_session_context_class", "thread");
-
-        emf.setJpaProperties(hibernateProperties);
-
-        return emf;
-    }
+    @Value("${datasource.komp2.password}")
+    String komp2Password;
 
     @Bean
     @Primary
@@ -73,5 +51,60 @@ public class StatisticalResultLoaderConfig {
         sessionFactory.setPackagesToScan("org.mousephenotype.cda.db");
         return sessionFactory;
     }
+
+
+    private DataSource getConfiguredDatasource(String url, String username, String password) {
+        org.apache.tomcat.jdbc.pool.DataSource ds = new org.apache.tomcat.jdbc.pool.DataSource();
+        ds.setUrl(url);
+        ds.setUsername(username);
+        ds.setPassword(password);
+        ds.setDriverClassName("com.mysql.jdbc.Driver");
+        ds.setInitialSize(INITIAL_POOL_CONNECTIONS);
+        ds.setMaxActive(5);
+        ds.setMinIdle(INITIAL_POOL_CONNECTIONS);
+        ds.setMaxIdle(INITIAL_POOL_CONNECTIONS);
+        ds.setTestOnBorrow(true);
+        ds.setValidationQuery("SELECT 1");
+        ds.setValidationInterval(5000);
+        ds.setMaxAge(30000);
+        ds.setMaxWait(35000);
+        ds.setTestWhileIdle(true);
+        ds.setTimeBetweenEvictionRunsMillis(5000);
+        ds.setMinEvictableIdleTimeMillis(5000);
+        ds.setValidationInterval(30000);
+        ds.setRemoveAbandoned(true);
+        ds.setRemoveAbandonedTimeout(10000); // 10 seconds before abandoning a query
+
+        try {
+            logger.info("Using komp2source database {} with initial pool size {}. URL: {}", ds.getConnection().getCatalog(), ds.getInitialSize(), url);
+
+        } catch (Exception e) {
+
+            System.err.println(e.getLocalizedMessage());
+            e.printStackTrace();
+        }
+
+        return ds;
+    }
+
+
+    @Bean(name = "sessionFactoryHibernate")
+    @Primary
+    public SessionFactory getSessionFactory() {
+
+        LocalSessionFactoryBuilder sessionBuilder = new LocalSessionFactoryBuilder(komp2DataSource());
+        sessionBuilder.scanPackages("org.mousephenotype.cda.db.entity");
+        sessionBuilder.scanPackages("org.mousephenotype.cda.db.pojo");
+
+        return sessionBuilder.buildSessionFactory();
+    }
+
+    @Bean(name = "komp2DataSource")
+    @Primary
+    public DataSource komp2DataSource() {
+        return getConfiguredDatasource(komp2Url, komp2Username, komp2Password);
+    }
+
+
 
 }

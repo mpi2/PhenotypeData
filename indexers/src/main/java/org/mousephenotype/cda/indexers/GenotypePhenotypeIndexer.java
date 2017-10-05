@@ -82,6 +82,7 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
     Map<Integer, ImpressBaseDTO> pipelineMap = new HashMap<>();
     Map<Integer, ImpressBaseDTO> procedureMap = new HashMap<>();
     Map<Integer, ParameterDTO> parameterMap = new HashMap<>();
+    Set<String> derivedParameterStableIds = new HashSet<>();
 
     OntologyParser mpParser;
     OntologyParser mpMaParser;
@@ -120,6 +121,19 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
             pipelineMap = IndexerMap.getImpressPipelines(connection);
             procedureMap = IndexerMap.getImpressProcedures(connection);
             parameterMap = IndexerMap.getImpressParameters(connection);
+
+
+            // ==========================================================================================
+            // TODO: {   REMOVE} FILTER OUT DERIVED PARAMETERS UNTIL THE PROCEDURE ASSOCIATIONS GET FIXED
+            String query = "select stable_id from phenotype_parameter where derived = 1";
+            try (PreparedStatement p = connection.prepareStatement(query)) {
+                ResultSet r = p.executeQuery();
+                while (r.next()) {
+                    derivedParameterStableIds.add(r.getString("stable_id"));
+                }
+            }
+            // TODO: {ENDREMOVE} FILTER OUT DERIVED PARAMETERS UNTIL THE PROCEDURE ASSOCIATIONS GET FIXED
+            // ==========================================================================================
 
             // Override the EFO db_id with the current term from the database
             EFO_DB_ID = dsDAO.getDatasourceByShortName("EFO").getId();
@@ -170,8 +184,8 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
                 "  LEFT OUTER JOIN allele al ON s.allele_acc = al.acc " +
                 "  INNER JOIN external_db db ON s.external_db_id = db.id " +
                 "WHERE (0.0001 >= s.p_value " +
-                "  OR (s.p_value IS NULL AND s.sex='male' AND sur.gender_male_ko_pvalue<0.0001) " +
-                "  OR (s.p_value IS NULL AND s.sex='female' AND sur.gender_female_ko_pvalue<0.0001)) " +
+                "  OR (s.p_value IS NULL AND s.sex='male' AND sur.gender_male_ko_pvalue <= 0.0001) " +
+                "  OR (s.p_value IS NULL AND s.sex='female' AND sur.gender_female_ko_pvalue <= 0.0001)) " +
                 "OR (s.parameter_id IN (SELECT id FROM phenotype_parameter WHERE stable_id like 'IMPC_VIA%' OR stable_id LIKE 'IMPC_FER%')) " +
                 "OR s.p_value IS NULL ";
 
@@ -181,7 +195,22 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
             p.setFetchSize(Integer.MIN_VALUE);
 
             ResultSet r = p.executeQuery();
+            Map<String, Integer> skippedNotWarned = new HashMap<>();
             while (r.next()) {
+
+                // ==========================================================================================
+                // TODO: {   REMOVE} FILTER OUT DERIVED PARAMETERS UNTIL THE PROCEDURE ASSOCIATIONS GET FIXED
+                String parameterToCheck = parameterMap.get(r.getInt("parameter_id")).getStableId();
+                if (derivedParameterStableIds.contains(parameterToCheck)) {
+                    if ( ! skippedNotWarned.keySet().contains(parameterToCheck)) {
+                        skippedNotWarned.put(parameterToCheck, 1);
+                    } else {
+                        skippedNotWarned.put(parameterToCheck, skippedNotWarned.get(parameterToCheck) + 1);
+                    }
+                    continue;
+                }
+                // TODO: {ENDREMOVE} FILTER OUT DERIVED PARAMETERS UNTIL THE PROCEDURE ASSOCIATIONS GET FIXED
+                // ==========================================================================================
 
                 GenotypePhenotypeDTO doc = new GenotypePhenotypeDTO();
 
@@ -348,6 +377,13 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
                 genotypePhenotypeCore.addBean(doc, 30000);
 
                 count++;
+            }
+
+            if (skippedNotWarned.size() > 0) {
+                logger.info("Skipped phenotypes for derived parametersId ");
+                for (String key : skippedNotWarned.keySet()) {
+                    System.out.println("  " + key + " : " + skippedNotWarned.get(key));
+                }
             }
 
             // Final commit to save the rest of the docs

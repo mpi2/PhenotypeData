@@ -32,7 +32,8 @@ public enum BatchClassification {
 	one_sex_only,
 	one_batch,
 	low_batch,
-	multi_batch;
+	multi_batch,
+	unknown;
 
 	public String getName(){
 		return this.toString();

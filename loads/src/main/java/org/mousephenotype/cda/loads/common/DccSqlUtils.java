@@ -40,6 +40,8 @@ import java.math.BigInteger;
 import java.sql.*;
 import java.sql.Date;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -674,13 +676,17 @@ public class DccSqlUtils {
             OntologyParameter op = mpEx.getOntologyParameter();
 
             List<String> ontologyTerms = ontologyParametersMap.get(op.getHjid());
+
+            Pattern pattern = Pattern.compile("(.*?:\\d+).*");
+
             ontologyTerms = ontologyTerms
                     .stream()
                     .filter(Objects::nonNull)
                     .filter(StringUtils::isNotEmpty)
                     .map(x -> {
-                        String[] s = x.split(":");
-                        return s[0] + ":" + s[1];
+                        Matcher matcher = pattern.matcher(x);
+                        matcher.find();
+                        return matcher.group(1);
                     })
                     .collect(Collectors.toList());
             op.setTerm(ontologyTerms);

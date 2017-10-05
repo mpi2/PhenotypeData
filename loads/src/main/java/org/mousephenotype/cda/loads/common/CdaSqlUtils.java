@@ -665,6 +665,9 @@ public class CdaSqlUtils {
                 } catch (DuplicateKeyException e) {
 
                     logger.warn("Duplicate biological_model_strain entry: {}. biological model not added.", bioModels);
+
+                    // Indicate to caller that there was already a biological model strain entry.
+                    countsMap.put("bioModelStrainsDuplicateError", 1);
                     return countsMap;
 
                 } catch (Exception e) {
@@ -3205,15 +3208,23 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
             List<BiologicalModelAggregator> biologicalModelAggregators = new ArrayList<>();
             biologicalModelAggregators.add(biologicalModelAggregator);
 
-            insertBiologicalModel(biologicalModelAggregators);
+            Map<String, Integer> results = insertBiologicalModel(biologicalModelAggregators);
+            if (results.containsKey("bioModelStrainsDuplicateError")) {
+                logger.warn("bioModelStrainsDuplicateError: allelicComposition: " + allelicComposition + ", colonyId: " + colony.getColonyName() + ", sampleGroup: " + sampleGroup);
+            }
 
             biologicalModel = getBiologicalModel(allelicComposition, geneticBackground);
             if (biologicalModel == null) {
                 throw new DataLoadException("Attempt to create biological model for colony '" + colony.getColonyName() + "' failed.");
             }
         } else {
-            // The biological_model_strain table is not inserted when the cda_base database is created, as the info may be obsolete, and the strain is not available. Insert it here.
-            insertBiologicalModelStrain(biologicalModel.getId(), backgroundStrain.getId());
+            if ((biologicalModel.getStrains() == null) || (biologicalModel.getStrains().isEmpty())) {
+
+                logger.info("Inserting biologicalModelStrain entry for biologicalModelId " + biologicalModel.getId() + ", backgroundStrain " + backgroundStrain.getId().getAccession());
+
+                // The biological_model_strain table is not inserted when the cda_base database is created, as the info may be obsolete, and the strain is not available. Insert it here.
+                insertBiologicalModelStrain(biologicalModel.getId(), backgroundStrain.getId());
+            }
 
             // When the cda_base table is created, the biological_model table is inserted, but the zygosity is not known. Now we know it. Update the biological_model.zygosity column here.
             updateBiologicalModelZygosity(biologicalModel.getId(), zygosity);

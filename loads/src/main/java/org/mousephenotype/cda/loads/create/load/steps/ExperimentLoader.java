@@ -761,7 +761,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
                     experimentsMissingSamples.add("Missing sample bsKey::specimenId::phenotypingCenterPk::center::colonyId\t" +
                             bsKey + "::" + dccExperiment.getSpecimenId() + "::" + phenotypingCenterPk + "::" + phenotypingCenter + "::" + dccExperiment.getColonyId());
                 } else {
-                    missingColonyIdInfo.add("Missing sample for missing colonyId" + dccExperiment.getColonyId());
+                    missingColonyIdInfo.add("Missing sample for missing colonyId " + dccExperiment.getColonyId());
                 }
 
                 return;
