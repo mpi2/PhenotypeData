@@ -206,7 +206,7 @@ public abstract class AbstractIndexer implements CommandLineRunner {
             }
             return new Boolean(el);
         } else {
-            System.out.println("Field not found " + field);
+            logger.debug("Field not found " + field);
             runStatus.addError(" Caught error accessing Allele2 core: " + "Field not found " + field );
             return null;
         }
@@ -224,7 +224,7 @@ public abstract class AbstractIndexer implements CommandLineRunner {
             }
             return Arrays.asList(el.split("\\|", -1));
         } else {
-            System.out.println("Field not found " + field);
+            logger.debug("Field not found " + field);
             runStatus.addError(" Caught error accessing Allele2 core: " + "Field not found " + field );
             return null;
         }
@@ -241,12 +241,12 @@ public abstract class AbstractIndexer implements CommandLineRunner {
             try {
 				return new Integer(el);
 			} catch (NumberFormatException e) {
-				System.err.println("field not string is ="+el);
+                logger.debug("field not string is ="+el);
 				e.printStackTrace();
 				return null;
 			}
         } else {
-            System.out.println("Field not found " + field);
+            logger.debug("Field not found " + field);
             runStatus.addError(" Caught error accessing Allele2 core: " + "Field not found " + field );
             return null;
         }
