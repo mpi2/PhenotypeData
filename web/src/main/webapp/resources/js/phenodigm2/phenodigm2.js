@@ -112,7 +112,7 @@ impc.phenscore = function (x) {
         return (result > 0 ? +result.toPrecision(4) : result);
     }
     // interpret x as an array of such objects        
-    var phenmax = _.max(_.map(x, impc.phenscore));       
+    var phenmax = _.max(_.map(x, impc.phenscore));
     return (phenmax > 0 ? phenmax.toPrecision(4) : phenmax);
 };
 
@@ -481,9 +481,11 @@ impc.phenodigm2.drawScatterplot = function (darr, conf) {
             .attr("y", conf.legendpos[2] + (2 * conf.legendspacing) - conf.radius)
             .attr("width", 2 * conf.radius)
             .attr("height", 2 * conf.radius);
-    svg.append("text").attr("y", conf.legendpos[2] + (2 * conf.legendspacing))
-            .attr("class", "legendtext").text("Model w. modification in\ndisease-associated gene");
-    svg.append("text").attr("y", conf.legendpos[2] + (3.5 * conf.legendspacing))
+    var longtext = svg.append("text").attr("y", conf.legendpos[2] + (2 * conf.legendspacing))
+            .attr("class", "legendtext");
+    longtext.append("tspan").classed("legendtext", true).text("Model w. modification in");
+    longtext.append("tspan").classed("legendtext", true).attr("dy", "1.2em").text("disease-associated gene");
+    svg.append("text").attr("y", conf.legendpos[2] + (4.0 * conf.legendspacing))
             .attr("x", conf.legendpos[0] - conf.radius).attr("class", "legendsource")
             .text("Data sources: IMPC, MGI");
     svg.selectAll(".legendtext").attr("x", conf.legendpos[1]);

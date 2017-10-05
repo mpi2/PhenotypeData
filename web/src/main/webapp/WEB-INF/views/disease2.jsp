@@ -245,7 +245,7 @@
                 h: 350, // height in pixels 
                 margin: [20, 60, 50, 60], // top, right, bottom, left margins
                 offset: [40, -40], // distance of x, y labels from axes
-                legendpos: [18, 30, 30], // x1, x2, top positions of legend
+                legendpos: [18, 30, 22], // x1, x2, top positions of legend
                 legendspacing: 18, // spacing between legend lines                
                 detailwidth: 200, // width of the detail box on the right
                 detailpad: 10, // internal padding within the details box
@@ -254,7 +254,7 @@
                 color: ["#dd0000", "#d2c2c2"], // highlighted, non-highlighted models
                 radius: 4,
                 axes: ["maxRaw", "avgRaw"],
-                labs: ["max score", "avg score"],
+                labs: ["Max score", "Avg score"],
                 threshold: 2.2
             };
             // configuration for tables, used by jquery datatable and by phenodigm2
