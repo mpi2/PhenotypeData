@@ -194,15 +194,19 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
             if (SAVE) statisticalResultCore.commit();
 
             List<Callable<List<StatisticalResultDTO>>> resultGenerators = Arrays.asList(
-                    getViabilityResults()
-                    , getFertilityResults()
-                    , getReferenceRangePlusResults()
-                    , getEmbryoViabilityResults()
-                    , getEmbryoResults()
-                    , getGrossPathologyResults()
-                    , getUnidimensionalResults()
-                    , getCategoricalResults()
+                    getUnidimensionalResults()
             );
+
+//            List<Callable<List<StatisticalResultDTO>>> resultGenerators = Arrays.asList(
+//                    getViabilityResults()
+//                    , getFertilityResults()
+//                    , getReferenceRangePlusResults()
+//                    , getEmbryoViabilityResults()
+//                    , getEmbryoResults()
+//                    , getGrossPathologyResults()
+//                    , getUnidimensionalResults()
+//                    , getCategoricalResults()
+//            );
 
             ExecutorService pool = Executors.newFixedThreadPool(4);
             List<Future<List<StatisticalResultDTO>>> producers = new ArrayList<>();
@@ -364,13 +368,13 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
         // Biological details
         addBiologicalData(doc, doc.getMutantBiologicalModelId());
 
-        BasicBean stage = getDevelopmentalStage(doc.getPipelineStableId(), doc.getProcedureStableId(), doc.getColonyId());
+        BasicBean stage = getDevelopmentalStage(doc.getPipelineStableId(), procedurePrefix, doc.getColonyId());
 
         if (stage != null) {
             doc.setLifeStageAcc(stage.getId());
             doc.setLifeStageName(stage.getName());
         } else {
-            logger.info("  Stage is NULL for doc id" + doc.getDocId());
+            logger.info("  Stage is NULL for doc id " + doc.getDocId());
         }
 
         // MP Terms must come after setting the stage as it's used for selecting MA or EMAPA
@@ -469,7 +473,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
             doc.setLifeStageAcc(stage.getId());
             doc.setLifeStageName(stage.getName());
         } else {
-            logger.info("  Stage is NULL for doc id" + doc.getDocId());
+            logger.info("  Line result stage is NULL for doc id " + doc.getDocId());
         }
 
 
