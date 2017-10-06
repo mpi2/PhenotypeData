@@ -41,6 +41,13 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.*;
 
+/**
+ * TK: requires description
+ * 
+ * Length: this class is too long and serves multiple roles. 
+ * Consider splitting into multiple classes.
+ * 
+ */
 @Service
 public class SolrIndex {
 

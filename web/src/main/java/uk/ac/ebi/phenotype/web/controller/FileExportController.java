@@ -31,7 +31,6 @@ import org.mousephenotype.cda.db.pojo.Allele;
 import org.mousephenotype.cda.db.pojo.ReferenceDTO;
 import org.mousephenotype.cda.db.pojo.Strain;
 import org.mousephenotype.cda.enumerations.BiologicalSampleType;
-import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.solr.generic.util.JSONImageUtils;
 import org.mousephenotype.cda.solr.service.*;
@@ -403,7 +402,7 @@ public class FileExportController {
 						rows = iDisplayLength - (i * rows);
 					}
 
-					JSONObject json = searchController.fetchSearchResultJson(export, query, dataType, iDisplayStart, rows, showImgView, fqStr, model, request);
+					JSONObject json = searchController.fetchSearchResult(export, query, dataType, iDisplayStart, rows, showImgView, fqStr, model, request);
 
 					List<String> dr = new ArrayList<>();
 
@@ -418,7 +417,7 @@ public class FileExportController {
 					dataRows.addAll(dr);
 				}
 			} else {
-				JSONObject json = searchController.fetchSearchResultJson(export, query, dataType, iDisplayStart, iDisplayLength, showImgView, fqStr, model, request);
+				JSONObject json = searchController.fetchSearchResult(export, query, dataType, iDisplayStart, iDisplayLength, showImgView, fqStr, model, request);
 				dataRows = composeDataTableExportRows(query, dataType, json, iDisplayStart, iDisplayLength, showImgView,
 						solrFilters, request, legacyOnly, fqStr);
 
