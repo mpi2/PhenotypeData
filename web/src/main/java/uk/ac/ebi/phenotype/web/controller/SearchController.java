@@ -22,7 +22,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import uk.ac.ebi.phenotype.util.SearchConfig;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
@@ -33,6 +32,13 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import uk.ac.ebi.phenotype.util.SearchConfigAllele2;
+import uk.ac.ebi.phenotype.util.SearchConfigAnatomy;
+import uk.ac.ebi.phenotype.util.SearchConfigCore;
+import uk.ac.ebi.phenotype.util.SearchConfigDisease;
+import uk.ac.ebi.phenotype.util.SearchConfigGene;
+import uk.ac.ebi.phenotype.util.SearchConfigMp;
+import uk.ac.ebi.phenotype.util.SearchConfigPhenodigmDisease;
 
 /**
  * Controller for search queries.
@@ -47,9 +53,28 @@ public class SearchController {
 
     @Autowired
     private SolrIndex solrIndex;
+    
+    // query building tools - one for each search type
+    @Autowired
+    private SearchConfigAllele2 searchConfigAllele2;
 
     @Autowired
-    private SearchConfig searchConfig;
+    private SearchConfigAnatomy searchConfigAnatomy;
+
+    @Autowired
+    private SearchConfigDisease searchConfigDisease;
+
+    @Autowired
+    private SearchConfigGene searchConfigGene;
+
+    @Autowired
+    private SearchConfigMp searchConfigImpcImage;
+
+    @Autowired
+    private SearchConfigMp searchConfigMp;
+
+    @Autowired
+    private SearchConfigPhenodigmDisease searchConfigPhenodigmDisease;
 
     @Autowired
     private DataTableController dataTableController;
@@ -57,27 +82,48 @@ public class SearchController {
     @Autowired
     private QueryBrokerController queryBrokerController;
 
+    private SearchConfigCore selectSearchConfig(String coreName) {
+        switch (coreName) {
+            case "gene":
+                return searchConfigGene;
+            case "mp":
+                return searchConfigMp;
+            case "disease":
+                return searchConfigDisease;
+            case "phenodigm":
+                return searchConfigPhenodigmDisease;
+            case "anatomy":
+                return searchConfigAnatomy;
+            case "impc_images":
+                return searchConfigImpcImage;
+            case "allele2":
+                return searchConfigAllele2;
+            default:
+                return null;
+        }
+    }
+
     /**
      * redirect calls to the base url or /search/ path to the search page
      *
      * @return
      */
-    @RequestMapping(value = {"/index.html", "/search/"})     
-    public String searchForward(HttpServletRequest request) {        
+    @RequestMapping(value = {"/index.html", "/search/"})
+    public String searchForward(HttpServletRequest request) {
         String redirectUrl = request.getScheme() + ":" + request.getAttribute("mappedHostname") + request.getAttribute("baseUrl") + "/search";
-        LOGGER.info("redirecting to "+redirectUrl);
+        LOGGER.info("redirecting to " + redirectUrl);
         return "redirect:" + redirectUrl;
     }
-           
+
     /**
      * Process a generic entry onto the search page. As default behavior, this
-     * looks up all genes. 
-     * 
+     * looks up all genes.
+     *
      * @param request
      * @param model
      * @return
      * @throws IOException
-     * @throws URISyntaxException 
+     * @throws URISyntaxException
      */
     @RequestMapping("/search")
     public String searchAll(
@@ -123,7 +169,7 @@ public class SearchController {
                 String range = "[" + m.group(3).toUpperCase() + " TO " + m.group(4) + "]";
                 String rangeQry = "(chr_name:" + chrName + ") AND (seq_region_start:" + range + ") AND (seq_region_end:" + range + ")";
                 chrQuery = fqStr == null ? rangeQry : fqStr + " AND " + rangeQry;
-            }           
+            }
             if (dataType.equals("gene")) {
                 query = "*:*";
             } else {
@@ -232,10 +278,10 @@ public class SearchController {
      */
     public JSONObject fetchSearchResult(Boolean export, String query, String dataType, Integer iDisplayStart, Integer iDisplayLength, Boolean showImgView, String fqStr, Model model, HttpServletRequest request) throws IOException, URISyntaxException {
 
-        // facet filter on the left panel of search page
-        String breadcrumLabel = searchConfig.getBreadcrumLabel(dataType);
-        model.addAttribute("dataTypeLabel", breadcrumLabel);
-        model.addAttribute("gridHeaderListStr", StringUtils.join(searchConfig.getGridHeaders(dataType), ","));
+        // facet filter on the left panel of search page 
+        SearchConfigCore config = selectSearchConfig(dataType);
+        model.addAttribute("dataTypeLabel", config.breadcrumLabel());
+        model.addAttribute("gridHeaderListStr", config.gridHeadersStr());
 
         // results on the right panel of search page
         String solrParamStr = composeSolrParamStr(export, query, fqStr, dataType);
@@ -249,11 +295,12 @@ public class SearchController {
 
     public String composeSolrParamStr(Boolean export, String query, String fqStr, String dataType) {
 
-        String qfStr = searchConfig.getQfSolrStr(dataType);
-        String defTypeStr = searchConfig.getDefTypeSolrStr();
-        String facetStr = searchConfig.getFacetFieldsSolrStr(dataType);
-        String flStr = searchConfig.getFieldListSolrStr(dataType);
-        String bqStr = searchConfig.getBqStr(dataType, query);
+        SearchConfigCore config = selectSearchConfig(dataType);
+        String qfStr = config.qfSolrStr();
+        String defTypeStr = config.defTypeSolrStr();
+        String facetStr = config.facetFieldsSolrStr();
+        String flStr = config.fieldListSolrStr();
+        String bqStr = config.bqStr(query);
 
         // extra bq for anatomy and mp with facet filter
         if (dataType.equals("mp") || dataType.equals("anatomy")) {
@@ -272,13 +319,31 @@ public class SearchController {
 
         if (fqStr != null) {
             solrParamStr += "&fq=" + fqStr;
-        } else {
-            solrParamStr += "&fq=" + searchConfig.getFqStr(dataType);
+        } else {            
+            solrParamStr += "&fq=" + config.fqStr();
         }
 
         return solrParamStr;
     }
 
+    /**
+     * Run quick search queries against the data and count the number of hits.
+     *
+     * @param dataType
+     * @param query
+     * @param fqStr
+     * @param request
+     * @param model
+     * @param oriQuery
+     * @param chrQuery
+     * @return
+     *
+     * A map providing a count summary of search hits in each category, e.g.
+     * hits in gene category, mp, disease, etc.
+     *
+     * @throws IOException
+     * @throws URISyntaxException
+     */
     public JSONObject fetchAllFacetCounts(String dataType, String query, String fqStr, HttpServletRequest request, Model model, String oriQuery, String chrQuery) throws IOException, URISyntaxException {
 
         JSONObject qryBrokerJson = new JSONObject();
@@ -287,24 +352,30 @@ public class SearchController {
             query = "*:*";
         }
 
+        LOGGER.info("fetchAllFacetCounts dataType: " + dataType);
+        LOGGER.info("fetchAllFacetCounts query: " + query);
+        LOGGER.info("fetchAllFacetCounts fqStr: " + fqStr);
+
         List<String> cores = Arrays.asList(new String[]{"gene", "mp", "disease", "anatomy", "impc_images", "allele2"});
         for (int i = 0; i < cores.size(); i++) {
-            String thisCore = cores.get(i);            
-            String qfDefTypeWt = "&qf=" + searchConfig.getQf(thisCore) + "&defType=edismax&wt=json";
+            String thisCore = cores.get(i);
+            SearchConfigCore config = selectSearchConfig(thisCore);            
+            String qfDefTypeWt = "&qf=" + config.qf() + config.defTypeSolrStr() + "&wt=json";
             String thisFqStr;
             if (thisCore.equals(dataType)) {
                 if (thisCore.equals("gene")) {
                     thisFqStr = fqStr == null ? "" : fqStr;
-                } else {
-                    thisFqStr = fqStr == null ? searchConfig.getFqStr(thisCore) : fqStr;
+                } else {                    
+                    thisFqStr = fqStr == null ? config.fqStr() : fqStr;
                 }
             } else {
                 if (thisCore.equals("gene")) {
                     thisFqStr = "";
-                } else {
-                    thisFqStr = searchConfig.getFqStr(thisCore);
+                } else {                    
+                    thisFqStr = config.fqStr();
                 }
             }
+            LOGGER.info("core: " + thisCore + "\nthisFqStr: " + thisFqStr);
 
             if (chrQuery != null && thisCore.equals("gene")) {
                 query = "*:*";
