@@ -17,6 +17,10 @@ package uk.ac.ebi.phenotype.util;
 
 import java.util.Arrays;
 import java.util.List;
+import org.apache.solr.client.solrj.SolrClient;
+import org.mousephenotype.cda.solr.SolrUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 /**
@@ -26,14 +30,18 @@ import org.springframework.stereotype.Service;
 @Service
 public class SearchConfigDisease extends SearchConfigCore {
 
+    @Autowired
+    @Qualifier("diseaseCore")
+    protected SolrClient solr;
+
     @Override
     public String qf() {
         return "diseaseQf";
     }
 
     @Override
-    public String fqStr() {        
-        return "*:*";
+    public String fqStr() {
+        return "+*:*";
     }
 
     @Override
@@ -74,7 +82,7 @@ public class SearchConfigDisease extends SearchConfigCore {
                 "mgi_predicted",
                 "mgi_novel_predicted_in_locus");
     }
-    
+
     @Override
     public String facetSort() {
         return "count";
@@ -95,4 +103,8 @@ public class SearchConfigDisease extends SearchConfigCore {
         return "&sort=disease_term asc";
     }
 
+    @Override
+    public String solrUrl() {
+        return SolrUtils.getBaseURL(solr);
+    }
 }

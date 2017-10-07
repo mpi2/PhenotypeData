@@ -90,7 +90,7 @@ public class TestConfigSolr {
 	//Phenodigm server for our Web Status currently only
 	@Bean(name = "phenodigmCore")
 	public HttpSolrClient getPhenodigmCore() {
-		return new HttpSolrClient(solrBaseUrl + "/phenodigm");
+		return new HttpSolrClient(solrBaseUrl + "/phenodigm1");
 	}
 
 	//Configuration

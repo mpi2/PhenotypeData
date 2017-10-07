@@ -136,7 +136,7 @@ public class QueryBrokerController {
      * @param solrParams
      * @param subfacet
      * @param response
-     * @param model
+     * @param model     
      * @param request
      * @return @throws URISyntaxException
      * @throws IOException
@@ -150,7 +150,7 @@ public class QueryBrokerController {
             Model model) throws IOException, URISyntaxException {
 
         JSONObject jParams = (JSONObject) JSONSerializer.toJSON(solrParams);
-        JSONObject jsonResponse = createJsonResponse(subfacet, jParams, request);
+        JSONObject jsonResponse = createJsonResponse(subfacet, jParams);
 
         return new ResponseEntity<>(jsonResponse, createResponseHeaders(), HttpStatus.CREATED);
     }
@@ -161,7 +161,20 @@ public class QueryBrokerController {
         return responseHeaders;
     }
 
-    public JSONObject createJsonResponse(String subfacet, JSONObject jParams, HttpServletRequest request) throws IOException, URISyntaxException {
+    /**
+     * Create a Json object by running multiple solr queries and recording their results.
+     * 
+     * Consider replacing this function by runCoreQueries with a similar signature.
+     * This function looks up solr urls, the other function assumes all the query
+     * urls are given.
+     * 
+     * @param subfacet
+     * @param jParams
+     * @return
+     * @throws IOException
+     * @throws URISyntaxException 
+     */
+    public JSONObject createJsonResponse(String subfacet, JSONObject jParams) throws IOException, URISyntaxException {
 
         JSONObject jsonResponse = new JSONObject();
 
@@ -169,8 +182,8 @@ public class QueryBrokerController {
 
         while (cores.hasNext()) {
             String core = (String) cores.next();
-            String param = jParams.getString(core);
-
+            String param = jParams.getString(core);            
+            
             String url = SolrUtils.getBaseURL(solrIndex.getSolrServer(core)) + "/select?" + param;
             LOGGER.info("createJsonResponse url: " + url);
             String key = core + param;
@@ -200,4 +213,52 @@ public class QueryBrokerController {
         return jsonResponse;
     }
 
+    
+    /**
+     * Create a Json object by running multiple solr queries and recording their results.
+     * 
+     * @param subfacet
+     * @param queries
+     * 
+     * a simple map with solr queries. Keys will appear in the output. 
+     * Strings associated to those keys should hold entire solr queries (containing
+     * url and full select string)
+     * 
+     * @return
+     * @throws IOException
+     * @throws URISyntaxException 
+     */
+    public JSONObject runQueries(String subfacet, JSONObject queries) throws IOException, URISyntaxException {
+
+        JSONObject result = new JSONObject();
+                
+        Iterator keys = queries.keys();
+        while (keys.hasNext()) {
+            String key = (String) keys.next();
+            String url = queries.getString(key);                                    
+            LOGGER.info("runCoreQueries url: " + url);
+                        
+            if (!cache.containsKey(url)) {
+                // Object not in cache. 
+                JSONObject json = solrIndex.getResults(url);
+                if (subfacet == null) {
+                    // Main facet counts only
+                    int numFound = json.getJSONObject("response").getInt("numFound");
+                    result.put(key, numFound);
+                    cache.put(url, numFound);
+                } else {
+                    JSONObject j = new JSONObject();
+                    j.put("response", json.getJSONObject("response"));
+                    j.put("facet_counts", json.getJSONObject("facet_counts"));
+                    result.put(key, j);
+                    cache.put(url, j);
+                }
+            } else {
+                result.put(key, cache.get(url));
+                LOGGER.info("createJsonResponse: Using cache for key: " + url);
+            }
+        }
+        return result;
+    }
+    
 }

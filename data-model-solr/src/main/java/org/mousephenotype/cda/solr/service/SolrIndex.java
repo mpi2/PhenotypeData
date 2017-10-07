@@ -53,7 +53,7 @@ public class SolrIndex {
 
 	public static final String IMG_NOT_FOUND = "No information available";
 
-	private final Logger log = LoggerFactory.getLogger(this.getClass().getCanonicalName());
+	private final Logger LOGGER = LoggerFactory.getLogger(this.getClass().getCanonicalName());
 	
 	@NotNull
 	@Value("${pdf_thumbnail_url}")
@@ -79,6 +79,10 @@ public class SolrIndex {
 	@Qualifier("diseaseCore")
 	SolrClient diseaseCore;
 
+    @Autowired
+	@Qualifier("phenodigm2Core")
+	SolrClient phenodigm2Core;
+
 	@Autowired
 	@Qualifier("anatomyCore")
 	SolrClient anatomyCore;
@@ -95,20 +99,36 @@ public class SolrIndex {
 
 	private Object Json;
 
+    /**
+     * Fetches a SolrClient based on a corename
+     * 
+     * @param corename
+     * @return 
+     */
+	public SolrClient getSolrServer(String corename) {
 
-	public SolrClient getSolrServer(String corename){
-
-		switch (corename){
-			case "autosuggest" : return autosuggestCore;
-			case "gene" : return geneCore;
-			case "mp" : return mpCore;
-			case "disease" : return diseaseCore;
-			case "anatomy" : return anatomyCore;
-			case "impc_images" : return impcImagesCore;
-			case "allele2" : return allele2Core;
-		}
-		return geneCore;
-	}
+        LOGGER.info("get with " + corename);
+        switch (corename) {
+            case "autosuggest":
+                return autosuggestCore;
+            case "gene":
+                return geneCore;
+            case "mp":
+                return mpCore;
+            case "disease":
+                return diseaseCore;
+            case "phenodigm2":
+                LOGGER.info("phenodigm2");
+                return phenodigm2Core;
+            case "anatomy":
+                return anatomyCore;
+            case "impc_images":
+                return impcImagesCore;
+            case "allele2":
+                return allele2Core;
+        }
+        return geneCore;
+    }
 
 	public List<String> fetchQueryIdsFromChrRange(String chr, String chrStart, String chrEnd, String mode) throws IOException, SolrServerException {
 		List<String> queryIds = new ArrayList<>();
@@ -327,7 +347,7 @@ public class SolrIndex {
 		String url = composeSolrUrl(core, "", "", gridSolrParams, start,
 				length, showImgView);
 
-		log.debug("Export data URL: " + url);
+		LOGGER.debug("Export data URL: " + url);
 		return getResults(url);
 	}
 
@@ -910,18 +930,18 @@ public class SolrIndex {
 				+ "/select?wt=json&q=mgi_accession_id:"
 				+ accession.replace(":", "\\:");
 
-		log.info("url for geneDao=" + url);
+		LOGGER.info("url for geneDao=" + url);
 
 		JSONObject json = getResults(url);
 		JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
 
 		if (docs.size() > 1) {
-			log.error("Error, Only expecting 1 document from an accession/gene request");
+			LOGGER.error("Error, Only expecting 1 document from an accession/gene request");
 		}
 
 		String geneStatus = docs.getJSONObject(0).getString("status");
 
-		log.debug("gene status=" + geneStatus);
+		LOGGER.debug("gene status=" + geneStatus);
 
 		return geneStatus;
 	}
@@ -977,7 +997,7 @@ public class SolrIndex {
 	public JSONObject getResults(String url) throws IOException,
 			URISyntaxException {
 
-		log.debug("GETTING CONTENT FROM: " + url);
+		LOGGER.debug("GETTING CONTENT FROM: " + url);
 		HttpProxy proxy = new HttpProxy();
 
 		try {
@@ -1000,7 +1020,7 @@ public class SolrIndex {
 		JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
 
 		if (docs.size() > 1) {
-			log.error("Error, Only expecting 1 document from an accession/gene request");
+			LOGGER.error("Error, Only expecting 1 document from an accession/gene request");
 		}
 		if(docs.size()<1) {//if nothing returned return an empty json object
 			return new JSONObject();

@@ -38,7 +38,8 @@ import uk.ac.ebi.phenotype.util.SearchConfigCore;
 import uk.ac.ebi.phenotype.util.SearchConfigDisease;
 import uk.ac.ebi.phenotype.util.SearchConfigGene;
 import uk.ac.ebi.phenotype.util.SearchConfigMp;
-import uk.ac.ebi.phenotype.util.SearchConfigPhenodigmDisease;
+import uk.ac.ebi.phenotype.util.SearchConfigPhenodigm2Disease;
+import uk.ac.ebi.phenotype.util.SearchSettings;
 
 /**
  * Controller for search queries.
@@ -53,7 +54,7 @@ public class SearchController {
 
     @Autowired
     private SolrIndex solrIndex;
-    
+
     // query building tools - one for each search type
     @Autowired
     private SearchConfigAllele2 searchConfigAllele2;
@@ -74,7 +75,7 @@ public class SearchController {
     private SearchConfigMp searchConfigMp;
 
     @Autowired
-    private SearchConfigPhenodigmDisease searchConfigPhenodigmDisease;
+    private SearchConfigPhenodigm2Disease searchConfigPhenodigm2Disease;
 
     @Autowired
     private DataTableController dataTableController;
@@ -90,8 +91,8 @@ public class SearchController {
                 return searchConfigMp;
             case "disease":
                 return searchConfigDisease;
-            case "phenodigm":
-                return searchConfigPhenodigmDisease;
+            case "phenodigm2":
+                return searchConfigPhenodigm2Disease;
             case "anatomy":
                 return searchConfigAnatomy;
             case "impc_images":
@@ -106,6 +107,7 @@ public class SearchController {
     /**
      * redirect calls to the base url or /search/ path to the search page
      *
+     * @param request
      * @return
      */
     @RequestMapping(value = {"/index.html", "/search/"})
@@ -130,10 +132,61 @@ public class SearchController {
             HttpServletRequest request,
             Model model) throws IOException, URISyntaxException {
 
-        LOGGER.info("searchAll");
-        return processSearch("gene", "*", null, null, null, false, request, model, null, null);
+        LOGGER.info("*** searchAll ***");
+        SearchSettings settings = new SearchSettings("gene", "*", null);
+        return processSearch(settings, request, model);
     }
 
+    /**
+     * Primary gateway to searching on the web portal.
+     *
+     *
+     * @param dataType
+     *
+     * The primary type of objects of interest. Use one of gene, disease, mp,
+     * etc. that correspond to the main-level tabs on the website
+     *
+     * @param query
+     *
+     * The search query
+     *
+     * @param fqStr
+     *
+     * Optional filtering of the query results. This is activated when user
+     * chooses to filter a result, e.g. filter diseases by disease source
+     *
+     * @param iDisplayStart
+     *
+     * Determines whether to return the best hits, or hits starting from a
+     * lower-down rank
+     *
+     * @param iDisplayLength
+     *
+     * Determines the number of hits to return
+     *
+     * @param showImgView
+     *
+     * a boolean that matters for image search only
+     *
+     * @param request
+     *
+     * object carries all the url parameters. The function will look up (when
+     * necessary iDisplayStart (starting hit to return) and iDisplayLength
+     * (number of hits to display). The iDisplay(Start/Length) parameters are
+     * used when fetching non-top hits.
+     *
+     * @param model
+     *
+     * object that is passed on to the web-page generating scripts. The function
+     * fills this object.
+     *
+     * @return
+     *
+     * name of view used to generate output web page
+     *
+     * @throws IOException
+     * @throws URISyntaxException
+     */
     @RequestMapping("/search/{dataType}")
     public String searchResult(
             @PathVariable() String dataType,
@@ -145,39 +198,16 @@ public class SearchController {
             HttpServletRequest request,
             Model model) throws IOException, URISyntaxException {
 
-        LOGGER.info("searchResult: dataType: " + dataType);
-        if (query.equals("*")) {
-            query = "*:*";
-        }
+        LOGGER.info("\n\n\n\nsearchResult: dataType: " + dataType);
+        LOGGER.info("request is " + request.toString());
 
-        String oriQuery = query;
-        String oriFqStr = fqStr;
-        String chrQuery = null;
+        // encode the parsed search settings into an object
+        SearchSettings settings = new SearchSettings(dataType, query, fqStr);
+        settings.setImgView(showImgView);
+        settings.setDisplay(iDisplayStart, iDisplayLength);
+        LOGGER.info("search settings: " + settings.toString());
 
-        if (StringUtils.isEmpty(dataType)) {
-            dataType = "gene";
-        }
-
-        // for queries that ask for genomic coordinates, parse the query string 
-        // into chromosome, start-end positions        
-        String pattern = "(?i:^\"(chr)(.*)\\\\:(\\d+)\\\\-(\\d+)\"$)";
-        if (query.matches(pattern)) {
-            Pattern r = Pattern.compile(pattern);
-            Matcher m = r.matcher(query);
-            if (m.find()) {
-                String chrName = m.group(2).toUpperCase();
-                String range = "[" + m.group(3).toUpperCase() + " TO " + m.group(4) + "]";
-                String rangeQry = "(chr_name:" + chrName + ") AND (seq_region_start:" + range + ") AND (seq_region_end:" + range + ")";
-                chrQuery = fqStr == null ? rangeQry : fqStr + " AND " + rangeQry;
-            }
-            if (dataType.equals("gene")) {
-                query = "*:*";
-            } else {
-                fqStr = oriFqStr;
-            }
-        }
-
-        return processSearch(dataType, query, fqStr, iDisplayStart, iDisplayLength, showImgView, request, model, oriQuery, chrQuery);
+        return processSearch(settings, request, model);
     }
 
     /**
@@ -189,8 +219,6 @@ public class SearchController {
      * @param dataType
      * @param query
      * @param fqStr
-     * @param iDisplayStart
-     * @param iDisplayLength
      * @param showImgView
      * @param request
      * @param model
@@ -200,28 +228,70 @@ public class SearchController {
      * @throws IOException
      * @throws URISyntaxException
      */
-    private String processSearch(String dataType, String query, String fqStr, Integer iDisplayStart, Integer iDisplayLength, boolean showImgView, HttpServletRequest request, Model model, String oriQuery, String chrQuery) throws IOException, URISyntaxException {
-
-        iDisplayStart = iDisplayStart == null ? 0 : iDisplayStart;
-        request.setAttribute("iDisplayStart", iDisplayStart);
-        iDisplayLength = iDisplayLength == null ? 10 : iDisplayLength;
-        request.setAttribute("iDisplayLength", iDisplayLength);
+    private String processSearchOld(String dataType, String query, String fqStr, boolean showImgView, HttpServletRequest request, Model model, String oriQuery, String chrQuery) throws IOException, URISyntaxException {
 
         String paramString = request.getQueryString();
-        LOGGER.info("processSearch: paramString: " + paramString);
+        LOGGER.info("processSearch: request querystring: " + paramString);
+
+        // ensure request object holds attributes for search start and length
+        Integer iDisplayStart = 0, iDisplayLength = 10;
+        if (request.getParameter("iDisplayStart") != null) {
+            iDisplayStart = Integer.parseInt(request.getParameter("iDisplayStart"));
+        }
+        if (request.getParameter("iDisplayLength") != null) {
+            iDisplayLength = Integer.parseInt(request.getParameter("iDisplayLength"));
+        }
+        LOGGER.info("processSearch with " + iDisplayStart + "," + iDisplayLength);
+        LOGGER.info("fqStr: " + fqStr);
 
         // fetch counts of hits in broad categories (used in webpage in tab headings)
         JSONObject facetCountJsonResponse = fetchAllFacetCounts(dataType, query, fqStr, request, model, oriQuery, chrQuery);
         LOGGER.info("facetCountJsonResponse: " + facetCountJsonResponse.toString(1));
+
         model.addAttribute("facetCount", facetCountJsonResponse);
         model.addAttribute("searchQuery", query.replaceAll("\\\\", ""));
         model.addAttribute("dataType", dataType);
         model.addAttribute("dataTypeParams", paramString);
 
         Boolean export = false;
-        JSONObject json = fetchSearchResult(export, query, dataType, iDisplayStart, iDisplayLength, showImgView, fqStr, model, request);
+        JSONObject json = fetchSearchResultOld(export, query, dataType, iDisplayStart, iDisplayLength, showImgView, fqStr, model);
         //LOGGER.info("fetchSearchResult gave result:\n"+json.toString(2));
         model.addAttribute("jsonStr", convert2DataTableJson(export, request, json, query, fqStr, iDisplayStart, iDisplayLength, showImgView, dataType));
+
+        return "search";
+    }
+
+    private String processSearch(SearchSettings settings, HttpServletRequest request, Model model) throws IOException, URISyntaxException {
+
+        String paramString = request.getQueryString();
+        LOGGER.info("processSearch: request querystring: " + paramString);
+
+        // calculate facets using old code
+        JSONObject facetCountJsonResponse = fetchAllFacetCounts(settings.getDataType(),
+                settings.getQuery(), settings.getFqStr(), request, model, settings.getOriFqStr(), settings.getChrQuery());
+        LOGGER.info("facetCountJsonResponse: old: " + facetCountJsonResponse.toString(1));
+
+        // fetch counts of hits in broad categories (used in webpage in tab headings)        
+        JSONObject facetCounts = getMainFacetCounts(settings);
+        LOGGER.info("facetCountJsonResponse: new: " + facetCounts.toString(1));
+
+        model.addAttribute("facetCount", facetCounts);
+        model.addAttribute("searchQuery", settings.getQuery().replaceAll("\\\\", ""));
+        model.addAttribute("dataType", settings.getDataType());
+        model.addAttribute("dataTypeParams", paramString);
+
+        // extract the hits using old code
+        Boolean export = false;
+        JSONObject json = fetchSearchResultOld(export, settings.getQuery(), settings.getDataType(),
+                settings.getiDisplayStart(), settings.getiDisplayLength(), settings.isImgView(),
+                settings.getFqStr(), model);
+        LOGGER.info("fetchSearchResult gave result:\n" + json.toString(2));
+
+        // extract hits using new code        
+        //JSONObject json = fetchSearchResult(export, query, dataType, iDisplayStart, iDisplayLength, showImgView, fqStr, model);
+        //LOGGER.info("fetchSearchResult gave result:\n"+json.toString(2));
+        model.addAttribute("jsonStr", convert2DataTableJson(export, request, json,
+                settings.getQuery(), settings.getFqStr(), settings.getiDisplayStart(), settings.getiDisplayLength(), settings.isImgView(), settings.getDataType()));
 
         return "search";
     }
@@ -271,12 +341,11 @@ public class SearchController {
      * @param showImgView
      * @param fqStr
      * @param model
-     * @param request
      * @return
      * @throws IOException
      * @throws URISyntaxException
      */
-    public JSONObject fetchSearchResult(Boolean export, String query, String dataType, Integer iDisplayStart, Integer iDisplayLength, Boolean showImgView, String fqStr, Model model, HttpServletRequest request) throws IOException, URISyntaxException {
+    public JSONObject fetchSearchResultOld(Boolean export, String query, String dataType, Integer iDisplayStart, Integer iDisplayLength, Boolean showImgView, String fqStr, Model model) throws IOException, URISyntaxException {
 
         // facet filter on the left panel of search page 
         SearchConfigCore config = selectSearchConfig(dataType);
@@ -288,16 +357,37 @@ public class SearchController {
         LOGGER.info("fetchSearchResultJson solrParamStr: " + solrParamStr);
 
         String mode = dataType + "Grid";
+        //Integer iDisplayStart = (Integer) request.getAttribute("iDisplayStart");
+        //Integer iDisplayLength = (Integer) request.getAttribute("iDisplayLength");
         JSONObject json = solrIndex.getQueryJson(query, dataType, solrParamStr, mode, iDisplayStart, iDisplayLength, showImgView);
         //LOGGER.info("fetchSearchResult: " + json.toString(2));
+        return json;
+    }
+
+    public JSONObject fetchSearchResult(Boolean export, SearchSettings settings, Model model) throws IOException, URISyntaxException {
+
+        // facet filter on the left panel of search page
+        String dataType = settings.getDataType();
+        SearchConfigCore config = selectSearchConfig(dataType);
+        model.addAttribute("dataTypeLabel", config.breadcrumLabel());
+        model.addAttribute("gridHeaderListStr", config.gridHeadersStr());
+
+        // results on the right panel of search page
+        String solrParamStr = composeSolrParamStr(export, settings.getQuery(), settings.getFqStr(), dataType);
+        LOGGER.info("fetchSearchResultJson solrParamStr: " + solrParamStr);
+
+        String mode = dataType + "Grid";
+        JSONObject json = solrIndex.getQueryJson(settings.getQuery(), dataType, solrParamStr, mode,
+                settings.getiDisplayStart(), settings.getiDisplayLength(), settings.isImgView());
+        //LOGGER.info("fetchSearchResult: " + json.toString(2));       
         return json;
     }
 
     public String composeSolrParamStr(Boolean export, String query, String fqStr, String dataType) {
 
         SearchConfigCore config = selectSearchConfig(dataType);
-        String qfStr = config.qfSolrStr();
-        String defTypeStr = config.defTypeSolrStr();
+        String qfStr = "&qf=" + config.qf();
+        String defTypeStr = "&defType=" + config.defType();
         String facetStr = config.facetFieldsSolrStr();
         String flStr = config.fieldListSolrStr();
         String bqStr = config.bqStr(query);
@@ -319,7 +409,7 @@ public class SearchController {
 
         if (fqStr != null) {
             solrParamStr += "&fq=" + fqStr;
-        } else {            
+        } else {
             solrParamStr += "&fq=" + config.fqStr();
         }
 
@@ -327,22 +417,7 @@ public class SearchController {
     }
 
     /**
-     * Run quick search queries against the data and count the number of hits.
-     *
-     * @param dataType
-     * @param query
-     * @param fqStr
-     * @param request
-     * @param model
-     * @param oriQuery
-     * @param chrQuery
-     * @return
-     *
-     * A map providing a count summary of search hits in each category, e.g.
-     * hits in gene category, mp, disease, etc.
-     *
-     * @throws IOException
-     * @throws URISyntaxException
+     * Original implementation of gene/phenotypes/disease/etc counts
      */
     public JSONObject fetchAllFacetCounts(String dataType, String query, String fqStr, HttpServletRequest request, Model model, String oriQuery, String chrQuery) throws IOException, URISyntaxException {
 
@@ -359,19 +434,19 @@ public class SearchController {
         List<String> cores = Arrays.asList(new String[]{"gene", "mp", "disease", "anatomy", "impc_images", "allele2"});
         for (int i = 0; i < cores.size(); i++) {
             String thisCore = cores.get(i);
-            SearchConfigCore config = selectSearchConfig(thisCore);            
-            String qfDefTypeWt = "&qf=" + config.qf() + config.defTypeSolrStr() + "&wt=json";
+            SearchConfigCore config = selectSearchConfig(thisCore);
+            String qfDefTypeWt = "&qf=" + config.qf() + "&defType=" + config.defType() + "&wt=json";
             String thisFqStr;
             if (thisCore.equals(dataType)) {
                 if (thisCore.equals("gene")) {
                     thisFqStr = fqStr == null ? "" : fqStr;
-                } else {                    
+                } else {
                     thisFqStr = fqStr == null ? config.fqStr() : fqStr;
                 }
             } else {
                 if (thisCore.equals("gene")) {
                     thisFqStr = "";
-                } else {                    
+                } else {
                     thisFqStr = config.fqStr();
                 }
             }
@@ -388,7 +463,54 @@ public class SearchController {
         }
 
         String subfacet = null;
-        return queryBrokerController.createJsonResponse(subfacet, qryBrokerJson, request);
+        return queryBrokerController.createJsonResponse(subfacet, qryBrokerJson);
+    }
+
+    /**
+     * Run quick search queries and count the number of hits.
+     *
+     * @param settings
+     *
+     * An object specifying what to search for
+     *
+     * @return
+     *
+     * A map providing a count summary of search hits in each category, e.g.
+     * hits in gene category, mp, disease, etc.
+     *
+     * @throws IOException
+     * @throws URISyntaxException
+     */
+    private JSONObject getMainFacetCounts(SearchSettings settings) throws IOException, URISyntaxException {
+
+        // construct a map of queries, each query asking for number of hits in a core
+        JSONObject queries = new JSONObject();
+        String dataType = settings.getDataType();
+
+        List<String> cores = Arrays.asList(new String[]{"gene", "mp", "disease", "phenodigm2", "anatomy", "impc_images", "allele2"});
+        for (int i = 0; i < cores.size(); i++) {
+            String thisCore = cores.get(i);
+            SearchConfigCore config = selectSearchConfig(thisCore);
+
+            // apply custom filter on its intended core type
+            String customFqStr = "";
+            if (thisCore.equals(dataType)) {
+                customFqStr = settings.getFqStr();
+            }
+            LOGGER.info("core: " + thisCore + "\ncustomFqStr: " + customFqStr);
+
+            // original code had logic handling genomic coordinate queries here.
+            // TODO - reinstate the logic below into the current framework?
+            //if (chrQuery != null && thisCore.equals("gene")) {
+            //    query = "*:*";
+            //    thisFqStr = chrQuery;
+            //} else if (chrQuery != null && !thisCore.equals("gene")) {
+            //    query = oriQuery;
+            //}
+            queries.put(thisCore, config.getCountQuerySolrUrl(settings.getQuery(), customFqStr));
+        }
+
+        return queryBrokerController.runQueries(null, queries);
     }
 
 }

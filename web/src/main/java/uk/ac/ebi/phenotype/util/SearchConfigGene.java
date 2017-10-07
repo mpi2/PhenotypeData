@@ -17,6 +17,10 @@ package uk.ac.ebi.phenotype.util;
 
 import java.util.Arrays;
 import java.util.List;
+import org.apache.solr.client.solrj.SolrClient;
+import org.mousephenotype.cda.solr.SolrUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 /**
@@ -26,6 +30,10 @@ import org.springframework.stereotype.Service;
 @Service
 public class SearchConfigGene extends SearchConfigCore {
 
+    @Autowired
+	@Qualifier("geneCore")
+    protected SolrClient solr;
+
     @Override
     public String qf() {
         return "geneQf";
@@ -33,7 +41,7 @@ public class SearchConfigGene extends SearchConfigCore {
 
     @Override
     public String fqStr() {
-        return "";
+        return "+*:*";
     }
 
     @Override
@@ -96,4 +104,8 @@ public class SearchConfigGene extends SearchConfigCore {
         return "&sort=marker_symbol asc";
     }
 
+    @Override
+    public String solrUrl() {
+        return SolrUtils.getBaseURL(solr);
+    }
 }

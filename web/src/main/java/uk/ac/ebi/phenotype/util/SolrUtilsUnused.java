@@ -15,7 +15,12 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.util;
 
-public class SolrUtils {
+/**
+ * TK: This class is unused. It's old name SolrUtils conflicted with another
+ * class defined in data-model-solr, hence renamed here.
+ * 
+ */
+public class SolrUtilsUnused {
 
 	/**
 	 * Method to handle spaces within queries for solr requests via solrj

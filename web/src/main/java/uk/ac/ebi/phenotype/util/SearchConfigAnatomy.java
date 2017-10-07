@@ -17,6 +17,10 @@ package uk.ac.ebi.phenotype.util;
 
 import java.util.Arrays;
 import java.util.List;
+import org.apache.solr.client.solrj.SolrClient;
+import org.mousephenotype.cda.solr.SolrUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 /**
@@ -26,6 +30,10 @@ import org.springframework.stereotype.Service;
 @Service
 public class SearchConfigAnatomy extends SearchConfigCore {
 
+    @Autowired
+    @Qualifier("anatomyCore")
+    protected SolrClient solr;
+
     @Override
     public String qf() {
         return "anatomyQf";
@@ -33,7 +41,7 @@ public class SearchConfigAnatomy extends SearchConfigCore {
 
     @Override
     public String fqStr() {
-        return "*:*";
+        return "+*:*";
     }
 
     @Override
@@ -51,11 +59,11 @@ public class SearchConfigAnatomy extends SearchConfigCore {
                 "selected_top_level_anatomy_term",
                 "selected_top_level_anatomy_id");
     }
-  
+
     @Override
     public List<String> facetFields() {
-        return Arrays.asList("selected_top_level_anatomy_term", "stage");        
-    }    
+        return Arrays.asList("selected_top_level_anatomy_term", "stage");
+    }
 
     @Override
     public String facetSort() {
@@ -77,4 +85,8 @@ public class SearchConfigAnatomy extends SearchConfigCore {
         return "&sort=term asc";
     }
 
+    @Override
+    public String solrUrl() {
+        return SolrUtils.getBaseURL(solr);
+    }
 }

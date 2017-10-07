@@ -402,7 +402,7 @@ public class FileExportController {
 						rows = iDisplayLength - (i * rows);
 					}
 
-					JSONObject json = searchController.fetchSearchResult(export, query, dataType, iDisplayStart, rows, showImgView, fqStr, model, request);
+					JSONObject json = searchController.fetchSearchResultOld(export, query, dataType, iDisplayStart, rows, showImgView, fqStr, model);
 
 					List<String> dr = new ArrayList<>();
 
@@ -417,7 +417,7 @@ public class FileExportController {
 					dataRows.addAll(dr);
 				}
 			} else {
-				JSONObject json = searchController.fetchSearchResult(export, query, dataType, iDisplayStart, iDisplayLength, showImgView, fqStr, model, request);
+				JSONObject json = searchController.fetchSearchResultOld(export, query, dataType, iDisplayStart, iDisplayLength, showImgView, fqStr, model);
 				dataRows = composeDataTableExportRows(query, dataType, json, iDisplayStart, iDisplayLength, showImgView,
 						solrFilters, request, legacyOnly, fqStr);
 

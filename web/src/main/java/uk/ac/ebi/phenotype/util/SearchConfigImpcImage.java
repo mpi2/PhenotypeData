@@ -17,6 +17,10 @@ package uk.ac.ebi.phenotype.util;
 
 import java.util.Arrays;
 import java.util.List;
+import org.apache.solr.client.solrj.SolrClient;
+import org.mousephenotype.cda.solr.SolrUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 /**
@@ -26,6 +30,10 @@ import org.springframework.stereotype.Service;
 @Service
 public class SearchConfigImpcImage extends SearchConfigCore {
 
+    @Autowired
+    @Qualifier("impcImagesCore")
+    protected SolrClient solr;
+
     @Override
     public String qf() {
         return "imgQf";
@@ -33,7 +41,7 @@ public class SearchConfigImpcImage extends SearchConfigCore {
 
     @Override
     public String fqStr() {
-        return "*:*";
+        return "+*:*";
     }
 
     @Override
@@ -54,9 +62,9 @@ public class SearchConfigImpcImage extends SearchConfigCore {
                 "thumbnail_url",
                 "download_url",
                 "parameter_association_name",
-                "parameter_association_value");        
+                "parameter_association_value");
     }
-   
+
     @Override
     public List<String> facetFields() {
         return Arrays.asList("procedure_name", "parameter_association_name_procedure_name",
@@ -71,8 +79,8 @@ public class SearchConfigImpcImage extends SearchConfigCore {
                 "intermediate_anatomy_term_synonym_anatomy_id_term",
                 "symbol_gene",
                 "marker_synonym_symbol_gene",
-                "stage");        
-    }    
+                "stage");
+    }
 
     @Override
     public String facetSort() {
@@ -94,4 +102,8 @@ public class SearchConfigImpcImage extends SearchConfigCore {
         return "";
     }
 
+    @Override
+    public String solrUrl() {
+        return SolrUtils.getBaseURL(solr);
+    }
 }

@@ -17,6 +17,10 @@ package uk.ac.ebi.phenotype.util;
 
 import java.util.Arrays;
 import java.util.List;
+import org.apache.solr.client.solrj.SolrClient;
+import org.mousephenotype.cda.solr.SolrUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 /**
@@ -24,16 +28,20 @@ import org.springframework.stereotype.Service;
  *
  */
 @Service
-public class SearchConfigPhenodigmDisease extends SearchConfigCore {
+public class SearchConfigPhenodigm2Disease extends SearchConfigCore {
+
+    @Autowired
+    @Qualifier("phenodigm2Core")
+    protected SolrClient solr;
 
     @Override
     public String qf() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return "disease_term";
     }
 
     @Override
     public String fqStr() {
-        return "type:disease";
+        return "+type:disease";
     }
 
     @Override
@@ -55,7 +63,7 @@ public class SearchConfigPhenodigmDisease extends SearchConfigCore {
     public List<String> facetFields() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
-   
+
     @Override
     public String facetSort() {
         return "count";
@@ -76,4 +84,8 @@ public class SearchConfigPhenodigmDisease extends SearchConfigCore {
         return "&sort=disease_term asc";
     }
 
+    @Override
+    public String solrUrl() {
+        return SolrUtils.getBaseURL(solr);
+    }
 }

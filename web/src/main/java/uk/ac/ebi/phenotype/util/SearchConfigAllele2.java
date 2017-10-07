@@ -17,6 +17,10 @@ package uk.ac.ebi.phenotype.util;
 
 import java.util.Arrays;
 import java.util.List;
+import org.apache.solr.client.solrj.SolrClient;
+import org.mousephenotype.cda.solr.SolrUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 /**
@@ -26,6 +30,10 @@ import org.springframework.stereotype.Service;
 @Service
 public class SearchConfigAllele2 extends SearchConfigCore {
 
+    @Autowired
+    @Qualifier("allele2Core")
+    protected SolrClient solr;
+
     @Override
     public String qf() {
         return "auto_suggest";
@@ -33,7 +41,7 @@ public class SearchConfigAllele2 extends SearchConfigCore {
 
     @Override
     public String fqStr() {
-        return "type:Allele";
+        return "+type:Allele";
     }
 
     @Override
@@ -69,13 +77,13 @@ public class SearchConfigAllele2 extends SearchConfigCore {
                 "targeting_vector_available",
                 "allele_category_str",
                 "allele_features_str");
-    }   
-    
+    }
+
     @Override
     public String facetSort() {
         return "count";
     }
-    
+
     @Override
     public List<String> gridHeaders() {
         return Arrays.asList("Allele Name", "Mutation", "<span id='porder'>Order</span><span id='pmap'>Map</span><span id='pseq'>Seq</span>");
@@ -91,4 +99,8 @@ public class SearchConfigAllele2 extends SearchConfigCore {
         return "&sort=allele_name asc";
     }
 
+    @Override
+    public String solrUrl() {
+        return SolrUtils.getBaseURL(solr);
+    }
 }

@@ -81,7 +81,7 @@ public class SolrServerConfig {
 
 	//Phenodigm server for our Web Status currently only
 	@Bean(name = "phenodigmCore")
-	public HttpSolrClient getPhenodigmCore() {
+	public HttpSolrClient getPhenodigm1Core() {
         //renamed old phenodigm core with an explicit 1 at the end
 		//return new HttpSolrClient(solrBaseUrl + "/phenodigm");
         return new HttpSolrClient(solrBaseUrl + "/phenodigm1");
