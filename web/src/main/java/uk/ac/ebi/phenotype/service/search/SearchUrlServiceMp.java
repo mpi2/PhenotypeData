@@ -13,7 +13,7 @@
  * language governing permissions and limitations under the
  * License.
  ****************************************************************************** */
-package uk.ac.ebi.phenotype.util;
+package uk.ac.ebi.phenotype.service.search;
 
 import java.util.Arrays;
 import java.util.List;
@@ -24,83 +24,72 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 /**
- * Support for solr search queries for core "allele2"
+ * Support for solr search queries for core "mp"
  *
  */
 @Service
-public class SearchConfigAllele2 extends SearchConfigCore {
+public class SearchUrlServiceMp extends SearchUrlService {
 
     @Autowired
-    @Qualifier("allele2Core")
-    protected SolrClient solr;
+    @Qualifier("mpCore")
+    private SolrClient solr;
 
     @Override
     public String qf() {
-        return "auto_suggest";
+        return "mixSynQf";
     }
 
     @Override
     public String fqStr() {
-        return "+type:Allele";
+        return "+*:*";
     }
 
     @Override
     public String bq(String q) {
-        return "allele_name:(" + q + ")^500";
+        if (q.equals("*:*") || q.equals("*")) {
+            return "mp_term:\"male infertility\" ^100"
+                    + " mp_term:\"female infertility\" ^100"
+                    + " mp_term:infertility ^90";
+        } else {
+            return "mp_term:(" + q + ")^1000"
+                    + " mp_term_synonym:(" + q + ")^500"
+                    + " mp_definition:(" + q + ")^100";
+        }
     }
 
     @Override
     public List<String> fieldList() {
-        return Arrays.asList("marker_symbol",
-                "mgi_accession_id",
-                "allele_name",
-                "marker_name",
-                "marker_synonym",
-                "allele_description",
-                "allele_simple_image", // es cell and mouse vector (gene map)
-                "vector_allele_image", // targeting vector map
-                "genbank_file", // for es cells / mouse
-                "vector_genbank_file", // for vector
-                "mutation_type",
-                "es_cell_available",
-                "mouse_available",
-                "targeting_vector_available",
-                "allele_category"
-        );
+        return Arrays.asList("mp_id", "mp_term", "mixSynQf", "mp_definition");
     }
 
     @Override
     public List<String> facetFields() {
-        return Arrays.asList("mutation_type_str",
-                "es_cell_available",
-                "mouse_available",
-                "targeting_vector_available",
-                "allele_category_str",
-                "allele_features_str");
+        return Arrays.asList("top_level_mp_term_inclusive");
     }
 
     @Override
     public String facetSort() {
-        return "count";
+        return "index";
     }
 
     @Override
     public List<String> gridHeaders() {
-        return Arrays.asList("Allele Name", "Mutation", "<span id='porder'>Order</span><span id='pmap'>Map</span><span id='pseq'>Seq</span>");
+        return Arrays.asList("Phenotype", "Definition", "Ontology<br/>Tree", "Register");
     }
 
     @Override
     public String breadcrumLabel() {
-        return "Products";
+        return "Phenotypes";
     }
 
     @Override
     public String sortingStr() {
-        return "&sort=allele_name asc";
+        return "&sort=mp_term asc";
     }
 
     @Override
     public String solrUrl() {
         return SolrUtils.getBaseURL(solr);
     }
+
 }

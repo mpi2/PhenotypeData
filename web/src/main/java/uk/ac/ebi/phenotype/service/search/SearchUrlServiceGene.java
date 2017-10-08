@@ -13,7 +13,7 @@
  * language governing permissions and limitations under the
  * License.
  ****************************************************************************** */
-package uk.ac.ebi.phenotype.util;
+package uk.ac.ebi.phenotype.service.search;
 
 import java.util.Arrays;
 import java.util.List;
@@ -24,44 +24,64 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 /**
- * Support for solr search queries for core "phenodigm"
+ * Support for solr search queries for core "gene"
  *
  */
 @Service
-public class SearchConfigPhenodigm2Disease extends SearchConfigCore {
+public class SearchUrlServiceGene extends SearchUrlService {
 
     @Autowired
-    @Qualifier("phenodigm2Core")
+    @Qualifier("geneCore")
     protected SolrClient solr;
 
     @Override
     public String qf() {
-        return "disease_term";
+        return "geneQf";
     }
 
     @Override
     public String fqStr() {
-        return "+type:disease";
+        return "+*:*";
     }
 
     @Override
     public String bq(String q) {
-        return "disease_term:(" + q + ")^1000"
-                + " disease_alts:(" + q + ")^700"
-                + " disease_source:(" + q + ")^200";
+        return "marker_symbol_lowercase:(" + q + ")^1000"
+                + " marker_symbol_bf:(" + q + ")^100"
+                + " latest_phenotype_status:\"Phenotyping Complete\" ^200";
     }
 
     @Override
     public List<String> fieldList() {
-        return Arrays.asList("disease_id",
-                "disease_term",
-                "disease_source",
-                "disease_classes");
+        return Arrays.asList(
+                "marker_symbol",
+                "mgi_accession_id",
+                "marker_synonym",
+                "marker_name",
+                "marker_type",
+                "human_gene_symbol",
+                "latest_es_cell_status",
+                "latest_production_status",
+                "latest_phenotype_status",
+                "status",
+                "es_cell_status",
+                "mouse_status",
+                "legacy_phenotype_status",
+                "allele_name");
     }
 
     @Override
     public List<String> facetFields() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return Arrays.asList("latest_phenotype_status",
+                "legacy_phenotype_status",
+                "status",
+                "latest_production_centre",
+                "latest_phenotyping_centre",
+                "marker_type",
+                "embryo_data_available",
+                "embryo_modalities",
+                "embryo_analysis_view_name"
+        );
     }
 
     @Override
@@ -71,17 +91,17 @@ public class SearchConfigPhenodigm2Disease extends SearchConfigCore {
 
     @Override
     public List<String> gridHeaders() {
-        return Arrays.asList("Disease", "Source");
+        return Arrays.asList("Gene", "Production", "Phenotype", "Register");
     }
 
     @Override
     public String breadcrumLabel() {
-        return "Diseases";
+        return "Genes";
     }
 
     @Override
     public String sortingStr() {
-        return "&sort=disease_term asc";
+        return "&sort=marker_symbol asc";
     }
 
     @Override

@@ -13,7 +13,7 @@
  * language governing permissions and limitations under the
  * License.
  ****************************************************************************** */
-package uk.ac.ebi.phenotype.util;
+package uk.ac.ebi.phenotype.service.search;
 
 import java.util.Arrays;
 import java.util.List;
@@ -24,82 +24,79 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 /**
- * Support for solr search queries for core "impc_images"
+ * Support for solr search queries for core "allele2"
  *
  */
 @Service
-public class SearchConfigImpcImage extends SearchConfigCore {
+public class SearchUrlServiceAllele2 extends SearchUrlService {
 
     @Autowired
-    @Qualifier("impcImagesCore")
+    @Qualifier("allele2Core")
     protected SolrClient solr;
 
     @Override
     public String qf() {
-        return "imgQf";
+        return "auto_suggest";
     }
 
     @Override
     public String fqStr() {
-        return "+*:*";
+        return "+type:Allele";
     }
 
     @Override
     public String bq(String q) {
-        return "procedure_name:(" + q + ")^500"
-                + " gene_symbol:(" + q + ")^500";
+        return "allele_name:(" + q + ")^500";
     }
 
     @Override
     public List<String> fieldList() {
-        return Arrays.asList("omero_id",
-                "procedure_name",
-                "gene_symbol",
-                "gene_accession_id",
-                "anatomy_term",
-                "anatomy_id",
-                "jpeg_url",
-                "thumbnail_url",
-                "download_url",
-                "parameter_association_name",
-                "parameter_association_value");
+        return Arrays.asList("marker_symbol",
+                "mgi_accession_id",
+                "allele_name",
+                "marker_name",
+                "marker_synonym",
+                "allele_description",
+                "allele_simple_image", // es cell and mouse vector (gene map)
+                "vector_allele_image", // targeting vector map
+                "genbank_file", // for es cells / mouse
+                "vector_genbank_file", // for vector
+                "mutation_type",
+                "es_cell_available",
+                "mouse_available",
+                "targeting_vector_available",
+                "allele_category"
+        );
     }
 
     @Override
     public List<String> facetFields() {
-        return Arrays.asList("procedure_name", "parameter_association_name_procedure_name",
-                "anatomy_id_term",
-                "anatomy_term_synonym_anatomy_id_term",
-                "selected_top_level_anatomy_term",
-                "selected_top_level_anatomy_id_anatomy_id_term",
-                "selected_top_level_anatomy_term_anatomy_id_term",
-                "selected_top_level_anatomy_term_synonym_anatomy_id_term",
-                "intermediate_anatomy_id_anatomy_id_term",
-                "intermediate_anatomy_term_anatomy_id_term",
-                "intermediate_anatomy_term_synonym_anatomy_id_term",
-                "symbol_gene",
-                "marker_synonym_symbol_gene",
-                "stage");
+        return Arrays.asList("mutation_type_str",
+                "es_cell_available",
+                "mouse_available",
+                "targeting_vector_available",
+                "allele_category_str",
+                "allele_features_str");
     }
 
     @Override
     public String facetSort() {
-        return "index";
+        return "count";
     }
 
     @Override
     public List<String> gridHeaders() {
-        return Arrays.asList("Name", "Images");
+        return Arrays.asList("Allele Name", "Mutation", "<span id='porder'>Order</span><span id='pmap'>Map</span><span id='pseq'>Seq</span>");
     }
 
     @Override
     public String breadcrumLabel() {
-        return "IMPC Images";
+        return "Products";
     }
 
     @Override
     public String sortingStr() {
-        return "";
+        return "&sort=allele_name asc";
     }
 
     @Override

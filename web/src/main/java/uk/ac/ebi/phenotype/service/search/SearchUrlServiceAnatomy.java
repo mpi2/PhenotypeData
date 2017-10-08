@@ -13,7 +13,7 @@
  * language governing permissions and limitations under the
  * License.
  ****************************************************************************** */
-package uk.ac.ebi.phenotype.util;
+package uk.ac.ebi.phenotype.service.search;
 
 import java.util.Arrays;
 import java.util.List;
@@ -24,19 +24,19 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 /**
- * Support for solr search queries for core "mp"
+ * Support for solr search queries for core "gene"
  *
  */
 @Service
-public class SearchConfigMp extends SearchConfigCore {
+public class SearchUrlServiceAnatomy extends SearchUrlService {
 
     @Autowired
-    @Qualifier("mpCore")
-    private SolrClient solr;
+    @Qualifier("anatomyCore")
+    protected SolrClient solr;
 
     @Override
     public String qf() {
-        return "mixSynQf";
+        return "anatomyQf";
     }
 
     @Override
@@ -46,25 +46,23 @@ public class SearchConfigMp extends SearchConfigCore {
 
     @Override
     public String bq(String q) {
-        if (q.equals("*:*") || q.equals("*")) {
-            return "mp_term:\"male infertility\" ^100"
-                    + " mp_term:\"female infertility\" ^100"
-                    + " mp_term:infertility ^90";
-        } else {
-            return "mp_term:(" + q + ")^1000"
-                    + " mp_term_synonym:(" + q + ")^500"
-                    + " mp_definition:(" + q + ")^100";
-        }
+        return "anatomy_term:(" + q + ")^1000"
+                + " anatomy_term_synonym:(" + q + ")^500";
     }
 
     @Override
     public List<String> fieldList() {
-        return Arrays.asList("mp_id", "mp_term", "mixSynQf", "mp_definition");
+        return Arrays.asList("anatomy_id",
+                "anatomy_term",
+                "anatomy_term_synonym",
+                "stage",
+                "selected_top_level_anatomy_term",
+                "selected_top_level_anatomy_id");
     }
 
     @Override
     public List<String> facetFields() {
-        return Arrays.asList("top_level_mp_term_inclusive");
+        return Arrays.asList("selected_top_level_anatomy_term", "stage");
     }
 
     @Override
@@ -74,22 +72,22 @@ public class SearchConfigMp extends SearchConfigCore {
 
     @Override
     public List<String> gridHeaders() {
-        return Arrays.asList("Phenotype", "Definition", "Ontology<br/>Tree", "Register");
+        return Arrays.asList("Anatomy", "Stage", "LacZ Expression Data", "Ontology<br/>Tree");
     }
 
     @Override
     public String breadcrumLabel() {
-        return "Phenotypes";
+        return "Anatomy";
     }
 
     @Override
     public String sortingStr() {
-        return "&sort=mp_term asc";
+        return "&sort=term asc";
     }
 
     @Override
     public String solrUrl() {
         return SolrUtils.getBaseURL(solr);
     }
-
+    
 }

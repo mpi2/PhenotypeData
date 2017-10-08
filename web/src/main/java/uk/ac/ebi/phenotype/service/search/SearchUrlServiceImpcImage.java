@@ -13,7 +13,7 @@
  * language governing permissions and limitations under the
  * License.
  ****************************************************************************** */
-package uk.ac.ebi.phenotype.util;
+package uk.ac.ebi.phenotype.service.search;
 
 import java.util.Arrays;
 import java.util.List;
@@ -24,19 +24,19 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 /**
- * Support for solr search queries for core "gene"
+ * Support for solr search queries for core "impc_images"
  *
  */
 @Service
-public class SearchConfigGene extends SearchConfigCore {
+public class SearchUrlServiceImpcImage extends SearchUrlService {
 
     @Autowired
-    @Qualifier("geneCore")
+    @Qualifier("impcImagesCore")
     protected SolrClient solr;
 
     @Override
     public String qf() {
-        return "geneQf";
+        return "imgQf";
     }
 
     @Override
@@ -46,62 +46,60 @@ public class SearchConfigGene extends SearchConfigCore {
 
     @Override
     public String bq(String q) {
-        return "marker_symbol_lowercase:(" + q + ")^1000"
-                + " marker_symbol_bf:(" + q + ")^100"
-                + " latest_phenotype_status:\"Phenotyping Complete\" ^200";
+        return "procedure_name:(" + q + ")^500"
+                + " gene_symbol:(" + q + ")^500";
     }
 
     @Override
     public List<String> fieldList() {
-        return Arrays.asList(
-                "marker_symbol",
-                "mgi_accession_id",
-                "marker_synonym",
-                "marker_name",
-                "marker_type",
-                "human_gene_symbol",
-                "latest_es_cell_status",
-                "latest_production_status",
-                "latest_phenotype_status",
-                "status",
-                "es_cell_status",
-                "mouse_status",
-                "legacy_phenotype_status",
-                "allele_name");
+        return Arrays.asList("omero_id",
+                "procedure_name",
+                "gene_symbol",
+                "gene_accession_id",
+                "anatomy_term",
+                "anatomy_id",
+                "jpeg_url",
+                "thumbnail_url",
+                "download_url",
+                "parameter_association_name",
+                "parameter_association_value");
     }
 
     @Override
     public List<String> facetFields() {
-        return Arrays.asList("latest_phenotype_status",
-                "legacy_phenotype_status",
-                "status",
-                "latest_production_centre",
-                "latest_phenotyping_centre",
-                "marker_type",
-                "embryo_data_available",
-                "embryo_modalities",
-                "embryo_analysis_view_name"
-        );
+        return Arrays.asList("procedure_name", "parameter_association_name_procedure_name",
+                "anatomy_id_term",
+                "anatomy_term_synonym_anatomy_id_term",
+                "selected_top_level_anatomy_term",
+                "selected_top_level_anatomy_id_anatomy_id_term",
+                "selected_top_level_anatomy_term_anatomy_id_term",
+                "selected_top_level_anatomy_term_synonym_anatomy_id_term",
+                "intermediate_anatomy_id_anatomy_id_term",
+                "intermediate_anatomy_term_anatomy_id_term",
+                "intermediate_anatomy_term_synonym_anatomy_id_term",
+                "symbol_gene",
+                "marker_synonym_symbol_gene",
+                "stage");
     }
 
     @Override
     public String facetSort() {
-        return "count";
+        return "index";
     }
 
     @Override
     public List<String> gridHeaders() {
-        return Arrays.asList("Gene", "Production", "Phenotype", "Register");
+        return Arrays.asList("Name", "Images");
     }
 
     @Override
     public String breadcrumLabel() {
-        return "Genes";
+        return "IMPC Images";
     }
 
     @Override
     public String sortingStr() {
-        return "&sort=marker_symbol asc";
+        return "";
     }
 
     @Override

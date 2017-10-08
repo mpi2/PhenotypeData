@@ -13,19 +13,22 @@
  * language governing permissions and limitations under the
  * License.
  ****************************************************************************** */
-package uk.ac.ebi.phenotype.util;
+package uk.ac.ebi.phenotype.service.search;
 
 import java.util.List;
 import org.apache.commons.lang.StringUtils;
 
 /**
- * Functionality for creating solr search queries for a particular solr core.
+ * A template for a classes creating url strings for searching solr cores. Class
+ * that extend this abstract class will provide functions that will build search
+ * strings that are specific for a solr core or specific to a type of query.
+ *
  *
  *
  * TO DO: more detailed docs on each function. Perhaps eliminate some of them.
  *
  */
-public abstract class SearchConfigCore {
+public abstract class SearchUrlService {
 
     public String defType() {
         return "edismax";
@@ -78,14 +81,14 @@ public abstract class SearchConfigCore {
     public abstract String sortingStr();
 
     public abstract String solrUrl();
-   
+
     /**
-     * Produce a suffix to a solr search query. 
-     * 
-     * The default is to add no suffix. Individual cores can override this function
-     * to add core-specific twists. 
-     * 
-     * @return 
+     * Produce a suffix to a solr search query.
+     *
+     * The default is to add no suffix. Individual cores can override this
+     * function to add core-specific twists.
+     *
+     * @return
      */
     public String querySuffix() {
         return "";
@@ -142,10 +145,10 @@ public abstract class SearchConfigCore {
 
     /**
      * Create a simple solr query tring. This applies the default settings from
- the SearchConfig class and the user's query and custom filter.
-
- The query is simple in that it returns everything; use getGridQueryStr to
- introduce faceting and field lists.
+     * the SearchConfig class and the user's query and custom filter.
+     *
+     * The query is simple in that it returns everything; use getGridQueryStr to
+     * introduce faceting and field lists.
      *
      * @param query
      *

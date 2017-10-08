@@ -28,17 +28,10 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import uk.ac.ebi.phenotype.util.SearchConfigAllele2;
-import uk.ac.ebi.phenotype.util.SearchConfigAnatomy;
-import uk.ac.ebi.phenotype.util.SearchConfigCore;
-import uk.ac.ebi.phenotype.util.SearchConfigDisease;
-import uk.ac.ebi.phenotype.util.SearchConfigGene;
-import uk.ac.ebi.phenotype.util.SearchConfigMp;
-import uk.ac.ebi.phenotype.util.SearchConfigPhenodigm2Disease;
+import uk.ac.ebi.phenotype.service.search.SearchUrlService;
+import uk.ac.ebi.phenotype.service.search.SearchUrlServiceFactory;
 import uk.ac.ebi.phenotype.util.SearchSettings;
 
 /**
@@ -55,54 +48,14 @@ public class SearchController {
     @Autowired
     private SolrIndex solrIndex;
 
-    // query building tools - one for each search type
     @Autowired
-    private SearchConfigAllele2 searchConfigAllele2;
-
-    @Autowired
-    private SearchConfigAnatomy searchConfigAnatomy;
-
-    @Autowired
-    private SearchConfigDisease searchConfigDisease;
-
-    @Autowired
-    private SearchConfigGene searchConfigGene;
-
-    @Autowired
-    private SearchConfigMp searchConfigImpcImage;
-
-    @Autowired
-    private SearchConfigMp searchConfigMp;
-
-    @Autowired
-    private SearchConfigPhenodigm2Disease searchConfigPhenodigm2Disease;
+    private SearchUrlServiceFactory searchFactory;
 
     @Autowired
     private DataTableController dataTableController;
 
     @Autowired
     private QueryBrokerController queryBrokerController;
-
-    private SearchConfigCore selectSearchConfig(String coreName) {
-        switch (coreName) {
-            case "gene":
-                return searchConfigGene;
-            case "mp":
-                return searchConfigMp;
-            case "disease":
-                return searchConfigDisease;
-            case "phenodigm2":
-                return searchConfigPhenodigm2Disease;
-            case "anatomy":
-                return searchConfigAnatomy;
-            case "impc_images":
-                return searchConfigImpcImage;
-            case "allele2":
-                return searchConfigAllele2;
-            default:
-                return null;
-        }
-    }
 
     /**
      * redirect calls to the base url or /search/ path to the search page
@@ -134,7 +87,8 @@ public class SearchController {
 
         LOGGER.info("*** searchAll ***");
         SearchSettings settings = new SearchSettings("gene", "*", null);
-        return processSearch(settings, request, model);
+        processSearch(settings, request, model);
+        return "search";
     }
 
     /**
@@ -207,7 +161,10 @@ public class SearchController {
         settings.setDisplay(iDisplayStart, iDisplayLength);
         LOGGER.info("search settings: " + settings.toString());
 
-        return processSearch(settings, request, model);
+        // perform the query processing
+        processSearch(settings, request, model);
+
+        return "search";
     }
 
     /**
@@ -262,10 +219,23 @@ public class SearchController {
         return "search";
     }
      */
-    private String processSearch(SearchSettings settings, HttpServletRequest request, Model model) throws IOException, URISyntaxException {
+    /**
+     *
+     * @param settings
+     * @param request
+     *
+     * Try to remove this from the argument list?
+     *
+     * @param model
+     * @return
+     * @throws IOException
+     * @throws URISyntaxException
+     */
+    private void processSearch(SearchSettings settings, HttpServletRequest request, Model model) throws IOException, URISyntaxException {
 
         String paramString = request.getQueryString();
         LOGGER.info("processSearch: request querystring: " + paramString);
+        LOGGER.info("processSearch: settings query: " + settings.getQuery());
 
         // calculate facets using old code
         JSONObject facetCountJsonResponse = fetchAllFacetCounts(settings.getDataType(),
@@ -282,20 +252,22 @@ public class SearchController {
         model.addAttribute("dataTypeParams", paramString);
 
         // extract the hits using old code
-        Boolean export = false;
+        //Boolean export = false;
         //JSONObject json = fetchSearchResultOld(export, settings.getQuery(), settings.getDataType(),
         //        settings.getiDisplayStart(), settings.getiDisplayLength(), settings.isImgView(),
         //        settings.getFqStr(), model);
         //LOGGER.info("fetchSearchResultOld gave result:\n" + json.toString(2));
+        // record summary of the search into the model
+        SearchUrlService searchservice = searchFactory.getService(settings.getDataType());
+        model.addAttribute("dataTypeLabel", searchservice.breadcrumLabel());
+        model.addAttribute("gridHeaderListStr", searchservice.gridHeadersStr());
+        // perform the query, i.e. gather the hits from the solr
+        JSONObject searchHits = fetchSearchResult(searchservice, settings, true);
+        //LOGGER.info("fetchSearchResultNew gave result:\n" + searchHits.toString(2));
 
-        // extract hits using new code        
-        JSONObject searchHits = fetchSearchResult(export, settings, model);
-        LOGGER.info("fetchSearchResultNew gave result:\n" + searchHits.toString(2));
-
-        model.addAttribute("jsonStr", convert2DataTableJson(export, request, searchHits,
+        model.addAttribute("jsonStr", convert2DataTableJson(false, request, searchHits,
                 settings.getQuery(), settings.getFqStr(), settings.getiDisplayStart(), settings.getiDisplayLength(), settings.isImgView(), settings.getDataType()));
 
-        return "search";
     }
 
     /**
@@ -331,9 +303,9 @@ public class SearchController {
     }
 
     /**
-     * Fetch information from solr to satisfy the search query.
+     * Fetch information from solr. This function should be deprecated, but it
+     * still used in FileExportController.
      *
-     * (This is also used for FileExport, hence public)
      *
      * @param export
      * @param query
@@ -349,30 +321,32 @@ public class SearchController {
      */
     public JSONObject fetchSearchResultOld(Boolean export, String query, String dataType, Integer iDisplayStart, Integer iDisplayLength, Boolean showImgView, String fqStr, Model model) throws IOException, URISyntaxException {
 
-        // facet filter on the left panel of search page 
-        SearchConfigCore config = selectSearchConfig(dataType);
+        // facet filter on the left panel of search page         
+        SearchUrlService config = searchFactory.getService(dataType);
         model.addAttribute("dataTypeLabel", config.breadcrumLabel());
         model.addAttribute("gridHeaderListStr", config.gridHeadersStr());
 
         // results on the right panel of search page
         String solrParamStr = composeSolrParamStr(export, query, fqStr, dataType);
-        LOGGER.info("fetchSearchResultOld:\n-- solrParamStr: " + solrParamStr);
 
         String mode = dataType + "Grid";
-        //Integer iDisplayStart = (Integer) request.getAttribute("iDisplayStart");
-        //Integer iDisplayLength = (Integer) request.getAttribute("iDisplayLength");
         JSONObject json = solrIndex.getQueryJson(query, dataType, solrParamStr, mode, iDisplayStart, iDisplayLength, showImgView);
-        //LOGGER.info("fetchSearchResult: " + json.toString(2));
         return json;
     }
 
-    public JSONObject fetchSearchResult(Boolean export, SearchSettings settings, Model model) throws IOException, URISyntaxException {
-
-        // facet filter on the left panel of search page
-        String dataType = settings.getDataType();
-        SearchConfigCore config = selectSearchConfig(dataType);
-        model.addAttribute("dataTypeLabel", config.breadcrumLabel());
-        model.addAttribute("gridHeaderListStr", config.gridHeadersStr());
+    /**
+     *
+     * @param searchservice
+     * @param settings
+     * @param facet
+     *
+     * determine if result should include faceting
+     *
+     * @return
+     * @throws IOException
+     * @throws URISyntaxException
+     */
+    public JSONObject fetchSearchResult(SearchUrlService searchservice, SearchSettings settings, Boolean facet) throws IOException, URISyntaxException {
 
         // results on the right panel of search page
         //String solrParamStrOld = composeSolrParamStr(export, settings.getQuery(), settings.getFqStr(), dataType);
@@ -381,27 +355,26 @@ public class SearchController {
         //JSONObject json = solrIndex.getQueryJson(settings.getQuery(), dataType, solrParamStrOld, mode,
         //        settings.getiDisplayStart(), settings.getiDisplayLength(), settings.isImgView());
         //LOGGER.info("\n\n +++ output was "+json.toString(2));
-        
-        // create and execute a solr query to fetch the main page results
-        String queryUrl = config.getGridQueryUrl(settings.getQuery(),
+        // create and execute a solr query to fetch results
+        String queryUrl = searchservice.getGridQueryUrl(settings.getQuery(),
                 settings.getFqStr(),
                 settings.getiDisplayStart(), settings.getiDisplayLength(),
-                true);
+                facet);
         LOGGER.info("fetchSearchResult (new):\n - newQueryStr: " + queryUrl + "\n");
         JSONObject result = queryBrokerController.runQuery(queryUrl);
         //LOGGER.info("\n\n +++ output new was: "+result.toString(2));
-                
+
         return result;
     }
-
+    
     public String composeSolrParamStr(Boolean export, String query, String fqStr, String dataType) {
 
-        SearchConfigCore config = selectSearchConfig(dataType);
+        SearchUrlService config = searchFactory.getService(dataType);
         String qfStr = "&qf=" + config.qf();
         String defTypeStr = "&defType=" + config.defType();
         String facetStr = config.facetFieldsSolrStr();
         String flStr = "&fl=" + StringUtils.join(config.fieldList(), ",");
-        String bqStr = "&bq="+config.bq(query);
+        String bqStr = "&bq=" + config.bq(query);
 
         // extra bq for anatomy and mp with facet filter
         if (dataType.equals("mp") || dataType.equals("anatomy")) {
@@ -445,7 +418,7 @@ public class SearchController {
         List<String> cores = Arrays.asList(new String[]{"gene", "mp", "disease", "anatomy", "impc_images", "allele2"});
         for (int i = 0; i < cores.size(); i++) {
             String thisCore = cores.get(i);
-            SearchConfigCore config = selectSearchConfig(thisCore);
+            SearchUrlService config = searchFactory.getService(thisCore);
             String qfDefTypeWt = "&qf=" + config.qf() + "&defType=" + config.defType() + "&wt=json";
             String thisFqStr;
             if (thisCore.equals(dataType)) {
@@ -498,10 +471,10 @@ public class SearchController {
         JSONObject queries = new JSONObject();
         String dataType = settings.getDataType();
 
-        List<String> cores = Arrays.asList(new String[]{"gene", "mp", "disease", "phenodigm2", "anatomy", "impc_images", "allele2"});
+        List<String> cores = Arrays.asList(new String[]{"gene", "mp", "disease", "phenodigm2disease", "anatomy", "impc_images", "allele2"});
         for (int i = 0; i < cores.size(); i++) {
             String thisCore = cores.get(i);
-            SearchConfigCore config = selectSearchConfig(thisCore);
+            SearchUrlService config = searchFactory.getService(thisCore);
 
             // apply custom filter on its intended core type
             String customFqStr = "";

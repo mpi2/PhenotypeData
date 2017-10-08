@@ -13,7 +13,7 @@
  * language governing permissions and limitations under the
  * License.
  ****************************************************************************** */
-package uk.ac.ebi.phenotype.util;
+package uk.ac.ebi.phenotype.service.search;
 
 import java.util.Arrays;
 import java.util.List;
@@ -24,24 +24,24 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 /**
- * Support for solr search queries for core "disease"
+ * Support for solr search queries for core "phenodigm"
  *
  */
 @Service
-public class SearchConfigDisease extends SearchConfigCore {
+public class SearchUrlServicePhenodigm2Disease extends SearchUrlService {
 
     @Autowired
-    @Qualifier("diseaseCore")
+    @Qualifier("phenodigm2Core")
     protected SolrClient solr;
 
     @Override
     public String qf() {
-        return "diseaseQf";
+        return "disease_term";
     }
 
     @Override
     public String fqStr() {
-        return "+*:*";
+        return "+type:disease";
     }
 
     @Override
@@ -56,31 +56,12 @@ public class SearchConfigDisease extends SearchConfigCore {
         return Arrays.asList("disease_id",
                 "disease_term",
                 "disease_source",
-                "disease_classes",
-                "human_curated",
-                "mouse_curated",
-                "impc_predicted_known_gene",
-                "mgi_predicted_known_gene",
-                "impc_predicted",
-                "impc_novel_predicted_in_locus",
-                "mgi_predicted",
-                "mgi_novel_predicted_in_locus",
-                "marker_symbol",
-                "mgi_accession_id");
+                "disease_classes");
     }
 
     @Override
     public List<String> facetFields() {
-        return Arrays.asList("disease_source",
-                "disease_classes",
-                "human_curated",
-                "mouse_curated",
-                "impc_predicted_known_gene",
-                "mgi_predicted_known_gene",
-                "impc_predicted",
-                "impc_novel_predicted_in_locus",
-                "mgi_predicted",
-                "mgi_novel_predicted_in_locus");
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override

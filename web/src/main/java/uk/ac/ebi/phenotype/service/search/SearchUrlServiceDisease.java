@@ -13,7 +13,7 @@
  * language governing permissions and limitations under the
  * License.
  ****************************************************************************** */
-package uk.ac.ebi.phenotype.util;
+package uk.ac.ebi.phenotype.service.search;
 
 import java.util.Arrays;
 import java.util.List;
@@ -24,19 +24,19 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 /**
- * Support for solr search queries for core "gene"
+ * Support for solr search queries for core "disease"
  *
  */
 @Service
-public class SearchConfigAnatomy extends SearchConfigCore {
+public class SearchUrlServiceDisease extends SearchUrlService {
 
     @Autowired
-    @Qualifier("anatomyCore")
+    @Qualifier("diseaseCore")
     protected SolrClient solr;
 
     @Override
     public String qf() {
-        return "anatomyQf";
+        return "diseaseQf";
     }
 
     @Override
@@ -46,48 +46,65 @@ public class SearchConfigAnatomy extends SearchConfigCore {
 
     @Override
     public String bq(String q) {
-        return "anatomy_term:(" + q + ")^1000"
-                + " anatomy_term_synonym:(" + q + ")^500";
+        return "disease_term:(" + q + ")^1000"
+                + " disease_alts:(" + q + ")^700"
+                + " disease_source:(" + q + ")^200";
     }
 
     @Override
     public List<String> fieldList() {
-        return Arrays.asList("anatomy_id",
-                "anatomy_term",
-                "anatomy_term_synonym",
-                "stage",
-                "selected_top_level_anatomy_term",
-                "selected_top_level_anatomy_id");
+        return Arrays.asList("disease_id",
+                "disease_term",
+                "disease_source",
+                "disease_classes",
+                "human_curated",
+                "mouse_curated",
+                "impc_predicted_known_gene",
+                "mgi_predicted_known_gene",
+                "impc_predicted",
+                "impc_novel_predicted_in_locus",
+                "mgi_predicted",
+                "mgi_novel_predicted_in_locus",
+                "marker_symbol",
+                "mgi_accession_id");
     }
 
     @Override
     public List<String> facetFields() {
-        return Arrays.asList("selected_top_level_anatomy_term", "stage");
+        return Arrays.asList("disease_source",
+                "disease_classes",
+                "human_curated",
+                "mouse_curated",
+                "impc_predicted_known_gene",
+                "mgi_predicted_known_gene",
+                "impc_predicted",
+                "impc_novel_predicted_in_locus",
+                "mgi_predicted",
+                "mgi_novel_predicted_in_locus");
     }
 
     @Override
     public String facetSort() {
-        return "index";
+        return "count";
     }
 
     @Override
     public List<String> gridHeaders() {
-        return Arrays.asList("Anatomy", "Stage", "LacZ Expression Data", "Ontology<br/>Tree");
+        return Arrays.asList("Disease", "Source");
     }
 
     @Override
     public String breadcrumLabel() {
-        return "Anatomy";
+        return "Diseases";
     }
 
     @Override
     public String sortingStr() {
-        return "&sort=term asc";
+        return "&sort=disease_term asc";
     }
 
     @Override
     public String solrUrl() {
         return SolrUtils.getBaseURL(solr);
     }
-    
 }
