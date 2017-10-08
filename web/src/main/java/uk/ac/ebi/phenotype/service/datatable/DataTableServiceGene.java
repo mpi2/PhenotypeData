@@ -21,35 +21,36 @@ import javax.servlet.http.HttpServletRequest;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
-import org.apache.solr.client.solrj.SolrClient;
 import org.mousephenotype.cda.solr.generic.util.Tools;
 import org.mousephenotype.cda.solr.service.GeneService;
 import org.mousephenotype.cda.solr.service.dto.GeneDTO;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import uk.ac.ebi.phenotype.generic.util.RegisterInterestDrupalSolr;
 import uk.ac.ebi.phenotype.util.SearchSettings;
 
 /**
- * Code mostly refactored from older version of DataTableController
+ * Code mostly refactored from DataTableController
  *
- * ! UNTESTED !
+ * Seems to work, but needs more testing.
  * 
  */
 @Service
 public class DataTableServiceGene extends DataTableService {
-
-    @Autowired
-    @Qualifier("geneCore")
-    protected SolrClient solr;
-
+   
     @Autowired
 	private GeneService geneService;
     
+    /**
+     * Most of the code copied from parseJsonforGeneDataTable
+     * 
+     * @param json
+     * @param settings
+     * @return 
+     */
     @Override
     public String toDataTable(JSONObject json, SearchSettings settings) {
-        
+                        
         HttpServletRequest request = settings.getRequest();
         RegisterInterestDrupalSolr registerInterest = new RegisterInterestDrupalSolr(config.get("drupalBaseUrl"), request);
 
@@ -140,11 +141,11 @@ public class DataTableServiceGene extends DataTableService {
 		JSONObject facetFields = json.getJSONObject("facet_counts").getJSONObject("facet_fields");
 
 		//facetFields.
-		j.put("facet_fields", facetFields);                
+		j.put("facet_fields", facetFields);                                
         
 		return j.toString();
-    }
-
+    }    
+    
     /**
      * Copied verbatim from DataTableController.java 
      * 
@@ -246,5 +247,4 @@ public class DataTableServiceGene extends DataTableService {
 				+ "</div>";
 
 	}
-    
 }

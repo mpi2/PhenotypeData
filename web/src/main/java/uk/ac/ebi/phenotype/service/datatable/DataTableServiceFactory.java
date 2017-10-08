@@ -13,7 +13,7 @@
  * language governing permissions and limitations under the
  * License.
  ****************************************************************************** */
-package uk.ac.ebi.phenotype.service.search;
+package uk.ac.ebi.phenotype.service.datatable;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,54 +21,40 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
- * Factory class for services generating solr search urls.
+ * Factory class for services html and datatable strings from solr results
  *
  */
 @Service
-public class SearchUrlServiceFactory {
+public class DataTableServiceFactory {
 
     private final Logger LOGGER = LoggerFactory.getLogger(this.getClass().getCanonicalName());
+
+    @Autowired
+    private DataTableServiceGene dtsGene;
+
+    @Autowired
+    private DataTableServiceAllele2 dtsAllele;
+
+    @Autowired
+    private DataTableServiceMp dtsMp;
+
+    @Autowired
+    private DataTableServiceDisease dtsDisease;
     
-    @Autowired
-    private SearchUrlServiceAllele2 searchConfigAllele2;
-
-    @Autowired
-    private SearchUrlServiceAnatomy searchConfigAnatomy;
-
-    @Autowired
-    private SearchUrlServiceDisease searchConfigDisease;
-
-    @Autowired
-    private SearchUrlServiceGene searchConfigGene;
-
-    @Autowired
-    private SearchUrlServiceMp searchConfigImpcImage;
-
-    @Autowired
-    private SearchUrlServiceMp searchConfigMp;
-
-    @Autowired
-    private SearchUrlServicePhenodigm2Disease searchConfigPhenodigm2Disease;
-
-    public SearchUrlService getService(String type) {
+    public DataTableService getService(String type) {
         switch (type) {
             case "gene":
-                return searchConfigGene;
-            case "mp":
-                return searchConfigMp;
-            case "disease":
-                return searchConfigDisease;
-            case "phenodigm2disease":
-                return searchConfigPhenodigm2Disease;
-            case "anatomy":
-                return searchConfigAnatomy;
-            case "impc_images":
-                return searchConfigImpcImage;
+                return dtsGene;
             case "allele2":
-                return searchConfigAllele2;
+                return dtsAllele;
+            case "disease":
+                return dtsDisease;            
+            case "mp":
+                return dtsMp;                
             default:
-                LOGGER.info("requested service of unknown type: "+type);
+                LOGGER.info("requested service of unknown type: " + type);
                 return null;
         }
     }
+
 }

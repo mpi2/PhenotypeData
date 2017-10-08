@@ -37,5 +37,5 @@ public abstract class DataTableService {
 	protected Map<String, String> config;
     
     public abstract String toDataTable(JSONObject json, SearchSettings settings);
-    
+        
 }

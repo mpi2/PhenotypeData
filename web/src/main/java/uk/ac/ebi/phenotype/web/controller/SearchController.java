@@ -30,6 +30,8 @@ import java.util.Arrays;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import uk.ac.ebi.phenotype.service.datatable.DataTableService;
+import uk.ac.ebi.phenotype.service.datatable.DataTableServiceFactory;
 import uk.ac.ebi.phenotype.service.search.SearchUrlService;
 import uk.ac.ebi.phenotype.service.search.SearchUrlServiceFactory;
 import uk.ac.ebi.phenotype.util.SearchSettings;
@@ -49,14 +51,17 @@ public class SearchController {
     private SolrIndex solrIndex;
 
     @Autowired
-    private SearchUrlServiceFactory searchFactory;
+    private SearchUrlServiceFactory urlFactory;
+
+    @Autowired
+    private DataTableServiceFactory tableFactory;
 
     @Autowired
     private DataTableController dataTableController;
 
     @Autowired
     private QueryBrokerController queryBrokerController;
-    
+
     /**
      * redirect calls to the base url or /search/ path to the search page
      *
@@ -86,7 +91,7 @@ public class SearchController {
             Model model) throws IOException, URISyntaxException {
 
         LOGGER.info("*** searchAll ***");
-        SearchSettings settings = new SearchSettings("gene", "*", null, request);        
+        SearchSettings settings = new SearchSettings("gene", "*", null, request);
         processSearch(settings, request, model);
         return "search";
     }
@@ -159,11 +164,11 @@ public class SearchController {
         // encode the parsed search settings into an object
         SearchSettings settings = new SearchSettings(dataType, query, fqStr, request);
         settings.setImgView(showImgView);
-        settings.setDisplay(iDisplayStart, iDisplayLength);        
+        settings.setDisplay(iDisplayStart, iDisplayLength);
         LOGGER.info(settings.toString());
-        
+
         processSearch(settings, request, model);
-        
+
         return "search";
     }
 
@@ -242,7 +247,6 @@ public class SearchController {
         //JSONObject facetCountJsonResponse = fetchAllFacetCounts(settings.getDataType(),
         //        settings.getQuery(), settings.getFqStr(), request, model, settings.getOriFqStr(), settings.getChrQuery());
         //LOGGER.info("facetCountJsonResponse: old: " + facetCountJsonResponse.toString(1));
-
         // fetch counts of hits in broad categories (used in webpage in tab headings)        
         JSONObject facetCounts = getMainFacetCounts(settings);
         LOGGER.info("facetCountJsonResponse: new: " + facetCounts.toString(1));
@@ -259,17 +263,34 @@ public class SearchController {
         //        settings.getFqStr(), model);
         //LOGGER.info("fetchSearchResultOld gave result:\n" + json.toString(2));
         // record summary of the search into the model
-        SearchUrlService searchservice = searchFactory.getService(settings.getDataType());
-        model.addAttribute("dataTypeLabel", searchservice.breadcrumbLabel());
-        LOGGER.info("using breadcrumbLabel: "+searchservice.breadcrumbLabel());
-        model.addAttribute("gridHeaderListStr", searchservice.gridHeadersStr());
+        SearchUrlService urlservice = urlFactory.getService(settings.getDataType());
+        model.addAttribute("dataTypeLabel", urlservice.breadcrumbLabel());
+        LOGGER.info("using breadcrumbLabel: " + urlservice.breadcrumbLabel());
+        model.addAttribute("gridHeaderListStr", urlservice.gridHeadersStr());
         // perform the query, i.e. gather the hits from the solr
-        JSONObject searchHits = fetchSearchResult(searchservice, settings, true);
+        JSONObject searchHits = fetchSearchResult(urlservice, settings, true);
         //LOGGER.info("fetchSearchResultNew gave result:\n" + searchHits.toString(2));
 
-        model.addAttribute("jsonStr", convert2DataTableJson(false, request, searchHits,
-                settings.getQuery(), settings.getFqStr(), settings.getiDisplayStart(), settings.getiDisplayLength(), settings.isImgView(), settings.getDataType()));
+        String oldstring = convert2DataTableJson(false, request, searchHits,
+                settings.getQuery(), settings.getFqStr(), 
+                settings.getiDisplayStart(), settings.getiDisplayLength(), 
+                settings.isImgView(), settings.getDataType());
+        //LOGGER.info("old datatable string:\n"+oldstring);
+        
+        DataTableService tableService = tableFactory.getService(settings.getDataType());
+        if (tableService != null) {
+            LOGGER.info("using table service for " + settings.getDataType());
+            String newstring = tableService.toDataTable(searchHits, settings);
+            //LOGGER.info("new datatable string:\n"+newstring); 
+            model.addAttribute("searchResult", newstring);
+            LOGGER.info("after searchResult");
+        } else {
+            LOGGER.info("table service not availabel for " + settings.getDataType());
+            model.addAttribute("searchResult", oldstring);
+            LOGGER.info("oldResult is: "+oldstring);
+        }
 
+        LOGGER.info("exiting processSearch");
     }
 
     /**
@@ -303,7 +324,7 @@ public class SearchController {
 
         return content;
     }
-
+   
     /**
      * Fetch information from solr. This function should be deprecated, but it
      * still used in FileExportController.
@@ -324,7 +345,7 @@ public class SearchController {
     public JSONObject fetchSearchResultOld(Boolean export, String query, String dataType, Integer iDisplayStart, Integer iDisplayLength, Boolean showImgView, String fqStr, Model model) throws IOException, URISyntaxException {
 
         // facet filter on the left panel of search page         
-        SearchUrlService config = searchFactory.getService(dataType);
+        SearchUrlService config = urlFactory.getService(dataType);
         model.addAttribute("dataTypeLabel", config.breadcrumbLabel());
         model.addAttribute("gridHeaderListStr", config.gridHeadersStr());
 
@@ -357,7 +378,6 @@ public class SearchController {
         //JSONObject json = solrIndex.getQueryJson(settings.getQuery(), dataType, solrParamStrOld, mode,
         //        settings.getiDisplayStart(), settings.getiDisplayLength(), settings.isImgView());
         //LOGGER.info("\n\n +++ output was "+json.toString(2));
-        
         // create and execute a solr query to fetch results
         String queryUrl = searchservice.getGridQueryUrl(settings.getQuery(),
                 settings.getFqStr(),
@@ -369,10 +389,10 @@ public class SearchController {
 
         return result;
     }
-    
+
     public String composeSolrParamStr(Boolean export, String query, String fqStr, String dataType) {
 
-        SearchUrlService config = searchFactory.getService(dataType);
+        SearchUrlService config = urlFactory.getService(dataType);
         String qfStr = "&qf=" + config.qf();
         String defTypeStr = "&defType=" + config.defType();
         String facetStr = config.facetFieldsSolrStr();
@@ -421,7 +441,7 @@ public class SearchController {
         List<String> cores = Arrays.asList(new String[]{"gene", "mp", "disease", "anatomy", "impc_images", "allele2"});
         for (int i = 0; i < cores.size(); i++) {
             String thisCore = cores.get(i);
-            SearchUrlService config = searchFactory.getService(thisCore);
+            SearchUrlService config = urlFactory.getService(thisCore);
             String qfDefTypeWt = "&qf=" + config.qf() + "&defType=" + config.defType() + "&wt=json";
             String thisFqStr;
             if (thisCore.equals(dataType)) {
@@ -477,7 +497,7 @@ public class SearchController {
         List<String> cores = Arrays.asList(new String[]{"gene", "mp", "disease", "phenodigm2disease", "anatomy", "impc_images", "allele2"});
         for (int i = 0; i < cores.size(); i++) {
             String thisCore = cores.get(i);
-            SearchUrlService searchService = searchFactory.getService(thisCore);
+            SearchUrlService searchService = urlFactory.getService(thisCore);
 
             // apply custom filter on its intended core type
             String customFqStr = "";
