@@ -34,6 +34,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 @Controller
@@ -41,6 +43,7 @@ public class SearchController {
 
 	//LinkedList<FileMeta> files = new LinkedList<FileMeta>();
     //FileMeta fileMeta = null;
+    private final Logger LOGGER = LoggerFactory.getLogger(this.getClass().getCanonicalName());
 
 
 	@Autowired
@@ -109,6 +112,8 @@ public class SearchController {
 			HttpServletRequest request,
 			Model model) throws IOException, URISyntaxException {
 
+        LOGGER.info("\n\n\n\n\nstarting search with: "+dataType);
+        
 //		System.out.println("path: /search/" + dataType);
 		if ( query.equals("*") ){
 			query = "*:*";
@@ -186,7 +191,8 @@ public class SearchController {
 		String solrParamStr = composeSolrParamStr(export, query, fqStr, dataType);
 		System.out.println("SearchController solrParamStr: "+ dataType + " -- " + solrParamStr);
 		String content = dataTableController.fetchDataTableJson(request, json, mode, query, fqStr, iDisplayStart, iDisplayLength, solrParamStr, showImgView, solrCoreName, legacyOnly, evidRank);
-		//System.out.println("CONTENT: " + content);
+		
+        LOGGER.info("datatablejson:\n" + content);
 
 		return content;
 	}
