@@ -24,7 +24,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 /**
- * Provides support for solr search queries for core "gene"
+ * Support for solr search queries for core "gene"
  *
  */
 @Service
@@ -45,8 +45,8 @@ public class SearchConfigAnatomy extends SearchConfigCore {
     }
 
     @Override
-    public String bqStr(String q) {
-        return "&bq=anatomy_term:(" + q + ")^1000"
+    public String bq(String q) {
+        return "anatomy_term:(" + q + ")^1000"
                 + " anatomy_term_synonym:(" + q + ")^500";
     }
 
@@ -89,4 +89,5 @@ public class SearchConfigAnatomy extends SearchConfigCore {
     public String solrUrl() {
         return SolrUtils.getBaseURL(solr);
     }
+    
 }

@@ -228,6 +228,7 @@ public class SearchController {
      * @throws IOException
      * @throws URISyntaxException
      */
+    /*
     private String processSearchOld(String dataType, String query, String fqStr, boolean showImgView, HttpServletRequest request, Model model, String oriQuery, String chrQuery) throws IOException, URISyntaxException {
 
         String paramString = request.getQueryString();
@@ -260,7 +261,7 @@ public class SearchController {
 
         return "search";
     }
-
+     */
     private String processSearch(SearchSettings settings, HttpServletRequest request, Model model) throws IOException, URISyntaxException {
 
         String paramString = request.getQueryString();
@@ -282,15 +283,16 @@ public class SearchController {
 
         // extract the hits using old code
         Boolean export = false;
-        JSONObject json = fetchSearchResultOld(export, settings.getQuery(), settings.getDataType(),
-                settings.getiDisplayStart(), settings.getiDisplayLength(), settings.isImgView(),
-                settings.getFqStr(), model);
-        LOGGER.info("fetchSearchResult gave result:\n" + json.toString(2));
+        //JSONObject json = fetchSearchResultOld(export, settings.getQuery(), settings.getDataType(),
+        //        settings.getiDisplayStart(), settings.getiDisplayLength(), settings.isImgView(),
+        //        settings.getFqStr(), model);
+        //LOGGER.info("fetchSearchResultOld gave result:\n" + json.toString(2));
 
         // extract hits using new code        
-        //JSONObject json = fetchSearchResult(export, query, dataType, iDisplayStart, iDisplayLength, showImgView, fqStr, model);
-        //LOGGER.info("fetchSearchResult gave result:\n"+json.toString(2));
-        model.addAttribute("jsonStr", convert2DataTableJson(export, request, json,
+        JSONObject searchHits = fetchSearchResult(export, settings, model);
+        LOGGER.info("fetchSearchResultNew gave result:\n" + searchHits.toString(2));
+
+        model.addAttribute("jsonStr", convert2DataTableJson(export, request, searchHits,
                 settings.getQuery(), settings.getFqStr(), settings.getiDisplayStart(), settings.getiDisplayLength(), settings.isImgView(), settings.getDataType()));
 
         return "search";
@@ -321,9 +323,9 @@ public class SearchController {
         Boolean legacyOnly = false;
         String evidRank = "";
         String solrParamStr = composeSolrParamStr(export, query, fqStr, dataType);
-        //LOGGER.info("convert2DataTableJsons solrParamStr: " + dataType + " -- " + solrParamStr);
+        LOGGER.info("convert2DataTableJsons solrParamStr: " + dataType + " -- " + solrParamStr);
         String content = dataTableController.fetchDataTableJson(request, json, mode, query, fqStr, iDisplayStart, iDisplayLength, solrParamStr, showImgView, solrCoreName, legacyOnly, evidRank);
-        //LOGGER.info("convert2DataTableJsons result: " + content);
+        LOGGER.info("convert2DataTableJsons result: " + content);
 
         return content;
     }
@@ -354,7 +356,7 @@ public class SearchController {
 
         // results on the right panel of search page
         String solrParamStr = composeSolrParamStr(export, query, fqStr, dataType);
-        LOGGER.info("fetchSearchResultJson solrParamStr: " + solrParamStr);
+        LOGGER.info("fetchSearchResultOld:\n-- solrParamStr: " + solrParamStr);
 
         String mode = dataType + "Grid";
         //Integer iDisplayStart = (Integer) request.getAttribute("iDisplayStart");
@@ -373,14 +375,23 @@ public class SearchController {
         model.addAttribute("gridHeaderListStr", config.gridHeadersStr());
 
         // results on the right panel of search page
-        String solrParamStr = composeSolrParamStr(export, settings.getQuery(), settings.getFqStr(), dataType);
-        LOGGER.info("fetchSearchResultJson solrParamStr: " + solrParamStr);
-
-        String mode = dataType + "Grid";
-        JSONObject json = solrIndex.getQueryJson(settings.getQuery(), dataType, solrParamStr, mode,
-                settings.getiDisplayStart(), settings.getiDisplayLength(), settings.isImgView());
-        //LOGGER.info("fetchSearchResult: " + json.toString(2));       
-        return json;
+        //String solrParamStrOld = composeSolrParamStr(export, settings.getQuery(), settings.getFqStr(), dataType);
+        //LOGGER.info("fetchSearchResult (new):\n - solrParamStr: " + solrParamStrOld + "\n");
+        //String mode = dataType + "Grid";
+        //JSONObject json = solrIndex.getQueryJson(settings.getQuery(), dataType, solrParamStrOld, mode,
+        //        settings.getiDisplayStart(), settings.getiDisplayLength(), settings.isImgView());
+        //LOGGER.info("\n\n +++ output was "+json.toString(2));
+        
+        // create and execute a solr query to fetch the main page results
+        String queryUrl = config.getGridQueryUrl(settings.getQuery(),
+                settings.getFqStr(),
+                settings.getiDisplayStart(), settings.getiDisplayLength(),
+                true);
+        LOGGER.info("fetchSearchResult (new):\n - newQueryStr: " + queryUrl + "\n");
+        JSONObject result = queryBrokerController.runQuery(queryUrl);
+        //LOGGER.info("\n\n +++ output new was: "+result.toString(2));
+                
+        return result;
     }
 
     public String composeSolrParamStr(Boolean export, String query, String fqStr, String dataType) {
@@ -389,8 +400,8 @@ public class SearchController {
         String qfStr = "&qf=" + config.qf();
         String defTypeStr = "&defType=" + config.defType();
         String facetStr = config.facetFieldsSolrStr();
-        String flStr = config.fieldListSolrStr();
-        String bqStr = config.bqStr(query);
+        String flStr = "&fl=" + StringUtils.join(config.fieldList(), ",");
+        String bqStr = "&bq="+config.bq(query);
 
         // extra bq for anatomy and mp with facet filter
         if (dataType.equals("mp") || dataType.equals("anatomy")) {
@@ -507,7 +518,10 @@ public class SearchController {
             //} else if (chrQuery != null && !thisCore.equals("gene")) {
             //    query = oriQuery;
             //}
-            queries.put(thisCore, config.getCountQuerySolrUrl(settings.getQuery(), customFqStr));
+            //
+            // record a complete query url in the map
+            String thisQueryUrl = config.getCountQuerySolrUrl(settings.getQuery(), customFqStr);
+            queries.put(thisCore, thisQueryUrl);
         }
 
         return queryBrokerController.runQueries(null, queries);

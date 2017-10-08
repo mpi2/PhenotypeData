@@ -24,7 +24,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 /**
- * Provides support for solr search queries for core "impc_images"
+ * Support for solr search queries for core "impc_images"
  *
  */
 @Service
@@ -45,8 +45,8 @@ public class SearchConfigImpcImage extends SearchConfigCore {
     }
 
     @Override
-    public String bqStr(String q) {
-        return "&bq=procedure_name:(" + q + ")^500"
+    public String bq(String q) {
+        return "procedure_name:(" + q + ")^500"
                 + " gene_symbol:(" + q + ")^500";
     }
 

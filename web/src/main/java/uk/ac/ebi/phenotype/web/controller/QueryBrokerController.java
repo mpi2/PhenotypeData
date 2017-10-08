@@ -136,7 +136,7 @@ public class QueryBrokerController {
      * @param solrParams
      * @param subfacet
      * @param response
-     * @param model     
+     * @param model
      * @param request
      * @return @throws URISyntaxException
      * @throws IOException
@@ -162,17 +162,18 @@ public class QueryBrokerController {
     }
 
     /**
-     * Create a Json object by running multiple solr queries and recording their results.
-     * 
-     * Consider replacing this function by runCoreQueries with a similar signature.
-     * This function looks up solr urls, the other function assumes all the query
-     * urls are given.
-     * 
+     * Create a Json object by running multiple solr queries and recording their
+     * results.
+     *
+     * Consider replacing this function by runCoreQueries with a similar
+     * signature. This function looks up solr urls, the other function assumes
+     * all the query urls are given.
+     *
      * @param subfacet
      * @param jParams
      * @return
      * @throws IOException
-     * @throws URISyntaxException 
+     * @throws URISyntaxException
      */
     public JSONObject createJsonResponse(String subfacet, JSONObject jParams) throws IOException, URISyntaxException {
 
@@ -182,8 +183,8 @@ public class QueryBrokerController {
 
         while (cores.hasNext()) {
             String core = (String) cores.next();
-            String param = jParams.getString(core);            
-            
+            String param = jParams.getString(core);
+
             String url = SolrUtils.getBaseURL(solrIndex.getSolrServer(core)) + "/select?" + param;
             LOGGER.info("createJsonResponse url: " + url);
             String key = core + param;
@@ -213,31 +214,31 @@ public class QueryBrokerController {
         return jsonResponse;
     }
 
-    
     /**
-     * Create a Json object by running multiple solr queries and recording their results.
-     * 
+     * Create a Json object by running multiple solr queries and recording their
+     * results.
+     *
      * @param subfacet
      * @param queries
-     * 
-     * a simple map with solr queries. Keys will appear in the output. 
-     * Strings associated to those keys should hold entire solr queries (containing
-     * url and full select string)
-     * 
+     *
+     * a simple map with solr queries. Keys will appear in the output. Strings
+     * associated to those keys should hold entire solr queries (containing url
+     * and full select string)
+     *
      * @return
      * @throws IOException
-     * @throws URISyntaxException 
+     * @throws URISyntaxException
      */
     public JSONObject runQueries(String subfacet, JSONObject queries) throws IOException, URISyntaxException {
 
         JSONObject result = new JSONObject();
-                
+
         Iterator keys = queries.keys();
         while (keys.hasNext()) {
             String key = (String) keys.next();
-            String url = queries.getString(key);                                    
+            String url = queries.getString(key);
             LOGGER.info("runCoreQueries url: " + url);
-                        
+
             if (!cache.containsKey(url)) {
                 // Object not in cache. 
                 JSONObject json = solrIndex.getResults(url);
@@ -260,5 +261,38 @@ public class QueryBrokerController {
         }
         return result;
     }
-    
+
+    /**
+     * Run a single query, cache and return the result
+     *
+     * @param url
+     *
+     * a single url with a solr query, must include http:// etc.
+     *
+     * @return
+     * @throws IOException
+     * @throws URISyntaxException
+     */
+    public JSONObject runQuery(String url) throws IOException, URISyntaxException {
+
+        LOGGER.info("runQuery url: " + url);
+
+        // Perhaps use cached result
+        if (cache.containsKey(url)) {
+            LOGGER.info("createJsonResponse: Using cache for key: " + url);
+            return (JSONObject) cache.get(url);
+        }
+
+        // look up request 
+        JSONObject json = solrIndex.getResults(url);
+
+        // extract just the relevant parts of the result 
+        // (this omits items like the header)
+        JSONObject result = new JSONObject();
+        result.put("response", json.getJSONObject("response"));
+        result.put("facet_counts", json.getJSONObject("facet_counts"));
+        cache.put(url, result);
+
+        return result;
+    }
 }

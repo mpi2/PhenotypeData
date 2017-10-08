@@ -21,12 +21,12 @@ import org.apache.commons.lang.StringUtils;
 /**
  * Functionality for creating solr search queries for a particular solr core.
  *
- * 
- * TO DO: more detailed docs on each function. Perhaps eliminate some of them. 
- * 
+ *
+ * TO DO: more detailed docs on each function. Perhaps eliminate some of them.
+ *
  */
 public abstract class SearchConfigCore {
-    
+
     public String defType() {
         return "edismax";
     }
@@ -51,13 +51,9 @@ public abstract class SearchConfigCore {
         }
     }
 
-    public abstract String bqStr(String q);
+    public abstract String bq(String q);
 
     public abstract List<String> fieldList();
-
-    public String fieldListSolrStr() {
-        return "&fl=" + StringUtils.join(fieldList(), ",");
-    }
 
     public abstract List<String> facetFields();
 
@@ -81,11 +77,75 @@ public abstract class SearchConfigCore {
 
     public abstract String sortingStr();
 
-    public abstract String solrUrl();        
-    
+    public abstract String solrUrl();
+   
     /**
-     * Create a complete query solr string. This applies the default settings
-     * from the SearchConfig class and the user's query and custom filter
+     * Produce a suffix to a solr search query. 
+     * 
+     * The default is to add no suffix. Individual cores can override this function
+     * to add core-specific twists. 
+     * 
+     * @return 
+     */
+    public String querySuffix() {
+        return "";
+    }
+
+    /**
+     * Get Solr query string with all the options. The build query will include
+     * all the selected result and facets, etc.
+     *
+     * original had extra logic for dealing with mp and anatomy cores That has
+     * been removed. See old version of code for details.
+     *
+     * @param query
+     * @param customFq
+     * @param start
+     * @param length
+     * @param facet
+     *
+     * @return
+     */
+    public String getGridQueryStr(String query, String customFq, int start, int length,
+            boolean facet) {
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("wt=json")
+                .append("&q=").append(query)
+                .append("&fq=").append(fqStr(customFq))
+                .append("&qf=").append(qf())
+                .append("&defType=").append(defType())
+                .append("&fl=").append(StringUtils.join(fieldList(), ","))
+                .append("&bq=").append(bq(query));
+        if (facet) {
+            sb.append(facetFieldsSolrStr());
+        }
+        sb.append("&start=").append(start)
+                .append("&rows=").append(length);
+
+        return sb.toString();
+    }
+
+    /**
+     * Similar to getGridQueryStr, but here result starts with full solr url.
+     *
+     * @param query
+     * @param customFq
+     * @param start
+     * @param length
+     * @param facet
+     * @return
+     */
+    public String getGridQueryUrl(String query, String customFq, int start, int length, boolean facet) {
+        return solrUrl() + "/select?" + getGridQueryStr(query, customFq, start, length, facet);
+    }
+
+    /**
+     * Create a simple solr query tring. This applies the default settings from
+ the SearchConfig class and the user's query and custom filter.
+
+ The query is simple in that it returns everything; use getGridQueryStr to
+ introduce faceting and field lists.
      *
      * @param query
      *
@@ -103,7 +163,7 @@ public abstract class SearchConfigCore {
      *
      * a solr query string
      */
-    public String getQuerySolrStr(String query, String customFq, int rows) {
+    public String getSimpleQueryStr(String query, String customFq, int rows) {
         return "q=" + query
                 + "&fq=" + fqStr(customFq)
                 + "&qf=" + qf()
@@ -113,19 +173,19 @@ public abstract class SearchConfigCore {
     }
 
     /**
-     * Similar to getQuerySolrStr, but contains solr core url.
-     * 
+     * Similar to getSimpleQueryStr, but contains solr core url.
+     *
      * @param query
      * @param customFq
      * @param rows
-     * @return 
+     * @return
      */
-    public String getQuerySolrUrl(String query, String customFq, int rows) {        
-        return solrUrl() + "/select?" + getQuerySolrStr(query, customFq, rows);
+    public String getSimpleQueryUrl(String query, String customFq, int rows) {
+        return solrUrl() + "/select?" + getSimpleQueryStr(query, customFq, rows);
     }
 
     /**
-     * Similar to getQuerySolrStr, but here forces result to have zero rows.
+     * Similar to getSimpleQueryStr, but here forces result to have zero rows.
      * This is suitable for only obtaining an idea of the size of the result.
      *
      * @param query
@@ -133,18 +193,18 @@ public abstract class SearchConfigCore {
      * @return
      */
     public String getCountQuerySolrStr(String query, String customFq) {
-        return getQuerySolrStr(query, customFq, 0);
+        return getSimpleQueryStr(query, customFq, 0);
     }
-    
+
     /**
      * Similar to getCountQuerySolrStr, but contains solr core url
-     * 
+     *
      * @param query
      * @param customFq
-     * @return 
+     * @return
      */
     public String getCountQuerySolrUrl(String query, String customFq) {
-        return getQuerySolrUrl(query, customFq, 0);
+        return getSimpleQueryUrl(query, customFq, 0);
     }
-    
+
 }

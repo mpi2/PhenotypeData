@@ -24,7 +24,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 /**
- * Provides support for solr search queries for core "allele2"
+ * Support for solr search queries for core "allele2"
  *
  */
 @Service
@@ -45,8 +45,8 @@ public class SearchConfigAllele2 extends SearchConfigCore {
     }
 
     @Override
-    public String bqStr(String q) {
-        return "&bq=allele_name:(" + q + ")^500";
+    public String bq(String q) {
+        return "allele_name:(" + q + ")^500";
     }
 
     @Override

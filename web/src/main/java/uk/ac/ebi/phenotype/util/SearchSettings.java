@@ -68,7 +68,7 @@ public class SearchSettings {
         // set query string
         if (!query.equals("*")) {
             this.query = query;
-        }
+        }                
         this.oriQuery = this.query;
         // set the filters
         this.fqStr = fqStr;
@@ -78,6 +78,16 @@ public class SearchSettings {
         setChrQuery();
     }
 
+    /**
+     * Normalise a query string for search, i.e. replace spaces by codes
+     * 
+     * @return 
+     */
+    private String normalizeString(String s) {
+        return s.replaceAll(" ", "%20");
+        //s.repl
+    }
+    
     /**
      * for queries that ask for genomic coordinates, parse the query string into
      * chromosome, start-end positions TK: does this work? Search for

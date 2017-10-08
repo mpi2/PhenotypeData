@@ -24,7 +24,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 /**
- * Provides support for solr search queries for core "disease"
+ * Support for solr search queries for core "disease"
  *
  */
 @Service
@@ -45,8 +45,8 @@ public class SearchConfigDisease extends SearchConfigCore {
     }
 
     @Override
-    public String bqStr(String q) {
-        return "&bq=disease_term:(" + q + ")^1000"
+    public String bq(String q) {
+        return "disease_term:(" + q + ")^1000"
                 + " disease_alts:(" + q + ")^700"
                 + " disease_source:(" + q + ")^200";
     }

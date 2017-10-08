@@ -24,16 +24,16 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 /**
- * Provides support for solr search queries for core "mp"
+ * Support for solr search queries for core "mp"
  *
  */
 @Service
 public class SearchConfigMp extends SearchConfigCore {
-    
+
     @Autowired
-	@Qualifier("mpCore")
+    @Qualifier("mpCore")
     private SolrClient solr;
-    
+
     @Override
     public String qf() {
         return "mixSynQf";
@@ -45,13 +45,13 @@ public class SearchConfigMp extends SearchConfigCore {
     }
 
     @Override
-    public String bqStr(String q) {        
+    public String bq(String q) {
         if (q.equals("*:*") || q.equals("*")) {
-            return "&bq=mp_term:\"male infertility\" ^100"
+            return "mp_term:\"male infertility\" ^100"
                     + " mp_term:\"female infertility\" ^100"
                     + " mp_term:infertility ^90";
         } else {
-            return "&bq=mp_term:(" + q + ")^1000"
+            return "mp_term:(" + q + ")^1000"
                     + " mp_term_synonym:(" + q + ")^500"
                     + " mp_definition:(" + q + ")^100";
         }
@@ -59,13 +59,13 @@ public class SearchConfigMp extends SearchConfigCore {
 
     @Override
     public List<String> fieldList() {
-        return Arrays.asList("mp_id", "mp_term", "mixSynQf", "mp_definition");        
+        return Arrays.asList("mp_id", "mp_term", "mixSynQf", "mp_definition");
     }
-  
+
     @Override
     public List<String> facetFields() {
-        return Arrays.asList("top_level_mp_term_inclusive");        
-    }   
+        return Arrays.asList("top_level_mp_term_inclusive");
+    }
 
     @Override
     public String facetSort() {
@@ -91,5 +91,5 @@ public class SearchConfigMp extends SearchConfigCore {
     public String solrUrl() {
         return SolrUtils.getBaseURL(solr);
     }
-   
+
 }

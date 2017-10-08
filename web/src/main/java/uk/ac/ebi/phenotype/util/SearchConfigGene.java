@@ -24,14 +24,14 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 /**
- * Provides support for solr search queries for core "gene"
+ * Support for solr search queries for core "gene"
  *
  */
 @Service
 public class SearchConfigGene extends SearchConfigCore {
 
     @Autowired
-	@Qualifier("geneCore")
+    @Qualifier("geneCore")
     protected SolrClient solr;
 
     @Override
@@ -45,8 +45,8 @@ public class SearchConfigGene extends SearchConfigCore {
     }
 
     @Override
-    public String bqStr(String q) {
-        return "&bq=" + "marker_symbol_lowercase:(" + q + ")^1000"
+    public String bq(String q) {
+        return "marker_symbol_lowercase:(" + q + ")^1000"
                 + " marker_symbol_bf:(" + q + ")^100"
                 + " latest_phenotype_status:\"Phenotyping Complete\" ^200";
     }
