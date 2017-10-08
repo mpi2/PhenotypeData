@@ -1335,7 +1335,7 @@ public class DataTableController {
 		//facetFields.
 		j.put("facet_fields", facetFields);
 
-		return j.toString();
+        return j.toString();
 	}
 
 	public String parseJsonforProtocolDataTable(JSONObject json, HttpServletRequest request, String solrCoreName) {

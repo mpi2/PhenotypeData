@@ -40,7 +40,7 @@ public class SearchUrlServiceAllele2 extends SearchUrlService {
     }
 
     @Override
-    public String fqStr() {
+    public String fq() {
         return "+type:Allele";
     }
 
@@ -90,7 +90,7 @@ public class SearchUrlServiceAllele2 extends SearchUrlService {
     }
 
     @Override
-    public String breadcrumLabel() {
+    public String breadcrumbLabel() {
         return "Products";
     }
 

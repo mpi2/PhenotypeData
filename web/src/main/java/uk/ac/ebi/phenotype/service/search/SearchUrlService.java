@@ -17,11 +17,14 @@ package uk.ac.ebi.phenotype.service.search;
 
 import java.util.List;
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * A template for a classes creating url strings for searching solr cores. Class
- * that extend this abstract class will provide functions that will build search
- * strings that are specific for a solr core or specific to a type of query.
+ * An abstraction for classes that create url strings for searching solr cores.
+ * Classes that extend this abstract class will provide functions that will
+ * build search strings that are specific for a solr core or specific to a type
+ * of query.
  *
  *
  *
@@ -30,27 +33,43 @@ import org.apache.commons.lang.StringUtils;
  */
 public abstract class SearchUrlService {
 
+    protected final Logger LOGGER = LoggerFactory.getLogger(this.getClass().getCanonicalName());
+
     public String defType() {
         return "edismax";
     }
 
-    public abstract String qf();
-
-    public abstract String fqStr();
-
     /**
-     * Create a composite filter query string using the SearchConfig fq and an
-     * additional string
-     *
-     * @param customFilterStr
+     * The "query field" argument for a solr query.
      *
      * @return
      */
-    public String fqStr(String customFilterStr) {
-        if (StringUtils.isEmpty(customFilterStr)) {
-            return fqStr();
+    public abstract String qf();
+
+    /**
+     * The "filter query" argument. This function gives the default filter for
+     * the class.
+     *
+     * @return
+     */
+    public String fq() {
+        return "+*:*";
+    }
+
+    /**
+     * Create a composite filter query string using the default filter query
+     * (form the class' fq() function) and an additional filter string.
+     *
+     * @param customFilter
+     *
+     * @return
+     */
+    public String fq(String customFilter) {
+        String fq = fq();
+        if (StringUtils.isEmpty(customFilter)) {
+            return fq;
         } else {
-            return fqStr() + " +" + customFilterStr;
+            return fq + " AND (" + customFilter + ")";
         }
     }
 
@@ -76,7 +95,7 @@ public abstract class SearchUrlService {
         return StringUtils.join(gridHeaders(), ",");
     }
 
-    public abstract String breadcrumLabel();
+    public abstract String breadcrumbLabel();
 
     public abstract String sortingStr();
 
@@ -115,7 +134,7 @@ public abstract class SearchUrlService {
         StringBuilder sb = new StringBuilder();
         sb.append("wt=json")
                 .append("&q=").append(query)
-                .append("&fq=").append(fqStr(customFq))
+                .append("&fq=").append(fq(customFq))
                 .append("&qf=").append(qf())
                 .append("&defType=").append(defType())
                 .append("&fl=").append(StringUtils.join(fieldList(), ","))
@@ -168,7 +187,7 @@ public abstract class SearchUrlService {
      */
     public String getSimpleQueryStr(String query, String customFq, int rows) {
         return "q=" + query
-                + "&fq=" + fqStr(customFq)
+                + "&fq=" + fq(customFq)
                 + "&qf=" + qf()
                 + "&defType=" + defType()
                 + "&rows=" + rows

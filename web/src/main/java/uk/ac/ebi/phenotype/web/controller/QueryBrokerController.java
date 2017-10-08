@@ -237,7 +237,7 @@ public class QueryBrokerController {
         while (keys.hasNext()) {
             String key = (String) keys.next();
             String url = queries.getString(key);
-            LOGGER.info("runCoreQueries url: " + url);
+            //LOGGER.info("runCoreQueries " + key + ": " + url);
 
             if (!cache.containsKey(url)) {
                 // Object not in cache. 
@@ -274,15 +274,15 @@ public class QueryBrokerController {
      * @throws URISyntaxException
      */
     public JSONObject runQuery(String url) throws IOException, URISyntaxException {
-
-        LOGGER.info("runQuery url: " + url);
-
+        
         // Perhaps use cached result
         if (cache.containsKey(url)) {
-            LOGGER.info("createJsonResponse: Using cache for key: " + url);
+            LOGGER.info("runQuery from cache: "+url);
             return (JSONObject) cache.get(url);
         }
 
+        LOGGER.info("runQuery de novo: " + url);
+        
         // look up request 
         JSONObject json = solrIndex.getResults(url);
 

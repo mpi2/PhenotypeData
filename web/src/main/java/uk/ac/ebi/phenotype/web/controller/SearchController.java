@@ -56,7 +56,7 @@ public class SearchController {
 
     @Autowired
     private QueryBrokerController queryBrokerController;
-
+    
     /**
      * redirect calls to the base url or /search/ path to the search page
      *
@@ -86,7 +86,7 @@ public class SearchController {
             Model model) throws IOException, URISyntaxException {
 
         LOGGER.info("*** searchAll ***");
-        SearchSettings settings = new SearchSettings("gene", "*", null);
+        SearchSettings settings = new SearchSettings("gene", "*", null, request);        
         processSearch(settings, request, model);
         return "search";
     }
@@ -152,18 +152,18 @@ public class SearchController {
             HttpServletRequest request,
             Model model) throws IOException, URISyntaxException {
 
-        LOGGER.info("\n\n\n\nsearchResult: dataType: " + dataType);
+        LOGGER.info("\n\n\n\n");
+        LOGGER.info("searchResult: dataType: " + dataType);
         LOGGER.info("request is " + request.toString());
 
         // encode the parsed search settings into an object
-        SearchSettings settings = new SearchSettings(dataType, query, fqStr);
+        SearchSettings settings = new SearchSettings(dataType, query, fqStr, request);
         settings.setImgView(showImgView);
-        settings.setDisplay(iDisplayStart, iDisplayLength);
-        LOGGER.info("search settings: " + settings.toString());
-
-        // perform the query processing
+        settings.setDisplay(iDisplayStart, iDisplayLength);        
+        LOGGER.info(settings.toString());
+        
         processSearch(settings, request, model);
-
+        
         return "search";
     }
 
@@ -186,7 +186,7 @@ public class SearchController {
      * @throws URISyntaxException
      */
     /*
-    private String processSearchOld(String dataType, String query, String fqStr, boolean showImgView, HttpServletRequest request, Model model, String oriQuery, String chrQuery) throws IOException, URISyntaxException {
+    private String processSearchOld(String dataType, String query, String fq, boolean showImgView, HttpServletRequest request, Model model, String oriQuery, String chrQuery) throws IOException, URISyntaxException {
 
         String paramString = request.getQueryString();
         LOGGER.info("processSearch: request querystring: " + paramString);
@@ -200,10 +200,10 @@ public class SearchController {
             iDisplayLength = Integer.parseInt(request.getParameter("iDisplayLength"));
         }
         LOGGER.info("processSearch with " + iDisplayStart + "," + iDisplayLength);
-        LOGGER.info("fqStr: " + fqStr);
+        LOGGER.info("fq: " + fq);
 
         // fetch counts of hits in broad categories (used in webpage in tab headings)
-        JSONObject facetCountJsonResponse = fetchAllFacetCounts(dataType, query, fqStr, request, model, oriQuery, chrQuery);
+        JSONObject facetCountJsonResponse = fetchAllFacetCounts(dataType, query, fq, request, model, oriQuery, chrQuery);
         LOGGER.info("facetCountJsonResponse: " + facetCountJsonResponse.toString(1));
 
         model.addAttribute("facetCount", facetCountJsonResponse);
@@ -212,9 +212,9 @@ public class SearchController {
         model.addAttribute("dataTypeParams", paramString);
 
         Boolean export = false;
-        JSONObject json = fetchSearchResultOld(export, query, dataType, iDisplayStart, iDisplayLength, showImgView, fqStr, model);
+        JSONObject json = fetchSearchResultOld(export, query, dataType, iDisplayStart, iDisplayLength, showImgView, fq, model);
         //LOGGER.info("fetchSearchResult gave result:\n"+json.toString(2));
-        model.addAttribute("jsonStr", convert2DataTableJson(export, request, json, query, fqStr, iDisplayStart, iDisplayLength, showImgView, dataType));
+        model.addAttribute("jsonStr", convert2DataTableJson(export, request, json, query, fq, iDisplayStart, iDisplayLength, showImgView, dataType));
 
         return "search";
     }
@@ -233,14 +233,15 @@ public class SearchController {
      */
     private void processSearch(SearchSettings settings, HttpServletRequest request, Model model) throws IOException, URISyntaxException {
 
-        String paramString = request.getQueryString();
-        LOGGER.info("processSearch: request querystring: " + paramString);
+        // remove paramSring? only used in model.addAttribute below
+        //String paramString = request.getQueryString();
+        //LOGGER.info("processSearch: request querystring: " + paramString);
         LOGGER.info("processSearch: settings query: " + settings.getQuery());
 
         // calculate facets using old code
-        JSONObject facetCountJsonResponse = fetchAllFacetCounts(settings.getDataType(),
-                settings.getQuery(), settings.getFqStr(), request, model, settings.getOriFqStr(), settings.getChrQuery());
-        LOGGER.info("facetCountJsonResponse: old: " + facetCountJsonResponse.toString(1));
+        //JSONObject facetCountJsonResponse = fetchAllFacetCounts(settings.getDataType(),
+        //        settings.getQuery(), settings.getFqStr(), request, model, settings.getOriFqStr(), settings.getChrQuery());
+        //LOGGER.info("facetCountJsonResponse: old: " + facetCountJsonResponse.toString(1));
 
         // fetch counts of hits in broad categories (used in webpage in tab headings)        
         JSONObject facetCounts = getMainFacetCounts(settings);
@@ -249,7 +250,7 @@ public class SearchController {
         model.addAttribute("facetCount", facetCounts);
         model.addAttribute("searchQuery", settings.getQuery().replaceAll("\\\\", ""));
         model.addAttribute("dataType", settings.getDataType());
-        model.addAttribute("dataTypeParams", paramString);
+        //model.addAttribute("dataTypeParams", paramString);
 
         // extract the hits using old code
         //Boolean export = false;
@@ -259,7 +260,8 @@ public class SearchController {
         //LOGGER.info("fetchSearchResultOld gave result:\n" + json.toString(2));
         // record summary of the search into the model
         SearchUrlService searchservice = searchFactory.getService(settings.getDataType());
-        model.addAttribute("dataTypeLabel", searchservice.breadcrumLabel());
+        model.addAttribute("dataTypeLabel", searchservice.breadcrumbLabel());
+        LOGGER.info("using breadcrumbLabel: "+searchservice.breadcrumbLabel());
         model.addAttribute("gridHeaderListStr", searchservice.gridHeadersStr());
         // perform the query, i.e. gather the hits from the solr
         JSONObject searchHits = fetchSearchResult(searchservice, settings, true);
@@ -295,9 +297,9 @@ public class SearchController {
         Boolean legacyOnly = false;
         String evidRank = "";
         String solrParamStr = composeSolrParamStr(export, query, fqStr, dataType);
-        LOGGER.info("convert2DataTableJsons solrParamStr: " + dataType + " -- " + solrParamStr);
+        //LOGGER.info("convert2DataTableJsons solrParamStr: " + dataType + " -- " + solrParamStr);
         String content = dataTableController.fetchDataTableJson(request, json, mode, query, fqStr, iDisplayStart, iDisplayLength, solrParamStr, showImgView, solrCoreName, legacyOnly, evidRank);
-        LOGGER.info("convert2DataTableJsons result: " + content);
+        //LOGGER.info("convert2DataTableJsons result: " + content);
 
         return content;
     }
@@ -323,7 +325,7 @@ public class SearchController {
 
         // facet filter on the left panel of search page         
         SearchUrlService config = searchFactory.getService(dataType);
-        model.addAttribute("dataTypeLabel", config.breadcrumLabel());
+        model.addAttribute("dataTypeLabel", config.breadcrumbLabel());
         model.addAttribute("gridHeaderListStr", config.gridHeadersStr());
 
         // results on the right panel of search page
@@ -349,12 +351,13 @@ public class SearchController {
     public JSONObject fetchSearchResult(SearchUrlService searchservice, SearchSettings settings, Boolean facet) throws IOException, URISyntaxException {
 
         // results on the right panel of search page
-        //String solrParamStrOld = composeSolrParamStr(export, settings.getQuery(), settings.getFqStr(), dataType);
-        //LOGGER.info("fetchSearchResult (new):\n - solrParamStr: " + solrParamStrOld + "\n");
+        //String solrParamStrOld = composeSolrParamStr(false, settings.getQuery(), settings.getFqStr(), settings.getDataType());
+        //LOGGER.info("fetchSearchResult (new):\n - oldQueryStr: " + solrParamStrOld + "\n");
         //String mode = dataType + "Grid";
         //JSONObject json = solrIndex.getQueryJson(settings.getQuery(), dataType, solrParamStrOld, mode,
         //        settings.getiDisplayStart(), settings.getiDisplayLength(), settings.isImgView());
         //LOGGER.info("\n\n +++ output was "+json.toString(2));
+        
         // create and execute a solr query to fetch results
         String queryUrl = searchservice.getGridQueryUrl(settings.getQuery(),
                 settings.getFqStr(),
@@ -394,7 +397,7 @@ public class SearchController {
         if (fqStr != null) {
             solrParamStr += "&fq=" + fqStr;
         } else {
-            solrParamStr += "&fq=" + config.fqStr();
+            solrParamStr += "&fq=" + config.fq();
         }
 
         return solrParamStr;
@@ -425,13 +428,13 @@ public class SearchController {
                 if (thisCore.equals("gene")) {
                     thisFqStr = fqStr == null ? "" : fqStr;
                 } else {
-                    thisFqStr = fqStr == null ? config.fqStr() : fqStr;
+                    thisFqStr = fqStr == null ? config.fq() : fqStr;
                 }
             } else {
                 if (thisCore.equals("gene")) {
                     thisFqStr = "";
                 } else {
-                    thisFqStr = config.fqStr();
+                    thisFqStr = config.fq();
                 }
             }
             LOGGER.info("core: " + thisCore + "\nthisFqStr: " + thisFqStr);
@@ -474,7 +477,7 @@ public class SearchController {
         List<String> cores = Arrays.asList(new String[]{"gene", "mp", "disease", "phenodigm2disease", "anatomy", "impc_images", "allele2"});
         for (int i = 0; i < cores.size(); i++) {
             String thisCore = cores.get(i);
-            SearchUrlService config = searchFactory.getService(thisCore);
+            SearchUrlService searchService = searchFactory.getService(thisCore);
 
             // apply custom filter on its intended core type
             String customFqStr = "";
@@ -493,7 +496,7 @@ public class SearchController {
             //}
             //
             // record a complete query url in the map
-            String thisQueryUrl = config.getCountQuerySolrUrl(settings.getQuery(), customFqStr);
+            String thisQueryUrl = searchService.getCountQuerySolrUrl(settings.getQuery(), customFqStr);
             queries.put(thisCore, thisQueryUrl);
         }
 

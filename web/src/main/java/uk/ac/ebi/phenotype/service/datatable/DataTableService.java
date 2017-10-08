@@ -15,10 +15,27 @@
  ****************************************************************************** */
 package uk.ac.ebi.phenotype.service.datatable;
 
+import java.util.Map;
+import javax.annotation.Resource;
+import net.sf.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import uk.ac.ebi.phenotype.util.SearchSettings;
+
 /**
- * Performs formating of data tables. 
+ * An abstraction of a service that format data from solr into data tables. 
  * 
  */
 public abstract class DataTableService {
+        
+    // a single logger definition applies to all the classes that extend the abstract
+    protected final Logger LOGGER = LoggerFactory.getLogger(this.getClass().getCanonicalName());
+   
+    // This configuration object is required in at least one extension classes
+    // but is this really relevant here? Think about removing?
+    @Resource(name = "globalConfiguration")
+	protected Map<String, String> config;
+    
+    public abstract String toDataTable(JSONObject json, SearchSettings settings);
     
 }

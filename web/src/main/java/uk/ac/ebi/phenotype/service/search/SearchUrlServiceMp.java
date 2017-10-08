@@ -40,11 +40,6 @@ public class SearchUrlServiceMp extends SearchUrlService {
     }
 
     @Override
-    public String fqStr() {
-        return "+*:*";
-    }
-
-    @Override
     public String bq(String q) {
         if (q.equals("*:*") || q.equals("*")) {
             return "mp_term:\"male infertility\" ^100"
@@ -78,7 +73,7 @@ public class SearchUrlServiceMp extends SearchUrlService {
     }
 
     @Override
-    public String breadcrumLabel() {
+    public String breadcrumbLabel() {
         return "Phenotypes";
     }
 

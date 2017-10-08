@@ -17,15 +17,16 @@ package uk.ac.ebi.phenotype.util;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang.StringUtils;
 
 /**
  * A bean class that holds details of a search request, including query string
  * and filters.
- * 
+ *
  * The bean allows passing around all those settings around functions in just
  * one object.
- * 
+ *
  */
 public class SearchSettings {
 
@@ -46,6 +47,11 @@ public class SearchSettings {
     private int iDisplayStart = 0;
     private int iDisplayLength = 10;
 
+    // The next two items record information about the http request    
+    HttpServletRequest request = null;
+    private String baseUrl = "";
+    private String hostName = "";
+
     // for identifying queries by genomic coordinate
     private final String chrPattern = "(?i:^\"(chr)(.*)\\\\:(\\d+)\\\\-(\\d+)\"$)";
 
@@ -55,20 +61,24 @@ public class SearchSettings {
      * The class will have default values for all settings, but these can be
      * overwritten using the setters.
      *
+     * Consider also using setFromRequest to record basic information about an
+     * http source.
+     *
      * @param dataType
      * @param query
      * @param fqStr
+     * @param request
      *
      */
-    public SearchSettings(String dataType, String query, String fqStr) {
+    public SearchSettings(String dataType, String query, String fqStr, HttpServletRequest request) {
         // set data type
         if (!StringUtils.isEmpty(dataType)) {
             this.dataType = dataType;
         }
         // set query string
         if (!query.equals("*")) {
-            this.query = query;
-        }                
+            this.query = normSpaces(query);
+        }
         this.oriQuery = this.query;
         // set the filters
         this.fqStr = fqStr;
@@ -76,18 +86,22 @@ public class SearchSettings {
 
         // compute the chrQuery string
         setChrQuery();
+
+        // copy information from the request object
+        this.request = request;
+        this.baseUrl = request.getAttribute("baseUrl").toString();
+        this.hostName = request.getAttribute("mappedHostname").toString();
     }
 
     /**
      * Normalise a query string for search, i.e. replace spaces by codes
-     * 
-     * @return 
+     *
+     * @return
      */
-    private String normalizeString(String s) {
-        return s.replaceAll(" ", "%20");
-        //s.repl
+    private String normSpaces(String s) {
+        return s.replaceAll(" ", "%20");        
     }
-    
+
     /**
      * for queries that ask for genomic coordinates, parse the query string into
      * chromosome, start-end positions TK: does this work? Search for
@@ -176,6 +190,18 @@ public class SearchSettings {
         return iDisplayLength;
     }
 
+    public String getBaseUrl() {
+        return baseUrl;
+    }
+
+    public String getHostName() {
+        return hostName;
+    }
+
+    public HttpServletRequest getRequest() {
+        return request;
+    }
+
     @Override
     public String toString() {
         return "SearchSettings{"
@@ -188,6 +214,8 @@ public class SearchSettings {
                 + ", imgView=" + imgView
                 + ", iDisplayStart=" + iDisplayStart
                 + ", iDisplayLength=" + iDisplayLength
+                + ", baseUrl=" + baseUrl
+                + ", hostName=" + hostName
                 + '}';
     }
 

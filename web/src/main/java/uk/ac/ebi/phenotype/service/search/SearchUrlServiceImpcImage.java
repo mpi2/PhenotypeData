@@ -37,12 +37,7 @@ public class SearchUrlServiceImpcImage extends SearchUrlService {
     @Override
     public String qf() {
         return "imgQf";
-    }
-
-    @Override
-    public String fqStr() {
-        return "+*:*";
-    }
+    }   
 
     @Override
     public String bq(String q) {
@@ -93,7 +88,7 @@ public class SearchUrlServiceImpcImage extends SearchUrlService {
     }
 
     @Override
-    public String breadcrumLabel() {
+    public String breadcrumbLabel() {
         return "IMPC Images";
     }
 

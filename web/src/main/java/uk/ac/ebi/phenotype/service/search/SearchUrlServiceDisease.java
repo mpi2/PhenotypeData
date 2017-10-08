@@ -37,12 +37,7 @@ public class SearchUrlServiceDisease extends SearchUrlService {
     @Override
     public String qf() {
         return "diseaseQf";
-    }
-
-    @Override
-    public String fqStr() {
-        return "+*:*";
-    }
+    }   
 
     @Override
     public String bq(String q) {
@@ -94,7 +89,7 @@ public class SearchUrlServiceDisease extends SearchUrlService {
     }
 
     @Override
-    public String breadcrumLabel() {
+    public String breadcrumbLabel() {        
         return "Diseases";
     }
 

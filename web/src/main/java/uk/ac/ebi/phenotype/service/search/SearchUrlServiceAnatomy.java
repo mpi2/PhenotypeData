@@ -37,12 +37,7 @@ public class SearchUrlServiceAnatomy extends SearchUrlService {
     @Override
     public String qf() {
         return "anatomyQf";
-    }
-
-    @Override
-    public String fqStr() {
-        return "+*:*";
-    }
+    }  
 
     @Override
     public String bq(String q) {
@@ -76,7 +71,7 @@ public class SearchUrlServiceAnatomy extends SearchUrlService {
     }
 
     @Override
-    public String breadcrumLabel() {
+    public String breadcrumbLabel() {
         return "Anatomy";
     }
 

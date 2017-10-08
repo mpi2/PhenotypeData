@@ -40,7 +40,7 @@ public class SearchUrlServicePhenodigm2Disease extends SearchUrlService {
     }
 
     @Override
-    public String fqStr() {
+    public String fq() {
         return "+type:disease";
     }
 
@@ -75,7 +75,7 @@ public class SearchUrlServicePhenodigm2Disease extends SearchUrlService {
     }
 
     @Override
-    public String breadcrumLabel() {
+    public String breadcrumbLabel() {
         return "Diseases";
     }
 
