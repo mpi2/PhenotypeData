@@ -196,8 +196,8 @@ public class SearchController {
             model.addAttribute("searchResult", newstring);
         } else {
             LOGGER.info("table service not availabe for " + settings.getDataType());
-        }
-    }
+	}
+	}
 
     /**
      * Create and execute a solr query; retrieve search result
