@@ -88,12 +88,12 @@ public class SearchUrlServiceImpcImage extends SearchUrlService {
     }
 
     @Override
-    public String breadcrumbLabel() {
+    public String breadcrumb() {
         return "IMPC Images";
     }
 
     @Override
-    public String sortingStr() {
+    public String sort() {
         return "";
     }
 

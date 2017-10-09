@@ -90,13 +90,13 @@ public class SearchUrlServiceAllele2 extends SearchUrlService {
     }
 
     @Override
-    public String breadcrumbLabel() {
+    public String breadcrumb() {
         return "Products";
     }
 
     @Override
-    public String sortingStr() {
-        return "&sort=allele_name asc";
+    public String sort() {
+        return "allele_name asc";
     }
 
     @Override

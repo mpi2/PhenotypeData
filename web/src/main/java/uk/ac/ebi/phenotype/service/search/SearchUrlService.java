@@ -35,6 +35,12 @@ public abstract class SearchUrlService {
 
     protected final Logger LOGGER = LoggerFactory.getLogger(this.getClass().getCanonicalName());
 
+    /**
+     * @return
+     *
+     * Expression suitable for &defType= part of a solr query.
+     *
+     */
     public String defType() {
         return "edismax";
     }
@@ -43,14 +49,21 @@ public abstract class SearchUrlService {
      * The "query field" argument for a solr query.
      *
      * @return
+     *
+     * Expression suitable for the &qf= part of a solr query.
      */
     public abstract String qf();
 
     /**
-     * The "filter query" argument. This function gives the default filter for
-     * the class.
+     * The "filter query" argument.
+     *
+     * To create a filter query with a user-specific request, use the related
+     * function fq(String)
      *
      * @return
+     *
+     * Expression suitable for the &fq= part of a solr query. This expression is
+     * a must-have filter components for the class instance.
      */
     public String fq() {
         return "+*:*";
@@ -62,7 +75,11 @@ public abstract class SearchUrlService {
      *
      * @param customFilter
      *
+     * user-specified filter string
+     *
      * @return
+     *
+     * An expression suitable for the &fq= part of a solr query.
      */
     public String fq(String customFilter) {
         String fq = fq();
@@ -73,12 +90,46 @@ public abstract class SearchUrlService {
         }
     }
 
+    /**
+     * The "boost query" argument for adjusting hit scoring. Use this, for
+     * example, to score a hit in field A higher than a hit in field B.
+     *
+     * @param q
+     *
+     * a query string
+     *
+     * @return
+     *
+     * Expression suitable for the &bq= part of a solr query.
+     */
     public abstract String bq(String q);
 
+    /**
+     * @return
+     *
+     * List of fields that should be returned in the the search.
+     */
     public abstract List<String> fieldList();
 
+    /**
+     * Plain list of facet field names; Consider using facetFieldsSolrStr to
+     * obtain a complete solr query part that turns faceting on and includes all
+     * the facet fields.
+     *
+     * @return
+     *
+     * List of fields in documents to facet on.
+     */
     public abstract List<String> facetFields();
 
+    /**
+     * Helper to create a part of a solr query.
+     *
+     * @return
+     *
+     * A part of a solr query that turns on faceting, facet sorting, and sets
+     * the facet fields using facetFields()
+     */
     public String facetFieldsSolrStr() {
         String solrStr = "";
         for (String facetField : facetFields()) {
@@ -95,9 +146,25 @@ public abstract class SearchUrlService {
         return StringUtils.join(gridHeaders(), ",");
     }
 
-    public abstract String breadcrumbLabel();
+    /**
+     * Not really part of solr query - remove?
+     *
+     * @return
+     */
+    public abstract String breadcrumb();
 
-    public abstract String sortingStr();
+    /**
+     * Note: this is somewhat confusing name. It does not sort anything, it
+     * merely produces an instruction for how to sort a solr query result.
+     *
+     * Note: the sorting does not appear to be used. Remove?
+     * 
+     * 
+     * @return
+     *
+     * Expression suitable for the &sort= part of solr query
+     */
+    public abstract String sort();
 
     public abstract String solrUrl();
 
@@ -108,14 +175,17 @@ public abstract class SearchUrlService {
      * function to add core-specific twists.
      *
      * @return
+     *
+     * Part of a solr query; can be added to the end of a valid solr query
+     * string to produce another valid solr query string.
      */
     public String querySuffix() {
         return "";
     }
 
     /**
-     * Get Solr query string with all the options. The build query will include
-     * all the selected result and facets, etc.
+     * Produce a solr query string with all the options. The build query will
+     * include all the selected result and facets, etc.
      *
      * original had extra logic for dealing with mp and anatomy cores That has
      * been removed. See old version of code for details.

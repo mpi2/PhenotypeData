@@ -90,13 +90,13 @@ public class SearchUrlServiceGene extends SearchUrlService {
     }
 
     @Override
-    public String breadcrumbLabel() {        
+    public String breadcrumb() {        
         return "Genes";
     }
 
     @Override
-    public String sortingStr() {
-        return "&sort=marker_symbol asc";
+    public String sort() {
+        return "marker_symbol asc";
     }
 
     @Override

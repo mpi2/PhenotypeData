@@ -152,6 +152,7 @@ public class SearchController {
         SearchSettings settings = new SearchSettings(dataType, query, fqStr, request);
         settings.setImgView(showImgView);
         settings.setDisplay(iDisplayStart, iDisplayLength);
+        System.out.println("\n\n\n");
         LOGGER.info(settings.toString());
 
         processSearch(settings, model);
@@ -171,17 +172,17 @@ public class SearchController {
      * @throws URISyntaxException
      */
     private void processSearch(SearchSettings settings, Model model) throws IOException, URISyntaxException {
-        
+
         // fetch counts of hits in broad categories (used in webpage in tab headings)        
-        JSONObject facetCounts = getMainFacetCounts(settings);        
+        JSONObject facetCounts = getMainFacetCounts(settings);
         model.addAttribute("facetCount", facetCounts);
         model.addAttribute("searchQuery", settings.getQuery().replaceAll("\\\\", ""));
         model.addAttribute("dataType", settings.getDataType());
         //LOGGER.info("facetCountJsonResponse: new: " + facetCounts.toString(1));
-        
+
         // create an object that will create query urls
         SearchUrlService urlservice = urlFactory.getService(settings.getDataType());
-        model.addAttribute("dataTypeLabel", urlservice.breadcrumbLabel());
+        model.addAttribute("dataTypeLabel", urlservice.breadcrumb());
         model.addAttribute("gridHeaderListStr", urlservice.gridHeadersStr());
         // perform the query, i.e. gather the hits from solr
         JSONObject searchHits = fetchSearchResult(urlservice, settings, true);
@@ -190,12 +191,11 @@ public class SearchController {
         // transform the results from solr into another json/string.
         // The transformed object will be sent to the web-page generating scripts
         DataTableService tableService = tableFactory.getService(settings.getDataType());
-        if (tableService != null) {
-            LOGGER.info("using table service for " + settings.getDataType());
+        if (tableService != null) {            
             String newstring = tableService.toDataTable(searchHits, settings);
             model.addAttribute("searchResult", newstring);
         } else {
-            LOGGER.info("table service not availabel for " + settings.getDataType());
+            LOGGER.info("table service not availabe for " + settings.getDataType());
         }
     }
 
@@ -220,7 +220,11 @@ public class SearchController {
                 settings.getiDisplayStart(), settings.getiDisplayLength(),
                 facet);
         JSONObject result = queryBrokerService.runQuery(queryUrl);
-        //LOGGER.info("fetchSearchResult: "+result.toString(2));
+        if ("disease".equals(settings.getDataType())) {
+            LOGGER.info("fetchSearchResult: " + result.toString(2));
+        } else {
+            LOGGER.info("fetchSearchResult: other");
+        }
 
         return result;
     }

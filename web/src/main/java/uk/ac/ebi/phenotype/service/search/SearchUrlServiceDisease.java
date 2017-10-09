@@ -46,6 +46,12 @@ public class SearchUrlServiceDisease extends SearchUrlService {
                 + " disease_source:(" + q + ")^200";
     }
 
+    /**
+     * TK: the search results page actually only uses disease_id, disease_term,
+     * and disease_source. Remove the others?
+     * 
+     * @return 
+     */
     @Override
     public List<String> fieldList() {
         return Arrays.asList("disease_id",
@@ -89,13 +95,13 @@ public class SearchUrlServiceDisease extends SearchUrlService {
     }
 
     @Override
-    public String breadcrumbLabel() {        
+    public String breadcrumb() {        
         return "Diseases";
     }
 
     @Override
-    public String sortingStr() {
-        return "&sort=disease_term asc";
+    public String sort() {
+        return "disease_term asc";
     }
 
     @Override

@@ -36,12 +36,12 @@ public class SearchUrlServicePhenodigm2Disease extends SearchUrlService {
 
     @Override
     public String qf() {
-        return "disease_term";
+        return "search_qf";
     }
 
     @Override
     public String fq() {
-        return "+type:disease";
+        return "+type:disease_associations";
     }
 
     @Override
@@ -55,13 +55,18 @@ public class SearchUrlServicePhenodigm2Disease extends SearchUrlService {
     public List<String> fieldList() {
         return Arrays.asList("disease_id",
                 "disease_term",
-                "disease_source",
-                "disease_classes");
+                "disease_source");                
     }
 
     @Override
     public List<String> facetFields() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return Arrays.asList("disease_source",
+                "disease_classes",
+                "human_curated",         
+                "impc_model_with_curated_gene",
+                "impc_model_with_computed_association",
+                "mgi_model_with_curated_gene",
+                "mgi_model_with_computed_association");                
     }
 
     @Override
@@ -75,13 +80,13 @@ public class SearchUrlServicePhenodigm2Disease extends SearchUrlService {
     }
 
     @Override
-    public String breadcrumbLabel() {
+    public String breadcrumb() {
         return "Diseases";
     }
 
     @Override
-    public String sortingStr() {
-        return "&sort=disease_term asc";
+    public String sort() {
+        return "disease_term asc";
     }
 
     @Override

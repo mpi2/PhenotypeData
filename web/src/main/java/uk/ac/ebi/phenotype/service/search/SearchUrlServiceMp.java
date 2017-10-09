@@ -73,13 +73,13 @@ public class SearchUrlServiceMp extends SearchUrlService {
     }
 
     @Override
-    public String breadcrumbLabel() {
+    public String breadcrumb() {
         return "Phenotypes";
     }
 
     @Override
-    public String sortingStr() {
-        return "&sort=mp_term asc";
+    public String sort() {
+        return "mp_term asc";
     }
 
     @Override

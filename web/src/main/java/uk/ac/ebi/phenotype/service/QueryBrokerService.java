@@ -41,7 +41,8 @@ public class QueryBrokerService {
     private SolrIndex solrIndex;
 
     // Use cache to manage queries for minimizing network traffic    
-    final int CACHE_SIZE = 500; 
+    //final int CACHE_SIZE = 500; 
+    final int CACHE_SIZE = 0; 
 
     /**
      * A map implementing a cache of associations: url->result
@@ -124,10 +125,9 @@ public class QueryBrokerService {
             LOGGER.info("Using cache for key: " + url);
             return (JSONObject) cache.get(url);
         }
-
-        LOGGER.info("running de novo: " + url);
-
+        
         // look up request 
+        //LOGGER.info("running de novo: " + url);
         JSONObject json = solrIndex.getResults(url);
 
         // extract just the relevant parts of the result 

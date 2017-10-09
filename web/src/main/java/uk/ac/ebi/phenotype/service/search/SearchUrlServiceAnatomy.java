@@ -71,13 +71,13 @@ public class SearchUrlServiceAnatomy extends SearchUrlService {
     }
 
     @Override
-    public String breadcrumbLabel() {
+    public String breadcrumb() {
         return "Anatomy";
     }
 
     @Override
-    public String sortingStr() {
-        return "&sort=term asc";
+    public String sort() {
+        return "term asc";
     }
 
     @Override
