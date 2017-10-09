@@ -41,6 +41,18 @@ public class DataTableServiceFactory {
     @Autowired
     private DataTableServiceDisease dtsDisease;
     
+    @Autowired
+    private DataTableServiceAnatomy dtsAnatomy;
+    
+    @Autowired
+    private DataTableServiceImpcImage dtsImpcImage;
+
+    /**
+     * Obtain an instance of a DataTableService
+     * 
+     * @param type
+     * @return 
+     */
     public DataTableService getService(String type) {
         switch (type) {
             case "gene":
@@ -48,9 +60,13 @@ public class DataTableServiceFactory {
             case "allele2":
                 return dtsAllele;
             case "disease":
-                return dtsDisease;            
+                return dtsDisease;
             case "mp":
-                return dtsMp;                
+                return dtsMp;   
+            case "anatomy":
+                return dtsAnatomy;                   
+            case "impc_images":
+                return dtsImpcImage;
             default:
                 LOGGER.info("requested service of unknown type: " + type);
                 return null;

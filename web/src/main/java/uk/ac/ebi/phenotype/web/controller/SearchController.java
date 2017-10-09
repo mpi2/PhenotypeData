@@ -30,6 +30,7 @@ import java.util.Arrays;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import uk.ac.ebi.phenotype.service.QueryBrokerService;
 import uk.ac.ebi.phenotype.service.datatable.DataTableService;
 import uk.ac.ebi.phenotype.service.datatable.DataTableServiceFactory;
 import uk.ac.ebi.phenotype.service.search.SearchUrlService;
@@ -61,6 +62,9 @@ public class SearchController {
 
     @Autowired
     private QueryBrokerController queryBrokerController;
+
+    @Autowired
+    private QueryBrokerService queryBrokerService;
 
     /**
      * redirect calls to the base url or /search/ path to the search page
@@ -158,7 +162,6 @@ public class SearchController {
             Model model) throws IOException, URISyntaxException {
 
         LOGGER.info("\n\n\n\n");
-        LOGGER.info("searchResult: dataType: " + dataType);
         LOGGER.info("request is " + request.toString());
 
         // encode the parsed search settings into an object
@@ -271,11 +274,13 @@ public class SearchController {
         JSONObject searchHits = fetchSearchResult(urlservice, settings, true);
         //LOGGER.info("fetchSearchResultNew gave result:\n" + searchHits.toString(2));
 
-        String oldstring = convert2DataTableJson(false, request, searchHits,
-                settings.getQuery(), settings.getFqStr(), 
-                settings.getiDisplayStart(), settings.getiDisplayLength(), 
-                settings.isImgView(), settings.getDataType());
-        //LOGGER.info("old datatable string:\n"+oldstring);
+        LOGGER.info("processSearch before data tables");
+
+        //String oldstring = convert2DataTableJson(false, request, searchHits,
+        //        settings.getQuery(), settings.getFqStr(),
+        //        settings.getiDisplayStart(), settings.getiDisplayLength(),
+        //        settings.isImgView(), settings.getDataType());
+        //LOGGER.info("old datatable string:\n" + oldstring);
         
         DataTableService tableService = tableFactory.getService(settings.getDataType());
         if (tableService != null) {
@@ -286,8 +291,8 @@ public class SearchController {
             LOGGER.info("after searchResult");
         } else {
             LOGGER.info("table service not availabel for " + settings.getDataType());
-            model.addAttribute("searchResult", oldstring);
-            LOGGER.info("oldResult is: "+oldstring);
+            //model.addAttribute("searchResult", oldstring);
+            //LOGGER.info("oldResult is: " + oldstring);
         }
 
         LOGGER.info("exiting processSearch");
@@ -318,13 +323,13 @@ public class SearchController {
         Boolean legacyOnly = false;
         String evidRank = "";
         String solrParamStr = composeSolrParamStr(export, query, fqStr, dataType);
-        //LOGGER.info("convert2DataTableJsons solrParamStr: " + dataType + " -- " + solrParamStr);
+        LOGGER.info("convert2DataTableJsons solrParamStr: " + dataType + "\nsolrParamStr" + solrParamStr);
         String content = dataTableController.fetchDataTableJson(request, json, mode, query, fqStr, iDisplayStart, iDisplayLength, solrParamStr, showImgView, solrCoreName, legacyOnly, evidRank);
         //LOGGER.info("convert2DataTableJsons result: " + content);
 
         return content;
     }
-   
+
     /**
      * Fetch information from solr. This function should be deprecated, but it
      * still used in FileExportController.
@@ -384,7 +389,7 @@ public class SearchController {
                 settings.getiDisplayStart(), settings.getiDisplayLength(),
                 facet);
         LOGGER.info("fetchSearchResult (new):\n - newQueryStr: " + queryUrl + "\n");
-        JSONObject result = queryBrokerController.runQuery(queryUrl);
+        JSONObject result = queryBrokerService.runQuery(queryUrl);
         //LOGGER.info("\n\n +++ output new was: "+result.toString(2));
 
         return result;
@@ -520,7 +525,7 @@ public class SearchController {
             queries.put(thisCore, thisQueryUrl);
         }
 
-        return queryBrokerController.runQueries(null, queries);
+        return queryBrokerService.runQueries(null, queries);
     }
 
 }

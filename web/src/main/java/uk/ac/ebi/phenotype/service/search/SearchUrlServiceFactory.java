@@ -30,42 +30,42 @@ public class SearchUrlServiceFactory {
     private final Logger LOGGER = LoggerFactory.getLogger(this.getClass().getCanonicalName());
     
     @Autowired
-    private SearchUrlServiceAllele2 searchConfigAllele2;
+    private SearchUrlServiceAllele2 searchUrlServiceAllele2;
 
     @Autowired
-    private SearchUrlServiceAnatomy searchConfigAnatomy;
+    private SearchUrlServiceAnatomy searchUrlServiceAnatomy;
 
     @Autowired
-    private SearchUrlServiceDisease searchConfigDisease;
+    private SearchUrlServiceDisease searchUrlServiceDisease;
 
     @Autowired
-    private SearchUrlServiceGene searchConfigGene;
+    private SearchUrlServiceGene searchUrlServiceGene;
 
     @Autowired
-    private SearchUrlServiceMp searchConfigImpcImage;
+    private SearchUrlServiceImpcImage searchUrlServiceImpcImage;
 
     @Autowired
-    private SearchUrlServiceMp searchConfigMp;
+    private SearchUrlServiceMp searchUrlServiceMp;
 
     @Autowired
-    private SearchUrlServicePhenodigm2Disease searchConfigPhenodigm2Disease;
+    private SearchUrlServicePhenodigm2Disease searchUrlServicePhenodigm2Disease;
 
     public SearchUrlService getService(String type) {
         switch (type) {
             case "gene":
-                return searchConfigGene;
+                return searchUrlServiceGene;
             case "mp":
-                return searchConfigMp;
+                return searchUrlServiceMp;
             case "disease":
-                return searchConfigDisease;
+                return searchUrlServiceDisease;
             case "phenodigm2disease":
-                return searchConfigPhenodigm2Disease;
+                return searchUrlServicePhenodigm2Disease;
             case "anatomy":
-                return searchConfigAnatomy;
+                return searchUrlServiceAnatomy;
             case "impc_images":
-                return searchConfigImpcImage;
+                return searchUrlServiceImpcImage;
             case "allele2":
-                return searchConfigAllele2;
+                return searchUrlServiceAllele2;
             default:
                 LOGGER.info("requested service of unknown type: "+type);
                 return null;
