@@ -40,9 +40,8 @@ public class QueryBrokerService {
     @Autowired
     private SolrIndex solrIndex;
 
-    // Use cache to manage queries for minimizing network traffic
-    // final int CACHE_SIZE = 600; 
-    final int CACHE_SIZE = 0; // temporarily disable cache for testing
+    // Use cache to manage queries for minimizing network traffic    
+    final int CACHE_SIZE = 500; 
 
     /**
      * A map implementing a cache of associations: url->result

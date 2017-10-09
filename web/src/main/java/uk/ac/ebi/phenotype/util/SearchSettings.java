@@ -124,10 +124,7 @@ public class SearchSettings {
             } else {
                 fqStr = oriFqStr;
             }
-        }
-        System.out.println("query: " + query);
-        System.out.println("fqStr: " + fqStr);
-        System.out.println("chrQuery: " + chrQuery);
+        }        
     }
 
     /**

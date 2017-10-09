@@ -54,8 +54,7 @@ public class QueryBrokerController {
     private SolrIndex solrIndex;
 
     // Use cache to manage queries for minimizing network traffic
-    // final int MAX_ENTRIES = 600; 
-    final int MAX_ENTRIES = 0; // temporarily disable cache for testing
+    final int MAX_ENTRIES = 600;     
 
     @SuppressWarnings("unchecked")
     Map<String, Object> cache = (Map<String, Object>) Collections.synchronizedMap(new LinkedHashMap<String, Object>(MAX_ENTRIES + 1, .75F, true) {

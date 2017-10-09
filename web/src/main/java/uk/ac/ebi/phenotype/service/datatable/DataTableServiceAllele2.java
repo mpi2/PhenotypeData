@@ -57,8 +57,8 @@ public class DataTableServiceAllele2 extends DataTableService {
 
         j.put("iTotalRecords", totalDocs);
         j.put("iTotalDisplayRecords", totalDocs);
-        j.put("iDisplayStart", request.getAttribute("displayStart"));
-        j.put("iDisplayLength", request.getAttribute("displayLength"));
+        j.put("iDisplayStart", settings.getiDisplayStart());
+        j.put("iDisplayLength", settings.getiDisplayLength());
 
         for (int i = 0; i < docs.size(); i++) {
             List<String> rowData = new ArrayList<String>();

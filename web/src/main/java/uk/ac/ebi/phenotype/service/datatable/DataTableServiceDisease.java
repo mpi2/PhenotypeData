@@ -55,8 +55,8 @@ public class DataTableServiceDisease extends DataTableService {
 
 		j.put("iTotalRecords", totalDocs);
 		j.put("iTotalDisplayRecords", totalDocs);
-		j.put("iDisplayStart", request.getAttribute("displayStart"));
-		j.put("iDisplayLength", request.getAttribute("displayLength"));
+		j.put("iDisplayStart", settings.getiDisplayStart());
+		j.put("iDisplayLength", settings.getiDisplayLength());
 
 		Map<String, String> srcBaseUrlMap = new HashMap<>();
 		srcBaseUrlMap.put("OMIM", "http://omim.org/entry/");

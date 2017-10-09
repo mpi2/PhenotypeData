@@ -16,12 +16,9 @@
 package uk.ac.ebi.phenotype.service.datatable;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -70,7 +67,7 @@ public class DataTableServiceAnatomy extends DataTableService {
         j.put("iDisplayLength", settings.getiDisplayLength());
 
         for (int i = 0; i < docs.size(); i++) {
-            List<String> rowData = new ArrayList<String>();
+            List<String> rowData = new ArrayList<>();
 
             // array element is an alternate of facetField and facetCount
             JSONObject doc = docs.getJSONObject(i);

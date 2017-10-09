@@ -402,8 +402,10 @@ public class FileExportController {
 						rows = iDisplayLength - (i * rows);
 					}
 
-					JSONObject json = searchController.fetchSearchResultOld(export, query, dataType, iDisplayStart, rows, showImgView, fqStr, model);
-
+                    // TK: Warning - fileexport is broken because fetchSearchResult has changed!
+					//JSONObject json = searchController.fetchSearchResult(export, query, dataType, iDisplayStart, rows, showImgView, fqStr, model);
+                    JSONObject json = new JSONObject();
+                    
 					List<String> dr = new ArrayList<>();
 
 					dr = composeDataTableExportRows(query, dataType, json, iDisplayStart, rows, showImgView,
@@ -417,7 +419,9 @@ public class FileExportController {
 					dataRows.addAll(dr);
 				}
 			} else {
-				JSONObject json = searchController.fetchSearchResultOld(export, query, dataType, iDisplayStart, iDisplayLength, showImgView, fqStr, model);
+                // TK: Warning - fileexport is broken because fetchSearchResult has changed!
+				// JSONObject json = searchController.fetchSearchResult(export, query, dataType, iDisplayStart, iDisplayLength, showImgView, fqStr, model);
+                JSONObject json = new JSONObject();
 				dataRows = composeDataTableExportRows(query, dataType, json, iDisplayStart, iDisplayLength, showImgView,
 						solrFilters, request, legacyOnly, fqStr);
 

@@ -1028,6 +1028,17 @@ public class DataTableController {
 		return responseHeaders;
 	}
 
+    /**
+     * Function description?
+     * 
+     * TK: Parts of this function is now redundant. Handling of modes
+     * geneGrid, impc_imagesGrid, mpGrid, anatomyGrid, diseaseGrid, allele2Grid
+     * are now handled using the DataTableService family.
+     * 
+     * For now, those parts of the function are commented out, pending removal.
+     * Associated functions below are marked as deprecated, pending removal.
+     * 
+     */
 	public String fetchDataTableJson(HttpServletRequest request,
 									 JSONObject json,
 									 String mode,
@@ -1043,30 +1054,33 @@ public class DataTableController {
 		request.setAttribute("displayStart", start);
 		request.setAttribute("displayLength", length);
 		String jsonStr = null;
-		if (mode.equals("geneGrid")) {
-			jsonStr = parseJsonforGeneDataTable(json, request, query, fqOri, solrCoreName, legacyOnly);
-		} else if (mode.equals("pipelineGrid")) {
+		if (mode.equals("pipelineGrid")) {
 			jsonStr = parseJsonforProtocolDataTable(json, request, solrCoreName);
-		} else if (mode.equals("impc_imagesGrid")) {
-			jsonStr = parseJsonforImpcImageDataTable(json, solrParams, showImgView, request, query, fqOri, solrCoreName);
-		} else if (mode.equals("imagesGrid")) {
+        } else if (mode.equals("imagesGrid")) {
 			jsonStr = parseJsonforImageDataTable(json, solrParams, showImgView, request, query, fqOri, solrCoreName);
-		} else if (mode.equals("mpGrid")) {
-			jsonStr = parseJsonforMpDataTable(json, request, query, solrCoreName);
-		} else if (mode.equals("anatomyGrid")) {
-			jsonStr = parseJsonforAnatomyDataTable(json, request, query, solrCoreName);
-		} else if (mode.equals("diseaseGrid")) {
-			jsonStr = parseJsonforDiseaseDataTable(json, request, solrCoreName);
-		} else if (mode.equals("gene2go")) {
+        } else if (mode.equals("gene2go")) {
 			jsonStr = parseJsonforGoDataTable(json, request, solrCoreName, evidRank);
-		} else if (mode.equals("allele2Grid")) {
-			jsonStr = parseJsonforProductDataTable(json, request, query, solrCoreName);
 		}
-
+        //} else if (mode.equals("geneGrid")) {
+		//	jsonStr = parseJsonforGeneDataTable(json, request, query, fqOri, solrCoreName, legacyOnly);		
+		//} else if (mode.equals("impc_imagesGrid")) {
+		//	jsonStr = parseJsonforImpcImageDataTable(json, solrParams, showImgView, request, query, fqOri, solrCoreName);		
+		//} else if (mode.equals("mpGrid")) {
+		//	jsonStr = parseJsonforMpDataTable(json, request, query, solrCoreName);
+		//} else if (mode.equals("anatomyGrid")) {
+		//	jsonStr = parseJsonforAnatomyDataTable(json, request, query, solrCoreName);
+		//} else if (mode.equals("diseaseGrid")) {
+		//	jsonStr = parseJsonforDiseaseDataTable(json, request, solrCoreName);
+		//} else if (mode.equals("allele2Grid")) {
+		//	jsonStr = parseJsonforProductDataTable(json, request, query, solrCoreName);		
+        
 		return jsonStr;
 	}
 
-	public String parseJsonforProductDataTable(JSONObject json, HttpServletRequest request, String qryStr, String solrCoreName) throws UnsupportedEncodingException {
+    /**
+     * @deprecated - use DataTableService family instead
+     */
+	private String parseJsonforProductDataTable(JSONObject json, HttpServletRequest request, String qryStr, String solrCoreName) throws UnsupportedEncodingException {
 
 		String baseUrl = request.getAttribute("baseUrl").toString();
 
@@ -1240,7 +1254,10 @@ public class DataTableController {
 		return j.toString();
 	}
 
-	public String parseJsonforGeneDataTable(JSONObject json, HttpServletRequest request, String qryStr, String fqOri, String solrCoreName, boolean legacyOnly) {
+    /**
+     * @deprecated - use DataTableService family instead
+     */
+	private String parseJsonforGeneDataTable(JSONObject json, HttpServletRequest request, String qryStr, String fqOri, String solrCoreName, boolean legacyOnly) {
 
 		RegisterInterestDrupalSolr registerInterest = new RegisterInterestDrupalSolr(config.get("drupalBaseUrl"), request);
 
@@ -1388,7 +1405,10 @@ public class DataTableController {
 		return j.toString();
 	}
 
-	public String parseJsonforMpDataTable(JSONObject json, HttpServletRequest request, String qryStr, String solrCoreNamet) {
+    /**
+     * @deprecated - use DataTableService family instead
+    */
+	private String parseJsonforMpDataTable(JSONObject json, HttpServletRequest request, String qryStr, String solrCoreNamet) {
 
 		RegisterInterestDrupalSolr registerInterest = new RegisterInterestDrupalSolr(config.get("drupalBaseUrl"), request);
 		String baseUrl = request.getAttribute("baseUrl").toString();
@@ -1533,7 +1553,10 @@ public class DataTableController {
 		return j.toString();
 	}
 
-	public String parseJsonforAnatomyDataTable(JSONObject json, HttpServletRequest request, String qryStr, String solrCoreName) throws IOException, URISyntaxException {
+    /**
+     * @deprecated - use DataTableService family instead
+     */
+	private String parseJsonforAnatomyDataTable(JSONObject json, HttpServletRequest request, String qryStr, String solrCoreName) throws IOException, URISyntaxException {
 
 		//String baseUrl = request.getAttribute("baseUrl") + "/anatomy/";
 		String baseUrl = request.getAttribute("baseUrl").toString();
@@ -1679,7 +1702,10 @@ public class DataTableController {
 		return expressionDataAvailable;
 	}
 
-	public String parseJsonforImpcImageDataTable(JSONObject json, String solrParams, boolean showImgView, HttpServletRequest request, String query, String fqOri, String solrCoreName) throws IOException, URISyntaxException {
+    /**
+     * @deprecated - use DataTableService family instead
+     */
+	private String parseJsonforImpcImageDataTable(JSONObject json, String solrParams, boolean showImgView, HttpServletRequest request, String query, String fqOri, String solrCoreName) throws IOException, URISyntaxException {
 
 		int start = (int) request.getAttribute("displayStart");
 		int length = (int) request.getAttribute("displayLength");
@@ -2153,7 +2179,10 @@ public class DataTableController {
 		}
 	}
 
-	public String parseJsonforDiseaseDataTable(JSONObject json, HttpServletRequest request, String solrCoreName) {
+    /**
+     * @deprecated - use DataTableService family instead
+     */
+	private String parseJsonforDiseaseDataTable(JSONObject json, HttpServletRequest request, String solrCoreName) {
 
 		String baseUrl = request.getAttribute("baseUrl") + "/disease/";
 
@@ -2285,6 +2314,10 @@ public class DataTableController {
 		return StringUtils.join(imgPath, "");
 
 	}
+        
+    /**
+     * @deprecated - transfered into DataTableService family
+     */
 	private String concateAlleleNameInfo(JSONObject doc, HttpServletRequest request, String qryStr) {
 
 		List<String> alleleNameInfo = new ArrayList<String>();
@@ -2369,6 +2402,9 @@ public class DataTableController {
 
 	}
 
+    /**
+     * @deprecated - transfered into DataTableService family
+     */
 	private String concateGeneInfo(JSONObject doc, JSONObject json, String qryStr, HttpServletRequest request) {
 
 		List<String> geneInfo = new ArrayList<String>();
