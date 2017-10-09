@@ -127,6 +127,7 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
         results
             .stream()
             .filter(x -> parameters.get(x.get(ObservationDTO.PROCEDURE_GROUP)) != null)
+            .parallel()
             .forEach(result -> {
 
                 logger.info("Processing {} {} {} {}", result.get(ObservationDTO.PHENOTYPING_CENTER), result.get(ObservationDTO.PIPELINE_STABLE_ID), result.get(ObservationDTO.PROCEDURE_GROUP), result.get(ObservationDTO.STRAIN_ACCESSION_ID));
