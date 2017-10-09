@@ -28,7 +28,7 @@ import uk.ac.ebi.phenotype.util.SearchSettings;
 /**
  * Code mostly refactored from DataTableController
  *
- * TO DO: remove dependence on request object
+ * TO DO: remove dependence on request object?
  *
  */
 @Service
@@ -47,46 +47,46 @@ public class DataTableServiceDisease extends DataTableService {
         HttpServletRequest request = settings.getRequest();
         String baseUrl = request.getAttribute("baseUrl") + "/disease/";
 
-		JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
-		int totalDocs = json.getJSONObject("response").getInt("numFound");
+        JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
+        int totalDocs = json.getJSONObject("response").getInt("numFound");
 
-		JSONObject j = new JSONObject();
-		j.put("aaData", new Object[0]);
+        JSONObject j = new JSONObject();
+        j.put("aaData", new Object[0]);
 
-		j.put("iTotalRecords", totalDocs);
-		j.put("iTotalDisplayRecords", totalDocs);
-		j.put("iDisplayStart", settings.getiDisplayStart());
-		j.put("iDisplayLength", settings.getiDisplayLength());
+        j.put("iTotalRecords", totalDocs);
+        j.put("iTotalDisplayRecords", totalDocs);
+        j.put("iDisplayStart", settings.getiDisplayStart());
+        j.put("iDisplayLength", settings.getiDisplayLength());
 
-		Map<String, String> srcBaseUrlMap = new HashMap<>();
-		srcBaseUrlMap.put("OMIM", "http://omim.org/entry/");
-		srcBaseUrlMap.put("ORPHANET", "http://www.orpha.net/consor/cgi-bin/OC_Exp.php?Lng=GB&Expert=");
-		srcBaseUrlMap.put("DECIPHER", "http://decipher.sanger.ac.uk/syndrome/");
+        Map<String, String> srcBaseUrlMap = new HashMap<>();
+        srcBaseUrlMap.put("OMIM", "http://omim.org/entry/");
+        srcBaseUrlMap.put("ORPHANET", "http://www.orpha.net/consor/cgi-bin/OC_Exp.php?Lng=GB&Expert=");
+        srcBaseUrlMap.put("DECIPHER", "http://decipher.sanger.ac.uk/syndrome/");
 
-		for (int i = 0; i < docs.size(); i ++) {
-			List<String> rowData = new ArrayList<String>();
+        for (int i = 0; i < docs.size(); i++) {
+            List<String> rowData = new ArrayList<String>();
 
-			// disease link
-			JSONObject doc = docs.getJSONObject(i);			
-			String diseaseId = doc.getString("disease_id");
-			String diseaseTerm = doc.getString("disease_term");
-			String diseaseLink = "<a href='" + baseUrl + diseaseId + "'>" + diseaseTerm + "</a>";
-			rowData.add(diseaseLink);
+            // disease link
+            JSONObject doc = docs.getJSONObject(i);
+            String diseaseId = doc.getString("disease_id");
+            String diseaseTerm = doc.getString("disease_term");
+            String diseaseLink = "<a href='" + baseUrl + diseaseId + "'>" + diseaseTerm + "</a>";
+            rowData.add(diseaseLink);
 
-			// disease source
-			String src = doc.getString("disease_source");
-			String[] IdParts =  diseaseId.split(":");
-			String digits = IdParts[1];
-			String srcId = src + ":" + digits;
-			rowData.add("<a target='_blank' href='" + srcBaseUrlMap.get(src) + digits + "'>" + srcId + "</a>");
-			
-			j.getJSONArray("aaData").add(rowData);
-		}
+            // disease source
+            String src = doc.getString("disease_source");
+            String[] IdParts = diseaseId.split(":");
+            String digits = IdParts[1];
+            String srcId = src + ":" + digits;
+            rowData.add("<a target='_blank' href='" + srcBaseUrlMap.get(src) + digits + "'>" + srcId + "</a>");
 
-		JSONObject facetFields = json.getJSONObject("facet_counts").getJSONObject("facet_fields");
-		j.put("facet_fields", facetFields);
+            j.getJSONArray("aaData").add(rowData);
+        }
 
-		return j.toString();
+        JSONObject facetFields = json.getJSONObject("facet_counts").getJSONObject("facet_fields");
+        j.put("facet_fields", facetFields);
+
+        return j.toString();
     }
 
 }

@@ -40,18 +40,18 @@ public class DataTableServiceFactory {
 
     @Autowired
     private DataTableServiceDisease dtsDisease;
-    
+
     @Autowired
     private DataTableServiceAnatomy dtsAnatomy;
-    
+
     @Autowired
     private DataTableServiceImpcImage dtsImpcImage;
 
     /**
      * Obtain an instance of a DataTableService
-     * 
+     *
      * @param type
-     * @return 
+     * @return
      */
     public DataTableService getService(String type) {
         switch (type) {
@@ -59,12 +59,15 @@ public class DataTableServiceFactory {
                 return dtsGene;
             case "allele2":
                 return dtsAllele;
+            case "disease1":
+            // support for querying against old disease core            
             case "disease":
+                // support for querying diseases against phenodigm core
                 return dtsDisease;
             case "mp":
-                return dtsMp;   
+                return dtsMp;
             case "anatomy":
-                return dtsAnatomy;                   
+                return dtsAnatomy;
             case "impc_images":
                 return dtsImpcImage;
             default:

@@ -9,6 +9,7 @@
 
         <jsp:attribute name="header">
             <link href="${baseUrl}/css/searchPage.css" rel="stylesheet" type="text/css" />
+            <link rel="stylesheet" type="text/css" href="${baseUrl}/css/dev.css"/>
         </jsp:attribute>
 
         <jsp:attribute name="addToFooter">	
@@ -590,7 +591,7 @@
                 // ----------- highlights current "tab" and populates facet filters and dataTable -----------
 
 
-
+                
                 // submit query when facet filter is ticked
                 fetchResultByFilters();
 

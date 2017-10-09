@@ -29,9 +29,7 @@ import uk.ac.ebi.phenotype.util.SearchSettings;
 /**
  * Code mostly refactored from DataTableController
  *
- * Seems to work, but needs more testing.
- * 
- * TO DO: remove dependence on request object
+ * TO DO: remove dependence on request object?
  *
  */
 @Service
@@ -39,14 +37,14 @@ public class DataTableServiceAllele2 extends DataTableService {
 
     /**
      * Most of the code copied from parseJsonforProductDataTable
-     * 
+     *
      * @param json
      * @param settings
-     * @return 
+     * @return
      */
     @Override
     public String toDataTable(JSONObject json, SearchSettings settings) {
-                
+
         HttpServletRequest request = settings.getRequest();
         String baseUrl = request.getAttribute("baseUrl").toString();
 
@@ -61,7 +59,7 @@ public class DataTableServiceAllele2 extends DataTableService {
         j.put("iDisplayLength", settings.getiDisplayLength());
 
         for (int i = 0; i < docs.size(); i++) {
-            List<String> rowData = new ArrayList<String>();
+            List<String> rowData = new ArrayList<>();
 
             // array element is an alternate of facetField and facetCount
             JSONObject doc = docs.getJSONObject(i);
@@ -74,9 +72,6 @@ public class DataTableServiceAllele2 extends DataTableService {
 
             String markerAcc = doc.getString(Allele2DTO.MGI_ACCESSION_ID);
             String alleleName = doc.getString(Allele2DTO.ALLELE_NAME);
-//			String alleleUrl = request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl").toString() + "/alleles/" + markerAcc + "/" + alleleName;
-//			String markerSymbol = doc.getString(Allele2DTO.MARKER_SYMBOL);
-            String alleleLink = "";//"<a href='" + alleleUrl + "'>" + markerSymbol + "<sup>" + alleleName + "</sup></a>";
 
             String mutationType = "";
             String mt = doc.containsKey(Allele2DTO.MUTATION_TYPE) ? doc.getString(Allele2DTO.MUTATION_TYPE) : "";
@@ -155,101 +150,96 @@ public class DataTableServiceAllele2 extends DataTableService {
 
         JSONObject facetFields = json.getJSONObject("facet_counts").getJSONObject("facet_fields");
         j.put("facet_fields", facetFields);
-                
+
         return j.toString();
     }
-    
+
     /**
      * Copied verbatim from DataTableController
-     * 
+     *
      * TO DO: cleanup
-     * 
+     *
      * @param doc
      * @param request
      * @param qryStr
-     * @return 
+     * @return
      */
     private String concateAlleleNameInfo(JSONObject doc, HttpServletRequest request, String qryStr) {
 
-		List<String> alleleNameInfo = new ArrayList<String>();
+        List<String> alleleNameInfo = new ArrayList<String>();
 
-		String markerAcc = doc.getString(Allele2DTO.MGI_ACCESSION_ID);
-		String alleleName = doc.getString(Allele2DTO.ALLELE_NAME);
-		String alleleUrl = request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl").toString() + "/alleles/" + markerAcc + "/" + alleleName;
-		String markerSymbol = doc.getString(Allele2DTO.MARKER_SYMBOL);
-		String alleleLink = "<a href='" + alleleUrl + "'>" + markerSymbol + "<sup>" + alleleName + "</sup></a>";
+        String markerAcc = doc.getString(Allele2DTO.MGI_ACCESSION_ID);
+        String alleleName = doc.getString(Allele2DTO.ALLELE_NAME);
+        String alleleUrl = request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl").toString() + "/alleles/" + markerAcc + "/" + alleleName;
+        String markerSymbol = doc.getString(Allele2DTO.MARKER_SYMBOL);
+        String alleleLink = "<a href='" + alleleUrl + "'>" + markerSymbol + "<sup>" + alleleName + "</sup></a>";
 
-		String[] fields = {"marker_name", "marker_synonym"};
-		for (int i = 0; i < fields.length; i ++) {
-			try {
-				//"highlighting":{"MGI:97489":{"marker_symbol":["<em>Pax</em>5"],"synonym":["<em>Pax</em>-5"]},
+        String[] fields = {"marker_name", "marker_synonym"};
+        for (int i = 0; i < fields.length; i++) {
+            try {
 
-				//System.out.println(qryStr);
-				String field = fields[i];
-				List<String> info = new ArrayList<String>();
+                String field = fields[i];
+                List<String> info = new ArrayList<>();
 
-				if (field.equals("marker_name")) {
-					System.out.println("checking marker_name");
-					info.add(Tools.highlightMatchedStrIfFound(qryStr, doc.getString(field), "span", "subMatch"));
-				}
-				else if (field.equals("marker_synonym")) {
-					System.out.println("checking marker_synonym");
-					JSONArray data = doc.getJSONArray(field);
-					int counter = 0;
-					String synMatch = null;
-					String syn = null;
+                if (field.equals("marker_name")) {
+                    System.out.println("checking marker_name");
+                    info.add(Tools.highlightMatchedStrIfFound(qryStr, doc.getString(field), "span", "subMatch"));
+                } else if (field.equals("marker_synonym")) {
+                    System.out.println("checking marker_synonym");
+                    JSONArray data = doc.getJSONArray(field);
+                    int counter = 0;
+                    String synMatch = null;
+                    String syn = null;
 
-					for (Object d : data) {
-						counter++;
-						String targetStr = qryStr.toLowerCase().replaceAll("\"", "");
-						if ( d.toString().toLowerCase().contains(targetStr) ) {
-							if ( synMatch == null ) {
-								synMatch = Tools.highlightMatchedStrIfFound(targetStr, d.toString(), "span", "subMatch");
-							}
-						}
-						else {
-							if  (counter == 1) {
-								syn = d.toString();
-							}
-						}
-					}
+                    for (Object d : data) {
+                        counter++;
+                        String targetStr = qryStr.toLowerCase().replaceAll("\"", "");
+                        if (d.toString().toLowerCase().contains(targetStr)) {
+                            if (synMatch == null) {
+                                synMatch = Tools.highlightMatchedStrIfFound(targetStr, d.toString(), "span", "subMatch");
+                            }
+                        } else {
+                            if (counter == 1) {
+                                syn = d.toString();
+                            }
+                        }
+                    }
 
-					if ( synMatch != null ){
-						syn = synMatch;
-					}
+                    if (synMatch != null) {
+                        syn = synMatch;
+                    }
 
-					if ( counter > 0 ){
-						info.add(syn);
-					}
-				}
+                    if (counter > 0) {
+                        info.add(syn);
+                    }
+                }
 
-				// field string shown to the users
-				if ( field.equals("marker_name" ) ){
-					field = "gene name";
-				}
-				else if ( field.equals("marker_synonym") ){
-					field = "gene synonym";
-				}
-				String ulClass = "synonym";
+                // field string shown to the users
+                if (field.equals("marker_name")) {
+                    field = "gene name";
+                } else if (field.equals("marker_synonym")) {
+                    field = "gene synonym";
+                }
+                String ulClass = "synonym";
 
-				//geneInfo.add("<span class='label'>" + field + "</span>: " + StringUtils.join(info, ", "));
-				if (info.size() > 1) {
-					String fieldDisplay = "<ul class='" + ulClass + "'><li>" + StringUtils.join(info, "</li><li>") + "</li></ul>";
-					alleleNameInfo.add("<span class='label'>" + field + "</span>: " + fieldDisplay);
-				} else {
-					alleleNameInfo.add("<span class='label'>" + field + "</span>: " + StringUtils.join(info, ", "));
-				}
-			} catch (Exception e) {
-				//e.printStackTrace();
-			}
-		}
-		//return "<div class='geneCol'>" + markerSymbolLink + StringUtils.join(geneInfo, "<br>") + "</div>";
-		return "<div class='alleleNameCol'><div class='title'>"
-				+ alleleLink
-				+ "</div>"
-				+ "<div class='subinfo'>"
-				+ StringUtils.join(alleleNameInfo, "<br>")
-				+ "</div>";
+                //geneInfo.add("<span class='label'>" + field + "</span>: " + StringUtils.join(info, ", "));
+                if (info.size() > 1) {
+                    String fieldDisplay = "<ul class='" + ulClass + "'><li>" + StringUtils.join(info, "</li><li>") + "</li></ul>";
+                    alleleNameInfo.add("<span class='label'>" + field + "</span>: " + fieldDisplay);
+                } else {
+                    alleleNameInfo.add("<span class='label'>" + field + "</span>: " + StringUtils.join(info, ", "));
+                }
+            } catch (Exception e) {
+                //e.printStackTrace();
+            }
+        }
 
-	}
+        return "<div class='alleleNameCol'><div class='title'>"
+                + alleleLink
+                + "</div>"
+                + "<div class='subinfo'>"
+                + StringUtils.join(alleleNameInfo, "<br>")
+                + "</div>";
+
+    }
 }

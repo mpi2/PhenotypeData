@@ -178,22 +178,23 @@ public class SearchController {
         model.addAttribute("facetCount", facetCounts);
         model.addAttribute("searchQuery", settings.getQuery().replaceAll("\\\\", ""));
         model.addAttribute("dataType", settings.getDataType());
-        //LOGGER.info("facetCountJsonResponse: new: " + facetCounts.toString(1));
+        //LOGGER.info("facetCounts: " + facetCounts.toString(1));
 
         // create an object that will create query urls
-        SearchUrlService urlservice = urlFactory.getService(settings.getDataType());
-        model.addAttribute("dataTypeLabel", urlservice.breadcrumb());
-        model.addAttribute("gridHeaderListStr", urlservice.gridHeadersStr());
+        SearchUrlService urlservice = urlFactory.getService(settings.getDataType());        
+        model.addAttribute("dataTypeLabel", urlservice.breadcrumb());        
+        model.addAttribute("gridHeaderListStr", urlservice.gridHeadersStr());        
         // perform the query, i.e. gather the hits from solr
         JSONObject searchHits = fetchSearchResult(urlservice, settings, true);
-        //LOGGER.info("fetchSearchResultNew gave result:\n" + searchHits.toString(2));
+        //LOGGER.info("fetchSearchResult result:\n" + searchHits.toString(2));
 
         // transform the results from solr into another json/string.
         // The transformed object will be sent to the web-page generating scripts
         DataTableService tableService = tableFactory.getService(settings.getDataType());
         if (tableService != null) {            
-            String newstring = tableService.toDataTable(searchHits, settings);
-            model.addAttribute("searchResult", newstring);
+            String result = tableService.toDataTable(searchHits, settings);
+            //LOGGER.info("searchResult:\n"+result);
+            model.addAttribute("searchResult", result);
         } else {
             LOGGER.info("table service not availabe for " + settings.getDataType());
 	}
@@ -220,11 +221,11 @@ public class SearchController {
                 settings.getiDisplayStart(), settings.getiDisplayLength(),
                 facet);
         JSONObject result = queryBrokerService.runQuery(queryUrl);
-        if ("disease".equals(settings.getDataType())) {
-            LOGGER.info("fetchSearchResult: " + result.toString(2));
-        } else {
-            LOGGER.info("fetchSearchResult: other");
-        }
+        //if ("disease".equals(settings.getDataType())) {
+        //    LOGGER.info("fetchSearchResult: " + result.toString(2));
+        //} else {
+        //    LOGGER.info("fetchSearchResult: other");
+        //}
 
         return result;
     }
@@ -250,9 +251,8 @@ public class SearchController {
         JSONObject queries = new JSONObject();
         String dataType = settings.getDataType();
 
-        List<String> cores = Arrays.asList(new String[]{"gene", "mp", "disease", "phenodigm2disease", "anatomy", "impc_images", "allele2"});
-        for (int i = 0; i < cores.size(); i++) {
-            String thisCore = cores.get(i);
+        String[] cores = new String[]{"gene", "mp", "disease", "anatomy", "impc_images", "allele2"};        
+        for (String thisCore : cores) {                    
             SearchUrlService searchService = urlFactory.getService(thisCore);
 
             // apply custom filter on its intended core type

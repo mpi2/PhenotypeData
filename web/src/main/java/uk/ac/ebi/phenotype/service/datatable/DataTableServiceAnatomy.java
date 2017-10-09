@@ -32,8 +32,7 @@ import uk.ac.ebi.phenotype.util.SearchSettings;
 
 /**
  * Code mostly refactored from DataTableController
- *
- * TO DO: remove dependence on request object
+ * 
  *
  */
 @Service

@@ -50,7 +50,7 @@ public class DataTableServiceMp extends DataTableService {
         String baseUrl = request.getAttribute("baseUrl").toString();
 
         String qryStr = settings.getQuery();
-        
+
         JSONObject j = new JSONObject();
         j.put("aaData", new Object[0]);
 
@@ -63,7 +63,7 @@ public class DataTableServiceMp extends DataTableService {
         j.put("iDisplayLength", settings.getiDisplayLength());
 
         for (int i = 0; i < docs.size(); i++) {
-            List<String> rowData = new ArrayList<String>();
+            List<String> rowData = new ArrayList<>();
 
             // array element is an alternate of facetField and facet
             //
@@ -74,7 +74,7 @@ public class DataTableServiceMp extends DataTableService {
             String mpTerm = doc.getString("mp_term");
             String mpLink = "<a href='" + baseUrl + "/phenotypes/" + mpId + "'>" + mpTerm + "</a>";
             String mpCol = null;
-            
+
             if (doc.containsKey("mixSynQf")) {
 
                 mpCol = "<div class='title'>" + mpLink + "</div>";
@@ -135,7 +135,7 @@ public class DataTableServiceMp extends DataTableService {
             } else {
                 rowData.add(mpDef);
             }
-            
+
             // link out to ontology browser page
             rowData.add("<a href='" + baseUrl + "/ontologyBrowser?" + "termId=" + mpId + "'><i class=\"fa fa-share-alt-square\"></i> Browse</a>");
 

@@ -34,8 +34,9 @@ import uk.ac.ebi.phenotype.util.SearchSettings;
 
 /**
  * Code mostly refactored from DataTableController
- *
- * TO DO: cleanup! 
+ * 
+ * The code in toDataTable has two very similar chunks in an if/else
+ * configuration. Consider rewriting to avoid duplicate code.
  *
  */
 @Service

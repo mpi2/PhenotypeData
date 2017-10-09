@@ -15,6 +15,8 @@
  ****************************************************************************** */
 package uk.ac.ebi.phenotype.service.search;
 
+import java.util.HashMap;
+import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +30,7 @@ import org.springframework.stereotype.Service;
 public class SearchUrlServiceFactory {
 
     private final Logger LOGGER = LoggerFactory.getLogger(this.getClass().getCanonicalName());
-    
+
     @Autowired
     private SearchUrlServiceAllele2 searchUrlServiceAllele2;
 
@@ -56,9 +58,11 @@ public class SearchUrlServiceFactory {
                 return searchUrlServiceGene;
             case "mp":
                 return searchUrlServiceMp;
-            case "disease":
+            case "disease1":
+                // Support for disease queries through old disease core
                 return searchUrlServiceDisease;
-            case "phenodigm2disease":
+            case "disease":
+                // Supports for disease queries through the phenodigm core                
                 return searchUrlServicePhenodigm2Disease;
             case "anatomy":
                 return searchUrlServiceAnatomy;
@@ -67,7 +71,7 @@ public class SearchUrlServiceFactory {
             case "allele2":
                 return searchUrlServiceAllele2;
             default:
-                LOGGER.info("requested service of unknown type: "+type);
+                LOGGER.info("requested service of unknown type: " + type);
                 return null;
         }
     }

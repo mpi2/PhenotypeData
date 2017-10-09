@@ -82,7 +82,7 @@ public abstract class SearchUrlService {
      * An expression suitable for the &fq= part of a solr query.
      */
     public String fq(String customFilter) {
-        String fq = fq();
+        String fq = fq();        
         if (StringUtils.isEmpty(customFilter)) {
             return fq;
         } else {
@@ -229,7 +229,9 @@ public abstract class SearchUrlService {
      * @return
      */
     public String getGridQueryUrl(String query, String customFq, int start, int length, boolean facet) {
-        return solrUrl() + "/select?" + getGridQueryStr(query, customFq, start, length, facet);
+        String result = solrUrl() + "/select?" + getGridQueryStr(query, customFq, start, length, facet);
+        LOGGER.info("query: "+result);
+        return result;
     }
 
     /**

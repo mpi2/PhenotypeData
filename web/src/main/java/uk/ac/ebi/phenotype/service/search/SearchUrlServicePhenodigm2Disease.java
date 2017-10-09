@@ -41,7 +41,7 @@ public class SearchUrlServicePhenodigm2Disease extends SearchUrlService {
 
     @Override
     public String fq() {
-        return "+type:disease_associations";
+        return "+type:disease_search";
     }
 
     @Override
@@ -62,7 +62,7 @@ public class SearchUrlServicePhenodigm2Disease extends SearchUrlService {
     public List<String> facetFields() {
         return Arrays.asList("disease_source",
                 "disease_classes",
-                "human_curated",         
+                "human_curated_gene",         
                 "impc_model_with_curated_gene",
                 "impc_model_with_computed_association",
                 "mgi_model_with_curated_gene",
