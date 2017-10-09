@@ -84,24 +84,22 @@ public class DiseaseController2 {
         model.addAttribute("disease", disease);
 
         // fetch associations between the disease and known genes        
-        List<Gene> geneAssociations = phenoDigm2Dao.getDiseaseToGeneAssociations(diseaseId);        
+        List<Gene> geneAssociations = phenoDigm2Dao.getDiseaseToGeneAssociations(diseaseId);
         // split the genes into curated/ortholog, i.e. human/mouse 
         List<Gene> curatedAssociations = new ArrayList<>();
         List<Gene> orthologousAssociations = new ArrayList<>();
         HashSet<String> orthologousGenes = new HashSet<>();
         for (Gene assoc : geneAssociations) {
-            if (assoc.isCurated()) {                
-                if (assoc.isOrtholog()) {
-                    orthologousAssociations.add(assoc);
-                    orthologousGenes.add(assoc.getSymbol());
-                } else {
-                    curatedAssociations.add(assoc);
-                }
+            if (assoc.isOrtholog()) {
+                orthologousAssociations.add(assoc);
+                orthologousGenes.add(assoc.getSymbol());
+            } else {
+                curatedAssociations.add(assoc);
             }
         }
         // add details about curated genes and orthologous genes (for disease page header)
         model.addAttribute("curatedAssociations", curatedAssociations);
-        model.addAttribute("orthologousAssociations", orthologousAssociations);                
+        model.addAttribute("orthologousAssociations", orthologousAssociations);
         // stringify the ortholgoous genes into a js array
         String curatedJsArray = String.join("\", \"", orthologousGenes);
         if (orthologousGenes.size() > 0) {
@@ -112,7 +110,7 @@ public class DiseaseController2 {
         model.addAttribute("curatedMouseGenes", curatedJsArray);
 
         // fetch associations between the disease and models        
-        List<DiseaseModelAssociation> modelAssociations = phenoDigm2Dao.getDiseaseToModelModelAssociations(diseaseId);                
+        List<DiseaseModelAssociation> modelAssociations = phenoDigm2Dao.getDiseaseToModelModelAssociations(diseaseId);
 
         // create a js object representation of the models        
         String modelAssocsJsArray = "[]";
@@ -129,8 +127,8 @@ public class DiseaseController2 {
         }
         model.addAttribute("modelAssociations", modelAssocsJsArray);
         model.addAttribute("hasModelsByOrthology", hasModelsByOrthology);
-        model.addAttribute("hasModelAssociations", modelAssociations.size()>0);
-        
+        model.addAttribute("hasModelAssociations", modelAssociations.size() > 0);
+
         return "disease2";
     }
 }

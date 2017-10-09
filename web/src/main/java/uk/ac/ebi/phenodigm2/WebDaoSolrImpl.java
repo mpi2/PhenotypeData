@@ -136,8 +136,7 @@ public class WebDaoSolrImpl implements WebDao {
                 String markerSymbol = phenodigm.getMarkerSymbol();
                 if (markerId != null && !seenIds.contains(markerId)) {
                     Gene assoc = new Gene(markerId, markerSymbol);
-                    assoc.setSymbolsWithdrawn(phenodigm.getMarkerSymbolsWithdrawn());
-                    assoc.setCurated(phenodigm.getAssociationCurated());
+                    assoc.setSymbolsWithdrawn(phenodigm.getMarkerSymbolsWithdrawn());                    
                     assoc.setOrtholog(true);
                     genes.add(assoc);
                     seenIds.add(markerId);
@@ -148,8 +147,7 @@ public class WebDaoSolrImpl implements WebDao {
                 String humanSymbol = phenodigm.getHgncGeneSymbol();
                 if (humanId != null && !seenIds.contains(humanId)) {
                     Gene assoc = new Gene(humanId, humanSymbol);
-                    assoc.setSymbolsWithdrawn(phenodigm.getHgncGeneSymbolsWithdrawn());
-                    assoc.setCurated(phenodigm.getAssociationCurated());
+                    assoc.setSymbolsWithdrawn(phenodigm.getHgncGeneSymbolsWithdrawn());                    
                     assoc.setLocus(phenodigm.getHgncGeneLocus());
                     assoc.setOrtholog(false);
                     genes.add(assoc);
@@ -184,8 +182,7 @@ public class WebDaoSolrImpl implements WebDao {
 
                 // set mouse genes (orthologs to human genes)
                 String markerId = phenodigm.getMarkerId();
-                if (markerId != null && geneId.equals(markerId)) {
-                    assoc.setCurated(phenodigm.getAssociationCurated());
+                if (markerId != null && geneId.equals(markerId)) {                    
                     assoc.setOrtholog(true);
                     //LOGGER.info("Found an association: " + assoc.toString());
                     diseases.add(assoc);
@@ -193,8 +190,7 @@ public class WebDaoSolrImpl implements WebDao {
 
                 // set human genes (human annotations)
                 String humanId = phenodigm.getHgncGeneId();
-                if (humanId != null && geneId.equals(humanId)) {
-                    assoc.setCurated(phenodigm.getAssociationCurated());
+                if (humanId != null && geneId.equals(humanId)) {                    
                     assoc.setOrtholog(false);
                     //LOGGER.info("Found an association: " + assoc.toString());
                     diseases.add(assoc);
@@ -219,8 +215,7 @@ public class WebDaoSolrImpl implements WebDao {
                 .addField(Phenodigm2DTO.MARKER_SYMBOL)
                 .addField(Phenodigm2DTO.HGNC_GENE_ID)
                 .addField(Phenodigm2DTO.HGNC_GENE_SYMBOL)
-                .addField(Phenodigm2DTO.HGNC_GENE_LOCUS)
-                .addField(Phenodigm2DTO.ASSOCIATION_CURATED)
+                .addField(Phenodigm2DTO.HGNC_GENE_LOCUS)                
                 .setRows(ROWLIMIT);
     }
 
