@@ -393,7 +393,6 @@ CREATE TABLE strain (
 
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
-
 DROP TABLE IF EXISTS biological_model;
 CREATE TABLE biological_model (
 	id                        INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -404,7 +403,7 @@ CREATE TABLE biological_model (
 	PRIMARY KEY (id),
 	KEY allelic_composition_idx (allelic_composition),
 	KEY genetic_background_idx (genetic_background),
-	UNIQUE KEY unique_biomodels_idx (db_id, allelic_composition(100), genetic_background(100))
+	UNIQUE KEY unique_biomodels_idx (db_id, allelic_composition(100), genetic_background(100), zygosity)
 
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 

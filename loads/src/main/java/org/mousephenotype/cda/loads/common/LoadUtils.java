@@ -135,4 +135,24 @@ public class LoadUtils {
     public String translateTerm(String term) {
         return (mappedTerms.containsKey(term) ? mappedTerms.get(term) : term);
     }
+
+    public enum SampleGroup {
+        CONTROL("control"),
+        EXPERIMENTAL("experimental");
+
+        private final String value;
+
+        SampleGroup(String value) {
+            this.value = value;
+        }
+
+
+        public String getName(){
+            return this.toString();
+        }
+
+        public String value() {
+            return value;
+        }
+    }
 }

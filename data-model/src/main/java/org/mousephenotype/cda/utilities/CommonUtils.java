@@ -17,12 +17,14 @@
 package org.mousephenotype.cda.utilities;
 
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.text.DateFormat;
+import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -37,6 +39,7 @@ import java.util.regex.Pattern;
  */
 public class CommonUtils {
 
+    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(CommonUtils.class);
     private final static double EPSILON = 0.000000001;
     public final static String DATE_FORMAT = "yyyy/MM/dd HH:mm:ss";
 
@@ -215,6 +218,19 @@ public class CommonUtils {
         }
 
         return retVal;
+    }
+
+    /**
+     * Print the jvm memory configuration.
+     */
+    public static void printJvmMemoryConfiguration() {
+        final int     mb        = 1024*1024;
+        Runtime       runtime   = Runtime.getRuntime();
+        DecimalFormat formatter = new DecimalFormat("#,###");
+        logger.info("  Used memory:  {}", (formatter.format(runtime.totalMemory() - runtime.freeMemory() / mb)));
+        logger.info("  Free memory : {}", formatter.format(runtime.freeMemory()));
+        logger.info("  Total memory: {}", formatter.format(runtime.totalMemory()));
+        logger.info("  Max memory:   {}\n", formatter.format(runtime.maxMemory()));
     }
 
     /**
