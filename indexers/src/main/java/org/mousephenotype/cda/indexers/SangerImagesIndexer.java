@@ -93,6 +93,7 @@ public class SangerImagesIndexer extends AbstractIndexer implements CommandLineR
 	private Map<Integer, TopLevelBean> nodeIdToMpTermInfo = new HashMap<>();
 	private Map<String, List<AlleleDTO>> alleles;
 	Map<String, List<Map<String, String>>> mpToHpMap;
+	Set<String> alreadyReportedMa = new HashSet<>();
 
 	HashMap<Integer, String> nodeToMp = new HashMap();// used
 	// for
@@ -322,35 +323,30 @@ public class SangerImagesIndexer extends AbstractIndexer implements CommandLineR
 								// if mp term
 
 								if (annotation.ma_id != null) {
-									//System.out.println("ma id not null");
-									//System.out.println("uptodatemap result=" + uptoDateMaMap.get(annotation.ma_id));
-									annotationTermNames.add(uptoDateMaMap.get(annotation.ma_id).toUpperCase());
-									ma_ids.add(annotation.ma_id.toUpperCase());
-									ma_terms.add(annotation.ma_term);
+									if (uptoDateMaMap.get(annotation.ma_id) == null) {
+										if( ! alreadyReportedMa.contains(annotation.ma_id)) {
+											logger.warn("uptodatemap result for " + annotation.ma_id + " is " + uptoDateMaMap.get(annotation.ma_id));
+											alreadyReportedMa.add(annotation.ma_id);
+										}
+									} else {
 
-									// ArrayList<String> maTopLevelSynonyms=new
-									// ArrayList<>();
-									if (maNode2TermMap.containsKey(annotation.ma_id.toUpperCase())) {
-										for (Integer nodeId : maNode2TermMap.get(annotation.ma_id.toUpperCase())) {
+										annotationTermNames.add(uptoDateMaMap.get(annotation.ma_id).toUpperCase());
+										ma_ids.add(annotation.ma_id.toUpperCase());
+										ma_terms.add(annotation.ma_term);
 
-											if (maNodeToTopLevel.containsKey(nodeId)) {
-												TopLevelBean maTopLevelBean = maNodeToTopLevel.get(nodeId);
-												maTopLevelTermIds.add(maTopLevelBean.termId);
-												maTopLevelTerms.add(maTopLevelBean.termName);
-												if (termIdToMaSynonyms.containsKey(nodeId)) {
-													// ma_term_synonym
-													ma_term_synonyms.addAll(termIdToMaSynonyms.get(nodeId));
+										if (maNode2TermMap.containsKey(annotation.ma_id.toUpperCase())) {
+											for (Integer nodeId : maNode2TermMap.get(annotation.ma_id.toUpperCase())) {
+
+												if (maNodeToTopLevel.containsKey(nodeId)) {
+													TopLevelBean maTopLevelBean = maNodeToTopLevel.get(nodeId);
+													maTopLevelTermIds.add(maTopLevelBean.termId);
+													maTopLevelTerms.add(maTopLevelBean.termName);
+													if (termIdToMaSynonyms.containsKey(nodeId)) {
+														ma_term_synonyms.addAll(termIdToMaSynonyms.get(nodeId));
+													}
 												}
 											}
-											// <field column="term_id"
-											// name="selected_top_level_ma_id"
-											// />
-											// <field column="name"
-											// name="selected_top_level_ma_term"
-											// />
-
 										}
-										// maTopLevelSynonyms.addAll(lookupMaSynonyms(annotation.ma_term));
 									}
 								}
 								if (annotation.mp_id != null) {
@@ -515,6 +511,7 @@ public class SangerImagesIndexer extends AbstractIndexer implements CommandLineR
 			sangerImagesCore.commit();
 
 		} catch (Exception e) {
+			e.printStackTrace();
 			throw new IndexerException(e.getMessage());
 		}
 
