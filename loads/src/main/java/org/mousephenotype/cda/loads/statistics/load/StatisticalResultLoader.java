@@ -58,7 +58,7 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
     void populateParameterTypeMap() throws SQLException {
         Map<String, ObservationType> map = parameterTypeMap;
 
-        String query= "select distinct parameter_stable_id, observation_type from observation where observation.missing != 1";
+        String query= "SELECT DISTINCT parameter_stable_id, observation_type FROM observation WHERE missing != 1 AND observation_type IN ('categorical', 'unidimensional')";
 
         try (Connection connection = komp2DataSource.getConnection(); PreparedStatement p = connection.prepareStatement(query)) {
             ResultSet r = p.executeQuery();
@@ -996,7 +996,7 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
     }
 
     @Override
-    public void run(String... strings) throws Exception {
+        public void run(String... strings) throws Exception {
 
         logger.info("Starting statistical result loader");
 
