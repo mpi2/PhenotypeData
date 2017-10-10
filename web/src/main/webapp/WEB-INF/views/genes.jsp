@@ -471,6 +471,7 @@
                             --%>
 
                             <%--All mouse models section (phenodigm2) --%>
+                            <%--
                             <div class="section" id="gene-mouse-models">
                                 <h2 class="title" id="mouse-models">Mouse Models <small>(IMPC and literature)</small>
                                     <a target="_blank" href='http://www.sanger.ac.uk/resources/databases/phenodigm/'></a>
@@ -482,6 +483,7 @@
                                     <a id="load-mouse-models" geneid="${gene.mgiAccessionId}">Load mouse models</a>                                    
                                 </div>
                             </div>
+                            --%>
 
                             <%--Disease section (phenodigm2) --%>
                             <div class="section">
@@ -503,7 +505,7 @@
                                                     No associations by disease annotation and gene orthology found.
                                                 </c:when>
                                                 <c:otherwise>
-                                                    <table id="diseases_by_annotation_table" class="table tablesorter disease"></table>
+                                                    <table id="diseases_by_annotation" class="table tablesorter disease"></table>
                                                 </c:otherwise>
                                             </c:choose>                                                                        
                                         </div>
@@ -513,7 +515,7 @@
                                                     No associations by phenotypic similarity found.
                                                 </c:when>
                                                 <c:otherwise>
-                                                    <table id="diseases_by_phenotype_table" class="table tablesorter disease"></table>
+                                                    <table id="diseases_by_phenotype" class="table tablesorter disease"></table>
                                                 </c:otherwise>
                                             </c:choose>                                                                        
                                         </div>
@@ -583,7 +585,7 @@
                     }];
                 var diseaseTableConfs = [
                     {
-                        id: '#diseases_by_annotation_table',
+                        id: '#diseases_by_annotation',
                         tableConf: {
                             paging: false,
                             info: false,
@@ -595,12 +597,12 @@
                             groupby: "diseaseId",
                             filterkey: "diseaseId",
                             filter: curatedDiseases,
-                            pagetype: "genes",                            
+                            pageType: "genes",                            
                             gene: "${gene.mgiAccessionId}"
                         }
                     },
                     {
-                        id: '#diseases_by_phenotype_table',
+                        id: '#diseases_by_phenotype',
                         tableConf: {
                             order: [[4, 'desc'], [3, 'desc'], [2, 'desc']],
                             pageLength: 20,
@@ -611,17 +613,20 @@
                             groupby: "diseaseId",
                             filterkey: "diseaseId",
                             filter: [],
-                            pagetype: "genes",                            
+                            pageType: "genes",                            
                             gene: "${gene.mgiAccessionId}"
                         }
                     }];
                 var modelsTableConf = {
-                    pagetype: "genes",
+                    pageType: "genes",
                     gene: "${gene.mgiAccessionId}"
                 };
                 $(document).ready(function () {
                     // setup button that loads phenotypes of available models
-                    impc.phenodigm2.initLoadModels("load-mouse-models", "gene-mouse-models");
+                    // This must be enabled when the mouse-model section is visible
+                    // Can be commented out when the section is off
+                    //impc.phenodigm2.initLoadModels("load-mouse-models", "gene-mouse-models");
+                    
                     // this loops handles phenodigm1 tables
                     //for (var i = 0; i < diseaseTables.length; i++) {
                     //    var diseaseTable = diseaseTables[i];

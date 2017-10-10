@@ -138,9 +138,10 @@ impc.phenodigm2.makeTable = function (darr, target, config) {
     var targetdiv = d3.select(target);
 
     // shorthand for pagetype
-    var pt = config.pagetype;
+    var pt = config.pageType;
     if (pt !== "genes" && pt !== "disease") {
-        console.log("phenodigm2.makeTable - pagetype must be either 'genes' or 'disease'");
+        console.log("phenodigm2.makeTable - pageType must be either 'genes' or 'disease'");
+        console.log("found: "+pt);
     }
 
     // setup columns
@@ -157,7 +158,7 @@ impc.phenodigm2.makeTable = function (darr, target, config) {
 
     // setup data body
     var tbody = targetdiv.append("tbody").classed("phenotable", true)
-            .attr("pagetype", config.pagetype);
+            .attr("pageType", config.pageType);
     if (pt === "disease") {
         tbody.attr("diseaseid", config.disease);
     } else {
@@ -499,24 +500,45 @@ impc.phenodigm2.drawScatterplot = function (darr, conf) {
  **************************************************************************** */
 
 /**
+ * Create an id string that can identify a phenogrid. The id is a composite
+ * of the table and geneId/diseaseId, depending on the pagetype.
+ *  
+ * @param {type} tableId
+ * @param {type} geneId
+ * @param {type} diseaseId
+ * @param {type} pageType
+ * @returns {undefined}
+ */
+impc.phenodigm2.makePgid = function(tableId, geneId, diseaseId, pageType) {
+    var result = "pg_"+tableId.replace("#", "")+"_";
+    if (pageType==="genes") {
+        result += diseaseId.replace(":", "_");
+    } else {
+        result += geneId.replace(":", "_");
+    }    
+    return result;
+};
+
+/**
  * Create a div with attributes. (The div can be used to hold a phenogrid)
- * 
- * @param pagetype - string, use "disease"
+ *  
+ * @param tableId - id of background element, will be included as part of an id
  * @param geneId - string, use a gene identifier (e.g. MGI:xxxxx)
  * @param diseaseId - string, use a disease identifier (e.g. OMIM:xxxxx)
+ * @param pageType - string, use "disease" or "genes"
  * @return a jquery div 
  */
-impc.phenodigm2.makeTableChildRow = function (pagetype, geneId, diseaseId) {
-    var genenum = geneId.split(":")[1];
+impc.phenodigm2.makeTableChildRow = function (tableId, geneId, diseaseId, pageType) {
+    var pgid = impc.phenodigm2.makePgid(tableId, geneId, diseaseId, pageType);
     var innerdiv = $(document.createElement('div'))
             .addClass("inner")
             .attr({
                 geneId: geneId,
                 diseaseId: diseaseId,
-                pageType: pagetype
+                pageType: pageType
             }).css({"padding": "0"});
-    innerdiv.append("<div class='inner_table'></div>");
-    innerdiv.append("<div class='inner_pg' id='pg_" + genenum + "'></div>");
+    innerdiv.append("<div class='inner_table' pgid='"+pgid+"'></div>");
+    innerdiv.append("<div class='inner_pg' id='" + pgid + "'></div>");
     return innerdiv;
 };
 
@@ -710,9 +732,10 @@ impc.phenodigm2.insertPhenogrid = function (tableId, geneId, diseaseId, pageType
     ajax.done(function (result) {
         // complete the skeleton using modelAssociations
         result = impc.phenodigm2.completeGridSkeleton(result, geneId, diseaseId, pageType);
-        // perhaps create an inner table (disease pages only)
-        if (pageType === "disease") {
-            var innertab = d3.select(tableId + " .inner[geneid='" + geneId + "'] .inner_table");
+        // perhaps create an inner table?
+        if (pageType === "disease" || true) {
+            var pgid = impc.phenodigm2.makePgid(tableId, geneId, diseaseId, pageType);
+            var innertab = d3.select(tableId + " .inner_table[pgid='" + pgid + "']");
             impc.phenodigm2.insertModelDetails(innertab, geneId, result.xAxis[0].entities);
         }
         // generate phenogrid widget (heatmap)
@@ -734,25 +757,25 @@ impc.phenodigm2.insertPhenogrid = function (tableId, geneId, diseaseId, pageType
  * 
  * show/hide a child row when a row is clicked. 
  * 
- * @param tableId - string, id of table
+ * @param tableId - string, id of table (includeing #)
  * @param table - object contructed by DataTable()
  * 
  */
 $.fn.addTableClickPhenogridHandler = function (tableId, table) {
     var tbody = $(tableId + ' tbody');
-    var pagetype = tbody.attr("pagetype");
+    var pageType = tbody.attr("pageType");
     var diseaseId = "", geneId = "";
-    if (pagetype === "disease") {
+    if (pageType === "disease") {
         diseaseId = tbody.attr("diseaseid");
-    } else if (pagetype === "genes") {
+    } else if (pageType === "genes") {
         geneId = tbody.attr("geneid");
     }
 
     // allow users to click on a row and see a PhenoGrid widget
     $(tableId + ' tbody').on('click', 'tr.phenotable', function () {
-        var tr = $(this).closest('tr');
+        var tr = $(this).closest('tr');        
         var row = table.row(tr);
-        if (pagetype === "disease") {
+        if (pageType === "disease") {
             geneId = tr.attr("geneid");
         } else {
             diseaseId = tr.attr("diseaseid");
@@ -762,12 +785,12 @@ $.fn.addTableClickPhenogridHandler = function (tableId, table) {
         }
 
         // toggle (show/hide) an inner box
-        if (row.child.isShown()) {
+        if (row.child.isShown()) {            
             row.child.hide();
             tr.find("td.toggleButton i").removeClass("fa-minus-square").addClass("fa-plus-square");
-        } else {
-            row.child(impc.phenodigm2.makeTableChildRow(pagetype, geneId, diseaseId)).show();
-            impc.phenodigm2.insertPhenogrid(tableId, geneId, diseaseId, pagetype);
+        } else {            
+            row.child(impc.phenodigm2.makeTableChildRow(tableId, geneId, diseaseId, pageType)).show();
+            impc.phenodigm2.insertPhenogrid(tableId, geneId, diseaseId, pageType);
             tr.find("td.toggleButton i").removeClass("fa-plus-square").addClass("fa-minus-square");
         }
     });
