@@ -210,7 +210,7 @@
                                 No mouse models associated with ${disease.id} by orthology to a human gene.                                
                             </c:when>
                             <c:otherwise>
-                                <table id="models_by_annotation_table" class="table tablesorter disease"></table>
+                                <table id="models_by_annotation" class="table tablesorter disease"></table>
                             </c:otherwise>
                         </c:choose>
                     </div>
@@ -220,7 +220,7 @@
                                 No mouse models associated with ${disease.id} by phenotypic similarity.
                             </c:when>
                             <c:otherwise>
-                                <table id="models_by_phenotype_table" class="table tablesorter disease"></table>
+                                <table id="models_by_phenotype" class="table tablesorter disease"></table>
                             </c:otherwise>
                         </c:choose>
                     </div>
@@ -260,7 +260,7 @@
             // configuration for tables, used by jquery datatable and by phenodigm2
             var diseaseTableConfs = [
                 {
-                    id: '#models_by_annotation_table',
+                    id: '#models_by_annotation',
                     tableConf: {
                         paging: false,
                         info: false,
@@ -272,12 +272,12 @@
                         groupby: "markerId",
                         filterkey: "markerSymbol",
                         filter: curatedGenes,
-                        pagetype: "disease",
+                        pageType: "disease",
                         disease: "${disease.id}"
                     }
                 },
                 {
-                    id: '#models_by_phenotype_table',
+                    id: '#models_by_phenotype',
                     tableConf: {
                         order: [[4, 'desc'], [3, 'desc'], [2, 'desc']],
                         pageLength: 20,
@@ -288,7 +288,7 @@
                         groupby: "markerId",
                         filterkey: "markerSymbol",
                         filter: [],
-                        pagetype: "disease",
+                        pageType: "disease",
                         disease: "${disease.id}"
                     }
                 }];
