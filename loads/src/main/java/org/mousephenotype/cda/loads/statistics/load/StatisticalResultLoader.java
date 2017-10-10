@@ -552,7 +552,7 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
                 result.setSexMvKOStandardError( getDoubleField(fields[i++]) );
                 result.setSexMvKOPVal( getDoubleField(fields[i++]) );
                 result.setClassificationTag( getStringField(fields[i++]) );
-                result.setAdditionalInformation( getStringField(fields[i++]) );
+                result.setAdditionalInformation( "file: "+  filename + "Additional: " + getStringField(fields[i++]) );
 
                 logger.debug("Last iteration left index i at: ", i);
 
@@ -592,9 +592,10 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
                 result.setSexMvKOStandardError( null );
                 result.setSexMvKOPVal( null );
                 result.setClassificationTag( null );
-                result.setAdditionalInformation( null );
+                result.setAdditionalInformation( "file: "+  filename );
                 break;
         }
+
 
         return result;
     }

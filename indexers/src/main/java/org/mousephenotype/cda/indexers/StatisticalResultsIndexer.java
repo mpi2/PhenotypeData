@@ -301,10 +301,10 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
         doc.setDataType(r.getString("data_type"));
 
         // Experiment details
-        String procedurePrefix = StringUtils.join(Arrays.asList(parameterMap.get(r.getInt("parameter_id"))
-                .getStableId()
-                .split("_"))
-                .subList(0, 2), "_");
+
+        // Use the procedure prefix to associated with the result to find the procedure prefix
+        String procedurePrefix = StringUtils.join(Arrays.asList(procedureMap.get(r.getInt("procedure_id")).getStableId().split("_")).subList(0, 2), "_");
+
         if (GenotypePhenotypeIndexer.source3iProcedurePrefixes.contains(procedurePrefix)) {
             // Override the resource for the 3i procedures
             doc.setResourceId(resourceMap.get(RESOURCE_3I).id);
