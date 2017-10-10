@@ -230,7 +230,7 @@ public abstract class SearchUrlService {
      */
     public String getGridQueryUrl(String query, String customFq, int start, int length, boolean facet) {
         String result = solrUrl() + "/select?" + getGridQueryStr(query, customFq, start, length, facet);
-        LOGGER.info("query: "+result);
+        //LOGGER.info("GridQueryUrl: "+result);
         return result;
     }
 

@@ -73,13 +73,16 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import uk.ac.ebi.phenotype.service.search.SearchUrlService;
+import uk.ac.ebi.phenotype.service.search.SearchUrlServiceFactory;
+import uk.ac.ebi.phenotype.util.SearchSettings;
 
 @Controller
 public class FileExportController {
 
 	protected CommonUtils commonUtils = new CommonUtils();
 
-	private final Logger log = LoggerFactory.getLogger(this.getClass().getCanonicalName());
+	private final Logger LOGGER = LoggerFactory.getLogger(this.getClass().getCanonicalName());
 
 	@Autowired
 	private GeneService geneService;
@@ -133,7 +136,9 @@ public class FileExportController {
 	@Autowired
 	private AdvancedSearchService advancedSearchService;
 
-
+    @Autowired
+    private SearchUrlServiceFactory urlFactory;
+            
 	private String hostname = null;
 	private String baseUrl = null;
 
@@ -367,9 +372,14 @@ public class FileExportController {
 		Boolean legacyOnly = false;
 		String solrFilters = "q=" + query + "&fq=" + fqStr;
 		List<String> dataRows = new ArrayList<>();
-
-		Boolean export = true;
-
+		                
+        // record arguments into a summary object
+        SearchSettings searchSettings = new SearchSettings(dataType, query, fqStr);
+        searchSettings.setImgView(showImgView);
+        LOGGER.info("exporting "+searchSettings.toString());        
+        // helper to compose solr query urls        
+        SearchUrlService urlService = urlFactory.getService(dataType);                
+                
 		if ( dataType.equals("alleleRef") ){
 			System.out.println("id: "+ id);
 			if (!id.equals("agency")){
@@ -402,13 +412,20 @@ public class FileExportController {
 						rows = iDisplayLength - (i * rows);
 					}
 
-                    // TK: Warning - fileexport is broken because fetchSearchResult has changed!
-					//JSONObject json = searchController.fetchSearchResult(export, query, dataType, iDisplayStart, rows, showImgView, fqStr, model);
-                    JSONObject json = new JSONObject();
+                    // Old implementation with fetchSearchResult with multiple
+					// JSONObject json = searchController.fetchSearchResult(export, query, dataType, iDisplayStart, rows, showImgView, fqStr, model);                    
+                    // fetch results using functionality from the SearchController
+                    // there is a bug 
+                    searchSettings.setDisplay(iDisplayStart, rows);
+                    // for export, faceting in search can be turned off.
+                    // However, faceting seems to be required in composeDataTableExportRows
+                    // below for dataType=impc_images.
+                    // So, to avoid errors for that dataType, leave faceting on here
+                    JSONObject json = searchController.fetchSearchResult(urlService, searchSettings, true);
                     
 					List<String> dr = new ArrayList<>();
 
-					dr = composeDataTableExportRows(query, dataType, json, iDisplayStart, rows, showImgView,
+                    dr = composeDataTableExportRows(query, dataType, json, iDisplayStart, rows, showImgView,
 							solrFilters, request, legacyOnly, fqStr);
 
 					if (i > 0) {
@@ -419,12 +436,15 @@ public class FileExportController {
 					dataRows.addAll(dr);
 				}
 			} else {
-                // TK: Warning - fileexport is broken because fetchSearchResult has changed!
-				// JSONObject json = searchController.fetchSearchResult(export, query, dataType, iDisplayStart, iDisplayLength, showImgView, fqStr, model);
-                JSONObject json = new JSONObject();
+                // old implementation using fetchSearchResult with many arguments
+				// JSONObject json = searchController.fetchSearchResult(export, query, dataType, iDisplayStart, iDisplayLength, showImgView, fqStr, model);                
+                // fetch results using functionality from the SearchController
+                searchSettings.setDisplay(iDisplayStart, iDisplayLength);
+                // see note above about faceting
+                JSONObject json = searchController.fetchSearchResult(urlService, searchSettings, true);
+                
 				dataRows = composeDataTableExportRows(query, dataType, json, iDisplayStart, iDisplayLength, showImgView,
 						solrFilters, request, legacyOnly, fqStr);
-
 			}
 		}
 
@@ -488,7 +508,7 @@ public class FileExportController {
 		String query = "*:*"; // default
 		String fqStr = null;
 
-		log.debug("solr params: " + solrFilters);
+		LOGGER.debug("solr params: " + solrFilters);
 
 		String[] pairs = solrFilters.split("&");
 		for (String pair : pairs) {
@@ -500,7 +520,7 @@ public class FileExportController {
 					fqStr = parts[1];
 				}
 			} catch (Exception e) {
-				log.error("Error getting value of q");
+				LOGGER.error("Error getting value of q");
 				e.printStackTrace();
 			}
 		}
@@ -1847,7 +1867,7 @@ public class FileExportController {
 						diseaseAssociationSummarys = phenoDigmDao.getGeneToDiseaseAssociationSummaries(geneIdentifier,
 								rawScoreCutoff);
 					} catch (RuntimeException e) {
-						log.error(ExceptionUtils.getFullStackTrace(e));
+						LOGGER.error(ExceptionUtils.getFullStackTrace(e));
 					}
 
 					for (DiseaseAssociationSummary diseaseAssociationSummary : diseaseAssociationSummarys) {

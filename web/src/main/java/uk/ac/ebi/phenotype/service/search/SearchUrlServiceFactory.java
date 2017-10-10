@@ -15,8 +15,6 @@
  ****************************************************************************** */
 package uk.ac.ebi.phenotype.service.search;
 
-import java.util.HashMap;
-import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +23,9 @@ import org.springframework.stereotype.Service;
 /**
  * Factory class for services generating solr search urls.
  *
+ * (Not sure if "factory" technically applies here. The getSetter does not
+ * generate new object but just returns one of the autowired objects.)
+ * 
  */
 @Service
 public class SearchUrlServiceFactory {

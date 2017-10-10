@@ -24,8 +24,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.Arrays;
-import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.ac.ebi.phenotype.service.QueryBrokerService;
@@ -203,6 +201,9 @@ public class SearchController {
     /**
      * Create and execute a solr query; retrieve search result
      *
+     * (This is used outside of this controller, by FileExportController;
+     * consider moving into a separate SearchService)
+     * 
      * @param urlService
      * @param settings
      * @param facet
@@ -220,12 +221,7 @@ public class SearchController {
                 settings.getFqStr(),
                 settings.getiDisplayStart(), settings.getiDisplayLength(),
                 facet);
-        JSONObject result = queryBrokerService.runQuery(queryUrl);
-        //if ("disease".equals(settings.getDataType())) {
-        //    LOGGER.info("fetchSearchResult: " + result.toString(2));
-        //} else {
-        //    LOGGER.info("fetchSearchResult: other");
-        //}
+        JSONObject result = queryBrokerService.runQuery(queryUrl);        
 
         return result;
     }

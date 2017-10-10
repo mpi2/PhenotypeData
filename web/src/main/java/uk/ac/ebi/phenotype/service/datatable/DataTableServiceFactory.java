@@ -23,6 +23,8 @@ import org.springframework.stereotype.Service;
 /**
  * Factory class for services html and datatable strings from solr results
  *
+ * (Not sure if "factory" technically applies here. The getSetter does not
+ * generate new object but just returns one of the autowired objects.) 
  */
 @Service
 public class DataTableServiceFactory {

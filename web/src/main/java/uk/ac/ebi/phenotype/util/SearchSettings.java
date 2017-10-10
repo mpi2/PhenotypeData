@@ -88,9 +88,22 @@ public class SearchSettings {
         setChrQuery();
 
         // copy information from the request object
-        this.request = request;
-        this.baseUrl = request.getAttribute("baseUrl").toString();
-        this.hostName = request.getAttribute("mappedHostname").toString();
+        if (request != null) {
+            this.request = request;
+            this.baseUrl = request.getAttribute("baseUrl").toString();
+            this.hostName = request.getAttribute("mappedHostname").toString();
+        }
+    }
+
+    /**
+     * Alternative constructor that does not use the request object. 
+     *
+     * @param dataType
+     * @param query
+     * @param fqStr
+     */
+    public SearchSettings(String dataType, String query, String fqStr) {
+        this(dataType, query, fqStr, null);
     }
 
     /**
@@ -99,7 +112,7 @@ public class SearchSettings {
      * @return
      */
     private String normSpaces(String s) {
-        return s.replaceAll(" ", "%20");        
+        return s.replaceAll(" ", "%20");
     }
 
     /**
@@ -124,7 +137,7 @@ public class SearchSettings {
             } else {
                 fqStr = oriFqStr;
             }
-        }        
+        }
     }
 
     /**
