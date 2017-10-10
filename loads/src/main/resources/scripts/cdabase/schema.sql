@@ -635,7 +635,7 @@ CREATE TABLE observation (
 	KEY biological_sample_idx(biological_sample_id),
 	KEY parameter_idx(parameter_id),
 	KEY parameter_stable_idx(parameter_stable_id),
-	KEY population_idx(population_id)
+	KEY datasets_idx(parameter_stable_id, observation_type, missing)
 
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
