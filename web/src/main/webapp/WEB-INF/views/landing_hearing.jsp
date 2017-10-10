@@ -110,7 +110,7 @@ table.dataTable thead tr {
                                 <p>In order to identify the function of genes, the consortium uses a series of
                                     standardised protocols as described in IMPReSS (International Mouse Phenotyping Resource of Standardised Screens).</p>
                                 <p>Hearing capacity is assessed using an <a
-										href="https://www.mousephenotype.org/impress/protocol/149/7">Auditory Brain Stem
+										href="http://www.mousephenotype.org/impress/protocol/149/7">Auditory Brain Stem
                                     response (ABR)</a> test conducted
                                     at 14 weeks of age. Hearing is assessed at five frequencies – 6kHz, 12kHz, 18kHz, 24kHz and 30kHz –
                                     as well as a broadband click stimulus.  Increased thresholds are indicative of abnormal hearing.
@@ -163,7 +163,7 @@ table.dataTable thead tr {
                                		Methods
                                	</h3>
                                	<p>Response data from the <a
-										href="https://www.mousephenotype.org/impress/protocol/149/7">Auditory Brain Stem
+										href="http://www.mousephenotype.org/impress/protocol/149/7">Auditory Brain Stem
                                     response (ABR)</a> test was used – hearing at five frequencies, 6kHz, 12kHz, 18kHz, 24kHz and 30kHz was measured.</p>
 								<ul>
 								<li>

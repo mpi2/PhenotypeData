@@ -152,7 +152,7 @@ public class ProductIndexer  extends AbstractIndexer implements CommandLineRunne
     }
 
     public static void main(String[] args) throws IndexerException {
-        SpringApplication.run(Allele2Indexer.class, args);
+        SpringApplication.run(ProductIndexer.class, args);
     }
 
 
