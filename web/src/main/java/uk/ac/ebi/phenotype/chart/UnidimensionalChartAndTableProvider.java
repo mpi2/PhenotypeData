@@ -315,8 +315,8 @@ public class UnidimensionalChartAndTableProvider {
 			
 			
 			
-			Long genotypeConfirmed= values.get(StatusConstants.IMITS_MOUSE_STATUS_GENOTYPE_CONFIRMED) + values.get(StatusConstants.IMITS_MOUSE_STATUS_CRE_EXCISION_STARTED) + values.get(StatusConstants.IMITS_MOUSE_STATUS_CRE_EXCISION_COMPLETE);
-			
+			Long genotypeConfirmed=values.get(StatusConstants.IMITS_MOUSE_STATUS_GENOTYPE_CONFIRMED) /**+ values.get(StatusConstants.IMITS_MOUSE_STATUS_CRE_EXCISION_STARTED)**/ + values.get(StatusConstants.IMITS_MOUSE_STATUS_CRE_EXCISION_COMPLETE);
+						
 			data += "['" + StatusConstants.IMITS_MOUSE_STATUS_GENOTYPE_CONFIRMED + "', " +  genotypeConfirmed + "], ";
 			data += "['" + StatusConstants.IMITS_MOUSE_STATUS_CRE_EXCISION_STARTED + "', " +  values.get(StatusConstants.IMITS_MOUSE_STATUS_CRE_EXCISION_STARTED) + "], ";
 			data += "['" + StatusConstants.IMITS_MOUSE_STATUS_CRE_EXCISION_COMPLETE + "', " +  values.get(StatusConstants.IMITS_MOUSE_STATUS_CRE_EXCISION_COMPLETE) + "], ";
