@@ -194,7 +194,7 @@ public class CdaSqlUtils {
 
     /**
      *
-     * @return a map of {@link BiologicalSample}, keyed by external_id and organisation_id (e.g. "mouseXXX_12345")
+     * @return a map of {@link BiologicalSample}, keyed by external_id and short_name (e.g. "mouseXXX_IMPC", "mouseYYY_3i", etc)
      *         NOTE: The external_id in {@link BiologicalSample} is called stableId.
      */
     public Map<String, BiologicalSample> getBiologicalSamples() {
@@ -204,7 +204,7 @@ public class CdaSqlUtils {
 
         List<BiologicalSample> samples = jdbcCda.query(query, new BiologicalSampleRowMapper());
         for (BiologicalSample sample : samples) {
-            map.put(sample.getStableId() + "_" + sample.getOrganisation().getId(), sample);
+            map.put(sample.getStableId() + "_" + sample.getDatasource().getShortName(), sample);
         }
 
         return map;
