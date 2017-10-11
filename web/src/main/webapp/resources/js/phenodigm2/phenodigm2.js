@@ -631,36 +631,44 @@ impc.phenodigm2.completeGridSkeleton = function (skeleton, geneId, diseaseId, pa
  * Create a table with phenotype details about individual models
  * 
  * @param {selection} targetdiv - d3 selection, output will be appended here
- * @param {string} geneId - gene marker
+ * @param {string} hitId - id used as filter
  * @param {array} models - array of objects defining mouse models
  * @returns {undefined}
  */
-impc.phenodigm2.insertModelDetails = function (targetdiv, geneId, models) {
+impc.phenodigm2.insertModelDetails = function (targetdiv, hitId, models) {
 
     // create a table for the outpt    
     var tablediv = targetdiv.append("table").classed("table", true);
 
     // identify the rows in modelAssociations that are relevant
     var details = modelAssociations.filter(function (x) {
-        return x["markerId"] === geneId;
-    });
+        if (_.has(x, "markerId")) {
+            return x["markerId"] === hitId;
+        } else if (_.has(x, "diseaseId")) {
+            return x["diseaseId"] === hitId;
+        } else {
+            return false;
+        }        
+    });    
     details = _.indexBy(details, "id");
     // here, "details" is either an object with markerIds as keys,
     // or is an empty object
 
     // setup columns. Can have headers with or without scores.
     var thead = tablediv.append("thead").append("tr");
-    var headcols = ["Model", "Genotype", "Phenotypes"];
-    if ((_.keys(details)).length > 0) {
-        headcols = ["Model", "Genotype", "Max Raw", "Avg Raw", "Phenodigm", "Phenotypes"];
-    }
+    // This bit used to be here to display a model table without scores
+    //var headcols = ["Model", "Genotype", "Phenotypes"];
+    //if ((_.keys(details)).length > 0) {
+    //    var headcols = ["Model", "Genotype", "Max Raw", "Avg Raw", "Phenodigm", "Phenotypes"];
+    //}
+    var headcols = ["Model", "Genotype", "Max Raw", "Avg Raw", "Phenodigm", "Phenotypes"];
     headcols.map(function (x) {
         var xclass = (x === "Phenotypes" ? "th-wide" : "");
         thead.append("th").classed(xclass, true).append("span").classed("main", true).html(x);
     });
 
     // setup data body
-    var tbody = tablediv.append("tbody").attr("geneid", geneId);
+    var tbody = tablediv.append("tbody").attr("hitid", hitId);
 
     // pretty printing of models e.g. ABC<xyz>
     var tohtml = function (x) {
@@ -737,7 +745,7 @@ impc.phenodigm2.insertModelDetails = function (targetdiv, geneId, models) {
 impc.phenodigm2.insertPhenogrid = function (tableId, geneId, diseaseId, pageType) {
 
     // identify the div that should hold the phenodigm widget
-    var targetdiv = $(tableId).find(".inner[geneid='" + geneId + "']").find(".inner_pg");
+    var targetdiv = $(tableId).find(".inner[hitid='" + geneId + "']").find(".inner_pg");
     // identify whether the table requires inner-table inserts
     var innerTables = d3.select(tableId).attr("innerTables") === "true";    
 
@@ -756,7 +764,8 @@ impc.phenodigm2.insertPhenogrid = function (tableId, geneId, diseaseId, pageType
         if (innerTables) {
             var pgid = impc.phenodigm2.makePgid(tableId, geneId, diseaseId, pageType);
             var innertab = d3.select(tableId + " .inner_table[pgid='" + pgid + "']");
-            impc.phenodigm2.insertModelDetails(innertab, geneId, result.xAxis[0].entities);
+            var hitId = pageType==="disease" ? geneId: diseaseId;
+            impc.phenodigm2.insertModelDetails(innertab, hitId, result.xAxis[0].entities);
         }
         // generate phenogrid widget (heatmap)
         Phenogrid.createPhenogridForElement(targetdiv, {
