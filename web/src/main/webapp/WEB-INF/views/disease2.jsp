@@ -269,12 +269,13 @@
                         sPaginationType: "bootstrap"
                     },
                     phenodigm2Conf: {
-                        groupby: "markerId",
-                        filterkey: "markerSymbol",
+                        pageType: "disease",
+                        disease: "${disease.id}",
+                        groupBy: "markerId",
+                        filterKey: "markerSymbol",
                         filter: curatedGenes,
                         minScore: 0,
-                        pageType: "disease",
-                        disease: "${disease.id}"
+                        innerTables: true                        
                     }
                 },
                 {
@@ -286,12 +287,13 @@
                         sPaginationType: "bootstrap"
                     },
                     phenodigm2Conf: {
-                        groupby: "markerId",
-                        filterkey: "markerSymbol",
+                        pageType: "disease",
+                        disease: "${disease.id}",
+                        groupBy: "markerId",
+                        filterKey: "markerSymbol",
                         filter: [],
                         minScore: 1,
-                        pageType: "disease",
-                        disease: "${disease.id}"
+                        innerTables: true
                     }
                 }];
 
