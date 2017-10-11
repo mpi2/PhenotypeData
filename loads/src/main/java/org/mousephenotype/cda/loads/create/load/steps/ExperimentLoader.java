@@ -373,7 +373,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         try {
             loadCounts = cdaSqlUtils.getLoadCounts();   // This threw an uncategorized SQLException for SQL [SELECT COUNT(*) FROM experiment]; SQL state [null]; error code [0]; Connection has already been closed.
         } catch (Exception e) {
-            logger.error(e.getLocalizedMessage());
+            logger.warn(e.getLocalizedMessage());
             e.printStackTrace();
         }
 
