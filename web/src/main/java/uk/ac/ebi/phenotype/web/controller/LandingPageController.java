@@ -91,14 +91,14 @@ public class LandingPageController {
 
         // don't show deafness or vision pages on live until ready
         Boolean isLive= Boolean.valueOf((String) request.getAttribute("liveSite"));
-        if (!isLive) {
+        
             LandingPageDTO deafness = new LandingPageDTO();
             deafness.setTitle("Hearing");
             deafness.setImage(baseUrl + "/img/landing/deafnessIcon.png");
             deafness.setDescription("This page aims to relate deafnessnes to phenotypes which have been produced by IMPC.");
             deafness.setLink("biological-system/hearing");
             bsPages.add(deafness);
-
+        if (!isLive) {
             LandingPageDTO vision = new LandingPageDTO();
             vision.setTitle("Vision");
             vision.setImage(baseUrl + "/img/landing/deafnessIcon.png");
