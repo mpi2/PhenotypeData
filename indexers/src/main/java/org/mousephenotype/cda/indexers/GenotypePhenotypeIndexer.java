@@ -122,19 +122,6 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
             procedureMap = IndexerMap.getImpressProcedures(connection);
             parameterMap = IndexerMap.getImpressParameters(connection);
 
-
-            // ==========================================================================================
-            // TODO: {   REMOVE} FILTER OUT DERIVED PARAMETERS UNTIL THE PROCEDURE ASSOCIATIONS GET FIXED
-            String query = "select stable_id from phenotype_parameter where derived = 1";
-            try (PreparedStatement p = connection.prepareStatement(query)) {
-                ResultSet r = p.executeQuery();
-                while (r.next()) {
-                    derivedParameterStableIds.add(r.getString("stable_id"));
-                }
-            }
-            // TODO: {ENDREMOVE} FILTER OUT DERIVED PARAMETERS UNTIL THE PROCEDURE ASSOCIATIONS GET FIXED
-            // ==========================================================================================
-
             // Override the EFO db_id with the current term from the database
             EFO_DB_ID = dsDAO.getDatasourceByShortName("EFO").getId();
 
@@ -197,20 +184,6 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
             ResultSet r = p.executeQuery();
             Map<String, Integer> skippedNotWarned = new HashMap<>();
             while (r.next()) {
-
-                // ==========================================================================================
-                // TODO: {   REMOVE} FILTER OUT DERIVED PARAMETERS UNTIL THE PROCEDURE ASSOCIATIONS GET FIXED
-                String parameterToCheck = parameterMap.get(r.getInt("parameter_id")).getStableId();
-                if (derivedParameterStableIds.contains(parameterToCheck)) {
-                    if ( ! skippedNotWarned.keySet().contains(parameterToCheck)) {
-                        skippedNotWarned.put(parameterToCheck, 1);
-                    } else {
-                        skippedNotWarned.put(parameterToCheck, skippedNotWarned.get(parameterToCheck) + 1);
-                    }
-                    continue;
-                }
-                // TODO: {ENDREMOVE} FILTER OUT DERIVED PARAMETERS UNTIL THE PROCEDURE ASSOCIATIONS GET FIXED
-                // ==========================================================================================
 
                 GenotypePhenotypeDTO doc = new GenotypePhenotypeDTO();
 
