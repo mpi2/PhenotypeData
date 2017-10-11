@@ -272,6 +272,7 @@
                         groupby: "markerId",
                         filterkey: "markerSymbol",
                         filter: curatedGenes,
+                        minScore: 0,
                         pageType: "disease",
                         disease: "${disease.id}"
                     }
@@ -288,6 +289,7 @@
                         groupby: "markerId",
                         filterkey: "markerSymbol",
                         filter: [],
+                        minScore: 1,
                         pageType: "disease",
                         disease: "${disease.id}"
                     }
