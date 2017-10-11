@@ -80,7 +80,7 @@ public class LandingPageController {
         cardiovascular.setLink("biological-system/cardiovascular");
         bsPages.add(cardiovascular);
         Boolean isLive= new Boolean((String) request.getAttribute("liveSite"));
-        if(!isLive){//don't show deafness page on live until ready with paper etc.
+        //if(!isLive){//don't show deafness page on live until ready with paper etc.
         LandingPageDTO deafness = new LandingPageDTO();
         deafness.setTitle("Hearing");
         deafness.setImage("img/landing/deafnessIcon.png");
@@ -89,7 +89,7 @@ public class LandingPageController {
                 "This page aims to relate deafnessnes to phenotypes which have been produced by IMPC.");
         deafness.setLink("biological-system/hearing");
         bsPages.add(deafness);
-        }
+        //}
         model.addAttribute("pages", bsPages);
 
         return "landing";
