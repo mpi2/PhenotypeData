@@ -364,22 +364,37 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         logger.info("Processing final queue of " + tasks.size());
         executor.shutdown();
 
+        logger.info("Loading complete.");
+
+        CommonUtils.printJvmMemoryConfiguration();
+
         // Print out the counts.
-        List<List<String>> loadCounts = cdaSqlUtils.getLoadCounts();
-        List<String> headingList = Arrays.asList("experiment", "biological_sample", "live_sample", "procedure_meta_data", "observation", "categorical", "date_time", "image_record", "text", "time_series", "unidimensional");
-        String borderRow = StringUtils.repeat("*", StringUtils.join(headingList, "    ").length() + 10);
-        String countsRow = "";
-        for (int i = 0; i < headingList.size(); i++) {
-            if (i > 0)
-                countsRow += "    ";
-            countsRow += String.format("%" + headingList.get(i).length() + "." + headingList.get(i).length() + "s", loadCounts.get(1).get(i));
+        List<List<String>> loadCounts = null;
+        try {
+            loadCounts = cdaSqlUtils.getLoadCounts();   // This threw an uncategorized SQLException for SQL [SELECT COUNT(*) FROM experiment]; SQL state [null]; error code [0]; Connection has already been closed.
+        } catch (Exception e) {
+            logger.error(e.getLocalizedMessage());
+            e.printStackTrace();
         }
 
-        System.out.println(borderRow);
-        System.out.println("**** COUNTS for " + cdaSqlUtils.getDbName() + " data loaded from " + dccSqlUtils.getDbName());
-        System.out.println("**** " + StringUtils.join(headingList, "    "));
-        System.out.println("**** " + countsRow);
-        System.out.println(borderRow);
+        if (loadCounts == null) {
+            System.out.println("Unable to get load counts.");
+        } else {
+            List<String> headingList = Arrays.asList("experiment", "biological_sample", "live_sample", "procedure_meta_data", "observation", "categorical", "date_time", "image_record", "text", "time_series", "unidimensional");
+            String       borderRow   = StringUtils.repeat("*", StringUtils.join(headingList, "    ").length() + 10);
+            String       countsRow   = "";
+            for (int i = 0; i < headingList.size(); i++) {
+                if (i > 0)
+                    countsRow += "    ";
+                countsRow += String.format("%" + headingList.get(i).length() + "." + headingList.get(i).length() + "s", loadCounts.get(1).get(i));
+            }
+
+            System.out.println(borderRow);
+            System.out.println("**** COUNTS for " + cdaSqlUtils.getDbName() + " data loaded from " + dccSqlUtils.getDbName());
+            System.out.println("**** " + StringUtils.join(headingList, "    "));
+            System.out.println("**** " + countsRow);
+            System.out.println(borderRow);
+        }
 
 
         // Log info sets
