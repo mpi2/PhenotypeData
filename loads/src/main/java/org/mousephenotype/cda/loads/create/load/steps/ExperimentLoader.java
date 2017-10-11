@@ -198,7 +198,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
     private Map<String, String>                 cdaParameterNameMap               = new ConcurrentHashMap<>();              // map of impress parameter names keyed by stable_parameter_id
     private Set<String>                         derivedImpressParameters          = new HashSet<>();
     private Set<String>                         metadataAndDataAnalysisParameters = new HashSet<>();
-    private Map<String, BiologicalSample>       samplesMap                        = new ConcurrentHashMap<>();              // keyed by external_id and organisation_id (e.g. "mouseXXX_12345")
+    private Map<String, BiologicalSample>       samplesMap                        = new ConcurrentHashMap<>();              // keyed by external_id and short_name (e.g. "mouseXXX_IMPC", "mouseYYY_3i", etc)
 
     // DCC parameter lookup maps, keyed by procedure_pk
     private Map<Long, List<MediaParameter>>       mediaParameterMap       = new ConcurrentHashMap<>();
@@ -523,6 +523,9 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         return experiment;
     }
 
+    private String buildSamplesMapKey(DccExperimentDTO dccExperiment) {
+        return dccExperiment.getSpecimenId() + "_" + dccExperiment.getDatasourceShortName();
+    }
 
     private Experiment createExperiment(DccExperimentDTO dccExperiment) throws DataLoadException {
         Experiment experiment = new Experiment();
@@ -768,7 +771,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
             }
         }
 
-        String samplesMapKey = dccExperiment.getSpecimenId() + "_" + phenotypingCenterPk;
+        String samplesMapKey = buildSamplesMapKey(dccExperiment);
         biologicalSamplePk = samplesMap.get(samplesMapKey).getId();
 
         // Procedure-level metadata
@@ -801,7 +804,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         // If this is a sample-level experiment, set the biological sample primary key to the key. It is an error if it can't be found. If this is a line-level experiment, set the biological sample primary key to null.
         controlDto.setBiologicalSampleId(null);
         if ( ! dccExperiment.isLineLevel()) {
-            String samplesMapKey = dccExperiment.getSpecimenId() + "_" + controlKey.getPhenotypingCenterPk();
+            String samplesMapKey = buildSamplesMapKey(dccExperiment);
             controlDto.setBiologicalSampleId(samplesMap.get(samplesMapKey).getId());
             if (controlDto.getBiologicalSampleId() == null) {
                 message = "BiologicalSample key lookup failed for controlDto " + controlDto;
@@ -890,7 +893,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         // If this is a sample-level experiment, set the biological sample primary key to the key. It is an error if it can't be found. If this is a line-level experiment, set the biological sample primary key to null.
         mutantDto.setBiologicalSampleId(null);
         if ( ! dccExperiment.isLineLevel()) {
-            String samplesMapKey = dccExperiment.getSpecimenId() + "_" + mutantKey.getPhenotypingCenterPk();
+            String samplesMapKey = buildSamplesMapKey(dccExperiment);
             mutantDto.setBiologicalSampleId(samplesMap.get(samplesMapKey).getId());
             if (mutantDto.getBiologicalSampleId() == null) {
                 message = "BiologicalSample key lookup failed for mutantDto " + mutantDto;
