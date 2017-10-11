@@ -103,6 +103,7 @@
         <field name="marker_name" type="string" indexed="true" stored="true" multiValued="false"/>
         <field name="synonym" type="string" indexed="true" stored="true" multiValued="true"/>
         <field name="marker_synonym" type="string" indexed="true" stored="true" multiValued="true"/>
+        <field name="human_gene_symbol" type="string" indexed="true" stored="true" multiValued="true"/>
         <field name="feature_type" type="string" indexed="true" stored="true" multiValued="false"/>
 
         <field name="feature_chromosome" type="string" indexed="true" stored="true" multiValued="false"/>
@@ -220,7 +221,7 @@
     <copyField source="synonym" dest="auto_suggest"/>
     <copyField source="marker_synonym" dest="auto_suggest"/>
     <copyField source="marker_name" dest="auto_suggest"/>
-
+    <copyField source="human_gene_symbol" dest="auto_suggest"/>
 
     <!-- SolrQueryParser configuration: defaultOperator="AND|OR" -->
     <solrQueryParser defaultOperator="AND"/>

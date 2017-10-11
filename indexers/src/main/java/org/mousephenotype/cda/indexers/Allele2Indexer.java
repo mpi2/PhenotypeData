@@ -107,6 +107,7 @@ public class Allele2Indexer  extends AbstractIndexer implements CommandLineRunne
             doc.setMgiAccessionId(getValueFor(Allele2DTO.MGI_ACCESSION_ID, array, columns, runStatus));
             doc.setMarkerName(getValueFor(Allele2DTO.MARKER_NAME,array, columns, runStatus));
             doc.setMarkerSynonym(getListValueFor(Allele2DTO.MARKER_SYNONYM, array, columns, runStatus));
+            doc.setHumanGeneSymbol(getListValueFor(Allele2DTO.HUMAN_GENE_SYMBOL, array, columns, runStatus));
             doc.setMouseAvailable(getBooleanValueFor(Allele2DTO.MOUSE_AVAILABLE, array, columns, runStatus));
             doc.setMutationType(getValueFor(Allele2DTO.MUTATION_TYPE,array,columns, runStatus));
             doc.setMouseStatus(getValueFor(Allele2DTO.MOUSE_STATUS, array,columns, runStatus));
