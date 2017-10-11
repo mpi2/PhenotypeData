@@ -567,7 +567,9 @@
                 var modelAssociations = ${modelAssociations}; // this object name is required in phenodigm2.js                
             </script>
             <script type="text/javascript">
-                var diseaseTables = [{
+                // tables for phenodigm1
+                var diseaseTables = [
+                    {
                         id: '#orthologous_diseases_table',
                         tableConf: {
                             paging: false,
@@ -576,13 +578,15 @@
                             order: [[2, 'desc'], [4, 'desc'], [3, 'desc']],
                             sPaginationType: "bootstrap"
                         }
-                    }, {
+                    }, 
+                    {
                         id: '#predicted_diseases_table',
                         tableConf: {
                             order: [[2, 'desc'], [4, 'desc'], [3, 'desc']],
                             sPaginationType: "bootstrap"
                         }
                     }];
+                // tables for phenodigm2
                 var diseaseTableConfs = [
                     {
                         id: '#diseases_by_annotation',
@@ -597,10 +601,11 @@
                             groupby: "diseaseId",
                             filterkey: "diseaseId",
                             filter: curatedDiseases,
+                            minScore: 0,
                             pageType: "genes",                            
                             gene: "${gene.mgiAccessionId}"
                         }
-                    },
+                    }, 
                     {
                         id: '#diseases_by_phenotype',
                         tableConf: {
@@ -613,6 +618,7 @@
                             groupby: "diseaseId",
                             filterkey: "diseaseId",
                             filter: [],
+                            minScore: 1,
                             pageType: "genes",                            
                             gene: "${gene.mgiAccessionId}"
                         }

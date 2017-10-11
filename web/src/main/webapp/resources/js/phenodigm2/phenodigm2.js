@@ -100,7 +100,7 @@ impc.isImpc = function (x) {
 /**
  * Compute phenodigm score using max & avg components 
  * 
- * @param {type} x can either be object or array
+ * @param {type} x can be an object or an array
  * when object, should have keys maxNorm and avgNorm
  * when array, each component should have those two keys.
  * @returns {impc.phenscore.phenmax}
@@ -140,8 +140,7 @@ impc.phenodigm2.makeTable = function (darr, target, config) {
     // shorthand for pagetype
     var pt = config.pageType;
     if (pt !== "genes" && pt !== "disease") {
-        console.log("phenodigm2.makeTable - pageType must be either 'genes' or 'disease'");
-        console.log("found: "+pt);
+        console.log("phenodigm2.makeTable - pageType must be either 'genes' or 'disease'; found "+pt);        
     }
 
     // setup columns
@@ -172,7 +171,7 @@ impc.phenodigm2.makeTable = function (darr, target, config) {
             return config.filter.indexOf(x[config.filterkey]) >= 0;
         });
     }
-
+        
     // convert from by-model to by-gene or by-disease representation        
     dshow = _.groupBy(dshow, function (x) {
         return x[config.groupby];
@@ -180,9 +179,9 @@ impc.phenodigm2.makeTable = function (darr, target, config) {
     var dkeys = _.keys(dshow);
 
     var scorecols = ["maxRaw", "avgRaw"];
-
-    // helper to add a series of <td> elements to a row summarizing scores
-    var addScoreTds = function (trow, x) {
+        
+    // helper adds a series of <td> elements to a table row
+    var addScoreTds = function(trow, x) {
         if (x.length > 1) {
             // display a summary of all scores in x in a single td
             scorecols.map(function (y) {
@@ -199,35 +198,47 @@ impc.phenodigm2.makeTable = function (darr, target, config) {
         trow.append("td").attr("titlef", "Click to display phenotype details")
                 .classed("toggleButton", true)
                 .append("i").classed("fa fa-plus-square more", true);
+    };            
+    // a part of addToRow for disease pages
+    var addToDiseaseRow = function(x) {
+        var trow = tbody.append("tr").attr("class", "phenotable").attr("geneid", x[0]["markerId"]);
+        trow.append("td").append("a").classed(pt + "link", true)
+                .attr("href", impc.urls.genes + x[0]["markerId"]).html(x[0]["markerSymbol"]);
+        var ximg = impc.isImpc(x) ? impc.logohtml : "";
+        trow.append("td").html(x.length + " <span class='small'>(" + x[0].markerNumModels + ") " + ximg);
+        return trow;            
+    };
+    // a part of addToRow for genes pages
+    var addToGenesRow = function(x) {
+        // x is now an array of objects, display a summary row
+        var trow = tbody.append("tr").attr("class", "phenotable").attr("diseaseid", x[0]["diseaseId"]);
+        trow.append("td").append("a").classed(pt + "link", true)
+                .attr("href", impc.urls.disease + x[0]["diseaseId"]).html(x[0]["diseaseTerm"]);
+        trow.append("td").append("a").classed(pt + "link", true)
+                .attr("href", x[0]["diseaseUrl"]).html(x[0]["diseaseId"]);
+        return trow;        
+    };
+    // Create a row in table (but skip x if phenoscore below threshold)
+    var addToRow = function(x, addSpecific) {        
+        if (impc.phenscore(x)<config.minScore) {
+            return;
+        }
+        var trow = addSpecific(x);
+        addScoreTds(trow, x);
     };
 
-    if (pt === "disease") {
-        // create html table (one line per gene)
+    // main part of function that generates the table (one line at a time)
+    if (pt === "disease") {        
         dkeys.map(function (key) {
             var x = dshow[key];
-            // x is now an array of objects, display a summary row
-            var trow = tbody.append("tr").attr("class", "phenotable").attr("geneid", x[0]["markerId"]);
-            trow.append("td").append("a").classed(pt + "link", true)
-                    .attr("href", impc.urls.genes + x[0]["markerId"]).html(x[0]["markerSymbol"]);
-            var ximg = "";
-            if (impc.isImpc(x)) {                
-                ximg = impc.logohtml;
-            }
-
-            trow.append("td").html(x.length + " <span class='small'>(" + x[0].markerNumModels + ") " + ximg);
-            addScoreTds(trow, x);
+            // x is now an array of objects
+            addToRow(x, addToDiseaseRow);                        
         });
-    } else {
-        // create html table (one line per disease)    
-        dkeys.map(function (key) {
+    } else {        
+        dkeys.map(function (key) {            
             var x = dshow[key];
-            // x is now an array of objects, display a summary row
-            var trow = tbody.append("tr").attr("class", "phenotable").attr("diseaseid", x[0]["diseaseId"]);
-            trow.append("td").append("a").classed(pt + "link", true)
-                    .attr("href", impc.urls.disease + x[0]["diseaseId"]).html(x[0]["diseaseTerm"]);
-            trow.append("td").append("a").classed(pt + "link", true)
-                    .attr("href", x[0]["diseaseUrl"]).html(x[0]["diseaseId"]);
-            addScoreTds(trow, x);
+            // x is now an array of objects            
+            addToRow(x, addToGenesRow);                        
         });
     }
 
