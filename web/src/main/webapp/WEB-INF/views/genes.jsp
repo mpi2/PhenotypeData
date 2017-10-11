@@ -598,12 +598,13 @@
                             sPaginationType: "bootstrap"
                         },
                         phenodigm2Conf: {
-                            groupby: "diseaseId",
-                            filterkey: "diseaseId",
+                            pageType: "genes",                        
+                            gene: "${gene.mgiAccessionId}",
+                            groupBy: "diseaseId",
+                            filterKey: "diseaseId",
                             filter: curatedDiseases,
-                            minScore: 0,
-                            pageType: "genes",                            
-                            gene: "${gene.mgiAccessionId}"
+                            minScore: 0,                            
+                            innerTables: true
                         }
                     }, 
                     {
@@ -615,12 +616,13 @@
                             sPaginationType: "bootstrap"
                         },
                         phenodigm2Conf: {
-                            groupby: "diseaseId",
-                            filterkey: "diseaseId",
+                            pageType: "genes",
+                            gene: "${gene.mgiAccessionId}",
+                            groupBy: "diseaseId",
+                            filterKey: "diseaseId",
                             filter: [],
                             minScore: 1,
-                            pageType: "genes",                            
-                            gene: "${gene.mgiAccessionId}"
+                            innerTables: true
                         }
                     }];
                 var modelsTableConf = {

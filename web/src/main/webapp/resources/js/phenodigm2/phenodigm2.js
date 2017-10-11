@@ -143,6 +143,13 @@ impc.phenodigm2.makeTable = function (darr, target, config) {
         console.log("phenodigm2.makeTable - pageType must be either 'genes' or 'disease'; found "+pt);        
     }
 
+    // record setting for inner table display
+    if (_.has(config, "innerTables")) {
+        targetdiv.attr("innerTables", config.innerTables);
+    } else {
+        targetdiv.attr("innerTables", false);
+    }
+
     // setup columns
     var thead = targetdiv.append("thead").append("tr");
     var colnames = ["Gene", "Models Scored (Total)", "Max Score", "Avg Score", "Phenodigm"];
@@ -168,13 +175,13 @@ impc.phenodigm2.makeTable = function (darr, target, config) {
     var dshow = darr;
     if (config.filter.length > 0) {
         dshow = darr.filter(function (x) {
-            return config.filter.indexOf(x[config.filterkey]) >= 0;
+            return config.filter.indexOf(x[config.filterKey]) >= 0;
         });
     }
         
     // convert from by-model to by-gene or by-disease representation        
     dshow = _.groupBy(dshow, function (x) {
-        return x[config.groupby];
+        return x[config.groupBy];
     });
     var dkeys = _.keys(dshow);
 
@@ -731,6 +738,8 @@ impc.phenodigm2.insertPhenogrid = function (tableId, geneId, diseaseId, pageType
 
     // identify the div that should hold the phenodigm widget
     var targetdiv = $(tableId).find(".inner[geneid='" + geneId + "']").find(".inner_pg");
+    // identify whether the table requires inner-table inserts
+    var innerTables = d3.select(tableId).attr("innerTables") === "true";    
 
     var gridColumnWidth = 25;
     var gridRowHeight = 50;
@@ -744,7 +753,7 @@ impc.phenodigm2.insertPhenogrid = function (tableId, geneId, diseaseId, pageType
         // complete the skeleton using modelAssociations
         result = impc.phenodigm2.completeGridSkeleton(result, geneId, diseaseId, pageType);
         // perhaps create an inner table?
-        if (pageType === "disease" || true) {
+        if (innerTables) {
             var pgid = impc.phenodigm2.makePgid(tableId, geneId, diseaseId, pageType);
             var innertab = d3.select(tableId + " .inner_table[pgid='" + pgid + "']");
             impc.phenodigm2.insertModelDetails(innertab, geneId, result.xAxis[0].entities);
