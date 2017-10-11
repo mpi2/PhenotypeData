@@ -218,6 +218,8 @@
     <copyField source="ikmc_project" dest="auto_suggest"/>
     <copyField source="allele_symbol_search_variants" dest="auto_suggest"/>
     <copyField source="synonym" dest="auto_suggest"/>
+    <copyField source="marker_synonym" dest="auto_suggest"/>
+    <copyField source="marker_name" dest="auto_suggest"/>
 
 
     <!-- SolrQueryParser configuration: defaultOperator="AND|OR" -->
