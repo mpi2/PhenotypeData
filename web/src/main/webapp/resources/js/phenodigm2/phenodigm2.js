@@ -117,6 +117,19 @@ impc.phenscore = function (x) {
 };
 
 
+/**
+ * select either geneId or diseaseId as a hitId
+ * 
+ * @param {type} geneId
+ * @param {type} diseaseId
+ * @param {type} pageType
+ * @returns {unresolved}
+ */
+impc.phenodigm2.getHitId = function(geneId, diseaseId, pageType) {
+    return pageType==="disease" ? geneId : diseaseId;
+};
+    
+    
 /****************************************************************************
  * Generation of tables
  **************************************************************************** */
@@ -548,11 +561,13 @@ impc.phenodigm2.makePgid = function(tableId, geneId, diseaseId, pageType) {
  */
 impc.phenodigm2.makeTableChildRow = function (tableId, geneId, diseaseId, pageType) {
     var pgid = impc.phenodigm2.makePgid(tableId, geneId, diseaseId, pageType);
+    var hitId = impc.phenodigm2.getHitId(geneId, diseaseId, pageType);
     var innerdiv = $(document.createElement('div'))
             .addClass("inner")
             .attr({
                 geneId: geneId,
                 diseaseId: diseaseId,
+                hitId: hitId,
                 pageType: pageType
             }).css({"padding": "0"});
     innerdiv.append("<div class='inner_table' pgid='"+pgid+"'></div>");
@@ -649,8 +664,8 @@ impc.phenodigm2.insertModelDetails = function (targetdiv, hitId, models) {
         } else {
             return false;
         }        
-    });    
-    details = _.indexBy(details, "id");
+    });        
+    details = _.indexBy(details, "id");    
     // here, "details" is either an object with markerIds as keys,
     // or is an empty object
 
@@ -744,8 +759,10 @@ impc.phenodigm2.insertModelDetails = function (targetdiv, hitId, models) {
  */
 impc.phenodigm2.insertPhenogrid = function (tableId, geneId, diseaseId, pageType) {
 
+    var hitId = impc.phenodigm2.getHitId(geneId, diseaseId, pageType);
+    
     // identify the div that should hold the phenodigm widget
-    var targetdiv = $(tableId).find(".inner[hitid='" + geneId + "']").find(".inner_pg");
+    var targetdiv = $(tableId).find(".inner[hitid='" + hitId + "']").find(".inner_pg");    
     // identify whether the table requires inner-table inserts
     var innerTables = d3.select(tableId).attr("innerTables") === "true";    
 
@@ -763,10 +780,9 @@ impc.phenodigm2.insertPhenogrid = function (tableId, geneId, diseaseId, pageType
         // perhaps create an inner table?
         if (innerTables) {
             var pgid = impc.phenodigm2.makePgid(tableId, geneId, diseaseId, pageType);
-            var innertab = d3.select(tableId + " .inner_table[pgid='" + pgid + "']");
-            var hitId = pageType==="disease" ? geneId: diseaseId;
+            var innertab = d3.select(tableId + " .inner_table[pgid='" + pgid + "']");            
             impc.phenodigm2.insertModelDetails(innertab, hitId, result.xAxis[0].entities);
-        }
+        }        
         // generate phenogrid widget (heatmap)
         Phenogrid.createPhenogridForElement(targetdiv, {
             //monarchUrl is a global variable provided via Spring from application.properties
@@ -777,7 +793,7 @@ impc.phenodigm2.insertPhenogrid = function (tableId, geneId, diseaseId, pageType
             gridSkeletonData: result,
             singleTargetModeTargetLengthLimit: gridColumnWidth,
             sourceLengthLimit: gridRowHeight
-        });
+        });        
     });
 };
 
