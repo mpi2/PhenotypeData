@@ -37,7 +37,6 @@ public abstract class BioModelInsertDTO {
     protected String allelicComposition;
     protected String geneticBackground;
     protected String zygosity;
-    protected Integer biologicalSampleId;
 
 
     public BioModelInsertDTO(Integer dbId, String allelicComposition, String geneticBackground, String zygosity) {
@@ -79,14 +78,6 @@ public abstract class BioModelInsertDTO {
         this.zygosity = zygosity;
     }
 
-    public Integer getBiologicalSampleId() {
-        return biologicalSampleId;
-    }
-
-    public void setBiologicalSampleId(Integer biologicalSampleId) {
-        this.biologicalSampleId = biologicalSampleId;
-    }
-
     public String getCompositeKey() {
         return getCompositeKey(dbId, allelicComposition,  geneticBackground, zygosity);
     }
@@ -123,7 +114,6 @@ public abstract class BioModelInsertDTO {
                 ", allelicComposition='" + allelicComposition + '\'' +
                 ", geneticBackground='" + geneticBackground + '\'' +
                 ", zygosity='" + zygosity + '\'' +
-                ", biologicalSampleId=" + biologicalSampleId +
                 '}';
     }
 }

@@ -553,10 +553,6 @@ public class CdaSqlUtils {
         insertBiologicalModelAlleles(biologicalModelId, mutant.getAlleles());
         insertBiologicalModelStrains(biologicalModelId, mutant.getStrains());
 
-        if (mutant.getBiologicalSampleId() != null) {
-            insertBiologicalModelSample(biologicalModelId, mutant.getBiologicalSampleId());
-        }
-
         return biologicalModelId;
     }
 
@@ -566,11 +562,38 @@ public class CdaSqlUtils {
         int biologicalModelId = insertBiologicalModel(control.getDbId(), control.getAllelicComposition(), control.getGeneticBackground(), control.getZygosity());
         insertBiologicalModelGenes(biologicalModelId, control.getStrains());
 
-        if (control.getBiologicalSampleId() != null) {
-            insertBiologicalModelSample(biologicalModelId, control.getBiologicalSampleId());
-        }
-
         return biologicalModelId;
+    }
+
+    /**
+     * Insert into the biological_model_sample table
+     * @param biologicalModelId
+     * @param biologicalSampleId
+     * @throws DataLoadException
+     */
+    public void insertBiologicalModelSample(int biologicalModelId, int biologicalSampleId) throws DataLoadException {
+
+        final String insert = "INSERT INTO biological_model_sample (" +
+                "biological_model_id,   biological_sample_id) VALUES (" +
+                ":biological_model_id, :biological_sample_id)";
+
+        Map<String, Object> parameterMap = new HashMap<>();
+        parameterMap.put("biological_model_id", biologicalModelId);
+        parameterMap.put("biological_sample_id", biologicalSampleId);
+
+        KeyHolder keyholder = new GeneratedKeyHolder();
+        SqlParameterSource parameterSource = new MapSqlParameterSource(parameterMap);
+
+        String message = "INSERT INTO biological_model_sample failed for biological_model_id " + biologicalModelId + ", biological_sample_id " + biologicalSampleId + ". Skipping...";
+
+        try {
+
+            jdbcCda.update(insert, parameterSource, keyholder);
+
+        } catch (DuplicateKeyException e) {
+
+            throw new DataLoadException(message, DataLoadException.DETAIL.DUPLICATE_KEY);
+        }
     }
 
     public int insertBiologicalModelsMGI(List<BioModelInsertDTOMGI> models) throws DataLoadException
@@ -3559,30 +3582,5 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
         }
 
         return count;
-    }
-
-    private void insertBiologicalModelSample(int biologicalModelId, int biologicalSampleId) throws DataLoadException {
-
-        final String insert = "INSERT INTO biological_model_sample (" +
-                "biological_model_id,   biological_sample_id) VALUES (" +
-                ":biological_model_id, :biological_sample_id)";
-
-        Map<String, Object> parameterMap = new HashMap<>();
-        parameterMap.put("biological_model_id", biologicalModelId);
-        parameterMap.put("biological_sample_id", biologicalSampleId);
-
-        KeyHolder keyholder = new GeneratedKeyHolder();
-        SqlParameterSource parameterSource = new MapSqlParameterSource(parameterMap);
-
-        String message = "INSERT INTO biological_model_sample failed for biological_model_id " + biologicalModelId + ", biological_sample_id " + biologicalSampleId + ". Skipping...";
-
-        try {
-
-            jdbcCda.update(insert, parameterSource, keyholder);
-
-        } catch (DuplicateKeyException e) {
-
-            throw new DataLoadException(message, DataLoadException.DETAIL.DUPLICATE_KEY);
-        }
     }
 }

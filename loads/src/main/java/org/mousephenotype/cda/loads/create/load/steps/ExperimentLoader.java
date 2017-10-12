@@ -650,7 +650,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
             synchronized (controlKey) {
                 biologicalModelPk = bioModelMap.get(controlKey);
                 if (biologicalModelPk == null) {
-                    biologicalModelPk = createBiologicalModelControl(controlKey, dccExperiment);
+                    biologicalModelPk = createBiologicalModelControl(controlKey);
                     if (biologicalModelPk == null) {
                         throw new DataLoadException();
                     } else {
@@ -666,7 +666,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
             synchronized (mutantKey) {
                 biologicalModelPk = bioModelMap.get(mutantKey);
                 if (biologicalModelPk == null) {
-                    biologicalModelPk = createBiologicalModelMutant(mutantKey, dccExperiment);
+                    biologicalModelPk = createBiologicalModelMutant(mutantKey);
                     if (biologicalModelPk == null) {
                         throw new DataLoadException();
                     } else {
@@ -699,6 +699,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
             colonyId = phenotypedColony.getColonyName();
             dateOfExperiment = null;
             sequenceId = null;
+            biologicalSamplePk = null;
 
         } else {
 
@@ -708,6 +709,11 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
                 return null;
             }
             sequenceId = dccExperiment.getSequenceId();
+            String samplesMapKey = buildSamplesMapKey(dccExperiment);
+            biologicalSamplePk = samplesMap.get(samplesMapKey).getId();
+
+            // Insert into the biological_model_sample table.
+            cdaSqlUtils.insertBiologicalModelSample(biologicalModelPk, biologicalSamplePk);
         }
 
        /** Save procedure metadata into metadataCombined and metadataGroup:
@@ -771,9 +777,6 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
             }
         }
 
-        String samplesMapKey = buildSamplesMapKey(dccExperiment);
-        biologicalSamplePk = samplesMap.get(samplesMapKey).getId();
-
         // Procedure-level metadata
         cdaSqlUtils.insertProcedureMetadata(dccMetadataList, dccExperiment.getProcedureId(), experimentPk, 0);
 
@@ -792,7 +795,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         return new BioModelKeyControl(dbId, allelicComposition, geneticBackground, zygosity, phenotypingCenterPk, backgroundStrain);
     }
 
-    private synchronized Integer createBiologicalModelControl(BioModelKeyControl controlKey, DccExperimentDTO dccExperiment) throws DataLoadException {
+    private synchronized Integer createBiologicalModelControl(BioModelKeyControl controlKey) throws DataLoadException {
 
         String message;
         Integer biologicalModelPk;
@@ -800,18 +803,6 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         DatasourceEntityId dsId = controlKey.getBackgroundStrain().getId();
         AccDbId strain = new AccDbId(dsId.getAccession(), dsId.getDatabaseId());
         BioModelInsertDTOControl controlDto = new BioModelInsertDTOControl(controlKey.getDbId(), controlKey.getAllelicComposition(), controlKey.getGeneticBackground(), controlKey.getZygosity(), strain);
-
-        // If this is a sample-level experiment, set the biological sample primary key to the key. It is an error if it can't be found. If this is a line-level experiment, set the biological sample primary key to null.
-        controlDto.setBiologicalSampleId(null);
-        if ( ! dccExperiment.isLineLevel()) {
-            String samplesMapKey = buildSamplesMapKey(dccExperiment);
-            controlDto.setBiologicalSampleId(samplesMap.get(samplesMapKey).getId());
-            if (controlDto.getBiologicalSampleId() == null) {
-                message = "BiologicalSample key lookup failed for controlDto " + controlDto;
-                logger.error(message);
-                throw new DataLoadException(message);
-            }
-        }
 
         biologicalModelPk = cdaSqlUtils.insertBiologicalModelImpc(controlDto);
         if (biologicalModelPk == null) {
@@ -849,7 +840,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         return new BioModelKeyMutant(dbId, allelicComposition, geneticBackground, zygosity, phenotypingCenterPk, colony);
     }
 
-    private synchronized Integer createBiologicalModelMutant(BioModelKeyMutant mutantKey, DccExperimentDTO dccExperiment) throws DataLoadException {
+    private synchronized Integer createBiologicalModelMutant(BioModelKeyMutant mutantKey) throws DataLoadException {
         String  message;
         Integer biologicalModelPk;
         PhenotypedColony colony = mutantKey.getColony();
@@ -889,18 +880,6 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         AccDbId strain = new AccDbId(s.getId().getAccession(), s.getId().getDatabaseId());
 
         BioModelInsertDTOMutant mutantDto = new BioModelInsertDTOMutant(mutantKey.getDbId(), mutantKey.getAllelicComposition(), mutantKey.getGeneticBackground(), mutantKey.getZygosity(), gene, allele, strain);
-
-        // If this is a sample-level experiment, set the biological sample primary key to the key. It is an error if it can't be found. If this is a line-level experiment, set the biological sample primary key to null.
-        mutantDto.setBiologicalSampleId(null);
-        if ( ! dccExperiment.isLineLevel()) {
-            String samplesMapKey = buildSamplesMapKey(dccExperiment);
-            mutantDto.setBiologicalSampleId(samplesMap.get(samplesMapKey).getId());
-            if (mutantDto.getBiologicalSampleId() == null) {
-                message = "BiologicalSample key lookup failed for mutantDto " + mutantDto;
-                logger.error(message);
-                return null;
-            }
-        }
 
         biologicalModelPk = cdaSqlUtils.insertBiologicalModelImpc(mutantDto);
         if (biologicalModelPk == null) {
