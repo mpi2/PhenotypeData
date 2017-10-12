@@ -134,7 +134,8 @@ table.dataTable thead tr {
                                <h3>Hearing loss investigated in 3,006 knockout mouse lines</h3>
                                <p>
 									<a
-										href="http://bit.ly/IMPCDeafness">Nature Communications</a>
+										href="http://bit.ly/IMPCDeafness">A large scale hearing loss screen reveals an extensive unexplored genetic landscape for auditory dysfunction<br/>
+										Nature Communications (released 12/10/2017)</a>
 									
 								</p>
 
