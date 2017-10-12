@@ -1846,27 +1846,35 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
                              e.getLocalizedMessage());
             }
             if (count == 0) {
+
                 logger.warn("Insert MediaSampleParameter failed for parameterSource {}. Marking it as missing ...", parameterSource);
                 updateObservationMissingFlag(observationPk, true);
+
             } else {
+
                 // Save any parameter associations.
                 for (ParameterAssociation parameterAssociation : mediaFile.getParameterAssociation()) {
-                    int parameterAssociationPk = insertParameterAssociation(observationPk, parameterAssociation, simpleParameterList, ontologyParameterList);
+                    List<Integer> parameterAssociationPks = insertParameterAssociation(parameterAssociation, observationPk, simpleParameterList, ontologyParameterList);
+                    for (Integer parameterAssociationPk : parameterAssociationPks) {
 
-                    // Save any Dimensions.
-                    for (Dimension dimension : parameterAssociation.getDim()) {
-                        insertDimension(parameterAssociationPk, dimension);
+                        // Save any Dimensions.
+                        for (Dimension dimension : parameterAssociation.getDim()) {
+                            insertDimension(parameterAssociationPk, dimension);
+                        }
                     }
                 }
-
-                // Save any procedure metadata.
-                for (ProcedureMetadata procedureMetadata : mediaFile.getProcedureMetadata()) {
-                    insertProcedureMetadata(mediaFile.getProcedureMetadata(), dccExperimentDTO.getProcedureId(),
-                                            experimentPk, observationPk);
-                }
             }
+
+            // Save any procedure metadata.
+            for (ProcedureMetadata procedureMetadata : mediaFile.getProcedureMetadata()) {
+                insertProcedureMetadata(mediaFile.getProcedureMetadata(), dccExperimentDTO.getProcedureId(),
+                                        experimentPk, observationPk);
+            }
+
         } else {
+
             logger.debug("Image record not loaded (missing = 1). parameterStableId {}, URI {}" + parameterStableId,  URI);
+
         }
 
         return observationPk;
@@ -1924,6 +1932,18 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
                             ") VALUES (" +
                             ":observationPk, :samplePk, :downloadFilePath, :imageLink, :incrementValue, :fileType, :mediaSampleLocalId, :mediaSectionId, :organisationPk, :fullResolutionFilePath" +
                             ")";
+
+            // Save any parameter associations.
+            for (ParameterAssociation parameterAssociation : mediaParameter.getParameterAssociation()) {
+                List<Integer> parameterAssociationPks = insertParameterAssociation(parameterAssociation, observationPk, null, null);
+                for (Integer parameterAssociationPk : parameterAssociationPks) {
+
+                    // Save any Dimensions.
+                    for (Dimension dimension : parameterAssociation.getDim()) {
+                        insertDimension(parameterAssociationPk, dimension);
+                    }
+                }
+            }
 
             String filePathWithoutName    = createNfsPathWithoutName(dccExperimentDTO, phenotypingCenter, parameterStableId);
             String fullResolutionFilePath = getFullResolutionFilePath(filePathWithoutName, mediaParameter.getURI());
@@ -2134,16 +2154,21 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
                              seriesMediaParameterValue.getFileType(), phenotypingCenterPk, fullResolutionFilePath, e.getLocalizedMessage());
             }
             if (count == 0) {
+
                 logger.warn("Insert MediaParameter failed for parameterSource {}. Marking it as missing ...", parameterSource);
                 updateObservationMissingFlag(observationPk, true);
+
             } else {
+
                 // Save any parameter associations.
                 for (ParameterAssociation parameterAssociation : seriesMediaParameterValue.getParameterAssociation()) {
-                    int parameterAssociationPk = insertParameterAssociation(observationPk, parameterAssociation, simpleParameterList, ontologyParameterList);
+                    List<Integer> parameterAssociationPks = insertParameterAssociation(parameterAssociation, observationPk, simpleParameterList, ontologyParameterList);
+                    for (Integer parameterAssociationPk : parameterAssociationPks) {
 
-                    // Save any Dimensions.
-                    for (Dimension dimension : parameterAssociation.getDim()) {
-                        insertDimension(parameterAssociationPk, dimension);
+                        // Save any Dimensions.
+                        for (Dimension dimension : parameterAssociation.getDim()) {
+                            insertDimension(parameterAssociationPk, dimension);
+                        }
                     }
                 }
 
@@ -2153,8 +2178,11 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
                                             experimentPk, observationPk);
                 }
             }
+
         } else {
+
             logger.debug("Image record not loaded: " + seriesMediaParameterValue.getURI());
+
         }
 
         return observationPk;
@@ -2335,64 +2363,97 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
         return countsMap;
     }
 
-
-    // Returns the parameter association primary key.
-    public int insertParameterAssociation(int observationPk, ParameterAssociation parameterAssociation,
-                                           List<SimpleParameter> simpleParameterList,
-                                           List<OntologyParameter> ontologyParameterList)
+    /**
+     * Insert one or more parameter associations into the parameter_association table. Multiple rows will be generated
+     * for the same observation if there is more than one unique simple parameter and/or more than one ontology
+     * parameter. If no parameter association value is found (they come in the simpleParameters and ontologyParameters
+     * lists), the parameter_association_value will be set to null.
+     *
+     * @param parameterAssociation the object to be inserted
+     * @param observationPk the observation primary key
+     * @param simpleParameters a list of simple parameters. May be NULL or empty.
+     * @param ontologyParameters a list of ontology parameters. May be NULL or empty.
+     *
+     * @return a list of parameter_association primary keys for the inserted rows.
+     */
+    public List<Integer> insertParameterAssociation(ParameterAssociation parameterAssociation,
+                                                    int observationPk,
+                                                    List<SimpleParameter> simpleParameters,
+                                                    List<OntologyParameter> ontologyParameters)
     {
-        int pk = 0;
-        String insert = "INSERT INTO parameter_association (observation_id,  parameter_id, sequence_id, parameter_association_value)" +
-                "VALUES (:observationPk, :parameterId, :sequenceId, :parameterAssociationValue)";
+        List<Integer> pks = new ArrayList<>();
+        String insert = "INSERT INTO parameter_association (parameter_id, observation_id,  sequence_id, parameter_association_value)" +
+                "VALUES (:parameterId, :observationPk, :sequenceId, :parameterAssociationValue)";
 
         KeyHolder           keyholder       = new GeneratedKeyHolder();
 
         Map<String, Object> parameterMap = new HashMap<>();
-        parameterMap.put("observationPk", observationPk);
         parameterMap.put("parameterId", parameterAssociation.getParameterID());
+        parameterMap.put("observationPk", observationPk);
         parameterMap.put("sequenceId", parameterAssociation.getSequenceID());
 
-        // set the parameter association value here. It is always a
-        // seriesParameter or Ontology so not multiple values are allowed.
-        // Loop through simple parameters (but not ontology parameters as they
-        // don't have values) to get the value for this parameterAssociation and get
-        // the value for it.
-        String value = null;
-        for (SimpleParameter sp : simpleParameterList) {
-            String paramStableId = sp.getParameterID();                             // parameter stable id
-            if (paramStableId.equals(parameterAssociation.getParameterID())) {
-                value = sp.getValue();
-            }
+        Set<String> parameterAssociationValues = computeParameterAssociationValues(parameterAssociation.getParameterID(), simpleParameters, ontologyParameters);
+        if (parameterAssociationValues.isEmpty()) {
+            parameterAssociationValues.add(null);
         }
-        for (OntologyParameter sp : ontologyParameterList) {
-            String paramStableId = sp.getParameterID();                             // parameter stable id
-            if (paramStableId.equals(parameterAssociation.getParameterID())) {
-                for (String term : sp.getTerm()) {
-                    System.err.println("ontology parameter in parameterAssociation not storing these yet but if they are here we should! term has values in them term=" + term);
+        for (String value : parameterAssociationValues) {
+            parameterMap.put("parameterAssociationValue", value);
+            SqlParameterSource  parameterSource = new MapSqlParameterSource(parameterMap);
+
+            try {
+                int count = jdbcCda.update(insert, parameterSource, keyholder);
+
+                if (count > 0) {
+                    pks.add(keyholder.getKey().intValue());
                 }
-                value = org.apache.commons.lang.StringUtils.join(sp.getTerm(), ",");
+            } catch (DuplicateKeyException e) {
+                // Ignore.
             }
         }
 
-        if (value != null) {
-            if (value.length() > 45) {
-                String trimmedValue = StringUtils.left(value, 44);
-                logger.info("Trimming parameterAssociationValue '{}' to 44 characters ('{}')", value, trimmedValue);
-                value = trimmedValue;
-            }
-        }
-
-        parameterMap.put("parameterAssociationValue", value);
-        SqlParameterSource  parameterSource = new MapSqlParameterSource(parameterMap);
-
-        int count = jdbcCda.update(insert, parameterMap);
-        if (count > 0) {
-            pk = keyholder.getKey().intValue();
-        }
-
-        return pk;
+        return pks;
     }
 
+    /**
+     * The parameter_association.parameter_association_value field is used to describe/annotate the associated image.
+     * The value(s) may come from any or all of:
+     * <ul>
+     *     <li>one or more {@link SimpleParameter} parameterStableId values</li>
+     *     <li>one or more {@link OntologyParameter} parameterStableId values</li>
+     * </ul>
+     *
+     * @param simpleParameters a list of simple parameters. May be NULL.
+     * @param ontologyParameters a list of ontology parameters. May be NULL.
+     *
+     * @return a list of strings containing zero or more parameter_association_value values suitable for display as
+     * annotation label(s).
+     */
+    private Set<String> computeParameterAssociationValues(String parameterStableId, List<SimpleParameter> simpleParameters, List<OntologyParameter> ontologyParameters) {
+
+        Set<String> values = new HashSet<>();
+
+        if (simpleParameters != null) {
+            for (SimpleParameter simpleParameter : simpleParameters) {
+                String paramStableId = simpleParameter.getParameterID();                             // parameter stable id
+                if (paramStableId.equals(parameterStableId)) {
+                    values.add(simpleParameter.getValue());
+                }
+            }
+        }
+
+        if (ontologyParameters != null) {
+            for (OntologyParameter ontologyParameter : ontologyParameters) {
+                String paramStableId = ontologyParameter.getParameterID();                            // parameter stable id
+                if (paramStableId.equals(parameterStableId)) {
+                    for (String term : ontologyParameter.getTerm()) {
+                        values.add(term);
+                    }
+                }
+            }
+        }
+
+        return values;
+    }
 
 
     /**
@@ -3219,8 +3280,6 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
             }
         } else {
             if ((biologicalModel.getStrains() == null) || (biologicalModel.getStrains().isEmpty())) {
-
-                logger.info("Inserting biologicalModelStrain entry for biologicalModelId " + biologicalModel.getId() + ", backgroundStrain " + backgroundStrain.getId().getAccession());
 
                 // The biological_model_strain table is not inserted when the cda_base database is created, as the info may be obsolete, and the strain is not available. Insert it here.
                 insertBiologicalModelStrain(biologicalModel.getId(), backgroundStrain.getId());
