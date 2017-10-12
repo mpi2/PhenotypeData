@@ -134,7 +134,8 @@ table.dataTable thead tr {
                                <h3>Hearing loss investigated in 3,006 knockout mouse lines</h3>
                                <p>
 									<a
-										href="https://www.nature.com/articles/s41467-017-00595-4">Nature Communications</a>
+										href="http://bit.ly/IMPCDeafness">Nature Communications</a>
+									
 								</p>
 
                                	<ul>
@@ -154,8 +155,8 @@ table.dataTable thead tr {
                                	</ul>
                                 
 				<p>Press releases: <a
-										href="https://www.mrc.ac.uk/news/browse/genes-critical-for-hearing-identified/">MRC</a><!-- &nbsp;|&nbsp;<a
-										href="http://www.ebi.ac.uk/about/news/press-releases/sexual-dimorphism-dilemma">EMBL-EBI</a>&nbsp;|&nbsp;<a
+										href="https://www.mrc.ac.uk/news/browse/genes-critical-for-hearing-identified/">MRC</a>&nbsp;|&nbsp;<a
+										href="http://bit.ly/DeafnessNewsStory">IMPC</a><!--&nbsp;|&nbsp;<a
 										href="http://www.sanger.ac.uk/news/view/study-reveals-how-sex-blindspot-could-misdirect-medical-research">Sanger</a> -->
 								</p>
 
@@ -179,7 +180,7 @@ table.dataTable thead tr {
                                	</h3>
 				<p>
 									<a
-										href="http://em.rdcu.be/wf/click?upn=KP7O1RED-2BlD0F9LDqGVeSJ-2BYK13AOQwsehfu7fiqrAw-3D_rlS5NjXTpmOl66SHsP12rLQI7Hycd1QZjA7AhdQ2b6-2FS-2FPWAuljWGaoUUyQdBhNd5qzu1OSDRnDXa0UviCH1ywsoXX2HEGPW67FIlbNWZVB87NAsEeYQQ3F2GD8bvwBOk-2BPkbKRPqfrgHP4barsF-2BrLfjDnMD0fmPe675sK7phkS3L5CVy1mUUmp4mw-2Fgzbv1ueMSvy-2FUyo41KChqsXtnXKcvriwPUvjZxg6BOMnIFU-3D">Supplementary Material</a>
+										href="https://static-content.springer.com/esm/art%3A10.1038%2Fs41467-017-00595-4/MediaObjects/41467_2017_595_MOESM1_ESM.pdf">Supplementary Material</a>
 								</p>
 				<p>Sixty-seven deafness genes were identified:</p>
 
