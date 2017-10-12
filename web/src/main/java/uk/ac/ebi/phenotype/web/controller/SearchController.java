@@ -192,9 +192,7 @@ public class SearchController {
 		System.out.println("SearchController solrParamStr: "+ dataType + " -- " + solrParamStr);
 		String content = dataTableController.fetchDataTableJson(request, json, mode, query, fqStr, iDisplayStart, iDisplayLength, solrParamStr, showImgView, solrCoreName, legacyOnly, evidRank);
 		
-        LOGGER.info("datatablejson:\n" + content);
-
-		return content;
+        return content;
 	}
 
 	public JSONObject fetchSearchResultJson(Boolean export, String query, String dataType, Integer iDisplayStart, Integer iDisplayLength, Boolean showImgView, String fqStr, Model model, HttpServletRequest request) throws IOException, URISyntaxException {

@@ -50,7 +50,7 @@
             <link rel="stylesheet" type="text/css" href="${baseUrl}/css/phenodigm2.css"/>                                
             <%-- End of phenodigm2 requirements --%>
             <link rel="stylesheet" type="text/css" href="${baseUrl}/css/dev.css"/>
-            
+
             <script type="text/javascript">
                 var gene_id = '${acc}';
 
@@ -414,83 +414,14 @@
 
                                     </c:if>
                                 </div>
-                            </div>
-
-                            <%--Disease Section (original) --%>    
-                            <%--
-                            <div class="section">
-                                <h2 class="title" id="section-disease-models">Disease Models
-                                    <a target="_blank" href='http://www.sanger.ac.uk/resources/databases/phenodigm/'></a>
-                                    <span class="documentation">
-                                        <a href="" id="diseaseSection" class="mpPanel">
-                                            <i class="fa fa-question-circle pull-right"></i>
-                                        </a>
-                                    </span>
-                                </h2>
-
-                                <div class="inner">
-                                    <c:choose>
-                                        <c:when test="${not empty orthologousDiseaseAssociations || not empty phenotypicDiseaseAssociations}">                                           
-                                            <div id="phenotabs" class="phenotabs">
-                                                <ul class='tabs'>
-                                                    <li><a href="#dtabs-1">By gene orthology</a></li>
-                                                    <li><a href="#dtabs-2">By phenotypic similarity</a></li>
-                                                </ul>
-                                                <div id="dtabs-1">
-                                                    <c:choose>
-                                                        <c:when test="${not empty orthologousDiseaseAssociations}">
-                                                            <table id="orthologous_diseases_table" class="table tableSorter disease">
-                                                                <jsp:include page="genesOrthologousDiseasesTable_frag.jsp"></jsp:include>
-                                                                </table>
-                                                        </c:when>
-                                                        <c:otherwise>
-                                                            <p>No disease model association by gene orthology was found</p>
-                                                        </c:otherwise>
-                                                    </c:choose>
-                                                </div>
-                                                <div id="dtabs-2">
-                                                    <c:choose>
-                                                        <c:when test="${not empty phenotypicDiseaseAssociations}">
-                                                            <table id="predicted_diseases_table" class="table tableSorter disease">
-                                                                <jsp:include page="genesPredictedDiseasesTable_frag.jsp"></jsp:include>
-                                                                </table>
-                                                        </c:when>
-                                                        <c:otherwise>
-                                                            <p>No disease model association by phenotypic similarity was found</p>
-                                                        </c:otherwise>
-                                                    </c:choose>
-                                                </div>
-                                            </div>
-                                        </c:when>
-                                        <c:otherwise>
-                                            <div class="alert alert_info">Human disease model not found</div>
-                                        </c:otherwise>
-                                    </c:choose>
-                                </div><!-- end of inner -->
-                            </div><!-- end of Disease -->
-                            --%>
-
-                            <%--All mouse models section (phenodigm2) --%>
-                            <%--
-                            <div class="section" id="gene-mouse-models">
-                                <h2 class="title" id="mouse-models">Mouse Models <small>(IMPC and literature)</small>
-                                    <a target="_blank" href='http://www.sanger.ac.uk/resources/databases/phenodigm/'></a>
-                                    <span class="documentation">
-                                        <a href="" id="mouseSection" class="mpPanel"><i class="fa fa-question-circle pull-right"></i></a>
-                                    </span>
-                                </h2>
-                                <div class="inner" geneid="${gene.mgiAccessionId}">                                   
-                                    <a id="load-mouse-models" geneid="${gene.mgiAccessionId}">Load mouse models</a>                                    
-                                </div>
-                            </div>
-                            --%>
+                            </div>                            
 
                             <%--Disease section (phenodigm2) --%>
                             <div class="section">
-                                <h2 class="title" id="section-disease-models">Disease Models <small>(phenodigm2)</small>
+                                <h2 class="title" id="section-disease-models">Disease Models 
                                     <a target="_blank" href='http://www.sanger.ac.uk/resources/databases/phenodigm/'></a>
                                     <span class="documentation">
-                                        <a href="" id="diseaseSection2" class="mpPanel"><i class="fa fa-question-circle pull-right"></i></a>
+                                        <a href="" id="diseaseSection" class="mpPanel"><i class="fa fa-question-circle pull-right"></i></a>
                                     </span>
                                 </h2>
                                 <div class="inner">
@@ -567,26 +498,7 @@
                 var modelAssociations = ${modelAssociations}; // this object name is required in phenodigm2.js                
             </script>
             <script type="text/javascript">
-                // tables for phenodigm1
-                var diseaseTables = [
-                    {
-                        id: '#orthologous_diseases_table',
-                        tableConf: {
-                            paging: false,
-                            info: false,
-                            searching: false,
-                            order: [[2, 'desc'], [4, 'desc'], [3, 'desc']],
-                            sPaginationType: "bootstrap"
-                        }
-                    }, 
-                    {
-                        id: '#predicted_diseases_table',
-                        tableConf: {
-                            order: [[2, 'desc'], [4, 'desc'], [3, 'desc']],
-                            sPaginationType: "bootstrap"
-                        }
-                    }];
-                // tables for phenodigm2
+                // disease tables drive by phenodigm core
                 var diseaseTableConfs = [
                     {
                         id: '#diseases_by_annotation',
@@ -598,15 +510,15 @@
                             sPaginationType: "bootstrap"
                         },
                         phenodigm2Conf: {
-                            pageType: "genes",                        
+                            pageType: "genes",
                             gene: "${gene.mgiAccessionId}",
                             groupBy: "diseaseId",
                             filterKey: "diseaseId",
                             filter: curatedDiseases,
-                            minScore: 0,                            
+                            minScore: 0,
                             innerTables: true
                         }
-                    }, 
+                    },
                     {
                         id: '#diseases_by_phenotype',
                         tableConf: {
@@ -625,31 +537,14 @@
                             innerTables: true
                         }
                     }];
-                var modelsTableConf = {
-                    pageType: "genes",
-                    gene: "${gene.mgiAccessionId}"
-                };
-                $(document).ready(function () {
-                    // setup button that loads phenotypes of available models
-                    // This must be enabled when the mouse-model section is visible
-                    // Can be commented out when the section is off
-                    //impc.phenodigm2.initLoadModels("load-mouse-models", "gene-mouse-models");
                     
-                    // this loops handles phenodigm1 tables
-                    //for (var i = 0; i < diseaseTables.length; i++) {
-                    //    var diseaseTable = diseaseTables[i];
-                    //    var dataTable = $(diseaseTable.id).DataTable(diseaseTable.tableConf);
-                    //    $.fn.addTableClickCallbackHandler(diseaseTable.id, dataTable);
-                    //}
-                    // this loop handles phenodigm2 tables
-                    for (var i = 0; i < diseaseTableConfs.length; i++) {                        
+                $(document).ready(function () {
+                    // create phenodigm tables
+                    for (var i = 0; i < diseaseTableConfs.length; i++) {
                         var dTable = diseaseTableConfs[i];                        
-                        // create raw table
-                        impc.phenodigm2.makeTable(modelAssociations, dTable.id, dTable.phenodigm2Conf);
-                        // apply jquery transformation (pagination, etc)                        
-                        var dataTable = $(dTable.id).DataTable(dTable.tableConf);
-                        // add phenodigm handlers
-                        $.fn.addTableClickPhenogridHandler(dTable.id, dataTable);                        
+                        impc.phenodigm2.makeTable(modelAssociations, dTable.id, dTable.phenodigm2Conf);                        
+                        var dataTable = $(dTable.id).DataTable(dTable.tableConf);                        
+                        $.fn.addTableClickPhenogridHandler(dTable.id, dataTable);
                     }
                 });
             </script>

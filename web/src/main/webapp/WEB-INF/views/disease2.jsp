@@ -1,6 +1,8 @@
 <%-- 
     Document   : disease2
-                 Note this uses a different data model than disease.jsp
+    Comment    : Page generating disease pages.
+                 This file is largely based on disease.jsp, but uses a different 
+                 data model.
     Created on : 1-Sep-2017    
 --%>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
@@ -81,23 +83,7 @@
                         </c:otherwise>
                     </c:choose>
                 </p>
-
-                <%--
-                <p class="with-label">
-                    <span class="label">Locus</span>
-                    <c:choose>
-                        <c:when test="${empty curatedAssociations}">
-                            -
-                        </c:when>
-                        <c:otherwise>
-                            <c:forEach var="assoc" items="${curatedAssociations}" varStatus="loop">                                    
-                                ${assoc.locus}<c:if test="${!loop.last}">, </c:if>
-                            </c:forEach>
-                        </c:otherwise>
-                    </c:choose>                    
-                </p>
-                --%>
-
+                
                 <%-- Section with associated phenotypes --%>
                 <p class="with-label">
                     <span class="label">Phenotypes</span>
@@ -251,7 +237,7 @@
                 detailpad: 10, // internal padding within the details box
                 linecolor: "#444444", // threshold line
                 linewidth: 3,
-                color: ["#dd0000", "#d2c2c2"], // highlighted, non-highlighted models
+                color: ["#f27823", "#d2d2d2"], // highlighted, non-highlighted models
                 radius: 4,
                 axes: ["maxRaw", "avgRaw"],
                 labs: ["Max score", "Avg score"],

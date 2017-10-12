@@ -27,7 +27,13 @@ tbody.phenotable tr.impc {
 .phenotable div.inner_table, .phenotable div.inner_pg {
     cursor: default;
 }
-
+/** This nobackground can override jquery tables setting arrows in headers **/
+th.nobackground {
+    background: none !important;
+}
+td.toggleButton {
+    text-align: right;
+}
 
 
 /* Settings for scatter plot with phenodigm scores */ 
@@ -61,7 +67,7 @@ tbody.phenotable tr.impc {
     stroke-width: 0.4;
 }
 .phenoscatter .legendmarker {
-    fill-opacity: 0.8;
+    fill-opacity: 0.85;
 }
 .phenoscatter text.legendtext, text.legendsource {
     dominant-baseline: middle; 
@@ -69,7 +75,7 @@ tbody.phenotable tr.impc {
     font-size: 11px;
 }
 .phenoscatter text.legendtext {
-    opacity: 0.8;
+    opacity: 0.85;
 }
 .phenoscatter text.legendsource {
     opacity: 0.5;

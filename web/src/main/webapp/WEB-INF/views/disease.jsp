@@ -2,6 +2,10 @@
     Document   : disease
     Created on : 10-Sep-2013, 12:13:01
     Author     : Jules Jacobsen <jules.jacobsen@sanger.ac.uk>
+    Comment    : This file will become obsolete starting from release 6.
+                 An analogous page is now implemented in disease2.jsp
+                 (The code in disease2.jsp is largely based on this work,
+                 but contains updates given data-structure changes in release 6)
 --%>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@taglib prefix="t" tagdir="/WEB-INF/tags"%>

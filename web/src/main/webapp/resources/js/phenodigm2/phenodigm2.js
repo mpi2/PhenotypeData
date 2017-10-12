@@ -83,14 +83,17 @@ impc.isImpc = function (x) {
         return result;
     }
 
+    // handling of x as an object of various types, default as a string
     if (_.has(x, "source")) {
         result = impc.sources.indexOf(x.source) >= 0;
     } else if (_.has(x, "info")) {
         x.info.map(function (y) {
             if (y.id.startsWith("Source")) {
-                result = impc.sources.indexOf(y.value) >= 0;
+                result = impc.isImpc(y.value);
             }
         });
+    } else {        
+        return impc.sources.indexOf(x) >=0;
     }
 
     return result;
@@ -125,11 +128,11 @@ impc.phenscore = function (x) {
  * @param {type} pageType
  * @returns {unresolved}
  */
-impc.phenodigm2.getHitId = function(geneId, diseaseId, pageType) {
-    return pageType==="disease" ? geneId : diseaseId;
+impc.phenodigm2.getHitId = function (geneId, diseaseId, pageType) {
+    return pageType === "disease" ? geneId : diseaseId;
 };
-    
-    
+
+
 /****************************************************************************
  * Generation of tables
  **************************************************************************** */
@@ -153,7 +156,7 @@ impc.phenodigm2.makeTable = function (darr, target, config) {
     // shorthand for pagetype
     var pt = config.pageType;
     if (pt !== "genes" && pt !== "disease") {
-        console.log("phenodigm2.makeTable - pageType must be either 'genes' or 'disease'; found "+pt);        
+        console.log("phenodigm2.makeTable - pageType must be either 'genes' or 'disease'; found " + pt);
     }
 
     // record setting for inner table display
@@ -173,7 +176,7 @@ impc.phenodigm2.makeTable = function (darr, target, config) {
         thead.append("th").append("span").classed("main", true).html(x);
     });
     // add a last column with blank title (will contain button indicating expansion)
-    thead.append("th");
+    thead.append("th").classed("nobackground", true);
 
     // setup data body
     var tbody = targetdiv.append("tbody").classed("phenotable", true)
@@ -191,7 +194,7 @@ impc.phenodigm2.makeTable = function (darr, target, config) {
             return config.filter.indexOf(x[config.filterKey]) >= 0;
         });
     }
-        
+
     // convert from by-model to by-gene or by-disease representation        
     dshow = _.groupBy(dshow, function (x) {
         return x[config.groupBy];
@@ -199,9 +202,9 @@ impc.phenodigm2.makeTable = function (darr, target, config) {
     var dkeys = _.keys(dshow);
 
     var scorecols = ["maxRaw", "avgRaw"];
-        
+
     // helper adds a series of <td> elements to a table row
-    var addScoreTds = function(trow, x) {
+    var addScoreTds = function (trow, x) {
         if (x.length > 1) {
             // display a summary of all scores in x in a single td
             scorecols.map(function (y) {
@@ -218,29 +221,29 @@ impc.phenodigm2.makeTable = function (darr, target, config) {
         trow.append("td").attr("titlef", "Click to display phenotype details")
                 .classed("toggleButton", true)
                 .append("i").classed("fa fa-plus-square more", true);
-    };            
+    };
     // a part of addToRow for disease pages
-    var addToDiseaseRow = function(x) {
+    var addToDiseaseRow = function (x) {
         var trow = tbody.append("tr").attr("class", "phenotable").attr("geneid", x[0]["markerId"]);
         trow.append("td").append("a").classed(pt + "link", true)
                 .attr("href", impc.urls.genes + x[0]["markerId"]).html(x[0]["markerSymbol"]);
         var ximg = impc.isImpc(x) ? impc.logohtml : "";
         trow.append("td").html(x.length + " <span class='small'>(" + x[0].markerNumModels + ") " + ximg);
-        return trow;            
+        return trow;
     };
     // a part of addToRow for genes pages
-    var addToGenesRow = function(x) {
+    var addToGenesRow = function (x) {
         // x is now an array of objects, display a summary row
         var trow = tbody.append("tr").attr("class", "phenotable").attr("diseaseid", x[0]["diseaseId"]);
         trow.append("td").append("a").classed(pt + "link", true)
                 .attr("href", impc.urls.disease + x[0]["diseaseId"]).html(x[0]["diseaseTerm"]);
         trow.append("td").append("a").classed(pt + "link", true)
                 .attr("href", x[0]["diseaseUrl"]).html(x[0]["diseaseId"]);
-        return trow;        
+        return trow;
     };
     // Create a row in table (but skip x if phenoscore below threshold)
-    var addToRow = function(x, addSpecific) {        
-        if (impc.phenscore(x)<config.minScore) {
+    var addToRow = function (x, addSpecific) {
+        if (impc.phenscore(x) < config.minScore) {
             return;
         }
         var trow = addSpecific(x);
@@ -248,17 +251,17 @@ impc.phenodigm2.makeTable = function (darr, target, config) {
     };
 
     // main part of function that generates the table (one line at a time)
-    if (pt === "disease") {        
+    if (pt === "disease") {
         dkeys.map(function (key) {
             var x = dshow[key];
             // x is now an array of objects
-            addToRow(x, addToDiseaseRow);                        
+            addToRow(x, addToDiseaseRow);
         });
-    } else {        
-        dkeys.map(function (key) {            
+    } else {
+        dkeys.map(function (key) {
             var x = dshow[key];
             // x is now an array of objects            
-            addToRow(x, addToGenesRow);                        
+            addToRow(x, addToGenesRow);
         });
     }
 
@@ -368,8 +371,8 @@ impc.phenodigm2.drawScatterplot = function (darr, conf) {
     // find maximum values for axes     
     var xmax = _.max(_.pluck(darr, conf.axes[0]));
     var ymax = _.max(_.pluck(darr, conf.axes[1]));
-    xmax = xmax <= 0 ? conf.threshold : xmax+(conf.threshold*0.01);
-    ymax = ymax <= 0 ? conf.threshold : ymax+(conf.threshold*0.01);
+    xmax = xmax <= 0 ? conf.threshold : xmax + (conf.threshold * 0.01);
+    ymax = ymax <= 0 ? conf.threshold : ymax + (conf.threshold * 0.01);
 
     // create the x axis
     var xscale = d3.scaleLinear().range([0, conf.winner]).domain([0, xmax]);
@@ -433,16 +436,25 @@ impc.phenodigm2.drawScatterplot = function (darr, conf) {
         detail.select(".model").text(d.id);
         detail.select(".description").text(d.description);
         detail.select(".scores").text("(" + d[conf.axes[0]] + ", " + d[conf.axes[1]] + ")");
-        detail.style("background-color", "#f8f8f8").transition().duration(1000).style("background-color", "#fff");
+        detail.style("background-color", "#fff")
+                .transition().duration(50)
+                .style("background-color", "#fafafa")
+                .transition().delay(200).duration(1000)
+                .style("background-color", "#fff");
         d3.event.stopPropagation();
+    };
+
+    var sourceString = function (d) {
+        console.log("checking for "+d.source+ " and "+impc.isImpc(d.source));        
+        return impc.isImpc(d.source) ? "IMPC" : "MGI";
     };
 
     // add points to the chart 
     //  - rect for models with annotated genes
     //  - circle for models with other genes
     svg.selectAll(".marker1").data(darr_known).enter().append("rect")
-            .attr("class", function (d) {
-                return "marker curated " + d.source;
+            .attr("class", function (d) {                
+                return "marker curated " + sourceString(d);
             })
             .attr("x", function (d) {
                 return xscale(d[conf.axes[0]]) - (1.5 * conf.radius);
@@ -454,8 +466,8 @@ impc.phenodigm2.drawScatterplot = function (darr, conf) {
             .attr("height", 3 * conf.radius)
             .on("click", showModelInfo);
     svg.selectAll(".marker2").data(darr_new).enter().append("circle")
-            .attr("class", function (d) {
-                return "marker " + d.source;
+            .attr("class", function (d) {                
+                return "marker " + sourceString(d);
             })
             .attr("cx", function (d) {
                 return xscale(d[conf.axes[0]]);
@@ -540,13 +552,13 @@ impc.phenodigm2.drawScatterplot = function (darr, conf) {
  * @param {type} pageType
  * @returns {undefined}
  */
-impc.phenodigm2.makePgid = function(tableId, geneId, diseaseId, pageType) {
-    var result = "pg_"+tableId.replace("#", "")+"_";
-    if (pageType==="genes") {
+impc.phenodigm2.makePgid = function (tableId, geneId, diseaseId, pageType) {
+    var result = "pg_" + tableId.replace("#", "") + "_";
+    if (pageType === "genes") {
         result += diseaseId.replace(":", "_");
     } else {
         result += geneId.replace(":", "_");
-    }    
+    }
     return result;
 };
 
@@ -570,7 +582,7 @@ impc.phenodigm2.makeTableChildRow = function (tableId, geneId, diseaseId, pageTy
                 hitId: hitId,
                 pageType: pageType
             }).css({"padding": "0"});
-    innerdiv.append("<div class='inner_table' pgid='"+pgid+"'></div>");
+    innerdiv.append("<div class='inner_table' pgid='" + pgid + "'></div>");
     innerdiv.append("<div class='inner_pg' id='" + pgid + "'></div>");
     return innerdiv;
 };
@@ -663,19 +675,14 @@ impc.phenodigm2.insertModelDetails = function (targetdiv, hitId, models) {
             return x["diseaseId"] === hitId;
         } else {
             return false;
-        }        
-    });        
-    details = _.indexBy(details, "id");    
+        }
+    });
+    details = _.indexBy(details, "id");
     // here, "details" is either an object with markerIds as keys,
     // or is an empty object
 
     // setup columns. Can have headers with or without scores.
     var thead = tablediv.append("thead").append("tr");
-    // This bit used to be here to display a model table without scores
-    //var headcols = ["Model", "Genotype", "Phenotypes"];
-    //if ((_.keys(details)).length > 0) {
-    //    var headcols = ["Model", "Genotype", "Max Raw", "Avg Raw", "Phenodigm", "Phenotypes"];
-    //}
     var headcols = ["Model", "Genotype", "Max Raw", "Avg Raw", "Phenodigm", "Phenotypes"];
     headcols.map(function (x) {
         var xclass = (x === "Phenotypes" ? "th-wide" : "");
@@ -760,11 +767,11 @@ impc.phenodigm2.insertModelDetails = function (targetdiv, hitId, models) {
 impc.phenodigm2.insertPhenogrid = function (tableId, geneId, diseaseId, pageType) {
 
     var hitId = impc.phenodigm2.getHitId(geneId, diseaseId, pageType);
-    
+
     // identify the div that should hold the phenodigm widget
-    var targetdiv = $(tableId).find(".inner[hitid='" + hitId + "']").find(".inner_pg");    
+    var targetdiv = $(tableId).find(".inner[hitid='" + hitId + "']").find(".inner_pg");
     // identify whether the table requires inner-table inserts
-    var innerTables = d3.select(tableId).attr("innerTables") === "true";    
+    var innerTables = d3.select(tableId).attr("innerTables") === "true";
 
     var gridColumnWidth = 25;
     var gridRowHeight = 50;
@@ -780,9 +787,9 @@ impc.phenodigm2.insertPhenogrid = function (tableId, geneId, diseaseId, pageType
         // perhaps create an inner table?
         if (innerTables) {
             var pgid = impc.phenodigm2.makePgid(tableId, geneId, diseaseId, pageType);
-            var innertab = d3.select(tableId + " .inner_table[pgid='" + pgid + "']");            
+            var innertab = d3.select(tableId + " .inner_table[pgid='" + pgid + "']");
             impc.phenodigm2.insertModelDetails(innertab, hitId, result.xAxis[0].entities);
-        }        
+        }
         // generate phenogrid widget (heatmap)
         Phenogrid.createPhenogridForElement(targetdiv, {
             //monarchUrl is a global variable provided via Spring from application.properties
@@ -793,7 +800,7 @@ impc.phenodigm2.insertPhenogrid = function (tableId, geneId, diseaseId, pageType
             gridSkeletonData: result,
             singleTargetModeTargetLengthLimit: gridColumnWidth,
             sourceLengthLimit: gridRowHeight
-        });        
+        });
     });
 };
 
@@ -818,7 +825,7 @@ $.fn.addTableClickPhenogridHandler = function (tableId, table) {
 
     // allow users to click on a row and see a PhenoGrid widget
     $(tableId + ' tbody').on('click', 'tr.phenotable', function () {
-        var tr = $(this).closest('tr');        
+        var tr = $(this).closest('tr');
         var row = table.row(tr);
         if (pageType === "disease") {
             geneId = tr.attr("geneid");
@@ -830,10 +837,10 @@ $.fn.addTableClickPhenogridHandler = function (tableId, table) {
         }
 
         // toggle (show/hide) an inner box
-        if (row.child.isShown()) {            
+        if (row.child.isShown()) {
             row.child.hide();
             tr.find("td.toggleButton i").removeClass("fa-minus-square").addClass("fa-plus-square");
-        } else {            
+        } else {
             row.child(impc.phenodigm2.makeTableChildRow(tableId, geneId, diseaseId, pageType)).show();
             impc.phenodigm2.insertPhenogrid(tableId, geneId, diseaseId, pageType);
             tr.find("td.toggleButton i").removeClass("fa-plus-square").addClass("fa-minus-square");
@@ -841,32 +848,3 @@ $.fn.addTableClickPhenogridHandler = function (tableId, table) {
     });
 };
 
-
-/****************************************************************************
- * Loading of mouse model tables
- **************************************************************************** */
-
-/**
- * registers a button to fetch info about mouse models
- * 
- * @param linkid - id of element that should be clicked to fetch data
- * @param targetid - id of element that will hold result. Must have a child div
- * with class inner
- */
-impc.phenodigm2.initLoadModels = function (linkid, targetid) {
-    var linkobj = d3.select("#" + linkid);
-    var geneId = linkobj.attr("geneid");
-    // set up a behavior that when user clicks on button, ajax loads a set of 
-    // models with the desired gene
-    linkobj.on("click", function () {
-        var targetdiv = d3.select("#" + targetid + " .inner");
-        targetdiv.html("Fetching data...");
-        var ajax = $.getJSON(impc.baseUrl + "/phenodigm2/mousemodels",
-                {geneId: geneId});
-        ajax.done(function (result) {
-            targetdiv.html("");
-            impc.phenodigm2.insertModelDetails(targetdiv, geneId, result);
-        });
-    });
-
-};
