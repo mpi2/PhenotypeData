@@ -200,7 +200,7 @@ public class CdaSqlUtils {
     public Map<String, BiologicalSample> getBiologicalSamples() {
 
         Map<String, BiologicalSample> map = new HashMap<>();
-        String query = "SELECT * FROM biological_sample";
+        String query = "SELECT edb.short_name, bs.* FROM biological_sample bs JOIN external_db edb ON edb.id = bs.db_id";
 
         List<BiologicalSample> samples = jdbcCda.query(query, new BiologicalSampleRowMapper());
         for (BiologicalSample sample : samples) {
@@ -209,7 +209,6 @@ public class CdaSqlUtils {
 
         return map;
     }
-
 
 
     public Strain getBackgroundStrain(String specimenStrainId) throws DataLoadException {
@@ -2801,6 +2800,7 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
             biologicalSample.setStableId(rs.getString("external_id"));
             Datasource datasource = new Datasource();
             datasource.setId(rs.getInt("db_id"));
+            datasource.setShortName(rs.getString("short_name"));
             biologicalSample.setDatasource(datasource);
             biologicalSample.setType(new OntologyTerm(rs.getString("sample_type_acc"), rs.getInt("sample_type_db_id")));
             biologicalSample.setGroup(rs.getString("sample_group"));
