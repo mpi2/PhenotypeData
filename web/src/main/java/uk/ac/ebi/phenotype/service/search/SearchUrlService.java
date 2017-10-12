@@ -17,8 +17,6 @@ package uk.ac.ebi.phenotype.service.search;
 
 import java.util.List;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * An abstraction for classes that create url strings for searching solr cores.
@@ -26,14 +24,8 @@ import org.slf4j.LoggerFactory;
  * build search strings that are specific for a solr core or specific to a type
  * of query.
  *
- *
- *
- * TO DO: more detailed docs on each function. Perhaps eliminate some of them.
- *
  */
 public abstract class SearchUrlService {
-
-    protected final Logger LOGGER = LoggerFactory.getLogger(this.getClass().getCanonicalName());
 
     /**
      * @return
@@ -82,7 +74,7 @@ public abstract class SearchUrlService {
      * An expression suitable for the &fq= part of a solr query.
      */
     public String fq(String customFilter) {
-        String fq = fq();        
+        String fq = fq();
         if (StringUtils.isEmpty(customFilter)) {
             return fq;
         } else {
@@ -154,12 +146,13 @@ public abstract class SearchUrlService {
     public abstract String breadcrumb();
 
     /**
-     * Note: this is somewhat confusing name. It does not sort anything, it
-     * merely produces an instruction for how to sort a solr query result.
+     * Produce a an instruction for how to sort solr query hits.
+     *
+     * Note: the function has a somewhat confusing name. It does not sort
+     * anything, it merely produces a string without any side effects.
      *
      * Note: the sorting does not appear to be used. Remove?
-     * 
-     * 
+     *
      * @return
      *
      * Expression suitable for the &sort= part of solr query
@@ -229,9 +222,7 @@ public abstract class SearchUrlService {
      * @return
      */
     public String getGridQueryUrl(String query, String customFq, int start, int length, boolean facet) {
-        String result = solrUrl() + "/select?" + getGridQueryStr(query, customFq, start, length, facet);
-        //LOGGER.info("GridQueryUrl: "+result);
-        return result;
+        return solrUrl() + "/select?" + getGridQueryStr(query, customFq, start, length, facet);
     }
 
     /**

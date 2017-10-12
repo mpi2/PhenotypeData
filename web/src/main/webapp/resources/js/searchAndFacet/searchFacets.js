@@ -457,8 +457,7 @@
      * @returns {undefined}
      */
     function displayDisease1Facet(json) {
-        //console.log(json);
-        var self = this;
+        
         var numFound = json.iTotalRecords;
         var foundMatch = {'curated': 0, 'predicted': 0, 'disease_source': 0, 'disease_classes': 0};
 
@@ -504,9 +503,9 @@
                             var liContainer = $("<li></li>").attr({'class': 'fcat ' + fq});
                             var dPositive = oData[i];
 
-                            if (dPositive == 'true') {
+                            if (dPositive === 'true') {
                                 var count = oData[i + 1];
-                                var isGrayout = count == 0 ? 'grayout' : '';
+                                var isGrayout = count === 0 ? 'grayout' : '';
 
                                 liContainer.removeClass('grayout').addClass(isGrayout);
 
@@ -552,7 +551,7 @@
                     var diseaseFq = fq;
                     var coreField = 'disease|' + diseaseFq + '|';
                     var trClass = fq + 'Tr';
-                    var isGrayout = count == 0 ? 'grayout' : '';
+                    var isGrayout = count === 0 ? 'grayout' : '';
                     liContainer.removeClass('grayout').addClass(isGrayout);
 
                     var chkbox = $('<input></input>').attr({'type': 'checkbox', 'rel': coreField + subFacetName + '|' + count + '|' + fq});
@@ -560,7 +559,7 @@
                     var fcount = $('<span></span>').attr({'class': 'fcount'}).text(count);
 
 
-                    if (subFacetName != 'unclassified') {
+                    if (subFacetName !== 'unclassified') {
                         liContainer.append(chkbox, flabel, fcount);
                     } else {
                         unclassified = liContainer.append(chkbox, flabel, fcount);
@@ -568,7 +567,7 @@
                     thisUlContainer.append(liContainer);
                 }
 
-                if (fq == 'disease_classes' && unclassified) {
+                if (fq === 'disease_classes' && unclassified) {
                     thisUlContainer.append(unclassified);
                 }
                 thisFacetSect.append(thisUlContainer);
@@ -593,7 +592,6 @@
             $.fn.initFacetToggles('disease');
 
             $('li#disease li.fcat input').click(function () {
-
                 // highlight the item in facet
                 updateCheckedFilter($(this));
             });

@@ -56,13 +56,12 @@ public class SearchSettings {
     private final String chrPattern = "(?i:^\"(chr)(.*)\\\\:(\\d+)\\\\-(\\d+)\"$)";
 
     /**
-     * Constructor stores arguments into a class instance.
+     * Constructor stores arguments into a class instance. Stores bits to
+     * describe a user's search request.
      *
-     * The class will have default values for all settings, but these can be
-     * overwritten using the setters.
-     *
-     * Consider also using setFromRequest to record basic information about an
-     * http source.
+     * The class will have default values for many settings in addition to those
+     * set in this constructor. Those default values can be changed using
+     * setters.
      *
      * @param dataType
      * @param query
@@ -96,7 +95,7 @@ public class SearchSettings {
     }
 
     /**
-     * Alternative constructor that does not use the request object. 
+     * Alternative constructor that does not use the request object.
      *
      * @param dataType
      * @param query
