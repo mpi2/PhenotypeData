@@ -548,7 +548,7 @@ public class CdaSqlUtils {
     @Transactional
     public int insertBiologicalModelImpc(BioModelInsertDTOMutant mutant) throws DataLoadException {
 
-        int biologicalModelId = insertBiologicalModel(mutant.getDbId(), mutant.getAllelicComposition(), mutant.getGeneticBackground(), mutant.getZygosity());
+        int biologicalModelId = insertBiologicalModel(DbIdType.IMPC.intValue(), mutant.getAllelicComposition(), mutant.getGeneticBackground(), mutant.getZygosity());
         insertBiologicalModelGenes(biologicalModelId, mutant.getGenes());
         insertBiologicalModelAlleles(biologicalModelId, mutant.getAlleles());
         insertBiologicalModelStrains(biologicalModelId, mutant.getStrains());
