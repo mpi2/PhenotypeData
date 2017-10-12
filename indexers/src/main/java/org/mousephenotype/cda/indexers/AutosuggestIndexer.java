@@ -95,6 +95,7 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
     Set<String> markerNameSet = new HashSet();
     Set<String> markerSynonymSet = new HashSet();
     Set<String> humanGeneSymbolSet = new HashSet();
+    Map<String, List<String>> markerSymbolSynonymsMap = new HashMap<>();
 
     // mp
     Set<String> mpIdSet = new HashSet();
@@ -147,7 +148,8 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
     Set<String> allele2MarkerSynonymSet = new HashSet();
     Set<String> allele2IkmcProjectSet = new HashSet();
     Set<String> allele2GeneAlleleSet = new HashSet();
-    Map<String, List<String>> markerSymbolSynonymsMap = new HashMap<>();
+    Map<String, List<String>> allele2MarkerSymbolSynonymsMap = new HashMap<>();
+    Set<String> allele2HumanGeneSymbolSet = new HashSet();
 
 
     String mapKey;
@@ -205,7 +207,8 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
             for (String field : geneFields) {
 
                 AutosuggestBean a = new AutosuggestBean();
-                a.setDocType("gene");
+                String docType = "gene";
+                a.setDocType(docType);
 
                 switch (field) {
                     case GeneDTO.MGI_ACCESSION_ID:
@@ -224,7 +227,7 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
                         }
                         break;
                     case GeneDTO.MARKER_NAME:
-                        mapKey = a.getMarkerName();
+                        mapKey = gene.getMarkerName();
                         if (markerNameSet.add(mapKey)) {
                             a.setMarkerName(gene.getMarkerName());
                             beans.add(a);
@@ -237,7 +240,7 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
                                 if (markerSynonymSet.add(s)) {
                                     AutosuggestBean asyn = new AutosuggestBean();
                                     asyn.setMarkerSynonym(s);
-                                    asyn.setDocType("gene");
+                                    asyn.setDocType(docType);
                                     beans.add(asyn);
                                 }
                             }
@@ -250,11 +253,12 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
                                 if (humanGeneSymbolSet.add(mapKey)) {
                                     AutosuggestBean asyn = new AutosuggestBean();
                                     asyn.setHumanGeneSymbol(s);
-                                    asyn.setDocType("gene");
+                                    asyn.setDocType(docType);
                                     beans.add(asyn);
                                 }
                             }
                         }
+                        break;
                     case GeneDTO.ALLELE_ACCESSION_ID:
                         if (gene.getAlleleAccessionIds() != null) {
                             for (String s : gene.getAlleleAccessionIds()) {
@@ -262,7 +266,7 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
                                 if (mgiAlleleAccessionIdSet.add(mapKey)) {
                                     AutosuggestBean asyn = new AutosuggestBean();
                                     asyn.setHumanGeneSymbol(s);
-                                    asyn.setDocType("gene");
+                                    asyn.setDocType(docType);
                                     beans.add(asyn);
                                 }
                             }
@@ -337,7 +341,8 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
             for (String field : mpFields) {
 
                 AutosuggestBean a = new AutosuggestBean();
-                a.setDocType("mp");
+                String docType = "mp";
+                a.setDocType(docType);
 
                 switch (field) {
                     case MpDTO.MP_ID:
@@ -361,7 +366,7 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
                                 if (mpTermSynonymSet.add(mapKey)) {
                                     AutosuggestBean asyn = new AutosuggestBean();
                                     asyn.setMpTermSynonym(s);
-                                    asyn.setDocType("mp");
+                                    asyn.setDocType(docType);
                                     asyn.setMpTerm(mp.getMpTerm());
                                     beans.add(asyn);
                                 }
@@ -375,7 +380,7 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
                                 if (mpTermSynonymSet.add(mapKey)) {
                                     AutosuggestBean asyn = new AutosuggestBean();
                                     asyn.setMpTermSynonym(s);
-                                    asyn.setDocType("mp");
+                                    asyn.setDocType(docType);
                                     asyn.setMpTerm(mp.getMpTerm());
                                     beans.add(asyn);
                                 }
@@ -388,7 +393,7 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
                                 if (mpNarrowSynonymSet.add(mpNarrowSynonym)) {
                                     AutosuggestBean asyn = new AutosuggestBean();
                                     asyn.setMpNarrowSynonym(mpNarrowSynonym);
-                                    asyn.setDocType("mp");
+                                    asyn.setDocType(docType);
                                     asyn.setMpTerm(mp.getMpTerm());
                                     beans.add(asyn);
                                 }
@@ -401,7 +406,7 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
                                 if (hpIdSet.add(hpId)) {
                                     AutosuggestBean asyn = new AutosuggestBean();
                                     asyn.setHpId(hpId);
-                                    asyn.setDocType("mp");
+                                    asyn.setDocType(docType);
                                     beans.add(asyn);
                                 }
                             }
@@ -413,7 +418,7 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
                                 if (hpTermSet.add(hpTerm)) {
                                     AutosuggestBean asyn = new AutosuggestBean();
                                     asyn.setHpTerm(hpTerm);
-                                    asyn.setDocType("mp");
+                                    asyn.setDocType(docType);
                                     beans.add(asyn);
                                 }
                             }
@@ -426,7 +431,7 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
                                 if (hpTermSynonymSet.add(hpTermSynonym)) {
                                     AutosuggestBean asyn = new AutosuggestBean();
                                     asyn.setHpTermSynonym(hpTermSynonym);
-                                    asyn.setDocType("mp");
+                                    asyn.setDocType(docType);
                                     beans.add(asyn);
                                 }
                             }
@@ -442,7 +447,7 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
                                 if (mpAltIdSet.add(mapKey)) {
                                     AutosuggestBean asyn = new AutosuggestBean();
                                     asyn.setMpId(s);
-                                    asyn.setDocType("mp");
+                                    asyn.setDocType(docType);
                                     beans.add(asyn);
                                 }
                             }
@@ -455,7 +460,7 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
                                 if (mpIdSet.add(mapKey)) {
                                     AutosuggestBean asyn = new AutosuggestBean();
                                     asyn.setMpId(s);
-                                    asyn.setDocType("mp");
+                                    asyn.setDocType(docType);
                                     beans.add(asyn);
                                 }
                             }
@@ -468,7 +473,7 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
                                 if (mpTermSet.add(mapKey)) {
                                     AutosuggestBean asyn = new AutosuggestBean();
                                     asyn.setMpTerm(s);
-                                    asyn.setDocType("mp");
+                                    asyn.setDocType(docType);
                                     beans.add(asyn);
                                 }
                             }
@@ -481,7 +486,7 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
                                 if (mpTermSynonymSet.add(mapKey)) {
                                     AutosuggestBean asyn = new AutosuggestBean();
                                     asyn.setMpTermSynonym(s);
-                                    asyn.setDocType("mp");
+                                    asyn.setDocType(docType);
                                     beans.add(asyn);
                                 }
                             }
@@ -494,7 +499,7 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
                                 if (mpIdSet.add(mapKey)) {
                                     AutosuggestBean asyn = new AutosuggestBean();
                                     asyn.setMpId(s);
-                                    asyn.setDocType("mp");
+                                    asyn.setDocType(docType);
                                     beans.add(asyn);
                                 }
                             }
@@ -507,7 +512,7 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
                                 if (mpTermSet.add(mapKey)) {
                                     AutosuggestBean asyn = new AutosuggestBean();
                                     asyn.setMpTerm(s);
-                                    asyn.setDocType("mp");
+                                    asyn.setDocType(docType);
                                     beans.add(asyn);
                                 }
                             }
@@ -520,7 +525,7 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
                                 if (mpTermSynonymSet.add(mapKey)) {
                                     AutosuggestBean asyn = new AutosuggestBean();
                                     asyn.setMpTermSynonym(s);
-                                    asyn.setDocType("mp");
+                                    asyn.setDocType(docType);
                                     beans.add(asyn);
                                 }
                             }
@@ -547,7 +552,7 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
                                 if (mpTermSynonymSet.add(mapKey)) {
                                     AutosuggestBean asyn = new AutosuggestBean();
                                     asyn.setMpTermSynonym(s);
-                                    asyn.setDocType("mp");
+                                    asyn.setDocType(docType);
                                     beans.add(asyn);
                                 }
                             }
@@ -560,7 +565,7 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
                                 if (mpIdSet.add(mapKey)) {
                                     AutosuggestBean asyn = new AutosuggestBean();
                                     asyn.setMpId(s);
-                                    asyn.setDocType("mp");
+                                    asyn.setDocType(docType);
                                     beans.add(asyn);
                                 }
                             }
@@ -573,7 +578,7 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
                                 if (mpTermSet.add(mapKey)) {
                                     AutosuggestBean asyn = new AutosuggestBean();
                                     asyn.setMpTerm(s);
-                                    asyn.setDocType("mp");
+                                    asyn.setDocType(docType);
                                     beans.add(asyn);
                                 }
                             }
@@ -586,7 +591,7 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
                                 if (mpTermSynonymSet.add(mapKey)) {
                                     AutosuggestBean asyn = new AutosuggestBean();
                                     asyn.setMpTermSynonym(s);
-                                    asyn.setDocType("mp");
+                                    asyn.setDocType(docType);
                                     beans.add(asyn);
                                 }
                             }
@@ -619,7 +624,8 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
             for (String field : diseaseFields) {
 
                 AutosuggestBean a = new AutosuggestBean();
-                a.setDocType("disease");
+                String docType = "disease";
+                a.setDocType(docType);
 
                 switch (field) {
                     case DiseaseDTO.DISEASE_ID:
@@ -643,7 +649,7 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
                                 if (diseaseAltsSet.add(mapKey)) {
                                     AutosuggestBean asyn = new AutosuggestBean();
                                     asyn.setDiseaseAlts(s);
-                                    asyn.setDocType("disease");
+                                    asyn.setDocType(docType);
                                     beans.add(asyn);
                                 }
                             }
@@ -687,7 +693,8 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
             for (String field : anatomyFields) {
 
                 AutosuggestBean a = new AutosuggestBean();
-                a.setDocType("anatomy");
+                String docType = "anatomy";
+                a.setDocType(docType);
 
                 switch (field) {
                     case AnatomyDTO.ANATOMY_ID:
@@ -711,7 +718,7 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
                                 if (anatomyTermSynonymSet.add(mapKey)) {
                                     AutosuggestBean asyn = new AutosuggestBean();
                                     asyn.setAnatomyTermSynonym(s);
-                                    asyn.setDocType("anatomy");
+                                    asyn.setDocType(docType);
                                     beans.add(asyn);
                                 }
                             }
@@ -725,7 +732,7 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
                                 if (anatomyIdSet.add(mapKey)) {
                                     AutosuggestBean asyn = new AutosuggestBean();
                                     asyn.setAnatomyId(s);
-                                    asyn.setDocType("anatomy");
+                                    asyn.setDocType(docType);
                                     beans.add(asyn);
                                 }
                             }
@@ -738,7 +745,7 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
                                 if (anatomyIdSet.add(mapKey)) {
                                     AutosuggestBean asyn = new AutosuggestBean();
                                     asyn.setAnatomyId(s);
-                                    asyn.setDocType("anatomy");
+                                    asyn.setDocType(docType);
                                     beans.add(asyn);
                                 }
                             }
@@ -751,7 +758,7 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
                                 if (anatomyTermSet.add(mapKey)) {
                                     AutosuggestBean asyn = new AutosuggestBean();
                                     asyn.setAnatomyTerm(s);
-                                    asyn.setDocType("anatomy");
+                                    asyn.setDocType(docType);
                                     beans.add(asyn);
                                 }
                             }
@@ -765,7 +772,7 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
                                 if (anatomyIdSet.add(mapKey)) {
                                     AutosuggestBean asyn = new AutosuggestBean();
                                     asyn.setAnatomyId(s);
-                                    asyn.setDocType("anatomy");
+                                    asyn.setDocType(docType);
                                     beans.add(asyn);
                                 }
                             }
@@ -778,7 +785,7 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
                                 if (anatomyTermSet.add(mapKey)) {
                                     AutosuggestBean asyn = new AutosuggestBean();
                                     asyn.setAnatomyTerm(s);
-                                    asyn.setDocType("anatomy");
+                                    asyn.setDocType(docType);
                                     beans.add(asyn);
                                 }
                             }
@@ -792,7 +799,7 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
                                 if (anatomyIdSet.add(mapKey)) {
                                     AutosuggestBean asyn = new AutosuggestBean();
                                     asyn.setAnatomyId(s);
-                                    asyn.setDocType("anatomy");
+                                    asyn.setDocType(docType);
                                     beans.add(asyn);
                                 }
                             }
@@ -805,7 +812,7 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
                                 if (anatomyTermSet.add(mapKey)) {
                                     AutosuggestBean asyn = new AutosuggestBean();
                                     asyn.setAnatomyTerm(s);
-                                    asyn.setDocType("anatomy");
+                                    asyn.setDocType(docType);
                                     beans.add(asyn);
                                 }
                             }
@@ -819,7 +826,7 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
                                 if (anatomyIdSet.add(mapKey)) {
                                     AutosuggestBean asyn = new AutosuggestBean();
                                     asyn.setAnatomyId(s);
-                                    asyn.setDocType("anatomy");
+                                    asyn.setDocType(docType);
                                     beans.add(asyn);
                                 }
                             }
@@ -832,7 +839,7 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
                                 if (anatomyTermSet.add(mapKey)) {
                                     AutosuggestBean asyn = new AutosuggestBean();
                                     asyn.setAnatomyTerm(s);
-                                    asyn.setDocType("anatomy");
+                                    asyn.setDocType(docType);
                                     beans.add(asyn);
                                 }
                             }
@@ -845,7 +852,7 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
                                 if (anatomyTermSynonymSet.add(mapKey)) {
                                     AutosuggestBean asyn = new AutosuggestBean();
                                     asyn.setAnatomyTermSynonym(s);
-                                    asyn.setDocType("anatomy");
+                                    asyn.setDocType(docType);
                                     beans.add(asyn);
                                 }
                             }
@@ -858,7 +865,7 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
                                 if (anatomyIdSet.add(mapKey)) {
                                     AutosuggestBean asyn = new AutosuggestBean();
                                     asyn.setAnatomyId(s);
-                                    asyn.setDocType("anatomy");
+                                    asyn.setDocType(docType);
                                     beans.add(asyn);
                                 }
                             }
@@ -871,7 +878,7 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
                                 if (anatomyTermSet.add(mapKey)) {
                                     AutosuggestBean asyn = new AutosuggestBean();
                                     asyn.setAnatomyTerm(s);
-                                    asyn.setDocType("anatomy");
+                                    asyn.setDocType(docType);
                                     beans.add(asyn);
                                 }
                             }
@@ -884,7 +891,7 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
                                 if (anatomyTermSynonymSet.add(mapKey)) {
                                     AutosuggestBean asyn = new AutosuggestBean();
                                     asyn.setAnatomyTermSynonym(s);
-                                    asyn.setDocType("anatomy");
+                                    asyn.setDocType(docType);
                                     beans.add(asyn);
                                 }
                             }
@@ -902,7 +909,7 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
 
     private void populateProductAutosuggestTerms() throws SolrServerException, IOException {
 
-        List<String> productFields = Arrays.asList(AlleleDTO.MARKER_SYMBOL, AlleleDTO.ALLELE_NAME, AlleleDTO.IKMC_PROJECT, AlleleDTO.MGI_ACCESSION_ID, AlleleDTO.ALLELE_MGI_ACCESSION_ID);
+        List<String> productFields = Arrays.asList(AlleleDTO.MARKER_SYMBOL, AlleleDTO.MARKER_NAME, AlleleDTO.MARKER_SYNONYM, AlleleDTO.HUMAN_GENE_SYMBOL, AlleleDTO.ALLELE_NAME, AlleleDTO.IKMC_PROJECT, AlleleDTO.MGI_ACCESSION_ID, AlleleDTO.ALLELE_MGI_ACCESSION_ID);
 
         SolrQuery query = new SolrQuery()
                 .setQuery("type:Allele")
@@ -929,8 +936,8 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
                             a.setMarkerSymbol(mapKey);
                             beans.add(a);
 
-                            if ( markerSymbolSynonymsMap.get(mapKey) != null ) {
-                                for (String syn : markerSymbolSynonymsMap.get(mapKey)) {
+                            if ( allele2MarkerSymbolSynonymsMap.get(mapKey) != null ) {
+                                for (String syn : allele2MarkerSymbolSynonymsMap.get(mapKey)) {
                                     AutosuggestBean syna = new AutosuggestBean();
                                     syna.setDocType(docType);
                                     syna.setMarkerSynonym(syn);
@@ -944,6 +951,19 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
                         if (allele2MarkerNameSet.add(mapKey)) {
                             a.setMarkerName(mapKey);
                             beans.add(a);
+                        }
+                        break;
+                    case Allele2DTO.HUMAN_GENE_SYMBOL:
+                        if (allele.getHumanGeneSymbol() != null) {
+                            for (String s : allele.getHumanGeneSymbol()) {
+                                mapKey = s;
+                                if (allele2HumanGeneSymbolSet.add(mapKey)) {
+                                    AutosuggestBean asyn = new AutosuggestBean();
+                                    asyn.setHumanGeneSymbol(s);
+                                    asyn.setDocType(docType);
+                                    beans.add(asyn);
+                                }
+                            }
                         }
                         break;
                     case Allele2DTO.MGI_ACCESSION_ID:
@@ -1017,7 +1037,8 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
             for (String field : hpFields) {
 
                 AutosuggestBean a = new AutosuggestBean();
-                a.setDocType("hp");
+                String docType = "hp";
+                a.setDocType(docType);
 
                 switch (field) {
                     case HpDTO.HP_ID:
@@ -1044,7 +1065,7 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
                                 mapKey = s;
                                 if (hpTermSynonymSet.add(mapKey)) {
                                     AutosuggestBean asyn = new AutosuggestBean();
-                                    asyn.setDocType("hp");
+                                    asyn.setDocType(docType);
                                     asyn.setHpTermSynonym(s);
                                     asyn.setHpmpId(hp.getMpId());
                                     asyn.setHpmpTerm(hp.getMpTerm());

@@ -110,7 +110,7 @@ table.dataTable thead tr {
                                 <p>In order to identify the function of genes, the consortium uses a series of
                                     standardised protocols as described in IMPReSS (International Mouse Phenotyping Resource of Standardised Screens).</p>
                                 <p>Hearing capacity is assessed using an <a
-										href="https://www.mousephenotype.org/impress/protocol/149/7">Auditory Brain Stem
+										href="http://www.mousephenotype.org/impress/protocol/149/7">Auditory Brain Stem
                                     response (ABR)</a> test conducted
                                     at 14 weeks of age. Hearing is assessed at five frequencies – 6kHz, 12kHz, 18kHz, 24kHz and 30kHz –
                                     as well as a broadband click stimulus.  Increased thresholds are indicative of abnormal hearing.
@@ -134,7 +134,9 @@ table.dataTable thead tr {
                                <h3>Hearing loss investigated in 3,006 knockout mouse lines</h3>
                                <p>
 									<a
-										href="http://em.rdcu.be/wf/click?upn=KP7O1RED-2BlD0F9LDqGVeSJ-2BYK13AOQwsehfu7fiqrAw-3D_rlS5NjXTpmOl66SHsP12rLQI7Hycd1QZjA7AhdQ2b6-2FS-2FPWAuljWGaoUUyQdBhNd5qzu1OSDRnDXa0UviCH1ywsoXX2HEGPW67FIlbNWZVB87NAsEeYQQ3F2GD8bvwBOk-2BPkbKRPqfrgHP4barsF-2BrLfjDnMD0fmPe675sK7phkS3L5CVy1mUUmp4mw-2Fgzbv1ueMSvy-2FUyo41KChqsXtnXKcvriwPUvjZxg6BOMnIFU-3D">Nature Communications</a>
+										href="http://bit.ly/IMPCDeafness">A large scale hearing loss screen reveals an extensive unexplored genetic landscape for auditory dysfunction<br/>
+										Nature Communications (released 12/10/2017)</a>
+									
 								</p>
 
                                	<ul>
@@ -149,21 +151,21 @@ table.dataTable thead tr {
                                	</li>
                                	<li>
                                		The IMPC will continue screening for hearing loss mutants in its second 5 year phase
-                               		
+                   								
                                	</li>
                                	</ul>
                                 
 				<p>Press releases: <a
-										href="https://www.mousephenotype.org/news/study-unprecedented-size-reveals-how-sex-%E2%80%98blindspot%E2%80%99-could-misdirect-medical-research">IMPC</a>&nbsp;|&nbsp;<a
-										href="http://www.ebi.ac.uk/about/news/press-releases/sexual-dimorphism-dilemma">EMBL-EBI</a>&nbsp;|&nbsp;<a
-										href="http://www.sanger.ac.uk/news/view/study-reveals-how-sex-blindspot-could-misdirect-medical-research">Sanger</a>
+										href="https://www.mrc.ac.uk/news/browse/genes-critical-for-hearing-identified/">MRC</a>&nbsp;|&nbsp;<a
+										href="http://bit.ly/DeafnessNewsStory">IMPC</a><!--&nbsp;|&nbsp;<a
+										href="http://www.sanger.ac.uk/news/view/study-reveals-how-sex-blindspot-could-misdirect-medical-research">Sanger</a> -->
 								</p>
 
                                	<h3>
                                		Methods
                                	</h3>
                                	<p>Response data from the <a
-										href="https://www.mousephenotype.org/impress/protocol/149/7">Auditory Brain Stem
+										href="http://www.mousephenotype.org/impress/protocol/149/7">Auditory Brain Stem
                                     response (ABR)</a> test was used – hearing at five frequencies, 6kHz, 12kHz, 18kHz, 24kHz and 30kHz was measured.</p>
 								<ul>
 								<li>
@@ -179,7 +181,7 @@ table.dataTable thead tr {
                                	</h3>
 				<p>
 									<a
-										href="http://em.rdcu.be/wf/click?upn=KP7O1RED-2BlD0F9LDqGVeSJ-2BYK13AOQwsehfu7fiqrAw-3D_rlS5NjXTpmOl66SHsP12rLQI7Hycd1QZjA7AhdQ2b6-2FS-2FPWAuljWGaoUUyQdBhNd5qzu1OSDRnDXa0UviCH1ywsoXX2HEGPW67FIlbNWZVB87NAsEeYQQ3F2GD8bvwBOk-2BPkbKRPqfrgHP4barsF-2BrLfjDnMD0fmPe675sK7phkS3L5CVy1mUUmp4mw-2Fgzbv1ueMSvy-2FUyo41KChqsXtnXKcvriwPUvjZxg6BOMnIFU-3D">Supplementary Material</a>
+										href="https://static-content.springer.com/esm/art%3A10.1038%2Fs41467-017-00595-4/MediaObjects/41467_2017_595_MOESM1_ESM.pdf">Supplementary Material</a>
 								</p>
 				<p>Sixty-seven deafness genes were identified:</p>
 
@@ -199,469 +201,469 @@ table.dataTable thead tr {
 												href="http://www.mousephenotype.org/data/genes/MGI:2442934">A730017C20Rik</a></td>
 											<td>Hom</td>
 											<td>Novel</td>
-											<td>Severe</td>
+											<td alt="d">Severe</td>
 										</tr>
                                     <tr>
 											<td><a
 												href="http://www.mousephenotype.org/data/genes/MGI:1098687">Aak1</a></td>
 											<td>Hom</td>
 											<td>Novel</td>
-											<td>High</td>
+											<td alt="c">High</td>
 										</tr>
                                     <tr>
 											<td><a
 												href="http://www.mousephenotype.org/data/genes/MGI:1354713">Acsl4</a></td>
 											<td>Hom</td>
 											<td>Novel</td>
-											<td>High</td>
+											<td alt="c">High</td>
 										</tr>
                                     <tr>
 											<td><a
 												href="http://www.mousephenotype.org/data/genes/MGI:102806">Acvr2a</a></td>
 											<td>Hom</td>
 											<td>Novel</td>
-											<td>Mild</td>
+											<td alt="b">Mild</td>
 										</tr>
                                     <tr>
 											<td><a
 												href="http://www.mousephenotype.org/data/genes/MGI:1933736">Adgrb1</a></td>
 											<td>Hom</td>
 											<td>Novel</td>
-											<td>Mild</td>
+											<td alt="b">Mild</td>
 										</tr>
                                     <tr>
 											<td><a
 												href="http://www.mousephenotype.org/data/genes/MGI:1274784">Adgrv1</a></td>
 											<td>Hom</td>
 											<td>Known</td>
-											<td>Severe</td>
+											<td alt="d">Severe</td>
 										</tr>
                                     <tr>
 											<td><a
 												href="http://www.mousephenotype.org/data/genes/MGI:107189">Ahsg</a></td>
 											<td>Hom</td>
 											<td>Novel</td>
-											<td>High</td>
+											<td alt="c">High</td>
 										</tr>
                                     <tr>
 											<td><a
 												href="http://www.mousephenotype.org/data/genes/MGI:1924337">Ankrd11</a></td>
 											<td>Het</td>
 											<td>Novel</td>
-											<td>Mild</td>
+											<td alt="b">Mild</td>
 										</tr>
                                     <tr>
 											<td><a
 												href="http://www.mousephenotype.org/data/genes/MGI:1929214">Ap3m2</a></td>
 											<td>Hom</td>
 											<td>Novel</td>
-											<td>Mild</td>
+											<td alt="b">Mild</td>
 										</tr>
                                     <tr>
 											<td><a
 												href="http://www.mousephenotype.org/data/genes/MGI:1337062">Ap3s1</a></td>
 											<td>Hom</td>
 											<td>Novel</td>
-											<td>Mild</td>
+											<td alt="b">Mild</td>
 										</tr>
                                     <tr>
 											<td><a
 												href="http://www.mousephenotype.org/data/genes/MGI:104653">Atp2b1</a></td>
 											<td>Het</td>
 											<td>Novel</td>
-											<td>Low</td>
+											<td alt="a">Low</td>
 										</tr>
                                     <tr>
 											<td><a
 												href="http://www.mousephenotype.org/data/genes/MGI:3588238">B020004J07Rik</a></td>
 											<td>Hom</td>
 											<td>Novel</td>
-											<td>Low</td>
+											<td alt="a">Low</td>
 										</tr>
                                     <tr>
 											<td><a
 												href="http://www.mousephenotype.org/data/genes/MGI:2652819">Baiap2l2</a></td>
 											<td>Hom</td>
 											<td>Novel</td>
-											<td>Mild</td>
+											<td alt="b">Mild</td>
 										</tr>
                                     <tr>
 											<td><a
 												href="http://www.mousephenotype.org/data/genes/MGI:1915589">Ccdc88c</a></td>
 											<td>Hom</td>
 											<td>Novel</td>
-											<td>High</td>
+											<td alt="c">High</td>
 										</tr>
                                     <tr>
 											<td><a
 												href="http://www.mousephenotype.org/data/genes/MGI:106485">Ccdc92</a></td>
 											<td>Hom</td>
 											<td>Novel</td>
-											<td>Mild</td>
+											<td alt="b">Mild</td>
 										</tr>
                                     <tr>
 											<td><a
 												href="http://www.mousephenotype.org/data/genes/MGI:1929293">Cib2</a></td>
 											<td>Hom</td>
 											<td>Known</td>
-											<td>Severe</td>
+											<td alt="d">Severe</td>
 										</tr>
                                     <tr>
 											<td><a
 												href="http://www.mousephenotype.org/data/genes/MGI:2388124">Clrn1</a></td>
 											<td>Hom</td>
 											<td>Known</td>
-											<td>Severe</td>
+											<td alt="d">Severe</td>
 										</tr>
                                     <tr>
 											<td><a
 												href="http://www.mousephenotype.org/data/genes/MGI:88466">Col9a2</a></td>
 											<td>Hom</td>
 											<td>Known</td>
-											<td>Severe</td>
+											<td alt="d">Severe</td>
 										</tr>
                                     <tr>
 											<td><a
 												href="http://www.mousephenotype.org/data/genes/MGI:2444415">Cyb5r2</a></td>
 											<td>Hom</td>
 											<td>Novel</td>
-											<td>Mild</td>
+											<td alt="b">Mild</td>
 										</tr>
                                     <tr>
 											<td><a
 												href="http://www.mousephenotype.org/data/genes/MGI:103157">Dnase1</a></td>
 											<td>Hom</td>
 											<td>Novel</td>
-											<td>High</td>
+											<td alt="c">High</td>
 										</tr>
                                     <tr>
 											<td><a
 												href="http://www.mousephenotype.org/data/genes/MGI:1914061">Duoxa2</a></td>
 											<td>Hom</td>
 											<td>Novel</td>
-											<td>Severe</td>
+											<td alt="d">Severe</td>
 										</tr>
                                     <tr>
 											<td><a
 												href="http://www.mousephenotype.org/data/genes/MGI:3583900">Elmod1</a></td>
 											<td>Hom</td>
 											<td>Known</td>
-											<td>Severe</td>
+											<td alt="d">Severe</td>
 										</tr>
                                     <tr>
 											<td><a
 												href="http://www.mousephenotype.org/data/genes/MGI:95321">Emb</a></td>
 											<td>Hom</td>
 											<td>Novel</td>
-											<td>High</td>
+											<td alt="c">High</td>
 										</tr>
                                     <tr>
 											<td><a
 												href="http://www.mousephenotype.org/data/genes/MGI:1914675">Eps8l1</a></td>
 											<td>Hom</td>
 											<td>Novel</td>
-											<td>Severe</td>
+											<td alt="d">Severe</td>
 										</tr>
                                     <tr>
 											<td><a
 												href="http://www.mousephenotype.org/data/genes/MGI:99960">Ewsr1</a></td>
 											<td>Het</td>
 											<td>Novel</td>
-											<td>High</td>
+											<td alt="c">High</td>
 										</tr>
                                     <tr>
 											<td><a
 												href="http://www.mousephenotype.org/data/genes/MGI:95662">Gata2</a></td>
 											<td>Het</td>
 											<td>Known</td>
-											<td>Low</td>
+											<td alt="a">Low</td>
 										</tr>
                                     <tr>
 											<td><a
 												href="http://www.mousephenotype.org/data/genes/MGI:2146207">Gga1</a></td>
 											<td>Hom</td>
 											<td>Novel</td>
-											<td>Mild</td>
+											<td alt="b">Mild</td>
 										</tr>
                                     <tr>
 											<td><a
 												href="http://www.mousephenotype.org/data/genes/MGI:2387006">Gipc3</a></td>
 											<td>Hom</td>
 											<td>Known</td>
-											<td>Severe</td>
+											<td alt="d">Severe</td>
 										</tr>
                                     <tr>
 											<td><a
 												href="http://www.mousephenotype.org/data/genes/MGI:2685519">Gpr152</a></td>
 											<td>Hom</td>
 											<td>Novel</td>
-											<td>High</td>
+											<td alt="c">High</td>
 										</tr>
                                     <tr>
 											<td><a
 												href="http://www.mousephenotype.org/data/genes/MGI:1333877">Gpr50</a></td>
 											<td>Hom</td>
 											<td>Novel</td>
-											<td>Low</td>
+											<td alt="a">Low</td>
 										</tr>
                                     <tr>
 											<td><a
 												href="http://www.mousephenotype.org/data/genes/MGI:1914393">Ikzf5</a></td>
 											<td>Hom</td>
 											<td>Novel</td>
-											<td>High</td>
+											<td alt="c">High</td>
 										</tr>
                                     <tr>
 											<td><a
 												href="http://www.mousephenotype.org/data/genes/MGI:96546">Il1r2</a></td>
 											<td>Hom</td>
 											<td>Novel</td>
-											<td>Low</td>
+											<td alt="a">Low</td>
 										</tr>
                                     <tr>
 											<td><a
 												href="http://www.mousephenotype.org/data/genes/MGI:2146574">Ildr1</a></td>
 											<td>Hom</td>
 											<td>Known</td>
-											<td>Severe</td>
+											<td alt="d">Severe</td>
 										</tr>
                                     <tr>
 											<td><a
 												href="http://www.mousephenotype.org/data/genes/MGI:107953">Klc2</a></td>
 											<td>Hom</td>
 											<td>Novel</td>
-											<td>Severe</td>
+											<td alt="d">Severe</td>
 										</tr>
                                     <tr>
 											<td><a
 												href="http://www.mousephenotype.org/data/genes/MGI:2143315">Klhl18</a></td>
 											<td>Hom</td>
 											<td>Novel</td>
-											<td>Low</td>
+											<td alt="a">Low</td>
 										</tr>
                                     <tr>
 											<td><a
 												href="http://www.mousephenotype.org/data/genes/MGI:2446166">Marveld2</a></td>
 											<td>Hom</td>
 											<td>Known</td>
-											<td>Severe</td>
+											<td alt="d">Severe</td>
 										</tr>
                                     <tr>
 											<td><a
 												href="http://www.mousephenotype.org/data/genes/MGI:1914249">Med28</a></td>
 											<td>Het</td>
 											<td>Novel</td>
-											<td>Low</td>
+											<td alt="a">Low</td>
 										</tr>
                                     <tr>
 											<td><a
 												href="http://www.mousephenotype.org/data/genes/MGI:1343489">Mpdz</a></td>
 											<td>Hom</td>
 											<td>Novel</td>
-											<td>Mild</td>
+											<td alt="b">Mild</td>
 										</tr>
                                     <tr>
 											<td><a
 												href="http://www.mousephenotype.org/data/genes/MGI:1339711">Myh1</a></td>
 											<td>Hom</td>
 											<td>Novel</td>
-											<td>Mild</td>
+											<td alt="b">Mild</td>
 										</tr>
                                     <tr>
 											<td><a
 												href="http://www.mousephenotype.org/data/genes/MGI:104510">Myo7a</a></td>
 											<td>Hom</td>
 											<td>Known</td>
-											<td>Severe</td>
+											<td alt="d">Severe</td>
 										</tr>
                                     <tr>
 											<td><a
 												href="http://www.mousephenotype.org/data/genes/MGI:1933754">Nedd4l</a></td>
 											<td>Hom</td>
 											<td>Novel</td>
-											<td>Severe</td>
+											<td alt="d">Severe</td>
 										</tr>
                                     <tr>
 											<td><a
 												href="http://www.mousephenotype.org/data/genes/MGI:103296">Nfatc3</a></td>
 											<td>Het</td>
 											<td>Novel</td>
-											<td>Low</td>
+											<td alt="a">Low</td>
 										</tr>
                                     <tr>
 											<td><a
 												href="http://www.mousephenotype.org/data/genes/MGI:105108">Nin</a></td>
 											<td>Hom</td>
 											<td>Novel</td>
-											<td>High</td>
+											<td alt="c">High</td>
 										</tr>
                                     <tr>
 											<td><a
 												href="http://www.mousephenotype.org/data/genes/MGI:1928323">Nisch</a></td>
 											<td>Hom</td>
 											<td>Novel</td>
-											<td>Mild</td>
+											<td alt="b">Mild</td>
 										</tr>
                                     <tr>
 											<td><a
 												href="http://www.mousephenotype.org/data/genes/MGI:108077">Nptn</a></td>
 											<td>Hom</td>
 											<td>Novel</td>
-											<td>Severe</td>
+											<td alt="d">Severe</td>
 										</tr>
                                     <tr>
 											<td><a
 												href="http://www.mousephenotype.org/data/genes/MGI:97401">Ocm</a></td>
 											<td>Hom</td>
 											<td>Known</td>
-											<td>Severe</td>
+											<td alt="d">Severe</td>
 										</tr>
                                     <tr>
 											<td><a
 												href="http://www.mousephenotype.org/data/genes/MGI:2686003">Odf3l2</a></td>
 											<td>Hom</td>
 											<td>Novel</td>
-											<td>Mild</td>
+											<td alt="b">Mild</td>
 										</tr>
                                     <tr>
 											<td><a
 												href="http://www.mousephenotype.org/data/genes/MGI:2149209">Otoa</a></td>
 											<td>Hom</td>
 											<td>Known</td>
-											<td>Severe</td>
+											<td alt="d">Severe</td>
 										</tr>
                                     <tr>
 											<td><a
 												href="http://www.mousephenotype.org/data/genes/MGI:1918248">Phf6</a></td>
 											<td>Het</td>
 											<td>Novel</td>
-											<td>High</td>
+											<td alt="c">High</td>
 										</tr>
                                     <tr>
 											<td><a
 												href="http://www.mousephenotype.org/data/genes/MGI:99878">Ppm1a</a></td>
 											<td>Hom</td>
 											<td>Novel</td>
-											<td>High</td>
+											<td alt="c">High</td>
 										</tr>
                                     <tr>
 											<td><a
 												href="http://www.mousephenotype.org/data/genes/MGI:1096347">Sema3f</a></td>
 											<td>Hom</td>
 											<td>Novel</td>
-											<td>Low</td>
+											<td alt="a">Low</td>
 										</tr>
                                     <tr>
 											<td><a
 												href="http://www.mousephenotype.org/data/genes/MGI:2150150">Slc4a10</a></td>
 											<td>Hom</td>
 											<td>Novel</td>
-											<td>Mild</td>
+											<td alt="b">Mild</td>
 										</tr>
                                     <tr>
 											<td><a
 												href="http://www.mousephenotype.org/data/genes/MGI:2149330">Slc5a5</a></td>
 											<td>Hom</td>
 											<td>Novel</td>
-											<td>Severe</td>
+											<td alt="d">Severe</td>
 										</tr>
                                     <tr>
 											<td><a
 												href="http://www.mousephenotype.org/data/genes/MGI:2384936">Spns2</a></td>
 											<td>Hom</td>
 											<td>Novel</td>
-											<td>Severe</td>
+											<td alt="d">Severe</td>
 										</tr>
                                     <tr>
 											<td><a
 												href="http://www.mousephenotype.org/data/genes/MGI:1916205">Srrm4</a></td>
 											<td>Hom</td>
 											<td>Known</td>
-											<td>Mild</td>
+											<td alt="b">Mild</td>
 										</tr>
                                     <tr>
 											<td><a
 												href="http://www.mousephenotype.org/data/genes/MGI:2442082">Tmem30b</a></td>
 											<td>Hom</td>
 											<td>Novel</td>
-											<td>Severe</td>
+											<td alt="d">Severe</td>
 										</tr>
                                     <tr>
 											<td><a
 												href="http://www.mousephenotype.org/data/genes/MGI:1921050">Tmtc4</a></td>
 											<td>Hom</td>
 											<td>Novel</td>
-											<td>Severe</td>
+											<td alt="d">Severe</td>
 										</tr>
                                     <tr>
 											<td><a
 												href="http://www.mousephenotype.org/data/genes/MGI:2181659">Tox</a></td>
 											<td>Hom</td>
 											<td>Novel</td>
-											<td>Severe</td>
+											<td alt="d">Severe</td>
 										</tr>
                                     <tr>
 											<td><a
 												href="http://www.mousephenotype.org/data/genes/MGI:2139535">Tprn</a></td>
 											<td>Hom</td>
 											<td>Known</td>
-											<td>Severe</td>
+											<td alt="d">Severe</td>
 										</tr>
                                     <tr>
 											<td><a
 												href="http://www.mousephenotype.org/data/genes/MGI:1924817">Tram2</a></td>
 											<td>Hom</td>
 											<td>Novel</td>
-											<td>Mild</td>
+											<td alt="b">Mild</td>
 										</tr>
                                     <tr>
 											<td><a
 												href="http://www.mousephenotype.org/data/genes/MGI:102944">Ube2b</a></td>
 											<td>Het</td>
 											<td>Novel</td>
-											<td>Mild</td>
+											<td alt="b">Mild</td>
 										</tr>
                                     <tr>
 											<td><a
 												href="http://www.mousephenotype.org/data/genes/MGI:1914378">Ube2g1</a></td>
 											<td>Hom</td>
 											<td>Novel</td>
-											<td>Mild</td>
+											<td alt="b">Mild</td>
 										</tr>
                                     <tr>
 											<td><a
 												href="http://www.mousephenotype.org/data/genes/MGI:1919338">Ush1c</a></td>
 											<td>Hom</td>
 											<td>Known</td>
-											<td>Severe</td>
+											<td alt="d">Severe</td>
 										</tr>
                                     <tr>
 											<td><a
 												href="http://www.mousephenotype.org/data/genes/MGI:1855699">Vti1a</a></td>
 											<td>Hom</td>
 											<td>Novel</td>
-											<td>Mild</td>
+											<td alt="b">Mild</td>
 										</tr>
                                     <tr>
 											<td><a
 												href="http://www.mousephenotype.org/data/genes/MGI:2685541">Wdtc1</a></td>
 											<td>Hom</td>
 											<td>Novel</td>
-											<td>High</td>
+											<td alt="c">High</td>
 										</tr>
                                     <tr>
 											<td><a
 												href="http://www.mousephenotype.org/data/genes/MGI:2159407">Zcchc14</a></td>
 											<td>Hom</td>
 											<td>Novel</td>
-											<td>Low</td>
+											<td alt="a">Low</td>
 										</tr>
                                     <tr>
 											<td><a
 												href="http://www.mousephenotype.org/data/genes/MGI:2444708">Zfp719</a></td>
 											<td>Hom</td>
 											<td>Novel</td>
-											<td>Severe</td>
+											<td alt="d">Severe</td>
 										</tr>
                                     </tbody>
                                 </table>
@@ -670,22 +672,26 @@ table.dataTable thead tr {
                         </div>
 
                         <script>
-																									$(
-																											document)
-																											.ready(
-																													function() {
-																														$(
-																																'#hearing-genes')
-																																.DataTable(
-																																		{
-																																			"bDestroy" : true,
-																																			"searching" : false,
-																																			"bPaginate" : true,
-																																			"sPaginationType" : "bootstrap"
-																																		});
-																													});
-																								</script>
-
+							$(document).ready(function() {
+								$('#hearing-genes').DataTable({
+									"bDestroy" : true,
+									"searching" : false,
+									"bPaginate" : true,
+									"sPaginationType" : "bootstrap",
+									"columnDefs": [
+										{ "type": "alt-string", targets: 3 }   //4th col sorted using alt-string
+									],
+									"aaSorting": [[0, "asc"]], // 0-based index
+									"aoColumns": [
+									    null, null,null,
+//										 {"sType": "html", "bSortable": true},
+//										 {"sType": "string", "bSortable": true},
+//										 {"sType": "string", "bSortable": true},
+										 {"sType": "html", "bSortable": true}
+									]
+								});
+							});
+							</script>
 
                         <style>
 /* required for the graphs to not clip the axis labels */

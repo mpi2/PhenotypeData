@@ -8,6 +8,7 @@ public class Allele2DTO {
 
 	public static final String MGI_ACCESSION_ID="mgi_accession_id";
 	public static final String MARKER_SYMBOL="marker_symbol";
+	public static final String HUMAN_GENE_SYMBOL = "human_gene_symbol";
 	public static final String ALLELE_NAME="allele_name";
 	public static final String ALLELE_TYPE="allele_type";
 	public static final String ALLELE_DESCRIPTION="allele_description";
@@ -131,6 +132,10 @@ public class Allele2DTO {
 	private String mgiAccessionId;
 	@Field(MARKER_SYMBOL)
 	private String markerSymbol;
+
+	@Field(HUMAN_GENE_SYMBOL)
+	List<String> humanGeneSymbol;
+
 	@Field(MARKER_NAME)
 	private String markerName;
 
@@ -445,6 +450,14 @@ public class Allele2DTO {
 		this.markerSymbol = markerSymbol;
 	}
 
+	public List<String> getHumanGeneSymbol() {
+		return humanGeneSymbol;
+	}
+
+	public void setHumanGeneSymbol(List<String> humanGeneSymbol) {
+		this.humanGeneSymbol = humanGeneSymbol;
+	}
+
 	public String getMarkerName() {
 		return markerName;
 	}
@@ -691,6 +704,8 @@ public class Allele2DTO {
 		if (mgiAccessionId != null ? !mgiAccessionId.equals(that.mgiAccessionId) : that.mgiAccessionId != null)
 			return false;
 		if (markerSymbol != null ? !markerSymbol.equals(that.markerSymbol) : that.markerSymbol != null) return false;
+		if (humanGeneSymbol != null ? !humanGeneSymbol.equals(that.humanGeneSymbol) : that.humanGeneSymbol != null)
+			return false;
 		if (markerName != null ? !markerName.equals(that.markerName) : that.markerName != null) return false;
 		if (markerSynonym != null ? !markerSynonym.equals(that.markerSynonym) : that.markerSynonym != null)
 			return false;
@@ -757,6 +772,7 @@ public class Allele2DTO {
 		result = 31 * result + (markerType != null ? markerType.hashCode() : 0);
 		result = 31 * result + (mgiAccessionId != null ? mgiAccessionId.hashCode() : 0);
 		result = 31 * result + (markerSymbol != null ? markerSymbol.hashCode() : 0);
+		result = 31 * result + (humanGeneSymbol != null ? humanGeneSymbol.hashCode() : 0);
 		result = 31 * result + (markerName != null ? markerName.hashCode() : 0);
 		result = 31 * result + (markerSynonym != null ? markerSynonym.hashCode() : 0);
 		result = 31 * result + (alleleMgiAccessionId != null ? alleleMgiAccessionId.hashCode() : 0);
@@ -817,6 +833,7 @@ public class Allele2DTO {
 				", markerType='" + markerType + '\'' +
 				", mgiAccessionId='" + mgiAccessionId + '\'' +
 				", markerSymbol='" + markerSymbol + '\'' +
+				", humanGeneSymbol=" + humanGeneSymbol +
 				", markerName='" + markerName + '\'' +
 				", markerSynonym=" + markerSynonym +
 				", alleleMgiAccessionId='" + alleleMgiAccessionId + '\'' +

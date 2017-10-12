@@ -206,7 +206,7 @@ public abstract class AbstractIndexer implements CommandLineRunner {
             }
             return new Boolean(el);
         } else {
-            System.out.println("Field not found " + field);
+            logger.debug("Field not found " + field);
             runStatus.addError(" Caught error accessing Allele2 core: " + "Field not found " + field );
             return null;
         }
@@ -224,7 +224,7 @@ public abstract class AbstractIndexer implements CommandLineRunner {
             }
             return Arrays.asList(el.split("\\|", -1));
         } else {
-            System.out.println("Field not found " + field);
+            logger.debug("Field not found " + field);
             runStatus.addError(" Caught error accessing Allele2 core: " + "Field not found " + field );
             return null;
         }
@@ -241,12 +241,12 @@ public abstract class AbstractIndexer implements CommandLineRunner {
             try {
 				return new Integer(el);
 			} catch (NumberFormatException e) {
-				System.err.println("field not string is ="+el);
+                logger.debug("field not string is ="+el);
 				e.printStackTrace();
 				return null;
 			}
         } else {
-            System.out.println("Field not found " + field);
+            logger.debug("Field not found " + field);
             runStatus.addError(" Caught error accessing Allele2 core: " + "Field not found " + field );
             return null;
         }
@@ -302,7 +302,9 @@ public abstract class AbstractIndexer implements CommandLineRunner {
                     String colonyId = r.getString("colony_id");
                     String pipelineStableId = r.getString("pipeline_stable_id");
                     String procedureStableId = r.getString("procedure_stable_id");
-                    String key = StringUtils.join(Arrays.asList(colonyId, pipelineStableId, procedureStableId), "_");
+                    String procedurePrefix = StringUtils.join(Arrays.asList(procedureStableId.split("_")).subList(0, 2), "_");
+
+                    String key = StringUtils.join(Arrays.asList(colonyId, pipelineStableId, procedurePrefix), "_");
 
                     if (!buildStageMap.containsKey(key)) {
                         buildStageMap.put(key, stage);
@@ -358,7 +360,7 @@ public abstract class AbstractIndexer implements CommandLineRunner {
                 // set life stage by looking up a combination key of
                 // 3 fields ( colony_id, pipeline_stable_id, procedure_stable_id)
                 // The value is corresponding developmental stage object
-                String key = StringUtils.join(Arrays.asList(colonyId, pipelineStableId,  procedureStableId), "_");
+                String key = StringUtils.join(Arrays.asList(colonyId, pipelineStableId,  procedurePrefix), "_");
 
                 if ( liveStageMap.containsKey(key) ) {
                     stage = liveStageMap.get(key);

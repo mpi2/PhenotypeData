@@ -30,6 +30,7 @@
         <module>neo4j-load</module>
         <module>reports</module>
         <module>tests</module>
+        <module>thirdparty_loads</module>
     </modules>
 
     <properties>

@@ -2294,37 +2294,37 @@ public class DataTableController {
 		String alleleUrl = request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl").toString() + "/alleles/" + markerAcc + "/" + alleleName;
 		String markerSymbol = doc.getString(Allele2DTO.MARKER_SYMBOL);
 		String alleleLink = "<a href='" + alleleUrl + "'>" + markerSymbol + "<sup>" + alleleName + "</sup></a>";
+		String geneUrl = request.getAttribute("baseUrl") + "/genes/" + markerAcc;
 
 		String[] fields = {"marker_name", "marker_synonym"};
 		for (int i = 0; i < fields.length; i ++) {
 			try {
 				//"highlighting":{"MGI:97489":{"marker_symbol":["<em>Pax</em>5"],"synonym":["<em>Pax</em>-5"]},
 
-				//System.out.println(qryStr);
 				String field = fields[i];
 				List<String> info = new ArrayList<String>();
 
 				if (field.equals("marker_name")) {
-					System.out.println("checking marker_name");
 					info.add(Tools.highlightMatchedStrIfFound(qryStr, doc.getString(field), "span", "subMatch"));
 				}
 				else if (field.equals("marker_synonym")) {
-					System.out.println("checking marker_synonym");
 					JSONArray data = doc.getJSONArray(field);
 					int counter = 0;
+
 					String synMatch = null;
 					String syn = null;
 
 					for (Object d : data) {
 						counter++;
-						String targetStr = qryStr.toLowerCase().replaceAll("\"", "");
+						// removes quotes or wildcard and highlight matched string
+						String targetStr = qryStr.toLowerCase().replaceAll("\"", "").replaceAll("\\*", "");
 						if ( d.toString().toLowerCase().contains(targetStr) ) {
 							if ( synMatch == null ) {
 								synMatch = Tools.highlightMatchedStrIfFound(targetStr, d.toString(), "span", "subMatch");
 							}
 						}
 						else {
-							if  (counter == 1) {
+							if (counter == 1) {
 								syn = d.toString();
 							}
 						}
@@ -2334,8 +2334,11 @@ public class DataTableController {
 						syn = synMatch;
 					}
 
-					if ( counter > 0 ){
+					if ( counter == 1 ){
 						info.add(syn);
+					}
+					else if ( counter > 1 ){
+						info.add(syn + "<a href='" + geneUrl + "'> <span class='moreLess'>(see more)</span></a>");
 					}
 				}
 
@@ -2428,6 +2431,7 @@ public class DataTableController {
 						info.add(syn + "<a href='" + geneUrl + "'> <span class='moreLess'>(see more)</span></a>");
 					}
 				}
+
 
 				// field string shown to the users
 				if ( field.equals("human_gene_symbol") ){

@@ -252,6 +252,28 @@ public class StatisticalResultIndexerTest implements ApplicationContextAware {
     }
 
     @Test
+    public void getUnidimResultsWithStage() throws Exception {
+
+        // DO NOT SAVE THE RESULTS TO SOLR
+        statisticalResultIndexer.setSAVE(Boolean.FALSE);
+        StatisticalResultsIndexer.UnidimensionalResults r = statisticalResultIndexer.getUnidimensionalResults();
+
+        List<StatisticalResultDTO> results = r.call();
+        for (StatisticalResultDTO result : results) {
+
+            try {
+                assert (result.getLifeStageAcc() != null);
+            } catch (AssertionError e) {
+                System.out.println("  Warning: Life stage is not set for doc: \n" + result);
+            }
+
+        }
+
+        assert (results.size() > 100000);
+
+    }
+
+    @Test
     public void getIMMResultsForMpExistenceTest() throws Exception {
 
         statisticalResultIndexer.setSAVE(Boolean.FALSE);

@@ -6,10 +6,8 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.mousephenotype.cda.db.pojo.OntologyTerm;
-import org.mousephenotype.cda.enumerations.BatchClassification;
-import org.mousephenotype.cda.enumerations.ControlStrategy;
-import org.mousephenotype.cda.enumerations.SexType;
-import org.mousephenotype.cda.enumerations.ZygosityType;
+import org.mousephenotype.cda.enumerations.*;
+import org.mousephenotype.cda.loads.statistics.generate.StatisticalDatasetGenerator;
 import org.mousephenotype.cda.solr.service.BasicService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,8 +51,28 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
     Map<String, Map<ZygosityType, Integer>> bioModelMap = new HashMap<>();
     Map<Integer, String> bioModelStrainMap = new HashMap<>();
     Map<String, Integer> controlBioModelMap = new HashMap<>();
+    Map<String, ObservationType> parameterTypeMap = new HashMap<>();
 
 
+
+    void populateParameterTypeMap() throws SQLException {
+        Map<String, ObservationType> map = parameterTypeMap;
+
+        String query= "SELECT DISTINCT parameter_stable_id, observation_type FROM observation WHERE missing != 1 AND observation_type IN ('categorical', 'unidimensional')";
+
+        try (Connection connection = komp2DataSource.getConnection(); PreparedStatement p = connection.prepareStatement(query)) {
+            ResultSet r = p.executeQuery();
+            while (r.next()) {
+
+                String parameterId = r.getString("parameter_stable_id");
+                String obsType=r.getString("observation_type");
+
+                map.put(parameterId, ObservationType.valueOf(obsType));
+            }
+        }
+
+        logger.info(" Mapped {} parameter type entries", map.size());
+    }
 
     void populateControlBioModelMap() throws SQLException {
         Map<String, Integer> map = controlBioModelMap;
@@ -87,7 +105,8 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
                 "INNER JOIN biological_model_sample bms ON bms.biological_sample_id=ls.id " +
                 "INNER JOIN biological_model_strain bmstrain ON bmstrain.biological_model_id=bms.biological_model_id " +
                 "INNER JOIN strain ON strain.acc=bmstrain.strain_acc " +
-                "INNER JOIN biological_model bm ON (bm.id=bms.biological_model_id AND bm.zygosity=ls.zygosity) " ;
+                "INNER JOIN biological_model bm ON (bm.id=bms.biological_model_id AND bm.zygosity=ls.zygosity) " +
+                "WHERE bs.sample_group = 'experimental' " ;
 
         try (Connection connection = komp2DataSource.getConnection(); PreparedStatement p = connection.prepareStatement(query)) {
             ResultSet r = p.executeQuery();
@@ -274,12 +293,17 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
      * @return A double or null if str does not represent a number
      */
     private Double getDoubleField(String str) {
-        Double retVal;
 
+        if (str == null) {
+            return null;
+        }
+
+        Double retVal;
         if (str.contains("%")) {
             String n = str.replaceAll("%", "");
             retVal = (NumberUtils.isNumber(n)) ? Double.parseDouble(n) : null;
             if (retVal != null) {
+                // Normalize to percent between 0.0 and 1.0
                 retVal = retVal / 100.0;
             }
         } else {
@@ -320,7 +344,7 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
      */
     private String getStringField(String str) {
 
-        if (str.isEmpty() || str.equals("NA")) {
+        if (str==null || str.isEmpty() || str.equals("NA")) {
             return "";
         }
 
@@ -403,22 +427,22 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
 
         // Several attributes come from the filename
         filename =  filename.substring(0, filename.indexOf(".tsv"));
-        List<String> fileMetaData = Arrays.asList(filename.trim().split("::"));
+        List<String> fileMetaData = Arrays.asList(filename.trim().split(StatisticalDatasetGenerator.FILENAME_SEPERATOR));
 
-        if ( ! filename.contains("::")) {
+        if ( ! filename.contains(StatisticalDatasetGenerator.FILENAME_SEPERATOR)) {
             String dataString = filename
-                    .replaceAll("M-G-P", "M:G:P")
-                    .replaceAll("NULL-", "NULL:")
-                    .replaceAll("IMPC-CURATE-", "IMPC:CURATE:")
-                    ;
+                .replaceAll("M-G-P", "M:G:P")
+                .replaceAll("NULL-", "NULL:")
+                .replaceAll("IMPC-CURATE-", "IMPC:CURATE:")
+                ;
             fileMetaData = Arrays.stream(
-                    dataString
-                            .trim()
-                            .split("-"))
-                    .map(x -> x.replaceAll("M:G:P", "M-G-P")
-                            .replaceAll("NULL:", "NULL-")
-                            .replaceAll("IMPC:CURATE:", "IMPC-CURATE-"))
-                    .collect(Collectors.toList());
+                dataString
+                    .trim()
+                    .split("-"))
+                .map(x -> x.replaceAll("M:G:P", "M-G-P")
+                    .replaceAll("NULL:", "NULL-")
+                    .replaceAll("IMPC:CURATE:", "IMPC-CURATE-"))
+                .collect(Collectors.toList());
         }
 
         String dataSource = fileMetaData.get(0);
@@ -528,7 +552,7 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
                 result.setSexMvKOStandardError( getDoubleField(fields[i++]) );
                 result.setSexMvKOPVal( getDoubleField(fields[i++]) );
                 result.setClassificationTag( getStringField(fields[i++]) );
-                result.setAdditionalInformation( getStringField(fields[i++]) );
+                result.setAdditionalInformation( "file: "+  filename + "Additional: " + getStringField(fields[i++]) );
 
                 logger.debug("Last iteration left index i at: ", i);
 
@@ -568,9 +592,10 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
                 result.setSexMvKOStandardError( null );
                 result.setSexMvKOPVal( null );
                 result.setClassificationTag( null );
-                result.setAdditionalInformation( null );
+                result.setAdditionalInformation( "file: "+  filename );
                 break;
         }
+
 
         return result;
     }
@@ -647,7 +672,7 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
         LightweightResult result;
         StatisticalResult statsResult;
 
-        if (data.getStatisticalMethod().contains("Fisher Exact Test framework")) {
+        if (parameterTypeMap.get(data.getDependentVariable()) == ObservationType.categorical) {
 
             Double effectSize = getDoubleField(data.getGenotypeEstimate());
             Double pValue = getDoubleField(data.getGenotypePVal());
@@ -679,7 +704,7 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
             temp.setClassificationTag( classificationTag );
             statsResult = temp;
 
-        } else if (data.getStatisticalMethod().contains("Mixed Model framework")) {
+        } else if (parameterTypeMap.get(data.getDependentVariable()) == ObservationType.unidimensional && data.getStatisticalMethod().contains("Mixed Model framework")) {
 
             Double effectSize = getDoubleField(data.getGenotypeEstimate());
             Double pValue = getDoubleField(data.getGenotypePVal());
@@ -725,7 +750,7 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
             temp.setClassificationTag(data.getClassificationTag());
 
             statsResult = temp;
-        } else if (data.getStatisticalMethod().contains("Reference Ranges Plus framework")) {
+        } else if (parameterTypeMap.get(data.getDependentVariable()) == ObservationType.unidimensional && data.getStatisticalMethod().contains("Reference Ranges Plus framework")) {
 
             // Reference Range result
             result = new LightweightUnidimensionalResult();
@@ -855,7 +880,7 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
             BatchClassification batches = BatchClassification.valueOf(data.getWorkflow());
             result.setWorkflow(batches);
         } else  {
-            result.setWorkflow(null);
+            result.setWorkflow(BatchClassification.unknown);
         }
 
         result.setWeightAvailable(data.getWeightAvailable() != null && data.getWeightAvailable().equals("TRUE"));
@@ -863,7 +888,10 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
         result.setCalculationTimeNanos(0L);
 
         result.setStatus(data.getStatus() + " - " + data.getCode());
-        setMpTerm(result);
+
+        if (data.getStatus().equals(StatusCode.TESTED.name())) {
+            setMpTerm(result);
+        }
 
         return result;
     }
@@ -968,7 +996,7 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
     }
 
     @Override
-    public void run(String... strings) throws Exception {
+        public void run(String... strings) throws Exception {
 
         logger.info("Starting statistical result loader");
 
@@ -982,6 +1010,7 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
         populateColonyAlleleMap();
         populateBioModelMap();
         populateControlBioModelMap();
+        populateParameterTypeMap();
 
 
         // parameter to indicate the location of the result file(s)

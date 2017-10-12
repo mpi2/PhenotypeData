@@ -38,6 +38,9 @@ import java.util.stream.Stream;
 @Import(value = {StatisticalDatasetGeneratorConfig.class})
 public class StatisticalDatasetGenerator extends BasicService implements CommandLineRunner {
 
+
+    public static final String FILENAME_SEPERATOR = "--";
+
     final private Logger logger = LoggerFactory.getLogger(getClass());
     final private SolrClient experimentCore;
     final private SolrClient pipelineCore;
@@ -84,65 +87,55 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
         logger.info("Populating normal category lookup");
         Map<String, String> normalEyeCategory = getNormalEyeCategories();
 
+        Map<String, SortedSet<String>> parameters = getParameterMap();
+        logger.info("Prepared " + parameters.keySet().size() + " procedure groups");
 
-        try {
+        SolrQuery query = new SolrQuery();
+        query.setQuery("*:*")
 
+                // Filter out line level parameters
+                .addFilterQuery("-procedure_group:(" + StringUtils.join(skipProcedures, " OR ") + ")")
 
-            Map<String, SortedSet<String>> parameters = getParameterMap();
-            logger.info("Prepared " + parameters.keySet().size() + " procedure groups");
+                // Only processing categorical and unidimensional parameters
+                .addFilterQuery("observation_type:(categorical OR unidimensional)")
 
-             SolrQuery query = new SolrQuery();
-            query.setQuery("*:*")
+                // Filter out incorrect M-G-P pipeline bodyweight
+                .addFilterQuery("-parameter_stable_id:(" + StringUtils.join(skipParameters, " OR ") + ")")
 
-                    // Filter out line level parameters
-                    .addFilterQuery("-procedure_group:(" + StringUtils.join(skipProcedures, " OR ") + ")")
+                // Filter out IMM results until we have normalised parameters in IMPRESS
+                .addFilterQuery("-parameter_stable_id:*_IMM_*")
 
-                    // Only processing categorical and unidimensional parameters
-                    .addFilterQuery("observation_type:(categorical OR unidimensional)")
+                // Include only parameters for which we have experimental data
+                .addFilterQuery("biological_sample_group:experimental")
 
-                    // Filter out incorrect M-G-P pipeline bodyweight
-                    .addFilterQuery("-parameter_stable_id:(" + StringUtils.join(skipParameters, " OR ") + ")")
+                .setRows(0)
+                .setFacet(true)
+                .setFacetLimit(-1)
+                .addFacetPivotField(PIVOT.stream().collect(Collectors.joining(",")));
 
-                    // Filter out IMM results until we have normalised parameters in IMPRESS
-                    .addFilterQuery("-parameter_stable_id:*_IMM_*")
+        logger.info(SolrUtils.getBaseURL(experimentCore) + "/select" + query.toQueryString());
+        List<Map<String, String>> results = getFacetPivotResults(experimentCore.query(query), false);
 
-                    // Include only parameters for which we have experimental data
-                    .addFilterQuery("biological_sample_group:experimental")
+        logger.info("Processing {} data sets", results.size());
 
-                    .setRows(0)
-                    .setFacet(true)
-                    .setFacetLimit(-1)
-                    .addFacetPivotField(PIVOT.stream().collect(Collectors.joining(",")));
+        // Create directory if not exists
+        File d = new File("tsvs");
+        if ( ! d.exists()) {
+            d.mkdir();
+        }
 
-            logger.info(SolrUtils.getBaseURL(experimentCore) + "/select" + query.toQueryString());
-            List<Map<String, String>> results = getFacetPivotResults(experimentCore.query(query), false);
+        results
+            .stream()
+            .filter(x -> parameters.get(x.get(ObservationDTO.PROCEDURE_GROUP)) != null)
+            .parallel()
+            .forEach(result -> {
 
-            logger.info("Processing {} data sets", results.size());
-
-            int i = 1;
-            for (Map<String, String> result : results) {
-
-                if (parameters.get(result.get(ObservationDTO.PROCEDURE_GROUP)) == null) {
-                    logger.info("  Skipping procedure {} -- not in parameters map (no parameters to annotate)", result.get(ObservationDTO.PROCEDURE_STABLE_ID));
-                    continue;
-                }
-
-                String filename = "tsvs/" + Stream.of(
-                        result.get(ObservationDTO.DATASOURCE_NAME).replace(" ","_"),
-                        result.get(ObservationDTO.PROJECT_NAME).replace(" ","_"),
-                        result.get(ObservationDTO.PHENOTYPING_CENTER).replace(" ","_"),
-                        result.get(ObservationDTO.PIPELINE_STABLE_ID),
-                        result.get(ObservationDTO.PROCEDURE_GROUP),
-                        result.get(ObservationDTO.STRAIN_ACCESSION_ID).replace(":","")).collect(Collectors.joining("::")) + ".tsv";
-                Path p = new File(filename).toPath();
-                logger.info("Writing file {} ({})", filename, p);
-
-                logger.info("Processing {} {} {} {} {}", i++, result.get(ObservationDTO.PHENOTYPING_CENTER), result.get(ObservationDTO.PIPELINE_STABLE_ID), result.get(ObservationDTO.PROCEDURE_GROUP), result.get(ObservationDTO.STRAIN_ACCESSION_ID));
+                logger.info("Processing {} {} {} {}", result.get(ObservationDTO.PHENOTYPING_CENTER), result.get(ObservationDTO.PIPELINE_STABLE_ID), result.get(ObservationDTO.PROCEDURE_GROUP), result.get(ObservationDTO.STRAIN_ACCESSION_ID));
 
                 String fields = "date_of_experiment,external_sample_id,strain_name,allele_accession_id,gene_accession_id,gene_symbol,weight,sex,zygosity,biological_sample_group,colony_id,metadata_group,parameter_stable_id,parameter_name,data_point,category,observation_type";
 
-                query = new SolrQuery();
-                query.setQuery("*:*")
+                SolrQuery q1 = new SolrQuery();
+                q1.setQuery("*:*")
                         .addFilterQuery(ObservationDTO.PARAMETER_STABLE_ID + ":(" + parameters.get(result.get(ObservationDTO.PROCEDURE_GROUP)).stream().collect(Collectors.joining(" OR ")) + ")")
                         .addFilterQuery(ObservationDTO.PHENOTYPING_CENTER + ":\"" + result.get(ObservationDTO.PHENOTYPING_CENTER) + "\"")
                         .addFilterQuery(ObservationDTO.PIPELINE_STABLE_ID + ":" + result.get(ObservationDTO.PIPELINE_STABLE_ID))
@@ -153,162 +146,167 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
                         .setRows(Integer.MAX_VALUE)
                 ;
 
-                logger.debug(SolrUtils.getBaseURL(experimentCore) + "/select" + query.toQueryString());
+                logger.debug(SolrUtils.getBaseURL(experimentCore) + "/select" + q1.toQueryString());
 
-                List<ObservationDTO> observationDTOs = experimentCore.query(query).getBeans(ObservationDTO.class);
+                try {
+                    List<ObservationDTO> observationDTOs = experimentCore.query(q1).getBeans(ObservationDTO.class);
+                    Map<String, Map<String, String>> specimenParameterMap = new HashMap<>();
 
-                // Populate specimen parameter map
-                Map<String, Map<String, String>> specimenParameterMap = new HashMap<>();
-                for (ObservationDTO observationDTO : observationDTOs) {
+                    for (ObservationDTO observationDTO : observationDTOs) {
 
-                    String colonyId = observationDTO.getGroup().equals(BiologicalSampleType.control.getName()) ? "+/+" : observationDTO.getColonyId();
-                    String zygosity = observationDTO.getGroup().equals(BiologicalSampleType.control.getName()) ? "" : observationDTO.getZygosity();
-                    String alleleAccessionId = observationDTO.getGroup().equals(BiologicalSampleType.control.getName()) ? "" : observationDTO.getAlleleAccession();
-                    String geneAccessionId = observationDTO.getGroup().equals(BiologicalSampleType.control.getName()) ? "" : observationDTO.getGeneAccession();
-                    String specimenId = observationDTO.getExternalSampleId();
-                    String dateOfExperiment = observationDTO.getDateOfExperimentString();
-                    String weight = observationDTO.getWeight()!=null ? observationDTO.getWeight().toString() : "";
-                    String sex = observationDTO.getSex();
-                    String biologicalSampleGroup = observationDTO.getGroup();
-                    String strainName = observationDTO.getStrainName();
-                    String metadataGroup = observationDTO.getMetadataGroup();
+                        String colonyId = observationDTO.getGroup().equals(BiologicalSampleType.control.getName()) ? "+/+" : observationDTO.getColonyId();
+                        String zygosity = observationDTO.getGroup().equals(BiologicalSampleType.control.getName()) ? "" : observationDTO.getZygosity();
+                        String alleleAccessionId = observationDTO.getGroup().equals(BiologicalSampleType.control.getName()) ? "" : observationDTO.getAlleleAccession();
+                        String geneAccessionId = observationDTO.getGroup().equals(BiologicalSampleType.control.getName()) ? "" : observationDTO.getGeneAccession();
+                        String specimenId = observationDTO.getExternalSampleId();
+                        String dateOfExperiment = observationDTO.getDateOfExperimentString();
+                        String weight = observationDTO.getWeight() != null ? observationDTO.getWeight().toString() : "";
+                        String sex = observationDTO.getSex();
+                        String biologicalSampleGroup = observationDTO.getGroup();
+                        String strainName = observationDTO.getStrainName();
+                        String metadataGroup = observationDTO.getMetadataGroup();
 
-                    String key = Stream.of(specimenId, biologicalSampleGroup, strainName, colonyId, geneAccessionId, alleleAccessionId, dateOfExperiment, metadataGroup, zygosity, weight, sex).collect(Collectors.joining("\t"));
+                        String key = Stream.of(specimenId, biologicalSampleGroup, strainName, colonyId, geneAccessionId, alleleAccessionId, dateOfExperiment, metadataGroup, zygosity, weight, sex).collect(Collectors.joining("\t"));
 
-                    if ( ! specimenParameterMap.containsKey(key)) {
-                        specimenParameterMap.put(key, new HashMap<>());
-                    }
+                        if (!specimenParameterMap.containsKey(key)) {
+                            specimenParameterMap.put(key, new HashMap<>());
+                        }
 
-                    String dataValue;
+                        String dataValue;
 
-                    switch (ObservationType.valueOf(observationDTO.getObservationType())) {
-                        case categorical:
-                            dataValue = observationDTO.getCategory();
-                            break;
-                        case unidimensional:
-                            dataValue = observationDTO.getDataPoint().toString();
-                            break;
-                        default:
-                            // No value
-                            continue;
-                    }
-
-                    specimenParameterMap.get(key).put(observationDTO.getParameterStableId(), dataValue);
-
-
-                    // Add a column for the MAPPED category for EYE parameters
-                    if (ObservationType.valueOf(observationDTO.getObservationType()) == ObservationType.categorical &&
-                            (
-                                observationDTO.getParameterStableId().toUpperCase().contains("_EYE_") ||
-                                observationDTO.getParameterStableId().toUpperCase().contains("M-G-P_014") ||
-                                observationDTO.getParameterStableId().toUpperCase().contains("ESLIM_014")
-                            )
-                        ) {
-
-                        // Get mapped data category
-                        String mappedDataValue = observationDTO.getCategory();
-                        switch (observationDTO.getCategory()) {
-
-                            case "imageOnly":
-                            case "no data":
-                            case "no data for both eyes":
-                            case "No data":
-                            case "not defined":
-                            case "unobservable":
-                                mappedDataValue = "";
+                        switch (ObservationType.valueOf(observationDTO.getObservationType())) {
+                            case categorical:
+                                dataValue = observationDTO.getCategory();
                                 break;
+                            case unidimensional:
+                                dataValue = observationDTO.getDataPoint().toString();
+                                break;
+                            default:
+                                // No value
+                                continue;
+                        }
 
-                            // Per MPI2 F2F 20170922
-                            // Do not remap the "one eye normal" categories to "normal"
+                        specimenParameterMap.get(key).put(observationDTO.getParameterStableId(), dataValue);
+
+
+                        // Add a column for the MAPPED category for EYE parameters
+                        if (ObservationType.valueOf(observationDTO.getObservationType()) == ObservationType.categorical &&
+                                (
+                                        observationDTO.getParameterStableId().toUpperCase().contains("_EYE_") ||
+                                                observationDTO.getParameterStableId().toUpperCase().contains("M-G-P_014") ||
+                                                observationDTO.getParameterStableId().toUpperCase().contains("ESLIM_014")
+                                )
+                                ) {
+
+                            // Get mapped data category
+                            String mappedDataValue = observationDTO.getCategory();
+                            switch (observationDTO.getCategory()) {
+
+                                case "imageOnly":
+                                case "no data":
+                                case "no data for both eyes":
+                                case "No data":
+                                case "not defined":
+                                case "unobservable":
+                                    mappedDataValue = "";
+                                    break;
+
+                                // Per MPI2 F2F 20170922
+                                // Do not remap the "one eye normal" categories to "normal"
 //                            case "no data left eye":
 //                            case "no data right eye":
 //                                // Map to normal category
 //                                mappedDataValue = normalEyeCategory.get(observationDTO.getParameterStableId());
 //                                break;
 
-                            case "no data left eye, present right eye":
-                                mappedDataValue = "present right eye";
-                                break;
+                                case "no data left eye, present right eye":
+                                    mappedDataValue = "present right eye";
+                                    break;
 
-                            case "no data right eye, present left eye":
-                                mappedDataValue = "present left eye";
-                                break;
+                                case "no data right eye, present left eye":
+                                    mappedDataValue = "present left eye";
+                                    break;
 
-                            case "no data left eye, right eye abnormal":
-                                mappedDataValue = "right eye abnormal";
-                                break;
+                                case "no data left eye, right eye abnormal":
+                                    mappedDataValue = "right eye abnormal";
+                                    break;
 
-                            case "no data right eye, left eye abnormal":
-                                mappedDataValue = "left eye abnormal";
-                                break;
+                                case "no data right eye, left eye abnormal":
+                                    mappedDataValue = "left eye abnormal";
+                                    break;
 
-                            default:
-                                break;
+                                default:
+                                    break;
+                            }
+
+                            String mappedCategory = observationDTO.getParameterStableId() + "_MAPPED";
+                            specimenParameterMap.get(key).put(mappedCategory, mappedDataValue);
+
                         }
 
-                        String mappedCategory = observationDTO.getParameterStableId() + "_MAPPED";
-                        specimenParameterMap.get(key).put(mappedCategory, mappedDataValue);
 
                     }
 
 
-                }
-
-                logger.info("  Has {} specimens with {} parameters", specimenParameterMap.size(), specimenParameterMap.values().stream().mapToInt(value -> value.keySet().size()).sum());
-                if (specimenParameterMap.size() < 5) {
-                    logger.info("  Not processing due to low N", specimenParameterMap.size(), specimenParameterMap.values().stream().mapToInt(value -> value.keySet().size()).sum());
-                    continue;
-                }
-
-                List<String> headers = new ArrayList<>(Arrays.asList("specimen_id", "group", "background_strain_name", "colony_id", "marker_accession_id", "allele_accession_id", "batch", "metadata_group", "zygosity", "weight", "sex", "::"));
-
-                final SortedSet<String> sortedParameters = parameters.get(result.get(ObservationDTO.PROCEDURE_GROUP));
-                headers.addAll(sortedParameters);
-
-                List<List<String>> lines = new ArrayList<>();
-                lines.add(headers);
-
-               for (String key : specimenParameterMap.keySet()) {
-
-                    // If the specimen doesn't have any parameters associated, skip it
-                    if (specimenParameterMap.get(key).values().size() < 1) {
-                        continue;
+                    logger.info("  Has {} specimens with {} parameters", specimenParameterMap.size(), specimenParameterMap.values().stream().mapToInt(value -> value.keySet().size()).sum());
+                    if (specimenParameterMap.size() < 5) {
+                        logger.info("  Not processing due to low N", specimenParameterMap.size(), specimenParameterMap.values().stream().mapToInt(value -> value.keySet().size()).sum());
+                        return;
                     }
 
-                    Map<String, String> data = specimenParameterMap.get(key);
+                    List<String> headers = new ArrayList<>(Arrays.asList("specimen_id", "group", "background_strain_name", "colony_id", "marker_accession_id", "allele_accession_id", "batch", "metadata_group", "zygosity", "weight", "sex", "::"));
 
-                    List<String> line = new ArrayList<>();
-                    line.addAll(Arrays.asList(key.split("\t")));
-                    line.add("::"); // Separator column
+                    final SortedSet<String> sortedParameters = parameters.get(result.get(ObservationDTO.PROCEDURE_GROUP));
+                    headers.addAll(sortedParameters);
 
-                    for (String parameter : sortedParameters) {
-                        line.add(data.getOrDefault(parameter, ""));
+                    List<List<String>> lines = new ArrayList<>();
+                    lines.add(headers);
+
+                    for (String key : specimenParameterMap.keySet()) {
+
+                        // If the specimen doesn't have any parameters associated, skip it
+                        if (specimenParameterMap.get(key).values().size() < 1) {
+                            continue;
+                        }
+
+                        Map<String, String> data = specimenParameterMap.get(key);
+
+                        List<String> line = new ArrayList<>();
+                        line.addAll(Arrays.asList(key.split("\t")));
+                        line.add("::"); // Separator column
+
+                        for (String parameter : sortedParameters) {
+                            line.add(data.getOrDefault(parameter, ""));
+                        }
+
+                        lines.add(line);
+
                     }
 
-                    lines.add(line);
+                    StringBuilder sb = new StringBuilder();
+                    for (List<String> line : lines) {
+                        sb.append(line.stream().collect(Collectors.joining("\t")));
+                        sb.append("\n");
+                    }
 
+                    String filename = "tsvs/" + Stream.of(
+                            result.get(ObservationDTO.DATASOURCE_NAME).replace(" ", "_"),
+                            result.get(ObservationDTO.PROJECT_NAME).replace(" ", "_"),
+                            result.get(ObservationDTO.PHENOTYPING_CENTER).replace(" ", "_"),
+                            result.get(ObservationDTO.PIPELINE_STABLE_ID),
+                            result.get(ObservationDTO.PROCEDURE_GROUP),
+                            result.get(ObservationDTO.STRAIN_ACCESSION_ID).replace(":", "")).collect(Collectors.joining(FILENAME_SEPERATOR)) + ".tsv";
+
+                    Path p = new File(filename).toPath();
+                    logger.info("Writing file {} ({})", filename, p);
+                    Files.write(p, sb.toString().getBytes());
+
+                } catch (Exception e) {
+                    logger.warn("Error occurred geting data for query: " + q1.toQueryString(), e);
                 }
 
-                // Create directory if not exists
-                File d = new File("tsvs");
-                if (!d.exists()) {
-                    d.mkdir();
-                }
 
-                StringBuilder sb = new StringBuilder();
-                for (List<String> line : lines) {
-                    sb.append(line.stream().collect(Collectors.joining("\t")));
-                    sb.append("\n");
-                }
-
-                Files.write(p, sb.toString().getBytes());
-
-
-            }
-
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
+            });
 
     }
 
