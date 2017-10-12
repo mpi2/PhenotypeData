@@ -13,7 +13,7 @@
  * language governing permissions and limitations under the
  * License.
  ****************************************************************************** */
-package uk.ac.ebi.phenotype.service.search;
+package uk.ac.ebi.phenotype.service;
 
 import java.util.List;
 import org.apache.commons.lang.StringUtils;
