@@ -28,6 +28,10 @@ public class SolrServerConfig {
 	private String solrBaseUrl;
 
 	@NotNull
+	@Value("${phenodigm.solrserver}")
+	private String phenodigmSolrBaseUrl;
+
+	@NotNull
 	@Value("${imits.solr.host}")
 	private String imitsSolrBaseUrl;
 
@@ -62,10 +66,10 @@ public class SolrServerConfig {
 
 	// Read only solr servers
 
-	//Phenodigm server for our Web Status currently only
+	// IMPC disease core retired and now points to Phenodigm server
 	@Bean(name = "phenodigmCore")
 	public HttpSolrClient getPhenodigmCore() {
-		return new HttpSolrClient(solrBaseUrl + "/phenodigm");
+		return new HttpSolrClient(phenodigmSolrBaseUrl + "/phenodigm");
 	}
 
 	//Configuration

@@ -109,6 +109,7 @@ public class SolrUtils {
      * if it cannot.
      */
     public static String getBaseURL(SolrClient solrClient) {
+
         HttpSolrClient httpSolrClient
                 = (solrClient instanceof HttpSolrClient
                 ? (HttpSolrClient) solrClient

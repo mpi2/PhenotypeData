@@ -410,7 +410,7 @@
                      	oConf.idlist = idList;
                      	oConf.fllist = fllist;
                      	oConf.corename = currDataType;
-                     	
+
                      	fetchBatchQueryDataTable(oConf);
             		}
             	}
