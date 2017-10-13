@@ -21,21 +21,20 @@ import org.mousephenotype.cda.db.pojo.GenomicFeature;
 import org.mousephenotype.cda.db.pojo.OntologyTerm;
 import org.mousephenotype.cda.db.pojo.Strain;
 import org.mousephenotype.cda.enumerations.DbIdType;
+import org.mousephenotype.cda.loads.common.CdaSqlUtils;
 import org.mousephenotype.cda.loads.common.config.DataSourcesConfigApp;
 import org.mousephenotype.cda.loads.create.extract.cdabase.steps.*;
-import org.mousephenotype.cda.loads.common.CdaSqlUtils;
 import org.mousephenotype.cda.loads.exceptions.DataLoadException;
 import org.mousephenotype.cda.utilities.UrlUtils;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import javax.annotation.PostConstruct;
+import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -53,6 +52,8 @@ public class ExtractCdabaseConfigBeans {
 
     private Map<String, Allele>         alleles = new HashMap<>();    // key = allele accession id
     private Map<String, GenomicFeature> genes   = new HashMap<>();    // key = marker accession id
+    private NamedParameterJdbcTemplate  jdbcCdabase;
+    private StepBuilderFactory          stepBuilderFactory;
     private Map<String, Strain>         strains = new HashMap<>();    // key = strain accession id
 
     private Map<DownloadFileEnum, DownloadFilename> downloadFilenameMap = new HashMap<>();
@@ -61,13 +62,17 @@ public class ExtractCdabaseConfigBeans {
     @Value("${cdabase.workspace}")
     protected String cdabaseWorkspace;
 
-    @Autowired
-    private StepBuilderFactory stepBuilderFactory;
 
-    @Autowired
-    @Lazy
-    private NamedParameterJdbcTemplate jdbcCdabase;
+    @Inject
+    public ExtractCdabaseConfigBeans(NamedParameterJdbcTemplate jdbcCdabase, StepBuilderFactory stepBuilderFactory) {
+        this.jdbcCdabase = jdbcCdabase;
+        this.stepBuilderFactory = stepBuilderFactory;
+    }
 
+    @Bean
+    public CdaSqlUtils cdabaseSqlUtils() {
+        return new CdaSqlUtils(jdbcCdabase);
+    }
 
     public class DownloadFilename {
         public final DownloadFileEnum downloadFileEnum;
@@ -191,11 +196,6 @@ public class ExtractCdabaseConfigBeans {
         return downloaderList;
     }
 
-    @Bean(name = "cdabaseSqlUtils")
-    public CdaSqlUtils cdabaseSqlUtils() {
-        return new CdaSqlUtils(jdbcCdabase);
-    }
-
 
     // LOADERS, PROCESSORS, AND WRITERS
 
@@ -250,22 +250,22 @@ public class ExtractCdabaseConfigBeans {
 
 
 
-    @Bean(name = "bioModelLoader")
+    @Bean
     public BiologicalModelLoader bioModelLoader() throws DataLoadException {
         Map<BiologicalModelLoader.FilenameKeys, String> filenameKeys = new HashMap<>();
         filenameKeys.put(BiologicalModelLoader.FilenameKeys.MGI_PhenoGenoMP, downloadFilenameMap.get(DownloadFileEnum.MGI_PhenoGenoMP).targetFilename);
 
-        return new BiologicalModelLoader(filenameKeys);
+        return new BiologicalModelLoader(filenameKeys, stepBuilderFactory, bioModelProcessor(), bioModelWriter());
     }
 
     @Bean(name = "bioModelProcessor")
     public BiologicalModelProcessor bioModelProcessor() {
-        return new BiologicalModelProcessor(alleles, genes);
+        return new BiologicalModelProcessor(cdabaseSqlUtils());
     }
 
     @Bean(name = "bioModelWriter")
     public BiologicalModelWriter bioModelWriter() {
-        return new BiologicalModelWriter();
+        return new BiologicalModelWriter(cdabaseSqlUtils());
     }
 
 

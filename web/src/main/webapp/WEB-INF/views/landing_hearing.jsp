@@ -156,6 +156,7 @@ table.dataTable thead tr {
                                	</ul>
                                 
 				<p>Press releases: <a
+										href="https://www.ebi.ac.uk/about/news/press-releases/hearing-loss-genes/">EMBL-EBI</a>&nbsp;|&nbsp;<a
 										href="https://www.mrc.ac.uk/news/browse/genes-critical-for-hearing-identified/">MRC</a>&nbsp;|&nbsp;<a
 										href="http://bit.ly/DeafnessNewsStory">IMPC</a><!--&nbsp;|&nbsp;<a
 										href="http://www.sanger.ac.uk/news/view/study-reveals-how-sex-blindspot-could-misdirect-medical-research">Sanger</a> -->

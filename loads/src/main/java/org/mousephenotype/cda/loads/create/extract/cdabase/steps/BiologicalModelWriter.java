@@ -20,31 +20,21 @@ import org.mousephenotype.cda.loads.common.CdaSqlUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.ItemWriter;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by mrelac on 26/04/16.
  */
 public class BiologicalModelWriter implements ItemWriter {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    private Map<String, Integer> written = new HashMap<>();
 
-    @Autowired
-    @Qualifier("cdabaseSqlUtils")
-    private CdaSqlUtils cdaSqlUtils;
+    private CdaSqlUtils cdabaseSqlUtils;
+    private int count = 0;
 
-    public BiologicalModelWriter() {
+    public BiologicalModelWriter(CdaSqlUtils cdabaseSqlUtils) {
 
-        written.put("bioModelsInserted", 0);
-        written.put("bioModelsUpdated", 0);
-        written.put("bioModelAlleles", 0);
-        written.put("bioModelGenomicFeatures", 0);
-        written.put("bioModelPhenotypes", 0);
+        this.cdabaseSqlUtils = cdabaseSqlUtils;
     }
 
 
@@ -58,27 +48,11 @@ public class BiologicalModelWriter implements ItemWriter {
      */
     @Override
     public void write(List items) throws Exception {
-        Map<String, Integer>      counts   = cdaSqlUtils.insertBiologicalModel(items);
-        written.put("bioModelsInserted", written.get("bioModelsInserted") + counts.get("bioModelsInserted"));
-        written.put("bioModelsUpdated", written.get("bioModelsUpdated") + counts.get("bioModelsUpdated"));
-        written.put("bioModelAlleles", written.get("bioModelAlleles") + counts.get("bioModelAlleles"));
-        written.put("bioModelGenomicFeatures", written.get("bioModelGenomicFeatures") + counts.get("bioModelGenomicFeatures"));
-        written.put("bioModelPhenotypes", written.get("bioModelPhenotypes") + counts.get("bioModelPhenotypes"));
+
+        count = cdabaseSqlUtils.insertBiologicalModelsMGI(items);
     }
 
     public int getWrittenBioModelsInserted() {
-        return written.get("bioModelsInserted");
-    }
-    public int getWrittenBioModelsUpdated() {
-        return written.get("bioModelsUpdated");
-    }
-    public int getWrittenBioModelAlleles() {
-        return written.get("bioModelAlleles");
-    }
-    public int getWrittenBioModelGenomicFeatures() {
-        return written.get("bioModelGenomicFeatures");
-    }
-    public int getWrittenBioModelPhenotypes() {
-        return written.get("bioModelPhenotypes");
+        return count;
     }
 }

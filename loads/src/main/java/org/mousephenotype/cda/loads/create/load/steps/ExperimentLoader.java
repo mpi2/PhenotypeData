@@ -20,10 +20,8 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringUtils;
-import org.mousephenotype.cda.db.pojo.Allele;
-import org.mousephenotype.cda.db.pojo.BiologicalSample;
+import org.mousephenotype.cda.db.pojo.*;
 import org.mousephenotype.cda.db.pojo.Experiment;
-import org.mousephenotype.cda.db.pojo.PhenotypedColony;
 import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
@@ -47,10 +45,7 @@ import java.math.BigInteger;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
+import java.util.concurrent.*;
 
 /**
  * Loads the experiments from a database with a dcc schema into the cda database.
@@ -105,7 +100,9 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
     private int sampleLevelProcedureCount = 0;
 
     // lookup maps returning specified parameter type list given cda procedure primary key
-    final private Map<String, Allele> allelesBySymbolMap;
+    final private Map<String, Allele>   allelesBySymbolMap;
+    private Map<String, GenomicFeature> genesByAccMap;
+    private Map<String, Strain>         strainsByNameMap;
     
     private final boolean INCLUDE_DERIVED_PARAMETERS = false;
 
@@ -113,17 +110,22 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
                             StepBuilderFactory stepBuilderFactory,
                             CdaSqlUtils cdaSqlUtils,
                             DccSqlUtils dccSqlUtils,
+                            Map<String, GenomicFeature> genesByAccMap,
                             Map<String, Allele> allelesBySymbolMap,
-                            Map<String, Integer> cdaOrganisation_idMap,
-                            Map<String, PhenotypedColony> phenotypedColonyMap
+                            Map<String, Strain> strainsByNameMap,
+                            Map<String, PhenotypedColony> phenotypedColonyMap,
+                            Map<String, Integer> cdaOrganisation_idMap
+
                             ) {
         this.jdbcCda = jdbcCda;
         this.stepBuilderFactory = stepBuilderFactory;
         this.cdaSqlUtils = cdaSqlUtils;
         this.dccSqlUtils = dccSqlUtils;
-        this.cdaOrganisation_idMap = cdaOrganisation_idMap;
-        this.phenotypedColonyMap = phenotypedColonyMap;
+        this.genesByAccMap = genesByAccMap;
         this.allelesBySymbolMap = allelesBySymbolMap;
+        this.strainsByNameMap = strainsByNameMap;
+        this.phenotypedColonyMap = phenotypedColonyMap;
+        this.cdaOrganisation_idMap = cdaOrganisation_idMap;
     }
 
     @Override
@@ -133,10 +135,11 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         Assert.notNull(stepBuilderFactory, "stepBuilderFactory must be set");
         Assert.notNull(cdaSqlUtils, "cdaSqlUtils must be set");
         Assert.notNull(dccSqlUtils, "dccSqlUtils must be set");
-        Assert.notNull(cdaOrganisation_idMap, "cdaOrganisation_idMap must be set");
-        Assert.notNull(phenotypedColonyMap, "phenotypedColonyMap must be set");
-        Assert.notNull(dccSqlUtils, "dccSqlUtils must be set");
+        Assert.notNull(genesByAccMap, "genesByAccMap must be set");
         Assert.notNull(allelesBySymbolMap, "allelesBySymbolMap must be set");
+        Assert.notNull(strainsByNameMap, "strainsByNameMap must be set");
+        Assert.notNull(phenotypedColonyMap, "phenotypedColonyMap must be set");
+        Assert.notNull(cdaOrganisation_idMap, "cdaOrganisation_idMap must be set");
     }
 
     /**
@@ -185,24 +188,27 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
     // lookup maps returning cda table primary key given dca unique string
     // Initialise them here, as this code gets called multiple times for different dcc data sources
     // and these maps must be cleared before their second and subsequent uses.
-    private Map<String, Integer>                cdaDb_idMap = new HashMap<>();
+    private Map<String, Integer>                cdaDb_idMap = new ConcurrentHashMap<>();
     final private Map<String, Integer>          cdaOrganisation_idMap;
     final private Map<String, PhenotypedColony> phenotypedColonyMap;
-    private Map<String, Integer>                cdaProject_idMap = new HashMap<>();
-    private Map<String, Integer>                cdaPipeline_idMap                 = new HashMap<>();
-    private Map<String, Integer>                cdaProcedure_idMap                = new HashMap<>();
-    private Map<String, Integer>                cdaParameter_idMap                = new HashMap<>();
-    private Map<String, String>                 cdaParameterNameMap               = new HashMap<>();              // map of impress parameter names keyed by stable_parameter_id
+    private Map<String, Integer>                cdaProject_idMap                  = new ConcurrentHashMap<>();
+    private Map<String, Integer>                cdaPipeline_idMap                 = new ConcurrentHashMap<>();
+    private Map<String, Integer>                cdaProcedure_idMap                = new ConcurrentHashMap<>();
+    private Map<String, Integer>                cdaParameter_idMap                = new ConcurrentHashMap<>();
+    private Map<String, String>                 cdaParameterNameMap               = new ConcurrentHashMap<>();              // map of impress parameter names keyed by stable_parameter_id
     private Set<String>                         derivedImpressParameters          = new HashSet<>();
     private Set<String>                         metadataAndDataAnalysisParameters = new HashSet<>();
-    private Map<String, BiologicalSample>       samplesMap                        = new HashMap<>();              // keyed by external_id and organisation_id (e.g. "mouseXXX_12345")
+    private Map<String, BiologicalSample>       samplesMap                        = new ConcurrentHashMap<>();              // keyed by external_id and short_name (e.g. "mouseXXX_IMPC", "mouseYYY_3i", etc)
 
     // DCC parameter lookup maps, keyed by procedure_pk
-    private Map<Long, List<MediaParameter>>       mediaParameterMap = new HashMap<>();
-    private Map<Long, List<OntologyParameter>>    ontologyParameterMap = new HashMap<>();
-    private Map<Long, List<SeriesParameter>>      seriesParameterMap = new HashMap<>();
-    private Map<Long, List<SeriesMediaParameter>> seriesMediaParameterMap = new HashMap<>();
-    private Map<Long, List<MediaSampleParameter>> mediaSampleParameterMap = new HashMap<>();
+    private Map<Long, List<MediaParameter>>       mediaParameterMap       = new ConcurrentHashMap<>();
+    private Map<Long, List<OntologyParameter>>    ontologyParameterMap    = new ConcurrentHashMap<>();
+    private Map<Long, List<SeriesParameter>>      seriesParameterMap      = new ConcurrentHashMap<>();
+    private Map<Long, List<SeriesMediaParameter>> seriesMediaParameterMap = new ConcurrentHashMap<>();
+    private Map<Long, List<MediaSampleParameter>> mediaSampleParameterMap = new ConcurrentHashMap<>();
+
+    // BiologicalModel map
+    private Map<BioModelKey, Integer> bioModelMap = new ConcurrentHashMap<>();           // key is composite key. Value is biological model primary key.
 
 
     @Override
@@ -214,10 +220,15 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         logger.info(org.apache.commons.lang3.StringUtils.repeat("*", message.length()));
 
         long startStep = new Date().getTime();
+
+        CommonUtils.printJvmMemoryConfiguration();
+
         List<DccExperimentDTO> dccExperiments = dccSqlUtils.getExperiments();
         Map<String, Integer> counts;
 
         strainMapper = new StrainMapper(cdaSqlUtils);
+
+        CommonUtils.printJvmMemoryConfiguration();
 
         // Initialise maps. If they are not null, clear them first, as this method gets called multiple times to
         // load data from different dcc databases.
@@ -259,6 +270,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         samplesMap = cdaSqlUtils.getBiologicalSamples();
         logger.info("loaded {} sample rows", samplesMap.size());
 
+
         // Load DCC parameter maps.
         mediaParameterMap.clear();
         mediaParameterMap = dccSqlUtils.getMediaParameters();
@@ -282,6 +294,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
 
         logger.info("Loading lookup maps finished");
 
+        CommonUtils.printJvmMemoryConfiguration();
 
 //        cdaSqlUtils.manageIndexes("experiment", CdaSqlUtils.IndexAction.DISABLE);
 //        cdaSqlUtils.manageIndexes("observation", CdaSqlUtils.IndexAction.DISABLE);
@@ -351,39 +364,37 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         logger.info("Processing final queue of " + tasks.size());
         executor.shutdown();
 
-//
-//        for (DccExperimentDTO dccExperiment : dccExperiments) {
-//
-//            // Skip any experiments with known bad colony ids.
-//            if (DccSqlUtils.knownBadColonyIds.contains(dccExperiment.getColonyId())) {
-//                skippedExperiments.add(dccExperiment.getDatasourceShortName() + " experiment " + dccExperiment.getExperimentId());
-//                skippedExperimentsCount++;
-//                continue;
-//            }
-//
-//            insertExperiment(dccExperiment);
-//            experimentCount++;
-//            if (experimentCount % 100000 == 0) {
-//                logger.info("Processed {} experiments", experimentCount);
-//            }
-//        }
+        logger.info("Loading complete.");
+
+        CommonUtils.printJvmMemoryConfiguration();
 
         // Print out the counts.
-        List<List<String>> loadCounts = cdaSqlUtils.getLoadCounts();
-        List<String> headingList = Arrays.asList("experiment", "biological_sample", "live_sample", "procedure_meta_data", "observation", "categorical", "date_time", "image_record", "text", "time_series", "unidimensional");
-        String borderRow = StringUtils.repeat("*", StringUtils.join(headingList, "    ").length() + 10);
-        String countsRow = "";
-        for (int i = 0; i < headingList.size(); i++) {
-            if (i > 0)
-                countsRow += "    ";
-            countsRow += String.format("%" + headingList.get(i).length() + "." + headingList.get(i).length() + "s", loadCounts.get(1).get(i));
+        List<List<String>> loadCounts = null;
+        try {
+            loadCounts = cdaSqlUtils.getLoadCounts();   // This threw an uncategorized SQLException for SQL [SELECT COUNT(*) FROM experiment]; SQL state [null]; error code [0]; Connection has already been closed.
+        } catch (Exception e) {
+            logger.warn(e.getLocalizedMessage());
+            e.printStackTrace();
         }
 
-        System.out.println(borderRow);
-        System.out.println("**** COUNTS for " + cdaSqlUtils.getDbName() + " data loaded from " + dccSqlUtils.getDbName());
-        System.out.println("**** " + StringUtils.join(headingList, "    "));
-        System.out.println("**** " + countsRow);
-        System.out.println(borderRow);
+        if (loadCounts == null) {
+            System.out.println("Unable to get load counts.");
+        } else {
+            List<String> headingList = Arrays.asList("experiment", "biological_sample", "live_sample", "procedure_meta_data", "observation", "categorical", "date_time", "image_record", "text", "time_series", "unidimensional");
+            String       borderRow   = StringUtils.repeat("*", StringUtils.join(headingList, "    ").length() + 10);
+            String       countsRow   = "";
+            for (int i = 0; i < headingList.size(); i++) {
+                if (i > 0)
+                    countsRow += "    ";
+                countsRow += String.format("%" + headingList.get(i).length() + "." + headingList.get(i).length() + "s", loadCounts.get(1).get(i));
+            }
+
+            System.out.println(borderRow);
+            System.out.println("**** COUNTS for " + cdaSqlUtils.getDbName() + " data loaded from " + dccSqlUtils.getDbName());
+            System.out.println("**** " + StringUtils.join(headingList, "    "));
+            System.out.println("**** " + countsRow);
+            System.out.println(borderRow);
+        }
 
 
         // Log info sets
@@ -512,6 +523,9 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         return experiment;
     }
 
+    private String buildSamplesMapKey(DccExperimentDTO dccExperiment) {
+        return dccExperiment.getSpecimenId() + "_" + dccExperiment.getDatasourceShortName();
+    }
 
     private Experiment createExperiment(DccExperimentDTO dccExperiment) throws DataLoadException {
         Experiment experiment = new Experiment();
@@ -532,6 +546,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         String sequenceId;
 
         Integer biologicalModelPk;
+        Integer biologicalSamplePk;
         String metadataCombined;
         String metadataGroup;
 
@@ -548,8 +563,13 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
             return null;
         }
 
-        // EuroPhenome experiments with project 'MGP' in the imits list must override their experiment's db_id and project with the key for MGP.
-        // Ignore mice with colonyId starting with 'baseline', as these specimens are not in imits.
+        /**
+         * Some dcc europhenome colonies were incorrectly associated with EuroPhenome. Imits has the authoritative mapping
+         * between colonyId and project and, for these incorrect colonies, overrides the dbId to reflect the real owner
+         * of the data, MGP.
+         *
+         * Ignore mice with colonyId starting with 'baseline', as these specimens are not in imits.
+         */
         if ((dccExperiment.getDatasourceShortName().equals(CdaSqlUtils.EUROPHENOME) &&
                 ( ! dccExperiment.getColonyId().toLowerCase().startsWith("baseline")))) {
 
@@ -621,16 +641,53 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         int missing = ((procedureStatus != null) && ( ! procedureStatus.trim().isEmpty()) ? 1 : 0);
 
 
-        // Within the scope of the cda experiment, line-level procedures have:
-        //   - no dcc experiment info (e.g. no date_of_experiment or sequence_id). The external_id is computed from
-        //     a concatenation of Dcc procedureId and colonyId.
-        //   - non-null colony_id
-        //   - non-null biological_model_id
-        //   Create an external_id from the dcc procedureId and colonyId.
-        // sample-level procedures have:
-        //  - date_of_experiment (skip if it is null), external_id, sequence_id (though it may be null)
-        //  - null colony_id
-        //  - null biological_model_id
+        // Check the bioModelMap for the biological model. If it is not found, create it. NOTE: line-level experiments do not have control data.
+        if (dccExperiment.isControl()) {
+
+            // CONTROLS
+            BioModelKeyControl controlKey = createBioModelControlKey(dbId, phenotypingCenterPk, dccExperiment.getSpecimenStrainId());
+
+            synchronized (controlKey) {
+                biologicalModelPk = bioModelMap.get(controlKey);
+                if (biologicalModelPk == null) {
+                    biologicalModelPk = createBiologicalModelControl(controlKey);
+                    if (biologicalModelPk == null) {
+                        throw new DataLoadException();
+                    } else {
+                        bioModelMap.put(controlKey, biologicalModelPk);
+                    }
+                }
+            }
+        } else {
+
+            // MUTANTS. Get and use iMits colony info.
+            BioModelKeyMutant mutantKey = createBioModelMutantKey(dbId, phenotypingCenterPk, dccExperiment);
+
+            synchronized (mutantKey) {
+                biologicalModelPk = bioModelMap.get(mutantKey);
+                if (biologicalModelPk == null) {
+                    biologicalModelPk = createBiologicalModelMutant(mutantKey);
+                    if (biologicalModelPk == null) {
+                        throw new DataLoadException();
+                    } else {
+                        bioModelMap.put(mutantKey, biologicalModelPk);
+                    }
+                }
+            }
+        }
+
+
+        /**
+         * Set colonyId, dateOfExperiment, and sequenceId. The source is different for line-level vs specimen-level:
+         *
+         * -------------------------------------------------------------------------------------------------
+         * | Experiment Type      |  Line-level source   | Specimen-level source                           |
+         * |   colonyId           |    PhenotypedColony  |   NULL                                          |
+         * |   dateOfExperiment   |    NULL              |   dccExperiment (Skip experiment if null)       |
+         * |   sequenceId         |    NULL              |   dccExperiment (may be null)                   |
+         * -------------------------------------------------------------------------------------------------
+         */
+
         if (dccExperiment.isLineLevel()) {
 
             PhenotypedColony phenotypedColony = phenotypedColonyMap.get(dccExperiment.getColonyId());
@@ -642,33 +699,21 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
             colonyId = phenotypedColony.getColonyName();
             dateOfExperiment = null;
             sequenceId = null;
-            List<SimpleParameter> simpleParameters = dccSqlUtils.getSimpleParameters(dccExperiment.getDcc_procedure_pk());
-            try {
-                biologicalModelPk = getBiologicalModelId(phenotypedColony, simpleParameters);
-
-            } catch (DataLoadException e) {
-
-                switch (e.getDetail()) {
-                    case NO_BACKGROUND_STRAIN:
-                        missingBackgroundStrains.add(phenotypedColony.getColonyName());
-                        return null;
-
-                    default:
-                        logger.warn("Skipping line-level experiment {}", dccExperiment.getExperimentId());
-                        break;
-                }
-
-                return null;
-            }
+            biologicalSamplePk = null;
 
         } else {
+
             colonyId = null;
             dateOfExperiment = getDateOfExperiment(dccExperiment);
             if (dateOfExperiment == null) {
                 return null;
             }
             sequenceId = dccExperiment.getSequenceId();
-            biologicalModelPk = null;
+            String samplesMapKey = buildSamplesMapKey(dccExperiment);
+            biologicalSamplePk = samplesMap.get(samplesMapKey).getId();
+
+            // Insert into the biological_model_sample table.
+            cdaSqlUtils.insertBiologicalModelSample(biologicalModelPk, biologicalSamplePk);
         }
 
        /** Save procedure metadata into metadataCombined and metadataGroup:
@@ -736,40 +781,117 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         cdaSqlUtils.insertProcedureMetadata(dccMetadataList, dccExperiment.getProcedureId(), experimentPk, 0);
 
         // Observations (including observation-level metadata)
-        createObservations(dccExperiment, dbId, experimentPk, phenotypingCenter, phenotypingCenterPk, missing);
+        createObservations(dccExperiment, dbId, experimentPk, phenotypingCenter, phenotypingCenterPk, biologicalSamplePk, missing);
 
         return experiment;
     }
 
+    private synchronized BioModelKeyControl createBioModelControlKey(int dbId, int phenotypingCenterPk, String specimenStrainId) throws DataLoadException {
+        String zygosity = ZygosityType.homozygote.getName();
+        String allelicComposition = "";
+        Strain backgroundStrain = cdaSqlUtils.getBackgroundStrain(specimenStrainId);
+        String geneticBackground = strainMapper.parseMultipleBackgroundStrainNames(backgroundStrain.getName());
 
-    // PRIVATE METHODS
+        return new BioModelKeyControl(dbId, allelicComposition, geneticBackground, zygosity, phenotypingCenterPk, backgroundStrain);
+    }
 
-    private void createObservations( DccExperimentDTO dccExperiment, int dbId, int experimentPk, String phenotypingCenter, int phenotypingCenterPk, int missing) throws DataLoadException {
+    private synchronized Integer createBiologicalModelControl(BioModelKeyControl controlKey) throws DataLoadException {
 
-        Integer biologicalSamplePk;
+        String message;
+        Integer biologicalModelPk;
 
-        // For all parameter types:
-        if (dccExperiment.isLineLevel()) {
-            biologicalSamplePk = null;
-        } else {
-            String bsKey = dccExperiment.getSpecimenId() + "_" + phenotypingCenterPk;
-            BiologicalSample bs = samplesMap.get(bsKey);
-            if (bs == null) {
+        DatasourceEntityId dsId = controlKey.getBackgroundStrain().getId();
+        AccDbId strain = new AccDbId(dsId.getAccession(), dsId.getDatabaseId());
+        BioModelInsertDTOControl controlDto = new BioModelInsertDTOControl(controlKey.getDbId(), controlKey.getAllelicComposition(), controlKey.getGeneticBackground(), controlKey.getZygosity(), strain);
 
-                // If the colonyId isn't in the phenotypedColony map, just log the center.
-                if ( phenotypedColonyMap.containsKey(dccExperiment.getColonyId())) {
-                    experimentsMissingSamples.add("Missing sample bsKey::specimenId::phenotypingCenterPk::center::colonyId\t" +
-                            bsKey + "::" + dccExperiment.getSpecimenId() + "::" + phenotypingCenterPk + "::" + phenotypingCenter + "::" + dccExperiment.getColonyId());
-                } else {
-                    missingColonyIdInfo.add("Missing sample for missing colonyId " + dccExperiment.getColonyId());
-                }
-
-                return;
-            }
-
-            biologicalSamplePk = bs.getId();
+        biologicalModelPk = cdaSqlUtils.insertBiologicalModelImpc(controlDto);
+        if (biologicalModelPk == null) {
+            message = "BiologicalModel creation failed. BioModelInsertDTOControl: " + controlDto;
+            logger.error(message);
+            throw new DataLoadException(message);
         }
 
+        return biologicalModelPk;
+    }
+
+    private synchronized BioModelKeyMutant createBioModelMutantKey(int dbId, int phenotypingCenterPk, DccExperimentDTO dccExperiment) throws DataLoadException {
+        String  message;
+        String  zygosity;
+        String  allelicComposition;
+        String  geneticBackground;
+
+        // MUTANTS. line-level zygosity is computed differently from specimen-level zygosity.
+        if (dccExperiment.isLineLevel()) {
+            zygosity = getLineLevelZygosity(dccExperiment);
+        } else {
+            zygosity = cdaSqlUtils.getSpecimenLevelMutantZygosity(dccExperiment.getZygosity());
+        }
+
+        // Get and use iMits colony info.
+        PhenotypedColony colony = phenotypedColonyMap.get(dccExperiment.getColonyId());
+        if ((colony == null) || (colony.getColonyName() == null)) {
+            message = "Missing colonyId " + dccExperiment.getColonyId();
+            missingColonyIds.add(message);
+            return null;
+        }
+        allelicComposition = strainMapper.createAllelicComposition(zygosity, colony.getAlleleSymbol(), colony.getGene().getSymbol(), LoadUtils.SampleGroup.EXPERIMENTAL.value());
+        geneticBackground = colony.getBackgroundStrain();
+
+        return new BioModelKeyMutant(dbId, allelicComposition, geneticBackground, zygosity, phenotypingCenterPk, colony);
+    }
+
+    private synchronized Integer createBiologicalModelMutant(BioModelKeyMutant mutantKey) throws DataLoadException {
+        String  message;
+        Integer biologicalModelPk;
+        PhenotypedColony colony = mutantKey.getColony();
+
+        GenomicFeature gf = genesByAccMap.get(colony.getGene().getId().getAccession());
+        if (gf == null) {
+            message = "Unknown gene '" + colony.getGene() + "'";
+            logger.error(message);
+            return null;
+        }
+        AccDbId gene = new AccDbId(gf.getId().getAccession(), gf.getId().getDatabaseId());
+
+        Allele a = allelesBySymbolMap.get(colony.getAlleleSymbol());
+        if (a == null) {
+            a = cdaSqlUtils.createAndInsertAllele(colony.getAlleleSymbol(), colony.getGene());
+            if (a == null) {
+                message = "Couldn't create allele '" + colony.getAlleleSymbol() + "'";
+                logger.error(message);
+                throw new DataLoadException(message);
+            } else {
+                allelesBySymbolMap.put(a.getSymbol(), a);
+            }
+        }
+        AccDbId allele = new AccDbId(a.getId().getAccession(), a.getId().getDatabaseId());
+
+        Strain s = strainsByNameMap.get(colony.getBackgroundStrain());
+        if (s == null) {
+            s = strainMapper.createBackgroundStrain(colony.getBackgroundStrain());
+            if (s == null) {
+                message = "Couldn't create strain '" + colony.getBackgroundStrain() + "'";
+                logger.error(message);
+                throw new DataLoadException(message);
+            } else {
+                strainsByNameMap.put(s.getName(), s);
+            }
+        }
+        AccDbId strain = new AccDbId(s.getId().getAccession(), s.getId().getDatabaseId());
+
+        BioModelInsertDTOMutant mutantDto = new BioModelInsertDTOMutant(mutantKey.getDbId(), mutantKey.getAllelicComposition(), mutantKey.getGeneticBackground(), mutantKey.getZygosity(), gene, allele, strain);
+
+        biologicalModelPk = cdaSqlUtils.insertBiologicalModelImpc(mutantDto);
+        if (biologicalModelPk == null) {
+            message = "BiologicalModel creation failed. BioModelInsertDTOMutant: " + mutantDto;
+            logger.error(message);
+            return null;
+        }
+
+        return biologicalModelPk;
+    }
+
+    private void createObservations( DccExperimentDTO dccExperiment, int dbId, int experimentPk, String phenotypingCenter, int phenotypingCenterPk, int biologicalSamplePk, int missing) throws DataLoadException {
 
         // simpleParameters
         List<SimpleParameter> simpleParameterList = dccSqlUtils.getSimpleParameters(dccExperiment.getDcc_procedure_pk());
@@ -848,6 +970,17 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         }
         for (SeriesMediaParameter seriesMediaParameter : seriesMediaParameterList) {
             List<SeriesMediaParameterValue> values = dccSqlUtils.getSeriesMediaParameterValues(seriesMediaParameter.getHjid());
+
+            for (SeriesMediaParameterValue value : values) {
+
+                // Add in parameterAssociation associations
+                List<ParameterAssociation> parms = dccSqlUtils.getSeriesMediaParameterValueParameterAssociations(value.getHjid());
+                value.setParameterAssociation(parms);
+
+                // Wire in procedureMetadata associations
+                List<ProcedureMetadata> pms = dccSqlUtils.getSeriesMediaParameterValueProcedureMetadataAssociations(value.getHjid());
+            }
+
             seriesMediaParameter.setValue(values);
             insertSeriesMediaParameter(dccExperiment, seriesMediaParameter, experimentPk, dbId, biologicalSamplePk,
                                        phenotypingCenter, phenotypingCenterPk, simpleParameterList, ontologyParameterList, missing);
@@ -902,19 +1035,14 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         return dateOfExperiment;
     }
 
-    private int getBiologicalModelId(
-            PhenotypedColony phenotypedColony,
-            List<SimpleParameter> simpleParameters) throws DataLoadException {
-        int biological_model_id;
+    /**
+     * Compute the line-level [mutant] zygosity (line-level controls have no specimens and, thus, no zygosity)
+     * @param dccExperiment
+     * @return The zygosity string, suitable for insertion into the database
+     */
+    private String getLineLevelZygosity(DccExperimentDTO dccExperiment) {
 
-        String zygosity = getZygosity(simpleParameters);
-        String sampleGroup = "experimental";
-        biological_model_id = cdaSqlUtils.selectOrInsertBiologicalModel(phenotypedColony, strainMapper, zygosity, sampleGroup, allelesBySymbolMap).getId();
-
-        return biological_model_id;
-    }
-
-    private String getZygosity(List<SimpleParameter> simpleParameters) {
+        List<SimpleParameter> simpleParameters = dccSqlUtils.getSimpleParameters(dccExperiment.getDcc_procedure_pk());
 
         // Default zygosity is homozygous since most of the time this will be the case
         ZygosityType zygosity = ZygosityType.homozygote;
@@ -935,7 +1063,6 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
 
                 break;
             }
-
         }
 
         return zygosity.getName();

@@ -22,6 +22,7 @@ package org.mousephenotype.cda.loads.exceptions;
 public class DataLoadException extends Exception {
 
     public enum DETAIL {
+        DUPLICATE_KEY,
         GENERAL_ERROR,
         NONEXISTENT_COLONY_ID,
         NO_GENE_FOR_ALLELE,

@@ -16,8 +16,9 @@
 
 package org.mousephenotype.cda.loads.create.extract.cdabase.steps;
 
-import org.mousephenotype.cda.loads.create.extract.cdabase.support.BiologicalModelAggregator;
-import org.mousephenotype.cda.loads.exceptions.DataLoadException;
+import org.mousephenotype.cda.enumerations.DbIdType;
+import org.mousephenotype.cda.loads.common.AccDbId;
+import org.mousephenotype.cda.loads.common.BioModelInsertDTOMGI;
 import org.mousephenotype.cda.loads.create.extract.cdabase.support.BlankLineRecordSeparatorPolicy;
 import org.mousephenotype.cda.loads.create.extract.cdabase.support.LogStatusStepListener;
 import org.slf4j.Logger;
@@ -35,44 +36,45 @@ import org.springframework.batch.item.file.mapping.FieldSetMapper;
 import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
 import org.springframework.batch.item.file.transform.FieldSet;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.validation.BindException;
 
 import java.util.*;
 
 /**
- * Loads the alleles from the mgi report files.
+ * Loads the biological models from the mgi report file.
  *
  * Created by mrelac on 13/04/2016.
  *
  */
 public class BiologicalModelLoader implements InitializingBean, Step {
 
-    public Map<FilenameKeys, String> bioModelKeys = new HashMap<>();
-    private final Logger             logger       = LoggerFactory.getLogger(this.getClass());
+    private       Map<FilenameKeys, String>                bioModelKeys   = new HashMap<>();
+    private       FlatFileItemReader<BioModelInsertDTOMGI> bioModelReader = new FlatFileItemReader<>();
+    private final Logger                                   logger         = LoggerFactory.getLogger(this.getClass());
 
-    private FlatFileItemReader<BiologicalModelAggregator> bioModelReader = new FlatFileItemReader<>();
+    private ItemProcessor         bioModelProcessor;
+    private StepBuilderFactory    stepBuilderFactory;
+    private BiologicalModelWriter writer;
 
     public enum FilenameKeys {
         MGI_PhenoGenoMP
     }
 
-    @Autowired
-    @Qualifier("bioModelProcessor")
-    private ItemProcessor bioModelProcessor;
 
-    @Autowired
-    private StepBuilderFactory stepBuilderFactory;
-
-    @Autowired
-    private BiologicalModelWriter writer;
-
-
-    public BiologicalModelLoader(Map<FilenameKeys, String> bioModelKeys) throws DataLoadException {
+    public BiologicalModelLoader(
+            Map<FilenameKeys, String> bioModelKeys,
+            StepBuilderFactory stepBuilderFactory,
+            ItemProcessor bioModelProcessor,
+            BiologicalModelWriter writer
+    )
+    {
         this.bioModelKeys = bioModelKeys;
+        this.stepBuilderFactory = stepBuilderFactory;
+        this.bioModelProcessor = bioModelProcessor;
+        this.writer = writer;
     }
+
 
     @Override
     public void afterPropertiesSet() throws Exception {
@@ -80,16 +82,16 @@ public class BiologicalModelLoader implements InitializingBean, Step {
         bioModelReader.setResource(new FileSystemResource(bioModelKeys.get(FilenameKeys.MGI_PhenoGenoMP)));
         bioModelReader.setComments(new String[] { "#" });
         bioModelReader.setRecordSeparatorPolicy(new BlankLineRecordSeparatorPolicy());
-        DefaultLineMapper<BiologicalModelAggregator> lineMapperBioModel = new DefaultLineMapper<>();
-        DelimitedLineTokenizer                       tokenizerBioModel  = new DelimitedLineTokenizer("\t");
+        DefaultLineMapper<BioModelInsertDTOMGI> lineMapperBioModel = new DefaultLineMapper<>();
+        DelimitedLineTokenizer                  tokenizerBioModel  = new DelimitedLineTokenizer("\t");
         tokenizerBioModel.setStrict(false);     // Relax token count. Some lines have more tokens; others, less, causing a parsing exception.
         tokenizerBioModel.setNames(new String[] { "allelicComposition", "alleleSymbol", "geneticBackground", "mpAccessionId", "unused_5", "markerAccessionId" });
         lineMapperBioModel.setLineTokenizer(tokenizerBioModel);
-        lineMapperBioModel.setFieldSetMapper(new BiologicalModelAggregatorFieldSetMapper());
+        lineMapperBioModel.setFieldSetMapper(new BioModelInsertMGIFieldSetMapper());
         bioModelReader.setLineMapper(lineMapperBioModel);
     }
 
-    public class BiologicalModelAggregatorFieldSetMapper implements FieldSetMapper<BiologicalModelAggregator> {
+    public class BioModelInsertMGIFieldSetMapper implements FieldSetMapper<BioModelInsertDTOMGI> {
 
         /**
          * Method used to map data obtained from a {@link FieldSet} into an object.
@@ -98,16 +100,25 @@ public class BiologicalModelLoader implements InitializingBean, Step {
          * @throws BindException if there is a problem with the binding
          */
         @Override
-        public BiologicalModelAggregator mapFieldSet(FieldSet fs) throws BindException {
-            BiologicalModelAggregator bioModelAggregator = new BiologicalModelAggregator();
+        public BioModelInsertDTOMGI mapFieldSet(FieldSet fs) throws BindException {
 
-            bioModelAggregator.setAllelicComposition(fs.readString("allelicComposition"));
-            bioModelAggregator.setAlleleSymbol(fs.readString("alleleSymbol"));
-            bioModelAggregator.setGeneticBackground(fs.readString("geneticBackground"));
-            bioModelAggregator.getMarkerAccessionIds().add(fs.readString("markerAccessionId"));
-            bioModelAggregator.getMpAccessionIds().add(fs.readString("mpAccessionId"));
+            int dbId = DbIdType.MGI.intValue();
+            String allelicComposition = fs.readString("allelicComposition");
+            String geneticBackground = fs.readString("geneticBackground");
+            String zygosity = null;
 
-            return bioModelAggregator;
+            // NOTE: MGI GIVES US MULTIPLE GENES, SEPARATED BY ',', WHICH MUST BE EXPANDED IN THE Processor.
+            AccDbId gene = new AccDbId(fs.readString("markerAccessionId"), DbIdType.MGI.intValue());
+
+            // NOTE: WE ARE PUTTING THE GENE SYMBOL INTO THE ACCESSION ID FIELD. IT MUST BE TRANSLATED IN THE Processor LATER AND EXPANDED IF THERE IS MORE THAN ONE ALLELE (SEPARATED BY "|")
+            AccDbId alleleSymbol = new AccDbId(fs.readString("alleleSymbol"), DbIdType.MGI.intValue());
+            AccDbId phenotype = new AccDbId(fs.readString("mpAccessionId"), DbIdType.MGI.intValue());
+
+            BioModelInsertDTOMGI bioModel = new BioModelInsertDTOMGI(
+                    dbId, allelicComposition, geneticBackground, zygosity, gene, alleleSymbol, phenotype
+            );
+
+            return bioModel;
         }
     }
 
@@ -176,12 +187,13 @@ public class BiologicalModelLoader implements InitializingBean, Step {
 
         @Override
         protected Set<String> logStatus() {
-            logger.info("BIOMODEL: Added {} new bioModels to map from file {} in {}. Multiple alleles per row (skipped): {}. Multiple genes per row (skipped): {}",
-                    ((BiologicalModelProcessor)bioModelProcessor).getAddedBioModelsCount(),
-                    bioModelKeys.get(FilenameKeys.MGI_PhenoGenoMP),
-                    commonUtils.formatDateDifference(start, stop),
-                    ((BiologicalModelProcessor)bioModelProcessor).getMultipleAllelesPerRowCount(),
-                    ((BiologicalModelProcessor)bioModelProcessor).getMultipleGenesPerRowCount());
+            logger.info("BIOMODEL: Added {} new bioModels to map from file {} in {}. Multiple alleles per row (skipped): {}. Multiple alleles and genes per row (skipped): {}. Multiple genes per row: {}",
+                        ((BiologicalModelProcessor) bioModelProcessor).getAddedBioModelsCount(),
+                        bioModelKeys.get(FilenameKeys.MGI_PhenoGenoMP),
+                        commonUtils.formatDateDifference(start, stop),
+                        ((BiologicalModelProcessor) bioModelProcessor).getMultipleAllelesPerRowCount(),
+                        ((BiologicalModelProcessor) bioModelProcessor).getMultipleAllelesAndGenesPerRowCount(),
+                        ((BiologicalModelProcessor) bioModelProcessor).getMultipleGenesPerRowCount());
 
             // Write the bioModels map to the database.
             start = new Date();
@@ -195,9 +207,8 @@ public class BiologicalModelLoader implements InitializingBean, Step {
             }
 
             stop = new Date();
-            logger.info("  Wrote {} bioModelsInserted, {} bioModelsUpdated, {} bioModelAlleles, {} bioModelGenomicFeatures, and {} bioModelPhenotypes to database in {}",
-                    writer.getWrittenBioModelsInserted(), writer.getWrittenBioModelsUpdated(), writer.getWrittenBioModelAlleles(),
-                        writer.getWrittenBioModelGenomicFeatures(), writer.getWrittenBioModelPhenotypes(),
+            logger.info("  Inserted {} bioModels to database in {}",
+                    writer.getWrittenBioModelsInserted(),
                     commonUtils.formatDateDifference(start, stop));
             logger.info("");
 
