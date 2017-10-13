@@ -17,7 +17,9 @@
 package org.mousephenotype.cda.loads.create.load.config;
 
 import org.mousephenotype.cda.db.pojo.Allele;
+import org.mousephenotype.cda.db.pojo.GenomicFeature;
 import org.mousephenotype.cda.db.pojo.PhenotypedColony;
+import org.mousephenotype.cda.db.pojo.Strain;
 import org.mousephenotype.cda.loads.common.CdaSqlUtils;
 import org.mousephenotype.cda.loads.common.config.DataSourcesConfigApp;
 import org.mousephenotype.cda.loads.common.DccSqlUtils;
@@ -50,7 +52,9 @@ public class LoadConfigBeans implements InitializingBean {
     private NamedParameterJdbcTemplate    jdbcDcc;
     private NamedParameterJdbcTemplate    jdbcDccEurophenome;
     private StepBuilderFactory            stepBuilderFactory;
+    private Map<String, GenomicFeature>   genesByAccMap;
     private Map<String, Allele>           allelesBySymbolMap;
+    private Map<String, Strain>           strainsByNameMap;
     private Map<String, Integer>          cdaOrganisation_idMap;
     private Map<String, PhenotypedColony> phenotypedColonyMap;
 
@@ -74,7 +78,9 @@ public class LoadConfigBeans implements InitializingBean {
     @Override
     public void afterPropertiesSet() throws Exception {
 
+        this.genesByAccMap = new ConcurrentHashMap<>(cdaSqlUtils().getGenes());
         this.allelesBySymbolMap = new ConcurrentHashMap<>(cdaSqlUtils().getAllelesBySymbol());
+        this.strainsByNameMap = new ConcurrentHashMap<>(cdaSqlUtils().getStrainsByName());
         this.cdaOrganisation_idMap = cdaSqlUtils().getCdaOrganisation_idsByDccCenterId();
         this.phenotypedColonyMap = cdaSqlUtils().getPhenotypedColonies();
 
@@ -82,7 +88,9 @@ public class LoadConfigBeans implements InitializingBean {
         Assert.notNull(jdbcDcc, "jdbcDcc must be set");
         Assert.notNull(jdbcDccEurophenome, "jdbcDccEurophenome must be set");
         Assert.notNull(stepBuilderFactory, "stepBuilderFactory must be set");
+        Assert.notNull(genesByAccMap, "genesByAccMap must be set");
         Assert.notNull(allelesBySymbolMap, "allelesBySymbolMap must be set");
+        Assert.notNull(strainsByNameMap, "strainsByNameMap must be set");
         Assert.notNull(cdaOrganisation_idMap, "cdaOrganisation_idMap must be set");
         Assert.notNull(phenotypedColonyMap, "phenotypedColonyMap must be set");
     }
@@ -105,7 +113,7 @@ public class LoadConfigBeans implements InitializingBean {
 
     @Bean
     public ExperimentLoader experimentDccLoader() {
-        return new ExperimentLoader(jdbcCda, stepBuilderFactory, cdaSqlUtils(), dccSqlUtils(), allelesBySymbolMap, cdaOrganisation_idMap, phenotypedColonyMap);
+        return new ExperimentLoader(jdbcCda, stepBuilderFactory, cdaSqlUtils(), dccSqlUtils(), genesByAccMap, allelesBySymbolMap, strainsByNameMap, phenotypedColonyMap, cdaOrganisation_idMap);
     }
 
     @Bean
@@ -115,7 +123,7 @@ public class LoadConfigBeans implements InitializingBean {
 
     @Bean
     public ExperimentLoader experimentDccEurophenomeLoader() {
-        return new ExperimentLoader(jdbcCda, stepBuilderFactory, cdaSqlUtils(), dccEurophenomeSqlUtils(), allelesBySymbolMap, cdaOrganisation_idMap, phenotypedColonyMap);
+        return new ExperimentLoader(jdbcCda, stepBuilderFactory, cdaSqlUtils(), dccEurophenomeSqlUtils(), genesByAccMap, allelesBySymbolMap, strainsByNameMap, phenotypedColonyMap, cdaOrganisation_idMap);
     }
 
     @Bean

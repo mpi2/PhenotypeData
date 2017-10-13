@@ -53,10 +53,13 @@ public class DccExperimentRowMapper implements RowMapper<DccExperimentDTO> {
             experiment.setDcc_procedure_pk(rs.getLong("dcc_procedure_pk"));
             experiment.setColonyId(rs.getString("colonyId"));
             experiment.setSpecimenId(rs.getString("specimenId"));
+            experiment.setSpecimenStrainId(rs.getString("specimenStrainId"));
+            experiment.setZygosity(rs.getString("zygosity"));
             experiment.setSex(rs.getString("gender"));
             experiment.setRawProcedureStatus(rs.getString("rawProcedureStatus"));
 
             experiment.setLineLevel(rs.getInt("isLineLevel") == 1 ? true : false);
+            experiment.setControl(rs.getInt("isControl") == 1 ? true : false);
 
             return experiment;
         }
