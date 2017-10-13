@@ -2394,8 +2394,6 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
     }
 
 
-
-
     /**
      * @return a strain, keyed by strain name or mgi accession id
      *

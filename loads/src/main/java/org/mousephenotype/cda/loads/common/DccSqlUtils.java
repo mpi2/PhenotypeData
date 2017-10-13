@@ -770,6 +770,35 @@ public class DccSqlUtils {
         return list;
     }
 
+
+    public List<ParameterAssociation> getSeriesMediaParameterValueParameterAssociations(long seriesMediaParameterValuepk) {
+        String query = "SELECT\n" +
+                "  pa.*\n" +
+                "FROM seriesMediaParameterValue_parameterAssociation smpvpa\n" +
+                "JOIN parameterAssociation pa ON pa.pk = smpvpa.seriesMediaParameterValue_pk\n" +
+                "where smpvpa.seriesMediaParameterValue_pk = :pk";
+
+        Map<String, Object> parameterMap = new HashMap<>();
+        parameterMap.put("pk", seriesMediaParameterValuepk);
+
+        return npJdbcTemplate.query(query, parameterMap, new ParameterAssociationRowMapper());
+    }
+
+
+    public List<ProcedureMetadata> getSeriesMediaParameterValueProcedureMetadataAssociations(long seriesMediaParameterValuepk) {
+        String query = "SELECT\n" +
+                "  pm.*\n" +
+                "FROM seriesMediaParameterValue_procedureMetadata smpvpm\n" +
+                "JOIN procedureMetadata pm ON pm.pk = smpvpm.seriesMediaParameterValue_pk\n" +
+                "WHERE smpvpm.seriesMediaParameterValue_pk = :pk";
+
+        Map<String, Object> parameterMap = new HashMap<>();
+        parameterMap.put("pk", seriesMediaParameterValuepk);
+
+        return npJdbcTemplate.query(query, parameterMap, new ProcedureMetadataRowMapper());
+    }
+
+
     private class SeriesParameterEx {
         private long procedure_pk;
         private SeriesParameter seriesParameter;
