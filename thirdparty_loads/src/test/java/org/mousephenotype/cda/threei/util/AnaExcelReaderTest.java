@@ -16,56 +16,51 @@
 
 package org.mousephenotype.cda.threei.util;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
+import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import java.io.IOException;
+
+import static junit.framework.TestCase.assertTrue;
 
 /**
  * Unit test for AnaExcelReader.
  */
-public class AnaExcelReaderTest 
-    extends TestCase
-{
+@RunWith(SpringJUnit4ClassRunner.class)
+@TestPropertySource(locations = {"file:${user.home}/configfiles/${profile:dev}/test.properties"})
+public class AnaExcelReaderTest {
+
+
     private final int N_ROWS_TO_PROCESS = 20;
-    private final int[] N_ROWS_PER_MOUSE = {4,4,1,3,3,1,2,2};
+    private final int[] N_ROWS_PER_MOUSE = {4, 4, 1, 3, 3, 1, 2, 2};
     private final int N_MICE_TO_PROCESS = N_ROWS_PER_MOUSE.length;
     private AnaExcelReader reader;
-    /**
-     * Create the test case
-     *
-     * @param testName name of the test case
-     */
-    public AnaExcelReaderTest( String testName )
-    {
-        super( testName );
-        
-        // The excel file is based on the format provided by Mark Griffiths
-        // on 04/10/2017.
-        // ToDo: Speak to Jeremy about including this from resources with
-        // spring boot
-        reader = new AnaExcelReader("/home/kola/Downloads/tempAna.xlsx");
+
+    @Before
+    public void AnaExcelReaderTestSeup() throws IOException {
+        Resource resource = new ClassPathResource("threei/tempAna.xlsx");
+        reader = new AnaExcelReader(resource.getFile().getAbsolutePath());
     }
 
-    /**
-     * @return the suite of tests being tested
-     */
-    public static Test suite()
-    {
-        return new TestSuite( AnaExcelReaderTest.class );
-    }
 
     /**
      * Rigourous Test :-)
      */
-    public void testAnaExcelReader()
-    {
-        assertTrue( true );
+    @Test
+    public void testAnaExcelReader() {
+        assertTrue(true);
     }
 
     // Expecting 28 columns
+    @Test
     public void testNumberOfColumns() {
         //assertThat( reader.getNumberOfColumns()).isEqualTo(28);
-        assertTrue( reader.getNumberOfColumns() == 28 );
+        assertTrue(reader.getNumberOfColumns() == 28);
     }
 
     // Test Number of rows read
@@ -91,17 +86,19 @@ public class AnaExcelReaderTest
     }
     */
 
+    @Test
     public void testNumberOfRowsFromReader() {
-        reader.reset(); 
-        while(reader.hasNext()) {
+        reader.reset();
+        while (reader.hasNext()) {
             reader.getRow();
         }
 
         int nRows = reader.getNumberOfRowsRead();
         System.out.println("Number of rows read (according to reader) = " + nRows);
-        assertTrue( N_ROWS_TO_PROCESS == nRows);
+        assertTrue(N_ROWS_TO_PROCESS == nRows);
     }
 
+    @Test
     public void testNumberOfMiceProcessed() {
         int[] nRowsPerMouse = new int[N_MICE_TO_PROCESS];
         int i = 0;
@@ -114,9 +111,10 @@ public class AnaExcelReaderTest
         System.out.println("Number of mice processed = " + nMiceProcessed);
         assertTrue(N_MICE_TO_PROCESS == nMiceProcessed);
 
-        for (int j=0; j<N_MICE_TO_PROCESS; j++) {
-            System.out.println("Number of rows processed = " + nRowsPerMouse[j] +  ". Expected number of rows = " + N_ROWS_PER_MOUSE[j]);
+        for (int j = 0; j < N_MICE_TO_PROCESS; j++) {
+            System.out.println("Number of rows processed = " + nRowsPerMouse[j] + ". Expected number of rows = " + N_ROWS_PER_MOUSE[j]);
             assertTrue(N_ROWS_PER_MOUSE[j] == nRowsPerMouse[j]);
         }
     }
+
 }
