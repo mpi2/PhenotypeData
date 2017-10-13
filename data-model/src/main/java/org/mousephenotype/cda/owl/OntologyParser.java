@@ -67,6 +67,9 @@ public class OntologyParser {
             if (startsWithPrefix(cls, prefix)){
                 OntologyTermDTO term = getDTO(cls, prefix);
                 term.setEquivalentClasses(getEquivaletNamedClasses(cls, prefix));
+                if (term.getAccessionId().equals("MP:0002169")){
+                    System.out.println(term.toString());
+                }
                 termMap.put(term.getAccessionId(), term);
                 classMap.put(term.getAccessionId(), cls);
             }
