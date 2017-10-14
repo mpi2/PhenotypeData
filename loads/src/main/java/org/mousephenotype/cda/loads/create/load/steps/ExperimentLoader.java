@@ -56,7 +56,7 @@ import java.util.concurrent.*;
 public class ExperimentLoader implements Step, Tasklet, InitializingBean {
 
     // How many threads used to process experiments
-    private static final int N_THREADS = 40;
+    private static final int N_THREADS = 60;
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
