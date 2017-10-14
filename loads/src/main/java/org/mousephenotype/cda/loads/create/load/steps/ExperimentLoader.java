@@ -1308,6 +1308,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
                             phenotypingCenter, biologicalSamplePk, parameterStableId, parameterPk,
                             observationType, missing, parameterStatus, parameterStatusMessage, value.getURI(),
                             e.getLocalizedMessage());
+                e.printStackTrace();
                 continue;
             }
 
