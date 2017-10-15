@@ -30,6 +30,7 @@ import org.mousephenotype.dcc.exportlibrary.datastructure.core.specimen.Specimen
 import org.mousephenotype.dcc.utils.xml.XMLUtils;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.Banner;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -71,6 +72,7 @@ public class ExtractDccExperiments implements CommandLineRunner {
 
     @NotNull
     @Autowired
+    @Qualifier("dccDataSource")
     @Lazy
     private DataSource dcc;
 
