@@ -973,9 +973,13 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
 
             for (SeriesMediaParameterValue value : values) {
 
-                // Add in parameterAssociation associations
-                List<ParameterAssociation> parms = dccSqlUtils.getSeriesMediaParameterValueParameterAssociations(value.getHjid());
-                value.setParameterAssociation(parms);
+                try {
+                    // Add in parameterAssociation associations
+                    List<ParameterAssociation> parms = dccSqlUtils.getSeriesMediaParameterValueParameterAssociations(value.getHjid());
+                    value.setParameterAssociation(parms);
+                } catch (NullPointerException e) {
+
+                }
 
                 // Wire in procedureMetadata associations
                 List<ProcedureMetadata> pms = dccSqlUtils.getSeriesMediaParameterValueProcedureMetadataAssociations(value.getHjid());
@@ -1308,7 +1312,6 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
                             phenotypingCenter, biologicalSamplePk, parameterStableId, parameterPk,
                             observationType, missing, parameterStatus, parameterStatusMessage, value.getURI(),
                             e.getLocalizedMessage());
-                e.printStackTrace();
                 continue;
             }
 

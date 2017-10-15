@@ -1991,14 +1991,26 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
                 logger.warn("Insert MediaParameter failed for parameterSource {}. Marking it as missing ...", parameterSource);
                 updateObservationMissingFlag(observationPk, true);
             } else {
-                // Save any parameter associations.
-                for (ParameterAssociation parameterAssociation : seriesMediaParameterValue.getParameterAssociation()) {
-                    int parameterAssociationPk = insertParameterAssociation(observationPk, parameterAssociation, simpleParameterList, ontologyParameterList);
 
-                    // Save any Dimensions.
-                    for (Dimension dimension : parameterAssociation.getDim()) {
-                        insertDimension(parameterAssociationPk, dimension);
+                try {
+                    // Save any parameter associations.
+                    if (seriesMediaParameterValue.getParameterAssociation() != null && seriesMediaParameterValue.getParameterAssociation().size() > 0) {
+
+                        for (ParameterAssociation parameterAssociation : seriesMediaParameterValue.getParameterAssociation()) {
+                            int parameterAssociationPk = insertParameterAssociation(observationPk, parameterAssociation, simpleParameterList, ontologyParameterList);
+
+                            // Save any Dimensions.
+                            if (parameterAssociation.getDim() != null && parameterAssociation.getDim().size() > 0) {
+                                for (Dimension dimension : parameterAssociation.getDim()) {
+                                    insertDimension(parameterAssociationPk, dimension);
+                                }
+                            }
+                        }
                     }
+                } catch (NullPointerException e) {
+                    logger.error("Issue saving parameter association for parameterStableId {}, observationType {}, observationPk {}, samplePk {}, downloadFilePath {}, imageLink {}, fileType {}, organisationPk, fullResolutionFilePath {}. Reason:\n\t{}",
+                            parameterStableId, observationType.toString(), observationPk, samplePk, seriesMediaParameterValue.getURI(), seriesMediaParameterValue.getLink(),
+                            seriesMediaParameterValue.getFileType(), phenotypingCenterPk, fullResolutionFilePath, e.getLocalizedMessage());
                 }
 
                 // Save any procedure metadata.
