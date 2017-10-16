@@ -157,15 +157,18 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 
             Connection connection = komp2DataSource.getConnection();
 
-            ontologyParserFactory = new OntologyParserFactory(komp2DataSource, owlpath);
+            synchronized(this) {
 
-            mpParser = ontologyParserFactory.getMpParser();
-            mpMaParser = ontologyParserFactory.getMpMaParser();
-            maParser = ontologyParserFactory.getMaParser();
+                ontologyParserFactory = new OntologyParserFactory(komp2DataSource, owlpath);
 
-            pipelineMap = IndexerMap.getImpressPipelines(connection);
-            procedureMap = IndexerMap.getImpressProcedures(connection);
-            parameterMap = IndexerMap.getImpressParameters(connection);
+                mpParser = ontologyParserFactory.getMpParser();
+                mpMaParser = ontologyParserFactory.getMpMaParser();
+                maParser = ontologyParserFactory.getMaParser();
+
+                pipelineMap = IndexerMap.getImpressPipelines(connection);
+                procedureMap = IndexerMap.getImpressProcedures(connection);
+                parameterMap = IndexerMap.getImpressParameters(connection);
+            }
 
             populateBiologicalDataMap();
             populateResourceDataMap();
@@ -760,10 +763,12 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
             mpIds.forEach(mpId -> {
 
                 OntologyTermDTO term = mpParser.getOntologyTerm(mpId);
-                doc.addMpTermIdOptions(term.getAccessionId());
-                doc.addMpTermNameOptions(term.getName());
-                doc.addMpTermIdOptions(term.getIntermediateIds());
-                doc.addMpTermNameOptions(term.getIntermediateNames());
+                if (term.getAccessionId() != null){
+                    doc.addMpTermIdOptions(term.getAccessionId());
+                    doc.addMpTermNameOptions(term.getName());
+                    doc.addMpTermIdOptions(term.getIntermediateIds());
+                    doc.addMpTermNameOptions(term.getIntermediateNames());
+                }
 
             });
 
