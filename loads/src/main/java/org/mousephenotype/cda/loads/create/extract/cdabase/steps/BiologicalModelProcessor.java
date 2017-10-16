@@ -17,115 +17,124 @@
 package org.mousephenotype.cda.loads.create.extract.cdabase.steps;
 
 import org.mousephenotype.cda.db.pojo.Allele;
-import org.mousephenotype.cda.db.pojo.GenomicFeature;
-import org.mousephenotype.cda.loads.create.extract.cdabase.support.BiologicalModelAggregator;
+import org.mousephenotype.cda.enumerations.DbIdType;
+import org.mousephenotype.cda.loads.common.AccDbId;
+import org.mousephenotype.cda.loads.common.BioModelInsertDTOMGI;
 import org.mousephenotype.cda.loads.common.CdaSqlUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.ItemProcessor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.regex.Pattern;
 
 /**
  * Created by mrelac on 09/06/16.
  */
-public class BiologicalModelProcessor implements ItemProcessor<BiologicalModelAggregator, BiologicalModelAggregator> {
+public class BiologicalModelProcessor implements ItemProcessor<BioModelInsertDTOMGI, BioModelInsertDTOMGI> {
 
-    private int                                    addedBioModelsCount = 0;
-    private Map<String, String>                    alleleSymbolToAccessionIdMap;        // key = allele symbol. Value = allele accession id
-    private Map<String, Allele>                    alleles;                             // Alleles mapped by allele accession id
-    private Map<String, BiologicalModelAggregator> bioModels = new HashMap<>();         // bioModel mapped by allelic_composition + genetic_background
-    private Map<String, GenomicFeature>            genes;                               // Genes mapped by marker accession id
-    protected int                                  lineNumber = 0;
+    private int                 addedBioModelsCount = 0;
+    private Map<String, Allele> alleleSymbolToAllele;                       // key = allele symbol. Value = allele instance
+    private CdaSqlUtils         cdabaseSqlUtils;
+    protected int               lineNumber = 0;
 
-    private int multipleAllelesPerRowCount = 0;
-    private int multipleGenesPerRowCount   = 0;
+    private ConcurrentHashMap<BioModelInsertDTOMGI, BioModelInsertDTOMGI> bioModels = new ConcurrentHashMap<>();         // Accumulation of inserted bioModels.
+
+    private int multipleAllelesPerRowCount         = 0;
+    private int multipleGenesPerRowCount           = 0;
+    private int multipleAllelesAndGenesPerRowCount = 0;
 
     private final Logger     logger      = LoggerFactory.getLogger(this.getClass());
     public final Set<String> errMessages = ConcurrentHashMap.newKeySet();       // This is the java 8 way to create a concurrent hash set.
 
-    @Autowired
-    @Qualifier("cdabaseSqlUtils")
-    private CdaSqlUtils cdaSqlUtils;
-
-
-    public BiologicalModelProcessor(Map<String, Allele> alleles, Map<String, GenomicFeature> genes) {
-        this.alleles = alleles;
-        this.genes = genes;
+    public BiologicalModelProcessor(CdaSqlUtils cdabaseSqlutils) {
+        this.cdabaseSqlUtils = cdabaseSqlutils;
     }
 
     @Override
-    public BiologicalModelAggregator process(BiologicalModelAggregator newBioModel) throws Exception {
+    public BioModelInsertDTOMGI process(BioModelInsertDTOMGI bioModelIn) throws Exception {
 
         lineNumber++;
 
-        // Skip rows with multiple alleles. Our model doesn't yet handle them. Multiple alleleSymbol values are
-        // separated by "|". Multiple mgiMarkerAccessionId values are separated by ",".
-        if (newBioModel.getAlleleSymbol().contains("|")) {
-            logger.debug("Line {}: Skipping because of multiple alleles: {}", lineNumber, newBioModel.getAllelicComposition());
-            multipleAllelesPerRowCount++;
-            return null;
-        }
-        if (newBioModel.getMarkerAccessionIds().toArray(new String[0])[0].contains(",")) {
-            logger.debug("Line {}, bioModel {}: Skipping because of multiple marker accession ids: {}", lineNumber, newBioModel.toString(), newBioModel.getMarkerAccessionIds().toArray(new String[0])[0]);
-            multipleGenesPerRowCount++;
-            return null;
+        Set<AccDbId> alleles    = new HashSet<>();
+        Set<AccDbId> genes      = new HashSet<>();
+        Set<AccDbId> phenotypes = new HashSet<>();
+
+        if (alleleSymbolToAllele == null) {
+            alleleSymbolToAllele = cdabaseSqlUtils.getAllelesBySymbol();
         }
 
-        // Populate the necessary collections.
-        if ((genes == null) || (genes.isEmpty())) {
-            genes = cdaSqlUtils.getGenes();
-        }
-        if ((alleles == null) || (alleles.isEmpty())) {
-            alleles = cdaSqlUtils.getAlleles();
-        }
-        if (alleleSymbolToAccessionIdMap == null) {
-            alleleSymbolToAccessionIdMap = new HashMap<>();
-            for (Allele allele : alleles.values()) {
-                alleleSymbolToAccessionIdMap.put(allele.getSymbol(), allele.getId().getAccession());
+        // Extract Allele(s). Translate allele symbol(s) into accession IDs.
+        // Exactly 1 allele is required.
+        if ( ! bioModelIn.getAlleles().isEmpty()) {
+            // The BiologicalModelLoader puts the alleleSymbol into the acc field. Skip input rows with multiple alleles (separated by '|').
+            String alleleSymbol = bioModelIn.getAlleles().iterator().next().getAcc();
+            if (alleleSymbol.contains("|")) {
+                multipleAllelesPerRowCount++;
+
+                if (( ! bioModelIn.getGenes().isEmpty()) && (bioModelIn.getGenes().iterator().next().getAcc().contains(","))) {
+                    multipleAllelesAndGenesPerRowCount++;
+                }
+                return null;
             }
-        }
 
-        // Look up the allele accession id and put it in the newBioModel.
-        String alleleAccessionId = alleleSymbolToAccessionIdMap.get(newBioModel.getAlleleSymbol());
-        if (alleleAccessionId == null) {
-            logger.warn("No allele accession id found for allele symbol '" + newBioModel.getAlleleSymbol() + "'. Skipping...");
+            Allele allele  = alleleSymbolToAllele.get(alleleSymbol);
+
+            if (allele == null) {
+                logger.info("No allele accession id found for allele symbol '" + alleleSymbol + "'. Skipping...");
+                return null;
+            } else {
+                alleles.add(new AccDbId(allele.getId().getAccession(), DbIdType.MGI.intValue()));
+            }
+        } else {
+            logger.info("No alleleSymbol was found for bioModel " + bioModelIn + ". Skipping...");
             return null;
         }
-        newBioModel.getAlleleAccessionIds().add(alleleAccessionId);
 
-        // Try to fetch the bioModel from the hash. If it doesn't exist, create it, add it, and return it.
-        String key = newBioModel.getAllelicComposition() + "_" + newBioModel.getGeneticBackground();
-        BiologicalModelAggregator existingBioModel = bioModels.get(key);
-        if (existingBioModel == null) {
-            addedBioModelsCount++;
-            BiologicalModelAggregator bioModel = new BiologicalModelAggregator(newBioModel);
-            bioModels.put(key, bioModel);
-            return bioModel;
+
+        // Extract gene(s). There must be at least one gene.
+        if (bioModelIn.getGenes().isEmpty()) {
+            logger.error("No gene found for bioModel " + bioModelIn + ". Skipping...");
+            return null;
+        }
+        // Inflate any rows with multiple genes that are separated by ",".
+        String[]      geneAccessionIds = bioModelIn.getGenes().iterator().next().getAcc().split(Pattern.quote(","));
+        for (String geneAccessionId : geneAccessionIds) {
+            genes.add(new AccDbId(geneAccessionId, DbIdType.MGI.intValue()));
+        }
+        if (genes.size() > 1) {
+            logger.info("MULTI-GENE: " + bioModelIn);       // As of 2017-10-06, there were only five of these.
+            multipleGenesPerRowCount++;
         }
 
-        existingBioModel.getAlleleAccessionIds().add(alleleAccessionId);
-        existingBioModel.getMarkerAccessionIds().add(newBioModel.getMarkerAccessionIds().toArray(new String[0])[0]);
-        existingBioModel.getMpAccessionIds().add(newBioModel.getMpAccessionIds().toArray(new String[0])[0]);
 
-        return existingBioModel;
-    }
+        // As of 2017-10-05, phenotypes don't appear more than once on an given input line. Just load them.
+        phenotypes.add(new AccDbId(bioModelIn.getPhenotypes().iterator().next().getAcc(), DbIdType.MGI.intValue()));
 
-    public Map<String, Allele> getAlleles() {
-        return alleles;
+
+        // If the biological model already exists, use it; otherwise, create a new one with empty collections and add it to the map.
+        // BioModelIn always contains exactly one gene, allele, and phenotype.
+        BioModelInsertDTOMGI bioModelOut = bioModels.get(bioModelIn);
+        if (bioModelOut == null) {
+            bioModelOut = new BioModelInsertDTOMGI(bioModelIn.getDbId(), bioModelIn.getAllelicComposition(), bioModelIn.getGeneticBackground(), bioModelIn.getZygosity());
+            bioModels.put(bioModelOut, bioModelOut);
+            addedBioModelsCount++;
+        }
+
+
+        bioModelOut.getAlleles().addAll(alleles);
+        bioModelOut.getGenes().addAll(genes);
+        bioModelOut.getPhenotypes().addAll(phenotypes);
+
+
+        return bioModelOut;
     }
 
     public Set<String> getErrMessages() {
         return errMessages;
-    }
-
-    public Map<String, GenomicFeature> getGenes() {
-        return genes;
     }
 
     public int getAddedBioModelsCount() {
@@ -140,7 +149,11 @@ public class BiologicalModelProcessor implements ItemProcessor<BiologicalModelAg
         return multipleGenesPerRowCount;
     }
 
-    public Map<String, BiologicalModelAggregator> getBioModels() {
+    public int getMultipleAllelesAndGenesPerRowCount() {
+        return multipleAllelesAndGenesPerRowCount;
+    }
+
+    public Map<BioModelInsertDTOMGI, BioModelInsertDTOMGI> getBioModels() {
         return bioModels;
     }
 }

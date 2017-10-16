@@ -227,8 +227,10 @@ public class IndexerManager  {
             }
 
             // Print the starting jvm memory configuration.
-            printJvmMemoryConfiguration();
+            CommonUtils.printJvmMemoryConfiguration();
+
         } catch (Exception e) {
+
             if (e.getLocalizedMessage() != null) {
                 logger.error(e.getLocalizedMessage());
             }
@@ -305,7 +307,7 @@ public class IndexerManager  {
 
 			logger.info("[END]   {} at {}", indexerItem.name.toUpperCase(), dateFormatter.format(new Date()));
             executionStatsList.add(new ExecutionStatsRow(indexerItem.name, runResult, start, new Date().getTime()));
-            printJvmMemoryConfiguration();
+            CommonUtils.printJvmMemoryConfiguration();
         }
 
         System.out.println(executionStatsList.toString());
@@ -619,19 +621,6 @@ public class IndexerManager  {
             i++;
             t = t.getCause();
         }
-    }
-
-    /**
-     * Print the jvm memory configuration.
-     */
-    private void printJvmMemoryConfiguration() {
-        final int mb = 1024*1024;
-        Runtime runtime = Runtime.getRuntime();
-        DecimalFormat formatter = new DecimalFormat("#,###");
-        logger.info("Used memory:  {}", (formatter.format(runtime.totalMemory() - runtime.freeMemory() / mb)));
-        logger.info("Free memory : {}", formatter.format(runtime.freeMemory()));
-        logger.info("Total memory: {}", formatter.format(runtime.totalMemory()));
-        logger.info("Max memory:   {}\n", formatter.format(runtime.maxMemory()));
     }
 
     /**
