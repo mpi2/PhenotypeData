@@ -34,7 +34,7 @@ public class ReleaseAnalyticsManager {
     private static final Logger logger = LoggerFactory.getLogger(ReleaseAnalyticsManager.class);
 
 
-    // TODO which DB to USE
+    // Which DB to USE
     private Connection connection;
 
     //

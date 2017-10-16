@@ -23,7 +23,7 @@ import org.mousephenotype.cda.db.pojo.*;
 import org.mousephenotype.cda.db.utilities.SqlUtils;
 import org.mousephenotype.cda.enumerations.DbIdType;
 import org.mousephenotype.cda.enumerations.ObservationType;
-import org.mousephenotype.cda.loads.create.extract.cdabase.support.BiologicalModelAggregator;
+import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.loads.create.load.support.StrainMapper;
 import org.mousephenotype.cda.loads.exceptions.DataLoadException;
 import org.mousephenotype.cda.utilities.RunStatus;
@@ -31,6 +31,7 @@ import org.mousephenotype.dcc.exportlibrary.datastructure.core.procedure.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DuplicateKeyException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -39,6 +40,7 @@ import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
@@ -55,10 +57,10 @@ public class CdaSqlUtils {
     private Map<String, Set<AlternateId>> alternateIds;     // keyed by ontology term accession id
     private Map<String, Set<ConsiderId>>  considerIds;      // keyed by ontology term accession id
     private Map<String, OntologyTerm>     ontologyTerms;    // keyed by ontology term accession id
-    private Map<String, SequenceRegion>   sequenceRegions;  // keyed by strain id (int)
+    private Map<String, SequenceRegion>   sequenceRegions;  // keyed by strains id (int)
     private SqlUtils                      sqlUtils = new SqlUtils();
-    private Map<String, Strain>           strainsByNameOrMgiAccessionId = new HashMap<>();    // keyed by strain name or mgi accession id
-    private Map<String, Strain>           strainsBySynonym = new HashMap<>();    // keyed by strain synonym
+    private Map<String, Strain>           strainsByNameOrMgiAccessionId = new HashMap<>();    // keyed by strains name or mgi accession id
+    private Map<String, Strain>           strainsBySynonym = new HashMap<>();    // keyed by strains synonym
     private Map<String, List<Synonym>>    synonyms;         // keyed by accession id
 
     private final LoadUtils   loadUtils   = new LoadUtils();
@@ -193,51 +195,63 @@ public class CdaSqlUtils {
 
     /**
      *
-     * @return a map of {@link BiologicalSample}, keyed by external_id and organisation_id (e.g. "mouseXXX_12345")
+     * @return a map of {@link BiologicalSample}, keyed by external_id and short_name (e.g. "mouseXXX_IMPC", "mouseYYY_3i", etc)
      *         NOTE: The external_id in {@link BiologicalSample} is called stableId.
      */
     public Map<String, BiologicalSample> getBiologicalSamples() {
 
         Map<String, BiologicalSample> map = new HashMap<>();
-        String query = "SELECT * FROM biological_sample";
+        String query = "SELECT edb.short_name, bs.* FROM biological_sample bs JOIN external_db edb ON edb.id = bs.db_id";
 
         List<BiologicalSample> samples = jdbcCda.query(query, new BiologicalSampleRowMapper());
         for (BiologicalSample sample : samples) {
-            map.put(sample.getStableId() + "_" + sample.getOrganisation().getId(), sample);
+            map.put(sample.getStableId() + "_" + sample.getDatasource().getShortName(), sample);
         }
 
         return map;
     }
 
 
-    /**
-     * Return the {@link BiologicalModel} for the given input parameters
-     *
-     * @param allelicComposition allelic composition
-     * @param geneticBackground genetic background (often prefaced with 'involves...')
-     *
-     * @return the {@link BiologicalModel} for the given input parameters
-     */
-    public BiologicalModel getBiologicalModel(String allelicComposition, String geneticBackground) {
-        BiologicalModel bm = null;
-        String query =
-                "SELECT * FROM biological_model\n" +
-                "WHERE allelic_composition = :allelic_composition AND genetic_background = :genetic_background";
+    public Strain getBackgroundStrain(String specimenStrainId) throws DataLoadException {
+        Strain backgroundStrain;
+        String backgroundStrainName;
+        String message;
+        StrainMapper strainMapper = new StrainMapper(this);
 
-        Map<String, Object> parameterMap = new HashMap<>();
-        parameterMap.put("allelic_composition", allelicComposition);
-        parameterMap.put("genetic_background", geneticBackground);
+        String lookedupStrainName = (strainMapper.lookupBackgroundStrain(specimenStrainId)!=null)
+                ? strainMapper.lookupBackgroundStrain(specimenStrainId).getName()
+                : specimenStrainId;
 
-        List<BiologicalModel> bmAggregatorList = jdbcCda.query(query, parameterMap, new BiologicalModelRowMapper());
+        // specimen.strainId can contain an MGI strain accession id in the form "MGI:", or a strain name like C57BL/6N.
+        if (specimenStrainId.toLowerCase().startsWith("mgi:")) {
+            backgroundStrain = getStrainByNameOrMgiAccessionIdOrSynonym(lookedupStrainName);
+            if (backgroundStrain == null) {
+                throw new DataLoadException("No strain table entry found for strain accession id '" + specimenStrainId + "' ("+lookedupStrainName+")");
+            }
+            backgroundStrainName = lookedupStrainName;
 
-        if ( ! bmAggregatorList.isEmpty()) {
-            bm = bmAggregatorList.get(0);
+        } else {
+            backgroundStrainName = lookedupStrainName;
         }
 
-        return bm;
+        try {
+
+            backgroundStrain = getStrainByNameOrMgiAccessionIdOrSynonym(backgroundStrainName);
+
+            if (backgroundStrain == null) {
+                backgroundStrain = strainMapper.createBackgroundStrain(backgroundStrainName);
+                insertStrain(backgroundStrain);
+            }
+
+        } catch (DataLoadException e) {
+
+            message = "Insert strain " + specimenStrainId + " failed. Skipping...";
+            logger.error(message);
+            throw new DataLoadException(message, e);
+        }
+
+        return backgroundStrain;
     }
-
-
 
     /**
      * @return the set of all alternate accession ids in a {@link Map} keyed by alternate accession id
@@ -532,237 +546,89 @@ public class CdaSqlUtils {
         return genes;
     }
 
-    /**
-     * Insert {@link BiologicalModelAggregator} doesn't exist, insert it into the database.
-     *
-     * @param bioModels the {@link BiologicalModelAggregator} instance to be inserted
-     *
-     * @return the number of {@code bioModel}s inserted
-     */
-    public Map<String, Integer> insertBiologicalModel(List<BiologicalModelAggregator> bioModels) throws DataLoadException {
-        int count = 0;
+    @Transactional
+    public int insertBiologicalModelImpc(BioModelInsertDTOMutant mutant) throws DataLoadException {
 
-        Map<String, Integer> countsMap = new HashMap<>();
-        countsMap.put("bioModelsInserted", 0);
-        countsMap.put("bioModelsUpdated", 0);
-        countsMap.put("bioModelAlleles", 0);
-        countsMap.put("bioModelGenomicFeatures", 0);
-        countsMap.put("bioModelStrains", 0);
-        countsMap.put("bioModelPhenotypes", 0);
+        // Check to see if model exists before creating, return PK if found
+        Integer biologicalModelId = findBiologicalModel(DbIdType.IMPC.intValue(), mutant.getAllelicComposition(), mutant.getGeneticBackground(), mutant.getZygosity());
 
-        final String bioModelInsert = "INSERT INTO biological_model (db_id, allelic_composition, genetic_background, zygosity) " +
-                                      "VALUES (:db_id, :allelic_composition, :genetic_background, :zygosity)";
+        if (biologicalModelId==null) {
 
-        final String bioModelUpdate = "UPDATE biological_model " +
-                                      "SET zygosity = :zygosity WHERE allelic_composition = :allelic_composition AND genetic_background = :genetic_background";
-
-        final String bioModelAlleleInsert = "INSERT INTO biological_model_allele (biological_model_id, allele_acc, allele_db_id) " +
-                                            "VALUES (:biological_model_id, :allele_acc, :allele_db_id)";
-
-        final String bioModelGFInsert = "INSERT INTO biological_model_genomic_feature (biological_model_id, gf_acc, gf_db_id) " +
-                                        "VALUES (:biological_model_id, :gf_acc, :gf_db_id)";
-
-        final String bioModelStrainInsert = "INSERT INTO biological_model_strain (biological_model_id, strain_acc, strain_db_id) " +
-                                        "VALUES (:biological_model_id, :strain_acc, :strain_db_id)";
-
-        final String bioModelPhenotypeInsert = "INSERT INTO biological_model_phenotype (biological_model_id, phenotype_acc, phenotype_db_id) " +
-                                               "VALUES (:biological_model_id, :phenotype_acc, :phenotype_db_id)";
-
-        for (BiologicalModelAggregator bioModel : bioModels) {
-
-            // biological_model
-            Map<String, Object> parameterMap = new HashMap<>();
-            parameterMap.put("db_id", DbIdType.IMPC.intValue());
-            parameterMap.put("allelic_composition", bioModel.getAllelicComposition());
-            parameterMap.put("genetic_background", bioModel.getGeneticBackground());
-            parameterMap.put("zygosity", bioModel.getZygosity());
-
-            KeyHolder keyholder = new GeneratedKeyHolder();
-            SqlParameterSource parameterSource = new MapSqlParameterSource(parameterMap);
-
-            try {
-                count = jdbcCda.update(bioModelInsert, parameterSource, keyholder);
-                if (count > 0) {
-                    countsMap.put("bioModelsInserted", countsMap.get("bioModelsInserted") + count);
-                    bioModel.setBiologicalModelId(keyholder.getKey().intValue());
-                }
-
-            } catch (DuplicateKeyException e) {
-                count = jdbcCda.update(bioModelUpdate, parameterMap);
-                if (count > 0) {
-                    countsMap.put("bioModelsUpdated", countsMap.get("bioModelsUpdated") + count);
-                } else {
-                    throw new DataLoadException("Insert and Update failed for bioModel " + bioModel.toString() + "'. Skipping...");
-                }
-
-                return countsMap;
-            }
-
-            // biological_model_allele. Controls don't have allele or gene associations so will be null.
-            if (bioModel.getAlleleAccessionIds() != null) {
-                for (String alleleAccessionId : bioModel.getAlleleAccessionIds()) {
-                    try {
-                        parameterMap = new HashMap<>();
-                        parameterMap.put("biological_model_id", bioModel.getBiologicalModelId());
-                        parameterMap.put("allele_acc", alleleAccessionId);
-                        parameterMap.put("allele_db_id", DbIdType.MGI.intValue());
-
-                        count = jdbcCda.update(bioModelAlleleInsert, parameterMap);
-                        countsMap.put("bioModelAlleles", countsMap.get("bioModelAlleles") + count);
-
-                    } catch (DuplicateKeyException e) {
-
-                        logger.warn("Duplicate biological_model_allele entry: {}. biological model not added.", bioModels);
-                        return countsMap;
-
-                    } catch (Exception e) {
-                        logger.warn("Skipping bioModel {}: {}", bioModels, e.getLocalizedMessage());
-                    }
-                }
-            }
-
-            // biological_model_genomic_feature. Controls don't have allele or gene associations so will be null.
-            if (bioModel.getMarkerAccessionIds() != null) {
-                for (String markerAccessionId : bioModel.getMarkerAccessionIds()) {
-                    try {
-                        parameterMap = new HashMap<>();
-                        parameterMap.put("biological_model_id", bioModel.getBiologicalModelId());
-                        parameterMap.put("gf_acc", markerAccessionId);
-                        parameterMap.put("gf_db_id", DbIdType.MGI.intValue());
-
-                        count = jdbcCda.update(bioModelGFInsert, parameterMap);
-                        countsMap.put("bioModelGenomicFeatures", countsMap.get("bioModelGenomicFeatures") + count);
-
-                    } catch (DuplicateKeyException e) {
-
-                        logger.warn("Duplicate biological_model_genomic_feature entry: {}. biological model not added.", bioModels);
-                        return countsMap;
-
-                    } catch (Exception e) {
-
-                        logger.warn("Skipping bioModel {}: {}", bioModels, e.getLocalizedMessage());
-                    }
-                }
-            }
-
-            // biological_model_strain
-            for (String strainAccessionId : bioModel.getStrainAccessionIds()) {
-                try {
-                    parameterMap = new HashMap<>();
-                    parameterMap.put("biological_model_id", bioModel.getBiologicalModelId());
-                    parameterMap.put("strain_acc", strainAccessionId);
-                    parameterMap.put("strain_db_id", DbIdType.MGI.intValue());
-
-                    count = jdbcCda.update(bioModelStrainInsert, parameterMap);
-                    countsMap.put("bioModelStrains", countsMap.get("bioModelStrains") + count);
-
-                    List<Strain> strainList = jdbcCda.query("SELECT * FROM strain WHERE acc=:strain_acc", parameterMap, new StrainRowMapper());
-
-                    if (strainList.isEmpty()) {
-                        logger.warn("Biomodel " + bioModel.getAllelicComposition()+ " biological_model_strain was inserted but no corresponding strain was found: " + strainAccessionId);
-                    }
-
-                } catch (DuplicateKeyException e) {
-
-                    logger.warn("Duplicate biological_model_strain entry: {}. biological model not added.", bioModels);
-
-                    // Indicate to caller that there was already a biological model strain entry.
-                    countsMap.put("bioModelStrainsDuplicateError", 1);
-                    return countsMap;
-
-                } catch (Exception e) {
-
-                    logger.warn("Skipping bioModel {}: {}", bioModels, e.getLocalizedMessage());
-                }
-            }
-
-            // biological_model_phenotype
-            for (String phenotypeAccessionId : bioModel.getMpAccessionIds()) {
-                try {
-                    parameterMap = new HashMap<>();
-                    parameterMap.put("biological_model_id", bioModel.getBiologicalModelId());
-                    parameterMap.put("phenotype_acc", phenotypeAccessionId);
-                    parameterMap.put("phenotype_db_id", DbIdType.MGI.intValue());
-
-                    count = jdbcCda.update(bioModelPhenotypeInsert, parameterMap);
-                    countsMap.put("bioModelPhenotypes", countsMap.get("bioModelPhenotypes") + count);
-
-                } catch (DuplicateKeyException e) {
-
-                    logger.warn("Duplicate biological_model_phenotype entry: {}. biological model not added.", bioModels);
-                    return countsMap;
-
-                } catch (Exception e) {
-
-                    logger.warn("Skipping bioModel {}: {}", bioModels, e.getLocalizedMessage());
-                }
-            }
+            biologicalModelId = insertBiologicalModel(DbIdType.IMPC.intValue(), mutant.getAllelicComposition(), mutant.getGeneticBackground(), mutant.getZygosity());
+            insertBiologicalModelGenes(biologicalModelId, mutant.getGenes());
+            insertBiologicalModelAlleles(biologicalModelId, mutant.getAlleles());
+            insertBiologicalModelStrains(biologicalModelId, mutant.getStrains());
         }
 
-        return countsMap;
+        return biologicalModelId;
+    }
+
+    @Transactional
+    public int insertBiologicalModelImpc(BioModelInsertDTOControl control) throws DataLoadException {
+
+        // Check to see if model exists before creating, return PK if found
+        Integer biologicalModelId = findBiologicalModel(control.getDbId(), control.getAllelicComposition(), control.getGeneticBackground(), control.getZygosity());
+
+        if (biologicalModelId==null) {
+
+            biologicalModelId = insertBiologicalModel(control.getDbId(), control.getAllelicComposition(), control.getGeneticBackground(), control.getZygosity());
+            insertBiologicalModelStrains(biologicalModelId, control.getStrains());
+        }
+        return biologicalModelId;
     }
 
     /**
-     * Insert biological_model_sample record. Ignore duplicates.
+     * Insert into the biological_model_sample table
      * @param biologicalModelId
      * @param biologicalSampleId
-     * @return the nuber of rows inserted
      * @throws DataLoadException
      */
-    public int insertBiologicalModelSample(int biologicalModelId, int biologicalSampleId) throws DataLoadException {
-        int count = 0;
+    public void insertBiologicalModelSample(int biologicalModelId, int biologicalSampleId) throws DataLoadException {
 
-        final String insert = "INSERT INTO biological_model_sample (biological_model_id, biological_sample_id) " +
-                                   "VALUES (:biological_model_id, :biological_sample_id)";
+        final String insert = "INSERT INTO biological_model_sample (" +
+                "biological_model_id,   biological_sample_id) VALUES (" +
+                ":biological_model_id, :biological_sample_id)";
 
-        // Insert biological_model_sample. Ignore any duplicates.
+        Map<String, Object> parameterMap = new HashMap<>();
+        parameterMap.put("biological_model_id", biologicalModelId);
+        parameterMap.put("biological_sample_id", biologicalSampleId);
+
+        KeyHolder keyholder = new GeneratedKeyHolder();
+        SqlParameterSource parameterSource = new MapSqlParameterSource(parameterMap);
+
+        String message = "INSERT INTO biological_model_sample failed for biological_model_id " + biologicalModelId + ", biological_sample_id " + biologicalSampleId + ". Skipping...";
+
         try {
-            Map<String, Object> parameterMap = new HashMap<>();
-            parameterMap.put("biological_model_id", biologicalModelId);
-            parameterMap.put("biological_sample_id", biologicalSampleId);
 
-            count = jdbcCda.update(insert, parameterMap);
+            jdbcCda.update(insert, parameterSource, keyholder);
 
         } catch (DuplicateKeyException e) {
 
+            throw new DataLoadException(message, DataLoadException.DETAIL.DUPLICATE_KEY);
+        }
+    }
+
+    public int insertBiologicalModelsMGI(List<BioModelInsertDTOMGI> models) throws DataLoadException
+    {
+        int count = 0;
+
+        for (BioModelInsertDTOMGI model : models) {
+            insertBiologicalModelMGI(model);
+            count++;
         }
 
         return count;
     }
+    @Transactional
+    protected int insertBiologicalModelMGI(BioModelInsertDTOMGI model) throws DataLoadException {
+        int biologicalModelId = 0;
 
-    /**
-     * Insert biological_model_strain record. Ignore duplicates.
-     * @param biologicalModelId the biological model primary key
-     * @param strainId the strain primary key
-     * @return the nuber of rows inserted
-     * @throws DataLoadException
-     */
-    public int insertBiologicalModelStrain(int biologicalModelId, DatasourceEntityId strainId) throws DataLoadException {
-        int count = 0;
+        biologicalModelId = insertBiologicalModel(model.getDbId(), model.getAllelicComposition(), model.getGeneticBackground(), model.getZygosity());
+        insertBiologicalModelGenes(biologicalModelId, model.getGenes());
+        insertBiologicalModelAlleles(biologicalModelId, model.getAlleles());
+        insertBiologicalModelPhenotypes(biologicalModelId, model.getPhenotypes());
 
-        final String insert = "INSERT INTO biological_model_strain (biological_model_id, strain_acc, strain_db_id) " +
-                                   "VALUES (:biological_model_id, :strain_acc, :strain_db_id)";
-
-        // Insert biological_model_sample. Ignore any duplicates.
-        try {
-            Map<String, Object> parameterMap = new HashMap<>();
-            parameterMap.put("biological_model_id", biologicalModelId);
-            parameterMap.put("strain_acc", strainId.getAccession());
-            parameterMap.put("strain_db_id", strainId.getDatabaseId());
-
-            count = jdbcCda.update(insert, parameterMap);
-
-            List<Strain> strainList = jdbcCda.query("SELECT * FROM strain WHERE acc=:strain_acc", parameterMap, new StrainRowMapper());
-
-            if (strainList.isEmpty()) {
-                logger.warn("Biomodel ID " + biologicalModelId + " biological_model_strain was inserted but no corresponding strain was found: " + strainId.getAccession());
-            }
-
-        } catch (DuplicateKeyException e) {
-
-        }
-
-        return count;
+        return biologicalModelId;
     }
 
     /**
@@ -1846,35 +1712,27 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
                              e.getLocalizedMessage());
             }
             if (count == 0) {
-
                 logger.warn("Insert MediaSampleParameter failed for parameterSource {}. Marking it as missing ...", parameterSource);
                 updateObservationMissingFlag(observationPk, true);
-
             } else {
-
                 // Save any parameter associations.
                 for (ParameterAssociation parameterAssociation : mediaFile.getParameterAssociation()) {
-                    List<Integer> parameterAssociationPks = insertParameterAssociation(parameterAssociation, observationPk, simpleParameterList, ontologyParameterList);
-                    for (Integer parameterAssociationPk : parameterAssociationPks) {
+                    int parameterAssociationPk = insertParameterAssociation(observationPk, parameterAssociation, simpleParameterList, ontologyParameterList);
 
-                        // Save any Dimensions.
-                        for (Dimension dimension : parameterAssociation.getDim()) {
-                            insertDimension(parameterAssociationPk, dimension);
-                        }
+                    // Save any Dimensions.
+                    for (Dimension dimension : parameterAssociation.getDim()) {
+                        insertDimension(parameterAssociationPk, dimension);
                     }
                 }
-            }
 
-            // Save any procedure metadata.
-            for (ProcedureMetadata procedureMetadata : mediaFile.getProcedureMetadata()) {
-                insertProcedureMetadata(mediaFile.getProcedureMetadata(), dccExperimentDTO.getProcedureId(),
-                                        experimentPk, observationPk);
+                // Save any procedure metadata.
+                for (ProcedureMetadata procedureMetadata : mediaFile.getProcedureMetadata()) {
+                    insertProcedureMetadata(mediaFile.getProcedureMetadata(), dccExperimentDTO.getProcedureId(),
+                                            experimentPk, observationPk);
+                }
             }
-
         } else {
-
             logger.debug("Image record not loaded (missing = 1). parameterStableId {}, URI {}" + parameterStableId,  URI);
-
         }
 
         return observationPk;
@@ -1932,18 +1790,6 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
                             ") VALUES (" +
                             ":observationPk, :samplePk, :downloadFilePath, :imageLink, :incrementValue, :fileType, :mediaSampleLocalId, :mediaSectionId, :organisationPk, :fullResolutionFilePath" +
                             ")";
-
-            // Save any parameter associations.
-            for (ParameterAssociation parameterAssociation : mediaParameter.getParameterAssociation()) {
-                List<Integer> parameterAssociationPks = insertParameterAssociation(parameterAssociation, observationPk, null, null);
-                for (Integer parameterAssociationPk : parameterAssociationPks) {
-
-                    // Save any Dimensions.
-                    for (Dimension dimension : parameterAssociation.getDim()) {
-                        insertDimension(parameterAssociationPk, dimension);
-                    }
-                }
-            }
 
             String filePathWithoutName    = createNfsPathWithoutName(dccExperimentDTO, phenotypingCenter, parameterStableId);
             String fullResolutionFilePath = getFullResolutionFilePath(filePathWithoutName, mediaParameter.getURI());
@@ -2149,27 +1995,34 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
             try {
                 count = jdbcCda.update(insert, parameterMap);
             } catch (Exception e) {
-                logger.error("INSERT to image_record_observation table for SeriesMediaParameterValue failed for parameterStableId {}, observationType {}, observationPk {}, samplePk {}, downloadFilePath {}, imageLink {}, fileType {}, organisationPk, fullResolutionFilePath {}. Reason:\n\t{}",
+                logger.error("INSERT to image_record_observation table for SeriesMediaParameterValue failed for parameterStableId {}, observationType {}, observationPk {}, samplePk {}, downloadFilePath {}, imageLink {}, fileType {}, organisationPk {}, fullResolutionFilePath {}. Reason:\n\t{}",
                              parameterStableId, observationType.toString(), observationPk, samplePk, seriesMediaParameterValue.getURI(), seriesMediaParameterValue.getLink(),
                              seriesMediaParameterValue.getFileType(), phenotypingCenterPk, fullResolutionFilePath, e.getLocalizedMessage());
             }
             if (count == 0) {
-
                 logger.warn("Insert MediaParameter failed for parameterSource {}. Marking it as missing ...", parameterSource);
                 updateObservationMissingFlag(observationPk, true);
-
             } else {
 
-                // Save any parameter associations.
-                for (ParameterAssociation parameterAssociation : seriesMediaParameterValue.getParameterAssociation()) {
-                    List<Integer> parameterAssociationPks = insertParameterAssociation(parameterAssociation, observationPk, simpleParameterList, ontologyParameterList);
-                    for (Integer parameterAssociationPk : parameterAssociationPks) {
+                try {
+                    // Save any parameter associations.
+                    if (seriesMediaParameterValue.getParameterAssociation() != null && seriesMediaParameterValue.getParameterAssociation().size() > 0) {
 
-                        // Save any Dimensions.
-                        for (Dimension dimension : parameterAssociation.getDim()) {
-                            insertDimension(parameterAssociationPk, dimension);
+                        for (ParameterAssociation parameterAssociation : seriesMediaParameterValue.getParameterAssociation()) {
+                            int parameterAssociationPk = insertParameterAssociation(observationPk, parameterAssociation, simpleParameterList, ontologyParameterList);
+
+                            // Save any Dimensions.
+                            if (parameterAssociation.getDim() != null && parameterAssociation.getDim().size() > 0) {
+                                for (Dimension dimension : parameterAssociation.getDim()) {
+                                    insertDimension(parameterAssociationPk, dimension);
+                                }
+                            }
                         }
                     }
+                } catch (NullPointerException e) {
+                    logger.error("Issue saving parameter association for parameterStableId {}, observationType {}, observationPk {}, samplePk {}, downloadFilePath {}, imageLink {}, fileType {}, organisationPk {}, fullResolutionFilePath {}. Reason:\n\t{}",
+                            parameterStableId, observationType.toString(), observationPk, samplePk, seriesMediaParameterValue.getURI(), seriesMediaParameterValue.getLink(),
+                            seriesMediaParameterValue.getFileType(), phenotypingCenterPk, fullResolutionFilePath, e.getLocalizedMessage());
                 }
 
                 // Save any procedure metadata.
@@ -2178,11 +2031,8 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
                                             experimentPk, observationPk);
                 }
             }
-
         } else {
-
             logger.debug("Image record not loaded: " + seriesMediaParameterValue.getURI());
-
         }
 
         return observationPk;
@@ -2363,97 +2213,64 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
         return countsMap;
     }
 
-    /**
-     * Insert one or more parameter associations into the parameter_association table. Multiple rows will be generated
-     * for the same observation if there is more than one unique simple parameter and/or more than one ontology
-     * parameter. If no parameter association value is found (they come in the simpleParameters and ontologyParameters
-     * lists), the parameter_association_value will be set to null.
-     *
-     * @param parameterAssociation the object to be inserted
-     * @param observationPk the observation primary key
-     * @param simpleParameters a list of simple parameters. May be NULL or empty.
-     * @param ontologyParameters a list of ontology parameters. May be NULL or empty.
-     *
-     * @return a list of parameter_association primary keys for the inserted rows.
-     */
-    public List<Integer> insertParameterAssociation(ParameterAssociation parameterAssociation,
-                                                    int observationPk,
-                                                    List<SimpleParameter> simpleParameters,
-                                                    List<OntologyParameter> ontologyParameters)
+
+    // Returns the parameter association primary key.
+    public int insertParameterAssociation(int observationPk, ParameterAssociation parameterAssociation,
+                                           List<SimpleParameter> simpleParameterList,
+                                           List<OntologyParameter> ontologyParameterList)
     {
-        List<Integer> pks = new ArrayList<>();
-        String insert = "INSERT INTO parameter_association (parameter_id, observation_id,  sequence_id, parameter_association_value)" +
-                "VALUES (:parameterId, :observationPk, :sequenceId, :parameterAssociationValue)";
+        int pk = 0;
+        String insert = "INSERT INTO parameter_association (observation_id,  parameter_id, sequence_id, parameter_association_value)" +
+                "VALUES (:observationPk, :parameterId, :sequenceId, :parameterAssociationValue)";
 
         KeyHolder           keyholder       = new GeneratedKeyHolder();
 
         Map<String, Object> parameterMap = new HashMap<>();
-        parameterMap.put("parameterId", parameterAssociation.getParameterID());
         parameterMap.put("observationPk", observationPk);
+        parameterMap.put("parameterId", parameterAssociation.getParameterID());
         parameterMap.put("sequenceId", parameterAssociation.getSequenceID());
 
-        Set<String> parameterAssociationValues = computeParameterAssociationValues(parameterAssociation.getParameterID(), simpleParameters, ontologyParameters);
-        if (parameterAssociationValues.isEmpty()) {
-            parameterAssociationValues.add(null);
+        // set the parameter association value here. It is always a
+        // seriesParameter or Ontology so not multiple values are allowed.
+        // Loop through simple parameters (but not ontology parameters as they
+        // don't have values) to get the value for this parameterAssociation and get
+        // the value for it.
+        String value = null;
+        for (SimpleParameter sp : simpleParameterList) {
+            String paramStableId = sp.getParameterID();                             // parameter stable id
+            if (paramStableId.equals(parameterAssociation.getParameterID())) {
+                value = sp.getValue();
+            }
         }
-        for (String value : parameterAssociationValues) {
-            parameterMap.put("parameterAssociationValue", value);
-            SqlParameterSource  parameterSource = new MapSqlParameterSource(parameterMap);
-
-            try {
-                int count = jdbcCda.update(insert, parameterSource, keyholder);
-
-                if (count > 0) {
-                    pks.add(keyholder.getKey().intValue());
+        for (OntologyParameter sp : ontologyParameterList) {
+            String paramStableId = sp.getParameterID();                             // parameter stable id
+            if (paramStableId.equals(parameterAssociation.getParameterID())) {
+                for (String term : sp.getTerm()) {
+                    System.err.println("ontology parameter in parameterAssociation not storing these yet but if they are here we should! term has values in them term=" + term);
                 }
-            } catch (DuplicateKeyException e) {
-                // Ignore.
+                value = org.apache.commons.lang.StringUtils.join(sp.getTerm(), ",");
             }
         }
 
-        return pks;
+        if (value != null) {
+            if (value.length() > 45) {
+                String trimmedValue = StringUtils.left(value, 44);
+                logger.info("Trimming parameterAssociationValue '{}' to 44 characters ('{}')", value, trimmedValue);
+                value = trimmedValue;
+            }
+        }
+
+        parameterMap.put("parameterAssociationValue", value);
+        SqlParameterSource  parameterSource = new MapSqlParameterSource(parameterMap);
+
+        int count = jdbcCda.update(insert, parameterSource, keyholder);
+        if (count > 0) {
+            pk = keyholder.getKey().intValue();
+        }
+
+        return pk;
     }
 
-    /**
-     * The parameter_association.parameter_association_value field is used to describe/annotate the associated image.
-     * The value(s) may come from any or all of:
-     * <ul>
-     *     <li>one or more {@link SimpleParameter} parameterStableId values</li>
-     *     <li>one or more {@link OntologyParameter} parameterStableId values</li>
-     * </ul>
-     *
-     * @param simpleParameters a list of simple parameters. May be NULL.
-     * @param ontologyParameters a list of ontology parameters. May be NULL.
-     *
-     * @return a list of strings containing zero or more parameter_association_value values suitable for display as
-     * annotation label(s).
-     */
-    private Set<String> computeParameterAssociationValues(String parameterStableId, List<SimpleParameter> simpleParameters, List<OntologyParameter> ontologyParameters) {
-
-        Set<String> values = new HashSet<>();
-
-        if (simpleParameters != null) {
-            for (SimpleParameter simpleParameter : simpleParameters) {
-                String paramStableId = simpleParameter.getParameterID();                             // parameter stable id
-                if (paramStableId.equals(parameterStableId)) {
-                    values.add(simpleParameter.getValue());
-                }
-            }
-        }
-
-        if (ontologyParameters != null) {
-            for (OntologyParameter ontologyParameter : ontologyParameters) {
-                String paramStableId = ontologyParameter.getParameterID();                            // parameter stable id
-                if (paramStableId.equals(parameterStableId)) {
-                    for (String term : ontologyParameter.getTerm()) {
-                        values.add(term);
-                    }
-                }
-            }
-        }
-
-        return values;
-    }
 
 
     /**
@@ -2601,8 +2418,6 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
     }
 
 
-
-
     /**
      * @return a strain, keyed by strain name or mgi accession id
      *
@@ -2676,6 +2491,22 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
         }
 
         return strain;
+    }
+
+
+    /**
+     * @return The full list of {@link Strain}, indexed by strain name
+     */
+    public Map<String, Strain> getStrainsByName() {
+        Map<String, Strain> strains = new ConcurrentHashMap<>();
+
+        Map<String, Object> parameterMap = new HashMap<>();
+        List<Strain> strainList = jdbcCda.query("SELECT * FROM strain", parameterMap, new StrainRowMapper());
+        for (Strain strain : strainList) {
+            strains.put(strain.getName(), strain);
+        }
+
+        return strains;
     }
 
 
@@ -2781,18 +2612,6 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
         } catch (DuplicateKeyException dke) {
 
         }
-
-        return count;
-    }
-
-    public int updateBiologicalModelZygosity(int biologicalModelPk, String zygosity) {
-        final String update = "UPDATE biological_model SET zygosity = :zygosity WHERE id = :biologicalModelPk";
-
-        Map<String, Object> parameterMap = new HashMap<>();
-        parameterMap.put("zygosity", zygosity);
-        parameterMap.put("biologicalModelPk", biologicalModelPk);
-
-        int count = jdbcCda.update(update, parameterMap);
 
         return count;
     }
@@ -3026,6 +2845,7 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
             biologicalSample.setStableId(rs.getString("external_id"));
             Datasource datasource = new Datasource();
             datasource.setId(rs.getInt("db_id"));
+            datasource.setShortName(rs.getString("short_name"));
             biologicalSample.setDatasource(datasource);
             biologicalSample.setType(new OntologyTerm(rs.getString("sample_type_acc"), rs.getInt("sample_type_db_id")));
             biologicalSample.setGroup(rs.getString("sample_group"));
@@ -3183,113 +3003,36 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
         jdbcCda.getJdbcOperations().execute(query);
     }
 
+
     /**
-     * Returns a biological model. First queries for an existing one matching input parameters. If not found, creates
-     * one and returns it.
+     * Maps dcc zygosity string to cda zygosity string suitable for insertion into the cda database.
      *
-     * @param colony
-     * @param strainMapper
-     * @param zygosity
-     * @param sampleGroup
-     * @param allelesBySymbol
-     * @return {@link BiologicalModel} matching the input parameters. Creates it if necessary. NOTE: if the colony has no background strain, a null BiologicalModel is returned. This can and does happen.
-     * @throws DataLoadException
+     * @param dccZygosity The dcc zygosity string
+     *
+     * @return the cda zygosity string, or null if the dccZygosity is unknown.
      */
-    public BiologicalModel selectOrInsertBiologicalModel (
-            PhenotypedColony colony,
-            StrainMapper strainMapper,
-            String zygosity,
-            String sampleGroup,
-            Map<String, Allele> allelesBySymbol) throws DataLoadException
-    {
+    public String getSpecimenLevelMutantZygosity(String dccZygosity) {
 
-        String message;
+        String zygosity;
+        switch (dccZygosity) {
+            case "wild type":
+            case "homozygous":
+                zygosity = ZygosityType.homozygote.getName();
+                break;
+            case "heterozygous":
+                zygosity = ZygosityType.heterozygote.getName();
+                break;
+            case "hemizygous":
+                zygosity = ZygosityType.hemizygote.getName();
+                break;
 
-        GenomicFeature gene;
-        String geneticBackground;
-        Strain backgroundStrain;
-
-        if (colony == null) {
-            logger.warn("colony is null for sample group {}", sampleGroup);
-            throw new DataLoadException("colonyId is null");
+            default:
+                String message = "Unknown dcc zygosity '" + dccZygosity + "'";
+                logger.error(message);
+                zygosity = null;
         }
 
-        // Get the gene. Mark as error and skip if no gene.
-        gene = colony.getGene();
-        if (gene == null) {
-            message = "Missing gene information for dcc-supplied colony " + colony.getColonyName() + " for allele symbol '" + colony.getAlleleSymbol() + "'. Skipping...";
-            logger.error(message);
-            throw new DataLoadException(message);
-        }
-
-        // Get the allele by symbol.
-        Allele allele = allelesBySymbol.get(colony.getAlleleSymbol());
-        if (allele == null) {
-            allele = createAndInsertAllele(colony.getAlleleSymbol(), gene);
-        }
-
-        // Get the background strain from iMits. Some EuroPhenome background strains require translation because
-        // they are comprised of multiple strains separated by semicolons (or other reasons.
-        // strainMapper.parseMultipleBackgroundStrainNames takes care of this translation
-
-        String backgroundStrainName = strainMapper.parseMultipleBackgroundStrainNames(colony.getBackgroundStrain());
-        if ((backgroundStrainName == null) || backgroundStrainName.trim().isEmpty()) {
-            throw new DataLoadException("parseMultipleBackgroundStrainNames returned null/empty backgroundStrainName for colony " + colony.getColonyName(), DataLoadException.DETAIL.NO_BACKGROUND_STRAIN);
-        }
-
-        //
-        String lookedupStrainName = (strainMapper.lookupBackgroundStrain(colony.getBackgroundStrain())!=null)
-                ? strainMapper.lookupBackgroundStrain(colony.getBackgroundStrain()).getName()
-                : colony.getBackgroundStrain();
-
-        backgroundStrain = getStrainByNameOrMgiAccessionIdOrSynonym(lookedupStrainName);
-
-        // Create the strain if it doesn't exist
-        if (backgroundStrain == null) {
-            backgroundStrain = strainMapper.createBackgroundStrain(backgroundStrainName);
-            insertStrain(backgroundStrain);
-        }
-
-        geneticBackground = backgroundStrain.getGeneticBackground();
-
-
-        // Get the biological model. Create one if it is not found.
-        String allelicComposition = strainMapper.createAllelicComposition(zygosity, allele.getSymbol(), gene.getSymbol(), sampleGroup);
-        BiologicalModelAggregator biologicalModelAggregator = new BiologicalModelAggregator(
-                allelicComposition,
-                allele.getSymbol(),
-                geneticBackground,
-                zygosity,
-                allele.getId().getAccession(),
-                colony.getGene().getId().getAccession(),
-                backgroundStrain.getId().getAccession());
-
-        BiologicalModel biologicalModel = getBiologicalModel(allelicComposition, geneticBackground);
-        if (biologicalModel == null) {
-            List<BiologicalModelAggregator> biologicalModelAggregators = new ArrayList<>();
-            biologicalModelAggregators.add(biologicalModelAggregator);
-
-            Map<String, Integer> results = insertBiologicalModel(biologicalModelAggregators);
-            if (results.containsKey("bioModelStrainsDuplicateError")) {
-                logger.warn("bioModelStrainsDuplicateError: allelicComposition: " + allelicComposition + ", colonyId: " + colony.getColonyName() + ", sampleGroup: " + sampleGroup);
-            }
-
-            biologicalModel = getBiologicalModel(allelicComposition, geneticBackground);
-            if (biologicalModel == null) {
-                throw new DataLoadException("Attempt to create biological model for colony '" + colony.getColonyName() + "' failed.");
-            }
-        } else {
-            if ((biologicalModel.getStrains() == null) || (biologicalModel.getStrains().isEmpty())) {
-
-                // The biological_model_strain table is not inserted when the cda_base database is created, as the info may be obsolete, and the strain is not available. Insert it here.
-                insertBiologicalModelStrain(biologicalModel.getId(), backgroundStrain.getId());
-            }
-
-            // When the cda_base table is created, the biological_model table is inserted, but the zygosity is not known. Now we know it. Update the biological_model.zygosity column here.
-            updateBiologicalModelZygosity(biologicalModel.getId(), zygosity);
-        }
-
-        return biologicalModel;
+        return zygosity;
     }
 
     public class GenomicFeatureRowMapper implements RowMapper<GenomicFeature> {
@@ -3596,8 +3339,6 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
                 strain.setId(new DatasourceEntityId(rs.getString("acc"), rs.getInt("db_id")));
                 strain.setName(rs.getString("name"));
 
-                strain.setSynonyms(getSynonyms(rs.getString("acc")));
-
             } catch (Exception e) {
 
                 throw new RuntimeException(e);
@@ -3679,4 +3420,217 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
 
    		return fullResolutionFilePath;
    	}
+
+    private Integer findBiologicalModel(int dbId, String allelicComposition, String geneticBackground, String zygosity) throws DataLoadException {
+
+        final String find = "SELECT id FROM biological_model WHERE " +
+                "db_id=:db_id AND allelic_composition=:allelic_composition AND genetic_background=:genetic_background AND zygosity=:zygosity";
+
+        Map<String, Object> parameterMap = new HashMap<>();
+        parameterMap.put("db_id", dbId);
+        parameterMap.put("allelic_composition", allelicComposition);
+        parameterMap.put("genetic_background", geneticBackground);
+        parameterMap.put("zygosity", zygosity);
+
+        SqlParameterSource parameterSource = new MapSqlParameterSource(parameterMap);
+
+        Integer pk;
+        try {
+            pk = jdbcCda.queryForObject(find, parameterSource, Integer.class);
+        } catch (EmptyResultDataAccessException e) {
+            // model not found
+            return null;
+        }
+
+        if (pk != null && pk > 0) {
+            return pk;
+        }
+
+        return null;
+    }
+
+   	private int insertBiologicalModel(int dbId, String allelicComposition, String geneticBackground, String zygosity) throws DataLoadException {
+
+        final String insert = "INSERT INTO biological_model (" +
+                "db_id,   allelic_composition,  genetic_background,  zygosity) VALUES (" +
+                ":db_id, :allelic_composition, :genetic_background, :zygosity)";
+
+        Map<String, Object> parameterMap = new HashMap<>();
+        parameterMap.put("db_id", dbId);
+        parameterMap.put("allelic_composition", allelicComposition);
+        parameterMap.put("genetic_background", geneticBackground);
+        parameterMap.put("zygosity", zygosity);
+
+        KeyHolder keyholder = new GeneratedKeyHolder();
+        SqlParameterSource parameterSource = new MapSqlParameterSource(parameterMap);
+
+        int                      count;
+        DataLoadException.DETAIL detail = DataLoadException.DETAIL.GENERAL_ERROR;
+
+        try {
+
+            count = jdbcCda.update(insert, parameterSource, keyholder);
+            if (count > 0) {
+                return keyholder.getKey().intValue();
+            }
+
+        } catch (DuplicateKeyException e) {
+            detail = DataLoadException.DETAIL.DUPLICATE_KEY;
+        }
+
+        String message = "INSERT INTO biological_model failed for db_id " + dbId + ", allelic_composition " + allelicComposition + ", genetic_background " + geneticBackground + ", zygosity " + zygosity + "'. Skipping...";
+
+        throw new DataLoadException(message, detail);
+    }
+
+    /**
+     * Inserts a {@link List} of genes associated with {@code biologicalModelId} into the biological_model_genomic_feature table.
+     * @param biologicalModelId biological model primary key
+     * @param genes list of gene accession ids and db_ids to be inserted
+     *              
+     * @return The number of genes inserted
+     * 
+     * @throws DataLoadException If the gene(s) are already associated with this biological model
+     */
+    private int insertBiologicalModelGenes(int biologicalModelId, Set<AccDbId> genes) throws DataLoadException {
+
+        int count = 0;
+
+        final String insert = "INSERT INTO biological_model_genomic_feature (" +
+                "biological_model_id,   gf_acc,  gf_db_id) VALUES (" +
+                ":biological_model_id, :gf_acc, :gf_db_id)";
+
+        Map<String, Object> parameterMap = new HashMap<>();
+        parameterMap.put("biological_model_id", biologicalModelId);
+
+        for (AccDbId gene : genes) {
+            parameterMap.put("gf_acc", gene.getAcc());
+            parameterMap.put("gf_db_id", gene.getDbId());
+
+            KeyHolder          keyholder       = new GeneratedKeyHolder();
+            SqlParameterSource parameterSource = new MapSqlParameterSource(parameterMap);
+
+            String message = "INSERT INTO biological_model_genomic_feature failed for biological_model_id " + biologicalModelId + ", gf_acc " + gene.getAcc() + ", gf_db_id " + gene.getDbId() + ". Skipping...";
+
+            try {
+
+                count += jdbcCda.update(insert, parameterSource, keyholder);
+
+            } catch (DuplicateKeyException e) {
+
+                throw new DataLoadException(message, DataLoadException.DETAIL.DUPLICATE_KEY);
+            }
+        }
+        
+        return count;
+    }
+
+
+    /**
+     * Inserts a {@link List} of alleles associated with {@code biologicalModelId} into the biological_model_allele table.
+     * @param biologicalModelId biological model primary key
+     * @param alleles list of allele accession ids and db_ids to be inserted
+     *
+     * @return The number of alleles inserted
+     *
+     * @throws DataLoadException If the allele(s) are already associated with this biological model
+     */
+    private int insertBiologicalModelAlleles(int biologicalModelId, Set<AccDbId> alleles) throws DataLoadException {
+
+        int count = 0;
+        
+        final String insert = "INSERT INTO biological_model_allele (" +
+                "biological_model_id,   allele_acc,  allele_db_id) VALUES (" +
+                ":biological_model_id, :allele_acc, :allele_db_id)";
+
+        Map<String, Object> parameterMap = new HashMap<>();
+        parameterMap.put("biological_model_id", biologicalModelId);
+
+        for (AccDbId allele : alleles) {
+            parameterMap.put("allele_acc", allele.getAcc());
+            parameterMap.put("allele_db_id", allele.getDbId());
+
+            KeyHolder          keyholder       = new GeneratedKeyHolder();
+            SqlParameterSource parameterSource = new MapSqlParameterSource(parameterMap);
+
+            String message = "INSERT INTO biological_model_allele failed for biological_model_id " + biologicalModelId + ", allele_acc " + allele.getAcc() + ", allele_db_id " + allele.getDbId() + ". Skipping...";
+
+            try {
+
+                count += jdbcCda.update(insert, parameterSource, keyholder);
+
+            } catch (DuplicateKeyException e) {
+
+                throw new DataLoadException(message, DataLoadException.DETAIL.DUPLICATE_KEY);
+            }
+        }
+
+        return count;
+    }
+
+    private int insertBiologicalModelStrains(int biologicalModelId, Set<AccDbId> strains) throws DataLoadException {
+
+        int count = 0;
+        
+        final String insert = "INSERT INTO biological_model_strain (" +
+                "biological_model_id,   strain_acc,  strain_db_id) VALUES (" +
+                ":biological_model_id, :strain_acc, :strain_db_id)";
+
+        Map<String, Object> parameterMap = new HashMap<>();
+        parameterMap.put("biological_model_id", biologicalModelId);
+
+        for (AccDbId strain : strains) {
+            parameterMap.put("strain_acc", strain.getAcc());
+            parameterMap.put("strain_db_id", strain.getDbId());
+
+            KeyHolder          keyholder       = new GeneratedKeyHolder();
+            SqlParameterSource parameterSource = new MapSqlParameterSource(parameterMap);
+
+            String message = "INSERT INTO biological_model_strain failed for biological_model_id " + biologicalModelId + ", strain_acc " + strain.getAcc() + ", strain_db_id " + strain.getDbId() + ". Skipping...";
+
+            try {
+
+                count += jdbcCda.update(insert, parameterSource, keyholder);
+
+            } catch (DuplicateKeyException e) {
+
+                throw new DataLoadException(message, DataLoadException.DETAIL.DUPLICATE_KEY);
+            }
+        }
+
+        return count;
+    }
+
+    private int insertBiologicalModelPhenotypes(int biologicalModelId, Set<AccDbId> phenotypes) throws DataLoadException {
+
+        int count = 0;
+        
+        final String insert = "INSERT INTO biological_model_phenotype (" +
+                "biological_model_id,   phenotype_acc,  phenotype_db_id) VALUES (" +
+                ":biological_model_id, :phenotype_acc, :phenotype_db_id)";
+
+        Map<String, Object> parameterMap = new HashMap<>();
+        parameterMap.put("biological_model_id", biologicalModelId);
+
+        for (AccDbId phenotype : phenotypes) {
+            parameterMap.put("phenotype_acc", phenotype.getAcc());
+            parameterMap.put("phenotype_db_id", phenotype.getDbId());
+
+            KeyHolder          keyholder       = new GeneratedKeyHolder();
+            SqlParameterSource parameterSource = new MapSqlParameterSource(parameterMap);
+
+            String message = "INSERT INTO biological_model_phenotype failed for biological_model_id " + biologicalModelId + ", phenotype_acc " + phenotype.getAcc() + ", phenotype_db_id " + phenotype.getDbId() + ". Skipping...";
+
+            try {
+
+                count += jdbcCda.update(insert, parameterSource, keyholder);
+
+            } catch (DuplicateKeyException e) {
+
+                throw new DataLoadException(message, DataLoadException.DETAIL.DUPLICATE_KEY);
+            }
+        }
+
+        return count;
+    }
 }

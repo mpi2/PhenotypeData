@@ -160,12 +160,12 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
-                    <!-- Discuss with Jeremy and Jonathan, but for now have 
-                         variable I can pass it
+                    <mainClass>org.springframework.boot.loader.PropertiesLauncher</mainClass>
+                    <!-- Discuss with Jeremy and Jonathan, how to use properties
+                         to specify main class to run. For now locally I
+                         created a variable I can pass it
                     -->
-                    <!--mainClass>org.springframework.boot.loader.PropertiesLauncher</mainClass-->
-                    <!--mainClass>org.mousephenotype.cda.loads.create.extract.dcc.ExtractDccSpecimens</mainClass-->
-                    <mainClass>${myMainClass}</mainClass>
+                    <!--mainClass>${myMainClass}</mainClass-->
                 </configuration>
                 <executions>
                     <execution>

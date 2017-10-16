@@ -770,6 +770,35 @@ public class DccSqlUtils {
         return list;
     }
 
+
+    public List<ParameterAssociation> getSeriesMediaParameterValueParameterAssociations(long seriesMediaParameterValuepk) {
+        String query = "SELECT\n" +
+                "  pa.*\n" +
+                "FROM seriesMediaParameterValue_parameterAssociation smpvpa\n" +
+                "JOIN parameterAssociation pa ON pa.pk = smpvpa.seriesMediaParameterValue_pk\n" +
+                "where smpvpa.seriesMediaParameterValue_pk = :pk";
+
+        Map<String, Object> parameterMap = new HashMap<>();
+        parameterMap.put("pk", seriesMediaParameterValuepk);
+
+        return npJdbcTemplate.query(query, parameterMap, new ParameterAssociationRowMapper());
+    }
+
+
+    public List<ProcedureMetadata> getSeriesMediaParameterValueProcedureMetadataAssociations(long seriesMediaParameterValuepk) {
+        String query = "SELECT\n" +
+                "  pm.*\n" +
+                "FROM seriesMediaParameterValue_procedureMetadata smpvpm\n" +
+                "JOIN procedureMetadata pm ON pm.pk = smpvpm.seriesMediaParameterValue_pk\n" +
+                "WHERE smpvpm.seriesMediaParameterValue_pk = :pk";
+
+        Map<String, Object> parameterMap = new HashMap<>();
+        parameterMap.put("pk", seriesMediaParameterValuepk);
+
+        return npJdbcTemplate.query(query, parameterMap, new ProcedureMetadataRowMapper());
+    }
+
+
     private class SeriesParameterEx {
         private long procedure_pk;
         private SeriesParameter seriesParameter;
@@ -2347,14 +2376,17 @@ public class DccSqlUtils {
                         "  s.colonyId   AS colonyId,\n" +
                         "  s.specimenId AS specimenId,\n" +
                         "  s.gender     AS gender,\n" +
+                        "  s.strainId   AS specimenStrainId,\n" +
+                        "  s.zygosity   AS zygosity,\n" +
                         "  sc.value     AS rawProcedureStatus,\n" +
-                        "  0            AS isLineLevel\n" +
+                        "  0            AS isLineLevel,\n" +
+                        "  s.isBaseline AS isControl\n" +
                         "FROM experiment e\n" +
                         "JOIN center_procedure                 cp  ON cp .pk            = e  .center_procedure_pk\n" +
                         "JOIN center                           c   ON c  .pk            = cp .center_pk\n" +
                         "JOIN procedure_                       p   ON p  .pk            = cp .procedure_pk\n" +
                         "JOIN experiment_specimen              es  ON es .experiment_pk = e  .pk\n" +
-                        "JOIN specimen                         s   ON s  .pk            = es .specimen_pk\n" +
+                        "LEFT OUTER JOIN specimen              s   ON s  .pk            = es .specimen_pk\n" +
                         "LEFT OUTER JOIN experiment_statuscode esc ON esc.experiment_pk = e  .pk\n" +
                         "LEFT OUTER JOIN statuscode            sc  ON sc .pk            = esc.statuscode_pk\n" +
                         "UNION ALL\n" +
@@ -2372,8 +2404,11 @@ public class DccSqlUtils {
                         "  l.colonyId,\n" +
                         "  NULL       AS specimenId,\n" +
                         "  NULL       AS gender,\n" +
+                        "  NULL       AS specimenStrainId,\n" +
+                        "  NULL       AS zygosity,\n" +
                         "  sc.value   AS rawProcedureStatus,\n" +
-                        "  1 AS isLineLevel\n" +
+                        "  1          AS isLineLevel,\n" +
+                        "  0          AS isControl\n" +
                         "FROM line l\n" +
                         "JOIN center_procedure            cp  ON cp .pk            = l  .center_procedure_pk\n" +
                         "JOIN center                      c   ON c  .pk            = cp .center_pk\n" +
