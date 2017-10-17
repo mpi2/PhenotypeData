@@ -104,6 +104,9 @@
             if (window.location.host.indexOf("localhost") != -1) {
                 window.location.href = e.target.href.replace("/data",baseUrl);
             }
+            else {
+                window.location.href = e.target.href;
+            }
         });
 		
 		
