@@ -1678,7 +1678,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 
                 while (r.next()) {
 
-                    StatisticalResultDTO doc = parseLineResult(r);
+                   StatisticalResultDTO doc = parseLineResult(r);
                     doc.setDocId(doc.getDocId()+"-"+(i++));
 
                     if (embryoSignificantResults.containsKey(r.getString("significant_id"))) {
@@ -1695,6 +1695,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
                 }
 
             } catch (Exception e) {
+            	e.printStackTrace();
                 logger.warn(" Error occurred getting embryo results", e);
             }
 
