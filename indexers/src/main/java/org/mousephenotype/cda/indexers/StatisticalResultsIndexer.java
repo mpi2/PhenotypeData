@@ -197,14 +197,15 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
             if (SAVE) statisticalResultCore.commit();
 
             List<Callable<List<StatisticalResultDTO>>> resultGenerators = Arrays.asList(
-                    getViabilityResults()
-                    , getFertilityResults()
-                    , getReferenceRangePlusResults()
-                    , getEmbryoViabilityResults()
-                    , getEmbryoResults()
-                    , getGrossPathologyResults()
-                    , getUnidimensionalResults()
-                    , getCategoricalResults()
+//                    getViabilityResults()
+//                    , getFertilityResults()
+//                    , getReferenceRangePlusResults()
+//                    , getEmbryoViabilityResults()
+ //                   , 
+                    getEmbryoResults()
+//                    , getGrossPathologyResults()
+//                    , getUnidimensionalResults()
+//                    , getCategoricalResults()
             );
 
             ExecutorService pool = Executors.newFixedThreadPool(4);
@@ -763,11 +764,13 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
             mpIds.forEach(mpId -> {
 
                 OntologyTermDTO term = mpParser.getOntologyTerm(mpId);
-                if (term.getAccessionId() != null){
+                if (term !=null && term.getAccessionId() != null){
                     doc.addMpTermIdOptions(term.getAccessionId());
                     doc.addMpTermNameOptions(term.getName());
                     doc.addMpTermIdOptions(term.getIntermediateIds());
                     doc.addMpTermNameOptions(term.getIntermediateNames());
+                }else{
+                	System.err.println("term is null in indexer for mpId"+mpId);
                 }
 
             });
