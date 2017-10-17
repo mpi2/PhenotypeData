@@ -44,7 +44,7 @@ public class OntologyParserTest {
 
     public static boolean               downloadFiles = false;
     private       Map<String, Download> downloads     = new HashMap<>();  // key = map name. value = download info.
-    public        boolean               doDownload    = true;
+    public        boolean               doDownload    = false;
     private final Logger                logger        = LoggerFactory.getLogger(this.getClass());
     private       OntologyParser        ontologyParser;
 
@@ -299,10 +299,7 @@ public class OntologyParserTest {
     @Test
     public void testTopLevels() throws Exception{
 
-        Set<String> topLevels = new HashSet<>(Arrays.asList("MP:0010768", "MP:0002873", "MP:0001186", "MP:0003631",
-                "MP:0003012", "MP:0005367",  "MP:0005369", "MP:0005370", "MP:0005371", "MP:0005377", "MP:0005378", "MP:0005375", "MP:0005376",
-                "MP:0005379", "MP:0005380",  "MP:0005381", "MP:0005384", "MP:0005385", "MP:0005382", "MP:0005388", "MP:0005389", "MP:0005386",
-                "MP:0005387", "MP:0005391",  "MP:0005390", "MP:0005394", "MP:0005397"));
+        Set<String> topLevels = new HashSet<>(OntologyParserFactory.TOP_LEVEL_MP_TERMS);
 
         ontologyParser = new OntologyParser(downloads.get("mp").target, downloads.get("mp").name, topLevels, null);
 
@@ -311,6 +308,8 @@ public class OntologyParserTest {
         Assert.assertTrue(term.getTopLevelIds().contains("MP:0005375"));
         Assert.assertTrue(term.getTopLevelIds().size() == 1);
         Assert.assertTrue(term.getTopLevelNames().size() == 1);
+
+        Assert.assertTrue(ontologyParser.getOntologyTerm("MP:0005385") != null);
 
         // multiple top levels
         term = ontologyParser.getOntologyTerm("MP:0000017"); // big ears
