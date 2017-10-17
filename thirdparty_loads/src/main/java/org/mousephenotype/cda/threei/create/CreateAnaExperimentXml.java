@@ -147,7 +147,7 @@ public class CreateAnaExperimentXml extends CreateAnaXmls implements CommandLine
             experiment.setDateOfExperiment(exptDate);
             experiment.setExperimentID("3i_" + exptId);
             List<String> specimenIds = new ArrayList<String>();
-            specimenIds.add(integerFormat(row[0]));
+            specimenIds.add(integerFormat(row[2]));
             experiment.setSpecimenID(specimenIds);
             Procedure procedure = new Procedure();
             procedure.setProcedureID(row[25]);

@@ -56,7 +56,8 @@ import java.util.concurrent.*;
 public class ExperimentLoader implements Step, Tasklet, InitializingBean {
 
     // How many threads used to process experiments
-    private static final int N_THREADS = 40;
+    private static final int N_THREADS = 60;
+    private static final Boolean ONE_AT_A_TIME = Boolean.FALSE;
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -330,34 +331,46 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
                 continue;
             }
 
-            Callable<Experiment> task = () -> insertExperiment(dccExperiment);
-            tasks.add(executor.submit(task));
 
-            experimentCount++;
-            if (experimentCount % 100000 == 0) {
-                logger.info("Submitted {} experiments", experimentCount);
+            if (ONE_AT_A_TIME) {
 
-                // Drain the queue so we don't run out of memory
-                while (true) {
-                    Integer done = 0;
-                    Integer left = 0;
-                    for (Future<Experiment> future : tasks) {
-                        if (future.isDone()) {
-                            done += 1;
+                insertExperiment(dccExperiment);
 
-                        } else {
-                            left += 1;
+            } else {
+
+                Callable<Experiment> task = () -> insertExperiment(dccExperiment);
+                tasks.add(executor.submit(task));
+
+                experimentCount++;
+                if (experimentCount % 100000 == 0) {
+                    logger.info("Submitted {} experiments", experimentCount);
+
+                    // Drain the queue so we don't run out of memory
+                    while (true) {
+                        Integer done = 0;
+                        Integer left = 0;
+                        for (Future<Experiment> future : tasks) {
+                            if (future.isDone()) {
+                                done += 1;
+
+                            } else {
+                                left += 1;
+                            }
                         }
-                    }
 
-                    if (left == 0) {
-                        tasks = new ArrayList<>();
-                        break;
+                        if (left == 0) {
+                            tasks = new ArrayList<>();
+                            break;
+                        }
+                        Thread.sleep(5000);
+
                     }
-                    Thread.sleep(5000);
 
                 }
             }
+
+
+
         }
 
         // Drain the final set
@@ -647,7 +660,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
             // CONTROLS
             BioModelKeyControl controlKey = createBioModelControlKey(dbId, phenotypingCenterPk, dccExperiment.getSpecimenStrainId());
 
-            synchronized (controlKey) {
+            synchronized (this) {
                 biologicalModelPk = bioModelMap.get(controlKey);
                 if (biologicalModelPk == null) {
                     biologicalModelPk = createBiologicalModelControl(controlKey);
@@ -663,7 +676,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
             // MUTANTS. Get and use iMits colony info.
             BioModelKeyMutant mutantKey = createBioModelMutantKey(dbId, phenotypingCenterPk, dccExperiment);
 
-            synchronized (mutantKey) {
+            synchronized (this) {
                 biologicalModelPk = bioModelMap.get(mutantKey);
                 if (biologicalModelPk == null) {
                     biologicalModelPk = createBiologicalModelMutant(mutantKey);
@@ -712,8 +725,13 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
             String samplesMapKey = buildSamplesMapKey(dccExperiment);
             biologicalSamplePk = samplesMap.get(samplesMapKey).getId();
 
+
             // Insert into the biological_model_sample table.
-            cdaSqlUtils.insertBiologicalModelSample(biologicalModelPk, biologicalSamplePk);
+            try {
+                cdaSqlUtils.insertBiologicalModelSample(biologicalModelPk, biologicalSamplePk);
+            } catch (DataLoadException e) {
+                logger.debug("Already inserted specimen {} to model {} association", biologicalSamplePk, biologicalModelPk);
+            }
         }
 
        /** Save procedure metadata into metadataCombined and metadataGroup:
@@ -891,7 +909,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         return biologicalModelPk;
     }
 
-    private void createObservations( DccExperimentDTO dccExperiment, int dbId, int experimentPk, String phenotypingCenter, int phenotypingCenterPk, int biologicalSamplePk, int missing) throws DataLoadException {
+    private void createObservations( DccExperimentDTO dccExperiment, int dbId, int experimentPk, String phenotypingCenter, int phenotypingCenterPk, Integer biologicalSamplePk, int missing) throws DataLoadException {
 
         // simpleParameters
         List<SimpleParameter> simpleParameterList = dccSqlUtils.getSimpleParameters(dccExperiment.getDcc_procedure_pk());
@@ -973,9 +991,13 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
 
             for (SeriesMediaParameterValue value : values) {
 
-                // Add in parameterAssociation associations
-                List<ParameterAssociation> parms = dccSqlUtils.getSeriesMediaParameterValueParameterAssociations(value.getHjid());
-                value.setParameterAssociation(parms);
+                try {
+                    // Add in parameterAssociation associations
+                    List<ParameterAssociation> parms = dccSqlUtils.getSeriesMediaParameterValueParameterAssociations(value.getHjid());
+                    value.setParameterAssociation(parms);
+                } catch (NullPointerException e) {
+
+                }
 
                 // Wire in procedureMetadata associations
                 List<ProcedureMetadata> pms = dccSqlUtils.getSeriesMediaParameterValueProcedureMetadataAssociations(value.getHjid());

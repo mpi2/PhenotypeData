@@ -31,6 +31,7 @@ import org.mousephenotype.dcc.exportlibrary.datastructure.core.procedure.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DuplicateKeyException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -548,10 +549,16 @@ public class CdaSqlUtils {
     @Transactional
     public int insertBiologicalModelImpc(BioModelInsertDTOMutant mutant) throws DataLoadException {
 
-        int biologicalModelId = insertBiologicalModel(DbIdType.IMPC.intValue(), mutant.getAllelicComposition(), mutant.getGeneticBackground(), mutant.getZygosity());
-        insertBiologicalModelGenes(biologicalModelId, mutant.getGenes());
-        insertBiologicalModelAlleles(biologicalModelId, mutant.getAlleles());
-        insertBiologicalModelStrains(biologicalModelId, mutant.getStrains());
+        // Check to see if model exists before creating, return PK if found
+        Integer biologicalModelId = findBiologicalModel(DbIdType.IMPC.intValue(), mutant.getAllelicComposition(), mutant.getGeneticBackground(), mutant.getZygosity());
+
+        if (biologicalModelId==null) {
+
+            biologicalModelId = insertBiologicalModel(DbIdType.IMPC.intValue(), mutant.getAllelicComposition(), mutant.getGeneticBackground(), mutant.getZygosity());
+            insertBiologicalModelGenes(biologicalModelId, mutant.getGenes());
+            insertBiologicalModelAlleles(biologicalModelId, mutant.getAlleles());
+            insertBiologicalModelStrains(biologicalModelId, mutant.getStrains());
+        }
 
         return biologicalModelId;
     }
@@ -559,9 +566,14 @@ public class CdaSqlUtils {
     @Transactional
     public int insertBiologicalModelImpc(BioModelInsertDTOControl control) throws DataLoadException {
 
-        int biologicalModelId = insertBiologicalModel(control.getDbId(), control.getAllelicComposition(), control.getGeneticBackground(), control.getZygosity());
-        insertBiologicalModelGenes(biologicalModelId, control.getStrains());
+        // Check to see if model exists before creating, return PK if found
+        Integer biologicalModelId = findBiologicalModel(control.getDbId(), control.getAllelicComposition(), control.getGeneticBackground(), control.getZygosity());
 
+        if (biologicalModelId==null) {
+
+            biologicalModelId = insertBiologicalModel(control.getDbId(), control.getAllelicComposition(), control.getGeneticBackground(), control.getZygosity());
+            insertBiologicalModelStrains(biologicalModelId, control.getStrains());
+        }
         return biologicalModelId;
     }
 
@@ -1983,7 +1995,7 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
             try {
                 count = jdbcCda.update(insert, parameterMap);
             } catch (Exception e) {
-                logger.error("INSERT to image_record_observation table for SeriesMediaParameterValue failed for parameterStableId {}, observationType {}, observationPk {}, samplePk {}, downloadFilePath {}, imageLink {}, fileType {}, organisationPk, fullResolutionFilePath {}. Reason:\n\t{}",
+                logger.error("INSERT to image_record_observation table for SeriesMediaParameterValue failed for parameterStableId {}, observationType {}, observationPk {}, samplePk {}, downloadFilePath {}, imageLink {}, fileType {}, organisationPk {}, fullResolutionFilePath {}. Reason:\n\t{}",
                              parameterStableId, observationType.toString(), observationPk, samplePk, seriesMediaParameterValue.getURI(), seriesMediaParameterValue.getLink(),
                              seriesMediaParameterValue.getFileType(), phenotypingCenterPk, fullResolutionFilePath, e.getLocalizedMessage());
             }
@@ -1991,14 +2003,26 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
                 logger.warn("Insert MediaParameter failed for parameterSource {}. Marking it as missing ...", parameterSource);
                 updateObservationMissingFlag(observationPk, true);
             } else {
-                // Save any parameter associations.
-                for (ParameterAssociation parameterAssociation : seriesMediaParameterValue.getParameterAssociation()) {
-                    int parameterAssociationPk = insertParameterAssociation(observationPk, parameterAssociation, simpleParameterList, ontologyParameterList);
 
-                    // Save any Dimensions.
-                    for (Dimension dimension : parameterAssociation.getDim()) {
-                        insertDimension(parameterAssociationPk, dimension);
+                try {
+                    // Save any parameter associations.
+                    if (seriesMediaParameterValue.getParameterAssociation() != null && seriesMediaParameterValue.getParameterAssociation().size() > 0) {
+
+                        for (ParameterAssociation parameterAssociation : seriesMediaParameterValue.getParameterAssociation()) {
+                            int parameterAssociationPk = insertParameterAssociation(observationPk, parameterAssociation, simpleParameterList, ontologyParameterList);
+
+                            // Save any Dimensions.
+                            if (parameterAssociation.getDim() != null && parameterAssociation.getDim().size() > 0) {
+                                for (Dimension dimension : parameterAssociation.getDim()) {
+                                    insertDimension(parameterAssociationPk, dimension);
+                                }
+                            }
+                        }
                     }
+                } catch (NullPointerException e) {
+                    logger.error("Issue saving parameter association for parameterStableId {}, observationType {}, observationPk {}, samplePk {}, downloadFilePath {}, imageLink {}, fileType {}, organisationPk {}, fullResolutionFilePath {}. Reason:\n\t{}",
+                            parameterStableId, observationType.toString(), observationPk, samplePk, seriesMediaParameterValue.getURI(), seriesMediaParameterValue.getLink(),
+                            seriesMediaParameterValue.getFileType(), phenotypingCenterPk, fullResolutionFilePath, e.getLocalizedMessage());
                 }
 
                 // Save any procedure metadata.
@@ -2239,7 +2263,7 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
         parameterMap.put("parameterAssociationValue", value);
         SqlParameterSource  parameterSource = new MapSqlParameterSource(parameterMap);
 
-        int count = jdbcCda.update(insert, parameterMap);
+        int count = jdbcCda.update(insert, parameterSource, keyholder);
         if (count > 0) {
             pk = keyholder.getKey().intValue();
         }
@@ -3396,6 +3420,34 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
 
    		return fullResolutionFilePath;
    	}
+
+    private Integer findBiologicalModel(int dbId, String allelicComposition, String geneticBackground, String zygosity) throws DataLoadException {
+
+        final String find = "SELECT id FROM biological_model WHERE " +
+                "db_id=:db_id AND allelic_composition=:allelic_composition AND genetic_background=:genetic_background AND zygosity=:zygosity";
+
+        Map<String, Object> parameterMap = new HashMap<>();
+        parameterMap.put("db_id", dbId);
+        parameterMap.put("allelic_composition", allelicComposition);
+        parameterMap.put("genetic_background", geneticBackground);
+        parameterMap.put("zygosity", zygosity);
+
+        SqlParameterSource parameterSource = new MapSqlParameterSource(parameterMap);
+
+        Integer pk;
+        try {
+            pk = jdbcCda.queryForObject(find, parameterSource, Integer.class);
+        } catch (EmptyResultDataAccessException e) {
+            // model not found
+            return null;
+        }
+
+        if (pk != null && pk > 0) {
+            return pk;
+        }
+
+        return null;
+    }
 
    	private int insertBiologicalModel(int dbId, String allelicComposition, String geneticBackground, String zygosity) throws DataLoadException {
 

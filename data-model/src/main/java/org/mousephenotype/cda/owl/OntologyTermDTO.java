@@ -159,7 +159,9 @@ public class OntologyTermDTO {
     }
 
     public void addIntermediateIds(String intermediateId) {
-        if (this.intermediateIds == null){ this.intermediateIds = new HashSet<>();}
+        if (this.intermediateIds == null) {
+            this.intermediateIds = new HashSet<>();
+        }
         this.intermediateIds.add(intermediateId);
     }
 
