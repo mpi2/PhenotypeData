@@ -519,6 +519,10 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
             case TESTED:
                 // Result was processed successfully by PhenStat, load the result object
 
+                // Always set status to Success with sucessfully processed
+                result.setStatus( "Success" );
+
+
                 // Vector output results from PhenStat start at field 19
                 int i = 19;
 
