@@ -632,14 +632,17 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 				if (maTerm != null) {
 					doc.addIntermediateAnatomyTermId(id);
 					doc.addIntermediateAnatomyTermName(maTerm.getName());
-				}
-				if (maTerm.getIntermediateIds() != null) {
-					doc.addIntermediateAnatomyTermId(maTerm.getIntermediateIds());
-					doc.addIntermediateAnatomyTermName(maTerm.getIntermediateNames());
-				}
-				if (maTerm.getTopLevelIds() != null) {
-					doc.addTopLevelAnatomyTermId(maTerm.getTopLevelIds());
-					doc.addTopLevelAnatomyTermName(maTerm.getTopLevelNames());
+
+					if (maTerm.getIntermediateIds() != null) {
+						doc.addIntermediateAnatomyTermId(maTerm.getIntermediateIds());
+						doc.addIntermediateAnatomyTermName(maTerm.getIntermediateNames());
+					}
+					if (maTerm.getTopLevelIds() != null) {
+						doc.addTopLevelAnatomyTermId(maTerm.getTopLevelIds());
+						doc.addTopLevelAnatomyTermName(maTerm.getTopLevelNames());
+					}
+				}else{
+					logger.info("maTerm is null when looking for anatomyIdsForAncestors id:"+id);
 				}
 			}
 		}
