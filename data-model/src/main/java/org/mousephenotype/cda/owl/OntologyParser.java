@@ -68,7 +68,7 @@ public class OntologyParser {
                 OntologyTermDTO term = getDTO(cls, prefix);
                 term.setEquivalentClasses(getEquivaletNamedClasses(cls, prefix));
 
-                if ( ! topLevelIds.contains(term.getAccessionId()) && term.getTopLevelIds().size() == 0) {
+                if ( (topLevelIds != null && ! topLevelIds.contains(term.getAccessionId())) && term.getTopLevelIds().size() == 0) {
                     continue;
                 }
 
