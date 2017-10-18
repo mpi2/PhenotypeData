@@ -102,13 +102,14 @@
 			$('body').scrollTop(pos.top);
 	     }).delegate("a","click", function(e) {
             if (window.location.host.indexOf("localhost") != -1) {
-                window.location.href = e.target.href.replace("/data",baseUrl);
+                window.location.href = e.currentTarget.href.replace("/data", baseUrl);
             }
             else {
-                window.location.href = e.target.href;
+                window.location.href = e.currentTarget.href;
             }
         });
-		
+
+
 		
 	 </script>
 
