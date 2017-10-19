@@ -88,7 +88,7 @@ public class GenerateDerivedParameters implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
 
-        executor = Executors.newFixedThreadPool(4);
+        executor = Executors.newFixedThreadPool(16);
 
         loadAllOrganisations();
         loadAllDatasources();
