@@ -76,7 +76,7 @@ public class GenerateDerivedParametersConfig {
         ds.setPassword(password);
         ds.setDriverClassName("com.mysql.jdbc.Driver");
         ds.setInitialSize(INITIAL_POOL_CONNECTIONS);
-        ds.setMaxActive(5);
+        ds.setMaxActive(100);
         ds.setMinIdle(INITIAL_POOL_CONNECTIONS);
         ds.setMaxIdle(INITIAL_POOL_CONNECTIONS);
         ds.setTestOnBorrow(true);
