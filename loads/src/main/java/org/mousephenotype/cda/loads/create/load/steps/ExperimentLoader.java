@@ -536,8 +536,10 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         return experiment;
     }
 
+    // Unique key must include External ID and Center name
     private String buildSamplesMapKey(DccExperimentDTO dccExperiment) {
-        return dccExperiment.getSpecimenId() + "_" + dccExperiment.getDatasourceShortName();
+        Integer phenotypingCenterPk = cdaOrganisation_idMap.get(dccExperiment.getPhenotypingCenter());
+        return dccExperiment.getSpecimenId() + "_" + phenotypingCenterPk + "_" + dccExperiment.getDatasourceShortName();
     }
 
     private Experiment createExperiment(DccExperimentDTO dccExperiment) throws DataLoadException {
