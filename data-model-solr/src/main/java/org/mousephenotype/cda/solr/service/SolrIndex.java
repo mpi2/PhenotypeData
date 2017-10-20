@@ -69,8 +69,8 @@ public class SolrIndex {
 	SolrClient geneCore;
 
 	@Autowired
-	@Qualifier("diseaseCore")
-	SolrClient diseaseCore;
+	@Qualifier("phenodigmCore")
+	SolrClient phenodigmCore;
 
 	@Autowired
 	@Qualifier("anatomyCore")
@@ -95,7 +95,7 @@ public class SolrIndex {
 			case "autosuggest" : return autosuggestCore;
 			case "gene" : return geneCore;
 			case "mp" : return mpCore;
-			case "disease" : return diseaseCore;
+			case "disease" : return phenodigmCore;  // search URL still uses disease in the controller path but queries against the phenodigm core
 			case "anatomy" : return anatomyCore;
 			case "impc_images" : return impcImagesCore;
 			case "allele2" : return allele2Core;
@@ -162,7 +162,7 @@ public class SolrIndex {
 		map.put("anatomy", "anatomy_id");
 		map.put("disease", "disease_id");
 		map.put("hp", "hp_id");
-		map.put("phenodigm", "hp_id");
+		//map.put("phenodigm", "hp_id");
 		map.put("impc_images", "gene_accession_id");
 
 		return map;
@@ -232,9 +232,9 @@ public class SolrIndex {
 		Map<String, String> coreIdQMap = coreIdQMap();
 		String qField = coreIdQMap.get(dataTypeName);
 
-//		if ( dataTypeName.equals("phenodigm") ){
-//			//server = getSolrServer("disease");
-//		}
+		if ( dataTypeName.equals("disease") ){
+			server = getSolrServer("disease"); // points to phenodigm
+		}
 		if ( dataTypeName.equals("hp") ){
 			server = getSolrServer("mp");
 		}
@@ -263,8 +263,9 @@ public class SolrIndex {
 		SolrQuery query = new SolrQuery();
 		query.setQuery(querystr);
 
-		if ( dataTypeName.equals("phenodigm") ){
-			query.setFilterQueries("type:hp_mp");
+		if ( dataTypeName.equals("disease") ){ // points to phenodigm
+			//query.setFilterQueries("type:hp_mp");
+			query.setFilterQueries("type:disease_gene_summary");
 		}
 
 		query.setStart(0);

@@ -62,10 +62,8 @@ public class OntologyParser {
             this.topLevelIds.addAll(topLevelIds);
         }
 
-
         Set<OWLClass> allClasses = ontology.getClassesInSignature();
         for (OWLClass cls : allClasses){
-
             if (startsWithPrefix(cls, prefix)){
                 OntologyTermDTO term = getDTO(cls, prefix);
                 term.setEquivalentClasses(getEquivaletNamedClasses(cls, prefix));
@@ -380,7 +378,6 @@ public class OntologyParser {
         }
         addChildrenInfo(cls, term, prefix);
         addParentInfo(cls, term, prefix);
-
         addIntermediateInfo(cls, term, prefix);
         addTopLevelInfo(cls, term, prefix);
 
@@ -637,14 +634,14 @@ public class OntologyParser {
                 // Intersect list of ancestors with list of top Levels
                 intermediates = classAncestors.stream()
                         .filter(item -> {
-                            return (!topLevelIds.contains(getIdentifierShortForm(item)) || !startsWithPrefix(item, prefix)) && ! getIdentifierShortForm(item).equals("MP:0000001");
+                            return !topLevelIds.contains(getIdentifierShortForm(item)) || !startsWithPrefix(item, prefix);
                         }).collect(Collectors.toSet());
             }
 
             for (OWLClass intermediateTerm : intermediates) {
-                    term.addIntermediateIds(getIdentifierShortForm(intermediateTerm));
-                    term.addIntermediateNames(getLabel(intermediateTerm));
-                    term.addIntermediateSynonyms(getSynonyms(intermediateTerm));
+                term.addIntermediateIds(getIdentifierShortForm(intermediateTerm));
+                term.addIntermediateNames(getLabel(intermediateTerm));
+                term.addIntermediateSynonyms(getSynonyms(intermediateTerm));
             }
         }
 

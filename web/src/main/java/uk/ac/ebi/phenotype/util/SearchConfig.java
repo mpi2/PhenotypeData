@@ -57,7 +57,7 @@ public class SearchConfig {
 
         coreDefault.put("gene", "");
         coreDefault.put("mp", "*:*");
-        coreDefault.put("disease", "*:*");
+        coreDefault.put("disease", "type:disease_search");
         coreDefault.put("anatomy", "*:*");
         //coreDefault.put("impc_images", "biological_sample_group:experimental");
         coreDefault.put("impc_images", "*:*");
@@ -174,16 +174,21 @@ public class SearchConfig {
                 "disease_term",
                 "disease_source",
                 "disease_classes",
-                "human_curated",
+                "human_curated_gene",
                 "mouse_curated",
-                "impc_predicted_known_gene",
-                "mgi_predicted_known_gene",
-                "impc_predicted",
-                "impc_novel_predicted_in_locus",
-                "mgi_predicted",
-                "mgi_novel_predicted_in_locus",
-                "marker_symbol",
-                "mgi_accession_id");
+                "impc_model_with_curated_gene",
+                "mgi_model_with_curated_gene",
+                "impc_model_with_computed_association",
+                "mgi_model_with_computed_association");
+
+//                "impc_predicted_known_gene",
+//                "mgi_predicted_known_gene",
+//                "impc_predicted",
+//                "impc_novel_predicted_in_locus",
+//                "mgi_predicted",
+//                "mgi_novel_predicted_in_locus");
+                //"marker_symbol",
+                //"mgi_accession_id");
         List<String> anatomyFields = Arrays.asList("anatomy_id",
                 "anatomy_term",
                 "anatomy_term_synonym",
@@ -253,16 +258,25 @@ public class SearchConfig {
                 "embryo_analysis_view_name"
                 );
         List<String> mpFacets =  Arrays.asList("top_level_mp_term_inclusive");
-        List<String> diseaseFacets =  Arrays.asList("disease_source",
+//        List<String> diseaseFacets =  Arrays.asList("disease_source",
+//                "disease_classes",
+//                "human_curated",
+//                "mouse_curated",
+//                "impc_predicted_known_gene",
+//                "mgi_predicted_known_gene",
+//                "impc_predicted",
+//                "impc_novel_predicted_in_locus",
+//                "mgi_predicted",
+//                "mgi_novel_predicted_in_locus");
+
+        List<String> diseaseFacets =  Arrays.asList(
+                "disease_source",
                 "disease_classes",
-                "human_curated",
-                "mouse_curated",
-                "impc_predicted_known_gene",
-                "mgi_predicted_known_gene",
-                "impc_predicted",
-                "impc_novel_predicted_in_locus",
-                "mgi_predicted",
-                "mgi_novel_predicted_in_locus");
+                "human_curated_gene",
+                "impc_model_with_curated_gene",
+                "mgi_model_with_curated_gene",
+                "impc_model_with_computed_association",
+                "mgi_model_with_computed_association");
         List<String> anatomyFacets =  Arrays.asList("selected_top_level_anatomy_term", "stage");
         //List<String> imagesFacets =  Arrays.asList("procedure_name", "top_level_mp_term", "selected_top_level_anatomy_term", "marker_type");
         List<String> impc_imagesFacets =  Arrays.asList("procedure_name", "parameter_association_name_procedure_name",
