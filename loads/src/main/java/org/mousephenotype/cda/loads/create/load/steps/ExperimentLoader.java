@@ -889,6 +889,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         Strain s = strainsByNameMap.get(colony.getBackgroundStrain());
         if (s == null) {
             s = strainMapper.createBackgroundStrain(colony.getBackgroundStrain());
+            cdaSqlUtils.insertStrain(s);
             if (s == null) {
                 message = "Couldn't create strain '" + colony.getBackgroundStrain() + "'";
                 logger.error(message);
