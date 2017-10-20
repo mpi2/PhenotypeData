@@ -62,6 +62,7 @@ public class OntologyParserTest {
         downloads.put("mphp", new Download("MP", "http://build-artifacts.berkeleybop.org/build-mp-hp-view/latest/mp-hp-view.owl", owlpath + "/mp-hp.owl"));
         downloads.put("mp", new Download("MP", "http://purl.obolibrary.org/obo/mp.owl", owlpath + "/mp.owl"));
         downloads.put("hp", new Download("HP", "http://purl.obolibrary.org/obo/hp.owl", owlpath + "/hp.owl"));
+        downloads.put("ma", new Download("MA", "http://purl.obolibrary.org/obo/ma.owl", owlpath + "/ma.owl"));
 
         if ( ! downloadFiles) {
             downloadFiles();
@@ -258,6 +259,18 @@ public class OntologyParserTest {
 
     }
 
+    @Test
+    public void findSpecificMaTermMA_0002405() throws Exception {
+        ontologyParser = new OntologyParser(downloads.get("ma").target, downloads.get("ma").name, null, null);
+        List<OntologyTermDTO> termList = ontologyParser.getTerms();
+        Map<String, OntologyTermDTO> terms =
+                termList.stream()
+                        .filter(term -> term.getAccessionId().equals("MA:0002405"))
+                        .collect(Collectors.toMap(OntologyTermDTO::getAccessionId, ontologyTermDTO -> ontologyTermDTO));
+
+        Assert.assertTrue(terms.containsKey("MA:0002405") );
+
+    }
 
     @Test
     public void testRootTermAndTopTermsInOntologyParserMap() throws Exception {
