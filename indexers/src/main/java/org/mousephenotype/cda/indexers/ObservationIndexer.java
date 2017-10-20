@@ -403,7 +403,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 
 					if (b == null) {
 						runStatus.addError(
-								" Cannot find biological data for Cannot find biological data for experiment " + r.getString("experiment_id"));
+								" Cannot find biological data for specimen id: "+bioSampleId+", experiment id: " + r.getString("experiment_id"));
 						continue;
 					}
 
