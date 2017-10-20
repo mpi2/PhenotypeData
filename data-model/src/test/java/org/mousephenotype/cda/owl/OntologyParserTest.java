@@ -254,6 +254,24 @@ public class OntologyParserTest {
         Assert.assertTrue("Expected consider id MP:0010241. Not found.", withConsiderIds.getConsiderIds().contains("MP:0010241"));
         Assert.assertTrue("Expected consider id MP:0010464. Not found.", withConsiderIds.getConsiderIds().contains("MP:0010464"));
 
+
+
+    }
+
+
+    @Test
+    public void testRootTermAndTopTermsInOntologyParserMap() throws Exception {
+
+        ontologyParser = new OntologyParser(downloads.get("mp").target, downloads.get("mp").name, null, null);
+        List<OntologyTermDTO> termList = ontologyParser.getTerms();
+        Map<String, OntologyTermDTO> terms =
+                termList.stream()
+                        .filter(term -> term.getAccessionId().equals("MP:0000001") || OntologyParserFactory.TOP_LEVEL_MP_TERMS.contains(term.getAccessionId()))
+                        .collect(Collectors.toMap(OntologyTermDTO::getAccessionId, ontologyTermDTO -> ontologyTermDTO));
+
+        Assert.assertTrue(terms.containsKey("MP:0000001") );
+        Assert.assertTrue(terms.containsKey("MP:0010771"));
+        Assert.assertFalse(terms.containsKey("MP:0010734571"));
     }
 
     @Test

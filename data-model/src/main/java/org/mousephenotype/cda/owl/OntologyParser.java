@@ -62,13 +62,16 @@ public class OntologyParser {
             this.topLevelIds.addAll(topLevelIds);
         }
 
+
         Set<OWLClass> allClasses = ontology.getClassesInSignature();
         for (OWLClass cls : allClasses){
+
             if (startsWithPrefix(cls, prefix)){
                 OntologyTermDTO term = getDTO(cls, prefix);
                 term.setEquivalentClasses(getEquivaletNamedClasses(cls, prefix));
 
-                if ( (topLevelIds != null && ! topLevelIds.contains(term.getAccessionId())) && term.getTopLevelIds().size() == 0) {
+                // 20171018 // JM // Filtered _in_ the root term and top level terms (if supplied)
+                if ( ! (term.getChildIds().size() > 0 && term.getParentIds().size() == 0) && (topLevelIds != null && ! topLevelIds.contains(term.getAccessionId())) && term.getTopLevelIds().size() == 0) {
                     continue;
                 }
 

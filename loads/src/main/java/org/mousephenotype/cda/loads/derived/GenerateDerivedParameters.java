@@ -26,10 +26,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
+import java.util.concurrent.*;
 
 @SpringBootApplication
 @Import(value = {GenerateDerivedParametersConfig.class})
@@ -37,20 +34,16 @@ public class GenerateDerivedParameters implements CommandLineRunner {
 
     private static final Logger logger = LoggerFactory.getLogger(GenerateDerivedParameters.class);
 
-
     private ExecutorService executor;
     private List<Future<Integer>> tasks = new ArrayList<>();
-    private static Map<Integer, LiveSample> animals = new HashMap<>();
-    private static Map<String, Map<String, ObservationDTO>> parameterMap = new HashMap<>(); // {parameterId, {animalId, observationData}}
-    private static Map<String, Map<String, ObservationDTO>> lineLevelParameterMap = new HashMap<>(); // {parameterId, {colonyId, observationData}}
 
-    private Map<Integer, Datasource> datasourcesById = new HashMap<>();
-    private Map<Integer, Project> projects = new HashMap<>();
-    private Map<String, Pipeline> pipelines = new HashMap<>();
-    private Map<String, Organisation> organisations = new HashMap<>();
+    private Map<Integer, LiveSample> animals = new ConcurrentHashMap<>();
+    private Map<Integer, Datasource> datasourcesById = new ConcurrentHashMap<>();
+    private Map<Integer, Project> projects = new ConcurrentHashMap<>();
+    private Map<String, Pipeline> pipelines = new ConcurrentHashMap<>();
+    private Map<String, Organisation> organisations = new ConcurrentHashMap<>();
 
     private DataSource komp2DataSource;
-
     private BiologicalModelDAO biologicalModelDAO;
     private DatasourceDAO datasourceDAO;
     private OrganisationDAO organisationDAO;
@@ -95,7 +88,7 @@ public class GenerateDerivedParameters implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
 
-        executor = Executors.newFixedThreadPool(4);
+        executor = Executors.newFixedThreadPool(16);
 
         loadAllOrganisations();
         loadAllDatasources();
@@ -126,7 +119,7 @@ public class GenerateDerivedParameters implements CommandLineRunner {
 
     private void generateSpecificDerivedParameters(List<String> parameters) {
 
-        // Reusable task for adding  unit of work to the queue
+        // Reusable task for adding unit of work to the queue
         Callable<Integer> task;
 
         for (String parameter : parameters) {
@@ -531,7 +524,7 @@ public class GenerateDerivedParameters implements CommandLineRunner {
     }
 
 
-    /** NOTE: updated on 2016/05/03 to 100 x [S―(PP1_S + PP2_S + PP3_S + PP4_S)/4]/S **/
+    /* NOTE: updated on 2016/05/03 to 100 x [S―(PP1_S + PP2_S + PP3_S + PP4_S)/4]/S */
     /** Formula :  IMPC_ACS_037_001	"IMPC_ACS_007_001 IMPC_ACS_008_001 + IMPC_ACS_009_001 + IMPC_ACS_010_001 + 4 / IMPC_ACS_006_001 - IMPC_ACS_006_001 / 100 *"
      * x = ( IMPC_ACS_007_001 + IMPC_ACS_008_001 + IMPC_ACS_009_001 + IMPC_ACS_010_001 ) / 4;
      * x -= IMPC_ACS_006_001 ;
@@ -539,7 +532,7 @@ public class GenerateDerivedParameters implements CommandLineRunner {
      * x *= 100 ;
      */
     private int IMPC_ACS_037_001()
-            throws ClassNotFoundException, SQLException{
+            throws SQLException{
 
         int i = 0;
         String parameterToCreate = "IMPC_ACS_037_001";
@@ -559,7 +552,8 @@ public class GenerateDerivedParameters implements CommandLineRunner {
         paramsOfInterest.add(IMPC_ACS_006_001);
         paramsOfInterest.add(IMPC_ACS_010_001);
 
-        Set<String> animalIds =  getResultsIntersectionByParameter(paramsOfInterest);
+        Map<String, Map<String, ObservationDTO>> parameterMap = new HashMap<>();
+        Set<String> animalIds =  getResultsIntersectionByParameter(paramsOfInterest, parameterMap);
 
         for (String id: animalIds){
             if (parameterMap.get(IMPC_ACS_006_001).get(id).getDataPoint() != 0){ // denominator
@@ -609,11 +603,9 @@ public class GenerateDerivedParameters implements CommandLineRunner {
      *  ESLIM_003_001_003 is timeseries
      *  ESLIM_003_001_701 is unidimensional
      * @return number of ESLIM_003_001_701 obs added
-     * @throws SQLException
-     * @throws ClassNotFoundException
      */
     private int ESLIM_003_001_701()
-            throws ClassNotFoundException, SQLException{
+            throws SQLException{
 
         int i = 0;
         String parameterToCreate = "ESLIM_003_001_701";
@@ -621,49 +613,54 @@ public class GenerateDerivedParameters implements CommandLineRunner {
         String denominatorParam = "ESLIM_003_001_003";
         deleteObservationsForParameterId(parameterToCreate);
         Parameter param = phenotypePipelineDAO.getParameterByStableId(parameterToCreate);
-        Set<String> intersection = new HashSet<String>();
+
         Map<String, ObservationDTO> nominators = getIncrementalDataMapByParameter(nominatorParam);
         Map<String, ObservationDTO> denominators = getIncrementalDataMapByParameter(denominatorParam);
-        intersection = nominators.keySet();
-        Set<String> newSet = denominators.keySet();
-        intersection.retainAll(newSet);
 
-        for (String id: intersection){
+        ArrayList<String> paramsOfInterest = new ArrayList<>();
+        paramsOfInterest.add(nominatorParam);
+        paramsOfInterest.add(denominatorParam);
+
+        Map<String, Map<String, ObservationDTO>> parameterMap = new HashMap<>();
+        Set<String> animalIds =  getResultsIntersectionByParameter(paramsOfInterest, parameterMap);
+
+        for (String id: animalIds){
             if (nominators.get(id).getIncrementValues().size() != 0 && denominators.get(id).getIncrementValues().size() != 0){
                 ObservationDTO dto = nominators.get(id);
                 Datasource datasource = datasourcesById.get(dto.getExternalDbId());
                 Experiment currentExperiment = createNewExperiment(dto, "derived_" +parameterToCreate + "_" + i++, getProcedureFromObservation(param, dto), true);
 
-                String metadataGroup = "";
+                // Get metadata group as combined nom and denom metadata groups
                 String denomMetadata = null;
                 if (parameterMap.get(denominatorParam)!=null && parameterMap.get(denominatorParam).get(id)!=null) {
                     denomMetadata = parameterMap.get(denominatorParam).get(id).getMetadataGroup();
                 }
                 String numeratorMetadata = null;
                 if (parameterMap.get(nominatorParam)!=null && parameterMap.get(nominatorParam).get(id)!=null) {
-                    parameterMap.get(nominatorParam).get(id).getMetadataGroup();
+                    numeratorMetadata = parameterMap.get(nominatorParam).get(id).getMetadataGroup();
                 }
+
+                String metadataGroup = "";
                 if (denomMetadata != null || numeratorMetadata != null) {
                     metadataGroup = StringUtils.join(Arrays.asList(denomMetadata, numeratorMetadata), "_");
                 }
 
-                String metadata = "";
+                // Get metadata string as combined nom and denom metadata strings
                 String denomMetadataCombined = null;
                 if (parameterMap.get(denominatorParam)!=null && parameterMap.get(denominatorParam).get(id)!=null){
-                    parameterMap.get(denominatorParam).get(id).getMetadataCombined();
+                    denomMetadataCombined = parameterMap.get(denominatorParam).get(id).getMetadataCombined();
                 }
+
                 String numeratorMetadataCombined = null;
                 if(parameterMap.get(nominatorParam)!=null && parameterMap.get(nominatorParam).get(id)!=null){
-                    parameterMap.get(nominatorParam).get(id).getMetadataCombined();
+                    numeratorMetadataCombined = parameterMap.get(nominatorParam).get(id).getMetadataCombined();
                 }
+
+                String metadata = "";
                 if (denomMetadataCombined != null || numeratorMetadataCombined != null) {
                     metadata = StringUtils.join(Arrays.asList(denomMetadataCombined, numeratorMetadataCombined), "_");
                 }
 
-//				String metadataGroup = parameterMap.get(denominatorParam).get(id).getMetadataGroup() + "_" +
-//					parameterMap.get(nominatorParam).get(id).getMetadataGroup();
-//				String metadata = parameterMap.get(denominatorParam).get(id).getMetadataCombined() + "_" +
-//					parameterMap.get(nominatorParam).get(id).getMetadataCombined() ;
                 currentExperiment.setMetadataGroup(DigestUtils.md5Hex(metadataGroup));
                 currentExperiment.setMetadataCombined(metadata);
 
@@ -698,26 +695,29 @@ public class GenerateDerivedParameters implements CommandLineRunner {
 
     // ++++ IMPC_IPG_011_001	IMPC_IPG_002_001 15 increment_value IMPC_IPG_002_001 0 increment_value -
     private int IMPC_IPG_011_001()
-            throws ClassNotFoundException, SQLException{
+            throws SQLException{
 
         String parameterToCreate = "IMPC_IPG_011_001";
         String paramToUse = "IMPC_IPG_002_001";
         deleteObservationsForParameterId(parameterToCreate);
-        Map<String, ObservationDTO> res0 = getResultsAtIncrement(paramToUse, 0);
-        Map<String, ObservationDTO> res15 = getResultsAtIncrement(paramToUse, 15);
+
+        Map<String, ObservationDTO> resultAt_t0 = getResultsAtIncrement(paramToUse, 0);
+        Map<String, ObservationDTO> resultAt_t15 = getResultsAtIncrement(paramToUse, 15);
         Parameter param = phenotypePipelineDAO.getParameterByStableId(parameterToCreate);
-        Set <String> commonIds = res0.keySet();
-        commonIds.retainAll(res15.keySet());
+
+        Set <String> commonIds = resultAt_t0.keySet();
+        commonIds.retainAll(resultAt_t15.keySet());
+
         int i = 0;
         for (String id :  commonIds){
-            ObservationDTO dto = res0.get(id);
+            ObservationDTO dto = resultAt_t0.get(id);
             // then depending on the type, create the relevant information
             Datasource datasource = datasourcesById.get(dto.getExternalDbId());
             Experiment currentExperiment = createNewExperiment(dto, "derived_" +parameterToCreate + "_" + i++, getProcedureFromObservation(param, dto), true);
 
             observationDAO.saveExperiment(currentExperiment);
 
-            Observation observation = observationDAO.createSimpleObservation(ObservationType.unidimensional, "" + (res15.get(id).getDataPoint() - dto.getDataPoint()), param, animals.get(dto.getAnimalId()), datasource, currentExperiment, null);
+            Observation observation = observationDAO.createSimpleObservation(ObservationType.unidimensional, "" + (resultAt_t15.get(id).getDataPoint() - dto.getDataPoint()), param, animals.get(dto.getAnimalId()), datasource, currentExperiment, null);
 
             observationDAO.saveObservation(observation);
         }
@@ -735,7 +735,6 @@ public class GenerateDerivedParameters implements CommandLineRunner {
      * 	IMPC_VIA_032_001 = IMPC_VIA_006_001 IMPC_VIA_003_001 IMPC_VIA_031_001 get_binomial_distribution_p_value
      *
      * @return the number of results stored
-     * @throws SQLException
      */
     public int IMPC_VIA_032_001()
             throws SQLException{
@@ -801,7 +800,7 @@ public class GenerateDerivedParameters implements CommandLineRunner {
      *
      * @return # of parameters added
      */
-    private int IMPC_EYE_092_001() throws SQLException, ClassNotFoundException {
+    private int IMPC_EYE_092_001() throws SQLException {
 
         String parameterToCreate = "IMPC_EYE_092_001";
         Map<String, ObservationDTO> IMPC_EYE_020_001 = getCategoricalResultsMap("IMPC_EYE_020_001");
@@ -861,10 +860,10 @@ public class GenerateDerivedParameters implements CommandLineRunner {
 
 
     private int copyIncrementValueAt(String parameterToCreate, String parameterToCopyFrom, float increment)
-            throws ClassNotFoundException, SQLException{
+            throws SQLException{
 
         deleteObservationsForParameterId(parameterToCreate);
-        List<ObservationDTO> res = new ArrayList<ObservationDTO> (getResultsAtIncrement(parameterToCopyFrom, increment).values());
+        List<ObservationDTO> res = new ArrayList<> (getResultsAtIncrement(parameterToCopyFrom, increment).values());
         Parameter param = phenotypePipelineDAO.getParameterByStableId(parameterToCreate);
         int i = 0;
         for (ObservationDTO dto: res){
@@ -884,7 +883,7 @@ public class GenerateDerivedParameters implements CommandLineRunner {
     }
 
     private int copyParameter (String parameterToCreate, String parameterToCopy)
-            throws ClassNotFoundException, SQLException{
+            throws SQLException{
 
         deleteObservationsForParameterId(parameterToCreate);
         List<ObservationDTO> res = getResultsByParameter(parameterToCopy);
@@ -916,17 +915,18 @@ public class GenerateDerivedParameters implements CommandLineRunner {
     // 100x((ESLIM_011_001_006-ESLIM_011_001_007)/ESLIM_011_001_006)
     // minuend − subtrahend
     private int copyPercentageOfDifference(String parameterToCreate, String minuend, String subtrahend, String divisorParameter)
-            throws ClassNotFoundException, SQLException{
+            throws SQLException{
 
         deleteObservationsForParameterId(parameterToCreate);
         Parameter param = phenotypePipelineDAO.getParameterByStableId(parameterToCreate);
-        parameterMap = new HashMap<String, Map<String, ObservationDTO>>();
         int i = 0;
-        ArrayList<String> paramsOfInterest = new ArrayList<String>();
+        ArrayList<String> paramsOfInterest = new ArrayList<>();
         paramsOfInterest.add(minuend);
         paramsOfInterest.add(subtrahend);
         paramsOfInterest.add(divisorParameter);
-        Set<String> animalIds =  getResultsIntersectionByParameter(paramsOfInterest);
+
+        Map<String, Map<String, ObservationDTO>> parameterMap = new HashMap<>();
+        Set<String> animalIds =  getResultsIntersectionByParameter(paramsOfInterest, parameterMap);
 
         for (String id: animalIds){
             try {
@@ -957,7 +957,7 @@ public class GenerateDerivedParameters implements CommandLineRunner {
                 System.out.println("Sub " + parameterMap.get(subtrahend).get(id));
                 System.out.println("divisor" + parameterMap.get(divisorParameter).get(id));
 
-                String errorMsg = String.format("Error while trying to calculate %s for animal id %s, minuend: %s, subtrahend: %s, divisor: %s", parameterToCreate, id, minuend, subtrahend, divisorParameter, divisorParameter);
+                String errorMsg = String.format("Error while trying to calculate %s for animal id %s, minuend: %s, subtrahend: %s, divisor: %s", parameterToCreate, id, minuend, subtrahend, divisorParameter);
                 logger.error(errorMsg, e);
 
             }
@@ -968,16 +968,18 @@ public class GenerateDerivedParameters implements CommandLineRunner {
     }
 
     private int copyPercentageOf(String parameterToCreate, String numeratorParameter, String divisorParameter)
-            throws ClassNotFoundException, SQLException{
+            throws SQLException{
 
         deleteObservationsForParameterId(parameterToCreate);
         Parameter param = phenotypePipelineDAO.getParameterByStableId(parameterToCreate);
-        parameterMap = new HashMap<String, Map<String, ObservationDTO>>();
         int i = 0;
-        ArrayList<String> paramsOfInterest = new ArrayList<String>();
+        ArrayList<String> paramsOfInterest = new ArrayList<>();
         paramsOfInterest.add(numeratorParameter);
         paramsOfInterest.add(divisorParameter);
-        Set<String> animalIds =  getResultsIntersectionByParameter(paramsOfInterest);
+
+        Map<String, Map<String, ObservationDTO>> parameterMap = new HashMap<>();
+        Set<String> animalIds =  getResultsIntersectionByParameter(paramsOfInterest, parameterMap);
+
         for (String id: animalIds){
             if (parameterMap.get(divisorParameter).get(id).getDataPoint() != 0){ // denominator
                 ObservationDTO dto = parameterMap.get(numeratorParameter).get(id);
@@ -1011,7 +1013,6 @@ public class GenerateDerivedParameters implements CommandLineRunner {
      * @param numerator the number on top
      * @param denominator the number on bottom
      * @return the number of parameters created
-     * @throws SQLException
      */
     private int calculateLineLevelPercent(String parameterToCreate, String numerator, String denominator)
             throws SQLException{
@@ -1025,15 +1026,16 @@ public class GenerateDerivedParameters implements CommandLineRunner {
 
         System.out.println("getting parameters took " + (System.currentTimeMillis() - time));
 
-        lineLevelParameterMap = new HashMap<>();
 
         ArrayList<String> paramsOfInterest = new ArrayList<>();
 
         paramsOfInterest.add(numerator);
         paramsOfInterest.add(denominator);
-
         time = System.currentTimeMillis();
-        Set<String> colonyIds =  getLineLevelResultsIntersectionByParameter(paramsOfInterest);
+
+        Map<String, Map<String, ObservationDTO>> lineLevelParameterMap = new HashMap<>();
+        Set<String> colonyIds =  getLineLevelResultsIntersectionByParameter(paramsOfInterest, lineLevelParameterMap);
+
         System.out.println("Intersection took " + (System.currentTimeMillis() - time));
 
         time = System.currentTimeMillis();
@@ -1046,10 +1048,10 @@ public class GenerateDerivedParameters implements CommandLineRunner {
                 ObservationDTO dto = lineLevelParameterMap.get(numerator).get(id);
                 Datasource datasource = datasourcesById.get(dto.getExternalDbId());
                 Experiment currentExperiment = createNewExperiment(dto, "derived_" + parameterToCreate + "_" + i++, getProcedureFromObservation(param, dto), true);
-                String metadataGroup = parameterMap.get(numerator).get(id).getMetadataGroup() + "_" +
-                        parameterMap.get(denominator).get(id).getMetadataGroup();
-                String metadata = parameterMap.get(numerator).get(id).getMetadataCombined() + "_" +
-                        parameterMap.get(denominator).get(id).getMetadataCombined() ;
+                String metadataGroup = lineLevelParameterMap.get(numerator).get(id).getMetadataGroup() + "_" +
+                        lineLevelParameterMap.get(denominator).get(id).getMetadataGroup();
+                String metadata = lineLevelParameterMap.get(numerator).get(id).getMetadataCombined() + "_" +
+                        lineLevelParameterMap.get(denominator).get(id).getMetadataCombined() ;
                 currentExperiment.setMetadataCombined(metadata);
                 currentExperiment.setMetadataGroup(DigestUtils.md5Hex(metadataGroup));
                 currentExperiment.setColonyId(dto.getColony());
@@ -1076,16 +1078,18 @@ public class GenerateDerivedParameters implements CommandLineRunner {
     }
 
     private int copyMultiplicationResult(String parameterToCreate, String firstParam, String secondParam)
-            throws ClassNotFoundException, SQLException{
+            throws SQLException{
 
         deleteObservationsForParameterId(parameterToCreate);
         Parameter param = phenotypePipelineDAO.getParameterByStableId(parameterToCreate);
         int i = 0;
-        parameterMap = new HashMap<String, Map<String, ObservationDTO>>();
-        ArrayList<String> paramsOfInterest = new ArrayList<String>();
+        ArrayList<String> paramsOfInterest = new ArrayList<>();
         paramsOfInterest.add(firstParam);
         paramsOfInterest.add(secondParam);
-        Set<String> animalIds =  getResultsIntersectionByParameter(paramsOfInterest);
+
+        Map<String, Map<String, ObservationDTO>> parameterMap = new HashMap<>();
+        Set<String> animalIds =  getResultsIntersectionByParameter(paramsOfInterest, parameterMap);
+
         for (String id: animalIds){
             if (parameterMap.get(secondParam) != null &&
                     parameterMap.get(secondParam).get(id) != null &&
@@ -1113,17 +1117,18 @@ public class GenerateDerivedParameters implements CommandLineRunner {
         return i;
     }
 
-    private int copyMultiplicationOfDivision(String parameterToCreate, String numeratorParameter, String divisorParameter, int multiplicator)
-            throws ClassNotFoundException, SQLException{
+    private int copyMultiplicationOfDivision(String parameterToCreate, String numeratorParameter, String divisorParameter, Integer multiplicator)
+            throws SQLException{
 
         deleteObservationsForParameterId(parameterToCreate);
         Parameter param = phenotypePipelineDAO.getParameterByStableId(parameterToCreate);
         int i = 0;
-        parameterMap = new HashMap<String, Map<String, ObservationDTO>>();
-        ArrayList<String> paramsOfInterest = new ArrayList<String>();
+        ArrayList<String> paramsOfInterest = new ArrayList<>();
         paramsOfInterest.add(numeratorParameter);
         paramsOfInterest.add(divisorParameter);
-        Set<String> animalIds =  getResultsIntersectionByParameter(paramsOfInterest);
+
+        Map<String, Map<String, ObservationDTO>> parameterMap = new HashMap<>();
+        Set<String> animalIds =  getResultsIntersectionByParameter(paramsOfInterest, parameterMap);
 
         for (String id: animalIds){
             if (parameterMap.get(divisorParameter) != null &&
@@ -1133,12 +1138,13 @@ public class GenerateDerivedParameters implements CommandLineRunner {
                 ObservationDTO dto = parameterMap.get(numeratorParameter).get(id);
                 Datasource datasource = datasourcesById.get(dto.getExternalDbId());
                 Experiment currentExperiment = createNewExperiment(dto, "derived_" + parameterToCreate + "_" + i++, getProcedureFromObservation(param, dto), true);
+
                 String metadataGroup = parameterMap.get(divisorParameter).get(id).getMetadataGroup() + "_" +
-                        parameterMap.get(numeratorParameter).get(id).getMetadataGroup() + "_" +
-                        parameterMap.get(multiplicator).get(id).getMetadataGroup();
+                        parameterMap.get(numeratorParameter).get(id).getMetadataGroup();
+
                 String metadata = parameterMap.get(divisorParameter).get(id).getMetadataCombined() + "_" +
-                        parameterMap.get(numeratorParameter).get(id).getMetadataCombined() + "_" +
-                        parameterMap.get(multiplicator).get(id).getMetadataCombined();
+                        parameterMap.get(numeratorParameter).get(id).getMetadataCombined();
+
                 currentExperiment.setMetadataCombined(metadata);
                 currentExperiment.setMetadataGroup(DigestUtils.md5Hex(metadataGroup));
                 observationDAO.saveExperiment(currentExperiment);
@@ -1156,17 +1162,18 @@ public class GenerateDerivedParameters implements CommandLineRunner {
     }
 
     private int copyMultiplicationOfDivision(String parameterToCreate, String numeratorParameter, String divisorParameter, String multiplicator)
-            throws ClassNotFoundException, SQLException{
+            throws SQLException{
 
         deleteObservationsForParameterId(parameterToCreate);
         Parameter param = phenotypePipelineDAO.getParameterByStableId(parameterToCreate);
         int i = 0;
-        parameterMap = new HashMap<String, Map<String, ObservationDTO>>();
-        ArrayList<String> paramsOfInterest = new ArrayList<String>();
+        ArrayList<String> paramsOfInterest = new ArrayList<>();
         paramsOfInterest.add(numeratorParameter);
         paramsOfInterest.add(divisorParameter);
         paramsOfInterest.add(multiplicator);
-        Set<String> animalIds =  getResultsIntersectionByParameter(paramsOfInterest);
+
+        Map<String, Map<String, ObservationDTO>> parameterMap = new HashMap<>();
+        Set<String> animalIds =  getResultsIntersectionByParameter(paramsOfInterest, parameterMap);
 
         for (String id: animalIds){
             if (parameterMap.get(divisorParameter) != null &&
@@ -1201,16 +1208,17 @@ public class GenerateDerivedParameters implements CommandLineRunner {
     }
 
     private int copyDivisionResult(String parameterToCreate, String numeratorParameter, String divisorParameter)
-            throws ClassNotFoundException, SQLException{
+            throws SQLException{
 
         deleteObservationsForParameterId(parameterToCreate);
         Parameter param = phenotypePipelineDAO.getParameterByStableId(parameterToCreate);
         int i = 0;
-        parameterMap = new HashMap<>();
         ArrayList<String> paramsOfInterest = new ArrayList<>();
         paramsOfInterest.add(numeratorParameter);
         paramsOfInterest.add(divisorParameter);
-        Set<String> animalIds =  getResultsIntersectionByParameter(paramsOfInterest);
+
+        Map<String, Map<String, ObservationDTO>> parameterMap = new HashMap<>();
+        Set<String> animalIds =  getResultsIntersectionByParameter(paramsOfInterest,parameterMap);
 
         for (String id: animalIds){
             if (parameterMap.get(divisorParameter) != null &&
@@ -1257,10 +1265,9 @@ public class GenerateDerivedParameters implements CommandLineRunner {
 
     // ESLIM_011_001_705	100 x ( (ESLIM_011_001_006 - ( (ESLIM_011_001_007 + ESLIM_011_001_008 + ESLIM_011_001_009 + ESLIM_011_001_010 ) / 4 ) ) / ESLIM_011_001_006 )
     private int ESLIM_011_001_705()
-            throws ClassNotFoundException, SQLException{
+            throws SQLException{
 
         String parameterToCreate = "ESLIM_011_001_705";
-        parameterMap = new HashMap<>();
         deleteObservationsForParameterId(parameterToCreate);
         Parameter param = phenotypePipelineDAO.getParameterByStableId(parameterToCreate);
         int i = 0;
@@ -1270,7 +1277,10 @@ public class GenerateDerivedParameters implements CommandLineRunner {
         paramsOfInterest.add("ESLIM_011_001_008");
         paramsOfInterest.add("ESLIM_011_001_009");
         paramsOfInterest.add("ESLIM_011_001_010");
-        Set<String> animalIds =  getResultsIntersectionByParameter(paramsOfInterest);
+
+        Map<String, Map<String, ObservationDTO>> parameterMap = new HashMap<>();
+        Set<String> animalIds =  getResultsIntersectionByParameter(paramsOfInterest, parameterMap);
+
         for (String id: animalIds){
             if (parameterMap.get("ESLIM_011_001_006").get(id).getDataPoint() != 0){ // denominator
                 ObservationDTO dto = parameterMap.get("ESLIM_011_001_006").get(id);
@@ -1313,7 +1323,7 @@ public class GenerateDerivedParameters implements CommandLineRunner {
 
     //		ESLIM_004_001_701	area_under_curve(ESLIM_004_001_002)
     private int copyAUC(String parameterToCreate, String parameterId)
-            throws ClassNotFoundException, SQLException{
+            throws SQLException{
 
         int i = 0;
         deleteObservationsForParameterId(parameterToCreate);
@@ -1370,18 +1380,20 @@ public class GenerateDerivedParameters implements CommandLineRunner {
 
 
     private int copyDivisionOfMeanOfIncrements(String parameterToCreate, String numerator, String divisor)
-            throws ClassNotFoundException, SQLException{
+            throws SQLException{
 
         deleteObservationsForParameterId(parameterToCreate);
         Parameter param = phenotypePipelineDAO.getParameterByStableId(parameterToCreate);
-        parameterMap = new HashMap<>();
         int i = 0;
         ArrayList<String> listOfParameters = new ArrayList<>();
         listOfParameters.add(numerator);
         listOfParameters.add(divisor);
-        Set<String> animalPipelineList = getTimeseriesResultsIntersection(listOfParameters);
+
         Double div = (double) 0;
         Double num = (double) 0;
+
+        Map<String, Map<String, ObservationDTO>> parameterMap = new HashMap<>();
+        Set<String> animalPipelineList = getTimeseriesResultsIntersection(listOfParameters, parameterMap);
 
         for (String id: animalPipelineList){
 
@@ -1398,16 +1410,16 @@ public class GenerateDerivedParameters implements CommandLineRunner {
                 // sum_of_increments/number_of_increments
                 ArrayList<Double> incrementValues = dto.getIncrementValues();
                 num = (double) 0;
-                for (int k = 0; k < incrementValues.size(); k++) {
-                    num += incrementValues.get(k);
+                for (Double incrementValue : incrementValues) {
+                    num += incrementValue;
                 }
                 num = num / (incrementValues.size());
 
                 // sum_of_increments/number_of_increments
                 incrementValues = parameterMap.get(divisor).get(id).getIncrementValues();
                 div = (double) 0;
-                for (int k = 0; k < incrementValues.size(); k++) {
-                    div += incrementValues.get(k);
+                for (Double incrementValue : incrementValues) {
+                    div += incrementValue;
                 }
                 div = div / (incrementValues.size());
 
@@ -1438,12 +1450,12 @@ public class GenerateDerivedParameters implements CommandLineRunner {
 
     // ESLIM_010_001_701	sum_of_increments(ESLIM_010_001_001)/number_of_increments(ESLIM_010_001_001)
     private int copyMeanOfIncrements(String parameterToCreate, String parameterId)
-            throws ClassNotFoundException, SQLException{
+            throws SQLException{
 
         deleteObservationsForParameterId(parameterToCreate);
-        parameterMap = new HashMap<>();
         Parameter param = phenotypePipelineDAO.getParameterByStableId(parameterToCreate);
         int i = 0;
+
         Map<String, ObservationDTO> increments = getIncrementalDataMapByParameter(parameterId);
         Set<String> animalIds =  increments.keySet();
 
@@ -1458,8 +1470,8 @@ public class GenerateDerivedParameters implements CommandLineRunner {
                 // sum_of_increments(ESLIM_010_001_001)/number_of_increments(ESLIM_010_001_001)
                 ArrayList<Double> incrementValues = dto.getIncrementValues();
                 Double dataPoint = (double) 0;
-                for (int k = 0; k < incrementValues.size(); k++){
-                    dataPoint += incrementValues.get(k);
+                for (Double incrementValue : incrementValues) {
+                    dataPoint += incrementValue;
                 }
                 dataPoint = dataPoint/(incrementValues.size());
                 //createTimeSeriesObservationWithOriginalDate
@@ -1474,7 +1486,7 @@ public class GenerateDerivedParameters implements CommandLineRunner {
     }
 
 
-    private int copyDifferenceOfIncrements(String parameterToCreate, String parameterId, Double incrementForMinued, Double incrementForSubtrahend) throws SQLException, ClassNotFoundException {
+    private int copyDifferenceOfIncrements(String parameterToCreate, String parameterId, Double incrementForMinued, Double incrementForSubtrahend) throws SQLException {
 
         deleteObservationsForParameterId(parameterToCreate);
         Parameter param = phenotypePipelineDAO.getParameterByStableId(parameterToCreate);
@@ -1503,7 +1515,7 @@ public class GenerateDerivedParameters implements CommandLineRunner {
     }
 
     private int copySumOfIncrements(String parameterToCreate, String parameterId)
-            throws ClassNotFoundException, SQLException{
+            throws SQLException{
 
         deleteObservationsForParameterId(parameterToCreate);
         Parameter param = phenotypePipelineDAO.getParameterByStableId(parameterToCreate);
@@ -1522,8 +1534,8 @@ public class GenerateDerivedParameters implements CommandLineRunner {
             // sum_of_increments(ESLIM_010_001_001)/number_of_increments(ESLIM_010_001_001)
             ArrayList<Double> incrementValues = dto.getIncrementValues();
             Double dataPoint = 0.0;
-            for (int k = 0; k < incrementValues.size(); k++){
-                dataPoint += incrementValues.get(k);
+            for (Double incrementValue : incrementValues) {
+                dataPoint += incrementValue;
             }
             //createTimeSeriesObservationWithOriginalDate
             Observation observation = observationDAO.createSimpleObservation(ObservationType.unidimensional, dataPoint.toString(), param, animals.get(dto.getAnimalId()), datasource, currentExperiment, null);
@@ -1566,16 +1578,15 @@ public class GenerateDerivedParameters implements CommandLineRunner {
 
     // ESLIM_009_001_704	(sum_of_increments(ESLIM_009_001_002)/number_of_increments(ESLIM_009_001_002))/ESLIM_009_001_003
     private int copyDivisionOfSumOfIncrementsOverNumberOfIncrements(String parameterToCreate, String parameterId, String denominator)
-            throws ClassNotFoundException, SQLException{
+            throws SQLException{
 
         deleteObservationsForParameterId(parameterToCreate);
         Parameter param = phenotypePipelineDAO.getParameterByStableId(parameterToCreate);
-        parameterMap = new HashMap<String, Map<String, ObservationDTO>>();
         int i = 0;
-        Set<String> intersection = new HashSet<String>();
         Map<String, ObservationDTO> increments = getIncrementalDataMapByParameter(parameterId);
         Map<String, ObservationDTO> denominators = getResultsMapByParameter(denominator);
-        intersection = increments.keySet();
+
+        Set <String> intersection = increments.keySet();
         Set<String> newSet = denominators.keySet();
         intersection.retainAll(newSet);
 
@@ -1596,8 +1607,8 @@ public class GenerateDerivedParameters implements CommandLineRunner {
                 // sum_of_increments(ESLIM_010_001_001)/number_of_increments(ESLIM_010_001_001)
                 ArrayList<Double> incrementValues = dto.getIncrementValues();
                 Double dataPoint = (double) 0;
-                for (int k = 0; k < incrementValues.size(); k++){
-                    dataPoint += incrementValues.get(k);
+                for (Double incrementValue : incrementValues) {
+                    dataPoint += incrementValue;
                 }
                 dataPoint = dataPoint/(incrementValues.size());
                 dataPoint = dataPoint/denominators.get(id).getDataPoint();
@@ -1616,15 +1627,17 @@ public class GenerateDerivedParameters implements CommandLineRunner {
 
 
     private int plotParametersAsTimeSeries(String parameterToCreate, ArrayList<String> paramsOfInterest)
-            throws ClassNotFoundException, SQLException{
+            throws SQLException{
 
         int i = 0;
         deleteObservationsForParameterId(parameterToCreate);
-        Map<String, ObservationDTO> res = new HashMap<String, ObservationDTO> (); // <animalid, obsDTO>
-        Map<String, String> metadataGroups = new HashMap<String, String>();
-        Map<String, String> metadata = new HashMap<String, String>();
+        Map<String, ObservationDTO> res = new HashMap<> (); // <animalid, obsDTO>
+        Map<String, String> metadataGroups = new HashMap<>();
+        Map<String, String> metadata = new HashMap<>();
         Parameter param = phenotypePipelineDAO.getParameterByStableId(parameterToCreate);
-        Set<String> animalIds =  getTimeSeriesResultsUnionByParameter(paramsOfInterest);
+
+        Map<String, Map<String, ObservationDTO>> parameterMap = new HashMap<>();
+        Set<String> animalIds =  getTimeSeriesResultsUnionByParameter(paramsOfInterest, parameterMap);
 
         for (String id: animalIds){
             metadataGroups.put(id, "");
@@ -1662,7 +1675,7 @@ public class GenerateDerivedParameters implements CommandLineRunner {
                         dto.getDateOfExperiment().toString(), // timePoint
                         "weeks", //unit
                         param,
-                        (BiologicalSample)animals.get(dto.getAnimalId()),
+                        animals.get(dto.getAnimalId()),
                         datasource,
                         currentExperiment, null) ;
                 i++;
@@ -1670,7 +1683,7 @@ public class GenerateDerivedParameters implements CommandLineRunner {
             }
         }
 
-        System.out.println("Added " + i + " observations for " + parameterToCreate);
+        logger.info("Added " + i + " observations for " + parameterToCreate);
         return i;
     }
 
@@ -1818,7 +1831,7 @@ public class GenerateDerivedParameters implements CommandLineRunner {
 
     }
 
-    public Double calculateBinomialPvalue(Integer totalPups, Integer homPups, String breedingStrategy) {
+    private Double calculateBinomialPvalue(Integer totalPups, Integer homPups, String breedingStrategy) {
 
         if(totalPups==null || homPups==null || breedingStrategy == null) {
             return null;
@@ -1883,7 +1896,7 @@ public class GenerateDerivedParameters implements CommandLineRunner {
     }
 
 
-    public Map<String, ObservationDTO> getLineLevelResultsMapByParameter (String parameterId)
+    private Map<String, ObservationDTO> getLineLevelResultsMapByParameter (String parameterId)
             throws SQLException {
 
         Map<String, ObservationDTO> res = new HashMap<>();
@@ -1921,10 +1934,10 @@ public class GenerateDerivedParameters implements CommandLineRunner {
      * Returns a list of colony ids with all associated parameters.
      * Fills lineLevelParameterMap if needed
      *
-     * @param listOfParameters
+     * @param listOfParameters the list of parameters to intersect
      * @return list of colony IDs that have enough data to support the parameters passed in
      */
-    public  Set<String> getLineLevelResultsIntersectionByParameter(List<String> listOfParameters)
+    public  Set<String> getLineLevelResultsIntersectionByParameter(List<String> listOfParameters, Map<String, Map<String, ObservationDTO>> lineLevelParameterMap)
             throws SQLException {
 
         Map<Integer,String> auxMap = new HashMap<>();
@@ -1962,11 +1975,10 @@ public class GenerateDerivedParameters implements CommandLineRunner {
      * Line level results do not have animal IDs and hence, no date of birth, or zygosity or
      * any other individual specimen data
      *
-     * @param resultSet
-     * @return
-     * @throws SQLException
+     * @param resultSet database result set to fill the observationDTO
+     * @return populated observationDTO
      */
-    public ObservationDTO fillLineLevelObsDTO(ResultSet resultSet)
+    private ObservationDTO fillLineLevelObsDTO(ResultSet resultSet)
             throws SQLException{
 
         ObservationDTO obsDTO = new ObservationDTO();
@@ -1987,9 +1999,9 @@ public class GenerateDerivedParameters implements CommandLineRunner {
 
 
     private List<ObservationDTO> getResultsByParameter (String parameterId)
-            throws SQLException, ClassNotFoundException{
+            throws SQLException {
 
-        ArrayList<ObservationDTO> res = new ArrayList<ObservationDTO> ();
+        ArrayList<ObservationDTO> res = new ArrayList<> ();
 
         String query = "SELECT DISTINCT e.project_id, e.procedure_id, e.procedure_stable_id,  e.db_id, ls.colony_id, bmstrain.strain_acc, ls.zygosity, ls.sex, ls.date_of_birth, uo.data_point, bs.id, org.name, "
                 + "e.date_of_experiment, e.metadata_group, e.metadata_combined, pipeline_stable_id, pipeline_id  "
@@ -2022,9 +2034,9 @@ public class GenerateDerivedParameters implements CommandLineRunner {
 
 
     private  Map<String, ObservationDTO> getCategoricalResultsMap(String parameterId)
-            throws SQLException, ClassNotFoundException{
+            throws SQLException {
 
-        Map<String, ObservationDTO> res = new HashMap<String, ObservationDTO> ();
+        Map<String, ObservationDTO> res = new HashMap<> ();
 
         String query = "SELECT DISTINCT e.project_id, e.procedure_id, e.procedure_stable_id,  e.db_id, ls.colony_id, bmstrain.strain_acc, ls.zygosity, ls.sex, ls.date_of_birth, " +
                 "bs.id, org.name, e.date_of_experiment, e.metadata_group, e.metadata_combined, pipeline_stable_id, pipeline_id, category " +
@@ -2055,52 +2067,13 @@ public class GenerateDerivedParameters implements CommandLineRunner {
     }
 
 
-    private Map<String, ObservationDTO> getResultsMapByParameterAndPipeline (String parameterId, String pipelineStableId)
-            throws SQLException, ClassNotFoundException{
-
-        Map<String, ObservationDTO> res = new HashMap<String, ObservationDTO> ();
-
-        String query = "SELECT DISTINCT e.project_id,  e.procedure_id, e.procedure_stable_id, e.db_id, ls.colony_id, bmstrain.strain_acc, ls.zygosity, ls.sex, ls.date_of_birth, uo.data_point, " +
-                "bs.id, org.name, e.date_of_experiment, e.metadata_group, e.metadata_combined, pipeline_stable_id, pipeline_id " +
-                "FROM observation o " +
-                "INNER JOIN unidimensional_observation uo ON uo.id=o.id " +
-                "INNER JOIN biological_sample bs ON bs.id=o.biological_sample_id " +
-                "INNER JOIN experiment_observation eo ON eo.observation_id=o.id " +
-                "INNER JOIN experiment e ON e.id=eo.experiment_id " +
-                "INNER JOIN organisation org ON e.organisation_id=org.id " +
-                "INNER JOIN live_sample ls ON ls.id=bs.id " +
-                "INNER JOIN biological_model_sample bms ON bms.biological_sample_id=bs.id " +
-                "INNER JOIN biological_model_strain bmstrain ON bmstrain.biological_model_id=bms.biological_model_id " +
-                "WHERE o.parameter_stable_id=?" +
-                "AND pipeline_stable_id=?" +
-                "AND o.missing=0";
-
-        logger.trace("Executing query: " + query);
-        logger.trace("With parameters parameterId="+parameterId);
-
-        try (Connection connection = komp2DataSource.getConnection(); PreparedStatement statement = connection.prepareStatement(query)) {
-            statement.setString(1, parameterId);
-            statement.setString(2, pipelineStableId);
-            ResultSet resultSet = statement.executeQuery();
-            while (resultSet.next()) {
-                if ( (Float)resultSet.getFloat("data_point") != null ){ // we don't need observations with no data point
-                    ObservationDTO obsDTO = fillUnidimensionalObsDTO(resultSet);
-                    res.put(resultSet.getString("id") + "#" + resultSet.getString("pipeline_stable_id") , obsDTO);
-                }
-//				else {
-//					System.out.println("NUll data point for  " + resultSet.getString("zygosity") + " for strain " + resultSet.getString("strain_acc") + " and animal id " + resultSet.getString("id"));
-//				}
-            }
-        }
-        return res;
-    }
 
 
 
     private Map<String, ObservationDTO> getResultsMapByParameter (String parameterId)
-            throws SQLException, ClassNotFoundException{
+            throws SQLException {
 
-        Map<String, ObservationDTO> res = new HashMap<String, ObservationDTO> ();
+        Map<String, ObservationDTO> res = new HashMap<> ();
 
         String query = "SELECT DISTINCT e.project_id,  e.procedure_id, e.procedure_stable_id, e.db_id, ls.colony_id, "
                 + "bmstrain.strain_acc, ls.zygosity, ls.sex, ls.date_of_birth, uo.data_point, bs.id, "
@@ -2174,9 +2147,9 @@ public class GenerateDerivedParameters implements CommandLineRunner {
 
 
     private Map<String, ObservationDTO> getTimeseriesDataByParameter (String parameterId)
-            throws SQLException, ClassNotFoundException{
+            throws SQLException {
 
-        Map<String, ObservationDTO> temp = new HashMap<String, ObservationDTO> ();
+        Map<String, ObservationDTO> temp = new HashMap<> ();
 
         String query = "SELECT DISTINCT e.project_id, e.procedure_id, e.procedure_stable_id,  e.db_id, ls.colony_id, bmstrain.strain_acc, ls.zygosity, ls.sex,"
                 + " ls.date_of_birth, tso.data_point, tso.discrete_point, "
@@ -2221,14 +2194,13 @@ public class GenerateDerivedParameters implements CommandLineRunner {
 
 
     /**
+     * Get a map of incremental data (time series) specific for the parameterId passed in
      *
-     * @param parameterId
-     * @return map of animalIds and obsetvationDTO
-     * @throws SQLException
-     * @throws ClassNotFoundException
+     * @param parameterId the parameter to get the map of data values
+     * @return map of animalIds and observationDTO
      */
     private Map<String, ObservationDTO> getIncrementalDataMapByParameter (String parameterId)
-            throws SQLException, ClassNotFoundException{
+            throws SQLException {
 
         Map<String, ObservationDTO> res = new HashMap<String, ObservationDTO> ();
 
@@ -2271,17 +2243,14 @@ public class GenerateDerivedParameters implements CommandLineRunner {
         return res;
     }
 
-    private  Set<String> getTimeseriesResultsIntersection(ArrayList<String> listOfParameters)
-            throws ClassNotFoundException, SQLException{
+    private  Set<String> getTimeseriesResultsIntersection(ArrayList<String> listOfParameters, Map<String, Map<String, ObservationDTO>> parameterMap)
+            throws SQLException {
 
-        Map<Integer,String> auxMap = new HashMap<Integer, String>();
-        ArrayList<Integer> sortedList = new ArrayList<Integer>();
-        Set<String> resParamId = new HashSet<String>();
-        parameterMap = new HashMap<String, Map<String,ObservationDTO>>();
-        Map<String,ObservationDTO> animalPipelineMap = new HashMap<String, GenerateDerivedParameters.ObservationDTO>();
+        Map<Integer,String> auxMap = new HashMap<>();
+        ArrayList<Integer> sortedList = new ArrayList<>();
 
         for (String paramId : listOfParameters){
-            animalPipelineMap = new  HashMap<String, GenerateDerivedParameters.ObservationDTO>();
+            Map<String,ObservationDTO> animalPipelineMap = new  HashMap<>();
             animalPipelineMap.putAll(getTimeseriesDataByParameter(paramId));
             parameterMap.put(paramId, animalPipelineMap);
             int size = parameterMap.get(paramId).size();
@@ -2291,57 +2260,33 @@ public class GenerateDerivedParameters implements CommandLineRunner {
             auxMap.put(size, paramId);
             sortedList.add(size);
         }
+
         // sort sets by size
         Collections.sort(sortedList);
+
         // start with smallest set
-        resParamId = parameterMap.get(auxMap.get(sortedList.get(0))).keySet();
+        Set<String> resParamId = parameterMap.get(auxMap.get(sortedList.get(0))).keySet();
         for (int i = 1; i < sortedList.size(); i++){
             Set<String> newSet = parameterMap.get(auxMap.get(sortedList.get(i))).keySet();
             resParamId.retainAll(newSet);
         }
+
         return resParamId;
     }
 
-
-    private Set<String> getPipelinesForParameters(ArrayList<String> listOfParameters){
-
-        Set <String> res = new HashSet<>();
-        String query = "SELECT pipeline_stable_id, parameter_stable_id "
-                + " FROM observation o "
-                + " LEFT OUTER JOIN experiment_observation eo ON eo.observation_id=o.id "
-                + " LEFT OUTER JOIN experiment e ON e.id=eo.experiment_id "
-                + " WHERE o.missing=0 AND parameter_stable_id=?";
-
-        for (String param : listOfParameters){
-            logger.trace("Executing query: " + query);
-            logger.trace("With parameters parameterId="+param);
-
-            try (Connection connection = komp2DataSource.getConnection(); PreparedStatement statement = connection.prepareStatement(query)) {
-                statement.setString(1, param);
-                ResultSet resultSet = statement.executeQuery();
-                while (resultSet.next()){
-                    res.add( resultSet.getString("pipeline_stable_id"));
-                }
-            }	catch (Exception e) { e.printStackTrace();}
-        }
-        return res;
-    }
 
 
     /**
      * Fills parameterMap if needed
      * returns a list of animal ids with all parameters.
-     * @param listOfParameters
-     * @return
-     * @throws ClassNotFoundException
-     * @throws SQLException
+     * @param listOfParameters the list of parameters to interrogate
+     * @return filled set of parameters that have data for all pararmeters in listOfParameters
      */
-    private  Set<String> getResultsIntersectionByParameter(ArrayList<String> listOfParameters)
-            throws ClassNotFoundException, SQLException{
+    private  Set<String> getResultsIntersectionByParameter(ArrayList<String> listOfParameters, Map<String, Map<String, ObservationDTO>> parameterMap)
+            throws SQLException{
 
         Map<Integer,String> auxMap = new HashMap<>();
         ArrayList<Integer> sortedList = new ArrayList<>();
-        Set<String> resParamId = new HashSet<String>();
 
         for (String paramId : listOfParameters){
             if (!parameterMap.containsKey(paramId)){
@@ -2358,7 +2303,8 @@ public class GenerateDerivedParameters implements CommandLineRunner {
         // sort sets by size
         Collections.sort(sortedList);
         // start with smallest set
-        resParamId = parameterMap.get(auxMap.get(sortedList.get(0))).keySet();
+
+        Set<String> resParamId = parameterMap.get(auxMap.get(sortedList.get(0))).keySet();
         for (int i = 1; i < sortedList.size(); i++){
             Set<String> newSet = parameterMap.get(auxMap.get(sortedList.get(i))).keySet();
             resParamId.retainAll(newSet);
@@ -2366,12 +2312,11 @@ public class GenerateDerivedParameters implements CommandLineRunner {
         return resParamId;
     }
 
-    private  Set<String> getTimeSeriesResultsUnionByParameter(ArrayList<String> listOfParameters)
-            throws ClassNotFoundException, SQLException{
+    private  Set<String> getTimeSeriesResultsUnionByParameter(ArrayList<String> listOfParameters, Map<String, Map<String, ObservationDTO>> parameterMap)
+            throws SQLException{
 
-        parameterMap = new HashMap<String, Map<String, ObservationDTO>>();
-        Set<String> resParamId = new HashSet<String>();
-        //<String, Map<Integer, ObservationDTO>>
+        Set<String> resParamId = new HashSet<>();
+
         for (String paramId : listOfParameters){
             parameterMap.put(paramId, getResultsMapByParameter(paramId));
             resParamId.addAll(parameterMap.get(paramId).keySet());
@@ -2384,12 +2329,9 @@ public class GenerateDerivedParameters implements CommandLineRunner {
      * Deletes all experiments and observations (all types) for a provided
      * organisation.
      *
-     * @param parameterId the parameter id
-     * @throws SQLException
-     * @throws ClassNotFoundException
+     * @param parameterId the parameter id to delete all entries from the database
      */
-    void deleteObservationsForParameterId(String parameterId)
-            throws SQLException {
+    private void deleteObservationsForParameterId(String parameterId) throws SQLException {
 
         String query = " SELECT e.id FROM experiment e INNER JOIN experiment_observation eo ON eo.experiment_id=e.id"
                 + " INNER JOIN observation o ON o.id=eo.observation_id WHERE o.parameter_stable_id=? AND e.external_id LIKE 'derived_%'";
@@ -2417,7 +2359,7 @@ public class GenerateDerivedParameters implements CommandLineRunner {
         }
 
         query = " SELECT id from observation where parameter_stable_id=?";
-        try (PreparedStatement statement = dbConnection.prepareStatement(query, ResultSet.CONCUR_READ_ONLY)) {
+        try (PreparedStatement statement = dbConnection.prepareStatement(query)) {
             statement.setString(1, parameterId);
             ResultSet res = statement.executeQuery();
             ArrayList<String> deleteQueries = new ArrayList<>();
@@ -2461,6 +2403,7 @@ public class GenerateDerivedParameters implements CommandLineRunner {
         }
 
         dbConnection.commit();
+        dbConnection.close();
 
         logger.info("Delete finished for parameterId="+parameterId);
 
@@ -2507,7 +2450,7 @@ public class GenerateDerivedParameters implements CommandLineRunner {
     }
 
 
-    public ObservationDTO fillCategoricalObsDTO(ResultSet resultSet)
+    private ObservationDTO fillCategoricalObsDTO(ResultSet resultSet)
             throws SQLException{
 
         ObservationDTO obsDTO = new ObservationDTO();
@@ -2536,7 +2479,7 @@ public class GenerateDerivedParameters implements CommandLineRunner {
 
 
 
-    public ObservationDTO fillUnidimensionalObsDTO(ResultSet resultSet)
+    private ObservationDTO fillUnidimensionalObsDTO(ResultSet resultSet)
             throws SQLException{
 
         ObservationDTO obsDTO = new ObservationDTO();
@@ -2565,7 +2508,7 @@ public class GenerateDerivedParameters implements CommandLineRunner {
     }
 
 
-    public class ObservationDTO{
+    public class ObservationDTO {
 
         private Integer animalId;
         private Integer biologicalModelId; //line level params only
@@ -2573,8 +2516,8 @@ public class GenerateDerivedParameters implements CommandLineRunner {
         private Float dataPoint;
         private Date dateOfExperiment;
         private Date dateOfBirth;
-        private ArrayList<Double> discreteValues = new ArrayList<Double>(); // discrete_point
-        private ArrayList<Double> incrementValues = new ArrayList<Double>(); // data_point
+        private ArrayList<Double> discreteValues = new ArrayList<>(); // discrete_point
+        private ArrayList<Double> incrementValues = new ArrayList<>(); // data_point
         private Integer externalDbId;
         private String metadataCombined;
         private String metadataGroup;
@@ -2593,144 +2536,155 @@ public class GenerateDerivedParameters implements CommandLineRunner {
 
         void setBiologicalModelId(Integer biologicalModelId) { this.biologicalModelId = biologicalModelId; }
 
-        public String getProcedureId() {
+        String getProcedureId() {
             return procedureId;
         }
-        public void setProcedureId(String procedureId) {
+        void setProcedureId(String procedureId) {
             this.procedureId = procedureId;
         }
-        public String getProcedureStableId() {
+        String getProcedureStableId() {
             return procedureStableId;
         }
-        public void setProcedureStableId(String procedureStableId) {
+        void setProcedureStableId(String procedureStableId) {
             this.procedureStableId = procedureStableId;
         }
-        public String getCategory() {
+        String getCategory() {
             return category;
         }
-        public void setCategory(String category) {
+        void setCategory(String category) {
             this.category = category;
         }
-        public String getPipelineId() {
+        String getPipelineId() {
             return pipelineId;
         }
-        public void setPipelineId(String pipelineId) {
+        void setPipelineId(String pipelineId) {
             this.pipelineId = pipelineId;
         }
-        public String getPipelineStableId() {
+        String getPipelineStableId() {
             return pipelineStableId;
         }
-        public void setPipelineStableId(String pipelineStableId) {
+        void setPipelineStableId(String pipelineStableId) {
             this.pipelineStableId = pipelineStableId;
         }
 
-        public String getMetadataCombined() {
+        String getMetadataCombined() {
             return metadataCombined;
         }
-        public void setMetadataCombined(String metadataCombined) {
+        void setMetadataCombined(String metadataCombined) {
             this.metadataCombined = metadataCombined;
         }
-        public String getMetadataGroup() {
+        String getMetadataGroup() {
             return metadataGroup;
         }
-        public void setMetadataGroup(String metadataGroup) {
+        void setMetadataGroup(String metadataGroup) {
             this.metadataGroup = metadataGroup;
         }
-        public Integer getProjectId() {
+        Integer getProjectId() {
             return projectId;
         }
-        public void setProjectId(Integer projectId) {
+        void setProjectId(Integer projectId) {
             this.projectId = projectId;
         }
-        public Integer getExternalDbId() {
+        Integer getExternalDbId() {
             return externalDbId;
         }
-        public void setExternalDbId(Integer externalDbId) {
+        void setExternalDbId(Integer externalDbId) {
             this.externalDbId = externalDbId;
         }
 
-        public String getStrain() {
+        String getStrain() {
             return strain;
         }
-        public void setStrain(String strain) {
+        void setStrain(String strain) {
             this.strain = strain;
         }
-        public ZygosityType getZygosity() {
+        ZygosityType getZygosity() {
             return zygosity;
         }
-        public void setZygosity(ZygosityType zygosity) {
+        void setZygosity(ZygosityType zygosity) {
             this.zygosity = zygosity;
         }
-        public SexType getSex() {
+        SexType getSex() {
             return sex;
         }
-        public void setSex(SexType sex) {
+        void setSex(SexType sex) {
             this.sex = sex;
         }
-        public String getColony() {
+        String getColony() {
             return colony;
         }
-        public void setColony(String colony) {
+        void setColony(String colony) {
             this.colony = colony;
         }
-        public Float getDataPoint() {
+        Float getDataPoint() {
             return dataPoint;
         }
-        public void setDataPoint(Float dataPoint) {
+        void setDataPoint(Float dataPoint) {
             this.dataPoint = dataPoint;
         }
-        public Integer getAnimalId() {
+        Integer getAnimalId() {
             return animalId;
         }
-        public void setAnimalId(Integer animalId) {
+        void setAnimalId(Integer animalId) {
             this.animalId = animalId;
         }
-        public Date getDateOfExperiment() {
+        Date getDateOfExperiment() {
             return dateOfExperiment;
         }
-        public void setDateOfExperiment(Date dateOfExperiment) {
+        void setDateOfExperiment(Date dateOfExperiment) {
             this.dateOfExperiment = dateOfExperiment;
         }
-        public String getProductionCenter() {
+        String getProductionCenter() {
             return productionCenter;
         }
-        public void setProductionCenter(String productionCenter) {
+        void setProductionCenter(String productionCenter) {
             this.productionCenter = productionCenter;
         }
-        public ArrayList<Double> getIncrementValues(){
+        ArrayList<Double> getIncrementValues(){
             return incrementValues;
         }
-        public void addIncrementValue(Double value){
+        void addIncrementValue(Double value){
             incrementValues.add(value);
         }
-        public ArrayList<Double> getDiscreteValues(){
+        ArrayList<Double> getDiscreteValues(){
             return discreteValues;
         }
-        public void addDiscreteValue(Double value){
+        void addDiscreteValue(Double value){
             discreteValues.add(value);
         }
-        public Date getDateOfBirth() {
+        Date getDateOfBirth() {
             return dateOfBirth;
         }
-        public void setDateOfBirth(Date dateOfBirth) {
+        void setDateOfBirth(Date dateOfBirth) {
             this.dateOfBirth = dateOfBirth;
         }
+
         @Override
         public String toString() {
-            return "ObservationDTO [animalId=" + animalId + ", colony="
-                    + colony + ", dataPoint=" + dataPoint
-                    + ", dateOfExperiment=" + dateOfExperiment
-                    + ", dateOfBirth=" + dateOfBirth + ", discreteValues="
-                    + discreteValues + ", incrementValues=" + incrementValues
-                    + ", externalDbId=" + externalDbId + ", metadataCombined="
-                    + metadataCombined + ", metadataGroup=" + metadataGroup
-                    + ", pipelineStableId=" + pipelineStableId
-                    + ", pipelineId=" + pipelineId + ", productionCenter="
-                    + productionCenter + ", projectId=" + projectId
-                    + ", strain=" + strain + ", sex=" + sex + ", zygosity="
-                    + zygosity + ", procedureStableId=" + procedureStableId + ", procedureId=" + procedureId + "]";
+            return "ObservationDTO{" +
+                    "animalId=" + animalId +
+                    ", biologicalModelId=" + biologicalModelId +
+                    ", colony='" + colony + '\'' +
+                    ", dataPoint=" + dataPoint +
+                    ", dateOfExperiment=" + dateOfExperiment +
+                    ", dateOfBirth=" + dateOfBirth +
+                    ", discreteValues=" + discreteValues +
+                    ", incrementValues=" + incrementValues +
+                    ", externalDbId=" + externalDbId +
+                    ", metadataCombined='" + metadataCombined + '\'' +
+                    ", metadataGroup='" + metadataGroup + '\'' +
+                    ", pipelineStableId='" + pipelineStableId + '\'' +
+                    ", pipelineId='" + pipelineId + '\'' +
+                    ", procedureId='" + procedureId + '\'' +
+                    ", procedureStableId='" + procedureStableId + '\'' +
+                    ", productionCenter='" + productionCenter + '\'' +
+                    ", projectId=" + projectId +
+                    ", strain='" + strain + '\'' +
+                    ", sex=" + sex +
+                    ", zygosity=" + zygosity +
+                    ", category='" + category + '\'' +
+                    '}';
         }
-
     }
 
 
@@ -2808,266 +2762,263 @@ public class GenerateDerivedParameters implements CommandLineRunner {
 
 
     /* ************************************************************************************** */
-    /* NOT USED */
+    /* NOT USED METHODS BELOW */
     /* ************************************************************************************** */
 
 
-    /**
+
+    /*
      * Kept for legacy reasons
      * not used
-     *
-     * @throws SQLException
-     * @throws ClassNotFoundException
      */
-    private void getAllDerivedParameters_old() throws SQLException, ClassNotFoundException{
-
-        // ************** GMC Parameters **************** //
-        //	GMC_914_001_704	GMC_914_001_015/GMC_914_001_001
-        copyDivisionResult("GMC_914_001_704", "GMC_914_001_015", "GMC_914_001_001");
-        // GMC_914_001_701	GMC_914_001_005xGMC_914_001_021
-        copyMultiplicationResult("GMC_914_001_701", "GMC_914_001_005", "GMC_914_001_021");	// Could not test, no data
-        // ++++ GMC_914_001_705	100xGMC_914_001_015/GMC_914_001_009
-        copyMultiplicationOfDivision("GMC_914_001_705", "GMC_914_001_015", "GMC_914_001_009", 100);	// Could not test, no data
-        // ++++ GMC_914_001_702	GMC_914_001_005xGMC_914_001_021/GMC_914_001_001
-        copyMultiplicationOfDivision("GMC_914_001_705", "GMC_914_001_015", "GMC_914_001_009", "GMC_914_001_005");	// Could not test, no data
-
-
-        // ************** TCP Parameters **************** //
-        // 		TCP_TFL_002_001	" 	IMPC_TFL_001_001 mean_of_increments"
-        copyMeanOfIncrements("TCP_TFL_002_001", "IMPC_TFL_001_001");
-
-
-        // ************** IMPC Parameters *************** //
-        // 						IMPC_DXA_007_001	"IMPC_DXA_005_001 	IMPC_DXA_001_001 /"
-        copyDivisionResult("IMPC_DXA_007_001", "IMPC_DXA_005_001" , "IMPC_DXA_001_001");	//Checked, fine
-        // 						IMPC_DXA_008_001	"IMPC_DXA_003_001 	IMPC_DXA_001_001 /"
-        copyDivisionResult("IMPC_DXA_008_001", "IMPC_DXA_003_001" , "IMPC_DXA_001_001");
-        // 						IMPC_DXA_009_001	"IMPC_DXA_002_001 	IMPC_DXA_001_001 /"
-        copyDivisionResult("IMPC_DXA_009_001", "IMPC_DXA_002_001" , "IMPC_DXA_001_001");
-        // 						IMPC_DXA_010_001	"IMPC_DXA_005_001 	IMPC_DXA_004_001 /"
-        copyDivisionResult("IMPC_DXA_010_001", "IMPC_DXA_005_001" , "IMPC_DXA_004_001");
-        // 					IMPC_GRS_008_001	"IMPC_GRS_001_001 mean_of_increments"
-        copyMeanOfIncrements("IMPC_GRS_008_001", "IMPC_GRS_001_001");	// Checked, fine
-        // 					IMPC_GRS_009_001	"IMPC_GRS_002_001 mean_of_increments"
-        copyMeanOfIncrements("IMPC_GRS_009_001", "IMPC_GRS_002_001");	// Checked, fine
-        // 						IMPC_GRS_010_001	"IMPC_GRS_008_001 	IMPC_GRS_003_001 /"
-        copyMeanOfIncrements("ICS_ROT_002_001", "ICS_ROT_001_001");	// Checked, fine
-        // 						ICS_ROT_002_001,"ICS_ROT_001_001 mean_of_increments"
-        copyDivisionResult("IMPC_GRS_010_001", "IMPC_GRS_008_001" , "IMPC_GRS_003_001");	// Checked, fine
-        // 						IMPC_GRS_011_001	"IMPC_GRS_009_001 	IMPC_GRS_003_001 /"
-        copyDivisionResult("IMPC_GRS_011_001", "IMPC_GRS_009_001" , "IMPC_GRS_003_001");	// Checked, fine
-
-        // 					IMPC_OFD_020_001	"IMPC_OFD_005_001 sum_of_increments"
-        copySumOfIncrements("IMPC_OFD_020_001", "IMPC_OFD_005_001");	// Checked for ESLIM, fine
-        // 					IMPC_OFD_021_001	"IMPC_OFD_006_001 sum_of_increments"
-        copySumOfIncrements("IMPC_OFD_021_001", "IMPC_OFD_006_001");	// Checked for ESLIM, fine
-
-        // 	MGP_IPG_011_001,"MGP_IPG_002_001 15 increment_value MGP_IPG_002_001 0 increment_value -"
-        copyDifferenceOfIncrements("MGP_IPG_011_001", "MGP_IPG_002_001", 15.0, 0.0);
-
-        // IMPC_IPG_012_001	area_under_curve(IMPC_IPG_002_001)
-        copyAUC("IMPC_IPG_012_001", "IMPC_IPG_002_001");	// Checked for ESLIM, fine
-        // MGP_IPG_012_001,"MGP_IPG_002_001 area_under_curve"
-        copyAUC("MGP_IPG_012_001", "MGP_IPG_002_001");
-
-        // IMPC_EYE_092_001,"IMPC_EYE_020_001 IMPC_EYE_021_001 IMPC_EYE_022_001 if_abnormal"
-        IMPC_EYE_092_001(); 	//Checked by hand, values look fine
-
-        // IMPC_ACS_033_001	"IMPC_ACS_006_001 IMPC_ACS_007_001 - IMPC_ACS_006_001 / 100 *"
-        copyPercentageOfDifference("IMPC_ACS_033_001", "IMPC_ACS_006_001", "IMPC_ACS_007_001", "IMPC_ACS_006_001");		// Checked for ESLIM, fine
-        // IMPC_ACS_034_001	"IMPC_ACS_006_001 IMPC_ACS_008_001 - IMPC_ACS_006_001 / 100 *"
-        copyPercentageOfDifference("IMPC_ACS_034_001", "IMPC_ACS_006_001", "IMPC_ACS_008_001", "IMPC_ACS_006_001");		// Checked for ESLIM, fine
-        // IMPC_ACS_035_001	"IMPC_ACS_006_001 IMPC_ACS_009_001 - IMPC_ACS_006_001 / 100 *"
-        copyPercentageOfDifference("IMPC_ACS_035_001", "IMPC_ACS_006_001", "IMPC_ACS_009_001", "IMPC_ACS_006_001");		// Checked for ESLIM, fine
-        // IMPC_ACS_036_001	"IMPC_ACS_006_001 IMPC_ACS_010_001 - IMPC_ACS_006_001 / 100 *"
-        copyPercentageOfDifference("IMPC_ACS_036_001", "IMPC_ACS_006_001", "IMPC_ACS_010_001", "IMPC_ACS_006_001");		// Checked for ESLIM, fine
-
-
-        // IMPC_OFD_022_001	"IMPC_OFD_016_001 IMPC_OFD_008_001 / 100 *"
-        copyPercentageOf("IMPC_OFD_022_001", "IMPC_OFD_016_001", "IMPC_OFD_008_001"); 	// Checked for ESLIM, fine
-
-
-        // IMPC_ACS_037_001	"IMPC_ACS_007_001 IMPC_ACS_008_001 + IMPC_ACS_009_001 + IMPC_ACS_010_001 + 4 / IMPC_ACS_006_001 - IMPC_ACS_006_001 / 100 *"
-        IMPC_ACS_037_001(); // Checked & fine!
-
-        // IMPC_IPG_010_001	"increment_value IMPC_IPG_002_001 0"
-        copyIncrementValueAt("IMPC_IPG_010_001", "IMPC_IPG_002_001", 0);	// Checked & fine!
-        //MGP_IPG_010_001,"MGP_IPG_002_001 0 increment_value"
-        copyIncrementValueAt("MGP_IPG_010_001", "MGP_IPG_002_001", 0);
-
-
-        // IMPC_CAL_017_001	"IMPC_CAL_004_001 mean_of_increments IMPC_CAL_003_001 mean_of_increments /"
-        copyDivisionOfMeanOfIncrements("IMPC_CAL_017_001", "IMPC_CAL_004_001", "IMPC_CAL_003_001"); // Checked & fine!
-
-        // ++++ IMPC_IPG_011_001	IMPC_IPG_002_001 15 increment_value IMPC_IPG_002_001 0 increment_value -
-        IMPC_IPG_011_001(); 	// Checked, fine
-
-
-        // *
-        // * No ontology terms associated
-        // *
-        //////////////////////////////////////////////////////////////////////////////////////////////////
-        // CALCULATE IMPC LINE LEVEL DERIVED PARAMETERS
-        //////////////////////////////////////////////////////////////////////////////////////////////////
-
-        // % pups WT = Total pups WT / Total Pups
-        // IMPC_VIA_015_001 = IMPC_VIA_004_001 / IMPC_VIA_003_001
-        // System.out.println("GETTING DERIVED PARAMS");
-        //calculateLineLevelPercent("IMPC_VIA_015_001", "IMPC_VIA_004_001" , "IMPC_VIA_003_001");
-
-        // % pups heterozygous = Total pups heterozygous / Total Pups
-        // IMPC_VIA_018_001 = IMPC_VIA_005_001 / IMPC_VIA_003_001
-        // calculateLineLevelPercent("IMPC_VIA_018_001", "IMPC_VIA_005_001" , "IMPC_VIA_003_001");
-
-        // % pups homozygous = Total pups homozygous / Total pups
-        // IMPC_VIA_019_001 = IMPC_VIA_006_001 / IMPC_VIA_003_001
-        // calculateLineLevelPercent("IMPC_VIA_019_001", "IMPC_VIA_006_001" , "IMPC_VIA_003_001");
-
-        // % male WT = Total male WT/Total male pups
-        // IMPC_VIA_020_001 = IMPC_VIA_007_001 / IMPC_VIA_010_001
-        // calculateLineLevelPercent("IMPC_VIA_020_001", "IMPC_VIA_007_001" , "IMPC_VIA_010_001");
-
-        // % male heterozygous = Total male heterozygous / Total male pups
-        // IMPC_VIA_021_001 = IMPC_VIA_008_001 / IMPC_VIA_010_001
-        // calculateLineLevelPercent("IMPC_VIA_021_001", "IMPC_VIA_008_001" , "IMPC_VIA_010_001");
-
-        // % male homozygous = Total male homozygous / Total male pups
-        // IMPC_VIA_022_001 = IMPC_VIA_009_001 / IMPC_VIA_010_001
-        // calculateLineLevelPercent("IMPC_VIA_022_001", "IMPC_VIA_009_001" , "IMPC_VIA_010_001");
-
-        // % female WT = Total female WT / Total female pups
-        // IMPC_VIA_023_001 = IMPC_VIA_011_001 / IMPC_VIA_014_001
-        // calculateLineLevelPercent("IMPC_VIA_023_001", "IMPC_VIA_011_001" , "IMPC_VIA_014_001");
-
-        // % female heterozygous = Total female heterozygous / Total female pups
-        // IMPC_VIA_024_001 = IMPC_VIA_012_001 / IMPC_VIA_014_001
-        // calculateLineLevelPercent("IMPC_VIA_024_001", "IMPC_VIA_012_001" , "IMPC_VIA_014_001");
-
-        // % female homozygous = Total female homozygous / Total female pups
-        // IMPC_VIA_025_001 = IMPC_VIA_013_001 / IMPC_VIA_014_001
-        // calculateLineLevelPercent("IMPC_VIA_025_001", "IMPC_VIA_013_001" , "IMPC_VIA_014_001");
-
-        // If the breeding strategy is     HetXHet, then 25% of the offspring should be Hom, 50% Het, 25% WT
-        // If the breeding strategy is not HetXHet, then 50% of the offspring should be Hom, 50% Het
-        // Terry says there will be some effects depending on HetXHom or HomXHet, but the p value is not effected
-        // total pups homozygous | total pups | Breeding Strategy {HetXHet 0.25, HetXHom 0.5, HomXHet 0.5}
-        // IMPC_VIA_032_001	= IMPC_VIA_006_001 IMPC_VIA_003_001 IMPC_VIA_031_001 get_binomial_distribution_p_value
-        // IMPC_VIA_032_001();
-
-
-
-        // ************** ESLIM Parameters *************** //
-        // ESLIM_004_001_701	area_under_curve(ESLIM_004_001_002)
-        // Modiefied AUC computation to do A + |B| , Feb. 17 2014
-        copyAUC("ESLIM_004_001_701", "ESLIM_004_001_002");	// checked, fine
-
-        // ESLIM_009_001_703	(sum_of_increments(ESLIM_009_001_001)/number_of_increments(ESLIM_009_001_001))/ESLIM_009_001_003
-        // ESLIM_009_001_704	(sum_of_increments(ESLIM_009_001_002)/number_of_increments(ESLIM_009_001_002))/ESLIM_009_001_003
-        copyDivisionOfSumOfIncrementsOverNumberOfIncrements("ESLIM_009_001_703", "ESLIM_009_001_001", "ESLIM_009_001_003");	// checked, fine
-        copyDivisionOfSumOfIncrementsOverNumberOfIncrements("ESLIM_009_001_704", "ESLIM_009_001_002", "ESLIM_009_001_003");	// checked, fine
-
-        // *
-        // * No ontology terms associated
-        // *
-        // ESLIM_007_001_701	sum_of_increments(ESLIM_007_001_001)
-        // ESLIM_007_001_702	sum_of_increments(ESLIM_007_001_002)
-        // copySumOfIncrements("ESLIM_007_001_701", "ESLIM_007_001_001");	// checked, fine
-        // copySumOfIncrements("ESLIM_007_001_702", "ESLIM_007_001_002");	// checked, fine
-
-
-        // ESLIM_009_001_701	sum_of_increments(ESLIM_009_001_001)/number_of_increments(ESLIM_009_001_001)
-        // ESLIM_009_001_702	sum_of_increments(ESLIM_009_001_002)/number_of_increments(ESLIM_009_001_002)
-        // ESLIM_010_001_701	sum_of_increments(ESLIM_010_001_001)/number_of_increments(ESLIM_010_001_001)
-        copyMeanOfIncrements("ESLIM_009_001_701", "ESLIM_009_001_001");	// checked, fine
-        copyMeanOfIncrements("ESLIM_009_001_702", "ESLIM_009_001_002");	// checked, fine
-
-        // *
-        // * No ontology terms associated
-        // *
-        // copyMeanOfIncrements("ESLIM_010_001_701", "ESLIM_010_001_001");	// checked, fine
-
-        // ESLIM_011_001_701	100x((ESLIM_011_001_006-ESLIM_011_001_007)/ESLIM_011_001_006)
-        // ESLIM_011_001_702	100x((ESLIM_011_001_006-ESLIM_011_001_008)/ESLIM_011_001_006)
-        // ESLIM_011_001_703	100x((ESLIM_011_001_006-ESLIM_011_001_009)/ESLIM_011_001_006)
-        // ESLIM_011_001_704	100x((ESLIM_011_001_006-ESLIM_011_001_010)/ESLIM_011_001_006)
-        copyPercentageOfDifference("ESLIM_011_001_701", "ESLIM_011_001_006", "ESLIM_011_001_007", "ESLIM_011_001_006");	// checked, fine
-        copyPercentageOfDifference("ESLIM_011_001_702", "ESLIM_011_001_006", "ESLIM_011_001_008", "ESLIM_011_001_006");	// checked, fine
-        copyPercentageOfDifference("ESLIM_011_001_703", "ESLIM_011_001_006", "ESLIM_011_001_009", "ESLIM_011_001_006");	// checked, fine
-        copyPercentageOfDifference("ESLIM_011_001_704", "ESLIM_011_001_006", "ESLIM_011_001_010", "ESLIM_011_001_006");	// checked, fine
-
-        // ESLIM_011_001_705	<-	100 x ( (ESLIM_011_001_006 - ( (ESLIM_011_001_007 + ESLIM_011_001_008 + ESLIM_011_001_009 + ESLIM_011_001_010 ) / 4 ) ) / ESLIM_011_001_006 )
-        ESLIM_011_001_705();	// checked, fine
-
-        // *
-        // * No ontology terms associated
-        // *
-        // ESLIM_007_001_703	<-	(ESLIM_007_001_012/ESLIM_007_001_004)x100
-        // copyPercentageOf("ESLIM_007_001_703", "ESLIM_007_001_012", "ESLIM_007_001_004");	// checked, fine
-
-
-        // ESLIM_003_001_701	<-	ESLIM_003_001_004/ESLIM_003_001_003
-        ESLIM_003_001_701();	// checked, fine
-
-        // ESLIM_005_001_701	<-	(ESLIM_005_001_005/ESLIM_005_001_001)
-        copyDivisionResult("ESLIM_005_001_701", "ESLIM_005_001_005", "ESLIM_005_001_001");	// checked, fine
-        // ESLIM_005_001_702	<-	(ESLIM_005_001_003/ESLIM_005_001_001)
-        copyDivisionResult("ESLIM_005_001_702", "ESLIM_005_001_003", "ESLIM_005_001_001");	// checked, fine
-        // ESLIM_005_001_703	<-	(ESLIM_005_001_002/ESLIM_005_001_001)
-        copyDivisionResult("ESLIM_005_001_703", "ESLIM_005_001_002", "ESLIM_005_001_001");	// checked, fine
-        // ESLIM_005_001_704	<-	(ESLIM_005_001_005/ESLIM_005_001_004)
-        copyDivisionResult("ESLIM_005_001_704", "ESLIM_005_001_005", "ESLIM_005_001_004");	// checked, fine
-
-
-
-        copyParameter("ESLIM_022_001_703", "ESLIM_001_001_001");
-        copyParameter("ESLIM_022_001_704", "ESLIM_002_001_001");
-        copyParameter("ESLIM_022_001_705", "ESLIM_003_001_001");
-        copyParameter("ESLIM_022_001_706", "ESLIM_004_001_001");
-        copyParameter("ESLIM_022_001_707", "ESLIM_005_001_001");
-        copyParameter("ESLIM_022_001_709", "ESLIM_009_001_003");
-        copyParameter("ESLIM_022_001_710", "ESLIM_010_001_003");
-        copyParameter("ESLIM_022_001_711", "ESLIM_011_001_011");
-        copyParameter("ESLIM_022_001_712", "ESLIM_012_001_005");
-        copyParameter("ESLIM_022_001_713", "ESLIM_013_001_018");
-        copyParameter("ESLIM_022_001_708", "ESLIM_020_001_001");
-
-
-
-        //ESLIM_022_001_701	"plot_parameters_as_time_series(ESLIM_001_001_001, ESLIM_002_001_001, ESLIM_003_001_001, ESLIM_004_001_001, ESLIM_005_001_001, ESLIM_020_001_001, ESLIM_022_001_001)"
-        ArrayList<String> params = new ArrayList<>();
-        params.add("ESLIM_001_001_001");
-        params.add("ESLIM_002_001_001");
-        params.add("ESLIM_003_001_001");
-        params.add("ESLIM_004_001_001");
-        params.add("ESLIM_005_001_001");
-        params.add("ESLIM_020_001_001");
-        params.add("ESLIM_022_001_001");
-        plotParametersAsTimeSeries("ESLIM_022_001_701", params);
-        // ESLIM_022_001_702	"plot_parameters_as_time_series(ESLIM_009_001_003, ESLIM_010_001_003, ESLIM_011_001_011, ESLIM_012_001_005, ESLIM_013_001_018, ESLIM_022_001_001)"
-        params = new ArrayList<>();
-        params.add("ESLIM_009_001_003");
-        params.add("ESLIM_010_001_003");
-        params.add("ESLIM_011_001_011");
-        params.add("ESLIM_012_001_005");
-        params.add("ESLIM_013_001_018");
-        params.add("ESLIM_022_001_001");
-        plotParametersAsTimeSeries("ESLIM_022_001_702", params);
-        // IMPC_BWT_008_001		IMPC_GRS_003_001 IMPC_CAL_001_001 IMPC_DXA_001_001 IMPC_HWT_007_001 IMPC_PAT_049_001 IMPC_BWT_001_001 IMPC_ABR_001_001 IMPC_CHL_001_001 TCP_CHL_001_001 HMGU_ROT_004_001 PLOT_ALL_PARAMETERS_AS_TIMESERIES
-        params = new ArrayList<>();
-        params.add("IMPC_GRS_003_001");
-        params.add("IMPC_CAL_001_001");
-        params.add("IMPC_DXA_001_001");
-        params.add("IMPC_HWT_007_001");
-        params.add("IMPC_PAT_049_001");
-        params.add("IMPC_BWT_001_001");
-        params.add("IMPC_ABR_001_001");
-        params.add("IMPC_CHL_001_001");
-        params.add("TCP_CHL_001_001");
-        params.add("HMGU_ROT_004_001");
-        plotParametersAsTimeSeries("IMPC_BWT_008_001", params);
-
-
-    }
-
+//    private void getAllDerivedParameters_old() throws SQLException, ClassNotFoundException{
+//
+//        // ************** GMC Parameters **************** //
+//        //	GMC_914_001_704	GMC_914_001_015/GMC_914_001_001
+//        copyDivisionResult("GMC_914_001_704", "GMC_914_001_015", "GMC_914_001_001");
+//        // GMC_914_001_701	GMC_914_001_005xGMC_914_001_021
+//        copyMultiplicationResult("GMC_914_001_701", "GMC_914_001_005", "GMC_914_001_021");	// Could not test, no data
+//        // ++++ GMC_914_001_705	100xGMC_914_001_015/GMC_914_001_009
+//        copyMultiplicationOfDivision("GMC_914_001_705", "GMC_914_001_015", "GMC_914_001_009", 100);	// Could not test, no data
+//        // ++++ GMC_914_001_702	GMC_914_001_005xGMC_914_001_021/GMC_914_001_001
+//        copyMultiplicationOfDivision("GMC_914_001_705", "GMC_914_001_015", "GMC_914_001_009", "GMC_914_001_005");	// Could not test, no data
+//
+//
+//        // ************** TCP Parameters **************** //
+//        // 		TCP_TFL_002_001	" 	IMPC_TFL_001_001 mean_of_increments"
+//        copyMeanOfIncrements("TCP_TFL_002_001", "IMPC_TFL_001_001");
+//
+//
+//        // ************** IMPC Parameters *************** //
+//        // 						IMPC_DXA_007_001	"IMPC_DXA_005_001 	IMPC_DXA_001_001 /"
+//        copyDivisionResult("IMPC_DXA_007_001", "IMPC_DXA_005_001" , "IMPC_DXA_001_001");	//Checked, fine
+//        // 						IMPC_DXA_008_001	"IMPC_DXA_003_001 	IMPC_DXA_001_001 /"
+//        copyDivisionResult("IMPC_DXA_008_001", "IMPC_DXA_003_001" , "IMPC_DXA_001_001");
+//        // 						IMPC_DXA_009_001	"IMPC_DXA_002_001 	IMPC_DXA_001_001 /"
+//        copyDivisionResult("IMPC_DXA_009_001", "IMPC_DXA_002_001" , "IMPC_DXA_001_001");
+//        // 						IMPC_DXA_010_001	"IMPC_DXA_005_001 	IMPC_DXA_004_001 /"
+//        copyDivisionResult("IMPC_DXA_010_001", "IMPC_DXA_005_001" , "IMPC_DXA_004_001");
+//        // 					IMPC_GRS_008_001	"IMPC_GRS_001_001 mean_of_increments"
+//        copyMeanOfIncrements("IMPC_GRS_008_001", "IMPC_GRS_001_001");	// Checked, fine
+//        // 					IMPC_GRS_009_001	"IMPC_GRS_002_001 mean_of_increments"
+//        copyMeanOfIncrements("IMPC_GRS_009_001", "IMPC_GRS_002_001");	// Checked, fine
+//        // 						IMPC_GRS_010_001	"IMPC_GRS_008_001 	IMPC_GRS_003_001 /"
+//        copyMeanOfIncrements("ICS_ROT_002_001", "ICS_ROT_001_001");	// Checked, fine
+//        // 						ICS_ROT_002_001,"ICS_ROT_001_001 mean_of_increments"
+//        copyDivisionResult("IMPC_GRS_010_001", "IMPC_GRS_008_001" , "IMPC_GRS_003_001");	// Checked, fine
+//        // 						IMPC_GRS_011_001	"IMPC_GRS_009_001 	IMPC_GRS_003_001 /"
+//        copyDivisionResult("IMPC_GRS_011_001", "IMPC_GRS_009_001" , "IMPC_GRS_003_001");	// Checked, fine
+//
+//        // 					IMPC_OFD_020_001	"IMPC_OFD_005_001 sum_of_increments"
+//        copySumOfIncrements("IMPC_OFD_020_001", "IMPC_OFD_005_001");	// Checked for ESLIM, fine
+//        // 					IMPC_OFD_021_001	"IMPC_OFD_006_001 sum_of_increments"
+//        copySumOfIncrements("IMPC_OFD_021_001", "IMPC_OFD_006_001");	// Checked for ESLIM, fine
+//
+//        // 	MGP_IPG_011_001,"MGP_IPG_002_001 15 increment_value MGP_IPG_002_001 0 increment_value -"
+//        copyDifferenceOfIncrements("MGP_IPG_011_001", "MGP_IPG_002_001", 15.0, 0.0);
+//
+//        // IMPC_IPG_012_001	area_under_curve(IMPC_IPG_002_001)
+//        copyAUC("IMPC_IPG_012_001", "IMPC_IPG_002_001");	// Checked for ESLIM, fine
+//        // MGP_IPG_012_001,"MGP_IPG_002_001 area_under_curve"
+//        copyAUC("MGP_IPG_012_001", "MGP_IPG_002_001");
+//
+//        // IMPC_EYE_092_001,"IMPC_EYE_020_001 IMPC_EYE_021_001 IMPC_EYE_022_001 if_abnormal"
+//        IMPC_EYE_092_001(); 	//Checked by hand, values look fine
+//
+//        // IMPC_ACS_033_001	"IMPC_ACS_006_001 IMPC_ACS_007_001 - IMPC_ACS_006_001 / 100 *"
+//        copyPercentageOfDifference("IMPC_ACS_033_001", "IMPC_ACS_006_001", "IMPC_ACS_007_001", "IMPC_ACS_006_001");		// Checked for ESLIM, fine
+//        // IMPC_ACS_034_001	"IMPC_ACS_006_001 IMPC_ACS_008_001 - IMPC_ACS_006_001 / 100 *"
+//        copyPercentageOfDifference("IMPC_ACS_034_001", "IMPC_ACS_006_001", "IMPC_ACS_008_001", "IMPC_ACS_006_001");		// Checked for ESLIM, fine
+//        // IMPC_ACS_035_001	"IMPC_ACS_006_001 IMPC_ACS_009_001 - IMPC_ACS_006_001 / 100 *"
+//        copyPercentageOfDifference("IMPC_ACS_035_001", "IMPC_ACS_006_001", "IMPC_ACS_009_001", "IMPC_ACS_006_001");		// Checked for ESLIM, fine
+//        // IMPC_ACS_036_001	"IMPC_ACS_006_001 IMPC_ACS_010_001 - IMPC_ACS_006_001 / 100 *"
+//        copyPercentageOfDifference("IMPC_ACS_036_001", "IMPC_ACS_006_001", "IMPC_ACS_010_001", "IMPC_ACS_006_001");		// Checked for ESLIM, fine
+//
+//
+//        // IMPC_OFD_022_001	"IMPC_OFD_016_001 IMPC_OFD_008_001 / 100 *"
+//        copyPercentageOf("IMPC_OFD_022_001", "IMPC_OFD_016_001", "IMPC_OFD_008_001"); 	// Checked for ESLIM, fine
+//
+//
+//        // IMPC_ACS_037_001	"IMPC_ACS_007_001 IMPC_ACS_008_001 + IMPC_ACS_009_001 + IMPC_ACS_010_001 + 4 / IMPC_ACS_006_001 - IMPC_ACS_006_001 / 100 *"
+//        IMPC_ACS_037_001(); // Checked & fine!
+//
+//        // IMPC_IPG_010_001	"increment_value IMPC_IPG_002_001 0"
+//        copyIncrementValueAt("IMPC_IPG_010_001", "IMPC_IPG_002_001", 0);	// Checked & fine!
+//        //MGP_IPG_010_001,"MGP_IPG_002_001 0 increment_value"
+//        copyIncrementValueAt("MGP_IPG_010_001", "MGP_IPG_002_001", 0);
+//
+//
+//        // IMPC_CAL_017_001	"IMPC_CAL_004_001 mean_of_increments IMPC_CAL_003_001 mean_of_increments /"
+//        copyDivisionOfMeanOfIncrements("IMPC_CAL_017_001", "IMPC_CAL_004_001", "IMPC_CAL_003_001"); // Checked & fine!
+//
+//        // ++++ IMPC_IPG_011_001	IMPC_IPG_002_001 15 increment_value IMPC_IPG_002_001 0 increment_value -
+//        IMPC_IPG_011_001(); 	// Checked, fine
+//
+//
+//        // *
+//        // * No ontology terms associated
+//        // *
+//        //////////////////////////////////////////////////////////////////////////////////////////////////
+//        // CALCULATE IMPC LINE LEVEL DERIVED PARAMETERS
+//        //////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//        // % pups WT = Total pups WT / Total Pups
+//        // IMPC_VIA_015_001 = IMPC_VIA_004_001 / IMPC_VIA_003_001
+//        // System.out.println("GETTING DERIVED PARAMS");
+//        //calculateLineLevelPercent("IMPC_VIA_015_001", "IMPC_VIA_004_001" , "IMPC_VIA_003_001");
+//
+//        // % pups heterozygous = Total pups heterozygous / Total Pups
+//        // IMPC_VIA_018_001 = IMPC_VIA_005_001 / IMPC_VIA_003_001
+//        // calculateLineLevelPercent("IMPC_VIA_018_001", "IMPC_VIA_005_001" , "IMPC_VIA_003_001");
+//
+//        // % pups homozygous = Total pups homozygous / Total pups
+//        // IMPC_VIA_019_001 = IMPC_VIA_006_001 / IMPC_VIA_003_001
+//        // calculateLineLevelPercent("IMPC_VIA_019_001", "IMPC_VIA_006_001" , "IMPC_VIA_003_001");
+//
+//        // % male WT = Total male WT/Total male pups
+//        // IMPC_VIA_020_001 = IMPC_VIA_007_001 / IMPC_VIA_010_001
+//        // calculateLineLevelPercent("IMPC_VIA_020_001", "IMPC_VIA_007_001" , "IMPC_VIA_010_001");
+//
+//        // % male heterozygous = Total male heterozygous / Total male pups
+//        // IMPC_VIA_021_001 = IMPC_VIA_008_001 / IMPC_VIA_010_001
+//        // calculateLineLevelPercent("IMPC_VIA_021_001", "IMPC_VIA_008_001" , "IMPC_VIA_010_001");
+//
+//        // % male homozygous = Total male homozygous / Total male pups
+//        // IMPC_VIA_022_001 = IMPC_VIA_009_001 / IMPC_VIA_010_001
+//        // calculateLineLevelPercent("IMPC_VIA_022_001", "IMPC_VIA_009_001" , "IMPC_VIA_010_001");
+//
+//        // % female WT = Total female WT / Total female pups
+//        // IMPC_VIA_023_001 = IMPC_VIA_011_001 / IMPC_VIA_014_001
+//        // calculateLineLevelPercent("IMPC_VIA_023_001", "IMPC_VIA_011_001" , "IMPC_VIA_014_001");
+//
+//        // % female heterozygous = Total female heterozygous / Total female pups
+//        // IMPC_VIA_024_001 = IMPC_VIA_012_001 / IMPC_VIA_014_001
+//        // calculateLineLevelPercent("IMPC_VIA_024_001", "IMPC_VIA_012_001" , "IMPC_VIA_014_001");
+//
+//        // % female homozygous = Total female homozygous / Total female pups
+//        // IMPC_VIA_025_001 = IMPC_VIA_013_001 / IMPC_VIA_014_001
+//        // calculateLineLevelPercent("IMPC_VIA_025_001", "IMPC_VIA_013_001" , "IMPC_VIA_014_001");
+//
+//        // If the breeding strategy is     HetXHet, then 25% of the offspring should be Hom, 50% Het, 25% WT
+//        // If the breeding strategy is not HetXHet, then 50% of the offspring should be Hom, 50% Het
+//        // Terry says there will be some effects depending on HetXHom or HomXHet, but the p value is not effected
+//        // total pups homozygous | total pups | Breeding Strategy {HetXHet 0.25, HetXHom 0.5, HomXHet 0.5}
+//        // IMPC_VIA_032_001	= IMPC_VIA_006_001 IMPC_VIA_003_001 IMPC_VIA_031_001 get_binomial_distribution_p_value
+//        // IMPC_VIA_032_001();
+//
+//
+//
+//        // ************** ESLIM Parameters *************** //
+//        // ESLIM_004_001_701	area_under_curve(ESLIM_004_001_002)
+//        // Modiefied AUC computation to do A + |B| , Feb. 17 2014
+//        copyAUC("ESLIM_004_001_701", "ESLIM_004_001_002");	// checked, fine
+//
+//        // ESLIM_009_001_703	(sum_of_increments(ESLIM_009_001_001)/number_of_increments(ESLIM_009_001_001))/ESLIM_009_001_003
+//        // ESLIM_009_001_704	(sum_of_increments(ESLIM_009_001_002)/number_of_increments(ESLIM_009_001_002))/ESLIM_009_001_003
+//        copyDivisionOfSumOfIncrementsOverNumberOfIncrements("ESLIM_009_001_703", "ESLIM_009_001_001", "ESLIM_009_001_003");	// checked, fine
+//        copyDivisionOfSumOfIncrementsOverNumberOfIncrements("ESLIM_009_001_704", "ESLIM_009_001_002", "ESLIM_009_001_003");	// checked, fine
+//
+//        // *
+//        // * No ontology terms associated
+//        // *
+//        // ESLIM_007_001_701	sum_of_increments(ESLIM_007_001_001)
+//        // ESLIM_007_001_702	sum_of_increments(ESLIM_007_001_002)
+//        // copySumOfIncrements("ESLIM_007_001_701", "ESLIM_007_001_001");	// checked, fine
+//        // copySumOfIncrements("ESLIM_007_001_702", "ESLIM_007_001_002");	// checked, fine
+//
+//
+//        // ESLIM_009_001_701	sum_of_increments(ESLIM_009_001_001)/number_of_increments(ESLIM_009_001_001)
+//        // ESLIM_009_001_702	sum_of_increments(ESLIM_009_001_002)/number_of_increments(ESLIM_009_001_002)
+//        // ESLIM_010_001_701	sum_of_increments(ESLIM_010_001_001)/number_of_increments(ESLIM_010_001_001)
+//        copyMeanOfIncrements("ESLIM_009_001_701", "ESLIM_009_001_001");	// checked, fine
+//        copyMeanOfIncrements("ESLIM_009_001_702", "ESLIM_009_001_002");	// checked, fine
+//
+//        // *
+//        // * No ontology terms associated
+//        // *
+//        // copyMeanOfIncrements("ESLIM_010_001_701", "ESLIM_010_001_001");	// checked, fine
+//
+//        // ESLIM_011_001_701	100x((ESLIM_011_001_006-ESLIM_011_001_007)/ESLIM_011_001_006)
+//        // ESLIM_011_001_702	100x((ESLIM_011_001_006-ESLIM_011_001_008)/ESLIM_011_001_006)
+//        // ESLIM_011_001_703	100x((ESLIM_011_001_006-ESLIM_011_001_009)/ESLIM_011_001_006)
+//        // ESLIM_011_001_704	100x((ESLIM_011_001_006-ESLIM_011_001_010)/ESLIM_011_001_006)
+//        copyPercentageOfDifference("ESLIM_011_001_701", "ESLIM_011_001_006", "ESLIM_011_001_007", "ESLIM_011_001_006");	// checked, fine
+//        copyPercentageOfDifference("ESLIM_011_001_702", "ESLIM_011_001_006", "ESLIM_011_001_008", "ESLIM_011_001_006");	// checked, fine
+//        copyPercentageOfDifference("ESLIM_011_001_703", "ESLIM_011_001_006", "ESLIM_011_001_009", "ESLIM_011_001_006");	// checked, fine
+//        copyPercentageOfDifference("ESLIM_011_001_704", "ESLIM_011_001_006", "ESLIM_011_001_010", "ESLIM_011_001_006");	// checked, fine
+//
+//        // ESLIM_011_001_705	<-	100 x ( (ESLIM_011_001_006 - ( (ESLIM_011_001_007 + ESLIM_011_001_008 + ESLIM_011_001_009 + ESLIM_011_001_010 ) / 4 ) ) / ESLIM_011_001_006 )
+//        ESLIM_011_001_705();	// checked, fine
+//
+//        // *
+//        // * No ontology terms associated
+//        // *
+//        // ESLIM_007_001_703	<-	(ESLIM_007_001_012/ESLIM_007_001_004)x100
+//        // copyPercentageOf("ESLIM_007_001_703", "ESLIM_007_001_012", "ESLIM_007_001_004");	// checked, fine
+//
+//
+//        // ESLIM_003_001_701	<-	ESLIM_003_001_004/ESLIM_003_001_003
+//        ESLIM_003_001_701();	// checked, fine
+//
+//        // ESLIM_005_001_701	<-	(ESLIM_005_001_005/ESLIM_005_001_001)
+//        copyDivisionResult("ESLIM_005_001_701", "ESLIM_005_001_005", "ESLIM_005_001_001");	// checked, fine
+//        // ESLIM_005_001_702	<-	(ESLIM_005_001_003/ESLIM_005_001_001)
+//        copyDivisionResult("ESLIM_005_001_702", "ESLIM_005_001_003", "ESLIM_005_001_001");	// checked, fine
+//        // ESLIM_005_001_703	<-	(ESLIM_005_001_002/ESLIM_005_001_001)
+//        copyDivisionResult("ESLIM_005_001_703", "ESLIM_005_001_002", "ESLIM_005_001_001");	// checked, fine
+//        // ESLIM_005_001_704	<-	(ESLIM_005_001_005/ESLIM_005_001_004)
+//        copyDivisionResult("ESLIM_005_001_704", "ESLIM_005_001_005", "ESLIM_005_001_004");	// checked, fine
+//
+//
+//
+//        copyParameter("ESLIM_022_001_703", "ESLIM_001_001_001");
+//        copyParameter("ESLIM_022_001_704", "ESLIM_002_001_001");
+//        copyParameter("ESLIM_022_001_705", "ESLIM_003_001_001");
+//        copyParameter("ESLIM_022_001_706", "ESLIM_004_001_001");
+//        copyParameter("ESLIM_022_001_707", "ESLIM_005_001_001");
+//        copyParameter("ESLIM_022_001_709", "ESLIM_009_001_003");
+//        copyParameter("ESLIM_022_001_710", "ESLIM_010_001_003");
+//        copyParameter("ESLIM_022_001_711", "ESLIM_011_001_011");
+//        copyParameter("ESLIM_022_001_712", "ESLIM_012_001_005");
+//        copyParameter("ESLIM_022_001_713", "ESLIM_013_001_018");
+//        copyParameter("ESLIM_022_001_708", "ESLIM_020_001_001");
+//
+//
+//
+//        //ESLIM_022_001_701	"plot_parameters_as_time_series(ESLIM_001_001_001, ESLIM_002_001_001, ESLIM_003_001_001, ESLIM_004_001_001, ESLIM_005_001_001, ESLIM_020_001_001, ESLIM_022_001_001)"
+//        ArrayList<String> params = new ArrayList<>();
+//        params.add("ESLIM_001_001_001");
+//        params.add("ESLIM_002_001_001");
+//        params.add("ESLIM_003_001_001");
+//        params.add("ESLIM_004_001_001");
+//        params.add("ESLIM_005_001_001");
+//        params.add("ESLIM_020_001_001");
+//        params.add("ESLIM_022_001_001");
+//        plotParametersAsTimeSeries("ESLIM_022_001_701", params);
+//        // ESLIM_022_001_702	"plot_parameters_as_time_series(ESLIM_009_001_003, ESLIM_010_001_003, ESLIM_011_001_011, ESLIM_012_001_005, ESLIM_013_001_018, ESLIM_022_001_001)"
+//        params = new ArrayList<>();
+//        params.add("ESLIM_009_001_003");
+//        params.add("ESLIM_010_001_003");
+//        params.add("ESLIM_011_001_011");
+//        params.add("ESLIM_012_001_005");
+//        params.add("ESLIM_013_001_018");
+//        params.add("ESLIM_022_001_001");
+//        plotParametersAsTimeSeries("ESLIM_022_001_702", params);
+//        // IMPC_BWT_008_001		IMPC_GRS_003_001 IMPC_CAL_001_001 IMPC_DXA_001_001 IMPC_HWT_007_001 IMPC_PAT_049_001 IMPC_BWT_001_001 IMPC_ABR_001_001 IMPC_CHL_001_001 TCP_CHL_001_001 HMGU_ROT_004_001 PLOT_ALL_PARAMETERS_AS_TIMESERIES
+//        params = new ArrayList<>();
+//        params.add("IMPC_GRS_003_001");
+//        params.add("IMPC_CAL_001_001");
+//        params.add("IMPC_DXA_001_001");
+//        params.add("IMPC_HWT_007_001");
+//        params.add("IMPC_PAT_049_001");
+//        params.add("IMPC_BWT_001_001");
+//        params.add("IMPC_ABR_001_001");
+//        params.add("IMPC_CHL_001_001");
+//        params.add("TCP_CHL_001_001");
+//        params.add("HMGU_ROT_004_001");
+//        plotParametersAsTimeSeries("IMPC_BWT_008_001", params);
+//
+//
+//    }
 
 }
