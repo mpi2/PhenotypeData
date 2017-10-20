@@ -5,9 +5,14 @@ import net.sf.json.JSONObject;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Import;
+import org.springframework.util.Assert;
 
+import javax.inject.Inject;
+import javax.inject.Named;
 import javax.sql.DataSource;
 import java.io.*;
 import java.net.URL;
@@ -16,7 +21,9 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class MouseMineAlleleReferenceParser {
+@SpringBootApplication
+@Import(value = {MouseMineAlleleReferenceParserConfig.class})
+public class MouseMineAlleleReferenceParser implements CommandLineRunner {
 
 	private static final String ROOT = "http://www.mousemine.org/mousemine/service";
 	private static final Logger logger = LoggerFactory.getLogger(MouseMineAlleleReferenceParser.class);
@@ -37,12 +44,7 @@ public class MouseMineAlleleReferenceParser {
 
 	final String delimiter = "|||";
 
-	@Autowired
-	@Qualifier("admintoolsDataSource")
 	private DataSource admintoolsDataSource;
-
-	@Autowired
-	@Qualifier("komp2DataSource")
 	private DataSource komp2DataSource;
 
 	private static PreparedStatement insertStatement;
@@ -51,24 +53,26 @@ public class MouseMineAlleleReferenceParser {
 	private static Map<String, String> child2TopMesh = new HashMap<>();
 	private static Map<String, String> nameId = new HashMap<>();
 
+	@Inject
+	public MouseMineAlleleReferenceParser(
+			@Named("admintoolsDataSource") DataSource admintoolsDataSource,
+			@Named("komp2DataSource") DataSource komp2DataSource) {
 
+		Assert.notNull(admintoolsDataSource, "admintoolsDataSource cannot be null");
+		Assert.notNull(komp2DataSource, "komp2DataSource cannot be null");
 
-	public static void main(String[] args) throws IOException, SQLException {
-
-		MouseMineAlleleReferenceParser generate = new MouseMineAlleleReferenceParser();
-		generate.run();
-
-		System.out.println("LOADING DATABASE:");
-		logger.info("NEW MOUSEMINE pmids added " + newlyLoadedMouseMine.size());
-		logger.info("EXISTING EUROPE PUBMED pmids updated using MOUSEMINE " + updatedEuropubmedUsingMousemine.size());
-		logger.info("NEW EUROPE PUBMED pmids added " + newlyLoadedEuropubmed.size());
-		System.out.println("");
-
-		logger.info("Job done");
-
+		this.admintoolsDataSource = admintoolsDataSource;
+		this.komp2DataSource = komp2DataSource;
 	}
 
-	private void run() throws SQLException, IOException{
+	public static void main(String[] args) {
+		SpringApplication.run(MouseMineAlleleReferenceParser.class, args);
+	}
+
+	@Override
+	public void run(String... args) throws Exception {
+
+		logger.info("LOADING DATABASE:");
 
 		connection = admintoolsDataSource.getConnection();
 		connection.setAutoCommit(false); // start transaction
@@ -114,6 +118,15 @@ public class MouseMineAlleleReferenceParser {
 		//updatePublicationGrantMeshTerms(); // can be run stand alone
 		//updateDatasource();
 		//updateAbstract();
+
+		connection.close();
+
+		logger.info("NEW MOUSEMINE pmids added " + newlyLoadedMouseMine.size());
+		logger.info("EXISTING EUROPE PUBMED pmids updated using MOUSEMINE " + updatedEuropubmedUsingMousemine.size());
+		logger.info("NEW EUROPE PUBMED pmids added " + newlyLoadedEuropubmed.size());
+		System.out.println("");
+
+		logger.info("Job done");
 
 
 	}
