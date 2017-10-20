@@ -230,7 +230,7 @@ public class SearchController {
 		String sortStr = searchConfig.getSortingStr(dataType);
 
 		//String solrParamStr = "wt=json&q=" + query + qfStr + defTypeStr + flStr + facetStr + bqStr + sortStr;
-		String solrParamStr = "wt=json&q=" + query + qfStr + defTypeStr + flStr + bqStr;
+		String solrParamStr = "wt=json&q=" + query + qfStr + defTypeStr + flStr + bqStr + sortStr;
         if (! export) {
             solrParamStr += facetStr;
         }

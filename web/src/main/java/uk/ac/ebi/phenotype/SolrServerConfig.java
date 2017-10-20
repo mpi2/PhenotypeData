@@ -64,17 +64,12 @@ public class SolrServerConfig {
 
 	}
 
-	
-
 	@Bean(name = "productCore")
 	HttpSolrClient getProductCore() {
 
 		return new HttpSolrClient(imitsSolrBaseUrl + "/product");
 		//return new HttpSolrClient("http://localhost:8086/solr-example/product");
-
 	}
-
-
 
 
 	// Read only solr servers

@@ -19,6 +19,7 @@ public class SearchConfig {
     private Map<String, String> labelMap = new HashMap<>();
     private Map<String, List<String>> facetMap = new HashMap<>();
     private Map<String, String> facetSortMap = new HashMap<>();
+    private Map<String, String> sortMap = new HashMap<>();
     private Map<String, List<String>> fieldMap = new HashMap<>();
     private Map<String, List<String>> gridHeaderMap = new HashMap<>();
     private Map<String, String> bqMap = new HashMap<>();
@@ -42,7 +43,7 @@ public class SearchConfig {
         sorting.put("gene", "&sort=marker_symbol asc");
         sorting.put("mp", "&sort=mp_term asc");
         sorting.put("disease", "&sort=disease_term asc");
-        sorting.put("anatomy", "&sort=term asc");
+        sorting.put("anatomy", "&sort=anatomy_term asc");
         sorting.put("impc_images", "");  // these have multivalue fields, not sortable
         //sorting.put("images", "");  // these have multivalue fields, not sortable
         sorting.put("allele2", "&sort=allele_name asc");
