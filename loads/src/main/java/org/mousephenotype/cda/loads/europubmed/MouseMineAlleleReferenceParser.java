@@ -5,6 +5,7 @@ import net.sf.json.JSONObject;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -14,6 +15,7 @@ import org.springframework.util.Assert;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.sql.DataSource;
+import javax.validation.constraints.NotNull;
 import java.io.*;
 import java.net.URL;
 import java.sql.*;
@@ -46,6 +48,8 @@ public class MouseMineAlleleReferenceParser implements CommandLineRunner {
 
 	private DataSource admintoolsDataSource;
 	private DataSource komp2DataSource;
+	private String meshTreeText;
+	private String mousemine;
 
 	private static PreparedStatement insertStatement;
 	private static PreparedStatement updateStatement;
@@ -56,13 +60,19 @@ public class MouseMineAlleleReferenceParser implements CommandLineRunner {
 	@Inject
 	public MouseMineAlleleReferenceParser(
 			@Named("admintoolsDataSource") DataSource admintoolsDataSource,
-			@Named("komp2DataSource") DataSource komp2DataSource) {
+			@Named("komp2DataSource") DataSource komp2DataSource,
+            @Value("${mousemine}") String mousemine,
+            @Value("${meshTreeText}") String meshTreeText) {
 
 		Assert.notNull(admintoolsDataSource, "admintoolsDataSource cannot be null");
 		Assert.notNull(komp2DataSource, "komp2DataSource cannot be null");
+        Assert.notNull(meshTreeText, "meshTreeText cannot be null");
+        Assert.notNull(mousemine, "mousemine cannot be null");
 
 		this.admintoolsDataSource = admintoolsDataSource;
 		this.komp2DataSource = komp2DataSource;
+		this.meshTreeText = meshTreeText;
+		this.mousemine = mousemine;
 	}
 
 	public static void main(String[] args) {
@@ -72,7 +82,7 @@ public class MouseMineAlleleReferenceParser implements CommandLineRunner {
 	@Override
 	public void run(String... args) throws Exception {
 
-		logger.info("LOADING DATABASE:");
+		logger.info("LOADING ALLELE PAPERS to DATABASE:");
 
 		connection = admintoolsDataSource.getConnection();
 		connection.setAutoCommit(false); // start transaction
@@ -508,8 +518,7 @@ public class MouseMineAlleleReferenceParser implements CommandLineRunner {
 		// this file has utf-16 binary charset in it, so is seen as a binary file
 		// use file -I filename to view it or hexdump -c to see the unwanted charset
 		// command: curl https://www.nlm.nih.gov/mesh/2017/download/2017MeshTree.txt | iconv -f utf-16le -t utf-8 | awk '{if(NR==1)sub(/^\xef\xbb\xbf/,"");print}' > 2017MeshTree.txt
-		//File file = new File("/nfs/web-hx/webadmin/tomcat/bases/mouseinformatics/mousemine/2017MeshTree.txt");
-		File file = new File("/Users/ckchen/Documents/work/intermine-client-2.0/2017MeshTree.txt");
+		File file = new File(meshTreeText);
 
 		FileInputStream fis = null;
 		BufferedInputStream bis = null;
@@ -1501,8 +1510,7 @@ public class MouseMineAlleleReferenceParser implements CommandLineRunner {
 
 	private void parseIntermine1() throws IOException{
 
-		File file = new File("/Users/ckchen/Documents/work/intermine-client-2.0/mousemine_allele_ref.tsv");
-		//File file = new File("/nfs/web-hx/webadmin/tomcat/bases/mouseinformatics/mousemine/mousemine_allele_ref.tsv");
+		File file = new File(mousemine);
 	    FileInputStream fis = null;
 	    BufferedInputStream bis = null;
 	    DataInputStream dis = null;
