@@ -1118,21 +1118,35 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 
 		WeightBean nearest = null;
 
-		if (dateOfExperiment != null && weightMap.containsKey(specimenID)) {
+		long currentExperimentDate = dateOfExperiment.toInstant().toEpochMilli();
+
+		if (weightMap.containsKey(specimenID)) {
 
 			for (WeightBean candidate : weightMap.get(specimenID)) {
 
-				if (nearest == null) {
+                long candidateExperimentDate = candidate.date.toInstant().toEpochMilli();
+
+                if (nearest == null) {
 					nearest = candidate;
 					continue;
 				}
 
-				if (Math.abs(
-					dateOfExperiment.toInstant().toEpochMilli() - candidate.date.toInstant().toEpochMilli()) < Math
-					.abs(dateOfExperiment.toInstant().toEpochMilli()
-						- nearest.date.toInstant().toEpochMilli())) {
+				long nearestSoFar = nearest.date.toInstant().toEpochMilli();
+
+				if (
+				        Math.abs(currentExperimentDate - candidateExperimentDate) <
+                        Math.abs(currentExperimentDate - nearestSoFar)) {
 					nearest = candidate;
+				} else if (
+				        Math.abs(currentExperimentDate - candidateExperimentDate) ==
+                        Math.abs(currentExperimentDate - nearestSoFar)) {
+
+				    // Use earlier date in case of a tie
+                    if (candidateExperimentDate < nearestSoFar) {
+                        nearest = candidate;
+                    }
 				}
+
 			}
 		}
 
@@ -1141,7 +1155,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 		// (Heuristic from Natasha Karp @ WTSI)
 		// 4 days = 345,600,000 ms
 		if (nearest != null && Math
-			.abs(dateOfExperiment.toInstant().toEpochMilli() - nearest.date.toInstant().toEpochMilli()) > 3.456E8) {
+			.abs(currentExperimentDate - nearest.date.toInstant().toEpochMilli()) > 3.456E8) {
 			nearest = null;
 		}
 		return nearest;
