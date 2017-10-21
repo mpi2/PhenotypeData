@@ -63,6 +63,7 @@ public class OntologyParserTest {
         downloads.put("mp", new Download("MP", "http://purl.obolibrary.org/obo/mp.owl", owlpath + "/mp.owl"));
         downloads.put("hp", new Download("HP", "http://purl.obolibrary.org/obo/hp.owl", owlpath + "/hp.owl"));
         downloads.put("ma", new Download("MA", "http://purl.obolibrary.org/obo/ma.owl", owlpath + "/ma.owl"));
+        downloads.put("mpma", new Download("MP", "http://purl.obolibrary.org/obo/mp-ext-merged.owl", owlpath + "/mp-ext-merged.owl"));
 
         if ( ! downloadFiles) {
             downloadFiles();
@@ -257,6 +258,24 @@ public class OntologyParserTest {
 
 
 
+    }
+
+    @Test
+    public void findMaTermByReferenceFromMpTerm() throws Exception {
+        ontologyParser = new OntologyParser(downloads.get("mpma").target, downloads.get("mpma").name, null, null);
+
+        OntologyParser maParser = new OntologyParser(downloads.get("ma").target, downloads.get("ma").name, OntologyParserFactory.TOP_LEVEL_MA_TERMS, null);
+
+        Set<String> referencedClasses = ontologyParser.getReferencedClasses("MP:0001926",
+                OntologyParserFactory.VIA_PROPERTIES, "MA");
+        if (referencedClasses != null && referencedClasses.size() > 0) {
+            for (String id : referencedClasses) {
+                OntologyTermDTO maTerm = maParser.getOntologyTerm(id);
+
+                System.out.println("MA term "+id+" is "+maTerm+" for MP term MP:0001926");
+                Assert.assertFalse(maTerm == null);
+            }
+        }
     }
 
     @Test
