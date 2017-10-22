@@ -15,7 +15,6 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.service;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrRequest;
@@ -70,6 +69,23 @@ public class PostQcService extends AbstractGenotypePhenotypeService implements W
         // Ensure the superclass attributes are set
         super.solr = solr;
         documentCountGyGene = getDocumentCountByGene();
+    }
+
+    public Map<String, Long> getCountsByLevelMpTermAcc(String level) throws IOException, SolrServerException {
+
+        SolrQuery query = new SolrQuery();
+
+        query
+            .setQuery("*:*")
+            .addFilterQuery("mp_term_id:*")
+            .addFacetField(level)
+            .setRows(0)
+            .setFacet(true)
+            .setFacetLimit(-1)
+            .setFacetMinCount(1);
+        QueryResponse queryResponse = solr.query(query);
+
+        return getFacets(queryResponse).get(GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME);
     }
 
     /**

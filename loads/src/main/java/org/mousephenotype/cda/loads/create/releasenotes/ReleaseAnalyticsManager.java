@@ -1,18 +1,33 @@
 package org.mousephenotype.cda.loads.create.releasenotes;
 
+import javafx.geometry.Pos;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
+import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.db.dao.OntologyTermDAO;
+import org.mousephenotype.cda.db.pojo.Datasource;
+import org.mousephenotype.cda.db.pojo.OntologyTerm;
+import org.mousephenotype.cda.owl.OntologyParser;
+import org.mousephenotype.cda.owl.OntologyParserFactory;
+import org.mousephenotype.cda.owl.OntologyTermDTO;
 import org.mousephenotype.cda.solr.service.PostQcService;
 import org.mousephenotype.cda.solr.service.dto.GenotypePhenotypeDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
+import org.springframework.util.Assert;
 
+import javax.inject.Inject;
+import javax.inject.Named;
 import javax.sql.DataSource;
+import javax.validation.constraints.NotNull;
 import java.io.File;
 import java.io.IOException;
 import java.sql.*;
@@ -22,6 +37,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Created by ilinca on 12/10/2016.
@@ -29,20 +46,99 @@ import java.util.regex.Pattern;
  * Populate meta_info table and associated tables to a new datarelease. Must be run at the end of the release process, after the solr cores are built as well.
  * This is a replacement for the one in AdminTools.
  */
-public class ReleaseAnalyticsManager {
+@SpringBootApplication
+public class ReleaseAnalyticsManager implements CommandLineRunner {
 
     private static final Logger logger = LoggerFactory.getLogger(ReleaseAnalyticsManager.class);
-
 
     // Which DB to USE
     private Connection connection;
 
+    DataSource komp2DataSource;
+    private PostQcService postQcService;
+    private OntologyParser mpParser;
+
+
+    @NotNull
+    @Value("${owlpath}")
+    private String owlpath;
+
+
+    @Inject
+    public ReleaseAnalyticsManager(
+            @Named("komp2DataSource") DataSource komp2DataSource,
+            @Named("postQcService") PostQcService postQcService
+
+            ) {
+        Assert.notNull(komp2DataSource, "komp2DataSource cannot be null");
+        Assert.notNull(postQcService, "postQcService cannot be null");
+
+        this.postQcService = postQcService;
+        this.komp2DataSource = komp2DataSource;
+    }
+
+    public static void main(String[] args) {
+        SpringApplication.run(ReleaseAnalyticsManager.class, args);
+    }
+
+    @Override
+    public void run(String... args) throws Exception {
+
+        connection = komp2DataSource.getConnection();
+
+        OntologyParserFactory ontologyParserFactory = new OntologyParserFactory(komp2DataSource, owlpath);
+        mpParser = ontologyParserFactory.getMpParser();
+
+        OptionParser parser = new OptionParser();
+        parser.accepts("help");
+        parser.accepts("dr").withOptionalArg();
+        parser.accepts("drdate").withOptionalArg();
+        parser.accepts("psversion").withOptionalArg();
+
+        OptionSet options = parser.parse(args);
+
+        if (options.has("help")) {
+            help();
+        }
+
+        boolean redoDataDesc = false;
+        if (options.has("dr")) {
+            DATA_RELEASE_VERSION = (String) options.valueOf("dr");
+            redoDataDesc = true;
+        }
+        if (options.has("drdate")) {
+            DATA_RELEASE_DATE = (String) options.valueOf("drdate");
+            redoDataDesc = true;
+        }
+        if (options.has("psversion")) {
+            PHENSTAT_VERSION = (String) options.valueOf("psversion");
+            redoDataDesc = true;
+        }
+        if (redoDataDesc) {
+            DATA_RELEASE_DESCRIPTION = "Major data release " + DATA_RELEASE_VERSION + ", released on " + DATA_RELEASE_DATE + ", analysed using PhenStat version " + PHENSTAT_VERSION;
+        }
+
+        // Update the facts about this release
+        updateStaticFacts();
+
+        populateMetaInfo();
+        createAnalyticsTables();
+        pValuesDistribution();
+        populateMPTerms();
+        populateMetaInfoWithMPTerms();
+        ////manager.setStatisticalMethods();
+
+    }
+
+
+
+
     //
     // DATA RELEASE CONSTANTS
     //
-    private static String DATA_RELEASE_VERSION = "5.0";
-    private static String DATA_RELEASE_DATE = "02 August 2016";
-    private static String PHENSTAT_VERSION = "2.7.1";
+    private static String DATA_RELEASE_VERSION = "6.0";
+    private static String DATA_RELEASE_DATE = "12 September 2017";
+    private static String PHENSTAT_VERSION = "2.12.1";
     private static String DATA_RELEASE_DESCRIPTION = "Major data release " + DATA_RELEASE_VERSION + ", released on " + DATA_RELEASE_DATE + ", analysed using PhenStat version " + PHENSTAT_VERSION;
 
 
@@ -70,9 +166,9 @@ public class ReleaseAnalyticsManager {
     /**
      * Add all your static facts below. This will be accepted for every release.
      */
-    public static String[] metaInfoQueries = new String[]{};
+    public String[] metaInfoQueries = new String[]{};
 
-    public static void updateStaticFacts() {
+    public void updateStaticFacts() {
 
         metaInfoQueries = new String[]{
                 "truncate table meta_info;",
@@ -193,10 +289,6 @@ public class ReleaseAnalyticsManager {
     PreparedStatement alleleTypeStatement;
     PreparedStatement insertWithdrawnMarkerStatement;
 
-    @Autowired
-    DataSource komp2DataSource;
-    private OntologyTermDAO ontologyTermDAO;
-    private PostQcService postQcService;
 
     //private PhenotypeSummaryDAO phenSummary;
 
@@ -208,25 +300,12 @@ public class ReleaseAnalyticsManager {
     Map<String, Integer> controlSpecimens = new HashMap<String, Integer>();
     Map<String, List<String>> centerPipelines = new HashMap<String, List<String>>();
 
-    List<String> alleleTypeList = new ArrayList<String>();
-    List<String> vectorProjectList = new ArrayList<String>();
-    List<String> phenotypingCenterList = new ArrayList<String>();
 
-
-    public ReleaseAnalyticsManager(ApplicationContext applicationContext) throws ClassNotFoundException, SQLException {
-
-        connection = komp2DataSource.getConnection();
-        postQcService = (PostQcService) applicationContext.getBean("postqcService");
-
-        //ontologyTermDAO = (OntologyTermDAO) applicationContext.getBean("ontologyTermDAO");
-
-    }
 
     public static void help() {
         StringBuffer buffer = new StringBuffer();
         buffer.append("ReleaseAnalyticsManager usage:\n\n");
-        buffer.append("\tReleaseAnalyticsManager --dir <filename> --context <Spring context>\n");
-//		buffer.append("\t--dir|-d\tdirectory containing the MGI reports\n");
+        buffer.append("\tReleaseAnalyticsManager \n");
         buffer.append("\t--context|-c\tSpring application context configuration file\n");
         buffer.append("\t--dr\tData release version\n");
         buffer.append("\t--drdate\tData release date\n");
@@ -234,67 +313,10 @@ public class ReleaseAnalyticsManager {
         System.exit(1);
     }
 
-    public static void main(String[] args) throws SQLException, ClassNotFoundException, IOException, SolrServerException {
-
-        OptionParser parser = new OptionParser();
-//		parser.accepts( "dir" ).withRequiredArg();
-        parser.accepts("context").withRequiredArg();
-
-        parser.accepts("dr").withOptionalArg();
-        parser.accepts("drdate").withOptionalArg();
-        parser.accepts("psversion").withOptionalArg();
-
-        OptionSet options = parser.parse(args);
-
-        if (!options.has("context")) {
-            help();
-        }
-
-        // Check context file exists
-        String contextFile = (String) options.valueOf("context");
-        File f = new File(contextFile);
-        if (!f.isFile() || !f.canRead()) {
-            System.err.println("Context file " + contextFile + " not readable.");
-            help();
-        }
-
-        boolean redoDataDesc = false;
-        if (options.has("dr")) {
-            DATA_RELEASE_VERSION = (String) options.valueOf("dr");
-            redoDataDesc = true;
-        }
-        if (options.has("drdate")) {
-            DATA_RELEASE_DATE = (String) options.valueOf("drdate");
-            redoDataDesc = true;
-        }
-        if (options.has("psversion")) {
-            PHENSTAT_VERSION = (String) options.valueOf("psversion");
-            redoDataDesc = true;
-        }
-        if (redoDataDesc) {
-            DATA_RELEASE_DESCRIPTION = "Major data release " + DATA_RELEASE_VERSION + ", released on " + DATA_RELEASE_DATE + ", analysed using PhenStat version " + PHENSTAT_VERSION;
-        }
-
-        // Update the facts about this release
-        updateStaticFacts();
-
-        ApplicationContext applicationContext = new FileSystemXmlApplicationContext("file:" + contextFile);
-
-        ReleaseAnalyticsManager manager = new ReleaseAnalyticsManager(applicationContext);
-        manager.populateMetaInfo();
-        manager.createAnalyticsTables();
-        manager.pValuesDistribution();
-        manager.populateMPTerms();
-        manager.populateMetaInfoWithMPTerms();
-        ////manager.setStatisticalMethods();
-
-    }
 
     private void insertMPTerm(
             Statement insertStatement,
             List<GenotypePhenotypeDTO> dataset,
-            String mpTermAccField,
-            String mpTermNameField,
             String mpTermLevel) throws SQLException {
 
         for (GenotypePhenotypeDTO map : dataset) {
@@ -319,6 +341,7 @@ public class ReleaseAnalyticsManager {
 
             for (int i = 0; i < mpNames.size(); i++) {
 
+
                 StringBuilder values = new StringBuilder();
                 values.append("'" + map.getPhenotypingCenter() + "',");
                 values.append("'" + map.getMarkerSymbol() + "',");
@@ -328,8 +351,18 @@ public class ReleaseAnalyticsManager {
                 values.append("'" + mpNames.get(i) + "',");
                 values.append("'" + mpTermLevel + "'");
 
+                String v = StringUtils.join(Stream.of(
+                        map.getPhenotypingCenter(),
+                        map.getMarkerSymbol(),
+                        map.getMarkerAccessionId(),
+                        map.getColonyId(),
+                        mpIds.get(i),
+                        mpNames.get(i),
+                        mpTermLevel
+                ).map(x-> "'"+x+"'").collect(Collectors.toList()), ", ");
+
                 if (mpNames.get(i) == null || mpNames.get(i).equalsIgnoreCase("null")) {
-                    System.out.println("\n\nNULLL " + map);
+                    System.out.println("\n\nNULL " + map);
                     return;
                 }
                 System.out.println("\n values: " + values);
@@ -349,73 +382,53 @@ public class ReleaseAnalyticsManager {
 
         Statement insertStatement = connection.createStatement();
 
-
         dataset = postQcService.getAllMPByPhenotypingCenterAndColonies(resource);
 
         System.out.println("TOP LEVEL");
-        String mpTermAccField = GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_ID;
-        String mpTermNameField = GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME;
-        insertMPTerm(insertStatement, dataset, mpTermAccField, mpTermNameField, "top");
+        insertMPTerm(insertStatement, dataset, "top");
 
         System.out.println("INTERMEDIATE LEVEL");
-        mpTermAccField = GenotypePhenotypeDTO.INTERMEDIATE_MP_TERM_ID;
-        mpTermNameField = GenotypePhenotypeDTO.INTERMEDIATE_MP_TERM_NAME;
-        insertMPTerm(insertStatement, dataset, mpTermAccField, mpTermNameField, "intermediate");
+        insertMPTerm(insertStatement, dataset, "intermediate");
 
         System.out.println("DIRECT ANNOTATIONS");
-        mpTermAccField = GenotypePhenotypeDTO.MP_TERM_ID;
-        mpTermNameField = GenotypePhenotypeDTO.MP_TERM_NAME;
-        insertMPTerm(insertStatement, dataset, mpTermAccField, mpTermNameField, "leaf");
+        insertMPTerm(insertStatement, dataset, "leaf");
 
 
         insertStatement.close();
 
     }
 
-    private void populateMetaInfoWithMPTerms() throws SQLException {
+    private void populateMetaInfoWithMPTerms() throws SQLException, IOException, SolrServerException {
 
-        Statement insertStatement = connection.createStatement();
+        List<String> topLevelMpTermsList = new ArrayList<>();
 
-        // Once it's done, we want to summarize by top level
-        String query = "select distinct phenotyping_center, phenotyping_center_count, mp_term_name, mp_term_count from analytics_mp_calls where mp_term_level = 'top_level';";
+        Map<String, Long> map = postQcService.getCountsByLevelMpTermAcc(GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME);
+        for (String termAcc : map.keySet()) {
+            OntologyTermDTO term = mpParser.getOntologyTerm(termAcc);
 
-        String aggregateCount = "select count(1), mp_term_id from analytics_mp_calls where mp_term_level = 'top' group by mp_term_id;";
+            topLevelMpTermsList.add(term.getAccessionId());
+            System.out.println("topLevelMpTermsList " + topLevelMpTermsList);
 
-        String topLevelsQuery = "select distinct mp_term_id, mp_term_name from analytics_mp_calls where mp_term_level = 'top';";
-        List<String> topLevelsList = new ArrayList<String>();
+            // Meta information table has columns key, value, description
+            String sql = "INSERT INTO meta_info(property_key, property_value, description) VALUES (?, ?, ?)";
 
-        PreparedStatement statement = connection.prepareStatement(topLevelsQuery);
-        ResultSet resultSet = statement.executeQuery();
+            // Insert the top level categories
+            try (PreparedStatement insertStatement = connection.prepareStatement(sql)) {
+                insertStatement.setString(1, "top_level_" + term.getAccessionId());
+                insertStatement.setString(2, term.getName());
+                insertStatement.setString(3, "Mammalian Phenotype top-level category " + term.getName());
+                insertStatement.executeUpdate();
+            }
 
-        while (resultSet.next()) {
-
-            topLevelsList.add(resultSet.getString(1));
-            System.out.println("topLevelsList " + topLevelsList);
-            insertStatement.executeUpdate("INSERT INTO meta_info(property_key, property_value, description) VALUES('top_level_" + resultSet.getString(1) + "','" + resultSet.getString(2) + "', 'Mammalian Phenotype top-level category " + resultSet.getString(2) + "')");
-
-        }
-
-        resultSet.close();
-        statement.close();
-
-        insertStatement.executeUpdate("INSERT INTO meta_info(property_key, property_value, description) VALUES('top_level_mps','" + generateCommaSeparatedList(topLevelsList.toArray(), false) + "', 'top-level MP terms')");
-
-        statement = connection.prepareStatement(aggregateCount);
-        resultSet = statement.executeQuery();
-
-        while (resultSet.next()) {
-
-            int sum = resultSet.getInt(1);
-            String topLevel = resultSet.getString(2);
-
-            insertStatement.executeUpdate("INSERT INTO meta_info(property_key, property_value, description) VALUES('top_level_" + topLevel + "_calls','" + sum + "', 'Number of associations to top-level MP " + topLevel + "')");
+            // Insert the top level counts
+            try (PreparedStatement insertStatement = connection.prepareStatement(sql)) {
+                insertStatement.setString(1, "top_level_" + term.getAccessionId() + "_calls");
+                insertStatement.setLong(2, map.get(termAcc));
+                insertStatement.setString(3, "Mammalian Phenotype top-level categoryNumber of associations to top-level MP " + term.getName());
+                insertStatement.executeUpdate();
+            }
 
         }
-
-        insertStatement.close();
-
-        resultSet.close();
-        statement.close();
 
     }
 

@@ -18,14 +18,10 @@ package uk.ac.ebi.phenotype.web.controller;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.json.JSONObject;
 import org.mousephenotype.cda.db.beans.AggregateCountXYBean;
-import org.mousephenotype.cda.db.dao.AnalyticsDAO;
 import org.mousephenotype.cda.db.dao.StatisticalResultDAO;
 import org.mousephenotype.cda.enumerations.SignificantType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
-import org.mousephenotype.cda.solr.service.AlleleService;
-import org.mousephenotype.cda.solr.service.ObservationService;
-import org.mousephenotype.cda.solr.service.PhenodigmService;
-import org.mousephenotype.cda.solr.service.PostQcService;
+import org.mousephenotype.cda.solr.service.*;
 import org.mousephenotype.cda.solr.service.dto.AlleleDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,7 +48,7 @@ public class ReleaseController {
 	private final Logger logger = LoggerFactory.getLogger(ReleaseController.class);
 
 	@Autowired
-	private AnalyticsDAO analyticsDAO;
+	private AnalyticsService analyticsService;
 
 	@Autowired
 	private StatisticalResultDAO statisticalResultDAO;
@@ -72,7 +68,7 @@ public class ReleaseController {
 	@Autowired
 	private UnidimensionalChartAndTableProvider chartProvider;
 
-	Double CACHE_REFRESH_PERCENT = 0.05; // 5%
+	Double CACHE_REFRESH_PERCENT = 0.005; // .5%
 	Map<String, String> cachedMetaInfo = null;
 
 	public static Map<String, String> statisticalMethodsShortName = new HashMap<>();
@@ -97,7 +93,7 @@ public class ReleaseController {
 		Map<String, String> metaInfo = cachedMetaInfo;
 
 		if (metaInfo == null || Math.random() < CACHE_REFRESH_PERCENT) {
-			metaInfo = analyticsDAO.getMetaData();
+			metaInfo = analyticsService.getMetaInfo();
 
 			// The front end will check for the key "unique_mouse_model_disease_associations" in the map,
 			// If not there, do not display the count
@@ -188,7 +184,7 @@ public class ReleaseController {
 		 * Analytics data: nb of lines per procedure per center
 		 */
 
-		List<AggregateCountXYBean> beans = analyticsDAO.getAllProcedureLines();
+		List<AggregateCountXYBean> beans = analyticsService.getAllProcedureLines();
 		String lineProcedureChart =
 				chartsProvider.generateAggregateCountByProcedureChart(
 						beans,
@@ -198,7 +194,7 @@ public class ReleaseController {
 						"lines",
 						"lineProcedureChart", "checkAllProcedures", "uncheckAllProcedures");
 
-		List<AggregateCountXYBean> callBeans = analyticsDAO.getAllProcedurePhenotypeCalls();
+		List<AggregateCountXYBean> callBeans = analyticsService.getAllProcedurePhenotypeCalls();
 		String callProcedureChart =
 				chartsProvider.generateAggregateCountByProcedureChart(
 						callBeans,
@@ -208,7 +204,7 @@ public class ReleaseController {
 						"calls",
 						"callProcedureChart", "checkAllPhenCalls", "uncheckAllPhenCalls");
 
-		Map<String, List<String>> statisticalMethods = analyticsDAO.getAllStatisticalMethods();
+		Map<String, List<String>> statisticalMethods = analyticsService.getAllStatisticalMethods();
 
 		/**
 		 * Generate pValue distribution graph for all methods
@@ -218,7 +214,7 @@ public class ReleaseController {
 
 		for (String dataType: statisticalMethods.keySet()) {
 			for (String statisticalMethod: statisticalMethods.get(dataType)) {
-				List<AggregateCountXYBean> distribution = analyticsDAO.getPValueDistribution(dataType, statisticalMethod);
+				List<AggregateCountXYBean> distribution = analyticsService.getPValueDistribution(dataType, statisticalMethod);
 				String chart = chartsProvider.generateAggregateCountByProcedureChart(
 						distribution,
 						"P-value distribution",
@@ -234,12 +230,12 @@ public class ReleaseController {
 		 * Get Historical trends release by release
 		 */
 
-		List<String> allReleases = analyticsDAO.getReleases(null);
+		List<String> allReleases = analyticsService.getReleases(null);
 
 		String[] trendsVariables = new String[] {"statistically_significant_calls", "phenotyped_genes", "phenotyped_lines"};
 		Map<String, List<AggregateCountXYBean>> trendsMap = new HashMap<String, List<AggregateCountXYBean>>();
 		for (int i=0; i<trendsVariables.length; i++) {
-			trendsMap.put(trendsVariables[i], analyticsDAO.getHistoricalData(trendsVariables[i]));
+			trendsMap.put(trendsVariables[i], analyticsService.getHistoricalData(trendsVariables[i]));
 		}
 
 		String trendsChart = chartsProvider.generateHistoryTrendsChart(trendsMap, allReleases, "Genes/Mutant Lines/MP Calls", 
@@ -251,7 +247,7 @@ public class ReleaseController {
 		for (int i=0; i<dataTypes.length; i++) {
 			for (int j=0; j<status.length; j++) {
 				String propertyKey = dataTypes[i]+"_datapoints_"+status[j];
-				List<AggregateCountXYBean> dataPoints = analyticsDAO.getHistoricalData(propertyKey);
+				List<AggregateCountXYBean> dataPoints = analyticsService.getHistoricalData(propertyKey);
 				//if (beans.size() > 0) {
 					datapointsTrendsMap.put(propertyKey, dataPoints);
 				//}
@@ -273,7 +269,7 @@ public class ReleaseController {
 		Map<String, List<AggregateCountXYBean>> topLevelMap = new HashMap<String, List<AggregateCountXYBean>>();
 		for (int i=0; i<topLevelsMPsArray.length; i++) {
 			topLevelsNames.put(topLevelsMPsArray[i], metaInfo.get("top_level_"+topLevelsMPsArray[i]));
-			topLevelMap.put(metaInfo.get("top_level_"+topLevelsMPsArray[i]), analyticsDAO.getHistoricalData("top_level_"+topLevelsMPsArray[i]+"_calls"));
+			topLevelMap.put(metaInfo.get("top_level_"+topLevelsMPsArray[i]), analyticsService.getHistoricalData("top_level_"+topLevelsMPsArray[i]+"_calls"));
 		}
 
 		String topLevelTrendsChart = chartsProvider.generateHistoryTrendsChart(topLevelMap, allReleases, "Top Level Phenotypes", "", 
@@ -314,7 +310,7 @@ public class ReleaseController {
 		/**
 		 * Get all former releases: releases but the current one
 		 */
-		List<String> releases = analyticsDAO.getReleases(metaInfo.get("data_release_version"));
+		List<String> releases = analyticsService.getReleases(metaInfo.get("data_release_version"));
 
 		model.addAttribute("metaInfo", metaInfo);
 		model.addAttribute("releases", releases);
