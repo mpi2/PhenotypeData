@@ -48,7 +48,7 @@ public class OntologyParserFactory {
 
     protected static final Set<String> TOP_LEVEL_MA_TERMS = new HashSet<>(Arrays.asList("MA:0000004", "MA:0000007", "MA:0000009",
             "MA:0000010", "MA:0000012", "MA:0000014", "MA:0000016", "MA:0000017", "MA:0000325", "MA:0000326", "MA:0000327",
-            "MA:0002411", "MA:0002418", "MA:0002431", "MA:0002711", "MA:0002887"));
+            "MA:0002411", "MA:0002418", "MA:0002431", "MA:0002711", "MA:0002887", "MA:0002405"));
 
     protected static final List<String> TREE_TOP_LEVEL_MA_TERMS = new ArrayList<>(Arrays.asList("MA:0002433", "MA:0002450", "MA:0000003",
             "MA:0003001", "MA:0003002"));

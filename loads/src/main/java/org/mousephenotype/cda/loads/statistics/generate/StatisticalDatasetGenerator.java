@@ -247,10 +247,14 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
 
                     }
 
-
                     logger.info("  Has {} specimens with {} parameters", specimenParameterMap.size(), specimenParameterMap.values().stream().mapToInt(value -> value.keySet().size()).sum());
                     if (specimenParameterMap.size() < 5) {
-                        logger.info("  Not processing due to low N", specimenParameterMap.size(), specimenParameterMap.values().stream().mapToInt(value -> value.keySet().size()).sum());
+                        logger.info("  Not processing due to low N {} {} {} {}",
+                                result.get(ObservationDTO.PHENOTYPING_CENTER),
+                                result.get(ObservationDTO.PIPELINE_STABLE_ID),
+                                result.get(ObservationDTO.PROCEDURE_GROUP),
+                                result.get(ObservationDTO.STRAIN_ACCESSION_ID)
+                        );
                         return;
                     }
 
