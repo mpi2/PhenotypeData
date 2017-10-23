@@ -233,7 +233,7 @@ public class SolrIndex {
 		String qField = coreIdQMap.get(dataTypeName);
 
 		if ( dataTypeName.equals("disease") ){
-			server = getSolrServer("disease"); // points to phenodigm
+			server = getSolrServer("disease"); // points to new phenodigm
 		}
 		if ( dataTypeName.equals("hp") ){
 			server = getSolrServer("mp");

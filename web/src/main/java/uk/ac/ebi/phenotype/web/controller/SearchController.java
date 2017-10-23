@@ -170,7 +170,7 @@ public class SearchController {
 
         Boolean export = false;
 		JSONObject json = fetchSearchResultJson(export, query, dataType, iDisplayStart, iDisplayLength, showImgView, fqStr, model, request);
-		System.out.println("json: "+ json.toString());
+		//System.out.println("json: "+ json.toString());
 		model.addAttribute("jsonStr", convert2DataTableJson(export, request, json, query, fqStr, iDisplayStart, iDisplayLength, showImgView, dataType));
 
 		return "search";
@@ -311,7 +311,6 @@ public class SearchController {
 			HttpServletRequest request,
 			Model model) {
 
-		System.out.println("bq 2 " + core);
 		return Tools.fetchOutputFieldsCheckBoxesHtml(core);
 
 	}

@@ -634,7 +634,7 @@ public class OntologyParser {
                 // Intersect list of ancestors with list of top Levels
                 intermediates = classAncestors.stream()
                         .filter(item -> {
-                            return !topLevelIds.contains(getIdentifierShortForm(item)) || !startsWithPrefix(item, prefix);
+                            return (!topLevelIds.contains(getIdentifierShortForm(item)) || !startsWithPrefix(item, prefix)) && ! getIdentifierShortForm(item).equals("MP:0000001");
                         }).collect(Collectors.toSet());
             }
 

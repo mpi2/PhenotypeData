@@ -64,10 +64,6 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
     private SolrClient mpCore;
 
     @Autowired
-    @Qualifier("diseaseCore")
-    private SolrClient diseaseCore;
-
-    @Autowired
     @Qualifier("anatomyCore")
     private SolrClient anatomyCore;
 
@@ -84,7 +80,8 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
 
 
     public static final long MIN_EXPECTED_ROWS = 218000;
-    public static final int PHENODIGM_CORE_MAX_RESULTS = 350000;
+    //public static final int PHENODIGM_CORE_MAX_RESULTS = 350000;
+    public static final int MP_CORE_MAX_RESULTS = 350000;
 
     // Sets used to insure uniqueness when loading core components.
 
@@ -122,6 +119,11 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
     Set<String> hpIdSet = new HashSet();
     Set<String> hpTermSet = new HashSet();
     Set<String> hpTermSynonymSet = new HashSet();
+
+    // mp
+    Set<String> hpIdSet2 = new HashSet();
+    Set<String> hpTermSet2 = new HashSet();
+    Set<String> hpTermSynonymSet2 = new HashSet();
 
     // impcGwas
     // gene
@@ -176,14 +178,14 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
             populateDiseaseAutosuggestTerms();
             populateAnatomyAutosuggestTerms();
             populateProductAutosuggestTerms(); // must run after populateGeneAutosuggestTerms to use the map markerSymbolSynonymsMap
-            populateHpAutosuggestTerms();
-            populateGwasAutosuggestTerms();
+            populateHpAutosuggestTerms();  // use mphp mapping from mphp ontology parser in mp core until the new phenodigm core has hp-mp mapping included
+            //populateGwasAutosuggestTerms();
 
 
             // Final commit
             autosuggestCore.commit();
 
-        } catch (SQLException | SolrServerException | IOException e) {
+        } catch (SolrServerException | IOException e) {
             throw new IndexerException(e);
         }
 
@@ -403,7 +405,7 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
                     case MpDTO.HP_ID:
                         if ( mp.getHpId() != null ) {
                             for ( String hpId : mp.getHpId() ) {
-                                if (hpIdSet.add(hpId)) {
+                                if (hpIdSet2.add(hpId)) {
                                     AutosuggestBean asyn = new AutosuggestBean();
                                     asyn.setHpId(hpId);
                                     asyn.setDocType(docType);
@@ -415,7 +417,7 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
                     case MpDTO.HP_TERM:
                         if ( mp.getHpTerm() != null ) {
                             for ( String hpTerm : mp.getHpTerm() ) {
-                                if (hpTermSet.add(hpTerm)) {
+                                if (hpTermSet2.add(hpTerm)) {
                                     AutosuggestBean asyn = new AutosuggestBean();
                                     asyn.setHpTerm(hpTerm);
                                     asyn.setDocType(docType);
@@ -428,7 +430,7 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
                         if (mp.getHpTermSynonym() != null) {
                             for (String hpTermSynonym : mp.getHpTermSynonym()) {
 
-                                if (hpTermSynonymSet.add(hpTermSynonym)) {
+                                if (hpTermSynonymSet2.add(hpTermSynonym)) {
                                     AutosuggestBean asyn = new AutosuggestBean();
                                     asyn.setHpTermSynonym(hpTermSynonym);
                                     asyn.setDocType(docType);
@@ -614,11 +616,12 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
 
         SolrQuery query = new SolrQuery()
             .setQuery("*:*")
+            .setFilterQueries("type:disease_search")
             .setFields(StringUtils.join(diseaseFields, ","))
             .setRows(Integer.MAX_VALUE);
 
-        List<DiseaseDTO> diseases = diseaseCore.query(query).getBeans(DiseaseDTO.class);
-        for (DiseaseDTO disease : diseases) {
+        List<PhenodigmDTO> diseases = phenodigmCore.query(query).getBeans(PhenodigmDTO.class);
+        for (PhenodigmDTO disease : diseases) {
 
             Set<AutosuggestBean> beans = new HashSet<>();
             for (String field : diseaseFields) {
@@ -628,21 +631,21 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
                 a.setDocType(docType);
 
                 switch (field) {
-                    case DiseaseDTO.DISEASE_ID:
-                        mapKey = disease.getDiseaseId();
+                    case PhenodigmDTO.DISEASE_ID:
+                        mapKey = disease.getDiseaseID();
                         if (diseaseIdSet.add(mapKey)) {
-                            a.setDiseaseId(disease.getDiseaseId());
+                            a.setDiseaseId(disease.getDiseaseID());
                             beans.add(a);
                         }
                         break;
-                    case DiseaseDTO.DISEASE_TERM:
+                    case PhenodigmDTO.DISEASE_TERM:
                         mapKey = disease.getDiseaseTerm();
                         if (diseaseTermSet.add(mapKey)) {
                             a.setDiseaseTerm(disease.getDiseaseTerm());
                             beans.add(a);
                         }
                         break;
-                    case DiseaseDTO.DISEASE_ALTS:
+                    case PhenodigmDTO.DISEASE_ALTS:
                         if (disease.getDiseaseAlts() != null) {
                             for (String s : disease.getDiseaseAlts()) {
                                 mapKey = s;
@@ -1020,18 +1023,17 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
     }
 
     private void populateHpAutosuggestTerms() throws SolrServerException, IOException {
+        // using old phenodigm - need to update this when new phenodigm has hp-mp apping
 
-        List<String> hpFields = Arrays.asList(HpDTO.MP_ID, HpDTO.MP_TERM, HpDTO.HP_ID, HpDTO.HP_TERM, HpDTO.HP_SYNONYM);
+        List<String> hpFields = Arrays.asList(HpDTO.MP_ID, HpDTO.MP_TERM, HpDTO.HP_ID, HpDTO.HP_TERM, HpDTO.HP_TERM_SYNONYM);
 
         SolrQuery query = new SolrQuery()
                 .setQuery("*:*")
                 .setFields(StringUtils.join(hpFields, ","))
-                .addFilterQuery("type:hp_mp")
-                .setRows(PHENODIGM_CORE_MAX_RESULTS);
+                .setRows(MP_CORE_MAX_RESULTS);
 
-        QueryResponse r = phenodigmCore.query(query);
-        List<HpDTO> hps = phenodigmCore.query(query).getBeans(HpDTO.class);
-        for (HpDTO hp : hps) {
+        List<MpDTO> mps = mpCore.query(query).getBeans(MpDTO.class);
+        for (MpDTO mp : mps) {
 
             Set<AutosuggestBean> beans = new HashSet<>();
             for (String field : hpFields) {
@@ -1042,33 +1044,45 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
 
                 switch (field) {
                     case HpDTO.HP_ID:
-                        mapKey = hp.getHpId();
-                        if (hpIdSet.add(mapKey)) {
-                            a.setHpId(hp.getHpId());
-                            a.setHpmpId(hp.getMpId());
-                            a.setHpmpTerm(hp.getMpTerm());
-                            beans.add(a);
+                        if (mp.getHpId() != null) {
+                            for (String s : mp.getHpId()) {
+                                mapKey = s;
+                                if (hpIdSet.add(mapKey)) {
+                                    AutosuggestBean asyn = new AutosuggestBean();
+                                    asyn.setDocType(docType);
+                                    asyn.setHpId(s);
+                                    asyn.setHpmpId(mp.getMpId());
+                                    asyn.setHpmpTerm(mp.getMpTerm());
+                                    beans.add(asyn);
+                                }
+                            }
                         }
                         break;
                     case HpDTO.HP_TERM:
-                        mapKey = hp.getHpTerm();
-                        if (hpTermSet.add(mapKey)) {
-                            a.setHpTerm(hp.getHpTerm());
-                            a.setHpmpId(hp.getMpId());
-                            a.setHpmpTerm(hp.getMpTerm());
-                            beans.add(a);
+                        if (mp.getHpId() != null) {
+                            for (String s : mp.getHpTerm()) {
+                                mapKey = s;
+                                if (hpIdSet.add(mapKey)) {
+                                    AutosuggestBean asyn = new AutosuggestBean();
+                                    asyn.setDocType(docType);
+                                    asyn.setHpTerm(s);
+                                    asyn.setHpmpId(mp.getMpId());
+                                    asyn.setHpmpTerm(mp.getMpTerm());
+                                    beans.add(asyn);
+                                }
+                            }
                         }
                         break;
-                    case HpDTO.HP_SYNONYM:
-                        if (hp.getHpSynonym() != null) {
-                            for (String s : hp.getHpSynonym()) {
+                    case HpDTO.HP_TERM_SYNONYM:
+                        if (mp.getHpTermSynonym() != null) {
+                            for (String s : mp.getHpTermSynonym()) {
                                 mapKey = s;
                                 if (hpTermSynonymSet.add(mapKey)) {
                                     AutosuggestBean asyn = new AutosuggestBean();
                                     asyn.setDocType(docType);
                                     asyn.setHpTermSynonym(s);
-                                    asyn.setHpmpId(hp.getMpId());
-                                    asyn.setHpmpTerm(hp.getMpTerm());
+                                    asyn.setHpmpId(mp.getMpId());
+                                    asyn.setHpmpTerm(mp.getMpTerm());
                                     beans.add(asyn);
                                 }
                             }
@@ -1083,6 +1097,71 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
             }
         }
     }
+
+//    private void populateHpAutosuggestTerms() throws SolrServerException, IOException {
+//        // using old phenodigm - need to update this when new phenodigm has hp-mp apping
+//
+//        List<String> hpFields = Arrays.asList(HpDTO.MP_ID, HpDTO.MP_TERM, HpDTO.HP_ID, HpDTO.HP_TERM, HpDTO.HP_SYNONYM);
+//
+//        SolrQuery query = new SolrQuery()
+//                .setQuery("*:*")
+//                .setFields(StringUtils.join(hpFields, ","))
+//                .addFilterQuery("type:hp_mp")
+//                .setRows(PHENODIGM_CORE_MAX_RESULTS);
+//
+//        List<HpDTO> hps = phenodigmCore.query(query).getBeans(HpDTO.class);
+//        for (HpDTO hp : hps) {
+//
+//            Set<AutosuggestBean> beans = new HashSet<>();
+//            for (String field : hpFields) {
+//
+//                AutosuggestBean a = new AutosuggestBean();
+//                String docType = "hp";
+//                a.setDocType(docType);
+//
+//                switch (field) {
+//                    case HpDTO.HP_ID:
+//                        mapKey = hp.getHpId();
+//                        if (hpIdSet.add(mapKey)) {
+//                            a.setHpId(hp.getHpId());
+//                            a.setHpmpId(hp.getMpId());
+//                            a.setHpmpTerm(hp.getMpTerm());
+//                            beans.add(a);
+//                        }
+//                        break;
+//                    case HpDTO.HP_TERM:
+//                        mapKey = hp.getHpTerm();
+//                        if (hpTermSet.add(mapKey)) {
+//                            a.setHpTerm(hp.getHpTerm());
+//                            a.setHpmpId(hp.getMpId());
+//                            a.setHpmpTerm(hp.getMpTerm());
+//                            beans.add(a);
+//                        }
+//                        break;
+//                    case HpDTO.HP_SYNONYM:
+//                        if (hp.getHpSynonym() != null) {
+//                            for (String s : hp.getHpSynonym()) {
+//                                mapKey = s;
+//                                if (hpTermSynonymSet.add(mapKey)) {
+//                                    AutosuggestBean asyn = new AutosuggestBean();
+//                                    asyn.setDocType(docType);
+//                                    asyn.setHpTermSynonym(s);
+//                                    asyn.setHpmpId(hp.getMpId());
+//                                    asyn.setHpmpTerm(hp.getMpTerm());
+//                                    beans.add(asyn);
+//                                }
+//                            }
+//                        }
+//                        break;
+//                }
+//            }
+//
+//            if ( ! beans.isEmpty()) {
+//                documentCount += beans.size();
+//                autosuggestCore.addBeans(beans, 60000);
+//            }
+//        }
+//    }
 
     private void populateGwasAutosuggestTerms() throws SolrServerException, IOException, SQLException {
 

@@ -32,7 +32,7 @@ public class HpDTO {
     public static final String MP_TERM = "mp_term";
     public static final String HP_ID = "hp_id";
     public static final String HP_TERM = "hp_term";
-    public static final String HP_SYNONYM = "hp_synonym";
+    public static final String HP_TERM_SYNONYM = "hp_term_synonym";
     
 
 
@@ -48,7 +48,7 @@ public class HpDTO {
     @Field(HP_TERM)
     private String hpTerm;
 
-    @Field(HP_SYNONYM)
+    @Field(HP_TERM_SYNONYM)
     private List<String> hpSynonym;
 
     public String getMpId() {

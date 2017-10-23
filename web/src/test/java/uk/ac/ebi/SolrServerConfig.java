@@ -106,12 +106,6 @@ public class SolrServerConfig {
 		return new HttpSolrClient(solrBaseUrl + "/autosuggest");
 	}
 
-	//Disease
-	@Bean(name = "diseaseCore")
-	HttpSolrClient getDiseaseCore() {
-		return new HttpSolrClient(solrBaseUrl + "/disease");
-	}
-
 	//Gene
 	@Bean(name = "geneCore")
 	HttpSolrClient getGeneCore() {
