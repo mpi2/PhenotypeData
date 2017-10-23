@@ -170,7 +170,7 @@ public class SearchController {
 
         Boolean export = false;
 		JSONObject json = fetchSearchResultJson(export, query, dataType, iDisplayStart, iDisplayLength, showImgView, fqStr, model, request);
-		//System.out.println(json.toString());
+		//System.out.println("json: "+ json.toString());
 		model.addAttribute("jsonStr", convert2DataTableJson(export, request, json, query, fqStr, iDisplayStart, iDisplayLength, showImgView, dataType));
 
 		return "search";
@@ -230,7 +230,7 @@ public class SearchController {
 		String sortStr = searchConfig.getSortingStr(dataType);
 
 		//String solrParamStr = "wt=json&q=" + query + qfStr + defTypeStr + flStr + facetStr + bqStr + sortStr;
-		String solrParamStr = "wt=json&q=" + query + qfStr + defTypeStr + flStr + bqStr;
+		String solrParamStr = "wt=json&q=" + query + qfStr + defTypeStr + flStr + bqStr + sortStr;
         if (! export) {
             solrParamStr += facetStr;
         }

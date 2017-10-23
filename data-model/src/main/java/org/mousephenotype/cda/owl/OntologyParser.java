@@ -62,10 +62,8 @@ public class OntologyParser {
             this.topLevelIds.addAll(topLevelIds);
         }
 
-
         Set<OWLClass> allClasses = ontology.getClassesInSignature();
         for (OWLClass cls : allClasses){
-
             if (startsWithPrefix(cls, prefix)){
                 OntologyTermDTO term = getDTO(cls, prefix);
                 term.setEquivalentClasses(getEquivaletNamedClasses(cls, prefix));
@@ -382,7 +380,6 @@ public class OntologyParser {
         }
         addChildrenInfo(cls, term, prefix);
         addParentInfo(cls, term, prefix);
-
         addIntermediateInfo(cls, term, prefix);
         addTopLevelInfo(cls, term, prefix);
 
@@ -644,9 +641,9 @@ public class OntologyParser {
             }
 
             for (OWLClass intermediateTerm : intermediates) {
-                    term.addIntermediateIds(getIdentifierShortForm(intermediateTerm));
-                    term.addIntermediateNames(getLabel(intermediateTerm));
-                    term.addIntermediateSynonyms(getSynonyms(intermediateTerm));
+                term.addIntermediateIds(getIdentifierShortForm(intermediateTerm));
+                term.addIntermediateNames(getLabel(intermediateTerm));
+                term.addIntermediateSynonyms(getSynonyms(intermediateTerm));
             }
         }
 

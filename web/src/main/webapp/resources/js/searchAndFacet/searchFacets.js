@@ -458,19 +458,16 @@
 
 		if (numFound > 0){
 
-			var oSubFacets2 = {'curated': {'label':'With Curated Gene Associations',
-				'subfacets':{'human_curated':'From human data (OMIM, Orphanet)',
-					'impc_predicted_known_gene':'From human data with IMPC prediction',
-					'mgi_predicted_known_gene':'From human data with MGI prediction',
-					'mouse_curated':'From mouse data (MGI)'}
-			},
-				'predicted':{'label':'With Predicted Gene Associations by Phenotype',
-					'subfacets': {'impc_predicted':'From IMPC data',
-						'impc_novel_predicted_in_locus':'Novel IMPC prediction in linkage locus',
-						'mgi_predicted':'From MGI data',
-						'mgi_novel_predicted_in_locus':'Novel MGI prediction in linkage locus'}
-				}
-			};
+            var oSubFacets2 = {'curated': {'label':'With Curated Gene Associations',
+                'subfacets':{'human_curated_gene':'From human data (OMIM, Orphanet)',
+                    'impc_model_with_curated_gene':'From human data with IMPC prediction',
+                    'mgi_model_with_curated_gene':'From human data with MGI prediction'}
+            },
+                'predicted':{'label':'With Predicted Gene Associations by Phenotype',
+                    'subfacets': {'impc_model_with_computed_association':'From IMPC data',
+                        'mgi_model_with_computed_association':'From MGI data'}
+                }
+            };
 
 
 			for ( var assoc in oSubFacets2 ){

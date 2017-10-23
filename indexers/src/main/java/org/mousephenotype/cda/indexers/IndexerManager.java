@@ -51,8 +51,8 @@ public class IndexerManager  {
 
     // core names.
 
-    // The phenodigm core is built on a completely separate schedule, whenever Damian gives us a new release.
-    static final String PHENODIGM_CORE = "phenodigm";
+    // The phenodigm core is now managed by Damian
+    //static final String PHENODIGM_CORE = "phenodigm";
 
     // These are built only for a new data release.
     static final String PIPELINE_CORE = "pipeline";
@@ -71,7 +71,7 @@ public class IndexerManager  {
     static final String IMPC_IMAGES_CORE = "impc_images";
     static final String MP_CORE = "mp";
     static final String GENE_CORE = "gene";
-    static final String DISEASE_CORE = "disease";
+    //static final String DISEASE_CORE = "disease";
     static final String AUTOSUGGEST_CORE = "autosuggest";
 
     // main return values.
@@ -120,7 +120,7 @@ public class IndexerManager  {
         , IMPC_IMAGES_CORE
         , MP_CORE
         , GENE_CORE
-        , DISEASE_CORE
+        //, DISEASE_CORE
         , AUTOSUGGEST_CORE
     };
     private final List<String> allCoresList = Arrays.asList(allCoresArray);
@@ -135,7 +135,7 @@ public class IndexerManager  {
         , IMPC_IMAGES_CORE
         , MP_CORE
         , GENE_CORE
-        , DISEASE_CORE
+        //, DISEASE_CORE
         , AUTOSUGGEST_CORE
     };
 
@@ -148,7 +148,7 @@ public class IndexerManager  {
 	private Class genotypePhenotypeClass = GenotypePhenotypeIndexer.class;
 	private Class statisticalResultClass = StatisticalResultsIndexer.class;
 	private Class mgiPhenotypeClass = MGIPhenotypeIndexer.class;
-	private Class phenodigmClass = PhenodigmIndexer.class;
+	//private Class phenodigmClass = PhenodigmIndexer.class;
     private Class anatomyClass = AnatomyIndexer.class;
 	private Class preqcClass = PreqcIndexer.class;
 	private Class alleleClass = AlleleIndexer.class;
@@ -156,7 +156,7 @@ public class IndexerManager  {
 	private Class impcImagesClass = ImpcImagesIndexer.class;
 	private Class mpClass = MPIndexer.class;
 	private Class geneClass = GeneIndexer.class;
-	private Class diseaseClass = DiseaseIndexer.class;
+	//private Class diseaseClass = DiseaseIndexer.class;
     private Class autosuggestClass = AutosuggestIndexer.class;
     private Class allele2Class = Allele2Indexer.class;
     private Class productClass = ProductIndexer.class;
@@ -379,7 +379,7 @@ public class IndexerManager  {
 			    case GENOTYPE_PHENOTYPE_CORE:   indexerItemList.add(new IndexerItem(GENOTYPE_PHENOTYPE_CORE, genotypePhenotypeClass));    break;
 			    case STATSTICAL_RESULT_CORE:    indexerItemList.add(new IndexerItem(STATSTICAL_RESULT_CORE, statisticalResultClass));     break;
 			    case MGI_PHENOTYPE_CORE:		indexerItemList.add(new IndexerItem(MGI_PHENOTYPE_CORE, mgiPhenotypeClass));              break;
-			    case PHENODIGM_CORE:            indexerItemList.add(new IndexerItem(PHENODIGM_CORE, phenodigmClass));                     break;
+			    //case PHENODIGM_CORE:            indexerItemList.add(new IndexerItem(PHENODIGM_CORE, phenodigmClass));                     break;
                 case ANATOMY_CORE:              indexerItemList.add(new IndexerItem(ANATOMY_CORE, anatomyClass));                         break;
 
                 case ALLELE2_CORE:              indexerItemList.add(new IndexerItem(ALLELE2_CORE, allele2Class));                         break;
@@ -390,7 +390,7 @@ public class IndexerManager  {
 			    case IMPC_IMAGES_CORE:          indexerItemList.add(new IndexerItem(IMPC_IMAGES_CORE, impcImagesClass));                  break;
 			    case MP_CORE:                   indexerItemList.add(new IndexerItem(MP_CORE, mpClass));                                   break;
 			    case GENE_CORE:                 indexerItemList.add(new IndexerItem(GENE_CORE, geneClass));                               break;
-			    case DISEASE_CORE:              indexerItemList.add(new IndexerItem(DISEASE_CORE, diseaseClass));                         break;
+			    //case DISEASE_CORE:              indexerItemList.add(new IndexerItem(DISEASE_CORE, diseaseClass));                         break;
 			    case AUTOSUGGEST_CORE:          indexerItemList.add(new IndexerItem(AUTOSUGGEST_CORE, autosuggestClass));                 break;
 		    }
 	    }
@@ -722,7 +722,7 @@ public class IndexerManager  {
                     "   genotype-phenotype\n" +
 	                "   statistical-result\n" +
 	                "   mgi-phenotype\n" +
-	                "   phenodigm\n" +
+	                //"   phenodigm\n" +
                     "   anatomy\n" +
                     "   allele2\n" +
                     "   product\n" +
@@ -732,7 +732,7 @@ public class IndexerManager  {
                     "   impc_images\n" +
                     "   mp\n" +
                     "   gene\n" +
-                    "   disease\n" +
+                    //"   disease\n" +
                     "   autosuggest\n";
 
             return buffer;
