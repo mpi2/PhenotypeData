@@ -18,11 +18,10 @@ package org.mousephenotype.cda.indexers;
 import net.sf.json.JSONSerializer;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrClient;
+import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
-import org.mousephenotype.cda.indexers.beans.DiseaseBean;
 import org.mousephenotype.cda.indexers.beans.SangerAlleleBean;
 import org.mousephenotype.cda.indexers.beans.SangerGeneBean;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
@@ -69,7 +68,6 @@ public class AlleleIndexer extends AbstractIndexer implements CommandLineRunner 
     private String human2mouseFilename;
 
 
-    public static final int PHENODIGM_BATCH_SIZE = 50000;
     private static Connection connection;
     private static final int BATCH_SIZE = 2500;
     private int assignedEvidCodeRank = 1; // default
@@ -85,9 +83,6 @@ public class AlleleIndexer extends AbstractIndexer implements CommandLineRunner 
 
     // Map gene MGI ID to human symbols
     private static Map<String, Set<String>> humanSymbolLookup = new HashMap<>();
-
-    // Map gene MGI ID to disease bean
-    private static Map<String, List<DiseaseBean>> diseaseLookup = new HashMap<>();
 
     // Set of MGI IDs that have legacy projects
     private static Map<String, Integer> legacyProjectLookup = new HashMap<>();
@@ -146,10 +141,6 @@ public class AlleleIndexer extends AbstractIndexer implements CommandLineRunner 
     DataSource pfamDataSource;
 
 	@Autowired
-	@Qualifier("phenodigmCore")
-	private SolrClient phenodigmCore;
-
-	@Autowired
     @Qualifier("alleleCore")
     private SolrClient alleleCore;
 
@@ -189,9 +180,6 @@ public class AlleleIndexer extends AbstractIndexer implements CommandLineRunner 
 
             populateHumanSymbolLookup();
             logger.info(" Added {} total human symbol lookup beans", humanSymbolLookup.size());
-
-            populateDiseaseLookup();
-            logger.info(" Added {} total disease lookup beans", diseaseLookup.size());
 
             populateLegacyLookup(runStatus);
             logger.info(" Added {} total legacy project lookup beans", legacyProjectLookup.size());
@@ -235,9 +223,6 @@ public class AlleleIndexer extends AbstractIndexer implements CommandLineRunner 
 
                 // Look up the ES cell status
                 lookupEsCellStatus(alleles);
-
-                // Look up the disease data
-                lookupDiseaseData(alleles);
 
                 // Look up the GO Term data
                 lookupGoData(alleles);
@@ -823,64 +808,6 @@ public class AlleleIndexer extends AbstractIndexer implements CommandLineRunner 
 
     }
 
-    private void populateDiseaseLookup() throws SolrServerException, IOException {
-
-        int docsRetrieved = 0;
-        int numDocs = getDiseaseDocCount();
-
-        // Fields in the solr core to bring back
-        String fields = StringUtils.join(Arrays.asList(DiseaseBean.DISEASE_ID,
-                                                       DiseaseBean.MGI_ACCESSION_ID,
-                                                       DiseaseBean.DISEASE_SOURCE,
-                                                       DiseaseBean.DISEASE_TERM,
-                                                       DiseaseBean.DISEASE_ALTS,
-                                                       DiseaseBean.DISEASE_CLASSES,
-                                                       DiseaseBean.HUMAN_CURATED,
-                                                       DiseaseBean.MOUSE_CURATED,
-                                                       DiseaseBean.MGI_PREDICTED,
-                                                       DiseaseBean.IMPC_PREDICTED,
-                                                       DiseaseBean.MGI_PREDICTED_KNOWN_GENE,
-                                                       DiseaseBean.IMPC_PREDICTED_KNOWN_GENE,
-                                                       DiseaseBean.MGI_NOVEL_PREDICTED_IN_LOCUS,
-                                                       DiseaseBean.IMPC_NOVEL_PREDICTED_IN_LOCUS), ",");
-
-		// The solrcloud instance cannot give us all results back at once,
-        // we must batch up the calls and build it up piece at a time
-        while (docsRetrieved < numDocs + PHENODIGM_BATCH_SIZE) {
-
-            SolrQuery query = new SolrQuery("*:*");
-            query.addFilterQuery("type:disease_gene_summary");
-            query.setFields(fields);
-            query.setStart(docsRetrieved);
-            query.setRows(PHENODIGM_BATCH_SIZE);
-            query.setSort(DiseaseBean.DISEASE_ID, SolrQuery.ORDER.asc);
-
-            QueryResponse response = phenodigmCore.query(query);
-            if (response == null) {
-                throw new SolrServerException("Response from phendigm core is null. Chcek phenodigm core is up with query: " + query);
-            }
-            List<DiseaseBean> diseases = response.getBeans(DiseaseBean.class);
-            for (DiseaseBean disease : diseases) {
-                if ( ! diseaseLookup.containsKey(disease.getMgiAccessionId())) {
-                    diseaseLookup.put(disease.getMgiAccessionId(), new ArrayList<DiseaseBean>());
-                }
-                diseaseLookup.get(disease.getMgiAccessionId()).add(disease);
-            }
-
-            docsRetrieved += PHENODIGM_BATCH_SIZE;
-        }
-    }
-
-    private int getDiseaseDocCount() throws SolrServerException, IOException {
-
-        SolrQuery query = new SolrQuery("*:*");
-        query.setRows(0);
-        query.addFilterQuery("type:disease_gene_summary");
-
-        QueryResponse response = phenodigmCore.query(query);
-        return (int) response.getResults().getNumFound();
-    }
-
     private Map<String, AlleleDTO> convertSangerGeneBeans(List<SangerGeneBean> beans) {
 
         Map<String, AlleleDTO> map = new HashMap<>(beans.size());
@@ -1050,41 +977,6 @@ public class AlleleIndexer extends AbstractIndexer implements CommandLineRunner 
         }
 
         logger.debug(" Finished ES cell status lookup");
-    }
-
-    private void lookupDiseaseData(Map<String, AlleleDTO> alleles) {
-
-        logger.debug(" Starting disease data lookup");
-        for (String id : alleles.keySet()) {
-
-            AlleleDTO dto = alleles.get(id);
-
-            if ( ! diseaseLookup.containsKey(id)) {
-                continue;
-            }
-
-            for (DiseaseBean db : diseaseLookup.get(id)) {
-                dto.getDiseaseId().add(db.getDiseaseId());
-                dto.getDiseaseSource().add(db.getDiseaseSource());
-                dto.getDiseaseTerm().add(db.getDiseaseTerm());
-                if (db.getDiseaseAlts() != null) {
-                    dto.getDiseaseAlts().addAll(db.getDiseaseAlts());
-                }
-                if (db.getDiseaseClasses() != null) {
-                    dto.getDiseaseClasses().addAll(db.getDiseaseClasses());
-                }
-                dto.getHumanCurated().add(db.isHumanCurated());
-                dto.getMouseCurated().add(db.isMouseCurated());
-                dto.getMgiPredicted().add(db.isMgiPredicted());
-                dto.getImpcPredicted().add(db.isImpcPredicted());
-                dto.getMgiPredictedKnownGene().add(db.isMgiPredictedKnownGene());
-                dto.getImpcPredictedKnownGene().add(db.isImpcPredictedKnownGene());
-                dto.getMgiNovelPredictedInLocus().add(db.isMgiNovelPredictedInLocus());
-                dto.getImpcNovelPredictedInLocus().add(db.isImpcNovelPredictedInLocus());
-            }
-
-        }
-        logger.debug(" Finished disease data lookup");
     }
 
     private Integer assignCodeRank(int currRank){
