@@ -446,7 +446,7 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
         }
 
         String dataSource = fileMetaData.get(0);
-        String project    = fileMetaData.get(1);
+        String project    = fileMetaData.get(1).replaceAll("_", " ");
         String center     = fileMetaData.get(2).replaceAll("_", " ");
         String pipeline   = fileMetaData.get(3);
         String procedure  = fileMetaData.get(4);
@@ -484,8 +484,7 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
         }
         result.setDependentVariable( depVar );
 
-        StatusCode status = StatusCode.valueOf(fields[4]);
-        result.setStatus( status.name() );
+        result.setStatus( fields[4] );
 
         result.setCode( getStringField(fields[5]) );
         result.setCountControlMale( getIntegerField(fields[6]) );
@@ -515,8 +514,8 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
             return result;
         }
 
-        switch(status) {
-            case TESTED:
+        switch(result.getStatus()) {
+            case "TESTED":
                 // Result was processed successfully by PhenStat, load the result object
 
                 // Always set status to Success with sucessfully processed
@@ -563,8 +562,7 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
                 break;
 
             default:
-            case FAILED:
-                // Result failed to be processed by PhenStat
+                // Result was not processed by PhenStat
 
                 result.setBatchIncluded( null );
                 result.setResidualVariancesHomogeneity( null );
@@ -604,11 +602,6 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
         return result;
     }
 
-
-    private enum StatusCode {
-            TESTED,
-            FAILED;
-    }
 
     private class NameIdDTO {
 
@@ -806,6 +799,7 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
             result = new LightweightUnidimensionalResult();
             StatisticalResultFailed temp = new StatisticalResultFailed();
             temp.setStatisticalMethod("Not processed");
+            result.setStatus(data.getStatus() + "-" + data.getCode());
             statsResult = temp;
         }
 
