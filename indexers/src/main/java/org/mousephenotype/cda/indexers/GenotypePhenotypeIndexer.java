@@ -399,7 +399,7 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
                 dto.addIntermediateAnatomyTermId(ma.getIntermediateIds());
                 dto.addIntermediateAnatomyTermName(ma.getIntermediateNames());
             } else {
-                System.out.println("Term not found in MA : " + maId);
+                //System.out.println("Term not found in MA : " + maId+ " for mpid:"+mpId);
             }
         }
     }

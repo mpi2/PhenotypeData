@@ -1123,6 +1123,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 
             doc.setSex(r.getString("sex"));
             doc.setpValue(r.getDouble("categorical_p_value"));
+
             doc.setEffectSize(r.getDouble("categorical_effect_size"));
 
 
@@ -1146,6 +1147,11 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
             }
 
             doc.setCategories(new ArrayList<>(categories));
+
+            if (! doc.getStatus().equals("Success")) {
+                doc.setpValue(1.0);
+                doc.setEffectSize(0.0);
+            }
 
             return doc;
 
@@ -1246,6 +1252,10 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
                     pv = mPv;
                 }
 
+            }
+
+            if ( ! doc.getStatus().equals("Success")) {
+                pv = 1.0;
             }
 
             doc.setpValue(pv);
