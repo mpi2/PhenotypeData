@@ -58,6 +58,9 @@ import uk.ac.ebi.phenotype.service.AdvancedSearchDiseaseForm;
 import uk.ac.ebi.phenotype.service.AdvancedSearchGeneForm;
 import uk.ac.ebi.phenotype.service.AdvancedSearchPhenotypeForm;
 import uk.ac.ebi.phenotype.service.AdvancedSearchService;
+import uk.ac.ebi.phenotype.service.search.SearchUrlService;
+import uk.ac.ebi.phenotype.service.search.SearchUrlServiceFactory;
+import uk.ac.ebi.phenotype.util.SearchSettings;
 import uk.ac.ebi.phenotype.web.util.FileExportUtils;
 
 import javax.annotation.Resource;
@@ -133,6 +136,9 @@ public class FileExportController {
 
 	@Autowired
 	private AdvancedSearchService advancedSearchService;
+
+	@Autowired
+	private SearchUrlServiceFactory urlFactory;
 
 
 	private String hostname = null;
@@ -369,6 +375,14 @@ public class FileExportController {
 		String solrFilters = "q=" + query + "&fq=" + fqStr;
 		List<String> dataRows = new ArrayList<>();
 
+		System.out.println("start: " + iDisplayStart);
+		System.out.println("length: " + iDisplayLength);
+
+		SearchSettings settings = new SearchSettings(dataType, query, fqStr, request);
+		settings.setiDisplayStart(iDisplayStart);
+		settings.setiDisplayLength(iDisplayLength);
+		SearchUrlService urlservice = urlFactory.getService(settings.getDataType());
+
 		Boolean export = true;
 
 		if ( dataType.equals("alleleRef") ){
@@ -403,11 +417,13 @@ public class FileExportController {
 						rows = iDisplayLength - (i * rows);
 					}
 
-					JSONObject json = searchController.fetchSearchResultJson(export, query, dataType, iDisplayStart, rows, showImgView, fqStr, model, request);
+
+					JSONObject searchHits = searchController.fetchSearchResult(urlservice, settings, true);
+					//JSONObject json = searchController.fetchSearchResultJson(export, query, dataType, iDisplayStart, rows, showImgView, fqStr, model, request);
 
 					List<String> dr = new ArrayList<>();
 
-					dr = composeDataTableExportRows(query, dataType, json, iDisplayStart, rows, showImgView,
+					dr = composeDataTableExportRows(query, dataType, searchHits, iDisplayStart, rows, showImgView,
 							solrFilters, request, legacyOnly, fqStr);
 
 					if (i > 0) {
@@ -418,8 +434,10 @@ public class FileExportController {
 					dataRows.addAll(dr);
 				}
 			} else {
-				JSONObject json = searchController.fetchSearchResultJson(export, query, dataType, iDisplayStart, iDisplayLength, showImgView, fqStr, model, request);
-				dataRows = composeDataTableExportRows(query, dataType, json, iDisplayStart, iDisplayLength, showImgView,
+
+				JSONObject searchHits = searchController.fetchSearchResult(urlservice, settings, true);
+				//JSONObject json = searchController.fetchSearchResultJson(export, query, dataType, iDisplayStart, iDisplayLength, showImgView, fqStr, model, request);
+				dataRows = composeDataTableExportRows(query, dataType, searchHits, iDisplayStart, iDisplayLength, showImgView,
 						solrFilters, request, legacyOnly, fqStr);
 
 			}

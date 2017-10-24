@@ -58,7 +58,8 @@ public abstract class AbstractIndexer implements CommandLineRunner {
     public static String EMBRYONIC_DAY_14_5 = "EFO:0002565";    // -> embryonic day 14.5
     public static String EMBRYONIC_DAY_18_5 = "EFO:0002570";    // -> embryonic day 18.5
     public static String POSTPARTUM_STAGE   = "MmusDv:0000092"; // -> postpartum stage
-
+    public static String POSTNATAL_STAGE   = "EFO:0002948";
+    
     @Autowired
     OntologyTermDAO ontologyTermDAO;
 

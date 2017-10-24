@@ -369,6 +369,7 @@ $(document).ready(function () {
                 }
                 else if (input.match(/HP\\\%3A\d+/i)) {
                     // work out the mapped mp_id and fire off the query
+					facet = "mp";
                     _convertHp2MpAndSearch(input, facet);
                 }
                 else if (input.match(/MP%3A\d+ - (.+)/i)) {
@@ -439,16 +440,17 @@ $(document).ready(function () {
     }
 
     function _convertHp2MpAndSearch(input, facet){
+    	alert("do hp " + input);
         input = input.toUpperCase();
         $.ajax({
-            url: solrUrl + "/autosuggest/select?wt=json&fl=hpmp_id&rows=1&q=hp_id:\""+input+"\"",
+            url: solrUrl + "/autosuggest/select?fq=docType:hp&wt=json&fl=hpmp_id&rows=1&q=hp_id:"+input,
             dataType: "jsonp",
             jsonp: 'json.wrf',
             type: 'post',
             async: false,
             success: function( json ) {
                 var mpid = json.response.docs[0].hpmp_id;
-                document.location.href = baseUrl + '/search/' + facet + '?kw=' + mpid + '&fq=top_level_mp_term:*';
+                document.location.href = baseUrl + '/search/' + facet + '?kw="' + mpid + '"&fq=top_level_mp_term:*';
             }
         });
     }
