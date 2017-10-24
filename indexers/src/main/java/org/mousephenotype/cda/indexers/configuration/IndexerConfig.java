@@ -2,6 +2,7 @@ package org.mousephenotype.cda.indexers.configuration;
 
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrClient;
+import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -46,6 +47,11 @@ public class IndexerConfig {
     @NotNull
     @Value("${buildIndexesSolrUrl}")
     private String writeSolrBaseUrl;
+
+    @NotNull
+    @Value("${phenodigm.solrserver}")
+    private String readPhenodigmSolrBaseUrl;
+
 
     // Indexers for writing
     @Bean
@@ -105,9 +111,11 @@ public class IndexerConfig {
         return new ConcurrentUpdateSolrClient(writeSolrBaseUrl + "/product", QUEUE_SIZE, THREAD_COUNT);
     }
 
+    // IMPC disease core retired and now points to externall phenodigm
     @Bean
-    SolrClient diseaseCore() {
-        return new ConcurrentUpdateSolrClient(writeSolrBaseUrl + "/disease", QUEUE_SIZE, THREAD_COUNT);
+    SolrClient phenodigmCore() {
+        // readonly
+        return new HttpSolrClient(readPhenodigmSolrBaseUrl + "/phenodigm");
     }
 
     @Bean
@@ -124,13 +132,6 @@ public class IndexerConfig {
     SolrClient gwasCore() {
         return new ConcurrentUpdateSolrClient(writeSolrBaseUrl + "/gwas", QUEUE_SIZE, THREAD_COUNT);
     }
-
-	@Bean
-	SolrClient phenodigmCore() {
-		return new ConcurrentUpdateSolrClient(writeSolrBaseUrl + "/phenodigm", QUEUE_SIZE, THREAD_COUNT);
-	}
-   
-
 
 	// database connections
     @Bean

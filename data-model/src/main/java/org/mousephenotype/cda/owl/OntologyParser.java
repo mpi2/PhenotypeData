@@ -62,18 +62,18 @@ public class OntologyParser {
             this.topLevelIds.addAll(topLevelIds);
         }
 
-
         Set<OWLClass> allClasses = ontology.getClassesInSignature();
         for (OWLClass cls : allClasses){
-
             if (startsWithPrefix(cls, prefix)){
                 OntologyTermDTO term = getDTO(cls, prefix);
                 term.setEquivalentClasses(getEquivaletNamedClasses(cls, prefix));
 
                 // 20171018 // JM // Filtered _in_ the root term and top level terms (if supplied)
-                if ( ! (term.getChildIds().size() > 0 && term.getParentIds().size() == 0) && (topLevelIds != null && ! topLevelIds.contains(term.getAccessionId())) && term.getTopLevelIds().size() == 0) {
-                    continue;
-                }
+//                if ( ! (term.getChildIds().size() > 0 && term.getParentIds().size() == 0) &&
+//                        (topLevelIds != null && ! topLevelIds.contains(term.getAccessionId()))
+//                        && term.getTopLevelIds().size() == 0) {
+//                    continue;
+//                }
 
                 termMap.put(term.getAccessionId(), term);
                 classMap.put(term.getAccessionId(), cls);
@@ -380,7 +380,6 @@ public class OntologyParser {
         }
         addChildrenInfo(cls, term, prefix);
         addParentInfo(cls, term, prefix);
-
         addIntermediateInfo(cls, term, prefix);
         addTopLevelInfo(cls, term, prefix);
 
@@ -642,9 +641,9 @@ public class OntologyParser {
             }
 
             for (OWLClass intermediateTerm : intermediates) {
-                    term.addIntermediateIds(getIdentifierShortForm(intermediateTerm));
-                    term.addIntermediateNames(getLabel(intermediateTerm));
-                    term.addIntermediateSynonyms(getSynonyms(intermediateTerm));
+                term.addIntermediateIds(getIdentifierShortForm(intermediateTerm));
+                term.addIntermediateNames(getLabel(intermediateTerm));
+                term.addIntermediateSynonyms(getSynonyms(intermediateTerm));
             }
         }
 

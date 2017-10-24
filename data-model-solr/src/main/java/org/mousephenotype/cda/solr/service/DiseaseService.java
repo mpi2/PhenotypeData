@@ -36,7 +36,7 @@ import java.util.Set;
 public class DiseaseService implements WebStatus{
 
     @Autowired
-    @Qualifier("diseaseCore")
+    @Qualifier("phenodigmCore")
     private SolrClient solr;
 
     // Disease sources. When modifying these, please modify getAllDiseases() accordingly.
@@ -99,7 +99,7 @@ public class DiseaseService implements WebStatus{
 	public long getWebStatus() throws SolrServerException, IOException  {
 		SolrQuery query = new SolrQuery();
 
-		query.setQuery("*:*").setRows(0);
+		query.setQuery("*:*").setRows(0).setFilterQueries("type:disease_search");
 
 		//System.out.println("SOLR URL WAS " + SolrUtils.getBaseURL(solr) + "/select?" + query);
 

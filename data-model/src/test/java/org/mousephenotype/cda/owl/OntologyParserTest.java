@@ -178,6 +178,7 @@ public class OntologyParserTest {
 		Assert.assertTrue(terms.containsKey("MA:0002406"));
 	}
 
+
     // Because it had that IRI used twice, once with ObjectProperty and once with AnnotationProperty RO_0002200
     @Test
     public void testUberon()  throws Exception {
@@ -311,7 +312,6 @@ public class OntologyParserTest {
         }
     }
 
-   
 
     @Test
     public void testRootTermAndTopTermsInOntologyParserMap() throws Exception {
