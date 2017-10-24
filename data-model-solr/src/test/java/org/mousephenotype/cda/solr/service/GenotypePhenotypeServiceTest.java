@@ -135,10 +135,8 @@ public class GenotypePhenotypeServiceTest {
         Collection res = CollectionUtils.subtract(gpGenes, gGenes);
         res = CollectionUtils.subtract(res, knownToMiss);
 
-        if (res.size() > 0) {
-            logger.warn("The following genes are in in the genotype-phenotype core but not in the gene core: " + res);
-        	fail("The following genes are in in the genotype-phenotype core but not in the gene core: " + res);
-        }
+        String message = "The following genes are in in the genotype-phenotype core but not in the gene core: " + res;
+        assertTrue(message, res.isEmpty());
     }
 
     @Test
@@ -156,10 +154,8 @@ public class GenotypePhenotypeServiceTest {
         Collection res = CollectionUtils.subtract(experimentGenes, gGenes);
         res = CollectionUtils.subtract(res, knownToMiss);
 
-        if (res.size() > 0) {
-            logger.warn("The following genes are in in the genotype-phenotype core but not in the gene core: " + res);
-        	fail("The following genes are in in the genotype-phenotype core but not in the gene core: " + res);
-        }
+        String message = "The following genes are in in the experiment core but not in the gene core: " + res;
+        assertTrue(message, res.isEmpty());
     }
 
     @Test
