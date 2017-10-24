@@ -164,8 +164,7 @@
 
         <%-- Display visualization of all model (hits) --%>
         <div class="section" id="mouse_models_phenoscatter">
-            <h2 class="title">Mouse Models <small class="sub"> phenotype-based associations</small>
-                <span class="documentation"><a href='' id='orthologySection' class="mpPanel fa fa-question-circle pull-right"></a></span>
+            <h2 class="title">Mouse Models <small class="sub"> phenotype-based associations</small>                
             </h2>
             <div class="inner">                 
                 <div id="phenoscatter"></div>

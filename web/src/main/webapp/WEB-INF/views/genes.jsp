@@ -418,10 +418,9 @@
 
                             <%--Disease section (phenodigm2) --%>
                             <div class="section">
-                                <h2 class="title" id="section-disease-models">Disease Models 
-                                    <a target="_blank" href='http://www.sanger.ac.uk/resources/databases/phenodigm/'></a>
+                                <h2 class="title" id="section-disease-models">Disease Models
                                     <span class="documentation">
-                                        <a href="" id="diseaseSection" class="mpPanel"><i class="fa fa-question-circle pull-right"></i></a>
+                                        <a href="" id="diseaseSection" class="fa fa-question-circle pull-right"></a>
                                     </span>
                                 </h2>
                                 <div class="inner">
