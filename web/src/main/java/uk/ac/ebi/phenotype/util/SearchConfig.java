@@ -40,7 +40,7 @@ public class SearchConfig {
 
         Map<String, String> sorting = new HashMap<>();
 
-        sorting.put("gene", "&sort=marker_symbol asc");
+        sorting.put("gene", "&sort=latest_phenotype_status desc, marker_symbol asc");
         sorting.put("mp", "&sort=mp_term asc");
         sorting.put("disease", "&sort=disease_term asc");
         sorting.put("anatomy", "&sort=anatomy_term asc");
@@ -328,7 +328,7 @@ public class SearchConfig {
 
            // if ( q.matches(wildCardStr) || q.matches("^.+\\S+.+$") ){
 
-            bqMap.put("gene", "marker_symbol_lowercase:(" + q + ")^1000" + " marker_symbol_bf:(" + q + ")^100 latest_phenotype_status:\"Phenotyping Complete\" ^200");
+            bqMap.put("gene", "marker_symbol_lowercase:(" + q + ")^200" + " marker_symbol_bf:(" + q + ")^100 latest_phenotype_status:\"Phenotyping Complete\"");
         }
         else if (coreName.equals("mp")) {
             if ( q.equals("*:*") || q.equals("*") ) {
