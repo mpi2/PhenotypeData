@@ -44,7 +44,7 @@ public class OntologyParserTest {
 
     public static boolean               downloadFiles = false;
     private       Map<String, Download> downloads     = new HashMap<>();  // key = map name. value = download info.
-    public        boolean               doDownload    = false;
+    public        boolean               doDownload    = true;
     private final Logger                logger        = LoggerFactory.getLogger(this.getClass());
     private       OntologyParser        ontologyParser;
 
@@ -62,6 +62,10 @@ public class OntologyParserTest {
         downloads.put("mphp", new Download("MP", "http://build-artifacts.berkeleybop.org/build-mp-hp-view/latest/mp-hp-view.owl", owlpath + "/mp-hp.owl"));
         downloads.put("mp", new Download("MP", "http://purl.obolibrary.org/obo/mp.owl", owlpath + "/mp.owl"));
         downloads.put("hp", new Download("HP", "http://purl.obolibrary.org/obo/hp.owl", owlpath + "/hp.owl"));
+        downloads.put("ma", new Download("MA", "http://purl.obolibrary.org/obo/ma.owl", owlpath + "/ma.owl"));
+        downloads.put("mpma", new Download("MP", "http://purl.obolibrary.org/obo/mp-ext-merged.owl", owlpath + "/mp-ext-merged.owl"));
+        downloads.put("emapa", new Download("EMAPA", "http://purl.obolibrary.org/obo/emapa.owl", owlpath + "/emapa.owl"));
+        downloads.put("uberon", new Download("UBERON", "http://purl.obolibrary.org/obo/uberon.owl", owlpath + "/uberon.owl"));
 
         if ( ! downloadFiles) {
             downloadFiles();
@@ -164,6 +168,24 @@ public class OntologyParserTest {
     }
 
 
+	@Test
+	public void findSpecificMaTermMA_0002405() throws Exception {
+		ontologyParser = new OntologyParser(downloads.get("ma").target, downloads.get("ma").name, null, null);
+		List<OntologyTermDTO> termList = ontologyParser.getTerms();
+		Map<String, OntologyTermDTO> terms = termList.stream()
+				.filter(term -> term.getAccessionId().equals("MA:0002406"))
+				.collect(Collectors.toMap(OntologyTermDTO::getAccessionId, ontologyTermDTO -> ontologyTermDTO));
+		Assert.assertTrue(terms.containsKey("MA:0002406"));
+	}
+
+    // Because it had that IRI used twice, once with ObjectProperty and once with AnnotationProperty RO_0002200
+    @Test
+    public void testUberon()  throws Exception {
+
+        ontologyParser = new OntologyParser(downloads.get("uberon").target, downloads.get("uberon").name, null, null);
+
+    }
+
     // Because it had that IRI used twice, once with ObjectProperty and once with AnnotationProperty RO_0002200
     @Test
     public void testEFO()  throws Exception {
@@ -258,6 +280,38 @@ public class OntologyParserTest {
 
     }
 
+    @Test
+    public void findSpecificEmapaTermEMAPA_18025() throws Exception {
+        ontologyParser = new OntologyParser(downloads.get("emapa").target, downloads.get("emapa").name, OntologyParserFactory.TOP_LEVEL_EMAPA_TERMS, null);
+        List<OntologyTermDTO> termList = ontologyParser.getTerms();
+        Map<String, OntologyTermDTO> terms =
+                termList.stream()
+                        .filter(term -> term.getAccessionId().equals("EMAPA:18025"))
+                        .collect(Collectors.toMap(OntologyTermDTO::getAccessionId, ontologyTermDTO -> ontologyTermDTO));
+
+        Assert.assertTrue(terms.containsKey("EMAPA:18025") );
+
+    }
+
+    @Test
+    public void findMaTermByReferenceFromMpTerm() throws Exception {
+        ontologyParser = new OntologyParser(downloads.get("mpma").target, downloads.get("mpma").name, null, null);
+
+        OntologyParser maParser = new OntologyParser(downloads.get("ma").target, downloads.get("ma").name, OntologyParserFactory.TOP_LEVEL_MA_TERMS, null);
+
+        Set<String> referencedClasses = ontologyParser.getReferencedClasses("MP:0001926",
+                OntologyParserFactory.VIA_PROPERTIES, "MA");
+        if (referencedClasses != null && referencedClasses.size() > 0) {
+            for (String id : referencedClasses) {
+                OntologyTermDTO maTerm = maParser.getOntologyTerm(id);
+
+                System.out.println("MA term "+id+" is "+maTerm+" for MP term MP:0001926");
+                Assert.assertFalse(maTerm == null);
+            }
+        }
+    }
+
+   
 
     @Test
     public void testRootTermAndTopTermsInOntologyParserMap() throws Exception {
@@ -385,5 +439,6 @@ public class OntologyParserTest {
         Assert.assertTrue(hpParser.getOntologyTerm("HP:0001477").getTopLevelIds().size() > 0);
         Assert.assertTrue(hpParser.getOntologyTerm("HP:0001477").getTopLevelIds().contains("HP:0000478"));
     }
+
 
 }
