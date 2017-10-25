@@ -1489,6 +1489,12 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
                 doc.addTopLevelMpTermNames(term.getTopLevelNames());
             }
 
+
+            if (! doc.getStatus().equals("Success")) {
+                doc.setpValue(1.0);
+                doc.setEffectSize(0.0);
+            }
+
             doc.setClassificationTag(r.getString("classification_tag"));
             doc.setAdditionalInformation(r.getString("additional_information"));
             return doc;
