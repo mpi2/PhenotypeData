@@ -179,6 +179,7 @@ public class Tools {
 
 		Map<String, String> friendlyNameMap = new HashMap<>();
 		friendlyNameMap.put("mgi_accession_id", "MGI gene id");
+		friendlyNameMap.put("marker_id", "MGI gene id");
 		friendlyNameMap.put("marker_symbol", "MGI gene symbol");
 		friendlyNameMap.put("human_gene_symbol", "Human ortholog");
 		friendlyNameMap.put("marker_name", "MGI marker name");
@@ -200,7 +201,7 @@ public class Tools {
 		defaultOffset.put("disease", 5);
 		defaultOffset.put("mp", 6);
 		defaultOffset.put("anatomy", 5);
-		defaultOffset.put("phenodigm", 8);
+		defaultOffset.put("hp", 8);
 
 		if ( corename.equals("gene") || corename.equals("marker_symbol") ){
 
@@ -293,18 +294,18 @@ public class Tools {
 			mainAttrs.add("disease_id");
 			mainAttrs.add("disease_term");
 			mainAttrs.add("marker_symbol");
-			mainAttrs.add("mgi_accession_id");
-			mainAttrs.add("human_gene_symbol");
+			mainAttrs.add("marker_id");
+			mainAttrs.add("hgnc_gene_symbol");
 
-			// annotated and inferred mp term
-			additionalInfos.add("p_value");
-			additionalInfos.add("mp_id");
-			additionalInfos.add("mp_term");
-			additionalInfos.add("mp_term_synonym");
-
-			// mp to hp mapping
-			additionalInfos.add("hp_id");
-			additionalInfos.add("hp_term");
+//			// annotated and inferred mp term
+//			additionalInfos.add("p_value");
+//			additionalInfos.add("mp_id");
+//			additionalInfos.add("mp_term");
+//			additionalInfos.add("mp_term_synonym");
+//
+//			// mp to hp mapping
+//			additionalInfos.add("hp_id");
+//			additionalInfos.add("hp_term");
 
 		}
 		else if ( corename.equals("mp") ) {
@@ -337,12 +338,13 @@ public class Tools {
 			mainAttrs.add("marker_symbol");
 			mainAttrs.add("human_gene_symbol");
 
-			additionalInfos.add("selected_top_level_id");
-			additionalInfos.add("selected_top_level_term");
+			additionalInfos.add("selected_top_level_anatomy_id");
+			additionalInfos.add("selected_top_level_anatomy_term");
 			// impc images link
             //additionalInfos.add("images_link");
 		}
-		else if ( corename.equals("phenodigm") ) {
+		//else if ( corename.equals("phenodigm") ) {
+		else if ( corename.equals("hp") ) {
 
 			mainAttrs.add("hp_id");
 			mainAttrs.add("hp_term");
@@ -389,7 +391,10 @@ public class Tools {
 			}
 		}
 
-		htmlStr2 += "<div class='cat'>Additional annotations to " + dataType + "</div>";
+		if (additionalInfos.size() > 0) {
+			htmlStr2 += "<div class='cat'>Additional annotations to " + dataType + "</div>";
+		}
+
 		for ( int i=0; i<additionalInfos.size(); i++ ){
 			String friendlyFieldName = friendlyNameMap.get(additionalInfos.get(i)) != null ? friendlyNameMap.get(additionalInfos.get(i)) : additionalInfos.get(i).replaceAll("_", " ");
 			htmlStr2 += "<input type='checkbox' name='" + corename + "' value='" + additionalInfos.get(i) + "'>" + friendlyFieldName;

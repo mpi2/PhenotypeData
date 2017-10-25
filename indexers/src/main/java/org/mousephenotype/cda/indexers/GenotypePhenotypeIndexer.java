@@ -82,6 +82,7 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
     Map<Integer, ImpressBaseDTO> pipelineMap = new HashMap<>();
     Map<Integer, ImpressBaseDTO> procedureMap = new HashMap<>();
     Map<Integer, ParameterDTO> parameterMap = new HashMap<>();
+    Set<String> derivedParameterStableIds = new HashSet<>();
 
     OntologyParser mpParser;
     OntologyParser mpMaParser;
@@ -170,8 +171,8 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
                 "  LEFT OUTER JOIN allele al ON s.allele_acc = al.acc " +
                 "  INNER JOIN external_db db ON s.external_db_id = db.id " +
                 "WHERE (0.0001 >= s.p_value " +
-                "  OR (s.p_value IS NULL AND s.sex='male' AND sur.gender_male_ko_pvalue<0.0001) " +
-                "  OR (s.p_value IS NULL AND s.sex='female' AND sur.gender_female_ko_pvalue<0.0001)) " +
+                "  OR (s.p_value IS NULL AND s.sex='male' AND sur.gender_male_ko_pvalue <= 0.0001) " +
+                "  OR (s.p_value IS NULL AND s.sex='female' AND sur.gender_female_ko_pvalue <= 0.0001)) " +
                 "OR (s.parameter_id IN (SELECT id FROM phenotype_parameter WHERE stable_id like 'IMPC_VIA%' OR stable_id LIKE 'IMPC_FER%')) " +
                 "OR s.p_value IS NULL ";
 
@@ -181,6 +182,7 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
             p.setFetchSize(Integer.MIN_VALUE);
 
             ResultSet r = p.executeQuery();
+            Map<String, Integer> skippedNotWarned = new HashMap<>();
             while (r.next()) {
 
                 GenotypePhenotypeDTO doc = new GenotypePhenotypeDTO();
@@ -350,6 +352,13 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
                 count++;
             }
 
+            if (skippedNotWarned.size() > 0) {
+                logger.info("Skipped phenotypes for derived parametersId ");
+                for (String key : skippedNotWarned.keySet()) {
+                    System.out.println("  " + key + " : " + skippedNotWarned.get(key));
+                }
+            }
+
             // Final commit to save the rest of the docs
             genotypePhenotypeCore.commit();
 
@@ -390,7 +399,7 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
                 dto.addIntermediateAnatomyTermId(ma.getIntermediateIds());
                 dto.addIntermediateAnatomyTermName(ma.getIntermediateNames());
             } else {
-                System.out.println("Term not found in MA : " + maId);
+                //System.out.println("Term not found in MA : " + maId+ " for mpid:"+mpId);
             }
         }
     }

@@ -67,6 +67,14 @@ public class OntologyParser {
             if (startsWithPrefix(cls, prefix)){
                 OntologyTermDTO term = getDTO(cls, prefix);
                 term.setEquivalentClasses(getEquivaletNamedClasses(cls, prefix));
+
+                // 20171018 // JM // Filtered _in_ the root term and top level terms (if supplied)
+//                if ( ! (term.getChildIds().size() > 0 && term.getParentIds().size() == 0) &&
+//                        (topLevelIds != null && ! topLevelIds.contains(term.getAccessionId()))
+//                        && term.getTopLevelIds().size() == 0) {
+//                    continue;
+//                }
+
                 termMap.put(term.getAccessionId(), term);
                 classMap.put(term.getAccessionId(), cls);
             }
@@ -628,7 +636,7 @@ public class OntologyParser {
                 // Intersect list of ancestors with list of top Levels
                 intermediates = classAncestors.stream()
                         .filter(item -> {
-                            return !topLevelIds.contains(getIdentifierShortForm(item)) || !startsWithPrefix(item, prefix);
+                            return (!topLevelIds.contains(getIdentifierShortForm(item)) || !startsWithPrefix(item, prefix)) && ! getIdentifierShortForm(item).equals("MP:0000001");
                         }).collect(Collectors.toSet());
             }
 

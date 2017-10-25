@@ -157,15 +157,18 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 
             Connection connection = komp2DataSource.getConnection();
 
-            ontologyParserFactory = new OntologyParserFactory(komp2DataSource, owlpath);
+            synchronized(this) {
 
-            mpParser = ontologyParserFactory.getMpParser();
-            mpMaParser = ontologyParserFactory.getMpMaParser();
-            maParser = ontologyParserFactory.getMaParser();
+                ontologyParserFactory = new OntologyParserFactory(komp2DataSource, owlpath);
 
-            pipelineMap = IndexerMap.getImpressPipelines(connection);
-            procedureMap = IndexerMap.getImpressProcedures(connection);
-            parameterMap = IndexerMap.getImpressParameters(connection);
+                mpParser = ontologyParserFactory.getMpParser();
+                mpMaParser = ontologyParserFactory.getMpMaParser();
+                maParser = ontologyParserFactory.getMaParser();
+
+                pipelineMap = IndexerMap.getImpressPipelines(connection);
+                procedureMap = IndexerMap.getImpressProcedures(connection);
+                parameterMap = IndexerMap.getImpressParameters(connection);
+            }
 
             populateBiologicalDataMap();
             populateResourceDataMap();
@@ -301,10 +304,10 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
         doc.setDataType(r.getString("data_type"));
 
         // Experiment details
-        String procedurePrefix = StringUtils.join(Arrays.asList(parameterMap.get(r.getInt("parameter_id"))
-                .getStableId()
-                .split("_"))
-                .subList(0, 2), "_");
+
+        // Use the procedure prefix to associated with the result to find the procedure prefix
+        String procedurePrefix = StringUtils.join(Arrays.asList(procedureMap.get(r.getInt("procedure_id")).getStableId().split("_")).subList(0, 2), "_");
+
         if (GenotypePhenotypeIndexer.source3iProcedurePrefixes.contains(procedurePrefix)) {
             // Override the resource for the 3i procedures
             doc.setResourceId(resourceMap.get(RESOURCE_3I).id);
@@ -364,13 +367,13 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
         // Biological details
         addBiologicalData(doc, doc.getMutantBiologicalModelId());
 
-        BasicBean stage = getDevelopmentalStage(doc.getPipelineStableId(), doc.getProcedureStableId(), doc.getColonyId());
+        BasicBean stage = getDevelopmentalStage(doc.getPipelineStableId(), procedurePrefix, doc.getColonyId());
 
         if (stage != null) {
             doc.setLifeStageAcc(stage.getId());
             doc.setLifeStageName(stage.getName());
         } else {
-            logger.info("  Stage is NULL for doc id" + doc.getDocId());
+            logger.info("  Stage is NULL for doc id " + doc.getDocId());
         }
 
         // MP Terms must come after setting the stage as it's used for selecting MA or EMAPA
@@ -469,7 +472,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
             doc.setLifeStageAcc(stage.getId());
             doc.setLifeStageName(stage.getName());
         } else {
-            logger.info("  Stage is NULL for doc id" + doc.getDocId());
+            logger.info("  Line result stage is NULL for doc id " + doc.getDocId());
         }
 
 
@@ -591,48 +594,58 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
     private void addAnatomyMapping(StatisticalResultDTO doc, OntologyTermDTO mpTerm){
 
         // mp-anatomy mappings (all MA at the moment)
-        if (doc.getLifeStageAcc() != null && doc.getLifeStageAcc().equalsIgnoreCase(POSTPARTUM_STAGE)) {
-            Set<String> referencedClasses = mpMaParser.getReferencedClasses(doc.getMpTermId(), ontologyParserFactory.VIA_PROPERTIES, "MA");
-            if (referencedClasses != null && referencedClasses.size() > 0) {
-                for (String id : referencedClasses) {
-                    OntologyTermDTO maTerm = maParser.getOntologyTerm(id);
+		if (doc.getLifeStageAcc() != null && doc.getLifeStageAcc().equalsIgnoreCase(POSTPARTUM_STAGE)) {
+			Set<String> referencedClasses = mpMaParser.getReferencedClasses(doc.getMpTermId(),
+					ontologyParserFactory.VIA_PROPERTIES, "MA");
+			if (referencedClasses != null && referencedClasses.size() > 0) {
+				for (String id : referencedClasses) {
+					OntologyTermDTO maTerm = maParser.getOntologyTerm(id);
 
-                    if (maTerm != null) {
-                        doc.addAnatomyTermId(id);
-                        doc.addAnatomyTermName(maTerm.getName());
-                    } if (maTerm.getIntermediateIds() != null) {
-                        doc.addIntermediateAnatomyTermId(maTerm.getIntermediateIds());
-                        doc.addIntermediateAnatomyTermName(maTerm.getIntermediateNames());
-                    } if (maTerm.getTopLevelIds() != null){
-                        doc.addTopLevelAnatomyTermId(maTerm.getTopLevelIds());
-                        doc.addTopLevelAnatomyTermName(maTerm.getTopLevelNames());
-                    }
-                }
-            }
-            // Also check mappings up the tree, as a leaf term might not have a mapping, but the parents might.
-            Set<String> anatomyIdsForAncestors = new HashSet<>();
-            for (String mpAncestorId : mpTerm.getIntermediateIds()) {
-                if (mpMaParser.getReferencedClasses(mpAncestorId, ontologyParserFactory.VIA_PROPERTIES, "MA") != null) {
-                    anatomyIdsForAncestors.addAll(mpMaParser.getReferencedClasses(mpAncestorId, ontologyParserFactory.VIA_PROPERTIES, "MA") );
-                }
-            }
+					if (maTerm != null) {
+						doc.addAnatomyTermId(id);
+						doc.addAnatomyTermName(maTerm.getName());
+						if (maTerm.getIntermediateIds() != null) {
+							doc.addIntermediateAnatomyTermId(maTerm.getIntermediateIds());
+							doc.addIntermediateAnatomyTermName(maTerm.getIntermediateNames());
+						}
+						if (maTerm.getTopLevelIds() != null) {
+							doc.addTopLevelAnatomyTermId(maTerm.getTopLevelIds());
+							doc.addTopLevelAnatomyTermName(maTerm.getTopLevelNames());
+						}
+					}else{
+						logger.info("MA term is null for id:"+doc.getMpTermId());
+					}
+				}
+			}
+			// Also check mappings up the tree, as a leaf term might not have a
+			// mapping, but the parents might.
+			Set<String> anatomyIdsForAncestors = new HashSet<>();
+			for (String mpAncestorId : mpTerm.getIntermediateIds()) {
+				if (mpMaParser.getReferencedClasses(mpAncestorId, ontologyParserFactory.VIA_PROPERTIES, "MA") != null) {
+					anatomyIdsForAncestors.addAll(
+							mpMaParser.getReferencedClasses(mpAncestorId, ontologyParserFactory.VIA_PROPERTIES, "MA"));
+				}
+			}
 
-            for (String id : anatomyIdsForAncestors) {
-                OntologyTermDTO maTerm = maParser.getOntologyTerm(id);
-                if (maTerm != null) {
-                    doc.addIntermediateAnatomyTermId(id);
-                    doc.addIntermediateAnatomyTermName(maTerm.getName());
-                }
-                if (maTerm.getIntermediateIds() != null){
-                    doc.addIntermediateAnatomyTermId(maTerm.getIntermediateIds());
-                    doc.addIntermediateAnatomyTermName(maTerm.getIntermediateNames());
-                }
-                if (maTerm.getTopLevelIds() != null){
-                    doc.addTopLevelAnatomyTermId(maTerm.getTopLevelIds());
-                    doc.addTopLevelAnatomyTermName(maTerm.getTopLevelNames());
-                }
-            }
-        }
+			for (String id : anatomyIdsForAncestors) {
+				OntologyTermDTO maTerm = maParser.getOntologyTerm(id);
+				if (maTerm != null) {
+					doc.addIntermediateAnatomyTermId(id);
+					doc.addIntermediateAnatomyTermName(maTerm.getName());
+
+					if (maTerm.getIntermediateIds() != null) {
+						doc.addIntermediateAnatomyTermId(maTerm.getIntermediateIds());
+						doc.addIntermediateAnatomyTermName(maTerm.getIntermediateNames());
+					}
+					if (maTerm.getTopLevelIds() != null) {
+						doc.addTopLevelAnatomyTermId(maTerm.getTopLevelIds());
+						doc.addTopLevelAnatomyTermName(maTerm.getTopLevelNames());
+					}
+				}else{
+					logger.info("maTerm is null when looking for anatomyIdsForAncestors id:"+id);
+				}
+			}
+		}
 
     }
 
@@ -760,10 +773,14 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
             mpIds.forEach(mpId -> {
 
                 OntologyTermDTO term = mpParser.getOntologyTerm(mpId);
-                doc.addMpTermIdOptions(term.getAccessionId());
-                doc.addMpTermNameOptions(term.getName());
-                doc.addMpTermIdOptions(term.getIntermediateIds());
-                doc.addMpTermNameOptions(term.getIntermediateNames());
+                if (term !=null && term.getAccessionId() != null){
+                    doc.addMpTermIdOptions(term.getAccessionId());
+                    doc.addMpTermNameOptions(term.getName());
+                    doc.addMpTermIdOptions(term.getIntermediateIds());
+                    doc.addMpTermNameOptions(term.getIntermediateNames());
+                }else{
+                	logger.info("term is null in indexer for mpId"+mpId);
+                }
 
             });
 
@@ -1106,6 +1123,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 
             doc.setSex(r.getString("sex"));
             doc.setpValue(r.getDouble("categorical_p_value"));
+
             doc.setEffectSize(r.getDouble("categorical_effect_size"));
 
 
@@ -1129,6 +1147,11 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
             }
 
             doc.setCategories(new ArrayList<>(categories));
+
+            if (! doc.getStatus().equals("Success")) {
+                doc.setpValue(1.0);
+                doc.setEffectSize(0.0);
+            }
 
             return doc;
 
@@ -1229,6 +1252,10 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
                     pv = mPv;
                 }
 
+            }
+
+            if ( ! doc.getStatus().equals("Success")) {
+                pv = 1.0;
             }
 
             doc.setpValue(pv);
@@ -1462,6 +1489,12 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
                 doc.addTopLevelMpTermNames(term.getTopLevelNames());
             }
 
+
+            if (! doc.getStatus().equals("Success")) {
+                doc.setpValue(1.0);
+                doc.setEffectSize(0.0);
+            }
+
             doc.setClassificationTag(r.getString("classification_tag"));
             doc.setAdditionalInformation(r.getString("additional_information"));
             return doc;
@@ -1678,7 +1711,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 
                 while (r.next()) {
 
-                    StatisticalResultDTO doc = parseLineResult(r);
+                   StatisticalResultDTO doc = parseLineResult(r);
                     doc.setDocId(doc.getDocId()+"-"+(i++));
 
                     if (embryoSignificantResults.containsKey(r.getString("significant_id"))) {
@@ -1695,6 +1728,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
                 }
 
             } catch (Exception e) {
+            	e.printStackTrace();
                 logger.warn(" Error occurred getting embryo results", e);
             }
 

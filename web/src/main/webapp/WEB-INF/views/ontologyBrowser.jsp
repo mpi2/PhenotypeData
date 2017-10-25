@@ -82,10 +82,6 @@
 			  ]
 		});
 
-	
-		<%--$("#tree").delegate("a","click", function(e) {--%>
-			<%--//window.location.href = "../phenotypes/"  + data.node.term_id; // how does this work when data is null?--%>
-		<%--});--%>
 
 
 		 $('#tree')
@@ -95,16 +91,25 @@
 				 for(i = 0, j = data.selected.length; i < j; i++) {
 					 r.push(data.instance.get_node(data.selected[i]).text);
 				 }
-				 var nodeHref = data.node.original.href;
-				 window.location.href = "${baseUrl}" + nodeHref.replace("/data","");
+				 //var nodeHref = data.node.original.href;
+                 //var nodeHref = e.target.href;
+				 //window.location.href = "${baseUrl}" + nodeHref.replace("/data","");
 			 }).jstree();
 
 		
 		$("#tree").bind('ready.jstree', function(e, data) {
 			var pos = $('#${scrollToNode}').position(); // id of first JSON object with opened: true
 			$('body').scrollTop(pos.top);
-	     })
-		
+	     }).delegate("a","click", function(e) {
+            if (window.location.host.indexOf("localhost") != -1) {
+                window.location.href = e.currentTarget.href.replace("/data", baseUrl);
+            }
+            else {
+                window.location.href = e.currentTarget.href;
+            }
+        });
+
+
 		
 	 </script>
 

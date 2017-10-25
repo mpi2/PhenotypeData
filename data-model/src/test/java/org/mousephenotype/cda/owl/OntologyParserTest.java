@@ -62,6 +62,10 @@ public class OntologyParserTest {
         downloads.put("mphp", new Download("MP", "http://build-artifacts.berkeleybop.org/build-mp-hp-view/latest/mp-hp-view.owl", owlpath + "/mp-hp.owl"));
         downloads.put("mp", new Download("MP", "http://purl.obolibrary.org/obo/mp.owl", owlpath + "/mp.owl"));
         downloads.put("hp", new Download("HP", "http://purl.obolibrary.org/obo/hp.owl", owlpath + "/hp.owl"));
+        downloads.put("ma", new Download("MA", "http://purl.obolibrary.org/obo/ma.owl", owlpath + "/ma.owl"));
+        downloads.put("mpma", new Download("MP", "http://purl.obolibrary.org/obo/mp-ext-merged.owl", owlpath + "/mp-ext-merged.owl"));
+        downloads.put("emapa", new Download("EMAPA", "http://purl.obolibrary.org/obo/emapa.owl", owlpath + "/emapa.owl"));
+        downloads.put("uberon", new Download("UBERON", "http://purl.obolibrary.org/obo/uberon.owl", owlpath + "/uberon.owl"));
 
         if ( ! downloadFiles) {
             downloadFiles();
@@ -164,6 +168,25 @@ public class OntologyParserTest {
     }
 
 
+	@Test
+	public void findSpecificMaTermMA_0002405() throws Exception {
+		ontologyParser = new OntologyParser(downloads.get("ma").target, downloads.get("ma").name, null, null);
+		List<OntologyTermDTO> termList = ontologyParser.getTerms();
+		Map<String, OntologyTermDTO> terms = termList.stream()
+				.filter(term -> term.getAccessionId().equals("MA:0002406"))
+				.collect(Collectors.toMap(OntologyTermDTO::getAccessionId, ontologyTermDTO -> ontologyTermDTO));
+		Assert.assertTrue(terms.containsKey("MA:0002406"));
+	}
+
+
+    // Because it had that IRI used twice, once with ObjectProperty and once with AnnotationProperty RO_0002200
+    @Test
+    public void testUberon()  throws Exception {
+
+        ontologyParser = new OntologyParser(downloads.get("uberon").target, downloads.get("uberon").name, null, null);
+
+    }
+
     // Because it had that IRI used twice, once with ObjectProperty and once with AnnotationProperty RO_0002200
     @Test
     public void testEFO()  throws Exception {
@@ -254,6 +277,55 @@ public class OntologyParserTest {
         Assert.assertTrue("Expected consider id MP:0010241. Not found.", withConsiderIds.getConsiderIds().contains("MP:0010241"));
         Assert.assertTrue("Expected consider id MP:0010464. Not found.", withConsiderIds.getConsiderIds().contains("MP:0010464"));
 
+
+
+    }
+
+    @Test
+    public void findSpecificEmapaTermEMAPA_18025() throws Exception {
+        ontologyParser = new OntologyParser(downloads.get("emapa").target, downloads.get("emapa").name, OntologyParserFactory.TOP_LEVEL_EMAPA_TERMS, null);
+        List<OntologyTermDTO> termList = ontologyParser.getTerms();
+        Map<String, OntologyTermDTO> terms =
+                termList.stream()
+                        .filter(term -> term.getAccessionId().equals("EMAPA:18025"))
+                        .collect(Collectors.toMap(OntologyTermDTO::getAccessionId, ontologyTermDTO -> ontologyTermDTO));
+
+        Assert.assertTrue(terms.containsKey("EMAPA:18025") );
+
+    }
+
+    @Test
+    public void findMaTermByReferenceFromMpTerm() throws Exception {
+        ontologyParser = new OntologyParser(downloads.get("mpma").target, downloads.get("mpma").name, null, null);
+
+        OntologyParser maParser = new OntologyParser(downloads.get("ma").target, downloads.get("ma").name, OntologyParserFactory.TOP_LEVEL_MA_TERMS, null);
+
+        Set<String> referencedClasses = ontologyParser.getReferencedClasses("MP:0001926",
+                OntologyParserFactory.VIA_PROPERTIES, "MA");
+        if (referencedClasses != null && referencedClasses.size() > 0) {
+            for (String id : referencedClasses) {
+                OntologyTermDTO maTerm = maParser.getOntologyTerm(id);
+
+                System.out.println("MA term "+id+" is "+maTerm+" for MP term MP:0001926");
+                Assert.assertFalse(maTerm == null);
+            }
+        }
+    }
+
+
+    @Test
+    public void testRootTermAndTopTermsInOntologyParserMap() throws Exception {
+
+        ontologyParser = new OntologyParser(downloads.get("mp").target, downloads.get("mp").name, null, null);
+        List<OntologyTermDTO> termList = ontologyParser.getTerms();
+        Map<String, OntologyTermDTO> terms =
+                termList.stream()
+                        .filter(term -> term.getAccessionId().equals("MP:0000001") || OntologyParserFactory.TOP_LEVEL_MP_TERMS.contains(term.getAccessionId()))
+                        .collect(Collectors.toMap(OntologyTermDTO::getAccessionId, ontologyTermDTO -> ontologyTermDTO));
+
+        Assert.assertTrue(terms.containsKey("MP:0000001") );
+        Assert.assertTrue(terms.containsKey("MP:0010771"));
+        Assert.assertFalse(terms.containsKey("MP:0010734571"));
     }
 
     @Test
@@ -299,10 +371,7 @@ public class OntologyParserTest {
     @Test
     public void testTopLevels() throws Exception{
 
-        Set<String> topLevels = new HashSet<>(Arrays.asList("MP:0010768", "MP:0002873", "MP:0001186", "MP:0003631",
-                "MP:0003012", "MP:0005367",  "MP:0005369", "MP:0005370", "MP:0005371", "MP:0005377", "MP:0005378", "MP:0005375", "MP:0005376",
-                "MP:0005379", "MP:0005380",  "MP:0005381", "MP:0005384", "MP:0005385", "MP:0005382", "MP:0005388", "MP:0005389", "MP:0005386",
-                "MP:0005387", "MP:0005391",  "MP:0005390", "MP:0005394", "MP:0005397"));
+        Set<String> topLevels = new HashSet<>(OntologyParserFactory.TOP_LEVEL_MP_TERMS);
 
         ontologyParser = new OntologyParser(downloads.get("mp").target, downloads.get("mp").name, topLevels, null);
 
@@ -311,6 +380,8 @@ public class OntologyParserTest {
         Assert.assertTrue(term.getTopLevelIds().contains("MP:0005375"));
         Assert.assertTrue(term.getTopLevelIds().size() == 1);
         Assert.assertTrue(term.getTopLevelNames().size() == 1);
+
+        Assert.assertTrue(ontologyParser.getOntologyTerm("MP:0005385") != null);
 
         // multiple top levels
         term = ontologyParser.getOntologyTerm("MP:0000017"); // big ears
@@ -368,5 +439,6 @@ public class OntologyParserTest {
         Assert.assertTrue(hpParser.getOntologyTerm("HP:0001477").getTopLevelIds().size() > 0);
         Assert.assertTrue(hpParser.getOntologyTerm("HP:0001477").getTopLevelIds().contains("HP:0000478"));
     }
+
 
 }

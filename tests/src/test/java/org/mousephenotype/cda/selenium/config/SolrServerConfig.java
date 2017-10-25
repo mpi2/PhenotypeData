@@ -62,7 +62,7 @@ public class SolrServerConfig {
 
 	// Read only solr servers
 
-	//Phenodigm server for our Web Status currently only
+	// IMPC disease core retired and now points to Phenodigm server
 	@Bean(name = "phenodigmCore")
 	public HttpSolrClient getPhenodigmCore() {
 		return new HttpSolrClient(solrBaseUrl + "/phenodigm");
@@ -73,7 +73,6 @@ public class SolrServerConfig {
 	public HttpSolrClient getConfigurationCore() {
 		return new HttpSolrClient(solrBaseUrl + "/configuration");
 	}
-
 
 
 	//Allele
@@ -87,12 +86,6 @@ public class SolrServerConfig {
 	@Bean(name = "autosuggestCore")
 	HttpSolrClient getAutosuggestCore() {
 		return new HttpSolrClient(solrBaseUrl + "/autosuggest");
-	}
-
-	//Disease
-	@Bean(name = "diseaseCore")
-	HttpSolrClient getDiseaseCore() {
-		return new HttpSolrClient(solrBaseUrl + "/disease");
 	}
 
 	//Gene

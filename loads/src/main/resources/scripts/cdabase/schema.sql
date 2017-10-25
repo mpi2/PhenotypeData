@@ -393,7 +393,6 @@ CREATE TABLE strain (
 
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
-
 DROP TABLE IF EXISTS biological_model;
 CREATE TABLE biological_model (
 	id                        INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -404,7 +403,7 @@ CREATE TABLE biological_model (
 	PRIMARY KEY (id),
 	KEY allelic_composition_idx (allelic_composition),
 	KEY genetic_background_idx (genetic_background),
-	UNIQUE KEY unique_biomodels_idx (db_id, allelic_composition(100), genetic_background(100))
+	UNIQUE KEY unique_biomodels_idx (db_id, allelic_composition(100), genetic_background(100), zygosity)
 
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
@@ -635,7 +634,7 @@ CREATE TABLE observation (
 	KEY biological_sample_idx(biological_sample_id),
 	KEY parameter_idx(parameter_id),
 	KEY parameter_stable_idx(parameter_stable_id),
-	KEY population_idx(population_id)
+	KEY datasets_idx(parameter_stable_id, observation_type, missing)
 
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
@@ -978,10 +977,11 @@ CREATE TABLE parameter_association (
 	parameter_id               		VARCHAR(45) NOT NULL,
 	sequence_id                		INT(11) DEFAULT NULL,
 	dim_id                     		VARCHAR(45) DEFAULT NULL,
-	parameter_association_value		VARCHAR(45) DEFAULT NULL,
+	parameter_association_value		VARCHAR(2048) DEFAULT NULL,
 
 	PRIMARY KEY (id),
-	KEY observation_id_idx (observation_id)
+	KEY observation_id_idx (observation_id),
+	UNIQUE KEY parameter_association_uk (observation_id, parameter_id, parameter_association_value)
 
 ) COLLATE=utf8_general_ci ENGINE=MyISAM ;
 

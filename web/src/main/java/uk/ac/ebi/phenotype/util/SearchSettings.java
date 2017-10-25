@@ -15,10 +15,11 @@
  ****************************************************************************** */
 package uk.ac.ebi.phenotype.util;
 
+import org.apache.commons.lang.StringUtils;
+
+import javax.servlet.http.HttpServletRequest;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import javax.servlet.http.HttpServletRequest;
-import org.apache.commons.lang.StringUtils;
 
 /**
  * A bean class that holds details of a search request, including query string
@@ -26,9 +27,6 @@ import org.apache.commons.lang.StringUtils;
  *
  * The bean allows passing around all those settings around functions in just
  * one object.
- * 
- * Note: currently, this class is unused. It is a proposal to incorporate into
- * SearchController.java and perhaps elsewhere.
  *
  */
 public class SearchSettings {
@@ -198,8 +196,16 @@ public class SearchSettings {
         return iDisplayStart;
     }
 
+    public void setiDisplayStart(int iDisplayStart) {
+        this.iDisplayStart = iDisplayStart;
+    }
+
     public int getiDisplayLength() {
         return iDisplayLength;
+    }
+
+    public void setiDisplayLength(int iDisplayLength) {
+        this.iDisplayLength = iDisplayLength;
     }
 
     public String getBaseUrl() {
@@ -214,21 +220,24 @@ public class SearchSettings {
         return request;
     }
 
+
     @Override
     public String toString() {
-        return "SearchSettings{"
-                + "dataType=" + dataType
-                + ", query=" + query
-                + ", fqStr=" + fqStr
-                + ", oriQuery=" + oriQuery
-                + ", oriFqStr=" + oriFqStr
-                + ", chrQuery=" + chrQuery
-                + ", imgView=" + imgView
-                + ", iDisplayStart=" + iDisplayStart
-                + ", iDisplayLength=" + iDisplayLength
-                + ", baseUrl=" + baseUrl
-                + ", hostName=" + hostName
-                + '}';
+        return "SearchSettings{" +
+                "dataType='" + dataType + '\'' +
+                ", query='" + query + '\'' +
+                ", fqStr='" + fqStr + '\'' +
+                ", oriQuery='" + oriQuery + '\'' +
+                ", oriFqStr='" + oriFqStr + '\'' +
+                ", chrQuery='" + chrQuery + '\'' +
+                ", imgView=" + imgView +
+                ", iDisplayStart=" + iDisplayStart +
+                ", iDisplayLength=" + iDisplayLength +
+                ", request=" + request +
+                ", baseUrl='" + baseUrl + '\'' +
+                ", hostName='" + hostName + '\'' +
+                ", chrPattern='" + chrPattern + '\'' +
+                '}';
     }
 
 }

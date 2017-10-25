@@ -13,60 +13,71 @@
  * language governing permissions and limitations under the
  * License.
  ****************************************************************************** */
-package uk.ac.ebi.phenotype.service;
+package uk.ac.ebi.phenotype.service.search;
 
-import java.util.Arrays;
-import java.util.List;
 import org.apache.solr.client.solrj.SolrClient;
 import org.mousephenotype.cda.solr.SolrUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
- * Support for solr search queries for core "phenodigm"
+ * Support for solr search queries for core "allele2"
  *
  */
 @Service
-public class SearchUrlServicePhenodigm2Disease extends SearchUrlService {
+public class SearchUrlServiceAllele2 extends SearchUrlService {
 
     @Autowired
-    @Qualifier("phenodigm2Core")
+    @Qualifier("allele2Core")
     protected SolrClient solr;
 
     @Override
     public String qf() {
-        return "search_qf";
+        return "auto_suggest";
     }
 
     @Override
     public String fq() {
-        return "+type:disease_search";
+        return "+type:Allele";
     }
 
     @Override
     public String bq(String q) {
-        return "disease_term:(" + q + ")^1000"
-                + " disease_alts:(" + q + ")^700"
-                + " disease_source:(" + q + ")^200";
+        return "allele_name:(" + q + ")^500";
     }
 
     @Override
     public List<String> fieldList() {
-        return Arrays.asList("disease_id",
-                "disease_term",
-                "disease_source");                
+        return Arrays.asList("marker_symbol",
+                "mgi_accession_id",
+                "allele_name",
+                "marker_name",
+                "marker_synonym",
+                "allele_description",
+                "allele_simple_image", // es cell and mouse vector (gene map)
+                "vector_allele_image", // targeting vector map
+                "genbank_file", // for es cells / mouse
+                "vector_genbank_file", // for vector
+                "mutation_type",
+                "es_cell_available",
+                "mouse_available",
+                "targeting_vector_available",
+                "allele_category"
+        );
     }
 
     @Override
     public List<String> facetFields() {
-        return Arrays.asList("disease_source",
-                "disease_classes",
-                "human_curated_gene",         
-                "impc_model_with_curated_gene",
-                "impc_model_with_computed_association",
-                "mgi_model_with_curated_gene",
-                "mgi_model_with_computed_association");                
+        return Arrays.asList("mutation_type_str",
+                "es_cell_available",
+                "mouse_available",
+                "targeting_vector_available",
+                "allele_category_str",
+                "allele_features_str");
     }
 
     @Override
@@ -76,17 +87,17 @@ public class SearchUrlServicePhenodigm2Disease extends SearchUrlService {
 
     @Override
     public List<String> gridHeaders() {
-        return Arrays.asList("Disease", "Source");
+        return Arrays.asList("Allele Name", "Mutation", "<span id='porder'>Order</span><span id='pmap'>Map</span><span id='pseq'>Seq</span>");
     }
 
     @Override
     public String breadcrumb() {
-        return "Diseases";
+        return "Products";
     }
 
     @Override
     public String sort() {
-        return "disease_term asc";
+        return "allele_name asc";
     }
 
     @Override

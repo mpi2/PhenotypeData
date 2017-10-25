@@ -732,7 +732,7 @@ public class IndexerManagerTest {
         , IndexerManager.ALLELE_CORE
         , IndexerManager.IMPC_IMAGES_CORE
         , IndexerManager.ANATOMY_CORE
-        , IndexerManager.DISEASE_CORE
+        //, IndexerManager.DISEASE_CORE
         , IndexerManager.MP_CORE
         };
         assertArrayEquals(expectedCores, actualCores);
@@ -767,7 +767,7 @@ public class IndexerManagerTest {
         , IndexerManager.ALLELE_CORE
         , IndexerManager.IMPC_IMAGES_CORE
         , IndexerManager.ANATOMY_CORE
-        , IndexerManager.DISEASE_CORE
+        //, IndexerManager.DISEASE_CORE
         , IndexerManager.MP_CORE
         };
         assertArrayEquals(expectedCores, actualCores);

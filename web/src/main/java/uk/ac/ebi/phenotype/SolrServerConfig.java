@@ -64,22 +64,17 @@ public class SolrServerConfig {
 
 	}
 
-	
-
 	@Bean(name = "productCore")
 	HttpSolrClient getProductCore() {
 
 		return new HttpSolrClient(imitsSolrBaseUrl + "/product");
 		//return new HttpSolrClient("http://localhost:8086/solr-example/product");
-
 	}
-
-
 
 
 	// Read only solr servers
 
-	//Phenodigm server for our Web Status currently only
+	// Phenodigm server used up to release 5. Remove in future.
 	@Bean(name = "phenodigmCore")
 	public HttpSolrClient getPhenodigmCore() {
         //renamed old phenodigm core with an explicit 1 at the end
@@ -112,13 +107,6 @@ public class SolrServerConfig {
 	@Bean(name = "autosuggestCore")
 	HttpSolrClient getAutosuggestCore() {
 		return new HttpSolrClient(solrBaseUrl + "/autosuggest");
-	}
-
-	//Disease
-    // TK: this core seem to be used only in test packages - remove?
-	@Bean(name = "diseaseCore")
-	HttpSolrClient getDiseaseCore() {
-		return new HttpSolrClient(solrBaseUrl + "/disease");
 	}
 
 	//Gene

@@ -58,7 +58,7 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
     void populateParameterTypeMap() throws SQLException {
         Map<String, ObservationType> map = parameterTypeMap;
 
-        String query= "select distinct parameter_stable_id, observation_type from observation where observation.missing != 1";
+        String query= "SELECT DISTINCT parameter_stable_id, observation_type FROM observation WHERE missing != 1 AND observation_type IN ('categorical', 'unidimensional')";
 
         try (Connection connection = komp2DataSource.getConnection(); PreparedStatement p = connection.prepareStatement(query)) {
             ResultSet r = p.executeQuery();
@@ -105,7 +105,8 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
                 "INNER JOIN biological_model_sample bms ON bms.biological_sample_id=ls.id " +
                 "INNER JOIN biological_model_strain bmstrain ON bmstrain.biological_model_id=bms.biological_model_id " +
                 "INNER JOIN strain ON strain.acc=bmstrain.strain_acc " +
-                "INNER JOIN biological_model bm ON (bm.id=bms.biological_model_id AND bm.zygosity=ls.zygosity) " ;
+                "INNER JOIN biological_model bm ON (bm.id=bms.biological_model_id AND bm.zygosity=ls.zygosity) " +
+                "WHERE bs.sample_group = 'experimental' " ;
 
         try (Connection connection = komp2DataSource.getConnection(); PreparedStatement p = connection.prepareStatement(query)) {
             ResultSet r = p.executeQuery();
@@ -445,7 +446,7 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
         }
 
         String dataSource = fileMetaData.get(0);
-        String project    = fileMetaData.get(1);
+        String project    = fileMetaData.get(1).replaceAll("_", " ");
         String center     = fileMetaData.get(2).replaceAll("_", " ");
         String pipeline   = fileMetaData.get(3);
         String procedure  = fileMetaData.get(4);
@@ -483,8 +484,7 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
         }
         result.setDependentVariable( depVar );
 
-        StatusCode status = StatusCode.valueOf(fields[4]);
-        result.setStatus( status.name() );
+        result.setStatus( fields[4] );
 
         result.setCode( getStringField(fields[5]) );
         result.setCountControlMale( getIntegerField(fields[6]) );
@@ -514,9 +514,13 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
             return result;
         }
 
-        switch(status) {
-            case TESTED:
+        switch(result.getStatus()) {
+            case "TESTED":
                 // Result was processed successfully by PhenStat, load the result object
+
+                // Always set status to Success with sucessfully processed
+                result.setStatus( "Success" );
+
 
                 // Vector output results from PhenStat start at field 19
                 int i = 19;
@@ -551,15 +555,14 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
                 result.setSexMvKOStandardError( getDoubleField(fields[i++]) );
                 result.setSexMvKOPVal( getDoubleField(fields[i++]) );
                 result.setClassificationTag( getStringField(fields[i++]) );
-                result.setAdditionalInformation( getStringField(fields[i++]) );
+                result.setAdditionalInformation( "file: "+  filename + "Additional: " + getStringField(fields[i++]) );
 
                 logger.debug("Last iteration left index i at: ", i);
 
                 break;
 
             default:
-            case FAILED:
-                // Result failed to be processed by PhenStat
+                // Result was not processed by PhenStat
 
                 result.setBatchIncluded( null );
                 result.setResidualVariancesHomogeneity( null );
@@ -591,18 +594,14 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
                 result.setSexMvKOStandardError( null );
                 result.setSexMvKOPVal( null );
                 result.setClassificationTag( null );
-                result.setAdditionalInformation( null );
+                result.setAdditionalInformation( "file: "+  filename );
                 break;
         }
+
 
         return result;
     }
 
-
-    private enum StatusCode {
-            TESTED,
-            FAILED;
-    }
 
     private class NameIdDTO {
 
@@ -800,6 +799,7 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
             result = new LightweightUnidimensionalResult();
             StatisticalResultFailed temp = new StatisticalResultFailed();
             temp.setStatisticalMethod("Not processed");
+            result.setStatus(data.getStatus() + "-" + data.getCode());
             statsResult = temp;
         }
 
@@ -885,9 +885,9 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
 
         result.setCalculationTimeNanos(0L);
 
-        result.setStatus(data.getStatus() + " - " + data.getCode());
+        result.setStatus(data.getStatus()=="Success" ? data.getStatus() : data.getStatus() + " - " + data.getCode());
 
-        if (data.getStatus().equals(StatusCode.TESTED.name())) {
+        if (data.getStatus()=="Success") {
             setMpTerm(result);
         }
 
@@ -994,7 +994,7 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
     }
 
     @Override
-    public void run(String... strings) throws Exception {
+        public void run(String... strings) throws Exception {
 
         logger.info("Starting statistical result loader");
 

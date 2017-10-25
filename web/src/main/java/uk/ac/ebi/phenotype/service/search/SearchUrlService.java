@@ -13,10 +13,11 @@
  * language governing permissions and limitations under the
  * License.
  ****************************************************************************** */
-package uk.ac.ebi.phenotype.service;
+package uk.ac.ebi.phenotype.service.search;
+
+import org.apache.commons.lang.StringUtils;
 
 import java.util.List;
-import org.apache.commons.lang.StringUtils;
 
 /**
  * An abstraction for classes that create url strings for searching solr cores.
@@ -102,6 +103,18 @@ public abstract class SearchUrlService {
      * List of fields that should be returned in the the search.
      */
     public abstract List<String> fieldList();
+
+    /**
+     * Helper to create a part of a solr query.
+     *
+     * @return
+     *
+     * Plain string of comma separated solr fields to be using with fl= parameter
+     */
+    public String fieldListSolrStr() {
+        return StringUtils.join(fieldList(), ",");
+    }
+
 
     /**
      * Plain list of facet field names; Consider using facetFieldsSolrStr to

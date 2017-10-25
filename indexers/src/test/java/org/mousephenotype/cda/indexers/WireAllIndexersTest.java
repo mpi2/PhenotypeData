@@ -54,7 +54,7 @@ public class WireAllIndexersTest implements ApplicationContextAware {
     final String GENOTYPE_PHENOTYPE_CORE = IndexerManager.GENOTYPE_PHENOTYPE_CORE;
     final String STATSTICAL_RESULT_CORE = IndexerManager.STATSTICAL_RESULT_CORE;
     final String MGI_PHENOTYPE_CORE = IndexerManager.MGI_PHENOTYPE_CORE;
-    final String PHENODIGM_CORE = IndexerManager.PHENODIGM_CORE;
+    //final String PHENODIGM_CORE = IndexerManager.PHENODIGM_CORE;
     final String PRODUCT_CORE = IndexerManager.PRODUCT_CORE;
     final String ALLELE2_CORE = IndexerManager.ALLELE2_CORE;
     final String PREQC_CORE = IndexerManager.PREQC_CORE;
@@ -65,7 +65,7 @@ public class WireAllIndexersTest implements ApplicationContextAware {
     final String ANATOMY_CORE = IndexerManager.ANATOMY_CORE;
     final String PIPELINE_CORE = IndexerManager.PIPELINE_CORE;
     final String GENE_CORE = IndexerManager.GENE_CORE;
-    final String DISEASE_CORE = IndexerManager.DISEASE_CORE;
+    //final String DISEASE_CORE = IndexerManager.DISEASE_CORE;
     final String AUTOSUGGEST_CORE = IndexerManager.AUTOSUGGEST_CORE;
 
     final Class observationClass = ObservationIndexer.class;
@@ -95,7 +95,7 @@ public class WireAllIndexersTest implements ApplicationContextAware {
         indexerItemList.add(new IndexerItem(GENOTYPE_PHENOTYPE_CORE, genotypePhenotypeClass));
         indexerItemList.add(new IndexerItem(STATSTICAL_RESULT_CORE, statisticalResultClass));
         indexerItemList.add(new IndexerItem(MGI_PHENOTYPE_CORE, mgiPhenotypeClass));
-        indexerItemList.add(new IndexerItem(PHENODIGM_CORE, phenodigmClass));
+        //indexerItemList.add(new IndexerItem(PHENODIGM_CORE, phenodigmClass));
         indexerItemList.add(new IndexerItem(ALLELE2_CORE, allele2Class));
         indexerItemList.add(new IndexerItem(PRODUCT_CORE, productClass));
         indexerItemList.add(new IndexerItem(PREQC_CORE, preqcClass));
@@ -106,7 +106,7 @@ public class WireAllIndexersTest implements ApplicationContextAware {
         indexerItemList.add(new IndexerItem(ANATOMY_CORE, anatomyClass));
         indexerItemList.add(new IndexerItem(PIPELINE_CORE, pipelineClass));
         indexerItemList.add(new IndexerItem(GENE_CORE, geneClass));
-        indexerItemList.add(new IndexerItem(DISEASE_CORE, diseaseClass));
+        //indexerItemList.add(new IndexerItem(DISEASE_CORE, diseaseClass));
         indexerItemList.add(new IndexerItem(AUTOSUGGEST_CORE, autosuggestClass));
 
         IndexerItem[] indexerItems = indexerItemList.toArray(new IndexerItem[0]);

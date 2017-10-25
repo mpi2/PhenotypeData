@@ -36,10 +36,13 @@ public class DccExperimentDTO {
     private String  procedureId;
     private String  colonyId;
     private String  specimenId;
+    private String  specimenStrainId;
+    private String  zygosity;
     private String  sex;
     private String  rawProcedureStatus;
     private long    dcc_procedure_pk;
     private boolean isLineLevel;
+    private boolean isControl;
 
     public String getDatasourceShortName() {
         return datasourceShortName;
@@ -129,6 +132,22 @@ public class DccExperimentDTO {
         this.specimenId = specimenId;
     }
 
+    public String getSpecimenStrainId() {
+        return specimenStrainId;
+    }
+
+    public void setSpecimenStrainId(String specimenStrainId) {
+        this.specimenStrainId = specimenStrainId;
+    }
+
+    public String getZygosity() {
+        return zygosity;
+    }
+
+    public void setZygosity(String zygosity) {
+        this.zygosity = zygosity;
+    }
+
     public String getSex() {
         return sex;
     }
@@ -161,6 +180,14 @@ public class DccExperimentDTO {
         isLineLevel = lineLevel;
     }
 
+    public boolean isControl() {
+        return isControl;
+    }
+
+    public void setControl(boolean control) {
+        isControl = control;
+    }
+
     @Override
     public String toString() {
         return "DccExperimentDTO{" +
@@ -175,10 +202,13 @@ public class DccExperimentDTO {
                 ", procedureId='" + procedureId + '\'' +
                 ", colonyId='" + colonyId + '\'' +
                 ", specimenId='" + specimenId + '\'' +
+                ", specimenStrainId='" + specimenStrainId + '\'' +
+                ", zygosity='" + zygosity + '\'' +
                 ", sex='" + sex + '\'' +
                 ", rawProcedureStatus='" + rawProcedureStatus + '\'' +
                 ", dcc_procedure_pk=" + dcc_procedure_pk +
                 ", isLineLevel=" + isLineLevel +
+                ", isControl=" + isControl +
                 '}';
     }
 }

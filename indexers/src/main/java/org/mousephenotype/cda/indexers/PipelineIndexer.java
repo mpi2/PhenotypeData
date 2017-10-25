@@ -244,9 +244,14 @@ public class PipelineIndexer extends AbstractIndexer implements CommandLineRunne
 							doc.setEmapId(emapId);
 
 							if ( emapToEmapa.containsKey(emapId)) {
-								OntologyTermDTO emapaTerm = emapaParser.getOntologyTerm(emapToEmapa.get(emapId));
-								doc.setAnatomyId(emapaTerm.getAccessionId());
-								doc.setAnatomyTerm(emapaTerm.getName());
+								try {
+									OntologyTermDTO emapaTerm = emapaParser.getOntologyTerm(emapToEmapa.get(emapId));
+									doc.setAnatomyId(emapaTerm.getAccessionId());
+									doc.setAnatomyTerm(emapaTerm.getName());
+								} catch (NullPointerException e) {
+									logger.warn(" EMAP Id {} is not mapped to an EMAPA Id, but emapToEmapa.containsKey(emapId) is true", emapId);
+
+								}
 							}
 							else {
 								logger.debug(" EMAP Id {} is not mapped to an EMAPA Id", emapId);
