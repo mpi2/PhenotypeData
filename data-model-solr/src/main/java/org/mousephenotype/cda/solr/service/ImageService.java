@@ -455,7 +455,7 @@ public class ImageService implements WebStatus{
 		}
 		
 		solrQuery.setRows(numberOfImagesToRetrieve);
-		System.out.println("solr Query in image service"+solrQuery);
+		logger.debug("solr Query in image service "+solrQuery);
 		QueryResponse response = solr.query(solrQuery);
 		return response;
 	}
@@ -685,7 +685,7 @@ public class ImageService implements WebStatus{
 					+ parameterStableId+"\"");
 		}
 		solrQuery.setRows(numberOfImagesToRetrieve);
-		System.out.println("solr query for expression images="+solrQuery);
+		logger.debug("solr query for expression images="+solrQuery);
 		QueryResponse response = solr.query(solrQuery);
 
 		return response;

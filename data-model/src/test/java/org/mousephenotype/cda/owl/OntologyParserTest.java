@@ -168,6 +168,16 @@ public class OntologyParserTest {
     }
 
 
+	@Test
+	public void findSpecificMaTermMA_0002405() throws Exception {
+		ontologyParser = new OntologyParser(downloads.get("ma").target, downloads.get("ma").name, null, null);
+		List<OntologyTermDTO> termList = ontologyParser.getTerms();
+		Map<String, OntologyTermDTO> terms = termList.stream()
+				.filter(term -> term.getAccessionId().equals("MA:0002406"))
+				.collect(Collectors.toMap(OntologyTermDTO::getAccessionId, ontologyTermDTO -> ontologyTermDTO));
+		Assert.assertTrue(terms.containsKey("MA:0002406"));
+	}
+
 
     // Because it had that IRI used twice, once with ObjectProperty and once with AnnotationProperty RO_0002200
     @Test
@@ -302,18 +312,6 @@ public class OntologyParserTest {
         }
     }
 
-    @Test
-    public void findSpecificMaTermMA_0002405() throws Exception {
-        ontologyParser = new OntologyParser(downloads.get("ma").target, downloads.get("ma").name, null, null);
-        List<OntologyTermDTO> termList = ontologyParser.getTerms();
-        Map<String, OntologyTermDTO> terms =
-                termList.stream()
-                        .filter(term -> term.getAccessionId().equals("MA:0002405"))
-                        .collect(Collectors.toMap(OntologyTermDTO::getAccessionId, ontologyTermDTO -> ontologyTermDTO));
-
-        Assert.assertTrue(terms.containsKey("MA:0002405") );
-
-    }
 
     @Test
     public void testRootTermAndTopTermsInOntologyParserMap() throws Exception {
@@ -441,5 +439,6 @@ public class OntologyParserTest {
         Assert.assertTrue(hpParser.getOntologyTerm("HP:0001477").getTopLevelIds().size() > 0);
         Assert.assertTrue(hpParser.getOntologyTerm("HP:0001477").getTopLevelIds().contains("HP:0000478"));
     }
+
 
 }
