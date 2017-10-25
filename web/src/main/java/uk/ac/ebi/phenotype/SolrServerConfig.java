@@ -39,10 +39,6 @@ public class SolrServerConfig {
 	@Value("${solr.host}")
 	private String solrBaseUrl;
 
-	@NotNull
-	@Value("${phenodigm.solrserver}")
-	private String phenodigmSolrBaseUrl;
-
 	@Autowired
 	ImpressService impressService;
 
@@ -81,7 +77,7 @@ public class SolrServerConfig {
 	// IMPC disease core retired and now points to Phenodigm server
 	@Bean(name = "phenodigmCore")
 	public HttpSolrClient getPhenodigmCore() {
-		return new HttpSolrClient(phenodigmSolrBaseUrl + "/phenodigm");
+		return new HttpSolrClient(solrBaseUrl + "/phenodigm");
 	}
 
 	//Configuration
@@ -104,12 +100,6 @@ public class SolrServerConfig {
 	HttpSolrClient getAutosuggestCore() {
 		return new HttpSolrClient(solrBaseUrl + "/autosuggest");
 	}
-
-//	//Disease
-//	@Bean(name = "diseaseCore")
-//	HttpSolrClient getDiseaseCore() {
-//		return new HttpSolrClient(solrBaseUrl + "/disease");
-//	}
 
 	//Gene
 	@Bean(name = "geneCore")

@@ -103,25 +103,6 @@
             <artifactId>jopt-simple</artifactId>
         </dependency>
 
-		<!-- MGI intermine project -->
-	    <dependency>
-            <groupId>org.intermine</groupId>
-            <artifactId>metadata</artifactId>
-            <version>1.0.0</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.intermine</groupId>
-            <artifactId>pathquery</artifactId>
-            <version>1.0.0</version>
-        </dependency>
-
-         <dependency>
-            <groupId>org.intermine</groupId>
-            <artifactId>webservice</artifactId>
-            <version>1.0.0</version>
-        </dependency>
-
         <!-- Jersey web services client dependencies -->
         <dependency>
             <groupId>org.glassfish.jersey.media</groupId>

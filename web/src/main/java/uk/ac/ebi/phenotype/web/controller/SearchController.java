@@ -355,6 +355,7 @@ public class SearchController {
 			HttpServletRequest request,
 			Model model) {
 
+		System.out.println("bq 2");
 		return Tools.fetchOutputFieldsCheckBoxesHtml(core);
 
 	}

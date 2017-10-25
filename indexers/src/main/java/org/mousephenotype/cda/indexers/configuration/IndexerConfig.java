@@ -49,9 +49,8 @@ public class IndexerConfig {
     private String writeSolrBaseUrl;
 
     @NotNull
-    @Value("${phenodigm.solrserver}")
-    private String readPhenodigmSolrBaseUrl;
-
+    @Value("${solr.host}")
+    private String solrBaseUrl;
 
     // Indexers for writing
     @Bean
@@ -115,7 +114,7 @@ public class IndexerConfig {
     @Bean
     SolrClient phenodigmCore() {
         // readonly
-        return new HttpSolrClient(readPhenodigmSolrBaseUrl + "/phenodigm");
+        return new HttpSolrClient(solrBaseUrl + "/phenodigm");
     }
 
     @Bean
