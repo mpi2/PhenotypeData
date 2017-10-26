@@ -45,7 +45,7 @@ public class PhenodigmService implements WebStatus {
 
 			q.setQuery("*:*")
 					.setRows(0)
-					.addFilterQuery(PhenodigmDTO.TYPE + ":disease_model_association")
+					.addFilterQuery(PhenodigmDTO.TYPE + ":disease_model_summary")
 
 					.set("group", true)
 					.set("group.ngroups", true)
