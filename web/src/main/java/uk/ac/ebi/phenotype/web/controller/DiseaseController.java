@@ -59,7 +59,7 @@ public class DiseaseController {
         this.rawScoreCutoff = rawScoreCutoff;
     }
 
-    @RequestMapping(value = "/disease")
+    @RequestMapping(value = "/disease1")
     public String allDiseases(Model model) {
         logger.info("Making page for all diseases");
 
@@ -72,7 +72,7 @@ public class DiseaseController {
         return "diseases";
     }
 
-    @RequestMapping(value = "/disease/{diseaseId}")
+    @RequestMapping(value = "/disease1/{diseaseId}")
     public String disease(@PathVariable("diseaseId") String diseaseId, Model model) {
 
         logger.info("Making disease page for " + diseaseId);

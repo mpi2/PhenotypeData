@@ -902,8 +902,4 @@ span.synToggle {
 .small {
     font-size: 85%;
 }
-/* for styling numeric fields in tables */
-td.numeric {
-    font-weight: 700;
-    color: #ef7b0b;
-}
+

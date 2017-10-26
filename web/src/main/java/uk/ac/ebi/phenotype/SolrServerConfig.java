@@ -74,12 +74,20 @@ public class SolrServerConfig {
 
 	// Read only solr servers
 
-	// IMPC disease core retired and now points to Phenodigm server
+	// Phenodigm server used up to release 5. Remove in future.
 	@Bean(name = "phenodigmCore")
 	public HttpSolrClient getPhenodigmCore() {
-		return new HttpSolrClient(solrBaseUrl + "/phenodigm");
+        //renamed old phenodigm core with an explicit 1 at the end
+		//return new HttpSolrClient(solrBaseUrl + "/phenodigm");
+        return new HttpSolrClient(solrBaseUrl + "/phenodigm1");
 	}
 
+    //Phenodigm2 server 
+	@Bean(name = "phenodigm2Core")
+	public HttpSolrClient getPhenodigm2Core() {
+		return new HttpSolrClient(solrBaseUrl + "/phenodigm");
+	}
+        
 	//Configuration
 	@Bean(name = "configurationCore")
 	public HttpSolrClient getConfigurationCore() {
@@ -108,6 +116,7 @@ public class SolrServerConfig {
 	}
 
 	//GenotypePhenotype
+    // TK: this core seems to be used only in the test packages - remove?
 	@Bean(name = "genotypePhenotypeCore")
 	HttpSolrClient getGenotypePhenotypeCore() {
 		return new HttpSolrClient(solrBaseUrl + "/genotype-phenotype");

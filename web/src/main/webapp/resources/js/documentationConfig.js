@@ -52,7 +52,7 @@ MDOC.gene = {
 		'phenoAssocImgSection'      		: '<p>Image data used by the phenotyping centers to score the presence or absence of an abnormal phenotyp</p><p>Click the help icon for more detail.</p>',
 		'phenoAssocImgSectionDocUrl'		: docuBase + '/doc-explore#phenoAssocImgSection0',
 		'diseaseSection'           		    : '<p>Human disease models found to be associated with mouse phenotypes.</p><p>Click the help icon for more detail.</p>',
-		'diseaseSectionDocUrl'     		    : docuBase + '/doc-explore#diseaseSection0',
+		'diseaseSectionDocUrl'     		    : docuBase + '/doc-explore#tab-3',
 		'orderSection'          			: '<p>Ordering information for alleles and ES cells of this gene produced from the IKMC project.  When available to order a link to the correspondiong repository will be included.</p><p>Click the help icon for more detail.</p>',
 		'orderSectionDocUrl'    			: docuBase + '/doc-explore#orderSection0',
 };
@@ -75,7 +75,7 @@ MDOC.diseases = {
 	'summarySection'         				: "<p> Disease summary.<p> <p>Click the help icon for more detail.</p>",
 	'summarySectionDocUrl'   				: docuBase + '/doc-explore#summarySection2',
 	'orthologySection'  					: "<p>For details about how disease model association by gene orthology is calculated, please click the help icon.<p>",
-	'orthologySectionDocUrl'				: docuBase + '/doc-explore#orthologySection2',
+	'orthologySectionDocUrl'				: docuBase + '/doc-explore#tab-3',
 	'similaritySection'       				: "<p>For details about how disease model association by phenotype similarity is calculated, please click the help icon.</p>",
 	'similaritySectionDocUrl' 				: docuBase + '/doc-explore#similaritySection2',
 

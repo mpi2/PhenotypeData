@@ -32,7 +32,7 @@ import java.util.List;
 public class SearchUrlServicePhenodigm2Disease extends SearchUrlService {
 
     @Autowired
-    @Qualifier("phenodigmCore")
+    @Qualifier("phenodigm2Core")
     protected SolrClient solr;
 
     @Override
