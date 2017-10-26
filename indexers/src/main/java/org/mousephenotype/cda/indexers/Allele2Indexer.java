@@ -123,6 +123,10 @@ public class Allele2Indexer  extends AbstractIndexer implements CommandLineRunne
             doc.setVectorGenbankLink(getValueFor(Allele2DTO.VECTOR_GENBANK_LINK, array, columns, runStatus));
             doc.setWithoutAlleleFeatures(getListValueFor(Allele2DTO.WITHOUT_ALLELE_FEATURES, array, columns, runStatus));
             doc.setAlleleDesignProject(getValueFor(Allele2DTO.ALLELE_DESIGN_PROJECT, array, columns, runStatus));
+            doc.setTissuesAvailable(getBooleanValueFor(Allele2DTO.TISSUES_AVAILABLE, array, columns, runStatus));
+            doc.setTissueTypes(getListValueFor(Allele2DTO.TISSUE_TYPES, array, columns, runStatus));
+            doc.setTissueEnquiryLinks(getListValueFor(Allele2DTO.TISSUE_ENQUIRY_LINKS, array, columns, runStatus));
+            doc.setTissueDistributionCentres(getListValueFor(Allele2DTO.TISSUE_DISTRIBUTION_CENTRES, array, columns, runStatus));
 
             line = in.readLine();
 
