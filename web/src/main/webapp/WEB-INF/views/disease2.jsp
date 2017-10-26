@@ -20,7 +20,6 @@
         <script type="text/javascript">var impc = {baseUrl: "${baseUrl}"}</script>        
         <script type="text/javascript" src="${baseUrl}/js/phenodigm2/phenodigm2.js?v=${version}"></script>        
         <link rel="stylesheet" type="text/css" href="${baseUrl}/css/custom.css"/>
-        <link rel="stylesheet" type="text/css" href="${baseUrl}/css/dev.css"/>
         <link rel="stylesheet" type="text/css" href="${baseUrl}/css/phenodigm2.css"/>
         <link rel="stylesheet" type="text/css" href="${baseUrl}/css/genes.css"/>
     </jsp:attribute>

@@ -49,7 +49,6 @@
             <script type="text/javascript" src="${baseUrl}/js/phenodigm2/phenodigm2.js?v=${version}"></script>       
             <link rel="stylesheet" type="text/css" href="${baseUrl}/css/phenodigm2.css"/>                                
             <%-- End of phenodigm2 requirements --%>
-            <link rel="stylesheet" type="text/css" href="${baseUrl}/css/dev.css"/>
 
             <script type="text/javascript">
                 var gene_id = '${acc}';

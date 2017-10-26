@@ -440,7 +440,6 @@ $(document).ready(function () {
     }
 
     function _convertHp2MpAndSearch(input, facet){
-    	alert("do hp " + input);
         input = input.toUpperCase();
         $.ajax({
             url: solrUrl + "/autosuggest/select?fq=docType:hp&wt=json&fl=hpmp_id&rows=1&q=hp_id:"+input,
