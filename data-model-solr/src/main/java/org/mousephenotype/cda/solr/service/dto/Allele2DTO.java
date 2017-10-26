@@ -63,6 +63,13 @@ public class Allele2DTO {
 	public static final String WITHOUT_ALLELE_FEATURES = "without_allele_features";
 	public static final String ALLELE_DESIGN_PROJECT="allele_design_project";
 	public static final String ALLELE_SYMBOL_SEARCH_VARIANTS = "allele_symbol_search_variants";
+
+	// tissue availability
+	public static final String TISSUES_AVAILABLE = "tissues_available";
+	public static final String TISSUE_TYPES = "tissue_types";
+	public static final String TISSUE_ENQUIRY_LINKS="tissue_enquiry_links";
+	public static final String TISSUE_DISTRIBUTION_CENTRES = "tissue_distribution_centres";
+
 	
 	@Field(ALLELE_DESIGN_PROJECT)
 	private String alleleDesignProject;
@@ -200,6 +207,18 @@ public class Allele2DTO {
 
 	@Field(VECTOR_GENBANK_LINK)
 	private String vectorGenbankLink;
+
+	@Field(TISSUES_AVAILABLE)
+	private Boolean tissuesAvailable;
+
+	@Field(TISSUE_TYPES)
+	private List<String> tissueTypes;
+
+	@Field(TISSUE_ENQUIRY_LINKS)
+	private List<String> tissueEnquiryLinks;
+
+	@Field(TISSUE_DISTRIBUTION_CENTRES)
+	private List<String> tissueDistributionCentres;
 
 	public String getAlleleDesignProject() {
 		return alleleDesignProject;
@@ -642,6 +661,39 @@ public class Allele2DTO {
 		this.vectorGenbankLink = vectorGenbankLink;
 	}
 
+
+	public Boolean getTissuesAvailable() {
+		return tissuesAvailable;
+	}
+
+	public void setTissuesAvailable(Boolean tissuesAvailable) {
+		this.tissuesAvailable = tissuesAvailable;
+	}
+
+	public List<String> getTissueTypes() {
+		return tissueTypes;
+	}
+
+	public void setTissueTypes(List<String> tissueTypes) {
+		this.tissueTypes = tissueTypes;
+	}
+
+	public List<String> getTissueEnquiryLinks() {
+		return tissueEnquiryLinks;
+	}
+
+	public void setTissueEnquiryLinks(List<String> tissueEnquiryLinks) {
+		this.tissueEnquiryLinks = tissueEnquiryLinks;
+	}
+
+	public List<String> getTissueDistributionCentres() {
+		return tissueDistributionCentres;
+	}
+
+	public void setTissueDistributionCentres(List<String> tissueDistributionCentres) {
+		this.tissueDistributionCentres = tissueDistributionCentres;
+	}
+
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
@@ -736,7 +788,14 @@ public class Allele2DTO {
 			return false;
 		if (vectorAlleleImage != null ? !vectorAlleleImage.equals(that.vectorAlleleImage) : that.vectorAlleleImage != null)
 			return false;
-		return vectorGenbankLink != null ? vectorGenbankLink.equals(that.vectorGenbankLink) : that.vectorGenbankLink == null;
+		if (vectorGenbankLink != null ? !vectorGenbankLink.equals(that.vectorGenbankLink) : that.vectorGenbankLink != null)
+			return false;
+		if (tissuesAvailable != null ? !tissuesAvailable.equals(that.tissuesAvailable) : that.tissuesAvailable != null)
+			return false;
+		if (tissueTypes != null ? !tissueTypes.equals(that.tissueTypes) : that.tissueTypes != null) return false;
+		if (tissueEnquiryLinks != null ? !tissueEnquiryLinks.equals(that.tissueEnquiryLinks) : that.tissueEnquiryLinks != null)
+			return false;
+		return tissueDistributionCentres != null ? tissueDistributionCentres.equals(that.tissueDistributionCentres) : that.tissueDistributionCentres == null;
 	}
 
 	@Override
@@ -796,6 +855,10 @@ public class Allele2DTO {
 		result = 31 * result + (mouseAvailable != null ? mouseAvailable.hashCode() : 0);
 		result = 31 * result + (vectorAlleleImage != null ? vectorAlleleImage.hashCode() : 0);
 		result = 31 * result + (vectorGenbankLink != null ? vectorGenbankLink.hashCode() : 0);
+		result = 31 * result + (tissuesAvailable != null ? tissuesAvailable.hashCode() : 0);
+		result = 31 * result + (tissueTypes != null ? tissueTypes.hashCode() : 0);
+		result = 31 * result + (tissueEnquiryLinks != null ? tissueEnquiryLinks.hashCode() : 0);
+		result = 31 * result + (tissueDistributionCentres != null ? tissueDistributionCentres.hashCode() : 0);
 		return result;
 	}
 
@@ -857,6 +920,10 @@ public class Allele2DTO {
 				", mouseAvailable=" + mouseAvailable +
 				", vectorAlleleImage='" + vectorAlleleImage + '\'' +
 				", vectorGenbankLink='" + vectorGenbankLink + '\'' +
+				", tissuesAvailable=" + tissuesAvailable +
+				", tissueTypes=" + tissueTypes +
+				", tissueEnquiryLinks=" + tissueEnquiryLinks +
+				", tissueDistributionCentres=" + tissueDistributionCentres +
 				'}';
 	}
 }
