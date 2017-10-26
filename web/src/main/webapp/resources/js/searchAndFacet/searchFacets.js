@@ -861,7 +861,7 @@
 			var oSubFacets = {'targeting_vector_available':'Targeting Vector Available',
 				'es_cell_available':'ES Cell Available',
 				'mouse_available':'Mouse Available',
-				'tissue_available':'Tissue Available'
+				'tissues_available':'Tissues Available'
 			};
 
 			for ( var fq in oSubFacets ){

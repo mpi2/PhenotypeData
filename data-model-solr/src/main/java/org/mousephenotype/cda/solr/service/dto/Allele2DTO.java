@@ -220,6 +220,7 @@ public class Allele2DTO {
 	@Field(TISSUE_DISTRIBUTION_CENTRES)
 	private List<String> tissueDistributionCentres;
 
+
 	public String getAlleleDesignProject() {
 		return alleleDesignProject;
 	}

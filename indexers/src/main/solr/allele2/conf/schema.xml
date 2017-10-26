@@ -191,9 +191,9 @@
 
         <!-- tissue availability -->
         <field name="tissues_available" type="boolean" indexed="true" stored="true" multiValued="false"/>
-        <field name="tissue_types" type="string" indexed="true" stored="false" multiValued="true"/>
-        <field name="tissue_enquiry_links" type="string" indexed="true" stored="false" multiValued="true"/>
-        <field name="tissue_distribution_centres" type="string" indexed="true" stored="false" multiValued="true"/>
+        <field name="tissue_types" type="string" indexed="true" stored="true" multiValued="true"/>
+        <field name="tissue_enquiry_links" type="string" indexed="true" stored="true" multiValued="true"/>
+        <field name="tissue_distribution_centres" type="string" indexed="true" stored="true" multiValued="true"/>
 
     </fields>
 
