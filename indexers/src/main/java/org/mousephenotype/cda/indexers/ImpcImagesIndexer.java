@@ -708,7 +708,7 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 				paramToMa.put(parameterStableId, maAcc);
 			}
 		}
-		logger.debug(" paramToMa size = " + paramToMa.size());
+		System.out.println(" paramToMa size = " + paramToMa.size());
 		return paramToMa;
 	}
 
