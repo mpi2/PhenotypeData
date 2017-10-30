@@ -21,7 +21,6 @@ import org.mousephenotype.cda.selenium.exception.TestException;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.mousephenotype.cda.utilities.DataReaderTsv;
 import org.mousephenotype.cda.utilities.DataReaderXls;
-import org.mousephenotype.cda.utilities.RunStatus;
 import org.mousephenotype.cda.web.DownloadType;
 import org.openqa.selenium.*;
 import org.openqa.selenium.NoSuchElementException;
@@ -62,7 +61,7 @@ public class SearchPage {
     // core names.
     public static final String GENE_CORE_NAME        = "gene";
     public static final String PHENOTYPE_CORE_NAME   = "mp";
-    public static final String DISEASE_CORE_NAME     = "disease";
+    public static final String PHENODIGM_CORE_NAME   = "phenodigm";
     public static final String ANATOMY_CORE_NAME     = "anatomy";
     public static final String IMPC_IMAGES_CORE_NAME = "impc_images";
     public static final String ALLELE2_CORE_NAME     = "allele2";
@@ -124,7 +123,7 @@ public class SearchPage {
         facetsByTabId = new HashMap<>();
         facetsByTabId.put(GENE_TAB_ID, new Facet(driver, GENE_CORE_NAME, GENE_TAB_NAME, GENE_TAB_ID));
         facetsByTabId.put(PHENOTYPE_TAB_ID, new Facet(driver, PHENOTYPE_CORE_NAME, PHENOTYPE_TAB_NAME, PHENOTYPE_TAB_ID));
-        facetsByTabId.put(DISEASE_TAB_ID, new Facet(driver, DISEASE_CORE_NAME, DISEASE_TAB_NAME, DISEASE_TAB_ID));
+        facetsByTabId.put(DISEASE_TAB_ID, new Facet(driver, PHENODIGM_CORE_NAME, DISEASE_TAB_NAME, DISEASE_TAB_ID));
         facetsByTabId.put(ANATOMY_TAB_ID, new Facet(driver, ANATOMY_CORE_NAME, ANATOMY_TAB_NAME, ANATOMY_TAB_ID));
         facetsByTabId.put(IMPC_IMAGES_TAB_ID, new Facet(driver, IMPC_IMAGES_CORE_NAME, IMPC_IMAGES_TAB_NAME, IMPC_IMAGES_TAB_ID));
         facetsByTabId.put(PRODUCT_TAB_ID, new Facet(driver, ALLELE2_CORE_NAME, PRODUCT_TAB_NAME, PRODUCT_TAB_ID));
