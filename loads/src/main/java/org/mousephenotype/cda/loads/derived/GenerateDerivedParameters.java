@@ -825,17 +825,19 @@ public class GenerateDerivedParameters implements CommandLineRunner {
             dto = isAbnormal(dto,  IMPC_EYE_021_001.get(id));
             dto = isAbnormal(dto,  IMPC_EYE_022_001.get(id));
 
-            if (dto != null){
-
-                Datasource datasource = datasourcesById.get(dto.getExternalDbId());
-                Experiment currentExperiment = createNewExperiment(dto, "derived_" +parameterToCreate + "_" + i++, getProcedureFromObservation(param, dto), true);
-
-                observationDAO.saveExperiment(currentExperiment);
-
-                Observation observation = observationDAO.createSimpleObservation(ObservationType.categorical, dto.getCategory(), param, animals.get(dto.getAnimalId()), datasource, currentExperiment, null);
-
-                observationDAO.saveObservation(observation);
+            String category = "normal";
+            if (dto != null) {
+                category = dto.getCategory();
             }
+
+            Datasource datasource = datasourcesById.get(dto.getExternalDbId());
+
+            Experiment currentExperiment = createNewExperiment(dto, "derived_" +parameterToCreate + "_" + i++, getProcedureFromObservation(param, dto), true);
+            observationDAO.saveExperiment(currentExperiment);
+
+            Observation observation = observationDAO.createSimpleObservation(ObservationType.categorical, category, param, animals.get(dto.getAnimalId()), datasource, currentExperiment, null);
+            observationDAO.saveObservation(observation);
+
         }
 
         logger.info("Added " + i + " observations for " + parameterToCreate);
