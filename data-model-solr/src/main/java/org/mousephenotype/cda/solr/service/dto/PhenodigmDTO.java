@@ -18,8 +18,8 @@ public class PhenodigmDTO {
 	public static final String DISEASE_ALTS = "disease_alts";
 	public static final String DISEASE_LOCUS = "disease_locus";
 	public static final String DISEASE_CLASSES = "disease_classes";
-	public static final String MARKER_ACCESSION = "marker_accession";
-	public static final String MARKER_SYMBOL = "marker_symbol";
+	public static final String MARKER_ACCESSION = "gene_id";
+	public static final String MARKER_SYMBOL = "gene_symbol";
 	public static final String HGNC_GENE_SYMBOL = "hgnc_gene_symbol";
 	public static final String HGNC_GENE_ID = "hgnc_gene_id";
 	public static final String HGNC_GENE_LOCUS = "hgnc_gene_locus";
