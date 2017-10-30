@@ -69,7 +69,8 @@ public class ImageServiceTest {
     @Test
     public void testGetImagePropertiesThatHaveMp() throws IOException, SolrServerException {
 
-        String acc = "MGI:1913955";
+        String testName = Thread.currentThread().getStackTrace()[1].getMethodName();
+        String acc      = "MGI:1913955";
         int    expectedSize;
         int    actualSize;
         String message;
@@ -78,8 +79,8 @@ public class ImageServiceTest {
 
         expectedSize = 18;              // 26-Oct-2017 (mrelac) As of this date there were 18 colonies found.
         actualSize = mpToColonies.size();
-        message = "Expected at least " + expectedSize + " mpToColonies but found " + actualSize;
-        logger.info(Thread.currentThread().getStackTrace()[1].getMethodName() + ": mpToColonies actualSize = " + actualSize);
+        message = testName + ": Expected at least " + expectedSize + " mpToColonies but found " + actualSize;
+        logger.info(testName + ": mpToColonies actualSize = " + actualSize);
 
         assertTrue(message, actualSize >= expectedSize);
     }
@@ -87,6 +88,7 @@ public class ImageServiceTest {
     @Test
     public void testGetImagesForGeneByParameter() throws IOException, SolrServerException {
 
+        String        testName                   = Thread.currentThread().getStackTrace()[1].getMethodName();
         String        acc                        = "MGI:1336993";
         String        parameterStableId          = "IMPC_ELZ_064_001";
         String        anatomyId                  = "EMAPA:16105";
@@ -101,8 +103,8 @@ public class ImageServiceTest {
 
         expectedSize = 13;          // 26-Oct-2017 (mrelac) As of this date there were 13 images found.
         actualSize   = response.getResults().size();
-        message      = "Expected at least " + expectedSize + " images but found " + actualSize;
-        logger.info(Thread.currentThread().getStackTrace()[1].getMethodName() + ": images actualSize = " + actualSize);
+        message      = testName + ": Expected at least " + expectedSize + " images but found " + actualSize;
+        logger.info(testName + ": images actualSize = " + actualSize);
 
         assertTrue(message, actualSize >= expectedSize);
     }
@@ -110,8 +112,9 @@ public class ImageServiceTest {
     @Test
     public void testGetPhenotypeAssociatedImages() throws IOException, SolrServerException {
 
-        String      acc          = "MGI:1891341";
-        int         rows         = 1;
+        String testName = Thread.currentThread().getStackTrace()[1].getMethodName();
+        String acc      = "MGI:1891341";
+        int    rows     = 1;
 
         int    expectedSize;
         int    actualSize;
@@ -121,14 +124,16 @@ public class ImageServiceTest {
 
         expectedSize = 8;                        // 26-Oct-2017 (mrelac) As of this date there were 8 phenotype associated images found.
         actualSize   = (response != null ? response.size() : 0);
-        message      = "Expected at least " + expectedSize + " associated images but found " + actualSize;
-        logger.info(Thread.currentThread().getStackTrace()[1].getMethodName() + ": associated images actualSize = " + actualSize);
+        message      = testName + ": Expected at least " + expectedSize + " associated images but found " + actualSize;
+        logger.info(testName + ": associated images actualSize = " + actualSize);
 
         assertTrue(message, actualSize >= expectedSize);
     }
 
     @Test
     public void testGetComparisonViewerMethodsWithNulls() throws IOException, SolrServerException {
+
+        String         testName                  = Thread.currentThread().getStackTrace()[1].getMethodName();
         String         acc                       = null;
         int            numberOfControlsPerSex    = 10;
         String         anatomyId                 = null;
@@ -152,8 +157,8 @@ public class ImageServiceTest {
 
         expectedSize = 0;                        // 26-Oct-2017 (mrelac) As of this date there were no control images found.
         actualSize   = controlImages.size();
-        message      = "Expected at least " + expectedSize + " control images but found " + actualSize;
-        logger.info(Thread.currentThread().getStackTrace()[1].getMethodName() + ": control images actualSize = " + actualSize);
+        message      = testName + ": Expected at least " + expectedSize + " control images but found " + actualSize;
+        logger.info(testName + ": control images actualSize = " + actualSize);
 
         if (actualSize < expectedSize) {
             logger.error(message);
@@ -164,21 +169,21 @@ public class ImageServiceTest {
 
         expectedSize = 207009;                  // 26-Oct-2017 (mrelac) As of this date there were 207009 mutant images found.
         actualSize   = mutantImages.size();
-        message      = "Expected at least " + expectedSize + " mutant images but found " + actualSize;
-        logger.info(Thread.currentThread().getStackTrace()[1].getMethodName() + ": mutant images actualSize = " + actualSize);
+        message      = testName + ": Expected at least " + expectedSize + " mutant images but found " + actualSize;
+        logger.info(testName + ": mutant images actualSize = " + actualSize);
 
         if (actualSize < expectedSize) {
             logger.error(message);
             failed = true;
         }
 
-        message = "Test failed.";
-
-        assertTrue(message, ! failed);
+        assertTrue( ! failed);
     }
 
     @Test
     public void testGetComparisonViewerMethodsWithExpression() throws IOException, SolrServerException {
+
+        String         testName                  = Thread.currentThread().getStackTrace()[1].getMethodName();
         String         acc                       = "MGI:109331";
         int            numberOfControlsPerSex    = 10;
         String         anatomyId                 = "MA:0000327";
@@ -203,8 +208,8 @@ public class ImageServiceTest {
 
         expectedSize = 9;                        // 26-Oct-2017 (mrelac) As of this date there were 9 control images found.
         actualSize   = controlImages.size();
-        message      = "Expected at least " + expectedSize + " control images but found " + actualSize;
-        logger.info(Thread.currentThread().getStackTrace()[1].getMethodName() + ": control images actualSize = " + actualSize);
+        message      = testName + ": Expected at least " + expectedSize + " control images but found " + actualSize;
+        logger.info(testName + ": control images actualSize = " + actualSize);
 
         if (actualSize < expectedSize) {
             logger.error(message);
@@ -215,21 +220,20 @@ public class ImageServiceTest {
 
         expectedSize = 34;                      // 26-Oct-2017 (mrelac) As of this date there were 34 mutant images found.
         actualSize   = mutantImages.size();
-        message      = "Expected at least " + expectedSize + " mutant images but found " + actualSize;
-        logger.info(Thread.currentThread().getStackTrace()[1].getMethodName() + ": mutant images actualSize = " + actualSize);
+        message      = testName + ": Expected at least " + expectedSize + " mutant images but found " + actualSize;
+        logger.info(testName + ": mutant images actualSize = " + actualSize);
 
         if (actualSize < expectedSize) {
             logger.error(message);
             failed = true;
         }
 
-        message = "Test failed.";
-
-        assertTrue(message, ! failed);
+        assertTrue( ! failed);
     }
 
     @Test
     public void testGetComparisonViewerMethodsWithAmbiguous() throws IOException, SolrServerException {
+        String         testName               = Thread.currentThread().getStackTrace()[1].getMethodName();
         String         acc                    = "MGI:109331";
         int            numberOfControlsPerSex = 10;
         String         anatomyId              = "MA:0000327";
@@ -239,7 +243,7 @@ public class ImageServiceTest {
         List<ImageDTO> controlImages;
         List<ImageDTO> mutantImages;
         String         organ                  = null;
-        boolean failed = false;
+        boolean        failed                 = false;
 
         String parameterAssociationValue = Expression.AMBIGUOUS.getDisplayName();
         String zygosity                  = null;
@@ -254,8 +258,9 @@ public class ImageServiceTest {
 
         expectedSize = 10;                        // 26-Oct-2017 (mrelac) As of this date there were 10 control images found.
         actualSize   = controlImages.size();
-        message      = "Expected at least " + expectedSize + " control images but found " + actualSize;
-        logger.info(Thread.currentThread().getStackTrace()[1].getMethodName() + ": control images actualSize = " + actualSize);
+        message      = testName + " : Expected at least " + expectedSize + " control images but found " + actualSize;
+
+        logger.info(testName + ": control images actualSize = " + actualSize);
 
         if (actualSize < expectedSize) {
             logger.error(message);
@@ -266,22 +271,21 @@ public class ImageServiceTest {
 
         expectedSize = 2;                       // 26-Oct-2017 (mrelac) As of this date there were 2 mutant images found.
         actualSize   = mutantImages.size();
-        message      = "Expected at least " + expectedSize + " mutant images but found " + actualSize;
-        logger.info(Thread.currentThread().getStackTrace()[1].getMethodName() + ": mutant images actualSize = " + actualSize);
+        message      = testName + ": Expected at least " + expectedSize + " mutant images but found " + actualSize;
+        logger.info(testName + ": mutant images actualSize = " + actualSize);
 
         if (actualSize < expectedSize) {
             logger.error(message);
             failed = true;
         }
 
-        message = "Test failed.";
-
-        assertTrue(message, ! failed);
+        assertTrue( ! failed);
     }
 
     @Test
     public void testGetComparisonViewerMethodsWithNoExpression() throws IOException, SolrServerException {
 
+        String         testName                  = Thread.currentThread().getStackTrace()[1].getMethodName();
         String         acc                       = "MGI:109331";
         int            numberOfControlsPerSex    = 10;
         String         anatomyId                 = "MA:0000327";
@@ -296,7 +300,7 @@ public class ImageServiceTest {
         String         zygosity                  = null;
         String         colonyId                  = null;
         String         mpId                      = null;
-        boolean failed = false;
+        boolean        failed                    = false;
 
         int    expectedSize;
         int    actualSize;
@@ -306,8 +310,8 @@ public class ImageServiceTest {
 
         expectedSize = 10;                        // 26-Oct-2017 (mrelac) As of this date there were 10 control images found.
         actualSize   = controlImages.size();
-        message      = "Expected at least " + expectedSize + " control images but found " + actualSize;
-        logger.info(Thread.currentThread().getStackTrace()[1].getMethodName() + ": control images actualSize = " + actualSize);
+        message      = testName + ": Expected at least " + expectedSize + " control images but found " + actualSize;
+        logger.info(testName + ": control images actualSize = " + actualSize);
 
         if (actualSize < expectedSize) {
             logger.error(message);
@@ -318,16 +322,14 @@ public class ImageServiceTest {
 
         expectedSize = 0;                       // 26-Oct-2017 (mrelac) As of this date there were no mutant images found.
         actualSize   = mutantImages.size();
-        message      = "Expected at least " + expectedSize + " mutant images but found " + actualSize;
-        logger.info(Thread.currentThread().getStackTrace()[1].getMethodName() + ": mutant images actualSize = " + actualSize);
+        message      = testName + ": Expected at least " + expectedSize + " mutant images but found " + actualSize;
+        logger.info(testName + ": mutant images actualSize = " + actualSize);
 
         if (actualSize < expectedSize) {
             logger.error(message);
             failed = true;
         }
 
-        message = "Test failed.";
-
-        assertTrue(message, ! failed);
+        assertTrue( ! failed);
     }
 }
