@@ -177,7 +177,7 @@ public class ImageServiceTest {
             failed = true;
         }
 
-        assertTrue( ! failed);
+        assertTrue(message, ! failed);
     }
 
     @Test
@@ -228,7 +228,7 @@ public class ImageServiceTest {
             failed = true;
         }
 
-        assertTrue( ! failed);
+        assertTrue(message, ! failed);
     }
 
     @Test
@@ -279,7 +279,7 @@ public class ImageServiceTest {
             failed = true;
         }
 
-        assertTrue( ! failed);
+        assertTrue(message, ! failed);
     }
 
     @Test
@@ -330,6 +330,6 @@ public class ImageServiceTest {
             failed = true;
         }
 
-        assertTrue( ! failed);
+        assertTrue(message, ! failed);
     }
 }
