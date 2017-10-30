@@ -158,7 +158,7 @@ public class SearchPageTest {
 
         params.put("gene","fq=*:*&qf=geneQf");
         params.put("mp", "fq=*:*&qf=mixSynQf");
-        params.put("disease", "fq=*:*&qf=diseaseQf");
+        params.put("phenodigm", "q=*:*&fq=type:disease_search");
         params.put("anatomy", "fq=*:*&qf=anatomyQf");
         params.put("impc_images", "fq=*:*&qf=imgQf");
         params.put("allele2", "fq=type:Allele&qf=auto_suggest");
@@ -166,7 +166,7 @@ public class SearchPageTest {
         String commonParam = "defType=edismax&wt=json&rows=0&q=*:*";
         final String geneParams        = "/gene/select?"        + commonParam + "&" + params.get("gene");
         final String mpParams          = "/mp/select?"          + commonParam + "&" + params.get("mp");
-        final String diseaseParams     = "/disease/select?"     + commonParam + "&" + params.get("disease");
+        final String diseaseParams     = "/phenodigm/select?"   + commonParam + "&" + params.get("phenodigm");
         final String anatomyParams     = "/anatomy/select?"     + commonParam + "&" + params.get("anatomy");
         final String impc_imagesParams = "/impc_images/select?" + commonParam + "&" + params.get("impc_images");
         final String productParams     = "/allele2/select?"     + commonParam + "&" + params.get("allele2");
@@ -180,7 +180,7 @@ public class SearchPageTest {
 
         cores.add("gene");
         cores.add("mp");
-        cores.add("disease");
+        cores.add("phenodigm");
         cores.add("anatomy");
         cores.add("impc_images");
         cores.add("allele2");
@@ -625,7 +625,7 @@ public class SearchPageTest {
 //@Ignore
 //FIXED
     public void testAutosuggestForSpecificKnownGenes() throws TestException {
-        String testName = "testAutosuggestForSpecificKnownGenes";
+        String testName = Thread.currentThread().getStackTrace()[1].getMethodName();
         Date start = new Date();
         RunStatus masterStatus = new RunStatus();
 
@@ -673,7 +673,7 @@ public class SearchPageTest {
 //@Ignore
 //FIXED
     public void testAutosuggestMinCharacters() throws TestException {
-        String testName = "testAutosuggestMinCharacters";
+        String testName = Thread.currentThread().getStackTrace()[1].getMethodName();
         Date start = new Date();
         RunStatus status = new RunStatus();
 
@@ -703,7 +703,7 @@ public class SearchPageTest {
 @Ignore
 // DOWNLOAD
     public void testBoneDownload() throws TestException {
-        String testName = "testBoneDownload";
+        String testName = Thread.currentThread().getStackTrace()[1].getMethodName();
         String searchString = "bone";
 
         downloadTestEngine(testName, searchString, imageMap);
@@ -713,7 +713,7 @@ public class SearchPageTest {
 @Ignore
 // DOWNLOAD
     public void testBrachydactyly() throws TestException {
-        String testName = "testBrachydactyly";
+        String testName = Thread.currentThread().getStackTrace()[1].getMethodName();
         String searchString = "brachydactyly";
 
         downloadTestEngine(testName, searchString, imageMap);
@@ -723,7 +723,7 @@ public class SearchPageTest {
 @Ignore
 // DOWNLOAD
     public void testDefaultDownload() throws TestException {
-        String testName = "testDefaultDownload";
+        String testName = Thread.currentThread().getStackTrace()[1].getMethodName();
         String searchString = null;
 
         downloadTestEngine(testName, searchString, imageMap);
@@ -733,7 +733,7 @@ public class SearchPageTest {
 //@Ignore
 //FIXED
     public void testFacetCountsNoSearchTermGroup() throws TestException {
-        String testName = "testFacetCountsNoSearchTermGroup";
+        String testName = Thread.currentThread().getStackTrace()[1].getMethodName();
         Date start = new Date();
         RunStatus status = new RunStatus();
         String message;
@@ -826,7 +826,7 @@ public class SearchPageTest {
 // FIXME AFTER WE DEFINE AND DOCUMENT WILDCARD BEHAVIOUR. CURRENTLY MANY TESTS FAIL THAT USE ASTERISKS BECAUSE OF MISMATCH BETWEEN PAGE AND SOLR COUNTS. I DON'T KNOW
 // FIXME WHAT THE EXPECTED BEHAVOIUR SHOULD BE UNTIL WE DISCUSS AND DOCUMENT IT.
     public void testFacetCountsSpecialCharacters() throws TestException {
-        String testName = "testFacetCountsSpecialCharacters";
+        String testName = Thread.currentThread().getStackTrace()[1].getMethodName();
         Date start = new Date();
         RunStatus masterStatus = new RunStatus();
         String message;
@@ -968,7 +968,7 @@ int i = 0;
 //@Ignore
 //FIXED
     public void testHox() throws TestException {
-        String testName = "testHox";
+        String testName = Thread.currentThread().getStackTrace()[1].getMethodName();
         Date start = new Date();
         RunStatus status = new RunStatus();
 
@@ -1007,7 +1007,7 @@ int i = 0;
 //@Ignore
 //FIXED
     public void testHoxStar() throws TestException {
-        String testName = "testHoxStar";
+        String testName = Thread.currentThread().getStackTrace()[1].getMethodName();
         Date start = new Date();
         RunStatus status = new RunStatus();
 
@@ -1025,7 +1025,9 @@ int i = 0;
         } else {
             for (int i = 0; i < rows.size(); i++) {
                 String row = rows.get(i);
-                if (!row.startsWith(expectedStartsWith)) {
+                if (row.isEmpty())
+                    continue;
+                if ( ! row.startsWith(expectedStartsWith)) {
                     status.addError("Row[" + i + "]: Expected autosuggest row to begin with 'Hox'. Row value = " + row);
                     break;
                 }
@@ -1044,7 +1046,7 @@ int i = 0;
     @Test
 @Ignore
     public void testImpcImageFacetImageView() throws TestException {
-//        String testName = "testImpcImageFacetImageView";
+//        String testName = Thread.currentThread().getStackTrace()[1].getMethodName();
 //        String searchString = "";
 //        Date start = new Date();
 //        RunStatus status = new RunStatus();
@@ -1087,13 +1089,14 @@ int i = 0;
     @Test
 @Ignore
     public void testLeadingWildcard() throws TestException {
-        specialStrQueryTest("testLeadingWildcard", "*rik");
+        String testName = Thread.currentThread().getStackTrace()[1].getMethodName();
+        specialStrQueryTest(testName, "*rik");
     }
 
     @Test
 @Ignore
     public void testLegDownload() throws TestException {
-        String testName = "testLegDownload";
+        String testName = Thread.currentThread().getStackTrace()[1].getMethodName();
         String searchString = "leg";
 
         downloadTestEngine(testName, searchString, imageMap);
@@ -1109,7 +1112,7 @@ int i = 0;
 //    @Test
 //@Ignore
 //    public void testMaTermNamesMatchFacetNames() throws TestException {
-//        String testName = "testMaTermNamesMatchFacetNames";
+//    String testName = Thread.currentThread().getStackTrace()[1].getMethodName();
 //        Date start = new Date();
 //        int expectedCount;
 //        RunStatus status = new RunStatus();
@@ -1182,7 +1185,7 @@ int i = 0;
     @Test
 @Ignore
     public void testMPII_806() throws TestException {
-        String testName = "testMPII_806";
+        String testName = Thread.currentThread().getStackTrace()[1].getMethodName();
         Date start = new Date();
         RunStatus status = new RunStatus();
 
@@ -1204,8 +1207,8 @@ int i = 0;
             String resultCountString = element.getText().toLowerCase();
             if (( ! resultCountString.contains("gene")) &&
                 ( ! resultCountString.contains("phenotype")) &&
-                ( ! resultCountString.contains("disease"))) {
-                status.addError("ERROR: Expected result text to contain 'gene' or 'phenotype' or 'disease'. Actual text was '" + resultCountString + "'");
+                ( ! resultCountString.contains("phenodigm"))) {
+                status.addError("ERROR: Expected result text to contain 'gene' or 'phenotype' or 'phenodigm'. Actual text was '" + resultCountString + "'");
             }
         }
 
@@ -1220,7 +1223,7 @@ int i = 0;
     @Test
 @Ignore
     public void testOrderButtons() throws TestException {
-        String testName = "testOrderButtons";
+        String testName = Thread.currentThread().getStackTrace()[1].getMethodName();
         Date start = new Date();
         RunStatus status = new RunStatus();
 
@@ -1279,7 +1282,7 @@ int i = 0;
 //    @Test
 //@Ignore
 //    public void testPagination() throws TestException {
-//        String testName = "testPagination";
+//String testName = Thread.currentThread().getStackTrace()[1].getMethodName();
 //        Date start = new Date();
 //        RunStatus masterStatus = new RunStatus();
 //
@@ -1345,20 +1348,22 @@ int i = 0;
     @Test
 //@Ignore
     public void testPhrase() throws TestException {
-        specialStrQueryTest("testPhrase", "grip strength");
+        String testName = Thread.currentThread().getStackTrace()[1].getMethodName();
+        specialStrQueryTest(testName, "grip strength");
     }
 
     @Test
 //@Ignore
     public void testPhraseInQuotes() throws TestException {
-        specialStrQueryTest("testPhraseInQuotes", "\"zinc finger protein\"");
+        String testName = Thread.currentThread().getStackTrace()[1].getMethodName();
+        specialStrQueryTest(testName, "zinc finger protein");
     }
 
     // Verify that random genes appear in the autosuggest list.
     @Test
 @Ignore
     public void testQueryingRandomGeneSymbols() throws TestException {
-        String testName = "testQueryingRandomGeneSymbols";
+        String testName = Thread.currentThread().getStackTrace()[1].getMethodName();
         Date start = new Date();
         RunStatus masterStatus = new RunStatus();
         int nbRows = 20;
@@ -1429,7 +1434,7 @@ int i = 0;
     @Test
 @Ignore
     public void testRandomMgiIds() throws TestException {
-        String testName = "testRandomMgiIds";
+        String testName = Thread.currentThread().getStackTrace()[1].getMethodName();
         Date start = new Date();
         RunStatus masterStatus = new RunStatus();
         int nbRows = 20;
@@ -1486,7 +1491,7 @@ int i = 0;
     @Test
 @Ignore
     public void testTickingFacetFilters() throws TestException {
-//        String testName = "testTickingFacetFilters";
+//        String testName = Thread.currentThread().getStackTrace()[1].getMethodName();
 //        Date start = new Date();
 //        RunStatus masterStatus = new RunStatus();
 //        String message = "";
@@ -1574,13 +1579,14 @@ int i = 0;
     @Test
 @Ignore
     public void testTrailingWildcard() throws TestException {
-        specialStrQueryTest("testTrailingWildcard", "hox*");
+        String testName = Thread.currentThread().getStackTrace()[1].getMethodName();
+        specialStrQueryTest(testName, "hox*");
     }
 
     @Test
 @Ignore
     public void testTwist1() throws TestException {
-        String testName = "testTwist1";
+        String testName = Thread.currentThread().getStackTrace()[1].getMethodName();
         String searchString = "twist1";
 
         downloadTestEngine(testName, searchString, imageMap);
@@ -1591,7 +1597,7 @@ int i = 0;
 //@Ignore
 //FIXED
     public void testWnt1IsAtTop() throws TestException {
-        String testName = "testWnt1IsAtTop";
+        String testName = Thread.currentThread().getStackTrace()[1].getMethodName();
         Date start = new Date();
         RunStatus status = new RunStatus();
 

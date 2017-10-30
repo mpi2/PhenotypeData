@@ -82,6 +82,7 @@ public class MouseMineAlleleReferenceParser implements CommandLineRunner {
 	@Override
 	public void run(String... args) throws Exception {
 
+
 		logger.info("LOADING ALLELE PAPERS to DATABASE:");
 
 		connection = admintoolsDataSource.getConnection();

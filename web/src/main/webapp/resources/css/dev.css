@@ -1,0 +1,21 @@
+/*
+ * Use this stylesheet for pages under development
+ */
+
+body {    
+    background: repeating-linear-gradient(
+        45deg,
+        #ffffff,
+        #ffffff 10px,
+        #fafafa 10px,
+        #fafafa 15px
+    );
+    border-left: solid 10px #333333;
+    border-right: solid 10px #333333;
+}
+#header {
+    background-color: #c0c0c0;
+}
+div.inner {
+    background-color: #ffffff;
+}

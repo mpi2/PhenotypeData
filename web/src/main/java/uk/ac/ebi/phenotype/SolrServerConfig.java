@@ -39,10 +39,6 @@ public class SolrServerConfig {
 	@Value("${solr.host}")
 	private String solrBaseUrl;
 
-	@NotNull
-	@Value("${phenodigm.solrserver}")
-	private String phenodigmSolrBaseUrl;
-
 	@Autowired
 	ImpressService impressService;
 
@@ -78,12 +74,20 @@ public class SolrServerConfig {
 
 	// Read only solr servers
 
-	// IMPC disease core retired and now points to Phenodigm server
+	// Phenodigm server used up to release 5. Remove in future.
 	@Bean(name = "phenodigmCore")
 	public HttpSolrClient getPhenodigmCore() {
-		return new HttpSolrClient(phenodigmSolrBaseUrl + "/phenodigm");
+        //renamed old phenodigm core with an explicit 1 at the end
+		//return new HttpSolrClient(solrBaseUrl + "/phenodigm");
+        return new HttpSolrClient(solrBaseUrl + "/phenodigm");
 	}
 
+    //Phenodigm2 server 
+	@Bean(name = "phenodigm2Core")
+	public HttpSolrClient getPhenodigm2Core() {
+		return new HttpSolrClient(solrBaseUrl + "/phenodigm");
+	}
+        
 	//Configuration
 	@Bean(name = "configurationCore")
 	public HttpSolrClient getConfigurationCore() {
@@ -105,12 +109,6 @@ public class SolrServerConfig {
 		return new HttpSolrClient(solrBaseUrl + "/autosuggest");
 	}
 
-//	//Disease
-//	@Bean(name = "diseaseCore")
-//	HttpSolrClient getDiseaseCore() {
-//		return new HttpSolrClient(solrBaseUrl + "/disease");
-//	}
-
 	//Gene
 	@Bean(name = "geneCore")
 	HttpSolrClient getGeneCore() {
@@ -118,6 +116,7 @@ public class SolrServerConfig {
 	}
 
 	//GenotypePhenotype
+    // TK: this core seems to be used only in the test packages - remove?
 	@Bean(name = "genotypePhenotypeCore")
 	HttpSolrClient getGenotypePhenotypeCore() {
 		return new HttpSolrClient(solrBaseUrl + "/genotype-phenotype");

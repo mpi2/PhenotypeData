@@ -4,7 +4,7 @@
 
 
 /* Generic elements, but found on phenodigm2 related pages */
-span.semicolon {
+span.semicolon, .phenotype-toggle {
     margin-right: 0.8em;
 }
 
@@ -24,10 +24,28 @@ tbody.phenotable  {
 tbody.phenotable tr.impc {
     background-color: #f4f4f6;
 }
-
+.phenotable div.inner_table, .phenotable div.inner_pg {
+    cursor: default;
+}
+/** This nobackground can override jquery tables setting arrows in headers **/
+th.nobackground {
+    background: none !important;
+}
+td.toggleButton {
+    text-align: right;
+}
 
 
 /* Settings for scatter plot with phenodigm scores */ 
+#phenoscatter-help {
+    margin-top: 1em;
+    padding: 0em 2em;
+    font-size: 90%;
+    color: #666;    
+}
+#phenoscatter-help b {
+    color: #444;
+}
 .phenoscatter .leftright {
     float: left;
     overflow: hidden;
@@ -36,13 +54,20 @@ tbody.phenotable tr.impc {
     border: solid 1px #999999; 
     font-size: 11px;
 }
+.phenoscatter .detail .infotitle {
+    font-weight: 700;
+    margin-bottom: -0.4em;
+}
+.phenoscatter .detail .info {
+    margin-bottom: 1em;
+}
 .phenoscatter rect.curated {
     stroke-opacity: 0.8;
     stroke: #555555;
     stroke-width: 0.4;
 }
 .phenoscatter .legendmarker {
-    fill-opacity: 0.8;
+    fill-opacity: 0.85;
 }
 .phenoscatter text.legendtext, text.legendsource {
     dominant-baseline: middle; 
@@ -50,9 +75,32 @@ tbody.phenotable tr.impc {
     font-size: 11px;
 }
 .phenoscatter text.legendtext {
-    opacity: 0.8;
+    opacity: 0.85;
 }
 .phenoscatter text.legendsource {
     opacity: 0.5;
 }
+.phenoscatter .shadow {     
+    filter: url('#drop-shadow');
+}
 
+/* for styling numeric fields in tables */
+td.numeric, .phenotabs td.numeric {
+    font-weight: 700;
+    color: #ef7b0b;    
+}
+
+/* for styling inner table (model-phenotype details) */
+.th-wide {
+    width: 60%;
+}
+.phenotype-hidden {
+    display: none;
+}
+
+.small-logo {
+    height: 12px;
+    padding-left: 2px;
+    padding-top: 2px;
+    margin-bottom: -2px;
+}
