@@ -35,6 +35,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.sql.DataSource;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.net.URLDecoder;
 
 @Controller
 public class SearchController {
@@ -189,7 +190,7 @@ public class SearchController {
 		// fetch counts of hits in broad categories (used in webpage in tab headings)
 		JSONObject facetCounts = getMainFacetCounts(settings);
 		model.addAttribute("facetCount", facetCounts);
-		model.addAttribute("searchQuery", settings.getQuery().replaceAll("\\\\", ""));
+		model.addAttribute("searchQuery", URLDecoder.decode(settings.getQuery().replaceAll("\\\\", ""), "UTF-8"));
 		model.addAttribute("dataType", settings.getDataType());
 		//logger.info("facetCounts: " + facetCounts.toString(1));
 

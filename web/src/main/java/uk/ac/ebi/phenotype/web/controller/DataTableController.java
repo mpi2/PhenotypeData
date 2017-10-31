@@ -18,6 +18,7 @@ package uk.ac.ebi.phenotype.web.controller;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
+import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -1080,6 +1081,7 @@ public class DataTableController {
 		j.put("iDisplayStart", request.getAttribute("displayStart"));
 		j.put("iDisplayLength", request.getAttribute("displayLength"));
 
+
 		for (int i = 0; i < docs.size(); i ++) {
 			List<String> rowData = new ArrayList<String>();
 
@@ -1403,7 +1405,7 @@ public class DataTableController {
 		return j.toString();
 	}
 
-	public String parseJsonforMpDataTable(JSONObject json, HttpServletRequest request, String qryStr, String solrCoreNamet) {
+	public String parseJsonforMpDataTable(JSONObject json, HttpServletRequest request, String qryStr, String solrCoreNamet) throws UnsupportedEncodingException {
 
 		RegisterInterestDrupalSolr registerInterest = new RegisterInterestDrupalSolr(config.get("drupalBaseUrl"), request);
 		String baseUrl = request.getAttribute("baseUrl").toString();
@@ -1418,6 +1420,13 @@ public class DataTableController {
 		j.put("iTotalDisplayRecords", totalDocs);
 		j.put("iDisplayStart", request.getAttribute("displayStart"));
 		j.put("iDisplayLength", request.getAttribute("displayLength"));
+
+		qryStr = URLDecoder.decode(qryStr, "UTF-8");
+		//System.out.println("kw decoded: "+ qryStr);
+
+		// removes quotes or wildcard and highlight matched string
+		qryStr = qryStr.toLowerCase().replaceAll("\"", "").replaceAll("\\*", "");
+		List<String> keys = Arrays.asList(StringUtils.split(qryStr, " "));
 
 		for (int i = 0; i < docs.size(); i ++) {
 			List<String> rowData = new ArrayList<String>();
@@ -1447,15 +1456,23 @@ public class DataTableController {
 					if ( d.toString().startsWith("MP:") ){
 						continue;
 					}
-					String targetStr = qryStr.toLowerCase().replaceAll("\"", "");
-					if (d.toString().toLowerCase().contains(targetStr)) {
-						if (synMatch == null) {
-							synMatch = Tools.highlightMatchedStrIfFound(targetStr, d.toString(), "span", "subMatch");
+
+					boolean seen = false;
+					for (String key : keys){
+						if ( d.toString().toLowerCase().contains(key) ) {
+							seen = true;
+							break;
 						}
 					}
-					else {
+
+					if (seen ) {
+						if (synMatch == null) {
+							synMatch = Tools.highlightMatchedStrIfFound(qryStr, d.toString(), "span", "subMatch");
+						}
+
+					} else {
 						counter++;
-						if ( counter == 1 ) {
+						if (counter == 1) {
 							syn = d.toString();
 						}
 					}
@@ -1564,6 +1581,13 @@ public class DataTableController {
 		j.put("iDisplayStart", request.getAttribute("displayStart"));
 		j.put("iDisplayLength", request.getAttribute("displayLength"));
 
+		qryStr = URLDecoder.decode(qryStr, "UTF-8");
+		//System.out.println("kw decoded: "+ qryStr);
+
+		// removes quotes or wildcard and highlight matched string
+		qryStr = qryStr.toLowerCase().replaceAll("\"", "").replaceAll("\\*", "");
+		List<String> keys = Arrays.asList(StringUtils.split(qryStr, " "));
+
 		for (int i = 0; i < docs.size(); i ++) {
 			List<String> rowData = new ArrayList<String>();
 
@@ -1587,10 +1611,17 @@ public class DataTableController {
 
 				for (Object d : data) {
 
-					String targetStr = qryStr.toLowerCase().replaceAll("\"", "");
-					if (d.toString().toLowerCase().contains(targetStr)) {
+					boolean seen = false;
+					for (String key : keys){
+						if ( d.toString().toLowerCase().contains(key) ) {
+							seen = true;
+							break;
+						}
+					}
+
+					if (seen ) {
 						if (synMatch == null) {
-							synMatch = Tools.highlightMatchedStrIfFound(targetStr, d.toString(), "span", "subMatch");
+							synMatch = Tools.highlightMatchedStrIfFound(qryStr, d.toString(), "span", "subMatch");
 						}
 					}
 					else {
@@ -2300,7 +2331,7 @@ public class DataTableController {
 		return StringUtils.join(imgPath, "");
 
 	}
-	private String concateAlleleNameInfo(JSONObject doc, HttpServletRequest request, String qryStr) {
+	private String concateAlleleNameInfo(JSONObject doc, HttpServletRequest request, String qryStr) throws UnsupportedEncodingException {
 
 		List<String> alleleNameInfo = new ArrayList<String>();
 
@@ -2312,6 +2343,14 @@ public class DataTableController {
 		String geneUrl = request.getAttribute("baseUrl") + "/genes/" + markerAcc;
 
 		String[] fields = {"marker_name", "marker_synonym"};
+
+		qryStr = URLDecoder.decode(qryStr, "UTF-8");
+		//System.out.println("kw decoded: "+ qryStr);
+
+		// removes quotes or wildcard and highlight matched string
+		qryStr = qryStr.toLowerCase().replaceAll("\"", "").replaceAll("\\*", "");
+		List<String> keys = Arrays.asList(StringUtils.split(qryStr, " "));
+
 		for (int i = 0; i < fields.length; i ++) {
 			try {
 				//"highlighting":{"MGI:97489":{"marker_symbol":["<em>Pax</em>5"],"synonym":["<em>Pax</em>-5"]},
@@ -2331,11 +2370,18 @@ public class DataTableController {
 
 					for (Object d : data) {
 						counter++;
-						// removes quotes or wildcard and highlight matched string
-						String targetStr = qryStr.toLowerCase().replaceAll("\"", "").replaceAll("\\*", "");
-						if ( d.toString().toLowerCase().contains(targetStr) ) {
+
+						boolean seen = false;
+						for (String key : keys){
+							if ( d.toString().toLowerCase().contains(key) ) {
+								seen = true;
+								break;
+							}
+						}
+
+						if (seen ) {
 							if ( synMatch == null ) {
-								synMatch = Tools.highlightMatchedStrIfFound(targetStr, d.toString(), "span", "subMatch");
+								synMatch = Tools.highlightMatchedStrIfFound(qryStr, d.toString(), "span", "subMatch");
 							}
 						}
 						else {
@@ -2403,6 +2449,13 @@ public class DataTableController {
 			try {
 				//"highlighting":{"MGI:97489":{"marker_symbol":["<em>Pax</em>5"],"synonym":["<em>Pax</em>-5"]},
 
+				qryStr = URLDecoder.decode(qryStr, "UTF-8");
+				//System.out.println("kw decoded: "+ qryStr);
+
+				// removes quotes or wildcard and highlight matched string
+				qryStr = qryStr.toLowerCase().replaceAll("\"", "").replaceAll("\\*", "");
+				List<String> keys = Arrays.asList(StringUtils.split(qryStr, " "));
+
 				//System.out.println(qryStr);
 				String field = fields[i];
 				List<String> info = new ArrayList<String>();
@@ -2422,10 +2475,18 @@ public class DataTableController {
 
 					for (Object d : data) {
 						counter++;
-						String targetStr = qryStr.toLowerCase().replaceAll("\"", "");
-						if ( d.toString().toLowerCase().contains(targetStr) ) {
+
+						boolean seen = false;
+						for (String key : keys){
+							if ( d.toString().toLowerCase().contains(key) ) {
+								seen = true;
+								break;
+							}
+						}
+
+						if (seen ) {
 							if ( synMatch == null ) {
-								synMatch = Tools.highlightMatchedStrIfFound(targetStr, d.toString(), "span", "subMatch");
+								synMatch = Tools.highlightMatchedStrIfFound(qryStr, d.toString(), "span", "subMatch");
 							}
 						}
 						else {
