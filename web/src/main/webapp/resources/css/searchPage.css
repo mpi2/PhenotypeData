@@ -564,3 +564,13 @@ div.fullDef {
 	color: #0978A1;
     font-size: 12px;
 }
+td.tissue {
+	padding: 10px !important;
+	border: 1px solid black;
+}
+td.tissue ul {
+	list-style-position: inside;
+}
+td.tissue li {
+	list-style-type: disc;
+}
