@@ -124,6 +124,8 @@ public class GenerateDerivedParameters implements CommandLineRunner {
 
         for (String parameter : parameters) {
 
+            logger.info("Processing parameter {}", parameter);
+
             switch (parameter) {
 
                 case "GMC_914_001_704":
