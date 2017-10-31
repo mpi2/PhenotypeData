@@ -830,18 +830,18 @@ public class GenerateDerivedParameters implements CommandLineRunner {
             dto = isAbnormal(dto,  IMPC_EYE_021_001.get(id));
             dto = isAbnormal(dto,  IMPC_EYE_022_001.get(id));
 
-            String category = "normal";
             if (dto != null) {
-                category = dto.getCategory();
+
+                Datasource datasource = datasourcesById.get(dto.getExternalDbId());
+
+                Experiment currentExperiment = createNewExperiment(dto, "derived_" +parameterToCreate + "_" + i++, getProcedureFromObservation(param, dto), true);
+                observationDAO.saveExperiment(currentExperiment);
+
+                Observation observation = observationDAO.createSimpleObservation(ObservationType.categorical, dto.getCategory(), param, animals.get(dto.getAnimalId()), datasource, currentExperiment, null);
+                observationDAO.saveObservation(observation);
+            } else {
+                logger.info("Not processing data {} for id {}", dto.getCategory(), id);
             }
-
-            Datasource datasource = datasourcesById.get(dto.getExternalDbId());
-
-            Experiment currentExperiment = createNewExperiment(dto, "derived_" +parameterToCreate + "_" + i++, getProcedureFromObservation(param, dto), true);
-            observationDAO.saveExperiment(currentExperiment);
-
-            Observation observation = observationDAO.createSimpleObservation(ObservationType.categorical, category, param, animals.get(dto.getAnimalId()), datasource, currentExperiment, null);
-            observationDAO.saveObservation(observation);
 
         }
 
@@ -854,14 +854,25 @@ public class GenerateDerivedParameters implements CommandLineRunner {
 
     private ObservationDTO isAbnormal(ObservationDTO currentDTO, ObservationDTO newDTO) {
 
-        if ( newDTO != null && newDTO.getCategory().contains("abnormal")) {
-
-            if (currentDTO == null) {
-                currentDTO = newDTO;
-            } else if (!currentDTO.getCategory().equalsIgnoreCase(newDTO.getCategory())) { // when more types of abnormal revert to most general - abnromal.
-                currentDTO.setCategory("abnormal");
-            }
+        // If the current DTO is null, use the passed in value
+        if ( currentDTO == null ) {
+            return newDTO;
         }
+
+        // If there is a new paramete and it's value is abnormal, recode and return
+        if ( newDTO != null && newDTO.getCategory().contains("abnormal")) {
+            newDTO.setCategory("abnormal");
+            return newDTO;
+        } else if ( newDTO != null && newDTO.getCategory().contains("no data")) {
+            // Return the previous value if there was no new value
+            return currentDTO;
+        } else if (newDTO != null) {
+            // Otherwise, return the new value with a normal category
+            newDTO.setCategory("normal");
+            return newDTO;
+        }
+
+        // Return the previous value if there was no new value
         return currentDTO;
     }
 
