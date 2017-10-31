@@ -820,7 +820,15 @@ public class AbstractGenotypePhenotypeService extends BasicService {
         return createPhenotypeResultFromSolrResponse(solrUrl, isPreQc);
     }
 
+
     public PhenotypeFacetResult getMPCallByMPAccessionAndFilter(String phenotype_id, List<String> procedureName, List<String> markerSymbol, List<String> mpTermName)
+            throws IOException, URISyntaxException, SolrServerException {
+
+        return getMPCallByMPAccessionAndFilter(phenotype_id, procedureName, markerSymbol, mpTermName, null);
+    }
+
+
+    public PhenotypeFacetResult getMPCallByMPAccessionAndFilter(String phenotype_id, List<String> procedureName, List<String> markerSymbol, List<String> mpTermName, Map<String, Synonym> synonyms)
     throws IOException, URISyntaxException, SolrServerException {
 
         String url = SolrUtils.getBaseURL(solr) + "/select/?";
@@ -860,7 +868,7 @@ public class AbstractGenotypePhenotypeService extends BasicService {
         
         url += q;
         
-        return createPhenotypeResultFromSolrResponse(url, isPreQc);
+        return createPhenotypeResultFromSolrResponse(url, isPreQc, synonyms);
 
     }
     /**
@@ -967,19 +975,26 @@ public class AbstractGenotypePhenotypeService extends BasicService {
         return results;
     }
 
-    // Returns status of operation in PhenotypeFacetResult.status. Query it for errors and warnings.
+
     public PhenotypeFacetResult createPhenotypeResultFromSolrResponse(String url, Boolean isPreQc)
+            throws IOException, URISyntaxException, SolrServerException {
+        return createPhenotypeResultFromSolrResponse(url, isPreQc, null);
+    }
+
+
+    // Returns status of operation in PhenotypeFacetResult.status. Query it for errors and warnings.
+    public PhenotypeFacetResult createPhenotypeResultFromSolrResponse(String url, Boolean isPreQc, Map<String, Synonym> synonyms)
     throws IOException, URISyntaxException, SolrServerException {
 
         PhenotypeFacetResult facetResult = new PhenotypeFacetResult();
-        List<PhenotypeCallSummaryDTO> list = new ArrayList<PhenotypeCallSummaryDTO>();
-        JSONObject results = new JSONObject();
+        List<PhenotypeCallSummaryDTO> list = new ArrayList<>();
+        JSONObject results;
         results = JSONRestUtil.getResults(url);
         JSONArray docs = results.getJSONObject("response").getJSONArray("docs");
                 
         for (Object doc : docs) {
             try {
-                PhenotypeCallSummaryDTO call = createSummaryCall(doc, isPreQc);
+                PhenotypeCallSummaryDTO call = createSummaryCall(doc, isPreQc, synonyms);
                 if ((call.getStatus().hasErrors()) || call.getStatus().hasWarnings()) {
                     facetResult.getStatus().add(call.getStatus());
                 }
@@ -1020,14 +1035,31 @@ public class AbstractGenotypePhenotypeService extends BasicService {
         return facetResult;
     }
 
-    
-    public PhenotypeCallSummaryDTO createSummaryCall(Object doc, Boolean preQc)
+    // synonyms may be null. If it is not, this method will check synonyms if the gene symbol is not found
+
+    /**
+     * Returns a {@link PhenotypeCallSummaryDTO}from the given inputs. If no mgiAccessionId is found for the gene marker
+     * symbol AND {@code summary} is not null, the synonyms are searched for a mgiAccessionId and, if found, used. If
+     * {@code synonyms} is null or the gene marker symbol is not found in the synonyms, a warning is returned and an
+     * empty {@link PhenotypeCallSummaryDTO} is returned
+     *
+     * @param doc
+     * @param preQc
+     * @param synonyms if not null, contains a full list of {@link Synonym} instances to search for mgiAccessionId.
+     *
+     * @return
+     * @throws Exception
+     */
+    public PhenotypeCallSummaryDTO createSummaryCall(Object doc, Boolean preQc, Map<String, Synonym> synonyms)
     throws Exception{
         
     	JSONObject phen = (JSONObject) doc;
         JSONArray topLevelMpTermNames;
         JSONArray topLevelMpTermIDs;
-        PhenotypeCallSummaryDTO sum = null;
+        PhenotypeCallSummaryDTO sum;
+        if (synonyms == null) {
+            synonyms = new HashMap<>();             // If synonyms is null, create an empty one to avoid NPE.
+        }
         try{
 
             sum = new PhenotypeCallSummaryDTO();
@@ -1121,7 +1153,12 @@ public class AbstractGenotypePhenotypeService extends BasicService {
                     gene.setAccessionId(phen.getString(GenotypePhenotypeDTO.MARKER_ACCESSION_ID));
                 }
                 else {
-                    sum.getStatus().addWarning(gene.getSymbol() + " has no accession id");
+                    Synonym syn = synonyms.get(gene.getSymbol());
+                    if (syn != null) {
+                        gene.setAccessionId(syn.getAccessionId());
+                    } else {
+                        sum.getStatus().addWarning(gene.getSymbol() + " has no accession id");
+                    }
                 }
 
 	            sum.setGene(gene);
