@@ -822,7 +822,6 @@ public class GenerateDerivedParameters implements CommandLineRunner {
         logger.info("Size of dataset to processes: {}", allIds.size());
 
         for (String id : allIds){
-            logger.info("Processing {} data for id {}", parameterToCreate, id);
 
             ObservationDTO dto = null;
 
