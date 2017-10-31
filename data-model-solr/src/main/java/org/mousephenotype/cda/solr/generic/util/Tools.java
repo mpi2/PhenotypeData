@@ -112,8 +112,20 @@ public class Tools {
 		// (?im) at the beginning of the regex turns on CASE_INSENSITIVE and MULTILINE modes.
 		// $0 in the replacement string is a placeholder whatever the regex matched in this iteration.
 
+		List<String> keys = Arrays.asList(StringUtils.split(kw, " "));
+
 		target = target.replaceAll("<(.+)>", "<sup>$1</sup>");
-		String result = target.replaceAll("(?im)"+kw, "<" + selector + " class='" + cssClass + "'>$0" + "</" + selector + ">");
+
+		String result = null;
+		for (String key : keys) {
+			if (result == null) {
+				result = target.replaceAll("(?im)" + key, "<" + selector + " class='" + cssClass + "'>$0" + "</" + selector + ">");
+			}
+			else {
+				result = result.replaceAll("(?im)" + key, "<" + selector + " class='" + cssClass + "'>$0" + "</" + selector + ">");
+			}
+		}
+		//String result = target.replaceAll("(?im)"+kw, "<" + selector + " class='" + cssClass + "'>$0" + "</" + selector + ">");
 		return result;
 	}
 
