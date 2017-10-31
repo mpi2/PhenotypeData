@@ -819,7 +819,10 @@ public class GenerateDerivedParameters implements CommandLineRunner {
 
         deleteObservationsForParameterId(parameterToCreate);
 
+        logger.info("Size of dataset to processes: {}", allIds.size());
+
         for (String id : allIds){
+            logger.info("Processing {} data for id {}", parameterToCreate, id);
 
             ObservationDTO dto = null;
 
