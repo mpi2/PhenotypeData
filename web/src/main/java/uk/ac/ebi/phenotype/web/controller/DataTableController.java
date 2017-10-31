@@ -1167,7 +1167,22 @@ public class DataTableController {
 				else {
 					order.add("<td></td>");
 				}
+
 				order.add("</tr>");
+			}
+
+			if (doc.containsKey(Allele2DTO.TISSUES_AVAILABLE) && doc.containsKey(Allele2DTO.TISSUE_TYPES) && doc.containsKey(Allele2DTO.TISSUE_ENQUIRY_LINKS)){
+				List<String> tissuesAvail = new ArrayList<>();
+
+				JSONArray tissueTypes = doc.getJSONArray(Allele2DTO.TISSUE_TYPES);
+				for (int t=0; t<tissueTypes.size(); t++){
+					String href = "<a href='" + doc.getJSONArray(Allele2DTO.TISSUE_ENQUIRY_LINKS).get(t).toString() + "'>" + tissueTypes.get(t).toString() + "</a>";
+					tissuesAvail.add("<li>" + href + "</li>");
+				}
+
+				String enquiry = "<span><i class='fa fa-question'></i> Tissue enquiry:</span><br>";
+
+				order.add("<tr><td colspan=3 class='tissue'>" + enquiry + "<ul>" + StringUtils.join(tissuesAvail, "") + "</ul></td></tr>");
 			}
 
 			// populate the cells
