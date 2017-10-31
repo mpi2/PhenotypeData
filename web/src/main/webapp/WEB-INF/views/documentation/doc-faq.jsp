@@ -33,10 +33,10 @@
     <div><i class="fleft fa fa-info fa-4x"></i><div class="fleft">FAQ</div></div>
     <div id="faq">
       <ul class="subUl">
-        <li>How to cite the IMPC resource / data<br>
-          To reference the IMPC, please cite:
-          1: Koscielny G, et al. The International Mouse Phenotyping Consortium Web Portal, a unified point of access for knockout mice and related phenotyping data. Nucleic Acids Res. 2014 Jan. PubMed PMID: 24194600; PubMed Central PMCID: PMC3964955
-          In your work you should include the IMPC data release (e.g. Release : 3.1) you extracted data from, as this allows your future readers to find the data you used. The latest release can be found on the bottom right of every page in the footer.
+        <li>How to cite the IMPC resource / data<p>
+          To reference the IMPC, please cite:<p></p>
+          <b>Koscielny G, et al. The International Mouse Phenotyping Consortium Web Portal, a unified point of access for knockout mice and related phenotyping data. Nucleic Acids Res. 2014 Jan</b>.<br>PubMed PMID: 24194600;<br> PubMed Central PMCID: PMC3964955<p>
+          <p>In your work you should include the IMPC data release (e.g. Release : 3.1) you extracted data from, as this allows your future readers to find the data you used.<p></p>The latest release can be found on the bottom right of every page in the footer.
         </li>
         <li><a href="${baseUrl}/documentation/doc-explore#phenoAssocSection0">Find gene to phenotype associations, allele maps and more</a></li>
         <li><a href="${baseUrl}/documentation/doc-explore#1">Find a list of genes associated with a phenotype, assays used to measure the phenotype and more</a></li>
