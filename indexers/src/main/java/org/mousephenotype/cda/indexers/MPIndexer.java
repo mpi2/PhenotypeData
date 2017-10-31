@@ -21,6 +21,7 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
+import org.mousephenotype.cda.db.pojo.Synonym;
 import org.mousephenotype.cda.indexers.beans.MPStrainBean;
 import org.mousephenotype.cda.indexers.beans.ParamProcedurePipelineBean;
 import org.mousephenotype.cda.indexers.beans.PhenotypeCallSummaryBean;
@@ -68,6 +69,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
 
 	private final Logger logger = LoggerFactory.getLogger(MPIndexer.class);
     private static final int LEVELS_FOR_NARROW_SYNONYMS = 2;
+    private Map<String, Synonym> synonymsBySymbol;                              // Map of Synonym, keyed by synonym symbol
 
     @Autowired
     @Qualifier("alleleCore")
@@ -82,10 +84,6 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
     @Autowired
     @Qualifier("genotypePhenotypeCore")
     private SolrClient genotypePhenotypeCore;
-
-    @Autowired
-    @Qualifier("komp2DataSource")
-    DataSource komp2DataSource;
 
     /**
      * Destination Solr core
@@ -160,7 +158,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
             logger.info("Loaded ma parser");
 
         	// maps MP to number of phenotyping calls
-            runStatus = populateMpCallMaps();
+            runStatus = populateMpCallMaps(synonymsBySymbol);
 
                for (String error : runStatus.getErrorMessages()) {
                    logger.error(error);
@@ -203,7 +201,9 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
                 // add mp-hp mapping using Monarch's mp-hp hybrid ontology
                 OntologyTermDTO mpTerm = mpHpParser.getOntologyTerm(termId);
 		        if (mpTerm==null) {
-			        logger.error("MP term not found using mpHpParser.getOntologyTerm(termId); where termId={}", termId);
+		            String message = "MP term not found using mpHpParser.getOntologyTerm(termId); where termId = " + termId;
+		            runStatus.addWarning(message);
+			        logger.warn(message);
 		        } else {
                     Set <OntologyTermDTO> hpTerms = mpTerm.getEquivalentClasses();
                     for ( OntologyTermDTO hpTerm : hpTerms ){
@@ -266,13 +266,13 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
     }
 
     // 22-Mar-2017 (mrelac) Added status to query for errors and warnings.
-    public Map<String, Integer> getPhenotypeGeneVariantCounts(String termId, RunStatus status)
+    public Map<String, Integer> getPhenotypeGeneVariantCounts(String termId, RunStatus status, Map<String, Synonym> synonyms)
             throws IOException, URISyntaxException, SolrServerException {
 
         // Errors and warnings are returned in PhenotypeFacetResult.status.
         PhenotypeFacetResult phenoResult = postqcService.getMPCallByMPAccessionAndFilter(termId,  null, null, null);
         status.add(phenoResult.getStatus());
-        PhenotypeFacetResult preQcResult = preqcService.getMPCallByMPAccessionAndFilter(termId,  null, null, null);
+        PhenotypeFacetResult preQcResult = preqcService.getMPCallByMPAccessionAndFilter(termId,  null, null, null, synonyms);
         status.add(preQcResult.getStatus());
 
         List<PhenotypeCallSummaryDTO> phenotypeList;
@@ -397,7 +397,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
 
     }
 
-    private RunStatus populateMpCallMaps() throws IOException, SolrServerException, URISyntaxException {
+    private RunStatus populateMpCallMaps(Map<String, Synonym> synonyms) throws IOException, SolrServerException, URISyntaxException {
         RunStatus status = new RunStatus();
 
         List<SolrClient> ss = new ArrayList<>();
@@ -421,7 +421,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
                     if (!mpCalls.containsKey(facet.getName())){
                         mpCalls.put(facet.getName(), new Long(0));
 
-                        Map<String, Integer> geneVariantCount = getPhenotypeGeneVariantCounts(facet.getName(), status);
+                        Map<String, Integer> geneVariantCount = getPhenotypeGeneVariantCounts(facet.getName(), status, synonyms);
                         int gvCount = geneVariantCount.get("sumCount");
                         mpGeneVariantCount.put(facet.getName(), gvCount);
                     }
@@ -476,6 +476,10 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
             phenotypes2 = getPhenotypeCallSummary2();
             strains = getStrains();
             pppBeans = getPPPBeans();
+
+            // Synonyms
+            synonymsBySymbol = IndexerMap.getSynonymsBySynonym(komp2DbConnection);
+
         } catch (SQLException e) {
             throw new IndexerException(e);
         }

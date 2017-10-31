@@ -18,6 +18,7 @@ package org.mousephenotype.cda.indexers.utils;
 
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.mousephenotype.cda.db.pojo.Synonym;
 import org.mousephenotype.cda.indexers.beans.OrganisationBean;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.solr.SolrUtils;
@@ -298,6 +299,28 @@ public class IndexerMap {
 		}
 		return map;
 	}
+
+	public static Map<String, Synonym> getSynonymsBySynonym(Connection connection) throws SQLException {
+        Map<String, Synonym> map = new HashMap<>();
+
+        String query = "SELECT * FROM synonym";
+
+        try (PreparedStatement p = connection.prepareStatement(query)) {
+
+            ResultSet rs = p.executeQuery();
+            while (rs.next()) {
+
+                Synonym b = new Synonym();
+                b.setAccessionId(rs.getString("acc"));
+                b.setDbId(rs.getInt("db_id"));
+                b.setSymbol(rs.getString("symbol"));
+
+                map.put(b.getSymbol(), b);
+            }
+        }
+
+        return map;
+    }
 
 	/**
 	 * get a map of ontology_entity_id to entity
