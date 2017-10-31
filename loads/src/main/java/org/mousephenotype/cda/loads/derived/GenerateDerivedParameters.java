@@ -855,18 +855,27 @@ public class GenerateDerivedParameters implements CommandLineRunner {
 
         // If the current DTO is null, use the passed in value
         if ( currentDTO == null ) {
+            if ( newDTO != null && newDTO.getCategory().contains("abnormal")) {
+                newDTO.setCategory("abnormal");
+            }
             return newDTO;
         }
 
-        // If there is a new paramete and it's value is abnormal, recode and return
+        // If We already have an abnormal hit, keep it
+        if ( currentDTO != null && currentDTO.getCategory().contains("abnormal")) {
+            return  currentDTO;
+        }
+
+        // If there is a new parameter and it's value is abnormal, recode and return
         if ( newDTO != null && newDTO.getCategory().contains("abnormal")) {
             newDTO.setCategory("abnormal");
             return newDTO;
-        } else if ( newDTO != null && newDTO.getCategory().contains("no data")) {
-            // Return the previous value if there was no new value
+        } else if ( newDTO != null && newDTO.getCategory().contains("no data for both eyes")) {
+            newDTO.setCategory("no data");
+            // Return the previous value if there was no data
             return currentDTO;
         } else if (newDTO != null) {
-            // Otherwise, return the new value with a normal category
+            // Otherwise, return the new value with a normal category since it wasn't abnormal or no data
             newDTO.setCategory("normal");
             return newDTO;
         }
