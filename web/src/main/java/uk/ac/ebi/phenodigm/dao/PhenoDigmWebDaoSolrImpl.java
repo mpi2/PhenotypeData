@@ -25,6 +25,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
+
+import ch.qos.logback.core.net.SyslogOutputStream;
 import uk.ac.ebi.phenodigm.model.*;
 import uk.ac.ebi.phenodigm.web.AssociationSummary;
 import uk.ac.ebi.phenodigm.web.DiseaseAssociationSummary;
@@ -142,6 +144,7 @@ public class PhenoDigmWebDaoSolrImpl implements PhenoDigmWebDao {
         solrQuery.addField(PhenodigmDTO.HGNC_GENE_SYMBOL);
         solrQuery.addField(PhenodigmDTO.HGNC_GENE_LOCUS);
 
+        System.out.println("phenodigm query="+solrQuery);
         Gene gene = null;
         try {
 	        List<PhenodigmDTO> results = phenodigmCore.query(solrQuery).getBeans(PhenodigmDTO.class);
@@ -259,9 +262,10 @@ public class PhenoDigmWebDaoSolrImpl implements PhenoDigmWebDao {
         solrQuery.addField(PhenodigmDTO.MAX_MGI_M2D_SCORE);
         solrQuery.addField(PhenodigmDTO.MAX_IMPC_M2D_SCORE);
 
-        solrQuery.addSort(PhenodigmDTO.HUMAN_CURATED, SolrQuery.ORDER.desc);
-        solrQuery.addSort(PhenodigmDTO.IN_LOCUS, SolrQuery.ORDER.desc);
-        solrQuery.addSort(PhenodigmDTO.MAX_MGI_M2D_SCORE, SolrQuery.ORDER.desc);
+        //commented out the below orders as throwing errors that fields don't exist - page still displays disease section in correct order without these.
+        //solrQuery.addSort(PhenodigmDTO.HUMAN_CURATED, SolrQuery.ORDER.desc);
+//        solrQuery.addSort(PhenodigmDTO.IN_LOCUS, SolrQuery.ORDER.desc);
+//        solrQuery.addSort(PhenodigmDTO.MAX_MGI_M2D_SCORE, SolrQuery.ORDER.desc);
 
         //there will be more than 10 results for this - we want them all.
         solrQuery.setRows(ROWS);

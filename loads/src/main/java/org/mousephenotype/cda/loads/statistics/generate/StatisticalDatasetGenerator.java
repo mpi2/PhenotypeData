@@ -1,5 +1,7 @@
 package org.mousephenotype.cda.loads.statistics.generate;
 
+import joptsimple.OptionParser;
+import joptsimple.OptionSet;
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
@@ -90,31 +92,18 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
         Map<String, SortedSet<String>> parameters = getParameterMap();
         logger.info("Prepared " + parameters.keySet().size() + " procedure groups");
 
-        SolrQuery query = new SolrQuery();
-        query.setQuery("*:*")
+        List<String> parametersToLoad = null;
 
-                // Filter out line level parameters
-                .addFilterQuery("-procedure_group:(" + StringUtils.join(skipProcedures, " OR ") + ")")
+        OptionParser parser = new OptionParser();
+        parser.accepts("parameters").withRequiredArg();
+        OptionSet options = parser.parse( strings );
 
-                // Only processing categorical and unidimensional parameters
-                .addFilterQuery("observation_type:(categorical OR unidimensional)")
+        if (options.has("parameters")) {
+            String paramString = (String) options.valueOf("parameters");
+            parametersToLoad = Arrays.asList(paramString.split(","));
+        }
 
-                // Filter out incorrect M-G-P pipeline bodyweight
-                .addFilterQuery("-parameter_stable_id:(" + StringUtils.join(skipParameters, " OR ") + ")")
-
-                // Filter out IMM results until we have normalised parameters in IMPRESS
-                .addFilterQuery("-parameter_stable_id:*_IMM_*")
-
-                // Include only parameters for which we have experimental data
-                .addFilterQuery("biological_sample_group:experimental")
-
-                .setRows(0)
-                .setFacet(true)
-                .setFacetLimit(-1)
-                .addFacetPivotField(PIVOT.stream().collect(Collectors.joining(",")));
-
-        logger.info(SolrUtils.getBaseURL(experimentCore) + "/select" + query.toQueryString());
-        List<Map<String, String>> results = getFacetPivotResults(experimentCore.query(query), false);
+        List<Map<String, String>> results = getStatisticalDatasets(parametersToLoad);
 
         logger.info("Processing {} data sets", results.size());
 
@@ -312,6 +301,38 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
 
             });
 
+    }
+
+    public List<Map<String, String>> getStatisticalDatasets(List<String> parameters) throws SolrServerException, IOException {
+        SolrQuery query = new SolrQuery();
+        query.setQuery("*:*")
+
+                // Filter out line level parameters
+                .addFilterQuery("-procedure_group:(" + StringUtils.join(skipProcedures, " OR ") + ")")
+
+                // Only processing categorical and unidimensional parameters
+                .addFilterQuery("observation_type:(categorical OR unidimensional)")
+
+                // Filter out incorrect M-G-P pipeline bodyweight
+                .addFilterQuery("-parameter_stable_id:(" + StringUtils.join(skipParameters, " OR ") + ")")
+
+                // Filter out IMM results until we have normalised parameters in IMPRESS
+                .addFilterQuery("-parameter_stable_id:*_IMM_*")
+
+                // Include only parameters for which we have experimental data
+                .addFilterQuery("biological_sample_group:experimental")
+
+                .setRows(0)
+                .setFacet(true)
+                .setFacetLimit(-1)
+                .addFacetPivotField(PIVOT.stream().collect(Collectors.joining(",")));
+
+        if (parameters!=null) {
+            query.addFilterQuery("parameter_stable_id:(" + StringUtils.join(parameters, " OR ") + ")");
+        }
+
+        logger.info(SolrUtils.getBaseURL(experimentCore) + "/select" + query.toQueryString());
+        return getFacetPivotResults(experimentCore.query(query), false);
     }
 
     /**

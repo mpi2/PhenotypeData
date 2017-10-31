@@ -98,7 +98,7 @@ public class LandingPageController {
             deafness.setDescription("This page aims to relate deafnessnes to phenotypes which have been produced by IMPC.");
             deafness.setLink("biological-system/hearing");
             bsPages.add(deafness);
-            if(isLive){
+            if(!isLive){
 	            LandingPageDTO vision = new LandingPageDTO();
 	            vision.setTitle("Vision");
 	            vision.setImage(baseUrl + "/img/landing/deafnessIcon.png");

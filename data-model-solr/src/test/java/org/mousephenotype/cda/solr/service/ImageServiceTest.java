@@ -8,7 +8,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.enumerations.Expression;
 import org.mousephenotype.cda.enumerations.SexType;
-import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.service.dto.ImageDTO;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +24,6 @@ import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -42,249 +40,296 @@ public class ImageServiceTest {
     @Autowired
     private ImageService imageService;
 
-	// Sring Configuration class
-	// Only wire up the observation service for this test suite
-	@Configuration
-	@ComponentScan(
-			basePackages = {"org.mousephenotype.cda"},
-			useDefaultFilters = false,
-			includeFilters = {@ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = {ImageService.class})
-			})
-	static class ContextConfiguration {
+    // Sring Configuration class
+    // Only wire up the observation service for this test suite
+    @Configuration
+    @ComponentScan(
+            basePackages = {"org.mousephenotype.cda"},
+            useDefaultFilters = false,
+            includeFilters = {@ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = {ImageService.class})
+            })
+    static class ContextConfiguration {
 
-		@NotNull
-		@Value("${solr.host}")
-		private String solrBaseUrl;
+        @NotNull
+        @Value("${solr.host}")
+        private String solrBaseUrl;
 
-		@Bean(name = "impcImagesCore")
-		HttpSolrClient getExperimentCore() {
-			return new HttpSolrClient(solrBaseUrl + "/impc_images");
-		}
+        @Bean(name = "impcImagesCore")
+        HttpSolrClient getExperimentCore() {
+            return new HttpSolrClient(solrBaseUrl + "/impc_images");
+        }
 
-		@Bean
-		public static PropertySourcesPlaceholderConfigurer propertyConfigurer() {
-			return new PropertySourcesPlaceholderConfigurer();
-		}
-
-	}
-
-
-	@Test
-	public void testGetImagePropertiesThatHaveMp() throws IOException, SolrServerException {
-
-		String                   acc          = "MGI:1913955";
-		Map<String, Set<String>> mpToColonies = imageService.getImagePropertiesThatHaveMp(acc);
-		assertTrue(mpToColonies.size() > 0);
-		for (String mp : mpToColonies.keySet()) {
-			logger.debug(mp);
-			for (String colony : mpToColonies.get(mp)) {
-				logger.debug("colony=" + colony);
-			}
-		}
-
-	}
-
-	@Test
-	public void testGetImagesForGeneByParameter() throws IOException, SolrServerException {
-		//expression test first
-		String        acc                        = "MGI:1336993";
-		String        parameterStableId          = "IMPC_ELZ_064_001";
-		String        anatomyId                  = "EMAPA:16105";
-		String        parameterAsscociationValue = "ambiguous";
-		QueryResponse response                   = null;
-		response = imageService.getImages(acc, parameterStableId, "experimental", 100000, null, null, null, anatomyId, parameterAsscociationValue, null, null);
-		int    expectedSize = 12;
-		int    actualSize   = response.getResults().size();
-		String message      = "Expected at least " + expectedSize + " images but found " + actualSize;
-		assertTrue(message, expectedSize >= actualSize);
-
-	}
-
-	@Test
-	public void testGetPhenotypeAssociatedImages() throws IOException, SolrServerException {
-
-		String      acc          = "MGI:1891341";       //should be 8 parameters for this gene at least.
-		int         rows         = 1;
-		List<Group> response     = imageService.getPhenotypeAssociatedImages(acc, null, null, true, rows);
-		int         expectedSize = 8;
-		int         actualSize   = (response != null ? response.size() : 0);
-		String      message      = "Expected at least " + expectedSize + " but found " + actualSize;
-		assertTrue(message, expectedSize >= actualSize);
-
-	}
-
-	@Test
-	public void testGetComparisonViewerMethodsWithNulls() {
-		String         acc                       = null;
-		int            numberOfControlsPerSex    = 10;
-		String         anatomyId                 = null;
-		String         parameterStableId         = null;
-		SexType        sex                       = null;
-		ImageDTO       imgDoc                    = null;
-		List<ImageDTO> controlImages             = null;
-		String         organ                     = null;
-		Expression     expression                = null;
-		String         parameterAssociationValue = null;
-		String         zygosity                  = null;
-		String         colonyId                  = null;
-		String         mpId                      = null;
-
-		try {
-			controlImages = imageService.getControlsBySexAndOthersForComparisonViewer(imgDoc, numberOfControlsPerSex, sex, parameterStableId, anatomyId, null);
-		} catch (SolrServerException | IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		//no information has been given so we would expect null or an empty array - empty array safest
-		assertTrue(controlImages.size() == 0);
+        @Bean
+        public static PropertySourcesPlaceholderConfigurer propertyConfigurer() {
+            return new PropertySourcesPlaceholderConfigurer();
+        }
+    }
 
 
-		List<ImageDTO> mutantImages = null;
-		try {
-			mutantImages = imageService.getMutantImagesForComparisonViewer(acc, parameterStableId, parameterAssociationValue, anatomyId, zygosity, colonyId, mpId, sex, organ);
-		} catch (SolrServerException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		assertTrue(mutantImages.size() > 0);//currently we are returning everything mutatn related if no filters
-	}
-	
-	@Test
-	public void testGetComparisonViewerMethodsWithExpression(){
-		String acc="MGI:109331";
-		int numberOfControlsPerSex=10;
-		String anatomyId="MA:0000327";
-		String parameterStableId=null;
-		SexType sex=null;
-		ImageDTO imgDoc=null;
-		List<ImageDTO> controlImages=null;
-		String organ=null;
-		Expression expression=Expression.EXPRESSION;
-		String parameterAssociationValue=expression.getDisplayName();
-		String zygosity=null;
-		String colonyId=null;
-		String mpId=null;
-		
-		try {
-			controlImages = imageService.getControlsBySexAndOthersForComparisonViewer(imgDoc, numberOfControlsPerSex, sex, parameterStableId, anatomyId, expression.getDisplayName());
-		} catch (SolrServerException | IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		//no information has been given so we would expect null or an empty array - empty array safest
-		int expectedSize = 3;
-		int actualSize = controlImages.size();
-		String message = "Expected at least " + expectedSize + " control images but found " + actualSize;
-		assertTrue(message, actualSize >= expectedSize);		//there are no images with expression for this "respiratory system" and Nxn
-		
-		
-		List<ImageDTO> mutantImages=null;
-		try {
-			mutantImages=imageService.getMutantImagesForComparisonViewer(acc, parameterStableId, parameterAssociationValue, anatomyId, zygosity, colonyId, mpId, sex, organ);
-		} catch (SolrServerException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		assertTrue(mutantImages.size()>0);//we have mutant images for nxn 29 currently
-	}
+    @Test
+    public void testGetImagePropertiesThatHaveMp() throws IOException, SolrServerException {
 
+        String testName = Thread.currentThread().getStackTrace()[1].getMethodName();
+        String acc      = "MGI:1913955";
+        int    expectedSize;
+        int    actualSize;
+        String message;
 
-	@Test
-	public void testGetComparisonViewerMethodsWithAmbiguous() {
-		String         acc                    = "MGI:109331";
-		int            numberOfControlsPerSex = 10;
-		String         anatomyId              = "MA:0000327";
-		String         parameterStableId      = "IMPC_ALZ_076_001";
-		SexType        sex                    = null;
-		ImageDTO       imgDoc                 = null;
-		List<ImageDTO> controlImages          = null;
-		String         organ                  = null;
-		//Expression expression=Expression.AMBIGUOUS;
-		String parameterAssociationValue = Expression.AMBIGUOUS.getDisplayName();
-		String zygosity                  = null;
-		String colonyId                  = null;
-		String mpId                      = null;
+        Map<String, Set<String>> mpToColonies = imageService.getImagePropertiesThatHaveMp(acc);
 
-		try {
-			controlImages = imageService.getControlsBySexAndOthersForComparisonViewer(imgDoc, numberOfControlsPerSex, sex, parameterStableId, anatomyId, parameterAssociationValue);
-		} catch (SolrServerException | IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		//no information has been given so we would expect null or an empty array - empty array safest
-		assertTrue(controlImages.size() > 0);//there are currently 25 images with ambiguous expression for this "respiratory system" and Nxn
-		assertTrue(controlImages.size() >= 2);
+        expectedSize = 18;              // 26-Oct-2017 (mrelac) As of this date there were 18 colonies found.
+        actualSize = mpToColonies.size();
+        message = testName + ": Expected at least " + expectedSize + " mpToColonies but found " + actualSize;
+        logger.info(testName + ": mpToColonies actualSize = " + actualSize);
 
-		List<ImageDTO> mutantImages = null;
-		try {
-			mutantImages = imageService.getMutantImagesForComparisonViewer(acc, parameterStableId, parameterAssociationValue, anatomyId, zygosity, colonyId, mpId, sex, organ);
-		} catch (SolrServerException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+        assertTrue(message, actualSize >= expectedSize);
+    }
 
-		int    expectedSize = 2;
-		int    actualSize   = mutantImages.size();
-		String message      = "Expected at least " + expectedSize + " mutant images but found " + actualSize;
-		assertTrue(message, actualSize >= expectedSize);        //we have 2 mutant images for nxn that match this test currently with ambiguous expression in mutants
-	}
+    @Test
+    public void testGetImagesForGeneByParameter() throws IOException, SolrServerException {
 
-	@Test
-	public void testGetComparisonViewerMethodsWithNoExpression() {
-		String         acc                       = "MGI:109331";
-		int            numberOfControlsPerSex    = 10;
-		String         anatomyId                 = "MA:0000327";
-		String         parameterStableId         = "IMPC_ALZ_076_001";
-		SexType        sex                       = null;
-		ImageDTO       imgDoc                    = null;
-		List<ImageDTO> controlImages             = null;
-		String         organ                     = null;
-		Expression     expression                = Expression.NO_EXPRESSION;
-		String         parameterAssociationValue = Expression.NO_EXPRESSION.getDisplayName();//Expression.AMBIGUOUS.getDisplayName();
-		String         zygosity                  = null;
-		String         colonyId                  = null;
-		String         mpId                      = null;
+        String        testName                   = Thread.currentThread().getStackTrace()[1].getMethodName();
+        String        acc                        = "MGI:1336993";
+        String        parameterStableId          = "IMPC_ELZ_064_001";
+        String        anatomyId                  = "EMAPA:16105";
+        String        parameterAsscociationValue = "ambiguous";
+        QueryResponse response;
 
-		try {
-			controlImages = imageService.getControlsBySexAndOthersForComparisonViewer(imgDoc, numberOfControlsPerSex, sex, parameterStableId, anatomyId, expression.getDisplayName());
-		} catch (SolrServerException | IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		//no information has been given so we would expect null or an empty array - empty array safest
-		logger.info("control images size=" + controlImages.size());
-		for (ImageDTO image : controlImages) {
-			for (String value : image.getParameterAssociationValue()) {
-				logger.info("value=" + value);
-			}
-		}
-		assertTrue(controlImages.size() >= 10);//there are currently 25 images with ambiguous expression for this "respiratory system" and Nxn
-		//assertTrue(controlImages.size()>=2);
+        int    expectedSize;
+        int    actualSize;
+        String message;
 
-		List<ImageDTO> mutantImages = null;
-		try {
-			mutantImages = imageService.getMutantImagesForComparisonViewer(acc, parameterStableId, parameterAssociationValue, anatomyId, zygosity, colonyId, mpId, sex, organ);
-		} catch (SolrServerException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+        response = imageService.getImages(acc, parameterStableId, "experimental", 100000, null, null, null, anatomyId, parameterAsscociationValue, null, null);
 
-		int    expectedSize = 0;
-		int    actualSize   = mutantImages.size();
-		String message      = "Expected " + expectedSize + " images but found " + actualSize;
+        expectedSize = 13;          // 26-Oct-2017 (mrelac) As of this date there were 13 images found.
+        actualSize   = response.getResults().size();
+        message      = testName + ": Expected at least " + expectedSize + " images but found " + actualSize;
+        logger.info(testName + ": images actualSize = " + actualSize);
 
-		assertTrue(message, expectedSize >= actualSize);
-	}
+        assertTrue(message, actualSize >= expectedSize);
+    }
+
+    @Test
+    public void testGetPhenotypeAssociatedImages() throws IOException, SolrServerException {
+
+        String testName = Thread.currentThread().getStackTrace()[1].getMethodName();
+        String acc      = "MGI:1891341";
+        int    rows     = 1;
+
+        int    expectedSize;
+        int    actualSize;
+        String message;
+
+        List<Group> response     = imageService.getPhenotypeAssociatedImages(acc, null, null, true, rows);
+
+        expectedSize = 8;                        // 26-Oct-2017 (mrelac) As of this date there were 8 phenotype associated images found.
+        actualSize   = (response != null ? response.size() : 0);
+        message      = testName + ": Expected at least " + expectedSize + " associated images but found " + actualSize;
+        logger.info(testName + ": associated images actualSize = " + actualSize);
+
+        assertTrue(message, actualSize >= expectedSize);
+    }
+
+    @Test
+    public void testGetComparisonViewerMethodsWithNulls() throws IOException, SolrServerException {
+
+        String         testName                  = Thread.currentThread().getStackTrace()[1].getMethodName();
+        String         acc                       = null;
+        int            numberOfControlsPerSex    = 10;
+        String         anatomyId                 = null;
+        String         parameterStableId         = null;
+        SexType        sex                       = null;
+        ImageDTO       imgDoc                    = null;
+        List<ImageDTO> controlImages;
+        List<ImageDTO> mutantImages;
+        String         organ                     = null;
+        String         parameterAssociationValue = null;
+        String         zygosity                  = null;
+        String         colonyId                  = null;
+        String         mpId                      = null;
+        boolean        failed                    = false;
+
+        int    expectedSize;
+        int    actualSize;
+        String message;
+
+        controlImages = imageService.getControlsBySexAndOthersForComparisonViewer(imgDoc, numberOfControlsPerSex, sex, parameterStableId, anatomyId, null);
+
+        expectedSize = 0;                        // 26-Oct-2017 (mrelac) As of this date there were no control images found.
+        actualSize   = controlImages.size();
+        message      = testName + ": Expected at least " + expectedSize + " control images but found " + actualSize;
+        logger.info(testName + ": control images actualSize = " + actualSize);
+
+        if (actualSize < expectedSize) {
+            logger.error(message);
+            failed = true;
+        }
+
+        mutantImages = imageService.getMutantImagesForComparisonViewer(acc, parameterStableId, parameterAssociationValue, anatomyId, zygosity, colonyId, mpId, sex, organ);
+
+        expectedSize = 207009;                  // 26-Oct-2017 (mrelac) As of this date there were 207009 mutant images found.
+        actualSize   = mutantImages.size();
+        message      = testName + ": Expected at least " + expectedSize + " mutant images but found " + actualSize;
+        logger.info(testName + ": mutant images actualSize = " + actualSize);
+
+        if (actualSize < expectedSize) {
+            logger.error(message);
+            failed = true;
+        }
+
+        assertTrue(message, ! failed);
+    }
+
+    @Test
+    public void testGetComparisonViewerMethodsWithExpression() throws IOException, SolrServerException {
+
+        String         testName                  = Thread.currentThread().getStackTrace()[1].getMethodName();
+        String         acc                       = "MGI:109331";
+        int            numberOfControlsPerSex    = 10;
+        String         anatomyId                 = "MA:0000327";
+        String         parameterStableId         = null;
+        SexType        sex                       = null;
+        ImageDTO       imgDoc                    = null;
+        List<ImageDTO> controlImages;
+        List<ImageDTO> mutantImages;
+        String         organ                     = null;
+        Expression     expression                = Expression.EXPRESSION;
+        String         parameterAssociationValue = expression.getDisplayName();
+        String         zygosity                  = null;
+        String         colonyId                  = null;
+        String         mpId                      = null;
+        boolean        failed                    = false;
+
+        int    expectedSize;
+        int    actualSize;
+        String message;
+
+        controlImages = imageService.getControlsBySexAndOthersForComparisonViewer(imgDoc, numberOfControlsPerSex, sex, parameterStableId, anatomyId, expression.getDisplayName());
+
+        expectedSize = 9;                        // 26-Oct-2017 (mrelac) As of this date there were 9 control images found.
+        actualSize   = controlImages.size();
+        message      = testName + ": Expected at least " + expectedSize + " control images but found " + actualSize;
+        logger.info(testName + ": control images actualSize = " + actualSize);
+
+        if (actualSize < expectedSize) {
+            logger.error(message);
+            failed = true;
+        }
+
+        mutantImages = imageService.getMutantImagesForComparisonViewer(acc, parameterStableId, parameterAssociationValue, anatomyId, zygosity, colonyId, mpId, sex, organ);
+
+        expectedSize = 34;                      // 26-Oct-2017 (mrelac) As of this date there were 34 mutant images found.
+        actualSize   = mutantImages.size();
+        message      = testName + ": Expected at least " + expectedSize + " mutant images but found " + actualSize;
+        logger.info(testName + ": mutant images actualSize = " + actualSize);
+
+        if (actualSize < expectedSize) {
+            logger.error(message);
+            failed = true;
+        }
+
+        assertTrue(message, ! failed);
+    }
+
+    @Test
+    public void testGetComparisonViewerMethodsWithAmbiguous() throws IOException, SolrServerException {
+        String         testName               = Thread.currentThread().getStackTrace()[1].getMethodName();
+        String         acc                    = "MGI:109331";
+        int            numberOfControlsPerSex = 10;
+        String         anatomyId              = "MA:0000327";
+        String         parameterStableId      = "IMPC_ALZ_076_001";
+        SexType        sex                    = null;
+        ImageDTO       imgDoc                 = null;
+        List<ImageDTO> controlImages;
+        List<ImageDTO> mutantImages;
+        String         organ                  = null;
+        boolean        failed                 = false;
+
+        String parameterAssociationValue = Expression.AMBIGUOUS.getDisplayName();
+        String zygosity                  = null;
+        String colonyId                  = null;
+        String mpId                      = null;
+
+        int    expectedSize;
+        int    actualSize;
+        String message;
+
+        controlImages = imageService.getControlsBySexAndOthersForComparisonViewer(imgDoc, numberOfControlsPerSex, sex, parameterStableId, anatomyId, parameterAssociationValue);
+
+        expectedSize = 10;                        // 26-Oct-2017 (mrelac) As of this date there were 10 control images found.
+        actualSize   = controlImages.size();
+        message      = testName + " : Expected at least " + expectedSize + " control images but found " + actualSize;
+
+        logger.info(testName + ": control images actualSize = " + actualSize);
+
+        if (actualSize < expectedSize) {
+            logger.error(message);
+            failed = true;
+        }
+
+        mutantImages = imageService.getMutantImagesForComparisonViewer(acc, parameterStableId, parameterAssociationValue, anatomyId, zygosity, colonyId, mpId, sex, organ);
+
+        expectedSize = 2;                       // 26-Oct-2017 (mrelac) As of this date there were 2 mutant images found.
+        actualSize   = mutantImages.size();
+        message      = testName + ": Expected at least " + expectedSize + " mutant images but found " + actualSize;
+        logger.info(testName + ": mutant images actualSize = " + actualSize);
+
+        if (actualSize < expectedSize) {
+            logger.error(message);
+            failed = true;
+        }
+
+        assertTrue(message, ! failed);
+    }
+
+    @Test
+    public void testGetComparisonViewerMethodsWithNoExpression() throws IOException, SolrServerException {
+
+        String         testName                  = Thread.currentThread().getStackTrace()[1].getMethodName();
+        String         acc                       = "MGI:109331";
+        int            numberOfControlsPerSex    = 10;
+        String         anatomyId                 = "MA:0000327";
+        String         parameterStableId         = "IMPC_ALZ_076_001";
+        SexType        sex                       = null;
+        ImageDTO       imgDoc                    = null;
+        List<ImageDTO> controlImages;
+        List<ImageDTO> mutantImages;
+        String         organ                     = null;
+        Expression     expression                = Expression.NO_EXPRESSION;
+        String         parameterAssociationValue = Expression.NO_EXPRESSION.getDisplayName();//Expression.AMBIGUOUS.getDisplayName();
+        String         zygosity                  = null;
+        String         colonyId                  = null;
+        String         mpId                      = null;
+        boolean        failed                    = false;
+
+        int    expectedSize;
+        int    actualSize;
+        String message;
+
+        controlImages = imageService.getControlsBySexAndOthersForComparisonViewer(imgDoc, numberOfControlsPerSex, sex, parameterStableId, anatomyId, expression.getDisplayName());
+
+        expectedSize = 10;                        // 26-Oct-2017 (mrelac) As of this date there were 10 control images found.
+        actualSize   = controlImages.size();
+        message      = testName + ": Expected at least " + expectedSize + " control images but found " + actualSize;
+        logger.info(testName + ": control images actualSize = " + actualSize);
+
+        if (actualSize < expectedSize) {
+            logger.error(message);
+            failed = true;
+        }
+
+        mutantImages = imageService.getMutantImagesForComparisonViewer(acc, parameterStableId, parameterAssociationValue, anatomyId, zygosity, colonyId, mpId, sex, organ);
+
+        expectedSize = 0;                       // 26-Oct-2017 (mrelac) As of this date there were no mutant images found.
+        actualSize   = mutantImages.size();
+        message      = testName + ": Expected at least " + expectedSize + " mutant images but found " + actualSize;
+        logger.info(testName + ": mutant images actualSize = " + actualSize);
+
+        if (actualSize < expectedSize) {
+            logger.error(message);
+            failed = true;
+        }
+
+        assertTrue(message, ! failed);
+    }
 }
