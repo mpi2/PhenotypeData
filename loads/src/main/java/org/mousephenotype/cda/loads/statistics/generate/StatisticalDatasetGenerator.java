@@ -89,9 +89,6 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
         logger.info("Populating normal category lookup");
         Map<String, String> normalEyeCategory = getNormalEyeCategories();
 
-        Map<String, SortedSet<String>> parameters = getParameterMap();
-        logger.info("Prepared " + parameters.keySet().size() + " procedure groups");
-
         List<String> parametersToLoad = null;
 
         OptionParser parser = new OptionParser();
@@ -102,6 +99,10 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
             String paramString = (String) options.valueOf("parameters");
             parametersToLoad = Arrays.asList(paramString.split(","));
         }
+
+
+        Map<String, SortedSet<String>> parameters = getParameterMap(parametersToLoad);
+        logger.info("Prepared " + parameters.keySet().size() + " procedure groups");
 
         List<Map<String, String>> results = getStatisticalDatasets(parametersToLoad);
 
@@ -415,7 +416,7 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
      *
      * @return Map of procedure group key to a Set of parameter stable IDs from IMPReSS
      */
-    private Map<String, SortedSet<String>> getParameterMap() throws SolrServerException, IOException {
+    private Map<String, SortedSet<String>> getParameterMap(List<String> parametersToLoad) throws SolrServerException, IOException {
 
         Map<String, SortedSet<String>> parameters = new HashMap<>();
 
@@ -425,6 +426,10 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
                 .addFilterQuery("observation_type:(categorical OR unidimensional)")
             .setFields(ImpressDTO.PROCEDURE_STABLE_ID, ImpressDTO.PARAMETER_STABLE_ID, ImpressDTO.HAS_OPTIONS)
             .setRows(Integer.MAX_VALUE);
+
+        if (parametersToLoad!= null) {
+            query.addFilterQuery("parameter_stable_id:("+StringUtils.join(parametersToLoad, " OR ")+")");
+        }
 
         pipelineCore
             .query(query)
