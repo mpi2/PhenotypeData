@@ -203,7 +203,6 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
 		        if (mpTerm==null) {
 		            String message = "MP term not found using mpHpParser.getOntologyTerm(termId); where termId = " + termId;
 		            runStatus.addWarning(message);
-			        logger.warn(message);
 		        } else {
                     Set <OntologyTermDTO> hpTerms = mpTerm.getEquivalentClasses();
                     for ( OntologyTermDTO hpTerm : hpTerms ){
