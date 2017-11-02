@@ -102,7 +102,7 @@ $(document).ready(function () {
 		'mp'   : 'top_level_mp_term:*',
 		'disease' : '*:*',
 		'anatomy' : 'selected_top_level_anatomy_term:*',
-		'pipeline' : 'pipeline_stable_id:*',
+		//'pipeline' : 'pipeline_stable_id:*',
 		'images' : '*:*',
 		'allele2' : 'type:Allele'
 	};
