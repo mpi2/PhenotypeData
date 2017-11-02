@@ -26,6 +26,7 @@ import org.mousephenotype.cda.loads.common.DccSqlUtils;
 import org.mousephenotype.cda.loads.create.load.steps.ExperimentLoader;
 import org.mousephenotype.cda.loads.create.load.steps.ImpressUpdater;
 import org.mousephenotype.cda.loads.create.load.steps.SampleLoader;
+import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.annotation.Bean;
@@ -46,6 +47,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @Configuration
 @Import(DataSourcesConfigApp.class)
+@EnableBatchProcessing
 public class LoadConfigBeans implements InitializingBean {
 
     private NamedParameterJdbcTemplate    jdbcCda;
