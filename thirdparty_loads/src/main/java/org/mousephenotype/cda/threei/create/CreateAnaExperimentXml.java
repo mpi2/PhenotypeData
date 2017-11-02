@@ -154,6 +154,8 @@ public class CreateAnaExperimentXml extends CreateAnaXmls implements CommandLine
            
             List<SimpleParameter> simpleParameters = new ArrayList<SimpleParameter>();
             List<ProcedureMetadata> procedureMetadatas = new ArrayList<ProcedureMetadata>();
+            List<SeriesMediaParameter> seriesMediaParameters = new ArrayList<SeriesMediaParameter>();
+            boolean imageAssigned = false;
             for (String[] rowResult : rowsForMouse) {
                 String parameterImpressId = rowResult[24];
                 String value = rowResult[20];
@@ -175,12 +177,30 @@ public class CreateAnaExperimentXml extends CreateAnaXmls implements CommandLine
                     
                 }
 
+                String imagePath = rowResult[28];
+                if (imageAssigned == false && imagePath != null && imagePath.length() > 0 && !imagePath.equals("#N/A")) {
+                    SeriesMediaParameter seriesMediaParameter = new SeriesMediaParameter();
+                    seriesMediaParameter.setParameterID("MGP_ANA_005_001");
+                    ArrayList<SeriesMediaParameterValue> smpvList = new ArrayList<SeriesMediaParameterValue>();
+                    SeriesMediaParameterValue smpv = new SeriesMediaParameterValue();
+                    smpv.setIncrementValue("1");
+                    smpv.setURI(imagePath);
+                    smpv.setFileType("image/tiff");
+                    smpvList.add(smpv);
+                    seriesMediaParameter.setValue(smpvList);
+                    seriesMediaParameters.add(seriesMediaParameter);
+                    imageAssigned = true;
+                }
+
             }
             //experiment.setSequenceID("3I_" + row[0]);
 
             //Experiments
             procedure.setSimpleParameter(simpleParameters);
             procedure.setProcedureMetadata(procedureMetadatas);
+            if (imageAssigned) {
+                procedure.setSeriesMediaParameter(seriesMediaParameters);
+            }
             experiment.setProcedure(procedure);
             experiments.add(experiment);
 

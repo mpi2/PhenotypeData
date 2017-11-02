@@ -59,8 +59,8 @@ public class AnaExcelReaderTest {
     // Expecting 28 columns
     @Test
     public void testNumberOfColumns() {
-        //assertThat( reader.getNumberOfColumns()).isEqualTo(28);
-        assertTrue(reader.getNumberOfColumns() == 28);
+        //assertThat( reader.getNumberOfColumns()).isEqualTo(29);
+        assertTrue(reader.getNumberOfColumns() == 29);
     }
 
     // Test Number of rows read
