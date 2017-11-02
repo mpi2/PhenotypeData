@@ -956,7 +956,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 		List<StatisticalResult> results = new ArrayList<>();
 
 		QueryResponse response = new QueryResponse();
-
+		
 		SolrQuery query = new SolrQuery()
 				.setQuery("*:*")
 				.addFilterQuery(StatisticalResultDTO.ALLELE_ACCESSION_ID + ":\"" + alleleAccession + "\"")
@@ -968,6 +968,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 				.setRows(10)
 				;
 
+		System.out.println("statistical-result query========"+query);
 		if(strain != null) {
 			query.addFilterQuery(StatisticalResultDTO.STRAIN_ACCESSION_ID + ":\"" + strain + "\"");
 		}
