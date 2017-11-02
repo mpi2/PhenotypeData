@@ -4,6 +4,7 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.response.Group;
 import org.apache.solr.client.solrj.response.QueryResponse;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.enumerations.Expression;
@@ -67,6 +68,7 @@ public class ImageServiceTest {
 
 
     @Test
+//@Ignore
     public void testGetImagePropertiesThatHaveMp() throws IOException, SolrServerException {
 
         String testName = Thread.currentThread().getStackTrace()[1].getMethodName();
@@ -86,6 +88,7 @@ public class ImageServiceTest {
     }
 
     @Test
+//@Ignore
     public void testGetImagesForGeneByParameter() throws IOException, SolrServerException {
 
         String        testName                   = Thread.currentThread().getStackTrace()[1].getMethodName();
@@ -110,6 +113,7 @@ public class ImageServiceTest {
     }
 
     @Test
+//@Ignore
     public void testGetPhenotypeAssociatedImages() throws IOException, SolrServerException {
 
         String testName = Thread.currentThread().getStackTrace()[1].getMethodName();
@@ -131,6 +135,7 @@ public class ImageServiceTest {
     }
 
     @Test
+//@Ignore
     public void testGetComparisonViewerMethodsWithNulls() throws IOException, SolrServerException {
 
         String         testName                  = Thread.currentThread().getStackTrace()[1].getMethodName();
@@ -181,6 +186,7 @@ public class ImageServiceTest {
     }
 
     @Test
+//@Ignore
     public void testGetComparisonViewerMethodsWithExpression() throws IOException, SolrServerException {
 
         String         testName                  = Thread.currentThread().getStackTrace()[1].getMethodName();
@@ -232,6 +238,7 @@ public class ImageServiceTest {
     }
 
     @Test
+//@Ignore
     public void testGetComparisonViewerMethodsWithAmbiguous() throws IOException, SolrServerException {
         String         testName               = Thread.currentThread().getStackTrace()[1].getMethodName();
         String         acc                    = "MGI:109331";
@@ -283,6 +290,7 @@ public class ImageServiceTest {
     }
 
     @Test
+//@Ignore
     public void testGetComparisonViewerMethodsWithNoExpression() throws IOException, SolrServerException {
 
         String         testName                  = Thread.currentThread().getStackTrace()[1].getMethodName();
