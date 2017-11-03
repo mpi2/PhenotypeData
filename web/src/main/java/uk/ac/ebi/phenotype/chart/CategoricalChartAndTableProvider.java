@@ -81,7 +81,7 @@ public class CategoricalChartAndTableProvider {
 		logger.debug("running categorical data");
 		
 			List<String> categories = parameter.getCategories();
-			System.out.println("categories===="+categories);
+			//System.out.println("categories===="+categories);
 			
 			//for the IMPC_EYE_092_001 derived parameter hack the categories to match the SR core????
 			if(parameter.getStableId().equals("IMPC_EYE_092_001")){
@@ -163,7 +163,7 @@ public class CategoricalChartAndTableProvider {
 					for (StatisticalResult result : statsResults) {
 						//System.out.println("is matching?="+result.getZygosityType()+" zType="+zType +" result sex="+result.getSexType()+" loopsexType="+sexType +" sexType="+SexType.both);
 						if(result.getSexType().equals(SexType.both)){
-							System.out.println("both pValue detected");
+							//System.out.println("both pValue detected");
 							CategoricalResult veryTempStatsResult = (CategoricalResult) result;
 							categoricalResultAndCharts.setCombinedPValue(veryTempStatsResult.getpValue());
 						}
