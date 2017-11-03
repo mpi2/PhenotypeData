@@ -47,10 +47,15 @@
 							</c:forEach>
 							<td>${categoricalSet.catObjects[0].pValue }</td>
 							<%-- <td>${categoricalSet.catObjects[0].maxEffect }</td> removed effect size as per Terrys request --%>
-						</tr>
+						</tr>	
+						
 					</c:forEach>
 
 				</c:forEach>
+				
+				<c:if test="${categoricalResultAndChart.combinedPValue!=null && categoricalResultAndChart.combinedPValue!=0.0}">
+				<tr><td>Combined Male and Female Analysis</td><td></td><td></td><td>${categoricalResultAndChart.combinedPValue}</td></tr> 
+				</c:if>
 
 			</tbody>
 		</table>

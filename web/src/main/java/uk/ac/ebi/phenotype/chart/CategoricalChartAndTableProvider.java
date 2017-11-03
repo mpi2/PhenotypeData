@@ -121,7 +121,7 @@ public class CategoricalChartAndTableProvider {
 				}
 
 				controlCatData.setCount(controlCount);
-				System.out.println("control=" + sexType.name() + " count=" + controlCount + " category=" + category);
+				//System.out.println("control=" + sexType.name() + " count=" + controlCount + " category=" + category);
 				controlSet.add(controlCatData);
 			}
 			chartData.add(controlSet);
@@ -147,7 +147,7 @@ public class CategoricalChartAndTableProvider {
 						SexType docSexType = SexType.valueOf(expDto
 						.getSex());
 						String categoString = expDto.getCategory();
-						System.out.println("mutant category string="+categoString);
+						//System.out.println("mutant category string="+categoString);
 						// get docs that match the criteria and add
 						// 1 for each that does
 						if (categoString.equals(category) && docSexType.equals(sexType)) {
@@ -161,11 +161,15 @@ public class CategoricalChartAndTableProvider {
 					expCatData.setCount(mutantCount);
 					CategoricalResult tempStatsResult = null;
 					for (StatisticalResult result : statsResults) {
-						System.out.println("is matching?="+result.getZygosityType()+" zType="+zType +" result sex="+result.getSexType()+" loopsexType="+sexType +" sexType="+SexType.both);
-						
+						//System.out.println("is matching?="+result.getZygosityType()+" zType="+zType +" result sex="+result.getSexType()+" loopsexType="+sexType +" sexType="+SexType.both);
+						if(result.getSexType().equals(SexType.both)){
+							System.out.println("both pValue detected");
+							CategoricalResult veryTempStatsResult = (CategoricalResult) result;
+							categoricalResultAndCharts.setCombinedPValue(veryTempStatsResult.getpValue());
+						}
 						// System.out.println("result.getZygosityType()!="+result.getZygosityType()+"  && result.getSexType()="+result.getSexType());
 						if (result.getZygosityType() != null && result.getSexType() != null) {
-							if (result.getZygosityType().equals(zType) && (result.getSexType().equals(sexType) || result.getSexType().equals(SexType.both))) {
+							if (result.getZygosityType().equals(zType) && result.getSexType().equals(sexType)) {
 								expCatData.setResult((CategoricalResult) result);
 								result.setSexType(sexType);
 								result.setZygosityType(zType);
