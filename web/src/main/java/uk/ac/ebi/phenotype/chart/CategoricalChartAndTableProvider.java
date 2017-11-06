@@ -181,7 +181,7 @@ public class CategoricalChartAndTableProvider {
 
 					// //TODO get multiple p values when necessary
 					// System.err.println("ERROR WE NEED to change the code to handle multiple p values and max effect!!!!!!!!");
-					if (tempStatsResult != null) {
+					if (tempStatsResult != null && tempStatsResult.getpValue() != null) {
 						expCatData.setpValue(tempStatsResult.getpValue());
 						if (tempStatsResult.getEffectSize() != null) {
 							expCatData.setMaxEffect(tempStatsResult.getEffectSize());
