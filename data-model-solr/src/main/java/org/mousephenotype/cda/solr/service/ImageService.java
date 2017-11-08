@@ -455,7 +455,7 @@ public class ImageService implements WebStatus{
 		}
 		
 		solrQuery.setRows(numberOfImagesToRetrieve);
-		logger.debug("solr Query in image service "+solrQuery);
+        logger.info("solr Query in image service "+solrQuery);
 		QueryResponse response = solr.query(solrQuery);
 		return response;
 	}
@@ -685,7 +685,7 @@ public class ImageService implements WebStatus{
 					+ parameterStableId+"\"");
 		}
 		solrQuery.setRows(numberOfImagesToRetrieve);
-		logger.debug("solr query for expression images="+solrQuery);
+        logger.info("solr query for control expression images="+solrQuery);
 		QueryResponse response = solr.query(solrQuery);
 
 		return response;
@@ -950,6 +950,7 @@ public class ImageService implements WebStatus{
 		solrQuery.add("group", "true")
         	.add("group.field", ImageDTO.PARAMETER_STABLE_ID)
         	.add("group.limit", Integer.toString(count));
+		logger.info("associated images solr query: " + solrQuery);
 		QueryResponse response = solr.query(solrQuery);
 		List<GroupCommand> groupResponse = response.getGroupResponse().getValues();
         for (GroupCommand groupCommand : groupResponse) {
@@ -1102,7 +1103,7 @@ public class ImageService implements WebStatus{
 		String pivotFacet=ImageDTO.MP_ID_TERM + "," + ImageDTO.COLONY_ID;
 		query.set("facet.pivot", pivotFacet);
 		query.addFacetField(ObservationDTO.COLONY_ID);
-		//System.out.println("solr query for images properties for mp="+query);
+		logger.info("solr query for images properties for mp = " + query);
 		QueryResponse response = solr.query(query);
 		for( PivotField pivot : response.getFacetPivot().get(pivotFacet)){
 			//System.out.println("pivot="+pivot.getValue());

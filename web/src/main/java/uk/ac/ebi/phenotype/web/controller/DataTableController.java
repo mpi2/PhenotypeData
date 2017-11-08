@@ -356,6 +356,10 @@ public class DataTableController {
 				//String fieldName = flList[k];
 				//System.out.println("DataTableController: "+ fieldName + " - value: " + docMap.get(fieldName));
 
+				if (fieldName.equals("latest_phenotype_status") && docMap.get(fieldName).contains("Phenotyping Complete") ){
+					NA = "no abnormal phenotype detected";
+				}
+
 				if ( fieldName.equals("images_link") ){
 
 					String impcImgBaseUrl = baseUrl + "/impcImages/images?";
@@ -1257,7 +1261,7 @@ public class DataTableController {
 		return j.toString();
 	}
 
-	public String parseJsonforGeneDataTable(JSONObject json, HttpServletRequest request, String qryStr, String fqOri, String solrCoreName, boolean legacyOnly) {
+	public String parseJsonforGeneDataTable(JSONObject json, HttpServletRequest request, String qryStr, String fqOri, String solrCoreName, boolean legacyOnly) throws UnsupportedEncodingException {
 
 		RegisterInterestDrupalSolr registerInterest = new RegisterInterestDrupalSolr(config.get("drupalBaseUrl"), request);
 
@@ -1426,7 +1430,6 @@ public class DataTableController {
 
 		// removes quotes or wildcard and highlight matched string
 		qryStr = qryStr.toLowerCase().replaceAll("\"", "").replaceAll("\\*", "");
-		List<String> keys = Arrays.asList(StringUtils.split(qryStr, " "));
 
 		for (int i = 0; i < docs.size(); i ++) {
 			List<String> rowData = new ArrayList<String>();
@@ -1452,28 +1455,17 @@ public class DataTableController {
 				String syn = null;
 
 				for (Object d : data) {
+					counter++;
 
 					if ( d.toString().startsWith("MP:") ){
 						continue;
 					}
 
-					boolean seen = false;
-					for (String key : keys){
-						if ( d.toString().toLowerCase().contains(key) ) {
-							seen = true;
-							break;
-						}
-					}
+					syn = d.toString();
 
-					if (seen ) {
+					if ( d.toString().toLowerCase().contains(qryStr) ) {
 						if (synMatch == null) {
 							synMatch = Tools.highlightMatchedStrIfFound(qryStr, d.toString(), "span", "subMatch");
-						}
-
-					} else {
-						counter++;
-						if (counter == 1) {
-							syn = d.toString();
 						}
 					}
 				}
@@ -1586,7 +1578,6 @@ public class DataTableController {
 
 		// removes quotes or wildcard and highlight matched string
 		qryStr = qryStr.toLowerCase().replaceAll("\"", "").replaceAll("\\*", "");
-		List<String> keys = Arrays.asList(StringUtils.split(qryStr, " "));
 
 		for (int i = 0; i < docs.size(); i ++) {
 			List<String> rowData = new ArrayList<String>();
@@ -1610,24 +1601,12 @@ public class DataTableController {
 				String syn = null;
 
 				for (Object d : data) {
+					counter++;
 
-					boolean seen = false;
-					for (String key : keys){
-						if ( d.toString().toLowerCase().contains(key) ) {
-							seen = true;
-							break;
-						}
-					}
-
-					if (seen ) {
+					syn = d.toString();
+					if ( d.toString().toLowerCase().contains(qryStr) ) {
 						if (synMatch == null) {
 							synMatch = Tools.highlightMatchedStrIfFound(qryStr, d.toString(), "span", "subMatch");
-						}
-					}
-					else {
-						counter++;
-						if ( counter == 1 ) {
-							syn = d.toString();
 						}
 					}
 				}
@@ -1650,32 +1629,6 @@ public class DataTableController {
 			} else {
 				rowData.add(anatomyCol);
 			}
-
-//            if (doc.containsKey(AnatomyDTO.ANATOMY_TERM_SYNONYM)) {
-//                List<String> anatomySynonyms = doc.getJSONArray(AnatomyDTO.ANATOMY_TERM_SYNONYM);
-//                List<String> prefixSyns = new ArrayList();
-//
-//                for (String sn : anatomySynonyms) {
-//                    prefixSyns.add(Tools.highlightMatchedStrIfFound(qryStr, sn, "span", "subMatch"));
-//                }
-//
-//                String syns = null;
-//                if (prefixSyns.size() > 1) {
-//                    syns = "<ul class='synonym'><li>" + StringUtils.join(prefixSyns, "</li><li>") + "</li></ul>";
-//                } else {
-//                    syns = prefixSyns.get(0);
-//                }
-//
-//                String anatomyCol = "<div class='anatomyCol'><div class='title'>"
-//                        + anatomylink
-//                        + "</div>"
-//                        + "<div class='subinfo'>"
-//                        + "<span class='label'>synonym: </span>" + syns
-//                        + "</div>";
-//                rowData.add(anatomyCol);
-//            } else {
-//                rowData.add(anatomylink);
-//            }
 
 			// developmental stage
 			rowData.add(doc.getString("stage"));
@@ -2349,7 +2302,6 @@ public class DataTableController {
 
 		// removes quotes or wildcard and highlight matched string
 		qryStr = qryStr.toLowerCase().replaceAll("\"", "").replaceAll("\\*", "");
-		List<String> keys = Arrays.asList(StringUtils.split(qryStr, " "));
 
 		for (int i = 0; i < fields.length; i ++) {
 			try {
@@ -2371,22 +2323,10 @@ public class DataTableController {
 					for (Object d : data) {
 						counter++;
 
-						boolean seen = false;
-						for (String key : keys){
-							if ( d.toString().toLowerCase().contains(key) ) {
-								seen = true;
-								break;
-							}
-						}
-
-						if (seen ) {
+						syn = d.toString();
+						if ( d.toString().toLowerCase().contains(qryStr) ) {
 							if ( synMatch == null ) {
 								synMatch = Tools.highlightMatchedStrIfFound(qryStr, d.toString(), "span", "subMatch");
-							}
-						}
-						else {
-							if (counter == 1) {
-								syn = d.toString();
 							}
 						}
 					}
@@ -2433,7 +2373,7 @@ public class DataTableController {
 
 	}
 
-	private String concateGeneInfo(JSONObject doc, JSONObject json, String qryStr, HttpServletRequest request) {
+	private String concateGeneInfo(JSONObject doc, JSONObject json, String qryStr, HttpServletRequest request) throws UnsupportedEncodingException {
 
 		List<String> geneInfo = new ArrayList<String>();
 
@@ -2454,7 +2394,6 @@ public class DataTableController {
 
 				// removes quotes or wildcard and highlight matched string
 				qryStr = qryStr.toLowerCase().replaceAll("\"", "").replaceAll("\\*", "");
-				List<String> keys = Arrays.asList(StringUtils.split(qryStr, " "));
 
 				//System.out.println(qryStr);
 				String field = fields[i];
@@ -2476,22 +2415,11 @@ public class DataTableController {
 					for (Object d : data) {
 						counter++;
 
-						boolean seen = false;
-						for (String key : keys){
-							if ( d.toString().toLowerCase().contains(key) ) {
-								seen = true;
-								break;
-							}
-						}
+						syn = d.toString();
 
-						if (seen ) {
+						if ( d.toString().toLowerCase().contains(qryStr) ) {
 							if ( synMatch == null ) {
 								synMatch = Tools.highlightMatchedStrIfFound(qryStr, d.toString(), "span", "subMatch");
-							}
-						}
-						else {
-							if  (counter == 1) {
-								syn = d.toString();
 							}
 						}
 					}

@@ -34,7 +34,7 @@
 						<th>${categoryObject.category}</th>
 					</c:forEach>
 					<th>P Value</th>
-					<th>Effect Size</th>
+					<%-- <th>Effect Size</th> --%>
 				</tr>
 			</thead>
 			<tbody>
@@ -46,11 +46,16 @@
 								<td>${catObject.count }</td>
 							</c:forEach>
 							<td>${categoricalSet.catObjects[0].pValue }</td>
-							<td>${categoricalSet.catObjects[0].maxEffect }</td>
-						</tr>
+							<%-- <td>${categoricalSet.catObjects[0].maxEffect }</td> removed effect size as per Terrys request --%>
+						</tr>	
+						
 					</c:forEach>
 
 				</c:forEach>
+				
+				<c:if test="${categoricalResultAndChart.combinedPValue!=null && categoricalResultAndChart.combinedPValue!=0.0}">
+				<tr><td>Combined Male and Female Analysis</td><td></td><td></td><td>${categoricalResultAndChart.combinedPValue}</td></tr> 
+				</c:if>
 
 			</tbody>
 		</table>
