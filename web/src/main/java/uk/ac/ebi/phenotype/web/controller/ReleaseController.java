@@ -265,19 +265,19 @@ public class ReleaseController {
 		 * Drill down by top level phenotypes
 		 */
 
-		String topLevelsMPs = metaInfo.get("top_level_mps");
-		String[] topLevelsMPsArray = topLevelsMPs.split(",");
+//		String topLevelsMPs = metaInfo.get("top_level_mps");
+//		String[] topLevelsMPsArray = topLevelsMPs.split(",");
 		// List all categories name
-		Map<String, String> topLevelsNames = new HashMap<String, String>();
+//		Map<String, String> topLevelsNames = new HashMap<String, String>();
 
-		Map<String, List<AggregateCountXYBean>> topLevelMap = new HashMap<String, List<AggregateCountXYBean>>();
-		for (int i=0; i<topLevelsMPsArray.length; i++) {
-			topLevelsNames.put(topLevelsMPsArray[i], metaInfo.get("top_level_"+topLevelsMPsArray[i]));
-			topLevelMap.put(metaInfo.get("top_level_"+topLevelsMPsArray[i]), analyticsDAO.getHistoricalData("top_level_"+topLevelsMPsArray[i]+"_calls"));
-		}
-
-		String topLevelTrendsChart = chartsProvider.generateHistoryTrendsChart(topLevelMap, allReleases, "Top Level Phenotypes", "", 
-				"MP Calls", null, false, "topLevelTrendsChart", "checkAllTopLevels", "uncheckAllTopLevels");
+//		Map<String, List<AggregateCountXYBean>> topLevelMap = new HashMap<String, List<AggregateCountXYBean>>();
+//		for (int i=0; i<topLevelsMPsArray.length; i++) {
+//			topLevelsNames.put(topLevelsMPsArray[i], metaInfo.get("top_level_"+topLevelsMPsArray[i]));
+//			topLevelMap.put(metaInfo.get("top_level_"+topLevelsMPsArray[i]), analyticsDAO.getHistoricalData("top_level_"+topLevelsMPsArray[i]+"_calls"));
+//		}
+//
+//		String topLevelTrendsChart = chartsProvider.generateHistoryTrendsChart(topLevelMap, allReleases, "Top Level Phenotypes", "",
+//				"MP Calls", null, false, "topLevelTrendsChart", "checkAllTopLevels", "uncheckAllTopLevels");
 
 		TreeMap<String, TreeMap<String, Long>> annotationDistribution = new TreeMap<>();
 		annotationDistribution.put(ZygosityType.heterozygote.getName(), gpService.getDistributionOfAnnotationsByMPTopLevel(ZygosityType.heterozygote, null));
@@ -329,7 +329,7 @@ public class ReleaseController {
 		model.addAttribute("distributionCharts", distributionCharts);
 		model.addAttribute("trendsChart", trendsChart);
 		model.addAttribute("datapointsTrendsChart", datapointsTrendsChart);
-		model.addAttribute("topLevelTrendsChart", topLevelTrendsChart);
+//		model.addAttribute("topLevelTrendsChart", topLevelTrendsChart);
 		model.addAttribute("annotationDistributionChart", annotationDistributionChart);
 		model.addAttribute("genotypeStatusChart", chartProvider.getStatusColumnChart(as.getStatusCount(null, AlleleDTO.GENE_LATEST_MOUSE_STATUS), "Genotyping Status", "genotypeStatusChart", null ));
 		model.addAttribute("phenotypeStatusChart", chartProvider.getStatusColumnChart(as.getStatusCount(null, AlleleDTO.LATEST_PHENOTYPE_STATUS), "Phenotyping Status", "phenotypeStatusChart", null));
