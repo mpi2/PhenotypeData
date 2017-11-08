@@ -1887,7 +1887,7 @@ public class FileExportController {
 				//System.out.println("FileExportController: "+ fieldName + " - value: " + docMap.get(fieldName));
 
 
-				if (fieldName.equals("latest_phenotype_status") && docMap.get(fieldName).contains("Phenotyping Complete") ){
+				if (docMap.containsKey("latest_phenotype_status") && fieldName.equals("latest_phenotype_status") && docMap.get(fieldName).contains("Phenotyping Complete") ){
 					NA = "no abnormal phenotype detected";
 				}
 
