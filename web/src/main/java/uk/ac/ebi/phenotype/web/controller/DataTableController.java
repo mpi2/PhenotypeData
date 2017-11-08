@@ -356,6 +356,10 @@ public class DataTableController {
 				//String fieldName = flList[k];
 				//System.out.println("DataTableController: "+ fieldName + " - value: " + docMap.get(fieldName));
 
+				if (fieldName.equals("latest_phenotype_status") && docMap.get(fieldName).contains("Phenotyping Complete") ){
+					NA = "no abnormal phenotype detected";
+				}
+
 				if ( fieldName.equals("images_link") ){
 
 					String impcImgBaseUrl = baseUrl + "/impcImages/images?";

@@ -1884,7 +1884,12 @@ public class FileExportController {
 			// for (String fieldName : doc.getFieldNames()) {
 			for (int k = 0; k < cols.length; k++) {
 				String fieldName = cols[k];
-				//System.out.println("DataTableController: "+ fieldName + " - value: " + docMap.get(fieldName));
+				//System.out.println("FileExportController: "+ fieldName + " - value: " + docMap.get(fieldName));
+
+
+				if (fieldName.equals("latest_phenotype_status") && docMap.get(fieldName).contains("Phenotyping Complete") ){
+					NA = "no abnormal phenotype detected";
+				}
 
 				if (fieldName.equals("id_link")) {
 
@@ -1933,8 +1938,10 @@ public class FileExportController {
 
 					data.add(imgLink);
 				} else if (docMap.get(fieldName) == null) {
-
+					//System.out.println("fieldname: "+ fieldName);
 					String vals = NA;
+
+
 					if (fieldName.equals("disease_id_by_gene_orthology")) {
 						vals = orthologousDiseaseIdAssociations.size() == 0 ? NA
 								: StringUtils.join(orthologousDiseaseIdAssociations, ", ");
