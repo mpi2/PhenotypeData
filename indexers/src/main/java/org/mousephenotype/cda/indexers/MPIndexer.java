@@ -67,7 +67,7 @@ import java.util.*;
 @EnableAutoConfiguration
 public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
 
-	private final Logger logger = LoggerFactory.getLogger(MPIndexer.class);
+    private final Logger logger = LoggerFactory.getLogger(MPIndexer.class);
     private static final int LEVELS_FOR_NARROW_SYNONYMS = 2;
     private Map<String, Synonym> synonymsBySymbol;                              // Map of Synonym, keyed by synonym symbol
 
@@ -130,7 +130,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
 
     @Override
     public RunStatus validateBuild()
-    throws IndexerException {
+            throws IndexerException {
         return super.validateBuild(mpCore);
     }
 
@@ -157,15 +157,15 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
             maParser = ontologyParserFactory.getMaParser();
             logger.info("Loaded ma parser");
 
-        	// maps MP to number of phenotyping calls
+            // maps MP to number of phenotyping calls
             runStatus = populateMpCallMaps(synonymsBySymbol);
 
-               for (String error : runStatus.getErrorMessages()) {
-                   logger.error(error);
-               }
-               for (String warning : runStatus.getWarningMessages()) {
-                   logger.warn(warning);
-               }
+            for (String error : runStatus.getErrorMessages()) {
+                logger.error(error);
+            }
+            for (String warning : runStatus.getWarningMessages()) {
+                logger.warn(warning);
+            }
 
             // Delete the documents in the core if there are any.
             mpCore.deleteByQuery("*:*");
@@ -202,10 +202,10 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
 
 
                 OntologyTermDTO mpTerm = mpHpParser.getOntologyTerm(termId);
-		        if (mpTerm==null) {
-		            String message = "MP term not found using mpHpParser.getOntologyTerm(termId); where termId = " + termId;
-		            runStatus.addWarning(message);
-		        } else if ( ! mpId.equals("MP:0000001")) { // do not include all narrow synonyms for root term
+                if (mpTerm==null) {
+                    String message = "MP term not found using mpHpParser.getOntologyTerm(termId); where termId = " + termId;
+                    runStatus.addWarning(message);
+                } else if ( ! mpId.equals("MP:0000001")) { // do not include all narrow synonyms for root term
 
                     Set <OntologyTermDTO> hpTerms = mpTerm.getEquivalentClasses();
                     for ( OntologyTermDTO hpTerm : hpTerms ){
@@ -225,6 +225,8 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
                     // level of 2 means starting from the first level child(ren) (ie, level 1) and the child(ren) of the first level child (level 2)
 
                     mp.setMpNarrowSynonym(new ArrayList(getRestrictedNarrowSynonyms(mpTerm, LEVELS_FOR_NARROW_SYNONYMS)));
+                    // the fix removes checking for phenotyping calls as we need those mp being tested by have no phenotype found included as well
+
 //                    if (isOKForNarrowSynonyms(mp)){
 //                        mp.setMpNarrowSynonym(new ArrayList(mpHpParser.getNarrowSynonyms(mpTerm, LEVELS_FOR_NARROW_SYNONYMS)));
 //                    } else  {
@@ -444,9 +446,9 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
 
 
     private long sumPhenotypingCalls(String mpId)
-    throws SolrServerException, IOException {
+            throws SolrServerException, IOException {
 
-    	return mpCalls.containsKey(mpId) ? mpCalls.get(mpId) : new Long(0);
+        return mpCalls.containsKey(mpId) ? mpCalls.get(mpId) : new Long(0);
 
     }
 
@@ -468,7 +470,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
 
 
     private void initialiseSupportingBeans()
-    throws IndexerException {
+            throws IndexerException {
 
         try {
             // Alleles
@@ -494,7 +496,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
 
 
     private Map<String, List<PhenotypeCallSummaryBean>> getPhenotypeCallSummary1()
-    throws SQLException {
+            throws SQLException {
 
         Map<String, List<PhenotypeCallSummaryBean>> beans = new HashMap<>();
 
@@ -528,7 +530,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
     }
 
     private Map<String, List<String>> getImpcPipe()
-    throws SQLException {
+            throws SQLException {
 
         Map<String, List<String>> beans = new HashMap<>();
 
@@ -551,7 +553,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
     }
 
     private Map<String, List<String>> getLegacyPipe()
-    throws SQLException {
+            throws SQLException {
 
         Map<String, List<String>> beans = new HashMap<>();
 
@@ -574,7 +576,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
     }
 
     private Map<String, List<PhenotypeCallSummaryBean>> getPhenotypeCallSummary2()
-    throws SQLException {
+            throws SQLException {
 
         Map<String, List<PhenotypeCallSummaryBean>> beans = new HashMap<>();
 
@@ -608,7 +610,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
     }
 
     private Map<String, List<MPStrainBean>> getStrains()
-    throws SQLException {
+            throws SQLException {
 
         Map<String, List<MPStrainBean>> beans = new HashMap<>();
 
@@ -636,7 +638,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
     }
 
     private Map<String, List<ParamProcedurePipelineBean>> getPPPBeans()
-    throws SQLException {
+            throws SQLException {
 
         Map<String, List<ParamProcedurePipelineBean>> beans = new HashMap<>();
 
@@ -687,7 +689,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
      */
     protected static void addTopLevelTerms(MpDTO mp, OntologyTermDTO mpDTO) {
 
-      	if (mpDTO.getTopLevelIds() != null && mpDTO.getTopLevelIds().size() > 0){
+        if (mpDTO.getTopLevelIds() != null && mpDTO.getTopLevelIds().size() > 0){
             mp.addTopLevelMpId(mpDTO.getTopLevelIds());
             mp.addTopLevelMpTerm(mpDTO.getTopLevelNames());
             mp.addTopLevelMpTermSynonym(mpDTO.getTopLevelSynonyms());
