@@ -246,7 +246,6 @@ public class DataTableController {
 
 		String hostName = request.getAttribute("mappedHostname").toString().replace("https:", "http:");
 		String baseUrl = request.getAttribute("baseUrl").toString();
-
 		String NA = "Info not available";
 
 		List<String> flList = Arrays.asList(StringUtils.split(fllist, ","));
@@ -356,10 +355,6 @@ public class DataTableController {
 				//String fieldName = flList[k];
 				//System.out.println("DataTableController: "+ fieldName + " - value: " + docMap.get(fieldName));
 
-				if (docMap.containsKey("latest_phenotype_status") && fieldName.equals("latest_phenotype_status") && docMap.get(fieldName).contains("Phenotyping Complete") ){
-					NA = "no abnormal phenotype detected";
-				}
-
 				if ( fieldName.equals("images_link") ){
 
 					String impcImgBaseUrl = baseUrl + "/impcImages/images?";
@@ -400,6 +395,13 @@ public class DataTableController {
 					fieldCount++;
 
 					String vals = NA;
+
+					if (docMap.containsKey("latest_phenotype_status")
+							&& docMap.get("latest_phenotype_status").contains("Phenotyping Complete")
+							&& fieldName.startsWith("mp_") ){
+						vals = "no abnormal phenotype detected";
+					}
+
 					if ( fieldName.equals("disease_id_by_gene_orthology") ){
 						vals = orthologousDiseaseIdAssociations.size() == 0 ? NA : StringUtils.join(orthologousDiseaseIdAssociations, ", ");
 					}
