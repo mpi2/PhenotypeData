@@ -225,6 +225,8 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
                     // level of 2 means starting from the first level child(ren) (ie, level 1) and the child(ren) of the first level child (level 2)
 
                     mp.setMpNarrowSynonym(new ArrayList(getRestrictedNarrowSynonyms(mpTerm, LEVELS_FOR_NARROW_SYNONYMS)));
+                    // the fix removes checking for phenotyping calls as we need those mp being tested by have no phenotype found included as well
+
 //                    if (isOKForNarrowSynonyms(mp)){
 //                        mp.setMpNarrowSynonym(new ArrayList(mpHpParser.getNarrowSynonyms(mpTerm, LEVELS_FOR_NARROW_SYNONYMS)));
 //                    } else  {
