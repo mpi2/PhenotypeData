@@ -98,7 +98,7 @@ public class LandingPageController {
             deafness.setDescription("This page aims to relate deafnessnes to phenotypes which have been produced by IMPC.");
             deafness.setLink("biological-system/hearing");
             bsPages.add(deafness);
-            if(isLive){
+            if(!isLive){
 	            LandingPageDTO vision = new LandingPageDTO();
 	            vision.setTitle("Vision");
 	            vision.setImage(baseUrl + "/img/landing/deafnessIcon.png");
@@ -168,13 +168,15 @@ public class LandingPageController {
             pageTitle = "Cardiovascular system";
         }
         else if (page.equalsIgnoreCase("vision")) {
-          mpDTO = mpService.getPhenotype("MP:0005391");
-          anatomyIds.add("EMAPA:36003");
-          anatomyIds.add("MA:0002444");
-          pageTitle = "Vision";
+        		mpDTO = mpService.getPhenotype("MP:0005391");
+          	anatomyIds.add("EMAPA:36003");
+          	anatomyIds.add("MA:0002444");
+          	pageTitle = "Vision";
         }
           else if (page.equalsIgnoreCase("metabolism")) {
             mpDTO = mpService.getPhenotype("MP:0005376");
+            model.addAttribute("shortDescription", "<h3>The IMPC is increasing our understanding of the genetic basis for metabolic diseases</h3>"
+            		+ "<ul><li>Metabolic diseases, such as obesity and diabetes, affect people worldwide</li><li>The function of many genes in the genome still unknown</li><li>Knockout mice allow us to understand metabolic procedures and relate them to human disease</li></ul>");
             pageTitle = "Metabolism";
         } 
         //else if (page.equalsIgnoreCase("vision")) {
@@ -211,6 +213,16 @@ public class LandingPageController {
             procedures = procedures
                     .stream()
                     .filter(x -> "Combined SHIRPA and Dysmorphology".equals(x.getProcedureName()) || "Auditory Brain Stem Response".equals(x.getProcedureName()))
+                    .collect(Collectors.toList());
+            model.addAttribute("adultOnly", true);
+        }
+        
+        // Per Alba 2017-11-07
+        // On the metabolism landing page, filter out all procedures TODO
+        if (page.equalsIgnoreCase("metabolism")) {
+            procedures = procedures
+                    .stream()
+                     .filter(x -> !"Gross Pathology and Tissue Collection".equals(x.getProcedureName()))
                     .collect(Collectors.toList());
             model.addAttribute("adultOnly", true);
         }
@@ -509,7 +521,7 @@ public class LandingPageController {
         return "embryoVignettes";
     }
 
-
+    
 }
 //just hold these here until we create the new set of pages from Nat, Terry and Violeta
 //{

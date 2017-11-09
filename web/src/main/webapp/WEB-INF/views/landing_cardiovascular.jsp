@@ -139,16 +139,15 @@
                                     <p>The following diagram represents the various biological system phenotypes associations for genes linked to cardiovascular system phenotypes. The line thickness is correlated with the strength of the association.</p>
                                     <p>Clicking on chosen phenotype(s) on the diagram allow to select common genes. Corresponding gene lists can be downloaded using the download icon.</p>
                                 
-                                <div id="chordContainer"></div>
-                                <svg id="chordDiagramSvg" width="960" height="960"></svg>
-                                <script>
-                                    var mpTopLevelTerms = ["cardiovascular system phenotype"];
-                                    drawChords("chordDiagramSvg", "chordContainer", false, mpTopLevelTerms, false, null, false);
-                                </script>
+	                                <div id="chordContainer"></div>
+	                                <svg id="chordDiagramSvg" width="960" height="960"></svg>
+	                                <script>
+	                                    var mpTopLevelTerms = ["cardiovascular system phenotype"];
+	                                    drawChords("chordDiagramSvg", "chordContainer", false, mpTopLevelTerms, false, null, false);
+	                                </script>
                                 </div>
                             </div>
                         </div>
-
 
                         <div class="section" id="gene-ko-effect" >
 
