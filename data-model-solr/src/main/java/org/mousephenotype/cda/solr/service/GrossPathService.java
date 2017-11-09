@@ -46,8 +46,6 @@ public class GrossPathService {
 		System.out.println("observations for GrossPath size with abnormal=" + allObservations.size());
 		Map<String, List<ObservationDTO>> anatomyToObservationMap = this.getAnatomyNamesToObservationsMap(allObservations);//only look at abnormal anatomies now as summary view
 			for (String anatomyName : anatomyToObservationMap.keySet()) {				
-				int numberOfAbnormalTerms=0;//more than one term per observation often - so these are not abnormal observations
-				int numberOfNormalTerms=0;
 				int numberOfnormalObservationsForRow=0;
 				int numberOfAbnormalObservationsForRow=0;
 				//for summary we want the rows split on a key of anatomy||zygosity||normal/abnormal
@@ -66,6 +64,8 @@ public class GrossPathService {
 							if (obs.getObservationType().equalsIgnoreCase("ontological")) {
 	
 								if (obs.getSubTermName() != null) {
+									int numberOfAbnormalTerms=0;//more than one term per observation often - so these are not abnormal observations
+									int numberOfNormalTerms=0;
 									for (int i = 0; i < obs.getSubTermId().size(); i++) {
 										
 										if(obs.getSubTermId().get(i).contains("MP:")){//for the moment lets keep things simple and restrict to MP only as PATO doesn't seem useful as is.
