@@ -2,7 +2,8 @@
 
 <div class="section">
     <div class="inner">
-        <p> ${shortDescription} </p>
+        ${shortDescription}
+        
         <%--<p><b>${systemName}</b> refers to ${mpDTO.getMpDefinition()}</p>--%>
         <%--<p>This page aims to present ${systemName} related phenotypes lines which have been produced by IMPC. </p>--%>
         <br/> <br/>

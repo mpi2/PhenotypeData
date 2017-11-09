@@ -181,7 +181,6 @@ var drawChords = function (svgId, containerId, openNewPage, mpTopLevelTerms, idg
                         .transition()
                         .style("stroke-opacity", opacity)
                         .style("fill-opacity", opacity);
-
                 };
             }
         }
