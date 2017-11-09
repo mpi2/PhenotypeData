@@ -55,10 +55,7 @@ public class GrossPathService {
 					System.out.println("key for row is "+key);
 					GrossPathPageTableRow row = new GrossPathPageTableRow();
 					row.setAnatomyName(anatomyName);
-					
-					
 						for(ObservationDTO obs: keysForRow.get(key)){
-							System.out.println(obs);
 							row.setZygosity(obs.getZygosity().substring(0, 3).toUpperCase());
 		
 							ImpressBaseDTO parameter = new ImpressBaseDTO(null, null, obs.getParameterStableId(),
