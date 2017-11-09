@@ -15,8 +15,7 @@
 
 	<!-- CSS Local Imports -->
     <link href="${baseUrl}/css/alleleref.css" rel="stylesheet" />
-
-
+    <link href="${baseUrl}/css/heatmap.css" rel="stylesheet" />
 
 	<script type='text/javascript' src='${baseUrl}/js/charts/highcharts.js?v=${version}'></script>
     <script type='text/javascript' src='${baseUrl}/js/charts/highcharts-more.js?v=${version}'></script>

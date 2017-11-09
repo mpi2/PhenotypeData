@@ -65,8 +65,11 @@ var drawHeatMap = function () {
 	
 	    tooltip: {
 	    		useHTML: true,
+	    		// borderWidth: 0,
+//            backgroundColor: "rgba(255,255,255,0)",
+            shadow: false,
+            backgroundColor: "rgba(245,245,245,1)",
 	        formatter: function () {
-	        	// Separate between sexes for sex icon TODO
 	            return '<b>' + this.series.xAxis.categories[this.point.x] + '</b> outlier <br><b>' +
 	                this.point.value + '</b> genes on <br><b>' + this.series.yAxis.categories[this.point.y] + '</b>';
 	        },
@@ -89,7 +92,4 @@ var drawHeatMap = function () {
 	    }]
 	
 	});
-	
-	// document.getElementById('preview').innerHTML = drawHeatMap.getCSV();
 }
-// $('#preview').html(drawHeatMap.getCSV());
