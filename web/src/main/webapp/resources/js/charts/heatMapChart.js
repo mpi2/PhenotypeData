@@ -65,8 +65,6 @@ var drawHeatMap = function () {
 	
 	    tooltip: {
 	    		useHTML: true,
-	    		// borderWidth: 0,
-//            backgroundColor: "rgba(255,255,255,0)",
             shadow: false,
             backgroundColor: "rgba(245,245,245,1)",
 	        formatter: function () {
