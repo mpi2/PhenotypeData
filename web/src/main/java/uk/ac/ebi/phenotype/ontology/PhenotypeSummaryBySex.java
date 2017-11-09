@@ -125,5 +125,16 @@ public class PhenotypeSummaryBySex {
 
 		return total;
 	}
+
+
+	@Override
+	public String toString() {
+		return "PhenotypeSummaryBySex [notSignificantMalePhens=" + notSignificantMalePhens
+				+ ", notSignificantFemalePhens=" + notSignificantFemalePhens + ", notSignificantBothPhens="
+				+ notSignificantBothPhens + ", significantMalePhens=" + significantMalePhens
+				+ ", significantFemalePhens=" + significantFemalePhens + ", significantBothPhens="
+				+ significantBothPhens + "]";
+	}
+	
 	
 }
