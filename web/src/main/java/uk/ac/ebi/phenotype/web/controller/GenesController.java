@@ -325,6 +325,7 @@ public class GenesController {
             }
 
         } catch (Exception e) {
+        	e.printStackTrace();
             LOGGER.error("ERROR: ", e);
         }
 
@@ -452,7 +453,7 @@ public class GenesController {
 
         for (PhenotypeSummaryBySex summary : phenotypeSummaryObjects.values()) {
             for (PhenotypeSummaryType phen : summary.getBothPhenotypes(significant)) {
-                mpGroups.put(phen.getGroup(), phen.getTopLevelIds());
+            	mpGroups.put(phen.getGroup(), phen.getTopLevelIds());
             }
             for (PhenotypeSummaryType phen : summary.getMalePhenotypes(significant)) {
                 mpGroups.put(phen.getGroup(), phen.getTopLevelIds());

@@ -23,6 +23,11 @@ package org.mousephenotype.cda.solr.service.dto;
  */
 public class BasicBean {
 
+	@Override
+	public String toString() {
+		return "BasicBean [id=" + id + ", name=" + name + ", description=" + description + "]";
+	}
+
 	String id;
 	String name;
 	String description;
