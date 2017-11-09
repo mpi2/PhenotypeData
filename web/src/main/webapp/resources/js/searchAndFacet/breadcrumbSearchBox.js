@@ -102,7 +102,7 @@ $(document).ready(function () {
 		'mp'   : 'top_level_mp_term:*',
 		'disease' : '*:*',
 		'anatomy' : 'selected_top_level_anatomy_term:*',
-		'pipeline' : 'pipeline_stable_id:*',
+		//'pipeline' : 'pipeline_stable_id:*',
 		'images' : '*:*',
 		'allele2' : 'type:Allele'
 	};
@@ -389,11 +389,11 @@ $(document).ready(function () {
                         // when url lookes like .../search at end
                         // need to figure out the default datatype tab
                         $.ajax({
-                            url: baseUrl + '/fetchDefaultCore?q="' + input + '"',
+                            url: baseUrl + '/fetchDefaultCore?q=' + input,
                             type: 'get',
                             success: function (defaultCore) {
                                 //document.location.href = baseUrl + '/search/' + defaultCore + '?kw="' + input + '"';
-                                document.location.href = baseUrl + '/search/' + defaultCore + '?kw=' + input;
+                                document.location.href = baseUrl + '/search/' + defaultCore + '?kw=' + input;  // do not append double quotes, take whatever the user types
                             }
                         });
                     }

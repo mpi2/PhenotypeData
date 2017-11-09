@@ -345,6 +345,7 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 				if (stableIdToTermIdMap.containsKey(paramString)) {
 					String thisTermId = stableIdToTermIdMap.get(paramString);
 					if (thisTermId.startsWith("MA:")) {
+// System.out.println("thisTermId="+thisTermId);
 						imageDTO = addAnatomyValues(maParser.getOntologyTerm(thisTermId), imageDTO);
 					}
 					if (thisTermId.startsWith("EMAPA:")) {
@@ -412,6 +413,7 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 
 
 		if (term.getTopLevelIds() != null){
+// System.out.println("adding top level ids="+term.getTopLevelIds());
 			imageDTO.addSelectedTopLevelAnatomyId(term.getTopLevelIds(), true);
 			imageDTO.addSelectedTopLevelAnatomyTerm(term.getTopLevelNames(), true);
 			imageDTO.addSelectedTopLevelAnatomySynonyms(term.getTopLevelSynonyms(), true);
@@ -706,7 +708,7 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 				paramToMa.put(parameterStableId, maAcc);
 			}
 		}
-		logger.debug(" paramToMa size = " + paramToMa.size());
+		System.out.println(" paramToMa size = " + paramToMa.size());
 		return paramToMa;
 	}
 

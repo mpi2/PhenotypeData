@@ -53,7 +53,7 @@ public class CategoricalResult extends StatisticalResult implements Serializable
     private String categoryB;
 
     @Column(name = "p_value")
-    private double pValue;
+    private Double pValue;
 
     @Column(name = "effect_size")
     private Double categoricalEffectSize;
@@ -154,7 +154,7 @@ public class CategoricalResult extends StatisticalResult implements Serializable
     /**
      * @return the pValue
      */
-    public double getpValue() {
+    public Double getpValue() {
         return pValue;
     }
 
@@ -162,7 +162,7 @@ public class CategoricalResult extends StatisticalResult implements Serializable
      * @param pValue2
      *            the pValue to set
      */
-    public void setpValue(double pValue2) {
+    public void setpValue(Double pValue2) {
         this.pValue = pValue2;
     }
 

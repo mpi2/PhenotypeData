@@ -78,8 +78,7 @@ public class SolrServerConfig {
 	@Bean(name = "phenodigmCore")
 	public HttpSolrClient getPhenodigmCore() {
         //renamed old phenodigm core with an explicit 1 at the end
-		//return new HttpSolrClient(solrBaseUrl + "/phenodigm");
-        return new HttpSolrClient(solrBaseUrl + "/phenodigm1");
+        return new HttpSolrClient(solrBaseUrl + "/phenodigm");
 	}
 
     //Phenodigm2 server 

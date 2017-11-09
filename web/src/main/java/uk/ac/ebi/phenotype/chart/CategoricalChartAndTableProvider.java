@@ -79,7 +79,17 @@ public class CategoricalChartAndTableProvider {
 	throws SQLException, IOException, URISyntaxException {
 
 		logger.debug("running categorical data");
-		List<String> categories = parameter.getCategories();		
+		
+			List<String> categories = parameter.getCategories();
+			//System.out.println("categories===="+categories);
+			
+			//for the IMPC_EYE_092_001 derived parameter hack the categories to match the SR core????
+			if(parameter.getStableId().equals("IMPC_EYE_092_001")){
+				categories=new ArrayList<>();
+				categories.add("normal");
+				categories.add("abnormal");
+			}
+			
 		CategoricalResultAndCharts categoricalResultAndCharts = new CategoricalResultAndCharts();
 		categoricalResultAndCharts.setExperiment(experiment);
 		List<? extends StatisticalResult> statsResults = (List<? extends StatisticalResult>) experiment.getResults();
@@ -111,7 +121,7 @@ public class CategoricalChartAndTableProvider {
 				}
 
 				controlCatData.setCount(controlCount);
-				logger.debug("control=" + sexType.name() + " count=" + controlCount + " category=" + category);
+				//System.out.println("control=" + sexType.name() + " count=" + controlCount + " category=" + category);
 				controlSet.add(controlCatData);
 			}
 			chartData.add(controlSet);
@@ -137,6 +147,7 @@ public class CategoricalChartAndTableProvider {
 						SexType docSexType = SexType.valueOf(expDto
 						.getSex());
 						String categoString = expDto.getCategory();
+						//System.out.println("mutant category string="+categoString);
 						// get docs that match the criteria and add
 						// 1 for each that does
 						if (categoString.equals(category) && docSexType.equals(sexType)) {
@@ -150,6 +161,12 @@ public class CategoricalChartAndTableProvider {
 					expCatData.setCount(mutantCount);
 					CategoricalResult tempStatsResult = null;
 					for (StatisticalResult result : statsResults) {
+						//System.out.println("is matching?="+result.getZygosityType()+" zType="+zType +" result sex="+result.getSexType()+" loopsexType="+sexType +" sexType="+SexType.both);
+						if(result.getSexType().equals(SexType.both)){
+							//System.out.println("both pValue detected");
+							CategoricalResult veryTempStatsResult = (CategoricalResult) result;
+							categoricalResultAndCharts.setCombinedPValue(veryTempStatsResult.getpValue());
+						}
 						// System.out.println("result.getZygosityType()!="+result.getZygosityType()+"  && result.getSexType()="+result.getSexType());
 						if (result.getZygosityType() != null && result.getSexType() != null) {
 							if (result.getZygosityType().equals(zType) && result.getSexType().equals(sexType)) {
@@ -164,7 +181,7 @@ public class CategoricalChartAndTableProvider {
 
 					// //TODO get multiple p values when necessary
 					// System.err.println("ERROR WE NEED to change the code to handle multiple p values and max effect!!!!!!!!");
-					if (tempStatsResult != null) {
+					if (tempStatsResult != null && tempStatsResult.getpValue() != null) {
 						expCatData.setpValue(tempStatsResult.getpValue());
 						if (tempStatsResult.getEffectSize() != null) {
 							expCatData.setMaxEffect(tempStatsResult.getEffectSize());

@@ -15,8 +15,10 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.web.controller;
 
+import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
+import org.mousephenotype.cda.solr.SolrUtils;
 import org.mousephenotype.cda.solr.generic.util.Tools;
 import org.mousephenotype.cda.solr.service.SolrIndex;
 import org.slf4j.Logger;
@@ -32,9 +34,13 @@ import uk.ac.ebi.phenotype.service.search.SearchUrlServiceFactory;
 import uk.ac.ebi.phenotype.util.SearchSettings;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.net.URLDecoder;
+import java.util.HashMap;
+import java.util.Map;
 
 @Controller
 public class SearchController {
@@ -93,6 +99,7 @@ public class SearchController {
 
 		String paramString = request.getQueryString();
 
+		System.out.println("paramStr: " + paramString);
 		SearchSettings settings = new SearchSettings("gene", "*", null, request);
 		//System.out.println("settings: "+ settings.toString());
 		return processSearch(settings, model);
@@ -174,6 +181,49 @@ public class SearchController {
 	}
 
 	/**
+	 	 * Figure out the default datatype and check the corresponding tab on search page when returing search result
+	 	 *
+	 	 * @param query string
+	 	 * @return dataType as string
+	 	 */
+	@RequestMapping(value = "/fetchDefaultCore", method = RequestMethod.GET)
+	@ResponseBody public String fetchDefaultCore(
+			@RequestParam(value = "q", required = true) String query,
+			HttpServletRequest request,
+			HttpServletResponse response,
+			Model model) throws IOException, URISyntaxException  {
+
+		String fqStr = "";
+		SearchSettings settings = new SearchSettings("gene", query, fqStr, request);
+
+		JSONObject facetCounts = getMainFacetCounts(settings);
+
+		String dataType = "gene";
+
+		if (facetCounts.getInt("gene") > 0){
+			dataType = "gene";
+		}
+		else if (facetCounts.getInt("mp") > 0){
+			dataType =  "mp";
+		}
+		else if (facetCounts.getInt("disease") > 0){
+			dataType =  "disease";
+		}
+		else if (facetCounts.getInt("anatomy") > 0){
+			dataType =  "anatomy";
+		}
+		else if (facetCounts.getInt("allele2") > 0){
+			dataType = "allele2";
+		}
+		else if (facetCounts.getInt("impc_images") > 0){
+			dataType =  "impc_images";
+		}
+
+		return dataType;
+
+	}
+
+	/**
 	 * Perform two-step processing of a search. The first step is to count hits
 	 * in various facets/categories. The second step is to retrieve detailed
 	 * hits in one of the categories.
@@ -188,8 +238,14 @@ public class SearchController {
 
 		// fetch counts of hits in broad categories (used in webpage in tab headings)
 		JSONObject facetCounts = getMainFacetCounts(settings);
+
+		// get default datatype based on facet count in the order of
+		// gene, mp, disease, mp, images, products
+		//settings.setDataType(setDefaultDataTypeByFacetCount(facetCounts));
+		//System.out.println("type: "+ settings.getDataType());
+
 		model.addAttribute("facetCount", facetCounts);
-		model.addAttribute("searchQuery", settings.getQuery().replaceAll("\\\\", ""));
+		model.addAttribute("searchQuery", URLDecoder.decode(settings.getQuery().replaceAll("\\\\", ""), "UTF-8"));
 		model.addAttribute("dataType", settings.getDataType());
 		//logger.info("facetCounts: " + facetCounts.toString(1));
 
@@ -355,7 +411,6 @@ public class SearchController {
 			HttpServletRequest request,
 			Model model) {
 
-		System.out.println("bq 2");
 		return Tools.fetchOutputFieldsCheckBoxesHtml(core);
 
 	}
