@@ -116,7 +116,7 @@
 									${histRow.zygosity}
 									</td>
 									<td>
-									${histRow.sampleId}<%-- / ${histRow.sequenceId} --%>
+									Mouse ${histRow.sampleId}<%-- / ${histRow.sequenceId} --%>
 									
 									</td>
 									<td>
@@ -153,8 +153,24 @@
 									<td>
 									<c:forEach var="parameter" items="${histRow.severity }">
 										
-											${parameter.textValue }
-										
+										<%-- <c:choose>
+											<c:when test="${parameter.textValue==0}">
+											Normal
+											</c:when>
+											<c:when test="${parameter.textValue==1 }">
+											Mild
+											</c:when>
+											<c:when test="${parameter.textValue==2 }">
+											Moderate
+											</c:when>
+											<c:when test="${parameter.textValue==3 }">
+											Marked
+											</c:when>
+											<c:when test="${parameter.textValue==4 }">
+											Severe
+											</c:when>
+										</c:choose> --%>
+										${parameter.textValue}
 									</c:forEach> 
 									</td>
 									
