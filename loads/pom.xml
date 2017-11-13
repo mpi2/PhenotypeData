@@ -111,6 +111,11 @@
             <artifactId>h2</artifactId>
             <scope>test</scope>
         </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.scala-lang</groupId>-->
+            <!--<artifactId>scala-reflect</artifactId>-->
+            <!--<version>2.11.8</version>-->
+        <!--</dependency>-->
 
     </dependencies>
 

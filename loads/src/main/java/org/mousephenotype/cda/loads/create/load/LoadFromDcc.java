@@ -20,7 +20,6 @@ import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import org.apache.commons.lang3.StringUtils;
 import org.mousephenotype.cda.db.utilities.SqlUtils;
-import org.mousephenotype.cda.loads.create.load.config.LoadConfigBeans;
 import org.mousephenotype.cda.loads.create.load.steps.ExperimentLoader;
 import org.mousephenotype.cda.loads.create.load.steps.SampleLoader;
 import org.mousephenotype.cda.loads.exceptions.DataLoadException;
@@ -29,7 +28,6 @@ import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobInstance;
 import org.springframework.batch.core.JobParameters;
-import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.job.builder.FlowBuilder;
@@ -39,7 +37,7 @@ import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.boot.Banner;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
-import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Lazy;
 
 import javax.inject.Inject;
@@ -54,8 +52,7 @@ import java.util.List;
  * Loads the cda database from the dcc database.
  * Created by mrelac on 31/08/2016.
  */
-@EnableBatchProcessing
-@Import( {LoadConfigBeans.class })
+@ComponentScan
 public class LoadFromDcc implements CommandLineRunner {
     private List<Job>           jobs = new ArrayList<>();
 
@@ -108,12 +105,12 @@ public class LoadFromDcc implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        initialize(args);
+        initialise(args);
         runJobs();
     }
 
 
-    private void initialize(String[] args) throws DataLoadException {
+    private void initialise(String[] args) throws DataLoadException {
 
         OptionParser parser = new OptionParser();
 

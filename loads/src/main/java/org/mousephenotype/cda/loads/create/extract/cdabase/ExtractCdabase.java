@@ -17,32 +17,26 @@
 package org.mousephenotype.cda.loads.create.extract.cdabase;
 
 import org.mousephenotype.cda.db.utilities.SqlUtils;
-import org.mousephenotype.cda.loads.create.extract.cdabase.config.ExtractCdabaseConfigBeans;
 import org.mousephenotype.cda.loads.create.extract.cdabase.steps.*;
 import org.mousephenotype.cda.loads.exceptions.DataLoadException;
-import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobInstance;
 import org.springframework.batch.core.JobParameters;
-import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
-import org.springframework.batch.core.configuration.annotation.JobScope;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.job.builder.FlowBuilder;
 import org.springframework.batch.core.job.flow.Flow;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.core.repository.JobRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.Banner;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
-import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
 
-import javax.annotation.Resource;
+import javax.inject.Inject;
 import javax.sql.DataSource;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -54,9 +48,52 @@ import java.util.concurrent.Executors;
 /**
  * Created by mrelac on 12/04/2016.
  */
-@EnableBatchProcessing
-@Import( {ExtractCdabaseConfigBeans.class })
+@ComponentScan
 public class ExtractCdabase implements CommandLineRunner {
+
+    private SqlUtils               sqlUtils = new SqlUtils();
+    private JobBuilderFactory      jobBuilderFactory;
+    private StepBuilderFactory     stepBuilderFactory;
+    private JobRepository          jobRepository;
+    private List<Downloader>       downloaderList;
+    private List<OntologyLoader>   ontologyLoaderList;
+    private AlleleLoader           alleleLoader;
+    private BiologicalModelLoader  bioModelLoader;
+    private MarkerLoader           markerLoader;
+    private StrainLoader           strainLoader;
+    private PhenotypedColonyLoader phenotypedColonyLoader;
+    private DataSource             cdabaseDataSource;
+
+
+    @Inject
+    @Lazy
+    public ExtractCdabase(
+            JobBuilderFactory jobBuilderFactory,
+            StepBuilderFactory stepBuilderFactory,
+            JobRepository jobRepository,
+            List<Downloader> downloaderList,
+            List<OntologyLoader> ontologyLoaderList,
+            AlleleLoader alleleLoader,
+            BiologicalModelLoader bioModelLoader,
+            MarkerLoader markerLoader,
+            StrainLoader strainLoader,
+            PhenotypedColonyLoader phenotypedColonyLoader,
+            DataSource cdabaseDataSource
+
+    ) {
+        this.jobBuilderFactory = jobBuilderFactory;
+        this.stepBuilderFactory = stepBuilderFactory;
+        this.jobRepository = jobRepository;
+        this.downloaderList = downloaderList;
+        this.ontologyLoaderList = ontologyLoaderList;
+        this.alleleLoader = alleleLoader;
+        this.bioModelLoader = bioModelLoader;
+        this.markerLoader = markerLoader;
+        this.strainLoader = strainLoader;
+        this.phenotypedColonyLoader = phenotypedColonyLoader;
+        this.cdabaseDataSource = cdabaseDataSource;
+    }
+
 
     /**
      * This class is intended to be a command-line callable java main program that creates (or truncates the tables in)
@@ -70,49 +107,12 @@ public class ExtractCdabase implements CommandLineRunner {
         app.run(args);
     }
 
-    @Autowired
-    public JobBuilderFactory jobBuilderFactory;
-
-    @Autowired
-    @JobScope
-    public StepBuilderFactory stepBuilderFactory;
-
-    @Autowired
-    public JobRepository jobRepository;
-
-    @Resource(name = "downloader")
-    public List<Downloader> downloader;
-
-    @Resource(name = "ontologyLoaderList")
-    public List<OntologyLoader> ontologyLoaderList;
-
-    @Autowired
-    public AlleleLoader alleleLoader;
-
-    @Autowired
-    public BiologicalModelLoader bioModelLoader;
-
-    @Autowired
-    public MarkerLoader markerLoader;
-
-    @Autowired
-    public StrainLoader strainLoader;
-
-    @Autowired
-    public PhenotypedColonyLoader phenotypedColonyLoader;
-
-    @Autowired
-    @Qualifier("cdabaseDataSource")
-    @Lazy
-    private DataSource cdabaseDataSource;
-
-    private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
-    private SqlUtils sqlUtils = new SqlUtils();
 
     @Override
     public void run(String... args) throws Exception {
         runJobs();
     }
+
 
     public Job[] runJobs() throws DataLoadException {
 
@@ -152,14 +152,14 @@ public class ExtractCdabase implements CommandLineRunner {
     public Job downloaderJob() throws DataLoadException {
 
         List<Flow> flows = new ArrayList<>();
-        for (int i = 0; i < downloader.size(); i++) {
-            Downloader downloader = this.downloader.get(i);
+        for (int i = 0; i < downloaderList.size(); i++) {
+            Downloader downloader = this.downloaderList.get(i);
             flows.add(new FlowBuilder<Flow>("subflow_" + i).from(downloader.getStep(stepBuilderFactory)).end());
         }
 
         FlowBuilder<Flow> flowBuilder = new FlowBuilder<Flow>("splitflow").start(flows.get(0));
 
-        for (int i = 1; i < downloader.size(); i++) {
+        for (int i = 1; i < downloaderList.size(); i++) {
             SimpleAsyncTaskExecutor executor = new SimpleAsyncTaskExecutor(Executors.defaultThreadFactory());
             flowBuilder.split(executor).add(flows.get(i));
         }

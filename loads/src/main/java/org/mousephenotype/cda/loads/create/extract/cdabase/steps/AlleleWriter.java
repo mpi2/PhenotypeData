@@ -21,7 +21,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 
 import java.util.List;
 
@@ -32,8 +31,7 @@ public class AlleleWriter implements ItemWriter {
     private final Logger   logger   = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    @Qualifier("cdabaseSqlUtils")
-    private CdaSqlUtils cdaSqlUtils;
+    private CdaSqlUtils cdabaseSqlUtils;
 
     private int written = 0;
 
@@ -49,7 +47,7 @@ public class AlleleWriter implements ItemWriter {
     @Override
     public void write(List items) throws Exception {
 
-        written += cdaSqlUtils.insertAlleles(items);
+        written += cdabaseSqlUtils.insertAlleles(items);
     }
 
     public int getWritten() {

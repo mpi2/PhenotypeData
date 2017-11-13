@@ -16,10 +16,16 @@
 
 package org.mousephenotype.cda.loads.integration.data.config;
 
+import org.mousephenotype.cda.loads.common.config.DataSourcesConfigApp;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.autoconfigure.data.jpa.JpaRepositoriesAutoConfiguration;
+import org.springframework.boot.autoconfigure.data.neo4j.Neo4jDataAutoConfiguration;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration;
+import org.springframework.boot.autoconfigure.jms.JndiConnectionFactoryAutoConfiguration;
+import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.FilterType;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 
@@ -29,18 +35,26 @@ import javax.sql.DataSource;
  * Created by mrelac on 02/05/2017.
  */
 @Configuration
-//@ComponentScan(value = "org.mousephenotype.cda.loads", excludeFilters = {@ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = AppConfig.class)})
+@EnableAutoConfiguration(exclude = {
+        JndiConnectionFactoryAutoConfiguration.class,
+        DataSourceAutoConfiguration.class,
+        HibernateJpaAutoConfiguration.class,
+        JpaRepositoriesAutoConfiguration.class,
+        DataSourceTransactionManagerAutoConfiguration.class,
+        Neo4jDataAutoConfiguration.class
+})
+public class TestConfig extends DataSourcesConfigApp {
 
-@ComponentScan(value = "org.mousephenotype.cda.loads")
-public class TestConfig {
 
+
+    // dcc database
     @Bean
-    public DataSource riDataSource() {
+    public DataSource dccDataSource() {
         return new EmbeddedDatabaseBuilder()
                 .setType(EmbeddedDatabaseType.H2)
                 .ignoreFailedDrops(true)
-                .setName("dcc")
-                .addScripts("sql/h2/schema.sql", "sql/h2/dataIntegrationTest-data.sql")
+                .setName("dccTest")
+                .addScripts("sql/h2/createDccTestTables.sql", "sql/h2/dataIntegrationTest-data.sql")
                 .build();
     }
 }

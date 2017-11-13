@@ -20,25 +20,21 @@ import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import org.mousephenotype.cda.loads.common.CdaSqlUtils;
 import org.mousephenotype.cda.loads.common.DccSqlUtils;
-import org.mousephenotype.cda.loads.create.extract.dcc.config.ExtractDccConfigBeans;
 import org.mousephenotype.cda.loads.exceptions.DataLoadException;
 import org.mousephenotype.dcc.exportlibrary.datastructure.core.specimen.*;
 import org.mousephenotype.dcc.exportlibrary.xmlserialization.exceptions.XMLloadingException;
 import org.mousephenotype.dcc.utils.xml.XMLUtils;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.Banner;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
-import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.Lazy;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.sql.DataSource;
-import javax.validation.constraints.NotNull;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -49,28 +45,28 @@ import java.util.List;
  * specimen files currently found at /usr/local/komp2/phenotype_data/impc. This class is meant to be an executable jar
  * whose arguments describe the profile containing the application.properties, the source file, and the database name.
  */
-@Import( {ExtractDccConfigBeans.class })
+@ComponentScan
 public class ExtractDccSpecimens implements CommandLineRunner {
 
     private String datasourceShortName;
+    private String dbname;
     private String filename;
-    private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
+    private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     // Required by the Harwell DCC export utilities
-    public static final  String CONTEXT_PATH = "org.mousephenotype.dcc.exportlibrary.datastructure.core.common:org.mousephenotype.dcc.exportlibrary.datastructure.core.procedure:org.mousephenotype.dcc.exportlibrary.datastructure.core.specimen:org.mousephenotype.dcc.exportlibrary.datastructure.tracker.submission:org.mousephenotype.dcc.exportlibrary.datastructure.tracker.validation";
+    public static final String CONTEXT_PATH = "org.mousephenotype.dcc.exportlibrary.datastructure.core.common:org.mousephenotype.dcc.exportlibrary.datastructure.core.procedure:org.mousephenotype.dcc.exportlibrary.datastructure.core.specimen:org.mousephenotype.dcc.exportlibrary.datastructure.tracker.submission:org.mousephenotype.dcc.exportlibrary.datastructure.tracker.validation";
 
-    private String    dbname;
-
-    @NotNull
-    @Autowired
-    @Qualifier("dccDataSource")
-    @Lazy
-    private DataSource dccDataSource;
-
-    @NotNull
-    @Autowired
-    @Lazy
+    private DataSource  dccDataSource;
     private DccSqlUtils dccSqlUtils;
+
+
+    public ExtractDccSpecimens(
+            DataSource dccDataSource,
+            DccSqlUtils dccSqlUtils
+    ) {
+        this.dccDataSource = dccDataSource;
+        this.dccSqlUtils = dccSqlUtils;
+    }
 
 
     public static void main(String[] args) throws Exception {
@@ -105,12 +101,18 @@ public class ExtractDccSpecimens implements CommandLineRunner {
 
         OptionSet options = parser.parse(args);
 
-        if ( ! options.has("datasourceShortName")) {
-            String message = "Missing required command-line paraemter 'datasourceShortName'";
+        if (!options.has("datasourceShortName")) {
+            String message = "Missing required command-line parameter 'datasourceShortName'";
             logger.error(message);
             throw new DataLoadException(message);
         }
         datasourceShortName = (String) options.valuesOf("datasourceShortName").get(0);
+
+        if (!options.has("filename")) {
+            String message = "Missing required command-line parameter 'filename'";
+            logger.error(message);
+            throw new DataLoadException(message);
+        }
         filename = (String) options.valuesOf("filename").get(0);
 
         try {
@@ -211,7 +213,7 @@ public class ExtractDccSpecimens implements CommandLineRunner {
         // embryo or mouse
         if (specimen instanceof Embryo) {
             dccSqlUtils.insertEmbryo((Embryo) specimen, specimenPk);
-        } else  if (specimen instanceof Mouse) {
+        } else if (specimen instanceof Mouse) {
             dccSqlUtils.insertMouse((Mouse) specimen, specimenPk);
         } else {
             throw new DataLoadException("Unknown specimen type '" + specimen.getClass().getSimpleName());
@@ -228,8 +230,8 @@ public class ExtractDccSpecimens implements CommandLineRunner {
         }
 
         // chromosomalAlteration
-        if ( ! specimen.getChromosomalAlteration().isEmpty()) {
-            throw new DataLoadException("chromosomalAlteration is not yet supported. Records found!");
+        if (!specimen.getChromosomalAlteration().isEmpty()) {
+            throw new DataLoadException("chromosomalAlteration }is not yet supported. Records found!");
         }
 
         // center_specimen

@@ -30,6 +30,7 @@ import org.mousephenotype.cda.utilities.RunStatus;
 import org.mousephenotype.dcc.exportlibrary.datastructure.core.procedure.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
@@ -2326,6 +2327,8 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
 
             } catch (DuplicateKeyException e) {
 
+            } catch (DataIntegrityViolationException e) {
+                logger.error(e.getLocalizedMessage() + " phenotypedColony:\n" + phenotypedColony);
             }
         }
 

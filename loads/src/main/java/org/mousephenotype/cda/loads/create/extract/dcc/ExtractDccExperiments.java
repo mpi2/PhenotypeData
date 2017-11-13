@@ -22,26 +22,21 @@ import org.apache.commons.lang3.StringUtils;
 import org.mousephenotype.cda.loads.common.CdaSqlUtils;
 import org.mousephenotype.cda.loads.common.DccSqlUtils;
 import org.mousephenotype.cda.loads.common.SpecimenExtended;
-import org.mousephenotype.cda.loads.create.extract.dcc.config.ExtractDccConfigBeans;
 import org.mousephenotype.cda.loads.exceptions.DataLoadException;
 import org.mousephenotype.dcc.exportlibrary.datastructure.core.common.StatusCode;
 import org.mousephenotype.dcc.exportlibrary.datastructure.core.procedure.*;
 import org.mousephenotype.dcc.exportlibrary.datastructure.core.specimen.Specimen;
 import org.mousephenotype.dcc.utils.xml.XMLUtils;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.Banner;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
-import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.Lazy;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.sql.DataSource;
-import javax.validation.constraints.NotNull;
 import java.sql.SQLException;
 import java.util.*;
 
@@ -52,7 +47,7 @@ import java.util.*;
  * experiment files currently found at /usr/local/komp2/phenotype_data/impc. This class is meant to be an executable jar
  * whose arguments describe the profile containing the application.properties, the source file, and the database name.
  */
-@Import( { ExtractDccConfigBeans.class })
+@ComponentScan
 public class ExtractDccExperiments implements CommandLineRunner {
 
     private String datasourceShortName;
@@ -70,16 +65,17 @@ public class ExtractDccExperiments implements CommandLineRunner {
     // Required by the Harwell DCC export utilities
     public static final String CONTEXT_PATH = "org.mousephenotype.dcc.exportlibrary.datastructure.core.common:org.mousephenotype.dcc.exportlibrary.datastructure.core.procedure:org.mousephenotype.dcc.exportlibrary.datastructure.core.specimen:org.mousephenotype.dcc.exportlibrary.datastructure.tracker.submission:org.mousephenotype.dcc.exportlibrary.datastructure.tracker.validation";
 
-    @NotNull
-    @Autowired
-    @Qualifier("dccDataSource")
-    @Lazy
-    private DataSource dcc;
-
-    @NotNull
-    @Autowired
-    @Lazy
+    private DataSource dccDataSource;
     private DccSqlUtils dccSqlUtils;
+
+
+    public ExtractDccExperiments(
+            DataSource dccDataSource,
+            DccSqlUtils dccSqlUtils
+    ) {
+        this.dccDataSource = dccDataSource;
+        this.dccSqlUtils = dccSqlUtils;
+    }
 
 
     public static void main(String[] args) throws Exception {
@@ -138,7 +134,7 @@ public class ExtractDccExperiments implements CommandLineRunner {
 
         if (options.has("create")) {
             try {
-                dbname = dcc.getConnection().getCatalog();
+                dbname = dccDataSource.getConnection().getCatalog();
             } catch (SQLException e) {
                 dbname = "Unknown";
             }
@@ -146,7 +142,7 @@ public class ExtractDccExperiments implements CommandLineRunner {
             logger.info("Dropping and creating dcc experiment tables for database {} - begin", dbname);
             org.springframework.core.io.Resource r = new ClassPathResource("scripts/dcc/createExperiment.sql");
             ResourceDatabasePopulator            p = new ResourceDatabasePopulator(r);
-            p.execute(dcc);
+            p.execute(dccDataSource);
             logger.info("Dropping and creating dcc experiment tables for database {} - complete", dbname);
         }
 

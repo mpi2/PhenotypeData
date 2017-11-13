@@ -17,7 +17,6 @@
 package org.mousephenotype.cda.loads.create.load;
 
 import org.mousephenotype.cda.db.utilities.SqlUtils;
-import org.mousephenotype.cda.loads.create.load.config.LoadConfigBeans;
 import org.mousephenotype.cda.loads.create.load.steps.ImpressUpdater;
 import org.mousephenotype.cda.loads.exceptions.DataLoadException;
 import org.slf4j.LoggerFactory;
@@ -25,21 +24,18 @@ import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobInstance;
 import org.springframework.batch.core.JobParameters;
-import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
-import org.springframework.batch.core.configuration.annotation.JobScope;
-import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.job.builder.FlowBuilder;
 import org.springframework.batch.core.job.flow.Flow;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.core.repository.JobRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.Banner;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
-import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Lazy;
 
+import javax.inject.Inject;
 import javax.sql.DataSource;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -49,9 +45,33 @@ import java.util.Date;
  * Loads the cda database from the impress database.
  * Created by mrelac on 30/09/2016.
  */
-@EnableBatchProcessing
-@Import( {LoadConfigBeans.class })
+@ComponentScan
 public class UpdateImpressTables implements CommandLineRunner {
+
+    private final org.slf4j.Logger logger   = LoggerFactory.getLogger(this.getClass());
+    private       SqlUtils         sqlUtils = new SqlUtils();
+
+    private JobBuilderFactory jobBuilderFactory;
+    private JobRepository     jobRepository;
+    private ImpressUpdater    impressUpdater;
+    private DataSource        cdaDataSource;
+
+
+
+    @Inject
+    @Lazy
+    public UpdateImpressTables(
+            JobBuilderFactory jobBuilderFactory,
+            JobRepository jobRepository,
+            ImpressUpdater impressUpdater,
+            DataSource cdaDataSource
+    ) {
+        this.jobBuilderFactory = jobBuilderFactory;
+        this.jobRepository = jobRepository;
+        this.impressUpdater = impressUpdater;
+        this.cdaDataSource = cdaDataSource;
+    }
+
 
     /**
      * This class is intended to be a command-line callable java main program that loads the cda database.
@@ -63,25 +83,7 @@ public class UpdateImpressTables implements CommandLineRunner {
         app.run(args);
     }
 
-    @Autowired
-    public JobBuilderFactory jobBuilderFactory;
 
-    @Autowired
-    @JobScope
-    public StepBuilderFactory stepBuilderFactory;
-
-    @Autowired
-    public JobRepository jobRepository;
-
-    @Autowired
-    public ImpressUpdater impressUpdater;
-
-    @Autowired
-    @Qualifier("cdaDataSource")
-    private DataSource cdaDataSource;
-
-    private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
-    private SqlUtils sqlUtils = new SqlUtils();
 
     @Override
     public void run(String... args) throws Exception {

@@ -1,0 +1,1 @@
+INSERT INTO mike (c1) VALUES (1), (2), (3);

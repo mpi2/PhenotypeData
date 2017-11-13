@@ -1019,7 +1019,7 @@ DROP TABLE IF EXISTS phenotyped_colony;
 CREATE TABLE phenotyped_colony (
 	id                                          INT(11)     NOT NULL AUTO_INCREMENT,
 	colony_name                                 VARCHAR(64) NOT NULL,
-	es_cell_name                                VARCHAR(64),
+	es_cell_name                                VARCHAR(128),
 	gf_acc                                      VARCHAR(20) NOT NULL,
 	gf_db_id                                    INT(11)     NOT NULL,
 	allele_symbol                               VARCHAR(64) NOT NULL,

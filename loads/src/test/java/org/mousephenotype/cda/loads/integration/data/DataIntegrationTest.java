@@ -16,19 +16,46 @@
 
 package org.mousephenotype.cda.loads.integration.data;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.junit.MockitoJUnit;
+import org.mousephenotype.cda.loads.common.DccSqlUtils;
+import org.mousephenotype.cda.loads.common.config.DataSourcesConfigApp;
+import org.mousephenotype.cda.loads.create.extract.dcc.ExtractDccSpecimens;
+import org.mousephenotype.cda.loads.integration.data.config.TestConfig;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.FilterType;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 
+import javax.sql.DataSource;
 import java.util.Base64;
+import java.util.HashMap;
+import java.util.Map;
+
+/**
+ * This is an end-to-end integration data test class that uses an in-memory database to populate a small dcc, cda_base,
+ * and cda set of databases.
+ */
 
 @RunWith(SpringRunner.class)
-@WebAppConfiguration
-//@ContextConfiguration(classes = AppDevConfig.class)
+@ComponentScan
+@ContextConfiguration(classes = TestConfig.class)
+
+//@ComponentScan(value = {"org.mousephenotype.cda.loads.integration.data"} , excludeFilters = {
+//        @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = org.mousephenotype.cda.loads.common.config.DataSourcesConfigApp.class),
+//        @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = org.mousephenotype.cda.loads.create.extract.cdabase.config.ExtractCdabaseConfigBeans.class),
+//        @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = org.mousephenotype.cda.loads.create.extract.dcc.config.ExtractDccConfigBeans.class)
+//})
+
+
+
 public class DataIntegrationTest {
 
 //    private String authStringEncoded ;
@@ -49,22 +76,55 @@ public class DataIntegrationTest {
 //    @Autowired
 //    private String riPassword;
 
+//    @Autowired
+//    private ExtractDccSpecimens extractDccSpecimens;
+
+//    @Autowired
+//    private NamedParameterJdbcTemplate jdbcMike;
+
+    @Autowired
+    private DataSource dccDataSource;
+
+    @Autowired
+    private DccSqlUtils dccSqlUtils;
+
+
+@Before
+public void initialise() {
+//    DataSourcesConfigApp a = new MockitoJUnit();
+
+
+}
+
 
     /**
-     * This is an end-to-end integration data test clas that uses an in-memory database to populate a small dcc, cda_base,
-     * and cda set of databases. It tests the Atk2 gene from dcc import to cda load, insuring that the background strain
-     * is the same for both controls and mutants:
-     *      Load Akt2.xml file
+     * The intention of this test is to verify that the background strain is the same for control specimens as it is for
+     * mutant specimens. This test should be made for both line-level and specimen-level experiments.
      *
-     *     register interest (using DEV web service)
-     *     unregister interest (using DEV web service)
-     *     generate
-     *     send
-     * @throws Exception
+     * So we need a control specimen and a mutant specimen for the specimen-level experiment part of the test, and a
+     * line-level experiment for the line-level part of the test.
+     *
+     * specimen-level experiment using Akt2:
+     *   productionCenter: Wtsi
+     *
+     *   SPECIMEN                         EXPERIMENT
+     *   control specimenId:  14819
+     *   mutant specimenId:   19603       WTSI.2013-10-31.14.experiment.impc.xml   line 38783
      */
 //    @Ignore
     @Test
-    public void testAkt2() throws Exception {
+    public void testBackgroundStrainIsEqual() throws Exception {
+
+        Map<String, Object> parameterMap = new HashMap<>();
+
+//        SqlRowSet rs = jdbcMike.queryForRowSet("SELECT * FROM mike", parameterMap);
+//        while (rs.next()) {
+//            System.out.println("c1 = " + rs.getInt("c1"));
+//        }
+
+        dccSqlUtils.getDbName();
+
+
 //
 //        String[] emails           = new String[]{"mrelac@ebi.ac.uk", "mike@foxhill.com"};
 //        String[] geneAccessionIds = new String[]{"MGI:1919199", "MGI:102851"};
