@@ -46,6 +46,29 @@ import javax.sql.DataSource;
 public class TestConfig extends DataSourcesConfigApp {
 
 
+    // cda_base database
+    @Bean
+    public DataSource cdabaseDataSource() {
+        return new EmbeddedDatabaseBuilder()
+                .setType(EmbeddedDatabaseType.H2)
+                .ignoreFailedDrops(true)
+                .setName("cda_base_test")
+                .addScripts("sql/h2/cdabase/schema.sql")
+                .build();
+    }
+
+
+    // cda database
+    @Bean
+    public DataSource cdaDataSource() {
+        return new EmbeddedDatabaseBuilder()
+                .setType(EmbeddedDatabaseType.H2)
+                .ignoreFailedDrops(true)
+                .setName("cda_test")
+                .addScripts("sql/h2/cdabase/schema.sql")
+                .build();
+    }
+
 
     // dcc database
     @Bean
@@ -53,8 +76,8 @@ public class TestConfig extends DataSourcesConfigApp {
         return new EmbeddedDatabaseBuilder()
                 .setType(EmbeddedDatabaseType.H2)
                 .ignoreFailedDrops(true)
-                .setName("dccTest")
-                .addScripts("sql/h2/createDccTestTables.sql", "sql/h2/dataIntegrationTest-data.sql")
+                .setName("dcc_test")
+                .addScripts("sql/h2/dcc/createSpecimen.sql", "sql/h2/dcc/createExperiment.sql")
                 .build();
     }
 }
