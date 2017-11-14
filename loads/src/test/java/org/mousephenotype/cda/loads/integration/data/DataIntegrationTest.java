@@ -20,10 +20,13 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.loads.common.CdaSqlUtils;
 import org.mousephenotype.cda.loads.common.DccSqlUtils;
+import org.mousephenotype.cda.loads.create.extract.dcc.ExtractDccExperiments;
+import org.mousephenotype.cda.loads.create.extract.dcc.ExtractDccSpecimens;
 import org.mousephenotype.cda.loads.integration.data.config.TestConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.core.io.Resource;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -66,7 +69,13 @@ public class DataIntegrationTest {
     @Autowired
     private CdaSqlUtils cdaSqlUtils;
 
-    
+
+
+    @Autowired
+    private ExtractDccSpecimens extractDccSpecimens;
+
+    @Autowired
+    private ExtractDccExperiments extractDccExperiments;
 
 
 
@@ -88,8 +97,10 @@ public class DataIntegrationTest {
     @Test
     public void testBackgroundStrainIsEqual() throws Exception {
 
-//        Resource r = context.getResource("classpath:sql/h2/dataIntegrationTest-data.sql");
-//        ScriptUtils.executeSqlScript(ds.getConnection(), r);
+        Resource specimens = context.getResource("classpath:xml/akt2Specimens.xml");
+        Resource experiments = context.getResource("classpath:xml/akt2Experiments.xml");
+
+
 
 
 

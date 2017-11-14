@@ -17,6 +17,8 @@
 package org.mousephenotype.cda.loads.integration.data.config;
 
 import org.mousephenotype.cda.loads.common.config.DataSourcesConfigApp;
+import org.mousephenotype.cda.loads.create.extract.dcc.ExtractDccExperiments;
+import org.mousephenotype.cda.loads.create.extract.dcc.ExtractDccSpecimens;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.data.jpa.JpaRepositoriesAutoConfiguration;
 import org.springframework.boot.autoconfigure.data.neo4j.Neo4jDataAutoConfiguration;
@@ -79,5 +81,15 @@ public class TestConfig extends DataSourcesConfigApp {
                 .setName("dcc_test")
                 .addScripts("sql/h2/dcc/createSpecimen.sql", "sql/h2/dcc/createExperiment.sql")
                 .build();
+    }
+
+    @Bean
+    public ExtractDccSpecimens extractDccSpecimens() {
+        return new ExtractDccSpecimens(dccDataSource(), dccSqlUtils());
+    }
+
+    @Bean
+    public ExtractDccExperiments extractDccExperiments() {
+        return new ExtractDccExperiments(dccDataSource(), dccSqlUtils());
     }
 }
