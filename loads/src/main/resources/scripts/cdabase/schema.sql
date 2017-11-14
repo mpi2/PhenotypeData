@@ -981,7 +981,7 @@ CREATE TABLE parameter_association (
 
 	PRIMARY KEY (id),
 	KEY observation_id_idx (observation_id),
-	UNIQUE KEY parameter_association_uk (observation_id, parameter_id, parameter_association_value)
+	UNIQUE KEY parameter_association_uk (observation_id, parameter_id, parameter_association_value(287))	-- 287 is the maximum key length. Anything greater throws a 'key too long' error.
 
 ) COLLATE=utf8_general_ci ENGINE=MyISAM ;
 
