@@ -137,6 +137,7 @@ CREATE TABLE mediaParameter (
   parameterId VARCHAR(255) NOT NULL,
   parameterStatus VARCHAR(255) DEFAULT NULL,
   URI VARCHAR(255) NOT NULL,
+  link VARCHAR(255) NOT NULL,
   procedure_pk INT UNSIGNED NOT NULL,
 
   KEY parameterId_idx(parameterId),
