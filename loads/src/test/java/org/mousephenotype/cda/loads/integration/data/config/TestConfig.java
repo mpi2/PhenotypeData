@@ -16,9 +16,18 @@
 
 package org.mousephenotype.cda.loads.integration.data.config;
 
+import org.mousephenotype.cda.db.pojo.Allele;
+import org.mousephenotype.cda.db.pojo.PhenotypedColony;
 import org.mousephenotype.cda.loads.common.config.DataSourcesConfigApp;
 import org.mousephenotype.cda.loads.create.extract.dcc.ExtractDccExperiments;
 import org.mousephenotype.cda.loads.create.extract.dcc.ExtractDccSpecimens;
+import org.mousephenotype.cda.loads.create.load.LoadFromDcc;
+import org.mousephenotype.cda.loads.create.load.steps.SampleLoader;
+import org.springframework.batch.core.StepExecution;
+import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
+import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
+import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
+import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.data.jpa.JpaRepositoriesAutoConfiguration;
 import org.springframework.boot.autoconfigure.data.neo4j.Neo4jDataAutoConfiguration;
@@ -28,15 +37,20 @@ import org.springframework.boot.autoconfigure.jms.JndiConnectionFactoryAutoConfi
 import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 
+import javax.inject.Inject;
 import javax.sql.DataSource;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by mrelac on 02/05/2017.
  */
 @Configuration
+@EnableBatchProcessing
 @EnableAutoConfiguration(exclude = {
         JndiConnectionFactoryAutoConfiguration.class,
         DataSourceAutoConfiguration.class,
@@ -47,6 +61,25 @@ import javax.sql.DataSource;
 })
 public class TestConfig extends DataSourcesConfigApp {
 
+    private JobBuilderFactory jobBuilderFactory;
+    private JobRepository jobRepository;
+    private StepBuilderFactory stepBuilderFactory;
+    private Map<String, Allele> allelesBySymbolMap = new HashMap<>();
+    private Map<String, Integer> cdaOrganisation_idMap = new HashMap<>();
+    private Map<String, PhenotypedColony> phenotypedColonyMap = new HashMap<>();
+
+    @Lazy
+    @Inject
+    public TestConfig(
+            JobBuilderFactory jobBuilderFactory,
+            StepBuilderFactory stepBuilderFactory,
+            JobRepository jobRepository
+
+    ) {
+        this.jobBuilderFactory = jobBuilderFactory;
+        this.stepBuilderFactory = stepBuilderFactory;
+        this.jobRepository = jobRepository;
+    }
 
     // cda_base database
     @Bean
@@ -67,7 +100,7 @@ public class TestConfig extends DataSourcesConfigApp {
                 .setType(EmbeddedDatabaseType.H2)
                 .ignoreFailedDrops(true)
                 .setName("cda_test")
-                .addScripts("sql/h2/cdabase/schema.sql")
+                .addScripts("sql/h2/cdabase/schema.sql", "sql/h2/dataIntegrationTest-data.sql")
                 .build();
     }
 
@@ -92,4 +125,35 @@ public class TestConfig extends DataSourcesConfigApp {
     public ExtractDccExperiments extractDccExperiments() {
         return new ExtractDccExperiments(dccDataSource(), dccSqlUtils());
     }
+
+    @Bean
+    public SampleLoader sampleLoaader() {
+
+        SampleLoader sampleLoader = new SampleLoader(
+                jdbcCda(),
+                stepBuilderFactory,
+                cdaSqlUtils(),
+                dccSqlUtils(),
+                allelesBySymbolMap,
+                cdaOrganisation_idMap,
+                phenotypedColonyMap);
+
+        return sampleLoader;
+    }
+
+//    @Bean
+//    public LoadFromDcc loadFromDcc() {
+//        LoadFromDcc loadFromDcc = new LoadFromDcc(
+//                jobBuilderFactory,
+//                stepBuilderFactory,
+//                jobRepository,
+//                cdaDataSource(),
+//                sampleLoaader(),
+//                null /*experimentLoader*/,
+//                null,
+//                null
+//        );
+//
+//        return loadFromDcc;
+//    }
 }

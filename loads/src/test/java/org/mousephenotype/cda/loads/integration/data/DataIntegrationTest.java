@@ -19,10 +19,15 @@ package org.mousephenotype.cda.loads.integration.data;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.loads.common.CdaSqlUtils;
+import org.mousephenotype.cda.loads.common.DccExperimentDTO;
 import org.mousephenotype.cda.loads.common.DccSqlUtils;
+import org.mousephenotype.cda.loads.common.SpecimenExtended;
 import org.mousephenotype.cda.loads.create.extract.dcc.ExtractDccExperiments;
 import org.mousephenotype.cda.loads.create.extract.dcc.ExtractDccSpecimens;
+import org.mousephenotype.cda.loads.create.load.steps.SampleLoader;
 import org.mousephenotype.cda.loads.integration.data.config.TestConfig;
+import org.mousephenotype.dcc.exportlibrary.datastructure.core.procedure.SimpleParameter;
+import org.springframework.batch.core.StepExecution;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.ComponentScan;
@@ -31,6 +36,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.sql.DataSource;
+import java.util.List;
 
 /**
  * This is an end-to-end integration data test class that uses an in-memory database to populate a small dcc, cda_base,
@@ -77,6 +83,12 @@ public class DataIntegrationTest {
     @Autowired
     private ExtractDccExperiments extractDccExperiments;
 
+    @Autowired
+    private SampleLoader sampleLoader;
+
+    @Autowired
+    private StepExecution stepExecution;
+
 
 
     /**
@@ -97,14 +109,45 @@ public class DataIntegrationTest {
     @Test
     public void testBackgroundStrainIsEqual() throws Exception {
 
-        Resource specimens = context.getResource("classpath:xml/akt2Specimens.xml");
-        Resource experiments = context.getResource("classpath:xml/akt2Experiments.xml");
+        Resource specimenResource = context.getResource("classpath:xml/akt2Specimens.xml");
+        Resource experimentResource = context.getResource("classpath:xml/akt2Experiment.xml");
+
+        String[] specimenArgs = new String[] {
+                "--datasourceShortName=euroPhenome",
+                "--filename=" + specimenResource.getFile().getAbsolutePath()
+                };
+
+        String[] experimentArgs = new String[] {
+                "--datasourceShortName=euroPhenome",
+                "--filename=" + experimentResource.getFile().getAbsolutePath()
+        };
+        extractDccSpecimens.run(specimenArgs);
+        extractDccExperiments.run(experimentArgs);
+        sampleLoader.execute(stepExecution);
 
 
 
 
 
 
+        List<SpecimenExtended> specimens = dccSqlUtils.getSpecimens();
+        System.out.println("Specimens:");
+        for (SpecimenExtended specimen : specimens) {
+            System.out.println("\tdatasourceShortName: " + specimen.getDatasourceShortName() + ", " + specimen.getSpecimen());
+        }
+
+
+        List<DccExperimentDTO> experiments = dccSqlUtils.getExperiments();
+        System.out.println("Experiments:");
+        for (DccExperimentDTO experiment : experiments) {
+
+            System.out.println("\t" + experiment);
+
+            List<SimpleParameter> simpleParameters = dccSqlUtils.getSimpleParameters(experiment.getDcc_procedure_pk());
+            for (SimpleParameter simpleParameter: simpleParameters) {
+                System.out.println("\t" + simpleParameter.getParameterID() + " :: " + simpleParameter.getValue());
+            }
+        }
 
 
     }

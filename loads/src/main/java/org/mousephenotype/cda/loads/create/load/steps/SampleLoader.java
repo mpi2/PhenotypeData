@@ -59,7 +59,6 @@ public class SampleLoader implements Step, Tasklet, InitializingBean {
     private CdaSqlUtils                cdaSqlUtils;
     private CommonUtils                commonUtils = new CommonUtils();
     private DccSqlUtils                dccSqlUtils;
-    private StrainMapper strainMapper;
     private NamedParameterJdbcTemplate jdbcCda;
 
     private Set<String> missingColonyIds         = new HashSet<>();
@@ -231,7 +230,7 @@ public class SampleLoader implements Step, Tasklet, InitializingBean {
         return RepeatStatus.FINISHED;
     }
 
-    public Map<String, Integer> insertSampleExperimentalSpecimen(SpecimenExtended specimenExtended) throws DataLoadException {
+    private Map<String, Integer> insertSampleExperimentalSpecimen(SpecimenExtended specimenExtended) throws DataLoadException {
         Specimen specimen = specimenExtended.getSpecimen();
 
         int externalDbId = cdaSqlUtils.getExternalDbId(specimenExtended.getDatasourceShortName());
@@ -323,7 +322,7 @@ public class SampleLoader implements Step, Tasklet, InitializingBean {
         return counts;
     }
 
-    public Map<String, Integer> insertSampleControlSpecimen(SpecimenExtended specimenExtended) throws DataLoadException {
+    private Map<String, Integer> insertSampleControlSpecimen(SpecimenExtended specimenExtended) throws DataLoadException {
 
         Specimen specimen = specimenExtended.getSpecimen();
 
@@ -442,7 +441,7 @@ public class SampleLoader implements Step, Tasklet, InitializingBean {
    	 * @return the term associated with the correct stage
      * @throws DataLoadException if {@code stage} is not a floating point number
    	 */
-   	public OntologyTerm selectOrInsertStageTerm(String stage, StageUnit stageUnit) throws DataLoadException {
+   	private OntologyTerm selectOrInsertStageTerm(String stage, StageUnit stageUnit) throws DataLoadException {
    		String termName = null;
    		OntologyTerm term;
 
