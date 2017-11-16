@@ -253,13 +253,14 @@ public class SolrIndex {
 					+ " OR marker_synonym_lowercase:(" + StringUtils.join(idList, " OR ") + ")";
 		}
 		else if (dataTypeName.equals("human_marker_symbol")){
-			querystr = "human_gene_symbol:(" + StringUtils.join(idList, " OR ") + ")";
+			querystr = "human_gene_symbol:(" + StringUtils.join(idList, " OR ") + ")"
+					+ " OR marker_synonym_lowercase:(" + StringUtils.join(idList, " OR ") + ")";
 		}
 		else {
 			querystr = qField + ":(" + StringUtils.join(idList, " OR ") + ")";
 		}
 
-		//System.out.println("Query: " + querystr);
+		//System.out.println("BatchQuery: " + querystr);
 		SolrQuery query = new SolrQuery();
 		query.setQuery(querystr);
 
@@ -284,7 +285,7 @@ public class SolrIndex {
 		System.out.println("BATCHQUERY " + dataTypeName + " : " + query);
 
 		QueryResponse response2 = server.query(query, METHOD.POST);
-//		System.out.println("response: "+ response2);
+		//System.out.println("response: "+ response2);
 
 		return response2;
 	}

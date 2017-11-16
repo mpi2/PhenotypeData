@@ -1679,14 +1679,15 @@ public class FileExportController {
 			@RequestParam(value = "gridFields", required = true) String gridFields,
 
 			HttpSession session, HttpServletRequest request, HttpServletResponse response, Model model) throws Exception {
-		List<String> queryIds = Arrays.asList(idlist.split(","));
+
+		List<String> queryIds = new ArrayList<String>(Arrays.asList(idlist.split(",")));
 		List<QueryResponse> solrResponses = new ArrayList<>();
 		List<String> batchIdList = new ArrayList<>();
 		String batchIdListStr = null;
 
 
-		System.out.println("bq Export dataTypeName: " + dataTypeName);
-		System.out.println("idlist: " + idlist);
+		//System.out.println("bq Export dataTypeName: " + dataTypeName);
+		//System.out.println("idlist: " + idlist);
 
 
 		if ( dataTypeName.equals("geneChr")){
@@ -1710,12 +1711,6 @@ public class FileExportController {
 		}
 		else if ( dataTypeName.equals("geneId")){
 			dataTypeName = "gene";
-			queryIds = Arrays.asList(idlist.split(","));
-		}
-		else if (dataTypeName.equals("mpTerm")) {
-
-		}
-		else {
 			queryIds = Arrays.asList(idlist.split(","));
 		}
 
@@ -1832,6 +1827,8 @@ public class FileExportController {
 
 		List<String> rowData = new ArrayList<>();
 		rowData.add(StringUtils.join(colList, "\t"));
+
+		List<String> markerSynonymMatchesHumanSymbol = new ArrayList<>();
 
 		for (int i = 0; i < results.size(); i++) {
 			SolrDocument doc = results.get(i);
@@ -1987,8 +1984,22 @@ public class FileExportController {
 							}
 							else if (oriDataTypeName.equals("human_marker_symbol") && fieldName.equals("human_gene_symbol")) {
 								for (Object val : valSet) {
+
+
 									if ( StringUtils.containsIgnoreCase(StringUtils.join(queryIds, ","), val.toString())) {
 										foundIds.add("\"" + val.toString() + "\"");
+									}
+									else {
+										// check for mouse marker synonym match as well
+										if (docMap.containsKey("marker_synonym")) {
+											Collection<Object> svals = docMap.get("marker_synonym");
+											Set<Object> svalSet = new HashSet<>(svals);
+											for (Object val2 : svalSet) {
+												if (StringUtils.containsIgnoreCase(StringUtils.join(queryIds, ","), val2.toString())) {
+													markerSynonymMatchesHumanSymbol.add("\"" + val.toString() + "\"");
+												}
+											}
+										}
 									}
 								}
 							}
@@ -2036,11 +2047,8 @@ public class FileExportController {
 			int index = sortCol.get(oriDataTypeName) > 0 ? sortCol.get(oriDataTypeName) + 1 : 0;
 			for (Object s : docMap.get(colList.get(index))) {
 				String qStr = s.toString();
-				//System.out.println("qstr: " + qStr);
 				//String qStr = docMap.get(colList.get(sortCol.get(oriDataTypeName) + 1)).toArray()[0].toString();
 				qStr = oriDataTypeName.equals("mouse_marker_symbol") ? qStr.toLowerCase() : qStr;
-				//System.out.println(oriDataTypeName + " - SEARCH: " + qStr);
-				//System.out.println(data);
 				if ( !idRow.containsKey("\"" + qStr + "\"")) {
 					idRow.put("\"" + qStr + "\"", data);
 				}
@@ -2055,7 +2063,7 @@ public class FileExportController {
 //		System.out.println("query ids: " + queryIds);
 //		System.out.println("found ids: " + foundIds);
 		List<String> nonFoundIds = (java.util.ArrayList) CollectionUtils.disjunction(queryIds, new ArrayList(foundIds));
-//		System.out.println("non found ids: " + nonFoundIds);
+		//System.out.println("non found ids: " + nonFoundIds);
 
 		int fieldIndex = 0;
 		if ( nonFoundIds.size() > 0){
@@ -2092,6 +2100,11 @@ public class FileExportController {
 				idRow.put(thisVal, data);
 			}
 		}
+
+		for(String ms : markerSynonymMatchesHumanSymbol){
+			queryIds.add(ms);
+		}
+
 		for(String q : queryIds){
 			if ( oriDataTypeName.equals("mouse_marker_symbol")){
 				List<String> data = idRow.get(q.toLowerCase());
