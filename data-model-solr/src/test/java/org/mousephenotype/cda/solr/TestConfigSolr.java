@@ -2,6 +2,7 @@ package org.mousephenotype.cda.solr;
 
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
+import org.mousephenotype.cda.db.utilities.SqlUtils;
 import org.mousephenotype.cda.solr.service.GrossPathService;
 import org.mousephenotype.cda.solr.service.ImpressService;
 import org.mousephenotype.cda.solr.service.ObservationService;
@@ -189,11 +190,20 @@ public class TestConfigSolr {
 	}
 
 
+	@Value("${datasource.komp2.url}")
+	String komp2Url;
+
+	@Value("${datasource.komp2.username}")
+	String komp2Username;
+
+	@Value("${datasource.komp2.password}")
+	String komp2Password;
+
+
 	@Bean
 	@Primary
-	@ConfigurationProperties(prefix = "datasource.komp2")
 	public DataSource komp2DataSource() {
-		return DataSourceBuilder.create().build();
+		return SqlUtils.getConfiguredDatasource(komp2Url, komp2Username, komp2Password);
 	}
 
 	@Bean
