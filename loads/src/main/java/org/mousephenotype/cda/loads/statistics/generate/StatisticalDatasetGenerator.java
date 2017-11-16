@@ -128,9 +128,11 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
                 q1.setQuery("*:*")
                         .addFilterQuery(ObservationDTO.PARAMETER_STABLE_ID + ":(" + parameters.get(result.get(ObservationDTO.PROCEDURE_GROUP)).stream().collect(Collectors.joining(" OR ")) + ")")
                         .addFilterQuery(ObservationDTO.PHENOTYPING_CENTER + ":\"" + result.get(ObservationDTO.PHENOTYPING_CENTER) + "\"")
+                        .addFilterQuery(ObservationDTO.PROJECT_NAME + ":\"" + result.get(ObservationDTO.PROJECT_NAME) + "\"")
                         .addFilterQuery(ObservationDTO.PIPELINE_STABLE_ID + ":" + result.get(ObservationDTO.PIPELINE_STABLE_ID))
                         .addFilterQuery(ObservationDTO.PROCEDURE_GROUP + ":" + result.get(ObservationDTO.PROCEDURE_GROUP))
                         .addFilterQuery(ObservationDTO.STRAIN_ACCESSION_ID + ":\"" + result.get(ObservationDTO.STRAIN_ACCESSION_ID) + "\"")
+
                         .addFilterQuery("observation_type:(categorical OR unidimensional)")
                         .setFields(fields)
                         .setRows(Integer.MAX_VALUE)
@@ -238,8 +240,11 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
                     }
 
                     logger.info("  Has {} specimens with {} parameters", specimenParameterMap.size(), specimenParameterMap.values().stream().mapToInt(value -> value.keySet().size()).sum());
-                    if (specimenParameterMap.size() < 5) {
-                        logger.info("  Not processing due to low N {} {} {} {}",
+
+                    // Allow low N if ABR procedure
+                    if (specimenParameterMap.size() < 5 && ! result.get(ObservationDTO.PROCEDURE_GROUP).equals("IMPC_ABR")) {
+                        logger.info("  Not processing due to low N {} {} {} {} {}",
+                                result.get(ObservationDTO.PROJECT_NAME),
                                 result.get(ObservationDTO.PHENOTYPING_CENTER),
                                 result.get(ObservationDTO.PIPELINE_STABLE_ID),
                                 result.get(ObservationDTO.PROCEDURE_GROUP),
