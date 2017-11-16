@@ -66,6 +66,9 @@
 							Zygosity
 							</th>
 							<th>
+							Sex
+							</th>
+							<th>
 							SampleId
 							</th>
 							<th> <%-- class="headerSort"> --%>
@@ -114,6 +117,15 @@
 									</td>
 									<td>
 									${histRow.zygosity}
+					
+									</td>
+									<td>
+									 <c:if test="${histRow.sex eq 'female'}">
+									<img alt="Female"  title="female" src="${baseUrl}/img/female.jpg"/>
+									 </c:if>
+									  <c:if test="${histRow.sex eq 'male'}">
+									 <img alt="Male" title="male" src="${baseUrl}/img/male.jpg"/>
+									 </c:if>
 									</td>
 									<td>
 									Mouse ${histRow.sampleId}<%-- / ${histRow.sequenceId} --%>
