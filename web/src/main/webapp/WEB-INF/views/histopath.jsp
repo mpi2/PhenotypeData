@@ -82,7 +82,7 @@
 							Severity
 							</th>
 							<th>
-							Observation
+							Significance
 							</th>
 							<th>
 							MPATH Diagnostic
@@ -145,7 +145,9 @@
 													<!-- do for each here values-->
 													<c:forEach var="value" items="${parameter.value }">
 											 		<%-- <td title="${value.description }"> --%>
+										
 														${value.name }
+														[${value.id }]
 													<%-- </td> --%>
 													</c:forEach>
 										
@@ -195,12 +197,12 @@
 									<c:forEach var="parameter" items="${histRow.significance }">
 										<c:choose>
 											<c:when test="${parameter.textValue eq 'Significant'}">
-											Abnormal
+											1
 											</c:when>
 											<c:otherwise>
-											Normal
+											0
 											</c:otherwise>
-											</c:choose>
+										</c:choose>
 										
 									</c:forEach>
 									</td>
