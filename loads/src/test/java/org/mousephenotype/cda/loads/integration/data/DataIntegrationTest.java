@@ -24,10 +24,10 @@ import org.mousephenotype.cda.loads.common.DccSqlUtils;
 import org.mousephenotype.cda.loads.common.SpecimenExtended;
 import org.mousephenotype.cda.loads.create.extract.dcc.ExtractDccExperiments;
 import org.mousephenotype.cda.loads.create.extract.dcc.ExtractDccSpecimens;
-import org.mousephenotype.cda.loads.create.load.steps.SampleLoader;
+import org.mousephenotype.cda.loads.create.load.LoadExperiments;
+import org.mousephenotype.cda.loads.create.load.LoadSpecimens;
 import org.mousephenotype.cda.loads.integration.data.config.TestConfig;
 import org.mousephenotype.dcc.exportlibrary.datastructure.core.procedure.SimpleParameter;
-import org.springframework.batch.core.StepExecution;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.ComponentScan;
@@ -84,10 +84,11 @@ public class DataIntegrationTest {
     private ExtractDccExperiments extractDccExperiments;
 
     @Autowired
-    private SampleLoader sampleLoader;
+    private LoadSpecimens loadSpecimens;
 
     @Autowired
-    private StepExecution stepExecution;
+    private LoadExperiments loadExperiments;
+
 
 
 
@@ -113,18 +114,26 @@ public class DataIntegrationTest {
         Resource experimentResource = context.getResource("classpath:xml/akt2Experiment.xml");
 
         String[] specimenArgs = new String[] {
-                "--datasourceShortName=euroPhenome",
+                "--datasourceShortName=EuroPhenome",
                 "--filename=" + specimenResource.getFile().getAbsolutePath()
                 };
 
         String[] experimentArgs = new String[] {
-                "--datasourceShortName=euroPhenome",
+                "--datasourceShortName=EuroPhenome",
                 "--filename=" + experimentResource.getFile().getAbsolutePath()
         };
+        System.out.println("extractDccSpecimens");
         extractDccSpecimens.run(specimenArgs);
-        extractDccExperiments.run(experimentArgs);
-        sampleLoader.execute(stepExecution);
 
+        System.out.println("extractDccExperiments");
+        extractDccExperiments.run(experimentArgs);
+//        sampleDccLoader.execute(stepExecution);
+
+        System.out.println("loadSpecimens");
+        loadSpecimens.run();
+
+        System.out.println("loadExperiments");
+        loadExperiments.run();
 
 
 
@@ -148,7 +157,5 @@ public class DataIntegrationTest {
                 System.out.println("\t" + simpleParameter.getParameterID() + " :: " + simpleParameter.getValue());
             }
         }
-
-
     }
 }

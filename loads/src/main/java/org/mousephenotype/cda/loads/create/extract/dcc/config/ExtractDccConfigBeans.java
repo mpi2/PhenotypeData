@@ -33,8 +33,8 @@ import org.springframework.context.annotation.Configuration;
  * This class provides a place to put application configuration information. All of the data sources that it needs are
  * found in {@link DataSourcesConfigApp}.
  */
-@EnableBatchProcessing
 @Configuration
+@EnableBatchProcessing
 @EnableAutoConfiguration(exclude = {
         JndiConnectionFactoryAutoConfiguration.class,
         DataSourceAutoConfiguration.class,

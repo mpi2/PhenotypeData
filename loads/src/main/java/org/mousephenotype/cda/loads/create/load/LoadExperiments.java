@@ -14,7 +14,7 @@
  * License.
  ******************************************************************************/
 
-package org.mousephenotype.cda.loads.create.load.steps;
+package org.mousephenotype.cda.loads.create.load;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -32,12 +32,10 @@ import org.mousephenotype.cda.utilities.CommonUtils;
 import org.mousephenotype.dcc.exportlibrary.datastructure.core.procedure.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.batch.core.*;
-import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
-import org.springframework.batch.core.scope.context.ChunkContext;
-import org.springframework.batch.core.step.tasklet.Tasklet;
-import org.springframework.batch.repeat.RepeatStatus;
-import org.springframework.beans.factory.InitializingBean;
+import org.springframework.boot.Banner;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.SpringApplication;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.util.Assert;
 
@@ -50,13 +48,11 @@ import java.util.concurrent.*;
 /**
  * Loads the experiments from a database with a dcc schema into the cda database.
  *
- * Created by mrelac on 12/10/2016.
- *
- * Deprecated 16/11/2017. Use LoadExperiments instead.
+ * Created by mrelac on 16/11/2017.
  *
  */
-@Deprecated
-public class ExperimentLoader implements Step, Tasklet, InitializingBean {
+@ComponentScan
+public class LoadExperiments implements CommandLineRunner {
 
     // How many threads used to process experiments
     private static final int N_THREADS = 60;
@@ -70,7 +66,6 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
     private final CdaSqlUtils                cdaSqlUtils;
     private final DccSqlUtils                dccSqlUtils;
     private final NamedParameterJdbcTemplate jdbcCda;
-    private final StepBuilderFactory         stepBuilderFactory;
 
     private Set<String> badDates                     = new HashSet<>();
     private Set<String> experimentsMissingSamples    = new HashSet<>();        // value = specimenId + "_" + cda phenotypingCenterPk
@@ -91,102 +86,6 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
     private Set<String> unsupportedParametersMap = new HashSet<>();
 
     private static Set<UniqueExperimentId> ignoredExperiments;                  // Experments purposefully ignored.
-
-    static {
-        Set<UniqueExperimentId> ignoredExperimentSet = new HashSet<>();
-        ignoredExperimentSet.add(new UniqueExperimentId("Ucd", "GRS_2013-10-09_4326"));
-        ignoredExperimentSet.add(new UniqueExperimentId("Ucd", "GRS_2014-07-16_8800"));
-
-        ignoredExperiments = new HashSet<>(ignoredExperimentSet);
-    }
-
-    private int lineLevelProcedureCount   = 0;
-    private int sampleLevelProcedureCount = 0;
-
-    // lookup maps returning specified parameter type list given cda procedure primary key
-    final private Map<String, Allele>   allelesBySymbolMap;
-    private Map<String, GenomicFeature> genesByAccMap;
-    private Map<String, Strain>         strainsByNameMap;
-    
-    private final boolean INCLUDE_DERIVED_PARAMETERS = false;
-
-    public ExperimentLoader(NamedParameterJdbcTemplate jdbcCda,
-                            StepBuilderFactory stepBuilderFactory,
-                            CdaSqlUtils cdaSqlUtils,
-                            DccSqlUtils dccSqlUtils,
-                            Map<String, GenomicFeature> genesByAccMap,
-                            Map<String, Allele> allelesBySymbolMap,
-                            Map<String, Strain> strainsByNameMap,
-                            Map<String, PhenotypedColony> phenotypedColonyMap,
-                            Map<String, Integer> cdaOrganisation_idMap
-
-                            ) {
-        this.jdbcCda = jdbcCda;
-        this.stepBuilderFactory = stepBuilderFactory;
-        this.cdaSqlUtils = cdaSqlUtils;
-        this.dccSqlUtils = dccSqlUtils;
-        this.genesByAccMap = genesByAccMap;
-        this.allelesBySymbolMap = allelesBySymbolMap;
-        this.strainsByNameMap = strainsByNameMap;
-        this.phenotypedColonyMap = phenotypedColonyMap;
-        this.cdaOrganisation_idMap = cdaOrganisation_idMap;
-    }
-
-    @Override
-    public void afterPropertiesSet() throws Exception {
-
-        Assert.notNull(jdbcCda, "jdbcCda must be set");
-        Assert.notNull(stepBuilderFactory, "stepBuilderFactory must be set");
-        Assert.notNull(cdaSqlUtils, "cdaSqlUtils must be set");
-        Assert.notNull(dccSqlUtils, "dccSqlUtils must be set");
-        Assert.notNull(genesByAccMap, "genesByAccMap must be set");
-        Assert.notNull(allelesBySymbolMap, "allelesBySymbolMap must be set");
-        Assert.notNull(strainsByNameMap, "strainsByNameMap must be set");
-        Assert.notNull(phenotypedColonyMap, "phenotypedColonyMap must be set");
-        Assert.notNull(cdaOrganisation_idMap, "cdaOrganisation_idMap must be set");
-    }
-
-    /**
-     * @return the name of this step.
-     */
-    @Override
-    public String getName() {
-        return "experimentLoaderStep";
-    }
-
-    /**
-     * @return true if a step that is already marked as complete can be started again.
-     */
-    @Override
-    public boolean isAllowStartIfComplete() {
-        return false;
-    }
-
-    /**
-     * @return the number of times a job can be started with the same identifier.
-     */
-    @Override
-    public int getStartLimit() {
-        return 10;
-    }
-
-    /**
-     * Process the step and assign progress and status meta information to the {@link StepExecution} provided. The
-     * {@link Step} is responsible for setting the meta information and also saving it if required by the
-     * implementation.<br>
-     * <p/>
-     * It is not safe to re-use an instance of {@link Step} to process multiple concurrent executions.
-     *
-     * @param stepExecution an entity representing the step to be executed
-     * @throws JobInterruptedException if the step is interrupted externally
-     */
-    @Override
-    public void execute(StepExecution stepExecution) throws JobInterruptedException {
-        stepBuilderFactory.get("experimentLoaderStep")
-                .tasklet(this)
-                .build()
-                .execute(stepExecution);
-    }
 
 
     // lookup maps returning cda table primary key given dca unique string
@@ -215,8 +114,65 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
     private Map<BioModelKey, Integer> bioModelMap = new ConcurrentHashMap<>();           // key is composite key. Value is biological model primary key.
 
 
+    static {
+        Set<UniqueExperimentId> ignoredExperimentSet = new HashSet<>();
+        ignoredExperimentSet.add(new UniqueExperimentId("Ucd", "GRS_2013-10-09_4326"));
+        ignoredExperimentSet.add(new UniqueExperimentId("Ucd", "GRS_2014-07-16_8800"));
+
+        ignoredExperiments = new HashSet<>(ignoredExperimentSet);
+    }
+
+    private int lineLevelProcedureCount   = 0;
+    private int sampleLevelProcedureCount = 0;
+
+    // lookup maps returning specified parameter type list given cda procedure primary key
+    final private Map<String, Allele>   allelesBySymbolMap;
+    private Map<String, GenomicFeature> genesByAccMap;
+    private Map<String, Strain>         strainsByNameMap;
+
+    private final boolean INCLUDE_DERIVED_PARAMETERS = false;
+
+
+    public LoadExperiments(NamedParameterJdbcTemplate jdbcCda,
+                           CdaSqlUtils cdaSqlUtils,
+                           DccSqlUtils dccSqlUtils,
+                           Map<String, Allele> allelesBySymbolMap,
+                           Map<String, Integer> cdaOrganisation_idMap,
+                           Map<String, GenomicFeature> genesByAccMap,
+                           Map<String, PhenotypedColony> phenotypedColonyMap,
+                           Map<String, Strain> strainsByNameMap
+
+                            ) {
+        this.jdbcCda = jdbcCda;
+        this.cdaSqlUtils = cdaSqlUtils;
+        this.dccSqlUtils = dccSqlUtils;
+        this.allelesBySymbolMap = allelesBySymbolMap;
+        this.cdaOrganisation_idMap = cdaOrganisation_idMap;
+        this.genesByAccMap = genesByAccMap;
+        this.phenotypedColonyMap = phenotypedColonyMap;
+        this.strainsByNameMap = strainsByNameMap;
+    }
+
+
+    public static void main(String[] args) throws Exception {
+        SpringApplication app = new SpringApplication(LoadExperiments.class);
+        app.setBannerMode(Banner.Mode.OFF);
+        app.setLogStartupInfo(false);
+        app.run(args);
+    }
+
+
     @Override
-    public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
+    public void run(String... strings) throws Exception {
+
+        Assert.notNull(jdbcCda, "jdbcCda must be set");
+        Assert.notNull(cdaSqlUtils, "cdaSqlUtils must be set");
+        Assert.notNull(dccSqlUtils, "dccSqlUtils must be set");
+        Assert.notNull(allelesBySymbolMap, "allelesBySymbolMap must be set");
+        Assert.notNull(cdaOrganisation_idMap, "cdaOrganisation_idMap must be set");
+        Assert.notNull(genesByAccMap, "genesByAccMap must be set");
+        Assert.notNull(phenotypedColonyMap, "phenotypedColonyMap must be set");
+        Assert.notNull(strainsByNameMap, "strainsByNameMap must be set");
 
         String message = "**** LOADING " + dccSqlUtils.getDbName() + " EXPERIMENTS ****";
         logger.info(org.apache.commons.lang3.StringUtils.repeat("*", message.length()));
@@ -365,15 +321,11 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
                             tasks = new ArrayList<>();
                             break;
                         }
+
                         Thread.sleep(5000);
-
                     }
-
                 }
             }
-
-
-
         }
 
         // Drain the final set
@@ -525,10 +477,10 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
 
 
         logger.debug("Total steps elapsed time: " + commonUtils.msToHms(new Date().getTime() - startStep));
-        contribution.setExitStatus(ExitStatus.COMPLETED);
-        chunkContext.setComplete();
-
-        return RepeatStatus.FINISHED;
+//        contribution.setExitStatus(ExitStatus.COMPLETED);
+//        chunkContext.setComplete();
+//
+//        return RepeatStatus.FINISHED;
     }
 
 

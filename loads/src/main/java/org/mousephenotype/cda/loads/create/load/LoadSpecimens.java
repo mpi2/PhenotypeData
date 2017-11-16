@@ -14,7 +14,7 @@
  * License.
  ******************************************************************************/
 
-package org.mousephenotype.cda.loads.create.load.steps;
+package org.mousephenotype.cda.loads.create.load;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -27,7 +27,6 @@ import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.loads.common.CdaSqlUtils;
 import org.mousephenotype.cda.loads.common.DccSqlUtils;
 import org.mousephenotype.cda.loads.common.SpecimenExtended;
-import org.mousephenotype.cda.loads.create.load.support.StrainMapper;
 import org.mousephenotype.cda.loads.exceptions.DataLoadException;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.mousephenotype.dcc.exportlibrary.datastructure.core.common.StageUnit;
@@ -36,12 +35,10 @@ import org.mousephenotype.dcc.exportlibrary.datastructure.core.specimen.Mouse;
 import org.mousephenotype.dcc.exportlibrary.datastructure.core.specimen.Specimen;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.batch.core.*;
-import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
-import org.springframework.batch.core.scope.context.ChunkContext;
-import org.springframework.batch.core.step.tasklet.Tasklet;
-import org.springframework.batch.repeat.RepeatStatus;
-import org.springframework.beans.factory.InitializingBean;
+import org.springframework.boot.Banner;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.SpringApplication;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.util.Assert;
 
@@ -50,13 +47,11 @@ import java.util.*;
 /**
  * Loads the specimens from a database with a dcc schema into the cda database.
  *
- * Created by mrelac on 31/08/2016.
- *
- * Deprecated 16/11/2017. Use LoadSpecimens instead.
+ * Created by mrelac on 15/11/2017.
  *
  */
-@Deprecated
-public class SampleLoader implements Step, Tasklet, InitializingBean {
+@ComponentScan
+public class LoadSpecimens implements CommandLineRunner {
 
 
     private CdaSqlUtils                cdaSqlUtils;
@@ -69,7 +64,6 @@ public class SampleLoader implements Step, Tasklet, InitializingBean {
     private Set<String> unexpectedStage          = new HashSet<>();
 
     private final Logger         logger      = LoggerFactory.getLogger(this.getClass());
-    private StepBuilderFactory   stepBuilderFactory;
     private Map<String, Integer> written     = new HashMap<>();
 
     private OntologyTerm developmentalStageMouse;
@@ -83,16 +77,15 @@ public class SampleLoader implements Step, Tasklet, InitializingBean {
     private int efoDbId;
 
 
-    public SampleLoader(NamedParameterJdbcTemplate jdbcCda,
-                        StepBuilderFactory stepBuilderFactory,
-                        CdaSqlUtils cdaSqlUtils,
-                        DccSqlUtils dccSqlUtils,
-                        Map<String, Allele> allelesBySymbolMap,
-                        Map<String, Integer> cdaOrganisation_idMap,
-                        Map<String, PhenotypedColony> phenotypedColonyMap
-                        ) {
+    public LoadSpecimens(
+            NamedParameterJdbcTemplate jdbcCda,
+            CdaSqlUtils cdaSqlUtils,
+            DccSqlUtils dccSqlUtils,
+            Map<String, Allele> allelesBySymbolMap,
+            Map<String, Integer> cdaOrganisation_idMap,
+            Map<String, PhenotypedColony> phenotypedColonyMap
+    ) {
         this.jdbcCda = jdbcCda;
-        this.stepBuilderFactory = stepBuilderFactory;
         this.cdaSqlUtils = cdaSqlUtils;
         this.dccSqlUtils = dccSqlUtils;
         this.cdaOrganisation_idMap = cdaOrganisation_idMap;
@@ -105,8 +98,17 @@ public class SampleLoader implements Step, Tasklet, InitializingBean {
         written.put("experimentalSample", 0);
     }
 
+
+    public static void main(String[] args) throws Exception {
+        SpringApplication app = new SpringApplication(LoadSpecimens.class);
+        app.setBannerMode(Banner.Mode.OFF);
+        app.setLogStartupInfo(false);
+        app.run(args);
+    }
+
+
     @Override
-    public void afterPropertiesSet() throws Exception {
+    public void run(String... strings) throws Exception {
 
         developmentalStageMouse = cdaSqlUtils.getOntologyTermByName("postnatal");
         sampleTypeMouseEmbryoStage = cdaSqlUtils.getOntologyTermByName("mouse embryo stage");
@@ -121,58 +123,12 @@ public class SampleLoader implements Step, Tasklet, InitializingBean {
         Assert.notNull(sampleTypeMouseEmbryoStage, "xsampleTypeMouseEmbryoStagex must be set");
         Assert.notNull(sampleTypePostnatalMouse, "sampleTypePostnatalMouse must be set");
         Assert.notNull(jdbcCda, "jdbcCda must be set");
-        Assert.notNull(stepBuilderFactory, "stepBuilderFactory must be set");
         Assert.notNull(cdaSqlUtils, "cdaSqlUtils must be set");
         Assert.notNull(dccSqlUtils, "dccSqlUtils must be set");
         Assert.notNull(efoDbId, "efoDbId must be set");
-    }
-
-    /**
-     * @return the name of this step.
-     */
-    @Override
-    public String getName() {
-        return "sampleLoaderStep";
-    }
-
-    /**
-     * @return true if a step that is already marked as complete can be started again.
-     */
-    @Override
-    public boolean isAllowStartIfComplete() {
-        return false;
-    }
-
-    /**
-     * @return the number of times a job can be started with the same identifier.
-     */
-    @Override
-    public int getStartLimit() {
-        return 10;
-    }
-
-    /**
-     * Process the step and assign progress and status meta information to the {@link StepExecution} provided. The
-     * {@link Step} is responsible for setting the meta information and also saving it if required by the
-     * implementation.<br>
-     * <p/>
-     * It is not safe to re-use an instance of {@link Step} to process multiple concurrent executions.
-     *
-     * @param stepExecution an entity representing the step to be executed
-     * @throws JobInterruptedException if the step is interrupted externally
-     */
-    @Override
-    public void execute(StepExecution stepExecution) throws JobInterruptedException {
-        stepBuilderFactory.get("sampleLoaderStep")
-                .tasklet(this)
-                .build()
-                .execute(stepExecution);
-    }
-
-    @Override
-    public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
 
         long startStep = new Date().getTime();
+
 
         String message = "**** LOADING " + dccSqlUtils.getDbName() + " SPECIMENS ****";
         logger.info(StringUtils.repeat("*", message.length()));
@@ -227,10 +183,6 @@ public class SampleLoader implements Step, Tasklet, InitializingBean {
         logger.info("Processed {} total samples", written.get("experimentalSample") + written.get("controlSample"));
 
         logger.debug("Total steps elapsed time: " + commonUtils.msToHms(new Date().getTime() - startStep));
-        contribution.setExitStatus(ExitStatus.COMPLETED);
-        chunkContext.setComplete();
-
-        return RepeatStatus.FINISHED;
     }
 
     private Map<String, Integer> insertSampleExperimentalSpecimen(SpecimenExtended specimenExtended) throws DataLoadException {
