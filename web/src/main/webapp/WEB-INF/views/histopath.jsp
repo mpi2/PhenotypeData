@@ -131,7 +131,7 @@
 									Mouse ${histRow.sampleId}<%-- / ${histRow.sequenceId} --%>
 									
 									</td>
-									<td>
+									<td id="${histRow.anatomyName}">
 										${histRow.anatomyName}
 									</td>
 									
