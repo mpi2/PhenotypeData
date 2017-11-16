@@ -16,8 +16,6 @@
 
 package org.mousephenotype.cda.loads.create.load.steps;
 
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringUtils;
 import org.mousephenotype.cda.db.pojo.*;
@@ -103,8 +101,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
     // lookup maps returning specified parameter type list given cda procedure primary key
     final private Map<String, Allele>   allelesBySymbolMap;
     private Map<String, GenomicFeature> genesByAccMap;
-    private Map<String, Strain>         strainsByNameMap;
-    
+
     private final boolean INCLUDE_DERIVED_PARAMETERS = false;
 
     public ExperimentLoader(NamedParameterJdbcTemplate jdbcCda,
@@ -124,7 +121,6 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         this.dccSqlUtils = dccSqlUtils;
         this.genesByAccMap = genesByAccMap;
         this.allelesBySymbolMap = allelesBySymbolMap;
-        this.strainsByNameMap = strainsByNameMap;
         this.phenotypedColonyMap = phenotypedColonyMap;
         this.cdaOrganisation_idMap = cdaOrganisation_idMap;
     }
@@ -138,7 +134,6 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         Assert.notNull(dccSqlUtils, "dccSqlUtils must be set");
         Assert.notNull(genesByAccMap, "genesByAccMap must be set");
         Assert.notNull(allelesBySymbolMap, "allelesBySymbolMap must be set");
-        Assert.notNull(strainsByNameMap, "strainsByNameMap must be set");
         Assert.notNull(phenotypedColonyMap, "phenotypedColonyMap must be set");
         Assert.notNull(cdaOrganisation_idMap, "cdaOrganisation_idMap must be set");
     }
@@ -225,7 +220,6 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         CommonUtils.printJvmMemoryConfiguration();
 
         List<DccExperimentDTO> dccExperiments = dccSqlUtils.getExperiments();
-        Map<String, Integer> counts;
 
         strainMapper = new StrainMapper(cdaSqlUtils);
 
@@ -347,13 +341,9 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
 
                     // Drain the queue so we don't run out of memory
                     while (true) {
-                        Integer done = 0;
                         Integer left = 0;
                         for (Future<Experiment> future : tasks) {
-                            if (future.isDone()) {
-                                done += 1;
-
-                            } else {
+                            if ( ! future.isDone()) {
                                 left += 1;
                             }
                         }
@@ -384,7 +374,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         // Print out the counts.
         List<List<String>> loadCounts = null;
         try {
-            loadCounts = cdaSqlUtils.getLoadCounts();   // This threw an uncategorized SQLException for SQL [SELECT COUNT(*) FROM experiment]; SQL state [null]; error code [0]; Connection has already been closed.
+            loadCounts = cdaSqlUtils.getLoadCounts();
         } catch (Exception e) {
             logger.warn(e.getLocalizedMessage());
             e.printStackTrace();
@@ -395,11 +385,12 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         } else {
             List<String> headingList = Arrays.asList("experiment", "biological_sample", "live_sample", "procedure_meta_data", "observation", "categorical", "date_time", "image_record", "text", "time_series", "unidimensional");
             String       borderRow   = StringUtils.repeat("*", StringUtils.join(headingList, "    ").length() + 10);
-            String       countsRow   = "";
+            StringBuilder countsRow  = new StringBuilder();
             for (int i = 0; i < headingList.size(); i++) {
-                if (i > 0)
-                    countsRow += "    ";
-                countsRow += String.format("%" + headingList.get(i).length() + "." + headingList.get(i).length() + "s", loadCounts.get(1).get(i));
+                if (i > 0) {
+                    countsRow.append("    ");
+                }
+                countsRow.append(String.format("%" + headingList.get(i).length() + "." + headingList.get(i).length() + "s", loadCounts.get(1).get(i)));
             }
 
             System.out.println(borderRow);
@@ -412,81 +403,67 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
 
         // Log info sets
 
-        Iterator<String> missingColonyIdInfoIt = missingColonyIdInfo.iterator();
-        while (missingColonyIdInfoIt.hasNext()) {
-            logger.info(missingColonyIdInfoIt.next());
+        for (String aMissingColonyIdInfo : missingColonyIdInfo) {
+            logger.info(aMissingColonyIdInfo);
         }
 
-        Iterator<String> ignoredExperimentsInfoIt = ignoredExperimentsInfo.iterator();
-        while (ignoredExperimentsInfoIt.hasNext()) {
-            logger.info(ignoredExperimentsInfoIt.next());
+        for (String anIgnoredExperimentsInfo : ignoredExperimentsInfo) {
+            logger.info(anIgnoredExperimentsInfo);
         }
 
-        Iterator<String> badDatesIt = badDates.iterator();
-        while (badDatesIt.hasNext()) {
-            logger.info(badDatesIt.next());
+        for (String badDate : badDates) {
+            logger.info(badDate);
         }
 
 
         // Log warning sets
 
-        Iterator<String> missingColonyIdsIt = missingColonyIds.iterator();
-        while (missingColonyIdsIt.hasNext()) {
-            logger.warn(missingColonyIdsIt.next());
+        for (String missingColonyId : missingColonyIds) {
+            logger.warn(missingColonyId);
         }
 
-        Iterator<String> missingBackgroundStrainsIt = missingBackgroundStrains.iterator();
-        while (missingBackgroundStrainsIt.hasNext()) {
-            logger.info(missingBackgroundStrainsIt.next());
+        for (String missingBackgroundStrain : missingBackgroundStrains) {
+            logger.info(missingBackgroundStrain);
         }
 
-        Iterator<String> experimentsMissingSamplesIt = experimentsMissingSamples.iterator();
-        while (experimentsMissingSamplesIt.hasNext()) {
-            logger.warn(experimentsMissingSamplesIt.next());
+        for (String experimentsMissingSample : experimentsMissingSamples) {
+            logger.warn(experimentsMissingSample);
         }
-        
-        Iterator<String> missingProjectsIt = missingProjects.iterator();
-        while (missingProjectsIt.hasNext()) {
-            logger.warn(missingProjectsIt.next());
+
+        for (String missingProject : missingProjects) {
+            logger.warn(missingProject);
         }
-        
-        Iterator<String> experimentsMissingProjectsIt = experimentsMissingProjects.iterator();
-        while (experimentsMissingProjectsIt.hasNext()) {
-            logger.warn(experimentsMissingProjectsIt.next());
+
+        for (String experimentsMissingProject : experimentsMissingProjects) {
+            logger.warn(experimentsMissingProject);
         }
-        
-        Iterator<String> missingCentersIt = missingCenters.iterator();
-        while (missingCentersIt.hasNext()) {
-            logger.warn(missingCentersIt.next());
+
+        for (String missingCenter : missingCenters) {
+            logger.warn(missingCenter);
         }
-        
-        Iterator<String> experimentsMissingCentersIt = experimentsMissingCenters.iterator();
-        while (experimentsMissingCentersIt.hasNext()) {
-            logger.warn(experimentsMissingCentersIt.next());
+
+        for (String experimentsMissingCenter : experimentsMissingCenters) {
+            logger.warn(experimentsMissingCenter);
         }
-        
-        Iterator<String> missingPipelinesIt = missingPipelines.iterator();
-        while (missingPipelinesIt.hasNext()) {
-            logger.warn(missingPipelinesIt.next());
+
+        for (String missingPipeline : missingPipelines) {
+            logger.warn(missingPipeline);
         }
-        
-        Iterator<String> experimentsMissingPipelinesIt = experimentsMissingPipelines.iterator();
-        while (experimentsMissingPipelinesIt.hasNext()) {
-            logger.warn(experimentsMissingPipelinesIt.next());
+
+        for (String experimentsMissingPipeline : experimentsMissingPipelines) {
+            logger.warn(experimentsMissingPipeline);
         }
-        
-        Iterator<String> missingProceduresIt = missingProcedures.iterator();
-        while (missingProceduresIt.hasNext()) {
-            logger.warn(missingProceduresIt.next());
+
+        for (String missingProcedure : missingProcedures) {
+            logger.warn(missingProcedure);
         }
-        
-        Iterator<String> experimentsMissingProceduresIt = experimentsMissingProcedures.iterator();
-        while (experimentsMissingProceduresIt.hasNext()) {
-            logger.warn(experimentsMissingProceduresIt.next());
+
+        for (String experimentsMissingProcedure : experimentsMissingProcedures) {
+            logger.warn(experimentsMissingProcedure);
         }
 
 
-//        logger.info("Skipped {} experiments because of known bad colony id", skippedExperimentsCount);
+        logger.info("Skipped {} experiments because of known bad colony id", skippedExperimentsCount);
 
         logger.info("Wrote {} sample-Level procedures", sampleLevelProcedureCount);
         logger.info("Wrote {} line-Level procedures", lineLevelProcedureCount);
@@ -529,11 +506,9 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
     }
 
 
-    public Experiment insertExperiment(DccExperimentDTO dccExperiment) throws DataLoadException {
+    private Experiment insertExperiment(DccExperimentDTO dccExperiment) throws DataLoadException {
 
-        Experiment experiment = createExperiment(dccExperiment);
-
-        return experiment;
+        return createExperiment(dccExperiment);
     }
 
     // Unique key must include External ID and Center name
@@ -578,7 +553,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
             return null;
         }
 
-        /**
+        /*
          * Some dcc europhenome colonies were incorrectly associated with EuroPhenome. Imits has the authoritative mapping
          * between colonyId and project and, for these incorrect colonies, overrides the dbId to reflect the real owner
          * of the data, MGP.
@@ -692,7 +667,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         }
 
 
-        /**
+        /*
          * Set colonyId, dateOfExperiment, and sequenceId. The source is different for line-level vs specimen-level:
          *
          * -------------------------------------------------------------------------------------------------
@@ -736,7 +711,8 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
             }
         }
 
-       /** Save procedure metadata into metadataCombined and metadataGroup:
+       /*
+        * Save procedure metadata into metadataCombined and metadataGroup:
         *
         * metadataCombined - All of a procedure's metadata parameters, in parameterDescription = value format. Each
         * metadata parameter is separated by a pair of colons. Each metadata lvalue is separated from its rvalue by " = ";
@@ -747,10 +723,13 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         * parameters in the same format as <i>metadataCombined</i> above.</ul>
         */
         List<ProcedureMetadata> dccMetadataList = dccSqlUtils.getProcedureMetadata(dccExperiment.getDcc_procedure_pk());
-        if (dccMetadataList == null)
+        if (dccMetadataList == null) {
             dccMetadataList = new ArrayList<>();
-        ObservableList<String> metadataCombinedList = FXCollections.observableArrayList();
-        ObservableList<String> metadataGroupList = FXCollections.observableArrayList();
+        }
+
+        List<String> metadataCombinedList = new ArrayList<>();
+        List<String> metadataGroupList = new ArrayList<>();
+
         for (ProcedureMetadata metadata : dccMetadataList) {
             String parameterName = cdaParameterNameMap.get(metadata.getParameterID());
             metadataCombinedList.add(parameterName + " = " + metadata.getValue());
@@ -886,7 +865,8 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         }
         AccDbId allele = new AccDbId(a.getId().getAccession(), a.getId().getDatabaseId());
 
-        Strain s = strainsByNameMap.get(colony.getBackgroundStrain());
+        Strain s = cdaSqlUtils.getBackgroundStrain(colony.getBackgroundStrain());
+
         if (s == null) {
             s = strainMapper.createBackgroundStrain(colony.getBackgroundStrain());
             cdaSqlUtils.insertStrain(s);
@@ -894,8 +874,6 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
                 message = "Couldn't create strain '" + colony.getBackgroundStrain() + "'";
                 logger.error(message);
                 throw new DataLoadException(message);
-            } else {
-                strainsByNameMap.put(s.getName(), s);
             }
         }
         AccDbId strain = new AccDbId(s.getId().getAccession(), s.getId().getDatabaseId());
@@ -939,6 +917,12 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
             return;
         }
         for (MediaParameter mediaParameter : mediaParameterList) {
+            List<ProcedureMetadata> pms = dccSqlUtils.getMediaParameterProcedureMetadataAssociations(mediaParameter.getHjid());
+            mediaParameter.setProcedureMetadata(pms);
+
+            List<ParameterAssociation> pma = dccSqlUtils.getMediaParameterParameterAssociations(mediaParameter.getHjid());
+            mediaParameter.setParameterAssociation(pma);
+
             insertMediaParameter(dccExperiment, mediaParameter, experimentPk, dbId, biologicalSamplePk, phenotypingCenter, phenotypingCenterPk, missing);
         }
 
@@ -999,11 +983,13 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
                     List<ParameterAssociation> parms = dccSqlUtils.getSeriesMediaParameterValueParameterAssociations(value.getHjid());
                     value.setParameterAssociation(parms);
                 } catch (NullPointerException e) {
+                    logger.info("Could not add parameter associations for param HJID {}", value.getHjid());
 
                 }
 
                 // Wire in procedureMetadata associations
                 List<ProcedureMetadata> pms = dccSqlUtils.getSeriesMediaParameterValueProcedureMetadataAssociations(value.getHjid());
+                value.setProcedureMetadata(pms);
             }
 
             seriesMediaParameter.setValue(values);
@@ -1062,7 +1048,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
 
     /**
      * Compute the line-level [mutant] zygosity (line-level controls have no specimens and, thus, no zygosity)
-     * @param dccExperiment
+     * @param dccExperiment experiment to load
      * @return The zygosity string, suitable for insertion into the database
      */
     private String getLineLevelZygosity(DccExperimentDTO dccExperiment) {
@@ -1124,7 +1110,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
             dccExperiment.getPhenotypingCenter().equalsIgnoreCase("ICS") &&
             parameterStableId.equals("ESLIM_001_001_125") &&
             dccExperiment.getSpecimenId() != null &&
-            dccExperiment.getSex().equals(SexType.male) &&
+            dccExperiment.getSex().equals(SexType.male.getName()) &&
             simpleParameter.getValue().equals("present")
             ) {
 
@@ -1264,6 +1250,12 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
                     String URI = mediaFile.getURI();
                     missing = (missing == 1 || (URI == null || URI.isEmpty() || URI.endsWith("/")) ? 1 : 0);
 
+                    List<ProcedureMetadata> pms = dccSqlUtils.getMediaFileProcedureMetadataAssociations(mediaFile.getHjid());
+                    mediaFile.setProcedureMetadata(pms);
+
+                    List<ParameterAssociation> pma = dccSqlUtils.getMediaFileParameterAssociations(mediaFile.getHjid());
+                    mediaFile.setParameterAssociation(pma);
+
                     try {
                         observationPk = cdaSqlUtils.insertObservation(
                                 dbId, biologicalSamplePk, parameterStableId, parameterPk, sequenceId, populationId,
@@ -1315,7 +1307,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         for (SeriesMediaParameterValue value : seriesMediaParameter.getValue()) {
 
             String URI = value.getURI();
-            missing = (observationType == ObservationType.image_record && (URI == null || URI.isEmpty() || URI.endsWith("/")) ? 1 : missing);
+            missing = (URI == null || URI.isEmpty() || URI.endsWith("/") ? 1 : missing);
 
             int observationPk;
             try {
