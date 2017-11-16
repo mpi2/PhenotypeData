@@ -87,21 +87,24 @@ public class LoadExperiments implements CommandLineRunner {
 
     private static Set<UniqueExperimentId> ignoredExperiments;                  // Experments purposefully ignored.
 
+    private int lineLevelProcedureCount   = 0;
+    private int sampleLevelProcedureCount = 0;
+
+    private final boolean INCLUDE_DERIVED_PARAMETERS = false;
+
 
     // lookup maps returning cda table primary key given dca unique string
     // Initialise them here, as this code gets called multiple times for different dcc data sources
     // and these maps must be cleared before their second and subsequent uses.
-    private Map<String, Integer>                cdaDb_idMap = new ConcurrentHashMap<>();
-    final private Map<String, Integer>          cdaOrganisation_idMap;
-    final private Map<String, PhenotypedColony> phenotypedColonyMap;
-    private Map<String, Integer>                cdaProject_idMap                  = new ConcurrentHashMap<>();
-    private Map<String, Integer>                cdaPipeline_idMap                 = new ConcurrentHashMap<>();
-    private Map<String, Integer>                cdaProcedure_idMap                = new ConcurrentHashMap<>();
-    private Map<String, Integer>                cdaParameter_idMap                = new ConcurrentHashMap<>();
-    private Map<String, String>                 cdaParameterNameMap               = new ConcurrentHashMap<>();              // map of impress parameter names keyed by stable_parameter_id
-    private Set<String>                         derivedImpressParameters          = new HashSet<>();
-    private Set<String>                         metadataAndDataAnalysisParameters = new HashSet<>();
-    private Map<String, BiologicalSample>       samplesMap                        = new ConcurrentHashMap<>();              // keyed by external_id and short_name (e.g. "mouseXXX_IMPC", "mouseYYY_3i", etc)
+    private Map<String, Integer>          cdaDb_idMap                       = new ConcurrentHashMap<>();
+    private Map<String, Integer>          cdaProject_idMap                  = new ConcurrentHashMap<>();
+    private Map<String, Integer>          cdaPipeline_idMap                 = new ConcurrentHashMap<>();
+    private Map<String, Integer>          cdaProcedure_idMap                = new ConcurrentHashMap<>();
+    private Map<String, Integer>          cdaParameter_idMap                = new ConcurrentHashMap<>();
+    private Map<String, String>           cdaParameterNameMap               = new ConcurrentHashMap<>();              // map of impress parameter names keyed by stable_parameter_id
+    private Set<String>                   derivedImpressParameters          = new HashSet<>();
+    private Set<String>                   metadataAndDataAnalysisParameters = new HashSet<>();
+    private Map<String, BiologicalSample> samplesMap                        = new ConcurrentHashMap<>();              // keyed by external_id and short_name (e.g. "mouseXXX_IMPC", "mouseYYY_3i", etc)
 
     // DCC parameter lookup maps, keyed by procedure_pk
     private Map<Long, List<MediaParameter>>       mediaParameterMap       = new ConcurrentHashMap<>();
@@ -113,7 +116,13 @@ public class LoadExperiments implements CommandLineRunner {
     // BiologicalModel map
     private Map<BioModelKey, Integer> bioModelMap = new ConcurrentHashMap<>();           // key is composite key. Value is biological model primary key.
 
-
+    private Map<String, Allele>           allelesBySymbolMap;
+    private Map<String, Integer>          cdaOrganisation_idMap;
+    private Map<String, GenomicFeature>   genesByAccMap;
+    private Map<String, PhenotypedColony> phenotypedColonyMap;
+    private Map<String, Strain>           strainsByNameMap;
+    
+    
     static {
         Set<UniqueExperimentId> ignoredExperimentSet = new HashSet<>();
         ignoredExperimentSet.add(new UniqueExperimentId("Ucd", "GRS_2013-10-09_4326"));
@@ -122,35 +131,14 @@ public class LoadExperiments implements CommandLineRunner {
         ignoredExperiments = new HashSet<>(ignoredExperimentSet);
     }
 
-    private int lineLevelProcedureCount   = 0;
-    private int sampleLevelProcedureCount = 0;
-
-    // lookup maps returning specified parameter type list given cda procedure primary key
-    final private Map<String, Allele>   allelesBySymbolMap;
-    private Map<String, GenomicFeature> genesByAccMap;
-    private Map<String, Strain>         strainsByNameMap;
-
-    private final boolean INCLUDE_DERIVED_PARAMETERS = false;
-
 
     public LoadExperiments(NamedParameterJdbcTemplate jdbcCda,
                            CdaSqlUtils cdaSqlUtils,
-                           DccSqlUtils dccSqlUtils,
-                           Map<String, Allele> allelesBySymbolMap,
-                           Map<String, Integer> cdaOrganisation_idMap,
-                           Map<String, GenomicFeature> genesByAccMap,
-                           Map<String, PhenotypedColony> phenotypedColonyMap,
-                           Map<String, Strain> strainsByNameMap
-
+                           DccSqlUtils dccSqlUtils
                             ) {
         this.jdbcCda = jdbcCda;
         this.cdaSqlUtils = cdaSqlUtils;
         this.dccSqlUtils = dccSqlUtils;
-        this.allelesBySymbolMap = allelesBySymbolMap;
-        this.cdaOrganisation_idMap = cdaOrganisation_idMap;
-        this.genesByAccMap = genesByAccMap;
-        this.phenotypedColonyMap = phenotypedColonyMap;
-        this.strainsByNameMap = strainsByNameMap;
     }
 
 
@@ -165,21 +153,30 @@ public class LoadExperiments implements CommandLineRunner {
     @Override
     public void run(String... strings) throws Exception {
 
-        Assert.notNull(jdbcCda, "jdbcCda must be set");
-        Assert.notNull(cdaSqlUtils, "cdaSqlUtils must be set");
-        Assert.notNull(dccSqlUtils, "dccSqlUtils must be set");
-        Assert.notNull(allelesBySymbolMap, "allelesBySymbolMap must be set");
-        Assert.notNull(cdaOrganisation_idMap, "cdaOrganisation_idMap must be set");
-        Assert.notNull(genesByAccMap, "genesByAccMap must be set");
-        Assert.notNull(phenotypedColonyMap, "phenotypedColonyMap must be set");
-        Assert.notNull(strainsByNameMap, "strainsByNameMap must be set");
+        Assert.notNull(jdbcCda, "jdbcCda must not be null");
+        Assert.notNull(cdaSqlUtils, "cdaSqlUtils must not be null");
+        Assert.notNull(dccSqlUtils, "dccSqlUtils must not be null");
+
+        allelesBySymbolMap = cdaSqlUtils.getAllelesBySymbol();
+        cdaOrganisation_idMap = cdaSqlUtils.getCdaOrganisation_idsByDccCenterId();
+        genesByAccMap = cdaSqlUtils.getGenesByAcc();
+        phenotypedColonyMap = cdaSqlUtils.getPhenotypedColonies();
+        strainsByNameMap = cdaSqlUtils.getStrainsByName();
+        Assert.notNull(allelesBySymbolMap, "allelesBySymbolMap must not be null");
+        Assert.notNull(cdaOrganisation_idMap, "cdaOrganisation_idMap must not be null");
+        Assert.notNull(genesByAccMap, "genesByAccMap must not be null");
+        Assert.notNull(phenotypedColonyMap, "phenotypedColonyMap must not be null");
+        Assert.notNull(strainsByNameMap, "strainsByNameMap must not be null");
+
 
         String message = "**** LOADING " + dccSqlUtils.getDbName() + " EXPERIMENTS ****";
         logger.info(org.apache.commons.lang3.StringUtils.repeat("*", message.length()));
         logger.info(message);
         logger.info(org.apache.commons.lang3.StringUtils.repeat("*", message.length()));
 
+
         long startStep = new Date().getTime();
+
 
         CommonUtils.printJvmMemoryConfiguration();
 

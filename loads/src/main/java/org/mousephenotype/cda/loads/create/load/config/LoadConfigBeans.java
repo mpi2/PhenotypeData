@@ -16,10 +16,6 @@
 
 package org.mousephenotype.cda.loads.create.load.config;
 
-import org.mousephenotype.cda.db.pojo.Allele;
-import org.mousephenotype.cda.db.pojo.GenomicFeature;
-import org.mousephenotype.cda.db.pojo.PhenotypedColony;
-import org.mousephenotype.cda.db.pojo.Strain;
 import org.mousephenotype.cda.loads.common.config.DataSourcesConfigApp;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -30,15 +26,12 @@ import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration;
 import org.springframework.boot.autoconfigure.jms.JndiConnectionFactoryAutoConfiguration;
 import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.util.Assert;
 
 import javax.inject.Inject;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by mrelac on 03/09/16.
@@ -58,11 +51,6 @@ public class LoadConfigBeans extends DataSourcesConfigApp implements Initializin
     private NamedParameterJdbcTemplate    jdbcDcc;
     private NamedParameterJdbcTemplate    jdbcDccEurophenome;
     private StepBuilderFactory            stepBuilderFactory;
-    private Map<String, Allele>           allelesBySymbolMap;
-    private Map<String, Integer>          cdaOrganisation_idMap;
-    private Map<String, GenomicFeature>   genesByAccMap;
-    private Map<String, PhenotypedColony> phenotypedColonyMap;
-    private Map<String, Strain>           strainsByNameMap;
 
 
     @Inject
@@ -83,46 +71,9 @@ public class LoadConfigBeans extends DataSourcesConfigApp implements Initializin
     @Override
     public void afterPropertiesSet() throws Exception {
 
-        this.allelesBySymbolMap = new ConcurrentHashMap<>(cdaSqlUtils().getAllelesBySymbol());
-        this.cdaOrganisation_idMap = cdaSqlUtils().getCdaOrganisation_idsByDccCenterId();
-        this.genesByAccMap = new ConcurrentHashMap<>(cdaSqlUtils().getGenes());
-        this.phenotypedColonyMap = cdaSqlUtils().getPhenotypedColonies();
-        this.strainsByNameMap = new ConcurrentHashMap<>(cdaSqlUtils().getStrainsByName());
-
-        Assert.notNull(jdbcCda, "jdbcCda must be set");
-        Assert.notNull(jdbcDcc, "jdbcDcc must be set");
-        Assert.notNull(jdbcDccEurophenome, "jdbcDccEurophenome must be set");
-        Assert.notNull(stepBuilderFactory, "stepBuilderFactory must be set");
-        Assert.notNull(allelesBySymbolMap, "allelesBySymbolMap must be set");
-        Assert.notNull(cdaOrganisation_idMap, "cdaOrganisation_idMap must be set");
-        Assert.notNull(genesByAccMap, "genesByAccMap must be set");
-        Assert.notNull(phenotypedColonyMap, "phenotypedColonyMap must be set");
-        Assert.notNull(strainsByNameMap, "strainsByNameMap must be set");
-    }
-
-
-    @Bean
-    Map<String, Allele> getAllelesBySymbolMap() {
-        return allelesBySymbolMap;
-    }
-
-    @Bean
-    Map<String, Integer> cdaOrganisation_idMap() {
-        return cdaOrganisation_idMap;
-    }
-
-    @Bean
-    Map<String, GenomicFeature> genesByAccMap() {
-        return genesByAccMap;
-    }
-
-    @Bean
-    Map<String, PhenotypedColony> phenotypedColonyMap() {
-        return phenotypedColonyMap;
-    }
-
-    @Bean
-    Map<String, Strain> strainsByNameMap() {
-        return strainsByNameMap;
+        Assert.notNull(jdbcCda, "jdbcCda must not be null");
+        Assert.notNull(jdbcDcc, "jdbcDcc must not be null");
+        Assert.notNull(jdbcDccEurophenome, "jdbcDccEurophenome must not be null");
+        Assert.notNull(stepBuilderFactory, "stepBuilderFactory must not be null");
     }
 }

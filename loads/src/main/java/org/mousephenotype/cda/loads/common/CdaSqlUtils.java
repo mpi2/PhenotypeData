@@ -483,7 +483,7 @@ public class CdaSqlUtils {
      *         found; null otherwise
      */
     public GenomicFeature getGene(String mgiAccessionId) {
-        return getGenes().get(mgiAccessionId);
+        return getGenesByAcc().get(mgiAccessionId);
     }
 
 
@@ -510,11 +510,11 @@ public class CdaSqlUtils {
     }
 
     /**
-     * Return the list of <code>GenomicFeature</code>s
+     * Return the list of {@link >GenomicFeature} instances, indexed by gene accession id
      *
-     * @return the list of <code>GenomicFeature</code>s
+     * @return the list of {@link >GenomicFeature} instances, indexed by gene accession id
      */
-    public Map<String, GenomicFeature> getGenes() {
+    public Map<String, GenomicFeature> getGenesByAcc() {
         Map<String, GenomicFeature> genes = new ConcurrentHashMap<>();
 
         logger.info("Loading genes");
@@ -1474,7 +1474,7 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
                 "  pcprprj.name                              AS pc_production_project_name,\n" +
                 "  gf.*\n" +
                 "FROM phenotyped_colony  pc\n" +
-                "            JOIN genomic_feature    gf          ON gf       .db_id  = gf_db_id AND gf.acc = pc.gf_acc\n" +
+                "LEFT OUTER  JOIN genomic_feature    gf          ON gf       .db_id  = gf_db_id AND gf.acc = pc.gf_acc\n" +
                 "            JOIN organisation       pcphorg     ON pcphorg  .id     = pc.phenotyping_centre_organisation_id\n" +
                 "            JOIN project            pcphprj     ON pcphprj  .id     = pc.phenotyping_consortium_project_id\n" +
                 "LEFT OUTER  JOIN organisation       pcprorg     ON pcprorg  .id     = pc.phenotyping_centre_organisation_id\n" +

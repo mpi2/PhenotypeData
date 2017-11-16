@@ -16,10 +16,6 @@
 
 package org.mousephenotype.cda.loads.integration.data.config;
 
-import org.mousephenotype.cda.db.pojo.Allele;
-import org.mousephenotype.cda.db.pojo.GenomicFeature;
-import org.mousephenotype.cda.db.pojo.PhenotypedColony;
-import org.mousephenotype.cda.db.pojo.Strain;
 import org.mousephenotype.cda.loads.common.config.DataSourcesConfigApp;
 import org.mousephenotype.cda.loads.create.extract.dcc.ExtractDccExperiments;
 import org.mousephenotype.cda.loads.create.extract.dcc.ExtractDccSpecimens;
@@ -44,8 +40,6 @@ import org.springframework.util.Assert;
 
 import javax.inject.Inject;
 import javax.sql.DataSource;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by mrelac on 02/05/2017.
@@ -65,11 +59,6 @@ public class TestConfig extends DataSourcesConfigApp implements InitializingBean
     private NamedParameterJdbcTemplate    jdbcDcc;
     private NamedParameterJdbcTemplate    jdbcDccEurophenome;
     private StepBuilderFactory            stepBuilderFactory;
-    private Map<String, Allele>           allelesBySymbolMap;
-    private Map<String, Integer>          cdaOrganisation_idMap;
-    private Map<String, GenomicFeature>   genesByAccMap;
-    private Map<String, PhenotypedColony> phenotypedColonyMap;
-    private Map<String, Strain>           strainsByNameMap;
 
 
     @Lazy
@@ -90,28 +79,11 @@ public class TestConfig extends DataSourcesConfigApp implements InitializingBean
     @Override
     public void afterPropertiesSet() throws Exception {
 
-        this.genesByAccMap = new ConcurrentHashMap<>(cdaSqlUtils().getGenes());
-        this.allelesBySymbolMap = new ConcurrentHashMap<>(cdaSqlUtils().getAllelesBySymbol());
-        this.strainsByNameMap = new ConcurrentHashMap<>(cdaSqlUtils().getStrainsByName());
-        this.cdaOrganisation_idMap = cdaSqlUtils().getCdaOrganisation_idsByDccCenterId();
-        this.phenotypedColonyMap = cdaSqlUtils().getPhenotypedColonies();
-
-        Assert.notNull(jdbcCda, "jdbcCda must be set");
-        Assert.notNull(jdbcDcc, "jdbcDcc must be set");
-        Assert.notNull(jdbcDccEurophenome, "jdbcDccEurophenome must be set");
-        Assert.notNull(stepBuilderFactory, "stepBuilderFactory must be set");
-        Assert.notNull(genesByAccMap, "genesByAccMap must be set");
-        Assert.notNull(allelesBySymbolMap, "allelesBySymbolMap must be set");
-        Assert.notNull(strainsByNameMap, "strainsByNameMap must be set");
-        Assert.notNull(cdaOrganisation_idMap, "cdaOrganisation_idMap must be set");
-        Assert.notNull(phenotypedColonyMap, "phenotypedColonyMap must be set");
+        Assert.notNull(jdbcCda, "jdbcCda must not be null");
+        Assert.notNull(jdbcDcc, "jdbcDcc must not be null");
+        Assert.notNull(jdbcDccEurophenome, "jdbcDccEurophenome must not be null");
+        Assert.notNull(stepBuilderFactory, "stepBuilderFactory must not be null");
     }
-
-
-
-
-
-
 
 
     // cda_base database
@@ -121,7 +93,6 @@ public class TestConfig extends DataSourcesConfigApp implements InitializingBean
                 .setType(EmbeddedDatabaseType.H2)
                 .ignoreFailedDrops(true)
                 .setName("cda_base_test")
-                .addScripts("sql/h2/cda/schema.sql")
                 .build();
     }
 
@@ -160,7 +131,6 @@ public class TestConfig extends DataSourcesConfigApp implements InitializingBean
                 .setType(EmbeddedDatabaseType.H2)
                 .ignoreFailedDrops(true)
                 .setName("dcc_europhenome_test")
-//                .addScripts("sql/h2/dcc/createSpecimen.sql", "sql/h2/dcc/createExperiment.sql")
                 .build();
     }
 
@@ -176,11 +146,11 @@ public class TestConfig extends DataSourcesConfigApp implements InitializingBean
 
     @Bean
     public LoadSpecimens loadSamples() {
-        return new LoadSpecimens(jdbcCda, cdaSqlUtils(), dccSqlUtils(), allelesBySymbolMap, cdaOrganisation_idMap, phenotypedColonyMap);
+        return new LoadSpecimens(jdbcCda, cdaSqlUtils(), dccSqlUtils());
     }
 
     @Bean
     public LoadExperiments loadExperiments() {
-        return new LoadExperiments(jdbcCda, cdaSqlUtils(), dccSqlUtils(), allelesBySymbolMap, cdaOrganisation_idMap, genesByAccMap, phenotypedColonyMap, strainsByNameMap);
+        return new LoadExperiments(jdbcCda, cdaSqlUtils(), dccSqlUtils());
     }
 }

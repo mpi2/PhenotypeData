@@ -70,7 +70,7 @@ public class LoadSpecimens implements CommandLineRunner {
     private OntologyTerm sampleTypeMouseEmbryoStage;
     private OntologyTerm sampleTypePostnatalMouse;
 
-    private Map<String, Allele>           allelesBySymbolMap = new HashMap<>();
+    private Map<String, Allele>           allelesBySymbolMap;
     private Map<String, Integer>          cdaOrganisation_idMap;
     private Map<String, PhenotypedColony> phenotypedColonyMap;
 
@@ -80,17 +80,11 @@ public class LoadSpecimens implements CommandLineRunner {
     public LoadSpecimens(
             NamedParameterJdbcTemplate jdbcCda,
             CdaSqlUtils cdaSqlUtils,
-            DccSqlUtils dccSqlUtils,
-            Map<String, Allele> allelesBySymbolMap,
-            Map<String, Integer> cdaOrganisation_idMap,
-            Map<String, PhenotypedColony> phenotypedColonyMap
+            DccSqlUtils dccSqlUtils
     ) {
         this.jdbcCda = jdbcCda;
         this.cdaSqlUtils = cdaSqlUtils;
         this.dccSqlUtils = dccSqlUtils;
-        this.cdaOrganisation_idMap = cdaOrganisation_idMap;
-        this.phenotypedColonyMap = phenotypedColonyMap;
-        this.allelesBySymbolMap = allelesBySymbolMap;
 
         written.put("biologicalSample", 0);
         written.put("liveSample", 0);
@@ -110,22 +104,26 @@ public class LoadSpecimens implements CommandLineRunner {
     @Override
     public void run(String... strings) throws Exception {
 
+        Assert.notNull(jdbcCda, "jdbcCda must not be null");
+        Assert.notNull(cdaSqlUtils, "cdaSqlUtils must not be null");
+        Assert.notNull(dccSqlUtils, "dccSqlUtils must not be null");
+
+        allelesBySymbolMap = cdaSqlUtils.getAllelesBySymbol();
+        cdaOrganisation_idMap = cdaSqlUtils.getCdaOrganisation_idsByDccCenterId();
+        phenotypedColonyMap = cdaSqlUtils.getPhenotypedColonies();
+        Assert.notNull(allelesBySymbolMap, "allelesBySymbolMap must not be null");
+        Assert.notNull(cdaOrganisation_idMap, "cdaOrganisation_idMap must not be null");
+        Assert.notNull(phenotypedColonyMap, "phenotypedColonyMap must not be null");
+
         developmentalStageMouse = cdaSqlUtils.getOntologyTermByName("postnatal");
         sampleTypeMouseEmbryoStage = cdaSqlUtils.getOntologyTermByName("mouse embryo stage");
         sampleTypePostnatalMouse = cdaSqlUtils.getOntologyTerm("MA:0002405");                // postnatal mouse
-        this.efoDbId = cdaSqlUtils.getExternalDbId("EFO");
+        efoDbId = cdaSqlUtils.getExternalDbId("EFO");
+        Assert.notNull(developmentalStageMouse, "developmentalStageMouse must not be null");
+        Assert.notNull(sampleTypeMouseEmbryoStage, "xsampleTypeMouseEmbryoStagex must not be null");
+        Assert.notNull(sampleTypePostnatalMouse, "sampleTypePostnatalMouse must not be null");
+        Assert.notNull(efoDbId, "efoDbId must not be null");
 
-        Assert.notNull(cdaOrganisation_idMap, "cdaOrganisation_idMap must be set");
-        Assert.notNull(phenotypedColonyMap, "phenotypedColonyMap must be set");
-        Assert.notNull(allelesBySymbolMap, "allelesBySymbolMap must be set");
-
-        Assert.notNull(developmentalStageMouse, "developmentalStageMouse must be set");
-        Assert.notNull(sampleTypeMouseEmbryoStage, "xsampleTypeMouseEmbryoStagex must be set");
-        Assert.notNull(sampleTypePostnatalMouse, "sampleTypePostnatalMouse must be set");
-        Assert.notNull(jdbcCda, "jdbcCda must be set");
-        Assert.notNull(cdaSqlUtils, "cdaSqlUtils must be set");
-        Assert.notNull(dccSqlUtils, "dccSqlUtils must be set");
-        Assert.notNull(efoDbId, "efoDbId must be set");
 
         long startStep = new Date().getTime();
 

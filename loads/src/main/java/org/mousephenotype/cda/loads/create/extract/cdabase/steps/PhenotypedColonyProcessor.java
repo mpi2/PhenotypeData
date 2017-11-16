@@ -109,7 +109,7 @@ public class PhenotypedColonyProcessor implements ItemProcessor<PhenotypedColony
 
         // Populate the necessary collections.
         if ((genes == null) || (genes.isEmpty())) {
-            genes = cdaSqlUtils.getGenes();
+            genes = cdaSqlUtils.getGenesByAcc();
         }
 
         // Look up the gene. Insert it if it doesn't yet exist.
