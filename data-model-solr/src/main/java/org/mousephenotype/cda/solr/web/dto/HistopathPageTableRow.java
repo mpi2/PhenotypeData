@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.solr.common.SolrDocument;
+import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.service.OntologyBean;
 import org.mousephenotype.cda.solr.service.dto.ImageDTO;
@@ -25,9 +26,16 @@ public class HistopathPageTableRow{
 	private String zygosity;
 	private long ageInDays;
 	private long ageInWeeks;
+	private SexType sex;
 	
 	
 	
+	public SexType getSex() {
+		return sex;
+	}
+	public void setSex(SexType sex) {
+		this.sex = sex;
+	}
 	public long getAgeInWeeks() {
 		return ageInWeeks;
 	}

@@ -66,6 +66,9 @@
 							Zygosity
 							</th>
 							<th>
+							Sex
+							</th>
+							<th>
 							SampleId
 							</th>
 							<th> <%-- class="headerSort"> --%>
@@ -79,7 +82,7 @@
 							Severity
 							</th>
 							<th>
-							Observation
+							Significance
 							</th>
 							<th>
 							MPATH Diagnostic
@@ -114,12 +117,21 @@
 									</td>
 									<td>
 									${histRow.zygosity}
+					
+									</td>
+									<td>
+									 <c:if test="${histRow.sex eq 'female'}">
+									<img alt="Female"  title="female" src="${baseUrl}/img/female.jpg"/>
+									 </c:if>
+									  <c:if test="${histRow.sex eq 'male'}">
+									 <img alt="Male" title="male" src="${baseUrl}/img/male.jpg"/>
+									 </c:if>
 									</td>
 									<td>
 									Mouse ${histRow.sampleId}<%-- / ${histRow.sequenceId} --%>
 									
 									</td>
-									<td>
+									<td id="${histRow.anatomyName}">
 										${histRow.anatomyName}
 									</td>
 									
@@ -133,7 +145,9 @@
 													<!-- do for each here values-->
 													<c:forEach var="value" items="${parameter.value }">
 											 		<%-- <td title="${value.description }"> --%>
+										
 														${value.name }
+														[${value.id }]
 													<%-- </td> --%>
 													</c:forEach>
 										
@@ -183,12 +197,12 @@
 									<c:forEach var="parameter" items="${histRow.significance }">
 										<c:choose>
 											<c:when test="${parameter.textValue eq 'Significant'}">
-											Abnormal
+											1
 											</c:when>
 											<c:otherwise>
-											Normal
+											0
 											</c:otherwise>
-											</c:choose>
+										</c:choose>
 										
 									</c:forEach>
 									</td>
