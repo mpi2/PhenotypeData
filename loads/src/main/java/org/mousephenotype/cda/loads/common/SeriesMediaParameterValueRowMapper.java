@@ -46,6 +46,7 @@ public class SeriesMediaParameterValueRowMapper implements RowMapper<SeriesMedia
         row.setFileType(rs.getString("fileType"));
         row.setIncrementValue(rs.getString("incrementValue"));
         row.setURI(rs.getString("URI"));
+        row.setLink(rs.getString("link"));
 
         return row;
     }

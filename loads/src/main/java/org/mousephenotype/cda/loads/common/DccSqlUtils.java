@@ -757,7 +757,7 @@ public class DccSqlUtils {
                         "  pk,\n" +
                         "  fileType,\n" +
                         "  incrementValue,\n" +
-                        "  URI,seriesMediaParameter_pk\n" +
+                        "  URI, link, seriesMediaParameter_pk\n" +
                         "FROM seriesMediaParameterValue\n" +
                         "WHERE seriesMediaParameter_pk = :seriesMediaParameter_pk";
 
@@ -1318,8 +1318,8 @@ public class DccSqlUtils {
      * @return the primary key if the insert was successful; 0 otherwise
      */
     public long insertMediaFile(MediaFile mediaFile, long mediaSectionPk) {
-        String insert = "INSERT INTO mediaFile (localId, fileType, URI, mediaSection_pk) " +
-                        "VALUES (:localId, :fileType, :URI, :mediaSectionPk)";
+        String insert = "INSERT INTO mediaFile (localId, fileType, URI, link, mediaSection_pk) " +
+                        "VALUES (:localId, :fileType, :URI, :link, :mediaSectionPk)";
 
         Map<String, Object> parameterMap = new HashMap<>();
         try {
@@ -1327,6 +1327,7 @@ public class DccSqlUtils {
             parameterMap.put("localId", mediaFile.getLocalId());
             parameterMap.put("fileType", mediaFile.getFileType());
             parameterMap.put("URI", mediaFile.getURI());
+            parameterMap.put("link", mediaFile.getLink());
             parameterMap.put("mediaSectionPk", mediaSectionPk);
 
             KeyHolder keyholder = new GeneratedKeyHolder();
@@ -1865,8 +1866,8 @@ public class DccSqlUtils {
      * @return the primary key if the insert was successful; 0 otherwise
      */
     public long insertSeriesMediaParameterValue(SeriesMediaParameterValue seriesMediaParameterValue, long seriesMediaParameterPk) {
-        String insert = "INSERT INTO seriesMediaParameterValue (fileType, incrementValue, URI, seriesMediaParameter_pk) " +
-                        "VALUES (:fileType, :incrementValue, :URI, :seriesMediaParameterPk)";
+        String insert = "INSERT INTO seriesMediaParameterValue (fileType, incrementValue, URI, link, seriesMediaParameter_pk) " +
+                        "VALUES (:fileType, :incrementValue, :URI, :link, :seriesMediaParameterPk)";
 
         try {
             Map<String, Object> parameterMap = new HashMap<>();
@@ -1874,6 +1875,7 @@ public class DccSqlUtils {
             parameterMap.put("fileType", seriesMediaParameterValue.getFileType());
             parameterMap.put("incrementValue", seriesMediaParameterValue.getIncrementValue());
             parameterMap.put("URI", seriesMediaParameterValue.getURI());
+            parameterMap.put("link", seriesMediaParameterValue.getLink());
             parameterMap.put("seriesMediaParameterPk", seriesMediaParameterPk);
 
             KeyHolder keyholder = new GeneratedKeyHolder();
@@ -2446,7 +2448,8 @@ public class DccSqlUtils {
         long parameterAssociationPk;
         String parameterId = parameterAssociation.getParameterID();
         Integer sequenceId = (parameterAssociation.getSequenceID() == null ? null : parameterAssociation.getSequenceID().intValue());
-        final String insertPa = "INSERT INTO parameterAssociation (parameterId, sequenceId) VALUES (:parameterId, :sequenceId)";
+        String link = parameterAssociation.getLink();
+        final String insertPa = "INSERT INTO parameterAssociation (parameterId, sequenceId, link) VALUES (:parameterId, :sequenceId, :link)";
         final String insertDimension = "INSERT INTO dimension (id, origin, unit, value, parameterAssociation_pk) "
                                      + "VALUES(:id, :origin, :unit, :value, :parameterAssociationPk)";
 
@@ -2454,6 +2457,7 @@ public class DccSqlUtils {
                 Map<String, Object> parameterMap = new HashMap<>();
                 parameterMap.put("parameterId", parameterId);
                 parameterMap.put("sequenceId", sequenceId);
+                parameterMap.put("link", link);
 
                 KeyHolder keyholder = new GeneratedKeyHolder();
                 SqlParameterSource parameterSource = new MapSqlParameterSource(parameterMap);
@@ -2611,6 +2615,7 @@ public class DccSqlUtils {
             parameterAssociation.setHjid(rs.getLong("pk"));
             parameterAssociation.setParameterID(rs.getString("parameterId"));
             parameterAssociation.setSequenceID(BigInteger.valueOf(rs.getLong("sequenceId")));
+            parameterAssociation.setLink(rs.getString("link"));
 
             return parameterAssociation;
         }
