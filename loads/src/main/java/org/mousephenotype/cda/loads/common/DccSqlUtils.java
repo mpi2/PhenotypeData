@@ -2581,7 +2581,8 @@ public class DccSqlUtils {
 
         } catch (Exception e) {
             e.printStackTrace();
-            throw new RuntimeException("INSERT of procedureMetadata(" + procedureMetadata.getParameterID() + ", " + procedureMetadata.getSequenceID() + " FAILED: " + e.getLocalizedMessage());
+            String s = String.format("INSERT INTO procedureMetadata (parameterId, parameterStatus, sequenceId, value) VALUES (%s, %s, %s, %s)", procedureMetadata.getParameterID(), procedureMetadata.getParameterStatus(), procedureMetadata.getSequenceID(), procedureMetadata.getValue());
+            throw new RuntimeException(s + " FAILED: " + e.getLocalizedMessage());
         }
     }
 
