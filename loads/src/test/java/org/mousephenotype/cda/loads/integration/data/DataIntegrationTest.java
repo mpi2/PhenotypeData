@@ -139,23 +139,23 @@ public class DataIntegrationTest {
 
 
 
-        List<SpecimenExtended> specimens = dccSqlUtils.getSpecimens();
-        System.out.println("Specimens:");
-        for (SpecimenExtended specimen : specimens) {
-            System.out.println("\tdatasourceShortName: " + specimen.getDatasourceShortName() + ", " + specimen.getSpecimen());
-        }
-
-
-        List<DccExperimentDTO> experiments = dccSqlUtils.getExperiments();
-        System.out.println("Experiments:");
-        for (DccExperimentDTO experiment : experiments) {
-
-            System.out.println("\t" + experiment);
-
-            List<SimpleParameter> simpleParameters = dccSqlUtils.getSimpleParameters(experiment.getDcc_procedure_pk());
-            for (SimpleParameter simpleParameter: simpleParameters) {
-                System.out.println("\t" + simpleParameter.getParameterID() + " :: " + simpleParameter.getValue());
-            }
-        }
+//        List<SpecimenExtended> specimens = dccSqlUtils.getSpecimens();
+//        System.out.println("Specimens:");
+//        for (SpecimenExtended specimen : specimens) {
+//            System.out.println("\tdatasourceShortName: " + specimen.getDatasourceShortName() + ", " + specimen.getSpecimen());
+//        }
+//
+//
+//        List<DccExperimentDTO> experiments = dccSqlUtils.getExperiments();
+//        System.out.println("Experiments:");
+//        for (DccExperimentDTO experiment : experiments) {
+//
+//            System.out.println("\t" + experiment);
+//
+//            List<SimpleParameter> simpleParameters = dccSqlUtils.getSimpleParameters(experiment.getDcc_procedure_pk());
+//            for (SimpleParameter simpleParameter: simpleParameters) {
+//                System.out.println("\t" + simpleParameter.getParameterID() + " :: " + simpleParameter.getValue());
+//            }
+//        }
     }
 }

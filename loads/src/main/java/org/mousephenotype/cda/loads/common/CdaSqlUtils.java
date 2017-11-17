@@ -1454,8 +1454,6 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
 
         Map<String, PhenotypedColony> list = new HashMap<>();
         String query =
-                "-- PhenotypedColonyRowMapper.sql\n" +
-                "\n" +
                 "SELECT\n" +
                 "  pc.id,\n" +
                 "  pc.colony_name,\n" +
@@ -1474,7 +1472,7 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
                 "  pcprprj.name                              AS pc_production_project_name,\n" +
                 "  gf.*\n" +
                 "FROM phenotyped_colony  pc\n" +
-                "LEFT OUTER  JOIN genomic_feature    gf          ON gf       .db_id  = gf_db_id AND gf.acc = pc.gf_acc\n" +
+                "            JOIN genomic_feature    gf          ON gf       .db_id  = gf_db_id AND gf.acc = pc.gf_acc\n" +
                 "            JOIN organisation       pcphorg     ON pcphorg  .id     = pc.phenotyping_centre_organisation_id\n" +
                 "            JOIN project            pcphprj     ON pcphprj  .id     = pc.phenotyping_consortium_project_id\n" +
                 "LEFT OUTER  JOIN organisation       pcprorg     ON pcprorg  .id     = pc.phenotyping_centre_organisation_id\n" +
