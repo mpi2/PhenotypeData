@@ -1735,7 +1735,7 @@ public class DccSqlUtils {
             }
 
         } catch (DuplicateKeyException dke) {
-            logger.info("IGNORED DUPLICATE INSERT to ontologyParameterTerm for ontologyParameterTerm {}, ontologyParameterPk {}, parameterId {}, filename {}",
+            logger.debug("IGNORED DUPLICATE INSERT to ontologyParameterTerm for ontologyParameterTerm {}, ontologyParameterPk {}, parameterId {}, filename {}",
                          ontologyParameterTerm, ontologyParameterPk, ontologyParameter.getParameterID(), filename);
         }
 
