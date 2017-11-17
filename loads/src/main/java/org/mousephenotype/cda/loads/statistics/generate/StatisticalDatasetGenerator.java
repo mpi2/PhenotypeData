@@ -66,6 +66,7 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
             "IMPC_GEL", "IMPC_HPL", "IMPC_HEL", "IMPC_EOL", "IMPC_GPL", "IMPC_EVL",
             "IMPC_VIA", "IMPC_FER"));
 
+
     private final Set<String> skipParameters = new HashSet<>(Arrays.asList(
            "M-G-P_022_001_001",
             // Skip these parameters (from Natasha)
@@ -242,7 +243,7 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
                     logger.info("  Has {} specimens with {} parameters", specimenParameterMap.size(), specimenParameterMap.values().stream().mapToInt(value -> value.keySet().size()).sum());
 
                     // Allow low N if ABR procedure
-                    if (specimenParameterMap.size() < 5 && ! result.get(ObservationDTO.PROCEDURE_GROUP).equals("IMPC_ABR")) {
+                    if (specimenParameterMap.size() < 5 && ! (result.get(ObservationDTO.PROCEDURE_GROUP).equals("IMPC_ABR") || result.get(ObservationDTO.DATASOURCE_NAME).equals("3i") ) ) {
                         logger.info("  Not processing due to low N {} {} {} {} {}",
                                 result.get(ObservationDTO.PROJECT_NAME),
                                 result.get(ObservationDTO.PHENOTYPING_CENTER),
@@ -331,6 +332,7 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
                 .setRows(0)
                 .setFacet(true)
                 .setFacetLimit(-1)
+                .setFacetMinCount(1)
                 .addFacetPivotField(PIVOT.stream().collect(Collectors.joining(",")));
 
         if (parameters!=null) {
