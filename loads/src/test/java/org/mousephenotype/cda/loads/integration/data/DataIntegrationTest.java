@@ -19,31 +19,27 @@ package org.mousephenotype.cda.loads.integration.data;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.loads.common.CdaSqlUtils;
-import org.mousephenotype.cda.loads.common.DccExperimentDTO;
 import org.mousephenotype.cda.loads.common.DccSqlUtils;
-import org.mousephenotype.cda.loads.common.SpecimenExtended;
 import org.mousephenotype.cda.loads.create.extract.dcc.ExtractDccExperiments;
 import org.mousephenotype.cda.loads.create.extract.dcc.ExtractDccSpecimens;
 import org.mousephenotype.cda.loads.create.load.LoadExperiments;
 import org.mousephenotype.cda.loads.create.load.LoadSpecimens;
 import org.mousephenotype.cda.loads.integration.data.config.TestConfig;
-import org.mousephenotype.dcc.exportlibrary.datastructure.core.procedure.SimpleParameter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.core.io.Resource;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import javax.sql.DataSource;
-import java.util.List;
 
 /**
  * This is an end-to-end integration data test class that uses an in-memory database to populate a small dcc, cda_base,
  * and cda set of databases.
  */
 
-@RunWith(SpringRunner.class)
+@RunWith(SpringJUnit4ClassRunner.class)
 @ComponentScan
 @ContextConfiguration(classes = TestConfig.class)
 public class DataIntegrationTest {
