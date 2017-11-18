@@ -49,7 +49,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 
 /**
  * Created by mrelac on 27/05/16.
@@ -2012,17 +2011,20 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
                             try {
                                 parameterAssociationPk = insertParameterAssociation(observationPk, parameterAssociation, simpleParameterList, ontologyParameterList);
                             } catch (DataIntegrityViolationException e) {
-                                logger.info("Duplicate parameter association for ObservationPk: {}, parameterAssociation: {}, simpleParameterList: {}, ontologyParameterList: {}",
+                                String value = "";
+                                String associatedParameter = "";
+                                for (SimpleParameter s : simpleParameterList) {
+                                    if (s.getParameterID().equals(parameterAssociation.getParameterID())) {
+                                        value = s.getValue();
+                                        associatedParameter=s.getParameterID();
+                                        break;
+                                    }
+                                }
+                                logger.info("Duplicate parameter association for ObservationPk: {}, parameterAssociation: {}->{}, value: {}",
                                         observationPk,
                                         parameterAssociation.getParameterID(),
-                                        simpleParameterList
-                                                .stream()
-                                                .map(SimpleParameter::getParameterID)
-                                                .collect(Collectors.joining(", ")),
-                                        ontologyParameterList
-                                                .stream()
-                                                .map(x -> x.getParameterID() + "=" + x.getTerm())
-                                                .collect(Collectors.joining(", ")));
+                                        associatedParameter,
+                                        value);
                             }
 
                             if (parameterAssociationPk != null) {
@@ -2255,6 +2257,7 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
             String paramStableId = sp.getParameterID();                             // parameter stable id
             if (paramStableId.equals(parameterAssociation.getParameterID())) {
                 value = sp.getValue();
+                break;
             }
         }
         for (OntologyParameter sp : ontologyParameterList) {
@@ -2264,6 +2267,7 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
                     logger.warn("ontology parameter in parameterAssociation not storing these yet but if they are here we should! term has values in them term=" + term);
                 }
                 value = org.apache.commons.lang.StringUtils.join(sp.getTerm(), ",");
+                break;
             }
         }
 
