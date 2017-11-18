@@ -1717,21 +1717,18 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
                 logger.warn("Insert MediaSampleParameter failed for parameterSource {}. Marking it as missing ...", parameterSource);
                 updateObservationMissingFlag(observationPk, true);
             } else {
-                // Save any parameter associations.
+                // Save parameter associations
                 for (ParameterAssociation parameterAssociation : mediaFile.getParameterAssociation()) {
                     int parameterAssociationPk = insertParameterAssociation(observationPk, parameterAssociation, simpleParameterList, ontologyParameterList);
 
-                    // Save any Dimensions.
+                    // Save Dimensions
                     for (Dimension dimension : parameterAssociation.getDim()) {
                         insertDimension(parameterAssociationPk, dimension);
                     }
                 }
 
-                // Save any procedure metadata.
-                for (ProcedureMetadata procedureMetadata : mediaFile.getProcedureMetadata()) {
-                    insertProcedureMetadata(mediaFile.getProcedureMetadata(), dccExperimentDTO.getProcedureId(),
-                                            experimentPk, observationPk);
-                }
+                // Save procedure metadata
+                insertProcedureMetadata(mediaFile.getProcedureMetadata(), dccExperimentDTO.getProcedureId(), experimentPk, observationPk);
             }
         } else {
             logger.debug("Image record not loaded (missing = 1). parameterStableId {}, URI {}" + parameterStableId,  URI);
@@ -2007,23 +2004,17 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
             } else {
 
                 try {
-                    // Save any parameter associations.
+                    // Save parameter associations
                     if (seriesMediaParameterValue.getParameterAssociation() != null && seriesMediaParameterValue.getParameterAssociation().size() > 0) {
 
                         for (ParameterAssociation parameterAssociation : seriesMediaParameterValue.getParameterAssociation()) {
+                            Integer parameterAssociationPk = null;
                             try {
-                                int parameterAssociationPk = insertParameterAssociation(observationPk, parameterAssociation, simpleParameterList, ontologyParameterList);
-
-                                // Save any Dimensions.
-                                if (parameterAssociation.getDim() != null && parameterAssociation.getDim().size() > 0) {
-                                    for (Dimension dimension : parameterAssociation.getDim()) {
-                                        insertDimension(parameterAssociationPk, dimension);
-                                    }
-                                }
+                                parameterAssociationPk = insertParameterAssociation(observationPk, parameterAssociation, simpleParameterList, ontologyParameterList);
                             } catch (DataIntegrityViolationException e) {
-                                logger.debug("Duplicate entry in parameter association for ObservationPk: {}, parameterAssociation: {}, simpleParameterList: {}, ontologyParameterList: {}",
+                                logger.info("Duplicate parameter association for ObservationPk: {}, parameterAssociation: {}, simpleParameterList: {}, ontologyParameterList: {}",
                                         observationPk,
-                                        parameterAssociation,
+                                        parameterAssociation.getParameterID(),
                                         simpleParameterList
                                                 .stream()
                                                 .map(SimpleParameter::getParameterID)
@@ -2033,6 +2024,17 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
                                                 .map(x -> x.getParameterID() + "=" + x.getTerm())
                                                 .collect(Collectors.joining(", ")));
                             }
+
+                            if (parameterAssociationPk != null) {
+
+                                // Save Dimensions
+                                if (parameterAssociation.getDim() != null && parameterAssociation.getDim().size() > 0) {
+                                    for (Dimension dimension : parameterAssociation.getDim()) {
+                                        insertDimension(parameterAssociationPk, dimension);
+                                    }
+                                }
+
+                            }
                         }
                     }
                 } catch (NullPointerException e) {
@@ -2041,11 +2043,8 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
                             seriesMediaParameterValue.getFileType(), phenotypingCenterPk, fullResolutionFilePath, e.getLocalizedMessage());
                 }
 
-                // Save any procedure metadata.
-                for (ProcedureMetadata procedureMetadata : seriesMediaParameterValue.getProcedureMetadata()) {
-                    insertProcedureMetadata(seriesMediaParameterValue.getProcedureMetadata(), dccExperimentDTO.getProcedureId(),
-                                            experimentPk, observationPk);
-                }
+                // Save any procedure metadata
+                insertProcedureMetadata(seriesMediaParameterValue.getProcedureMetadata(), dccExperimentDTO.getProcedureId(), experimentPk, observationPk);
             }
         } else {
             logger.debug("Image record not loaded: " + seriesMediaParameterValue.getURI());
@@ -2262,7 +2261,7 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
             String paramStableId = sp.getParameterID();                             // parameter stable id
             if (paramStableId.equals(parameterAssociation.getParameterID())) {
                 for (String term : sp.getTerm()) {
-                    System.err.println("ontology parameter in parameterAssociation not storing these yet but if they are here we should! term has values in them term=" + term);
+                    logger.warn("ontology parameter in parameterAssociation not storing these yet but if they are here we should! term has values in them term=" + term);
                 }
                 value = org.apache.commons.lang.StringUtils.join(sp.getTerm(), ",");
             }
