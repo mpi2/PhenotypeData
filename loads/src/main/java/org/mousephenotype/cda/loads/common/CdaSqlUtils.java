@@ -30,6 +30,7 @@ import org.mousephenotype.cda.utilities.RunStatus;
 import org.mousephenotype.dcc.exportlibrary.datastructure.core.procedure.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
@@ -48,6 +49,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 /**
  * Created by mrelac on 27/05/16.
@@ -2000,7 +2002,7 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
                              seriesMediaParameterValue.getFileType(), phenotypingCenterPk, fullResolutionFilePath, e.getLocalizedMessage());
             }
             if (count == 0) {
-                logger.warn("Insert MediaParameter failed for parameterSource {}. Marking it as missing ...", parameterSource);
+                logger.warn("Insert SeriesMediaParameter failed for parameterSource {}. Marking it as missing ...", parameterSource);
                 updateObservationMissingFlag(observationPk, true);
             } else {
 
@@ -2009,13 +2011,27 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
                     if (seriesMediaParameterValue.getParameterAssociation() != null && seriesMediaParameterValue.getParameterAssociation().size() > 0) {
 
                         for (ParameterAssociation parameterAssociation : seriesMediaParameterValue.getParameterAssociation()) {
-                            int parameterAssociationPk = insertParameterAssociation(observationPk, parameterAssociation, simpleParameterList, ontologyParameterList);
+                            try {
+                                int parameterAssociationPk = insertParameterAssociation(observationPk, parameterAssociation, simpleParameterList, ontologyParameterList);
 
-                            // Save any Dimensions.
-                            if (parameterAssociation.getDim() != null && parameterAssociation.getDim().size() > 0) {
-                                for (Dimension dimension : parameterAssociation.getDim()) {
-                                    insertDimension(parameterAssociationPk, dimension);
+                                // Save any Dimensions.
+                                if (parameterAssociation.getDim() != null && parameterAssociation.getDim().size() > 0) {
+                                    for (Dimension dimension : parameterAssociation.getDim()) {
+                                        insertDimension(parameterAssociationPk, dimension);
+                                    }
                                 }
+                            } catch (DataIntegrityViolationException e) {
+                                logger.debug("Duplicate entry in parameter association for ObservationPk: {}, parameterAssociation: {}, simpleParameterList: {}, ontologyParameterList: {}",
+                                        observationPk,
+                                        parameterAssociation,
+                                        simpleParameterList
+                                                .stream()
+                                                .map(SimpleParameter::getParameterID)
+                                                .collect(Collectors.joining(", ")),
+                                        ontologyParameterList
+                                                .stream()
+                                                .map(x -> x.getParameterID() + "=" + x.getTerm())
+                                                .collect(Collectors.joining(", ")));
                             }
                         }
                     }
@@ -2252,13 +2268,13 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
             }
         }
 
-        if (value != null) {
-            if (value.length() > 45) {
-                String trimmedValue = StringUtils.left(value, 44);
-                logger.info("Trimming parameterAssociationValue '{}' to 44 characters ('{}')", value, trimmedValue);
-                value = trimmedValue;
-            }
-        }
+//        if (value != null) {
+//            if (value.length() > 45) {
+//                String trimmedValue = StringUtils.left(value, 44);
+//                logger.info("Trimming parameterAssociationValue '{}' to 44 characters ('{}')", value, trimmedValue);
+//                value = trimmedValue;
+//            }
+//        }
 
         parameterMap.put("parameterAssociationValue", value);
         SqlParameterSource  parameterSource = new MapSqlParameterSource(parameterMap);
