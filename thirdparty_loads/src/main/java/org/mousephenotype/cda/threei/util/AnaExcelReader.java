@@ -19,6 +19,8 @@ package org.mousephenotype.cda.threei.util;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
+import org.springframework.stereotype.Component;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -27,6 +29,7 @@ import java.util.Iterator;
 import java.util.ListIterator;
 import java.util.ArrayList;
 
+@Component
 public class AnaExcelReader {
 
     private FileInputStream excelFile;

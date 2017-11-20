@@ -32,10 +32,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.Banner;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.beans.factory.annotation.Value;
 
 
 //import org.mousephenotype.cda.loads.create.extract.dcc.TestSpecimen;
@@ -55,10 +57,14 @@ import java.sql.Date;
  * specimen files currently found at /usr/local/komp2/phenotype_data/impc. This class is meant to be an executable jar
  * whose arguments describe the profile containing the application.properties, the source file, and the database name.
  */
+@SpringBootApplication
 public class CreateAnaExperimentXml extends CreateAnaXmls implements CommandLineRunner {
 
     private String outFilename;
     private String inFilename;
+
+    @Value("${n_rows_per_mouse}")
+    private int nRowsPerMouse;
 
     public static void main(String[] args) throws Exception {
         SpringApplication app = new SpringApplication(CreateAnaExperimentXml.class);
@@ -130,9 +136,9 @@ public class CreateAnaExperimentXml extends CreateAnaXmls implements CommandLine
                 continue;
             }
             
-            if (nRows !=4 ) {
+            if (nRows != nRowsPerMouse ) {
                 logger.warn("Records with ExperimentID have " + nRows +
-                    " rows. 4 rows expected");
+                    " rows. " + nRowsPerMouse + " rows expected");
             }
 
             GregorianCalendar exptDate = gcDate(row[12]);
