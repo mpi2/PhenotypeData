@@ -63,8 +63,9 @@ public class HistopathService {
 					
 //					System.out.println("number of observations with key="+observations.size());
 				for (ObservationDTO obs : observations) {
-				
-						row.setZygosity(obs.getZygosity());
+					
+						String zyg=ZygosityType.valueOf(obs.getZygosity()).getShortName();
+						row.setZygosity(zyg);
 						if(obs.getAgeInWeeks()!=null){
 							row.setAgeInWeeks(obs.getAgeInWeeks());
 						}

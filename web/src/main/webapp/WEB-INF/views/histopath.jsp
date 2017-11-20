@@ -63,7 +63,7 @@
 							Age in Weeks
 							</th>
 							<th>
-							Zygosity
+							Zyg
 							</th>
 							<th>
 							Sex
