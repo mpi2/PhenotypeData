@@ -7,7 +7,7 @@
 
 	<jsp:attribute name="title">Histopath Information for ${gene.markerName}</jsp:attribute>
 
-<jsp:attribute name="breadcrumb">&nbsp;&raquo;<a href='${baseUrl}/histopathsum/${gene.mgiAccessionId}'>${gene.markerSymbol}</a>&nbsp;&raquo; Histopathology Detailed View</jsp:attribute>
+<jsp:attribute name="breadcrumb">&nbsp;&raquo;<a href='${baseUrl}/genes/${gene.mgiAccessionId}'>${gene.markerSymbol}</a>&nbsp;&raquo;<a href='${baseUrl}/histopathsum/${gene.mgiAccessionId}'>Hist Summary for ${gene.markerSymbol}</a>&nbsp;&raquo; Histopathology Detailed View</jsp:attribute>
 
 
 	<jsp:attribute name="header">
@@ -48,9 +48,21 @@
                      <h2 class="title "
 									id="section-associations">Histopathology for ${gene.markerSymbol}<%-- : ${gene.markerName} --%></h2>
                      
-                    
-                    
                     <div class="section">
+                    <div class="inner">
+                    <h3>Score Definitions</h3>
+							<p><b>Severity:</b></p>
+							<p>0=Normal,</p>
+							<p>1=Mild (observation barely perceptible and not believed to have clinical significance),</p>
+							<p>2=Moderate (observation visible but involves minor proportion of tissue and clinical consequences of observation are most likely subclinical),</p> 
+							<p>3=Marked (observation clearly visible involves a significant proportion of tissue and is likely to have some clinical manifestations generally expected to be minor),</p>
+							<p>4=Severe (observation clearly visible involves a major proportion of tissue and clinical manifestations are likely associated with significant tissue dysfunction or damage)</p>
+							
+							<p><b>Significance Score:</b></p>
+							<p>0=Not significant (histopathology finding that is interpreted by the histopathologist to be within normal limits of background strain-related findings or an incidental finding not related to genotype)</p>
+							<p>1=Significant (histopathology finding that is interpreted by the histopathologist to not be a background strain-related finding or an incidental finding)
+					</div>
+							
 							<div class="inner">
 							 ${gene.markerSymbol}: ${gene.markerName}
 							 
@@ -63,7 +75,7 @@
 							Age in Weeks
 							</th>
 							<th>
-							Zygosity
+							Zyg
 							</th>
 							<th>
 							Sex
@@ -82,7 +94,7 @@
 							Severity
 							</th>
 							<th>
-							Significance
+							Significance Score
 							</th>
 							<th>
 							MPATH Diagnostic
@@ -120,11 +132,11 @@
 					
 									</td>
 									<td>
-									 <c:if test="${histRow.sex eq 'female'}">
-									<img alt="Female"  title="female" src="${baseUrl}/img/female.jpg"/>
+									 <c:if test="${histRow.sex eq 'female'}">Female
+									<img alt="Female"  title="Female" src="${baseUrl}/img/female.jpg"/>
 									 </c:if>
 									  <c:if test="${histRow.sex eq 'male'}">
-									 <img alt="Male" title="male" src="${baseUrl}/img/male.jpg"/>
+									 Male<img alt="Male" title="Male" src="${baseUrl}/img/male.jpg"/>
 									 </c:if>
 									</td>
 									<td>
