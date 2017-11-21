@@ -18,6 +18,7 @@ package uk.ac.ebi.phenotype.chart;
 import org.mousephenotype.cda.db.pojo.BiologicalModel;
 import org.mousephenotype.cda.db.pojo.DiscreteTimePoint;
 import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
+import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
 
 import java.util.List;
 import java.util.Map;
@@ -47,6 +48,20 @@ public String getSubtitle() {
 }
 
 public void setSubTitle(String subtitle) {
+	this.subtitle = subtitle;
+}
+
+private ParameterDTO parameter;
+
+public ParameterDTO getParameter() {
+	return parameter;
+}
+
+public void setParameter(ParameterDTO parameter) {
+	this.parameter = parameter;
+}
+
+public void setSubtitle(String subtitle) {
 	this.subtitle = subtitle;
 }
 

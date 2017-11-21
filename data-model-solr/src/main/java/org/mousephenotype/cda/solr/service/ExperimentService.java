@@ -200,13 +200,14 @@ public class ExperimentService{
         // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
         // Loop over all the experiments for which we found mutant data
         // to gather the control data
+        System.out.println("new experiment");
         for (String key : experimentsMap.keySet()) {
 
             // If the requester filtered based on organisation, then the
             // organisationId parameter will not be null and we can use that,
             // otherwise we need to determine the organisation for this
             // experiment and use that
-
+System.out.println("key is "+key);
             ExperimentDTO experiment = experimentsMap.get(key);
 
             if (experiment.getControls() == null) {
@@ -520,7 +521,10 @@ public class ExperimentService{
         if (experimentList.isEmpty()) {
             return null;// return null if no experiments
         }
-        if (experimentList.size() > 1 && !parameterStableId.equals("IMPC_BWT_008_001")) {
+        if (experimentList.size() > 1 && !parameterStableId.equals("IMPC_BWT_008_001")) {//need the BWT exemption as we get multiple experiments for that- so we just need to pass them back and let the chart and table code handle them...?
+        	for(ExperimentDTO experiment : experimentList){
+        		System.out.println("aaahhhh"+ experiment);
+        	}
             throw new SpecificExperimentException("Too many experiments returned - should only be one from this method call");
         }
         ExperimentDTO experiment=null;

@@ -148,6 +148,7 @@ public class TimeSeriesChartAndTableProvider {
 		}
 
 		chartNTableForParameter.setLines(lines);
+		chartNTableForParameter.setParameter(parameter);
 
 		return chartNTableForParameter;
 
