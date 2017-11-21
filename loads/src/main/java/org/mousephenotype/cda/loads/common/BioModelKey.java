@@ -22,21 +22,19 @@ package org.mousephenotype.cda.loads.common;
  * This class encapsulates the components of a biological model lookup key.
  */
 
-public abstract class BioModelKey {
+public class BioModelKey {
 
     private Integer dbId;
     private String allelicComposition;
     private String geneticBackground;
     private String zygosity;
-    private int phenotypingCenterPk;
 
 
-    public BioModelKey(Integer dbId, String allelicComposition, String geneticBackground, String zygosity, int phenotypingCenterPk) {
+    public BioModelKey(Integer dbId, String allelicComposition, String geneticBackground, String zygosity /*, int phenotypingCenterPk*/) {
         this.dbId = dbId;
         this.allelicComposition = allelicComposition;
         this.geneticBackground = geneticBackground;
         this.zygosity = zygosity;
-        this.phenotypingCenterPk = phenotypingCenterPk;
     }
 
 
@@ -70,14 +68,6 @@ public abstract class BioModelKey {
 
     public void setZygosity(String zygosity) {
         this.zygosity = zygosity;
-    }
-
-    public int getPhenotypingCenterPk() {
-        return phenotypingCenterPk;
-    }
-
-    public void setPhenotypingCenterPk(int phenotypingCenterPk) {
-        this.phenotypingCenterPk = phenotypingCenterPk;
     }
 
     @Override

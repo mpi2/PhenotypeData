@@ -815,7 +815,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         Strain backgroundStrain = cdaSqlUtils.getBackgroundStrain(specimenStrainId);
         String geneticBackground = strainMapper.parseMultipleBackgroundStrainNames(backgroundStrain.getName());
 
-        return new BioModelKeyControl(dbId, allelicComposition, geneticBackground, zygosity, phenotypingCenterPk, backgroundStrain);
+        return new BioModelKeyControl(dbId, allelicComposition, geneticBackground, zygosity, backgroundStrain);
     }
 
     private synchronized Integer createBiologicalModelControl(BioModelKeyControl controlKey) throws DataLoadException {
@@ -860,7 +860,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         allelicComposition = strainMapper.createAllelicComposition(zygosity, colony.getAlleleSymbol(), colony.getGene().getSymbol(), LoadUtils.SampleGroup.EXPERIMENTAL.value());
         geneticBackground = colony.getBackgroundStrain();
 
-        return new BioModelKeyMutant(dbId, allelicComposition, geneticBackground, zygosity, phenotypingCenterPk, colony);
+        return new BioModelKeyMutant(dbId, allelicComposition, geneticBackground, zygosity, colony);
     }
 
     private synchronized Integer createBiologicalModelMutant(BioModelKeyMutant mutantKey) throws DataLoadException {

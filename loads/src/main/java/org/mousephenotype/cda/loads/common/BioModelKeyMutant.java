@@ -22,8 +22,8 @@ public class BioModelKeyMutant extends BioModelKey {
 
     private PhenotypedColony colony;        // Used for experiment-level and line-level mutant specimens only.
 
-    public BioModelKeyMutant(Integer dbId, String allelicComposition, String geneticBackground, String zygosity, int phenotypingCenterPk, PhenotypedColony colony) {
-        super(dbId, allelicComposition, geneticBackground, zygosity, phenotypingCenterPk);
+    public BioModelKeyMutant(Integer dbId, String allelicComposition, String geneticBackground, String zygosity, /*int phenotypingCenterPk,*/ PhenotypedColony colony) {
+        super(dbId, allelicComposition, geneticBackground, zygosity);
         this.colony = colony;
     }
 

@@ -17,11 +17,14 @@
 package org.mousephenotype.cda.loads.common;
 
 
+import org.mousephenotype.cda.enumerations.ZygosityType;
+import org.mousephenotype.dcc.exportlibrary.datastructure.core.procedure.SimpleParameter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
@@ -154,5 +157,49 @@ public class LoadUtils {
         public String value() {
             return value;
         }
+    }
+
+
+
+    /**
+     * Compute the line-level [mutant] zygosity (line-level controls have no specimens and, thus, no zygosity)
+     * @param simpleParameters a list of the caller's experiment's {@link SimpleParameter} instances
+     * @return The zygosity string, suitable for insertion into the database
+     */
+    public static String getLineLevelZygosity(List<SimpleParameter> simpleParameters) {
+
+        // Default zygosity is homozygous since most of the time this will be the case
+        ZygosityType zygosity = ZygosityType.homozygote;
+
+        // Check if Hemizygote
+        for (SimpleParameter param : simpleParameters) {
+
+            // Find the associated "Outcome" parameter
+            if (param.getParameterID()
+                    .equals("IMPC_VIA_001_001")) {
+
+                // Found the outcome parameter, check zygosity
+                String category = param.getValue();
+
+                if (category != null && category.contains("Hemizygous")) {
+                    zygosity = ZygosityType.hemizygote;
+                }
+
+                break;
+            }
+        }
+
+        return zygosity.getName();
+    }
+
+    /**
+     * Build and return a {@link String} key that uniquely identifies a sample
+     * @param specimenId
+     * @param datasourceShortName
+     * @param phenotypingCenterPk
+     * @return
+     */
+    public static String buildSamplesMapKey(String specimenId, String datasourceShortName, Integer phenotypingCenterPk) {
+        return specimenId + "_" + phenotypingCenterPk + "_" + datasourceShortName;
     }
 }

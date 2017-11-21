@@ -22,8 +22,8 @@ public class BioModelKeyControl extends BioModelKey {
 
     private Strain backgroundStrain;        // Used for experiment-level control specimens only.
 
-    public BioModelKeyControl(Integer dbId, String allelicComposition, String geneticBackground, String zygosity, int phenotypingCenterPk, Strain backgroundStrain) {
-        super(dbId, allelicComposition, geneticBackground, zygosity, phenotypingCenterPk);
+    public BioModelKeyControl(Integer dbId, String allelicComposition, String geneticBackground, String zygosity, /*, int phenotypingCenterPk,*/ Strain backgroundStrain) {
+        super(dbId, allelicComposition, geneticBackground, zygosity);
         this.backgroundStrain = backgroundStrain;
     }
 

@@ -106,7 +106,7 @@ public class StrainMapper {
 
     }
 
-    @Inject
+//    @Inject
     public StrainMapper(CdaSqlUtils cdaSqlUtils) throws DataLoadException {
         this.cdaSqlUtils = cdaSqlUtils;
         initialise();
@@ -114,7 +114,6 @@ public class StrainMapper {
 
     private void initialise() throws DataLoadException {
         uncharacterizedBackgroundStrain = cdaSqlUtils.getOntologyTermByName("IMPC uncharacterized background strain");
-
     }
 
 

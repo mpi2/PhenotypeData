@@ -206,12 +206,26 @@ public class CdaSqlUtils {
 
         List<BiologicalSample> samples = jdbcCda.query(query, new BiologicalSampleRowMapper());
         for (BiologicalSample sample : samples) {
-            map.put(sample.getStableId() + "_" + sample.getOrganisation().getId() + "_" + sample.getDatasource().getShortName(), sample);
+            String key = LoadUtils.buildSamplesMapKey(sample.getStableId(), sample.getDatasource().getShortName(), sample.getOrganisation().getId());
+            map.put(key, sample);
         }
 
         return map;
     }
 
+    public Map<BioModelKey, Integer> getBioModelPks() {
+        Map<BioModelKey, Integer> map = new ConcurrentHashMap<>();
+        String query = "SELECT * FROM biological_model";
+
+        List<BiologicalModel> list = jdbcCda.query(query, new BiologicalModelRowMapper());
+        for (BiologicalModel bm : list) {
+
+            BioModelKey key = new BioModelKey(bm.getDatasource().getId(), bm.getAllelicComposition(), bm.getGeneticBackground(), bm.getZygosity());
+            map.put(key, bm.getId());
+        }
+
+        return map;
+    }
 
     public Strain getBackgroundStrain(String specimenStrainId) throws DataLoadException {
         Strain backgroundStrain;
@@ -465,6 +479,7 @@ public class CdaSqlUtils {
      * @param externalDbShortName a name matching the external_db.short_name field
      * @return the db_id matching short_name
      */
+    @Deprecated
     public int getExternalDbId(String externalDbShortName) {
         Map<String, Object> parameterMap = new HashMap<>();
         parameterMap.put("short_name", externalDbShortName);
@@ -559,6 +574,9 @@ public class CdaSqlUtils {
             insertBiologicalModelGenes(biologicalModelId, mutant.getGenes());
             insertBiologicalModelAlleles(biologicalModelId, mutant.getAlleles());
             insertBiologicalModelStrains(biologicalModelId, mutant.getStrains());
+            if (mutant.biologicalSamplePk != null) {
+                insertBiologicalModelSample(biologicalModelId, mutant.biologicalSamplePk);
+            }
         }
 
         return biologicalModelId;
@@ -574,6 +592,9 @@ public class CdaSqlUtils {
 
             biologicalModelId = insertBiologicalModel(control.getDbId(), control.getAllelicComposition(), control.getGeneticBackground(), control.getZygosity());
             insertBiologicalModelStrains(biologicalModelId, control.getStrains());
+            if (control.biologicalSamplePk != null) {
+                insertBiologicalModelSample(biologicalModelId, control.biologicalSamplePk);
+            }
         }
         return biologicalModelId;
     }
@@ -628,6 +649,9 @@ public class CdaSqlUtils {
         insertBiologicalModelGenes(biologicalModelId, model.getGenes());
         insertBiologicalModelAlleles(biologicalModelId, model.getAlleles());
         insertBiologicalModelPhenotypes(biologicalModelId, model.getPhenotypes());
+        if (model.biologicalSamplePk != null) {
+            insertBiologicalModelSample(biologicalModelId, model.biologicalSamplePk);
+        }
 
         return biologicalModelId;
     }
@@ -674,7 +698,7 @@ public class CdaSqlUtils {
         }
 
         results.put("count", count);
-        results.put("biologicalSampleId", id);
+        results.put("biologicalSamplePk", id);
 
         return results;
     }

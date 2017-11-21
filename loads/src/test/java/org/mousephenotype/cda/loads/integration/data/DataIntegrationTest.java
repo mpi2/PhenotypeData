@@ -19,7 +19,6 @@ package org.mousephenotype.cda.loads.integration.data;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mousephenotype.cda.db.pojo.BiologicalSample;
 import org.mousephenotype.cda.loads.common.CdaSqlUtils;
 import org.mousephenotype.cda.loads.common.DccSqlUtils;
 import org.mousephenotype.cda.loads.create.extract.dcc.ExtractDccExperiments;
@@ -119,35 +118,39 @@ public class DataIntegrationTest {
         Resource specimenResource = context.getResource("classpath:xml/akt2Specimens.xml");
         Resource experimentResource = context.getResource("classpath:xml/akt2Experiment.xml");
 
-        String[] specimenArgs = new String[] {
+        String[] extractSpecimenArgs = new String[] {
                 "--datasourceShortName=EuroPhenome",
                 "--filename=" + specimenResource.getFile().getAbsolutePath()
                 };
 
-        String[] experimentArgs = new String[] {
+        String[] extractExperimentArgs = new String[] {
                 "--datasourceShortName=EuroPhenome",
                 "--filename=" + experimentResource.getFile().getAbsolutePath()
         };
+
+        String[] loadArgs = new String[] {
+                "--profile=dev",
+        };
+
         System.out.println("extractDccSpecimens");
-        extractDccSpecimens.run(specimenArgs);
+        extractDccSpecimens.run(extractSpecimenArgs);
 
         System.out.println("extractDccExperiments");
-        extractDccExperiments.run(experimentArgs);
-//        sampleDccLoader.execute(stepExecution);
+        extractDccExperiments.run(extractExperimentArgs);
 
         System.out.println("loadSpecimens");
-        loadSpecimens.run();
+        loadSpecimens.run(loadArgs);
 
         System.out.println("loadExperiments");
-        loadExperiments.run();
+        loadExperiments.run(loadArgs);
 
         List<List<String>> results = getSpecimenStrainAccs();
         List<String> controlList = results.get(0);
         List<String> mutantList = results.get(1);
 
-//        Assert.assertEquals("abc", controlList.get(0), mutantList.get(0));
         if ((controlList.get(0) != mutantList.get(0)) || (controlList.get(1) != mutantList.get(1))) {
-            Assert.fail("control and mutant strains differ:\n\tcontrol: " + controlList.get(0) + "::" + controlList.get(1) + "\n\t" + mutantList.get(0) + "::" + mutantList.get(1));
+            Assert.fail("control and mutant strains differ:\n\tcontrol: " + controlList.get(0) + "::" + controlList.get(1) +
+                                                          "\n\tmutant:  " + mutantList.get(0) + "::" + mutantList.get(1));
         }
 
 
