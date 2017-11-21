@@ -23,7 +23,8 @@ class Solr:
         self.pipelines=[]
         self.procedures=[]
         self.parameters=[]
-        self.standardFilter='download_file_path:*mousephenotype.org*%20AND%20!download_file_path:*.mov%20AND%20!download_file_path:*.fcs%20AND%20!download_file_path:*.bz2'
+        # KB 21/11/2017 Added OR part to allow 3i images to be pulled as well
+        self.standardFilter='download_file_path:(*mousephenotype.org*%20OR%20*images/3i*)%20AND%20!download_file_path:*.mov%20AND%20!download_file_path:*.fcs%20AND%20!download_file_path:*.bz2'
 
         #self.getParametersForProcedureAndPipeline("TCP_001", "IMPC_XRY_001")
 
