@@ -583,6 +583,30 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
             phenotypingCenter = LoadUtils.mappedExternalCenterNames.get(phenotypedColony.getPhenotypingCentre().getName());
         }
 
+        // Override the supplied 3i project with iMits version, if it's not a valid project identifier
+        if (dccExperiment.getDatasourceShortName().equals(CdaSqlUtils.THREEI) &&
+                ! cdaProject_idMap.containsKey(dccExperiment.getProject())
+                ) {
+
+            // Set default project to MGP
+            // For now, also default the control mice to the MGP project
+            dccExperiment.setProject(CdaSqlUtils.MGP);
+
+            PhenotypedColony phenotypedColony = phenotypedColonyMap.get(dccExperiment.getColonyId());
+            if ((phenotypedColony == null) || (phenotypedColony.getColonyName() == null)) {
+                String errMsg = "Unable to get phenotypedColony for experiment samples for colonyId {} to apply special 3i" +
+                        " project remap rule. Rule NOT applied." + dccExperiment.getColonyId();
+                missingColonyIds.add(errMsg);
+
+            } else {
+
+                // Override the project with that from the iMits record
+                if (phenotypedColony.getPhenotypingConsortium() != null && phenotypedColony.getPhenotypingConsortium().getName() != null) {
+                    dccExperiment.setProject(phenotypedColony.getPhenotypingConsortium().getName());
+                }
+            }
+        }
+
         projectPk = cdaProject_idMap.get(dccExperiment.getProject());
         if (projectPk == null) {
             missingProjects.add("Missing project '" + dccExperiment.getProject() + "'");

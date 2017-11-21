@@ -80,6 +80,7 @@ public class CdaSqlUtils {
 
     public static final String EUROPHENOME = "EuroPhenome";         // The datasourceShortName for dcc_europhenome_final loads
     public static final String MGP         = "MGP";                 // The MGP project name
+    public static final String THREEI      = "3i";                  // The 3i project name
 
 
     public static final String OBSERVATION_INSERT = "INSERT INTO observation (" +
