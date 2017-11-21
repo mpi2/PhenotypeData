@@ -84,21 +84,30 @@ public class ExperimentDTO {
 
 
 
-    @Override
-    public String toString() {
-        return "ExperimentDTO [experimentId=" + experimentId
-                + ", controlSelectionStrategy=" + ((controlSelectionStrategy!=null)?controlSelectionStrategy.name():"null")
-                + ", metadataGroup=" + metadataGroup
-                + ", parameterStableId=" + parameterStableId
-                + ", pipelineStableId=" + pipelineStableId
-                + ", organisation=" + organisation + ", strain=" + strain
-                + ", geneMarker=" + geneMarker + ", zygosities=" + zygosities
-                + ", sexes=" + sexes + ", result=" + results + ", Num homozygous mutants="
-                + homozygoteMutants.size() + ", Num heterozygous mutants="
-                + heterozygoteMutants.size() + ", Numcontrols=" + controls.size() + " control bm id=" + this.controlBiologicalModelId + "  exp bm id=" + experimentalBiologicalModelId + "]";
-    }
+    
 
-    public Set<String> getCategories() {
+    @Override
+	public String toString() {
+		return "ExperimentDTO [experimentId=" + experimentId + ", metadataGroup=" + metadataGroup + ", metadata="
+				+ metadata + ", parameterStableId=" + parameterStableId + ", procedureStableId=" + procedureStableId
+				+ ", procedureName=" + procedureName + ", pipelineStableId=" + pipelineStableId + ", observationType="
+				+ observationType + ", organisation=" + organisation + ", strain=" + strain + ", geneMarker="
+				+ geneMarker + ", zygosities=" + zygosities + ", sexes=" + sexes + ", controlSelectionStrategy="
+				+ controlSelectionStrategy + ", results=" + results + ", alleleSymobl=" + alleleSymobl
+				+ ", geneticBackgtround=" + geneticBackgtround + ", homozygoteMutants=" + homozygoteMutants
+				+ ", heterozygoteMutants=" + heterozygoteMutants + ", hemizygoteMutants=" + hemizygoteMutants
+				+ ", controls=" + controls + ", controlBiologicalModelId=" + controlBiologicalModelId
+				+ ", experimentalBiologicalModelId=" + experimentalBiologicalModelId + ", maleControls=" + maleControls
+				+ ", femaleControls=" + femaleControls + ", alleleAccession=" + alleleAccession
+				+ ", statisticalResultUrl=" + statisticalResultUrl + ", genotypePhenotypeUrl=" + genotypePhenotypeUrl
+				+ ", DataPhenStatFormatUrl=" + DataPhenStatFormatUrl + "]";
+	}
+
+
+
+
+
+	public Set<String> getCategories() {
         Set<String> categorieSet = new TreeSet<>();
         for (ObservationDTO ob : controls) {
             categorieSet.add(ob.getCategory());

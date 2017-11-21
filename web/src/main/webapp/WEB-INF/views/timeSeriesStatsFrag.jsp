@@ -84,7 +84,7 @@
 				<c:otherwise>
 
 					<tr>
-						<th>${timeSeriesChartsAndTable.chart}</th>
+						<th class="capitalize">${timeSeriesChartsAndTable.parameter.unitX}</th>
 						<c:forEach var="lineMap" items="${timeSeriesChartsAndTable.lines}"
 								   varStatus="keyCount">
 							<th>${lineMap.key}</th>
