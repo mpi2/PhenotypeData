@@ -24,7 +24,12 @@
 				<a href='${baseUrl}${phenStatDataUrl}'> PhenStat-ready raw experiment data</a>
 				</c:if>
 			</p>
+
 			<table id="timeTable">
+
+				<c:choose>
+						<c:when test="${param.parameter_stable_id == 'IMPC_BWT_008_001' }">
+
 				<tr>
 					<th>Weeks</th>
 					<c:forEach var="lineMap" items="${timeSeriesChartsAndTable.lines}"
@@ -75,24 +80,37 @@
 					<%--</tr>--%>
 
 					</c:forEach>
-				<%--<tr>--%>
-					<%--<c:forEach var="lineKey"--%>
-						<%--items="${timeSeriesChartsAndTable.uniqueTimePoints}"--%>
-						<%--varStatus="timeRow">--%>
-						<%--<tr>--%>
-							<%--<td>${lineKey}</td>--%>
-							<%--<c:forEach var="lineMap" items="${timeSeriesChartsAndTable.lines}"--%>
-								<%--varStatus="column">--%>
-	<%----%>
-								<%--<td><c:if test="${lineMap.value[timeRow.index].discreteTime==lineKey}">--%>
-										<%--${lineMap.value[timeRow.index].data} (${lineMap.value[timeRow.index].count})--%>
-									<%--</c:if>--%>
-								<%--</td>--%>
-	<%----%>
-							<%--</c:forEach>--%>
-						<%--</tr>--%>
-					<%--</c:forEach>--%>
-				<%--</tr>--%>
+						</c:when>
+				<c:otherwise>
+
+					<tr>
+						<th>${timeSeriesChartsAndTable.chart}</th>
+						<c:forEach var="lineMap" items="${timeSeriesChartsAndTable.lines}"
+								   varStatus="keyCount">
+							<th>${lineMap.key}</th>
+						</c:forEach>
+					</tr>
+
+					<c:forEach var="lineKey"
+						items="${timeSeriesChartsAndTable.uniqueTimePoints}"
+						varStatus="timeRow">
+
+						<tr>
+							<td>${lineKey}</td>
+							<c:forEach var="lineMap" items="${timeSeriesChartsAndTable.lines}"
+								varStatus="column">
+
+								<td><c:if test="${lineMap.value[timeRow.index].discreteTime==lineKey}">
+										${lineMap.value[timeRow.index].data} (${lineMap.value[timeRow.index].count})
+									</c:if>
+								</td>
+
+							</c:forEach>
+						</tr>
+					</c:forEach>
+				</c:otherwise>
+
+				</c:choose>
 			</table>
 		</div>
 		</div>
