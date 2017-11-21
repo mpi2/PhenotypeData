@@ -81,7 +81,7 @@ public class TimeSeriesChartAndTableProvider {
 					Float discreteTimePoint = control.getDiscretePoint();
 
 					// Ensure the timepoint is valid
-					if (discreteTimePoint > 0) {
+					if (discreteTimePoint >= 0 || ! parameter.getStableId().contains("BWT")) {
 						controlDataPoints.add(new DiscreteTimePoint(discreteTimePoint, dataPoint));
 					}
 				}
