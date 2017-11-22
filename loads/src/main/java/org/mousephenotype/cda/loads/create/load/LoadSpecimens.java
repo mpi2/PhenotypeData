@@ -26,7 +26,6 @@ import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.loads.common.*;
 import org.mousephenotype.cda.loads.exceptions.DataLoadException;
 import org.mousephenotype.cda.utilities.CommonUtils;
-import org.mousephenotype.cda.utilities.RunStatus;
 import org.mousephenotype.dcc.exportlibrary.datastructure.core.common.StageUnit;
 import org.mousephenotype.dcc.exportlibrary.datastructure.core.specimen.Embryo;
 import org.mousephenotype.dcc.exportlibrary.datastructure.core.specimen.Mouse;
@@ -59,9 +58,9 @@ public class LoadSpecimens implements CommandLineRunner {
 
     private NamedParameterJdbcTemplate jdbcCda;
 
-    private Set<String> missingColonyIds = new HashSet<>();
-    private Set<String> missingCenters   = new HashSet<>();
-    private Set<String> unexpectedStage  = new HashSet<>();
+    private Set<String> missingCenters              = new HashSet<>();
+    private Set<String> missingDatasourceShortNames = new HashSet<>();
+    private Set<String> unexpectedStage             = new HashSet<>();
 
     private final Logger               logger  = LoggerFactory.getLogger(this.getClass());
     private       Map<String, Integer> written = new HashMap<>();
@@ -71,11 +70,16 @@ public class LoadSpecimens implements CommandLineRunner {
     private OntologyTerm sampleTypePostnatalMouse;
 
     private Map<String, PhenotypedColony> phenotypedColonyMap;
+    private Map<String, MissingColonyId>  missingColonyMap;
 
     private int efoDbId;
 
-    private Map<String, Integer>      cdaDb_idMap = new ConcurrentHashMap<>();
-    private BioModelManager           bioModelManager;
+    private BioModelManager      bioModelManager;
+    private Map<String, Integer> cdaDb_idMap = new ConcurrentHashMap<>();
+    private Map<String, Integer> cdaOrganisation_idMap;
+
+    private final String MISSING_MUTANT_COLONY_ID_REASON = "LoadSpecimens: MUTANT specimen was not found in phenotyped_colony table";
+
 
     public LoadSpecimens(
             NamedParameterJdbcTemplate jdbcCda,
@@ -108,13 +112,18 @@ public class LoadSpecimens implements CommandLineRunner {
         Assert.notNull(cdaSqlUtils, "cdaSqlUtils must not be null");
         Assert.notNull(dccSqlUtils, "dccSqlUtils must not be null");
 
+
         bioModelManager = new BioModelManager(cdaSqlUtils, dccSqlUtils);
         cdaDb_idMap = cdaSqlUtils.getCdaDb_idsByDccDatasourceShortName();
+        cdaOrganisation_idMap = cdaSqlUtils.getCdaOrganisation_idsByDccCenterId();
         phenotypedColonyMap = bioModelManager.getPhenotypedColonyMap();
+        missingColonyMap = cdaSqlUtils.getMissingColonyIdsMap();
 
         Assert.notNull(bioModelManager, "bioModelManager must not be null");
         Assert.notNull(cdaDb_idMap, "cdaDb_idMap must not be null");
+        Assert.notNull(cdaOrganisation_idMap, "cdaOrganisation_idMap must not be null");
         Assert.notNull(phenotypedColonyMap, "phenotypedColonyMap must not be null");
+        Assert.notNull(missingColonyMap, "missingColonyMap must not be null");
 
         developmentalStageMouse = cdaSqlUtils.getOntologyTermByName("postnatal");
         sampleTypeMouseEmbryoStage = cdaSqlUtils.getOntologyTermByName("mouse embryo stage");
@@ -142,46 +151,75 @@ public class LoadSpecimens implements CommandLineRunner {
             Specimen specimen    = specimenExtended.getSpecimen();
             String   sampleGroup = (specimen.isIsBaseline()) ? "control" : "experimental";
             boolean  isControl   = (sampleGroup.equals("control"));
-            int dbId;
+            Integer dbId;
             String phenotypingCenter;
             Integer phenotypingCenterPk;
             Integer productionCenterPk;
 
-            PhenotypedColony colony = phenotypedColonyMap.get(specimen.getColonyID());
-            if (colony == null) {
-                if ( ! DccSqlUtils.knownBadColonyIds.contains(specimen.getColonyID())) {
-                    missingColonyIds.add(specimen.getColonyID());
-                }
-
-                continue;
-            }
 
             /**
              * Some dcc europhenome colonies were incorrectly associated with EuroPhenome. Imits has the authoritative mapping
-             * between colonyId and project and, for these incorrect colonies, overrides the dbId to reflect the real owner
-             * of the data, MGP.
+             * between colonyId and project and, for these incorrect colonies, overrides the dbId and phenotyping center to
+             * reflect the real owner of the data, MGP.
              */
-            RunStatus           status;
-            EuroPhenomeRemapper remapper = new EuroPhenomeRemapper(specimenExtended);
+            EuroPhenomeRemapper remapper = new EuroPhenomeRemapper(specimenExtended, phenotypedColonyMap);
             if (remapper.needsRemapping()) {
-                status = remapper.remap(phenotypedColonyMap, cdaDb_idMap);
-                if (status.hasErrors()) {
-                    missingColonyIds.addAll(status.getErrorMessages());
-                    continue;
+                remapper.remap();
+            }
+
+            // Get phenotypingCenter, phenotypingCenterPk, and productionCenterPk. The extra block was added to
+            // make sure colony, which may be null, isn't dereferenced outside this block.
+            {
+                PhenotypedColony colony = phenotypedColonyMap.get(specimen.getColonyID());
+                if (colony == null) {
+
+                    // Ignore any missing colony ids with warn = 0. We know they are missing. It's OK to skip them.
+                    MissingColonyId missing = missingColonyMap.get(specimen.getColonyID());
+                    if ((missing != null) && (missing.getWarn() == 0)) {
+                        continue;
+                    }
+
+                    // It is an error if a MUTANT is not found in the iMits report (i.e. its colony is null)
+                    if ( ! specimen.isIsBaseline()) {
+                        missing = new MissingColonyId(specimen.getColonyID(), 1, MISSING_MUTANT_COLONY_ID_REASON);
+                        missingColonyMap.put(specimen.getColonyID(), missing);
+                        continue;
+                    }
+
+                    // It is OK if a CONTROL has no colony. Use the specimen instance.
+                    phenotypingCenter = LoadUtils.mappedExternalCenterNames.get(specimen.getPhenotypingCentre().value());   // phenotypingCenter from specimen using dcc center name
+                    phenotypingCenterPk = cdaOrganisation_idMap.get(specimen.getPhenotypingCentre().value());               // phenotypingCenterPk from specimen using dcc center name
+                    productionCenterPk =                                                                                    // productionCenterPk from specimen
+                            (specimen.getProductionCentre() == null
+                                    ? phenotypingCenterPk
+                                    : cdaOrganisation_idMap.get(specimen.getProductionCentre().value()));
+                } else {
+                    phenotypingCenter = LoadUtils.mappedExternalCenterNames.get(colony.getPhenotypingCentre().getName());                                            // phenotypingCenter from colony
+                    phenotypingCenterPk = colony.getPhenotypingCentre().getId();                                            // phenotypingCenterPk from colony
+                    productionCenterPk = (
+                            colony.getProductionCentre() == null                                                            // productionCenterPk from colony
+                                    ? phenotypingCenterPk
+                                    : colony.getProductionCentre().getId());
                 }
             }
 
             dbId = cdaDb_idMap.get(specimenExtended.getDatasourceShortName());
-            phenotypingCenter = LoadUtils.mappedExternalCenterNames.get(specimen.getPhenotypingCentre().value());
-            phenotypingCenterPk = colony.getPhenotypingCentre().getId();
+
             if (phenotypingCenterPk == null) {
                 missingCenters.add("Missing phenotyping center '" + specimen.getPhenotypingCentre().value() + "'");
+                continue;
+            }
+            if (productionCenterPk == null) {
+                missingCenters.add("Missing production center '" + specimen.getProductionCentre().value() + "'");
 
                 continue;
             }
-            productionCenterPk = (colony.getProductionCentre() == null
-                    ? phenotypingCenterPk
-                    : colony.getProductionCentre().getId());
+            if (dbId == null) {
+                missingDatasourceShortNames.add("Missing datasourceShortName '" + specimenExtended.getDatasourceShortName() + "'");
+
+                continue;
+            }
+
 
             if (isControl) {
                 counts = insertSampleControlSpecimen(specimenExtended, dbId, phenotypingCenterPk, productionCenterPk);
@@ -195,17 +233,40 @@ public class LoadSpecimens implements CommandLineRunner {
             written.put("liveSample", written.get("liveSample") + counts.get("liveSample"));
         }
 
-        for (String missingColonyId : missingColonyIds) {
-            logger.warn("Skipping missing phenotyped_colony information for dcc-supplied colony '" + missingColonyId + "'");
-        }
+
+        // Log info sets
 
         for (String stage : unexpectedStage) {
             logger.info("Unexpected value for embryonic DCP stage: " + stage);
         }
 
+        for (MissingColonyId missing : missingColonyMap.values()) {
+            if (missing.getWarn() != 1) {
+                logger.info(missing.getReason() + ". colonyId: " + missing.getColony_id());
+            }
+        }
+
+
+        // Log warning sets
+
+        for (MissingColonyId missing : missingColonyMap.values()) {
+            if (missing.getWarn() == 1) {
+                // Log the message as a warning
+                logger.warn(missing.getReason() + ". colonyId: " + missing.getColony_id());
+
+                // Add the missing colony id to the missing_colony_id table and turn off the warn flag so the ExperimentLoader doesn't bark about the same missing colony id.
+                cdaSqlUtils.insertMissingColonyId(missing.getColony_id(), 1, missing.getReason());
+            }
+        }
+
         for (String missingCenter : missingCenters) {
             logger.warn(missingCenter);
         }
+
+        for (String missingDatasourceShortName : missingDatasourceShortNames) {
+            logger.warn(missingDatasourceShortName);
+        }
+
 
         logger.info("Wrote {} new biological samples", written.get("biologicalSample"));
         logger.info("Wrote {} new live samples", written.get("liveSample"));

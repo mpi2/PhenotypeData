@@ -30,6 +30,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * This class encapsulates the code and data to query and insert into the biological model tables. Typical usage is to
@@ -47,7 +48,7 @@ public class BioModelManager {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private Map<BioModelKey, Integer> bioModelMap;           // key is composite key. Value is biological model primary key.
+    private Map<BioModelKey, Integer> bioModelMap = new ConcurrentHashMap<>();          // key is composite key. Value is biological model primary key.
     private CdaSqlUtils               cdaSqlUtils;
     private DccSqlUtils               dccSqlUtils;
     private StrainMapper              strainMapper;

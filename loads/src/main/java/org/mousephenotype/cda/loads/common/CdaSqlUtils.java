@@ -1366,6 +1366,35 @@ public class CdaSqlUtils {
         return getOntologyTerm(dbId, mappedTerm);
     }
 
+    public Map<String, MissingColonyId> getMissingColonyIdsMap() {
+
+        Map<String, MissingColonyId> map   = new HashMap<>();
+        String                       query = "SELECT * FROM missing_colony_id";
+
+        List<MissingColonyId> missingColonyIds = jdbcCda.query(query, new HashMap<>(), new MissingColonyIdRowMapper());
+        for (MissingColonyId missingColonyId : missingColonyIds) {
+            map.put(missingColonyId.getColony_id(), missingColonyId);
+        }
+
+        return map;
+    }
+
+    public int insertMissingColonyId(String colonyId, Integer warn, String reason) {
+        int count = 0;
+
+        final String insert = "INSERT INTO missing_colony_id (colony_id, warn, reason) " +
+                "VALUES (:colonyId, :warn, :reason)";
+
+        Map<String, Object> parameterMap = new HashMap<>();
+        parameterMap.put("colonyId", colonyId);
+        parameterMap.put("warn", warn);
+        parameterMap.put("reason", reason);
+
+        count = jdbcCda.update(insert, parameterMap);
+
+        return count;
+    }
+
     /**
      * Return the <code>OntologyTerm</code> matching the given {@code dbId} and {@code term}
      *
@@ -1476,7 +1505,7 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
      */
     public Map<String, PhenotypedColony> getPhenotypedColonies() {
 
-        Map<String, PhenotypedColony> list = new HashMap<>();
+        Map<String, PhenotypedColony> map = new HashMap<>();
         String query =
                 "SELECT\n" +
                 "  pc.id,\n" +
@@ -1504,10 +1533,10 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
 
         List<PhenotypedColony> phenotypedColonies = jdbcCda.query(query, new HashMap<>(), new PhenotypedColonyRowMapper());
         for (PhenotypedColony phenotypedColony : phenotypedColonies) {
-            list.put(phenotypedColony.getColonyName(), phenotypedColony);
+            map.put(phenotypedColony.getColonyName(), phenotypedColony);
         }
 
-        return list;
+        return map;
     }
 
     public Map<String, Project> getProjects() {

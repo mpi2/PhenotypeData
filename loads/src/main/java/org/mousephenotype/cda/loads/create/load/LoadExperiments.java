@@ -20,14 +20,14 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringUtils;
-import org.mousephenotype.cda.db.pojo.*;
+import org.mousephenotype.cda.db.pojo.BiologicalSample;
 import org.mousephenotype.cda.db.pojo.Experiment;
+import org.mousephenotype.cda.db.pojo.PhenotypedColony;
 import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.loads.common.*;
 import org.mousephenotype.cda.loads.exceptions.DataLoadException;
 import org.mousephenotype.cda.utilities.CommonUtils;
-import org.mousephenotype.cda.utilities.RunStatus;
 import org.mousephenotype.dcc.exportlibrary.datastructure.core.procedure.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,7 +70,6 @@ public class LoadExperiments implements CommandLineRunner {
     private Set<String> ignoredExperimentsInfo       = new HashSet<>();
     private Set<String> missingBackgroundStrains     = new HashSet<>();
     private Set<String> missingColonyIds             = new HashSet<>();
-    private Set<String> missingColonyIdInfo          = new HashSet<>();
     private Set<String> missingProjects              = new HashSet<>();
     private Set<String> experimentsMissingProjects   = new HashSet<>();
     private Set<String> missingCenters               = new HashSet<>();
@@ -89,6 +88,7 @@ public class LoadExperiments implements CommandLineRunner {
     private int sampleLevelProcedureCount = 0;
 
     private final boolean INCLUDE_DERIVED_PARAMETERS = false;
+    private final String MISSING_COLONY_ID_REASON = "LoadExperiments: specimen was not found in phenotyped_colony table";
 
 
     // lookup maps returning cda table primary key given dca unique string
@@ -114,6 +114,7 @@ public class LoadExperiments implements CommandLineRunner {
     private BioModelManager               bioModelManager;
     private Map<String, Integer>          cdaOrganisation_idMap;
     private Map<String, PhenotypedColony> phenotypedColonyMap;
+    private Map<String, MissingColonyId>  missingColonyMap;
     
     static {
         Set<UniqueExperimentId> ignoredExperimentSet = new HashSet<>();
@@ -149,14 +150,14 @@ public class LoadExperiments implements CommandLineRunner {
         Assert.notNull(dccSqlUtils, "dccSqlUtils must not be null");
 
         bioModelManager = new BioModelManager(cdaSqlUtils, dccSqlUtils);
-        phenotypedColonyMap = bioModelManager.getPhenotypedColonyMap();
         cdaOrganisation_idMap = cdaSqlUtils.getCdaOrganisation_idsByDccCenterId();
-        phenotypedColonyMap = cdaSqlUtils.getPhenotypedColonies();
+        phenotypedColonyMap = bioModelManager.getPhenotypedColonyMap();
+        missingColonyMap = cdaSqlUtils.getMissingColonyIdsMap();
 
         Assert.notNull(bioModelManager, "bioModelManager must not be null");
-        Assert.notNull(phenotypedColonyMap, "phenotypedColonyMap must not be null");
         Assert.notNull(cdaOrganisation_idMap, "cdaOrganisation_idMap must not be null");
         Assert.notNull(phenotypedColonyMap, "phenotypedColonyMap must not be null");
+        Assert.notNull(missingColonyMap, "missingColonyMap must not be null");
 
         long startStep = new Date().getTime();
 
@@ -266,14 +267,6 @@ public class LoadExperiments implements CommandLineRunner {
                 continue;
             }
 
-            // Skip any experiments with known bad colony ids.
-            if (DccSqlUtils.knownBadColonyIds.contains(dccExperiment.getColonyId())) {
-                skippedExperiments.add(dccExperiment.getDatasourceShortName() + " experiment " + dccExperiment.getExperimentId());
-                skippedExperimentsCount++;
-                continue;
-            }
-
-
             if (ONE_AT_A_TIME) {
 
                 insertExperiment(dccExperiment);
@@ -352,77 +345,76 @@ public class LoadExperiments implements CommandLineRunner {
 
         // Log info sets
 
-        Iterator<String> missingColonyIdInfoIt = missingColonyIdInfo.iterator();
-        while (missingColonyIdInfoIt.hasNext()) {
-            logger.info(missingColonyIdInfoIt.next());
+        for (String missingBackgroundStrain : missingBackgroundStrains) {
+            logger.info(missingBackgroundStrain);
         }
 
-        Iterator<String> ignoredExperimentsInfoIt = ignoredExperimentsInfo.iterator();
-        while (ignoredExperimentsInfoIt.hasNext()) {
-            logger.info(ignoredExperimentsInfoIt.next());
+
+        for (MissingColonyId missing : missingColonyMap.values()) {
+            if (missing.getWarn() != 1) {
+                logger.info(missing.getReason() + ". colonyId: " + missing.getColony_id());
+            }
         }
 
-        Iterator<String> badDatesIt = badDates.iterator();
-        while (badDatesIt.hasNext()) {
-            logger.info(badDatesIt.next());
+        for (String ignoredExperimentInfo : ignoredExperimentsInfo) {
+            logger.info(ignoredExperimentInfo);
+        }
+
+        for (String badDate : badDates) {
+            logger.info(badDate);
         }
 
 
         // Log warning sets
 
-        Iterator<String> missingColonyIdsIt = missingColonyIds.iterator();
-        while (missingColonyIdsIt.hasNext()) {
-            logger.warn(missingColonyIdsIt.next());
+        for (String missingColonyId : missingColonyIds) {
+            logger.warn(missingColonyId);
         }
 
-        Iterator<String> missingBackgroundStrainsIt = missingBackgroundStrains.iterator();
-        while (missingBackgroundStrainsIt.hasNext()) {
-            logger.info(missingBackgroundStrainsIt.next());
+        for (MissingColonyId missing : missingColonyMap.values()) {
+            if (missing.getWarn() == 1) {
+                // Log the message as a warning
+                logger.warn(missing.getReason() + ". colonyId: " + missing.getColony_id());
+
+                // Add the missing colony id to the missing_colony_id table and turn off the warn flag so the ExperimentLoader doesn't bark about the same missing colony id.
+                cdaSqlUtils.insertMissingColonyId(missing.getColony_id(), 1, missing.getReason());
+            }
         }
 
-        Iterator<String> experimentsMissingSamplesIt = experimentsMissingSamples.iterator();
-        while (experimentsMissingSamplesIt.hasNext()) {
-            logger.warn(experimentsMissingSamplesIt.next());
+        for (String experimentMissingSample : experimentsMissingSamples) {
+            logger.warn(experimentMissingSample);
         }
-        
-        Iterator<String> missingProjectsIt = missingProjects.iterator();
-        while (missingProjectsIt.hasNext()) {
-            logger.warn(missingProjectsIt.next());
+
+        for (String missingProject : missingProjects) {
+            logger.warn(missingProject);
         }
-        
-        Iterator<String> experimentsMissingProjectsIt = experimentsMissingProjects.iterator();
-        while (experimentsMissingProjectsIt.hasNext()) {
-            logger.warn(experimentsMissingProjectsIt.next());
+
+        for (String experimentMissingProject : experimentsMissingProjects) {
+            logger.warn(experimentMissingProject);
         }
-        
-        Iterator<String> missingCentersIt = missingCenters.iterator();
-        while (missingCentersIt.hasNext()) {
-            logger.warn(missingCentersIt.next());
+
+        for (String missingCenter : missingCenters) {
+            logger.warn(missingCenter);
         }
-        
-        Iterator<String> experimentsMissingCentersIt = experimentsMissingCenters.iterator();
-        while (experimentsMissingCentersIt.hasNext()) {
-            logger.warn(experimentsMissingCentersIt.next());
+
+        for (String experimentMissingCenter : experimentsMissingCenters) {
+            logger.warn(experimentMissingCenter);
         }
-        
-        Iterator<String> missingPipelinesIt = missingPipelines.iterator();
-        while (missingPipelinesIt.hasNext()) {
-            logger.warn(missingPipelinesIt.next());
+
+        for (String missingPipeline : missingPipelines) {
+            logger.warn(missingPipeline);
         }
-        
-        Iterator<String> experimentsMissingPipelinesIt = experimentsMissingPipelines.iterator();
-        while (experimentsMissingPipelinesIt.hasNext()) {
-            logger.warn(experimentsMissingPipelinesIt.next());
+
+        for (String experimentMissingPipeline : experimentsMissingPipelines) {
+            logger.warn(experimentMissingPipeline);
         }
-        
-        Iterator<String> missingProceduresIt = missingProcedures.iterator();
-        while (missingProceduresIt.hasNext()) {
-            logger.warn(missingProceduresIt.next());
+
+        for (String missingProcedure : missingProcedures) {
+            logger.warn(missingProcedure);
         }
-        
-        Iterator<String> experimentsMissingProceduresIt = experimentsMissingProcedures.iterator();
-        while (experimentsMissingProceduresIt.hasNext()) {
-            logger.warn(experimentsMissingProceduresIt.next());
+
+        for (String experimentMissingProcedure : experimentsMissingProcedures) {
+            logger.warn(experimentMissingProcedure);
         }
 
         logger.info("Wrote {} sample-Level procedures", sampleLevelProcedureCount);
@@ -461,15 +453,7 @@ public class LoadExperiments implements CommandLineRunner {
         logger.debug("Total steps elapsed time: " + commonUtils.msToHms(new Date().getTime() - startStep));
     }
 
-
-    public Experiment insertExperiment(DccExperimentDTO dccExperiment) throws DataLoadException {
-
-        Experiment experiment = createExperiment(dccExperiment);
-
-        return experiment;
-    }
-
-    private Experiment createExperiment(DccExperimentDTO dccExperiment) throws DataLoadException {
+    private Experiment insertExperiment(DccExperimentDTO dccExperiment) throws DataLoadException {
         Experiment experiment = new Experiment();
         int dbId;
         Integer phenotypingCenterPk;
@@ -492,30 +476,32 @@ public class LoadExperiments implements CommandLineRunner {
         String metadataCombined;
         String metadataGroup;
 
-        PhenotypedColony colony = phenotypedColonyMap.get(dccExperiment.getColonyId());
-        if (colony == null) {
-            if ( ! DccSqlUtils.knownBadColonyIds.contains(dccExperiment.getColonyId())) {
-                missingColonyIds.add(dccExperiment.getColonyId());
-            }
-
-            return null;
-        }
 
         /**
          * Some dcc europhenome colonies were incorrectly associated with EuroPhenome. Imits has the authoritative mapping
-         * between colonyId and project and, for these incorrect colonies, overrides the dbId to reflect the real owner
-         * of the data, MGP.
+         * between colonyId and project and, for these incorrect colonies, overrides the dbId and phenotyping center to
+         * reflect the real owner of the data, MGP.
          */
-        RunStatus           status;
-        EuroPhenomeRemapper remapper = new EuroPhenomeRemapper(dccExperiment);
+        EuroPhenomeRemapper remapper = new EuroPhenomeRemapper(dccExperiment, phenotypedColonyMap);
         if (remapper.needsRemapping()) {
-            status = remapper.remap(phenotypedColonyMap, cdaDb_idMap);
-            if (status.hasErrors()) {
-                missingColonyIds.addAll(status.getErrorMessages());
+            remapper.remap();
+        }
 
+        PhenotypedColony colony = phenotypedColonyMap.get(dccExperiment.getColonyId());
+        if (colony == null) {
+
+            // Ignore any missing colony ids with warn = 0. We know they are missing. It's OK to skip them.
+            MissingColonyId missing = missingColonyMap.get(dccExperiment.getColonyId());
+            if ((missing != null) && (missing.getWarn() == 0)) {
                 return null;
             }
+
+            // At this point, anything not found in the iMits report is an error.
+                missing = new MissingColonyId(dccExperiment.getColonyId(), 1, MISSING_COLONY_ID_REASON);
+                missingColonyMap.put(dccExperiment.getColonyId(), missing);
+                return null;
         }
+
 
         dbId = cdaDb_idMap.get(dccExperiment.getDatasourceShortName());
         phenotypingCenter = LoadUtils.mappedExternalCenterNames.get(dccExperiment.getPhenotypingCenter());

@@ -1747,6 +1747,25 @@ CREATE TABLE ontology_term_anomaly (
 );
 
 
+DROP TABLE IF EXISTS missing_colony_id;
+CREATE TABLE missing_colony_id (
+	id                 INT(11)      NOT NULL AUTO_INCREMENT,
+	colony_id          VARCHAR(255) NOT NULL,
+	warn      			   TINYINT(1)   DEFAULT 1,		-- If 0, no warning is needed. If 1, the caller may choose to issue a warning if it's missing.
+	reason						 VARCHAR(512) NOT NULL,
+
+	PRIMARY KEY(id)
+);
+
+INSERT INTO missing_colony_id (colony_id, warn, reason) VALUES
+	('(Deluca)<Deluca>', 0, 'We were never able to obtain the minimum set of data required to add this colony id'),
+	('EPD0038_2_A04',    0, 'We were never able to obtain the minimum set of data required to add this colony id'),
+	('internal',         0, 'We were never able to obtain the minimum set of data required to add this colony id'),
+	('Trm1',             0, 'We were never able to obtain the minimum set of data required to add this colony id'),
+	('MAG',              0, 'We were never able to obtain the minimum set of data required to add this colony id'),
+	('EUCJ0019_C12',     0, 'We were never able to obtain the minimum set of data required to add this colony id'),
+	('EPD0130_2_C06',    0, 'Even though this colonyId is in Hugh''s list, Jeremy''s research has shown there is newer data submitted under colonyId MEYN supporting the data in EPD00130_2_C06, which was an aborted experiment');
+
 
 /**
  * External resources / database to populate
