@@ -926,7 +926,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
             if (INCLUDE_DERIVED_PARAMETERS) {
                 insertSimpleParameter(dccExperiment, simpleParameter, experimentPk, dbId, biologicalSamplePk, missing);
             } else {
-                if ( ! derivedImpressParameters.contains(simpleParameter.getParameterID())) {
+                if ( ! derivedImpressParameters.contains(simpleParameter.getParameterID()) || simpleParameter.getParameterID().equals("MGP_ANA_002_001")) {
                     insertSimpleParameter(dccExperiment, simpleParameter, experimentPk, dbId, biologicalSamplePk, missing);
                 }
             }
