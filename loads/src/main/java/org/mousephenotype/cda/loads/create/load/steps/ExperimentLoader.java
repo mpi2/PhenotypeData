@@ -565,8 +565,9 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
 
             PhenotypedColony phenotypedColony = phenotypedColonyMap.get(dccExperiment.getColonyId());
             if ((phenotypedColony == null) || (phenotypedColony.getColonyName() == null)) {
-                String errMsg = "Unable to get phenotypedColony for experiment samples for colonyId {} to apply special MGP" +
-                                " remap rule for EuroPhenome. Rule NOT applied." + dccExperiment.getColonyId();
+                String errMsg = "Unable to get phenotypedColony for experiment samples for colonyId "
+                    + dccExperiment.getColonyId()
+                    + " to apply special MGP remap rule for EuroPhenome. Rule NOT applied.";
                 missingColonyIds.add(errMsg);
 
                 return null;
@@ -594,8 +595,9 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
 
             PhenotypedColony phenotypedColony = phenotypedColonyMap.get(dccExperiment.getColonyId());
             if ((phenotypedColony == null) || (phenotypedColony.getColonyName() == null)) {
-                String errMsg = "Unable to get phenotypedColony for experiment samples for colonyId {} to apply special 3i" +
-                        " project remap rule. Rule NOT applied." + dccExperiment.getColonyId();
+                String errMsg = "Unable to get phenotypedColony for experiment samples for colonyId "
+                    + dccExperiment.getColonyId()
+                    + " to apply special 3i project remap rule. Rule NOT applied, defaulted to MGP project.";
                 missingColonyIds.add(errMsg);
 
             } else {
