@@ -18,7 +18,7 @@
 
 		<div class="toggle-div hidden">
 			<p>
-			<c:if test="${param.parameter_stable_id != 'IMPC_BWT_008_001' }">
+			<c:if test="${isDerivedBodyWeight}">
 				<a href='${srUrl}'> Statistical result raw XML </a> &nbsp;&nbsp;
 				<a href='${gpUrl}'> Genotype phenotype raw XML </a>&nbsp;&nbsp;
 				<a href='${baseUrl}${phenStatDataUrl}'> PhenStat-ready raw experiment data</a>
@@ -28,7 +28,7 @@
 			<table id="timeTable">
 
 				<c:choose>
-						<c:when test="${param.parameter_stable_id == 'IMPC_BWT_008_001' }">
+						<c:when test="${isDerivedBodyWeight}">
 
 				<tr>
 					<th>Weeks</th>

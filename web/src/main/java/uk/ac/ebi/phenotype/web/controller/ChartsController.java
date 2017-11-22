@@ -33,6 +33,7 @@ import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
 import org.mousephenotype.cda.solr.service.exception.SpecificExperimentException;
 import org.mousephenotype.cda.solr.web.dto.ViabilityDTO;
 import org.mousephenotype.cda.web.ChartType;
+import org.mousephenotype.cda.web.TimeSeriesConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -195,7 +196,10 @@ public class ChartsController {
                         @RequestParam(required = false, value = "chart_only", defaultValue = "false") boolean chartOnly,
                         @RequestParam(required = false, value = "standAlone") boolean standAlone, Model model)
             throws GenomicFeatureNotFoundException, ParameterNotFoundException, IOException, URISyntaxException, SolrServerException, SpecificExperimentException {
-
+    	if(parameterStableId!=null && !parameterStableId.equals("")){
+    		boolean isDerivedBodyWeight=TimeSeriesConstants.DERIVED_BODY_WEIGHT_PARAMETERS.contains(parameterStableId);
+    		model.addAttribute("isDerivedBodyWeight", isDerivedBodyWeight);
+    	}
         UnidimensionalDataSet unidimensionalChartDataSet = null;
         ChartData timeSeriesForParam = null;
         CategoricalResultAndCharts categoricalResultAndChart = null;

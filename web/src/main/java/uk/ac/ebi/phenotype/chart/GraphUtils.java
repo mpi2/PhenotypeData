@@ -21,11 +21,13 @@ import org.mousephenotype.cda.solr.service.ExperimentService;
 import org.mousephenotype.cda.solr.service.StatisticalResultService;
 import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
 import org.mousephenotype.cda.web.ChartType;
+import org.mousephenotype.cda.web.TimeSeriesConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -69,13 +71,13 @@ public class GraphUtils {
 		if ( ! ChartUtils.getPlotParameter(parameter.getStableId()).equalsIgnoreCase(parameter.getStableId())) {
             parameterStableId = ChartUtils.getPlotParameter(parameter.getStableId());
             chartType = ChartUtils.getPlotType(parameterStableId);
-            if (chartType.equals(ChartType.TIME_SERIES_LINE)){
+            if (chartType.equals(ChartType.TIME_SERIES_LINE) && TimeSeriesConstants.DERIVED_BODY_WEIGHT_PARAMETERS.contains(parameterStableId)){
 				metaDataGroup = null; // Dderived serie parameters don't have the same metadata so we have to ignore it for series
             }
         }
 		accessionAndParam += seperator + "parameter_stable_id=" + parameterStableId;
 		accessionAndParam += seperator + "chart_type=" + chartType + seperator;
-		if(parameter.getStableId().equals("IMPC_BWT_008_001")){//if bodywieght we don't have stats results so can't use the srService to pivot and have to use exmperiment service instead
+		if(TimeSeriesConstants.DERIVED_BODY_WEIGHT_PARAMETERS.contains(parameterStableId)){//if bodywieght we don't have stats results so can't use the srService to pivot and have to use experiment service instead
 			urls.addAll(experimentService.getChartPivots( accessionAndParam, acc, parameter, pipelineStableIds, zyList, phenotypingCentersList,
 					 strainsParams, metaDataGroup, alleleAccession));
 		}else{
@@ -83,9 +85,9 @@ public class GraphUtils {
 				 strainsParams, metaDataGroup, alleleAccession));
 		}
 		
-		for(String url:urls){
-			System.out.println("url="+url);
-		}
+//		for(String url:urls){
+//			System.out.println("url="+url);
+//		}
 
 		return urls;
 	}

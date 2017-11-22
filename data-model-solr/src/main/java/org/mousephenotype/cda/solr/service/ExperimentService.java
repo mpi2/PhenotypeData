@@ -29,6 +29,8 @@ import org.mousephenotype.cda.solr.stats.strategy.AllControlsStrategy;
 import org.mousephenotype.cda.solr.stats.strategy.ControlSelectionStrategy;
 import org.mousephenotype.cda.solr.web.dto.FertilityDTO;
 import org.mousephenotype.cda.solr.web.dto.ViabilityDTO;
+import org.mousephenotype.cda.web.TimeSeriesConstants;
+import org.openrdf.model.util.GraphUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -200,14 +202,14 @@ public class ExperimentService{
         // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
         // Loop over all the experiments for which we found mutant data
         // to gather the control data
-        System.out.println("new experiment");
+        
         for (String key : experimentsMap.keySet()) {
 
             // If the requester filtered based on organisation, then the
             // organisationId parameter will not be null and we can use that,
             // otherwise we need to determine the organisation for this
             // experiment and use that
-System.out.println("key is "+key);
+
             ExperimentDTO experiment = experimentsMap.get(key);
 
             if (experiment.getControls() == null) {
@@ -521,7 +523,7 @@ System.out.println("key is "+key);
         if (experimentList.isEmpty()) {
             return null;// return null if no experiments
         }
-        if (experimentList.size() > 1 && !parameterStableId.equals("IMPC_BWT_008_001")) {//need the BWT exemption as we get multiple experiments for that- so we just need to pass them back and let the chart and table code handle them...?
+        if (experimentList.size() > 1 && !TimeSeriesConstants.DERIVED_BODY_WEIGHT_PARAMETERS.contains(parameterStableId)) {//need the BWT exemption as we get multiple experiments for that- so we just need to pass them back and let the chart and table code handle them...?
         	for(ExperimentDTO experiment : experimentList){
         		System.out.println("aaahhhh"+ experiment);
         	}
@@ -529,7 +531,7 @@ System.out.println("key is "+key);
         }
         ExperimentDTO experiment=null;
         //if parameter is the bodyweight parameter we can merge the results as currently it's the only one that we don't want to have a meta data split
-        if(parameterStableId.equals("IMPC_BWT_008_001")){
+        if(TimeSeriesConstants.DERIVED_BODY_WEIGHT_PARAMETERS.contains(parameterStableId)){
         	 experiment = experimentList.get(0);
         	for(ExperimentDTO exp: experimentList){
         		experiment.getControls().addAll(exp.getControls());
