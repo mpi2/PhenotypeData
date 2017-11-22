@@ -2023,7 +2023,7 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
                                 }
                                 logger.info("Duplicate parameter association for ObservationPk: {}, parameterAssociation: {}->{}, value: {}",
                                         observationPk,
-                                        parameterAssociation.getParameterID(),
+                                        parameterStableId,
                                         associatedParameter,
                                         value);
                             }
