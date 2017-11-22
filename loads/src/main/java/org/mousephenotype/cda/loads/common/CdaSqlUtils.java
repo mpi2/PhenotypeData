@@ -2021,8 +2021,9 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
                                         break;
                                     }
                                 }
-                                logger.info("Duplicate parameter association for ObservationPk: {}, parameterAssociation: {}->{}, value: {}",
-                                        observationPk,
+                                logger.info("Duplicate parameter association for specimen ID: {}, center: {}, parameterAssociation: {}->{}, value: {}",
+                                        dccExperimentDTO.getSpecimenId(),
+                                        dccExperimentDTO.getPhenotypingCenter(),
                                         parameterStableId,
                                         associatedParameter,
                                         value);
