@@ -80,6 +80,7 @@ public class CdaSqlUtils {
 
     public static final String EUROPHENOME = "EuroPhenome";         // The datasourceShortName for dcc_europhenome_final loads
     public static final String MGP         = "MGP";                 // The MGP project name
+    public static final String THREEI      = "3i";                  // The 3i project name
 
 
     public static final String OBSERVATION_INSERT = "INSERT INTO observation (" +
@@ -2020,9 +2021,10 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
                                         break;
                                     }
                                 }
-                                logger.info("Duplicate parameter association for ObservationPk: {}, parameterAssociation: {}->{}, value: {}",
-                                        observationPk,
-                                        parameterAssociation.getParameterID(),
+                                logger.debug("Duplicate parameter association for specimen ID: {}, center: {}, parameterAssociation: {}->{}, value: {}",
+                                        dccExperimentDTO.getSpecimenId(),
+                                        dccExperimentDTO.getPhenotypingCenter(),
+                                        parameterStableId,
                                         associatedParameter,
                                         value);
                             }
@@ -2247,37 +2249,29 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
         parameterMap.put("parameterId", parameterAssociation.getParameterID());
         parameterMap.put("sequenceId", parameterAssociation.getSequenceID());
 
-        // set the parameter association value here. It is always a
-        // seriesParameter or Ontology so not multiple values are allowed.
-        // Loop through simple parameters (but not ontology parameters as they
-        // don't have values) to get the value for this parameterAssociation and get
-        // the value for it.
+        // Set the parameter association value. It is always a
+        // SimpleParameter and/or multiple OntologyParameters where multiple values are allowed.
+        // Loop through parameters to get the values for this parameterAssociation and if
+        // multiple ontology values, combine into a comma separated list.
         String value = null;
         for (SimpleParameter sp : simpleParameterList) {
-            String paramStableId = sp.getParameterID();                             // parameter stable id
+            String paramStableId = sp.getParameterID();
             if (paramStableId.equals(parameterAssociation.getParameterID())) {
                 value = sp.getValue();
                 break;
             }
         }
         for (OntologyParameter sp : ontologyParameterList) {
-            String paramStableId = sp.getParameterID();                             // parameter stable id
+            String paramStableId = sp.getParameterID();
             if (paramStableId.equals(parameterAssociation.getParameterID())) {
-                for (String term : sp.getTerm()) {
-                    logger.warn("ontology parameter in parameterAssociation not storing these yet but if they are here we should! term has values in them term=" + term);
+                if (value != null) {
+                    value +=","+StringUtils.join(sp.getTerm(), ",");
+                } else {
+                    value = StringUtils.join(sp.getTerm(), ",");
                 }
-                value = org.apache.commons.lang.StringUtils.join(sp.getTerm(), ",");
                 break;
             }
         }
-
-//        if (value != null) {
-//            if (value.length() > 45) {
-//                String trimmedValue = StringUtils.left(value, 44);
-//                logger.info("Trimming parameterAssociationValue '{}' to 44 characters ('{}')", value, trimmedValue);
-//                value = trimmedValue;
-//            }
-//        }
 
         parameterMap.put("parameterAssociationValue", value);
         SqlParameterSource  parameterSource = new MapSqlParameterSource(parameterMap);

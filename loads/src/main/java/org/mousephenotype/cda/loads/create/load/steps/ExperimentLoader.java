@@ -565,8 +565,9 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
 
             PhenotypedColony phenotypedColony = phenotypedColonyMap.get(dccExperiment.getColonyId());
             if ((phenotypedColony == null) || (phenotypedColony.getColonyName() == null)) {
-                String errMsg = "Unable to get phenotypedColony for experiment samples for colonyId {} to apply special MGP" +
-                                " remap rule for EuroPhenome. Rule NOT applied." + dccExperiment.getColonyId();
+                String errMsg = "Unable to get phenotypedColony for experiment samples for colonyId "
+                    + dccExperiment.getColonyId()
+                    + " to apply special MGP remap rule for EuroPhenome. Rule NOT applied.";
                 missingColonyIds.add(errMsg);
 
                 return null;
@@ -581,6 +582,31 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
             // Make sure to remap the phenotypingCenterPk and phenotypingCenter to the iMits value, which takes precedence.
             phenotypingCenterPk = phenotypedColony.getPhenotypingCentre().getId();
             phenotypingCenter = LoadUtils.mappedExternalCenterNames.get(phenotypedColony.getPhenotypingCentre().getName());
+        }
+
+        // Override the supplied 3i project with iMits version, if it's not a valid project identifier
+        if (dccExperiment.getDatasourceShortName().equals(CdaSqlUtils.THREEI) &&
+                ! cdaProject_idMap.containsKey(dccExperiment.getProject())
+                ) {
+
+            // Set default project to MGP
+            // For now, also default the control mice to the MGP project
+            dccExperiment.setProject(CdaSqlUtils.MGP);
+
+            PhenotypedColony phenotypedColony = phenotypedColonyMap.get(dccExperiment.getColonyId());
+            if ((phenotypedColony == null) || (phenotypedColony.getColonyName() == null)) {
+                String errMsg = "Unable to get phenotypedColony for experiment samples for colonyId "
+                    + dccExperiment.getColonyId()
+                    + " to apply special 3i project remap rule. Rule NOT applied, defaulted to MGP project.";
+                missingColonyIds.add(errMsg);
+
+            } else {
+
+                // Override the project with that from the iMits record
+                if (phenotypedColony.getPhenotypingConsortium() != null && phenotypedColony.getPhenotypingConsortium().getName() != null) {
+                    dccExperiment.setProject(phenotypedColony.getPhenotypingConsortium().getName());
+                }
+            }
         }
 
         projectPk = cdaProject_idMap.get(dccExperiment.getProject());
@@ -900,7 +926,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
             if (INCLUDE_DERIVED_PARAMETERS) {
                 insertSimpleParameter(dccExperiment, simpleParameter, experimentPk, dbId, biologicalSamplePk, missing);
             } else {
-                if ( ! derivedImpressParameters.contains(simpleParameter.getParameterID())) {
+                if ( ! derivedImpressParameters.contains(simpleParameter.getParameterID()) || simpleParameter.getParameterID().equals("MGP_ANA_002_001")) {
                     insertSimpleParameter(dccExperiment, simpleParameter, experimentPk, dbId, biologicalSamplePk, missing);
                 }
             }
