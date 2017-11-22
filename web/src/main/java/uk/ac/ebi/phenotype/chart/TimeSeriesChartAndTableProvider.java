@@ -27,6 +27,7 @@ import org.mousephenotype.cda.solr.service.ImpressService;
 import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
+import org.mousephenotype.cda.web.TimeSeriesConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -81,7 +82,7 @@ public class TimeSeriesChartAndTableProvider {
 					Float discreteTimePoint = control.getDiscretePoint();
 
 					// Ensure the timepoint is valid
-					if (discreteTimePoint >= 0 || ! parameter.getStableId().contains("BWT")) {
+					if (discreteTimePoint >= 0 || !TimeSeriesConstants.DERIVED_BODY_WEIGHT_PARAMETERS.contains(parameter.getStableId())) {
 						controlDataPoints.add(new DiscreteTimePoint(discreteTimePoint, dataPoint));
 					}
 				}
@@ -131,14 +132,14 @@ public class TimeSeriesChartAndTableProvider {
 		String title = "Mean " + parameter.getName();
 		if (lines.size() > 1) {
 			// if lines are greater than one i.e. more than just control create charts and tables
-			System.out.println("Body weight curve?"+ parameter.getName()+" xUnit="+ parameter.getUnitX()+" yUnit="+parameter.getUnitY());
+			//System.out.println("Body weight curve?"+ parameter.getName()+" xUnit="+ parameter.getUnitX()+" yUnit="+parameter.getUnitY());
 			String xAxisLabel =parameter.getUnitX();
 			String yAxisLabel=parameter.getUnitY();
-			if(parameter.getStableId().equals("IMPC_BWT_008_001")){
+			if(TimeSeriesConstants.DERIVED_BODY_WEIGHT_PARAMETERS.contains(parameter.getStableId())){
 				xAxisLabel= "Age - rounded to nearest week";
 				yAxisLabel= "Mass (g)";
 			}
-			System.out.println("xAxis label="+xAxisLabel);
+			//System.out.println("xAxis label="+xAxisLabel);
 			int decimalPlaces = ChartUtils.getDecimalPlaces(experiment);
 			chartNTableForParameter = creatDiscretePointTimeSeriesChart(
 					experimentNumber, title, lines, xAxisLabel,
