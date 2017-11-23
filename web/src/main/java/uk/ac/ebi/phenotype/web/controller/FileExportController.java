@@ -1936,7 +1936,8 @@ public class FileExportController {
 
 					if (docMap.containsKey("latest_phenotype_status")
 							&& docMap.get("latest_phenotype_status").contains("Phenotyping Complete")
-							&& fieldName.startsWith("mp_") ){
+							&& fieldName.startsWith("mp_")
+							&& ! fieldName.equals("mp_term_definition") ){
 						vals = "no abnormal phenotype detected";
 					}
 
@@ -1984,7 +1985,6 @@ public class FileExportController {
 							}
 							else if (oriDataTypeName.equals("human_marker_symbol") && fieldName.equals("human_gene_symbol")) {
 								for (Object val : valSet) {
-
 
 									if ( StringUtils.containsIgnoreCase(StringUtils.join(queryIds, ","), val.toString())) {
 										foundIds.add("\"" + val.toString() + "\"");

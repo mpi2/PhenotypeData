@@ -354,7 +354,6 @@ public class DataTableController {
 			//for (String fieldName : doc.getFieldNames()) {
 			//for ( int k=0; k<flList.length; k++ ){
 			for (String fieldName : flList){
-				//String fieldName = flList[k];
 				//System.out.println("DataTableController: "+ fieldName + " - value: " + docMap.get(fieldName));
 
 				if ( fieldName.equals("images_link") ){
@@ -400,7 +399,8 @@ public class DataTableController {
 
 					if (docMap.containsKey("latest_phenotype_status")
 							&& docMap.get("latest_phenotype_status").contains("Phenotyping Complete")
-							&& fieldName.startsWith("mp_") ){
+							&& fieldName.startsWith("mp_")
+							&& ! fieldName.equals("mp_term_definition") ){
 						vals = "no abnormal phenotype detected";
 					}
 
@@ -455,25 +455,27 @@ public class DataTableController {
 									// for human symbol query, also check if matches mouse marker synonym
 									List<String> flds = Arrays.asList("human_gene_symbol", "marker_synonym");
 									for (String fname : flds) {
-										Collection<Object> mvals = docMap.get(fname);
-										Set<Object> mvalSet = new HashSet<>(mvals);
-										for (Object mval : mvalSet) {
-											//for (Object mval : mvals) {
-											// so that we can compare
-											String valstr = "\"" + mval.toString() + "\"";
+										if (docMap.containsKey(fname)) {
+											Collection<Object> mvals = docMap.get(fname);
+											Set<Object> mvalSet = new HashSet<>(mvals);
+											for (Object mval : mvalSet) {
+												//for (Object mval : mvals) {
+												// so that we can compare
+												String valstr = "\"" + mval.toString() + "\"";
 
-											//foundIds.add("\"" + mval.toString().toUpperCase() + "\"");
-											if (queryIds.contains(valstr)) {
+												//foundIds.add("\"" + mval.toString().toUpperCase() + "\"");
+												if (queryIds.contains(valstr)) {
 
-												if (fname.equals("marker_synonym")){
-													Collection<Object> humanSym = docMap.get("human_gene_symbol");
-													Set<Object> humanSymSet = new HashSet<>(humanSym);
-													for (Object humanSymSetVal : humanSymSet) {
-														String valstr2 = "\"" + humanSymSetVal.toString() + "\"";
-														markerSynonymMatchesHumanSymbol.add(valstr2);
+													if (fname.equals("marker_synonym")) {
+														Collection<Object> humanSym = docMap.get("human_gene_symbol");
+														Set<Object> humanSymSet = new HashSet<>(humanSym);
+														for (Object humanSymSetVal : humanSymSet) {
+															String valstr2 = "\"" + humanSymSetVal.toString() + "\"";
+															markerSynonymMatchesHumanSymbol.add(valstr2);
+														}
 													}
+													foundIds.add(valstr);
 												}
-												foundIds.add(valstr);
 											}
 										}
 									}
@@ -502,11 +504,11 @@ public class DataTableController {
 							value = docMap.get(fieldName).toString();
 						}
 
-						//System.out.println("row " + i + ": field: " + k + " -- " + fieldName + " - " + value);
+						//System.out.println("row " + i + ": field: " + " -- " + fieldName + " - " + value);
 						fieldCount++;
 						rowData.add(value);
 					} catch(Exception e){
-						//e.printStackTrace();
+						e.printStackTrace();
 						if ( e.getMessage().equals("java.lang.Integer cannot be cast to java.lang.String") ){
 							Collection<Object> vals = docMap.get(fieldName);
 							if ( vals.size() > 0 ){
