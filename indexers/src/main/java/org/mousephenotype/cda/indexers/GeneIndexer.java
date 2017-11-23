@@ -511,6 +511,7 @@ public class GeneIndexer extends AbstractIndexer implements CommandLineRunner {
 
                             if (mp.getMpDefinition() != null) {
                                 gene.getMpTermDefinition().addAll(Arrays.asList(mp.getMpDefinition()));
+                                System.out.println(gene.getMarkerSymbol() + " - mp def: " + mp.getMpDefinition());
                             }
 
                             if (mp.getHpId() != null) {
