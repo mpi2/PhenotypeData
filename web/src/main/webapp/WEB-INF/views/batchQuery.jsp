@@ -402,6 +402,8 @@
             		if ( idList !== false ){
             			
             			var fllist = fetchSelectedFieldList();
+
+            			console.log(fllist);
                      	var currDataType = $('input.bq:checked').attr('id');
                      	
                      	prepare_dataTable(fllist);
