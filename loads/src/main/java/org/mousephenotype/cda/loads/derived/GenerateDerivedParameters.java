@@ -3,7 +3,6 @@ package org.mousephenotype.cda.loads.derived;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.math3.stat.inference.BinomialTest;
 import org.mousephenotype.cda.db.dao.*;
 import org.mousephenotype.cda.db.pojo.*;
@@ -563,18 +562,22 @@ public class GenerateDerivedParameters implements CommandLineRunner {
                 ObservationDTO dto = parameterMap.get(IMPC_ACS_007_001).get(id);
                 Datasource datasource = datasourcesById.get(dto.getExternalDbId());
                 Experiment currentExperiment = createNewExperiment(dto, "derived_" +parameterToCreate + "_" + i++, getProcedureFromObservation(param, dto), true);
-                String metadataGroup = parameterMap.get(IMPC_ACS_007_001).get(id).getMetadataGroup() + "_" +
-                        parameterMap.get(IMPC_ACS_008_001).get(id).getMetadataGroup() + "_" +
-                        parameterMap.get(IMPC_ACS_009_001).get(id).getMetadataGroup() + "_" +
-                        parameterMap.get(IMPC_ACS_006_001).get(id).getMetadataGroup() + "_" +
-                        parameterMap.get(IMPC_ACS_010_001).get(id).getMetadataGroup();
-                String metadata = parameterMap.get(IMPC_ACS_007_001).get(id).getMetadataCombined() + "_" +
-                        parameterMap.get(IMPC_ACS_008_001).get(id).getMetadataCombined() + "_" +
-                        parameterMap.get(IMPC_ACS_009_001).get(id).getMetadataCombined() + "_" +
-                        parameterMap.get(IMPC_ACS_006_001).get(id).getMetadataCombined() + "_" +
-                        parameterMap.get(IMPC_ACS_010_001).get(id).getMetadataCombined();
-                currentExperiment.setMetadataGroup(DigestUtils.md5Hex(metadataGroup));
-                currentExperiment.setMetadataCombined(metadata);
+//                String metadataGroup = parameterMap.get(IMPC_ACS_007_001).get(id).getMetadataGroup() + "_" +
+//                        parameterMap.get(IMPC_ACS_008_001).get(id).getMetadataGroup() + "_" +
+//                        parameterMap.get(IMPC_ACS_009_001).get(id).getMetadataGroup() + "_" +
+//                        parameterMap.get(IMPC_ACS_006_001).get(id).getMetadataGroup() + "_" +
+//                        parameterMap.get(IMPC_ACS_010_001).get(id).getMetadataGroup();
+//                String metadata = parameterMap.get(IMPC_ACS_007_001).get(id).getMetadataCombined() + "_" +
+//                        parameterMap.get(IMPC_ACS_008_001).get(id).getMetadataCombined() + "_" +
+//                        parameterMap.get(IMPC_ACS_009_001).get(id).getMetadataCombined() + "_" +
+//                        parameterMap.get(IMPC_ACS_006_001).get(id).getMetadataCombined() + "_" +
+//                        parameterMap.get(IMPC_ACS_010_001).get(id).getMetadataCombined();
+//                currentExperiment.setMetadataGroup(DigestUtils.md5Hex(metadataGroup));
+//                currentExperiment.setMetadataCombined(metadata);
+
+                // Use the same metadata as the other parameters in this procedure
+                currentExperiment.setMetadataCombined(dto.getMetadataCombined());
+                currentExperiment.setMetadataGroup(dto.getMetadataGroup());
 
                 observationDAO.saveExperiment(currentExperiment);
                 // compute data point
@@ -632,39 +635,44 @@ public class GenerateDerivedParameters implements CommandLineRunner {
                 Datasource datasource = datasourcesById.get(dto.getExternalDbId());
                 Experiment currentExperiment = createNewExperiment(dto, "derived_" +parameterToCreate + "_" + i++, getProcedureFromObservation(param, dto), true);
 
-                // Get metadata group as combined nom and denom metadata groups
-                String denomMetadata = null;
-                if (parameterMap.get(denominatorParam)!=null && parameterMap.get(denominatorParam).get(id)!=null) {
-                    denomMetadata = parameterMap.get(denominatorParam).get(id).getMetadataGroup();
-                }
-                String numeratorMetadata = null;
-                if (parameterMap.get(nominatorParam)!=null && parameterMap.get(nominatorParam).get(id)!=null) {
-                    numeratorMetadata = parameterMap.get(nominatorParam).get(id).getMetadataGroup();
-                }
+//                // Get metadata group as combined nom and denom metadata groups
+//                String denomMetadata = null;
+//                if (parameterMap.get(denominatorParam)!=null && parameterMap.get(denominatorParam).get(id)!=null) {
+//                    denomMetadata = parameterMap.get(denominatorParam).get(id).getMetadataGroup();
+//                }
+//                String numeratorMetadata = null;
+//                if (parameterMap.get(nominatorParam)!=null && parameterMap.get(nominatorParam).get(id)!=null) {
+//                    numeratorMetadata = parameterMap.get(nominatorParam).get(id).getMetadataGroup();
+//                }
+//
+//                String metadataGroup = "";
+//                if (denomMetadata != null || numeratorMetadata != null) {
+//                    metadataGroup = StringUtils.join(Arrays.asList(denomMetadata, numeratorMetadata), "_");
+//                }
+//
+//                // Get metadata string as combined nom and denom metadata strings
+//                String denomMetadataCombined = null;
+//                if (parameterMap.get(denominatorParam)!=null && parameterMap.get(denominatorParam).get(id)!=null){
+//                    denomMetadataCombined = parameterMap.get(denominatorParam).get(id).getMetadataCombined();
+//                }
+//
+//                String numeratorMetadataCombined = null;
+//                if(parameterMap.get(nominatorParam)!=null && parameterMap.get(nominatorParam).get(id)!=null){
+//                    numeratorMetadataCombined = parameterMap.get(nominatorParam).get(id).getMetadataCombined();
+//                }
+//
+//                String metadata = "";
+//                if (denomMetadataCombined != null || numeratorMetadataCombined != null) {
+//                    metadata = StringUtils.join(Arrays.asList(denomMetadataCombined, numeratorMetadataCombined), "_");
+//                }
+//
+//                currentExperiment.setMetadataGroup(DigestUtils.md5Hex(metadataGroup));
+//                currentExperiment.setMetadataCombined(metadata);
 
-                String metadataGroup = "";
-                if (denomMetadata != null || numeratorMetadata != null) {
-                    metadataGroup = StringUtils.join(Arrays.asList(denomMetadata, numeratorMetadata), "_");
-                }
+                // Use the same metadata as the other parameters in this procedure
+                currentExperiment.setMetadataCombined(dto.getMetadataCombined());
+                currentExperiment.setMetadataGroup(dto.getMetadataGroup());
 
-                // Get metadata string as combined nom and denom metadata strings
-                String denomMetadataCombined = null;
-                if (parameterMap.get(denominatorParam)!=null && parameterMap.get(denominatorParam).get(id)!=null){
-                    denomMetadataCombined = parameterMap.get(denominatorParam).get(id).getMetadataCombined();
-                }
-
-                String numeratorMetadataCombined = null;
-                if(parameterMap.get(nominatorParam)!=null && parameterMap.get(nominatorParam).get(id)!=null){
-                    numeratorMetadataCombined = parameterMap.get(nominatorParam).get(id).getMetadataCombined();
-                }
-
-                String metadata = "";
-                if (denomMetadataCombined != null || numeratorMetadataCombined != null) {
-                    metadata = StringUtils.join(Arrays.asList(denomMetadataCombined, numeratorMetadataCombined), "_");
-                }
-
-                currentExperiment.setMetadataGroup(DigestUtils.md5Hex(metadataGroup));
-                currentExperiment.setMetadataCombined(metadata);
 
                 // sum_of_increments(ESLIM_010_001_001)/number_of_increments(ESLIM_010_001_001)
                 double nom = 0;
@@ -960,14 +968,19 @@ public class GenerateDerivedParameters implements CommandLineRunner {
                     ObservationDTO dto = parameterMap.get(minuend).get(id);
                     Datasource datasource = datasourcesById.get(dto.getExternalDbId());
                     Experiment currentExperiment = createNewExperiment(dto, "derived_" + parameterToCreate + "_" + i++, getProcedureFromObservation(param, dto), true);
-                    String metadataGroup = parameterMap.get(minuend).get(id).getMetadataGroup() + "_" +
-                            parameterMap.get(subtrahend).get(id).getMetadataGroup() + "_" +
-                            parameterMap.get(divisorParameter).get(id).getMetadataGroup();
-                    String metadata = parameterMap.get(minuend).get(id).getMetadataCombined() + "_" +
-                            parameterMap.get(subtrahend).get(id).getMetadataCombined()  + "_" +
-                            parameterMap.get(divisorParameter).get(id).getMetadataCombined();
-                    currentExperiment.setMetadataCombined(metadata);
-                    currentExperiment.setMetadataGroup(DigestUtils.md5Hex(metadataGroup));
+//                    String metadataGroup = parameterMap.get(minuend).get(id).getMetadataGroup() + "_" +
+//                            parameterMap.get(subtrahend).get(id).getMetadataGroup() + "_" +
+//                            parameterMap.get(divisorParameter).get(id).getMetadataGroup();
+//                    String metadata = parameterMap.get(minuend).get(id).getMetadataCombined() + "_" +
+//                            parameterMap.get(subtrahend).get(id).getMetadataCombined()  + "_" +
+//                            parameterMap.get(divisorParameter).get(id).getMetadataCombined();
+//                    currentExperiment.setMetadataCombined(metadata);
+//                    currentExperiment.setMetadataGroup(DigestUtils.md5Hex(metadataGroup));
+
+                    // Use the same metadata as the other parameters in this procedure
+                    currentExperiment.setMetadataCombined(dto.getMetadataCombined());
+                    currentExperiment.setMetadataGroup(dto.getMetadataGroup());
+
 
                     observationDAO.saveExperiment(currentExperiment);
 
@@ -1011,12 +1024,16 @@ public class GenerateDerivedParameters implements CommandLineRunner {
                 ObservationDTO dto = parameterMap.get(numeratorParameter).get(id);
                 Datasource datasource = datasourcesById.get(dto.getExternalDbId());
                 Experiment currentExperiment = createNewExperiment(dto, "derived_" + parameterToCreate + "_" + i++, getProcedureFromObservation(param, dto), true);
-                String metadataGroup = parameterMap.get(numeratorParameter).get(id).getMetadataGroup() + "_" +
-                        parameterMap.get(divisorParameter).get(id).getMetadataGroup();
-                String metadata = parameterMap.get(numeratorParameter).get(id).getMetadataCombined() + "_" +
-                        parameterMap.get(divisorParameter).get(id).getMetadataCombined() ;
-                currentExperiment.setMetadataCombined(metadata);
-                currentExperiment.setMetadataGroup(DigestUtils.md5Hex(metadataGroup));
+//                String metadataGroup = parameterMap.get(numeratorParameter).get(id).getMetadataGroup() + "_" +
+//                        parameterMap.get(divisorParameter).get(id).getMetadataGroup();
+//                String metadata = parameterMap.get(numeratorParameter).get(id).getMetadataCombined() + "_" +
+//                        parameterMap.get(divisorParameter).get(id).getMetadataCombined() ;
+//                currentExperiment.setMetadataCombined(metadata);
+//                currentExperiment.setMetadataGroup(DigestUtils.md5Hex(metadataGroup));
+
+                // Use the same metadata as the other parameters in this procedure
+                currentExperiment.setMetadataCombined(dto.getMetadataCombined());
+                currentExperiment.setMetadataGroup(dto.getMetadataGroup());
 
                 observationDAO.saveExperiment(currentExperiment);
 
@@ -1074,12 +1091,17 @@ public class GenerateDerivedParameters implements CommandLineRunner {
                 ObservationDTO dto = lineLevelParameterMap.get(numerator).get(id);
                 Datasource datasource = datasourcesById.get(dto.getExternalDbId());
                 Experiment currentExperiment = createNewExperiment(dto, "derived_" + parameterToCreate + "_" + i++, getProcedureFromObservation(param, dto), true);
-                String metadataGroup = lineLevelParameterMap.get(numerator).get(id).getMetadataGroup() + "_" +
-                        lineLevelParameterMap.get(denominator).get(id).getMetadataGroup();
-                String metadata = lineLevelParameterMap.get(numerator).get(id).getMetadataCombined() + "_" +
-                        lineLevelParameterMap.get(denominator).get(id).getMetadataCombined() ;
-                currentExperiment.setMetadataCombined(metadata);
-                currentExperiment.setMetadataGroup(DigestUtils.md5Hex(metadataGroup));
+//                String metadataGroup = lineLevelParameterMap.get(numerator).get(id).getMetadataGroup() + "_" +
+//                        lineLevelParameterMap.get(denominator).get(id).getMetadataGroup();
+//                String metadata = lineLevelParameterMap.get(numerator).get(id).getMetadataCombined() + "_" +
+//                        lineLevelParameterMap.get(denominator).get(id).getMetadataCombined() ;
+//                currentExperiment.setMetadataCombined(metadata);
+//                currentExperiment.setMetadataGroup(DigestUtils.md5Hex(metadataGroup));
+
+                // Use the same metadata as the other parameters in this procedure
+                currentExperiment.setMetadataCombined(dto.getMetadataCombined());
+                currentExperiment.setMetadataGroup(dto.getMetadataGroup());
+
                 currentExperiment.setColonyId(dto.getColony());
                 currentExperiment.setModel(biologicalModelDAO.getBiologicalModelById(dto.getBiologicalModelId()));
 
@@ -1123,12 +1145,17 @@ public class GenerateDerivedParameters implements CommandLineRunner {
                 ObservationDTO dto = parameterMap.get(firstParam).get(id);
                 Datasource datasource = datasourcesById.get(dto.getExternalDbId());
                 Experiment currentExperiment = createNewExperiment(dto, "derived_" + parameterToCreate + "_" + i++, getProcedureFromObservation(param, dto), true);
-                String metadataGroup = parameterMap.get(firstParam).get(id).getMetadataGroup() + "_" +
-                        parameterMap.get(secondParam).get(id).getMetadataGroup();
-                String metadata = parameterMap.get(firstParam).get(id).getMetadataCombined() + "_" +
-                        parameterMap.get(secondParam).get(id).getMetadataCombined() ;
-                currentExperiment.setMetadataCombined(metadata);
-                currentExperiment.setMetadataGroup(DigestUtils.md5Hex(metadataGroup));
+//                String metadataGroup = parameterMap.get(firstParam).get(id).getMetadataGroup() + "_" +
+//                        parameterMap.get(secondParam).get(id).getMetadataGroup();
+//                String metadata = parameterMap.get(firstParam).get(id).getMetadataCombined() + "_" +
+//                        parameterMap.get(secondParam).get(id).getMetadataCombined() ;
+//                currentExperiment.setMetadataCombined(metadata);
+//                currentExperiment.setMetadataGroup(DigestUtils.md5Hex(metadataGroup));
+
+                // Use the same metadata as the other parameters in this procedure
+                currentExperiment.setMetadataCombined(dto.getMetadataCombined());
+                currentExperiment.setMetadataGroup(dto.getMetadataGroup());
+
                 observationDAO.saveExperiment(currentExperiment);
 
                 Float dataPoint = dto.getDataPoint()*parameterMap.get(secondParam).get(id).getDataPoint();
@@ -1165,14 +1192,19 @@ public class GenerateDerivedParameters implements CommandLineRunner {
                 Datasource datasource = datasourcesById.get(dto.getExternalDbId());
                 Experiment currentExperiment = createNewExperiment(dto, "derived_" + parameterToCreate + "_" + i++, getProcedureFromObservation(param, dto), true);
 
-                String metadataGroup = parameterMap.get(divisorParameter).get(id).getMetadataGroup() + "_" +
-                        parameterMap.get(numeratorParameter).get(id).getMetadataGroup();
+//                String metadataGroup = parameterMap.get(divisorParameter).get(id).getMetadataGroup() + "_" +
+//                        parameterMap.get(numeratorParameter).get(id).getMetadataGroup();
+//
+//                String metadata = parameterMap.get(divisorParameter).get(id).getMetadataCombined() + "_" +
+//                        parameterMap.get(numeratorParameter).get(id).getMetadataCombined();
+//
+//                currentExperiment.setMetadataCombined(metadata);
+//                currentExperiment.setMetadataGroup(DigestUtils.md5Hex(metadataGroup));
 
-                String metadata = parameterMap.get(divisorParameter).get(id).getMetadataCombined() + "_" +
-                        parameterMap.get(numeratorParameter).get(id).getMetadataCombined();
+                // Use the same metadata as the other parameters in this procedure
+                currentExperiment.setMetadataCombined(dto.getMetadataCombined());
+                currentExperiment.setMetadataGroup(dto.getMetadataGroup());
 
-                currentExperiment.setMetadataCombined(metadata);
-                currentExperiment.setMetadataGroup(DigestUtils.md5Hex(metadataGroup));
                 observationDAO.saveExperiment(currentExperiment);
 
                 Float dataPoint = multiplicator * dto.getDataPoint() / parameterMap.get(divisorParameter).get(id).getDataPoint();
@@ -1209,14 +1241,19 @@ public class GenerateDerivedParameters implements CommandLineRunner {
                 ObservationDTO dto = parameterMap.get(numeratorParameter).get(id);
                 Datasource datasource = datasourcesById.get(dto.getExternalDbId());
                 Experiment currentExperiment = createNewExperiment(dto, "derived_" +parameterToCreate + "_" + i++, getProcedureFromObservation(param, dto), true);
-                String metadataGroup = parameterMap.get(divisorParameter).get(id).getMetadataGroup() + "_" +
-                        parameterMap.get(numeratorParameter).get(id).getMetadataGroup() + "_" +
-                        parameterMap.get(multiplicator).get(id).getMetadataGroup();
-                String metadata = parameterMap.get(divisorParameter).get(id).getMetadataCombined() + "_" +
-                        parameterMap.get(numeratorParameter).get(id).getMetadataCombined() + "_" +
-                        parameterMap.get(multiplicator).get(id).getMetadataCombined();
-                currentExperiment.setMetadataCombined(metadata);
-                currentExperiment.setMetadataGroup(DigestUtils.md5Hex(metadataGroup));
+//                String metadataGroup = parameterMap.get(divisorParameter).get(id).getMetadataGroup() + "_" +
+//                        parameterMap.get(numeratorParameter).get(id).getMetadataGroup() + "_" +
+//                        parameterMap.get(multiplicator).get(id).getMetadataGroup();
+//                String metadata = parameterMap.get(divisorParameter).get(id).getMetadataCombined() + "_" +
+//                        parameterMap.get(numeratorParameter).get(id).getMetadataCombined() + "_" +
+//                        parameterMap.get(multiplicator).get(id).getMetadataCombined();
+//                currentExperiment.setMetadataCombined(metadata);
+//                currentExperiment.setMetadataGroup(DigestUtils.md5Hex(metadataGroup));
+
+                // Use the same metadata as the other parameters in this procedure
+                currentExperiment.setMetadataCombined(dto.getMetadataCombined());
+                currentExperiment.setMetadataGroup(dto.getMetadataGroup());
+
 
                 observationDAO.saveExperiment(currentExperiment);
 
@@ -1256,12 +1293,18 @@ public class GenerateDerivedParameters implements CommandLineRunner {
                     Procedure proc = getProcedureFromObservation(param, dto);
                     Datasource datasource = datasourcesById.get(dto.getExternalDbId());
                     Experiment currentExperiment = createNewExperiment(dto, "derived_" + parameterToCreate + "_" + i++, proc, true);
-                    String metadataGroup = dto.getMetadataGroup() + "_" +
-                            parameterMap.get(divisorParameter).get(id).getMetadataGroup();
-                    String metadata = dto.getMetadataCombined() + "_" +
-                            parameterMap.get(divisorParameter).get(id).getMetadataCombined();
-                    currentExperiment.setMetadataCombined(metadata);
-                    currentExperiment.setMetadataGroup(DigestUtils.md5Hex(metadataGroup));
+
+//                    String metadataGroup = dto.getMetadataGroup() + "_" +
+//                            parameterMap.get(divisorParameter).get(id).getMetadataGroup();
+//                    String metadata = dto.getMetadataCombined() + "_" +
+//                            parameterMap.get(divisorParameter).get(id).getMetadataCombined();
+//                    currentExperiment.setMetadataCombined(metadata);
+//                    currentExperiment.setMetadataGroup(DigestUtils.md5Hex(metadataGroup));
+
+                    // Use the same metadata as the other parameters in this procedure
+                    currentExperiment.setMetadataCombined(dto.getMetadataCombined());
+                    currentExperiment.setMetadataGroup(dto.getMetadataGroup());
+
                     observationDAO.saveExperiment(currentExperiment);
 
                     Float dataPoint = dto.getDataPoint() / parameterMap.get(divisorParameter).get(id).getDataPoint();
@@ -1312,18 +1355,23 @@ public class GenerateDerivedParameters implements CommandLineRunner {
                 ObservationDTO dto = parameterMap.get("ESLIM_011_001_006").get(id);
                 Datasource datasource = datasourcesById.get(dto.getExternalDbId());
                 Experiment currentExperiment = createNewExperiment(dto, "derived_" +parameterToCreate + "_" + i++, getProcedureFromObservation(param, dto), true);
-                String metadataGroup = parameterMap.get("ESLIM_011_001_006").get(id).getMetadataGroup() + "_" +
-                        parameterMap.get("ESLIM_011_001_007").get(id).getMetadataGroup() + "_" +
-                        parameterMap.get("ESLIM_011_001_008").get(id).getMetadataGroup() + "_" +
-                        parameterMap.get("ESLIM_011_001_009").get(id).getMetadataGroup() + "_" +
-                        parameterMap.get("ESLIM_011_001_010").get(id).getMetadataGroup() ;
-                String metadata = parameterMap.get("ESLIM_011_001_006").get(id).getMetadataCombined() + "_" +
-                        parameterMap.get("ESLIM_011_001_007").get(id).getMetadataCombined() + "_" +
-                        parameterMap.get("ESLIM_011_001_008").get(id).getMetadataCombined() + "_" +
-                        parameterMap.get("ESLIM_011_001_009").get(id).getMetadataCombined() + "_" +
-                        parameterMap.get("ESLIM_011_001_010").get(id).getMetadataCombined() ;
-                currentExperiment.setMetadataGroup(DigestUtils.md5Hex(metadataGroup));
-                currentExperiment.setMetadataCombined(metadata);
+//                String metadataGroup = parameterMap.get("ESLIM_011_001_006").get(id).getMetadataGroup() + "_" +
+//                        parameterMap.get("ESLIM_011_001_007").get(id).getMetadataGroup() + "_" +
+//                        parameterMap.get("ESLIM_011_001_008").get(id).getMetadataGroup() + "_" +
+//                        parameterMap.get("ESLIM_011_001_009").get(id).getMetadataGroup() + "_" +
+//                        parameterMap.get("ESLIM_011_001_010").get(id).getMetadataGroup() ;
+//                String metadata = parameterMap.get("ESLIM_011_001_006").get(id).getMetadataCombined() + "_" +
+//                        parameterMap.get("ESLIM_011_001_007").get(id).getMetadataCombined() + "_" +
+//                        parameterMap.get("ESLIM_011_001_008").get(id).getMetadataCombined() + "_" +
+//                        parameterMap.get("ESLIM_011_001_009").get(id).getMetadataCombined() + "_" +
+//                        parameterMap.get("ESLIM_011_001_010").get(id).getMetadataCombined() ;
+//                currentExperiment.setMetadataGroup(DigestUtils.md5Hex(metadataGroup));
+//                currentExperiment.setMetadataCombined(metadata);
+
+                // Use the same metadata as the other parameters in this procedure
+                currentExperiment.setMetadataCombined(dto.getMetadataCombined());
+                currentExperiment.setMetadataGroup(dto.getMetadataGroup());
+
                 observationDAO.saveExperiment(currentExperiment);
 
                 // (ESLIM_011_001_007 + ESLIM_011_001_008 + ESLIM_011_001_009 + ESLIM_011_001_010 ) / 4
@@ -1427,12 +1475,18 @@ public class GenerateDerivedParameters implements CommandLineRunner {
                 ObservationDTO dto = parameterMap.get(numerator).get(id);
                 Datasource datasource = datasourcesById.get(dto.getExternalDbId());
                 Experiment currentExperiment = createNewExperiment(dto, "derived_" + parameterToCreate + "_" + i++, getProcedureFromObservation(param, dto), true);
-                String metadataGroup = parameterMap.get(divisor).get(id).getMetadataGroup() + "_" +
-                        dto.getMetadataGroup();
-                String metadata = parameterMap.get(divisor).get(id).getMetadataCombined() + "_" +
-                        dto.getMetadataCombined();
-                currentExperiment.setMetadataGroup(DigestUtils.md5Hex(metadataGroup));
-                currentExperiment.setMetadataCombined(metadata);
+//                String metadataGroup = parameterMap.get(divisor).get(id).getMetadataGroup() + "_" +
+//                        dto.getMetadataGroup();
+//                String metadata = parameterMap.get(divisor).get(id).getMetadataCombined() + "_" +
+//                        dto.getMetadataCombined();
+//                currentExperiment.setMetadataGroup(DigestUtils.md5Hex(metadataGroup));
+//                currentExperiment.setMetadataCombined(metadata);
+
+                // Use the same metadata as the other parameters in this procedure
+                currentExperiment.setMetadataCombined(dto.getMetadataCombined());
+                currentExperiment.setMetadataGroup(dto.getMetadataGroup());
+
+
                 // sum_of_increments/number_of_increments
                 ArrayList<Double> incrementValues = dto.getIncrementValues();
                 num = (double) 0;
@@ -1621,12 +1675,16 @@ public class GenerateDerivedParameters implements CommandLineRunner {
                 ObservationDTO dto = increments.get(id);
                 Datasource datasource = datasourcesById.get(dto.getExternalDbId());
                 Experiment currentExperiment = createNewExperiment(dto, "derived_" +parameterToCreate + "_" + i++, getProcedureFromObservation(param, dto), true);
-                String metadataGroup = denominators.get(id).getMetadataGroup() + "_" +
-                        dto.getMetadataGroup();
-                String metadata = denominators.get(id).getMetadataCombined() + "   " +
-                        dto.getMetadataCombined();
-                currentExperiment.setMetadataGroup(DigestUtils.md5Hex(metadataGroup));
-                currentExperiment.setMetadataCombined(metadata);
+//                String metadataGroup = denominators.get(id).getMetadataGroup() + "_" +
+//                        dto.getMetadataGroup();
+//                String metadata = denominators.get(id).getMetadataCombined() + "   " +
+//                        dto.getMetadataCombined();
+//                currentExperiment.setMetadataGroup(DigestUtils.md5Hex(metadataGroup));
+//                currentExperiment.setMetadataCombined(metadata);
+
+                // Use the same metadata as the other parameters in this procedure
+                currentExperiment.setMetadataCombined(dto.getMetadataCombined());
+                currentExperiment.setMetadataGroup(dto.getMetadataGroup());
 
                 observationDAO.saveExperiment(currentExperiment);
 
