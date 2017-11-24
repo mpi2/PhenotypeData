@@ -12,7 +12,7 @@ public class OntologyBean{
 	
 	@Override
 	public String toString() {
-		return "OntologyBean [id=" + id + ", name=" + name + "]";
+		return name + "["+id+"]";
 	}
 	public OntologyBean(String id, String name){
 		this.id=id;

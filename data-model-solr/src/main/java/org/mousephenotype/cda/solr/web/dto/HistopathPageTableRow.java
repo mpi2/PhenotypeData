@@ -162,6 +162,7 @@ public void setMpathDiagnosticOntologyBeans(Map<String, List<OntologyBean>> mpat
 	this.mpathDiagnosticOntologyBeans = mpathDiagnosticOntologyBeans;
 }
 	public void addMpathDiagnosticParam(ImpressBaseDTO parameter,OntologyBean subOntologyBean) {
+		System.out.println("adding diagnostic param bean "+subOntologyBean);
 		if(!this.mpathDiagnosticOntologyBeans.containsKey(parameter.getName())){
 			this.mpathDiagnosticOntologyBeans.put(parameter.getName(), new ArrayList<OntologyBean>());
 		}
