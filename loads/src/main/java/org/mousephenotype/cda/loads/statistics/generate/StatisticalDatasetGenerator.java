@@ -68,7 +68,7 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
 
 
     private final Set<String> skipParameters = new HashSet<>(Arrays.asList(
-            // Skip ANA derived parameter
+            // Do not statistically analyze ANA derived parameter per TM 20171121
             "MGP_ANA_002_001",
             "M-G-P_022_001_001",
             // Skip these parameters (from Natasha)

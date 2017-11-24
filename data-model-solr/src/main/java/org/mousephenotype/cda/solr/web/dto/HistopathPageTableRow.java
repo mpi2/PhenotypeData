@@ -23,6 +23,14 @@ public class HistopathPageTableRow{
 
 	private String sampleId;
 	private String anatomyName;
+	private String anatomyId;
+	public String getAnatomyId() {
+		return anatomyId;
+	}
+	public void setAnatomyId(String anatomyId) {
+		this.anatomyId = anatomyId;
+	}
+
 	private String zygosity;
 	private long ageInDays;
 	private long ageInWeeks;

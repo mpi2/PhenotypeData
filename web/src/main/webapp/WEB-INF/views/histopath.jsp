@@ -51,7 +51,7 @@
                     <div class="section">
                     <div class="inner">
                     <h3>Score Definitions</h3>
-							<p><b>Severity:</b></p>
+							<p><b>Severity Score:</b></p>
 							<p>0=Normal,</p>
 							<p>1=Mild (observation barely perceptible and not believed to have clinical significance),</p>
 							<p>2=Moderate (observation visible but involves minor proportion of tissue and clinical consequences of observation are most likely subclinical),</p> 
@@ -81,7 +81,7 @@
 							Sex
 							</th>
 							<th>
-							SampleId
+							Mouse
 							</th>
 							<th> <%-- class="headerSort"> --%>
 							Tissue
@@ -91,7 +91,7 @@
 							</th>
 							
 							<th>
-							Severity
+							Severity Score
 							</th>
 							<th>
 							Significance Score
@@ -140,11 +140,14 @@
 									 </c:if>
 									</td>
 									<td>
-									Mouse ${histRow.sampleId}<%-- / ${histRow.sequenceId} --%>
+									${histRow.sampleId}<%-- / ${histRow.sequenceId} --%>
 									
 									</td>
 									<td id="${histRow.anatomyName}">
 										${histRow.anatomyName}
+										<c:if test="${histRow.anatomyId !=null && histRow.anatomyId !=''}">
+										 [${histRow.anatomyId}]
+										 </c:if>
 									</td>
 									
 									<td>
