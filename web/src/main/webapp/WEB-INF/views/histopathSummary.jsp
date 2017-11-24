@@ -48,9 +48,9 @@
 							Histopathology
 							</th>
 							
-							<th>
+							<%-- <th>
 							Diagnostic
-							</th>
+							</th> --%>
 							<%-- <th>
 							Description
 							</th> --%>
@@ -116,7 +116,7 @@
 									
 						
 									
-									<c:choose>
+									<%-- <c:choose>
 									<c:when test="${fn:length(histRow.mpathDiagnosticOntologyBeans) == 0}">
 										<td>
 										</td>
@@ -127,14 +127,14 @@
 											
 										<td>
 										<c:forEach var="value" items="${parameter.value }">
-										<%-- <td title="${value.description }"> --%>
+										<td title="${value.description }">
 											${value.name }										
-											<%-- </td> --%>
+											</td>
 										</c:forEach>
 										</td>
 									</c:forEach>
 									</c:otherwise>
-									</c:choose> 
+									</c:choose>  --%>
 									
 									
 									<%-- <td>
