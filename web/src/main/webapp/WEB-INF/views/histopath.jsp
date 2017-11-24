@@ -225,20 +225,22 @@
 									<c:choose>
 									<c:when test="${fn:length(histRow.mpathDiagnosticOntologyBeans) == 0}">
 										<td>
+										
 										</td>
 									</c:when>
 									<c:otherwise>
-									<c:forEach var="parameter" items="${histRow.mpathDiagnosticOntologyBeans }">
+									<td>
+									<c:forEach var="entry" items="${histRow.mpathDiagnosticOntologyBeans }">
 										
 											
-										<td>
-										<c:forEach var="value" items="${parameter.value }">
-										<td title="${value.description }">
-											${value.name }										
-											</td>
+										
+										<c:forEach var="bean" items="${entry.value}">
+										${bean.name}
+										${bean.id}
+										
 										</c:forEach>
-										</td>
 									</c:forEach>
+									</td>
 									</c:otherwise>
 									</c:choose>
 									
