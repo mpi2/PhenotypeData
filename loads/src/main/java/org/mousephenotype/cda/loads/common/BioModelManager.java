@@ -26,15 +26,12 @@ import org.mousephenotype.dcc.exportlibrary.datastructure.core.specimen.Specimen
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * This class encapsulates the code and data to query and insert into the biological model tables. Typical usage is to
- * instantiate, then use the instance to query and insert.:
+ * instantiate, then use the instance to query and insert:
  * <ul>
  * <li>biological_model</li>
  * <li>biological_model_allele</li>
@@ -48,36 +45,34 @@ public class BioModelManager {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private Map<BioModelKey, Integer> bioModelMap = new ConcurrentHashMap<>();          // key is composite key. Value is biological model primary key.
-    private CdaSqlUtils               cdaSqlUtils;
-    private DccSqlUtils               dccSqlUtils;
-    private StrainMapper              strainMapper;
+    private CdaSqlUtils  cdaSqlUtils;
+    private DccSqlUtils  dccSqlUtils;
+    private StrainMapper strainMapper;
 
     private Map<String, Allele>           allelesBySymbolMap;
+    private Map<BioModelKey, Integer>     bioModelPkMap;          // key is BioModelKey key. Value is biological model primary key.
     private Map<String, GenomicFeature>   genesByAccMap;
     private Map<String, PhenotypedColony> phenotypedColonyMap;
     private Map<String, Strain>           strainsByNameMap;
 
-    private Set<String> missingColonyIds = new HashSet<>();
 
-
-    public BioModelManager(CdaSqlUtils cdaSqlUtils, DccSqlUtils dccSqlUtils) {
+    public BioModelManager(CdaSqlUtils cdaSqlUtils, DccSqlUtils dccSqlUtils) throws DataLoadException {
         this.cdaSqlUtils = cdaSqlUtils;
         this.dccSqlUtils = dccSqlUtils;
+        initialise();
     }
 
     /**
-     * Returns the biological model primary key if found; null otherwise
+     * Returns the biological model primary key if found; null otherwise.
      *
-     * @param bioModelKey
-     * @return
+     * @param bioModelKey The biological model key that uniquely identifies a biological model. Use the static method
+     * BioModelKey.make() to make the BioModelKey.
+     *
+     * @return the biological model primary key if found; null otherwise.
      */
     public Integer getBiologicalModelPk(BioModelKey bioModelKey) {
-        if (bioModelMap == null) {
-            this.bioModelMap = cdaSqlUtils.getBioModelPks();
-        }
 
-        return bioModelMap.get(bioModelKey);
+        return bioModelPkMap.get(bioModelKey);
     }
 
     /**
@@ -86,50 +81,23 @@ public class BioModelManager {
      * @return the biological_model primary key of the newly inserted record.
      * @throws DataLoadException
      */
-    public int insert(int dbId, SpecimenExtended specimenExtended) throws DataLoadException {
+    public int insert(int dbId, int phenotypingCenterPk, SpecimenExtended specimenExtended) throws DataLoadException {
 
-        Integer biologicalModelPk = null;
-
-        if (allelesBySymbolMap == null) {
-            initialise();
-        }
+        int    biologicalModelPk;
+        String datasourceShortName = specimenExtended.getDatasourceShortName();
+        String zygosity;
 
         Specimen        specimen        = specimenExtended.getSpecimen();
         ExperimentGroup experimentGroup = (specimen.isIsBaseline() ? ExperimentGroup.CONTROL : ExperimentGroup.MUTANT);
 
-        // Check the bioModelMap for the biological model. If it is not found, create it.
         if (experimentGroup == ExperimentGroup.CONTROL) {
 
-            // CONTROLS
-            BioModelKeyControl controlKey = createBioModelControlKey(dbId, specimen.getStrainID());
+            biologicalModelPk = insertControl(dbId, phenotypingCenterPk, datasourceShortName, specimen.getSpecimenID(), specimen.getStrainID());
 
-            synchronized (this) {
-                biologicalModelPk = bioModelMap.get(controlKey);
-                if (biologicalModelPk == null) {
-                    biologicalModelPk = createBiologicalModelControl(controlKey);
-                    if (biologicalModelPk == null) {
-                        throw new DataLoadException();
-                    } else {
-                        bioModelMap.put(controlKey, biologicalModelPk);
-                    }
-                }
-            }
         } else {
 
-            // MUTANTS. Get and use iMits colony info.
-            BioModelKeyMutant mutantKey = createBioModelMutantKey(dbId, specimen.getZygosity().value(), specimen.getColonyID());
-
-            synchronized (this) {
-                biologicalModelPk = bioModelMap.get(mutantKey);
-                if (biologicalModelPk == null) {
-                    biologicalModelPk = createBiologicalModelMutant(mutantKey);
-                    if (biologicalModelPk == null) {
-                        throw new DataLoadException();
-                    } else {
-                        bioModelMap.put(mutantKey, biologicalModelPk);
-                    }
-                }
-            }
+            zygosity = cdaSqlUtils.getSpecimenLevelMutantZygosity(specimen.getZygosity().value());
+            biologicalModelPk = insertMutant(dbId, phenotypingCenterPk, datasourceShortName, specimen.getColonyID(), specimen.getSpecimenID(), zygosity);
         }
 
         return biologicalModelPk;
@@ -137,83 +105,46 @@ public class BioModelManager {
 
 
     /**
-     * @param dbId           the dbId of the line experiment whose biological model is to be inserted
-     * @param lineExperiment the line experiment whose biological model is to be inserted
+     * @param dbId                the dbId of the line experiment whose biological model is to be inserted
+     * @param phenotypingCenterPk the phenotyping center primary key
+     * @param lineExperiment      the line experiment whose biological model is to be inserted
+     *
      * @return the biological_model primary key of the newly inserted record.
+     *
      * @throws DataLoadException
      */
-    public int insert(Integer dbId, DccExperimentDTO lineExperiment) throws DataLoadException {
+    public int insert(int dbId, int phenotypingCenterPk, DccExperimentDTO lineExperiment) throws DataLoadException {
 
-        Integer biologicalModelPk = null;
+        String datasourceShortName = lineExperiment.getDatasourceShortName();
 
-        if (allelesBySymbolMap == null) {
-            initialise();
-        }
+        // MUTANTS. Use iMits colony info.
+        List<SimpleParameter> simpleParameterList = dccSqlUtils.getSimpleParameters(lineExperiment.getDcc_procedure_pk());
+        String zygosity = LoadUtils.getLineLevelZygosity(simpleParameterList);
 
-        // Check the bioModelMap for the biological model. If it is not found, create it.
-
-        // MUTANTS. Get and use iMits colony info.
-        BioModelKeyMutant mutantKey = createBioModelKeyForLine(dbId, lineExperiment);
-
-        synchronized (this) {
-            biologicalModelPk = bioModelMap.get(mutantKey);
-            if (biologicalModelPk == null) {
-                biologicalModelPk = createBiologicalModelMutant(mutantKey);
-                if (biologicalModelPk == null) {
-                    throw new DataLoadException();
-                } else {
-                    bioModelMap.put(mutantKey, biologicalModelPk);
-                }
-            }
-        }
-
-        return biologicalModelPk;
+        return insertMutant(dbId, phenotypingCenterPk, datasourceShortName, lineExperiment.getColonyId(), lineExperiment.getSpecimenId(), zygosity);
     }
 
-    public synchronized BioModelKeyMutant createBioModelKeyForLine(int dbId, DccExperimentDTO dccExperiment) throws DataLoadException {
-        String message;
-        String zygosity;
-        String allelicComposition;
-        String geneticBackground;
 
-        List<SimpleParameter> simpleParameterList = dccSqlUtils.getSimpleParameters(dccExperiment.getDcc_procedure_pk());
-        zygosity = LoadUtils.getLineLevelZygosity(simpleParameterList);
+    // GETTERS
 
-        // Get and use iMits colony info.
-        PhenotypedColony colony = phenotypedColonyMap.get(dccExperiment.getColonyId());
-        if ((colony == null) || (colony.getColonyName() == null)) {
-            message = "Missing colonyId " + dccExperiment.getColonyId();
-            missingColonyIds.add(message);
-            return null;
-        }
-        allelicComposition = strainMapper.createAllelicComposition(zygosity, colony.getAlleleSymbol(), colony.getGene().getSymbol(), LoadUtils.SampleGroup.EXPERIMENTAL.value());
-        geneticBackground = colony.getBackgroundStrain();
-
-        return new BioModelKeyMutant(dbId, allelicComposition, geneticBackground, zygosity, colony);
+    public Map<String, Allele> getAllelesBySymbolMap() {
+        return allelesBySymbolMap;
     }
 
-    public synchronized BioModelKey createBioModelKey(int dbId, boolean isControl, String strainId, String zygosity, String colonyId) throws DataLoadException {
-
-        if (isControl) {
-            // CONTROL
-            return createBioModelControlKey(dbId, strainId);
-
-        } else {
-            // MUTANT
-            return createBioModelMutantKey(dbId, zygosity, colonyId);
-        }
+    public Map<BioModelKey, Integer> getBioModelPkMap() {
+        return bioModelPkMap;
     }
 
-    public Set<String> getMissingColonyIds() {
-        return missingColonyIds;
+    public Map<String, GenomicFeature> getGenesByAccMap() {
+        return genesByAccMap;
     }
 
-    public Map<String, PhenotypedColony> getPhenotypedColonyMap() throws DataLoadException {
-        if (phenotypedColonyMap == null) {
-            initialise();
-        }
-
+    public Map<String, PhenotypedColony> getPhenotypedColonyMap() {
         return phenotypedColonyMap;
+    }
+
+    public Map<String, Strain> getStrainsByNameMap() {
+        return strainsByNameMap;
     }
 
 
@@ -228,103 +159,80 @@ public class BioModelManager {
         phenotypedColonyMap = cdaSqlUtils.getPhenotypedColonies();
         strainsByNameMap = cdaSqlUtils.getStrainsByName();
         strainMapper = new StrainMapper(cdaSqlUtils);
+        bioModelPkMap = cdaSqlUtils.getBiologicalModelPksMapByBioModelKey();
     }
 
-    private synchronized Integer createBiologicalModelControl(BioModelKeyControl controlKey) throws DataLoadException {
+    private int insertMutant(int dbId, int phenotypingCenterPk, String datasourceShortName, String colonyId,
+                             String specimenId, String zygosity) throws DataLoadException {
 
-        String  message;
-        Integer biologicalModelPk;
-
-        DatasourceEntityId       dsId       = controlKey.getBackgroundStrain().getId();
-        AccDbId                  strain     = new AccDbId(dsId.getAccession(), dsId.getDatabaseId());
-        BioModelInsertDTOControl controlDto = new BioModelInsertDTOControl(controlKey.getDbId(), controlKey.getAllelicComposition(), controlKey.getGeneticBackground(), controlKey.getZygosity(), strain);
-
-        biologicalModelPk = cdaSqlUtils.insertBiologicalModelImpc(controlDto);
-        if (biologicalModelPk == null) {
-            message = "BiologicalModel creation failed. BioModelInsertDTOControl: " + controlDto;
-            logger.error(message);
-            throw new DataLoadException(message);
-        }
-
-        return biologicalModelPk;
-    }
-
-    private synchronized Integer createBiologicalModelMutant(BioModelKeyMutant mutantKey) throws DataLoadException {
-        String           message;
-        Integer          biologicalModelPk;
-        PhenotypedColony colony = mutantKey.getColony();
-
-        GenomicFeature gf = genesByAccMap.get(colony.getGene().getId().getAccession());
-        if (gf == null) {
-            message = "Unknown gene '" + colony.getGene() + "'";
-            logger.error(message);
-            return null;
-        }
-        AccDbId gene = new AccDbId(gf.getId().getAccession(), gf.getId().getDatabaseId());
-
-        Allele a = allelesBySymbolMap.get(colony.getAlleleSymbol());
-        if (a == null) {
-            a = cdaSqlUtils.createAndInsertAllele(colony.getAlleleSymbol(), colony.getGene());
-            if (a == null) {
-                message = "Couldn't create allele '" + colony.getAlleleSymbol() + "'";
-                logger.error(message);
-                throw new DataLoadException(message);
-            } else {
-                allelesBySymbolMap.put(a.getSymbol(), a);
-            }
-        }
-        AccDbId allele = new AccDbId(a.getId().getAccession(), a.getId().getDatabaseId());
-
-        Strain s = strainsByNameMap.get(colony.getBackgroundStrain());
-        if (s == null) {
-            s = strainMapper.createBackgroundStrain(colony.getBackgroundStrain());
-            cdaSqlUtils.insertStrain(s);
-            if (s == null) {
-                message = "Couldn't create strain '" + colony.getBackgroundStrain() + "'";
-                logger.error(message);
-                throw new DataLoadException(message);
-            } else {
-                strainsByNameMap.put(s.getName(), s);
-            }
-        }
-        AccDbId strain = new AccDbId(s.getId().getAccession(), s.getId().getDatabaseId());
-
-        BioModelInsertDTOMutant mutantDto = new BioModelInsertDTOMutant(mutantKey.getDbId(), mutantKey.getAllelicComposition(), mutantKey.getGeneticBackground(), mutantKey.getZygosity(), gene, allele, strain);
-
-        biologicalModelPk = cdaSqlUtils.insertBiologicalModelImpc(mutantDto);
-        if (biologicalModelPk == null) {
-            message = "BiologicalModel creation failed. BioModelInsertDTOMutant: " + mutantDto;
-            logger.error(message);
-            throw new DataLoadException(message);
-        }
-
-        return biologicalModelPk;
-    }
-
-    private synchronized BioModelKeyControl createBioModelControlKey(int dbId, String specimenStrainId) throws DataLoadException {
-        String zygosity           = ZygosityType.homozygote.getName();
-        String allelicComposition = "";
-        Strain backgroundStrain   = cdaSqlUtils.getBackgroundStrain(specimenStrainId);
-        String geneticBackground  = strainMapper.parseMultipleBackgroundStrainNames(backgroundStrain.getName());
-
-        return new BioModelKeyControl(dbId, allelicComposition, geneticBackground, zygosity, backgroundStrain);
-    }
-
-    private synchronized BioModelKeyMutant createBioModelMutantKey(int dbId, String zygosity, String colonyId) throws DataLoadException {
+        int    biologicalModelPk;
         String message;
-        String allelicComposition;
-        String geneticBackground;
 
         PhenotypedColony colony = phenotypedColonyMap.get(colonyId);
-
-        if ((colony == null) || (colony.getColonyName() == null)) {
+        if (colony == null) {
             message = "Missing colonyId " + colonyId;
-            missingColonyIds.add(message);
-            return null;
+            logger.error(message);
+            throw new DataLoadException(message);
         }
-        allelicComposition = strainMapper.createAllelicComposition(zygosity, colony.getAlleleSymbol(), colony.getGene().getSymbol(), LoadUtils.SampleGroup.EXPERIMENTAL.value());
-        geneticBackground = colony.getBackgroundStrain();
 
-        return new BioModelKeyMutant(dbId, allelicComposition, geneticBackground, zygosity, colony);
+        String allelicComposition = strainMapper.createAllelicComposition(zygosity, colony.getAlleleSymbol(), colony.getGene().getSymbol(), LoadUtils.SampleGroup.EXPERIMENTAL.value());
+        String geneticBackground = colony.getBackgroundStrain();
+
+
+        // GENE part
+        GenomicFeature gene = genesByAccMap.get(colony.getGene().getId().getAccession());
+        if (gene == null) {
+            message = "Unknown gene '" + colony.getGene() + "'";
+            logger.error(message);
+            throw new DataLoadException(message);
+        }
+        AccDbId geneAcc = new AccDbId(gene.getId().getAccession(), gene.getId().getDatabaseId());
+
+        // ALLELE part
+        Allele allele = allelesBySymbolMap.get(colony.getAlleleSymbol());
+        if (allele == null) {
+            allele = cdaSqlUtils.createAlleleFromSymbol(colony.getAlleleSymbol(), gene);
+            cdaSqlUtils.insertAllele(allele);
+            allelesBySymbolMap.put(allele.getSymbol(), allele);
+        }
+        AccDbId alleleAcc = new AccDbId(allele.getId().getAccession(), allele.getId().getDatabaseId());
+
+        // STRAIN part
+        String remappedBackgroundStrain = strainMapper.parseMultipleBackgroundStrainNames(colony.getBackgroundStrain());
+        Strain strain                   = strainsByNameMap.get(remappedBackgroundStrain);
+        if (strain == null) {
+            strain = strainMapper.createBackgroundStrain(remappedBackgroundStrain);
+            cdaSqlUtils.insertStrain(strain);
+            strainsByNameMap.put(strain.getName(), strain);
+        }
+        AccDbId strainAcc = new AccDbId(strain.getId().getAccession(), strain.getId().getDatabaseId());
+
+        BioModelInsertDTOMutant mutantDto = new BioModelInsertDTOMutant(dbId, allelicComposition, geneticBackground, zygosity, geneAcc, alleleAcc, strainAcc);
+        biologicalModelPk = cdaSqlUtils.insertBiologicalModelImpc(mutantDto);
+
+        BioModelKey mutantKey = BioModelKey.make(specimenId, phenotypingCenterPk, datasourceShortName, zygosity);
+        bioModelPkMap.put(mutantKey, biologicalModelPk);
+
+        return biologicalModelPk;
+    }
+
+    private int insertControl(int dbId, int phenotypingCenterPk, String datasourceShortName, String specimenId, String specimenStrainId) throws DataLoadException {
+
+        String allelicComposition = "";
+        int    biologicalModelPk;
+        Strain backgroundStrain   = cdaSqlUtils.getBackgroundStrain(specimenStrainId);
+        String geneticBackground  = strainMapper.parseMultipleBackgroundStrainNames(backgroundStrain.getName());
+        String zygosity           = ZygosityType.homozygote.getName();
+
+        DatasourceEntityId dsId   = backgroundStrain.getId();
+        AccDbId            strain = new AccDbId(dsId.getAccession(), dsId.getDatabaseId());
+
+        BioModelInsertDTOControl controlDto = new BioModelInsertDTOControl(dbId, allelicComposition, geneticBackground, zygosity, strain);
+        biologicalModelPk = cdaSqlUtils.insertBiologicalModelImpc(controlDto);
+
+        BioModelKey controlKey = BioModelKey.make(specimenId, phenotypingCenterPk, datasourceShortName, zygosity);
+        bioModelPkMap.put(controlKey, biologicalModelPk);
+
+        return biologicalModelPk;
     }
 }

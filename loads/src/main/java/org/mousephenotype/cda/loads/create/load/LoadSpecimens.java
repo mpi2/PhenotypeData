@@ -160,7 +160,7 @@ public class LoadSpecimens implements CommandLineRunner {
             /**
              * Some dcc europhenome colonies were incorrectly associated with EuroPhenome. Imits has the authoritative mapping
              * between colonyId and project and, for these incorrect colonies, overrides the dbId and phenotyping center to
-             * reflect the real owner of the data, MGP.
+             * reflect the real owner of the data, MGP. Remapping changes the specimen's project and datasourceShortName.
              */
             EuroPhenomeRemapper remapper = new EuroPhenomeRemapper(specimenExtended, phenotypedColonyMap);
             if (remapper.needsRemapping()) {
@@ -173,9 +173,9 @@ public class LoadSpecimens implements CommandLineRunner {
                 PhenotypedColony colony = phenotypedColonyMap.get(specimen.getColonyID());
                 if (colony == null) {
 
-                    // Ignore any missing colony ids with warn = 0. We know they are missing. It's OK to skip them.
+                    // Ignore any missing colony ids with log_level = -1. We know they are missing. It's OK to skip them.
                     MissingColonyId missing = missingColonyMap.get(specimen.getColonyID());
-                    if ((missing != null) && (missing.getWarn() == 0)) {
+                    if ((missing != null) && (missing.getLogLevel() == -1)) {
                         continue;
                     }
 
@@ -225,7 +225,7 @@ public class LoadSpecimens implements CommandLineRunner {
                 counts = insertSampleControlSpecimen(specimenExtended, dbId, phenotypingCenterPk, productionCenterPk);
                 written.put("controlSample", written.get("controlSample") + 1);
             } else {
-                counts = insertSampleExperimentalSpecimen(specimenExtended, dbId, phenotypingCenter, phenotypingCenterPk, productionCenterPk);
+                counts = insertSampleExperimentalSpecimen(specimenExtended, dbId, phenotypingCenterPk, productionCenterPk);
                 written.put("experimentalSample", written.get("experimentalSample") + 1);
             }
 
@@ -241,8 +241,8 @@ public class LoadSpecimens implements CommandLineRunner {
         }
 
         for (MissingColonyId missing : missingColonyMap.values()) {
-            if (missing.getWarn() != 1) {
-                logger.info(missing.getReason() + ". colonyId: " + missing.getColony_id());
+            if (missing.getLogLevel() == 0) {
+                logger.info("colonyId: " + missing.getColonyId() + ": " + missing.getReason() + ".");
             }
         }
 
@@ -250,12 +250,12 @@ public class LoadSpecimens implements CommandLineRunner {
         // Log warning sets
 
         for (MissingColonyId missing : missingColonyMap.values()) {
-            if (missing.getWarn() == 1) {
+            if (missing.getLogLevel() == 1) {
                 // Log the message as a warning
-                logger.warn(missing.getReason() + ". colonyId: " + missing.getColony_id());
+                logger.warn("colonyId: " + missing.getColonyId() + ": " + missing.getReason() + ".");
 
-                // Add the missing colony id to the missing_colony_id table and turn off the warn flag so the ExperimentLoader doesn't bark about the same missing colony id.
-                cdaSqlUtils.insertMissingColonyId(missing.getColony_id(), 1, missing.getReason());
+                // Add the missing colony id to the missing_colony_id table and set log_level to debug.
+                cdaSqlUtils.insertMissingColonyId(missing.getColonyId(), -1, missing.getReason());
             }
         }
 
@@ -278,7 +278,6 @@ public class LoadSpecimens implements CommandLineRunner {
     }
 
     private Map<String, Integer> insertSampleExperimentalSpecimen(SpecimenExtended specimenExtended, int dbId,
-                                                                  String phenotypingCenter,
                                                                   int phenotypingCenterPk,
                                                                   int productionCenterPk) throws DataLoadException {
         Specimen specimen = specimenExtended.getSpecimen();
@@ -343,6 +342,9 @@ public class LoadSpecimens implements CommandLineRunner {
         if (liveSampleId > 0) {
             counts.put("liveSample", counts.get("liveSample") + 1);
         }
+
+        // biological model and friends
+        bioModelManager.insert(dbId, phenotypingCenterPk, specimenExtended);
 
         return counts;
     }
@@ -442,7 +444,7 @@ public class LoadSpecimens implements CommandLineRunner {
         }
 
         // biological model and friends
-        bioModelManager.insert(dbId, specimenExtended);
+        bioModelManager.insert(dbId, phenotypingCenterPk, specimenExtended);
 
         return counts;
     }

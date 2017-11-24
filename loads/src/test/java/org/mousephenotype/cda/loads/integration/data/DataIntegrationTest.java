@@ -16,8 +16,8 @@
 
 package org.mousephenotype.cda.loads.integration.data;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.h2.tools.Server;
+import org.junit.*;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.loads.common.CdaSqlUtils;
 import org.mousephenotype.cda.loads.common.DccSqlUtils;
@@ -27,12 +27,17 @@ import org.mousephenotype.cda.loads.create.load.LoadExperiments;
 import org.mousephenotype.cda.loads.create.load.LoadSpecimens;
 import org.mousephenotype.cda.loads.integration.data.config.TestConfig;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.IntegrationTest;
+import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.boot.test.WebIntegrationTest;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.core.io.Resource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.web.WebAppConfiguration;
 
 import javax.sql.DataSource;
 import java.util.ArrayList;
@@ -44,10 +49,16 @@ import java.util.Map;
  * This is an end-to-end integration data test class that uses an in-memory database to populate a small dcc, cda_base,
  * and cda set of databases.
  */
-
+// FIXME
 @RunWith(SpringJUnit4ClassRunner.class)
 @ComponentScan
 @ContextConfiguration(classes = TestConfig.class)
+@TestPropertySource("file:${user.home}/configfiles/${profile:dev}/test.properties")
+//@RunWith(SpringJUnit4ClassRunner.class)
+//@SpringApplicationConfiguration(classes = DataIntegrationTest.class)
+//@WebAppConfiguration
+//@WebIntegrationTest({"spring.h2.console.enabled=true", "server.port=8080"})
+
 public class DataIntegrationTest {
 
     @Autowired
@@ -70,9 +81,7 @@ public class DataIntegrationTest {
     private CdaSqlUtils cdabaseSqlUtils;
 
     
-    
-    @Autowired
-    private DataSource cdaDataSource;
+
 
     @Autowired
     private CdaSqlUtils cdaSqlUtils;
@@ -94,9 +103,53 @@ public class DataIntegrationTest {
     @Autowired
     private LoadExperiments loadExperiments;
 
+    @Autowired
+    private DataSource cdaDataSource;
+
+    private static boolean startServer = true;
+    private static Server server;
+private Thread thread;
+    @Before
+    public void before() {
+        if (startServer) {
+            startServer = false;
+            Runnable runnable = () -> {
+
+                try {
+                    Server.startWebServer(cdaDataSource.getConnection());
 
 
+//                server = Server.createWebServer("-web", "-browser", "-webPort", "61843", "-help").start();
+                    server = Server.createWebServer("-web");  // .start();
+                    server.start();
+                System.out.println("URL: " + server.getURL());
+                System.out.println("Port: " + server.getPort());
+//                server.run();
+                Server.openBrowser(server.getURL());
+                } catch (Exception e) {
+                    System.out.println("Embedded h2 server failed to start: " + e.getLocalizedMessage());
+                    System.exit(1);
+                }
+//                System.out.println("URL: " + server.getURL());
+//                System.out.println("Port: " + server.getPort());
+            };
 
+            thread = new Thread(runnable);
+            thread.start();
+            try {Thread.sleep(5000); } catch (Exception e) { }
+ }
+    }
+
+    @AfterClass
+    public static void afterClass() {
+//        if (server != null)
+//            server.shutdown();
+    }
+
+    @Test
+    public void dooda() {
+        System.out.println("Executing dooda");
+    }
     /**
      * The intention of this test is to verify that the background strain is the same for control specimens as it is for
      * mutant specimens. This test should be made for both line-level and specimen-level experiments.

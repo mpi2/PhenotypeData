@@ -18,11 +18,12 @@ package org.mousephenotype.cda.loads.common;
 
 import org.mousephenotype.cda.db.pojo.Strain;
 
-public class BioModelKeyControl extends BioModelKey {
+@Deprecated
+public class BioModelKey999Control extends BioModelKey999 {
 
     private Strain backgroundStrain;        // Used for experiment-level control specimens only.
 
-    public BioModelKeyControl(Integer dbId, String allelicComposition, String geneticBackground, String zygosity, /*, int phenotypingCenterPk,*/ Strain backgroundStrain) {
+    public BioModelKey999Control(Integer dbId, String allelicComposition, String geneticBackground, String zygosity, /*, int phenotypingCenterPk,*/ Strain backgroundStrain) {
         super(dbId, allelicComposition, geneticBackground, zygosity);
         this.backgroundStrain = backgroundStrain;
     }
@@ -35,17 +36,16 @@ public class BioModelKeyControl extends BioModelKey {
         this.backgroundStrain = backgroundStrain;
     }
 
+    // Always return a consistently formatted key, regardless if it's a MUTANT or a CONTROL.
     @Override
     public String toString() {
-        return "BioModelKeyControl{" +
-                "backgroundStrain=" + backgroundStrain +
-                '}';
+        return super.toString();
     }
 
 
     /**
-     * Equality is determined by the components in {@link BioModelKey}. The {@link BioModelKeyControl} and
-     * {@link BioModelKeyMutant} extended class components are ignored for purposes of equality/hash.
+     * Equality is determined by the components in {@link BioModelKey999}. The {@link BioModelKey999Control} and
+     * {@link BioModelKey999Mutant} extended class components are ignored for purposes of equality/hash.
      */
 
     @Override

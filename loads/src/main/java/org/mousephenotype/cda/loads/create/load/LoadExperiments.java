@@ -94,15 +94,15 @@ public class LoadExperiments implements CommandLineRunner {
     // lookup maps returning cda table primary key given dca unique string
     // Initialise them here, as this code gets called multiple times for different dcc data sources
     // and these maps must be cleared before their second and subsequent uses.
-    private Map<String, Integer>          cdaDb_idMap                       = new ConcurrentHashMap<>();
-    private Map<String, Integer>          cdaProject_idMap                  = new ConcurrentHashMap<>();
-    private Map<String, Integer>          cdaPipeline_idMap                 = new ConcurrentHashMap<>();
-    private Map<String, Integer>          cdaProcedure_idMap                = new ConcurrentHashMap<>();
-    private Map<String, Integer>          cdaParameter_idMap                = new ConcurrentHashMap<>();
-    private Map<String, String>           cdaParameterNameMap               = new ConcurrentHashMap<>();              // map of impress parameter names keyed by stable_parameter_id
-    private Set<String>                   derivedImpressParameters          = new HashSet<>();
-    private Set<String>                   metadataAndDataAnalysisParameters = new HashSet<>();
-    private Map<String, BiologicalSample> samplesMap                        = new ConcurrentHashMap<>();              // keyed by external_id and short_name (e.g. "mouseXXX_IMPC", "mouseYYY_3i", etc)
+    private Map<String, Integer>                cdaDb_idMap                       = new ConcurrentHashMap<>();
+    private Map<String, Integer>                cdaProject_idMap                  = new ConcurrentHashMap<>();
+    private Map<String, Integer>                cdaPipeline_idMap                 = new ConcurrentHashMap<>();
+    private Map<String, Integer>                cdaProcedure_idMap                = new ConcurrentHashMap<>();
+    private Map<String, Integer>                cdaParameter_idMap                = new ConcurrentHashMap<>();
+    private Map<String, String>                 cdaParameterNameMap               = new ConcurrentHashMap<>();          // map of impress parameter names keyed by stable_parameter_id
+    private Set<String>                         derivedImpressParameters          = new HashSet<>();
+    private Set<String>                         metadataAndDataAnalysisParameters = new HashSet<>();
+    private Map<BioSampleKey, BiologicalSample> samplesMap                        = new ConcurrentHashMap<>();
 
     // DCC parameter lookup maps, keyed by procedure_pk
     private Map<Long, List<MediaParameter>>       mediaParameterMap       = new ConcurrentHashMap<>();
@@ -211,7 +211,7 @@ public class LoadExperiments implements CommandLineRunner {
         logger.info("loaded {} requiredImpressParameter rows", metadataAndDataAnalysisParameters.size());
 
         samplesMap.clear();
-        samplesMap = cdaSqlUtils.getBiologicalSamples();
+        samplesMap = cdaSqlUtils.getBiologicalSamplesMapBySampleKey();
         logger.info("loaded {} sample rows", samplesMap.size());
 
 
@@ -351,8 +351,8 @@ public class LoadExperiments implements CommandLineRunner {
 
 
         for (MissingColonyId missing : missingColonyMap.values()) {
-            if (missing.getWarn() != 1) {
-                logger.info(missing.getReason() + ". colonyId: " + missing.getColony_id());
+            if (missing.getLogLevel() == 0) {
+                logger.info("colonyId: " + missing.getColonyId() + ": " + missing.getReason() + ".");
             }
         }
 
@@ -372,12 +372,12 @@ public class LoadExperiments implements CommandLineRunner {
         }
 
         for (MissingColonyId missing : missingColonyMap.values()) {
-            if (missing.getWarn() == 1) {
+            if (missing.getLogLevel() == 1) {
                 // Log the message as a warning
-                logger.warn(missing.getReason() + ". colonyId: " + missing.getColony_id());
+                logger.warn("colonyId: " + missing.getColonyId() + ": " + missing.getReason() + ".");
 
-                // Add the missing colony id to the missing_colony_id table and turn off the warn flag so the ExperimentLoader doesn't bark about the same missing colony id.
-                cdaSqlUtils.insertMissingColonyId(missing.getColony_id(), 1, missing.getReason());
+                // Add the missing colony id to the missing_colony_id table and set log_level to INFO.
+                cdaSqlUtils.insertMissingColonyId(missing.getColonyId(), 0, missing.getReason());
             }
         }
 
@@ -480,7 +480,7 @@ public class LoadExperiments implements CommandLineRunner {
         /**
          * Some dcc europhenome colonies were incorrectly associated with EuroPhenome. Imits has the authoritative mapping
          * between colonyId and project and, for these incorrect colonies, overrides the dbId and phenotyping center to
-         * reflect the real owner of the data, MGP.
+         * reflect the real owner of the data, MGP. Remapping changes the experiment's project and datasourceShortName.
          */
         EuroPhenomeRemapper remapper = new EuroPhenomeRemapper(dccExperiment, phenotypedColonyMap);
         if (remapper.needsRemapping()) {
@@ -490,9 +490,9 @@ public class LoadExperiments implements CommandLineRunner {
         PhenotypedColony colony = phenotypedColonyMap.get(dccExperiment.getColonyId());
         if (colony == null) {
 
-            // Ignore any missing colony ids with warn = 0. We know they are missing. It's OK to skip them.
+            // Ignore any missing colony ids with log_level < 1. We know they are missing. It's OK to skip them.
             MissingColonyId missing = missingColonyMap.get(dccExperiment.getColonyId());
-            if ((missing != null) && (missing.getWarn() == 0)) {
+            if ((missing != null) && (missing.getLogLevel() < 1)) {
                 return null;
             }
 
@@ -564,23 +564,22 @@ public class LoadExperiments implements CommandLineRunner {
         procedureStatusMessage = rawProcedureStatus[1];
         int missing = ((procedureStatus != null) && ( ! procedureStatus.trim().isEmpty()) ? 1 : 0);
 
-        // biological model and friends.
-        if (dccExperiment.isLineLevel()) {
-            // Line-level experiments may require adding a biological model.
-            BioModelKey key = bioModelManager.createBioModelKeyForLine(dbId, dccExperiment);
-            biologicalModelPk = bioModelManager.getBiologicalModelPk(key);
-            if (biologicalModelPk == null) {
-                biologicalModelPk = bioModelManager.insert(dbId, dccExperiment);
-            }
-        } else {
-            // Specimen-level experiment models should already be loaded. It is an error if they are not.
-            BioModelKey key = bioModelManager.createBioModelKey(
-                    dbId, dccExperiment.isControl(), dccExperiment.getSpecimenStrainId(),
-                     dccExperiment.getZygosity(), dccExperiment.getColonyId());
-            biologicalModelPk = bioModelManager.getBiologicalModelPk(key);
-            if (biologicalModelPk == null) {
-                String message = "Expected to find biological model for specimen-level experiment " + dccExperiment.getExperimentId() +
-                        ", specimen " + dccExperiment.getSpecimenId() + ", but none was found." + "key = " + key;
+        // Get the biological model primary key.
+        List<SimpleParameter> simpleParameterList = dccSqlUtils.getSimpleParameters(dccExperiment.getDcc_procedure_pk());
+        String      zygosity = LoadUtils.getLineLevelZygosity(simpleParameterList);
+        BioModelKey key      = BioModelKey.make(dccExperiment.getSpecimenId(), phenotypingCenterPk, dccExperiment.getDatasourceShortName(), zygosity);
+        biologicalModelPk = bioModelManager.getBiologicalModelPk(key);
+        if (biologicalModelPk == null) {
+
+            if (dccExperiment.isLineLevel()) {
+
+                // This line-level experiment's biological model may not have been created yet. Create it now.
+                biologicalModelPk = bioModelManager.insert(dbId, phenotypingCenterPk, dccExperiment);
+
+            } else {
+
+                // Specimen-level experiment models should already be loaded. It is an error if they are not.
+                String message = "Unknown sample '" + dccExperiment.getSpecimenId() + "' for experiment '" + dccExperiment.getExperimentId() + "'. Skipping.";
                 logger.error(message);
 
                 return null;
@@ -620,9 +619,8 @@ public class LoadExperiments implements CommandLineRunner {
                 return null;
             }
             sequenceId = dccExperiment.getSequenceId();
-            String samplesMapKey = LoadUtils.buildSamplesMapKey(
-                    dccExperiment.getSpecimenId(), dccExperiment.getDatasourceShortName(), phenotypingCenterPk);
-            biologicalSamplePk = samplesMap.get(samplesMapKey).getId();
+            BioSampleKey bioSampleKey = BioSampleKey.make(dccExperiment.getSpecimenId(), phenotypingCenterPk, dccExperiment.getDatasourceShortName());
+            biologicalSamplePk = samplesMap.get(bioSampleKey).getId();
         }
 
        /** Save procedure metadata into metadataCombined and metadataGroup:

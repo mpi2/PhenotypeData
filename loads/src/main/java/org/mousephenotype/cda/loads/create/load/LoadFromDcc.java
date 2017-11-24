@@ -52,7 +52,9 @@ import java.util.List;
  * Loads the cda database from the dcc database.
  * Created by mrelac on 31/08/2016.
  */
+// FIXME
 @ComponentScan
+@Deprecated
 public class LoadFromDcc implements CommandLineRunner {
     private List<Job>           jobs = new ArrayList<>();
 

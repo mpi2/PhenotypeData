@@ -111,11 +111,14 @@
             <artifactId>h2</artifactId>
             <scope>test</scope>
         </dependency>
-        <!--<dependency>-->
-            <!--<groupId>org.scala-lang</groupId>-->
-            <!--<artifactId>scala-reflect</artifactId>-->
-            <!--<version>2.11.8</version>-->
-        <!--</dependency>-->
+
+        <!-- This dependency allows use of the @IntegrationTest annotation. -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-test</artifactId>
+            <version>1.4.1.RELEASE</version>
+            <scope>test</scope>
+        </dependency>
 
     </dependencies>
 

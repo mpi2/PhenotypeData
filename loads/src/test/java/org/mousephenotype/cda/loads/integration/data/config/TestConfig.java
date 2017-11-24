@@ -16,6 +16,7 @@
 
 package org.mousephenotype.cda.loads.integration.data.config;
 
+import org.h2.tools.Server;
 import org.mousephenotype.cda.loads.common.config.DataSourcesConfigApp;
 import org.mousephenotype.cda.loads.create.extract.dcc.ExtractDccExperiments;
 import org.mousephenotype.cda.loads.create.extract.dcc.ExtractDccSpecimens;
@@ -40,10 +41,18 @@ import org.springframework.util.Assert;
 
 import javax.inject.Inject;
 import javax.sql.DataSource;
+import java.sql.Connection;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 /**
  * Created by mrelac on 02/05/2017.
  */
+// FIXME
 @Configuration
 @EnableAutoConfiguration(exclude = {
         JndiConnectionFactoryAutoConfiguration.class,
@@ -100,7 +109,7 @@ public class TestConfig extends DataSourcesConfigApp implements InitializingBean
     // cda database
     @Bean
     public DataSource cdaDataSource() {
-        return new EmbeddedDatabaseBuilder()
+        DataSource ds = new EmbeddedDatabaseBuilder()
                 .setType(EmbeddedDatabaseType.H2)
                 .ignoreFailedDrops(true)
                 .setName("cda_test")
@@ -108,7 +117,48 @@ public class TestConfig extends DataSourcesConfigApp implements InitializingBean
                             "sql/h2/impress/impressSchema.sql",
                             "sql/h2/dataIntegrationTest-data.sql")
                 .build();
+
+//        Runnable runnable = () -> {
+//            Server server = null;
+//            try {
+//                Server.startWebServer(cdaDataSource().getConnection());
+//            } catch (Exception e) {
+//                System.out.println("Embedded h2 server failed to start: " + e.getLocalizedMessage());
+//            }
+//        };
+
+//        Thread thread = new Thread(runnable);
+//        thread.start();
+
+
+
+//        H2ConsoleThread consoleThread = new H2ConsoleThread();
+//        consoleThread.run();
+
+//        Callable<H2Console> task = () -> insertExperiment(dccExperiment);
+//        tasks.add(executor.submit(task));
+
+//
+//        ExecutorService executor = Executors.newFixedThreadPool(1);
+//        List<Future<H2Console>> tasks = new ArrayList<>();
+//        Callable<H2Console>      task  = () -> ;
+//        tasks.add(executor.submit(task));
+
+
+        return ds;
     }
+
+//    @Bean
+//    public H2ConsoleThread consoleThread() {
+//        try {
+//            return new H2ConsoleThread(cdaDataSource().getConnection());
+//        } catch (Exception e) { }
+//
+//        return null;
+//    }
+
+
+
 
 
     // dcc database

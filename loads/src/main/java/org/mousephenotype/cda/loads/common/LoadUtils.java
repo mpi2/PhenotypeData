@@ -191,15 +191,4 @@ public class LoadUtils {
 
         return zygosity.getName();
     }
-
-    /**
-     * Build and return a {@link String} key that uniquely identifies a sample
-     * @param specimenId
-     * @param datasourceShortName
-     * @param phenotypingCenterPk
-     * @return
-     */
-    public static String buildSamplesMapKey(String specimenId, String datasourceShortName, Integer phenotypingCenterPk) {
-        return specimenId + "_" + phenotypingCenterPk + "_" + datasourceShortName;
-    }
 }

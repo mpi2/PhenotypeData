@@ -22,18 +22,18 @@ package org.mousephenotype.cda.loads.common;
  * Created by mrelac on 22/11/2017.
  */
 public class MissingColonyId {
-    private int id;
-    private String colony_id;
-    private int warn;
+    private int    id;
+    private String colonyId;
+    private int    logLevel;
     private String reason;
 
     public MissingColonyId() {
 
     }
 
-    public MissingColonyId(String colony_id, int warn, String reason) {
-        this.colony_id = colony_id;
-        this.warn = warn;
+    public MissingColonyId(String colonyId, int logLevel, String reason) {
+        this.colonyId = colonyId;
+        this.logLevel = logLevel;
         this.reason = reason;
     }
 
@@ -45,20 +45,20 @@ public class MissingColonyId {
         this.id = id;
     }
 
-    public String getColony_id() {
-        return colony_id;
+    public String getColonyId() {
+        return colonyId;
     }
 
-    public void setColony_id(String colony_id) {
-        this.colony_id = colony_id;
+    public void setColonyId(String colonyId) {
+        this.colonyId = colonyId;
     }
 
-    public int getWarn() {
-        return warn;
+    public int getLogLevel() {
+        return logLevel;
     }
 
-    public void setWarn(int warn) {
-        this.warn = warn;
+    public void setLogLevel(int logLevel) {
+        this.logLevel = logLevel;
     }
 
     public String getReason() {
@@ -73,8 +73,8 @@ public class MissingColonyId {
     public String toString() {
         return "MissingColonyId{" +
                 "id=" + id +
-                ", colony_id='" + colony_id + '\'' +
-                ", warn=" + warn +
+                ", colonyId='" + colonyId + '\'' +
+                ", logLevel=" + logLevel +
                 ", reason='" + reason + '\'' +
                 '}';
     }

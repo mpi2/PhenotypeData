@@ -179,11 +179,13 @@ public class DccExperimentDTO {
     public void setLineLevel(boolean lineLevel) {
         isLineLevel = lineLevel;
     }
-
+// FIXME
+    @Deprecated
     public boolean isControl() {
         return isControl;
     }
-
+// FIXME
+    @Deprecated
     public void setControl(boolean control) {
         isControl = control;
     }
@@ -208,7 +210,7 @@ public class DccExperimentDTO {
                 ", rawProcedureStatus='" + rawProcedureStatus + '\'' +
                 ", dcc_procedure_pk=" + dcc_procedure_pk +
                 ", isLineLevel=" + isLineLevel +
-                ", isControl=" + isControl +
+//                ", isControl=" + isControl +
                 '}';
     }
 }

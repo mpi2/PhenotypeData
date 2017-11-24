@@ -192,7 +192,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
     // lookup maps returning cda table primary key given dca unique string
     // Initialise them here, as this code gets called multiple times for different dcc data sources
     // and these maps must be cleared before their second and subsequent uses.
-    private Map<String, Integer>                cdaDb_idMap = new ConcurrentHashMap<>();
+    private Map<String, Integer>                cdaDb_idMap                       = new ConcurrentHashMap<>();
     final private Map<String, Integer>          cdaOrganisation_idMap;
     final private Map<String, PhenotypedColony> phenotypedColonyMap;
     private Map<String, Integer>                cdaProject_idMap                  = new ConcurrentHashMap<>();
@@ -202,7 +202,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
     private Map<String, String>                 cdaParameterNameMap               = new ConcurrentHashMap<>();              // map of impress parameter names keyed by stable_parameter_id
     private Set<String>                         derivedImpressParameters          = new HashSet<>();
     private Set<String>                         metadataAndDataAnalysisParameters = new HashSet<>();
-    private Map<String, BiologicalSample>       samplesMap                        = new ConcurrentHashMap<>();              // keyed by external_id and short_name (e.g. "mouseXXX_IMPC", "mouseYYY_3i", etc)
+    private Map<BioSampleKey, BiologicalSample> samplesMap                        = new ConcurrentHashMap<>();              // keyed by external_id and short_name (e.g. "mouseXXX_IMPC", "mouseYYY_3i", etc)
 
     // DCC parameter lookup maps, keyed by procedure_pk
     private Map<Long, List<MediaParameter>>       mediaParameterMap       = new ConcurrentHashMap<>();
@@ -212,7 +212,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
     private Map<Long, List<MediaSampleParameter>> mediaSampleParameterMap = new ConcurrentHashMap<>();
 
     // BiologicalModel map
-    private Map<BioModelKey, Integer> bioModelMap = new ConcurrentHashMap<>();           // key is composite key. Value is biological model primary key.
+    private Map<BioModelKey999, Integer> bioModelMap = new ConcurrentHashMap<>();           // key is composite key. Value is biological model primary key.
 
 
     @Override
@@ -271,7 +271,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         logger.info("loaded {} requiredImpressParameter rows", metadataAndDataAnalysisParameters.size());
 
         samplesMap.clear();
-        samplesMap = cdaSqlUtils.getBiologicalSamples();
+        samplesMap = cdaSqlUtils.getBiologicalSamplesMapBySampleKey();
         logger.info("loaded {} sample rows", samplesMap.size());
 
 
@@ -663,7 +663,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         if (dccExperiment.isControl()) {
 
             // CONTROLS
-            BioModelKeyControl controlKey = createBioModelControlKey(dbId, phenotypingCenterPk, dccExperiment.getSpecimenStrainId());
+            BioModelKey999Control controlKey = createBioModelControlKey(dbId, phenotypingCenterPk, dccExperiment.getSpecimenStrainId());
 
             synchronized (this) {
                 biologicalModelPk = bioModelMap.get(controlKey);
@@ -679,7 +679,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         } else {
 
             // MUTANTS. Get and use iMits colony info.
-            BioModelKeyMutant mutantKey = createBioModelMutantKey(dbId, phenotypingCenterPk, dccExperiment);
+            BioModelKey999Mutant mutantKey = createBioModelMutantKey(dbId, phenotypingCenterPk, dccExperiment);
 
             synchronized (this) {
                 biologicalModelPk = bioModelMap.get(mutantKey);
@@ -809,16 +809,16 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         return experiment;
     }
 
-    private synchronized BioModelKeyControl createBioModelControlKey(int dbId, int phenotypingCenterPk, String specimenStrainId) throws DataLoadException {
+    private synchronized BioModelKey999Control createBioModelControlKey(int dbId, int phenotypingCenterPk, String specimenStrainId) throws DataLoadException {
         String zygosity = ZygosityType.homozygote.getName();
         String allelicComposition = "";
         Strain backgroundStrain = cdaSqlUtils.getBackgroundStrain(specimenStrainId);
         String geneticBackground = strainMapper.parseMultipleBackgroundStrainNames(backgroundStrain.getName());
 
-        return new BioModelKeyControl(dbId, allelicComposition, geneticBackground, zygosity, backgroundStrain);
+        return new BioModelKey999Control(dbId, allelicComposition, geneticBackground, zygosity, backgroundStrain);
     }
 
-    private synchronized Integer createBiologicalModelControl(BioModelKeyControl controlKey) throws DataLoadException {
+    private synchronized Integer createBiologicalModelControl(BioModelKey999Control controlKey) throws DataLoadException {
 
         String message;
         Integer biologicalModelPk;
@@ -837,7 +837,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         return biologicalModelPk;
     }
 
-    private synchronized BioModelKeyMutant createBioModelMutantKey(int dbId, int phenotypingCenterPk, DccExperimentDTO dccExperiment) throws DataLoadException {
+    private synchronized BioModelKey999Mutant createBioModelMutantKey(int dbId, int phenotypingCenterPk, DccExperimentDTO dccExperiment) throws DataLoadException {
         String  message;
         String  zygosity;
         String  allelicComposition;
@@ -860,10 +860,10 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         allelicComposition = strainMapper.createAllelicComposition(zygosity, colony.getAlleleSymbol(), colony.getGene().getSymbol(), LoadUtils.SampleGroup.EXPERIMENTAL.value());
         geneticBackground = colony.getBackgroundStrain();
 
-        return new BioModelKeyMutant(dbId, allelicComposition, geneticBackground, zygosity, colony);
+        return new BioModelKey999Mutant(dbId, allelicComposition, geneticBackground, zygosity, colony);
     }
 
-    private synchronized Integer createBiologicalModelMutant(BioModelKeyMutant mutantKey) throws DataLoadException {
+    private synchronized Integer createBiologicalModelMutant(BioModelKey999Mutant mutantKey) throws DataLoadException {
         String  message;
         Integer biologicalModelPk;
         PhenotypedColony colony = mutantKey.getColony();

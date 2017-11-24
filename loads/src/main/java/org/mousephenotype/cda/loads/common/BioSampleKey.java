@@ -17,38 +17,31 @@
 package org.mousephenotype.cda.loads.common;
 
 /**
- * 2017-10-09 (mrelac)
- *
- * This class encapsulates the components of a biological model lookup key.
+ * This class is meant to encapsulate a key that uniquely identifies a sample.
  */
-
-public class BioModelKey {
+public class BioSampleKey {
 
     private String specimenId;
-    private int    phenotypingCenterPk;
+    private int phenotypingCenterPk;
     private String datasourceShortName;
-    private String zygosity;
 
-
-    public BioModelKey(String specimenId, int phenotypingCenterPk, String datasourceShortName, String zygosity) {
+    public BioSampleKey(String specimenId, int phenotypingCenterPk, String datasourceShortName) {
         this.specimenId = specimenId;
         this.phenotypingCenterPk = phenotypingCenterPk;
         this.datasourceShortName = datasourceShortName;
-        this.zygosity = zygosity;
     }
 
     /**
-     * Create and return a key that uniquely identifies a biological model
+     * Create and return a key that uniquely identifies a biological sample
      *
      * @param specimenId the specimen id (also known as external_id or stableId). Not necessarily unique in itself amongst all centers.
      * @param phenotypingCenterPk the phenotyping center primary key (also known as the sample organisation key)
      * @param datasourceShortName the data source (e.g. EuroPhenome, WTSI, etc)
-     * @param zygosity the specimen's zygosity
      *
-     * @return a key that uniquely identifies a model
+     * @return a key that uniquely identifies a sample
      */
-    public static BioModelKey make(String specimenId, Integer phenotypingCenterPk, String datasourceShortName, String zygosity) {
-        return new BioModelKey(specimenId, phenotypingCenterPk, datasourceShortName, zygosity);
+    public static BioSampleKey make(String specimenId, Integer phenotypingCenterPk, String datasourceShortName) {
+        return new BioSampleKey(specimenId, phenotypingCenterPk, datasourceShortName);
     }
 
     public String getSpecimenId() {
@@ -75,16 +68,8 @@ public class BioModelKey {
         this.datasourceShortName = datasourceShortName;
     }
 
-    public String getZygosity() {
-        return zygosity;
-    }
-
-    public void setZygosity(String zygosity) {
-        this.zygosity = zygosity;
-    }
-
     @Override
     public String toString() {
-        return specimenId + "_" + phenotypingCenterPk + "_" + datasourceShortName + "_" + zygosity;
+        return specimenId + "_" + phenotypingCenterPk + "_" + datasourceShortName;
     }
 }

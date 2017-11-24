@@ -42,8 +42,8 @@ public class MissingColonyIdRowMapper implements RowMapper<MissingColonyId> {
         MissingColonyId row = new MissingColonyId();
 
         row.setId(rs.getInt("id"));
-        row.setColony_id(rs.getString("colony_id"));
-        row.setWarn(rs.getInt("warn"));
+        row.setColonyId(rs.getString("colony_id"));
+        row.setLogLevel(rs.getInt("log_level"));
         row.setReason(rs.getString("reason"));
 
         return row;

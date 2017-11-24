@@ -18,6 +18,9 @@ INSERT INTO `phenotype_pipeline` VALUES
 INSERT INTO `phenotype_procedure` VALUES
   (1,1,'ESLIM_001_001',6,'Dysmorphology','A simple method to examine mice for morphological abnormalities.',1,0,0,'experiment','Adult','Week 9');
 
+INSERT INTO strain VALUES
+  ('MGI:3050593', 3, 'CV:00000025', 3, '129S/SvEv');
+
 INSERT INTO `phenotype_parameter` VALUES
   ( 1,'ESLIM_001_001_001',6,'adult mouse weight','adult_mouse_weight',1,0,'g','FLOAT','simpleParameter',NULL,1,0,0,0,0,0,0,0,0,0,'',1),
   ( 2,'ESLIM_001_001_002',6,'adult mouse ','adult_mouse',1,0,' ','','simpleParameter',NULL,1,0,0,0,1,0,1,0,0,0,'',2),
