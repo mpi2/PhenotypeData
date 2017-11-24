@@ -58,8 +58,7 @@
 							Free Text
 							</th>
 							<th>
-							Observed
-							/Non Obs
+							Significant Finding Incidence Rate
 							</th>
 							<th>
 							Data
@@ -153,7 +152,7 @@
 										</c:forEach> 
 									</td>
 									<td>
-											${histRow.significantCount } / ${histRow.nonSignificantCount }
+											${histRow.significantCount } / ${histRow.nonSignificantCount + histRow.significantCount }
 									
 									</td>
 									
