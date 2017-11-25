@@ -123,7 +123,7 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
             .parallel()
             .forEach(result -> {
 
-                logger.info("Processing {} {} {} {}", result.get(ObservationDTO.PHENOTYPING_CENTER), result.get(ObservationDTO.PIPELINE_STABLE_ID), result.get(ObservationDTO.PROCEDURE_GROUP), result.get(ObservationDTO.STRAIN_ACCESSION_ID));
+                logger.info("Processing {} {} {} {} {}", result.get(ObservationDTO.DATASOURCE_NAME), result.get(ObservationDTO.PHENOTYPING_CENTER), result.get(ObservationDTO.PIPELINE_STABLE_ID), result.get(ObservationDTO.PROCEDURE_GROUP), result.get(ObservationDTO.STRAIN_ACCESSION_ID));
 
                 String fields = "date_of_experiment,external_sample_id,strain_name,allele_accession_id,gene_accession_id,gene_symbol,weight,sex,zygosity,biological_sample_group,colony_id,metadata_group,parameter_stable_id,parameter_name,data_point,category,observation_type";
 
@@ -131,7 +131,6 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
                 q1.setQuery("*:*")
                         .addFilterQuery(ObservationDTO.PARAMETER_STABLE_ID + ":(" + parameters.get(result.get(ObservationDTO.PROCEDURE_GROUP)).stream().collect(Collectors.joining(" OR ")) + ")")
                         .addFilterQuery(ObservationDTO.PHENOTYPING_CENTER + ":\"" + result.get(ObservationDTO.PHENOTYPING_CENTER) + "\"")
-                        .addFilterQuery(ObservationDTO.PROJECT_NAME + ":\"" + result.get(ObservationDTO.PROJECT_NAME) + "\"")
                         .addFilterQuery(ObservationDTO.PIPELINE_STABLE_ID + ":" + result.get(ObservationDTO.PIPELINE_STABLE_ID))
                         .addFilterQuery(ObservationDTO.PROCEDURE_GROUP + ":" + result.get(ObservationDTO.PROCEDURE_GROUP))
                         .addFilterQuery(ObservationDTO.STRAIN_ACCESSION_ID + ":\"" + result.get(ObservationDTO.STRAIN_ACCESSION_ID) + "\"")
@@ -141,6 +140,17 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
                         .setRows(Integer.MAX_VALUE)
                 ;
 
+                // Project remapping rules switches EUMODIC to MGP for some legacy colonies, but cannot
+                // remap corresponding controls (no imits entry for controls).
+                // Ignore project when assembling control group for these remapped colonies
+                if ( ! (
+                        "MGP".equals(result.get(ObservationDTO.PROJECT_NAME)) &&
+                        "WTSI".equals(result.get(ObservationDTO.PHENOTYPING_CENTER)) &&
+                        "M-G-P_001".equals(result.get(ObservationDTO.PIPELINE_STABLE_ID))
+                        )
+                    ) {
+                    q1.addFilterQuery(ObservationDTO.PROJECT_NAME + ":\"" + result.get(ObservationDTO.PROJECT_NAME) + "\"");
+                }
                 logger.debug(SolrUtils.getBaseURL(experimentCore) + "/select" + q1.toQueryString());
 
                 try {
@@ -327,6 +337,7 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
 
                 // Filter out IMM results until we have normalised parameters in IMPRESS
                 .addFilterQuery("-parameter_stable_id:*_IMM_*")
+                .addFilterQuery("procedure_group:(IMPC_ABR OR M-G-P_026) AND strain_accession_id:IMPC-CURATE-33E61")
 
                 // Include only parameters for which we have experimental data
                 .addFilterQuery("biological_sample_group:experimental")
