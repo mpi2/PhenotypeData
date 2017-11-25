@@ -337,7 +337,6 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
 
                 // Filter out IMM results until we have normalised parameters in IMPRESS
                 .addFilterQuery("-parameter_stable_id:*_IMM_*")
-                .addFilterQuery("procedure_group:(IMPC_ABR OR M-G-P_026) AND strain_accession_id:IMPC-CURATE-33E61")
 
                 // Include only parameters for which we have experimental data
                 .addFilterQuery("biological_sample_group:experimental")
