@@ -442,7 +442,7 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
         SolrQuery query = new SolrQuery()
             .setQuery("*:*")
                 .addFilterQuery("annotate:true")
-                .addFilterQuery("observation_type:(categorical OR unidimensional)")
+                .addFilterQuery("observation_type:(categorical OR unidimensional) OR parameter_stable_id:IMPC_EYE_092_001")
             .setFields(ImpressDTO.PROCEDURE_STABLE_ID, ImpressDTO.PARAMETER_STABLE_ID, ImpressDTO.HAS_OPTIONS)
             .setRows(Integer.MAX_VALUE);
 
