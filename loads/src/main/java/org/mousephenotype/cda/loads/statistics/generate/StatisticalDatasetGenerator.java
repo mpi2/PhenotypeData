@@ -143,14 +143,24 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
                 // Project remapping rules switches EUMODIC to MGP for some legacy colonies, but cannot
                 // remap corresponding controls (no imits entry for controls).
                 // Ignore project when assembling control group for these remapped colonies
-                if ( ! (
-                        "MGP".equals(result.get(ObservationDTO.PROJECT_NAME)) &&
-                        "WTSI".equals(result.get(ObservationDTO.PHENOTYPING_CENTER)) &&
-                        "M-G-P_001".equals(result.get(ObservationDTO.PIPELINE_STABLE_ID))
-                        )
-                    ) {
-                    q1.addFilterQuery(ObservationDTO.PROJECT_NAME + ":\"" + result.get(ObservationDTO.PROJECT_NAME) + "\"");
-                }
+
+// ********* TEMPORARY TEMPORARY TEMPORARY TEMPORARY TEMPORARY *********
+// For now, do not include PROJECT in the splitting
+// ********* TEMPORARY TEMPORARY TEMPORARY TEMPORARY TEMPORARY *********
+
+//                if ( ! (
+//                        "MGP".equals(result.get(ObservationDTO.PROJECT_NAME)) &&
+//                        "WTSI".equals(result.get(ObservationDTO.PHENOTYPING_CENTER)) &&
+//                        "M-G-P_001".equals(result.get(ObservationDTO.PIPELINE_STABLE_ID))
+//                        )
+//                    ) {
+//                    q1.addFilterQuery(ObservationDTO.PROJECT_NAME + ":\"" + result.get(ObservationDTO.PROJECT_NAME) + "\"");
+//                }
+
+// ********* TEMPORARY TEMPORARY TEMPORARY TEMPORARY TEMPORARY *********
+// For now, do not include PROJECT in the splitting
+// ********* TEMPORARY TEMPORARY TEMPORARY TEMPORARY TEMPORARY *********
+
                 logger.debug(SolrUtils.getBaseURL(experimentCore) + "/select" + q1.toQueryString());
 
                 try {
