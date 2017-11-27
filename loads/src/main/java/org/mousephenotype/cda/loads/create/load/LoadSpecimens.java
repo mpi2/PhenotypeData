@@ -21,6 +21,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.mousephenotype.cda.db.pojo.DatasourceEntityId;
 import org.mousephenotype.cda.db.pojo.OntologyTerm;
 import org.mousephenotype.cda.db.pojo.PhenotypedColony;
+import org.mousephenotype.cda.db.pojo.Strain;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.loads.common.*;
@@ -152,7 +153,6 @@ public class LoadSpecimens implements CommandLineRunner {
             String   sampleGroup = (specimen.isIsBaseline()) ? "control" : "experimental";
             boolean  isControl   = (sampleGroup.equals("control"));
             Integer dbId;
-            String phenotypingCenter;
             Integer phenotypingCenterPk;
             Integer productionCenterPk;
 
@@ -167,11 +167,46 @@ public class LoadSpecimens implements CommandLineRunner {
                 remapper.remap();
             }
 
-            // Get phenotypingCenter, phenotypingCenterPk, and productionCenterPk. The extra block was added to
-            // make sure colony, which may be null, isn't dereferenced outside this block.
+            /**
+             * Some centers submitting EuroPhenome legacy data used obsolete strain names that had to be hand-curated
+             * to reflect the current name. The {@link StrainMapper} takes care of this remapping.
+             * For example, the Akt2 specimen strains from the dcc are 129/SvEv, but must be remapped to 129S/SvEv. The
+             * {@link StrainMapper} class takes care of remapping.
+             *
+             * NOTE: If the strain does not yet exist, it is created and inserted into the strain table.
+             *
+             * NOTE: This remapping takes precedence over the iMits background strain value, so if there is a
+             * {@link PhenotypedColony} entry for this strain, it should be updated with the remapped strain. This
+             * makes it safe to use later on.
+             */
+
+
+            // Get strain (remapped if necessary), phenotypingCenter, phenotypingCenterPk, and productionCenterPk. The
+            // extra block was added to make sure colony, which may be null, isn't dereferenced outside this block.
             {
                 PhenotypedColony colony = phenotypedColonyMap.get(specimen.getColonyID());
-                if (colony == null) {
+
+                // If iMits has the colony, use it to get the strain name.
+                if (colony != null) {
+                    specimen.setStrainID(colony.getBackgroundStrain());
+                }
+
+                // Run the strain name through the StrainMapper to remap incorrect legacy strain names.
+                Strain remappedStrain = bioModelManager.getStrainMapper().lookupBackgroundStrain(specimen.getStrainID());
+                if (remappedStrain == null) {
+                    remappedStrain = bioModelManager.getStrainMapper().createBackgroundStrain(specimen.getStrainID());
+                }
+                specimen.setStrainID(remappedStrain.getName());
+
+                // Get phenotypingCenterPk and productionCenterPk.
+                if (colony != null) {
+                    colony.setBackgroundStrain((remappedStrain.getName()));
+                    phenotypingCenterPk = colony.getPhenotypingCentre().getId();                                        // phenotypingCenterPk from colony
+                    productionCenterPk = (
+                            colony.getProductionCentre() == null                                                        // productionCenterPk from colony
+                                    ? phenotypingCenterPk
+                                    : colony.getProductionCentre().getId());
+                } else {
 
                     // Ignore any missing colony ids with log_level = -1. We know they are missing. It's OK to skip them.
                     MissingColonyId missing = missingColonyMap.get(specimen.getColonyID());
@@ -187,19 +222,11 @@ public class LoadSpecimens implements CommandLineRunner {
                     }
 
                     // It is OK if a CONTROL has no colony. Use the specimen instance.
-                    phenotypingCenter = LoadUtils.mappedExternalCenterNames.get(specimen.getPhenotypingCentre().value());   // phenotypingCenter from specimen using dcc center name
-                    phenotypingCenterPk = cdaOrganisation_idMap.get(specimen.getPhenotypingCentre().value());               // phenotypingCenterPk from specimen using dcc center name
-                    productionCenterPk =                                                                                    // productionCenterPk from specimen
+                    phenotypingCenterPk = cdaOrganisation_idMap.get(specimen.getPhenotypingCentre().value());           // phenotypingCenterPk from specimen using dcc center name
+                    productionCenterPk =                                                                                // productionCenterPk from specimen
                             (specimen.getProductionCentre() == null
                                     ? phenotypingCenterPk
                                     : cdaOrganisation_idMap.get(specimen.getProductionCentre().value()));
-                } else {
-                    phenotypingCenter = LoadUtils.mappedExternalCenterNames.get(colony.getPhenotypingCentre().getName());                                            // phenotypingCenter from colony
-                    phenotypingCenterPk = colony.getPhenotypingCentre().getId();                                            // phenotypingCenterPk from colony
-                    productionCenterPk = (
-                            colony.getProductionCentre() == null                                                            // productionCenterPk from colony
-                                    ? phenotypingCenterPk
-                                    : colony.getProductionCentre().getId());
                 }
             }
 
@@ -335,16 +362,16 @@ public class LoadSpecimens implements CommandLineRunner {
         // biological_sample
         Map<String, Integer> results = cdaSqlUtils.insertBiologicalSample(externalId, dbId, sampleType, sampleGroup, phenotypingCenterPk, productionCenterPk);
         counts.put("biologicalSample", counts.get("biologicalSample") + results.get("count"));
-        int biologicalSampleId = results.get("biologicalSamplePk");
+        int biologicalSamplePk = results.get("biologicalSamplePk");
 
         // live_sample
-        int liveSampleId = cdaSqlUtils.insertLiveSample(biologicalSampleId, specimen.getColonyID(), dateOfBirth, developmentalStage, litterId, sex, zygosity);
+        int liveSampleId = cdaSqlUtils.insertLiveSample(biologicalSamplePk, specimen.getColonyID(), dateOfBirth, developmentalStage, litterId, sex, zygosity);
         if (liveSampleId > 0) {
             counts.put("liveSample", counts.get("liveSample") + 1);
         }
 
         // biological model and friends
-        bioModelManager.insert(dbId, phenotypingCenterPk, specimenExtended);
+        bioModelManager.insert(dbId, biologicalSamplePk, phenotypingCenterPk, specimenExtended);
 
         return counts;
     }
@@ -444,7 +471,7 @@ public class LoadSpecimens implements CommandLineRunner {
         }
 
         // biological model and friends
-        bioModelManager.insert(dbId, phenotypingCenterPk, specimenExtended);
+        bioModelManager.insert(dbId, biologicalSamplePk, phenotypingCenterPk, specimenExtended);
 
         return counts;
     }

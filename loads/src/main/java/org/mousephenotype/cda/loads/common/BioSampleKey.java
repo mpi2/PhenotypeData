@@ -69,6 +69,18 @@ public class BioSampleKey {
     }
 
     @Override
+    public boolean equals(Object o) {
+
+        return (o.toString().equals(this.toString()));
+    }
+
+    @Override
+    public int hashCode() {
+        int result = this.toString().hashCode();
+        return result;
+    }
+
+    @Override
     public String toString() {
         return specimenId + "_" + phenotypingCenterPk + "_" + datasourceShortName;
     }

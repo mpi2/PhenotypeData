@@ -23,6 +23,7 @@ import org.apache.commons.lang.StringUtils;
 import org.mousephenotype.cda.db.pojo.BiologicalSample;
 import org.mousephenotype.cda.db.pojo.Experiment;
 import org.mousephenotype.cda.db.pojo.PhenotypedColony;
+import org.mousephenotype.cda.db.pojo.Strain;
 import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.loads.common.*;
@@ -115,6 +116,7 @@ public class LoadExperiments implements CommandLineRunner {
     private Map<String, Integer>          cdaOrganisation_idMap;
     private Map<String, PhenotypedColony> phenotypedColonyMap;
     private Map<String, MissingColonyId>  missingColonyMap;
+    private Set<String>                   missingDatasourceShortNames = new HashSet<>();
     
     static {
         Set<UniqueExperimentId> ignoredExperimentSet = new HashSet<>();
@@ -381,6 +383,10 @@ public class LoadExperiments implements CommandLineRunner {
             }
         }
 
+        for (String missingDatasourceShortName : missingDatasourceShortNames) {
+            logger.warn(missingDatasourceShortName);
+        }
+
         for (String experimentMissingSample : experimentsMissingSamples) {
             logger.warn(experimentMissingSample);
         }
@@ -455,7 +461,7 @@ public class LoadExperiments implements CommandLineRunner {
 
     private Experiment insertExperiment(DccExperimentDTO dccExperiment) throws DataLoadException {
         Experiment experiment = new Experiment();
-        int dbId;
+        Integer dbId;
         Integer phenotypingCenterPk;
         String phenotypingCenter;
         Integer projectPk;
@@ -472,7 +478,7 @@ public class LoadExperiments implements CommandLineRunner {
         String sequenceId;
 
         Integer biologicalModelPk;
-        Integer biologicalSamplePk;
+        Integer biologicalSamplePk = null;
         String metadataCombined;
         String metadataGroup;
 
@@ -487,27 +493,64 @@ public class LoadExperiments implements CommandLineRunner {
             remapper.remap();
         }
 
-        PhenotypedColony colony = phenotypedColonyMap.get(dccExperiment.getColonyId());
-        if (colony == null) {
+        /**
+         * Some centers submitting EuroPhenome legacy data used obsolete strain names that had to be hand-curated
+         * to reflect the current name. The {@link StrainMapper} takes care of this remapping.
+         * For example, the Akt2 specimen strains from the dcc are 129/SvEv, but must be remapped to 129S/SvEv. The
+         * {@link StrainMapper} class takes care of remapping.
+         *
+         * NOTE: If the strain does not yet exist, it is created and inserted into the strain table.
+         *
+         * NOTE: This remapping takes precedence over the iMits background strain value, so if there is a
+         * {@link PhenotypedColony} entry for this strain, it should be updated with the remapped strain. This
+         * makes it safe to use later on.
+         */
 
-            // Ignore any missing colony ids with log_level < 1. We know they are missing. It's OK to skip them.
-            MissingColonyId missing = missingColonyMap.get(dccExperiment.getColonyId());
-            if ((missing != null) && (missing.getLogLevel() < 1)) {
-                return null;
+
+        // Get strain (remapped if necessary), phenotypingCenter, and phenotypingCenterPk. The
+        // extra block was added to make sure colony, which may be null, isn't dereferenced outside this block.
+        {
+            PhenotypedColony colony = phenotypedColonyMap.get(dccExperiment.getColonyId());
+
+            // If iMits has the colony, use it to get the strain name.
+            if (colony != null) {
+                dccExperiment.setSpecimenStrainId(colony.getBackgroundStrain());
             }
 
-            // At this point, anything not found in the iMits report is an error.
+            // Run the strain name through the StrainMapper to remap incorrect legacy strain names.
+            Strain remappedStrain = bioModelManager.getStrainMapper().lookupBackgroundStrain(dccExperiment.getSpecimenStrainId());
+            if (remappedStrain == null) {
+                remappedStrain = bioModelManager.getStrainMapper().createBackgroundStrain(dccExperiment.getSpecimenStrainId());
+            }
+            dccExperiment.setSpecimenStrainId(remappedStrain.getName());
+
+
+            // Get phenotypingCenter and phenotypingCenterPk.
+            phenotypingCenter = LoadUtils.mappedExternalCenterNames.get(dccExperiment.getPhenotypingCenter());
+            if (colony != null) {
+
+                colony.setBackgroundStrain((remappedStrain.getName()));
+                phenotypingCenterPk = colony.getPhenotypingCentre().getId();
+
+            } else {
+
+                // Ignore any missing colony ids with log_level < 1. We know they are missing. It's OK to skip them.
+                MissingColonyId missing = missingColonyMap.get(dccExperiment.getColonyId());
+                if ((missing != null) && (missing.getLogLevel() < 1)) {
+                    return null;
+                }
+
+                // It is an error if a MUTANT is not found in the iMits report (i.e. its colony is null)
                 missing = new MissingColonyId(dccExperiment.getColonyId(), 1, MISSING_COLONY_ID_REASON);
                 missingColonyMap.put(dccExperiment.getColonyId(), missing);
                 return null;
+            }
         }
 
-
         dbId = cdaDb_idMap.get(dccExperiment.getDatasourceShortName());
-        phenotypingCenter = LoadUtils.mappedExternalCenterNames.get(dccExperiment.getPhenotypingCenter());
-        phenotypingCenterPk = colony.getPhenotypingCentre().getId();
+
         if (phenotypingCenterPk == null) {
-            missingCenters.add(dccExperiment.getPhenotypingCenter());
+            missingCenters.add("Missing phenotyping center '" + dccExperiment.getPhenotypingCenter() + "'");
             if (dccExperiment.isLineLevel()) {
                 experimentsMissingCenters.add("Null/invalid phenotyping center '" + dccExperiment.getPhenotypingCenter() + "'\tproject::line\t" + dccExperiment.getProject() + "::" + dccExperiment.getExperimentId());
             } else {
@@ -516,6 +559,13 @@ public class LoadExperiments implements CommandLineRunner {
 
             return null;
         }
+
+        if (dbId == null) {
+            missingDatasourceShortNames.add("Missing datasourceShortName '" + dccExperiment.getDatasourceShortName() + "'");
+
+            return null;
+        }
+
 
         projectPk = cdaProject_idMap.get(dccExperiment.getProject());
         if (projectPk == null) {
@@ -574,7 +624,7 @@ public class LoadExperiments implements CommandLineRunner {
             if (dccExperiment.isLineLevel()) {
 
                 // This line-level experiment's biological model may not have been created yet. Create it now.
-                biologicalModelPk = bioModelManager.insert(dbId, phenotypingCenterPk, dccExperiment);
+                biologicalModelPk = bioModelManager.insert(dbId, biologicalSamplePk, phenotypingCenterPk, dccExperiment);
 
             } else {
 

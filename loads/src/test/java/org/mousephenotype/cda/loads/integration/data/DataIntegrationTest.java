@@ -54,10 +54,6 @@ import java.util.Map;
 @ComponentScan
 @ContextConfiguration(classes = TestConfig.class)
 @TestPropertySource("file:${user.home}/configfiles/${profile:dev}/test.properties")
-//@RunWith(SpringJUnit4ClassRunner.class)
-//@SpringApplicationConfiguration(classes = DataIntegrationTest.class)
-//@WebAppConfiguration
-//@WebIntegrationTest({"spring.h2.console.enabled=true", "server.port=8080"})
 
 public class DataIntegrationTest {
 
@@ -108,7 +104,8 @@ public class DataIntegrationTest {
 
     private static boolean startServer = true;
     private static Server server;
-private Thread thread;
+
+    private Thread thread;
     @Before
     public void before() {
         if (startServer) {
@@ -118,38 +115,27 @@ private Thread thread;
                 try {
                     Server.startWebServer(cdaDataSource.getConnection());
 
-
-//                server = Server.createWebServer("-web", "-browser", "-webPort", "61843", "-help").start();
                     server = Server.createWebServer("-web");  // .start();
                     server.start();
-                System.out.println("URL: " + server.getURL());
-                System.out.println("Port: " + server.getPort());
-//                server.run();
-                Server.openBrowser(server.getURL());
+                    System.out.println("URL: " + server.getURL());
+                    System.out.println("Port: " + server.getPort());
+                    Server.openBrowser(server.getURL());
+
                 } catch (Exception e) {
                     System.out.println("Embedded h2 server failed to start: " + e.getLocalizedMessage());
                     System.exit(1);
                 }
-//                System.out.println("URL: " + server.getURL());
-//                System.out.println("Port: " + server.getPort());
             };
 
             thread = new Thread(runnable);
             thread.start();
-            try {Thread.sleep(5000); } catch (Exception e) { }
- }
+            try {
+                Thread.sleep(5000);
+            } catch (Exception e) {
+            }
+        }
     }
 
-    @AfterClass
-    public static void afterClass() {
-//        if (server != null)
-//            server.shutdown();
-    }
-
-    @Test
-    public void dooda() {
-        System.out.println("Executing dooda");
-    }
     /**
      * The intention of this test is to verify that the background strain is the same for control specimens as it is for
      * mutant specimens. This test should be made for both line-level and specimen-level experiments.
@@ -205,29 +191,6 @@ private Thread thread;
             Assert.fail("control and mutant strains differ:\n\tcontrol: " + controlList.get(0) + "::" + controlList.get(1) +
                                                           "\n\tmutant:  " + mutantList.get(0) + "::" + mutantList.get(1));
         }
-
-
-
-
-
-//        List<SpecimenExtended> specimens = dccSqlUtils.getSpecimens();
-//        System.out.println("Specimens:");
-//        for (SpecimenExtended specimen : specimens) {
-//            System.out.println("\tdatasourceShortName: " + specimen.getDatasourceShortName() + ", " + specimen.getSpecimen());
-//        }
-//
-//
-//        List<DccExperimentDTO> experiments = dccSqlUtils.getExperiments();
-//        System.out.println("Experiments:");
-//        for (DccExperimentDTO experiment : experiments) {
-//
-//            System.out.println("\t" + experiment);
-//
-//            List<SimpleParameter> simpleParameters = dccSqlUtils.getSimpleParameters(experiment.getDcc_procedure_pk());
-//            for (SimpleParameter simpleParameter: simpleParameters) {
-//                System.out.println("\t" + simpleParameter.getParameterID() + " :: " + simpleParameter.getValue());
-//            }
-//        }
     }
 
 

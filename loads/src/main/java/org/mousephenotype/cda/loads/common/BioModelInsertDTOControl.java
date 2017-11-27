@@ -28,13 +28,14 @@ public class BioModelInsertDTOControl extends BioModelInsertDTO {
      * Constructs a control DTO for inserting biological models and their requisite components into the database
      *
      * @param dbId required
+     * @param biologicalSamplePk required
      * @param allelicComposition required
      * @param geneticBackground required
      * @param zygosity required
      * @param strain (required)
      */
-    public BioModelInsertDTOControl(int dbId, String allelicComposition, String geneticBackground, String zygosity, AccDbId strain) {
-        super(dbId, allelicComposition, geneticBackground, zygosity);
+    public BioModelInsertDTOControl(int dbId, int biologicalSamplePk, String allelicComposition, String geneticBackground, String zygosity, AccDbId strain) {
+        super(dbId, biologicalSamplePk, allelicComposition, geneticBackground, zygosity);
         this.strains.add(strain);
     }
 

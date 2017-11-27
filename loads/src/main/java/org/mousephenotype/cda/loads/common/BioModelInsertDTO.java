@@ -40,19 +40,12 @@ public abstract class BioModelInsertDTO {
     protected String zygosity;
 
 
-    public BioModelInsertDTO(Integer dbId, String allelicComposition, String geneticBackground, String zygosity) {
+    public BioModelInsertDTO(Integer dbId, int biologicalSamplePk, String allelicComposition, String geneticBackground, String zygosity) {
         this.dbId = dbId;
-        this.allelicComposition = allelicComposition;
-        this.geneticBackground = geneticBackground;
-        this.zygosity = zygosity;
-    }
-
-    public BioModelInsertDTO(Integer dbId, String allelicComposition, String geneticBackground, String zygosity, int biologicalSamplePk) {
-        this.dbId = dbId;
-        this.allelicComposition = allelicComposition;
-        this.geneticBackground = geneticBackground;
-        this.zygosity = zygosity;
         this.biologicalSamplePk = biologicalSamplePk;
+        this.allelicComposition = allelicComposition;
+        this.geneticBackground = geneticBackground;
+        this.zygosity = zygosity;
     }
 
     public Integer getDbId() {

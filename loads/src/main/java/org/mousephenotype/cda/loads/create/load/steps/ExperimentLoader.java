@@ -825,7 +825,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
 
         DatasourceEntityId dsId = controlKey.getBackgroundStrain().getId();
         AccDbId strain = new AccDbId(dsId.getAccession(), dsId.getDatabaseId());
-        BioModelInsertDTOControl controlDto = new BioModelInsertDTOControl(controlKey.getDbId(), controlKey.getAllelicComposition(), controlKey.getGeneticBackground(), controlKey.getZygosity(), strain);
+        BioModelInsertDTOControl controlDto = new BioModelInsertDTOControl(controlKey.getDbId(), 0, controlKey.getAllelicComposition(), controlKey.getGeneticBackground(), controlKey.getZygosity(), strain);
 
         biologicalModelPk = cdaSqlUtils.insertBiologicalModelImpc(controlDto);
         if (biologicalModelPk == null) {
@@ -903,7 +903,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         }
         AccDbId strain = new AccDbId(s.getId().getAccession(), s.getId().getDatabaseId());
 
-        BioModelInsertDTOMutant mutantDto = new BioModelInsertDTOMutant(mutantKey.getDbId(), mutantKey.getAllelicComposition(), mutantKey.getGeneticBackground(), mutantKey.getZygosity(), gene, allele, strain);
+        BioModelInsertDTOMutant mutantDto = new BioModelInsertDTOMutant(mutantKey.getDbId(), 0, mutantKey.getAllelicComposition(), mutantKey.getGeneticBackground(), mutantKey.getZygosity(), gene, allele, strain);
 
         biologicalModelPk = cdaSqlUtils.insertBiologicalModelImpc(mutantDto);
         if (biologicalModelPk == null) {

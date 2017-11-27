@@ -709,11 +709,11 @@ public class CdaSqlUtils {
     public int insertBiologicalModelImpc(BioModelInsertDTOMutant mutant) throws DataLoadException {
 
         // Check to see if model exists before creating, return PK if found
-        Integer biologicalModelId = findBiologicalModel(DbIdType.IMPC.intValue(), mutant.getAllelicComposition(), mutant.getGeneticBackground(), mutant.getZygosity());
+        Integer biologicalModelId = findBiologicalModel(mutant.getDbId(), mutant.getAllelicComposition(), mutant.getGeneticBackground(), mutant.getZygosity());
 
         if (biologicalModelId==null) {
 
-            biologicalModelId = insertBiologicalModel(DbIdType.IMPC.intValue(), mutant.getAllelicComposition(), mutant.getGeneticBackground(), mutant.getZygosity());
+            biologicalModelId = insertBiologicalModel(mutant.getDbId(), mutant.getAllelicComposition(), mutant.getGeneticBackground(), mutant.getZygosity());
             insertBiologicalModelGenes(biologicalModelId, mutant.getGenes());
             insertBiologicalModelAlleles(biologicalModelId, mutant.getAlleles());
             insertBiologicalModelStrains(biologicalModelId, mutant.getStrains());
