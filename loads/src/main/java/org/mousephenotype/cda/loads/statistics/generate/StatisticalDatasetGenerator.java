@@ -66,8 +66,11 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
             "IMPC_GEL", "IMPC_HPL", "IMPC_HEL", "IMPC_EOL", "IMPC_GPL", "IMPC_EVL",
             "IMPC_VIA", "IMPC_FER"));
 
+
     private final Set<String> skipParameters = new HashSet<>(Arrays.asList(
-           "M-G-P_022_001_001",
+            // Do not statistically analyze ANA derived parameter per TM 20171121
+            "MGP_ANA_002_001",
+            "M-G-P_022_001_001",
             // Skip these parameters (from Natasha)
             "JAX_SLW_001_001" ,"JAX_LDT_007_001" ,"ICS_SHO_004_001" ,"IMPC_EYE_056_001",
             "IMPC_ECG_015_001" ,"IMPC_ECG_003_001" ,"JAX_LDT_006_001" ,"IMPC_ECG_010_001"));
@@ -120,7 +123,7 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
             .parallel()
             .forEach(result -> {
 
-                logger.info("Processing {} {} {} {}", result.get(ObservationDTO.PHENOTYPING_CENTER), result.get(ObservationDTO.PIPELINE_STABLE_ID), result.get(ObservationDTO.PROCEDURE_GROUP), result.get(ObservationDTO.STRAIN_ACCESSION_ID));
+                logger.info("Processing {} {} {} {} {}", result.get(ObservationDTO.DATASOURCE_NAME), result.get(ObservationDTO.PHENOTYPING_CENTER), result.get(ObservationDTO.PIPELINE_STABLE_ID), result.get(ObservationDTO.PROCEDURE_GROUP), result.get(ObservationDTO.STRAIN_ACCESSION_ID));
 
                 String fields = "date_of_experiment,external_sample_id,strain_name,allele_accession_id,gene_accession_id,gene_symbol,weight,sex,zygosity,biological_sample_group,colony_id,metadata_group,parameter_stable_id,parameter_name,data_point,category,observation_type";
 
@@ -128,7 +131,6 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
                 q1.setQuery("*:*")
                         .addFilterQuery(ObservationDTO.PARAMETER_STABLE_ID + ":(" + parameters.get(result.get(ObservationDTO.PROCEDURE_GROUP)).stream().collect(Collectors.joining(" OR ")) + ")")
                         .addFilterQuery(ObservationDTO.PHENOTYPING_CENTER + ":\"" + result.get(ObservationDTO.PHENOTYPING_CENTER) + "\"")
-                        .addFilterQuery(ObservationDTO.PROJECT_NAME + ":\"" + result.get(ObservationDTO.PROJECT_NAME) + "\"")
                         .addFilterQuery(ObservationDTO.PIPELINE_STABLE_ID + ":" + result.get(ObservationDTO.PIPELINE_STABLE_ID))
                         .addFilterQuery(ObservationDTO.PROCEDURE_GROUP + ":" + result.get(ObservationDTO.PROCEDURE_GROUP))
                         .addFilterQuery(ObservationDTO.STRAIN_ACCESSION_ID + ":\"" + result.get(ObservationDTO.STRAIN_ACCESSION_ID) + "\"")
@@ -137,6 +139,27 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
                         .setFields(fields)
                         .setRows(Integer.MAX_VALUE)
                 ;
+
+                // Project remapping rules switches EUMODIC to MGP for some legacy colonies, but cannot
+                // remap corresponding controls (no imits entry for controls).
+                // Ignore project when assembling control group for these remapped colonies
+
+// ********* TEMPORARY TEMPORARY TEMPORARY TEMPORARY TEMPORARY *********
+// For now, do not include PROJECT in the splitting
+// ********* TEMPORARY TEMPORARY TEMPORARY TEMPORARY TEMPORARY *********
+
+//                if ( ! (
+//                        "MGP".equals(result.get(ObservationDTO.PROJECT_NAME)) &&
+//                        "WTSI".equals(result.get(ObservationDTO.PHENOTYPING_CENTER)) &&
+//                        "M-G-P_001".equals(result.get(ObservationDTO.PIPELINE_STABLE_ID))
+//                        )
+//                    ) {
+//                    q1.addFilterQuery(ObservationDTO.PROJECT_NAME + ":\"" + result.get(ObservationDTO.PROJECT_NAME) + "\"");
+//                }
+
+// ********* TEMPORARY TEMPORARY TEMPORARY TEMPORARY TEMPORARY *********
+// For now, do not include PROJECT in the splitting
+// ********* TEMPORARY TEMPORARY TEMPORARY TEMPORARY TEMPORARY *********
 
                 logger.debug(SolrUtils.getBaseURL(experimentCore) + "/select" + q1.toQueryString());
 
@@ -242,7 +265,7 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
                     logger.info("  Has {} specimens with {} parameters", specimenParameterMap.size(), specimenParameterMap.values().stream().mapToInt(value -> value.keySet().size()).sum());
 
                     // Allow low N if ABR procedure
-                    if (specimenParameterMap.size() < 5 && ! result.get(ObservationDTO.PROCEDURE_GROUP).equals("IMPC_ABR")) {
+                    if (specimenParameterMap.size() < 5 && ! (result.get(ObservationDTO.PROCEDURE_GROUP).equals("IMPC_ABR") || result.get(ObservationDTO.DATASOURCE_NAME).equals("3i") ) ) {
                         logger.info("  Not processing due to low N {} {} {} {} {}",
                                 result.get(ObservationDTO.PROJECT_NAME),
                                 result.get(ObservationDTO.PHENOTYPING_CENTER),
@@ -331,6 +354,7 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
                 .setRows(0)
                 .setFacet(true)
                 .setFacetLimit(-1)
+                .setFacetMinCount(1)
                 .addFacetPivotField(PIVOT.stream().collect(Collectors.joining(",")));
 
         if (parameters!=null) {
@@ -428,7 +452,7 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
         SolrQuery query = new SolrQuery()
             .setQuery("*:*")
                 .addFilterQuery("annotate:true")
-                .addFilterQuery("observation_type:(categorical OR unidimensional)")
+                .addFilterQuery("observation_type:(categorical OR unidimensional) OR parameter_stable_id:IMPC_EYE_092_001")
             .setFields(ImpressDTO.PROCEDURE_STABLE_ID, ImpressDTO.PARAMETER_STABLE_ID, ImpressDTO.HAS_OPTIONS)
             .setRows(Integer.MAX_VALUE);
 

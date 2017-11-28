@@ -222,7 +222,7 @@ public class Tools {
 			mainAttrs.add("latest_phenotyping_centre");
 
 			// gene has QC: ie, a record in experiment core
-			additionalInfos.add("ensembl_gene_ids");
+			additionalInfos.add("ensembl_gene_id");
 			additionalInfos.add("hasQc");
 
 			// annotated mp term

@@ -137,7 +137,7 @@ CREATE TABLE mediaParameter (
   parameterId VARCHAR(255) NOT NULL,
   parameterStatus VARCHAR(255) DEFAULT NULL,
   URI VARCHAR(255) NOT NULL,
-  link VARCHAR(255) NOT NULL,
+  link VARCHAR(255) DEFAULT NULL,
   procedure_pk INT UNSIGNED NOT NULL,
 
   KEY parameterId_idx(parameterId),
@@ -185,10 +185,11 @@ CREATE TABLE parameterAssociation (
   pk INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
   parameterId VARCHAR(255) NOT NULL,
   sequenceId INTEGER DEFAULT NULL,
-  link VARCHAR(255) NOT NULL,
+  link VARCHAR(255) DEFAULT NULL,
 
   KEY parameterId_idx(parameterId),
-  KEY sequenceId_idx(sequenceId)
+  KEY sequenceId_idx(sequenceId),
+  KEY link_idx(link)
 
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -256,7 +257,7 @@ CREATE TABLE mediaFile (
   fileType VARCHAR(255) NOT NULL,
   localId VARCHAR(255) NOT NULL,
   URI VARCHAR(255) NOT NULL,
-  link VARCHAR(255) NOT NULL,
+  link VARCHAR(255) DEFAULT NULL,
   mediaSection_pk INT UNSIGNED NOT NULL,
 
   KEY localId_idx(localId)
@@ -301,7 +302,7 @@ CREATE TABLE seriesMediaParameterValue (
   fileType VARCHAR(255) DEFAULT NULL,
   incrementValue VARCHAR(255) NOT NULL,
   URI VARCHAR(255) NOT NULL,
-  link VARCHAR(255) NOT NULL,
+  link VARCHAR(255) DEFAULT NULL,
   seriesMediaParameter_pk INT UNSIGNED NOT NULL
 
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

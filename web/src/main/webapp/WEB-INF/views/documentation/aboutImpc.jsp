@@ -109,7 +109,7 @@
     <a name="whatisimpc"></a>
     <h1>What is IMPC?</h1>
 
-    <img src="${baseUrl}/img/IMPC_map6.jpg" /><br>
+    <img src="${baseUrl}/img/IMPC_map6.png" /><br>
     <h3>IMPC Members</h3>
     <b>The IMPC is currently composed of 19 research institutions and 5 national funders from 11 countries.</b><p>
 

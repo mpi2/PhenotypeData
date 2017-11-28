@@ -40,13 +40,13 @@ public class GenerateDerivedParametersConfig {
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
     final private Integer INITIAL_POOL_CONNECTIONS = 1;
 
-    @Value("${datasource.komp2.url}")
+    @Value("${datasource.komp2_derived.url}")
     String komp2Url;
 
-    @Value("${datasource.komp2.username}")
+    @Value("${datasource.komp2_derived.username}")
     String komp2Username;
 
-    @Value("${datasource.komp2.password}")
+    @Value("${datasource.komp2_derived.password}")
     String komp2Password;
 
     @Bean

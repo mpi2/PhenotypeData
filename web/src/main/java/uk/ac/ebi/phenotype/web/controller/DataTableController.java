@@ -300,7 +300,9 @@ public class DataTableController {
 
 		int fieldCount = 0;
 
-//		System.out.println("totaldocs:" + totalDocs);
+		List<String> markerSynonymMatchesHumanSymbol = new ArrayList<>();
+
+		//System.out.println("totaldocs:" + totalDocs);
 		for (int i = 0; i < results.size(); ++i) {
 			SolrDocument doc = results.get(i);
 
@@ -352,7 +354,6 @@ public class DataTableController {
 			//for (String fieldName : doc.getFieldNames()) {
 			//for ( int k=0; k<flList.length; k++ ){
 			for (String fieldName : flList){
-				//String fieldName = flList[k];
 				//System.out.println("DataTableController: "+ fieldName + " - value: " + docMap.get(fieldName));
 
 				if ( fieldName.equals("images_link") ){
@@ -398,7 +399,8 @@ public class DataTableController {
 
 					if (docMap.containsKey("latest_phenotype_status")
 							&& docMap.get("latest_phenotype_status").contains("Phenotyping Complete")
-							&& fieldName.startsWith("mp_") ){
+							&& fieldName.startsWith("mp_")
+							&& ! fieldName.equals("mp_term_definition") ){
 						vals = "no abnormal phenotype detected";
 					}
 
@@ -449,19 +451,34 @@ public class DataTableController {
 								}
 								else if (oriDataTypeName.equals("human_marker_symbol") ){
 									coreName = "gene";
-									Collection<Object> mvals = docMap.get("human_gene_symbol");
-									Set<Object> mvalSet = new HashSet<>(mvals);
-									for (Object mval : mvalSet) {
-										//for (Object mval : mvals) {
-										// so that we can compare
-										String valstr = "\"" + mval.toString() + "\"";
 
-										//foundIds.add("\"" + mval.toString().toUpperCase() + "\"");
-										if ( queryIds.contains(valstr)) {
-											foundIds.add(valstr);
+									// for human symbol query, also check if matches mouse marker synonym
+									List<String> flds = Arrays.asList("human_gene_symbol", "marker_synonym");
+									for (String fname : flds) {
+										if (docMap.containsKey(fname)) {
+											Collection<Object> mvals = docMap.get(fname);
+											Set<Object> mvalSet = new HashSet<>(mvals);
+											for (Object mval : mvalSet) {
+												//for (Object mval : mvals) {
+												// so that we can compare
+												String valstr = "\"" + mval.toString() + "\"";
+
+												//foundIds.add("\"" + mval.toString().toUpperCase() + "\"");
+												if (queryIds.contains(valstr)) {
+
+													if (fname.equals("marker_synonym")) {
+														Collection<Object> humanSym = docMap.get("human_gene_symbol");
+														Set<Object> humanSymSet = new HashSet<>(humanSym);
+														for (Object humanSymSetVal : humanSymSet) {
+															String valstr2 = "\"" + humanSymSetVal.toString() + "\"";
+															markerSynonymMatchesHumanSymbol.add(valstr2);
+														}
+													}
+													foundIds.add(valstr);
+												}
+											}
 										}
 									}
-
 								}
 								else if (oriDataTypeName.equals("ensembl") ){
 									coreName = "gene";
@@ -487,11 +504,11 @@ public class DataTableController {
 							value = docMap.get(fieldName).toString();
 						}
 
-						//System.out.println("row " + i + ": field: " + k + " -- " + fieldName + " - " + value);
+						//System.out.println("row " + i + ": field: " + " -- " + fieldName + " - " + value);
 						fieldCount++;
 						rowData.add(value);
 					} catch(Exception e){
-						//e.printStackTrace();
+						e.printStackTrace();
 						if ( e.getMessage().equals("java.lang.Integer cannot be cast to java.lang.String") ){
 							Collection<Object> vals = docMap.get(fieldName);
 							if ( vals.size() > 0 ){
@@ -570,6 +587,10 @@ public class DataTableController {
 		}
 
 		// output result as the order of users query list
+		for(String ms : markerSynonymMatchesHumanSymbol){
+			queryIds.add(ms);
+		}
+
 		for(String q : queryIds){
 			if ( oriDataTypeName.equals("mouse_marker_symbol")){
 				List<String> data = idRow.get(q.toLowerCase());
@@ -862,10 +883,9 @@ public class DataTableController {
 				}
 			}
 			// figure out the column users search againt
-			System.out.println(flList.get(sortCol.get(oriDataTypeName)));
+			//System.out.println(flList.get(sortCol.get(oriDataTypeName)));
 			for (Object s : docMap.get(flList.get(sortCol.get(oriDataTypeName)))){
 				String qStr = s.toString();
-				System.out.println("qStr: "+ qStr);
 				qStr = oriDataTypeName.equals("mouse_marker_symbol") ? qStr.toLowerCase() : qStr;
 				if ( !idRow.containsKey("\"" + qStr + "\"")) {
 					idRow.put("\"" + qStr + "\"", rowData);

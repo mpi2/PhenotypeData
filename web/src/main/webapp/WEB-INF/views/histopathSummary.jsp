@@ -48,9 +48,9 @@
 							Histopathology
 							</th>
 							
-							<th>
+							<%-- <th>
 							Diagnostic
-							</th>
+							</th> --%>
 							<%-- <th>
 							Description
 							</th> --%>
@@ -58,8 +58,7 @@
 							Free Text
 							</th>
 							<th>
-							Observed
-							/Non Obs
+							Significant Finding Incidence Rate
 							</th>
 							<th>
 							Data
@@ -117,7 +116,7 @@
 									
 						
 									
-									<c:choose>
+									<%-- <c:choose>
 									<c:when test="${fn:length(histRow.mpathDiagnosticOntologyBeans) == 0}">
 										<td>
 										</td>
@@ -128,14 +127,14 @@
 											
 										<td>
 										<c:forEach var="value" items="${parameter.value }">
-										<%-- <td title="${value.description }"> --%>
+										<td title="${value.description }">
 											${value.name }										
-											<%-- </td> --%>
+											</td>
 										</c:forEach>
 										</td>
 									</c:forEach>
 									</c:otherwise>
-									</c:choose> 
+									</c:choose>  --%>
 									
 									
 									<%-- <td>
@@ -153,7 +152,7 @@
 										</c:forEach> 
 									</td>
 									<td>
-											${histRow.significantCount } / ${histRow.nonSignificantCount }
+											${histRow.significantCount } / ${histRow.nonSignificantCount + histRow.significantCount }
 									
 									</td>
 									
