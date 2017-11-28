@@ -217,7 +217,6 @@ public class CdaSqlUtils {
             jdbcCda.update(query, parameterMap);
         } catch (Exception e) {
             String message = "Couldn't create allele '" + parameterMap.get("symbol") + "' Reason: " + e.getLocalizedMessage();
-            logger.error(message);
 
             throw new DataLoadException(message);
         }
@@ -225,6 +224,8 @@ public class CdaSqlUtils {
 
     /**
      * Insert the alleles. Ignore duplicates.
+     * NOTE: This method is called on behalf of several different allele loaders and typically contains duplicates.
+     *       It is safe to ignore those duplicates.
      *
      * @param alleles A {@link List} of {@link Allele} to be inserted
      *
@@ -234,8 +235,6 @@ public class CdaSqlUtils {
      */
     public int insertAlleles(List<Allele> alleles) throws DataLoadException {
         int count = 0;
-        final String query = "INSERT INTO allele (acc, db_id, gf_acc, gf_db_id, biotype_acc, biotype_db_id, symbol, name) " +
-                "VALUES (:acc, :db_id, :gf_acc, :gf_db_id, :biotype_acc, :biotype_db_id, :symbol, :name)";
 
         for (Allele allele : alleles) {
             try {
@@ -245,10 +244,7 @@ public class CdaSqlUtils {
             } catch (DuplicateKeyException e) {
 
             } catch (Exception e) {
-                String message = "Error inserting allele " + allele + ": " + e.getLocalizedMessage() + ". Record skipped...";
-                logger.error(message);
-// FIXME
-//                throw new DataLoadException(message);
+
             }
         }
 
@@ -3149,6 +3145,8 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
      *
      * @throws DataLoadException if the insert fails for any reason
    	 */
+    // FIXME
+    @Deprecated
    	public Allele createAndInsertAllele(String alleleSymbol, GenomicFeature gene) throws DataLoadException {
 
         if (alleleSymbol == null || alleleSymbol.isEmpty()) {

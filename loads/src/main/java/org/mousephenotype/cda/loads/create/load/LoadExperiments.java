@@ -16,8 +16,6 @@
 
 package org.mousephenotype.cda.loads.create.load;
 
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringUtils;
 import org.mousephenotype.cda.db.pojo.BiologicalSample;
@@ -284,13 +282,9 @@ public class LoadExperiments implements CommandLineRunner {
 
                     // Drain the queue so we don't run out of memory
                     while (true) {
-                        Integer done = 0;
                         Integer left = 0;
                         for (Future<Experiment> future : tasks) {
-                            if (future.isDone()) {
-                                done += 1;
-
-                            } else {
+                            if ( ! future.isDone()) {
                                 left += 1;
                             }
                         }
@@ -307,7 +301,7 @@ public class LoadExperiments implements CommandLineRunner {
         }
 
         // Drain the final set
-        if (ONE_AT_A_TIME) {
+        if ( ! ONE_AT_A_TIME) {
             logger.info("Processing final queue of " + tasks.size());
         }
         executor.shutdown();
@@ -319,7 +313,7 @@ public class LoadExperiments implements CommandLineRunner {
         // Print out the counts.
         List<List<String>> loadCounts = null;
         try {
-            loadCounts = cdaSqlUtils.getLoadCounts();   // This threw an uncategorized SQLException for SQL [SELECT COUNT(*) FROM experiment]; SQL state [null]; error code [0]; Connection has already been closed.
+            loadCounts = cdaSqlUtils.getLoadCounts();
         } catch (Exception e) {
             logger.warn(e.getLocalizedMessage());
             e.printStackTrace();
@@ -330,11 +324,12 @@ public class LoadExperiments implements CommandLineRunner {
         } else {
             List<String> headingList = Arrays.asList("experiment", "biological_sample", "live_sample", "procedure_meta_data", "observation", "categorical", "date_time", "image_record", "text", "time_series", "unidimensional");
             String       borderRow   = StringUtils.repeat("*", StringUtils.join(headingList, "    ").length() + 10);
-            String       countsRow   = "";
+            StringBuilder countsRow  = new StringBuilder();
             for (int i = 0; i < headingList.size(); i++) {
-                if (i > 0)
-                    countsRow += "    ";
-                countsRow += String.format("%" + headingList.get(i).length() + "." + headingList.get(i).length() + "s", loadCounts.get(1).get(i));
+                if (i > 0) {
+                    countsRow.append("    ");
+                }
+                countsRow.append(String.format("%" + headingList.get(i).length() + "." + headingList.get(i).length() + "s", loadCounts.get(1).get(i)));
             }
 
             System.out.println(borderRow);
@@ -483,7 +478,7 @@ public class LoadExperiments implements CommandLineRunner {
         String metadataGroup;
 
 
-        /**
+        /*
          * Some dcc europhenome colonies were incorrectly associated with EuroPhenome. Imits has the authoritative mapping
          * between colonyId and project and, for these incorrect colonies, overrides the dbId and phenotyping center to
          * reflect the real owner of the data, MGP. Remapping changes the experiment's project and datasourceShortName.
@@ -493,7 +488,7 @@ public class LoadExperiments implements CommandLineRunner {
             remapper.remap();
         }
 
-        /**
+        /*
          * Some centers submitting EuroPhenome legacy data used obsolete strain names that had to be hand-curated
          * to reflect the current name. The {@link StrainMapper} takes care of this remapping.
          * For example, the Akt2 specimen strains from the dcc are 129/SvEv, but must be remapped to 129S/SvEv. The
@@ -673,7 +668,7 @@ public class LoadExperiments implements CommandLineRunner {
             biologicalSamplePk = samplesMap.get(bioSampleKey).getId();
         }
 
-       /** Save procedure metadata into metadataCombined and metadataGroup:
+       /* Save procedure metadata into metadataCombined and metadataGroup:
         *
         * metadataCombined - All of a procedure's metadata parameters, in parameterDescription = value format. Each
         * metadata parameter is separated by a pair of colons. Each metadata lvalue is separated from its rvalue by " = ";
@@ -684,10 +679,13 @@ public class LoadExperiments implements CommandLineRunner {
         * parameters in the same format as <i>metadataCombined</i> above.</ul>
         */
         List<ProcedureMetadata> dccMetadataList = dccSqlUtils.getProcedureMetadata(dccExperiment.getDcc_procedure_pk());
-        if (dccMetadataList == null)
+        if (dccMetadataList == null) {
             dccMetadataList = new ArrayList<>();
-        ObservableList<String> metadataCombinedList = FXCollections.observableArrayList();
-        ObservableList<String> metadataGroupList = FXCollections.observableArrayList();
+        }
+
+        List<String> metadataCombinedList = new ArrayList<>();
+        List<String> metadataGroupList = new ArrayList<>();
+
         for (ProcedureMetadata metadata : dccMetadataList) {
             String parameterName = cdaParameterNameMap.get(metadata.getParameterID());
             metadataCombinedList.add(parameterName + " = " + metadata.getValue());
@@ -771,6 +769,12 @@ public class LoadExperiments implements CommandLineRunner {
             return;
         }
         for (MediaParameter mediaParameter : mediaParameterList) {
+            List<ProcedureMetadata> pms = dccSqlUtils.getMediaParameterProcedureMetadataAssociations(mediaParameter.getHjid());
+            mediaParameter.setProcedureMetadata(pms);
+
+            List<ParameterAssociation> pma = dccSqlUtils.getMediaParameterParameterAssociations(mediaParameter.getHjid());
+            mediaParameter.setParameterAssociation(pma);
+
             insertMediaParameter(dccExperiment, mediaParameter, experimentPk, dbId, biologicalSamplePk, phenotypingCenter, phenotypingCenterPk, missing);
         }
 
@@ -831,11 +835,12 @@ public class LoadExperiments implements CommandLineRunner {
                     List<ParameterAssociation> parms = dccSqlUtils.getSeriesMediaParameterValueParameterAssociations(value.getHjid());
                     value.setParameterAssociation(parms);
                 } catch (NullPointerException e) {
-
+                    logger.info("Could not add parameter associations for param HJID {}", value.getHjid());
                 }
 
                 // Wire in procedureMetadata associations
                 List<ProcedureMetadata> pms = dccSqlUtils.getSeriesMediaParameterValueProcedureMetadataAssociations(value.getHjid());
+                value.setProcedureMetadata(pms);
             }
 
             seriesMediaParameter.setValue(values);
@@ -923,7 +928,7 @@ public class LoadExperiments implements CommandLineRunner {
             dccExperiment.getPhenotypingCenter().equalsIgnoreCase("ICS") &&
             parameterStableId.equals("ESLIM_001_001_125") &&
             dccExperiment.getSpecimenId() != null &&
-            dccExperiment.getSex().equals(SexType.male) &&
+                dccExperiment.getSex().equals(SexType.male.getName()) &&
             simpleParameter.getValue().equals("present")
             ) {
 
@@ -1062,6 +1067,12 @@ public class LoadExperiments implements CommandLineRunner {
                 for (MediaFile mediaFile : mediaSection.getMediaFile()) {
                     String URI = mediaFile.getURI();
                     missing = (missing == 1 || (URI == null || URI.isEmpty() || URI.endsWith("/")) ? 1 : 0);
+
+                    List<ProcedureMetadata> pms = dccSqlUtils.getMediaFileProcedureMetadataAssociations(mediaFile.getHjid());
+                    mediaFile.setProcedureMetadata(pms);
+
+                    List<ParameterAssociation> pma = dccSqlUtils.getMediaFileParameterAssociations(mediaFile.getHjid());
+                    mediaFile.setParameterAssociation(pma);
 
                     try {
                         observationPk = cdaSqlUtils.insertObservation(

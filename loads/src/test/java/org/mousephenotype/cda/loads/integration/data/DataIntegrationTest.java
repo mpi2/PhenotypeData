@@ -105,36 +105,39 @@ public class DataIntegrationTest {
     private static boolean startServer = true;
     private static Server server;
 
-    private Thread thread;
-    @Before
-    public void before() {
-        if (startServer) {
-            startServer = false;
-            Runnable runnable = () -> {
 
-                try {
-                    Server.startWebServer(cdaDataSource.getConnection());
+    // Uncomment the code below to produce an in-memory h2 database browser.
 
-                    server = Server.createWebServer("-web");  // .start();
-                    server.start();
-                    System.out.println("URL: " + server.getURL());
-                    System.out.println("Port: " + server.getPort());
-                    Server.openBrowser(server.getURL());
-
-                } catch (Exception e) {
-                    System.out.println("Embedded h2 server failed to start: " + e.getLocalizedMessage());
-                    System.exit(1);
-                }
-            };
-
-            thread = new Thread(runnable);
-            thread.start();
-            try {
-                Thread.sleep(5000);
-            } catch (Exception e) {
-            }
-        }
-    }
+//    private Thread thread;
+//    @Before
+//    public void before() {
+//        if (startServer) {
+//            startServer = false;
+//            Runnable runnable = () -> {
+//
+//                try {
+//                    Server.startWebServer(cdaDataSource.getConnection());
+//
+//                    server = Server.createWebServer("-web");  // .start();
+//                    server.start();
+//                    System.out.println("URL: " + server.getURL());
+//                    System.out.println("Port: " + server.getPort());
+//                    Server.openBrowser(server.getURL());
+//
+//                } catch (Exception e) {
+//                    System.out.println("Embedded h2 server failed to start: " + e.getLocalizedMessage());
+//                    System.exit(1);
+//                }
+//            };
+//
+//            thread = new Thread(runnable);
+//            thread.start();
+//            try {
+//                Thread.sleep(5000);
+//            } catch (Exception e) {
+//            }
+//        }
+//    }
 
     /**
      * The intention of this test is to verify that the background strain is the same for control specimens as it is for

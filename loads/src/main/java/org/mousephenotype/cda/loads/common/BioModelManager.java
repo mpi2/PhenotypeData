@@ -207,10 +207,16 @@ public class BioModelManager {
 
         // STRAIN part
         String remappedBackgroundStrain = strainMapper.parseMultipleBackgroundStrainNames(colony.getBackgroundStrain());
-        Strain strain                   = strainsByNameMap.get(remappedBackgroundStrain);
+        Strain strain                   = cdaSqlUtils.getBackgroundStrain(colony.getBackgroundStrain());
         if (strain == null) {
             strain = strainMapper.createBackgroundStrain(remappedBackgroundStrain);
             cdaSqlUtils.insertStrain(strain);
+            if (strain == null) {
+                message = "Couldn't create strain '" + colony.getBackgroundStrain() + "'";
+                logger.error(message);
+                throw new DataLoadException(message);
+            }
+
             strainsByNameMap.put(strain.getName(), strain);
         }
         AccDbId strainAcc = new AccDbId(strain.getId().getAccession(), strain.getId().getDatabaseId());

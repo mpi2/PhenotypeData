@@ -16,9 +16,13 @@
 
 package org.mousephenotype.cda.loads.create.extract.cdabase;
 
+import joptsimple.OptionParser;
+import joptsimple.OptionSet;
 import org.mousephenotype.cda.db.utilities.SqlUtils;
 import org.mousephenotype.cda.loads.create.extract.cdabase.steps.*;
 import org.mousephenotype.cda.loads.exceptions.DataLoadException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobInstance;
@@ -63,6 +67,8 @@ public class ExtractCdabase implements CommandLineRunner {
     private StrainLoader           strainLoader;
     private PhenotypedColonyLoader phenotypedColonyLoader;
     private DataSource             cdabaseDataSource;
+    private Logger                 logger       = LoggerFactory.getLogger(this.getClass());
+    private boolean                skipDownload = false;
 
 
     @Inject
@@ -110,7 +116,27 @@ public class ExtractCdabase implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
+
+        initialise(args);
         runJobs();
+    }
+
+    private void initialise(String[] args) throws DataLoadException {
+
+        OptionParser parser = new OptionParser();
+
+        parser.allowsUnrecognizedOptions();
+
+        // parameter to indicate that the download step should be skipped.
+        parser.accepts("skipDownload");
+
+        OptionSet options = parser.parse(args);
+
+        if (options.has("skipDownload")) {
+            String message = "Skipping download step as requested.'";
+            logger.info(message);
+            skipDownload = true;
+        }
     }
 
 
@@ -127,26 +153,30 @@ public class ExtractCdabase implements CommandLineRunner {
             throw new DataLoadException("Unable to create Spring Batch tables.");
         }
 
-        Job[] jobs = new Job[]{
-                downloaderJob(),
-                dbLoaderJob()
-        };
+        ArrayList<Job> jobs = new ArrayList<>();
+        if ( ! skipDownload) {
+            jobs.add(downloaderJob());
+        }
+
+        jobs.add(dbLoaderJob());
+
         DateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
         String now = dateFormat.format(new Date());
 
-        for (int i = 0; i < jobs.length; i++) {
-            Job job = jobs[i];
+        int i = 0;
+        for (Job job : jobs) {
             try {
-                JobInstance instance = jobRepository.createJobInstance("flow_" + now + "_" + i, new JobParameters());
-                JobExecution execution = jobRepository.createJobExecution(instance, new JobParameters(), "jobExec_" + now + "_" + i);
+                JobInstance instance = jobRepository.createJobInstance("flow_" + now + "_" + job.getName(), new JobParameters());
+                JobExecution execution = jobRepository.createJobExecution(instance, new JobParameters(), "jobExec_" + now + "_" + job.getName());
                 job.execute(execution);
+
             } catch (Exception e) {
 
                 throw new DataLoadException(e);
             }
         }
 
-        return jobs;
+        return jobs.toArray(new Job[0]);
     }
 
     public Job downloaderJob() throws DataLoadException {
