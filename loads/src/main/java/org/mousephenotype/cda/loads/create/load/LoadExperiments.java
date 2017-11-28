@@ -488,6 +488,31 @@ public class LoadExperiments implements CommandLineRunner {
             remapper.remap();
         }
 
+        // Override the supplied 3i project with iMits version, if it's not a valid project identifier
+        if (dccExperiment.getDatasourceShortName().equals(CdaSqlUtils.THREEI) &&
+                ! cdaProject_idMap.containsKey(dccExperiment.getProject()))
+        {
+
+            // Set default project to MGP
+            // For now, also default the control mice to the MGP project
+            dccExperiment.setProject(CdaSqlUtils.MGP);
+
+            PhenotypedColony phenotypedColony = phenotypedColonyMap.get(dccExperiment.getColonyId());
+            if ((phenotypedColony == null) || (phenotypedColony.getColonyName() == null)) {
+                String errMsg = "Unable to get phenotypedColony for experiment samples for colonyId "
+                        + dccExperiment.getColonyId()
+                        + " to apply special 3i project remap rule. Rule NOT applied, defaulted to MGP project.";
+                missingColonyIds.add(errMsg);
+
+            } else {
+
+                // Override the project with that from the iMits record
+                if (phenotypedColony.getPhenotypingConsortium() != null && phenotypedColony.getPhenotypingConsortium().getName() != null) {
+                    dccExperiment.setProject(phenotypedColony.getPhenotypingConsortium().getName());
+                }
+            }
+        }
+
         /*
          * Some centers submitting EuroPhenome legacy data used obsolete strain names that had to be hand-curated
          * to reflect the current name. The {@link StrainMapper} takes care of this remapping.
@@ -632,7 +657,7 @@ public class LoadExperiments implements CommandLineRunner {
         }
 
 
-        /**
+        /*
          * Set colonyId, dateOfExperiment, and sequenceId. The source is different for line-level vs specimen-level:
          *
          * -------------------------------------------------------------------------------------------------
@@ -752,7 +777,7 @@ public class LoadExperiments implements CommandLineRunner {
             if (INCLUDE_DERIVED_PARAMETERS) {
                 insertSimpleParameter(dccExperiment, simpleParameter, experimentPk, dbId, biologicalSamplePk, missing);
             } else {
-                if ( ! derivedImpressParameters.contains(simpleParameter.getParameterID())) {
+                if ( ! derivedImpressParameters.contains(simpleParameter.getParameterID()) || simpleParameter.getParameterID().equals("MGP_ANA_002_001")) {
                     insertSimpleParameter(dccExperiment, simpleParameter, experimentPk, dbId, biologicalSamplePk, missing);
                 }
             }
@@ -1125,7 +1150,7 @@ public class LoadExperiments implements CommandLineRunner {
         for (SeriesMediaParameterValue value : seriesMediaParameter.getValue()) {
 
             String URI = value.getURI();
-            missing = (observationType == ObservationType.image_record && (URI == null || URI.isEmpty() || URI.endsWith("/")) ? 1 : missing);
+            missing = (URI == null || URI.isEmpty() || URI.endsWith("/") ? 1 : missing);
 
             int observationPk;
             try {

@@ -773,7 +773,9 @@ public class DccSqlUtils {
         return list;
     }
 
-
+    /**
+     * Series Media Parameter Value associations
+     */
     public List<ParameterAssociation> getSeriesMediaParameterValueParameterAssociations(long seriesMediaParameterValuepk) {
         String query = "SELECT pa.* " +
                 "FROM seriesMediaParameterValue_parameterAssociation smpvpa " +
@@ -798,6 +800,65 @@ public class DccSqlUtils {
 
         return npJdbcTemplate.query(query, parameterMap, new ProcedureMetadataRowMapper());
     }
+
+
+    /**
+     * Media file associations
+     */
+    public List<ParameterAssociation> getMediaFileParameterAssociations(long mediaFilepk) {
+        String query = "SELECT pa.* " +
+                "FROM mediaParameter_parameterAssociation mppa " +
+                "JOIN parameterAssociation pa ON pa.pk = mppa.parameterAssociation_pk " +
+                "where mppa.mediaFile_pk = :pk " ;
+
+        Map<String, Object> parameterMap = new HashMap<>();
+        parameterMap.put("pk", mediaFilepk);
+
+        return npJdbcTemplate.query(query, parameterMap, new ParameterAssociationRowMapper());
+    }
+
+
+    public List<ProcedureMetadata> getMediaFileProcedureMetadataAssociations(long mediaFilepk) {
+        String query = "SELECT pm.* " +
+                "FROM mediaFile_procedureMetadata mfpm " +
+                "JOIN procedureMetadata pm ON pm.pk = mfpm.procedureMetadata_pk " +
+                "WHERE mfpm.mediaFile_pk = :pk " ;
+
+        Map<String, Object> parameterMap = new HashMap<>();
+        parameterMap.put("pk", mediaFilepk);
+
+        return npJdbcTemplate.query(query, parameterMap, new ProcedureMetadataRowMapper());
+    }
+
+
+    /**
+     * Media Parameter associations
+     */
+    public List<ParameterAssociation> getMediaParameterParameterAssociations(long mediaParameterpk) {
+        String query = "SELECT pa.* " +
+                "FROM mediaParameter_parameterAssociation mppa " +
+                "JOIN parameterAssociation pa ON pa.pk = mppa.parameterAssociation_pk " +
+                "where mppa.mediaFile_pk = :pk " ;
+
+        Map<String, Object> parameterMap = new HashMap<>();
+        parameterMap.put("pk", mediaParameterpk);
+
+        return npJdbcTemplate.query(query, parameterMap, new ParameterAssociationRowMapper());
+    }
+
+
+    public List<ProcedureMetadata> getMediaParameterProcedureMetadataAssociations(long mediaParameterpk) {
+        String query = "SELECT pm.* " +
+                "FROM mediaParameter_procedureMetadata mppm " +
+                "JOIN procedureMetadata pm ON pm.pk = mppm.procedureMetadata_pk " +
+                "WHERE mppm.mediaParameter_pk = :pk " ;
+
+        Map<String, Object> parameterMap = new HashMap<>();
+        parameterMap.put("pk", mediaParameterpk);
+
+        return npJdbcTemplate.query(query, parameterMap, new ProcedureMetadataRowMapper());
+    }
+
 
 
     private class SeriesParameterEx {
@@ -1678,7 +1739,7 @@ public class DccSqlUtils {
             }
 
         } catch (DuplicateKeyException dke) {
-            logger.info("IGNORED DUPLICATE INSERT to ontologyParameterTerm for ontologyParameterTerm {}, ontologyParameterPk {}, parameterId {}, filename {}",
+            logger.debug("IGNORED DUPLICATE INSERT to ontologyParameterTerm for ontologyParameterTerm {}, ontologyParameterPk {}, parameterId {}, filename {}",
                          ontologyParameterTerm, ontologyParameterPk, ontologyParameter.getParameterID(), filename);
         }
 
@@ -2524,7 +2585,8 @@ public class DccSqlUtils {
 
         } catch (Exception e) {
             e.printStackTrace();
-            throw new RuntimeException("INSERT of procedureMetadata(" + procedureMetadata.getParameterID() + ", " + procedureMetadata.getSequenceID() + " FAILED: " + e.getLocalizedMessage());
+            String s = String.format("INSERT INTO procedureMetadata (parameterId, parameterStatus, sequenceId, value) VALUES (%s, %s, %s, %s)", procedureMetadata.getParameterID(), procedureMetadata.getParameterStatus(), procedureMetadata.getSequenceID(), procedureMetadata.getValue());
+            throw new RuntimeException(s + " FAILED: " + e.getLocalizedMessage());
         }
     }
 

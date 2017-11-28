@@ -80,6 +80,7 @@ public class CdaSqlUtils {
 
     public static final String EUROPHENOME = "EuroPhenome";         // The datasourceShortName for dcc_europhenome_final loads
     public static final String MGP         = "MGP";                 // The MGP project name
+    public static final String THREEI      = "3i";                  // The 3i project name
 
 
     public static final String OBSERVATION_INSERT = "INSERT INTO observation (" +
@@ -215,6 +216,8 @@ public class CdaSqlUtils {
 
         try {
             jdbcCda.update(query, parameterMap);
+        } catch (DuplicateKeyException e) {
+            throw e;
         } catch (Exception e) {
             String message = "Couldn't create allele '" + parameterMap.get("symbol") + "' Reason: " + e.getLocalizedMessage();
 
@@ -244,13 +247,12 @@ public class CdaSqlUtils {
             } catch (DuplicateKeyException e) {
 
             } catch (Exception e) {
-
+                logger.error("Error inserting allele {}. Reason: {}. Record skipped...", allele, e.getLocalizedMessage());
             }
         }
 
         return count;
     }
-
 
     /**
      *
@@ -269,55 +271,6 @@ public class CdaSqlUtils {
 
         return bioSamplesMap;
     }
-
-
-    /**
-     *
-     * @return a map of {@link BiologicalModel}, keyed by {@link BioModelKey}
-     */
-    public Map<BioModelKey, BiologicalModel> getBiologicalModelsMapByBioModelKey() {
-
-        Map<BioModelKey, BiologicalModel> map = new HashMap<>();
-
-        String query = "SELECT \n" +
-                "  bm.id, bm.db_id, edbBm.short_name, bm.allelic_composition, bm.genetic_background, bm.zygosity,\n" +
-                "  bs.external_id,\n" +
-                "  bs.organisation_id,\n" +
-                "  edbBm.short_name\n" +
-                "FROM biological_model bm\n" +
-                "JOIN biological_model_sample bms ON bms.biological_model_id = bm.id\n" +
-                "JOIN biological_sample bs ON bs.id = bms.biological_sample_id\n" +
-                "JOIN external_db edbBs ON edbBs.id = bs.db_id\n" +
-                "JOIN external_db edbBm ON edbBm.id = bm.db_id";
-
-        List<Map<String, Object>> list = jdbcCda.queryForList(query, new HashMap<>());
-        for (Map<String, Object> item : list) {
-            String          sampleExternalId;
-            int             phenotypingCenterPk;
-            String          databaseShortName;
-            BiologicalModel bm = new BiologicalModel();
-
-            sampleExternalId = item.get("external_id").toString();
-            phenotypingCenterPk = new Integer(item.get("organisation_id").toString());
-            databaseShortName = item.get("short_name").toString();
-
-            bm.setId(new Integer(item.get("id").toString()));
-            Datasource ds = new Datasource();
-            ds.setId(new Integer(item.get("db_id").toString()));
-            ds.setShortName(item.get("short_name").toString());
-            bm.setDatasource(ds);
-            bm.setAllelicComposition(item.get("allelic_composition").toString());
-            bm.setGeneticBackground(item.get("genetic_background").toString());
-            Object oZygosity = item.get("zygosity");
-            bm.setZygosity(oZygosity == null ? "" : oZygosity.toString());
-
-            BioModelKey key = new BioModelKey(sampleExternalId, phenotypingCenterPk, databaseShortName, bm.getZygosity());
-            map.put(key, bm);
-        }
-
-        return map;
-    }
-
 
     /**
      *
@@ -618,6 +571,7 @@ public class CdaSqlUtils {
      * @param externalDbShortName a name matching the external_db.short_name field
      * @return the db_id matching short_name
      */
+    // FIXME  Called only by old version of SampleLoader
     @Deprecated
     public int getExternalDbId(String externalDbShortName) {
         Map<String, Object> parameterMap = new HashMap<>();
@@ -733,7 +687,7 @@ public class CdaSqlUtils {
         return biologicalModelId;
     }
 
-    /**
+    /*
      * Insert into the biological_model_sample table
      * @param biologicalModelId
      * @param biologicalSampleId
@@ -1901,21 +1855,18 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
                 logger.warn("Insert MediaSampleParameter failed for parameterSource {}. Marking it as missing ...", parameterSource);
                 updateObservationMissingFlag(observationPk, true);
             } else {
-                // Save any parameter associations.
+                // Save parameter associations
                 for (ParameterAssociation parameterAssociation : mediaFile.getParameterAssociation()) {
                     int parameterAssociationPk = insertParameterAssociation(observationPk, parameterAssociation, simpleParameterList, ontologyParameterList);
 
-                    // Save any Dimensions.
+                    // Save Dimensions
                     for (Dimension dimension : parameterAssociation.getDim()) {
                         insertDimension(parameterAssociationPk, dimension);
                     }
                 }
 
-                // Save any procedure metadata.
-                for (ProcedureMetadata procedureMetadata : mediaFile.getProcedureMetadata()) {
-                    insertProcedureMetadata(mediaFile.getProcedureMetadata(), dccExperimentDTO.getProcedureId(),
-                                            experimentPk, observationPk);
-                }
+                // Save procedure metadata
+                insertProcedureMetadata(mediaFile.getProcedureMetadata(), dccExperimentDTO.getProcedureId(), experimentPk, observationPk);
             }
         } else {
             logger.debug("Image record not loaded (missing = 1). parameterStableId {}, URI {}" + parameterStableId,  URI);
@@ -2186,21 +2137,43 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
                              seriesMediaParameterValue.getFileType(), phenotypingCenterPk, fullResolutionFilePath, e.getLocalizedMessage());
             }
             if (count == 0) {
-                logger.warn("Insert MediaParameter failed for parameterSource {}. Marking it as missing ...", parameterSource);
+                logger.warn("Insert SeriesMediaParameter failed for parameterSource {}. Marking it as missing ...", parameterSource);
                 updateObservationMissingFlag(observationPk, true);
             } else {
 
                 try {
-                    // Save any parameter associations.
+                    // Save parameter associations
                     if (seriesMediaParameterValue.getParameterAssociation() != null && seriesMediaParameterValue.getParameterAssociation().size() > 0) {
 
                         for (ParameterAssociation parameterAssociation : seriesMediaParameterValue.getParameterAssociation()) {
-                            int parameterAssociationPk = insertParameterAssociation(observationPk, parameterAssociation, simpleParameterList, ontologyParameterList);
+                            Integer parameterAssociationPk = null;
+                            try {
+                                parameterAssociationPk = insertParameterAssociation(observationPk, parameterAssociation, simpleParameterList, ontologyParameterList);
+                            } catch (DataIntegrityViolationException e) {
+                                String value = "";
+                                String associatedParameter = "";
+                                for (SimpleParameter s : simpleParameterList) {
+                                    if (s.getParameterID().equals(parameterAssociation.getParameterID())) {
+                                        value = s.getValue();
+                                        associatedParameter=s.getParameterID();
+                                        break;
+                                    }
+                                }
+                                logger.debug("Duplicate parameter association for specimen ID: {}, center: {}, parameterAssociation: {}->{}, value: {}",
+                                        dccExperimentDTO.getSpecimenId(),
+                                        dccExperimentDTO.getPhenotypingCenter(),
+                                        parameterStableId,
+                                        associatedParameter,
+                                        value);
+                            }
 
-                            // Save any Dimensions.
-                            if (parameterAssociation.getDim() != null && parameterAssociation.getDim().size() > 0) {
-                                for (Dimension dimension : parameterAssociation.getDim()) {
-                                    insertDimension(parameterAssociationPk, dimension);
+                            if (parameterAssociationPk != null) {
+
+                                // Save Dimensions
+                                if (parameterAssociation.getDim() != null && parameterAssociation.getDim().size() > 0) {
+                                    for (Dimension dimension : parameterAssociation.getDim()) {
+                                        insertDimension(parameterAssociationPk, dimension);
+                                    }
                                 }
                             }
                         }
@@ -2211,11 +2184,8 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
                             seriesMediaParameterValue.getFileType(), phenotypingCenterPk, fullResolutionFilePath, e.getLocalizedMessage());
                 }
 
-                // Save any procedure metadata.
-                for (ProcedureMetadata procedureMetadata : seriesMediaParameterValue.getProcedureMetadata()) {
-                    insertProcedureMetadata(seriesMediaParameterValue.getProcedureMetadata(), dccExperimentDTO.getProcedureId(),
-                                            experimentPk, observationPk);
-                }
+                // Save any procedure metadata
+                insertProcedureMetadata(seriesMediaParameterValue.getProcedureMetadata(), dccExperimentDTO.getProcedureId(), experimentPk, observationPk);
             }
         } else {
             logger.debug("Image record not loaded: " + seriesMediaParameterValue.getURI());
@@ -2416,33 +2386,27 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
         parameterMap.put("parameterId", parameterAssociation.getParameterID());
         parameterMap.put("sequenceId", parameterAssociation.getSequenceID());
 
-        // set the parameter association value here. It is always a
-        // seriesParameter or Ontology so not multiple values are allowed.
-        // Loop through simple parameters (but not ontology parameters as they
-        // don't have values) to get the value for this parameterAssociation and get
-        // the value for it.
+        // Set the parameter association value. It is always a
+        // SimpleParameter and/or multiple OntologyParameters where multiple values are allowed.
+        // Loop through parameters to get the values for this parameterAssociation and if
+        // multiple ontology values, combine into a comma separated list.
         String value = null;
         for (SimpleParameter sp : simpleParameterList) {
-            String paramStableId = sp.getParameterID();                             // parameter stable id
+            String paramStableId = sp.getParameterID();
             if (paramStableId.equals(parameterAssociation.getParameterID())) {
                 value = sp.getValue();
+                break;
             }
         }
         for (OntologyParameter sp : ontologyParameterList) {
-            String paramStableId = sp.getParameterID();                             // parameter stable id
+            String paramStableId = sp.getParameterID();
             if (paramStableId.equals(parameterAssociation.getParameterID())) {
-                for (String term : sp.getTerm()) {
-                    System.err.println("ontology parameter in parameterAssociation not storing these yet but if they are here we should! term has values in them term=" + term);
+                if (value != null) {
+                    value +=","+StringUtils.join(sp.getTerm(), ",");
+                } else {
+                    value = StringUtils.join(sp.getTerm(), ",");
                 }
-                value = org.apache.commons.lang.StringUtils.join(sp.getTerm(), ",");
-            }
-        }
-
-        if (value != null) {
-            if (value.length() > 45) {
-                String trimmedValue = StringUtils.left(value, 44);
-                logger.info("Trimming parameterAssociationValue '{}' to 44 characters ('{}')", value, trimmedValue);
-                value = trimmedValue;
+                break;
             }
         }
 
@@ -2512,8 +2476,6 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
 
             } catch (DuplicateKeyException e) {
 
-            } catch (DataIntegrityViolationException e) {
-                logger.error(e.getLocalizedMessage() + " phenotypedColony:\n" + phenotypedColony);
             }
         }
 
@@ -2985,7 +2947,7 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
             return allele;
         }
     }
-
+// FIXME - can this be deleted?
     public class BiologicalModelRowMapper implements RowMapper<BiologicalModel> {
 
         /**
