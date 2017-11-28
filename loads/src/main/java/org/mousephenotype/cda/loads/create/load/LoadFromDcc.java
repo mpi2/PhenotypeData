@@ -20,8 +20,6 @@ import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import org.apache.commons.lang3.StringUtils;
 import org.mousephenotype.cda.db.utilities.SqlUtils;
-import org.mousephenotype.cda.loads.create.load.steps.ExperimentLoader;
-import org.mousephenotype.cda.loads.create.load.steps.SampleLoader;
 import org.mousephenotype.cda.loads.exceptions.DataLoadException;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.Job;
@@ -155,42 +153,42 @@ public class LoadFromDcc implements CommandLineRunner {
         boolean loadEurophenome = false;
         boolean loadDcc = false;
         List<String> sources = (List<String>) options.valuesOf("source");
-        for (String source : sources) {
-            if (source.equals("europhenome")) {
-                loadEurophenome = true;
-            } else if (source.equals("dcc")) {
-                loadDcc = true;
-            } else {
-                String message = "Invalid source '" + source + "'. Valid source values are 'europhenome' and 'dcc'.";
-                logger.error(message);
-                throw new DataLoadException(message);
-            }
-        }
-
-        // Process in this order: europhenome_specimens, europhenome_experiments, dcc_specimens, dcc_experiments
-        if (loadEurophenome && loadSpecimens)
-            jobs.add(processEurophenomeSpecimens());
-
-        if (loadEurophenome && loadExperiments)
-            jobs.add(processEurophenomeExperiments());
-
-        if (loadDcc && loadSpecimens)
-            jobs.add(processDccSpecimens());
-
-        if (loadDcc && loadExperiments)
-            jobs.add(processDccExperiments());
-
-        List<String> parts = new ArrayList<>();
-        if (loadEurophenome && loadSpecimens)
-            parts.add("europhenome specimens");
-        if (loadDcc && loadSpecimens)
-            parts.add("dcc specimens");
-        if (loadEurophenome && loadExperiments)
-            parts.add("europhenome experiments");
-        if (loadDcc && loadExperiments)
-            parts.add("dcc experiments");
-
-        logger.info("processing {}", StringUtils.join(parts, ", "));
+//        for (String source : sources) {
+//            if (source.equals("europhenome")) {
+//                loadEurophenome = true;
+//            } else if (source.equals("dcc")) {
+//                loadDcc = true;
+//            } else {
+//                String message = "Invalid source '" + source + "'. Valid source values are 'europhenome' and 'dcc'.";
+//                logger.error(message);
+//                throw new DataLoadException(message);
+//            }
+//        }
+//
+//        // Process in this order: europhenome_specimens, europhenome_experiments, dcc_specimens, dcc_experiments
+//        if (loadEurophenome && loadSpecimens)
+//            jobs.add(processEurophenomeSpecimens());
+//
+//        if (loadEurophenome && loadExperiments)
+//            jobs.add(processEurophenomeExperiments());
+//
+//        if (loadDcc && loadSpecimens)
+//            jobs.add(processDccSpecimens());
+//
+//        if (loadDcc && loadExperiments)
+//            jobs.add(processDccExperiments());
+//
+//        List<String> parts = new ArrayList<>();
+//        if (loadEurophenome && loadSpecimens)
+//            parts.add("europhenome specimens");
+//        if (loadDcc && loadSpecimens)
+//            parts.add("dcc specimens");
+//        if (loadEurophenome && loadExperiments)
+//            parts.add("europhenome experiments");
+//        if (loadDcc && loadExperiments)
+//            parts.add("dcc experiments");
+//
+//        logger.info("processing {}", StringUtils.join(parts, ", "));
     }
 
 
@@ -225,51 +223,51 @@ public class LoadFromDcc implements CommandLineRunner {
         return jobs;
     }
 
-    public Job processEurophenomeSpecimens() throws DataLoadException {
-
-        // Specimens to Samples
-        Flow samplesFlow = new FlowBuilder<Flow>("processEurophenomeSpecimensFlow").from(sampleDccEurophenomeLoader).end();
-
-        return jobBuilderFactory.get("processEurophenomeSpecimensJob")
-                .incrementer(new RunIdIncrementer())
-                .start(samplesFlow)
-                .end()
-                .build();
-    }
-
-    public Job processEurophenomeExperiments() throws DataLoadException {
-
-        // Dcc Experiments to Cda Experiments
-        Flow experimentsFlow = new FlowBuilder<Flow>("processEurophenomeExperimentsFlow").from(experimentDccEurophenomeLoader).end();
-
-        return jobBuilderFactory.get("processEurophenomeExperimentsJob")
-                .incrementer(new RunIdIncrementer())
-                .start(experimentsFlow)
-                .end()
-                .build();
-    }
-
-    public Job processDccSpecimens() throws DataLoadException {
-
-        // Specimens to Samples
-        Flow samplesFlow = new FlowBuilder<Flow>("processDccSpecimensFlow").from(sampleDccLoader).end();
-
-        return jobBuilderFactory.get("processDccSpecimensJob")
-                .incrementer(new RunIdIncrementer())
-                .start(samplesFlow)
-                .end()
-                .build();
-    }
-
-    public Job processDccExperiments() throws DataLoadException {
-
-        // Dcc Experiments to Cda Experiments
-        Flow experimentsFlow = new FlowBuilder<Flow>("processDccExperimentsFlow").from(experimentDccLoader).end();
-
-        return jobBuilderFactory.get("processDccExperimentsJob")
-                .incrementer(new RunIdIncrementer())
-                .start(experimentsFlow)
-                .end()
-                .build();
-    }
+//    public Job processEurophenomeSpecimens() throws DataLoadException {
+//
+//        // Specimens to Samples
+//        Flow samplesFlow = new FlowBuilder<Flow>("processEurophenomeSpecimensFlow").from(sampleDccEurophenomeLoader).end();
+//
+//        return jobBuilderFactory.get("processEurophenomeSpecimensJob")
+//                .incrementer(new RunIdIncrementer())
+//                .start(samplesFlow)
+//                .end()
+//                .build();
+//    }
+//
+//    public Job processEurophenomeExperiments() throws DataLoadException {
+//
+//        // Dcc Experiments to Cda Experiments
+//        Flow experimentsFlow = new FlowBuilder<Flow>("processEurophenomeExperimentsFlow").from(experimentDccEurophenomeLoader).end();
+//
+//        return jobBuilderFactory.get("processEurophenomeExperimentsJob")
+//                .incrementer(new RunIdIncrementer())
+//                .start(experimentsFlow)
+//                .end()
+//                .build();
+//    }
+//
+//    public Job processDccSpecimens() throws DataLoadException {
+//
+//        // Specimens to Samples
+//        Flow samplesFlow = new FlowBuilder<Flow>("processDccSpecimensFlow").from(sampleDccLoader).end();
+//
+//        return jobBuilderFactory.get("processDccSpecimensJob")
+//                .incrementer(new RunIdIncrementer())
+//                .start(samplesFlow)
+//                .end()
+//                .build();
+//    }
+//
+//    public Job processDccExperiments() throws DataLoadException {
+//
+//        // Dcc Experiments to Cda Experiments
+//        Flow experimentsFlow = new FlowBuilder<Flow>("processDccExperimentsFlow").from(experimentDccLoader).end();
+//
+//        return jobBuilderFactory.get("processDccExperimentsJob")
+//                .incrementer(new RunIdIncrementer())
+//                .start(experimentsFlow)
+//                .end()
+//                .build();
+//    }
 }

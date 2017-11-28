@@ -17,19 +17,17 @@
 package org.mousephenotype.cda.loads.integration.data;
 
 import org.h2.tools.Server;
-import org.junit.*;
+import org.junit.Assert;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.loads.common.CdaSqlUtils;
 import org.mousephenotype.cda.loads.common.DccSqlUtils;
 import org.mousephenotype.cda.loads.create.extract.dcc.ExtractDccExperiments;
 import org.mousephenotype.cda.loads.create.extract.dcc.ExtractDccSpecimens;
-import org.mousephenotype.cda.loads.create.load.LoadExperiments;
-import org.mousephenotype.cda.loads.create.load.LoadSpecimens;
+import org.mousephenotype.cda.loads.create.load.ExperimentLoader;
+import org.mousephenotype.cda.loads.create.load.SampleLoader;
 import org.mousephenotype.cda.loads.integration.data.config.TestConfig;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.IntegrationTest;
-import org.springframework.boot.test.SpringApplicationConfiguration;
-import org.springframework.boot.test.WebIntegrationTest;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.core.io.Resource;
@@ -37,7 +35,6 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
 
 import javax.sql.DataSource;
 import java.util.ArrayList;
@@ -94,10 +91,10 @@ public class DataIntegrationTest {
     private ExtractDccExperiments extractDccExperiments;
 
     @Autowired
-    private LoadSpecimens loadSpecimens;
+    private SampleLoader sampleLoader;
 
     @Autowired
-    private LoadExperiments loadExperiments;
+    private ExperimentLoader experimentLoader;
 
     @Autowired
     private DataSource cdaDataSource;
@@ -180,11 +177,11 @@ public class DataIntegrationTest {
         System.out.println("extractDccExperiments");
         extractDccExperiments.run(extractExperimentArgs);
 
-        System.out.println("loadSpecimens");
-        loadSpecimens.run(loadArgs);
+        System.out.println("sampleLoader");
+        sampleLoader.run(loadArgs);
 
-        System.out.println("loadExperiments");
-        loadExperiments.run(loadArgs);
+        System.out.println("experimentLoader");
+        experimentLoader.run(loadArgs);
 
         List<List<String>> results = getSpecimenStrainAccs();
         List<String> controlList = results.get(0);

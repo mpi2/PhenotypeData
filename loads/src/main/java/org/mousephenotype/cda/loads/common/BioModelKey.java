@@ -19,67 +19,48 @@ package org.mousephenotype.cda.loads.common;
 /**
  * 2017-10-09 (mrelac)
  *
- * This class encapsulates the components of a biological model lookup key.
+ * This class encapsulates the components of a biological model lookup key, which are:
+ * <ul>
+ *     <li>datasourceShortName</li>
+ *     <li>phenotypingCenterPrimaryKey</li>
+ *     <li>strainAccessionId</li>
+ *     <li>geneAccessionId (will be null/empty for controls)</li>
+ *     <li>alleleAccessionId (will be null/empty for controls)</li>
+ *     <li>zygosity</li>
+ * </ul>
  */
 
 public class BioModelKey {
 
-    private String specimenId;
-    private int    phenotypingCenterPk;
     private String datasourceShortName;
+    private int    phenotypingCenterPk;
+    private String strainAccessionId;
     private String zygosity;
+    private String geneAccessionId;
+    private String alleleAccessionId;
 
-
-    public BioModelKey(String specimenId, int phenotypingCenterPk, String datasourceShortName, String zygosity) {
-        this.specimenId = specimenId;
-        this.phenotypingCenterPk = phenotypingCenterPk;
-        this.datasourceShortName = datasourceShortName;
-        this.zygosity = zygosity;
-    }
 
     /**
-     * Create and return a key that uniquely identifies a biological model
+     * Creates a {@link BioModelKey} instance from the given parameters that uniquely identifies a biological model.
      *
-     * @param specimenId the specimen id (also known as external_id or stableId). Not necessarily unique in itself amongst all centers.
-     * @param phenotypingCenterPk the phenotyping center primary key (also known as the sample organisation key)
-     * @param datasourceShortName the data source (e.g. EuroPhenome, WTSI, etc)
-     * @param zygosity the specimen's zygosity
+     * NOTE: This method is intended to be called by the {@link BioModelManager} and not by any other load code. The
+     * {@link BioModelManager} performs critical strain remapping transformations. Callers wishing to create a
+     * {@link BioModelKey} should use the {@link BioModelManager} {@code createMutantKey}() and {@code createControlKey}()
+     * methods instead, which have a much simpler interface and perform the required strain remappings.
      *
-     * @return a key that uniquely identifies a model
+     * @param datasourceShortName
+     * @param phenotypingCenterPk
+     * @param strainAccessionId
+     * @param geneAccessionId
+     * @param alleleAccessionId
+     * @param zygosity
      */
-    public static BioModelKey make(String specimenId, Integer phenotypingCenterPk, String datasourceShortName, String zygosity) {
-        return new BioModelKey(specimenId, phenotypingCenterPk, datasourceShortName, zygosity);
-    }
-
-    public String getSpecimenId() {
-        return specimenId;
-    }
-
-    public void setSpecimenId(String specimenId) {
-        this.specimenId = specimenId;
-    }
-
-    public int getPhenotypingCenterPk() {
-        return phenotypingCenterPk;
-    }
-
-    public void setPhenotypingCenterPk(int phenotypingCenterPk) {
-        this.phenotypingCenterPk = phenotypingCenterPk;
-    }
-
-    public String getDatasourceShortName() {
-        return datasourceShortName;
-    }
-
-    public void setDatasourceShortName(String datasourceShortName) {
+    public BioModelKey(String datasourceShortName, int phenotypingCenterPk, String strainAccessionId, String geneAccessionId, String alleleAccessionId, String zygosity) {
         this.datasourceShortName = datasourceShortName;
-    }
-
-    public String getZygosity() {
-        return zygosity;
-    }
-
-    public void setZygosity(String zygosity) {
+        this.phenotypingCenterPk = phenotypingCenterPk;
+        this.strainAccessionId = strainAccessionId;
+        this.geneAccessionId = (geneAccessionId == null ? "" : geneAccessionId);
+        this.alleleAccessionId = (alleleAccessionId == null ? "" : alleleAccessionId);
         this.zygosity = zygosity;
     }
 
@@ -97,6 +78,6 @@ public class BioModelKey {
 
     @Override
     public String toString() {
-        return specimenId + "_" + phenotypingCenterPk + "_" + datasourceShortName + "_" + zygosity;
+        return datasourceShortName + "_" + phenotypingCenterPk + "_" + strainAccessionId + "_" + geneAccessionId + "_" + alleleAccessionId + "_" + zygosity;
     }
 }

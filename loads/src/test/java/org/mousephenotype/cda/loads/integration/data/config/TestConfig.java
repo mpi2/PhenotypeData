@@ -19,8 +19,8 @@ package org.mousephenotype.cda.loads.integration.data.config;
 import org.mousephenotype.cda.loads.common.config.DataSourcesConfigApp;
 import org.mousephenotype.cda.loads.create.extract.dcc.ExtractDccExperiments;
 import org.mousephenotype.cda.loads.create.extract.dcc.ExtractDccSpecimens;
-import org.mousephenotype.cda.loads.create.load.LoadExperiments;
-import org.mousephenotype.cda.loads.create.load.LoadSpecimens;
+import org.mousephenotype.cda.loads.create.load.ExperimentLoader;
+import org.mousephenotype.cda.loads.create.load.SampleLoader;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -146,12 +146,12 @@ public class TestConfig extends DataSourcesConfigApp implements InitializingBean
     }
 
     @Bean
-    public LoadSpecimens loadSamples() {
-        return new LoadSpecimens(jdbcCda, cdaSqlUtils(), dccSqlUtils());
+    public SampleLoader sampleLoader() {
+        return new SampleLoader(jdbcCda, cdaSqlUtils(), dccSqlUtils());
     }
 
     @Bean
-    public LoadExperiments loadExperiments() {
-        return new LoadExperiments(jdbcCda, cdaSqlUtils(), dccSqlUtils());
+    public ExperimentLoader experimentLoader() {
+        return new ExperimentLoader(jdbcCda, cdaSqlUtils(), dccSqlUtils());
     }
 }

@@ -280,39 +280,59 @@ public class CdaSqlUtils {
 
         Map<BioModelKey, Integer> map = new HashMap<>();
 
-        String query = "SELECT \n" +
+        String query =
+                "SELECT\n" +
                 "  bm.id, bm.db_id, edbBm.short_name, bm.allelic_composition, bm.genetic_background, bm.zygosity,\n" +
-                "  bs.external_id,\n" +
-                "  bs.organisation_id,\n" +
-                "  edbBm.short_name\n" +
+                "  bms.strain_acc,\n" +
+                "  bmgf.gf_acc,\n" +
+                "  bma.allele_acc\n" +
                 "FROM biological_model bm\n" +
-                "JOIN biological_model_sample bms ON bms.biological_model_id = bm.id\n" +
-                "JOIN biological_sample bs ON bs.id = bms.biological_sample_id\n" +
-                "JOIN external_db edbBs ON edbBs.id = bs.db_id\n" +
+                "           JOIN biological_model_strain          bms  ON bms. biological_model_id = bm.id\n" +
+                "LEFT OUTER JOIN biological_model_genomic_feature bmgf ON bmgf.biological_model_id = bm.id\n" +
+                "LEFT OUTER JOIN biological_model_allele          bma  ON bma. biological_model_id = bm.id\n" +
                 "JOIN external_db edbBm ON edbBm.id = bm.db_id";
 
         List<Map<String, Object>> list = jdbcCda.queryForList(query, new HashMap<>());
         for (Map<String, Object> item : list) {
-            String          sampleExternalId;
-            int             phenotypingCenterPk;
-            String          databaseShortName;
+            int    phenotypingCenterPk;
+            String databaseShortName;
+            String strainAccessionId;
+            String geneAccessionId;
+            String alleleAccessionId;
+            String zygosity;
+
             BiologicalModel bm = new BiologicalModel();
 
-            sampleExternalId = item.get("external_id").toString();
-            phenotypingCenterPk = new Integer(item.get("organisation_id").toString());
-            databaseShortName = item.get("short_name").toString();
-
-            bm.setId(new Integer(item.get("id").toString()));
             Datasource ds = new Datasource();
             ds.setId(new Integer(item.get("db_id").toString()));
-            ds.setShortName(item.get("short_name").toString());
+            databaseShortName = item.get("short_name").toString();
+            ds.setShortName(databaseShortName);
+
+            bm.setId(new Integer(item.get("id").toString()));
             bm.setDatasource(ds);
             bm.setAllelicComposition(item.get("allelic_composition").toString());
             bm.setGeneticBackground(item.get("genetic_background").toString());
             Object oZygosity = item.get("zygosity");
-            bm.setZygosity(oZygosity == null ? "" : oZygosity.toString());
+            zygosity = oZygosity == null ? "" : oZygosity.toString();
+            bm.setZygosity(zygosity);
 
-            BioModelKey key = new BioModelKey(sampleExternalId, phenotypingCenterPk, databaseShortName, bm.getZygosity());
+            strainAccessionId = item.get("strain_acc").toString();
+            phenotypingCenterPk = new Integer(item.get("organisation_id").toString());
+
+
+
+
+
+
+
+//            BioModelKey key = new BioModelKey(sampleExternalId, phenotypingCenterPk, databaseShortName, bm.getZygosity());
+//            key = new BioModelKey(databaseShortName, phenotypingCenterPk, strainName, zygosity, geneAccessionId, alleleAccessionId);
+            BioModelKey key = new BioModelKey(databaseShortName, phenotypingCenterPk, "", "", "", zygosity);
+
+
+
+
+
             map.put(key, bm.getId());
         }
 
@@ -3629,8 +3649,10 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
 
         } catch (DuplicateKeyException e) {
             detail = DataLoadException.DETAIL.DUPLICATE_KEY;
+            logger.error(e.getLocalizedMessage());
         } catch (Exception e) {
             detail = DataLoadException.DETAIL.GENERAL_ERROR;
+            logger.error(e.getLocalizedMessage());
         }
 
         String message = "INSERT INTO biological_model failed for db_id " + dbId + ", allelic_composition " + allelicComposition + ", genetic_background " + geneticBackground + ", zygosity " + zygosity + "'. Skipping...";

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright © 2015 EMBL - European Bioinformatics Institute
+ * Copyright © 2015-2017 EMBL - European Bioinformatics Institute
  * <p/>
  * Licensed under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
@@ -46,11 +46,11 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Loads the specimens from a database with a dcc schema into the cda database.
  *
- * Created by mrelac on 15/11/2017.
+ * Created by mrelac on 31/08/2016.
  *
  */
 @ComponentScan
-public class LoadSpecimens implements CommandLineRunner {
+public class SampleLoader implements CommandLineRunner {
 
 
     private CdaSqlUtils cdaSqlUtils;
@@ -75,14 +75,14 @@ public class LoadSpecimens implements CommandLineRunner {
 
     private int efoDbId;
 
-    private BioModelManager      bioModelManager;
+    private BioModelManager bioModelManager;
     private Map<String, Integer> cdaDb_idMap = new ConcurrentHashMap<>();
     private Map<String, Integer> cdaOrganisation_idMap;
 
-    private final String MISSING_MUTANT_COLONY_ID_REASON = "LoadSpecimens: MUTANT specimen was not found in phenotyped_colony table";
+    private final String MISSING_MUTANT_COLONY_ID_REASON = "SampleLoader: MUTANT specimen was not found in phenotyped_colony table";
 
 
-    public LoadSpecimens(
+    public SampleLoader(
             NamedParameterJdbcTemplate jdbcCda,
             CdaSqlUtils cdaSqlUtils,
             DccSqlUtils dccSqlUtils
@@ -99,7 +99,7 @@ public class LoadSpecimens implements CommandLineRunner {
 
 
     public static void main(String[] args) throws Exception {
-        SpringApplication app = new SpringApplication(LoadSpecimens.class);
+        SpringApplication app = new SpringApplication(SampleLoader.class);
         app.setBannerMode(Banner.Mode.OFF);
         app.setLogStartupInfo(false);
         app.run(args);
@@ -157,7 +157,7 @@ public class LoadSpecimens implements CommandLineRunner {
             Integer productionCenterPk;
 
 
-            /**
+            /*
              * Some dcc europhenome colonies were incorrectly associated with EuroPhenome. Imits has the authoritative mapping
              * between colonyId and project and, for these incorrect colonies, overrides the dbId and phenotyping center to
              * reflect the real owner of the data, MGP. Remapping changes the specimen's project and datasourceShortName.
@@ -167,7 +167,27 @@ public class LoadSpecimens implements CommandLineRunner {
                 remapper.remap();
             }
 
-            /**
+
+
+
+            // FIXME Where should this remap take place? Not necessarily here!
+                /*
+                 * Some legacy strain names use a semicolon to separate multiple strain names contained in a single
+                 * field. Load processing code expects the separator for multiple strains to be an asterisk. Remap any
+                 * such strain names here.
+                 */
+            String remappedStrainName = bioModelManager.getStrainMapper().parseMultipleBackgroundStrainNames(specimen.getStrainID());
+            specimen.setStrainID(remappedStrainName);
+            PhenotypedColony colonyFIXME_FIXME_FIXME = phenotypedColonyMap.get(specimen.getColonyID());
+            if (colonyFIXME_FIXME_FIXME != null) {
+                colonyFIXME_FIXME_FIXME.setBackgroundStrain(remappedStrainName);
+            }
+            // FIXME Where should this remap take place? Not necessarily here!
+
+
+
+
+            /*
              * Some centers submitting EuroPhenome legacy data used obsolete strain names that had to be hand-curated
              * to reflect the current name. The {@link StrainMapper} takes care of this remapping.
              * For example, the Akt2 specimen strains from the dcc are 129/SvEv, but must be remapped to 129S/SvEv. The
@@ -371,7 +391,10 @@ public class LoadSpecimens implements CommandLineRunner {
         }
 
         // biological model and friends
-        bioModelManager.insert(dbId, biologicalSamplePk, phenotypingCenterPk, specimenExtended);
+        BioModelKey key = bioModelManager.createMutantKey(phenotypingCenterPk, specimenExtended.getDatasourceShortName(), specimen.getColonyID(), zygosity);
+        if (bioModelManager.getBiologicalModelPk(key) == null) {
+            bioModelManager.insert(dbId, biologicalSamplePk, phenotypingCenterPk, specimenExtended);
+        }
 
         return counts;
     }
@@ -471,7 +494,10 @@ public class LoadSpecimens implements CommandLineRunner {
         }
 
         // biological model and friends
-        bioModelManager.insert(dbId, biologicalSamplePk, phenotypingCenterPk, specimenExtended);
+        BioModelKey key = bioModelManager.createControlKey(phenotypingCenterPk, specimenExtended.getDatasourceShortName(), specimen.getStrainID());
+        if (bioModelManager.getBiologicalModelPk(key) == null) {
+            bioModelManager.insert(dbId, biologicalSamplePk, phenotypingCenterPk, specimenExtended);
+        }
 
         return counts;
     }
