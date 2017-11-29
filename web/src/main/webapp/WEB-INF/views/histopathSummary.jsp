@@ -45,7 +45,11 @@
 							
 							
 							<th class="headerSort">
-							Histopathology
+							Tissue
+							</th>
+							
+							<th>
+							MPATH Process Term
 							</th>
 							
 							<%-- <th>
@@ -54,9 +58,7 @@
 							<%-- <th>
 							Description
 							</th> --%>
-							<th>
-							Free Text
-							</th>
+							
 							<th>
 							Significant Finding Incidence Rate
 							</th>
@@ -74,7 +76,7 @@
 									<td>
 										${histRow.anatomyName}
 												
-										<c:choose>
+										<%-- <c:choose>
 											<c:when test="${fn:length(histRow.patoOntologyBeans) == 0}">
 										
 											</c:when>
@@ -87,8 +89,8 @@
 											</c:forEach>
 										</c:otherwise>
 										</c:choose> 
-									
-									
+									 --%>
+									<td>
 										<c:choose>
 											<c:when test="${fn:length(histRow.mpathProcessOntologyBeans) == 0}">
 										
@@ -106,7 +108,7 @@
 											</c:otherwise>
 										</c:choose>
 										
-										
+									</td>
 										
 									
 										
@@ -144,13 +146,13 @@
 										
 										</c:forEach>
 									</td>  --%>
-									<td>
+									<%-- <td>
 										<c:forEach var="parameter" items="${histRow.freeTextParameters }">
 										
 										${parameter.textValue }
 										
 										</c:forEach> 
-									</td>
+									</td> --%>
 									<td>
 											${histRow.significantCount } / ${histRow.nonSignificantCount + histRow.significantCount }
 									
