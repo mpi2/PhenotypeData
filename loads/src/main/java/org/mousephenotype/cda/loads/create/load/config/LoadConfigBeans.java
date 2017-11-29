@@ -16,9 +16,17 @@
 
 package org.mousephenotype.cda.loads.create.load.config;
 
+import org.mousephenotype.cda.loads.common.CdaSqlUtils;
 import org.mousephenotype.cda.loads.common.config.DataSourcesConfigApp;
+import org.mousephenotype.cda.loads.create.load.ImpressLoader;
+import org.mousephenotype.cda.loads.create.load.ImpressUpdater;
+import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
+import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
+import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.data.jpa.JpaRepositoriesAutoConfiguration;
 import org.springframework.boot.autoconfigure.data.neo4j.Neo4jDataAutoConfiguration;
@@ -26,17 +34,20 @@ import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration;
 import org.springframework.boot.autoconfigure.jms.JndiConnectionFactoryAutoConfiguration;
 import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.util.Assert;
 
 import javax.inject.Inject;
+import javax.sql.DataSource;
 
 /**
  * Created by mrelac on 03/09/16.
  */
 @Configuration
+@EnableBatchProcessing
 @EnableAutoConfiguration(exclude = {
         JndiConnectionFactoryAutoConfiguration.class,
         DataSourceAutoConfiguration.class,
@@ -53,6 +64,24 @@ public class LoadConfigBeans extends DataSourcesConfigApp implements Initializin
     private StepBuilderFactory            stepBuilderFactory;
 
 
+    @Value("${datasource.impress.url}")
+    private String impressUrl;
+
+    @Value("${datasource.impress.username}")
+    private String impressUsername;
+
+    @Value("${datasource.impress.password}")
+    private String impressPassword;
+
+
+    @Autowired
+    private JobBuilderFactory jobBuilderFactory;
+
+    @Autowired
+    private JobRepository jobRepository;
+
+
+
     @Inject
     @Lazy
     public LoadConfigBeans(
@@ -60,6 +89,7 @@ public class LoadConfigBeans extends DataSourcesConfigApp implements Initializin
             NamedParameterJdbcTemplate jdbcDcc,
             NamedParameterJdbcTemplate jdbcDccEurophenome,
             StepBuilderFactory stepBuilderFactory
+            
     ) {
         this.jdbcCda = jdbcCda;
         this.jdbcDcc = jdbcDcc;
@@ -75,5 +105,33 @@ public class LoadConfigBeans extends DataSourcesConfigApp implements Initializin
         Assert.notNull(jdbcDcc, "jdbcDcc must not be null");
         Assert.notNull(jdbcDccEurophenome, "jdbcDccEurophenome must not be null");
         Assert.notNull(stepBuilderFactory, "stepBuilderFactory must not be null");
+    }
+
+    // impress database
+    @Bean
+    public DataSource impressDataSource() {
+        return getConfiguredDatasource(impressUrl, impressUsername, impressPassword);
+    }
+
+    @Bean
+    public NamedParameterJdbcTemplate jdbcImpress() {
+        return new NamedParameterJdbcTemplate(impressDataSource());
+    }
+
+    @Bean
+    public CdaSqlUtils cdaSqlUtils() {
+        return new CdaSqlUtils(jdbcCda());
+    }
+    
+    
+    @Bean
+    @Lazy
+    public ImpressUpdater impressUpdater() {
+        return new ImpressUpdater(jdbcImpress(), stepBuilderFactory, cdaSqlUtils());
+    }
+    @Bean
+    @Lazy
+    public ImpressLoader impressLoader() {
+        return new ImpressLoader(jobBuilderFactory, jobRepository, impressUpdater(), cdaDataSource());
     }
 }

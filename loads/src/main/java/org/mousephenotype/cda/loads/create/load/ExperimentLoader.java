@@ -269,6 +269,8 @@ public class ExperimentLoader implements CommandLineRunner {
                 continue;
             }
 
+            experimentCount++;
+
             if (ONE_AT_A_TIME) {
 
                 insertExperiment(dccExperiment);
@@ -278,7 +280,6 @@ public class ExperimentLoader implements CommandLineRunner {
                 Callable<Experiment> task = () -> insertExperiment(dccExperiment);
                 tasks.add(executor.submit(task));
 
-                experimentCount++;
                 if (experimentCount % 100000 == 0) {
                     logger.info("Submitted {} experiments", experimentCount);
 

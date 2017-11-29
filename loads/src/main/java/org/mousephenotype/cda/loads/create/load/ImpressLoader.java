@@ -17,13 +17,13 @@
 package org.mousephenotype.cda.loads.create.load;
 
 import org.mousephenotype.cda.db.utilities.SqlUtils;
-import org.mousephenotype.cda.loads.create.load.steps.ImpressUpdater;
 import org.mousephenotype.cda.loads.exceptions.DataLoadException;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobInstance;
 import org.springframework.batch.core.JobParameters;
+import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.job.builder.FlowBuilder;
 import org.springframework.batch.core.job.flow.Flow;
@@ -46,7 +46,8 @@ import java.util.Date;
  * Created by mrelac on 30/09/2016.
  */
 @ComponentScan
-public class UpdateImpressTables implements CommandLineRunner {
+@EnableBatchProcessing
+public class ImpressLoader implements CommandLineRunner {
 
     private final org.slf4j.Logger logger   = LoggerFactory.getLogger(this.getClass());
     private       SqlUtils         sqlUtils = new SqlUtils();
@@ -60,7 +61,7 @@ public class UpdateImpressTables implements CommandLineRunner {
 
     @Inject
     @Lazy
-    public UpdateImpressTables(
+    public ImpressLoader(
             JobBuilderFactory jobBuilderFactory,
             JobRepository jobRepository,
             ImpressUpdater impressUpdater,
@@ -77,7 +78,7 @@ public class UpdateImpressTables implements CommandLineRunner {
      * This class is intended to be a command-line callable java main program that loads the cda database.
      */
     public static void main(String[] args) throws Exception {
-        SpringApplication app = new SpringApplication(UpdateImpressTables.class);
+        SpringApplication app = new SpringApplication(ImpressLoader.class);
         app.setBannerMode(Banner.Mode.OFF);
         app.setLogStartupInfo(false);
         app.run(args);

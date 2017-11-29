@@ -91,11 +91,11 @@ public class SampleLoader implements CommandLineRunner {
         this.cdaSqlUtils = cdaSqlUtils;
         this.dccSqlUtils = dccSqlUtils;
 
+        written.put("biologicalModel", 0);
         written.put("biologicalSample", 0);
         written.put("liveSample", 0);
         written.put("controlSample", 0);
         written.put("experimentalSample", 0);
-        written.put("biologicalModel", 0);
     }
 
 
@@ -281,6 +281,7 @@ public class SampleLoader implements CommandLineRunner {
 
             written.put("biologicalSample", written.get("biologicalSample") + counts.get("biologicalSample"));
             written.put("liveSample", written.get("liveSample") + counts.get("liveSample"));
+            written.put("biologicalModel", written.get("biologicalModel") + counts.get("biologicalModel"));
         }
 
 
@@ -334,6 +335,7 @@ public class SampleLoader implements CommandLineRunner {
         Specimen specimen = specimenExtended.getSpecimen();
 
         Map<String, Integer> counts = new HashMap<>();
+        counts.put("biologicalModel", 0);
         counts.put("biologicalSample", 0);
         counts.put("liveSample", 0);
 
@@ -423,6 +425,7 @@ public class SampleLoader implements CommandLineRunner {
         String       zygosity;
 
         Map<String, Integer> counts = new HashMap<>();
+        counts.put("biologicalModel", 0);
         counts.put("biologicalSample", 0);
         counts.put("liveSample", 0);
 
@@ -502,6 +505,7 @@ public class SampleLoader implements CommandLineRunner {
         BioModelKey key = bioModelManager.createControlKey(specimenExtended.getDatasourceShortName(), specimen.getStrainID());
         if (bioModelManager.getBiologicalModelPk(key) == null) {
             bioModelManager.insert(dbId, biologicalSamplePk, phenotypingCenterPk, specimenExtended);
+            counts.put("biologicalModel", counts.get("biologicalModel"));
         }
 
         return counts;

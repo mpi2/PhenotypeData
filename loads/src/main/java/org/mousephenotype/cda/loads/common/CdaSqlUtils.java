@@ -294,45 +294,35 @@ public class CdaSqlUtils {
 
         List<Map<String, Object>> list = jdbcCda.queryForList(query, new HashMap<>());
         for (Map<String, Object> item : list) {
-            int    phenotypingCenterPk;
-            String databaseShortName;
+            String datasourceShortName;
             String strainAccessionId;
             String geneAccessionId;
             String alleleAccessionId;
+            Object o;
             String zygosity;
 
             BiologicalModel bm = new BiologicalModel();
 
             Datasource ds = new Datasource();
             ds.setId(new Integer(item.get("db_id").toString()));
-            databaseShortName = item.get("short_name").toString();
-            ds.setShortName(databaseShortName);
+            datasourceShortName = item.get("short_name").toString();
+            ds.setShortName(datasourceShortName);
 
             bm.setId(new Integer(item.get("id").toString()));
             bm.setDatasource(ds);
             bm.setAllelicComposition(item.get("allelic_composition").toString());
             bm.setGeneticBackground(item.get("genetic_background").toString());
-            Object oZygosity = item.get("zygosity");
-            zygosity = oZygosity == null ? "" : oZygosity.toString();
+            o = item.get("zygosity");
+            zygosity = (o == null ? "" : o.toString());
             bm.setZygosity(zygosity);
 
             strainAccessionId = item.get("strain_acc").toString();
-            phenotypingCenterPk = new Integer(item.get("organisation_id").toString());
+            o = item.get("gf_acc");
+            geneAccessionId = (o == null ? "" : o.toString());
+            o = item.get("allele_acc");
+            alleleAccessionId = (o == null ? "" : o.toString());
 
-
-
-
-
-
-
-//            BioModelKey key = new BioModelKey(sampleExternalId, phenotypingCenterPk, databaseShortName, bm.getZygosity());
-//            key = new BioModelKey(databaseShortName, phenotypingCenterPk, strainName, zygosity, geneAccessionId, alleleAccessionId);
-            BioModelKey key = new BioModelKey(databaseShortName, phenotypingCenterPk, "", "", "", zygosity);
-
-
-
-
-
+            BioModelKey key = new BioModelKey(datasourceShortName, strainAccessionId, geneAccessionId, alleleAccessionId, zygosity);
             map.put(key, bm.getId());
         }
 
@@ -1396,7 +1386,7 @@ public class CdaSqlUtils {
         List<List<String>> results = new ArrayList<>();
 
         List<String> tableNames = Arrays.asList(
-                "experiment", "biological_sample", "live_sample", "procedure_meta_data", "observation",
+                "experiment", "procedure_meta_data", "observation",
                 "categorical_observation", "datetime_observation", "image_record_observation", "text_observation",
                 "time_series_observation", "unidimensional_observation"
         );

@@ -111,7 +111,6 @@ public class TestConfig extends DataSourcesConfigApp implements InitializingBean
     }
 
 
-
     // dcc database
     @Bean
     public DataSource dccDataSource() {
@@ -123,17 +122,6 @@ public class TestConfig extends DataSourcesConfigApp implements InitializingBean
                 .build();
     }
 
-
-
-    // dcc_europhenome database
-    @Bean
-    public DataSource dccEurophenomeDataSource() {
-        return new EmbeddedDatabaseBuilder()
-                .setType(EmbeddedDatabaseType.H2)
-                .ignoreFailedDrops(true)
-                .setName("dcc_europhenome_test")
-                .build();
-    }
 
     @Bean
     public ExtractDccSpecimens extractDccSpecimens() {

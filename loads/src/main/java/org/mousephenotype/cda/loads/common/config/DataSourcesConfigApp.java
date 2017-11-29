@@ -29,9 +29,11 @@ import org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerA
 import org.springframework.boot.autoconfigure.jms.JndiConnectionFactoryAutoConfiguration;
 import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
 import org.springframework.context.annotation.*;
+import org.springframework.core.env.Environment;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.orm.hibernate5.LocalSessionFactoryBuilder;
 
+import javax.inject.Inject;
 import javax.sql.DataSource;
 
 @Configuration
@@ -45,7 +47,7 @@ import javax.sql.DataSource;
         Neo4jDataAutoConfiguration.class
         })
 @Lazy
-/**
+/*
  * This configuration class holds configuration information shared by the data load create process.
  *
  * Created by mrelac on 18/08/2016.
@@ -57,13 +59,13 @@ public class DataSourcesConfigApp {
     final private Integer INITIAL_POOL_CONNECTIONS = 1;
 
     @Value("${datasource.cda.url}")
-    String cdaUrl;
+    protected String cdaUrl;
 
     @Value("${datasource.cda.username}")
-    String cdaUsername;
+    protected String cdaUsername;
 
     @Value("${datasource.cda.password}")
-    String cdaPassword;
+    protected String cdaPassword;
 
     @Value("${datasource.dccEurophenomeFinal.url}")
     String dccEurophenomeFinalUrl;
@@ -92,9 +94,10 @@ public class DataSourcesConfigApp {
     @Value("${datasource.dcc.password}")
     String dccPassword;
 
+    @Inject
+    protected Environment env;
 
-
-    private DataSource getConfiguredDatasource(String url, String username, String password) {
+    protected DataSource getConfiguredDatasource(String url, String username, String password) {
         org.apache.tomcat.jdbc.pool.DataSource ds = new org.apache.tomcat.jdbc.pool.DataSource();
         ds.setUrl(url);
         ds.setUsername(username);
@@ -181,7 +184,11 @@ public class DataSourcesConfigApp {
     // dcc database
     @Bean
     public DataSource dccDataSource() {
-        return getConfiguredDatasource(dccUrl, dccUsername, dccPassword);
+        if (env.getProperty("useEurophenome") != null) {
+            return getConfiguredDatasource(dccEurophenomeFinalUrl, dccEurophenomeFinalUsername, dccEurophenomeFinalPassword);
+        } else {
+            return getConfiguredDatasource(dccUrl, dccUsername, dccPassword);
+        }
     }
 
     @Bean
@@ -192,23 +199,5 @@ public class DataSourcesConfigApp {
     @Bean
     public DccSqlUtils dccSqlUtils() {
         return new DccSqlUtils(jdbcDcc());
-    }
-
-
-
-    // dcc_europhenome database
-    @Bean
-    public DataSource dccEurophenomeDataSource() {
-        return getConfiguredDatasource(dccEurophenomeFinalUrl, dccEurophenomeFinalUsername, dccEurophenomeFinalPassword);
-    }
-
-    @Bean
-    public NamedParameterJdbcTemplate jdbcDccEurophenome() {
-        return new NamedParameterJdbcTemplate(dccEurophenomeDataSource());
-    }
-
-    @Bean
-    public DccSqlUtils dccEurophenomeSqlUtils() {
-        return new DccSqlUtils(jdbcDccEurophenome());
     }
 }
