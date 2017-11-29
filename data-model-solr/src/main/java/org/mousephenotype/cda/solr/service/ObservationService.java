@@ -29,6 +29,7 @@ import org.apache.solr.client.solrj.response.*;
 import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
+import org.apache.solr.common.params.FacetParams;
 import org.apache.solr.common.util.NamedList;
 import org.mousephenotype.cda.constants.Constants;
 import org.mousephenotype.cda.db.pojo.DiscreteTimePoint;
@@ -84,6 +85,90 @@ public class ObservationService extends BasicService implements WebStatus {
 
     public ObservationService() {
 
+    }
+    
+    /**
+     * Reinstated this method to show charts when no Statistical Result associated
+     * @param mgiAccession
+     * @param parameterStableId
+     * @param pipelineStableId
+     * @param phenotypingCenterParams
+     * @param strainParams
+     * @param metaDataGroups
+     * @param alleleAccessions
+     * @return
+     * @throws SolrServerException
+     * @throws IOException
+     */
+    public Map<String, List<String>> getExperimentKeys(String mgiAccession, String parameterStableId, List<String> pipelineStableId, List<String> phenotypingCenterParams, List<String> strainParams, List<String> metaDataGroups, List<String> alleleAccessions)
+            throws SolrServerException, IOException {
+
+        // Example of key
+        // String experimentKey = observation.getPhenotypingCenter()
+        // + observation.getStrain()
+        // + observation.getParameterStableId()
+        // + observation.getGeneAccession()
+        // + observation.getMetadataGroup();
+        Map<String, List<String>> map = new LinkedHashMap<>();
+
+        SolrQuery query = new SolrQuery();
+
+        query.setQuery(ObservationDTO.GENE_ACCESSION_ID + ":\"" + mgiAccession + "\"").addFilterQuery(ObservationDTO.PARAMETER_STABLE_ID + ":" + parameterStableId).addFacetField(ObservationDTO.PHENOTYPING_CENTER).addFacetField(ObservationDTO.STRAIN_ACCESSION_ID).addFacetField(ObservationDTO.METADATA_GROUP).addFacetField(ObservationDTO.PIPELINE_STABLE_ID).addFacetField(ObservationDTO.ALLELE_ACCESSION_ID).setRows(0).setFacet(true).setFacetMinCount(1).setFacetLimit(-1).setFacetSort(FacetParams.FACET_SORT_COUNT);
+
+        if (phenotypingCenterParams != null && !phenotypingCenterParams.isEmpty()) {
+            List<String> spaceSafeStringsList = new ArrayList<>();
+            for (String pCenter : phenotypingCenterParams) {
+                if (!pCenter.endsWith("\"") && !pCenter.startsWith("\"")) {
+                    spaceSafeStringsList.add("\"" + pCenter + "\"");
+                }
+            }
+            query.addFilterQuery(ObservationDTO.PHENOTYPING_CENTER + ":(" + StringUtils.join(spaceSafeStringsList, " OR ") + ")");
+        }
+
+        if (strainParams != null && !strainParams.isEmpty()) {
+            query.addFilterQuery(ObservationDTO.STRAIN_ACCESSION_ID + ":(" + StringUtils.join(strainParams, " OR ").replace(":", "\\:") + ")");
+        }
+
+        if (metaDataGroups != null && !metaDataGroups.isEmpty()) {
+            query.addFilterQuery(ObservationDTO.METADATA_GROUP + ":(" + StringUtils.join(metaDataGroups, " OR ") + ")");
+        }
+
+        if (pipelineStableId != null && !pipelineStableId.isEmpty()) {
+            query.addFilterQuery(ObservationDTO.PIPELINE_STABLE_ID + ":(" + StringUtils.join(pipelineStableId, " OR ") + ")");
+        }
+
+        if (alleleAccessions != null && !alleleAccessions.isEmpty()) {
+            String alleleFilter = ObservationDTO.ALLELE_ACCESSION_ID + ":(" + StringUtils.join(alleleAccessions, " OR ").replace(":", "\\:") + ")";
+            logger.debug("alleleFilter=" + alleleFilter);
+            query.addFilterQuery(alleleFilter);
+
+        }
+
+        QueryResponse response = solr.query(query);
+        logger.debug("experiment key query=" + query);
+        List<FacetField> fflist = response.getFacetFields();
+
+        for (FacetField ff : fflist) {
+
+            // If there are no face results, the values will be null
+            // skip this facet field in that case
+            // if (ff.getValues() == null) {
+            // continue;
+            // }
+            for (Count count : ff.getValues()) {
+                if (map.containsKey(ff.getName())) {
+                    map.get(ff.getName()).add(count.getName());
+                } else {
+                    List<String> newList = new ArrayList<>();
+                    newList.add(count.getName());
+                    map.put(ff.getName(), newList);
+                }
+
+            }
+        }
+
+        logger.info("experimentKeys=" + map);
+        return map;
     }
 
 
