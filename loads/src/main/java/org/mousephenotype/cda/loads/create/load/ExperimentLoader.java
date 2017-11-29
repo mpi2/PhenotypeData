@@ -116,6 +116,8 @@ public class ExperimentLoader implements CommandLineRunner {
     private Map<String, MissingColonyId>  missingColonyMap;
     private Set<String>                   missingDatasourceShortNames = new HashSet<>();
 
+    private int bioModelsAddedCount = 0;
+
     static {
         Set<UniqueExperimentId> ignoredExperimentSet = new HashSet<>();
         ignoredExperimentSet.add(new UniqueExperimentId("Ucd", "GRS_2013-10-09_4326"));
@@ -322,7 +324,7 @@ public class ExperimentLoader implements CommandLineRunner {
         if (loadCounts == null) {
             System.out.println("Unable to get load counts.");
         } else {
-            List<String> headingList = Arrays.asList("experiment", "biological_sample", "live_sample", "procedure_meta_data", "observation", "categorical", "date_time", "image_record", "text", "time_series", "unidimensional");
+            List<String> headingList = Arrays.asList("experiment", "procedure_meta_data", "observation", "categorical", "date_time", "image_record", "text", "time_series", "unidimensional");
             String       borderRow   = StringUtils.repeat("*", StringUtils.join(headingList, "    ").length() + 10);
             StringBuilder countsRow  = new StringBuilder();
             for (int i = 0; i < headingList.size(); i++) {
@@ -338,6 +340,8 @@ public class ExperimentLoader implements CommandLineRunner {
             System.out.println("**** " + countsRow);
             System.out.println(borderRow);
         }
+
+        System.out.println("New biological models for line-level experiments: " + bioModelsAddedCount);
 
 
         // Log info sets
@@ -516,16 +520,18 @@ public class ExperimentLoader implements CommandLineRunner {
 
 
         // FIXME Where should this remap take place? Not necessarily here!
-                /*
-                 * Some legacy strain names use a semicolon to separate multiple strain names contained in a single
-                 * field. Load processing code expects the separator for multiple strains to be an asterisk. Remap any
-                 * such strain names here.
-                 */
-        String remappedStrainName = bioModelManager.getStrainMapper().parseMultipleBackgroundStrainNames(dccExperiment.getSpecimenStrainId());
-        dccExperiment.setSpecimenStrainId(remappedStrainName);
-        PhenotypedColony colonyFIXME_FIXME_FIXME = phenotypedColonyMap.get(dccExperiment.getColonyId());
-        if (colonyFIXME_FIXME_FIXME != null) {
-            colonyFIXME_FIXME_FIXME.setBackgroundStrain(remappedStrainName);
+        /*
+         * Some legacy strain names use a semicolon to separate multiple strain names contained in a single
+         * field. Load processing code expects the separator for multiple strains to be an asterisk. Remap any
+         * such strain names here.
+         */
+        if ((dccExperiment.getSpecimenId() != null) && ( ! dccExperiment.getSpecimenId().isEmpty())) {
+            String remappedStrainName = bioModelManager.getStrainMapper().parseMultipleBackgroundStrainNames(dccExperiment.getSpecimenStrainId());
+            dccExperiment.setSpecimenStrainId(remappedStrainName);
+            PhenotypedColony colony = phenotypedColonyMap.get(dccExperiment.getColonyId());
+            if (colony != null) {
+                colony.setBackgroundStrain(remappedStrainName);
+            }
         }
         // FIXME Where should this remap take place? Not necessarily here!
 
@@ -657,15 +663,21 @@ public class ExperimentLoader implements CommandLineRunner {
         // Get the biological model primary key.
         List<SimpleParameter> simpleParameterList = dccSqlUtils.getSimpleParameters(dccExperiment.getDcc_procedure_pk());
         String                zygosity            = LoadUtils.getLineLevelZygosity(simpleParameterList);
-        BioModelKey           key                 = bioModelManager.createMutantKey(phenotypingCenterPk, dccExperiment.getDatasourceShortName(), dccExperiment.getColonyId(), zygosity);
+        BioModelKey           key                 = bioModelManager.createMutantKey(dccExperiment.getDatasourceShortName(), dccExperiment.getColonyId(), zygosity);
         biologicalModelPk = bioModelManager.getBiologicalModelPk(key);
         if (biologicalModelPk == null) {
 
             if (dccExperiment.isLineLevel()) {
 
-                // This line-level experiment's biological model may not have been created yet. Create it now.
-                biologicalModelPk = bioModelManager.insert(dbId, phenotypingCenterPk, dccExperiment);
+                // This line-level experiment's biological model may not have been created yet.
+                key = bioModelManager.createMutantKey(dccExperiment.getDatasourceShortName(), dccExperiment.getColonyId(), zygosity);
+                if (key == null) {
+                    biologicalModelPk = bioModelManager.insert(dbId, phenotypingCenterPk, dccExperiment);
+                    bioModelsAddedCount++;
 
+                    // Log the experimentId and datasourceShortName so a test can be written for it.
+                    logger.info("Added new model for line-level experiment '" + dccExperiment.getDatasourceShortName() + "::" + dccExperiment.getExperimentId());
+                }
             } else {
 
                 // Specimen-level experiment models should already be loaded. It is an error if they are not.

@@ -193,6 +193,137 @@ public class DataIntegrationTest {
         }
     }
 
+    /*
+     * Test the special MGP EuroPhenome remapping rule
+     */
+    @Test
+    public void testEuroPhenomeRemapper() {
+
+    }
+
+    /*
+     * Test parseMultipleBackgroundStrainNames with multiple strain names separated by  semicolons
+     */
+    @Test
+    public void testParseMultipleBackgroundStrainNamesWithSemicolon() {}
+
+    /*
+     * Test parseMultipleBackgroundStrainNames with multiple strain names separated by asterisks
+     */
+    @Test
+    public void testParseMultipleBackgroundStrainNamesWithAsterisks() {}
+
+    /*
+     * Test parseMultipleBackgroundStrainNames with a single strain name
+     */
+    @Test
+    public void testParseMultipleBackgroundStrainNamesSingleStrainName() {}
+
+    /*
+     * Test that line-level experiments get the correct biological model and friends.
+     */
+    @Test
+    public void testLineLevelExperimentThatUsesExistingBiologicalModel() {
+
+    }
+
+    @Test
+    public void testLineExperimentThatCreatesNewBiologicalModel() {
+
+    }
+
+    @Test
+    public void testExperimentWithSimpleParameters_INCLUDE_DERIVED_PARAMETERS_false() {
+
+    }
+
+    @Test
+    public void testExperimentWithSimpleParameters_INCLUDE_DERIVED_PARAMETERS_true() {
+
+    }
+
+    @Test
+    public void testExperimentWithMediaParametersWithoutParameterAssociations() {
+
+    }
+
+    @Test
+    public void testExperimentWithMediaParametersWithParameterAssociations() {
+
+    }
+
+    @Test
+    public void testExperimentWithMediaParametersWithLinks() {
+
+    }
+
+    @Test
+    public void testExperimentWithOntologyParameters() {
+
+    }
+
+    @Test
+    public void testExperimentWithSeriesParameters_INCLUDE_DERIVED_PARAMETERS_true() {
+
+    }
+
+    @Test
+    public void testExperimentWithSeriesParameters_INCLUDE_DERIVED_PARAMETERS_false() {
+
+    }
+
+    @Test
+    public void testExperimentWithSeriesMediaParametersWithParameterAssociations() {
+
+    }
+
+    @Test
+    public void testExperimentWithSeriesMediaParametersWithProcedureMetadataAssociations() {
+
+    }
+
+    @Test
+    public void testExperimentWithSeriesMediaParametersWithLink() {
+
+    }
+
+    @Test
+    public void testExperimentWithMediaSampleParameterWithLink() {
+
+    }
+
+    @Test
+    public void testExperimentWithSeriesParameterValue() {
+
+    }
+
+    @Test
+    public void testExperimentWithProcedureLevelMetadata() {
+
+    }
+
+    @Test
+    public void testExperimentWithObservationLevelMetadata() {
+
+    }
+
+    /*
+     * Test the special rule for 3i projects wiith valid identifiers
+     */
+    @Test
+    public void test3iExperimentWithValidProjectIdentifier() {
+
+    }
+
+
+    /*
+     * Test the special rule for 3i projects wiith invalid identifiers
+     */
+    @Test
+    public void test3iExperimentWithInvalidProjectIdentifier() {
+
+    }
+
 
     // PRIVATE METHODS
 

@@ -132,14 +132,13 @@ public class BioModelManager {
 
     /**
      * Create a biological model key for mutants using the specified components.
-     * @param phenotypingCenterPk
      * @param datasourceShortName
      * @param colonyId The colony id (name)
      * @param zygosity
      * @return
      * @throws DataLoadException
      */
-    public BioModelKey createMutantKey(int phenotypingCenterPk, String datasourceShortName,
+    public BioModelKey createMutantKey(String datasourceShortName,
                                        String colonyId, String zygosity) throws DataLoadException
     {
         String      message;
@@ -160,20 +159,19 @@ public class BioModelManager {
         allele = getAllele(colony, gene);
         strain = getStrain(colony.getBackgroundStrain());
 
-        key = new BioModelKey(datasourceShortName, phenotypingCenterPk, strain.getId().getAccession(), gene.getId().getAccession(), allele.getId().getAccession(), zygosity);
+        key = new BioModelKey(datasourceShortName, strain.getId().getAccession(), gene.getId().getAccession(), allele.getId().getAccession(), zygosity);
 
         return key;
     }
 
     /**
      * Create a biological model key for controls using the specified components.
-     * @param phenotypingCenterPk
      * @param datasourceShortName
      * @param strainName
      * @return
      * @throws DataLoadException
      */
-    public BioModelKey createControlKey(int phenotypingCenterPk, String datasourceShortName, String strainName) throws DataLoadException
+    public BioModelKey createControlKey(String datasourceShortName, String strainName) throws DataLoadException
     {
 
         BioModelKey key;
@@ -182,7 +180,7 @@ public class BioModelManager {
 
         strain = getStrain(strainName);
 
-        key = new BioModelKey(datasourceShortName, phenotypingCenterPk, strain.getId().getAccession(), null, null, zygosity);
+        key = new BioModelKey(datasourceShortName, strain.getId().getAccession(), null, null, zygosity);
 
         return key;
     }
@@ -257,7 +255,7 @@ public class BioModelManager {
         BioModelInsertDTOMutant mutantDto = new BioModelInsertDTOMutant(dbId, biologicalSamplePk, allelicComposition, geneticBackground, zygosity, geneAcc, alleleAcc, strainAcc);
         biologicalModelPk = cdaSqlUtils.insertBiologicalModelImpc(mutantDto);
 
-        BioModelKey mutantKey = createMutantKey(phenotypingCenterPk, datasourceShortName, colony.getColonyName(), zygosity);
+        BioModelKey mutantKey = createMutantKey(datasourceShortName, colony.getColonyName(), zygosity);
 
         bioModelPkMap.put(mutantKey, biologicalModelPk);
 
@@ -277,7 +275,7 @@ public class BioModelManager {
         BioModelInsertDTOControl controlDto = new BioModelInsertDTOControl(dbId, biologicalSamplePk, allelicComposition, geneticBackground, zygosity, strainAcc);
         biologicalModelPk = cdaSqlUtils.insertBiologicalModelImpc(controlDto);
 
-        BioModelKey controlKey = createControlKey(phenotypingCenterPk, datasourceShortName, strainName);
+        BioModelKey controlKey = createControlKey(datasourceShortName, strainName);
         bioModelPkMap.put(controlKey, biologicalModelPk);
 
         return biologicalModelPk;

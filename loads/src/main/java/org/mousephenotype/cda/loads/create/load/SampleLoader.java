@@ -95,6 +95,7 @@ public class SampleLoader implements CommandLineRunner {
         written.put("liveSample", 0);
         written.put("controlSample", 0);
         written.put("experimentalSample", 0);
+        written.put("biologicalModel", 0);
     }
 
 
@@ -171,16 +172,18 @@ public class SampleLoader implements CommandLineRunner {
 
 
             // FIXME Where should this remap take place? Not necessarily here!
-                /*
-                 * Some legacy strain names use a semicolon to separate multiple strain names contained in a single
-                 * field. Load processing code expects the separator for multiple strains to be an asterisk. Remap any
-                 * such strain names here.
-                 */
-            String remappedStrainName = bioModelManager.getStrainMapper().parseMultipleBackgroundStrainNames(specimen.getStrainID());
-            specimen.setStrainID(remappedStrainName);
-            PhenotypedColony colonyFIXME_FIXME_FIXME = phenotypedColonyMap.get(specimen.getColonyID());
-            if (colonyFIXME_FIXME_FIXME != null) {
-                colonyFIXME_FIXME_FIXME.setBackgroundStrain(remappedStrainName);
+            /*
+             * Some legacy strain names use a semicolon to separate multiple strain names contained in a single
+             * field. Load processing code expects the separator for multiple strains to be an asterisk. Remap any
+             * such strain names here.
+             */
+            if ((specimen.getStrainID() != null) &&( ! specimen.getStrainID().isEmpty())) {
+                String remappedStrainName = bioModelManager.getStrainMapper().parseMultipleBackgroundStrainNames(specimen.getStrainID());
+                specimen.setStrainID(remappedStrainName);
+                PhenotypedColony colony = phenotypedColonyMap.get(specimen.getColonyID());
+                if (colony != null) {
+                    colony.setBackgroundStrain(remappedStrainName);
+                }
             }
             // FIXME Where should this remap take place? Not necessarily here!
 
@@ -315,6 +318,7 @@ public class SampleLoader implements CommandLineRunner {
         }
 
 
+        logger.info("Wrote {} new biological models", written.get("biologicalModel"));
         logger.info("Wrote {} new biological samples", written.get("biologicalSample"));
         logger.info("Wrote {} new live samples", written.get("liveSample"));
         logger.info("Processed {} experimental samples", written.get("experimentalSample"));
@@ -391,9 +395,10 @@ public class SampleLoader implements CommandLineRunner {
         }
 
         // biological model and friends
-        BioModelKey key = bioModelManager.createMutantKey(phenotypingCenterPk, specimenExtended.getDatasourceShortName(), specimen.getColonyID(), zygosity);
+        BioModelKey key = bioModelManager.createMutantKey(specimenExtended.getDatasourceShortName(), specimen.getColonyID(), zygosity);
         if (bioModelManager.getBiologicalModelPk(key) == null) {
             bioModelManager.insert(dbId, biologicalSamplePk, phenotypingCenterPk, specimenExtended);
+            counts.put("biologicalModel", counts.get("biologicalModel") + 1);
         }
 
         return counts;
@@ -494,7 +499,7 @@ public class SampleLoader implements CommandLineRunner {
         }
 
         // biological model and friends
-        BioModelKey key = bioModelManager.createControlKey(phenotypingCenterPk, specimenExtended.getDatasourceShortName(), specimen.getStrainID());
+        BioModelKey key = bioModelManager.createControlKey(specimenExtended.getDatasourceShortName(), specimen.getStrainID());
         if (bioModelManager.getBiologicalModelPk(key) == null) {
             bioModelManager.insert(dbId, biologicalSamplePk, phenotypingCenterPk, specimenExtended);
         }
