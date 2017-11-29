@@ -838,7 +838,7 @@ public class DccSqlUtils {
         String query = "SELECT pa.* " +
                 "FROM mediaParameter_parameterAssociation mppa " +
                 "JOIN parameterAssociation pa ON pa.pk = mppa.parameterAssociation_pk " +
-                "where mppa.mediaFile_pk = :pk " ;
+                "where mppa.mediaParameter_pk = :pk " ;
 
         Map<String, Object> parameterMap = new HashMap<>();
         parameterMap.put("pk", mediaParameterpk);

@@ -526,7 +526,7 @@ public class ExperimentLoader implements CommandLineRunner {
          * field. Load processing code expects the separator for multiple strains to be an asterisk. Remap any
          * such strain names here.
          */
-        if ((dccExperiment.getSpecimenId() != null) && ( ! dccExperiment.getSpecimenId().isEmpty())) {
+        if ((dccExperiment.getSpecimenStrainId() != null) && ( ! dccExperiment.getSpecimenStrainId().isEmpty())) {
             String remappedStrainName = bioModelManager.getStrainMapper().parseMultipleBackgroundStrainNames(dccExperiment.getSpecimenStrainId());
             dccExperiment.setSpecimenStrainId(remappedStrainName);
             PhenotypedColony colony = phenotypedColonyMap.get(dccExperiment.getColonyId());

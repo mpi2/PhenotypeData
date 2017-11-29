@@ -14,7 +14,7 @@
  * License.
  ******************************************************************************/
 
-package org.mousephenotype.cda.loads.create.load;
+package org.mousephenotype.cda.loads.create.load.steps;
 
 import org.mousephenotype.cda.loads.common.CdaSqlUtils;
 import org.mousephenotype.cda.loads.common.OntologyTermAnomaly;

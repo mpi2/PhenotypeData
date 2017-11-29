@@ -19,7 +19,7 @@ package org.mousephenotype.cda.loads.create.load.config;
 import org.mousephenotype.cda.loads.common.CdaSqlUtils;
 import org.mousephenotype.cda.loads.common.config.DataSourcesConfigApp;
 import org.mousephenotype.cda.loads.create.load.ImpressLoader;
-import org.mousephenotype.cda.loads.create.load.ImpressUpdater;
+import org.mousephenotype.cda.loads.create.load.steps.ImpressUpdater;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;

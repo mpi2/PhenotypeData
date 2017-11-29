@@ -17,6 +17,7 @@
 package org.mousephenotype.cda.loads.create.load;
 
 import org.mousephenotype.cda.db.utilities.SqlUtils;
+import org.mousephenotype.cda.loads.create.load.steps.ImpressUpdater;
 import org.mousephenotype.cda.loads.exceptions.DataLoadException;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.Job;
