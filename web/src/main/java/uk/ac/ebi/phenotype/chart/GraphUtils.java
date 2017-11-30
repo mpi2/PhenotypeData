@@ -15,7 +15,9 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.chart;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.mousephenotype.cda.constants.ParameterConstants;
 import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.solr.service.ExperimentService;
 import org.mousephenotype.cda.solr.service.StatisticalResultService;
@@ -31,6 +33,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -95,8 +98,9 @@ public class GraphUtils {
 //		}
 		//need to add flag for this optional step -e.g. filterBySR=false
 		List<String> dummyGenderList=new ArrayList<>();
-		if(urls.size()==0){
-			//try getting urls anyway if no Statistical Result - need this for 3i data.
+		String procedurePrefix = StringUtils.join(Arrays.asList(parameter.getStableId().split("_")).subList(0, 2), "_");
+		if(urls.size()==0 && ParameterConstants.source3iProcedurePrefixes.contains(procedurePrefix)){
+			//try getting urls anyway if no Statistical Result - need this for 3i data only currently
 			urls=this.getGraphUrlsOld(acc, parameter, pipelineStableIds, dummyGenderList, zyList, phenotypingCentersList, strainsParams, metaDataGroup, chartType, alleleAccession);
 		}
 
