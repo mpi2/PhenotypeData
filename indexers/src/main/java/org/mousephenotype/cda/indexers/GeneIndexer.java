@@ -522,6 +522,7 @@ public class GeneIndexer extends AbstractIndexer implements CommandLineRunner {
                                 gene.getTopLevelMpId().addAll(mp.getTopLevelMpId());
                                 gene.getTopLevelMpTerm().addAll(mp.getTopLevelMpTerm());
                             }
+
                             if (mp.getTopLevelMpTermSynonym() != null) {
                                 gene.getTopLevelMpTermSynonym().addAll(mp.getTopLevelMpTermSynonym());
                             }
@@ -530,6 +531,7 @@ public class GeneIndexer extends AbstractIndexer implements CommandLineRunner {
                                 gene.getIntermediateMpId().addAll(mp.getIntermediateMpId());
                                 gene.getIntermediateMpTerm().addAll(mp.getIntermediateMpTerm());
                             }
+
                             if (mp.getIntermediateMpTermSynonym() != null) {
                                 gene.getIntermediateMpTermSynonym().addAll(mp.getIntermediateMpTermSynonym());
                             }
@@ -538,6 +540,7 @@ public class GeneIndexer extends AbstractIndexer implements CommandLineRunner {
                                 gene.getChildMpId().addAll(mp.getChildMpId());
                                 gene.getChildMpTerm().addAll(mp.getChildMpTerm());
                             }
+
                             if (mp.getChildMpTermSynonym() != null) {
                                 gene.getChildMpTermSynonym().addAll(mp.getChildMpTermSynonym());
                             }
