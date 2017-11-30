@@ -207,7 +207,7 @@ public class CdaSqlUtils {
 
         List<BiologicalSample> samples = jdbcCda.query(query, new BiologicalSampleRowMapper());
         for (BiologicalSample sample : samples) {
-            map.put(sample.getStableId() + "_" + sample.getOrganisation().getId() + "_" + sample.getDatasource().getShortName(), sample);
+            map.put(sample.getStableId() + "_" + sample.getOrganisation().getId(), sample);
         }
 
         return map;
