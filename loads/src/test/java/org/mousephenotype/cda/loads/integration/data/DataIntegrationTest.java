@@ -22,8 +22,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.loads.common.CdaSqlUtils;
 import org.mousephenotype.cda.loads.common.DccSqlUtils;
-import org.mousephenotype.cda.loads.create.extract.dcc.ExtractDccExperiments;
-import org.mousephenotype.cda.loads.create.extract.dcc.ExtractDccSpecimens;
+import org.mousephenotype.cda.loads.create.extract.dcc.DccExperimentExtractor;
+import org.mousephenotype.cda.loads.create.extract.dcc.DccSpecimenExtractor;
 import org.mousephenotype.cda.loads.create.load.ExperimentLoader;
 import org.mousephenotype.cda.loads.create.load.SampleLoader;
 import org.mousephenotype.cda.loads.integration.data.config.TestConfig;
@@ -85,10 +85,10 @@ public class DataIntegrationTest {
 
 
     @Autowired
-    private ExtractDccSpecimens extractDccSpecimens;
+    private DccSpecimenExtractor dccSpecimenExtractor;
 
     @Autowired
-    private ExtractDccExperiments extractDccExperiments;
+    private DccExperimentExtractor dccExperimentExtractor;
 
     @Autowired
     private SampleLoader sampleLoader;
@@ -171,11 +171,11 @@ public class DataIntegrationTest {
                 "--profile=dev",
         };
 
-        System.out.println("extractDccSpecimens");
-        extractDccSpecimens.run(extractSpecimenArgs);
+        System.out.println("dccSpecimenExtractor");
+        dccSpecimenExtractor.run(extractSpecimenArgs);
 
-        System.out.println("extractDccExperiments");
-        extractDccExperiments.run(extractExperimentArgs);
+        System.out.println("dccExperimentExtractor");
+        dccExperimentExtractor.run(extractExperimentArgs);
 
         System.out.println("sampleLoader");
         sampleLoader.run(loadArgs);

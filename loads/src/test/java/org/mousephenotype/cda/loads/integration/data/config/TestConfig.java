@@ -17,8 +17,8 @@
 package org.mousephenotype.cda.loads.integration.data.config;
 
 import org.mousephenotype.cda.loads.common.config.DataSourcesConfigApp;
-import org.mousephenotype.cda.loads.create.extract.dcc.ExtractDccExperiments;
-import org.mousephenotype.cda.loads.create.extract.dcc.ExtractDccSpecimens;
+import org.mousephenotype.cda.loads.create.extract.dcc.DccExperimentExtractor;
+import org.mousephenotype.cda.loads.create.extract.dcc.DccSpecimenExtractor;
 import org.mousephenotype.cda.loads.create.load.ExperimentLoader;
 import org.mousephenotype.cda.loads.create.load.SampleLoader;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
@@ -124,13 +124,13 @@ public class TestConfig extends DataSourcesConfigApp implements InitializingBean
 
 
     @Bean
-    public ExtractDccSpecimens extractDccSpecimens() {
-        return new ExtractDccSpecimens(dccDataSource(), dccSqlUtils());
+    public DccSpecimenExtractor extractDccSpecimens() {
+        return new DccSpecimenExtractor(dccDataSource(), dccSqlUtils());
     }
 
     @Bean
-    public ExtractDccExperiments extractDccExperiments() {
-        return new ExtractDccExperiments(dccDataSource(), dccSqlUtils());
+    public DccExperimentExtractor extractDccExperiments() {
+        return new DccExperimentExtractor(dccDataSource(), dccSqlUtils());
     }
 
     @Bean

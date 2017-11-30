@@ -46,7 +46,7 @@ import java.util.List;
  * whose arguments describe the profile containing the application.properties, the source file, and the database name.
  */
 @ComponentScan
-public class ExtractDccSpecimens implements CommandLineRunner {
+public class DccSpecimenExtractor implements CommandLineRunner {
 
     private String datasourceShortName;
     private String dbname;
@@ -60,7 +60,7 @@ public class ExtractDccSpecimens implements CommandLineRunner {
     private DccSqlUtils dccSqlUtils;
 
 
-    public ExtractDccSpecimens(
+    public DccSpecimenExtractor(
             DataSource dccDataSource,
             DccSqlUtils dccSqlUtils
     ) {
@@ -70,7 +70,7 @@ public class ExtractDccSpecimens implements CommandLineRunner {
 
 
     public static void main(String[] args) throws Exception {
-        SpringApplication app = new SpringApplication(ExtractDccSpecimens.class);
+        SpringApplication app = new SpringApplication(DccSpecimenExtractor.class);
         app.setBannerMode(Banner.Mode.OFF);
         app.setLogStartupInfo(false);
         app.run(args);
@@ -138,7 +138,7 @@ public class ExtractDccSpecimens implements CommandLineRunner {
         List<CentreSpecimen> centerSpecimens;
 
         try {
-            centerSpecimens = XMLUtils.unmarshal(ExtractDccSpecimens.CONTEXT_PATH, CentreSpecimenSet.class, filename).getCentre();
+            centerSpecimens = XMLUtils.unmarshal(DccSpecimenExtractor.CONTEXT_PATH, CentreSpecimenSet.class, filename).getCentre();
         } catch (Exception e) {
             throw new DataLoadException(e);
         }

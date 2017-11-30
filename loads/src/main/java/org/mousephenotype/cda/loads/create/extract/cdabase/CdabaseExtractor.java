@@ -53,7 +53,7 @@ import java.util.concurrent.Executors;
  * Created by mrelac on 12/04/2016.
  */
 @ComponentScan
-public class ExtractCdabase implements CommandLineRunner {
+public class CdabaseExtractor implements CommandLineRunner {
 
     private SqlUtils               sqlUtils = new SqlUtils();
     private JobBuilderFactory      jobBuilderFactory;
@@ -73,7 +73,7 @@ public class ExtractCdabase implements CommandLineRunner {
 
     @Inject
     @Lazy
-    public ExtractCdabase(
+    public CdabaseExtractor(
             JobBuilderFactory jobBuilderFactory,
             StepBuilderFactory stepBuilderFactory,
             JobRepository jobRepository,
@@ -107,7 +107,7 @@ public class ExtractCdabase implements CommandLineRunner {
      * biological models, and phenotyped colony information read from reports.
      */
     public static void main(String[] args) throws Exception {
-        SpringApplication app = new SpringApplication(ExtractCdabase.class);
+        SpringApplication app = new SpringApplication(CdabaseExtractor.class);
         app.setBannerMode(Banner.Mode.OFF);
         app.setLogStartupInfo(false);
         app.run(args);

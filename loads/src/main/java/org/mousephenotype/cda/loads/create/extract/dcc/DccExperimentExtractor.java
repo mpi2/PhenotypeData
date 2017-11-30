@@ -48,7 +48,7 @@ import java.util.*;
  * whose arguments describe the profile containing the application.properties, the source file, and the database name.
  */
 @ComponentScan
-public class ExtractDccExperiments implements CommandLineRunner {
+public class DccExperimentExtractor implements CommandLineRunner {
 
     private String datasourceShortName;
     private String dbname;
@@ -69,7 +69,7 @@ public class ExtractDccExperiments implements CommandLineRunner {
     private DccSqlUtils dccSqlUtils;
 
 
-    public ExtractDccExperiments(
+    public DccExperimentExtractor(
             DataSource dccDataSource,
             DccSqlUtils dccSqlUtils
     ) {
@@ -79,7 +79,7 @@ public class ExtractDccExperiments implements CommandLineRunner {
 
 
     public static void main(String[] args) throws Exception {
-        SpringApplication app = new SpringApplication(ExtractDccExperiments.class);
+        SpringApplication app = new SpringApplication(DccExperimentExtractor.class);
         app.setBannerMode(Banner.Mode.OFF);
         app.setLogStartupInfo(false);
         app.run(args);
@@ -165,7 +165,7 @@ public class ExtractDccExperiments implements CommandLineRunner {
         List<CentreProcedure> centerProcedures;
 
         try {
-            centerProcedures = XMLUtils.unmarshal(ExtractDccExperiments.CONTEXT_PATH, CentreProcedureSet.class, filename).getCentre();
+            centerProcedures = XMLUtils.unmarshal(DccExperimentExtractor.CONTEXT_PATH, CentreProcedureSet.class, filename).getCentre();
         } catch (Exception e) {
             throw new DataLoadException(e);
         }
