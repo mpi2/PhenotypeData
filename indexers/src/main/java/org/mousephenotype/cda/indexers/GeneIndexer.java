@@ -146,11 +146,18 @@ public class GeneIndexer extends AbstractIndexer implements CommandLineRunner {
                 gene.setMgiAccessionId(allele.getMgiAccessionId());
                 gene.setDataType(allele.getDataType());
                 gene.setMarkerType(allele.getMarkerType());
+                gene.setMarkerName(allele.getMarkerName());
+
+                // mouse symbol/synonym
                 gene.setMarkerSymbol(allele.getMarkerSymbol());
                 gene.setMarkerSymbolLowercase(allele.getMarkerSymbol());
                 gene.setMarkerSynonym(allele.getMarkerSynonym());
-                gene.setMarkerName(allele.getMarkerName());
+                gene.setMarkerSynonymLowercase(allele.getMarkerSynonym());
+
+                // human symbol/synonym
                 gene.setHumanGeneSymbol(allele.getHumanGeneSymbol());
+                gene.setHumanSymbolSynonym(new ArrayList<>());
+
                 gene.setEnsemblGeneIds(allele.getEnsemblGeneIds());
                 gene.setLatestEsCellStatus(allele.getLatestEsCellStatus());
                 gene.setImitsPhenotypeStarted(allele.getImitsPhenotypeStarted());

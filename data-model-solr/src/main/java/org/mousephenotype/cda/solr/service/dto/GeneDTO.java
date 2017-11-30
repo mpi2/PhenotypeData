@@ -30,7 +30,12 @@ public class GeneDTO {
 
 	public static final String MARKER_SYMBOL = "marker_symbol";
 	public static final String MARKER_SYMBOL_LOWERCASE = "marker_symbol_lowercase";
+
 	public static final String HUMAN_GENE_SYMBOL = "human_gene_symbol";
+	public static final String HUMAN_GENE_SYMBOL_LOWERCASE = "human_gene_symbol_lowercase";
+	public static final String HUMAN_SYMBOL_SYNONYM = "human_symbol_synonym";
+	public static final String HUMAN_SYMBOL_SYNONYM_LOWERCASE = "human_symbol_synonym_lowercase";
+
 	public static final String MARKER_NAME = "marker_name";
 	public static final String MARKER_SYNONYM = "marker_synonym";
 	public static final String MARKER_SYNONYM_LOWERCASE = "marker_synonym_lowercase";
@@ -381,9 +386,14 @@ public class GeneDTO {
 	@Field(MARKER_SYMBOL_LOWERCASE)
 	String markerSymbolLowercase;
 
-
 	@Field(HUMAN_GENE_SYMBOL)
 	List<String> humanGeneSymbol;
+	@Field(HUMAN_GENE_SYMBOL_LOWERCASE)
+	List<String> humanGeneSymbolLowercase;
+	@Field(HUMAN_SYMBOL_SYNONYM)
+	List<String> humanSymbolSynonym;
+	@Field(HUMAN_SYMBOL_SYNONYM_LOWERCASE)
+	List<String> humanSymbolSynonymLowercase;
 
 	@Field(MARKER_NAME)
 	String markerName;
@@ -875,6 +885,38 @@ public class GeneDTO {
 		this.humanGeneSymbol = humanGeneSymbol;
 	}
 
+
+	public List<String> getHumanGeneSymbolLowercase() {
+		return humanGeneSymbolLowercase;
+	}
+
+	public void setHumanGeneSymbolLowercase(List<String> humanGeneSymbolLowercase) {
+		this.humanGeneSymbolLowercase = humanGeneSymbolLowercase;
+	}
+
+	public List<String> getHumanSymbolSynonym() {
+		return humanSymbolSynonym;
+	}
+
+	public void setHumanSymbolSynonym(List<String> humanSymbolSynonym) {
+		this.humanSymbolSynonym = humanSymbolSynonym;
+	}
+
+	public List<String> getHumanSymbolSynonymLowercase() {
+		return humanSymbolSynonymLowercase;
+	}
+
+	public void setHumanSymbolSynonymLowercase(List<String> humanSymbolSynonymLowercase) {
+		this.humanSymbolSynonymLowercase = humanSymbolSynonymLowercase;
+	}
+
+	public List<String> getMarkerSynonymLowercase() {
+		return markerSynonymLowercase;
+	}
+
+	public void setMarkerSynonymLowercase(List<String> markerSynonymLowercase) {
+		this.markerSynonymLowercase = markerSynonymLowercase;
+	}
 
 	public String getMarkerName() {
 
@@ -2162,6 +2204,12 @@ public class GeneDTO {
 			return false;
 		if (humanGeneSymbol != null ? !humanGeneSymbol.equals(geneDTO.humanGeneSymbol) : geneDTO.humanGeneSymbol != null)
 			return false;
+		if (humanGeneSymbolLowercase != null ? !humanGeneSymbolLowercase.equals(geneDTO.humanGeneSymbolLowercase) : geneDTO.humanGeneSymbolLowercase != null)
+			return false;
+		if (humanSymbolSynonym != null ? !humanSymbolSynonym.equals(geneDTO.humanSymbolSynonym) : geneDTO.humanSymbolSynonym != null)
+			return false;
+		if (humanSymbolSynonymLowercase != null ? !humanSymbolSynonymLowercase.equals(geneDTO.humanSymbolSynonymLowercase) : geneDTO.humanSymbolSynonymLowercase != null)
+			return false;
 		if (markerName != null ? !markerName.equals(geneDTO.markerName) : geneDTO.markerName != null) return false;
 		if (markerSynonym != null ? !markerSynonym.equals(geneDTO.markerSynonym) : geneDTO.markerSynonym != null)
 			return false;
@@ -2360,6 +2408,9 @@ public class GeneDTO {
 		result = 31 * result + (markerSymbol != null ? markerSymbol.hashCode() : 0);
 		result = 31 * result + (markerSymbolLowercase != null ? markerSymbolLowercase.hashCode() : 0);
 		result = 31 * result + (humanGeneSymbol != null ? humanGeneSymbol.hashCode() : 0);
+		result = 31 * result + (humanGeneSymbolLowercase != null ? humanGeneSymbolLowercase.hashCode() : 0);
+		result = 31 * result + (humanSymbolSynonym != null ? humanSymbolSynonym.hashCode() : 0);
+		result = 31 * result + (humanSymbolSynonymLowercase != null ? humanSymbolSynonymLowercase.hashCode() : 0);
 		result = 31 * result + (markerName != null ? markerName.hashCode() : 0);
 		result = 31 * result + (markerSynonym != null ? markerSynonym.hashCode() : 0);
 		result = 31 * result + (markerSynonymLowercase != null ? markerSynonymLowercase.hashCode() : 0);
@@ -2496,6 +2547,9 @@ public class GeneDTO {
 				", markerSymbol='" + markerSymbol + '\'' +
 				", markerSymbolLowercase='" + markerSymbolLowercase + '\'' +
 				", humanGeneSymbol=" + humanGeneSymbol +
+				", humanGeneSymbolLowercase=" + humanGeneSymbolLowercase +
+				", humanSymbolSynonym=" + humanSymbolSynonym +
+				", humanSymbolSynonymLowercase=" + humanSymbolSynonymLowercase +
 				", markerName='" + markerName + '\'' +
 				", markerSynonym=" + markerSynonym +
 				", markerSynonymLowercase=" + markerSynonymLowercase +
