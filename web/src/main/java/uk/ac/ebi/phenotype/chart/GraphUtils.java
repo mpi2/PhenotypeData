@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -93,9 +94,10 @@ public class GraphUtils {
 //			System.out.println("url="+url);
 //		}
 		//need to add flag for this optional step -e.g. filterBySR=false
+		List<String> dummyGenderList=new ArrayList<>();
 		if(urls.size()==0){
 			//try getting urls anyway if no Statistical Result - need this for 3i data.
-			urls=this.getGraphUrlsOld(accessionAndParam, parameter, pipelineStableIds, null, zyList, phenotypingCentersList, strainsParams, metaDataGroup, chartType, alleleAccession);
+			urls=this.getGraphUrlsOld(acc, parameter, pipelineStableIds, dummyGenderList, zyList, phenotypingCentersList, strainsParams, metaDataGroup, chartType, alleleAccession);
 		}
 
 		return urls;
@@ -106,7 +108,7 @@ public class GraphUtils {
 			ParameterDTO parameter, List<String> pipelineStableIds, List<String> genderList, List<String> zyList, List<String> phenotypingCentersList,
 			List<String> strainsParams, List<String> metaDataGroup, ChartType chartType, List<String> alleleAccession)
 			throws SolrServerException, IOException {
-
+System.out.println("no charts returned - using old method");
 				// each url should be unique and so we use a set
 				Set<String> urls = new LinkedHashSet<String>();
 				Map<String, List<String>> keyList = experimentService.getExperimentKeys(acc, parameter.getStableId(), pipelineStableIds, phenotypingCentersList, strainsParams, metaDataGroup, alleleAccession);
