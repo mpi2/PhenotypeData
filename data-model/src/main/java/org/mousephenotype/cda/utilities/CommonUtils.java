@@ -373,8 +373,9 @@ public class CommonUtils {
      * @return If <code>value</code> is a valid date as described by <code>formatter</code>; null otherwise
      */
     public Date tryParseDate(SimpleDateFormat formatter, String value) {
-        if (formatter == null)
+        if ((formatter == null) || (value == null)) {
             return null;
+        }
 
         Date retVal = null;
         try {
