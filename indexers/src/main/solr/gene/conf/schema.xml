@@ -315,7 +315,7 @@
 
 
 		<field name="embryo_data_available" type="boolean" indexed="true" stored="true" multiValued="false"/>
-		
+
 		<field name="embryo_analysis_view_url" type="string" indexed="true" stored="true" multiValued="false"/>
 		<field name="embryo_analysis_view_name" type="string" indexed="true" stored="true" multiValued="false"/>
 
@@ -327,7 +327,7 @@
 		<field name="is_idg_gene" type="boolean" indexed="true" stored="true" multiValued="false"/>
 		<field name="dmdd_image_data_available" type="boolean" indexed="true" stored="true" multiValued="false"/>
 		<field name="dmdd_lethal_data_available" type="boolean" indexed="true" stored="true" multiValued="false"/>
-		
+
 
 
 	</fields>
@@ -403,7 +403,8 @@
 
 	<copyField source="marker_symbol" dest="marker_symbol_lowercase" />
 	<copyField source="marker_synonym" dest="marker_synonym_lowercase" />
-
+	<copyField source="human_gene_symbol" dest="human_gene_symbol_lowercase" />
+	<copyField source="human_symbol_synonym" dest="human_symbol_synonym_lowercase" />
 
 	<copyField source="mp_id" dest="mpQf" />
 	<copyField source="mp_term" dest="mpQf" />
