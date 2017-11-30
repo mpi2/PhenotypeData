@@ -18,6 +18,7 @@ package org.mousephenotype.cda.indexers;
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.mousephenotype.cda.constants.ParameterConstants;
 import org.mousephenotype.cda.db.dao.DatasourceDAO;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
@@ -55,10 +56,6 @@ import java.util.*;
 public class GenotypePhenotypeIndexer extends AbstractIndexer {
 
     private final Logger logger = LoggerFactory.getLogger(GenotypePhenotypeIndexer.class);
-
-    public final static Set<String> source3iProcedurePrefixes = new HashSet<>(Arrays.asList(
-            "MGP_BCI", "MGP_PBI", "MGP_ANA", "MGP_CTL", "MGP_EEI", "MGP_BMI"
-    ));
 
     // Do not process parameters from these procecures
     public final static Set<String> skipProcedures = new HashSet<>(Arrays.asList(
@@ -237,7 +234,7 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
                 // Procedure prefix is the first two strings of the parameter after splitting on underscore
                 // i.e. IMPC_BWT_001_001 => IMPC_BWT
                 String procedurePrefix = StringUtils.join(Arrays.asList(parameterMap.get(r.getInt("parameter_id")).getStableId().split("_")).subList(0, 2), "_");
-                if (source3iProcedurePrefixes.contains(procedurePrefix)) {
+                if (ParameterConstants.source3iProcedurePrefixes.contains(procedurePrefix)) {
                     doc.setResourceName("3i");
                     doc.setResourceFullname("Infection, Immunity and Immunophenotyping consortium");
                 } else {

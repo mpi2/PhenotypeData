@@ -16,6 +16,7 @@ import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
+import org.mousephenotype.cda.constants.ParameterConstants;
 import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.db.pojo.Parameter;
 import org.mousephenotype.cda.db.pojo.PhenotypeAnnotationType;
@@ -308,7 +309,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
         // Use the procedure prefix to associated with the result to find the procedure prefix
         String procedurePrefix = StringUtils.join(Arrays.asList(procedureMap.get(r.getInt("procedure_id")).getStableId().split("_")).subList(0, 2), "_");
 
-        if (GenotypePhenotypeIndexer.source3iProcedurePrefixes.contains(procedurePrefix)) {
+        if (ParameterConstants.source3iProcedurePrefixes.contains(procedurePrefix)) {
             // Override the resource for the 3i procedures
             doc.setResourceId(resourceMap.get(RESOURCE_3I).id);
             doc.setResourceName(resourceMap.get(RESOURCE_3I).shortName);
