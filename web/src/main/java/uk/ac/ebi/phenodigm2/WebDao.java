@@ -38,15 +38,7 @@ public interface WebDao {
      * @return 
      */
     public List<Phenotype> getDiseasePhenotypes(String diseaseId);
-
-    /**
-     * Fetch data about a gene.
-     * 
-     * @param geneId
-     * @return 
-     */
-    //public Gene getGene(String geneId);
-    
+        
     /**
      * Fetch curated associations from disease to genes.
      *

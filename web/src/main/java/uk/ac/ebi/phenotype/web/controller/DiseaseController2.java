@@ -33,8 +33,6 @@ import uk.ac.ebi.phenodigm2.WebDao;
 /**
  * Controller for disease pages, uses phenodigm2 core
  *
- * @author Tomasz Konopka <t.konopka@qmul.ac.uk>
- * (based on DiseaseController.java)
  */
 @Controller
 public class DiseaseController2 {
@@ -44,7 +42,7 @@ public class DiseaseController2 {
     @Autowired
     private WebDao phenoDigm2Dao;
 
-    @RequestMapping(value = {"/disease, /disease2"})
+    @RequestMapping(value = {"/disease"})
     public String allDiseases(Model model) {
         LOGGER.info("Making page for all disease2 - for now abort");
         return "404";
@@ -52,8 +50,7 @@ public class DiseaseController2 {
 
     /**
      * There is confusion about whether ORPHANET IDs should be coded as
-     * ORPHA:1234 or ORPHANET:1234. This is a compatibility issue between
-     * phenodigm1 vs phenodigm2.
+     * ORPHA:1234 or ORPHANET:1234. 
      *
      * @param diseaseId
      * @return
@@ -69,7 +66,7 @@ public class DiseaseController2 {
         return diseaseId;
     }
 
-    @RequestMapping(value = {"/disease/{diseaseId}", "/disease2/{diseaseId}"})
+    @RequestMapping(value = {"/disease/{diseaseId}"})
     public String disease(@PathVariable("diseaseId") String diseaseId, Model model) {
 
         diseaseId = normalizeDiseaseId(diseaseId);

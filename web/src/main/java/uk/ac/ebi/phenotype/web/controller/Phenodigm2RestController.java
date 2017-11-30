@@ -100,8 +100,7 @@ public class Phenodigm2RestController {
 
         // collect information from the association oject
         String id = model.getId();
-        String label = model.getDescription();
-        //List<Phenotype> phenotypes = makeIdOnlyPhenotypes(model.getPhenotypes());
+        String label = model.getDescription();        
         List<Phenotype> phenotypes = model.getPhenotypes();
         PhenoGridScore score = new PhenoGridScore("Phenodigm score", 0, rank);
         List<EntityInfo> info = makeModelInfo(model, 0, baseUrl);
