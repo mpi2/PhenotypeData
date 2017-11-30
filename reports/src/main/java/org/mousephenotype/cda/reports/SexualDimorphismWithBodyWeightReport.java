@@ -31,12 +31,19 @@ import java.beans.Introspector;
 import java.io.IOException;
 import java.util.List;
 
-/**
+/*
  * Sexual Dimorphism With Body Weight report.
  *
  * Created by mrelac on 24/07/2015.
+ *
+ * 2017-11-30 (mrelac) The SexualDimorphismNoBodyWeightReport and SexualDimorphismWithBodyWeightReport were
+ * temporary reports meant to support the Sexual Dimorphism paper and are no longer needed. SexualDimorphismWithBodyWeightReport
+ * no longer builds as it has a hard-coded dependency on database komp2_4_0_with_weight, which no longer exists. We are
+ * leaving the code for future reference but have annotated these report classes as @Deprecated and removed them from
+ * the ReportManager.
  */
 @Component
+@Deprecated
 public class SexualDimorphismWithBodyWeightReport extends AbstractReport {
 
     protected Logger logger = LoggerFactory.getLogger(this.getClass());
