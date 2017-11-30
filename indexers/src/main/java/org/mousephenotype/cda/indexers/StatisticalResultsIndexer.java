@@ -365,6 +365,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
         addImpressData(r, doc);
 
         // Biological details
+        System.out.println(doc.toString());
         addBiologicalData(doc, doc.getMutantBiologicalModelId());
 
         BasicBean stage = getDevelopmentalStage(doc.getPipelineStableId(), procedurePrefix, doc.getColonyId());
@@ -661,6 +662,13 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 
         String mpTerm = r.getString("mp_acc");
 
+        //test
+        if(mpTerm.equals("MP:0001325")) {
+            OntologyTermDTO term = mpParser.getOntologyTerm(mpTerm);
+            System.out.println("****DATA:"+ term.toString());
+        }
+
+
         // For reference range plus results only, test that the MP term has been set, if not, try to set the abnormal termif (doc.getStatisticalMethod() != null && doc.getStatisticalMethod().equals("Reference Ranges Plus framework")) {
 
         // Sometimes, the stats result generator doesn't set the MP term (also not for either sex), in that case,
@@ -804,6 +812,11 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
         if (b == null) {
             logger.error(" Cannot find genomic information for biological_model_id {}", biologicalModelId);
             return;
+        }
+
+        // test
+        if (b.geneSymbol.equals("Pard3")){
+            System.out.println("Working on Pard3");
         }
 
         doc.setMarkerAccessionId(b.geneAcc);

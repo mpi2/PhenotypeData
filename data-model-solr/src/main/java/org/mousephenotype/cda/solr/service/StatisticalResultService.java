@@ -1133,9 +1133,9 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 		if (zygosity != null) {
 			solrQuery.addFilterQuery(StatisticalResultDTO.ZYGOSITY + ":" + zygosity.getName());
 		}
-		//System.out.println("solrQuery="+solrQuery);
+		System.out.println("solrQuery="+solrQuery);
 		List<StatisticalResultDTO> dtos = solr.query(solrQuery).getBeans(StatisticalResultDTO.class);
-		//System.out.println("SRDTOS size="+dtos.size());
+		System.out.println("SRDTOS size for " + zygosity.getName() + "="+dtos.size());
 
 		for (StatisticalResultDTO dto : dtos) {
 			if (dto.getTopLevelMpTermId() != null || dto.getFemaleTopLevelMpTermId() != null || dto.getMaleTopLevelMpTermId() != null) {

@@ -136,6 +136,8 @@
 		<field name="mgi_accession_id" type="string" indexed="true" stored="true" required="true" multiValued="false" />
 		<field name="marker_symbol" type="string" indexed="true" stored="true" required="true" multiValued="false" />
 		<field name="human_gene_symbol" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+		<field name="human_symbol_synonym" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+
 		<field name="marker_name" type="text_general" indexed="true" stored="true" required="false" />
 		<field name="marker_synonym" type="string" indexed="true" stored="true" required="false" multiValued="true" />
 		<field name="marker_type" type="string" indexed="true" stored="true" multiValued="false" />
@@ -302,6 +304,8 @@
 		<field name="marker_symbol_bf" type="text_ngram" indexed="true" stored="false" multiValued="true"/>
 		<field name="marker_symbol_lowercase" type="text_lowercase" indexed="true" stored="false" multiValued="true"/>
 		<field name="marker_synonym_lowercase" type="text_lowercase" indexed="true" stored="false" multiValued="true"/>
+		<field name="human_gene_symbol_lowercase" type="text_lowercase" indexed="true" stored="false" multiValued="true"/>
+		<field name="human_symbol_synonym_lowercase" type="text_lowercase" indexed="true" stored="false" multiValued="true"/>
 
 		<!-- bucket list qf -->
 		<field name="geneQf" type="text_ngram" indexed="true" stored="false" multiValued="true"/>
@@ -343,6 +347,7 @@
 	<copyField source="marker_name" dest="auto_suggest"/>
 	<copyField source="marker_synonym" dest="auto_suggest"/>
 	<copyField source="human_gene_symbol" dest="auto_suggest"/>
+	<copyField source="human_symbol_synonym" dest="auto_suggest"/>
 	<copyField source="ensembl_gene_id" dest="auto_suggest"/>
 	<copyField source="latest_production_centre" dest="auto_suggest"/>
 	<copyField source="latest_phenotyping_centre" dest="auto_suggest"/>
@@ -394,6 +399,7 @@
 	<copyField source="marker_name" dest="geneQf" />
 	<copyField source="marker_synonym" dest="geneQf" />
 	<copyField source="human_gene_symbol" dest="geneQf" />
+	<copyField source="human_symbol_synonym" dest="geneQf" />
 
 	<copyField source="marker_symbol" dest="marker_symbol_lowercase" />
 	<copyField source="marker_synonym" dest="marker_synonym_lowercase" />
