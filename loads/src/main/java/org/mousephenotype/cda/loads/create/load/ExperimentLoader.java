@@ -722,7 +722,7 @@ public class ExperimentLoader implements CommandLineRunner {
                 return null;
             }
             sequenceId = dccExperiment.getSequenceId();
-            BioSampleKey bioSampleKey = BioSampleKey.make(dccExperiment.getSpecimenId(), phenotypingCenterPk, dccExperiment.getDatasourceShortName());
+            BioSampleKey bioSampleKey = BioSampleKey.make(dccExperiment.getSpecimenId(), phenotypingCenterPk);
             biologicalSamplePk = samplesMap.get(bioSampleKey).getId();
         }
 

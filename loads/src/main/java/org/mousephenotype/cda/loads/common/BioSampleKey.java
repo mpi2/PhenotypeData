@@ -23,12 +23,10 @@ public class BioSampleKey {
 
     private String specimenId;
     private int phenotypingCenterPk;
-    private String datasourceShortName;
 
-    public BioSampleKey(String specimenId, int phenotypingCenterPk, String datasourceShortName) {
+    public BioSampleKey(String specimenId, int phenotypingCenterPk) {
         this.specimenId = specimenId;
         this.phenotypingCenterPk = phenotypingCenterPk;
-        this.datasourceShortName = datasourceShortName;
     }
 
     /**
@@ -36,12 +34,11 @@ public class BioSampleKey {
      *
      * @param specimenId the specimen id (also known as external_id or stableId). Not necessarily unique in itself amongst all centers.
      * @param phenotypingCenterPk the phenotyping center primary key (also known as the sample organisation key)
-     * @param datasourceShortName the data source (e.g. EuroPhenome, WTSI, etc)
      *
      * @return a key that uniquely identifies a sample
      */
-    public static BioSampleKey make(String specimenId, Integer phenotypingCenterPk, String datasourceShortName) {
-        return new BioSampleKey(specimenId, phenotypingCenterPk, datasourceShortName);
+    public static BioSampleKey make(String specimenId, Integer phenotypingCenterPk) {
+        return new BioSampleKey(specimenId, phenotypingCenterPk);
     }
 
     public String getSpecimenId() {
@@ -60,14 +57,6 @@ public class BioSampleKey {
         this.phenotypingCenterPk = phenotypingCenterPk;
     }
 
-    public String getDatasourceShortName() {
-        return datasourceShortName;
-    }
-
-    public void setDatasourceShortName(String datasourceShortName) {
-        this.datasourceShortName = datasourceShortName;
-    }
-
     @Override
     public boolean equals(Object o) {
 
@@ -82,6 +71,6 @@ public class BioSampleKey {
 
     @Override
     public String toString() {
-        return specimenId + "_" + phenotypingCenterPk + "_" + datasourceShortName;
+        return specimenId + "_" + phenotypingCenterPk;
     }
 }
