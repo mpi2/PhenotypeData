@@ -26,7 +26,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import uk.ac.ebi.phenodigm2.Disease;
-import uk.ac.ebi.phenodigm2.Gene;
+import uk.ac.ebi.phenodigm2.DiseaseGeneAssociation;
 import uk.ac.ebi.phenodigm2.DiseaseModelAssociation;
 import uk.ac.ebi.phenodigm2.WebDao;
 
@@ -81,13 +81,13 @@ public class DiseaseController2 {
         model.addAttribute("disease", disease);
 
         // fetch associations between the disease and known genes        
-        List<Gene> geneAssociations = phenoDigm2Dao.getDiseaseToGeneAssociations(diseaseId);
+        List<DiseaseGeneAssociation> geneAssociations = phenoDigm2Dao.getDiseaseToGeneAssociations(diseaseId);
         // split the genes into curated/ortholog, i.e. human/mouse 
-        List<Gene> curatedAssociations = new ArrayList<>();
-        List<Gene> orthologousAssociations = new ArrayList<>();
+        List<DiseaseGeneAssociation> curatedAssociations = new ArrayList<>();
+        List<DiseaseGeneAssociation> orthologousAssociations = new ArrayList<>();
         HashSet<String> orthologousGenes = new HashSet<>();
-        for (Gene assoc : geneAssociations) {
-            if (assoc.isOrtholog()) {
+        for (DiseaseGeneAssociation assoc : geneAssociations) {
+            if (assoc.isByOrthology()) {
                 orthologousAssociations.add(assoc);
                 orthologousGenes.add(assoc.getSymbol());
             } else {
@@ -115,7 +115,7 @@ public class DiseaseController2 {
         if (modelAssociations.size() > 0) {
             List<String> jsons = new ArrayList<>();
             for (DiseaseModelAssociation assoc : modelAssociations) {
-                jsons.add(assoc.getModelJson());
+                jsons.add(assoc.makeModelJson());
                 if (orthologousGenes.contains(assoc.getMarkerSymbol())) {
                     hasModelsByOrthology = true;
                 }

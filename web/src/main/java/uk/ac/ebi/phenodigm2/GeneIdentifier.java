@@ -65,11 +65,6 @@ public class GeneIdentifier implements Comparable<GeneIdentifier> {
             return this.geneId.compareTo(other.geneId);
         }
         return symbolcompare;        
-    }
-
-    @Override
-    public String toString() {
-        return "GeneIdentifier{" + "geneId=" + geneId + ", geneSymbol=" + geneSymbol + '}';
-    }
+    }    
    
 }

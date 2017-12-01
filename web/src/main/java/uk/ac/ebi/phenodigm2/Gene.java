@@ -24,7 +24,7 @@ import java.util.List;
  * The target of the association is not part of this object.
  * 
  */
-public class Gene extends AssociationType implements IdUrl {
+public class Gene implements IdUrl {
 
     private String id;
     private String symbol;
@@ -63,12 +63,7 @@ public class Gene extends AssociationType implements IdUrl {
     public void setLocus(String locus) {
         this.locus = locus;
     }
-
-    @Override
-    public String toString() {
-        return "GeneAssociation{" + "id=" + id + ", symbol=" + symbol + ", symbolsWithdrawn=" + symbolsWithdrawn + '}';
-    }
-
+    
     /**
      *
      * @return

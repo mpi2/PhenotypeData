@@ -54,7 +54,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import uk.ac.ebi.phenodigm.dao.PhenoDigmWebDao;
 import uk.ac.ebi.phenotype.error.GenomicFeatureNotFoundException;
 import uk.ac.ebi.phenotype.generic.util.RegisterInterestDrupalSolr;
 import uk.ac.ebi.phenotype.generic.util.SolrIndex2;
@@ -80,6 +79,7 @@ import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
 import java.util.*;
 import uk.ac.ebi.phenodigm2.Disease;
+import uk.ac.ebi.phenodigm2.GeneDiseaseAssociation;
 import uk.ac.ebi.phenodigm2.DiseaseModelAssociation;
 import uk.ac.ebi.phenodigm2.WebDao;
 
@@ -1025,7 +1025,7 @@ public class GenesController {
 
         // fetch diseases that are linked to a gene via annotations/curation
         LOGGER.info(String.format("%s - getting gene-disease associations for gene ", acc));
-        List<Disease> geneAssociations = phenoDigm2Dao.getGeneToDiseaseAssociations(acc);
+        List<GeneDiseaseAssociation> geneAssociations = phenoDigm2Dao.getGeneToDiseaseAssociations(acc);
         
         // fetch just the ids, and encode them into an array
         HashSet<String> curatedDiseases = new HashSet<>();
@@ -1050,7 +1050,7 @@ public class GenesController {
         if (modelAssociations.size() > 0) {
             List<String> jsons = new ArrayList<>();
             for (DiseaseModelAssociation assoc : modelAssociations) {                
-                jsons.add(assoc.getDiseaseJson());
+                jsons.add(assoc.makeDiseaseJson());
                 if (curatedDiseases.contains(assoc.getDiseaseId())) {
                     hasModelsByOrthology = true;
                 }

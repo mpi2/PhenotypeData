@@ -50,7 +50,7 @@ public interface WebDao {
      * gene associated (via curation) to the disease. The information will also
      * contain links to mouse genes that are orthologous to the human gene.
      */
-    public List<Gene> getDiseaseToGeneAssociations(String diseaseId);
+    public List<DiseaseGeneAssociation> getDiseaseToGeneAssociations(String diseaseId);
 
     /**
      * Fetch curated associations from genes to diseases.
@@ -62,7 +62,7 @@ public interface WebDao {
      * A list of objects. Each element will contain information about a gene-
      * disease association (via curation).
      */
-    public List<Disease> getGeneToDiseaseAssociations(String geneId);
+    public List<GeneDiseaseAssociation> getGeneToDiseaseAssociations(String geneId);
 
     
     /**
