@@ -97,7 +97,6 @@ public class TestConfig extends DataSourcesConfigApp implements InitializingBean
     }
 
 
-    // cda database
     @Bean
     public DataSource cdaDataSource() {
         return new EmbeddedDatabaseBuilder()
@@ -105,8 +104,7 @@ public class TestConfig extends DataSourcesConfigApp implements InitializingBean
                 .ignoreFailedDrops(true)
                 .setName("cda_test")
                 .addScripts("sql/h2/cda/schema.sql",
-                            "sql/h2/impress/impressSchema.sql",
-                            "sql/h2/dataIntegrationTest-data.sql")
+                            "sql/h2/impress/impressSchema.sql")
                 .build();
     }
 

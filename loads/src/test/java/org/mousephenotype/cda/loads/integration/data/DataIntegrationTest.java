@@ -19,6 +19,7 @@ package org.mousephenotype.cda.loads.integration.data;
 import org.h2.tools.Server;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.loads.common.CdaSqlUtils;
@@ -33,11 +34,13 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.core.io.Resource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.datasource.init.ScriptUtils;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import javax.sql.DataSource;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -103,7 +106,7 @@ public class DataIntegrationTest {
 
 
     // Set startServer to true to produce an in-memory h2 database browser.
-    private static boolean startServer = true;
+    private static boolean startServer = false;
     private static Server server;
 
     private Thread thread;
@@ -151,46 +154,43 @@ public class DataIntegrationTest {
      *   control specimenId:  14819
      *   mutant specimenId:   19603       WTSI.2013-10-31.14.experiment.impc.xml   line 38783
      */
-//    @Ignore
+@Ignore
     @Test
     public void testBackgroundStrainIsEqual() throws Exception {
 
-        Resource specimenResource = context.getResource("classpath:xml/akt2Specimens.xml");
-        Resource experimentResource = context.getResource("classpath:xml/akt2Experiment.xml");
+        Resource dataResource   = context.getResource("classpath:sql/h2/BackgroundStrainIsEqual-data.sql");
+        Resource specimenResource   = context.getResource("classpath:xml/BackgroundStrainIsEqual-Specimens.xml");
+        Resource experimentResource = context.getResource("classpath:xml/BackgroundStrainIsEqual-Experiment.xml");
 
-        String[] extractSpecimenArgs = new String[] {
+        ScriptUtils.executeSqlScript(cdaDataSource.getConnection(), dataResource);
+
+        String[] extractSpecimenArgs = new String[]{
                 "--datasourceShortName=EuroPhenome",
                 "--filename=" + specimenResource.getFile().getAbsolutePath()
-                };
+        };
 
-        String[] extractExperimentArgs = new String[] {
+        String[] extractExperimentArgs = new String[]{
                 "--datasourceShortName=EuroPhenome",
                 "--filename=" + experimentResource.getFile().getAbsolutePath()
         };
 
-        String[] loadArgs = new String[] {
+        String[] loadArgs = new String[]{
                 "--profile=dev",
-        };
+                };
 
-        System.out.println("dccSpecimenExtractor");
         dccSpecimenExtractor.run(extractSpecimenArgs);
-
-        System.out.println("dccExperimentExtractor");
         dccExperimentExtractor.run(extractExperimentArgs);
 
-        System.out.println("sampleLoader");
         sampleLoader.run(loadArgs);
-
-        System.out.println("experimentLoader");
         experimentLoader.run(loadArgs);
 
-        List<List<String>> results = getSpecimenStrainAccs();
-        List<String> controlList = results.get(0);
-        List<String> mutantList = results.get(1);
+        List<List<String>> results     = getSpecimenStrainAccs();
+        List<String>       controlList = results.get(0);
+        List<String>       mutantList  = results.get(1);
 
         if ((controlList.get(0) != mutantList.get(0)) || (controlList.get(1) != mutantList.get(1))) {
             Assert.fail("control and mutant strains differ:\n\tcontrol: " + controlList.get(0) + "::" + controlList.get(1) +
-                                                          "\n\tmutant:  " + mutantList.get(0) + "::" + mutantList.get(1));
+                                "\n\tmutant:  " + mutantList.get(0) + "::" + mutantList.get(1));
         }
     }
 
@@ -203,29 +203,38 @@ public class DataIntegrationTest {
     }
 
     /*
-     * Test parseMultipleBackgroundStrainNames with multiple strain names separated by  semicolons
-     */
-    @Test
-    public void testParseMultipleBackgroundStrainNamesWithSemicolon() {}
-
-    /*
-     * Test parseMultipleBackgroundStrainNames with multiple strain names separated by asterisks
-     */
-    @Test
-    public void testParseMultipleBackgroundStrainNamesWithAsterisks() {}
-
-    /*
-     * Test parseMultipleBackgroundStrainNames with a single strain name
-     */
-    @Test
-    public void testParseMultipleBackgroundStrainNamesSingleStrainName() {}
-
-    /*
      * Test that line-level experiments get the correct biological model and friends.
      */
+//@Ignore
     @Test
-    public void testLineLevelExperimentThatUsesExistingBiologicalModel() {
+    public void testLineLevelExperimentThatUsesExistingBiologicalModel() throws Exception {
 
+//        Resource dataResource   = context.getResource("classpath:sql/h2/BackgroundStrainIsEqual-data.sql");
+        Resource experimentResource = context.getResource("classpath:xml/LineLevelExperimentThatUsesExistingBiologicalModel-Experiment.xml");
+
+        String[] extractExperimentArgs = new String[] {
+                "--datasourceShortName=IMPC",
+                "--filename=" + experimentResource.getFile().getAbsolutePath()
+        };
+
+//        ScriptUtils.executeSqlScript(cdaDataSource.getConnection(), dataResource);
+
+
+
+
+        String[] loadArgs = new String[] {
+                "--profile=dev",
+                };
+
+        dccExperimentExtractor.run(extractExperimentArgs);
+
+        experimentLoader.run(loadArgs);
+
+        System.out.println();
+
+//        List<List<String>> results = getSpecimenStrainAccs();
+//        List<String> controlList = results.get(0);
+//        List<String> mutantList = results.get(1);
     }
 
     @Test
