@@ -67,15 +67,6 @@ public class DataSourcesConfigApp {
     @Value("${datasource.cda.password}")
     protected String cdaPassword;
 
-    @Value("${datasource.dccEurophenomeFinal.url}")
-    String dccEurophenomeFinalUrl;
-
-    @Value("${datasource.dccEurophenomeFinal.username}")
-    String dccEurophenomeFinalUsername;
-
-    @Value("${datasource.dccEurophenomeFinal.password}")
-    String dccEurophenomeFinalPassword;
-
     @Value("${datasource.cdabase.url}")
     String cdabaseUrl;
 
@@ -94,8 +85,6 @@ public class DataSourcesConfigApp {
     @Value("${datasource.dcc.password}")
     String dccPassword;
 
-    @Inject
-    protected Environment env;
 
     protected DataSource getConfiguredDatasource(String url, String username, String password) {
         org.apache.tomcat.jdbc.pool.DataSource ds = new org.apache.tomcat.jdbc.pool.DataSource();
@@ -184,11 +173,7 @@ public class DataSourcesConfigApp {
     // dcc database
     @Bean
     public DataSource dccDataSource() {
-        if (env.getProperty("useEurophenome") != null) {
-            return getConfiguredDatasource(dccEurophenomeFinalUrl, dccEurophenomeFinalUsername, dccEurophenomeFinalPassword);
-        } else {
-            return getConfiguredDatasource(dccUrl, dccUsername, dccPassword);
-        }
+        return getConfiguredDatasource(dccUrl, dccUsername, dccPassword);
     }
 
     @Bean
