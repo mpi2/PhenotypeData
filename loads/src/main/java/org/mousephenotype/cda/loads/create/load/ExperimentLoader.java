@@ -519,8 +519,6 @@ public class ExperimentLoader implements CommandLineRunner {
         }
 
 
-
-        // FIXME Where should this remap take place? Not necessarily here!
         /*
          * Some legacy strain names use a semicolon to separate multiple strain names contained in a single
          * field. Load processing code expects the separator for multiple strains to be an asterisk. Remap any
@@ -534,10 +532,6 @@ public class ExperimentLoader implements CommandLineRunner {
                 colony.setBackgroundStrain(remappedStrainName);
             }
         }
-        // FIXME Where should this remap take place? Not necessarily here!
-
-
-
 
 
         /*

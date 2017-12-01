@@ -42,7 +42,6 @@ public class DccExperimentDTO {
     private String  rawProcedureStatus;
     private long    dcc_procedure_pk;
     private boolean isLineLevel;
-    private boolean isControl;
 
     public String getDatasourceShortName() {
         return datasourceShortName;
@@ -179,16 +178,7 @@ public class DccExperimentDTO {
     public void setLineLevel(boolean lineLevel) {
         isLineLevel = lineLevel;
     }
-// FIXME
-    @Deprecated
-    public boolean isControl() {
-        return isControl;
-    }
-// FIXME
-    @Deprecated
-    public void setControl(boolean control) {
-        isControl = control;
-    }
+
 
     @Override
     public String toString() {
@@ -210,7 +200,6 @@ public class DccExperimentDTO {
                 ", rawProcedureStatus='" + rawProcedureStatus + '\'' +
                 ", dcc_procedure_pk=" + dcc_procedure_pk +
                 ", isLineLevel=" + isLineLevel +
-//                ", isControl=" + isControl +
                 '}';
     }
 }

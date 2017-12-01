@@ -576,21 +576,6 @@ public class CdaSqlUtils {
         return dbname;
     }
 
-    /**
-     *
-     * @param externalDbShortName a name matching the external_db.short_name field
-     * @return the db_id matching short_name
-     */
-    // FIXME  Called only by old version of SampleLoader
-    @Deprecated
-    public int getExternalDbId(String externalDbShortName) {
-        Map<String, Object> parameterMap = new HashMap<>();
-        parameterMap.put("short_name", externalDbShortName);
-
-        return jdbcCda.queryForObject("SELECT id FROM external_db WHERE short_name = :short_name", parameterMap, Integer.class);
-    }
-
-
 
     /**
      * Return the <code>GenomicFeature</code> matching the given {@code mgiAccessionId}
@@ -2957,35 +2942,6 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
             return allele;
         }
     }
-// FIXME - can this be deleted?
-    public class BiologicalModelRowMapper implements RowMapper<BiologicalModel> {
-
-        /**
-         * Implementations must implement this method to map each row of data
-         * in the ResultSet. This method should not call {@code next()} on
-         * the ResultSet; it is only supposed to map values of the current row.
-         *
-         * @param rs     the ResultSet to map (pre-initialized for the current row)
-         * @param rowNum the number of the current row
-         * @return the result object for the current row
-         * @throws SQLException if a SQLException is encountered getting
-         *                      column values (that is, there's no need to catch SQLException)
-         */
-        @Override
-        public BiologicalModel mapRow(ResultSet rs, int rowNum) throws SQLException {
-            BiologicalModel bm = new BiologicalModel();
-
-            bm.setId(rs.getInt("id"));
-            Datasource ds = new Datasource();
-            ds.setId(rs.getInt("db_id"));
-            bm.setDatasource(ds);
-            bm.setAllelicComposition(rs.getString("allelic_composition"));
-            bm.setGeneticBackground(rs.getString("genetic_background"));
-            bm.setZygosity(rs.getString("zygosity"));
-
-            return bm;
-        }
-    }
 
     public class BiologicalSampleRowMapper implements RowMapper<BiologicalSample> {
 
@@ -3107,53 +3063,6 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
         return targetedTerm;
     }
 
-    /**
-   	 * Create an allele record in the database with the supplied allele symbol.
-   	 *
-   	 *
-   	 * @param alleleSymbol the allele symbol
-     * @param gene the gene instance
-   	 * @return an allele DAO object representing the newly created allele.
-     *
-     * @throws DataLoadException if the insert fails for any reason
-   	 */
-    // FIXME
-    @Deprecated
-   	public Allele createAndInsertAllele(String alleleSymbol, GenomicFeature gene) throws DataLoadException {
-
-        if (alleleSymbol == null || alleleSymbol.isEmpty()) {
-            logger.warn("Allele symbol is null");
-      		throw new DataLoadException("Allele symbol is null");
-        }
-
-   		// Create the allele based on the symbol
-   		// e.g. allele symbol Lama4<tm1.1(KOMP)Vlcg>
-        // Alleles are not required to have "<" and ">". If missing, just use the name for both the gene and the allele.
-
-   		// Create the gene symbol
-        int index = alleleSymbol.indexOf('<');
-   		String alleleGeneSymbol = (index >= 0 ? alleleSymbol.substring(0, index)  : alleleSymbol);
-
-   		// Create the allele acc
-   		String alleleAccession = "NULL-" + DigestUtils.md5Hex(alleleSymbol).substring(0, 9).toUpperCase();
-
-        // Create the allele
-        Allele allele = new Allele();
-        allele.setBiotype(getTargetedTerm());
-        allele.setGene(gene);
-        allele.setId(new DatasourceEntityId(alleleAccession, DbIdType.IMPC.intValue()));
-        allele.setName(alleleSymbol);
-        allele.setSymbol(alleleSymbol);
-        allele.setSynonyms(new ArrayList<>());
-        List<Allele> alleles = new ArrayList<>();
-        alleles.add(allele);
-
-   		// Insert the allele into the database
-        insertAlleles(alleles);
-        logger.info("Created allele '{}', '{}', '{}'", allele.getId().getAccession(), allele.getSymbol(), (gene == null ? "null" : gene.getSymbol()));
-
-        return allele;
-   	}
 
     /**
      * Enables/disables mysql table indexes.
