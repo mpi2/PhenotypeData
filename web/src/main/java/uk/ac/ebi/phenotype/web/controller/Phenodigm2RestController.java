@@ -21,7 +21,6 @@ import javax.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -165,7 +164,7 @@ public class Phenodigm2RestController {
         String label = model.getDescription();
         List<Phenotype> phenotypes = model.getPhenotypes();
         PhenoGridScore score = new PhenoGridScore("Phenodigm score", 0, rank);
-        List<EntityInfo> info = makeModelInfo(model, 0, baseUrl);
+        List<EntityInfo> info = makeModelInfo(model);
 
         return new PhenoGridEntity(id, label, phenotypes, score, info);
     }
@@ -192,7 +191,7 @@ public class Phenodigm2RestController {
     /**
      *
      */
-    private List<EntityInfo> makeModelInfo(MouseModel model, double score, String baseUrl) {
+    private List<EntityInfo> makeModelInfo(MouseModel model) {
 
         List<EntityInfo> result = new ArrayList<>();
         result.add(new EntityInfo("Source: ", model.getSource(), null));
