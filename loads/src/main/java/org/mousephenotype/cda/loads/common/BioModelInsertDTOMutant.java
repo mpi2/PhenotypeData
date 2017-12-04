@@ -38,7 +38,7 @@ public class BioModelInsertDTOMutant extends BioModelInsertDTO {
      * @param allele a single allele that gets inserted into the empty alleles set
      * @param strain a single strain that gets inserted into the empty strains set
      */
-    public BioModelInsertDTOMutant(int dbId, int biologicalSamplePk, String allelicComposition, String geneticBackground, String zygosity,
+    public BioModelInsertDTOMutant(int dbId, Integer biologicalSamplePk, String allelicComposition, String geneticBackground, String zygosity,
                                    AccDbId gene, AccDbId allele, AccDbId strain) {
         super(dbId, biologicalSamplePk, allelicComposition, geneticBackground, zygosity);
         this.genes.add(gene);

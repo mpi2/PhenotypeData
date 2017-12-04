@@ -103,8 +103,6 @@ public class TestConfig extends DataSourcesConfigApp implements InitializingBean
                 .setType(EmbeddedDatabaseType.H2)
                 .ignoreFailedDrops(true)
                 .setName("cda_test")
-                .addScripts("sql/h2/cda/schema.sql",
-                            "sql/h2/impress/impressSchema.sql")
                 .build();
     }
 
@@ -116,7 +114,6 @@ public class TestConfig extends DataSourcesConfigApp implements InitializingBean
                 .setType(EmbeddedDatabaseType.H2)
                 .ignoreFailedDrops(true)
                 .setName("dcc_test")
-                .addScripts("sql/h2/dcc/createSpecimen.sql", "sql/h2/dcc/createExperiment.sql")
                 .build();
     }
 

@@ -665,8 +665,7 @@ public class ExperimentLoader implements CommandLineRunner {
             if (dccExperiment.isLineLevel()) {
 
                 // This line-level experiment's biological model may not have been created yet.
-                key = bioModelManager.createMutantKey(dccExperiment.getDatasourceShortName(), dccExperiment.getColonyId(), zygosity);
-                if (key == null) {
+                if (biologicalModelPk == null) {
                     biologicalModelPk = bioModelManager.insert(dbId, phenotypingCenterPk, dccExperiment);
                     bioModelsAddedCount++;
 
