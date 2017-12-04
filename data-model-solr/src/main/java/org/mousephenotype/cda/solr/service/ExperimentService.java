@@ -61,6 +61,14 @@ public class ExperimentService{
 
     @Autowired
     private PostQcService gpService;
+    
+    /*
+     * Bringing this method back so we don't need stats results to show charts
+     */
+    public Map<String, List<String>> getExperimentKeys(String mgiAccession, String parameterStableIds, List<String> pipelineStableIds, List<String> phenotypingCenter, List<String> strain, List<String> metaDataGroup, List<String> alleleAccession) 
+    	    throws SolrServerException, IOException  {
+    	        return os.getExperimentKeys(mgiAccession, parameterStableIds, pipelineStableIds, phenotypingCenter, strain, metaDataGroup, alleleAccession);
+    	    }
 
     /**
      *
