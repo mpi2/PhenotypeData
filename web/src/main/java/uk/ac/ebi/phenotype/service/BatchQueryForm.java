@@ -14,6 +14,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 
 import static org.apache.commons.lang.StringUtils.join;
+import static org.apache.commons.lang.StringUtils.split;
 import static org.apache.solr.common.StringUtils.*;
 
 /**
@@ -30,6 +31,17 @@ public class BatchQueryForm {
     private String baseUrl;
 
     public BatchQueryForm(String mode, HttpServletRequest request, SolrDocumentList results, String fllist, String dataType, List<String> queryIds){
+
+        Map<String, String> qidMap = new HashMap<>();
+        // users query id(s)
+        List<String> queryIdsNoQuotes = new ArrayList<>();
+        for (String id : queryIds){
+            id = id.replaceAll("\"", "");
+            String idlc = id.toLowerCase();
+            //System.out.println("search qid: " + id + " --> " + idlc);
+            queryIdsNoQuotes.add(idlc);
+            qidMap.put(idlc, id);
+        }
 
         // field of dataType that shows as hyperlink
         datatypeField.put("gene", GeneDTO.MGI_ACCESSION_ID);
@@ -65,6 +77,7 @@ public class BatchQueryForm {
             rows.add(join(checkedFields, "\t"));
         }
 
+        System.out.println("Found " + results.size() + " out of " + queryIds.size() + " in user's query list");
 
         for (int i = 0; i < results.size(); ++i) {
             SolrDocument doc = results.get(i);
@@ -102,7 +115,22 @@ public class BatchQueryForm {
             }
 
             // so that we could output result per user's order of search input
-            qryIdRow.put(doc.getFieldValue(datatypeField.get(dataType)).toString().toLowerCase().replace("[", "").replace("]", ""), rowData);
+            String keystr = doc.getFieldValue(datatypeField.get(dataType)).toString().toLowerCase().replace("[", "").replace("]", "");
+
+            if (! keystr.contains(",")){
+                qryIdRow.put(keystr, rowData);
+            }
+            else {
+                // some mouse symbol are mapped to multiple human gene symbol: we only need to fetch the ones that are in user's query
+                //System.out.println("symbol: " +keystr);
+                List<String> keys = Arrays.asList(split(keystr, ","));
+                for( String key : keys) {
+                    key = key.trim();
+                    if (queryIdsNoQuotes.contains(key)) {
+                        qryIdRow.put(key, rowData);
+                    }
+                }
+            }
         }
 
         //System.out.println("rows: "+ qryIdRow.toString());
@@ -114,15 +142,6 @@ public class BatchQueryForm {
             foundQryIds.add(qid.toLowerCase());
         }
 
-        Map<String, String> qidMap = new HashMap<>();
-        List<String> queryIdsNoQuotes = new ArrayList<>();
-        for (String id : queryIds){
-            id = id.replaceAll("\"", "");
-            String idlc = id.toLowerCase();
-            //System.out.println("search qid: " + id + " --> " + idlc);
-            queryIdsNoQuotes.add(idlc);
-            qidMap.put(idlc, id);
-        }
         // find the ids that are not found and displays them to users
         ArrayList nonFoundIds = (java.util.ArrayList) CollectionUtils.disjunction(queryIdsNoQuotes, new ArrayList(foundQryIds));
 
@@ -144,17 +163,21 @@ public class BatchQueryForm {
 
         // fill in NA for the fields for the search query not found
         for (Object nf : nonFoundIds){
-            List<String> rowData = new ArrayList<String>();
             String nfs = nf.toString();
-            for (int i=0; i<checkedFields.size(); i++ ){
-                if (i == fieldIndex){
-                    rowData.add(qidMap.get(nfs));
+            if (! qryIdRow.containsKey(nf)) {
+                List<String> rowData = new ArrayList<String>();
+                for (int i = 0; i < checkedFields.size(); i++) {
+                    if (i == fieldIndex) {
+                        rowData.add(qidMap.get(nfs));
+                    } else {
+                        rowData.add(NA);
+                    }
                 }
-                else {
-                    rowData.add(NA);
-                }
+                qryIdRow.put(nfs.toLowerCase(), rowData);
             }
-            qryIdRow.put(nfs.toLowerCase(), rowData);
+            else {
+                queryIdsNoQuotes.add(nfs);
+            }
         }
 
 
@@ -164,8 +187,10 @@ public class BatchQueryForm {
 
             if (mode.equals("onPage")) {
                 j.getJSONArray("aaData").add(qryIdRow.get(lcQryId));
+
             }
             else {
+                // export result
                 rows.add(join(qryIdRow.get(lcQryId), "\t"));
             }
         }
