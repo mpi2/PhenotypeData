@@ -213,7 +213,14 @@ public class SampleLoader implements CommandLineRunner {
                 if (remappedStrain == null) {
                     remappedStrain = bioModelManager.getStrainMapper().createBackgroundStrain(specimen.getStrainID());
                 }
-                specimen.setStrainID(remappedStrain.getName());
+
+
+// FIXME
+                try {
+                    specimen.setStrainID(remappedStrain.getName());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
 
                 // Get phenotypingCenterPk and productionCenterPk.
                 if (colony != null) {
