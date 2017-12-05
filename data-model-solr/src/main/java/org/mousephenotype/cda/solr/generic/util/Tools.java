@@ -210,8 +210,9 @@ public class Tools {
 			mainAttrs.add("mgi_accession_id");
 			mainAttrs.add("marker_symbol");
 			mainAttrs.add("human_gene_symbol");
-			mainAttrs.add("marker_name");
 			mainAttrs.add("marker_synonym");
+			//mainAttrs.add("human_symbol_synonym");
+			mainAttrs.add("marker_name");
 			mainAttrs.add("marker_type");
 			mainAttrs.add("latest_mouse_status");
 			mainAttrs.add("latest_phenotype_status");
@@ -222,7 +223,7 @@ public class Tools {
 			mainAttrs.add("latest_phenotyping_centre");
 
 			// gene has QC: ie, a record in experiment core
-			additionalInfos.add("ensembl_gene_ids");
+			additionalInfos.add("ensembl_gene_id");
 			additionalInfos.add("hasQc");
 
 			// annotated mp term

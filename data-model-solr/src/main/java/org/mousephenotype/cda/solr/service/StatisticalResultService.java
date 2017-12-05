@@ -163,7 +163,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 				StatisticalResultDTO.PHENOTYPING_CENTER + "," +
 				StatisticalResultDTO.STRAIN_ACCESSION_ID + "," +
 				StatisticalResultDTO.ALLELE_ACCESSION_ID;
-		if (metaDataGroup != null){
+		if (metaDataGroup != null && metaDataGroup.size()>0){
 			pivotFacet += "," + StatisticalResultDTO.METADATA_GROUP;
 
 		}
@@ -172,6 +172,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 		query.setFacetLimit(-1);
 
 		Set<String> resultParametersForCharts = new HashSet<>();
+		System.out.println("facet pivot query="+query);
 		NamedList<List<PivotField>> facetPivot = solr.query(query).getFacetPivot();
 		for( PivotField pivot : facetPivot.get(pivotFacet)){
 			getParametersForChartFromPivot(pivot, baseUrl, resultParametersForCharts);
@@ -968,7 +969,6 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 				.setRows(10)
 				;
 
-		System.out.println("statistical-result query========"+query);
 		if(strain != null) {
 			query.addFilterQuery(StatisticalResultDTO.STRAIN_ACCESSION_ID + ":\"" + strain + "\"");
 		}
@@ -1133,9 +1133,9 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 		if (zygosity != null) {
 			solrQuery.addFilterQuery(StatisticalResultDTO.ZYGOSITY + ":" + zygosity.getName());
 		}
-		//System.out.println("solrQuery="+solrQuery);
+		System.out.println("solrQuery="+solrQuery);
 		List<StatisticalResultDTO> dtos = solr.query(solrQuery).getBeans(StatisticalResultDTO.class);
-		//System.out.println("SRDTOS size="+dtos.size());
+		System.out.println("SRDTOS size for " + zygosity.getName() + "="+dtos.size());
 
 		for (StatisticalResultDTO dto : dtos) {
 			if (dto.getTopLevelMpTermId() != null || dto.getFemaleTopLevelMpTermId() != null || dto.getMaleTopLevelMpTermId() != null) {

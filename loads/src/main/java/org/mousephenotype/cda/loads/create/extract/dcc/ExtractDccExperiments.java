@@ -65,7 +65,9 @@ public class ExtractDccExperiments implements CommandLineRunner {
     // These procedures are always meant to be skipped. Additional skipped parameters passed in on the command line are
     // appended to these.
    	private Set<String> skipProcedures = new HashSet<>(Arrays.asList("SLM_SLM", "SLM_AGS", "TRC_TRC", "DSS_DSS", "MGP_ANA", "MGP_BCI", "MGP_BMI", "MGP_EEI", "MGP_MLN", "MGP_PBI", "MGP_IMM"));
-   	private Set<String> skipThreeIProcedures = new HashSet<>(Arrays.asList("SLM_SLM", "SLM_AGS", "TRC_TRC", "DSS_DSS"));
+//   	private Set<String> skipThreeIProcedures = new HashSet<>(Arrays.asList("SLM_SLM", "SLM_AGS", "TRC_TRC", "DSS_DSS"));
+    // Load all 3i data
+   	private Set<String> skipThreeIProcedures = new HashSet<>();
 
     // Required by the Harwell DCC export utilities
     public static final String CONTEXT_PATH = "org.mousephenotype.dcc.exportlibrary.datastructure.core.common:org.mousephenotype.dcc.exportlibrary.datastructure.core.procedure:org.mousephenotype.dcc.exportlibrary.datastructure.core.specimen:org.mousephenotype.dcc.exportlibrary.datastructure.tracker.submission:org.mousephenotype.dcc.exportlibrary.datastructure.tracker.validation";
@@ -179,10 +181,10 @@ public class ExtractDccExperiments implements CommandLineRunner {
             return;
         }
 
-        logger.debug("There are {} center procedure sets in experiment file {}", centerProcedures.size(), filename);
+        logger.info("There are {} center procedure sets in experiment file {}", centerProcedures.size(), filename);
 
         for (CentreProcedure centerProcedure : centerProcedures) {
-            logger.debug("Parsing experiments for center {}", centerProcedure.getCentreID().value());
+            logger.info("Parsing experiments for center {}", centerProcedure.getCentreID().value());
 
             // Load experiment info.
             for (Experiment experiment : centerProcedure.getExperiment()) {
@@ -236,14 +238,15 @@ public class ExtractDccExperiments implements CommandLineRunner {
         if (totalExperimentsFailed > 0) {
             logger.warn("Inserted {} experiments ({} failed).", totalExperiments, totalExperimentsFailed);
         } else {
-            logger.debug("Inserted {} experiments ({} failed).", totalExperiments, totalExperimentsFailed);
+            logger.info("Inserted {} experiments from file {}.", totalExperiments, filename);
         }
 
         if (totalLinesFailed > 0) {
             logger.warn("Inserted {} lines ({} failed).", totalLines, totalLinesFailed);
         } else {
-            logger.debug("Inserted {} lines ({} failed).", totalLines, totalLinesFailed);
+            logger.info("Inserted {} line level experiments from file {}.", totalLines, filename);
         }
+
     }
 
     @Transactional

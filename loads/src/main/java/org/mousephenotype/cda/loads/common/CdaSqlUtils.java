@@ -30,6 +30,7 @@ import org.mousephenotype.cda.utilities.RunStatus;
 import org.mousephenotype.dcc.exportlibrary.datastructure.core.procedure.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
@@ -79,6 +80,7 @@ public class CdaSqlUtils {
 
     public static final String EUROPHENOME = "EuroPhenome";         // The datasourceShortName for dcc_europhenome_final loads
     public static final String MGP         = "MGP";                 // The MGP project name
+    public static final String THREEI      = "3i";                  // The 3i project name
 
 
     public static final String OBSERVATION_INSERT = "INSERT INTO observation (" +
@@ -205,7 +207,7 @@ public class CdaSqlUtils {
 
         List<BiologicalSample> samples = jdbcCda.query(query, new BiologicalSampleRowMapper());
         for (BiologicalSample sample : samples) {
-            map.put(sample.getStableId() + "_" + sample.getOrganisation().getId() + "_" + sample.getDatasource().getShortName(), sample);
+            map.put(sample.getStableId() + "_" + sample.getOrganisation().getId(), sample);
         }
 
         return map;
@@ -1715,21 +1717,18 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
                 logger.warn("Insert MediaSampleParameter failed for parameterSource {}. Marking it as missing ...", parameterSource);
                 updateObservationMissingFlag(observationPk, true);
             } else {
-                // Save any parameter associations.
+                // Save parameter associations
                 for (ParameterAssociation parameterAssociation : mediaFile.getParameterAssociation()) {
                     int parameterAssociationPk = insertParameterAssociation(observationPk, parameterAssociation, simpleParameterList, ontologyParameterList);
 
-                    // Save any Dimensions.
+                    // Save Dimensions
                     for (Dimension dimension : parameterAssociation.getDim()) {
                         insertDimension(parameterAssociationPk, dimension);
                     }
                 }
 
-                // Save any procedure metadata.
-                for (ProcedureMetadata procedureMetadata : mediaFile.getProcedureMetadata()) {
-                    insertProcedureMetadata(mediaFile.getProcedureMetadata(), dccExperimentDTO.getProcedureId(),
-                                            experimentPk, observationPk);
-                }
+                // Save procedure metadata
+                insertProcedureMetadata(mediaFile.getProcedureMetadata(), dccExperimentDTO.getProcedureId(), experimentPk, observationPk);
             }
         } else {
             logger.debug("Image record not loaded (missing = 1). parameterStableId {}, URI {}" + parameterStableId,  URI);
@@ -2000,22 +1999,45 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
                              seriesMediaParameterValue.getFileType(), phenotypingCenterPk, fullResolutionFilePath, e.getLocalizedMessage());
             }
             if (count == 0) {
-                logger.warn("Insert MediaParameter failed for parameterSource {}. Marking it as missing ...", parameterSource);
+                logger.warn("Insert SeriesMediaParameter failed for parameterSource {}. Marking it as missing ...", parameterSource);
                 updateObservationMissingFlag(observationPk, true);
             } else {
 
                 try {
-                    // Save any parameter associations.
+                    // Save parameter associations
                     if (seriesMediaParameterValue.getParameterAssociation() != null && seriesMediaParameterValue.getParameterAssociation().size() > 0) {
 
                         for (ParameterAssociation parameterAssociation : seriesMediaParameterValue.getParameterAssociation()) {
-                            int parameterAssociationPk = insertParameterAssociation(observationPk, parameterAssociation, simpleParameterList, ontologyParameterList);
-
-                            // Save any Dimensions.
-                            if (parameterAssociation.getDim() != null && parameterAssociation.getDim().size() > 0) {
-                                for (Dimension dimension : parameterAssociation.getDim()) {
-                                    insertDimension(parameterAssociationPk, dimension);
+                            Integer parameterAssociationPk = null;
+                            try {
+                                parameterAssociationPk = insertParameterAssociation(observationPk, parameterAssociation, simpleParameterList, ontologyParameterList);
+                            } catch (DataIntegrityViolationException e) {
+                                String value = "";
+                                String associatedParameter = "";
+                                for (SimpleParameter s : simpleParameterList) {
+                                    if (s.getParameterID().equals(parameterAssociation.getParameterID())) {
+                                        value = s.getValue();
+                                        associatedParameter=s.getParameterID();
+                                        break;
+                                    }
                                 }
+                                logger.debug("Duplicate parameter association for specimen ID: {}, center: {}, parameterAssociation: {}->{}, value: {}",
+                                        dccExperimentDTO.getSpecimenId(),
+                                        dccExperimentDTO.getPhenotypingCenter(),
+                                        parameterStableId,
+                                        associatedParameter,
+                                        value);
+                            }
+
+                            if (parameterAssociationPk != null) {
+
+                                // Save Dimensions
+                                if (parameterAssociation.getDim() != null && parameterAssociation.getDim().size() > 0) {
+                                    for (Dimension dimension : parameterAssociation.getDim()) {
+                                        insertDimension(parameterAssociationPk, dimension);
+                                    }
+                                }
+
                             }
                         }
                     }
@@ -2025,11 +2047,8 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
                             seriesMediaParameterValue.getFileType(), phenotypingCenterPk, fullResolutionFilePath, e.getLocalizedMessage());
                 }
 
-                // Save any procedure metadata.
-                for (ProcedureMetadata procedureMetadata : seriesMediaParameterValue.getProcedureMetadata()) {
-                    insertProcedureMetadata(seriesMediaParameterValue.getProcedureMetadata(), dccExperimentDTO.getProcedureId(),
-                                            experimentPk, observationPk);
-                }
+                // Save any procedure metadata
+                insertProcedureMetadata(seriesMediaParameterValue.getProcedureMetadata(), dccExperimentDTO.getProcedureId(), experimentPk, observationPk);
             }
         } else {
             logger.debug("Image record not loaded: " + seriesMediaParameterValue.getURI());
@@ -2230,33 +2249,27 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
         parameterMap.put("parameterId", parameterAssociation.getParameterID());
         parameterMap.put("sequenceId", parameterAssociation.getSequenceID());
 
-        // set the parameter association value here. It is always a
-        // seriesParameter or Ontology so not multiple values are allowed.
-        // Loop through simple parameters (but not ontology parameters as they
-        // don't have values) to get the value for this parameterAssociation and get
-        // the value for it.
+        // Set the parameter association value. It is always a
+        // SimpleParameter and/or multiple OntologyParameters where multiple values are allowed.
+        // Loop through parameters to get the values for this parameterAssociation and if
+        // multiple ontology values, combine into a comma separated list.
         String value = null;
         for (SimpleParameter sp : simpleParameterList) {
-            String paramStableId = sp.getParameterID();                             // parameter stable id
+            String paramStableId = sp.getParameterID();
             if (paramStableId.equals(parameterAssociation.getParameterID())) {
                 value = sp.getValue();
+                break;
             }
         }
         for (OntologyParameter sp : ontologyParameterList) {
-            String paramStableId = sp.getParameterID();                             // parameter stable id
+            String paramStableId = sp.getParameterID();
             if (paramStableId.equals(parameterAssociation.getParameterID())) {
-                for (String term : sp.getTerm()) {
-                    System.err.println("ontology parameter in parameterAssociation not storing these yet but if they are here we should! term has values in them term=" + term);
+                if (value != null) {
+                    value +=","+StringUtils.join(sp.getTerm(), ",");
+                } else {
+                    value = StringUtils.join(sp.getTerm(), ",");
                 }
-                value = org.apache.commons.lang.StringUtils.join(sp.getTerm(), ",");
-            }
-        }
-
-        if (value != null) {
-            if (value.length() > 45) {
-                String trimmedValue = StringUtils.left(value, 44);
-                logger.info("Trimming parameterAssociationValue '{}' to 44 characters ('{}')", value, trimmedValue);
-                value = trimmedValue;
+                break;
             }
         }
 

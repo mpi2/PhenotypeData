@@ -19,6 +19,7 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.mousephenotype.cda.constants.ParameterConstants;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.solr.imits.EncodedOrganisationConversionMap;
@@ -339,7 +340,7 @@ public class PreqcIndexer extends AbstractIndexer implements CommandLineRunner {
                         // Procedure prefix is the first two strings of the parameter after splitting on underscore
                         // i.e. IMPC_BWT_001_001 => IMPC_BWT
                         String procedurePrefix = StringUtils.join(Arrays.asList(parameter.split("_")).subList(0, 2), "_");
-                        if (GenotypePhenotypeIndexer.source3iProcedurePrefixes.contains(procedurePrefix)) {
+                        if (ParameterConstants.source3iProcedurePrefixes.contains(procedurePrefix)) {
                             o.setResourceName(StatisticalResultsIndexer.RESOURCE_3I.toUpperCase());
                             o.setResourceFullname(resourceMap.get(StatisticalResultsIndexer.RESOURCE_3I.toUpperCase()));
 

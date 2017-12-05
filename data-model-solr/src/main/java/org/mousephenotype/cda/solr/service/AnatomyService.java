@@ -83,7 +83,7 @@ public class AnatomyService extends BasicService implements WebStatus {
 	public AnatomyDTO getTermByName(String anatomyTerm) throws SolrServerException, IOException  {
 
 		SolrQuery solrQuery = new SolrQuery().setQuery(AnatomyDTO.ANATOMY_TERM + ":\"" + WordUtils.capitalize(anatomyTerm)  + "\"").setRows(1);
-		System.out.println(solrQuery);
+		
 		QueryResponse rsp = solr.query(solrQuery);
 		List<AnatomyDTO> anas = rsp.getBeans(AnatomyDTO.class);
 

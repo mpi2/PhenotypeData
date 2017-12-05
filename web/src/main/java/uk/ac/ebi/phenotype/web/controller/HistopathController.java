@@ -2,9 +2,11 @@ package uk.ac.ebi.phenotype.web.controller;
 
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.common.SolrDocument;
+import org.mousephenotype.cda.solr.service.AnatomyService;
 import org.mousephenotype.cda.solr.service.GeneService;
 import org.mousephenotype.cda.solr.service.HistopathService;
 import org.mousephenotype.cda.solr.service.ImageService;
+import org.mousephenotype.cda.solr.service.dto.AnatomyDTO;
 import org.mousephenotype.cda.solr.service.dto.GeneDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.mousephenotype.cda.solr.web.dto.HistopathPageTableRow;
@@ -37,6 +39,9 @@ public class HistopathController {
 
 	@Autowired
 	ImageService imageService;
+	
+	@Autowired
+	AnatomyService anatomyService;
 
 	@RequestMapping("/histopath/{acc}")
 	public String histopath(@PathVariable String acc, Model model) throws SolrServerException, IOException {
@@ -70,8 +75,34 @@ public class HistopathController {
 		// parameter names like "Brain - Description" and "Brain - MPATH
 		// Diagnostic Term" we want to lump all into Brain related
 		List<HistopathPageTableRow> histopathRowsFiltered=new ArrayList<>();
+		Map<String,String> anatomyNameToTermId=new HashMap<>();
 		for (HistopathPageTableRow row : histopathRows) {
-			filterOutImageRows(histopathRowsFiltered, row);//need to remove image parameters as these are dealt with seperately and otherwise show as "not annotated"
+			filterOutImageRows(histopathRowsFiltered, row);// need to remove
+															// image parameters
+															// as these are
+															// dealt with
+															// seperately and
+															// otherwise show as
+															// "not annotated"
+			if (row.getAnatomyName() != null && !row.getAnatomyName().equals("")) {
+				String anatomyTerm = row.getAnatomyName();
+				if(anatomyNameToTermId.containsKey(anatomyTerm)){
+					row.setAnatomyId(anatomyNameToTermId.get(anatomyTerm));
+				}
+				else {
+					AnatomyDTO anatomy = anatomyService.getTermByName(anatomyTerm);
+					if (anatomy != null) {
+						// System.out.println("anatomy=" + row.getAnatomyName()
+						// + anatomy.getAnatomyId());
+						anatomyNameToTermId.put(anatomyTerm, anatomy.getAnatomyId());
+					} else {
+						// System.out.println("anatomy missing for
+						// "+row.getAnatomyName());
+						anatomyNameToTermId.put(anatomyTerm, "");
+					}
+					row.setAnatomyId(anatomyNameToTermId.get(anatomyTerm));
+				}
+			}
 			parameterNames.addAll(row.getParameterNames());
 		}
 

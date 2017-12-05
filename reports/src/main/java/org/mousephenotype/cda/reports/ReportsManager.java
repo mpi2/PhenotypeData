@@ -99,12 +99,6 @@ public class ReportsManager implements CommandLineRunner {
     private ProcedureCompletenessReport procedureCompletenessReport;
 
     @Autowired
-    private SexualDimorphismNoBodyWeightReport sexualDimorphismNoBodyWeightReport;
-
-    @Autowired
-    private SexualDimorphismWithBodyWeightReport sexualDimorphismWithBodyWeightReport;
-
-    @Autowired
     private ViabilityReport viabilityReport;
 
     @Autowired
@@ -137,8 +131,6 @@ public class ReportsManager implements CommandLineRunner {
         METABOLISM_IPGTT("metabolismIPGTT", "Metabolism IPGTT"),
         PHENOTYPE_OVERVIEW_PER_GENE("phenotypeOverviewPerGene", "Phenotype overview per gene report"),
         PROCEDURE_COMPLETENESS("procedureCompleteness", "Procedure completeness report"),
-        SEXUAL_DIMORPHISM_NO_BODY_WEIGHT("sexualDimorphismNoBodyWeight", "Sexual dimorphism no body weight report"),
-        SEXUAL_DIMORPHISM_WITH_BODY_WEIGHT("sexualDimorphismWithBodyWeight", "Sexual dimorphism with body weight report"),
         VIABILITY("viability", "Viability report"),
         LACZMPOVERLAP("laczmpoverlap", "Lacz and MP call overlap report"),
         ZYGOSITY("zygosity", "Zygosity report"),
@@ -308,16 +300,6 @@ public class ReportsManager implements CommandLineRunner {
                     case PROCEDURE_COMPLETENESS:
                         procedureCompletenessReport.run(args);
                         file = procedureCompletenessReport.targetFile;
-                        break;
-
-                    case SEXUAL_DIMORPHISM_NO_BODY_WEIGHT:
-                        sexualDimorphismNoBodyWeightReport.run(args);
-                        file = sexualDimorphismNoBodyWeightReport.targetFile;
-                        break;
-
-                    case SEXUAL_DIMORPHISM_WITH_BODY_WEIGHT:
-                        sexualDimorphismWithBodyWeightReport.run(args);
-                        file = sexualDimorphismWithBodyWeightReport.targetFile;
                         break;
 
                     case VIABILITY:
