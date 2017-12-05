@@ -106,50 +106,81 @@
 								var cmgTableCleanedUpFile = baseUrl + '/documentation/json/CMG-table-cleanedup.json';
 								var matchingInferencesFile = baseUrl + '/documentation/json/Matching_inferences.json';
 								
-								function getData(urlFile) {
-								    var result = null;
+								function getDataCleanedUpFile(filePath) {
+								    var genesWithOmim = [];
 								    $.ajax({
 								    		type: 'GET',
 								    		async: false,
-								    		url: urlFile,
+								    		url: filePath,
 								    		dataType: "json",
 								    		success: function(data) {
-								            result = data;
+								    			$.each(data, function( key, value ) {
+								    				if (value.OMIM_id != "_") {
+													genesWithOmim.push({
+														"disease": value.Disease,
+														"omim_id": value.OMIM_id,
+														"tier_1_gene": value.Tier_1_gene,
+														"tier_2_gene": value.Tier_2_gene
+													});
+								    				}
+								    			});
 								    		}
 								    });
-								    return result;
+								    return genesWithOmim;
 								}
 								
-								var cmgDataTable = getData(cmgTableCleanedUpFile);
-								var matchingInferences = getData(matchingInferencesFile);
-								var contentTable = [];
+								function getDataMatchingInferencesFile(filePath, genesWithOmim) {
+								    var matchingInferencesGenesWithOmim = null;
+								    $.ajax({
+								    		type: 'GET',
+								    		async: false,
+								    		url: filePath,
+								    		dataType: "json",
+								    		success: function(data) {
+								    			matchingInferencesGenesWithOmim = genesWithOmim.map(function(v){
+								    		        var ret;
+								    		        $.each(data, function(k, v2){
+								    		            if (v2.Human_symbol == v.tier_1_gene || v2.Human_symbol == v.tier_2_gene){
+								    		                ret = $.extend({}, v, 
+									    		                		{
+									    		                			"human_symbol": v2.Human_symbol,
+								    		                				"mouse_orthologue": v2.Mouse_orthologue,
+								    		                				"impc_status": v2.Latest_project_status,
+								    		                				"impc_link": v2.IMPC_link
+								    		                		});
+								    		                return false;
+								    		            }      
+								    		        });
+								    		        return ret;
+								    		    });
+								    		}
+								    });
+								    return matchingInferencesGenesWithOmim;
+								}
 								
-								$.each(cmgDataTable, function( key, value ) {
-									var omim_id = value.OMIM_id;
-									var tier_1_gene = value.Tier_1_gene;
-									var tier_2_gene = value.Tier_2_gene;
-									var objTable = {};
-									if (omim_id != "_") {
-										$.each(matchingInferences, function( keyInference, valueInference ) {
-											var human_symbol = valueInference.Human_symbol;
-											if (human_symbol == tier_1_gene || human_symbol == tier_2_gene) {
-												objTable.disease = value.Disease;
-												objTable.omim_id = omim_id;
-												objTable.tier_1_gene = tier_1_gene;
-												objTable.tier_2_gene = tier_2_gene;
-												objTable.mouse_orthologue = valueInference.Mouse_orthologue;
-												objTable.impc_status = valueInference.Latest_project_status;
-												objTable.impc_link = valueInference.IMPC_link;
-												objTable.other_human_disease = "";
-												objTable.impc_mouse = "";
-												objTable.published_mouse = "";
-												contentTable.push(objTable);
-											}
-										});
-									}
-								});
+								var genesWithOmim = getDataCleanedUpFile(cmgTableCleanedUpFile);
+								var matchingInferencesGenesWithOmim = getDataMatchingInferencesFile(matchingInferencesFile, genesWithOmim);
+								// console.log(genesWithOmim);
+								// console.log(matchingInferencesGenesWithOmim);
 								
-								// console.log(contentTable);
+								function cleanDataForTable(matchingInferencesGenesWithOmim) {
+									var contentTable = [];
+									$.each(matchingInferencesGenesWithOmim, function( key, value ) {
+										if (value != undefined) {
+											var content = $.extend({}, value, 
+								    		                		{
+																"other_human_disease": "",
+																"impc_mouse": "",
+																"published_mouse": ""
+							    		                			});
+											contentTable.push(content);
+										}
+									}); 
+									return contentTable;
+								}
+								
+								var contentTable = cleanDataForTable(matchingInferencesGenesWithOmim);
+								console.log(contentTable);
 								
 								$('#cmg-genes').DataTable({
 									"bDestroy" : true,
@@ -170,15 +201,18 @@
 									"aaData": contentTable,
 							        "aoColumns": [
 							            { "mDataProp": "disease"},
-							            { "mDataProp": "omim_id"},
+							            { "mDataProp": "omim_id",
+								            	"render": function ( data, type, full, meta ) {
+					                		 		return '<a href="http://www.mousephenotype.org/data/disease/OMIM:'+data+'" target="_blank">'+data+'</a>';
+					                		 	}
+							            },
 							            { "mDataProp": "tier_1_gene"},
 							            { "mDataProp": "tier_2_gene"},
-							            
 							            { "mDataProp": "mouse_orthologue",
 					                        "render": function ( data, type, full, meta ) {
-					                		 	return '<a href="'+full.impc_link+'" target="_blank">'+data+'</a>';}
+					                		 		return '<a href="'+full.impc_link+'" target="_blank">'+data+'</a>';
+					                		 	}
 					                 	},
-					                 
 							            { "mDataProp": "impc_status"},
 							            { "mDataProp": "other_human_disease"},
 							            { "mDataProp": "impc_mouse"},

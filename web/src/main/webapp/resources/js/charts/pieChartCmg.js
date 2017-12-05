@@ -100,7 +100,7 @@ $(function () {
 	    			y: phenotyped1,
 	    			color: "#EBD4A2"
 	    		}, {
-	    			name: "ES Cell Targeting Confirmed",
+	    			name: "ES Call Available",
 	    			y: esCell1,
 	    			color: "#741739"
 	    		}, {
@@ -153,7 +153,7 @@ $(function () {
 	    			y: phenotyped2,
 	    			color: "#EBD4A2"
 	    		}, {
-	    			name: "ES Cell Targeting Confirmed",
+	    			name: "ES Call Available",
 	    			y: esCell2,
 	    			color: "#741739"
 	    		}, {
