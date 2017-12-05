@@ -112,6 +112,13 @@ public class LandingPageController {
 	            metabolism.setDescription("This page aims to relate metabolism to phenotypes which have been produced by IMPC.");
 	            metabolism.setLink("biological-system/metabolism");
 	            bsPages.add(metabolism);
+	            
+	            LandingPageDTO cmg = new LandingPageDTO();
+	            cmg.setTitle("Center for Mendelian Genomics ");
+	            cmg.setImage(baseUrl + "/img/landing/cmg-logo_1.png");
+	            cmg.setDescription("This page aims to relate CMG mouse lines to phenotypes which have been produced by IMPC.");
+	            cmg.setLink("biological-system/cmg");
+	            bsPages.add(cmg);
             }
 
         model.addAttribute("pages", bsPages);
@@ -173,12 +180,18 @@ public class LandingPageController {
           	anatomyIds.add("MA:0002444");
           	pageTitle = "Vision";
         }
-          else if (page.equalsIgnoreCase("metabolism")) {
+        else if (page.equalsIgnoreCase("metabolism")) {
             mpDTO = mpService.getPhenotype("MP:0005376");
             model.addAttribute("shortDescription", "<h3>The IMPC is increasing our understanding of the genetic basis for metabolic diseases</h3>"
             		+ "<ul><li>Metabolic diseases, such as obesity and diabetes, affect people worldwide</li><li>The function of many genes in the genome still unknown</li><li>Knockout mice allow us to understand metabolic procedures and relate them to human disease</li></ul>");
             pageTitle = "Metabolism";
         } 
+        else if (page.equalsIgnoreCase("cmg")) {
+        		mpDTO = mpService.getPhenotype("MP:0000001");
+        		model.addAttribute("shortDescription", "<p><a href='http://www.mendelian.org/' target='_blank'>The Centers for Mendelian Genomics</a> (CMG) is an NIH funded project to use genome-wide sequencing and other genomic approaches to discover the genetic basis underlying as many human Mendelian traits as possible.  The IMPC is helping CMG validate human disease gene variants by creating and characterizing orthologous knockout mice.</p>");
+        		pageTitle = "Centers for Mendelian Genomics";
+        }
+        
         //else if (page.equalsIgnoreCase("vision")) {
 //            mpDTO = mpService.getPhenotype("MP:0005391");
 //            anatomyIds.add("EMAPA:36003");
@@ -232,8 +245,8 @@ public class LandingPageController {
         
         Set<String>filterOnMarkerAccession=null;
         if(page.equalsIgnoreCase("hearing")){
-        	filterOnMarkerAccession = getHearingPublicationGeneSet();
-        	description="for the 67 genes in the gene table above";
+	        	filterOnMarkerAccession = getHearingPublicationGeneSet();
+	        	description="for the 67 genes in the gene table above";
         }
 
         
