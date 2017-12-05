@@ -776,14 +776,14 @@ table.dataTable thead tr {
 									var graphUrl = $(this).attr('graphUrl');
 									var id = $(this).attr('id');
 									var chartUrl = graphUrl+ '&experimentNumber='+ id;
-									alert(chartUrl)
+									console.log(chartUrl);
 									$.ajax({
 										url : chartUrl,
-										cache : false}
-									).done(function(html) {
+										cache : false
+									}).done(function(html) {
                                         $('#' + id).append(html);
                                         $('#spinner_' + id).html('');
-                                    }
+                                    });
 								});
 							});
 						</script>
