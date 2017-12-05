@@ -78,7 +78,7 @@ public class AlleleIndexer extends AbstractIndexer implements CommandLineRunner 
     private static Set<String> gpGenesLookup = new HashSet<>();
 
     // Fetch all phenotyping started genes with MP calls from preqc core
-    private static Set<String> preqcGenesLookup = new HashSet<>();
+    //private static Set<String> preqcGenesLookup = new HashSet<>();
 
     // Map gene MGI ID to sanger allele bean
     private static Map<String, List<SangerAlleleBean>> statusLookup = new HashMap<>();

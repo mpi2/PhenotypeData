@@ -770,52 +770,23 @@ table.dataTable thead tr {
                             </div>
 
                         <script>
-																									//ajax chart caller code
-																									$(
-																											document)
-																											.ready(
-																													function() {
-																														$(
-																																'.chart')
-																																.each(
-																																		function(
-																																				i,
-																																				obj) {
-																																			var graphUrl = $(
-																																					this)
-																																					.attr(
-																																							'graphUrl');
-																																			var id = $(
-																																					this)
-																																					.attr(
-																																							'id');
-																																			var chartUrl = graphUrl
-																																					+ '&experimentNumber='
-																																					+ id;
-																																			$
-																																					.ajax(
-																																							{
-																																								url : chartUrl,
-																																								cache : false
-																																							})
-																																					.done(
-																																							function(
-																																									html) {
-																																								$(
-																																										'#'
-																																												+ id)
-																																										.append(
-																																												html);
-																																								$(
-																																										'#spinner_'
-																																												+ id)
-																																										.html(
-																																												'');
-
-																																							});
-																																		});
-																													});
-																								</script>
+							//ajax chart caller code
+							$(document).ready(function() {
+								$('.chart').each(function(i, obj) {
+									var graphUrl = $(this).attr('graphUrl');
+									var id = $(this).attr('id');
+									var chartUrl = graphUrl+ '&experimentNumber='+ id;
+									alert(chartUrl)
+									$.ajax({
+										url : chartUrl,
+										cache : false}
+									).done(function(html) {
+                                        $('#' + id).append(html);
+                                        $('#spinner_' + id).html('');
+                                    }
+								});
+							});
+						</script>
 
                         </div>
                         

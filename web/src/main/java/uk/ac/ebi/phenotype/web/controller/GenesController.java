@@ -308,8 +308,8 @@ public class GenesController {
 
             model.addAttribute("postQcDataMapList", postQcDataMapList);
 
-            boolean hasPreQcThatMeetsCutOff = (preqcService.getPhenotypes(acc).size() > 0);//problem is this is only true when we have pvalue significant phenotype data
-            model.addAttribute("hasPreQcThatMeetsCutOff", hasPreQcThatMeetsCutOff);
+            //boolean hasPreQcThatMeetsCutOff = (preqcService.getPhenotypes(acc).size() > 0);//problem is this is only true when we have pvalue significant phenotype data
+            //model.addAttribute("hasPreQcThatMeetsCutOff", hasPreQcThatMeetsCutOff);
 
             String genePageUrl = request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl").toString();
             Map<String, String> status = geneService.getProductionStatus(acc, genePageUrl);
