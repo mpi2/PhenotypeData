@@ -44,7 +44,7 @@ public class PhenotypeTable {
     private final WebDriver driver;
     private List<List<String>> postQcList;
     private List<List<String>> preAndPostQcList;
-    private List<List<String>> preQcList;
+    //private List<List<String>> preQcList;
     private final String target;
     private final TestUtils testUtils = new TestUtils();
     private final UrlUtils urlUtils = new UrlUtils();
@@ -155,7 +155,6 @@ public class PhenotypeTable {
             dataArray[0][sourceColIndex] = heading.getText();
             sourceColIndex++;
         }
-        preQcList.add(Arrays.asList(dataArray[0]));
         postQcList.add(Arrays.asList(dataArray[0]));
         preAndPostQcList.add(Arrays.asList(dataArray[0]));
 
@@ -235,12 +234,12 @@ public class PhenotypeTable {
             }
 
             // If the graph link is a postQc link, increment the index and return when we have the number of requested rows.
-            if (isPreQcLink) {
-                preQcList.add(Arrays.asList(dataArray[sourceRowIndex]));        // Add the row to the preQc list.
-                if (maleRow != null) {
-                    preQcList.add(Arrays.asList(maleRow));
-                }
-            } else {
+//            if (isPreQcLink) {
+//                preQcList.add(Arrays.asList(dataArray[sourceRowIndex]));        // Add the row to the preQc list.
+//                if (maleRow != null) {
+//                    preQcList.add(Arrays.asList(maleRow));
+//                }
+//            } else {
                 if ( ! skipLink) {
                     postQcList.add(Arrays.asList(dataArray[sourceRowIndex]));   // Add the row to the postQc list.
                     if (maleRow != null) {
@@ -250,7 +249,7 @@ public class PhenotypeTable {
                         break;                                                  // Return when we have the number of requested rows.
                     }
                 }
-            }
+
 
             preAndPostQcList.add(Arrays.asList(dataArray[sourceRowIndex]));     // Add the row to the preQc- and postQc-list.
             if (maleRow != null) {
@@ -260,8 +259,8 @@ public class PhenotypeTable {
             sourceRowIndex++;
         }
 
-        preQcList = commonUtils.expandCompoundColumns(preQcList, expandColumnPipeList, "|");
-        preQcList = commonUtils.expandCompoundColumns(preQcList, expandColumnSlashList, "/");
+//        preQcList = commonUtils.expandCompoundColumns(preQcList, expandColumnPipeList, "|");
+//        preQcList = commonUtils.expandCompoundColumns(preQcList, expandColumnSlashList, "/");
 
         postQcList = commonUtils.expandCompoundColumns(postQcList, expandColumnPipeList, "|");
         postQcList = commonUtils.expandCompoundColumns(postQcList, expandColumnSlashList, "/");
@@ -273,10 +272,10 @@ public class PhenotypeTable {
 
         return data;
     }
-
-    public List<List<String>> getPreQcList() {
-        return preQcList;
-    }
+//
+//    public List<List<String>> getPreQcList() {
+//        return preQcList;
+//    }
 
     public List<List<String>> getPostQcList() {
         return postQcList;

@@ -97,13 +97,14 @@ public class PhenotypeCallSummarySolr {
 	 * @throws URISyntaxException
 	 * @throws SolrServerException, IOException
 	 */
-	public List<DataTableRow> getPhenotypeRows(PhenotypeFacetResult phenoResult, PhenotypeFacetResult preQcResult, String baseUrl)
+	//public List<DataTableRow> getPhenotypeRows(PhenotypeFacetResult phenoResult, PhenotypeFacetResult preQcResult, String baseUrl)
+	public List<DataTableRow> getPhenotypeRows(PhenotypeFacetResult phenoResult, String baseUrl)
 			throws IOException, URISyntaxException, SolrServerException {
 
 
 		List<PhenotypeCallSummaryDTO> phenotypeList;
 		phenotypeList = phenoResult.getPhenotypeCallSummaries();
-		phenotypeList.addAll(preQcResult.getPhenotypeCallSummaries());
+		//phenotypeList.addAll(preQcResult.getPhenotypeCallSummaries());
 
 		// This is a map because we need to support lookups
 		Map<Integer, DataTableRow> phenotypes = new HashMap<Integer, DataTableRow>();
