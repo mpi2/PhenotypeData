@@ -136,7 +136,7 @@ public class PhenotypeTable {
             numRows = computeTableRowCount();
 
         String[][] dataArray;
-        preQcList = new ArrayList();
+        //preQcList = new ArrayList();
         postQcList = new ArrayList();
         preAndPostQcList = new ArrayList();
         String value;
