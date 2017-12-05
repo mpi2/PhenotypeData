@@ -20,16 +20,16 @@
 	<script type='text/javascript' src='${baseUrl}/js/charts/highcharts.js?v=${version}'></script>
     <script type='text/javascript' src='${baseUrl}/js/charts/highcharts-more.js?v=${version}'></script>
     <%-- <script type='text/javascript' src='${baseUrl}/js/charts/modules/exporting.js?v=${version}'></script> --%>
-    <%-- <script type='text/javascript' src='${baseUrl}/js/charts/modules/export-data.js?v=${version}'></script> --%>
-    <%-- <script type='text/javascript' src='${baseUrl}/js/charts/modules/export-csv.js?v=${version}'></script> --%>
     
     <script type='text/javascript' src='${baseUrl}/js/charts/modules/heatmap.js?v=${version}'></script> 
-    <script type="text/javascript" src='${baseUrl}/js/charts/heatMapChart.js?v=${version}'></script>
+    <script type="text/javascript" src='${baseUrl}/js/charts/heatMapMetabolism.js?v=${version}'></script>
     <script src="http://blacklabel.github.io/grouped_categories/grouped-categories.js"></script>
     
-
+    <!-- Dialog imports -->
+    <script src="//code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/smoothness/jquery-ui.css">
+  
 	</jsp:attribute>
-
 
     <jsp:attribute name="bodyTag"><body  class="phenotype-node no-sidebars small-header"></jsp:attribute>
 
@@ -106,12 +106,9 @@
                                	
                                	<h3>Gene table</h3>
                                	<p>Mutant/wildtype ratios below the 5th percentile and above the 95th percentile of the ratio distributions yielded 28 gene lists that serve as a data mining resource for further investigation into potential links to human metabolic disorders.</p>
-                                <br/> <br/>
+                                 <br/> <br/>
                                	<div id="heatMapContainer" style="height: 450px; min-width: 310px; max-width: 1000px;"></div>
-                                <script>
-                                		drawHeatMap();
-                                </script>
-	                            
+                                	
 					   		</div>
 					   		
 					   	</div>
@@ -131,14 +128,12 @@
                                 <div id="phenotypeChart">
                                     <script type="text/javascript"> $(function () {  ${phenotypeChart} }); </script>							
                                 </div>
-                                 	
                             </div>
                         </div>
                         
                         <div class="section">
                             <jsp:include page="paper_frag.jsp"></jsp:include>
                         </div>
-
 
                     </div>
                 </div>
@@ -148,5 +143,6 @@
     </jsp:body>
 
 </t:genericpage>
+
 
 
