@@ -226,8 +226,7 @@ public class WebDaoSolrImpl implements WebDao {
         SolrQuery solrQuery = new SolrQuery(query);
         completeDiseaseModelQuery(solrQuery);
         // add more fields about the gene involved
-        solrQuery.addField(Phenodigm2DTO.MARKER_ID)
-                .addField(Phenodigm2DTO.MARKER_SYMBOL)
+        solrQuery.addField(Phenodigm2DTO.MARKER_SYMBOL)
                 .addField(Phenodigm2DTO.MARKER_NUM_MODELS);
 
         List<DiseaseModelAssociation> associations = new ArrayList<>();
@@ -261,6 +260,7 @@ public class WebDaoSolrImpl implements WebDao {
             List<Phenodigm2DTO> results = phenodigm2Core.query(solrQuery).getBeans(Phenodigm2DTO.class);
             for (Phenodigm2DTO phenodigm : results) {
                 DiseaseModelAssociation assoc = createBasicDMA(phenodigm);
+                assoc.setMarkerId(phenodigm.getMarkerId());
                 assoc.setDiseaseId(phenodigm.getDiseaseId());
                 assoc.setDiseaseTerm(phenodigm.getDiseaseTerm());
                 associations.add(assoc);
@@ -278,12 +278,13 @@ public class WebDaoSolrImpl implements WebDao {
      * @param solrQuery
      */
     private void completeDiseaseModelQuery(SolrQuery solrQuery) {
-        solrQuery.addFilterQuery(Phenodigm2DTO.TYPE + ":disease_model_summary")
+        solrQuery.addFilterQuery(Phenodigm2DTO.TYPE + ":disease_model_summary")                
                 .addField(Phenodigm2DTO.DISEASE_ID)
+                .addField(Phenodigm2DTO.MARKER_ID)
                 .addField(Phenodigm2DTO.MODEL_ID)
                 .addField(Phenodigm2DTO.MODEL_SOURCE)
                 .addField(Phenodigm2DTO.MODEL_DESCRIPTION)
-                .addField(Phenodigm2DTO.MODEL_GENETIC_BACKGROUND)
+                .addField(Phenodigm2DTO.MODEL_GENETIC_BACKGROUND)                
                 .addField(Phenodigm2DTO.DISEASE_MODEL_AVG_RAW)
                 .addField(Phenodigm2DTO.DISEASE_MODEL_AVG_NORM)
                 .addField(Phenodigm2DTO.DISEASE_MODEL_MAX_RAW)

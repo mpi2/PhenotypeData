@@ -71,9 +71,9 @@ public class Phenodigm2RestController {
      * 
      * @return
      */
-    @RequestMapping(value = "/phenodigm2/diseasemodels", method = RequestMethod.GET)
-    public List<DiseaseModelAssociation> getDiseaseModels(@RequestParam String diseaseId) {        
-        LOGGER.info(String.format("AJAX call for phenodigm2 mouse models for disease %s", diseaseId));
+    @RequestMapping(value = "/phenodigm2/diseasescores", method = RequestMethod.GET)
+    public List<DiseaseModelAssociation> getDiseaseScores(@RequestParam String diseaseId) {        
+        LOGGER.info(String.format("AJAX call for phenodigm2 associations for disease %s", diseaseId));
         List<DiseaseModelAssociation> models = new ArrayList<>();
         for (String id : diseaseId.split(",")) {
             models.addAll(phenoDigm2Dao.getDiseaseToModelModelAssociations(id));
@@ -81,6 +81,17 @@ public class Phenodigm2RestController {
         return models;        
     }
 
+    @RequestMapping(value = "/phenodigm2/genescores", method = RequestMethod.GET)
+    public List<DiseaseModelAssociation> getGeneScores(@RequestParam String geneId) {        
+        LOGGER.info(String.format("AJAX call for phenodigm2 associations for gene %s", geneId));
+        List<DiseaseModelAssociation> models = new ArrayList<>();
+        for (String id : geneId.split(",")) {
+            models.addAll(phenoDigm2Dao.getGeneToDiseaseModelAssociations(id));
+        }        
+        return models;        
+    }
+    
+    
     /**
      * Provides details for a disease
      *
@@ -102,6 +113,7 @@ public class Phenodigm2RestController {
 
     /**
      * Provides details for the genes that are associated with a disease
+     * (with a curation or orhtology)
      *
      * @param diseaseId
      *
