@@ -46,7 +46,6 @@ public class GeneTable {
     protected Paginator paginator;
     private List<List<String>> postQcList;
     private List<List<String>> preAndPostQcList;
-    private List<List<String>> preQcList;
     protected String target;
     protected TestUtils testUtils = new TestUtils();
     protected UrlUtils urlUtils = new UrlUtils();
@@ -136,7 +135,6 @@ public class GeneTable {
             numRows = computeTableRowCount();
 
         String[][] dataArray;
-        preQcList = new ArrayList();
         postQcList = new ArrayList();
         preAndPostQcList = new ArrayList();
         String value;
@@ -155,7 +153,7 @@ public class GeneTable {
             dataArray[0][sourceColIndex] = heading.getText();
             sourceColIndex++;
         }
-        preQcList.add(Arrays.asList(dataArray[0]));
+        
         postQcList.add(Arrays.asList(dataArray[0]));
         preAndPostQcList.add(Arrays.asList(dataArray[0]));
         // Loop through all of the tr objects for this page, gathering the data.
@@ -163,7 +161,7 @@ public class GeneTable {
 
         for (WebElement row : genesTable.findElements(By.xpath("//table[@id='genes']/tbody/tr"))) {
             List<WebElement> cells = row.findElements(By.cssSelector("td"));
-            boolean isPreQcLink = false;
+           
             sourceColIndex = 0;
             boolean skipLink = false;
             boolean createMaleRow = false;
@@ -234,14 +232,7 @@ public class GeneTable {
                 maleRow[COL_INDEX_GENES_PAGE_SEX] = "male";
             }
 
-            // If the graph link is a postQc link, increment the index and return when we have the number of requested rows.
-            if (isPreQcLink) {
-                preQcList.add(Arrays.asList(dataArray[sourceRowIndex]));                // Add the row to the preQc list.
-                preAndPostQcList.add(Arrays.asList(dataArray[sourceRowIndex]));        // Add the row to the preAndPostQc list.
-                if (maleRow != null) {
-                    preQcList.add(Arrays.asList(maleRow));
-                }
-            } else {
+           
                 preAndPostQcList.add(Arrays.asList(dataArray[sourceRowIndex]));        // Add the row to the preAndPostQc list.
                 if ( ! skipLink) {
                     postQcList.add(Arrays.asList(dataArray[sourceRowIndex]));   // Add the row to the preQc list.
@@ -252,7 +243,7 @@ public class GeneTable {
                         break;
                     }
                 }
-            }
+            
 
             if (maleRow != null) {
                 preAndPostQcList.add(Arrays.asList(maleRow));
@@ -273,10 +264,6 @@ public class GeneTable {
 
     public void setPaginator(Paginator paginator) {
         this.paginator = paginator;
-    }
-
-    public List<List<String>> getPreQcList() {
-        return preQcList;
     }
 
     public List<List<String>> getPostQcList() {
