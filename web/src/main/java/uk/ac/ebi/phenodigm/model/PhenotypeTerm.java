@@ -7,6 +7,8 @@ package uk.ac.ebi.phenodigm.model;
 /**
  * Represents a phenotype term from a phenotype ontology - either the HPO or the MPO 
  * @author Jules Jacobsen <jules.jacobsen@sanger.ac.uk>
+ * 
+ * @deprecated pdsimplify
  */
 public class PhenotypeTerm {
     

@@ -14,6 +14,8 @@ package uk.ac.ebi.phenodigm.model;
  * ortholog. In other words - be prepared for the human GeneIdentifier to be null.
  * 
  * @author Jules Jacobsen <jules.jacobsen@sanger.ac.uk>
+ * 
+ * @deprecated pdsimplify
  */
 public class Gene implements Comparable<Gene>{
     

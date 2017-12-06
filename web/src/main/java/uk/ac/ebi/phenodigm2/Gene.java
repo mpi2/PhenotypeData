@@ -31,7 +31,7 @@ public class Gene implements IdUrl {
     private String symbol;
     private String locus;
     private List<String> symbolsWithdrawn;
-
+    
     // used internally to construct URLs
     private static String baseUrlMGI = "http://www.informatics.jax.org/accession/MGI:";
     private static String baseUrlHGNC = "http://www.genenames.org/data/hgnc_data.php?hgnc_id=";

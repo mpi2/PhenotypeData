@@ -22,6 +22,8 @@ import uk.ac.ebi.phenodigm.model.DiseaseIdentifier;
 /**
  * Provides a direct-mapping between the data on the disease associations page and the model.
  * @author Jules Jacobsen <jules.jacobsen@sanger.ac.uk>
+ * 
+ * @deprecated pdsimplify
  */
 public class DiseaseAssociationSummary {
     

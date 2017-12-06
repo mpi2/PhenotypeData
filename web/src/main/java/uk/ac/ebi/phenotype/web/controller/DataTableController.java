@@ -92,6 +92,10 @@ import uk.ac.ebi.phenodigm.web.AssociationSummary;
 import uk.ac.ebi.phenodigm.web.DiseaseAssociationSummary;
 import uk.ac.ebi.phenotype.generic.util.RegisterInterestDrupalSolr;
 
+
+/**
+ * pdsimplify: This class contains references to deprecated phenodigm v1 
+ */
 @Controller
 public class DataTableController {
 

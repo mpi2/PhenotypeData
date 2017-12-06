@@ -10,6 +10,9 @@ import org.mousephenotype.cda.solr.service.PostQcService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
+/** 
+ * @deprecated pdsimplify
+ */
 public class AdvancedSearchSolrDao {
 	
 //	@Autowired

@@ -22,6 +22,8 @@ import java.util.List;
  * Disease bean representing a genetic disease.
  * 
  * @author Jules Jacobsen <jules.jacobsen@sanger.ac.uk>
+ * 
+ * @deprecated pdsimplify
  */
 public class Disease implements Comparable<Disease>{
     
