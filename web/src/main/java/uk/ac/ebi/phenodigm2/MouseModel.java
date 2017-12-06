@@ -16,11 +16,12 @@
 package uk.ac.ebi.phenodigm2;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
- * MouseModel bean for phenodigm2 solr documents. Holds data describing one mouse
- * model.
+ * MouseModel bean for phenodigm2 solr documents. Holds data describing one
+ * mouse model.
  *
  */
 public class MouseModel implements Comparable<MouseModel>, IdUrl {
@@ -30,18 +31,17 @@ public class MouseModel implements Comparable<MouseModel>, IdUrl {
     private String description;
     private String geneticBackground;
     private String markerId;
-    private String markerSymbol;    
+    private String markerSymbol;
     private List<Phenotype> phenotypes;
 
     private static String baseUrlMGI = "http://www.informatics.jax.org/accession/MGI:";
-        
+
     public MouseModel() {
     }
 
     /**
-     * Basic constructor for a model with an id.
-     * A complete instance of this class should also set source, description, 
-     * and genetic background
+     * Basic constructor for a model with an id. A complete instance of this
+     * class should also set source, description, and genetic background
      *
      * @param id
      */
@@ -95,7 +95,7 @@ public class MouseModel implements Comparable<MouseModel>, IdUrl {
 
     public void setMarkerSymbol(String markerSymbol) {
         this.markerSymbol = markerSymbol;
-    }      
+    }
 
     public List<Phenotype> getPhenotypes() {
         return phenotypes;
@@ -103,8 +103,11 @@ public class MouseModel implements Comparable<MouseModel>, IdUrl {
 
     public void setPhenotypes(List<Phenotype> phenotypes) {
         this.phenotypes = phenotypes;
+        if (phenotypes != null) {
+            Collections.sort(this.phenotypes);
+        }
     }
-   
+
     /**
      * Like a setter, but parses phenotype objects from id+term strings.
      *
@@ -112,18 +115,19 @@ public class MouseModel implements Comparable<MouseModel>, IdUrl {
      */
     public void parsePhenotypes(List<String> phenotypes) {
         this.phenotypes = new ArrayList<>();
-        if (phenotypes==null) {            
+        if (phenotypes == null) {
             return;
         }
         for (String phenotype : phenotypes) {
             this.phenotypes.add(new Phenotype(phenotype));
         }
+        Collections.sort(this.phenotypes);
     }
-    
+
     @Override
     public String getExternalUrl() {
         if (id.endsWith("hom") || id.endsWith("het")) {
-            return "IMPC model "+id;
+            return "IMPC model " + id;
         }
         String[] tokens = id.split(":");
         switch (tokens[0]) {
@@ -133,10 +137,10 @@ public class MouseModel implements Comparable<MouseModel>, IdUrl {
                 return "";
         }
     }
-    
+
     @Override
     public int compareTo(MouseModel t) {
         return this.id.compareTo(t.id);
     }
-                     
+
 }

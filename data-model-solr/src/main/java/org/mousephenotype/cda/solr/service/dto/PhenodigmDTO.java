@@ -7,6 +7,8 @@ import java.util.List;
 /**
  * DTO to facilitate dommunication with the phenodigm solr core
  * @author jmason
+ * 
+ * @deprecated pdsimplify
  */
 public class PhenodigmDTO {
 

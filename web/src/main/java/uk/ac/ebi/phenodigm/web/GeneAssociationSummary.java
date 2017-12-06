@@ -22,6 +22,8 @@ import uk.ac.ebi.phenodigm.model.GeneIdentifier;
 /**
  *
  * @author Jules Jacobsen <jules.jacobsen@sanger.ac.uk>
+ * 
+ * @deprecated pdsimplify
  */
 public class GeneAssociationSummary {
     

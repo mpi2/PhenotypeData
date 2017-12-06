@@ -21,6 +21,8 @@ package uk.ac.ebi.phenodigm.web;
  * This needs to be public otherwise there are issues with javax.el.ELException
  * being thrown.
  * @author Jules Jacobsen <jules.jacobsen@sanger.ac.uk>
+ * 
+ * @deprecated pdsimplify
  */
 public class AssociationSummary {
     

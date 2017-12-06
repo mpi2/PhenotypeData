@@ -24,6 +24,8 @@ import java.util.Objects;
 /**
  * Contains the information relating a mouse model to a disease.
  * @author Jules Jacobsen <jules.jacobsen@sanger.ac.uk>
+ * 
+ * @deprecated pdsimplify
  */
 public class DiseaseModelAssociation implements Comparable<DiseaseModelAssociation> {
     

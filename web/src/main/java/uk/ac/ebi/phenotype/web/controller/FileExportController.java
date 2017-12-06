@@ -76,6 +76,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+/**
+ * pdsimplify: This class contains references to deprecated phenodigm v1 
+ */
 @Controller
 public class FileExportController {
 
