@@ -77,7 +77,7 @@ public class PhenotypeCenterProgressController {
 
 	private void processPhenotypeCenterProgress(Model model) {
 		Map<String, Map<String, List<ProcedureDTO>>> centerDataMap=null;
-		Map<String, Map<String, List<ProcedureDTO>>> preQcCenterDataMap=null;
+		
 		try {
 			centerDataMap = phenCenterProgress.getCentersProgressInformation();
 		} catch (SolrServerException | IOException e) {
@@ -86,13 +86,10 @@ public class PhenotypeCenterProgressController {
 
 
 		Map<String,JSONArray> centerDataJSON=new HashMap<>();
-		Map<String,JSONArray> preQcCenterDataJSON=new HashMap<>();
-
-
 		getPostOrPreQcData(centerDataMap, centerDataJSON);
-		getPostOrPreQcData(preQcCenterDataMap, preQcCenterDataJSON);
 		model.addAttribute("centerDataJSON", centerDataJSON);
 		model.addAttribute("centerDataMap", centerDataMap);
+		
 	}
 
 	private void getPostOrPreQcData(Map<String, Map<String, List<ProcedureDTO>>> centerDataMap, Map<String, JSONArray> centerDataJSON) {
