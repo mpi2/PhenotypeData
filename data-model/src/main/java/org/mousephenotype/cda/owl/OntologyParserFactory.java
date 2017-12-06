@@ -20,7 +20,9 @@ import java.util.*;
 /**
  * Created by ilinca on 29/03/2017.
  */
-
+/**
+ * pdsimplify: This class refers to old Phenodigm objects or db
+ */
 public class OntologyParserFactory {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());

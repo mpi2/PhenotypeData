@@ -54,11 +54,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import uk.ac.ebi.phenodigm.dao.PhenoDigmWebDao;
-import uk.ac.ebi.phenodigm.model.Gene;
-import uk.ac.ebi.phenodigm.model.GeneIdentifier;
-import uk.ac.ebi.phenodigm.web.AssociationSummary;
-import uk.ac.ebi.phenodigm.web.DiseaseAssociationSummary;
 import uk.ac.ebi.phenotype.error.GenomicFeatureNotFoundException;
 import uk.ac.ebi.phenotype.generic.util.RegisterInterestDrupalSolr;
 import uk.ac.ebi.phenotype.generic.util.SolrIndex2;
@@ -84,6 +79,7 @@ import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
 import java.util.*;
 import uk.ac.ebi.phenodigm2.Disease;
+import uk.ac.ebi.phenodigm2.GeneDiseaseAssociation;
 import uk.ac.ebi.phenodigm2.DiseaseModelAssociation;
 import uk.ac.ebi.phenodigm2.WebDao;
 
@@ -131,11 +127,7 @@ public class GenesController {
 
     @Autowired
     private ImpressService impressService;
-
-    @Autowired
-    private PhenoDigmWebDao phenoDigmDao;
-    private final double rawScoreCutoff = 1.97;
-
+    
     @Autowired
     private WebDao phenoDigm2Dao;
 
@@ -381,8 +373,7 @@ public class GenesController {
         if (genesWithVignettes.contains(acc)) {
             model.addAttribute("hasVignette", true);
         }
-        // add in the disease predictions from phenodigm
-        processDisease(acc, model);        
+        // add in the disease predictions from phenodigm              
         processDisease2(acc, model);
 
         model.addAttribute("countIKMCAlleles", countIKMCAlleles);
@@ -515,7 +506,9 @@ public class GenesController {
 
         Map<String, Double> stringDBTable = readStringDbTable(gene.getMarkerSymbol());
         // Adds "orthologousDiseaseAssociations", "phenotypicDiseaseAssociations" to the model
-        processDisease(acc, model);
+        /** pdsimplify: replaced processDisease by processDisease2
+         * The genesSummary jsp should be updated to use phenodigm2 objects **/         
+        processDisease2(acc, model);
         model.addAttribute("stringDbTable", stringDBTable);
         model.addAttribute("significantTopLevelMpGroups", mpGroupsSignificant);
         model.addAttribute("notsignificantTopLevelMpGroups", mpGroupsNotSignificant);
@@ -998,65 +991,7 @@ public class GenesController {
 
         return "genesAllele2_frag";
     }
-
-    /**
-     * Adds disease-related info to the model from Phenodigm.
-     *
-     * @param acc
-     * @param model
-     */
-    private void processDisease(String acc, Model model) {
-
-        String mgiId = acc;
-        model.addAttribute("mgiId", mgiId);
-        GeneIdentifier geneIdentifier = new GeneIdentifier(mgiId, mgiId);
-
-        Gene gene = null;
-        try {
-            gene = phenoDigmDao.getGene(geneIdentifier);
-        } catch (RuntimeException e) {
-            LOGGER.error("Error retrieving disease data for {}", geneIdentifier);
-            LOGGER.error(ExceptionUtils.getFullStackTrace(e));
-        }
-
-        if (gene != null) {
-            model.addAttribute("geneIdentifier", gene.getOrthologGeneId());
-            model.addAttribute("humanOrtholog", gene.getHumanGeneId());
-            // log.info("Found gene: {} {}", gene.getOrthologGeneId().getCompoundIdentifier(), gene.getOrthologGeneId().getGeneSymbol());
-        } else {
-            model.addAttribute("geneIdentifier", geneIdentifier);
-            LOGGER.info("No human ortholog found for gene: {}", geneIdentifier);
-        }
-
-        List<DiseaseAssociationSummary> diseaseAssociationSummarys = new ArrayList<>();
-        try {
-            // log.info("{} - getting disease-gene associations using cutoff {}", geneIdentifier, rawScoreCutoff);
-            diseaseAssociationSummarys = phenoDigmDao.getGeneToDiseaseAssociationSummaries(geneIdentifier, rawScoreCutoff);
-            // log.info("{} - received {} disease-gene associations", geneIdentifier, diseaseAssociationSummarys.size());
-        } catch (RuntimeException e) {
-            LOGGER.error(ExceptionUtils.getFullStackTrace(e));
-            LOGGER.error("Error retrieving disease data for {}", geneIdentifier);
-        }
-
-        List<DiseaseAssociationSummary> orthologousDiseaseAssociations = new ArrayList<>();
-        List<DiseaseAssociationSummary> phenotypicDiseaseAssociations = new ArrayList<>();
-
-        // add the known association summaries to a dedicated list for the top
-        // panel
-        for (DiseaseAssociationSummary diseaseAssociationSummary : diseaseAssociationSummarys) {
-            AssociationSummary associationSummary = diseaseAssociationSummary.getAssociationSummary();
-            if (associationSummary.isAssociatedInHuman()) {
-                orthologousDiseaseAssociations.add(diseaseAssociationSummary);
-            } else {
-                phenotypicDiseaseAssociations.add(diseaseAssociationSummary);
-            }
-        }
-        model.addAttribute("orthologousDiseaseAssociations", orthologousDiseaseAssociations);
-        model.addAttribute("phenotypicDiseaseAssociations", phenotypicDiseaseAssociations);
-
-        // log.info("Added {} disease associations for gene {} to model", diseaseAssociationSummarys.size(), mgiId);
-    }
-        
+ 
     /**
      * Adds disease-related info to the model using the Phenodigm2 core.
      *
@@ -1070,7 +1005,7 @@ public class GenesController {
 
         // fetch diseases that are linked to a gene via annotations/curation
         LOGGER.info(String.format("%s - getting gene-disease associations for gene ", acc));
-        List<Disease> geneAssociations = phenoDigm2Dao.getGeneToDiseaseAssociations(acc);
+        List<GeneDiseaseAssociation> geneAssociations = phenoDigm2Dao.getGeneToDiseaseAssociations(acc);
         
         // fetch just the ids, and encode them into an array
         HashSet<String> curatedDiseases = new HashSet<>();
@@ -1095,7 +1030,7 @@ public class GenesController {
         if (modelAssociations.size() > 0) {
             List<String> jsons = new ArrayList<>();
             for (DiseaseModelAssociation assoc : modelAssociations) {                
-                jsons.add(assoc.getDiseaseJson());
+                jsons.add(assoc.makeDiseaseJson());
                 if (curatedDiseases.contains(assoc.getDiseaseId())) {
                     hasModelsByOrthology = true;
                 }

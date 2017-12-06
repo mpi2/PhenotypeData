@@ -29,6 +29,8 @@ import uk.ac.ebi.phenodigm.web.GeneAssociationSummary;
 /**
  * Data access for the web views 
  * @author Jules Jacobsen <jules.jacobsen@sanger.ac.uk>
+ * 
+ * @deprecated pdsimplify
  */
 public interface PhenoDigmWebDao {
     

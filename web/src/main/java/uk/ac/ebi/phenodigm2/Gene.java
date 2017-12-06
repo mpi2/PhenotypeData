@@ -15,22 +15,23 @@
  */
 package uk.ac.ebi.phenodigm2;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
  * Object describing an association of a gene to something (e.g. a disease).
- * 
+ *
  * This class describes the gene that is associated and the type of association.
  * The target of the association is not part of this object.
- * 
+ *
  */
-public class Gene extends AssociationType implements IdUrl {
+public class Gene implements IdUrl {
 
     private String id;
     private String symbol;
     private String locus;
     private List<String> symbolsWithdrawn;
-
+    
     // used internally to construct URLs
     private static String baseUrlMGI = "http://www.informatics.jax.org/accession/MGI:";
     private static String baseUrlHGNC = "http://www.genenames.org/data/hgnc_data.php?hgnc_id=";
@@ -54,6 +55,9 @@ public class Gene extends AssociationType implements IdUrl {
 
     public void setSymbolsWithdrawn(List<String> symbolsWithdrawn) {
         this.symbolsWithdrawn = symbolsWithdrawn;
+        if (symbolsWithdrawn != null) {
+            Collections.sort(this.symbolsWithdrawn);
+        }
     }
 
     public String getLocus() {
@@ -62,11 +66,6 @@ public class Gene extends AssociationType implements IdUrl {
 
     public void setLocus(String locus) {
         this.locus = locus;
-    }
-
-    @Override
-    public String toString() {
-        return "GeneAssociation{" + "id=" + id + ", symbol=" + symbol + ", symbolsWithdrawn=" + symbolsWithdrawn + '}';
     }
 
     /**

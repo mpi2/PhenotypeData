@@ -45,6 +45,10 @@ import java.util.Map;
  * can be accessed using Solr as a web-service.
  *
  * @author Jules Jacobsen <jules.jacobsen@sanger.ac.uk>
+ * 
+ * @deprecated
+ * 
+ * pdsimplify
  */
 @Repository
 public class PhenoDigmWebDaoSolrImpl implements PhenoDigmWebDao {

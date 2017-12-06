@@ -7,6 +7,8 @@ package uk.ac.ebi.phenodigm.model;
 /**
  * 
  * @author Jules Jacobsen <jules.jacobsen@sanger.ac.uk>
+ * 
+ * @deprecated pdsimplify
  */
 public class GeneIdentifier extends ExternalIdentifier implements Comparable<GeneIdentifier>{
     

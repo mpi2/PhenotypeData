@@ -29,6 +29,8 @@ import uk.ac.ebi.phenodigm.model.MouseModel;
  * Creates external links (URIs) for a given object.
  *
  * @author Jules Jacobsen <jules.jacobsen@sanger.ac.uk>
+ * 
+ * @deprecated pdsimplify
  */
 public class ExternalLinkBuilder {
 

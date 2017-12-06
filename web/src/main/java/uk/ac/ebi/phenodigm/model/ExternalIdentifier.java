@@ -25,6 +25,8 @@ import org.slf4j.LoggerFactory;
  * this is anouther resource, e.g. MGI, HGNC, OMIM, ORPHANET, DECIPHER.
  * 
  * @author Jules Jacobsen <jules.jacobsen@sanger.ac.uk>
+ * 
+ * @deprecated pdsimplify
  */
 public class ExternalIdentifier {
     

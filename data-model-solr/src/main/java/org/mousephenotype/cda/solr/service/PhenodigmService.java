@@ -21,6 +21,9 @@ import java.net.URL;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/*
+ * pdsimplify: This class contains references to deprecated phenodigm v1 
+ */
 @Service
 public class PhenodigmService implements WebStatus {
 
