@@ -24,7 +24,6 @@ import org.apache.solr.client.solrj.response.GroupCommand;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
-import org.mousephenotype.cda.solr.service.PreQcService;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.mousephenotype.cda.utilities.RunStatus;
 import org.openqa.selenium.*;
@@ -952,61 +951,4 @@ public class TestUtils {
         return retVal;
     }
 
-    /**
-     * Queries the preqc core for <code>count</code> mpIds of phenotype pages that
-     * contain preqc links.
-     * @param count the number of random mpIds to return. A null or 0 value means return all.
-     * @return a list of <code>count</code> strings containing mpIds with preqc links
-     */
-    public static List<String> getPreqcIds(Integer count) {
-        Set<String> geneIds = new HashSet();
-        if ((count != null) && (count < 1))
-            count = 1000000;           // Null/0 indicates fetch all gene IDs (well, many, at least).
-
-        try {
-            PreQcService preqcService = new PreQcService();
-            SolrClient server = preqcService.getSolrServer();
-
-            /*logger.debug*/
-            System.out.println("TestUtils.getPreqcIds(): querying preqc core for " + (count == null ? "all" : count) + " gene ids.");
-
-            SolrQuery solrQuery = new SolrQuery();
-            solrQuery
-                    .setQuery("*:*")
-//                    .setFields("marker_accession_id")
-                    .setRows(Integer.MAX_VALUE)
-                    .add("group", "true")
-                    .add("group.field", "marker_accession_id")
-                    .add("group.limit", "0")
-//                    .add("rows", "0")
-                    ;
-
-            System.out.println("solrQuery = " + solrQuery.toString());
-
-            QueryResponse response = server.query(solrQuery);
-
-            List<GroupCommand> groupResponse = response.getGroupResponse().getValues();
-            for (GroupCommand groupCommand : groupResponse) {
-                List<Group> groups = groupCommand.getValues();
-                for (Group group : groups) {
-                    geneIds.add(group.getGroupValue());
-
-
-                    SolrDocumentList docs = group.getResult();
-                    Iterator<SolrDocument> it = docs.iterator();
-                    while (it.hasNext()) {
-                        SolrDocument doc = it.next();
-                        String mgiAccessionId = (String)doc.get("marker_accession_id");
-                        geneIds.add(mgiAccessionId);
-                    }
-                }
-            }
-        } catch (Exception e) {
-            String errMsg = "ERROR: " + e.getLocalizedMessage();
-            System.out.println(errMsg);
-            throw new RuntimeException(errMsg, e);
-        }
-
-        return new ArrayList(geneIds);
-    }
 }

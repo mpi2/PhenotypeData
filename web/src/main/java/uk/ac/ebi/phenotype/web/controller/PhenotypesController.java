@@ -87,9 +87,6 @@ public class PhenotypesController {
     ObservationService os;
 
     @Autowired
-    PreQcService preqcService;
-
-    @Autowired
     ImpressService impressService;
 
     @Autowired

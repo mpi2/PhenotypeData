@@ -20,7 +20,6 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.solr.service.MpService;
 import org.mousephenotype.cda.solr.service.OntologyBean;
 import org.mousephenotype.cda.solr.service.PostQcService;
-import org.mousephenotype.cda.solr.service.PreQcService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -51,7 +50,7 @@ public class ReportsController {
 	private MpService mpService;
 
 	@Autowired
-	private PreQcService preqcService;
+	//private PreQcService preqcService;
 
 	
 	@RequestMapping(value = "/reports", method = RequestMethod.GET)
@@ -73,7 +72,6 @@ public class ReportsController {
 		int ignore = 0;
 		int differentMps = 0;
 		List<CallDTO> ebiList = getCalls(postqcService.getTabbedCallSummary());
-		List<CallDTO> dccList = getCalls(preqcService.getTabbedCallSummary());
 		List<CallDTO> noMatch = new ArrayList<>();
 		List<String> ignoreList = new ArrayList<>();
 		ignoreList.add("IMPC_ALZ");ignoreList.add("IMPC_VIA");ignoreList.add("IMPC_FER");ignoreList.add("IMPC_ELZ");ignoreList.add("IMPC_HIS");ignoreList.add("IMPC_GEM");
@@ -84,13 +82,6 @@ public class ReportsController {
 		Map<String, CallDTO> keyNoPvalNoMp = new HashMap<>();
 		Set<String> keyExact = new HashSet<>();
 		Map<String, CallDTO> keyNoPval = new HashMap<>();
-		
-
-		for (CallDTO dcc: dccList){
-			keyNoPvalNoMp.put(dcc.getKeyNoPvalNoMp(), dcc);
-			keyExact.add(dcc.getKey());
-			keyNoPval.put(dcc.getKeyNoPval(), dcc);
-		}
 
 		
 		for (CallDTO ebi: ebiList){
@@ -155,7 +146,6 @@ public class ReportsController {
 		model.addAttribute("ignore", ignore);
 		model.addAttribute("differentMps", differentMps);
 		model.addAttribute("total", ebiList.size());
-		model.addAttribute("totalDcc", dccList.size());
 		
 		System.out.println("Exact " + exact + " differentPvalue "+ differentPvalue + " moreGeneralCallDcc " + moreGeneralCallDcc);
 		

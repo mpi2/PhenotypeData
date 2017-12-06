@@ -19,7 +19,6 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.db.pojo.StatisticalResult;
 import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.solr.service.PostQcService;
-import org.mousephenotype.cda.solr.service.PreQcService;
 import org.mousephenotype.cda.solr.web.dto.DataTableRow;
 import org.mousephenotype.cda.solr.web.dto.PhenotypeCallSummaryDTO;
 import org.mousephenotype.cda.solr.web.dto.PhenotypePageTableRow;
@@ -47,9 +46,9 @@ public class PhenotypeCallSummarySolr {
 	@Qualifier("postqcService")
 	PostQcService genotypePhenotypeService;
 
-	@Autowired
-	@Qualifier("preqcService")
-	PreQcService preqcService;
+	//@Autowired
+	//@Qualifier("preqcService")
+	//PreQcService preqcService;
 
 	@Value("drupalBaseUrl")
 	private String drupalBaseUrl;
@@ -65,12 +64,6 @@ public class PhenotypeCallSummarySolr {
 	public PhenotypeFacetResult getPhenotypeCallByMPAccessionAndFilter(String phenotype_id, List<String> procedureName,  List<String> markerSymbol,  List<String> mpTermName) 
 	throws IOException, URISyntaxException, SolrServerException {
 		return genotypePhenotypeService.getMPCallByMPAccessionAndFilter(phenotype_id,  procedureName, markerSymbol, mpTermName);
-	}
-
-
-	public PhenotypeFacetResult getPreQcPhenotypeCallByMPAccessionAndFilter(String phenotype_id, List<String> procedureName,  List<String> markerSymbol,  List<String> mpTermName) 
-	throws IOException, URISyntaxException, SolrServerException {
-		return preqcService.getMPCallByMPAccessionAndFilter(phenotype_id,  procedureName, markerSymbol, mpTermName);
 	}
 
 

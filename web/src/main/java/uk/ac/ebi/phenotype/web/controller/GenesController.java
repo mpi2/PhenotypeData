@@ -121,9 +121,6 @@ public class GenesController {
     private GeneService geneService;
 
     @Autowired
-    private PreQcService preqcService;
-
-    @Autowired
     private PostQcService postqcService;
 
     @Autowired
