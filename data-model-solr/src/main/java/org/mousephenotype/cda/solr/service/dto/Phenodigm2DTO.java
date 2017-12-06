@@ -422,7 +422,7 @@ public class Phenodigm2DTO {
     }
 
     /**
-     * Original phenodigm has overrides of equals, hashCode, toString Are those
+     * Original phenodigm has overrides of equals, hashCode, toString. Are those
      * really necessary?
      */
 }

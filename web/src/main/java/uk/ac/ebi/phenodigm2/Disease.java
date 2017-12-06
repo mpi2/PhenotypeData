@@ -16,6 +16,7 @@
 package uk.ac.ebi.phenodigm2;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -80,6 +81,9 @@ public class Disease implements Comparable<Disease>, IdUrl {
 
     public void setAlts(List<String> alts) {
         this.alts = alts;
+        if (alts != null) {
+            Collections.sort(this.alts);
+        }
     }
 
     public List<String> getClasses() {
@@ -88,6 +92,9 @@ public class Disease implements Comparable<Disease>, IdUrl {
 
     public void setClasses(List<String> classes) {
         this.classes = classes;
+        if (classes != null) {
+            Collections.sort(this.classes);
+        }
     }
 
     public List<Phenotype> getPhenotypes() {
@@ -96,6 +103,9 @@ public class Disease implements Comparable<Disease>, IdUrl {
 
     public void setPhenotypes(List<Phenotype> phenotypes) {
         this.phenotypes = phenotypes;
+        if (phenotypes != null) {
+            Collections.sort(this.phenotypes);
+        }
     }
 
     /**
@@ -111,6 +121,7 @@ public class Disease implements Comparable<Disease>, IdUrl {
         for (String phenotype : phenotypes) {
             this.phenotypes.add(new Phenotype(phenotype));
         }
+        Collections.sort(this.phenotypes);
     }
 
     @Override
