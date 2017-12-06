@@ -79,17 +79,10 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import net.sf.json.JSONSerializer;
-import uk.ac.ebi.phenodigm.dao.PhenoDigmWebDao;
-import uk.ac.ebi.phenodigm.model.GeneIdentifier;
-import uk.ac.ebi.phenodigm.web.AssociationSummary;
-import uk.ac.ebi.phenodigm.web.DiseaseAssociationSummary;
 import uk.ac.ebi.phenotype.generic.util.RegisterInterestDrupalSolr;
 import uk.ac.ebi.phenotype.service.BatchQueryForm;
 
 
-/**
- * pdsimplify: This class contains references to deprecated phenodigm v1 
- */
 @Controller
 public class DataTableController {
 
@@ -131,11 +124,7 @@ public class DataTableController {
 
 	@Autowired
 	private GenomicFeatureDAO genesDao;
-
-	@Autowired
-	private PhenoDigmWebDao phenoDigmDao;
-	private final double rawScoreCutoff = 1.97;
-
+	
 	/**
 	 <p>
 	 * deals with batchQuery

@@ -50,10 +50,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import uk.ac.ebi.phenodigm.dao.PhenoDigmWebDao;
-import uk.ac.ebi.phenodigm.model.GeneIdentifier;
-import uk.ac.ebi.phenodigm.web.AssociationSummary;
-import uk.ac.ebi.phenodigm.web.DiseaseAssociationSummary;
 import uk.ac.ebi.phenotype.service.*;
 import uk.ac.ebi.phenotype.service.AdvancedSearchService;
 import uk.ac.ebi.phenotype.service.search.SearchUrlService;
@@ -76,9 +72,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-/**
- * pdsimplify: This class contains references to deprecated phenodigm v1 
- */
+
 @Controller
 public class FileExportController {
 
@@ -122,12 +116,7 @@ public class FileExportController {
 	private ReferenceDAO referenceDAO;
 
 	@Autowired
-	private GwasDAO gwasDao;
-
-	@Autowired
-	private PhenoDigmWebDao phenoDigmDao;
-
-	private final double rawScoreCutoff = 1.97;
+	private GwasDAO gwasDao;	
 
 	@Autowired
 	private SearchController searchController;
