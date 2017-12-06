@@ -205,8 +205,6 @@ public class GeneTable {
                     }
                 } else if (sourceColIndex == COL_INDEX_GENES_PAGE_GRAPH_LINK) {                    // Extract the graph url from the <a> anchor and decode it.
 
-                    isPreQcLink = (testUtils.isPreQcLink(cell));
-
                     List<WebElement> graphLinks = cell.findElements(By.cssSelector("a"));
                     value = "";
                     if ( ! graphLinks.isEmpty()) {

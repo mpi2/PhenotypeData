@@ -46,10 +46,6 @@ public class PhenotypeCallSummarySolr {
 	@Qualifier("postqcService")
 	PostQcService genotypePhenotypeService;
 
-	//@Autowired
-	//@Qualifier("preqcService")
-	//PreQcService preqcService;
-
 	@Value("drupalBaseUrl")
 	private String drupalBaseUrl;
 
@@ -72,9 +68,7 @@ public class PhenotypeCallSummarySolr {
 	}
 
 
-//	removing as no longer used any reason to keep this? public PhenotypeFacetResult getPreQcPhenotypeCallByGeneAccessionAndFilter(String accId, List<String> topLevelMpTermName, List<String> resourceFullname) throws IOException, URISyntaxException, SolrServerException {
-//		return preqcService.getMPByGeneAccessionAndFilter(accId, topLevelMpTermName, resourceFullname);
-//	}
+
 
 
 	public List<? extends StatisticalResult> getStatisticalResultFor(String accession, String parameterStableId, ObservationType observationType, String strainAccession, String alleleAccession) throws IOException, URISyntaxException {
@@ -84,21 +78,18 @@ public class PhenotypeCallSummarySolr {
 	/**
 	 *
 	 * @param phenoResult
-	 * @param preQcResult
 	 * @param baseUrl
 	 * @throws IOException
 	 * @throws URISyntaxException
 	 * @throws SolrServerException, IOException
 	 */
-	//public List<DataTableRow> getPhenotypeRows(PhenotypeFacetResult phenoResult, PhenotypeFacetResult preQcResult, String baseUrl)
+	
 	public List<DataTableRow> getPhenotypeRows(PhenotypeFacetResult phenoResult, String baseUrl)
 			throws IOException, URISyntaxException, SolrServerException {
 
 
 		List<PhenotypeCallSummaryDTO> phenotypeList;
 		phenotypeList = phenoResult.getPhenotypeCallSummaries();
-		//phenotypeList.addAll(preQcResult.getPhenotypeCallSummaries());
-
 		// This is a map because we need to support lookups
 		Map<Integer, DataTableRow> phenotypes = new HashMap<Integer, DataTableRow>();
 

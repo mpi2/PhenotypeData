@@ -525,58 +525,6 @@ public class TestUtils {
         return retVal;
     }
 
-//    public static WebElement find(List<WebElement> list, String searchToken) {
-//        if ((list == null) || (list.isEmpty()))
-//            return null;
-//
-//        for (WebElement e : list) {
-//            if (e.getText().contains(searchToken))
-//                return e;
-//        }
-//
-//        return null;
-//    }
-//
-//    /**
-//     * Searches each <code>WebElement</code>'s String value in <i>list</i> and,
-//     * if no strings are found, returns true; else returns false.
-//     * @param list the list to search
-//     * @return true if all <code>WebElement</code> strings are empty; false otherwise
-//     */
-//    public static boolean isEmpty(List<WebElement> list) {
-//        if ((list == null) || (list.isEmpty()))
-//            return true;
-//
-//        for (WebElement e : list) {
-//            if ( ! e.getText().isEmpty())
-//                return false;
-//        }
-//
-//        return true;
-//    }
-
-//    /**
-//     *
-//     * @param graphUrl The graph URL being tested
-//     * @return true if this is a preQC link; false otherwise.
-//     */
-//    public boolean isPreQcLink(String graphUrl) {
-//        if (graphUrl == null)
-//            return false;
-//
-//        return graphUrl.contains("/phenoview/");
-//    }
-
-    /**
-     *
-     * @param tdUrlElement The td {@code WebElement} of the 'Data' url
-     * @return true if this is a preQC link; false otherwise.
-     */
-    public boolean isPreQcLink(WebElement tdUrlElement) {
-        String urlCssClass = tdUrlElement.getAttribute("class");
-
-        return (urlCssClass.contains("preQcLink"));
-    }
 
 
     /**

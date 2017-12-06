@@ -49,9 +49,6 @@ public class ReportsController {
 	@Autowired
 	private MpService mpService;
 
-	@Autowired
-	//private PreQcService preqcService;
-
 	
 	@RequestMapping(value = "/reports", method = RequestMethod.GET)
 	public String defaultAction(HttpSession session, HttpServletRequest request, HttpServletResponse response) 

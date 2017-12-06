@@ -304,10 +304,6 @@ public class GenesController {
             postQcDataMapList = observationService.getDistinctPipelineAlleleCenterListByGeneAccession(acc);
 
             model.addAttribute("postQcDataMapList", postQcDataMapList);
-
-            //boolean hasPreQcThatMeetsCutOff = (preqcService.getPhenotypes(acc).size() > 0);//problem is this is only true when we have pvalue significant phenotype data
-            //model.addAttribute("hasPreQcThatMeetsCutOff", hasPreQcThatMeetsCutOff);
-
             String genePageUrl = request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl").toString();
             Map<String, String> status = geneService.getProductionStatus(acc, genePageUrl);
             prodStatusIcons = (status.get("productionIcons").equalsIgnoreCase("")) ? prodStatusIcons : status.get("productionIcons");
@@ -592,7 +588,7 @@ public class GenesController {
 
         List<PhenotypeCallSummaryDTO> phenotypeList = new ArrayList<PhenotypeCallSummaryDTO>();
         PhenotypeFacetResult phenoResult = null;
-        //PhenotypeFacetResult preQcResult = new PhenotypeFacetResult();
+        
 
         //for image links we need a query that brings back mp terms and colony_ids that have mp terms
         //http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/impc_images/select?q=gene_accession_id:%22MGI:1913955%22&fq=mp_id:*&facet=true&facet.mincount=1&facet.limit=-1&facet.field=colony_id&facet.field=mp_id&facet.field=mp_term&rows=0
@@ -601,22 +597,9 @@ public class GenesController {
         try {
 
             phenoResult = phenotypeCallSummaryService.getPhenotypeCallByGeneAccessionAndFilter(acc, topLevelMpTermName, resourceFullname);
-            //preQcResult = phenotypeCallSummaryService.getPreQcPhenotypeCallByGeneAccessionAndFilter(acc, topLevelMpTermName, resourceFullname);
-
+           
             phenotypeList = phenoResult.getPhenotypeCallSummaries();
-            //phenotypeList.addAll(preQcResult.getPhenotypeCallSummaries());
-
             Map<String, Map<String, Integer>> phenoFacets = phenoResult.getFacetResults();
-            //Map<String, Map<String, Integer>> preQcFacets = preQcResult.getFacetResults();
-
-//            for (String key : preQcFacets.keySet()) {
-//                if (preQcFacets.get(key).keySet().size() > 0) {
-//                    for (String key2 : preQcFacets.get(key).keySet()) {
-//                        phenoFacets.get(key).put(key2, preQcFacets.get(key).get(key2));
-//                    }
-//                }
-//            }
-
             // sort facets
             model.addAttribute("phenoFacets", sortPhenFacets(phenoFacets));
 
