@@ -97,7 +97,6 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 
 	public StatisticalResultService() {
 		super();
-		isPreQc = false;
 	}
 
 	@PostConstruct
@@ -1187,7 +1186,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 		query.set("version", "2.2");
 
 		String solrUrl = SolrUtils.getBaseURL(solr) + "/select?" + query;
-		return gpService.createPhenotypeResultFromSolrResponse(solrUrl, false);
+		return gpService.createPhenotypeResultFromSolrResponse(solrUrl);
 	}
 
 

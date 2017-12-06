@@ -45,10 +45,6 @@ public class PhenotypeCenterProgressController {
 	@Autowired
 	PhenotypeCenterService phenCenterProgress;
 
-	@Resource(name="preQcPhenotypeCenterService")
-	@Autowired
-	PhenotypeCenterService preqQcPhenCenterProgress;
-
 	@RequestMapping("/centerProgress")
 	public String showPhenotypeCenterProgress( HttpServletRequest request, Model model){
 		processPhenotypeCenterProgress(model);
@@ -89,12 +85,6 @@ public class PhenotypeCenterProgressController {
 		}
 
 
-		try {
-			preQcCenterDataMap = preqQcPhenCenterProgress.getCentersProgressInformation();
-		} catch (SolrServerException | IOException e) {
-			e.printStackTrace();
-		}
-
 		Map<String,JSONArray> centerDataJSON=new HashMap<>();
 		Map<String,JSONArray> preQcCenterDataJSON=new HashMap<>();
 
@@ -103,8 +93,6 @@ public class PhenotypeCenterProgressController {
 		getPostOrPreQcData(preQcCenterDataMap, preQcCenterDataJSON);
 		model.addAttribute("centerDataJSON", centerDataJSON);
 		model.addAttribute("centerDataMap", centerDataMap);
-		model.addAttribute("preQcCenterDataJSON", preQcCenterDataJSON);
-		model.addAttribute("preQcCenterDataMap", preQcCenterDataMap);
 	}
 
 	private void getPostOrPreQcData(Map<String, Map<String, List<ProcedureDTO>>> centerDataMap, Map<String, JSONArray> centerDataJSON) {
