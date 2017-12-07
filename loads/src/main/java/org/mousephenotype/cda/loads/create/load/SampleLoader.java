@@ -25,6 +25,7 @@ import org.mousephenotype.cda.db.pojo.Strain;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.loads.common.*;
+import org.mousephenotype.cda.loads.create.load.support.StrainMapper;
 import org.mousephenotype.cda.loads.exceptions.DataLoadException;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.mousephenotype.dcc.exportlibrary.datastructure.core.common.StageUnit;
@@ -53,13 +54,17 @@ import java.util.concurrent.ConcurrentHashMap;
 public class SampleLoader implements CommandLineRunner {
 
 
-    private CdaSqlUtils cdaSqlUtils;
-    private CommonUtils commonUtils = new CommonUtils();
-    private DccSqlUtils dccSqlUtils;
+    private CdaSqlUtils  cdaSqlUtils;
+    private CommonUtils  commonUtils = new CommonUtils();
+    private DccSqlUtils  dccSqlUtils;
+    private StrainMapper strainMapper;
+
+    private Map<String, Strain> strainsByNameOrMgiAccessionIdMap;
 
     private NamedParameterJdbcTemplate jdbcCda;
 
     private Set<String> missingCenters              = new HashSet<>();
+    private Set<String> missingColonyIds            = new HashSet<>();
     private Set<String> missingDatasourceShortNames = new HashSet<>();
     private Set<String> unexpectedStage             = new HashSet<>();
 
@@ -75,8 +80,9 @@ public class SampleLoader implements CommandLineRunner {
 
     private int efoDbId;
 
-    private BioModelManager bioModelManager;
-    private Map<String, Integer> cdaDb_idMap = new ConcurrentHashMap<>();
+    private BioModelManager      bioModelManager;
+    private Map<String, Integer> cdaDb_idMap      = new ConcurrentHashMap<>();
+    private Map<String, Integer> cdaProject_idMap = new ConcurrentHashMap<>();
     private Map<String, Integer> cdaOrganisation_idMap;
 
     private final String MISSING_MUTANT_COLONY_ID_REASON = "SampleLoader: MUTANT specimen was not found in phenotyped_colony table";
@@ -117,15 +123,20 @@ public class SampleLoader implements CommandLineRunner {
 
         bioModelManager = new BioModelManager(cdaSqlUtils, dccSqlUtils);
         cdaDb_idMap = cdaSqlUtils.getCdaDb_idsByDccDatasourceShortName();
+        cdaProject_idMap = cdaSqlUtils.getCdaProject_idsByDccProject();
         cdaOrganisation_idMap = cdaSqlUtils.getCdaOrganisation_idsByDccCenterId();
         phenotypedColonyMap = bioModelManager.getPhenotypedColonyMap();
         missingColonyMap = cdaSqlUtils.getMissingColonyIdsMap();
+        strainMapper = new StrainMapper(cdaSqlUtils, bioModelManager.getStrainsByNameOrMgiAccessionIdMap());
+        strainsByNameOrMgiAccessionIdMap = bioModelManager.getStrainsByNameOrMgiAccessionIdMap();
 
         Assert.notNull(bioModelManager, "bioModelManager must not be null");
         Assert.notNull(cdaDb_idMap, "cdaDb_idMap must not be null");
         Assert.notNull(cdaOrganisation_idMap, "cdaOrganisation_idMap must not be null");
         Assert.notNull(phenotypedColonyMap, "phenotypedColonyMap must not be null");
         Assert.notNull(missingColonyMap, "missingColonyMap must not be null");
+        Assert.notNull(strainMapper, "strainMapper must not be null");
+        Assert.notNull(strainsByNameOrMgiAccessionIdMap, "strainsByNameOrMgiAccessionIdMap must not be null");
 
         developmentalStageMouse = cdaSqlUtils.getOntologyTermByName("postnatal");
         sampleTypeMouseEmbryoStage = cdaSqlUtils.getOntologyTermByName("mouse embryo stage");
@@ -168,14 +179,38 @@ public class SampleLoader implements CommandLineRunner {
                 remapper.remap();
             }
 
+            // Override the supplied 3i project with iMits version, if it's not a valid project identifier
+            if (specimenExtended.getDatasourceShortName().equals(CdaSqlUtils.THREEI) &&
+                    ! cdaProject_idMap.containsKey(specimen.getProject()))
+            {
+
+                // Set default project to MGP
+                // For now, also default the control mice to the MGP project
+                specimen.setProject(CdaSqlUtils.MGP);
+
+                PhenotypedColony phenotypedColony = phenotypedColonyMap.get(specimen.getColonyID());
+                if ((phenotypedColony == null) || (phenotypedColony.getColonyName() == null)) {
+                    String errMsg = "Unable to get phenotypedColony for experiment samples for colonyId "
+                            + specimen.getColonyID()
+                            + " to apply special 3i project remap rule. Rule NOT applied, defaulted to MGP project.";
+                    missingColonyIds.add(errMsg);
+
+                } else {
+
+                    // Override the project with that from the iMits record
+                    if (phenotypedColony.getPhenotypingConsortium() != null && phenotypedColony.getPhenotypingConsortium().getName() != null) {
+                        specimen.setProject(phenotypedColony.getPhenotypingConsortium().getName());
+                    }
+                }
+            }
 
             /*
              * Some legacy strain names use a semicolon to separate multiple strain names contained in a single
-             * field. Load processing code expects the separator for multiple strains to be an asterisk. Remap any
-             * such strain names here.
+             * field. Load processing code expects the separator for multiple strains to be an asterisk. Remapping
+             * changes the specimen's strainId and the phenotypedColony's strainId (called backgroundStrain).
              */
             if ((specimen.getStrainID() != null) &&( ! specimen.getStrainID().isEmpty())) {
-                String remappedStrainName = bioModelManager.getStrainMapper().parseMultipleBackgroundStrainNames(specimen.getStrainID());
+                String remappedStrainName = strainMapper.parseMultipleBackgroundStrainNames(specimen.getStrainID());
                 specimen.setStrainID(remappedStrainName);
                 PhenotypedColony colony = phenotypedColonyMap.get(specimen.getColonyID());
                 if (colony != null) {
@@ -209,17 +244,16 @@ public class SampleLoader implements CommandLineRunner {
                 }
 
                 // Run the strain name through the StrainMapper to remap incorrect legacy strain names.
-                Strain remappedStrain = bioModelManager.getStrainMapper().lookupBackgroundStrain(specimen.getStrainID());
+                Strain remappedStrain = strainMapper.lookupBackgroundStrain(specimen.getStrainID());
                 if (remappedStrain == null) {
-                    remappedStrain = bioModelManager.getStrainMapper().createBackgroundStrain(specimen.getStrainID());
+                    remappedStrain = StrainMapper.createBackgroundStrain(specimen.getStrainID());
+                    cdaSqlUtils.insertStrain(remappedStrain);
+                    strainsByNameOrMgiAccessionIdMap.put(remappedStrain.getName(), remappedStrain);
+                    strainsByNameOrMgiAccessionIdMap.put(remappedStrain.getId().getAccession(), remappedStrain);
                 }
-
-
-// FIXME
-                try {
-                    specimen.setStrainID(remappedStrain.getName());
-                } catch (Exception e) {
-                    e.printStackTrace();
+                specimen.setStrainID(remappedStrain.getName());
+                if (colony != null) {
+                    colony.setBackgroundStrain(remappedStrain.getName());
                 }
 
                 // Get phenotypingCenterPk and productionCenterPk.
@@ -300,6 +334,10 @@ public class SampleLoader implements CommandLineRunner {
 
 
         // Log warning sets
+
+        for (String missingColonyId : missingColonyIds) {
+            logger.warn(missingColonyId);
+        }
 
         for (MissingColonyId missing : missingColonyMap.values()) {
             if (missing.getLogLevel() == 1) {

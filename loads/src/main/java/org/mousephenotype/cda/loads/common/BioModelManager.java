@@ -50,13 +50,12 @@ public class BioModelManager {
 
     private CdaSqlUtils  cdaSqlUtils;
     private DccSqlUtils  dccSqlUtils;
-    private StrainMapper strainMapper;
 
     private Map<String, Allele>           allelesBySymbolMap;
     private Map<BioModelKey, Integer>     bioModelPkMap;          // key is BioModelKey key. Value is biological model primary key.
     private Map<String, GenomicFeature>   genesByAccMap;
     private Map<String, PhenotypedColony> phenotypedColonyMap;
-    private Map<String, Strain>           strainsByNameMap;
+    private Map<String, Strain>           strainsByNameOrMgiAccessionIdMap;
 
 
     public BioModelManager(CdaSqlUtils cdaSqlUtils, DccSqlUtils dccSqlUtils) throws DataLoadException {
@@ -157,7 +156,7 @@ public class BioModelManager {
 
         gene = getGene(colony);
         allele = getAllele(colony, gene);
-        strain = getStrain(colony.getBackgroundStrain());
+        strain = strainsByNameOrMgiAccessionIdMap.get(colony.getBackgroundStrain());
 
         key = new BioModelKey(datasourceShortName, strain.getId().getAccession(), gene.getId().getAccession(), allele.getId().getAccession(), zygosity);
 
@@ -178,7 +177,7 @@ public class BioModelManager {
         Strain      strain;
         String      zygosity = ZygosityType.homozygote.getName();
 
-        strain = getStrain(strainName);
+        strain = strainsByNameOrMgiAccessionIdMap.get(strainName);
 
         key = new BioModelKey(datasourceShortName, strain.getId().getAccession(), null, null, zygosity);
 
@@ -204,12 +203,8 @@ public class BioModelManager {
         return phenotypedColonyMap;
     }
 
-    public Map<String, Strain> getStrainsByNameMap() {
-        return strainsByNameMap;
-    }
-
-    public StrainMapper getStrainMapper() {
-        return strainMapper;
+    public Map<String, Strain> getStrainsByNameOrMgiAccessionIdMap() {
+        return strainsByNameOrMgiAccessionIdMap;
     }
 
 
@@ -222,8 +217,7 @@ public class BioModelManager {
         allelesBySymbolMap = cdaSqlUtils.getAllelesBySymbol();
         genesByAccMap = cdaSqlUtils.getGenesByAcc();
         phenotypedColonyMap = cdaSqlUtils.getPhenotypedColonies();
-        strainsByNameMap = cdaSqlUtils.getStrainsByName();
-        strainMapper = new StrainMapper(cdaSqlUtils);
+        strainsByNameOrMgiAccessionIdMap = cdaSqlUtils.getStrainsByNameOrMgiAccessionIdMap();
         bioModelPkMap = cdaSqlUtils.getBiologicalModelPksMapByBioModelKey();
     }
 
@@ -240,7 +234,7 @@ public class BioModelManager {
             throw new DataLoadException(message);
         }
 
-        String allelicComposition = strainMapper.createAllelicComposition(zygosity, colony.getAlleleSymbol(), colony.getGene().getSymbol(), LoadUtils.SampleGroup.EXPERIMENTAL.value());
+        String allelicComposition = StrainMapper.createAllelicComposition(zygosity, colony.getAlleleSymbol(), colony.getGene().getSymbol(), LoadUtils.SampleGroup.EXPERIMENTAL.value());
 
         GenomicFeature gene = getGene(colony);
         AccDbId geneAcc = new AccDbId(gene.getId().getAccession(), gene.getId().getDatabaseId());
@@ -248,7 +242,7 @@ public class BioModelManager {
         Allele allele = getAllele(colony, gene);
         AccDbId alleleAcc = new AccDbId(allele.getId().getAccession(), allele.getId().getDatabaseId());
 
-        Strain strain = getStrain(colony.getBackgroundStrain());
+        Strain strain = strainsByNameOrMgiAccessionIdMap.get(colony.getBackgroundStrain());
         AccDbId strainAcc = new AccDbId(strain.getId().getAccession(), strain.getId().getDatabaseId());
 
         String geneticBackground = strain.getGeneticBackground();
@@ -268,7 +262,7 @@ public class BioModelManager {
         String zygosity           = ZygosityType.homozygote.getName();
         int    biologicalModelPk;
 
-        Strain strain = getStrain(strainName);
+        Strain strain = strainsByNameOrMgiAccessionIdMap.get(strainName);
         AccDbId strainAcc = new AccDbId(strain.getId().getAccession(), strain.getId().getDatabaseId());
 
         String geneticBackground = strain.getGeneticBackground();
@@ -303,29 +297,39 @@ public class BioModelManager {
 
         return allele;
     }
-
-    /**
-     * Uses the {@code strainName} to find the {@link Strain}, creating the {@link Strain} and adding it to the
-     * strain table and the {@code strainsByNameMap} first if necessary.
-     *
-     * @param strainName The strain name
-     * @return The {@link Strain} instance
-     * @throws DataLoadException
-     */
-    private Strain getStrain(String strainName) throws DataLoadException {
-        Strain strain = cdaSqlUtils.getBackgroundStrain(strainName);
-        if (strain == null) {
-            strain = strainMapper.createBackgroundStrain(strainName);
-            cdaSqlUtils.insertStrain(strain);
-            if (strain == null) {
-                String message = "Couldn't create strain '" + strainName + "'";
-                logger.error(message);
-                throw new DataLoadException(message);
-            }
-
-            strainsByNameMap.put(strain.getName(), strain);
-        }
-
-        return strain;
-    }
+// FIXME
+//    /**
+//     * Uses the {@code strainName} to find the {@link Strain}, creating the {@link Strain} and adding it to the
+//     * strain table and the {@code strainsByNameOrMgiAccessionIdMap} first if necessary.
+//     *
+//     * @param strainName The strain name
+//     * @return The {@link Strain} instance
+//     * @throws DataLoadException
+//     *
+//     * @deprecated moved to StrainMapper.
+//     */
+//    @Deprecated
+//    private Strain getStrain(String strainName) throws DataLoadException {
+//        // fixme
+//
+//        // check strainsByNameOrMgiAccessionIdMap. If not found, create it.
+//
+//
+//
+//
+//        Strain strain = cdaSqlUtils.getBackgroundStrain(strainName);
+//        if (strain == null) {
+//            strain = strainMapper.createBackgroundStrain(strainName);
+//            cdaSqlUtils.insertStrain(strain);
+//            if (strain == null) {
+//                String message = "Couldn't create strain '" + strainName + "'";
+//                logger.error(message);
+//                throw new DataLoadException(message);
+//            }
+//
+//            strainsByNameOrMgiAccessionIdMap.put(strain.getName(), strain);
+//        }
+//
+//        return strain;
+//    }
 }

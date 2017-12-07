@@ -16,7 +16,6 @@
 
 package org.mousephenotype.cda.loads.common;
 
-import javafx.util.Pair;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.mousephenotype.cda.db.pojo.*;
@@ -24,7 +23,6 @@ import org.mousephenotype.cda.db.utilities.SqlUtils;
 import org.mousephenotype.cda.enumerations.DbIdType;
 import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
-import org.mousephenotype.cda.loads.create.load.support.StrainMapper;
 import org.mousephenotype.cda.loads.exceptions.DataLoadException;
 import org.mousephenotype.cda.utilities.RunStatus;
 import org.mousephenotype.dcc.exportlibrary.datastructure.core.procedure.*;
@@ -40,7 +38,6 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
-import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
@@ -60,7 +57,6 @@ public class CdaSqlUtils {
     private Map<String, OntologyTerm>     ontologyTerms;    // keyed by ontology term accession id
     private Map<String, SequenceRegion>   sequenceRegions;  // keyed by strains id (int)
     private SqlUtils                      sqlUtils = new SqlUtils();
-    private Map<String, Strain>           strainsByNameOrMgiAccessionId = new HashMap<>();    // keyed by strains name or mgi accession id
     private Map<String, Strain>           strainsBySynonym = new HashMap<>();    // keyed by strains synonym
     private Map<String, List<Synonym>>    synonyms;         // keyed by accession id
 
@@ -329,46 +325,48 @@ public class CdaSqlUtils {
         return map;
     }
 
-    public Strain getBackgroundStrain(String specimenStrainId) throws DataLoadException {
-        Strain backgroundStrain;
-        String backgroundStrainName;
-        String message;
-        StrainMapper strainMapper = new StrainMapper(this);
 
-        String lookedupStrainName = (strainMapper.lookupBackgroundStrain(specimenStrainId)!=null)
-                ? strainMapper.lookupBackgroundStrain(specimenStrainId).getName()
-                : specimenStrainId;
-
-        // specimen.strainId can contain an MGI strain accession id in the form "MGI:", or a strain name like C57BL/6N.
-        if (specimenStrainId.toLowerCase().startsWith("mgi:")) {
-            backgroundStrain = getStrainByNameOrMgiAccessionIdOrSynonym(lookedupStrainName);
-            if (backgroundStrain == null) {
-                throw new DataLoadException("No strain table entry found for strain accession id '" + specimenStrainId + "' ("+lookedupStrainName+")");
-            }
-            backgroundStrainName = lookedupStrainName;
-
-        } else {
-            backgroundStrainName = lookedupStrainName;
-        }
-
-        try {
-
-            backgroundStrain = getStrainByNameOrMgiAccessionIdOrSynonym(backgroundStrainName);
-
-            if (backgroundStrain == null) {
-                backgroundStrain = strainMapper.createBackgroundStrain(backgroundStrainName);
-                insertStrain(backgroundStrain);
-            }
-
-        } catch (DataLoadException e) {
-
-            message = "Insert strain " + specimenStrainId + " failed. Skipping...";
-            logger.error(message);
-            throw new DataLoadException(message, e);
-        }
-
-        return backgroundStrain;
-    }
+    // FIXME
+//    public Strain getBackgroundStrain(String specimenStrainId) throws DataLoadException {
+//        Strain backgroundStrain;
+//        String backgroundStrainName;
+//        String message;
+//        StrainMapper strainMapper = new StrainMapper(this);
+//
+//        String lookedupStrainName = (strainMapper.lookupBackgroundStrain(specimenStrainId)!=null)
+//                ? strainMapper.lookupBackgroundStrain(specimenStrainId).getName()
+//                : specimenStrainId;
+//
+//        // specimen.strainId can contain an MGI strain accession id in the form "MGI:", or a strain name like C57BL/6N.
+//        if (specimenStrainId.toLowerCase().startsWith("mgi:")) {
+//            backgroundStrain = getStrainByNameOrMgiAccessionIdOrSynonym(lookedupStrainName);
+//            if (backgroundStrain == null) {
+//                throw new DataLoadException("No strain table entry found for strain accession id '" + specimenStrainId + "' ("+lookedupStrainName+")");
+//            }
+//            backgroundStrainName = lookedupStrainName;
+//
+//        } else {
+//            backgroundStrainName = lookedupStrainName;
+//        }
+//
+//        try {
+//
+//            backgroundStrain = getStrainByNameOrMgiAccessionIdOrSynonym(backgroundStrainName);
+//
+//            if (backgroundStrain == null) {
+//                backgroundStrain = strainMapper.createBackgroundStrain(backgroundStrainName);
+//                insertStrain(backgroundStrain);
+//            }
+//
+//        } catch (DataLoadException e) {
+//
+//            message = "Insert strain " + specimenStrainId + " failed. Skipping...";
+//            logger.error(message);
+//            throw new DataLoadException(message, e);
+//        }
+//
+//        return backgroundStrain;
+//    }
 
     /**
      * @return the set of all alternate accession ids in a {@link Map} keyed by alternate accession id
@@ -2564,85 +2562,28 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
 
 
     /**
-     * @return a strain, keyed by strain name or mgi accession id
+     * @return a {@link Map<String, Strain>} of strains, keyed by strain name or mgi accession id
      *
      */
-    public Strain getStrainByNameOrMgiAccessionIdOrSynonym(String strainName) {
+    public Map<String, Strain> getStrainsByNameOrMgiAccessionIdMap() {
 
-        Strain strain = strainsByNameOrMgiAccessionId.get(strainName);
+        Map<String, Strain> strains = new ConcurrentHashMap<>();
 
-        if (strain == null) {
-            Map<String, Object> parameterMap = new HashMap<>();
-            parameterMap.put("name", strainName);
-            List<Strain> strainList = jdbcCda.query("SELECT * FROM strain WHERE (name=:name OR acc=:name)", parameterMap, new StrainRowMapper());
-
-            if (strainList.size() == 1) {
-
-                strain = strainList.get(0);
-                strainsByNameOrMgiAccessionId.put(strainName, strain);
-
-            } else if (strainList.size() > 1) {
-
-                logger.warn("Expected 1, found "
-                        + strainList.size()
-                        + " strains for strain ID "
-                        + strainName
-                        + ". Using first strain"
-                        + strainList.get(0)
-                        + "\n List of strains found: " + StringUtils.join(strainList, ", "));
-
-                strain = strainList.get(0);
-                strainsByNameOrMgiAccessionId.put(strainName, strain);
-
-            } else {
-
-                strain = strainsBySynonym.get(strainName);
-
-                if (strain == null) {
-
-                    SqlRowSet srs = jdbcCda.queryForRowSet("SELECT strain.acc, synonym.symbol FROM strain INNER JOIN synonym ON strain.acc=synonym.acc WHERE (synonym.symbol=:name)", parameterMap);
-
-                    Set<Pair<String, String>> strains = new HashSet<>();
-
-                    while (srs.next()) {
-
-                        String syn = srs.getString("synonym");
-                        String acc = srs.getString("acc");
-                        strains.add(new Pair<>(acc, syn));
-
-                    }
-
-                    if (strains.size() == 1) {
-                        Pair<String, String> pair = new ArrayList<>(strains).get(0);
-                        String acc = pair.getKey();
-                        String syn = pair.getValue();
-
-                        strain = strainsByNameOrMgiAccessionId.get(acc);
-
-                        if (strain != null) {
-                            strainsBySynonym.put(syn, strain);  // syn -> strain
-                        }
-
-                    } else if (strains.size() > 1) {
-
-                        // 2017-09-18
-                        // Checked in MGI and imits.  There are 2 synonyms with multiple strains associated at this
-                        // time: HAR:3280, EM:03573 have synonyms "EPD0001_3_G07", " 129S/SvEvBrd-Tpm1<tm1a(EUCOMM)Wtsi>/WtsiH"
-
-                        logger.warn("Expected 1, found "+ strains.size() + " strains for synonym of strain name " + strainName + ". Skipped.");
-                    }
-                }
-            }
+        Map<String, Object> parameterMap = new HashMap<>();
+        List<Strain> strainList = jdbcCda.query("SELECT * FROM strain", parameterMap, new StrainRowMapper());
+        for (Strain strain : strainList) {
+            strains.put(strain.getName(), strain);
+            strains.put(strain.getId().getAccession(), strain);
         }
 
-        return strain;
+        return strains;
     }
 
-
+// FIXME
     /**
      * @return The full list of {@link Strain}, indexed by strain name
      */
-    public Map<String, Strain> getStrainsByName() {
+    public Map<String, Strain> getStrainsByNameXXXXXXXXXXXXXXXX() {
         Map<String, Strain> strains = new ConcurrentHashMap<>();
 
         Map<String, Object> parameterMap = new HashMap<>();
@@ -2687,9 +2628,17 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
 
         // Insert strains. Ignore any duplicates.
         for (Strain strain : strains) {
+            if (strain == null) {
+                continue;
+            }
+
             try {
                 Map<String, Object> parameterMap = new HashMap<>();
-                parameterMap.put("acc", strain.getId().getAccession());
+                try {
+                    parameterMap.put("acc", strain.getId().getAccession());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
                 parameterMap.put("db_id", strain.getId().getDatabaseId());
                 parameterMap.put("biotype_acc", (strain.getBiotype() == null ? null : strain.getBiotype().getId().getAccession()));
                 parameterMap.put("biotype_db_id", (strain.getBiotype() == null ? null : strain.getBiotype().getId().getDatabaseId()));

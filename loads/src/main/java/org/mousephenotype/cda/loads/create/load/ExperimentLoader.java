@@ -25,6 +25,7 @@ import org.mousephenotype.cda.db.pojo.Strain;
 import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.loads.common.*;
+import org.mousephenotype.cda.loads.create.load.support.StrainMapper;
 import org.mousephenotype.cda.loads.exceptions.DataLoadException;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.mousephenotype.dcc.exportlibrary.datastructure.core.procedure.*;
@@ -102,6 +103,9 @@ public class ExperimentLoader implements CommandLineRunner {
     private Set<String>                         derivedImpressParameters          = new HashSet<>();
     private Set<String>                         metadataAndDataAnalysisParameters = new HashSet<>();
     private Map<BioSampleKey, BiologicalSample> samplesMap                        = new ConcurrentHashMap<>();
+    private StrainMapper                        strainMapper;
+    private Map<String, Strain>                 strainsByNameOrMgiAccessionIdMap;
+
 
     // DCC parameter lookup maps, keyed by procedure_pk
     private Map<Long, List<MediaParameter>>       mediaParameterMap       = new ConcurrentHashMap<>();
@@ -155,11 +159,15 @@ public class ExperimentLoader implements CommandLineRunner {
         cdaOrganisation_idMap = cdaSqlUtils.getCdaOrganisation_idsByDccCenterId();
         phenotypedColonyMap = bioModelManager.getPhenotypedColonyMap();
         missingColonyMap = cdaSqlUtils.getMissingColonyIdsMap();
+        strainMapper = new StrainMapper(cdaSqlUtils, bioModelManager.getStrainsByNameOrMgiAccessionIdMap());
+        strainsByNameOrMgiAccessionIdMap = bioModelManager.getStrainsByNameOrMgiAccessionIdMap();
 
         Assert.notNull(bioModelManager, "bioModelManager must not be null");
         Assert.notNull(cdaOrganisation_idMap, "cdaOrganisation_idMap must not be null");
         Assert.notNull(phenotypedColonyMap, "phenotypedColonyMap must not be null");
         Assert.notNull(missingColonyMap, "missingColonyMap must not be null");
+        Assert.notNull(strainMapper, "strainMapper must not be null");
+        Assert.notNull(strainsByNameOrMgiAccessionIdMap, "strainsByNameOrMgiAccessionIdMap must not be null");
 
         long startStep = new Date().getTime();
 
@@ -525,7 +533,7 @@ public class ExperimentLoader implements CommandLineRunner {
          * such strain names here.
          */
         if ((dccExperiment.getSpecimenStrainId() != null) && ( ! dccExperiment.getSpecimenStrainId().isEmpty())) {
-            String remappedStrainName = bioModelManager.getStrainMapper().parseMultipleBackgroundStrainNames(dccExperiment.getSpecimenStrainId());
+            String remappedStrainName = strainMapper.parseMultipleBackgroundStrainNames(dccExperiment.getSpecimenStrainId());
             dccExperiment.setSpecimenStrainId(remappedStrainName);
             PhenotypedColony colony = phenotypedColonyMap.get(dccExperiment.getColonyId());
             if (colony != null) {
@@ -559,12 +567,17 @@ public class ExperimentLoader implements CommandLineRunner {
             }
 
             // Run the strain name through the StrainMapper to remap incorrect legacy strain names.
-            Strain remappedStrain = bioModelManager.getStrainMapper().lookupBackgroundStrain(dccExperiment.getSpecimenStrainId());
+            Strain remappedStrain = strainMapper.lookupBackgroundStrain(dccExperiment.getSpecimenStrainId());
             if (remappedStrain == null) {
-                remappedStrain = bioModelManager.getStrainMapper().createBackgroundStrain(dccExperiment.getSpecimenStrainId());
+                remappedStrain = StrainMapper.createBackgroundStrain(dccExperiment.getSpecimenStrainId());
+                cdaSqlUtils.insertStrain(remappedStrain);
+                strainsByNameOrMgiAccessionIdMap.put(remappedStrain.getName(), remappedStrain);
+                strainsByNameOrMgiAccessionIdMap.put(remappedStrain.getId().getAccession(), remappedStrain);
             }
             dccExperiment.setSpecimenStrainId(remappedStrain.getName());
-
+            if (colony != null) {
+                colony.setBackgroundStrain(remappedStrain.getName());
+            }
 
             // Get phenotypingCenter and phenotypingCenterPk.
             phenotypingCenter = LoadUtils.mappedExternalCenterNames.get(dccExperiment.getPhenotypingCenter());
