@@ -18,11 +18,13 @@
 
 		<div class="toggle-div hidden">
 			<p>
-			<%-- <c:if test="${isDerivedBodyWeight}"> --%>
+			<c:if test="${isDerivedBodyWeight}"> <!-- these don't work for IPGTT -->
 				<a href='${srUrl}'> Statistical result raw XML </a> &nbsp;&nbsp;
 				<a href='${gpUrl}'> Genotype phenotype raw XML </a>&nbsp;&nbsp;
+			</c:if>
+			
 				<a href='${baseUrl}${phenStatDataUrl}'> PhenStat-ready raw experiment data</a>
-				<%-- </c:if> --%>
+			
 			</p>
 
 			<table id="timeTable">
