@@ -26,15 +26,13 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import uk.ac.ebi.phenodigm2.Disease;
-import uk.ac.ebi.phenodigm2.Gene;
+import uk.ac.ebi.phenodigm2.DiseaseGeneAssociation;
 import uk.ac.ebi.phenodigm2.DiseaseModelAssociation;
 import uk.ac.ebi.phenodigm2.WebDao;
 
 /**
  * Controller for disease pages, uses phenodigm2 core
  *
- * @author Tomasz Konopka <t.konopka@qmul.ac.uk>
- * (based on DiseaseController.java)
  */
 @Controller
 public class DiseaseController2 {
@@ -44,7 +42,7 @@ public class DiseaseController2 {
     @Autowired
     private WebDao phenoDigm2Dao;
 
-    @RequestMapping(value = {"/disease, /disease2"})
+    @RequestMapping(value = {"/disease"})
     public String allDiseases(Model model) {
         LOGGER.info("Making page for all disease2 - for now abort");
         return "404";
@@ -52,8 +50,7 @@ public class DiseaseController2 {
 
     /**
      * There is confusion about whether ORPHANET IDs should be coded as
-     * ORPHA:1234 or ORPHANET:1234. This is a compatibility issue between
-     * phenodigm1 vs phenodigm2.
+     * ORPHA:1234 or ORPHANET:1234. 
      *
      * @param diseaseId
      * @return
@@ -69,7 +66,7 @@ public class DiseaseController2 {
         return diseaseId;
     }
 
-    @RequestMapping(value = {"/disease/{diseaseId}", "/disease2/{diseaseId}"})
+    @RequestMapping(value = {"/disease/{diseaseId}"})
     public String disease(@PathVariable("diseaseId") String diseaseId, Model model) {
 
         diseaseId = normalizeDiseaseId(diseaseId);
@@ -84,13 +81,13 @@ public class DiseaseController2 {
         model.addAttribute("disease", disease);
 
         // fetch associations between the disease and known genes        
-        List<Gene> geneAssociations = phenoDigm2Dao.getDiseaseToGeneAssociations(diseaseId);
+        List<DiseaseGeneAssociation> geneAssociations = phenoDigm2Dao.getDiseaseToGeneAssociations(diseaseId);
         // split the genes into curated/ortholog, i.e. human/mouse 
-        List<Gene> curatedAssociations = new ArrayList<>();
-        List<Gene> orthologousAssociations = new ArrayList<>();
+        List<DiseaseGeneAssociation> curatedAssociations = new ArrayList<>();
+        List<DiseaseGeneAssociation> orthologousAssociations = new ArrayList<>();
         HashSet<String> orthologousGenes = new HashSet<>();
-        for (Gene assoc : geneAssociations) {
-            if (assoc.isOrtholog()) {
+        for (DiseaseGeneAssociation assoc : geneAssociations) {
+            if (assoc.isByOrthology()) {
                 orthologousAssociations.add(assoc);
                 orthologousGenes.add(assoc.getSymbol());
             } else {
@@ -118,7 +115,7 @@ public class DiseaseController2 {
         if (modelAssociations.size() > 0) {
             List<String> jsons = new ArrayList<>();
             for (DiseaseModelAssociation assoc : modelAssociations) {
-                jsons.add(assoc.getModelJson());
+                jsons.add(assoc.makeModelJson());
                 if (orthologousGenes.contains(assoc.getMarkerSymbol())) {
                     hasModelsByOrthology = true;
                 }

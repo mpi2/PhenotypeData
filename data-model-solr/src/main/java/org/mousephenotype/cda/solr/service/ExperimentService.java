@@ -583,6 +583,7 @@ public class ExperimentService{
         }
 
         experiment.setDataPhenStatFormatUrl(experimentRawDataUrl);
+        System.out.println("experiment srUrl="+experiment.getStatisticalResultUrl());
         return experiment;
 
 

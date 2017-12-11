@@ -27,6 +27,8 @@ import uk.ac.ebi.phenodigm.model.PhenotypeTerm;
  * Holds the mappings for the disease to mouse models for a given association.
  * 
  * @author Jules Jacobsen <jules.jacobsen@sanger.ac.uk>
+ * 
+ * @deprecated pdsimplify
  */
 public class DiseaseGeneAssociationDetail {
     

@@ -48,7 +48,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.sql.*;
 import java.util.*;
-
+@Deprecated
 @EnableAutoConfiguration
 public class PreqcIndexer extends AbstractIndexer implements CommandLineRunner {
 

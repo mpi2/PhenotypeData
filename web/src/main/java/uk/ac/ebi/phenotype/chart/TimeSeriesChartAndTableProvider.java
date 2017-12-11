@@ -116,7 +116,7 @@ public class TimeSeriesChartAndTableProvider {
 						Float discreteTimePoint = expDto.getDiscretePoint();
 
 						// Ensure the timepoint is valid
-						if (discreteTimePoint > 0) {
+						if (discreteTimePoint >= 0) {
 							mutantData.add(new DiscreteTimePoint(discreteTimePoint, new Float(dataPoint)));
 						}
 					}

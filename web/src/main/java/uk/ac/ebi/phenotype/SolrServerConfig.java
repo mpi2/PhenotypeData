@@ -73,7 +73,7 @@ public class SolrServerConfig {
 	@Bean(name = "phenodigmCore")
 	public HttpSolrClient getPhenodigmCore() {
         //renamed old phenodigm core with an explicit 1 at the end
-        return new HttpSolrClient(solrBaseUrl + "/phenodigm");
+        return new HttpSolrClient(solrBaseUrl + "/phenodigm1");
 	}
 
     //Phenodigm2 server 
@@ -181,11 +181,6 @@ public class SolrServerConfig {
 	@Bean(name = "phenotypeCenterService")
 	PhenotypeCenterService phenotypeCenterService() {
 		return new PhenotypeCenterService(solrBaseUrl + "/experiment", impressService);
-	}
-
-	@Bean(name = "preQcPhenotypeCenterService")
-	PhenotypeCenterService preQcPhenotypeCenterService() {
-		return new PhenotypeCenterService(solrBaseUrl + "/preqc", impressService);
 	}
 
 

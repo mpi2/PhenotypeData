@@ -63,8 +63,6 @@ public class Phenodigm2DTO {
     public static final String DISEASE_MODEL_AVG_NORM = "disease_model_avg_norm";
     public static final String DISEASE_MODEL_MAX_RAW = "disease_model_max_raw";
     public static final String DISEASE_MODEL_MAX_NORM = "disease_model_max_norm";
-    public static final String MODEL_MATCHED_PHENOTYPES = "model_matched_phenotypes";
-    public static final String DISEASE_MATCHED_PHENOTYPES = "disease_matched_phenotypes";
     // descriptive/adjective fields
     public static final String IN_LOCUS = "in_locus";
     public static final String ASSOCIATION_CURATED = "association_curated";
@@ -131,10 +129,6 @@ public class Phenodigm2DTO {
     private String modelDescription;
     @Field(MODEL_PHENOTYPES)
     private List<String> modelPhenotypes;
-    @Field(MODEL_MATCHED_PHENOTYPES)
-    private List<String> modelMatchedPhenotypes;
-    @Field(DISEASE_MATCHED_PHENOTYPES)
-    private List<String> diseaseMatchedPhenotypes;
     @Field(DISEASE_MODEL_AVG_RAW)
     private double diseaseModelAvgRaw;
     @Field(DISEASE_MODEL_AVG_NORM)
@@ -363,22 +357,6 @@ public class Phenodigm2DTO {
         this.modelPhenotypes = modelPhenotypes;
     }
 
-    public List<String> getModelMatchedPhenotypes() {
-        return modelMatchedPhenotypes;
-    }
-
-    public void setModelMatchedPhenotypes(List<String> modelMatchedPhenotypes) {
-        this.modelMatchedPhenotypes = modelMatchedPhenotypes;
-    }
-
-    public List<String> getDiseaseMatchedPhenotypes() {
-        return diseaseMatchedPhenotypes;
-    }
-
-    public void setDiseaseMatchedPhenotypes(List<String> diseaseMatchedPhenotypes) {
-        this.diseaseMatchedPhenotypes = diseaseMatchedPhenotypes;
-    }
-
     public String getModelGeneticBackground() {
         return modelGeneticBackground;
     }
@@ -444,7 +422,7 @@ public class Phenodigm2DTO {
     }
 
     /**
-     * Original phenodigm has overrides of equals, hashCode, toString Are those
+     * Original phenodigm has overrides of equals, hashCode, toString. Are those
      * really necessary?
      */
 }

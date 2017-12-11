@@ -18,11 +18,11 @@
 
 		<div class="toggle-div hidden">
 			<p>
-			<c:if test="${isDerivedBodyWeight}">
+			<%-- <c:if test="${isDerivedBodyWeight}"> --%>
 				<a href='${srUrl}'> Statistical result raw XML </a> &nbsp;&nbsp;
 				<a href='${gpUrl}'> Genotype phenotype raw XML </a>&nbsp;&nbsp;
 				<a href='${baseUrl}${phenStatDataUrl}'> PhenStat-ready raw experiment data</a>
-				</c:if>
+				<%-- </c:if> --%>
 			</p>
 
 			<table id="timeTable">

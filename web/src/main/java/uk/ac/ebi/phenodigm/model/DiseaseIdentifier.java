@@ -8,6 +8,8 @@ package uk.ac.ebi.phenodigm.model;
 /**
  * 
  * @author Jules Jacobsen <jules.jacobsen@sanger.ac.uk>
+ * 
+ * @deprecated pdsimplify
  */
 public class DiseaseIdentifier extends ExternalIdentifier implements Comparable<DiseaseIdentifier> {
   

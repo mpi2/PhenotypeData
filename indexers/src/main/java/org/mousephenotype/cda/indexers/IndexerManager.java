@@ -150,7 +150,7 @@ public class IndexerManager  {
 	private Class mgiPhenotypeClass = MGIPhenotypeIndexer.class;
 	//private Class phenodigmClass = PhenodigmIndexer.class;
     private Class anatomyClass = AnatomyIndexer.class;
-	private Class preqcClass = PreqcIndexer.class;
+	//private Class preqcClass = PreqcIndexer.class;
 	private Class alleleClass = AlleleIndexer.class;
 	private Class imagesClass = SangerImagesIndexer.class;
 	private Class impcImagesClass = ImpcImagesIndexer.class;
@@ -384,7 +384,7 @@ public class IndexerManager  {
 
                 case ALLELE2_CORE:              indexerItemList.add(new IndexerItem(ALLELE2_CORE, allele2Class));                         break;
                 case PRODUCT_CORE:              indexerItemList.add(new IndexerItem(PRODUCT_CORE, productClass));                         break;
-			    case PREQC_CORE:                indexerItemList.add(new IndexerItem(PREQC_CORE, preqcClass));                             break;
+			    //case PREQC_CORE:                indexerItemList.add(new IndexerItem(PREQC_CORE, preqcClass));                             break;
 			    case ALLELE_CORE:               indexerItemList.add(new IndexerItem(ALLELE_CORE, alleleClass));                           break;
 			    case IMAGES_CORE:               indexerItemList.add(new IndexerItem(IMAGES_CORE, imagesClass));                           break;
 			    case IMPC_IMAGES_CORE:          indexerItemList.add(new IndexerItem(IMPC_IMAGES_CORE, impcImagesClass));                  break;

@@ -21,6 +21,8 @@ import java.util.Objects;
 /**
  * Class for holding allele data.
  * @author Jules Jacobsen <jules.jacobsen@sanger.ac.uk>
+ * 
+ * @deprecated pdsimplify
  */
 public class Allele {
 

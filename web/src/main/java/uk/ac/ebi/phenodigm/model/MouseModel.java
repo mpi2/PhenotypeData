@@ -9,6 +9,8 @@ import java.util.List;
 /**
  * Defines a mouse model for a genetic disease.
  * @author Jules Jacobsen <jules.jacobsen@sanger.ac.uk>
+ * 
+ * @deprecated pdsimplify
  */
 public class MouseModel implements Comparable<MouseModel> {
     

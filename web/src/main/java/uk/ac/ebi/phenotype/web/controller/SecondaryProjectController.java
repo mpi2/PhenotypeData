@@ -69,9 +69,6 @@ public class SecondaryProjectController {
     @Autowired
     @Qualifier("postqcService")
     PostQcService genotypePhenotypeService;
-    @Autowired
-    @Qualifier("preqcService")
-    PreQcService preQcService;
 
     @Autowired
     GeneService geneService;
