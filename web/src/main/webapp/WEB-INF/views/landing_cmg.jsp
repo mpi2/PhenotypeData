@@ -339,7 +339,8 @@
 							        // the value is string
 							        var addQuotes = function(value){
 							            if (isNaN(value)){
-							                return '"'+value+'"';
+							                /* return '"'+value+'"'; */
+							                return value;
 							            }
 							            return value;
 							        };
@@ -365,7 +366,9 @@
 
 							        link.setAttribute('download', filename);
 							        link.setAttribute('href', 'data:' + mimeType + ';charset=utf-8,' + encodeURIComponent(elHtml));
+							        document.body.appendChild(link);
 							        link.click(); 
+							        document.body.removeChild(link);
 							    }
 
 							    var fileNameTsv =  'cmg-genes.tsv'; // You can use the .txt extension if you want
@@ -381,8 +384,8 @@
 							});
 						</script>
 					   	
-					   <br/><br/>
-                        <div class="section" id="vignettes">
+					   	<br/><br/>
+                        	<div class="section" id="vignettes">
                             <h2>Vignettes</h2>
                             <div class="inner">
                             		

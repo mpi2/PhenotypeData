@@ -147,52 +147,26 @@ $(function () {
                     			outlier = 'above95';
                     		}
                     		var parameter = arrayParameters[this.y];
-                    		var clicked = Math.round(Math.random()*50) + 20;
-                    		var $div = $('<div></div>')
-                	        .dialog({
-                	            title: "Genes",
-                	            width: 820,
-                	            height: 300,
-                	            position: ({
-                	            		my:'center+'+clicked
-                            }),
-	                	    }).css("font-size", "10px");
-	                        $div.append("<table>");
-	                        $div.append("<thead>");
-	                        $div.append("<tr>");
-	                        $div.append("<th>Parameter</th>");
-	                        $div.append("<th>Sex</th>");
-	                        $div.append("<th>MGI</th>");
-	                        $div.append("<th>GeneID</th>");
-	                        $div.append("<th>Gene</th>");
-	                        $div.append("<th>Center</th>");
-	                        $div.append("<th>Zygosity</th>");
-	                        $div.append("<th>Ratio_KO_WT</th>");
-	                        $div.append("<th>Tag</th>");
-	                        $div.append("</tr>");
-	                        $div.append("</thead>");
-	                        $div.append("<tbody>");
-	                        $.each(dataTable1, function( key, value ) {
-		                			var par = value.Parameter;
-		                			var sex = value.Sex;
-		                			var tag = value.tag;
-		                			if ( parameter == par && femaleOrMale == sex && outlier == tag) {
-		                				$div.append("<tr>");
-		                				$div.append("<td>" + par.toUpperCase() + "</td>");
-		                				$div.append("<td>" + sex + "</td>");
-		                				$div.append("<td>" + value.MGI + "</td>");
-		                				$div.append("<td>" + value.GeneID + "</td>");
-		                				$div.append("<td>" + value.Gene + "</td>");
-		                				$div.append("<td>" + value.Center + "</td>");
-		                				$div.append("<td>" + value.Zygosity + "</td>");
-		                				$div.append("<td>" + value.Ratio_KO_WT + "</td>");
-		                				$div.append("<td>" + tag + "</td>");
-		                				$div.append("</tr>");
-		                			}
-		                		});
-	                        $div.append("<t/body>");
-	                        $div.append("</table>");
-                    }
+                    		
+                    		$.each(dataTable1, function( key, value ) {
+	                			var par = value.Parameter;
+	                			var sex = value.Sex;
+	                			var tag = value.tag;
+	                			if ( parameter == par && femaleOrMale == sex && outlier == tag) {
+	                				$("#metabolismTableContent").html("<tr>");
+	                				$("#metabolismTableContent").append("<td>" + par.toUpperCase() + "</td>");
+	                				$("#metabolismTableContent").append("<td>" + sex + "</td>");
+	                				$("#metabolismTableContent").append("<td>" + value.MGI + "</td>");
+	                				$("#metabolismTableContent").append("<td>" + value.GeneID + "</td>");
+	                				$("#metabolismTableContent").append("<td>" + value.Gene + "</td>");
+	                				$("#metabolismTableContent").append("<td>" + value.Center + "</td>");
+	                				$("#metabolismTableContent").append("<td>" + value.Zygosity + "</td>");
+	                				$("#metabolismTableContent").append("<td>" + value.Ratio_KO_WT + "</td>");
+	                				$("#metabolismTableContent").append("<td>" + tag + "</td>");
+	                				$("#metabolismTableContent").append("</tr>");
+	                			}
+	                		});
+                    }	
                 }
             },
             states: {

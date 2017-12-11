@@ -187,8 +187,8 @@ public class LandingPageController {
             pageTitle = "Metabolism";
         } 
         else if (page.equalsIgnoreCase("cmg")) {
-        		mpDTO = mpService.getPhenotype("MP:0000001");
-        		model.addAttribute("shortDescription", "<p><a href='http://www.mendelian.org/' target='_blank'>The Centers for Mendelian Genomics</a> (CMG) is an NIH funded project to use genome-wide sequencing and other genomic approaches to discover the genetic basis underlying as many human Mendelian traits as possible.  The IMPC is helping CMG validate human disease gene variants by creating and characterizing orthologous knockout mice.</p>");
+        		// mpDTO = mpService.getPhenotype("MP:0000001");
+        		model.addAttribute("shortDescription", "<p>The <a href='http://www.mendelian.org/' target='_blank'>Centers for Mendelian Genomics</a> (CMG) is an NIH funded project to use genome-wide sequencing and other genomic approaches to discover the genetic basis underlying as many human Mendelian traits as possible.  The IMPC is helping CMG validate human disease gene variants by creating and characterizing orthologous knockout mice.</p>");
         		pageTitle = "Centers for Mendelian Genomics";
         }
         
@@ -208,68 +208,70 @@ public class LandingPageController {
 //        }
 
         // IMPC image display at the bottom of the page
-        List<Group> groups = imageService.getPhenotypeAssociatedImages(null, mpDTO.getMpId(), anatomyIds, true, 1);
-        Map<String, String> paramToNumber = new HashMap<>();
-        for (Group group : groups) {
-            if (!paramToNumber.containsKey(group.getGroupValue())) {
-                paramToNumber.put(group.getGroupValue(), Long.toString(group.getResult().getNumFound()));
-            }
-        }
+        if (mpDTO != null) {
+	        List<Group> groups = imageService.getPhenotypeAssociatedImages(null, mpDTO.getMpId(), anatomyIds, true, 1);
+	        Map<String, String> paramToNumber = new HashMap<>();
+	        for (Group group : groups) {
+	            if (!paramToNumber.containsKey(group.getGroupValue())) {
+	                paramToNumber.put(group.getGroupValue(), Long.toString(group.getResult().getNumFound()));
+	            }
+	        }
 
+	        List<ImpressDTO> procedures = new ArrayList<>();
+	        procedures.addAll(is.getProceduresByMpTerm(mpDTO.getMpId(), true));
 
-        List<ImpressDTO> procedures = new ArrayList<>();
-        procedures.addAll(is.getProceduresByMpTerm(mpDTO.getMpId(), true));
-
-        // Per Terry 2017-08-31
-        // On the hearing landing page, filter out all procedures excepy Shirpa and ABR
-        if (page.equalsIgnoreCase("hearing")) {
-            procedures = procedures
-                    .stream()
-                    .filter(x -> "Combined SHIRPA and Dysmorphology".equals(x.getProcedureName()) || "Auditory Brain Stem Response".equals(x.getProcedureName()))
-                    .collect(Collectors.toList());
-            model.addAttribute("adultOnly", true);
+	        // Per Terry 2017-08-31
+	        // On the hearing landing page, filter out all procedures excepy Shirpa and ABR
+	        if (page.equalsIgnoreCase("hearing")) {
+	            procedures = procedures
+	                    .stream()
+	                    .filter(x -> "Combined SHIRPA and Dysmorphology".equals(x.getProcedureName()) || "Auditory Brain Stem Response".equals(x.getProcedureName()))
+	                    .collect(Collectors.toList());
+	            model.addAttribute("adultOnly", true);
+	        }
+	        
+	        // Per Alba 2017-11-07
+	        // On the metabolism landing page, filter out all procedures TODO
+	        if (page.equalsIgnoreCase("metabolism")) {
+	            procedures = procedures
+	                    .stream()
+	                    .filter(x -> !"Gross Pathology and Tissue Collection".equals(x.getProcedureName()))
+	                    .collect(Collectors.toList());
+	            model.addAttribute("adultOnly", true);
+	        }
+	
+	        Collections.sort(procedures, ImpressDTO.getComparatorByProcedureName());
+	        String description="for genes with at least one " + pageTitle + " phenotype";
+	        
+	        Set<String>filterOnMarkerAccession=null;
+	        if(page.equalsIgnoreCase("hearing")){
+		        	filterOnMarkerAccession = getHearingPublicationGeneSet();
+		        	description="for the 67 genes in the gene table above";
+	        }
+        		
+        		model.addAttribute("paramToNumber", paramToNumber);
+        		model.addAttribute("impcImageGroups", groups);
+        		model.addAttribute("phenotypeChart", ScatterChartAndTableProvider.getScatterChart("phenotypeChart", gpService.getTopLevelPhenotypeIntersection(mpDTO.getMpId(), filterOnMarkerAccession), "Gene pleiotropy",
+                    description, "Number of phenotype associations to " + pageTitle, "Number of associations to other phenotypes",
+                    "Other phenotype calls: ", pageTitle + " phenotype calls: ", "Gene"));
+	        model.addAttribute("genePercentage", ControllerUtils.getPercentages(mpDTO.getMpId(), srService, gpService));
+	        model.addAttribute("phenotypes", gpService.getAssociationsCount(mpDTO.getMpId(), resources));
+	        model.addAttribute("mpId", mpDTO.getMpId());
+	        model.addAttribute("mpDTO", mpDTO);
+	
+	        String systemNAme = mpDTO.getMpTerm();
+	        if (mpDTO.getMpTerm().contains("hearing/vestibular/ear")) {
+	            systemNAme = "hearing";
+	        }
+	        
+	        model.addAttribute("systemName", systemNAme.replace(" phenotype", ""));
+	        model.addAttribute("procedures", procedures);
         }
         
-        // Per Alba 2017-11-07
-        // On the metabolism landing page, filter out all procedures TODO
-        if (page.equalsIgnoreCase("metabolism")) {
-            procedures = procedures
-                    .stream()
-                     .filter(x -> !"Gross Pathology and Tissue Collection".equals(x.getProcedureName()))
-                    .collect(Collectors.toList());
-            model.addAttribute("adultOnly", true);
-        }
-
-        Collections.sort(procedures, ImpressDTO.getComparatorByProcedureName());
-        String description="for genes with at least one " + pageTitle + " phenotype";
-        
-        Set<String>filterOnMarkerAccession=null;
-        if(page.equalsIgnoreCase("hearing")){
-	        	filterOnMarkerAccession = getHearingPublicationGeneSet();
-	        	description="for the 67 genes in the gene table above";
-        }
-
-        
-        model.addAttribute("phenotypeChart", ScatterChartAndTableProvider.getScatterChart("phenotypeChart", gpService.getTopLevelPhenotypeIntersection(mpDTO.getMpId(), filterOnMarkerAccession), "Gene pleiotropy",
-                description, "Number of phenotype associations to " + pageTitle, "Number of associations to other phenotypes",
-                "Other phenotype calls: ", pageTitle + " phenotype calls: ", "Gene"));
         model.addAttribute("pageTitle", pageTitle);
-        model.addAttribute("paramToNumber", paramToNumber);
-        model.addAttribute("impcImageGroups", groups);
-        model.addAttribute("genePercentage", ControllerUtils.getPercentages(mpDTO.getMpId(), srService, gpService));
-        model.addAttribute("phenotypes", gpService.getAssociationsCount(mpDTO.getMpId(), resources));
-        model.addAttribute("mpId", mpDTO.getMpId());
-        model.addAttribute("mpDTO", mpDTO);
-
-        String systemNAme = mpDTO.getMpTerm();
-        if (mpDTO.getMpTerm().contains("hearing/vestibular/ear")) {
-            systemNAme = "hearing";
-        }
-        model.addAttribute("systemName", systemNAme.replace(" phenotype", ""));
-        model.addAttribute("procedures", procedures);
 
 //        model.addAttribute("dataJs", getData(null, null, null, mpDTO.getAccession(), request) + ";");
-//
+
         return "landing_" + page;
 
     }

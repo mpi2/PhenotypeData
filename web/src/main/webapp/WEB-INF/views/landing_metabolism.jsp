@@ -108,7 +108,26 @@
                                	<p>Mutant/wildtype ratios below the 5th percentile and above the 95th percentile of the ratio distributions yielded 28 gene lists that serve as a data mining resource for further investigation into potential links to human metabolic disorders.</p>
                                  <br/> <br/>
                                	<div id="heatMapContainer" style="height: 450px; min-width: 310px; max-width: 1000px;"></div>
-                                	
+                                	<div id="metabolismGeneTable">
+                                		<table class='table tableSorter'>
+			                        		<thead>
+					                        <tr>
+					                        		<th>Parameter</th>
+					                        		<th>Sex</th>
+				                        			<th>MGI</th>
+					                        		<th>GeneID</th>
+					                        		<th>Gene</th>
+					                        		<th>Center</th>
+					                        		<th>Zygosity</th>
+					                        		<th>Ratio_KO_WT</th>
+					                        		<th>Tag</th>
+					                        	</tr>
+			                        		</thead>
+			                        		<tbody>
+			                        			<div id="metabolismTableContent"></di>
+			                       		<tbody>
+                        				</table>
+                                	</div>
 					   		</div>
 					   		
 					   	</div>
