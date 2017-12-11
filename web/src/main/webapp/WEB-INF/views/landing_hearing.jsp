@@ -748,7 +748,7 @@ table.dataTable thead tr {
                                     <a
 										href="${baseUrl}/genes/MGI:1915589">Ccdc88c<sup>tm1b(KOMP)Mbp</sup></a>
                                     <div class="chart" id="wdtc1"
-										graphUrl="${baseUrl}/chart?accession=MGI:1915589&parameter_stable_id=IMPC_ABR_012_001&chart_type=UNIDIMENSIONAL_ABR_PLOT&pipeline_stable_id=UCD_001&zygosity=homozygote&phenotyping_center=UC%20Davis&strain_accession_id=MGI:2683688&allele_accession_id=NULL-387FB49D6&metadata_group=b596139b547fa3351114a7080d276a8f&chart_only=true">
+										graphUrl="${baseUrl}/chart?accession=MGI:1915589&parameter_stable_id=IMPC_ABR_012_001&chart_type=UNIDIMENSIONAL_ABR_PLOT&pipeline_stable_id=UCD_001&zygosity=homozygote&phenotyping_center=UC%20Davis&strain_accession_id=MGI:2683688&allele_accession_id=NULL-387FB49D6&chart_only=true">
                                         <div id="spinner_wdtc1">
 											<i class="fa fa-refresh fa-spin"></i>
 										</div>
@@ -759,7 +759,7 @@ table.dataTable thead tr {
                                 <h3>Novel, severe hearing loss</h3>
                                 <a href="${baseUrl}/genes/MGI:2444708">Zfp719<sup>tm1b(EUCOMM)Wtsi</sup></a>
                                 <div class="chart" id="zfp719"
-										graphUrl="${baseUrl}/chart?accession=MGI:2444708&parameter_stable_id=IMPC_ABR_012_001&chart_type=UNIDIMENSIONAL_ABR_PLOT&pipeline_stable_id=MGP_001&zygosity=homozygote&phenotyping_center=WTSI&strain_accession_id=MGI:2159965&allele_accession_id=MGI:5548829&metadata_group=ab8371fc819db4209ca1a10186a8a6ef&chart_only=true">
+										graphUrl="${baseUrl}/chart?accession=MGI:2444708&parameter_stable_id=IMPC_ABR_012_001&chart_type=UNIDIMENSIONAL_ABR_PLOT&pipeline_stable_id=MGP_001&zygosity=homozygote&phenotyping_center=WTSI&strain_accession_id=MGI:2159965&allele_accession_id=MGI:5548829&chart_only=true">
                                     <div id="spinner_zfp719">
 											<i class="fa fa-refresh fa-spin"></i>
 										</div>

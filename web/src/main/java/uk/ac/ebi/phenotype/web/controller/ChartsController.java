@@ -363,6 +363,8 @@ public class ChartsController {
                             log.error("Unknown how to display graph for observation type: " + observationTypeForParam);
                             break;
                     }
+                }else{
+                	log.error("chart type is null");
                 }
 
             } catch (SQLException e) {
