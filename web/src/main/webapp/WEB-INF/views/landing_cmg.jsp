@@ -339,7 +339,8 @@
 							        // the value is string
 							        var addQuotes = function(value){
 							            if (isNaN(value)){
-							                return '"'+value+'"';
+							                /* return '"'+value+'"'; */
+							                return value;
 							            }
 							            return value;
 							        };
@@ -383,8 +384,8 @@
 							});
 						</script>
 					   	
-					   <br/><br/>
-                        <div class="section" id="vignettes">
+					   	<br/><br/>
+                        	<div class="section" id="vignettes">
                             <h2>Vignettes</h2>
                             <div class="inner">
                             		
