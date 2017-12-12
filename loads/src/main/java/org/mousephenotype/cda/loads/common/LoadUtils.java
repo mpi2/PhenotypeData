@@ -76,6 +76,8 @@ public class LoadUtils {
         put("Kmpc",                     "KMPC");                        // center.centerId -> organisation.name
         put("Biat",                     "BIAT");                        // center.centerId -> organisation.name
         put("Ph",                       "PH");                          // center.centerId -> organisation.name
+        put("CDTA",                     "CDTA");                        // center.centerId -> organisation.name
+        put("Crl",                      "CRL");                         // center.centerId -> organisation.name
     }};
 
     public static <K, V> Map<V, K> inverseMap(Map<K, V> sourceMap) {
@@ -190,5 +192,37 @@ public class LoadUtils {
         }
 
         return zygosity.getName();
+    }
+
+
+    /**
+     * Maps dcc zygosity string to cda zygosity string suitable for insertion into the cda database.
+     *
+     * @param dccZygosity The dcc zygosity string
+     *
+     * @return the cda zygosity string, or null if the dccZygosity is unknown.
+     */
+    public static String getSpecimenLevelMutantZygosity(String dccZygosity) {
+
+        String zygosity;
+        switch (dccZygosity) {
+            case "wild type":
+            case "homozygous":
+                zygosity = ZygosityType.homozygote.getName();
+                break;
+            case "heterozygous":
+                zygosity = ZygosityType.heterozygote.getName();
+                break;
+            case "hemizygous":
+                zygosity = ZygosityType.hemizygote.getName();
+                break;
+
+            default:
+                String message = "Unknown dcc zygosity '" + dccZygosity + "'";
+                logger.error(message);
+                zygosity = null;
+        }
+
+        return zygosity;
     }
 }

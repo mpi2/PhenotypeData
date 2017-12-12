@@ -104,11 +104,10 @@ public class StrainMapper {
     }
 
 
-    public StrainMapper(CdaSqlUtils cdaSqlUtils, Map<String, Strain> strainsByNameOrMgiAccessionIdMap) throws DataLoadException {
+    public StrainMapper(CdaSqlUtils cdaSqlUtils, Map<String, Strain> strainsByNameOrMgiAccessionIdMap, OntologyTerm impcUncharacterizedBackgroundStrain) throws DataLoadException {
         this.cdaSqlUtils = cdaSqlUtils;
         this.strainsByNameOrMgiAccessionIdMap = strainsByNameOrMgiAccessionIdMap;
-
-        impcUncharacterizedBackgroundStrain = cdaSqlUtils.getOntologyTermByName("IMPC uncharacterized background strain");
+        this.impcUncharacterizedBackgroundStrain = impcUncharacterizedBackgroundStrain;
     }
 
 
@@ -281,6 +280,11 @@ public class StrainMapper {
 
         // Iterate through the intermediate background pieces to find appropriate strains
         for (String intermediateBackground : intermediateBackgrounds) {
+            intermediateBackground = intermediateBackground.trim();
+            if ((intermediateBackground == null) || (intermediateBackground.trim().isEmpty())) {
+                continue;
+            }
+
             strain = lookupBackgroundStrain(intermediateBackground);
             if (strain == null) {
                 strain = createBackgroundStrain(intermediateBackground);
@@ -291,56 +295,10 @@ public class StrainMapper {
             strains.add(strain);
         }
 
-
         if (strains.isEmpty()) {
             throw new DataLoadException("Unknown genetic background. Strains not found for background " + backgroundStrainName);
         }
 
         return strains;
     }
-
-
-
-
-
-
-
-
-// FIXME
-
-
-//    /**
-//     * Uses the {@code strainName} to find the {@link Strain}, creating the {@link Strain} and adding it to the
-//     * strain table and the {@code strainsByNameMap} first if necessary.
-//     *
-//     * @param strainName The strain name
-//     * @return The {@link Strain} instance
-//     * @throws DataLoadException
-//     *
-//     * @deprecated moved to StrainMapper.
-//     */
-//    @Deprecated
-//    private Strain getStrain(String strainName) throws DataLoadException {
-//        // fixme
-//
-//        // check strainsByNameMap. If not found, create it.
-//
-//
-//
-//
-//        Strain strain = cdaSqlUtils.getBackgroundStrain(strainName);
-//        if (strain == null) {
-//            strain = strainMapper.createBackgroundStrain(strainName);
-//            cdaSqlUtils.insertStrain(strain);
-//            if (strain == null) {
-//                String message = "Couldn't create strain '" + strainName + "'";
-//                logger.error(message);
-//                throw new DataLoadException(message);
-//            }
-//
-//            strainsByNameMap.put(strain.getName(), strain);
-//        }
-//
-//        return strain;
-//    }
 }

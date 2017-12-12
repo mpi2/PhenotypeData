@@ -22,7 +22,6 @@ import org.mousephenotype.cda.db.pojo.*;
 import org.mousephenotype.cda.db.utilities.SqlUtils;
 import org.mousephenotype.cda.enumerations.DbIdType;
 import org.mousephenotype.cda.enumerations.ObservationType;
-import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.loads.exceptions.DataLoadException;
 import org.mousephenotype.cda.utilities.RunStatus;
 import org.mousephenotype.dcc.exportlibrary.datastructure.core.procedure.*;
@@ -52,13 +51,14 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class CdaSqlUtils {
 
-    private Map<String, Set<AlternateId>> alternateIds;     // keyed by ontology term accession id
-    private Map<String, Set<ConsiderId>>  considerIds;      // keyed by ontology term accession id
-    private Map<String, OntologyTerm>     ontologyTerms;    // keyed by ontology term accession id
-    private Map<String, SequenceRegion>   sequenceRegions;  // keyed by strains id (int)
+    private Map<String, Set<AlternateId>> alternateIds;                 // keyed by ontology term accession id
+    private Map<String, Set<ConsiderId>>  considerIds;                  // keyed by ontology term accession id
+    private Map<String, OntologyTerm>     ontologyTermsByAccessionId;   // keyed by ontology term accession id
+    private Map<String, OntologyTerm>     ontologyTermsByName;          // keyed by ontology term (name)
+    private Map<String, SequenceRegion>   sequenceRegions;              // keyed by strains id (int)
     private SqlUtils                      sqlUtils = new SqlUtils();
     private Map<String, Strain>           strainsBySynonym = new HashMap<>();    // keyed by strains synonym
-    private Map<String, List<Synonym>>    synonyms;         // keyed by accession id
+    private Map<String, List<Synonym>>    synonyms;                     // keyed by accession id
 
     private final        LoadUtils loadUtils = new LoadUtils();
     private static final Logger    logger    = LoggerFactory.getLogger(CdaSqlUtils.class);
@@ -77,6 +77,11 @@ public class CdaSqlUtils {
     public static final String EUROPHENOME = "EuroPhenome";         // The datasourceShortName for dcc_europhenome_final loads
     public static final String MGP         = "MGP";                 // The MGP project name
     public static final String THREEI      = "3i";                  // The 3i project name
+
+    public static final String ONTOLOGY_TERM_TARGETED                 = "Targeted";
+    public static final String IMPC_UNCHARACTERIZED_BACKGROUND_STRAIN = "IMPC uncharacterized background strain";
+    public static final String ONTOLOGY_TERM_POSTNATAL                = "postnatal";
+    public static final String ONTOLOGY_TERM_MOUSE_EMBRYO_STAGE       = "mouse embryo stage";
 
 
     public static final String OBSERVATION_INSERT = "INSERT INTO observation (" +
@@ -161,14 +166,14 @@ public class CdaSqlUtils {
      *
      * @return an {@link Allele} instance from an alleleSymbol and a {@link GenomicFeature} instance
      */
-    public Allele createAlleleFromSymbol(String alleleSymbol, GenomicFeature gene) {
+    public Allele createAlleleFromSymbol(String alleleSymbol, GenomicFeature gene, OntologyTerm targetedTerm) {
 
         // Create the allele acc
         String alleleAccession = "NULL-" + DigestUtils.md5Hex(alleleSymbol).substring(0, 9).toUpperCase();
 
         // Create the allele
         Allele allele = new Allele();
-        allele.setBiotype(getTargetedTerm());
+        allele.setBiotype(targetedTerm);
         allele.setGene(gene);
         allele.setId(new DatasourceEntityId(alleleAccession, DbIdType.IMPC.intValue()));
         allele.setName(alleleSymbol);
@@ -325,49 +330,6 @@ public class CdaSqlUtils {
         return map;
     }
 
-
-    // FIXME
-//    public Strain getBackgroundStrain(String specimenStrainId) throws DataLoadException {
-//        Strain backgroundStrain;
-//        String backgroundStrainName;
-//        String message;
-//        StrainMapper strainMapper = new StrainMapper(this);
-//
-//        String lookedupStrainName = (strainMapper.lookupBackgroundStrain(specimenStrainId)!=null)
-//                ? strainMapper.lookupBackgroundStrain(specimenStrainId).getName()
-//                : specimenStrainId;
-//
-//        // specimen.strainId can contain an MGI strain accession id in the form "MGI:", or a strain name like C57BL/6N.
-//        if (specimenStrainId.toLowerCase().startsWith("mgi:")) {
-//            backgroundStrain = getStrainByNameOrMgiAccessionIdOrSynonym(lookedupStrainName);
-//            if (backgroundStrain == null) {
-//                throw new DataLoadException("No strain table entry found for strain accession id '" + specimenStrainId + "' ("+lookedupStrainName+")");
-//            }
-//            backgroundStrainName = lookedupStrainName;
-//
-//        } else {
-//            backgroundStrainName = lookedupStrainName;
-//        }
-//
-//        try {
-//
-//            backgroundStrain = getStrainByNameOrMgiAccessionIdOrSynonym(backgroundStrainName);
-//
-//            if (backgroundStrain == null) {
-//                backgroundStrain = strainMapper.createBackgroundStrain(backgroundStrainName);
-//                insertStrain(backgroundStrain);
-//            }
-//
-//        } catch (DataLoadException e) {
-//
-//            message = "Insert strain " + specimenStrainId + " failed. Skipping...";
-//            logger.error(message);
-//            throw new DataLoadException(message, e);
-//        }
-//
-//        return backgroundStrain;
-//    }
-
     /**
      * @return the set of all alternate accession ids in a {@link Map} keyed by alternate accession id
      */
@@ -403,9 +365,6 @@ public class CdaSqlUtils {
 
         return (alternateIds == null ? new HashSet<>() : alternateIds);
     }
-
-
-
     /**
      *
      * @return A complete map of cda db_id, keyed by datasourceShortName
@@ -651,19 +610,14 @@ public class CdaSqlUtils {
     @Transactional
     public int insertBiologicalModelImpc(BioModelInsertDTOMutant mutant) throws DataLoadException {
 
-        // Check to see if model exists before creating, return PK if found
-        Integer biologicalModelId = findBiologicalModel(mutant.getDbId(), mutant.getAllelicComposition(), mutant.getGeneticBackground(), mutant.getZygosity());
-
-        if (biologicalModelId==null) {
-
-            biologicalModelId = insertBiologicalModel(mutant.getDbId(), mutant.getAllelicComposition(), mutant.getGeneticBackground(), mutant.getZygosity());
-            insertBiologicalModelGenes(biologicalModelId, mutant.getGenes());
-            insertBiologicalModelAlleles(biologicalModelId, mutant.getAlleles());
-            insertBiologicalModelStrains(biologicalModelId, mutant.getStrains());
-            if (mutant.biologicalSamplePk != null) {
-                insertBiologicalModelSample(biologicalModelId, mutant.biologicalSamplePk);
-            }
+        int biologicalModelId = insertBiologicalModel(mutant.getDbId(), mutant.getAllelicComposition(), mutant.getGeneticBackground(), mutant.getZygosity());
+        insertBiologicalModelGenes(biologicalModelId, mutant.getGenes());
+        insertBiologicalModelAlleles(biologicalModelId, mutant.getAlleles());
+        insertBiologicalModelStrains(biologicalModelId, mutant.getStrains());
+        if (mutant.biologicalSamplePk != null) {
+            insertBiologicalModelSample(biologicalModelId, mutant.biologicalSamplePk);
         }
+
 
         return biologicalModelId;
     }
@@ -1023,18 +977,33 @@ public class CdaSqlUtils {
     }
 
 
-    public Map<String, OntologyTerm> getOntologyTerms() {
-        if (ontologyTerms == null) {
-            ontologyTerms = new ConcurrentHashMap();
+    public Map<String, OntologyTerm> getOntologyTermsByAccessionId() {
+        if (ontologyTermsByAccessionId == null) {
+            ontologyTermsByAccessionId = new ConcurrentHashMap();
 
             List<OntologyTerm> termList = jdbcCda.query("SELECT * FROM ontology_term", new OntologyTermRowMapper());
 
             for (OntologyTerm term : termList) {
-                ontologyTerms.put(term.getId().getAccession(), term);
+                ontologyTermsByAccessionId.put(term.getId().getAccession(), term);
             }
         }
 
-        return ontologyTerms;
+        return ontologyTermsByAccessionId;
+    }
+
+
+    public Map<String, OntologyTerm> getOntologyTermsByName() {
+        if (ontologyTermsByName == null) {
+            ontologyTermsByName = new ConcurrentHashMap();
+
+            List<OntologyTerm> termList = jdbcCda.query("SELECT * FROM ontology_term", new OntologyTermRowMapper());
+
+            for (OntologyTerm term : termList) {
+                ontologyTermsByName.put(term.getName(), term);
+            }
+        }
+
+        return ontologyTermsByName;
     }
 
     /**
@@ -1261,7 +1230,7 @@ public class CdaSqlUtils {
      *         found; null otherwise
      */
     public OntologyTerm getOntologyTerm(String accessionId) {
-        return (accessionId == null ? null : getOntologyTerms().get(accessionId));
+        return (accessionId == null ? null : getOntologyTermsByAccessionId().get(accessionId));
     }
 
     /**
@@ -1296,7 +1265,7 @@ public class CdaSqlUtils {
 
         OntologyTerm term;
 
-        Map<String, OntologyTerm> terms = getOntologyTerms();
+        Map<String, OntologyTerm> terms = getOntologyTermsByAccessionId();
 
         term = terms.get(originalAcc);
         if (term != null) {
@@ -1509,35 +1478,6 @@ public class CdaSqlUtils {
         }
     }
 
-    /**
-     * Returns the ontology term matching {@code name}, if found, null otherwise
-     * @param name ontology term name
-     *
-     * @return the ontology term matching {@code name}, if found, null otherwise
-     *
-     * @throws DataLoadException if more than one term was found. Use {@code getOntologyTermsByName()} for a list.
-     */
-    public OntologyTerm getOntologyTermByName(String name) throws DataLoadException {
-        List<OntologyTerm> terms = getOntologyTermsByName(name);
-
-        if (terms.size() > 1) {
-            throw new DataLoadException(terms.size() + " terms were found for ontology term name '" + name + "'.");
-        }
-
-        return (terms.isEmpty() ? null : terms.get(0));
-    }
-
-    public List<OntologyTerm> getOntologyTermsByName(String name) {
-        String query = "SELECT * FROM ontology_term WHERE name = :name";
-
-        Map<String, Object> parameterMap = new HashMap<>();
-        parameterMap.put("name", name);
-
-        List<OntologyTerm> terms = jdbcCda.query(query, parameterMap, new OntologyTermRowMapper());
-
-        return terms;
-    }
-
 private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new ConcurrentHashMap<>();       // keyed by dbId
     /**
      * Return a CASE-INSENSITIVE {@link TreeMap} of <code>OntologyTerm</code>s matching the given {@code dbId}, indexed by dbId
@@ -1551,7 +1491,7 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
         Map<String, OntologyTerm> ontologyTerms = ontologyTermMaps.get(dbId);
         if (ontologyTerms == null) {
             ontologyTerms = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-            for (Map.Entry<String, OntologyTerm> entrySet : getOntologyTerms().entrySet()) {
+            for (Map.Entry<String, OntologyTerm> entrySet : getOntologyTermsByAccessionId().entrySet()) {
                 OntologyTerm term = entrySet.getValue();
                 if (term.getId().getDatabaseId() == dbId) {
                     term.setAlternateIds(getAlternateIds(term.getId().getAccession()));
@@ -2267,7 +2207,7 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
     public Map<String, Integer> insertOntologyTerm(List<OntologyTerm> terms) {
         int count;
 
-        Map<String, Integer> countsMap = new HashMap<>();
+        Map<String, Integer> countsMap = new ConcurrentHashMap<>();
         countsMap.put("terms", 0);
         countsMap.put("synonyms", 0);
         countsMap.put("alternateIds", 0);
@@ -2603,7 +2543,7 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
      *
      * @return a map, keyed by type (strains, synonyms) of the number of {@code strain} components inserted
      */
-    public Map<String, Integer> insertStrain(Strain strain) throws DataLoadException {
+    public synchronized Map<String, Integer> insertStrain(Strain strain) throws DataLoadException {
         List<Strain> strainList = new ArrayList<>();
         strainList.add(strain);
         return insertStrains(strainList);
@@ -2624,7 +2564,7 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
         countsMap.put("synonyms", 0);
 
         final String strainInsert = "INSERT INTO strain (acc, db_id, biotype_acc, biotype_db_id, name) " +
-                                   "VALUES (:acc, :db_id, :biotype_acc, :biotype_db_id, :name)";
+                                    "VALUES (:acc, :db_id, :biotype_acc, :biotype_db_id, :name)";
 
         // Insert strains. Ignore any duplicates.
         for (Strain strain : strains) {
@@ -2879,7 +2819,12 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
             Allele allele = new Allele();
 
             allele.setId(new DatasourceEntityId(rs.getString("acc"), rs.getInt("db_id")));
-            allele.setBiotype(getOntologyTerm(rs.getString("biotype_acc")));
+
+            if (ontologyTermsByAccessionId == null) {
+                getOntologyTermsByAccessionId();
+            }
+            allele.setBiotype(ontologyTermsByAccessionId.get(rs.getString("biotype_acc")));
+
             allele.setName(rs.getString("name"));
             allele.setSymbol(rs.getString("symbol"));
             GenomicFeature gene = new GenomicFeature();
@@ -2999,20 +2944,6 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
         }
     }
 
-    private OntologyTerm targetedTerm = null;
-    public OntologyTerm getTargetedTerm() {
-        if (targetedTerm == null) {
-            try {
-                targetedTerm = getOntologyTermByName("targeted");
-            } catch (Exception e) {
-
-            }
-        }
-
-        return targetedTerm;
-    }
-
-
     /**
      * Enables/disables mysql table indexes.
      */
@@ -3024,38 +2955,6 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
         String query = "ALTER TABLE " + tableName + " " + action.toString() + " KEYS";
 
         jdbcCda.getJdbcOperations().execute(query);
-    }
-
-
-    /**
-     * Maps dcc zygosity string to cda zygosity string suitable for insertion into the cda database.
-     *
-     * @param dccZygosity The dcc zygosity string
-     *
-     * @return the cda zygosity string, or null if the dccZygosity is unknown.
-     */
-    public static String getSpecimenLevelMutantZygosity(String dccZygosity) {
-
-        String zygosity;
-        switch (dccZygosity) {
-            case "wild type":
-            case "homozygous":
-                zygosity = ZygosityType.homozygote.getName();
-                break;
-            case "heterozygous":
-                zygosity = ZygosityType.heterozygote.getName();
-                break;
-            case "hemizygous":
-                zygosity = ZygosityType.hemizygote.getName();
-                break;
-
-            default:
-                String message = "Unknown dcc zygosity '" + dccZygosity + "'";
-                logger.error(message);
-                zygosity = null;
-        }
-
-        return zygosity;
     }
 
     public class GenomicFeatureRowMapper implements RowMapper<GenomicFeature> {
@@ -3444,33 +3343,6 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
    		return fullResolutionFilePath;
    	}
 
-    private Integer findBiologicalModel(int dbId, String allelicComposition, String geneticBackground, String zygosity) throws DataLoadException {
-
-        final String find = "SELECT id FROM biological_model WHERE " +
-                "db_id=:db_id AND allelic_composition=:allelic_composition AND genetic_background=:genetic_background AND zygosity=:zygosity";
-
-        Map<String, Object> parameterMap = new HashMap<>();
-        parameterMap.put("db_id", dbId);
-        parameterMap.put("allelic_composition", allelicComposition);
-        parameterMap.put("genetic_background", geneticBackground);
-        parameterMap.put("zygosity", zygosity);
-
-        SqlParameterSource parameterSource = new MapSqlParameterSource(parameterMap);
-
-        Integer pk;
-        try {
-            pk = jdbcCda.queryForObject(find, parameterSource, Integer.class);
-        } catch (EmptyResultDataAccessException e) {
-            // model not found
-            return null;
-        }
-
-        if (pk != null && pk > 0) {
-            return pk;
-        }
-
-        return null;
-    }
 
    	private int insertBiologicalModel(int dbId, String allelicComposition, String geneticBackground, String zygosity) throws DataLoadException {
 
