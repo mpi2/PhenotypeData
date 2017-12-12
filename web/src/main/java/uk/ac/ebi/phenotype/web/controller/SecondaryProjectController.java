@@ -88,7 +88,7 @@ public class SecondaryProjectController {
     SecondaryProjectService threeI;
 
     @Autowired
-    @Qualifier("phenodigmCore")
+    @Qualifier("phenodigm2Core")
     SolrClient phenodigmCore;
 
     private PhenomeChartProvider phenomeChartProvider = new PhenomeChartProvider();

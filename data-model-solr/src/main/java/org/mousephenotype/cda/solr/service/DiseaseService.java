@@ -36,7 +36,7 @@ import java.util.Set;
 public class DiseaseService implements WebStatus{
 
     @Autowired
-    @Qualifier("phenodigmCore")
+    @Qualifier("phenodigm2Core")
     private SolrClient solr;
 
     // Disease sources. When modifying these, please modify getAllDiseases() accordingly.

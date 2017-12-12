@@ -31,7 +31,7 @@ public class PhenodigmService implements WebStatus {
 	private final Double MIN_RAW_SCORE_CUTOFF = 1.97;
 
 	@Autowired
-	@Qualifier("phenodigmCore")
+	@Qualifier("phenodigm2Core")
 	private SolrClient solr;
 
 	/**
