@@ -30,7 +30,6 @@ import org.mousephenotype.cda.solr.stats.strategy.ControlSelectionStrategy;
 import org.mousephenotype.cda.solr.web.dto.FertilityDTO;
 import org.mousephenotype.cda.solr.web.dto.ViabilityDTO;
 import org.mousephenotype.cda.web.TimeSeriesConstants;
-import org.openrdf.model.util.GraphUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
