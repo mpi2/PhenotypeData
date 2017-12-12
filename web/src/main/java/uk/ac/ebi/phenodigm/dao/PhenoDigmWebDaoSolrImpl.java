@@ -56,7 +56,7 @@ public class PhenoDigmWebDaoSolrImpl implements PhenoDigmWebDao {
     private static final Logger logger = LoggerFactory.getLogger(PhenoDigmWebDaoSolrImpl.class);
     private static final int ROWS = 10000;
 
-    @Autowired @Qualifier("phenodigmCore")
+    @Autowired @Qualifier("phenodigm2Core")
     private HttpSolrClient phenodigmCore;
 
     @Override
