@@ -275,7 +275,7 @@ public class SampleLoader implements CommandLineRunner {
 
         // Override the supplied 3i project with iMits version, if it's not a valid project identifier
         if (specimenExtended.getDatasourceShortName().equals(CdaSqlUtils.THREEI) &&
-                !cdaProject_idMap.containsKey(specimen.getProject()))
+                ! cdaProject_idMap.containsKey(specimen.getProject()))
         {
 
             // Set default project to MGP

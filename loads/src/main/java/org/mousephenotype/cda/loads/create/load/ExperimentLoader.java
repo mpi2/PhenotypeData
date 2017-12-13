@@ -376,7 +376,8 @@ public class ExperimentLoader implements CommandLineRunner {
         for (MissingColonyId missing : missingColonyMap.values()) {
             if (missing.getLogLevel() == 1) {
                 // Log the message as a warning
-                logger.warn("colonyId: " + missing.getColonyId() + ": " + missing.getReason() + ".");
+                message = missing.getReason() + ". colonyId: " + missing.getColonyId();
+                logger.warn(message);
 
                 // Add the missing colony id to the missing_colony_id table and set log_level to INFO.
                 cdaSqlUtils.insertMissingColonyId(missing.getColonyId(), 0, missing.getReason());
@@ -694,8 +695,11 @@ public class ExperimentLoader implements CommandLineRunner {
 
         // Get the biological model primary key.
         List<SimpleParameter> simpleParameterList = dccSqlUtils.getSimpleParameters(dccExperiment.getDcc_procedure_pk());
-        String                zygosity            = LoadUtils.getSpecimenLevelMutantZygosity(dccExperiment.getZygosity());
-        BioModelKey           key                 = bioModelManager.createMutantKey(dccExperiment.getDatasourceShortName(), dccExperiment.getColonyId(), zygosity);
+        String zygosity = (dccExperiment.isLineLevel()
+                ? LoadUtils.getLineLevelZygosity(simpleParameterList)
+                : LoadUtils.getSpecimenLevelMutantZygosity(dccExperiment.getZygosity()));
+
+        BioModelKey key = bioModelManager.createMutantKey(dccExperiment.getDatasourceShortName(), dccExperiment.getColonyId(), zygosity);
 
         biologicalModelPk = bioModelManager.getBiologicalModelPk(key);
         if (biologicalModelPk == null) {
