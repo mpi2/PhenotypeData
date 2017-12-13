@@ -33,6 +33,7 @@ import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfigurat
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.context.annotation.Scope;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
@@ -129,11 +130,13 @@ public class TestConfig extends DataSourcesConfigApp implements InitializingBean
     }
 
     @Bean
+    @Scope("prototype")
     public SampleLoader sampleLoader() {
         return new SampleLoader(jdbcCda, cdaSqlUtils(), dccSqlUtils());
     }
 
     @Bean
+    @Scope("prototype")
     public ExperimentLoader experimentLoader() {
         return new ExperimentLoader(jdbcCda, cdaSqlUtils(), dccSqlUtils());
     }
