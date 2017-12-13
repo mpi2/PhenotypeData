@@ -47,6 +47,8 @@ import java.util.*;
  * Indexer for loading the phenodigm index
  *
  * @author jmason
+ * 
+ * pdsimplify: This class references deprecated PhenodigmDTO
  */
 @EnableAutoConfiguration
 public class PhenodigmIndexer extends AbstractIndexer implements CommandLineRunner {

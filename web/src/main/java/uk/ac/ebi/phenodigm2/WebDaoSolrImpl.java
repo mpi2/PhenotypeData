@@ -18,7 +18,7 @@ package uk.ac.ebi.phenodigm2;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
-import org.mousephenotype.cda.solr.service.dto.PhenodigmDTO;
+import org.mousephenotype.cda.solr.service.dto.Phenodigm2DTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +29,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import org.mousephenotype.cda.solr.service.dto.Phenodigm2DTO;
+
 
 /**
  * Implementation of Phenodigm2 WebDao using Solr as the data source. See WebDao
@@ -52,7 +52,7 @@ public class WebDaoSolrImpl implements WebDao {
     @Override
     public Disease getDisease(String diseaseId) {
 
-        String query = String.format("%s:\"%s\"", PhenodigmDTO.DISEASE_ID, diseaseId);
+        String query = String.format("%s:\"%s\"", Phenodigm2DTO.DISEASE_ID, diseaseId);
         SolrQuery solrQuery = new SolrQuery(query)
                 .addFilterQuery(Phenodigm2DTO.TYPE + ":disease")
                 .addField(Phenodigm2DTO.DISEASE_ID)
@@ -87,7 +87,7 @@ public class WebDaoSolrImpl implements WebDao {
     @Override
     public List<Phenotype> getDiseasePhenotypes(String diseaseId) {
 
-        String query = String.format("%s:\"%s\"", PhenodigmDTO.DISEASE_ID, diseaseId);
+        String query = String.format("%s:\"%s\"", Phenodigm2DTO.DISEASE_ID, diseaseId);
         SolrQuery solrQuery = new SolrQuery(query)
                 .addFilterQuery(Phenodigm2DTO.TYPE + ":disease")
                 .addField(Phenodigm2DTO.DISEASE_PHENOTYPES)
