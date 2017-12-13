@@ -13,7 +13,7 @@
     <c:if test="${not empty procedures}">
 
         <h6>Young Adult:</h6>
-        <ul>
+        <ul id="approachList">
             <c:set var="count" value="0" scope="page"/>
             <c:set var="lastProcedure" value="" scope="page"/>
 
@@ -38,8 +38,9 @@
                 <c:set var="lastProcedure" value="${procedure.getProcedureName()}" scope="page"/>
 
             </c:forEach>
+            
         </ul>
-
+     
         <p></p>
 
         <c:if test="${! adultOnly}">
