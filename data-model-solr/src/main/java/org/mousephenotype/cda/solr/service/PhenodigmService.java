@@ -22,7 +22,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /*
- * pdsimplify: This class contains references to deprecated phenodigm v1 
+ * pdsimplify: This class references deprecated PhenodigmDTO
  */
 @Service
 public class PhenodigmService implements WebStatus {

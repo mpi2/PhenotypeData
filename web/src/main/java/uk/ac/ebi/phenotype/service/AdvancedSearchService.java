@@ -44,6 +44,9 @@ import net.sf.json.JSONObject;
 
 import javax.swing.text.html.HTMLDocument;
 
+/*
+ * pdsimplify: This class indirectly dpends on deprecated PhenodigmDTO
+ */
 @Service
 public class AdvancedSearchService {
 
@@ -220,6 +223,9 @@ public class AdvancedSearchService {
         return alleleTypes;
     }
 
+    /**     
+     * pdsimplify: This function uses deprecated PhenodigmDTO fields 
+     */
     private String composePhenodigmScoreStr(AdvancedSearchDiseaseForm diseaseForm){
         String phenodigmScore = "";
 
@@ -228,7 +234,10 @@ public class AdvancedSearchService {
         }
         return phenodigmScore;
     }
-
+    
+    /**     
+     * pdsimplify: This function uses deprecated PhenodigmDTO fields 
+     */
     private String composeDiseaseGeneAssociation(AdvancedSearchDiseaseForm diseaseForm){
         String diseaeGeneAssoc = "";
 
@@ -240,6 +249,9 @@ public class AdvancedSearchService {
         }
         return diseaeGeneAssoc;
     }
+    /**     
+     * pdsimplify: This function uses deprecated PhenodigmDTO fields 
+     */
     private String composeHumanDiseaseTermStr(AdvancedSearchDiseaseForm diseaseForm){
         String humanDiseaseTerm = "";
 

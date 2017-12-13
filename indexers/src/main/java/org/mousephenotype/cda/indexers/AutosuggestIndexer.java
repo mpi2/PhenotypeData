@@ -41,6 +41,9 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.*;
 
+/**  
+ * pdsimplify: This class references deprecated PhenodigmDTO
+ */
 @EnableAutoConfiguration
 public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRunner {
 

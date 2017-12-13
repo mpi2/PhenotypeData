@@ -28,8 +28,6 @@ import org.springframework.orm.jpa.JpaVendorAdapter;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
-import uk.ac.ebi.phenodigm.dao.PhenoDigmWebDao;
-import uk.ac.ebi.phenodigm.dao.PhenoDigmWebDaoSolrImpl;
 
 import javax.annotation.PostConstruct;
 import javax.persistence.PersistenceContext;
@@ -116,14 +114,7 @@ public class TestConfig {
 	public DataSource komp2DataSource() {
         DataSource ds = DataSourceBuilder.create().build();
 		return ds;
-	}
-
-	//    <bean id="phenoDigmWebDao" class="uk.ac.sanger.phenodigm2.entity.PhenoDigmWebDaoSolrImpl" />
-
-	@Bean (name="phenoDigmWebDao")
-	public PhenoDigmWebDao phenoDigm(){
-		return new PhenoDigmWebDaoSolrImpl();
-	}
+	}	
 
 	@Bean
 	@Primary

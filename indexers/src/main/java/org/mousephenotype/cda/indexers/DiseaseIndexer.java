@@ -38,6 +38,8 @@ import java.util.*;
 
 /**
  * @author Jeremy
+ * 
+ * pdsimplify: This class indirectly depends on deprecated PhenodigmDTO 
  */
 @EnableAutoConfiguration
 public class DiseaseIndexer extends AbstractIndexer implements CommandLineRunner {

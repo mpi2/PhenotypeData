@@ -374,7 +374,7 @@ public class GenesController {
             model.addAttribute("hasVignette", true);
         }
         // add in the disease predictions from phenodigm              
-        processDisease2(acc, model);
+        processDisease(acc, model);
 
         model.addAttribute("countIKMCAlleles", countIKMCAlleles);
         LOGGER.debug("CHECK IKMC allele error : " + ikmcError);
@@ -508,7 +508,7 @@ public class GenesController {
         // Adds "orthologousDiseaseAssociations", "phenotypicDiseaseAssociations" to the model
         /** pdsimplify: replaced processDisease by processDisease2
          * The genesSummary jsp should be updated to use phenodigm2 objects **/         
-        processDisease2(acc, model);
+        processDisease(acc, model);
         model.addAttribute("stringDbTable", stringDBTable);
         model.addAttribute("significantTopLevelMpGroups", mpGroupsSignificant);
         model.addAttribute("notsignificantTopLevelMpGroups", mpGroupsNotSignificant);
@@ -1001,7 +1001,7 @@ public class GenesController {
      *
      * @param model
      */
-    private void processDisease2(String acc, Model model) {
+    private void processDisease(String acc, Model model) {
 
         // fetch diseases that are linked to a gene via annotations/curation
         LOGGER.info(String.format("%s - getting gene-disease associations for gene ", acc));
