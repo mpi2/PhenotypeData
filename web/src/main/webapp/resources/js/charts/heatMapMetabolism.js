@@ -89,7 +89,7 @@ $(function () {
 	    },
 	
 	    title: {
-	        text: ''
+	        text: '' 
 	    },
 	    
 	    xAxis: {
