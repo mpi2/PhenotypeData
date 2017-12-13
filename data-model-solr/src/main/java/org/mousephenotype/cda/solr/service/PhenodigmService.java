@@ -22,7 +22,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /*
- * pdsimplify: This class contains references to deprecated phenodigm v1 
+ * pdsimplify: This class references deprecated PhenodigmDTO
  */
 @Service
 public class PhenodigmService implements WebStatus {
@@ -31,7 +31,7 @@ public class PhenodigmService implements WebStatus {
 	private final Double MIN_RAW_SCORE_CUTOFF = 1.97;
 
 	@Autowired
-	@Qualifier("phenodigmCore")
+	@Qualifier("phenodigm2Core")
 	private SolrClient solr;
 
 	/**
