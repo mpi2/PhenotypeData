@@ -93,9 +93,9 @@ public class GraphUtils {
 				 strainsParams, metaDataGroup, alleleAccession));
 		}
 		
-//		for(String url:urls){
-//			System.out.println("url="+url);
-//		}
+		for(String url:urls){
+			System.out.println("url="+url);
+		}
 		//need to add flag for this optional step -e.g. filterBySR=false
 		List<String> dummyGenderList=new ArrayList<>();
 		String procedurePrefix = StringUtils.join(Arrays.asList(parameter.getStableId().split("_")).subList(0, 2), "_");

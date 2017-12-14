@@ -367,8 +367,8 @@ public class LandingPageController {
         diseaseClasses.add("cardiac malformations");
         diseaseClasses.add("circulatory system");
 
-        return "var mgiSets =  " + getOrtologyDiseaseModelVennDiagram(mpId, diseaseClasses, true, false, false, phenotypeShort) + ";"
-            + "var impcSets = " +  getOrtologyDiseaseModelVennDiagram(mpId, diseaseClasses, false, true, false, phenotypeShort ) + ";";
+        return "var mgiSets =  " + getOrthologyDiseaseModelVennDiagram(mpId, diseaseClasses, true, false, false, phenotypeShort) + ";"
+            + "var impcSets = " +  getOrthologyDiseaseModelVennDiagram(mpId, diseaseClasses, false, true, false, phenotypeShort ) + ";";
 
     }
 
@@ -388,7 +388,7 @@ public class LandingPageController {
         StringBuffer result = new StringBuffer();
         result.append("IMPC sets\tSet label\tGenes\n");
 
-        JSONArray jsonArray = getOrtologyDiseaseModelVennDiagram(mpId, diseaseClasses, false, true, true, phenotypeShort);
+        JSONArray jsonArray = getOrthologyDiseaseModelVennDiagram(mpId, diseaseClasses, false, true, true, phenotypeShort);
         for (int i = 0; i < jsonArray.size(); i++){
             JSONObject object = jsonArray.getJSONObject(i);
             result.append(object.getString("sets")).append("\t");
@@ -401,7 +401,7 @@ public class LandingPageController {
 
     }
 
-    private JSONArray getOrtologyDiseaseModelVennDiagram(String mpId, Set<String> diseaseClasses, Boolean mgi, Boolean impc, Boolean download, String phenotypeShort) throws IOException, SolrServerException {
+    private JSONArray getOrthologyDiseaseModelVennDiagram(String mpId, Set<String> diseaseClasses, Boolean mgi, Boolean impc, Boolean download, String phenotypeShort) throws IOException, SolrServerException {
 
         Map<String, Set<String>> sets = new HashMap<>();
 
