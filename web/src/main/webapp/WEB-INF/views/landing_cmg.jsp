@@ -144,7 +144,7 @@
 				   			</div>
 					   	</div>
 					   	
-					   	<script>
+					   	<script type='text/javascript'>
 							$(document).ready(function() {
 								var cmgTableCleanedUpFile = baseUrl + '/documentation/json/CMG-table-cleanedup.json';
 								var matchingInferencesFile = baseUrl + '/documentation/json/Matching_inferences.json';
@@ -365,7 +365,7 @@
 							        mimeType = mimeType || 'text/plain';
 
 							        link.setAttribute('download', filename);
-							        link.setAttribute('href', 'data:' + mimeType + ';charset=utf-8,' + encodeURIComponent(elHtml));
+							        link.setAttribute('href', 'data:' + mimeType + ',' + encodeURIComponent(elHtml));
 							        document.body.appendChild(link);
 							        link.click(); 
 							        document.body.removeChild(link);
@@ -379,7 +379,7 @@
 							    });
 							    
 							    $('#downloadExcel').click(function(){
-							        downloadInnerHtml(fileNameExcel, 'tsv-result','text/html');
+							        downloadInnerHtml(fileNameExcel, 'tsv-result','application/xls;charset=utf-8');
 							    });
 							});
 						</script>

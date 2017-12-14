@@ -17,6 +17,68 @@ $(function () {
 	}
 	// console.log(dataTable1);
 	
+	function showGeneTable(contentTable) {
+		// console.log(contentTable);
+		document.getElementById('metabolismTableDiv').style.display="block";
+		
+		$('#metabolism-table').DataTable({
+			"bDestroy" : true,
+			"bFilter" : true,
+	        "bInfo": true, // Footer
+			"bPaginate": true,
+			"sPaginationType" : "bootstrap",
+			"initComplete": function(settings, json) {
+	            $('.dataTables_scrollBody thead tr').css({visibility:'collapse'});
+	        },
+			"aaSorting": [[0, "asc"]], // 0-based index
+			"aoColumns": [
+			    null, null,null,
+	//			 {"sType": "html", "bSortable": true},
+	//			 {"sType": "string", "bSortable": true},
+	//			 {"sType": "string", "bSortable": true},
+				 {"sType": "html", "bSortable": true}
+			],
+			"aaData": contentTable,
+			"bDeferRender": true,
+	        "aoColumns": [
+	            { "mDataProp": "Parameter",
+		            	"render": function ( data, type, full, meta ) {
+	        		 		return data.toUpperCase();
+	        		 	}
+	            },
+	            { "mDataProp": "Sex"},
+	            { "mDataProp": "MGI_ID",
+		            	"render": function ( data, type, full, meta ) {
+	        		 		return '<a href="http://www.mousephenotype.org/data/genes/'+data+'" target="_blank">'+data+'</a>';
+	        		 	}
+	            },
+	            { "mDataProp": "Gene_symbol"},
+	            { "mDataProp": "Center"},
+	            { "mDataProp": "Zygosity"}, 
+	            { "mDataProp": "Ratio_KO_WT",
+		            	"render": function ( data, type, full, meta ) {
+	                		var num = parseFloat(data);
+	                 	if (num > 0 && num != NaN ) {
+	                 		return num.toFixed(3);
+	                 	}
+	    		 			return data;
+	                }
+	            },
+	            { "mDataProp": "tag",
+	                "render": function ( data, type, full, meta ) {
+	                 	if (data == "below5") {
+	                 		return "< 5%";
+	                 	}
+	                 	else return "> 95%";
+	                }
+	    		 	},
+	       	]
+		});
+		
+		var tsv = jsonToTsv(contentTable);
+		$('#tsv-result').html(tsv);
+	}
+	
 	$('#heatMapContainer').highcharts({
 	    chart: {
 	        type: 'heatmap',
@@ -24,11 +86,12 @@ $(function () {
 	        marginBottom: 80,
 	        plotBorderWidth: 1
 	    },
-	
-	    title: {
-	        text: ''
+	    credits: {
+	        enabled: false
 	    },
-	    
+	    title: {
+	        text: '' 
+	    },
 	    xAxis: {
 	    		categories: [{
 	    			id: 'outlier',
@@ -47,27 +110,29 @@ $(function () {
     		    		}]
     			}],
 	    		labels: {
-	    			borderColor: '#cccccc',
+	    			// borderColor: '#cccccc',
         	        useHTML: true,
         	        formatter: function () {
         	        		if (this.value == 'Outlier'){
-        	        			return '<a id="outlier" class="highlightCols" style="color: #525151; font-size: 1.5em; font-family: Source Sans Pro, Arial, Helvetica, sans-serif, FontAwesome;">  ' + this.value + '</a><a style="align: left;" class="button fa fa-download"></a>'
+        	        			return '<a id="outlier" class="highlightCols" style="font-size: 1.5em; font-family: Source Sans Pro, Arial, Helvetica, sans-serif, FontAwesome;">  ' + this.value + '</a>'
         	        		} else if (this.value == '<5%') {
-        	        			return '<a id="below5" class="highlightCols" style="color: #525151; font-size: 1.5em; font-family: Source Sans Pro, Arial, Helvetica, sans-serif, FontAwesome;">  ' + this.value + '</a>'
+        	        			return '<a id="below5" class="highlightCols" style="font-size: 1.5em; font-family: Source Sans Pro, Arial, Helvetica, sans-serif, FontAwesome;">  ' + this.value + '</a>'
         	        		} else if (this.value == '>95%') {
-        	        			return '<a id="above95" class="highlightCols" style="color: #525151; font-size: 1.5em; font-family: Source Sans Pro, Arial, Helvetica, sans-serif, FontAwesome;">  ' + this.value + '</a>'
+        	        			return '<a id="above95" class="highlightCols" style="font-size: 1.5em; font-family: Source Sans Pro, Arial, Helvetica, sans-serif, FontAwesome;">  ' + this.value + '</a>'
         	        		} else {
         	        			if (this.pos == 0 || this.pos == 1) {
-        	        				return '<a id="' + this.value.userOptions.id + '" class="highlightCols below5" style="color: #525151; font-size: 1.5em; font-family: Source Sans Pro, Arial, Helvetica, sans-serif, FontAwesome;">  ' + this.value.userOptions.name + '</a>'
+        	        				return '<a id="' + this.value.userOptions.id + '" class="highlightCols below5" style="font-size: 1.5em; font-family: Source Sans Pro, Arial, Helvetica, sans-serif, FontAwesome;">  ' + this.value.userOptions.name + '</a>'
         	        			} else if (this.pos == 2 || this.pos == 3) {
-        	        				return '<a id="' + this.value.userOptions.id + '" class="highlightCols above5" style="color: #525151; font-size: 1.5em; font-family: Source Sans Pro, Arial, Helvetica, sans-serif, FontAwesome;">  ' + this.value.userOptions.name + '</a>'
+        	        				return '<a id="' + this.value.userOptions.id + '" class="highlightCols above5" style="font-size: 1.5em; font-family: Source Sans Pro, Arial, Helvetica, sans-serif, FontAwesome;">  ' + this.value.userOptions.name + '</a>'
             	        		}
         	        		} 
         	        },
+        	        style: {
+        	        		fill: 'red'
+                }
         	    },
 	    		opposite: true
         },
-	
 	    yAxis: {
 	        categories: [
 	        		{id: 'rer', name: 'Respiratory Exchange Ratio (RER)'}, 
@@ -82,7 +147,7 @@ $(function () {
         			useHTML: true, 
         	        formatter: function () {
         	        		try {
-        	        			return '<a type="button" id="' + this.value.userOptions.id + '" class="highlightRows" style="color: #525151; font-size: 1.5em; font-family: Source Sans Pro, Arial, Helvetica, sans-serif, FontAwesome;">  ' + this.value + '</a>'
+        	        			return '<a type="button" id="' + this.value.userOptions.id + '" class="highlightRows" style="font-size: 1.5em; font-family: Source Sans Pro, Arial, Helvetica, sans-serif, FontAwesome;">  ' + this.value + '</a>'
         	        		} catch(err) {
         	        		    // console.log(err.message);
         	        		}
@@ -90,18 +155,15 @@ $(function () {
         	    },
 	        title: null
 	    },
-	
 	    colorAxis: {
 	        min: 0,
 	        max: 1,
 	        minColor: '#FFFFFF',
 	        maxColor: '#FFFFFF'
 	    },
-	    
 	    legend: {
 	    		enabled: false
 	    },
-	
 	    tooltip: {
 	    		useHTML: true,
             shadow: false,
@@ -114,17 +176,16 @@ $(function () {
 	            fontFamily: 'Source Sans Pro, Arial, Helvetica, sans-serif'
 	        }
 	    },
-	
 	    series: [{
 	        name: 'Genes per sex and outlier and parameter',
 	        borderWidth: 1,
 	        borderColor: '#cccccc',
-	        data: [[0, 0, 17], [0, 1, 18], [0, 2, 18], [0, 3, 86], [0, 4, 72], [0, 5, 96], [0, 6, 96], [1, 0, 17], [1, 1, 18], [1, 2, 18], [1, 3, 86], [1, 4, 72], [1, 5, 96], [1, 6, 96], [2, 0, 47], [2, 1, 48], [2, 2, 48], [2, 3, 80], [2, 4, 72], [2, 5, 96], [2, 6, 96], [3, 0, 47], [3, 1, 48], [3, 2, 48], [3, 3, 86], [3, 4, 72], [3, 5, 96], [3, 6, 96]],
+	        data: [[0, 0, 17], [0, 1, 18], [0, 2, 18], [0, 3, 86], [0, 4, 72], [0, 5, 96], [0, 6, 94], [1, 0, 47], [1, 1, 48], [1, 2, 48], [1, 3, 86], [1, 4, 72], [1, 5, 96], [1, 6, 96], [2, 0, 17], [2, 1, 18], [2, 2, 18], [2, 3, 86], [2, 4, 72], [2, 5, 96], [2, 6, 96], [3, 0, 47], [3, 1, 48], [3, 2, 48], [3, 3, 86], [3, 4, 72], [3, 5, 96], [3, 6, 96]],
 	        dataLabels: {
 	            enabled: true,
 	            useHTML:true,
 	            formatter: function(){
-		            return '<a style="color: #525151; font-size: 1.25em; font-family: Source Sans Pro, Arial, Helvetica, sans-serif, FontAwesome;">' + this.point.value + '</a>';
+		            return '<a style="font-size: 1.25em; font-family: Source Sans Pro, Arial, Helvetica, sans-serif, FontAwesome;">' + this.point.value + '</a>';
 		        }
 	        },
 	        point: {
@@ -147,25 +208,16 @@ $(function () {
                     			outlier = 'above95';
                     		}
                     		var parameter = arrayParameters[this.y];
-                    		
+                    		var contentTable = [];
                     		$.each(dataTable1, function( key, value ) {
 	                			var par = value.Parameter;
 	                			var sex = value.Sex;
 	                			var tag = value.tag;
 	                			if ( parameter == par && femaleOrMale == sex && outlier == tag) {
-	                				$("#metabolismTableContent").html("<tr>");
-	                				$("#metabolismTableContent").append("<td>" + par.toUpperCase() + "</td>");
-	                				$("#metabolismTableContent").append("<td>" + sex + "</td>");
-	                				$("#metabolismTableContent").append("<td>" + value.MGI + "</td>");
-	                				$("#metabolismTableContent").append("<td>" + value.GeneID + "</td>");
-	                				$("#metabolismTableContent").append("<td>" + value.Gene + "</td>");
-	                				$("#metabolismTableContent").append("<td>" + value.Center + "</td>");
-	                				$("#metabolismTableContent").append("<td>" + value.Zygosity + "</td>");
-	                				$("#metabolismTableContent").append("<td>" + value.Ratio_KO_WT + "</td>");
-	                				$("#metabolismTableContent").append("<td>" + tag + "</td>");
-	                				$("#metabolismTableContent").append("</tr>");
+	                				contentTable.push(value);
 	                			}
 	                		});
+                    		showGeneTable(contentTable);
                     }	
                 }
             },
@@ -211,49 +263,14 @@ $(function () {
 
 	$(".highlightRows").click(function () {
 		var id = $(this).attr('id');
-		var clicked = Math.round(Math.random()*50) + 20;
-		var $div = $('<div></div>')
-	        .dialog({
-	            title: "Genes",
-	            width: 820,
-	            height: 300,
-	            position: ({
-		            	my:'center+'+clicked
-		        }),
-	        }).css("font-size", "10px");
-	    $div.append("<table>");
-	    $div.append("<thead>");
-	    $div.append("<tr>");
-	    $div.append("<th>Parameter</th>");
-	    $div.append("<th>Sex</th>");
-	    $div.append("<th>MGI</th>");
-	    $div.append("<th>GeneID</th>");
-	    $div.append("<th>Gene</th>");
-	    $div.append("<th>Center</th>");
-	    $div.append("<th>Zygosity</th>");
-	    $div.append("<th>Ratio_KO_WT</th>");
-	    $div.append("<th>Tag</th>");
-	    $div.append("</tr>");
-	    $div.append("</thead>");
-	    $div.append("<tbody>");
+		var contentTable = [];
 	    $.each(dataTable1, function( key, value ) {
 			var parameter = value.Parameter;
 			if ( parameter == id ) {
-				$div.append("<tr>");
-				$div.append("<td>" + parameter.toUpperCase() + "</td>");
-				$div.append("<td>" + value.Sex + "</td>");
-				$div.append("<td>" + value.MGI + "</td>");
-				$div.append("<td>" + value.GeneID + "</td>");
-				$div.append("<td>" + value.Gene + "</td>");
-				$div.append("<td>" + value.Center + "</td>");
-				$div.append("<td>" + value.Zygosity + "</td>");
-				$div.append("<td>" + value.Ratio_KO_WT + "</td>");
-				$div.append("<td>" + value.tag + "</td>");
-				$div.append("</tr>");
+				contentTable.push(value);
 			}
 		});
-	    $div.append("<t/body>");
-	    $div.append("</table>");
+	    showGeneTable(contentTable);
 	});
 	
 	$(".highlightCols").hover(function () {
@@ -316,77 +333,86 @@ $(function () {
 		} else if ($(this).attr('id') == 'above95') {
 			outlier = 'above95';
 		}
-		
-		var clicked = Math.round(Math.random()*50) + 20;
-		var $div = $('<div></div>')
-	        .dialog({
-	            title: "Genes",
-	            width: 820,
-	            height: 300,
-	            position: ({
-		            	my:'center+'+clicked
-		        }),
-	        }).css("font-size", "10px");
-	    $div.append("<table>");
-	    $div.append("<thead>");
-	    $div.append("<tr>");
-	    $div.append("<th>Parameter</th>");
-	    $div.append("<th>Sex</th>");
-	    $div.append("<th>MGI</th>");
-	    $div.append("<th>GeneID</th>");
-	    $div.append("<th>Gene</th>");
-	    $div.append("<th>Center</th>");
-	    $div.append("<th>Zygosity</th>");
-	    $div.append("<th>Ratio_KO_WT</th>");
-	    $div.append("<th>Tag</th>");
-	    $div.append("</tr>");
-	    $div.append("</thead>");
-	    $div.append("<tbody>");
+
+		var contentTable = [];
 	    $.each(dataTable1, function( key, value ) {
 			var sex = value.Sex;
 			var tag = value.tag;
-//			console.log(sex + ' ' + femaleOrMale);
-//			console.log(tag + ' ' + outlier);
-			if ( femaleOrMale == sex && outlier == tag ) {
-				$div.append("<tr>");
-				$div.append("<td>" + value.Parameter.toUpperCase() + "</td>");
-				$div.append("<td>" + sex + "</td>");
-				$div.append("<td>" + value.MGI + "</td>");
-				$div.append("<td>" + value.GeneID + "</td>");
-				$div.append("<td>" + value.Gene + "</td>");
-				$div.append("<td>" + value.Center + "</td>");
-				$div.append("<td>" + value.Zygosity + "</td>");
-				$div.append("<td>" + value.Ratio_KO_WT + "</td>");
-				$div.append("<td>" + tag + "</td>");
-				$div.append("</tr>");
-			} else if (femaleOrMale == undefined && outlier == tag) {
-				$div.append("<tr>");
-				$div.append("<td>" + value.Parameter.toUpperCase() + "</td>");
-				$div.append("<td>" + sex + "</td>");
-				$div.append("<td>" + value.MGI + "</td>");
-				$div.append("<td>" + value.GeneID + "</td>");
-				$div.append("<td>" + value.Gene + "</td>");
-				$div.append("<td>" + value.Center + "</td>");
-				$div.append("<td>" + value.Zygosity + "</td>");
-				$div.append("<td>" + value.Ratio_KO_WT + "</td>");
-				$div.append("<td>" + tag + "</td>");
-				$div.append("</tr>");
-			} else {
-				$div.append("<tr>");
-				$div.append("<td>" + value.Parameter.toUpperCase() + "</td>");
-				$div.append("<td>" + sex + "</td>");
-				$div.append("<td>" + value.MGI + "</td>");
-				$div.append("<td>" + value.GeneID + "</td>");
-				$div.append("<td>" + value.Gene + "</td>");
-				$div.append("<td>" + value.Center + "</td>");
-				$div.append("<td>" + value.Zygosity + "</td>");
-				$div.append("<td>" + value.Ratio_KO_WT + "</td>");
-				$div.append("<td>" + tag + "</td>");
-				$div.append("</tr>");
+			// Filter by tag and sex
+			if (femaleOrMale != undefined) {
+				if (femaleOrMale == sex && outlier == tag) {
+					contentTable.push(value);
+				}
+			}
+			// Filter by tag
+			else {
+				if (outlier == tag) {
+					contentTable.push(value);
+				}
+			} 
+			// All content
+			if (femaleOrMale == undefined && outlier == undefined) {
+				contentTable.push(value);
 			}
 		});
-	    $div.append("<t/body>");
-	    $div.append("</table>");
+	    showGeneTable(contentTable);
 	});
+	
+	$("#hideTable").click(function () {
+		document.getElementById('metabolismTableDiv').style.display="none";
+	});
+   
+	function jsonToTsv (input){
+        var json = input,
+            tsv = '',
+            firstLine = [],
+            lines = [];
 
+        // Helper to add double quotes if
+        // the value is string
+        var addQuotes = function(value){
+            if (isNaN(value)){
+                /* return '"'+value+'"'; */
+                return value;
+            }
+            return value;
+        };
+        $.each(json, function(index, item){
+            var newLine = [];
+            $.each(item, function(key, value){
+                if (index === 0){
+                    firstLine.push(addQuotes(key));
+                }
+                newLine.push(addQuotes(value));
+            });
+            lines.push(newLine.join('\t'));
+        });
+        tsv = firstLine.join('\t');
+        tsv += '\n'+lines.join('\n');
+        return tsv;
+    }; 
+    
+    function downloadInnerHtml(filename, elId, mimeType) {
+        var elHtml = document.getElementById(elId).innerHTML;
+        var link = document.createElement('a');
+        mimeType = mimeType || 'text/plain';
+
+        link.setAttribute('download', filename);
+        link.setAttribute('href', 'data:' + mimeType + ',' + encodeURIComponent(elHtml));
+        document.body.appendChild(link);
+        link.click(); 
+        document.body.removeChild(link);
+    }
+
+    var fileNameTsv =  'metabolism-genes.tsv'; // You can use the .txt extension if you want
+    var fileNameExcel =  'metabolism-genes.xls'; // You can use the .txt extension if you want
+
+    $('#downloadTsv').click(function(){
+        downloadInnerHtml(fileNameTsv, 'tsv-result','text/html');
+    });
+    
+    $('#downloadExcel').click(function(){
+        downloadInnerHtml(fileNameExcel, 'tsv-result','application/xls;charset=utf-8');
+    });
+    
 });

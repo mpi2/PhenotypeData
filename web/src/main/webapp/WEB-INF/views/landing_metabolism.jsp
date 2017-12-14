@@ -25,16 +25,51 @@
     <script type="text/javascript" src='${baseUrl}/js/charts/heatMapMetabolism.js?v=${version}'></script>
     <script src="http://blacklabel.github.io/grouped_categories/grouped-categories.js"></script>
     
-    <!-- Dialog imports -->
-    <script src="//code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/smoothness/jquery-ui.css">
-  
+    <style>
+		/* Override allele ref style for datatable */
+		table.dataTable thead tr {
+			display: table-row;
+		}
+		
+		#metabolism-table_length {
+		   	width: 50%;
+		   	float: left;
+		   	/* text-align: right; */
+		}
+		
+		#metabolism-table_filter {
+			width: 50%;
+		   	float: right;
+		   	text-align: right;
+		}
+		
+	</style>
+	
 	</jsp:attribute>
 
     <jsp:attribute name="bodyTag"><body  class="phenotype-node no-sidebars small-header"></jsp:attribute>
 
     <jsp:attribute name="addToFooter">
+		<div class="region region-pinned">
 
+             <div id="flyingnavi" class="block smoothScroll">
+
+                 <a href="#top"><i class="fa fa-chevron-up"
+					title="scroll to top"></i></a>
+
+                 <ul>
+                     <li><a href="#top">Metabolism</a></li>
+                     <li><a href="#status">Approach</a></li>
+                     <li><a href="#metabolismPaper">IMPC Publication</a></li>
+                     <li><a href="#phenotypes-distribution">Phenotype Distribution</a></li>
+                     <li><a href="#paper">Publications</a></li>
+                 </ul>
+
+                 <div class="clear"></div>
+
+             </div>
+
+         </div>
 	</jsp:attribute>
     <jsp:body>
 
@@ -46,21 +81,40 @@
 
                         <c:import url="landing_overview_frag.jsp"/>
 						
-						<div style="padding: 30px;" class="clear both"></div>
+						<div style="padding: 20px;" class="clear both"></div>
 						
                         <div class="section">
-                            <h2 class="title">Approach</h2>
+                            <h2 id="status" class="title">Approach</h2>
                             <div class="inner">
-                            		<p>To identify the function of genes, the IMPC uses a series of standardised protocols described in <a href="${baseUrl}/../impress">IMPReSS</a> (International Mouse Phenotyping Resource of Standardised Screens). 
-                            		Tests addressing the metabolic function are conducted on young adults at 11-16 weeks of age. Developmental issues or problems are evaluated in the embryonic pipeline.</p>
+                            		<p align="justify">
+                            			To identify the function of genes, the IMPC uses a series of standardised protocols described in <a href="${baseUrl}/../impress">IMPReSS</a> (International Mouse Phenotyping Resource of Standardised Screens). 
+                            			Tests addressing the metabolic function are conducted on young adults at 11-16 weeks of age. Developmental issues or problems are evaluated in the embryonic pipeline. 
+                            		</p>
                             		<br/><br/>
-                            		
-                                	<c:import url="landing_procedures_frag.jsp"/>
+                            		<h4>
+                            			Procedures that can lead to relevant phenotype associations
+                            			<button id="showHideApproachList" class="toggleButton" title="Click to display" style="background: none !important; border: none;">
+                            				<i class="fa more fa-plus-square"></i>
+                            			</button>
+                            		</h4>
+                            		<div id="approachList" style="display: none">
+                                		<c:import url="landing_procedures_frag.jsp"/>
+                                	</div>
                             </div>
                         </div>
-					   
+                        
+						<script type="text/javascript">
+							$(document).ready(function() {
+								$("#showHideApproachList").click(function(){
+									$("i").toggleClass("fa-minus-square");
+									$("#approachList").toggle();
+								});
+							});
+						</script>
+						
+						<br/><br/>
 					   	<div class="section">
-					   		<h2 class="title">IMPC Metabolism Publication</h2>
+					   		<h2 id="metabolismPaper" class="title">IMPC Metabolism Publication</h2>
 					   		<div class="inner">
 					   			<h3>Metabolic diseases investigated in 2,016 knockout mouse lines</h3>
 					   			<p><a href="">Nature Communications</a></p>
@@ -79,6 +133,42 @@
 									<a href="">IMPC</a>
 									<!--&nbsp;|&nbsp;<a href="">Sanger</a> -->
 								</p>
+								
+								<h3>Gene table</h3> 
+                               	<p>Mutant/wildtype ratios below the 5th percentile and above the 95th percentile of the ratio distributions yielded 28 gene lists that serve as a data mining resource for further investigation into potential links to human metabolic disorders.</p>
+                                 <p>By hovering over the table you can select cells and click to explore the underlying data.</p>
+                                 <br/> <br/>
+                               	<div id="heatMapContainer" style="height: 450px; min-width: 310px; max-width: 1000px; position: relative;"></div>
+                               	<div id="metabolismTableDiv" style="display: none; position: relative; z-index:10; margin-top:-50px;">
+	                               	<table id="metabolism-table" class='table tableSorter'>
+			                        		<thead>
+					                        <tr>
+					                        		<th>Parameter</th>
+					                        		<th>Sex</th>
+				                        			<th>MGI_ID</th>
+					                        		<th>Gene_symbol</th>
+					                        		<th>Center</th>
+					                        		<th>Zygosity</th>
+					                        		<th>Ratio_KO_WT</th>
+					                        		<th>Tag</th>
+					                        	</tr>
+			                        		</thead>
+			                        		<!-- BODY -->
+			                        	</table>
+			                        	<div id="tsv-result" style="display: none;"></div>
+									<br/>
+									<div id="export">
+										<a id="hideTable" style="float: left;">Hide</a> <!-- href="#heatMapContainer" -->
+					                  	<p class="textright">
+					                      	Download data as:
+					                      	<a id="downloadTsv" class="button fa fa-download">TSV</a>
+					   						<a id="downloadExcel" class="button fa fa-download">XLS</a>
+					                      	<%-- <a id="tsvDownload" href="${baseUrl}/genes/export/${gene.getMgiAccessionId()}?fileType=tsv&fileName=${gene.markerSymbol}" target="_blank" class="button fa fa-download">TSV</a>
+					                      	<a id="xlsDownload" href="${baseUrl}/genes/export/${gene.getMgiAccessionId()}?fileType=xls&fileName=${gene.markerSymbol}" target="_blank" class="button fa fa-download">XLS</a> --%>
+					                  	</p>
+					              	</div>
+					              	<br/> <br/>
+		                        	</div>
 								
 								<h3>Methods</h3>
                                	<p><b>A</b>nalyses are based on <b>seven metabolic parameters</b> with diagnostic relevance in human clinical research:</p>
@@ -101,46 +191,22 @@
                                	<ul>
                                		<li>IMPC generated and identified new genetic disease models.</li>
                                		<li>New models available to the research community to perform in-depth investigation of novel genetic elements associated to metabolic disease mechanisms.</li>
-                               		<li>These models fill the gap between genome-wide association studies and functional validation using a mammalian model organism.</li>
+                               		<li>These models fill the gap between genome-wide association studies and functional validation using a mammalian model organism.</li>
                                	</ul>
                                	
-                               	<h3>Gene table</h3>
-                               	<p>Mutant/wildtype ratios below the 5th percentile and above the 95th percentile of the ratio distributions yielded 28 gene lists that serve as a data mining resource for further investigation into potential links to human metabolic disorders.</p>
-                                 <br/> <br/>
-                               	<div id="heatMapContainer" style="height: 450px; min-width: 310px; max-width: 1000px;"></div>
-                                	<div id="metabolismGeneTable">
-                                		<table class='table tableSorter'>
-			                        		<thead>
-					                        <tr>
-					                        		<th>Parameter</th>
-					                        		<th>Sex</th>
-				                        			<th>MGI</th>
-					                        		<th>GeneID</th>
-					                        		<th>Gene</th>
-					                        		<th>Center</th>
-					                        		<th>Zygosity</th>
-					                        		<th>Ratio_KO_WT</th>
-					                        		<th>Tag</th>
-					                        	</tr>
-			                        		</thead>
-			                        		<tbody>
-			                        			<div id="metabolismTableContent"></di>
-			                       		<tbody>
-                        				</table>
-                                	</div>
+                               	
 					   		</div>
-					   		
 					   	</div>
-
-                        <div class="section">
+					   	
+                       	<!-- <div class="section">
                             <h2>
                                 Vignettes
                             </h2>
                             <div class="inner"></div>
-                        </div>
+                       	</div> -->
 	                            
-                        <div class="section">
-                            <h2 class="title">Phenotypes distribution</h2>
+                       	<div class="section">
+                            <h2 id="phenotypes-distribution" class="title">Phenotypes distribution</h2>
                             <div class="inner">
                             		<p></p>
                                 <br/> <br/>
@@ -148,9 +214,9 @@
                                     <script type="text/javascript"> $(function () {  ${phenotypeChart} }); </script>							
                                 </div>
                             </div>
-                        </div>
+                        	</div>
                         
-                        <div class="section">
+                        <div id="paper" class="section">
                             <jsp:include page="paper_frag.jsp"></jsp:include>
                         </div>
 
@@ -162,6 +228,3 @@
     </jsp:body>
 
 </t:genericpage>
-
-
-
