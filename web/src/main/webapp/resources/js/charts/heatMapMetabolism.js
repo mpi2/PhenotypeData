@@ -18,7 +18,7 @@ $(function () {
 	// console.log(dataTable1);
 	
 	function showGeneTable(contentTable) {
-		// var contentTable = content.slice(0, 10);
+		// console.log(contentTable);
 		document.getElementById('metabolismTableDiv').style.display="block";
 		
 		$('#metabolism-table').DataTable({
@@ -47,13 +47,12 @@ $(function () {
 	        		 	}
 	            },
 	            { "mDataProp": "Sex"},
-	            { "mDataProp": "MGI",
+	            { "mDataProp": "MGI_ID",
 		            	"render": function ( data, type, full, meta ) {
 	        		 		return '<a href="http://www.mousephenotype.org/data/genes/'+data+'" target="_blank">'+data+'</a>';
 	        		 	}
 	            },
-	            { "mDataProp": "GeneID"},
-	            { "mDataProp": "Gene"},
+	            { "mDataProp": "Gene_symbol"},
 	            { "mDataProp": "Center"},
 	            { "mDataProp": "Zygosity"}, 
 	            { "mDataProp": "Ratio_KO_WT",
@@ -77,7 +76,7 @@ $(function () {
 		});
 		
 		var tsv = jsonToTsv(contentTable);
-		$('#tsv-result').html( tsv );
+		$('#tsv-result').html(tsv);
 	}
 	
 	$('#heatMapContainer').highcharts({
@@ -87,11 +86,12 @@ $(function () {
 	        marginBottom: 80,
 	        plotBorderWidth: 1
 	    },
-	
+	    credits: {
+	        enabled: false
+	    },
 	    title: {
 	        text: '' 
 	    },
-	    
 	    xAxis: {
 	    		categories: [{
 	    			id: 'outlier',
@@ -133,7 +133,6 @@ $(function () {
         	    },
 	    		opposite: true
         },
-	
 	    yAxis: {
 	        categories: [
 	        		{id: 'rer', name: 'Respiratory Exchange Ratio (RER)'}, 
@@ -156,18 +155,15 @@ $(function () {
         	    },
 	        title: null
 	    },
-	
 	    colorAxis: {
 	        min: 0,
 	        max: 1,
 	        minColor: '#FFFFFF',
 	        maxColor: '#FFFFFF'
 	    },
-	    
 	    legend: {
 	    		enabled: false
 	    },
-	
 	    tooltip: {
 	    		useHTML: true,
             shadow: false,
@@ -180,7 +176,6 @@ $(function () {
 	            fontFamily: 'Source Sans Pro, Arial, Helvetica, sans-serif'
 	        }
 	    },
-	
 	    series: [{
 	        name: 'Genes per sex and outlier and parameter',
 	        borderWidth: 1,
