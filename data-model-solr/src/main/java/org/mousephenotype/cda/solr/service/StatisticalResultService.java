@@ -162,7 +162,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 				StatisticalResultDTO.PHENOTYPING_CENTER + "," +
 				StatisticalResultDTO.STRAIN_ACCESSION_ID + "," +
 				StatisticalResultDTO.ALLELE_ACCESSION_ID;
-		if (metaDataGroup != null && metaDataGroup.size()>0){
+		if (metaDataGroup != null){
 			pivotFacet += "," + StatisticalResultDTO.METADATA_GROUP;
 
 		}
@@ -968,6 +968,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 				.setRows(10)
 				;
 
+		System.out.println("statistical-result query========"+query);
 		if(strain != null) {
 			query.addFilterQuery(StatisticalResultDTO.STRAIN_ACCESSION_ID + ":\"" + strain + "\"");
 		}
