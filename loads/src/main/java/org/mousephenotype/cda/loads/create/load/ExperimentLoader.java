@@ -722,8 +722,9 @@ public class ExperimentLoader implements CommandLineRunner {
 
                 MissingColonyId mid = missingColonyMap.get(dccExperiment.getColonyId());                                // Skip any known missing colony ids. We already know about them.
                 if (mid == null) {
-                    // Specimen-level experiment models should already be loaded. Log a warning if they are not.
-                    String message = "Unknown sample '" + dccExperiment.getSpecimenId() + "' for experiment '" + dccExperiment.getExperimentId() + "', colonyId " + dccExperiment.getColonyId() + ". Skipping.";
+                    // Specimen-level experiment models should already be loaded. Log a warning and skip them if they are not.
+                    String message = "Unknown sample '" + dccExperiment.getSpecimenId() + "' for experiment '" + dccExperiment.getExperimentId() + "', colonyId "
+                            + dccExperiment.getColonyId() + ". isControl = " + dccExperiment.isControl() + ". key = " + key + ". Skipping.";
                     logger.warn(message);
                 }
 

@@ -382,7 +382,7 @@ public class SampleLoader implements CommandLineRunner {
                 }
 
                 // It is an error if a MUTANT is not found in the iMits report (i.e. its colony is null)
-                if (!specimen.isIsBaseline()) {
+                if ( ! specimen.isIsBaseline()) {
                     missing = new MissingColonyId(specimen.getColonyID(), 1, MISSING_MUTANT_COLONY_ID_REASON);
                     missingColonyMap.put(specimen.getColonyID(), missing);
                     return null;
