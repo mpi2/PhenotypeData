@@ -199,8 +199,6 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
                 mp.setParentMpTerm(mpDTO.getParentNames());
 
                 // add mp-hp mapping using Monarch's mp-hp hybrid ontology
-
-
                 OntologyTermDTO mpTerm = mpHpParser.getOntologyTerm(termId);
 
 		        if (mpTerm==null) {
