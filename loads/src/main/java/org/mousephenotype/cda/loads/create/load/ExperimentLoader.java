@@ -694,20 +694,28 @@ public class ExperimentLoader implements CommandLineRunner {
         int missing = ((procedureStatus != null) && ( ! procedureStatus.trim().isEmpty()) ? 1 : 0);
 
         // Get the biological model primary key.
-        List<SimpleParameter> simpleParameterList = dccSqlUtils.getSimpleParameters(dccExperiment.getDcc_procedure_pk());
-        String zygosity = (dccExperiment.isLineLevel()
-                ? LoadUtils.getLineLevelZygosity(simpleParameterList)
-                : LoadUtils.getSpecimenLevelMutantZygosity(dccExperiment.getZygosity()));
+        String zygosity;
+        BioModelKey key;
 
-        BioModelKey key = bioModelManager.createMutantKey(dccExperiment.getDatasourceShortName(), dccExperiment.getColonyId(), zygosity);
-
+        if (dccExperiment.isLineLevel()) {
+            List<SimpleParameter> simpleParameterList = dccSqlUtils.getSimpleParameters(dccExperiment.getDcc_procedure_pk());
+            zygosity = LoadUtils.getLineLevelZygosity(simpleParameterList);
+            key = bioModelManager.createMutantKey(dccExperiment.getDatasourceShortName(), dccExperiment.getColonyId(), zygosity);
+        } else {
+            if (dccExperiment.isControl()) {
+                zygosity = LoadUtils.getControlZygosity();
+                key = bioModelManager.createControlKey(dccExperiment.getDatasourceShortName(), dccExperiment.getSpecimenStrainId());
+            } else {
+                zygosity = LoadUtils.getSpecimenLevelMutantZygosity(dccExperiment.getZygosity());
+                key = bioModelManager.createMutantKey(dccExperiment.getDatasourceShortName(), dccExperiment.getColonyId(), zygosity);
+            }
+        }
         biologicalModelPk = bioModelManager.getBiologicalModelPk(key);
         if (biologicalModelPk == null) {
 
             if (dccExperiment.isLineLevel()) {
 
                 // This line-level experiment's biological model may not have been created yet.
-                zygosity = LoadUtils.getLineLevelZygosity(simpleParameterList);
                 biologicalModelPk = bioModelManager.insertLineIfMissing(zygosity, dbId, phenotypingCenterPk, dccExperiment);
 
             } else {

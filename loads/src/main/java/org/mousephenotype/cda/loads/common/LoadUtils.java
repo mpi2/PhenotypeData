@@ -225,4 +225,8 @@ public class LoadUtils {
 
         return zygosity;
     }
+
+    public static String getControlZygosity() {
+        return ZygosityType.homozygote.getName();
+    }
 }

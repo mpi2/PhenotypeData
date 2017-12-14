@@ -59,6 +59,7 @@ public class DccExperimentRowMapper implements RowMapper<DccExperimentDTO> {
             experiment.setRawProcedureStatus(rs.getString("rawProcedureStatus"));
 
             experiment.setLineLevel(rs.getInt("isLineLevel") == 1 ? true : false);
+            experiment.setControl(rs.getInt("isControl") == 1 ? true : false);
 
             return experiment;
         }
