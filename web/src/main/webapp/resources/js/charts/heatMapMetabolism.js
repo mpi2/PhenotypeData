@@ -15,7 +15,7 @@ $(function () {
 	    });
 	    return result;
 	}
-	// console.log(dataTable1);
+	// console.log(dataTable);
 	
 	function showGeneTable(contentTable) {
 		// console.log(contentTable);
@@ -107,10 +107,10 @@ $(function () {
     			    			name: '>95%',
     			    			categories: [ {id: 'female', name: '<i class="fa fa-venus" aria-hidden="true" style="padding-top: 10px;"></i>'}, 
     			    				{id: 'male', name: '<i class="fa fa-mars" aria-hidden="true" style="padding-top: 10px;"></i>'}]
-    		    		}]
+    		    		}],
     			}],
 	    		labels: {
-	    			// borderColor: '#cccccc',
+	    			borderColor: '#e3e3e3',
         	        useHTML: true,
         	        formatter: function () {
         	        		if (this.value == 'Outlier'){
@@ -127,9 +127,10 @@ $(function () {
             	        		}
         	        		} 
         	        },
-        	        style: {
-        	        		fill: 'red'
-                }
+//        		    style: {
+//        		    		fill: "purple",
+//        		    		stroke: 'blue' // 0-level options aren't changed, use them as always
+//        		    }
         	    },
 	    		opposite: true
         },

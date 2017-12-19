@@ -183,7 +183,7 @@ public class LandingPageController {
         else if (page.equalsIgnoreCase("metabolism")) {
             mpDTO = mpService.getPhenotype("MP:0005376");
             model.addAttribute("shortDescription", "<h3>The IMPC is increasing our understanding of the genetic basis for metabolic diseases</h3>"
-            		+ "<ul><li>Metabolic diseases, such as obesity and diabetes, affect people worldwide</li><li>The function of many genes in the genome still unknown</li><li>Knockout mice allow us to understand metabolic procedures and relate them to human disease</li></ul>");
+            		+ "<ul><li>Metabolic diseases, such as obesity and diabetes, affect people worldwide</li><li>The function of many genes in the genome is still unknown</li><li>Knockout mice allow us to understand metabolic procedures and relate them to human disease</li></ul>");
             pageTitle = "Metabolism";
         } 
         else if (page.equalsIgnoreCase("cmg")) {
