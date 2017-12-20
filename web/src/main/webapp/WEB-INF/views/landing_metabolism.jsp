@@ -117,7 +117,7 @@
 					   			<h3>Metabolic diseases investigated in 2,016 knockout mouse lines</h3>
 					   			<p><a href="">Nature Communications</a></p>
 					   			<ul>
-					   				<li>974 genes with strong metabolic phenotypes.</li>
+					   				<li>974 genes with strong metabolic phenotypes (see gene table, below).</li>
 					   				<li>429 genes had not been previously associated with metabolism, 51 completely lacked functional annotation, and 25 have single nucleotide polymorphisms associated to human metabolic disease phenotypes.</li>
 					   				<li>515 genes linked to at least one disease in OMIM.</li>
 					   				<li>Networks of co-regulated genes were identified, and genes of predicted metabolic function identified.</li>
@@ -169,24 +169,22 @@
 		                        	</div>
 								
 								<h3>Strong metabolic phenotype genes form regulatory networks</h3>
-								<div style="width: 100%; height: 100%;">
+								<div style="width: 100%;">
 									<div style="float: left; width: 50%;">
 										<img src="${baseUrl}/documentation/img/more-cassette.png" alt="Illustration of the action of MORE cassettes in regulatory networks" height="300" width="460" />
                                		</div>
-                               		<!-- <div style="float: left; width: 50%; height: 100%;"> -->
-		                               	<br/>
-		                               	<ul>
-		                               		<li>Transcriptional co-regulation often involves a common set of transcription factor binding sites (TFBSs) shared between co-regulated promoters and in a particular organization (known as Multiple Organized Regulatory Element (MORE)–cassettes).</li>
-		                               		<li>Identification of shared MORE-cassettes in promoters of candidate genes allowed to discover extensive metabolic phenotype-associated networks of potentially co-regulated genes.</li>
-		                               		<li>MORE-cassettes are invariant genomic sequence features (similar to reading frames).</li>
-		                               		<li>The presence of MORE-cassettes enabled to a priori predict phenotypes and identify genes potentially linked to metabolic functions.</li>
-		                               	</ul>
-		                               	<br/>
-                               		<!-- </div> -->
+	                               	<br/>
+	                               	<ul>
+	                               		<li>Transcriptional co-regulation often involves a common set of transcription factor binding sites (TFBSs) shared between co-regulated promoters and in a particular organization (known as Multiple Organized Regulatory Element (MORE)–cassettes).</li>
+	                               		<li>Identification of shared MORE-cassettes in promoters of candidate genes allowed to discover extensive metabolic phenotype-associated networks of potentially co-regulated genes.</li>
+	                               		<li>MORE-cassettes are invariant genomic sequence features (similar to reading frames).</li>
+	                               		<li>The presence of MORE-cassettes enabled to a priori predict phenotypes and identify genes potentially linked to metabolic functions.</li>
+	                               	</ul>
+	                               	<br/>
                                	</div>                         	
 								<br/> <br/>
 								
-								<h3>Methods</h3>
+								<h3 style="clear: left;">Methods</h3>
                                	<p>Genes with phenotypes associated to the following <b>seven metabolic parameters</b>, with diagnostic relevance in human clinical research, were further analysed:</p>
                                	<ul>
                                		<li>Fasting basal blood glucose level before glucose tolerance test (T0)</li>
