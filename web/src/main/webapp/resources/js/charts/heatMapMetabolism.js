@@ -127,15 +127,7 @@ $(function () {
         	        				return '<a id="' + this.value.userOptions.id + '" class="highlightCols above5" style="font-size: 1.5em; font-family: Source Sans Pro, Arial, Helvetica, sans-serif, FontAwesome; margin: -70px; padding-right: 70px; padding-left: 70px;">  ' + this.value.userOptions.name + '</a>'
             	        		}
         	        		} 
-        	        },
-        	        events: {
-                    click: function () {
-                        // reloadFlash();
-                        // alert(this.xAxis[0].tickPositions.length);      
-                        // alert(this.x);
-                    		console.log("adeu");
-                    }
-                }
+        	        }
         	    },
 	    		opposite: true
         },
