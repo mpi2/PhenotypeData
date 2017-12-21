@@ -25,21 +25,26 @@
     <script src="http://blacklabel.github.io/grouped_categories/grouped-categories.js"></script>
     
     <style>
+		table {
+			border-collapse: collapse;
+			border-spacing: 0;
+		}
 		/* Override allele ref style for datatable */
 		table.dataTable thead tr {
 			display: table-row;
 		}
-		
 		#metabolism-table_length {
 		   	width: 50%;
 		   	float: left;
 		   	/* text-align: right; */
 		}
-		
 		#metabolism-table_filter {
 			width: 50%;
 		   	float: right;
 		   	text-align: right;
+		}
+		.background_hover_axis {
+			background-color: rgb(173,216,230);
 		}
 	</style>
 	

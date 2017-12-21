@@ -93,7 +93,6 @@ $(function () {
 	        text: '' 
 	    },
 	    xAxis: {
-	    		className: "xaxisInfor",
 	    		categories: [{
 	    			id: 'outlier',
     				name: 'Outlier',
@@ -115,16 +114,16 @@ $(function () {
         	        useHTML: true,
         	        formatter: function () {
         	        		if (this.value == 'Outlier'){
-        	        			return '<a id="outlier" class="highlightCols" style="font-size: 1.5em; font-family: Source Sans Pro, Arial, Helvetica, sans-serif, FontAwesome; margin: -280px; padding-right: 280px; padding-left: 280px;">  ' + this.value + '</a>'
+        	        			return '<a id="outlier" class="highlightCols" style="font-size: 1.5em; font-family: Source Sans Pro, Arial, Helvetica, sans-serif, FontAwesome; margin: -293px; padding: 8px 293px 3px 293px;">  ' + this.value + '</a>'
         	        		} else if (this.value == '<5%') {
-        	        			return '<a id="below5" class="highlightCols" style="font-size: 1.5em; font-family: Source Sans Pro, Arial, Helvetica, sans-serif, FontAwesome; margin: -135px; padding-right: 135px; padding-left: 135px;">  ' + this.value + '</a>'
+        	        			return '<a id="below5" class="highlightCols" style="font-size: 1.5em; font-family: Source Sans Pro, Arial, Helvetica, sans-serif, FontAwesome; margin: -141px; padding: 8px 141px 4px 145px;">  ' + this.value + '</a>'
         	        		} else if (this.value == '>95%') {
-        	        			return '<a id="above95" class="highlightCols" style="font-size: 1.5em; font-family: Source Sans Pro, Arial, Helvetica, sans-serif, FontAwesome; margin: -135px; padding-right: 135px; padding-left: 135px;">  ' + this.value + '</a>'
+        	        			return '<a id="above95" class="highlightCols" style="font-size: 1.5em; font-family: Source Sans Pro, Arial, Helvetica, sans-serif, FontAwesome; margin: -133px; padding: 8px 133px 4px 145px;">  ' + this.value + '</a>'
         	        		} else {
         	        			if (this.pos == 0 || this.pos == 1) {
-        	        				return '<a id="' + this.value.userOptions.id + '" class="highlightCols below5" style="font-size: 1.5em; font-family: Source Sans Pro, Arial, Helvetica, sans-serif, FontAwesome; margin: -70px; padding-right: 70px; padding-left: 70px;">  ' + this.value.userOptions.name + '</a>'
+        	        				return '<a id="' + this.value.userOptions.id + '" class="highlightCols below5" style="font-size: 1.5em; font-family: Source Sans Pro, Arial, Helvetica, sans-serif, FontAwesome; margin: -72px; padding: 6px 72px 10px 73px;">  ' + this.value.userOptions.name + '</a>'
         	        			} else if (this.pos == 2 || this.pos == 3) {
-        	        				return '<a id="' + this.value.userOptions.id + '" class="highlightCols above5" style="font-size: 1.5em; font-family: Source Sans Pro, Arial, Helvetica, sans-serif, FontAwesome; margin: -70px; padding-right: 70px; padding-left: 70px;">  ' + this.value.userOptions.name + '</a>'
+        	        				return '<a id="' + this.value.userOptions.id + '" class="highlightCols above5" style="font-size: 1.5em; font-family: Source Sans Pro, Arial, Helvetica, sans-serif, FontAwesome; margin: -72px; padding: 6px 72px 10px 73px;">  ' + this.value.userOptions.name + '</a>'
             	        		}
         	        		} 
         	        }
@@ -257,6 +256,8 @@ $(function () {
 	        		currentFeature.select(null,true);
 	        }
 		}
+		
+//		$(this).toggleClass("background_hover_axis");
     	});
 
 	$(".highlightRows").click(function () {
@@ -306,6 +307,8 @@ $(function () {
 	        		currentFeature.select(null,true);
 	        }
 		}
+		
+	    $(this).toggleClass("background_hover_axis");
 	});
 	
 	$(".highlightCols").click(function () {
