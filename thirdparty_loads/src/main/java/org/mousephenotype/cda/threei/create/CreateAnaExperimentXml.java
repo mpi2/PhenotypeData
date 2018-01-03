@@ -161,7 +161,13 @@ public class CreateAnaExperimentXml extends CreateAnaXmls implements CommandLine
             List<SimpleParameter> simpleParameters = new ArrayList<SimpleParameter>();
             List<ProcedureMetadata> procedureMetadatas = new ArrayList<ProcedureMetadata>();
             List<SeriesMediaParameter> seriesMediaParameters = new ArrayList<SeriesMediaParameter>();
+
+            // Since there are multiple rows for each mouse, with each row 
+            // same values for location of images, we only want to
+            // attempt image assignment for the first row encountered
+            boolean imageAssignAttempted = false;
             boolean imageAssigned = false;
+
             for (String[] rowResult : rowsForMouse) {
                 String parameterImpressId = rowResult[24];
                 String value = rowResult[20];
@@ -183,21 +189,46 @@ public class CreateAnaExperimentXml extends CreateAnaXmls implements CommandLine
                     
                 }
 
-                String imagePath = rowResult[28];
-                if (imageAssigned == false && imagePath != null && imagePath.length() > 0 && !imagePath.equals("#N/A")) {
-                    SeriesMediaParameter seriesMediaParameter = new SeriesMediaParameter();
-                    seriesMediaParameter.setParameterID("MGP_ANA_005_001");
-                    ArrayList<SeriesMediaParameterValue> smpvList = new ArrayList<SeriesMediaParameterValue>();
-                    SeriesMediaParameterValue smpv = new SeriesMediaParameterValue();
-                    smpv.setIncrementValue("1");
-                    smpv.setURI(imagePath);
-                    smpv.setFileType("image/tiff");
-                    smpvList.add(smpv);
-                    seriesMediaParameter.setValue(smpvList);
-                    seriesMediaParameters.add(seriesMediaParameter);
-                    imageAssigned = true;
-                }
+                String imagePathTiff = rowResult[28];
+                String imagePathJpg = rowResult[30];
+                if (imageAssignAttempted == false) {
+                    // Set up objects required to assign image but only assign
+                    // if either a jpg and/or a tiff image is present
+                    int increment = 1;
+                    
+                    ArrayList<SeriesMediaParameterValue> smpvList = 
+                        new ArrayList<SeriesMediaParameterValue>();
+                    SeriesMediaParameterValue smpv = 
+                        new SeriesMediaParameterValue();
+                    if (imagePathTiff != null && imagePathTiff.length() > 0 && 
+                         !imagePathTiff.equals("#N/A")) {
+                        
+                        smpv.setIncrementValue("" + increment);
+                        smpv.setURI(imagePathTiff);
+                        smpv.setFileType("image/tiff");
+                        smpvList.add(smpv);
+                        increment++;
+                    } 
 
+                    if (imagePathJpg != null && imagePathJpg.length() > 0 && 
+                         !imagePathJpg.equals("#N/A")) {
+                        
+                        smpv.setIncrementValue("" + increment);
+                        smpv.setURI(imagePathJpg);
+                        smpv.setFileType("image/jpeg");
+                        smpvList.add(smpv);
+                    }
+                    
+                    SeriesMediaParameter seriesMediaParameter = 
+                        new SeriesMediaParameter();
+                    seriesMediaParameter.setParameterID("MGP_ANA_005_001");
+                    if (smpvList.size() > 0) {
+                        seriesMediaParameter.setValue(smpvList);
+                        seriesMediaParameters.add(seriesMediaParameter);
+                        imageAssigned = true;
+                    }
+                    imageAssignAttempted = true;
+                }
             }
             //experiment.setSequenceID("3I_" + row[0]);
 
