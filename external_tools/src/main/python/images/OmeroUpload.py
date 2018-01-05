@@ -33,7 +33,10 @@ def main(argv):
                         help='end index for files to upload'
     )
     parser.add_argument('-fp', '--filterProject', dest='filterProject', default=None,
-                        help='Filter to apply to select a particular project'
+                        help='Filter to apply to select a particular project in Omero'
+    )
+    parser.add_argument('-fq', '--solrFilterQuery', dest='solrFilterQuery', default=None,
+                        help='Filter to apply to solr query. If not supplied uses hardcoded standard filter'
     )
     parser.add_argument('--profile', dest='profile', default='dev',
                         help='profile from which to read config: dev, prod, live, ...')
@@ -57,6 +60,7 @@ def main(argv):
     begin = args.begin
     end = args.end
     filterProject = args.filterProject
+    solrFilterQuery = args.solrFilterQuery
 
     try:    
         omeroPort = omeroProps['omeroport']
@@ -73,7 +77,7 @@ def main(argv):
     print 'rootDestinationDir is "', root_dir
     
     omeroUpload=OmeroUpload(root_dir, omeroHost, omeroPort, omeroUsername, omeroPass, group)#/Users/jwarren/Documents/images/impc/")
-    solr_directory_to_filenames_map=omeroUpload.getSolrDirectoryMap(solrRoot)
+    solr_directory_to_filenames_map=omeroUpload.getSolrDirectoryMap(solrRoot, solrFilterQuery)
     omero_directory_to_filenames_map=omeroUpload.getOmeroDirectoriesAndFilesMap(omeroHost, filterProject)
     nfs_directory_to_filenames_map=omeroUpload.getDirectoriesWithFileNamesFromNFS(root_dir)
     
@@ -163,8 +167,13 @@ class OmeroUpload:
             #print "value="+str(value)
         return rel_directory_to_filenames_map
     
-    def getSolrDirectoryMap(self, solr_experiment_url):
+    def getSolrDirectoryMap(self, solr_experiment_url, solr_filter_query=None):
         self.solr=Solr(solr_experiment_url)
+        
+        # KB 05/01/2018 allow user parameter to set solr filter so we can modify the map returned
+        if type(solr_filter_query) == str and len(solr_filter_query) > 0:
+            self.solr.standardFilter = solr_filter_query
+
         directory_map=self.solr.getAllPhenCenterPipelinesAndProceduresAndParameters()
         #get a list of all directories that should contain images and the image filenames for those directories
         return directory_map
