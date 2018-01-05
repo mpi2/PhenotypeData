@@ -170,7 +170,7 @@ class OmeroUpload:
     def getSolrDirectoryMap(self, solr_experiment_url, solr_filter_query=None):
         self.solr=Solr(solr_experiment_url)
         
-        # KB 05/01/2018 allow user parameter to set solr filter so we can modify the map returned
+        # KB 05/01/2018 allow user parameter to set solr filter so we can restrict values in the map returned
         if type(solr_filter_query) == str and len(solr_filter_query) > 0:
             self.solr.standardFilter = solr_filter_query
 
