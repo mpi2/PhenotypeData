@@ -1834,6 +1834,7 @@ public class DataTableController {
 		alleleSymbol = alleleSymbol.trim();
 		Integer dbid = Integer.parseInt(dbidStr);
 		Integer pmid = Integer.parseInt(pmidStr);
+		System.out.println("allele symbols: " + alleleSymbol);
 
 		return setAlleleSymbol(dbid, pmid, alleleSymbol, falsepositive, reviewed, consortium_paper);
 	}
