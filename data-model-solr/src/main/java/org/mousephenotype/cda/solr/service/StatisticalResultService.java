@@ -171,7 +171,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 		query.setFacetLimit(-1);
 
 		Set<String> resultParametersForCharts = new HashSet<>();
-		System.out.println("facet pivot query="+query);
+		System.out.println("SR facet pivot query="+query);
 		NamedList<List<PivotField>> facetPivot = solr.query(query).getFacetPivot();
 		for( PivotField pivot : facetPivot.get(pivotFacet)){
 			getParametersForChartFromPivot(pivot, baseUrl, resultParametersForCharts);
