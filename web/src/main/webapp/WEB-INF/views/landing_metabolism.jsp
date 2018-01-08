@@ -1,58 +1,68 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
-         pageEncoding="UTF-8" %>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ taglib prefix="t" tagdir="/WEB-INF/tags" %>
-<%@ taglib prefix='fn' uri='http://java.sun.com/jsp/jstl/functions' %>
+	pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib prefix="t" tagdir="/WEB-INF/tags"%>
+<%@ taglib prefix='fn' uri='http://java.sun.com/jsp/jstl/functions'%>
 
 <t:genericpage>
 
-    <jsp:attribute name="title">${pageTitle} landing page | IMPC Phenotype Information</jsp:attribute>
+	<jsp:attribute name="title">${pageTitle} landing page | IMPC Phenotype Information</jsp:attribute>
 
-    <jsp:attribute name="breadcrumb">&nbsp;&raquo; <a href="${baseUrl}/landing">Landing
+	<jsp:attribute name="breadcrumb">&nbsp;&raquo; <a
+			href="${baseUrl}/landing">Landing
         Pages</a> &nbsp;&raquo; ${pageTitle}</jsp:attribute>
 
-    <jsp:attribute name="header">
+	<jsp:attribute name="header">
 
 	<!-- CSS Local Imports -->
     <link href="${baseUrl}/css/alleleref.css" rel="stylesheet" />
     <link href="${baseUrl}/css/heatmap.css" rel="stylesheet" />
 
-	<script type='text/javascript' src='${baseUrl}/js/charts/highcharts.js?v=${version}'></script>
-    <script type='text/javascript' src='${baseUrl}/js/charts/highcharts-more.js?v=${version}'></script>
+	<script type='text/javascript'
+			src='${baseUrl}/js/charts/highcharts.js?v=${version}'></script>
+    <script type='text/javascript'
+			src='${baseUrl}/js/charts/highcharts-more.js?v=${version}'></script>
     
-    <script type='text/javascript' src='${baseUrl}/js/charts/modules/heatmap.js?v=${version}'></script> 
-    <script type="text/javascript" src='${baseUrl}/js/charts/heatMapMetabolism.js?v=${version}'></script>
-    <script src="http://blacklabel.github.io/grouped_categories/grouped-categories.js"></script>
+    <script type='text/javascript'
+			src='${baseUrl}/js/charts/modules/heatmap.js?v=${version}'></script> 
+    <script type="text/javascript"
+			src='${baseUrl}/js/charts/heatMapMetabolism.js?v=${version}'></script>
+    <script
+			src="http://blacklabel.github.io/grouped_categories/grouped-categories.js"></script>
     
     <style>
-		table {
-			border-collapse: collapse;
-			border-spacing: 0;
-		}
-		/* Override allele ref style for datatable */
-		table.dataTable thead tr {
-			display: table-row;
-		}
-		#metabolism-table_length {
-		   	width: 50%;
-		   	float: left;
-		   	/* text-align: right; */
-		}
-		#metabolism-table_filter {
-			width: 50%;
-		   	float: right;
-		   	text-align: right;
-		}
-		/* .background_hover_axis {
+table {
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+/* Override allele ref style for datatable */
+table.dataTable thead tr {
+	display: table-row;
+}
+
+#metabolism-table_length {
+	width: 50%;
+	float: left;
+	/* text-align: right; */
+}
+
+#metabolism-table_filter {
+	width: 50%;
+	float: right;
+	text-align: right;
+}
+/* .background_hover_axis {
 			background-color: rgb(173,216,230);
 		} */
-	</style>
+</style>
 	
 	</jsp:attribute>
 
-    <jsp:attribute name="bodyTag"><body  class="phenotype-node no-sidebars small-header"></jsp:attribute>
+	<jsp:attribute name="bodyTag">
+		<body class="phenotype-node no-sidebars small-header">
+	</jsp:attribute>
 
-    <jsp:attribute name="addToFooter">
+	<jsp:attribute name="addToFooter">
 		<div class="region region-pinned">
 
              <div id="flyingnavi" class="block smoothScroll">
@@ -74,7 +84,7 @@
 
          </div>
 	</jsp:attribute>
-    <jsp:body>
+	<jsp:body>
 
         <div class="region region-content">
             <div class="block block-system">
@@ -82,7 +92,7 @@
                     <div class="node node-gene">
                         <h1 class="title" id="top">${pageTitle} </h1>
 
-                        <c:import url="landing_overview_frag.jsp"/>
+                        <c:import url="landing_overview_frag.jsp" />
 						
 						<div style="padding: 20px;" class="clear both"></div>
 						
@@ -90,37 +100,44 @@
                             <h2 id="status" class="title">Approach</h2>
                             <div class="inner">
                             		<p align="justify">
-                            			To identify the function of genes, the IMPC uses a series of standardised protocols described in <a href="${baseUrl}/../impress">IMPReSS</a> (International Mouse Phenotyping Resource of Standardised Screens). 
+                            			To identify the function of genes, the IMPC uses a series of standardised protocols described in <a
+										href="${baseUrl}/../impress">IMPReSS</a> (International Mouse Phenotyping Resource of Standardised Screens). 
                             			Tests addressing the metabolic function are conducted on young adults at 11-16 weeks of age.  
                             		</p>
-                            		<br/><br/>
+                            		<br /><br />
                             		<h4>
                             			Procedures that can lead to relevant phenotype associations
-                            			<button id="showHideApproachList" class="toggleButton" title="Click to display" style="background: none !important; border: none;">
+                            			<button id="showHideApproachList"
+										class="toggleButton" title="Click to display"
+										style="background: none !important; border: none;">
                             				<i class="fa more fa-plus-square"></i>
                             			</button>
                             		</h4>
-                            		<div id="approachList" style="display: none">
-                                		<c:import url="landing_procedures_frag.jsp"/>
+                            		<div id="approachList"
+									style="display: none">
+                                		<c:import
+										url="landing_procedures_frag.jsp" />
                                 	</div>
                             </div>
                         </div>
                         
 						<script type="text/javascript">
 							$(document).ready(function() {
-								$("#showHideApproachList").click(function(){
+								$("#showHideApproachList").click(function() {
 									$("i").toggleClass("fa-minus-square");
 									$("#approachList").toggle();
 								});
 							});
 						</script>
 						
-						<br/><br/>
+						<br /><br />
 					   	<div class="section">
 					   		<h2 id="metabolismPaper" class="title">IMPC Metabolism Publication</h2>
 					   		<div class="inner">
 					   			<h3>Metabolic diseases investigated in 2,016 knockout mouse lines</h3>
-					   			<p><a href="">Nature Communications</a></p>
+					   			<p>
+									<a href="">Nature Communications</a>
+								</p>
 					   			<ul>
 					   				<li>974 genes with strong metabolic phenotypes (see gene table, below).</li>
 					   				<li>429 genes had not been previously associated with metabolism, 51 completely lacked functional annotation, and 25 have single nucleotide polymorphisms associated to human metabolic disease phenotypes.</li>
@@ -140,10 +157,13 @@
 								<h3>Gene table</h3> 
                                	<p>Mutant/wildtype ratios below the 5th percentile and above the 95th percentile of the ratio distributions yielded 28 gene lists that serve as a data mining resource for further investigation into potential links to human metabolic disorders.</p>
                                  <p>By hovering over the table you can select cells and click to explore the underlying data.</p>
-                                 <br/> <br/>
-                               	<div id="heatMapContainer" style="height: 450px; min-width: 310px; max-width: 894px; position: relative; padding-left: 30px;"></div>
-                               	<div id="metabolismTableDiv" style="display: none; position: relative; z-index:10; margin-top:-50px;">
-	                               	<table id="metabolism-table" class='table tableSorter'>
+                                 <br /> <br />
+                               	<div id="heatMapContainer"
+									style="height: 450px; min-width: 310px; max-width: 894px; position: relative;"></div>
+                               	<div id="metabolismTableDiv"
+									style="display: none; position: relative; z-index: 10; margin-top: -50px;">
+	                               	<table id="metabolism-table"
+										class='table tableSorter'>
 			                        		<thead>
 					                        <tr>
 					                        		<th>Parameter</th>
@@ -159,35 +179,38 @@
 			                        		<!-- BODY -->
 			                        	</table>
 			                        	<div id="tsv-result" style="display: none;"></div>
-									<br/>
+									<br />
 									<div id="export">
 										<a id="hideTable" style="float: left;">Hide</a> <!-- href="#heatMapContainer" -->
 					                  	<p class="textright">
 					                      	Download data as:
-					                      	<a id="downloadTsv" class="button fa fa-download">TSV</a>
+					                      	<a id="downloadTsv"
+												class="button fa fa-download">TSV</a>
 					   						<a id="downloadExcel" class="button fa fa-download">XLS</a>
 					                      	<%-- <a id="tsvDownload" href="${baseUrl}/genes/export/${gene.getMgiAccessionId()}?fileType=tsv&fileName=${gene.markerSymbol}" target="_blank" class="button fa fa-download">TSV</a>
 					                      	<a id="xlsDownload" href="${baseUrl}/genes/export/${gene.getMgiAccessionId()}?fileType=xls&fileName=${gene.markerSymbol}" target="_blank" class="button fa fa-download">XLS</a> --%>
 					                  	</p>
 					              	</div>
-					              	<br/> <br/>
+					              	<br /> <br />
 		                        	</div>
 								
 								<h3>Strong metabolic phenotype genes form regulatory networks</h3>
 								<div style="width: 100%;">
 									<div style="float: left; width: 50%;">
-										<img src="${baseUrl}/documentation/img/more-cassette.png" alt="Illustration of the action of MORE cassettes in regulatory networks" height="300" width="460" />
+										<img src="${baseUrl}/documentation/img/more-cassette.png"
+											alt="Illustration of the action of MORE cassettes in regulatory networks"
+											width="100%" />
                                		</div>
-	                               	<br/>
+	                               	<br />
 	                               	<ul>
 	                               		<li>Transcriptional co-regulation often involves a common set of transcription factor binding sites (TFBSs) shared between co-regulated promoters and in a particular organization (known as Multiple Organized Regulatory Element (MORE)–cassettes).</li>
 	                               		<li>Identification of shared MORE-cassettes in promoters of candidate genes allowed to discover extensive metabolic phenotype-associated networks of potentially co-regulated genes.</li>
 	                               		<li>MORE-cassettes are invariant genomic sequence features (similar to reading frames).</li>
 	                               		<li>The presence of MORE-cassettes enabled to a priori predict phenotypes and identify genes potentially linked to metabolic functions.</li>
 	                               	</ul>
-	                               	<br/>
+	                               	<br />
                                	</div>                         	
-								<br/> <br/>
+								<br /> <br />
 								
 								<h3 style="clear: left;">Methods</h3>
                                	<p>Genes with phenotypes associated to the following <b>seven metabolic parameters</b>, with diagnostic relevance in human clinical research, were further analysed:</p>
@@ -225,10 +248,11 @@
                        	</div> -->
 	                            
                        	<div class="section">
-                            <h2 id="phenotypes-distribution" class="title">Phenotype distribution</h2>
+                            <h2 id="phenotypes-distribution"
+								class="title">Phenotype distribution</h2>
                             <div class="inner">
                             		<p></p>
-                                <br/> <br/>
+                                <br /> <br />
                                 <div id="phenotypeChart">
                                     <script type="text/javascript"> $(function () {  ${phenotypeChart} }); </script>							
                                 </div>
