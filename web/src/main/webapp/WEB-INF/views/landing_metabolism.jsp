@@ -43,9 +43,9 @@
 		   	float: right;
 		   	text-align: right;
 		}
-		.background_hover_axis {
+		/* .background_hover_axis {
 			background-color: rgb(173,216,230);
-		}
+		} */
 	</style>
 	
 	</jsp:attribute>
@@ -141,7 +141,7 @@
                                	<p>Mutant/wildtype ratios below the 5th percentile and above the 95th percentile of the ratio distributions yielded 28 gene lists that serve as a data mining resource for further investigation into potential links to human metabolic disorders.</p>
                                  <p>By hovering over the table you can select cells and click to explore the underlying data.</p>
                                  <br/> <br/>
-                               	<div id="heatMapContainer" style="height: 450px; min-width: 310px; max-width: 1000px; position: relative;"></div>
+                               	<div id="heatMapContainer" style="height: 450px; min-width: 310px; max-width: 894px; position: relative; padding-left: 30px;"></div>
                                	<div id="metabolismTableDiv" style="display: none; position: relative; z-index:10; margin-top:-50px;">
 	                               	<table id="metabolism-table" class='table tableSorter'>
 			                        		<thead>

@@ -308,7 +308,7 @@ $(function () {
 	        }
 		}
 		
-	    $(this).toggleClass("background_hover_axis");
+//	    $(this).toggleClass("background_hover_axis");
 	});
 	
 	$(".highlightCols").click(function () {
