@@ -1119,8 +1119,6 @@ public class AlleleIndexer extends AbstractIndexer implements CommandLineRunner 
                     //dto.getGoTermDefs().add(ga.goTermDef);
                     dto.getGoTermEvids().add(ga.goTermEvid);
                     dto.getGoTermDomains().add(ga.goTermDomain);
-                    System.out.println(ga.goTermEvid);
-
                     dto.setEvidCodeRank(assignCodeRank(codeRank.get(ga.goTermEvid)));
                 }
             }
