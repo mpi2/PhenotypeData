@@ -1111,13 +1111,18 @@ public class AlleleIndexer extends AbstractIndexer implements CommandLineRunner 
             }
 
             for (GoAnnotations ga : goTermLookup.get(dto.getMarkerSymbol())) {
-                dto.getGoTermIds().add(ga.goTermId);
-                dto.getGoTermNames().add(ga.goTermName);
-                dto.getGoUniprot().add(ga.goUniprot);
-                //dto.getGoTermDefs().add(ga.goTermDef);
-                dto.getGoTermEvids().add(ga.goTermEvid);
-                dto.getGoTermDomains().add(ga.goTermDomain);
-                dto.setEvidCodeRank( assignCodeRank(codeRank.get(ga.goTermEvid)) );
+                if (codeRank.get(ga.goTermEvid) != null) {
+                    // some evidence code is not needed and is not in the map, ignore this
+                    dto.getGoTermIds().add(ga.goTermId);
+                    dto.getGoTermNames().add(ga.goTermName);
+                    dto.getGoUniprot().add(ga.goUniprot);
+                    //dto.getGoTermDefs().add(ga.goTermDef);
+                    dto.getGoTermEvids().add(ga.goTermEvid);
+                    dto.getGoTermDomains().add(ga.goTermDomain);
+                    System.out.println(ga.goTermEvid);
+
+                    dto.setEvidCodeRank(assignCodeRank(codeRank.get(ga.goTermEvid)));
+                }
             }
             //dto.getGoUniprot().addAll(gene2GoUniprotLookup.get(dto.getMarkerSymbol()));
 
