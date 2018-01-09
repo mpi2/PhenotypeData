@@ -9,8 +9,7 @@
 	<jsp:attribute name="title">${pageTitle} landing page | IMPC Phenotype Information</jsp:attribute>
 
 	<jsp:attribute name="breadcrumb">&nbsp;&raquo; <a
-			href="${baseUrl}/biological-system">biological system
-        Pages</a> &nbsp;&raquo; ${pageTitle}</jsp:attribute>
+			href="${baseUrl}/biological-system">biological systems</a> &nbsp;&raquo; ${pageTitle}</jsp:attribute>
 
 	<jsp:attribute name="header">
 

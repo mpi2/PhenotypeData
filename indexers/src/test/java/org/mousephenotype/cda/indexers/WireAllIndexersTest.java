@@ -72,7 +72,6 @@ public class WireAllIndexersTest implements ApplicationContextAware {
     final Class genotypePhenotypeClass = GenotypePhenotypeIndexer.class;
     final Class statisticalResultClass = StatisticalResultsIndexer.class;
     final Class mgiPhenotypeClass = MGIPhenotypeIndexer.class;
-    final Class phenodigmClass = PhenodigmIndexer.class;
     final Class preqcClass = PreqcIndexer.class;
     final Class alleleClass = AlleleIndexer.class;
     final Class imagesClass = SangerImagesIndexer.class;

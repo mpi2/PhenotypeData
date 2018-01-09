@@ -18,7 +18,7 @@ package uk.ac.ebi.phenodigm2;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
-import org.mousephenotype.cda.solr.service.dto.Phenodigm2DTO;
+import org.mousephenotype.cda.solr.service.dto.PhenodigmDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,25 +52,25 @@ public class WebDaoSolrImpl implements WebDao {
     @Override
     public Disease getDisease(String diseaseId) {
 
-        String query = String.format("%s:\"%s\"", Phenodigm2DTO.DISEASE_ID, diseaseId);
+        String query = String.format("%s:\"%s\"", PhenodigmDTO.DISEASE_ID, diseaseId);
         SolrQuery solrQuery = new SolrQuery(query)
-                .addFilterQuery(Phenodigm2DTO.TYPE + ":disease")
-                .addField(Phenodigm2DTO.DISEASE_ID)
-                .addField(Phenodigm2DTO.DISEASE_TERM)
-                .addField(Phenodigm2DTO.DISEASE_ALTS)
-                .addField(Phenodigm2DTO.DISEASE_CLASSES)
-                .addField(Phenodigm2DTO.DISEASE_PHENOTYPES)
+                .addFilterQuery(PhenodigmDTO.TYPE + ":disease")
+                .addField(PhenodigmDTO.DISEASE_ID)
+                .addField(PhenodigmDTO.DISEASE_TERM)
+                .addField(PhenodigmDTO.DISEASE_ALTS)
+                .addField(PhenodigmDTO.DISEASE_CLASSES)
+                .addField(PhenodigmDTO.DISEASE_PHENOTYPES)
                 .setRows(ROWLIMIT);
 
         Disease disease = null;
         try {
-            List<Phenodigm2DTO> results = phenodigmCore.query(solrQuery).getBeans(Phenodigm2DTO.class);
+            List<PhenodigmDTO> results = phenodigmCore.query(solrQuery).getBeans(PhenodigmDTO.class);
             if (results.isEmpty()) {
                 LOGGER.info("Query for disease {} returned empty.", diseaseId);
                 return null;
             }
 
-            Phenodigm2DTO phenodigm = results.get(0);
+            PhenodigmDTO phenodigm = results.get(0);
             disease = new Disease(diseaseId);
             disease.setTerm(phenodigm.getDiseaseTerm());
             disease.setAlts(phenodigm.getDiseaseAlts());
@@ -87,21 +87,21 @@ public class WebDaoSolrImpl implements WebDao {
     @Override
     public List<Phenotype> getDiseasePhenotypes(String diseaseId) {
 
-        String query = String.format("%s:\"%s\"", Phenodigm2DTO.DISEASE_ID, diseaseId);
+        String query = String.format("%s:\"%s\"", PhenodigmDTO.DISEASE_ID, diseaseId);
         SolrQuery solrQuery = new SolrQuery(query)
-                .addFilterQuery(Phenodigm2DTO.TYPE + ":disease")
-                .addField(Phenodigm2DTO.DISEASE_PHENOTYPES)
+                .addFilterQuery(PhenodigmDTO.TYPE + ":disease")
+                .addField(PhenodigmDTO.DISEASE_PHENOTYPES)
                 .setRows(ROWLIMIT);
 
         List<Phenotype> phenotypeList = new ArrayList<>();
         try {
-            List<Phenodigm2DTO> results = phenodigmCore.query(solrQuery).getBeans(Phenodigm2DTO.class);
+            List<PhenodigmDTO> results = phenodigmCore.query(solrQuery).getBeans(PhenodigmDTO.class);
 
             if (results.isEmpty()) {
                 LOGGER.info("Query for disease {} phenotypes was not found.", diseaseId);
                 return phenotypeList;
             }
-            Phenodigm2DTO phenodigm = results.get(0);
+            PhenodigmDTO phenodigm = results.get(0);
             for (String phenotype : phenodigm.getDiseasePhenotypes()) {
                 phenotypeList.add(new Phenotype(phenotype));
             }
@@ -116,11 +116,11 @@ public class WebDaoSolrImpl implements WebDao {
     @Override
     public List<DiseaseGeneAssociation> getDiseaseToGeneAssociations(String diseaseId) {
 
-        String query = String.format("%s:\"%s\"", Phenodigm2DTO.DISEASE_ID, diseaseId);
+        String query = String.format("%s:\"%s\"", PhenodigmDTO.DISEASE_ID, diseaseId);
         SolrQuery solrQuery = new SolrQuery(query);
-        solrQuery.addField(Phenodigm2DTO.MARKER_SYMBOLS_WITHDRAWN)
-                .addField(Phenodigm2DTO.HGNC_GENE_SYMBOLS_WITHDRAWN)
-                .addField(Phenodigm2DTO.HGNC_GENE_LOCUS);
+        solrQuery.addField(PhenodigmDTO.MARKER_SYMBOLS_WITHDRAWN)
+                .addField(PhenodigmDTO.HGNC_GENE_SYMBOLS_WITHDRAWN)
+                .addField(PhenodigmDTO.HGNC_GENE_LOCUS);
         completeDiseaseGeneQuery(solrQuery);
 
         List<DiseaseGeneAssociation> genes = new ArrayList<>();
@@ -129,8 +129,8 @@ public class WebDaoSolrImpl implements WebDao {
             // duplicate ids can occur with many-to-one human-mouse gene mappings
             HashSet<String> seenIds = new HashSet();
 
-            List<Phenodigm2DTO> results = phenodigmCore.query(solrQuery).getBeans(Phenodigm2DTO.class);
-            for (Phenodigm2DTO phenodigm : results) {
+            List<PhenodigmDTO> results = phenodigmCore.query(solrQuery).getBeans(PhenodigmDTO.class);
+            for (PhenodigmDTO phenodigm : results) {
                 // set mouse genes (orthologs to human genes)
                 String markerId = phenodigm.getMarkerId();
                 String markerSymbol = phenodigm.getMarkerSymbol();
@@ -165,18 +165,18 @@ public class WebDaoSolrImpl implements WebDao {
     public List<GeneDiseaseAssociation> getGeneToDiseaseAssociations(String geneId) {
 
         String query = String.format("%s:\"%s\" OR %s:\"%s\"",
-                Phenodigm2DTO.MARKER_ID, geneId,
-                Phenodigm2DTO.HGNC_GENE_ID, geneId);
+                PhenodigmDTO.MARKER_ID, geneId,
+                PhenodigmDTO.HGNC_GENE_ID, geneId);
         SolrQuery solrQuery = new SolrQuery(query);
-        solrQuery.addField(Phenodigm2DTO.DISEASE_ID)
-                .addField(Phenodigm2DTO.DISEASE_TERM);
+        solrQuery.addField(PhenodigmDTO.DISEASE_ID)
+                .addField(PhenodigmDTO.DISEASE_TERM);
         completeDiseaseGeneQuery(solrQuery);
 
         List<GeneDiseaseAssociation> diseases = new ArrayList<>();
         try {
-            List<Phenodigm2DTO> results = phenodigmCore.query(solrQuery).getBeans(Phenodigm2DTO.class);
+            List<PhenodigmDTO> results = phenodigmCore.query(solrQuery).getBeans(PhenodigmDTO.class);
 
-            for (Phenodigm2DTO phenodigm : results) {
+            for (PhenodigmDTO phenodigm : results) {
                 GeneDiseaseAssociation assoc = new GeneDiseaseAssociation(phenodigm.getDiseaseId(), geneId);
                 assoc.setTerm(phenodigm.getDiseaseTerm());
 
@@ -210,29 +210,29 @@ public class WebDaoSolrImpl implements WebDao {
      * @param solrQuery
      */
     private void completeDiseaseGeneQuery(SolrQuery solrQuery) {
-        solrQuery.addFilterQuery(Phenodigm2DTO.TYPE + ":disease_gene_summary")
-                .addField(Phenodigm2DTO.MARKER_ID)
-                .addField(Phenodigm2DTO.MARKER_SYMBOL)
-                .addField(Phenodigm2DTO.HGNC_GENE_ID)
-                .addField(Phenodigm2DTO.HGNC_GENE_SYMBOL)
-                .addField(Phenodigm2DTO.HGNC_GENE_LOCUS)
+        solrQuery.addFilterQuery(PhenodigmDTO.TYPE + ":disease_gene_summary")
+                .addField(PhenodigmDTO.MARKER_ID)
+                .addField(PhenodigmDTO.MARKER_SYMBOL)
+                .addField(PhenodigmDTO.HGNC_GENE_ID)
+                .addField(PhenodigmDTO.HGNC_GENE_SYMBOL)
+                .addField(PhenodigmDTO.HGNC_GENE_LOCUS)
                 .setRows(ROWLIMIT);
     }
 
     @Override
     public List<DiseaseModelAssociation> getDiseaseToModelModelAssociations(String diseaseId) {
 
-        String query = String.format("%s:\"%s\"", Phenodigm2DTO.DISEASE_ID, diseaseId);
+        String query = String.format("%s:\"%s\"", PhenodigmDTO.DISEASE_ID, diseaseId);
         SolrQuery solrQuery = new SolrQuery(query);
         completeDiseaseModelQuery(solrQuery);
         // add more fields about the gene involved
-        solrQuery.addField(Phenodigm2DTO.MARKER_SYMBOL)
-                .addField(Phenodigm2DTO.MARKER_NUM_MODELS);
+        solrQuery.addField(PhenodigmDTO.MARKER_SYMBOL)
+                .addField(PhenodigmDTO.MARKER_NUM_MODELS);
 
         List<DiseaseModelAssociation> associations = new ArrayList<>();
         try {
-            List<Phenodigm2DTO> results = phenodigmCore.query(solrQuery).getBeans(Phenodigm2DTO.class);
-            for (Phenodigm2DTO phenodigm : results) {
+            List<PhenodigmDTO> results = phenodigmCore.query(solrQuery).getBeans(PhenodigmDTO.class);
+            for (PhenodigmDTO phenodigm : results) {
                 DiseaseModelAssociation assoc = createBasicDMA(phenodigm);
                 assoc.setMarkerId(phenodigm.getMarkerId());
                 assoc.setMarkerSymbol(phenodigm.getMarkerSymbol());
@@ -249,16 +249,16 @@ public class WebDaoSolrImpl implements WebDao {
     @Override
     public List<DiseaseModelAssociation> getGeneToDiseaseModelAssociations(String markerId) {
 
-        String query = String.format("%s:\"%s\"", Phenodigm2DTO.MARKER_ID, markerId);
+        String query = String.format("%s:\"%s\"", PhenodigmDTO.MARKER_ID, markerId);
         SolrQuery solrQuery = new SolrQuery(query);
         completeDiseaseModelQuery(solrQuery);
         // add fields for details about the disease        
-        solrQuery.addField(Phenodigm2DTO.DISEASE_TERM);
+        solrQuery.addField(PhenodigmDTO.DISEASE_TERM);
 
         List<DiseaseModelAssociation> associations = new ArrayList<>();
         try {
-            List<Phenodigm2DTO> results = phenodigmCore.query(solrQuery).getBeans(Phenodigm2DTO.class);
-            for (Phenodigm2DTO phenodigm : results) {
+            List<PhenodigmDTO> results = phenodigmCore.query(solrQuery).getBeans(PhenodigmDTO.class);
+            for (PhenodigmDTO phenodigm : results) {
                 DiseaseModelAssociation assoc = createBasicDMA(phenodigm);
                 assoc.setMarkerId(phenodigm.getMarkerId());
                 assoc.setDiseaseId(phenodigm.getDiseaseId());
@@ -278,18 +278,18 @@ public class WebDaoSolrImpl implements WebDao {
      * @param solrQuery
      */
     private void completeDiseaseModelQuery(SolrQuery solrQuery) {
-        solrQuery.addFilterQuery(Phenodigm2DTO.TYPE + ":disease_model_summary")                
-                .addField(Phenodigm2DTO.DISEASE_ID)
-                .addField(Phenodigm2DTO.MARKER_ID)
-                .addField(Phenodigm2DTO.MODEL_ID)
-                .addField(Phenodigm2DTO.MODEL_SOURCE)
-                .addField(Phenodigm2DTO.MODEL_DESCRIPTION)
-                .addField(Phenodigm2DTO.MODEL_GENETIC_BACKGROUND)                
-                .addField(Phenodigm2DTO.DISEASE_MODEL_AVG_RAW)
-                .addField(Phenodigm2DTO.DISEASE_MODEL_AVG_NORM)
-                .addField(Phenodigm2DTO.DISEASE_MODEL_MAX_RAW)
-                .addField(Phenodigm2DTO.DISEASE_MODEL_MAX_NORM)
-                .addSort(Phenodigm2DTO.DISEASE_MODEL_MAX_NORM, SolrQuery.ORDER.desc)
+        solrQuery.addFilterQuery(PhenodigmDTO.TYPE + ":disease_model_summary")                
+                .addField(PhenodigmDTO.DISEASE_ID)
+                .addField(PhenodigmDTO.MARKER_ID)
+                .addField(PhenodigmDTO.MODEL_ID)
+                .addField(PhenodigmDTO.MODEL_SOURCE)
+                .addField(PhenodigmDTO.MODEL_DESCRIPTION)
+                .addField(PhenodigmDTO.MODEL_GENETIC_BACKGROUND)                
+                .addField(PhenodigmDTO.DISEASE_MODEL_AVG_RAW)
+                .addField(PhenodigmDTO.DISEASE_MODEL_AVG_NORM)
+                .addField(PhenodigmDTO.DISEASE_MODEL_MAX_RAW)
+                .addField(PhenodigmDTO.DISEASE_MODEL_MAX_NORM)
+                .addSort(PhenodigmDTO.DISEASE_MODEL_MAX_NORM, SolrQuery.ORDER.desc)
                 .setRows(ROWLIMIT);
     }
 
@@ -300,7 +300,7 @@ public class WebDaoSolrImpl implements WebDao {
      * @param phenodigm
      * @return
      */
-    private DiseaseModelAssociation createBasicDMA(Phenodigm2DTO phenodigm) {        
+    private DiseaseModelAssociation createBasicDMA(PhenodigmDTO phenodigm) {        
         DiseaseModelAssociation assoc = new DiseaseModelAssociation(phenodigm.getModelId(), phenodigm.getDiseaseId());
         assoc.setSource(phenodigm.getModelSource());
         assoc.setDescription(phenodigm.getModelDescription());
@@ -316,24 +316,24 @@ public class WebDaoSolrImpl implements WebDao {
     public List<DiseaseModelAssociation> getDiseaseModelDetails(String diseaseId, String markerId) {
 
         String query = String.format("%s:\"%s\" AND %s:\"%s\"",
-                Phenodigm2DTO.DISEASE_ID, diseaseId,
-                Phenodigm2DTO.MARKER_ID, markerId);
+                PhenodigmDTO.DISEASE_ID, diseaseId,
+                PhenodigmDTO.MARKER_ID, markerId);
         SolrQuery solrQuery = new SolrQuery(query)
-                .addFilterQuery(Phenodigm2DTO.TYPE + ":disease_model_summary")
-                .addField(Phenodigm2DTO.MODEL_ID)
-                .addField(Phenodigm2DTO.MODEL_SOURCE)
-                .addField(Phenodigm2DTO.MODEL_DESCRIPTION)
-                .addField(Phenodigm2DTO.MODEL_GENETIC_BACKGROUND)
-                .addField(Phenodigm2DTO.MARKER_SYMBOL)
-                .addField(Phenodigm2DTO.DISEASE_MODEL_AVG_NORM)
-                .addField(Phenodigm2DTO.DISEASE_MODEL_MAX_NORM)
-                .addSort(Phenodigm2DTO.DISEASE_MODEL_MAX_NORM, SolrQuery.ORDER.desc)
+                .addFilterQuery(PhenodigmDTO.TYPE + ":disease_model_summary")
+                .addField(PhenodigmDTO.MODEL_ID)
+                .addField(PhenodigmDTO.MODEL_SOURCE)
+                .addField(PhenodigmDTO.MODEL_DESCRIPTION)
+                .addField(PhenodigmDTO.MODEL_GENETIC_BACKGROUND)
+                .addField(PhenodigmDTO.MARKER_SYMBOL)
+                .addField(PhenodigmDTO.DISEASE_MODEL_AVG_NORM)
+                .addField(PhenodigmDTO.DISEASE_MODEL_MAX_NORM)
+                .addSort(PhenodigmDTO.DISEASE_MODEL_MAX_NORM, SolrQuery.ORDER.desc)
                 .setRows(ROWLIMIT);
 
         List<DiseaseModelAssociation> modelAssociations = new ArrayList<>();
         try {
-            List<Phenodigm2DTO> results = phenodigmCore.query(solrQuery).getBeans(Phenodigm2DTO.class);
-            for (Phenodigm2DTO phenodigm : results) {
+            List<PhenodigmDTO> results = phenodigmCore.query(solrQuery).getBeans(PhenodigmDTO.class);
+            for (PhenodigmDTO phenodigm : results) {
                 DiseaseModelAssociation assoc = new DiseaseModelAssociation(phenodigm.getModelId(), diseaseId);
                 assoc.setSource(phenodigm.getModelSource());
                 assoc.setDescription(phenodigm.getModelDescription());
@@ -361,21 +361,21 @@ public class WebDaoSolrImpl implements WebDao {
     @Override
     public List<MouseModel> getGeneModelDetails(String markerId) {
 
-        String query = String.format("%s:\"%s\"", Phenodigm2DTO.MARKER_ID, markerId);
+        String query = String.format("%s:\"%s\"", PhenodigmDTO.MARKER_ID, markerId);
         SolrQuery solrQuery = new SolrQuery(query)
-                .addFilterQuery(Phenodigm2DTO.TYPE + ":mouse_model")
-                .addField(Phenodigm2DTO.MODEL_ID)
-                .addField(Phenodigm2DTO.MODEL_SOURCE)
-                .addField(Phenodigm2DTO.MODEL_DESCRIPTION)
-                .addField(Phenodigm2DTO.MODEL_GENETIC_BACKGROUND)
-                .addField(Phenodigm2DTO.MARKER_SYMBOL)
-                .addField(Phenodigm2DTO.MODEL_PHENOTYPES)
+                .addFilterQuery(PhenodigmDTO.TYPE + ":mouse_model")
+                .addField(PhenodigmDTO.MODEL_ID)
+                .addField(PhenodigmDTO.MODEL_SOURCE)
+                .addField(PhenodigmDTO.MODEL_DESCRIPTION)
+                .addField(PhenodigmDTO.MODEL_GENETIC_BACKGROUND)
+                .addField(PhenodigmDTO.MARKER_SYMBOL)
+                .addField(PhenodigmDTO.MODEL_PHENOTYPES)
                 .setRows(ROWLIMIT);
 
         List<MouseModel> result = new ArrayList<>();
         try {
-            List<Phenodigm2DTO> results = phenodigmCore.query(solrQuery).getBeans(Phenodigm2DTO.class);
-            for (Phenodigm2DTO phenodigm : results) {
+            List<PhenodigmDTO> results = phenodigmCore.query(solrQuery).getBeans(PhenodigmDTO.class);
+            for (PhenodigmDTO phenodigm : results) {
                 MouseModel model = new MouseModel(phenodigm.getModelId());
                 model.setSource(phenodigm.getModelSource());
                 model.setDescription(phenodigm.getModelDescription());
