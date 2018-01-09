@@ -350,6 +350,10 @@ public class LandingPageController {
 		return filterOnMarkerAccession;
 	}
 
+// commented out all venn diagram code as
+// (1) we do not show this data anymore
+// (2) new phenodigm has fields removed that we used with old phenodigm. So need to update the code in the future if we bring the venn diagram back
+
 
 //    @ResponseBody
 //    @RequestMapping(value = "/orthology.jsonp", method = RequestMethod.GET)
