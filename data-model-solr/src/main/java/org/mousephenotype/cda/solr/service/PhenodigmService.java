@@ -5,6 +5,8 @@ import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.solr.common.SolrDocument;
+import org.apache.solr.common.SolrDocumentList;
 import org.mousephenotype.cda.solr.SolrUtils;
 import org.mousephenotype.cda.solr.service.dto.PhenodigmDTO;
 import org.mousephenotype.cda.utilities.HttpProxy;
@@ -31,8 +33,58 @@ public class PhenodigmService implements WebStatus {
 	private final Double MIN_RAW_SCORE_CUTOFF = 1.97;
 
 	@Autowired
-	@Qualifier("phenodigm2Core")
+	@Qualifier("phenodigmCore")
 	private SolrClient solr;
+
+
+	// Disease sources. When modifying these, please modify getAllDiseases() accordingly.
+	public static final class DiseaseField {
+		public final static String DISEASE_ID = "disease_id";
+		public final static String DISEASE_SOURCE = "disease_source";
+		public final static String DISEASE_SOURCE_DECIPHER = "DECIPHER";
+		public final static String DISEASE_SOURCE_OMIM = "OMIM";
+		public final static String DISEASE_SOURCE_ORPHANET = "ORPHANET";
+	}
+
+
+	/**
+	 * @return all diseases from the disease core.
+	 * @throws SolrServerException, IOException
+	 */
+	public Set<String> getAllDiseases() throws SolrServerException, IOException  {
+		Set<String> results = new HashSet<String>();
+
+		String[] diseaseSources = { PhenodigmService.DiseaseField.DISEASE_SOURCE_DECIPHER, PhenodigmService.DiseaseField.DISEASE_SOURCE_OMIM, PhenodigmService.DiseaseField.DISEASE_SOURCE_ORPHANET };
+		for (String diseaseSource : diseaseSources) {
+			results.addAll(getAllDiseasesInDiseaseSource(diseaseSource));
+		}
+
+		return results;
+	}
+
+
+	/**
+	 * @return all diseases in the specified <code>diseaseSource</code> (see
+	 * public string definitions) from the disease core.
+	 * @param diseaseSource the desired disease source (e.g. DiseaseService.OMIM,
+	 * DiseaseSource.ORPHANET, etc.)
+	 *
+	 * @throws SolrServerException, IOException
+	 */
+	public Set<String> getAllDiseasesInDiseaseSource(String diseaseSource) throws SolrServerException, IOException  {
+
+		SolrQuery solrQuery = new SolrQuery();
+		solrQuery.setQuery("disease_source:\"" + diseaseSource + "\"");
+		solrQuery.setFields("disease_id");
+		solrQuery.setRows(1000000);
+		QueryResponse rsp = solr.query(solrQuery);
+		SolrDocumentList res = rsp.getResults();
+		HashSet<String> allDiseases = new HashSet<String>();
+		for (SolrDocument doc : res) {
+			allDiseases.add((String) doc.getFieldValue(PhenodigmService.DiseaseField.DISEASE_ID));
+		}
+		return allDiseases;
+	}
 
 	/**
 	 * Get the number of unique disease associations from the phenodigm core

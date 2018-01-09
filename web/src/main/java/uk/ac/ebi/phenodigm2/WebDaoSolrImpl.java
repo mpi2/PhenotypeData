@@ -46,8 +46,8 @@ public class WebDaoSolrImpl implements WebDao {
 
     // This autowired qualifier connects this object to the solr core
     @Autowired
-    @Qualifier("phenodigm2Core")
-    private HttpSolrClient phenodigm2Core;
+    @Qualifier("phenodigmCore")
+    private HttpSolrClient phenodigmCore;
 
     @Override
     public Disease getDisease(String diseaseId) {
@@ -64,7 +64,7 @@ public class WebDaoSolrImpl implements WebDao {
 
         Disease disease = null;
         try {
-            List<Phenodigm2DTO> results = phenodigm2Core.query(solrQuery).getBeans(Phenodigm2DTO.class);
+            List<Phenodigm2DTO> results = phenodigmCore.query(solrQuery).getBeans(Phenodigm2DTO.class);
             if (results.isEmpty()) {
                 LOGGER.info("Query for disease {} returned empty.", diseaseId);
                 return null;
@@ -95,7 +95,7 @@ public class WebDaoSolrImpl implements WebDao {
 
         List<Phenotype> phenotypeList = new ArrayList<>();
         try {
-            List<Phenodigm2DTO> results = phenodigm2Core.query(solrQuery).getBeans(Phenodigm2DTO.class);
+            List<Phenodigm2DTO> results = phenodigmCore.query(solrQuery).getBeans(Phenodigm2DTO.class);
 
             if (results.isEmpty()) {
                 LOGGER.info("Query for disease {} phenotypes was not found.", diseaseId);
@@ -129,7 +129,7 @@ public class WebDaoSolrImpl implements WebDao {
             // duplicate ids can occur with many-to-one human-mouse gene mappings
             HashSet<String> seenIds = new HashSet();
 
-            List<Phenodigm2DTO> results = phenodigm2Core.query(solrQuery).getBeans(Phenodigm2DTO.class);
+            List<Phenodigm2DTO> results = phenodigmCore.query(solrQuery).getBeans(Phenodigm2DTO.class);
             for (Phenodigm2DTO phenodigm : results) {
                 // set mouse genes (orthologs to human genes)
                 String markerId = phenodigm.getMarkerId();
@@ -174,7 +174,7 @@ public class WebDaoSolrImpl implements WebDao {
 
         List<GeneDiseaseAssociation> diseases = new ArrayList<>();
         try {
-            List<Phenodigm2DTO> results = phenodigm2Core.query(solrQuery).getBeans(Phenodigm2DTO.class);
+            List<Phenodigm2DTO> results = phenodigmCore.query(solrQuery).getBeans(Phenodigm2DTO.class);
 
             for (Phenodigm2DTO phenodigm : results) {
                 GeneDiseaseAssociation assoc = new GeneDiseaseAssociation(phenodigm.getDiseaseId(), geneId);
@@ -231,7 +231,7 @@ public class WebDaoSolrImpl implements WebDao {
 
         List<DiseaseModelAssociation> associations = new ArrayList<>();
         try {
-            List<Phenodigm2DTO> results = phenodigm2Core.query(solrQuery).getBeans(Phenodigm2DTO.class);
+            List<Phenodigm2DTO> results = phenodigmCore.query(solrQuery).getBeans(Phenodigm2DTO.class);
             for (Phenodigm2DTO phenodigm : results) {
                 DiseaseModelAssociation assoc = createBasicDMA(phenodigm);
                 assoc.setMarkerId(phenodigm.getMarkerId());
@@ -257,7 +257,7 @@ public class WebDaoSolrImpl implements WebDao {
 
         List<DiseaseModelAssociation> associations = new ArrayList<>();
         try {
-            List<Phenodigm2DTO> results = phenodigm2Core.query(solrQuery).getBeans(Phenodigm2DTO.class);
+            List<Phenodigm2DTO> results = phenodigmCore.query(solrQuery).getBeans(Phenodigm2DTO.class);
             for (Phenodigm2DTO phenodigm : results) {
                 DiseaseModelAssociation assoc = createBasicDMA(phenodigm);
                 assoc.setMarkerId(phenodigm.getMarkerId());
@@ -332,7 +332,7 @@ public class WebDaoSolrImpl implements WebDao {
 
         List<DiseaseModelAssociation> modelAssociations = new ArrayList<>();
         try {
-            List<Phenodigm2DTO> results = phenodigm2Core.query(solrQuery).getBeans(Phenodigm2DTO.class);
+            List<Phenodigm2DTO> results = phenodigmCore.query(solrQuery).getBeans(Phenodigm2DTO.class);
             for (Phenodigm2DTO phenodigm : results) {
                 DiseaseModelAssociation assoc = new DiseaseModelAssociation(phenodigm.getModelId(), diseaseId);
                 assoc.setSource(phenodigm.getModelSource());
@@ -374,7 +374,7 @@ public class WebDaoSolrImpl implements WebDao {
 
         List<MouseModel> result = new ArrayList<>();
         try {
-            List<Phenodigm2DTO> results = phenodigm2Core.query(solrQuery).getBeans(Phenodigm2DTO.class);
+            List<Phenodigm2DTO> results = phenodigmCore.query(solrQuery).getBeans(Phenodigm2DTO.class);
             for (Phenodigm2DTO phenodigm : results) {
                 MouseModel model = new MouseModel(phenodigm.getModelId());
                 model.setSource(phenodigm.getModelSource());

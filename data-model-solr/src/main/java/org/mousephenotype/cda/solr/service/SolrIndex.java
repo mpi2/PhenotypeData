@@ -69,7 +69,7 @@ public class SolrIndex {
 	SolrClient geneCore;
 
 	@Autowired
-	@Qualifier("phenodigm2Core")
+	@Qualifier("phenodigmCore")
 	SolrClient phenodigmCore;
 
 	@Autowired

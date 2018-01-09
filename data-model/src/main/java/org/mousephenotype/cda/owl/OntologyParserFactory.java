@@ -39,7 +39,7 @@ public class OntologyParserFactory {
     private DataSource komp2DataSource;
 
     @Autowired
-    @Qualifier("phenodigm2Core")
+    @Qualifier("phenodigmCore")
     SolrClient phenodigmCore;
 
 

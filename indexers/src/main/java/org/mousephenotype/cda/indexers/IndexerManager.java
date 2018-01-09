@@ -246,7 +246,7 @@ public class IndexerManager  {
 
 
 	public void run() throws IndexerException, IOException, SolrServerException, SQLException, URISyntaxException {
-
+        System.out.println("run indexer...");
         SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         ExecutionStatsList executionStatsList = new ExecutionStatsList();
         logger.debug("IndexerManager: nodeps = " + nodeps);
