@@ -504,7 +504,7 @@ public class SangerImagesIndexer extends AbstractIndexer implements CommandLineR
             List<String> noTopLevelList = new ArrayList<>(noTopLevelSet);
             Collections.sort(noTopLevelList);
             for (String mpId : noTopLevelList) {
-                runStatus.addWarning(" No top level for " + mpId);
+                logger.info(" No top level for " + mpId);
             }
 
 			// Final commit to save the rest of the docs
