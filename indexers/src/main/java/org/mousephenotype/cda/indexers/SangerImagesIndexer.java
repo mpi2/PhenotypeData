@@ -325,7 +325,7 @@ public class SangerImagesIndexer extends AbstractIndexer implements CommandLineR
 								if (annotation.ma_id != null) {
 									if (uptoDateMaMap.get(annotation.ma_id) == null) {
 										if( ! alreadyReportedMa.contains(annotation.ma_id)) {
-											logger.warn("uptodatemap result for " + annotation.ma_id + " is " + uptoDateMaMap.get(annotation.ma_id));
+											logger.info("uptodatemap result for " + annotation.ma_id + " is " + uptoDateMaMap.get(annotation.ma_id));
 											alreadyReportedMa.add(annotation.ma_id);
 										}
 									} else {
