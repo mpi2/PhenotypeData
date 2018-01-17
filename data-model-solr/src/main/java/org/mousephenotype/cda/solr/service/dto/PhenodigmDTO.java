@@ -64,6 +64,12 @@ public class PhenodigmDTO {
     public static final String ASSOCIATION_CURATED = "association_curated";
     public static final String ASSOCIATION_ORTHOLOG = "association_ortholog";
 
+    // type:ontology_ontology
+    public static final String MP_ID = "mp_id";
+    public static final String MP_TERM = "mp_term";
+    public static final String HP_ID = "hp_id";
+    public static final String HP_TERM = "hp_term";
+
     /**
      * Mappings that allow extraction of data from solr docs
      */
@@ -140,6 +146,14 @@ public class PhenodigmDTO {
     private Boolean associationOrtholog;
     @Field(IN_LOCUS)
     private Boolean inLocus;
+    @Field(MP_ID)
+    private String mpId;
+    @Field(MP_TERM)
+    private String mpTerm;
+    @Field(HP_ID)
+    private String hpId;
+    @Field(HP_TERM)
+    private String hpTerm;
 
     /*
      * Automatically generated getters and setters
@@ -417,6 +431,37 @@ public class PhenodigmDTO {
         this.inLocus = inLocus;
     }
 
+    public String getMpId() {
+        return mpId;
+    }
+
+    public void setMpId(String mpId) {
+        this.mpId = mpId;
+    }
+
+    public String getMpTerm() {
+        return mpTerm;
+    }
+
+    public void setMpTerm(String mpTerm) {
+        this.mpTerm = mpTerm;
+    }
+
+    public String getHpId() {
+        return hpId;
+    }
+
+    public void setHpId(String hpId) {
+        this.hpId = hpId;
+    }
+
+    public String getHpTerm() {
+        return hpTerm;
+    }
+
+    public void setHpTerm(String hpTerm) {
+        this.hpTerm = hpTerm;
+    }
 
     @Override
     public String toString() {
@@ -455,6 +500,10 @@ public class PhenodigmDTO {
                 ", associationCurated=" + associationCurated +
                 ", associationOrtholog=" + associationOrtholog +
                 ", inLocus=" + inLocus +
+                ", mpId='" + mpId + '\'' +
+                ", mpTerm='" + mpTerm + '\'' +
+                ", hpId='" + hpId + '\'' +
+                ", hpTerm='" + hpTerm + '\'' +
                 '}';
     }
 }
