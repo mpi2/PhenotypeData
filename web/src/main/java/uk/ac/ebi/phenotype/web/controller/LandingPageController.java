@@ -186,7 +186,7 @@ public class LandingPageController {
             		+ "<ul><li>Metabolic diseases, such as obesity and diabetes, affect people worldwide</li>"
             		+ "<li>The function of many genes in the genome is still unknown</li>"
             		+ "<li>Knockout mice allow us to understand metabolic procedures and relate them to human disease</li></ul>"
-            		+ "<br /><br /><p>Press releases: <a href=''>EMBL-EBI</a>&nbsp;|&nbsp;\n<a href=''>MRC</a>&nbsp;|&nbsp;\n<a href=''>IMPC</a>"
+            		+ "<br /><br /><p>Press releases: <a target='_blank' href='https://www.ebi.ac.uk/about/news'>EMBL-EBI</a>&nbsp;|&nbsp;\n<a target='_blank' href='https://www.mrc.ac.uk/news/browse/'>MRC</a>&nbsp;|&nbsp;\n<a target='_blank' href='http://www.mousephenotype.org/'>IMPC</a>"
             		+ "<br /><a target='_blank' href='https://www.nature.com/ncomms/'>Nature communications publication</a>"
             		+ "<br /><a>Supporting information</a></p>");
             pageTitle = "Metabolism";
