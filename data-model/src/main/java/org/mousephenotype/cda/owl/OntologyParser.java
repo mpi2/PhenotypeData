@@ -1,5 +1,6 @@
 package org.mousephenotype.cda.owl;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.model.*;
@@ -95,8 +96,9 @@ public class OntologyParser {
     /**
      * Computes paths in the format needed for TreeJs, for the ontology browsers.
      * [!] This is not computed by default. If you want the trees, call this method on the parser first.
+     * @throws JSONException 
      */
-    public void fillJsonTreePath(String rootId, String pathToPage,  Map<String, Integer>  countsMap, List<String> treeBrowserTopLevels, Boolean withPartOf){
+    public void fillJsonTreePath(String rootId, String pathToPage,  Map<String, Integer>  countsMap, List<String> treeBrowserTopLevels, Boolean withPartOf) throws JSONException{
 
         OWLClass root = classMap.get(rootId);
         // fill lists with nodes on path
