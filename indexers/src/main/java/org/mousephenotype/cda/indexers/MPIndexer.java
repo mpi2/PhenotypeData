@@ -21,6 +21,7 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
+import org.json.JSONException;
 import org.mousephenotype.cda.db.pojo.Synonym;
 import org.mousephenotype.cda.indexers.beans.MPStrainBean;
 import org.mousephenotype.cda.indexers.beans.ParamProcedurePipelineBean;
@@ -203,7 +204,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
 
 		        if (mpTerm==null) {
 		            String message = "MP term not found using mpHpParser.getOntologyTerm(termId); where termId = " + termId;
-		            runStatus.addWarning(message);
+		            logger.info(message);       // Change from WARN to INFO. Long-term solution is to get hp to mp mappings from Damian's disease core.
 		        } else if ( ! mpId.equals("MP:0000001")) { // do not include all narrow synonyms for root term
 
 
@@ -263,7 +264,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
             // Send a final commit
             mpCore.commit();
 
-        } catch (SolrServerException | IOException | OWLOntologyCreationException | OWLOntologyStorageException | SQLException | URISyntaxException e) {
+        } catch (SolrServerException | IOException | OWLOntologyCreationException | OWLOntologyStorageException | SQLException | URISyntaxException | JSONException e) {
             e.printStackTrace();
             throw new IndexerException(e);
         }

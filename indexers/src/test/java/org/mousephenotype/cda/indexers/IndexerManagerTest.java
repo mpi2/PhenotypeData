@@ -635,7 +635,7 @@ public class IndexerManagerTest {
      public void testInstanceFirstDailyCoreNodeps() {
         String testName = "testInstanceFirstDailyCoreNodeps";
         System.out.println("-------------------" + testName + "-------------------");
-        String[] args = new String[] { "--cores=preqc", "--nodeps" };
+        String[] args = new String[] { "--cores=allele2", "--nodeps" };
         System.out.println("Command line = " + StringUtils.join(args, ","));
         IndexerManager indexerManager = new IndexerManager();
 
@@ -647,7 +647,7 @@ public class IndexerManagerTest {
         }
 
         String[] actualCores = indexerManager.getCores().toArray(new String[0]);
-        String[] expectedCores = new String[] { IndexerManager.PREQC_CORE };
+        String[] expectedCores = new String[] { IndexerManager.ALLELE2_CORE };
         assertArrayEquals(expectedCores, actualCores);
      }
 
@@ -715,7 +715,7 @@ public class IndexerManagerTest {
      public void testInstanceMultipleCores() {
         String testName = "testInstanceMultipleCores";
         System.out.println("-------------------" + testName + "-------------------");
-        String[] args = new String[] { "--cores=pipeline,allele,impc_images,anatomy,disease,mp" };
+        String[] args = new String[] { "--cores=pipeline,allele,impc_images,anatomy,mp" };
         System.out.println("Command line = " + StringUtils.join(args, ","));
         IndexerManager indexerManager = new IndexerManager();
 
@@ -732,7 +732,6 @@ public class IndexerManagerTest {
         , IndexerManager.ALLELE_CORE
         , IndexerManager.IMPC_IMAGES_CORE
         , IndexerManager.ANATOMY_CORE
-        //, IndexerManager.DISEASE_CORE
         , IndexerManager.MP_CORE
         };
         assertArrayEquals(expectedCores, actualCores);
@@ -749,7 +748,7 @@ public class IndexerManagerTest {
      public void testInstanceMultipleCoresNodeps() {
         String testName = "testInstanceMultipleCoresNodeps";
         System.out.println("-------------------" + testName + "-------------------");
-        String[] args = new String[] { "--cores=pipeline,preqc,allele,impc_images,anatomy,disease,mp", "--nodeps" };
+        String[] args = new String[] { "--cores=pipeline,allele,impc_images,anatomy,mp", "--nodeps" };
         System.out.println("Command line = " + StringUtils.join(args, ","));
         IndexerManager indexerManager = new IndexerManager();
 
@@ -763,11 +762,9 @@ public class IndexerManagerTest {
         String[] actualCores = indexerManager.getCores().toArray(new String[0]);
         String[] expectedCores = new String[] {
           IndexerManager.PIPELINE_CORE
-        , IndexerManager.PREQC_CORE
         , IndexerManager.ALLELE_CORE
         , IndexerManager.IMPC_IMAGES_CORE
         , IndexerManager.ANATOMY_CORE
-        //, IndexerManager.DISEASE_CORE
         , IndexerManager.MP_CORE
         };
         assertArrayEquals(expectedCores, actualCores);
@@ -944,6 +941,7 @@ public class IndexerManagerTest {
       * Expected results: All of the specified cores built.
      * @throws SQLException
       */
+     // 11-Jan-2018 (mrelac) This test passes but takes a couple of minutes to run, so it is @Ignored for now.
 	@Ignore
      @Test
      public void testInstanceBuildMultipleCoresNodeps() throws SQLException, IOException, SolrServerException, URISyntaxException {
