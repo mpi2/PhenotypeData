@@ -24,6 +24,7 @@ import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.mousephenotype.cda.solr.service.dto.AlleleDTO;
 import org.mousephenotype.cda.solr.service.dto.MpDTO;
+import org.mousephenotype.cda.solr.service.dto.PhenodigmDTO;
 import org.mousephenotype.cda.solr.service.dto.SangerImageDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -281,6 +282,44 @@ public class SolrUtils {
 
         return alleles;
     }
+
+    /**
+     * Fetch a map of MP to HP mapping
+     *
+     * @param phenodigmCore a valid solr connection
+     * @return a map, indexed by MGI Accession id, of all alleles
+     *
+     * @throws SolrServerException, IOException
+     */
+    public static Map<String, List<PhenodigmDTO>> populateMpHpMap(SolrClient phenodigmCore) throws SolrServerException, IOException {
+
+        Map<String, List<PhenodigmDTO>> mp2hps = new HashMap<>();
+
+        int pos = 0;
+        long total = Integer.MAX_VALUE;
+        SolrQuery query = new SolrQuery("*:*");
+        query.setParam("fq", "type:ontology_ontology");
+        query.setRows(BATCH_SIZE);
+        while (pos < total) {
+            query.setStart(pos);
+            QueryResponse response = null;
+            response = phenodigmCore.query(query);
+            total = response.getResults().getNumFound();
+            List<PhenodigmDTO> phenodigmDocs = response.getBeans(PhenodigmDTO.class);
+            for (PhenodigmDTO phenodigmDoc : phenodigmDocs) {
+                String key = phenodigmDoc.getMpId();
+                if ( ! mp2hps.containsKey(key)) {
+                    mp2hps.put(key, new ArrayList<>());
+                }
+                mp2hps.get(key).add(phenodigmDoc);
+            }
+            pos += BATCH_SIZE;
+        }
+        logger.debug("  Loaded {} MPs that having HP mappings", mp2hps.size());
+
+        return mp2hps;
+    }
+
 
     /**
      * Fetch a map of mp terms associated to hp terms, indexed by mp id.
