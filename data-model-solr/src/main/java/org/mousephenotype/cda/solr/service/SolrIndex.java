@@ -247,19 +247,22 @@ public class SolrIndex {
 
 		String[] idList = StringUtils.split(idlist, ",");
 		String querystr = null;
-		
+
+		// search keyword by mouse symbol: check 2 fields in gene core (marker_symbol_lowercase, marker_synonym_lowercase)
 		if (dataTypeName.equals("mouse_marker_symbol")){
 			querystr = "marker_symbol_lowercase:(" + StringUtils.join(idList, " OR ") + ")"
 					+ " OR marker_synonym_lowercase:(" + StringUtils.join(idList, " OR ") + ")";
 		}
+		// search keyword by human symbol: check 2 fields in gene core (human_gene_symbol_lowercase, human_symbol_synonym_lowercase)
 		else if (dataTypeName.equals("human_marker_symbol")){
-			querystr = "human_gene_symbol:(" + StringUtils.join(idList, " OR ") + ")";
+			querystr = "human_gene_symbol_lowercase:(" + StringUtils.join(idList, " OR ") + ")"
+					+ " OR human_symbol_synonym_lowercase:(" + StringUtils.join(idList, " OR ") + ")";
 		}
 		else {
 			querystr = qField + ":(" + StringUtils.join(idList, " OR ") + ")";
 		}
 
-		//System.out.println("Query: " + querystr);
+		//System.out.println("BatchQuery: " + querystr);
 		SolrQuery query = new SolrQuery();
 		query.setQuery(querystr);
 
@@ -284,7 +287,7 @@ public class SolrIndex {
 		System.out.println("BATCHQUERY " + dataTypeName + " : " + query);
 
 		QueryResponse response2 = server.query(query, METHOD.POST);
-//		System.out.println("response: "+ response2);
+		//System.out.println("response: "+ response2);
 
 		return response2;
 	}

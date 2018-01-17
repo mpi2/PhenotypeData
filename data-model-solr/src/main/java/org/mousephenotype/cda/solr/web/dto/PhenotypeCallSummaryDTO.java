@@ -54,21 +54,6 @@ public class PhenotypeCallSummaryDTO {
 		this.gId = gId;
 	}
 
-	/**
-	 * @return the isPreQC
-	 */
-	public boolean isPreQC() {
-
-		return isPreQC;
-	}
-
-	/**
-	 * @param isPreQC the isPreQC to set
-	 */
-	public void setPreQC(boolean isPreQC) {
-
-		this.isPreQC = isPreQC;
-	}
 
 	public PhenotypeCallSummaryDTO() {
 

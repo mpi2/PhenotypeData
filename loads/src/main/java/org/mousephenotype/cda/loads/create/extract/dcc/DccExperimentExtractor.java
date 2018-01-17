@@ -177,10 +177,10 @@ public class DccExperimentExtractor implements CommandLineRunner {
             return;
         }
 
-        logger.debug("There are {} center procedure sets in experiment file {}", centerProcedures.size(), filename);
+        logger.info("There are {} center procedure sets in experiment file {}", centerProcedures.size(), filename);
 
         for (CentreProcedure centerProcedure : centerProcedures) {
-            logger.debug("Parsing experiments for center {}", centerProcedure.getCentreID().value());
+            logger.info("Parsing experiments for center {}", centerProcedure.getCentreID().value());
 
             // Load experiment info.
             for (Experiment experiment : centerProcedure.getExperiment()) {
@@ -234,14 +234,15 @@ public class DccExperimentExtractor implements CommandLineRunner {
         if (totalExperimentsFailed > 0) {
             logger.warn("Inserted {} experiments ({} failed).", totalExperiments, totalExperimentsFailed);
         } else {
-            logger.debug("Inserted {} experiments ({} failed).", totalExperiments, totalExperimentsFailed);
+            logger.info("Inserted {} experiments from file {}.", totalExperiments, filename);
         }
 
         if (totalLinesFailed > 0) {
             logger.warn("Inserted {} lines ({} failed).", totalLines, totalLinesFailed);
         } else {
-            logger.debug("Inserted {} lines ({} failed).", totalLines, totalLinesFailed);
+            logger.info("Inserted {} line level experiments from file {}.", totalLines, filename);
         }
+
     }
 
     @Transactional

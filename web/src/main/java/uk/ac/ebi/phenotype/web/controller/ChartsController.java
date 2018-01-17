@@ -33,6 +33,7 @@ import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
 import org.mousephenotype.cda.solr.service.exception.SpecificExperimentException;
 import org.mousephenotype.cda.solr.web.dto.ViabilityDTO;
 import org.mousephenotype.cda.web.ChartType;
+import org.mousephenotype.cda.web.TimeSeriesConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -195,7 +196,10 @@ public class ChartsController {
                         @RequestParam(required = false, value = "chart_only", defaultValue = "false") boolean chartOnly,
                         @RequestParam(required = false, value = "standAlone") boolean standAlone, Model model)
             throws GenomicFeatureNotFoundException, ParameterNotFoundException, IOException, URISyntaxException, SolrServerException, SpecificExperimentException {
-
+    	if(parameterStableId!=null && !parameterStableId.equals("")){
+    		boolean isDerivedBodyWeight=TimeSeriesConstants.DERIVED_BODY_WEIGHT_PARAMETERS.contains(parameterStableId);
+    		model.addAttribute("isDerivedBodyWeight", isDerivedBodyWeight);
+    	}
         UnidimensionalDataSet unidimensionalChartDataSet = null;
         ChartData timeSeriesForParam = null;
         CategoricalResultAndCharts categoricalResultAndChart = null;
@@ -213,6 +217,7 @@ public class ChartsController {
         ParameterDTO parameter = is.getParameterByStableId(parameterStableId);     
         
         if (parameter == null) {
+        	System.out.println("throwing parameter not found exception");
             throw new ParameterNotFoundException("Parameter " + parameterStableId + " can't be found.", parameterStableId);
         }
 
@@ -359,6 +364,8 @@ public class ChartsController {
                             log.error("Unknown how to display graph for observation type: " + observationTypeForParam);
                             break;
                     }
+                }else{
+                	log.error("chart type is null");
                 }
 
             } catch (SQLException e) {
@@ -517,14 +524,13 @@ public class ChartsController {
      * @return model and view for error page
      */
     @ExceptionHandler(SpecificExperimentException.class)
-    public ModelAndView handleSpecificExperimentException(ParameterNotFoundException exception) {
+    public ModelAndView handleSpecificExperimentException(SpecificExperimentException exception) {
 
 	    log.error(ExceptionUtils.getFullStackTrace(exception));
 
         ModelAndView mv = new ModelAndView("Specific Experiment Not Found Error");
         mv.addObject("errorMessage", exception.getMessage());
-        mv.addObject("acc", exception.getAcc());
-        mv.addObject("type", "Parameter");
+        mv.addObject("type", "Experiment");
 
         return mv;
     }

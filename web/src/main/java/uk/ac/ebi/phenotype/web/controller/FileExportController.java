@@ -50,13 +50,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import uk.ac.ebi.phenodigm.dao.PhenoDigmWebDao;
-import uk.ac.ebi.phenodigm.model.GeneIdentifier;
-import uk.ac.ebi.phenodigm.web.AssociationSummary;
-import uk.ac.ebi.phenodigm.web.DiseaseAssociationSummary;
-import uk.ac.ebi.phenotype.service.AdvancedSearchDiseaseForm;
-import uk.ac.ebi.phenotype.service.AdvancedSearchGeneForm;
-import uk.ac.ebi.phenotype.service.AdvancedSearchPhenotypeForm;
+import uk.ac.ebi.phenotype.service.*;
 import uk.ac.ebi.phenotype.service.AdvancedSearchService;
 import uk.ac.ebi.phenotype.service.search.SearchUrlService;
 import uk.ac.ebi.phenotype.service.search.SearchUrlServiceFactory;
@@ -77,6 +71,7 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+
 
 @Controller
 public class FileExportController {
@@ -121,12 +116,7 @@ public class FileExportController {
 	private ReferenceDAO referenceDAO;
 
 	@Autowired
-	private GwasDAO gwasDao;
-
-	@Autowired
-	private PhenoDigmWebDao phenoDigmDao;
-
-	private final double rawScoreCutoff = 1.97;
+	private GwasDAO gwasDao;	
 
 	@Autowired
 	private SearchController searchController;
@@ -1679,14 +1669,15 @@ public class FileExportController {
 			@RequestParam(value = "gridFields", required = true) String gridFields,
 
 			HttpSession session, HttpServletRequest request, HttpServletResponse response, Model model) throws Exception {
-		List<String> queryIds = Arrays.asList(idlist.split(","));
+
+		List<String> queryIds = new ArrayList<String>(Arrays.asList(idlist.split(",")));
 		List<QueryResponse> solrResponses = new ArrayList<>();
 		List<String> batchIdList = new ArrayList<>();
 		String batchIdListStr = null;
 
 
-		System.out.println("bq Export dataTypeName: " + dataTypeName);
-		System.out.println("idlist: " + idlist);
+		//System.out.println("bq Export dataTypeName: " + dataTypeName);
+		//System.out.println("idlist: " + idlist);
 
 
 		if ( dataTypeName.equals("geneChr")){
@@ -1710,12 +1701,6 @@ public class FileExportController {
 		}
 		else if ( dataTypeName.equals("geneId")){
 			dataTypeName = "gene";
-			queryIds = Arrays.asList(idlist.split(","));
-		}
-		else if (dataTypeName.equals("mpTerm")) {
-
-		}
-		else {
 			queryIds = Arrays.asList(idlist.split(","));
 		}
 
@@ -1757,358 +1742,18 @@ public class FileExportController {
 	private List<String> composeBatchQueryDataTableRows(List<QueryResponse> solrResponses, String dataTypeName,
 														String gridFields, HttpServletRequest request, List<String> queryIds) throws UnsupportedEncodingException {
 
-		Set<String> foundIds = new HashSet<>();
-
-//		System.out.println("datatype: "+dataTypeName);
-//		System.out.println("Number of responses: " + solrResponses.size());
-
 		SolrDocumentList results = new SolrDocumentList();
 
 		for (QueryResponse solrResponse : solrResponses) {
 			results.addAll(solrResponse.getResults());
 		}
 
-		String oriDataTypeName = dataTypeName;
+		String mode = "export";
+		BatchQueryForm form = new BatchQueryForm(mode, request, results, gridFields, dataTypeName, queryIds);
+		//System.out.println(form.rows);
 
-		if ( dataTypeName.contains("marker_symbol")){
-			dataTypeName = "marker_symbol";
-		}
+		return form.rows;
 
-		String hostName = request.getAttribute("mappedHostname").toString().replace("https:", "http:");
-		String baseUrl = request.getAttribute("baseUrl").toString();
-		String NA = "Info not available";
-
-		Map<String, String> dataTypeId = new HashMap<>();
-		dataTypeId.put("gene", GeneDTO.MGI_ACCESSION_ID);
-		dataTypeId.put("marker_symbol", GeneDTO.MGI_ACCESSION_ID);
-		dataTypeId.put("ensembl", GeneDTO.MGI_ACCESSION_ID);
-
-		dataTypeId.put("mp", MpDTO.MP_ID);
-		dataTypeId.put("anatomy", "anatomy_id");
-		dataTypeId.put("hp", "hp_id");
-		dataTypeId.put("disease", "disease_id");
-
-		Map<String, String> dataTypePath = new HashMap<>();
-		dataTypePath.put("gene", "genes");
-		dataTypePath.put("marker_symbol", "genes");
-		dataTypePath.put("ensembl", "genes");
-		dataTypePath.put("mp", "phenotypes");
-		dataTypePath.put("anatomy", "anatomy");
-		dataTypePath.put("hp", "");
-		dataTypePath.put("disease", "disease");
-
-		// for sorting by user query list
-		Map<String, Integer> sortCol = new HashMap<>();
-		sortCol.put("gene", 0);
-		sortCol.put("mouse_marker_symbol", 1);
-		sortCol.put("human_marker_symbol", 2);
-		sortCol.put("ensembl", 1);
-		sortCol.put("hp", 0);
-		sortCol.put("mp", 0);
-		sortCol.put("anatomy", 0);
-		sortCol.put("disease", 0);
-
-		// column names
-		// String idLinkColName = dataTypeId.get(dataType) + "_link";
-		String idLinkColName = "id_link";
-		gridFields = idLinkColName + "," + gridFields; // xx_id_link column only
-		// for export, not
-		// dataTable
-
-		String[] cols = StringUtils.split(gridFields, ",");
-
-		// List<String> foundIds = new ArrayList<>();
-
-		// swap cols
-		cols[0] = dataTypeId.get(dataTypeName);
-		cols[1] = idLinkColName;
-
-		List<String> colList = new ArrayList<>();
-		for (int i = 0; i < cols.length; i++) {
-			colList.add(cols[i]);
-		}
-
-		Map<String,List<String>> idRow = new HashMap<>();
-
-		List<String> rowData = new ArrayList<>();
-		rowData.add(StringUtils.join(colList, "\t"));
-
-		for (int i = 0; i < results.size(); i++) {
-			SolrDocument doc = results.get(i);
-
-			Map<String, Collection<Object>> docMap = doc.getFieldValuesMap(); // Note
-			// getFieldValueMap()
-			// returns
-			// only
-			// String
-			// System.out.println("DOCMAP: "+docMap.toString());
-
-			List<String> orthologousDiseaseIdAssociations = new ArrayList<>();
-			List<String> orthologousDiseaseTermAssociations = new ArrayList<>();
-			List<String> phenotypicDiseaseIdAssociations = new ArrayList<>();
-			List<String> phenotypicDiseaseTermAssociations = new ArrayList<>();
-
-			if (docMap.get("mgi_accession_id") != null
-					&& !(oriDataTypeName.equals("anatomy") || oriDataTypeName.equals("disease"))) {
-				Collection<Object> mgiGeneAccs = docMap.get("mgi_accession_id");
-
-				for (Object acc : mgiGeneAccs) {
-					String mgi_gene_id = (String) acc;
-					// System.out.println("mgi_gene_id: "+ mgi_gene_id);
-					GeneIdentifier geneIdentifier = new GeneIdentifier(mgi_gene_id, mgi_gene_id);
-					List<DiseaseAssociationSummary> diseaseAssociationSummarys = new ArrayList<>();
-					try {
-						diseaseAssociationSummarys = phenoDigmDao.getGeneToDiseaseAssociationSummaries(geneIdentifier,
-								rawScoreCutoff);
-					} catch (RuntimeException e) {
-						log.error(ExceptionUtils.getFullStackTrace(e));
-					}
-
-					for (DiseaseAssociationSummary diseaseAssociationSummary : diseaseAssociationSummarys) {
-						AssociationSummary associationSummary = diseaseAssociationSummary.getAssociationSummary();
-						if (associationSummary.isAssociatedInHuman()) {
-							orthologousDiseaseIdAssociations
-									.add(diseaseAssociationSummary.getDiseaseIdentifier().toString());
-							orthologousDiseaseTermAssociations.add(diseaseAssociationSummary.getDiseaseTerm());
-						} else {
-							phenotypicDiseaseIdAssociations
-									.add(diseaseAssociationSummary.getDiseaseIdentifier().toString());
-							phenotypicDiseaseTermAssociations.add(diseaseAssociationSummary.getDiseaseTerm());
-						}
-					}
-				}
-			}
-
-			List<String> data = new ArrayList<>();
-			// for (String fieldName : doc.getFieldNames()) {
-
-			for (int k = 0; k < cols.length; k++) {
-				String fieldName = cols[k];
-				//System.out.println("FileExportController: "+ fieldName + " - value: " + docMap.get(fieldName));
-
-				if (fieldName.equals("id_link")) {
-
-					Collection<Object> accs = docMap.get(dataTypeId.get(dataTypeName));
-					String accStr = null;
-					for (Object acc : accs) {
-						accStr = (String) acc;
-					}
-					//System.out.println("idlink id: " + accStr);
-
-					if (!oriDataTypeName.equals("ensembl") && !dataTypeName.equals("marker_symbol")) {
-						foundIds.add("\"" + accStr + "\"");
-					}
-
-					String link = null;
-					if (dataTypePath.get(dataTypeName).isEmpty()) {
-						link = "";
-					} else {
-						link = "http:" + hostName + baseUrl + "/" + dataTypePath.get(dataTypeName) + "/" + accStr;
-					}
-//					 System.out.println("idlink: " + link);
-					data.add(link);
-				} else if (fieldName.equals("images_link")) {
-
-					String impcImgBaseUrl = baseUrl + "/impcImages/images?";
-
-					String qryField = null;
-					String imgQryField = null;
-					if (dataTypeName.equals("gene")) {
-						qryField = "mgi_accession_id";
-						imgQryField = "gene_accession_id";
-					} else if (dataTypeName.equals("anatomy")) {
-						qryField = AnatomyDTO.ANATOMY_ID;
-						imgQryField = "id";
-					}
-
-					Collection<Object> accs = docMap.get(qryField);
-					String accStr = null;
-					for (Object acc : accs) {
-						accStr = imgQryField + ":\"" + (String) acc + "\"";
-					}
-
-					String imgLink = "<a target='_blank' href='" + hostName + impcImgBaseUrl + "q=" + accStr
-							+ " AND observation_type:image_record&fq=biological_sample_group:experimental"
-							+ "'>image url</a>";
-
-					data.add(imgLink);
-				} else if (docMap.get(fieldName) == null) {
-					//System.out.println("fieldname: "+ fieldName);
-
-					String vals = NA;
-
-					if (docMap.containsKey("latest_phenotype_status")
-							&& docMap.get("latest_phenotype_status").contains("Phenotyping Complete")
-							&& fieldName.startsWith("mp_") ){
-						vals = "no abnormal phenotype detected";
-					}
-
-					if (fieldName.equals("disease_id_by_gene_orthology")) {
-						vals = orthologousDiseaseIdAssociations.size() == 0 ? NA
-								: StringUtils.join(orthologousDiseaseIdAssociations, ", ");
-					} else if (fieldName.equals("disease_term_by_gene_orthology")) {
-						vals = orthologousDiseaseTermAssociations.size() == 0 ? NA
-								: StringUtils.join(orthologousDiseaseTermAssociations, ", ");
-					} else if (fieldName.equals("disease_id_by_phenotypic_similarity")) {
-						vals = phenotypicDiseaseIdAssociations.size() == 0 ? NA
-								: StringUtils.join(phenotypicDiseaseIdAssociations, ", ");
-					} else if (fieldName.equals("disease_term_by_phenotypic_similarity")) {
-						vals = phenotypicDiseaseTermAssociations.size() == 0 ? NA
-								: StringUtils.join(phenotypicDiseaseTermAssociations, ", ");
-					}
-
-					data.add(vals);
-
-				} else {
-					try {
-						String value = null;
-						// System.out.println("TEST CLASS: "+
-						// docMap.get(fieldName).getClass());
-						try {
-							Collection<Object> vals = docMap.get(fieldName);
-							Set<Object> valSet = new HashSet<>(vals);
-
-							if (oriDataTypeName.equals("ensembl") && fieldName.equals("ensembl_gene_id")) {
-								for (Object val : valSet) {
-									if (val.toString().startsWith("ENSMUSG")) {
-										foundIds.add("\"" + val + "\"");
-									}
-								}
-							}
-							if (oriDataTypeName.equals("mouse_marker_symbol") && fieldName.equals("marker_symbol")) {
-								for (Object val : valSet) {
-									String lstr = "\"" +val.toString().toLowerCase() + "\"";
-									for(String qid : queryIds) {
-										if ( qid.toLowerCase().equals(lstr)){
-											foundIds.add(qid);
-										}
-									}
-								}
-							}
-							else if (oriDataTypeName.equals("human_marker_symbol") && fieldName.equals("human_gene_symbol")) {
-								for (Object val : valSet) {
-									if ( StringUtils.containsIgnoreCase(StringUtils.join(queryIds, ","), val.toString())) {
-										foundIds.add("\"" + val.toString() + "\"");
-									}
-								}
-							}
-							else if (dataTypeName.equals("hp") && dataTypeId.get(dataTypeName).equals(fieldName)) {
-								for (Object val : valSet) {
-									foundIds.add("\"" + val + "\"");
-								}
-							}
-							value = StringUtils.join(valSet, "|");
-							/*
-							 * if ( !dataTypeName.equals("hp") &&
-							 * dataTypeId.get(dataTypeName).equals(fieldName) ){
-							 * String coreName =
-							 * dataTypeName.equals("marker_symbol") ||
-							 * dataTypeName.equals("ensembl") ? "gene" :
-							 * dataTypeName; foundIds.add("\"" + value + "\"");
-							 *
-							 * System.out.println("fieldname: " + fieldName +
-							 * " datatype: " + dataTypeName); //value =
-							 * "<a target='_blank' href='" + hostName + baseUrl
-							 * + "/" + dataTypePath.get(coreName) + "/" + value
-							 * + "'>" + value + "</a>"; } else if (
-							 * dataTypeName.equals("hp") &&
-							 * dataTypeId.get(dataTypeName).equals(fieldName) ){
-							 * foundIds.add("\"" + value + "\""); }
-							 */
-						} catch (ClassCastException c) {
-							value = docMap.get(fieldName).toString();
-						}
-						data.add(value);
-					} catch (Exception e) {
-						// e.printStackTrace();
-						if (e.getMessage().equals("java.lang.Integer cannot be cast to java.lang.String")) {
-							Collection<Object> vals = docMap.get(fieldName);
-							if (vals.size() > 0) {
-								String value = (String) vals.iterator().next();
-								data.add(value);
-							}
-						}
-					}
-				}
-			}
-
-			// figure out the field to use as a key
-			int index = sortCol.get(oriDataTypeName) > 0 ? sortCol.get(oriDataTypeName) + 1 : 0;
-			for (Object s : docMap.get(colList.get(index))) {
-				String qStr = s.toString();
-				//System.out.println("qstr: " + qStr);
-				//String qStr = docMap.get(colList.get(sortCol.get(oriDataTypeName) + 1)).toArray()[0].toString();
-				qStr = oriDataTypeName.equals("mouse_marker_symbol") ? qStr.toLowerCase() : qStr;
-				//System.out.println(oriDataTypeName + " - SEARCH: " + qStr);
-				//System.out.println(data);
-				if ( !idRow.containsKey("\"" + qStr + "\"")) {
-					idRow.put("\"" + qStr + "\"", data);
-				}
-				else {
-					idRow.get("\"" + qStr + "\"").addAll(data);
-				}
-			}
-
-		}
-
-		// find the ids that are not found and displays them to users
-//		System.out.println("query ids: " + queryIds);
-//		System.out.println("found ids: " + foundIds);
-		List<String> nonFoundIds = (java.util.ArrayList) CollectionUtils.disjunction(queryIds, new ArrayList(foundIds));
-//		System.out.println("non found ids: " + nonFoundIds);
-
-		int fieldIndex = 0;
-		if ( nonFoundIds.size() > 0){
-			String fname = oriDataTypeName.equals("human_marker_symbol") ? "human_gene_symbol" : dataTypeName;
-			int fc = 0;
-			for(String colstr : colList){
-				if (fname.equals(colstr)){
-					fieldIndex = fc;
-					break;
-				}
-				fc++;
-			}
-		}
-
-		// query goes to the right column
-		for (int i = 0; i < nonFoundIds.size(); i++) {
-			List<String> data = new ArrayList<String>();
-			String thisVal = oriDataTypeName.equals("mouse_marker_symbol") ? nonFoundIds.get(i).toString().toLowerCase() : nonFoundIds.get(i).toString();
-			String displayVal = nonFoundIds.get(i).toString().replaceAll("\"", "");
-			for (int l = 0; l < colList.size(); l++) {
-				if (oriDataTypeName.equals("mouse_marker_symbol")){
-					if ( StringUtils.containsIgnoreCase(StringUtils.join(queryIds,","), thisVal)) {
-						data.add(l == fieldIndex ? displayVal : NA);
-					}
-				}
-				else {
-					if (queryIds.contains(thisVal)) {
-						data.add(l == fieldIndex ? displayVal : NA);
-					}
-				}
-			}
-			if (data.size() != 0) {
-				//rowData.add(StringUtils.join(data, "\t"));
-				idRow.put(thisVal, data);
-			}
-		}
-		for(String q : queryIds){
-			if ( oriDataTypeName.equals("mouse_marker_symbol")){
-				List<String> data = idRow.get(q.toLowerCase());
-				for ( int i=0; i<data.size()/colList.size(); i++ ) {
-					rowData.add(StringUtils.join(data.subList(i * colList.size(), i * colList.size() + colList.size()), "\t"));
-				}
-			}
-			else {
-				List<String> data = idRow.get(q);
-				for ( int i=0; i<data.size()/colList.size(); i++ ) {
-					//System.out.println("data: " + data.subList(i*colList.size(), i*colList.size() + colList.size()));
-					rowData.add(StringUtils.join(data.subList(i*colList.size(), i*colList.size() + colList.size()), "\t"));
-				}
-			}
-		}
-
-		return rowData;
 	}
 
 }

@@ -1,6 +1,7 @@
 package org.mousephenotype.cda.owl;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,7 +21,7 @@ public class TreeJsHelper {
 
         public TreeJsHelper(){	}
 
-        public static String getScrollTo(List<JSONObject> tree){
+        public static String getScrollTo(List<JSONObject> tree) throws JSONException{
 
             for (JSONObject topLevel: tree){
                 if (topLevel.has("state") && topLevel.getJSONObject("state").has("opened") && topLevel.getJSONObject("state").getBoolean("opened") == true){
@@ -30,14 +31,14 @@ public class TreeJsHelper {
             return "";
         }
 
-        private static JSONObject getState(boolean opened){
+        private static JSONObject getState(boolean opened) throws JSONException{
             JSONObject state = new JSONObject();
             state.accumulate("opened", opened);
             return state;
         }
 
 
-        public static List<JSONObject> getChildrenJson(OntologyTermDTO term, String baseUrl, OntologyParser parser, Map<String, Integer> mpGeneVariantCount){
+        public static List<JSONObject> getChildrenJson(OntologyTermDTO term, String baseUrl, OntologyParser parser, Map<String, Integer> mpGeneVariantCount) throws JSONException{
 
             List<JSONObject> children = new ArrayList<>();
 
@@ -56,7 +57,7 @@ public class TreeJsHelper {
         }
 
 
-        public static List<JSONObject> createTreeJson(OntologyTermDTO term, String baseUrl, OntologyParser parser, Map<String, Integer> mpGeneVariantCount, List<String> treeBrowserTopLevels){
+        public static List<JSONObject> createTreeJson(OntologyTermDTO term, String baseUrl, OntologyParser parser, Map<String, Integer> mpGeneVariantCount, List<String> treeBrowserTopLevels) throws JSONException{
 
             Map<Integer, JSONObject> nodes = new HashMap<>();
             if (term.getPathsToRoot() != null) {
@@ -75,8 +76,9 @@ public class TreeJsHelper {
         /**
          * Add all top levels to tree, regardless if the term one searched for is in it or not. That's how we display it at the moment.
          * @param tree
+         * @throws JSONException 
          */
-        private static List<JSONObject> addTopLevels(JSONObject tree, String baseUrl, OntologyParser parser, Map<Integer, JSONObject> nodes,  Map<String, Integer> mpGeneVariantCount, List<String> treeBrowserTopLevels){
+        private static List<JSONObject> addTopLevels(JSONObject tree, String baseUrl, OntologyParser parser, Map<Integer, JSONObject> nodes,  Map<String, Integer> mpGeneVariantCount, List<String> treeBrowserTopLevels) throws JSONException{
 
             List<OntologyTermDTO> topLevels = new ArrayList<>();
             for (String id: treeBrowserTopLevels){
@@ -107,8 +109,9 @@ public class TreeJsHelper {
          *
          * @param baseUrl /data/phenotypes/ for mp links
          * @return
+         * @throws JSONException 
          */
-        private static JSONObject getJson( List<Integer> path,  String baseUrl, OntologyParser parser, String searchTermId, Map<Integer, JSONObject> nodes, Map<String, Integer> mpGeneVariantCount){
+        private static JSONObject getJson( List<Integer> path,  String baseUrl, OntologyParser parser, String searchTermId, Map<Integer, JSONObject> nodes, Map<String, Integer> mpGeneVariantCount) throws JSONException{
 
             List<Integer> remainingPath = new ArrayList<>(path); // don't modify original
             // remove the part of the path that was already added to the JSON object
@@ -137,7 +140,7 @@ public class TreeJsHelper {
         }
 
 
-        private static JSONObject getJsonObjectWithBasicInfo(OntologyTermDTO term, String searchTermId, String baseUrl, Integer id, Map<Integer, JSONObject> nodes, Map<String, Integer> mpGeneVariantCount){
+        private static JSONObject getJsonObjectWithBasicInfo(OntologyTermDTO term, String searchTermId, String baseUrl, Integer id, Map<Integer, JSONObject> nodes, Map<String, Integer> mpGeneVariantCount) throws JSONException{
 
             JSONObject current;
             if (nodes.containsKey(id)){

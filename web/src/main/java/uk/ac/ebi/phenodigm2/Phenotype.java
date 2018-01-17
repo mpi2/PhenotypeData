@@ -23,7 +23,7 @@ import java.util.Arrays;
  * Only holds an id and description.
  *
  */
-public class Phenotype {
+public class Phenotype implements Comparable<Phenotype> {
 
     private final String id;
     private final String term;
@@ -68,6 +68,11 @@ public class Phenotype {
     @Override
     public String toString() {
         return id + " " + term;
-    }
+    }          
 
+    @Override
+    public int compareTo(Phenotype o) {
+        return term.compareTo(o.term);
+    }
+    
 }

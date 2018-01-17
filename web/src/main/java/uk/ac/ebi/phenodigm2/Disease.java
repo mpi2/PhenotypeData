@@ -16,6 +16,7 @@
 package uk.ac.ebi.phenodigm2;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -23,11 +24,11 @@ import java.util.List;
  * disease.
  *
  */
-public class Disease extends AssociationType implements Comparable<Disease>, IdUrl {
+public class Disease implements Comparable<Disease>, IdUrl {
 
     private String id;
     private String term;
-    private List<String> alts;    
+    private List<String> alts;
     private List<String> classes;
     private List<Phenotype> phenotypes;
 
@@ -35,7 +36,7 @@ public class Disease extends AssociationType implements Comparable<Disease>, IdU
     private static String baseUrlOmim = "http://omim.org/entry/";
     private static String baseUrlOrphanet = "http://www.orpha.net/consor/cgi-bin/OC_Exp.php?lng=en&Expert=";
     private static String baseUrlDecipher = "https://decipher.sanger.ac.uk/syndrome/";
-   
+
     public Disease() {
     }
 
@@ -80,14 +81,20 @@ public class Disease extends AssociationType implements Comparable<Disease>, IdU
 
     public void setAlts(List<String> alts) {
         this.alts = alts;
+        if (alts != null) {
+            Collections.sort(this.alts);
+        }
     }
-   
+
     public List<String> getClasses() {
         return classes;
     }
 
     public void setClasses(List<String> classes) {
         this.classes = classes;
+        if (classes != null) {
+            Collections.sort(this.classes);
+        }
     }
 
     public List<Phenotype> getPhenotypes() {
@@ -96,6 +103,9 @@ public class Disease extends AssociationType implements Comparable<Disease>, IdU
 
     public void setPhenotypes(List<Phenotype> phenotypes) {
         this.phenotypes = phenotypes;
+        if (phenotypes != null) {
+            Collections.sort(this.phenotypes);
+        }
     }
 
     /**
@@ -104,13 +114,14 @@ public class Disease extends AssociationType implements Comparable<Disease>, IdU
      * @param phenotypes
      */
     public void parsePhenotypes(List<String> phenotypes) {
-        this.phenotypes = new ArrayList<>();        
-        if (phenotypes==null) {            
+        this.phenotypes = new ArrayList<>();
+        if (phenotypes == null) {
             return;
-        }        
+        }
         for (String phenotype : phenotypes) {
             this.phenotypes.add(new Phenotype(phenotype));
-        }        
+        }
+        Collections.sort(this.phenotypes);
     }
 
     @Override

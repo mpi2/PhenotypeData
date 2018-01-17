@@ -2,6 +2,7 @@ package org.mousephenotype.cda.solr.service;
 
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.common.SolrDocument;
+import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
@@ -57,13 +58,14 @@ public class HistopathService {
 					HistopathPageTableRow row = new HistopathPageTableRow();// a row is a unique sampleId and anatomy and sequence id combination
 					row.setAnatomyName(this.getAnatomyStringFromObservation(observations.get(0)));//anatomy should be the same from any in this dataset
 					row.setSampleId(sampleIds.get(observations.get(0).getExternalSampleId()));
-					//row.setSampleId(observations.get(0).getExternalSampleId());
+					row.setSex(SexType.valueOf(observations.get(0).getSex()));
 					
 					
 //					System.out.println("number of observations with key="+observations.size());
 				for (ObservationDTO obs : observations) {
-				
-						row.setZygosity(obs.getZygosity());
+					
+						String zyg=ZygosityType.valueOf(obs.getZygosity()).getShortName();
+						row.setZygosity(zyg);
 						if(obs.getAgeInWeeks()!=null){
 							row.setAgeInWeeks(obs.getAgeInWeeks());
 						}

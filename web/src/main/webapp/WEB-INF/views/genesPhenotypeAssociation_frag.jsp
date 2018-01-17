@@ -177,8 +177,8 @@
 <div id="phenotypes"></div> <!-- Empty anchor for links, used for disease paper. Don't remove.  -->
 
 
-<c:if
-        test='${hasPreQcThatMeetsCutOff || rowsForPhenotypeTable.size() > 0}'>
+<%--<c:if test='${hasPreQcThatMeetsCutOff || rowsForPhenotypeTable.size() > 0}'>--%>
+<c:if test='${rowsForPhenotypeTable.size() > 0}'>
   <!-- Associations table -->
   <div id="phenotypeTableDiv" class="inner-division">
   <h5>Significant Phenotypes</h5>

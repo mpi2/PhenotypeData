@@ -39,23 +39,23 @@ public class OntologyTermDTO {
 
     public OntologyTermDTO(){
 
-        synonyms = new HashSet<>();
-        narrowSynonyms = new HashSet<>();
-        equivalentClasses = new HashSet<>();
-        childIds = new HashSet<>();
-        childNames = new HashSet<>();
-        parentIds = new HashSet<>();
-        parentNames = new HashSet<>();
-        alternateIds = new HashSet<>();
-        considerIds = new HashSet<>();
-        broadSynonyms = new HashSet<>();
-        intermediateIds = new HashSet<>();
-        intermediateNames = new HashSet<>();
-        intermediateSynonyms = new HashSet<>();
-        topLevelNames = new HashSet<>();
-        topLevelIds = new HashSet<>();
-        topLevelSynonyms = new HashSet<>();
-        topLevelTermIdsConcatenated = new HashSet<>();
+        synonyms = new LinkedHashSet<>();
+        narrowSynonyms = new LinkedHashSet<>();
+        equivalentClasses = new LinkedHashSet<>();
+        childIds = new LinkedHashSet<>();
+        childNames = new LinkedHashSet<>();
+        parentIds = new LinkedHashSet<>();
+        parentNames = new LinkedHashSet<>();
+        alternateIds = new LinkedHashSet<>();
+        considerIds = new LinkedHashSet<>();
+        broadSynonyms = new LinkedHashSet<>();
+        intermediateIds = new LinkedHashSet<>();
+        intermediateNames = new LinkedHashSet<>();
+        intermediateSynonyms = new LinkedHashSet<>();
+        topLevelNames = new LinkedHashSet<>();
+        topLevelIds = new LinkedHashSet<>();
+        topLevelSynonyms = new LinkedHashSet<>();
+        topLevelTermIdsConcatenated = new LinkedHashSet<>();
     }
 
     public String getSeachJson() {
@@ -146,7 +146,7 @@ public class OntologyTermDTO {
     }
 
     public void addTopLevelTermIdsConcatenated(String term, String id) {
-        if (this.topLevelTermIdsConcatenated == null) { this.topLevelTermIdsConcatenated = new HashSet<>();}
+        if (this.topLevelTermIdsConcatenated == null) { this.topLevelTermIdsConcatenated = new LinkedHashSet<>();}
         this.topLevelTermIdsConcatenated.add( concatForSearch(id,term));
     }
 
@@ -160,13 +160,13 @@ public class OntologyTermDTO {
 
     public void addIntermediateIds(String intermediateId) {
         if (this.intermediateIds == null) {
-            this.intermediateIds = new HashSet<>();
+            this.intermediateIds = new LinkedHashSet<>();
         }
         this.intermediateIds.add(intermediateId);
     }
 
     public void addIntermediateSynonyms(Collection<String> intermediateSyn) {
-        if (this.intermediateSynonyms == null){ this.intermediateSynonyms = new HashSet<>();}
+        if (this.intermediateSynonyms == null){ this.intermediateSynonyms = new LinkedHashSet<>();}
         this.intermediateSynonyms.addAll(intermediateSyn);
     }
 
@@ -178,7 +178,7 @@ public class OntologyTermDTO {
         this.intermediateNames = intermediateNames;
     }
     public void addIntermediateNames(String intermediateName) {
-        if (this.intermediateNames == null){ this.intermediateNames = new HashSet<>();}
+        if (this.intermediateNames == null){ this.intermediateNames = new LinkedHashSet<>();}
         this.intermediateNames.add(intermediateName);
     }
 
@@ -195,15 +195,15 @@ public class OntologyTermDTO {
     public void setTopLevelSynonyms(Set<String> topLevelSynonyms) {  this.topLevelSynonyms = topLevelSynonyms; }
 
     public void addTopLevelId(String topLevelId){
-        if (this.topLevelIds == null) { this.topLevelIds = new HashSet<>();}
+        if (this.topLevelIds == null) { this.topLevelIds = new LinkedHashSet<>();}
         this.topLevelIds.add(topLevelId);
     }
     public void addTopLevelName(String name){
-        if (this.topLevelNames == null) { this.topLevelNames = new HashSet<>();}
+        if (this.topLevelNames == null) { this.topLevelNames = new LinkedHashSet<>();}
         this.topLevelNames.add(name);
     }
     public void addTopLevelSynonym(Collection<String> synonyms){
-        if (this.topLevelSynonyms == null) { this.topLevelSynonyms = new HashSet<>();}
+        if (this.topLevelSynonyms == null) { this.topLevelSynonyms = new LinkedHashSet<>();}
         this.topLevelSynonyms.addAll(synonyms);
     }
 
@@ -291,28 +291,28 @@ public class OntologyTermDTO {
 
     public void addParentId(String parentId) {
         if (this.parentIds == null){
-            this.parentIds = new HashSet<>();
+            this.parentIds = new LinkedHashSet<>();
         }
         this.parentIds.add(parentId);
     }
 
     public void addParentName(String parentName) {
         if (this.parentNames == null){
-            this.parentNames = new HashSet<>();
+            this.parentNames = new LinkedHashSet<>();
         }
         this.parentNames.add(parentName);
     }
 
     public void addChildName(String childName) {
         if (this.childNames == null){
-            this.childNames = new HashSet<>();
+            this.childNames = new LinkedHashSet<>();
         }
         this.childNames.add(childName);
     }
 
     public void addChildId(String childId) {
         if (this.childIds == null){
-            this.childIds = new HashSet<>();
+            this.childIds = new LinkedHashSet<>();
         }
         this.childIds.add(childId);
     }
