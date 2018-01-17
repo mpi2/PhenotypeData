@@ -71,11 +71,12 @@ public class ImageServiceTest {
 //@Ignore
     public void testGetImagePropertiesThatHaveMp() throws IOException, SolrServerException {
 
-        String testName = Thread.currentThread().getStackTrace()[1].getMethodName();
-        String acc      = "MGI:1913955";
-        int    expectedSize;
-        int    actualSize;
-        String message;
+        String  testName = Thread.currentThread().getStackTrace()[1].getMethodName();
+        String  acc      = "MGI:1913955";
+        int     expectedSize;
+        int     actualSize;
+        String  message;
+        boolean failed   = false;
 
         Map<String, Set<String>> mpToColonies = imageService.getImagePropertiesThatHaveMp(acc);
 
@@ -84,7 +85,12 @@ public class ImageServiceTest {
         message = testName + ": Expected at least " + expectedSize + " mpToColonies but found " + actualSize;
         logger.info(testName + ": mpToColonies actualSize = " + actualSize);
 
-        assertTrue(message, actualSize >= expectedSize);
+        if (actualSize < expectedSize) {
+            logger.error(message);
+            failed = true;
+        }
+
+        assertTrue(message, ! failed);
     }
 
     @Test
@@ -97,6 +103,7 @@ public class ImageServiceTest {
         String        anatomyId                  = "EMAPA:16105";
         String        parameterAsscociationValue = "ambiguous";
         QueryResponse response;
+        boolean       failed                     = false;
 
         int    expectedSize;
         int    actualSize;
@@ -109,16 +116,22 @@ public class ImageServiceTest {
         message      = testName + ": Expected at least " + expectedSize + " images but found " + actualSize;
         logger.info(testName + ": images actualSize = " + actualSize);
 
-        assertTrue(message, actualSize >= expectedSize);
+        if (actualSize < expectedSize) {
+            logger.error(message);
+            failed = true;
+        }
+
+        assertTrue(message, ! failed);
     }
 
     @Test
 //@Ignore
     public void testGetPhenotypeAssociatedImages() throws IOException, SolrServerException {
 
-        String testName = Thread.currentThread().getStackTrace()[1].getMethodName();
-        String acc      = "MGI:1891341";
-        int    rows     = 1;
+        String  testName = Thread.currentThread().getStackTrace()[1].getMethodName();
+        String  acc      = "MGI:1891341";
+        int     rows     = 1;
+        boolean failed   = false;
 
         int    expectedSize;
         int    actualSize;
@@ -131,7 +144,12 @@ public class ImageServiceTest {
         message      = testName + ": Expected at least " + expectedSize + " associated images but found " + actualSize;
         logger.info(testName + ": associated images actualSize = " + actualSize);
 
-        assertTrue(message, actualSize >= expectedSize);
+        if (actualSize < expectedSize) {
+            logger.error(message);
+            failed = true;
+        }
+
+        assertTrue(message, ! failed);
     }
 
     @Test
@@ -234,7 +252,7 @@ public class ImageServiceTest {
             failed = true;
         }
 
-        assertTrue(message, ! failed);
+        assertTrue("Test failed", ! failed);
     }
 
     @Test
@@ -286,7 +304,7 @@ public class ImageServiceTest {
             failed = true;
         }
 
-        assertTrue(message, ! failed);
+        assertTrue("Test failed", ! failed);
     }
 
     @Test
@@ -338,6 +356,6 @@ public class ImageServiceTest {
             failed = true;
         }
 
-        assertTrue(message, ! failed);
+        assertTrue("Test failed", ! failed);
     }
 }

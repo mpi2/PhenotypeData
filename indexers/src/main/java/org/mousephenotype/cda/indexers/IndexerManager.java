@@ -64,14 +64,12 @@ public class IndexerManager  {
 
     // These are built daily.
     static final String ALLELE2_CORE = "allele2";
-    static final String PREQC_CORE = "preqc";
     static final String PRODUCT_CORE = "product";
     static final String ALLELE_CORE = "allele";
     static final String IMAGES_CORE = "images";
     static final String IMPC_IMAGES_CORE = "impc_images";
     static final String MP_CORE = "mp";
     static final String GENE_CORE = "gene";
-    //static final String DISEASE_CORE = "disease";
     static final String AUTOSUGGEST_CORE = "autosuggest";
 
     // main return values.
@@ -113,14 +111,12 @@ public class IndexerManager  {
 
           // These are built daily.
         , ALLELE2_CORE
-        , PREQC_CORE
         , PRODUCT_CORE
         , ALLELE_CORE
         , IMAGES_CORE
         , IMPC_IMAGES_CORE
         , MP_CORE
         , GENE_CORE
-        //, DISEASE_CORE
         , AUTOSUGGEST_CORE
     };
     private final List<String> allCoresList = Arrays.asList(allCoresArray);
@@ -128,14 +124,12 @@ public class IndexerManager  {
     static final String[] dailyCoresArray = new String[] {
           // In dependency order. These are built daily.
           ALLELE2_CORE
-        , PREQC_CORE
         , PRODUCT_CORE
         , ALLELE_CORE
         , IMAGES_CORE
         , IMPC_IMAGES_CORE
         , MP_CORE
         , GENE_CORE
-        //, DISEASE_CORE
         , AUTOSUGGEST_CORE
     };
 
@@ -148,15 +142,12 @@ public class IndexerManager  {
 	private Class genotypePhenotypeClass = GenotypePhenotypeIndexer.class;
 	private Class statisticalResultClass = StatisticalResultsIndexer.class;
 	private Class mgiPhenotypeClass = MGIPhenotypeIndexer.class;
-	//private Class phenodigmClass = PhenodigmIndexer.class;
     private Class anatomyClass = AnatomyIndexer.class;
-	//private Class preqcClass = PreqcIndexer.class;
 	private Class alleleClass = AlleleIndexer.class;
 	private Class imagesClass = SangerImagesIndexer.class;
 	private Class impcImagesClass = ImpcImagesIndexer.class;
 	private Class mpClass = MPIndexer.class;
 	private Class geneClass = GeneIndexer.class;
-	//private Class diseaseClass = DiseaseIndexer.class;
     private Class autosuggestClass = AutosuggestIndexer.class;
     private Class allele2Class = Allele2Indexer.class;
     private Class productClass = ProductIndexer.class;
@@ -379,18 +370,15 @@ public class IndexerManager  {
 			    case GENOTYPE_PHENOTYPE_CORE:   indexerItemList.add(new IndexerItem(GENOTYPE_PHENOTYPE_CORE, genotypePhenotypeClass));    break;
 			    case STATSTICAL_RESULT_CORE:    indexerItemList.add(new IndexerItem(STATSTICAL_RESULT_CORE, statisticalResultClass));     break;
 			    case MGI_PHENOTYPE_CORE:		indexerItemList.add(new IndexerItem(MGI_PHENOTYPE_CORE, mgiPhenotypeClass));              break;
-			    //case PHENODIGM_CORE:            indexerItemList.add(new IndexerItem(PHENODIGM_CORE, phenodigmClass));                     break;
                 case ANATOMY_CORE:              indexerItemList.add(new IndexerItem(ANATOMY_CORE, anatomyClass));                         break;
 
                 case ALLELE2_CORE:              indexerItemList.add(new IndexerItem(ALLELE2_CORE, allele2Class));                         break;
                 case PRODUCT_CORE:              indexerItemList.add(new IndexerItem(PRODUCT_CORE, productClass));                         break;
-			    //case PREQC_CORE:                indexerItemList.add(new IndexerItem(PREQC_CORE, preqcClass));                             break;
 			    case ALLELE_CORE:               indexerItemList.add(new IndexerItem(ALLELE_CORE, alleleClass));                           break;
 			    case IMAGES_CORE:               indexerItemList.add(new IndexerItem(IMAGES_CORE, imagesClass));                           break;
 			    case IMPC_IMAGES_CORE:          indexerItemList.add(new IndexerItem(IMPC_IMAGES_CORE, impcImagesClass));                  break;
 			    case MP_CORE:                   indexerItemList.add(new IndexerItem(MP_CORE, mpClass));                                   break;
 			    case GENE_CORE:                 indexerItemList.add(new IndexerItem(GENE_CORE, geneClass));                               break;
-			    //case DISEASE_CORE:              indexerItemList.add(new IndexerItem(DISEASE_CORE, diseaseClass));                         break;
 			    case AUTOSUGGEST_CORE:          indexerItemList.add(new IndexerItem(AUTOSUGGEST_CORE, autosuggestClass));                 break;
 		    }
 	    }
@@ -412,9 +400,9 @@ public class IndexerManager  {
      * 1c. If more than 1 core:
      *     - if nodeps is specified, it is ignored.
      *     - core names must be valid. No downstream cores are built.
-     * 2. If 'all' is specified, build all of the cores: experiment to autosuggest.
+     * 2. If 'all' is specified, build all of the cores.
      *      Specifying --nodeps throws IllegalArgumentException.
-     * 3. If 'daily' is specified, build the daily cores: preqc to autosuggest.
+     * 3. If 'daily' is specified, build the daily cores.
      *      Specifying --nodeps throws IllegalArgumentException.
      *
      * Core Build Truth Table (assume a valid '--context=' parameter is always supplied - not shown in table below to save space):
@@ -431,10 +419,10 @@ public class IndexerManager  {
      *    | --cores=mp --nodeps    | build mp core only                      |      true      |
      *    | --cores=mp,ma          | build mp and ma cores                   |      true      |
      *    | --cores-mp,ma --nodeps | build mp and ma cores                   |      true      |
-     *    | --all                  | build experiment to autosuggest cores   |      false     |
+     *    | --all                  | build pipeline to autosuggest cores     |      false     |
      *    | --all --cores=ma       | Return STATUS_VALIDATION_ERROR          |      N/A       |
      *    | --all --nodeps         | Return STATUS_VALIDATION_ERROR          |      N/A       |
-     *    | --daily                | build preqc to autosuggest cores.       |      false     |
+     *    | --daily                | build allele2 to autosuggest cores.     |      false     |
      *    | --daily --cores=ma     | Return STATUS_VALIDATION_ERROR          |      N/A       |
      *    | --daily --nodeps       | Return STATUS_VALIDATION_ERROR          |      N/A       |
      *    | --all --daily          | Return STATUS_VALIDATION_ERROR          |      N/A       |
@@ -493,8 +481,8 @@ public class IndexerManager  {
             validateParameters(options, coresRequested);
 
             // Build the cores list as follows:
-            //   If --all specified, set firstCore to experiment.
-            //   Else if --daily specified, set firstCore to preqc.
+            //   If --all specified, set firstCore to pipeline.
+            //   Else if --daily specified, set firstCore to allele2.
             //   Else if --cores specified
             //       If nodeps or coresRequested.size > 1
             //           set firstCore to null.
@@ -707,8 +695,8 @@ public class IndexerManager  {
                     "   \n" +
                     "where aaa, bbb, and ccc are cores chosen from the list shown below." +
                     "\n" +
-                    "if '--all' is specified, all cores from experiment to autosuggest are built.\n" +
-                    "if '--daily' is specified, all cores from preqc to autosuggest are built.\n" +
+                    "if '--all' is specified, all cores from pipeline to autosuggest are built.\n" +
+                    "if '--daily' is specified, all cores from allele2 to autosuggest are built.\n" +
                     "if ('--core=aaa' is specified, all cores from aaa to autosuggest are built.\n" +
                     "if ('--cores=aaa --nodeps' is specified, ony core 'aaa' is built.\n" +
                     "if ('--cores=aaa,bbb[,ccc [, ...]] is specified (i.e. 2 or more cores), only\n" +
@@ -722,17 +710,14 @@ public class IndexerManager  {
                     "   genotype-phenotype\n" +
 	                "   statistical-result\n" +
 	                "   mgi-phenotype\n" +
-	                //"   phenodigm\n" +
                     "   anatomy\n" +
                     "   allele2\n" +
                     "   product\n" +
-                    "   preqc\n" +
                     "   allele\n" +
                     "   images\n" +
                     "   impc_images\n" +
                     "   mp\n" +
                     "   gene\n" +
-                    //"   disease\n" +
                     "   autosuggest\n";
 
             return buffer;
