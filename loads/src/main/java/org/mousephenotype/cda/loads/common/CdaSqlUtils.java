@@ -82,6 +82,10 @@ public class CdaSqlUtils {
     public static final String MGP         = "MGP";                 // The MGP project name
     public static final String THREEI      = "3i";                  // The 3i project name
 
+    // Only include images in the resource that have the following paths
+    public static final Set<String> INCLUDE_IMAGE_PATHS = new HashSet<>(Arrays.asList("www.mousephenotype.org", "file:///nfs/komp2/web/images/3i"));
+
+
 
     public static final String OBSERVATION_INSERT = "INSERT INTO observation (" +
             "db_id, biological_sample_id, parameter_id, parameter_stable_id, sequence_id, population_id," +
@@ -3424,8 +3428,9 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
     private String getFullResolutionFilePath(String filePathWithoutName, String uri) {
 
    		String fullResolutionFilePath = null;
-   		//dont do this if it's not a mousephenotype.org URL. ie. it's not been provided by the phenoDCC
-   		if (uri.contains("www.mousephenotype.org")) {
+
+   		// Only load images that have a recognised URI pattern,  The set of approved patterns is in INCLUDE_IMAGE_PATHS
+   		if (INCLUDE_IMAGE_PATHS.stream().anyMatch(uri::contains)) {
    			fullResolutionFilePath = filePathWithoutName + "/" + uri.substring(uri.lastIndexOf("/") + 1, uri.length());
    		}
 
