@@ -183,7 +183,12 @@ public class LandingPageController {
         else if (page.equalsIgnoreCase("metabolism")) {
             mpDTO = mpService.getPhenotype("MP:0005376");
             model.addAttribute("shortDescription", "<h3>The IMPC is increasing our understanding of the genetic basis for metabolic diseases</h3>"
-            		+ "<ul><li>Metabolic diseases, such as obesity and diabetes, affect people worldwide</li><li>The function of many genes in the genome is still unknown</li><li>Knockout mice allow us to understand metabolic procedures and relate them to human disease</li></ul>");
+            		+ "<ul><li>Metabolic diseases, such as obesity and diabetes, affect people worldwide</li>"
+            		+ "<li>The function of many genes in the genome is still unknown</li>"
+            		+ "<li>Knockout mice allow us to understand metabolic procedures and relate them to human disease</li></ul>"
+            		+ "<br /><br /><p>Press releases: <a href=''>EMBL-EBI</a>&nbsp;|&nbsp;\n<a href=''>MRC</a>&nbsp;|&nbsp;\n<a href=''>IMPC</a>"
+            		+ "<br /><a href='https://www.nature.com/ncomms/'>Nature communications publication</a>"
+            		+ "<br /><a>Supporting information</a></p>");
             pageTitle = "Metabolism";
         } 
         else if (page.equalsIgnoreCase("cmg")) {
@@ -221,7 +226,7 @@ public class LandingPageController {
 	        procedures.addAll(is.getProceduresByMpTerm(mpDTO.getMpId(), true));
 
 	        // Per Terry 2017-08-31
-	        // On the hearing landing page, filter out all procedures excepy Shirpa and ABR
+	        // On the hearing landing page, filter out all procedures except Shirpa and ABR
 	        if (page.equalsIgnoreCase("hearing")) {
 	            procedures = procedures
 	                    .stream()
@@ -231,7 +236,7 @@ public class LandingPageController {
 	        }
 	        
 	        // Per Alba 2017-11-07
-	        // On the metabolism landing page, filter out all procedures TODO
+	        // On the metabolism landing page, filter out all procedures except Gross Path and Tissue Collect
 	        if (page.equalsIgnoreCase("metabolism")) {
 	            procedures = procedures
 	                    .stream()

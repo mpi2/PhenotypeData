@@ -136,7 +136,7 @@ table.dataTable thead tr {
 					   		<div class="inner">
 					   			<h3>Metabolic diseases investigated in 2,016 knockout mouse lines</h3>
 					   			<p>
-									<a href="">Nature Communications</a>
+									<a href="https://www.nature.com/ncomms/">Nature Communications publication</a>
 								</p>
 					   			<ul>
 					   				<li>974 genes with strong metabolic phenotypes (see gene table, below).</li>
@@ -147,13 +147,6 @@ table.dataTable thead tr {
 					   				<li>This investigation is based on about 10% of mammalian protein-coding genes. The IMPC will continue screening for genes associated to metabolic diseases in its second 5 year phase.</li>
 					   			</ul>
 					   			
-					   			<p>Press releases: 
-					   				<a href="">EMBL-EBI</a>&nbsp;|&nbsp;
-									<a href="">MRC</a>&nbsp;|&nbsp;
-									<a href="">IMPC</a>
-									<!--&nbsp;|&nbsp;<a href="">Sanger</a> -->
-								</p>
-								
 								<h3>Gene table</h3> 
                                	<p>Mutant/wildtype ratios below the 5th percentile and above the 95th percentile of the ratio distributions yielded 28 gene lists that serve as a data mining resource for further investigation into potential links to human metabolic disorders.</p>
                                  <p>By hovering over the table you can select cells and click to explore the underlying data.</p>
