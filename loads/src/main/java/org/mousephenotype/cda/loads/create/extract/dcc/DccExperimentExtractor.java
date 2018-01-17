@@ -60,7 +60,9 @@ public class DccExperimentExtractor implements CommandLineRunner {
     // These procedures are always meant to be skipped. Additional skipped parameters passed in on the command line are
     // appended to these.
    	private Set<String> skipProcedures = new HashSet<>(Arrays.asList("SLM_SLM", "SLM_AGS", "TRC_TRC", "DSS_DSS", "MGP_ANA", "MGP_BCI", "MGP_BMI", "MGP_EEI", "MGP_MLN", "MGP_PBI", "MGP_IMM"));
-   	private Set<String> skipThreeIProcedures = new HashSet<>(Arrays.asList("SLM_SLM", "SLM_AGS", "TRC_TRC", "DSS_DSS"));
+//   	private Set<String> skipThreeIProcedures = new HashSet<>(Arrays.asList("SLM_SLM", "SLM_AGS", "TRC_TRC", "DSS_DSS"));
+    // Load all 3i data
+   	private Set<String> skipThreeIProcedures = new HashSet<>();
 
     // Required by the Harwell DCC export utilities
     public static final String CONTEXT_PATH = "org.mousephenotype.dcc.exportlibrary.datastructure.core.common:org.mousephenotype.dcc.exportlibrary.datastructure.core.procedure:org.mousephenotype.dcc.exportlibrary.datastructure.core.specimen:org.mousephenotype.dcc.exportlibrary.datastructure.tracker.submission:org.mousephenotype.dcc.exportlibrary.datastructure.tracker.validation";

@@ -47,6 +47,7 @@ public class MediaParameterRowMapper implements RowMapper<MediaParameter> {
         row.setParameterID(rs.getString("parameterId"));
         row.setParameterStatus(rs.getString("parameterStatus"));
         row.setURI(rs.getString("URI"));
+        row.setLink(rs.getString("link"));
 
         return row;
     }

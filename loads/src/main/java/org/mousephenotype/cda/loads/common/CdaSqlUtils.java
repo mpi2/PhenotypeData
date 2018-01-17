@@ -2519,22 +2519,6 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
         return strains;
     }
 
-// FIXME
-    /**
-     * @return The full list of {@link Strain}, indexed by strain name
-     */
-    public Map<String, Strain> getStrainsByNameXXXXXXXXXXXXXXXX() {
-        Map<String, Strain> strains = new ConcurrentHashMap<>();
-
-        Map<String, Object> parameterMap = new HashMap<>();
-        List<Strain> strainList = jdbcCda.query("SELECT * FROM strain", parameterMap, new StrainRowMapper());
-        for (Strain strain : strainList) {
-            strains.put(strain.getName(), strain);
-        }
-
-        return strains;
-    }
-
 
     /**
      * Try to insert the strain and, if successful, any synonyms.

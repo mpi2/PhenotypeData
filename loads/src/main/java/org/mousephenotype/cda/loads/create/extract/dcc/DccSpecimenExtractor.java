@@ -101,7 +101,7 @@ public class DccSpecimenExtractor implements CommandLineRunner {
 
         OptionSet options = parser.parse(args);
 
-        if (!options.has("datasourceShortName")) {
+        if ( ! options.has("datasourceShortName")) {
             String message = "Missing required command-line parameter 'datasourceShortName'";
             logger.error(message);
             throw new DataLoadException(message);
@@ -230,7 +230,7 @@ public class DccSpecimenExtractor implements CommandLineRunner {
         }
 
         // chromosomalAlteration
-        if (!specimen.getChromosomalAlteration().isEmpty()) {
+        if ( ! specimen.getChromosomalAlteration().isEmpty()) {
             throw new DataLoadException("chromosomalAlteration }is not yet supported. Records found!");
         }
 
