@@ -83,6 +83,9 @@ public class CdaSqlUtils {
     public static final String ONTOLOGY_TERM_POSTNATAL                = "postnatal";
     public static final String ONTOLOGY_TERM_MOUSE_EMBRYO_STAGE       = "mouse embryo stage";
 
+    // Only include images in the resource that have the following paths
+    public static final Set<String> INCLUDE_IMAGE_PATHS = new HashSet<>(Arrays.asList("www.mousephenotype.org", "file:///nfs/komp2/web/images/3i"));
+
 
     public static final String OBSERVATION_INSERT = "INSERT INTO observation (" +
             "db_id, biological_sample_id, parameter_id, parameter_stable_id, sequence_id, population_id," +
