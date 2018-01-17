@@ -69,9 +69,6 @@ public class SecondaryProjectController {
     @Autowired
     @Qualifier("postqcService")
     PostQcService genotypePhenotypeService;
-    @Autowired
-    @Qualifier("preqcService")
-    PreQcService preQcService;
 
     @Autowired
     GeneService geneService;
@@ -89,10 +86,6 @@ public class SecondaryProjectController {
     @Autowired
     @Qualifier("threeI")
     SecondaryProjectService threeI;
-
-    @Autowired
-    @Qualifier("phenodigmCore")
-    SolrClient phenodigmCore;
 
     private PhenomeChartProvider phenomeChartProvider = new PhenomeChartProvider();
 

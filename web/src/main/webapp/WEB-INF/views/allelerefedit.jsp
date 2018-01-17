@@ -509,9 +509,15 @@
 
 					$('body').addClass("loading");
 
+					console.log(baseUrl + "/dataTableAlleleRefPost?id=" + dbid + "&pmid=" + pmid + "&reviewed=" + reviewed + "&falsepositive=" +  falsepositive + "&consortium_paper=" + consortium_paper + "&symbol=" + symbolVal);
+
+					var symbols = symbolVal.split(",");
+					console.log(symbols);
+					console.log("size: "+ symbols.length);
+
 					$.ajax({
 						method: "post",
-						url: baseUrl + "/dataTableAlleleRefPost?id=" + dbid + "&symbol=" + symbolVal + "&pmid=" + pmid + "&reviewed=" + reviewed + "&falsepositive=" +  falsepositive + "&consortium_paper=" + consortium_paper,
+						url: baseUrl + "/dataTableAlleleRefPost?id=" + dbid + "&pmid=" + pmid + "&reviewed=" + reviewed + "&falsepositive=" +  falsepositive + "&consortium_paper=" + consortium_paper + "&symbol=" + symbolVal,
 						success: function (jsonStr) {
 							//alert(jsonStr);
 

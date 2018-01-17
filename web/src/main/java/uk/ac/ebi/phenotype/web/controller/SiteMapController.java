@@ -12,9 +12,9 @@
 package uk.ac.ebi.phenotype.web.controller;
 
 import org.apache.solr.client.solrj.SolrServerException;
-import org.mousephenotype.cda.solr.service.DiseaseService;
 import org.mousephenotype.cda.solr.service.GeneService;
 import org.mousephenotype.cda.solr.service.MpService;
+import org.mousephenotype.cda.solr.service.PhenodigmService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -54,7 +54,7 @@ public class SiteMapController {
 	private MpService mpService;
 
 	@Autowired
-	private DiseaseService diseaseService;
+	private PhenodigmService phenodigmService;
 
 	/**
 	 * Create a gene sitemap XML file
@@ -137,7 +137,7 @@ public class SiteMapController {
 	@RequestMapping(value = "/sitemap_diseases.xml", method = RequestMethod.GET, produces = "application/xml; charset=utf-8")
 	@ResponseBody
 	public String createSitemapDiseases(HttpServletRequest request) throws SolrServerException, IOException {
-		List<String> diseases = new ArrayList<>(diseaseService.getAllDiseases());
+		List<String> diseases = new ArrayList<>(phenodigmService.getAllDiseases());
 		String mappedHostname = (String) request.getAttribute("mappedHostname");
 		String baseUrl = (String) request.getAttribute("baseUrl");
 		XmlUrlSet xmlUrlSet = new XmlUrlSet();

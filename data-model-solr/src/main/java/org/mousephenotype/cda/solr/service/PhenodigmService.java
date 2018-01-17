@@ -5,6 +5,8 @@ import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.solr.common.SolrDocument;
+import org.apache.solr.common.SolrDocumentList;
 import org.mousephenotype.cda.solr.SolrUtils;
 import org.mousephenotype.cda.solr.service.dto.PhenodigmDTO;
 import org.mousephenotype.cda.utilities.HttpProxy;
@@ -21,6 +23,9 @@ import java.net.URL;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/*
+ * pdsimplify: This class references deprecated PhenodigmDTO
+ */
 @Service
 public class PhenodigmService implements WebStatus {
 
@@ -30,6 +35,56 @@ public class PhenodigmService implements WebStatus {
 	@Autowired
 	@Qualifier("phenodigmCore")
 	private SolrClient solr;
+
+
+	// Disease sources. When modifying these, please modify getAllDiseases() accordingly.
+	public static final class DiseaseField {
+		public final static String DISEASE_ID = "disease_id";
+		public final static String DISEASE_SOURCE = "disease_source";
+		public final static String DISEASE_SOURCE_DECIPHER = "DECIPHER";
+		public final static String DISEASE_SOURCE_OMIM = "OMIM";
+		public final static String DISEASE_SOURCE_ORPHANET = "ORPHANET";
+	}
+
+
+	/**
+	 * @return all diseases from the disease core.
+	 * @throws SolrServerException, IOException
+	 */
+	public Set<String> getAllDiseases() throws SolrServerException, IOException  {
+		Set<String> results = new HashSet<String>();
+
+		String[] diseaseSources = { PhenodigmService.DiseaseField.DISEASE_SOURCE_DECIPHER, PhenodigmService.DiseaseField.DISEASE_SOURCE_OMIM, PhenodigmService.DiseaseField.DISEASE_SOURCE_ORPHANET };
+		for (String diseaseSource : diseaseSources) {
+			results.addAll(getAllDiseasesInDiseaseSource(diseaseSource));
+		}
+
+		return results;
+	}
+
+
+	/**
+	 * @return all diseases in the specified <code>diseaseSource</code> (see
+	 * public string definitions) from the disease core.
+	 * @param diseaseSource the desired disease source (e.g. DiseaseService.OMIM,
+	 * DiseaseSource.ORPHANET, etc.)
+	 *
+	 * @throws SolrServerException, IOException
+	 */
+	public Set<String> getAllDiseasesInDiseaseSource(String diseaseSource) throws SolrServerException, IOException  {
+
+		SolrQuery solrQuery = new SolrQuery();
+		solrQuery.setQuery("disease_source:\"" + diseaseSource + "\"");
+		solrQuery.setFields("disease_id");
+		solrQuery.setRows(1000000);
+		QueryResponse rsp = solr.query(solrQuery);
+		SolrDocumentList res = rsp.getResults();
+		HashSet<String> allDiseases = new HashSet<String>();
+		for (SolrDocument doc : res) {
+			allDiseases.add((String) doc.getFieldValue(PhenodigmService.DiseaseField.DISEASE_ID));
+		}
+		return allDiseases;
+	}
 
 	/**
 	 * Get the number of unique disease associations from the phenodigm core
@@ -79,58 +134,58 @@ public class PhenodigmService implements WebStatus {
 	}
 
 
-	public String getGenesWithDiseaseDownload(Set<String> diseaseClasses) throws IOException, SolrServerException, URISyntaxException {
+//	public String getGenesWithDiseaseDownload(Set<String> diseaseClasses) throws IOException, SolrServerException, URISyntaxException {
+//
+//		SolrQuery query = new SolrQuery();
+//		query.setQuery(diseaseClasses.stream().collect(Collectors.joining("\" OR \"", PhenodigmDTO.DISEASE_CLASSES + ":(\"", "\")")));
+//		query.setFilterQueries(PhenodigmDTO.TYPE + ":disease_gene_summary");
+//		query.setRows(Integer.MAX_VALUE);
+//		query.setFields(PhenodigmDTO.MARKER_SYMBOL, PhenodigmDTO.MARKER_ACCESSION, PhenodigmDTO.HGNC_GENE_SYMBOL,PhenodigmDTO.DISEASE_TERM, PhenodigmDTO.DISEASE_ID, PhenodigmDTO.IMPC_PREDICTED, PhenodigmDTO.MAX_IMPC_D2M_SCORE,
+//			 PhenodigmDTO.MGI_PREDICTED, PhenodigmDTO.MAX_MGI_D2M_SCORE, PhenodigmDTO.HUMAN_CURATED);
+//		query.set("wt", "csv");
+//
+//		HttpProxy proxy = new HttpProxy();
+//
+//		return proxy.getContent(new URL(SolrUtils.getBaseURL(solr) + "/select?" + query));
+//
+//	}
 
-		SolrQuery query = new SolrQuery();
-		query.setQuery(diseaseClasses.stream().collect(Collectors.joining("\" OR \"", PhenodigmDTO.DISEASE_CLASSES + ":(\"", "\")")));
-		query.setFilterQueries(PhenodigmDTO.TYPE + ":disease_gene_summary");
-		query.setRows(Integer.MAX_VALUE);
-		query.setFields(PhenodigmDTO.MARKER_SYMBOL, PhenodigmDTO.MARKER_ACCESSION, PhenodigmDTO.HGNC_GENE_SYMBOL,PhenodigmDTO.DISEASE_TERM, PhenodigmDTO.DISEASE_ID, PhenodigmDTO.IMPC_PREDICTED, PhenodigmDTO.MAX_IMPC_D2M_SCORE,
-			 PhenodigmDTO.MGI_PREDICTED, PhenodigmDTO.MAX_MGI_D2M_SCORE, PhenodigmDTO.HUMAN_CURATED);
-		query.set("wt", "csv");
-
-		HttpProxy proxy = new HttpProxy();
-
-		return proxy.getContent(new URL(SolrUtils.getBaseURL(solr) + "/select?" + query));
-
-	}
-
-	public Map<String, Set<String>> getGenesWithDisease(Set<String> diseaseClasses) throws IOException, SolrServerException {
-
-		Set<String> mgiPredicted = new HashSet<>();
-		Set<String> impcPredicted = new HashSet<>();
-		Set<String> humanCurated = new HashSet<>(); // for predictions by orthology it's possible that neither IMPC nor MGI have good scores
-
-		SolrQuery query = new SolrQuery();
-		query.setQuery(diseaseClasses.stream().collect(Collectors.joining("\" OR \"", PhenodigmDTO.DISEASE_CLASSES + ":(\"", "\")")));
-		query.setFilterQueries(PhenodigmDTO.TYPE + ":disease_gene_summary");
-		query.setRows(Integer.MAX_VALUE);
-		query.setFields(PhenodigmDTO.MARKER_SYMBOL, PhenodigmDTO.IMPC_PREDICTED, PhenodigmDTO.MGI_PREDICTED, PhenodigmDTO.HUMAN_CURATED);
-
-
-		QueryResponse rsp = solr.query(query);
-		List<PhenodigmDTO> dtos = rsp.getBeans(PhenodigmDTO.class);
-		for (PhenodigmDTO dto : dtos) {
-			if (dto.getMgiPredicted()) {
-				mgiPredicted.add(dto.getMarkerSymbol());
-			}
-			if (dto.getImpcPredicted()) {
-				impcPredicted.add(dto.getMarkerSymbol());
-			}
-			if (dto.getHumanCurated()){
-				humanCurated.add(dto.getMarkerSymbol());
-			}
-		}
-
-		Map<String, Set<String>> result = new HashMap<>();
-
-		result.put("MGI predicted", mgiPredicted);
-		result.put("IMPC predicted", impcPredicted);
-		if (humanCurated.size() > 0) {
-			result.put("Human curated (orthology)", humanCurated);
-		}
-
-		return result;
-
-	}
+//	public Map<String, Set<String>> getGenesWithDisease(Set<String> diseaseClasses) throws IOException, SolrServerException {
+//
+//		Set<String> mgiPredicted = new HashSet<>();
+//		Set<String> impcPredicted = new HashSet<>();
+//		Set<String> humanCurated = new HashSet<>(); // for predictions by orthology it's possible that neither IMPC nor MGI have good scores
+//
+//		SolrQuery query = new SolrQuery();
+//		query.setQuery(diseaseClasses.stream().collect(Collectors.joining("\" OR \"", PhenodigmDTO.DISEASE_CLASSES + ":(\"", "\")")));
+//		query.setFilterQueries(PhenodigmDTO.TYPE + ":disease_gene_summary");
+//		query.setRows(Integer.MAX_VALUE);
+//		query.setFields(PhenodigmDTO.MARKER_SYMBOL, PhenodigmDTO.IMPC_PREDICTED, PhenodigmDTO.MGI_PREDICTED, PhenodigmDTO.HUMAN_CURATED);
+//
+//
+//		QueryResponse rsp = solr.query(query);
+//		List<PhenodigmDTO> dtos = rsp.getBeans(PhenodigmDTO.class);
+//		for (PhenodigmDTO dto : dtos) {
+//			if (dto.getMgiPredicted()) {
+//				mgiPredicted.add(dto.getMarkerSymbol());
+//			}
+//			if (dto.getImpcPredicted()) {
+//				impcPredicted.add(dto.getMarkerSymbol());
+//			}
+//			if (dto.getHumanCurated()){
+//				humanCurated.add(dto.getMarkerSymbol());
+//			}
+//		}
+//
+//		Map<String, Set<String>> result = new HashMap<>();
+//
+//		result.put("MGI predicted", mgiPredicted);
+//		result.put("IMPC predicted", impcPredicted);
+//		if (humanCurated.size() > 0) {
+//			result.put("Human curated (orthology)", humanCurated);
+//		}
+//
+//		return result;
+//
+//	}
 }

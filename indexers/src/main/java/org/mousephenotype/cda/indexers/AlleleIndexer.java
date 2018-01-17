@@ -78,7 +78,7 @@ public class AlleleIndexer extends AbstractIndexer implements CommandLineRunner 
     private static Set<String> gpGenesLookup = new HashSet<>();
 
     // Fetch all phenotyping started genes with MP calls from preqc core
-    private static Set<String> preqcGenesLookup = new HashSet<>();
+    //private static Set<String> preqcGenesLookup = new HashSet<>();
 
     // Map gene MGI ID to sanger allele bean
     private static Map<String, List<SangerAlleleBean>> statusLookup = new HashMap<>();
@@ -1111,13 +1111,16 @@ public class AlleleIndexer extends AbstractIndexer implements CommandLineRunner 
             }
 
             for (GoAnnotations ga : goTermLookup.get(dto.getMarkerSymbol())) {
-                dto.getGoTermIds().add(ga.goTermId);
-                dto.getGoTermNames().add(ga.goTermName);
-                dto.getGoUniprot().add(ga.goUniprot);
-                //dto.getGoTermDefs().add(ga.goTermDef);
-                dto.getGoTermEvids().add(ga.goTermEvid);
-                dto.getGoTermDomains().add(ga.goTermDomain);
-                dto.setEvidCodeRank( assignCodeRank(codeRank.get(ga.goTermEvid)) );
+                if (codeRank.get(ga.goTermEvid) != null) {
+                    // some evidence code is not needed and is not in the map, ignore this
+                    dto.getGoTermIds().add(ga.goTermId);
+                    dto.getGoTermNames().add(ga.goTermName);
+                    dto.getGoUniprot().add(ga.goUniprot);
+                    //dto.getGoTermDefs().add(ga.goTermDef);
+                    dto.getGoTermEvids().add(ga.goTermEvid);
+                    dto.getGoTermDomains().add(ga.goTermDomain);
+                    dto.setEvidCodeRank(assignCodeRank(codeRank.get(ga.goTermEvid)));
+                }
             }
             //dto.getGoUniprot().addAll(gene2GoUniprotLookup.get(dto.getMarkerSymbol()));
 

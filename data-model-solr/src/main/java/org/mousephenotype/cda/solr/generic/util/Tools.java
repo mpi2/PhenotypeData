@@ -210,8 +210,9 @@ public class Tools {
 			mainAttrs.add("mgi_accession_id");
 			mainAttrs.add("marker_symbol");
 			mainAttrs.add("human_gene_symbol");
-			mainAttrs.add("marker_name");
 			mainAttrs.add("marker_synonym");
+			//mainAttrs.add("human_symbol_synonym");
+			mainAttrs.add("marker_name");
 			mainAttrs.add("marker_type");
 			mainAttrs.add("latest_mouse_status");
 			mainAttrs.add("latest_phenotype_status");

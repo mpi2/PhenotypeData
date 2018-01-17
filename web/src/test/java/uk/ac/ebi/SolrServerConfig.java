@@ -79,17 +79,9 @@ public class SolrServerConfig {
 
 	// Read only solr servers
 
-	//Phenodigm server for our Web Status currently only
+    //Phenodigm2 server
 	@Bean(name = "phenodigmCore")
 	public HttpSolrClient getPhenodigmCore() {
-        //renamed old phenodigm core with an explicit 1 at the end
-		//return new HttpSolrClient(solrBaseUrl + "/phenodigm");
-        return new HttpSolrClient(solrBaseUrl + "/phenodigm1");		
-	}
-
-    //Phenodigm2 server 
-	@Bean(name = "phenodigm2Core")
-	public HttpSolrClient getPhenodigm2Core() {
         //new core keeps old url address
 		return new HttpSolrClient(solrBaseUrl + "/phenodigm");
 	}
@@ -194,11 +186,5 @@ public class SolrServerConfig {
 	PhenotypeCenterService phenotypeCenterService() {
 		return new PhenotypeCenterService(solrBaseUrl + "/experiment", impressService);
 	}
-
-	@Bean(name = "preQcPhenotypeCenterService")
-	PhenotypeCenterService preQcPhenotypeCenterService() {
-		return new PhenotypeCenterService(solrBaseUrl + "/preqc", impressService);
-	}
-
 
 }

@@ -217,6 +217,7 @@ public class ChartsController {
         ParameterDTO parameter = is.getParameterByStableId(parameterStableId);     
         
         if (parameter == null) {
+        	System.out.println("throwing parameter not found exception");
             throw new ParameterNotFoundException("Parameter " + parameterStableId + " can't be found.", parameterStableId);
         }
 
@@ -363,6 +364,8 @@ public class ChartsController {
                             log.error("Unknown how to display graph for observation type: " + observationTypeForParam);
                             break;
                     }
+                }else{
+                	log.error("chart type is null");
                 }
 
             } catch (SQLException e) {
@@ -521,14 +524,13 @@ public class ChartsController {
      * @return model and view for error page
      */
     @ExceptionHandler(SpecificExperimentException.class)
-    public ModelAndView handleSpecificExperimentException(ParameterNotFoundException exception) {
+    public ModelAndView handleSpecificExperimentException(SpecificExperimentException exception) {
 
 	    log.error(ExceptionUtils.getFullStackTrace(exception));
 
         ModelAndView mv = new ModelAndView("Specific Experiment Not Found Error");
         mv.addObject("errorMessage", exception.getMessage());
-        mv.addObject("acc", exception.getAcc());
-        mv.addObject("type", "Parameter");
+        mv.addObject("type", "Experiment");
 
         return mv;
     }

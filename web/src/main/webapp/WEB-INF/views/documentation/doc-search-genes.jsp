@@ -19,6 +19,11 @@
         <img src='img/search-gene.png' /><p>
 
         The filters on the left are grayed out if they are not related to your search.<br><br>
+        The <b>IMPC Phenotyping Status</b> facet is open by default and has three sub-facets and are progressive.<br>
+        <b>(1) Approved</b> means completed status. Ie, phenotyping procedures agreed among the IMPC phenotyping centers have been completed.<br>
+        <b>(2) Attempt Registered</b> means phenotyping centers have plans to carry out the phenotyping procedures.<br>
+        <b>(3) Started</b> means a phenotyping work has been started.<br><br>
+
 
         <b>Columns in the dataset on the right panel:</b>
         <table>

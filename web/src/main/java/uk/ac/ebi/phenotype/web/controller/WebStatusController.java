@@ -41,9 +41,6 @@ public class WebStatusController {
     private StatisticalResultService srService;
 
     @Autowired
-    private PreQcService preqcService;
-
-    @Autowired
     private AlleleService alleleService;
 
     @Autowired
@@ -63,9 +60,6 @@ public class WebStatusController {
 
     @Autowired
     private GeneService geneService;
-
-    @Autowired
-    DiseaseService diseaseService;
 
     @Autowired
     AutoSuggestService autoSuggestService;
@@ -101,7 +95,6 @@ public class WebStatusController {
         webStatusObjects.add(observationService);
         webStatusObjects.add(postqcService);
         webStatusObjects.add(srService);
-        webStatusObjects.add(preqcService);
         webStatusObjects.add(alleleService);
         webStatusObjects.add(sangerImages);
         webStatusObjects.add(impcImageService);
@@ -109,7 +102,6 @@ public class WebStatusController {
         webStatusObjects.add(anatomyService);
         webStatusObjects.add(pipelineService);
         webStatusObjects.add(geneService);
-        webStatusObjects.add(diseaseService);
         webStatusObjects.add(autoSuggestService);
         webStatusObjects.add(ppDAO);
         webStatusObjects.add(phenodigmService);

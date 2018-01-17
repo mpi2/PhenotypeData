@@ -21,6 +21,7 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
+import org.json.JSONException;
 import org.mousephenotype.cda.db.pojo.Synonym;
 import org.mousephenotype.cda.indexers.beans.MPStrainBean;
 import org.mousephenotype.cda.indexers.beans.ParamProcedurePipelineBean;
@@ -32,7 +33,7 @@ import org.mousephenotype.cda.owl.OntologyParserFactory;
 import org.mousephenotype.cda.owl.OntologyTermDTO;
 import org.mousephenotype.cda.solr.generic.util.PhenotypeFacetResult;
 import org.mousephenotype.cda.solr.service.PostQcService;
-import org.mousephenotype.cda.solr.service.PreQcService;
+//import org.mousephenotype.cda.solr.service.PreQcService;
 import org.mousephenotype.cda.solr.service.dto.AlleleDTO;
 import org.mousephenotype.cda.solr.service.dto.GenotypePhenotypeDTO;
 import org.mousephenotype.cda.solr.service.dto.MpDTO;
@@ -76,9 +77,9 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
     private SolrClient alleleCore;
 
     // TODO replace with service (imported below)
-    @Autowired
-    @Qualifier("preqcCore")
-    private SolrClient preqcCore;
+//    @Autowired
+//    @Qualifier("preqcCore")
+//    private SolrClient preqcCore;
 
     // TODO replace with service (imported below)
     @Autowired
@@ -95,10 +96,10 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
     @Autowired
     @Qualifier("postqcService")
     PostQcService postqcService;
-
-    @Autowired
-    @Qualifier("preqcService")
-    PreQcService preqcService;
+//
+//    @Autowired
+//    @Qualifier("preqcService")
+//    PreQcService preqcService;
 
 
     private static Connection komp2DbConnection;
@@ -199,13 +200,11 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
                 mp.setParentMpTerm(mpDTO.getParentNames());
 
                 // add mp-hp mapping using Monarch's mp-hp hybrid ontology
-
-
                 OntologyTermDTO mpTerm = mpHpParser.getOntologyTerm(termId);
 
 		        if (mpTerm==null) {
 		            String message = "MP term not found using mpHpParser.getOntologyTerm(termId); where termId = " + termId;
-		            runStatus.addWarning(message);
+		            logger.info(message);       // Change from WARN to INFO. Long-term solution is to get hp to mp mappings from Damian's disease core.
 		        } else if ( ! mpId.equals("MP:0000001")) { // do not include all narrow synonyms for root term
 
 
@@ -265,7 +264,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
             // Send a final commit
             mpCore.commit();
 
-        } catch (SolrServerException | IOException | OWLOntologyCreationException | OWLOntologyStorageException | SQLException | URISyntaxException e) {
+        } catch (SolrServerException | IOException | OWLOntologyCreationException | OWLOntologyStorageException | SQLException | URISyntaxException | JSONException e) {
             e.printStackTrace();
             throw new IndexerException(e);
         }
@@ -281,12 +280,12 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
         // Errors and warnings are returned in PhenotypeFacetResult.status.
         PhenotypeFacetResult phenoResult = postqcService.getMPCallByMPAccessionAndFilter(termId,  null, null, null);
         status.add(phenoResult.getStatus());
-        PhenotypeFacetResult preQcResult = preqcService.getMPCallByMPAccessionAndFilter(termId,  null, null, null, synonyms);
-        status.add(preQcResult.getStatus());
+        //PhenotypeFacetResult preQcResult = preqcService.getMPCallByMPAccessionAndFilter(termId,  null, null, null, synonyms);
+        //status.add(preQcResult.getStatus());
 
         List<PhenotypeCallSummaryDTO> phenotypeList;
         phenotypeList = phenoResult.getPhenotypeCallSummaries();
-        phenotypeList.addAll(preQcResult.getPhenotypeCallSummaries());
+        //phenotypeList.addAll(preQcResult.getPhenotypeCallSummaries());
 
         // This is a map because we need to support lookups
         Map<Integer, DataTableRow> phenotypes = new HashMap<Integer, DataTableRow>();
@@ -412,7 +411,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
         RunStatus status = new RunStatus();
 
         List<SolrClient> ss = new ArrayList<>();
-        ss.add(preqcCore);
+        //ss.add(preqcCore);
         ss.add(genotypePhenotypeCore);
 
         for (int i = 0; i < ss.size(); i++){
@@ -723,7 +722,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
                     // From JS mapping script - row.get('legacy')
                     mp.setLegacyPhenotypeStatus(1);
                 }
-                addPreQc(mp, pheno1.getGfAcc(), runStatus);
+                //addPreQc(mp, pheno1.getGfAcc(), runStatus);
                 addAllele(mp, alleles.get(pheno1.getGfAcc()), false);
             }
         }
@@ -736,21 +735,21 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
         }
     }
 
-    private void addPreQc(MpDTO mp, String gfAcc, RunStatus runStatus) {
-        SolrQuery query = new SolrQuery("mp_term_id:\"" + mp.getMpId() + "\" AND marker_accession_id:\"" + gfAcc + "\"");
-        query.setFields("mp_term_id", "marker_accession_id");
-        try {
-            QueryResponse response = preqcCore.query(query);
-            for (SolrDocument doc : response.getResults()) {
-                if (doc.getFieldValue("mp_term_id") != null) {
-                    // From JS mapping script - row.get('preqc_mp_id')
-                    mp.getLatestPhenotypeStatus().add("Phenotyping Started");
-                }
-            }
-        } catch (Exception e) {
-            runStatus.addError(" Caught error accessing PreQC core: " + e.getMessage() + ".\nQuery: " + query);
-        }
-    }
+//    private void addPreQc(MpDTO mp, String gfAcc, RunStatus runStatus) {
+//        SolrQuery query = new SolrQuery("mp_term_id:\"" + mp.getMpId() + "\" AND marker_accession_id:\"" + gfAcc + "\"");
+//        query.setFields("mp_term_id", "marker_accession_id");
+//        try {
+//            QueryResponse response = preqcCore.query(query);
+//            for (SolrDocument doc : response.getResults()) {
+//                if (doc.getFieldValue("mp_term_id") != null) {
+//                    // From JS mapping script - row.get('preqc_mp_id')
+//                    mp.getLatestPhenotypeStatus().add("Phenotyping Started");
+//                }
+//            }
+//        } catch (Exception e) {
+//            runStatus.addError(" Caught error accessing PreQC core: " + e.getMessage() + ".\nQuery: " + query);
+//        }
+//    }
 
     private void addAllele(MpDTO mp, List<AlleleDTO> alleles, boolean includeStatus) {
         if (alleles != null) {
@@ -882,7 +881,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
             mp.setLatestProductionCentre(new ArrayList<String>());
             mp.setLatestPhenotypingCentre(new ArrayList<String>());
             mp.setAlleleName(new ArrayList<String>());
-            mp.setPreqcGeneId(new ArrayList<String>());
+            //mp.setPreqcGeneId(new ArrayList<String>());
         }
     }
 

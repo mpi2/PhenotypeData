@@ -60,7 +60,6 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
 	protected EvidenceLink    evidenceLink;
 	protected ImpressBaseDTO  pipeline;
 	protected Double          pValue;
-	protected boolean         isPreQc;
 	protected String          gid;
 	protected String          colonyId;
 	protected List<BasicBean> topLevelPhenotypeTerms;
@@ -110,7 +109,6 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
 		List<String> sex = new ArrayList<>();
 		sex.add(pcs.getSex().toString());
 		this.setGid(pcs.getgId());
-		this.setPreQc(pcs.isPreQC());
 		this.setGene(pcs.getGene());
 		this.setAllele(pcs.getAllele());
 		this.setSexes(sex);
@@ -264,23 +262,6 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
 		this.pValue = pValue;
 	}
 
-	/**
-	 * @return the isPreQc
-	 */
-	public boolean isPreQc() {
-
-		return isPreQc;
-	}
-
-	/**
-	 * @param isPreQc
-	 *            the isPreQc to set
-	 */
-	public void setPreQc(boolean isPreQc) {
-
-		this.isPreQc = isPreQc;
-	}
-
 	public void setPValue(Double pValue) {
 		this.pValue = pValue;
 	}
@@ -323,7 +304,7 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
 		String url = baseUrl;
 		EvidenceLink evidenceLink = new EvidenceLink();
 
-		if (!isPreQc) {
+		
 			if (procedure.getName().startsWith("Histopathology")) {
 				evidenceLink.setAlt("Table");
 				evidenceLink.setIconType(EvidenceLink.IconType.TABLE);
@@ -363,31 +344,7 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
 				}
 
 			}
-		} else {
-			// Need to use the drupal base url because phenoview is not mapped
-			// under the /data url
-			url = drupalBaseUrl + "/../phenoview/?gid=";
-			if (this.getgIds() != null) {
-				url += StringUtils.join(this.getgIds(), ",");
-			}
-
-			url += "&qeid=";
-
-			if (this.getParameterStableIds() != null) {
-				url += StringUtils.join(this.getParameterStableIds(), ",");
-			}
-
-			evidenceLink.setAlt("Graph");
-			evidenceLink.setIconType(EvidenceLink.IconType.GRAPH);
-			if (parameter.getStableId().contains("_FER_") || parameter.getStableId().contains("IMPC_EVL_001_")
-					|| parameter.getStableId().contains("IMPC_EVP_001")
-					|| parameter.getStableId().contains("IMPC_EVO_001_")
-					|| parameter.getStableId().contains("IMPC_EVM_001_")) {
-				evidenceLink.setDisplay(false);
-			} else {
-				evidenceLink.setDisplay(true);
-			}
-		}
+		
 		evidenceLink.setUrl(url);
 		return evidenceLink;
 	}
@@ -581,8 +538,6 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
 
 		if (projectId != that.projectId)
 			return false;
-		if (isPreQc != that.isPreQc)
-			return false;
 		if (drupalBaseUrl != null ? !drupalBaseUrl.equals(that.drupalBaseUrl) : that.drupalBaseUrl != null)
 			return false;
 		if (phenotypeTerm != null ? !phenotypeTerm.equals(that.phenotypeTerm) : that.phenotypeTerm != null)
@@ -643,7 +598,6 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
 		// dataSourceName.hashCode() : 0);
 		// result = 31 * result + (pipeline != null ? pipeline.hashCode() : 0);
 		// result = 31 * result + (pValue != null ? pValue.hashCode() : 0);
-		result = 31 * result + (isPreQc ? 1 : 0);
 		// result = 31 * result + (gid != null ? gid.hashCode() : 0);
 		// result = 31 * result + (topLevelPhenotypeTerms != null ?
 		// topLevelPhenotypeTerms.hashCode() : 0);
@@ -660,7 +614,7 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
 				 projectId + ", phenotypingCenter="
 				 + phenotypingCenter + ", procedure=" + procedure + ",	 parameter=" + parameter + ", dataSourceName="
 				 + dataSourceName + ", evidenceLink=" + evidenceLink + ",	 pipeline=" + pipeline + ", pValue=" + pValue
-				 + ", isPreQc=" + isPreQc + ", gid=" + gid + ", colonyId=" +
+				 +  ", gid=" + gid + ", colonyId=" +
 				 colonyId + ", topLevelPhenotypeTerms="
 				 + topLevelPhenotypeTerms + ", topLevelMpGroups=" +
 				 topLevelMpGroups

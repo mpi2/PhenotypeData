@@ -69,16 +69,9 @@ public class SolrServerConfig {
 
 	// Read only solr servers
 
-	// Phenodigm server used up to release 5. Remove in future.
+    //Phenodigm2 server 
 	@Bean(name = "phenodigmCore")
 	public HttpSolrClient getPhenodigmCore() {
-        //renamed old phenodigm core with an explicit 1 at the end
-        return new HttpSolrClient(solrBaseUrl + "/phenodigm");
-	}
-
-    //Phenodigm2 server 
-	@Bean(name = "phenodigm2Core")
-	public HttpSolrClient getPhenodigm2Core() {
 		return new HttpSolrClient(solrBaseUrl + "/phenodigm");
 	}
         
@@ -181,11 +174,6 @@ public class SolrServerConfig {
 	@Bean(name = "phenotypeCenterService")
 	PhenotypeCenterService phenotypeCenterService() {
 		return new PhenotypeCenterService(solrBaseUrl + "/experiment", impressService);
-	}
-
-	@Bean(name = "preQcPhenotypeCenterService")
-	PhenotypeCenterService preQcPhenotypeCenterService() {
-		return new PhenotypeCenterService(solrBaseUrl + "/preqc", impressService);
 	}
 
 

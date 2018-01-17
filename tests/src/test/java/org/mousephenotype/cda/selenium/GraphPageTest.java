@@ -34,7 +34,6 @@ import org.mousephenotype.cda.solr.service.*;
 import org.mousephenotype.cda.solr.web.dto.GraphTestDTO;
 import org.mousephenotype.cda.selenium.support.GenePage;
 import org.mousephenotype.cda.selenium.support.GraphPage;
-import org.mousephenotype.cda.selenium.support.GraphValidatorPreqc;
 import org.mousephenotype.cda.selenium.support.TestUtils;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.mousephenotype.cda.utilities.RunStatus;
@@ -114,9 +113,6 @@ public class GraphPageTest {
     @Autowired
     private PostQcService postQcService;
 
-    @Autowired
-    private PreQcService preQcService;
-
     @NotNull
     @Value("${base_url}")
     private String baseUrl;
@@ -193,7 +189,7 @@ public class GraphPageTest {
         System.out.println();
     }
 
-    private void testEngine(String testName, List<GraphTestDTO> geneGraphs, GenePage.GraphUrlType graphUrlType) throws TestException {
+    private void testEngine(String testName, List<GraphTestDTO> geneGraphs) throws TestException {
         RunStatus masterStatus = new RunStatus();
         String message = "";
         Date start = new Date();
@@ -216,7 +212,7 @@ public class GraphPageTest {
             try {
                 GenePage genePage = new GenePage(driver, wait, genePageTarget, geneGraph.getMgiAccessionId(), phenotypePipelineDAO, baseUrl);
 
-                List<String> graphUrls = genePage.getGraphUrls(graphUrlType);
+                List<String> graphUrls = genePage.getGraphUrls();
 
                 // Skip gene pages without graphs.
                 if ((graphUrls.isEmpty()) || ( ! genePage.hasGraphs()))
@@ -282,46 +278,7 @@ System.out.println("TESTING GRAPH URL " + graphPageTarget + " (GENE PAGE " + gen
         graphEngine(testName, graphUrls);
     }
 
-    @Test
-@Ignore("mrelac: dev phenoview server is not responding, so tests fail")
-    public void testPreQcGraphs() throws TestException {
-        String testName = "testPreQcGraphs";
-        List<GraphTestDTO> geneGraphs = getGeneGraphs(ChartType.PREQC, 100);
-        assertTrue("Expected at least one gene graph.", geneGraphs.size() > 0);
-        String target;
-        String message = "";
-        Date start = new Date();
-        RunStatus masterStatus = new RunStatus();
 
-        int targetCount = testUtils.getTargetCount(env, testName, geneGraphs, 10);
-        testUtils.logTestStartup(logger, this.getClass(), testName, targetCount, geneGraphs.size());
-
-        for (int i = 0; i < targetCount; i++) {
-            GraphTestDTO geneGraph = geneGraphs.get(i);
-            target = baseUrl + "/genes/" + geneGraph.getMgiAccessionId();
-
-            try {
-                GenePage genePage = new GenePage(driver, wait, target, geneGraph.getMgiAccessionId(), phenotypePipelineDAO, baseUrl);
-                genePage.selectGenesLength(100);
-                GraphValidatorPreqc validator = new GraphValidatorPreqc();
-                RunStatus status = validator.validate(driver, genePage, geneGraph);
-                if (status.hasErrors()) {
-                    message = "FAILED [" + i + "]: URL: " + target;
-                } else {
-                    message = "PASSED [" + i + "]: " + target;
-                    status.successCount++;
-                }
-                masterStatus.add(status);
-            } catch (Exception e) {
-                message = "FAILED [" + i + "]: " + e.getLocalizedMessage() + "\nGENE PAGE URL:  " + target;
-            }
-
-            System.out.println(message);
-        }
-
-        testUtils.printEpilogue(testName, start, masterStatus, targetCount, geneGraphs.size());
-        System.out.println();
-    }
 
     @Test
 @Ignore
@@ -330,7 +287,7 @@ System.out.println("TESTING GRAPH URL " + graphPageTarget + " (GENE PAGE " + gen
 
         List<GraphTestDTO> geneGraphs = getGeneGraphs(ChartType.CATEGORICAL_STACKED_COLUMN, 100);
         assertTrue("Expected at least one gene graph.", geneGraphs.size() > 0);
-        testEngine(testName, geneGraphs, GenePage.GraphUrlType.POSTQC);
+        testEngine(testName, geneGraphs);
     }
 
     @Test
@@ -340,7 +297,7 @@ System.out.println("TESTING GRAPH URL " + graphPageTarget + " (GENE PAGE " + gen
 
         List<GraphTestDTO> geneGraphs = getGeneGraphs(ChartType.UNIDIMENSIONAL_BOX_PLOT, 100);
         assertTrue("Expected at least one gene graph.", geneGraphs.size() > 0);
-        testEngine(testName, geneGraphs, GenePage.GraphUrlType.POSTQC);
+        testEngine(testName, geneGraphs);
     }
 
     @Test
@@ -350,7 +307,7 @@ System.out.println("TESTING GRAPH URL " + graphPageTarget + " (GENE PAGE " + gen
 
         List<GraphTestDTO> geneGraphs = getGeneGraphs(ChartType.UNIDIMENSIONAL_ABR_PLOT, 100);
         assertTrue("Expected at least one gene graph.", geneGraphs.size() > 0);
-        testEngine(testName, geneGraphs, GenePage.GraphUrlType.POSTQC);
+        testEngine(testName, geneGraphs);
     }
 
     @Test
@@ -359,7 +316,7 @@ System.out.println("TESTING GRAPH URL " + graphPageTarget + " (GENE PAGE " + gen
         String testName = "testPieGraphs";
         List<GraphTestDTO> geneGraphs = getGeneGraphs(ChartType.PIE, 100);
         assertTrue("Expected at least one gene graph.", geneGraphs.size() > 0);
-        testEngine(testName, geneGraphs, GenePage.GraphUrlType.POSTQC);
+        testEngine(testName, geneGraphs);
     }
 
     // As of 12-Nov-2015, I can't find any time series graphs so am commenting out the test.
@@ -435,15 +392,6 @@ System.out.println("TESTING GRAPH URL " + graphPageTarget + " (GENE PAGE " + gen
                 } catch (Exception e) {
                     e.printStackTrace();
                     throw new TestException("TestUtils.getGeneGraphs() UNIDIMENSIONAL_XXX EXCEPTION: " + e.getLocalizedMessage());
-                }
-                break;
-
-            case PREQC:
-                try {
-                    geneGraphs = preQcService.getGeneAccessionIds(count);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    throw new TestException("TestUtils.getGeneGraphs() PREQC EXCEPTION: " + e.getLocalizedMessage());
                 }
                 break;
 

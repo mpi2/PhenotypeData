@@ -154,8 +154,4 @@ public class SolrServerConfig {
 		return new PhenotypeCenterService(solrBaseUrl + "/experiment", impressService());
 	}
 
-	@Bean(name = "preQcPhenotypeCenterService")
-	PhenotypeCenterService preQcPhenotypeCenterService() {
-		return new PhenotypeCenterService(solrBaseUrl + "/preqc", impressService());
-	}
 }

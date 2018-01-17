@@ -19,6 +19,8 @@ import java.util.Properties;
 
 /**
  * Created by jmason on 20/03/2017.
+ * 
+ * pdsimplify: This class uses an old phenodigm data source 
  */
 @Configuration
 @EnableAutoConfiguration

@@ -192,9 +192,6 @@ public class DownloadSection {
             case PIE:
                 break;
                 
-            case PREQC:
-                break;
-                
             case TIME_SERIES_LINE:
             case TIME_SERIES_LINE_BODYWEIGHT:
                 switch (group) {
