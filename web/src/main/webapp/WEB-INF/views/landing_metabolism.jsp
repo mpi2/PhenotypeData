@@ -100,7 +100,7 @@ table.dataTable thead tr {
                             		<p align="justify">
                             			To identify the function of genes, the IMPC uses a series of standardised protocols described in <a
 										href="${baseUrl}/../impress">IMPReSS</a> (International Mouse Phenotyping Resource of Standardised Screens). 
-                            			Tests addressing the metabolic function are conducted on young adults at 11-16 weeks of age.  
+                            			Tests addressing the metabolic function are conducted on young adult mice at 11-16 weeks of age.  
                             		</p>
                             		<br /><br />
                             		<h4>
@@ -137,10 +137,10 @@ table.dataTable thead tr {
 									<a target='_blank' href="https://www.nature.com/ncomms/">Nature Communications publication</a>
 								</p>
 					   			<ul>
-					   				<li>974 genes with strong metabolic phenotypes (see gene table, below).</li>
-					   				<li>429 genes had not been previously associated with metabolism, 51 completely lacked functional annotation, and 25 have single nucleotide polymorphisms associated to human metabolic disease phenotypes.</li>
+					   				<li>974 genes were identified with strong metabolic phenotypes (see gene table, below).</li>
+					   				<li>429 genes had not been previously associated with metabolism, 51 completely lacked functional annotation, and 25 had single nucleotide polymorphisms associated to human metabolic disease phenotypes.</li>
 					   				<li>515 genes linked to at least one disease in OMIM.</li>
-					   				<li>Networks of co-regulated genes were identified, and genes of predicted metabolic function identified.</li>
+					   				<li>Networks of co-regulated genes were identified, and genes of predicted metabolic function found.</li>
 					   				<li>Pathway mapping revealed sexual dimorphism in genes and pathways.</li>
 					   				<li>This investigation is based on about 10% of mammalian protein-coding genes. The IMPC will continue screening for genes associated to metabolic diseases in its second 5 year phase.</li>
 					   			</ul>
@@ -223,7 +223,7 @@ table.dataTable thead tr {
                                	<h3>New mouse models</h3>
                                	<ul>
                                		<li>IMPC generated and identified new genetic disease models.</li>
-                               		<li>New models available to the research community to perform in-depth investigation of novel genetic elements associated to metabolic disease mechanisms.</li>
+                               		<li>New models available to the research community to perform in-depth investigations of novel genetic elements associated to metabolic disease mechanisms.</li>
                                		<li>These models fill the gap between genome-wide association studies and functional validation using a mammalian model organism.</li>
                                	</ul>
                                	
