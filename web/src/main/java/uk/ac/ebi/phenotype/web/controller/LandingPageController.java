@@ -187,7 +187,7 @@ public class LandingPageController {
             		+ "<li>The function of many genes in the genome is still unknown</li>"
             		+ "<li>Knockout mice allow us to understand metabolic procedures and relate them to human disease</li></ul>"
             		+ "<br /><br /><p>Press releases: <a href=''>EMBL-EBI</a>&nbsp;|&nbsp;\n<a href=''>MRC</a>&nbsp;|&nbsp;\n<a href=''>IMPC</a>"
-            		+ "<br /><a href='https://www.nature.com/ncomms/'>Nature communications publication</a>"
+            		+ "<br /><a target='_blank' href='https://www.nature.com/ncomms/'>Nature communications publication</a>"
             		+ "<br /><a>Supporting information</a></p>");
             pageTitle = "Metabolism";
         } 

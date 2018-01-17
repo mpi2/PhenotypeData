@@ -134,7 +134,7 @@ table.dataTable thead tr {
 					   		<div class="inner">
 					   			<h3>Metabolic diseases investigated in 2,016 knockout mouse lines</h3>
 					   			<p>
-									<a href="https://www.nature.com/ncomms/">Nature Communications publication</a>
+									<a target='_blank' href="https://www.nature.com/ncomms/">Nature Communications publication</a>
 								</p>
 					   			<ul>
 					   				<li>974 genes with strong metabolic phenotypes (see gene table, below).</li>
