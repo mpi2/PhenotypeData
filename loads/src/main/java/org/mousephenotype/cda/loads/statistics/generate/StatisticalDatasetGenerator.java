@@ -441,7 +441,8 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
 
     /**
      * Gets a map of procedure group -> SortedSet(paramter stable IDs) for each procedure group
-     * The parameters that are not to be annotated have been removed
+     * Parameters that have no associated ontology term are not to be annotated (subsequently, not analysed) are not
+     * included in the SortedSet
      *
      * @return Map of procedure group key to a Set of parameter stable IDs from IMPReSS
      */

@@ -314,6 +314,19 @@ public class OntologyParserTest {
 
 
     @Test
+    public void findSpecificMpTermMP_0020422() throws Exception {
+        ontologyParser = new OntologyParser(downloads.get("mp").target, downloads.get("mp").name, null, null);
+        List<OntologyTermDTO> termList = ontologyParser.getTerms();
+        Map<String, OntologyTermDTO> terms =
+                termList.stream()
+                        .filter(term -> term.getAccessionId().equals("MP:0020422"))
+                        .collect(Collectors.toMap(OntologyTermDTO::getAccessionId, ontologyTermDTO -> ontologyTermDTO));
+
+        Assert.assertTrue(terms.containsKey("MP:0020422"));
+
+    }
+
+    @Test
     public void testRootTermAndTopTermsInOntologyParserMap() throws Exception {
 
         ontologyParser = new OntologyParser(downloads.get("mp").target, downloads.get("mp").name, null, null);
