@@ -49,6 +49,14 @@ import java.util.concurrent.*;
  *
  * Created by mrelac on 31/08/2016.
  *
+ * NOTE: Somehow, rather than 'moving' this file from PhenotypeData/loads/src/main/java/org/mousephenotype/cda/loads/create/load/steps/SampleLoader.java
+ *                                                 to PhenotypeData/loads/src/main/java/org/mousephenotype/cda/loads/create/load/SampleLoader
+ *       I must have delted the one under the 'steps' directory and created the new one above it, thus losing the history chain. The following git commit
+ *       id should take you to the SampleLoader.java history just before it was deleted and re-added above the 'steps' directory:
+ *           8527e43035f8865e9cc6acf7f17b43028417f96b
+ *       To see the github state at that commit id, use the URL:
+ *           https://github.com/mpi2/PhenotypeData/tree/8527e43035f8865e9cc6acf7f17b43028417f96b/loads/src/main/java/org/mousephenotype/cda/loads/create/load/steps
+ *
  */
 @ComponentScan
 public class SampleLoader implements CommandLineRunner {
