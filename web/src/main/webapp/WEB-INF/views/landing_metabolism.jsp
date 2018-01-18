@@ -90,7 +90,12 @@ table.dataTable thead tr {
                     <div class="node node-gene">
                         <h1 class="title" id="top">${pageTitle} </h1>
 
-                        <c:import url="landing_overview_frag.jsp" />
+                       	<div class="section">
+    							<div class="inner">
+                       			${shortDescription}
+                       		</div>
+    							<div class="clear both"></div>
+						</div>
 						
 						<div style="padding: 20px;" class="clear both"></div>
 						
@@ -134,7 +139,7 @@ table.dataTable thead tr {
 					   		<div class="inner">
 					   			<h3>Metabolic diseases investigated in 2,016 knockout mouse lines</h3>
 					   			<p>
-									<a target='_blank' href="https://www.nature.com/ncomms/">Nature Communications publication</a>
+									<a target='_blank' href="bit.ly/IMPCMetabolism">Nature Communications publication</a>
 								</p>
 					   			<ul>
 					   				<li>974 genes were identified with strong metabolic phenotypes (see gene table, below).</li>
