@@ -29,7 +29,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.DuplicateKeyException;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -3320,10 +3319,11 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
     private String getFullResolutionFilePath(String filePathWithoutName, String uri) {
 
    		String fullResolutionFilePath = null;
-   		//dont do this if it's not a mousephenotype.org URL. ie. it's not been provided by the phenoDCC
-   		if (uri.contains("www.mousephenotype.org")) {
-   			fullResolutionFilePath = filePathWithoutName + "/" + uri.substring(uri.lastIndexOf("/") + 1, uri.length());
-   		}
+
+        // Only load images that have a recognised URI pattern,  The set of approved patterns is in INCLUDE_IMAGE_PATHS
+        if (INCLUDE_IMAGE_PATHS.stream().anyMatch(uri::contains)) {
+            fullResolutionFilePath = filePathWithoutName + "/" + uri.substring(uri.lastIndexOf("/") + 1, uri.length());
+        }
 
    		logger.debug("fullresfilepath = " + fullResolutionFilePath);
 
