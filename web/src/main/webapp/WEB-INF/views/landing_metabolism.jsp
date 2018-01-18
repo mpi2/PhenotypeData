@@ -26,7 +26,7 @@
     <script type="text/javascript"
 			src='${baseUrl}/js/charts/heatMapMetabolism.js?v=${version}'></script>
     <script
-			src="http://blacklabel.github.io/grouped_categories/grouped-categories.js"></script>
+			src="https://blacklabel.github.io/grouped_categories/grouped-categories.js"></script>
     
     <style>
 table {

@@ -186,14 +186,14 @@ public class LandingPageController {
             		+ "<ul><li>Metabolic diseases, such as obesity and diabetes, affect people worldwide</li>"
             		+ "<li>The function of many genes in the genome is still unknown</li>"
             		+ "<li>Knockout mice allow us to understand metabolic procedures and relate them to human disease</li></ul>"
-            		+ "<br /><br /><p>Press releases: <a target='_blank' href='https://www.ebi.ac.uk/about/news'>EMBL-EBI</a>&nbsp;|&nbsp;\n<a target='_blank' href='https://www.mrc.ac.uk/news/browse/'>MRC</a>&nbsp;|&nbsp;\n<a target='_blank' href='http://www.mousephenotype.org/news'>IMPC</a>"
+            		+ "<br /><br /><p>Press releases: <a target='_blank' href='https://www.ebi.ac.uk/about/news'>EMBL-EBI</a>&nbsp;|&nbsp;\n<a target='_blank' href='https://www.mrc.ac.uk/news/browse/'>MRC</a>&nbsp;|&nbsp;\n<a target='_blank' href='https://www.mousephenotype.org/news'>IMPC</a>"
             		+ "<br /><a target='_blank' href='https://www.nature.com/ncomms/'>Nature communications publication</a>"
             		+ "<br /><a target='_blank' href='https://www.nature.com/ncomms/'>Supporting information</a></p>");
             pageTitle = "Metabolism";
         } 
         else if (page.equalsIgnoreCase("cmg")) {
         		// mpDTO = mpService.getPhenotype("MP:0000001");
-        		model.addAttribute("shortDescription", "<p>The <a href='http://www.mendelian.org/' target='_blank'>Centers for Mendelian Genomics</a> (CMG) is an NIH funded project to use genome-wide sequencing and other genomic approaches to discover the genetic basis underlying as many human Mendelian traits as possible.  The IMPC is helping CMG validate human disease gene variants by creating and characterizing orthologous knockout mice.</p>");
+        		model.addAttribute("shortDescription", "<p>The <a href='https://www.mendelian.org/' target='_blank'>Centers for Mendelian Genomics</a> (CMG) is an NIH funded project to use genome-wide sequencing and other genomic approaches to discover the genetic basis underlying as many human Mendelian traits as possible.  The IMPC is helping CMG validate human disease gene variants by creating and characterizing orthologous knockout mice.</p>");
         		pageTitle = "Centers for Mendelian Genomics";
         }
         
