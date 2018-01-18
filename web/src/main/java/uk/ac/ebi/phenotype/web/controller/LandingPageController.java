@@ -189,7 +189,7 @@ public class LandingPageController {
             		+ "<br /><br />"
             		+ "<p>"
             		+ "Press releases:"
-            		+ " <a target='_blank' href='https://www.ebi.ac.uk/about/news'>EMBL-EBI</a>&nbsp;|&nbsp;\n"
+            		//+ " <a target='_blank' href='https://www.ebi.ac.uk/about/news'>EMBL-EBI</a>&nbsp;|&nbsp;\n"
             		//+ "<a target='_blank' href='https://www.mrc.ac.uk/news/browse/'>MRC</a>&nbsp;|&nbsp;\n"
             		+ "<a target='_blank' href='http://bit.ly/MetabolismNewsStory'>IMPC</a>"
             		+ "<br /><a target='_blank' href='http://bit.ly/IMPCMetabolism'>Nature communications publication</a>"
