@@ -90,7 +90,14 @@ table.dataTable thead tr {
                     <div class="node node-gene">
                         <h1 class="title" id="top">${pageTitle} </h1>
 
-                        <c:import url="landing_overview_frag.jsp" />
+                        <%-- <c:import url="landing_overview_frag.jsp" /> --%>
+                        
+                        <div class="section">
+							<div class="inner">
+  							${shortDescription}
+							</div>
+						<div class="clear both"></div>
+						</div>
 						
 						<div style="padding: 20px;" class="clear both"></div>
 						
