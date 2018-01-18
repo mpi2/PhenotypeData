@@ -17,6 +17,8 @@
 package org.mousephenotype.cda.loads.common.config;
 
 import org.hibernate.SessionFactory;
+import org.mousephenotype.cda.loads.common.CdaSqlUtils;
+import org.mousephenotype.cda.loads.common.DccSqlUtils;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -27,9 +29,11 @@ import org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerA
 import org.springframework.boot.autoconfigure.jms.JndiConnectionFactoryAutoConfiguration;
 import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
 import org.springframework.context.annotation.*;
+import org.springframework.core.env.Environment;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.orm.hibernate5.LocalSessionFactoryBuilder;
 
+import javax.inject.Inject;
 import javax.sql.DataSource;
 
 @Configuration
@@ -43,7 +47,7 @@ import javax.sql.DataSource;
         Neo4jDataAutoConfiguration.class
         })
 @Lazy
-/**
+/*
  * This configuration class holds configuration information shared by the data load create process.
  *
  * Created by mrelac on 18/08/2016.
@@ -55,22 +59,13 @@ public class DataSourcesConfigApp {
     final private Integer INITIAL_POOL_CONNECTIONS = 1;
 
     @Value("${datasource.cda.url}")
-    String cdaUrl;
+    protected String cdaUrl;
 
     @Value("${datasource.cda.username}")
-    String cdaUsername;
+    protected String cdaUsername;
 
     @Value("${datasource.cda.password}")
-    String cdaPassword;
-
-    @Value("${datasource.dccEurophenomeFinal.url}")
-    String dccEurophenomeFinalUrl;
-
-    @Value("${datasource.dccEurophenomeFinal.username}")
-    String dccEurophenomeFinalUsername;
-
-    @Value("${datasource.dccEurophenomeFinal.password}")
-    String dccEurophenomeFinalPassword;
+    protected String cdaPassword;
 
     @Value("${datasource.cdabase.url}")
     String cdabaseUrl;
@@ -91,8 +86,7 @@ public class DataSourcesConfigApp {
     String dccPassword;
 
 
-
-    private DataSource getConfiguredDatasource(String url, String username, String password) {
+    protected DataSource getConfiguredDatasource(String url, String username, String password) {
         org.apache.tomcat.jdbc.pool.DataSource ds = new org.apache.tomcat.jdbc.pool.DataSource();
         ds.setUrl(url);
         ds.setUsername(username);
@@ -138,48 +132,57 @@ public class DataSourcesConfigApp {
         return sessionBuilder.buildSessionFactory();
     }
 
-    @Bean(name = "cdabaseDataSource")
+
+
+    // cda_base database
+    @Bean
     public DataSource cdabaseDataSource() {
         return getConfiguredDatasource(cdabaseUrl, cdabaseUsername, cdabasePassword);
     }
 
-    @Bean(name = "jdbcCdabase")
+    @Bean
     public NamedParameterJdbcTemplate jdbcCdabase() {
         return new NamedParameterJdbcTemplate(cdabaseDataSource());
     }
 
+    @Bean
+    public CdaSqlUtils cdabaseSqlUtils() {
+        return new CdaSqlUtils(jdbcCdabase());
+    }
 
-    @Bean(name = "cdaDataSource")
+
+
+    // cda database
+    @Bean
     @Primary
     public DataSource cdaDataSource() {
         return getConfiguredDatasource(cdaUrl, cdaUsername, cdaPassword);
     }
 
-    @Bean(name = "jdbcCda")
+    @Bean
     public NamedParameterJdbcTemplate jdbcCda() {
         return new NamedParameterJdbcTemplate(cdaDataSource());
     }
 
+    @Bean
+    public CdaSqlUtils cdaSqlUtils() {
+        return new CdaSqlUtils(jdbcCda());
+    }
 
-    @Bean(name = "dccDataSource")
+
+    // dcc database
+    @Bean
     public DataSource dccDataSource() {
         return getConfiguredDatasource(dccUrl, dccUsername, dccPassword);
     }
 
-    @Bean(name = "jdbcDcc")
+    @Bean
     public NamedParameterJdbcTemplate jdbcDcc() {
         return new NamedParameterJdbcTemplate(dccDataSource());
     }
 
-
-    @Bean(name = "dccEurophenomeDataSource")
-    public DataSource dccEurophenomeDataSource() {
-        return getConfiguredDatasource(dccEurophenomeFinalUrl, dccEurophenomeFinalUsername, dccEurophenomeFinalPassword);
+    @Bean
+    public DccSqlUtils dccSqlUtils() {
+        return new DccSqlUtils(jdbcDcc());
     }
-
-    @Bean(name = "jdbcDccEurophenome")
-    public NamedParameterJdbcTemplate jdbcDccEurophenome() {
-        return new NamedParameterJdbcTemplate(dccEurophenomeDataSource());
-    }
-
 }

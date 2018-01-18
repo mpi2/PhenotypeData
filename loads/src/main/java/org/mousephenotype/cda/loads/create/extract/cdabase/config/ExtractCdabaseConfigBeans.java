@@ -18,7 +18,6 @@ package org.mousephenotype.cda.loads.create.extract.cdabase.config;
 
 import org.mousephenotype.cda.db.pojo.Allele;
 import org.mousephenotype.cda.db.pojo.GenomicFeature;
-import org.mousephenotype.cda.db.pojo.OntologyTerm;
 import org.mousephenotype.cda.db.pojo.Strain;
 import org.mousephenotype.cda.enumerations.DbIdType;
 import org.mousephenotype.cda.loads.common.CdaSqlUtils;
@@ -26,12 +25,21 @@ import org.mousephenotype.cda.loads.common.config.DataSourcesConfigApp;
 import org.mousephenotype.cda.loads.create.extract.cdabase.steps.*;
 import org.mousephenotype.cda.loads.exceptions.DataLoadException;
 import org.mousephenotype.cda.utilities.UrlUtils;
+import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.autoconfigure.data.jpa.JpaRepositoriesAutoConfiguration;
+import org.springframework.boot.autoconfigure.data.neo4j.Neo4jDataAutoConfiguration;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration;
+import org.springframework.boot.autoconfigure.jms.JndiConnectionFactoryAutoConfiguration;
+import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.util.Assert;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -44,15 +52,23 @@ import java.util.Map;
 /**
  * Created by mrelac on 03/05/16.
  */
+@EnableBatchProcessing
 @Configuration
-@Import(DataSourcesConfigApp.class)
-public class ExtractCdabaseConfigBeans {
+@EnableAutoConfiguration(exclude = {
+        JndiConnectionFactoryAutoConfiguration.class,
+        DataSourceAutoConfiguration.class,
+        HibernateJpaAutoConfiguration.class,
+        JpaRepositoriesAutoConfiguration.class,
+        DataSourceTransactionManagerAutoConfiguration.class,
+        Neo4jDataAutoConfiguration.class
+})
+public class ExtractCdabaseConfigBeans extends DataSourcesConfigApp {
 
-    private Map<String, OntologyTerm>   mgiFeatureTypes;
+    @Autowired
+    private CdaSqlUtils cdabaseSqlUtils;
 
     private Map<String, Allele>         alleles = new HashMap<>();    // key = allele accession id
     private Map<String, GenomicFeature> genes   = new HashMap<>();    // key = marker accession id
-    private NamedParameterJdbcTemplate  jdbcCdabase;
     private StepBuilderFactory          stepBuilderFactory;
     private Map<String, Strain>         strains = new HashMap<>();    // key = strain accession id
 
@@ -64,15 +80,16 @@ public class ExtractCdabaseConfigBeans {
 
 
     @Inject
-    public ExtractCdabaseConfigBeans(NamedParameterJdbcTemplate jdbcCdabase, StepBuilderFactory stepBuilderFactory) {
-        this.jdbcCdabase = jdbcCdabase;
+    @Lazy
+    public ExtractCdabaseConfigBeans(StepBuilderFactory stepBuilderFactory, CdaSqlUtils cdabaseSqlUtils) {
+        Assert.notNull(stepBuilderFactory, "StepBuilderFactory must not be null");
+        Assert.notNull(cdabaseSqlUtils, "cdabaseSqlUtils must not be null");
+
         this.stepBuilderFactory = stepBuilderFactory;
+        this.cdabaseSqlUtils = cdabaseSqlUtils;
+
     }
 
-    @Bean
-    public CdaSqlUtils cdabaseSqlUtils() {
-        return new CdaSqlUtils(jdbcCdabase);
-    }
 
     public class DownloadFilename {
         public final DownloadFileEnum downloadFileEnum;
@@ -185,8 +202,8 @@ public class ExtractCdabaseConfigBeans {
         }
     }
 
-    @Bean(name = "downloader")
-    public List<Downloader> downloader() {
+    @Bean
+    public List<Downloader> downloaderList() {
         List<Downloader> downloaderList = new ArrayList<>();
 
         for (DownloadFilename download : filenames) {
@@ -200,7 +217,7 @@ public class ExtractCdabaseConfigBeans {
     // LOADERS, PROCESSORS, AND WRITERS
 
 
-    @Bean(name = "alleleLoader")
+    @Bean
     public AlleleLoader alleleLoader() throws DataLoadException {
         Map<AlleleLoader.FilenameKeys, String> filenameKeys = new HashMap<>();
         filenameKeys.put(AlleleLoader.FilenameKeys.EUCOMM, downloadFilenameMap.get(DownloadFileEnum.EUCOMM_Allele).targetFilename);
@@ -213,37 +230,37 @@ public class ExtractCdabaseConfigBeans {
         return new AlleleLoader(filenameKeys);
     }
 
-    @Bean(name = "alleleProcessorPhenotypic")
+    @Bean
     public AlleleProcessorPhenotypic alleleProcessorPhenotypic() {
         return new AlleleProcessorPhenotypic(genes);
     }
 
-    @Bean(name = "alleleProcessorEucomm")
+    @Bean
     public AlleleProcessorEucomm alleleProcessorEucomm() {
         return new AlleleProcessorEucomm(genes);
     }
 
-    @Bean(name = "alleleProcessorKomp")
+    @Bean
     public AlleleProcessorKomp alleleProcessorKomp() {
         return new AlleleProcessorKomp(genes);
     }
 
-    @Bean(name = "alleleProcessorNorcomm")
+    @Bean
     public AlleleProcessorNorcomm alleleProcessorNorcomm() {
         return new AlleleProcessorNorcomm(genes);
     }
 
-    @Bean(name = "alleleProcessorGenopheno")
+    @Bean
     public AlleleProcessorGenopheno alleleProcessorGenopheno() {
         return new AlleleProcessorGenopheno(genes);
     }
 
-    @Bean(name = "alleleProcessorQtl")
+    @Bean
     public AlleleProcessorQtl alleleProcessorQtl() {
         return new AlleleProcessorQtl(genes);
     }
 
-    @Bean(name = "alleleWriter")
+    @Bean
     public AlleleWriter alleleWriter() {
         return new AlleleWriter();
     }
@@ -258,19 +275,19 @@ public class ExtractCdabaseConfigBeans {
         return new BiologicalModelLoader(filenameKeys, stepBuilderFactory, bioModelProcessor(), bioModelWriter());
     }
 
-    @Bean(name = "bioModelProcessor")
+    @Bean
     public BiologicalModelProcessor bioModelProcessor() {
-        return new BiologicalModelProcessor(cdabaseSqlUtils());
+        return new BiologicalModelProcessor(cdabaseSqlUtils);
     }
 
-    @Bean(name = "bioModelWriter")
+    @Bean
     public BiologicalModelWriter bioModelWriter() {
-        return new BiologicalModelWriter(cdabaseSqlUtils());
+        return new BiologicalModelWriter(cdabaseSqlUtils);
     }
 
 
 
-    @Bean(name = "markerLoader")
+    @Bean
     public MarkerLoader markerLoader() throws DataLoadException {
         Map<MarkerLoader.FilenameKeys, String> filenameKeys = new HashMap<>();
         filenameKeys.put(MarkerLoader.FilenameKeys.MARKER_LIST, downloadFilenameMap.get(DownloadFileEnum.MRK_List1).targetFilename);
@@ -282,53 +299,53 @@ public class ExtractCdabaseConfigBeans {
         return new MarkerLoader(filenameKeys);
     }
 
-    @Bean(name = "markerProcessorGenes")
+    @Bean
     public MarkerProcessorGenes markerProcessorGenes() {
         return new MarkerProcessorGenes(genes);
     }
 
-    @Bean(name = "markerProcessorXrefGenes")
+    @Bean
     public MarkerProcessorXrefGenes markerProcessorXrefGenes() {
         return new MarkerProcessorXrefGenes(genes);
     }
 
-    @Bean(name = "markerProcessorXrefEntrezGene")
+    @Bean
     public MarkerProcessorXrefOthers markerProcessorXrefEntrezGene() {
         return new MarkerProcessorXrefOthers(genes);
     }
 
-    @Bean(name = "markerProcessorXrefEnsembl")
+    @Bean
     public MarkerProcessorXrefOthers markerProcessorXrefEnsembl() {
         return new MarkerProcessorXrefOthers(genes);
     }
 
-    @Bean(name = "markerProcessorXrefVega")
+    @Bean
     public MarkerProcessorXrefOthers markerProcessorXrefVega() {
         return new MarkerProcessorXrefOthers(genes);
     }
 
-    @Bean(name = "markerWriter")
+    @Bean
     public MarkerWriter markerWriter() {
         return new MarkerWriter();
     }
 
 
     
-    @Bean(name = "ontologyLoaderList")
-    public List<OntologyLoader> ontologyLoader() throws DataLoadException {
+    @Bean
+    public List<OntologyLoader> ontologyLoaderList() throws DataLoadException {
         List<OntologyLoader> ontologyloaderList = new ArrayList<>();
 
         for (DownloadFilename filename : filenames) {
             if (filename instanceof DownloadOntologyFilename) {
                 DownloadOntologyFilename downloadOntology = (DownloadOntologyFilename) filename;
-                ontologyloaderList.add(new OntologyLoader(downloadOntology.targetFilename, downloadOntology.dbId, downloadOntology.prefix, stepBuilderFactory, cdabaseSqlUtils()));
+                ontologyloaderList.add(new OntologyLoader(downloadOntology.targetFilename, downloadOntology.dbId, downloadOntology.prefix, stepBuilderFactory, cdabaseSqlUtils));
             }
         }
 
         return ontologyloaderList;
     }
 
-    @Bean(name = "phenotypedcolonyLoader")
+    @Bean
     public PhenotypedColonyLoader phenotypedcolonyLoader() throws DataLoadException {
         Map<PhenotypedColonyLoader.FilenameKeys, String> filenameKeys = new HashMap<>();
         filenameKeys.put(PhenotypedColonyLoader.FilenameKeys.EBI_PhenotypedColony, downloadFilenameMap.get(DownloadFileEnum.EBI_PhenotypedColony).targetFilename);
@@ -336,19 +353,19 @@ public class ExtractCdabaseConfigBeans {
         return new PhenotypedColonyLoader(filenameKeys);
     }
 
-    @Bean(name = "phenotypedColonyProcessor")
+    @Bean
     public PhenotypedColonyProcessor phenotypedColonyProcessor() throws DataLoadException {
         return new PhenotypedColonyProcessor(genes);
     }
 
-    @Bean(name = "phenotypedColonyWriter")
+    @Bean
     public PhenotypedColonyWriter phenotypedColonyWriter() {
         return new PhenotypedColonyWriter();
     }
 
 
     
-    @Bean(name = "strainLoader")
+    @Bean
     public StrainLoader strainLoader() throws DataLoadException {
         Map<StrainLoader.FilenameKeys, String> filenameKeys = new HashMap<>();
         filenameKeys.put(StrainLoader.FilenameKeys.MGI, downloadFilenameMap.get(DownloadFileEnum.MGI_Strain).targetFilename);
@@ -357,17 +374,17 @@ public class ExtractCdabaseConfigBeans {
         return new StrainLoader(filenameKeys);
     }
 
-    @Bean(name = "strainProcessorMgi")
+    @Bean
     public StrainProcessorMgi strainProcessorMgi() {
         return new StrainProcessorMgi(strains, alleles);
     }
 
-    @Bean(name = "strainProcessorImsr")
+    @Bean
     public StrainProcessorImsr strainProcessorImsr() {
         return new StrainProcessorImsr(alleles, strains);
     }
 
-    @Bean(name = "strainWriter")
+    @Bean
     public StrainWriter strainWriter() {
        return new StrainWriter();
     }

@@ -23,10 +23,7 @@ import org.mousephenotype.cda.db.pojo.Strain;
 import org.mousephenotype.cda.enumerations.DbIdType;
 import org.mousephenotype.cda.loads.common.CdaSqlUtils;
 import org.mousephenotype.cda.loads.exceptions.DataLoadException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -39,13 +36,14 @@ import java.util.stream.Collectors;
  * Created by mrelac on 06/09/16. Ported from AdminTools. Original creator: Gautier Koscielny, Feb 2012.
  */
 public class StrainMapper {
-    private CdaSqlUtils cdaSqlUtils;
-    private Logger      logger = LoggerFactory.getLogger(this.getClass());
+
+    private        CdaSqlUtils         cdaSqlUtils;
+    private        Map<String, Strain> strainsByNameOrMgiAccessionIdMap;
+    private static OntologyTerm        impcUncharacterizedBackgroundStrain;
 
     public static final Map<String, String> STRAIN_MAPPING     = new HashMap<>();
     public static final Map<String, String> BACKGROUND_MAPPING = new HashMap<>();
 
-    private OntologyTerm uncharacterizedBackgroundStrain;
 
 
     static {
@@ -103,24 +101,17 @@ public class StrainMapper {
         BACKGROUND_MAPPING.put("129/SvPas", "129S2/SvPas");
         BACKGROUND_MAPPING.put("C57BL/6NTac-ICS-USA(ImportedLive)", "C57BL/6NTac");
         BACKGROUND_MAPPING.put("C57BL/6NTac-ICS-Denmark(ImportedLive)", "C57BL/6Dnk");
-
     }
 
-    @Inject
-    public StrainMapper(CdaSqlUtils cdaSqlUtils) throws DataLoadException {
+
+    public StrainMapper(CdaSqlUtils cdaSqlUtils, Map<String, Strain> strainsByNameOrMgiAccessionIdMap, OntologyTerm impcUncharacterizedBackgroundStrain) throws DataLoadException {
         this.cdaSqlUtils = cdaSqlUtils;
-        initialise();
-    }
-
-    private void initialise() throws DataLoadException {
-        uncharacterizedBackgroundStrain = cdaSqlUtils.getOntologyTermByName("IMPC uncharacterized background strain");
-
+        this.strainsByNameOrMgiAccessionIdMap = strainsByNameOrMgiAccessionIdMap;
+        this.impcUncharacterizedBackgroundStrain = impcUncharacterizedBackgroundStrain;
     }
 
 
-
-
-    public String createAllelicComposition(String sampleZygosity, String alleleSymbol, String geneSymbol, String sampleGroup) {
+    public static String createAllelicComposition(String sampleZygosity, String alleleSymbol, String geneSymbol, String sampleGroup) {
 
         String allelicComposition = null;
 
@@ -178,9 +169,79 @@ public class StrainMapper {
      * @throws DataLoadException
      */
     public String parseMultipleBackgroundStrainNames(String backgroundStrainName) throws DataLoadException {
-        List<Strain> strains           = getBackgroundStrains(backgroundStrainName);
+        List<Strain> strains = getBackgroundStrains(backgroundStrainName);
         return strains.stream().map(Strain::getName).collect(Collectors.joining(" * "));
     }
+
+    /**
+     * Returns a {link Strain} instance, after possibly remapping it using the EuroPhenome curation map above, by
+     * querying the table columns below using the background strain name (in this order):
+     * <ul>
+     *     <li>strain.name</li>
+     *     <li>synonym.symbol</li>
+     *     <li>strain.acc</li>
+     * </ul>
+     *
+     * If no strain is found, null is returned.
+     *
+     * @param backgroundStrainName
+     *
+     * @return a {link Strain} instance, if found; null otherwise
+     */
+    public Strain lookupBackgroundStrain(String backgroundStrainName) {
+        Strain strain;
+
+        if (backgroundStrainName == null) {
+            return null;
+        }
+
+        // If the strain name is in the mapping table, use the strain name from the mapping table.
+        if (BACKGROUND_MAPPING.containsKey(backgroundStrainName)) {
+            backgroundStrainName = BACKGROUND_MAPPING.get(backgroundStrainName);
+        }
+
+        // Look in the map for the strain using backgroundStrainName. If found, return it. If not found, return null.
+        strain = strainsByNameOrMgiAccessionIdMap.get(backgroundStrainName);
+
+        return strain;
+    }
+
+    /**
+     * Creates a background strain {@link Strain} instance from the given background strain and the EuroPhenome maps
+     * in this file.
+     *
+     * @param backgroundStrainName
+     *
+     * @return  a {link Strain} instance, based on available information. This instance probably does not already exist
+     * in the database.
+     */
+    public static Strain createBackgroundStrain(String backgroundStrainName) {
+        Strain strain;
+
+        if (backgroundStrainName == null) {
+            return null;
+        }
+
+        // If the strain name is in the mapping table, use the strain name from the mapping table.
+        if (BACKGROUND_MAPPING.containsKey(backgroundStrainName)) {
+            backgroundStrainName = BACKGROUND_MAPPING.get(backgroundStrainName);
+        }
+
+        // Create a strain instance based on the available information.
+        String strainAccessionId = "IMPC-CURATE-" + DigestUtils.md5Hex(backgroundStrainName).substring(0, 5).toUpperCase();
+
+        strain = new Strain();
+        strain.setBiotype(impcUncharacterizedBackgroundStrain);
+        strain.setId(new DatasourceEntityId(strainAccessionId, DbIdType.IMPC.intValue()));
+        strain.setName(backgroundStrainName);
+        strain.setSynonyms(new ArrayList<>());
+
+        return strain;
+    }
+
+
+    // PRIVATE METHODS
+
 
     /**
      * Return a list of strains based on the string representation of the genetic background as specified in EuroPhenome
@@ -219,87 +280,25 @@ public class StrainMapper {
 
         // Iterate through the intermediate background pieces to find appropriate strains
         for (String intermediateBackground : intermediateBackgrounds) {
+            intermediateBackground = intermediateBackground.trim();
+            if ((intermediateBackground == null) || (intermediateBackground.trim().isEmpty())) {
+                continue;
+            }
+
             strain = lookupBackgroundStrain(intermediateBackground);
             if (strain == null) {
                 strain = createBackgroundStrain(intermediateBackground);
                 cdaSqlUtils.insertStrain(strain);
+                strainsByNameOrMgiAccessionIdMap.put(strain.getName(), strain);
+                strainsByNameOrMgiAccessionIdMap.put(strain.getId().getAccession(), strain);
             }
             strains.add(strain);
         }
-
 
         if (strains.isEmpty()) {
             throw new DataLoadException("Unknown genetic background. Strains not found for background " + backgroundStrainName);
         }
 
         return strains;
-    }
-
-    /**
-     * Returns a {link Strain} instance, after possibly remapping it using the EuroPhenome curation map above, by
-     * querying the table columns below using the background strain name (in this order):
-     * <ul>
-     *     <li>strain.name</li>
-     *     <li>synonym.symbol</li>
-     *     <li>strain.acc</li>
-     * </ul>
-     *
-     * If no strain is found, null is returned.
-     *
-     * @param backgroundStrainName
-     *
-     * @return a {link Strain} instance, if found; null otherwise
-     */
-    public Strain lookupBackgroundStrain(String backgroundStrainName) {
-        Strain strain;
-
-        if (backgroundStrainName == null) {
-            return null;
-        }
-
-        // If the strain name is in the mapping table, use the strain name from the mapping table.
-        if (BACKGROUND_MAPPING.containsKey(backgroundStrainName)) {
-            backgroundStrainName = BACKGROUND_MAPPING.get(backgroundStrainName);
-        }
-
-        // Use the background strain name as: strain name, then synonym, then accession id to find the strain.
-        // If it is not found, return null.
-        strain = cdaSqlUtils.getStrainByNameOrMgiAccessionIdOrSynonym(backgroundStrainName);
-
-        return strain;
-    }
-
-    /**
-     * Creates a background strain {@link Strain} instance from the given background strain and the EuroPhenome maps
-     * in this file. This method is only intended to be called after getting {@code null} back from a call to
-     * {@code lookupBackgroundStrain()} so that the caller can add this {link Strain} to the database.
-     *
-     * @param backgroundStrainName
-     *
-     * @return  a {link Strain} instance, based on available information. This instance probably does not already exist
-     * in the database.
-     */
-    public Strain createBackgroundStrain(String backgroundStrainName) {
-        Strain strain;
-
-        if (backgroundStrainName == null) {
-            return null;
-        }
-
-        // If the strain name is in the mapping table, use the strain name from the mapping table.
-        if (BACKGROUND_MAPPING.containsKey(backgroundStrainName)) {
-            backgroundStrainName = BACKGROUND_MAPPING.get(backgroundStrainName);
-        }
-
-        // Create a strain instance based on the available information.
-        String strainAccessionId = "IMPC-CURATE-" + DigestUtils.md5Hex(backgroundStrainName).substring(0, 5).toUpperCase();
-
-        strain = new Strain();
-        strain.setBiotype(uncharacterizedBackgroundStrain);
-        strain.setId(new DatasourceEntityId(strainAccessionId, DbIdType.IMPC.intValue()));
-        strain.setName(backgroundStrainName);
-        strain.setSynonyms(new ArrayList<>());
-
-        return strain;
     }
 }
