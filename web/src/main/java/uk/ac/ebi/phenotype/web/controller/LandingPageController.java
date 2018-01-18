@@ -188,7 +188,7 @@ public class LandingPageController {
             		+ "<li>Knockout mice allow us to understand metabolic procedures and relate them to human disease</li></ul>"
             		+ "<br /><br />"
             		+ "<p>"
-            		+ "Press releases:"
+            		+ "Press releases:&nbsp;"
             		//+ " <a target='_blank' href='https://www.ebi.ac.uk/about/news'>EMBL-EBI</a>&nbsp;|&nbsp;\n"
             		//+ "<a target='_blank' href='https://www.mrc.ac.uk/news/browse/'>MRC</a>&nbsp;|&nbsp;\n"
             		+ "<a target='_blank' href='http://bit.ly/MetabolismNewsStory'>IMPC</a>"
