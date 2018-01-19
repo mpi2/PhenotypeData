@@ -55,7 +55,7 @@
                             data on 395 human genes from three key druggable protein families that have been identified
                             as potential therapeutic targets: non-olfactory G-protein coupled receptors (GPCRs), ion channels,
                             and protein kinases. The <a href="http://dev.mousephenotype.org/data/documentation/aboutImpc">IMPC consortium</a> is creating knockout mouse strains for the IDG project to
-                            better understand the function of these proteins.
+                            better understand the function of these proteins. The IMPC is using the v2.0.1 of the IDG gene list that can be found in this <a href="https://grants.nih.gov/grants/guide/notice-files/NOT-RM-17-004.html">announcement</a>.
 						</p>
                     </div>
                 </div>	<!-- section -->
@@ -89,7 +89,7 @@
 		            	  <div class="clear"></div>
 
                 <br/><br/>
-                 <h6 >IMPC IDG data Heat Map</h6>
+                 <%-- <h6 >IMPC IDG data Heat Map</h6>
 
                 <p>
                     The heat map indicates the detailed IDG gene data representation in IMPC, from product availability to phenotypes.
@@ -98,7 +98,7 @@
 
                 <div id="geneHeatmap" class="geneHeatMap" style="overflow: hidden; overflow-x: auto;">
                 </div>
-                                         <div class="clear both"></div>
+                                         <div class="clear both"></div> --%>
         </div>
                         </div>
         <div class="section" id="phenotypePValueDistribution">
@@ -140,7 +140,7 @@
         <!-- section -->
 
         <script>
-            $(document).ready(function () {
+            /* $(document).ready(function () {
                 $.fn.qTip({
                     'pageName': 'idg',
                     'textAlign': 'left',
@@ -155,7 +155,7 @@
                 $('#geneHeatmap').append(html);
                 //$( '#spinner'+ id ).html('');
 
-            });
+            }); */
         </script>
 
     </jsp:body>
