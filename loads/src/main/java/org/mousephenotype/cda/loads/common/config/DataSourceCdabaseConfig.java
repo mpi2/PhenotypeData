@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright © 2015 EMBL - European Bioinformatics Institute
+ * Copyright © 2016 EMBL - European Bioinformatics Institute
  * <p/>
  * Licensed under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
@@ -14,10 +14,12 @@
  * License.
  ******************************************************************************/
 
-package org.mousephenotype.cda.loads.create.extract.dcc.config;
+package org.mousephenotype.cda.loads.common.config;
 
-import org.mousephenotype.cda.loads.common.config.DataSourcesConfigApp;
-import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
+import org.mousephenotype.cda.db.utilities.SqlUtils;
+import org.mousephenotype.cda.loads.common.CdaSqlUtils;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.data.jpa.JpaRepositoriesAutoConfiguration;
 import org.springframework.boot.autoconfigure.data.neo4j.Neo4jDataAutoConfiguration;
@@ -25,16 +27,15 @@ import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration;
 import org.springframework.boot.autoconfigure.jms.JndiConnectionFactoryAutoConfiguration;
 import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
-/**
- * Created by mrelac on 18/08/16.
- *
- * This class provides a place to put application configuration information. All of the data sources that it needs are
- * found in {@link DataSourcesConfigApp}.
- */
+import javax.sql.DataSource;
+
+@PropertySource(value="file:${user.home}/configfiles/${profile}/datarelease.properties")
 @Configuration
-@EnableBatchProcessing
 @EnableAutoConfiguration(exclude = {
         JndiConnectionFactoryAutoConfiguration.class,
         DataSourceAutoConfiguration.class,
@@ -42,7 +43,39 @@ import org.springframework.context.annotation.Configuration;
         JpaRepositoriesAutoConfiguration.class,
         DataSourceTransactionManagerAutoConfiguration.class,
         Neo4jDataAutoConfiguration.class
-})
-public class ExtractDccConfigBeans extends DataSourcesConfigApp {
+        })
+/**
+ * This configuration class defines the Cdabase {@link DataSource}, {@link NamedParameterJdbcTemplate}, and 
+ * {@link CdabaseSqlUtils} for the cdabase database.
+ *
+ * Created by mrelac on 18/01/2018.
+ */
+public class DataSourceCdabaseConfig {
 
+    protected final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
+    @Value("${datasource.cdabase.url}")
+    String cdabaseUrl;
+
+    @Value("${datasource.cdabase.username}")
+    protected String cdabaseUsername;
+
+    @Value("${datasource.cdabase.password}")
+    protected String cdabasePassword;
+
+
+    // cdabase database
+    @Bean
+    public DataSource cdabaseDataSource() {
+        return SqlUtils.getConfiguredDatasource(cdabaseUrl, cdabaseUsername, cdabasePassword);
+    }
+
+    @Bean
+    public NamedParameterJdbcTemplate jdbcCdabase() {
+        return new NamedParameterJdbcTemplate(cdabaseDataSource());
+    }
+
+    @Bean
+    public CdaSqlUtils cdabaseSqlUtils() {
+        return new CdaSqlUtils(jdbcCdabase());
+    }
 }

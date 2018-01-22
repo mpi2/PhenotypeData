@@ -21,7 +21,7 @@ import org.mousephenotype.cda.db.pojo.GenomicFeature;
 import org.mousephenotype.cda.db.pojo.Strain;
 import org.mousephenotype.cda.enumerations.DbIdType;
 import org.mousephenotype.cda.loads.common.CdaSqlUtils;
-import org.mousephenotype.cda.loads.common.config.DataSourcesConfigApp;
+import org.mousephenotype.cda.loads.common.config.DataSourceCdabaseConfig;
 import org.mousephenotype.cda.loads.create.extract.cdabase.steps.*;
 import org.mousephenotype.cda.loads.exceptions.DataLoadException;
 import org.mousephenotype.cda.utilities.UrlUtils;
@@ -62,7 +62,7 @@ import java.util.Map;
         DataSourceTransactionManagerAutoConfiguration.class,
         Neo4jDataAutoConfiguration.class
 })
-public class ExtractCdabaseConfigBeans extends DataSourcesConfigApp {
+public class CdabaseConfig extends DataSourceCdabaseConfig {
 
     @Autowired
     private CdaSqlUtils cdabaseSqlUtils;
@@ -81,7 +81,7 @@ public class ExtractCdabaseConfigBeans extends DataSourcesConfigApp {
 
     @Inject
     @Lazy
-    public ExtractCdabaseConfigBeans(StepBuilderFactory stepBuilderFactory, CdaSqlUtils cdabaseSqlUtils) {
+    public CdabaseConfig(StepBuilderFactory stepBuilderFactory, CdaSqlUtils cdabaseSqlUtils) {
         Assert.notNull(stepBuilderFactory, "StepBuilderFactory must not be null");
         Assert.notNull(cdabaseSqlUtils, "cdabaseSqlUtils must not be null");
 

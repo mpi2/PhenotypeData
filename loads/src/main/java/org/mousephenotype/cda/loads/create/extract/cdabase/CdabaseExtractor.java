@@ -133,7 +133,7 @@ public class CdabaseExtractor implements CommandLineRunner {
         OptionSet options = parser.parse(args);
 
         if (options.has("skipDownload")) {
-            String message = "Skipping download step as requested.'";
+            String message = "Skipping download step as requested.";
             logger.info(message);
             skipDownload = true;
         }

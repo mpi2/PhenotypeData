@@ -1022,6 +1022,7 @@ public class CdaSqlUtils {
      *
      * @return a {@link Set<OntologyTermAnomaly>} a list of the anomalies
      */
+    // FIXME Put this in a new class, ImpressSqlUtils, then you can get rid of jdbc, tableName, and ontologyAccColumnName parameters!
     public Set<OntologyTermAnomaly> checkAndUpdateOntologyTerms(NamedParameterJdbcTemplate jdbc, List<String> ontologyAccessionIds, String tableName, String ontologyAccColumnName) {
 
         String dbName = sqlUtils.getDatabaseName(jdbc);

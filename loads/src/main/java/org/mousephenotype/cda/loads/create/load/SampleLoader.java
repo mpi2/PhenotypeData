@@ -118,7 +118,7 @@ public class SampleLoader implements CommandLineRunner {
     }
 
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
         SpringApplication app = new SpringApplication(SampleLoader.class);
         app.setBannerMode(Banner.Mode.OFF);
         app.setLogStartupInfo(false);
@@ -127,7 +127,7 @@ public class SampleLoader implements CommandLineRunner {
 
 
     @Override
-    public void run(String... strings) throws Exception {
+    public void run(String... strings) throws DataLoadException {
 
         Assert.notNull(jdbcCda, "jdbcCda must not be null");
         Assert.notNull(cdaSqlUtils, "cdaSqlUtils must not be null");

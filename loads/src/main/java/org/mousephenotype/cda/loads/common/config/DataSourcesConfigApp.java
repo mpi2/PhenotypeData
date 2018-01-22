@@ -37,7 +37,7 @@ import javax.inject.Inject;
 import javax.sql.DataSource;
 
 @Configuration
-@PropertySource(value="file:${user.home}/configfiles/${profile}/datarelease.properties")
+//@PropertySource(value="file:${user.home}/configfiles/${profile}/datarelease.properties")
 @EnableAutoConfiguration(exclude = {
         JndiConnectionFactoryAutoConfiguration.class,
         DataSourceAutoConfiguration.class,
@@ -52,6 +52,7 @@ import javax.sql.DataSource;
  *
  * Created by mrelac on 18/08/2016.
  */
+@Deprecated
 public class DataSourcesConfigApp {
 
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());

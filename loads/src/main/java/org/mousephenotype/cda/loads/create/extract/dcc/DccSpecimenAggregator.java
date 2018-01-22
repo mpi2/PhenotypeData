@@ -98,8 +98,9 @@ public class DccSpecimenAggregator implements CommandLineRunner {
 
     private DataSource  dccDataSource;
     private DccSqlUtils dccSqlUtils;
-@Autowired
-NamedParameterJdbcTemplate jdbcDcc;
+
+    @Autowired
+    NamedParameterJdbcTemplate jdbcDcc;
 
     public DccSpecimenAggregator(
             DataSource dccDataSource,
@@ -110,7 +111,7 @@ NamedParameterJdbcTemplate jdbcDcc;
     }
 
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
         SpringApplication app = new SpringApplication(DccSpecimenAggregator.class);
         app.setBannerMode(Banner.Mode.OFF);
         app.setLogStartupInfo(false);
@@ -118,7 +119,7 @@ NamedParameterJdbcTemplate jdbcDcc;
     }
 
     @Override
-    public void run(String... args) throws Exception {
+    public void run(String... args) throws DataLoadException {
 
         initialize(args);
         run();
