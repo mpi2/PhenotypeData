@@ -87,9 +87,6 @@ public class PhenotypesController {
     ObservationService os;
 
     @Autowired
-    PreQcService preqcService;
-
-    @Autowired
     ImpressService impressService;
 
     @Autowired
@@ -174,29 +171,18 @@ public class PhenotypesController {
 
         // Associations table and filters
         PhenotypeFacetResult phenoResult = phenotypeSummaryHelper.getPhenotypeCallByMPAccessionAndFilter(phenotypeId,  null, null, null);
-        PhenotypeFacetResult preQcResult = phenotypeSummaryHelper.getPreQcPhenotypeCallByMPAccessionAndFilter(phenotypeId,  null, null, null);
-        model.addAttribute("phenoFacets", getPhenotypeFacets(phenoResult, preQcResult));
-        model.addAttribute("errorMessage", getErrorMessage(phenoResult, preQcResult));   
-        model.addAttribute("phenotypes", getPhenotypeRows(phenoResult, preQcResult, request.getAttribute("baseUrl").toString()));
+        model.addAttribute("phenoFacets", getPhenotypeFacets(phenoResult));
+        model.addAttribute("errorMessage", getErrorMessage(phenoResult));
+        model.addAttribute("phenotypes", getPhenotypeRows(phenoResult, request.getAttribute("baseUrl").toString()));
         
         return "phenotypes";
         
     }
     
     
-    private  Map<String, Map<String, Integer>> getPhenotypeFacets(PhenotypeFacetResult  phenoResult, PhenotypeFacetResult  preQcResult){
-    	
+   
+    private  Map<String, Map<String, Integer>> getPhenotypeFacets(PhenotypeFacetResult  phenoResult){
         Map<String, Map<String, Integer>> phenoFacets = phenoResult.getFacetResults();
-        Map<String, Map<String, Integer>> preQcFacets = preQcResult.getFacetResults();
-
-		for (String key : preQcFacets.keySet()){
-			if (preQcFacets.get(key).keySet().size() > 0){
-				for (String key2: preQcFacets.get(key).keySet()){
-					phenoFacets.get(key).put(key2, preQcFacets.get(key).get(key2)); 
-				}
-			}
-		}
-		
         return sortPhenFacets(phenoFacets);
     }
     
@@ -232,14 +218,12 @@ public class PhenotypesController {
      * @throws URISyntaxException
      * @throws SolrServerException, IOException
      */
-    private List<DataTableRow> getPhenotypeRows(PhenotypeFacetResult phenoResult, PhenotypeFacetResult preQcResult, String baseUrl)
-    throws IOException, URISyntaxException, SolrServerException {
+    private List<DataTableRow> getPhenotypeRows(PhenotypeFacetResult phenoResult, String baseUrl)
+            throws IOException, URISyntaxException, SolrServerException {
 
 
     	List<PhenotypeCallSummaryDTO> phenotypeList;
         phenotypeList = phenoResult.getPhenotypeCallSummaries();
-        //phenotypeList.addAll(preQcResult.getPhenotypeCallSummaries());
-
         // This is a map because we need to support lookups
         Map<Integer, DataTableRow> phenotypes = new HashMap<Integer, DataTableRow>();
 
@@ -308,10 +292,9 @@ public class PhenotypesController {
         
         // Associations table and filters
         PhenotypeFacetResult phenoResult = phenotypeSummaryHelper.getPhenotypeCallByMPAccessionAndFilter(acc,  procedureName, markerSymbol, mpTermName);
-        PhenotypeFacetResult preQcResult = phenotypeSummaryHelper.getPreQcPhenotypeCallByMPAccessionAndFilter(acc,  procedureName, markerSymbol, mpTermName);       
-        model.addAttribute("phenoFacets", getPhenotypeFacets(phenoResult, preQcResult));
-        model.addAttribute("errorMessage", getErrorMessage(phenoResult, preQcResult));   
-        model.addAttribute("phenotypes", phenotypeSummaryHelper.getPhenotypeRows(phenoResult, preQcResult, request.getAttribute("baseUrl").toString()));
+        model.addAttribute("phenoFacets", getPhenotypeFacets(phenoResult));
+        model.addAttribute("errorMessage", getErrorMessage(phenoResult));
+        model.addAttribute("phenotypes", phenotypeSummaryHelper.getPhenotypeRows(phenoResult, request.getAttribute("baseUrl").toString()));
         return "geneVariantsWithPhenotypeTable";
     }
 

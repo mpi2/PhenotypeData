@@ -7,9 +7,11 @@
 --%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
-<h4>Procedures that can lead to relevant phenotype associations</h4>
+<c:if test="${!page.equalsIgnoreCase('metabolism')}">
+	<h4>Procedures that can lead to relevant phenotype associations</h4>
+</c:if>
+	
 <div>
-
     <c:if test="${not empty procedures}">
 
         <h6>Young Adult:</h6>
@@ -38,8 +40,9 @@
                 <c:set var="lastProcedure" value="${procedure.getProcedureName()}" scope="page"/>
 
             </c:forEach>
+            
         </ul>
-
+     
         <p></p>
 
         <c:if test="${! adultOnly}">

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<centreProcedureSet xmlns="http://www.mousephenotype.org/dcc/exportlibrary/datastructure/core/procedure">
+    <centre centreID="Wtsi" pipeline="MGP_001" project="MGP Legacy">
+
+        <line colonyID="MCCU">
+            <procedure procedureID="IMPC_FER_001">
+                <simpleParameter parameterID="IMPC_FER_001_001">
+                    <value>Fertile</value>
+                </simpleParameter>
+                <simpleParameter parameterID="IMPC_FER_002_001" unit="count">
+                    <value>67</value>
+                </simpleParameter>
+                <simpleParameter parameterID="IMPC_FER_019_001">
+                    <value>Fertile</value>
+                </simpleParameter>
+                <procedureMetadata parameterID="IMPC_FER_014_001">
+                    <value>8</value>
+                </procedureMetadata>
+                <procedureMetadata parameterID="IMPC_FER_017_001">
+                    <parameterStatus>IMPC_PARAMSC_005:Multiple test strains</parameterStatus>
+                </procedureMetadata>
+            </procedure>
+        </line>
+    </centre>
+</centreProcedureSet>

@@ -19,93 +19,61 @@ package org.mousephenotype.cda.loads.common;
 /**
  * 2017-10-09 (mrelac)
  *
- * This class encapsulates the components of a biological model lookup key.
+ * This class encapsulates the components of a biological model lookup key, which are:
+ * <ul>
+ *     <li>datasourceShortName</li>
+ *     <li>strainAccessionId</li>
+ *     <li>geneAccessionId (will be null/empty for controls)</li>
+ *     <li>alleleAccessionId (will be null/empty for controls)</li>
+ *     <li>zygosity</li>
+ * </ul>
  */
 
-public abstract class BioModelKey {
+public class BioModelKey {
 
-    private Integer dbId;
-    private String allelicComposition;
-    private String geneticBackground;
+    private String datasourceShortName;
+    private String strainAccessionId;
     private String zygosity;
-    private int phenotypingCenterPk;
+    private String geneAccessionId;
+    private String alleleAccessionId;
 
 
-    public BioModelKey(Integer dbId, String allelicComposition, String geneticBackground, String zygosity, int phenotypingCenterPk) {
-        this.dbId = dbId;
-        this.allelicComposition = allelicComposition;
-        this.geneticBackground = geneticBackground;
+    /**
+     * Creates a {@link BioModelKey} instance from the given parameters that uniquely identifies a biological model.
+     *
+     * NOTE: This method is intended to be called by the {@link BioModelManager} and not by any other load code. The
+     * {@link BioModelManager} performs critical strain remapping transformations. Callers wishing to create a
+     * {@link BioModelKey} should use the {@link BioModelManager} {@code createMutantKey}() and {@code createControlKey}()
+     * methods instead, which have a much simpler interface and perform the required strain remappings.
+     *
+     * @param datasourceShortName
+     * @param strainAccessionId
+     * @param geneAccessionId
+     * @param alleleAccessionId
+     * @param zygosity
+     */
+    public BioModelKey(String datasourceShortName, String strainAccessionId, String geneAccessionId, String alleleAccessionId, String zygosity) {
+        this.datasourceShortName = datasourceShortName;
+        this.strainAccessionId = strainAccessionId;
+        this.geneAccessionId = (geneAccessionId == null ? "" : geneAccessionId);
+        this.alleleAccessionId = (alleleAccessionId == null ? "" : alleleAccessionId);
         this.zygosity = zygosity;
-        this.phenotypingCenterPk = phenotypingCenterPk;
-    }
-
-
-    public Integer getDbId() {
-        return dbId;
-    }
-
-    public void setDbId(Integer dbId) {
-        this.dbId = dbId;
-    }
-
-    public String getAllelicComposition() {
-        return allelicComposition;
-    }
-
-    public void setAllelicComposition(String allelicComposition) {
-        this.allelicComposition = allelicComposition;
-    }
-
-    public String getGeneticBackground() {
-        return geneticBackground;
-    }
-
-    public void setGeneticBackground(String geneticBackground) {
-        this.geneticBackground = geneticBackground;
-    }
-
-    public String getZygosity() {
-        return zygosity;
-    }
-
-    public void setZygosity(String zygosity) {
-        this.zygosity = zygosity;
-    }
-
-    public int getPhenotypingCenterPk() {
-        return phenotypingCenterPk;
-    }
-
-    public void setPhenotypingCenterPk(int phenotypingCenterPk) {
-        this.phenotypingCenterPk = phenotypingCenterPk;
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
 
-        BioModelKey that = (BioModelKey) o;
-
-        if (dbId != null ? !dbId.equals(that.dbId) : that.dbId != null) return false;
-        if (allelicComposition != null ? !allelicComposition.equals(that.allelicComposition) : that.allelicComposition != null)
-            return false;
-        if (geneticBackground != null ? !geneticBackground.equals(that.geneticBackground) : that.geneticBackground != null)
-            return false;
-        return zygosity != null ? zygosity.equals(that.zygosity) : that.zygosity == null;
+        return (o.toString().equals(this.toString()));
     }
 
     @Override
     public int hashCode() {
-        int result = dbId != null ? dbId.hashCode() : 0;
-        result = 31 * result + (allelicComposition != null ? allelicComposition.hashCode() : 0);
-        result = 31 * result + (geneticBackground != null ? geneticBackground.hashCode() : 0);
-        result = 31 * result + (zygosity != null ? zygosity.hashCode() : 0);
+        int result = this.toString().hashCode();
         return result;
     }
 
     @Override
     public String toString() {
-        return dbId + "_" + allelicComposition + "_" + geneticBackground + "_" + (zygosity == null ? "" : zygosity);
+        return datasourceShortName + "_" + strainAccessionId + "_" + geneAccessionId + "_" + alleleAccessionId + "_" + zygosity;
     }
 }

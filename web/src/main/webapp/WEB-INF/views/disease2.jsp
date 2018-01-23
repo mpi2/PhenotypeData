@@ -1,8 +1,6 @@
 <%-- 
     Document   : disease2
-    Comment    : Page generating disease pages.
-                 This file is largely based on disease.jsp, but uses a different 
-                 data model.
+    Comment    : Page generating disease pages.                 
     Created on : 1-Sep-2017    
 --%>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
@@ -30,8 +28,8 @@
                 <a href="#top"><i class="fa fa-chevron-up" title="scroll to top"></i></a>
                 <ul>
                     <li><a href="#top">Disease</a></li>
-                    <li><a href="#orthologous_mouse_models">Mouse Models</a></li>
-                    <li><a href="#potential_mouse_models">Potential Mouse Models</a></li>
+                    <li><a href="#mouse_models_phenoscatter">Mouse Models - visualization</a></li>
+                    <li><a href="#mouse_models_phenotables">Mouse Models - table</a></li>
                 </ul>
                 <div class="clear"></div>
             </div>

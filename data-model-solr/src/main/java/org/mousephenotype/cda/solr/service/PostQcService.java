@@ -62,7 +62,6 @@ public class PostQcService extends AbstractGenotypePhenotypeService implements W
 
     public PostQcService() {
         super();
-        isPreQc = false;
     }
 
     @PostConstruct

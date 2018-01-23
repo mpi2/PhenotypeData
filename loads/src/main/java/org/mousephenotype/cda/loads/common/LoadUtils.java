@@ -17,11 +17,14 @@
 package org.mousephenotype.cda.loads.common;
 
 
+import org.mousephenotype.cda.enumerations.ZygosityType;
+import org.mousephenotype.dcc.exportlibrary.datastructure.core.procedure.SimpleParameter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
@@ -73,6 +76,8 @@ public class LoadUtils {
         put("Kmpc",                     "KMPC");                        // center.centerId -> organisation.name
         put("Biat",                     "BIAT");                        // center.centerId -> organisation.name
         put("Ph",                       "PH");                          // center.centerId -> organisation.name
+        put("CDTA",                     "CDTA");                        // center.centerId -> organisation.name
+        put("Crl",                      "CRL");                         // center.centerId -> organisation.name
     }};
 
     public static <K, V> Map<V, K> inverseMap(Map<K, V> sourceMap) {
@@ -154,5 +159,74 @@ public class LoadUtils {
         public String value() {
             return value;
         }
+    }
+
+
+
+    /**
+     * Compute the line-level [mutant] zygosity (line-level controls have no specimens and, thus, no zygosity)
+     * @param simpleParameters a list of the caller's experiment's {@link SimpleParameter} instances
+     * @return The zygosity string, suitable for insertion into the database
+     */
+    public static String getLineLevelZygosity(List<SimpleParameter> simpleParameters) {
+
+        // Default zygosity is homozygous since most of the time this will be the case
+        ZygosityType zygosity = ZygosityType.homozygote;
+
+        // Check if Hemizygote
+        for (SimpleParameter param : simpleParameters) {
+
+            // Find the associated "Outcome" parameter
+            if (param.getParameterID()
+                    .equals("IMPC_VIA_001_001")) {
+
+                // Found the outcome parameter, check zygosity
+                String category = param.getValue();
+
+                if (category != null && category.contains("Hemizygous")) {
+                    zygosity = ZygosityType.hemizygote;
+                }
+
+                break;
+            }
+        }
+
+        return zygosity.getName();
+    }
+
+
+    /**
+     * Maps dcc zygosity string to cda zygosity string suitable for insertion into the cda database.
+     *
+     * @param dccZygosity The dcc zygosity string
+     *
+     * @return the cda zygosity string, or null if the dccZygosity is unknown.
+     */
+    public static String getSpecimenLevelMutantZygosity(String dccZygosity) {
+
+        String zygosity;
+        switch (dccZygosity) {
+            case "wild type":
+            case "homozygous":
+                zygosity = ZygosityType.homozygote.getName();
+                break;
+            case "heterozygous":
+                zygosity = ZygosityType.heterozygote.getName();
+                break;
+            case "hemizygous":
+                zygosity = ZygosityType.hemizygote.getName();
+                break;
+
+            default:
+                String message = "Unknown dcc zygosity '" + dccZygosity + "'";
+                logger.error(message);
+                zygosity = null;
+        }
+
+        return zygosity;
+    }
+
+    public static String getControlZygosity() {
+        return ZygosityType.homozygote.getName();
     }
 }

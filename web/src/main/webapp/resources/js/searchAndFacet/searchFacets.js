@@ -458,15 +458,18 @@
 
 		if (numFound > 0){
 
-            var oSubFacets2 = {'curated': {'label':'With Curated Gene Associations',
-                'subfacets':{'human_curated_gene':'From human data (OMIM, Orphanet)',
-                    'impc_model_with_curated_gene':'From human data with IMPC prediction',
-                    'mgi_model_with_curated_gene':'From human data with MGI prediction'}
-            },
+            var oSubFacets2 = {
+            	'curated': {'label':'With Curated Gene Associations',
+                			'subfacets':{'human_curated_gene':'From human data (OMIM, Orphanet)',
+                   						 'impc_model_with_curated_gene':'From human data with IMPC prediction',
+								         'mgi_model_with_curated_gene':'From human data with MGI prediction'
+            							}
+            				},
                 'predicted':{'label':'With Predicted Gene Associations by Phenotype',
-                    'subfacets': {'impc_model_with_computed_association':'From IMPC data',
-                        'mgi_model_with_computed_association':'From MGI data'}
-                }
+					         'subfacets': {'impc_model_with_computed_association':'From IMPC data',
+								           'mgi_model_with_computed_association':'From MGI data'
+							              }
+                			}
             };
 
 
@@ -860,8 +863,8 @@
 
 			var oSubFacets = {'targeting_vector_available':'Targeting Vector Available',
 				'es_cell_available':'ES Cell Available',
-				'mouse_available':'Mouse Available'
-				//'tissues_available':'Tissues Available'
+				'mouse_available':'Mouse Available',
+				'tissues_available':'Tissues Available'
 			};
 
 			for ( var fq in oSubFacets ){

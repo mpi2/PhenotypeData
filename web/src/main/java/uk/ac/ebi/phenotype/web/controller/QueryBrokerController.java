@@ -71,7 +71,7 @@ public class QueryBrokerController {
 	});
 
 
-	@RequestMapping(value = "/fetchDefaultCore", method = RequestMethod.GET)
+	@RequestMapping(value = "/fetchDefaultCoreOri", method = RequestMethod.GET)
 	@ResponseBody public String fetchDefaultCore(
 			@RequestParam(value = "q", required = true) String query,
 			HttpServletRequest request,

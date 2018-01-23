@@ -35,6 +35,16 @@ public class CategoricalResultAndCharts {
 	List<BiologicalModel> biologicalModels=new ArrayList<BiologicalModel>();
 	private List<CategoricalResult> statsResults;
 	private String organisation="placeHolder";
+	
+	private double combinedPValue;//male and female controls and experimental data combined to get an overall p value
+
+	public double getCombinedPValue() {
+		return combinedPValue;
+	}
+
+	public void setCombinedPValue(double combinedPValue) {
+		this.combinedPValue = combinedPValue;
+	}
 
 	public List<CategoricalResult> getStatsResults() {
 		return statsResults;
@@ -91,5 +101,7 @@ public class CategoricalResultAndCharts {
 	public void setExperiment(ExperimentDTO experiment) {
 		this.experiment = experiment;
 	}
+	
+	
 
 }

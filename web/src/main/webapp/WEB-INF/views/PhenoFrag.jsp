@@ -99,12 +99,10 @@
          
             <td>${phenotype.prValueAsString}</td>
 
-            <c:if test="${phenotype.isPreQc()}">
-            	<td class="preQcLink"> <span title="This is a preliminary association based on preliminary measurements." >
-            </c:if>
-			<c:if test="${not phenotype.isPreQc()}">
+           
+			
 				<td class="postQcLink">
-			</c:if>
+			
 			<c:if test="${phenotype.getEvidenceLink().getDisplay()}">
 				<c:if test='${phenotype.getEvidenceLink().getIconType().name().equalsIgnoreCase("IMAGE")}'>
 					<a href="${phenotype.getEvidenceLink().getUrl() }"><i class="fa fa-image" alt="${phenotype.getEvidenceLink().getAlt()}"></i></a>
@@ -136,9 +134,8 @@
 				</c:if>
 				
 			</c:if>
-			<c:if test="${phenotype.isPreQc()}">
-				<i class="fa fa-exclamation" ></i> </span>
-			</c:if>
+			
+			
 			</td>	<!-- This is closing the td from the 2 ifs above -->
 
 			</tr>

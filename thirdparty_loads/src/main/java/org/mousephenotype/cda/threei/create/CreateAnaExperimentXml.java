@@ -18,17 +18,10 @@ package org.mousephenotype.cda.threei.create;
 
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
-import org.mousephenotype.cda.loads.common.CdaSqlUtils;
-import org.mousephenotype.cda.loads.common.DccSqlUtils;
-import org.mousephenotype.cda.loads.create.extract.dcc.config.ExtractDccConfigBeans;
 import org.mousephenotype.cda.loads.exceptions.DataLoadException;
-import org.mousephenotype.dcc.exportlibrary.datastructure.core.specimen.*;
 import org.mousephenotype.dcc.exportlibrary.datastructure.core.common.*;
 import org.mousephenotype.dcc.exportlibrary.datastructure.core.procedure.*;
-import org.mousephenotype.dcc.exportlibrary.xmlserialization.exceptions.XMLloadingException;
 import org.mousephenotype.dcc.utils.xml.XMLUtils;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.Banner;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -43,17 +36,12 @@ import org.springframework.beans.factory.annotation.Value;
 //import org.mousephenotype.cda.loads.create.extract.dcc.TestSpecimen;
 import org.mousephenotype.cda.threei.util.AnaExcelReader;
 
-import javax.sql.DataSource;
-import javax.validation.constraints.NotNull;
-import java.sql.SQLException;
 import java.util.*;
 
-import java.sql.Date;
-
 /**
- * Created by kolab on 04/10/2017 - based on ExtractDccSpecimens.
+ * Created by kolab on 04/10/2017 - based on DccSpecimenExtractor.
  * <p/>
- * This class encapsulates the code and data necessary to convert an XLS (Excel) report provided by Sanger/KCL to the XML format required by ExtractDccSpecimens and ExtractDccExperiments load the specified target database with the source dcc
+ * This class encapsulates the code and data necessary to convert an XLS (Excel) report provided by Sanger/KCL to the XML format required by DccSpecimenExtractor and DccExperimentExtractor load the specified target database with the source dcc
  * specimen files currently found at /usr/local/komp2/phenotype_data/impc. This class is meant to be an executable jar
  * whose arguments describe the profile containing the application.properties, the source file, and the database name.
  */
@@ -93,7 +81,7 @@ public class CreateAnaExperimentXml extends Create3iXmls implements CommandLineR
         OptionSet options = parser.parse(args);
 
         if ( ! options.has("infilename")) {
-            String message = "Missing required command-line paraemter 'infilename'";
+            String message = "Missing required command-line parameter 'infilename'";
             logger.error(message);
             throw new DataLoadException(message);
         }

@@ -64,8 +64,6 @@ public class AbstractGenotypePhenotypeService extends BasicService {
 
     protected SolrClient solr;
 
-    protected Boolean isPreQc;
-
     public static final double P_VALUE_THRESHOLD = 0.0001;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -766,7 +764,7 @@ public class AbstractGenotypePhenotypeService extends BasicService {
 
         solrUrl += "/select/?q=" + GenotypePhenotypeDTO.MARKER_ACCESSION_ID + ":(\"" + geneClause.toString() + "\")" + "&facet=true" + "&facet.field=" + GenotypePhenotypeDTO.RESOURCE_FULLNAME + "&facet.field=" + GenotypePhenotypeDTO.PROCEDURE_NAME + "&facet.field=" + GenotypePhenotypeDTO.MARKER_SYMBOL + "&facet.field=" + GenotypePhenotypeDTO.MP_TERM_NAME + "&sort=p_value%20asc" + "&rows=10000000&version=2.2&start=0&indent=on&wt=json";
         //		System.out.println("\n\n\n SOLR URL = " + solrUrl);
-        return this.createPhenotypeResultFromSolrResponse(solrUrl, isPreQc);
+        return this.createPhenotypeResultFromSolrResponse(solrUrl);
     }
 
     /**
@@ -789,7 +787,7 @@ public class AbstractGenotypePhenotypeService extends BasicService {
 
         solrUrl += "/select/?q=" + GenotypePhenotypeDTO.PHENOTYPING_CENTER + ":\"" + phenotypingCenter + "\"" + "&fq=" + GenotypePhenotypeDTO.PIPELINE_STABLE_ID + ":" + pipelineStableId + "&facet=true" + "&facet.field=" + GenotypePhenotypeDTO.RESOURCE_FULLNAME + "&facet.field=" + GenotypePhenotypeDTO.PROCEDURE_NAME + "&facet.field=" + GenotypePhenotypeDTO.MARKER_SYMBOL + "&facet.field=" + GenotypePhenotypeDTO.MP_TERM_NAME + "&sort=p_value%20asc" + "&rows=10000000&version=2.2&start=0&indent=on&wt=json";
         //		System.out.println("SOLR URL = " + solrUrl);
-        return this.createPhenotypeResultFromSolrResponse(solrUrl, isPreQc);
+        return this.createPhenotypeResultFromSolrResponse(solrUrl);
     }
 
     public PhenotypeFacetResult getMPByGeneAccessionAndFilter(String accId, List<String> topLevelMpTermName, List<String> resourceFullname)
@@ -817,10 +815,18 @@ public class AbstractGenotypePhenotypeService extends BasicService {
         
         solrUrl += q;
         
-        return createPhenotypeResultFromSolrResponse(solrUrl, isPreQc);
+        return createPhenotypeResultFromSolrResponse(solrUrl);
     }
 
+
     public PhenotypeFacetResult getMPCallByMPAccessionAndFilter(String phenotype_id, List<String> procedureName, List<String> markerSymbol, List<String> mpTermName)
+            throws IOException, URISyntaxException, SolrServerException {
+
+        return getMPCallByMPAccessionAndFilter(phenotype_id, procedureName, markerSymbol, mpTermName, null);
+    }
+
+
+    public PhenotypeFacetResult getMPCallByMPAccessionAndFilter(String phenotype_id, List<String> procedureName, List<String> markerSymbol, List<String> mpTermName, Map<String, Synonym> synonyms)
     throws IOException, URISyntaxException, SolrServerException {
 
         String url = SolrUtils.getBaseURL(solr) + "/select/?";
@@ -860,7 +866,7 @@ public class AbstractGenotypePhenotypeService extends BasicService {
         
         url += q;
         
-        return createPhenotypeResultFromSolrResponse(url, isPreQc);
+        return createPhenotypeResultFromSolrResponse(url, synonyms);
 
     }
     /**
@@ -967,19 +973,26 @@ public class AbstractGenotypePhenotypeService extends BasicService {
         return results;
     }
 
+
+    public PhenotypeFacetResult createPhenotypeResultFromSolrResponse(String url)
+            throws IOException, URISyntaxException, SolrServerException {
+        return createPhenotypeResultFromSolrResponse(url, null);
+    }
+
+
     // Returns status of operation in PhenotypeFacetResult.status. Query it for errors and warnings.
-    public PhenotypeFacetResult createPhenotypeResultFromSolrResponse(String url, Boolean isPreQc)
+    public PhenotypeFacetResult createPhenotypeResultFromSolrResponse(String url, Map<String, Synonym> synonyms)
     throws IOException, URISyntaxException, SolrServerException {
 
         PhenotypeFacetResult facetResult = new PhenotypeFacetResult();
-        List<PhenotypeCallSummaryDTO> list = new ArrayList<PhenotypeCallSummaryDTO>();
-        JSONObject results = new JSONObject();
+        List<PhenotypeCallSummaryDTO> list = new ArrayList<>();
+        JSONObject results;
         results = JSONRestUtil.getResults(url);
         JSONArray docs = results.getJSONObject("response").getJSONArray("docs");
                 
         for (Object doc : docs) {
             try {
-                PhenotypeCallSummaryDTO call = createSummaryCall(doc, isPreQc);
+                PhenotypeCallSummaryDTO call = createSummaryCall(doc, synonyms);
                 if ((call.getStatus().hasErrors()) || call.getStatus().hasWarnings()) {
                     facetResult.getStatus().add(call.getStatus());
                 }
@@ -1020,14 +1033,29 @@ public class AbstractGenotypePhenotypeService extends BasicService {
         return facetResult;
     }
 
-    
-    public PhenotypeCallSummaryDTO createSummaryCall(Object doc, Boolean preQc)
+    // synonyms may be null. If it is not, this method will check synonyms if the gene symbol is not found
+
+    /**
+     * Returns a {@link PhenotypeCallSummaryDTO}from the given inputs. If no mgiAccessionId is found for the gene marker
+     * symbol AND {@code summary} is not null, the synonyms are searched for a mgiAccessionId and, if found, used. If
+     * {@code synonyms} is null or the gene marker symbol is not found in the synonyms, a warning is returned and an
+     * empty {@link PhenotypeCallSummaryDTO} is returned
+     *
+     * @param doc
+     * @param synonyms if not null, contains a full list of {@link Synonym} instances to search for mgiAccessionId.
+     * @return
+     * @throws Exception
+     */
+    public PhenotypeCallSummaryDTO createSummaryCall(Object doc, Map<String, Synonym> synonyms)
     throws Exception{
         
     	JSONObject phen = (JSONObject) doc;
         JSONArray topLevelMpTermNames;
         JSONArray topLevelMpTermIDs;
-        PhenotypeCallSummaryDTO sum = null;
+        PhenotypeCallSummaryDTO sum;
+        if (synonyms == null) {
+            synonyms = new HashMap<>();             // If synonyms is null, create an empty one to avoid NPE.
+        }
         try{
 
             sum = new PhenotypeCallSummaryDTO();
@@ -1088,8 +1116,6 @@ public class AbstractGenotypePhenotypeService extends BasicService {
 	        if (phen.containsKey(GenotypePhenotypeDTO.EXTERNAL_ID)) {
 	            sum.setgId(phen.getString(GenotypePhenotypeDTO.EXTERNAL_ID));
 	        }
-	
-	        sum.setPreQC(preQc);
 
 	        if (phen.containsKey(GenotypePhenotypeDTO.PHENOTYPING_CENTER)) {
                 sum.setPhenotypingCenter(phen.getString(GenotypePhenotypeDTO.PHENOTYPING_CENTER));
@@ -1121,7 +1147,12 @@ public class AbstractGenotypePhenotypeService extends BasicService {
                     gene.setAccessionId(phen.getString(GenotypePhenotypeDTO.MARKER_ACCESSION_ID));
                 }
                 else {
-                    sum.getStatus().addWarning(gene.getSymbol() + " has no accession id");
+                    Synonym syn = synonyms.get(gene.getSymbol());
+                    if (syn != null) {
+                        gene.setAccessionId(syn.getAccessionId());
+                    } else {
+                        sum.getStatus().addWarning(gene.getSymbol() + " has no accession id");
+                    }
                 }
 
 	            sum.setGene(gene);
@@ -1147,7 +1178,7 @@ public class AbstractGenotypePhenotypeService extends BasicService {
 	        sum.setSex(sexType);
 
 
-            if( ! preQc &&  phen.containsKey(GenotypePhenotypeDTO.LIFE_STAGE_NAME)) {
+            if( phen.containsKey(GenotypePhenotypeDTO.LIFE_STAGE_NAME)) {
                 String lifeStageName = phen.getString(GenotypePhenotypeDTO.LIFE_STAGE_NAME);
                 sum.setLifeStageName(lifeStageName);
             }
@@ -1213,11 +1244,9 @@ public class AbstractGenotypePhenotypeService extends BasicService {
             }
         } catch (Exception e){
         	String errorCode = "";
-        	if (preQc){
-        		errorCode = "#17";
-        	} else {
+        	
         		errorCode = "#18";
-        	}
+   
         	Exception exception = new Exception(errorCode);
     		System.out.println(errorCode);
     		e.printStackTrace();

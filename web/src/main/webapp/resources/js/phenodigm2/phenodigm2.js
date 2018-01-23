@@ -18,7 +18,6 @@
  * handling of data on phenodigm2-specific pages 
  * 
  * requires: 
- * 
  * d3 - used to generate visualizations, generate tables from json
  * _ - misc manipulations of objects and arrays
  * $ - jquery, used to manipulate dom (legacy)
@@ -26,13 +25,11 @@
  * modelAssociations - object expected to be defined in page before these
  *                     functions are called
  * 
- * The code uses an ugly mixture of d3 and jQuery. This is mostly
- * 
+ * The code uses an ugly mixture of d3 and jQuery. This is mostly for historic.
+ * Development should gradually switch to d3-only. 
  * 
  * Parts of the code are based on diseasetableutils.js
- * 
- * Status: needs cleanup
- * 
+ *  
  */
 
 /* global d3, _, $, impc, monarchUrl, Phenogrid, modelAssociations */
@@ -43,8 +40,6 @@ if (typeof impc === "undefined") {
 impc.phenodigm2 = {
     scores: ["avgRaw", "avgNorm", "maxRaw", "maxNorm"]
 };
-// values for model source that IMPC can take credit for
-impc.sources = ["IMPC", "EuroPhenome", "EUCOMM", "3i", "3i,IMPC", "IMPC,3i"];
 impc.logo = impc.baseUrl + "/img/impc.png";
 impc.logohtml = "<img class='small-logo' src='" + impc.logo + "'/>";
 
@@ -60,8 +55,6 @@ impc.urls = {
  * General helper functions
  **************************************************************************** */
 
-// identify whether the info fields contain IMPC
-
 /**
  * Identify whether x refers to an IMPC model
  * This function handles multiple cases:
@@ -70,7 +63,9 @@ impc.urls = {
  *   - when x is an object without a source field (but with an info field)
  * 
  * @param {type} x
- * @returns {Boolean}
+ * @returns {Boolean} The implementation is such that when a model comes from
+ * MGI, the return value is False. Otherwise, the return value is True. This
+ * accepts models sources by 3i, MGP, Eurocomm, IMPC, etc.
  */
 impc.isImpc = function (x) {
     var result = false;
@@ -85,15 +80,15 @@ impc.isImpc = function (x) {
 
     // handling of x as an object of various types, default as a string
     if (_.has(x, "source")) {
-        result = impc.sources.indexOf(x.source) >= 0;
+        return impc.isImpc(x.source);
     } else if (_.has(x, "info")) {
         x.info.map(function (y) {
             if (y.id.startsWith("Source")) {
                 result = impc.isImpc(y.value);
             }
         });
-    } else {        
-        return impc.sources.indexOf(x) >=0;
+    } else {
+        return x !== "MGI";
     }
 
     return result;
@@ -325,6 +320,7 @@ impc.phenodigm2.makeScatterplot = function (darr, conf) {
     impc.phenodigm2.drawScatterplot(darr, conf);
 };
 
+
 // d3 functions to move items in an svg to the front or back 
 // https://github.com/wbkd/d3-extended
 d3.selection.prototype.moveToFront = function () {
@@ -341,6 +337,7 @@ d3.selection.prototype.moveToBack = function () {
     });
 };
 
+
 /**
  * Generate a scatter plot from the scores
  * 
@@ -355,7 +352,7 @@ impc.phenodigm2.drawScatterplot = function (darr, conf) {
     var detail = d3.select(conf.id).select(".detail");
 
     // clear the contents of the svg
-    outer.selectAll("g").remove();//html("");
+    outer.selectAll("g").remove();
 
     // set some additional elements in conf, pertaining to size of page/drawing
     conf.w = parseInt(outer.style("width"));
@@ -445,7 +442,6 @@ impc.phenodigm2.drawScatterplot = function (darr, conf) {
     };
 
     var sourceString = function (d) {
-        console.log("checking for "+d.source+ " and "+impc.isImpc(d.source));        
         return impc.isImpc(d.source) ? "IMPC" : "MGI";
     };
 
@@ -453,7 +449,7 @@ impc.phenodigm2.drawScatterplot = function (darr, conf) {
     //  - rect for models with annotated genes
     //  - circle for models with other genes
     svg.selectAll(".marker1").data(darr_known).enter().append("rect")
-            .attr("class", function (d) {                
+            .attr("class", function (d) {
                 return "marker curated " + sourceString(d);
             })
             .attr("x", function (d) {
@@ -466,7 +462,7 @@ impc.phenodigm2.drawScatterplot = function (darr, conf) {
             .attr("height", 3 * conf.radius)
             .on("click", showModelInfo);
     svg.selectAll(".marker2").data(darr_new).enter().append("circle")
-            .attr("class", function (d) {                
+            .attr("class", function (d) {
                 return "marker " + sourceString(d);
             })
             .attr("cx", function (d) {
@@ -475,12 +471,10 @@ impc.phenodigm2.drawScatterplot = function (darr, conf) {
             .attr("cy", function (d) {
                 return yscale(d[conf.axes[1]]);
             })
-            .attr("r", function (d) {
-                return conf.radius;
-            })
+            .attr("r", conf.radius)
             .on("click", showModelInfo);
 
-    // style and add behaviors to the markers
+    // style for the markers
     svg.selectAll(".marker")
             .attr("fill", function (d) {
                 if (d3.select(this).attr("class").search(/IMPC/) >= 0) {
@@ -488,9 +482,7 @@ impc.phenodigm2.drawScatterplot = function (darr, conf) {
                 }
                 return conf.color[1];
             })
-            .style("fill-opacity", function (d) {
-                return 0.7;
-            });
+            .style("fill-opacity", 0.7);
 
     // move MGI models to back (to highlight IMPC models)
     svg.selectAll(".MGI").each(function (d) {
@@ -537,7 +529,6 @@ impc.phenodigm2.drawScatterplot = function (darr, conf) {
 };
 
 
-
 /****************************************************************************
  * Handling for phenogrid widget
  **************************************************************************** */
@@ -561,6 +552,7 @@ impc.phenodigm2.makePgid = function (tableId, geneId, diseaseId, pageType) {
     }
     return result;
 };
+
 
 /**
  * Create a div with attributes. (The div can be used to hold a phenogrid)
@@ -586,7 +578,6 @@ impc.phenodigm2.makeTableChildRow = function (tableId, geneId, diseaseId, pageTy
     innerdiv.append("<div class='inner_pg' id='" + pgid + "'></div>");
     return innerdiv;
 };
-
 
 
 /**
@@ -651,8 +642,6 @@ impc.phenodigm2.completeGridSkeleton = function (skeleton, geneId, diseaseId, pa
     return skeleton;
 };
 
-
-/* global modelAssociations */
 
 /**
  * Create a table with phenotype details about individual models
@@ -804,6 +793,7 @@ impc.phenodigm2.insertPhenogrid = function (tableId, geneId, diseaseId, pageType
     });
 };
 
+
 /** 
  * Add on-click functionality to a table object generated by DataTable
  * 
@@ -847,4 +837,3 @@ $.fn.addTableClickPhenogridHandler = function (tableId, table) {
         }
     });
 };
-

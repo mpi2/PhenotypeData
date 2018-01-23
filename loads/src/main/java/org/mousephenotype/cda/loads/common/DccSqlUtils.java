@@ -94,7 +94,11 @@ public class DccSqlUtils {
      * be safely ignored/skipped. Criteria for entry into this list are:
      * - The colonyId must not already exist
      * - There is not enough information (e.g. gene, strain) information to hand-curate a phenotyped_colony record
+     *
+     * 2017-11-22 (mrelac) Use the table 'missing_colony_id' to look these up.
      */
+    // FIXME
+    @Deprecated
     public static List<String> knownBadColonyIds = Arrays.asList(
             new String[] {
                     "(Deluca)<Deluca>", "EPD0038_2_A04", "internal", "Trm1", "MAG", "EUCJ0019_C12",
@@ -659,8 +663,7 @@ public class DccSqlUtils {
     public Map<Long, List<OntologyParameter>> getOntologyParameters() {
         Map<Long, List<OntologyParameter>> retVal = new HashMap<>();
 
-        final String query =
-                "SELECT * FROM ontologyParameter";
+        final String query = "SELECT * FROM ontologyParameter";
 
         Map<Long, List<String>> ontologyParametersMap = getOntologyParameterTerms();
         Map<String, Object> parameterMap = new HashMap<>();
@@ -758,7 +761,7 @@ public class DccSqlUtils {
                         "  pk,\n" +
                         "  fileType,\n" +
                         "  incrementValue,\n" +
-                        "  URI,seriesMediaParameter_pk\n" +
+                        "  URI, link, seriesMediaParameter_pk\n" +
                         "FROM seriesMediaParameterValue\n" +
                         "WHERE seriesMediaParameter_pk = :seriesMediaParameter_pk";
 
@@ -770,13 +773,14 @@ public class DccSqlUtils {
         return list;
     }
 
-
+    /**
+     * Series Media Parameter Value associations
+     */
     public List<ParameterAssociation> getSeriesMediaParameterValueParameterAssociations(long seriesMediaParameterValuepk) {
-        String query = "SELECT\n" +
-                "  pa.*\n" +
-                "FROM seriesMediaParameterValue_parameterAssociation smpvpa\n" +
-                "JOIN parameterAssociation pa ON pa.pk = smpvpa.seriesMediaParameterValue_pk\n" +
-                "where smpvpa.seriesMediaParameterValue_pk = :pk";
+        String query = "SELECT pa.* " +
+                "FROM seriesMediaParameterValue_parameterAssociation smpvpa " +
+                "JOIN parameterAssociation pa ON pa.pk = smpvpa.parameterAssociation_pk " +
+                "where smpvpa.seriesMediaParameterValue_pk = :pk " ;
 
         Map<String, Object> parameterMap = new HashMap<>();
         parameterMap.put("pk", seriesMediaParameterValuepk);
@@ -786,17 +790,75 @@ public class DccSqlUtils {
 
 
     public List<ProcedureMetadata> getSeriesMediaParameterValueProcedureMetadataAssociations(long seriesMediaParameterValuepk) {
-        String query = "SELECT\n" +
-                "  pm.*\n" +
-                "FROM seriesMediaParameterValue_procedureMetadata smpvpm\n" +
-                "JOIN procedureMetadata pm ON pm.pk = smpvpm.seriesMediaParameterValue_pk\n" +
-                "WHERE smpvpm.seriesMediaParameterValue_pk = :pk";
+        String query = "SELECT pm.* " +
+                "FROM seriesMediaParameterValue_procedureMetadata smpvpm " +
+                "JOIN procedureMetadata pm ON pm.pk = smpvpm.procedureMetadata_pk " +
+                "WHERE smpvpm.seriesMediaParameterValue_pk = :pk " ;
 
         Map<String, Object> parameterMap = new HashMap<>();
         parameterMap.put("pk", seriesMediaParameterValuepk);
 
         return npJdbcTemplate.query(query, parameterMap, new ProcedureMetadataRowMapper());
     }
+
+
+    /**
+     * Media file associations
+     */
+    public List<ParameterAssociation> getMediaFileParameterAssociations(long mediaFilepk) {
+        String query = "SELECT pa.* " +
+                "FROM mediaParameter_parameterAssociation mppa " +
+                "JOIN parameterAssociation pa ON pa.pk = mppa.parameterAssociation_pk " +
+                "where mppa.mediaFile_pk = :pk " ;
+
+        Map<String, Object> parameterMap = new HashMap<>();
+        parameterMap.put("pk", mediaFilepk);
+
+        return npJdbcTemplate.query(query, parameterMap, new ParameterAssociationRowMapper());
+    }
+
+
+    public List<ProcedureMetadata> getMediaFileProcedureMetadataAssociations(long mediaFilepk) {
+        String query = "SELECT pm.* " +
+                "FROM mediaFile_procedureMetadata mfpm " +
+                "JOIN procedureMetadata pm ON pm.pk = mfpm.procedureMetadata_pk " +
+                "WHERE mfpm.mediaFile_pk = :pk " ;
+
+        Map<String, Object> parameterMap = new HashMap<>();
+        parameterMap.put("pk", mediaFilepk);
+
+        return npJdbcTemplate.query(query, parameterMap, new ProcedureMetadataRowMapper());
+    }
+
+
+    /**
+     * Media Parameter associations
+     */
+    public List<ParameterAssociation> getMediaParameterParameterAssociations(long mediaParameterpk) {
+        String query = "SELECT pa.* " +
+                "FROM mediaParameter_parameterAssociation mppa " +
+                "JOIN parameterAssociation pa ON pa.pk = mppa.parameterAssociation_pk " +
+                "where mppa.mediaParameter_pk = :pk " ;
+
+        Map<String, Object> parameterMap = new HashMap<>();
+        parameterMap.put("pk", mediaParameterpk);
+
+        return npJdbcTemplate.query(query, parameterMap, new ParameterAssociationRowMapper());
+    }
+
+
+    public List<ProcedureMetadata> getMediaParameterProcedureMetadataAssociations(long mediaParameterpk) {
+        String query = "SELECT pm.* " +
+                "FROM mediaParameter_procedureMetadata mppm " +
+                "JOIN procedureMetadata pm ON pm.pk = mppm.procedureMetadata_pk " +
+                "WHERE mppm.mediaParameter_pk = :pk " ;
+
+        Map<String, Object> parameterMap = new HashMap<>();
+        parameterMap.put("pk", mediaParameterpk);
+
+        return npJdbcTemplate.query(query, parameterMap, new ProcedureMetadataRowMapper());
+    }
+
 
 
     private class SeriesParameterEx {
@@ -1321,8 +1383,8 @@ public class DccSqlUtils {
      * @return the primary key if the insert was successful; 0 otherwise
      */
     public long insertMediaFile(MediaFile mediaFile, long mediaSectionPk) {
-        String insert = "INSERT INTO mediaFile (localId, fileType, URI, mediaSection_pk) " +
-                        "VALUES (:localId, :fileType, :URI, :mediaSectionPk)";
+        String insert = "INSERT INTO mediaFile (localId, fileType, URI, link, mediaSection_pk) " +
+                        "VALUES (:localId, :fileType, :URI, :link, :mediaSectionPk)";
 
         Map<String, Object> parameterMap = new HashMap<>();
         try {
@@ -1330,6 +1392,7 @@ public class DccSqlUtils {
             parameterMap.put("localId", mediaFile.getLocalId());
             parameterMap.put("fileType", mediaFile.getFileType());
             parameterMap.put("URI", mediaFile.getURI());
+            parameterMap.put("link", mediaFile.getLink());
             parameterMap.put("mediaSectionPk", mediaSectionPk);
 
             KeyHolder keyholder = new GeneratedKeyHolder();
@@ -1676,7 +1739,7 @@ public class DccSqlUtils {
             }
 
         } catch (DuplicateKeyException dke) {
-            logger.info("IGNORED DUPLICATE INSERT to ontologyParameterTerm for ontologyParameterTerm {}, ontologyParameterPk {}, parameterId {}, filename {}",
+            logger.debug("IGNORED DUPLICATE INSERT to ontologyParameterTerm for ontologyParameterTerm {}, ontologyParameterPk {}, parameterId {}, filename {}",
                          ontologyParameterTerm, ontologyParameterPk, ontologyParameter.getParameterID(), filename);
         }
 
@@ -1868,8 +1931,8 @@ public class DccSqlUtils {
      * @return the primary key if the insert was successful; 0 otherwise
      */
     public long insertSeriesMediaParameterValue(SeriesMediaParameterValue seriesMediaParameterValue, long seriesMediaParameterPk) {
-        String insert = "INSERT INTO seriesMediaParameterValue (fileType, incrementValue, URI, seriesMediaParameter_pk) " +
-                        "VALUES (:fileType, :incrementValue, :URI, :seriesMediaParameterPk)";
+        String insert = "INSERT INTO seriesMediaParameterValue (fileType, incrementValue, URI, link, seriesMediaParameter_pk) " +
+                        "VALUES (:fileType, :incrementValue, :URI, :link, :seriesMediaParameterPk)";
 
         try {
             Map<String, Object> parameterMap = new HashMap<>();
@@ -1877,6 +1940,7 @@ public class DccSqlUtils {
             parameterMap.put("fileType", seriesMediaParameterValue.getFileType());
             parameterMap.put("incrementValue", seriesMediaParameterValue.getIncrementValue());
             parameterMap.put("URI", seriesMediaParameterValue.getURI());
+            parameterMap.put("link", seriesMediaParameterValue.getLink());
             parameterMap.put("seriesMediaParameterPk", seriesMediaParameterPk);
 
             KeyHolder keyholder = new GeneratedKeyHolder();
@@ -2449,7 +2513,8 @@ public class DccSqlUtils {
         long parameterAssociationPk;
         String parameterId = parameterAssociation.getParameterID();
         Integer sequenceId = (parameterAssociation.getSequenceID() == null ? null : parameterAssociation.getSequenceID().intValue());
-        final String insertPa = "INSERT INTO parameterAssociation (parameterId, sequenceId) VALUES (:parameterId, :sequenceId)";
+        String link = parameterAssociation.getLink();
+        final String insertPa = "INSERT INTO parameterAssociation (parameterId, sequenceId, link) VALUES (:parameterId, :sequenceId, :link)";
         final String insertDimension = "INSERT INTO dimension (id, origin, unit, value, parameterAssociation_pk) "
                                      + "VALUES(:id, :origin, :unit, :value, :parameterAssociationPk)";
 
@@ -2457,6 +2522,7 @@ public class DccSqlUtils {
                 Map<String, Object> parameterMap = new HashMap<>();
                 parameterMap.put("parameterId", parameterId);
                 parameterMap.put("sequenceId", sequenceId);
+                parameterMap.put("link", link);
 
                 KeyHolder keyholder = new GeneratedKeyHolder();
                 SqlParameterSource parameterSource = new MapSqlParameterSource(parameterMap);
@@ -2519,7 +2585,8 @@ public class DccSqlUtils {
 
         } catch (Exception e) {
             e.printStackTrace();
-            throw new RuntimeException("INSERT of procedureMetadata(" + procedureMetadata.getParameterID() + ", " + procedureMetadata.getSequenceID() + " FAILED: " + e.getLocalizedMessage());
+            String s = String.format("INSERT INTO procedureMetadata (parameterId, parameterStatus, sequenceId, value) VALUES (%s, %s, %s, %s)", procedureMetadata.getParameterID(), procedureMetadata.getParameterStatus(), procedureMetadata.getSequenceID(), procedureMetadata.getValue());
+            throw new RuntimeException(s + " FAILED: " + e.getLocalizedMessage());
         }
     }
 
@@ -2614,6 +2681,7 @@ public class DccSqlUtils {
             parameterAssociation.setHjid(rs.getLong("pk"));
             parameterAssociation.setParameterID(rs.getString("parameterId"));
             parameterAssociation.setSequenceID(BigInteger.valueOf(rs.getLong("sequenceId")));
+            parameterAssociation.setLink(rs.getString("link"));
 
             return parameterAssociation;
         }

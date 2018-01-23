@@ -66,11 +66,11 @@ public class SearchUrlServiceAllele2 extends SearchUrlService {
                 "es_cell_available",
                 "mouse_available",
                 "targeting_vector_available",
-                "allele_category"
-//                "tissues_available",
-//                "tissue_types",
-//                "tissue_enquiry_links",
-//                "tissue_distribution_centres"
+                "allele_category",
+                "tissues_available",
+                "tissue_types",
+                "tissue_enquiry_links",
+                "tissue_distribution_centres"
         );
     }
 
@@ -81,8 +81,8 @@ public class SearchUrlServiceAllele2 extends SearchUrlService {
                 "mouse_available",
                 "targeting_vector_available",
                 "allele_category_str",
-                "allele_features_str"
-//                "tissues_available"
+                "allele_features_str",
+                "tissues_available"
                 );
     }
 

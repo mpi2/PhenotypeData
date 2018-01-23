@@ -54,11 +54,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import uk.ac.ebi.phenodigm.dao.PhenoDigmWebDao;
-import uk.ac.ebi.phenodigm.model.Gene;
-import uk.ac.ebi.phenodigm.model.GeneIdentifier;
-import uk.ac.ebi.phenodigm.web.AssociationSummary;
-import uk.ac.ebi.phenodigm.web.DiseaseAssociationSummary;
 import uk.ac.ebi.phenotype.error.GenomicFeatureNotFoundException;
 import uk.ac.ebi.phenotype.generic.util.RegisterInterestDrupalSolr;
 import uk.ac.ebi.phenotype.generic.util.SolrIndex2;
@@ -84,6 +79,7 @@ import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
 import java.util.*;
 import uk.ac.ebi.phenodigm2.Disease;
+import uk.ac.ebi.phenodigm2.GeneDiseaseAssociation;
 import uk.ac.ebi.phenodigm2.DiseaseModelAssociation;
 import uk.ac.ebi.phenodigm2.WebDao;
 
@@ -121,9 +117,6 @@ public class GenesController {
     private GeneService geneService;
 
     @Autowired
-    private PreQcService preqcService;
-
-    @Autowired
     private PostQcService postqcService;
 
     @Autowired
@@ -134,11 +127,7 @@ public class GenesController {
 
     @Autowired
     private ImpressService impressService;
-
-    @Autowired
-    private PhenoDigmWebDao phenoDigmDao;
-    private final double rawScoreCutoff = 1.97;
-
+    
     @Autowired
     private WebDao phenoDigm2Dao;
 
@@ -307,10 +296,6 @@ public class GenesController {
             postQcDataMapList = observationService.getDistinctPipelineAlleleCenterListByGeneAccession(acc);
 
             model.addAttribute("postQcDataMapList", postQcDataMapList);
-
-            boolean hasPreQcThatMeetsCutOff = (preqcService.getPhenotypes(acc).size() > 0);//problem is this is only true when we have pvalue significant phenotype data
-            model.addAttribute("hasPreQcThatMeetsCutOff", hasPreQcThatMeetsCutOff);
-
             String genePageUrl = request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl").toString();
             Map<String, String> status = geneService.getProductionStatus(acc, genePageUrl);
             prodStatusIcons = (status.get("productionIcons").equalsIgnoreCase("")) ? prodStatusIcons : status.get("productionIcons");
@@ -325,6 +310,7 @@ public class GenesController {
             }
 
         } catch (Exception e) {
+        	e.printStackTrace();
             LOGGER.error("ERROR: ", e);
         }
 
@@ -387,9 +373,8 @@ public class GenesController {
         if (genesWithVignettes.contains(acc)) {
             model.addAttribute("hasVignette", true);
         }
-        // add in the disease predictions from phenodigm
-        processDisease(acc, model);        
-        processDisease2(acc, model);
+        // add in the disease predictions from phenodigm              
+        processDisease(acc, model);
 
         model.addAttribute("countIKMCAlleles", countIKMCAlleles);
         LOGGER.debug("CHECK IKMC allele error : " + ikmcError);
@@ -452,7 +437,7 @@ public class GenesController {
 
         for (PhenotypeSummaryBySex summary : phenotypeSummaryObjects.values()) {
             for (PhenotypeSummaryType phen : summary.getBothPhenotypes(significant)) {
-                mpGroups.put(phen.getGroup(), phen.getTopLevelIds());
+            	mpGroups.put(phen.getGroup(), phen.getTopLevelIds());
             }
             for (PhenotypeSummaryType phen : summary.getMalePhenotypes(significant)) {
                 mpGroups.put(phen.getGroup(), phen.getTopLevelIds());
@@ -521,6 +506,8 @@ public class GenesController {
 
         Map<String, Double> stringDBTable = readStringDbTable(gene.getMarkerSymbol());
         // Adds "orthologousDiseaseAssociations", "phenotypicDiseaseAssociations" to the model
+        /** pdsimplify: replaced processDisease by processDisease2
+         * The genesSummary jsp should be updated to use phenodigm2 objects **/         
         processDisease(acc, model);
         model.addAttribute("stringDbTable", stringDBTable);
         model.addAttribute("significantTopLevelMpGroups", mpGroupsSignificant);
@@ -594,7 +581,7 @@ public class GenesController {
 
         List<PhenotypeCallSummaryDTO> phenotypeList = new ArrayList<PhenotypeCallSummaryDTO>();
         PhenotypeFacetResult phenoResult = null;
-        //PhenotypeFacetResult preQcResult = new PhenotypeFacetResult();
+        
 
         //for image links we need a query that brings back mp terms and colony_ids that have mp terms
         //http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/impc_images/select?q=gene_accession_id:%22MGI:1913955%22&fq=mp_id:*&facet=true&facet.mincount=1&facet.limit=-1&facet.field=colony_id&facet.field=mp_id&facet.field=mp_term&rows=0
@@ -603,22 +590,9 @@ public class GenesController {
         try {
 
             phenoResult = phenotypeCallSummaryService.getPhenotypeCallByGeneAccessionAndFilter(acc, topLevelMpTermName, resourceFullname);
-            //preQcResult = phenotypeCallSummaryService.getPreQcPhenotypeCallByGeneAccessionAndFilter(acc, topLevelMpTermName, resourceFullname);
-
+           
             phenotypeList = phenoResult.getPhenotypeCallSummaries();
-            //phenotypeList.addAll(preQcResult.getPhenotypeCallSummaries());
-
             Map<String, Map<String, Integer>> phenoFacets = phenoResult.getFacetResults();
-            //Map<String, Map<String, Integer>> preQcFacets = preQcResult.getFacetResults();
-
-//            for (String key : preQcFacets.keySet()) {
-//                if (preQcFacets.get(key).keySet().size() > 0) {
-//                    for (String key2 : preQcFacets.get(key).keySet()) {
-//                        phenoFacets.get(key).put(key2, preQcFacets.get(key).get(key2));
-//                    }
-//                }
-//            }
-
             // sort facets
             model.addAttribute("phenoFacets", sortPhenFacets(phenoFacets));
 
@@ -1017,65 +991,7 @@ public class GenesController {
 
         return "genesAllele2_frag";
     }
-
-    /**
-     * Adds disease-related info to the model from Phenodigm.
-     *
-     * @param acc
-     * @param model
-     */
-    private void processDisease(String acc, Model model) {
-
-        String mgiId = acc;
-        model.addAttribute("mgiId", mgiId);
-        GeneIdentifier geneIdentifier = new GeneIdentifier(mgiId, mgiId);
-
-        Gene gene = null;
-        try {
-            gene = phenoDigmDao.getGene(geneIdentifier);
-        } catch (RuntimeException e) {
-            LOGGER.error("Error retrieving disease data for {}", geneIdentifier);
-            LOGGER.error(ExceptionUtils.getFullStackTrace(e));
-        }
-
-        if (gene != null) {
-            model.addAttribute("geneIdentifier", gene.getOrthologGeneId());
-            model.addAttribute("humanOrtholog", gene.getHumanGeneId());
-            // log.info("Found gene: {} {}", gene.getOrthologGeneId().getCompoundIdentifier(), gene.getOrthologGeneId().getGeneSymbol());
-        } else {
-            model.addAttribute("geneIdentifier", geneIdentifier);
-            LOGGER.info("No human ortholog found for gene: {}", geneIdentifier);
-        }
-
-        List<DiseaseAssociationSummary> diseaseAssociationSummarys = new ArrayList<>();
-        try {
-            // log.info("{} - getting disease-gene associations using cutoff {}", geneIdentifier, rawScoreCutoff);
-            diseaseAssociationSummarys = phenoDigmDao.getGeneToDiseaseAssociationSummaries(geneIdentifier, rawScoreCutoff);
-            // log.info("{} - received {} disease-gene associations", geneIdentifier, diseaseAssociationSummarys.size());
-        } catch (RuntimeException e) {
-            LOGGER.error(ExceptionUtils.getFullStackTrace(e));
-            LOGGER.error("Error retrieving disease data for {}", geneIdentifier);
-        }
-
-        List<DiseaseAssociationSummary> orthologousDiseaseAssociations = new ArrayList<>();
-        List<DiseaseAssociationSummary> phenotypicDiseaseAssociations = new ArrayList<>();
-
-        // add the known association summaries to a dedicated list for the top
-        // panel
-        for (DiseaseAssociationSummary diseaseAssociationSummary : diseaseAssociationSummarys) {
-            AssociationSummary associationSummary = diseaseAssociationSummary.getAssociationSummary();
-            if (associationSummary.isAssociatedInHuman()) {
-                orthologousDiseaseAssociations.add(diseaseAssociationSummary);
-            } else {
-                phenotypicDiseaseAssociations.add(diseaseAssociationSummary);
-            }
-        }
-        model.addAttribute("orthologousDiseaseAssociations", orthologousDiseaseAssociations);
-        model.addAttribute("phenotypicDiseaseAssociations", phenotypicDiseaseAssociations);
-
-        // log.info("Added {} disease associations for gene {} to model", diseaseAssociationSummarys.size(), mgiId);
-    }
-        
+ 
     /**
      * Adds disease-related info to the model using the Phenodigm2 core.
      *
@@ -1085,11 +1001,11 @@ public class GenesController {
      *
      * @param model
      */
-    private void processDisease2(String acc, Model model) {
+    private void processDisease(String acc, Model model) {
 
         // fetch diseases that are linked to a gene via annotations/curation
         LOGGER.info(String.format("%s - getting gene-disease associations for gene ", acc));
-        List<Disease> geneAssociations = phenoDigm2Dao.getGeneToDiseaseAssociations(acc);
+        List<GeneDiseaseAssociation> geneAssociations = phenoDigm2Dao.getGeneToDiseaseAssociations(acc);
         
         // fetch just the ids, and encode them into an array
         HashSet<String> curatedDiseases = new HashSet<>();
@@ -1114,7 +1030,7 @@ public class GenesController {
         if (modelAssociations.size() > 0) {
             List<String> jsons = new ArrayList<>();
             for (DiseaseModelAssociation assoc : modelAssociations) {                
-                jsons.add(assoc.getDiseaseJson());
+                jsons.add(assoc.makeDiseaseJson());
                 if (curatedDiseases.contains(assoc.getDiseaseId())) {
                     hasModelsByOrthology = true;
                 }

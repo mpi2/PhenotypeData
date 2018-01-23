@@ -61,3 +61,15 @@ td.dcc-heatmap-nodata               { background: url(../img/bg/bg_stripes.png);
 
 .dcc-heatmap-tabs a
 { -webkit-border-radius: 4px 4px 0 0; -moz-border-radius: 4px 4px 0 0; -o-border-radius: 4px 4px 0 0; -ms-border-radius: 4px 4px 0 0; border-radius: 4px 4px 0 0; }
+
+.label {
+ 	z-index: 1!important;
+}
+
+.highcharts-tooltip span {
+	background-color: #F5F5F5;
+    opacity: 1;
+    z-index: 9999!important;
+    padding: 5px;
+    border-color: black;
+}

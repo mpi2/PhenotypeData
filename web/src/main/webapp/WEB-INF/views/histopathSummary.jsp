@@ -45,21 +45,22 @@
 							
 							
 							<th class="headerSort">
-							Histopathology
+							Tissue
 							</th>
 							
 							<th>
-							Diagnostic
+							MPATH Process Term
 							</th>
+							
+							<%-- <th>
+							Diagnostic
+							</th> --%>
 							<%-- <th>
 							Description
 							</th> --%>
+							
 							<th>
-							Free Text
-							</th>
-							<th>
-							Observed
-							/Non Obs
+							Significant Finding Incidence Rate
 							</th>
 							<th>
 							Data
@@ -75,7 +76,7 @@
 									<td>
 										${histRow.anatomyName}
 												
-										<c:choose>
+										<%-- <c:choose>
 											<c:when test="${fn:length(histRow.patoOntologyBeans) == 0}">
 										
 											</c:when>
@@ -88,8 +89,8 @@
 											</c:forEach>
 										</c:otherwise>
 										</c:choose> 
-									
-									
+									 --%>
+									<td>
 										<c:choose>
 											<c:when test="${fn:length(histRow.mpathProcessOntologyBeans) == 0}">
 										
@@ -107,7 +108,7 @@
 											</c:otherwise>
 										</c:choose>
 										
-										
+									</td>
 										
 									
 										
@@ -117,7 +118,7 @@
 									
 						
 									
-									<c:choose>
+									<%-- <c:choose>
 									<c:when test="${fn:length(histRow.mpathDiagnosticOntologyBeans) == 0}">
 										<td>
 										</td>
@@ -128,14 +129,14 @@
 											
 										<td>
 										<c:forEach var="value" items="${parameter.value }">
-										<%-- <td title="${value.description }"> --%>
+										<td title="${value.description }">
 											${value.name }										
-											<%-- </td> --%>
+											</td>
 										</c:forEach>
 										</td>
 									</c:forEach>
 									</c:otherwise>
-									</c:choose> 
+									</c:choose>  --%>
 									
 									
 									<%-- <td>
@@ -145,15 +146,15 @@
 										
 										</c:forEach>
 									</td>  --%>
-									<td>
+									<%-- <td>
 										<c:forEach var="parameter" items="${histRow.freeTextParameters }">
 										
 										${parameter.textValue }
 										
 										</c:forEach> 
-									</td>
+									</td> --%>
 									<td>
-											${histRow.significantCount } / ${histRow.nonSignificantCount }
+											${histRow.significantCount } / ${histRow.nonSignificantCount + histRow.significantCount }
 									
 									</td>
 									

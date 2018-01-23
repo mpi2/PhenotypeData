@@ -388,7 +388,7 @@ CREATE TABLE strain (
 
 	PRIMARY KEY (acc, db_id),
 	KEY biotype_idx (biotype_acc, biotype_db_id),
-  UNIQUE KEY name_idx (name),
+	UNIQUE KEY name_idx (name),
 	UNIQUE KEY (acc)
 
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
@@ -416,7 +416,7 @@ CREATE TABLE biological_model_allele (
 
 	KEY biological_model_idx (biological_model_id),
 	KEY allele_idx (allele_acc, allele_db_id),
-  UNIQUE KEY unique_biomodels_idx (biological_model_id, allele_acc)
+	UNIQUE KEY unique_biomodels_idx (biological_model_id, allele_acc)
 
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
@@ -429,7 +429,7 @@ CREATE TABLE biological_model_strain (
 
 	KEY biological_model_idx (biological_model_id),
 	KEY strain_idx (strain_acc, strain_db_id),
-  UNIQUE KEY unique_biomodels_idx (biological_model_id, strain_acc)
+	UNIQUE KEY unique_biomodels_idx (biological_model_id, strain_acc)
 
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
@@ -446,7 +446,7 @@ CREATE TABLE biological_model_phenotype (
 
 	KEY biological_model_idx (biological_model_id),
 	KEY phenotype_idx (phenotype_acc, phenotype_db_id),
-  UNIQUE KEY unique_biomodels_idx (biological_model_id, phenotype_acc)
+	UNIQUE KEY unique_biomodels_idx (biological_model_id, phenotype_acc)
 
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
@@ -459,7 +459,7 @@ CREATE TABLE biological_model_genomic_feature (
 
 	KEY biological_model_idx (biological_model_id),
 	KEY genomic_feature_idx (gf_acc, gf_db_id),
-  UNIQUE KEY unique_biomodels_idx (biological_model_id, gf_acc)
+	UNIQUE KEY unique_biomodels_idx (biological_model_id, gf_acc)
 
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
@@ -583,9 +583,9 @@ CREATE TABLE experiment (
 	KEY pipeline_idx(pipeline_id),
 	KEY pipeline_stable_idx(pipeline_stable_id),
 	KEY procedure_idx(procedure_id),
-  KEY procedure_stable_idx(procedure_stable_id),
-  KEY biological_model_idx(biological_model_id),
-  KEY colony_idx(colony_id)
+	KEY procedure_stable_idx(procedure_stable_id),
+	KEY biological_model_idx(biological_model_id),
+	KEY colony_idx(colony_id)
 
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
@@ -622,8 +622,8 @@ CREATE TABLE observation (
 	db_id                      INT(10) UNSIGNED NOT NULL,
 	biological_sample_id       INT(10) UNSIGNED NULL,
 	parameter_id               INT(10) UNSIGNED NOT NULL,
-  parameter_stable_id        VARCHAR(30) NOT NULL,
-  sequence_id                VARCHAR(30) DEFAULT NULL,
+	parameter_stable_id        VARCHAR(30) NOT NULL,
+	sequence_id                VARCHAR(30) DEFAULT NULL,
 	population_id              INT(10) UNSIGNED NOT NULL,
 	observation_type           ENUM('categorical', 'datetime', 'ontological', 'image_record', 'unidimensional', 'multidimensional', 'time_series', 'metadata', 'text'),
 	missing                    TINYINT(1) DEFAULT 0,
@@ -678,7 +678,7 @@ CREATE TABLE alternate_id (
 	ontology_term_acc          VARCHAR(60) NOT NULL,
 	alternate_id_acc           VARCHAR(60) NOT NULL,
 
-  UNIQUE KEY alternate_id_acc_idx(ontology_term_acc, alternate_id_acc)
+	UNIQUE KEY alternate_id_acc_idx(ontology_term_acc, alternate_id_acc)
 
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
@@ -859,37 +859,37 @@ CREATE TABLE phenotype_call_summary (
  */
 DROP TABLE IF EXISTS phenotype_call_summary_withWeight;
 CREATE TABLE phenotype_call_summary_withWeight (
-  id                        INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
-  external_id               VARCHAR(20) NULL,
-  external_db_id            INT(10),
-  project_id                INT(10) UNSIGNED NOT NULL,
-  organisation_id           INT(10) UNSIGNED NOT NULL,
-  gf_acc                    VARCHAR(20),
-  gf_db_id                  INT(10),
-  strain_acc                VARCHAR(20),
-  strain_db_id              INT(10),
-  allele_acc                VARCHAR(20),
-  allele_db_id              INT(10),
-  colony_id                 VARCHAR(200) NULL,
-  sex                       ENUM('female', 'hermaphrodite', 'male', 'not_applicable', 'no_data'),
-  zygosity                  ENUM('homozygote', 'heterozygote', 'hemizygote', 'not_applicable'),
-  parameter_id              INT(10) UNSIGNED NOT NULL,
-  procedure_id              INT(10) UNSIGNED NOT NULL,
-  pipeline_id               INT(10) UNSIGNED NOT NULL,
+	id                        INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+	external_id               VARCHAR(20) NULL,
+	external_db_id            INT(10),
+	project_id                INT(10) UNSIGNED NOT NULL,
+	organisation_id           INT(10) UNSIGNED NOT NULL,
+	gf_acc                    VARCHAR(20),
+	gf_db_id                  INT(10),
+	strain_acc                VARCHAR(20),
+	strain_db_id              INT(10),
+	allele_acc                VARCHAR(20),
+	allele_db_id              INT(10),
+	colony_id                 VARCHAR(200) NULL,
+	sex                       ENUM('female', 'hermaphrodite', 'male', 'not_applicable', 'no_data'),
+	zygosity                  ENUM('homozygote', 'heterozygote', 'hemizygote', 'not_applicable'),
+	parameter_id              INT(10) UNSIGNED NOT NULL,
+	procedure_id              INT(10) UNSIGNED NOT NULL,
+	pipeline_id               INT(10) UNSIGNED NOT NULL,
 
-  mp_acc                    VARCHAR(20) NOT NULL,
-  mp_db_id                  INT(10) NOT NULL,
+	mp_acc                    VARCHAR(20) NOT NULL,
+	mp_db_id                  INT(10) NOT NULL,
 
-  p_value                   DOUBLE NULL DEFAULT 1,
-  effect_size               DOUBLE NULL DEFAULT 0,
+	p_value                   DOUBLE NULL DEFAULT 1,
+	effect_size               DOUBLE NULL DEFAULT 0,
 
-  PRIMARY KEY (id),
-  KEY parameter_call_idx (parameter_id),
-  KEY procedure_call_idx (procedure_id),
-  KEY pipeline_call_idx (pipeline_id),
-  KEY organisation_idx (pipeline_id, organisation_id),
-  KEY allele_idx (allele_acc, allele_db_id),
-  KEY mp_call_idx (mp_acc)
+	PRIMARY KEY (id),
+	KEY parameter_call_idx (parameter_id),
+	KEY procedure_call_idx (procedure_id),
+	KEY pipeline_call_idx (pipeline_id),
+	KEY organisation_idx (pipeline_id, organisation_id),
+	KEY allele_idx (allele_acc, allele_db_id),
+	KEY mp_call_idx (mp_acc)
 
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
@@ -935,24 +935,24 @@ CREATE TABLE anatomy_call_summary (
  */
 DROP TABLE IF EXISTS image_record_observation;
 CREATE TABLE `image_record_observation` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `sample_id` int(11) DEFAULT NULL,
-  `original_file_name` varchar(1024) DEFAULT NULL,
-  `creator_id` int(11) DEFAULT NULL,
-  `full_resolution_file_path` varchar(256) DEFAULT NULL,
-  `small_thumbnail_file_path` varchar(256) DEFAULT NULL,
-  `large_thumbnail_file_path` varchar(256) DEFAULT NULL,
-  `download_file_path` varchar(256) DEFAULT NULL,
-  `image_link` varchar(256) DEFAULT NULL,
-  `organisation_id` int(11) NOT NULL DEFAULT '0',
-  `increment_value` varchar(45) DEFAULT NULL,
-  `file_type` varchar(45) DEFAULT NULL,
-  `media_sample_local_id` varchar(45) DEFAULT NULL,
-  `media_section_id` varchar(45) DEFAULT NULL,
-  `omero_id` int(11) DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `OMERO_ID` (`omero_id`),
-  KEY `FULL_RES_FILE_PATH` (`full_resolution_file_path`)
+	`id` int(11) NOT NULL AUTO_INCREMENT,
+	`sample_id` int(11) DEFAULT NULL,
+	`original_file_name` varchar(1024) DEFAULT NULL,
+	`creator_id` int(11) DEFAULT NULL,
+	`full_resolution_file_path` varchar(256) DEFAULT NULL,
+	`small_thumbnail_file_path` varchar(256) DEFAULT NULL,
+	`large_thumbnail_file_path` varchar(256) DEFAULT NULL,
+	`download_file_path` varchar(256) DEFAULT NULL,
+	`image_link` varchar(256) DEFAULT NULL,
+	`organisation_id` int(11) NOT NULL DEFAULT '0',
+	`increment_value` varchar(45) DEFAULT NULL,
+	`file_type` varchar(45) DEFAULT NULL,
+	`media_sample_local_id` varchar(45) DEFAULT NULL,
+	`media_section_id` varchar(45) DEFAULT NULL,
+	`omero_id` int(11) DEFAULT NULL,
+	PRIMARY KEY (`id`),
+	KEY `OMERO_ID` (`omero_id`),
+	KEY `FULL_RES_FILE_PATH` (`full_resolution_file_path`)
 ) COLLATE=utf8_general_ci ENGINE=MyISAM ;
 
 
@@ -981,7 +981,7 @@ CREATE TABLE parameter_association (
 
 	PRIMARY KEY (id),
 	KEY observation_id_idx (observation_id),
-	UNIQUE KEY parameter_association_uk (observation_id, parameter_id, parameter_association_value)
+	UNIQUE KEY parameter_association_uk (observation_id, parameter_id, parameter_association_value(287))	-- 287 is the maximum key length. Anything greater throws a 'key too long' error.
 
 ) COLLATE=utf8_general_ci ENGINE=MyISAM ;
 
@@ -1007,7 +1007,7 @@ CREATE TABLE procedure_meta_data (
 DROP TABLE IF EXISTS genes_secondary_project;
 CREATE TABLE genes_secondary_project (
 	acc                        VARCHAR(30) NOT NULL,
-  secondary_project_id       VARCHAR(20) NOT NULL
+	secondary_project_id       VARCHAR(20) NOT NULL
 
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
@@ -1019,7 +1019,7 @@ DROP TABLE IF EXISTS phenotyped_colony;
 CREATE TABLE phenotyped_colony (
 	id                                          INT(11)     NOT NULL AUTO_INCREMENT,
 	colony_name                                 VARCHAR(64) NOT NULL,
-	es_cell_name                                VARCHAR(64),
+	es_cell_name                                VARCHAR(128),
 	gf_acc                                      VARCHAR(20) NOT NULL,
 	gf_db_id                                    INT(11)     NOT NULL,
 	allele_symbol                               VARCHAR(64) NOT NULL,
@@ -1035,7 +1035,7 @@ CREATE TABLE phenotyped_colony (
 	KEY phenotypedColony_genomicFeature_idx (gf_acc, gf_db_id),
 	KEY phenotypedColony_AlleleSymbol_idx (allele_symbol),
 	KEY phenotypedColony_BackgroundStrainName_idx (background_strain_name),
-  KEY phenotyping_centre_organisation_id_idx(phenotyping_centre_organisation_id),
+	KEY phenotyping_centre_organisation_id_idx(phenotyping_centre_organisation_id),
 	KEY phenotyping_consortium_project_id_idx(phenotyping_consortium_project_id),
 	KEY production_centre_organisation_id_idx(production_centre_organisation_id),
 	KEY production_consortium_project_id_idx(production_consortium_project_id)
@@ -1181,74 +1181,74 @@ CREATE TABLE stats_unidimensional_results (
  */
 DROP TABLE IF EXISTS stats_unidimensional_results_withWeight;
 CREATE TABLE stats_unidimensional_results_withWeight (
-  id                               INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
-  control_id                       INT(10) UNSIGNED,
-  experimental_id                  INT(10) UNSIGNED,
-  experimental_zygosity            ENUM('homozygote', 'heterozygote', 'hemizygote', 'not_applicable'),
-  external_db_id                   INT(10),
-  project_id                       INT(10) UNSIGNED,
-  organisation_id                  INT(10) UNSIGNED,
-  pipeline_id                      INT(10) UNSIGNED,
-  procedure_id                     INT(10) UNSIGNED,
-  parameter_id                     INT(10) UNSIGNED,
-  colony_id                        VARCHAR(200),
-  dependent_variable               VARCHAR(200),
-  control_selection_strategy       VARCHAR(100),
-  mp_acc                           VARCHAR(20)      NULL,
-  mp_db_id                         INT(10)          NULL,
-  male_mp_acc                      VARCHAR(20)      NULL,
-  female_mp_acc                    VARCHAR(20)      NULL,
-  male_controls                    INT(10) UNSIGNED,
-  male_mutants                     INT(10) UNSIGNED,
-  female_controls                  INT(10) UNSIGNED,
-  female_mutants                   INT(10) UNSIGNED,
-  female_control_mean              DOUBLE NULL,
-  male_control_mean                DOUBLE NULL,
-  female_experimental_mean         DOUBLE NULL,
-  male_experimental_mean           DOUBLE NULL,
-  metadata_group                   VARCHAR(50) DEFAULT '',
-  statistical_method               VARCHAR(200),
-  workflow                         VARCHAR(50),
-  weight_available                 VARCHAR(50),
-  status                           VARCHAR(200),
-  batch_significance               BOOLEAN,
-  variance_significance            BOOLEAN,
-  null_test_significance           DOUBLE,
-  genotype_parameter_estimate      DOUBLE,
-  genotype_stderr_estimate         DOUBLE,
-  genotype_effect_pvalue           DOUBLE,
-  genotype_percentage_change       VARCHAR(200),
-  gender_parameter_estimate        DOUBLE,
-  gender_stderr_estimate           DOUBLE,
-  gender_effect_pvalue             DOUBLE,
-  weight_parameter_estimate        DOUBLE,
-  weight_stderr_estimate           DOUBLE,
-  weight_effect_pvalue             DOUBLE,
-  gp1_genotype                     VARCHAR(200),
-  gp1_residuals_normality_test     DOUBLE,
-  gp2_genotype                     VARCHAR(200),
-  gp2_residuals_normality_test     DOUBLE,
-  blups_test                       DOUBLE,
-  rotated_residuals_normality_test DOUBLE,
-  intercept_estimate               DOUBLE,
-  intercept_stderr_estimate        DOUBLE,
-  interaction_significance         BOOLEAN,
-  interaction_effect_pvalue        DOUBLE,
-  gender_female_ko_estimate        DOUBLE,
-  gender_female_ko_stderr_estimate DOUBLE,
-  gender_female_ko_pvalue          DOUBLE,
-  gender_male_ko_estimate          DOUBLE,
-  gender_male_ko_stderr_estimate   DOUBLE,
-  gender_male_ko_pvalue            DOUBLE,
-  classification_tag               VARCHAR(200),
-  additional_information           TEXT,
-  raw_output                       MEDIUMTEXT,
-  authoritative                    BOOLEAN,
+	id                               INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+	control_id                       INT(10) UNSIGNED,
+	experimental_id                  INT(10) UNSIGNED,
+	experimental_zygosity            ENUM('homozygote', 'heterozygote', 'hemizygote', 'not_applicable'),
+	external_db_id                   INT(10),
+	project_id                       INT(10) UNSIGNED,
+	organisation_id                  INT(10) UNSIGNED,
+	pipeline_id                      INT(10) UNSIGNED,
+	procedure_id                     INT(10) UNSIGNED,
+	parameter_id                     INT(10) UNSIGNED,
+	colony_id                        VARCHAR(200),
+	dependent_variable               VARCHAR(200),
+	control_selection_strategy       VARCHAR(100),
+	mp_acc                           VARCHAR(20)      NULL,
+	mp_db_id                         INT(10)          NULL,
+	male_mp_acc                      VARCHAR(20)      NULL,
+	female_mp_acc                    VARCHAR(20)      NULL,
+	male_controls                    INT(10) UNSIGNED,
+	male_mutants                     INT(10) UNSIGNED,
+	female_controls                  INT(10) UNSIGNED,
+	female_mutants                   INT(10) UNSIGNED,
+	female_control_mean              DOUBLE NULL,
+	male_control_mean                DOUBLE NULL,
+	female_experimental_mean         DOUBLE NULL,
+	male_experimental_mean           DOUBLE NULL,
+	metadata_group                   VARCHAR(50) DEFAULT '',
+	statistical_method               VARCHAR(200),
+	workflow                         VARCHAR(50),
+	weight_available                 VARCHAR(50),
+	status                           VARCHAR(200),
+	batch_significance               BOOLEAN,
+	variance_significance            BOOLEAN,
+	null_test_significance           DOUBLE,
+	genotype_parameter_estimate      DOUBLE,
+	genotype_stderr_estimate         DOUBLE,
+	genotype_effect_pvalue           DOUBLE,
+	genotype_percentage_change       VARCHAR(200),
+	gender_parameter_estimate        DOUBLE,
+	gender_stderr_estimate           DOUBLE,
+	gender_effect_pvalue             DOUBLE,
+	weight_parameter_estimate        DOUBLE,
+	weight_stderr_estimate           DOUBLE,
+	weight_effect_pvalue             DOUBLE,
+	gp1_genotype                     VARCHAR(200),
+	gp1_residuals_normality_test     DOUBLE,
+	gp2_genotype                     VARCHAR(200),
+	gp2_residuals_normality_test     DOUBLE,
+	blups_test                       DOUBLE,
+	rotated_residuals_normality_test DOUBLE,
+	intercept_estimate               DOUBLE,
+	intercept_stderr_estimate        DOUBLE,
+	interaction_significance         BOOLEAN,
+	interaction_effect_pvalue        DOUBLE,
+	gender_female_ko_estimate        DOUBLE,
+	gender_female_ko_stderr_estimate DOUBLE,
+	gender_female_ko_pvalue          DOUBLE,
+	gender_male_ko_estimate          DOUBLE,
+	gender_male_ko_stderr_estimate   DOUBLE,
+	gender_male_ko_pvalue            DOUBLE,
+	classification_tag               VARCHAR(200),
+	additional_information           TEXT,
+	raw_output                       MEDIUMTEXT,
+	authoritative                    BOOLEAN,
 
-  PRIMARY KEY (id),
-  KEY organisation_idx (organisation_id),
-  KEY pipeline_idx (pipeline_id),
-  KEY parameter_idx (parameter_id)
+	PRIMARY KEY (id),
+	KEY organisation_idx (organisation_id),
+	KEY pipeline_idx (pipeline_id),
+	KEY parameter_idx (parameter_id)
 
 )  COLLATE =utf8_general_ci ENGINE =MyISAM;
 
@@ -1258,74 +1258,74 @@ CREATE TABLE stats_unidimensional_results_withWeight (
  */
 DROP TABLE IF EXISTS stats_rrplus_results;
 CREATE TABLE stats_rrplus_results (
-  id                               INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
-  control_id                       INT(10) UNSIGNED,
-  experimental_id                  INT(10) UNSIGNED,
-  experimental_zygosity            ENUM('homozygote', 'heterozygote', 'hemizygote', 'not_applicable'),
-  external_db_id                   INT(10),
-  project_id                       INT(10) UNSIGNED,
-  organisation_id                  INT(10) UNSIGNED,
-  pipeline_id                      INT(10) UNSIGNED,
-  procedure_id                     INT(10) UNSIGNED,
-  parameter_id                     INT(10) UNSIGNED,
-  colony_id                        VARCHAR(200),
-  dependent_variable               VARCHAR(200),
-  control_selection_strategy       VARCHAR(100),
-  mp_acc                           VARCHAR(20)      NULL,
-  mp_db_id                         INT(10)          NULL,
-  male_mp_acc                      VARCHAR(20)      NULL,
-  female_mp_acc                    VARCHAR(20)      NULL,
-  male_controls                    INT(10) UNSIGNED,
-  male_mutants                     INT(10) UNSIGNED,
-  female_controls                  INT(10) UNSIGNED,
-  female_mutants                   INT(10) UNSIGNED,
-  female_control_mean              DOUBLE NULL,
-  male_control_mean                DOUBLE NULL,
-  female_experimental_mean         DOUBLE NULL,
-  male_experimental_mean           DOUBLE NULL,
-  metadata_group                   VARCHAR(50) DEFAULT '',
-  statistical_method               VARCHAR(200),
-  workflow                         VARCHAR(50),
-  weight_available                 VARCHAR(50),
-  status                           VARCHAR(200),
-  batch_significance               BOOLEAN,
-  variance_significance            BOOLEAN,
-  null_test_significance           DOUBLE,
-  genotype_parameter_estimate      VARCHAR(200),
-  genotype_stderr_estimate         DOUBLE,
-  genotype_effect_pvalue           VARCHAR(200),
-  genotype_percentage_change       VARCHAR(200),
-  gender_parameter_estimate        VARCHAR(200),
-  gender_stderr_estimate           DOUBLE,
-  gender_effect_pvalue             VARCHAR(200),
-  weight_parameter_estimate        DOUBLE,
-  weight_stderr_estimate           DOUBLE,
-  weight_effect_pvalue             DOUBLE,
-  gp1_genotype                     VARCHAR(200),
-  gp1_residuals_normality_test     DOUBLE,
-  gp2_genotype                     VARCHAR(200),
-  gp2_residuals_normality_test     DOUBLE,
-  blups_test                       DOUBLE,
-  rotated_residuals_normality_test DOUBLE,
-  intercept_estimate               DOUBLE,
-  intercept_stderr_estimate        DOUBLE,
-  interaction_significance         BOOLEAN,
-  interaction_effect_pvalue        DOUBLE,
-  gender_female_ko_estimate        VARCHAR(200),
-  gender_female_ko_stderr_estimate DOUBLE,
-  gender_female_ko_pvalue          VARCHAR(200),
-  gender_male_ko_estimate          VARCHAR(200),
-  gender_male_ko_stderr_estimate   DOUBLE,
-  gender_male_ko_pvalue            VARCHAR(200),
-  classification_tag               VARCHAR(200),
-  additional_information           TEXT,
-  raw_output                       MEDIUMTEXT,
-  authoritative                    BOOLEAN,
+	id                               INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+	control_id                       INT(10) UNSIGNED,
+	experimental_id                  INT(10) UNSIGNED,
+	experimental_zygosity            ENUM('homozygote', 'heterozygote', 'hemizygote', 'not_applicable'),
+	external_db_id                   INT(10),
+	project_id                       INT(10) UNSIGNED,
+	organisation_id                  INT(10) UNSIGNED,
+	pipeline_id                      INT(10) UNSIGNED,
+	procedure_id                     INT(10) UNSIGNED,
+	parameter_id                     INT(10) UNSIGNED,
+	colony_id                        VARCHAR(200),
+	dependent_variable               VARCHAR(200),
+	control_selection_strategy       VARCHAR(100),
+	mp_acc                           VARCHAR(20)      NULL,
+	mp_db_id                         INT(10)          NULL,
+	male_mp_acc                      VARCHAR(20)      NULL,
+	female_mp_acc                    VARCHAR(20)      NULL,
+	male_controls                    INT(10) UNSIGNED,
+	male_mutants                     INT(10) UNSIGNED,
+	female_controls                  INT(10) UNSIGNED,
+	female_mutants                   INT(10) UNSIGNED,
+	female_control_mean              DOUBLE NULL,
+	male_control_mean                DOUBLE NULL,
+	female_experimental_mean         DOUBLE NULL,
+	male_experimental_mean           DOUBLE NULL,
+	metadata_group                   VARCHAR(50) DEFAULT '',
+	statistical_method               VARCHAR(200),
+	workflow                         VARCHAR(50),
+	weight_available                 VARCHAR(50),
+	status                           VARCHAR(200),
+	batch_significance               BOOLEAN,
+	variance_significance            BOOLEAN,
+	null_test_significance           DOUBLE,
+	genotype_parameter_estimate      VARCHAR(200),
+	genotype_stderr_estimate         DOUBLE,
+	genotype_effect_pvalue           VARCHAR(200),
+	genotype_percentage_change       VARCHAR(200),
+	gender_parameter_estimate        VARCHAR(200),
+	gender_stderr_estimate           DOUBLE,
+	gender_effect_pvalue             VARCHAR(200),
+	weight_parameter_estimate        DOUBLE,
+	weight_stderr_estimate           DOUBLE,
+	weight_effect_pvalue             DOUBLE,
+	gp1_genotype                     VARCHAR(200),
+	gp1_residuals_normality_test     DOUBLE,
+	gp2_genotype                     VARCHAR(200),
+	gp2_residuals_normality_test     DOUBLE,
+	blups_test                       DOUBLE,
+	rotated_residuals_normality_test DOUBLE,
+	intercept_estimate               DOUBLE,
+	intercept_stderr_estimate        DOUBLE,
+	interaction_significance         BOOLEAN,
+	interaction_effect_pvalue        DOUBLE,
+	gender_female_ko_estimate        VARCHAR(200),
+	gender_female_ko_stderr_estimate DOUBLE,
+	gender_female_ko_pvalue          VARCHAR(200),
+	gender_male_ko_estimate          VARCHAR(200),
+	gender_male_ko_stderr_estimate   DOUBLE,
+	gender_male_ko_pvalue            VARCHAR(200),
+	classification_tag               VARCHAR(200),
+	additional_information           TEXT,
+	raw_output                       MEDIUMTEXT,
+	authoritative                    BOOLEAN,
 
-  PRIMARY KEY (id),
-  KEY organisation_idx (organisation_id),
-  KEY pipeline_idx (pipeline_id),
-  KEY parameter_idx (parameter_id)
+	PRIMARY KEY (id),
+	KEY organisation_idx (organisation_id),
+	KEY pipeline_idx (pipeline_id),
+	KEY parameter_idx (parameter_id)
 
 )  COLLATE =utf8_general_ci ENGINE =MyISAM;
 
@@ -1339,7 +1339,7 @@ DROP TABLE IF EXISTS stat_result_phenotype_call_summary;
 CREATE TABLE stat_result_phenotype_call_summary (
 	categorical_result_id     INT(10) UNSIGNED DEFAULT NULL,
 	unidimensional_result_id  INT(10) UNSIGNED DEFAULT NULL,
-  rrplus_result_id          INT(10) UNSIGNED DEFAULT NULL,
+	rrplus_result_id          INT(10) UNSIGNED DEFAULT NULL,
 	phenotype_call_summary_id INT(10) UNSIGNED NOT NULL,
 
 	PRIMARY KEY (phenotype_call_summary_id),
@@ -1405,15 +1405,15 @@ CREATE TABLE statistical_result (
 
 DROP TABLE IF EXISTS statistical_result_phenotype_call_summary;
 CREATE TABLE statistical_result_phenotype_call_summary (
-  phenotype_call_summary_id INT(10) UNSIGNED NOT NULL,
-  result_id                 INT(10) UNSIGNED,
+	phenotype_call_summary_id INT(10) UNSIGNED NOT NULL,
+	result_id                 INT(10) UNSIGNED,
 
-  PRIMARY KEY (phenotype_call_summary_id),
-  FOREIGN KEY result_idx (result_id) REFERENCES statistical_result (id)
+	PRIMARY KEY (phenotype_call_summary_id),
+	FOREIGN KEY result_idx (result_id) REFERENCES statistical_result (id)
 
 )
-  COLLATE =utf8_general_ci
-  ENGINE =MyISAM;
+	COLLATE =utf8_general_ci
+	ENGINE =MyISAM;
 
 
 DROP TABLE IF EXISTS statistical_result_additional;
@@ -1495,356 +1495,374 @@ CREATE TABLE statistical_result_manual (
 --
 DROP TABLE IF EXISTS PHN_REQUIRED_OBSERVATION;
 CREATE TABLE PHN_REQUIRED_OBSERVATION (
-  ID                    INT(11)      NOT NULL,
-  OBSERVATION_TYPE_ID   INT(11)      NOT NULL,
-  ORDER_BY              INT(11)      NOT NULL,
-  DISPLAY_NAME          VARCHAR(256) NOT NULL,
-  ACTIVE                INT(11)      NOT NULL,
-  CREATED_DATE          DATE         DEFAULT NULL,
-  CREATOR_ID            INT(11)      DEFAULT NULL,
-  EDIT_DATE             DATE         DEFAULT NULL,
-  EDITED_BY             VARCHAR(256) DEFAULT NULL,
-  CHECK_NUMBER          INT(11)      DEFAULT NULL,
-  SOP_ID                INT(10)      DEFAULT NULL,
-  DEFAULT_VALUE         VARCHAR(256) DEFAULT NULL,
-  MANDATORY_OBSERVATION INT(10)      DEFAULT 1,
-  SECTION_TITLE         VARCHAR(256),
-  IS_MACHINE_DATA       INT(10)      DEFAULT 0,
-  IS_SERIES_DATA        INT(10)      DEFAULT 0,
-  VIEW_COLUMN_NAME      VARCHAR(30)  DEFAULT NULL,
-  PARENT_REQ_OBS_ID     INT(10)      DEFAULT NULL,
-  IS_VIEWABLE           INT(10)      DEFAULT 1,
-  UNIQUE_NAME           VARCHAR(256),
-  PRIMARY KEY (ID)
+	ID                    INT(11)      NOT NULL,
+	OBSERVATION_TYPE_ID   INT(11)      NOT NULL,
+	ORDER_BY              INT(11)      NOT NULL,
+	DISPLAY_NAME          VARCHAR(256) NOT NULL,
+	ACTIVE                INT(11)      NOT NULL,
+	CREATED_DATE          DATE         DEFAULT NULL,
+	CREATOR_ID            INT(11)      DEFAULT NULL,
+	EDIT_DATE             DATE         DEFAULT NULL,
+	EDITED_BY             VARCHAR(256) DEFAULT NULL,
+	CHECK_NUMBER          INT(11)      DEFAULT NULL,
+	SOP_ID                INT(10)      DEFAULT NULL,
+	DEFAULT_VALUE         VARCHAR(256) DEFAULT NULL,
+	MANDATORY_OBSERVATION INT(10)      DEFAULT 1,
+	SECTION_TITLE         VARCHAR(256),
+	IS_MACHINE_DATA       INT(10)      DEFAULT 0,
+	IS_SERIES_DATA        INT(10)      DEFAULT 0,
+	VIEW_COLUMN_NAME      VARCHAR(30)  DEFAULT NULL,
+	PARENT_REQ_OBS_ID     INT(10)      DEFAULT NULL,
+	IS_VIEWABLE           INT(10)      DEFAULT 1,
+	UNIQUE_NAME           VARCHAR(256),
+	PRIMARY KEY (ID)
 ) ENGINE = MyISAM DEFAULT CHARSET = utf8;
 
 
 DROP TABLE IF EXISTS PHN_EXPERIMENT;
 CREATE TABLE PHN_EXPERIMENT (
-  ID                   INT(11) NOT NULL,
-  SOP_ID               INT(11) NOT NULL,
-  MOUSE_ID             INT(11) NOT NULL,
-  IS_COMPLETE          VARCHAR(256) DEFAULT NULL,
-  CREATED_DATE         DATE         DEFAULT NULL,
-  CREATOR_ID           INT(11) NOT NULL,
-  EDIT_DATE            DATE         DEFAULT NULL,
-  EDITED_BY            VARCHAR(256) DEFAULT NULL,
-  CHECK_NUMBER         INT(11) NOT NULL,
-  EXPERIMENT_SET_ID    INT(11) NOT NULL,
-  QC_COMMENTS          VARCHAR(256) DEFAULT NULL,
-  QC_FAILURE_REASON_ID INT(11) NOT NULL,
-  COMMENTS             VARCHAR(256) DEFAULT NULL,
-  PRIMARY KEY (ID)
+	ID                   INT(11) NOT NULL,
+	SOP_ID               INT(11) NOT NULL,
+	MOUSE_ID             INT(11) NOT NULL,
+	IS_COMPLETE          VARCHAR(256) DEFAULT NULL,
+	CREATED_DATE         DATE         DEFAULT NULL,
+	CREATOR_ID           INT(11) NOT NULL,
+	EDIT_DATE            DATE         DEFAULT NULL,
+	EDITED_BY            VARCHAR(256) DEFAULT NULL,
+	CHECK_NUMBER         INT(11) NOT NULL,
+	EXPERIMENT_SET_ID    INT(11) NOT NULL,
+	QC_COMMENTS          VARCHAR(256) DEFAULT NULL,
+	QC_FAILURE_REASON_ID INT(11) NOT NULL,
+	COMMENTS             VARCHAR(256) DEFAULT NULL,
+	PRIMARY KEY (ID)
 ) ENGINE = MyISAM DEFAULT CHARSET = utf8;
 
 
 DROP TABLE IF EXISTS PHN_OBSERVATION;
 CREATE TABLE PHN_OBSERVATION (
-  ID                    INT(11) NOT NULL,
-  EXPERIMENT_ID         INT(11) NOT NULL,
-  REQUIRED_OBSERVATION  INT(11) NOT NULL,
-  VALUE                 VARCHAR(256) DEFAULT NULL,
-  INSTRUMENT_ID         INT(11) NOT NULL,
-  OBSERVATION_TIME      TIMESTAMP,
-  CREATED_DATE          DATE         DEFAULT NULL,
-  CREATOR_ID            INT(11) NOT NULL,
-  EDIT_DATE             DATE         DEFAULT NULL,
-  EDITED_BY             VARCHAR(256) DEFAULT NULL,
-  CHECK_NUMBER          INT(11) NOT NULL,
-  QC_COMMENTS           VARCHAR(256) DEFAULT NULL,
-  IS_FAILED_VALIDATION  INT(11)      DEFAULT 0,
-  QC_FAILED             INT(11)      DEFAULT 0,
-  PARENT_OBSERVATION_ID INT(11) NOT NULL,
-  PRIMARY KEY (ID)
+	ID                    INT(11) NOT NULL,
+	EXPERIMENT_ID         INT(11) NOT NULL,
+	REQUIRED_OBSERVATION  INT(11) NOT NULL,
+	VALUE                 VARCHAR(256) DEFAULT NULL,
+	INSTRUMENT_ID         INT(11) NOT NULL,
+	OBSERVATION_TIME      TIMESTAMP,
+	CREATED_DATE          DATE         DEFAULT NULL,
+	CREATOR_ID            INT(11) NOT NULL,
+	EDIT_DATE             DATE         DEFAULT NULL,
+	EDITED_BY             VARCHAR(256) DEFAULT NULL,
+	CHECK_NUMBER          INT(11) NOT NULL,
+	QC_COMMENTS           VARCHAR(256) DEFAULT NULL,
+	IS_FAILED_VALIDATION  INT(11)      DEFAULT 0,
+	QC_FAILED             INT(11)      DEFAULT 0,
+	PARENT_OBSERVATION_ID INT(11) NOT NULL,
+	PRIMARY KEY (ID)
 ) ENGINE = MyISAM DEFAULT CHARSET = utf8;
 
 
 DROP TABLE IF EXISTS IMPC_MOUSE_ALLELE_MV;
 CREATE TABLE IMPC_MOUSE_ALLELE_MV (
-  MOUSE_ID      INT(11) NOT NULL,
-  MOUSE_NAME    VARCHAR(256)  DEFAULT NULL,
-  GENDER        VARCHAR(256)  DEFAULT NULL,
-  AGE_IN_WEEKS  VARCHAR(256)  DEFAULT NULL,
-  GENE          VARCHAR(256)  DEFAULT NULL,
-  COLONY_PREFIX VARCHAR(1024) DEFAULT NULL,
-  COLONY_ID     INT(11) NOT NULL,
-  ALLELE        VARCHAR(1024) DEFAULT NULL,
-  GENOTYPE      VARCHAR(256)  DEFAULT NULL,
-  FULL_GENOTYPE VARCHAR(256)  DEFAULT NULL,
-  PRIMARY KEY (MOUSE_ID)
+	MOUSE_ID      INT(11) NOT NULL,
+	MOUSE_NAME    VARCHAR(256)  DEFAULT NULL,
+	GENDER        VARCHAR(256)  DEFAULT NULL,
+	AGE_IN_WEEKS  VARCHAR(256)  DEFAULT NULL,
+	GENE          VARCHAR(256)  DEFAULT NULL,
+	COLONY_PREFIX VARCHAR(1024) DEFAULT NULL,
+	COLONY_ID     INT(11) NOT NULL,
+	ALLELE        VARCHAR(1024) DEFAULT NULL,
+	GENOTYPE      VARCHAR(256)  DEFAULT NULL,
+	FULL_GENOTYPE VARCHAR(256)  DEFAULT NULL,
+	PRIMARY KEY (MOUSE_ID)
 ) ENGINE = MyISAM DEFAULT CHARSET = utf8;
 
 
 DROP TABLE IF EXISTS ANN_ANNOTATION;
 CREATE TABLE ANN_ANNOTATION (
-  ID                 INT(11)      DEFAULT NULL,
-  TERM_NAME          VARCHAR(256) DEFAULT NULL,
-  TERM_ID            VARCHAR(128) DEFAULT NULL,
-  ONTOLOGY_DICT_ID   INT(11)      DEFAULT NULL,
-  EDIT_DATE          DATE         DEFAULT NULL,
-  EDITED_BY          VARCHAR(128) DEFAULT NULL,
-  CREATED_DATE       DATE         DEFAULT NULL,
-  CREATOR_ID         INT(11)      DEFAULT NULL,
-  CHECK_NUMBER       INT(11)      DEFAULT NULL,
-  FOREIGN_TABLE_NAME VARCHAR(30)  DEFAULT NULL,
-  FOREIGN_KEY_ID     INT(11)      DEFAULT NULL,
-  KEY TERM_ID (TERM_ID),
-  KEY ID (ID),
-  KEY FOREIGN_KEY_ID (FOREIGN_KEY_ID)
+	ID                 INT(11)      DEFAULT NULL,
+	TERM_NAME          VARCHAR(256) DEFAULT NULL,
+	TERM_ID            VARCHAR(128) DEFAULT NULL,
+	ONTOLOGY_DICT_ID   INT(11)      DEFAULT NULL,
+	EDIT_DATE          DATE         DEFAULT NULL,
+	EDITED_BY          VARCHAR(128) DEFAULT NULL,
+	CREATED_DATE       DATE         DEFAULT NULL,
+	CREATOR_ID         INT(11)      DEFAULT NULL,
+	CHECK_NUMBER       INT(11)      DEFAULT NULL,
+	FOREIGN_TABLE_NAME VARCHAR(30)  DEFAULT NULL,
+	FOREIGN_KEY_ID     INT(11)      DEFAULT NULL,
+	KEY TERM_ID (TERM_ID),
+	KEY ID (ID),
+	KEY FOREIGN_KEY_ID (FOREIGN_KEY_ID)
 ) ENGINE = MyISAM DEFAULT CHARSET = utf8;
 
 DROP TABLE IF EXISTS ANN_ONTOLOGY_DICT;
 CREATE TABLE ANN_ONTOLOGY_DICT (
-  ID          INT(11) NOT NULL,
-  NAME        VARCHAR(256)  DEFAULT NULL,
-  DESCRIPTION VARCHAR(2048) DEFAULT NULL,
-  ACTIVE      TINYINT(4)    DEFAULT NULL,
-  ORDER_BY    INT(11)       DEFAULT NULL,
-  PRIMARY KEY (ID)
+	ID          INT(11) NOT NULL,
+	NAME        VARCHAR(256)  DEFAULT NULL,
+	DESCRIPTION VARCHAR(2048) DEFAULT NULL,
+	ACTIVE      TINYINT(4)    DEFAULT NULL,
+	ORDER_BY    INT(11)       DEFAULT NULL,
+	PRIMARY KEY (ID)
 ) ENGINE = MyISAM DEFAULT CHARSET = utf8;
 
 
 DROP TABLE IF EXISTS IMA_DCF_IMAGE_VW;
 CREATE TABLE IMA_DCF_IMAGE_VW (
-  ID                        INT(11)      DEFAULT NULL,
-  DOWNLOAD_FILE_PATH        VARCHAR(255) DEFAULT NULL,
-  DCF_ID                    INT(11)      DEFAULT NULL,
-  MOUSE_ID                  INT(11)      DEFAULT NULL,
-  EXPERIMENT_ID             INT(11)      DEFAULT NULL,
-  SMALL_THUMBNAIL_FILE_PATH VARCHAR(255) DEFAULT NULL,
-  PUBLISHED_STATUS_ID       VARCHAR(255) DEFAULT NULL,
-  FULL_RESOLUTION_FILE_PATH VARCHAR(255) DEFAULT NULL,
-  LARGE_THUMBNAIL_FILE_PATH VARCHAR(255) DEFAULT NULL,
-  PUBLISHED_STATUS          VARCHAR(255) DEFAULT NULL,
-  QC_STATUS_ID              INT(11)      DEFAULT NULL,
-  QC_STATUS                 VARCHAR(255) DEFAULT NULL,
-  KEY ID (ID),
-  KEY DCF_ID (DCF_ID),
-  KEY MOUSE_ID (MOUSE_ID),
-  KEY EXPERIMENT_ID (EXPERIMENT_ID)
+	ID                        INT(11)      DEFAULT NULL,
+	DOWNLOAD_FILE_PATH        VARCHAR(255) DEFAULT NULL,
+	DCF_ID                    INT(11)      DEFAULT NULL,
+	MOUSE_ID                  INT(11)      DEFAULT NULL,
+	EXPERIMENT_ID             INT(11)      DEFAULT NULL,
+	SMALL_THUMBNAIL_FILE_PATH VARCHAR(255) DEFAULT NULL,
+	PUBLISHED_STATUS_ID       VARCHAR(255) DEFAULT NULL,
+	FULL_RESOLUTION_FILE_PATH VARCHAR(255) DEFAULT NULL,
+	LARGE_THUMBNAIL_FILE_PATH VARCHAR(255) DEFAULT NULL,
+	PUBLISHED_STATUS          VARCHAR(255) DEFAULT NULL,
+	QC_STATUS_ID              INT(11)      DEFAULT NULL,
+	QC_STATUS                 VARCHAR(255) DEFAULT NULL,
+	KEY ID (ID),
+	KEY DCF_ID (DCF_ID),
+	KEY MOUSE_ID (MOUSE_ID),
+	KEY EXPERIMENT_ID (EXPERIMENT_ID)
 ) ENGINE = MyISAM DEFAULT CHARSET = utf8;
 
 
 DROP TABLE IF EXISTS IMA_EXPERIMENT_DICT;
 CREATE TABLE IMA_EXPERIMENT_DICT (
-  ID          INT(11) NOT NULL,
-  NAME        VARCHAR(128)  DEFAULT NULL,
-  DESCRIPTION VARCHAR(4000) DEFAULT NULL,
-  ORDER_BY    INT(11)       DEFAULT NULL,
-  ACTIVE      TINYINT(4)    DEFAULT NULL,
-  PRIMARY KEY (ID)
+	ID          INT(11) NOT NULL,
+	NAME        VARCHAR(128)  DEFAULT NULL,
+	DESCRIPTION VARCHAR(4000) DEFAULT NULL,
+	ORDER_BY    INT(11)       DEFAULT NULL,
+	ACTIVE      TINYINT(4)    DEFAULT NULL,
+	PRIMARY KEY (ID)
 ) ENGINE = MyISAM DEFAULT CHARSET = utf8;
 
 
 DROP TABLE IF EXISTS IMA_IMAGE_RECORD;
 CREATE TABLE IMA_IMAGE_RECORD (
-  ID                        INT(11) NOT NULL,
-  FOREIGN_TABLE_NAME        VARCHAR(256)     DEFAULT NULL,
-  FOREIGN_KEY_ID            INT(11)          DEFAULT NULL,
-  ORIGINAL_FILE_NAME        VARCHAR(1024)    DEFAULT NULL,
-  CREATOR_ID                INT(11)          DEFAULT NULL,
-  CREATED_DATE              DATE             DEFAULT NULL,
-  EDITED_BY                 VARCHAR(64)      DEFAULT NULL,
-  EDIT_DATE                 DATE             DEFAULT NULL,
-  CHECK_NUMBER              INT(11)          DEFAULT NULL,
-  FULL_RESOLUTION_FILE_PATH VARCHAR(256)     DEFAULT NULL,
-  SMALL_THUMBNAIL_FILE_PATH VARCHAR(256)     DEFAULT NULL,
-  LARGE_THUMBNAIL_FILE_PATH VARCHAR(256)     DEFAULT NULL,
-  DOWNLOAD_FILE_PATH        VARCHAR(256)     DEFAULT NULL,
-  SUBCONTEXT_ID             INT(11)          DEFAULT NULL,
-  QC_STATUS_ID              INT(11)          DEFAULT NULL,
-  PUBLISHED_STATUS_ID       INT(11)          DEFAULT NULL,
-  organisation              INT(10) NOT NULL DEFAULT '0',
-  PRIMARY KEY (ID),
-  KEY FOREIGN_KEY_ID (FOREIGN_KEY_ID),
-  KEY SUBCONTEXT_ID (SUBCONTEXT_ID),
-  KEY FOREIGN_TABLE_NAME (FOREIGN_TABLE_NAME),
-  KEY organisation (organisation)
+	ID                        INT(11) NOT NULL,
+	FOREIGN_TABLE_NAME        VARCHAR(256)     DEFAULT NULL,
+	FOREIGN_KEY_ID            INT(11)          DEFAULT NULL,
+	ORIGINAL_FILE_NAME        VARCHAR(1024)    DEFAULT NULL,
+	CREATOR_ID                INT(11)          DEFAULT NULL,
+	CREATED_DATE              DATE             DEFAULT NULL,
+	EDITED_BY                 VARCHAR(64)      DEFAULT NULL,
+	EDIT_DATE                 DATE             DEFAULT NULL,
+	CHECK_NUMBER              INT(11)          DEFAULT NULL,
+	FULL_RESOLUTION_FILE_PATH VARCHAR(256)     DEFAULT NULL,
+	SMALL_THUMBNAIL_FILE_PATH VARCHAR(256)     DEFAULT NULL,
+	LARGE_THUMBNAIL_FILE_PATH VARCHAR(256)     DEFAULT NULL,
+	DOWNLOAD_FILE_PATH        VARCHAR(256)     DEFAULT NULL,
+	SUBCONTEXT_ID             INT(11)          DEFAULT NULL,
+	QC_STATUS_ID              INT(11)          DEFAULT NULL,
+	PUBLISHED_STATUS_ID       INT(11)          DEFAULT NULL,
+	organisation              INT(10) NOT NULL DEFAULT '0',
+	PRIMARY KEY (ID),
+	KEY FOREIGN_KEY_ID (FOREIGN_KEY_ID),
+	KEY SUBCONTEXT_ID (SUBCONTEXT_ID),
+	KEY FOREIGN_TABLE_NAME (FOREIGN_TABLE_NAME),
+	KEY organisation (organisation)
 ) ENGINE = MyISAM DEFAULT CHARSET = utf8;
 
 
 DROP TABLE IF EXISTS IMA_IMAGE_TAG;
 CREATE TABLE IMA_IMAGE_TAG (
-  ID              INT(11)       DEFAULT NULL,
-  IMAGE_RECORD_ID INT(11)       DEFAULT NULL,
-  TAG_TYPE_ID     INT(11)       DEFAULT NULL,
-  TAG_NAME        VARCHAR(256)  DEFAULT NULL,
-  TAG_VALUE       VARCHAR(4000) DEFAULT NULL,
-  CREATOR_ID      INT(11)       DEFAULT NULL,
-  CREATED_DATE    DATE          DEFAULT NULL,
-  EDITED_BY       VARCHAR(64)   DEFAULT NULL,
-  EDIT_DATE       DATE          DEFAULT NULL,
-  CHECK_NUMBER    INT(11)       DEFAULT NULL,
-  X_START         FLOAT         DEFAULT NULL,
-  Y_START         FLOAT         DEFAULT NULL,
-  X_END           FLOAT         DEFAULT NULL,
-  Y_END           FLOAT         DEFAULT NULL,
-  KEY IMAGE_RECORD_ID (IMAGE_RECORD_ID)
+	ID              INT(11)       DEFAULT NULL,
+	IMAGE_RECORD_ID INT(11)       DEFAULT NULL,
+	TAG_TYPE_ID     INT(11)       DEFAULT NULL,
+	TAG_NAME        VARCHAR(256)  DEFAULT NULL,
+	TAG_VALUE       VARCHAR(4000) DEFAULT NULL,
+	CREATOR_ID      INT(11)       DEFAULT NULL,
+	CREATED_DATE    DATE          DEFAULT NULL,
+	EDITED_BY       VARCHAR(64)   DEFAULT NULL,
+	EDIT_DATE       DATE          DEFAULT NULL,
+	CHECK_NUMBER    INT(11)       DEFAULT NULL,
+	X_START         FLOAT         DEFAULT NULL,
+	Y_START         FLOAT         DEFAULT NULL,
+	X_END           FLOAT         DEFAULT NULL,
+	Y_END           FLOAT         DEFAULT NULL,
+	KEY IMAGE_RECORD_ID (IMAGE_RECORD_ID)
 ) ENGINE = MyISAM DEFAULT CHARSET = utf8;
 
 
 DROP TABLE IF EXISTS IMA_IMAGE_TAG_TYPE;
 CREATE TABLE IMA_IMAGE_TAG_TYPE (
-  NAME VARCHAR(128) DEFAULT NULL,
-  ID   INT(11) NOT NULL,
-  PRIMARY KEY (ID)
+	NAME VARCHAR(128) DEFAULT NULL,
+	ID   INT(11) NOT NULL,
+	PRIMARY KEY (ID)
 ) ENGINE = MyISAM DEFAULT CHARSET = utf8;
 
 
 DROP TABLE IF EXISTS IMA_IMPORT_CONTEXT;
 CREATE TABLE IMA_IMPORT_CONTEXT (
-  ID   INT(11) NOT NULL,
-  NAME VARCHAR(64) DEFAULT NULL,
-  PRIMARY KEY (ID)
+	ID   INT(11) NOT NULL,
+	NAME VARCHAR(64) DEFAULT NULL,
+	PRIMARY KEY (ID)
 ) ENGINE = MyISAM DEFAULT CHARSET = utf8;
 
 
 DROP TABLE IF EXISTS IMA_IMPORT_LOG;
 CREATE TABLE IMA_IMPORT_LOG (
-  LOG_ID        VARCHAR(4000) DEFAULT NULL,
-  LOG_MESSAGE   VARCHAR(4000) DEFAULT NULL,
-  LOG_TIMESTAMP TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  LOG_STATUS    VARCHAR(128) DEFAULT NULL,
-  LOG_URL       VARCHAR(4000) DEFAULT NULL,
-  ID            INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
-  PRIMARY KEY (ID)
+	LOG_ID        VARCHAR(4000) DEFAULT NULL,
+	LOG_MESSAGE   VARCHAR(4000) DEFAULT NULL,
+	LOG_TIMESTAMP TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	LOG_STATUS    VARCHAR(128) DEFAULT NULL,
+	LOG_URL       VARCHAR(4000) DEFAULT NULL,
+	ID            INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+	PRIMARY KEY (ID)
 ) ENGINE = MyISAM DEFAULT CHARSET = utf8;
 
 
 DROP TABLE IF EXISTS IMA_PREDEFINED_TAG;
 CREATE TABLE IMA_PREDEFINED_TAG (
-  ID                 INT(11)      DEFAULT NULL,
-  TAG_TYPE_ID        INT(11)      DEFAULT NULL,
-  TAG_NAME           VARCHAR(256) DEFAULT NULL,
-  EXPERIMENT_DICT_ID INT(11)      DEFAULT NULL,
-  ORDER_BY           INT(11)      DEFAULT NULL,
-  ALLOW_MULTIPLE     TINYINT(4)   DEFAULT '0',
-  ALLOW_IN_ROI       TINYINT(4)   DEFAULT NULL
+	ID                 INT(11)      DEFAULT NULL,
+	TAG_TYPE_ID        INT(11)      DEFAULT NULL,
+	TAG_NAME           VARCHAR(256) DEFAULT NULL,
+	EXPERIMENT_DICT_ID INT(11)      DEFAULT NULL,
+	ORDER_BY           INT(11)      DEFAULT NULL,
+	ALLOW_MULTIPLE     TINYINT(4)   DEFAULT '0',
+	ALLOW_IN_ROI       TINYINT(4)   DEFAULT NULL
 ) ENGINE = MyISAM DEFAULT CHARSET = utf8;
 
 
 DROP TABLE IF EXISTS IMA_PREDEFINED_TAG_VALUE;
 CREATE TABLE IMA_PREDEFINED_TAG_VALUE (
-  ID                INT(11)       DEFAULT NULL,
-  PREDEFINED_TAG_ID INT(11)       DEFAULT NULL,
-  TAG_VALUE         VARCHAR(4000) DEFAULT NULL,
-  ORDER_BY          INT(11)       DEFAULT NULL
+	ID                INT(11)       DEFAULT NULL,
+	PREDEFINED_TAG_ID INT(11)       DEFAULT NULL,
+	TAG_VALUE         VARCHAR(4000) DEFAULT NULL,
+	ORDER_BY          INT(11)       DEFAULT NULL
 ) ENGINE = MyISAM DEFAULT CHARSET = utf8;
 
 
 DROP TABLE IF EXISTS IMA_PUBLISHED_DICT;
 CREATE TABLE IMA_PUBLISHED_DICT (
-  ID          INT(11) NOT NULL,
-  NAME        VARCHAR(512) DEFAULT NULL,
-  DESCRIPTION VARCHAR(512) DEFAULT NULL,
-  ORDER_BY    INT(11)      DEFAULT NULL,
-  ACTIVE      TINYINT(4)   DEFAULT NULL,
-  PRIMARY KEY (ID)
+	ID          INT(11) NOT NULL,
+	NAME        VARCHAR(512) DEFAULT NULL,
+	DESCRIPTION VARCHAR(512) DEFAULT NULL,
+	ORDER_BY    INT(11)      DEFAULT NULL,
+	ACTIVE      TINYINT(4)   DEFAULT NULL,
+	PRIMARY KEY (ID)
 ) ENGINE = MyISAM DEFAULT CHARSET = utf8;
 
 
 DROP TABLE IF EXISTS IMA_QC_DICT;
 CREATE TABLE IMA_QC_DICT (
-  ID          INT(11) NOT NULL,
-  NAME        VARCHAR(512) DEFAULT NULL,
-  DESCRIPTION VARCHAR(512) DEFAULT NULL,
-  ORDER_BY    INT(11)      DEFAULT NULL,
-  ACTIVE      TINYINT(4)   DEFAULT NULL,
-  PRIMARY KEY (ID)
+	ID          INT(11) NOT NULL,
+	NAME        VARCHAR(512) DEFAULT NULL,
+	DESCRIPTION VARCHAR(512) DEFAULT NULL,
+	ORDER_BY    INT(11)      DEFAULT NULL,
+	ACTIVE      TINYINT(4)   DEFAULT NULL,
+	PRIMARY KEY (ID)
 ) ENGINE = MyISAM DEFAULT CHARSET = utf8;
 
 
 DROP TABLE IF EXISTS IMA_SUBCONTEXT;
 CREATE TABLE IMA_SUBCONTEXT (
-  ID                 INT(11) NOT NULL,
-  IMPORT_CONTEXT_ID  INT(11)    DEFAULT NULL,
-  EXPERIMENT_DICT_ID INT(11)    DEFAULT NULL,
-  IS_DEFAULT         TINYINT(4) DEFAULT '0',
-  PRIMARY KEY (ID)
+	ID                 INT(11) NOT NULL,
+	IMPORT_CONTEXT_ID  INT(11)    DEFAULT NULL,
+	EXPERIMENT_DICT_ID INT(11)    DEFAULT NULL,
+	IS_DEFAULT         TINYINT(4) DEFAULT '0',
+	PRIMARY KEY (ID)
 ) ENGINE = MyISAM DEFAULT CHARSET = utf8;
 
 
 DROP TABLE IF EXISTS MTS_GENOTYPE_DICT;
 CREATE TABLE MTS_GENOTYPE_DICT (
-  ID          INT(11)     NOT NULL,
-  NAME        VARCHAR(50) NOT NULL,
-  ORDER_BY    INT(11)     NOT NULL,
-  DESCRIPTION VARCHAR(25) NOT NULL,
-  ACTIVE      INT(11)     NOT NULL
+	ID          INT(11)     NOT NULL,
+	NAME        VARCHAR(50) NOT NULL,
+	ORDER_BY    INT(11)     NOT NULL,
+	DESCRIPTION VARCHAR(25) NOT NULL,
+	ACTIVE      INT(11)     NOT NULL
 ) ENGINE = MyISAM DEFAULT CHARSET = utf8;
 
 
 DROP TABLE IF EXISTS MTS_MOUSE_ALLELE;
 CREATE TABLE MTS_MOUSE_ALLELE (
-  ID               INT(11) NOT NULL,
-  MOUSE_ID         INT(11) NOT NULL,
-  ALLELE_ID        INT(11) NOT NULL,
-  GENOTYPE_DICT_ID INT(11) NOT NULL,
-  PRIMARY KEY (ID),
-  KEY MOUSE_ID (MOUSE_ID, ALLELE_ID)
+	ID               INT(11) NOT NULL,
+	MOUSE_ID         INT(11) NOT NULL,
+	ALLELE_ID        INT(11) NOT NULL,
+	GENOTYPE_DICT_ID INT(11) NOT NULL,
+	PRIMARY KEY (ID),
+	KEY MOUSE_ID (MOUSE_ID, ALLELE_ID)
 ) ENGINE = MyISAM DEFAULT CHARSET = utf8;
 
 
 DROP TABLE IF EXISTS PHN_STD_OPERATING_PROCEDURE;
 CREATE TABLE PHN_STD_OPERATING_PROCEDURE (
-  ID                 INT(11)      NOT NULL,
-  PROCEDURE_ID       INT(11)      NOT NULL,
-  NAME               VARCHAR(256) NOT NULL,
-  ACTIVE             INT(11)      NOT NULL,
-  CREATED_DATE       DATE         DEFAULT NULL,
-  CREATOR_ID         INT(11)      DEFAULT NULL,
-  EDIT_DATE          DATE         DEFAULT NULL,
-  EDITED_BY          VARCHAR(256) DEFAULT NULL,
-  CHECK_INT          INT(11)      DEFAULT NULL,
-  TERMINAL_PROCEDURE INT(10)      DEFAULT NULL,
-  IS_HIDDEN          INT(1)       DEFAULT NULL,
-  VIEW_NAME          VARCHAR(30)  DEFAULT NULL,
-  PRIMARY KEY (ID),
-  KEY PROCEDURE_ID (PROCEDURE_ID)
+	ID                 INT(11)      NOT NULL,
+	PROCEDURE_ID       INT(11)      NOT NULL,
+	NAME               VARCHAR(256) NOT NULL,
+	ACTIVE             INT(11)      NOT NULL,
+	CREATED_DATE       DATE         DEFAULT NULL,
+	CREATOR_ID         INT(11)      DEFAULT NULL,
+	EDIT_DATE          DATE         DEFAULT NULL,
+	EDITED_BY          VARCHAR(256) DEFAULT NULL,
+	CHECK_INT          INT(11)      DEFAULT NULL,
+	TERMINAL_PROCEDURE INT(10)      DEFAULT NULL,
+	IS_HIDDEN          INT(1)       DEFAULT NULL,
+	VIEW_NAME          VARCHAR(30)  DEFAULT NULL,
+	PRIMARY KEY (ID),
+	KEY PROCEDURE_ID (PROCEDURE_ID)
 ) ENGINE = MyISAM DEFAULT CHARSET = utf8;
 
 
 DROP TABLE IF EXISTS ima_image_record_annotation_vw;
 CREATE TABLE ima_image_record_annotation_vw (
-  IMAGE_RECORD_ID INT(11)      DEFAULT NULL,
-  TERM_ID         VARCHAR(128) DEFAULT NULL,
-  TERM_NAME       VARCHAR(256) DEFAULT NULL
+	IMAGE_RECORD_ID INT(11)      DEFAULT NULL,
+	TERM_ID         VARCHAR(128) DEFAULT NULL,
+	TERM_NAME       VARCHAR(256) DEFAULT NULL
 ) ENGINE = MyISAM DEFAULT CHARSET = utf8;
 
 
 DROP TABLE IF EXISTS mts_mouse_allele_mv;
 CREATE TABLE mts_mouse_allele_mv (
-  MOUSE_ID INT(11)      NOT NULL,
-  ALLELE   VARCHAR(250) NOT NULL,
-  PRIMARY KEY (MOUSE_ID)
+	MOUSE_ID INT(11)      NOT NULL,
+	ALLELE   VARCHAR(250) NOT NULL,
+	PRIMARY KEY (MOUSE_ID)
 ) ENGINE = MyISAM DEFAULT CHARSET = utf8;
 
 
 DROP TABLE IF EXISTS higher_level_annotation;
 CREATE TABLE higher_level_annotation (
-  term_id varchar(128) NOT NULL DEFAULT '',
-  PRIMARY KEY    (term_id)
+	term_id varchar(128) NOT NULL DEFAULT '',
+	PRIMARY KEY    (term_id)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 
 DROP TABLE IF EXISTS ontology_term_anomaly;
 CREATE TABLE ontology_term_anomaly (
-  id                 INT(11)      NOT NULL AUTO_INCREMENT,
-  db_name            VARCHAR(128) NOT NULL,
-  table_name         VARCHAR(128) NOT NULL,
-  column_name        VARCHAR(128) NOT NULL,
-  original_acc       VARCHAR(128) NOT NULL,
-  replacement_acc    VARCHAR(128),
-  reason             VARCHAR(128) NOT NULL,
-  last_modified      TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY(id)
+	id                 INT(11)      NOT NULL AUTO_INCREMENT,
+	db_name            VARCHAR(128) NOT NULL,
+	table_name         VARCHAR(128) NOT NULL,
+	column_name        VARCHAR(128) NOT NULL,
+	original_acc       VARCHAR(128) NOT NULL,
+	replacement_acc    VARCHAR(128),
+	reason             VARCHAR(128) NOT NULL,
+	last_modified      TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+	PRIMARY KEY(id)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
+DROP TABLE IF EXISTS missing_colony_id;
+CREATE TABLE missing_colony_id (
+	id                 INT(11)      NOT NULL AUTO_INCREMENT,
+	colony_id          VARCHAR(255) NOT NULL,
+	log_level          TINYINT(1)   DEFAULT 0,    --   WARN = 1,  INFO = 0,  DEBUG = -1,
+	reason						 VARCHAR(512) NOT NULL,
+
+	PRIMARY KEY(id)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+INSERT INTO missing_colony_id (colony_id, log_level, reason) VALUES
+	('(Deluca)<Deluca>', -1, 'We were never able to obtain the minimum set of data required to add this colony id'),
+	('EPD0038_2_A04',    -1, 'We were never able to obtain the minimum set of data required to add this colony id'),
+	('internal',         -1, 'We were never able to obtain the minimum set of data required to add this colony id'),
+	('Trm1',             -1, 'We were never able to obtain the minimum set of data required to add this colony id'),
+	('MAG',              -1, 'We were never able to obtain the minimum set of data required to add this colony id'),
+	('EUCJ0019_C12',     -1, 'We were never able to obtain the minimum set of data required to add this colony id'),
+	('EPD0130_2_C06',    -1, 'Even though this colonyId is in Hugh''s list, Jeremy''s research has shown there is newer data submitted under colonyId MEYN supporting the data in EPD00130_2_C06, which was an aborted experiment');
 
 
-/**
- * External resources / database to populate
- */
+	/**
+   * External resources / database to populate
+   */
 insert into external_db(id, name, short_name, version, version_date) values(1, 'Mouse Genome Assembly', 'NCBI m38', 'GRCm38', '2012-01-09');
 insert into external_db(id, name, short_name, version, version_date) values(2, 'MGI Genome Feature Type', 'Genome Feature Type', 'JAX', '2011-12-22');
 insert into external_db(id, name, short_name, version, version_date) values(3, 'Mouse Genome Informatics', 'MGI', 'JAX', '2011-12-22');
@@ -1960,67 +1978,67 @@ Link organisations to projects
 List the participants to EUMODIC
  */
 INSERT INTO participant(project_id, organisation_id, role)
-  SELECT p.id, o.id, 'part_of'
-  FROM project p, organisation o WHERE p.name = 'EUMODIC' AND o.name = 'MRC Harwell';
+	SELECT p.id, o.id, 'part_of'
+	FROM project p, organisation o WHERE p.name = 'EUMODIC' AND o.name = 'MRC Harwell';
 INSERT INTO participant(project_id, organisation_id, role)
-  SELECT p.id, o.id, 'part_of'
-  FROM project p, organisation o WHERE p.name = 'EUMODIC' AND o.name = 'ICS';
+	SELECT p.id, o.id, 'part_of'
+	FROM project p, organisation o WHERE p.name = 'EUMODIC' AND o.name = 'ICS';
 INSERT INTO participant(project_id, organisation_id, role)
-  SELECT p.id, o.id, 'part_of'
-  FROM project p, organisation o WHERE p.name = 'EUMODIC' AND o.name = 'Helmholtz Zentrum München';
+	SELECT p.id, o.id, 'part_of'
+	FROM project p, organisation o WHERE p.name = 'EUMODIC' AND o.name = 'Helmholtz Zentrum München';
 INSERT INTO participant(project_id, organisation_id, role)
-  SELECT p.id, o.id, 'part_of'
-  FROM project p, organisation o WHERE p.name = 'EUMODIC' AND o.name = 'HZI';
+	SELECT p.id, o.id, 'part_of'
+	FROM project p, organisation o WHERE p.name = 'EUMODIC' AND o.name = 'HZI';
 INSERT INTO participant(project_id, organisation_id, role)
-  SELECT p.id, o.id, 'part_of'
-  FROM project p, organisation o WHERE p.name = 'EUMODIC' AND o.name = 'CNR';
+	SELECT p.id, o.id, 'part_of'
+	FROM project p, organisation o WHERE p.name = 'EUMODIC' AND o.name = 'CNR';
 INSERT INTO participant(project_id, organisation_id, role)
-  SELECT p.id, o.id, 'part_of'
-  FROM project p, organisation o WHERE p.name = 'EUMODIC' AND o.name = 'U.Manchester';
+	SELECT p.id, o.id, 'part_of'
+	FROM project p, organisation o WHERE p.name = 'EUMODIC' AND o.name = 'U.Manchester';
 INSERT INTO participant(project_id, organisation_id, role)
-  SELECT p.id, o.id, 'part_of'
-  FROM project p, organisation o WHERE p.name = 'EUMODIC' AND o.name = 'EMBL Monterotondo';
+	SELECT p.id, o.id, 'part_of'
+	FROM project p, organisation o WHERE p.name = 'EUMODIC' AND o.name = 'EMBL Monterotondo';
 INSERT INTO participant(project_id, organisation_id, role)
-  SELECT p.id, o.id, 'part_of'
-  FROM project p, organisation o WHERE p.name = 'EUMODIC' AND o.name = 'CNIO';
+	SELECT p.id, o.id, 'part_of'
+	FROM project p, organisation o WHERE p.name = 'EUMODIC' AND o.name = 'CNIO';
 INSERT INTO participant(project_id, organisation_id, role)
-  SELECT p.id, o.id, 'part_of'
-  FROM project p, organisation o WHERE p.name = 'EUMODIC' AND o.name = 'AniRA';
+	SELECT p.id, o.id, 'part_of'
+	FROM project p, organisation o WHERE p.name = 'EUMODIC' AND o.name = 'AniRA';
 INSERT INTO participant(project_id, organisation_id, role)
-  SELECT p.id, o.id, 'part_of'
-  FROM project p, organisation o WHERE p.name = 'EUMODIC' AND o.name = 'TAU';
+	SELECT p.id, o.id, 'part_of'
+	FROM project p, organisation o WHERE p.name = 'EUMODIC' AND o.name = 'TAU';
 INSERT INTO participant(project_id, organisation_id, role)
-  SELECT p.id, o.id, 'part_of'
-  FROM project p, organisation o WHERE p.name = 'EUMODIC' AND o.name = 'UAB';
+	SELECT p.id, o.id, 'part_of'
+	FROM project p, organisation o WHERE p.name = 'EUMODIC' AND o.name = 'UAB';
 INSERT INTO participant(project_id, organisation_id, role)
-  SELECT p.id, o.id, 'part_of'
-  FROM project p, organisation o WHERE p.name = 'EUMODIC' AND o.name = 'CIG';
+	SELECT p.id, o.id, 'part_of'
+	FROM project p, organisation o WHERE p.name = 'EUMODIC' AND o.name = 'CIG';
 INSERT INTO participant(project_id, organisation_id, role)
-  SELECT p.id, o.id, 'part_of'
-  FROM project p, organisation o WHERE p.name = 'EUMODIC' AND o.name = 'Transgenose CNRS';
+	SELECT p.id, o.id, 'part_of'
+	FROM project p, organisation o WHERE p.name = 'EUMODIC' AND o.name = 'Transgenose CNRS';
 INSERT INTO participant(project_id, organisation_id, role)
-  SELECT p.id, o.id, 'part_of'
-  FROM project p, organisation o WHERE p.name = 'EUMODIC' AND o.name = 'U.Cambridge';
+	SELECT p.id, o.id, 'part_of'
+	FROM project p, organisation o WHERE p.name = 'EUMODIC' AND o.name = 'U.Cambridge';
 INSERT INTO participant(project_id, organisation_id, role)
-  SELECT p.id, o.id, 'part_of'
-  FROM project p, organisation o WHERE p.name = 'EUMODIC' AND o.name = 'TIGEM';
+	SELECT p.id, o.id, 'part_of'
+	FROM project p, organisation o WHERE p.name = 'EUMODIC' AND o.name = 'TIGEM';
 INSERT INTO participant(project_id, organisation_id, role)
-  SELECT p.id, o.id, 'part_of'
-  FROM project p, organisation o WHERE p.name = 'EUMODIC' AND o.name = 'Fleming';
+	SELECT p.id, o.id, 'part_of'
+	FROM project p, organisation o WHERE p.name = 'EUMODIC' AND o.name = 'Fleming';
 INSERT INTO participant(project_id, organisation_id, role)
-  SELECT p.id, o.id, 'part_of'
-  FROM project p, organisation o WHERE p.name = 'EUMODIC' AND o.name = 'WTSI';
+	SELECT p.id, o.id, 'part_of'
+	FROM project p, organisation o WHERE p.name = 'EUMODIC' AND o.name = 'WTSI';
 
 -- bash participants
 INSERT INTO participant(project_id, organisation_id, role)
-  SELECT p.id, o.id, 'part_of'
-  FROM project p, organisation o WHERE p.name = 'BaSH' AND o.name = 'MRC Harwell';
+	SELECT p.id, o.id, 'part_of'
+	FROM project p, organisation o WHERE p.name = 'BaSH' AND o.name = 'MRC Harwell';
 INSERT INTO participant(project_id, organisation_id, role)
-  SELECT p.id, o.id, 'part_of'
-  FROM project p, organisation o WHERE p.name = 'BaSH' AND o.name = 'WTSI';
+	SELECT p.id, o.id, 'part_of'
+	FROM project p, organisation o WHERE p.name = 'BaSH' AND o.name = 'WTSI';
 INSERT INTO participant(project_id, organisation_id, role)
-  SELECT p.id, o.id, 'part_of'
-  FROM project p, organisation o WHERE p.name = 'BaSH' AND o.name = 'BCM';
+	SELECT p.id, o.id, 'part_of'
+	FROM project p, organisation o WHERE p.name = 'BaSH' AND o.name = 'BCM';
 
 
 
@@ -2180,54 +2198,54 @@ VALUES ('CV:00000051', 3, 'IMPC uncharacterized background strain', 'background 
 
 
 
- /*
- ** FOR META INFO LOADING
- */
+/*
+** FOR META INFO LOADING
+*/
 insert into meta_info(property_key, property_value, description) values('code_version', 'beta-release-0_1_4', '');
 insert into meta_info(property_key, property_value, description) values('assembly_version', 'GRCm38', 'Genome Reference Consortium GRCm38');
 insert into meta_info(property_key, property_value, description) values('species', 'Mus musculus', 'Mus musculus phenotype database');
 
 
- /*
- ** FOR HIGHER LEVEL ANNOTATION LOADING
-  */
+/*
+** FOR HIGHER LEVEL ANNOTATION LOADING
+ */
 INSERT INTO higher_level_annotation VALUES
- ('MA:0000004')
-,('MA:0000007')
-,('MA:0000009')
-,('MA:0000010')
-,('MA:0002418')
-,('MA:0000012')
-,('MA:0002711')
-,('MA:0002411')
-,('MA:0000014')
-,('MA:0000016')
-,('MA:0000327')
-,('MA:0002431')
-,('MA:0000325')
-,('MA:0000326')
-,('MA:0000017')
-,('MA:0002887') 				-- set of connective tissues
+	('MA:0000004')
+	,('MA:0000007')
+	,('MA:0000009')
+	,('MA:0000010')
+	,('MA:0002418')
+	,('MA:0000012')
+	,('MA:0002711')
+	,('MA:0002411')
+	,('MA:0000014')
+	,('MA:0000016')
+	,('MA:0000327')
+	,('MA:0002431')
+	,('MA:0000325')
+	,('MA:0000326')
+	,('MA:0000017')
+	,('MA:0002887') 				-- set of connective tissues
 ;
 
 INSERT INTO higher_level_annotation VALUES
- ('EMAPA:16104')        -- cardiovascular system
-,('EMAPA:16192')        -- sensory organ system
-,('EMAPA:16246')        -- alimentary system
-,('EMAPA:16405')        -- limb
-,('EMAPA:16469')        -- nervous system
-,('EMAPA:16727')        -- respiratory system
-,('EMAPA:16748')        -- tail
-,('EMAPA:16840')        -- liver and biliary system
-,('EMAPA:17524')        -- integumental system
-,('EMAPA:31858')        -- head
+	('EMAPA:16104')        -- cardiovascular system
+	,('EMAPA:16192')        -- sensory organ system
+	,('EMAPA:16246')        -- alimentary system
+	,('EMAPA:16405')        -- limb
+	,('EMAPA:16469')        -- nervous system
+	,('EMAPA:16727')        -- respiratory system
+	,('EMAPA:16748')        -- tail
+	,('EMAPA:16840')        -- liver and biliary system
+	,('EMAPA:17524')        -- integumental system
+	,('EMAPA:31858')        -- head
 ;
 
 
 
- /*
- ** FOR IMPC STATUS CODE LOADING
-  */
+/*
+** FOR IMPC STATUS CODE LOADING
+ */
 /**
  * status code information about experiments, procedures or parameters from the DCC
  */
@@ -2294,221 +2312,221 @@ SELECT id FROM external_db WHERE short_name = 'MGI' INTO @MGI_DB_ID;
 
 INSERT INTO `phenotyped_colony` (`colony_name`, `es_cell_name`, `gf_acc`, `gf_db_id`, `allele_symbol`, `background_strain_name`, `production_centre_organisation_id`, `production_consortium_project_id`, `phenotyping_centre_organisation_id`, `phenotyping_consortium_project_id`)
 VALUES
-('EPD0038_2_B10_10026',NULL,'MGI:98970',(SELECT @MGI_DB_ID),'Xbp1<tm1a(EUCOMM)Wtsi>','C57BL/6NTac',(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID)),
-('DNase-X',NULL,'MGI:109628',(SELECT @MGI_DB_ID),'Dnase1l1<tm1Dkfz>','C57BL/6J',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
-('CMHD-TM_N00324P0_T20D4',NULL,'MGI:2158736',(SELECT @MGI_DB_ID),'Senp3<tm1(NCOM)Cmhd>','C57BL/6N',(SELECT id FROM organisation WHERE name = 'CMHD'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'CMHD'),(SELECT @EUMODIC_PROJECT_ID)),
-('Wrnip1tm1a KO',NULL,'MGI:1926153',(SELECT @MGI_DB_ID),'Wrnip1<tm1a(EUCOMM)Wtsi>','C57BL/6NTac',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
-('Vwde',NULL,'MGI:2685313',(SELECT @MGI_DB_ID),'Vwde<tm1Icmb>','C57BL/6J',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
-('EUC0050E03',NULL,'MGI:87880',(SELECT @MGI_DB_ID),'Aco2<Gt(EUC0050e03)Hmgu>','129P2/OlaHsd',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
-('EPD0038_2_B10_10557',NULL,'MGI:98970',(SELECT @MGI_DB_ID),'Xbp1<tm1a(EUCOMM)Wtsi>','C57BL/6NTac',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
-('Tmc1Tmc1<dn>',NULL,'MGI:2151016',(SELECT @MGI_DB_ID),'Tmc1<dn>','STOCK Tmc1<dn>',(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID)),
-('EPD0002_2_B07',NULL,'MGI:2150037',(SELECT @MGI_DB_ID),'Mta1<tm1a(EUCOMM)Wtsi>','129/SvEv',(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID)),
-('Magi2Magi2<tm1Grnt>',NULL,'MGI:1354953',(SELECT @MGI_DB_ID),'Magi2<tm1Grnt>','129S5;129P2',(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID)),
-('#4',NULL,'MGI:104735',(SELECT @MGI_DB_ID),'Gt(ROSA)26Sor<tm1(FLP1)Dym>','C57BL/6N',(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID)),
-('Prkab1Prkab1<Gt(RRR454)Byg>',NULL,'MGI:1336167',(SELECT @MGI_DB_ID),'Prkab1<Gt(RRR454)Byg>','CBA/Ca;129P2',(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID)),
-('Arl4',NULL,'MGI:99437',(SELECT @MGI_DB_ID),'Arl4a<tm1Asch>','C57BL/6',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
-('EUC0027G03',NULL,'MGI:2142567',(SELECT @MGI_DB_ID),'Arhgef18<Gt(EUC0027g03)Hmgu>','129P2/OlaHsd',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
-('Nox4',NULL,'MGI:1354184',(SELECT @MGI_DB_ID),'Nox4<tm1.1Hwsc>','C57BL/6',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
-('Asxl tm1a KO',NULL,'MGI:2684063',(SELECT @MGI_DB_ID),'Asxl1<tm1a(EUCOMM)Wtsi>','C57BL/6NTac',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
-('Matn1Matn1<tm1Goe>',NULL,'MGI:106591',(SELECT @MGI_DB_ID),'Matn1<tm1Goe>','C57BL/6JTyr;C57BL/6;129S5',(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID)),
-('EPD0059_3_A06',NULL,'MGI:1914084',(SELECT @MGI_DB_ID),'Acot13<tm1a(EUCOMM)Wtsi>','C57BL/6NTacDen',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
-('B6.Cg-Sfrp2<I153N>/H',NULL,'MGI:108078',(SELECT @MGI_DB_ID),'Sfrp2<I153N>','C57BL/6J',(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID)),
-('Elk4Elk4<tm1a(EUCOMM)Wtsi/H>',NULL,'MGI:102853',(SELECT @MGI_DB_ID),'Elk4<tm1a(EUCOMM)Wtsi>','C57BL/6',(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID)),
-('Ren1Ren1<Ren-1c Enhancer KO>',NULL,'MGI:97898',(SELECT @MGI_DB_ID),'Ren1<Ren-1c Enhancer KO>','C57BL/6JIco',(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID)),
-('CMHD-TM_N00020P0_T5C11',NULL,'MGI:2652885',(SELECT @MGI_DB_ID),'Tbc1d2<tm1(NCOM)Cmhd>','C57BL/6N',(SELECT id FROM organisation WHERE name = 'CMHD'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'CMHD'),(SELECT @EUMODIC_PROJECT_ID)),
-('EUCE0233_A03',NULL,'MGI:102790',(SELECT @MGI_DB_ID),'Rab18<Gt(EUCE0233a03)Hmgu>','129P2/OlaHsd',(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID)),
-('HEPD0634_1_D03',NULL,'MGI:97005',(SELECT @MGI_DB_ID),'Mmp12<tm1a(EUCOMM)Hmgu>','C57BL/6NTac',(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID)),
-('C3H.Cg-Fbxo11<Jf>/H',NULL,'MGI:2147134',(SELECT @MGI_DB_ID),'Fbxo11<Jf>','C3H/HeH',(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID)),
-('B6Dnk;129P2-HBP1<Gt(EUCJ0053g09)>/H',NULL,'MGI:894659',(SELECT @MGI_DB_ID),'Hbp1<Gt(EUCJ0053g09)>Hmgu','C57BL/6Dnk',(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID)),
-('CMHD-TM_N01174P0_T28D11',NULL,'MGI:1915987',(SELECT @MGI_DB_ID),'Angel1<tm1(NCOM)Cmhd>','C57BL/6N',(SELECT id FROM organisation WHERE name = 'CMHD'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'CMHD'),(SELECT @EUMODIC_PROJECT_ID)),
-('HST012',NULL,'MGI:102674',(SELECT @MGI_DB_ID),'Umod<urehr4>','C3HeB/FeJ',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
-('EUC0054A05',NULL,'MGI:2137706',(SELECT @MGI_DB_ID),'Actn1<Gt(EUC0054a05)Hmgu>','129P2/OlaHsd',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
-('129-Smo<tm1Amc>/H',NULL,'MGI:108075',(SELECT @MGI_DB_ID),'Smo<tm1Amc>','129S9/SvEvH',(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID)),
-('Myo7aMyo7a<Hdb>',NULL,'MGI:104510',(SELECT @MGI_DB_ID),'Myo7a<Hdb>','C3HeB/FeJ',(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID)),
-('Ankrd13aAnkrd13a<Gt(RRH308)Byg>',NULL,'MGI:1915670',(SELECT @MGI_DB_ID),'Ankrd13a<Gt(RRH308)Byg>','CBA/Ca;129P2',(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID)),
-('C57BL/6J-Ucp1<m1H>/H',NULL,'MGI:98894',(SELECT @MGI_DB_ID),'Ucp1<m1H>','C57BL/6J',(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID)),
-('EUCJ0004_F10',NULL,'MGI:97316',(SELECT @MGI_DB_ID),'Nfya<Gt(EUCJ0004f10)Hmgu>','C57BL/6NTacDen',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
-('HST009',NULL,'MGI:103150',(SELECT @MGI_DB_ID),'Slc12a1<urehr3>','C3HeB/FeJ',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
-('CMHD-TM_N00006P0_T6F5',NULL,'MGI:1917274',(SELECT @MGI_DB_ID),'Mcm10<tm1(NCOM)Cmhd>','C57BL/6N',(SELECT id FROM organisation WHERE name = 'CMHD'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'CMHD'),(SELECT @EUMODIC_PROJECT_ID)),
-('DLG3',NULL,'MGI:1353651',(SELECT @MGI_DB_ID),'Gnl3<Gt(W062C05)Wrst>','C57BL/6',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
-('EPD0001_3_E04',NULL,'MGI:1349766',(SELECT @MGI_DB_ID),'Brd7<tm3a(EUCOMM)Wtsi>','129/SvEv',(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID)),
-('EUCJ0079D10',NULL,'MGI:1201409',(SELECT @MGI_DB_ID),'Pknox1<Gt(EUCJ0079d10)Hmgu>','C57BL/6NTacDen',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
-('C3H.Cg-Ankrd11<Yod>/H',NULL,'MGI:1924337',(SELECT @MGI_DB_ID),'Ankrd11<Yod>','C3H/HeH',(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID)),
-('HEPD0527_5_A04',NULL,'MGI:2444491',(SELECT @MGI_DB_ID),'Heatr3<tm1a(EUCOMM)Hmgu>','C57BL/6NTac',(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID)),
-('Ptdsr',NULL,'MGI:1858910',(SELECT @MGI_DB_ID),'Jmjd6<tm1.1Gbf>','C57BL/6J',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
-('Rassf1Rassf1<tm1.2Brd>',NULL,'MGI:1928386',(SELECT @MGI_DB_ID),'Rassf1<tm1.2Brd>','C57BL/6JTyr;129S5',(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID)),
-('clone 1',NULL,'MGI:104874',(SELECT @MGI_DB_ID),'Akt2<tm1Wcs>','129/SvEv',(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID)),
-('129/SvEv-Gnas<tm1Jop>/H',NULL,'MGI:95777',(SELECT @MGI_DB_ID),'Gnas<tm1Jop>','129S9/SvEvH',(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID)),
-('ALI14',NULL,'MGI:97616',(SELECT @MGI_DB_ID),'Plcg2<Ali14>','C3HeB/FeJ',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
-('Miz1',NULL,'MGI:1096566',(SELECT @MGI_DB_ID),'Pias2<Gt(pT1Betageo)1Ruiz>','C57BL/6J',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
-('EPD0019_1_D07',NULL,'MGI:2444748',(SELECT @MGI_DB_ID),'Chd7<tm2a(EUCOMM)Wtsi>','129S5;C57BL/6N',(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID)),
-('Ube3bUbe3b<Gt(RRJ142)Byg>',NULL,'MGI:1891295',(SELECT @MGI_DB_ID),'Ube3b<Gt(RRJ142)Byg>','CBA/Ca;129P2',(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID)),
-('B6.129P2-Mro<tm1H>/H',NULL,'MGI:2152817',(SELECT @MGI_DB_ID),'Mro<tm1H>','C57BL/6J',(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID)),
-('Cidec tm1a KO',NULL,'MGI:95585',(SELECT @MGI_DB_ID),'Cidec<tm1a(EUCOMM)Wtsi>','C57BL/6NTac',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
-('CMHD-TM_N00135P0_T22G9',NULL,'MGI:2654703',(SELECT @MGI_DB_ID),'Otud7b<tm1(NCOM)Cmhd>','C57BL/6N',(SELECT id FROM organisation WHERE name = 'CMHD'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'CMHD'),(SELECT @EUMODIC_PROJECT_ID)),
-('C3H.Cg-Ptk7<chz>/H',NULL,'MGI:1918711',(SELECT @MGI_DB_ID),'Ptk7<chz>','C3H/HeH',(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID)),
-('CMHD-TM_N00016P0_T5D5',NULL,'MGI:1916960',(SELECT @MGI_DB_ID),'Arap1<tm1(NCOM)Cmhd>','C57BL/6N',(SELECT id FROM organisation WHERE name = 'CMHD'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'CMHD'),(SELECT @EUMODIC_PROJECT_ID)),
-('B6.Cg-Sfrp5<Q27STOP>/H',NULL,'MGI:1860298',(SELECT @MGI_DB_ID),'Sfrp5<Q27STOP>','C57BL/6J',(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID)),
-('ApoeApoe<tm1Unc>',NULL,'MGI:88057',(SELECT @MGI_DB_ID),'Apoe<tm1Unc>','C57BL/6',(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID)),
-('HEPD0527_4_D08',NULL,'MGI:1350921',(SELECT @MGI_DB_ID),'Fkbp9<tm1a(EUCOMM)Hmgu>','C57BL/6NTac',(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID)),
-('B6.129-Ptch1<tm1Mps>/JH',NULL,'MGI:105373',(SELECT @MGI_DB_ID),'Ptch1<tm1Mps>','C57BL/6J',(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID)),
-('129S9/SvEvH-Nespas<tm3Jop>/H',NULL,'MGI:1861674',(SELECT @MGI_DB_ID),'Gnas/Nespas<tm2.1Jop>','129S9/SvEvH',(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID)),
-('C.Cg-Bfc/H',NULL,'MGI:88276',(SELECT @MGI_DB_ID),'Ctnnb1<Bfc>','BALB/cAnNCrl',(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID)),
-('C.Cg-Celsr1<Crsh>/H',NULL,'MGI:1100883',(SELECT @MGI_DB_ID),'Celsr1<Crsh>','BALB/cAnNCrl',(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID)),
-('EUC0047A08',NULL,'MGI:1917329',(SELECT @MGI_DB_ID),'Golm1<Gt(EUC0047a08)Hmgu>','129P2/OlaHsd',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
-('EPD0002_3_G03',NULL,'MGI:1278322',(SELECT @MGI_DB_ID),'Epc1<tm1a(EUCOMM)Wtsi>','129/SvEv',(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID)),
-('C3H.A-Vangl2<Lp>/H',NULL,'MGI:2135272',(SELECT @MGI_DB_ID),'Vangl2<Lp>','C3H/HeH',(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID)),
-('NCAM1',NULL,'MGI:97281',(SELECT @MGI_DB_ID),'Ncam1<tm1Cgn>','C57BL/6JIco',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
-('Deltagen_407',NULL,'MGI:2449205',(SELECT @MGI_DB_ID),'Nr1d2<tm1Dgen>','B6J.129S2',(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID)),
-('N00007P0_T5B3',NULL,'MGI:88255',(SELECT @MGI_DB_ID),'Anxa6<tm1(NCOM)Cmhd>','C57BL/6N',(SELECT id FROM organisation WHERE name = 'CMHD'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'CMHD'),(SELECT @EUMODIC_PROJECT_ID)),
-('CMHD-TM_N01605P1_T53C4',NULL,'MGI:2685003',(SELECT @MGI_DB_ID),'Zbtb45<tm1(NCOM)Cmhd>','C57BL/6N',(SELECT id FROM organisation WHERE name = 'CMHD'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'CMHD'),(SELECT @EUMODIC_PROJECT_ID)),
-('Grin2aGrin2a<tm1Rsp>',NULL,'MGI:95820',(SELECT @MGI_DB_ID),'Grin2a<tm1Rsp>','C57BL/6JIco;129P2',(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID)),
-('CMHD-TM_N01539P1_T51C7',NULL,'MGI:1922075',(SELECT @MGI_DB_ID),'Senp6<tm1(NCOM)Cmhd>','C57BL/6N',(SELECT id FROM organisation WHERE name = 'CMHD'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'CMHD'),(SELECT @EUMODIC_PROJECT_ID)),
-('Eya3',NULL,'MGI:109339',(SELECT @MGI_DB_ID),'Eya3<Gt(W096D02)Wrst>','C57BL/6J',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
-('CMHD-TM_N00086P0_T24C7',NULL,'MGI:1914737',(SELECT @MGI_DB_ID),'Dhx40<tm1(NCOM)Cmhd>','C57BL/6N',(SELECT id FROM organisation WHERE name = 'CMHD'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'CMHD'),(SELECT @EUMODIC_PROJECT_ID)),
-('EPD0001_3_G07',NULL,'MGI:98809',(SELECT @MGI_DB_ID),'Tpm1<tm1a(EUCOMM)Wtsi>','129/SvEv',(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID)),
-('Aldh2Aldh2<tm1a(EUCOMM)Wtsi/Hmgu>',NULL,'MGI:99600',(SELECT @MGI_DB_ID),'Aldh2<tm1a(EUCOMM)Wtsi>','C57BL/6',(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID)),
-('Nr1i2',NULL,'MGI:1337040',(SELECT @MGI_DB_ID),'Nr1i2','B6J.129S2',(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID)),
-('Bin1_mut1',NULL,'MGI:108092',(SELECT @MGI_DB_ID),'Bin1_mut1','B6N.B6J.129S2',(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID)),
-('Bin1_mut2',NULL,'MGI:108092',(SELECT @MGI_DB_ID),'Bin1_mut2','B6N.129S2.B6J',(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID)),
-('Nr1h4',NULL,'MGI:1352464',(SELECT @MGI_DB_ID),'Nr1h4','B6J.129S2',(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID)),
-('Nr6a1',NULL,'MGI:1352459',(SELECT @MGI_DB_ID),'Nr6a1','B6J.129S2',(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID)),
-('EUCJ004_F10',NULL,'MGI:97316',(SELECT @MGI_DB_ID),'Nfya','C57BL/6NTac',(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID)),
-('Snx5',NULL,'MGI:1916428',(SELECT @MGI_DB_ID),'Snx5','C57BL/6NTac',(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID)),
-('NR1D1',NULL,'MGI:2444210',(SELECT @MGI_DB_ID),'Nr1d1','B6J.129S2',(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID)),
-('Stard3',NULL,'MGI:1929618',(SELECT @MGI_DB_ID),'Stard3','B6N.129S2.B6J',(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID)),
-('STARD3NL',NULL,'MGI:1923455',(SELECT @MGI_DB_ID),'STARD3NL','B6N.129S2.B6J',(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID)),
-('Emp3',NULL,'MGI:1098729',(SELECT @MGI_DB_ID),'Emp3','C57BL/6',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
-('Ncor2',NULL,'MGI:1337080',(SELECT @MGI_DB_ID),'Ncor2','B6J.129S2',(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID)),
-('Strap',NULL,'MGI:1329037',(SELECT @MGI_DB_ID),'Strap','B6J.B6N',(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID)),
-('Gbx1',NULL,'MGI:95667',(SELECT @MGI_DB_ID),'Gbx1','C57BL/6J',(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID)),
-('Tbp2',NULL,'MGI:2684058',(SELECT @MGI_DB_ID),'Tbp2','B6J.129S2.B6N',(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID)),
-('March 7 targeted gene trap Cross 1',NULL,'MGI:1931053',(SELECT @MGI_DB_ID),'March7','C57BL/6J',(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID)),
-('Nr2b3',NULL,'MGI:98216',(SELECT @MGI_DB_ID),'Rxrg','B6J.129S2',(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID)),
-('Gpt2',NULL,'MGI:1915391',(SELECT @MGI_DB_ID),'Gpt2','C57BL/6NTac',(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID)),
-('Sighted C3H',NULL,'MGI:97525',(SELECT @MGI_DB_ID),'Pde6b','C3H/HeH',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
-('Nr3c2',NULL,'MGI:99459',(SELECT @MGI_DB_ID),'Nr3c2','B6J.129S2',(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID)),
-('Net',NULL,'MGI:101762',(SELECT @MGI_DB_ID),'Elk3','B6J.B6N',(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID)),
-('Aste1',NULL,'MGI:1913845',(SELECT @MGI_DB_ID),'Aste1','C57BL/6NTac',(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID)),
-('Nr0b2',NULL,'MGI:1346344',(SELECT @MGI_DB_ID),'Nr0b2','B6J.129S2',(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID)),
-('Ttll12',NULL,'MGI:3039573',(SELECT @MGI_DB_ID),'Ttll12','B6J.B6N',(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID)),
-('PJA1',NULL,'MGI:1101765',(SELECT @MGI_DB_ID),'PJA1','C57BL/6J',(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID)),
-('Dnm2',NULL,'MGI:109547',(SELECT @MGI_DB_ID),'Dnm2','Balb/c.129S2',(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID)),
-('Insl5',NULL,'MGI:1346085',(SELECT @MGI_DB_ID),'Insl5','C57BL/6',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
-('EPD0518_6_B02',NULL,'MGI:95405',(SELECT @MGI_DB_ID),'Ephx1','C57BL/6NTac',(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID)),
-('Rere',NULL,'MGI:2683486',(SELECT @MGI_DB_ID),'Rere','B6J.B6N',(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID)),
-('B6129S8-Tc(Hsa21)1TybEmcf/H',NULL,'MGI:3814702',(SELECT @MGI_DB_ID),'Tc(Hsa21)1TybEmcf','Stock',(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID)),
-('B6.Cg-cub/H',NULL,'MGI:1890156',(SELECT @MGI_DB_ID),'Stx8<tm2a(EUCOMM)Wtsi>','C57BL/6J',(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID)),
-('Dll1_C3H_113',NULL,'MGI:104659',(SELECT @MGI_DB_ID),'Dll1<tm1Gos>','C3HeB/FeJ',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
-('Dll1_C3H_10333',NULL,'MGI:104659',(SELECT @MGI_DB_ID),'Dll1<tm1Gos>','129SvJ-Iso',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
-('Gsk3a',NULL,'MGI:2152453',(SELECT @MGI_DB_ID),'Gsk3a<not yet available>','C57BL/6J',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
-('Kcnip4',NULL,'MGI:1933131',(SELECT @MGI_DB_ID),'Kcnip4<not yet available>','C57BL/6',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
-('March 7 KO (Cross 2)',NULL,'MGI:1931053',(SELECT @MGI_DB_ID),'MARCH7<not yet available>','C57BL''C3H.C-Mecom<Jbo>/H ''/6J',(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID)),
-('C.Cg-Ostes/H',NULL,'MGI:3688249',(SELECT @MGI_DB_ID),'Ostes','BALB/cAnNCrl',(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID)),
-('Phex',NULL,'MGI:107489',(SELECT @MGI_DB_ID),'Phex<not yet available>','C3HeB/FeJ',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
-('VMP1',NULL,'MGI:1923159',(SELECT @MGI_DB_ID),'Vmp1<not yet available>','C57BL/6NTacDen',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
-('Ifitm1_1F4',NULL,'MGI:1915963',(SELECT @MGI_DB_ID),'Ifitm1<not yet assigned>','C57BL/6J',(SELECT id FROM organisation WHERE name = 'HMGU'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'HMGU'),(SELECT @EUMODIC_PROJECT_ID)),
-('RHBDL5-AG2',NULL,'MGI:2442473',(SELECT @MGI_DB_ID),'Rhbdf2<not yet available>','C57BL/6J',(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID)),
-('Myo7aMyo7a<sh1-6J>',NULL,'MGI:104510',(SELECT @MGI_DB_ID),'Myo7a<sh1-6J>','AKR/J;C57BLKS/J',(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID)),
-('Atp2b2Atp2b2<Obv>',NULL,'MGI:105368',(SELECT @MGI_DB_ID),'Atp2b2<Obv>','C3HeB/FeJ',(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID)),
-('Dlg4Dlg4<tm1Grnt>',NULL,'MGI:1277959',(SELECT @MGI_DB_ID),'Dlg4<tm1Grnt>','C57BL/6JIco;129P2',(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID)),
-('Ttll4Ttll4<tm1a(EUCOMM)Wtsi/H>',NULL,'MGI:1914784',(SELECT @MGI_DB_ID),'Ttll4<tm1a(EUCOMM)Wtsi>','C57BL/6N',(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID)),
-('WhrnWhrn<wi>',NULL,'MGI:2682003',(SELECT @MGI_DB_ID),'Whrn<wi>','STOCK Whrn<wi>',(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID)),
-('Git2Git2<Gt(XG510)Byg>',NULL,'MGI:1347053',(SELECT @MGI_DB_ID),'Git2<Gt(XG510)Byg>','CBA/Ca;129P2',(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID)),
-('Secisbp2Secisbp2<tm1a(EUCOMM)Wtsi/H>',NULL,'MGI:1922670',(SELECT @MGI_DB_ID),'Secisbp2<tm1a(EUCOMM)Wtsi>','C57BL/6N',(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID)),
-('Chd7Chd7<Whi>',NULL,'MGI:2444748',(SELECT @MGI_DB_ID),'Chd7<Whi>','C3HeB/FeJ',(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID)),
-('Clk1Clk1<tm1a(EUCOMM)Wtsi/Ics>',NULL,'MGI:107403',(SELECT @MGI_DB_ID),'Clk1<tm1a(EUCOMM)Wtsi>','C57BL/6N',(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID)),
-('Dlg2Dlg2<tm1Dsb>',NULL,'MGI:1344351',(SELECT @MGI_DB_ID),'Dlg2<tm1Dsb>','C57BL/6JIco',(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID)),
-('Ifitm3Ifitm3<tm1Masu>',NULL,'MGI:1913391',(SELECT @MGI_DB_ID),'Ifitm3<tm1Masu>','C57BL/6JIco;C57BL/6JTyr;129P2',(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID)),
-('Entpd1Entpd1<tm1a(EUCOMM)Wtsi/Hmgu>',NULL,'MGI:102805',(SELECT @MGI_DB_ID),'Entpd1<tm1a(EUCOMM)Wtsi>','C57BL/6',(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID)),
-('NfyaNfya<Gt(EUCJ0004f10)Hmgu>',NULL,'MGI:97316',(SELECT @MGI_DB_ID),'Nfya<Gt(EUCJ0004f10)Hmgu>','C57BL/6',(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID)),
-('129S9/SvEvH-Ablim1<tm1H>/H',NULL,'MGI:1194500',(SELECT @MGI_DB_ID),'Ablim1<tm1H>','129S9/SvEvH',(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID)),
-('129P2/OlaHsd-Fbxl3<Gt(CB0226)Wtsi>/H',NULL,'MGI:1354702',(SELECT @MGI_DB_ID),'Fbxl3<Gt(CB0226)Wtsi>','129P2/OlaHsd',(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID)),
-('C3H.C-Mecom<Jbo>/H',NULL,'MGI:95457',(SELECT @MGI_DB_ID),'Mecom<Jbo>','C3H/HeH',(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID)),
-('C3H.B6-Tulp3<hhkr>/H',NULL,'MGI:1329045',(SELECT @MGI_DB_ID),'Tulp3<hhkr>','C3H/HeH',(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID)),
-('C3H.C-Trpc3<Mwk>/H',NULL,'MGI:109526',(SELECT @MGI_DB_ID),'Trpc3<Mwk>','C3H/HeH',(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID)),
-('129P2/OlaHsd-Tpcn1<Gt(XG716)Byg>/H',NULL,'MGI:2182472',(SELECT @MGI_DB_ID),'Tpcn1<Gt(XG716)Byg>','129P2/OlaHsd',(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID)),
-('B6.Cg-Sfrp2<C50F>/H',NULL,'MGI:108078',(SELECT @MGI_DB_ID),'Sfrp2<C50F>','C57BL/6J',(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID)),
-('129P2/OlaHsd-Map3k1<Gt(YTC001)Byg>/H',NULL,'MGI:1346872',(SELECT @MGI_DB_ID),'Map3k1<Gt(YTC001)Byg>','129P2/OlaHsd',(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID)),
-('B6.129-Kcnj16<tm1Sjtu>/H',NULL,'MGI:1314842',(SELECT @MGI_DB_ID),'Kcnj16<tm1Sjtu>','C57BL/6J',(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID)),
-('mPtpg',NULL,'MGI:1921802',(SELECT @MGI_DB_ID),'Nipal3<tm1Pbfd>','129SV',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
-('EPS8',NULL,'MGI:104684',(SELECT @MGI_DB_ID),'Eps8<tm1Ppdf>','C57BL/6',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
-('FoxP2 delta exon7',NULL,'MGI:2148705',(SELECT @MGI_DB_ID),'Foxp2<tm2.1Woen>','C57BL/6J',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
-('Abcb4',NULL,'MGI:97569',(SELECT @MGI_DB_ID),'Abcb4<tm1Bor>','FVB/NJ',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
-('Fam63aFam63a<tm1a(EUCOMM)Wtsi/Ics>',NULL,'MGI:1922257',(SELECT @MGI_DB_ID),'Fam63a<tm1a(EUCOMM)Wtsi>','C57BL/6',(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID)),
-('Eyl',NULL,'MGI:1100498',(SELECT @MGI_DB_ID),'Pitx3<eyl>','C3H/NHG',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
-('B6.129-Sfrp1<tm1Aksh>',NULL,'MGI:892014',(SELECT @MGI_DB_ID),'Sfrp1<tm1Aksh>','C57BL/6J',(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID)),
-('Tp53',NULL,'MGI:1926609',(SELECT @MGI_DB_ID),'Trp53inp1<tm1Acar>','129/Sv_C57BL/6',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
-('HEPD0546_1_F01',NULL,'MGI:2685397',(SELECT @MGI_DB_ID),'Rc3h1<tm1a(EUCOMM)Hmgu>','C57BL/6NTac',(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID)),
-('IFIT-2',NULL,'MGI:99449',(SELECT @MGI_DB_ID),'Ifit2<tm1.1Ebsb>','C57BL/6N',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
-('CMHD-TM_N00105P0_T28A8',NULL,'MGI:1202301',(SELECT @MGI_DB_ID),'Itch<tm1(NCOM)Cmhd>','C57BL/6N',(SELECT id FROM organisation WHERE name = 'CMHD'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'CMHD'),(SELECT @EUMODIC_PROJECT_ID)),
-('Tmem45b',NULL,'MGI:2384574',(SELECT @MGI_DB_ID),'Tmem45b<tm1.1Hsue>','C57BL/6',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
-('DKK3',NULL,'MGI:1354952',(SELECT @MGI_DB_ID),'Dkk3<tm1Cni>','C57BL/6',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
-('T181',NULL,'MGI:1924104',(SELECT @MGI_DB_ID),'Gper1<tm1Dgen>','C57BL/6',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
-('1',NULL,'MGI:1336167',(SELECT @MGI_DB_ID),'Prkab1<tm1a(KOMP)Wtsi>','C57BL/6N',(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID)),
-('CMHD-TM_N00005P0_T11G1',NULL,'MGI:1933401',(SELECT @MGI_DB_ID),'Zfp202<tm1(NCOM)Cmhd>','C57BL/6N',(SELECT id FROM organisation WHERE name = 'CMHD'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'CMHD'),(SELECT @EUMODIC_PROJECT_ID)),
-('EPD060_1_B12',NULL,'MGI:104681',(SELECT @MGI_DB_ID),'Hgs<tm1a(EUCOMM)Wtsi>','C57BL/6NTacDen',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
-('B6.129P2-Vnn1<tm1Pna>/H',NULL,'MGI:108395',(SELECT @MGI_DB_ID),'Vnn1<tm1Pna>','C57BL/6J',(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID)),
-('MARCH9-KO_NOT_OSN',NULL,'MGI:2446144',(SELECT @MGI_DB_ID),'March9<tm1a(EUCOMM)Wtsi>','C57BL/6J',(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID)),
-('Myo6Myo6<sv>',NULL,'MGI:104785',(SELECT @MGI_DB_ID),'Myo6<sv>','C57BL/6JIco;C57BL/10',(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID)),
-('129-Nespas<tm1Jop>/H',NULL,'MGI:1861674',(SELECT @MGI_DB_ID),'Nespas<tm1Jop>','129S8/SvEv-Gpi1<c>/NimrH',(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID)),
-('Vimentin',NULL,'MGI:98932',(SELECT @MGI_DB_ID),'Vim<tm2Cba>','129/SvPas',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
-('CMHD-TM_N00343P0_T21F5',NULL,'MGI:1916221',(SELECT @MGI_DB_ID),'Tamm41<tm1(NCOM)Cmhd>','C57BL/6N',(SELECT id FROM organisation WHERE name = 'CMHD'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'CMHD'),(SELECT @EUMODIC_PROJECT_ID)),
-('Cin85',NULL,'MGI:1889583',(SELECT @MGI_DB_ID),'Sh3kbp1<tm1Ivdi>','C57BL/6',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
-('EPD0028_5_G01',NULL,'MGI:108086',(SELECT @MGI_DB_ID),'Hdac1<tm1a(EUCOMM)Wtsi>','C57BL/6NTacDen',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
-('DEA3',NULL,'MGI:2151016',(SELECT @MGI_DB_ID),'Tmc1<Bth>','C3HeB/FeJ',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
-('Glut8',NULL,'MGI:1860103',(SELECT @MGI_DB_ID),'Slc2a8<tm1.1Asch>','C57BL/6',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
-('C3H.Cg-Celsr1<Scy>/H',NULL,'MGI:1100883',(SELECT @MGI_DB_ID),'Celsr1<Scy>','C3H/HeH',(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID)),
-('Usp6nl',NULL,'MGI:2138893',(SELECT @MGI_DB_ID),'Usp6nl<tm1Ppdf>','C57BL/6',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
-('Cadm1Cadm1<tm1.2Brd>',NULL,'MGI:1889272',(SELECT @MGI_DB_ID),'Cadm1<tm1.2Brd>','C57BL/6JIco;C57BL/6JTyr;129S5',(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID)),
-('Rhbdl4-/-',NULL,'MGI:1924117',(SELECT @MGI_DB_ID),'Rhbdd1<tm1.1Mfm>','C57BL/6J',(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID)),
-('Abcb4_Balb/cJ',NULL,'MGI:97569',(SELECT @MGI_DB_ID),'Abcb4<tm1Bor>','BALB/cByJ',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
-('129P2/OlaHsd-Tpcn2<Gt(YHD437)Byg>/H',NULL,'MGI:2385297',(SELECT @MGI_DB_ID),'Tpcn2<Gt(YHD437)Byg>','129P2/OlaHsd',(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID)),
-('EPD0033_3_C09',NULL,'MGI:1336167',(SELECT @MGI_DB_ID),'Prkab1<tm1a(KOMP)Wtsi>','C57BL/6N',(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID)),
-('EUCJ0019C12',NULL,'MGI:104662',(SELECT @MGI_DB_ID),'Pml<Gt(EUCJ0019c12)Hmgu>','C57BL/6NTacDen',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
-('EUC BL6-FP00042B07',NULL,'MGI:1934229',(SELECT @MGI_DB_ID),'Setdb1<tm1a(EUCOMM)Wtsi>','C57BL/6NTacDen',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
-('NADH',NULL,'MGI:1918611',(SELECT @MGI_DB_ID),'Aifm2<tm1Avm>','C57BL/6J',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
-('Matn3Matn3<tm1Brd>',NULL,'MGI:1328350',(SELECT @MGI_DB_ID),'Matn3<tm1Brd>','C57BL/6JTyr;C57BL/6;129S5',(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID)),
-('Kctd10Kctd10<Gt(RRG305)Byg>',NULL,'MGI:2141207',(SELECT @MGI_DB_ID),'Kctd10<Gt(RRG305)Byg>','CBA/Ca;129P2',(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID)),
-('Grxcr1Grxcr1<tde>',NULL,'MGI:3577767',(SELECT @MGI_DB_ID),'Grxcr1<pi-tde>','STOCK Grxcr1<tde>',(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID)),
-('ENSMUSG00000065586ENSMUSG00000065586<Dmdo>',NULL,'MGI:3619440',(SELECT @MGI_DB_ID),'Mir96<Dmdo>','C3HeB/FeJ',(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID)),
-('Stx8tm3a KO',NULL,'MGI:1890156',(SELECT @MGI_DB_ID),'Stx8<tm2a(EUCOMM)Wtsi>','C57BL/6NTac',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
-('Ino80e tm1a KO',NULL,'MGI:2141881',(SELECT @MGI_DB_ID),'Ino80e<tm1a(EUCOMM)Wtsi>','C57BL/6NTac',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
-('Dmbt1',NULL,'MGI:106210',(SELECT @MGI_DB_ID),'Dmbt1<tm1Janm>','C57BL/6',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
-('B6.129-Sfrp2<tm1Aksh>',NULL,'MGI:108078',(SELECT @MGI_DB_ID),'Sfrp2<tm1Aksh>','C57BL/6J',(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID)),
-('M076C04',NULL,'MGI:1915372',(SELECT @MGI_DB_ID),'Nkain4<Gt(M076C04)Vmel>','C57BL/6J',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
-('C1orf37',NULL,'MGI:1914729',(SELECT @MGI_DB_ID),'Tg(TMEM183B)1Pbo','C57BL/6J',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
-('EPD0288_3_A08',NULL,'MGI:2429409',(SELECT @MGI_DB_ID),'Afm<tm1a(KOMP)Wtsi>','C57BL/6NTac',(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID)),
-('Dll1<C413Y>',NULL,'MGI:104659',(SELECT @MGI_DB_ID),'Dll1<m1Mhda>','C3HeB/FeJ',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
-('FoxP2',NULL,'MGI:2148705',(SELECT @MGI_DB_ID),'Foxp2<tm1Woen>','C57BL/6J',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
-('129-Shh<tm1Chg>/H',NULL,'MGI:98297',(SELECT @MGI_DB_ID),'Shh<tm1Chg>','129S9/SvEvH',(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID)),
-('HEPD0527_2_D03',NULL,'MGI:2685493',(SELECT @MGI_DB_ID),'Pla2g4f<tm1a(EUCOMM)Hmgu>','C57BL/6NTac',(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID)),
-('129S9/SvEvH-Nodal<tm1Rob>/H',NULL,'MGI:97359',(SELECT @MGI_DB_ID),'Nodal<tm1Rob>','129S9/SvEvH',(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID)),
-('Hmx3Hmx3<hx>',NULL,'MGI:107160',(SELECT @MGI_DB_ID),'Hmx3<tm1Ebo>','STOCK Hmx3<hx>',(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID)),
-('ABE1',NULL,'MGI:104785',(SELECT @MGI_DB_ID),'Myo6<Tlc>','C3HeB/FeJ',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
-('Tnfaip1Tnfaip1<tm1a(EUCOMM)Wtsi/H>',NULL,'MGI:104961',(SELECT @MGI_DB_ID),'Tnfaip1<tm1a(EUCOMM)Wtsi>','C57BL/6N',(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID)),
-('Hhip',NULL,'MGI:1341847',(SELECT @MGI_DB_ID),'Hhip<tm1Icmb>','C57BL/6J',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
-('Cdh23Cdh23<v>',NULL,'MGI:1890219',(SELECT @MGI_DB_ID),'Cdh23<v>','STOCK Cdh23<v>',(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID)),
+	('EPD0038_2_B10_10026',NULL,'MGI:98970',(SELECT @MGI_DB_ID),'Xbp1<tm1a(EUCOMM)Wtsi>','C57BL/6NTac',(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID)),
+	('DNase-X',NULL,'MGI:109628',(SELECT @MGI_DB_ID),'Dnase1l1<tm1Dkfz>','C57BL/6J',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
+	('CMHD-TM_N00324P0_T20D4',NULL,'MGI:2158736',(SELECT @MGI_DB_ID),'Senp3<tm1(NCOM)Cmhd>','C57BL/6N',(SELECT id FROM organisation WHERE name = 'CMHD'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'CMHD'),(SELECT @EUMODIC_PROJECT_ID)),
+	('Wrnip1tm1a KO',NULL,'MGI:1926153',(SELECT @MGI_DB_ID),'Wrnip1<tm1a(EUCOMM)Wtsi>','C57BL/6NTac',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
+	('Vwde',NULL,'MGI:2685313',(SELECT @MGI_DB_ID),'Vwde<tm1Icmb>','C57BL/6J',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
+	('EUC0050E03',NULL,'MGI:87880',(SELECT @MGI_DB_ID),'Aco2<Gt(EUC0050e03)Hmgu>','129P2/OlaHsd',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
+	('EPD0038_2_B10_10557',NULL,'MGI:98970',(SELECT @MGI_DB_ID),'Xbp1<tm1a(EUCOMM)Wtsi>','C57BL/6NTac',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
+	('Tmc1Tmc1<dn>',NULL,'MGI:2151016',(SELECT @MGI_DB_ID),'Tmc1<dn>','STOCK Tmc1<dn>',(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID)),
+	('EPD0002_2_B07',NULL,'MGI:2150037',(SELECT @MGI_DB_ID),'Mta1<tm1a(EUCOMM)Wtsi>','129/SvEv',(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID)),
+	('Magi2Magi2<tm1Grnt>',NULL,'MGI:1354953',(SELECT @MGI_DB_ID),'Magi2<tm1Grnt>','129S5;129P2',(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID)),
+	('#4',NULL,'MGI:104735',(SELECT @MGI_DB_ID),'Gt(ROSA)26Sor<tm1(FLP1)Dym>','C57BL/6N',(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID)),
+	('Prkab1Prkab1<Gt(RRR454)Byg>',NULL,'MGI:1336167',(SELECT @MGI_DB_ID),'Prkab1<Gt(RRR454)Byg>','CBA/Ca;129P2',(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID)),
+	('Arl4',NULL,'MGI:99437',(SELECT @MGI_DB_ID),'Arl4a<tm1Asch>','C57BL/6',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
+	('EUC0027G03',NULL,'MGI:2142567',(SELECT @MGI_DB_ID),'Arhgef18<Gt(EUC0027g03)Hmgu>','129P2/OlaHsd',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
+	('Nox4',NULL,'MGI:1354184',(SELECT @MGI_DB_ID),'Nox4<tm1.1Hwsc>','C57BL/6',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
+	('Asxl tm1a KO',NULL,'MGI:2684063',(SELECT @MGI_DB_ID),'Asxl1<tm1a(EUCOMM)Wtsi>','C57BL/6NTac',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
+	('Matn1Matn1<tm1Goe>',NULL,'MGI:106591',(SELECT @MGI_DB_ID),'Matn1<tm1Goe>','C57BL/6JTyr;C57BL/6;129S5',(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID)),
+	('EPD0059_3_A06',NULL,'MGI:1914084',(SELECT @MGI_DB_ID),'Acot13<tm1a(EUCOMM)Wtsi>','C57BL/6NTacDen',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
+	('B6.Cg-Sfrp2<I153N>/H',NULL,'MGI:108078',(SELECT @MGI_DB_ID),'Sfrp2<I153N>','C57BL/6J',(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID)),
+	('Elk4Elk4<tm1a(EUCOMM)Wtsi/H>',NULL,'MGI:102853',(SELECT @MGI_DB_ID),'Elk4<tm1a(EUCOMM)Wtsi>','C57BL/6',(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID)),
+	('Ren1Ren1<Ren-1c Enhancer KO>',NULL,'MGI:97898',(SELECT @MGI_DB_ID),'Ren1<Ren-1c Enhancer KO>','C57BL/6JIco',(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID)),
+	('CMHD-TM_N00020P0_T5C11',NULL,'MGI:2652885',(SELECT @MGI_DB_ID),'Tbc1d2<tm1(NCOM)Cmhd>','C57BL/6N',(SELECT id FROM organisation WHERE name = 'CMHD'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'CMHD'),(SELECT @EUMODIC_PROJECT_ID)),
+	('EUCE0233_A03',NULL,'MGI:102790',(SELECT @MGI_DB_ID),'Rab18<Gt(EUCE0233a03)Hmgu>','129P2/OlaHsd',(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID)),
+	('HEPD0634_1_D03',NULL,'MGI:97005',(SELECT @MGI_DB_ID),'Mmp12<tm1a(EUCOMM)Hmgu>','C57BL/6NTac',(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID)),
+	('C3H.Cg-Fbxo11<Jf>/H',NULL,'MGI:2147134',(SELECT @MGI_DB_ID),'Fbxo11<Jf>','C3H/HeH',(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID)),
+	('B6Dnk;129P2-HBP1<Gt(EUCJ0053g09)>/H',NULL,'MGI:894659',(SELECT @MGI_DB_ID),'Hbp1<Gt(EUCJ0053g09)>Hmgu','C57BL/6Dnk',(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID)),
+	('CMHD-TM_N01174P0_T28D11',NULL,'MGI:1915987',(SELECT @MGI_DB_ID),'Angel1<tm1(NCOM)Cmhd>','C57BL/6N',(SELECT id FROM organisation WHERE name = 'CMHD'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'CMHD'),(SELECT @EUMODIC_PROJECT_ID)),
+	('HST012',NULL,'MGI:102674',(SELECT @MGI_DB_ID),'Umod<urehr4>','C3HeB/FeJ',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
+	('EUC0054A05',NULL,'MGI:2137706',(SELECT @MGI_DB_ID),'Actn1<Gt(EUC0054a05)Hmgu>','129P2/OlaHsd',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
+	('129-Smo<tm1Amc>/H',NULL,'MGI:108075',(SELECT @MGI_DB_ID),'Smo<tm1Amc>','129S9/SvEvH',(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID)),
+	('Myo7aMyo7a<Hdb>',NULL,'MGI:104510',(SELECT @MGI_DB_ID),'Myo7a<Hdb>','C3HeB/FeJ',(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID)),
+	('Ankrd13aAnkrd13a<Gt(RRH308)Byg>',NULL,'MGI:1915670',(SELECT @MGI_DB_ID),'Ankrd13a<Gt(RRH308)Byg>','CBA/Ca;129P2',(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID)),
+	('C57BL/6J-Ucp1<m1H>/H',NULL,'MGI:98894',(SELECT @MGI_DB_ID),'Ucp1<m1H>','C57BL/6J',(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID)),
+	('EUCJ0004_F10',NULL,'MGI:97316',(SELECT @MGI_DB_ID),'Nfya<Gt(EUCJ0004f10)Hmgu>','C57BL/6NTacDen',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
+	('HST009',NULL,'MGI:103150',(SELECT @MGI_DB_ID),'Slc12a1<urehr3>','C3HeB/FeJ',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
+	('CMHD-TM_N00006P0_T6F5',NULL,'MGI:1917274',(SELECT @MGI_DB_ID),'Mcm10<tm1(NCOM)Cmhd>','C57BL/6N',(SELECT id FROM organisation WHERE name = 'CMHD'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'CMHD'),(SELECT @EUMODIC_PROJECT_ID)),
+	('DLG3',NULL,'MGI:1353651',(SELECT @MGI_DB_ID),'Gnl3<Gt(W062C05)Wrst>','C57BL/6',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
+	('EPD0001_3_E04',NULL,'MGI:1349766',(SELECT @MGI_DB_ID),'Brd7<tm3a(EUCOMM)Wtsi>','129/SvEv',(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID)),
+	('EUCJ0079D10',NULL,'MGI:1201409',(SELECT @MGI_DB_ID),'Pknox1<Gt(EUCJ0079d10)Hmgu>','C57BL/6NTacDen',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
+	('C3H.Cg-Ankrd11<Yod>/H',NULL,'MGI:1924337',(SELECT @MGI_DB_ID),'Ankrd11<Yod>','C3H/HeH',(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID)),
+	('HEPD0527_5_A04',NULL,'MGI:2444491',(SELECT @MGI_DB_ID),'Heatr3<tm1a(EUCOMM)Hmgu>','C57BL/6NTac',(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID)),
+	('Ptdsr',NULL,'MGI:1858910',(SELECT @MGI_DB_ID),'Jmjd6<tm1.1Gbf>','C57BL/6J',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
+	('Rassf1Rassf1<tm1.2Brd>',NULL,'MGI:1928386',(SELECT @MGI_DB_ID),'Rassf1<tm1.2Brd>','C57BL/6JTyr;129S5',(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID)),
+	('clone 1',NULL,'MGI:104874',(SELECT @MGI_DB_ID),'Akt2<tm1Wcs>','129/SvEv',(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID)),
+	('129/SvEv-Gnas<tm1Jop>/H',NULL,'MGI:95777',(SELECT @MGI_DB_ID),'Gnas<tm1Jop>','129S9/SvEvH',(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID)),
+	('ALI14',NULL,'MGI:97616',(SELECT @MGI_DB_ID),'Plcg2<Ali14>','C3HeB/FeJ',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
+	('Miz1',NULL,'MGI:1096566',(SELECT @MGI_DB_ID),'Pias2<Gt(pT1Betageo)1Ruiz>','C57BL/6J',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
+	('EPD0019_1_D07',NULL,'MGI:2444748',(SELECT @MGI_DB_ID),'Chd7<tm2a(EUCOMM)Wtsi>','129S5;C57BL/6N',(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID)),
+	('Ube3bUbe3b<Gt(RRJ142)Byg>',NULL,'MGI:1891295',(SELECT @MGI_DB_ID),'Ube3b<Gt(RRJ142)Byg>','CBA/Ca;129P2',(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID)),
+	('B6.129P2-Mro<tm1H>/H',NULL,'MGI:2152817',(SELECT @MGI_DB_ID),'Mro<tm1H>','C57BL/6J',(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID)),
+	('Cidec tm1a KO',NULL,'MGI:95585',(SELECT @MGI_DB_ID),'Cidec<tm1a(EUCOMM)Wtsi>','C57BL/6NTac',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
+	('CMHD-TM_N00135P0_T22G9',NULL,'MGI:2654703',(SELECT @MGI_DB_ID),'Otud7b<tm1(NCOM)Cmhd>','C57BL/6N',(SELECT id FROM organisation WHERE name = 'CMHD'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'CMHD'),(SELECT @EUMODIC_PROJECT_ID)),
+	('C3H.Cg-Ptk7<chz>/H',NULL,'MGI:1918711',(SELECT @MGI_DB_ID),'Ptk7<chz>','C3H/HeH',(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID)),
+	('CMHD-TM_N00016P0_T5D5',NULL,'MGI:1916960',(SELECT @MGI_DB_ID),'Arap1<tm1(NCOM)Cmhd>','C57BL/6N',(SELECT id FROM organisation WHERE name = 'CMHD'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'CMHD'),(SELECT @EUMODIC_PROJECT_ID)),
+	('B6.Cg-Sfrp5<Q27STOP>/H',NULL,'MGI:1860298',(SELECT @MGI_DB_ID),'Sfrp5<Q27STOP>','C57BL/6J',(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID)),
+	('ApoeApoe<tm1Unc>',NULL,'MGI:88057',(SELECT @MGI_DB_ID),'Apoe<tm1Unc>','C57BL/6',(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID)),
+	('HEPD0527_4_D08',NULL,'MGI:1350921',(SELECT @MGI_DB_ID),'Fkbp9<tm1a(EUCOMM)Hmgu>','C57BL/6NTac',(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID)),
+	('B6.129-Ptch1<tm1Mps>/JH',NULL,'MGI:105373',(SELECT @MGI_DB_ID),'Ptch1<tm1Mps>','C57BL/6J',(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID)),
+	('129S9/SvEvH-Nespas<tm3Jop>/H',NULL,'MGI:1861674',(SELECT @MGI_DB_ID),'Gnas/Nespas<tm2.1Jop>','129S9/SvEvH',(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID)),
+	('C.Cg-Bfc/H',NULL,'MGI:88276',(SELECT @MGI_DB_ID),'Ctnnb1<Bfc>','BALB/cAnNCrl',(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID)),
+	('C.Cg-Celsr1<Crsh>/H',NULL,'MGI:1100883',(SELECT @MGI_DB_ID),'Celsr1<Crsh>','BALB/cAnNCrl',(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID)),
+	('EUC0047A08',NULL,'MGI:1917329',(SELECT @MGI_DB_ID),'Golm1<Gt(EUC0047a08)Hmgu>','129P2/OlaHsd',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
+	('EPD0002_3_G03',NULL,'MGI:1278322',(SELECT @MGI_DB_ID),'Epc1<tm1a(EUCOMM)Wtsi>','129/SvEv',(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID)),
+	('C3H.A-Vangl2<Lp>/H',NULL,'MGI:2135272',(SELECT @MGI_DB_ID),'Vangl2<Lp>','C3H/HeH',(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID)),
+	('NCAM1',NULL,'MGI:97281',(SELECT @MGI_DB_ID),'Ncam1<tm1Cgn>','C57BL/6JIco',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
+	('Deltagen_407',NULL,'MGI:2449205',(SELECT @MGI_DB_ID),'Nr1d2<tm1Dgen>','B6J.129S2',(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID)),
+	('N00007P0_T5B3',NULL,'MGI:88255',(SELECT @MGI_DB_ID),'Anxa6<tm1(NCOM)Cmhd>','C57BL/6N',(SELECT id FROM organisation WHERE name = 'CMHD'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'CMHD'),(SELECT @EUMODIC_PROJECT_ID)),
+	('CMHD-TM_N01605P1_T53C4',NULL,'MGI:2685003',(SELECT @MGI_DB_ID),'Zbtb45<tm1(NCOM)Cmhd>','C57BL/6N',(SELECT id FROM organisation WHERE name = 'CMHD'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'CMHD'),(SELECT @EUMODIC_PROJECT_ID)),
+	('Grin2aGrin2a<tm1Rsp>',NULL,'MGI:95820',(SELECT @MGI_DB_ID),'Grin2a<tm1Rsp>','C57BL/6JIco;129P2',(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID)),
+	('CMHD-TM_N01539P1_T51C7',NULL,'MGI:1922075',(SELECT @MGI_DB_ID),'Senp6<tm1(NCOM)Cmhd>','C57BL/6N',(SELECT id FROM organisation WHERE name = 'CMHD'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'CMHD'),(SELECT @EUMODIC_PROJECT_ID)),
+	('Eya3',NULL,'MGI:109339',(SELECT @MGI_DB_ID),'Eya3<Gt(W096D02)Wrst>','C57BL/6J',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
+	('CMHD-TM_N00086P0_T24C7',NULL,'MGI:1914737',(SELECT @MGI_DB_ID),'Dhx40<tm1(NCOM)Cmhd>','C57BL/6N',(SELECT id FROM organisation WHERE name = 'CMHD'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'CMHD'),(SELECT @EUMODIC_PROJECT_ID)),
+	('EPD0001_3_G07',NULL,'MGI:98809',(SELECT @MGI_DB_ID),'Tpm1<tm1a(EUCOMM)Wtsi>','129/SvEv',(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID)),
+	('Aldh2Aldh2<tm1a(EUCOMM)Wtsi/Hmgu>',NULL,'MGI:99600',(SELECT @MGI_DB_ID),'Aldh2<tm1a(EUCOMM)Wtsi>','C57BL/6',(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID)),
+	('Nr1i2',NULL,'MGI:1337040',(SELECT @MGI_DB_ID),'Nr1i2','B6J.129S2',(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID)),
+	('Bin1_mut1',NULL,'MGI:108092',(SELECT @MGI_DB_ID),'Bin1_mut1','B6N.B6J.129S2',(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID)),
+	('Bin1_mut2',NULL,'MGI:108092',(SELECT @MGI_DB_ID),'Bin1_mut2','B6N.129S2.B6J',(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID)),
+	('Nr1h4',NULL,'MGI:1352464',(SELECT @MGI_DB_ID),'Nr1h4','B6J.129S2',(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID)),
+	('Nr6a1',NULL,'MGI:1352459',(SELECT @MGI_DB_ID),'Nr6a1','B6J.129S2',(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID)),
+	('EUCJ004_F10',NULL,'MGI:97316',(SELECT @MGI_DB_ID),'Nfya','C57BL/6NTac',(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID)),
+	('Snx5',NULL,'MGI:1916428',(SELECT @MGI_DB_ID),'Snx5','C57BL/6NTac',(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID)),
+	('NR1D1',NULL,'MGI:2444210',(SELECT @MGI_DB_ID),'Nr1d1','B6J.129S2',(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID)),
+	('Stard3',NULL,'MGI:1929618',(SELECT @MGI_DB_ID),'Stard3','B6N.129S2.B6J',(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID)),
+	('STARD3NL',NULL,'MGI:1923455',(SELECT @MGI_DB_ID),'STARD3NL','B6N.129S2.B6J',(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID)),
+	('Emp3',NULL,'MGI:1098729',(SELECT @MGI_DB_ID),'Emp3','C57BL/6',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
+	('Ncor2',NULL,'MGI:1337080',(SELECT @MGI_DB_ID),'Ncor2','B6J.129S2',(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID)),
+	('Strap',NULL,'MGI:1329037',(SELECT @MGI_DB_ID),'Strap','B6J.B6N',(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID)),
+	('Gbx1',NULL,'MGI:95667',(SELECT @MGI_DB_ID),'Gbx1','C57BL/6J',(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID)),
+	('Tbp2',NULL,'MGI:2684058',(SELECT @MGI_DB_ID),'Tbp2','B6J.129S2.B6N',(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID)),
+	('March 7 targeted gene trap Cross 1',NULL,'MGI:1931053',(SELECT @MGI_DB_ID),'March7','C57BL/6J',(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID)),
+	('Nr2b3',NULL,'MGI:98216',(SELECT @MGI_DB_ID),'Rxrg','B6J.129S2',(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID)),
+	('Gpt2',NULL,'MGI:1915391',(SELECT @MGI_DB_ID),'Gpt2','C57BL/6NTac',(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID)),
+	('Sighted C3H',NULL,'MGI:97525',(SELECT @MGI_DB_ID),'Pde6b','C3H/HeH',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
+	('Nr3c2',NULL,'MGI:99459',(SELECT @MGI_DB_ID),'Nr3c2','B6J.129S2',(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID)),
+	('Net',NULL,'MGI:101762',(SELECT @MGI_DB_ID),'Elk3','B6J.B6N',(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID)),
+	('Aste1',NULL,'MGI:1913845',(SELECT @MGI_DB_ID),'Aste1','C57BL/6NTac',(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID)),
+	('Nr0b2',NULL,'MGI:1346344',(SELECT @MGI_DB_ID),'Nr0b2','B6J.129S2',(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID)),
+	('Ttll12',NULL,'MGI:3039573',(SELECT @MGI_DB_ID),'Ttll12','B6J.B6N',(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID)),
+	('PJA1',NULL,'MGI:1101765',(SELECT @MGI_DB_ID),'PJA1','C57BL/6J',(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID)),
+	('Dnm2',NULL,'MGI:109547',(SELECT @MGI_DB_ID),'Dnm2','Balb/c.129S2',(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID)),
+	('Insl5',NULL,'MGI:1346085',(SELECT @MGI_DB_ID),'Insl5','C57BL/6',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
+	('EPD0518_6_B02',NULL,'MGI:95405',(SELECT @MGI_DB_ID),'Ephx1','C57BL/6NTac',(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID)),
+	('Rere',NULL,'MGI:2683486',(SELECT @MGI_DB_ID),'Rere','B6J.B6N',(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID)),
+	('B6129S8-Tc(Hsa21)1TybEmcf/H',NULL,'MGI:3814702',(SELECT @MGI_DB_ID),'Tc(Hsa21)1TybEmcf','Stock',(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID)),
+	('B6.Cg-cub/H',NULL,'MGI:1890156',(SELECT @MGI_DB_ID),'Stx8<tm2a(EUCOMM)Wtsi>','C57BL/6J',(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID)),
+	('Dll1_C3H_113',NULL,'MGI:104659',(SELECT @MGI_DB_ID),'Dll1<tm1Gos>','C3HeB/FeJ',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
+	('Dll1_C3H_10333',NULL,'MGI:104659',(SELECT @MGI_DB_ID),'Dll1<tm1Gos>','129SvJ-Iso',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
+	('Gsk3a',NULL,'MGI:2152453',(SELECT @MGI_DB_ID),'Gsk3a<not yet available>','C57BL/6J',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
+	('Kcnip4',NULL,'MGI:1933131',(SELECT @MGI_DB_ID),'Kcnip4<not yet available>','C57BL/6',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
+	('March 7 KO (Cross 2)',NULL,'MGI:1931053',(SELECT @MGI_DB_ID),'MARCH7<not yet available>','C57BL''C3H.C-Mecom<Jbo>/H ''/6J',(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID)),
+	('C.Cg-Ostes/H',NULL,'MGI:3688249',(SELECT @MGI_DB_ID),'Ostes','BALB/cAnNCrl',(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID)),
+	('Phex',NULL,'MGI:107489',(SELECT @MGI_DB_ID),'Phex<not yet available>','C3HeB/FeJ',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
+	('VMP1',NULL,'MGI:1923159',(SELECT @MGI_DB_ID),'Vmp1<not yet available>','C57BL/6NTacDen',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
+	('Ifitm1_1F4',NULL,'MGI:1915963',(SELECT @MGI_DB_ID),'Ifitm1<not yet assigned>','C57BL/6J',(SELECT id FROM organisation WHERE name = 'HMGU'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'HMGU'),(SELECT @EUMODIC_PROJECT_ID)),
+	('RHBDL5-AG2',NULL,'MGI:2442473',(SELECT @MGI_DB_ID),'Rhbdf2<not yet available>','C57BL/6J',(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID)),
+	('Myo7aMyo7a<sh1-6J>',NULL,'MGI:104510',(SELECT @MGI_DB_ID),'Myo7a<sh1-6J>','AKR/J;C57BLKS/J',(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID)),
+	('Atp2b2Atp2b2<Obv>',NULL,'MGI:105368',(SELECT @MGI_DB_ID),'Atp2b2<Obv>','C3HeB/FeJ',(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID)),
+	('Dlg4Dlg4<tm1Grnt>',NULL,'MGI:1277959',(SELECT @MGI_DB_ID),'Dlg4<tm1Grnt>','C57BL/6JIco;129P2',(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID)),
+	('Ttll4Ttll4<tm1a(EUCOMM)Wtsi/H>',NULL,'MGI:1914784',(SELECT @MGI_DB_ID),'Ttll4<tm1a(EUCOMM)Wtsi>','C57BL/6N',(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID)),
+	('WhrnWhrn<wi>',NULL,'MGI:2682003',(SELECT @MGI_DB_ID),'Whrn<wi>','STOCK Whrn<wi>',(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID)),
+	('Git2Git2<Gt(XG510)Byg>',NULL,'MGI:1347053',(SELECT @MGI_DB_ID),'Git2<Gt(XG510)Byg>','CBA/Ca;129P2',(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID)),
+	('Secisbp2Secisbp2<tm1a(EUCOMM)Wtsi/H>',NULL,'MGI:1922670',(SELECT @MGI_DB_ID),'Secisbp2<tm1a(EUCOMM)Wtsi>','C57BL/6N',(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID)),
+	('Chd7Chd7<Whi>',NULL,'MGI:2444748',(SELECT @MGI_DB_ID),'Chd7<Whi>','C3HeB/FeJ',(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID)),
+	('Clk1Clk1<tm1a(EUCOMM)Wtsi/Ics>',NULL,'MGI:107403',(SELECT @MGI_DB_ID),'Clk1<tm1a(EUCOMM)Wtsi>','C57BL/6N',(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID)),
+	('Dlg2Dlg2<tm1Dsb>',NULL,'MGI:1344351',(SELECT @MGI_DB_ID),'Dlg2<tm1Dsb>','C57BL/6JIco',(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID)),
+	('Ifitm3Ifitm3<tm1Masu>',NULL,'MGI:1913391',(SELECT @MGI_DB_ID),'Ifitm3<tm1Masu>','C57BL/6JIco;C57BL/6JTyr;129P2',(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID)),
+	('Entpd1Entpd1<tm1a(EUCOMM)Wtsi/Hmgu>',NULL,'MGI:102805',(SELECT @MGI_DB_ID),'Entpd1<tm1a(EUCOMM)Wtsi>','C57BL/6',(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID)),
+	('NfyaNfya<Gt(EUCJ0004f10)Hmgu>',NULL,'MGI:97316',(SELECT @MGI_DB_ID),'Nfya<Gt(EUCJ0004f10)Hmgu>','C57BL/6',(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID)),
+	('129S9/SvEvH-Ablim1<tm1H>/H',NULL,'MGI:1194500',(SELECT @MGI_DB_ID),'Ablim1<tm1H>','129S9/SvEvH',(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID)),
+	('129P2/OlaHsd-Fbxl3<Gt(CB0226)Wtsi>/H',NULL,'MGI:1354702',(SELECT @MGI_DB_ID),'Fbxl3<Gt(CB0226)Wtsi>','129P2/OlaHsd',(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID)),
+	('C3H.C-Mecom<Jbo>/H',NULL,'MGI:95457',(SELECT @MGI_DB_ID),'Mecom<Jbo>','C3H/HeH',(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID)),
+	('C3H.B6-Tulp3<hhkr>/H',NULL,'MGI:1329045',(SELECT @MGI_DB_ID),'Tulp3<hhkr>','C3H/HeH',(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID)),
+	('C3H.C-Trpc3<Mwk>/H',NULL,'MGI:109526',(SELECT @MGI_DB_ID),'Trpc3<Mwk>','C3H/HeH',(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID)),
+	('129P2/OlaHsd-Tpcn1<Gt(XG716)Byg>/H',NULL,'MGI:2182472',(SELECT @MGI_DB_ID),'Tpcn1<Gt(XG716)Byg>','129P2/OlaHsd',(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID)),
+	('B6.Cg-Sfrp2<C50F>/H',NULL,'MGI:108078',(SELECT @MGI_DB_ID),'Sfrp2<C50F>','C57BL/6J',(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID)),
+	('129P2/OlaHsd-Map3k1<Gt(YTC001)Byg>/H',NULL,'MGI:1346872',(SELECT @MGI_DB_ID),'Map3k1<Gt(YTC001)Byg>','129P2/OlaHsd',(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID)),
+	('B6.129-Kcnj16<tm1Sjtu>/H',NULL,'MGI:1314842',(SELECT @MGI_DB_ID),'Kcnj16<tm1Sjtu>','C57BL/6J',(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID)),
+	('mPtpg',NULL,'MGI:1921802',(SELECT @MGI_DB_ID),'Nipal3<tm1Pbfd>','129SV',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
+	('EPS8',NULL,'MGI:104684',(SELECT @MGI_DB_ID),'Eps8<tm1Ppdf>','C57BL/6',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
+	('FoxP2 delta exon7',NULL,'MGI:2148705',(SELECT @MGI_DB_ID),'Foxp2<tm2.1Woen>','C57BL/6J',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
+	('Abcb4',NULL,'MGI:97569',(SELECT @MGI_DB_ID),'Abcb4<tm1Bor>','FVB/NJ',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
+	('Fam63aFam63a<tm1a(EUCOMM)Wtsi/Ics>',NULL,'MGI:1922257',(SELECT @MGI_DB_ID),'Fam63a<tm1a(EUCOMM)Wtsi>','C57BL/6',(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID)),
+	('Eyl',NULL,'MGI:1100498',(SELECT @MGI_DB_ID),'Pitx3<eyl>','C3H/NHG',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
+	('B6.129-Sfrp1<tm1Aksh>',NULL,'MGI:892014',(SELECT @MGI_DB_ID),'Sfrp1<tm1Aksh>','C57BL/6J',(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID)),
+	('Tp53',NULL,'MGI:1926609',(SELECT @MGI_DB_ID),'Trp53inp1<tm1Acar>','129/Sv_C57BL/6',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
+	('HEPD0546_1_F01',NULL,'MGI:2685397',(SELECT @MGI_DB_ID),'Rc3h1<tm1a(EUCOMM)Hmgu>','C57BL/6NTac',(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID)),
+	('IFIT-2',NULL,'MGI:99449',(SELECT @MGI_DB_ID),'Ifit2<tm1.1Ebsb>','C57BL/6N',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
+	('CMHD-TM_N00105P0_T28A8',NULL,'MGI:1202301',(SELECT @MGI_DB_ID),'Itch<tm1(NCOM)Cmhd>','C57BL/6N',(SELECT id FROM organisation WHERE name = 'CMHD'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'CMHD'),(SELECT @EUMODIC_PROJECT_ID)),
+	('Tmem45b',NULL,'MGI:2384574',(SELECT @MGI_DB_ID),'Tmem45b<tm1.1Hsue>','C57BL/6',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
+	('DKK3',NULL,'MGI:1354952',(SELECT @MGI_DB_ID),'Dkk3<tm1Cni>','C57BL/6',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
+	('T181',NULL,'MGI:1924104',(SELECT @MGI_DB_ID),'Gper1<tm1Dgen>','C57BL/6',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
+	('1',NULL,'MGI:1336167',(SELECT @MGI_DB_ID),'Prkab1<tm1a(KOMP)Wtsi>','C57BL/6N',(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID)),
+	('CMHD-TM_N00005P0_T11G1',NULL,'MGI:1933401',(SELECT @MGI_DB_ID),'Zfp202<tm1(NCOM)Cmhd>','C57BL/6N',(SELECT id FROM organisation WHERE name = 'CMHD'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'CMHD'),(SELECT @EUMODIC_PROJECT_ID)),
+	('EPD060_1_B12',NULL,'MGI:104681',(SELECT @MGI_DB_ID),'Hgs<tm1a(EUCOMM)Wtsi>','C57BL/6NTacDen',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
+	('B6.129P2-Vnn1<tm1Pna>/H',NULL,'MGI:108395',(SELECT @MGI_DB_ID),'Vnn1<tm1Pna>','C57BL/6J',(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID)),
+	('MARCH9-KO_NOT_OSN',NULL,'MGI:2446144',(SELECT @MGI_DB_ID),'March9<tm1a(EUCOMM)Wtsi>','C57BL/6J',(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID)),
+	('Myo6Myo6<sv>',NULL,'MGI:104785',(SELECT @MGI_DB_ID),'Myo6<sv>','C57BL/6JIco;C57BL/10',(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID)),
+	('129-Nespas<tm1Jop>/H',NULL,'MGI:1861674',(SELECT @MGI_DB_ID),'Nespas<tm1Jop>','129S8/SvEv-Gpi1<c>/NimrH',(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID)),
+	('Vimentin',NULL,'MGI:98932',(SELECT @MGI_DB_ID),'Vim<tm2Cba>','129/SvPas',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
+	('CMHD-TM_N00343P0_T21F5',NULL,'MGI:1916221',(SELECT @MGI_DB_ID),'Tamm41<tm1(NCOM)Cmhd>','C57BL/6N',(SELECT id FROM organisation WHERE name = 'CMHD'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'CMHD'),(SELECT @EUMODIC_PROJECT_ID)),
+	('Cin85',NULL,'MGI:1889583',(SELECT @MGI_DB_ID),'Sh3kbp1<tm1Ivdi>','C57BL/6',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
+	('EPD0028_5_G01',NULL,'MGI:108086',(SELECT @MGI_DB_ID),'Hdac1<tm1a(EUCOMM)Wtsi>','C57BL/6NTacDen',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
+	('DEA3',NULL,'MGI:2151016',(SELECT @MGI_DB_ID),'Tmc1<Bth>','C3HeB/FeJ',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
+	('Glut8',NULL,'MGI:1860103',(SELECT @MGI_DB_ID),'Slc2a8<tm1.1Asch>','C57BL/6',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
+	('C3H.Cg-Celsr1<Scy>/H',NULL,'MGI:1100883',(SELECT @MGI_DB_ID),'Celsr1<Scy>','C3H/HeH',(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID)),
+	('Usp6nl',NULL,'MGI:2138893',(SELECT @MGI_DB_ID),'Usp6nl<tm1Ppdf>','C57BL/6',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
+	('Cadm1Cadm1<tm1.2Brd>',NULL,'MGI:1889272',(SELECT @MGI_DB_ID),'Cadm1<tm1.2Brd>','C57BL/6JIco;C57BL/6JTyr;129S5',(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID)),
+	('Rhbdl4-/-',NULL,'MGI:1924117',(SELECT @MGI_DB_ID),'Rhbdd1<tm1.1Mfm>','C57BL/6J',(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID)),
+	('Abcb4_Balb/cJ',NULL,'MGI:97569',(SELECT @MGI_DB_ID),'Abcb4<tm1Bor>','BALB/cByJ',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
+	('129P2/OlaHsd-Tpcn2<Gt(YHD437)Byg>/H',NULL,'MGI:2385297',(SELECT @MGI_DB_ID),'Tpcn2<Gt(YHD437)Byg>','129P2/OlaHsd',(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID)),
+	('EPD0033_3_C09',NULL,'MGI:1336167',(SELECT @MGI_DB_ID),'Prkab1<tm1a(KOMP)Wtsi>','C57BL/6N',(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID)),
+	('EUCJ0019C12',NULL,'MGI:104662',(SELECT @MGI_DB_ID),'Pml<Gt(EUCJ0019c12)Hmgu>','C57BL/6NTacDen',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
+	('EUC BL6-FP00042B07',NULL,'MGI:1934229',(SELECT @MGI_DB_ID),'Setdb1<tm1a(EUCOMM)Wtsi>','C57BL/6NTacDen',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
+	('NADH',NULL,'MGI:1918611',(SELECT @MGI_DB_ID),'Aifm2<tm1Avm>','C57BL/6J',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
+	('Matn3Matn3<tm1Brd>',NULL,'MGI:1328350',(SELECT @MGI_DB_ID),'Matn3<tm1Brd>','C57BL/6JTyr;C57BL/6;129S5',(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID)),
+	('Kctd10Kctd10<Gt(RRG305)Byg>',NULL,'MGI:2141207',(SELECT @MGI_DB_ID),'Kctd10<Gt(RRG305)Byg>','CBA/Ca;129P2',(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID)),
+	('Grxcr1Grxcr1<tde>',NULL,'MGI:3577767',(SELECT @MGI_DB_ID),'Grxcr1<pi-tde>','STOCK Grxcr1<tde>',(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID)),
+	('ENSMUSG00000065586ENSMUSG00000065586<Dmdo>',NULL,'MGI:3619440',(SELECT @MGI_DB_ID),'Mir96<Dmdo>','C3HeB/FeJ',(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID)),
+	('Stx8tm3a KO',NULL,'MGI:1890156',(SELECT @MGI_DB_ID),'Stx8<tm2a(EUCOMM)Wtsi>','C57BL/6NTac',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
+	('Ino80e tm1a KO',NULL,'MGI:2141881',(SELECT @MGI_DB_ID),'Ino80e<tm1a(EUCOMM)Wtsi>','C57BL/6NTac',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
+	('Dmbt1',NULL,'MGI:106210',(SELECT @MGI_DB_ID),'Dmbt1<tm1Janm>','C57BL/6',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
+	('B6.129-Sfrp2<tm1Aksh>',NULL,'MGI:108078',(SELECT @MGI_DB_ID),'Sfrp2<tm1Aksh>','C57BL/6J',(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID)),
+	('M076C04',NULL,'MGI:1915372',(SELECT @MGI_DB_ID),'Nkain4<Gt(M076C04)Vmel>','C57BL/6J',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
+	('C1orf37',NULL,'MGI:1914729',(SELECT @MGI_DB_ID),'Tg(TMEM183B)1Pbo','C57BL/6J',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
+	('EPD0288_3_A08',NULL,'MGI:2429409',(SELECT @MGI_DB_ID),'Afm<tm1a(KOMP)Wtsi>','C57BL/6NTac',(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID)),
+	('Dll1<C413Y>',NULL,'MGI:104659',(SELECT @MGI_DB_ID),'Dll1<m1Mhda>','C3HeB/FeJ',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
+	('FoxP2',NULL,'MGI:2148705',(SELECT @MGI_DB_ID),'Foxp2<tm1Woen>','C57BL/6J',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
+	('129-Shh<tm1Chg>/H',NULL,'MGI:98297',(SELECT @MGI_DB_ID),'Shh<tm1Chg>','129S9/SvEvH',(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID)),
+	('HEPD0527_2_D03',NULL,'MGI:2685493',(SELECT @MGI_DB_ID),'Pla2g4f<tm1a(EUCOMM)Hmgu>','C57BL/6NTac',(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Ics'),(SELECT @EUMODIC_PROJECT_ID)),
+	('129S9/SvEvH-Nodal<tm1Rob>/H',NULL,'MGI:97359',(SELECT @MGI_DB_ID),'Nodal<tm1Rob>','129S9/SvEvH',(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID)),
+	('Hmx3Hmx3<hx>',NULL,'MGI:107160',(SELECT @MGI_DB_ID),'Hmx3<tm1Ebo>','STOCK Hmx3<hx>',(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID)),
+	('ABE1',NULL,'MGI:104785',(SELECT @MGI_DB_ID),'Myo6<Tlc>','C3HeB/FeJ',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
+	('Tnfaip1Tnfaip1<tm1a(EUCOMM)Wtsi/H>',NULL,'MGI:104961',(SELECT @MGI_DB_ID),'Tnfaip1<tm1a(EUCOMM)Wtsi>','C57BL/6N',(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID)),
+	('Hhip',NULL,'MGI:1341847',(SELECT @MGI_DB_ID),'Hhip<tm1Icmb>','C57BL/6J',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
+	('Cdh23Cdh23<v>',NULL,'MGI:1890219',(SELECT @MGI_DB_ID),'Cdh23<v>','STOCK Cdh23<v>',(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID)),
 
-  -- line-based hand-curated colonyIds
-('EPD0080_1_B11',NULL,'MGI:2684063',(SELECT @MGI_DB_ID),'Asxl1<tm1a(EUCOMM)Wtsi>', 'C57BL/6NTac',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
-('EPD0059_2_G04',NULL,'MGI:1926153',(SELECT @MGI_DB_ID),'Wrnip1<tm1a(EUCOMM)Wtsi>','C57BL/6NTac',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
-('EPD0060_1_B12',NULL,'MGI:104681', (SELECT @MGI_DB_ID),'Hgs<tm1a(EUCOMM)Wtsi>',   'C57BL/6NTac',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
-('EPD0177_2_H03',NULL,'MGI:2141881',(SELECT @MGI_DB_ID),'Ino80e<tm1a(EUCOMM)Wtsi>','C57BL/6NTac',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
-('EPD0116_3_D06',NULL,'MGI:95585',  (SELECT @MGI_DB_ID),'Cidec<tm1a(EUCOMM)Wtsi>', 'C57BL/6NTac',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID));
+	-- line-based hand-curated colonyIds
+	('EPD0080_1_B11',NULL,'MGI:2684063',(SELECT @MGI_DB_ID),'Asxl1<tm1a(EUCOMM)Wtsi>', 'C57BL/6NTac',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
+	('EPD0059_2_G04',NULL,'MGI:1926153',(SELECT @MGI_DB_ID),'Wrnip1<tm1a(EUCOMM)Wtsi>','C57BL/6NTac',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
+	('EPD0060_1_B12',NULL,'MGI:104681', (SELECT @MGI_DB_ID),'Hgs<tm1a(EUCOMM)Wtsi>',   'C57BL/6NTac',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
+	('EPD0177_2_H03',NULL,'MGI:2141881',(SELECT @MGI_DB_ID),'Ino80e<tm1a(EUCOMM)Wtsi>','C57BL/6NTac',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
+	('EPD0116_3_D06',NULL,'MGI:95585',  (SELECT @MGI_DB_ID),'Cidec<tm1a(EUCOMM)Wtsi>', 'C57BL/6NTac',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID));
 
 
- /*
- ** FOR SECONDARY PROJECT GENES LOADING
-  */
+/*
+** FOR SECONDARY PROJECT GENES LOADING
+ */
 
-  DROP TABLE IF EXISTS `genes_secondary_project`;
+DROP TABLE IF EXISTS `genes_secondary_project`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `genes_secondary_project` (
-  `acc` varchar(30) NOT NULL,
-  `secondary_project_id` varchar(20) NOT NULL,
-  `group_label` varchar(40) DEFAULT NULL
+	`acc` varchar(30) NOT NULL,
+	`secondary_project_id` varchar(20) NOT NULL,
+	`group_label` varchar(40) DEFAULT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 

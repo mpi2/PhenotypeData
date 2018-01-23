@@ -36,9 +36,7 @@
 
             <script src="${baseUrl}/js/general/enu.js"></script>
             <script src="${baseUrl}/js/general/dropdownfilters.js"></script>
-            <script type="text/javascript" src="${baseUrl}/js/general/allele.js"></script>
-            <%-- Phenodigm1 requirements --%>
-            <script type="text/javascript" src="${baseUrl}/js/phenodigm/diseasetableutils.js?v=${version}"></script>
+            <script type="text/javascript" src="${baseUrl}/js/general/allele.js"></script>            
             <%-- Phenogrid requirements --%>
             <script type="text/javascript" src="${baseUrl}/js/phenogrid-1.3.1/dist/phenogrid-bundle.js?v=${version}"></script>
             <link rel="stylesheet" type="text/css" href="${baseUrl}/js/phenogrid-1.3.1/dist/phenogrid-bundle.css?v=${version}">                               
@@ -451,7 +449,7 @@
                                     </div>
                                 </div>
                             </div>
-
+                            <%-- End of disease section (phenodigm2) --%>
 
 
                             <div class="section" id="order2">

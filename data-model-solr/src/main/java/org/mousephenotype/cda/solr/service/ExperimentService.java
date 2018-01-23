@@ -29,6 +29,7 @@ import org.mousephenotype.cda.solr.stats.strategy.AllControlsStrategy;
 import org.mousephenotype.cda.solr.stats.strategy.ControlSelectionStrategy;
 import org.mousephenotype.cda.solr.web.dto.FertilityDTO;
 import org.mousephenotype.cda.solr.web.dto.ViabilityDTO;
+import org.mousephenotype.cda.web.TimeSeriesConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,6 +60,14 @@ public class ExperimentService{
 
     @Autowired
     private PostQcService gpService;
+    
+    /*
+     * Bringing this method back so we don't need stats results to show charts
+     */
+    public Map<String, List<String>> getExperimentKeys(String mgiAccession, String parameterStableIds, List<String> pipelineStableIds, List<String> phenotypingCenter, List<String> strain, List<String> metaDataGroup, List<String> alleleAccession) 
+    	    throws SolrServerException, IOException  {
+    	        return os.getExperimentKeys(mgiAccession, parameterStableIds, pipelineStableIds, phenotypingCenter, strain, metaDataGroup, alleleAccession);
+    	    }
 
     /**
      *
@@ -200,6 +209,7 @@ public class ExperimentService{
         // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
         // Loop over all the experiments for which we found mutant data
         // to gather the control data
+        
         for (String key : experimentsMap.keySet()) {
 
             // If the requester filtered based on organisation, then the
@@ -520,12 +530,15 @@ public class ExperimentService{
         if (experimentList.isEmpty()) {
             return null;// return null if no experiments
         }
-        if (experimentList.size() > 1 && !parameterStableId.equals("IMPC_BWT_008_001")) {
+        if (experimentList.size() > 1 && !TimeSeriesConstants.DERIVED_BODY_WEIGHT_PARAMETERS.contains(parameterStableId)) {//need the BWT exemption as we get multiple experiments for that- so we just need to pass them back and let the chart and table code handle them...?
+        	for(ExperimentDTO experiment : experimentList){
+        		System.out.println("aaahhhh"+ experiment);
+        	}
             throw new SpecificExperimentException("Too many experiments returned - should only be one from this method call");
         }
         ExperimentDTO experiment=null;
         //if parameter is the bodyweight parameter we can merge the results as currently it's the only one that we don't want to have a meta data split
-        if(parameterStableId.equals("IMPC_BWT_008_001")){
+        if(TimeSeriesConstants.DERIVED_BODY_WEIGHT_PARAMETERS.contains(parameterStableId)){
         	 experiment = experimentList.get(0);
         	for(ExperimentDTO exp: experimentList){
         		experiment.getControls().addAll(exp.getControls());
@@ -569,6 +582,7 @@ public class ExperimentService{
         }
 
         experiment.setDataPhenStatFormatUrl(experimentRawDataUrl);
+        //System.out.println("experiment srUrl="+experiment.getStatisticalResultUrl());
         return experiment;
 
 

@@ -160,7 +160,7 @@ public class CdaSqlUtilsTest {
 
     @Test
     public void testGetStrain() throws DataLoadException {
-        Strain strain = cdaSqlUtils.getStrainByNameOrMgiAccessionIdOrSynonym("C57BL/6J");
+        Strain strain = cdaSqlUtils.getStrainsByNameOrMgiAccessionIdMap().get("C57BL/6J");
         assert strain.getId().getAccession().equals("MGI:3028467");
     }
 }

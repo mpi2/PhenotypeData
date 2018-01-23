@@ -18,12 +18,12 @@ package uk.ac.ebi.phenotype.web.controller;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
+import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -34,8 +34,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -45,7 +43,6 @@ import javax.sql.DataSource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
-import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
@@ -68,12 +65,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -85,11 +79,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import net.sf.json.JSONSerializer;
-import uk.ac.ebi.phenodigm.dao.PhenoDigmWebDao;
-import uk.ac.ebi.phenodigm.model.GeneIdentifier;
-import uk.ac.ebi.phenodigm.web.AssociationSummary;
-import uk.ac.ebi.phenodigm.web.DiseaseAssociationSummary;
 import uk.ac.ebi.phenotype.generic.util.RegisterInterestDrupalSolr;
+import uk.ac.ebi.phenotype.service.BatchQueryForm;
+
 
 @Controller
 public class DataTableController {
@@ -132,11 +124,7 @@ public class DataTableController {
 
 	@Autowired
 	private GenomicFeatureDAO genesDao;
-
-	@Autowired
-	private PhenoDigmWebDao phenoDigmDao;
-	private final double rawScoreCutoff = 1.97;
-
+	
 	/**
 	 <p>
 	 * deals with batchQuery
@@ -235,707 +223,19 @@ public class DataTableController {
 
 		return j;
 	}
-
 	public String fetchBatchQueryDataTableJson(HttpServletRequest request, List<QueryResponse> solrResponses, String fllist, String dataTypeName, List<String> queryIds ) {
 
-		String oriDataTypeName = dataTypeName;
-		if ( dataTypeName.contains("marker_symbol")){
-			dataTypeName = "marker_symbol";
-		}
-
-		String hostName = request.getAttribute("mappedHostname").toString().replace("https:", "http:");
-		String baseUrl = request.getAttribute("baseUrl").toString();
-
-		String NA = "Info not available";
-
-		List<String> flList = Arrays.asList(StringUtils.split(fllist, ","));
-		//System.out.println("flist: " + flList);
-		Set<String> foundIds = new HashSet<>();
-		//List<String> foundIds = new ArrayList<>();
-
-		//System.out.println("responses: " + solrResponses.size());
-
 		SolrDocumentList results = new SolrDocumentList();
 
-		for ( QueryResponse solrResponse : solrResponses ){
+		for (QueryResponse solrResponse : solrResponses) {
 			results.addAll(solrResponse.getResults());
 		}
-		int totalDocs = results.size();
 
-		Map<String, String> dataTypeId = new HashMap<>();
-		dataTypeId.put("gene", GeneDTO.MGI_ACCESSION_ID);
-		dataTypeId.put("marker_symbol", GeneDTO.MGI_ACCESSION_ID);
-		dataTypeId.put("ensembl", GeneDTO.MGI_ACCESSION_ID);
+		String mode = "onPage";
+		BatchQueryForm form = new BatchQueryForm(mode, request, results, fllist, dataTypeName, queryIds);
+		//System.out.println(form.j.toString());
 
-		dataTypeId.put("mp", MpDTO.MP_ID);
-		dataTypeId.put("anatomy", "anatomy_id");
-		dataTypeId.put("hp", "hp_id");
-		dataTypeId.put("disease", "disease_id");
-
-		Map<String, String> dataTypePath = new HashMap<>();
-		dataTypePath.put("gene", "genes");
-		dataTypePath.put("marker_symbol", "genes");
-		dataTypePath.put("mp", "phenotypes");
-		dataTypePath.put("anatomy", "anatomy");
-		dataTypePath.put("disease", "disease");
-
-		// for sorting by user query list
-		Map<String, Integer> sortCol = new HashMap<>();
-		sortCol.put("gene", 0);
-		sortCol.put("mouse_marker_symbol", 1);
-		sortCol.put("human_marker_symbol", 2);
-		sortCol.put("ensembl", 1);
-		sortCol.put("hp", 0);
-		sortCol.put("mp", 0);
-		sortCol.put("anatomy", 0);
-		sortCol.put("disease", 0);
-
-		Map<String, List<String>> idRow = new HashMap<>();
-
-		JSONObject j = new JSONObject();
-		j.put("aaData", new Object[0]);
-
-		j.put("iTotalRecords", totalDocs);
-		j.put("iTotalDisplayRecords", totalDocs);
-
-		int fieldCount = 0;
-
-//		System.out.println("totaldocs:" + totalDocs);
-		for (int i = 0; i < results.size(); ++i) {
-			SolrDocument doc = results.get(i);
-
-			List<String> rowData = new ArrayList<String>();
-
-			Map<String, Collection<Object>> docMap = doc.getFieldValuesMap();  // Note getFieldValueMap() returns only String
-
-			List<String> orthologousDiseaseIdAssociations = new ArrayList<>();
-			List<String> orthologousDiseaseTermAssociations = new ArrayList<>();
-			List<String> phenotypicDiseaseIdAssociations = new ArrayList<>();
-			List<String> phenotypicDiseaseTermAssociations = new ArrayList<>();
-
-			if ( docMap.get("mgi_accession_id") != null && !( oriDataTypeName.equals("anatomy") || oriDataTypeName.equals("disease") ) ) {
-				Collection<Object> mgiGeneAccs = docMap.get("mgi_accession_id");
-
-				for( Object acc : mgiGeneAccs ){
-					String mgi_gene_id = (String) acc;
-					//System.out.println("mgi_gene_id: "+ mgi_gene_id);
-					GeneIdentifier geneIdentifier = new GeneIdentifier(mgi_gene_id, mgi_gene_id);
-					List<DiseaseAssociationSummary> diseaseAssociationSummarys = new ArrayList<>();
-					try {
-						//log.info("{} - getting disease-gene associations using cutoff {}", geneIdentifier, rawScoreCutoff);
-						diseaseAssociationSummarys = phenoDigmDao.getGeneToDiseaseAssociationSummaries(geneIdentifier, rawScoreCutoff);
-						//log.info("{} - received {} disease-gene associations", geneIdentifier, diseaseAssociationSummarys.size());
-					} catch (RuntimeException e) {
-						log.error(ExceptionUtils.getFullStackTrace(e));
-						//log.error("Error retrieving disease data for {}", geneIdentifier);
-					}
-
-					// add the known association summaries to a dedicated list for the top
-					// panel
-					for (DiseaseAssociationSummary diseaseAssociationSummary : diseaseAssociationSummarys) {
-						AssociationSummary associationSummary = diseaseAssociationSummary.getAssociationSummary();
-						if (associationSummary.isAssociatedInHuman()) {
-							//System.out.println("DISEASE ID: " + diseaseAssociationSummary.getDiseaseIdentifier().toString());
-							//System.out.println("DISEASE ID: " + diseaseAssociationSummary.getDiseaseIdentifier().getDatabaseAcc());
-							//System.out.println("DISEASE TERM: " + diseaseAssociationSummary.getDiseaseTerm());
-							orthologousDiseaseIdAssociations.add(diseaseAssociationSummary.getDiseaseIdentifier().toString());
-							orthologousDiseaseTermAssociations.add(diseaseAssociationSummary.getDiseaseTerm());
-						} else {
-							phenotypicDiseaseIdAssociations.add(diseaseAssociationSummary.getDiseaseIdentifier().toString());
-							phenotypicDiseaseTermAssociations.add(diseaseAssociationSummary.getDiseaseTerm());
-						}
-					}
-				}
-			}
-			fieldCount = 0; // reset
-
-			//for (String fieldName : doc.getFieldNames()) {
-			//for ( int k=0; k<flList.length; k++ ){
-			for (String fieldName : flList){
-				//String fieldName = flList[k];
-				//System.out.println("DataTableController: "+ fieldName + " - value: " + docMap.get(fieldName));
-
-				if ( fieldName.equals("images_link") ){
-
-					String impcImgBaseUrl = baseUrl + "/impcImages/images?";
-
-					String qryField = null;
-					String imgQryField = null;
-					if ( oriDataTypeName.equals("gene") || oriDataTypeName.equals("ensembl") ){
-						qryField = "mgi_accession_id";
-						imgQryField = "gene_accession_id";
-					}
-					else if (oriDataTypeName.equals("anatomy") ){
-						qryField = "anatomy_id";
-						imgQryField = "ma_id";
-					}
-
-					Collection<Object> accs = docMap.get(qryField);
-					String accStr = null;
-					String imgLink = null;
-
-					//System.out.println("qryfield: " + qryField);
-					//System.out.println("imgQryField: " + imgQryField);
-					if ( accs != null ){
-						for( Object acc : accs ){
-							accStr = imgQryField + ":\"" + (String) acc + "\"";
-						}
-						//imgLink = "<a target='_blank' href='" + hostName + impcImgBaseUrl + "q="  + accStr + " AND observation_type:image_record&fq=biological_sample_group:experimental" + "'>image url</a>";
-						imgLink = "<a target='_blank' href='" + hostName + impcImgBaseUrl + "q="  + accStr + " AND observation_type:image_record" + "'>image url</a>";
-
-					}
-					else {
-						imgLink = NA;
-					}
-
-					fieldCount++;
-					rowData.add(imgLink);
-				}
-				else if ( docMap.get(fieldName) == null ){
-					fieldCount++;
-
-					String vals = NA;
-					if ( fieldName.equals("disease_id_by_gene_orthology") ){
-						vals = orthologousDiseaseIdAssociations.size() == 0 ? NA : StringUtils.join(orthologousDiseaseIdAssociations, ", ");
-					}
-					else if ( fieldName.equals("disease_term_by_gene_orthology") ){
-						vals = orthologousDiseaseTermAssociations.size() == 0 ? NA : StringUtils.join(orthologousDiseaseTermAssociations, ", ");
-					}
-					else if ( fieldName.equals("disease_id_by_phenotypic_similarity") ){
-						vals = phenotypicDiseaseIdAssociations.size() == 0 ? NA : StringUtils.join(phenotypicDiseaseIdAssociations, ", ");
-					}
-					else if ( fieldName.equals("disease_term_by_phenotypic_similarity") ){
-						vals = phenotypicDiseaseTermAssociations.size() == 0 ? NA : StringUtils.join(phenotypicDiseaseTermAssociations, ", ");
-					}
-
-					rowData.add(vals);
-
-				}
-				else {
-					try {
-						String value = null;
-						//System.out.println("TEST CLASS: "+ docMap.get(fieldName).getClass());
-						//System.out.println("****dataTypeName: " + dataTypeName + " --- " + fieldName);
-						try {
-							Collection<Object> vals =  docMap.get(fieldName);
-							Set<Object> valSet = new HashSet<>(vals);
-							value = StringUtils.join(valSet, ", ");
-
-							if ( !oriDataTypeName.equals("hp") && dataTypeId.get(dataTypeName).equals(fieldName) ){
-								//String coreName = dataTypeName.equals("marker_symbol") || dataTypeName.equals("ensembl") ? "gene" : dataTypeName;
-								String coreName = null;
-								if ( oriDataTypeName.equals("mouse_marker_symbol") ){
-									coreName = "gene";
-									Collection<Object> mvals = docMap.get("marker_symbol");
-									Set<Object> mvalSet = new HashSet<>(mvals);
-									for (Object mval : mvalSet) {
-
-										// so that we can compare
-										String valstr = "\"" + mval.toString().toLowerCase() + "\"";
-
-										for(String qid : queryIds){
-											if ( qid.toLowerCase().equals(valstr)){
-												foundIds.add(qid);
-											}
-										}
-									}
-								}
-								else if (oriDataTypeName.equals("human_marker_symbol") ){
-									coreName = "gene";
-									Collection<Object> mvals = docMap.get("human_gene_symbol");
-									Set<Object> mvalSet = new HashSet<>(mvals);
-									for (Object mval : mvalSet) {
-										//for (Object mval : mvals) {
-										// so that we can compare
-										String valstr = "\"" + mval.toString() + "\"";
-
-										//foundIds.add("\"" + mval.toString().toUpperCase() + "\"");
-										if ( queryIds.contains(valstr)) {
-											foundIds.add(valstr);
-										}
-									}
-
-								}
-								else if (oriDataTypeName.equals("ensembl") ){
-									coreName = "gene";
-									Collection<Object> gvals = docMap.get("ensembl_gene_id");
-									Set<Object> gvalSet = new HashSet<>(gvals);
-									for (Object gval : gvalSet) {
-										if (gval.toString().startsWith("ENSMUSG")) {
-											foundIds.add("\"" + gval + "\"");
-										}
-									}
-								}
-								else {
-									coreName = dataTypeName;
-									foundIds.add("\"" + value + "\"");
-								}
-
-								value = "<a target='_blank' href='" + hostName + baseUrl + "/" + dataTypePath.get(coreName) + "/" + value + "'>" + value + "</a>";
-							}
-							else if ( oriDataTypeName.equals("hp") && dataTypeId.get(dataTypeName).equals(fieldName) ){
-								foundIds.add("\"" + value + "\"");
-							}
-						} catch ( ClassCastException c) {
-							value = docMap.get(fieldName).toString();
-						}
-
-						//System.out.println("row " + i + ": field: " + k + " -- " + fieldName + " - " + value);
-						fieldCount++;
-						rowData.add(value);
-					} catch(Exception e){
-						//e.printStackTrace();
-						if ( e.getMessage().equals("java.lang.Integer cannot be cast to java.lang.String") ){
-							Collection<Object> vals = docMap.get(fieldName);
-							if ( vals.size() > 0 ){
-								Iterator it = vals.iterator();
-								String value = (String) it.next();
-								//String value = Integer.toString(val);
-								fieldCount++;
-								rowData.add(value);
-							}
-						}
-					}
-				}
-			}
-			// figure out the column users search againt
-			//System.out.println(flList.get(sortCol.get(oriDataTypeName)));
-			for (Object s : docMap.get(flList.get(sortCol.get(oriDataTypeName)))){
-				String qStr = s.toString();
-				//System.out.println("qStr: "+ qStr);
-				qStr = oriDataTypeName.equals("mouse_marker_symbol") ? qStr.toLowerCase() : qStr;
-				if ( !idRow.containsKey("\"" + qStr + "\"")) {
-					idRow.put("\"" + qStr + "\"", rowData);
-				}
-				else {
-					idRow.get("\"" + qStr + "\"").addAll(rowData);
-				}
-			}
-		}
-
-		// find the ids that are not found and displays them to users
-		ArrayList nonFoundIds = (java.util.ArrayList) CollectionUtils.disjunction(queryIds, new ArrayList(foundIds));
-
-		//System.out.println("non Found ids: "+ new ArrayList(nonFoundIds));
-		//System.out.println("Found ids: "+ new ArrayList(foundIds));
-		int fieldIndex = 0;
-		if ( nonFoundIds.size() > 0){
-
-			String fname = oriDataTypeName.equals("human_marker_symbol") ? "human_gene_symbol" : dataTypeName;
-			int fc = 0;
-			for(String fn : flList){
-				if (fname.equals(fn)){
-					fieldIndex = fc;
-					break;
-				}
-				fc++;
-			}
-		}
-
-		int resultsCount = 0;
-		for ( int i=0; i<nonFoundIds.size(); i++ ){
-			String thisVal = oriDataTypeName.equals("mouse_marker_symbol") ? nonFoundIds.get(i).toString().toLowerCase() : nonFoundIds.get(i).toString();
-			String displayVal = nonFoundIds.get(i).toString().replaceAll("\"", "");
-			List<String> rowData = new ArrayList<String>();
-			for ( int l=0; l<fieldCount; l++ ){
-				if (oriDataTypeName.equals("mouse_marker_symbol")){
-					if ( StringUtils.containsIgnoreCase(StringUtils.join(queryIds,","), thisVal)) {
-						rowData.add(l == fieldIndex ? displayVal : NA);
-					}
-				}
-				else {
-					if (queryIds.contains(thisVal)) {
-						rowData.add(l == fieldIndex ? displayVal : NA);
-					}
-				}
-			}
-			if (rowData.size() != 0) {
-				//j.getJSONArray("aaData").add(rowData);
-				idRow.put(thisVal, rowData);
-			}
-			resultsCount += rowData.size();
-		}
-
-
-		if ( resultsCount == 0 && nonFoundIds.size() != 0 && foundIds.size() == 0){
-			// cases where id is not found in our database
-			return "";
-		}
-
-		// output result as the order of users query list
-		for(String q : queryIds){
-			if ( oriDataTypeName.equals("mouse_marker_symbol")){
-				List<String> data = idRow.get(q.toLowerCase());
-				for ( int i=0; i<data.size()/flList.size(); i++ ) {
-					j.getJSONArray("aaData").add(data.subList(i * flList.size(), i * flList.size() + flList.size()));
-				}
-			}
-			else {
-				List<String> data = idRow.get(q);
-				for ( int i=0; i<data.size()/flList.size(); i++ ) {
-					j.getJSONArray("aaData").add(data.subList(i*flList.size(), i*flList.size() + flList.size()));
-				}
-			}
-		}
-
-
-		return j.toString();
-	}
-	public String fetchBatchQueryDataTableJson2(HttpServletRequest request, List<QueryResponse> solrResponses, String fllist, String dataTypeName, List<String> queryIds ) {
-
-		String oriDataTypeName = dataTypeName;
-		if ( dataTypeName.contains("marker_symbol")){
-			dataTypeName = "marker_symbol";
-		}
-
-		String hostName = request.getAttribute("mappedHostname").toString().replace("https:", "http:");
-		String baseUrl = request.getAttribute("baseUrl").toString();
-
-		String NA = "Info not available";
-
-		List<String> flList = Arrays.asList(StringUtils.split(fllist, ","));
-		System.out.println("flist: " + flList);
-		Set<String> foundIds = new HashSet<>();
-		//List<String> foundIds = new ArrayList<>();
-
-		//System.out.println("responses: " + solrResponses.size());
-
-		SolrDocumentList results = new SolrDocumentList();
-
-		for ( QueryResponse solrResponse : solrResponses ){
-			results.addAll(solrResponse.getResults());
-		}
-		int totalDocs = results.size();
-
-		Map<String, String> dataTypeId = new HashMap<>();
-		dataTypeId.put("gene", GeneDTO.MGI_ACCESSION_ID);
-		dataTypeId.put("marker_symbol", GeneDTO.MGI_ACCESSION_ID);
-		dataTypeId.put("ensembl", GeneDTO.MGI_ACCESSION_ID);
-
-		dataTypeId.put("mp", MpDTO.MP_ID);
-		dataTypeId.put("anatomy", "anatomy_id");
-		dataTypeId.put("hp", "hp_id");
-		dataTypeId.put("disease", "disease_id");
-
-		Map<String, String> dataTypePath = new HashMap<>();
-		dataTypePath.put("gene", "genes");
-		dataTypePath.put("marker_symbol", "genes");
-		dataTypePath.put("mp", "phenotypes");
-		dataTypePath.put("anatomy", "anatomy");
-		dataTypePath.put("disease", "disease");
-
-		// for sorting by user query list
-		Map<String, Integer> sortCol = new HashMap<>();
-		sortCol.put("gene", 0);
-		sortCol.put("mouse_marker_symbol", 1);
-		sortCol.put("human_marker_symbol", 2);
-		sortCol.put("ensembl", 1);
-		sortCol.put("hp", 0);
-		sortCol.put("mp", 0);
-		sortCol.put("anatomy", 0);
-		sortCol.put("disease", 0);
-
-		Map<String, String> searchCol = new HashMap<>();
-		searchCol.put("gene", GeneDTO.MGI_ACCESSION_ID);
-		searchCol.put("mouse_marker_symbol", GeneDTO.MARKER_SYMBOL);
-		searchCol.put("human_marker_symbol", GeneDTO.HUMAN_GENE_SYMBOL);
-		searchCol.put("ensemble", GeneDTO.ENSEMBL_GENE_ID);
-		searchCol.put("mpId", MpDTO.MP_ID);
-		searchCol.put("mpTerm", MpDTO.MP_ID);
-		searchCol.put("anatomy", AnatomyDTO.ANATOMY_ID);
-		//searchCol.put("")
-
-		Map<String, List<String>> idRow = new HashMap<>();
-
-		JSONObject j = new JSONObject();
-		j.put("aaData", new Object[0]);
-
-		j.put("iTotalRecords", totalDocs);
-		j.put("iTotalDisplayRecords", totalDocs);
-
-		int fieldCount = 0;
-
-//		System.out.println("totaldocs:" + totalDocs);
-		for (int i = 0; i < results.size(); ++i) {
-			SolrDocument doc = results.get(i);
-
-			List<String> rowData = new ArrayList<String>();
-
-			Map<String, Collection<Object>> docMap = doc.getFieldValuesMap();  // Note getFieldValueMap() returns only String
-
-			List<String> orthologousDiseaseIdAssociations = new ArrayList<>();
-			List<String> orthologousDiseaseTermAssociations = new ArrayList<>();
-			List<String> phenotypicDiseaseIdAssociations = new ArrayList<>();
-			List<String> phenotypicDiseaseTermAssociations = new ArrayList<>();
-
-			if ( docMap.get("mgi_accession_id") != null && !( oriDataTypeName.equals("anatomy") || oriDataTypeName.equals("disease") ) ) {
-				Collection<Object> mgiGeneAccs = docMap.get("mgi_accession_id");
-
-				for( Object acc : mgiGeneAccs ){
-					String mgi_gene_id = (String) acc;
-					//System.out.println("mgi_gene_id: "+ mgi_gene_id);
-					GeneIdentifier geneIdentifier = new GeneIdentifier(mgi_gene_id, mgi_gene_id);
-					List<DiseaseAssociationSummary> diseaseAssociationSummarys = new ArrayList<>();
-					try {
-						//log.info("{} - getting disease-gene associations using cutoff {}", geneIdentifier, rawScoreCutoff);
-						diseaseAssociationSummarys = phenoDigmDao.getGeneToDiseaseAssociationSummaries(geneIdentifier, rawScoreCutoff);
-						//log.info("{} - received {} disease-gene associations", geneIdentifier, diseaseAssociationSummarys.size());
-					} catch (RuntimeException e) {
-						log.error(ExceptionUtils.getFullStackTrace(e));
-						//log.error("Error retrieving disease data for {}", geneIdentifier);
-					}
-
-					// add the known association summaries to a dedicated list for the top
-					// panel
-					for (DiseaseAssociationSummary diseaseAssociationSummary : diseaseAssociationSummarys) {
-						AssociationSummary associationSummary = diseaseAssociationSummary.getAssociationSummary();
-						if (associationSummary.isAssociatedInHuman()) {
-							//System.out.println("DISEASE ID: " + diseaseAssociationSummary.getDiseaseIdentifier().toString());
-							//System.out.println("DISEASE ID: " + diseaseAssociationSummary.getDiseaseIdentifier().getDatabaseAcc());
-							//System.out.println("DISEASE TERM: " + diseaseAssociationSummary.getDiseaseTerm());
-							orthologousDiseaseIdAssociations.add(diseaseAssociationSummary.getDiseaseIdentifier().toString());
-							orthologousDiseaseTermAssociations.add(diseaseAssociationSummary.getDiseaseTerm());
-						} else {
-							phenotypicDiseaseIdAssociations.add(diseaseAssociationSummary.getDiseaseIdentifier().toString());
-							phenotypicDiseaseTermAssociations.add(diseaseAssociationSummary.getDiseaseTerm());
-						}
-					}
-				}
-			}
-			fieldCount = 0; // reset
-
-			//for (String fieldName : doc.getFieldNames()) {
-			//for ( int k=0; k<flList.length; k++ ){
-			for (String fieldName : flList){
-				//String fieldName = flList[k];
-				//System.out.println("DataTableController: "+ fieldName + " - value: " + docMap.get(fieldName));
-
-				if ( fieldName.equals("images_link") ){
-
-					String impcImgBaseUrl = baseUrl + "/impcImages/images?";
-
-					String qryField = null;
-					String imgQryField = null;
-					if ( oriDataTypeName.equals("gene") || oriDataTypeName.equals("ensembl") ){
-						qryField = "mgi_accession_id";
-						imgQryField = "gene_accession_id";
-					}
-					else if (oriDataTypeName.equals("anatomy") ){
-						qryField = "anatomy_id";
-						imgQryField = "ma_id";
-					}
-
-					Collection<Object> accs = docMap.get(qryField);
-					String accStr = null;
-					String imgLink = null;
-
-					//System.out.println("qryfield: " + qryField);
-					//System.out.println("imgQryField: " + imgQryField);
-					if ( accs != null ){
-						for( Object acc : accs ){
-							accStr = imgQryField + ":\"" + (String) acc + "\"";
-						}
-						//imgLink = "<a target='_blank' href='" + hostName + impcImgBaseUrl + "q="  + accStr + " AND observation_type:image_record&fq=biological_sample_group:experimental" + "'>image url</a>";
-						imgLink = "<a target='_blank' href='" + hostName + impcImgBaseUrl + "q="  + accStr + " AND observation_type:image_record" + "'>image url</a>";
-
-					}
-					else {
-						imgLink = NA;
-					}
-
-					fieldCount++;
-					rowData.add(imgLink);
-				}
-				else if ( docMap.get(fieldName) == null ){
-					fieldCount++;
-
-					String vals = NA;
-					if ( fieldName.equals("disease_id_by_gene_orthology") ){
-						vals = orthologousDiseaseIdAssociations.size() == 0 ? NA : StringUtils.join(orthologousDiseaseIdAssociations, ", ");
-					}
-					else if ( fieldName.equals("disease_term_by_gene_orthology") ){
-						vals = orthologousDiseaseTermAssociations.size() == 0 ? NA : StringUtils.join(orthologousDiseaseTermAssociations, ", ");
-					}
-					else if ( fieldName.equals("disease_id_by_phenotypic_similarity") ){
-						vals = phenotypicDiseaseIdAssociations.size() == 0 ? NA : StringUtils.join(phenotypicDiseaseIdAssociations, ", ");
-					}
-					else if ( fieldName.equals("disease_term_by_phenotypic_similarity") ){
-						vals = phenotypicDiseaseTermAssociations.size() == 0 ? NA : StringUtils.join(phenotypicDiseaseTermAssociations, ", ");
-					}
-
-					rowData.add(vals);
-
-				}
-				else {
-					try {
-						String value = null;
-						//System.out.println("TEST CLASS: "+ docMap.get(fieldName).getClass());
-						//System.out.println("****dataTypeName: " + dataTypeName + " --- " + fieldName);
-						try {
-							Collection<Object> vals =  docMap.get(fieldName);
-							Set<Object> valSet = new HashSet<>(vals);
-
-							value = StringUtils.join(valSet, ", ");
-
-							if ( !oriDataTypeName.equals("hp") && dataTypeId.get(dataTypeName).equals(fieldName) ){
-								//String coreName = dataTypeName.equals("marker_symbol") || dataTypeName.equals("ensembl") ? "gene" : dataTypeName;
-								String coreName = null;
-								if ( oriDataTypeName.equals("mouse_marker_symbol") ){
-									coreName = "gene";
-									Collection<Object> mvals = docMap.get("marker_symbol");
-									Set<Object> mvalSet = new HashSet<>(mvals);
-									for (Object mval : mvalSet) {
-
-										// so that we can compare
-										String valstr = "\"" + mval.toString().toLowerCase() + "\"";
-
-										for(String qid : queryIds){
-											if ( qid.toLowerCase().equals(valstr)){
-												foundIds.add(qid);
-											}
-										}
-									}
-								}
-								else if (oriDataTypeName.equals("human_marker_symbol") ){
-									coreName = "gene";
-									Collection<Object> mvals = docMap.get("human_gene_symbol");
-									Set<Object> mvalSet = new HashSet<>(mvals);
-									for (Object mval : mvalSet) {
-										//for (Object mval : mvals) {
-										// so that we can compare
-										String valstr = "\"" + mval.toString() + "\"";
-
-										//foundIds.add("\"" + mval.toString().toUpperCase() + "\"");
-										if ( queryIds.contains(valstr)) {
-											foundIds.add(valstr);
-										}
-									}
-
-								}
-								else if (oriDataTypeName.equals("ensembl") ){
-									coreName = "gene";
-									Collection<Object> gvals = docMap.get("ensembl_gene_id");
-									Set<Object> gvalSet = new HashSet<>(gvals);
-									for (Object gval : gvalSet) {
-										if (gval.toString().startsWith("ENSMUSG")) {
-											foundIds.add("\"" + gval + "\"");
-										}
-									}
-								}
-								else {
-									coreName = dataTypeName;
-									foundIds.add("\"" + value + "\"");
-								}
-
-								value = "<a target='_blank' href='" + hostName + baseUrl + "/" + dataTypePath.get(coreName) + "/" + value + "'>" + value + "</a>";
-							}
-							else if ( oriDataTypeName.equals("hp") && dataTypeId.get(dataTypeName).equals(fieldName) ){
-								foundIds.add("\"" + value + "\"");
-							}
-						} catch ( ClassCastException c) {
-							value = docMap.get(fieldName).toString();
-						}
-
-						//System.out.println("row " + i + ": field: " + k + " -- " + fieldName + " - " + value);
-						fieldCount++;
-						rowData.add(value);
-					} catch(Exception e){
-						//e.printStackTrace();
-						if ( e.getMessage().equals("java.lang.Integer cannot be cast to java.lang.String") ){
-							Collection<Object> vals = docMap.get(fieldName);
-							if ( vals.size() > 0 ){
-								Iterator it = vals.iterator();
-								String value = (String) it.next();
-								//String value = Integer.toString(val);
-								fieldCount++;
-								rowData.add(value);
-							}
-						}
-					}
-				}
-			}
-			// figure out the column users search againt
-			System.out.println(flList.get(sortCol.get(oriDataTypeName)));
-			for (Object s : docMap.get(flList.get(sortCol.get(oriDataTypeName)))){
-				String qStr = s.toString();
-				System.out.println("qStr: "+ qStr);
-				qStr = oriDataTypeName.equals("mouse_marker_symbol") ? qStr.toLowerCase() : qStr;
-				if ( !idRow.containsKey("\"" + qStr + "\"")) {
-					idRow.put("\"" + qStr + "\"", rowData);
-				}
-				else {
-					idRow.get("\"" + qStr + "\"").addAll(rowData);
-				}
-			}
-		}
-
-		// find the ids that are not found and displays them to users
-		ArrayList nonFoundIds = (java.util.ArrayList) CollectionUtils.disjunction(queryIds, new ArrayList(foundIds));
-
-		//System.out.println("non Found ids: "+ new ArrayList(nonFoundIds));
-		//System.out.println("Found ids: "+ new ArrayList(foundIds));
-		int fieldIndex = 0;
-		if ( nonFoundIds.size() > 0){
-
-			String fname = oriDataTypeName.equals("human_marker_symbol") ? "human_gene_symbol" : dataTypeName;
-			int fc = 0;
-			for(String fn : flList){
-				if (fname.equals(fn)){
-					fieldIndex = fc;
-					break;
-				}
-				fc++;
-			}
-		}
-
-		int resultsCount = 0;
-		for ( int i=0; i<nonFoundIds.size(); i++ ){
-			String thisVal = oriDataTypeName.equals("mouse_marker_symbol") ? nonFoundIds.get(i).toString().toLowerCase() : nonFoundIds.get(i).toString();
-			String displayVal = nonFoundIds.get(i).toString().replaceAll("\"", "");
-			List<String> rowData = new ArrayList<String>();
-			for ( int l=0; l<fieldCount; l++ ){
-				if (oriDataTypeName.equals("mouse_marker_symbol")){
-					if ( StringUtils.containsIgnoreCase(StringUtils.join(queryIds,","), thisVal)) {
-						rowData.add(l == fieldIndex ? displayVal : NA);
-					}
-				}
-				else {
-					if (queryIds.contains(thisVal)) {
-						rowData.add(l == fieldIndex ? displayVal : NA);
-					}
-				}
-			}
-			if (rowData.size() != 0) {
-				//j.getJSONArray("aaData").add(rowData);
-				idRow.put(thisVal, rowData);
-			}
-			resultsCount += rowData.size();
-		}
-
-
-		if ( resultsCount == 0 && nonFoundIds.size() != 0 && foundIds.size() == 0){
-			// cases where id is not found in our database
-			return "";
-		}
-
-		// output result as the order of users query list
-		for(String q : queryIds){
-			if ( oriDataTypeName.equals("mouse_marker_symbol")){
-				List<String> data = idRow.get(q.toLowerCase());
-				for ( int i=0; i<data.size()/flList.size(); i++ ) {
-					j.getJSONArray("aaData").add(data.subList(i * flList.size(), i * flList.size() + flList.size()));
-				}
-			}
-			else {
-				List<String> data = idRow.get(q);
-				for ( int i=0; i<data.size()/flList.size(); i++ ) {
-					j.getJSONArray("aaData").add(data.subList(i*flList.size(), i*flList.size() + flList.size()));
-				}
-			}
-		}
-
-
-		return j.toString();
+		return form.j.toString();
 	}
 
 	/**
@@ -1056,7 +356,7 @@ public class DataTableController {
 		} else if (mode.equals("anatomyGrid")) {
 			jsonStr = parseJsonforAnatomyDataTable(json, request, query, solrCoreName);
 		} else if (mode.equals("diseaseGrid")) {
-			jsonStr = parseJsonforDiseaseDataTable(json, request, solrCoreName);
+			jsonStr = parseJsonforDiseaseDataTable(json, request, query, solrCoreName);
 		} else if (mode.equals("gene2go")) {
 			jsonStr = parseJsonforGoDataTable(json, request, solrCoreName, evidRank);
 		} else if (mode.equals("allele2Grid")) {
@@ -1079,6 +379,7 @@ public class DataTableController {
 		j.put("iTotalDisplayRecords", totalDocs);
 		j.put("iDisplayStart", request.getAttribute("displayStart"));
 		j.put("iDisplayLength", request.getAttribute("displayLength"));
+
 
 		for (int i = 0; i < docs.size(); i ++) {
 			List<String> rowData = new ArrayList<String>();
@@ -1167,7 +468,22 @@ public class DataTableController {
 				else {
 					order.add("<td></td>");
 				}
+
 				order.add("</tr>");
+			}
+
+			if (doc.containsKey(Allele2DTO.TISSUES_AVAILABLE) && doc.containsKey(Allele2DTO.TISSUE_TYPES) && doc.containsKey(Allele2DTO.TISSUE_ENQUIRY_LINKS)){
+				List<String> tissuesAvail = new ArrayList<>();
+
+				JSONArray tissueTypes = doc.getJSONArray(Allele2DTO.TISSUE_TYPES);
+				for (int t=0; t<tissueTypes.size(); t++){
+					String href = "<a href='" + doc.getJSONArray(Allele2DTO.TISSUE_ENQUIRY_LINKS).get(t).toString() + "'>" + tissueTypes.get(t).toString() + "</a>";
+					tissuesAvail.add("<li>" + href + "</li>");
+				}
+
+				String enquiry = "<span><i class='fa fa-question'></i> Tissue enquiry:</span><br>";
+
+				order.add("<tr><td colspan=3 class='tissue'>" + enquiry + "<ul>" + StringUtils.join(tissuesAvail, "") + "</ul></td></tr>");
 			}
 
 			// populate the cells
@@ -1240,7 +556,7 @@ public class DataTableController {
 		return j.toString();
 	}
 
-	public String parseJsonforGeneDataTable(JSONObject json, HttpServletRequest request, String qryStr, String fqOri, String solrCoreName, boolean legacyOnly) {
+	public String parseJsonforGeneDataTable(JSONObject json, HttpServletRequest request, String qryStr, String fqOri, String solrCoreName, boolean legacyOnly) throws UnsupportedEncodingException {
 
 		RegisterInterestDrupalSolr registerInterest = new RegisterInterestDrupalSolr(config.get("drupalBaseUrl"), request);
 
@@ -1388,7 +704,7 @@ public class DataTableController {
 		return j.toString();
 	}
 
-	public String parseJsonforMpDataTable(JSONObject json, HttpServletRequest request, String qryStr, String solrCoreNamet) {
+	public String parseJsonforMpDataTable(JSONObject json, HttpServletRequest request, String qryStr, String solrCoreNamet) throws UnsupportedEncodingException {
 
 		RegisterInterestDrupalSolr registerInterest = new RegisterInterestDrupalSolr(config.get("drupalBaseUrl"), request);
 		String baseUrl = request.getAttribute("baseUrl").toString();
@@ -1403,6 +719,12 @@ public class DataTableController {
 		j.put("iTotalDisplayRecords", totalDocs);
 		j.put("iDisplayStart", request.getAttribute("displayStart"));
 		j.put("iDisplayLength", request.getAttribute("displayLength"));
+
+		qryStr = URLDecoder.decode(qryStr, "UTF-8");
+		//System.out.println("kw decoded: "+ qryStr);
+
+		// removes quotes or wildcard and highlight matched string
+		qryStr = qryStr.toLowerCase().replaceAll("\"", "").replaceAll("\\*", "");
 
 		for (int i = 0; i < docs.size(); i ++) {
 			List<String> rowData = new ArrayList<String>();
@@ -1428,20 +750,17 @@ public class DataTableController {
 				String syn = null;
 
 				for (Object d : data) {
+					counter++;
 
 					if ( d.toString().startsWith("MP:") ){
 						continue;
 					}
-					String targetStr = qryStr.toLowerCase().replaceAll("\"", "");
-					if (d.toString().toLowerCase().contains(targetStr)) {
+
+					syn = d.toString();
+
+					if ( d.toString().toLowerCase().contains(qryStr) ) {
 						if (synMatch == null) {
-							synMatch = Tools.highlightMatchedStrIfFound(targetStr, d.toString(), "span", "subMatch");
-						}
-					}
-					else {
-						counter++;
-						if ( counter == 1 ) {
-							syn = d.toString();
+							synMatch = Tools.highlightMatchedStrIfFound(qryStr, d.toString(), "span", "subMatch");
 						}
 					}
 				}
@@ -1549,6 +868,12 @@ public class DataTableController {
 		j.put("iDisplayStart", request.getAttribute("displayStart"));
 		j.put("iDisplayLength", request.getAttribute("displayLength"));
 
+		qryStr = URLDecoder.decode(qryStr, "UTF-8");
+		//System.out.println("kw decoded: "+ qryStr);
+
+		// removes quotes or wildcard and highlight matched string
+		qryStr = qryStr.toLowerCase().replaceAll("\"", "").replaceAll("\\*", "");
+
 		for (int i = 0; i < docs.size(); i ++) {
 			List<String> rowData = new ArrayList<String>();
 
@@ -1571,17 +896,12 @@ public class DataTableController {
 				String syn = null;
 
 				for (Object d : data) {
+					counter++;
 
-					String targetStr = qryStr.toLowerCase().replaceAll("\"", "");
-					if (d.toString().toLowerCase().contains(targetStr)) {
+					syn = d.toString();
+					if ( d.toString().toLowerCase().contains(qryStr) ) {
 						if (synMatch == null) {
-							synMatch = Tools.highlightMatchedStrIfFound(targetStr, d.toString(), "span", "subMatch");
-						}
-					}
-					else {
-						counter++;
-						if ( counter == 1 ) {
-							syn = d.toString();
+							synMatch = Tools.highlightMatchedStrIfFound(qryStr, d.toString(), "span", "subMatch");
 						}
 					}
 				}
@@ -1604,32 +924,6 @@ public class DataTableController {
 			} else {
 				rowData.add(anatomyCol);
 			}
-
-//            if (doc.containsKey(AnatomyDTO.ANATOMY_TERM_SYNONYM)) {
-//                List<String> anatomySynonyms = doc.getJSONArray(AnatomyDTO.ANATOMY_TERM_SYNONYM);
-//                List<String> prefixSyns = new ArrayList();
-//
-//                for (String sn : anatomySynonyms) {
-//                    prefixSyns.add(Tools.highlightMatchedStrIfFound(qryStr, sn, "span", "subMatch"));
-//                }
-//
-//                String syns = null;
-//                if (prefixSyns.size() > 1) {
-//                    syns = "<ul class='synonym'><li>" + StringUtils.join(prefixSyns, "</li><li>") + "</li></ul>";
-//                } else {
-//                    syns = prefixSyns.get(0);
-//                }
-//
-//                String anatomyCol = "<div class='anatomyCol'><div class='title'>"
-//                        + anatomylink
-//                        + "</div>"
-//                        + "<div class='subinfo'>"
-//                        + "<span class='label'>synonym: </span>" + syns
-//                        + "</div>";
-//                rowData.add(anatomyCol);
-//            } else {
-//                rowData.add(anatomylink);
-//            }
 
 			// developmental stage
 			rowData.add(doc.getString("stage"));
@@ -2153,7 +1447,7 @@ public class DataTableController {
 		}
 	}
 
-	public String parseJsonforDiseaseDataTable(JSONObject json, HttpServletRequest request, String solrCoreName) {
+	public String parseJsonforDiseaseDataTable(JSONObject json, HttpServletRequest request, String qryStr, String solrCoreName) {
 
 		String baseUrl = request.getAttribute("baseUrl") + "/disease/";
 
@@ -2173,6 +1467,8 @@ public class DataTableController {
 		srcBaseUrlMap.put("ORPHANET", "http://www.orpha.net/consor/cgi-bin/OC_Exp.php?Lng=GB&Expert=");
 		srcBaseUrlMap.put("DECIPHER", "http://decipher.sanger.ac.uk/syndrome/");
 
+		qryStr = qryStr.replaceAll("\"", "");
+
 		for (int i = 0; i < docs.size(); i ++) {
 			List<String> rowData = new ArrayList<String>();
 
@@ -2181,10 +1477,47 @@ public class DataTableController {
 			//System.out.println(" === JSON DOC IN DISEASE === : " + doc.toString());
 			String diseaseId = doc.getString("disease_id");
 			String diseaseTerm = doc.getString("disease_term");
-			String diseaseLink = "<a href='" + baseUrl + diseaseId + "'>" + diseaseTerm + "</a>";
-			rowData.add(diseaseLink);
+			String diseaseCol = "<a href='" + baseUrl + diseaseId + "'>" + diseaseTerm + "</a>";
 
-			// disease source
+				// disease column
+            if (doc.containsKey("disease_alts")) {
+
+                JSONArray data = doc.getJSONArray("disease_alts");
+                int counter = 0;
+                String synMatch = null;
+                String syn = null;
+
+                for (Object d : data) {
+                    counter++;
+                    syn = d.toString();
+
+                    if ( syn.toLowerCase().contains(qryStr.toLowerCase()) ) {
+                        if (synMatch == null) {
+                            synMatch = Tools.highlightMatchedStrIfFound(qryStr, syn, "span", "subMatch");
+                        }
+                    }
+                }
+
+                if (synMatch != null) {
+                    syn = synMatch;
+                }
+
+                if (counter > 1) {
+                    syn = syn + "<a href='" + baseUrl + "/disease/" + diseaseId + "'> <span class='moreLess'>(Show more)</span></a>";
+                }
+
+                diseaseCol += "<div class='subinfo'>"
+                        + "<span class='label'>synonym</span>: "
+                        + syn
+                        + "</div>";
+
+                diseaseCol = "<div class='diseaseCol'>" + diseaseCol + "</div>";
+                rowData.add(diseaseCol);
+            } else {
+                rowData.add(diseaseCol);
+            }
+
+			// source column
 			String src = doc.getString("disease_source");
 			String[] IdParts =  diseaseId.split(":");
 			String digits = IdParts[1];
@@ -2285,7 +1618,7 @@ public class DataTableController {
 		return StringUtils.join(imgPath, "");
 
 	}
-	private String concateAlleleNameInfo(JSONObject doc, HttpServletRequest request, String qryStr) {
+	private String concateAlleleNameInfo(JSONObject doc, HttpServletRequest request, String qryStr) throws UnsupportedEncodingException {
 
 		List<String> alleleNameInfo = new ArrayList<String>();
 
@@ -2297,6 +1630,13 @@ public class DataTableController {
 		String geneUrl = request.getAttribute("baseUrl") + "/genes/" + markerAcc;
 
 		String[] fields = {"marker_name", "marker_synonym"};
+
+		qryStr = URLDecoder.decode(qryStr, "UTF-8");
+		//System.out.println("kw decoded: "+ qryStr);
+
+		// removes quotes or wildcard and highlight matched string
+		qryStr = qryStr.toLowerCase().replaceAll("\"", "").replaceAll("\\*", "");
+
 		for (int i = 0; i < fields.length; i ++) {
 			try {
 				//"highlighting":{"MGI:97489":{"marker_symbol":["<em>Pax</em>5"],"synonym":["<em>Pax</em>-5"]},
@@ -2316,16 +1656,11 @@ public class DataTableController {
 
 					for (Object d : data) {
 						counter++;
-						// removes quotes or wildcard and highlight matched string
-						String targetStr = qryStr.toLowerCase().replaceAll("\"", "").replaceAll("\\*", "");
-						if ( d.toString().toLowerCase().contains(targetStr) ) {
+
+						syn = d.toString();
+						if ( d.toString().toLowerCase().contains(qryStr) ) {
 							if ( synMatch == null ) {
-								synMatch = Tools.highlightMatchedStrIfFound(targetStr, d.toString(), "span", "subMatch");
-							}
-						}
-						else {
-							if (counter == 1) {
-								syn = d.toString();
+								synMatch = Tools.highlightMatchedStrIfFound(qryStr, d.toString(), "span", "subMatch");
 							}
 						}
 					}
@@ -2372,7 +1707,7 @@ public class DataTableController {
 
 	}
 
-	private String concateGeneInfo(JSONObject doc, JSONObject json, String qryStr, HttpServletRequest request) {
+	private String concateGeneInfo(JSONObject doc, JSONObject json, String qryStr, HttpServletRequest request) throws UnsupportedEncodingException {
 
 		List<String> geneInfo = new ArrayList<String>();
 
@@ -2387,6 +1722,12 @@ public class DataTableController {
 		for (int i = 0; i < fields.length; i ++) {
 			try {
 				//"highlighting":{"MGI:97489":{"marker_symbol":["<em>Pax</em>5"],"synonym":["<em>Pax</em>-5"]},
+
+				qryStr = URLDecoder.decode(qryStr, "UTF-8");
+				//System.out.println("kw decoded: "+ qryStr);
+
+				// removes quotes or wildcard and highlight matched string
+				qryStr = qryStr.toLowerCase().replaceAll("\"", "").replaceAll("\\*", "");
 
 				//System.out.println(qryStr);
 				String field = fields[i];
@@ -2407,15 +1748,12 @@ public class DataTableController {
 
 					for (Object d : data) {
 						counter++;
-						String targetStr = qryStr.toLowerCase().replaceAll("\"", "");
-						if ( d.toString().toLowerCase().contains(targetStr) ) {
+
+						syn = d.toString();
+
+						if ( d.toString().toLowerCase().contains(qryStr) ) {
 							if ( synMatch == null ) {
-								synMatch = Tools.highlightMatchedStrIfFound(targetStr, d.toString(), "span", "subMatch");
-							}
-						}
-						else {
-							if  (counter == 1) {
-								syn = d.toString();
+								synMatch = Tools.highlightMatchedStrIfFound(qryStr, d.toString(), "span", "subMatch");
 							}
 						}
 					}
@@ -2535,6 +1873,7 @@ public class DataTableController {
 		alleleSymbol = alleleSymbol.trim();
 		Integer dbid = Integer.parseInt(dbidStr);
 		Integer pmid = Integer.parseInt(pmidStr);
+		System.out.println("allele symbols: " + alleleSymbol);
 
 		return setAlleleSymbol(dbid, pmid, alleleSymbol, falsepositive, reviewed, consortium_paper);
 	}
@@ -2892,7 +2231,7 @@ public class DataTableController {
 					+ "OR date_of_publication like ? "
 //					+ "OR grant_id like ? "
 //					+ "OR agency like ? "
-			  		+ "OR title like ?)";
+					+ "OR title like ?)";
 		} else {
 			query = "SELECT count(*) AS count FROM allele_ref WHERE falsepositive='no'";
 		}

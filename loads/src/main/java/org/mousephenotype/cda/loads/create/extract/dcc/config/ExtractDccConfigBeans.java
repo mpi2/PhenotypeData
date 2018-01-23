@@ -16,28 +16,33 @@
 
 package org.mousephenotype.cda.loads.create.extract.dcc.config;
 
-import org.mousephenotype.cda.loads.common.DccSqlUtils;
 import org.mousephenotype.cda.loads.common.config.DataSourcesConfigApp;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
+import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.autoconfigure.data.jpa.JpaRepositoriesAutoConfiguration;
+import org.springframework.boot.autoconfigure.data.neo4j.Neo4jDataAutoConfiguration;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration;
+import org.springframework.boot.autoconfigure.jms.JndiConnectionFactoryAutoConfiguration;
+import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 /**
  * Created by mrelac on 18/08/16.
+ *
+ * This class provides a place to put application configuration information. All of the data sources that it needs are
+ * found in {@link DataSourcesConfigApp}.
  */
 @Configuration
-@Import(DataSourcesConfigApp.class)
-public class ExtractDccConfigBeans {
+@EnableBatchProcessing
+@EnableAutoConfiguration(exclude = {
+        JndiConnectionFactoryAutoConfiguration.class,
+        DataSourceAutoConfiguration.class,
+        HibernateJpaAutoConfiguration.class,
+        JpaRepositoriesAutoConfiguration.class,
+        DataSourceTransactionManagerAutoConfiguration.class,
+        Neo4jDataAutoConfiguration.class
+})
+public class ExtractDccConfigBeans extends DataSourcesConfigApp {
 
-    @Autowired
-    @Lazy
-    private NamedParameterJdbcTemplate jdbcDcc;
-
-    @Bean(name = "extractDccSqlUtils")
-    public DccSqlUtils extractDccSqlUtils() {
-        return new DccSqlUtils(jdbcDcc);
-    }
 }

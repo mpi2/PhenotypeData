@@ -222,47 +222,8 @@ public class GenePage {
         return urls;
     }
 
-    /**
-     * Return a list of this page's graph urls matching the given graph url type.
-     *
-     * @param graphUrlType the graph url type desired: preqc, postqc, or both
-     *
-     * @return a list of this page's graph urls matching the given graph url type.
-     */
-    public List<String> getGraphUrls(GraphUrlType graphUrlType) {
-        List<String> urls = new ArrayList();
-        List<List<String>> graphUrlList = new ArrayList<>();
-
-        if (hasGraphs()) {
-            if (geneTable.genesTableIsNotEmpty()) {
-                geneTable.load();
-
-                switch (graphUrlType) {
-                    case POSTQC:        graphUrlList = geneTable.getPostQcList();
-                    break;
-
-                    case PREQC:         graphUrlList = geneTable.getPreQcList();
-                    break;
-
-                    default:            graphUrlList = geneTable.getPreAndPostQcList();
-                }
-
-                // Don't include the heading (first) row in the urls returned.
-                int i = 0;
-                for (List<String> row : graphUrlList) {
-                    if (i++ == 0)
-                        continue;
-                    urls.add(row.get(GeneTable.COL_INDEX_GENES_GRAPH_LINK));
-                }
-            }
-        }
-        return urls;
-    }
-    public enum GraphUrlType {
-          PREQC
-        , POSTQC
-        , PREQC_AND_POSTQC
-    }
+    
+    
 
     /**
      * Returns the phenotyping status order button elements (e.g. 'phenotype data available',

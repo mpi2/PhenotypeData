@@ -1,11 +1,19 @@
 package org.mousephenotype.cda.owl;
 
+import org.apache.solr.client.solrj.SolrClient;
+import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.impl.HttpSolrClient;
+import org.apache.solr.common.SolrDocument;
+import org.apache.solr.common.SolrDocumentList;
 import org.semanticweb.elk.util.collections.ArrayHashSet;
 import org.semanticweb.owlapi.model.IRI;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.semanticweb.owlapi.model.OWLOntologyStorageException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import uk.ac.manchester.cs.owl.owlapi.OWLObjectPropertyImpl;
 
 import javax.sql.DataSource;
@@ -20,13 +28,20 @@ import java.util.*;
 /**
  * Created by ilinca on 29/03/2017.
  */
-
+/**
+ * pdsimplify: This class refers to old Phenodigm objects or db
+ */
 public class OntologyParserFactory {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private String owlpath;
     private DataSource komp2DataSource;
+
+    @Autowired
+    @Qualifier("phenodigmCore")
+    SolrClient phenodigmCore;
+
 
     public OntologyParserFactory(DataSource komp2DataSource, String owlpath){
 
@@ -139,23 +154,51 @@ public class OntologyParserFactory {
 
         int seen =0;
         // then get the hps from phenodigm: disease_hp
-        String qry = "SELECT DISTINCT hp_id FROM disease_hp";  // all IMPC disease related hps only
+//        String qry = "SELECT DISTINCT hp_id FROM disease_hp";  // all IMPC disease related hps only
+//
+//        try (Connection connection = phenodigm.getConnection();
+//             PreparedStatement p = connection.prepareStatement(qry)) {
+//
+//            ResultSet r = p.executeQuery();
+//            while (r.next()) {
+//                String hpId = r.getString("hp_id");
+//                if (hpId.startsWith("HP:")){ // just double check
+//                    if (hpWanted.contains(hpId)){
+//                        seen++;
+//                    }
+//                    else {
+//                        hpWanted.add(hpId);
+//                    }
+//                }
+//            }
+//        }
 
-        try (Connection connection = phenodigm.getConnection();
-             PreparedStatement p = connection.prepareStatement(qry)) {
+        try {
+            SolrQuery q = new SolrQuery();
 
-            ResultSet r = p.executeQuery();
-            while (r.next()) {
-                String hpId = r.getString("hp_id");
-                if (hpId.startsWith("HP:")){ // just double check
-                    if (hpWanted.contains(hpId)){
+            q.setQuery("type:disease")
+                    .setRows(9999999)
+                    .addField("disease_phenotypes");
+            SolrDocumentList docs = phenodigmCore.query(q).getResults();
+
+            for (SolrDocument doc : docs){
+                List<String> hpidTerms = (List<String>)doc.getFieldValue("disease_phenotypes");
+
+                for (String hpidTerm : hpidTerms){
+                    String[] vals = hpidTerm.split(" ");
+                    String hpTermId = vals[0];
+
+                    if (hpWanted.contains(hpTermId)){
                         seen++;
                     }
                     else {
-                        hpWanted.add(hpId);
+                        System.out.println("Adding " + hpTermId);
+                        hpWanted.add(hpTermId);
                     }
                 }
             }
+        } catch (IOException | SolrServerException | HttpSolrClient.RemoteSolrException e) {
+            logger.error("\n\nERROR fetching HP id from phenodigm core\n\n", e);
         }
 
         logger.info("Mp-Hp hybrid ontology has {} hps overlapping with phenodigm", seen);

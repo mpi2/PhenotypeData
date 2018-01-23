@@ -87,7 +87,7 @@ public class TestAdvancedSearchConfig {
 
     // Read only solr servers
 
-    //Phenodigm server for our Web Status currently only
+    //Phenodigm server for our Web Status
     @Bean(name = "phenodigmCore")
     public HttpSolrClient getPhenodigmCore() {
         return new HttpSolrClient(solrBaseUrl + "/phenodigm");
@@ -183,10 +183,6 @@ public class TestAdvancedSearchConfig {
 //		return new PhenotypeCenterService(solrBaseUrl + "/experiment", impressService);
 //	}
 
-    @Bean(name = "preQcPhenotypeCenterService")
-    PhenotypeCenterService preQcPhenotypeCenterService() {
-        return new PhenotypeCenterService(solrBaseUrl + "/preqc", impressService);
-    }
 
 
 

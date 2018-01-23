@@ -9,6 +9,7 @@
 
 	<jsp:attribute name="header">
         <link href="${baseUrl}/css/impc-doc.css" rel="stylesheet" type="text/css" />
+        <link href="https://www.ebi.ac.uk/web_guidelines/EBI-Icon-fonts/v1.2/fonts.css" rel="stylesheet" type="text/css" />
         <style>
 
 
@@ -33,10 +34,18 @@
     <div><i class="fleft fa fa-info fa-4x"></i><div class="fleft">FAQ</div></div>
     <div id="faq">
       <ul class="subUl">
-        <li>How to cite the IMPC resource / data<br>
-          To reference the IMPC, please cite:
-          1: Koscielny G, et al. The International Mouse Phenotyping Consortium Web Portal, a unified point of access for knockout mice and related phenotyping data. Nucleic Acids Res. 2014 Jan. PubMed PMID: 24194600; PubMed Central PMCID: PMC3964955
-          In your work you should include the IMPC data release (e.g. Release : 3.1) you extracted data from, as this allows your future readers to find the data you used. The latest release can be found on the bottom right of every page in the footer.
+        <li>How to cite the IMPC resource / data?<br>
+          <p>To reference the IMPC, please cite:</p><br>
+          <b><a href="https://www.nature.com/articles/nature19356">High-throughput discovery of novel developmental phenotypes.</a></b>
+          <p>Dickinson ME, Flenniken AM, Ji X, Teboul L, Wong MD, White JK, Meehan TF, Weninger WJ, Westerberg H, Adissu H, Baker CN, Bower L, Brown JM, Caddle LB, Chiani F, Clary D, Cleak J, Daly MJ, Denegre JM, Doe B, Dolan ME, Edie SM, Fuchs H, Gailus-Durner V, Galli A, Gambadoro A, Gallegos J, Guo S, Horner NR, Hsu CW, Johnson SJ, Kalaga S, Keith LC, Lanoue L, Lawson TN, Lek M, Mark M, Marschall S, Mason J, McElwee ML, Newbigging S, Nutter LM, Peterson KA, Ramirez-Solis R, Rowland DJ, Ryder E, Samocha KE, Seavitt JR, Selloum M, Szoke-Kovacs Z, Tamura M, Trainor AG, Tudose I, Wakana S, Warren J, Wendling O, West DB, Wong L, Yoshiki A, International Mouse Phenotyping Consortium, Jackson Laboratory, Infrastructure Nationale PHENOMIN, Institut Clinique de la Souris (ICS), Charles River Laboratories, MRC Harwell, Toronto Centre for Phenogenomics, Wellcome Trust Sanger Institute, RIKEN BioResource Center, MacArthur DG, Tocchini-Valentini GP, Gao X, Flicek P, Bradley A, Skarnes WC, Justice MJ, Parkinson HE, Moore M, Wells S, Braun RE, Svenson KL, de Angelis MH, Herault Y, Mohun T, Mallon AM, Henkelman RM, Brown SD, Adams DJ, Lloyd KC, McKerlie C, Beaudet AL, Bućan M, Murray SA.</p>
+          <p>Nature 537, 508–514 (22 September 2016)</p>
+          <p>
+            PMID: 27626380
+          </p>
+          <p>doi:10.1038/nature19356</p>
+        </li>
+        <li>What is the current version of IMPC release?<br>
+          <p>The current version of release can be found on the bottom right of every page in the footer.</p>
         </li>
         <li><a href="${baseUrl}/documentation/doc-explore#phenoAssocSection0">Find gene to phenotype associations, allele maps and more</a></li>
         <li><a href="${baseUrl}/documentation/doc-explore#1">Find a list of genes associated with a phenotype, assays used to measure the phenotype and more</a></li>
