@@ -58,12 +58,12 @@ import java.sql.Date;
  * whose arguments describe the profile containing the application.properties, the source file, and the database name.
  */
 @SpringBootApplication
-public class CreateAnaExperimentXml extends CreateAnaXmls implements CommandLineRunner {
+public class CreateAnaExperimentXml extends Create3iXmls implements CommandLineRunner {
 
     private String outFilename;
     private String inFilename;
 
-    @Value("${n_rows_per_mouse}")
+    @Value("${n_ana_rows_per_mouse}")
     private int nRowsPerMouse;
 
     public static void main(String[] args) throws Exception {
@@ -189,8 +189,8 @@ public class CreateAnaExperimentXml extends CreateAnaXmls implements CommandLine
                     
                 }
 
-                String imagePathTiff = rowResult[28];
-                String imagePathJpg = rowResult[30];
+                String imagePathTiff = rowResult[28].equals("NonStringNonNumericValue") ? "" : rowResult[28];
+                String imagePathJpg = rowResult[30].equals("NonStringNonNumericValue") ? "" : rowResult[30];
                 if (imageAssignAttempted == false) {
                     // Set up objects required to assign image but only assign
                     // if either a jpg and/or a tiff image is present
@@ -200,22 +200,25 @@ public class CreateAnaExperimentXml extends CreateAnaXmls implements CommandLine
                         new ArrayList<SeriesMediaParameterValue>();
                     SeriesMediaParameterValue smpv = 
                         new SeriesMediaParameterValue();
-                    if (imagePathTiff != null && imagePathTiff.length() > 0 && 
-                         !imagePathTiff.equals("#N/A")) {
-                        
-                        smpv.setIncrementValue("" + increment);
-                        smpv.setURI(imagePathTiff);
-                        smpv.setFileType("image/tiff");
-                        smpvList.add(smpv);
-                        increment++;
-                    } 
-
                     if (imagePathJpg != null && imagePathJpg.length() > 0 && 
                          !imagePathJpg.equals("#N/A")) {
                         
                         smpv.setIncrementValue("" + increment);
                         smpv.setURI(imagePathJpg);
                         smpv.setFileType("image/jpeg");
+                        smpvList.add(smpv);
+                        increment++;
+                    } 
+
+                    // KB 19/01/2018. added increment < 2 to condition to 
+                    // limit to including details of just one image until we
+                    // resolve manner in which we want to display images
+                    if (imagePathTiff != null && imagePathTiff.length() > 0 && 
+                         !imagePathTiff.equals("#N/A") && increment < 2) {
+                        
+                        smpv.setIncrementValue("" + increment);
+                        smpv.setURI(imagePathTiff);
+                        smpv.setFileType("image/tiff");
                         smpvList.add(smpv);
                     }
                     

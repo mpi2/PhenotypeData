@@ -39,7 +39,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 
 //import org.mousephenotype.cda.loads.create.extract.dcc.TestSpecimen;
-import org.mousephenotype.cda.threei.util.AnaExcelReader;
+import org.mousephenotype.cda.threei.util.ExcelReader;
 
 import javax.sql.DataSource;
 import javax.validation.constraints.NotNull;
@@ -55,7 +55,7 @@ import java.sql.Date;
  * specimen files currently found at /usr/local/komp2/phenotype_data/impc. This class is meant to be an executable jar
  * whose arguments describe the profile containing the application.properties, the source file, and the database name.
  */
-public class CreateAnaSpecimenXml extends CreateAnaXmls implements CommandLineRunner {
+public class CreateAnaSpecimenXml extends Create3iXmls implements CommandLineRunner {
 
     private String outFilename;
     private String inFilename;
@@ -108,7 +108,7 @@ public class CreateAnaSpecimenXml extends CreateAnaXmls implements CommandLineRu
 
         // Get ANA data from Excel file. Current file should have four
         // rows for each mouse.
-        AnaExcelReader reader = new AnaExcelReader(inFilename);
+        ExcelReader reader = new ExcelReader(inFilename);
 
         List<Specimen> specimens = new ArrayList<Specimen>();
 
@@ -124,11 +124,6 @@ public class CreateAnaSpecimenXml extends CreateAnaXmls implements CommandLineRu
             Mouse mouse = new Mouse();
             int nRowsForMouse = rowsForMouse.size();
             if (nRowsForMouse > 0) {
-            	/*
-            	 * Wanted to use a function here but pointers/references
-            	 * are not working as I expected - discuss with Jonathan/Jeremy
-                setSpecimenDetails(rowsForMouse, specimen, mouse);
-                */
                 String[] row = rowsForMouse.get(0);
                 String specimenId = "";
                 try {
@@ -182,8 +177,6 @@ public class CreateAnaSpecimenXml extends CreateAnaXmls implements CommandLineRu
             }
             specimens.add(specimen);
 
-            //Experiments
-
         }
 
         // Write out specimen
@@ -204,17 +197,5 @@ public class CreateAnaSpecimenXml extends CreateAnaXmls implements CommandLineRu
             throw new DataLoadException(e);
         }
 
-
-        // Write out experiment
-
     }
-
-    private void setSpecimenDetails(ArrayList<String[]> rowsForMouse, Specimen specimen, Mouse mouse) {
-        // Set the details for a single specimen
-       
-        GregorianCalendar gc = new GregorianCalendar(1969, 6, 10);
-        mouse.setDOB(gc);
-        specimen = mouse;
-    }
-
 }
