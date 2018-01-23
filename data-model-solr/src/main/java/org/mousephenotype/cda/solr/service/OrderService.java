@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 @Service
-public class OrderService {
+public class OrderService { 
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -58,6 +58,13 @@ public class OrderService {
 			row.setGeneMapLink(allele.getAlleleSimpleImage());
 			row.setGeneGenbankLink(allele.getGenbankFile());
 			row.setMgiAccessionId(allele.getMgiAccessionId());
+			
+			// Tissue inquiries
+			row.setTissuesAvailable(allele.getTissuesAvailable());
+			row.setTissueTypes(allele.getTissueTypes());
+			row.setTissueEnquiryLinks(allele.getTissueEnquiryLinks());
+			
+			
 			orderTableRows.add(row);
 
 		}

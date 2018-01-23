@@ -3,8 +3,10 @@ package org.mousephenotype.cda.solr.web.dto;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.apache.solr.client.solrj.beans.Field;
+import org.mousephenotype.cda.solr.service.dto.Allele2DTO;
 
 /**
  * Represent the data in the order table on the gene page and possibly the new order tab on search
@@ -56,7 +58,46 @@ public class OrderTableRow {
 	public void setAlleleDescription(String alleleDescription) {
 		this.alleleDescription = alleleDescription;
 	}
+	
+	
+	
+	// Tissue availability
+	private Boolean tissuesAvailable;
+	
+	public Boolean getTissuesAvailable() {
+		return tissuesAvailable;
+	}
+	
+	public void setTissuesAvailable(Boolean tissuesAvailable) {
+		this.tissuesAvailable = tissuesAvailable;
+	}
+	
+	private List<String> tissueTypes;
+	
+	public List<String> getTissueTypes() {
+		return tissueTypes;
+	}
 
+	public void setTissueTypes(List<String> tissueTypes) {
+		this.tissueTypes = tissueTypes;
+	}
+	
+	private List<String> tissueEnquiryLinks;
+	
+	public List<String> getTissueEnquiryLinks() {
+		return tissueEnquiryLinks;
+	}
+	
+//	public String getTissueEnquiryLinks(int index) {
+//		return tissueEnquiryLinks.get(index);
+//	}
+	
+	public void setTissueEnquiryLinks(List<String> tissueEnquiryLinks) {
+		this.tissueEnquiryLinks = tissueEnquiryLinks;
+	}
+
+	
+	
 	
 	//when no product add some info
 	private String noProductInfo;
