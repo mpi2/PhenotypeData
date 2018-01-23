@@ -56,7 +56,9 @@ public class SearchUrlServicePhenodigm2Disease extends SearchUrlService {
     public List<String> fieldList() {
         return Arrays.asList("disease_id",
                 "disease_term",
-                "disease_source");                
+                "disease_source",
+                "disease_alts"
+                );
     }
 
     @Override

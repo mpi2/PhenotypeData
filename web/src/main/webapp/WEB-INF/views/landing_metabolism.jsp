@@ -95,7 +95,7 @@ table.dataTable thead tr {
                        			${shortDescription}
                        		</div>
     							<div class="clear both"></div>
-						</div>
+						</div>      
 						
 						<div style="padding: 20px;" class="clear both"></div>
 						

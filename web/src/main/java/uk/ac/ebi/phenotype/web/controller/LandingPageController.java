@@ -186,9 +186,13 @@ public class LandingPageController {
             		+ "<ul><li>Metabolic diseases, such as obesity and diabetes, affect people worldwide</li>"
             		+ "<li>The function of many genes in the genome is still unknown</li>"
             		+ "<li>Knockout mice allow us to understand metabolic procedures and relate them to human disease</li></ul>"
-            		+ "<br /><br /><p>Press releases: <a target='_blank' href='https://www.ebi.ac.uk/about/news'>EMBL-EBI</a>&nbsp;|&nbsp;\n<a target='_blank' href='https://www.mrc.ac.uk/news/browse/'>MRC</a>&nbsp;|&nbsp;\n<a target='_blank' href='https://bit.ly/MetabolismNewsStory'>IMPC</a>"
-            		+ "<br /><a target='_blank' href='https://bit.ly/IMPCMetabolism'>Nature communications publication</a>"
-            		+ "<br /><a target='_blank' href='https://bit.ly/MetabolismSuppMaterial'>Supporting information</a></p>");
+            		
+            		+ "Press releases:&nbsp;"
+            		//+ " <a target='_blank' href='https://www.ebi.ac.uk/about/news'>EMBL-EBI</a>&nbsp;|&nbsp;\n"
+            		//+ "<a target='_blank' href='https://www.mrc.ac.uk/news/browse/'>MRC</a>&nbsp;|&nbsp;\n"
+            		+ "<a target='_blank' href='http://bit.ly/MetabolismNewsStory'>IMPC</a>"
+            		+ "<br /><a target='_blank' href='http://bit.ly/IMPCMetabolism'>Nature communications publication</a>"
+            		+ "<br /><a target='_blank' href='http://bit.ly/MetabolismSuppMaterial'>Supporting information</a></p>");
             pageTitle = "Metabolism";
         } 
         else if (page.equalsIgnoreCase("cmg")) {

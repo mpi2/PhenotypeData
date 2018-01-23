@@ -356,7 +356,7 @@ public class DataTableController {
 		} else if (mode.equals("anatomyGrid")) {
 			jsonStr = parseJsonforAnatomyDataTable(json, request, query, solrCoreName);
 		} else if (mode.equals("diseaseGrid")) {
-			jsonStr = parseJsonforDiseaseDataTable(json, request, solrCoreName);
+			jsonStr = parseJsonforDiseaseDataTable(json, request, query, solrCoreName);
 		} else if (mode.equals("gene2go")) {
 			jsonStr = parseJsonforGoDataTable(json, request, solrCoreName, evidRank);
 		} else if (mode.equals("allele2Grid")) {
@@ -1448,7 +1448,7 @@ public class DataTableController {
 		}
 	}
 
-	public String parseJsonforDiseaseDataTable(JSONObject json, HttpServletRequest request, String solrCoreName) {
+	public String parseJsonforDiseaseDataTable(JSONObject json, HttpServletRequest request, String qryStr, String solrCoreName) {
 
 		String baseUrl = request.getAttribute("baseUrl") + "/disease/";
 
@@ -1468,6 +1468,8 @@ public class DataTableController {
 		srcBaseUrlMap.put("ORPHANET", "http://www.orpha.net/consor/cgi-bin/OC_Exp.php?Lng=GB&Expert=");
 		srcBaseUrlMap.put("DECIPHER", "http://decipher.sanger.ac.uk/syndrome/");
 
+		qryStr = qryStr.replaceAll("\"", "");
+
 		for (int i = 0; i < docs.size(); i ++) {
 			List<String> rowData = new ArrayList<String>();
 
@@ -1476,10 +1478,47 @@ public class DataTableController {
 			//System.out.println(" === JSON DOC IN DISEASE === : " + doc.toString());
 			String diseaseId = doc.getString("disease_id");
 			String diseaseTerm = doc.getString("disease_term");
-			String diseaseLink = "<a href='" + baseUrl + diseaseId + "'>" + diseaseTerm + "</a>";
-			rowData.add(diseaseLink);
+			String diseaseCol = "<a href='" + baseUrl + diseaseId + "'>" + diseaseTerm + "</a>";
 
-			// disease source
+				// disease column
+            if (doc.containsKey("disease_alts")) {
+
+                JSONArray data = doc.getJSONArray("disease_alts");
+                int counter = 0;
+                String synMatch = null;
+                String syn = null;
+
+                for (Object d : data) {
+                    counter++;
+                    syn = d.toString();
+
+                    if ( syn.toLowerCase().contains(qryStr.toLowerCase()) ) {
+                        if (synMatch == null) {
+                            synMatch = Tools.highlightMatchedStrIfFound(qryStr, syn, "span", "subMatch");
+                        }
+                    }
+                }
+
+                if (synMatch != null) {
+                    syn = synMatch;
+                }
+
+                if (counter > 1) {
+                    syn = syn + "<a href='" + baseUrl + "/disease/" + diseaseId + "'> <span class='moreLess'>(Show more)</span></a>";
+                }
+
+                diseaseCol += "<div class='subinfo'>"
+                        + "<span class='label'>synonym</span>: "
+                        + syn
+                        + "</div>";
+
+                diseaseCol = "<div class='diseaseCol'>" + diseaseCol + "</div>";
+                rowData.add(diseaseCol);
+            } else {
+                rowData.add(diseaseCol);
+            }
+
+			// source column
 			String src = doc.getString("disease_source");
 			String[] IdParts =  diseaseId.split(":");
 			String digits = IdParts[1];
