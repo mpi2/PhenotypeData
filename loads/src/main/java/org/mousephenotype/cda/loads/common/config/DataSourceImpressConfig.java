@@ -47,7 +47,7 @@ import javax.sql.DataSource;
 })
 /**
  * This configuration class defines the Dcc {@link DataSource}, {@link NamedParameterJdbcTemplate}, and 
- * {@link DccSqlUtils} for the dcc database.
+ * {@link CdaSqlUtils} for the impress database.
  *
  * Created by mrelac on 18/01/2018.
  */

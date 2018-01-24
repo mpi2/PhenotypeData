@@ -114,6 +114,7 @@ public class DccExperimentExtractor implements CommandLineRunner {
         parser.accepts("filename").withRequiredArg().ofType(String.class);
 
         // parameter to indicate profile (subdirectory of configfiles containing application.properties)
+        // NOTE: 'profile' is not required by this code, but it is passed in on the command line and consumed by the XxxConfig classes.
         parser.accepts("profile").withRequiredArg().ofType(String.class);
 
         // parameter to indicate procedures to be skipped in experiment files.

@@ -80,6 +80,7 @@ public class CdaSqlUtils {
     public static final String ONTOLOGY_TERM_TARGETED                 = "Targeted";
     public static final String IMPC_UNCHARACTERIZED_BACKGROUND_STRAIN = "IMPC uncharacterized background strain";
     public static final String ONTOLOGY_TERM_POSTNATAL                = "postnatal";
+    public static final String ONTOLOGY_TERM_POSTNATAL_MOUSE          = "postnatal mouse";
     public static final String ONTOLOGY_TERM_MOUSE_EMBRYO_STAGE       = "mouse embryo stage";
 
     // Only include images in the resource that have the following paths
