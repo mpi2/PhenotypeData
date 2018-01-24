@@ -53,7 +53,7 @@ MDOC.gene = {
 		'phenoAssocImgSectionDocUrl'		: docuBase + '/doc-explore#phenoAssocImgSection0',
 		'diseaseSection'           		    : '<p>Human disease models found to be associated with mouse phenotypes.</p><p>Click the help icon for more detail.</p>',
 		'diseaseSectionDocUrl'     		    : docuBase + '/doc-explore#tab-3',
-		'orderSection'          			: '<p>Ordering information for alleles and ES cells of this gene produced from the IKMC project.  When available to order a link to the correspondiong repository will be included.</p><p>Click the help icon for more detail.</p>',
+		'orderSection'          			: '<p>Ordering information about mutant mouse lines and IKMC-produced ES cells for this gene appear here, with links provided to the corresponding repository when available. Links to enquire about biobanked tissue directly from the IMPC production centers are also provided.</p><p>Click the help icon for more detail.</p>',
 		'orderSectionDocUrl'    			: docuBase + '/doc-explore#orderSection0',
 };
 MDOC.phenotypes = {
