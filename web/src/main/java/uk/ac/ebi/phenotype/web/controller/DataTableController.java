@@ -482,7 +482,7 @@ public class DataTableController {
 				}
 
 //				String enquiry = "<span><i class='fa fa-question'></i> Tissue enquiry:</span><br>";
-				String enquiry = "<span style='color: #0978a1; fill: #0978a1;'><i class='fa fa-shopping-cart'></i> Tissue:</span><br>";
+				String enquiry = "<span style='color: #0978a1; fill: #0978a1;'><i class='fa fa-shopping-cart'></i> Tissue Enquiry:</span><br>";
 
 				order.add("<tr><td colspan=3 class='tissue'>" + enquiry + "<ul>" + StringUtils.join(tissuesAvail, "") + "</ul></td></tr>");
 			}

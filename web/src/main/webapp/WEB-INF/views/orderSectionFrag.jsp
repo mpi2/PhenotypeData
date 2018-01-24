@@ -28,7 +28,7 @@
                         <th>Vector</th>
                         <th>ES Cell</th>
                         <th>Mouse</th>
-                        <th>Tissue</th>
+                        <th>Tissue Enquiry</th>
                       
                 </tr>
         </thead>
