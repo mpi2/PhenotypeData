@@ -45,9 +45,10 @@ import java.util.List;
 @ComponentScan("org.mousephenotype.cda.loads.reports")
 public class ValidateExtractDccReport extends AbstractReport {
 
+    private Logger   logger   = LoggerFactory.getLogger(this.getClass());
+
     private LoadValidateMissingQuery loadValidateMissingQuery;
     private LoadValidateCountsQuery  loadValidateCountsQuery;
-    private Logger   logger   = LoggerFactory.getLogger(this.getClass());
 
     private NamedParameterJdbcTemplate jdbcDccPrevious;
     private NamedParameterJdbcTemplate jdbcDccCurrent;

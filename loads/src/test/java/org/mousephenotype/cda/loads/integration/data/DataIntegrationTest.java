@@ -19,12 +19,9 @@ package org.mousephenotype.cda.loads.integration.data;
 import org.h2.tools.Server;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.loads.common.BioModelResults;
-import org.mousephenotype.cda.loads.common.CdaSqlUtils;
-import org.mousephenotype.cda.loads.common.DccSqlUtils;
 import org.mousephenotype.cda.loads.create.extract.dcc.DccExperimentExtractor;
 import org.mousephenotype.cda.loads.create.extract.dcc.DccSpecimenExtractor;
 import org.mousephenotype.cda.loads.create.load.ExperimentLoader;
@@ -39,7 +36,6 @@ import org.springframework.core.io.Resource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.datasource.init.ScriptUtils;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import javax.sql.DataSource;
@@ -53,39 +49,20 @@ import java.util.Map;
  * This is an end-to-end integration data test class that uses an in-memory database to populate a small dcc, cda_base,
  * and cda set of databases.
  */
-// FIXME
 @RunWith(SpringJUnit4ClassRunner.class)
 @ComponentScan
 @ContextConfiguration(classes = TestConfig.class)
-@TestPropertySource("file:${user.home}/configfiles/${profile:dev}/test.properties")
-
 public class DataIntegrationTest {
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private ApplicationContext context;
 
-    
+    @Autowired
+    private DataSource cdaDataSource;
     
     @Autowired
     private DataSource dccDataSource;
-
-    @Autowired
-    private DccSqlUtils dccSqlUtils;
-
-
-
-    @Autowired
-    private DataSource cdabaseDataSource;
-
-    @Autowired
-    private CdaSqlUtils cdabaseSqlUtils;
-
-    
-
-
-    @Autowired
-    private CdaSqlUtils cdaSqlUtils;
 
     @Autowired
     private NamedParameterJdbcTemplate jdbcCda;
@@ -104,9 +81,6 @@ public class DataIntegrationTest {
     @Autowired
     private ExperimentLoader experimentLoader;
 
-    @Autowired
-    private DataSource cdaDataSource;
-
 
 
     // Set startServer to true to produce an in-memory h2 database browser.
@@ -124,7 +98,7 @@ public class DataIntegrationTest {
             Runnable runnable = () -> {
 
                 try {
-                    Server.startWebServer(cdaDataSource.getConnection());
+                    Server.startWebServer(dccDataSource.getConnection());
 
                     server = Server.createWebServer("-web");  // .start();
                     server.start();
@@ -158,11 +132,15 @@ public class DataIntegrationTest {
         };
 
         for (String schema : cdaSchemas) {
+            logger.info("cda schema: " + schema);
             Resource r = context.getResource(schema);
             ScriptUtils.executeSqlScript(cdaDataSource.getConnection(), r);
         }
         for (String schema : dccSchemas) {
+            logger.info("dcc schema: " + schema);
             Resource r = context.getResource(schema);
+            String s = dccDataSource.getConnection().getSchema();
+            System.out.println("dcc schema = " + s);
             ScriptUtils.executeSqlScript(dccDataSource.getConnection(), r);
         }
     }
@@ -181,7 +159,7 @@ public class DataIntegrationTest {
      *   control specimenId:  14819
      *   mutant specimenId:   19603       WTSI.2013-10-31.14.experiment.impc.xml   line 38783
      */
- @Ignore
+ //@Ignore
     @Test
     public void testBackgroundStrainIsEqual() throws Exception {
 
@@ -201,8 +179,7 @@ public class DataIntegrationTest {
                 "--filename=" + experimentResource.getFile().getAbsolutePath()
         };
 
-        String[] loadArgs = new String[]{
-                "--profile=dev",
+        String[] loadArgs = new String[] {
                 };
 
         dccSpecimenExtractor.run(extractSpecimenArgs);
@@ -227,11 +204,12 @@ public class DataIntegrationTest {
     /*
      * Test the special MGP EuroPhenome remapping rule
      */
-@Ignore
-    @Test
-    public void testEuroPhenomeRemapper() {
-
-    }
+    // FIXME - Implement me.
+//@Ignore
+//    @Test
+//    public void testEuroPhenomeRemapper() {
+//
+//    }
 
     /*
      * Test that line-level experiments get the correct biological model and friends.
@@ -301,8 +279,7 @@ public class DataIntegrationTest {
                 "--filename=" + experimentResource.getFile().getAbsolutePath()
         };
 
-        String[] loadArgs = new String[]{
-                "--profile=dev",
+        String[] loadArgs = new String[] {
                 };
 
         dccExperimentExtractor.run(extractExperimentArgs);

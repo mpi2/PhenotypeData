@@ -118,7 +118,7 @@ public class SampleLoader implements CommandLineRunner {
     }
 
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
         SpringApplication app = new SpringApplication(SampleLoader.class);
         app.setBannerMode(Banner.Mode.OFF);
         app.setLogStartupInfo(false);
@@ -127,7 +127,7 @@ public class SampleLoader implements CommandLineRunner {
 
 
     @Override
-    public void run(String... strings) throws Exception {
+    public void run(String... strings) throws DataLoadException {
 
         Assert.notNull(jdbcCda, "jdbcCda must not be null");
         Assert.notNull(cdaSqlUtils, "cdaSqlUtils must not be null");
@@ -157,11 +157,11 @@ public class SampleLoader implements CommandLineRunner {
 
         developmentalStageMouse = ontologyTermMap.get(CdaSqlUtils.ONTOLOGY_TERM_POSTNATAL);
         sampleTypeMouseEmbryoStage = ontologyTermMap.get(CdaSqlUtils.ONTOLOGY_TERM_MOUSE_EMBRYO_STAGE);
-        sampleTypePostnatalMouse = cdaSqlUtils.getOntologyTerm("MA:0002405");                // postnatal mouse
+        sampleTypePostnatalMouse = ontologyTermMap.get(CdaSqlUtils.ONTOLOGY_TERM_POSTNATAL_MOUSE);
         efoDbId = cdaDb_idMap.get("EFO");
 
         Assert.notNull(developmentalStageMouse, "developmentalStageMouse must not be null");
-        Assert.notNull(sampleTypeMouseEmbryoStage, "xsampleTypeMouseEmbryoStagex must not be null");
+        Assert.notNull(sampleTypeMouseEmbryoStage, "sampleTypeMouseEmbryoStagex must not be null");
         Assert.notNull(sampleTypePostnatalMouse, "sampleTypePostnatalMouse must not be null");
         Assert.notNull(efoDbId, "efoDbId must not be null");
 

@@ -41,12 +41,6 @@ public class ReportsConfig {
     }
 
     @Bean
-    @ConfigurationProperties(prefix = "datasource.ontodb")
-    public DataSource ontodbDataSource() {
-        return DataSourceBuilder.create().driverClassName("com.mysql.jdbc.Driver").build();
-    }
-
-    @Bean
     @Primary
     @PersistenceContext(name = "komp2Context")
     public LocalContainerEntityManagerFactoryBean emf(EntityManagerFactoryBuilder builder) {

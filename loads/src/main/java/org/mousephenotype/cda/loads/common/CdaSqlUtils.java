@@ -80,6 +80,7 @@ public class CdaSqlUtils {
     public static final String ONTOLOGY_TERM_TARGETED                 = "Targeted";
     public static final String IMPC_UNCHARACTERIZED_BACKGROUND_STRAIN = "IMPC uncharacterized background strain";
     public static final String ONTOLOGY_TERM_POSTNATAL                = "postnatal";
+    public static final String ONTOLOGY_TERM_POSTNATAL_MOUSE          = "postnatal mouse";
     public static final String ONTOLOGY_TERM_MOUSE_EMBRYO_STAGE       = "mouse embryo stage";
 
     // Only include images in the resource that have the following paths
@@ -1022,6 +1023,7 @@ public class CdaSqlUtils {
      *
      * @return a {@link Set<OntologyTermAnomaly>} a list of the anomalies
      */
+    // FIXME Put this in a new class, ImpressSqlUtils, then you can get rid of jdbc, tableName, and ontologyAccColumnName parameters!
     public Set<OntologyTermAnomaly> checkAndUpdateOntologyTerms(NamedParameterJdbcTemplate jdbc, List<String> ontologyAccessionIds, String tableName, String ontologyAccColumnName) {
 
         String dbName = sqlUtils.getDatabaseName(jdbc);
