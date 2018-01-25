@@ -14,6 +14,7 @@ public class OntologyTermDTO {
     Set<String>          synonyms;
     Set<String>          narrowSynonyms;
     Set<OntologyTermDTO> equivalentClasses; // from equivalent classes
+    Set<OntologyTermDTO> narrowSynonymClasses; // from subclasses
     Set<String>          childIds;
     Set<String>          childNames;
     Set<String>          parentIds;
@@ -91,6 +92,14 @@ public class OntologyTermDTO {
     }
 
     public void setEquivalentClasses(Set<OntologyTermDTO> equivalentClasses) { this.equivalentClasses = equivalentClasses; }
+
+    public Set<OntologyTermDTO> getNarrowSynonymClasses() {
+        return narrowSynonymClasses;
+    }
+
+    public void setNarrowSynonymClasses(Set<OntologyTermDTO> narrowSynonymClasses) {
+        this.narrowSynonymClasses = narrowSynonymClasses;
+    }
 
     public OWLClass getCls() {
         return cls;
