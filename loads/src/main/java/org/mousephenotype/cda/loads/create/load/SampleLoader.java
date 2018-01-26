@@ -376,9 +376,9 @@ public class SampleLoader implements CommandLineRunner {
 
             // Get phenotypingCenterPk and productionCenterPk.
             if (colony != null) {
-                phenotypingCenterPk = colony.getPhenotypingCentre().getId();                                        // phenotypingCenterPk from colony
+                phenotypingCenterPk = colony.getPhenotypingCentre().getId();                                            // phenotypingCenterPk from colony
                 productionCenterPk = (
-                        colony.getProductionCentre() == null                                                        // productionCenterPk from colony
+                        colony.getProductionCentre() == null                                                            // productionCenterPk from colony
                                 ? phenotypingCenterPk
                                 : colony.getProductionCentre().getId());
             } else {
@@ -397,8 +397,8 @@ public class SampleLoader implements CommandLineRunner {
                 }
 
                 // It is OK if a CONTROL has no colony. Use the specimen instance.
-                phenotypingCenterPk = cdaOrganisation_idMap.get(specimen.getPhenotypingCentre().value());           // phenotypingCenterPk from specimen using dcc center name
-                productionCenterPk =                                                                                // productionCenterPk from specimen
+                phenotypingCenterPk = cdaOrganisation_idMap.get(specimen.getPhenotypingCentre().value());               // phenotypingCenterPk from specimen using dcc center name
+                productionCenterPk =                                                                                    // productionCenterPk from specimen
                         (specimen.getProductionCentre() == null
                                 ? phenotypingCenterPk
                                 : cdaOrganisation_idMap.get(specimen.getProductionCentre().value()));

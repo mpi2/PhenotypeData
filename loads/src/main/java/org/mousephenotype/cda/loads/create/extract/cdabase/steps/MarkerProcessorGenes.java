@@ -137,7 +137,7 @@ public class MarkerProcessorGenes implements ItemProcessor<GenomicFeature, Genom
                 }
             } catch (Exception e) {
                 if ( ! unknownList.contains(gene.getSubtype().getName())) {
-                    logger.warn("Line {}, Gene {}, subtype '{}' is not in the ontology_term (db_id = 2) table. Setting to 'unknown'.",
+                    logger.info("Line {}, Gene {}, subtype '{}' is not in the ontology_term (db_id = 2) table. Setting to 'unknown'.",
                                 lineNumber, gene.getId().getAccession(), gene.getSubtype().getName());
                     unknownList.add(gene.getSubtype().getName());
                 }
