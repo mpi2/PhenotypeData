@@ -487,7 +487,7 @@ public class ExperimentLoader implements CommandLineRunner {
     private Experiment insertExperiment(DccExperimentDTO dccExperiment) throws DataLoadException {
         Experiment experiment = new Experiment();
         Integer dbId;
-        Integer phenotypingCenterPk;
+        Integer phenotypingCenterPk = null;
         String phenotypingCenter;
         Integer projectPk;
         Integer pipelinePk;
@@ -619,10 +619,12 @@ public class ExperimentLoader implements CommandLineRunner {
                     return null;
                 }
 
-                // It is an error if a MUTANT is not found in the iMits report (i.e. its colony is null)
-                missing = new MissingColonyId(dccExperiment.getColonyId(), 1, MISSING_COLONY_ID_REASON);
-                missingColonyMap.put(dccExperiment.getColonyId(), missing);
-                return null;
+                if ( ! dccExperiment.isControl()) {
+                    // It is an error if a MUTANT is not found in the iMits report (i.e. its colony is null)
+                    missing = new MissingColonyId(dccExperiment.getColonyId(), 1, MISSING_COLONY_ID_REASON);
+                    missingColonyMap.put(dccExperiment.getColonyId(), missing);
+                    return null;
+                }
             }
         }
 
