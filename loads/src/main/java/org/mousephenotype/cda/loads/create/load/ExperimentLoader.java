@@ -619,7 +619,9 @@ public class ExperimentLoader implements CommandLineRunner {
                     return null;
                 }
 
-                if ( ! dccExperiment.isControl()) {
+                if (dccExperiment.isControl()) {
+                    phenotypingCenterPk = cdaOrganisation_idMap.get(dccExperiment.getPhenotypingCenter());
+                } else {
                     // It is an error if a MUTANT is not found in the iMits report (i.e. its colony is null)
                     missing = new MissingColonyId(dccExperiment.getColonyId(), 1, MISSING_COLONY_ID_REASON);
                     missingColonyMap.put(dccExperiment.getColonyId(), missing);
