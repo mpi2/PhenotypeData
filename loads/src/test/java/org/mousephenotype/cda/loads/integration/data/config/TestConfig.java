@@ -24,7 +24,6 @@ import org.mousephenotype.cda.loads.create.load.ExperimentLoader;
 import org.mousephenotype.cda.loads.create.load.SampleLoader;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.data.jpa.JpaRepositoriesAutoConfiguration;
-import org.springframework.boot.autoconfigure.data.neo4j.Neo4jDataAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration;
 import org.springframework.boot.autoconfigure.jms.JndiConnectionFactoryAutoConfiguration;
@@ -47,8 +46,7 @@ import javax.sql.DataSource;
         DataSourceAutoConfiguration.class,
         HibernateJpaAutoConfiguration.class,
         JpaRepositoriesAutoConfiguration.class,
-        DataSourceTransactionManagerAutoConfiguration.class,
-        Neo4jDataAutoConfiguration.class
+        DataSourceTransactionManagerAutoConfiguration.class
 })
 public class TestConfig {
 

@@ -39,7 +39,6 @@ import org.mousephenotype.cda.solr.service.SolrIndex.AnnotNameValCount;
 import org.mousephenotype.cda.solr.service.dto.*;
 import org.mousephenotype.cda.solr.web.dto.SimpleOntoTerm;
 import org.mousephenotype.cda.utilities.CommonUtils;
-import org.neo4j.ogm.model.Result;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,7 +50,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import uk.ac.ebi.phenotype.service.*;
-import uk.ac.ebi.phenotype.service.AdvancedSearchService;
 import uk.ac.ebi.phenotype.service.search.SearchUrlService;
 import uk.ac.ebi.phenotype.service.search.SearchUrlServiceFactory;
 import uk.ac.ebi.phenotype.util.SearchSettings;
@@ -122,61 +120,12 @@ public class FileExportController {
 	private SearchController searchController;
 
 	@Autowired
-	private AdvancedSearchController advancedSearchController;
-
-	@Autowired
-	private AdvancedSearchService advancedSearchService;
-
-	@Autowired
 	private SearchUrlServiceFactory urlFactory;
 
 
 	private String hostname = null;
 	private String baseUrl = null;
 
-	/**
-	 * Return a TSV or XLS formatted response of advanced search result
-	 */
-
-	@RequestMapping(value = "/exportAdvancedSearch", method = RequestMethod.POST)
-	public void exportTableAsExcelTsv2(
-			@RequestParam(value = "param", required = true) String params,
-			@RequestParam(value = "fileType", required = true) String fileType,
-			@RequestParam(value = "fileName", required = true) String fileName,
-			HttpServletRequest request, HttpServletResponse response, Model model) throws Exception {
-
-
-		baseUrl = request.getAttribute("baseUrl").toString();
-		hostname = "http:" + request.getAttribute("mappedHostname").toString();
-
-		System.out.println("hostname: " + hostname);
-
-		JSONObject jParams = (JSONObject) JSONSerializer.toJSON(params);
-
-		System.out.println(fileName);
-		System.out.println(fileType);
-		System.out.println(jParams.toString());
-
-		List<String> colOrder = jParams.getJSONArray("properties");
-
-		AdvancedSearchPhenotypeForm mpForm = advancedSearchService.parsePhenotypeForm(jParams);
-		AdvancedSearchGeneForm geneForm = advancedSearchService.parseGeneForm(jParams);
-		AdvancedSearchDiseaseForm diseaseForm = advancedSearchService.parseDiseaseForm(jParams);
-
-		List<Object> objects = advancedSearchService.fetchGraphDataAdvSrchResult(mpForm, geneForm, diseaseForm, fileType);
-		Result result = (Result) objects.get(0);
-		List<String> narrowOrSynonymMappingList = (List<String>) objects.get(1);
-		Map<String, List<String>> dataTypeColsMap = (Map<String, List<String>>) objects.get(2);
-
-		JSONObject jcontent = advancedSearchService.parseGraphResult(result, mpForm, geneForm, diseaseForm, fileType, baseUrl, hostname, narrowOrSynonymMappingList, dataTypeColsMap, colOrder);
-
-		System.out.println("narrowSynonym or synonym Mapping msg: " + jcontent.get("narrowOrSynonymMapping"));
-
-		String narrowOrSynonymMapping = jcontent.get("narrowOrSynonymMapping").equals("") ? "" : "\n\nNOTE: " + jcontent.get("narrowOrSynonymMapping");
-		String filters = "Search filters: " + jParams.getString("shownFilter") + narrowOrSynonymMapping;
-
-		FileExportUtils.writeOutputFile(response, jcontent.getJSONArray("rows"), fileType, fileName, filters);
-	}
 
 	/**
 	 * Return a TSV formatted response which contains all datapoints
