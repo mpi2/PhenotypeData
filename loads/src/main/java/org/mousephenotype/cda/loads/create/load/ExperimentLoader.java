@@ -1037,7 +1037,7 @@ public class ExperimentLoader implements CommandLineRunner {
             simpleParameter.getValue().equals("present"))
         {
 
-            logger.info("Special rule: skipping specimen {}, experiment {}, parameter {}, sex {} ",
+            logger.debug("Special rule: skipping specimen {}, experiment {}, parameter {}, sex {} ",
                         dccExperiment.getSpecimenId(), dccExperiment.getExperimentId(),
                         parameterStableId, dccExperiment.getSex());
             return;

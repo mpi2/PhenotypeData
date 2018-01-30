@@ -74,7 +74,7 @@ CREATE TABLE specimen (
   KEY specimenIdIndex (specimenId),
   KEY strainIdIndex (strainId),
   KEY statuscode_pk (statuscode_pk),
-  UNIQUE KEY phenotypingCenter_specimenId_uk (phenotypingCenter, specimenId)
+  UNIQUE KEY phenotypingCenter_specimenId_uk (datasourceShortName, phenotypingCenter, specimenId)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS chromosomalAlteration;
