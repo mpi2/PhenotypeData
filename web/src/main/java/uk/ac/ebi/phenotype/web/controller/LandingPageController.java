@@ -75,63 +75,63 @@ public class LandingPageController {
     }
 
 
-	@RequestMapping("/biological-system")
-	public String getAlleles(Model model, HttpServletRequest request) throws IOException {
-
-        String baseUrl = request.getAttribute("baseUrl").toString();
-
-        List<LandingPageDTO> bsPages = new ArrayList<>();
-        LandingPageDTO cardiovascular = new LandingPageDTO();
-
-        cardiovascular.setTitle("Cardiovascular");
-        cardiovascular.setImage(impcMediaBaseUrl + "/render_thumbnail/211474/400/");
-        cardiovascular.setDescription("This page aims to present cardiovascular system related phenotypes lines which have been produced by IMPC.");
-        cardiovascular.setLink("biological-system/cardiovascular");
-        bsPages.add(cardiovascular);
-
-        // don't show deafness or vision pages on live until ready
-        Boolean isLive= Boolean.valueOf((String) request.getAttribute("liveSite"));
-        
-            LandingPageDTO deafness = new LandingPageDTO();
-            deafness.setTitle("Hearing");
-            deafness.setImage(baseUrl + "/img/landing/deafnessIcon.png");
-            deafness.setDescription("This page aims to relate deafnessnes to phenotypes which have been produced by IMPC.");
-            deafness.setLink("biological-system/hearing");
-            bsPages.add(deafness);
-            if(!isLive){
-	            LandingPageDTO vision = new LandingPageDTO();
-	            vision.setTitle("Vision");
-	            vision.setImage(baseUrl + "/img/landing/deafnessIcon.png");
-	            vision.setDescription("This page aims to relate vision to phenotypes which have been produced by IMPC.");
-	            vision.setLink("biological-system/vision");
-	            bsPages.add(vision);
-	            
-	            LandingPageDTO metabolism = new LandingPageDTO();
-	            metabolism.setTitle("Metabolism");
-	            metabolism.setImage(baseUrl + "/img/landing/deafnessIcon.png");
-	            metabolism.setDescription("This page aims to relate metabolism to phenotypes which have been produced by IMPC.");
-	            metabolism.setLink("biological-system/metabolism");
-	            bsPages.add(metabolism);
-	            
-	            LandingPageDTO cmg = new LandingPageDTO();
-	            cmg.setTitle("Center for Mendelian Genomics ");
-	            cmg.setImage(baseUrl + "/img/landing/cmg-logo_1.png");
-	            cmg.setDescription("This page aims to relate CMG mouse lines to phenotypes which have been produced by IMPC.");
-	            cmg.setLink("biological-system/cmg");
-	            bsPages.add(cmg);
-            }
-
-        model.addAttribute("pages", bsPages);
-
-        return "landing";
-	}
+//	@RequestMapping("/biological-system")
+//	public String getAlleles(Model model, HttpServletRequest request) throws IOException {
+//
+//        String baseUrl = request.getAttribute("baseUrl").toString();
+//
+//        List<LandingPageDTO> bsPages = new ArrayList<>();
+//        LandingPageDTO cardiovascular = new LandingPageDTO();
+//
+//        cardiovascular.setTitle("Cardiovascular");
+//        cardiovascular.setImage(impcMediaBaseUrl + "/render_thumbnail/211474/400/");
+//        cardiovascular.setDescription("This page aims to present cardiovascular system related phenotypes lines which have been produced by IMPC.");
+//        cardiovascular.setLink("biological-system/cardiovascular");
+//        bsPages.add(cardiovascular);
+//
+//        // don't show deafness or vision pages on live until ready
+//        Boolean isLive= Boolean.valueOf((String) request.getAttribute("liveSite"));
+//        
+//            LandingPageDTO deafness = new LandingPageDTO();
+//            deafness.setTitle("Hearing");
+//            deafness.setImage(baseUrl + "/img/landing/deafnessIcon.png");
+//            deafness.setDescription("This page aims to relate deafnessnes to phenotypes which have been produced by IMPC.");
+//            deafness.setLink("biological-system/hearing");
+//            bsPages.add(deafness);
+//            if(!isLive){
+//	            LandingPageDTO vision = new LandingPageDTO();
+//	            vision.setTitle("Vision");
+//	            vision.setImage(baseUrl + "/img/landing/deafnessIcon.png");
+//	            vision.setDescription("This page aims to relate vision to phenotypes which have been produced by IMPC.");
+//	            vision.setLink("biological-system/vision");
+//	            bsPages.add(vision);
+//	            
+//	            LandingPageDTO metabolism = new LandingPageDTO();
+//	            metabolism.setTitle("Metabolism");
+//	            metabolism.setImage(baseUrl + "/img/landing/deafnessIcon.png");
+//	            metabolism.setDescription("This page aims to relate metabolism to phenotypes which have been produced by IMPC.");
+//	            metabolism.setLink("biological-system/metabolism");
+//	            bsPages.add(metabolism);
+//	            
+//	            LandingPageDTO cmg = new LandingPageDTO();
+//	            cmg.setTitle("Center for Mendelian Genomics ");
+//	            cmg.setImage(baseUrl + "/img/landing/cmg-logo_1.png");
+//	            cmg.setDescription("This page aims to relate CMG mouse lines to phenotypes which have been produced by IMPC.");
+//	            cmg.setLink("biological-system/cmg");
+//	            bsPages.add(cmg);
+//            }
+//
+//        model.addAttribute("pages", bsPages);
+//
+//        return "landing";
+//	}
 
     @RequestMapping(value = "/embryo", method = RequestMethod.GET)
     public String loadEmbryoPage(Model model, HttpServletRequest request, RedirectAttributes attributes)
             throws OntologyTermNotFoundException, IOException, URISyntaxException, SolrServerException, SQLException {
 
         AnalyticsChartProvider chartsProvider = new AnalyticsChartProvider();
-        List<String> resources = Arrays.asList( "IMPC"  );
+        List<String> resources = Arrays.asList( "IMPC" );
         Map<String, Set<String>> viabilityRes = os.getViabilityCategories(resources, true);
 
         Map<String, Long> viabilityMap = os.getViabilityCategories(viabilityRes);
@@ -154,50 +154,26 @@ public class LandingPageController {
         List<String> anatomyIds = new ArrayList<>(); // corresponding anatomical system, used for images
         MpDTO mpDTO = null;
 
-
         if (page.equalsIgnoreCase("hearing")) { // Need to decide if we want deafness only or top level hearing/vestibular phen
             mpDTO = mpService.getPhenotype("MP:0005377");
             anatomyIds.add("MA:0002443");
             anatomyIds.add("EMAPA:36002");
-            model.addAttribute("shortDescription", "<h3 style='margin-top:0;'>The IMPC is hunting unknown genes responsible for hearing loss by screening knockout mice </h3>" + 
-			      "<ul><li> 360 million people worldwide live with mild to profound hearing loss</li>" +
-			      "<li> 70% hearing loss occurs as an isolated condition (non-syndromic) and 30% with additional phenotypes (syndromic)</li>" +
-			      "<li> The vast majority of genes responsible for hearing loss are unknown </li></ul>");
             pageTitle = "Hearing";
-
-        } else
-        if (page.equalsIgnoreCase("cardiovascular")) {
+        } else if (page.equalsIgnoreCase("cardiovascular")) {
             mpDTO = mpService.getPhenotype("MP:0005385");
             anatomyIds.add("MA:0000010");
             anatomyIds.add("EMAPA:16104");
-            model.addAttribute("shortDescription", "This page introduces <b>cardiovascular</b> related phenotypes present in mouse lines produced by the IMPC. " +
-                    "The cardiovascular system refers to the observable morphological and physiological characteristics of the mammalian heart, blood vessels, or circulatory system that are manifested through development and lifespan.");
-            pageTitle = "Cardiovascular system";
-        }
-        else if (page.equalsIgnoreCase("vision")) {
+            pageTitle = "Cardiovascular System";
+        } else if (page.equalsIgnoreCase("vision")) {
         		mpDTO = mpService.getPhenotype("MP:0005391");
           	anatomyIds.add("EMAPA:36003");
           	anatomyIds.add("MA:0002444");
           	pageTitle = "Vision";
-        }
-        else if (page.equalsIgnoreCase("metabolism")) {
+        } else if (page.equalsIgnoreCase("metabolism")) {
             mpDTO = mpService.getPhenotype("MP:0005376");
-            model.addAttribute("shortDescription", "<h3>The IMPC is increasing our understanding of the genetic basis for metabolic diseases</h3>"
-            		+ "<ul><li>Metabolic diseases, such as obesity and diabetes, affect people worldwide</li>"
-            		+ "<li>The function of many genes in the genome is still unknown</li>"
-            		+ "<li>Knockout mice allow us to understand metabolic procedures and relate them to human disease</li></ul>"
-            		
-            		+ "Press releases:&nbsp;"
-            		//+ " <a target='_blank' href='https://www.ebi.ac.uk/about/news'>EMBL-EBI</a>&nbsp;|&nbsp;\n"
-            		//+ "<a target='_blank' href='https://www.mrc.ac.uk/news/browse/'>MRC</a>&nbsp;|&nbsp;\n"
-            		+ "<a target='_blank' href='http://bit.ly/MetabolismNewsStory'>IMPC</a>"
-            		+ "<br /><a target='_blank' href='http://bit.ly/IMPCMetabolism'>Nature communications publication</a>"
-            		+ "<br /><a target='_blank' href='http://bit.ly/MetabolismSuppMaterial'>Supporting information</a></p>");
             pageTitle = "Metabolism";
-        } 
-        else if (page.equalsIgnoreCase("cmg")) {
+        } else if (page.equalsIgnoreCase("cmg")) {
         		// mpDTO = mpService.getPhenotype("MP:0000001");
-        		model.addAttribute("shortDescription", "<p>The <a href='https://www.mendelian.org/' target='_blank'>Centers for Mendelian Genomics</a> (CMG) is an NIH funded project to use genome-wide sequencing and other genomic approaches to discover the genetic basis underlying as many human Mendelian traits as possible.  The IMPC is helping CMG validate human disease gene variants by creating and characterizing orthologous knockout mice.</p>");
         		pageTitle = "Centers for Mendelian Genomics";
         }
         

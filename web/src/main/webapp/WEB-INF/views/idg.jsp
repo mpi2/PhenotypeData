@@ -64,7 +64,7 @@
 						<div class="section" >
 								<h1 id="section-associations">IMPC data representation for IDG genes</h1>
 		           					 <div class="inner">
-		            	<p>
+		            		<p>
                             IDG human genes are mapped to mouse orthologs using <a href="${baseUrl}/secondaryproject/idg/mapping">HomoloGene</a>. The
                             <a href="${baseUrl}/documentation/aboutImpc#whatisimpc">IMPC consortium</a> is using different <a href="${baseUrl}/documentation/aboutImpc#howdoesimpcwork">complementary
                             targeting strategies</a> to produce Knockout strains. Mice are produced and submitted to standardised phenotyping pipelines.
