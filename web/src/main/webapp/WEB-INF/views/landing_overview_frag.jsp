@@ -1,8 +1,8 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
-<div class="section">
+<%-- <div class="section">
     <div class="inner">
-        ${shortDescription}
+        ${shortDescription} --%>
         
         <%--<p><b>${systemName}</b> refers to ${mpDTO.getMpDefinition()}</p>--%>
         <%--<p>This page aims to present ${systemName} related phenotypes lines which have been produced by IMPC. </p>--%>
@@ -67,9 +67,9 @@
 
             <div class="clear both"></div>
         </c:if>
-    </div>
+    <!-- </div>
     <div class="clear both"></div>
-</div>
+</div> -->
 
 <script type="text/javascript">
 
