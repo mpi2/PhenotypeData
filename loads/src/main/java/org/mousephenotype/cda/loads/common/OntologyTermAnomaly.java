@@ -22,6 +22,7 @@ import java.util.Date;
  * Created by mrelac on 04/10/16.
  */
 
+@Deprecated
 public class OntologyTermAnomaly {
     private int    id;
     private String dbName;

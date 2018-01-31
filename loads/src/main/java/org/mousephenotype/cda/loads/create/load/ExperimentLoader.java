@@ -274,7 +274,12 @@ public class ExperimentLoader implements CommandLineRunner {
         List<Future<Experiment>> tasks = new ArrayList<>();
 
         for (DccExperimentDTO dccExperiment : dccExperiments) {
-
+            try {
+if (( ! dccExperiment.getColonyId().equals("MEMT")) || ( ! dccExperiment.getSpecimenId().equals("1651675"))) {
+    continue;
+}} catch (Exception e) {
+    continue;
+ }
             // Skip purposefully ignored experiments.
             UniqueExperimentId uniqueExperiment = new UniqueExperimentId(dccExperiment.getPhenotypingCenter(), dccExperiment.getExperimentId());
 
@@ -700,18 +705,22 @@ public class ExperimentLoader implements CommandLineRunner {
         // Get the biological model primary key.
         String zygosity;
         BioModelKey key;
+        BioModelKey impcDsKey;
 
         if (dccExperiment.isLineLevel()) {
             List<SimpleParameter> simpleParameterList = dccSqlUtils.getSimpleParameters(dccExperiment.getDcc_procedure_pk());
             zygosity = LoadUtils.getLineLevelZygosity(simpleParameterList);
             key = bioModelManager.createMutantKey(dccExperiment.getDatasourceShortName(), dccExperiment.getColonyId(), zygosity);
+            impcDsKey = bioModelManager.createMutantKey(CdaSqlUtils.IMPC, dccExperiment.getColonyId(), zygosity);
         } else {
             if (dccExperiment.isControl()) {
                 zygosity = LoadUtils.getControlZygosity();
                 key = bioModelManager.createControlKey(dccExperiment.getDatasourceShortName(), dccExperiment.getSpecimenStrainId());
+                impcDsKey = bioModelManager.createControlKey(CdaSqlUtils.IMPC, dccExperiment.getSpecimenStrainId());
             } else {
                 zygosity = LoadUtils.getSpecimenLevelMutantZygosity(dccExperiment.getZygosity());
                 key = bioModelManager.createMutantKey(dccExperiment.getDatasourceShortName(), dccExperiment.getColonyId(), zygosity);
+                impcDsKey = bioModelManager.createMutantKey(CdaSqlUtils.IMPC, dccExperiment.getColonyId(), zygosity);
             }
         }
         biologicalModelPk = bioModelManager.getBiologicalModelPk(key);
@@ -724,15 +733,22 @@ public class ExperimentLoader implements CommandLineRunner {
 
             } else {
 
-                MissingColonyId mid = missingColonyMap.get(dccExperiment.getColonyId());                                // Skip any known missing colony ids. We already know about them.
-                if (mid == null) {
-                    // Specimen-level experiment models should already be loaded. Log a warning and skip them if they are not.
-                    String message = "Unknown sample '" + dccExperiment.getSpecimenId() + "' for experiment '" + dccExperiment.getExperimentId() + "', colonyId "
-                            + dccExperiment.getColonyId() + ". isControl = " + dccExperiment.isControl() + ". key = " + key + ". Skipping.";
-                    logger.warn(message);
+                if (dccExperiment.getDatasourceShortName().equals(CdaSqlUtils.THREEI)) {                                // 3i reuses IMPC samples, so try using the same key, but with IMPC instead of 3i.
+                    biologicalModelPk = bioModelManager.getBiologicalModelPk(impcDsKey);
                 }
 
-                return null;
+                if (biologicalModelPk == null) {
+
+                    MissingColonyId mid = missingColonyMap.get(dccExperiment.getColonyId());                                // Skip any known missing colony ids. We already know about them.
+                    if (mid == null) {
+                        // Specimen-level experiment models should already be loaded. Log a warning and skip them if they are not.
+                        String message = "Unknown sample '" + dccExperiment.getSpecimenId() + "' for experiment '" + dccExperiment.getExperimentId() + "', colonyId "
+                                + dccExperiment.getColonyId() + ". isControl = " + dccExperiment.isControl() + ". key = " + key + ". Skipping.";
+                        logger.warn(message);
+                    }
+
+                    return null;
+                }
             }
         }
 

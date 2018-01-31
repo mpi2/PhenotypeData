@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.Banner;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.util.Assert;
@@ -32,11 +33,12 @@ import javax.inject.Inject;
 import java.util.*;
 
 /**
- * Updates the impress_x_y database terms with the latest terms.
+ * Updates the impress_x_y database terms with the latest terms, taken from the cda_x_y database.
  *
  * Created by mrelac on 31/08/2016.
  *
  */
+@ComponentScan
 public class ImpressUpdater implements CommandLineRunner {
 
     private CdaSqlUtils                 cdaSqlUtils;
