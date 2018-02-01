@@ -76,6 +76,7 @@ public class CdaSqlUtils {
     public static final String EUROPHENOME = "EuroPhenome";         // The datasourceShortName for dcc_europhenome_final loads
     public static final String MGP         = "MGP";                 // The MGP project name
     public static final String THREEI      = "3i";                  // The 3i project name
+    public static final String IMPC        = "IMPC";                // The IMPC project name
 
     public static final String ONTOLOGY_TERM_TARGETED                 = "Targeted";
     public static final String IMPC_UNCHARACTERIZED_BACKGROUND_STRAIN = "IMPC uncharacterized background strain";
