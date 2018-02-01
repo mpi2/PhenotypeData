@@ -99,11 +99,11 @@ public class MouseMineAlleleReferenceParser implements CommandLineRunner {
 		//---------------------------------------------------------------
 		meshTermMappings(); // stored in database: admintools.mesh_mapping
 
-		alleleGeneAccMapping();
-		parseIntermine1();
+		alleleGeneAccMapping(); // does gacc and acc mapping
+		parseIntermine1(); // parsing mousemine flatfile
 
 		Boolean doCitation = false;
-		fetchEuropePubmedData(doCitation);
+		fetchEuropePubmedData(doCitation);  // fetch metadata from europubmed
 		loadReferenceDataToDatabase();
 		paperMeshTopmesh(); // mesh heading to top level mesh term mapping
 
@@ -111,7 +111,7 @@ public class MouseMineAlleleReferenceParser implements CommandLineRunner {
 		//     CITATIONS
 		//--------------------
 		loadPapersCitingConsortiumPapers();
-		//http://www.ebi.ac.uk/europepmc/webservices/rest/search/query=CITES:27523608_MED&format=json&resulttype=core
+		//https://www.ebi.ac.uk/europepmc/webservices/rest/search/query=CITES:27523608_MED&format=json&resulttype=core
 
 
 		// do this once on 2017-02-10 for the first time, then add datasource found per week to this table: by method loadNewPaperByDatasourceWeekly
@@ -298,7 +298,7 @@ public class MouseMineAlleleReferenceParser implements CommandLineRunner {
 
 	private void fetchCitingPmids(int pmid, Map<Integer, Set<Integer>> consortiumPmidCited) {
 
-		String dbfetchUrl = "http://www.ebi.ac.uk/europepmc/webservices/rest/search/format=json&resulttype=idlist&pageSize=500&query=CITES:";
+		String dbfetchUrl = "https://www.ebi.ac.uk/europepmc/webservices/rest/search/format=json&resulttype=idlist&pageSize=500&query=CITES:";
 
 		JSONObject json = fetchHttpUrlJson(dbfetchUrl + pmid + "_MED");
 
@@ -601,7 +601,7 @@ public class MouseMineAlleleReferenceParser implements CommandLineRunner {
 		while (resultSet.next()) {
 			Integer pmid = resultSet.getInt("pmid");
 
-			String dbfetchUrl = "http://www.ebi.ac.uk/europepmc/webservices/rest/search/query=ext_id:" + pmid + "%20and%20src:MED&format=json&resulttype=core";
+			String dbfetchUrl = "https://www.ebi.ac.uk/europepmc/webservices/rest/search/query=ext_id:" + pmid + "%20and%20src:MED&format=json&resulttype=core";
 			//System.out.println(dbfetchUrl);
 			// Get the page and print it.
 			JSONObject json = fetchHttpUrlJson(dbfetchUrl);
@@ -722,7 +722,7 @@ public class MouseMineAlleleReferenceParser implements CommandLineRunner {
 		while (resultSet.next()) {
 			Integer pmid = resultSet.getInt("pmid");
 
-			String dbfetchUrl = "http://www.ebi.ac.uk/europepmc/webservices/rest/search/query=ext_id:" + pmid + "%20and%20src:MED&format=json&resulttype=core";
+			String dbfetchUrl = "https://www.ebi.ac.uk/europepmc/webservices/rest/search/query=ext_id:" + pmid + "%20and%20src:MED&format=json&resulttype=core";
 			//System.out.println(dbfetchUrl);
 			// Get the page and print it.
 			JSONObject json = fetchHttpUrlJson(dbfetchUrl);
@@ -767,7 +767,7 @@ public class MouseMineAlleleReferenceParser implements CommandLineRunner {
 		while (resultSet.next()) {
 			Integer pmid = resultSet.getInt("pmid");
 
-			String dbfetchUrl = "http://www.ebi.ac.uk/europepmc/webservices/rest/search/query=ext_id:" + pmid + "%20and%20src:MED&format=json&resulttype=core";
+			String dbfetchUrl = "https://www.ebi.ac.uk/europepmc/webservices/rest/search/query=ext_id:" + pmid + "%20and%20src:MED&format=json&resulttype=core";
 			System.out.println(dbfetchUrl);
 			// Get the page and print it.
 			JSONObject json = fetchHttpUrlJson(dbfetchUrl);
@@ -1286,12 +1286,11 @@ public class MouseMineAlleleReferenceParser implements CommandLineRunner {
 				}
 			}
 
-			String dbfetchUrl = "http://www.ebi.ac.uk/europepmc/webservices/rest/search/query=" + qry + "%20and%20src:MED&format=json&resulttype=core";
+			String dbfetchUrl = "https://www.ebi.ac.uk/europepmc/webservices/rest/search/query=" + qry + "%20and%20src:MED&format=json&resulttype=core";
 			//System.out.println(dbfetchUrl);
 			// Get the page and print it.
 			JSONObject json = fetchHttpUrlJson(dbfetchUrl);
 
-			//System.out.println("check json: "+ json);
 			JSONArray results = json.getJSONObject("resultList").getJSONArray("result");
 
 			for ( int j=0; j<results.size(); j++ ) {
