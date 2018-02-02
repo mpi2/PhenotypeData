@@ -133,6 +133,10 @@
             <scope>test</scope>
         </dependency>
 
+        <dependency>
+        	<groupId>org.springframework.boot</groupId>
+        	<artifactId>spring-boot-devtools</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -146,7 +150,10 @@
                          to specify main class to run. For now locally I
                          created a variable I can pass it
                     -->
+                    <!--
                     <mainClass>${myMainClass}</mainClass>
+                    -->
+                    <mainClass>org.mousephenotype.cda.threei.create.CreateDssSpecimenXml</mainClass>
                 </configuration>
                 <executions>
                     <execution>
