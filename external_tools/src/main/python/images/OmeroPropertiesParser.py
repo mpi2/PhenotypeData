@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from PropertiesParser import PropertiesParser
 import os
-
 class OmeroPropertiesParser(PropertiesParser):
 
     """Parse omero properties from a java like properties file
@@ -15,19 +14,21 @@ class OmeroPropertiesParser(PropertiesParser):
     
     As of 27/10/2017 the following are expected in the properties file:
 
+        datasource.komp2.url
+        datasource.komp2.username
+        datasource.komp2.password
+        
         omero.rootdestinationdir=
         omero.solrurl=
-        omero.komp2host=
-        omero.komp2port=
-        omero.komp2db=
-        omero.komp2user=
-        omero.komp2pass=
-        
         omero.omerohost=
         omero.omeroport=
         omero.omerouser=
         omero.omeropass=
         omero.omerogroup=
+
+    datasource.komp2.url is used to get the hostname, port and db name for
+    the komp2 database. It is assumed to be of the form:
+        jdbc:mysql://mysql-mi-dev:4356/jenkins_dev_komp2...
 
     Example usage
     -------------
@@ -65,9 +66,30 @@ class OmeroPropertiesParser(PropertiesParser):
             filepath = self.__getPathFromProfile()
 
         props = self.parse(filepath)
+
         omeroprops = {}
         for key, value in props:
             if key.find(omerons) == 0:
                 omerokey = "".join(key.split(omerons)[1:])
                 omeroprops[omerokey] = value
+            elif key.find('datasource.komp2.username') == 0:
+                omeroprops['komp2user'] = value
+            elif key.find('datasource.komp2.password') == 0:
+                omeroprops['komp2pass'] = value
+            elif key.find('datasource.komp2.url') == 0:
+                komp2parts = value.split('mysql://')[-1]
+                try:
+                    komp2host, komp2parts = komp2parts.split(':')[:2]
+                except:
+                    komp2host, komp2parts = komp2parts.split('/')[:2]
+                    komp2port = "3306"
+                try:
+                    komp2port, komp2parts = komp2parts.split('/')[:2]
+                except:
+                    pass
+                komp2db = komp2parts.split('?')[0]
+                omeroprops['komp2host'] = komp2host
+                omeroprops['komp2port'] = komp2port
+                omeroprops['komp2db'] = komp2db
+
         return omeroprops
