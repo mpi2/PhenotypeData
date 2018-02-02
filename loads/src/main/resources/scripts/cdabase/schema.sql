@@ -1826,7 +1826,9 @@ CREATE TABLE higher_level_annotation (
 	PRIMARY KEY    (term_id)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
-
+/**
+ * FIXME This table needs to be replaced when MPII-2973 is complete.
+ */
 DROP TABLE IF EXISTS ontology_term_anomaly;
 CREATE TABLE ontology_term_anomaly (
 	id                 INT(11)      NOT NULL AUTO_INCREMENT,

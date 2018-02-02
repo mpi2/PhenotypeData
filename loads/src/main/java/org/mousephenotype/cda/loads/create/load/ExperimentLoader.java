@@ -274,12 +274,7 @@ public class ExperimentLoader implements CommandLineRunner {
         List<Future<Experiment>> tasks = new ArrayList<>();
 
         for (DccExperimentDTO dccExperiment : dccExperiments) {
-            try {
-if (( ! dccExperiment.getColonyId().equals("MEMT")) || ( ! dccExperiment.getSpecimenId().equals("1651675"))) {
-    continue;
-}} catch (Exception e) {
-    continue;
- }
+
             // Skip purposefully ignored experiments.
             UniqueExperimentId uniqueExperiment = new UniqueExperimentId(dccExperiment.getPhenotypingCenter(), dccExperiment.getExperimentId());
 
