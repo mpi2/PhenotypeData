@@ -197,6 +197,11 @@ public class GenerateDerivedParameters implements CommandLineRunner {
                     tasks.add(executor.submit(task));
                     break;
 
+                case "IMPC_HWT_012_001":
+                    task = () -> copyDivisionResult("IMPC_HWT_012_001", "IMPC_HWT_008_001", "IMPC_HWT_007_001");
+                    tasks.add(executor.submit(task));
+                    break;
+
                 case "IMPC_OFD_020_001":
                     task = () -> copySumOfIncrements("IMPC_OFD_020_001", "IMPC_OFD_005_001");
                     tasks.add(executor.submit(task));
