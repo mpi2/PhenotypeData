@@ -217,6 +217,11 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
                             String mappedDataValue = observationDTO.getCategory();
                             switch (observationDTO.getCategory()) {
 
+                                // 2018-02-06
+                                // Per email chain Luis, Hamed, Ewan, Jeremy, Hugh
+                                // No data one eye categories are collapsed
+                                case "no data left eye":
+                                case "no data right eye":
                                 case "imageOnly":
                                 case "no data":
                                 case "no data for both eyes":
