@@ -56,10 +56,13 @@ ul.ui-autocomplete hr {
     height:1px;
     width:100%;
 }
+a {
+    text-decoration: none;
+}
 </style>
 <p>Examples: <a href="/data/search/gene?kw=Ap4e1" style="color: white">Ap4e1</a>, <a href="/data/search/mp?kw='abnormal heart rate'&amp;fq=top_level_mp_term:*" style="color: white">Abnormal Heart Rate</a>, <a href="/data/search/disease?kw=&quot;Bernard-Soulier Syndrome&quot;" style="color: white">Bernard-Soulier Syndrome</a></p>
 </form>
-<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script><script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script><script type='text/javascript'>
+<!--<a href="data/search/gene?kw=&quot;chrx\%3A1234567\-4567890&quot;" style="color: white">chrx:1234567-4567890</a>--><script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script><script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script><script type='text/javascript'>
 
 var hostname = window.location.hostname;
 var baseUrl = '//' + hostname + '/data';
@@ -78,8 +81,9 @@ $(document).ready(function(){
         'mp'   : 'top_level_mp_term:*',
         'disease' : '*:*',
         'anatomy' : 'selected_top_level_anatomy_term:*',
-        'pipeline' : 'pipeline_stable_id:*',
-        'images' : '*:*'
+        //'pipeline' : 'pipeline_stable_id:*',
+        'images' : '*:*',
+        'allele2' : 'type:Allele'
     }
 
     var facet2Label = {
@@ -134,11 +138,21 @@ $(document).ready(function(){
             // and it is not essential to escape space
             input = input.replace(/\\?%20/g, ' ');
 
+            // default to search by double quotes in SOLR
+            if (input != '') {
+                if (input.indexOf("*") != -1 && input.indexOf(" ") == -1) {
+                    input = input;
+                }
+                else {
+                    input = '"' + input + '"';  // single quotes do NOT work in SOLR query
+                }
+            }
+
             if (input == ''){
-                document.location.href = baseUrl + '/search/' + facet + '?kw=*'; // default
+                //document.location.href = baseUrl + '/search/' + facet + '?kw=*'; // default
+                document.location.href = baseUrl + '/search' + '?kw=*'; //  default
             }
             else if (input.match(/HP\\\%3A\d+/i)){
-
                 // work out the mapped mp_id and fire off the query
                 _convertHp2MpAndSearch(input, "mp");
             }
@@ -149,17 +163,17 @@ $(document).ready(function(){
                 var mpTerm = '"' + matched[1] + '"';
                 var fqStr = "top_level_mp_term:*";
 
-                document.location.href = baseUrl + '/search/mp?kw=' + mpTerm + '&fq=' + fqStr;
+                //document.location.href = baseUrl + '/search/mp?kw=' + mpTerm + '&fq=' + fqStr;
+                document.location.href = baseUrl + '/search?kw=' + mpTerm + '&fq=' + fqStr;
             }
             else {
-
                 // need to figure out the default datatype tab
                 $.ajax({
-                    url: baseUrl + '/fetchDefaultCore?q="' + input + '"',
+                    url: baseUrl + '/fetchDefaultCore?q=' + input,
                     type: 'get',
                     success: function (defaultCore) {
                         // default to search by quotes
-                        document.location.href = baseUrl + '/search/' + defaultCore + '?kw="' + input + '"';
+                        document.location.href = baseUrl + '/search/' + defaultCore + '?kw=' + input;
                     }
                 });
             }
@@ -266,8 +280,13 @@ $(document).ready(function(){
                 q = encodeURIComponent(q).replace("%3A", "\\%3A");
 
                 // default to send query to Solr in quotes !!!
-
-                var href = baseUrl + '/search/' + facet  + '?' + "kw=\"" + q + "\"";
+                if (q.indexOf("*") != -1 && q.indexOf(" ") == -1) {
+                    q = q;
+                }
+                else {
+                    q = '"' + q + '"'; // single quotes do NOT work in SOLR query
+                }
+                var href = baseUrl + '/search/' + facet  + '?' + 'kw=' + q;
                 if (q.match(/(MGI:|MP:|MA:|EMAP:|EMAPA:|HP:|OMIM:|ORPHANET:|DECIPHER:)\d+/i)) {
                     href += "&fq=" + facet2Fq[facet];
                 }
