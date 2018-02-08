@@ -147,7 +147,7 @@ public abstract class AlleleProcessorAbstract implements ItemProcessor<Allele, A
     protected Allele setBiotypeSkipAlleleIfNoBiotypeFound(Allele allele) {
         OntologyTerm biotype = mgiFeatureTypes.get(allele.getBiotype().getName());
         if (biotype == null) {
-            logger.warn("Line {} : NO biotype FOR allele {}. Skipped...", lineNumber, allele.toString());
+            logger.info("Line {} : NO biotype FOR allele {}. Skipped...", lineNumber, allele.toString());
             return null;
         }
 

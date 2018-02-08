@@ -686,6 +686,7 @@ public class SampleLoader implements CommandLineRunner {
             term.setId(new DatasourceEntityId(termAcc, efoDbId));
             term.setDescription(termName);
             term.setName(termName);
+            term.setIsObsolete(false);
             List<OntologyTerm> terms = new ArrayList<>();
             terms.add(term);
             Map<String, Integer> counts = cdaSqlUtils.insertOntologyTerm(terms);

@@ -118,7 +118,7 @@
 
 	};
 	// fetch paper data points for highCharts
-    $.fn.fetchAllelePaperDataPointsIncrement = function(chartYearIncrease, chartMonthIncrease, chartQuarter, chartGrantQuarter) {
+    $.fn.fetchAllelePaperDataPointsIncrement = function(){//chartYearIncrease, chartMonthIncrease, chartQuarter, chartGrantQuarter) {
 
         $.ajax({
             'url': baseUrl + '/fetchPaperStats',

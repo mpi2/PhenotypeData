@@ -20,7 +20,6 @@ import org.mousephenotype.cda.loads.common.config.DataSourceDccConfig;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.data.jpa.JpaRepositoriesAutoConfiguration;
-import org.springframework.boot.autoconfigure.data.neo4j.Neo4jDataAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration;
 import org.springframework.boot.autoconfigure.jms.JndiConnectionFactoryAutoConfiguration;
@@ -40,8 +39,7 @@ import org.springframework.context.annotation.Configuration;
         DataSourceAutoConfiguration.class,
         HibernateJpaAutoConfiguration.class,
         JpaRepositoriesAutoConfiguration.class,
-        DataSourceTransactionManagerAutoConfiguration.class,
-        Neo4jDataAutoConfiguration.class
+        DataSourceTransactionManagerAutoConfiguration.class
 })
 public class DccConfig extends DataSourceDccConfig {
 
