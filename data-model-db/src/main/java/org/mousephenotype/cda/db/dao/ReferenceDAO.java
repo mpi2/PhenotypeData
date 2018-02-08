@@ -404,7 +404,7 @@ public class ReferenceDAO {
             filter = "";
         }
 
-        System.out.println("Kw: " + searchKw + ", filter: " + filter);
+        //System.out.println("Kw: " + searchKw + ", filter: " + filter);
 
         String impcGeneBaseUrl = "http://www.mousephenotype.org/data/genes/";
         String pmidsToOmit = getPmidsToOmit();
@@ -422,10 +422,9 @@ public class ReferenceDAO {
         String filterStr = StringUtils.join(filters, "|");
 
         for(String flt : filters ) {
-            System.out.println("filter now: " + flt);
+            //System.out.println("filter now: " + flt);
             int occurrence = findOccurrenceOfSubstr(flt, "|");
             int loop = occurrence + 1;
-            System.out.println("loop: " + loop);
             List<String> titleLikes = new ArrayList<>();
             List<String> meshLikes = new ArrayList<>();
             List<String> abstractLikes = new ArrayList<>();
