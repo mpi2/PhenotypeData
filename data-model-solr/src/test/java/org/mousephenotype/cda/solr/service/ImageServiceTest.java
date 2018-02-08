@@ -131,7 +131,6 @@ public class ImageServiceTest {
         String  testName = Thread.currentThread().getStackTrace()[1].getMethodName();
         String  acc      = "MGI:1891341";
         int     rows     = 1;
-        boolean failed   = false;
 
         int    expectedSize;
         int    actualSize;
@@ -139,17 +138,12 @@ public class ImageServiceTest {
 
         List<Group> response     = imageService.getPhenotypeAssociatedImages(acc, null, null, true, rows);
 
-        expectedSize = 8;                        // 26-Oct-2017 (mrelac) As of this date there were 8 phenotype associated images found.
+        expectedSize = 6;                        // 26-Oct-2017 (mrelac) As of this date there were 8 phenotype associated images found.
         actualSize   = (response != null ? response.size() : 0);
         message      = testName + ": Expected at least " + expectedSize + " associated images but found " + actualSize;
         logger.info(testName + ": associated images actualSize = " + actualSize);
 
-        if (actualSize < expectedSize) {
-            logger.error(message);
-            failed = true;
-        }
-
-        assertTrue(message, ! failed);
+        assertTrue(actualSize >= expectedSize);
     }
 
     @Test
