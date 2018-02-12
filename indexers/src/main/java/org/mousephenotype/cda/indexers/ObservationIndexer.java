@@ -213,8 +213,8 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 	public long populateObservationSolrCore(RunStatus runStatus) throws SQLException, IOException, SolrServerException {
 
 		int count = 0;
-final int MAX_ERROR_COUNT = 100;
-int error_count = 0;
+		final int MAX_MISSING_BIOLOGICAL_DATA_ERROR_COUNT_DISPLAYED = 100;
+		int missingBiologicalDataErrorCount = 0;
 		observationCore.deleteByQuery("*:*");
 
 		Boolean hasSequenceIdColumn = sqlUtils.columnInSchemaMysql(connection, "observation", "sequence_id");
@@ -404,35 +404,10 @@ int error_count = 0;
 
 					if (b == null) {
 
-
-
-
-
-
-
-
-
-
-
-
-
-						if (error_count++ < MAX_ERROR_COUNT) {
+						if (missingBiologicalDataErrorCount++ < MAX_MISSING_BIOLOGICAL_DATA_ERROR_COUNT_DISPLAYED) {
 							runStatus.addError(
 									" Cannot find biological data for specimen id: " + bioSampleId + ", experiment id: " + r.getString("experiment_id"));
 						}
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 						continue;
 					}
@@ -628,29 +603,9 @@ int error_count = 0;
 			System.out.println(" Big error :" + e.getMessage());
 		}
 
-
-
-
-
-
-
-
-
-
-		if (error_count > 0) {
-			logger.error("'Cannot find biological data for specimen id...' occurred " + error_count + " times.");
+		if (missingBiologicalDataErrorCount > 0) {
+			logger.error("'Cannot find biological data for specimen id...' occurred " + missingBiologicalDataErrorCount + " times.");
 		}
-
-
-
-
-
-
-
-
-
-
-
 
 		return count;
 	}
