@@ -88,9 +88,17 @@
                 <div class="content">
                     <div class="node node-gene">
 
-                        <h1 class="title capitalize" id="top">${systemName} </h1>
-
-                        <c:import url="landing_overview_frag.jsp"/>
+                        <h1 class="title capitalize" id="top">${pageTitle} </h1>
+						
+						<div class="section">
+						    <div class="inner">
+						       	This page introduces cardiovascular related phenotypes present in mouse lines produced by the IMPC. The cardiovascular system 
+						       	refers to the observable morphological and physiological characteristics of the mammalian heart, blood vessels, or circulatory 
+						       	system that are manifested through development and lifespan.
+                        			<c:import url="landing_overview_frag.jsp"/>
+                        		</div>
+						    <div class="clear both"></div>
+						</div>
                         <br/><br/>
 
                         <div class="section">

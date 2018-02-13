@@ -153,7 +153,7 @@
 											<input type="radio" value="nd" name="go"><label>No biological data available</label><a class='goCatInfo'><i class='fa fa-info'></i></a><br>
 											<input type="radio" value="all" name="go"><label>All evidence categories</label><br>
 											
-											<p id='butts'><span class='export2'>Download</span><button class="tsv fa fa-download gridDump gridDump">TSV</button> or<button class="xls fa fa-download gridDump gridDump">XLS</button></p> 
+											<p id='butts'><span class='export2'>Download</span><button class="tsv fa fa-download gridDump catFull">TSV</button> or<button class="xls fa fa-download gridDump catFull">XLS</button></p>
 										</div>
 											
 								    </div>
@@ -298,8 +298,8 @@
 				});
 				
        	      	// submit form dynamically
-       	       	$('button').click(function(){
-       	       		
+       	       	$('button.catFull').click(function(){
+
        		      	conf.fileType = $(this).hasClass('tsv') ? 'tsv' : 'xls';
        		       	conf.fileName = 'go_dump';// + conf.fileType;
 
@@ -328,8 +328,6 @@
        		       	var sExp = $("input[name=go]:checked", '#export').val();
        		     	conf.params = qryMap[sExp];
        		     	
-       		       	//console.log(conf.params);
-       		       	
        		       	if ( typeof sExp == 'undefined' ){
        		       		alert('Sorry, you need to choose one of the radio buttons to export data.');
        		       		return false;
@@ -370,7 +368,7 @@
      				else if ( $(this).hasClass('FP') ){
      					goDomain = 'molecular function AND biological process';
      				}
-     				var msg = "DATASET&nbsp;&nbsp;&nbsp;<span class='msg'>status</span>: " + status + ", <span class='msg'>GO domain</span>: " + goDomain + ", <span class='msg'>GO evidence group</span>: " + goEvidCat;
+     				var msg = "<p>DATASET&nbsp;&nbsp;&nbsp;<span class='msg'>status</span>: " + status + ", <span class='msg'>GO domain</span>: " + goDomain + ", <span class='msg'>GO evidence group</span>: " + goEvidCat;
      				
      				$('div.dlink').removeClass('viewed');
      				$(this).addClass("viewed");
@@ -415,6 +413,7 @@
 	       	            	oInfosDl.widgetName = 'geneFacet';
 	       	            	oInfosDl.coreName = 'gene';
 	       	            	oInfosDl.dogoterm = true;
+
 	       	            	$.fn.initDataTableDumpControl(oInfosDl);
 
 	       	            	if (goDomain != 'not available'){
