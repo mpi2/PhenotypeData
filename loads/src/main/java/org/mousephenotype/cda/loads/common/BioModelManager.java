@@ -90,6 +90,9 @@ public class BioModelManager {
         Integer     biologicalModelPk = getBiologicalModelPk(key);
         if (biologicalModelPk == null) {
             biologicalModelPk = insert(dbId, biologicalSamplePk, phenotypingCenterPk, specimenExtended);
+        } else {
+            // Insert the relationship between biological_model and biological_sample
+            cdaSqlUtils.insertBiologicalModelSample(biologicalModelPk, biologicalSamplePk);
         }
 
         return biologicalModelPk;
@@ -105,6 +108,9 @@ public class BioModelManager {
         Integer     biologicalModelPk = getBiologicalModelPk(key);
         if (biologicalModelPk == null) {
             biologicalModelPk = insert(dbId, biologicalSamplePk, phenotypingCenterPk, specimenExtended);
+        } else {
+            // Insert the relationship between biological_model and biological_sample
+            cdaSqlUtils.insertBiologicalModelSample(biologicalModelPk, biologicalSamplePk);
         }
 
         return biologicalModelPk;
