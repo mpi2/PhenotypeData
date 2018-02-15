@@ -120,6 +120,9 @@
 		div.dataTables_length {
 			margin-left: 0;
 		}
+		span#dnld {
+			cursor: pointer;
+		}
 	</style>
 
 	
@@ -368,7 +371,7 @@
      				else if ( $(this).hasClass('FP') ){
      					goDomain = 'molecular function AND biological process';
      				}
-     				var msg = "<p>DATASET&nbsp;&nbsp;&nbsp;<span class='msg'>status</span>: " + status + ", <span class='msg'>GO domain</span>: " + goDomain + ", <span class='msg'>GO evidence group</span>: " + goEvidCat;
+     				var msg = "<p><p>DATASET&nbsp;&nbsp;&nbsp;<span class='msg'>status</span>: " + status + ", <span class='msg'>GO domain</span>: " + goDomain + ", <span class='msg'>GO evidence group</span>: " + goEvidCat;
      				
      				$('div.dlink').removeClass('viewed');
      				$(this).addClass("viewed");

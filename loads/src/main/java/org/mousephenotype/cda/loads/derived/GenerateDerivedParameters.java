@@ -470,6 +470,7 @@ public class GenerateDerivedParameters implements CommandLineRunner {
         allParams.add("GMC_914_001_705");
         allParams.add("GMC_914_001_705");
         allParams.add("TCP_TFL_002_001");
+        allParams.add("IMPC_HWT_012_001");
         allParams.add("IMPC_DXA_007_001");
         allParams.add("IMPC_DXA_008_001");
         allParams.add("IMPC_DXA_009_001");
