@@ -366,7 +366,6 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
         addImpressData(r, doc);
 
         // Biological details
-        System.out.println(doc.toString());
         addBiologicalData(doc, doc.getMutantBiologicalModelId());
 
         BasicBean stage = getDevelopmentalStage(doc.getPipelineStableId(), procedurePrefix, doc.getColonyId());
@@ -809,9 +808,9 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
         }
 
         // test
-        if (b.geneSymbol.equals("Pard3")){
-            System.out.println("Working on Pard3");
-        }
+//        if (b.geneSymbol.equals("Pard3")){
+//            System.out.println("Working on Pard3");
+//        }
 
         doc.setMarkerAccessionId(b.geneAcc);
         doc.setMarkerSymbol(b.geneSymbol);
