@@ -1520,6 +1520,8 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
      */
     private void setSignificantFlag(Double pValueThreshold, StatisticalResultDTO doc) {
 
+        doc.setSignificant(false);
+
         // do not override significant == true
         if (doc.getSignificant()!=null && doc.getSignificant()) {
             return;
@@ -1544,7 +1546,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
                 doc.setSignificant(false);
             }
 
-        } else if (doc.getNullTestPValue() == null && doc.getStatus().equals("Success") && doc.getStatisticalMethod() != null && doc.getStatisticalMethod().startsWith("Fisher's")) {
+        } else if (doc.getNullTestPValue() == null && doc.getStatus().equals("Success") && doc.getStatisticalMethod() != null && doc.getStatisticalMethod().startsWith("Fisher")) {
             // Fisher's exact test.  Choose the most significant pvalue from the sexes, already tcalculated and stored
             // in the Pvalue field of the doc
 
