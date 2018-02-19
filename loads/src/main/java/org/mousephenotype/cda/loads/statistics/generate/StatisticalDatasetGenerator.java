@@ -310,23 +310,109 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
 
                     }
 
-                    StringBuilder sb = new StringBuilder();
-                    for (List<String> line : lines) {
-                        sb.append(line.stream().collect(Collectors.joining("\t")));
-                        sb.append("\n");
+
+                    if (
+                            // File has more than 2000 control specimens
+                            lines
+                                    .stream()
+                                    .filter(x->x.get(1).equals("control"))
+                                    .count() > 2000
+
+                            &&
+                            // AND file has more than 100 colonies
+                            lines
+                                    .stream()
+                                    .filter(x->x.get(1).equals("experimental"))
+                                    .map(x->x.get(3))
+                                    .distinct()
+                                    .count() > 100
+                            )
+                    {
+                        // Split the file into multiple pieces
+
+                        List<List<String>> controls = lines
+                                .stream()
+                                .filter(x->x.get(1).equals("control"))
+                                .collect(Collectors.toList());
+
+                        Integer fileNumber = 0;
+                        Integer colonyNumber = 0;
+                        List<List<String>> colonySubset = new ArrayList<>();
+                        colonySubset.add(headers);
+                        colonySubset.addAll(controls);
+
+                        for (String colonyId : lines
+                                .stream()
+                                .filter(x -> x.get(1).equals("experimental"))
+                                .map(x -> x.get(3))
+                                .distinct()
+                                .collect(Collectors.toSet())) {
+
+                            List<List<String>> mutants = lines
+                                    .stream()
+                                    .filter(x -> x.get(3).equals(colonyId))
+                                    .collect(Collectors.toList());
+
+                            colonySubset.addAll(mutants);
+
+                            colonyNumber += 1;
+
+                            if (colonyNumber % 100 == 0) {
+
+                                // Write the file
+
+                                StringBuilder sb = new StringBuilder();
+                                for (List<String> line : colonySubset) {
+                                    sb.append(line.stream().collect(Collectors.joining("\t")));
+                                    sb.append("\n");
+                                }
+
+                                String filename = "tsvs/" + Stream.of(
+                                        result.get(ObservationDTO.DATASOURCE_NAME).replace(" ", "_"),
+                                        result.get(ObservationDTO.PROJECT_NAME).replace(" ", "_"),
+                                        result.get(ObservationDTO.PHENOTYPING_CENTER).replace(" ", "_"),
+                                        result.get(ObservationDTO.PIPELINE_STABLE_ID),
+                                        result.get(ObservationDTO.PROCEDURE_GROUP),
+                                        result.get(ObservationDTO.STRAIN_ACCESSION_ID).replace(":", ""),
+                                        String.format("%03d", fileNumber)).collect(Collectors.joining(FILENAME_SEPERATOR)) + ".tsv";
+
+                                Path p = new File(filename).toPath();
+                                logger.info("Writing file {} ({})", filename, p);
+                                Files.write(p, sb.toString().getBytes());
+
+                                fileNumber += 1;
+
+                                // Reset the array to produce a new file
+                                colonySubset = new ArrayList<>();
+                                colonySubset.add(headers);
+                                colonySubset.addAll(controls);
+
+                            }
+
+                        }
+
+
+                    } else {
+
+                        StringBuilder sb = new StringBuilder();
+                        for (List<String> line : lines) {
+                            sb.append(line.stream().collect(Collectors.joining("\t")));
+                            sb.append("\n");
+                        }
+
+                        String filename = "tsvs/" + Stream.of(
+                                result.get(ObservationDTO.DATASOURCE_NAME).replace(" ", "_"),
+                                result.get(ObservationDTO.PROJECT_NAME).replace(" ", "_"),
+                                result.get(ObservationDTO.PHENOTYPING_CENTER).replace(" ", "_"),
+                                result.get(ObservationDTO.PIPELINE_STABLE_ID),
+                                result.get(ObservationDTO.PROCEDURE_GROUP),
+                                result.get(ObservationDTO.STRAIN_ACCESSION_ID).replace(":", ""),
+                                "000").collect(Collectors.joining(FILENAME_SEPERATOR)) + ".tsv";
+
+                        Path p = new File(filename).toPath();
+                        logger.info("Writing file {} ({})", filename, p);
+                        Files.write(p, sb.toString().getBytes());
                     }
-
-                    String filename = "tsvs/" + Stream.of(
-                            result.get(ObservationDTO.DATASOURCE_NAME).replace(" ", "_"),
-                            result.get(ObservationDTO.PROJECT_NAME).replace(" ", "_"),
-                            result.get(ObservationDTO.PHENOTYPING_CENTER).replace(" ", "_"),
-                            result.get(ObservationDTO.PIPELINE_STABLE_ID),
-                            result.get(ObservationDTO.PROCEDURE_GROUP),
-                            result.get(ObservationDTO.STRAIN_ACCESSION_ID).replace(":", "")).collect(Collectors.joining(FILENAME_SEPERATOR)) + ".tsv";
-
-                    Path p = new File(filename).toPath();
-                    logger.info("Writing file {} ({})", filename, p);
-                    Files.write(p, sb.toString().getBytes());
 
                 } catch (Exception e) {
                     logger.warn("Error occurred geting data for query: " + q1.toQueryString(), e);
