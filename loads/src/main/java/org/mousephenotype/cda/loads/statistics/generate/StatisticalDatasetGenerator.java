@@ -42,6 +42,8 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
 
 
     public static final String FILENAME_SEPERATOR = "--";
+    private static final int MAX_COLONIES_PER_FILE = 25;
+    private static final int MAX_CONTROLS_BEFORE_SPLITTING = 1500;
 
     final private Logger logger = LoggerFactory.getLogger(getClass());
     final private SolrClient experimentCore;
@@ -312,20 +314,20 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
 
 
                     if (
-                            // File has more than 2000 control specimens
+                            // File has more than MAX_CONTROLS_BEFORE_SPLITTING control specimens
                             lines
                                     .stream()
                                     .filter(x->x.get(1).equals("control"))
-                                    .count() > 2000
+                                    .count() > MAX_CONTROLS_BEFORE_SPLITTING
 
                             &&
-                            // AND file has more than 100 colonies
+                            // AND file has more than MAX_COLONIES_PER_FILE colonies
                             lines
                                     .stream()
                                     .filter(x->x.get(1).equals("experimental"))
                                     .map(x->x.get(3))
                                     .distinct()
-                                    .count() > 100
+                                    .count() > MAX_COLONIES_PER_FILE
                             )
                     {
                         // Split the file into multiple pieces
@@ -357,7 +359,7 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
 
                             colonyNumber += 1;
 
-                            if (colonyNumber % 100 == 0) {
+                            if (colonyNumber % MAX_COLONIES_PER_FILE == 0) {
 
                                 // Write the file
 
