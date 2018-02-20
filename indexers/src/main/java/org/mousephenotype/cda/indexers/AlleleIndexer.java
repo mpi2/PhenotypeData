@@ -129,26 +129,32 @@ public class AlleleIndexer extends AbstractIndexer implements CommandLineRunner 
         MOUSE_STATUS_MAPPINGS.put("Phenotype Attempt Registered", "Mice Produced");
     }
 
+    @NotNull
     @Autowired
     @Qualifier("komp2DataSource")
     DataSource komp2DataSource;
 
+    @NotNull
     @Autowired
     @Qualifier("goaproDataSource")
     DataSource goaproDataSource;
 
+    @NotNull
     @Autowired
     @Qualifier("uniprotDataSource")
     DataSource uniprotDataSource;
 
+    @NotNull
     @Autowired
     @Qualifier("pfamDataSource")
     DataSource pfamDataSource;
 
+    @NotNull
 	@Autowired
 	@Qualifier("phenodigmCore")
 	private SolrClient phenodigmCore;
 
+    @NotNull
 	@Autowired
     @Qualifier("alleleCore")
     private SolrClient alleleCore;

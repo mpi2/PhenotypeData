@@ -259,7 +259,7 @@ public abstract class AbstractIndexer implements CommandLineRunner {
 
             // Already populated by another thread
             if (liveStageMap != null && liveStageMap.size() > 0) {
-                logger.info("Life stage lookup already populated");
+                logger.debug("Life stage lookup already populated");
                 return;
             }
 
