@@ -28,7 +28,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * This class encapsulates the code and data to query and insert into the biological model tables. Typical usage is to
@@ -218,12 +217,12 @@ public class BioModelManager {
     private void initialise() throws DataLoadException {
 
         // Initialise maps
-        allelesBySymbolMap = new ConcurrentHashMap<>(cdaSqlUtils.getAllelesBySymbol());
-        genesByAccMap = new ConcurrentHashMap<>(cdaSqlUtils.getGenesByAcc());
-        phenotypedColonyMap = new ConcurrentHashMap<>(cdaSqlUtils.getPhenotypedColonies());
-        strainsByNameOrMgiAccessionIdMap = new ConcurrentHashMap<>(cdaSqlUtils.getStrainsByNameOrMgiAccessionIdMap());
-        bioModelPkMap = new ConcurrentHashMap<>(cdaSqlUtils.getBiologicalModelPksMapByBioModelKey());
-        ontologyTermMap = new ConcurrentHashMap<>(cdaSqlUtils.getOntologyTermsByName());
+        allelesBySymbolMap = new ConcurrentHashMapAllowNull<>(cdaSqlUtils.getAllelesBySymbol());
+        genesByAccMap = new ConcurrentHashMapAllowNull<>(cdaSqlUtils.getGenesByAcc());
+        phenotypedColonyMap = new ConcurrentHashMapAllowNull<>(cdaSqlUtils.getPhenotypedColonies());
+        strainsByNameOrMgiAccessionIdMap = new ConcurrentHashMapAllowNull<>(cdaSqlUtils.getStrainsByNameOrMgiAccessionIdMap());
+        bioModelPkMap = new ConcurrentHashMapAllowNull<>(cdaSqlUtils.getBiologicalModelPksMapByBioModelKey());
+        ontologyTermMap = new ConcurrentHashMapAllowNull<>(cdaSqlUtils.getOntologyTermsByName());
     }
 
 
