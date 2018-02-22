@@ -287,17 +287,6 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
 
                     String mpId = r.getString("ontology_term_id");
 
-
-
-                    if (mpId.equals("MP:0003910")) {
-                        mpId = "MP:0001431";
-                    } else if (mpId.equals("MP:0003910")) {
-                        mpId = "MP:0012490";
-                    }
-
-
-
-
                     doc.setMpTermId(mpId);
                     doc.setMpTermName(r.getString("ontology_term_name"));
 
