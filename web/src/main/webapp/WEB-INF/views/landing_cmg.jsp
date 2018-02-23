@@ -8,8 +8,7 @@
 
     <jsp:attribute name="title">${pageTitle} landing page | IMPC Phenotype Information</jsp:attribute>
 
-    <jsp:attribute name="breadcrumb">&nbsp;&raquo; <a href="${baseUrl}/landing">Landing
-        Pages</a> &nbsp;&raquo; ${pageTitle}</jsp:attribute>
+	<jsp:attribute name="breadcrumb">&nbsp;&raquo; <a href="${baseUrl}/biological-system">Biological Systems</a> &nbsp;&raquo; ${pageTitle}</jsp:attribute>
 
     <jsp:attribute name="header">
 
@@ -85,7 +84,9 @@
 	                            		<p style="color: #23bcb7; font-weight: bold; padding-top: 40px; float: right;">${pageTitle}</p>
 	                            	</h1>
 	                            	<br/><br/>
-	                            	<div style="text-align: justify; clear: both;">${shortDescription}</div>
+	                            	<div style="text-align: justify; clear: both;">
+	                            		<p>The <a href='https://www.mendelian.org/' target='_blank'>Centers for Mendelian Genomics</a> (CMG) is an NIH funded project to use genome-wide sequencing and other genomic approaches to discover the genetic basis underlying as many human Mendelian traits as possible.  The IMPC is helping CMG validate human disease gene variants by creating and characterizing orthologous knockout mice.</p>
+	                            	</div>
                             		<br/><br/>
                             </div>
                         </div>

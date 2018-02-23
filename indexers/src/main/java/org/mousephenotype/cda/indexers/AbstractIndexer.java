@@ -259,7 +259,7 @@ public abstract class AbstractIndexer implements CommandLineRunner {
 
             // Already populated by another thread
             if (liveStageMap != null && liveStageMap.size() > 0) {
-                logger.info("Life stage lookup already populated");
+                logger.debug("Life stage lookup already populated");
                 return;
             }
 
@@ -282,7 +282,7 @@ public abstract class AbstractIndexer implements CommandLineRunner {
             }
 
             long time = System.currentTimeMillis();
-            logger.info("Populating life stage lookup");
+//            logger.info("Populating life stage lookup");
 
             Map<String, BasicBean> buildStageMap = new HashMap<>();
 
@@ -318,7 +318,7 @@ public abstract class AbstractIndexer implements CommandLineRunner {
 
             liveStageMap = buildStageMap;
 
-            logger.info("Populating life stage lookup took {}s", ((System.currentTimeMillis() - time) / 1000.0));
+//            logger.info("Populating life stage lookup took {}s", ((System.currentTimeMillis() - time) / 1000.0));
         }
     }
 

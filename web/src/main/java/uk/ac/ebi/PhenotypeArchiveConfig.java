@@ -46,10 +46,6 @@ public class PhenotypeArchiveConfig {
     private static final Logger logger = LoggerFactory.getLogger(PhenotypeArchiveConfig.class);
 
 
-    @NotNull
-    @Value("${neo4jDbPath}")
-    private String neo4jDbPath;
-
     @Value("${drupal_base_url}")
     private String drupalBaseUrl;
 

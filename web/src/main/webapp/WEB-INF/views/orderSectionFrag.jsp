@@ -13,7 +13,7 @@
                         <th style="border-bottom:0px;"></th>
                         <th style="border-bottom:0px;"></th>
                         <th colspan="1" style="border-bottom:0px;  text-align:center;">Targeting Detail</th>
-                        <th colspan="3" style="border-bottom:0px; text-align:center;">Product Ordering</th>
+                        <th colspan="4" style="border-bottom:0px; text-align:center;">Product Ordering</th>
                         
                       
                 </tr>
@@ -28,7 +28,7 @@
                         <th>Vector</th>
                         <th>ES Cell</th>
                         <th>Mouse</th>
-                        
+                        <th>Tissue Enquiry</th>
                       
                 </tr>
         </thead>
@@ -82,7 +82,7 @@
 	                                <td>
 	                                	<c:if test="${not empty row.geneGenbankLink}">
 		                               		<a href="${row.geneGenbankLink}" target="_blank"><i class="fa fa-file-text fa-lg" title="Genbank File"></i></a>
-		                                
+		                                		<a href="${row.geneGenbankLink}" target="_blank"><i class="fa fa-file-text fa-lg" title="Genbank File"></i></a>
 	                               		</c:if>
 	                               	</td>
 	                            </tr>  
@@ -116,7 +116,17 @@
 	                           <c:if test="${row.mouseAvailable}">
 	                          	<a class="iFrameFancy btn" data-url="${baseUrl}/order?acc=${row.mgiAccessionId}&allele=${row.alleleName}&type=mouse${creLineParam}&bare=true"><i class="fa fa-shopping-cart"></i></a>
 	                           </c:if>
+                          </td>
                           
+                          
+                          <!-- Tissue enquiries -->
+                          <td style="text-align: left;" rowspan="${rowSpan}">
+	                           <c:if test="${row.tissuesAvailable}">
+	                          	<c:forEach items="${row.getTissueTypes()}" var="item" varStatus="loop">
+								    	<a class="btn" href="${row.getTissueEnquiryLinks().get(loop.index)}" style="margin-bottom: 0.25em;"><i class="fa fa-envelope"></i> ${item}</a><br>
+								</c:forEach>
+	                           </c:if>
+                          </td>
                           
                           
                         </tr>    

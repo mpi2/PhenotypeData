@@ -18,10 +18,7 @@ package org.mousephenotype.cda.loads.create.extract.cdabase.steps;
 
 import org.mousephenotype.cda.db.pojo.Allele;
 import org.mousephenotype.cda.db.pojo.GenomicFeature;
-import org.mousephenotype.cda.loads.common.CdaSqlUtils;
 import org.mousephenotype.cda.loads.exceptions.DataLoadException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 
 import java.util.Map;
 
@@ -29,10 +26,6 @@ import java.util.Map;
  * Created by mrelac on 09/06/16.
  */
 public class AlleleProcessorEucomm extends AlleleProcessorAbstract {
-
-    @Autowired
-    @Qualifier("cdabaseSqlUtils")
-    private CdaSqlUtils cdaSqlUtils;
 
     @Override
     public Allele setBiotype(Allele allele) throws DataLoadException {

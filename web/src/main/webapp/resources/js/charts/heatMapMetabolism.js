@@ -49,7 +49,7 @@ $(function () {
 	            { "mDataProp": "Sex"},
 	            { "mDataProp": "MGI_ID",
 		            	"render": function ( data, type, full, meta ) {
-	        		 		return '<a href="http://www.mousephenotype.org/data/genes/'+data+'" target="_blank">'+data+'</a>';
+	        		 		return '<a href="https://www.mousephenotype.org/data/genes/'+data+'" target="_blank">'+data+'</a>';
 	        		 	}
 	            },
 	            { "mDataProp": "Gene_symbol"},
@@ -308,7 +308,7 @@ $(function () {
 	        }
 		}
 		
-	    $(this).toggleClass("background_hover_axis");
+//	    $(this).toggleClass("background_hover_axis");
 	});
 	
 	$(".highlightCols").click(function () {

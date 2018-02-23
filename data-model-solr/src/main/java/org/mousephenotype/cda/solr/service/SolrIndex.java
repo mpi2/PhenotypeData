@@ -69,7 +69,7 @@ public class SolrIndex {
 	SolrClient geneCore;
 
 	@Autowired
-	@Qualifier("phenodigm2Core")
+	@Qualifier("phenodigmCore")
 	SolrClient phenodigmCore;
 
 	@Autowired
@@ -315,16 +315,16 @@ public class SolrIndex {
 
 		//System.out.println("GRID SOLR PARAMS : " + gridSolrParams);
 
-		if (core.equals("gene")) {
+		//if (core.equals("gene")) {
 			//gridFields += ",imits_report_phenotyping_complete_date,imits_report_genotype_confirmed_date,imits_report_mi_plan_status,escell,ikmc_project,imits_phenotype_started,imits_phenotype_complete,imits_phenotype_status";
-		}
+		//}
 
 		//String url = composeSolrUrl(core, "", "", newgridSolrParams, start,
 				//length, false);
 		String url = composeSolrUrl(core, "", "", gridSolrParams, start,
 				length, showImgView);
 
-		log.debug("Export data URL: " + url);
+		System.out.println("Export data URL: " + url);
 		return getResults(url);
 	}
 

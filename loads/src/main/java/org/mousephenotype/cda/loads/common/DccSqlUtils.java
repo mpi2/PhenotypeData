@@ -94,7 +94,11 @@ public class DccSqlUtils {
      * be safely ignored/skipped. Criteria for entry into this list are:
      * - The colonyId must not already exist
      * - There is not enough information (e.g. gene, strain) information to hand-curate a phenotyped_colony record
+     *
+     * 2017-11-22 (mrelac) Use the table 'missing_colony_id' to look these up.
      */
+    // FIXME
+    @Deprecated
     public static List<String> knownBadColonyIds = Arrays.asList(
             new String[] {
                     "(Deluca)<Deluca>", "EPD0038_2_A04", "internal", "Trm1", "MAG", "EUCJ0019_C12",

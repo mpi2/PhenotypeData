@@ -50,11 +50,14 @@ import uk.ac.ebi.phenotype.error.ParameterNotFoundException;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
+
 
 @Controller
 public class ChartsController {
@@ -130,6 +133,7 @@ public class ChartsController {
      * @throws URISyntaxException
      * @throws SolrServerException, IOException
      */
+    
     @RequestMapping("/charts")
     public String charts(@RequestParam(required = false, value = "accession") String[] accessionsParams,
                          @RequestParam(required = false, value = "parameter_stable_id") String[] parameterIds,
@@ -142,7 +146,7 @@ public class ChartsController {
                          @RequestParam(required = false, value = "chart_type") ChartType chartType,
                          @RequestParam(required = false, value = "pipeline_stable_id") String[] pipelineStableIds,
                          @RequestParam(required = false, value = "allele_accession_id") String[] alleleAccession,
-                         HttpServletRequest request,
+                         HttpServletRequest request, HttpServletResponse response,
                          Model model) {
         try {
             if ((accessionsParams != null) && (accessionsParams.length > 0) && (parameterIds != null) && (parameterIds.length > 0)) {
@@ -153,7 +157,10 @@ public class ChartsController {
                     }
                 }
             }
-
+            response.addHeader("Access-Control-Allow-Origin", "*");//allow javascript requests from other domain - note spring way of doing this does not work!!!! as usual!!!
+//            response.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE");
+//            response.setHeader("Access-Control-Max-Age", "3600");
+//            response.setHeader("Access-Control-Allow-Headers", "x-requested-with");
             return createCharts(accessionsParams, pipelineStableIds, parameterIds, gender, phenotypingCenter, strains, metadataGroup, zygosity, model, chartType, alleleAccession);
         } catch (Exception e){
             e.printStackTrace();
@@ -180,6 +187,8 @@ public class ChartsController {
      * @throws URISyntaxException
      * @throws SolrServerException, IOException
      */
+    
+    
     @RequestMapping("/chart")
     public String chart(@RequestParam(required = true, value = "experimentNumber") String experimentNumber,
                         @RequestParam(required = false, value = "accession") String[] accession,

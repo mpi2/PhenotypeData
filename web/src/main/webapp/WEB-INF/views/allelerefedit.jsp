@@ -157,7 +157,7 @@
 					<%-- inputbox to add pmid --%>
 					<form id="pmidbox">
 						<fieldset>
-							<legend>Add paper containing EUCOMM/KOMP allele(s) by PMID.<br>Separate by comma for multiple papers.<br>
+							<legend>Add paper containing EUCOMM/KOMP allele(s) by PMID only.<br>Separate by comma for multiple papers.<br>
 							Eg. 23652019, 25036884
 							</legend>
 							<textarea></textarea>
@@ -168,7 +168,7 @@
 
 					<form id="pmidAllelebox">
 						<fieldset>
-							<legend>Add paper(s) containing EUCOMM/KOMP allele(s) by PMID <b>and</b> alleles.<br><br>Separate PMID and alleles by <b>comma</b>.<br>Use <b>semicolon</b> to separate multiple alleles.<br>
+							<legend>Add paper(s) containing EUCOMM/KOMP allele(s) by PMID <b>and</b> allele(s).<br><br>Separate PMID and alleles by <b>comma</b>.<br>Use <b>semicolon</b> to separate multiple alleles of a paper.<br>
 								Eg. <pre>your_pmid,Kmo<sup>tm1a(KOMP)Wtsi</sup>;Sdpr<sup>tm1(KOMP)Vlcg</sup></pre> (Use < > for superscript).<br><br>
 							For multiple papers, separate by new line.<br>
 							</legend>
@@ -178,6 +178,7 @@
 						</fieldset>
 					</form>
 
+					<p><b>NOTE: false positive papers are not shown.</b></p><p></p>
 					<!-- container to display dataTable -->									
 					<div class="HomepageTable" id="alleleRef"></div>	
 				</div>				
@@ -507,11 +508,21 @@
 						reviewed = 'yes';
 					}
 
+					if (consortium_paper == 'yes'){
+                        reviewed = 'yes';
+					}
+
 					$('body').addClass("loading");
+
+					console.log(baseUrl + "/dataTableAlleleRefPost?id=" + dbid + "&pmid=" + pmid + "&reviewed=" + reviewed + "&falsepositive=" +  falsepositive + "&consortium_paper=" + consortium_paper + "&symbol=" + symbolVal);
+
+					var symbols = symbolVal.split(",");
+					console.log(symbols);
+					console.log("size: "+ symbols.length);
 
 					$.ajax({
 						method: "post",
-						url: baseUrl + "/dataTableAlleleRefPost?id=" + dbid + "&symbol=" + symbolVal + "&pmid=" + pmid + "&reviewed=" + reviewed + "&falsepositive=" +  falsepositive + "&consortium_paper=" + consortium_paper,
+						url: baseUrl + "/dataTableAlleleRefPost?id=" + dbid + "&pmid=" + pmid + "&reviewed=" + reviewed + "&falsepositive=" +  falsepositive + "&consortium_paper=" + consortium_paper + "&symbol=" + symbolVal,
 						success: function (jsonStr) {
 							//alert(jsonStr);
 
@@ -560,6 +571,7 @@
 			var howto = "<div class='howto'><div><p>False positive checkbox:</p>Tick the checkbox if this paper does not contain any IMPC allele and so should not be shown to users. Then hit <span class='updt'>Update</span> to save it. That's it. You should see both False positive and Reviewed checkboxes are checked.</div>"
 					+ "<div><p>Reviewed checkbox:</p>(1) If there is no allele symbol mentioned in the paper and you want to make it as reviewed, check it and leave the symbol text box <b>empty</b> and hit <span class='updt'>Update</span>. Your should see 'Not available' appear in the symbol text box.<br>"
 					+ "(2) If there is allele for this paper, enter it in the symbol text box and hit <span class='updt'>Update</span>. You should see the Reviewed checkbox is checked for you.</div>"
+					+ "<div><p>Consortium paper checkbox:</p>If this is checked and then hit <span class='updt'>Update</span>, you should see Reviewed checkbox is checked as well, if you have not checked it.</div>"
 					+ "<div><p>Symbol text box:</p>" +  symbolHint + "</div>"
 					+ "<div><p>What if the update failed?</p>The previous state of the annotation will be restored.</div>"
 					+ "<div><p>Can I re-update a paper?</p>Yes. Just change the value as you would annotate a new paper.</div>"

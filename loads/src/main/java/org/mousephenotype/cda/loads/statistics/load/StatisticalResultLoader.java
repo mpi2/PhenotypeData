@@ -951,7 +951,7 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
                 }
             }
         } catch (SQLException e) {
-            logger.warn("Cannot retreive MP term for result", result);
+            logger.warn("Cannot retrieve MP term for result", result);
         }
     }
 
@@ -961,6 +961,10 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
             Map<String, Integer> counts = new HashMap<>();
 
             for (String line : Files.readAllLines(Paths.get(loc))) {
+
+                if (line.startsWith("#")) {
+                    // This is a comment, see if there is
+                }
 
                 LightweightResult result = getBaseResult(getResult(line, Paths.get(loc).getFileName().toString()));
 

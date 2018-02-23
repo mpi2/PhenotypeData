@@ -9,8 +9,7 @@
 	<jsp:attribute name="title">${pageTitle} landing page | IMPC Phenotype Information</jsp:attribute>
 
 	<jsp:attribute name="breadcrumb">&nbsp;&raquo; <a
-			href="${baseUrl}/biological-system">biological system
-        Pages</a> &nbsp;&raquo; ${pageTitle}</jsp:attribute>
+			href="${baseUrl}/biological-system">biological systems</a> &nbsp;&raquo; ${pageTitle}</jsp:attribute>
 
 	<jsp:attribute name="header">
 
@@ -94,10 +93,17 @@ table.dataTable thead tr {
             <div class="block block-system">
                 <div class="content">
                     <div class="node node-gene">
-                        <h1 class="title" id="top">Hearing</h1>
+                        <h1 class="title" id="top">${ pageTitle }</h1>
 							<div class="section">
     							<div class="inner">
-    							 <p> ${shortDescription} </p>
+	    							 <p>
+	    							 	<h3 style='margin-top:0;'>The IMPC is hunting unknown genes responsible for hearing loss by screening knockout mice </h3>
+									<ul>
+										<li> 360 million people worldwide live with mild to profound hearing loss</li>
+										<li> 70% hearing loss occurs as an isolated condition (non-syndromic) and 30% with additional phenotypes (syndromic)</li>
+										<li> The vast majority of genes responsible for hearing loss are unknown </li>
+									</ul>
+	    							 </p>
     							</div>
     						</div>	
                         <%-- <c:import url="landing_overview_frag.jsp"/> removed as requested by Mike author of hearing paper --%>
@@ -120,9 +126,7 @@ table.dataTable thead tr {
                                     includes a response to a click box test (absence is indicative of a strong hearing deficit) and  visual inspection for behavioural signs that may indicate vestibular dysfunction e.g. head bobbing or circling.
                                 </p>
                                 
-
-                                <c:import
-									url="landing_procedures_frag.jsp" />
+                                <c:import url="landing_procedures_frag.jsp" />
                             </div>
                         </div>
                         

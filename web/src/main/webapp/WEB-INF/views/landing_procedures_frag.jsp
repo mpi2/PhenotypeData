@@ -7,9 +7,7 @@
 --%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
-<c:if test="${!page.equalsIgnoreCase('metabolism')}">
-	<h4>Procedures that can lead to relevant phenotype associations</h4>
-</c:if>
+<h4>Procedures that can lead to relevant phenotype associations</h4>
 	
 <div>
     <c:if test="${not empty procedures}">

@@ -635,9 +635,9 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
 
                 switch (field) {
                     case PhenodigmDTO.DISEASE_ID:
-                        mapKey = disease.getDiseaseID();
+                        mapKey = disease.getDiseaseId();
                         if (diseaseIdSet.add(mapKey)) {
-                            a.setDiseaseId(disease.getDiseaseID());
+                            a.setDiseaseId(disease.getDiseaseId());
                             beans.add(a);
                         }
                         break;

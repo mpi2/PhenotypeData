@@ -12,7 +12,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -22,7 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 @Service
-public class OrderService {
+public class OrderService { 
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -33,9 +32,6 @@ public class OrderService {
 	@Autowired
 	@Qualifier("productCore")
 	private SolrClient productCore;
-
-	@Value("${imits.solr.host}")
-	private String IMITS_SOLR_CORE_URL;
 
 	public static String selectCre = "/selectCre";
 
@@ -58,6 +54,13 @@ public class OrderService {
 			row.setGeneMapLink(allele.getAlleleSimpleImage());
 			row.setGeneGenbankLink(allele.getGenbankFile());
 			row.setMgiAccessionId(allele.getMgiAccessionId());
+			
+			// Tissue inquiries
+			row.setTissuesAvailable(allele.getTissuesAvailable());
+			row.setTissueTypes(allele.getTissueTypes());
+			row.setTissueEnquiryLinks(allele.getTissueEnquiryLinks());
+			
+			
 			orderTableRows.add(row);
 
 		}

@@ -21,6 +21,7 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
+import org.json.JSONException;
 import org.mousephenotype.cda.db.pojo.Synonym;
 import org.mousephenotype.cda.indexers.beans.MPStrainBean;
 import org.mousephenotype.cda.indexers.beans.ParamProcedurePipelineBean;
@@ -157,6 +158,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
             maParser = ontologyParserFactory.getMaParser();
             logger.info("Loaded ma parser");
 
+
             // maps MP to number of phenotyping calls
             runStatus = populateMpCallMaps(synonymsBySymbol);
 
@@ -197,18 +199,19 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
                 mp.setChildMpTerm(mpDTO.getChildNames());
                 mp.setParentMpId(mpDTO.getParentIds());
                 mp.setParentMpTerm(mpDTO.getParentNames());
+                mp.setMpTermSynonym(mpDTO.getSynonyms());
 
                 // add mp-hp mapping using Monarch's mp-hp hybrid ontology
                 OntologyTermDTO mpTerm = mpHpParser.getOntologyTerm(termId);
 
-		        if (mpTerm==null) {
+		        if (mpTerm == null) {
 		            String message = "MP term not found using mpHpParser.getOntologyTerm(termId); where termId = " + termId;
-		            runStatus.addWarning(message);
-		        } else if ( ! mpId.equals("MP:0000001")) { // do not include all narrow synonyms for root term
-
-
+		            logger.warn(message);
+                }
+                else {
                     Set <OntologyTermDTO> hpTerms = mpTerm.getEquivalentClasses();
                     for ( OntologyTermDTO hpTerm : hpTerms ){
+                        //System.out.println(hpTerm.toString());
                         Set<String> hpIds = new HashSet<>();
                         hpIds.add(hpTerm.getAccessionId());
                         mp.setHpId(new ArrayList(hpIds));
@@ -221,10 +224,20 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
                             mp.setHpTermSynonym(new ArrayList(hpTerm.getSynonyms()));
                         }
                     }
-                    // get the children of MP not in our slim (narrow synonyms)
-                    // level of 2 means starting from the first level child(ren) (ie, level 1) and the child(ren) of the first level child (level 2)
+                    // the narrow synomys are subclasses from 2 levels down
+                    List<String> nss = new ArrayList<>();
+                    // MP root term MP:0000001 does not have narrow synonyms
+                    if (mpTerm.getNarrowSynonymClasses() != null){
+                        for (OntologyTermDTO ns : mpTerm.getNarrowSynonymClasses()){
+                            nss.add(ns.getName());
+                        }
+                        if (nss.size() > 0){
+                            mp.setMpNarrowSynonym(nss);
+                        }
+                    }
 
-                    mp.setMpNarrowSynonym(new ArrayList(getRestrictedNarrowSynonyms(mpTerm, LEVELS_FOR_NARROW_SYNONYMS)));
+
+                    //mp.setMpNarrowSynonym(new ArrayList(getRestrictedNarrowSynonyms(mpTerm, LEVELS_FOR_NARROW_SYNONYMS)));
                     // the fix removes checking for phenotyping calls as we need those mp being tested by have no phenotype found included as well
 
 //                    if (isOKForNarrowSynonyms(mp)){
@@ -233,8 +246,6 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
 //                        mp.setMpNarrowSynonym(new ArrayList(getRestrictedNarrowSynonyms(mpTerm, LEVELS_FOR_NARROW_SYNONYMS)));
 //                    }
                 }
-
-                mp.setMpTermSynonym(mpDTO.getSynonyms());
 
                 getMaTermsForMp(mp);
 
@@ -263,7 +274,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
             // Send a final commit
             mpCore.commit();
 
-        } catch (SolrServerException | IOException | OWLOntologyCreationException | OWLOntologyStorageException | SQLException | URISyntaxException e) {
+        } catch (SolrServerException | IOException | OWLOntologyCreationException | OWLOntologyStorageException | SQLException | URISyntaxException | JSONException e) {
             e.printStackTrace();
             throw new IndexerException(e);
         }

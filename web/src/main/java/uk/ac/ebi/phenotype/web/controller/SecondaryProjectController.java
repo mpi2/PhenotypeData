@@ -87,10 +87,6 @@ public class SecondaryProjectController {
     @Qualifier("threeI")
     SecondaryProjectService threeI;
 
-    @Autowired
-    @Qualifier("phenodigm2Core")
-    SolrClient phenodigmCore;
-
     private PhenomeChartProvider phenomeChartProvider = new PhenomeChartProvider();
 
     private HttpHeaders createResponseHeaders() {
@@ -126,27 +122,27 @@ public class SecondaryProjectController {
         if (id.equalsIgnoreCase(SecondaryProjectService.SecondaryProjectIds.IDG.name())) {
             try {
                 Set<SecondaryProjectBean> secondaryProjects = idg.getAccessionsBySecondaryProjectId(id);
-                Set<String> accessions=SecondaryProjectBean.getAccessionsFromBeans(secondaryProjects);
-                //model.addAttribute("genotypeStatusChart", chartProvider.getStatusColumnChart(geneService.getStatusCount(accessions, GeneDTO.LATEST_ES_CELL_STATUS), "Genotype Status Chart", "genotypeStatusChart"));
+                Set<String> accessions = SecondaryProjectBean.getAccessionsFromBeans(secondaryProjects);
+                // model.addAttribute("genotypeStatusChart", chartProvider.getStatusColumnChart(geneService.getStatusCount(accessions, GeneDTO.LATEST_ES_CELL_STATUS), "Genotype Status Chart", "genotypeStatusChart"));
                 HashMap<String, Long> geneStatus = geneService.getStatusCount(accessions, GeneDTO.LATEST_ES_CELL_STATUS);
                 HashMap<String, Long> mouseStatus = geneService.getStatusCount(accessions, GeneDTO.LATEST_MOUSE_STATUS);
                 HashMap<String, Long> phenoStatus = geneService.getStatusCount(accessions, GeneDTO.LATEST_PHENOTYPE_STATUS);
-                HashMap<String, Long> combinedData=new HashMap<>();
+                HashMap<String, Long> combinedData = new HashMap<>();
                 combinedData.putAll(geneStatus);
                 combinedData.putAll(mouseStatus);
                 combinedData.putAll(phenoStatus);
                 
-                List<String> colorsForPie=new ArrayList<>();
+                List<String> colorsForPie = new ArrayList<>();
                 
                 String nonSigColor="'rgb(194, 194, 194)'";
                 String sigColor="'rgb(247, 157, 70)'";
-				colorsForPie.add(sigColor);
+                colorsForPie.add(sigColor);
                 colorsForPie.add(nonSigColor);
 
                 Map<String, Integer> totalLabelToNumber = new LinkedHashMap<>();
-                totalLabelToNumber.put("IDG gene with IMPC Data",278);
+                totalLabelToNumber.put("IDG gene with IMPC Data", 278);
                 totalLabelToNumber.put("IDG gene with no IMPC Data", 81);
-
+                
                 String idgOrthologPie = PieChartCreator.getPieChartForColorList(totalLabelToNumber, "idgOrthologPie", "IDG genes IMPC data status", "",colorsForPie);
                 model.addAttribute("idgOrthologPie", idgOrthologPie);
                 model.addAttribute("idgChartTable", chartProvider.getStatusColumnChart(combinedData, "IDG genes IMPC production status", "idgChart", colorsForPie));

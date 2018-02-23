@@ -1826,7 +1826,9 @@ CREATE TABLE higher_level_annotation (
 	PRIMARY KEY    (term_id)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
-
+/**
+ * FIXME This table needs to be replaced when MPII-2973 is complete.
+ */
 DROP TABLE IF EXISTS ontology_term_anomaly;
 CREATE TABLE ontology_term_anomaly (
 	id                 INT(11)      NOT NULL AUTO_INCREMENT,
@@ -1840,11 +1842,29 @@ CREATE TABLE ontology_term_anomaly (
 	PRIMARY KEY(id)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
+DROP TABLE IF EXISTS missing_colony_id;
+CREATE TABLE missing_colony_id (
+	id                 INT(11)      NOT NULL AUTO_INCREMENT,
+	colony_id          VARCHAR(255) NOT NULL,
+	log_level          TINYINT(1)   DEFAULT 0,    --   WARN = 1,  INFO = 0,  DEBUG = -1,
+	reason						 VARCHAR(512) NOT NULL,
+
+	PRIMARY KEY(id)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+INSERT INTO missing_colony_id (colony_id, log_level, reason) VALUES
+	('(Deluca)<Deluca>', -1, 'We were never able to obtain the minimum set of data required to add this colony id'),
+	('EPD0038_2_A04',    -1, 'We were never able to obtain the minimum set of data required to add this colony id'),
+	('internal',         -1, 'We were never able to obtain the minimum set of data required to add this colony id'),
+	('Trm1',             -1, 'We were never able to obtain the minimum set of data required to add this colony id'),
+	('MAG',              -1, 'We were never able to obtain the minimum set of data required to add this colony id'),
+	('EUCJ0019_C12',     -1, 'We were never able to obtain the minimum set of data required to add this colony id'),
+	('EPD0130_2_C06',    -1, 'Even though this colonyId is in Hugh''s list, Jeremy''s research has shown there is newer data submitted under colonyId MEYN supporting the data in EPD00130_2_C06, which was an aborted experiment');
 
 
-/**
- * External resources / database to populate
- */
+	/**
+   * External resources / database to populate
+   */
 insert into external_db(id, name, short_name, version, version_date) values(1, 'Mouse Genome Assembly', 'NCBI m38', 'GRCm38', '2012-01-09');
 insert into external_db(id, name, short_name, version, version_date) values(2, 'MGI Genome Feature Type', 'Genome Feature Type', 'JAX', '2011-12-22');
 insert into external_db(id, name, short_name, version, version_date) values(3, 'Mouse Genome Informatics', 'MGI', 'JAX', '2011-12-22');
@@ -2489,6 +2509,14 @@ VALUES
 	('Tnfaip1Tnfaip1<tm1a(EUCOMM)Wtsi/H>',NULL,'MGI:104961',(SELECT @MGI_DB_ID),'Tnfaip1<tm1a(EUCOMM)Wtsi>','C57BL/6N',(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID)),
 	('Hhip',NULL,'MGI:1341847',(SELECT @MGI_DB_ID),'Hhip<tm1Icmb>','C57BL/6J',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
 	('Cdh23Cdh23<v>',NULL,'MGI:1890219',(SELECT @MGI_DB_ID),'Cdh23<v>','STOCK Cdh23<v>',(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID)),
+	('EPD0013_1_G11_10560',NULL,'MGI:1927664',(SELECT @MGI_DB_ID),'Sirt2<tm1a(EUCOMM)Wtsi>','C57BL/6JTyr;C57BL/6N',(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID)),
+	('EPD0013_1_G11_10613',NULL,'MGI:1927664',(SELECT @MGI_DB_ID),'Sirt2<tm1a(EUCOMM)Wtsi>','C57BL/6NTac',(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID)),
+	('EPD0033_3_F04_10232',NULL,'MGI:1924054',(SELECT @MGI_DB_ID),'Kdm4c<tm1a(KOMP)Wtsi>','C57BL/6N',(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID)),
+	('EPD0033_3_F04_10514',NULL,'MGI:1924054',(SELECT @MGI_DB_ID),'Kdm4c<tm1a(KOMP)Wtsi>','C57BL/6NTac',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
+	('EPD0033_3_F04_10955',NULL,'MGI:1924054',(SELECT @MGI_DB_ID),'Kdm4c<tm1a(KOMP)Wtsi>','C57BL/6NTac',(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID)),
+	('EPD0039_1_B01_10470',NULL,'MGI:2156003',(SELECT @MGI_DB_ID),'Snip1<tm1a(EUCOMM)Wtsi>','C57BL/6Dnk',(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'MRC Harwell'),(SELECT @EUMODIC_PROJECT_ID)),
+	('EPD0039_1_B01_157',NULL,'MGI:2156003',(SELECT @MGI_DB_ID),'Snip1<tm1a(EUCOMM)Wtsi>','C57BL/6JTyr;C57BL/6N',(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID)),
+	('EPD0156_1_B01_10099',NULL,'MGI:102805',(SELECT @MGI_DB_ID),'Entpd1<tm1a(EUCOMM)Wtsi>','C57BL/6NTacDen',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
 
 	-- line-based hand-curated colonyIds
 	('EPD0080_1_B11',NULL,'MGI:2684063',(SELECT @MGI_DB_ID),'Asxl1<tm1a(EUCOMM)Wtsi>', 'C57BL/6NTac',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),

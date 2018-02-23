@@ -62,9 +62,6 @@ public class WebStatusController {
     private GeneService geneService;
 
     @Autowired
-    DiseaseService diseaseService;
-
-    @Autowired
     AutoSuggestService autoSuggestService;
 
     @Autowired
@@ -105,7 +102,6 @@ public class WebStatusController {
         webStatusObjects.add(anatomyService);
         webStatusObjects.add(pipelineService);
         webStatusObjects.add(geneService);
-        webStatusObjects.add(diseaseService);
         webStatusObjects.add(autoSuggestService);
         webStatusObjects.add(ppDAO);
         webStatusObjects.add(phenodigmService);

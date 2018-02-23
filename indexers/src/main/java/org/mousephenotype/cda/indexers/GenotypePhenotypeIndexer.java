@@ -286,6 +286,7 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
                     }
 
                     String mpId = r.getString("ontology_term_id");
+
                     doc.setMpTermId(mpId);
                     doc.setMpTermName(r.getString("ontology_term_name"));
 
@@ -303,6 +304,11 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
                     }
 
                     OntologyTermDTO mpDto = mpParser.getOntologyTerm(mpId);
+
+                    if (mpDto == null) {
+                        logger.warn("Skipping missing mp term '" + mpId + "'");
+                        continue;
+                    }
 
                     if (mpDto.getTopLevelIds() == null || mpDto.getTopLevelIds().size() == 0 ){
                         // if the mpId itself is a top level, add itself as a top level

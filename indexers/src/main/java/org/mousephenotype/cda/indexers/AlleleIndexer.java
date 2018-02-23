@@ -129,26 +129,32 @@ public class AlleleIndexer extends AbstractIndexer implements CommandLineRunner 
         MOUSE_STATUS_MAPPINGS.put("Phenotype Attempt Registered", "Mice Produced");
     }
 
+    @NotNull
     @Autowired
     @Qualifier("komp2DataSource")
     DataSource komp2DataSource;
 
+    @NotNull
     @Autowired
     @Qualifier("goaproDataSource")
     DataSource goaproDataSource;
 
+    @NotNull
     @Autowired
     @Qualifier("uniprotDataSource")
     DataSource uniprotDataSource;
 
+    @NotNull
     @Autowired
     @Qualifier("pfamDataSource")
     DataSource pfamDataSource;
 
+    @NotNull
 	@Autowired
 	@Qualifier("phenodigmCore")
 	private SolrClient phenodigmCore;
 
+    @NotNull
 	@Autowired
     @Qualifier("alleleCore")
     private SolrClient alleleCore;
@@ -1111,13 +1117,16 @@ public class AlleleIndexer extends AbstractIndexer implements CommandLineRunner 
             }
 
             for (GoAnnotations ga : goTermLookup.get(dto.getMarkerSymbol())) {
-                dto.getGoTermIds().add(ga.goTermId);
-                dto.getGoTermNames().add(ga.goTermName);
-                dto.getGoUniprot().add(ga.goUniprot);
-                //dto.getGoTermDefs().add(ga.goTermDef);
-                dto.getGoTermEvids().add(ga.goTermEvid);
-                dto.getGoTermDomains().add(ga.goTermDomain);
-                dto.setEvidCodeRank( assignCodeRank(codeRank.get(ga.goTermEvid)) );
+                if (codeRank.get(ga.goTermEvid) != null) {
+                    // some evidence code is not needed and is not in the map, ignore this
+                    dto.getGoTermIds().add(ga.goTermId);
+                    dto.getGoTermNames().add(ga.goTermName);
+                    dto.getGoUniprot().add(ga.goUniprot);
+                    //dto.getGoTermDefs().add(ga.goTermDef);
+                    dto.getGoTermEvids().add(ga.goTermEvid);
+                    dto.getGoTermDomains().add(ga.goTermDomain);
+                    dto.setEvidCodeRank(assignCodeRank(codeRank.get(ga.goTermEvid)));
+                }
             }
             //dto.getGoUniprot().addAll(gene2GoUniprotLookup.get(dto.getMarkerSymbol()));
 

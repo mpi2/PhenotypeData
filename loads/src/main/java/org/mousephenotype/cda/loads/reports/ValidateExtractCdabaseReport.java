@@ -44,11 +44,12 @@ import java.util.List;
 @ComponentScan("org.mousephenotype.cda.loads.reports")
 public class ValidateExtractCdabaseReport extends AbstractReport implements CommandLineRunner {
 
-    private Logger   logger   = LoggerFactory.getLogger(this.getClass());
-    private LoadValidateCountsQuery loadValidateCountsQuery;
+    private Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    private LoadValidateCountsQuery    loadValidateCountsQuery;
 
     private NamedParameterJdbcTemplate jdbcCdabasePrevious;
-    private NamedParameterJdbcTemplate               jdbcCdabaseCurrent;
+    private NamedParameterJdbcTemplate jdbcCdabaseCurrent;
     private SqlUtils                   sqlUtils;
 
     @Inject

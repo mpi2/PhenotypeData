@@ -72,6 +72,8 @@ public class ViabilityReport extends AbstractReport {
         try {
 
             ObservationService.ViabilityData data = observationService.getViabilityData(resources, true, 1000000);
+
+            //System.out.println("keys: "+ data.getViabilityCategories().keySet());
             TreeMap<String, Set<String>> categoryData = new TreeMap<>(data.getViabilityCategories());                   // Using a TreeMap causes the categories to be sorted for better presentation.
 
             // Build summary section.

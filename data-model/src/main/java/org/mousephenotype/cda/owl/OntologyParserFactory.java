@@ -39,7 +39,7 @@ public class OntologyParserFactory {
     private DataSource komp2DataSource;
 
     @Autowired
-    @Qualifier("phenodigm2Core")
+    @Qualifier("phenodigmCore")
     SolrClient phenodigmCore;
 
 
@@ -89,7 +89,7 @@ public class OntologyParserFactory {
         return new OntologyParser(owlpath + "/mp-ext-merged.owl", "MP", null, null);
     }
 
-    public OntologyParser getMpHpParser() throws OWLOntologyCreationException, OWLOntologyStorageException, IOException {
+    public OntologyParser getMpHpParser() throws OWLOntologyCreationException, OWLOntologyStorageException, IOException, SQLException {
         return new OntologyParser(owlpath + "/mp-hp.owl", "MP", null, null);
     }
 

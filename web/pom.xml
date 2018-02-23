@@ -51,11 +51,6 @@
         </dependency>
 
         <dependency>
-            <groupId>org.mousephenotype.cda</groupId>
-            <artifactId>data-model-neo4j</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-hateoas</artifactId>
         </dependency>

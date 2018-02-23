@@ -24,12 +24,12 @@ import java.text.DecimalFormat;
 import java.sql.Date;
 
 /**
- * Created by kolab on 04/10/2017 - base class for writing ANA data to XML based on ExtractDccSpecimens.
+ * Created by kolab on 04/10/2017 - base class for writing ANA data to XML based on DccSpecimenExtractor.
  * <p/>
  * This class is a base class that encapsulates the generic code and data 
  * necessary to convert an XLS (Excel) report provided by Sanger/KCL to the XML
- * format required by ExtractDccSpecimens and ExtractDccExperiments. It is
- * based on loads/ExtractDccSpecimens by Mike Relac.
+ * format required by DccSpecimenExtractor and DccExperimentExtractor. It is
+ * based on loads/DccSpecimenExtractor by Mike Relac.
  * This class is meant to be an executable jar
  */
 public abstract class CreateAnaXmls {

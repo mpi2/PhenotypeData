@@ -33,14 +33,16 @@
 package org.mousephenotype.cda.loads.common;
 
 public abstract class BioModelInsertDTO {
-    protected Integer dbId;                 // FIXME
+    protected Integer dbId;
     protected String allelicComposition;
+    protected Integer biologicalSamplePk;
     protected String geneticBackground;
     protected String zygosity;
 
 
-    public BioModelInsertDTO(Integer dbId, String allelicComposition, String geneticBackground, String zygosity) {
+    public BioModelInsertDTO(Integer dbId, Integer biologicalSamplePk, String allelicComposition, String geneticBackground, String zygosity) {
         this.dbId = dbId;
+        this.biologicalSamplePk = biologicalSamplePk;
         this.allelicComposition = allelicComposition;
         this.geneticBackground = geneticBackground;
         this.zygosity = zygosity;
@@ -60,6 +62,14 @@ public abstract class BioModelInsertDTO {
 
     public void setAllelicComposition(String allelicComposition) {
         this.allelicComposition = allelicComposition;
+    }
+
+    public Integer getBiologicalSamplePk() {
+        return biologicalSamplePk;
+    }
+
+    public void setBiologicalSamplePk(Integer biologicalSamplePk) {
+        this.biologicalSamplePk = biologicalSamplePk;
     }
 
     public String getGeneticBackground() {
