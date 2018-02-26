@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+
+while getopts c: option
+do
+	case "${option}"
+    	in
+          c) FILEPATH=${OPTARG};;
+    esac
+done
+
+
+FILENAME=functionLSFBatch
+
+FILES=${FILEPATH}/files
+FUNCTIONS=${FILEPATH}/functions
+NAME=${FUNCTIONS}/${FILENAME}
+
+echo '#!/bin/bash' > ${NAME}
+for x in `ls ${FILES}`;do echo $x; echo "bsub -M 4096 -R \"rusage[mem=4096]\" -J PHEN_$x -o ${FILEPATH}/logs/$x.out -e ${FILEPATH}/logs/$x.err ${FILEPATH}/functions/functionRunner ${FILES}/$x" >> ${NAME};done;
+echo "wait" >> ${NAME}
+chmod u+x ${NAME}
+
