@@ -258,6 +258,7 @@ CREATE TABLE seriesMediaParameterValue (
   fileType VARCHAR(255) DEFAULT NULL,
   incrementValue VARCHAR(255) NOT NULL,
   URI VARCHAR(255) NOT NULL,
+  link VARCHAR(255) NULL,
   seriesMediaParameter_pk INT NOT NULL
 
 );
