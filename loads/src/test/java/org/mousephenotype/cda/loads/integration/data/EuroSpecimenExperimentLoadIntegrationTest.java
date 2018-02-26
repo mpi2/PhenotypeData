@@ -196,9 +196,9 @@ public class EuroSpecimenExperimentLoadIntegrationTest {
         }
 
         final int EXPECTED_SPECIMEN_COUNT = 1;
-        final int EXPECTED_EXPERIMENT_COUNT = 1;
+        final int EXPECTED_EXPERIMENT_COUNT = 10;
         assertTrue( "Expected " + EXPECTED_SPECIMEN_COUNT + " specimen(s). Found " + specimenCount, specimenCount == EXPECTED_SPECIMEN_COUNT);
-        assertTrue( "Expected " + EXPECTED_EXPERIMENT_COUNT + " experiment(s). Found " + specimenCount, experimentCount == EXPECTED_EXPERIMENT_COUNT);
+        assertTrue( "Expected " + EXPECTED_EXPERIMENT_COUNT + " experiment(s). Found " + experimentCount, experimentCount == EXPECTED_EXPERIMENT_COUNT);
 
         sampleLoader.run(loadArgs);
 
