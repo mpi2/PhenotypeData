@@ -1,0 +1,8 @@
+PEND=`bjobs -w -a | grep PHEN | grep PEND | wc -l`
+RUN=`bjobs -w -a | grep PHEN | grep RUN | wc -l`
+DONE=`bjobs -w -a | grep PHEN | grep DONE | wc -l`
+DATE=`date`
+
+printf "PEND \t|RUN \t|DONE \t|DATE\n"
+printf "%s\t|%s\t|%s\t|%s\n" "${PEND}" "${RUN}" "${DONE}" "${DATE}"
+
