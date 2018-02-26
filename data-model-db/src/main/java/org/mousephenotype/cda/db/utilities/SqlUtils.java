@@ -260,7 +260,7 @@ public class SqlUtils {
         if (previousValue > 0)
             ratio = ((double)currentValue / previousValue);
 
-        results.add(new String[] {"Status", "Query", "Previous count", "Current count", "Ratio", "Delta", "Below Threshold"});
+        results.add(new String[] {"Status", "Query", "Previous count", "Current count", "Ratio", "Delta", "Below Delta"});
         results.add(new String[] {
                 (ratio < delta ? "FAIL" : "SUCCESS"),
                 query,
