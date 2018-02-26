@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<centreProcedureSet xmlns="http://www.mousephenotype.org/dcc/exportlibrary/datastructure/core/procedure"
+                    xmlns:ns2="http://www.mousephenotype.org/dcc/exportlibrary/datastructure/core/specimen">
+    <centre centreID="H" pipeline="ESLIM_002" project="Eumodic">
+        <experiment sequenceID="14046_154967" experimentID="14046_154967" dateOfExperiment="2012-02-16">
+            <specimenID>B6NTAC-USA/456.5c_4926671_MRC_Harwell</specimenID>
+            <procedure procedureID="ESLIM_014_001">
+                <simpleParameter parameterID="ESLIM_014_001_001">
+                    <value>normal</value>
+                </simpleParameter>
+                <simpleParameter parameterID="ESLIM_014_001_002">
+                    <value>null</value>
+                    <parameterStatus>ESLIM_PARAMSC_005:missing data unknown reason</parameterStatus>
+                </simpleParameter>
+                <simpleParameter parameterID="ESLIM_014_001_003">
+                    <value>normal</value>
+                </simpleParameter>
+                <simpleParameter parameterID="ESLIM_014_001_004">
+                    <value>absent</value>
+                </simpleParameter>
+                <simpleParameter parameterID="ESLIM_014_001_005">
+                    <value>normal</value>
+                </simpleParameter>
+                <simpleParameter parameterID="ESLIM_014_001_006">
+                    <value>normal</value>
+                </simpleParameter>
+                <simpleParameter parameterID="ESLIM_014_001_007">
+                    <value>normal</value>
+                </simpleParameter>
+                <simpleParameter parameterID="ESLIM_014_001_008">
+                    <value>absent</value>
+                </simpleParameter>
+                <simpleParameter parameterID="ESLIM_014_001_009">
+                    <value>normal</value>
+                </simpleParameter>
+                <simpleParameter parameterID="ESLIM_014_001_010">
+                    <value>normal</value>
+                </simpleParameter>
+                <simpleParameter parameterID="ESLIM_014_001_011">
+                    <value>normal</value>
+                </simpleParameter>
+                <simpleParameter parameterID="ESLIM_014_001_012">
+                    <value>normal</value>
+                </simpleParameter>
+                <simpleParameter parameterID="ESLIM_014_001_013">
+                    <value>normal</value>
+                </simpleParameter>
+                <simpleParameter parameterID="ESLIM_014_001_014">
+                    <value>normal</value>
+                </simpleParameter>
+                <simpleParameter parameterID="ESLIM_014_001_015">
+                    <value>normal</value>
+                </simpleParameter>
+                <mediaParameter parameterID="ESLIM_014_001_016" URI="" fileType="null">
+                    <parameterStatus>ESLIM_PARAMSC_005:missing data unknown reason</parameterStatus>
+                </mediaParameter>
+                <procedureMetadata parameterID="ESLIM_014_001_801">
+                    <value>Slit lamp</value>
+                </procedureMetadata>
+                <procedureMetadata parameterID="ESLIM_014_001_802">
+                    <value>Zeiss</value>
+                </procedureMetadata>
+                <procedureMetadata parameterID="ESLIM_014_001_803">
+                    <value>30 SL-M</value>
+                </procedureMetadata>
+            </procedure>
+        </experiment>
+    </centre>
+</centreProcedureSet>
