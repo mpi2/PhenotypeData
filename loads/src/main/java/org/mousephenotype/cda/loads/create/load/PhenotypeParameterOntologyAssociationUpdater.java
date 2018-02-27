@@ -18,6 +18,7 @@ package org.mousephenotype.cda.loads.create.load;
 
 import org.mousephenotype.cda.db.pojo.OntologyTerm;
 import org.mousephenotype.cda.loads.common.CdaSqlUtils;
+import org.mousephenotype.cda.loads.common.ConcurrentHashMapAllowNull;
 import org.mousephenotype.cda.loads.common.PhenotypeParameterOntologyAnnotation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,7 +33,6 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Updates the cda_x_y.phenotype_parameter_ontology_annotation obsolete terms with the latest terms
@@ -74,7 +74,7 @@ public class PhenotypeParameterOntologyAssociationUpdater implements CommandLine
         List<PhenotypeParameterOntologyAnnotation> workingPopaList =                                                    // This is the working POPA list to query for updates
                 cdaSqlUtils.getPhenotypeParameterOntologyAnnotations();
 
-        Map<String, PhenotypeParameterOntologyAnnotation> workingPopaMap = new ConcurrentHashMap<>();                   // This is the working POPA map, indexed by ontology accession id
+        Map<String, PhenotypeParameterOntologyAnnotation> workingPopaMap = new ConcurrentHashMapAllowNull<>();          // This is the working POPA map, indexed by ontology accession id
         for (PhenotypeParameterOntologyAnnotation impressPpoa : workingPopaList) {
             workingPopaMap.put(impressPpoa.getOntologyAcc(), impressPpoa);
         }

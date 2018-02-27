@@ -22,6 +22,7 @@ import org.mousephenotype.cda.db.pojo.GenomicFeature;
 import org.mousephenotype.cda.db.pojo.OntologyTerm;
 import org.mousephenotype.cda.enumerations.DbIdType;
 import org.mousephenotype.cda.loads.common.CdaSqlUtils;
+import org.mousephenotype.cda.loads.common.ConcurrentHashMapAllowNull;
 import org.mousephenotype.cda.loads.exceptions.DataLoadException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,7 +33,6 @@ import org.springframework.dao.DataIntegrityViolationException;
 
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by mrelac on 09/06/16.
@@ -40,11 +40,11 @@ import java.util.concurrent.ConcurrentHashMap;
 public abstract class AlleleProcessorAbstract implements ItemProcessor<Allele, Allele> {
 
     private      int                         addedAllelesCount   = 0;
-    private      Map<String, Allele>         alleles             = new ConcurrentHashMap<>();         // Alleles mapped by allele accession id
+    private      Map<String, Allele>         alleles             = new ConcurrentHashMapAllowNull<>();         // Alleles mapped by allele accession id
     private      int                         allelesWithoutGenesCount = 0;
     private      OntologyTerm                biotypeTm1a;
     private      OntologyTerm                biotypeTm1e;
-    public final Set<String>                 errMessages         = ConcurrentHashMap.newKeySet();     // This is the java 8 way to create a concurrent hash set.
+    public final Set<String>                 errMessages         = ConcurrentHashMapAllowNull.newKeySet();     // This is the java 8 way to create a concurrent hash set.
     private      Map<String, OntologyTerm>   mgiFeatureTypes;
     private      Map<String, GenomicFeature> genes;
     protected    int                         lineNumber          = 0;

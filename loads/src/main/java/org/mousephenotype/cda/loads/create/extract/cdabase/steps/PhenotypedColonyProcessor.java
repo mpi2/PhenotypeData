@@ -19,6 +19,7 @@ package org.mousephenotype.cda.loads.create.extract.cdabase.steps;
 import org.mousephenotype.cda.db.pojo.*;
 import org.mousephenotype.cda.enumerations.DbIdType;
 import org.mousephenotype.cda.loads.common.CdaSqlUtils;
+import org.mousephenotype.cda.loads.common.ConcurrentHashMapAllowNull;
 import org.mousephenotype.cda.loads.common.LoadUtils;
 import org.mousephenotype.cda.loads.exceptions.DataLoadException;
 import org.slf4j.Logger;
@@ -29,7 +30,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by mrelac on 09/06/16.
@@ -44,13 +44,13 @@ public class PhenotypedColonyProcessor implements ItemProcessor<PhenotypedColony
     protected int                         lineNumber = 0;
 
 
-    Set<String> missingOrganisations = ConcurrentHashMap.newKeySet();
-    Set<String> missingProjects = ConcurrentHashMap.newKeySet();
-    Set<String> ignoredProjects = ConcurrentHashMap.newKeySet();        // Ignore these projects.
+    Set<String> missingOrganisations = ConcurrentHashMapAllowNull.newKeySet();
+    Set<String> missingProjects      = ConcurrentHashMapAllowNull.newKeySet();
+    Set<String> ignoredProjects      = ConcurrentHashMapAllowNull.newKeySet();        // Ignore these projects.
 
     private final LoadUtils   loadUtils   = new LoadUtils();
     private final Logger      logger      = LoggerFactory.getLogger(this.getClass());
-    public final  Set<String> errMessages = ConcurrentHashMap.newKeySet();       // This is the java 8 way to create a concurrent hash set.
+    public final  Set<String> errMessages = ConcurrentHashMapAllowNull.newKeySet();       // This is the java 8 way to create a concurrent hash set.
 
     @Autowired
     @Qualifier("cdabaseSqlUtils")

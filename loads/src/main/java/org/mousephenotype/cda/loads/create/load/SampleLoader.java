@@ -81,7 +81,7 @@ public class SampleLoader implements CommandLineRunner {
     private static Set<String> unexpectedStage             = new ConcurrentSkipListSet<>();
 
     private final  Logger               logger  = LoggerFactory.getLogger(this.getClass());
-    private static Map<String, Integer> written = new ConcurrentHashMap<>();
+    private static Map<String, Integer> written = new ConcurrentHashMapAllowNull<>();
 
     private OntologyTerm developmentalStageMouse;
     private OntologyTerm sampleTypeMouseEmbryoStage;
@@ -94,8 +94,8 @@ public class SampleLoader implements CommandLineRunner {
     private int efoDbId;
 
     private static BioModelManager      bioModelManager;
-    private static Map<String, Integer> cdaDb_idMap      = new ConcurrentHashMap<>();
-    private static Map<String, Integer> cdaProject_idMap = new ConcurrentHashMap<>();
+    private static Map<String, Integer> cdaDb_idMap      = new ConcurrentHashMapAllowNull<>();
+    private static Map<String, Integer> cdaProject_idMap = new ConcurrentHashMapAllowNull<>();
     private static Map<String, Integer> cdaOrganisation_idMap;
 
     private final String MISSING_MUTANT_COLONY_ID_REASON = "MUTANT specimen not found in phenotyped_colony table";
@@ -140,7 +140,7 @@ public class SampleLoader implements CommandLineRunner {
         cdaOrganisation_idMap = cdaSqlUtils.getCdaOrganisation_idsByDccCenterId();
         phenotypedColonyMap = bioModelManager.getPhenotypedColonyMap();
         missingColonyMap = cdaSqlUtils.getMissingColonyIdsMap();
-        ontologyTermMap = new ConcurrentHashMap<>(bioModelManager.getOntologyTermMap());
+        ontologyTermMap = new ConcurrentHashMapAllowNull<>(bioModelManager.getOntologyTermMap());
         OntologyTerm impcUncharacterizedBackgroundStrain = ontologyTermMap.get(CdaSqlUtils.IMPC_UNCHARACTERIZED_BACKGROUND_STRAIN);
         strainMapper = new StrainMapper(cdaSqlUtils, bioModelManager.getStrainsByNameOrMgiAccessionIdMap(), impcUncharacterizedBackgroundStrain);
         strainsByNameOrMgiAccessionIdMap = bioModelManager.getStrainsByNameOrMgiAccessionIdMap();
@@ -529,7 +529,7 @@ public class SampleLoader implements CommandLineRunner {
         String       sex;
         String       zygosity;
 
-        Map<String, Integer> counts = new ConcurrentHashMap<>();
+        Map<String, Integer> counts = new ConcurrentHashMapAllowNull<>();
         counts.put("biologicalModel", 0);
         counts.put("biologicalSample", 0);
         counts.put("liveSample", 0);
