@@ -92,25 +92,25 @@ public class ExperimentLoader implements CommandLineRunner {
     // lookup maps returning cda table primary key given dca unique string
     // Initialise them here, as this code gets called multiple times for different dcc data sources
     // and these maps must be cleared before their second and subsequent uses.
-    private static Map<String, Integer>                cdaDb_idMap                       = new ConcurrentHashMap<>();
-    private static Map<String, Integer>                cdaProject_idMap                  = new ConcurrentHashMap<>();
-    private static Map<String, Integer>                cdaPipeline_idMap                 = new ConcurrentHashMap<>();
-    private static Map<String, Integer>                cdaProcedure_idMap                = new ConcurrentHashMap<>();
-    private static Map<String, Integer>                cdaParameter_idMap                = new ConcurrentHashMap<>();
-    private static Map<String, String>                 cdaParameterNameMap               = new ConcurrentHashMap<>();          // map of impress parameter names keyed by stable_parameter_id
+    private static Map<String, Integer>                cdaDb_idMap                       = new ConcurrentHashMapAllowNull<>();
+    private static Map<String, Integer>                cdaProject_idMap                  = new ConcurrentHashMapAllowNull<>();
+    private static Map<String, Integer>                cdaPipeline_idMap                 = new ConcurrentHashMapAllowNull<>();
+    private static Map<String, Integer>                cdaProcedure_idMap                = new ConcurrentHashMapAllowNull<>();
+    private static Map<String, Integer>                cdaParameter_idMap                = new ConcurrentHashMapAllowNull<>();
+    private static Map<String, String>                 cdaParameterNameMap               = new ConcurrentHashMapAllowNull<>();          // map of impress parameter names keyed by stable_parameter_id
     private static Set<String>                         derivedImpressParameters          = new ConcurrentSkipListSet<>();
     private static Set<String>                         metadataAndDataAnalysisParameters = new ConcurrentSkipListSet<>();
-    private static Map<BioSampleKey, BiologicalSample> samplesMap                        = new ConcurrentHashMap<>();
+    private static Map<BioSampleKey, BiologicalSample> samplesMap                        = new ConcurrentHashMapAllowNull<>();
     private static StrainMapper                        strainMapper;
     private static Map<String, Strain>                 strainsByNameOrMgiAccessionIdMap;
 
 
     // DCC parameter lookup maps, keyed by procedure_pk
-    private static Map<Long, List<MediaParameter>>       mediaParameterMap       = new ConcurrentHashMap<>();
-    private static Map<Long, List<OntologyParameter>>    ontologyParameterMap    = new ConcurrentHashMap<>();
-    private static Map<Long, List<SeriesParameter>>      seriesParameterMap      = new ConcurrentHashMap<>();
-    private static Map<Long, List<SeriesMediaParameter>> seriesMediaParameterMap = new ConcurrentHashMap<>();
-    private static Map<Long, List<MediaSampleParameter>> mediaSampleParameterMap = new ConcurrentHashMap<>();
+    private static Map<Long, List<MediaParameter>>       mediaParameterMap       = new ConcurrentHashMapAllowNull<>();
+    private static Map<Long, List<OntologyParameter>>    ontologyParameterMap    = new ConcurrentHashMapAllowNull<>();
+    private static Map<Long, List<SeriesParameter>>      seriesParameterMap      = new ConcurrentHashMapAllowNull<>();
+    private static Map<Long, List<SeriesMediaParameter>> seriesMediaParameterMap = new ConcurrentHashMapAllowNull<>();
+    private static Map<Long, List<MediaSampleParameter>> mediaSampleParameterMap = new ConcurrentHashMapAllowNull<>();
 
     private static BioModelManager               bioModelManager;
     private static Map<String, Integer>          cdaOrganisation_idMap;
@@ -155,10 +155,10 @@ public class ExperimentLoader implements CommandLineRunner {
         Assert.notNull(dccSqlUtils, "dccSqlUtils must not be null");
 
         bioModelManager = new BioModelManager(cdaSqlUtils, dccSqlUtils);
-        cdaOrganisation_idMap = new ConcurrentHashMap<>(cdaSqlUtils.getCdaOrganisation_idsByDccCenterId());
+        cdaOrganisation_idMap = new ConcurrentHashMapAllowNull<>(cdaSqlUtils.getCdaOrganisation_idsByDccCenterId());
         phenotypedColonyMap = bioModelManager.getPhenotypedColonyMap();
-        missingColonyMap = new ConcurrentHashMap<>(cdaSqlUtils.getMissingColonyIdsMap());
-        ontologyTermMap = new ConcurrentHashMap<>(bioModelManager.getOntologyTermMap());
+        missingColonyMap = new ConcurrentHashMapAllowNull<>(cdaSqlUtils.getMissingColonyIdsMap());
+        ontologyTermMap = new ConcurrentHashMapAllowNull<>(bioModelManager.getOntologyTermMap());
         OntologyTerm impcUncharacterizedBackgroundStrain = ontologyTermMap.get(CdaSqlUtils.IMPC_UNCHARACTERIZED_BACKGROUND_STRAIN);
         strainMapper = new StrainMapper(cdaSqlUtils, bioModelManager.getStrainsByNameOrMgiAccessionIdMap(), impcUncharacterizedBackgroundStrain);
         strainsByNameOrMgiAccessionIdMap = bioModelManager.getStrainsByNameOrMgiAccessionIdMap();

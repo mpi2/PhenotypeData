@@ -1,0 +1,17 @@
+
+while getopts c: option
+do
+	case "${option}"
+    	in
+          c) FILEPATH=${OPTARG};;
+    esac
+done
+
+TIMESTAMP=`date +"%d-%h-%Y-%H-%M"`
+
+mv ${FILEPATH}/logs ${FILEPATH}/logs-backup-$TIMESTAMP
+mv ${FILEPATH}/result ${FILEPATH}/result-backup-$TIMESTAMP
+mkdir ${FILEPATH}/logs
+mkdir ${FILEPATH}/result
+
+

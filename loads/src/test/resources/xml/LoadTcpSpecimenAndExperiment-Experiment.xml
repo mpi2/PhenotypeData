@@ -1,0 +1,148 @@
+<centreProcedureSet xmlns="http://www.mousephenotype.org/dcc/exportlibrary/datastructure/core/procedure">
+    <centre centreID="Tcp" pipeline="TCP_001" project="DTCC">
+        <experiment experimentID="Xray_893" dateOfExperiment="2014-02-20">
+            <specimenID>B6NC_31172_069402</specimenID>
+            <procedure procedureID="IMPC_XRY_001">
+                <simpleParameter parameterID="IMPC_XRY_001_001">
+                    <value>normal</value>
+                </simpleParameter>
+                <simpleParameter parameterID="IMPC_XRY_002_001">
+                    <value>normal</value>
+                </simpleParameter>
+                <simpleParameter parameterID="IMPC_XRY_003_001">
+                    <value>normal</value>
+                </simpleParameter>
+                <simpleParameter parameterID="IMPC_XRY_004_001">
+                    <value>normal</value>
+                </simpleParameter>
+                <simpleParameter parameterID="IMPC_XRY_005_001">
+                    <value>normal</value>
+                </simpleParameter>
+                <simpleParameter parameterID="IMPC_XRY_006_001">
+                    <value>normal</value>
+                </simpleParameter>
+                <simpleParameter parameterID="IMPC_XRY_007_001">
+                    <value>normal</value>
+                </simpleParameter>
+                <simpleParameter parameterID="IMPC_XRY_008_001">
+                    <value>13</value>
+                </simpleParameter>
+                <simpleParameter parameterID="IMPC_XRY_009_001">
+                    <value>13</value>
+                </simpleParameter>
+                <simpleParameter parameterID="IMPC_XRY_010_001">
+                    <value>normal</value>
+                </simpleParameter>
+                <simpleParameter parameterID="IMPC_XRY_011_001">
+                    <value>not fused</value>
+                </simpleParameter>
+                <simpleParameter parameterID="IMPC_XRY_012_001">
+                    <value>abnormal</value>
+                </simpleParameter>
+                <simpleParameter parameterID="IMPC_XRY_013_001">
+                    <value>7</value>
+                </simpleParameter>
+                <simpleParameter parameterID="IMPC_XRY_014_001">
+                    <value>13</value>
+                </simpleParameter>
+                <simpleParameter parameterID="IMPC_XRY_015_001">
+                    <value>6</value>
+                </simpleParameter>
+                <simpleParameter parameterID="IMPC_XRY_016_001">
+                    <value>4</value>
+                </simpleParameter>
+                <simpleParameter parameterID="IMPC_XRY_017_001">
+                    <value>24</value>
+                </simpleParameter>
+                <simpleParameter parameterID="IMPC_XRY_018_001">
+                    <value>normal</value>
+                </simpleParameter>
+                <simpleParameter parameterID="IMPC_XRY_019_001">
+                    <value>no</value>
+                </simpleParameter>
+                <simpleParameter parameterID="IMPC_XRY_020_001">
+                    <value>normal</value>
+                </simpleParameter>
+                <simpleParameter parameterID="IMPC_XRY_021_001">
+                    <value>normal</value>
+                </simpleParameter>
+                <simpleParameter parameterID="IMPC_XRY_022_001">
+                    <value>normal</value>
+                </simpleParameter>
+                <simpleParameter parameterID="IMPC_XRY_023_001">
+                    <value>normal</value>
+                </simpleParameter>
+                <simpleParameter parameterID="IMPC_XRY_024_001">
+                    <value>normal</value>
+                </simpleParameter>
+                <simpleParameter parameterID="IMPC_XRY_025_001">
+                    <value>normal</value>
+                </simpleParameter>
+                <simpleParameter parameterID="IMPC_XRY_026_001">
+                    <value>normal</value>
+                </simpleParameter>
+                <simpleParameter parameterID="IMPC_XRY_027_001">
+                    <value>normal</value>
+                </simpleParameter>
+                <simpleParameter parameterID="IMPC_XRY_028_001">
+                    <value>20</value>
+                </simpleParameter>
+                <simpleParameter parameterID="IMPC_XRY_029_001">
+                    <value>no syndactylism</value>
+                </simpleParameter>
+                <simpleParameter parameterID="IMPC_XRY_030_001">
+                    <value>no</value>
+                </simpleParameter>
+                <simpleParameter parameterID="IMPC_XRY_031_001">
+                    <value>yes</value>
+                </simpleParameter>
+                <simpleParameter parameterID="IMPC_XRY_032_001">
+                    <value>Right and left ischium angled outward</value>
+                </simpleParameter>
+                <simpleParameter parameterID="IMPC_XRY_033_001" unit="mm">
+                    <value>19.00</value>
+                </simpleParameter>
+                <simpleParameter parameterID="IMPC_XRY_035_001">
+                    <value>yes</value>
+                </simpleParameter>
+                <seriesMediaParameter parameterID="IMPC_XRY_034_001">
+                    <value incrementValue="1" URI="http://www.mousephenotype.org/images/src/8/9/0/19/91/1893/174745.dcm" fileType="img/dicom"/>
+                </seriesMediaParameter>
+                <seriesMediaParameter parameterID="IMPC_XRY_048_001">
+                    <value incrementValue="1" URI="http://www.mousephenotype.org/images/src/8/9/0/19/91/2172/175441.dcm" fileType="img/dicom"/>
+                    <value incrementValue="2" URI="http://www.mousephenotype.org/images/src/8/9/0/19/91/2172/175443.dcm" fileType="img/dicom"/>
+                </seriesMediaParameter>
+                <seriesMediaParameter parameterID="IMPC_XRY_052_001">
+                    <value incrementValue="1" URI="http://www.mousephenotype.org/images/src/8/9/0/19/91/2176/176257.dcm" fileType="img/dicom"/>
+                </seriesMediaParameter>
+                <procedureMetadata parameterID="IMPC_XRY_042_001">
+                    <value>067079</value>
+                </procedureMetadata>
+                <procedureMetadata parameterID="IMPC_XRY_039_001">
+                    <value>4217.00</value>
+                </procedureMetadata>
+                <procedureMetadata parameterID="IMPC_XRY_047_001">
+                    <value>2014-02-20</value>
+                </procedureMetadata>
+                <procedureMetadata parameterID="IMPC_XRY_036_001">
+                    <value>Faxitron X-ray MX-20</value>
+                </procedureMetadata>
+                <procedureMetadata parameterID="IMPC_XRY_037_001">
+                    <value>Faxitron X-Ray Corporation</value>
+                </procedureMetadata>
+                <procedureMetadata parameterID="IMPC_XRY_038_001">
+                    <value>MX-20-DC4</value>
+                </procedureMetadata>
+                <procedureMetadata parameterID="IMPC_XRY_041_001">
+                    <value>067079</value>
+                </procedureMetadata>
+                <procedureMetadata parameterID="IMPC_XRY_043_001">
+                    <value>26</value>
+                </procedureMetadata>
+                <procedureMetadata parameterID="IMPC_XRY_040_001">
+                    <value>1 or 2</value>
+                </procedureMetadata>
+            </procedure>
+        </experiment>
+    </centre>
+</centreProcedureSet>

@@ -42,7 +42,6 @@ import javax.validation.constraints.NotNull;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by mrelac on 27/05/16.
@@ -107,7 +106,7 @@ public class CdaSqlUtils {
      * @return a list of all alleles, keyed by allele accession id
      */
     public Map<String, Allele> getAlleles() {
-        Map<String, Allele> alleles = new ConcurrentHashMap<>();
+        Map<String, Allele> alleles = new ConcurrentHashMapAllowNull<>();
 
         logger.info("Loading alleles.");
         List<Allele> allelesList = jdbcCda.query("SELECT * FROM allele", new AlleleRowMapper());
@@ -126,7 +125,7 @@ public class CdaSqlUtils {
      * @return a list of all alleles, keyed by allele symbol
      */
     public Map<String, Allele> getAllelesBySymbol() {
-        Map<String, Allele> alleles = new ConcurrentHashMap<>();
+        Map<String, Allele> alleles = new ConcurrentHashMapAllowNull<>();
 
         logger.info("Loading alleles by symbol.");
         List<Allele> allelesList = jdbcCda.query("SELECT * FROM allele", new AlleleRowMapper());
@@ -338,7 +337,7 @@ public class CdaSqlUtils {
      */
     public Map<String, Set<AlternateId>> getAlternateIds() {
         if (alternateIds == null) {
-            alternateIds = new ConcurrentHashMap<>();
+            alternateIds = new ConcurrentHashMapAllowNull<>();
 
             List<AlternateId> alternateIdList = jdbcCda.query("SELECT * FROM alternate_id", new AlternateIdRowMapper());
 
@@ -373,7 +372,7 @@ public class CdaSqlUtils {
      * @return A complete map of cda db_id, keyed by datasourceShortName
      */
     public Map<String, Integer> getCdaDb_idsByDccDatasourceShortName() {
-        Map<String, Integer> map = new ConcurrentHashMap<>();
+        Map<String, Integer> map = new ConcurrentHashMapAllowNull<>();
 
         List<Datasource> results = jdbcCda.query("SELECT * FROM external_db", new BeanPropertyRowMapper(Datasource.class));
         for (Datasource result : results) {
@@ -388,7 +387,7 @@ public class CdaSqlUtils {
      * @return A complete map of cda organisation_id primary keys, keyed by dcc center.centerId
      */
     public Map<String, Integer> getCdaOrganisation_idsByDccCenterId() {
-        Map<String, Integer> map = new ConcurrentHashMap<>();
+        Map<String, Integer> map = new ConcurrentHashMapAllowNull<>();
 
         Map<String, Organisation> organisations = getOrganisations();
 
@@ -410,7 +409,7 @@ public class CdaSqlUtils {
      * @return A complete map of cda project_id primary keys, keyed by dcc center.project
      */
     public Map<String, Integer> getCdaProject_idsByDccProject() {
-        Map<String, Integer> map = new ConcurrentHashMap<>();
+        Map<String, Integer> map = new ConcurrentHashMapAllowNull<>();
 
         Map<String, Project> projects = getProjects();
 
@@ -432,7 +431,7 @@ public class CdaSqlUtils {
      * @return A complete map of cda pipeline primary keys, keyed by dcc center.pipeline
      */
     public Map<String, Integer> getCdaPipeline_idsByDccPipeline() {
-        Map<String, Integer> map = new ConcurrentHashMap<>();
+        Map<String, Integer> map = new ConcurrentHashMapAllowNull<>();
 
         List<Map<String, Object>> results = jdbcCda.queryForList("SELECT id, stable_id FROM phenotype_pipeline", new HashMap<>());
 
@@ -450,7 +449,7 @@ public class CdaSqlUtils {
      * @return A complete map of cda procedure primary keys, keyed by dcc procedure_.procedureId
      */
     public Map<String, Integer> getCdaProcedure_idsByDccProcedureId() {
-        Map<String, Integer> map = new ConcurrentHashMap<>();
+        Map<String, Integer> map = new ConcurrentHashMapAllowNull<>();
 
         List<Map<String, Object>> results = jdbcCda.queryForList("SELECT id, stable_id FROM phenotype_procedure", new HashMap<>());
 
@@ -468,7 +467,7 @@ public class CdaSqlUtils {
      * @return A complete map of cda parameter primary keys, keyed by dcc procedure_.parameterId
      */
     public Map<String, Integer> getCdaParameter_idsByDccParameterId() {
-        Map<String, Integer> map = new ConcurrentHashMap<>();
+        Map<String, Integer> map = new ConcurrentHashMapAllowNull<>();
 
         List<Map<String, Object>> results = jdbcCda.queryForList("SELECT id, stable_id FROM phenotype_parameter", new HashMap<>());
 
@@ -482,7 +481,7 @@ public class CdaSqlUtils {
     }
 
     public Map<String, String> getCdaParameterNames() {
-        Map<String, String> map = new ConcurrentHashMap<>();
+        Map<String, String> map = new ConcurrentHashMapAllowNull<>();
 
         List<Map<String, Object>> results = jdbcCda.queryForList("SELECT stable_id, name FROM phenotype_parameter", new HashMap<>());
 
@@ -501,7 +500,7 @@ public class CdaSqlUtils {
      */
     public Map<String, Set<ConsiderId>> getConsiderIds() {
         if (considerIds == null) {
-            considerIds = new ConcurrentHashMap<>();
+            considerIds = new ConcurrentHashMapAllowNull<>();
 
             List<ConsiderId> considerIdList = jdbcCda.query("SELECT * FROM consider_id", new ConsiderIdRowMapper());
 
@@ -578,7 +577,7 @@ public class CdaSqlUtils {
      * @return the list of {@link >GenomicFeature} instances, indexed by gene accession id
      */
     public Map<String, GenomicFeature> getGenesByAcc() {
-        Map<String, GenomicFeature> genes = new ConcurrentHashMap<>();
+        Map<String, GenomicFeature> genes = new ConcurrentHashMapAllowNull<>();
 
         logger.info("Loading genes");
         List<GenomicFeature> geneList = jdbcCda.query("SELECT * FROM genomic_feature", new GenomicFeatureRowMapper());
@@ -597,7 +596,7 @@ public class CdaSqlUtils {
      * @return the list of <code>GenomicFeature</code>s, mapped by gene symbol
      */
     public Map<String, GenomicFeature> getGenesBySymbol() {
-        Map<String, GenomicFeature> genes = new ConcurrentHashMap<>();
+        Map<String, GenomicFeature> genes = new ConcurrentHashMapAllowNull<>();
 
         logger.info("Loading genes mapped by symbol");
         List<GenomicFeature> geneList = jdbcCda.query("SELECT * FROM genomic_feature", new GenomicFeatureRowMapper());
@@ -982,7 +981,7 @@ public class CdaSqlUtils {
 
     public Map<String, OntologyTerm> getOntologyTermsByAccessionId() {
         if (ontologyTermsByAccessionId == null) {
-            ontologyTermsByAccessionId = new ConcurrentHashMap();
+            ontologyTermsByAccessionId = new ConcurrentHashMapAllowNull();
 
             List<OntologyTerm> termList = jdbcCda.query("SELECT * FROM ontology_term", new OntologyTermRowMapper());
 
@@ -997,7 +996,7 @@ public class CdaSqlUtils {
 
     public Map<String, OntologyTerm> getOntologyTermsByName() {
         if (ontologyTermsByName == null) {
-            ontologyTermsByName = new ConcurrentHashMap();
+            ontologyTermsByName = new ConcurrentHashMapAllowNull();
 
             List<OntologyTerm> termList = jdbcCda.query("SELECT * FROM ontology_term", new OntologyTermRowMapper());
 
@@ -1217,7 +1216,7 @@ public class CdaSqlUtils {
      */
     public Map<String, OntologyTerm> getUpdatedOntologyTermMap(List<OntologyTerm> inputTerms) {
 
-        Map<String, OntologyTerm> updatedOntologyTermMap = new ConcurrentHashMap<>();
+        Map<String, OntologyTerm> updatedOntologyTermMap = new ConcurrentHashMapAllowNull<>();
         Map<String, OntologyTerm> allTermsByAccessionId = getOntologyTermsByAccessionId();
         OntologyTerm newTerm;
 
@@ -1453,7 +1452,7 @@ public class CdaSqlUtils {
         }
     }
 
-    private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new ConcurrentHashMap<>();       // keyed by dbId
+    private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new ConcurrentHashMapAllowNull<>();       // keyed by dbId
 
     /**
      * Return a CASE-INSENSITIVE {@link TreeMap} of <code>OntologyTerm</code>s matching the given {@code dbId}, indexed by dbId
@@ -1485,7 +1484,7 @@ public class CdaSqlUtils {
     }
 
     public Map<String, Organisation> getOrganisations() {
-        Map<String, Organisation> organisations = new ConcurrentHashMap<>();
+        Map<String, Organisation> organisations = new ConcurrentHashMapAllowNull<>();
 
         List<Organisation> organisationList = jdbcCda.query("SELECT * FROM organisation", new OrganisationRowMapper());
 
@@ -1578,7 +1577,7 @@ public class CdaSqlUtils {
     }
 
     public Map<String, Project> getProjects() {
-        Map<String, Project> projects = new ConcurrentHashMap<>();
+        Map<String, Project> projects = new ConcurrentHashMapAllowNull<>();
 
         List<Project> projectList = jdbcCda.query("SELECT * FROM project", new ProjectRowMapper());
 
@@ -2224,7 +2223,7 @@ public class CdaSqlUtils {
     public Map<String, Integer> insertOntologyTerm(List<OntologyTerm> terms) {
         int count;
 
-        Map<String, Integer> countsMap = new ConcurrentHashMap<>();
+        Map<String, Integer> countsMap = new ConcurrentHashMapAllowNull<>();
         countsMap.put("terms", 0);
         countsMap.put("synonyms", 0);
         countsMap.put("alternateIds", 0);
@@ -2492,7 +2491,7 @@ public class CdaSqlUtils {
      */
     public Map<String, SequenceRegion> getSequenceRegions() {
         if (sequenceRegions == null) {
-            sequenceRegions = new ConcurrentHashMap<>();
+            sequenceRegions = new ConcurrentHashMapAllowNull<>();
             String query =
                     "SELECT\n" +
                             "  s.id AS seq_id\n" +
@@ -2524,7 +2523,7 @@ public class CdaSqlUtils {
      */
     public Map<String, Strain> getStrainsByNameOrMgiAccessionIdMap() {
 
-        Map<String, Strain> strains = new ConcurrentHashMap<>();
+        Map<String, Strain> strains = new ConcurrentHashMapAllowNull<>();
 
         Map<String, Object> parameterMap = new HashMap<>();
         List<Strain> strainList = jdbcCda.query("SELECT * FROM strain", parameterMap, new StrainRowMapper());
@@ -2710,7 +2709,7 @@ public class CdaSqlUtils {
 
     private Map<String, List<Synonym>> getSynonyms() {
         if (synonyms == null) {
-            synonyms = new ConcurrentHashMap<>();
+            synonyms = new ConcurrentHashMapAllowNull<>();
             String lastAcc = "";
             List<Synonym> synonymList = jdbcCda.query("SELECT * FROM synonym ORDER BY acc", new SynonymRowMapper());
             List<Synonym> accSynonyms = new ArrayList<>();
@@ -2784,7 +2783,7 @@ public class CdaSqlUtils {
     }
 
     public Map<String, List<Xref>> getXrefs() {
-        Map<String, List<Xref>> xrefs = new ConcurrentHashMap<>();
+        Map<String, List<Xref>> xrefs = new ConcurrentHashMapAllowNull<>();
 
         List<Xref> xrefList = jdbcCda.query("SELECT * FROM xref", new XrefRowMapper());
 
