@@ -100,6 +100,28 @@ class OmeroService:
         #print ctx
         return self.conn
     
+    def getImagesAlreadyInOmero2(self):
+        query = 'SELECT clientPath FROM FilesetEntry WHERE fileset.id >= :id';
+        params = omero.sys.ParametersI()
+        params.addId(omero.rtypes.rlong(0))
+        omero_file_data = self.conn.getQueryService().projection(query, params)
+
+        # Get the filepath by splitting the indir path
+        omero_file_list = []
+        for ofd in omero_file_data:
+            try:
+                #indir,ofd_path = ofd[1].split(root_dir[1:])
+                ofd_path = ofd[0].val.split('impc/')[-1]
+            except Exception as e:
+                print "Problem extracting root_dir from clientpath " + ofd[0].val
+                print "Error was: " + e.message
+                omero_file_list.append(ofd[0].val)
+                continue
+            #if indir is None or len(indir) < 1:
+            #    print "Did not extract root_dir from " + ofd[1]
+            omero_file_list.append(ofd_path)
+        return omero_file_list
+
     def getImagesAlreadyInOmero(self, filterProject=None, filterDataset=None):
         directory_to_filename_map = collections.OrderedDict()
         if self.conn is None:
