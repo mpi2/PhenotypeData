@@ -172,6 +172,14 @@ public class SampleLoader implements CommandLineRunner {
 
         logger.info("Getting samples");
         List<SpecimenExtended> specimens = dccSqlUtils.getSpecimens();
+
+        // Consolidate casing of baseline colony IDs to lowercase
+        specimens.forEach(x -> {
+            if (x.getSpecimen().isIsBaseline() && x.getSpecimen().getColonyID().equals("Baseline")) {
+                x.getSpecimen().setColonyID("baseline");
+            }
+        });
+
         logger.info("Getting samples complete.");
 
         String message = "**** LOADING " + dccSqlUtils.getDbName() + " SAMPLES ****";
