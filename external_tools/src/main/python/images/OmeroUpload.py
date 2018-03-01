@@ -1,17 +1,20 @@
-#!/usr/bin/python
-import platform
-import locale
-import time
-import omero
-import sys
-import getopt
-import collections
-import argparse
+"""
+    Upload images to omero database.
 
-from Solr import Solr
-from DirectoryWalker import DirectoryWalker
-from OmeroPropertiesParser import OmeroPropertiesParser
+    This script queries solr for records that have download paths. For each
+    download path it checks whether it already exists in Omero. If it does not
+    then it checks whether it exists in the IMPC file system. If present
+    in the file system it is uploaded to Omero.
+"""
+
+import os
+import sys
+import argparse
+import requests
+import json
+
 from OmeroService import OmeroService
+from OmeroPropertiesParser import OmeroPropertiesParser
 
 def main(argv):
     parser = argparse.ArgumentParser(
@@ -25,15 +28,6 @@ def main(argv):
     )
     parser.add_argument('-o', '--omeroHost', dest='omeroHost',
                         help='Hostname for server hosting omero instance'
-    )
-    parser.add_argument('-b', '--begin', dest='begin', type=int, default=0,
-                        help='Starting index for files to upload'
-    )
-    parser.add_argument('-e', '--end', dest='end', type=int, default=1000000,
-                        help='end index for files to upload'
-    )
-    parser.add_argument('-fp', '--filterProject', dest='filterProject', default=None,
-                        help='Filter to apply to select a particular project in Omero'
     )
     parser.add_argument('-fq', '--solrFilterQuery', dest='solrFilterQuery', default=None,
                         help='Filter to apply to solr query. If not supplied uses hardcoded standard filter'
@@ -57,10 +51,10 @@ def main(argv):
     solrRoot = args.solrRoot if args.solrRoot <> None else omeroProps['solrurl']
     omeroHost = args.omeroHost if args.omeroHost<>None else omeroProps['omerohost']
 
-    begin = args.begin
-    end = args.end
-    filterProject = args.filterProject
     solrFilterQuery = args.solrFilterQuery
+    if solrFilterQuery is None:
+        # Default query to get all records of interest from Solr
+        solrFilterQuery = """experiment/select?q=observation_type:image_record&fq=(download_file_path:(*mousephenotype.org*%20OR%20images/3i*)%20AND%20-download_file_path:*.mov%20AND%20-download_file_path:*.fcs%20AND%20-download_file_path:*.bz2)&rows=10000000&wt=json&fl=download_file_path,pipeline_stable_id,procedure_stable_id,parameter_stable_id,production_center,phenotyping_center"""
 
     try:    
         omeroPort = omeroProps['omeroport']
@@ -72,136 +66,105 @@ def main(argv):
         print "Error was: " + str(e)
         return
 
+    # Other values needed within this script.
+    splitString = 'impc/'
+    dirs_to_exclude = ['_ERG_','_ABR_']
+    # Assuming files to exclude is taken care of in solrquery
+    files_to_exclude = ['.fcs','.mov','.bz2']
 
     print "running main intelligent omero upload method"
     print 'rootDestinationDir is "', root_dir
     
-    omeroUpload=OmeroUpload(root_dir, omeroHost, omeroPort, omeroUsername, omeroPass, group)#/Users/jwarren/Documents/images/impc/")
-    solr_directory_to_filenames_map=omeroUpload.getSolrDirectoryMap(solrRoot, solrFilterQuery)
-    omero_directory_to_filenames_map=omeroUpload.getOmeroDirectoriesAndFilesMap(omeroHost, filterProject)
-    nfs_directory_to_filenames_map=omeroUpload.getDirectoriesWithFileNamesFromNFS(root_dir)
+    # Get records from Solr
+    solr_query_url = solrRoot + solrFilterQuery
+    print "Querying solr with the following query" + solrFilterQuery
+    solr_json = json.loads(requests.get(solr_query_url).text)
+    solr_recs = solr_json['response']['docs']
+    print "Number of records returned from Solr: " + str(len(solr_recs))
+    solr_recs_excluded = []
+
+    solr_directory_to_filenames_map = {}
+    for rec in solr_recs:
+        for d in dirs_to_exclude:
+            if rec['parameter_stable_id'].find(d) > 0 or \
+                    rec['procedure_stable_id'].find(d) > 0 or \
+                    rec['pipeline_stable_id'].find(d) > 0:
+                solr_recs_excluded.append(rec['download_file_path'])
+                continue
+        fname = os.path.split(rec['download_file_path'])[-1]
+        key = os.path.join(rec['phenotyping_center'],rec['pipeline_stable_id'],rec['procedure_stable_id'],rec['parameter_stable_id'],fname)
+        solr_directory_to_filenames_map[key] = rec['download_file_path']
     
-    #run this normally after all images loaded
-    #want to get from experiment core the directories    
-    #sys.exit()
+    n_solr_recs_excluded = len(solr_recs_excluded)
+    print "Number of records excluded for having " + \
+        " ".join(dirs_to_exclude) + " in impress ids is: " + \
+        str(n_solr_recs_excluded)
+    if n_solr_recs_excluded > 0:
+        print "Excluded records:"
+        for excluded in solr_recs_excluded:
+            print excluded    
     
-    i=0
     
-    #loop over the directories we should have (got from solr) and check what we have in nfs and what we have in omero
-    #We need to load in the order we get from SOLR so we can start at any point from that solr ordered list
-    for directory, filenames in solr_directory_to_filenames_map.items():
-        print "i="+str(i)
-        if i>=end:
-            break;
-        if i<begin:
-        #if "_ERG_" not in directory and "_ABR_" not in directory:
-            print "skipping directory"+ directory#+ " value="+str(filenames)
+    # Get images from Omero
+    omeroS = OmeroService(omeroHost, omeroPort, omeroUsername, omeroPass, group)
+    omero_file_list = omeroS.getImagesAlreadyInOmero()
+    print "Number of files from omero = " + str(len(omero_file_list))
+
+
+    # Get the files in NFS
+    nfs_file_list = []
+    os.path.walk(root_dir, add_to_list, nfs_file_list)
+    nfs_file_list = [f.split(root_dir)[-1] for f in nfs_file_list]
+    print "Number of files from NFS = " + str(len(nfs_file_list))
+
+
+    set_solr_filenames = set(solr_directory_to_filenames_map.keys())
+    set_omero_filenames = set(omero_file_list)
+    set_nfs_file_list = set(nfs_file_list)
+
+    files_to_upload = set_solr_filenames - set_omero_filenames
+    files_to_upload_available = files_to_upload.intersection(set_nfs_file_list)
+    files_to_upload_unavailable = files_to_upload - files_to_upload_available
+
+    # Create a dictionary for the files to upload with the directory as the
+    # key and the filenames as the values, so each dir can be passed to 
+    # omero with associated files
+    dict_files_to_upload = {}
+    for f in files_to_upload_available:
+        dirname, filename = os.path.split(f)
+        if dict_files_to_upload.has_key(dirname):
+            dict_files_to_upload[dirname].append(filename)
         else:
-            numberShouldBeInOmero=len(filenames)
-            print "processing directory "+directory+ "should be according to solr this number of files="+str(numberShouldBeInOmero)
-            if directory in nfs_directory_to_filenames_map:
-                numberInNfs=len(nfs_directory_to_filenames_map[directory])
-                print "we have an NFS directory with this number of files in it :"+ str(numberInNfs)
-            #test if we have any files already in omero for this directory
-            if directory not in omero_directory_to_filenames_map:
-                print "directory not in omero at all!"
-                #omeroUpload.load(directory)
-                #as we may have pdfs to upload now we cannot do it at a directory level check the parameters to make sure we won't have pdfs in this directory!
-                if "_ERG_" not in directory and "_ABR_" not in directory and "_IMM_" not in directory: 
-                    omeroUpload.load(directory)
-                else:
-                    print "loading files"
-                    
-                    omeroUpload.load(directory, filenames)
-            else:
-                numberInOmero=len(omero_directory_to_filenames_map[directory])
-                filesNotInOmero=list(set(filenames) - set(omero_directory_to_filenames_map[directory]))
-                filesNotNfsButInSolr=list(set(filenames) - set(nfs_directory_to_filenames_map[directory]))
-                if len(filesNotNfsButInSolr) >0:
-                    print "need to download some more files for this dir="+str(filesNotNfsButInSolr)
-                print "number should be in omero="+str(numberShouldBeInOmero)+"in omero already"+str(numberInOmero)+" filesNotInOmero length="+str(len(filesNotInOmero))
-                print "directory="+directory+" filesNotInOmero="+str(filesNotInOmero)
-                if "_ERG_" not in directory and "_ABR_" not in directory:
-                    print "loading directory" 
-                    omeroUpload.load(directory)
-                else:
-                    print "loading files"
-                    omeroUpload.load(directory, filesNotInOmero)
-            #if (numberInOmero<len(filesNotInOmero)) or (len(filesNotInOmero)> 300):
-#                    print "should load full dir"
-#                    try:
-#                        omeroUpload.load(directory)
-#                    except:
-#                        print "Unexpected error loading directory:", sys.exc_info()[0]
-#                        continue
-#                        
-#                else:
-            #print "should load on per file basis"
-                #need the list that is not already in omero for this dire
-            #try:
-             #   print "directory="+directory+" filesNotInOmero="+str(filesNotInOmero)
-             #   omeroUpload.load(directory, filesNotInOmero)
-            #except:
-            #    print "Unexpected error loading file:", sys.exc_info()[0]
-            #    continue
-                       
-            
-            
-        i=i+1
-    
-     
-    
-class OmeroUpload:
-    
-    def __init__(self, root_dir, omeroHost, omeroPort, omeroUsername, omeroPass, group):
-        print "Initialising OmeroUpload"
-        self.root_dir=root_dir
-        self.omeroS=OmeroService(omeroHost, omeroPort, omeroUsername, omeroPass, group)
-        
-    def getDirectoriesWithFileNamesFromNFS(self, root_dir):
-        self.dirWalker=DirectoryWalker()
-        #root_dir='/nfs/komp2/web/images/impc/'#"/Users/jwarren/Documents/images/impc/"
-        rel_directory_to_filenames_map=self.dirWalker.getFilesFromDir(root_dir)
-        for key, value in rel_directory_to_filenames_map.items():
-            print "dir in nfs file walker="+key
-            #print "value="+str(value)
-        return rel_directory_to_filenames_map
-    
-    def getSolrDirectoryMap(self, solr_experiment_url, solr_filter_query=None):
-        self.solr=Solr(solr_experiment_url)
-        
-        # KB 05/01/2018 allow user parameter to set solr filter so we can restrict values in the map returned
-        if type(solr_filter_query) == str and len(solr_filter_query) > 0:
-            self.solr.standardFilter = solr_filter_query
+            dict_files_to_upload[dirname] = [filename]
 
-        directory_map=self.solr.getAllPhenCenterPipelinesAndProceduresAndParameters()
-        #get a list of all directories that should contain images and the image filenames for those directories
-        return directory_map
-    
-    def getOmeroDirectoriesAndFilesMap(self, omeroHost, project=None):
-        print "running method to get Omero directories and file maps from OmeroService"
-        directory_to_filename_map=self.omeroS.getImagesAlreadyInOmero(project)
-        print str(len(directory_to_filename_map))+" directories already in omero"
-        for key, value in directory_to_filename_map.items():
-            print "getting directory and filenames from omero dir"+key +" number of images="+str(len(value))
-        return directory_to_filename_map
-    
-    def load(self, directory, filenames=None):
-        print "uploading directory"+directory
-        #ICS/ICS_001/IMPC_XRY_001/IMPC_XRY_034_001
-        dir_structure=directory.split('/')
-        project=dir_structure[0]
-        dataset=dir_structure[0]+"-"+dir_structure[1]+"-"+dir_structure[2]+"-"+dir_structure[3]
+    # Upload files
+    for directory in dict_files_to_upload.keys():
+        filenames = dict_files_to_upload[directory]
+        #print "uploading directory " + directory + " and files:"
+        #print filenames
+        dir_structure = directory.split('/')
+        project = dir_structure[0]
+        # Below we assume dir_structure is list with elements:
+        # [project, pipeline, procedure, parameter]
+        dataset = "-".join(dir_structure)
+        fullpath = os.path.join(root_dir, directory)
+        omeroS.loadFileOrDir(fullpath, project=project, dataset=dataset, filenames=filenames)
 
-        # Filter out uploading FACS files -- OMERO doesn't seem to handle these yet..?
-        filtered_filenames = filenames
-        
-        if filenames:
-        	filtered_filenames = filter(lambda x: not x.endswith(".fcs"), filenames)
+    n_files_to_upload_unavailable = len(files_to_upload_unavailable)
+    print "Number of files unavailable for upload (not in NFS): " + \
+        str(n_files_to_upload_unavailable)
+    if n_files_to_upload_unavailable > 0:
+        print "The following files were present in Solr but absent in NFS:"
+        for f in files_to_upload_unavailable:
+            print f
 
-        self.omeroS.loadFileOrDir(self.root_dir+directory, project=project, dataset=dataset, filenames=filtered_filenames)
-        
-        
+def add_to_list(L,dirname,names):
+    """Add files to list whilst walking through dir tree"""
+
+    for n in names:
+        fullname = os.path.join(dirname, n)
+        if os.path.isfile(fullname):
+            L.append(fullname)
+
 if __name__ == "__main__":
-    main(sys.argv[1:]) 
-   
+    main(sys.argv[1:])

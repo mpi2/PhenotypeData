@@ -100,7 +100,7 @@ class OmeroService:
         #print ctx
         return self.conn
     
-    def getImagesAlreadyInOmero2(self):
+    def getImagesAlreadyInOmero(self):
         query = 'SELECT clientPath FROM FilesetEntry WHERE fileset.id >= :id';
         params = omero.sys.ParametersI()
         params.addId(omero.rtypes.rlong(0))
@@ -122,49 +122,6 @@ class OmeroService:
             omero_file_list.append(ofd_path)
         return omero_file_list
 
-    def getImagesAlreadyInOmero(self, filterProject=None, filterDataset=None):
-        directory_to_filename_map = collections.OrderedDict()
-        if self.conn is None:
-            self.conn=self.getConnection()
-        print "\nList Projects:"
-        print "=" * 50
-        my_expId = self.conn.getUser().getId()
-        projects=self.conn.listProjects(my_expId)
-        if filterProject is not None:
-            self.filterProjectName=filterProject#instance variable as can't pass to standard python filter method?
-            filteredProjects=filter(self.filterProjectFunction,projects)
-            for project in filteredProjects:
-                print "filtered project="+project.getName()
-        else:
-            filteredProjects=projects
-        for project in filteredProjects:
-            print "looking for project name="+project.getName()
-            for dataset in project.listChildren():
-                self.print_obj(dataset, 2)
-                for image in dataset.listChildren():
-                    #print_obj(image, 4)
-                    fileset = image.getFileset()
-                    #print 'fileset=', fileset
-                    if fileset is not None:
-                        #print 'image id=', image.getId()
-                        filesetId=fileset.getId()
-                        query = 'SELECT clientPath FROM FilesetEntry WHERE fileset.id = :id'
-                        params = omero.sys.ParametersI()
-                        params.addId(omero.rtypes.rlong(filesetId))
-                        for path in self.conn.getQueryService().projection(query, params):
-                            fullPath=path[0].val
-                            if splitString in fullPath:
-                                #print 'path in omero=' +fullPath
-                                relativeOmeroUrl=fullPath.split(splitString,1)[1]
-                                relDir, filename=relativeOmeroUrl.rsplit('/',1)
-                                #print "relDir="+relDir+" filename="+filename
-                                #directory_to_filename_map.add(relativeOmeroUrl)
-                                directory_to_filename_map.setdefault(relDir,list()).append( filename )
-        # Close connection:
-        # =================================================================
-        # When you are done, close the session to free up server resources.
-        return directory_to_filename_map
-    
     def filterProjectFunction(self, project):
         print "project name="+project.getName()
         if project.getName().startswith(self.filterProjectName):
