@@ -175,7 +175,12 @@ public class SampleLoader implements CommandLineRunner {
 
         // Consolidate casing of baseline colony IDs to lowercase
         specimens.forEach(x -> {
-            if (x.getSpecimen().isIsBaseline() && x.getSpecimen().getColonyID().equals("Baseline")) {
+            if (x != null &&
+                    x.getSpecimen() != null &&
+                    x.getSpecimen().getColonyID() != null &&
+                    x.getSpecimen().isIsBaseline() &&
+                    x.getSpecimen().getColonyID().equals("Baseline")
+                ) {
                 x.getSpecimen().setColonyID("baseline");
             }
         });
