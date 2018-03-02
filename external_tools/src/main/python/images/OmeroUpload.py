@@ -85,16 +85,15 @@ def main(argv):
 
     solr_directory_to_filenames_map = {}
     for rec in solr_recs:
-        for d in dirs_to_exclude:
-            if rec['parameter_stable_id'].find(d) > 0 or \
-                    rec['procedure_stable_id'].find(d) > 0 or \
-                    rec['pipeline_stable_id'].find(d) > 0:
-                solr_recs_excluded.append(rec['download_file_path'])
-                continue
         fname = os.path.split(rec['download_file_path'])[-1]
         key = os.path.join(rec['phenotyping_center'],rec['pipeline_stable_id'],rec['procedure_stable_id'],rec['parameter_stable_id'],fname)
-        solr_directory_to_filenames_map[key] = rec['download_file_path']
-    
+        for d in dirs_to_exclude:
+            if key.find(d) >= 0:
+                solr_recs_excluded.append(os.path.join(key,fname))
+                key = None
+                break
+        if key is not None:
+            solr_directory_to_filenames_map[key] = rec['download_file_path']
     n_solr_recs_excluded = len(solr_recs_excluded)
     print "Number of records excluded for having " + \
         " ".join(dirs_to_exclude) + " in impress ids is: " + \
