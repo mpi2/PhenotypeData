@@ -2310,6 +2310,7 @@ INSERT INTO ontology_term(acc, db_id, name, description) VALUES('IMPC_SSC_004', 
 ** Add hand-curated Europhenome colony ids to phenotyped_colony.
  */
 SELECT id FROM project WHERE name = 'EUMODIC' INTO @EUMODIC_PROJECT_ID;
+SELECT id FROM project WHERE name = 'IMPC' INTO @IMPC_PROJECT_ID;
 SELECT id FROM external_db WHERE short_name = 'MGI' INTO @MGI_DB_ID;
 
 INSERT INTO `phenotyped_colony` (`colony_name`, `es_cell_name`, `gf_acc`, `gf_db_id`, `allele_symbol`, `background_strain_name`, `production_centre_organisation_id`, `production_consortium_project_id`, `phenotyping_centre_organisation_id`, `phenotyping_consortium_project_id`)
@@ -2523,7 +2524,12 @@ VALUES
 	('EPD0059_2_G04',NULL,'MGI:1926153',(SELECT @MGI_DB_ID),'Wrnip1<tm1a(EUCOMM)Wtsi>','C57BL/6NTac',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
 	('EPD0060_1_B12',NULL,'MGI:104681', (SELECT @MGI_DB_ID),'Hgs<tm1a(EUCOMM)Wtsi>',   'C57BL/6NTac',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
 	('EPD0177_2_H03',NULL,'MGI:2141881',(SELECT @MGI_DB_ID),'Ino80e<tm1a(EUCOMM)Wtsi>','C57BL/6NTac',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
-	('EPD0116_3_D06',NULL,'MGI:95585',  (SELECT @MGI_DB_ID),'Cidec<tm1a(EUCOMM)Wtsi>', 'C57BL/6NTac',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID));
+	('EPD0116_3_D06',NULL,'MGI:95585',  (SELECT @MGI_DB_ID),'Cidec<tm1a(EUCOMM)Wtsi>', 'C57BL/6NTac',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID)),
+
+	-- IMPC hand curated colonyIds
+	('PMDJ',NULL,'MGI:2677270',  (SELECT @MGI_DB_ID),'Pdzd8<tm1b(EUCOMM)Wtsi>', 'C57BL/6NTac',(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @IMPC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @IMPC_PROJECT_ID)),
+	('MEXY',NULL,'MGI:97812',  (SELECT @MGI_DB_ID),'Ptprd<tm1b(EUCOMM)Wtsi>', 'C57BL/6N',(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @IMPC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @IMPC_PROJECT_ID))
+;
 
 
 /*
