@@ -137,10 +137,12 @@ def main(argv):
             dict_files_to_upload[dirname] = [filename]
 
     # Upload files
-    for directory in dict_files_to_upload.keys():
+    n_dirs_to_upload = len(dict_files_to_upload)
+    for index, directory in zip(range(n_dirs_to_upload),dict_files_to_upload.keys()):
         filenames = dict_files_to_upload[directory]
-        #print "uploading directory " + directory + " and files:"
-        #print filenames
+        print "About to upload directory " + str(index+1) + " of " + \
+            str(n_dirs_to_upload) + ". Dir name: " + directory + \
+            " with " + str(len(filenames)) + " files"
         dir_structure = directory.split('/')
         project = dir_structure[0]
         # Below we assume dir_structure is list with elements:
