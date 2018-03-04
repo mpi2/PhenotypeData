@@ -43,7 +43,15 @@ def main(argv):
                         help='Hostname for server hosting omero instance'
     )
     parser.add_argument('--profile', dest='profile', default='dev',
-                        help='profile from which to read config: dev, prod, live, ...')
+                        help='Name of profile from which to read config: ' + \
+                             'dev, prod, live, ... Assumed to be present ' + \
+                             'in configfiles/profilename/application.properties'
+    )
+    parser.add_argument('--profile-path', dest='profilePath',
+                        help='Explicit path to file from which to read ' + \
+                             'profile e.g. ' + \
+                             '/home/kola/configfiles/dev/application.properties'
+    )
 
     args = parser.parse_args()
     
@@ -51,7 +59,10 @@ def main(argv):
     # by command line parameters
     try:
         pp = OmeroPropertiesParser(args.profile)
-        omeroProps = pp.getOmeroProps()
+        if args.profilePath is not None and os.path.isfile(args.profilePath):
+            omeroProps = pp.getOmeroProps(args.profilePath)
+        else:
+            omeroProps = pp.getOmeroProps()
     except:
         omeroProps = {}
 
