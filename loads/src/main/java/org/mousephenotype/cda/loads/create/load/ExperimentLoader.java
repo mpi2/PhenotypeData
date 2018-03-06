@@ -53,7 +53,7 @@ public class ExperimentLoader implements CommandLineRunner {
 
     // How many threads used to process experiments
     private static final int N_THREADS = 60;
-    private static final Boolean ONE_AT_A_TIME = Boolean.FALSE;
+    private static final Boolean ONE_AT_A_TIME = Boolean.TRUE;
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -1035,9 +1035,41 @@ public class ExperimentLoader implements CommandLineRunner {
             return;
         }
 
+
+
+
+
+
+        if (dccExperiment.getColonyId().equals("B6.Cg-cub/H") && dccExperiment.getProcedureId().startsWith("ESLIM_005")) {
+            logger.info("CANARY1.1 -- colony B6.Cg-cub/H");
+            System.out.println("");
+        }
+
+
+
+
+
+
+
         String sequenceId = (simpleParameter.getSequenceID() == null ? null : simpleParameter.getSequenceID().toString());
 
         ObservationType observationType = cdaSqlUtils.computeObservationType(parameterStableId, simpleParameter.getValue());
+
+
+
+
+
+
+        if (dccExperiment.getColonyId().equals("B6.Cg-cub/H") && dccExperiment.getProcedureId().startsWith("ESLIM_005")) {
+            logger.info("CANARY1.2 -- colony B6.Cg-cub/H");
+            System.out.println("");
+        }
+
+
+
+
+
+
 
         String[] rawParameterStatus = commonUtils.parseImpressStatus(simpleParameter.getParameterStatus());
         String parameterStatus = ((rawParameterStatus != null) && (rawParameterStatus.length > 0) ? rawParameterStatus[0] : null);
