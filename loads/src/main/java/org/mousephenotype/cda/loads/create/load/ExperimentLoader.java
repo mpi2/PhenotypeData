@@ -176,7 +176,7 @@ public class ExperimentLoader implements CommandLineRunner {
 
         logger.info("Getting experiments");
         List<DccExperimentDTO> dccExperiments = dccSqlUtils.getExperiments();
-        logger.info("Getting experiments complete.");
+        logger.info("Getting experiments complete. Loading {} experiments from DCC.", dccExperiments.size());
 
         CommonUtils.printJvmMemoryConfiguration();
 
@@ -344,6 +344,11 @@ public class ExperimentLoader implements CommandLineRunner {
 
         System.out.println("New biological models for line-level experiments: " + bioModelsAddedCount);
 
+        if (dccExperiments.size() != Integer.parseInt(loadCounts.get(1).get(0))) {
+            logger.warn("Failed to load all experiments from DCC. Expected {}, Loaded {}", dccExperiments.size(), loadCounts.get(1).get(0));
+        } else {
+            logger.info("Loaded all expected experiments from DCC. Expected {}, Loaded {}", dccExperiments.size(), loadCounts.get(1).get(0));
+        }
 
         // Log info sets
 
@@ -1015,6 +1020,13 @@ public class ExperimentLoader implements CommandLineRunner {
 
     private void insertSimpleParameter(DccExperimentDTO dccExperiment, SimpleParameter simpleParameter, int experimentPk,
                                        int dbId, Integer biologicalSamplePk, int missing) throws DataLoadException {
+
+        if (dccExperiment.getColonyId().equals("B6.Cg-cub/H") && dccExperiment.getProcedureId().startsWith("ESLIM_005")) {
+            logger.info("CANARY -- colony B6.Cg-cub/H");
+            System.out.println(dccExperiment);
+            System.out.println("Parameter "+simpleParameter.getParameterID());
+        }
+
         String parameterStableId = simpleParameter.getParameterID();
         Integer parameterPk = cdaParameter_idMap.get(parameterStableId);
         if (parameterPk == null) {
@@ -1087,6 +1099,12 @@ public class ExperimentLoader implements CommandLineRunner {
 
         // Insert experiment_observation
         cdaSqlUtils.insertExperiment_observation(experimentPk, observationPk);
+
+        if (dccExperiment.getColonyId().equals("B6.Cg-cub/H") && dccExperiment.getProcedureId().startsWith("ESLIM_005")) {
+            System.out.println("Successfully inserted Parameter "+simpleParameter.getParameterID());
+            System.out.println("\n");
+        }
+
     }
 
     private void insertMediaParameter(DccExperimentDTO dccExperiment, MediaParameter mediaParameter,
