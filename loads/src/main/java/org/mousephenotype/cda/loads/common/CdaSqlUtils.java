@@ -466,7 +466,7 @@ public class CdaSqlUtils {
      *
      * @return A complete map of cda parameter primary keys, keyed by dcc procedure_.parameterId
      */
-    public Map<String, Integer> getCdaParameter_idsByDccParameterId() {
+    public synchronized  Map<String, Integer> getCdaParameter_idsByDccParameterId() {
         Map<String, Integer> map = new ConcurrentHashMapAllowNull<>();
 
         List<Map<String, Object>> results = jdbcCda.queryForList("SELECT id, stable_id FROM phenotype_parameter", new HashMap<>());
