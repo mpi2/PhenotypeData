@@ -1101,7 +1101,7 @@ public class ExperimentLoader implements CommandLineRunner {
         cdaSqlUtils.insertExperiment_observation(experimentPk, observationPk);
 
         if (dccExperiment.getColonyId().equals("B6.Cg-cub/H") && dccExperiment.getProcedureId().startsWith("ESLIM_005")) {
-            System.out.println("Successfully inserted Parameter "+simpleParameter.getParameterID() + " for experimentPk " + experimentPk + ", observationPk " + observationPk);
+            System.out.println("Successfully inserted Parameter "+simpleParameter.getParameterID() + " for experimentPk " + experimentPk + ", observationPk " + observationPk + " biologicalSamplePk " + biologicalSamplePk);
             System.out.println("\n");
         }
 
