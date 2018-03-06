@@ -19,7 +19,6 @@ package org.mousephenotype.cda.loads.common;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.mousephenotype.cda.db.pojo.*;
-import org.mousephenotype.cda.db.utilities.SqlUtils;
 import org.mousephenotype.cda.enumerations.DbIdType;
 import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.loads.exceptions.DataLoadException;
@@ -53,8 +52,6 @@ public class CdaSqlUtils {
     private Map<String, OntologyTerm>     ontologyTermsByAccessionId;   // keyed by ontology term accession id
     private Map<String, OntologyTerm>     ontologyTermsByName;          // keyed by ontology term (name)
     private Map<String, SequenceRegion>   sequenceRegions;              // keyed by strains id (int)
-    private SqlUtils                      sqlUtils = new SqlUtils();
-    private Map<String, Strain>           strainsBySynonym = new HashMap<>();    // keyed by strains synonym
     private Map<String, List<Synonym>>    synonyms;                     // keyed by accession id
 
     private final        LoadUtils loadUtils = new LoadUtils();
@@ -191,7 +188,7 @@ public class CdaSqlUtils {
      * @param allele the {@link Allele} to be inserted
      */
     public void insertAllele(Allele allele) throws DataLoadException {
-        Map<String, Object> parameterMap = new HashMap<>();
+        Map<String, Object> parameterMap = new ConcurrentHashMapAllowNull<>();
 
         parameterMap.put("acc", allele.getId().getAccession());
         parameterMap.put("db_id", allele.getId().getDatabaseId());
@@ -263,7 +260,7 @@ public class CdaSqlUtils {
      */
     public Map<BioSampleKey, BiologicalSample> getBiologicalSamplesMapBySampleKey() {
 
-        Map<BioSampleKey, BiologicalSample> bioSamplesMap = new HashMap<>();
+        Map<BioSampleKey, BiologicalSample> bioSamplesMap = new ConcurrentHashMapAllowNull<>();
         String query = "SELECT edb.short_name, bs.* FROM biological_sample bs JOIN external_db edb ON edb.id = bs.db_id";
 
         List<BiologicalSample> samples = jdbcCda.query(query, new BiologicalSampleRowMapper());
@@ -281,7 +278,7 @@ public class CdaSqlUtils {
      */
     public Map<BioModelKey, Integer> getBiologicalModelPksMapByBioModelKey() {
 
-        Map<BioModelKey, Integer> map = new HashMap<>();
+        Map<BioModelKey, Integer> map = new ConcurrentHashMapAllowNull<>();
 
         String query =
                 "SELECT\n" +
@@ -295,7 +292,7 @@ public class CdaSqlUtils {
                 "LEFT OUTER JOIN biological_model_allele          bma  ON bma. biological_model_id = bm.id\n" +
                 "JOIN external_db edbBm ON edbBm.id = bm.db_id";
 
-        List<Map<String, Object>> list = jdbcCda.queryForList(query, new HashMap<>());
+        List<Map<String, Object>> list = jdbcCda.queryForList(query, new ConcurrentHashMapAllowNull<>());
         for (Map<String, Object> item : list) {
             String datasourceShortName;
             String strainAccessionId;
@@ -433,7 +430,7 @@ public class CdaSqlUtils {
     public Map<String, Integer> getCdaPipeline_idsByDccPipeline() {
         Map<String, Integer> map = new ConcurrentHashMapAllowNull<>();
 
-        List<Map<String, Object>> results = jdbcCda.queryForList("SELECT id, stable_id FROM phenotype_pipeline", new HashMap<>());
+        List<Map<String, Object>> results = jdbcCda.queryForList("SELECT id, stable_id FROM phenotype_pipeline", new ConcurrentHashMapAllowNull<>());
 
         for (Map<String, Object> result : results) {
             String  stableId = result.get("stable_id").toString();
@@ -451,7 +448,7 @@ public class CdaSqlUtils {
     public Map<String, Integer> getCdaProcedure_idsByDccProcedureId() {
         Map<String, Integer> map = new ConcurrentHashMapAllowNull<>();
 
-        List<Map<String, Object>> results = jdbcCda.queryForList("SELECT id, stable_id FROM phenotype_procedure", new HashMap<>());
+        List<Map<String, Object>> results = jdbcCda.queryForList("SELECT id, stable_id FROM phenotype_procedure", new ConcurrentHashMapAllowNull<>());
 
         for (Map<String, Object> result : results) {
             String  stableId = result.get("stable_id").toString();
@@ -469,7 +466,7 @@ public class CdaSqlUtils {
     public Map<String, Integer> getCdaParameter_idsByDccParameterId() {
         Map<String, Integer> map = new ConcurrentHashMapAllowNull<>();
 
-        List<Map<String, Object>> results = jdbcCda.queryForList("SELECT id, stable_id FROM phenotype_parameter", new HashMap<>());
+        List<Map<String, Object>> results = jdbcCda.queryForList("SELECT id, stable_id FROM phenotype_parameter", new ConcurrentHashMapAllowNull<>());
 
         for (Map<String, Object> result : results) {
             String  stableId = result.get("stable_id").toString();
@@ -483,7 +480,7 @@ public class CdaSqlUtils {
     public Map<String, String> getCdaParameterNames() {
         Map<String, String> map = new ConcurrentHashMapAllowNull<>();
 
-        List<Map<String, Object>> results = jdbcCda.queryForList("SELECT stable_id, name FROM phenotype_parameter", new HashMap<>());
+        List<Map<String, Object>> results = jdbcCda.queryForList("SELECT stable_id, name FROM phenotype_parameter", new ConcurrentHashMapAllowNull<>());
 
         for (Map<String, Object> result : results) {
             String  stableId = result.get("stable_id").toString();
@@ -530,7 +527,7 @@ public class CdaSqlUtils {
     public String getDbName() {
         String query = "SELECT DATABASE()";
 
-        String dbname = jdbcCda.queryForObject(query, new HashMap<>(), String.class);
+        String dbname = jdbcCda.queryForObject(query, new ConcurrentHashMapAllowNull<>(), String.class);
 
         return dbname;
     }
@@ -559,7 +556,7 @@ public class CdaSqlUtils {
      */
     public GenomicFeature getGeneBySymbol(String geneSymbol) {
         GenomicFeature gene = null;
-        Map<String, Object> parameterMap = new HashMap<>();
+        Map<String, Object> parameterMap = new ConcurrentHashMapAllowNull<>();
         parameterMap.put("symbol", geneSymbol);
 
         List<GenomicFeature> geneList = jdbcCda.query("SELECT * FROM genomic_feature WHERE symbol = :symbol", parameterMap, new GenomicFeatureRowMapper());
@@ -648,7 +645,7 @@ public class CdaSqlUtils {
                 "biological_model_id,   biological_sample_id) VALUES (" +
                 ":biological_model_id, :biological_sample_id)";
 
-        Map<String, Object> parameterMap = new HashMap<>();
+        Map<String, Object> parameterMap = new ConcurrentHashMapAllowNull<>();
         parameterMap.put("biological_model_id", biologicalModelId);
         parameterMap.put("biological_sample_id", biologicalSampleId);
 
@@ -705,7 +702,7 @@ public class CdaSqlUtils {
      * @throws DataLoadException
      */
     public Map<String, Integer> insertBiologicalSample(String externalId, int dbId, OntologyTerm sampleType, String sampleGroup, int phenotypingCenterId, Integer productionCenterId) throws DataLoadException {
-        Map<String, Integer> results = new HashMap<>();
+        Map<String, Integer> results = new ConcurrentHashMapAllowNull<>();
 
         final String insert = "INSERT INTO biological_sample (external_id, db_id, sample_type_acc, sample_type_db_id, sample_group, organisation_id, production_center_id) " +
                                    "VALUES (:external_id, :db_id, :sample_type_acc, :sample_type_db_id, :sample_group, :organisation_id, :production_center_id)";
@@ -713,7 +710,7 @@ public class CdaSqlUtils {
         // Insert biological sample. Ignore any duplicates.
         int count = 0;
         int id = 0;
-        Map<String, Object> parameterMap = new HashMap<>();
+        Map<String, Object> parameterMap = new ConcurrentHashMapAllowNull<>();
         try {
             parameterMap.put("external_id", externalId);
             parameterMap.put("db_id", dbId);
@@ -771,7 +768,7 @@ public class CdaSqlUtils {
                 " :colony_id, :metadata_combined, :metadata_group, :procedure_status, :procedure_status_message)";
 
         // Insert experiment. Ignore any duplicates.
-        Map<String, Object> parameterMap = new HashMap<>();
+        Map<String, Object> parameterMap = new ConcurrentHashMapAllowNull<>();
         try {
             parameterMap.put("db_id", db_id);
             parameterMap.put("external_id", external_id);
@@ -811,7 +808,7 @@ public class CdaSqlUtils {
                 "experiment_id, observation_id) " +
                 "VALUES (:experimentPk, :observationPk)";
 
-        Map<String, Object> parameterMap = new HashMap<>();
+        Map<String, Object> parameterMap = new ConcurrentHashMapAllowNull<>();
         parameterMap.put("experimentPk", experimentPk);
         parameterMap.put("observationPk", observationPk);
 
@@ -844,7 +841,7 @@ public class CdaSqlUtils {
 
         // Insert live sample. Ignore any duplicates.
         try {
-            Map<String, Object> parameterMap = new HashMap<>();
+            Map<String, Object> parameterMap = new ConcurrentHashMapAllowNull<>();
             parameterMap.put("id", biologicalSampleId);
             parameterMap.put("colony_id", (colonyId == null ? "unknown" : colonyId));
             parameterMap.put("date_of_birth", dateOfBirth);
@@ -887,7 +884,7 @@ public class CdaSqlUtils {
     public Map<String, Integer> insertGenes(List<GenomicFeature> genes) throws DataLoadException {
         int count = 0;
 
-        Map<String, Integer> countsMap = new HashMap<>();
+        Map<String, Integer> countsMap = new ConcurrentHashMapAllowNull<>();
         countsMap.put("genes", 0);
         countsMap.put("synonyms", 0);
         countsMap.put("xrefs", 0);
@@ -905,7 +902,7 @@ public class CdaSqlUtils {
         // Insert genes. Ignore any duplicates.
         for (GenomicFeature gene : genes) {
             try {
-                Map<String, Object> parameterMap = new HashMap<>();
+                Map<String, Object> parameterMap = new ConcurrentHashMapAllowNull<>();
                 parameterMap.put("acc", gene.getId().getAccession());
                 parameterMap.put("db_id", gene.getId().getDatabaseId());
                 parameterMap.put("symbol", gene.getSymbol());
@@ -934,7 +931,7 @@ public class CdaSqlUtils {
             if (gene.getSynonyms() != null) {
                 for (Synonym synonym : gene.getSynonyms()) {
                     try {
-                        Map<String, Object> parameterMap = new HashMap<>();
+                        Map<String, Object> parameterMap = new ConcurrentHashMapAllowNull<>();
                         parameterMap.put("acc", synonym.getAccessionId());
                         parameterMap.put("db_id", synonym.getDbId());
                         parameterMap.put("symbol", synonym.getSymbol());
@@ -957,7 +954,7 @@ public class CdaSqlUtils {
             if (gene.getXrefs() != null) {
                 for (Xref xref : gene.getXrefs()) {
                     try {
-                        Map<String, Object> parameterMap = new HashMap<>();
+                        Map<String, Object> parameterMap = new ConcurrentHashMapAllowNull<>();
                         parameterMap.put("acc", gene.getId().getAccession());
                         parameterMap.put("db_id", gene.getId().getDatabaseId());
                         parameterMap.put("xref_acc", xref.getXrefAccession());
@@ -1028,7 +1025,7 @@ public class CdaSqlUtils {
 
         Parameter parameter = getParameterByStableId(parameterId);
 
-        Map<String, String> MAPPING = new HashMap<>();
+        Map<String, String> MAPPING = new ConcurrentHashMapAllowNull<>();
         MAPPING.put("M-G-P_022_001_001_001", "FLOAT");
         MAPPING.put("M-G-P_022_001_001", "FLOAT");
         MAPPING.put("ESLIM_006_001_035", "FLOAT");
@@ -1150,8 +1147,8 @@ public class CdaSqlUtils {
 
         if (parametersByStableIdMap == null) {
             String query = "SELECT * FROM phenotype_parameter";
-            parametersByStableIdMap = new HashMap<>();
-            List<Parameter> parameters = jdbcCda.query(query, new HashMap<>(), new ParameterRowMapper());
+            parametersByStableIdMap = new ConcurrentHashMapAllowNull<>();
+            List<Parameter> parameters = jdbcCda.query(query, new ConcurrentHashMapAllowNull<>(), new ParameterRowMapper());
             for (Parameter parameter : parameters) {
                 parametersByStableIdMap.put(parameter.getStableId(), parameter);
             }
@@ -1359,7 +1356,7 @@ public class CdaSqlUtils {
 
         for (String tableName : tableNames) {
             String query = "SELECT COUNT(*) FROM " + tableName;
-            Map<String, Object> parameterMap = new HashMap<>();
+            Map<String, Object> parameterMap = new ConcurrentHashMapAllowNull<>();
 
             Long result = jdbcCda.queryForObject(query, parameterMap, Long.class);
             counts.add(Long.toString(result));
@@ -1392,10 +1389,10 @@ public class CdaSqlUtils {
 
     public Map<String, MissingColonyId> getMissingColonyIdsMap() {
 
-        Map<String, MissingColonyId> map   = new HashMap<>();
+        Map<String, MissingColonyId> map   = new ConcurrentHashMapAllowNull<>();
         String                       query = "SELECT * FROM missing_colony_id";
 
-        List<MissingColonyId> missingColonyIds = jdbcCda.query(query, new HashMap<>(), new MissingColonyIdRowMapper());
+        List<MissingColonyId> missingColonyIds = jdbcCda.query(query, new ConcurrentHashMapAllowNull<>(), new MissingColonyIdRowMapper());
         for (MissingColonyId missingColonyId : missingColonyIds) {
             map.put(missingColonyId.getColonyId(), missingColonyId);
         }
@@ -1409,7 +1406,7 @@ public class CdaSqlUtils {
         final String insert = "INSERT INTO missing_colony_id (colony_id, log_level, reason) " +
                 "VALUES (:colonyId, :logLevel, :reason)";
 
-        Map<String, Object> parameterMap = new HashMap<>();
+        Map<String, Object> parameterMap = new ConcurrentHashMapAllowNull<>();
         parameterMap.put("colonyId", colonyId);
         parameterMap.put("logLevel", logLevel);
         parameterMap.put("reason", reason);
@@ -1514,7 +1511,7 @@ public class CdaSqlUtils {
         String update = "UPDATE phenotype_parameter_ontology_annotation SET ontology_acc = :ontologyAcc, ontology_db_id = :ontologyDbId" +
                         " WHERE ontology_acc = :oldOntologyAcc";
 
-        Map<String, Object> parameterMap = new HashMap<>();
+        Map<String, Object> parameterMap = new ConcurrentHashMapAllowNull<>();
 
         for (Map.Entry<String, OntologyTerm> replacement : replacementMap.entrySet()) {
             OntologyTerm term = replacement.getValue();
@@ -1532,7 +1529,7 @@ public class CdaSqlUtils {
 
         String delete = "DELETE FROM phenotype_parameter_ontology_annotation WHERE ontology_acc IS NULL";
 
-        Map<String, Object> parameterMap = new HashMap<>();
+        Map<String, Object> parameterMap = new ConcurrentHashMapAllowNull<>();
 
         jdbcCda.update(delete, parameterMap);
     }
@@ -1542,7 +1539,7 @@ public class CdaSqlUtils {
      */
     public Map<String, PhenotypedColony> getPhenotypedColonies() {
 
-        Map<String, PhenotypedColony> map = new HashMap<>();
+        Map<String, PhenotypedColony> map = new ConcurrentHashMapAllowNull<>();
         String query =
                 "SELECT\n" +
                 "  pc.id,\n" +
@@ -1568,7 +1565,7 @@ public class CdaSqlUtils {
                 "LEFT OUTER  JOIN organisation       pcprorg     ON pcprorg  .id     = pc.phenotyping_centre_organisation_id\n" +
                 "LEFT OUTER  JOIN project            pcprprj     ON pcprprj  .id     = pc.phenotyping_consortium_project_id";
 
-        List<PhenotypedColony> phenotypedColonies = jdbcCda.query(query, new HashMap<>(), new PhenotypedColonyRowMapper());
+        List<PhenotypedColony> phenotypedColonies = jdbcCda.query(query, new ConcurrentHashMapAllowNull<>(), new PhenotypedColonyRowMapper());
         for (PhenotypedColony phenotypedColony : phenotypedColonies) {
             map.put(phenotypedColony.getColonyName(), phenotypedColony);
         }
@@ -1607,7 +1604,7 @@ public class CdaSqlUtils {
         String rawValue = simpleParameter.getValue();
         int observationPk = 0;
 
-        Map<String, Object> parameterMap = new HashMap<>();
+        Map<String, Object> parameterMap = new ConcurrentHashMapAllowNull<>();
         parameterMap.put("dbId", dbId);
         parameterMap.put("biologicalSampleId", biologicalSamplePk);
         parameterMap.put("observationType", observationType.name());
@@ -1620,7 +1617,7 @@ public class CdaSqlUtils {
         parameterMap.put("parameterStatusMessage", parameterStatusMessage);
 
         // Do observationType validation and build the observation detail parameter map.
-        Map<String, Object> detailParameterMap = new HashMap<>();
+        Map<String, Object> detailParameterMap = new ConcurrentHashMapAllowNull<>();
         switch (observationType) {
             case metadata:
                 // Do not load metadata parameters like this
@@ -1743,7 +1740,7 @@ public class CdaSqlUtils {
         KeyHolder keyholder     = new GeneratedKeyHolder();
         int       observationPk;
 
-        Map<String, Object> parameterMap = new HashMap<>();
+        Map<String, Object> parameterMap = new ConcurrentHashMapAllowNull<>();
         parameterMap.put("dbId", dbId);
         parameterMap.put("biologicalSampleId", biologicalSamplePk);
         parameterMap.put("observationType", observationType.name());
@@ -1846,7 +1843,7 @@ public class CdaSqlUtils {
         KeyHolder keyholder     = new GeneratedKeyHolder();
         int       observationPk;
 
-        Map<String, Object> parameterMap = new HashMap<>();
+        Map<String, Object> parameterMap = new ConcurrentHashMapAllowNull<>();
         parameterMap.put("dbId", dbId);
         parameterMap.put("biologicalSampleId", biologicalSamplePk);
         parameterMap.put("observationType", observationType.name());
@@ -1933,7 +1930,7 @@ public class CdaSqlUtils {
         KeyHolder keyholder     = new GeneratedKeyHolder();
         int       observationPk;
 
-        Map<String, Object> parameterMap = new HashMap<>();
+        Map<String, Object> parameterMap = new ConcurrentHashMapAllowNull<>();
         parameterMap.put("dbId", dbId);
         parameterMap.put("biologicalSampleId", biologicalSamplePk);
         parameterMap.put("observationType", observationType.name());
@@ -2032,7 +2029,7 @@ public class CdaSqlUtils {
         KeyHolder keyholder     = new GeneratedKeyHolder();
         int       observationPk;
 
-        Map<String, Object> parameterMap = new HashMap<>();
+        Map<String, Object> parameterMap = new ConcurrentHashMapAllowNull<>();
         parameterMap.put("dbId", dbId);
         parameterMap.put("biologicalSampleId", biologicalSamplePk);
         parameterMap.put("observationType", observationType.name());
@@ -2165,7 +2162,7 @@ public class CdaSqlUtils {
         KeyHolder keyholder     = new GeneratedKeyHolder();
         int       observationPk;
 
-        Map<String, Object> parameterMap = new HashMap<>();
+        Map<String, Object> parameterMap = new ConcurrentHashMapAllowNull<>();
         parameterMap.put("dbId", dbId);
         parameterMap.put("biologicalSampleId", biologicalSamplePk);
         parameterMap.put("observationType", observationType.name());
@@ -2243,7 +2240,7 @@ public class CdaSqlUtils {
 
         for (OntologyTerm term : terms) {
             try {
-                Map<String, Object> parameterMap = new HashMap<>();
+                Map<String, Object> parameterMap = new ConcurrentHashMapAllowNull<>();
                 parameterMap.put("acc", term.getId().getAccession());
                 parameterMap.put("db_id", term.getId().getDatabaseId());
                 parameterMap.put("name", term.getName());
@@ -2265,7 +2262,7 @@ public class CdaSqlUtils {
 
             for (Synonym synonym : term.getSynonyms()) {
                 try {
-                    Map<String, Object> parameterMap = new HashMap<>();
+                    Map<String, Object> parameterMap = new ConcurrentHashMapAllowNull<>();
                     parameterMap.put("acc", synonym.getAccessionId());
                     parameterMap.put("db_id", synonym.getDbId());
                     parameterMap.put("symbol", synonym.getSymbol());
@@ -2286,7 +2283,7 @@ public class CdaSqlUtils {
 
             for (AlternateId alternateId : term.getAlternateIds()) {
                 try {
-                    Map<String, Object> parameterMap = new HashMap<>();
+                    Map<String, Object> parameterMap = new ConcurrentHashMapAllowNull<>();
                     parameterMap.put("ontology_term_acc", term.getId().getAccession());
                     parameterMap.put("alternate_id_acc", alternateId.getAlternateAccessionId());
 
@@ -2302,7 +2299,7 @@ public class CdaSqlUtils {
 
             for (ConsiderId considerId : term.getConsiderIds()) {
                 try {
-                    Map<String, Object> parameterMap = new HashMap<>();
+                    Map<String, Object> parameterMap = new ConcurrentHashMapAllowNull<>();
                     parameterMap.put("ontology_term_acc", term.getId().getAccession());
                     parameterMap.put("consider_id_acc", considerId.getConsiderAccessionId());
 
@@ -2330,7 +2327,7 @@ public class CdaSqlUtils {
 
         KeyHolder           keyholder       = new GeneratedKeyHolder();
 
-        Map<String, Object> parameterMap = new HashMap<>();
+        Map<String, Object> parameterMap = new ConcurrentHashMapAllowNull<>();
         parameterMap.put("observationPk", observationPk);
         parameterMap.put("parameterId", parameterAssociation.getParameterID());
         parameterMap.put("sequenceId", parameterAssociation.getSequenceID());
@@ -2409,7 +2406,7 @@ public class CdaSqlUtils {
         // Insert PhenotypedColonies if they do not exist. Ignore any duplicates.
         for (PhenotypedColony phenotypedColony : phenotypedColonies) {
             try {
-                Map<String, Object> parameterMap = new HashMap<>();
+                Map<String, Object> parameterMap = new ConcurrentHashMapAllowNull<>();
                 parameterMap.put("colony_name", phenotypedColony.getColonyName());
                 parameterMap.put("es_cell_name", phenotypedColony.getEs_cell_name() == null ? null : phenotypedColony.getEs_cell_name());
                 parameterMap.put("gf_acc", phenotypedColony.getGene().getId().getAccession());
@@ -2437,7 +2434,7 @@ public class CdaSqlUtils {
                              " VALUES (:procedureId, :experimentPk, :parameterId, :sequenceId, :parameterStatus, :value, :observationPk)";
 
         KeyHolder           keyholder       = new GeneratedKeyHolder();
-        Map<String, Object> parameterMap    = new HashMap<>();
+        Map<String, Object> parameterMap    = new ConcurrentHashMapAllowNull<>();
 
         for (ProcedureMetadata metadata : metadataList) {
 
@@ -2525,7 +2522,7 @@ public class CdaSqlUtils {
 
         Map<String, Strain> strains = new ConcurrentHashMapAllowNull<>();
 
-        Map<String, Object> parameterMap = new HashMap<>();
+        Map<String, Object> parameterMap = new ConcurrentHashMapAllowNull<>();
         List<Strain> strainList = jdbcCda.query("SELECT * FROM strain", parameterMap, new StrainRowMapper());
         for (Strain strain : strainList) {
             strains.put(strain.getName(), strain);
@@ -2559,7 +2556,7 @@ public class CdaSqlUtils {
     public Map<String, Integer> insertStrains(List<Strain> strains) throws DataLoadException {
         int count;
 
-        Map<String, Integer> countsMap = new HashMap<>();
+        Map<String, Integer> countsMap = new ConcurrentHashMapAllowNull<>();
         countsMap.put("strains", 0);
         countsMap.put("synonyms", 0);
 
@@ -2573,7 +2570,7 @@ public class CdaSqlUtils {
             }
 
             try {
-                Map<String, Object> parameterMap = new HashMap<>();
+                Map<String, Object> parameterMap = new ConcurrentHashMapAllowNull<>();
                 try {
                     parameterMap.put("acc", strain.getId().getAccession());
                 } catch (Exception e) {
@@ -2595,7 +2592,7 @@ public class CdaSqlUtils {
             if (strain.getSynonyms() != null) {
                 for (Synonym synonym : strain.getSynonyms()) {
                     try {
-                        Map<String, Object> parameterMap = new HashMap<>();
+                        Map<String, Object> parameterMap = new ConcurrentHashMapAllowNull<>();
                         parameterMap.put("acc", synonym.getAccessionId());
                         parameterMap.put("db_id", synonym.getDbId());
                         parameterMap.put("symbol", synonym.getSymbol());
@@ -2632,7 +2629,7 @@ public class CdaSqlUtils {
                              "VALUES (:acc, :db_id, :symbol)";
 
         try {
-            Map<String, Object> parameterMap = new HashMap<>();
+            Map<String, Object> parameterMap = new ConcurrentHashMapAllowNull<>();
             parameterMap.put("acc", synonym.getAccessionId());
             parameterMap.put("db_id", synonym.getDbId());
             parameterMap.put("symbol", synonym.getSymbol());
@@ -2654,7 +2651,7 @@ public class CdaSqlUtils {
         int iMissing = (missing ? 1 : 0);
         final String update = "UPDATE observation SET missing = :missing WHERE id = :observationPk";
 
-        Map<String, Object> parameterMap = new HashMap<>();
+        Map<String, Object> parameterMap = new ConcurrentHashMapAllowNull<>();
         parameterMap.put("observationPk", observationPk);
         parameterMap.put("missing", iMissing);
 
@@ -2665,7 +2662,7 @@ public class CdaSqlUtils {
         final String insert = "INSERT INTO dimension (parameter_association_id, id,  origin, unit, value)" +
                                             " VALUES (:parameterAssociationPk, :id, :origin, :unit, :value)";
 
-        Map<String, Object> parameterMap = new HashMap<>();
+        Map<String, Object> parameterMap = new ConcurrentHashMapAllowNull<>();
         parameterMap.put("parameterAssociationPk", parameterAssociationPk);
         parameterMap.put("id", dimension.getId());
         parameterMap.put("origin", dimension.getOrigin());
@@ -2905,7 +2902,7 @@ public class CdaSqlUtils {
     public HashSet<String> getImpressDerivedParameters() {
 
         String query = "SELECT stable_id FROM phenotype_parameter WHERE derived = 1";
-        List<String> results = jdbcCda.queryForList(query, new HashMap(), String.class);
+        List<String> results = jdbcCda.queryForList(query, new ConcurrentHashMapAllowNull(), String.class);
         return new HashSet<>(results);
     }
 
@@ -2916,7 +2913,7 @@ public class CdaSqlUtils {
     public HashSet<String> getImpressMetadataAndDataAnalysisParameters() {
 
         String query = "SELECT stable_id FROM phenotype_parameter WHERE metadata = 1 AND data_analysis = 1";
-        List<String> results = jdbcCda.queryForList(query, new HashMap(), String.class);
+        List<String> results = jdbcCda.queryForList(query, new ConcurrentHashMapAllowNull(), String.class);
         return new HashSet<>(results);
     }
 
@@ -3321,7 +3318,7 @@ public class CdaSqlUtils {
                 "db_id,   allelic_composition,  genetic_background,  zygosity) VALUES (" +
                 ":db_id, :allelic_composition, :genetic_background, :zygosity)";
 
-        Map<String, Object> parameterMap = new HashMap<>();
+        Map<String, Object> parameterMap = new ConcurrentHashMapAllowNull<>();
         parameterMap.put("db_id", dbId);
         parameterMap.put("allelic_composition", allelicComposition);
         parameterMap.put("genetic_background", geneticBackground);
@@ -3368,7 +3365,7 @@ public class CdaSqlUtils {
                 "biological_model_id,   gf_acc,  gf_db_id) VALUES (" +
                 ":biological_model_id, :gf_acc, :gf_db_id)";
 
-        Map<String, Object> parameterMap = new HashMap<>();
+        Map<String, Object> parameterMap = new ConcurrentHashMapAllowNull<>();
         parameterMap.put("biological_model_id", biologicalModelId);
 
         for (AccDbId gene : genes) {
@@ -3411,7 +3408,7 @@ public class CdaSqlUtils {
                 "biological_model_id,   allele_acc,  allele_db_id) VALUES (" +
                 ":biological_model_id, :allele_acc, :allele_db_id)";
 
-        Map<String, Object> parameterMap = new HashMap<>();
+        Map<String, Object> parameterMap = new ConcurrentHashMapAllowNull<>();
         parameterMap.put("biological_model_id", biologicalModelId);
 
         for (AccDbId allele : alleles) {
@@ -3444,7 +3441,7 @@ public class CdaSqlUtils {
                 "biological_model_id,   strain_acc,  strain_db_id) VALUES (" +
                 ":biological_model_id, :strain_acc, :strain_db_id)";
 
-        Map<String, Object> parameterMap = new HashMap<>();
+        Map<String, Object> parameterMap = new ConcurrentHashMapAllowNull<>();
         parameterMap.put("biological_model_id", biologicalModelId);
 
         for (AccDbId strain : strains) {
@@ -3477,7 +3474,7 @@ public class CdaSqlUtils {
                 "biological_model_id,   phenotype_acc,  phenotype_db_id) VALUES (" +
                 ":biological_model_id, :phenotype_acc, :phenotype_db_id)";
 
-        Map<String, Object> parameterMap = new HashMap<>();
+        Map<String, Object> parameterMap = new ConcurrentHashMapAllowNull<>();
         parameterMap.put("biological_model_id", biologicalModelId);
 
         for (AccDbId phenotype : phenotypes) {
