@@ -22,10 +22,10 @@ import org.mousephenotype.cda.db.pojo.OntologyTerm;
 import org.mousephenotype.cda.db.pojo.Strain;
 import org.mousephenotype.cda.enumerations.DbIdType;
 import org.mousephenotype.cda.loads.common.CdaSqlUtils;
+import org.mousephenotype.cda.loads.common.ConcurrentHashMapAllowNull;
 import org.mousephenotype.cda.loads.exceptions.DataLoadException;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -41,8 +41,8 @@ public class StrainMapper {
     private        Map<String, Strain> strainsByNameOrMgiAccessionIdMap;
     private static OntologyTerm        impcUncharacterizedBackgroundStrain;
 
-    public static final Map<String, String> STRAIN_MAPPING     = new HashMap<>();
-    public static final Map<String, String> BACKGROUND_MAPPING = new HashMap<>();
+    public static final Map<String, String> STRAIN_MAPPING     = new ConcurrentHashMapAllowNull<>();
+    public static final Map<String, String> BACKGROUND_MAPPING = new ConcurrentHashMapAllowNull<>();
 
 
 

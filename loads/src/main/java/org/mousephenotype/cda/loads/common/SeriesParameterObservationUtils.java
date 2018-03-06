@@ -121,7 +121,7 @@ public class SeriesParameterObservationUtils {
 
         Long lightsOut = null;
 
-        Map<String, SimpleDateFormat> knownPatterns = new HashMap<>();
+        Map<String, SimpleDateFormat> knownPatterns = new ConcurrentHashMapAllowNull<>();
         knownPatterns.put("IMPC_CAL_010_001", new SimpleDateFormat("HH:mm' 'a"));
         knownPatterns.put("IMPC_CAL_010_002", new SimpleDateFormat("HH:mm:ss"));
         knownPatterns.put("IMPC_CAL_010_003", new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ"));

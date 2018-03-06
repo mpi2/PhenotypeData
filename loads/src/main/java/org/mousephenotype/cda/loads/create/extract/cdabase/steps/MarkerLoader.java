@@ -18,11 +18,11 @@ package org.mousephenotype.cda.loads.create.extract.cdabase.steps;
 
 import org.mousephenotype.cda.db.pojo.GenomicFeature;
 import org.mousephenotype.cda.db.pojo.Xref;
-import org.mousephenotype.cda.loads.create.extract.cdabase.support.XrefFieldSetMapper;
-import org.mousephenotype.cda.loads.exceptions.DataLoadException;
 import org.mousephenotype.cda.loads.create.extract.cdabase.support.BlankLineRecordSeparatorPolicy;
 import org.mousephenotype.cda.loads.create.extract.cdabase.support.GenesFieldSetMapper;
 import org.mousephenotype.cda.loads.create.extract.cdabase.support.LogStatusStepListener;
+import org.mousephenotype.cda.loads.create.extract.cdabase.support.XrefFieldSetMapper;
+import org.mousephenotype.cda.loads.exceptions.DataLoadException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.JobInterruptedException;
@@ -50,7 +50,7 @@ import java.util.*;
 public class MarkerLoader implements InitializingBean, Step {
 
     private final Logger                       logger     = LoggerFactory.getLogger(this.getClass());
-    public        Map<FilenameKeys, String>    markerKeys = new HashMap<>();
+    public        Map<FilenameKeys, String>    markerKeys;
 
     private FlatFileItemReader<GenomicFeature> genesReader           = new FlatFileItemReader<>();
     private FlatFileItemReader<List<Xref>>     xrefEntrezGenesReader = new FlatFileItemReader<>();

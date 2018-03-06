@@ -49,7 +49,7 @@ import java.util.*;
  */
 public class BiologicalModelLoader implements InitializingBean, Step {
 
-    private       Map<FilenameKeys, String>                bioModelKeys   = new HashMap<>();
+    private       Map<FilenameKeys, String>                bioModelKeys;
     private       FlatFileItemReader<BioModelInsertDTOMGI> bioModelReader = new FlatFileItemReader<>();
     private final Logger                                   logger         = LoggerFactory.getLogger(this.getClass());
 

@@ -17,9 +17,9 @@
 package org.mousephenotype.cda.loads.create.extract.cdabase.steps;
 
 import org.mousephenotype.cda.db.pojo.*;
-import org.mousephenotype.cda.loads.exceptions.DataLoadException;
 import org.mousephenotype.cda.loads.create.extract.cdabase.support.BlankLineRecordSeparatorPolicy;
 import org.mousephenotype.cda.loads.create.extract.cdabase.support.LogStatusStepListener;
+import org.mousephenotype.cda.loads.exceptions.DataLoadException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.JobInterruptedException;
@@ -40,7 +40,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.validation.BindException;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -52,7 +51,7 @@ import java.util.Set;
  */
 public class PhenotypedColonyLoader implements InitializingBean, Step {
 
-    public Map<FilenameKeys, String> phenotypedColonyKeys = new HashMap<>();
+    public Map<FilenameKeys, String> phenotypedColonyKeys;
     private final Logger             logger               = LoggerFactory.getLogger(this.getClass());
 
     private FlatFileItemReader<PhenotypedColony> phenotypedColonyReader = new FlatFileItemReader<>();

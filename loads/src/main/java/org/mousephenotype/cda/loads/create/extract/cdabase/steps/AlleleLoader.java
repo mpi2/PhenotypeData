@@ -51,7 +51,7 @@ import java.util.regex.Pattern;
  */
 public class AlleleLoader implements InitializingBean, Step {
 
-    public Map<FilenameKeys, String>   alleleKeys       = new HashMap<>();
+    public Map<FilenameKeys, String>   alleleKeys;
     private final Logger               logger           = LoggerFactory.getLogger(this.getClass());
     private int                        totalAlleles     = 0;
 
