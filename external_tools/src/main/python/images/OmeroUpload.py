@@ -68,7 +68,6 @@ def main(argv):
 
     # Other values needed within this script.
     splitString = 'impc/'
-    dirs_to_exclude = ['_ERG_','_ABR_']
     # Assuming files to exclude is taken care of in solrquery
     files_to_exclude = ['.fcs','.mov','.bz2']
 
@@ -81,29 +80,13 @@ def main(argv):
     solr_json = json.loads(requests.get(solr_query_url).text)
     solr_recs = solr_json['response']['docs']
     print "Number of records returned from Solr: " + str(len(solr_recs))
-    solr_recs_excluded = []
 
     solr_directory_to_filenames_map = {}
     for rec in solr_recs:
         fname = os.path.split(rec['download_file_path'])[-1]
         key = os.path.join(rec['phenotyping_center'],rec['pipeline_stable_id'],rec['procedure_stable_id'],rec['parameter_stable_id'],fname)
-        for d in dirs_to_exclude:
-            if key.find(d) >= 0:
-                solr_recs_excluded.append(os.path.join(key,fname))
-                key = None
-                break
-        if key is not None:
-            solr_directory_to_filenames_map[key] = rec['download_file_path']
-    n_solr_recs_excluded = len(solr_recs_excluded)
-    print "Number of records excluded for having " + \
-        " ".join(dirs_to_exclude) + " in impress ids is: " + \
-        str(n_solr_recs_excluded)
-    if n_solr_recs_excluded > 0:
-        print "Excluded records:"
-        for excluded in solr_recs_excluded:
-            print excluded    
-    
-    
+        solr_directory_to_filenames_map[key] = rec['download_file_path']
+
     # Get images from Omero
     omeroS = OmeroService(omeroHost, omeroPort, omeroUsername, omeroPass, group)
     omero_file_list = omeroS.getImagesAlreadyInOmero()
