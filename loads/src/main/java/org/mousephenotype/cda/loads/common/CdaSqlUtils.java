@@ -261,7 +261,7 @@ public class CdaSqlUtils {
      *
      * @return a map of {@link BiologicalSample}, keyed by {@link BioSampleKey}
      */
-    public Map<BioSampleKey, BiologicalSample> getBiologicalSamplesMapBySampleKey() {
+    public synchronized Map<BioSampleKey, BiologicalSample> getBiologicalSamplesMapBySampleKey() {
 
         Map<BioSampleKey, BiologicalSample> bioSamplesMap = new HashMap<>();
         String query = "SELECT edb.short_name, bs.* FROM biological_sample bs JOIN external_db edb ON edb.id = bs.db_id";
@@ -371,7 +371,7 @@ public class CdaSqlUtils {
      *
      * @return A complete map of cda db_id, keyed by datasourceShortName
      */
-    public Map<String, Integer> getCdaDb_idsByDccDatasourceShortName() {
+    public synchronized Map<String, Integer> getCdaDb_idsByDccDatasourceShortName() {
         Map<String, Integer> map = new ConcurrentHashMapAllowNull<>();
 
         List<Datasource> results = jdbcCda.query("SELECT * FROM external_db", new BeanPropertyRowMapper(Datasource.class));
@@ -386,7 +386,7 @@ public class CdaSqlUtils {
      *
      * @return A complete map of cda organisation_id primary keys, keyed by dcc center.centerId
      */
-    public Map<String, Integer> getCdaOrganisation_idsByDccCenterId() {
+    public synchronized Map<String, Integer> getCdaOrganisation_idsByDccCenterId() {
         Map<String, Integer> map = new ConcurrentHashMapAllowNull<>();
 
         Map<String, Organisation> organisations = getOrganisations();
@@ -408,7 +408,7 @@ public class CdaSqlUtils {
      *
      * @return A complete map of cda project_id primary keys, keyed by dcc center.project
      */
-    public Map<String, Integer> getCdaProject_idsByDccProject() {
+    public synchronized Map<String, Integer> getCdaProject_idsByDccProject() {
         Map<String, Integer> map = new ConcurrentHashMapAllowNull<>();
 
         Map<String, Project> projects = getProjects();
@@ -430,7 +430,7 @@ public class CdaSqlUtils {
      *
      * @return A complete map of cda pipeline primary keys, keyed by dcc center.pipeline
      */
-    public Map<String, Integer> getCdaPipeline_idsByDccPipeline() {
+    public synchronized Map<String, Integer> getCdaPipeline_idsByDccPipeline() {
         Map<String, Integer> map = new ConcurrentHashMapAllowNull<>();
 
         List<Map<String, Object>> results = jdbcCda.queryForList("SELECT id, stable_id FROM phenotype_pipeline", new HashMap<>());
@@ -448,7 +448,7 @@ public class CdaSqlUtils {
      *
      * @return A complete map of cda procedure primary keys, keyed by dcc procedure_.procedureId
      */
-    public Map<String, Integer> getCdaProcedure_idsByDccProcedureId() {
+    public synchronized Map<String, Integer> getCdaProcedure_idsByDccProcedureId() {
         Map<String, Integer> map = new ConcurrentHashMapAllowNull<>();
 
         List<Map<String, Object>> results = jdbcCda.queryForList("SELECT id, stable_id FROM phenotype_procedure", new HashMap<>());
@@ -480,7 +480,7 @@ public class CdaSqlUtils {
         return map;
     }
 
-    public Map<String, String> getCdaParameterNames() {
+    public synchronized Map<String, String> getCdaParameterNames() {
         Map<String, String> map = new ConcurrentHashMapAllowNull<>();
 
         List<Map<String, Object>> results = jdbcCda.queryForList("SELECT stable_id, name FROM phenotype_parameter", new HashMap<>());
@@ -1390,7 +1390,7 @@ public class CdaSqlUtils {
         return getOntologyTerm(dbId, mappedTerm);
     }
 
-    public Map<String, MissingColonyId> getMissingColonyIdsMap() {
+    public synchronized Map<String, MissingColonyId> getMissingColonyIdsMap() {
 
         Map<String, MissingColonyId> map   = new HashMap<>();
         String                       query = "SELECT * FROM missing_colony_id";
@@ -2902,7 +2902,7 @@ public class CdaSqlUtils {
      *
      * @return The set of derived parameters
      */
-    public HashSet<String> getImpressDerivedParameters() {
+    public synchronized HashSet<String> getImpressDerivedParameters() {
 
         String query = "SELECT stable_id FROM phenotype_parameter WHERE derived = 1";
         List<String> results = jdbcCda.queryForList(query, new HashMap(), String.class);
@@ -2913,7 +2913,7 @@ public class CdaSqlUtils {
      *
      * @return The set of metadata and data_analysis parameters
      */
-    public HashSet<String> getImpressMetadataAndDataAnalysisParameters() {
+    public synchronized HashSet<String> getImpressMetadataAndDataAnalysisParameters() {
 
         String query = "SELECT stable_id FROM phenotype_parameter WHERE metadata = 1 AND data_analysis = 1";
         List<String> results = jdbcCda.queryForList(query, new HashMap(), String.class);

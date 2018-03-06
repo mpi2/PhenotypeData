@@ -94,8 +94,8 @@ public class SampleLoader implements CommandLineRunner {
     private int efoDbId;
 
     private static BioModelManager      bioModelManager;
-    private static Map<String, Integer> cdaDb_idMap      = new ConcurrentHashMapAllowNull<>();
-    private static Map<String, Integer> cdaProject_idMap = new ConcurrentHashMapAllowNull<>();
+    private static Map<String, Integer> cdaDb_idMap;
+    private static Map<String, Integer> cdaProject_idMap;
     private static Map<String, Integer> cdaOrganisation_idMap;
 
     private final String MISSING_MUTANT_COLONY_ID_REASON = "MUTANT specimen not found in phenotyped_colony table";

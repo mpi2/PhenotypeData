@@ -214,7 +214,7 @@ public class BioModelManager {
     // PRIVATE METHODS
 
 
-    private void initialise() throws DataLoadException {
+    private synchronized void initialise() throws DataLoadException {
 
         // Initialise maps
         allelesBySymbolMap = new ConcurrentHashMapAllowNull<>(cdaSqlUtils.getAllelesBySymbol());
