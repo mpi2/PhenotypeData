@@ -1066,6 +1066,22 @@ public class ExperimentLoader implements CommandLineRunner {
             return;
         }
 
+
+
+
+
+
+        if (dccExperiment.getColonyId().equals("B6.Cg-cub/H") && dccExperiment.getProcedureId().startsWith("ESLIM_005")) {
+            logger.info("CANARY2 -- colony B6.Cg-cub/H");
+            System.out.println("");
+        }
+
+
+
+
+
+
+
         // If the parameter is not already marked as missing, check for null/empty values. Values are not required - sometimes
         // there is a parameterStatus instead, and sometimes an optional, empty or null value is provided. Ignore in all such cases.
         String value = simpleParameter.getValue();
@@ -1080,6 +1096,23 @@ public class ExperimentLoader implements CommandLineRunner {
                 return;
             }
         }
+
+
+
+
+
+
+
+        if (dccExperiment.getColonyId().equals("B6.Cg-cub/H") && dccExperiment.getProcedureId().startsWith("ESLIM_005")) {
+            logger.info("CANARY3 -- colony B6.Cg-cub/H");
+            System.out.println("");
+        }
+
+
+
+
+
+
 
         int observationPk;
         try {
@@ -1096,6 +1129,23 @@ public class ExperimentLoader implements CommandLineRunner {
                         observationType, missing, parameterStatus, parameterStatusMessage, e.getLocalizedMessage());
             return;
         }
+
+
+
+
+
+
+
+        if (dccExperiment.getColonyId().equals("B6.Cg-cub/H") && dccExperiment.getProcedureId().startsWith("ESLIM_005")) {
+            logger.info("CANARY4 -- colony B6.Cg-cub/H");
+            System.out.println("");
+        }
+
+
+
+
+
+
 
         // Insert experiment_observation
         cdaSqlUtils.insertExperiment_observation(experimentPk, observationPk);
