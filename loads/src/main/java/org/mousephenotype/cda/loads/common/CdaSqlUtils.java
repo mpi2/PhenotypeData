@@ -1826,7 +1826,7 @@ public class CdaSqlUtils {
 
 
     // MediaParameter version. Returns the newly-inserted primary key if successful; 0 otherwise.
-    public int insertObservation(
+    public synchronized int insertObservation(
             int dbId,
             Integer biologicalSamplePk,
             String parameterStableId,
