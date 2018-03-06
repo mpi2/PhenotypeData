@@ -1024,7 +1024,7 @@ public class CdaSqlUtils {
      * <i>unidimensional</i>; otherwise, it will be interpreted as
      * <i>categorical</i>.
      */
-    public ObservationType computeObservationType(String parameterId, String value) {
+    public synchronized ObservationType computeObservationType(String parameterId, String value) {
 
         Parameter parameter = getParameterByStableId(parameterId);
 
