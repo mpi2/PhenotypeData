@@ -173,7 +173,8 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
                 "OR (s.parameter_id IN (SELECT id FROM phenotype_parameter WHERE stable_id like 'IMPC_VIA%' OR stable_id LIKE 'IMPC_FER%')) " +
                 "OR s.p_value IS NULL ";
 
-
+int missingLifeStageCount = 0;
+final int MAX_MISSING_LIFE_STAGE_ERRORS_TO_LOG = 100;
         try (PreparedStatement p = connection.prepareStatement(query, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY)) {
 
             p.setFetchSize(Integer.MIN_VALUE);
@@ -286,11 +287,31 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
                     }
 
                     String mpId = r.getString("ontology_term_id");
+                    String mpName = r.getString("ontology_term_name");
 
                     doc.setMpTermId(mpId);
-                    doc.setMpTermName(r.getString("ontology_term_name"));
+                    doc.setMpTermName(mpName);
 
                     // mp-ma mappings, only add to adult (POSTPARTUM_STAGE) (MmusDv:0000092) as mapping if to MA
+
+                    if (doc.getLifeStageAcc() == null) {
+                        if (missingLifeStageCount < MAX_MISSING_LIFE_STAGE_ERRORS_TO_LOG) {
+                            logger.warn("life stage is NULL for " +
+                                                "mpTermId " + mpId +
+                                                ", mpTermName " + mpName +
+                                                ", external_id " + doc.getExternalId() +
+                                                ", resourceName " + doc.getResourceName() +
+                                                ", pipelineStableId " + doc.getPipelineStableId() +
+                                                ", procedureStableId " + doc.getProcedureStableId() +
+                                                ", parameterStableId " + doc.getParameterStableId() +
+                                                ". Skipping...");
+                        };
+
+                        missingLifeStageCount++;
+                        continue;
+                    }
+
+
                     if (doc.getLifeStageAcc().equalsIgnoreCase(POSTPARTUM_STAGE)) {
 
                         getMaTermsForMp(doc, mpId, true);
@@ -368,6 +389,10 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
         } catch (Exception e) {
             runStatus.addError(" Big error " + e.getMessage());
             e.printStackTrace();
+        }
+
+        if (missingLifeStageCount > 0) {
+            logger.warn("missingLifeStageCount = " + missingLifeStageCount);
         }
 
         return count;

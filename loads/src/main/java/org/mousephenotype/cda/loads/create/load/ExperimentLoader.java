@@ -176,7 +176,7 @@ public class ExperimentLoader implements CommandLineRunner {
 
         logger.info("Getting experiments");
         List<DccExperimentDTO> dccExperiments = dccSqlUtils.getExperiments();
-        logger.info("Getting experiments complete.");
+        logger.info("Getting experiments complete. Loading {} experiments from DCC.", dccExperiments.size());
 
         CommonUtils.printJvmMemoryConfiguration();
 
@@ -189,66 +189,49 @@ public class ExperimentLoader implements CommandLineRunner {
 
         CommonUtils.printJvmMemoryConfiguration();
 
-        // FIXME These won't be called multiple times after we remove the LoadFromDcc class.
-        // Initialise maps. If they are not null, clear them first, as this method gets called multiple times to
-        // load data from different dcc databases.
         logger.info("Loading lookup maps started");
 
-        cdaDb_idMap.clear();
         cdaDb_idMap = cdaSqlUtils.getCdaDb_idsByDccDatasourceShortName();
         logger.info("loaded {} db_id rows", cdaDb_idMap.size());
 
-        cdaProject_idMap.clear();
         cdaProject_idMap = cdaSqlUtils.getCdaProject_idsByDccProject();
         logger.info("loaded {} project rows", cdaProject_idMap.size());
 
-        cdaPipeline_idMap.clear();
         cdaPipeline_idMap = cdaSqlUtils.getCdaPipeline_idsByDccPipeline();
         logger.info("loaded {} pipeline rows", cdaPipeline_idMap.size());
 
-        cdaProcedure_idMap.clear();
         cdaProcedure_idMap = cdaSqlUtils.getCdaProcedure_idsByDccProcedureId();
         logger.info("loaded {} procedure rows", cdaProcedure_idMap.size());
 
-        cdaParameter_idMap.clear();
         cdaParameter_idMap = cdaSqlUtils.getCdaParameter_idsByDccParameterId();
         logger.info("loaded {} parameter rows", cdaParameter_idMap.size());
 
-        cdaParameterNameMap.clear();
         cdaParameterNameMap = cdaSqlUtils.getCdaParameterNames();
         logger.info("loaded {} parameterName rows", cdaParameterNameMap.size());
 
-        derivedImpressParameters.clear();
         derivedImpressParameters = cdaSqlUtils.getImpressDerivedParameters();
         logger.info("loaded {} derivedImpressParameter rows", derivedImpressParameters.size());
 
-        metadataAndDataAnalysisParameters.clear();
         metadataAndDataAnalysisParameters = cdaSqlUtils.getImpressMetadataAndDataAnalysisParameters();
         logger.info("loaded {} requiredImpressParameter rows", metadataAndDataAnalysisParameters.size());
 
-        samplesMap.clear();
         samplesMap = cdaSqlUtils.getBiologicalSamplesMapBySampleKey();
         logger.info("loaded {} sample rows", samplesMap.size());
 
 
         // Load DCC parameter maps.
-        mediaParameterMap.clear();
         mediaParameterMap = dccSqlUtils.getMediaParameters();
         logger.info("loaded {} mediaParameter rows", mediaParameterMap.size());
 
-        ontologyParameterMap.clear();
         ontologyParameterMap = dccSqlUtils.getOntologyParameters();
         logger.info("loaded {} ontologyParameter rows", ontologyParameterMap.size());
 
-        seriesParameterMap.clear();
         seriesParameterMap = dccSqlUtils.getSeriesParameters();
         logger.info("loaded {} seriesParameter rows", seriesParameterMap.size());
 
-        seriesMediaParameterMap.clear();
         seriesMediaParameterMap = dccSqlUtils.getSeriesMediaParameters();
         logger.info("loaded {} seriesMediaParameter rows", seriesMediaParameterMap.size());
 
-        mediaSampleParameterMap.clear();
         mediaSampleParameterMap = dccSqlUtils.getMediaSampleParameters();
         logger.info("loaded {} mediaSampleParameter rows", mediaSampleParameterMap.size());
 
@@ -344,6 +327,11 @@ public class ExperimentLoader implements CommandLineRunner {
 
         System.out.println("New biological models for line-level experiments: " + bioModelsAddedCount);
 
+        if (dccExperiments.size() != Integer.parseInt(loadCounts.get(1).get(0))) {
+            logger.warn("Failed to load all experiments from DCC. Expected {}, Loaded {}", dccExperiments.size(), loadCounts.get(1).get(0));
+        } else {
+            logger.info("Loaded all expected experiments from DCC. Expected {}, Loaded {}", dccExperiments.size(), loadCounts.get(1).get(0));
+        }
 
         // Log info sets
 
@@ -1015,6 +1003,13 @@ public class ExperimentLoader implements CommandLineRunner {
 
     private void insertSimpleParameter(DccExperimentDTO dccExperiment, SimpleParameter simpleParameter, int experimentPk,
                                        int dbId, Integer biologicalSamplePk, int missing) throws DataLoadException {
+
+        if (dccExperiment.getColonyId().equals("B6.Cg-cub/H") && dccExperiment.getProcedureId().startsWith("ESLIM_005")) {
+            logger.info("CANARY -- colony B6.Cg-cub/H");
+            System.out.println(dccExperiment);
+            System.out.println("Parameter "+simpleParameter.getParameterID());
+        }
+
         String parameterStableId = simpleParameter.getParameterID();
         Integer parameterPk = cdaParameter_idMap.get(parameterStableId);
         if (parameterPk == null) {
@@ -1087,6 +1082,12 @@ public class ExperimentLoader implements CommandLineRunner {
 
         // Insert experiment_observation
         cdaSqlUtils.insertExperiment_observation(experimentPk, observationPk);
+
+        if (dccExperiment.getColonyId().equals("B6.Cg-cub/H") && dccExperiment.getProcedureId().startsWith("ESLIM_005")) {
+            System.out.println("Successfully inserted Parameter "+simpleParameter.getParameterID() + " for experimentPk " + experimentPk + ", observationPk " + observationPk + " biologicalSamplePk " + biologicalSamplePk);
+            System.out.println("\n");
+        }
+
     }
 
     private void insertMediaParameter(DccExperimentDTO dccExperiment, MediaParameter mediaParameter,

@@ -1,5 +1,9 @@
 package org.mousephenotype.cda.loads.common;
 
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.Serializable;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -7,6 +11,7 @@ import java.util.concurrent.ConcurrentMap;
 
 public class ConcurrentHashMapAllowNull<K,V> extends ConcurrentHashMap<K,V> implements ConcurrentMap<K,V>, Serializable {
 
+    private Logger logger = LoggerFactory.getLogger(this.getClass());
 
 
     /**
@@ -26,6 +31,24 @@ public class ConcurrentHashMapAllowNull<K,V> extends ConcurrentHashMap<K,V> impl
             return super.get(key);
         }
     }
+
+    /*
+     * If the key or the value is null, don't add it to the [ConcurrentHash]Map.
+     * see: https://duckduckgo.com/?q=concurrenthashmap+null+values&atb=v68-2__&ia=qa
+     *
+     * Remap calls to this method to putIfAbsent() to handle concurrency.
+     */
+    @Override
+    public V put(K key, V value) {
+        if ((key == null) || (value == null)) {
+            logger.warn("NULL key or valuel key = " + key + ". value = " + value);
+            System.out.println(StringUtils.join(Thread.currentThread().getStackTrace(), "\n"));
+            return null;
+        }
+
+        return super.put(key, value);
+    }
+
 
 
     /*
