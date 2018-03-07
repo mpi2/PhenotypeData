@@ -6,12 +6,12 @@
     then it checks whether it exists in the IMPC file system. If present
     in the file system it is uploaded to Omero.
 """
-
 import os
 import sys
 import argparse
 import requests
 import json
+import glob
 
 from OmeroService import OmeroService
 from OmeroPropertiesParser import OmeroPropertiesParser
@@ -70,6 +70,8 @@ def main(argv):
     splitString = 'impc/'
     # Assuming files to exclude is taken care of in solrquery
     files_to_exclude = ['.fcs','.mov','.bz2']
+    # Upload whole dir if it contains more than this number of files
+    load_whole_dir_threshold = 300
 
     print "running main intelligent omero upload method"
     print 'rootDestinationDir is "', root_dir
@@ -91,6 +93,11 @@ def main(argv):
     omeroS = OmeroService(omeroHost, omeroPort, omeroUsername, omeroPass, group)
     omero_file_list = omeroS.getImagesAlreadyInOmero()
     print "Number of files from omero = " + str(len(omero_file_list))
+    omero_annotation_list = omeroS.getAnnotationsAlreadyInOmero()
+    print "Number of annotations from omero = " + str(len(omero_annotation_list))
+
+    omero_file_list.extend(omero_annotation_list)
+    omero_dir_list = list(set([os.path.split(f)[0] for f in omero_file_list]))
 
 
     # Get the files in NFS
@@ -123,16 +130,37 @@ def main(argv):
     n_dirs_to_upload = len(dict_files_to_upload)
     for index, directory in zip(range(n_dirs_to_upload),dict_files_to_upload.keys()):
         filenames = dict_files_to_upload[directory]
+        n_files_to_upload = len(filenames)
         print "About to upload directory " + str(index+1) + " of " + \
             str(n_dirs_to_upload) + ". Dir name: " + directory + \
-            " with " + str(len(filenames)) + " files"
+            " with " + str(n_files_to_upload) + " files"
         dir_structure = directory.split('/')
         project = dir_structure[0]
         # Below we assume dir_structure is list with elements:
         # [project, pipeline, procedure, parameter]
         dataset = "-".join(dir_structure)
         fullpath = os.path.join(root_dir, directory)
-        omeroS.loadFileOrDir(fullpath, project=project, dataset=dataset, filenames=filenames)
+        
+        # if dir contains pdf file we cannot load whole directory
+        if len(glob.glob(os.path.join(fullpath,'*.pdf'))) > 0:
+            print "##### Dir contains pdfs - loading file by file #####"
+            omeroS.loadFileOrDir(fullpath, project=project, dataset=dataset, filenames=filenames)
+        else:
+            # Check if the dir is in omero.
+            # If not we can import the whole dir irrespective of number of files
+            dir_not_in_omero = True
+            try:
+                if omero_dir_list.index(directory) >= 0:
+                    dir_not_in_omero = False
+            except ValueError:
+                pass
+
+            if dir_not_in_omero or n_files_to_upload > load_whole_dir_threshold:
+                print "##### Loading whole directory #####"
+                omeroS.loadFileOrDir(fullpath, project=project, dataset=dataset, filenames=None)
+            else:
+                print "##### Loading file by file #####"
+                omeroS.loadFileOrDir(fullpath, project=project, dataset=dataset, filenames=filenames)
 
     n_files_to_upload_unavailable = len(files_to_upload_unavailable)
     print "Number of files unavailable for upload (not in NFS): " + \

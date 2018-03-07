@@ -122,6 +122,27 @@ class OmeroService:
             omero_file_list.append(ofd_path)
         return omero_file_list
 
+    def getAnnotationsAlreadyInOmero(self):
+        #query = 'SELECT ds.name, (SELECT o.name FROM originalfile o ' + \
+        #        'WHERE o.id=a.file) AS filename FROM datasetannotationlink ' + \
+        #        'dsal, dataset ds, annotation a where dsal.parent=ds.id and ' + \
+        #        ' dsal.child=a.id and ' + \
+        #        ' dsal.child >= :id'
+        
+        omero_annotation_list = []
+        file_annotations = self.conn.listFileAnnotations()
+        for fa in file_annotations:
+            links = fa.getParentLinks('dataset')
+            for link in links:
+                datasets = link.getAncestry()
+                for ds in datasets:
+                    dir_parts = ds.getName().split('-')
+                    if len(dir_parts) == 4:
+                        dir_parts.append(fa.getFileName())
+                        omero_annotation_list.append("/".join(dir_parts))
+        return omero_annotation_list
+
+
     def filterProjectFunction(self, project):
         print "project name="+project.getName()
         if project.getName().startswith(self.filterProjectName):
