@@ -105,7 +105,7 @@ public class CdaSqlUtils {
      * Return a list of all alleles, keyed by allele accession id
      * @return a list of all alleles, keyed by allele accession id
      */
-    public Map<String, Allele> getAlleles() {
+    public synchronized Map<String, Allele> getAlleles() {
         Map<String, Allele> alleles = new ConcurrentHashMapAllowNull<>();
 
         logger.info("Loading alleles.");
@@ -124,7 +124,7 @@ public class CdaSqlUtils {
      * Return a list of all alleles, keyed by allele symbol
      * @return a list of all alleles, keyed by allele symbol
      */
-    public Map<String, Allele> getAllelesBySymbol() {
+    public synchronized Map<String, Allele> getAllelesBySymbol() {
         Map<String, Allele> alleles = new ConcurrentHashMapAllowNull<>();
 
         logger.info("Loading alleles by symbol.");
@@ -279,7 +279,7 @@ public class CdaSqlUtils {
      *
      * @return a map of {@link BiologicalModel}, keyed by {@link BioModelKey}
      */
-    public Map<BioModelKey, Integer> getBiologicalModelPksMapByBioModelKey() {
+    public synchronized Map<BioModelKey, Integer> getBiologicalModelPksMapByBioModelKey() {
 
         Map<BioModelKey, Integer> map = new HashMap<>();
 
@@ -335,7 +335,7 @@ public class CdaSqlUtils {
     /**
      * @return the set of all alternate accession ids in a {@link Map} keyed by alternate accession id
      */
-    public Map<String, Set<AlternateId>> getAlternateIds() {
+    public synchronized Map<String, Set<AlternateId>> getAlternateIds() {
         if (alternateIds == null) {
             alternateIds = new ConcurrentHashMapAllowNull<>();
 
@@ -498,7 +498,7 @@ public class CdaSqlUtils {
     /**
      * @return the set of all consider accession ids
      */
-    public Map<String, Set<ConsiderId>> getConsiderIds() {
+    public synchronized Map<String, Set<ConsiderId>> getConsiderIds() {
         if (considerIds == null) {
             considerIds = new ConcurrentHashMapAllowNull<>();
 
@@ -576,7 +576,7 @@ public class CdaSqlUtils {
      *
      * @return the list of {@link >GenomicFeature} instances, indexed by gene accession id
      */
-    public Map<String, GenomicFeature> getGenesByAcc() {
+    public synchronized Map<String, GenomicFeature> getGenesByAcc() {
         Map<String, GenomicFeature> genes = new ConcurrentHashMapAllowNull<>();
 
         logger.info("Loading genes");
@@ -595,7 +595,7 @@ public class CdaSqlUtils {
      *
      * @return the list of <code>GenomicFeature</code>s, mapped by gene symbol
      */
-    public Map<String, GenomicFeature> getGenesBySymbol() {
+    public synchronized Map<String, GenomicFeature> getGenesBySymbol() {
         Map<String, GenomicFeature> genes = new ConcurrentHashMapAllowNull<>();
 
         logger.info("Loading genes mapped by symbol");
@@ -704,7 +704,7 @@ public class CdaSqlUtils {
      * @return a map with the number of rows inserted ("count") and the biologicalSampleId ("biologicalSampleId")
      * @throws DataLoadException
      */
-    public Map<String, Integer> insertBiologicalSample(String externalId, int dbId, OntologyTerm sampleType, String sampleGroup, int phenotypingCenterId, Integer productionCenterId) throws DataLoadException {
+    public synchronized Map<String, Integer> insertBiologicalSample(String externalId, int dbId, OntologyTerm sampleType, String sampleGroup, int phenotypingCenterId, Integer productionCenterId) throws DataLoadException {
         Map<String, Integer> results = new HashMap<>();
 
         final String insert = "INSERT INTO biological_sample (external_id, db_id, sample_type_acc, sample_type_db_id, sample_group, organisation_id, production_center_id) " +
