@@ -9,6 +9,7 @@ import org.mousephenotype.cda.db.pojo.*;
 import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
+import org.mousephenotype.cda.loads.common.ConcurrentHashMapAllowNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
@@ -36,11 +37,11 @@ public class GenerateDerivedParameters implements CommandLineRunner {
     private ExecutorService executor;
     private List<Future<Integer>> tasks = new ArrayList<>();
 
-    private Map<Integer, LiveSample> animals = new ConcurrentHashMap<>();
-    private Map<Integer, Datasource> datasourcesById = new ConcurrentHashMap<>();
-    private Map<Integer, Project> projects = new ConcurrentHashMap<>();
-    private Map<String, Pipeline> pipelines = new ConcurrentHashMap<>();
-    private Map<String, Organisation> organisations = new ConcurrentHashMap<>();
+    private Map<Integer, LiveSample> animals = new ConcurrentHashMapAllowNull<>();
+    private Map<Integer, Datasource> datasourcesById = new ConcurrentHashMapAllowNull<>();
+    private Map<Integer, Project> projects = new ConcurrentHashMapAllowNull<>();
+    private Map<String, Pipeline> pipelines = new ConcurrentHashMapAllowNull<>();
+    private Map<String, Organisation> organisations = new ConcurrentHashMapAllowNull<>();
 
     private DataSource komp2DataSource;
     private BiologicalModelDAO biologicalModelDAO;
@@ -1328,6 +1329,7 @@ public class GenerateDerivedParameters implements CommandLineRunner {
 
                     String errorMsg = String.format("Error while trying to calculate %s for animal id %s, formula %s / %s (actual values %s / %s)", parameterToCreate, id, numeratorParameter, divisorParameter, n, d);
                     logger.error(errorMsg, e);
+                    e.printStackTrace();
 
                 }
 
