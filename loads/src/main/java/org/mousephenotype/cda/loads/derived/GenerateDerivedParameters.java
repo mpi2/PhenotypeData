@@ -1297,6 +1297,12 @@ public class GenerateDerivedParameters implements CommandLineRunner {
 
                 try {
                     ObservationDTO dto = parameterMap.get(numeratorParameter).get(id);
+
+                    // Filter out calculating derived parameter for HRWL_OWT procedures
+                    if (dto.getProcedureStableId().startsWith("HRWL_OWT")) {
+                        continue;
+                    }
+
                     Procedure proc = getProcedureFromObservation(param, dto);
                     Datasource datasource = datasourcesById.get(dto.getExternalDbId());
                     Experiment currentExperiment = createNewExperiment(dto, "derived_" + parameterToCreate + "_" + i++, proc, true);
