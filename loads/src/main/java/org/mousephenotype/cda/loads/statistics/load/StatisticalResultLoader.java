@@ -48,7 +48,7 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
     protected Map<String, Integer> datasourceMap = new HashMap<>();
     protected Map<String, Integer> projectMap = new HashMap<>();
     protected Map<String, String> colonyAlleleMap = new HashMap<>();
-    protected Map<String, String> colonyProcedureMap = new HashMap<>();
+    protected Map<String, Map<String, String>> colonyProcedureMap = new HashMap<>();
     protected Map<String, Map<ZygosityType, Integer>> bioModelMap = new HashMap<>();
     protected Map<Integer, String> bioModelStrainMap = new HashMap<>();
     protected Map<String, Integer> controlBioModelMap = new HashMap<>();
@@ -210,26 +210,28 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
     }
 
     /**
-     * Lookup procedure by procedure group (split by "_" chop the last element)
+     * Lookup procedure by colony
+     *
      * @throws SQLException
      */
     protected void populateColonyProcedureMap() throws SQLException {
-        Map<String, String> map = colonyProcedureMap;
+        Map<String, Map<String, String>> map = colonyProcedureMap;
 
         // Order by ID en
-        String query = "SELECT DISTINCT ls.colony_id, parameter_stable_id, procedure_stable_id " +
-                "FROM live_sample ls " +
-                "INNER JOIN biological_sample bs ON bs.id=ls.id " +
-                "INNER JOIN observation o ON o.biological_sample_id=ls.id " +
-                "INNER JOIN experiment_observation eo ON eo.observation_id=o.id " +
-                "INNER JOIN experiment e ON e.id=eo.experiment_id " +
-                "WHERE bs.sample_group='experimental' " ;
+        String query = "SELECT procedure_stable_id, ls.colony_id from specimen_life_stage slf " +
+                "INNER JOIN live_sample ls on ls.id=slf.biological_sample_id " +
+                "WHERE ls.id in (select id from biological_sample where sample_group='experimental') " ;
 
         try (Connection connection = komp2DataSource.getConnection(); PreparedStatement p = connection.prepareStatement(query)) {
             ResultSet r = p.executeQuery();
             while (r.next()) {
-                String key = r.getString("colony_id") + "_" + r.getString("parameter_stable_id");
-                map.put(key, r.getString("procedure_stable_id"));
+
+                String procGroup = r.getString("procedure_stable_id");
+                procGroup = StringUtils.join(ArrayUtils.subarray(procGroup.split("_"), 0, 2), "_");
+
+                map.putIfAbsent(procGroup, new HashMap<>());
+                map.get(procGroup).put(r.getString("colony_id"), r.getString("procedure_stable_id"));
+
             }
         }
 
@@ -243,13 +245,12 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
         Map<String, NameIdDTO> map = procedureMap;
 
         // Order by ID en
-        String query = "SELECT * FROM phenotype_procedure ORDER BY id";
+        String query = "SELECT * FROM phenotype_procedure";
 
         try (Connection connection = komp2DataSource.getConnection(); PreparedStatement p = connection.prepareStatement(query)) {
             ResultSet r = p.executeQuery();
             while (r.next()) {
                 String procGroup = r.getString("stable_id");
-                procGroup = StringUtils.join(ArrayUtils.subarray(procGroup.split("_"), 0, 2), "_");
                 map.put(procGroup, new NameIdDTO(r.getInt("id"), r.getString("name"), r.getString("stable_id")));
             }
         }
@@ -689,11 +690,17 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
         NameIdDTO pipeline = pipelineMap.get(data.getPipeline());
 
         // Get actual colony procedure
-        // key is colonyID_ParameterStableId => procedureID that has data for this combination
-        String actualProc = colonyProcedureMap.get(data.getColonyId() + "_" + data.getDependentVariable());
+        // key is [procedure_group][colonyID] => procedure_stable_id that has data for this combination
+        String actualProc = null;
+
+        if (colonyProcedureMap.containsKey(data.getProcedure()) &&
+                colonyProcedureMap.get(data.getProcedure()).containsKey(data.getColonyId())) {
+            actualProc = colonyProcedureMap.get(data.getProcedure()).get(data.getColonyId());
+        }
 
         if (actualProc == null) {
             logger.warn("Cannot find procedure for colony {}, parameter {}", data.getColonyId(), data.getDependentVariable());
+            return null;
         }
 
         NameIdDTO procedure = procedureMap.get(actualProc!=null ? actualProc : procedureMap.get(data.getProcedure()));
