@@ -2,9 +2,9 @@ package org.mousephenotype.cda.loads.statistics.load;
 
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
-import org.apache.commons.lang3.ArrayUtils;
 import org.mousephenotype.cda.db.pojo.OntologyTerm;
 import org.mousephenotype.cda.enumerations.*;
 import org.mousephenotype.cda.loads.statistics.generate.StatisticalDatasetGenerator;
@@ -36,26 +36,26 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
 
     final private Logger logger = LoggerFactory.getLogger(getClass());
 
-    final private DataSource komp2DataSource;
-    final private MpTermService mpTermService;
+    protected DataSource komp2DataSource;
+    protected MpTermService mpTermService;
 
 
-    Map<String, NameIdDTO> organisationMap = new HashMap<>();
-    Map<String, NameIdDTO> pipelineMap = new HashMap<>();
-    Map<String, NameIdDTO> procedureMap = new HashMap<>();
-    Map<String, NameIdDTO> parameterMap = new HashMap<>();
+    protected Map<String, NameIdDTO> organisationMap = new HashMap<>();
+    protected Map<String, NameIdDTO> pipelineMap = new HashMap<>();
+    protected Map<String, NameIdDTO> procedureMap = new HashMap<>();
+    protected Map<String, NameIdDTO> parameterMap = new HashMap<>();
 
-    Map<String, Integer> datasourceMap = new HashMap<>();
-    Map<String, Integer> projectMap = new HashMap<>();
-    Map<String, String> colonyAlleleMap = new HashMap<>();
-    Map<String, Map<ZygosityType, Integer>> bioModelMap = new HashMap<>();
-    Map<Integer, String> bioModelStrainMap = new HashMap<>();
-    Map<String, Integer> controlBioModelMap = new HashMap<>();
-    Map<String, ObservationType> parameterTypeMap = new HashMap<>();
+    protected Map<String, Integer> datasourceMap = new HashMap<>();
+    protected Map<String, Integer> projectMap = new HashMap<>();
+    protected Map<String, String> colonyAlleleMap = new HashMap<>();
+    protected Map<String, String> colonyProcedureMap = new HashMap<>();
+    protected Map<String, Map<ZygosityType, Integer>> bioModelMap = new HashMap<>();
+    protected Map<Integer, String> bioModelStrainMap = new HashMap<>();
+    protected Map<String, Integer> controlBioModelMap = new HashMap<>();
+    protected Map<String, ObservationType> parameterTypeMap = new HashMap<>();
 
 
-
-    void populateParameterTypeMap() throws SQLException {
+    protected void populateParameterTypeMap() throws SQLException {
         Map<String, ObservationType> map = parameterTypeMap;
 
         String query= "SELECT DISTINCT parameter_stable_id, observation_type FROM observation WHERE missing != 1 AND observation_type IN ('categorical', 'unidimensional')";
@@ -74,7 +74,7 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
         logger.info(" Mapped {} parameter type entries", map.size());
     }
 
-    void populateControlBioModelMap() throws SQLException {
+    protected void populateControlBioModelMap() throws SQLException {
         Map<String, Integer> map = controlBioModelMap;
 
         String query = "SELECT  * FROM biological_model bm " +
@@ -96,7 +96,7 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
         logger.info(" Mapped {} biological model entries", map.size());
     }
 
-    void populateBioModelMap() throws SQLException {
+    protected void populateBioModelMap() throws SQLException {
         Map<String, Map<ZygosityType, Integer>> map = bioModelMap;
 
         String query = "SELECT DISTINCT colony_id, ls.zygosity, bm.id as biological_model_id, strain.name " +
@@ -127,8 +127,8 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
         logger.info(" Mapped {} biological model entries", map.size());
     }
 
-    void populateColonyAlleleMap() throws SQLException {
-        Map map = colonyAlleleMap;
+    protected void populateColonyAlleleMap() throws SQLException {
+        Map<String, String> map = colonyAlleleMap;
 
         String query = "SELECT DISTINCT colony_id, allele_acc " +
                 "FROM live_sample ls " +
@@ -146,8 +146,8 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
         logger.info(" Mapped {} colony/allele entries", map.size());
     }
 
-    void populateDatasourceMap() throws SQLException {
-        Map map = datasourceMap;
+    protected void populateDatasourceMap() throws SQLException {
+        Map<String, Integer> map = datasourceMap;
 
         String query = "SELECT * FROM external_db";
 
@@ -161,8 +161,8 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
         logger.info(" Mapped {} datasource entries", map.size());
     }
 
-    void populateProjectMap() throws SQLException {
-        Map map = projectMap;
+    protected void populateProjectMap() throws SQLException {
+        Map<String, Integer> map = projectMap;
 
         String query = "SELECT * FROM project";
 
@@ -178,8 +178,8 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
 
 
 
-    void populateOrganisationMap() throws SQLException {
-        Map map = organisationMap;
+    protected void populateOrganisationMap() throws SQLException {
+        Map<String, NameIdDTO> map = organisationMap;
 
         // Populate the organisation map with this query
         String query = "SELECT * FROM organisation";
@@ -194,8 +194,8 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
         logger.info(" Mapped {} organisation entries", map.size());
     }
 
-    void populatePipelineMap() throws SQLException {
-        Map map = pipelineMap;
+    protected void populatePipelineMap() throws SQLException {
+        Map<String, NameIdDTO> map = pipelineMap;
 
         String query = "SELECT * FROM phenotype_pipeline";
 
@@ -213,8 +213,34 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
      * Lookup procedure by procedure group (split by "_" chop the last element)
      * @throws SQLException
      */
-    void populateProcedureMap() throws SQLException {
-        Map map = procedureMap;
+    protected void populateColonyProcedureMap() throws SQLException {
+        Map<String, String> map = colonyProcedureMap;
+
+        // Order by ID en
+        String query = "SELECT DISTINCT ls.colony_id, parameter_stable_id, procedure_stable_id " +
+                "FROM live_sample ls " +
+                "INNER JOIN biological_sample bs ON bs.id=ls.id " +
+                "INNER JOIN observation o ON o.biological_sample_id=ls.id " +
+                "INNER JOIN experiment_observation eo ON eo.observation_id=o.id " +
+                "INNER JOIN experiment e ON e.id=eo.experiment_id " +
+                "WHERE bs.sample_group='experimental' " ;
+
+        try (Connection connection = komp2DataSource.getConnection(); PreparedStatement p = connection.prepareStatement(query)) {
+            ResultSet r = p.executeQuery();
+            while (r.next()) {
+                String key = r.getString("colony_id") + "_" + r.getString("parameter_stable_id");
+                map.put(key, r.getString("procedure_stable_id"));
+            }
+        }
+
+        logger.info(" Mapped {} colony * parameter => procedure entries", map.size());
+    }
+    /**
+     * Lookup procedure by procedure group (split by "_" chop the last element)
+     * @throws SQLException
+     */
+    protected void populateProcedureMap() throws SQLException {
+        Map<String, NameIdDTO> map = procedureMap;
 
         // Order by ID en
         String query = "SELECT * FROM phenotype_procedure ORDER BY id";
@@ -231,8 +257,8 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
         logger.info(" Mapped {} procedure entries", map.size());
     }
 
-    void populateParameterMap() throws SQLException {
-        Map map = parameterMap;
+    protected void populateParameterMap() throws SQLException {
+        Map<String, NameIdDTO> map = parameterMap;
 
         String query = "SELECT * FROM phenotype_parameter";
 
@@ -248,7 +274,8 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
 
 
 
-    private String fileLocation;
+
+    public StatisticalResultLoader() { }
 
     @Inject
     public StatisticalResultLoader(@Named("komp2DataSource") DataSource komp2DataSource, MpTermService mpTermService) {
@@ -260,7 +287,7 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
 
 
 
-    private boolean isValidInt(String str) {
+    protected boolean isValidInt(String str) {
         if (str == null) {
             return false;
         }
@@ -292,7 +319,7 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
      * @param str the string to convert to a number
      * @return A double or null if str does not represent a number
      */
-    private Double getDoubleField(String str) {
+    protected Double getDoubleField(String str) {
 
         if (str == null) {
             return null;
@@ -312,7 +339,7 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
         return retVal;
     }
 
-    private Integer getIntegerField(String str) {
+    protected Integer getIntegerField(String str) {
         if (str == null) {
             return null;
         }
@@ -342,7 +369,7 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
      * @param str the string to convert
      * @return the converted string
      */
-    private String getStringField(String str) {
+    protected String getStringField(String str) {
 
         if (str==null || str.isEmpty() || str.equals("NA")) {
             return "";
@@ -353,7 +380,7 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
 
 
     // Will return true only when str is TRUE or true
-    private Boolean getBooleanField(String str) {
+    Boolean getBooleanField(String str) {
         return Boolean.parseBoolean(str);
     }
 
@@ -603,7 +630,7 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
     }
 
 
-    private class NameIdDTO {
+    protected class NameIdDTO {
 
         int dbId;
         String name;
@@ -660,7 +687,17 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
 
         NameIdDTO center = organisationMap.get(data.getCenter());
         NameIdDTO pipeline = pipelineMap.get(data.getPipeline());
-        NameIdDTO procedure = procedureMap.get(data.getProcedure()); // Procedure group e.g. IMPC_CAL
+
+        // Get actual colony procedure
+        // key is colonyID_ParameterStableId => procedureID that has data for this combination
+        String actualProc = colonyProcedureMap.get(data.getColonyId() + "_" + data.getDependentVariable());
+
+        if (actualProc == null) {
+            logger.warn("Cannot find procedure for colony {}, parameter {}", data.getColonyId(), data.getDependentVariable());
+        }
+
+        NameIdDTO procedure = procedureMap.get(actualProc!=null ? actualProc : procedureMap.get(data.getProcedure()));
+
         NameIdDTO parameter = parameterMap.get(data.getDependentVariable());
 
         // result contains a "statistical result" that has the
@@ -1006,6 +1043,7 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
         populateOrganisationMap();
         populatePipelineMap();
         populateProcedureMap();
+        populateColonyProcedureMap();
         populateParameterMap();
         populateDatasourceMap();
         populateProjectMap();
@@ -1023,7 +1061,7 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
             logger.error("location argument missing");
             return;
         }
-        fileLocation = (String) options.valuesOf("location").get(0);
+        String fileLocation = (String) options.valuesOf("location").get(0);
 
         // If the location is a single file, parse it
         boolean regularFile = Files.isRegularFile(Paths.get(fileLocation));

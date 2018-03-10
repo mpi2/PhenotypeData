@@ -34,6 +34,17 @@
             <artifactId>reports</artifactId>
         </dependency>
 
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.dataformat</groupId>
+            <artifactId>jackson-dataformat-csv</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>org.mousephenotype.dcc.exportlibrary.xmlserialization</groupId>
             <artifactId>exportlibrary.xmlserialization</artifactId>
