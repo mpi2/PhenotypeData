@@ -35,14 +35,14 @@ import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.mousephenotype.cda.utilities.RunStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.util.Assert;
 
-import javax.inject.Inject;
+import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
@@ -68,12 +68,28 @@ public class GeneIndexer extends AbstractIndexer implements CommandLineRunner {
     @Value("${dmddDataFilename}")
     private String dmddDataFilename;
 
-    private DataSource komp2DataSource;
-    private SolrClient alleleCore;
-    private SolrClient geneCore;
-    private SolrClient mpCore;
-	private DatasourceDAO datasourceDAO;
-    private PhenotypePipelineDAO phenotypePipelineDAO;
+    @Autowired
+    @Qualifier("komp2DataSource")
+    DataSource komp2DataSource;
+
+    @Autowired
+    @Qualifier("alleleCore")
+    SolrClient alleleCore;
+
+    @Autowired
+    @Qualifier("geneCore")
+    SolrClient geneCore;
+
+    @Autowired
+    @Qualifier("mpCore")
+    SolrClient mpCore;
+
+    @Autowired
+    DatasourceDAO datasourceDAO;
+
+    @Autowired
+    PhenotypePipelineDAO phenotypePipelineDAO;
+
     private Connection komp2DbConnection;
 
     private Map<String, List<Map<String, String>>> phenotypeSummaryGeneAccessionsToPipelineInfo = new HashMap<>();
@@ -87,31 +103,9 @@ public class GeneIndexer extends AbstractIndexer implements CommandLineRunner {
 	private Map<String, List<DmddDataUnit>> dmddImageData;
 	private Map<String, List<DmddDataUnit>> dmddLethalData;
 
-    @Inject
-    public GeneIndexer(@Qualifier("komp2DataSource") DataSource komp2DataSource,
-                       @Qualifier("alleleCore") SolrClient alleleCore,
-                       @Qualifier("geneCore") SolrClient geneCore,
-                       @Qualifier("mpCore") SolrClient mpCore,
-                       DatasourceDAO datasourceDAO,
-                       PhenotypePipelineDAO phenotypePipelineDAO
-    ) throws SQLException {
-
-        Assert.notNull(komp2DataSource, "komp2Datasource cannot be null");
-        Assert.notNull(alleleCore, "allele core cannot be null");
-        Assert.notNull(geneCore, "gene core cannot be null");
-        Assert.notNull(mpCore, "mp core cannot be null");
-        Assert.notNull(datasourceDAO, "datasourceDAO cannot be null");
-        Assert.notNull(phenotypePipelineDAO, "phenotypePipelineDAP cannot be null");
-
-        this.komp2DataSource = komp2DataSource;
-        this.alleleCore = alleleCore;
-        this.geneCore = geneCore;
-        this.mpCore = mpCore;
-        this.datasourceDAO = datasourceDAO;
-        this.phenotypePipelineDAO = phenotypePipelineDAO;
-
+    @PostConstruct
+    public void init() throws SQLException {
         komp2DbConnection = komp2DataSource.getConnection();
-
     }
 
 
