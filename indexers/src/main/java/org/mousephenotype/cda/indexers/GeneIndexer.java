@@ -42,7 +42,6 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.util.Assert;
 
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.sql.DataSource;
 import javax.validation.constraints.NotNull;
@@ -88,11 +87,6 @@ public class GeneIndexer extends AbstractIndexer implements CommandLineRunner {
 	private Map<String, List<DmddDataUnit>> dmddImageData;
 	private Map<String, List<DmddDataUnit>> dmddLethalData;
 
-    @PostConstruct
-    public void initConn() throws SQLException {
-        komp2DbConnection = komp2DataSource.getConnection();
-    }
-
     public GeneIndexer() { }
 
     @Inject
@@ -102,7 +96,7 @@ public class GeneIndexer extends AbstractIndexer implements CommandLineRunner {
                        @Qualifier("mpCore") SolrClient mpCore,
                        DatasourceDAO datasourceDAO,
                        PhenotypePipelineDAO phenotypePipelineDAO
-    ) {
+    ) throws SQLException {
 
         Assert.notNull(komp2DataSource, "komp2Datasource cannot be null");
         Assert.notNull(alleleCore, "allele core cannot be null");
@@ -117,8 +111,10 @@ public class GeneIndexer extends AbstractIndexer implements CommandLineRunner {
         this.mpCore = mpCore;
         this.datasourceDAO = datasourceDAO;
         this.phenotypePipelineDAO = phenotypePipelineDAO;
-    }
 
+        komp2DbConnection = komp2DataSource.getConnection();
+
+    }
 
 
     @Override
