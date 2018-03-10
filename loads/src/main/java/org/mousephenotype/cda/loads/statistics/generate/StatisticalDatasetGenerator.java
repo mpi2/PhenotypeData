@@ -66,7 +66,10 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
             "IMPC_EMA", "IMPC_GEP", "IMPC_GPP", "IMPC_EVP", "IMPC_MAA", "IMPC_GEO",
             "IMPC_GPO", "IMPC_EMO", "IMPC_GPO", "IMPC_EVO", "IMPC_GPM", "IMPC_EVM",
             "IMPC_GEL", "IMPC_HPL", "IMPC_HEL", "IMPC_EOL", "IMPC_GPL", "IMPC_EVL",
-            "IMPC_VIA", "IMPC_FER"));
+            "IMPC_VIA", "IMPC_FER",
+            // Load these 3I procedures manually from file Ania sent
+            "MGP_PBI", "MGP_BMI", "MGP_IMM", "MGP_MLN"
+            ));
 
 
     private final Set<String> skipParameters = new HashSet<>(Arrays.asList(
