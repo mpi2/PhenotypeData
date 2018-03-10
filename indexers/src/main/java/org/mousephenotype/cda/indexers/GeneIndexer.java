@@ -87,8 +87,6 @@ public class GeneIndexer extends AbstractIndexer implements CommandLineRunner {
 	private Map<String, List<DmddDataUnit>> dmddImageData;
 	private Map<String, List<DmddDataUnit>> dmddLethalData;
 
-    public GeneIndexer() { }
-
     @Inject
     public GeneIndexer(@Qualifier("komp2DataSource") DataSource komp2DataSource,
                        @Qualifier("alleleCore") SolrClient alleleCore,
