@@ -217,10 +217,13 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
     protected void populateColonyProcedureMap() throws SQLException {
         Map<String, Map<String, String>> map = colonyProcedureMap;
 
-        // Order by ID en
-        String query = "SELECT procedure_stable_id, ls.colony_id from specimen_life_stage slf " +
-                "INNER JOIN live_sample ls on ls.id=slf.biological_sample_id " +
-                "WHERE ls.id in (select id from biological_sample where sample_group='experimental') " ;
+        // procedure_colony_id created by Derived Parameter job
+        // Query to generate is:
+        // CREATE TABLE procedure_colony_id AS
+        //   SELECT DISTINCT procedure_stable_id, ls.colony_id
+        //   FROM specimen_life_stage slf
+        //   INNER JOIN live_sample ls ON ls.id=slf.biological_sample_id
+        String query = "SELECT * FROM procedure_colony_id" ;
 
         try (Connection connection = komp2DataSource.getConnection(); PreparedStatement p = connection.prepareStatement(query)) {
             ResultSet r = p.executeQuery();
