@@ -396,6 +396,33 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
 
                         }
 
+                        // Write the final file
+
+                        StringBuilder sb = new StringBuilder();
+                        for (List<String> line : colonySubset) {
+                            sb.append(line.stream().collect(Collectors.joining("\t")));
+                            sb.append("\n");
+                        }
+
+                        String filename = "tsvs/" + Stream.of(
+                                result.get(ObservationDTO.DATASOURCE_NAME).replace(" ", "_"),
+                                result.get(ObservationDTO.PROJECT_NAME).replace(" ", "_"),
+                                result.get(ObservationDTO.PHENOTYPING_CENTER).replace(" ", "_"),
+                                result.get(ObservationDTO.PIPELINE_STABLE_ID),
+                                result.get(ObservationDTO.PROCEDURE_GROUP),
+                                result.get(ObservationDTO.STRAIN_ACCESSION_ID).replace(":", ""),
+                                String.format("%03d", fileNumber)).collect(Collectors.joining(FILENAME_SEPERATOR)) + ".tsv";
+
+                        Path p = new File(filename).toPath();
+                        logger.info("Writing file {} ({})", filename, p);
+                        Files.write(p, sb.toString().getBytes());
+
+                        fileNumber += 1;
+
+                        // Reset the array to produce a new file
+                        colonySubset = new ArrayList<>();
+                        colonySubset.add(headers);
+                        colonySubset.addAll(controls);
 
                     } else {
 
