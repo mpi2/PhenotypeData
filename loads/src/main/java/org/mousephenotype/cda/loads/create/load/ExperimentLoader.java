@@ -92,25 +92,25 @@ public class ExperimentLoader implements CommandLineRunner {
     // lookup maps returning cda table primary key given dca unique string
     // Initialise them here, as this code gets called multiple times for different dcc data sources
     // and these maps must be cleared before their second and subsequent uses.
-    private static Map<String, Integer>                cdaDb_idMap                       = new ConcurrentHashMap<>();
-    private static Map<String, Integer>                cdaProject_idMap                  = new ConcurrentHashMap<>();
-    private static Map<String, Integer>                cdaPipeline_idMap                 = new ConcurrentHashMap<>();
-    private static Map<String, Integer>                cdaProcedure_idMap                = new ConcurrentHashMap<>();
-    private static Map<String, Integer>                cdaParameter_idMap                = new ConcurrentHashMap<>();
-    private static Map<String, String>                 cdaParameterNameMap               = new ConcurrentHashMap<>();          // map of impress parameter names keyed by stable_parameter_id
+    private static Map<String, Integer>                cdaDb_idMap                       = new ConcurrentHashMapAllowNull<>();
+    private static Map<String, Integer>                cdaProject_idMap                  = new ConcurrentHashMapAllowNull<>();
+    private static Map<String, Integer>                cdaPipeline_idMap                 = new ConcurrentHashMapAllowNull<>();
+    private static Map<String, Integer>                cdaProcedure_idMap                = new ConcurrentHashMapAllowNull<>();
+    private static Map<String, Integer>                cdaParameter_idMap                = new ConcurrentHashMapAllowNull<>();
+    private static Map<String, String>                 cdaParameterNameMap               = new ConcurrentHashMapAllowNull<>();          // map of impress parameter names keyed by stable_parameter_id
     private static Set<String>                         derivedImpressParameters          = new ConcurrentSkipListSet<>();
     private static Set<String>                         metadataAndDataAnalysisParameters = new ConcurrentSkipListSet<>();
-    private static Map<BioSampleKey, BiologicalSample> samplesMap                        = new ConcurrentHashMap<>();
+    private static Map<BioSampleKey, BiologicalSample> samplesMap                        = new ConcurrentHashMapAllowNull<>();
     private static StrainMapper                        strainMapper;
     private static Map<String, Strain>                 strainsByNameOrMgiAccessionIdMap;
 
 
     // DCC parameter lookup maps, keyed by procedure_pk
-    private static Map<Long, List<MediaParameter>>       mediaParameterMap       = new ConcurrentHashMap<>();
-    private static Map<Long, List<OntologyParameter>>    ontologyParameterMap    = new ConcurrentHashMap<>();
-    private static Map<Long, List<SeriesParameter>>      seriesParameterMap      = new ConcurrentHashMap<>();
-    private static Map<Long, List<SeriesMediaParameter>> seriesMediaParameterMap = new ConcurrentHashMap<>();
-    private static Map<Long, List<MediaSampleParameter>> mediaSampleParameterMap = new ConcurrentHashMap<>();
+    private static Map<Long, List<MediaParameter>>       mediaParameterMap       = new ConcurrentHashMapAllowNull<>();
+    private static Map<Long, List<OntologyParameter>>    ontologyParameterMap    = new ConcurrentHashMapAllowNull<>();
+    private static Map<Long, List<SeriesParameter>>      seriesParameterMap      = new ConcurrentHashMapAllowNull<>();
+    private static Map<Long, List<SeriesMediaParameter>> seriesMediaParameterMap = new ConcurrentHashMapAllowNull<>();
+    private static Map<Long, List<MediaSampleParameter>> mediaSampleParameterMap = new ConcurrentHashMapAllowNull<>();
 
     private static BioModelManager               bioModelManager;
     private static Map<String, Integer>          cdaOrganisation_idMap;
@@ -155,10 +155,10 @@ public class ExperimentLoader implements CommandLineRunner {
         Assert.notNull(dccSqlUtils, "dccSqlUtils must not be null");
 
         bioModelManager = new BioModelManager(cdaSqlUtils, dccSqlUtils);
-        cdaOrganisation_idMap = new ConcurrentHashMap<>(cdaSqlUtils.getCdaOrganisation_idsByDccCenterId());
+        cdaOrganisation_idMap = new ConcurrentHashMapAllowNull<>(cdaSqlUtils.getCdaOrganisation_idsByDccCenterId());
         phenotypedColonyMap = bioModelManager.getPhenotypedColonyMap();
-        missingColonyMap = new ConcurrentHashMap<>(cdaSqlUtils.getMissingColonyIdsMap());
-        ontologyTermMap = new ConcurrentHashMap<>(bioModelManager.getOntologyTermMap());
+        missingColonyMap = new ConcurrentHashMapAllowNull<>(cdaSqlUtils.getMissingColonyIdsMap());
+        ontologyTermMap = new ConcurrentHashMapAllowNull<>(bioModelManager.getOntologyTermMap());
         OntologyTerm impcUncharacterizedBackgroundStrain = ontologyTermMap.get(CdaSqlUtils.IMPC_UNCHARACTERIZED_BACKGROUND_STRAIN);
         strainMapper = new StrainMapper(cdaSqlUtils, bioModelManager.getStrainsByNameOrMgiAccessionIdMap(), impcUncharacterizedBackgroundStrain);
         strainsByNameOrMgiAccessionIdMap = bioModelManager.getStrainsByNameOrMgiAccessionIdMap();
@@ -176,7 +176,7 @@ public class ExperimentLoader implements CommandLineRunner {
 
         logger.info("Getting experiments");
         List<DccExperimentDTO> dccExperiments = dccSqlUtils.getExperiments();
-        logger.info("Getting experiments complete.");
+        logger.info("Getting experiments complete. Loading {} experiments from DCC.", dccExperiments.size());
 
         CommonUtils.printJvmMemoryConfiguration();
 
@@ -189,66 +189,49 @@ public class ExperimentLoader implements CommandLineRunner {
 
         CommonUtils.printJvmMemoryConfiguration();
 
-        // FIXME These won't be called multiple times after we remove the LoadFromDcc class.
-        // Initialise maps. If they are not null, clear them first, as this method gets called multiple times to
-        // load data from different dcc databases.
         logger.info("Loading lookup maps started");
 
-        cdaDb_idMap.clear();
         cdaDb_idMap = cdaSqlUtils.getCdaDb_idsByDccDatasourceShortName();
         logger.info("loaded {} db_id rows", cdaDb_idMap.size());
 
-        cdaProject_idMap.clear();
         cdaProject_idMap = cdaSqlUtils.getCdaProject_idsByDccProject();
         logger.info("loaded {} project rows", cdaProject_idMap.size());
 
-        cdaPipeline_idMap.clear();
         cdaPipeline_idMap = cdaSqlUtils.getCdaPipeline_idsByDccPipeline();
         logger.info("loaded {} pipeline rows", cdaPipeline_idMap.size());
 
-        cdaProcedure_idMap.clear();
         cdaProcedure_idMap = cdaSqlUtils.getCdaProcedure_idsByDccProcedureId();
         logger.info("loaded {} procedure rows", cdaProcedure_idMap.size());
 
-        cdaParameter_idMap.clear();
         cdaParameter_idMap = cdaSqlUtils.getCdaParameter_idsByDccParameterId();
         logger.info("loaded {} parameter rows", cdaParameter_idMap.size());
 
-        cdaParameterNameMap.clear();
         cdaParameterNameMap = cdaSqlUtils.getCdaParameterNames();
         logger.info("loaded {} parameterName rows", cdaParameterNameMap.size());
 
-        derivedImpressParameters.clear();
         derivedImpressParameters = cdaSqlUtils.getImpressDerivedParameters();
         logger.info("loaded {} derivedImpressParameter rows", derivedImpressParameters.size());
 
-        metadataAndDataAnalysisParameters.clear();
         metadataAndDataAnalysisParameters = cdaSqlUtils.getImpressMetadataAndDataAnalysisParameters();
         logger.info("loaded {} requiredImpressParameter rows", metadataAndDataAnalysisParameters.size());
 
-        samplesMap.clear();
         samplesMap = cdaSqlUtils.getBiologicalSamplesMapBySampleKey();
         logger.info("loaded {} sample rows", samplesMap.size());
 
 
         // Load DCC parameter maps.
-        mediaParameterMap.clear();
         mediaParameterMap = dccSqlUtils.getMediaParameters();
         logger.info("loaded {} mediaParameter rows", mediaParameterMap.size());
 
-        ontologyParameterMap.clear();
         ontologyParameterMap = dccSqlUtils.getOntologyParameters();
         logger.info("loaded {} ontologyParameter rows", ontologyParameterMap.size());
 
-        seriesParameterMap.clear();
         seriesParameterMap = dccSqlUtils.getSeriesParameters();
         logger.info("loaded {} seriesParameter rows", seriesParameterMap.size());
 
-        seriesMediaParameterMap.clear();
         seriesMediaParameterMap = dccSqlUtils.getSeriesMediaParameters();
         logger.info("loaded {} seriesMediaParameter rows", seriesMediaParameterMap.size());
 
-        mediaSampleParameterMap.clear();
         mediaSampleParameterMap = dccSqlUtils.getMediaSampleParameters();
         logger.info("loaded {} mediaSampleParameter rows", mediaSampleParameterMap.size());
 
@@ -344,6 +327,11 @@ public class ExperimentLoader implements CommandLineRunner {
 
         System.out.println("New biological models for line-level experiments: " + bioModelsAddedCount);
 
+        if (dccExperiments.size() != Integer.parseInt(loadCounts.get(1).get(0))) {
+            logger.warn("Failed to load all experiments from DCC. Expected {}, Loaded {}", dccExperiments.size(), loadCounts.get(1).get(0));
+        } else {
+            logger.info("Loaded all expected experiments from DCC. Expected {}, Loaded {}", dccExperiments.size(), loadCounts.get(1).get(0));
+        }
 
         // Log info sets
 
@@ -1015,6 +1003,13 @@ public class ExperimentLoader implements CommandLineRunner {
 
     private void insertSimpleParameter(DccExperimentDTO dccExperiment, SimpleParameter simpleParameter, int experimentPk,
                                        int dbId, Integer biologicalSamplePk, int missing) throws DataLoadException {
+
+        if (dccExperiment.getColonyId().equals("B6.Cg-cub/H") && dccExperiment.getProcedureId().startsWith("ESLIM_005")) {
+            logger.info("CANARY -- colony B6.Cg-cub/H");
+            System.out.println(dccExperiment);
+            System.out.println("Parameter "+simpleParameter.getParameterID());
+        }
+
         String parameterStableId = simpleParameter.getParameterID();
         Integer parameterPk = cdaParameter_idMap.get(parameterStableId);
         if (parameterPk == null) {
@@ -1087,6 +1082,12 @@ public class ExperimentLoader implements CommandLineRunner {
 
         // Insert experiment_observation
         cdaSqlUtils.insertExperiment_observation(experimentPk, observationPk);
+
+        if (dccExperiment.getColonyId().equals("B6.Cg-cub/H") && dccExperiment.getProcedureId().startsWith("ESLIM_005")) {
+            System.out.println("Successfully inserted Parameter "+simpleParameter.getParameterID() + " for experimentPk " + experimentPk + ", observationPk " + observationPk + " biologicalSamplePk " + biologicalSamplePk);
+            System.out.println("\n");
+        }
+
     }
 
     private void insertMediaParameter(DccExperimentDTO dccExperiment, MediaParameter mediaParameter,

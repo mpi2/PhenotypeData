@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright 2015 EMBL - European Bioinformatics Institute
  *
  * Licensed under the Apache License, Version 2.0 (the
@@ -12,7 +12,7 @@
  * either express or implied. See the License for the specific
  * language governing permissions and limitations under the
  * License.
- *******************************************************************************/
+ */
 package org.mousephenotype.cda.indexers;
 
 import org.apache.commons.lang3.StringUtils;
@@ -28,7 +28,10 @@ import org.mousephenotype.cda.indexers.utils.DmddDataUnit;
 import org.mousephenotype.cda.indexers.utils.EmbryoStrain;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
 import org.mousephenotype.cda.solr.SolrUtils;
-import org.mousephenotype.cda.solr.service.dto.*;
+import org.mousephenotype.cda.solr.service.dto.AlleleDTO;
+import org.mousephenotype.cda.solr.service.dto.GeneDTO;
+import org.mousephenotype.cda.solr.service.dto.MpDTO;
+import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.mousephenotype.cda.utilities.RunStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,7 +60,13 @@ public class GeneIndexer extends AbstractIndexer implements CommandLineRunner {
 
 	private final Logger logger = LoggerFactory.getLogger(GeneIndexer.class);
 
-    private Connection komp2DbConnection;
+    @NotNull
+    @Value("${embryoViewerFilename}")
+    private String embryoViewerFilename;
+
+    @NotNull
+    @Value("${dmddDataFilename}")
+    private String dmddDataFilename;
 
     @Autowired
     @Qualifier("komp2DataSource")
@@ -66,15 +75,6 @@ public class GeneIndexer extends AbstractIndexer implements CommandLineRunner {
     @Autowired
     @Qualifier("alleleCore")
     SolrClient alleleCore;
-
-    @NotNull
-   	@Value("${embryoViewerFilename}")
-    private String embryoViewerFilename;
-    
-    @NotNull
-   	@Value("${dmddDataFilename}")
-    private String dmddDataFilename;
-
 
     @Autowired
     @Qualifier("geneCore")
@@ -85,19 +85,16 @@ public class GeneIndexer extends AbstractIndexer implements CommandLineRunner {
     SolrClient mpCore;
 
     @Autowired
-    @Qualifier("sangerImagesCore")
-    SolrClient imagesCore;
-
-    @Autowired
-	DatasourceDAO datasourceDAO;
+    DatasourceDAO datasourceDAO;
 
     @Autowired
     PhenotypePipelineDAO phenotypePipelineDAO;
 
+    private Connection komp2DbConnection;
+
     private Map<String, List<Map<String, String>>> phenotypeSummaryGeneAccessionsToPipelineInfo = new HashMap<>();
     private Map<String, Map<String, String>>       genomicFeatureCoordinates                    = new HashMap<>();
     private Map<String, List<Xref>>                genomicFeatureXrefs                          = new HashMap<>();
-    private Map<String, List<SangerImageDTO>>      sangerImages                                 = new HashMap<>();
     private Map<String, List<MpDTO>>               mgiAccessionToMP                             = new HashMap<>();
     private Map<String, List<EmbryoStrain>>        embryoRestData                               = null;
     private IndexerMap                             indexerMap                                   = new IndexerMap();
@@ -106,16 +103,11 @@ public class GeneIndexer extends AbstractIndexer implements CommandLineRunner {
 	private Map<String, List<DmddDataUnit>> dmddImageData;
 	private Map<String, List<DmddDataUnit>> dmddLethalData;
 
-
     @PostConstruct
-    public void initConn() throws SQLException {
+    public void init() throws SQLException {
         komp2DbConnection = komp2DataSource.getConnection();
     }
 
-
-    public GeneIndexer() {
-
-    }
 
     @Override
     public RunStatus validateBuild() throws IndexerException {
@@ -124,7 +116,7 @@ public class GeneIndexer extends AbstractIndexer implements CommandLineRunner {
 
 
     @Override
-    public RunStatus run() throws IndexerException, SQLException, IOException, SolrServerException {
+    public RunStatus run() throws IndexerException {
         int count = 0;
         RunStatus runStatus = new RunStatus();
         long start = System.currentTimeMillis();
@@ -224,7 +216,7 @@ public class GeneIndexer extends AbstractIndexer implements CommandLineRunner {
                 	//for the moment lets just set an embryo data available flag!
                 	if(embryoStrainsForGene!=null && embryoStrainsForGene.size()>0){
                 		gene.setEmbryoDataAvailable(true);
-                		List<String> embryoModalitiesForGene=new ArrayList<String>();
+                		List<String> embryoModalitiesForGene=new ArrayList<>();
 
                 		for( EmbryoStrain strain : embryoStrainsForGene){
 
@@ -240,8 +232,8 @@ public class GeneIndexer extends AbstractIndexer implements CommandLineRunner {
 
                 				if ( gene.getProcedureStableId() == null ){
 
-                					List<String> procedureStableIds = new ArrayList<String>();
-                					List<String> procedureNames = new ArrayList<String>();
+                					List<String> procedureStableIds = new ArrayList<>();
+                					List<String> procedureNames = new ArrayList<>();
                 					procedureStableIds.add(procedure.getStableId());
                 					gene.setProcedureStableId(procedureStableIds);
 
@@ -284,10 +276,10 @@ public class GeneIndexer extends AbstractIndexer implements CommandLineRunner {
 //                        gene.setChrStart(allele.getChrStart());
 //                        gene.setChrEnd(allele.getChrEnd());
 
-                        List<String> ensemblIds = new ArrayList<String>();
-        				List<String> vegaIds = new ArrayList<String>();
-        				List<String> ncbiIds = new ArrayList<String>();
-        				List<String> ccdsIds = new ArrayList<String>();
+                        List<String> ensemblIds = new ArrayList<>();
+        				List<String> vegaIds = new ArrayList<>();
+        				List<String> ncbiIds = new ArrayList<>();
+        				List<String> ccdsIds = new ArrayList<>();
         				List<String> xrefAccessions=new ArrayList<>();
                 		if(genomicFeatureXrefs.containsKey(allele.getMgiAccessionId())){
                 			List<Xref> xrefs = genomicFeatureXrefs.get(allele.getMgiAccessionId());
@@ -310,6 +302,7 @@ public class GeneIndexer extends AbstractIndexer implements CommandLineRunner {
                 			gene.setNcbiIds(ncbiIds);
                 			gene.setVegaIds(vegaIds);
                 			gene.setCcdsIds(ccdsIds);
+                			gene.setEnsemblGeneIds(ensemblIds);
                 		}
                 	}
                 }
@@ -397,110 +390,50 @@ public class GeneIndexer extends AbstractIndexer implements CommandLineRunner {
 
 				//do images core data
                 // Initialize all the ontology term lists
-                gene.setMpId(new ArrayList<String>());
-                gene.setMpTerm(new ArrayList<String>());
-                gene.setMpTermSynonym(new ArrayList<String>());
-                gene.setMpTermDefinition(new ArrayList<String>());
+                gene.setMpId(new ArrayList<>());
+                gene.setMpTerm(new ArrayList<>());
+                gene.setMpTermSynonym(new ArrayList<>());
+                gene.setMpTermDefinition(new ArrayList<>());
 
-                gene.setMaId(new ArrayList<String>());
-                gene.setMaTerm(new ArrayList<String>());
-                gene.setMaTermSynonym(new ArrayList<String>());
-                gene.setMaTermDefinition(new ArrayList<String>());
+                gene.setMaId(new ArrayList<>());
+                gene.setMaTerm(new ArrayList<>());
+                gene.setMaTermSynonym(new ArrayList<>());
+                gene.setMaTermDefinition(new ArrayList<>());
 
-                gene.setHpId(new ArrayList<String>());
-                gene.setHpTerm(new ArrayList<String>());
+                gene.setHpId(new ArrayList<>());
+                gene.setHpTerm(new ArrayList<>());
 
-                gene.setTopLevelMpId(new ArrayList<String>());
-                gene.setTopLevelMpTerm(new ArrayList<String>());
-                gene.setTopLevelMpTermSynonym(new ArrayList<String>());
+                gene.setTopLevelMpId(new ArrayList<>());
+                gene.setTopLevelMpTerm(new ArrayList<>());
+                gene.setTopLevelMpTermSynonym(new ArrayList<>());
 
-                gene.setIntermediateMpId(new ArrayList<String>());
-                gene.setIntermediateMpTerm(new ArrayList<String>());
-                gene.setIntermediateMpTermSynonym(new ArrayList<String>());
+                gene.setIntermediateMpId(new ArrayList<>());
+                gene.setIntermediateMpTerm(new ArrayList<>());
+                gene.setIntermediateMpTermSynonym(new ArrayList<>());
 
-                gene.setChildMpId(new ArrayList<String>());
-                gene.setChildMpTerm(new ArrayList<String>());
-                gene.setChildMpTermSynonym(new ArrayList<String>());
+                gene.setChildMpId(new ArrayList<>());
+                gene.setChildMpTerm(new ArrayList<>());
+                gene.setChildMpTermSynonym(new ArrayList<>());
 
-                gene.setChildMpId(new ArrayList<String>());
-                gene.setChildMpTerm(new ArrayList<String>());
-                gene.setChildMpTermSynonym(new ArrayList<String>());
+                gene.setChildMpId(new ArrayList<>());
+                gene.setChildMpTerm(new ArrayList<>());
+                gene.setChildMpTermSynonym(new ArrayList<>());
 
-                gene.setInferredMaId(new ArrayList<String>());
-                gene.setInferredMaTerm(new ArrayList<String>());
-                gene.setInferredMaTermSynonym(new ArrayList<String>());
+                gene.setInferredMaId(new ArrayList<>());
+                gene.setInferredMaTerm(new ArrayList<>());
+                gene.setInferredMaTermSynonym(new ArrayList<>());
 
-                gene.setSelectedTopLevelMaId(new ArrayList<String>());
-                gene.setSelectedTopLevelMaTerm(new ArrayList<String>());
-                gene.setSelectedTopLevelMaTermSynonym(new ArrayList<String>());
+                gene.setSelectedTopLevelMaId(new ArrayList<>());
+                gene.setSelectedTopLevelMaTerm(new ArrayList<>());
+                gene.setSelectedTopLevelMaTermSynonym(new ArrayList<>());
 
-                gene.setInferredChildMaId(new ArrayList<String>());
-                gene.setInferredChildMaTerm(new ArrayList<String>());
-                gene.setInferredChildMaTermSynonym(new ArrayList<String>());
+                gene.setInferredChildMaId(new ArrayList<>());
+                gene.setInferredChildMaTerm(new ArrayList<>());
+                gene.setInferredChildMaTermSynonym(new ArrayList<>());
 
-                gene.setInferredSelectedTopLevelMaId(new ArrayList<String>());
-                gene.setInferredSelectedTopLevelMaTerm(new ArrayList<String>());
-                gene.setInferredSelectedTopLevelMaTermSynonym(new ArrayList<String>());
-
-                // Add all ontology information from images associated to this gene
-
-                // actually do we need these? We do not know how these MP become associated with an image
-//                if (sangerImages.containsKey(allele.getMgiAccessionId())) {
-//
-//                    List<SangerImageDTO> list = sangerImages.get(allele.getMgiAccessionId());
-//                    for (SangerImageDTO image : list) {
-//
-//                        if (image.getMp_id() != null &&  ! gene.getMpId().contains(image.getMp_id())) {
-//
-//                            gene.getMpId().addAll(image.getMp_id());
-//                            gene.getMpTerm().addAll(image.getMpTerm());
-//                            if (image.getMpSyns() != null) {
-//                                gene.getMpTermSynonym().addAll(image.getMpSyns());
-//                            }
-//
-//                            if (image.getAnnotatedHigherLevelMpTermId() != null) {
-//                                gene.getTopLevelMpId().addAll(image.getAnnotatedHigherLevelMpTermId());
-//                            }
-//                            if (image.getAnnotatedHigherLevelMpTermName() != null) {
-//                                gene.getTopLevelMpTerm().addAll(image.getAnnotatedHigherLevelMpTermName());
-//                            }
-//                            if (image.getTopLevelMpTermSynonym() != null) {
-//                                gene.getTopLevelMpTermSynonym().addAll(image.getTopLevelMpTermSynonym());
-//                            }
-//
-//                            if (image.getIntermediateMpId() != null) {
-//                                gene.getIntermediateMpId().addAll(image.getIntermediateMpId());
-//                            }
-//                            if (image.getIntermediateMpTerm() != null) {
-//                                gene.getIntermediateMpTerm().addAll(image.getIntermediateMpTerm());
-//                            }
-//                            if (image.getIntermediateMpTermSyn() != null) {
-//                                gene.getIntermediateMpTermSynonym().addAll(image.getIntermediateMpTermSyn());
-//                            }
-//
-//                        }
-//
-//                        if (image.getMaId() != null) {
-//
-//                            gene.getMaId().addAll(image.getMaId());
-//                            gene.getMaTerm().addAll(image.getMaTerms());
-//                            if (image.getMaTermSynonym() != null) {
-//                                gene.getMaTermSynonym().addAll(image.getMaTermSynonym());
-//                            }
-//
-//                            if (image.getSelectedTopLevelMaTermId() != null) {
-//                                gene.setSelectedTopLevelMaId(image.getSelectedTopLevelMaTermId());
-//                            }
-//                            if (image.getSelectedTopLevelMaTerm() != null) {
-//                                gene.setSelectedTopLevelMaTerm(image.getSelectedTopLevelMaTerm());
-//                            }
-//                            if (image.getSelectedTopLevelMaTermSynonym() != null) {
-//                                gene.setSelectedTopLevelMaTermSynonym(image.getSelectedTopLevelMaTermSynonym());
-//                            }
-//
-//                        }
-//                    }
-//                }
+                gene.setInferredSelectedTopLevelMaId(new ArrayList<>());
+                gene.setInferredSelectedTopLevelMaTerm(new ArrayList<>());
+                gene.setInferredSelectedTopLevelMaTermSynonym(new ArrayList<>());
 
                 // Add all ontology information directly associated from MP to this gene
                 if (StringUtils.isNotEmpty(allele.getMgiAccessionId())) {
@@ -512,12 +445,13 @@ public class GeneIndexer extends AbstractIndexer implements CommandLineRunner {
 
                             gene.getMpId().add(mp.getMpId());
                             gene.getMpTerm().add(mp.getMpTerm());
-                            if (mp.getMpTermSynonym() != null) {
-                                gene.getMpTermSynonym().addAll(mp.getMpTermSynonym());
-                            }
 
                             if (mp.getMpDefinition() != null) {
-                                gene.getMpTermDefinition().addAll(Arrays.asList(mp.getMpDefinition()));
+                                gene.getMpTermDefinition().add(mp.getMpDefinition());
+                            }
+
+                            if (mp.getMpTermSynonym() != null) {
+                                gene.getMpTermSynonym().addAll(mp.getMpTermSynonym());
                             }
 
                             if (mp.getHpId() != null) {
@@ -566,7 +500,7 @@ public class GeneIndexer extends AbstractIndexer implements CommandLineRunner {
                 }
 
 
-                /**
+                /*
                  * Unique all the sets
                  */
 
@@ -639,7 +573,6 @@ public class GeneIndexer extends AbstractIndexer implements CommandLineRunner {
 
     private void initialiseSupportingBeans() throws IndexerException {
         phenotypeSummaryGeneAccessionsToPipelineInfo = populatePhenotypeCallSummaryGeneAccessions();
-        sangerImages = IndexerMap.getSangerImagesByMgiAccession(imagesCore);
         mgiAccessionToMP = populateMgiAccessionToMp();
         logger.info(" mgiAccessionToMP size=" + mgiAccessionToMP.size());
         embryoRestData = indexerMap.populateEmbryoData(embryoViewerFilename);
@@ -674,7 +607,7 @@ public class GeneIndexer extends AbstractIndexer implements CommandLineRunner {
 
 	private Map<String, List<MpDTO>> populateMgiAccessionToMp() throws IndexerException {
 
-        Map<String, List<MpDTO>> map= null;
+        Map<String, List<MpDTO>> map;
 
         try {
             map = SolrUtils.populateMgiAccessionToMp(mpCore);
@@ -711,7 +644,7 @@ public class GeneIndexer extends AbstractIndexer implements CommandLineRunner {
                 rowMap.put(ObservationDTO.PIPELINE_NAME, resultSet.getString("pipe.name"));
                 rowMap.put("proc_param_name", resultSet.getString("proc.name") + "___" + resultSet.getString("param.name"));
                 rowMap.put("proc_param_stable_id", resultSet.getString("proc.stable_id") + "___" + resultSet.getString("param.stable_id"));
-                List<Map<String, String>> rows = null;
+                List<Map<String, String>> rows;
 
                 if (localPhenotypeSummaryGeneAccessionsToPipelineInfo.containsKey(gf_acc)) {
                     rows = localPhenotypeSummaryGeneAccessionsToPipelineInfo.get(gf_acc);
@@ -739,29 +672,22 @@ public class GeneIndexer extends AbstractIndexer implements CommandLineRunner {
 
         try (PreparedStatement p = komp2DbConnection.prepareStatement(queryString)) {
             ResultSet resultSet = p.executeQuery();
-            List<Xref> xrefs = null;
+
             while (resultSet.next()) {
                 String gf_acc = resultSet.getString("acc");
 
-
-                List<String> ensemblIds = new ArrayList<String>();
-        		List<String> vegaIds = new ArrayList<String>();
-        		List<String> ncbiIds = new ArrayList<String>();
-        		List<String> ccdsIds = new ArrayList<String>();
-
-
-
                 if(!localGenomicFeatureXrefs.containsKey(gf_acc)){
-                	xrefs = new ArrayList<>();
+                    localGenomicFeatureXrefs.put(gf_acc, new ArrayList<>());
                 }
-                String xrefAcc=resultSet.getString("xref_acc");
-                int xrefDbId=resultSet.getInt("xref_db_id");
-                Xref xref=new Xref();
+
+                String xrefAcc = resultSet.getString("xref_acc");
+                int xrefDbId = resultSet.getInt("xref_db_id");
+
+                Xref xref = new Xref();
                 xref.setXrefAccession(xrefAcc);
                 xref.setXrefDatabaseId(xrefDbId);
 
-                xrefs.add(xref);
-                localGenomicFeatureXrefs.put(gf_acc, xrefs);
+                localGenomicFeatureXrefs.get(gf_acc).add(xref);
             }
 
 
@@ -803,7 +729,7 @@ public class GeneIndexer extends AbstractIndexer implements CommandLineRunner {
     }
 
 
-    public static void main(String[] args) throws IndexerException {
+    public static void main(String[] args) {
         SpringApplication.run(GeneIndexer.class, args);
     }
 }

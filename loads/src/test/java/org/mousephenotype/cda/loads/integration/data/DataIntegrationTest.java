@@ -39,11 +39,13 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+
+import static junit.framework.TestCase.assertTrue;
 
 /**
  * This is an end-to-end integration data test class that uses an in-memory database to populate a small dcc, cda_base,
@@ -144,6 +146,85 @@ public class DataIntegrationTest {
             ScriptUtils.executeSqlScript(dccDataSource.getConnection(), r);
         }
     }
+
+
+
+
+    @Test
+    public void testLoadSpecimenAndExperiment() throws Exception {
+
+        Resource dataResource   = context.getResource("classpath:sql/h2/LoadSpecimenAndExperiment-data.sql");
+        Resource specimenResource   = context.getResource("classpath:xml/LoadSpecimenAndExperiment-Specimens.xml");
+        Resource experimentResource = context.getResource("classpath:xml/LoadSpecimenAndExperiment-Experiment.xml");
+
+        ScriptUtils.executeSqlScript(cdaDataSource.getConnection(), dataResource);
+
+        String[] extractSpecimenArgs = new String[]{
+                "--datasourceShortName=EuroPhenome",
+                "--filename=" + specimenResource.getFile().getAbsolutePath()
+        };
+
+        String[] extractExperimentArgs = new String[]{
+                "--datasourceShortName=EuroPhenome",
+                "--filename=" + experimentResource.getFile().getAbsolutePath()
+        };
+
+        String[] loadArgs = new String[] {
+        };
+
+        dccSpecimenExtractor.run(extractSpecimenArgs);
+        dccExperimentExtractor.run(extractExperimentArgs);
+
+        sampleLoader.run(loadArgs);
+        experimentLoader.run(loadArgs);
+
+        String bsQuery = "SELECT COUNT(*) AS cnt FROM biological_sample";
+        Integer bsCount = 0;
+
+        String bmsQuery = "SELECT COUNT(*) AS cnt FROM biological_model_sample";
+        Integer bmsCount = 0;
+
+        try (Connection connection = cdaDataSource.getConnection(); PreparedStatement p = connection.prepareStatement(bsQuery)) {
+            ResultSet resultSet = p.executeQuery();
+            while (resultSet.next()) {
+                bsCount = resultSet.getInt("cnt");
+            }
+        }
+
+        try (Connection connection = cdaDataSource.getConnection(); PreparedStatement p = connection.prepareStatement(bmsQuery)) {
+            ResultSet resultSet = p.executeQuery();
+            while (resultSet.next()) {
+                bmsCount = resultSet.getInt("cnt");
+            }
+        }
+
+        assertTrue(bsCount == bmsCount);
+
+        // Check that the model has a gene, allele and strain
+
+        String modelQuery = "SELECT * FROM biological_model bm " +
+                "INNER JOIN biological_model_allele bma ON bma.biological_model_id=bm.id " +
+                "INNER JOIN biological_model_genomic_feature bmgf ON bmgf.biological_model_id=bm.id " +
+                "INNER JOIN biological_model_strain bmstrain ON bmstrain.biological_model_id=bm.id " +
+                "INNER JOIN biological_model_sample bmsamp ON bmsamp.biological_model_id=bm.id " ;
+        Integer modelCount = 0;
+        Set<Integer> modelIds = new HashSet<>();
+        try (Connection connection = cdaDataSource.getConnection(); PreparedStatement p = connection.prepareStatement(modelQuery)) {
+            ResultSet resultSet = p.executeQuery();
+            while (resultSet.next()) {
+                modelCount++;
+                modelIds.add(resultSet.getInt("id"));
+            }
+
+        }
+
+        Assert.assertEquals(modelCount.intValue(), 31);
+        Assert.assertEquals(modelIds.size(), 1);
+
+    }
+
+
+
 
     /**
      * The intention of this test is to verify that the background strain is the same for control specimens as it is for

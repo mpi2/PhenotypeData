@@ -366,7 +366,6 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
         addImpressData(r, doc);
 
         // Biological details
-        System.out.println(doc.toString());
         addBiologicalData(doc, doc.getMutantBiologicalModelId());
 
         BasicBean stage = getDevelopmentalStage(doc.getPipelineStableId(), procedurePrefix, doc.getColonyId());
@@ -663,13 +662,6 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 
         String mpTerm = r.getString("mp_acc");
 
-        //test
-        if(mpTerm.equals("MP:0001325")) {
-            OntologyTermDTO term = mpParser.getOntologyTerm(mpTerm);
-            System.out.println("****DATA:"+ term.toString());
-        }
-
-
         // For reference range plus results only, test that the MP term has been set, if not, try to set the abnormal termif (doc.getStatisticalMethod() != null && doc.getStatisticalMethod().equals("Reference Ranges Plus framework")) {
 
         // Sometimes, the stats result generator doesn't set the MP term (also not for either sex), in that case,
@@ -816,9 +808,9 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
         }
 
         // test
-        if (b.geneSymbol.equals("Pard3")){
-            System.out.println("Working on Pard3");
-        }
+//        if (b.geneSymbol.equals("Pard3")){
+//            System.out.println("Working on Pard3");
+//        }
 
         doc.setMarkerAccessionId(b.geneAcc);
         doc.setMarkerSymbol(b.geneSymbol);
@@ -1527,6 +1519,8 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
      */
     private void setSignificantFlag(Double pValueThreshold, StatisticalResultDTO doc) {
 
+        doc.setSignificant(false);
+
         // do not override significant == true
         if (doc.getSignificant()!=null && doc.getSignificant()) {
             return;
@@ -1551,7 +1545,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
                 doc.setSignificant(false);
             }
 
-        } else if (doc.getNullTestPValue() == null && doc.getStatus().equals("Success") && doc.getStatisticalMethod() != null && doc.getStatisticalMethod().startsWith("Fisher's")) {
+        } else if (doc.getNullTestPValue() == null && doc.getStatus().equals("Success") && doc.getStatisticalMethod() != null && doc.getStatisticalMethod().startsWith("Fisher")) {
             // Fisher's exact test.  Choose the most significant pvalue from the sexes, already tcalculated and stored
             // in the Pvalue field of the doc
 

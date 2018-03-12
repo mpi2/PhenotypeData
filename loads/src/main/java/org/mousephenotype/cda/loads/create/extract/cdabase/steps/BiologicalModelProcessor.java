@@ -21,6 +21,7 @@ import org.mousephenotype.cda.enumerations.DbIdType;
 import org.mousephenotype.cda.loads.common.AccDbId;
 import org.mousephenotype.cda.loads.common.BioModelInsertDTOMGI;
 import org.mousephenotype.cda.loads.common.CdaSqlUtils;
+import org.mousephenotype.cda.loads.common.ConcurrentHashMapAllowNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.ItemProcessor;
@@ -28,7 +29,6 @@ import org.springframework.batch.item.ItemProcessor;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 
 /**
@@ -41,14 +41,14 @@ public class BiologicalModelProcessor implements ItemProcessor<BioModelInsertDTO
     private CdaSqlUtils         cdabaseSqlUtils;
     protected int               lineNumber = 0;
 
-    private ConcurrentHashMap<BioModelInsertDTOMGI, BioModelInsertDTOMGI> bioModels = new ConcurrentHashMap<>();         // Accumulation of inserted bioModels.
+    private ConcurrentHashMapAllowNull<BioModelInsertDTOMGI, BioModelInsertDTOMGI> bioModels = new ConcurrentHashMapAllowNull<>();         // Accumulation of inserted bioModels.
 
     private int multipleAllelesPerRowCount         = 0;
     private int multipleGenesPerRowCount           = 0;
     private int multipleAllelesAndGenesPerRowCount = 0;
 
     private final Logger     logger      = LoggerFactory.getLogger(this.getClass());
-    public final Set<String> errMessages = ConcurrentHashMap.newKeySet();       // This is the java 8 way to create a concurrent hash set.
+    public final Set<String> errMessages = ConcurrentHashMapAllowNull.newKeySet();       // This is the java 8 way to create a concurrent hash set.
 
     public BiologicalModelProcessor(CdaSqlUtils cdabaseSqlutils) {
         this.cdabaseSqlUtils = cdabaseSqlutils;

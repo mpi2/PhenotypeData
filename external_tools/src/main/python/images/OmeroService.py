@@ -100,49 +100,49 @@ class OmeroService:
         #print ctx
         return self.conn
     
-    def getImagesAlreadyInOmero(self, filterProject=None, filterDataset=None):
-        directory_to_filename_map = collections.OrderedDict()
-        if self.conn is None:
-            self.conn=self.getConnection()
-        print "\nList Projects:"
-        print "=" * 50
-        my_expId = self.conn.getUser().getId()
-        projects=self.conn.listProjects(my_expId)
-        if filterProject is not None:
-            self.filterProjectName=filterProject#instance variable as can't pass to standard python filter method?
-            filteredProjects=filter(self.filterProjectFunction,projects)
-            for project in filteredProjects:
-                print "filtered project="+project.getName()
-        else:
-            filteredProjects=projects
-        for project in filteredProjects:
-            print "looking for project name="+project.getName()
-            for dataset in project.listChildren():
-                self.print_obj(dataset, 2)
-                for image in dataset.listChildren():
-                    #print_obj(image, 4)
-                    fileset = image.getFileset()
-                    #print 'fileset=', fileset
-                    if fileset is not None:
-                        #print 'image id=', image.getId()
-                        filesetId=fileset.getId()
-                        query = 'SELECT clientPath FROM FilesetEntry WHERE fileset.id = :id'
-                        params = omero.sys.ParametersI()
-                        params.addId(omero.rtypes.rlong(filesetId))
-                        for path in self.conn.getQueryService().projection(query, params):
-                            fullPath=path[0].val
-                            if splitString in fullPath:
-                                #print 'path in omero=' +fullPath
-                                relativeOmeroUrl=fullPath.split(splitString,1)[1]
-                                relDir, filename=relativeOmeroUrl.rsplit('/',1)
-                                #print "relDir="+relDir+" filename="+filename
-                                #directory_to_filename_map.add(relativeOmeroUrl)
-                                directory_to_filename_map.setdefault(relDir,list()).append( filename )
-        # Close connection:
-        # =================================================================
-        # When you are done, close the session to free up server resources.
-        return directory_to_filename_map
-    
+    def getImagesAlreadyInOmero(self):
+        query = 'SELECT clientPath FROM FilesetEntry WHERE fileset.id >= :id';
+        params = omero.sys.ParametersI()
+        params.addId(omero.rtypes.rlong(0))
+        omero_file_data = self.conn.getQueryService().projection(query, params)
+
+        # Get the filepath by splitting the indir path
+        omero_file_list = []
+        for ofd in omero_file_data:
+            try:
+                #indir,ofd_path = ofd[1].split(root_dir[1:])
+                ofd_path = ofd[0].val.split('impc/')[-1]
+            except Exception as e:
+                print "Problem extracting root_dir from clientpath " + ofd[0].val
+                print "Error was: " + e.message
+                omero_file_list.append(ofd[0].val)
+                continue
+            #if indir is None or len(indir) < 1:
+            #    print "Did not extract root_dir from " + ofd[1]
+            omero_file_list.append(ofd_path)
+        return omero_file_list
+
+    def getAnnotationsAlreadyInOmero(self):
+        #query = 'SELECT ds.name, (SELECT o.name FROM originalfile o ' + \
+        #        'WHERE o.id=a.file) AS filename FROM datasetannotationlink ' + \
+        #        'dsal, dataset ds, annotation a where dsal.parent=ds.id and ' + \
+        #        ' dsal.child=a.id and ' + \
+        #        ' dsal.child >= :id'
+        
+        omero_annotation_list = []
+        file_annotations = self.conn.listFileAnnotations()
+        for fa in file_annotations:
+            links = fa.getParentLinks('dataset')
+            for link in links:
+                datasets = link.getAncestry()
+                for ds in datasets:
+                    dir_parts = ds.getName().split('-')
+                    if len(dir_parts) == 4:
+                        dir_parts.append(fa.getFileName())
+                        omero_annotation_list.append("/".join(dir_parts))
+        return omero_annotation_list
+
+
     def filterProjectFunction(self, project):
         print "project name="+project.getName()
         if project.getName().startswith(self.filterProjectName):

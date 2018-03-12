@@ -1472,7 +1472,7 @@
 			var btn = $('<button></button>').attr(
 					{
 						'class' : oFormatSelector[f]
-								+ ' fa fa-download gridDump ' + conf['class']
+								+ ' fa fa-download ' + conf['class']
 					}).html(f);
 
 			$(iconDiv).append(btn);
@@ -1837,136 +1837,96 @@
 	}
 
 	$.fn.initDataTableDumpControl = function(oInfos) {
-		// function initDataTableDumpControl(oInfos) {
 
 		$('div#saveTable').remove();
 		$('div#toolBox').remove();
 
 		// var saveTool = $("<div id='saveTable'></div>").html("Download table
 		// <img src='"+baseUrl+"/img/floppy.png' />");//.corner("4px");
-		var saveTool = $("<div id='saveTable'></div>")
-				.html(
-						"<span class='fa fa-download'>&nbsp;<span id='dnld'>Download</span></span>");// .corner("4px");
+		var saveTool = $("<div id='saveTable'></div>").html("<span class='fa fa-download'>&nbsp;<span id='dnld'>Download (non-collapsed dataset, ie, multiple rows for same gene)</span></span>");// .corner("4px");
 
 		var toolBox = fetchSaveTableGui();
 
-		$('div.dataTables_processing').siblings('div#tableTool').append(
+        $('div.dataTables_processing').siblings('div#tableTool').append(
 				saveTool, toolBox);
 
-		$('div#saveTable')
-				.click(
-						function() {
+        if (oInfos.hasOwnProperty('dogoterm')){
+            $('div#toolBox').hide();
+        }
 
-							if ($('div#toolBox').is(":visible")) {
-								$('div#toolBox').hide();
-							} else {
-								$('div#toolBox').show();
+        $('div#saveTable').click(function() {
 
-								// browser-specific position fix
-								if (parseInt(getInternetExplorerVersion()) === 8) {
-									// if ($.browser.msie &&
-									// parseInt($.browser.version, 10) === 8) {
-									$('div#toolBox').css({
-										'top' : '-30px',
-										'left' : '65px'
-									});
-								}
+            if ($('div#toolBox').is(":visible")) {
+                $('div#toolBox').hide();
+            } else {
+                $('div#toolBox').show();
 
-								var solrCoreName;
-								if (oInfos.hasOwnProperty('widgetName')) {
-									solrCoreName = oInfos.widgetName.replace(
-											'Facet', '');
-								}
+                // browser-specific position fix
+                if (parseInt(getInternetExplorerVersion()) === 8) {
+                    // if ($.browser.msie &&
+                    // parseInt($.browser.version, 10) === 8) {
+                    $('div#toolBox').css({
+                        'top' : '-30px',
+                        'left' : '65px'
+                    });
+                }
 
-								// work out solr query start and row length
-								// dynamically
-								var iActivePage = $(
-										'div.dataTables_paginate li.active a')
-										.text();
-								var oCurrDt = $('table.dataTable').dataTable(); // find
-																				// the
-																				// dataTable
-																				// object
-								var oSettings = oCurrDt.fnSettings();
-								var iLength = oSettings._iDisplayLength;
-								var iRowStart = iActivePage == 1 ? 0
-										: iActivePage * iLength - iLength;
+                var solrCoreName;
+                if (oInfos.hasOwnProperty('widgetName')) {
+                    solrCoreName = oInfos.widgetName.replace('Facet', '');
+                }
 
-								var showImgView = $('div#resultMsg div#imgView')
-										.attr('rel') == 'imgView' ? true
-										: false;
+                // work out solr query start and row length
+                // dynamically
+                var iActivePage = $('div.dataTables_paginate li.active a').text();
+                var oCurrDt = $('table.dataTable').dataTable(); // find the dataTable object
+                var oSettings = oCurrDt.fnSettings();
+                var iLength = oSettings._iDisplayLength;
+                var iRowStart = iActivePage == 1 ? 0 : iActivePage * iLength - iLength;
 
-								$('button.gridDump').unbind('click');
+                var showImgView = $('div#resultMsg div#imgView').attr('rel') == 'imgView' ? true : false;
 
-								var conf = {
-									legacyOnly : oInfos.legacyOnly,
-									externalDbId : 5,
-									rowStart : iRowStart,
-									length : iLength,
-									solrCoreName : solrCoreName,
-									params : oInfos.params,
-									showImgView : showImgView,
-									// gridFields:
-									// MPI2.searchAndFacetConfig.facetParams[oInfos.widgetName].gridFields,
-									gridFields : oInfos.gridFields,
-									dogoterm : oInfos
-											.hasOwnProperty('dogoterm') ? oInfos.dogoterm
-											: false,
-									fileName : typeof oInfos.fileName == 'undefined' ? solrCoreName
-											+ '_table_dump'
-											: oInfos.fileName,
-									filterStr : oInfos
-											.hasOwnProperty('filterStr') ? oInfos.filterStr
-											: false,
-									doAlleleRef : oInfos
-											.hasOwnProperty('doAlleleRef') ? oInfos.doAlleleRef
-											: false,
-								};
+                $('button.gridDump').unbind('click');
 
-								var exportObjPageTsv = buildExportUrl(conf,
-										'tsv', 'page');
-								var exportObjPageXls = buildExportUrl(conf,
-										'xls', 'page');
-								var exportObjAllTsv = buildExportUrl(conf,
-										'tsv', 'all');
-								var exportObjAllXls = buildExportUrl(conf,
-										'xls', 'all');
-								$('button.gridDump')
-										.each(
-												function(index, obj) {
-													if ($(this).hasClass(
-															'tsv_grid')) {
-														$(this)
-																.attr(
-																		'data-exporturl',
-																		exportObjPageTsv.exportUrl);
-													} else if ($(this)
-															.hasClass(
-																	'xls_grid')) {
-														$(this)
-																.attr(
-																		'data-exporturl',
-																		exportObjPageXls.exportUrl);
-													} else if ($(this)
-															.hasClass('tsv_all')) {
-														$(this)
-																.attr(
-																		'data-exporturl',
-																		exportObjAllTsv.exportUrl);
-													} else if ($(this)
-															.hasClass('xls_all')) {
-														$(this)
-																.attr(
-																		'data-exporturl',
-																		exportObjAllXls.exportUrl);
-													}
-												});
+                var conf = {
+                    legacyOnly : oInfos.legacyOnly,
+                    externalDbId : 5,
+                    rowStart : iRowStart,
+                    length : iLength,
+                    solrCoreName : solrCoreName,
+                    params : oInfos.params,
+                    showImgView : showImgView,
+                    // gridFields:
+                    // MPI2.searchAndFacetConfig.facetParams[oInfos.widgetName].gridFields,
+                    gridFields : oInfos.gridFields,
+                    dogoterm : oInfos.hasOwnProperty('dogoterm') ? oInfos.dogoterm : false,
+                    fileName : typeof oInfos.fileName == 'undefined' ? solrCoreName + '_table_dump' : oInfos.fileName,
+                    filterStr : oInfos.hasOwnProperty('filterStr') ? oInfos.filterStr : false,
+                    doAlleleRef : oInfos.hasOwnProperty('doAlleleRef') ? oInfos.doAlleleRef : false
+                };
 
-								$('button.gridDump').click(function() {
-									initGridExporter($(this), conf);
-								});
-							}
-						});
+                var exportObjPageTsv = buildExportUrl(conf, 'tsv', 'page');
+                var exportObjPageXls = buildExportUrl(conf, 'xls', 'page');
+                var exportObjAllTsv = buildExportUrl(conf, 'tsv', 'all');
+                var exportObjAllXls = buildExportUrl(conf, 'xls', 'all');
+
+                $('button.gridDump').each(function(index, obj) {
+                    if ($(this).hasClass('tsv_grid')) {
+                        $(this).attr('data-exporturl', exportObjPageTsv.exportUrl);
+                    } else if ($(this).hasClass('xls_grid')) {
+                        $(this).attr('data-exporturl', exportObjPageXls.exportUrl);
+                    } else if ($(this).hasClass('tsv_all')) {
+                        $(this).attr('data-exporturl', exportObjAllTsv.exportUrl);
+                    } else if ($(this).hasClass('xls_all')) {
+                        $(this).attr('data-exporturl', exportObjAllXls.exportUrl);
+                    }
+                });
+
+                $('button.gridDump').click(function() {
+                    initGridExporter($(this), conf);
+                });
+            }
+        });
 	}
 
 	/**
@@ -1993,8 +1953,7 @@
 
 	function initGridExporter(thisButt, conf) {
 		var fileType = thisButt.text();
-		var dumpMode = thisButt.attr('class').indexOf('all') != -1 ? 'all'
-				: 'page';
+		var dumpMode = thisButt.attr('class').indexOf('all') != -1 ? 'all' : 'page';
 
 		var exportObj = buildExportUrl(conf, fileType, dumpMode);
 		var form = exportObj.form;
@@ -2009,24 +1968,23 @@
 				url1 = solrUrl + '/' + conf['solrCoreName'] + "/select?";
 				paramStr += "&wt=json";
 
-				$
-						.ajax({
-							url : url1,
-							data : paramStr,
-							dataType : 'jsonp',
-							jsonp : 'json.wrf',
-							timeout : 5000,
-							success : function(json) {
-								// prewarn users if dataset is big
-								if (confirmDownloadIfExceedsThreshold(json.response.numFound)) {
-									$(form).appendTo('body').submit().remove();
-								}
-							},
-							error : function(jqXHR, textStatus, errorThrown) {
-								$('div#facetBrowser').html(
-										'Error fetching data ...');
-							}
-						});
+				$.ajax({
+                    url : url1,
+                    data : paramStr,
+                    dataType : 'jsonp',
+                    jsonp : 'json.wrf',
+                    timeout : 5000,
+                    success : function(json) {
+                        // prewarn users if dataset is big
+                        if (confirmDownloadIfExceedsThreshold(json.response.numFound)) {
+                            $(form).appendTo('body').submit().remove();
+                        }
+                    },
+                    error : function(jqXHR, textStatus, errorThrown) {
+                        $('div#facetBrowser').html(
+                                'Error fetching data ...');
+                    }
+                });
 			} else if (conf.hasOwnProperty('doAlleleRef')) {
 				dump_all_allele_ref(conf, form);
 			}

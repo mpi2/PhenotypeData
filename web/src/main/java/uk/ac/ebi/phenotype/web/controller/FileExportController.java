@@ -309,7 +309,8 @@ public class FileExportController {
 			@RequestParam(value = "consortium", required = false) Boolean consortium,
 			HttpServletRequest request, HttpServletResponse response, Model model) throws Exception {
 
-		hostName = request.getAttribute("mappedHostname").toString().replace("https:", "http:");
+		hostName = request.getAttribute("mappedHostname").toString();//.replace("https:", "http:");
+
 		Boolean legacyOnly = false;
 		String solrFilters = "q=" + query + "&fq=" + fqStr;
 		List<String> dataRows = new ArrayList<>();
@@ -437,12 +438,12 @@ public class FileExportController {
 			HttpServletRequest request, HttpServletResponse response, Model model)
 			throws Exception {
 
-		hostName = request.getAttribute("mappedHostname").toString().replace("https:", "http:");
+		hostName = "http:" + request.getAttribute("mappedHostname").toString();
 
 		String query = "*:*"; // default
 		String fqStr = null;
 
-		log.debug("solr params: " + solrFilters);
+		System.out.println("solr params: " + solrFilters);
 
 		String[] pairs = solrFilters.split("&");
 		for (String pair : pairs) {
@@ -1441,7 +1442,6 @@ public class FileExportController {
 														  boolean hasgoterm, boolean gocollapse) {
 
 		JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
-		// System.out.println(" GOT " + docs.size() + " docs");
 
 		String baseUrl = request.getAttribute("baseUrl") + "/genes/";
 
@@ -1540,7 +1540,6 @@ public class FileExportController {
 				}
 			}
 		}
-
 		return rowData;
 	}
 

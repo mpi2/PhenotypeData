@@ -89,7 +89,7 @@ public class PaperController {
             HttpServletRequest request,
             HttpServletResponse response,
             Model model) throws IOException, URISyntaxException, SQLException {
-        //System.out.println("params: " + params);
+        System.out.println("alleleref params: " + params);
 
         JSONObject jParams = (JSONObject) JSONSerializer.toJSON(params);
 
@@ -312,7 +312,6 @@ public class PaperController {
 
         }
 
-//		System.out.println(j.toString());
         return j.toString();
     }
 
@@ -726,10 +725,10 @@ public class PaperController {
 
         List<String> pmidAlleleStrs = Arrays.asList(idAlleleStr.split("___"));
 
-        System.out.println("param: "+idAlleleStr);
+        //System.out.println("param: "+idAlleleStr);
         for( String pmidAlleleStr : pmidAlleleStrs) {
 
-            System.out.println("pmidAlleleStr: " + pmidAlleleStr);
+            //System.out.println("pmidAlleleStr: " + pmidAlleleStr);
             List<String> alleles = new ArrayList<>();
             List<String> pmidQrys = new ArrayList<>();
 
@@ -755,7 +754,7 @@ public class PaperController {
 
             for (String allelename : alleles) {
                 allelename = allelename.trim();
-                System.out.println("checking allele: " + allelename);
+                //System.out.println("checking allele: " + allelename);
                 Map<String, String> ag = isImpcAllele(allelename, connkomp2);
                 if (ag.size() > 0) {
                     // add to allele_ref database
@@ -797,10 +796,10 @@ public class PaperController {
                     foundPmids.add(pmidStr);
 
                     Pubmed pub = (Pubmed) pair.getValue();
-
-					System.out.println("gene acc: " + geneAccStr);
-					System.out.println("allele acc: " + alleleAccStr);
-					System.out.println("allele symbol: " + alleleSymbols);
+//
+//					System.out.println("gene acc: " + geneAccStr);
+//					System.out.println("allele acc: " + alleleAccStr);
+//					System.out.println("allele symbol: " + alleleSymbols);
 
                     pub.setGeneAccs(geneAccStr);
                     pub.setAlleleAccs(alleleAccStr);
@@ -1023,7 +1022,6 @@ public class PaperController {
 
             // update mesh stats for papers
             if (mterms.size() > 0) {
-                System.out.println(mterms);
 
                 List<String> mts = new ArrayList<>();
                 for(String m : mterms){
@@ -1039,7 +1037,6 @@ public class PaperController {
                         + "WHERE mesh_heading IN (" + StringUtils.join(mts, ",") + ") "
                         + "GROUP BY mm.top_mesh";
 
-                System.out.println("sql: " + sql);
                 PreparedStatement p = conn.prepareStatement(sql);
                 String whenMesh = "";
                 String whenPmid = "";
@@ -1060,7 +1057,7 @@ public class PaperController {
                     + "number_mapped_pmid = (case" + whenPmid +  " end) "
                     + "WHERE top_mesh in (" + StringUtils.join(tops, ",") + ")";
 
-                System.out.println("update: "+ updateSql);
+                //System.out.println("update: "+ updateSql);
                 PreparedStatement upt = conn.prepareStatement(updateSql);
                 upt.executeUpdate();
 
@@ -1098,8 +1095,8 @@ public class PaperController {
 
         // attach pubmed info to pmid
         for( String q : pmidQrys ){
-            System.out.println("Working on filter: "+ q);
-            String dbfetchUrl = "http://www.ebi.ac.uk/europepmc/webservices/rest/search/query=" + q + "%20and%20src:MED&format=json&resulttype=core";
+            //System.out.println("Working on filter: "+ q);
+            String dbfetchUrl = "https://www.ebi.ac.uk/europepmc/webservices/rest/search/query=" + q + "%20and%20src:MED&format=json&resulttype=core";
             //System.out.println(dbfetchUrl);
 
             JSONObject json = fetchHttpUrlJson(dbfetchUrl);

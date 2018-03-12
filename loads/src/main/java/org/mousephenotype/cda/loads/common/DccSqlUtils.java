@@ -526,7 +526,7 @@ public class DccSqlUtils {
         }
     }
 
-    public Map<Long, List<MediaParameter>> getMediaParameters() {
+    public synchronized Map<Long, List<MediaParameter>> getMediaParameters() {
         Map<Long, List<MediaParameter>> retVal = new HashMap<>();
 
         final String query =
@@ -580,7 +580,7 @@ public class DccSqlUtils {
         }
     }
 
-    public Map<Long, List<MediaSampleParameter>> getMediaSampleParameters() {
+    public synchronized Map<Long, List<MediaSampleParameter>> getMediaSampleParameters() {
         Map<Long, List<MediaSampleParameter>> retVal = new HashMap<>();
 
         final String query =
@@ -660,7 +660,7 @@ public class DccSqlUtils {
         return retVal;
     }
 
-    public Map<Long, List<OntologyParameter>> getOntologyParameters() {
+    public synchronized Map<Long, List<OntologyParameter>> getOntologyParameters() {
         Map<Long, List<OntologyParameter>> retVal = new HashMap<>();
 
         final String query = "SELECT * FROM ontologyParameter";
@@ -733,7 +733,7 @@ public class DccSqlUtils {
         }
     }
 
-    public Map<Long, List<SeriesMediaParameter>> getSeriesMediaParameters() {
+    public synchronized Map<Long, List<SeriesMediaParameter>> getSeriesMediaParameters() {
         Map<Long, List<SeriesMediaParameter>> retVal = new HashMap<>();
 
         final String query =
@@ -894,7 +894,7 @@ public class DccSqlUtils {
         }
     }
 
-    public Map<Long, List<SeriesParameter>> getSeriesParameters() {
+    public synchronized Map<Long, List<SeriesParameter>> getSeriesParameters() {
         Map<Long, List<SeriesParameter>> retVal = new HashMap<>();
 
         final String query =
