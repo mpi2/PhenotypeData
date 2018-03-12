@@ -462,6 +462,7 @@ public class AnalyticsChartProvider {
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
+		
 		String chartString= this.createLineProceduresOverviewChart(series, categories, title, subTitle, yAxisLegend, yAxisUnit, containerId, true, checkAll, uncheckAll);
 
 		return chartString;

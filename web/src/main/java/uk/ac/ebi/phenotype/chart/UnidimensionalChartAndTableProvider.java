@@ -305,7 +305,7 @@ public class UnidimensionalChartAndTableProvider {
 	}
 
 	public ChartData getStatusColumnChart(HashMap<String , Long> values, String title, String divId, List<String> colors){
-
+		
 		String data = "[";
 		// custom order & selection from Terry
 		if (divId.equalsIgnoreCase("genotypeStatusChart")){
@@ -313,25 +313,28 @@ public class UnidimensionalChartAndTableProvider {
 			data += "['" + StatusConstants.IMITS_MOUSE_STATUS_MICRO_INJECTION_IN_PROGRESS + "', " +  values.get(StatusConstants.IMITS_MOUSE_STATUS_MICRO_INJECTION_IN_PROGRESS) + "], ";
 			data += "['" + StatusConstants.IMITS_MOUSE_STATUS_CHIMERA_OBTAINED + "', " +  values.get(StatusConstants.IMITS_MOUSE_STATUS_CHIMERA_OBTAINED) + "], ";
 			
+			// Long genotypeConfirmed = values.get(StatusConstants.IMITS_MOUSE_STATUS_GENOTYPE_CONFIRMED) /**+ values.get(StatusConstants.IMITS_MOUSE_STATUS_CRE_EXCISION_STARTED)**/ + values.get(StatusConstants.IMITS_MOUSE_STATUS_CRE_EXCISION_COMPLETE);
+			// data += "['" + StatusConstants.IMITS_MOUSE_STATUS_GENOTYPE_CONFIRMED + "', " +  genotypeConfirmed + "], ";
+			data += "['" + StatusConstants.IMITS_MOUSE_STATUS_GENOTYPE_CONFIRMED + "', " +  values.get(StatusConstants.IMITS_MOUSE_STATUS_GENOTYPE_CONFIRMED) + "], ";
 			
-			
-			Long genotypeConfirmed= values.get(StatusConstants.IMITS_MOUSE_STATUS_GENOTYPE_CONFIRMED) /**+ values.get(StatusConstants.IMITS_MOUSE_STATUS_CRE_EXCISION_STARTED)**/ + values.get(StatusConstants.IMITS_MOUSE_STATUS_CRE_EXCISION_COMPLETE);
-			
-			data += "['" + StatusConstants.IMITS_MOUSE_STATUS_GENOTYPE_CONFIRMED + "', " +  genotypeConfirmed + "], ";
 			data += "['" + StatusConstants.IMITS_MOUSE_STATUS_CRE_EXCISION_STARTED + "', " +  values.get(StatusConstants.IMITS_MOUSE_STATUS_CRE_EXCISION_STARTED) + "], ";
 			data += "['" + StatusConstants.IMITS_MOUSE_STATUS_CRE_EXCISION_COMPLETE + "', " +  values.get(StatusConstants.IMITS_MOUSE_STATUS_CRE_EXCISION_COMPLETE) + "], ";
 		}
+		
 		else if (divId.equalsIgnoreCase("phenotypeStatusChart")){
 			// custom statuses to show + custom order
 			data += "['" + StatusConstants.IMITS_MOUSE_PHENOTYPING_ATTEMPT_REGISTERED + "', " +  values.get(StatusConstants.IMITS_MOUSE_PHENOTYPING_ATTEMPT_REGISTERED) + "], ";
 			data += "['" + StatusConstants.IMITS_MOUSE_PHENOTYPING_STARTED + "', " +  values.get(StatusConstants.IMITS_MOUSE_PHENOTYPING_STARTED) + "], ";
 			data += "['" + StatusConstants.IMITS_MOUSE_PHENOTYPING_COMPLETE + "', " +  values.get(StatusConstants.IMITS_MOUSE_PHENOTYPING_COMPLETE) + "], ";
-		}else if(divId.equalsIgnoreCase("idgChart")){
+		}
+		
+		else if(divId.equalsIgnoreCase("idgChart")){
 			
 			data += "['" + StatusConstants.IMPC_ES_CELL_STATUS_PRODUCTION_DONE + "', " +  values.get(StatusConstants.IMPC_ES_CELL_STATUS_PRODUCTION_DONE) + "], ";
 			data += "['" + StatusConstants.IMPC_MOUSE_STATUS_PRODUCTION_DONE + "', " +  values.get(StatusConstants.IMPC_MOUSE_STATUS_PRODUCTION_DONE) + "], ";
 			data += "['" + StatusConstants.IMITS_MOUSE_PHENOTYPING_COMPLETE + "', " +  values.get(StatusConstants.IMITS_MOUSE_PHENOTYPING_COMPLETE) + "], ";
 		}
+		
 		else {
 			for (String key: values.keySet()){
 				data += "['" + key + "', " + values.get(key) + "], ";
