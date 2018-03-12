@@ -74,7 +74,8 @@ public class ObservationDTO extends ObservationDTOBase {
                 externalSampleId,
                 "\"" + metadata.toString() + "\"",
                 metadataGroup,
-                weight!=null ? weight.toString() : "-"
+                weight!=null ? weight.toString() : "-",
+                	productionCenter
         ));
 
         switch (ObservationType.valueOf(observationType)) {
@@ -131,7 +132,8 @@ public class ObservationDTO extends ObservationDTOBase {
                 EXTERNAL_SAMPLE_ID,
                 METADATA,
                 METADATA_GROUP,
-                WEIGHT
+                WEIGHT,
+                PRODUCTION_CENTER
         ));
 
         switch (ObservationType.valueOf(observationType)) {
@@ -191,6 +193,7 @@ public class ObservationDTO extends ObservationDTOBase {
                 + " , pipeline :" + this.getPipelineStableId()
                 + " , zygosity :" + this.getZygosity()
                 + " , metadata :" + this.getMetadataGroup()
+                + " , productionCenter :" + this.getProductionCenter()
                 + " ]";
     }
 
@@ -217,7 +220,8 @@ public class ObservationDTO extends ObservationDTOBase {
                 + ", dimension=" + dimension
                 + ", timePoint=" + timePoint
                 + ", discretePoint=" + discretePoint
-                + ", externalSampleId=" + externalSampleId;
+                + ", externalSampleId=" + externalSampleId
+                + ", productionCenter :" + productionCenter;
     }
 
 

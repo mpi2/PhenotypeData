@@ -30,26 +30,26 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * Generate input files for batch stats processing with PhenStat
+ * Generate input files for epigenetics stats processing with PhenStat
  * Read from solr cores and produce files for all parameters to be analyzed
  *
- * @author Andrew Tikhonov
- * @author Jeremy Mason
+ * @author Alba Gomez
  *
  */
-@Import(value = {StatisticalDatasetGeneratorConfig.class})
-public class StatisticalDatasetGenerator extends BasicService implements CommandLineRunner {
 
+@Import(value = {StatisticalDatasetGeneratorConfig.class})
+public class StatisticalDatasetGeneratorEpi extends BasicService implements CommandLineRunner {
+	
 
     public static final String FILENAME_SEPERATOR = "--";
 
     final private Logger logger = LoggerFactory.getLogger(getClass());
     final private SolrClient experimentCore;
     final private SolrClient pipelineCore;
-
+    
 
     @Inject
-    public StatisticalDatasetGenerator(
+    public StatisticalDatasetGeneratorEpi(
             @Named("experimentCore") SolrClient experimentCore,
             @Named("pipelineCore") SolrClient pipelineCore) {
         Assert.notNull(experimentCore, "Experiment core cannot be null");
@@ -83,14 +83,15 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
             ObservationDTO.PIPELINE_STABLE_ID,
             ObservationDTO.PROCEDURE_GROUP,
             ObservationDTO.STRAIN_ACCESSION_ID);
-
+    
+  
     @Override
     public void run(String... strings) throws Exception {
 
         logger.info("Starting statistical dataset generation");
 
-        logger.info("Populating normal category lookup");
-        Map<String, String> normalEyeCategory = getNormalEyeCategories();
+        // logger.info("Populating normal category lookup");
+        // Map<String, String> normalEyeCategory = getNormalEyeCategories();
 
         List<String> parametersToLoad = null;
 
@@ -103,7 +104,7 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
             parametersToLoad = Arrays.asList(paramString.split(","));
         }
 
-
+        // In case we set up a parameter (argv)
         Map<String, SortedSet<String>> parameters = getParameterMap(parametersToLoad);
         logger.info("Prepared " + parameters.keySet().size() + " procedure groups");
 
@@ -112,7 +113,7 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
         logger.info("Processing {} data sets", results.size());
 
         // Create directory if not exists
-        File d = new File("tsvs");
+        File d = new File("tsvs_epi_all");
         if ( ! d.exists()) {
             d.mkdir();
         }
@@ -125,7 +126,8 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
 
                 logger.info("Processing {} {} {} {} {}", result.get(ObservationDTO.DATASOURCE_NAME), result.get(ObservationDTO.PHENOTYPING_CENTER), result.get(ObservationDTO.PIPELINE_STABLE_ID), result.get(ObservationDTO.PROCEDURE_GROUP), result.get(ObservationDTO.STRAIN_ACCESSION_ID));
 
-                String fields = "date_of_experiment,external_sample_id,strain_name,allele_accession_id,gene_accession_id,gene_symbol,weight,sex,zygosity,biological_sample_group,colony_id,metadata_group,parameter_stable_id,parameter_name,data_point,category,observation_type";
+                String fields = "date_of_experiment,external_sample_id,strain_name,allele_accession_id,gene_accession_id,gene_symbol,weight,sex,zygosity,biological_sample_group,colony_id,metadata_group,parameter_stable_id,"
+                		+ "parameter_name,data_point,category,observation_type,production_center,phenotyping_center";
 
                 SolrQuery q1 = new SolrQuery();
                 q1.setQuery("*:*")
@@ -136,9 +138,12 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
                         .addFilterQuery(ObservationDTO.STRAIN_ACCESSION_ID + ":\"" + result.get(ObservationDTO.STRAIN_ACCESSION_ID) + "\"")
 
                         .addFilterQuery("observation_type:(categorical OR unidimensional)")
+                        // .addFilterQuery("biological_sample_group:control")
+                        
                         .setFields(fields)
                         .setRows(Integer.MAX_VALUE)
                 ;
+                
 
                 // Project remapping rules switches EUMODIC to MGP for some legacy colonies, but cannot
                 // remap corresponding controls (no imits entry for controls).
@@ -161,111 +166,155 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
 // For now, do not include PROJECT in the splitting
 // ********* TEMPORARY TEMPORARY TEMPORARY TEMPORARY TEMPORARY *********
 
+//                logger.info(SolrUtils.getBaseURL(experimentCore) + "/select" + q1.toQueryString());
                 logger.debug(SolrUtils.getBaseURL(experimentCore) + "/select" + q1.toQueryString());
+                
+                String fields2 = "allele_accession_id,gene_accession_id";
                 
                 try {
                     List<ObservationDTO> observationDTOs = experimentCore.query(q1).getBeans(ObservationDTO.class);
                     Map<String, Map<String, String>> specimenParameterMap = new HashMap<>();
-
+                    
                     for (ObservationDTO observationDTO : observationDTOs) {
-
-                        String colonyId = observationDTO.getGroup().equals(BiologicalSampleType.control.getName()) ? "+/+" : observationDTO.getColonyId();
-                        String zygosity = observationDTO.getGroup().equals(BiologicalSampleType.control.getName()) ? "" : observationDTO.getZygosity();
-                        String alleleAccessionId = observationDTO.getGroup().equals(BiologicalSampleType.control.getName()) ? "" : observationDTO.getAlleleAccession();
-                        String geneAccessionId = observationDTO.getGroup().equals(BiologicalSampleType.control.getName()) ? "" : observationDTO.getGeneAccession();
-                        String specimenId = observationDTO.getExternalSampleId();
-                        String dateOfExperiment = observationDTO.getDateOfExperimentString();
-                        String weight = observationDTO.getWeight() != null ? observationDTO.getWeight().toString() : "";
-                        String sex = observationDTO.getSex();
-                        String biologicalSampleGroup = observationDTO.getGroup();
-                        String strainName = observationDTO.getStrainName();
-                        String metadataGroup = observationDTO.getMetadataGroup();
-
-                        String key = Stream.of(specimenId, biologicalSampleGroup, strainName, colonyId, geneAccessionId, alleleAccessionId, dateOfExperiment, metadataGroup, zygosity, weight, sex).collect(Collectors.joining("\t"));
-
-                        if (!specimenParameterMap.containsKey(key)) {
-                            specimenParameterMap.put(key, new HashMap<>());
-                        }
-
-                        String dataValue;
-
-                        switch (ObservationType.valueOf(observationDTO.getObservationType())) {
-                            case categorical:
-                                dataValue = observationDTO.getCategory();
-                                break;
-                            case unidimensional:
-                                dataValue = observationDTO.getDataPoint().toString();
-                                break;
-                            default:
-                                // No value
-                                continue;
-                        }
-
-                        specimenParameterMap.get(key).put(observationDTO.getParameterStableId(), dataValue);
-
-
-                        // Add a column for the MAPPED category for EYE parameters
-                        if (ObservationType.valueOf(observationDTO.getObservationType()) == ObservationType.categorical &&
-                                (
-                                        observationDTO.getParameterStableId().toUpperCase().contains("_EYE_") ||
-                                                observationDTO.getParameterStableId().toUpperCase().contains("M-G-P_014") ||
-                                                observationDTO.getParameterStableId().toUpperCase().contains("ESLIM_014")
-                                )
-                                ) {
-
-                            // Get mapped data category
-                            String mappedDataValue = observationDTO.getCategory();
-                            switch (observationDTO.getCategory()) {
-
-                                case "imageOnly":
-                                case "no data":
-                                case "no data for both eyes":
-                                case "No data":
-                                case "not defined":
-                                case "unobservable":
-                                    mappedDataValue = "";
-                                    break;
-
-                                // Per MPI2 F2F 20170922
-                                // Do not remap the "one eye normal" categories to "normal"
-//                            case "no data left eye":
-//                            case "no data right eye":
-//                                // Map to normal category
-//                                mappedDataValue = normalEyeCategory.get(observationDTO.getParameterStableId());
-//                                break;
-
-                                case "no data left eye, present right eye":
-                                    mappedDataValue = "present right eye";
-                                    break;
-
-                                case "no data right eye, present left eye":
-                                    mappedDataValue = "present left eye";
-                                    break;
-
-                                case "no data left eye, right eye abnormal":
-                                    mappedDataValue = "right eye abnormal";
-                                    break;
-
-                                case "no data right eye, left eye abnormal":
-                                    mappedDataValue = "left eye abnormal";
-                                    break;
-
-                                default:
-                                    break;
-                            }
-
-                            String mappedCategory = observationDTO.getParameterStableId() + "_MAPPED";
-                            specimenParameterMap.get(key).put(mappedCategory, mappedDataValue);
-
-                        }
-
-
+                    		
+                    		if (observationDTO.getGroup().equals(BiologicalSampleType.control.getName())) { // to make sure just to get the control mice
+                    				// String colonyId = observationDTO.getGroup().equals(BiologicalSampleType.control.getName()) ? "+/+" : observationDTO.getColonyId();
+		                    	   // TODO biological_sample_group : control -> "baseline" OR "Baseline" OR "" = 'baseline' otherwise keep colony_id
+		                    	   String colonyId = observationDTO.getColonyId().equals("baseline") || observationDTO.getColonyId().equals("Baseline") || observationDTO.getColonyId().equals("") ? "baseline" : observationDTO.getColonyId();
+		                    	   
+		                        // String zygosity = observationDTO.getGroup().equals(BiologicalSampleType.control.getName()) ? "" : observationDTO.getZygosity();
+		                    	    
+		                    	   String alleleAccessionId = "NA";
+	                    		   String geneAccessionId = "NA";
+		                    	   if (!colonyId.equals("baseline")) {
+		                    		   SolrQuery q2 = new SolrQuery();
+			                    	   	q2.setQuery("*:*")
+			                    	   		.addFilterQuery(ObservationDTO.PHENOTYPING_CENTER + ":\"" + result.get(ObservationDTO.PHENOTYPING_CENTER) + "\"")
+			                    	   		.addFilterQuery("allele_accession_id:[* TO *]")
+			                    	   		.addFilterQuery("gene_accession_id:[* TO *]")
+			                    	   		.addFilterQuery("colony_id:\"" + colonyId + "\"")
+			                    	   	
+				   		                .setFields(fields2)
+				   		                .setRows(1)
+				                    ;
+			                    	    
+			                    	   	// logger.info(SolrUtils.getBaseURL(experimentCore) + "/select" + q2.toQueryString());
+			                    	    logger.debug(SolrUtils.getBaseURL(experimentCore) + "/select" + q2.toQueryString());
+			                    	    
+			                    	    try {
+			                    	    		List<ObservationDTO> observationDTOsByColonyId = experimentCore.query(q2).getBeans(ObservationDTO.class);
+			                    	    		
+			                    	    		for (ObservationDTO observationDTOByColonyId : observationDTOsByColonyId) {
+			                    	    			alleleAccessionId = observationDTOByColonyId.getAlleleAccession().equals("") ? "NA" : observationDTOByColonyId.getAlleleAccession();
+						                     geneAccessionId = observationDTOByColonyId.getGeneAccession().equals("") ? "NA" : observationDTOByColonyId.getGeneAccession();
+			                    	    		}
+			                    	    } catch (Exception e) {
+		                                logger.warn("Error occurred geting data for query2: " + q2.toQueryString(), e);
+		                            }
+		                    	   } 
+		                    	   
+		                        String specimenId = observationDTO.getExternalSampleId();
+		                        String dateOfExperiment = observationDTO.getDateOfExperimentString();
+		                        String weight = observationDTO.getWeight() != null ? observationDTO.getWeight().toString() : "";
+		                        String sex = observationDTO.getSex();
+		                        
+		                        // String biologicalSampleGroup = observationDTO.getGroup();
+		                        // Change control to hetxhet if they are not baselines
+		                        String biologicalSampleGroup = observationDTO.getColonyId().equals("baseline") || observationDTO.getColonyId().equals("Baseline") || observationDTO.getColonyId().equals("") ? "baseline_control" : "hetxhet_control"; 
+		                        
+		                        String strainName = observationDTO.getStrainName();
+		                        String metadataGroup = observationDTO.getMetadataGroup();
+		                        
+		                        // Add center to the fiel
+		                        String productionCenter = observationDTO.getProductionCenter();
+		                        String phenotypingCenter = observationDTO.getPhenotypingCenter();
+		
+		                        String key = Stream.of(specimenId, biologicalSampleGroup, strainName, colonyId, geneAccessionId, alleleAccessionId, dateOfExperiment, metadataGroup, weight, sex, productionCenter, phenotypingCenter).collect(Collectors.joining("\t"));
+		
+		                        if (!specimenParameterMap.containsKey(key)) {
+		                            specimenParameterMap.put(key, new HashMap<>());
+		                        }
+		
+		                        String dataValue;
+		
+		                        switch (ObservationType.valueOf(observationDTO.getObservationType())) {
+		                            case categorical:
+		                                dataValue = observationDTO.getCategory();
+		                                break;
+		                            case unidimensional:
+		                                dataValue = observationDTO.getDataPoint().toString();
+		                                break;
+		                            default:
+		                                // No value
+		                                continue;
+		                        }
+		
+		                        specimenParameterMap.get(key).put(observationDTO.getParameterStableId(), dataValue);
+		
+		
+		                        // Add a column for the MAPPED category for EYE parameters
+		                        if (ObservationType.valueOf(observationDTO.getObservationType()) == ObservationType.categorical &&
+		                                (
+		                                        observationDTO.getParameterStableId().toUpperCase().contains("_EYE_") ||
+		                                        observationDTO.getParameterStableId().toUpperCase().contains("M-G-P_014") ||
+		                                        observationDTO.getParameterStableId().toUpperCase().contains("ESLIM_014")
+		                                )
+		                                ) {
+		
+		                            // Get mapped data category
+		                            String mappedDataValue = observationDTO.getCategory();
+		                            switch (observationDTO.getCategory()) {
+		
+		                                case "imageOnly":
+		                                case "no data":
+		                                case "no data for both eyes":
+		                                case "No data":
+		                                case "not defined":
+		                                case "unobservable":
+		                                    mappedDataValue = "";
+		                                    break;
+		
+		                                // Per MPI2 F2F 20170922
+		                                // Do not remap the "one eye normal" categories to "normal"
+		//                            case "no data left eye":
+		//                            case "no data right eye":
+		//                                // Map to normal category
+		//                                mappedDataValue = normalEyeCategory.get(observationDTO.getParameterStableId());
+		//                                break;
+		
+		                                case "no data left eye, present right eye":
+		                                    mappedDataValue = "present right eye";
+		                                    break;
+		
+		                                case "no data right eye, present left eye":
+		                                    mappedDataValue = "present left eye";
+		                                    break;
+		
+		                                case "no data left eye, right eye abnormal":
+		                                    mappedDataValue = "right eye abnormal";
+		                                    break;
+		
+		                                case "no data right eye, left eye abnormal":
+		                                    mappedDataValue = "left eye abnormal";
+		                                    break;
+		
+		                                default:
+		                                    break;
+		                            }
+		
+		                            String mappedCategory = observationDTO.getParameterStableId() + "_MAPPED";
+		                            specimenParameterMap.get(key).put(mappedCategory, mappedDataValue);
+		
+		                        }
+		                 
+                    		}
+                        
                     }
 
                     logger.info("  Has {} specimens with {} parameters", specimenParameterMap.size(), specimenParameterMap.values().stream().mapToInt(value -> value.keySet().size()).sum());
 
                     // Allow low N if ABR procedure
-                    if (specimenParameterMap.size() < 5 && ! (result.get(ObservationDTO.PROCEDURE_GROUP).equals("IMPC_ABR") || result.get(ObservationDTO.DATASOURCE_NAME).equals("3i") ) ) {
+                    if (specimenParameterMap.size() < 1 && ! (result.get(ObservationDTO.PROCEDURE_GROUP).equals("IMPC_ABR") || result.get(ObservationDTO.DATASOURCE_NAME).equals("3i") ) ) {
                         logger.info("  Not processing due to low N {} {} {} {} {}",
                                 result.get(ObservationDTO.PROJECT_NAME),
                                 result.get(ObservationDTO.PHENOTYPING_CENTER),
@@ -276,7 +325,7 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
                         return;
                     }
 
-                    List<String> headers = new ArrayList<>(Arrays.asList("specimen_id", "group", "background_strain_name", "colony_id", "marker_accession_id", "allele_accession_id", "batch", "metadata_group", "zygosity", "weight", "sex", "::"));
+                    List<String> headers = new ArrayList<>(Arrays.asList("specimen_id", "group", "background_strain_name", "colony_id", "marker_accession_id", "allele_accession_id", "batch", "metadata_group", "weight", "sex", "production_center", "phenotyping_center", "::"));
 
                     final SortedSet<String> sortedParameters = parameters.get(result.get(ObservationDTO.PROCEDURE_GROUP));
                     headers.addAll(sortedParameters);
@@ -311,7 +360,7 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
                         sb.append("\n");
                     }
 
-                    String filename = "tsvs/" + Stream.of(
+                    String filename = "tsvs_epi_all/" + Stream.of(
                             result.get(ObservationDTO.DATASOURCE_NAME).replace(" ", "_"),
                             result.get(ObservationDTO.PROJECT_NAME).replace(" ", "_"),
                             result.get(ObservationDTO.PHENOTYPING_CENTER).replace(" ", "_"),
@@ -322,15 +371,22 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
                     Path p = new File(filename).toPath();
                     logger.info("Writing file {} ({})", filename, p);
                     Files.write(p, sb.toString().getBytes());
-
+                    
+                    // Create a file with all the parameters and procedures to search them easily
+                    // logger.info("Parameters file {}", sortedParameters);
+                    
                 } catch (Exception e) {
                     logger.warn("Error occurred geting data for query: " + q1.toQueryString(), e);
                 }
 
-
+                
             });
-
+        
+        
+        
     }
+    
+    
 
     public List<Map<String, String>> getStatisticalDatasets(List<String> parameters) throws SolrServerException, IOException {
         SolrQuery query = new SolrQuery();
@@ -349,7 +405,10 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
                 .addFilterQuery("-parameter_stable_id:*_IMM_*")
 
                 // Include only parameters for which we have experimental data
-                .addFilterQuery("biological_sample_group:experimental")
+                // .addFilterQuery("biological_sample_group:experimental")
+                
+                // Include only parameters for which we have control data
+                 .addFilterQuery("biological_sample_group:control")
 
                 .setRows(0)
                 .setFacet(true)
@@ -360,84 +419,85 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
         if (parameters!=null) {
             query.addFilterQuery("parameter_stable_id:(" + StringUtils.join(parameters, " OR ") + ")");
         }
-
+        
+//        logger.info("1");
         logger.info(SolrUtils.getBaseURL(experimentCore) + "/select" + query.toQueryString());
         return getFacetPivotResults(experimentCore.query(query), false);
     }
 
-    /**
-     * Get list of "normal" category
-     * @return map of categories
-     */
-    private Map<String,String> getNormalEyeCategories() {
-
-    Map<String,String> map = new HashMap<>();
-
-        map.put("ESLIM_014_001_001", "normal");
-        map.put("ESLIM_014_001_003", "normal");
-        map.put("ESLIM_014_001_004", "absent");
-        map.put("ESLIM_014_001_005", "normal");
-        map.put("ESLIM_014_001_006", "normal");
-        map.put("ESLIM_014_001_007", "normal");
-        map.put("ESLIM_014_001_008", "absent");
-        map.put("ESLIM_014_001_009", "normal");
-        map.put("ESLIM_014_001_010", "normal");
-        map.put("ESLIM_014_001_011", "normal");
-        map.put("ESLIM_014_001_012", "normal");
-        map.put("ESLIM_014_001_013", "normal");
-        map.put("ESLIM_014_001_014", "normal");
-        map.put("ESLIM_014_001_015", "normal");
-        map.put("IMPC_EYE_001_001",  "present");
-        map.put("IMPC_EYE_002_001",  "absent");
-        map.put("IMPC_EYE_003_001",  "absent");
-        map.put("IMPC_EYE_004_001",  "normal");
-        map.put("IMPC_EYE_005_001",  "normal");
-        map.put("IMPC_EYE_006_001",  "normal");
-        map.put("IMPC_EYE_007_001",  "normal");
-        map.put("IMPC_EYE_008_001",  "absent");
-        map.put("IMPC_EYE_009_001",  "absent");
-        map.put("IMPC_EYE_010_001",  "normal");
-        map.put("IMPC_EYE_011_001",  "normal");
-        map.put("IMPC_EYE_012_001",  "normal");
-        map.put("IMPC_EYE_013_001",  "normal");
-        map.put("IMPC_EYE_014_001",  "normal");
-        map.put("IMPC_EYE_015_001",  "normal");
-        map.put("IMPC_EYE_016_001",  "normal");
-        map.put("IMPC_EYE_017_001",  "absent");
-        map.put("IMPC_EYE_018_001",  "absent");
-        map.put("IMPC_EYE_019_001",  "absent");
-        map.put("IMPC_EYE_020_001",  "normal");
-        map.put("IMPC_EYE_021_001",  "normal");
-        map.put("IMPC_EYE_022_001",  "normal");
-        map.put("IMPC_EYE_023_001",  "normal");
-        map.put("IMPC_EYE_024_001",  "normal");
-        map.put("IMPC_EYE_025_001",  "normal");
-        map.put("IMPC_EYE_026_001",  "normal");
-        map.put("IMPC_EYE_027_001",  "absent");
-        map.put("IMPC_EYE_080_001",  "absent");
-        map.put("IMPC_EYE_081_001",  "absent");
-        map.put("IMPC_EYE_082_001",  "normal");
-        map.put("IMPC_EYE_083_001",  "normal");
-        map.put("IMPC_EYE_084_001",  "absent");
-        map.put("IMPC_EYE_085_001",  "absent");
-        map.put("IMPC_EYE_086_001",  "absent");
-        map.put("M-G-P_014_001_001", "normal");
-        map.put("M-G-P_014_001_003", "normal");
-        map.put("M-G-P_014_001_004", "absent");
-        map.put("M-G-P_014_001_005", "normal");
-        map.put("M-G-P_014_001_006", "normal");
-        map.put("M-G-P_014_001_007", "normal");
-        map.put("M-G-P_014_001_008", "absent");
-        map.put("M-G-P_014_001_009", "normal");
-        map.put("M-G-P_014_001_010", "normal");
-        map.put("M-G-P_014_001_011", "normal");
-        map.put("M-G-P_014_001_012", "normal");
-        map.put("M-G-P_014_001_013", "normal");
-        map.put("M-G-P_014_001_014", "normal");
-        map.put("M-G-P_014_001_015", "normal");
-
-        return map;
-    }
+//    /**
+//     * Get list of "normal" category
+//     * @return map of categories
+//     */
+//    private Map<String,String> getNormalEyeCategories() {
+//
+//    Map<String,String> map = new HashMap<>();
+//
+//        map.put("ESLIM_014_001_001", "normal");
+//        map.put("ESLIM_014_001_003", "normal");
+//        map.put("ESLIM_014_001_004", "absent");
+//        map.put("ESLIM_014_001_005", "normal");
+//        map.put("ESLIM_014_001_006", "normal");
+//        map.put("ESLIM_014_001_007", "normal");
+//        map.put("ESLIM_014_001_008", "absent");
+//        map.put("ESLIM_014_001_009", "normal");
+//        map.put("ESLIM_014_001_010", "normal");
+//        map.put("ESLIM_014_001_011", "normal");
+//        map.put("ESLIM_014_001_012", "normal");
+//        map.put("ESLIM_014_001_013", "normal");
+//        map.put("ESLIM_014_001_014", "normal");
+//        map.put("ESLIM_014_001_015", "normal");
+//        map.put("IMPC_EYE_001_001",  "present");
+//        map.put("IMPC_EYE_002_001",  "absent");
+//        map.put("IMPC_EYE_003_001",  "absent");
+//        map.put("IMPC_EYE_004_001",  "normal");
+//        map.put("IMPC_EYE_005_001",  "normal");
+//        map.put("IMPC_EYE_006_001",  "normal");
+//        map.put("IMPC_EYE_007_001",  "normal");
+//        map.put("IMPC_EYE_008_001",  "absent");
+//        map.put("IMPC_EYE_009_001",  "absent");
+//        map.put("IMPC_EYE_010_001",  "normal");
+//        map.put("IMPC_EYE_011_001",  "normal");
+//        map.put("IMPC_EYE_012_001",  "normal");
+//        map.put("IMPC_EYE_013_001",  "normal");
+//        map.put("IMPC_EYE_014_001",  "normal");
+//        map.put("IMPC_EYE_015_001",  "normal");
+//        map.put("IMPC_EYE_016_001",  "normal");
+//        map.put("IMPC_EYE_017_001",  "absent");
+//        map.put("IMPC_EYE_018_001",  "absent");
+//        map.put("IMPC_EYE_019_001",  "absent");
+//        map.put("IMPC_EYE_020_001",  "normal");
+//        map.put("IMPC_EYE_021_001",  "normal");
+//        map.put("IMPC_EYE_022_001",  "normal");
+//        map.put("IMPC_EYE_023_001",  "normal");
+//        map.put("IMPC_EYE_024_001",  "normal");
+//        map.put("IMPC_EYE_025_001",  "normal");
+//        map.put("IMPC_EYE_026_001",  "normal");
+//        map.put("IMPC_EYE_027_001",  "absent");
+//        map.put("IMPC_EYE_080_001",  "absent");
+//        map.put("IMPC_EYE_081_001",  "absent");
+//        map.put("IMPC_EYE_082_001",  "normal");
+//        map.put("IMPC_EYE_083_001",  "normal");
+//        map.put("IMPC_EYE_084_001",  "absent");
+//        map.put("IMPC_EYE_085_001",  "absent");
+//        map.put("IMPC_EYE_086_001",  "absent");
+//        map.put("M-G-P_014_001_001", "normal");
+//        map.put("M-G-P_014_001_003", "normal");
+//        map.put("M-G-P_014_001_004", "absent");
+//        map.put("M-G-P_014_001_005", "normal");
+//        map.put("M-G-P_014_001_006", "normal");
+//        map.put("M-G-P_014_001_007", "normal");
+//        map.put("M-G-P_014_001_008", "absent");
+//        map.put("M-G-P_014_001_009", "normal");
+//        map.put("M-G-P_014_001_010", "normal");
+//        map.put("M-G-P_014_001_011", "normal");
+//        map.put("M-G-P_014_001_012", "normal");
+//        map.put("M-G-P_014_001_013", "normal");
+//        map.put("M-G-P_014_001_014", "normal");
+//        map.put("M-G-P_014_001_015", "normal");
+//
+//        return map;
+//    }
 
     /**
      * Gets a map of procedure group -> SortedSet(paramter stable IDs) for each procedure group
@@ -447,8 +507,8 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
      * @return Map of procedure group key to a Set of parameter stable IDs from IMPReSS
      */
     private Map<String, SortedSet<String>> getParameterMap(List<String> parametersToLoad) throws SolrServerException, IOException {
-
-        Map<String, SortedSet<String>> parameters = new HashMap<>();
+    		
+    		Map<String, SortedSet<String>> parameters = new HashMap<>();
 
         SolrQuery query = new SolrQuery()
             .setQuery("*:*")
@@ -500,8 +560,9 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
     }
 
     public static void main(String[] args) {
-        SpringApplication.run(StatisticalDatasetGenerator.class, args);
+        SpringApplication.run(StatisticalDatasetGeneratorEpi.class, args);
     }
+
 
 
 }
