@@ -175,6 +175,9 @@ public class LandingPageController {
         } else if (page.equalsIgnoreCase("cmg")) {
         		// mpDTO = mpService.getPhenotype("MP:0000001");
         		pageTitle = "Centers for Mendelian Genomics";
+        		
+        		// model.addAttribute("id", "function to createthe histogram");
+ 
         }
         
         //else if (page.equalsIgnoreCase("vision")) {

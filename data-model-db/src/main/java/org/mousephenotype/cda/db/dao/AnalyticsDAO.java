@@ -32,11 +32,12 @@ public interface AnalyticsDAO {
 	Map<String, String> getMetaData() throws SQLException;
 
 	/**
+	 * 'analytics_lines_procedures' does not exist anymore
 	 * Retrieves number of lines per procedure for every phenotyping center.
 	 * @return a list of objects containing the number of lines per procedure
 	 * per center
 	 */
-	List<AggregateCountXYBean> getAllProcedureLines();
+//	List<AggregateCountXYBean> getAllProcedureLines();
 
 	/**
 	 * Retrieves the aggregate count of significant call per procedure per center
