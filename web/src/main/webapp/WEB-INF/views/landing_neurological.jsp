@@ -43,6 +43,7 @@
                         <div class="section">
                             <h2 class="title">Approach</h2>
                             <div class="inner">
+                            		<h4>Procedures that can lead to relevant phenotype associations</h4>
                                 <c:import url="landing_procedures_frag.jsp"/>
                             </div>
                         </div>

@@ -98,13 +98,13 @@ table.dataTable thead tr {
 			                    		<li>The function of many genes in the genome is still unknown</li>
 			                    		<li>Knockout mice allow us to understand metabolic procedures and relate them to human disease</li>
 			                    	</ul>
-			                    		
-            						Press releases:&nbsp;"
-            						<!-- <a target='_blank' href='https://www.ebi.ac.uk/about/news'>EMBL-EBI</a>&nbsp;|&nbsp;
-            						<a target='_blank' href='https://www.mrc.ac.uk/news/browse/'>MRC</a>&nbsp;|&nbsp; -->
+			                    	</br>
+            						Press releases:&nbsp;
+            						<a target='_blank' href='https://www.ebi.ac.uk/about/news/press-releases/mouse-study-identifies-new-diabetes-genes'>EMBL-EBI</a>&nbsp;|&nbsp;
+            						<a target='_blank' href='https://www.infrafrontier.eu/news/new-diabetes-genes-discovered-international-mouse-phenotyping-study'>Infrafrontier</a>&nbsp;|&nbsp;
             						<a target='_blank' href='http://bit.ly/MetabolismNewsStory'>IMPC</a>
-            						<br/><a target='_blank' href='http://bit.ly/IMPCMetabolism'>Nature communications publication</a>
-            						<br/><a target='_blank' href='http://bit.ly/MetabolismSuppMaterial'>Supporting information</a>
+            						</br><a target='_blank' href='http://bit.ly/IMPCMetabolism'>Nature communications publication</a>
+            						</br><a target='_blank' href='http://bit.ly/MetabolismSuppMaterial'>Supporting information</a>
                        		</div>
     							<div class="clear both"></div>
 						</div>      

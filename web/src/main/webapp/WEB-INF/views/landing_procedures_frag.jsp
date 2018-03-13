@@ -7,8 +7,8 @@
 --%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
-<h4>Procedures that can lead to relevant phenotype associations</h4>
-	
+
+
 <div>
     <c:if test="${not empty procedures}">
 

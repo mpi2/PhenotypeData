@@ -112,6 +112,7 @@
                                     gross pathology and gross morphology in both embryo and adult animals. A complete list of protocols and related phenotypes are
                                     presented in the table below. Links to impress are provided for more details on the procedure. </p>
                                 <br/><br/>
+                                <h4>Procedures that can lead to relevant phenotype associations</h4>
                                 <c:import url="landing_procedures_frag.jsp"/>
                             </div>
                         </div>
@@ -179,6 +180,7 @@
                                     $(document).ready(function(){
                                         var base_url = '${baseUrl}';
                                         var tableUrl = base_url + "/parallelFrag?top_level_mp_id=${mpId}";
+                                        console.log(tableUrl);
                                         $.ajax({
                                             url: tableUrl,
                                             cache: false
