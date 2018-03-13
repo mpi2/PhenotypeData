@@ -13,6 +13,8 @@ import requests
 import json
 import glob
 
+import psycopg2
+
 from OmeroService import OmeroService
 from OmeroPropertiesParser import OmeroPropertiesParser
 
@@ -93,7 +95,43 @@ def main(argv):
     omeroS = OmeroService(omeroHost, omeroPort, omeroUsername, omeroPass, group)
     omero_file_list = omeroS.getImagesAlreadyInOmero()
     print "Number of files from omero = " + str(len(omero_file_list))
-    omero_annotation_list = omeroS.getAnnotationsAlreadyInOmero()
+    
+    # Don't use OmeroService to get annotations as we are having a out of
+    # memory error when it is running on the server. Query omero directly
+    # to get annotations
+    try:
+        print "Attempting to get annotations directly from Postgres DB"
+        omeroDbUser = omeroProps['omerodbuser']
+        omeroDbPass = omeroProps['omerodbpass']
+        omeroDbName = omeroProps['omerodbname']
+        omeroDbHost = omeroProps['omerodbhost']
+        omeroDbPort = omeroProps['omerodbport'] if 'omerodbport' in omeroProps else '5432'
+        conn = psycopg2.connect(dbname=omeroDbName, user=omeroDbUser,
+                                password=omeroDbPass, host=omeroDbHost,
+                                port=omeroDbPort)
+        cur = conn.cursor()
+        query = 'SELECT ds.name, (SELECT o.name FROM originalfile o ' + \
+                'WHERE o.id=a.file) AS filename FROM datasetannotationlink ' + \
+                'dsal INNER JOIN dataset ds ON dsal.parent=ds.id ' + \
+                'INNER JOIN annotation a ON dsal.child= a.id'
+        cur.execute(query)
+        omero_annotation_list = []
+        for ann in cur.fetchall():
+            dir_parts = ann[0].split('-')
+            if len(dir_parts) == 4:
+                dir_parts.append(ann[1])
+                omero_annotation_list.append("/".join(dir_parts))
+        conn.close()
+    except KeyError as e:
+        print "Could not connect to omero postgres database. Key " + str(e) + \
+              " not present in omero properties file. Attempting to use " + \
+              " OmeroService.getAnnotationsAlreadyInOmero"
+        conn.close()
+        omero_annotation_list = omeroS.getAnnotationsAlreadyInOmero()
+        
+        
+        
+    #omero_annotation_list = omeroS.getAnnotationsAlreadyInOmero()
     print "Number of annotations from omero = " + str(len(omero_annotation_list))
 
     omero_file_list.extend(omero_annotation_list)
