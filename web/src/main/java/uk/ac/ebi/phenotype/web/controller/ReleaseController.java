@@ -194,23 +194,19 @@ public class ReleaseController {
 		/*
 		 * Analytics data: nb of lines per procedure per center
 		 */
-
-		List<AggregateCountXYBean> beans = analyticsDAO.getAllProcedureLines();
-		String lineProcedureChart =
-				chartsProvider.generateAggregateCountByProcedureChart(
-						beans,
-						"Lines per procedure",
-						"Center by center",
-						"Number of lines",
-						"lines",
-						"lineProcedureChart", "checkAllProcedures", "uncheckAllProcedures");
+		// 'analytics_lines_procedures' does not exist anymore
+//		List<AggregateCountXYBean> beans = analyticsDAO.getAllProcedureLines();
+		
+//		String lineProcedureChart =
+//				chartsProvider.generateAggregateCountByProcedureChart(
+//						beans,
+//						"Lines per procedure",
+//						"Center by center",
+//						"Number of lines",
+//						"lines",
+//						"lineProcedureChart", "checkAllProcedures", "uncheckAllProcedures");
 		
 		
-		
-		 System.out.println("Beans: " + beans);
-		
-		
-
 		List<AggregateCountXYBean> callBeans = analyticsDAO.getAllProcedurePhenotypeCalls();
 		String callProcedureChart =
 				chartsProvider.generateAggregateCountByProcedureChart(
@@ -341,7 +337,7 @@ public class ReleaseController {
 		model.addAttribute("alleleTypes", alleleTypes);
 		model.addAttribute("statisticalMethods", statisticalMethods);
 		model.addAttribute("statisticalMethodsShortName", statisticalMethodsShortName);
-		model.addAttribute("lineProcedureChart", lineProcedureChart);
+//		model.addAttribute("lineProcedureChart", lineProcedureChart);
 		model.addAttribute("callProcedureChart", callProcedureChart);
 		model.addAttribute("distributionCharts", distributionCharts);
 		model.addAttribute("trendsChart", trendsChart);

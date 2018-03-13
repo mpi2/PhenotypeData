@@ -197,7 +197,7 @@
                                     </table>
                                     <p><sup>*</sup>&nbsp;Excluded from statistical analysis.</p>
 
-                                    <h3>Procedures</h3>
+                                    <!-- <h3>Procedures</h3>
 
                                     <div id="lineProcedureChart">
                                         <script type="text/javascript">
@@ -206,8 +206,9 @@
                                     </div>
 	
 	                                <a id="checkAllProcedures" class="buttonForHighcharts"><i class="fa fa-check" aria-hidden="true"></i> Select all</a>
-    								<a id="uncheckAllProcedures"  class="buttonForHighcharts"><i class="fa fa-times" aria-hidden="true"></i> Deselect all</a>
-    								<div class="clear both"></div>
+    									<a id="uncheckAllProcedures"  class="buttonForHighcharts"><i class="fa fa-times" aria-hidden="true"></i> Deselect all</a> -->
+    								
+    								
 
                                     <h3>Allele Types</h3>
                                     <table id="allele_types">
@@ -417,7 +418,7 @@
 					</div>
 				</div><!-- end of section -->
 
-				<div class="section">
+<%-- 				<div class="section">
 
 			    <h2 class="title" id="statistical-analysis">Statistical Analysis</h2>
 
@@ -448,20 +449,20 @@
 
 							<h3>P-value distributions</h3>
 							<c:forEach var="entry" items="${statisticalMethods}">
-							<c:set var="dataType" value="${entry.key}" />
-							<c:forEach var="method" items="${entry.value}">
-							<c:set var="chartName" value="${statisticalMethodsShortName[method]}Chart" />
-							<div id="${chartName}">
-							<script type="text/javascript">
-								${distributionCharts[chartName]}
-							</script>
-							</div>
-							</c:forEach>
+								<c:set var="dataType" value="${entry.key}" />
+								<c:forEach var="method" items="${entry.value}">
+									<c:set var="chartName" value="${statisticalMethodsShortName[method]}Chart" />
+									<div id="${chartName}">
+										<script type="text/javascript">
+											${distributionCharts[chartName]}
+										</script>
+									</div>
+								</c:forEach>
 							</c:forEach>
 							</div>
 						</div>
 					</div>
-				</div><!-- end of section -->
+				</div><!-- end of section --> --%>
 
 				<div class="section">
 

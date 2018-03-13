@@ -72,39 +72,40 @@ public class AnalyticsDAOImpl extends HibernateDAOImpl implements AnalyticsDAO {
 		return metaInfo;
 	}
 
-	@Override
-	public List<AggregateCountXYBean> getAllProcedureLines() {
-
-		PreparedStatement statement = null;
-		ResultSet resultSet = null;
-		List<AggregateCountXYBean> results = new ArrayList<AggregateCountXYBean>();
-
-		try (Connection connection = getConnection()) {
-
-			statement = connection.prepareStatement("SELECT * FROM analytics_lines_procedures");
-			resultSet = statement.executeQuery();
-
-			while (resultSet.next()) {
-
-				results.add(new AggregateCountXYBean(
-						resultSet.getInt(1),
-						resultSet.getString(4),
-						"procedure",
-						resultSet.getString(3),
-						resultSet.getString(2),
-						"nb of lines",
-						null
-						));
-			}
-			statement.close();
-
-		}catch (SQLException e) {
-			e.printStackTrace();
-
-		}
-
-		return results;
-	}
+	// 'analytics_lines_procedures' does not exist anymore
+//	@Override
+//	public List<AggregateCountXYBean> getAllProcedureLines() {
+//
+//		PreparedStatement statement = null;
+//		ResultSet resultSet = null;
+//		List<AggregateCountXYBean> results = new ArrayList<AggregateCountXYBean>();
+//
+//		try (Connection connection = getConnection()) {
+//
+//			statement = connection.prepareStatement("SELECT * FROM analytics_lines_procedures");
+//			resultSet = statement.executeQuery();
+//
+//			while (resultSet.next()) {
+//
+//				results.add(new AggregateCountXYBean(
+//						resultSet.getInt(1),
+//						resultSet.getString(4),
+//						"procedure",
+//						resultSet.getString(3),
+//						resultSet.getString(2),
+//						"nb of lines",
+//						null
+//						));
+//			}
+//			statement.close();
+//
+//		}catch (SQLException e) {
+//			e.printStackTrace();
+//
+//		}
+//
+//		return results;
+//	}
 
 	@Override
 	public List<AggregateCountXYBean> getAllProcedurePhenotypeCalls() {
