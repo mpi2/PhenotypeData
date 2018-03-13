@@ -13,6 +13,8 @@ import requests
 import json
 import glob
 
+import psycopg2
+
 from OmeroService import OmeroService
 from OmeroPropertiesParser import OmeroPropertiesParser
 
@@ -32,6 +34,16 @@ def main(argv):
     parser.add_argument('-fq', '--solrFilterQuery', dest='solrFilterQuery', default=None,
                         help='Filter to apply to solr query. If not supplied uses hardcoded standard filter'
     )
+    parser.add_argument('--omeroDbUser', dest='omeroDbUser', 
+                        help='name of the omero postgres database')
+    parser.add_argument('--omeroDbPass', dest='omeroDbPass',
+                        help='Password for the omero postgress database')
+    parser.add_argument('--omeroDbName', dest='omeroDbName',
+                        help='Name of the postgres database omero uses')
+    parser.add_argument('--omeroDbHost', dest='omeroDbHost',
+                        help='Hostname for the server hosting the omero postgres database')
+    parser.add_argument('--omeroDbPort', dest='omeroDbPort',
+                        help='Port to connect on the postgres server hosting the omero database')
     parser.add_argument('--profile', dest='profile', default='dev',
                         help='profile from which to read config: dev, prod, live, ...')
 
@@ -93,9 +105,50 @@ def main(argv):
     omeroS = OmeroService(omeroHost, omeroPort, omeroUsername, omeroPass, group)
     omero_file_list = omeroS.getImagesAlreadyInOmero()
     print "Number of files from omero = " + str(len(omero_file_list))
-    omero_annotation_list = omeroS.getAnnotationsAlreadyInOmero()
-    print "Number of annotations from omero = " + str(len(omero_annotation_list))
+    
+    # Don't use OmeroService to get annotations as we are having a out of
+    # memory error when it is running on the server. Query omero directly
+    # to get annotations
+    try:
+        print "Attempting to get annotations directly from Postgres DB"
+        omeroDbUser = args.omeroDbUser if args.omeroDbUser is not None else omeroProps['omerodbuser']
+        omeroDbPass = args.omeroDbPass if args.omeroDbPass is not None else omeroProps['omerodbpass']
+        omeroDbName = args.omeroDbName if args.omeroDbName is not None else omeroProps['omerodbname']
+        omeroDbHost = args.omeroDbHost if args.omeroDbHost is not None else omeroProps['omerodbhost']
+        if args.omeroDbPort is not None:
+            omeroDbPort = args.omeroDbPort
+        elif 'omerodbport' in omeroProps:
+            omeroDbPort = omeroProps['omerodbport']
+        else:
+            omeroDbPort = '5432'
 
+        conn = psycopg2.connect(dbname=omeroDbName, user=omeroDbUser,
+                                password=omeroDbPass, host=omeroDbHost,
+                                port=omeroDbPort)
+        cur = conn.cursor()
+        query = 'SELECT ds.name, (SELECT o.name FROM originalfile o ' + \
+                'WHERE o.id=a.file) AS filename FROM datasetannotationlink ' + \
+                'dsal INNER JOIN dataset ds ON dsal.parent=ds.id ' + \
+                'INNER JOIN annotation a ON dsal.child= a.id'
+        cur.execute(query)
+        omero_annotation_list = []
+        for ann in cur.fetchall():
+            dir_parts = ann[0].split('-')
+            if len(dir_parts) == 4:
+                dir_parts.append(ann[1])
+                omero_annotation_list.append("/".join(dir_parts))
+        conn.close()
+    except KeyError as e:
+        print "Could not connect to omero postgres database. Key " + str(e) + \
+              " not present in omero properties file. Attempting to use " + \
+              " OmeroService.getAnnotationsAlreadyInOmero"
+        conn.close()
+        omero_annotation_list = omeroS.getAnnotationsAlreadyInOmero()
+        
+        
+        
+    #omero_annotation_list = omeroS.getAnnotationsAlreadyInOmero()
+    print "Number of annotations from omero = " + str(len(omero_annotation_list))
     omero_file_list.extend(omero_annotation_list)
     omero_dir_list = list(set([os.path.split(f)[0] for f in omero_file_list]))
 
