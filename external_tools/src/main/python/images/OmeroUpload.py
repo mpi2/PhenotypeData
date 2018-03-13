@@ -122,7 +122,7 @@ def main(argv):
         else:
             omeroDbPort = '5432'
 
-        conn = psycopg2.connect(dbname=omeroDbName, user=omeroDbUser,
+        conn = psycopg2.connect(database=omeroDbName, user=omeroDbUser,
                                 password=omeroDbPass, host=omeroDbHost,
                                 port=omeroDbPort)
         cur = conn.cursor()
