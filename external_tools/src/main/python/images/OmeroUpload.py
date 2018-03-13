@@ -34,6 +34,16 @@ def main(argv):
     parser.add_argument('-fq', '--solrFilterQuery', dest='solrFilterQuery', default=None,
                         help='Filter to apply to solr query. If not supplied uses hardcoded standard filter'
     )
+    parser.add_argument('--omeroDbUser', dest='omeroDbUser', 
+                        help='name of the omero postgres database')
+    parser.add_argument('--omeroDbPass', dest='omeroDbPass',
+                        help='Password for the omero postgress database')
+    parser.add_argument('--omeroDbName', dest='omeroDbName',
+                        help='Name of the postgres database omero uses')
+    parser.add_argument('--omeroDbHost', dest='omeroDbHost',
+                        help='Hostname for the server hosting the omero postgres database')
+    parser.add_argument('--omeroDbPort', dest='omeroDbPort',
+                        help='Port to connect on the postgres server hosting the omero database')
     parser.add_argument('--profile', dest='profile', default='dev',
                         help='profile from which to read config: dev, prod, live, ...')
 
@@ -101,11 +111,17 @@ def main(argv):
     # to get annotations
     try:
         print "Attempting to get annotations directly from Postgres DB"
-        omeroDbUser = omeroProps['omerodbuser']
-        omeroDbPass = omeroProps['omerodbpass']
-        omeroDbName = omeroProps['omerodbname']
-        omeroDbHost = omeroProps['omerodbhost']
-        omeroDbPort = omeroProps['omerodbport'] if 'omerodbport' in omeroProps else '5432'
+        omeroDbUser = args.omeroDbUser if args.omeroDbUser is not None else omeroProps['omerodbuser']
+        omeroDbPass = args.omeroDbPass if args.omeroDbPass is not None else omeroProps['omerodbpass']
+        omeroDbName = args.omeroDbName if args.omeroDbName is not None else omeroProps['omerodbname']
+        omeroDbHost = args.omeroDbHost if args.omeroDbHost is not None else omeroProps['omerodbhost']
+        if args.omeroDbPort is not None:
+            omeroDbPort = args.omeroDbPort
+        elif 'omerodbport' in omeroProps:
+            omeroDbPort = omeroProps['omerodbport']
+        else:
+            omeroDbPort = '5432'
+
         conn = psycopg2.connect(dbname=omeroDbName, user=omeroDbUser,
                                 password=omeroDbPass, host=omeroDbHost,
                                 port=omeroDbPort)
@@ -133,7 +149,6 @@ def main(argv):
         
     #omero_annotation_list = omeroS.getAnnotationsAlreadyInOmero()
     print "Number of annotations from omero = " + str(len(omero_annotation_list))
-
     omero_file_list.extend(omero_annotation_list)
     omero_dir_list = list(set([os.path.split(f)[0] for f in omero_file_list]))
 
