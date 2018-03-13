@@ -290,16 +290,6 @@ public class IndexerMap {
     }
 
 
-	public static Map<String, List<SangerImageDTO>> getSangerImagesByMgiAccession(SolrClient imagesCore) throws IndexerException {
-		Map<String, List<SangerImageDTO>> map = null;
-		try {
-			map = SolrUtils.populateSangerImagesByMgiAccession(imagesCore);
-		} catch (SolrServerException | IOException e) {
-			throw new IndexerException("Unable to query images core", e);
-		}
-		return map;
-	}
-
 	public static Map<String, Synonym> getSynonymsBySynonym(Connection connection) throws SQLException {
         Map<String, Synonym> map = new HashMap<>();
 

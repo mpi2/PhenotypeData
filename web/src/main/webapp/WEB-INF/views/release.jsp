@@ -24,7 +24,7 @@
                     'pageName': 'phenome',
                     'tip': 'top right',
                     'corner': 'right top'
-                });
+                }); 
             });
         </script>
 
@@ -135,7 +135,7 @@
 
                     <div class="section">
                         <h2 class="title" id="data_reports">Data Reports</h2>
-
+	
                         <div class="inner">
                             <div id="dataReportsDiv">
                                 <div class="container span12">

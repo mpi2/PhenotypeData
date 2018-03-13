@@ -66,7 +66,10 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
             "IMPC_EMA", "IMPC_GEP", "IMPC_GPP", "IMPC_EVP", "IMPC_MAA", "IMPC_GEO",
             "IMPC_GPO", "IMPC_EMO", "IMPC_GPO", "IMPC_EVO", "IMPC_GPM", "IMPC_EVM",
             "IMPC_GEL", "IMPC_HPL", "IMPC_HEL", "IMPC_EOL", "IMPC_GPL", "IMPC_EVL",
-            "IMPC_VIA", "IMPC_FER"));
+            "IMPC_VIA", "IMPC_FER",
+            // Load these 3I procedures manually from file Ania sent
+            "MGP_PBI", "MGP_BMI", "MGP_IMM", "MGP_MLN"
+            ));
 
 
     private final Set<String> skipParameters = new HashSet<>(Arrays.asList(
@@ -164,7 +167,7 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
 // ********* TEMPORARY TEMPORARY TEMPORARY TEMPORARY TEMPORARY *********
 
                 logger.debug(SolrUtils.getBaseURL(experimentCore) + "/select" + q1.toQueryString());
-
+                
                 try {
                     List<ObservationDTO> observationDTOs = experimentCore.query(q1).getBeans(ObservationDTO.class);
                     Map<String, Map<String, String>> specimenParameterMap = new HashMap<>();
@@ -393,6 +396,33 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
 
                         }
 
+                        // Write the final file
+
+                        StringBuilder sb = new StringBuilder();
+                        for (List<String> line : colonySubset) {
+                            sb.append(line.stream().collect(Collectors.joining("\t")));
+                            sb.append("\n");
+                        }
+
+                        String filename = "tsvs/" + Stream.of(
+                                result.get(ObservationDTO.DATASOURCE_NAME).replace(" ", "_"),
+                                result.get(ObservationDTO.PROJECT_NAME).replace(" ", "_"),
+                                result.get(ObservationDTO.PHENOTYPING_CENTER).replace(" ", "_"),
+                                result.get(ObservationDTO.PIPELINE_STABLE_ID),
+                                result.get(ObservationDTO.PROCEDURE_GROUP),
+                                result.get(ObservationDTO.STRAIN_ACCESSION_ID).replace(":", ""),
+                                String.format("%03d", fileNumber)).collect(Collectors.joining(FILENAME_SEPERATOR)) + ".tsv";
+
+                        Path p = new File(filename).toPath();
+                        logger.info("Writing file {} ({})", filename, p);
+                        Files.write(p, sb.toString().getBytes());
+
+                        fileNumber += 1;
+
+                        // Reset the array to produce a new file
+                        colonySubset = new ArrayList<>();
+                        colonySubset.add(headers);
+                        colonySubset.addAll(controls);
 
                     } else {
 

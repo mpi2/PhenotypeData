@@ -105,7 +105,7 @@ public class PhenotypeGeneSummaryDTO {
 	public String getPieChartCode() {
 		if (pieChartCode != null){
 			return pieChartCode;
-		}else {
+		} else {			
 			return  getPiechart(getMaleOnlyNumber(), getFemaleOnlyNumber(), getBothNumber(), getTotalGenesTested());
 		}
 	}

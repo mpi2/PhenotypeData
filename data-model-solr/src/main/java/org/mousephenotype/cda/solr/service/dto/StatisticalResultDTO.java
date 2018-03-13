@@ -88,6 +88,7 @@ public class StatisticalResultDTO {
     public static final String GENETIC_BACKGROUND = "genetic_background";
     public final static String SEX = "sex";
     public final static String ZYGOSITY = "zygosity";
+    public final static String PRODUCTION_CENTER = "production_center";
 
     public final static String CONTROL_SELECTION_METHOD = "control_selection_method";
     public final static String DEPENDENT_VARIABLE = "dependent_variable";
@@ -579,6 +580,9 @@ public class StatisticalResultDTO {
 
     @Field(PROJECT_ID)
     private Integer projectId;
+    
+    @Field(PRODUCTION_CENTER)
+    private String productionCenter;
 
 	@Field
 	private Boolean significant;
@@ -804,8 +808,6 @@ public class StatisticalResultDTO {
 
         this.maleMpTermId = maleMpTermId;
     }
-
-
 
 
     public String getMaleMpTermName() {
@@ -2305,8 +2307,17 @@ public class StatisticalResultDTO {
             }
         }
     }
+    
+
+    public String getProductionCenter() {
+    		return this.productionCenter;
+    }
 
 
+    public void setProductionCenter(String productionCenter) {
+
+        this.productionCenter = productionCenter;
+    }
 
 
     @Override
@@ -2428,6 +2439,8 @@ public class StatisticalResultDTO {
 			return false;
 		if (getSex() != null ? !getSex().equals(that.getSex()) : that.getSex() != null) return false;
 		if (getZygosity() != null ? !getZygosity().equals(that.getZygosity()) : that.getZygosity() != null)
+			return false;
+		if (getProductionCenter() != null ? !getProductionCenter().equals(that.getProductionCenter()) : that.getProductionCenter() != null)
 			return false;
 		if (getControlSelectionMethod() != null ? !getControlSelectionMethod().equals(that.getControlSelectionMethod()) : that.getControlSelectionMethod() != null)
 			return false;
@@ -2572,7 +2585,6 @@ public class StatisticalResultDTO {
         if (lifeStageName != null ? !lifeStageName.equals(that.lifeStageName) : that.lifeStageName != null)
             return false;
 		return getSignificant() != null ? getSignificant().equals(that.getSignificant()) : that.getSignificant() == null;
-
 	}
 
 	@Override
@@ -2635,6 +2647,7 @@ public class StatisticalResultDTO {
 		result = 31 * result + (getGeneticBackground() != null ? getGeneticBackground().hashCode() : 0);
 		result = 31 * result + (getSex() != null ? getSex().hashCode() : 0);
 		result = 31 * result + (getZygosity() != null ? getZygosity().hashCode() : 0);
+		result = 31 * result + (getProductionCenter() != null ? getProductionCenter().hashCode() : 0 );
 		result = 31 * result + (getControlSelectionMethod() != null ? getControlSelectionMethod().hashCode() : 0);
 		result = 31 * result + (getDependentVariable() != null ? getDependentVariable().hashCode() : 0);
 		result = 31 * result + (getMetadataGroup() != null ? getMetadataGroup().hashCode() : 0);
@@ -2772,6 +2785,7 @@ public class StatisticalResultDTO {
 			", geneticBackground='" + geneticBackground + '\'' +
 			", sex='" + sex + '\'' +
 			", zygosity='" + zygosity + '\'' +
+			", productionCenter='" + productionCenter + '\'' +
 			", controlSelectionMethod='" + controlSelectionMethod + '\'' +
 			", dependentVariable='" + dependentVariable + '\'' +
 			", metadataGroup='" + metadataGroup + '\'' +
