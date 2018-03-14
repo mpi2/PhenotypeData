@@ -542,7 +542,7 @@ public class ExperimentLoader implements CommandLineRunner {
          *       with the IMPC specimen's 'C57Bl6n', which causes a new strain by that name to be created, then later
          *       causes the database to complain about duplicate biological models.
          */
-        if ((dccExperiment.getSpecimenStrainId() != null) && ( ! dccExperiment.getSpecimenStrainId().isEmpty()) && (dccExperiment.getDatasourceShortName().equalsIgnoreCase(CdaSqlUtils.EUROPHENOME))) {
+        if ((dccExperiment.getSpecimenStrainId() != null) && ( ! dccExperiment.getSpecimenStrainId().isEmpty()) && (dccExperiment.getDatasourceShortName().equalsIgnoreCase(CdaSqlUtils.EUROPHENOME) || dccExperiment.getDatasourceShortName().equalsIgnoreCase(CdaSqlUtils.MGP))) {
             String remappedStrainName = strainMapper.parseMultipleBackgroundStrainNames(dccExperiment.getSpecimenStrainId());
             dccExperiment.setSpecimenStrainId(remappedStrainName);
             PhenotypedColony colony = phenotypedColonyMap.get(dccExperiment.getColonyId());
@@ -571,11 +571,6 @@ public class ExperimentLoader implements CommandLineRunner {
         {
             PhenotypedColony colony = phenotypedColonyMap.get(dccExperiment.getColonyId());
 
-            // If iMits has the colony, use it to get the strain name.
-            if (colony != null) {
-                dccExperiment.setSpecimenStrainId(colony.getBackgroundStrain());
-            }
-
             // Run the strain name through the StrainMapper to remap incorrect legacy strain names.
             Strain remappedStrain;
             synchronized (strainMapper) {
@@ -586,11 +581,16 @@ public class ExperimentLoader implements CommandLineRunner {
                     strainsByNameOrMgiAccessionIdMap.put(remappedStrain.getName(), remappedStrain);
                     strainsByNameOrMgiAccessionIdMap.put(remappedStrain.getId().getAccession(), remappedStrain);
                 }
-                dccExperiment.setSpecimenStrainId(remappedStrain.getName());
                 if (colony != null) {
                     colony.setBackgroundStrain(remappedStrain.getName());
                 }
             }
+
+            // If iMits has the colony, use it to get the strain name.
+            if (colony != null) {
+                dccExperiment.setSpecimenStrainId(colony.getBackgroundStrain());
+            }
+
 
             // Get phenotypingCenter and phenotypingCenterPk.
             phenotypingCenter = LoadUtils.mappedExternalCenterNames.get(dccExperiment.getPhenotypingCenter());

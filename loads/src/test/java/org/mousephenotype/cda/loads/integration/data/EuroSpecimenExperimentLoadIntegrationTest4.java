@@ -268,6 +268,6 @@ public class EuroSpecimenExperimentLoadIntegrationTest4 {
         }
 
         Assert.assertEquals(1, experimentCount.intValue());
-        Assert.assertEquals(16, observationCount.intValue());
+        Assert.assertEquals(360, observationCount.intValue());
     }
 }
