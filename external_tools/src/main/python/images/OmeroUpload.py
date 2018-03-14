@@ -66,7 +66,7 @@ def main(argv):
     solrFilterQuery = args.solrFilterQuery
     if solrFilterQuery is None:
         # Default query to get all records of interest from Solr
-        solrFilterQuery = """experiment/select?q=observation_type:image_record&fq=(download_file_path:(*mousephenotype.org*%20OR%20images/3i*)%20AND%20-download_file_path:*.mov%20AND%20-download_file_path:*.fcs%20AND%20-download_file_path:*.bz2)&rows=10000000&wt=json&fl=download_file_path,pipeline_stable_id,procedure_stable_id,parameter_stable_id,production_center,phenotyping_center"""
+        solrFilterQuery = """experiment/select?q=observation_type:image_record&fq=(download_file_path:(*mousephenotype.org*%20OR%20images/3i*)%20AND%20-download_file_path:*.mov%20AND%20-download_file_path:*.fcs%20AND%20-download_file_path:*.bz2%20AND%20-download_file_path:*.nrrd)&rows=10000000&wt=json&fl=download_file_path,pipeline_stable_id,procedure_stable_id,parameter_stable_id,production_center,phenotyping_center"""
 
     try:    
         omeroPort = omeroProps['omeroport']
