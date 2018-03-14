@@ -22,5 +22,7 @@ package org.mousephenotype.cda.enumerations;
 public enum ControlStrategy {
 	baseline_all,
 	concurrent,
+	manual,
+	window,
 	NA;
 }

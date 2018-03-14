@@ -319,17 +319,17 @@ public class SampleLoader implements CommandLineRunner {
             }
         }
 
-            /*
-             * Some legacy strain names use a semicolon to separate multiple strain names contained in a single
-             * field. Load processing code expects the separator for multiple strains to be an asterisk. Remapping
-             * changes the specimen's strainId and the phenotypedColony's strainId (called backgroundStrain).
-             *
-             * NOTE: Only do this for legacy EuroPhenome sources. Overriding the colony backgroundStrain is a big deal
-             *       and breaks the loader if run against IMPC (e.g. the correct colony strain 'C57BL/6N' gets overwritten
-             *       with the IMPC specimen's 'C57Bl6n', which causes a new strain by that name to be created, then later
-             *       causes the database to complain about duplicate biological models.
-             */
-        if ((specimen.getStrainID() != null) && ( ! specimen.getStrainID().isEmpty()) && (specimenExtended.getDatasourceShortName().equalsIgnoreCase(CdaSqlUtils.EUROPHENOME))) {
+        /*
+         * Some legacy strain names use a semicolon to separate multiple strain names contained in a single
+         * field. Load processing code expects the separator for multiple strains to be an asterisk. Remapping
+         * changes the specimen's strainId and the phenotypedColony's strainId (called backgroundStrain).
+         *
+         * NOTE: Only do this for legacy EuroPhenome sources. Overriding the colony backgroundStrain is a big deal
+         *       and breaks the loader if run against IMPC (e.g. the correct colony strain 'C57BL/6N' gets overwritten
+         *       with the IMPC specimen's 'C57Bl6n', which causes a new strain by that name to be created, then later
+         *       causes the database to complain about duplicate biological models.
+         */
+        if ((specimen.getStrainID() != null) && ( ! specimen.getStrainID().isEmpty()) && (specimenExtended.getDatasourceShortName().equalsIgnoreCase(CdaSqlUtils.EUROPHENOME) || specimenExtended.getDatasourceShortName().equalsIgnoreCase(CdaSqlUtils.MGP))) {
             String remappedStrainName = strainMapper.parseMultipleBackgroundStrainNames(specimen.getStrainID());
             specimen.setStrainID(remappedStrainName);
             PhenotypedColony colony = phenotypedColonyMap.get(specimen.getColonyID());

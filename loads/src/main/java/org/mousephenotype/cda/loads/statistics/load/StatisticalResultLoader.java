@@ -52,7 +52,7 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
     protected Map<String, Map<ZygosityType, Integer>> bioModelMap = new HashMap<>();
     protected Map<Integer, String> bioModelStrainMap = new HashMap<>();
     protected Map<String, Integer> controlBioModelMap = new HashMap<>();
-    protected Map<String, ObservationType> parameterTypeMap = new HashMap<>();
+    public Map<String, ObservationType> parameterTypeMap = new HashMap<>();
 
 
     protected void populateParameterTypeMap() throws SQLException {
