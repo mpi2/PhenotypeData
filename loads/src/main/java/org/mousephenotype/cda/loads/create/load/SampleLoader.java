@@ -185,7 +185,7 @@ public class SampleLoader implements CommandLineRunner {
             }
         });
 
-        logger.info("Getting samples complete.");
+        logger.info("Getting samples complete. {} samples to load", specimens.size());
 
         String message = "**** LOADING " + dccSqlUtils.getDbName() + " SAMPLES ****";
         logger.info(StringUtils.repeat("*", message.length()));
@@ -207,6 +207,8 @@ public class SampleLoader implements CommandLineRunner {
                 tasks.add(executor.submit(task));
 
                 if (sampleCount % 20000 == 0) {
+                    logger.info("Processed 20,000 more specimens, {} done", sampleCount);
+
                     tasks = drainQueue(tasks);
                 }
             }

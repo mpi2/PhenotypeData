@@ -574,26 +574,15 @@ public class ExperimentLoader implements CommandLineRunner {
             // Run the strain name through the StrainMapper to remap incorrect legacy strain names.
             Strain remappedStrain;
             try {
-                synchronized (strainMapper) {
+                if ((dccExperiment.getSpecimenStrainId() != null) && (!dccExperiment.getSpecimenStrainId().isEmpty()) && (dccExperiment.getDatasourceShortName().equalsIgnoreCase(CdaSqlUtils.EUROPHENOME) || dccExperiment.getDatasourceShortName().equalsIgnoreCase(CdaSqlUtils.MGP))) {
 
-                    if (dccExperiment.isLineLevel()) {
+                    synchronized (strainMapper) {
 
-                        String st = null;
+                        String backgroundStrainName = dccExperiment.getSpecimenStrainId();
 
-                        // If there is a colony for this experiment and
-                        // if we have the colony details from imits, then override the background strain string
-                        if (dccExperiment.getColonyId() != null && phenotypedColonyMap.get(dccExperiment.getColonyId()) != null) {
-                            st = phenotypedColonyMap.get(dccExperiment.getColonyId()).getBackgroundStrain();
-                        }
-
-                        if (st == null) {
-                            logger.warn("Cannot find background strain for line level parameter {}", dccExperiment);
-                            return null;
-                        }
-
-                        remappedStrain = strainMapper.lookupBackgroundStrain(st);
-                        if (st != null && remappedStrain == null) {
-                            remappedStrain = StrainMapper.createBackgroundStrain(st);
+                        remappedStrain = strainMapper.lookupBackgroundStrain(backgroundStrainName);
+                        if (backgroundStrainName != null && remappedStrain == null) {
+                            remappedStrain = StrainMapper.createBackgroundStrain(backgroundStrainName);
                             cdaSqlUtils.insertStrain(remappedStrain);
                             strainsByNameOrMgiAccessionIdMap.put(remappedStrain.getName(), remappedStrain);
                             strainsByNameOrMgiAccessionIdMap.put(remappedStrain.getId().getAccession(), remappedStrain);
@@ -602,20 +591,8 @@ public class ExperimentLoader implements CommandLineRunner {
                             colony.setBackgroundStrain(remappedStrain.getName());
                         }
 
-                    } else {
-
-                        // Specimen level experiment
-                        remappedStrain = strainMapper.lookupBackgroundStrain(dccExperiment.getSpecimenStrainId());
-                        if (remappedStrain == null) {
-                            remappedStrain = StrainMapper.createBackgroundStrain(dccExperiment.getSpecimenStrainId());
-                            cdaSqlUtils.insertStrain(remappedStrain);
-                            strainsByNameOrMgiAccessionIdMap.put(remappedStrain.getName(), remappedStrain);
-                            strainsByNameOrMgiAccessionIdMap.put(remappedStrain.getId().getAccession(), remappedStrain);
-                        }
-                        if (colony != null) {
-                            colony.setBackgroundStrain(remappedStrain.getName());
-                        }
                     }
+
                 }
             } catch (Exception e ) {
                 e.printStackTrace();
