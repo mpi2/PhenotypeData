@@ -10,26 +10,21 @@ require(optparse)
 # LOAD S4 METHODS, WHICH RESULTS IN
 # AN ERROR WHEN PhenList IS INVOKED
 #
+#
 require(methods)
 
 
 #
-# enable JIT optimization
 #
-require(compiler)
+library(compiler)
 setCompilerOptions(suppressAll = TRUE, optimize = 3)
 enableJIT(3)
 
 
-#
-# function to return string w/o leading or trailing whitespace
-#
+# returns string w/o leading or trailing whitespace
 trim <- function (x) gsub("^\\s+|\\s+$", "", x)
 
 
-#
-# function to read a support file with rows in format key=value
-#
 readMethodsFile <- function(fname) {
 
   message("Method Map:")
@@ -46,15 +41,15 @@ readMethodsFile <- function(fname) {
   return(result01);
 }
 
-#
-# function to get the alternative stats method if exists
-#
 getAlternative <- function(var, methodMap = list("IMPC_ABR_" = "RR", "IMPC_ABR_0" = "FE", "IMPC_XRY_001_003" = "FE")) {
 
   matched001 <- sapply(names(methodMap), grepl, var)
 
   if (sum(matched001) > 1) {
+    # map to longer pattern
+    #
     methodMapReduced <- methodMap[ matched001 ]
+
     mappedPatternLengths <- nchar(names(methodMapReduced));
     method <- unlist(methodMapReduced[ which(mappedPatternLengths ==  max(mappedPatternLengths)) ])
   } else {
@@ -64,9 +59,6 @@ getAlternative <- function(var, methodMap = list("IMPC_ABR_" = "RR", "IMPC_ABR_0
   return(method);
 }
 
-#
-# Define function capture.stderr which tries to execute a function and capture the output
-#
 capture.stderr <- function (..., file = NULL, append = FALSE) {
   args <- substitute(list(...))[-1L]
   rval <- NULL
@@ -110,9 +102,8 @@ capture.stderr <- function (..., file = NULL, append = FALSE) {
 
 
 
+## Test script
 
-
-## Test this script
 #dataset <- read.delim("~/Documents/WTSI-MGP_001-IMPC_ABR-MGI5446362.tsv")
 #colony_id <- "MCSR"
 #metadata_group <- "ab8371fc819db4209ca1a10186a8a6ef"
@@ -120,9 +111,6 @@ capture.stderr <- function (..., file = NULL, append = FALSE) {
 #depvar <- "IMPC_ABR_010_001"
 
 
-#
-# test002 function processes an input file and produces a results file of the same name with "-result" appended
-#
 test002 <- function(infname = "MRCHarwell-HRWL_001-IMPC_CSD-MGI2164831.tsv", result="result", methodMapfname = "functionMethodMap", equationMapfname = "functionEquationMap", withWeight=TRUE) {
 
   message("test002(infname = ", infname, ", result = ", result, ", methodMapfname = ", methodMapfname, ", equationMapfname = ", equationMapfname, ")", sep="");
@@ -184,28 +172,28 @@ test002 <- function(infname = "MRCHarwell-HRWL_001-IMPC_CSD-MGI2164831.tsv", res
   outfname = paste(outfname_final,".part", sep="");
 
   dataset = read.delim(infname, header = TRUE, sep = "\t", quote="\"", dec=".",
-                       fill = TRUE, comment.char="", stringsAsFactors = FALSE)
+  fill = TRUE, comment.char="", stringsAsFactors = FALSE)
 
   out <- paste("metadata_group", "zygosity", "colony_id", "depvar", "status", "code",
-               "count cm", "count cf", "count mm", "count mf",
-               "mean cm", "mean cf", "mean mm", "mean mf",
-               "control_strategy", "workflow", "weight available",
-               sep="\t");
+  "count cm", "count cf", "count mm", "count mf",
+  "mean cm", "mean cf", "mean mm", "mean mf",
+  "control_strategy", "workflow", "weight available",
+  sep="\t");
 
   vectorOutputNames <- c("Method", "Dependent variable", "Batch included",
-                         "Residual variances homogeneity", "Genotype contribution", "Genotype estimate",
-                         "Genotype standard error", "Genotype p-Val", "Genotype percentage change", "Sex estimate",
-                         "Sex standard error", "Sex p-val", "Weight estimate", "Weight standard error",
-                         "Weight p-val", "Gp1 genotype", "Gp1 Residuals normality test", "Gp2 genotype",
-                         "Gp2 Residuals normality test", "Blups test", "Rotated residuals normality test",
-                         "Intercept estimate", "Intercept standard error", "Interaction included", "Interaction p-val",
-                         "Sex FvKO estimate", "Sex FvKO standard error", "Sex FvKO p-val", "Sex MvKO estimate",
-                         "Sex MvKO standard error", "Sex MvKO p-val", "Classification tag", "Additional information")
+  "Residual variances homogeneity", "Genotype contribution", "Genotype estimate",
+  "Genotype standard error", "Genotype p-Val", "Genotype percentage change", "Sex estimate",
+  "Sex standard error", "Sex p-val", "Weight estimate", "Weight standard error",
+  "Weight p-val", "Gp1 genotype", "Gp1 Residuals normality test", "Gp2 genotype",
+  "Gp2 Residuals normality test", "Blups test", "Rotated residuals normality test",
+  "Intercept estimate", "Intercept standard error", "Interaction included", "Interaction p-val",
+  "Sex FvKO estimate", "Sex FvKO standard error", "Sex FvKO p-val", "Sex MvKO estimate",
+  "Sex MvKO standard error", "Sex MvKO p-val", "Classification tag", "Additional information")
 
   out <- paste(out, paste(vectorOutputNames, collapse="\t"), sep="\t");
 
   write.table(out, file = outfname, append = FALSE, quote = FALSE, sep = "\t",
-              eol = "\n", na = "NA", dec = ".", row.names = FALSE, col.names = FALSE)
+  eol = "\n", na = "NA", dec = ".", row.names = FALSE, col.names = FALSE)
 
   if (nrow(dataset)) {
 
@@ -280,7 +268,7 @@ test002 <- function(infname = "MRCHarwell-HRWL_001-IMPC_CSD-MGI2164831.tsv", res
         # figure out what zygosity types there are
         #
         group_colony_id_zygosity <- as.character(unique(dataset_group[
-          group_colony_id, ]$zygosity))
+        group_colony_id, ]$zygosity))
 
         for (zygname in group_colony_id_zygosity) {
 
@@ -290,12 +278,12 @@ test002 <- function(infname = "MRCHarwell-HRWL_001-IMPC_CSD-MGI2164831.tsv", res
           # select mutants with specific zygosity
           #
           group_colony_id_zygosity <- group_colony_id [
-            sapply(group_colony_id, function(x){ dataset_group$zygosity[ x ] == zygname} ) ]
+          sapply(group_colony_id, function(x){ dataset_group$zygosity[ x ] == zygname} ) ]
 
 
           # figure out how many male and female mutants there are
           colony_zygosity_sex_combined <- table(sapply(group_colony_id_zygosity,
-                                                       function(x){ dataset_group$sex[ x ] } ))
+          function(x){ dataset_group$sex[ x ] } ))
 
           num_mutes_female <- as.integer(colony_zygosity_sex_combined["female"])
           num_mutes_male   <- as.integer(colony_zygosity_sex_combined["male"])
@@ -327,16 +315,20 @@ test002 <- function(infname = "MRCHarwell-HRWL_001-IMPC_CSD-MGI2164831.tsv", res
           #
           dataset_group_colony_zygosity_controls <- dataset_group[ c(group_colony_id_zygosity, controls_in_group), ]
 
+          #
+          # Delete any dataset from previous executions
+          rm(dataset_phenList)
+
           if (enough_data && num_of_controls_in_group > 0) {
 
 
             # call PhenList only when there's enough data
             #
             dataset_phenList <- try(PhenList(
-              dataset=dataset_group_colony_zygosity_controls, dataset.colname.genotype="colony_id",
-              testGenotype=colony_id, refGenotype="+/+",
-              dataset.colname.sex="sex", dataset.colname.batch="batch", dataset.colname.weight="weight",
-              dataset.values.male="male", dataset.values.female="female"))
+            dataset=dataset_group_colony_zygosity_controls, dataset.colname.genotype="colony_id",
+            testGenotype=colony_id, refGenotype="+/+",
+            dataset.colname.sex="sex", dataset.colname.batch="batch", dataset.colname.weight="weight",
+            dataset.values.male="male", dataset.values.female="female"))
           }
 
 
@@ -359,13 +351,13 @@ test002 <- function(infname = "MRCHarwell-HRWL_001-IMPC_CSD-MGI2164831.tsv", res
             # Failed to create a dataframe, skip
             if ( ! "dataset_phenList" %in% ls() || class(dataset_phenList)=="try-error") {
               out <- paste(metadata_group, zygname, colony_id, depvar, "FAILED", "Not enough mutant or control data",
-                           num_control_male, num_control_female, num_mutes_male, num_mutes_female,
-                           "-", "-", "-", "-",
-                           "-", "-", "-",
-                           sep="\t");
+              num_control_male, num_control_female, num_mutes_male, num_mutes_female,
+              "-", "-", "-", "-",
+              "-", "-", "-",
+              sep="\t");
 
               write.table(out, file = outfname, append = TRUE, quote = FALSE, sep = "\t",
-                            eol = "\n", na = "NA", dec = ".", row.names = FALSE, col.names = FALSE);
+              eol = "\n", na = "NA", dec = ".", row.names = FALSE, col.names = FALSE);
               next
             }
 
@@ -436,7 +428,7 @@ test002 <- function(infname = "MRCHarwell-HRWL_001-IMPC_CSD-MGI2164831.tsv", res
             combined_batches <- unique(c(female_mutant_batches, male_mutant_batches))
 
             if ( (length(male_mutant_batches)==0 && length(female_mutant_batches)>0) ||
-                 (length(female_mutant_batches)==0 && length(male_mutant_batches)>0) ) {
+            (length(female_mutant_batches)==0 && length(male_mutant_batches)>0) ) {
               workflow <- "one_sex_only"
 
             } else if ( length(combined_batches) == 1 ) {
@@ -446,7 +438,7 @@ test002 <- function(infname = "MRCHarwell-HRWL_001-IMPC_CSD-MGI2164831.tsv", res
               workflow <- "low_batch"
 
             } else if ( length(male_mutant_batches) >=3 && length(female_mutant_batches) >= 2 ||
-                        length(female_mutant_batches) && length(male_mutant_batches) >= 2 ) {
+            length(female_mutant_batches) && length(male_mutant_batches) >= 2 ) {
               workflow <- "multi_batch"
             }
 
@@ -459,7 +451,7 @@ test002 <- function(infname = "MRCHarwell-HRWL_001-IMPC_CSD-MGI2164831.tsv", res
 
               unique_batch_date = unique(batches[colony_ids_for_strat==colony_id])[1]
               if (length(batches[colony_ids_for_strat!=colony_id & sexes_for_strat=="male" & batches==unique_batch_date]) >= 6 &&
-                  length(batches[colony_ids_for_strat!=colony_id & sexes_for_strat=="female" & batches==unique_batch_date]) >=6) {
+              length(batches[colony_ids_for_strat!=colony_id & sexes_for_strat=="female" & batches==unique_batch_date]) >=6) {
                 # Enough control points found for Concurrent strategy
                 control_strategy <- "concurrent"
 
@@ -575,10 +567,10 @@ test002 <- function(infname = "MRCHarwell-HRWL_001-IMPC_CSD-MGI2164831.tsv", res
                 operational_dataset <- dataset_phenList
                 operational_dataset@datasetPL = operational_dataset@datasetPL[,include_columns]
                 operational_dataset <- try(PhenList(
-                  dataset=operational_dataset@datasetPL[operational_dataset@datasetPL$Sex=="Male", ], dataset.colname.genotype="Genotype",
-                  testGenotype=colony_id, refGenotype="+/+",
-                  dataset.colname.sex="Sex", dataset.colname.batch="Batch", dataset.colname.weight="weight",
-                  dataset.values.male="male", dataset.values.female="female"))
+                dataset=operational_dataset@datasetPL[operational_dataset@datasetPL$Sex=="Male", ], dataset.colname.genotype="Genotype",
+                testGenotype=colony_id, refGenotype="+/+",
+                dataset.colname.sex="Sex", dataset.colname.batch="Batch", dataset.colname.weight="weight",
+                dataset.values.male="male", dataset.values.female="female"))
               } else if (num_mutes_male < NUM_MUTANT_MALE_THRES && (IS_ABR && num_mutes_male < ABR_THRES) ) {
 
                 # Too few males, create a new PhenList with just the females
@@ -586,10 +578,10 @@ test002 <- function(infname = "MRCHarwell-HRWL_001-IMPC_CSD-MGI2164831.tsv", res
                 operational_dataset <- dataset_phenList
                 operational_dataset@datasetPL = operational_dataset@datasetPL[,include_columns]
                 operational_dataset <- try(PhenList(
-                  dataset=operational_dataset@datasetPL[operational_dataset@datasetPL$Sex=="Female", ], dataset.colname.genotype="Genotype",
-                  testGenotype=colony_id, refGenotype="+/+",
-                  dataset.colname.sex="Sex", dataset.colname.batch="Batch", dataset.colname.weight="weight",
-                  dataset.values.male="male", dataset.values.female="female"))
+                dataset=operational_dataset@datasetPL[operational_dataset@datasetPL$Sex=="Female", ], dataset.colname.genotype="Genotype",
+                testGenotype=colony_id, refGenotype="+/+",
+                dataset.colname.sex="Sex", dataset.colname.batch="Batch", dataset.colname.weight="weight",
+                dataset.values.male="male", dataset.values.female="female"))
               }
 
               # do the test
@@ -675,13 +667,13 @@ test002 <- function(infname = "MRCHarwell-HRWL_001-IMPC_CSD-MGI2164831.tsv", res
             }
 
             message(c002, " -----------> ", metadata_group, ":", colony_id, ":",
-                    zygname, ":", depvar, ":", status, ":", code);
+            zygname, ":", depvar, ":", status, ":", code);
 
             out <- paste(metadata_group, zygname, colony_id, depvar, status, code,
-                         num_control_male, num_control_female, num_mutes_male, num_mutes_female,
-                         mean_control_male, mean_control_female, mean_mutes_male, mean_mutes_female,
-                         control_strategy, workflow, weight_available,
-                         sep="\t");
+            num_control_male, num_control_female, num_mutes_male, num_mutes_female,
+            mean_control_male, mean_control_female, mean_mutes_male, mean_mutes_female,
+            control_strategy, workflow, weight_available,
+            sep="\t");
 
             # providing the data order doesn't change in PhenStat
             # we can do simple paste(output, collapse="\t")
@@ -693,7 +685,7 @@ test002 <- function(infname = "MRCHarwell-HRWL_001-IMPC_CSD-MGI2164831.tsv", res
 
             if (STATUS_FAILED == "FAILED" && !((num_control_male + num_control_female + num_mutes_male + num_mutes_female) == 0) ) {
               write.table(out, file = outfname, append = TRUE, quote = FALSE, sep = "\t",
-                          eol = "\n", na = "NA", dec = ".", row.names = FALSE, col.names = FALSE);
+              eol = "\n", na = "NA", dec = ".", row.names = FALSE, col.names = FALSE);
             }
 
           }
@@ -710,10 +702,6 @@ test002 <- function(infname = "MRCHarwell-HRWL_001-IMPC_CSD-MGI2164831.tsv", res
 
 }
 
-
-#
-# Runs the test002 function on an input file
-#
 launcher <- function(){
 
   library("optparse")
@@ -744,6 +732,3 @@ launcher <- function(){
 
 
 launcher()
-
-
-
