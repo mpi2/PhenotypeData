@@ -573,17 +573,52 @@ public class ExperimentLoader implements CommandLineRunner {
 
             // Run the strain name through the StrainMapper to remap incorrect legacy strain names.
             Strain remappedStrain;
-            synchronized (strainMapper) {
-                remappedStrain = strainMapper.lookupBackgroundStrain(dccExperiment.getSpecimenStrainId());
-                if (remappedStrain == null) {
-                    remappedStrain = StrainMapper.createBackgroundStrain(dccExperiment.getSpecimenStrainId());
-                    cdaSqlUtils.insertStrain(remappedStrain);
-                    strainsByNameOrMgiAccessionIdMap.put(remappedStrain.getName(), remappedStrain);
-                    strainsByNameOrMgiAccessionIdMap.put(remappedStrain.getId().getAccession(), remappedStrain);
+            try {
+                synchronized (strainMapper) {
+
+                    if (dccExperiment.isLineLevel()) {
+
+                        String st = null;
+
+                        // If there is a colony for this experiment and
+                        // if we have the colony details from imits, then override the background strain string
+                        if (dccExperiment.getColonyId() != null && phenotypedColonyMap.get(dccExperiment.getColonyId()) != null) {
+                            st = phenotypedColonyMap.get(dccExperiment.getColonyId()).getBackgroundStrain();
+                        }
+
+                        if (st == null) {
+                            logger.warn("Cannot find background strain for line level parameter {}", dccExperiment);
+                            return null;
+                        }
+
+                        remappedStrain = strainMapper.lookupBackgroundStrain(st);
+                        if (st != null && remappedStrain == null) {
+                            remappedStrain = StrainMapper.createBackgroundStrain(st);
+                            cdaSqlUtils.insertStrain(remappedStrain);
+                            strainsByNameOrMgiAccessionIdMap.put(remappedStrain.getName(), remappedStrain);
+                            strainsByNameOrMgiAccessionIdMap.put(remappedStrain.getId().getAccession(), remappedStrain);
+                        }
+                        if (colony != null) {
+                            colony.setBackgroundStrain(remappedStrain.getName());
+                        }
+
+                    } else {
+
+                        // Specimen level experiment
+                        remappedStrain = strainMapper.lookupBackgroundStrain(dccExperiment.getSpecimenStrainId());
+                        if (remappedStrain == null) {
+                            remappedStrain = StrainMapper.createBackgroundStrain(dccExperiment.getSpecimenStrainId());
+                            cdaSqlUtils.insertStrain(remappedStrain);
+                            strainsByNameOrMgiAccessionIdMap.put(remappedStrain.getName(), remappedStrain);
+                            strainsByNameOrMgiAccessionIdMap.put(remappedStrain.getId().getAccession(), remappedStrain);
+                        }
+                        if (colony != null) {
+                            colony.setBackgroundStrain(remappedStrain.getName());
+                        }
+                    }
                 }
-                if (colony != null) {
-                    colony.setBackgroundStrain(remappedStrain.getName());
-                }
+            } catch (Exception e ) {
+                e.printStackTrace();
             }
 
             // If iMits has the colony, use it to get the strain name.
@@ -596,7 +631,6 @@ public class ExperimentLoader implements CommandLineRunner {
             phenotypingCenter = LoadUtils.mappedExternalCenterNames.get(dccExperiment.getPhenotypingCenter());
             if (colony != null) {
 
-                colony.setBackgroundStrain((remappedStrain.getName()));
                 phenotypingCenterPk = colony.getPhenotypingCentre().getId();
 
             } else {
@@ -1004,7 +1038,7 @@ public class ExperimentLoader implements CommandLineRunner {
     private void insertSimpleParameter(DccExperimentDTO dccExperiment, SimpleParameter simpleParameter, int experimentPk,
                                        int dbId, Integer biologicalSamplePk, int missing) throws DataLoadException {
 
-        if (dccExperiment.getSpecimenId().equals("B6NC_46853_163447") && dccExperiment.getProcedureId().startsWith("IMPC_CBC")) {
+        if (dccExperiment.getSpecimenId() != null && dccExperiment.getSpecimenId().equals("B6NC_46853_163447") && dccExperiment.getProcedureId().startsWith("IMPC_CBC")) {
             logger.info("CANARY -- specimen B6NC_46853_163447\n{}, \nParameter: {}", dccExperiment, simpleParameter.getParameterID());
         }
 
@@ -1081,7 +1115,7 @@ public class ExperimentLoader implements CommandLineRunner {
         // Insert experiment_observation
         cdaSqlUtils.insertExperiment_observation(experimentPk, observationPk);
 
-        if (dccExperiment.getSpecimenId().equals("B6NC_46853_163447") && dccExperiment.getProcedureId().startsWith("IMPC_CBC")) {
+        if (dccExperiment.getSpecimenId() != null && dccExperiment.getSpecimenId().equals("B6NC_46853_163447") && dccExperiment.getProcedureId().startsWith("IMPC_CBC")) {
             logger.info("END CANARY -- Successfully inserted specimen B6NC_46853_163447, experimentPk {}, parameter {}", experimentPk, simpleParameter.getParameterID());
         }
 
