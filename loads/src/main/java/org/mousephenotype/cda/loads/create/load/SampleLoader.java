@@ -207,9 +207,8 @@ public class SampleLoader implements CommandLineRunner {
                 tasks.add(executor.submit(task));
 
                 if (sampleCount % 20000 == 0) {
-                    logger.info("Processed 20,000 more specimens, {} done", sampleCount);
-
                     tasks = drainQueue(tasks);
+                    logger.info("Processed 20,000 more specimens, {} done", sampleCount);
                 }
             }
         }
