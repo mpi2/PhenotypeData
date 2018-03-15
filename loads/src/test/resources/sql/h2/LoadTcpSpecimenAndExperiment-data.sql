@@ -7,6 +7,8 @@ INSERT INTO `phenotype_pipeline` VALUES
 
 INSERT INTO `phenotype_procedure` VALUES
 (55,91,'IMPC_XRY_001',6,'X-ray','Construct and analyse digital X-ray images in immobilised mice using a Faxitron X-Ray system or NTB digital X-ray scanner.',1,2,1,'experiment','Adult','Week 14');
+INSERT INTO `phenotype_procedure` VALUES
+(65,182,'IMPC_CBC_003',6,'Clinical Chemistry','Clinical chemistry determines biochemical parameters in plasma including enzymatic activity, specific substrates and electrolytes.&nbsp;Ontological description: MP:0001545 &ndash; blood physiology abnormalities.',3,2,1,'experiment','Terminal','Week 16');
 
 
 INSERT INTO `phenotype_parameter` VALUES (1793,'IMPC_XRY_001_001',6,'Skull shape','skull_shape',1,0,' ','TEXT','simpleParameter',NULL,1,0,0,0,1,0,1,0,0,0,'',1860);
@@ -77,6 +79,67 @@ INSERT INTO `phenotype_parameter` VALUES (1857,'IMPC_XRY_065_001',6,'Lumbar proc
 INSERT INTO `phenotype_parameter` VALUES (1858,'IMPC_XRY_066_001',6,'Sacral processes','',1,0,' ','TEXT','simpleParameter',NULL,0,0,0,0,1,0,1,0,0,0,'',3789);
 INSERT INTO `phenotype_parameter` VALUES (1859,'IMPC_XRY_067_001',6,'Caudal processes','',1,0,' ','TEXT','simpleParameter',NULL,0,0,0,0,1,0,1,0,0,0,'',3790);
 INSERT INTO `phenotype_parameter` VALUES (1860,'IMPC_XRY_068_001',6,'Missing cranial rib','',1,0,' ','TEXT','simpleParameter',NULL,0,0,0,0,0,0,1,0,0,0,'',5379);
+
+INSERT INTO `phenotype_parameter` VALUES (2149,'IMPC_CBC_001_001',6,'Sodium','sodium',1,3,'mmol/l','FLOAT','simpleParameter',NULL,0,0,0,0,1,0,0,0,0,0,'',1944);
+INSERT INTO `phenotype_parameter` VALUES (2150,'IMPC_CBC_002_001',6,'Potassium','potassium',1,3,'mmol/l','FLOAT','simpleParameter',NULL,0,0,0,0,1,0,0,0,0,0,'',1945);
+INSERT INTO `phenotype_parameter` VALUES (2151,'IMPC_CBC_003_001',6,'Chloride','chloride',1,4,'mmol/l','FLOAT','simpleParameter',NULL,0,0,0,0,1,0,0,0,0,0,'',1946);
+INSERT INTO `phenotype_parameter` VALUES (2152,'IMPC_CBC_004_001',6,'Urea (Blood Urea Nitrogen - BUN)','urea',1,5,'mg/dl','FLOAT','simpleParameter',NULL,1,0,0,0,1,0,0,0,0,0,'',1947);
+INSERT INTO `phenotype_parameter` VALUES (2153,'IMPC_CBC_005_001',6,'Creatinine','creatinine_enzymatic_method_preferred_',1,5,'mg/dl','FLOAT','simpleParameter',NULL,1,0,0,0,1,0,0,0,0,0,'',1948);
+INSERT INTO `phenotype_parameter` VALUES (2154,'IMPC_CBC_006_001',6,'Total protein','total_protein',1,2,'g/l','FLOAT','simpleParameter',NULL,1,0,0,0,1,0,0,0,0,0,'',1949);
+INSERT INTO `phenotype_parameter` VALUES (2155,'IMPC_CBC_007_001',6,'Albumin','albumin',1,2,'g/l','FLOAT','simpleParameter',NULL,1,0,0,0,1,0,0,0,0,0,'',1950);
+INSERT INTO `phenotype_parameter` VALUES (2156,'IMPC_CBC_008_001',6,'Total bilirubin','total_bilirubin',1,4,'mg/dl','FLOAT','simpleParameter',NULL,1,0,0,0,1,0,0,0,0,0,'',1951);
+INSERT INTO `phenotype_parameter` VALUES (2157,'IMPC_CBC_009_001',6,'Calcium','calcium',1,5,'mg/dl','FLOAT','simpleParameter',NULL,1,0,0,0,1,0,0,0,0,0,'',1952);
+INSERT INTO `phenotype_parameter` VALUES (2158,'IMPC_CBC_010_001',6,'Phosphorus','phosphate',1,6,'mg/dl','FLOAT','simpleParameter',NULL,1,0,0,0,1,0,0,0,0,0,'',1953);
+INSERT INTO `phenotype_parameter` VALUES (2159,'IMPC_CBC_011_001',6,'Iron','iron',1,5,'mg/dl','FLOAT','simpleParameter',NULL,0,0,0,0,1,0,0,0,0,0,'',1954);
+INSERT INTO `phenotype_parameter` VALUES (2160,'IMPC_CBC_012_001',6,'Aspartate aminotransferase','aspartate_aminotransferase',1,2,'U/l','FLOAT','simpleParameter',NULL,1,0,0,0,1,0,0,0,0,0,'',1955);
+INSERT INTO `phenotype_parameter` VALUES (2161,'IMPC_CBC_013_001',6,'Alanine aminotransferase','alanine_aminotransferase',1,2,'U/l','FLOAT','simpleParameter',NULL,1,0,0,0,1,0,0,0,0,0,'',1956);
+INSERT INTO `phenotype_parameter` VALUES (2162,'IMPC_CBC_014_001',6,'Alkaline phosphatase','alkaline_phosphatase',1,2,'U/l','FLOAT','simpleParameter',NULL,1,0,0,0,1,0,0,0,0,0,'',1957);
+INSERT INTO `phenotype_parameter` VALUES (2163,'IMPC_CBC_015_001',6,'Total cholesterol','total_cholesterol',1,4,'mg/dl','FLOAT','simpleParameter',NULL,1,0,0,0,1,0,0,0,0,0,'',1958);
+INSERT INTO `phenotype_parameter` VALUES (2164,'IMPC_CBC_016_001',6,'HDL-cholesterol','hdl_cholesterol',1,4,'mg/dl','FLOAT','simpleParameter',NULL,1,0,0,0,1,0,0,0,0,0,'',1959);
+INSERT INTO `phenotype_parameter` VALUES (2165,'IMPC_CBC_017_001',6,'Triglycerides','triglycerides',1,4,'mg/dl','FLOAT','simpleParameter',NULL,1,0,0,0,1,0,0,0,0,0,'',1960);
+INSERT INTO `phenotype_parameter` VALUES (2166,'IMPC_CBC_018_001',6,'Glucose','glucose',1,5,'mg/dl','FLOAT','simpleParameter',NULL,1,0,0,0,1,0,0,0,0,0,'',1961);
+INSERT INTO `phenotype_parameter` VALUES (2167,'IMPC_CBC_019_001',6,'LIH (Hemolysis Severity - available on AU analysers)','lih_hemolysis_severity_available_on_au_analysers_',1,3,' ','TEXT','simpleParameter',NULL,0,0,0,0,0,0,0,0,0,0,'',1962);
+INSERT INTO `phenotype_parameter` VALUES (2168,'IMPC_CBC_020_001',6,'Fructosamine','fructosamine',1,2,'umol/l','FLOAT','simpleParameter',NULL,0,0,0,0,1,0,0,0,0,0,'',1963);
+INSERT INTO `phenotype_parameter` VALUES (2169,'IMPC_CBC_021_001',6,'Lipase','lipase',1,1,'U/l','FLOAT','simpleParameter',NULL,0,0,0,0,1,0,0,0,0,0,'',1964);
+INSERT INTO `phenotype_parameter` VALUES (2170,'IMPC_CBC_022_001',6,'Lactate dehydrogenase','lactate_dehydrogenase',1,2,'U/l','FLOAT','simpleParameter',NULL,0,0,0,0,1,0,0,0,0,0,'',1965);
+INSERT INTO `phenotype_parameter` VALUES (2171,'IMPC_CBC_023_001',6,'Alpha-amylase','alpha_amylase',1,2,'U/l','FLOAT','simpleParameter',NULL,0,0,0,0,1,0,0,0,0,0,'',1966);
+INSERT INTO `phenotype_parameter` VALUES (2172,'IMPC_CBC_024_001',6,'UIBC (unsaturated iron binding capacity)','uibc_unsaturated_iron_binding_capacity_',1,0,'umol/l','FLOAT','simpleParameter',NULL,0,0,0,0,1,0,0,0,0,0,'',1967);
+INSERT INTO `phenotype_parameter` VALUES (2173,'IMPC_CBC_025_001',6,'LDL-cholesterol','ldl_cholesterol',1,3,'mg/dl','FLOAT','simpleParameter',NULL,0,0,0,0,1,0,0,0,0,0,'',1968);
+INSERT INTO `phenotype_parameter` VALUES (2174,'IMPC_CBC_026_001',6,'Free fatty acids','free_fatty_acids',1,4,'mmol/l','FLOAT','simpleParameter',NULL,0,0,0,0,1,0,0,0,0,0,'',1969);
+INSERT INTO `phenotype_parameter` VALUES (2175,'IMPC_CBC_027_001',6,'Glycerol','glycerol',1,4,'mmol/l','FLOAT','simpleParameter',NULL,0,0,0,0,1,0,0,0,0,0,'',1970);
+INSERT INTO `phenotype_parameter` VALUES (2176,'IMPC_CBC_028_001',6,'Creatine kinase','creatine_kinase',1,2,'U/l','FLOAT','simpleParameter',NULL,0,0,0,0,1,0,0,0,0,0,'',1971);
+INSERT INTO `phenotype_parameter` VALUES (2177,'IMPC_CBC_029_001',6,'Uric acid','uric_acid',1,2,'umol/l','FLOAT','simpleParameter',NULL,0,0,0,0,1,0,0,0,0,0,'',1972);
+INSERT INTO `phenotype_parameter` VALUES (2178,'IMPC_CBC_030_001',6,'Ferritin','ferritin',1,3,'ng/ml','FLOAT','simpleParameter',NULL,0,0,0,0,1,0,0,0,0,0,'',1973);
+INSERT INTO `phenotype_parameter` VALUES (2179,'IMPC_CBC_031_001',6,'Transferrin','transferrin',1,2,'mg/dl','FLOAT','simpleParameter',NULL,0,0,0,0,1,0,0,0,0,0,'',1974);
+INSERT INTO `phenotype_parameter` VALUES (2180,'IMPC_CBC_032_001',6,'C-reactive protein','c_reactive_protein',1,0,'mg/l','FLOAT','simpleParameter',NULL,0,0,0,0,1,0,0,0,0,0,'',1975);
+INSERT INTO `phenotype_parameter` VALUES (2181,'IMPC_CBC_033_001',6,'Equipment ID','equipment_name',1,0,' ','TEXT','procedureMetadata',NULL,1,1,0,0,0,0,0,0,0,0,'',1976);
+INSERT INTO `phenotype_parameter` VALUES (2182,'IMPC_CBC_034_001',6,'Equipment manufacturer','equipment_manufacturer',1,0,' ','TEXT','procedureMetadata',NULL,1,1,0,0,0,0,1,0,0,1,'',1977);
+INSERT INTO `phenotype_parameter` VALUES (2183,'IMPC_CBC_035_001',6,'Equipment model','equipment_model',1,0,' ','TEXT','procedureMetadata',NULL,1,1,0,0,0,0,1,0,0,1,'',1978);
+INSERT INTO `phenotype_parameter` VALUES (2184,'IMPC_CBC_036_001',6,'Anesthesia used for blood collection','anesthesia_used_for_blood_collection',1,0,' ','TEXT','procedureMetadata',NULL,1,1,0,0,0,0,1,0,0,1,'',1979);
+INSERT INTO `phenotype_parameter` VALUES (2185,'IMPC_CBC_038_001',6,'Anticoagulant','anticoagulant',1,1,' ','TEXT','procedureMetadata',NULL,1,1,0,0,0,0,1,0,0,0,'',1981);
+INSERT INTO `phenotype_parameter` VALUES (2186,'IMPC_CBC_037_001',6,'Method of blood collection','method_of_blood_collection',1,0,' ','TEXT','procedureMetadata',NULL,1,1,0,0,0,0,1,0,0,1,'',1980);
+INSERT INTO `phenotype_parameter` VALUES (2187,'IMPC_CBC_042_001',6,'Samples kept on ice between collection and analysis','samples_kept_on_ice_between_collection_and_analysis',1,1,' ','TEXT','procedureMetadata',NULL,1,1,0,0,0,0,1,0,0,1,'',1985);
+INSERT INTO `phenotype_parameter` VALUES (2188,'IMPC_CBC_043_001',6,'Sample status','sample_status',1,1,' ','TEXT','procedureMetadata',NULL,1,1,0,0,0,0,1,0,0,0,'',1986);
+INSERT INTO `phenotype_parameter` VALUES (2189,'IMPC_CBC_044_001',6,'Sample dilution','plasma_dilution',1,2,' ','TEXT','procedureMetadata',NULL,1,1,0,0,0,0,1,0,0,0,'',1987);
+INSERT INTO `phenotype_parameter` VALUES (2190,'IMPC_CBC_045_001',6,'ID of blood collection SOP','id_of_blood_collection_sop',1,1,' ','TEXT','procedureMetadata',NULL,1,1,0,0,0,0,1,0,0,0,'',1988);
+INSERT INTO `phenotype_parameter` VALUES (2191,'IMPC_CBC_046_001',6,'Date and time of blood collection','date_and_time_of_blood_collection',1,2,' ','DATETIME','procedureMetadata',NULL,1,1,0,0,0,0,0,0,0,0,'',1989);
+INSERT INTO `phenotype_parameter` VALUES (2192,'IMPC_CBC_047_001',6,'Date of measurement','date_of_measurement',1,3,' ','DATE','procedureMetadata',NULL,1,1,0,0,0,0,0,0,0,0,'',1990);
+INSERT INTO `phenotype_parameter` VALUES (2193,'IMPC_CBC_048_001',6,'Hemolysis status','hemolysis_status',1,1,' ','TEXT','procedureMetadata',NULL,0,1,0,0,0,0,1,0,0,0,'',1991);
+INSERT INTO `phenotype_parameter` VALUES (2194,'IMPC_CBC_049_001',6,'Blood collection experimenter ID','',1,1,' ','TEXT','procedureMetadata',NULL,1,1,0,0,0,0,0,0,0,0,'',2157);
+INSERT INTO `phenotype_parameter` VALUES (2195,'IMPC_CBC_039_001',6,'Blood collection tubes','',1,1,' ','TEXT','procedureMetadata',NULL,0,1,0,0,0,0,1,0,0,0,'',2388);
+INSERT INTO `phenotype_parameter` VALUES (2196,'IMPC_CBC_050_001',6,'Date equipment last calibrated','',1,2,' ','DATE','procedureMetadata',NULL,0,1,0,0,0,0,0,0,0,0,'',2167);
+INSERT INTO `phenotype_parameter` VALUES (2197,'IMPC_CBC_040_001',6,'Date and time of sacrifice','',1,1,' ','DATETIME','procedureMetadata',NULL,1,1,0,0,0,0,0,0,0,0,'',2389);
+INSERT INTO `phenotype_parameter` VALUES (2198,'IMPC_CBC_041_001',6,'Storage temperature from blood collection till measurement','',1,3,'C','TEXT','procedureMetadata',NULL,1,1,0,0,0,0,1,0,0,1,'',2398);
+INSERT INTO `phenotype_parameter` VALUES (2199,'IMPC_CBC_051_001',6,'Blood analysis experimenter ID','',1,0,' ','TEXT','procedureMetadata',NULL,1,1,0,0,0,0,0,0,0,0,'',2402);
+INSERT INTO `phenotype_parameter` VALUES (2200,'IMPC_CBC_052_001',6,'Glycosilated hemoglobin A1c (HbA1c)','',1,3,'%','FLOAT','simpleParameter',NULL,0,0,0,0,1,0,0,0,0,0,'',3467);
+INSERT INTO `phenotype_parameter` VALUES (2201,'IMPC_CBC_053_001',6,'Thyroxine','',1,2,'ug/dl','FLOAT','simpleParameter',NULL,0,0,0,0,1,0,0,0,0,0,'',3468);
+INSERT INTO `phenotype_parameter` VALUES (2202,'IMPC_CBC_054_001',6,'Magnesium','',1,5,'mg/dl','FLOAT','simpleParameter',NULL,0,0,0,0,1,0,0,0,0,0,'',3469);
+INSERT INTO `phenotype_parameter` VALUES (2203,'IMPC_CBC_060_001',6,'Reagent manufacturer','',1,0,' ','TEXT','procedureMetadata',NULL,0,1,0,0,0,0,1,0,0,1,'',5969);
+INSERT INTO `phenotype_parameter` VALUES (2204,'IMPC_CBC_055_001',6,'Difficult bleed','',1,0,' ','TEXT','procedureMetadata',NULL,0,1,0,0,0,0,1,0,0,0,'',3771);
+INSERT INTO `phenotype_parameter` VALUES (2205,'IMPC_CBC_056_001',6,'Sample type','',1,0,' ','TEXT','procedureMetadata',NULL,1,1,0,0,0,0,1,0,0,1,'',4709);
+INSERT INTO `phenotype_parameter` VALUES (2206,'IMPC_CBC_057_001',6,'Fasting','',1,0,' ','TEXT','procedureMetadata',NULL,1,1,0,0,0,0,1,0,0,1,'',4710);
+INSERT INTO `phenotype_parameter` VALUES (2207,'IMPC_CBC_058_001',6,'Cholesterol ratio','TC/HDLC ratio',1,0,' ','FLOAT','simpleParameter','IMPC_CBC_015_001 IMPC_CBC_016_001 /',0,0,0,1,1,0,0,0,0,0,'',4713);
+INSERT INTO `phenotype_parameter` VALUES (2208,'IMPC_CBC_059_001',6,'Reagent manufacturer','',1,0,' ','TEXT','procedureMetadata',NULL,0,1,0,0,0,0,1,0,0,1,'',4855);
 
 
 INSERT INTO ontology_term (acc, db_id, name, is_obsolete, replacement_acc) VALUES

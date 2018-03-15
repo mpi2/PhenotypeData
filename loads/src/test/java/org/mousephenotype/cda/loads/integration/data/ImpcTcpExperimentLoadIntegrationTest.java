@@ -31,7 +31,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.core.io.Resource;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.datasource.init.ScriptUtils;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -53,7 +52,7 @@ import static junit.framework.TestCase.assertTrue;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ComponentScan
 @ContextConfiguration(classes = TestConfig.class)
-public class SpecificExperimentLoadIntegrationTest {
+public class ImpcTcpExperimentLoadIntegrationTest {
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
@@ -64,11 +63,6 @@ public class SpecificExperimentLoadIntegrationTest {
     
     @Autowired
     private DataSource dccDataSource;
-
-    @Autowired
-    private NamedParameterJdbcTemplate jdbcCda;
-
-
 
     @Autowired
     private DccSpecimenExtractor dccSpecimenExtractor;
@@ -225,7 +219,32 @@ public class SpecificExperimentLoadIntegrationTest {
 
         }
 
-        Assert.assertTrue(expIds.size() > 0);
+        Assert.assertEquals(2, expIds.size());
+
+
+
+        String q = "SELECT * FROM experiment e INNER JOIN experiment_observation eo ON eo.experiment_id=e.id " +
+                "INNER JOIN observation o ON o.id=eo.observation_id " +
+                "INNER JOIN unidimensional_observation uo ON uo.id=o.id " +
+                "WHERE e.external_id='Biochemistry_1938'";
+        Set<String> obs = new HashSet<>();
+        try (Connection connection = cdaDataSource.getConnection(); PreparedStatement p = connection.prepareStatement(q)) {
+            ResultSet resultSet = p.executeQuery();
+            while (resultSet.next()) {
+                String key = resultSet.getString("experiment_id") + "::";
+                key += resultSet.getString("external_id") + "::";
+                key += resultSet.getString("parameter_stable_id") + "::";
+                key += resultSet.getString("data_point");
+                obs.add(key);
+            }
+
+        }
+
+        System.out.println(obs);
+
+        Assert.assertTrue(obs.size() > 10);
+
+
 
 
     }
