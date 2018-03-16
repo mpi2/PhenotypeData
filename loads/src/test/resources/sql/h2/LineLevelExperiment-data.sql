@@ -39,3 +39,65 @@ INSERT INTO `phenotype_parameter` VALUES (528,'IMPC_FER_023_001',6,'Time spent i
 
 INSERT INTO phenotyped_colony VALUES
   (301,'MCCU','EPD0051_1_H11','MGI:2152453',3,'Gsk3a<tm1a(EUCOMM)Wtsi>','C57BL/6Brd-Tyr<c-Brd>;C57BL/6N;C57BL/6NTac',3,8,3,8);
+
+INSERT INTO ontology_term (acc, db_id, name, is_obsolete, replacement_acc) VALUES
+  ('EFO:0002948', 15, 'postnatal',          0, null),
+  ('EFO:0005857', 15, 'mouse embryo stage', 0, null),
+  ('MA:0002405',   8, 'postnatal mouse',    0, null);
+
+INSERT INTO `phenotype_procedure` VALUES (102,249,'MGP_ALZ_001',6,'Adult LacZ','',1,0,0,'experiment','Adult','Unrestricted');
+
+INSERT INTO `phenotype_parameter` VALUES (3322,'MGP_ALZ_082_001',6,'Adrenal Gland','adrenal_gland',1,0,'','TEXT','simpleParameter',NULL,0,0,0,0,1,0,1,0,0,0,'',6859);
+INSERT INTO `phenotype_parameter` VALUES (3323,'MGP_ALZ_083_001',6,'Lower Urinary Tract','lower_urinary_tract',1,0,'','TEXT','simpleParameter',NULL,0,0,0,0,1,0,1,0,0,0,'',6860);
+INSERT INTO `phenotype_parameter` VALUES (3324,'MGP_ALZ_084_001',6,'Brain','brain',1,0,'','TEXT','simpleParameter',NULL,0,0,0,0,1,0,1,0,0,0,'',6861);
+INSERT INTO `phenotype_parameter` VALUES (3325,'MGP_ALZ_085_001',6,'Eye','eye',1,0,'','TEXT','simpleParameter',NULL,0,0,0,0,1,0,1,0,0,0,'',6862);
+INSERT INTO `phenotype_parameter` VALUES (3326,'MGP_ALZ_086_001',6,'Heart','heart',1,0,'','TEXT','simpleParameter',NULL,0,0,0,0,1,0,1,0,0,0,'',6863);
+INSERT INTO `phenotype_parameter` VALUES (3327,'MGP_ALZ_087_001',6,'Kidney','kidney',1,0,'','TEXT','simpleParameter',NULL,0,0,0,0,1,0,1,0,0,0,'',6864);
+INSERT INTO `phenotype_parameter` VALUES (3328,'MGP_ALZ_088_001',6,'Liver','liver',1,0,'','TEXT','simpleParameter',NULL,0,0,0,0,1,0,1,0,0,0,'',6865);
+INSERT INTO `phenotype_parameter` VALUES (3329,'MGP_ALZ_089_001',6,'Lymph Node','lymph_node',1,0,'','TEXT','simpleParameter',NULL,0,0,0,0,1,0,1,0,0,0,'',6866);
+INSERT INTO `phenotype_parameter` VALUES (3330,'MGP_ALZ_090_001',6,'Mammary gland','mammary_gland',1,0,'','TEXT','simpleParameter',NULL,0,0,0,0,1,0,1,0,0,0,'',6867);
+INSERT INTO `phenotype_parameter` VALUES (3331,'MGP_ALZ_091_001',6,'Ovary','ovary',1,0,'','TEXT','simpleParameter',NULL,0,0,0,0,1,0,1,0,0,0,'',6868);
+INSERT INTO `phenotype_parameter` VALUES (3332,'MGP_ALZ_092_001',6,'Oviduct','oviduct',1,0,'','TEXT','simpleParameter',NULL,0,0,0,0,1,0,1,0,0,0,'',6869);
+INSERT INTO `phenotype_parameter` VALUES (3333,'MGP_ALZ_093_001',6,'Skin','skin',1,0,'','TEXT','simpleParameter',NULL,0,0,0,0,1,0,1,0,0,0,'',6870);
+INSERT INTO `phenotype_parameter` VALUES (3334,'MGP_ALZ_094_001',6,'Stomach','stomach',1,0,'','TEXT','simpleParameter',NULL,0,0,0,0,1,0,1,0,0,0,'',6871);
+INSERT INTO `phenotype_parameter` VALUES (3335,'MGP_ALZ_095_001',6,'Testis','testis',1,0,'','TEXT','simpleParameter',NULL,0,0,0,0,1,0,1,0,0,0,'',6872);
+INSERT INTO `phenotype_parameter` VALUES (3336,'MGP_ALZ_096_001',6,'Thymus','thymus',1,0,'','TEXT','simpleParameter',NULL,0,0,0,0,1,0,1,0,0,0,'',6873);
+INSERT INTO `phenotype_parameter` VALUES (3337,'MGP_ALZ_097_001',6,'Trachea','trachea',1,0,'','TEXT','simpleParameter',NULL,0,0,0,0,1,0,1,0,0,0,'',6874);
+INSERT INTO `phenotype_parameter` VALUES (3338,'MGP_ALZ_098_001',6,'Uterus','uterus',1,0,'','TEXT','simpleParameter',NULL,0,0,0,0,1,0,1,0,0,0,'',6875);
+INSERT INTO `phenotype_parameter` VALUES (3339,'MGP_ALZ_099_001',6,'Large Intestine','large_intestine',1,0,'','TEXT','simpleParameter',NULL,0,0,0,0,1,0,1,0,0,0,'',6876);
+INSERT INTO `phenotype_parameter` VALUES (3340,'MGP_ALZ_100_001',6,'Oesophagus','oesophagus',1,0,'','TEXT','simpleParameter',NULL,0,0,0,0,1,0,1,0,0,0,'',6877);
+INSERT INTO `phenotype_parameter` VALUES (3341,'MGP_ALZ_101_001',6,'Spinal cord','spinal_cord',1,0,'','TEXT','simpleParameter',NULL,0,0,0,0,1,0,1,0,0,0,'',6878);
+INSERT INTO `phenotype_parameter` VALUES (3342,'MGP_ALZ_102_001',6,'Thyroid gland','thyroid_gland',1,0,'','TEXT','simpleParameter',NULL,0,0,0,0,1,0,1,0,0,0,'',6879);
+INSERT INTO `phenotype_parameter` VALUES (3343,'MGP_ALZ_103_001',6,'Pituitary gland','pituitary_gland',1,0,'','TEXT','simpleParameter',NULL,0,0,0,0,1,0,1,0,0,0,'',6880);
+INSERT INTO `phenotype_parameter` VALUES (3344,'MGP_ALZ_104_001',6,'Skeletal muscle tissue','skeletal_muscle_tissue',1,0,'','TEXT','simpleParameter',NULL,0,0,0,0,1,0,1,0,0,0,'',6881);
+INSERT INTO `phenotype_parameter` VALUES (3345,'MGP_ALZ_105_001',6,'Small Intestine','small_intestine',1,0,'','TEXT','simpleParameter',NULL,0,0,0,0,1,0,1,0,0,0,'',6882);
+INSERT INTO `phenotype_parameter` VALUES (3346,'MGP_ALZ_106_001',6,'White Adipose Tissue','white_adipose_tissue',1,0,'','TEXT','simpleParameter',NULL,0,0,0,0,1,0,1,0,0,0,'',6883);
+INSERT INTO `phenotype_parameter` VALUES (3347,'MGP_ALZ_107_001',6,'Lung','lung',1,0,'','TEXT','simpleParameter',NULL,0,0,0,0,1,0,1,0,0,0,'',6884);
+INSERT INTO `phenotype_parameter` VALUES (3348,'MGP_ALZ_108_001',6,'Aorta','aorta',1,0,'','TEXT','simpleParameter',NULL,0,0,0,0,1,0,1,0,0,0,'',6885);
+INSERT INTO `phenotype_parameter` VALUES (3349,'MGP_ALZ_109_001',6,'Pancreas','pancreas',1,0,'','TEXT','simpleParameter',NULL,0,0,0,0,1,0,1,0,0,0,'',6886);
+INSERT INTO `phenotype_parameter` VALUES (3350,'MGP_ALZ_110_001',6,'Prostate gland','prostate_gland',1,0,'','TEXT','simpleParameter',NULL,0,0,0,0,1,0,1,0,0,0,'',6887);
+INSERT INTO `phenotype_parameter` VALUES (3351,'MGP_ALZ_111_001',6,'Spleen','spleen',1,0,'','TEXT','simpleParameter',NULL,0,0,0,0,1,0,1,0,0,0,'',6888);
+INSERT INTO `phenotype_parameter` VALUES (3352,'MGP_ALZ_112_001',6,'Brainstem','brainstem',1,0,'','TEXT','simpleParameter',NULL,0,0,0,0,1,0,1,0,0,0,'',6889);
+INSERT INTO `phenotype_parameter` VALUES (3353,'MGP_ALZ_113_001',6,'Cartilage tissue','cartilage_tissue',1,0,'','TEXT','simpleParameter',NULL,0,0,0,0,1,0,1,0,0,0,'',6890);
+INSERT INTO `phenotype_parameter` VALUES (3354,'MGP_ALZ_114_001',6,'Cerebral Cortex','cerebral_cortex',1,0,'','TEXT','simpleParameter',NULL,0,0,0,0,1,0,1,0,0,0,'',6891);
+INSERT INTO `phenotype_parameter` VALUES (3355,'MGP_ALZ_115_001',6,'Cerebellum','cerebellum',1,0,'','TEXT','simpleParameter',NULL,0,0,0,0,1,0,1,0,0,0,'',6892);
+INSERT INTO `phenotype_parameter` VALUES (3356,'MGP_ALZ_116_001',6,'Hippocampus','hippocampus',1,0,'','TEXT','simpleParameter',NULL,0,0,0,0,1,0,1,0,0,0,'',6893);
+INSERT INTO `phenotype_parameter` VALUES (3357,'MGP_ALZ_117_001',6,'Hypothalamus','hypothalamus',1,0,'','TEXT','simpleParameter',NULL,0,0,0,0,1,0,1,0,0,0,'',6894);
+INSERT INTO `phenotype_parameter` VALUES (3358,'MGP_ALZ_118_001',6,'Peripheral Nervous System','peripheral_nervous_system',1,0,'','TEXT','simpleParameter',NULL,0,0,0,0,1,0,1,0,0,0,'',6895);
+INSERT INTO `phenotype_parameter` VALUES (3359,'MGP_ALZ_119_001',6,"Peyer's Patch",'peyer_s_patch',1,0,'','TEXT','simpleParameter',NULL,0,0,0,0,1,0,1,0,0,0,'',6896);
+INSERT INTO `phenotype_parameter` VALUES (3360,'MGP_ALZ_120_001',6,'Striatum','striatum',1,0,'','TEXT','simpleParameter',NULL,0,0,0,0,1,0,1,0,0,0,'',6897);
+INSERT INTO `phenotype_parameter` VALUES (3361,'MGP_ALZ_121_001',6,'Blood vessel','blood_vessel',1,0,'','TEXT','simpleParameter',NULL,0,0,0,0,1,0,1,0,0,0,'',6898);
+INSERT INTO `phenotype_parameter` VALUES (3362,'MGP_ALZ_122_001',6,'Bone','bone',1,0,'','TEXT','simpleParameter',NULL,0,0,0,0,1,0,1,0,0,0,'',6899);
+INSERT INTO `phenotype_parameter` VALUES (3363,'MGP_ALZ_123_001',6,'Brown Adipose Tissue','brown_adipose_tissue',1,0,'','TEXT','simpleParameter',NULL,0,0,0,0,1,0,1,0,0,0,'',6900);
+INSERT INTO `phenotype_parameter` VALUES (3364,'MGP_ALZ_124_001',6,'Gall Bladder','gall_bladder',1,0,'','TEXT','simpleParameter',NULL,0,0,0,0,1,0,1,0,0,0,'',6901);
+INSERT INTO `phenotype_parameter` VALUES (3365,'MGP_ALZ_125_001',6,'Parathyroid gland','parathyroid_gland',1,0,'','TEXT','simpleParameter',NULL,0,0,0,0,1,0,1,0,0,0,'',6902);
+INSERT INTO `phenotype_parameter` VALUES (3366,'MGP_ALZ_126_001',6,'Olfactory lobe','olfactory_lobe',1,0,'','TEXT','simpleParameter',NULL,0,0,0,0,1,0,1,0,0,0,'',6903);
+INSERT INTO `phenotype_parameter` VALUES (3367,'MGP_ALZ_127_001',6,'LacZ Images Wholemount','lacz_images_wholemount',1,0,'','IMAGE','seriesMediaParameter',NULL,0,0,0,0,0,1,0,0,0,0,'',6904);
+INSERT INTO `phenotype_parameter` VALUES (3368,'MGP_ALZ_128_001',6,'Free Ontology','free_ontology',1,0,'','TEXT','simpleParameter',NULL,0,0,0,0,0,0,0,0,0,0,'',6905);
+INSERT INTO `phenotype_parameter` VALUES (3369,'MGP_ALZ_129_001',6,'Free text comment','free_text_comment',1,0,'','TEXT','simpleParameter',NULL,0,0,0,0,0,0,0,0,0,0,'',6906);
+INSERT INTO `phenotype_parameter` VALUES (3370,'MGP_ALZ_130_001',6,'Microscope equipment manufacturer','microscope_equipment_manufacturer',1,0,'','TEXT','procedureMetadata',NULL,0,1,0,0,0,0,0,0,0,0,'',6907);
+INSERT INTO `phenotype_parameter` VALUES (3371,'MGP_ALZ_131_001',6,'Microscope equipment model','microscope_equipment_model',1,0,'','TEXT','procedureMetadata',NULL,0,1,0,0,0,0,0,0,0,0,'',6908);
+INSERT INTO `phenotype_parameter` VALUES (3372,'MGP_ALZ_132_001',6,'Camera equipment model','camera_equipment_model',1,0,'','TEXT','procedureMetadata',NULL,0,1,0,0,0,0,0,0,0,0,'',6909);
+INSERT INTO `phenotype_parameter` VALUES (3373,'MGP_ALZ_133_001',6,'Sample preparation stain name','sample_preparation_stain_name',1,0,'','TEXT','procedureMetadata',NULL,0,1,0,0,0,0,0,0,0,0,'',6910);
+INSERT INTO `phenotype_parameter` VALUES (3374,'MGP_ALZ_134_001',6,'Sample preparation reference impc','sample_preparation_reference_impc',1,0,'','TEXT','procedureMetadata',NULL,0,1,0,0,0,0,0,0,0,0,'',6911);
+INSERT INTO `phenotype_parameter` VALUES (3375,'MGP_ALZ_135_001',6,'Date of Sacrifice','date_of_sacrifice',1,0,'','DATE','procedureMetadata',NULL,0,1,0,0,0,0,0,0,0,0,'',6912);

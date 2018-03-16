@@ -50,5 +50,167 @@
                 </procedureMetadata>
             </procedure>
         </line>
+        <experiment experimentID="168737" dateOfExperiment="2010-04-13">
+            <specimenID>464018</specimenID>
+            <procedure procedureID="MGP_ALZ_001">
+                <simpleParameter parameterID="MGP_ALZ_082_001">
+                    <value>ambiguous</value>
+                </simpleParameter>
+                <simpleParameter parameterID="MGP_ALZ_083_001">
+                    <value>no expression</value>
+                </simpleParameter>
+                <simpleParameter parameterID="MGP_ALZ_084_001">
+                    <value>expression</value>
+                </simpleParameter>
+                <simpleParameter parameterID="MGP_ALZ_085_001">
+                    <value>no expression</value>
+                </simpleParameter>
+                <simpleParameter parameterID="MGP_ALZ_086_001">
+                    <value>no expression</value>
+                </simpleParameter>
+                <simpleParameter parameterID="MGP_ALZ_087_001">
+                    <value>expression</value>
+                </simpleParameter>
+                <simpleParameter parameterID="MGP_ALZ_088_001">
+                    <value>no expression</value>
+                </simpleParameter>
+                <simpleParameter parameterID="MGP_ALZ_089_001">
+                    <value>no expression</value>
+                </simpleParameter>
+                <simpleParameter parameterID="MGP_ALZ_090_001">
+                    <value>no expression</value>
+                </simpleParameter>
+                <simpleParameter parameterID="MGP_ALZ_091_001">
+                    <value>tissue not available</value>
+                </simpleParameter>
+                <simpleParameter parameterID="MGP_ALZ_092_001">
+                    <value>tissue not available</value>
+                </simpleParameter>
+                <simpleParameter parameterID="MGP_ALZ_093_001">
+                    <value>no expression</value>
+                </simpleParameter>
+                <simpleParameter parameterID="MGP_ALZ_094_001">
+                    <value>expression</value>
+                </simpleParameter>
+                <simpleParameter parameterID="MGP_ALZ_095_001">
+                    <value>expression</value>
+                </simpleParameter>
+                <simpleParameter parameterID="MGP_ALZ_096_001">
+                    <value>no expression</value>
+                </simpleParameter>
+                <simpleParameter parameterID="MGP_ALZ_097_001">
+                    <value>no expression</value>
+                </simpleParameter>
+                <simpleParameter parameterID="MGP_ALZ_098_001">
+                    <value>tissue not available</value>
+                </simpleParameter>
+                <simpleParameter parameterID="MGP_ALZ_099_001">
+                    <value>no expression</value>
+                </simpleParameter>
+                <simpleParameter parameterID="MGP_ALZ_100_001">
+                    <value>no expression</value>
+                </simpleParameter>
+                <simpleParameter parameterID="MGP_ALZ_101_001">
+                    <value>expression</value>
+                </simpleParameter>
+                <simpleParameter parameterID="MGP_ALZ_102_001">
+                    <value>ambiguous</value>
+                </simpleParameter>
+                <simpleParameter parameterID="MGP_ALZ_103_001">
+                    <value>expression</value>
+                </simpleParameter>
+                <simpleParameter parameterID="MGP_ALZ_104_001">
+                    <value>no expression</value>
+                </simpleParameter>
+                <simpleParameter parameterID="MGP_ALZ_105_001">
+                    <value>no expression</value>
+                </simpleParameter>
+                <simpleParameter parameterID="MGP_ALZ_106_001">
+                    <value>no expression</value>
+                </simpleParameter>
+                <simpleParameter parameterID="MGP_ALZ_107_001">
+                    <value>no expression</value>
+                </simpleParameter>
+                <simpleParameter parameterID="MGP_ALZ_108_001">
+                    <value>tissue not available</value>
+                </simpleParameter>
+                <simpleParameter parameterID="MGP_ALZ_109_001">
+                    <value>no expression</value>
+                </simpleParameter>
+                <simpleParameter parameterID="MGP_ALZ_110_001">
+                    <value>no expression</value>
+                </simpleParameter>
+                <simpleParameter parameterID="MGP_ALZ_111_001">
+                    <value>no expression</value>
+                </simpleParameter>
+                <simpleParameter parameterID="MGP_ALZ_111_001">
+                    <value>no expression</value>
+                </simpleParameter>
+                <simpleParameter parameterID="MGP_ALZ_112_001">
+                    <value>tissue not available</value>
+                </simpleParameter>
+                <simpleParameter parameterID="MGP_ALZ_113_001">
+                    <value>ambiguous</value>
+                </simpleParameter>
+                <simpleParameter parameterID="MGP_ALZ_114_001">
+                    <value>tissue not available</value>
+                </simpleParameter>
+                <simpleParameter parameterID="MGP_ALZ_115_001">
+                    <value>tissue not available</value>
+                </simpleParameter>
+                <simpleParameter parameterID="MGP_ALZ_116_001">
+                    <value>tissue not available</value>
+                </simpleParameter>
+                <simpleParameter parameterID="MGP_ALZ_117_001">
+                    <value>tissue not available</value>
+                </simpleParameter>
+                <simpleParameter parameterID="MGP_ALZ_118_001">
+                    <value>expression</value>
+                </simpleParameter>
+                <simpleParameter parameterID="MGP_ALZ_119_001">
+                    <value>no expression</value>
+                </simpleParameter>
+                <simpleParameter parameterID="MGP_ALZ_120_001">
+                    <value>tissue not available</value>
+                </simpleParameter>
+                <simpleParameter parameterID="MGP_ALZ_121_001">
+                    <value>no expression</value>
+                </simpleParameter>
+                <simpleParameter parameterID="MGP_ALZ_122_001">
+                    <value>no expression</value>
+                </simpleParameter>
+                <simpleParameter parameterID="MGP_ALZ_123_001">
+                    <value>no expression</value>
+                </simpleParameter>
+                <simpleParameter parameterID="MGP_ALZ_124_001">
+                    <value>no expression</value>
+                </simpleParameter>
+                <simpleParameter parameterID="MGP_ALZ_125_001">
+                    <value>no expression</value>
+                </simpleParameter>
+                <simpleParameter parameterID="MGP_ALZ_126_001">
+                    <value>tissue not available</value>
+                </simpleParameter>
+                <procedureMetadata parameterID="MGP_ALZ_130_001">
+                    <value>Leica Microsystems</value>
+                </procedureMetadata>
+                <procedureMetadata parameterID="MGP_ALZ_131_001">
+                    <value>M205c</value>
+                </procedureMetadata>
+                <procedureMetadata parameterID="MGP_ALZ_132_001">
+                    <value>DCF495</value>
+                </procedureMetadata>
+                <procedureMetadata parameterID="MGP_ALZ_133_001">
+                    <value>LAcZ wholemount stain</value>
+                </procedureMetadata>
+                <procedureMetadata parameterID="MGP_ALZ_134_001">
+                    <value>SOP0018 BaSH_LacZ Wholemount Adult V8 _ IMPC upload</value>
+                </procedureMetadata>
+                <procedureMetadata parameterID="MGP_ALZ_135_001">
+                    <value>2010-04-13</value>
+                </procedureMetadata>
+            </procedure>
+        </experiment>
+
     </centre>
 </centreProcedureSet>
