@@ -84,7 +84,7 @@ INSERT INTO `phenotype_parameter` VALUES (3355,'MGP_ALZ_115_001',6,'Cerebellum',
 INSERT INTO `phenotype_parameter` VALUES (3356,'MGP_ALZ_116_001',6,'Hippocampus','hippocampus',1,0,'','TEXT','simpleParameter',NULL,0,0,0,0,1,0,1,0,0,0,'',6893);
 INSERT INTO `phenotype_parameter` VALUES (3357,'MGP_ALZ_117_001',6,'Hypothalamus','hypothalamus',1,0,'','TEXT','simpleParameter',NULL,0,0,0,0,1,0,1,0,0,0,'',6894);
 INSERT INTO `phenotype_parameter` VALUES (3358,'MGP_ALZ_118_001',6,'Peripheral Nervous System','peripheral_nervous_system',1,0,'','TEXT','simpleParameter',NULL,0,0,0,0,1,0,1,0,0,0,'',6895);
-INSERT INTO `phenotype_parameter` VALUES (3359,'MGP_ALZ_119_001',6,"Peyer's Patch",'peyer_s_patch',1,0,'','TEXT','simpleParameter',NULL,0,0,0,0,1,0,1,0,0,0,'',6896);
+INSERT INTO `phenotype_parameter` VALUES (3359,'MGP_ALZ_119_001',6,'Peyers Patch','peyer_s_patch',1,0,'','TEXT','simpleParameter',NULL,0,0,0,0,1,0,1,0,0,0,'',6896);
 INSERT INTO `phenotype_parameter` VALUES (3360,'MGP_ALZ_120_001',6,'Striatum','striatum',1,0,'','TEXT','simpleParameter',NULL,0,0,0,0,1,0,1,0,0,0,'',6897);
 INSERT INTO `phenotype_parameter` VALUES (3361,'MGP_ALZ_121_001',6,'Blood vessel','blood_vessel',1,0,'','TEXT','simpleParameter',NULL,0,0,0,0,1,0,1,0,0,0,'',6898);
 INSERT INTO `phenotype_parameter` VALUES (3362,'MGP_ALZ_122_001',6,'Bone','bone',1,0,'','TEXT','simpleParameter',NULL,0,0,0,0,1,0,1,0,0,0,'',6899);
