@@ -52,7 +52,7 @@ import java.util.concurrent.*;
 public class ExperimentLoader implements CommandLineRunner {
 
     // How many threads used to process experiments
-    private static final int N_THREADS = 60;
+    private static final int N_THREADS = 75;
     private static final Boolean ONE_AT_A_TIME = Boolean.FALSE;
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
