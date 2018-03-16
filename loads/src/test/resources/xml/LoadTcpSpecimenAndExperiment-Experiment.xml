@@ -144,6 +144,7 @@
                 </procedureMetadata>
             </procedure>
         </experiment>
+
         <experiment experimentID="Biochemistry_1938" dateOfExperiment="2014-10-03">
             <specimenID>B6NC_46853_163447</specimenID>
             <procedure procedureID="IMPC_CBC_003">
@@ -260,5 +261,121 @@
                 </procedureMetadata>
             </procedure>
         </experiment>
+
+        <experiment sequenceID="1" experimentID="ClinicalBloodChemistry_4807" dateOfExperiment="2017-03-21">
+            <specimenID>ACXM_86_500386</specimenID>
+            <procedure procedureID="IMPC_CBC_003">
+                <simpleParameter parameterID="IMPC_CBC_001_001" unit="mmol/l">
+                    <value>151.1</value>
+                </simpleParameter>
+                <simpleParameter parameterID="IMPC_CBC_002_001" unit="mmol/l">
+                    <value>4.67</value>
+                </simpleParameter>
+                <simpleParameter parameterID="IMPC_CBC_003_001" unit="mmol/l">
+                    <value>111.1</value>
+                </simpleParameter>
+                <simpleParameter parameterID="IMPC_CBC_004_001" unit="mg/dl">
+                    <value>24.4</value>
+                </simpleParameter>
+                <simpleParameter parameterID="IMPC_CBC_005_001" unit="mg/dl">
+                    <value>0.1740</value>
+                </simpleParameter>
+                <simpleParameter parameterID="IMPC_CBC_006_001" unit="g/l">
+                    <value>52.1</value>
+                </simpleParameter>
+                <simpleParameter parameterID="IMPC_CBC_007_001" unit="g/l">
+                    <value>29.7</value>
+                </simpleParameter>
+                <simpleParameter parameterID="IMPC_CBC_008_001" unit="mg/dl">
+                    <value>0.08</value>
+                </simpleParameter>
+                <simpleParameter parameterID="IMPC_CBC_009_001" unit="mg/dl">
+                    <value>9.363</value>
+                </simpleParameter>
+                <simpleParameter parameterID="IMPC_CBC_010_001" unit="mg/dl">
+                    <value>4.07</value>
+                </simpleParameter>
+                <simpleParameter parameterID="IMPC_CBC_012_001" unit="U/l">
+                    <value>41.6</value>
+                </simpleParameter>
+                <simpleParameter parameterID="IMPC_CBC_013_001" unit="U/l">
+                    <value>17.6</value>
+                </simpleParameter>
+                <simpleParameter parameterID="IMPC_CBC_014_001" unit="U/l">
+                    <value>83.3</value>
+                </simpleParameter>
+                <simpleParameter parameterID="IMPC_CBC_015_001" unit="mg/dl">
+                    <value>100.4</value>
+                </simpleParameter>
+                <simpleParameter parameterID="IMPC_CBC_016_001" unit="mg/dl">
+                    <value>63.9</value>
+                </simpleParameter>
+                <simpleParameter parameterID="IMPC_CBC_017_001" unit="mg/dl">
+                    <value>71.5</value>
+                </simpleParameter>
+                <simpleParameter parameterID="IMPC_CBC_018_001" unit="mg/dl">
+                    <value>214.3</value>
+                </simpleParameter>
+                <procedureMetadata parameterID="IMPC_CBC_033_001">
+                    <value>Machine 1</value>
+                </procedureMetadata>
+                <procedureMetadata parameterID="IMPC_CBC_034_001">
+                    <value>Beckman Coulter</value>
+                </procedureMetadata>
+                <procedureMetadata parameterID="IMPC_CBC_035_001">
+                    <value>AU 480</value>
+                </procedureMetadata>
+                <procedureMetadata parameterID="IMPC_CBC_036_001">
+                    <value>Gas anaesthesia with Isofluorane</value>
+                </procedureMetadata>
+                <procedureMetadata parameterID="IMPC_CBC_038_001">
+                    <value>Lithium Heparin</value>
+                </procedureMetadata>
+                <procedureMetadata parameterID="IMPC_CBC_037_001">
+                    <value>Retro-orbital puncture</value>
+                </procedureMetadata>
+                <procedureMetadata parameterID="IMPC_CBC_042_001">
+                    <value>Yes</value>
+                </procedureMetadata>
+                <procedureMetadata parameterID="IMPC_CBC_043_001">
+                    <value>Frozen</value>
+                </procedureMetadata>
+                <procedureMetadata parameterID="IMPC_CBC_044_001">
+                    <value>Neat plasma</value>
+                </procedureMetadata>
+                <procedureMetadata parameterID="IMPC_CBC_045_001">
+                    <value>ESLIM_024_001</value>
+                </procedureMetadata>
+                <procedureMetadata parameterID="IMPC_CBC_046_001">
+                    <value>2017-02-28T00:00:00Z</value>
+                </procedureMetadata>
+                <procedureMetadata parameterID="IMPC_CBC_048_001">
+                    <value>None</value>
+                </procedureMetadata>
+                <procedureMetadata parameterID="IMPC_CBC_049_001">
+                    <value>090066</value>
+                </procedureMetadata>
+                <procedureMetadata parameterID="IMPC_CBC_039_001">
+                    <value>BD Microtainer Lithium Heparin/PST Gel Blood Tube</value>
+                </procedureMetadata>
+                <procedureMetadata parameterID="IMPC_CBC_040_001">
+                    <value>2017-02-28T00:00:00Z</value>
+                </procedureMetadata>
+                <procedureMetadata parameterID="IMPC_CBC_041_001">
+                    <value>18-22</value>
+                </procedureMetadata>
+                <procedureMetadata parameterID="IMPC_CBC_051_001">
+                    <value>078076</value>
+                </procedureMetadata>
+                <procedureMetadata parameterID="IMPC_CBC_056_001">
+                    <value>Plasma</value>
+                </procedureMetadata>
+                <procedureMetadata parameterID="IMPC_CBC_057_001">
+                    <value>No</value>
+                </procedureMetadata>
+            </procedure>
+        </experiment>
+
+
     </centre>
 </centreProcedureSet>

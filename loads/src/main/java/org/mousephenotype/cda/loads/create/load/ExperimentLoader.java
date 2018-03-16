@@ -815,6 +815,10 @@ public class ExperimentLoader implements CommandLineRunner {
             metadataGroupList.add("ProductionCenter = " + dccExperiment.getProductionCenter());
         }
 
+        // Put the required metadata group components in a sorted order for producing
+        // The same hash for the same values irrespective of the order of the input
+        Collections.sort(metadataGroupList);
+
         metadataCombined = StringUtils.join(metadataCombinedList, "::");
         metadataGroup = StringUtils.join(metadataGroupList, "::");
         metadataGroup = DigestUtils.md5Hex(metadataGroup);

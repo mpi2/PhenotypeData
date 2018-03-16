@@ -16,6 +16,7 @@
 
 package org.mousephenotype.cda.loads.integration.data;
 
+import org.apache.commons.lang3.StringUtils;
 import org.h2.tools.Server;
 import org.junit.Assert;
 import org.junit.Before;
@@ -41,6 +42,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 import static junit.framework.TestCase.assertTrue;
@@ -206,7 +208,7 @@ public class ImpcTcpExperimentLoadIntegrationTest {
 
         }
 
-        Assert.assertEquals(1, modelIds.size());
+        Assert.assertEquals(2, modelIds.size());
 
 
         String expQuery = "SELECT * FROM experiment e ";
@@ -219,7 +221,7 @@ public class ImpcTcpExperimentLoadIntegrationTest {
 
         }
 
-        Assert.assertEquals(2, expIds.size());
+        Assert.assertEquals(3, expIds.size());
 
 
 
@@ -245,8 +247,105 @@ public class ImpcTcpExperimentLoadIntegrationTest {
         Assert.assertTrue(obs.size() > 10);
 
 
+        //
+        // VALIDATE THE IMAGES LOADED CORRECTLY
+        //
+
+
+        String imgQuery = "SELECT * FROM experiment e INNER JOIN experiment_observation eo ON eo.experiment_id=e.id " +
+                "INNER JOIN observation o ON o.id=eo.observation_id " +
+                "INNER JOIN image_record_observation iro ON iro.id=o.id " +
+                "WHERE e.external_id='Xray_893'";
+        Set<ImageRecordDTO> images = new HashSet<>();
+        try (Connection connection = cdaDataSource.getConnection(); PreparedStatement p = connection.prepareStatement(imgQuery)) {
+            ResultSet resultSet = p.executeQuery();
+            while (resultSet.next()) {
+                String experimentId = resultSet.getString("experiment_id");
+                String downloadFilePath = resultSet.getString("download_file_path");
+                String fullResolutionFilepath = resultSet.getString("full_resolution_file_path");
+                images.add(new ImageRecordDTO(experimentId, downloadFilePath, fullResolutionFilepath));
+            }
+        }
+
+        System.out.println(StringUtils.join(images, "\n"));
+
+        Assert.assertTrue(images.size() == 4);
+
+        Assert.assertTrue(images.stream().map(ImageRecordDTO::getFullResolutionFilepath).filter(Objects::nonNull).count() == 4);
+
+
+
+
+
+
+
+        //
+        // VALIDATE THE METADATA GROUPS ARE CALCULATED PROPERLY
+        //
+
+        String metaGroupsQuery = "SELECT DISTINCT e.id, metadata_group FROM experiment e " +
+                "INNER JOIN experiment_observation eo ON eo.experiment_id=e.id " +
+                "INNER JOIN observation o ON o.id=eo.observation_id " +
+                "WHERE e.external_id in ('ClinicalBloodChemistry_4807', 'Biochemistry_1938')";
+        Set<String> metadataGroups = new HashSet<>();
+        try (Connection connection = cdaDataSource.getConnection(); PreparedStatement p = connection.prepareStatement(metaGroupsQuery)) {
+            ResultSet resultSet = p.executeQuery();
+            while (resultSet.next()) {
+                logger.info("Adding metadata group {} for experiment {}", resultSet.getString("metadata_group"), resultSet.getString("id"));
+                metadataGroups.add(resultSet.getString("metadata_group"));
+            }
+        }
+
+        System.out.println("Metadata groups: " + StringUtils.join(metadataGroups, ", "));
+
+        Assert.assertTrue(metadataGroups.size() == 1);
+
 
 
     }
 
+    class ImageRecordDTO {
+        private String experimentId;
+        private String downloadFilePath;
+        private String fullResolutionFilepath;
+
+        public ImageRecordDTO(String experimentId, String downloadFilePath, String fullResolutionFilepath) {
+            this.experimentId = experimentId;
+            this.downloadFilePath = downloadFilePath;
+            this.fullResolutionFilepath = fullResolutionFilepath;
+        }
+
+        @Override
+        public String toString() {
+            return "ImageRecordDTO{" +
+                    "experimentId='" + experimentId + '\'' +
+                    ", downloadFilePath='" + downloadFilePath + '\'' +
+                    ", fullResolutionFilepath='" + fullResolutionFilepath + '\'' +
+                    '}';
+        }
+
+        public String getExperimentId() {
+            return experimentId;
+        }
+
+        public void setExperimentId(String experimentId) {
+            this.experimentId = experimentId;
+        }
+
+        public String getDownloadFilePath() {
+            return downloadFilePath;
+        }
+
+        public void setDownloadFilePath(String downloadFilePath) {
+            this.downloadFilePath = downloadFilePath;
+        }
+
+        public String getFullResolutionFilepath() {
+            return fullResolutionFilepath;
+        }
+
+        public void setFullResolutionFilepath(String fullResolutionFilepath) {
+            this.fullResolutionFilepath = fullResolutionFilepath;
+        }
+    }
 }
