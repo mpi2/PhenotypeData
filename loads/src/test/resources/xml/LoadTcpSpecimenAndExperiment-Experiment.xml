@@ -113,7 +113,7 @@
                     <value incrementValue="2" URI="http://www.mousephenotype.org/images/src/8/9/0/19/91/2172/175443.dcm" fileType="img/dicom"/>
                 </seriesMediaParameter>
                 <seriesMediaParameter parameterID="IMPC_XRY_052_001">
-                    <value incrementValue="1" URI="http://www.mousephenotype.org/images/src/8/9/0/19/91/2176/176257.dcm" fileType="img/dicom"/>
+                    <value incrementValue="1" URI="http://images.mousephenotype.org/src/8/9/0/19/91/2176/1478015.dcm" fileType="img/dicom"/>
                 </seriesMediaParameter>
                 <procedureMetadata parameterID="IMPC_XRY_042_001">
                     <value>067079</value>
