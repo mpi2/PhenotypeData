@@ -1,6 +1,7 @@
 
 INSERT INTO `phenotype_pipeline` VALUES (8,'MGP_001',6,'MGP Select Pipeline','',1,0,15,NULL);
 
+INSERT INTO `phenotype_procedure` VALUES (121,229,'MGP_IMM_001',6,'Spleen Immunophenotyping','3i Spleen Immunophenotyping',1,0,0,'experiment','Terminal','Week 16');
 INSERT INTO `phenotype_procedure` VALUES (120,223,'MGP_MLN_001',6,'Mesenteric Lymph Node Immunophenotyping','3i Mesenteric Lymph Node Immunophenotyping',1,0,0,'experiment','Terminal','Week 16');
 INSERT INTO `phenotype_procedure` VALUES (115,216,'MGP_PBI_001',6,'Whole blood peripheral blood leukocyte immunophenotyping','',1,0,0,'experiment','Terminal','Week 16');
 
