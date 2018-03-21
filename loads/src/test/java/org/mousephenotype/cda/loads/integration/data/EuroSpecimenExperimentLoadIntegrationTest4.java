@@ -49,11 +49,12 @@ import static junit.framework.TestCase.assertTrue;
 /**
  * This is an end-to-end integration data test class that uses an in-memory database to populate a small dcc, cda_base,
  * and cda set of databases.
+ * The specimen and experiment tested here was missing from dcc_6_0 and dcc_6_1 but both were present in the live komp2 database.
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ComponentScan
 @ContextConfiguration(classes = TestConfig.class)
-public class SpecificExperimentLoadIntegrationTest {
+public class EuroSpecimenExperimentLoadIntegrationTest4 {
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
@@ -148,22 +149,23 @@ public class SpecificExperimentLoadIntegrationTest {
 
 
 
+
     @Test
-    public void testLoadSpecimenAndExperiment() throws Exception {
+    public void testLoadMissingSpecimenAndExperiment() throws Exception {
 
-        Resource dataResource   = context.getResource("classpath:sql/h2/LoadTcpSpecimenAndExperiment-data.sql");
-        Resource specimenResource   = context.getResource("classpath:xml/LoadTcpSpecimenAndExperiment-Specimens.xml");
-        Resource experimentResource = context.getResource("classpath:xml/LoadTcpSpecimenAndExperiment-Experiment.xml");
+        Resource cdaResource        = context.getResource("classpath:sql/h2/LoadEuroSpecimenExperiment-data4.sql");
+        Resource specimenResource   = context.getResource("classpath:xml/EuroSpecimenExperiment-specimens4.xml");
+        Resource experimentResource = context.getResource("classpath:xml/EuroSpecimenExperiment-experiments4.xml");
 
-        ScriptUtils.executeSqlScript(cdaDataSource.getConnection(), dataResource);
+        ScriptUtils.executeSqlScript(cdaDataSource.getConnection(), cdaResource);
 
         String[] extractSpecimenArgs = new String[]{
-                "--datasourceShortName=IMPC",
+                "--datasourceShortName=EuroPhenome",
                 "--filename=" + specimenResource.getFile().getAbsolutePath()
         };
 
         String[] extractExperimentArgs = new String[]{
-                "--datasourceShortName=IMPC",
+                "--datasourceShortName=EuroPhenome",
                 "--filename=" + experimentResource.getFile().getAbsolutePath()
         };
 
@@ -173,8 +175,32 @@ public class SpecificExperimentLoadIntegrationTest {
         dccSpecimenExtractor.run(extractSpecimenArgs);
         dccExperimentExtractor.run(extractExperimentArgs);
 
+        String specimenQuery = "SELECT COUNT(*) AS cnt FROM specimen";
+        Integer specimenCount = 0;
+
+        String experimentQuery = "SELECT COUNT(*) AS cnt FROM experiment";
+        Integer experimentCount = 0;
+
+        try (Connection connection = dccDataSource.getConnection(); PreparedStatement p = connection.prepareStatement(specimenQuery)) {
+            ResultSet resultSet = p.executeQuery();
+            while (resultSet.next()) {
+                specimenCount = resultSet.getInt("cnt");
+            }
+        }
+
+        try (Connection connection = dccDataSource.getConnection(); PreparedStatement p = connection.prepareStatement(experimentQuery)) {
+            ResultSet resultSet = p.executeQuery();
+            while (resultSet.next()) {
+                experimentCount = resultSet.getInt("cnt");
+            }
+        }
+
+        final int EXPECTED_SPECIMEN_COUNT = 1;
+        final int EXPECTED_EXPERIMENT_COUNT = 1;
+        assertTrue( "Expected " + EXPECTED_SPECIMEN_COUNT + " specimen(s). Found " + specimenCount, specimenCount == EXPECTED_SPECIMEN_COUNT);
+        assertTrue( "Expected " + EXPECTED_EXPERIMENT_COUNT + " experiment(s). Found " + experimentCount, experimentCount == EXPECTED_EXPERIMENT_COUNT);
+
         sampleLoader.run(loadArgs);
-        experimentLoader.run(loadArgs);
 
         String bsQuery = "SELECT COUNT(*) AS cnt FROM biological_sample";
         Integer bsCount = 0;
@@ -198,36 +224,50 @@ public class SpecificExperimentLoadIntegrationTest {
 
         assertTrue(bsCount == bmsCount);
 
-        // Check that the model has a strain
+        // Check that the model has a gene, allele and strain
 
         String modelQuery = "SELECT * FROM biological_model bm " +
                 "INNER JOIN biological_model_strain bmstrain ON bmstrain.biological_model_id=bm.id " +
                 "INNER JOIN biological_model_sample bmsamp ON bmsamp.biological_model_id=bm.id " ;
+        Integer modelCount = 0;
         Set<Integer> modelIds = new HashSet<>();
         try (Connection connection = cdaDataSource.getConnection(); PreparedStatement p = connection.prepareStatement(modelQuery)) {
             ResultSet resultSet = p.executeQuery();
             while (resultSet.next()) {
+                modelCount++;
                 modelIds.add(resultSet.getInt("id"));
             }
 
         }
 
+        Assert.assertEquals(1, modelCount.intValue());
         Assert.assertEquals(1, modelIds.size());
 
 
-        String expQuery = "SELECT * FROM experiment e ";
-        Set<Integer> expIds = new HashSet<>();
-        try (Connection connection = cdaDataSource.getConnection(); PreparedStatement p = connection.prepareStatement(expQuery)) {
+        // Load the experiment
+        experimentLoader.run(loadArgs);
+
+        experimentQuery = "SELECT COUNT(*) AS cnt FROM experiment";
+        experimentCount = 0;
+
+        String observationQuery = "SELECT COUNT(*) AS cnt FROM observation";
+        Integer observationCount = 0;
+
+        try (Connection connection = cdaDataSource.getConnection(); PreparedStatement p = connection.prepareStatement(experimentQuery)) {
             ResultSet resultSet = p.executeQuery();
             while (resultSet.next()) {
-                expIds.add(resultSet.getInt("id"));
+                experimentCount = resultSet.getInt("cnt");
             }
-
         }
 
-        Assert.assertTrue(expIds.size() > 0);
+        try (Connection connection = cdaDataSource.getConnection(); PreparedStatement p = connection.prepareStatement(observationQuery)) {
+            ResultSet resultSet = p.executeQuery();
+            while (resultSet.next()) {
+                observationCount = resultSet.getInt("cnt");
+            }
+        }
 
-
+        Assert.assertEquals(1, experimentCount.intValue());
+        Assert.assertEquals(360, observationCount.intValue());
     }
-
 }
