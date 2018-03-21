@@ -328,8 +328,8 @@ public class ImageService implements WebStatus{
 
 		return new SolrQuery().setQuery(ImageDTO.OBSERVATION_TYPE + ":image_record")
 				.addFilterQuery(
-						"(" + ObservationDTO.DOWNLOAD_FILE_PATH + ":"
-								+ "*mousephenotype.org*)");
+						"(" + ObservationDTO.DOWNLOAD_FILE_PATH + ":("
+								+ "*mousephenotype.org*%20OR%20*images/3i*))");
 	}
 
 	public QueryResponse getProcedureFacetsForGeneByProcedure(
