@@ -147,7 +147,7 @@ public class ImageServiceTest {
     }
 
     @Test
-//@Ignore
+    @Ignore
     public void testGetComparisonViewerMethodsWithNulls() throws IOException, SolrServerException {
 
         String         testName                  = Thread.currentThread().getStackTrace()[1].getMethodName();
@@ -198,7 +198,7 @@ public class ImageServiceTest {
     }
 
     @Test
-//@Ignore
+    @Ignore
     public void testGetComparisonViewerMethodsWithExpression() throws IOException, SolrServerException {
 
         String         testName                  = Thread.currentThread().getStackTrace()[1].getMethodName();
@@ -244,7 +244,7 @@ public class ImageServiceTest {
     }
 
     @Test
-//@Ignore
+    @Ignore
     public void testGetComparisonViewerMethodsWithAmbiguous() throws IOException, SolrServerException {
         String         testName               = Thread.currentThread().getStackTrace()[1].getMethodName();
         String         acc                    = "MGI:109331";
@@ -296,7 +296,7 @@ public class ImageServiceTest {
     }
 
     @Test
-//@Ignore
+    @Ignore
     public void testGetComparisonViewerMethodsWithNoExpression() throws IOException, SolrServerException {
 
         String         testName                  = Thread.currentThread().getStackTrace()[1].getMethodName();
