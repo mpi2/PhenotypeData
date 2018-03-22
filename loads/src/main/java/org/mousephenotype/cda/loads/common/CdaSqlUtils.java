@@ -18,6 +18,7 @@ package org.mousephenotype.cda.loads.common;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.mousephenotype.cda.constants.Constants;
 import org.mousephenotype.cda.db.pojo.*;
 import org.mousephenotype.cda.db.utilities.SqlUtils;
 import org.mousephenotype.cda.enumerations.DbIdType;
@@ -81,10 +82,6 @@ public class CdaSqlUtils {
     public static final String ONTOLOGY_TERM_POSTNATAL                = "postnatal";
     public static final String ONTOLOGY_TERM_POSTNATAL_MOUSE          = "postnatal mouse";
     public static final String ONTOLOGY_TERM_MOUSE_EMBRYO_STAGE       = "mouse embryo stage";
-
-    // Only include images in the resource that have the following paths
-    public static final Set<String> INCLUDE_IMAGE_PATHS = new HashSet<>(Arrays.asList("mousephenotype.org", "file:///nfs/komp2/web/images/3i"));
-
 
     public static final String OBSERVATION_INSERT = "INSERT INTO observation (" +
             "db_id, biological_sample_id, parameter_id, parameter_stable_id, sequence_id, population_id," +
@@ -150,14 +147,6 @@ public class CdaSqlUtils {
     public Allele getAllele(String alleleAccessionId) {
         return getAlleles().get(alleleAccessionId);
     }
-
-    /**
-     * If {@link Allele} doesn't exist, insert it into the database.
-     *
-     * @param allele the {@link Allele} to be inserted
-     *
-     * @return the number of {@code allele}s inserted
-     */
 
 
     /**
@@ -3305,7 +3294,7 @@ public class CdaSqlUtils {
    		String fullResolutionFilePath = null;
 
         // Only load images that have a recognised URI pattern,  The set of approved patterns is in INCLUDE_IMAGE_PATHS
-        if (INCLUDE_IMAGE_PATHS.stream().anyMatch(uri::contains)) {
+        if (Constants.INCLUDE_IMAGE_PATHS.stream().anyMatch(uri::contains)) {
             fullResolutionFilePath = filePathWithoutName + "/" + uri.substring(uri.lastIndexOf("/") + 1, uri.length());
         }
 

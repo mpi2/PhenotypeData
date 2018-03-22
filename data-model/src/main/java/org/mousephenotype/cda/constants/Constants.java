@@ -1,7 +1,9 @@
 package org.mousephenotype.cda.constants;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Observation parameter constants.
@@ -9,6 +11,10 @@ import java.util.List;
  * Created by mrelac on 02/07/2015.
  */
 public class Constants {
+
+
+    // Only include images in the resource that have the following paths
+    public static final Set<String> INCLUDE_IMAGE_PATHS = new HashSet<>(Arrays.asList("mousephenotype.org", "file:///nfs/komp2/web/images/3i"));
 
     public static final List<String> viabilityParameters = Arrays.asList(
             "IMPC_VIA_001_001", "IMPC_VIA_002_001", "IMPC_EVL_001_001",
