@@ -4,6 +4,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.loads.common.CdaSqlUtils;
 import org.mousephenotype.cda.loads.statistics.load.MpTermService;
 import org.mousephenotype.cda.loads.statistics.load.StatisticalResultLoaderConfig;
@@ -57,7 +58,7 @@ public class ThreeILoadTest {
         String[] cdaSchemas = new String[] {
                 "sql/h2/cda/schema.sql",
                 "sql/h2/impress/impressSchema.sql",
-                "sql/h2/cda/threei.sql"
+                "sql/h2/threei.sql"
         };
 
         for (String schema : cdaSchemas) {
@@ -76,22 +77,39 @@ public class ThreeILoadTest {
         String[] loadArgs = new String[]{
         };
 
+        threeIStatisticalResultLoader.parameterTypeMap.put("MGP_ANA_001_001", ObservationType.unidimensional);
+        threeIStatisticalResultLoader.parameterTypeMap.put("MGP_ANA_002_001", ObservationType.unidimensional);
+
+        threeIStatisticalResultLoader.parameterTypeMap.put("MGP_IMM_047_001", ObservationType.unidimensional);
+        threeIStatisticalResultLoader.parameterTypeMap.put("MGP_IMM_117_001", ObservationType.unidimensional);
+
+        threeIStatisticalResultLoader.parameterTypeMap.put("MGP_MLN_010_001", ObservationType.unidimensional);
+        threeIStatisticalResultLoader.parameterTypeMap.put("MGP_MLN_026_001", ObservationType.unidimensional);
+        threeIStatisticalResultLoader.parameterTypeMap.put("MGP_MLN_058_001", ObservationType.unidimensional);
+        threeIStatisticalResultLoader.parameterTypeMap.put("MGP_MLN_071_001", ObservationType.unidimensional);
+        threeIStatisticalResultLoader.parameterTypeMap.put("MGP_MLN_102_001", ObservationType.unidimensional);
+        threeIStatisticalResultLoader.parameterTypeMap.put("MGP_MLN_111_001", ObservationType.unidimensional);
+        threeIStatisticalResultLoader.parameterTypeMap.put("MGP_MLN_115_001", ObservationType.unidimensional);
+
+        threeIStatisticalResultLoader.parameterTypeMap.put("MGP_PBI_009_001", ObservationType.unidimensional);
+        threeIStatisticalResultLoader.parameterTypeMap.put("MGP_PBI_015_001", ObservationType.unidimensional);
+
         threeIStatisticalResultLoader.run(loadArgs);
 
 
         // Check that the model has a gene, allele and strain
 
-        String statsQuery = "SELECT * FROM stats_unidimensional_results limit 10 ";
-        Integer modelCount = 0;
+        String statsQuery = "SELECT * FROM stats_unidimensional_results ";
+        Integer resultCount = 0;
         try (Connection connection = cdaDataSource.getConnection(); PreparedStatement p = connection.prepareStatement(statsQuery)) {
             ResultSet resultSet = p.executeQuery();
             while (resultSet.next()) {
-                modelCount++;
+                resultCount++;
             }
 
         }
 
-        Assert.assertEquals(2, modelCount.intValue());
+        Assert.assertEquals(15, resultCount.intValue());
 
     }
 }

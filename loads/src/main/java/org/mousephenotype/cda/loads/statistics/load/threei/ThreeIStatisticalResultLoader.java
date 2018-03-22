@@ -115,16 +115,242 @@ public class ThreeIStatisticalResultLoader extends StatisticalResultLoader imple
         result.setColonyId(colony.getColonyName());
         result.setDependentVariable(data.getParameter_Id());
 
+        // 20180315 Per Lucie
+        // - For flow data, use 70 for control count per sex
+        //    - This is for Spleen (IMM), MLN, and bone marrow () screens
+        //
+        // - ANA is "all" controls:
+        //     - Females: 569
+        //     - Males: 545
+        //
+        // - Ear is "all" controls:
+        //   - Females: 362
+        //   - Males: 366
+        //
+        // - Blood is "all" controls, but values vary by parameter
 
-        result.setCountControlMale(null);
-        result.setCountControlFemale(null);
-        result.setCountMutantMale(-1);
-        result.setCountMutantFemale(-1);
+        switch(data.getProcedure_Id()) {
 
+            case "MGP_ANA_001":
+                result.setCountControlMale(545);
+                result.setCountControlFemale(569);
+                break;
+
+            case "MGP_IMM_001":
+            case "MGP_MLN_001":
+            case "MGP_BMI_001":
+                result.setCountControlMale(70);
+                result.setCountControlFemale(70);
+                break;
+
+            case "MGP_PBI_001":
+
+                /*
+                    2018-03-21
+                    Per Lucie Abeler-Dörner, blood needs to be called by IMPC for the time being
+
+                    "
+                    Is the global reference range now part of the IMPC statistical pipeline?
+                    If yes, blood should go through the analysis independent of 3i data.
+                    If the reference range is not available, it will have to go through
+                    the mixed model as it did before.
+                    "
+
+                    So, for now, we do not process the blood hits supplied in the file
+
+                 */
+
+                return null;
+
+                // List supplied by Ania 20180315
+                // Blood parameter control counts vary by parameter
+
+//                switch(data.getParameter_Name()) {
+//                    case "Total_T_Cell_Percentage":
+//                        result.setCountControlMale(832);
+//                        result.setCountControlFemale(839);
+//                        break;
+//                    case "Alpha_Beta_T_Cell_Percentage":
+//                        result.setCountControlMale(833);
+//                        result.setCountControlFemale(842);
+//                        break;
+//                    case "Cd4_Alpha_Beta_T_Cell_Percentage":
+//                        result.setCountControlMale(828);
+//                        result.setCountControlFemale(841);
+//                        break;
+//                    case "Cd8_Alpha_Beta_T_Cell_Percentage":
+//                        result.setCountControlMale(832);
+//                        result.setCountControlFemale(841);
+//                        break;
+//                    case "Gamma_Delta_T_Cell_Percentage":
+//                        result.setCountControlMale(832);
+//                        result.setCountControlFemale(839);
+//                        break;
+//                    case "NKT_Cell_Percentage":
+//                        result.setCountControlMale(833);
+//                        result.setCountControlFemale(842);
+//                        break;
+//                    case "Nk_Cell_Percentage":
+//                        result.setCountControlMale(825);
+//                        result.setCountControlFemale(837);
+//                        break;
+//                    case "Cd4_Cd25_Alpha_Beta_Reg_Percent":
+//                        result.setCountControlMale(825);
+//                        result.setCountControlFemale(841);
+//                        break;
+//                    case "Cd4_Cd44_Cd62l_Alpha_Beta_Percent":
+//                        result.setCountControlMale(825);
+//                        result.setCountControlFemale(841);
+//                        break;
+//                    case "Cd8_Cd44_Cd62l_Alpha_Beta_Percent":
+//                        result.setCountControlMale(830);
+//                        result.setCountControlFemale(841);
+//                        break;
+//                    case "Klrg1_Mature_Nk_Cell_Percentage":
+//                        result.setCountControlMale(800);
+//                        result.setCountControlFemale(812);
+//                        break;
+//                    case "Cd4_Klrg1_Alpha_Beta_T_Cell_Percentage":
+//                        result.setCountControlMale(804);
+//                        result.setCountControlFemale(819);
+//                        break;
+//                    case "Cd8_Klrg1_Alpha_Beta_T_Cell_Percentage":
+//                        result.setCountControlMale(807);
+//                        result.setCountControlFemale(819);
+//                        break;
+//                    case "B_Cell_Percentage":
+//                        result.setCountControlMale(830);
+//                        result.setCountControlFemale(843);
+//                        break;
+//                    case "Igd_Mature_B_Cell_Percentage":
+//                        result.setCountControlMale(829);
+//                        result.setCountControlFemale(842);
+//                        break;
+//                    case "Monocyte_Percentage":
+//                        result.setCountControlMale(826);
+//                        result.setCountControlFemale(841);
+//                        break;
+//                    case "Ly6c_Pos_Monocyte_Percentage":
+//                        result.setCountControlMale(826);
+//                        result.setCountControlFemale(841);
+//                        break;
+//                    case "Ly6c_Neg_Monocyte_Percentage":
+//                        result.setCountControlMale(826);
+//                        result.setCountControlFemale(841);
+//                        break;
+//                    case "Neutrophil_Percentage":
+//                        result.setCountControlMale(830);
+//                        result.setCountControlFemale(842);
+//                        break;
+//                    case "Eosinophil_Percentage":
+//                        result.setCountControlMale(830);
+//                        result.setCountControlFemale(842);
+//                        break;
+//                    case "Total_T_Cell_Number":
+//                        result.setCountControlMale(832);
+//                        result.setCountControlFemale(839);
+//                        break;
+//                    case "Alpha_Beta_T_Cell_Number":
+//                        result.setCountControlMale(833);
+//                        result.setCountControlFemale(842);
+//                        break;
+//                    case "Cd4_Alpha_Beta_T_Cell_Number":
+//                        result.setCountControlMale(828);
+//                        result.setCountControlFemale(841);
+//                        break;
+//                    case "Cd8_Alpha_Beta_T_Cell_Number":
+//                        result.setCountControlMale(832);
+//                        result.setCountControlFemale(841);
+//                        break;
+//                    case "Gamma_Delta_T_Cell_Number":
+//                        result.setCountControlMale(832);
+//                        result.setCountControlFemale(839);
+//                        break;
+//                    case "NKT_Cell_Number":
+//                        result.setCountControlMale(833);
+//                        result.setCountControlFemale(842);
+//                        break;
+//                    case "Nk_Cell_Number":
+//                        result.setCountControlMale(825);
+//                        result.setCountControlFemale(837);
+//                        break;
+//                    case "Cd4_Cd25_Alpha_Beta_Reg_Number":
+//                        result.setCountControlMale(825);
+//                        result.setCountControlFemale(841);
+//                        break;
+//                    case "Cd4_Cd44_Cd62l_Alpha_Beta_Number":
+//                        result.setCountControlMale(826);
+//                        result.setCountControlFemale(841);
+//                        break;
+//                    case "Cd8_Cd44_Cd62l_Alpha_Beta_Number":
+//                        result.setCountControlMale(830);
+//                        result.setCountControlFemale(841);
+//                        break;
+//                    case "Klrg1_Mature_Nk_Cell_Number":
+//                        result.setCountControlMale(800);
+//                        result.setCountControlFemale(812);
+//                        break;
+//                    case "Cd4_Klrg1_Alpha_Beta_T_Cell_Number":
+//                        result.setCountControlMale(803);
+//                        result.setCountControlFemale(819);
+//                        break;
+//                    case "Cd8_Klrg1_Alpha_Beta_T_Cell_Number":
+//                        result.setCountControlMale(807);
+//                        result.setCountControlFemale(819);
+//                        break;
+//                    case "B_Cell_Number":
+//                        result.setCountControlMale(830);
+//                        result.setCountControlFemale(843);
+//                        break;
+//                    case "Igd_Mature_B_Cell_Number":
+//                        result.setCountControlMale(829);
+//                        result.setCountControlFemale(842);
+//                        break;
+//                    case "Monocyte_Number":
+//                        result.setCountControlMale(826);
+//                        result.setCountControlFemale(841);
+//                        break;
+//                    case "Ly6c_Pos_Monocyte_Number":
+//                        result.setCountControlMale(826);
+//                        result.setCountControlFemale(841);
+//                        break;
+//                    case "Ly6c_Neg_Monocyte_Number":
+//                        result.setCountControlMale(826);
+//                        result.setCountControlFemale(841);
+//                        break;
+//                    case "Neutrophil_Number":
+//                        result.setCountControlMale(830);
+//                        result.setCountControlFemale(842);
+//                        break;
+//                    case "Eosinophil_Number":
+//                        result.setCountControlMale(830);
+//                        result.setCountControlFemale(842);
+//                        break;
+//                    default:
+//                        result.setCountControlMale(null);
+//                        result.setCountControlFemale(null);
+//                        break;
+//                }
+//                break;
+
+            // In the case where we cannot find the procedure in this list
+            // Set the control counts to null
+            default:
+                result.setCountControlMale(null);
+                result.setCountControlFemale(null);
+                break;
+        }
+
+        result.setCountMutantMale(getIntegerField(data.getSamples()));
+        result.setCountMutantFemale(getIntegerField(data.getSamples()));
+
+        // Set opposite sex to null when approrpriate
         if (data.getGender().equals("Female")) {
-            result.setCountMutantFemale(getIntegerField(data.getSamples()));
+            result.setCountMutantMale(null);
+            result.setCountControlMale(null);
         } else if (data.getGender().equals("Male")) {
-            result.setCountMutantMale(getIntegerField(data.getSamples()));
+            result.setCountMutantFemale(null);
+            result.setCountControlFemale(null);
         }
 
         result.setMaleControlMean(null);
@@ -144,16 +370,41 @@ public class ThreeIStatisticalResultLoader extends StatisticalResultLoader imple
             result.setStatus("Not processed");
             result.setStatisticalMethod("Manual");
             result.setCode("Data analysis pending");
+        } else if (             data.getCall_Type().toLowerCase().equals("not performed or applicable")) {
+            result.setStatus("Not processed");
+            result.setStatisticalMethod("Manual");
+            result.setCode("Data analysis not performed or not applicable");
         }
+
 
 
         result.setGenotypePVal(null);
         result.setGenotypeEstimate(null);
 
-        if (data.getCall_Type().equals("Significant")) {
-            result.setGenotypePVal("0");
-            result.setGenotypeEstimate("1");
+        switch (data.getCall_Type()) {
+            case "Significant" :
+
+                switch(data.getGender()) {
+                    case "Male" :
+                        result.setSexMvKOPVal(0.0);
+                        result.setSexMvKOEstimate(1.0);
+                        break;
+                    case "Female" :
+                        result.setSexFvKOPVal(0.0);
+                        result.setSexFvKOEstimate(1.0);
+                        break;
+                    default:
+                        result.setGenotypePVal("0");
+                        result.setGenotypeEstimate("1");
+                        break;
+                }
+                break;
+            case "Not Significant" :
+                result.setGenotypePVal("1");
+                result.setGenotypeEstimate("0");
+                break;
         }
+
 
         result.setBatchIncluded(null);
         result.setResidualVariancesHomogeneity(null);
@@ -177,13 +428,6 @@ public class ThreeIStatisticalResultLoader extends StatisticalResultLoader imple
         result.setInteractionIncluded(null);
         result.setInteractionPVal(null);
 
-        result.setSexFvKOEstimate(null);
-        result.setSexFvKOStandardError(null);
-        result.setSexFvKOPVal(null);
-        result.setSexMvKOEstimate(null);
-        result.setSexMvKOStandardError(null);
-        result.setSexMvKOPVal(null);
-
         result.setClassificationTag("Analysis performed by 3I consortium");
         result.setAdditionalInformation(null);
 
@@ -199,189 +443,191 @@ public class ThreeIStatisticalResultLoader extends StatisticalResultLoader imple
      */
     public LightweightResult getBaseResult(LineStatisticalResult data) {
 
-        if (data == null) {
-            return null;
-        }
+        LightweightResult result = null;
 
-        StatisticalResultLoader.NameIdDTO center = organisationMap.get(data.getCenter());
-        StatisticalResultLoader.NameIdDTO pipeline = pipelineMap.get(data.getPipeline());
-        StatisticalResultLoader.NameIdDTO procedure = procedureMap.get(data.getProcedure()); // Procedure group e.g. IMPC_CAL
-        StatisticalResultLoader.NameIdDTO parameter = parameterMap.get(data.getDependentVariable());
-
-        // result contains a "statistical result" that has the
-        // ability to produce a PreparedStatement ready for database insertion
-
-        LightweightResult result;
-        StatisticalResult statsResult;
-
-        if (parameterTypeMap.get(data.getDependentVariable()) == ObservationType.categorical) {
-
-            Double effectSize = getDoubleField(data.getGenotypeEstimate());
-            Double pValue = getDoubleField(data.getGenotypePVal());
-            Double malePValue = data.getSexMvKOPVal();
-            Double maleEffectSize = data.getSexMvKOEstimate();
-            Double femalePValue = data.getSexFvKOPVal();
-            Double femaleEffectSize = data.getSexFvKOEstimate();
-            String classificationTag = data.getClassificationTag();
-
-            // Categorical result
-            result = new LightweightCategoricalResult();
-            ((LightweightCategoricalResult) result).setCategoryA("normal");
-            ((LightweightCategoricalResult) result).setpValue(pValue);
-            ((LightweightCategoricalResult) result).setEffectSize(effectSize);
-
-            ((LightweightCategoricalResult) result).setMalePValue(malePValue);
-            ((LightweightCategoricalResult) result).setMaleEffectSize(maleEffectSize);
-            ((LightweightCategoricalResult) result).setFemalePValue(femalePValue);
-            ((LightweightCategoricalResult) result).setFemaleEffectSize(femaleEffectSize);
-            ((LightweightCategoricalResult) result).setClassificationTag(classificationTag);
-
-            StatisticalResultCategorical temp = new StatisticalResultCategorical();
-            temp.setpValue(pValue);
-            temp.setEffectSize(effectSize);
-            temp.setMalePValue(malePValue);
-            temp.setMaleEffectSize(maleEffectSize);
-            temp.setFemalePValue(femalePValue);
-            temp.setFemaleEffectSize(femaleEffectSize);
-            temp.setClassificationTag(classificationTag);
-            statsResult = temp;
-
-        } else if (parameterTypeMap.get(data.getDependentVariable()) == ObservationType.unidimensional) {
-
-            Double effectSize = getDoubleField(data.getGenotypeEstimate());
-            Double pValue = getDoubleField(data.getGenotypePVal());
-
-            // Unidimensional result
-            result = new LightweightUnidimensionalResult();
-            ((LightweightUnidimensionalResult) result).setFemaleControlMean(data.getFemaleControlMean());
-            ((LightweightUnidimensionalResult) result).setFemaleExperimentalMean(data.getFemaleMutantMean());
-            ((LightweightUnidimensionalResult) result).setMaleControlMean(data.getMaleControlMean());
-            ((LightweightUnidimensionalResult) result).setMaleExperimentalMean(data.getMaleMutantMean());
-
-
-            StatisticalResultMixedModel temp = new StatisticalResultMixedModel();
-            temp.setBatchSignificance(data.getBatchIncluded());
-            temp.setVarianceSignificance(data.getResidualVariancesHomogeneity());
-            temp.setNullTestSignificance(data.getGenotypeContribution());
-            temp.setGenotypeParameterEstimate(effectSize);
-            temp.setGenotypeStandardErrorEstimate(data.getGenotypeStandardError());
-            temp.setGenotypeEffectPValue(pValue);
-            temp.setGenotypePercentageChange(data.getGenotypePercentageChange());
-            temp.setGenderParameterEstimate(data.getSexEstimate());
-            temp.setGenderStandardErrorEstimate(data.getSexStandardError());
-            temp.setGenderEffectPValue(data.getSexPVal());
-            temp.setWeightParameterEstimate(data.getWeightEstimate());
-            temp.setWeightStandardErrorEstimate(data.getWeightStandardError());
-            temp.setWeightEffectPValue(data.getWeightPVal());
-            temp.setGp1Genotype(data.getGroup1Genotype());
-            temp.setGp1ResidualsNormalityTest(data.getGroup1ResidualsNormalityTest());
-            temp.setGp2Genotype(data.getGroup2Genotype());
-            temp.setGp2ResidualsNormalityTest(data.getGroup2ResidualsNormalityTest());
-            temp.setBlupsTest(data.getBlupsTest());
-            temp.setRotatedResidualsNormalityTest(data.getRotatedResidualsNormalityTest());
-            temp.setInterceptEstimate(data.getInterceptEstimate());
-            temp.setInterceptEstimateStandardError(data.getInterceptStandardError());
-            temp.setInteractionSignificance(data.getInteractionIncluded());
-            temp.setInteractionEffectPValue(data.getInteractionPVal());
-            temp.setGenderFemaleKoEstimate(data.getSexFvKOEstimate());
-            temp.setGenderFemaleKoStandardErrorEstimate(data.getSexFvKOStandardError());
-            temp.setGenderFemaleKoPValue(data.getSexFvKOPVal());
-            temp.setGenderMaleKoEstimate(data.getSexMvKOEstimate());
-            temp.setGenderMaleKoStandardErrorEstimate(data.getSexMvKOStandardError());
-            temp.setGenderMaleKoPValue(data.getSexMvKOPVal());
-            temp.setClassificationTag(data.getClassificationTag());
-
-            statsResult = temp;
-
-        } else {
-            // Unknown method or failed to process.
-            if (StringUtils.isNotEmpty(data.getStatisticalMethod())) {
-                logger.debug("Unknown statistical method '" + data.getStatisticalMethod() + "'");
+        try {
+            if (data == null) {
+                return null;
             }
 
-            result = new LightweightUnidimensionalResult();
-            StatisticalResultFailed temp = new StatisticalResultFailed();
-            temp.setStatisticalMethod("Not processed");
-            result.setStatus(data.getStatus() + "-" + data.getCode());
-            statsResult = temp;
-        }
+            NameIdDTO center = organisationMap.get(data.getCenter());
+            NameIdDTO pipeline = pipelineMap.get(data.getPipeline());
 
-        result.setStatisticalResult(statsResult);
+            NameIdDTO procedure = procedureMap.get(data.getProcedure()); // Procedure group e.g. IMPC_CAL
+            NameIdDTO parameter = parameterMap.get(data.getDependentVariable());
+
+            // result contains a "statistical result" that has the
+            // ability to produce a PreparedStatement ready for database insertion
+
+            StatisticalResult statsResult;
+
+            if (parameterTypeMap.get(data.getDependentVariable()) == ObservationType.categorical) {
+
+                Double effectSize = getDoubleField(data.getGenotypeEstimate());
+                Double pValue = getDoubleField(data.getGenotypePVal());
+                Double malePValue = data.getSexMvKOPVal();
+                Double maleEffectSize = data.getSexMvKOEstimate();
+                Double femalePValue = data.getSexFvKOPVal();
+                Double femaleEffectSize = data.getSexFvKOEstimate();
+                String classificationTag = data.getClassificationTag();
+
+                // Categorical result
+                result = new LightweightCategoricalResult();
+                ((LightweightCategoricalResult) result).setCategoryA("normal");
+                ((LightweightCategoricalResult) result).setpValue(pValue);
+                ((LightweightCategoricalResult) result).setEffectSize(effectSize);
+
+                ((LightweightCategoricalResult) result).setMalePValue(malePValue);
+                ((LightweightCategoricalResult) result).setMaleEffectSize(maleEffectSize);
+                ((LightweightCategoricalResult) result).setFemalePValue(femalePValue);
+                ((LightweightCategoricalResult) result).setFemaleEffectSize(femaleEffectSize);
+                ((LightweightCategoricalResult) result).setClassificationTag(classificationTag);
+
+                StatisticalResultCategorical temp = new StatisticalResultCategorical();
+                temp.setpValue(pValue);
+                temp.setEffectSize(effectSize);
+                temp.setMalePValue(malePValue);
+                temp.setMaleEffectSize(maleEffectSize);
+                temp.setFemalePValue(femalePValue);
+                temp.setFemaleEffectSize(femaleEffectSize);
+                temp.setClassificationTag(classificationTag);
+                statsResult = temp;
+
+            } else if (parameterTypeMap.get(data.getDependentVariable()) == ObservationType.unidimensional) {
+
+                Double effectSize = getDoubleField(data.getGenotypeEstimate());
+                Double pValue = getDoubleField(data.getGenotypePVal());
+
+                // Unidimensional result
+                result = new LightweightUnidimensionalResult();
+                ((LightweightUnidimensionalResult) result).setFemaleControlMean(data.getFemaleControlMean());
+                ((LightweightUnidimensionalResult) result).setFemaleExperimentalMean(data.getFemaleMutantMean());
+                ((LightweightUnidimensionalResult) result).setMaleControlMean(data.getMaleControlMean());
+                ((LightweightUnidimensionalResult) result).setMaleExperimentalMean(data.getMaleMutantMean());
 
 
-        ControlStrategy strategy = ControlStrategy.NA;
-        try {
-            strategy = ControlStrategy.valueOf(data.getControlSelection());
-        } catch (IllegalArgumentException e) {
-            // It's ok, stats failed to process so control strat stays as NA
-        }
+                StatisticalResultMixedModel temp = new StatisticalResultMixedModel();
+                temp.setBatchSignificance(data.getBatchIncluded());
+                temp.setVarianceSignificance(data.getResidualVariancesHomogeneity());
+                temp.setNullTestSignificance(data.getGenotypeContribution());
+                temp.setGenotypeParameterEstimate(effectSize);
+                temp.setGenotypeStandardErrorEstimate(data.getGenotypeStandardError());
+                temp.setGenotypeEffectPValue(pValue);
+                temp.setGenotypePercentageChange(data.getGenotypePercentageChange());
+                temp.setGenderParameterEstimate(data.getSexEstimate());
+                temp.setGenderStandardErrorEstimate(data.getSexStandardError());
+                temp.setGenderEffectPValue(data.getSexPVal());
+                temp.setWeightParameterEstimate(data.getWeightEstimate());
+                temp.setWeightStandardErrorEstimate(data.getWeightStandardError());
+                temp.setWeightEffectPValue(data.getWeightPVal());
+                temp.setGp1Genotype(data.getGroup1Genotype());
+                temp.setGp1ResidualsNormalityTest(data.getGroup1ResidualsNormalityTest());
+                temp.setGp2Genotype(data.getGroup2Genotype());
+                temp.setGp2ResidualsNormalityTest(data.getGroup2ResidualsNormalityTest());
+                temp.setBlupsTest(data.getBlupsTest());
+                temp.setRotatedResidualsNormalityTest(data.getRotatedResidualsNormalityTest());
+                temp.setInterceptEstimate(data.getInterceptEstimate());
+                temp.setInterceptEstimateStandardError(data.getInterceptStandardError());
+                temp.setInteractionSignificance(data.getInteractionIncluded());
+                temp.setInteractionEffectPValue(data.getInteractionPVal());
+                temp.setGenderFemaleKoEstimate(data.getSexFvKOEstimate());
+                temp.setGenderFemaleKoStandardErrorEstimate(data.getSexFvKOStandardError());
+                temp.setGenderFemaleKoPValue(data.getSexFvKOPVal());
+                temp.setGenderMaleKoEstimate(data.getSexMvKOEstimate());
+                temp.setGenderMaleKoStandardErrorEstimate(data.getSexMvKOStandardError());
+                temp.setGenderMaleKoPValue(data.getSexMvKOPVal());
+                temp.setClassificationTag(data.getClassificationTag());
 
-        result.setMetadataGroup(data.getMetadataGroup());
-        result.setStatisticalMethod(data.getStatisticalMethod().isEmpty() ? "-" : data.getStatisticalMethod());
+                statsResult = temp;
 
-        result.setDataSourceId(datasourceMap.get(data.getDataSourceName()));
-        result.setProjectId(projectMap.get(data.getProjectName()));
+            } else {
+                // Unknown method or failed to process.
+                if (StringUtils.isNotEmpty(data.getStatisticalMethod())) {
+                    logger.debug("Unknown statistical method '" + data.getStatisticalMethod() + "'");
+                }
 
-        result.setOrganisationId(center.getDbId());
-        result.setOrganisationName(center.getName());
+                result = new LightweightUnidimensionalResult();
+                StatisticalResultFailed temp = new StatisticalResultFailed();
+                temp.setStatisticalMethod("Not processed");
+                result.setStatus(data.getStatus() + "-" + data.getCode());
+                statsResult = temp;
+            }
 
-        result.setPipelineId(pipeline.getDbId());
-        result.setPipelineStableId(pipeline.getStableId());
+            result.setStatisticalResult(statsResult);
 
-        result.setProcedureId(procedure.getDbId());
-        result.setProcedureGroup(data.getProcedure());
 
-        result.setParameterId(parameter.getDbId());
-        result.setParameterStableId(parameter.getStableId());
-        result.setDependentVariable(parameter.getStableId());
+            ControlStrategy strategy = ControlStrategy.manual;
 
-        result.setColonyId(data.getColonyId());
-        result.setStrain(data.getStrain());
-        result.setZygosity(data.getZygosity());
+            result.setMetadataGroup(data.getMetadataGroup());
+            result.setStatisticalMethod(data.getStatisticalMethod().isEmpty() ? "-" : data.getStatisticalMethod());
 
-        result.setZygosity(data.getZygosity());
+            result.setDataSourceId(datasourceMap.get(data.getDataSourceName()));
+            result.setProjectId(projectMap.get(data.getProjectName()));
 
-        result.setControlSelectionMethod(strategy);
+            result.setOrganisationId(center.getDbId());
+            result.setOrganisationName(center.getName());
 
-        //TODO: Wire the biomodels to the SR
+            result.setPipelineId(pipeline.getDbId());
+            result.setPipelineStableId(pipeline.getStableId());
+
+            result.setProcedureId(procedure.getDbId());
+            result.setProcedureGroup(data.getProcedure());
+
+            result.setParameterId(parameter.getDbId());
+            result.setParameterStableId(parameter.getStableId());
+            result.setDependentVariable(parameter.getStableId());
+
+            result.setColonyId(data.getColonyId());
+            result.setStrain(data.getStrain());
+            result.setZygosity(data.getZygosity());
+
+            result.setZygosity(data.getZygosity());
+
+            result.setControlSelectionMethod(strategy);
+
+            //TODO: Wire the biomodels to the SR
 //        Integer bioModelId = bioModelMap.get(data.getColonyId()).get(ZygosityType.valueOf(data.getZygosity()));
 //        result.setExperimentalId(bioModelId);
 
-        result.setControlId(null);
+            result.setControlId(null);
 
 
-        // Lookup from colony ID
-        result.setAlleleAccessionId(colonyAlleleMap.get(data.getColonyId()));
+            // Lookup from colony ID
+            result.setAlleleAccessionId(colonyAlleleMap.get(data.getColonyId()));
 
-        result.setMaleControlCount(data.getCountControlMale());
-        result.setMaleMutantCount(data.getCountMutantMale());
-        result.setFemaleControlCount(data.getCountControlFemale());
-        result.setFemaleMutantCount(data.getCountMutantFemale());
+            result.setMaleControlCount(data.getCountControlMale());
+            result.setMaleMutantCount(data.getCountMutantMale());
+            result.setFemaleControlCount(data.getCountControlFemale());
+            result.setFemaleMutantCount(data.getCountMutantFemale());
 
-        Set<String> sexes = new HashSet<>();
-        if (data.getCountMutantMale() > 3) {
-            sexes.add("male");
-        }
-        if (data.getCountMutantFemale() > 3) {
-            sexes.add("female");
-        }
+            Set<String> sexes = new HashSet<>();
+            if (data.getCountMutantMale() !=null) {
+                sexes.add("male");
+            }
+            if (data.getCountMutantFemale() != null) {
+                sexes.add("female");
+            }
 
-        // Set the sex(es) of the result set
-        result.setSex(SexType.both.getName());
-        if (sexes.size() == 1) {
-            result.setSex(new ArrayList<>(sexes).get(0));
-        }
 
-        result.setWorkflow(BatchClassification.unknown);
+            // Set the sex(es) of the result set
+            result.setSex(SexType.both.getName());
+            if (sexes.size() == 1) {
+                result.setSex(new ArrayList<>(sexes).get(0));
+            }
 
-        result.setWeightAvailable(false);
+            result.setWorkflow(BatchClassification.unknown);
 
-        result.setCalculationTimeNanos(0L);
+            result.setWeightAvailable(false);
 
-        result.setStatus(data.getStatus() == "Success" ? data.getStatus() : data.getStatus() + " - " + data.getCode());
+            result.setCalculationTimeNanos(0L);
 
-        if (data.getStatus() == "Success") {
-            setMpTerm(result);
+            result.setStatus(data.getStatus() == "Success" ? data.getStatus() : data.getStatus() + " - " + data.getCode());
+
+            if (data.getStatus() == "Success") {
+                setMpTerm(result);
+            }
+        } catch (Exception e) {
+            logger.error("Cannot load data for 3I input: {}", data, e);
         }
 
         return result;

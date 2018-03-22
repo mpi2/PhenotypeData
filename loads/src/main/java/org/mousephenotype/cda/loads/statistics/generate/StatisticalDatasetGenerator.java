@@ -67,16 +67,16 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
             "IMPC_GPO", "IMPC_EMO", "IMPC_GPO", "IMPC_EVO", "IMPC_GPM", "IMPC_EVM",
             "IMPC_GEL", "IMPC_HPL", "IMPC_HEL", "IMPC_EOL", "IMPC_GPL", "IMPC_EVL",
             "IMPC_VIA", "IMPC_FER",
+
             // Load these 3I procedures manually from file Ania sent
-            "MGP_PBI", "MGP_BMI", "MGP_IMM", "MGP_MLN"
+            // IMPC will analyse the PBI hits per Lucie. See comment in ThreeIStatisticalResultLoader class
+            "MGP_BMI", "MGP_IMM", "MGP_MLN", "MGP_ANA" //, "MGP_PBI"
             ));
 
 
     private final Set<String> skipParameters = new HashSet<>(Arrays.asList(
-            // Do not statistically analyze ANA derived parameter per TM 20171121
-            "MGP_ANA_002_001",
             "M-G-P_022_001_001",
-            // Skip these parameters (from Natasha)
+            // Skip analysing these parameters (from Natasha)
             "JAX_SLW_001_001" ,"JAX_LDT_007_001" ,"ICS_SHO_004_001" ,"IMPC_EYE_056_001",
             "IMPC_ECG_015_001" ,"IMPC_ECG_003_001" ,"JAX_LDT_006_001" ,"IMPC_ECG_010_001"));
 
