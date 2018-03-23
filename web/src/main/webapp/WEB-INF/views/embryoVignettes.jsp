@@ -617,14 +617,14 @@
                             <div class="inner">
                             	<div class="half">
                          			<p>
-                         				Striatins  act  as  both  calcium�-dependent  signaling  proteins  and  scaffolding
-										proteins,  linking  calcium�-sensing  signaling  events  with  cellular  action  [1]. Strn3
+                         				Striatins  act  as  both  calcium-dependent  signaling  proteins  and  scaffolding
+										proteins,  linking  calcium-sensing  signaling  events  with  cellular  action  [1]. Strn3
 										homozygous  mutants  show  complete  preweaning  lethality,  with  embryonic
 										lethality  occurring  around  E15.5.  Surviving  embryos  are  smaller  in  size  and
 										display  both  hemorrhaging  and  severe  edema  (Fig  1,  left  panels).  MicroCT
 										analyses reveal small, but consistent septal defects in heart (Fig 1, right panels).  Multiple  phenotypes  are  observed  in  heterozygous  adult  animals,  including
 										abnormal  blood  chemistry  and  hematology,  impaired  glucose  tolerance  and
-										abnormal  behavior,  among  others.  A  Genome-�wide  association  study  linking
+										abnormal  behavior,  among  others.  A  Genome-wide  association  study  linking
 										Strn3 with the canine disease Arrhythmogenic Right Ventricular Cardiomyopathy
 										(ARVC) supports a role in cardiac function [2].
 									</p>
@@ -727,7 +727,7 @@
                             <div class="inner">
                             	<div class="half">
                          			<p>
-                         				Cytochrome  c  oxidase  subunit  VIIc  (Cox7c)  is  a  nuclear�-encoded  regulatory
+                         				Cytochrome  c  oxidase  subunit  VIIc  (Cox7c)  is  a  nuclear-encoded  regulatory
 										component  of  cytochrome  c  oxidase.  Homozygous  mutants  show  complete
 										preweaning  lethality,  with  embryonic  lethality  occurring  after  E15.5.  Surviving
 										mutants  are  smaller  (Figure  1,  top  panels),  and  have  an  abnormally  small
@@ -783,7 +783,7 @@
                             	<div class="half">
                          			<p>
                          				Biogenesis of lysosomal organelles complex 1, subunit 2 is a component of the
-										BLOC�1  complex,  which  functions  in  the  formation  of  lysosome�-related
+										BLOC-1  complex,  which  functions  in  the  formation  of  lysosome-related
 										organelles,  is  implicated  in  synapse  function,  and  is  associated  with  gamma-
 										tubulin  and  the  centrosome  [1].  Homozygous  mutants  show  complete
 										preweaning lethality, with embryonic lethality occurring around E15.5. Surviving
@@ -792,7 +792,7 @@
 										hypoplasia,  enlarged right  atrium,  and  compromised right  ventricle  of  the  heart
 										(Fig.1, arrow). Adult heterozygotes show abnormal immunophenotypes.
 									</p>
-									<p><i>[1] Falc�n-Perez et al., BLOC-1, a novel complex containing the pallidin and muted proteins involved in the biogenesis of melanosomes and platelet-dense granules, J Biol Chem 2002</i></p>
+									<p><i>[1] Falcon-Perez et al., BLOC-1, a novel complex containing the pallidin and muted proteins involved in the biogenesis of melanosomes and platelet-dense granules, J Biol Chem 2002</i></p>
 
                         			<p>Phenotype data links</p>
 
