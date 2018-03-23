@@ -348,20 +348,34 @@ public class DataIntegrationTest {
      */
 //@Ignore
     @Test
-    public void testLineLevelExperiment() throws Exception {
+    public void testLineLevelExperimentAndComboSpecimenHaveSameBioModel() throws Exception {
 
         Resource dataResource   = context.getResource("classpath:sql/h2/LineLevelExperiment-data.sql");
         Resource experimentResource = context.getResource("classpath:xml/LineLevelExperiment-Experiment.xml");
+        Resource specimenResource = context.getResource("classpath:xml/LineLevelSpecimen-Specimens.xml");
 
         ScriptUtils.executeSqlScript(cdaDataSource.getConnection(), dataResource);
+
+
+
+        String[] extractSpecimenArgs = new String[]{
+                "--datasourceShortName=IMPC",
+                "--filename=" + specimenResource.getFile().getAbsolutePath()
+        };
+
+
+        String[] loadArgs = new String[] {
+        };
+
+        dccSpecimenExtractor.run(extractSpecimenArgs);
+
+        sampleLoader.run(loadArgs);
 
         String[] extractExperimentArgs = new String[]{
                 "--datasourceShortName=IMPC",
                 "--filename=" + experimentResource.getFile().getAbsolutePath()
         };
 
-        String[] loadArgs = new String[] {
-                };
 
         dccExperimentExtractor.run(extractExperimentArgs);
 
@@ -381,6 +395,30 @@ public class DataIntegrationTest {
 
             Assert.fail();
         }
+
+
+        // Check that the models created have the same gene, allele and strain
+
+        String modelQuery = "SELECT * FROM biological_model bm " +
+                "INNER JOIN biological_model_strain bmstrain ON bmstrain.biological_model_id=bm.id " +
+                "INNER JOIN biological_model_sample bmsamp ON bmsamp.biological_model_id=bm.id " ;
+        Integer modelCount = 0;
+        Set<Integer> modelIds = new HashSet<>();
+        try (Connection connection = cdaDataSource.getConnection(); PreparedStatement p = connection.prepareStatement(modelQuery)) {
+            ResultSet resultSet = p.executeQuery();
+            while (resultSet.next()) {
+                modelCount++;
+                modelIds.add(resultSet.getInt("id"));
+            }
+
+        }
+
+        System.out.println("Checking line and specimen have the same bio model");
+        Assert.assertEquals(1, modelCount.intValue());
+        Assert.assertEquals(1, modelIds.size());
+        System.out.println("  SUCCESS");
+
+
     }
 
 //    @Test

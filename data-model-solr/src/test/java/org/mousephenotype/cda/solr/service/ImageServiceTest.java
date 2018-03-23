@@ -1,5 +1,6 @@
 package org.mousephenotype.cda.solr.service;
 
+import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.response.Group;
@@ -66,6 +67,20 @@ public class ImageServiceTest {
         }
     }
 
+
+    @Test
+    public void allImageRecordSolrQueryTest() throws Exception {
+
+        SolrQuery query = ImageService.allImageRecordSolrQuery();
+
+        System.out.println("Query is: " + query.toString());
+
+        assertTrue(query.toString().contains("3i"));
+        assertTrue(query.toString().contains("mousephenotype.org"));
+        assertTrue(query.toString().contains("\\:"));
+
+
+    }
 
     @Test
 //@Ignore
@@ -147,7 +162,7 @@ public class ImageServiceTest {
     }
 
     @Test
-//@Ignore
+    @Ignore
     public void testGetComparisonViewerMethodsWithNulls() throws IOException, SolrServerException {
 
         String         testName                  = Thread.currentThread().getStackTrace()[1].getMethodName();
@@ -198,7 +213,7 @@ public class ImageServiceTest {
     }
 
     @Test
-//@Ignore
+    @Ignore
     public void testGetComparisonViewerMethodsWithExpression() throws IOException, SolrServerException {
 
         String         testName                  = Thread.currentThread().getStackTrace()[1].getMethodName();
@@ -244,7 +259,7 @@ public class ImageServiceTest {
     }
 
     @Test
-//@Ignore
+    @Ignore
     public void testGetComparisonViewerMethodsWithAmbiguous() throws IOException, SolrServerException {
         String         testName               = Thread.currentThread().getStackTrace()[1].getMethodName();
         String         acc                    = "MGI:109331";
@@ -296,7 +311,7 @@ public class ImageServiceTest {
     }
 
     @Test
-//@Ignore
+    @Ignore
     public void testGetComparisonViewerMethodsWithNoExpression() throws IOException, SolrServerException {
 
         String         testName                  = Thread.currentThread().getStackTrace()[1].getMethodName();

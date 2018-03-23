@@ -11,7 +11,8 @@ import java.util.List;
 public interface StatisticalResultRepository extends SolrCrudRepository<StatisticalResultDTO, String> {
 
 	List<StatisticalResultDTO> findByParameterStableId(String stableId);
-	List<StatisticalResultDTO> findByMarkerAccessionIdAndParameterStableIdAndProcedureStableIdAndPhenotypeSexAndMpTermId(String markerAccessionId, String parameterStableId, String procedureStableId, String Sex, String mpTermId);
+	List<StatisticalResultDTO> findByMarkerAccessionIdAndParameterStableIdAndProcedureStableIdAndPhenotypeSexInAndMpTermIdOptionsIn(String markerAccessionId, String parameterStableId, String procedureStableId, String Sex, String mpTermId);
+	List<StatisticalResultDTO> findByMarkerAccessionIdAndParameterStableIdAndProcedureStableIdAndMpTermId(String markerAccessionId, String parameterStableId, String procedureStableId, String mpTermId);
 
 
 }

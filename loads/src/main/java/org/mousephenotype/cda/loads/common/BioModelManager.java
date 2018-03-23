@@ -158,6 +158,13 @@ public class BioModelManager {
         allele = getAllele(colony, gene);
         strain = strainsByNameOrMgiAccessionIdMap.get(colony.getBackgroundStrain());
 
+        if (strain == null) {
+            Strain newStrain = StrainMapper.createBackgroundStrain(colony.getBackgroundStrain());
+            cdaSqlUtils.insertStrain(newStrain);
+            strainsByNameOrMgiAccessionIdMap.put(colony.getBackgroundStrain(), newStrain);
+            strain = newStrain;
+        }
+
         key = new BioModelKey(datasourceShortName, strain.getId().getAccession(), gene.getId().getAccession(), allele.getId().getAccession(), zygosity);
 
         return key;

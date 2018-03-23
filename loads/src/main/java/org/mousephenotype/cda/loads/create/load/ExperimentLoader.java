@@ -52,7 +52,7 @@ import java.util.concurrent.*;
 public class ExperimentLoader implements CommandLineRunner {
 
     // How many threads used to process experiments
-    private static final int N_THREADS = 60;
+    private static final int N_THREADS = 75;
     private static final Boolean ONE_AT_A_TIME = Boolean.FALSE;
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -542,7 +542,7 @@ public class ExperimentLoader implements CommandLineRunner {
          *       with the IMPC specimen's 'C57Bl6n', which causes a new strain by that name to be created, then later
          *       causes the database to complain about duplicate biological models.
          */
-        if ((dccExperiment.getSpecimenStrainId() != null) && ( ! dccExperiment.getSpecimenStrainId().isEmpty()) && (dccExperiment.getDatasourceShortName().equalsIgnoreCase(CdaSqlUtils.EUROPHENOME))) {
+        if ((dccExperiment.getSpecimenStrainId() != null) && ( ! dccExperiment.getSpecimenStrainId().isEmpty()) && (dccExperiment.getDatasourceShortName().equalsIgnoreCase(CdaSqlUtils.EUROPHENOME) || dccExperiment.getDatasourceShortName().equalsIgnoreCase(CdaSqlUtils.MGP))) {
             String remappedStrainName = strainMapper.parseMultipleBackgroundStrainNames(dccExperiment.getSpecimenStrainId());
             dccExperiment.setSpecimenStrainId(remappedStrainName);
             PhenotypedColony colony = phenotypedColonyMap.get(dccExperiment.getColonyId());
@@ -571,32 +571,43 @@ public class ExperimentLoader implements CommandLineRunner {
         {
             PhenotypedColony colony = phenotypedColonyMap.get(dccExperiment.getColonyId());
 
+            // Run the strain name through the StrainMapper to remap incorrect legacy strain names.
+            Strain remappedStrain;
+            try {
+                if ((dccExperiment.getSpecimenStrainId() != null) && (!dccExperiment.getSpecimenStrainId().isEmpty()) && (dccExperiment.getDatasourceShortName().equalsIgnoreCase(CdaSqlUtils.EUROPHENOME) || dccExperiment.getDatasourceShortName().equalsIgnoreCase(CdaSqlUtils.MGP))) {
+
+                    synchronized (strainMapper) {
+
+                        String backgroundStrainName = dccExperiment.getSpecimenStrainId();
+
+                        remappedStrain = strainMapper.lookupBackgroundStrain(backgroundStrainName);
+                        if (backgroundStrainName != null && remappedStrain == null) {
+                            remappedStrain = StrainMapper.createBackgroundStrain(backgroundStrainName);
+                            cdaSqlUtils.insertStrain(remappedStrain);
+                            strainsByNameOrMgiAccessionIdMap.put(remappedStrain.getName(), remappedStrain);
+                            strainsByNameOrMgiAccessionIdMap.put(remappedStrain.getId().getAccession(), remappedStrain);
+                        }
+                        if (colony != null) {
+                            colony.setBackgroundStrain(remappedStrain.getName());
+                        }
+
+                    }
+
+                }
+            } catch (Exception e ) {
+                e.printStackTrace();
+            }
+
             // If iMits has the colony, use it to get the strain name.
             if (colony != null) {
                 dccExperiment.setSpecimenStrainId(colony.getBackgroundStrain());
             }
 
-            // Run the strain name through the StrainMapper to remap incorrect legacy strain names.
-            Strain remappedStrain;
-            synchronized (strainMapper) {
-                remappedStrain = strainMapper.lookupBackgroundStrain(dccExperiment.getSpecimenStrainId());
-                if (remappedStrain == null) {
-                    remappedStrain = StrainMapper.createBackgroundStrain(dccExperiment.getSpecimenStrainId());
-                    cdaSqlUtils.insertStrain(remappedStrain);
-                    strainsByNameOrMgiAccessionIdMap.put(remappedStrain.getName(), remappedStrain);
-                    strainsByNameOrMgiAccessionIdMap.put(remappedStrain.getId().getAccession(), remappedStrain);
-                }
-                dccExperiment.setSpecimenStrainId(remappedStrain.getName());
-                if (colony != null) {
-                    colony.setBackgroundStrain(remappedStrain.getName());
-                }
-            }
 
             // Get phenotypingCenter and phenotypingCenterPk.
             phenotypingCenter = LoadUtils.mappedExternalCenterNames.get(dccExperiment.getPhenotypingCenter());
             if (colony != null) {
 
-                colony.setBackgroundStrain((remappedStrain.getName()));
                 phenotypingCenterPk = colony.getPhenotypingCentre().getId();
 
             } else {
@@ -804,6 +815,10 @@ public class ExperimentLoader implements CommandLineRunner {
             metadataGroupList.add("ProductionCenter = " + dccExperiment.getProductionCenter());
         }
 
+        // Put the required metadata group components in a sorted order for producing
+        // The same hash for the same values irrespective of the order of the input
+        Collections.sort(metadataGroupList);
+
         metadataCombined = StringUtils.join(metadataCombinedList, "::");
         metadataGroup = StringUtils.join(metadataGroupList, "::");
         metadataGroup = DigestUtils.md5Hex(metadataGroup);
@@ -1004,10 +1019,8 @@ public class ExperimentLoader implements CommandLineRunner {
     private void insertSimpleParameter(DccExperimentDTO dccExperiment, SimpleParameter simpleParameter, int experimentPk,
                                        int dbId, Integer biologicalSamplePk, int missing) throws DataLoadException {
 
-        if (dccExperiment.getColonyId().equals("B6.Cg-cub/H") && dccExperiment.getProcedureId().startsWith("ESLIM_005")) {
-            logger.info("CANARY -- colony B6.Cg-cub/H");
-            System.out.println(dccExperiment);
-            System.out.println("Parameter "+simpleParameter.getParameterID());
+        if (dccExperiment.getSpecimenId() != null && dccExperiment.getSpecimenId().equals("B6NC_46853_163447") && dccExperiment.getProcedureId().startsWith("IMPC_CBC")) {
+            logger.info("CANARY -- specimen B6NC_46853_163447\n{}, \nParameter: {}", dccExperiment, simpleParameter.getParameterID());
         }
 
         String parameterStableId = simpleParameter.getParameterID();
@@ -1083,10 +1096,11 @@ public class ExperimentLoader implements CommandLineRunner {
         // Insert experiment_observation
         cdaSqlUtils.insertExperiment_observation(experimentPk, observationPk);
 
-        if (dccExperiment.getColonyId().equals("B6.Cg-cub/H") && dccExperiment.getProcedureId().startsWith("ESLIM_005")) {
-            System.out.println("Successfully inserted Parameter "+simpleParameter.getParameterID() + " for experimentPk " + experimentPk + ", observationPk " + observationPk + " biologicalSamplePk " + biologicalSamplePk);
-            System.out.println("\n");
+        if (dccExperiment.getSpecimenId() != null && dccExperiment.getSpecimenId().equals("B6NC_46853_163447") && dccExperiment.getProcedureId().startsWith("IMPC_CBC")) {
+            logger.info("END CANARY -- Successfully inserted specimen B6NC_46853_163447, experimentPk {}, parameter {}", experimentPk, simpleParameter.getParameterID());
         }
+
+
 
     }
 
