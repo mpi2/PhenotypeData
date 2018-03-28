@@ -120,7 +120,7 @@ public class GrossPathService {
 		for (ObservationDTO obs : list) {
 			if (obs.getParameterStableId().equals(parameterStableIdFilter)) {
 				String key = this.getAnatomyStringFromObservation(obs) + "||" + obs.getZygosity() + "||"
-						 + obs.getParameterStableId();
+						 + obs.getParameterStableId()+obs.getPhenotypingCenter();
 				if (keyMap.containsKey(key)) {
 					keyMap.get(key).add(obs);
 				} else {
