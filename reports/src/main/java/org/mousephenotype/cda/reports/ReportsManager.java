@@ -39,10 +39,7 @@ import java.util.List;
  * Created by mrelac on 23/06/2015.
  */
 
-@PropertySource({
-        "file:${user.home}/configfiles/${profile}/application.properties",
-        "file:${user.home}/configfiles/${profile}/datarelease.properties"
-})
+@PropertySource("file:${user.home}/configfiles/${profile}/application.properties")
 @SpringBootApplication
 public class ReportsManager implements CommandLineRunner {
 
@@ -227,10 +224,12 @@ public class ReportsManager implements CommandLineRunner {
                     case BMD_STATS_GLUCOSE_CONCENTRATION:
                         bmdStatsGlucoseConcentrationReport.run(args);
                         file = bmdStatsGlucoseConcentrationReport.targetFile;
+                        break;
 
                     case BMD_STATS_GLUCOSE_RESPONSE:
                         bmdStatsGlucoseResponseReport.run(args);
                         file = bmdStatsGlucoseResponseReport.targetFile;
+                        break;
 
                     case DATA_OVERVIEW:
                         dataOverviewReport.run(args);
@@ -324,7 +323,7 @@ public class ReportsManager implements CommandLineRunner {
                 }
 
                 String fqFilename = (file != null ? file.getAbsolutePath() : "<unknown>");
-                log.info("Created report '" + reportType + "' in " + fqFilename);
+                log.info("Created report '" + reportType + "' in " + fqFilename + "\n");
 
             } catch (Exception e) {
 
