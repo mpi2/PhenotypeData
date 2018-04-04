@@ -22,12 +22,19 @@ public class GrossPathPageTableRow {
 
 	private String sampleId;
 	private String anatomyName;
+	private String center;//phenotyping center
 	
 	
 	//System.out.println(sampleId+" "+ obs.getParameterName()+" "+obs.getParameterStableId()+" "+obs.getObservationType()+" categoryt=" +obs.getCategory()+ " text="+obs.getTextValue()+"ontologyTermValue="+obs.getTermValue());
 	
 	
 	
+	public String getCenter() {
+		return center;
+	}
+	public void setCenter(String center) {
+		this.center = center;
+	}
 	public String getAnatomyName() {
 		return anatomyName;
 	}
@@ -47,7 +54,7 @@ public class GrossPathPageTableRow {
 				+ ", significance=" + significance + ", severity=" + severity + ", imageList=" + imageList
 				+ ", sequenceId=" + sequenceId + ", zygosity=" + zygosity + ", numberOfAbnormalObservations="
 				+ numberOfAbnormalObservations + ", numberOfNormalObservations=" + numberOfNormalObservations
-				+ ", mpId=" + mpId + "]";
+				+ ", mpId=" + mpId +",  center="+ center+"]";
 	}
 	
 	public GrossPathPageTableRow(String sampleId, Set<String> parameterNames, String parameterStableId,
