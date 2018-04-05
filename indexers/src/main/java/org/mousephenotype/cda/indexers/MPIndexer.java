@@ -141,7 +141,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
             throws IndexerException{
 
         int count = 0;
-        RunStatus runStatus = new RunStatus();
+        RunStatus runStatus;
         long start = System.currentTimeMillis();
         initializeDatabaseConnections();
         System.out.println("Started supporting beans");
@@ -206,6 +206,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
 
 		        if (mpTerm == null) {
 		            String message = "MP term not found using mpHpParser.getOntologyTerm(termId); where termId = " + termId;
+		            runStatus.addWarning(message);
 		            logger.warn(message);
                 }
                 else {
