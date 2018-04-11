@@ -106,7 +106,7 @@ public class SecondaryProjectController {
          colorsForPie.add(nonSigColor);
         
         Map<String, Integer> totalHumanLabelToNumber = new LinkedHashMap<>();
-        totalHumanLabelToNumber.put("Mouse Orthologs",89);
+        totalHumanLabelToNumber.put("Mouse Orthologs", 89);
         totalHumanLabelToNumber.put("No Mouse Orthologs", 11);
         String idgHumanOrthologPie = PieChartCreator.getPieChartForColorList(totalHumanLabelToNumber, "idgHumanOrthologPie", "Human Ortholog Mappings", "",colorsForPie);
         model.addAttribute("idgHumanOrthologPie", idgHumanOrthologPie);
@@ -180,7 +180,7 @@ public class SecondaryProjectController {
             List<String> dataRows = new ArrayList<>();
             List<BasicBean> xAxisBeans = idg.getXAxisForHeatMap();
             List<String> phenotypeHeaders=new ArrayList<>();
-            for(BasicBean xAxisBean: xAxisBeans){
+            for (BasicBean xAxisBean: xAxisBeans) {
              phenotypeHeaders.add(xAxisBean.getName());
             }
             tableHeaders.addAll(phenotypeHeaders);
@@ -188,11 +188,10 @@ public class SecondaryProjectController {
             // dataRows.add(GenePageTableRow.getTabbedHeader());
             for (GeneRowForHeatMap row : geneRows) {
             List<String> phenotypeStatus=new ArrayList<>();
-            for(String phenoHeader: phenotypeHeaders){
+            for (String phenoHeader: phenotypeHeaders) {
                 HeatMapCell phenotypeStatusCell=row.getXAxisToCellMap().get(phenoHeader);
                 phenotypeStatus.add(phenotypeStatusCell.getStatus());
             }
-
              dataRows.add(row.toTabbedString() + StringUtils.join(phenotypeStatus, "\t"));
             }
 			

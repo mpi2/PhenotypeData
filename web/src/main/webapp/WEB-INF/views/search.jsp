@@ -756,7 +756,9 @@
 
 				var urltsvA = "${baseUrl}/export2?" + paramStr2 + "&" + fileTypeTsv;
 				var urlxlsA = "${baseUrl}/export2?" + paramStr2 + "&" + fileTypeXls;
-
+				
+				console.log("urltsvA: " + urltsvA);
+				
 				var toolBox = '<span>Export table as: &nbsp;&nbsp;&nbsp;'
 						+ '<a id="tsvA" class="fa fa-download gridDump" href="' + urltsvA + '">TSV</a>&nbsp;&nbsp;&nbsp;or&nbsp;&nbsp;&nbsp;'
 						+ '<a id="xlsA" class="fa fa-download gridDump" href="' + urlxlsA + '">XLS</a></span>';

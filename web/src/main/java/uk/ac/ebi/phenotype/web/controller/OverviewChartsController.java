@@ -166,7 +166,7 @@ public class OverviewChartsController {
 		String[] centerToFilter = center;
 
 		// Assuming that different versions of a procedure will keep the same name.
-		//Hibernate.initialize(p.getProcedures().iterator().next().getName());
+		// Hibernate.initialize(p.getProcedures().iterator().next().getName());
 		String procedureName = p.getProcedures().iterator().next().getName();
 
 		if (p != null){

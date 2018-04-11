@@ -1,4 +1,18 @@
-[{"mgi_accession_id":"MGI:1915545","id_link":"http://www.mousephenotype.org/data/genes/MGI:1915545","marker_symbol":"Aar2","human_gene_symbol":"AAR2","marker_name":"AAR2 splicing factor homolog","marker_synonym":"0610011L14Rik","marker_type":"protein coding gene","latest_mouse_status":"Info not available","latest_phenotype_status":"Info not available","latest_project_status":"No ES Cell Production","mp_id":"Info not available","mp_term":"Info not available"},
+[
+	{
+		"mgi_accession_id":"MGI:1915545",
+		"id_link":"http://www.mousephenotype.org/data/genes/MGI:1915545",
+		"marker_symbol":"Aar2",
+		"human_gene_symbol":"AAR2",
+		"marker_name":"AAR2 splicing factor homolog",
+		"marker_synonym":"0610011L14Rik",
+		"marker_type":"protein coding gene",
+		"latest_mouse_status":"Info not available",
+		"latest_phenotype_status":"Info not available",
+		"latest_project_status":"No ES Cell Production",
+		"mp_id":"Info not available",
+		"mp_term":"Info not available"
+	},
 {"mgi_accession_id":"MGI:1197518","id_link":"http://www.mousephenotype.org/data/genes/MGI:1197518","marker_symbol":"Aatk","human_gene_symbol":"AATK","marker_name":"apoptosis-associated tyrosine kinase","marker_synonym":"AATYK1","marker_type":"protein coding gene","latest_mouse_status":"Mice Produced","latest_phenotype_status":"Phenotype Attempt Registered","latest_project_status":"Phenotype Attempt Registered","mp_id":"Info not available","mp_term":"Info not available"},
 {"mgi_accession_id":"MGI:1923434","id_link":"http://www.mousephenotype.org/data/genes/MGI:1923434","marker_symbol":"Abca6","human_gene_symbol":"ABCA6","marker_name":"ATP-binding cassette, sub-family A (ABC1), member 6","marker_synonym":"6330565N06Rik","marker_type":"protein coding gene","latest_mouse_status":"Mice Produced","latest_phenotype_status":"Phenotyping Complete","latest_project_status":"Phenotyping Complete","mp_id":"MP:0005567|MP:0002608|MP:0005179|MP:0000195|MP:0009141|MP:0005419|MP:0001539","mp_term":"decreased circulating cholesterol level|decreased circulating serum albumin level|increased hematocrit|decreased circulating calcium level|decreased caudal vertebrae number|increased prepulse inhibition|decreased circulating total protein level"},
 {"mgi_accession_id":"MGI:1352629","id_link":"http://www.mousephenotype.org/data/genes/MGI:1352629","marker_symbol":"Abcc8","human_gene_symbol":"ABCC8","marker_name":"ATP-binding cassette, sub-family C (CFTR/MRP), member 8","marker_synonym":"Sur|D930031B21Rik|SUR1","marker_type":"protein coding gene","latest_mouse_status":"Info not available","latest_phenotype_status":"Info not available","latest_project_status":"ES Cell Targeting Confirmed","mp_id":"Info not available","mp_term":"Info not available"},

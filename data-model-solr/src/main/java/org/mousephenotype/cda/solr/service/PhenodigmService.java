@@ -107,6 +107,7 @@ public class PhenodigmService implements WebStatus {
 					.set("group.field", PhenodigmDTO.MODEL_ID);
 
 			nGroups = solr.query(q).getGroupResponse().getValues().get(0).getNGroups();
+			
 		} catch (IOException | SolrServerException | HttpSolrClient.RemoteSolrException e) {
 			logger.error("\n\nERROR getDiseaseAssociationCount: Could not get disease association count\n\n", e);
 		}

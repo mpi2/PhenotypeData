@@ -45,21 +45,63 @@
 								
 									<h3>IDG Human-Mouse Orthology Mapping</h3>
 									<p>
-Orthologous genes between human and mouse were mapped using <a href="https://www.ncbi.nlm.nih.gov/homologene">HomoloGene</a>. 89% of human IDG genes had mouse orthologs. 11% of human IDG genes did not have a mouse ortholog.
-								</p>
+										Orthologous genes between human and mouse were mapped using <a href="https://www.ncbi.nlm.nih.gov/homologene">HomoloGene</a>. 89% of human IDG genes had mouse orthologs. 11% of human IDG genes did not have a mouse ortholog.
+									</p>
 									
 									<div  class="half">
 										<div id="idgHumanOrthologPie">
 			            					<script type="text/javascript">
-													${idgHumanOrthologPie}
-											</script> 
+											${idgHumanOrthologPie}
+										</script> 
 										</div>       	
 									</div>
 									
 									<div class="half">
 									<table>
 									<tr><th>Human Genes With No Mouse Ortholog</th></tr>
-										<tr><td>ADCK4</td></tr><tr><td>ADGRD2</td></tr><tr><td>ADGRE2</td></tr><tr><td>ADGRE3</td></tr><tr><td>BEST4</td></tr><tr><td>CLCA3P</td></tr><tr><td>CLIC2</td></tr><tr><td>FXYD6P3</td></tr><tr><td>GNRHR2</td></tr><tr><td>GPR32</td></tr><tr><td>GPR32P1</td></tr><tr><td>GPR42</td></tr><tr><td>GPR78</td></tr><tr><td>HTR1E</td></tr><tr><td>HTR3C</td></tr><tr><td>HTR3D</td></tr><tr><td>HTR3E</td></tr><tr><td>KCNJ18</td></tr><tr><td>MAS1L</td></tr><tr><td>NPBWR2</td></tr><tr><td>NPY6R</td></tr><tr><td>OPN1MW2</td></tr><tr><td>OXER1</td></tr><tr><td>P2RY11</td></tr><tr><td>PAK7</td></tr><tr><td>PRKACG</td></tr><tr><td>PRKY</td></tr><tr><td>PSKH2</td></tr><tr><td>SCNN1D</td></tr><tr><td>SGK223</td></tr><tr><td>STK17A</td></tr><tr><td>TAS2R19</td></tr><tr><td>TAS2R20</td></tr><tr><td>TAS2R30</td></tr><tr><td>TAS2R43</td></tr><tr><td>TAS2R5</td></tr><tr><td>TAS2R50</td></tr><tr><td>TAS2R8</td></tr><tr><td>TAS2R9</td></tr><tr><td>VN1R1</td></tr><tr><td>VN1R17P</td></tr><tr><td>VN1R3</td></tr><tr><td>VN1R5</tr>
+										<tr><td>ADCK4</td></tr>
+										<tr><td>ADGRD2</td></tr>
+										<tr><td>ADGRE2</td></tr>
+										<tr><td>ADGRE3</td></tr>
+										<tr><td>BEST4</td></tr>
+										<tr><td>CLCA3P</td></tr>
+										<tr><td>CLIC2</td></tr>
+										<tr><td>FXYD6P3</td></tr>
+										<tr><td>GNRHR2</td></tr>
+										<tr><td>GPR32</td></tr>
+										<tr><td>GPR32P1</td></tr>
+										<tr><td>GPR42</td></tr>
+										<tr><td>GPR78</td></tr>
+										<tr><td>HTR1E</td></tr>
+										<tr><td>HTR3C</td></tr>
+										<tr><td>HTR3D</td></tr>
+										<tr><td>HTR3E</td></tr>
+										<tr><td>KCNJ18</td></tr>
+										<tr><td>MAS1L</td></tr>
+										<tr><td>NPBWR2</td></tr>
+										<tr><td>NPY6R</td></tr>
+										<tr><td>OPN1MW2</td></tr>
+										<tr><td>OXER1</td></tr>
+										<tr><td>P2RY11</td></tr>
+										<tr><td>PAK7</td></tr>
+										<tr><td>PRKACG</td></tr>
+										<tr><td>PRKY</td></tr>
+										<tr><td>PSKH2</td></tr>
+										<tr><td>SCNN1D</td></tr>
+										<tr><td>SGK223</td></tr>
+										<tr><td>STK17A</td></tr>
+										<tr><td>TAS2R19</td></tr>
+										<tr><td>TAS2R20</td></tr>
+										<tr><td>TAS2R30</td></tr>
+										<tr><td>TAS2R43</td></tr>
+										<tr><td>TAS2R5</td></tr>
+										<tr><td>TAS2R50</td></tr>
+										<tr><td>TAS2R8</td></tr>
+										<tr><td>TAS2R9</td></tr>
+										<tr><td>VN1R1</td></tr>
+										<tr><td>VN1R17P</td></tr>
+										<tr><td>VN1R3</td></tr>
+										<tr><td>VN1R5</tr>
 									</table>
 									</div>
 									 <div class="clear"></div>   
