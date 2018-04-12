@@ -1032,4 +1032,25 @@ public class GeneService extends BasicService implements WebStatus{
 		return res;
 	}
 	
+	/**
+	 * Get the mouse project status for a set of genes (not alleles) for table implementation for cmg
+	 * @param geneIds
+	 * @return
+	 * @throws SolrServerException, IOException
+	 */
+	public String getLatestProjectStatusForGeneSet (String geneId) throws SolrServerException, IOException {
+			String latestProjectStatus = "";
+			SolrQuery solrQuery = new SolrQuery();
+			solrQuery.setQuery("*:*");
+			solrQuery.setFilterQueries(GeneDTO.MGI_ACCESSION_ID + ":(" + geneId.replace(":", "\\:") + ")");
+			solrQuery.setRows(100000);
+			solrQuery.setFields(GeneDTO.MGI_ACCESSION_ID, GeneDTO.LATEST_PROJECT_STATUS);
+			log.info("server query is: {}", solrQuery.toString());
+			QueryResponse rsp = solr.query(solrQuery);
+			List<GeneDTO> genes = rsp.getBeans(GeneDTO.class);
+			for (GeneDTO gene : genes) {
+				latestProjectStatus = gene.getLatestProjectStatus();
+			}
+			return latestProjectStatus;
+		}
 }

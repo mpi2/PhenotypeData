@@ -57,6 +57,7 @@ public class GrossPathService {
 					row.setAnatomyName(anatomyName);
 						for(ObservationDTO obs: keysForRow.get(key)){
 							row.setZygosity(obs.getZygosity().substring(0, 3).toUpperCase());
+							row.setCenter(obs.getPhenotypingCenter());
 		
 							ImpressBaseDTO parameter = new ImpressBaseDTO(null, null, obs.getParameterStableId(),
 									obs.getParameterName());
@@ -165,11 +166,13 @@ public class GrossPathService {
 				
 				GrossPathPageTableRow row = new GrossPathPageTableRow();
 				row.setAnatomyName(anatomyName);
+				
 				//row.setSampleId(sampleId);
 				
 				Set<String> parameterNames = new TreeSet<>();
 
 				for (ObservationDTO obs : sampleToObservations.get(sampleId)) {
+					row.setCenter(obs.getPhenotypingCenter());
 					// a row is a unique sampleId and anatomy combination
 					if (this.getAnatomyStringFromObservation(obs) != null
 							&& this.getAnatomyStringFromObservation(obs).equals(anatomyName)) {

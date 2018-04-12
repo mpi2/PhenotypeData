@@ -83,9 +83,9 @@
 							<th>
 							Normal
 							</th>
-							<%-- <th>
-							Images
-							</th> --%>
+							<th>
+							Center
+							</th>
 							
 						
 							
@@ -134,6 +134,9 @@
 									</td>
 									<td>
 									${pathRow.numberOfNormalObservations}
+									</td>
+									<td>
+									${pathRow.center}
 									</td>
 									
 									<%-- <c:if test="${fn:length(pathRow.imageList) >0}">
