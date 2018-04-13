@@ -200,7 +200,7 @@ public class ImpressParser implements CommandLineRunner {
         ScriptUtils.executeSqlScript(cdabaseDataSource.getConnection(), r);
 
         // Load CategoryRemapping map
-        Resource resource = context.getResource("impress/CategoryRemapping.tsv");
+        Resource resource = context.getResource("classpath:impress/CategoryRemapping.tsv");
 
         List<String> lines = Files.readAllLines(resource.getFile().toPath(), Charset.defaultCharset());
         for (String line : lines) {
