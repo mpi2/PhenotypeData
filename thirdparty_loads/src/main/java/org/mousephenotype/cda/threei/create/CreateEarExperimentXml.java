@@ -58,16 +58,16 @@ import java.sql.Date;
  * specimen files currently found at /usr/local/komp2/phenotype_data/impc. This class is meant to be an executable jar
  * whose arguments describe the profile containing the application.properties, the source file, and the database name.
  */
-public class CreateDssExperimentXml extends Create3iXmls implements CommandLineRunner {
+public class CreateEarExperimentXml extends Create3iXmls implements CommandLineRunner {
 
     private String outFilename;
     private String inFilename;
 
-    @Value("${n_dss_rows_per_mouse}")
+    @Value("${n_ear_rows_per_mouse}")
     private int nRowsPerMouse;
 
     public static void main(String[] args) throws Exception {
-        SpringApplication app = new SpringApplication(CreateDssExperimentXml.class);
+        SpringApplication app = new SpringApplication(CreateEarExperimentXml.class);
         app.setBannerMode(Banner.Mode.OFF);
         app.setLogStartupInfo(false);
         app.run(args);
@@ -112,7 +112,7 @@ public class CreateDssExperimentXml extends Create3iXmls implements CommandLineR
         int                  totalSpecimens        = 0;
         int                  totalSpecimenFailures = 0;
 
-        // Get DSS data from Excel file. Current file should have fourteen
+        // Get Ear data from Excel file. Current file should have 113
         // rows for each mouse.
         ExcelReader reader = new ExcelReader(inFilename);
 
@@ -120,6 +120,12 @@ public class CreateDssExperimentXml extends Create3iXmls implements CommandLineR
 
         // Get column headings
         ArrayList<String> columnHeadings = reader.getColumnHeadings();
+        // For debug purposes print out column names
+        int counter=0;
+        for (String columnHeading: columnHeadings) {
+            logger.info("Column " + counter + " = " + columnHeading);
+            counter++;
+        }
         int nColumns = reader.getNumberOfColumns();
 
         // Get row details
@@ -175,66 +181,52 @@ public class CreateDssExperimentXml extends Create3iXmls implements CommandLineR
                 // I have gone into IMPReSS to determine this
                 // but ideally this should be specified in a configuration
                 // file
+                if (parameterImpressId == null) {
+                    logger.warn("ParameterImpressId is NULL");
+                    continue;
+                } else {
+                    logger.info("ParameterImpresId = " + parameterImpressId);
+                }
+
                 switch (parameterImpressId) {
-                    // SimpleParameters
-                    case "DSS_DSS_001_001": case "DSS_DSS_002_001":
-                    case "DSS_DSS_003_001" : case "DSS_DSS_004_001" :
-                    case "DSS_DSS_005_001" : case "DSS_DSS_006_001" :
-                    case "DSS_DSS_007_001" : case "DSS_DSS_008_001" :
-                    case "DSS_DSS_012_001" : case "DSS_DSS_014_001" :
-                        SimpleParameter simpleParameter = new SimpleParameter();
-                        simpleParameter.setParameterID(parameterImpressId);
-                        simpleParameter.setValue(value);
-                        simpleParameters.add(simpleParameter);
-                        break;
-
                     // ProcedureMetadata
-                    case "DSS_DSS_013_001" : case "DSS_DSS_015_001" :
-                    case "DSS_DSS_016_001" : case "DSS_DSS_017_001" :
-
+                    case "MGP_EEI_111_001" : case "MGP_EEI_112_001" :
                         ProcedureMetadata procedureMetadata = 
                             new ProcedureMetadata();
                         procedureMetadata.setParameterID(parameterImpressId);
                         procedureMetadata.setValue(value);
                         procedureMetadatas.add(procedureMetadata);
                         break;
+                    
+                    // SimpleParameters
+                    default:
+                        SimpleParameter simpleParameter = new SimpleParameter();
+                        simpleParameter.setParameterID(parameterImpressId);
+                        simpleParameter.setValue(value);
+                        simpleParameters.add(simpleParameter);
                 }
 
-                String imageOnePath = rowResult[29].equals("NonStringNonNumericValue") ? "" : rowResult[29];
-                String imageTwoPath = rowResult[30].equals("NonStringNonNumericValue") ? "" : rowResult[30];
-                MimetypesFileTypeMap mimetypes = new MimetypesFileTypeMap();
 
+                /*
+                String imagePath = rowResult[29].equals("NonStringNonNumericValue") ? "" : rowResult[29];
+                MimetypesFileTypeMap mimetypes = new MimetypesFileTypeMap();
                 if (imageAssignAttempted == false) {
-                    // Set up objects required to assign image but only assign
-                    // if either a jpg and/or a tiff image is present
-                    int increment = 1;
-                    
                     ArrayList<SeriesMediaParameterValue> smpvList = 
                         new ArrayList<SeriesMediaParameterValue>();
-                    if (imageOnePath != null && imageOnePath.length() > 0 && 
-                         !imageOnePath.equals("#N/A")) {
-                    	SeriesMediaParameterValue smpv = 
-                                new SeriesMediaParameterValue();
-                        smpv.setIncrementValue("" + increment);
-                        smpv.setURI(imageOnePath);
-                        smpv.setFileType(mimetypes.getContentType(imageOnePath));
+                    SeriesMediaParameterValue smpv = 
+                        new SeriesMediaParameterValue();
+                    if (imagePath != null && imagePath.length() > 0 && 
+                         !imagePath.equals("#N/A")) {
+                        
+                        smpv.setIncrementValue("1");
+                        smpv.setURI(imagePath);
+                        smpv.setFileType(mimetypes.getContentType(imagePath));
                         smpvList.add(smpv);
-                        increment++;
                     } 
 
-                    if (imageTwoPath != null && imageTwoPath.length() > 0 && 
-                         !imageTwoPath.equals("#N/A")) {
-                    	SeriesMediaParameterValue smpv = 
-                                new SeriesMediaParameterValue();
-                        smpv.setIncrementValue("" + increment);
-                        smpv.setURI(imageTwoPath);
-                        smpv.setFileType(mimetypes.getContentType(imageTwoPath));
-                        smpvList.add(smpv);
-                    }
-                    
                     SeriesMediaParameter seriesMediaParameter = 
                         new SeriesMediaParameter();
-                    seriesMediaParameter.setParameterID("DSS_DSS_018_001");
+                    seriesMediaParameter.setParameterID("MGP_EEI_114_001");
                     if (smpvList.size() > 0) {
                         seriesMediaParameter.setValue(smpvList);
                         seriesMediaParameters.add(seriesMediaParameter);
@@ -242,6 +234,7 @@ public class CreateDssExperimentXml extends Create3iXmls implements CommandLineR
                     }
                     imageAssignAttempted = true;
                 }
+                */
             }
             //experiment.setSequenceID("3I_" + row[0]);
 
@@ -259,7 +252,7 @@ public class CreateDssExperimentXml extends Create3iXmls implements CommandLineR
         // Write out experiment
         CentreProcedure centreProcedure = new CentreProcedure();
         centreProcedure.setProject("ToBeLoadedFromIMITS");
-        centreProcedure.setPipeline("DSS_001");
+        centreProcedure.setPipeline("MGP_001");
         centreProcedure.setCentreID(CentreILARcode.fromValue("Wtsi"));
         centreProcedure.setExperiment(experiments);
 
@@ -270,7 +263,7 @@ public class CreateDssExperimentXml extends Create3iXmls implements CommandLineR
         
         try {
             // Save to file
-            XMLUtils.marshall(CreateDssExperimentXml.CONTEXT_PATH, centreProcedureSet, outFilename);
+            XMLUtils.marshall(CreateEarExperimentXml.CONTEXT_PATH, centreProcedureSet, outFilename);
             logger.info("marshalled centreExperiment to {}", outFilename);
         } catch (Exception e) {
             logger.error("Problem marshalling centreExperiment to {}", outFilename);

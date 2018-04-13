@@ -150,10 +150,8 @@
                          to specify main class to run. For now locally I
                          created a variable I can pass it
                     -->
-                    <!--
                     <mainClass>${myMainClass}</mainClass>
-                    -->
-                    <mainClass>org.mousephenotype.cda.threei.create.CreateDssSpecimenXml</mainClass>
+                    <!--mainClass>org.mousephenotype.cda.threei.create.CreateDssExperimentXml</mainClass-->
                 </configuration>
                 <executions>
                     <execution>
