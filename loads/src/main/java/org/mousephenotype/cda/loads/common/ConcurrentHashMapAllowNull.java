@@ -41,7 +41,7 @@ public class ConcurrentHashMapAllowNull<K,V> extends ConcurrentHashMap<K,V> impl
     @Override
     public V put(K key, V value) {
         if ((key == null) || (value == null)) {
-            logger.warn("NULL key or valuel key = " + key + ". value = " + value);
+            logger.warn("NULL key or value key = " + key + ". value = " + value);
             System.out.println(StringUtils.join(Thread.currentThread().getStackTrace(), "\n"));
             return null;
         }

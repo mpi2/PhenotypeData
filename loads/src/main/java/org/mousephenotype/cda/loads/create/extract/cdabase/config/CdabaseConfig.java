@@ -85,7 +85,6 @@ public class CdabaseConfig extends DataSourceCdabaseConfig {
 
         this.stepBuilderFactory = stepBuilderFactory;
         this.cdabaseSqlUtils = cdabaseSqlUtils;
-
     }
 
 

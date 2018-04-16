@@ -40,7 +40,10 @@ import java.util.Map;
  * Created by mrelac on 31/08/2016.
  *
  */
+
+// 2018-04-12 (mrelac) This class functionality has been replaced by the ImpressParser class, ported from AdminTools. Use it instead.
 @ComponentScan
+@Deprecated
 public class PhenotypeParameterOntologyAssociationUpdater implements CommandLineRunner {
 
     private CdaSqlUtils                 cdaSqlUtils;
@@ -85,7 +88,15 @@ public class PhenotypeParameterOntologyAssociationUpdater implements CommandLine
             workingTerms.add(new OntologyTerm(workingPopa.getOntologyAcc(), workingPopa.getOntologyDbId()));
         }
 
-        Map<String, OntologyTerm> replacementMap = cdaSqlUtils.getUpdatedOntologyTermMap(workingTerms);                 // This is the map of replacement ontology terms, indexed by working ontology accession id
+        List<String> infos = new ArrayList<>();
+        List<String> warnings = new ArrayList<>();
+        Map<String, OntologyTerm> replacementMap = cdaSqlUtils.getUpdatedOntologyTermMap(workingTerms, infos, warnings);// This is the map of replacement ontology terms, indexed by working ontology accession id
+        for (String s : infos) {
+            logger.info(s);
+        }
+        for (String s: warnings) {
+            logger.warn(s);
+        }
         int count = cdaSqlUtils.updatePhenotypeParameterOntologyAnnotations(replacementMap);
 
         logger.info("Updated " + count + " ontology terms in the phenotype_parameter_ontology_annotation table.");
