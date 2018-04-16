@@ -39,8 +39,10 @@ import org.w3c.dom.NodeList;
 
 import javax.inject.Inject;
 import javax.sql.DataSource;
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.sql.SQLException;
@@ -204,6 +206,16 @@ public class ImpressParser implements CommandLineRunner {
 
         // Load CategoryRemapping map
         Resource resource = context.getResource("classpath:impress/CategoryRemapping.tsv");
+
+        InputStream is = resource.getInputStream();
+        BufferedInputStream bis = new BufferedInputStream(is);
+        System.out.println("Printing first 10 bytes of file:");
+        for (int i = 0; i < 10; i++) {
+            System.out.println(bis.read());
+        }
+
+
+
 System.out.println("Resource filename: " + resource.getFilename());
 System.out.println("Resource path string URI:" + resource.getURI().getPath());
         System.out.println("Resource path string URL:" + resource.getURL().getPath());
