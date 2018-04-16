@@ -203,8 +203,9 @@ public class ImpressParser implements CommandLineRunner {
 
         // Load CategoryRemapping map
         Resource resource = context.getResource("classpath:impress/CategoryRemapping.tsv");
-System.out.println("Resource path: " + resource.getFile().toPath().toString());
 System.out.println("Resource filename: " + resource.getFilename());
+System.out.println(resource.getFile().toPath().toString());
+System.out.println("Resource path: ");
         List<String> lines = Files.readAllLines(resource.getFile().toPath(), Charset.defaultCharset());
         for (String line : lines) {
             String[] pieces = line.split("\t");
