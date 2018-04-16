@@ -30,21 +30,16 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
-import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.jdbc.datasource.init.ScriptUtils;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 import javax.inject.Inject;
 import javax.sql.DataSource;
-import java.io.BufferedInputStream;
-import java.io.File;
+import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
+import java.io.InputStreamReader;
 import java.sql.SQLException;
 import java.util.*;
 
@@ -205,41 +200,10 @@ public class ImpressParser implements CommandLineRunner {
         ScriptUtils.executeSqlScript(cdabaseDataSource.getConnection(), r);
 
         // Load CategoryRemapping map
-        Resource resource = context.getResource("classpath:impress/CategoryRemapping.tsv");
-
-        InputStream is = resource.getInputStream();
-        BufferedInputStream bis = new BufferedInputStream(is);
-        System.out.println("Printing first 10 bytes of file:");
-        for (int i = 0; i < 10; i++) {
-            System.out.println(bis.read());
-        }
-
-
-
-System.out.println("Resource filename: " + resource.getFilename());
-System.out.println("Resource path string URI:" + resource.getURI().getPath());
-        System.out.println("Resource path string URL:" + resource.getURL().getPath());
-        System.out.println("Resource file string URL:" + resource.getURL().getFile());
-
-System.out.println(resource.getFile().toPath().toString());
-
-
-        File file = new File(getClass().getResource("impress/CategoryRemapping.tsv").getFile());
-        List<String> lines2 = Files.readAllLines(file.toPath());
-        System.out.println("READING FILE");
-        for (String line : lines2) {
-            String[] pieces = line.split("\t");
-            if (pieces[2].equals("0")) {
-
-                // Create sets of parameterStableId_NormalCategoryName
-                normalCategory.add(pieces[0] + "_" + pieces[1]);
-            }
-        }
-        System.out.println("FINISHED READING FILE");
-
-System.out.println("Resource path: ");
-        List<String> lines = Files.readAllLines(resource.getFile().toPath(), Charset.defaultCharset());
-        for (String line : lines) {
+        Resource resource = context.getResource("impress/CategoryRemapping.tsv");
+        BufferedReader reader = new BufferedReader(new InputStreamReader(resource.getInputStream()));
+        String line = null;
+        while ((line = reader.readLine()) != null) {
             String[] pieces = line.split("\t");
             if (pieces[2].equals("0")) {
 
