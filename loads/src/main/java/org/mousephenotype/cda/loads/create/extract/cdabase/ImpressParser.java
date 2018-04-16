@@ -32,6 +32,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
+import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.jdbc.datasource.init.ScriptUtils;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -201,8 +202,9 @@ public class ImpressParser implements CommandLineRunner {
         ScriptUtils.executeSqlScript(cdabaseDataSource.getConnection(), r);
 
         // Load CategoryRemapping map
-        Resource resource = new ClassPathResource("impress/CategoryRemapping.tsv");
-
+        Resource resource = context.getResource("classpath:impress/CategoryRemapping.tsv");
+System.out.println("Resource path: " + resource.getFile().toPath().toString());
+System.out.println("Resource filename: " + resource.getFilename());
         List<String> lines = Files.readAllLines(resource.getFile().toPath(), Charset.defaultCharset());
         for (String line : lines) {
             String[] pieces = line.split("\t");
