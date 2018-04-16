@@ -39,6 +39,7 @@ import org.w3c.dom.NodeList;
 
 import javax.inject.Inject;
 import javax.sql.DataSource;
+import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
@@ -209,6 +210,21 @@ System.out.println("Resource path string URI:" + resource.getURI().getPath());
         System.out.println("Resource file string URL:" + resource.getURL().getFile());
 
 System.out.println(resource.getFile().toPath().toString());
+
+
+        File file = new File(getClass().getResource("impress/CategoryRemapping.tsv").getFile());
+        List<String> lines2 = Files.readAllLines(file.toPath());
+        System.out.println("READING FILE");
+        for (String line : lines2) {
+            String[] pieces = line.split("\t");
+            if (pieces[2].equals("0")) {
+
+                // Create sets of parameterStableId_NormalCategoryName
+                normalCategory.add(pieces[0] + "_" + pieces[1]);
+            }
+        }
+        System.out.println("FINISHED READING FILE");
+
 System.out.println("Resource path: ");
         List<String> lines = Files.readAllLines(resource.getFile().toPath(), Charset.defaultCharset());
         for (String line : lines) {
