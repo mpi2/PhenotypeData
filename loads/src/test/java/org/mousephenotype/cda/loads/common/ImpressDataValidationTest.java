@@ -20,6 +20,8 @@ import junit.framework.TestCase;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mousephenotype.cda.db.pojo.*;
+import org.mousephenotype.cda.enumerations.SexType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.core.RowMapper;
@@ -112,6 +114,52 @@ public class ImpressDataValidationTest extends TestCase {
 //		}
 	}
 
+	
+	private List<Pipeline> getPipelines(NamedParameterJdbcTemplate jdbc) {
+
+        List<Pipeline> list = jdbc.query("SELECT * FROM phenotype_pipeline", new PipelineRowMapper());
+
+        return list;
+    }
+
+    private List<Procedure> getProcedures(NamedParameterJdbcTemplate jdbc) {
+
+        List<Procedure> list = jdbc.query("SELECT * FROM phenotype_procedure", new ProcedureRowMapper());
+
+        return list;
+    }
+
+    private List<Parameter> getParameters(NamedParameterJdbcTemplate jdbc) {
+
+        List<Parameter> list = jdbc.query("SELECT * FROM phenotype_parameter", new ParameterRowMapper());
+
+        return list;
+    }
+
+    private List<ParameterOption> getOptions(NamedParameterJdbcTemplate jdbc) {
+
+        List<ParameterOption> list = jdbc.query("SELECT * FROM phenotype_parameter_option", new OptionRowMapper());
+
+        return list;
+    }
+
+    private List<ParameterOntologyAnnotationWithSex> getOntologyAnnotations(NamedParameterJdbcTemplate jdbc) {
+
+        List<ParameterOntologyAnnotationWithSex> list = jdbc.query("SELECT * FROM phenotype_parameter_ontology_annotation", new OntologyAnnotationRowMapper());
+
+        return list;
+    }
+
+    private List<ParameterIncrement> getIncrements(NamedParameterJdbcTemplate jdbc) {
+
+        List<ParameterIncrement> list = jdbc.query("SELECT * FROM phenotype_parameter_increment", new IncrementRowMapper());
+
+        return list;
+    }
+    
+    
+
+
 	private List<ImpressData> getImpressData(NamedParameterJdbcTemplate jdbc) {
 
 		List<ImpressData> list = jdbc.query(impressQuery, new ImpressDataRowMapper());
@@ -191,6 +239,10 @@ public class ImpressDataValidationTest extends TestCase {
 			"\n" +
 			"ORDER BY pa_stable_id, pr.stable_id, pa.stable_id, pao.name, pao.normal, pai.increment_value, pai.increment_datatype, pai.increment_unit, pai.increment_minimum,\n" +
 			"         paoa.event_type, paoa.option_id, paoa.ontology_acc, paoa.ontology_db_id, paoa.sex";
+
+
+
+
 
    	public class ImpressData {
 		String pi_stable_id;
@@ -433,12 +485,246 @@ public class ImpressDataValidationTest extends TestCase {
 			data.paoa_ontology_acc = rs.getString("paoa_ontology_acc");
 			data.paoa_ontology_db_id = rs.getInt("paoa_ontology_db_id");
 			data.paoa_sex = rs.getString("paoa_sex");
-			if ((data.paoa_sex != null) && (data.paoa_sex.trim().isEmpty()))
-				data.paoa_sex = null;
 			
 			return data;
 		}
 	}
 
 
+    public class PipelineRowMapper implements RowMapper<Pipeline> {
+
+        /**
+         * Implementations must implement this method to map each row of data
+         * in the ResultSet. This method should not call {@code next()} on
+         * the ResultSet; it is only supposed to map values of the current row.
+         *
+         * @param rs     the ResultSet to map (pre-initialized for the current row)
+         * @param rowNum the number of the current row
+         * @return the result object for the current row
+         * @throws SQLException if a SQLException is encountered getting
+         *                      column values (that is, there's no need to catch SQLException)
+         */
+        @Override
+        public Pipeline mapRow(ResultSet rs, int rowNum) throws SQLException {
+            Pipeline data = new Pipeline();
+
+            Integer integer;
+
+            Datasource datasource = new Datasource();
+            datasource.setId(rs.getInt("db_id"));
+
+            data.setId(rs.getInt("id"));
+            data.setStableId(rs.getString("stable_id"));
+            data.setDatasource(datasource);
+            data.setName(rs.getString("name"));
+            data.setDescription(rs.getString("description"));
+            data.setMajorVersion(rs.getInt("major_version"));
+            data.setMinorVersion(rs.getInt("minor_version"));
+            data.setStableKey(rs.getInt("stable_key"));
+
+            return data;
+        }
+    }
+    
+    public class ParameterRowMapper implements RowMapper<Parameter> {
+
+        /**
+         * Implementations must implement this method to map each row of data
+         * in the ResultSet. This method should not call {@code next()} on
+         * the ResultSet; it is only supposed to map values of the current row.
+         *
+         * @param rs     the ResultSet to map (pre-initialized for the current row)
+         * @param rowNum the number of the current row
+         * @return the result object for the current row
+         * @throws SQLException if a SQLException is encountered getting
+         *                      column values (that is, there's no need to catch SQLException)
+         */
+        @Override
+        public Parameter mapRow(ResultSet rs, int rowNum) throws SQLException {
+            Parameter data = new Parameter();
+
+            Integer integer;
+
+            Datasource datasource = new Datasource();
+            datasource.setId(rs.getInt("db_id"));
+
+            data.setId(rs.getInt("id"));
+            data.setStableId(rs.getString("stable_id"));
+            data.setDatasource(datasource);
+            data.setName(rs.getString("name"));
+            data.setDescription(rs.getString("description"));
+            data.setMajorVersion(rs.getInt("major_version"));
+            data.setMinorVersion(rs.getInt("minor_version"));
+            data.setUnit(rs.getString("unit"));
+            data.setDatatype(rs.getString("datatype"));
+            data.setType(rs.getString("type"));
+            data.setFormula(rs.getString("formula"));
+            integer = rs.getInt("required");
+            data.setRequiredFlag((integer != null) && (integer == 1 ? true : false));
+            integer = rs.getInt("important");
+            data.setImportantFlag((integer != null) && (integer == 1 ? true : false));
+            integer = rs.getInt("derived");
+            data.setDerivedFlag((integer != null) && (integer == 1 ? true : false));
+            integer = rs.getInt("annotate");
+            data.setAnnotateFlag((integer != null) && (integer == 1 ? true : false));
+            integer = rs.getInt("increment");
+            data.setIncrementFlag((integer != null) && (integer == 1 ? true : false));
+            integer = rs.getInt("options");
+            data.setOptionsFlag((integer != null) && (integer == 1 ? true : false));
+            data.setSequence(rs.getInt("sequence"));
+            integer = rs.getInt("media");
+            data.setMediaFlag((integer != null) && (integer == 1 ? true : false));
+            integer = rs.getInt("data_analysis");
+            data.setRequiredForDataAnalysisFlag((integer != null) && (integer == 1 ? true : false));
+            data.setDataAnalysisNotes(rs.getString("data_analysis_notes"));
+            data.setSequence(rs.getInt("stable_key"));
+            
+            return data;
+        }
+    }
+
+    public class ProcedureRowMapper implements RowMapper<Procedure> {
+
+        /**
+         * Implementations must implement this method to map each row of data
+         * in the ResultSet. This method should not call {@code next()} on
+         * the ResultSet; it is only supposed to map values of the current row.
+         *
+         * @param rs     the ResultSet to map (pre-initialized for the current row)
+         * @param rowNum the number of the current row
+         * @return the result object for the current row
+         * @throws SQLException if a SQLException is encountered getting
+         *                      column values (that is, there's no need to catch SQLException)
+         */
+        @Override
+        public Procedure mapRow(ResultSet rs, int rowNum) throws SQLException {
+            Procedure data = new Procedure();
+
+            Integer integer;
+
+            Datasource datasource = new Datasource();
+            datasource.setId(rs.getInt("db_id"));
+
+            data.setId(rs.getInt("id"));
+            data.setStableKey(rs.getInt("stable_key"));
+            data.setStableId(rs.getString("stable_id"));
+            data.setDatasource(datasource);
+            data.setName(rs.getString("name"));
+            data.setDescription(rs.getString("description"));
+            data.setMajorVersion(rs.getInt("major_version"));
+            data.setMinorVersion(rs.getInt("minor_version"));
+            integer = rs.getInt("is_mandatory");
+            data.setMandatory((integer != null) && (integer == 1 ? true : false));
+            data.setLevel(rs.getString("level"));
+            data.setStage(rs.getString("stage"));
+            data.setStageLabel(rs.getString("stage_label"));
+
+            return data;
+        }
+    }
+
+    public class OptionRowMapper implements RowMapper<ParameterOption> {
+
+        /**
+         * Implementations must implement this method to map each row of data
+         * in the ResultSet. This method should not call {@code next()} on
+         * the ResultSet; it is only supposed to map values of the current row.
+         *
+         * @param rs     the ResultSet to map (pre-initialized for the current row)
+         * @param rowNum the number of the current row
+         * @return the result object for the current row
+         * @throws SQLException if a SQLException is encountered getting
+         *                      column values (that is, there's no need to catch SQLException)
+         */
+        @Override
+        public ParameterOption mapRow(ResultSet rs, int rowNum) throws SQLException {
+            ParameterOption data = new ParameterOption();
+
+            Integer integer;
+
+            data.setId(rs.getInt("id"));
+            data.setName(rs.getString("name"));
+            data.setDescription(rs.getString("description"));
+            integer = rs.getInt("normal");
+            data.setNormalCategory((integer != null) && (integer == 1 ? true : false));
+
+            return data;
+        }
+    }
+
+    public class OntologyAnnotationRowMapper implements RowMapper<ParameterOntologyAnnotationWithSex> {
+
+        /**
+         * Implementations must implement this method to map each row of data
+         * in the ResultSet. This method should not call {@code next()} on
+         * the ResultSet; it is only supposed to map values of the current row.
+         *
+         * @param rs     the ResultSet to map (pre-initialized for the current row)
+         * @param rowNum the number of the current row
+         * @return the result object for the current row
+         * @throws SQLException if a SQLException is encountered getting
+         *                      column values (that is, there's no need to catch SQLException)
+         */
+        @Override
+        public ParameterOntologyAnnotationWithSex mapRow(ResultSet rs, int rowNum) throws SQLException {
+            ParameterOntologyAnnotationWithSex data = new ParameterOntologyAnnotationWithSex();
+
+            Integer integer;
+
+            Datasource datasource = new Datasource();
+            datasource.setId(rs.getInt("db_id"));
+
+            data.setId(rs.getInt("id"));
+            String eventTypeString = rs.getString("event_type");
+            PhenotypeAnnotationType pat = (eventTypeString == null ? null : PhenotypeAnnotationType.valueOf(eventTypeString));
+            data.setType(pat);
+
+            integer = rs.getInt("option_id");
+            ParameterOption parameterOption = null;
+            if (integer != null) {
+                parameterOption.setId(integer);
+            }
+            data.setOption(parameterOption);
+
+            OntologyTerm term = new OntologyTerm();
+            DatasourceEntityId dsid = new DatasourceEntityId();
+            dsid.setAccession(rs.getString("ontology_acc"));
+            dsid.setDatabaseId(rs.getInt("ontology_db_id"));
+            term.setId(dsid);
+            data.setOntologyTerm(term);
+            String sexString = rs.getString("sex");
+            data.setSex(sexString == null ? null : SexType.valueOf(sexString));
+
+            return data;
+        }
+    }
+    
+    public class IncrementRowMapper implements RowMapper<ParameterIncrement> {
+
+        /**
+         * Implementations must implement this method to map each row of data
+         * in the ResultSet. This method should not call {@code next()} on
+         * the ResultSet; it is only supposed to map values of the current row.
+         *
+         * @param rs     the ResultSet to map (pre-initialized for the current row)
+         * @param rowNum the number of the current row
+         * @return the result object for the current row
+         * @throws SQLException if a SQLException is encountered getting
+         *                      column values (that is, there's no need to catch SQLException)
+         */
+        @Override
+        public ParameterIncrement mapRow(ResultSet rs, int rowNum) throws SQLException {
+            ParameterIncrement data = new ParameterIncrement();
+
+            Integer integer;
+
+            data.setId(rs.getInt("id"));
+            data.setValue(rs.getString("increment_value"));
+            data.setDataType(rs.getString("increment_datatype"));
+            data.setUnit(rs.getString("unit"));
+            data.setMinimum(rs.getString("increment_minimum"));
+
+            return data;
+        }
+    }
 }
