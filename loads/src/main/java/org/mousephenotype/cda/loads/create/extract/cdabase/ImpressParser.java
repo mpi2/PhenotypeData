@@ -202,7 +202,7 @@ public class ImpressParser implements CommandLineRunner {
         // Load CategoryRemapping map
         Resource resource = context.getResource("impress/CategoryRemapping.tsv");
         BufferedReader reader = new BufferedReader(new InputStreamReader(resource.getInputStream()));
-        String line = null;
+        String line;
         while ((line = reader.readLine()) != null) {
             String[] pieces = line.split("\t");
             if (pieces[2].equals("0")) {
@@ -462,9 +462,9 @@ public class ImpressParser implements CommandLineRunner {
             if (parameter.isOptionsFlag()) {                                                                            // Add mp options as specified by the web service
                 if (mpOntologyTermFromWs.get("option").length() > 0) {
                     String optionName = mpOntologyTermFromWs.get("option");
-                    List<ParameterOption> parameterOptions = getOptions(parameter.getStableId());
 
-                    for (ParameterOption parameterOption : parameterOptions) {
+                    // Look up the option in this parameter's options list so we can extract the phenotype_parameter_option primary key.
+                    for (ParameterOption parameterOption : parameter.getOptions()) {
                         if (parameterOption.getName().equals(optionName)) {
                             parameterOption.setNormalCategory(true);
                             mpOntologyAnnotation.setOption(parameterOption);
@@ -586,6 +586,7 @@ public class ImpressParser implements CommandLineRunner {
         if (parameter.isOptionsFlag()) {
             List<ParameterOption> options = getOptions(parameter.getStableId());
             cdabaseSqlUtils.insertPhenotypeParameterOptions(parameter.getId(), options);
+            parameter.setOptions(options);                                                                              // Set the list of options (with their primary keys) for use by the next step.
         }
 
         // ONTOLOGY ANNOTATIONS
