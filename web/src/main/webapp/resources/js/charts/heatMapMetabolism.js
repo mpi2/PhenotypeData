@@ -100,13 +100,27 @@ $(function () {
     					{
     						id: 'below5',
     						name: '<5%',
-    		                	categories: [ {id: 'female', name: '<i class="fa fa-venus" aria-hidden="true" style="padding-top: 10px;"></i>'}, 
-    		                		{id: 'male', name: '<i class="fa fa-mars" aria-hidden="true" style="padding-top: 10px;"></i>'}]
-    			    		}, {
+    		                	categories: [ 
+    		                		{
+    		                			id: 'female1', 
+    		                			name: '<i class="fa fa-venus" aria-hidden="true" style="padding-top: 10px;"></i>'
+    		                		}, {
+    		                			id: 'male2', 
+    		                			name: '<i class="fa fa-mars" aria-hidden="true" style="padding-top: 10px;"></i>'
+    		                		}
+    		                	]
+    					}, {
     			    			id: 'above5',
     			    			name: '>95%',
-    			    			categories: [ {id: 'female', name: '<i class="fa fa-venus" aria-hidden="true" style="padding-top: 10px;"></i>'}, 
-    			    				{id: 'male', name: '<i class="fa fa-mars" aria-hidden="true" style="padding-top: 10px;"></i>'}]
+    			    			categories: [ 
+    			    				{
+    			    					id: 'female2', 
+    			    					name: '<i class="fa fa-venus" aria-hidden="true" style="padding-top: 10px;"></i>'
+    			    				}, {
+    			    					id: 'male2', 
+    			    					name: '<i class="fa fa-mars" aria-hidden="true" style="padding-top: 10px;"></i>'
+    			    				}
+    			    			]
     		    		}],
     			}],
 	    		labels: {
@@ -121,9 +135,20 @@ $(function () {
         	        			return '<a id="above95" class="highlightCols" style="font-size: 1.5em; font-family: Source Sans Pro, Arial, Helvetica, sans-serif, FontAwesome; margin: -133px; padding: 8px 133px 4px 145px;">  ' + this.value + '</a>'
         	        		} else {
         	        			if (this.pos == 0 || this.pos == 1) {
-        	        				return '<a id="' + this.value.userOptions.id + '" class="highlightCols below5" style="font-size: 1.5em; font-family: Source Sans Pro, Arial, Helvetica, sans-serif, FontAwesome; margin: -72px; padding: 6px 72px 10px 73px;">  ' + this.value.userOptions.name + '</a>'
+        	        				try {
+        	        					return '<a id="' + this.value.userOptions.id + '" class="highlightCols below5" style="font-size: 1.5em; font-family: Source Sans Pro, Arial, Helvetica, sans-serif, FontAwesome; margin: -72px; padding: 6px 72px 10px 73px;">  ' + this.value.userOptions.name + '</a>'
+        	        				}
+        	        				catch(err) {
+        	        					console.log(err.message);
+        	        				}
         	        			} else if (this.pos == 2 || this.pos == 3) {
-        	        				return '<a id="' + this.value.userOptions.id + '" class="highlightCols above5" style="font-size: 1.5em; font-family: Source Sans Pro, Arial, Helvetica, sans-serif, FontAwesome; margin: -72px; padding: 6px 72px 10px 73px;">  ' + this.value.userOptions.name + '</a>'
+        	        				try {
+        	        					return '<a id="' + this.value.userOptions.id + '" class="highlightCols above5" style="font-size: 1.5em; font-family: Source Sans Pro, Arial, Helvetica, sans-serif, FontAwesome; margin: -72px; padding: 6px 72px 10px 73px;">  ' + this.value.userOptions.name + '</a>'
+        	        				}
+        	        				catch(err) {
+        	        					console.log(err.message);
+        	        				}
+        	        				
             	        		}
         	        		} 
         	        }
@@ -275,14 +300,14 @@ $(function () {
 	$(".highlightCols").hover(function () {
 		var id1;
 		var id2;
-		if ($(this).attr('id') == 'female') {
+		if ($(this).attr('id') == 'female1' || $(this).attr('id') == 'female2') {
 			if ($(this).attr('class').indexOf('below5') > -1) {
 				id1 = 0;
 			} else {
 				id1 = 2;
 			}
 			
-		} else if ($(this).attr('id') == 'male') {
+		} else if ($(this).attr('id') == 'male1' || $(this).attr('id') == 'male2') {
 			if ($(this).attr('class').indexOf('below5') > -1) {
 				id1 = 1;
 			} else {
@@ -314,7 +339,7 @@ $(function () {
 	$(".highlightCols").click(function () {
 		var femaleOrMale;
 		var outlier;
-		if ($(this).attr('id') == 'female') {
+		if ($(this).attr('id') == 'female1' || $(this).attr('id') == 'female2') {
 			femaleOrMale = 'female';
 			if ($(this).attr('class').indexOf('below5') > -1) {
 				outlier = 'below5';
@@ -322,7 +347,7 @@ $(function () {
 				outlier = 'above95';
 			}
 			
-		} else if ($(this).attr('id') == 'male') {
+		} else if ($(this).attr('id') == 'male1' || $(this).attr('id') == 'male2') {
 			femaleOrMale = 'male';
 			if ($(this).attr('class').indexOf('below5') > -1) {
 				outlier = 'below5';
