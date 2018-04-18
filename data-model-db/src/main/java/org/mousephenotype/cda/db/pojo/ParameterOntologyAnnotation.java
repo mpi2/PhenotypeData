@@ -112,5 +112,13 @@ public class ParameterOntologyAnnotation {
 		this.ontologyTerm = ontologyTerm;
 	}
 
-
+	@Override
+	public String toString() {
+		return "ParameterOntologyAnnotation{" +
+				"id=" + id +
+				", type=" + type +
+				", option=" + option +
+				", ontologyTerm=" + ontologyTerm +
+				'}';
+	}
 }
