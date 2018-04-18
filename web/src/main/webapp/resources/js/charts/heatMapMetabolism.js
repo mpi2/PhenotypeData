@@ -121,9 +121,9 @@ $(function () {
         	        			return '<a id="above95" class="highlightCols" style="font-size: 1.5em; font-family: Source Sans Pro, Arial, Helvetica, sans-serif, FontAwesome; margin: -133px; padding: 8px 133px 4px 145px;">  ' + this.value + '</a>'
         	        		} else {
         	        			if (this.pos == 0 || this.pos == 1) {
-        	        				return '<a id="' + this.value.userOptions.id + '" class="highlightCols below5" style="font-size: 1.5em; font-family: Source Sans Pro, Arial, Helvetica, sans-serif, FontAwesome; margin: -72px; padding: 6px 72px 10px 73px;">  ' + this.value.userOptions.name + '</a>'
+        	        				return '<a id="' + this.value.id + '" class="highlightCols below5" style="font-size: 1.5em; font-family: Source Sans Pro, Arial, Helvetica, sans-serif, FontAwesome; margin: -72px; padding: 6px 72px 10px 73px;">  ' + this.value.name + '</a>'
         	        			} else if (this.pos == 2 || this.pos == 3) {
-        	        				return '<a id="' + this.value.userOptions.id + '" class="highlightCols above5" style="font-size: 1.5em; font-family: Source Sans Pro, Arial, Helvetica, sans-serif, FontAwesome; margin: -72px; padding: 6px 72px 10px 73px;">  ' + this.value.userOptions.name + '</a>'
+        	        				return '<a id="' + this.value.id + '" class="highlightCols above5" style="font-size: 1.5em; font-family: Source Sans Pro, Arial, Helvetica, sans-serif, FontAwesome; margin: -72px; padding: 6px 72px 10px 73px;">  ' + this.value.name + '</a>'
             	        		}
         	        		} 
         	        }
