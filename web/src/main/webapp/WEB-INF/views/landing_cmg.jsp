@@ -117,7 +117,7 @@
 				   							<th rowspan="2" colspan="1" class="headerSort">OMIM ID</th>
 				   							<th rowspan="2" colspan="1" class="headerSort">Tier1 gene</th>
 				   							<th rowspan="2" colspan="1" class="headerSort">Tier2 gene</th>
-				   							<th rowspan="2" colspan="1" class="headerSort">Mouse Orthologue(s)</th>
+				   							<th rowspan="2" colspan="1" class="headerSort">Mouse Orthologue</th>
 				   							<th rowspan="2" colspan="1" class="headerSort">IMPC Status</th>
 				   							<th rowspan="1" colspan="3" class="headerSort" style="text-align: center;">Phenotype Overlap Score</th>
 				   						</tr>
