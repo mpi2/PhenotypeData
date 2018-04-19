@@ -468,12 +468,12 @@ public class ImpressParser implements CommandLineRunner {
                         if (parameterOption.getName().equals(optionName)) {
                             parameterOption.setNormalCategory(true);
                             mpOntologyAnnotation.setOption(parameterOption);
-                            logger.debug("Associate " + outcome + " to option " + parameterOption.getName() + " to parameter " + parameter.getStableId() + " with Ontology term '" + mpOntologyTermFromWs.get("mp_term") + "'. ");
+                            logger.debug("Associate " + outcome + " to option " + parameterOption.getName() + " to parameter " + parameter.getStableId() + " with MP Ontology term '" + mpOntologyTermFromWs.get("mp_term") + "'. ");
                             break;
                         }
                     }
                 } else {
-                    logger.debug("Associate " + outcome + " to parameter " + parameter.getStableId() + " with Ontology term '" + mpOntologyTermFromWs.get("mp_term") + "'.");
+                    logger.debug("Associate " + outcome + " to parameter " + parameter.getStableId() + " with MP Ontology term '" + mpOntologyTermFromWs.get("mp_term") + "'.");
                 }
             }
 
