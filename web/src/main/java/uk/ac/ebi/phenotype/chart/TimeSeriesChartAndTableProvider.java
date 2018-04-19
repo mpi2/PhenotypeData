@@ -116,7 +116,8 @@ public class TimeSeriesChartAndTableProvider {
 						Float discreteTimePoint = expDto.getDiscretePoint();
 
 						// Ensure the timepoint is valid
-						if (TimeSeriesConstants.DERIVED_BODY_WEIGHT_PARAMETERS.contains(parameter.getStableId()) && discreteTimePoint > 0) {
+						if ((TimeSeriesConstants.DERIVED_BODY_WEIGHT_PARAMETERS.contains(parameter.getStableId()) && discreteTimePoint > 0) ||
+								!TimeSeriesConstants.DERIVED_BODY_WEIGHT_PARAMETERS.contains(parameter.getStableId())) {
 							mutantData.add(new DiscreteTimePoint(discreteTimePoint, new Float(dataPoint)));
 						}
 					}
