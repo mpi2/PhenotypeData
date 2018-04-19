@@ -101,6 +101,13 @@ public class ImpressParser implements CommandLineRunner {
                 continue;
             }
 
+
+// FIXME FIXME FIXME
+if ( ! pipelineKey.startsWith("ESLIM_002"))
+    continue;
+
+
+
             logger.info("Loading pipeline {}", pipelineKey);
 
             Pipeline pipeline = null;
@@ -133,7 +140,16 @@ public class ImpressParser implements CommandLineRunner {
             List<String> procedureKeys = impress.getProcedureKeys(pipeline.getStableId()).getItem();
             for (String procedureKey : procedureKeys) {
 
-                logger.debug("  Loading procedure: {}", procedureKey);
+
+
+
+
+// FIXME FIXME FIXME
+if ( ! procedureKey.startsWith("ESLIM_010_001"))
+   continue;
+
+
+                    logger.debug("  Loading procedure: {}", procedureKey);
 
                 Procedure procedure = proceduresByStableIdMap.get(procedureKey);
                 if (procedure == null) {
@@ -152,6 +168,16 @@ public class ImpressParser implements CommandLineRunner {
                     for (int i = 0; i < parameterNodesMap.getLength(); i++) {
                         NodeList  parameterNodes = parameterNodesMap.item(i).getChildNodes();
                         Parameter parameter      = getParameter(parameterNodes, procedure);
+
+
+
+
+// FIXME FIXME FIXME
+if ( ! parameter.getStableId().startsWith("ESLIM_010_001_002"))
+    continue;
+
+
+
 
                         logger.debug("    Loading parameter: {}", parameter.getStableId());
 

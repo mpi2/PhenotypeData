@@ -200,14 +200,14 @@ public class ImpressDataValidationTest extends TestCase {
 
 		OntologyAnnotationComparator comparator = new OntologyAnnotationComparator();
 
-		List<ParameterOntologyAnnotationWithSex> ontologyAnnotationsOldWay = getOntologyAnnotations(jdbcImpress);
-		List<ParameterOntologyAnnotationWithSex> ontologyAnnotationsNewWay = getOntologyAnnotations(jdbcCdabase);
+		List<ParameterOntologyAnnotationWithSexAndPaStableId> ontologyAnnotationsOldWay = getOntologyAnnotations(jdbcImpress);
+		List<ParameterOntologyAnnotationWithSexAndPaStableId> ontologyAnnotationsNewWay = getOntologyAnnotations(jdbcCdabase);
 
 		Assert.assertEquals(ontologyAnnotationsOldWay.size(), ontologyAnnotationsNewWay.size());
 		int ontologyAnnotationMismatches = 0;
 		for (int i = 0; i < ontologyAnnotationsNewWay.size(); i++) {
-			ParameterOntologyAnnotationWithSex oldway = ontologyAnnotationsOldWay.get(i);
-			ParameterOntologyAnnotationWithSex newway = ontologyAnnotationsNewWay.get(i);
+            ParameterOntologyAnnotationWithSexAndPaStableId oldway = ontologyAnnotationsOldWay.get(i);
+            ParameterOntologyAnnotationWithSexAndPaStableId newway = ontologyAnnotationsNewWay.get(i);
 
 			if (comparator.compare(oldway, newway) != 0) {
 				System.out.println("Old way: " + oldway.toString());
@@ -245,7 +245,7 @@ public class ImpressDataValidationTest extends TestCase {
 		}
 		
 		if (mismatchCount > 0) {
-		System.out.println(testName + ": FAIL. There were " + mismatchCount + " MISMATCHES");
+		    Assert.fail(testName + ": FAIL. There were " + mismatchCount + " MISMATCHES");
 		
 //		for (int i = 0; i < impressOldWay.size(); i++) {
 //			Object oImpressOld = impressOldWay.get(i);
@@ -288,9 +288,17 @@ public class ImpressDataValidationTest extends TestCase {
         return list;
     }
 
-    private List<ParameterOntologyAnnotationWithSex> getOntologyAnnotations(NamedParameterJdbcTemplate jdbc) {
+    private List<ParameterOntologyAnnotationWithSexAndPaStableId> getOntologyAnnotations(NamedParameterJdbcTemplate jdbc) {
 
-        List<ParameterOntologyAnnotationWithSex> list = jdbc.query("SELECT * FROM phenotype_parameter_ontology_annotation ORDER BY event_type,option_id,ontology_acc,ontology_db_id,sex", new OntologyAnnotationRowMapper());
+	    String query =
+                "SELECT\n" +
+                        "  pa.stable_id AS pa_stable_id,\n" +
+                        "  paoa.*\n" +
+                        "FROM phenotype_parameter pa\n" +
+                        "JOIN phenotype_parameter_lnk_ontology_annotation paloa ON paloa.parameter_id = pa.id\n" +
+                        "JOIN phenotype_parameter_ontology_annotation paoa ON paoa.id = paloa.annotation_id\n" +
+                        "ORDER BY pa.stable_id, paoa.event_type, paoa.option_id, paoa.ontology_acc, paoa.ontology_db_id, paoa.sex";
+        List<ParameterOntologyAnnotationWithSexAndPaStableId> list = jdbc.query(query, new OntologyAnnotationRowMapper());
 
         return list;
     }
@@ -460,9 +468,9 @@ public class ImpressDataValidationTest extends TestCase {
 		}
 	}
 
-	public class OntologyAnnotationComparator implements Comparator<ParameterOntologyAnnotationWithSex> {
+	public class OntologyAnnotationComparator implements Comparator<ParameterOntologyAnnotationWithSexAndPaStableId> {
 		@Override
-		public int compare(ParameterOntologyAnnotationWithSex o1, ParameterOntologyAnnotationWithSex o2) {
+		public int compare(ParameterOntologyAnnotationWithSexAndPaStableId o1, ParameterOntologyAnnotationWithSexAndPaStableId o2) {
 
 
 			if ( (o1.getType() != null && o2.getType() != null) && ! o1.getType().name().equals(o2.getType().name())) {
@@ -484,11 +492,12 @@ public class ImpressDataValidationTest extends TestCase {
 			}
 
 			return Comparator
-					.comparing(ParameterOntologyAnnotationWithSex::getType,Comparator.nullsFirst(Comparator.naturalOrder()))
+					.comparing(ParameterOntologyAnnotationWithSexAndPaStableId::getStableId)
+					.thenComparing(ParameterOntologyAnnotationWithSex::getType,Comparator.nullsFirst(Comparator.naturalOrder()))
 					.thenComparing(op1 -> op1.getOption().getId(), Comparator.nullsFirst(Comparator.naturalOrder()))
 					.thenComparing(ont1 -> ont1.getOntologyTerm().getId().getAccession(), Comparator.nullsFirst(Comparator.naturalOrder()))
 					.thenComparing(ont1 -> ont1.getOntologyTerm().getId().getDatabaseId(), Comparator.nullsFirst(Comparator.naturalOrder()))
-					.thenComparing(s -> s.getSex().getName(), Comparator.nullsFirst(Comparator.naturalOrder()))
+					.thenComparing((s -> (s.getSex() == null ? null : s.getSex().getName())), Comparator.nullsFirst(Comparator.naturalOrder()))
 					.compare(o1, o2);
 		}
 	}
@@ -679,6 +688,25 @@ public class ImpressDataValidationTest extends TestCase {
 		}
 	}
 
+	public class ParameterOntologyAnnotationWithSexAndPaStableId extends ParameterOntologyAnnotationWithSex {
+	    String stableId;
+
+        public String getStableId() {
+            return stableId;
+        }
+
+        public void setStableId(String stableId) {
+            this.stableId = stableId;
+        }
+
+        @Override
+        public String toString() {
+            return "ParameterOntologyAnnotationWithSexAndPaStableId{"  +
+                    "stableId='" + stableId + super.toString() + " {" + '\'' +
+                    "}}";
+        }
+    }
+
 	public class ImpressDataRowMapper implements RowMapper<ImpressData> {
 
 		/**
@@ -703,6 +731,9 @@ public class ImpressDataValidationTest extends TestCase {
 			data.pi_major_version = rs.getInt("pi_major_version");
 			data.pi_minor_version = rs.getInt("pi_minor_version");
 			data.pi_is_deprecated = rs.getInt("pi_is_deprecated");
+			if (data.pi_is_deprecated == null) {                                                                        // Normalise null to 0.
+			    data.pi_is_deprecated = 0;
+            }
 			data.pr_stable_id = rs.getString("pr_stable_id");
 			data.pr_db_id = rs.getInt("pr_db_id");
 			data.pr_name = rs.getString("pr_name");
@@ -746,6 +777,9 @@ public class ImpressDataValidationTest extends TestCase {
 			data.paoa_ontology_acc = rs.getString("paoa_ontology_acc");
 			data.paoa_ontology_db_id = rs.getInt("paoa_ontology_db_id");
 			data.paoa_sex = rs.getString("paoa_sex");
+			if ((data.paoa_sex != null) && data.paoa_sex.trim().isEmpty()) {                                            // Normalise empty sex string to NULL
+			    data.paoa_sex = null;
+            }
 			
 			return data;
 		}
@@ -913,7 +947,7 @@ public class ImpressDataValidationTest extends TestCase {
         }
     }
 
-    public class OntologyAnnotationRowMapper implements RowMapper<ParameterOntologyAnnotationWithSex> {
+    public class OntologyAnnotationRowMapper implements RowMapper<ParameterOntologyAnnotationWithSexAndPaStableId> {
 
         /**
          * Implementations must implement this method to map each row of data
@@ -927,11 +961,12 @@ public class ImpressDataValidationTest extends TestCase {
          *                      column values (that is, there's no need to catch SQLException)
          */
         @Override
-        public ParameterOntologyAnnotationWithSex mapRow(ResultSet rs, int rowNum) throws SQLException {
-            ParameterOntologyAnnotationWithSex data = new ParameterOntologyAnnotationWithSex();
+        public ParameterOntologyAnnotationWithSexAndPaStableId mapRow(ResultSet rs, int rowNum) throws SQLException {
+            ParameterOntologyAnnotationWithSexAndPaStableId data = new ParameterOntologyAnnotationWithSexAndPaStableId();
 
             Integer integer;
 
+            data.setStableId(rs.getString("pa_stable_id"));
             data.setId(rs.getInt("id"));
             String eventTypeString = rs.getString("event_type");
             PhenotypeAnnotationType pat = (eventTypeString == null ? null : PhenotypeAnnotationType.valueOf(eventTypeString));
