@@ -723,7 +723,7 @@ table.dataTable thead tr {
                                     <a
 										href="${baseUrl}/genes/MGI:1337062">Ap3s1<sup>tm1b(EUCOMM)Hmgu</sup></a>
                                     <div class="chart" id="tram2"
-										graphUrl="${baseUrl}/chart?accession=MGI:1337062&parameter_stable_id=IMPC_ABR_008_001&chart_type=UNIDIMENSIONAL_ABR_PLOT&pipeline_stable_id=HMGU_001&zygosity=homozygote&phenotyping_center=HMGU&strain_accession_id=MGI:2164831&allele_accession_id=MGI:5548436&metadata_group=d5fe13bb3cac96104edd5493d1c33d63&chart_only=true">
+										graphUrl="${baseUrl}/chart?accession=MGI:1337062&allele_accession_id=MGI:5548436&zygosity=homozygote&parameter_stable_id=IMPC_ABR_006_001&pipeline_stable_id=HMGU_001&phenotyping_center=HMGU&chart_only=true&chart_type=UNIDIMENSIONAL_ABR_PLOT">
                                         <div id="spinner_tram2">
 											<i class="fa fa-refresh fa-spin"></i>
 										</div>
@@ -736,7 +736,7 @@ table.dataTable thead tr {
                                     <a
 										href="${baseUrl}/genes/MGI:3583900">Elmod1<sup>tm1b(EUCOMM)Hmgu</sup></a>
                                     <div class="chart" id="ush1c"
-										graphUrl="${baseUrl}/chart?accession=MGI:3583900&parameter_stable_id=IMPC_ABR_006_001&chart_type=UNIDIMENSIONAL_ABR_PLOT&pipeline_stable_id=HRWL_001&zygosity=homozygote&phenotyping_center=MRC%20Harwell&strain_accession_id=MGI:2164831&allele_accession_id=MGI:5548895&metadata_group=e35a6844b77bb571edd0697582d736bb&chart_only=true">
+										graphUrl="${baseUrl}/chart?accession=MGI:3583900&allele_accession_id=MGI:5548895&zygosity=homozygote&parameter_stable_id=IMPC_ABR_004_001&pipeline_stable_id=HRWL_001&phenotyping_center=MRC%20Harwell&chart_only=true&chart_type=UNIDIMENSIONAL_ABR_PLOT">
                                         <div id="spinner_ush1c">
 											<i class="fa fa-refresh fa-spin"></i>
 										</div>

@@ -79,10 +79,8 @@ public class ImpcPValuesReport extends AbstractReport {
         Integer i = 0 ;
         for (StatisticalResultDTO result : resultDtoList) {
 
-            if ( i % 100000 == 0) {
-                log.info(String.format(" %s records processed [%s]", i, System.currentTimeMillis() - start));
-            }
             i++;
+
             String parameter = result.getParameterName() + "(" + result.getParameterStableId() + ")";
             Double pvalue = result.getpValue();
             RowKey rowKey = new RowKey(result);
@@ -105,7 +103,7 @@ public class ImpcPValuesReport extends AbstractReport {
             allParameters.add(parameter.replace("\r\n", " ").replace("\n", " "));
         }
 
-        log.info(String.format(" Found %s rows", matrixValues.keySet().size()));
+        log.info(String.format("%s records processed [%s]", i, commonUtils.msToHms(System.currentTimeMillis() - start)));
 
         List<String> sortedParameters = new ArrayList<>(allParameters);
         Collections.sort(sortedParameters);
@@ -120,11 +118,9 @@ public class ImpcPValuesReport extends AbstractReport {
         csvWriter.writeRow(header);
 
         i=0;
+        start = System.currentTimeMillis();
         for (RowKey rowKey : matrixValues.keySet()) {
 
-            if (i%1000==0) {
-                log.info(String.format(" %s rowKey records processed [%s]", i, commonUtils.msToHms(System.currentTimeMillis() - start)));
-            }
             i++;
 
             List<String> row = new ArrayList<>();
@@ -152,7 +148,7 @@ public class ImpcPValuesReport extends AbstractReport {
             throw new ReportException("Exception closing csvWriter: " + e.getLocalizedMessage());
         }
 
-        log.info(String.format("Finished. %s rowKey records processed [%s]", i, System.currentTimeMillis() - start));
+        log.info(String.format("Finished. %s rowKey records processed [%s]", i, commonUtils.msToHms(System.currentTimeMillis() - start)));
     }
 
     private class RowKey {

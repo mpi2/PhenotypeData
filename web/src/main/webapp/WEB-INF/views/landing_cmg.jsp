@@ -19,7 +19,6 @@
 	<script type='text/javascript' src='${baseUrl}/js/charts/highcharts.js?v=${version}'></script>
     <script type='text/javascript' src='${baseUrl}/js/charts/highcharts-more.js?v=${version}'></script>
     <script type='text/javascript' src='${baseUrl}/js/charts/modules/exporting.js?v=${version}'></script>
-    <script type='text/javascript' src='${baseUrl}/js/charts/pieChartCmg.js?v=${version}'></script>
 	
   	<style>
 		/* Override allele ref style for datatable */
@@ -94,19 +93,19 @@
 					   <div class="section" id="status">
 					   		<h2 class="title">Status of CMG genes in mouse lines in IMPC</h2>
 					   		<div class="inner" style="height: 450px;">
-					   			<!-- Pie Chart Tier1 -->
+				                <!-- Column Chart Tier1 -->
 					   			<div class="half">
-					   				<div id="pieChart1"></div>
+					   				<div id="columnChart1"> <script type="text/javascript"> ${ columnChart1 } </script> </div>
 				                </div>
 				                
-				                <!-- Pie Chart Tier2 -->
+				                <!-- Column Chart Tier2 -->
 				                <div class="half">
-				                    <div id="pieChart2"></div>
+				                    <div id="columnChart2"><script type="text/javascript"> ${ columnChart2 } </script></div> 
 				                </div>
 				                <br/><br/>
 					   		</div>
 					   	</div>
-					  	
+						
 					   	<div class="section" id="table">
 					   		<h2 class="title">Table of CMG genes in mouse lines in IMPC</h2>
 					   		<div class="inner">
@@ -118,7 +117,7 @@
 				   							<th rowspan="2" colspan="1" class="headerSort">OMIM ID</th>
 				   							<th rowspan="2" colspan="1" class="headerSort">Tier1 gene</th>
 				   							<th rowspan="2" colspan="1" class="headerSort">Tier2 gene</th>
-				   							<th rowspan="2" colspan="1" class="headerSort">Mouse Orthologue(s)</th>
+				   							<th rowspan="2" colspan="1" class="headerSort">Mouse Orthologue</th>
 				   							<th rowspan="2" colspan="1" class="headerSort">IMPC Status</th>
 				   							<th rowspan="1" colspan="3" class="headerSort" style="text-align: center;">Phenotype Overlap Score</th>
 				   						</tr>
@@ -137,132 +136,14 @@
 				                      	Download data as:
 				                      	<a id="downloadTsv" class="button fa fa-download">TSV</a>
 				   						<a id="downloadExcel" class="button fa fa-download">XLS</a>
-				                      	<%-- <a id="tsvDownload" href="${baseUrl}/genes/export/${gene.getMgiAccessionId()}?fileType=tsv&fileName=${gene.markerSymbol}" target="_blank" class="button fa fa-download">TSV</a>
-				                      	<a id="xlsDownload" href="${baseUrl}/genes/export/${gene.getMgiAccessionId()}?fileType=xls&fileName=${gene.markerSymbol}" target="_blank" class="button fa fa-download">XLS</a> --%>
 				                  	</p>
 				              	</div>
-								
 				   			</div>
 					   	</div>
 					   	
 					   	<script type='text/javascript'>
 							$(document).ready(function() {
-								var cmgTableCleanedUpFile = baseUrl + '/documentation/json/CMG-table-cleanedup.json';
-								var matchingInferencesFile = baseUrl + '/documentation/json/Matching_inferences.json';
-								var phenotypeOverlapScoreFile = baseUrl + '/documentation/json/20171206-CMG-best-phenodigm.json';
-								
-								function getDataCleanedUpFile(filePath) {
-								    var genesWithOmim = [];
-								    $.ajax({
-								    		type: 'GET',
-								    		async: false,
-								    		url: filePath,
-								    		dataType: "json",
-								    		success: function(data) {
-								    			$.each(data, function( key, value ) {
-								    				if (value.OMIM_id != "_") {
-													genesWithOmim.push({
-														"disease": value.Disease,
-														"omim_id": "OMIM:" + value.OMIM_id,
-														"tier_1_gene": value.Tier_1_gene,
-														"tier_2_gene": value.Tier_2_gene
-													});
-								    				}
-								    			});
-								    		}
-								    });
-								    return genesWithOmim;
-								}
-								
-								function getDataMatchingInferencesFile(filePath, genesWithOmim) {
-								    var matchingInferencesGenesWithOmim = null;
-								    $.ajax({
-								    		type: 'GET',
-								    		async: false,
-								    		url: filePath,
-								    		dataType: "json",
-								    		success: function(data) {
-								    			matchingInferencesGenesWithOmim = genesWithOmim.map(function(v) {
-								    		        var ret;
-								    		        $.each(data, function(k, v2){
-								    		            if (v2.Human_symbol == v.tier_1_gene || v2.Human_symbol == v.tier_2_gene) {
-							    		            			ret = $.extend({}, v, 
-									    		                		{
-									    		                			/* "human_symbol": v2.Human_symbol, */
-								    		                				"mouse_orthologue": v2.Mouse_orthologue,
-								    		                				"impc_status": v2.Latest_project_status,
-								    		                				"impc_link": v2.IMPC_link,
-								    		                				"mgi_id": v2.MGI_id
-								    		                		});
-								    		                return false;
-								    		            }      
-								    		        });
-								    		        return ret;
-								    		    });
-								    		}
-								    });
-								    return matchingInferencesGenesWithOmim;
-								}
-								
-								var genesWithOmim = getDataCleanedUpFile(cmgTableCleanedUpFile);
-								var matchingInferencesGenesWithOmim = getDataMatchingInferencesFile(matchingInferencesFile, genesWithOmim);
-								// console.log(genesWithOmim);
-								// console.log(matchingInferencesGenesWithOmim);
-								
-								function getDataBestPhenodigmFile(filePath, genesWithOmim) {
-								    var dataBestPhenodigm = null;
-								    $.ajax({
-								    		type: 'GET',
-								    		async: false,
-								    		url: filePath,
-								    		dataType: "json",
-								    		success: function(data) {
-								    			dataBestPhenodigm = matchingInferencesGenesWithOmim.map(function(v) {
-								    				if (v != undefined) {
-								    					var ret;
-								    					if (v.mouse_orthologue == "Human_symbol") {
-							    		            			ret = $.extend({}, v, 
-										    		            {
-							    		                				"impc_mouse": "_",
-																"published_mouse": "_",
-																"hgnc_gene_id": "_"
-								    		                		});
-							    		            		} 
-									    		        $.each(data, function(k, v2){
-									    		            if (v2.gene_id == v.mgi_id && v2.CMG_disease == v.omim_id) {
-									    		                ret = $.extend({}, v, 
-										    		                	{
-								    		                				"impc_mouse": v2.best_phenoscore_IMPC,
-																	"published_mouse": v2.best_phenoscore_MGI,
-																	"hgnc_gene_id": v2.hgnc_gene_id
-									    		                		});
-									    		                return false;
-									    		            } 
-									    		        });
-									    		        return ret;
-								    				}
-								    		    });
-								    		}
-								    });
-								    return dataBestPhenodigm;
-								}
-								
-								var dataBestPhenodigm = getDataBestPhenodigmFile(phenotypeOverlapScoreFile, matchingInferencesGenesWithOmim)
-								// console.log(dataBestPhenodigm);
-								
-								function cleanDataTable(dataBestPhenodigm) {
-									var contentTable = [];
-									$.each(dataBestPhenodigm, function( key, value ) {
-										if (value != undefined) {
-											contentTable.push(value);
-										}
-									}); 
-									return contentTable;
-								}
-							
-								var contentTable = cleanDataTable(dataBestPhenodigm);
-								// console.log(contentTable);
-								
+								/* console.log(${cmg_genes}); */
 								$('#cmg-genes').DataTable({
 									"bDestroy" : true,
 									"searching" : true,
@@ -283,7 +164,7 @@
 //										 {"sType": "string", "bSortable": true},
 										 {"sType": "html", "bSortable": true}
 									],
-									"aaData": contentTable,
+									"aaData": ${cmg_genes},
 							        "aoColumns": [
 							            { "mDataProp": "disease"},
 							            { "mDataProp": "omim_id",
@@ -295,13 +176,15 @@
 							            { "mDataProp": "tier_2_gene"},
 							            { "mDataProp": "mouse_orthologue",
 					                        "render": function ( data, type, full, meta ) {
-					                        		if (data == "Human_symbol") {
+					                        		if (data == "") {
 					                        			return 'NA';
 					                        		}
-					                		 		return '<a href="'+full.impc_link+'" target="_blank">'+data+'</a>';
+					                		 		return '<a href="'+full.link_IMPC+'" target="_blank" title="' + full.support_count + ' inference methods support this orthologue: ' + full.support + '">'+ data +'</a>';
 					                		 	}
 					                 	},
-							            { "mDataProp": "impc_status"},
+							            { "mDataProp": "impc_status",
+					                 	  "sWidth": "15%"
+					                 	},
 							            /* { "mDataProp": "other_human_disease"}, */
 							            { "mDataProp": "impc_mouse",
 								            	"render": function ( data, type, full, meta ) {
@@ -326,7 +209,7 @@
 								
 								
 								
-								var tsv = jsonToTsv( contentTable );
+								var tsv = jsonToTsv( ${cmg_genes} );
 								$('#tsv-result').html( tsv );
 							   
 								function jsonToTsv (input){
@@ -372,8 +255,8 @@
 							        document.body.removeChild(link);
 							    }
 
-							    var fileNameTsv =  'cmg-genes.tsv'; // You can use the .txt extension if you want
-							    var fileNameExcel =  'cmg-genes.xls'; // You can use the .txt extension if you want
+							    var fileNameTsv = 'cmg-genes.tsv'; // You can use the .txt extension if you want
+							    var fileNameExcel = 'cmg-genes.xls'; // You can use the .txt extension if you want
 
 							    $('#downloadTsv').click(function(){
 							        downloadInnerHtml(fileNameTsv, 'tsv-result','text/html');
@@ -382,6 +265,12 @@
 							    $('#downloadExcel').click(function(){
 							        downloadInnerHtml(fileNameExcel, 'tsv-result','application/xls;charset=utf-8');
 							    });
+							    
+							    
+							    
+							    
+							   	
+                                
 							});
 						</script>
 					   	

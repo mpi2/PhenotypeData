@@ -1,35 +1,71 @@
 package uk.ac.ebi.phenotype.web.controller;
 
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.json.JSONException;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.Group;
-import org.json.JSONException;
+import org.hibernate.exception.DataException;
+import org.mousephenotype.cda.solr.generic.util.PhenotypeFacetResult;
 import org.mousephenotype.cda.solr.service.*;
 import org.mousephenotype.cda.solr.service.dto.CountTableRow;
+import org.mousephenotype.cda.solr.service.dto.GeneDTO;
 import org.mousephenotype.cda.solr.service.dto.ImpressDTO;
 import org.mousephenotype.cda.solr.service.dto.MpDTO;
+import org.mousephenotype.cda.solr.web.dto.PhenotypeCallSummaryDTO;
+import org.mousephenotype.cda.solr.web.dto.PhenotypePageTableRow;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
+import com.fasterxml.jackson.dataformat.csv.CsvMapper;
+import com.fasterxml.jackson.dataformat.csv.CsvSchema;
+
+import net.minidev.json.parser.JSONParser;
+
+// import com.google.common.io.Files;
+
 import uk.ac.ebi.phenotype.bean.LandingPageDTO;
 import uk.ac.ebi.phenotype.chart.AnalyticsChartProvider;
+import uk.ac.ebi.phenotype.chart.CmgColumnChart;
 import uk.ac.ebi.phenotype.chart.ScatterChartAndTableProvider;
 import uk.ac.ebi.phenotype.error.OntologyTermNotFoundException;
+import uk.ac.ebi.phenotype.web.util.FileExportUtils;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotNull;
+
+import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
+
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.util.ArrayList;
+import java.util.List;
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.core.io.Resource;
+
 
 /**
  * Created by ilinca on 24/10/2016.
@@ -149,10 +185,12 @@ public class LandingPageController {
             throws OntologyTermNotFoundException, IOException, URISyntaxException, SolrServerException, SQLException, ExecutionException, InterruptedException, JSONException {
 
         String pageTitle = "";
+        String baseUrl = request.getAttribute("baseUrl").toString();
         List<String> resources = new ArrayList<>();
         resources.add("IMPC");
         List<String> anatomyIds = new ArrayList<>(); // corresponding anatomical system, used for images
         MpDTO mpDTO = null;
+        ArrayList<JSONObject> cmg_genes = null;
 
         if (page.equalsIgnoreCase("hearing")) { // Need to decide if we want deafness only or top level hearing/vestibular phen
             mpDTO = mpService.getPhenotype("MP:0005377");
@@ -175,9 +213,15 @@ public class LandingPageController {
         } else if (page.equalsIgnoreCase("cmg")) {
         		// mpDTO = mpService.getPhenotype("MP:0000001");
         		pageTitle = "Centers for Mendelian Genomics";
-        		
-        		// model.addAttribute("id", "function to createthe histogram");
- 
+        		String phenotypeOverlapScoreFile = "cmg_best_phenodigm.json";
+			String cmgOrthologuesJsonFile = "cmg_orthologues_json.json";
+			
+			cmg_genes = GetCmgGenes(cmgOrthologuesJsonFile);
+			cmg_genes = GetBestPhenodigm(phenotypeOverlapScoreFile, cmg_genes);
+			cmg_genes = GetLatestProjectStatus(cmg_genes);
+			
+			// System.out.println(cmg_genes);
+			
         }
         
         //else if (page.equalsIgnoreCase("vision")) {
@@ -257,13 +301,199 @@ public class LandingPageController {
         }
         
         model.addAttribute("pageTitle", pageTitle);
+        
+        if (cmg_genes != null) {
+        	 	model.addAttribute("cmg_genes", cmg_genes);
+        	 	model.addAttribute("columnChart1", CmgColumnChart.getColumnChart(cmg_genes, "tier1", "columnChart1", "CMG Tier 1 candidates", ""));
+        	 	model.addAttribute("columnChart2", CmgColumnChart.getColumnChart(cmg_genes, "tier2", "columnChart2", "CMG Tier 2 candidates", ""));
+        }
 
 //        model.addAttribute("dataJs", getData(null, null, null, mpDTO.getAccession(), request) + ";");
 
         return "landing_" + page;
 
     }
-
+    
+    
+    
+    private ArrayList<JSONObject> GetLatestProjectStatus(ArrayList<JSONObject> cmg_genes_bestphenodigm) throws SolrServerException, IOException {
+    		for (JSONObject gene : cmg_genes_bestphenodigm) {
+    			if (!gene.isNull("mouse_orthologue") && !gene.get("mouse_orthologue").equals("") && !gene.get("mouse_orthologue").equals("-")) {
+    				String mouse_orthologue = gene.get("mouse_orthologue").toString();
+    				String latestProjectStatus = geneService.getLatestProjectStatusForGeneSet(mouse_orthologue);
+    				gene.remove("impc_status");
+    				gene.put("impc_status", latestProjectStatus);
+    			} 
+    		}
+    		return cmg_genes_bestphenodigm;
+    }
+    
+    private ArrayList<JSONObject> GetBestPhenodigm (String phenotypeOverlapScoreFile, ArrayList<JSONObject> cmg_genes_information) throws IOException {
+    		// reads from /src/main/resources/20171206-CMG-best-phenodigm.json and compose the page
+    		BufferedReader in = new BufferedReader(new FileReader(new ClassPathResource(phenotypeOverlapScoreFile).getFile()));
+    		if (in != null) {
+    			String json = in.lines().collect(Collectors.joining(" "));
+    			JSONArray info = null;
+    			try {
+    				info = new JSONArray(json);
+    			} catch (JSONException e) {
+    				e.printStackTrace();
+    			}
+    			
+    			for (int i = 0; i < info.length(); i++) {
+    				JSONObject jsonObj = null;
+    				try {
+    					jsonObj = info.getJSONObject(i);
+    				} catch (JSONException e) {
+    					e.printStackTrace();
+    				}
+				if (!jsonObj.isNull("gene_id") && !jsonObj.isNull("CMG_disease")) {
+					String gene_id = jsonObj.getString("gene_id");
+					String CMG_disease = jsonObj.getString("CMG_disease");
+					for (JSONObject gene : cmg_genes_information) {
+						if (!gene.isNull("mouse_orthologue") && !gene.isNull("omim_id")) {
+							String mouse_orthologue = gene.getString("mouse_orthologue");
+							String omim_id = gene.getString("omim_id");
+							if (gene_id.equals(mouse_orthologue) && CMG_disease.equals(omim_id)) {  
+								if (!jsonObj.isNull("best_phenoscore_IMPC")) {
+									gene.remove("impc_mouse");
+									gene.put("impc_mouse", jsonObj.get("best_phenoscore_IMPC"));
+								} 
+								if (!jsonObj.isNull("best_phenoscore_MGI")) {
+									gene.remove("published_mouse");
+									gene.put("published_mouse", jsonObj.get("best_phenoscore_MGI"));
+								} 
+								continue;
+							} 
+						} 
+					}
+				}
+    			}
+		}
+    		return cmg_genes_information;
+    }
+    
+    private ArrayList<JSONObject> GetCmgGenes (String file_path_genes) throws IOException {
+    		ArrayList<JSONObject> file_content = new ArrayList<JSONObject>();
+    		// reads from /src/main/resources/cmg_orthologues_json.json and compose the page
+    		BufferedReader in = new BufferedReader(new FileReader(new ClassPathResource(file_path_genes).getFile()));
+    		if (in != null) {
+    			String json = in.lines().collect(Collectors.joining(" "));
+    			JSONArray genes = null;
+    			try {
+    				genes = new JSONArray(json);
+    			} catch (JSONException e) {
+    				e.printStackTrace();
+    			}
+    			for (int i = 0; i < genes.length(); i++) {
+    				JSONObject jsonObj = null;
+    				JSONObject jsonObjFiltered = new JSONObject(); 
+    				try {
+    					jsonObj = genes.getJSONObject(i);
+    				} catch (JSONException e) {
+    					e.printStackTrace();
+    				}
+    				try {
+    					if (!jsonObj.isNull("Phenotype")) {
+    						jsonObjFiltered.put("disease", jsonObj.getString("Phenotype"));
+    					} else {
+    						jsonObjFiltered.put("disease", "");
+    					}
+    				} catch (JSONException e) {
+    					e.printStackTrace();
+    				}
+    				try {
+    					if (!jsonObj.isNull("OMIM")) {
+    						jsonObjFiltered.put("omim_id", jsonObj.getString("OMIM"));
+    					} else {
+    						jsonObjFiltered.put("omim_id", "");
+    					}
+    					
+    				} catch (JSONException e) {
+    					e.printStackTrace();
+    				}
+    				try {
+    					if (!jsonObj.isNull("Tier_1_Gene")) {
+    						jsonObjFiltered.put("tier_1_gene", jsonObj.getString("Tier_1_Gene"));
+    					} else {
+    						jsonObjFiltered.put("tier_1_gene", "");
+    					}
+    				} catch (JSONException e) {
+    					e.printStackTrace();
+    				}
+    				try {
+    					if (!jsonObj.isNull("Tier_2_Gene")) {
+    						jsonObjFiltered.put("tier_2_gene", jsonObj.getString("Tier_2_Gene"));
+    					} else {
+    						jsonObjFiltered.put("tier_2_gene", "");
+    					}
+    					
+    				} catch (JSONException e) {
+    					e.printStackTrace();
+    				}
+    				try {
+    					if (!jsonObj.isNull("Approved_symbol")) {
+    						jsonObjFiltered.put("approved_symbol", jsonObj.getString("Approved_symbol"));
+    					} else {
+    						jsonObjFiltered.put("approved_symbol", "");
+    					}
+    				} catch (JSONException e) {
+    					e.printStackTrace();
+    				}
+    				try {
+    					if (!jsonObj.isNull("HGNC_ID")) {
+    						jsonObjFiltered.put("hgnc_id", jsonObj.getString("HGNC_ID"));
+    					} else {
+    						jsonObjFiltered.put("hgnc_id", "");
+    					}
+    				} catch (JSONException e) {
+    					e.printStackTrace();
+    				}
+    				try {
+    					if (!jsonObj.isNull("mgi_id")) {
+    						jsonObjFiltered.put("mouse_orthologue", jsonObj.getString("mgi_id"));
+    					} else {
+    						jsonObjFiltered.put("mouse_orthologue", "");
+    					}
+    				} catch (JSONException e) {
+    					e.printStackTrace();
+    				}
+    				try {
+    					if (!jsonObj.isNull("link_IMPC")) {
+    						jsonObjFiltered.put("link_IMPC", jsonObj.getString("link_IMPC"));
+    					} else {
+    						jsonObjFiltered.put("link_IMPC", "");
+    					}
+    				} catch (JSONException e) {
+    					e.printStackTrace();
+    				}
+    				try {
+    					if (!jsonObj.isNull("support_count")) {
+    						jsonObjFiltered.put("support_count", jsonObj.get("support_count"));
+    					} else {
+    						jsonObjFiltered.put("support_count", "");
+    					}
+    				} catch (JSONException e) {
+    					e.printStackTrace();
+    				}
+    				try {
+    					if (!jsonObj.isNull("support")) {
+    						String list_inferences = jsonObj.getString("support").replaceAll(",", ", ");
+    						jsonObjFiltered.put("support", list_inferences);
+    					} else {
+    						jsonObjFiltered.put("support", "");
+    					}
+    				} catch (JSONException e) {
+    					e.printStackTrace();
+    				}
+    				jsonObjFiltered.put("impc_mouse", "NA");
+    				jsonObjFiltered.put("published_mouse", "NA");
+    				jsonObjFiltered.put("impc_status", "");
+    				file_content.add(jsonObjFiltered);    			
+    			}
+    		}
+    		return file_content;
+    }
 
 	private Set<String> getHearingPublicationGeneSet() {
 		Set<String> filterOnMarkerAccession;

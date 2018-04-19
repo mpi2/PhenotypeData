@@ -349,7 +349,7 @@ public class UnidimensionalChartAndTableProvider {
         	", chart: {type: 'column' }," +
         	" title: {text: '" + title + "'}," +
         	" credits: { enabled: false },  " +
-        	" xAxis: { type: 'category', labels: { rotation: -90, style: {fontSize: '13px', fontFamily: 'Verdana, sans-serif'} } }," +
+        	" xAxis: { type: 'category', labels: { rotation: -40, style: {fontSize: '13px', fontFamily: 'Verdana, sans-serif'} } }," +
         	" yAxis: { min: 0, title: { text: 'Number of genes' } }," +
         	" legend: { enabled: false }," +
         	" tooltip: { pointFormat: '<b>{point.y}</b>' }," +

@@ -198,6 +198,8 @@ System.out.println("no charts returned - using old method");
 
 
 	public static ChartType getDefaultChartType(ParameterDTO parameter){
+		
+		
 
 		if (Constants.ABR_PARAMETERS.contains(parameter.getStableId())){
 
@@ -206,19 +208,23 @@ System.out.println("no charts returned - using old method");
 		}else if(parameter.getStableId().equals("IMPC_VIA_001_001")){
 			return ChartType.PIE;
 
+		}else if(parameter.getStableId().equals("IMPC_EYE_092_001")){
+			return ChartType.CATEGORICAL_STACKED_COLUMN;
+			
 		}else{
 
 	        ObservationType observationTypeForParam = parameter.getObservationType();
 	        switch (observationTypeForParam) {
 
                 case unidimensional:
-                   return ChartType.UNIDIMENSIONAL_BOX_PLOT;
+                    return ChartType.UNIDIMENSIONAL_BOX_PLOT;
 
                 case categorical:
-                	return ChartType.CATEGORICAL_STACKED_COLUMN;
+                		return ChartType.CATEGORICAL_STACKED_COLUMN;
 
                 case time_series:
-                	return ChartType.TIME_SERIES_LINE;
+                		return ChartType.TIME_SERIES_LINE;
+                	
 	        }
 		}
 		return null;
