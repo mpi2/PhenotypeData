@@ -19,7 +19,6 @@
 	<script type='text/javascript' src='${baseUrl}/js/charts/highcharts.js?v=${version}'></script>
     <script type='text/javascript' src='${baseUrl}/js/charts/highcharts-more.js?v=${version}'></script>
     <script type='text/javascript' src='${baseUrl}/js/charts/modules/exporting.js?v=${version}'></script>
-    <script type='text/javascript' src='${baseUrl}/js/charts/pieChartCmg.js?v=${version}'></script>
 	
   	<style>
 		/* Override allele ref style for datatable */
@@ -94,19 +93,19 @@
 					   <div class="section" id="status">
 					   		<h2 class="title">Status of CMG genes in mouse lines in IMPC</h2>
 					   		<div class="inner" style="height: 450px;">
-					   			<!-- Pie Chart Tier1 -->
+				                <!-- Column Chart Tier1 -->
 					   			<div class="half">
-					   				<div id="pieChart1"></div>
+					   				<div id="columnChart1"> <script type="text/javascript"> ${ columnChart1 } </script> </div>
 				                </div>
 				                
-				                <!-- Pie Chart Tier2 -->
+				                <!-- Column Chart Tier2 -->
 				                <div class="half">
-				                    <div id="pieChart2"></div>
+				                    <div id="columnChart2"><script type="text/javascript"> ${ columnChart2 } </script></div> 
 				                </div>
 				                <br/><br/>
 					   		</div>
 					   	</div>
-					  	
+						
 					   	<div class="section" id="table">
 					   		<h2 class="title">Table of CMG genes in mouse lines in IMPC</h2>
 					   		<div class="inner">
@@ -118,7 +117,7 @@
 				   							<th rowspan="2" colspan="1" class="headerSort">OMIM ID</th>
 				   							<th rowspan="2" colspan="1" class="headerSort">Tier1 gene</th>
 				   							<th rowspan="2" colspan="1" class="headerSort">Tier2 gene</th>
-				   							<th rowspan="2" colspan="1" class="headerSort">Mouse Orthologue(s)</th>
+				   							<th rowspan="2" colspan="1" class="headerSort">Mouse Orthologue</th>
 				   							<th rowspan="2" colspan="1" class="headerSort">IMPC Status</th>
 				   							<th rowspan="1" colspan="3" class="headerSort" style="text-align: center;">Phenotype Overlap Score</th>
 				   						</tr>
@@ -256,8 +255,8 @@
 							        document.body.removeChild(link);
 							    }
 
-							    var fileNameTsv =  'cmg-genes.tsv'; // You can use the .txt extension if you want
-							    var fileNameExcel =  'cmg-genes.xls'; // You can use the .txt extension if you want
+							    var fileNameTsv = 'cmg-genes.tsv'; // You can use the .txt extension if you want
+							    var fileNameExcel = 'cmg-genes.xls'; // You can use the .txt extension if you want
 
 							    $('#downloadTsv').click(function(){
 							        downloadInnerHtml(fileNameTsv, 'tsv-result','text/html');

@@ -35,6 +35,7 @@ import net.minidev.json.parser.JSONParser;
 
 import uk.ac.ebi.phenotype.bean.LandingPageDTO;
 import uk.ac.ebi.phenotype.chart.AnalyticsChartProvider;
+import uk.ac.ebi.phenotype.chart.CmgColumnChart;
 import uk.ac.ebi.phenotype.chart.ScatterChartAndTableProvider;
 import uk.ac.ebi.phenotype.error.OntologyTermNotFoundException;
 import uk.ac.ebi.phenotype.web.util.FileExportUtils;
@@ -189,7 +190,6 @@ public class LandingPageController {
         resources.add("IMPC");
         List<String> anatomyIds = new ArrayList<>(); // corresponding anatomical system, used for images
         MpDTO mpDTO = null;
-        
         ArrayList<JSONObject> cmg_genes = null;
 
         if (page.equalsIgnoreCase("hearing")) { // Need to decide if we want deafness only or top level hearing/vestibular phen
@@ -304,6 +304,8 @@ public class LandingPageController {
         
         if (cmg_genes != null) {
         	 	model.addAttribute("cmg_genes", cmg_genes);
+        	 	model.addAttribute("columnChart1", CmgColumnChart.getColumnChart(cmg_genes, "tier1", "columnChart1", "CMG Tier 1 candidates", ""));
+        	 	model.addAttribute("columnChart2", CmgColumnChart.getColumnChart(cmg_genes, "tier2", "columnChart2", "CMG Tier 2 candidates", ""));
         }
 
 //        model.addAttribute("dataJs", getData(null, null, null, mpDTO.getAccession(), request) + ";");
