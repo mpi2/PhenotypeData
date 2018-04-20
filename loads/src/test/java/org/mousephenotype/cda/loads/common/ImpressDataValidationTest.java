@@ -18,6 +18,7 @@ package org.mousephenotype.cda.loads.common;
 
 import junit.framework.TestCase;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.db.pojo.*;
@@ -31,10 +32,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 
 /**
@@ -53,36 +51,182 @@ public class ImpressDataValidationTest extends TestCase {
 
 	@Test
 	public void comparePipelines() {
+		String testName = new Object() {}.getClass().getEnclosingMethod().getName();
 
+		PipelineComparator comparator = new PipelineComparator();
+
+		List<Pipeline> pipelinesOldWay = getPipelines(jdbcImpress);
+		List<Pipeline> pipelinesNewWay = getPipelines(jdbcCdabase);
+
+		Assert.assertEquals(pipelinesOldWay.size(), pipelinesNewWay.size());
+		int pipelineMismatches = 0;
+		for (int i = 0; i < pipelinesNewWay.size(); i++) {
+			Pipeline oldway = pipelinesOldWay.get(i);
+			Pipeline newway = pipelinesNewWay.get(i);
+
+			if (comparator.compare(oldway, newway) != 0) {
+				System.out.println("Old way: " + oldway.toString());
+				System.out.println("New way: " + newway.toString());
+				pipelineMismatches++;
+			}
+		}
+		
+		if (pipelineMismatches > 0) {
+			Assert.fail(testName + ": FAIL. " + pipelineMismatches + " + of " + pipelinesNewWay.size() + " Pipelines are not equal");
+		} else {
+			System.out.println(testName + ": PASS");
+		}
 	}
 
 	@Test
 	public void compareProcedures() {
+		String testName = new Object() {}.getClass().getEnclosingMethod().getName();
 
+		ProcedureComparator comparator = new ProcedureComparator();
+
+		List<Procedure> proceduresOldWay = getProcedures(jdbcImpress);
+		List<Procedure> proceduresNewWay = getProcedures(jdbcCdabase);
+
+		Assert.assertEquals(proceduresOldWay.size(), proceduresNewWay.size());
+		int procedureMismatches = 0;
+		for (int i = 0; i < proceduresNewWay.size(); i++) {
+			Procedure oldway = proceduresOldWay.get(i);
+			Procedure newway = proceduresNewWay.get(i);
+
+			if (comparator.compare(oldway, newway) != 0) {
+				System.out.println("Old way: " + oldway.toString());
+				System.out.println("New way: " + newway.toString());
+				procedureMismatches++;
+			}
+		}
+		
+		if (procedureMismatches > 0) {
+			Assert.fail(testName + ": FAIL. " + procedureMismatches + " of " + proceduresNewWay.size() + " Procedures are not equal");
+		} else {
+			System.out.println(testName + ": PASS");
+		}
 	}
 
 	@Test
 	public void compareParameters() {
+		String testName = new Object() {}.getClass().getEnclosingMethod().getName();
 
+		ParameterComparator comparator = new ParameterComparator();
+
+		List<Parameter> parametersOldWay = getParameters(jdbcImpress);
+		List<Parameter> parametersNewWay = getParameters(jdbcCdabase);
+
+		Assert.assertEquals(parametersOldWay.size(), parametersNewWay.size());
+		int parameterMismatches = 0;
+		for (int i = 0; i < parametersNewWay.size(); i++) {
+			Parameter oldway = parametersOldWay.get(i);
+			Parameter newway = parametersNewWay.get(i);
+
+			if (comparator.compare(oldway, newway) != 0) {
+				System.out.println("Old way: " + oldway.toString());
+				System.out.println("New way: " + newway.toString());
+				parameterMismatches++;
+			}
+		}
+
+		if (parameterMismatches > 0) {
+			Assert.fail(testName + ": FAIL. " + parameterMismatches + " of " + parametersNewWay.size() + " Parameters are not equal");
+		} else {
+			System.out.println(testName + ": PASS");
+		}
 	}
 
 	@Test
-	public void compareOption() {
+	public void compareOptions() {
+		String testName = new Object(){}.getClass().getEnclosingMethod().getName();
 
+		OptionComparator comparator = new OptionComparator();
+
+		List<ParameterOption> optionsOldWay = getOptions(jdbcImpress);
+		List<ParameterOption> optionsNewWay = getOptions(jdbcCdabase);
+
+		Assert.assertEquals(optionsOldWay.size(), optionsNewWay.size());
+		int optionMismatches = 0;
+		for (int i = 0; i < optionsNewWay.size(); i++) {
+			ParameterOption oldway = optionsOldWay.get(i);
+			ParameterOption newway = optionsNewWay.get(i);
+
+			if (comparator.compare(oldway, newway) != 0) {
+				System.out.println("Old way: " + oldway.toString());
+				System.out.println("New way: " + newway.toString());
+				optionMismatches++;
+			}
+		}
+
+		if (optionMismatches > 0) {
+			Assert.fail(testName + ": FAIL. " + optionMismatches + " of " + optionsNewWay.size() + " Options are not equal");
+		} else {
+			System.out.println(testName + ": PASS");
+		}
 	}
 
 	@Test
-	public void compareIncrement() {
+	public void compareIncrements() {
+		String testName = new Object(){}.getClass().getEnclosingMethod().getName();
 
+		IncrementComparator comparator = new IncrementComparator();
+
+		List<ParameterIncrement> incrementsOldWay = getIncrements(jdbcImpress);
+		List<ParameterIncrement> incrementsNewWay = getIncrements(jdbcCdabase);
+
+		Assert.assertEquals(incrementsOldWay.size(), incrementsNewWay.size());
+		int incrementMismatches = 0;
+		for (int i = 0; i < incrementsNewWay.size(); i++) {
+			ParameterIncrement oldway = incrementsOldWay.get(i);
+			ParameterIncrement newway = incrementsNewWay.get(i);
+
+			if (comparator.compare(oldway, newway) != 0) {
+				System.out.println("Old way: " + oldway.toString());
+				System.out.println("New way: " + newway.toString());
+				incrementMismatches++;
+			}
+		}
+
+		if (incrementMismatches > 0) {
+			Assert.fail(testName + ": FAIL. " + incrementMismatches + " of " + incrementsNewWay.size() + " Increments are not equal");
+		} else {
+			System.out.println(testName + ": PASS");
+		}
 	}
 
 	@Test
-	public void compareOntologyAnnotation() {
+	public void compareOntologyAnnotations() {
+		String testName = new Object(){}.getClass().getEnclosingMethod().getName();
 
+		OntologyAnnotationComparator comparator = new OntologyAnnotationComparator();
+
+		List<ParameterOntologyAnnotationWithSexAndPaStableId> ontologyAnnotationsOldWay = getOntologyAnnotations(jdbcImpress);
+		List<ParameterOntologyAnnotationWithSexAndPaStableId> ontologyAnnotationsNewWay = getOntologyAnnotations(jdbcCdabase);
+
+		Assert.assertEquals(ontologyAnnotationsOldWay.size(), ontologyAnnotationsNewWay.size());
+		int ontologyAnnotationMismatches = 0;
+		for (int i = 0; i < ontologyAnnotationsNewWay.size(); i++) {
+            ParameterOntologyAnnotationWithSexAndPaStableId oldway = ontologyAnnotationsOldWay.get(i);
+            ParameterOntologyAnnotationWithSexAndPaStableId newway = ontologyAnnotationsNewWay.get(i);
+
+			if (comparator.compare(oldway, newway) != 0) {
+				System.out.println("Old way: " + oldway.toString());
+				System.out.println("New way: " + newway.toString());
+				ontologyAnnotationMismatches++;
+			}
+		}
+
+		if (ontologyAnnotationMismatches > 0) {
+			Assert.fail(testName + ": FAIL. " + ontologyAnnotationMismatches + " of " + ontologyAnnotationsNewWay.size() + " OntologyAnnotations are not equal");
+		} else {
+			System.out.println(testName + ": PASS");
+		}
 	}
 
+//@Ignore
    	@Test
    	public void compareDBDetails() {
+		String testName = new Object() {}.getClass().getEnclosingMethod().getName();
 
    		List<ImpressData> impressOldWay = getImpressData(jdbcImpress);
    		List<ImpressData> impressNewWay = getImpressData(jdbcCdabase);
@@ -94,13 +238,14 @@ public class ImpressDataValidationTest extends TestCase {
    		
    		impressOldSet.removeAll(impressNewSet);
 
-   		int count = 0;
+   		int mismatchCount = 0;
    		for (ImpressData nonMatchingData : impressOldSet) {
    			System.out.println("MISMATCH: " + nonMatchingData.toString());
-   			count++;
+   			mismatchCount++;
 		}
 		
-		System.out.println(count + " MISMATCHES");
+		if (mismatchCount > 0) {
+		    Assert.fail(testName + ": FAIL. There were " + mismatchCount + " MISMATCHES");
 		
 //		for (int i = 0; i < impressOldWay.size(); i++) {
 //			Object oImpressOld = impressOldWay.get(i);
@@ -111,7 +256,7 @@ public class ImpressDataValidationTest extends TestCase {
 //			} else {
 //				Assert.assertEquals(oImpressOld.toString(), oImpressNew.toString());
 //			}
-//		}
+		}
 	}
 
 	
@@ -143,9 +288,17 @@ public class ImpressDataValidationTest extends TestCase {
         return list;
     }
 
-    private List<ParameterOntologyAnnotationWithSex> getOntologyAnnotations(NamedParameterJdbcTemplate jdbc) {
+    private List<ParameterOntologyAnnotationWithSexAndPaStableId> getOntologyAnnotations(NamedParameterJdbcTemplate jdbc) {
 
-        List<ParameterOntologyAnnotationWithSex> list = jdbc.query("SELECT * FROM phenotype_parameter_ontology_annotation", new OntologyAnnotationRowMapper());
+	    String query =
+                "SELECT\n" +
+                        "  pa.stable_id AS pa_stable_id,\n" +
+                        "  paoa.*\n" +
+                        "FROM phenotype_parameter pa\n" +
+                        "JOIN phenotype_parameter_lnk_ontology_annotation paloa ON paloa.parameter_id = pa.id\n" +
+                        "JOIN phenotype_parameter_ontology_annotation paoa ON paoa.id = paloa.annotation_id\n" +
+                        "ORDER BY pa.stable_id, paoa.event_type, paoa.option_id, paoa.ontology_acc, paoa.ontology_db_id, paoa.sex";
+        List<ParameterOntologyAnnotationWithSexAndPaStableId> list = jdbc.query(query, new OntologyAnnotationRowMapper());
 
         return list;
     }
@@ -156,9 +309,6 @@ public class ImpressDataValidationTest extends TestCase {
 
         return list;
     }
-    
-    
-
 
 	private List<ImpressData> getImpressData(NamedParameterJdbcTemplate jdbc) {
 
@@ -242,7 +392,127 @@ public class ImpressDataValidationTest extends TestCase {
 
 
 
+	public class PipelineComparator implements Comparator<Pipeline> {
+		@Override
+		public int compare(Pipeline o1, Pipeline o2) {
+			return Comparator
+					.comparing(Pipeline::getStableId)
+					.thenComparing(d1 -> d1.getDatasource().getId())
+					.thenComparing(Pipeline::getName)
+					.thenComparing(Pipeline::getDescription)
+					.thenComparing(Pipeline::getMajorVersion)
+					.thenComparing(Pipeline::getMinorVersion)
+					.thenComparing(Pipeline::getStableKey)
+					.compare(o1, o2);
+		}
+	}
 
+	public class ProcedureComparator implements Comparator<Procedure> {
+		@Override
+		public int compare(Procedure o1, Procedure o2) {
+			return Comparator
+					.comparing(Procedure::getStableKey)
+					.thenComparing(Procedure::getStableId)
+					.thenComparing(d1 -> d1.getDatasource().getId())
+					.thenComparing(Procedure::getName)
+					.thenComparing(Procedure::getDescription)
+					.thenComparing(Procedure::getMajorVersion)
+					.thenComparing(Procedure::getMinorVersion)
+					.thenComparing(Procedure::isMandatory)
+					.thenComparing(Procedure::getLevel)
+					.thenComparing(Procedure::getStage)
+					.thenComparing(Procedure::getStageLabel)
+					.compare(o1, o2);
+		}
+	}
+
+	public class ParameterComparator implements Comparator<Parameter> {
+		@Override
+		public int compare(Parameter o1, Parameter o2) {
+			return Comparator
+					.comparing(Parameter::getStableId)
+					.thenComparing(d1 -> d1.getDatasource().getId())
+					.thenComparing(Parameter::getName)
+					.thenComparing(Parameter::getDescription)
+					.thenComparing(Parameter::getMajorVersion)
+					.thenComparing(Parameter::getMinorVersion)
+					.thenComparing(Parameter::getUnit,Comparator.nullsFirst(Comparator.naturalOrder()))
+					.thenComparing(Parameter::getDatatype,Comparator.nullsFirst(Comparator.naturalOrder()))
+					.thenComparing(Parameter::getType,Comparator.nullsFirst(Comparator.naturalOrder()))
+					.thenComparing(Parameter::getFormula,Comparator.nullsFirst(Comparator.naturalOrder()))
+					.thenComparing(Parameter::isRequiredFlag,Comparator.nullsFirst(Comparator.naturalOrder()))
+					.thenComparing(Parameter::isMetaDataFlag,Comparator.nullsFirst(Comparator.naturalOrder()))
+					.thenComparing(Parameter::isImportantFlag,Comparator.nullsFirst(Comparator.naturalOrder()))
+					.thenComparing(Parameter::getDerivedFlag,Comparator.nullsFirst(Comparator.naturalOrder()))
+					.thenComparing(Parameter::isAnnotateFlag,Comparator.nullsFirst(Comparator.naturalOrder()))
+					.thenComparing(Parameter::isIncrementFlag,Comparator.nullsFirst(Comparator.naturalOrder()))
+					.thenComparing(Parameter::isOptionsFlag,Comparator.nullsFirst(Comparator.naturalOrder()))
+					.thenComparing(Parameter::getSequence,Comparator.nullsFirst(Comparator.naturalOrder()))
+					.thenComparing(Parameter::isMediaFlag,Comparator.nullsFirst(Comparator.naturalOrder()))
+					.thenComparing(Parameter::isRequiredForDataAnalysisFlag,Comparator.nullsFirst(Comparator.naturalOrder()))
+					.thenComparing(Parameter::getDataAnalysisNotes,Comparator.nullsFirst(Comparator.naturalOrder()))
+					.thenComparing(Parameter::getStableKey)
+					.compare(o1, o2);
+		}
+	}
+	
+	public class OptionComparator implements Comparator<ParameterOption> {
+		@Override
+		public int compare(ParameterOption o1, ParameterOption o2) {
+
+			return Comparator
+					.comparing(ParameterOption::getName)
+					.thenComparing(ParameterOption::getDescription)
+					.thenComparing(ParameterOption::getNormalCategory)
+					.compare(o1, o2);
+		}
+	}
+
+	public class OntologyAnnotationComparator implements Comparator<ParameterOntologyAnnotationWithSexAndPaStableId> {
+		@Override
+		public int compare(ParameterOntologyAnnotationWithSexAndPaStableId o1, ParameterOntologyAnnotationWithSexAndPaStableId o2) {
+
+
+			if ( (o1.getType() != null && o2.getType() != null) && ! o1.getType().name().equals(o2.getType().name())) {
+				int mm = 17;
+				System.out.println();
+			}
+
+			if ( (o1.getSex() != null && o2.getSex() != null) && ! o1.getSex().getName().equals(o2.getSex().getName())) {
+				int mm = 17;
+				System.out.println();
+			}
+			if ( (o1.getOntologyTerm().getId().getAccession() != null && o2.getOntologyTerm().getId().getAccession() != null) && ! o1.getOntologyTerm().getId().getAccession().equals(o2.getOntologyTerm().getId().getAccession())) {
+				int mm = 17;
+				System.out.println();
+			}
+			if ( (o1.getOption().getName() != null && o2.getOption().getName() != null) && ! o1.getOption().getName().equals(o2.getOption().getName())) {
+				int mm = 17;
+				System.out.println();
+			}
+
+			return Comparator
+					.comparing(ParameterOntologyAnnotationWithSexAndPaStableId::getStableId)
+					.thenComparing(ParameterOntologyAnnotationWithSex::getType,Comparator.nullsFirst(Comparator.naturalOrder()))
+					.thenComparing(op1 -> op1.getOption().getId(), Comparator.nullsFirst(Comparator.naturalOrder()))
+					.thenComparing(ont1 -> ont1.getOntologyTerm().getId().getAccession(), Comparator.nullsFirst(Comparator.naturalOrder()))
+					.thenComparing(ont1 -> ont1.getOntologyTerm().getId().getDatabaseId(), Comparator.nullsFirst(Comparator.naturalOrder()))
+					.thenComparing((s -> (s.getSex() == null ? null : s.getSex().getName())), Comparator.nullsFirst(Comparator.naturalOrder()))
+					.compare(o1, o2);
+		}
+	}
+
+	public class IncrementComparator implements Comparator<ParameterIncrement> {
+		@Override
+		public int compare(ParameterIncrement o1, ParameterIncrement o2) {
+			return Comparator
+					.comparing(ParameterIncrement::getValue)
+					.thenComparing(ParameterIncrement::getDataType)
+					.thenComparing(ParameterIncrement::getUnit)
+					.thenComparing(ParameterIncrement::getMinimum)
+					.compare(o1, o2);
+		}
+	}
 
    	public class ImpressData {
 		String pi_stable_id;
@@ -418,6 +688,25 @@ public class ImpressDataValidationTest extends TestCase {
 		}
 	}
 
+	public class ParameterOntologyAnnotationWithSexAndPaStableId extends ParameterOntologyAnnotationWithSex {
+	    String stableId;
+
+        public String getStableId() {
+            return stableId;
+        }
+
+        public void setStableId(String stableId) {
+            this.stableId = stableId;
+        }
+
+        @Override
+        public String toString() {
+            return "ParameterOntologyAnnotationWithSexAndPaStableId{"  +
+                    "stableId='" + stableId + super.toString() + " {" + '\'' +
+                    "}}";
+        }
+    }
+
 	public class ImpressDataRowMapper implements RowMapper<ImpressData> {
 
 		/**
@@ -442,6 +731,9 @@ public class ImpressDataValidationTest extends TestCase {
 			data.pi_major_version = rs.getInt("pi_major_version");
 			data.pi_minor_version = rs.getInt("pi_minor_version");
 			data.pi_is_deprecated = rs.getInt("pi_is_deprecated");
+			if (data.pi_is_deprecated == null) {                                                                        // Normalise null to 0.
+			    data.pi_is_deprecated = 0;
+            }
 			data.pr_stable_id = rs.getString("pr_stable_id");
 			data.pr_db_id = rs.getInt("pr_db_id");
 			data.pr_name = rs.getString("pr_name");
@@ -485,6 +777,9 @@ public class ImpressDataValidationTest extends TestCase {
 			data.paoa_ontology_acc = rs.getString("paoa_ontology_acc");
 			data.paoa_ontology_db_id = rs.getInt("paoa_ontology_db_id");
 			data.paoa_sex = rs.getString("paoa_sex");
+			if ((data.paoa_sex != null) && data.paoa_sex.trim().isEmpty()) {                                            // Normalise empty sex string to NULL
+			    data.paoa_sex = null;
+            }
 			
 			return data;
 		}
@@ -557,7 +852,7 @@ public class ImpressDataValidationTest extends TestCase {
             data.setMinorVersion(rs.getInt("minor_version"));
             data.setUnit(rs.getString("unit"));
             data.setDatatype(rs.getString("datatype"));
-            data.setType(rs.getString("type"));
+            data.setType(rs.getString("parameter_type"));
             data.setFormula(rs.getString("formula"));
             integer = rs.getInt("required");
             data.setRequiredFlag((integer != null) && (integer == 1 ? true : false));
@@ -646,13 +941,13 @@ public class ImpressDataValidationTest extends TestCase {
             data.setName(rs.getString("name"));
             data.setDescription(rs.getString("description"));
             integer = rs.getInt("normal");
-            data.setNormalCategory((integer != null) && (integer == 1 ? true : false));
+            data.setNormalCategory((integer != null) && (integer == 1) ? true : false);
 
             return data;
         }
     }
 
-    public class OntologyAnnotationRowMapper implements RowMapper<ParameterOntologyAnnotationWithSex> {
+    public class OntologyAnnotationRowMapper implements RowMapper<ParameterOntologyAnnotationWithSexAndPaStableId> {
 
         /**
          * Implementations must implement this method to map each row of data
@@ -666,14 +961,12 @@ public class ImpressDataValidationTest extends TestCase {
          *                      column values (that is, there's no need to catch SQLException)
          */
         @Override
-        public ParameterOntologyAnnotationWithSex mapRow(ResultSet rs, int rowNum) throws SQLException {
-            ParameterOntologyAnnotationWithSex data = new ParameterOntologyAnnotationWithSex();
+        public ParameterOntologyAnnotationWithSexAndPaStableId mapRow(ResultSet rs, int rowNum) throws SQLException {
+            ParameterOntologyAnnotationWithSexAndPaStableId data = new ParameterOntologyAnnotationWithSexAndPaStableId();
 
             Integer integer;
 
-            Datasource datasource = new Datasource();
-            datasource.setId(rs.getInt("db_id"));
-
+            data.setStableId(rs.getString("pa_stable_id"));
             data.setId(rs.getInt("id"));
             String eventTypeString = rs.getString("event_type");
             PhenotypeAnnotationType pat = (eventTypeString == null ? null : PhenotypeAnnotationType.valueOf(eventTypeString));
@@ -682,6 +975,7 @@ public class ImpressDataValidationTest extends TestCase {
             integer = rs.getInt("option_id");
             ParameterOption parameterOption = null;
             if (integer != null) {
+            	parameterOption = new ParameterOption();
                 parameterOption.setId(integer);
             }
             data.setOption(parameterOption);
@@ -691,9 +985,17 @@ public class ImpressDataValidationTest extends TestCase {
             dsid.setAccession(rs.getString("ontology_acc"));
             dsid.setDatabaseId(rs.getInt("ontology_db_id"));
             term.setId(dsid);
+            term.setName(dsid.getAccession());
+            term.setIsObsolete(false);
+            term.setReplacementAcc(null);
+            term.setReplacementAcc(null);
+            term.setSynonyms(null);
             data.setOntologyTerm(term);
-            String sexString = rs.getString("sex");
-            data.setSex(sexString == null ? null : SexType.valueOf(sexString));
+
+			String sexString = rs.getString("sex");
+            SexType sexType;
+            try { sexType = SexType.valueOf(sexString); } catch (Exception e) { sexType = null; }
+            data.setSex(sexType);
 
             return data;
         }
@@ -721,7 +1023,7 @@ public class ImpressDataValidationTest extends TestCase {
             data.setId(rs.getInt("id"));
             data.setValue(rs.getString("increment_value"));
             data.setDataType(rs.getString("increment_datatype"));
-            data.setUnit(rs.getString("unit"));
+            data.setUnit(rs.getString("increment_unit"));
             data.setMinimum(rs.getString("increment_minimum"));
 
             return data;
