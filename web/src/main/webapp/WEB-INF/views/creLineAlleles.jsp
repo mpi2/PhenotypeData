@@ -6,7 +6,7 @@
 
 <t:genericpage>
 
-	<jsp:attribute name="title">IMPC Software/Web Release Notes</jsp:attribute>
+	<jsp:attribute name="title">IMPC/Crelines</jsp:attribute>
 
 	 <jsp:attribute name="breadcrumb"></jsp:attribute>
 	

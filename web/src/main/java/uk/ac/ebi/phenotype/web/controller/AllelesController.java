@@ -122,7 +122,7 @@ System.out.println("controller here");
         log.info("#### AllelesController::alleles2");
         log.info("#### acc: " + acc);
         log.info("#### allele_name: " + allele_name);
-        model.addAttribute("allele_name",URLDecoder.decode(allele_name, "UTF-8"));
+        //model.addAttribute("allele_name",URLDecoder.decode(allele_name, "UTF-8"));
         System.out.println("creline is "+creLine);
         String debug = request.getParameter("debug");
         log.info("#### alleles1: debug: " + debug);
@@ -435,17 +435,14 @@ System.out.println("controller here");
         allele_identifier.put("design_id", design_id);
 
         Map<String, Object> constructs;
-
+        String pipeline="impc";
         if ( request.getParameter("creLine") != null && request.getParameter("creLine").equals("true")) {
         	// here we reuse the IMPC code to create eucommtools allele project page that is used in creline.org
         	// the main difference is the solr core used
                 log.info("Call SolrIndex2 with pipeline = Cre");
-        	constructs = solrIndex2.getAlleleProductInfo("cre", allele_identifier, d);
+        	pipeline="cre";
         }
-        else {
-                log.info("Call SolrIndex2 with pipeline = impc");
-        	constructs = solrIndex2.getAlleleProductInfo("impc", allele_identifier, d);
-        }
+        constructs = solrIndex2.getAlleleProductInfo(pipeline, allele_identifier, d);
 
         if (constructs == null) {
             log.info("return empty data");

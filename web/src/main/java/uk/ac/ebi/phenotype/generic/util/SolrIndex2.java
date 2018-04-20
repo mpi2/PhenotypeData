@@ -195,6 +195,7 @@ public class SolrIndex2 {
         String other_alleles_url;
         String gene_url;
         boolean creLine=false;
+        
         if(pipeline.equals("cre")){
         	creLine=true;
         }
