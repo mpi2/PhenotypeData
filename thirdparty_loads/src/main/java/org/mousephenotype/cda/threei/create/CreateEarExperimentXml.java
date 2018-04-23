@@ -181,13 +181,6 @@ public class CreateEarExperimentXml extends Create3iXmls implements CommandLineR
                 // I have gone into IMPReSS to determine this
                 // but ideally this should be specified in a configuration
                 // file
-                if (parameterImpressId == null) {
-                    logger.warn("ParameterImpressId is NULL");
-                    continue;
-                } else {
-                    logger.info("ParameterImpresId = " + parameterImpressId);
-                }
-
                 switch (parameterImpressId) {
                     // ProcedureMetadata
                     case "MGP_EEI_111_001" : case "MGP_EEI_112_001" :

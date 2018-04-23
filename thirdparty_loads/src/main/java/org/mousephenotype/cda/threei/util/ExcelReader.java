@@ -102,20 +102,27 @@ public class ExcelReader {
         for (int col=0; col < nColumns; col++) {
             if (cellIterator.hasNext()) {
                 Cell currentCell = cellIterator.next();
+                int colIndex = currentCell.getColumnIndex();
                 //getCellTypeEnum shown as deprecated for version 3.15
                 //getCellTypeEnum ill be renamed to getCellType starting from version 4.0
              if (currentCell.getCellTypeEnum() == CellType.STRING) {
-                    resultRow[col] = "" + currentCell.getStringCellValue();
+                    resultRow[colIndex] = "" + currentCell.getStringCellValue();
                 } else if (currentCell.getCellTypeEnum() == CellType.NUMERIC) {
                     if (DateUtil.isCellDateFormatted(currentCell)) {
-                        resultRow[col] = "" + currentCell.getDateCellValue();
+                        resultRow[colIndex] = "" + currentCell.getDateCellValue();
                     } else {
-                    resultRow[col] = currentCell.getNumericCellValue() + "";
+                    resultRow[colIndex] = currentCell.getNumericCellValue() + "";
                     }
                 } else {
-                    resultRow[col] = "NonStringNonNumericValue";
+                    resultRow[colIndex] = "NonStringNonNumericValue";
                 }
             }
+        }
+        // Set any cells in row that are null to NonStringNonNumericValue
+        for (int col=0; col<nColumns; col++) {
+        	if (resultRow[col] == null) {
+        		resultRow[col] = "NonStringNonNumericValue";
+        	}
         }
         numberOfRowsRead++;
         this.lastRowRead = resultRow;
