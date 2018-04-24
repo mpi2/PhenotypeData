@@ -139,7 +139,7 @@ impc.phenodigm2.getHitId = function (geneId, diseaseId, pageType) {
  * @param {array} darr - array of objects
  * @param {string} target - id of target table (including #)
  * @param {object} config - object with configuration,
- *   should include "markerlist", "requestpagetype", "diseaesid"
+ *   should include "markerlist", "requestpagetype", "diseaseid"
  *   
  * @returns {undefined}
  */
@@ -227,7 +227,7 @@ impc.phenodigm2.makeTable = function (darr, target, config) {
         return trow;
     };
     // a part of addToRow for genes pages
-    var addToGenesRow = function (x) {
+    var addToGenesRow = function (x) {        
         // x is now an array of objects, display a summary row
         var trow = tbody.append("tr").attr("class", "phenotable").attr("diseaseid", x[0]["diseaseId"]);
         trow.append("td").append("a").classed(pt + "link", true)
