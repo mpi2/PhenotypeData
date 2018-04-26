@@ -99,7 +99,7 @@ public class MetabolismDEXAReport extends AbstractReport {
             throw new ReportException("Exception in MetabolismDEXAReport. Reason: " + e.getLocalizedMessage());
         }
 
-        log.info(String.format("Finished. {} records written in {}.", count, commonUtils.msToHms(System.currentTimeMillis() - start)));
+        log.info(String.format("Finished. " + count + " records written in " + commonUtils.msToHms(System.currentTimeMillis() - start)));
     }
 
     /**
