@@ -123,7 +123,7 @@
                                     <h3>Data release ${metaInfo["data_release_version"]}</h3>
 
                                     <div class="pad10px">
-                                        <strong>Data release ${metaInfo["data_release_version"]} includes:</strong>
+                                        <strong>Data release ${metaInfo["data_release_version"]} represents a major data release. Changes include:</strong>
                                         ${metaInfo["data_release_notes"]}
                                     </div>
                                 </div>
@@ -208,8 +208,7 @@
 	                                <a id="checkAllProcedures" class="buttonForHighcharts"><i class="fa fa-check" aria-hidden="true"></i> Select all</a>
     									<a id="uncheckAllProcedures"  class="buttonForHighcharts"><i class="fa fa-times" aria-hidden="true"></i> Deselect all</a> -->
     								
-    								
-
+<%-- 
                                     <h3>Allele Types</h3>
                                     <table id="allele_types">
                                         <thead>
@@ -230,7 +229,9 @@
                                         </c:forEach>
                                         </tbody>
                                     </table>
-                                    <p>Mouse knockout programs:&nbsp;${metaInfo['mouse_knockout_programs']}</p>
+                                    <p>Mouse knockout programs:&nbsp;${metaInfo['mouse_knockout_programs']}</p> 
+--%>
+
                                 </div>
                             </div>
                             <div class="clear"></div>
@@ -387,6 +388,7 @@
     						<div class="clear both"></div>
 							<br/><br/>
 
+<%-- 
                             <h2>Phenotype Associations Overview
                                 <span class="documentation">
                                     <a href='' id='phenomePanel' class="fa fa-question-circle pull-right"></a>
@@ -412,7 +414,9 @@
 							</c:forEach>
 							</c:forEach>
 							</tbody>
-							</table>
+							</table> 
+--%>
+
 							</div>
 						</div>
 					</div>
@@ -495,6 +499,7 @@
                                 <br/>
                                 <br/>
 
+<!-- 
                                 <div id="topLevelTrendsChart">
                                     <script type="text/javascript">
                                         ${topLevelTrendsChart}
@@ -502,10 +507,11 @@
                                 </div>
                                 <a id="checkAllTopLevels" class="buttonForHighcharts"><i class="fa fa-check" aria-hidden="true"></i> Select all</a>
     							<a id="uncheckAllTopLevels"  class="buttonForHighcharts"><i class="fa fa-times" aria-hidden="true"></i> Deselect all</a>
-    							<div class="clear both"></div>
-                                <br/>
-                                <br/>
-                                <br/>
+    							<div class="clear both"></div> 
+    							<br/>
+                             <br/>
+                             <br/>
+-->
 
                                 <h3>Previous Releases</h3>
                                 <ul>
