@@ -139,7 +139,7 @@ public class ImageComparatorController {
 		
 		boolean federated=this.isFederated(filteredMutants);
 		
-		if(mediaType!=null && mediaType.equals("pdf") || federated){//we need iframes to load google pdf viewer so switch to this view for the pdfs.
+		if(mediaType!=null && mediaType.equals("pdf") || federated){//we need iframes to load google pdf viewer so switch to this view for the pdfs or to work with JAX federated omero housed at JAX
 			System.out.println("using frames based comparator to pdfs");
 			return "comparatorFrames";
 		}

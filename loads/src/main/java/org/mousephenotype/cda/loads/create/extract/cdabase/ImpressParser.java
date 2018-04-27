@@ -16,12 +16,13 @@
 
 package org.mousephenotype.cda.loads.create.extract.cdabase;
 
-import com.sun.org.apache.xerces.internal.dom.ElementNSImpl;
 import org.mousephenotype.cda.db.pojo.*;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.loads.common.CdaSqlUtils;
-import org.mousephenotype.impress.soap.server.ImpressSoapPort;
-import org.mousephenotype.impress.soap.server.ImpressSoapService;
+import org.mousephenotype.impress.GetParameterIncrementsResponse;
+import org.mousephenotype.impress.GetParameterMPTermsResponse;
+import org.mousephenotype.impress.GetParameterOptionsResponse;
+import org.mousephenotype.impress.wsdlclients.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.Banner;
@@ -43,6 +44,24 @@ import java.io.InputStreamReader;
 import java.sql.SQLException;
 import java.util.*;
 
+/*
+ *  Classes generated using this command line:
+ *
+ *  1. Create a temporary directory for the generated sources and targets and create the sources and targets directories:
+ *     mkdir ~/impresswsdl
+ *  2. cd to ~/impresswsdl
+ *  3. mkdir sources
+ *  4. mkdir targets
+ *  5. Create a wsdlclients xml file describing the service:
+ *     A. Paste the url of the web service into a browser:
+ *         https://www.mousephenotype.org/impress/soap/server\?wsdlclients
+ *     B. Save the page: File -> Save Page As -> ~/impresswsdl/impresswsdl.xml
+ *  6. Generate the classes:
+ *         wsimport -keep -s `pwd`/sources -d `pwd`/targets -verbose -encoding UTF-8 -extension -Xnocompile -p org.mousephenotype.impress -wsdllocation https://www.mousephenotype.org/impress/soap/server\?wsdlclients "file:/Users/mrelac/impresswsdl/impresswsdl.xml"
+ *  7. Create package org.mousephenotype.impress
+ *  8. Copy the generated sources to the org.mousephenotype.impress package
+ *         cp -r * ~/workspace/PhenotypeData/loads/src/main/java/
+ */
 
 @ComponentScan
 public class ImpressParser implements CommandLineRunner {
@@ -51,7 +70,6 @@ public class ImpressParser implements CommandLineRunner {
     private CdaSqlUtils        cdabaseSqlUtils;
     private ApplicationContext context;
     private Datasource         datasource;
-    private ImpressSoapPort    impress;
     private Logger             logger         = LoggerFactory.getLogger(this.getClass());
     private Integer            mpDbId;
     private Set<String>        normalCategory = new HashSet<>();
@@ -62,17 +80,45 @@ public class ImpressParser implements CommandLineRunner {
 
     private final String IMPRESS_SHORT_NAME = "IMPReSS";
 
+    // SOAP web service classes
+    private ParameterMPTermsClient         parameterMPTermsClient;
+    private ParameterIncrementsClient      parameterIncrementsClient;
+    private ParameterOntologyOptionsClient parameterOntologyOptionsClient;
+    private ParameterOptionsClient         parameterOptionsClient;
+    private ParametersClient               parametersClient;
+    private PipelineClient                 pipelineClient;
+    private PipelineKeysClient             pipelineKeysClient;
+    private ProcedureClient                procedureClient;
+    private ProcedureKeysClient            procedureKeysClient;
 
     @Inject
     @Lazy
     public ImpressParser(
             ApplicationContext context,
             CdaSqlUtils cdabaseSqlUtils,
-            DataSource cdabaseDataSource
+            DataSource cdabaseDataSource,
+            ParameterIncrementsClient parameterIncrementsClient,
+            ParameterMPTermsClient parameterMPTermsClient,
+            ParameterOntologyOptionsClient parameterOntologyOptionsClient,
+            ParameterOptionsClient parameterOptionsClient,
+            ParametersClient parametersClient,
+            PipelineClient pipelineClient,
+            PipelineKeysClient pipelineKeysClient,
+            ProcedureClient procedureClient,
+            ProcedureKeysClient procedureKeysClient
     ) {
         this.context = context;
         this.cdabaseSqlUtils = cdabaseSqlUtils;
         this.cdabaseDataSource = cdabaseDataSource;
+        this.parameterIncrementsClient = parameterIncrementsClient;
+        this.parameterMPTermsClient = parameterMPTermsClient;
+        this.parameterOntologyOptionsClient = parameterOntologyOptionsClient;
+        this.parameterOptionsClient = parameterOptionsClient;
+        this.parametersClient = parametersClient;
+        this.pipelineClient = pipelineClient;
+        this.pipelineKeysClient = pipelineKeysClient;
+        this.procedureClient = procedureClient;
+        this.procedureKeysClient = procedureKeysClient;
     }
 
     /**
@@ -92,7 +138,8 @@ public class ImpressParser implements CommandLineRunner {
         initialise();
 
         // LOAD PIPELINES
-        List<String> pipelineKeys = impress.getPipelineKeys().getItem();
+        List<String> pipelineKeys = pipelineKeysClient.getPipelineKeys().getGetPipelineKeysResult().getItem();
+
         for (String pipelineKey : pipelineKeys) {
 
             if (pipelineKey.startsWith("HAS_")) {
@@ -130,7 +177,9 @@ public class ImpressParser implements CommandLineRunner {
              *
              * INSERT phenotype_pipeline_procedure
              */
-            List<String> procedureKeys = impress.getProcedureKeys(pipeline.getStableId()).getItem();
+
+            List<String> procedureKeys = procedureKeysClient.getProcedureKeys(pipeline.getStableId()).getGetProcedureKeysResult().getItem();
+
             for (String procedureKey : procedureKeys) {
 
                 logger.debug("  Loading procedure: {}", procedureKey);
@@ -148,7 +197,7 @@ public class ImpressParser implements CommandLineRunner {
                     }
 
                     // LOAD PARAMETERS
-                    NodeList parameterNodesMap = ((Element) impress.getParameters(procedureKey)).getElementsByTagName("ns1:Map");
+                    NodeList parameterNodesMap = ((Element) parametersClient.getParameters(procedureKey).getGetParametersResult()).getChildNodes();
                     for (int i = 0; i < parameterNodesMap.getLength(); i++) {
                         NodeList  parameterNodes = parameterNodesMap.item(i).getChildNodes();
                         Parameter parameter      = getParameter(parameterNodes, procedure);
@@ -183,8 +232,6 @@ public class ImpressParser implements CommandLineRunner {
 
 
     private void initialise() throws IOException, SQLException {
-
-        impress = new ImpressSoapService().getImpressSoapPort();
 
         datasource = new Datasource();
         datasource.setShortName(IMPRESS_SHORT_NAME);
@@ -222,7 +269,11 @@ public class ImpressParser implements CommandLineRunner {
         List<ParameterIncrement> parameterIncrements = new ArrayList<>();
 
         List<Map<String, String>> incrementsList = new ArrayList<>();
-        NodeList incrementNodeList = ((ElementNSImpl) impress.getParameterIncrements(parameterKey)).getElementsByTagName("ns1:Map");
+
+
+        // Create a map of increments from the IMPReSS web service.
+        GetParameterIncrementsResponse response              = parameterIncrementsClient.getParameterIncrements(parameterKey);
+        NodeList                       incrementNodeList = ((Element) response.getGetParameterIncrementsResult()).getChildNodes();
 
         // Parse out the keys and values for this parameter increment
         for (int i = 0; i < incrementNodeList.getLength(); i++) {
@@ -257,7 +308,10 @@ public class ImpressParser implements CommandLineRunner {
         List<ParameterOption> parameterOptions = new ArrayList<>();
 
         List<Map<String, String>> optionsList = new ArrayList<>();
-        NodeList optionNodeList = ((ElementNSImpl) impress.getParameterOptions(parameterKey)).getElementsByTagName("ns1:Map");
+
+        GetParameterOptionsResponse response = parameterOptionsClient.getParameterOptions(parameterKey);
+        NodeList optionNodeList = ((Element) response.getGetParameterOptionsResult()).getChildNodes();
+
         for (int i = 0; i < optionNodeList.getLength(); i++) {
             NodeList optionNodes = optionNodeList.item(i).getChildNodes();
 
@@ -337,12 +391,11 @@ public class ImpressParser implements CommandLineRunner {
     private List<ParameterOntologyAnnotationWithSex> getPhenotypeParameterOntologyAssociations(String pipelineKey, String procedureKey, Parameter parameter) {
 
         List<ParameterOntologyAnnotationWithSex> annotations          = new ArrayList<>();
-        ParameterOntologyAnnotationWithSex       ontologyAnnotation   = new ParameterOntologyAnnotationWithSex();
-        ParameterOntologyAnnotationWithSex       mpOntologyAnnotation = new ParameterOntologyAnnotationWithSex();
 
         // Get the map of ontology terms from the IMPReSS web service.
         List<Map<String, String>> ontologyTermsFromWs = new ArrayList<>();
-        NodeList                  ontologyTermMap     = ((ElementNSImpl) impress.getParameterOntologyOptions(parameter.getStableId())).getElementsByTagName("ns1:Map");
+        NodeList ontologyTermMap = ((Element) parameterOntologyOptionsClient.getParameterOntologyOptions(parameter.getStableId()).getGetParameterOntologyOptionsResult()).getChildNodes();
+
         for (int i = 0; i < ontologyTermMap.getLength(); i++) {
             NodeList ontologyTermNodes = ontologyTermMap.item(i).getChildNodes();
 
@@ -362,6 +415,9 @@ public class ImpressParser implements CommandLineRunner {
           * ontologyAnnotation to this parameter's annotations list.
          */
         for (Map<String, String> ontologyTermFromWs : ontologyTermsFromWs) {
+
+            ParameterOntologyAnnotationWithSex ontologyAnnotation = new ParameterOntologyAnnotationWithSex();
+
             if (ontologyTermFromWs.get("sex") != null && ! ontologyTermFromWs.get("sex").isEmpty()) {                   // Get SexType
                 SexType sexType = getSexType(ontologyTermFromWs.get("sex"), parameter.getStableId());
                 ontologyAnnotation.setSex(sexType);
@@ -399,9 +455,12 @@ public class ImpressParser implements CommandLineRunner {
             annotations.add(ontologyAnnotation);
         }
 
-        // Get the map of MP terms from the IMPReSS web service.
+        // Create a map of MP terms from the IMPReSS web service.
+        GetParameterMPTermsResponse response = parameterMPTermsClient.getParameterMPTerms(parameter.getStableId());
+        NodeList mpOntologyTermMap = ((Element) response.getGetParameterMPTermsResult()).getChildNodes();
+
         List<Map<String, String>> mpOntologyTermsFromWs = new ArrayList<>();
-        NodeList                  mpOntologyTermMap     = ((ElementNSImpl) impress.getParameterMPTerms(parameter.getStableId())).getElementsByTagName("ns1:Map");
+
         for (int i = 0; i < mpOntologyTermMap.getLength(); i++) {
             NodeList mpOntologyTermNodes = mpOntologyTermMap.item(i).getChildNodes();
 
@@ -422,6 +481,8 @@ public class ImpressParser implements CommandLineRunner {
          * ontologyAcc and ontologyName.
          */
         for (Map<String, String> mpOntologyTermFromWs : mpOntologyTermsFromWs) {
+
+            ParameterOntologyAnnotationWithSex mpOntologyAnnotation = new ParameterOntologyAnnotationWithSex();
 
             String outcome = mpOntologyTermFromWs.get("selection_outcome");
             PhenotypeAnnotationType phenotypeAnnotationType = ((outcome == null) || (outcome.trim().isEmpty()) ? null : PhenotypeAnnotationType.find(outcome));
@@ -487,7 +548,7 @@ public class ImpressParser implements CommandLineRunner {
 
     private Pipeline getPipeline(String pipelineKey) {
 
-        NodeList pipelineNodes = ((ElementNSImpl) impress.getPipeline(pipelineKey)).getChildNodes();
+        NodeList pipelineNodes = ((Element) pipelineClient.getPipeline(pipelineKey).getGetPipelineResult()).getChildNodes();
 
         Map<String, String> map = new HashMap<>();
         // Parse out the keys and values for this pipeline
@@ -515,7 +576,7 @@ public class ImpressParser implements CommandLineRunner {
         Procedure procedure;
         Map<String, String> map = new HashMap<>();
 
-        NodeList procedureNodes = ((ElementNSImpl) impress.getProcedure(procedureKey, pipeline.getStableId())).getChildNodes();
+        NodeList procedureNodes = ((Element) procedureClient.getProcedure(procedureKey, pipeline.getStableId()).getGetProcedureResult()).getChildNodes();
 
         // Parse out the keys and values for this procedure
         for (int j = 0; j < procedureNodes.getLength(); j++) {
