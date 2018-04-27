@@ -196,7 +196,7 @@
                                         </tbody>
                                     </table>
                                     <p><sup>*</sup>&nbsp;Excluded from statistical analysis.</p>
-
+									
                                     <!-- <h3>Procedures</h3>
 
                                     <div id="lineProcedureChart">
@@ -386,7 +386,6 @@
 							<a id="checkAllPhenCalls" class="buttonForHighcharts"><i class="fa fa-check" aria-hidden="true"></i> Select all</a>
     						<a id="uncheckAllPhenCalls"  class="buttonForHighcharts"><i class="fa fa-times" aria-hidden="true"></i> Deselect all</a>
     						<div class="clear both"></div>
-							<br/><br/>
 
 <%-- 
                             <h2>Phenotype Associations Overview
@@ -494,10 +493,7 @@
                                 <a id="checkAllDataPoints" class="buttonForHighcharts"><i class="fa fa-check" aria-hidden="true"></i> Select all</a>
     							<a id="uncheckAllDataPoints"  class="buttonForHighcharts"><i class="fa fa-times" aria-hidden="true"></i> Deselect all</a>
     							<div class="clear both"></div>
-								<br/><br/>
-                                <br/>
-                                <br/>
-                                <br/>
+                             <br/><br/>
 
 <!-- 
                                 <div id="topLevelTrendsChart">
