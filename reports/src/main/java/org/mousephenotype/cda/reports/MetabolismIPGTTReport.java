@@ -23,8 +23,6 @@ import org.mousephenotype.cda.reports.support.ReportException;
 import org.mousephenotype.cda.solr.service.ExperimentService;
 import org.mousephenotype.cda.solr.service.ObservationService;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -39,8 +37,6 @@ import java.util.*;
  */
 @Component
 public class MetabolismIPGTTReport extends AbstractReport {
-
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     ExperimentService experimentService;
@@ -79,7 +75,7 @@ public class MetabolismIPGTTReport extends AbstractReport {
 
         List<String> errors = parser.validate(parser.parse(args));
         if ( ! errors.isEmpty()) {
-            logger.error("MetabolismIPGTTReport parser validation error: " + StringUtils.join(errors, "\n"));
+            log.error("MetabolismIPGTTReport parser validation error: " + StringUtils.join(errors, "\n"));
             return;
         }
         initialise(args);
@@ -88,9 +84,10 @@ public class MetabolismIPGTTReport extends AbstractReport {
 
         csvWriter.writeNext(header);
 
+        int count = 0;
+
         try {
             Collection<String> biologicalSampleIds = observationService.getMetabolismReportBiologicalSampleIds("IMPC_IPG_*");
-            int count = 0;
             for (String biologicalSampleId : biologicalSampleIds) {
 //if (count >= 1000) break;
                 Integer lBiologicalSampleId = commonUtils.tryParseInt(biologicalSampleId);
@@ -98,7 +95,7 @@ public class MetabolismIPGTTReport extends AbstractReport {
                     List<ObservationDTO> mouseInfoDTOs = observationService.getMetabolismReportBiologicalSampleId("IMPC_IPG_*", lBiologicalSampleId);
                     csvWriter.writeRow(createReportRow(mouseInfoDTOs));
                     if (++count % 1000 == 0)
-                        logger.info(new Date().toString() + ": " + count + " records written.");
+                        log.debug(new Date().toString() + ": " + count + " records written.");
                 }
             }
 
@@ -108,7 +105,7 @@ public class MetabolismIPGTTReport extends AbstractReport {
             throw new ReportException("Exception in MetabolismIPGTTReport. Reason: " + e.getLocalizedMessage());
         }
 
-        log.info(String.format("Finished. [%s]", commonUtils.msToHms(System.currentTimeMillis() - start)));
+        log.info(String.format("Finished. " + count + " records written in " + commonUtils.msToHms(System.currentTimeMillis() - start)));
     }
 
     /**
@@ -215,7 +212,7 @@ public class MetabolismIPGTTReport extends AbstractReport {
 
             for (String warning : warnings) {
                 if ( ! warning.isEmpty())
-                    logger.warn(warning);
+                    log.debug(warning);
             }
         }
 

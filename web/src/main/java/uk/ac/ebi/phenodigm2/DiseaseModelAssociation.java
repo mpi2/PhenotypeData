@@ -115,7 +115,7 @@ public class DiseaseModelAssociation extends MouseModel implements ByOrthology {
     }
         
     /**
-     * Create a json representation of the object with focus on models.
+     * Create a json representation of the object with focus on model.
      *
      * This renames a few fields with shorter names - saves somes bytes when
      * moving the json around.
@@ -141,11 +141,12 @@ public class DiseaseModelAssociation extends MouseModel implements ByOrthology {
     }
 
     /**
-     * Create a json representation of the object with focus on diseases.
+     * Create a json representation of the object with focus on disease.
      *
      * @return
      */
     public String makeDiseaseJson() {
+        Disease disease = new Disease(diseaseId);
         StringBuilder sb = new StringBuilder();
         sb.append("{");
         sb.append("id:\"" + this.getId() + "\",");
@@ -153,7 +154,7 @@ public class DiseaseModelAssociation extends MouseModel implements ByOrthology {
         sb.append("description:\"" + this.getDescription() + "\",");
         sb.append("diseaseId:\"" + diseaseId + "\",");
         sb.append("diseaseTerm:\"" + diseaseTerm + "\",");
-        sb.append("diseaseUrl:\"" + getExternalUrl() + "\",");
+        sb.append("diseaseUrl:\"" + disease.getExternalUrl() + "\",");
         sb.append("avgNorm:" + avgNorm + ",");
         sb.append("avgRaw:" + avgRaw + ",");
         sb.append("maxRaw:" + maxRaw + ",");
