@@ -19,7 +19,6 @@ import uk.ac.manchester.cs.owl.owlapi.OWLObjectPropertyImpl;
 import javax.sql.DataSource;
 import java.io.File;
 import java.io.IOException;
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
