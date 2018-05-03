@@ -1,14 +1,11 @@
 package org.mousephenotype.cda.loads.reports;
 
-import org.apache.commons.dbcp.BasicDataSource;
 import org.mousephenotype.cda.db.utilities.SqlUtils;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import javax.sql.DataSource;
@@ -80,28 +77,8 @@ public class AppConfig {
 
     @Value("${datasource.dcc.compare.current.password}")
     String dccCurrentPassword;
-    
-    
-    // IMPRESS
-    @Value("${datasource.impress.compare.previous.url}")
-    String impressPreviousUrl;
 
-    @Value("${datasource.impress.compare.previous.username}")
-    String impressPreviousUsername;
 
-    @Value("${datasource.impress.compare.previous.password}")
-    String impressPreviousPassword;
-
-    @Value("${datasource.impress.compare.current.url}")
-    String impressCurrentUrl;
-
-    @Value("${datasource.impress.compare.current.username}")
-    String impressCurrentUsername;
-
-    @Value("${datasource.impress.compare.current.password}")
-    String impressCurrentPassword;
-
-    
     
     @Bean
     public SqlUtils sqlUtils() {
@@ -162,25 +139,5 @@ public class AppConfig {
     @Bean
     public NamedParameterJdbcTemplate jdbcDccCurrent() {
         return new NamedParameterJdbcTemplate(dccCurrentDataSource());
-    }
-    
-
-    
-    // IMPRESS
-    @Bean
-    public DataSource impressPreviousDataSource() {
-        return SqlUtils.getConfiguredDatasource(impressPreviousUrl, impressPreviousUsername, impressPreviousPassword);
-    }
-    @Bean
-    public NamedParameterJdbcTemplate jdbcImpressPrevious() {
-        return new NamedParameterJdbcTemplate(impressPreviousDataSource());
-    }
-    @Bean
-    public DataSource impressCurrentDataSource() {
-        return SqlUtils.getConfiguredDatasource(impressCurrentUrl, impressCurrentUsername, impressCurrentPassword);
-    }
-    @Bean
-    public NamedParameterJdbcTemplate jdbcImpressCurrent() {
-        return new NamedParameterJdbcTemplate(impressCurrentDataSource());
     }
 }
