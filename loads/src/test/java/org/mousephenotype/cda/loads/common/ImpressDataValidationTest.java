@@ -36,18 +36,19 @@ import java.util.*;
 
 
 /**
- * Created by mrelac on 16/04/2018.
+ * Created by mrelac on 16/04/2018. This test compares two impress table sets that are expected to be identical.
  */
+@Ignore
 @RunWith(SpringRunner.class)
 @TestPropertySource("file:${user.home}/configfiles/${profile:dev}/test2.properties")
 @Import(ImpressTestConfig.class)
 public class ImpressDataValidationTest extends TestCase {
 
 	@Autowired
-	private NamedParameterJdbcTemplate jdbcImpress;
+	private NamedParameterJdbcTemplate jdbcImpressPrevious;
 
 	@Autowired
-	private NamedParameterJdbcTemplate jdbcCdabase;
+	private NamedParameterJdbcTemplate jdbcImpressCurrent;
 
 	@Test
 	public void comparePipelines() {
@@ -55,8 +56,8 @@ public class ImpressDataValidationTest extends TestCase {
 
 		PipelineComparator comparator = new PipelineComparator();
 
-		List<Pipeline> pipelinesOldWay = getPipelines(jdbcImpress);
-		List<Pipeline> pipelinesNewWay = getPipelines(jdbcCdabase);
+		List<Pipeline> pipelinesOldWay = getPipelines(jdbcImpressPrevious);
+		List<Pipeline> pipelinesNewWay = getPipelines(jdbcImpressCurrent);
 
 		Assert.assertEquals(pipelinesOldWay.size(), pipelinesNewWay.size());
 		int pipelineMismatches = 0;
@@ -84,8 +85,8 @@ public class ImpressDataValidationTest extends TestCase {
 
 		ProcedureComparator comparator = new ProcedureComparator();
 
-		List<Procedure> proceduresOldWay = getProcedures(jdbcImpress);
-		List<Procedure> proceduresNewWay = getProcedures(jdbcCdabase);
+		List<Procedure> proceduresOldWay = getProcedures(jdbcImpressPrevious);
+		List<Procedure> proceduresNewWay = getProcedures(jdbcImpressCurrent);
 
 		Assert.assertEquals(proceduresOldWay.size(), proceduresNewWay.size());
 		int procedureMismatches = 0;
@@ -113,8 +114,8 @@ public class ImpressDataValidationTest extends TestCase {
 
 		ParameterComparator comparator = new ParameterComparator();
 
-		List<Parameter> parametersOldWay = getParameters(jdbcImpress);
-		List<Parameter> parametersNewWay = getParameters(jdbcCdabase);
+		List<Parameter> parametersOldWay = getParameters(jdbcImpressPrevious);
+		List<Parameter> parametersNewWay = getParameters(jdbcImpressCurrent);
 
 		Assert.assertEquals(parametersOldWay.size(), parametersNewWay.size());
 		int parameterMismatches = 0;
@@ -142,8 +143,8 @@ public class ImpressDataValidationTest extends TestCase {
 
 		OptionComparator comparator = new OptionComparator();
 
-		List<ParameterOption> optionsOldWay = getOptions(jdbcImpress);
-		List<ParameterOption> optionsNewWay = getOptions(jdbcCdabase);
+		List<ParameterOption> optionsOldWay = getOptions(jdbcImpressPrevious);
+		List<ParameterOption> optionsNewWay = getOptions(jdbcImpressCurrent);
 
 		Assert.assertEquals(optionsOldWay.size(), optionsNewWay.size());
 		int optionMismatches = 0;
@@ -171,8 +172,8 @@ public class ImpressDataValidationTest extends TestCase {
 
 		IncrementComparator comparator = new IncrementComparator();
 
-		List<ParameterIncrement> incrementsOldWay = getIncrements(jdbcImpress);
-		List<ParameterIncrement> incrementsNewWay = getIncrements(jdbcCdabase);
+		List<ParameterIncrement> incrementsOldWay = getIncrements(jdbcImpressPrevious);
+		List<ParameterIncrement> incrementsNewWay = getIncrements(jdbcImpressCurrent);
 
 		Assert.assertEquals(incrementsOldWay.size(), incrementsNewWay.size());
 		int incrementMismatches = 0;
@@ -204,8 +205,8 @@ public class ImpressDataValidationTest extends TestCase {
 
 		OntologyAnnotationComparator comparator = new OntologyAnnotationComparator();
 
-		List<ParameterOntologyAnnotationWithSexAndPaStableId> ontologyAnnotationsOldWay = getOntologyAnnotations(jdbcImpress);
-		List<ParameterOntologyAnnotationWithSexAndPaStableId> ontologyAnnotationsNewWay = getOntologyAnnotations(jdbcCdabase);
+		List<ParameterOntologyAnnotationWithSexAndPaStableId> ontologyAnnotationsOldWay = getOntologyAnnotations(jdbcImpressPrevious);
+		List<ParameterOntologyAnnotationWithSexAndPaStableId> ontologyAnnotationsNewWay = getOntologyAnnotations(jdbcImpressCurrent);
 
 		Assert.assertEquals(ontologyAnnotationsOldWay.size(), ontologyAnnotationsNewWay.size());
 		int ontologyAnnotationMismatches = 0;
@@ -232,8 +233,8 @@ public class ImpressDataValidationTest extends TestCase {
    	public void compareDBDetails() {
 		String testName = new Object() {}.getClass().getEnclosingMethod().getName();
 
-   		List<ImpressData> impressOldWay = getImpressData(jdbcImpress);
-   		List<ImpressData> impressNewWay = getImpressData(jdbcCdabase);
+   		List<ImpressData> impressOldWay = getImpressData(jdbcImpressPrevious);
+   		List<ImpressData> impressNewWay = getImpressData(jdbcImpressCurrent);
    		
 		Assert.assertEquals(impressOldWay.size(), impressNewWay.size());
    		

@@ -31,55 +31,53 @@ import javax.sql.DataSource;
 @Configuration
 public class ImpressTestConfig {
 
-	@Value("${datasource.cdabase.url}")
-	String cdabaseUrl;
+	@Value("${datasource.impress.current.url}")
+	String impressCurrentUrl;
 
-	@Value("${datasource.cdabase.username}")
-	protected String cdabaseUsername;
+	@Value("${datasource.impress.current.username}")
+	protected String impressCurrentUsername;
 
-	@Value("${datasource.cdabase.password}")
-	protected String cdabasePassword;
+	@Value("${datasource.impress.current.password}")
+	protected String impressCurrentPassword;
 
-	@Value("${datasource.impress.url}")
-	String impressUrl;
+	@Value("${datasource.impress.previous.url}")
+	String impressPreviousUrl;
 
-	@Value("${datasource.impress.username}")
-	protected String impressUsername;
+	@Value("${datasource.impress.previous.username}")
+	protected String impressPreviousUsername;
 
-	@Value("${datasource.impress.password}")
-	protected String impressPassword;
+	@Value("${datasource.impress.previous.password}")
+	protected String impressPreviousPassword;
 
 
-	// cdabase database
+
 	@Bean
-	public DataSource cdabaseDataSource() {
-		return SqlUtils.getConfiguredDatasource(cdabaseUrl, cdabaseUsername, cdabasePassword);
+	public DataSource impressCurrentDataSource() {
+		return SqlUtils.getConfiguredDatasource(impressCurrentUrl, impressCurrentUsername, impressCurrentPassword);
 	}
 
 	@Bean
-	public NamedParameterJdbcTemplate jdbcCdabase() {
-		return new NamedParameterJdbcTemplate(cdabaseDataSource());
+	public NamedParameterJdbcTemplate jdbcImpressCurrent() {
+		return new NamedParameterJdbcTemplate(impressCurrentDataSource());
 	}
 
 	@Bean
-	public CdaSqlUtils cdabaseSqlUtils() {
-		return new CdaSqlUtils(jdbcCdabase());
-	}
-
-
-	// impress database
-	@Bean
-	public DataSource impressDataSource() {
-		return SqlUtils.getConfiguredDatasource(impressUrl, impressUsername, impressPassword);
+	public CdaSqlUtils impressCurrentSqlUtils() {
+		return new CdaSqlUtils(jdbcImpressCurrent());
 	}
 
 	@Bean
-	public NamedParameterJdbcTemplate jdbcImpress() {
-		return new NamedParameterJdbcTemplate(impressDataSource());
+	public DataSource impressPreviousDataSource() {
+		return SqlUtils.getConfiguredDatasource(impressPreviousUrl, impressPreviousUsername, impressPreviousPassword);
 	}
 
 	@Bean
-	public CdaSqlUtils impressSqlUtils() {
-		return new CdaSqlUtils(jdbcImpress());
+	public NamedParameterJdbcTemplate jdbcImpressPrevious() {
+		return new NamedParameterJdbcTemplate(impressPreviousDataSource());
+	}
+
+	@Bean
+	public CdaSqlUtils impressPreviousSqlUtils() {
+		return new CdaSqlUtils(jdbcImpressPrevious());
 	}
 }
