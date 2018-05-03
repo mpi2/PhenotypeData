@@ -210,15 +210,15 @@ public class OntologyParserFactory {
 
         Set<String> wantedIds = new HashSet<>();
 
-        // Get MA terms from Sanger images
-        PreparedStatement statement = komp2DataSource.getConnection().prepareStatement("SELECT DISTINCT (UPPER(TERM_ID)) AS TERM_ID FROM ANN_ANNOTATION");
-        ResultSet res = statement.executeQuery();
-        while (res.next()) {
-            String r= res.getString("TERM_ID");
-            if (r != null && r.startsWith("MA:")){
-                wantedIds.add(r);
-            }
-        }
+//        // Get MA terms from Sanger images
+//        PreparedStatement statement = komp2DataSource.getConnection().prepareStatement("SELECT DISTINCT (UPPER(TERM_ID)) AS TERM_ID FROM ANN_ANNOTATION");
+//        ResultSet res = statement.executeQuery();
+//        while (res.next()) {
+//            String r= res.getString("TERM_ID");
+//            if (r != null && r.startsWith("MA:")){
+//                wantedIds.add(r);
+//            }
+//        }
         // Add MA ids from IMPRESS
         wantedIds.addAll(getOntologyIds(8, komp2DataSource));
 
@@ -264,15 +264,15 @@ public class OntologyParserFactory {
             wantedIds.add(emapMap.get(emapTerm));
         }
 
-        // Get EMAPA terms from Sanger images
-        statement = komp2DataSource.getConnection().prepareStatement("SELECT DISTINCT (UPPER(TERM_ID)) AS TERM_ID FROM ANN_ANNOTATION");
-        res = statement.executeQuery();
-        while (res.next()) {
-            String r= res.getString("TERM_ID");
-            if (r != null && r.startsWith("EMAPA:")){
-                wantedIds.add(r);
-            }
-        }
+//        // Get EMAPA terms from Sanger images
+//        statement = komp2DataSource.getConnection().prepareStatement("SELECT DISTINCT (UPPER(TERM_ID)) AS TERM_ID FROM ANN_ANNOTATION");
+//        res = statement.executeQuery();
+//        while (res.next()) {
+//            String r= res.getString("TERM_ID");
+//            if (r != null && r.startsWith("EMAPA:")){
+//                wantedIds.add(r);
+//            }
+//        }
 
         // We have no EMAPA terms referenced by MP terms in the slim
 
@@ -291,15 +291,15 @@ public class OntologyParserFactory {
         // Select MP terms from images too
         Set<String> wantedIds = new HashSet<>();
 
-        // Get mp terms from Sanger images
-        PreparedStatement statement = komp2DataSource.getConnection().prepareStatement("SELECT DISTINCT (UPPER(TERM_ID)) AS TERM_ID, (UPPER(TERM_NAME)) as TERM_NAME FROM  IMA_IMAGE_TAG iit INNER JOIN ANN_ANNOTATION aa ON aa.FOREIGN_KEY_ID=iit.ID");
-        ResultSet res = statement.executeQuery();
-        while (res.next()) {
-            String r = res.getString("TERM_ID");
-            if (r.startsWith("MP:")) {
-                wantedIds.add(r);
-            }
-        }
+//        // Get mp terms from Sanger images
+//        PreparedStatement statement = komp2DataSource.getConnection().prepareStatement("SELECT DISTINCT (UPPER(TERM_ID)) AS TERM_ID, (UPPER(TERM_NAME)) as TERM_NAME FROM  IMA_IMAGE_TAG iit INNER JOIN ANN_ANNOTATION aa ON aa.FOREIGN_KEY_ID=iit.ID");
+//        ResultSet res = statement.executeQuery();
+//        while (res.next()) {
+//            String r = res.getString("TERM_ID");
+//            if (r.startsWith("MP:")) {
+//                wantedIds.add(r);
+//            }
+//        }
 
         //All MP terms we can have annotations to (from IMPRESS)
         wantedIds.addAll(getOntologyIds(5, komp2DataSource));
