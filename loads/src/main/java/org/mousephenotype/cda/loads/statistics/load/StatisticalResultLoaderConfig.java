@@ -21,7 +21,7 @@ import javax.sql.DataSource;
 import static org.mousephenotype.cda.db.utilities.SqlUtils.getConfiguredDatasource;
 
 @Configuration
-@PropertySource(value="file:${user.home}/configfiles/${profile:dev}/application.properties")
+@PropertySource(value="file:${user.home}/configfiles/${profile:dev}/datarelease.properties")
 @ComponentScan(basePackages = {"org.mousephenotype.cda.loads.statistics.load", "org.mousephenotype.cda.db.dao"},
         excludeFilters = {
             @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = {GwasDAO.class, ReferenceDAO.class})})
