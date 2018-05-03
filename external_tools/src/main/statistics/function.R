@@ -215,7 +215,6 @@ test002 <- function(infname = "MRCHarwell-HRWL_001-IMPC_CSD-MGI2164831.tsv", res
 		dataset = data.frame(zygosity = "homozygote", dataset,check.names = FALSE,stringsAsFactors = FALSE)
 		out <-
 			paste(
-				'hash',
 				"metadata_group",
 				"zygosity",
 				"colony_id",
@@ -227,13 +226,9 @@ test002 <- function(infname = "MRCHarwell-HRWL_001-IMPC_CSD-MGI2164831.tsv", res
 				"count mm",
 				"count mf",
 				"mean cm",
-				"stddev cm",
 				"mean cf",
-				"stddev cf",
 				"mean mm",
-				"stddev mm",
 				"mean mf",
-				"stddev mf",
 				"control_strategy",
 				"workflow",
 				"weight available",
@@ -530,6 +525,7 @@ test002 <- function(infname = "MRCHarwell-HRWL_001-IMPC_CSD-MGI2164831.tsv", res
 
 							operational_dataset <- dataset_phenList
 							#### HAMED 02/05/2018
+
 							concurrentContSelect = function(PhenListObj,
 																							minSmp = 6,
 																							depVar = 'data_point',
@@ -539,6 +535,7 @@ test002 <- function(infname = "MRCHarwell-HRWL_001-IMPC_CSD-MGI2164831.tsv", res
 																							BatchColName = 'Batch',
 																							plot = FALSE) {
 
+                                is_concurrent = FALSE
 								if (is.numeric(PhenListObj@datasetPL[, depVar])) {
 									m  = droplevels(PhenListObj@datasetPL[PhenListObj@datasetPL[, GenotypeColName] !=
 																													control,])
@@ -551,17 +548,21 @@ test002 <- function(infname = "MRCHarwell-HRWL_001-IMPC_CSD-MGI2164831.tsv", res
 												min(tb[, which(colnames(tb) == control)]) >= minSmp) {
 											message ('Concurrent control selection in progress ...')
 											PhenListObj@datasetPL = m1
-										}
+
+                                            is_concurrent = TRUE
+                                        }
 									}
 								}
 
 								if (plot)
 									plot(PhenListObj, depVariable = depVar)
 
-								return (PhenListObj)
+								return (list(PhenListObj=PhenListObj, is_concurrent=is_concurrent))
 							}
 							#### HAMED 02/05/2018
-							operational_dataset = concurrentContSelect(PhenListObj = operational_dataset, depVar = depvar)
+							conc_output = concurrentContSelect(PhenListObj = operational_dataset, depVar = depvar)
+                            operational_dataset = conc_output$PhenListObj
+                            is_concurrent = conc_output$is_concurrent
 							#### END OF HAMED
 
 
@@ -711,25 +712,11 @@ test002 <- function(infname = "MRCHarwell-HRWL_001-IMPC_CSD-MGI2164831.tsv", res
 							# Default strategy is all appropriate controls
 							control_strategy <- "baseline_all"
 
-							# Test if this dataset can be analyzed using concurrent control strategy and
-							# update the dataframe to contain only the concurrent data if so
-							if (length(unique(batches[colony_ids_for_strat == colony_id])) == 1) {
-								unique_batch_date = unique(batches[colony_ids_for_strat == colony_id])[1]
-								if (length(batches[colony_ids_for_strat != colony_id &
-																	 sexes_for_strat == "male" & batches == unique_batch_date]) >= 6 &&
-										length(batches[colony_ids_for_strat != colony_id &
-																	 sexes_for_strat == "female" & batches == unique_batch_date]) >= 6) {
-									# Enough control points found for Concurrent strategy
-									control_strategy <- "concurrent"
-
-									# update the dataframe to include only concurrent values for this dataset
-									# dataset is dep-var and colony_id
-
-									operational_dataset@datasetPL = operational_dataset@datasetPL[operational_dataset@datasetPL$Batch ==
-																																									unique_batch_date,]
-									workflow <- "one_batch"
-
-								}
+							# If the dataset has enough data to be processed as concurrent controls,
+                            # update the process tracking variables
+							if (is_concurrent) {
+                                control_strategy <- "concurrent"
+                                workflow <- "one_batch"
 							}
 
 
@@ -737,12 +724,12 @@ test002 <- function(infname = "MRCHarwell-HRWL_001-IMPC_CSD-MGI2164831.tsv", res
 							#
 							method01 <- "MM"
 
-							mean_control_female    <- "-"
-							mean_control_male      <- "-"
-							mean_mutes_female     <- "-"
-							mean_mutes_male       <- "-"
+                            mean_control_female <- "-"
+                            mean_control_male <- "-"
+                            mean_mutes_female <- "-"
+                            mean_mutes_male <- "-"
 
-							if (is.character(dataset_group_colony_zygosity_controls[depvar][1, ])) {
+                            if (is.character(dataset_group_colony_zygosity_controls[depvar][1, ])) {
 								method01 <- "FE"
 							} else {
 								male_controls_in_group <-
