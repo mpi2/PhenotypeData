@@ -18,7 +18,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.core.io.Resource;
+import org.springframework.jdbc.datasource.init.ScriptUtils;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.ac.manchester.cs.owl.owlapi.OWLObjectPropertyImpl;
 
@@ -30,6 +33,7 @@ import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -39,12 +43,16 @@ import java.util.stream.Collectors;
 @SpringBootTest(classes = TestConfig.class)
 @Deprecated
 public class OntologyParserTest {
-    public static boolean               areFilesDownloaded = true;
-    private    Map<String, Download> downloads          = new HashMap<>();  // key = map name. value = download info.
-    private final Logger                logger             = LoggerFactory.getLogger(this.getClass());
-    private       OntologyParser        ontologyParser;
-    private       String                owlpath            = "tmp1";
+    public static boolean                     areFilesDownloaded = false;
 
+    private       Map<String, Download>       downloads          = new HashMap<>();  // key = map name. value = download info.
+    private final Logger                      logger             = LoggerFactory.getLogger(this.getClass());
+    private       Map<String, OntologyParser> ontologyParsers    = new HashMap<>();                                     // Key is downloads.name field (e.g. "emapa", "hp", "mphp", etc)
+    private       String                      owlpath            = "impc_ontologies";
+
+
+    @Autowired
+    private ApplicationContext context;
 
     @Autowired
     private DataSource testDataSource;
@@ -53,18 +61,29 @@ public class OntologyParserTest {
     public void setUp() throws Exception {
 
         // These urls were taken from the jenkins job that downloads the ontologies: http://ves-ebi-d9.ebi.ac.uk:8080/jenkins/job/IMPC_Download_ontology_reports/configure
-        downloads.put("emapa",  new Download("EMAPA",  "http://purl.obolibrary.org/obo/emapa.owl",                                                                     owlpath + "/emapa.owl"));
-        downloads.put("emap",   new Download("EMAP",   "http://purl.obolibrary.org/obo/emap.owll",                                                                     owlpath + "/emap.owl"));
-        downloads.put("hp",     new Download("HP",     "https://raw.githubusercontent.com/obophenotype/human-phenotype-ontology/master/hp.owl",                        owlpath + "/hp.owl"));
-        downloads.put("ma",     new Download("MA",     "http://purl.obolibrary.org/obo/ma.owl",                                                                        owlpath + "/ma.owl"));
-        downloads.put("mphp",   new Download("MP",     "https://raw.githubusercontent.com/obophenotype/mammalian-phenotype-ontology/master/scratch/mp-ext-merged.owl", owlpath + "/mp-ext-merged.owl"));
-        downloads.put("mp",     new Download("MP",     "http://purl.obolibrary.org/obo/mp.owl",                                                                        owlpath + "/mp.owl"));
-        downloads.put("uberon", new Download("UBERON", "http://purl.obolibrary.org/obo/uberon.owl",                                                                    owlpath + "/uberon.owl"));
+        downloads.put("emapa",  new Download("emapa",  "http://purl.obolibrary.org/obo/emapa.owl",                                                                     owlpath + "/emapa.owl"));
+        downloads.put("ma",     new Download("ma",     "http://purl.obolibrary.org/obo/ma.owl",                                                                        owlpath + "/ma.owl"));
+        downloads.put("mp",     new Download("mp",     "http://purl.obolibrary.org/obo/mp.owl",                                                                        owlpath + "/mp.owl"));
+        downloads.put("mpma",   new Download("mp",     "http://purl.obolibrary.org/obo/mp-ext-merged.owl",                                                             owlpath + "/mp-ext-merged.owl"));
+        // This file is not downloaded; it is kept in the resources directory, as it is hand-built whenever we want the latest mp-hp mapping from monarch.
+        downloads.put("mphp",   new Download("mphp",   "",                                                                                                             owlpath + "/mp-hp.owl"));
 
         if ( ! areFilesDownloaded) {
             downloadFiles();
             areFilesDownloaded = true;
         }
+
+        // Load impress schema
+        Resource r = context.getResource("sql/h2/impress/impressSchema.sql");
+        ScriptUtils.executeSqlScript(testDataSource.getConnection(), r);
+
+        // Load ontology parsers
+        OntologyParserFactory factory = new OntologyParserFactory(testDataSource, owlpath);
+        ontologyParsers.put("emapa", factory.getEmapaParser());
+        ontologyParsers.put("ma", factory.getMaParser());
+        ontologyParsers.put("mp", factory.getMpParser());
+        ontologyParsers.put("mpma", factory.getMpMaParser());
+        ontologyParsers.put("mphp", factory.getMpHpParser());
     }
 
     private class Download {
@@ -79,7 +98,7 @@ public class OntologyParserTest {
         }
     }
 
-    private void downloadFiles() {
+    private void downloadFiles() throws Exception{
 
         try {
             Files.createDirectories(Paths.get(owlpath));
@@ -89,27 +108,49 @@ public class OntologyParserTest {
 
         for (Download download : downloads.values()) {
 
-            // Download the files
-            FileOutputStream    fos;
-            ReadableByteChannel rbc;
-            String              target;
-            URL                 url;
+            // Download required EMAP-EMAPA.txt
+            Resource r   = context.getResource("classpath:EMAP-EMAPA.txt");
+            String emapaTarget = owlpath + "/EMAP-EMAPA.txt";
+            logger.info("DOWNLOADING EMAP-EMAPA.txt to " + emapaTarget);
+            Files.copy(r.getInputStream(), Paths.get(emapaTarget), StandardCopyOption.REPLACE_EXISTING);
 
-            target = download.target;
+            if (download.url.isEmpty()) {
+                switch (download.name) {
+                    case "mphp":
 
-            try {
-                url = new URL(UrlUtils.getRedirectedUrl(download.url));
-                if (download.url.equals(url.toString())) {
-                    logger.info("DOWNLOADING " + url.toString() + " to " + download.target);
-                } else {
-                    logger.info("DOWNLOADING " + download.url + " (remapped to " + url.toString() + ") to " + download.target);
+                        Resource mpHpOwl   = context.getResource("classpath:mp-hp.owl");
+                        logger.info("DOWNLOADING mp-hp.owl to " + download.target);
+                        Files.copy(mpHpOwl.getInputStream(), Paths.get(download.target), StandardCopyOption.REPLACE_EXISTING);
+                        break;
+
+                    default:
+
+                        break;
                 }
-                rbc = Channels.newChannel(url.openStream());
-                fos = new FileOutputStream(target);
-                fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
+            } else {
 
-            } catch (IOException e) {
-                logger.error(download.url + " -> " + target + " download failed. Reason: " + e.getLocalizedMessage());
+                // Download the files with non-empty urls
+                FileOutputStream    fos;
+                ReadableByteChannel rbc;
+                String              target;
+                URL                 url;
+
+                target = download.target;
+
+                try {
+                    url = new URL(UrlUtils.getRedirectedUrl(download.url));
+                    if (download.url.equals(url.toString())) {
+                        logger.info("DOWNLOADING " + url.toString() + " to " + download.target);
+                    } else {
+                        logger.info("DOWNLOADING " + download.url + " (remapped to " + url.toString() + ") to " + download.target);
+                    }
+                    rbc = Channels.newChannel(url.openStream());
+                    fos = new FileOutputStream(target);
+                    fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
+
+                } catch (IOException e) {
+                    logger.error(download.url + " -> " + target + " download failed. Reason: " + e.getLocalizedMessage());
+                }
             }
         }
     }
@@ -155,8 +196,7 @@ public class OntologyParserTest {
 //@Ignore
 	@Test
 	public void findSpecificMaTermMA_0002405() throws Exception {
-		ontologyParser = new OntologyParser(downloads.get("ma").target, downloads.get("ma").name, null, null);
-		List<OntologyTermDTO> termList = ontologyParser.getTerms();
+		List<OntologyTermDTO> termList = ontologyParsers.get("ma").getTerms();
 		Map<String, OntologyTermDTO> terms = termList.stream()
 				.filter(term -> term.getAccessionId().equals("MA:0002406"))
 				.collect(Collectors.toMap(OntologyTermDTO::getAccessionId, ontologyTermDTO -> ontologyTermDTO));
@@ -164,24 +204,14 @@ public class OntologyParserTest {
 	}
 
 
-    // Because it had that IRI used twice, once with ObjectProperty and once with AnnotationProperty RO_0002200
-//@Ignore
-    @Test
-    public void testUberon()  throws Exception {
-
-        ontologyParser = new OntologyParser(downloads.get("uberon").target, downloads.get("uberon").name, null, null);
-
-    }
-
-
 @Ignore
     @Test
     public void testNarrowSynonyms() throws Exception {
-
+OntologyParser ontologyParser;
         logger.debug("target: " + downloads.get("mphp").target);
         logger.debug("name:   " + downloads.get("mphp").name);
         ontologyParser = new OntologyParser(downloads.get("mphp").target, downloads.get("mphp").name, null, null);
-        OntologyTermDTO term = ontologyParser.getOntologyTerm("MP:0006325");
+        OntologyTermDTO term = ontologyParsers.get("mphp").getOntologyTerm("MP:0006325");
 
         OntologyParserFactory f = new OntologyParserFactory(testDataSource, owlpath);
         OntologyParser p = f.getMpHpParser();
@@ -209,7 +239,7 @@ public class OntologyParserTest {
 @Ignore
     @Test
     public void testEquivalent() throws Exception {
-
+OntologyParser ontologyParser;
         ontologyParser = new OntologyParser(downloads.get("mphp").target, downloads.get("mphp").name, null, null);
         List<OntologyTermDTO> terms = ontologyParser.getTerms();
         Assert.assertFalse("Term list is empty!", terms.isEmpty());
@@ -231,7 +261,7 @@ public class OntologyParserTest {
 @Ignore
     @Test
     public void testReplacementOptions() throws Exception {
-
+OntologyParser ontologyParser;
         ontologyParser = new OntologyParser(downloads.get("mp").target, downloads.get("mp").name, null, null);
 
         List<OntologyTermDTO> termList = ontologyParser.getTerms();
@@ -271,6 +301,7 @@ public class OntologyParserTest {
 @Ignore
     @Test
     public void findSpecificEmapaTermEMAPA_18025() throws Exception {
+OntologyParser ontologyParser;
         ontologyParser = new OntologyParser(downloads.get("emapa").target, downloads.get("emapa").name, OntologyParserFactory.TOP_LEVEL_EMAPA_TERMS, null);
         List<OntologyTermDTO> termList = ontologyParser.getTerms();
         Map<String, OntologyTermDTO> terms =
@@ -285,6 +316,7 @@ public class OntologyParserTest {
 @Ignore
     @Test
     public void findMaTermByReferenceFromMpTerm() throws Exception {
+OntologyParser ontologyParser;
         ontologyParser = new OntologyParser(downloads.get("mpma").target, downloads.get("mpma").name, null, null);
 
         OntologyParser maParser = new OntologyParser(downloads.get("ma").target, downloads.get("ma").name, OntologyParserFactory.TOP_LEVEL_MA_TERMS, null);
@@ -306,15 +338,7 @@ public class OntologyParserTest {
     @Test
     public void findSpecificMpTermMP_0020422() throws Exception {
 
-        OntologyParserFactory f = new OntologyParserFactory(testDataSource, owlpath);
-        OntologyParser mpHp = f.getMpHpParser();
-
-
-
-
-
-        ontologyParser = new OntologyParser(downloads.get("mp").target, downloads.get("mp").name, null, null);
-        List<OntologyTermDTO> termList = ontologyParser.getTerms();
+        List<OntologyTermDTO> termList = ontologyParsers.get("mp").getTerms();
         Map<String, OntologyTermDTO> terms =
                 termList.stream()
                         .filter(term -> term.getAccessionId().equals("MP:0020422"))
@@ -327,7 +351,7 @@ public class OntologyParserTest {
     @Ignore
     @Test
     public void testRootTermAndTopTermsInOntologyParserMap() throws Exception {
-
+OntologyParser ontologyParser;
         ontologyParser = new OntologyParser(downloads.get("mp").target, downloads.get("mp").name, null, null);
         List<OntologyTermDTO> termList = ontologyParser.getTerms();
         Map<String, OntologyTermDTO> terms =
@@ -343,7 +367,7 @@ public class OntologyParserTest {
 @Ignore
     @Test
     public void testTermsInSlim() throws Exception{
-
+OntologyParser ontologyParser;
         ontologyParser = new OntologyParser(downloads.get("mp").target, downloads.get("mp").name, null, null);
         Set<String> wantedIds = new HashSet<>();
         wantedIds.add("MP:0008901");
@@ -356,7 +380,7 @@ public class OntologyParserTest {
 @Ignore
     @Test
     public void testParentInfo() throws Exception{
-
+OntologyParser ontologyParser;
         ontologyParser = new OntologyParser(downloads.get("mp").target, downloads.get("mp").name, null, null);
         OntologyTermDTO term = ontologyParser.getOntologyTerm("MP:0005452");  // abnormal adipose tissue amount
         Assert.assertTrue(term.getParentIds().contains("MP:0000003"));
@@ -368,7 +392,7 @@ public class OntologyParserTest {
 @Ignore
     @Test
     public void testChildInfo() throws Exception{
-
+OntologyParser ontologyParser;
         ontologyParser = new OntologyParser(downloads.get("mp").target, downloads.get("mp").name, null, null);
         OntologyTermDTO term = ontologyParser.getOntologyTerm("MP:0005452");  // abnormal adipose tissue amount
         Assert.assertTrue(term.getChildIds().contains("MP:0010024"));
@@ -386,7 +410,7 @@ public class OntologyParserTest {
 @Ignore
     @Test
     public void testTopLevels() throws Exception{
-
+OntologyParser ontologyParser;
         Set<String> topLevels = new HashSet<>(OntologyParserFactory.TOP_LEVEL_MP_TERMS);
 
         ontologyParser = new OntologyParser(downloads.get("mp").target, downloads.get("mp").name, topLevels, null);
