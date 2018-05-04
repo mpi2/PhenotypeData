@@ -1,10 +1,3 @@
-<%--
-  Created by IntelliJ IDEA.
-  User: ilinca
-  Date: 08/02/2017
-  Time: 14:46
-  To change this template use File | Settings | File Templates.
---%>
 
         <h1>More information about the way IMPC uses graphs.</h1>
         <br/>
@@ -16,7 +9,7 @@
             links to charts of the data and more information about the processing used to determine statistical significance.
         </p>
 
-        <p> The P values and other model fitting estimates are calculated using the <a href="statistics-help">IMPC statistical
+        <p> The P values and other model fitting estimates are calculated using the <a href="${baseUrl}/documentation/doc-method">IMPC statistical
             methods</a>.
             <img src="img/graph-links.png">
         </p>
@@ -157,7 +150,7 @@
             </tr>
         </table>
         <br/>
-        <p> A <b>restful web service</b> (with <a href="api-help"> Documentation</a>) is also available for retrieving
+        <p> A <b>restful web service</b> (with <a href="${baseUrl}/documentation/data-access"> Documentation</a>) is also available for retrieving
             information
             pertaining to experiments via a web browser or a programming language of your choice.
         </p>
