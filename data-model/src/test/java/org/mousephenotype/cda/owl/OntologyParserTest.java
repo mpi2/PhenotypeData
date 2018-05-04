@@ -293,24 +293,11 @@ public class OntologyParserTest {
     }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-    @Ignore
+@Ignore
     @Test
     public void testRootTermAndTopTermsInOntologyParserMap() throws Exception {
-OntologyParser ontologyParser;
-        ontologyParser = new OntologyParser(downloads.get("mp").target, downloads.get("mp").name, null, null);
-        List<OntologyTermDTO> termList = ontologyParser.getTerms();
+
+        List<OntologyTermDTO> termList = ontologyParsers.get("mp").getTerms();
         Map<String, OntologyTermDTO> terms =
                 termList.stream()
                         .filter(term -> term.getAccessionId().equals("MP:0000001") || OntologyParserFactory.TOP_LEVEL_MP_TERMS.contains(term.getAccessionId()))
@@ -321,47 +308,69 @@ OntologyParser ontologyParser;
         Assert.assertFalse(terms.containsKey("MP:0010734571"));
     }
 
+
+
+
+
+
+
+
+
+
+
+
+
 @Ignore
     @Test
     public void testTermsInSlim() throws Exception{
-OntologyParser ontologyParser;
-        ontologyParser = new OntologyParser(downloads.get("mp").target, downloads.get("mp").name, null, null);
+
+//        ontologyParser = new OntologyParser(downloads.get("mp").target, downloads.get("mp").name, null, null);
         Set<String> wantedIds = new HashSet<>();
         wantedIds.add("MP:0008901");
         wantedIds.add("MP:0005395"); // "other phenotype" -  obsolete and should not be in the sim
-        Set<String> termsInSlim = ontologyParser.getTermsInSlim(wantedIds, null);
+        Set<String> termsInSlim = ontologyParsers.get("mp").getTermsInSlim(wantedIds, null);
         Assert.assertTrue(termsInSlim.size() == 7);
-        Assert.assertTrue(!termsInSlim.contains("MP:0005395"));
+        Assert.assertTrue( ! termsInSlim.contains("MP:0005395"));
     }
+
+
+
+
+
+
+
 
 @Ignore
     @Test
     public void testParentInfo() throws Exception{
-OntologyParser ontologyParser;
-        ontologyParser = new OntologyParser(downloads.get("mp").target, downloads.get("mp").name, null, null);
-        OntologyTermDTO term = ontologyParser.getOntologyTerm("MP:0005452");  // abnormal adipose tissue amount
+
+        OntologyTermDTO term = ontologyParsers.get("mp").getOntologyTerm("MP:0005452");  // abnormal adipose tissue amount
         Assert.assertTrue(term.getParentIds().contains("MP:0000003"));
         Assert.assertTrue(term.getParentIds().size() == 1);
         Assert.assertTrue(term.getParentNames().size() == 1);
-
     }
 
-@Ignore
+
+
+
+
+
+
+//@Ignore
     @Test
     public void testChildInfo() throws Exception{
-OntologyParser ontologyParser;
-        ontologyParser = new OntologyParser(downloads.get("mp").target, downloads.get("mp").name, null, null);
-        OntologyTermDTO term = ontologyParser.getOntologyTerm("MP:0005452");  // abnormal adipose tissue amount
+
+//        ontologyParser = new OntologyParser(downloads.get("mp").target, downloads.get("mp").name, null, null);
+        OntologyTermDTO term = ontologyParsers.get("mp").getOntologyTerm("MP:0005452");  // abnormal adipose tissue amount
         Assert.assertTrue(term.getChildIds().contains("MP:0010024"));
         logger.debug("term.getChildIds().size() " + term.getChildIds().size() + term.getChildIds());
         Assert.assertTrue(term.getChildIds().size() == 4); // 4 child terms in the ontology without reasoning
         Assert.assertTrue(term.getChildNames().size() == 4);
 
-        term =ontologyParser.getOntologyTerm("MP:0000003");
+        term = ontologyParsers.get("mp").getOntologyTerm("MP:0000003");
         logger.debug("term.getChildIds().size() " + term.getChildIds().size() + term.getChildIds());
         Assert.assertTrue(term.getChildIds().size() >= 12); // 11 child terms in the ontology without reasoning
         Assert.assertTrue(term.getChildNames().size() >= 12);
-
     }
 
 @Ignore

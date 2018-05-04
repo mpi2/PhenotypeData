@@ -65,4 +65,7 @@
     <logger name="org.springframework.jdbc.datasource.embedded.H2EmbeddedDatabaseConfigurer"                                     level="ERROR" />
     <logger name="org.springframework.jdbc.datasource.embedded.HsqlEmbeddedDatabaseConfigurer"                                   level="ERROR" />
 
+    <!-- This quiets the INFO logging of the ELK reasoner -->
+    <logger name="org.semanticweb.elk.reasoner.stages"                                                                           level="WARN" />
+
 </configuration>
