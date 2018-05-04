@@ -43,7 +43,7 @@ import java.util.stream.Collectors;
 @SpringBootTest(classes = TestConfig.class)
 @Deprecated
 public class OntologyParserTest {
-    public static boolean                     areFilesDownloaded = false;
+    public static boolean                     areFilesDownloaded = true;
 
     private       Map<String, Download>       downloads          = new HashMap<>();  // key = map name. value = download info.
     private final Logger                      logger             = LoggerFactory.getLogger(this.getClass());
@@ -155,45 +155,7 @@ public class OntologyParserTest {
         }
     }
 
-//@Ignore
-//    @Test
-//    public void testOwlOntologyDownloads() throws Exception {
-//        String message;
-//        List<Exception> exception = new ArrayList();
-//        File owlpathFile = new File(owlpath);
-//        File[] owlFiles = owlpathFile.listFiles(new FilenameFilter() {
-//            @Override
-//            public boolean accept(File dir, String name) {
-//                return name.toLowerCase().endsWith(".owl");
-//            }
-//        });
-//
-//        String prefix;
-//        for (File file : owlFiles) {
-//            prefix = file.getName().replace(".owl", "").toUpperCase();
-//            try {
-//                ontologyParser = new OntologyParser(file.getPath(), prefix, null, null);
-//            } catch (Exception e) {
-//                message = "[FAIL - " + prefix + "] Exception in " + file.getPath() + "(" + prefix + "): " + e.getLocalizedMessage();
-//                exception.add(e);
-//                System.out.println(message + "\n");
-//                continue;
-//            }
-//            List<OntologyTermDTO> terms = ontologyParser.getTerms();
-//            if (terms.size() > 700) {
-//                logger.debug("[PASS - " + prefix + "] - " + file.getPath() + ". Size: " + terms.size());
-//            } else {
-//                logger.debug("[FAIL - " + prefix + "] - " + file.getPath() + ". Size: " + terms.size());
-//            }
-//        }
-//
-//        if ( ! exception.isEmpty()) {
-//            throw exception.get(0);            // Just throw the first one.
-//        }
-//    }
-
-
-//@Ignore
+@Ignore
 	@Test
 	public void findSpecificMaTermMA_0002405() throws Exception {
 		List<OntologyTermDTO> termList = ontologyParsers.get("ma").getTerms();
@@ -206,21 +168,29 @@ public class OntologyParserTest {
 
 @Ignore
     @Test
+    public void findSpecificMpTermMP_0020422() throws Exception {
+
+        List<OntologyTermDTO> termList = ontologyParsers.get("mp").getTerms();
+        Map<String, OntologyTermDTO> terms =
+                termList.stream()
+                        .filter(term -> term.getAccessionId().equals("MP:0020422"))
+                        .collect(Collectors.toMap(OntologyTermDTO::getAccessionId, ontologyTermDTO -> ontologyTermDTO));
+
+        Assert.assertTrue(terms.containsKey("MP:0020422"));
+    }
+
+
+@Ignore
+    @Test
     public void testNarrowSynonyms() throws Exception {
-OntologyParser ontologyParser;
+
         logger.debug("target: " + downloads.get("mphp").target);
         logger.debug("name:   " + downloads.get("mphp").name);
-        ontologyParser = new OntologyParser(downloads.get("mphp").target, downloads.get("mphp").name, null, null);
-        OntologyTermDTO term = ontologyParsers.get("mphp").getOntologyTerm("MP:0006325");
 
-        OntologyParserFactory f = new OntologyParserFactory(testDataSource, owlpath);
-        OntologyParser p = f.getMpHpParser();
+        OntologyParser mphpParser = ontologyParsers.get("mphp");
+        OntologyTermDTO term = mphpParser.getOntologyTerm("MP:0006325");
 
-//        f.getMpHpParser()
-        Set<String> narrowSynonyms2 = ontologyParser.getNarrowSynonyms(term, 1);
-
-
-        Set<String> narrowSynonyms = ontologyParser.getNarrowSynonyms(term, 1);
+        Set<String> narrowSynonyms = mphpParser.getNarrowSynonyms(term, 1);
 
         Assert.assertFalse("Narrow synonyms list is empty!", narrowSynonyms.isEmpty());
         Assert.assertTrue("Narrow synonyms list does not contain a label!", narrowSynonyms.contains("conductive hearing impairment"));
@@ -228,31 +198,29 @@ OntologyParser ontologyParser;
 
         // Test both HP and MP terms are considered.
         // Abnormal glucose homeostasis MP:0002078 is equivalent to HP:0011014
-        term = ontologyParser.getOntologyTerm("MP:0002078");
+        term = mphpParser.getOntologyTerm("MP:0002078");
 
-        Assert.assertTrue("HP synonym not found, was looking for Abnormal C-peptide level ." , ontologyParser.getNarrowSynonyms(term,2).contains("Abnormal C-peptide level"));
-
+        Assert.assertTrue("HP synonym not found, was looking for Abnormal C-peptide level ." , mphpParser.getNarrowSynonyms(term,2).contains("Abnormal C-peptide level"));
     }
 
-
-    // mp-hp.owl is now generated - not downloaded (mrelac - 15-Feb-2018)
 @Ignore
     @Test
     public void testEquivalent() throws Exception {
-OntologyParser ontologyParser;
-        ontologyParser = new OntologyParser(downloads.get("mphp").target, downloads.get("mphp").name, null, null);
-        List<OntologyTermDTO> terms = ontologyParser.getTerms();
+
+        OntologyParser mphpParser = ontologyParsers.get("mphp");
+
+        List<OntologyTermDTO> terms = mphpParser.getTerms();
         Assert.assertFalse("Term list is empty!", terms.isEmpty());
 
-        OntologyTermDTO mp0000572 = ontologyParser.getOntologyTerm("MP:0000572");
+        OntologyTermDTO mp0000572 = mphpParser.getOntologyTerm("MP:0000572");
         Assert.assertNotNull("Could not find MP:0000572 in mp-hp.owl", mp0000572);
 
         Assert.assertFalse("Could not find equivalent class for MP:0000572 in mp-hp.owl. Equivalent class should be HP:0005922.", mp0000572.getEquivalentClasses().isEmpty());
         Set<OntologyTermDTO> termSet = mp0000572.getEquivalentClasses();
         List<OntologyTermDTO> eqTerms =
                 termSet.stream()
-                .filter(term -> term.getAccessionId().equals("HP:0005922"))
-                .collect(Collectors.toList());
+                        .filter(term -> term.getAccessionId().equals("HP:0005922"))
+                        .collect(Collectors.toList());
         Assert.assertFalse("Expected equivalent class HP:0005922 but list is empty.", eqTerms.isEmpty());
         Assert.assertTrue("Expected equivalent class HP:0005922. Not found.", eqTerms.get(0).getAccessionId().equals("HP:0005922"));
     }
@@ -261,10 +229,8 @@ OntologyParser ontologyParser;
 @Ignore
     @Test
     public void testReplacementOptions() throws Exception {
-OntologyParser ontologyParser;
-        ontologyParser = new OntologyParser(downloads.get("mp").target, downloads.get("mp").name, null, null);
 
-        List<OntologyTermDTO> termList = ontologyParser.getTerms();
+        List<OntologyTermDTO> termList = ontologyParsers.get("mp").getTerms();
         Map<String, OntologyTermDTO> terms =
                 termList.stream()
                 .filter(term -> term.getAccessionId().equals("MP:0006374") || term.getAccessionId().equals("MP:0002977") || term.getAccessionId().equals("MP:0000003"))
@@ -293,39 +259,32 @@ OntologyParser ontologyParser;
         Assert.assertTrue("Expected at least two consider id terms: MP:0010241 and MP:0010464, but found " + withConsiderIds.getConsiderIds().size() + ".'", withConsiderIds.getConsiderIds().size() >= 2);
         Assert.assertTrue("Expected consider id MP:0010241. Not found.", withConsiderIds.getConsiderIds().contains("MP:0010241"));
         Assert.assertTrue("Expected consider id MP:0010464. Not found.", withConsiderIds.getConsiderIds().contains("MP:0010464"));
-
-
-
     }
+
 
 @Ignore
     @Test
     public void findSpecificEmapaTermEMAPA_18025() throws Exception {
-OntologyParser ontologyParser;
-        ontologyParser = new OntologyParser(downloads.get("emapa").target, downloads.get("emapa").name, OntologyParserFactory.TOP_LEVEL_EMAPA_TERMS, null);
-        List<OntologyTermDTO> termList = ontologyParser.getTerms();
+
+        List<OntologyTermDTO> termList = ontologyParsers.get("emapa").getTerms();
         Map<String, OntologyTermDTO> terms =
                 termList.stream()
                         .filter(term -> term.getAccessionId().equals("EMAPA:18025"))
                         .collect(Collectors.toMap(OntologyTermDTO::getAccessionId, ontologyTermDTO -> ontologyTermDTO));
 
         Assert.assertTrue(terms.containsKey("EMAPA:18025") );
-
     }
+
 
 @Ignore
     @Test
     public void findMaTermByReferenceFromMpTerm() throws Exception {
-OntologyParser ontologyParser;
-        ontologyParser = new OntologyParser(downloads.get("mpma").target, downloads.get("mpma").name, null, null);
 
-        OntologyParser maParser = new OntologyParser(downloads.get("ma").target, downloads.get("ma").name, OntologyParserFactory.TOP_LEVEL_MA_TERMS, null);
-
-        Set<String> referencedClasses = ontologyParser.getReferencedClasses("MP:0001926",
+        Set<String> referencedClasses = ontologyParsers.get("mpma").getReferencedClasses("MP:0001926",
                 OntologyParserFactory.VIA_PROPERTIES, "MA");
         if (referencedClasses != null && referencedClasses.size() > 0) {
             for (String id : referencedClasses) {
-                OntologyTermDTO maTerm = maParser.getOntologyTerm(id);
+                OntologyTermDTO maTerm = ontologyParsers.get("ma").getOntologyTerm(id);
 
                 System.out.println("MA term "+id+" is "+maTerm+" for MP term MP:0001926");
                 Assert.assertFalse(maTerm == null);
@@ -334,19 +293,17 @@ OntologyParser ontologyParser;
     }
 
 
-//@Ignore
-    @Test
-    public void findSpecificMpTermMP_0020422() throws Exception {
 
-        List<OntologyTermDTO> termList = ontologyParsers.get("mp").getTerms();
-        Map<String, OntologyTermDTO> terms =
-                termList.stream()
-                        .filter(term -> term.getAccessionId().equals("MP:0020422"))
-                        .collect(Collectors.toMap(OntologyTermDTO::getAccessionId, ontologyTermDTO -> ontologyTermDTO));
 
-        Assert.assertTrue(terms.containsKey("MP:0020422"));
 
-    }
+
+
+
+
+
+
+
+
 
     @Ignore
     @Test
