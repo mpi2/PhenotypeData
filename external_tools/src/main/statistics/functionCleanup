@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 
 while getopts c: option
 do
