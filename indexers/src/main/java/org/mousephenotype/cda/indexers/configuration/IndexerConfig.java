@@ -38,7 +38,13 @@ import java.util.Properties;
 	"org.mousephenotype.cda.solr",
 	"org.mousephenotype.cda.utilities"}
 )
-@PropertySource("file:${user.home}/configfiles/${profile:dev}/application.properties")
+
+// If same key is found in both files, thje second file's value will "win".
+@PropertySources({
+        @PropertySource(value = "file:${user.home}/configfiles/${profile:dev}/datarelease.properties", ignoreResourceNotFound=true),
+        @PropertySource(value = "file:${user.home}/configfiles/${profile:dev}/application.properties", ignoreResourceNotFound=true)
+})
+
 public class IndexerConfig {
 
     public static final int QUEUE_SIZE = 10000;
