@@ -1,5 +1,7 @@
 #!/bin/bash
 
+#PROFILE
+
 FILEPATH=REPLACE_DIR/functions
 source ${FILEPATH}/phenstat.profile
 export PATH=~/tex/2017/bin/x86_64-linux/:$PATH
