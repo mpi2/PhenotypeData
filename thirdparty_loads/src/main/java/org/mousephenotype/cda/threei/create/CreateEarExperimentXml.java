@@ -200,20 +200,29 @@ public class CreateEarExperimentXml extends Create3iXmls implements CommandLineR
                 }
 
 
-                /*
-                String imagePath = rowResult[29].equals("NonStringNonNumericValue") ? "" : rowResult[29];
-                MimetypesFileTypeMap mimetypes = new MimetypesFileTypeMap();
-                if (imageAssignAttempted == false) {
+                if (imageAssignAttempted == false && nColumns >= 32) {
+                    // Ear images are in columns 29-31
+                    ArrayList<String> imagePath = new ArrayList<String>();
+                    for (int im_no=29; im_no<=31; im_no++) {
+                        String tempPath = rowResult[im_no].equals("NonStringNonNumericValue") ? "" : rowResult[im_no];
+                        if (tempPath != null && tempPath.length() > 0 && 
+                            !tempPath.equals("#N/A")) {
+                            imagePath.add(tempPath);
+                        }
+                    }
+                    if (imagePath.size() == 0) {
+                        continue;
+                    }
+                    MimetypesFileTypeMap mimetypes = new MimetypesFileTypeMap();
                     ArrayList<SeriesMediaParameterValue> smpvList = 
                         new ArrayList<SeriesMediaParameterValue>();
-                    SeriesMediaParameterValue smpv = 
-                        new SeriesMediaParameterValue();
-                    if (imagePath != null && imagePath.length() > 0 && 
-                         !imagePath.equals("#N/A")) {
-                        
-                        smpv.setIncrementValue("1");
-                        smpv.setURI(imagePath);
-                        smpv.setFileType(mimetypes.getContentType(imagePath));
+                    for (int im_no=0; im_no<imagePath.size(); im_no++) { 
+                        SeriesMediaParameterValue smpv = 
+                            new SeriesMediaParameterValue();
+                        smpv.setIncrementValue(""+(im_no+1));
+                        smpv.setURI(imagePath.get(im_no));
+                        //smpv.setFileType(mimetypes.getContentType(imagePath.get(im_no)));
+                        smpv.setFileType("application/octet-stream");
                         smpvList.add(smpv);
                     } 
 
@@ -227,7 +236,6 @@ public class CreateEarExperimentXml extends Create3iXmls implements CommandLineR
                     }
                     imageAssignAttempted = true;
                 }
-                */
             }
             //experiment.setSequenceID("3I_" + row[0]);
 
