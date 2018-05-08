@@ -5,6 +5,7 @@ import requests
 import json
 import collections
 import ntpath
+import logging
 
 def main(argv):
     print "running solr main method"
@@ -13,11 +14,12 @@ def main(argv):
 
 class Solr:
     def __init__(self, solrRootUrl):
+        self.logger = logging.getLogger(__name__)
         self.numberOfFilesInSolr=0
         self.solrRootUrl=solrRootUrl
         self.solrExperimentRootUrl=solrRootUrl+"experiment/"
-        print "initialising solr python object with solr root url="+solrRootUrl
-        print "initialising solr python object with solrExperimentRootUrl="+self.solrExperimentRootUrl
+        self.logger.info("initialising solr python object with solr root url="+solrRootUrl)
+        self.logger.info("initialising solr python object with solrExperimentRootUrl="+self.solrExperimentRootUrl)
         #pipelines= http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/experiment/select?q=observation_type:image_record&fq=download_file_path:(download_file_path:*mousephenotype.org*%20AND%20!download_file_path:*.pdf%20!download_file_path:*.mov)&facet.mincount=1&facet=true&facet.field=pipeline_stable_id&wt=json&indent=on&rows=0
         self.phenotyping_centers=[]
         self.pipelines=[]
@@ -49,7 +51,7 @@ class Solr:
                     self.parameters=self.getParametersForProcedureAndPipeline(phenCenter, pipe, proc)
                     for param in self.parameters:
                         directoryKey=phenCenter+"/"+pipe+"/"+proc+"/"+param
-                        print "directoryKey="+directoryKey
+                        self.logger.info("directoryKey="+directoryKey)
                         filenames=self.getImageObservationsForParametersForProcedureAndPipeline(phenCenter, pipe, proc, param)
                         #print "filenames="+str(filenames)
                         self.directory_map[directoryKey] = filenames
@@ -58,17 +60,21 @@ class Solr:
                         #for k, v in d.items():
                         #    print k, v
 
-        print "number of image files found in solr="+str(self.numberOfFilesInSolr)
-        print "Directory map size="+str(len(self.directory_map))
+        self.logger.info("number of image files found in solr="+str(self.numberOfFilesInSolr))
+        self.logger.info("Directory map size="+str(len(self.directory_map)))
         return self.directory_map
         #get a map of directories paths to list of filenames
     def getPhenotypingCenters(self):
         phenotypingCenterUrl=self.solrExperimentRootUrl+'select?q=observation_type:image_record&fq=download_file_path:('+self.standardFilter+')&facet.mincount=1&facet=true&facet.field=phenotyping_center&wt=json&indent=on&rows=0&facet.limit=-1'
         phenotyping_centers=[]
         #print "running get pipelines "+phenotypingCenterUrl
-        v = json.loads(requests.get(phenotypingCenterUrl).text)
-        print  v['facet_counts']['facet_fields']['phenotyping_center']
-        phenCenters=v['facet_counts']['facet_fields']['phenotyping_center']
+        try:
+            v = json.loads(requests.get(phenotypingCenterUrl).text)
+            self.logger.info( v['facet_counts']['facet_fields']['phenotyping_center'])
+            phenCenters=v['facet_counts']['facet_fields']['phenotyping_center']
+        except Exception as e:
+            self.logger.exception("Error trying to load request from Solr. Error msg: " + str(e))
+
         i=0
         for doc in phenCenters:
             #print "doc="+str(doc)
@@ -135,14 +141,18 @@ class Solr:
     def getImageObservationsForParametersForProcedureAndPipeline(self , phenCenter, pipeline_stable_id, procedure_stable_id, parameter_stable_id):
         filenames=[]
         pipeProcedureParameterUrl=self.solrExperimentRootUrl+'select?q=observation_type:image_record&fq=download_file_path:('+self.standardFilter+'%20AND%20phenotyping_center:"'+phenCenter+'"%20AND%20pipeline_stable_id:"'+pipeline_stable_id+'"%20AND%20procedure_stable_id:"'+procedure_stable_id+'"%20AND%20parameter_stable_id:"'+parameter_stable_id+'")&facet.mincount=1&facet=true&facet.field=parameter_stable_id&wt=json&indent=on&rows=1000000&facet.limit=-1'
-        print pipeProcedureParameterUrl;
-        v = json.loads(requests.get(pipeProcedureParameterUrl).text)
-        #print v['facet_counts']
-        docs=v['response']['docs']
-        numFoundInSolr=v['response']['numFound']
-        self.numberOfFilesInSolr=self.numberOfFilesInSolr+numFoundInSolr
-        print "number of observations for this key is="+str(numFoundInSolr)
-        params=v['facet_counts']['facet_fields']['parameter_stable_id']
+        self.logger.info(pipeProcedureParameterUrl)
+        try:
+            v = json.loads(requests.get(pipeProcedureParameterUrl).text)
+            #print v['facet_counts']
+            docs=v['response']['docs']
+            numFoundInSolr=v['response']['numFound']
+            self.numberOfFilesInSolr=self.numberOfFilesInSolr+numFoundInSolr
+            self.logger.info("number of observations for this key is="+str(numFoundInSolr))
+            params=v['facet_counts']['facet_fields']['parameter_stable_id']
+        except Exception as e:
+            self.logger.exception("Error trying to load request from Solr. Error msg: " + str(e))
+
         i=0
         for doc in docs:
             download_file_path=doc['download_file_path']
@@ -156,12 +166,16 @@ class Solr:
     def getRenderImageUrls(self):
         urls=[]
         jpegsUrl=self.solrRootUrl+'impc_images/select?q=!omero_id:0&fl=jpeg_url&fq=jpeg_url:*omero*&wt=json&indent=on&rows=100000000'
-        v = json.loads(requests.get(jpegsUrl).text)
-        #print v['facet_counts']
-        docs=v['response']['docs']
-        numFoundInSolr=v['response']['numFound']
-        self.numberOfFilesInSolr=self.numberOfFilesInSolr+numFoundInSolr
-        print "number of observations for this key is="+str(numFoundInSolr)
+        try:
+            v = json.loads(requests.get(jpegsUrl).text)
+            #print v['facet_counts']
+            docs=v['response']['docs']
+            numFoundInSolr=v['response']['numFound']
+            self.numberOfFilesInSolr=self.numberOfFilesInSolr+numFoundInSolr
+            self.logger.info("number of observations for this key is="+str(numFoundInSolr))
+        except Exception as e:
+            self.logger.exception("Error trying to load request from Solr. Error msg: " + str(e))
+
         i=0
         for doc in docs:
             jpeg_url=doc['jpeg_url']
@@ -173,9 +187,9 @@ class Solr:
             urls.append(jpeg_url)
             i=i+1
             if(i % 10000==0):
-                 print str(i)+" images imported into url list"
+                 self.logger.info(str(i)+" images imported into url list")
 
-        print "jpeg urls size="+str(len(urls))
+        self.logger.info("jpeg urls size="+str(len(urls)))
         return urls
 
 if __name__ == "__main__":

@@ -12,6 +12,7 @@ import argparse
 import requests
 import json
 import glob
+import logging
 
 import psycopg2
 
@@ -46,22 +47,49 @@ def main(argv):
                         help='Port to connect on the postgres server hosting the omero database')
     parser.add_argument('--profile', dest='profile', default='dev',
                         help='profile from which to read config: dev, prod, live, ...')
+    parser.add_argument('--logfile-path', dest='logfilePath', default=None,
+                        help='path to save logfile')
 
     args = parser.parse_args()
     
+    # Configure logger - if logging output file not specified create in this
+    # directory with timestamp
+    if args.logfilePath is None or args.logfilePath=="":
+        import time
+        import datetime
+        t = time.time()
+        tstamp = datetime.datetime.fromtimestamp(t).strftime('%Y%m%d_%H%M%S')
+        logfile_path = "omeroupload_" + tstamp + ".log"
+    else:
+        logfile_path = args.logfilePath
+
+    log_format = '%(asctime)s - %(name)s - %(levelname)s:%(message)s'
+    logging.basicConfig(format=log_format, filename=logfile_path,
+                        level=logging.INFO)
+    log_formatter = logging.Formatter(log_format)
+    logger = logging.getLogger('OmeroUploadMainMethod')
+    root_logger = logging.getLogger()
+    
+    console_handler = logging.StreamHandler()
+    console_handler.setFormatter(log_formatter)
+    root_logger.addHandler(console_handler)
+
     # Get values from property file and use as defaults that can be overridden
     # by command line parameters
     try:
         pp = OmeroPropertiesParser(args.profile)
         omeroProps = pp.getOmeroProps()
-    except Exception, e:
-        print "Could not read application properties file for profile " + args.profile
-        print "Error was: " + str(e)
+    except Exception as e:
+        logger.error("Could not read application properties file for profile " + args.profile)
+        logger.error("Error was: " + str(e))
         return
 
-    root_dir = args.rootDestinationDir if args.rootDestinationDir<>None else omeroProps['rootdestinationdir']
-    solrRoot = args.solrRoot if args.solrRoot <> None else omeroProps['solrurl']
-    omeroHost = args.omeroHost if args.omeroHost<>None else omeroProps['omerohost']
+    try:
+        root_dir = args.rootDestinationDir if args.rootDestinationDir<>None else omeroProps['rootdestinationdir']
+        solrRoot = args.solrRoot if args.solrRoot <> None else omeroProps['solrurl']
+        omeroHost = args.omeroHost if args.omeroHost<>None else omeroProps['omerohost']
+    except Exception as e:
+        logger.exception("Could not assign some properties expected as command line arguments or in application.properties file - did you specify the right profile? Error message was: " + str(e))
 
     solrFilterQuery = args.solrFilterQuery
     if solrFilterQuery is None:
@@ -73,9 +101,9 @@ def main(argv):
         omeroUsername = omeroProps['omerouser']
         omeroPass = omeroProps['omeropass']
         group = omeroProps['omerogroup']
-    except Exception, e:
-        print "Could not assign omero login properties from application.properties file - did you specify the right profile?"
-        print "Error was: " + str(e)
+    except Exception as e:
+        logger.error("Could not assign omero login properties from application.properties file - did you specify the right profile?")
+        logger.error("Error was: " + str(e))
         return
 
     # Other values needed within this script.
@@ -85,15 +113,15 @@ def main(argv):
     # Upload whole dir if it contains more than this number of files
     load_whole_dir_threshold = 300
 
-    print "running main intelligent omero upload method"
-    print 'rootDestinationDir is "', root_dir
+    logger.info("running main intelligent omero upload method")
+    logger.info('rootDestinationDir is "' + root_dir + '"')
     
     # Get records from Solr
     solr_query_url = solrRoot + solrFilterQuery
-    print "Querying solr with the following query" + solrFilterQuery
+    logger.info("Querying solr with the following query" + solrFilterQuery)
     solr_json = json.loads(requests.get(solr_query_url).text)
     solr_recs = solr_json['response']['docs']
-    print "Number of records returned from Solr: " + str(len(solr_recs))
+    logger.info("Number of records returned from Solr: " + str(len(solr_recs)))
 
     solr_directory_to_filenames_map = {}
     for rec in solr_recs:
@@ -104,13 +132,13 @@ def main(argv):
     # Get images from Omero
     omeroS = OmeroService(omeroHost, omeroPort, omeroUsername, omeroPass, group)
     omero_file_list = omeroS.getImagesAlreadyInOmero()
-    print "Number of files from omero = " + str(len(omero_file_list))
+    logger.info("Number of files from omero = " + str(len(omero_file_list)))
     
     # Don't use OmeroService to get annotations as we are having a out of
     # memory error when it is running on the server. Query omero directly
     # to get annotations
     try:
-        print "Attempting to get annotations directly from Postgres DB"
+        logger.info("Attempting to get annotations directly from Postgres DB")
         omeroDbUser = args.omeroDbUser if args.omeroDbUser is not None else omeroProps['omerodbuser']
         omeroDbPass = args.omeroDbPass if args.omeroDbPass is not None else omeroProps['omerodbpass']
         omeroDbName = args.omeroDbName if args.omeroDbName is not None else omeroProps['omerodbname']
@@ -139,16 +167,16 @@ def main(argv):
                 omero_annotation_list.append("/".join(dir_parts))
         conn.close()
     except KeyError as e:
-        print "Could not connect to omero postgres database. Key " + str(e) + \
+        logger.error("Could not connect to omero postgres database. Key " + str(e) + \
               " not present in omero properties file. Attempting to use " + \
-              " OmeroService.getAnnotationsAlreadyInOmero"
+              " OmeroService.getAnnotationsAlreadyInOmero")
         conn.close()
         omero_annotation_list = omeroS.getAnnotationsAlreadyInOmero()
         
         
         
     #omero_annotation_list = omeroS.getAnnotationsAlreadyInOmero()
-    print "Number of annotations from omero = " + str(len(omero_annotation_list))
+    logger.info("Number of annotations from omero = " + str(len(omero_annotation_list)))
     omero_file_list.extend(omero_annotation_list)
     omero_dir_list = list(set([os.path.split(f)[0] for f in omero_file_list]))
 
@@ -157,7 +185,7 @@ def main(argv):
     nfs_file_list = []
     os.path.walk(root_dir, add_to_list, nfs_file_list)
     nfs_file_list = [f.split(root_dir)[-1] for f in nfs_file_list]
-    print "Number of files from NFS = " + str(len(nfs_file_list))
+    logger.info("Number of files from NFS = " + str(len(nfs_file_list)))
 
 
     set_solr_filenames = set(solr_directory_to_filenames_map.keys())
@@ -184,9 +212,9 @@ def main(argv):
     for index, directory in zip(range(n_dirs_to_upload),dict_files_to_upload.keys()):
         filenames = dict_files_to_upload[directory]
         n_files_to_upload = len(filenames)
-        print "About to upload directory " + str(index+1) + " of " + \
+        logger.info("About to upload directory " + str(index+1) + " of " + \
             str(n_dirs_to_upload) + ". Dir name: " + directory + \
-            " with " + str(n_files_to_upload) + " files"
+            " with " + str(n_files_to_upload) + " files")
         dir_structure = directory.split('/')
         project = dir_structure[0]
         # Below we assume dir_structure is list with elements:
@@ -196,7 +224,7 @@ def main(argv):
         
         # if dir contains pdf file we cannot load whole directory
         if len(glob.glob(os.path.join(fullpath,'*.pdf'))) > 0:
-            print "##### Dir contains pdfs - loading file by file #####"
+            logger.info("##### Dir contains pdfs - loading file by file #####")
             omeroS.loadFileOrDir(fullpath, project=project, dataset=dataset, filenames=filenames)
         else:
             # Check if the dir is in omero.
@@ -209,19 +237,22 @@ def main(argv):
                 pass
 
             if dir_not_in_omero or n_files_to_upload > load_whole_dir_threshold:
-                print "##### Loading whole directory #####"
+                logger.info("##### Loading whole directory #####")
                 omeroS.loadFileOrDir(fullpath, project=project, dataset=dataset, filenames=None)
             else:
-                print "##### Loading file by file #####"
+                logger.info("##### Loading file by file #####")
                 omeroS.loadFileOrDir(fullpath, project=project, dataset=dataset, filenames=filenames)
 
     n_files_to_upload_unavailable = len(files_to_upload_unavailable)
-    print "Number of files unavailable for upload (not in NFS): " + \
-        str(n_files_to_upload_unavailable)
+    logger.warning("Number of files unavailable for upload (not in NFS): " + \
+        str(n_files_to_upload_unavailable))
     if n_files_to_upload_unavailable > 0:
-        print "The following files were present in Solr but absent in NFS:"
-        for f in files_to_upload_unavailable:
-            print f
+        file_list = ""
+        for i, f in zip(range(n_files_to_upload_unavailable), files_to_upload_unavailable):
+            file_list += '\n' + f
+            if i > 99:
+                break
+        logger.warning("The following files (truncated at 100) were present in Solr but absent in NFS:" + file_list)
 
 def add_to_list(L,dirname,names):
     """Add files to list whilst walking through dir tree"""
