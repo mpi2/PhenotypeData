@@ -156,7 +156,7 @@ class OmeroService:
             return False
     
     def loadFileOrDir(self, directory,  project=None, dataset=None, filenames=None):
-        self.logger.info("loadFileOrDir with:", directory,  project, dataset, filenames)
+        self.logger.info("loadFileOrDir with: Directory=" + directory + ", project=" + project + ", dataset=" + dataset + ", filenames=" + filenames)
         #chop dir to get project and dataset
         
         #if filenames is non then load the entire dir
