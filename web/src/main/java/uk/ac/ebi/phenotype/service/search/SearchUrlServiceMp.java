@@ -70,7 +70,8 @@ public class SearchUrlServiceMp extends SearchUrlService {
 
     @Override
     public List<String> gridHeaders() {
-        return Arrays.asList("Phenotype", "Definition", "Ontology<br/>Tree", "Register");
+        // FIXME MPII-3076
+        return Arrays.asList("Phenotype", "Definition", "Ontology<br/>Tree", "");
     }
 
     @Override
