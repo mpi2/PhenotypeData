@@ -3,6 +3,7 @@ package org.mousephenotype.cda.loads.statistics.load;
 import org.hibernate.SessionFactory;
 import org.mousephenotype.cda.db.dao.GwasDAO;
 import org.mousephenotype.cda.db.dao.ReferenceDAO;
+import org.mousephenotype.cda.loads.common.CdaSqlUtils;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Value;
@@ -11,6 +12,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.*;
 import org.springframework.core.io.Resource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
 import org.springframework.orm.hibernate5.LocalSessionFactoryBuilder;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
@@ -85,5 +87,15 @@ public class StatisticalResultLoaderConfig implements ApplicationContextAware {
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         this.context = applicationContext;
+    }
+
+    @Bean
+    public NamedParameterJdbcTemplate jdbcKomp2() {
+        return new NamedParameterJdbcTemplate(komp2DataSource());
+    }
+
+    @Bean
+    public CdaSqlUtils cdaSqlUtils() {
+        return new CdaSqlUtils(jdbcKomp2());
     }
 }

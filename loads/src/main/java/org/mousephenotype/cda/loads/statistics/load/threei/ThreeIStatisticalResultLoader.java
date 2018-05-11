@@ -7,12 +7,16 @@ import org.apache.commons.lang.StringUtils;
 import org.mousephenotype.cda.db.pojo.PhenotypedColony;
 import org.mousephenotype.cda.enumerations.*;
 import org.mousephenotype.cda.loads.common.CdaSqlUtils;
+import org.mousephenotype.cda.loads.common.config.DataSourceCdaConfig;
+import org.mousephenotype.cda.loads.common.config.DataSourceCdabaseConfig;
+import org.mousephenotype.cda.loads.common.config.DataSourceDccConfig;
 import org.mousephenotype.cda.loads.statistics.load.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.FilterType;
 import org.springframework.core.io.Resource;
 import org.springframework.util.Assert;
 
@@ -24,16 +28,24 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-@ComponentScan(basePackages = {"org.mousephenotype.cda.loads.statistics.load", "org.mousephenotype.cda.loads.common"})
+@ComponentScan(basePackages = {"org.mousephenotype.cda.loads.statistics.load", "org.mousephenotype.cda.loads.common"},
+        excludeFilters = {
+                @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = {
+                        DataSourceCdabaseConfig.class,
+                        DataSourceCdaConfig.class,
+                        DataSourceDccConfig.class,
+                        CdaSqlUtils.class})})
 public class ThreeIStatisticalResultLoader extends StatisticalResultLoader implements CommandLineRunner {
 
     final private Logger logger = LoggerFactory.getLogger(getClass());
 
     Map<String, PhenotypedColony> phenotypedColonies;
+    Set<String> missingColonies = new HashSet<>();
 
     private Resource threeIFile;
 
@@ -65,9 +77,14 @@ public class ThreeIStatisticalResultLoader extends StatisticalResultLoader imple
 
         LineStatisticalResult result = new LineStatisticalResult();
 
+        if (missingColonies.contains(data.getColony_Prefixes())) {
+            return null;
+        }
+
         PhenotypedColony colony = phenotypedColonies.get(data.getColony_Prefixes());
 
         if (colony == null) {
+            missingColonies.add(data.getColony_Prefixes());
             logger.info("Cannot find colony ID for line {}. Skipping", data);
             return null;
         }
@@ -90,6 +107,7 @@ public class ThreeIStatisticalResultLoader extends StatisticalResultLoader imple
         result.setPipeline(pipeline);
         result.setProcedure(procedure);
         result.setStrain(strain);
+        result.setSuggestedMpTerm(data.getAnnotation_Calls());
 
         result.setMetadataGroup("");
 
@@ -129,7 +147,7 @@ public class ThreeIStatisticalResultLoader extends StatisticalResultLoader imple
         //
         // - Blood is "all" controls, but values vary by parameter
 
-        switch(data.getProcedure_Id()) {
+        switch (data.getProcedure_Id()) {
 
             case "MGP_ANA_001":
                 result.setCountControlMale(545);
@@ -162,8 +180,8 @@ public class ThreeIStatisticalResultLoader extends StatisticalResultLoader imple
 
                 return null;
 
-                // List supplied by Ania 20180315
-                // Blood parameter control counts vary by parameter
+            // List supplied by Ania 20180315
+            // Blood parameter control counts vary by parameter
 
 //                switch(data.getParameter_Name()) {
 //                    case "Total_T_Cell_Percentage":
@@ -370,26 +388,25 @@ public class ThreeIStatisticalResultLoader extends StatisticalResultLoader imple
             result.setStatus("Not processed");
             result.setStatisticalMethod("Manual");
             result.setCode("Data analysis pending");
-        } else if (             data.getCall_Type().toLowerCase().equals("not performed or applicable")) {
+        } else if (data.getCall_Type().toLowerCase().equals("not performed or applicable")) {
             result.setStatus("Not processed");
             result.setStatisticalMethod("Manual");
             result.setCode("Data analysis not performed or not applicable");
         }
 
 
-
         result.setGenotypePVal(null);
         result.setGenotypeEstimate(null);
 
         switch (data.getCall_Type()) {
-            case "Significant" :
+            case "Significant":
 
-                switch(data.getGender()) {
-                    case "Male" :
+                switch (data.getGender()) {
+                    case "Male":
                         result.setSexMvKOPVal(0.0);
                         result.setSexMvKOEstimate(1.0);
                         break;
-                    case "Female" :
+                    case "Female":
                         result.setSexFvKOPVal(0.0);
                         result.setSexFvKOEstimate(1.0);
                         break;
@@ -399,7 +416,7 @@ public class ThreeIStatisticalResultLoader extends StatisticalResultLoader imple
                         break;
                 }
                 break;
-            case "Not Significant" :
+            case "Not Significant":
                 result.setGenotypePVal("1");
                 result.setGenotypeEstimate("0");
                 break;
@@ -586,8 +603,8 @@ public class ThreeIStatisticalResultLoader extends StatisticalResultLoader imple
             result.setControlSelectionMethod(strategy);
 
             //TODO: Wire the biomodels to the SR
-//        Integer bioModelId = bioModelMap.get(data.getColonyId()).get(ZygosityType.valueOf(data.getZygosity()));
-//        result.setExperimentalId(bioModelId);
+            Integer bioModelId = bioModelMap.get(data.getColonyId()).get(ZygosityType.valueOf(data.getZygosity()));
+            result.setExperimentalId(bioModelId);
 
             result.setControlId(null);
 
@@ -601,7 +618,7 @@ public class ThreeIStatisticalResultLoader extends StatisticalResultLoader imple
             result.setFemaleMutantCount(data.getCountMutantFemale());
 
             Set<String> sexes = new HashSet<>();
-            if (data.getCountMutantMale() !=null) {
+            if (data.getCountMutantMale() != null) {
                 sexes.add("male");
             }
             if (data.getCountMutantFemale() != null) {
@@ -624,7 +641,12 @@ public class ThreeIStatisticalResultLoader extends StatisticalResultLoader imple
             result.setStatus(data.getStatus() == "Success" ? data.getStatus() : data.getStatus() + " - " + data.getCode());
 
             if (data.getStatus() == "Success") {
-                setMpTerm(result);
+                if (data.getSuggestedMpTerm().startsWith("MP:")) {
+                    result.setMpAcc(data.getSuggestedMpTerm());
+
+                } else {
+                    setMpTerm(result);
+                }
             }
         } catch (Exception e) {
             logger.error("Cannot load data for 3I input: {}", data, e);
@@ -641,7 +663,7 @@ public class ThreeIStatisticalResultLoader extends StatisticalResultLoader imple
 
             String loc = threeIFile.getFile().getAbsolutePath();
 
-            String allData = Files.readAllLines(Paths.get(loc)).stream().map(String::trim).collect(Collectors.joining("\n"));
+            String allData = Files.readAllLines(Paths.get(loc)).stream().map(String::trim).distinct().collect(Collectors.joining("\n"));
 
             CsvMapper mapper = new CsvMapper();
 
@@ -697,11 +719,11 @@ public class ThreeIStatisticalResultLoader extends StatisticalResultLoader imple
         populateDatasourceMap();
         populateProjectMap();
         populateColonyAlleleMap();
-        populateBioModelMap();
+        this.populateBioModelMap();
         populateControlBioModelMap();
         populateParameterTypeMap();
 
-        // Update the parameter type map if any of the 3I parameters are imssing data in the database
+        // Update the parameter type map if any of the 3I parameters are missing data in the database
         parameterTypeMap.putIfAbsent("MGP_MLN_111_001", ObservationType.unidimensional);
         parameterTypeMap.putIfAbsent("MGP_MLN_026_001", ObservationType.unidimensional);
 
@@ -709,12 +731,48 @@ public class ThreeIStatisticalResultLoader extends StatisticalResultLoader imple
         // process the 3I file provided by Ania@3I consortium 2018-01-19
         processFile(threeIFile);
 
+        if (missingColonies.size() > 0) {
+            logger.warn("Colonies in the ThreeI file but missing in the database {}", StringUtils.join(missingColonies, ", "));
+        }
 
     }
 
     public static void main(String[] args) throws Exception {
         SpringApplication.run(ThreeIStatisticalResultLoader.class, args);
     }
+
+    protected void populateBioModelMap() throws SQLException {
+        Map<String, Map<ZygosityType, Integer>> map = bioModelMap;
+
+        String query = "SELECT DISTINCT colony_name AS colony_id, bm.zygosity, bm.id as biological_model_id, strain.name " +
+                "FROM phenotyped_colony pc " +
+                "INNER JOIN strain ON strain.name=pc.background_strain_name " +
+                "INNER JOIN biological_model_strain bmstrain ON bmstrain.strain_acc=strain.acc " +
+                "INNER JOIN allele ON allele.symbol=pc.allele_symbol " +
+                "INNER JOIN biological_model_allele bma ON bma.allele_acc=allele.acc " +
+                "INNER JOIN biological_model_genomic_feature bmgf ON bmgf.gf_acc=pc.gf_acc " +
+                "INNER JOIN biological_model bm ON bm.id=bmgf.biological_model_id AND bm.id=bma.biological_model_id AND bm.id=bmstrain.biological_model_id  " +
+                " " ;
+
+        try (Connection connection = komp2DataSource.getConnection(); PreparedStatement p = connection.prepareStatement(query)) {
+            ResultSet r = p.executeQuery();
+            while (r.next()) {
+
+                String colonyId = r.getString("colony_id");
+                ZygosityType zyg = ZygosityType.valueOf(r.getString("zygosity"));
+                Integer modelId = r.getInt("biological_model_id");
+                String strain = r.getString("name");
+
+                bioModelStrainMap.put(modelId, strain);
+
+                map.putIfAbsent(colonyId, new HashMap<>());
+                map.get(colonyId).put(zyg, modelId);
+            }
+        }
+
+        logger.info(" Mapped {} biological model entries", map.size());
+    }
+
 
 
 }

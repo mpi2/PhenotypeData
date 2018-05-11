@@ -66,6 +66,17 @@ public class LineStatisticalResult {
     private String classificationTag;
     private String additionalInformation;
 
+    // For 3I suggested MP term
+    private String suggestedMpTerm;
+
+    public String getSuggestedMpTerm() {
+        return suggestedMpTerm;
+    }
+
+    public void setSuggestedMpTerm(String suggestedMpTerm) {
+        this.suggestedMpTerm = suggestedMpTerm;
+    }
+
     public String getDataSource() {
         return dataSource;
     }
