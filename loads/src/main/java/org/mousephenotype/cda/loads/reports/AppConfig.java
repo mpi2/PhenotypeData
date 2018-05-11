@@ -115,6 +115,7 @@ public class AppConfig {
     public NamedParameterJdbcTemplate jdbcCdaPrevious() {
         return new NamedParameterJdbcTemplate(cdaPreviousDataSource());
     }
+    @Bean
     public DataSource cdaCurrentDataSource() {
         return SqlUtils.getConfiguredDatasource(cdaCurrentUrl, cdaCurrentUsername, cdaCurrentPassword);
     }
@@ -133,6 +134,7 @@ public class AppConfig {
     public NamedParameterJdbcTemplate jdbcDccPrevious() {
         return new NamedParameterJdbcTemplate(dccPreviousDataSource());
     }
+    @Bean
     public DataSource dccCurrentDataSource() {
         return SqlUtils.getConfiguredDatasource(dccCurrentUrl, dccCurrentUsername, dccCurrentPassword);
     }
