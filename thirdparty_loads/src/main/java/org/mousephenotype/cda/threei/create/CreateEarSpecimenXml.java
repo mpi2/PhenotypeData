@@ -156,8 +156,8 @@ public class CreateEarSpecimenXml extends Create3iXmls implements CommandLineRun
 
                     // STRAIN_MGI_ID is in col 28 (28-1=27) of ANA EAR sheet,
                     // but col 29 for DSS (called MGI_ID in DSS)
-                    specimen.setStrainID(row[27]);
-                    //specimen.setStrainID(row[28]);
+                    //specimen.setStrainID(row[27]);
+                    specimen.setStrainID(row[28]);
                     specimen.setGender(Gender.fromValue(row[3].toLowerCase()));
 
                     String zygosity = row[9].toLowerCase();
