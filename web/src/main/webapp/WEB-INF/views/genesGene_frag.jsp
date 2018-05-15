@@ -14,21 +14,22 @@
 
 <!--  login interest button -->
 <div class="floatright">
-  <c:choose>
-    <c:when
-            test="${registerButtonAnchor!=''}">
-      <p><a class="btn"
-            href='${registerButtonAnchor}'><i
-              class="fa fa-sign-in"></i>${registerInterestButtonString}</a>
-      </p>
-    </c:when>
-    <c:otherwise>
-      <p><a
-              class="btn interest" id='${registerButtonId}'><i
-              class="fa fa-sign-in"></i>${registerInterestButtonString}</a>
-      </p>
-    </c:otherwise>
-  </c:choose>
+    <%-- FIXME MPII-3076 --%>
+  <%--<c:choose>--%>
+    <%--<c:when--%>
+            <%--test="${registerButtonAnchor!=''}">--%>
+      <%--<p><a class="btn"--%>
+            <%--href='${registerButtonAnchor}'><i--%>
+              <%--class="fa fa-sign-in"></i>${registerInterestButtonString}</a>--%>
+      <%--</p>--%>
+    <%--</c:when>--%>
+    <%--<c:otherwise>--%>
+      <%--<p><a--%>
+              <%--class="btn interest" id='${registerButtonId}'><i--%>
+              <%--class="fa fa-sign-in"></i>${registerInterestButtonString}</a>--%>
+      <%--</p>--%>
+    <%--</c:otherwise>--%>
+  <%--</c:choose>--%>
   <c:if
           test="${orderPossible}">
     <p><a class="btn"
