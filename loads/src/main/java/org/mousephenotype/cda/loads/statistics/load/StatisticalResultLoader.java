@@ -1049,20 +1049,6 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
 
         logger.info("Starting statistical result loader");
 
-        // Populate lookups
-        populateOrganisationMap();
-        populatePipelineMap();
-        populateProcedureMap();
-        populateColonyProcedureMap();
-        populateParameterMap();
-        populateDatasourceMap();
-        populateProjectMap();
-        populateColonyAlleleMap();
-        populateBioModelMap();
-        populateControlBioModelMap();
-        populateParameterTypeMap();
-
-
         // parameter to indicate the location of the result file(s)
         OptionParser parser = new OptionParser();
         parser.accepts("location").withRequiredArg().ofType(String.class).isRequired();
@@ -1076,6 +1062,19 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
         // If the location is a single file, parse it
         boolean regularFile = Files.isRegularFile(Paths.get(fileLocation));
         boolean directory = Files.isDirectory(Paths.get(fileLocation));
+
+        // Populate lookups
+        populateOrganisationMap();
+        populatePipelineMap();
+        populateProcedureMap();
+        populateColonyProcedureMap();
+        populateParameterMap();
+        populateDatasourceMap();
+        populateProjectMap();
+        populateColonyAlleleMap();
+        populateBioModelMap();
+        populateControlBioModelMap();
+        populateParameterTypeMap();
 
         if (regularFile) {
 
