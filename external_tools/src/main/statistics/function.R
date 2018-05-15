@@ -212,7 +212,6 @@ test002 <- function(infname = "MRCHarwell-HRWL_001-IMPC_CSD-MGI2164831.tsv", res
 			stringsAsFactors = FALSE
 		)
 
-		dataset = data.frame(zygosity = "homozygote", dataset,check.names = FALSE,stringsAsFactors = FALSE)
 		out <-
 			paste(
 				"metadata_group",
