@@ -111,20 +111,45 @@ table.dataTable thead tr {
 
                         <div style="padding: 30px;" class="clear both"></div>
 
+						<h2 class="title" id="approach">Approach</h2>
                         <div class="section">
-                            <h2 class="title" id="approach">Approach</h2>
+                            
                             <div class="inner">
                                <p> In order to identify the role of genes in pain sensitivity and response, IMPC centers will establish pain sensitivity thresholds in knockout mice using assays that are considered informative and humane.
                                </p>
-                                <div class="half">Mechanical nociception is assessed using von Frey filaments.  
-A small nylon filament is applied to the plantar surface of the paw 
-and time of withdrawal is measured.  Different size fibers diameters 
-allow application of different forces. The von Frey test is commonly 
-used in patients.</div>
-<div class="half"><img src="../img/landing/pain1.png"/></div>
+                               <br/>
+                                <div class="half">Mechanical nociception is assessed using <em>von Frey</em> filaments.  
+										A small nylon filament is applied to the plantar surface of the paw 
+										and time of withdrawal is measured.  Different size fibers diameters 
+										allow application of different forces. The von Frey test is commonly 
+										used in patients.
+								</div>
+								<div class="half">
+									<img src="../img/landing/pain1.png"/>DOI: <a href="https://doi.org/10.13045/acupunct.2017083">https://doi.org/10.13045/acupunct.2017083</a>
+								</div>
                                 
+                            <div class="half">
+                            <img src="../img/landing/pain2.png"/>
                             </div>
-                            <div class="clear both"></div>
+                            <div class="half">
+                            <p>&nbsp</p>
+                            <p>
+                            Thermal nociception is assessed using Hargreaves testing. Heat is applied 
+                            to the plantar surface of the hind paw via a precisely calibrated infrared 
+                            light. The latency to remove the paw from the heat is measured to assess 				
+                            sensitivity to thermal stimulation.  Hot Plate testing is also being 
+                            considered to measure thermal nociception
+							</p>
+                            </div>
+                            <div style="padding: 30px;" class="clear both"></div>
+                            <p>
+                            These assays are being applied to naïve, unchallenged mice, as well following sensitization of the hind paw through administration of a chemical (formalin) or immunological (complete Freund’s adjuvant) challenge.
+                            </p>
+                            <p>
+                            P2rx4 and Trpa1 knockout mice are being tested by all centers as a positive control existing null alleles of these genes are published as having decreased pain sensitivity.
+                            </p>
+                            
+                            </div>
                         </div>
                         
 
