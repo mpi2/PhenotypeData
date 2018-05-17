@@ -526,7 +526,7 @@ public class ThreeIStatisticalResultLoader extends StatisticalResultLoader imple
                 StatisticalResultMixedModel temp = new StatisticalResultMixedModel();
                 temp.setBatchSignificance(data.getBatchIncluded());
                 temp.setVarianceSignificance(data.getResidualVariancesHomogeneity());
-                temp.setNullTestSignificance(data.getGenotypeContribution());
+                temp.setNullTestSignificance(pValue);
                 temp.setGenotypeParameterEstimate(effectSize);
                 temp.setGenotypeStandardErrorEstimate(data.getGenotypeStandardError());
                 temp.setGenotypeEffectPValue(pValue);
