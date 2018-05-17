@@ -15,6 +15,7 @@ import org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.*;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
@@ -84,7 +85,7 @@ public class TestConfigThreeI implements ApplicationContextAware {
 
     @Bean(name = "threeIFile")
     public Resource threeIFile() {
-        return context.getResource("classpath:data/threei_test_data.csv");
+        return new ClassPathResource("data/threei_test_data.csv");
     }
 
     @Autowired

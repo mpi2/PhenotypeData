@@ -23,9 +23,9 @@ import org.springframework.util.Assert;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.sql.DataSource;
+import java.io.BufferedReader;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.io.InputStreamReader;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -661,9 +661,8 @@ public class ThreeIStatisticalResultLoader extends StatisticalResultLoader imple
         try {
             Map<String, Integer> counts = new HashMap<>();
 
-            String loc = threeIFile.getFile().getAbsolutePath();
-
-            String allData = Files.readAllLines(Paths.get(loc)).stream().map(String::trim).distinct().collect(Collectors.joining("\n"));
+            BufferedReader reader = new BufferedReader(new InputStreamReader(threeIFile.getInputStream()));
+            String allData = reader.lines().map(String::trim).distinct().collect(Collectors.joining("\n"));
 
             CsvMapper mapper = new CsvMapper();
 

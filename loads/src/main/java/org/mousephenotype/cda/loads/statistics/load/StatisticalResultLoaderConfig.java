@@ -11,6 +11,7 @@ import org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.*;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
@@ -80,7 +81,7 @@ public class StatisticalResultLoaderConfig implements ApplicationContextAware {
 
     @Bean(name="threeIFile")
     public Resource threeIFile() {
-        return context.getResource("classpath:data/flow_results_EBIexport_180119.csv");
+        return new ClassPathResource("data/flow_results_EBIexport_180119.csv");
     }
 
 
