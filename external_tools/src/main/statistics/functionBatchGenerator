@@ -1,11 +1,15 @@
 #!/usr/bin/env bash
 
-while getopts c: option
+while getopts "c:s:" option;
 do
 	case "${option}"
     	in
-          c) FILEPATH=${OPTARG};;
-          s) LSF_ARGS=${OPTARG};;
+          c)
+            FILEPATH=${OPTARG}
+            ;;
+          s)
+            LSF_ARGS=${OPTARG}
+            ;;
     esac
 done
 
