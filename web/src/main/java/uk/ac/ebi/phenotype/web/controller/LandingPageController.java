@@ -179,6 +179,11 @@ public class LandingPageController {
         return "embryo";
     }
 
+    @RequestMapping(value = "/biological-system/pain", method = RequestMethod.GET)
+    public String loadPainBiologicalSystemPage(Model model, HttpServletRequest request, RedirectAttributes attributes) {
+    	System.out.println("pain page called");
+    	return "landing_pain";
+    }
 
     @RequestMapping(value = "/biological-system/{page}", method = RequestMethod.GET)
     public String loadBiologicalSystemPage(@PathVariable String page, Model model, HttpServletRequest request, RedirectAttributes attributes)

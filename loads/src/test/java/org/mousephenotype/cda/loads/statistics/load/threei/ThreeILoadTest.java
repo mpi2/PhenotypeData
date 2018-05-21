@@ -105,11 +105,17 @@ public class ThreeILoadTest {
             ResultSet resultSet = p.executeQuery();
             while (resultSet.next()) {
                 resultCount++;
+                Integer bioModelId = resultSet.getInt("experimental_id");
+                Assert.assertNotNull(bioModelId);
+                Assert.assertTrue(bioModelId > 0);
             }
 
         }
 
-        Assert.assertEquals(15, resultCount.intValue());
+        //
+        // PBI data is not loaded by the 3I loader
+        //
+        Assert.assertEquals(12, resultCount.intValue());
 
     }
 }
