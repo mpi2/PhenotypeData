@@ -1,10 +1,15 @@
 #!/usr/bin/env bash
 
-while getopts c: option
+while getopts "c:s:" option;
 do
 	case "${option}"
     	in
-          c) FILEPATH=${OPTARG};;
+          c)
+            FILEPATH=${OPTARG}
+            ;;
+          s)
+            LSF_ARGS=${OPTARG}
+            ;;
     esac
 done
 
@@ -16,7 +21,11 @@ FUNCTIONS=${FILEPATH}/functions
 NAME=${FUNCTIONS}/${FILENAME}
 
 echo '#!/bin/bash' > ${NAME}
-for x in `ls ${FILES}`;do echo $x; echo "bsub -M 4096 -R \"rusage[mem=4096]\" -J PHEN_$x -o ${FILEPATH}/logs/$x.out -e ${FILEPATH}/logs/$x.err ${FILEPATH}/functions/functionRunner ${FILES}/$x" >> ${NAME};done;
+for x in `ls ${FILES}`;
+do
+  echo $x;
+  echo "bsub ${LSF_ARGS} -M 4096 -R \"rusage[mem=4096]\" -J PHEN_$x -o ${FILEPATH}/logs/$x.out -e ${FILEPATH}/logs/$x.err ${FILEPATH}/functions/functionRunner ${FILES}/$x" >> ${NAME};
+done;
 echo "wait" >> ${NAME}
 chmod u+x ${NAME}
 
