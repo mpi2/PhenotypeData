@@ -124,7 +124,7 @@ public class DataTableController {
 
 	@Autowired
 	private GenomicFeatureDAO genesDao;
-	
+
 	/**
 	 <p>
 	 * deals with batchQuery
@@ -559,8 +559,7 @@ public class DataTableController {
 
 	public String parseJsonforGeneDataTable(JSONObject json, HttpServletRequest request, String qryStr, String fqOri, String solrCoreName, boolean legacyOnly) throws UnsupportedEncodingException {
 
-        // FIXME MPII-3076
-//		RegisterInterestDrupalSolr registerInterest = new RegisterInterestDrupalSolr(config.get("drupalBaseUrl"), request);
+		RegisterInterestDrupalSolr registerInterest = new RegisterInterestDrupalSolr(config.get("drupalBaseUrl"), request);
 
 		JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
 		int totalDocs = json.getJSONObject("response").getInt("numFound");
@@ -617,36 +616,33 @@ public class DataTableController {
 			rowData.add(phenotypeStatusHTMLRepresentation);
 
 			// register of interest
-            // FIXME MPII-3076
-//			if (registerInterest.loggedIn()) {
-//				if (registerInterest.alreadyInterested(mgiId)) {
-//					String uinterest = "<div class='registerforinterest' oldtitle='Unregister interest' title=''>"
-//							+ "<i class='fa fa-sign-out'></i>"
-//							+ "<a id='" + doc.getString("mgi_accession_id") + "' class='regInterest primary interest' href=''>&nbsp;Unregister interest</a>"
-//							+ "</div>";
-//
-//					rowData.add(uinterest);
-//				} else {
-//					String rinterest = "<div class='registerforinterest' oldtitle='Register interest' title=''>"
-//							+ "<i class='fa fa-sign-in'></i>"
-//							+ "<a id='" + doc.getString("mgi_accession_id") + "' class='regInterest primary interest' href=''>&nbsp;Register interest</a>"
-//							+ "</div>";
-//
-//					rowData.add(rinterest);
-//				}
-//			} else {
-//				// use the login link instead of register link to avoid user clicking on tab which
-//				// will strip out destination link that we don't want to see happened
-//				String interest = "<div class='registerforinterest' oldtitle='Login to register interest' title=''>"
-//						+ "<i class='fa fa-sign-in'></i>"
-//						// + "<a class='regInterest' href='/user/login?destination=data/search#fq=*:*&facet=gene'>&nbsp;Interest</a>"
-//						+ "<a class='regInterest' href='/user/login?destination=data/search/gene?kw=*&fq=*:*'>&nbsp;Interest</a>"
-//						+ "</div>";
+			if (registerInterest.loggedIn()) {
+				if (registerInterest.alreadyInterested(mgiId)) {
+					String uinterest = "<div class='registerforinterest' oldtitle='Unregister interest' title=''>"
+							+ "<i class='fa fa-sign-out'></i>"
+							+ "<a id='" + doc.getString("mgi_accession_id") + "' class='regInterest primary interest' href=''>&nbsp;Unregister interest</a>"
+							+ "</div>";
 
-				String interest = "<div />";
+					rowData.add(uinterest);
+				} else {
+					String rinterest = "<div class='registerforinterest' oldtitle='Register interest' title=''>"
+							+ "<i class='fa fa-sign-in'></i>"
+							+ "<a id='" + doc.getString("mgi_accession_id") + "' class='regInterest primary interest' href=''>&nbsp;Register interest</a>"
+							+ "</div>";
+
+					rowData.add(rinterest);
+				}
+			} else {
+				// use the login link instead of register link to avoid user clicking on tab which
+				// will strip out destination link that we don't want to see happened
+				String interest = "<div class='registerforinterest' oldtitle='Login to register interest' title=''>"
+						+ "<i class='fa fa-sign-in'></i>"
+						// + "<a class='regInterest' href='/user/login?destination=data/search#fq=*:*&facet=gene'>&nbsp;Interest</a>"
+						+ "<a class='regInterest' href='/user/login?destination=data/search/gene?kw=*&fq=*:*'>&nbsp;Interest</a>"
+						+ "</div>";
 
 				rowData.add(interest);
-//			}
+			}
 
 			j.getJSONArray("aaData").add(rowData);
 		}
@@ -711,8 +707,7 @@ public class DataTableController {
 
 	public String parseJsonforMpDataTable(JSONObject json, HttpServletRequest request, String qryStr, String solrCoreNamet) throws UnsupportedEncodingException {
 
-        // FIXME MPII-3076
-//		RegisterInterestDrupalSolr registerInterest = new RegisterInterestDrupalSolr(config.get("drupalBaseUrl"), request);
+		RegisterInterestDrupalSolr registerInterest = new RegisterInterestDrupalSolr(config.get("drupalBaseUrl"), request);
 		String baseUrl = request.getAttribute("baseUrl").toString();
 
 		JSONObject j = new JSONObject();
@@ -821,36 +816,33 @@ public class DataTableController {
 			rowData.add("<a href='" + baseUrl + "/ontologyBrowser?" + "termId=" + mpId + "'><i class=\"fa fa-share-alt-square\"></i> Browse</a>");
 
 			// register of interest
-            // FIXME MPII-3076
-//			if (registerInterest.loggedIn()) {
-//				if (registerInterest.alreadyInterested(mpId)) {
-//					String uinterest = "<div class='registerforinterest' oldtitle='Unregister interest' title=''>"
-//							+ "<i class='fa fa-sign-out'></i>"
-//							+ "<a id='" + mpId + "' class='regInterest primary interest' href=''>&nbsp;Unregister interest</a>"
-//							+ "</div>";
-//
-//					rowData.add(uinterest);
-//				} else {
-//					String rinterest = "<div class='registerforinterest' oldtitle='Register interest' title=''>"
-//							+ "<i class='fa fa-sign-in'></i>"
-//							+ "<a id='" + mpId + "' class='regInterest primary interest' href=''>&nbsp;Register interest</a>"
-//							+ "</div>";
-//
-//					rowData.add(rinterest);
-//				}
-//			} else {
-//				// use the login link instead of register link to avoid user clicking on tab which
-//				// will strip out destination link that we don't want to see happened
-//				String interest = "<div class='registerforinterest' oldtitle='Login to register interest' title=''>"
-//						+ "<i class='fa fa-sign-in'></i>"
-//						// + "<a class='regInterest' href='/user/login?destination=data/search#fq=*:*&facet=mp'>&nbsp;Interest</a>"
-//						+ "<a class='regInterest' href='/user/login?destination=data/search/mp?kw=*&fq=top_level_mp_term:*'>&nbsp;Interest</a>"
-//						+ "</div>";
+			if (registerInterest.loggedIn()) {
+				if (registerInterest.alreadyInterested(mpId)) {
+					String uinterest = "<div class='registerforinterest' oldtitle='Unregister interest' title=''>"
+							+ "<i class='fa fa-sign-out'></i>"
+							+ "<a id='" + mpId + "' class='regInterest primary interest' href=''>&nbsp;Unregister interest</a>"
+							+ "</div>";
 
-				String interest = "<div />";
+					rowData.add(uinterest);
+				} else {
+					String rinterest = "<div class='registerforinterest' oldtitle='Register interest' title=''>"
+							+ "<i class='fa fa-sign-in'></i>"
+							+ "<a id='" + mpId + "' class='regInterest primary interest' href=''>&nbsp;Register interest</a>"
+							+ "</div>";
+
+					rowData.add(rinterest);
+				}
+			} else {
+				// use the login link instead of register link to avoid user clicking on tab which
+				// will strip out destination link that we don't want to see happened
+				String interest = "<div class='registerforinterest' oldtitle='Login to register interest' title=''>"
+						+ "<i class='fa fa-sign-in'></i>"
+						// + "<a class='regInterest' href='/user/login?destination=data/search#fq=*:*&facet=mp'>&nbsp;Interest</a>"
+						+ "<a class='regInterest' href='/user/login?destination=data/search/mp?kw=*&fq=top_level_mp_term:*'>&nbsp;Interest</a>"
+						+ "</div>";
 
 				rowData.add(interest);
-//			}
+			}
 
 			j.getJSONArray("aaData").add(rowData);
 		}
@@ -1488,43 +1480,43 @@ public class DataTableController {
 			String diseaseTerm = doc.getString("disease_term");
 			String diseaseCol = "<a href='" + baseUrl + diseaseId + "'>" + diseaseTerm + "</a>";
 
-				// disease column
-            if (doc.containsKey("disease_alts")) {
+			// disease column
+			if (doc.containsKey("disease_alts")) {
 
-                JSONArray data = doc.getJSONArray("disease_alts");
-                int counter = 0;
-                String synMatch = null;
-                String syn = null;
+				JSONArray data = doc.getJSONArray("disease_alts");
+				int counter = 0;
+				String synMatch = null;
+				String syn = null;
 
-                for (Object d : data) {
-                    counter++;
-                    syn = d.toString();
+				for (Object d : data) {
+					counter++;
+					syn = d.toString();
 
-                    if ( syn.toLowerCase().contains(qryStr.toLowerCase()) ) {
-                        if (synMatch == null) {
-                            synMatch = Tools.highlightMatchedStrIfFound(qryStr, syn, "span", "subMatch");
-                        }
-                    }
-                }
+					if ( syn.toLowerCase().contains(qryStr.toLowerCase()) ) {
+						if (synMatch == null) {
+							synMatch = Tools.highlightMatchedStrIfFound(qryStr, syn, "span", "subMatch");
+						}
+					}
+				}
 
-                if (synMatch != null) {
-                    syn = synMatch;
-                }
+				if (synMatch != null) {
+					syn = synMatch;
+				}
 
-                if (counter > 1) {
-                    syn = syn + "<a href='" + baseUrl + "/disease/" + diseaseId + "'> <span class='moreLess'>(Show more)</span></a>";
-                }
+				if (counter > 1) {
+					syn = syn + "<a href='" + baseUrl + "/disease/" + diseaseId + "'> <span class='moreLess'>(Show more)</span></a>";
+				}
 
-                diseaseCol += "<div class='subinfo'>"
-                        + "<span class='label'>synonym</span>: "
-                        + syn
-                        + "</div>";
+				diseaseCol += "<div class='subinfo'>"
+						+ "<span class='label'>synonym</span>: "
+						+ syn
+						+ "</div>";
 
-                diseaseCol = "<div class='diseaseCol'>" + diseaseCol + "</div>";
-                rowData.add(diseaseCol);
-            } else {
-                rowData.add(diseaseCol);
-            }
+				diseaseCol = "<div class='diseaseCol'>" + diseaseCol + "</div>";
+				rowData.add(diseaseCol);
+			} else {
+				rowData.add(diseaseCol);
+			}
 
 			// source column
 			String src = doc.getString("disease_source");
