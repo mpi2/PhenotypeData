@@ -47,6 +47,12 @@ def main(argv):
                         help='Port to connect on the postgres server hosting the omero database')
     parser.add_argument('--profile', dest='profile', default='dev',
                         help='profile from which to read config: dev, prod, live, ...')
+    parser.add_argument('--profile-path', dest='profilePath',
+                        help='Explicit path to file from which to read ' + \
+                             'profile e.g. ' + \
+                             '/home/kola/application.properties. ' + \
+                             'Overrides value of --profile argument.'
+    )
     parser.add_argument('--logfile-path', dest='logfilePath', default=None,
                         help='path to save logfile')
 
@@ -76,13 +82,22 @@ def main(argv):
 
     # Get values from property file and use as defaults that can be overridden
     # by command line parameters
-    try:
-        pp = OmeroPropertiesParser(args.profile)
-        omeroProps = pp.getOmeroProps()
-    except Exception as e:
-        logger.error("Could not read application properties file for profile " + args.profile)
-        logger.error("Error was: " + str(e))
-        return
+    if args.profilePath is not None:
+        try:
+            pp = OmeroPropertiesParser()
+            omeroProps = pp.getOmeroProps(args.profilePath)
+        except Exception as e:
+            logger.error("Could not read application properties file from " + args.profilePath)
+            logger.error("Error was: " + str(e))
+            return
+    else:
+        try:
+            pp = OmeroPropertiesParser(args.profile)
+            omeroProps = pp.getOmeroProps()
+        except Exception as e:
+            logger.error("Could not read application properties file for profile " + args.profile)
+            logger.error("Error was: " + str(e))
+            return
 
     try:
         root_dir = args.rootDestinationDir if args.rootDestinationDir<>None else omeroProps['rootdestinationdir']

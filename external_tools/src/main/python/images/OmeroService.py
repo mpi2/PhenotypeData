@@ -119,7 +119,7 @@ class OmeroService:
                 ofd_path = ofd[0].val.split('impc/')[-1]
             except Exception as e:
                 self.logger.error("Problem extracting root_dir from clientpath " + ofd[0].val)
-                self.logger.error("Error was: " + e.message)
+                self.logger.error("Error was: " + str(e))
                 omero_file_list.append(ofd[0].val)
                 continue
             #if indir is None or len(indir) < 1:
@@ -156,13 +156,18 @@ class OmeroService:
             return False
     
     def loadFileOrDir(self, directory,  project=None, dataset=None, filenames=None):
-        self.logger.info("loadFileOrDir with: Directory=" + directory + ", project=" + project + ", dataset=" + dataset + ", filenames=" + filenames)
+        if filenames is not None:
+            str_n_files = str(len(filenames))
+        else:
+            str_n_files = "0"
+
+        self.logger.info("loadFileOrDir with: Directory=" + directory + ", project=" + str(project) + ", dataset=" + str(dataset) + ", # of files=" + str_n_files)
         #chop dir to get project and dataset
         
         #if filenames is non then load the entire dir
         if filenames is not None:
-            for file in filenames:
-                fullPath=directory+"/"+file
+            for filename in filenames:
+                fullPath=directory+"/"+filename
                 self.logger.info("loading file="+fullPath)
                 try:
                     self.load(fullPath, project, dataset)
@@ -181,8 +186,8 @@ class OmeroService:
     def load(self, path, project=None, dataset=None):  
         self.logger.info("-"*10)
         self.logger.info("path="+path)
-        self.logger.info("project="+project)
-        self.logger.info("dataset="+dataset)
+        self.logger.info("project="+str(project))
+        self.logger.info("dataset="+str(dataset))
         #if self.cli is None or self.conn is None:
             #print "cli is none!!!!!"
         self.getConnection()
@@ -202,7 +207,7 @@ class OmeroService:
         else:
             self.logger.warning("dataset is None!!!!!!!!!!!!!!!!!!!!")
         
-        self.logger.info('importing project=' + project +  ', dataset=' + dataset + ', filename=' + path)
+        self.logger.info('importing project=' + str(project) +  ', dataset=' + str(dataset) + ', filename=' + str(path))
         
         if(path.endswith('.pdf')):
             self.logger.info("We have a pdf document- loading as attachment "+str(path))#we need to upload as an attachment
@@ -210,7 +215,7 @@ class OmeroService:
             fileAnn = self.conn.createFileAnnfromLocalFile(str(path), mimetype=None, ns=namespace, desc=None)
             self.logger.info("fileAnn="+str(fileAnn))
             datasetForAnnotation = self.conn.getObject("Dataset", dsId)
-            self.logger.info( "Attaching FileAnnotation to Dataset: " + str(datasetForAnnotation) + ", File ID: " + fileAnn.getId() + ", File Name: " + fileAnn.getFile().getName() + ", Size:" + fileAnn.getFile().getSize())
+            self.logger.info( "Attaching FileAnnotation to Dataset: " + str(datasetForAnnotation) + ", File ID: " + str(fileAnn.getId()) + ", File Name: " + fileAnn.getFile().getName() + ", Size:" + str(fileAnn.getFile().getSize()))
             self.logger.info("Dataset="+str(datasetForAnnotation))
             datasetForAnnotation.linkAnnotation(fileAnn)
             self.logger.info("linked annotation!")
