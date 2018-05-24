@@ -43,6 +43,9 @@
         @Configuration class. Add the 'static' modifier to this method to avoid these container lifecycle issues; see @Bean javadoc for complete details. -->
     <logger name="org.springframework.context.annotation.ConfigurationClassEnhancer"                                             level="ERROR" />
 
+    <!-- Suppress thelk reasoner INFO messages -->
+    <logger name="org.semanticweb.elk.reasoner.Reasoner"                                                                         level="WARN" />
+
     <logger name="org.springframework.test.context.support.DirtiesContextBeforeModesTestExecutionListener"                       level="WARN" />
 
     <logger name="org.semanticweb.owlapi.util.SAXParsers"                                                                        level="ERROR" />

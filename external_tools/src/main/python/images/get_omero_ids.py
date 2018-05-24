@@ -57,14 +57,22 @@ def main(argv):
     
     # Get values from property file and use as defaults that can be overridden
     # by command line parameters
-    try:
-        pp = OmeroPropertiesParser(args.profile)
-        if args.profilePath is not None and os.path.isfile(args.profilePath):
+    if args.profilePath is not None:
+        try:
+            pp = OmeroPropertiesParser()
             omeroProps = pp.getOmeroProps(args.profilePath)
-        else:
+        except Exception as e:
+            print "Could not read application properties file from " + args.profilePath
+            print "Error was: " + str(e)
+            return
+    else:
+        try:
+            pp = OmeroPropertiesParser(args.profile)
             omeroProps = pp.getOmeroProps()
-    except:
-        omeroProps = {}
+        except Exception as e:
+            print "Could not read application properties file for profile " + args.profile
+            print "Error was: " + str(e)
+            return
 
     komp2Host = args.komp2Host if args.komp2Host<>None else omeroProps['komp2host']
     print "setting komp2Host="+komp2Host

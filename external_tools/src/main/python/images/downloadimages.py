@@ -44,16 +44,32 @@ def main(argv):
     )
     parser.add_argument('--profile', dest='profile', default='dev',
                         help='profile from which to read config: dev, prod or live')
-
+    parser.add_argument('--profile-path', dest='profilePath',
+                        help='Explicit path to file from which to read ' + \
+                             'profile e.g. ' + \
+                             '/home/kola/application.properties. ' + \
+                             'Overrides value of --profile argument.'
+    )
     args = parser.parse_args()
     
     # Get values from property file and use as defaults that can be overridden
     # by command line parameters
-    try:
-        pp = OmeroPropertiesParser(args.profile)
-        omeroProps = pp.getOmeroProps()
-    except:
-        omeroProps = {}
+    if args.profilePath is not None:
+        try:
+            pp = OmeroPropertiesParser()
+            omeroProps = pp.getOmeroProps(args.profilePath)
+        except Exception as e:
+            print "Could not read application properties file from " + args.profilePath
+            print "Error was: " + str(e)
+            return
+    else:
+        try:
+            pp = OmeroPropertiesParser(args.profile)
+            omeroProps = pp.getOmeroProps()
+        except Exception as e:
+            print "Could not read application properties file for profile " + args.profile
+            print "Error was: " + str(e)
+            return
 
     rootSolrUrl = args.rootSolrUrl if args.rootSolrUrl<>None else omeroProps['solrurl']
     #solrQuery="""experiment/select?q=observation_type:image_record&fq=download_file_path:(download_file_path:*bhjlk01.jax.org/images/IMPC_ALZ_001/*%20AND%20!download_file_path:*.mov)&fl=id,download_file_path,phenotyping_center,pipeline_stable_id,procedure_stable_id,datasource_name,parameter_stable_id&wt=json&indent=on&rows=10000000"""

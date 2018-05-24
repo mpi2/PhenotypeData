@@ -133,7 +133,7 @@ table.dataTable thead tr {
                             </div>
                             <div class="half">
                             <p>&nbsp</p>
-                            <p>
+                            <p style="padding: 30px;">
                             Thermal nociception is assessed using Hargreaves testing. Heat is applied 
                             to the plantar surface of the hind paw via a precisely calibrated infrared 
                             light. The latency to remove the paw from the heat is measured to assess 				
@@ -146,7 +146,7 @@ table.dataTable thead tr {
                             These assays are being applied to naïve, unchallenged mice, as well following sensitization of the hind paw through administration of a chemical (formalin) or immunological (complete Freund’s adjuvant) challenge.
                             </p>
                             <p>
-                            P2rx4 and Trpa1 knockout mice are being tested by all centers as a positive control existing null alleles of these genes are published as having decreased pain sensitivity.
+                            <em>P2rx4</em> and <em>Trpa1</em> knockout mice are being tested by all centers as a positive control existing null alleles of these genes are published as having decreased pain sensitivity.
                             </p>
                             
                             </div>
