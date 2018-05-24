@@ -307,6 +307,17 @@
 
                 <jsp:invoke fragment="addToFooter"/>
 
+                <script>
+                    var localFrameworkVersion = '1.1';
+                    var newDataProtectionNotificationBanner = document.createElement('script');
+                    newDataProtectionNotificationBanner.src = 'https://ebi.emblstatic.net/web_guidelines/EBI-Framework/v1.3/js/ebi-global-includes/script/5_ebiFrameworkNotificationBanner.js?legacyRequest='+localFrameworkVersion;
+                    document.head.appendChild(newDataProtectionNotificationBanner);
+                    newDataProtectionNotificationBanner.onload = function() {
+                        ebiFrameworkRunDataProtectionBanner(); // invoke the banner
+                    };
+                </script>
+                <div data-data-protection-version="0.1" data-message="This website requires cookies, and the limited processing of your personal data in order to function. By using the site you are agreeing to this as outlined in our <a href='http://www.mousephenotype.org/about-impc/impc-privacy-policy'>Privacy policies</a>." data-service-id="mousephenotype-org" id="data-protection-message-configuration">&nbsp;</div>
+
             </footer>
 
         </c:when>
