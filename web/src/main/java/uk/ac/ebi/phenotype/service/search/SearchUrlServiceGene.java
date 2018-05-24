@@ -87,8 +87,7 @@ public class SearchUrlServiceGene extends SearchUrlService {
 
     @Override
     public List<String> gridHeaders() {
-        // FIXME MPII-3076
-        return Arrays.asList("Gene", "Production", "Phenotype", "");
+        return Arrays.asList("Gene", "Production", "Phenotype", "Register");
     }
 
     @Override
