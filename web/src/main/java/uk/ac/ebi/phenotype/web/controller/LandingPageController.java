@@ -186,7 +186,7 @@ public class LandingPageController {
     }
     
     @RequestMapping(value = "/biological-system/conservation", method = RequestMethod.GET)
-    public String loadPainBiologicalSystemPage(Model model, HttpServletRequest request, RedirectAttributes attributes) {
+    public String loadConservaionBiologicalSystemPage(Model model, HttpServletRequest request, RedirectAttributes attributes) {
 	    	System.out.println("conservation page called");
 	    	return "landing_conservation";
     }
