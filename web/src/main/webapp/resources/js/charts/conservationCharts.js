@@ -474,7 +474,7 @@ $(function () {
 	        type: 'bar',
 	        events: {
 	          	load: function() {
-	          		this.renderer.label('C', 0, 0).add();
+	          		this.renderer.label('D', 0, 0).add();
 	            }
 	        }
 	    },
