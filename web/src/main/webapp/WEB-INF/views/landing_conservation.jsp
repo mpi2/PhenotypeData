@@ -18,7 +18,7 @@
 
 	<script type='text/javascript' src='${baseUrl}/js/charts/highcharts.js?v=${version}'></script>
     <script type='text/javascript' src='${baseUrl}/js/charts/highcharts-more.js?v=${version}'></script>
-    <%-- <script type='text/javascript' src='${baseUrl}/js/charts/conservationCharts.js'></script> --%>
+    <script type='text/javascript' src='${baseUrl}/js/charts/conservationCharts.js'></script>
     
     <style>
     		body {
@@ -82,8 +82,8 @@
 			                    	</br>
             						Press releases or new posts:&nbsp;
             						<a target='_blank' href='http://blog.mousephenotype.org/new-research-suggests-laboratory-mouse-data-can-help-in-wildlife-conservation/'>IMPC blog</a>&nbsp;|&nbsp;
-            						<a target='_blank' href=''>EMBL-EBI</a>&nbsp;|&nbsp;
-            						<a target='_blank' href=''>QMUL</a>
+            						<a target='_blank' href=''>EMBL-EBI</a><!-- &nbsp;|&nbsp;
+            						<a target='_blank' href=''>QMUL</a> -->
                        		</div>
     							<div class="clear both"></div>
 						</div>      
@@ -107,7 +107,7 @@
 					   		<div class="inner">
 					   			<h3>Aiding the functional annotation of genes relevant for development and adaptation in mammalian species</h3>
 					   			<p>
-									<a target='_blank' href="https://link.springer.com/article/10.1007/s10592-018-1072-9">Conservation Genetics Special Issue on Adaptation</a><br>
+									<a target='_blank' href="http://bit.ly/conservationarticle">Conservation Genetics Special Issue on Adaptation</a><br>
 									<a target='_blank' href="https://link.springer.com/article/10.1007/s10592-018-1072-9#SupplementaryMaterial">Supplementary Material</a>
 								</p>
 					   			<ul>
@@ -132,11 +132,17 @@
                        	<div class="section">
                             <h2 id="significant-phenotypes" class="title">IMPC significant phenotypes</h2>
                             <div class="inner">
-                            		<p>IMPC significant phenotypes for selected mammal species, based on orthologue inferences (source: <a target="_blank" href="https://link.springer.com/article/10.1007/s10592-018-1072-9">IMPC Conservation Genetics paper</a>). <!-- Note links are to phenotype pages depicting data as in the current Data Release. --></p>
+                            		<p>IMPC significant phenotypes for selected mammal species, based on orthologue inferences (source: <a target="_blank" href="http://bit.ly/conservationarticle">IMPC Conservation Genetics paper</a>). <!-- Note links are to phenotype pages depicting data as in the current Data Release. --></p>
                             		<br><br>
+                            		<%-- <img src='${baseUrl}/img/conservation_charts.png' alt="Charts for significant phenotypes" height="700" width="700"></img> --%>
                             		<!-- Horizontal bar charts -->
-                            		<!-- <div id="container" style="min-width: 310px; max-width: 800px; height: 400px; margin: 0 auto"></div> -->
-                            		<img src='${baseUrl}/img/conservation_charts.png' alt="Charts for significant phenotypes" height="700" width="700"></img>
+                            		<div id="figsConservation" style="min-width: 500px; max-width: 800px; height: 1000px; margin: 0 auto">
+                            			<div id="figa" style="width: 450px; height: 1000px; float: left;"></div>
+                            			<div id="figb" style="width: 350px; height: 333px; float: left;"></div>
+                            			<div id="figc" style="width: 350px; height: 333px; float: left;"></div>
+                            			<div id="figd" style="width: 350px; height: 333px; float: left;"></div>
+                            		</div>
+                            		
                             </div>
                        	</div> 
                         
