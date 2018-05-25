@@ -154,7 +154,7 @@
 										</c:forEach> 
 									</td> --%>
 									<td>
-											${histRow.significantCount } / ${histRow.nonSignificantCount + histRow.significantCount }
+											${histRow.significantCount } / ${histRow.nonSignificantCount }<!-- + histRow.significantCount } -->
 									
 									</td>
 									
