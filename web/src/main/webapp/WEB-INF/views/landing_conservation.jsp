@@ -132,7 +132,7 @@
                        	<div class="section">
                             <h2 id="significant-phenotypes" class="title">IMPC significant phenotypes</h2>
                             <div class="inner">
-                            		<p>IMPC significant phenotypes for selected mammal species, based on orthologue inferences (source: <a target="_blank" href="http://bit.ly/conservationarticle">IMPC Conservation Genetics paper</a>). <!-- Note links are to phenotype pages depicting data as in the current Data Release. --></p>
+                            		<p>IMPC significant phenotypes for selected mammal species, based on orthologue inferences (source: <a target="_blank" href="http://bit.ly/conservationarticle">IMPC Conservation Genetics paper</a>). Note links are to phenotype pages depicting data as in the current Data Release.</p>
                             		<br><br>
                             		<%-- <img src='${baseUrl}/img/conservation_charts.png' alt="Charts for significant phenotypes" height="700" width="700"></img> --%>
                             		<!-- Horizontal bar charts -->
