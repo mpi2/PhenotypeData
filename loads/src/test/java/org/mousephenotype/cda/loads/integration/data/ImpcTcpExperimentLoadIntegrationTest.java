@@ -280,25 +280,32 @@ public class ImpcTcpExperimentLoadIntegrationTest {
 
 
         //
-        // VALIDATE THE METADATA GROUPS ARE CALCULATED PROPERLY
+        // VALIDATE THE METADATA GROUPS AND COMBINED ARE CALCULATED PROPERLY
         //
 
-        String metaGroupsQuery = "SELECT DISTINCT e.id, metadata_group FROM experiment e " +
+        String metaGroupsQuery = "SELECT DISTINCT e.id, metadata_group, metadata_combined FROM experiment e " +
                 "INNER JOIN experiment_observation eo ON eo.experiment_id=e.id " +
                 "INNER JOIN observation o ON o.id=eo.observation_id " +
                 "WHERE e.external_id in ('ClinicalBloodChemistry_4807', 'Biochemistry_1938')";
         Set<String> metadataGroups = new HashSet<>();
+        Set<String> metadataCombinedGroups = new HashSet<>();
         try (Connection connection = cdaDataSource.getConnection(); PreparedStatement p = connection.prepareStatement(metaGroupsQuery)) {
             ResultSet resultSet = p.executeQuery();
             while (resultSet.next()) {
                 logger.info("Adding metadata group {} for experiment {}", resultSet.getString("metadata_group"), resultSet.getString("id"));
                 metadataGroups.add(resultSet.getString("metadata_group"));
+                metadataCombinedGroups.add(resultSet.getString("metadata_combined"));
             }
         }
 
         System.out.println("Metadata groups: " + StringUtils.join(metadataGroups, ", "));
+        System.out.println("Metadata combined groups: " + StringUtils.join(metadataCombinedGroups, ", "));
 
         Assert.assertTrue(metadataGroups.size() == 1);
+
+        for (String metadataGroup : metadataCombinedGroups) {
+            Assert.assertTrue( ! metadataGroup.toLowerCase().contains("experimenter"));
+        }
 
 
 

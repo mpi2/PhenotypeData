@@ -803,7 +803,12 @@ public class ExperimentLoader implements CommandLineRunner {
 
         for (ProcedureMetadata metadata : dccMetadataList) {
             String parameterName = cdaParameterNameMap.get(metadata.getParameterID());
-            metadataCombinedList.add(parameterName + " = " + metadata.getValue());
+
+            // Do not cache the experimenter ID
+            if ( ! parameterName.toLowerCase().contains("experimenter")) {
+                metadataCombinedList.add(parameterName + " = " + metadata.getValue());
+            }
+
             if (metadataAndDataAnalysisParameters.contains(metadata.getParameterID())) {
                 metadataGroupList.add(parameterName + " = " + metadata.getValue());
             }
