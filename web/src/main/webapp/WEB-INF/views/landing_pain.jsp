@@ -97,7 +97,7 @@ table.dataTable thead tr {
 							<div class="section">
     							<div class="inner">
 	    							 <p>
-	    							 	<h3 style='margin-top:0;'>The IMPC is developing validated high throughput methods to assess Pain Sensitivity, in order identify genes involved in opioid addiction</h3>
+	    							 	<h3 style='margin-top:0;'>The IMPC is developing validated high throughput methods to assess Pain Sensitivity, in order to identify genes involved in opioid addiction</h3>
 									<ul>
 										<li> Every day, more than 115 Americans die after overdosing on opioid medications</li>
 										<li> The NIH KOMP funded IMPC Centers are advancing understanding of the genetic factors that put patients at risk for opioid misuse by developing validated methods of assessing pain sensitivity that are compatible with a high throughput pipeline</li>
