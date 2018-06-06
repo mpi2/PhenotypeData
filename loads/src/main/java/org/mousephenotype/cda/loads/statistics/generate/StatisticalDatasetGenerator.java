@@ -83,7 +83,7 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
 
     private final static List<String> PIVOT = Arrays.asList(
             ObservationDTO.DATASOURCE_NAME,
-            ObservationDTO.PROJECT_NAME,
+//            ObservationDTO.PROJECT_NAME,
             ObservationDTO.PHENOTYPING_CENTER,
             ObservationDTO.PIPELINE_STABLE_ID,
             ObservationDTO.PROCEDURE_GROUP,
