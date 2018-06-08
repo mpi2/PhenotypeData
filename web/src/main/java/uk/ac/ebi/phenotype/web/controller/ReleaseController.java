@@ -337,8 +337,8 @@ public class ReleaseController {
 				"uncheckAllGenByCenter");
 
 		HashMap<SignificantType, Integer> sexualDimorphismSummary = statisticalResultDAO.getSexualDimorphismSummary();
-		String sexualDimorphismChart = chartsProvider.generateSexualDimorphismChart(sexualDimorphismSummary,
-				"Distribution of Phenotype Calls", "sexualDimorphismChart");
+		// String sexualDimorphismChart = chartsProvider.generateSexualDimorphismChart(sexualDimorphismSummary,
+		//		"Distribution of Phenotype Calls", "sexualDimorphismChart");
 
 		HashMap<String, Integer> fertilityDistrib = getFertilityMap();
 
@@ -378,7 +378,7 @@ public class ReleaseController {
 						"Phenotyping Status", "phenotypeStatusChart", null));
 		model.addAttribute("phenotypingDistributionChart", phenotypingDistributionChart);
 		model.addAttribute("genotypingDistributionChart", genotypingDistributionChart);
-		model.addAttribute("sexualDimorphismChart", sexualDimorphismChart);
+		// model.addAttribute("sexualDimorphismChart", sexualDimorphismChart);
 		model.addAttribute("sexualDimorphismSummary", sexualDimorphismSummary);
 		model.addAttribute("fertilityMap", fertilityDistrib);
 
