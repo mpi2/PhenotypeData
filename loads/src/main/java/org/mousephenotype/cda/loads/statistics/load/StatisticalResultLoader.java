@@ -1047,6 +1047,10 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
     @Override
         public void run(String... strings) throws Exception {
 
+        if ( ! this.getClass().getName().equalsIgnoreCase("StatisticalResultLoader")) {
+            return;
+        }
+
         logger.info("Starting statistical result loader");
 
         // parameter to indicate the location of the result file(s)
