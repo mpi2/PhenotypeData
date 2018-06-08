@@ -256,12 +256,12 @@
 							<h3>Overall</h3>
 							<div class="half">
 								<div id="genotypeStatusChart">
-			          		<script type="text/javascript">${genotypeStatusChart.getChart()}</script>
+			          				<script type="text/javascript">${genotypeStatusChart.getChart()}</script>
 								</div>
 							</div>
 							<div class="half">
-			         	<div id="phenotypeStatusChart">
-			          		<script type="text/javascript">${phenotypeStatusChart.getChart()}</script>
+			         			<div id="phenotypeStatusChart">
+			          				<script type="text/javascript">${phenotypeStatusChart.getChart()}</script>
 								</div>
 							</div>
 		         	  <div class="clear"></div>

@@ -171,7 +171,7 @@ public class Allele2Service implements WebStatus{
 		QueryResponse solrResponse;
 
 		if (center != null){
-			String geneQuery = Allele2DTO.PHENOTYPING_CENTRES + ":\"" + center + "\"";
+			String geneQuery = Allele2DTO.LATEST_PHENOTYPING_CENTRE + ":\"" + center + "\"";
 			solrQuery.setQuery(geneQuery);
 		}else {
 			solrQuery.setQuery("*:*");
@@ -185,7 +185,7 @@ public class Allele2Service implements WebStatus{
 			solrResponse = solr.query(solrQuery);
 			for (Count c : solrResponse.getFacetField(statusField).getValues()) {
 				// We don't want to show everything
-				if (!(c.getName().equalsIgnoreCase("Cre Excision Started") || c.getName().equals(""))){
+				if ( !(c.getName().equalsIgnoreCase("Cre Excision Started") || c.getName().equalsIgnoreCase("Phenotype Production Aborted") || c.getName().equalsIgnoreCase("Rederivation Complete") || c.getName().equals("")) ) {
 					res.put(c.getName(), c.getCount());
 				}
 			}
@@ -202,7 +202,7 @@ public class Allele2Service implements WebStatus{
 		QueryResponse solrResponse;
 
 		if (center != null){
-			String geneQuery = Allele2DTO.PRODUCTION_CENTRES + ":\"" + center + "\"";
+			String geneQuery = Allele2DTO.LATEST_PRODUCTION_CENTRE + ":\"" + center + "\"";
 			solrQuery.setQuery(geneQuery);
 		}else {
 			solrQuery.setQuery("*:*");
@@ -216,13 +216,14 @@ public class Allele2Service implements WebStatus{
 			solrResponse = solr.query(solrQuery);
 			for (Count c : solrResponse.getFacetField(statusField).getValues()) {
 				// We don't want to show everything
-				if (!c.getName().equals("")){
+				if (!(c.getName().equalsIgnoreCase("Founder obtained") || c.getName().equals(""))){
 					res.put(c.getName(), c.getCount());
 				}
 			}
 		} catch (SolrServerException | IOException e) {
 			e.printStackTrace();
 		}
+		
 		return res;
 	}
 	
