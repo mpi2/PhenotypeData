@@ -1047,7 +1047,7 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
     @Override
         public void run(String... strings) throws Exception {
 
-        if ( ! this.getClass().getName().equalsIgnoreCase("StatisticalResultLoader")) {
+        if ( ! (this instanceof StatisticalResultLoader)) {
             return;
         }
 
