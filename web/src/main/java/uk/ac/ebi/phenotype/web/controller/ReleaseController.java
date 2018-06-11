@@ -302,7 +302,7 @@ public class ReleaseController {
 
 		// Set<String> allPhenotypingCenters =
 		// as.getFacets(AlleleDTO.LATEST_PHENOTYPING_CENTRE);
-		Set<String> allPhenotypingCenters = as.getFacets(Allele2DTO.PHENOTYPING_CENTRES);
+		Set<String> allPhenotypingCenters = as.getFacets(Allele2DTO.LATEST_PHENOTYPING_CENTRE);
 		TreeMap<String, TreeMap<String, Long>> phenotypingDistribution = new TreeMap<>();
 		for (String center : allPhenotypingCenters) {
 			if (!center.equals("")) {
@@ -320,7 +320,7 @@ public class ReleaseController {
 
 		// Set<String> allGenotypingCenters =
 		// as.getFacets(AlleleDTO.LATEST_PRODUCTION_CENTRE);
-		Set<String> allGenotypingCenters = as.getFacets(Allele2DTO.PRODUCTION_CENTRES);
+		Set<String> allGenotypingCenters = as.getFacets(Allele2DTO.LATEST_PRODUCTION_CENTRE);
 		TreeMap<String, TreeMap<String, Long>> genotypingDistribution = new TreeMap<>();
 		for (String center : allGenotypingCenters) {
 			if (!center.equals("")) {
@@ -337,8 +337,8 @@ public class ReleaseController {
 				"uncheckAllGenByCenter");
 
 		HashMap<SignificantType, Integer> sexualDimorphismSummary = statisticalResultDAO.getSexualDimorphismSummary();
-		String sexualDimorphismChart = chartsProvider.generateSexualDimorphismChart(sexualDimorphismSummary,
-				"Distribution of Phenotype Calls", "sexualDimorphismChart");
+		// String sexualDimorphismChart = chartsProvider.generateSexualDimorphismChart(sexualDimorphismSummary,
+		//		"Distribution of Phenotype Calls", "sexualDimorphismChart");
 
 		HashMap<String, Integer> fertilityDistrib = getFertilityMap();
 
@@ -362,7 +362,7 @@ public class ReleaseController {
 		model.addAttribute("datapointsTrendsChart", datapointsTrendsChart);
 		// model.addAttribute("topLevelTrendsChart", topLevelTrendsChart);
 		model.addAttribute("annotationDistributionChart", annotationDistributionChart);
-		// model.addAttribute("genotypeStatusChart",
+		// model.addAttribute(" ",
 		// chartProvider.getStatusColumnChart(as.getStatusCount(null,
 		// AlleleDTO.GENE_LATEST_MOUSE_STATUS), "Genotyping Status",
 		// "genotypeStatusChart", null ));
@@ -378,7 +378,7 @@ public class ReleaseController {
 						"Phenotyping Status", "phenotypeStatusChart", null));
 		model.addAttribute("phenotypingDistributionChart", phenotypingDistributionChart);
 		model.addAttribute("genotypingDistributionChart", genotypingDistributionChart);
-		model.addAttribute("sexualDimorphismChart", sexualDimorphismChart);
+		// model.addAttribute("sexualDimorphismChart", sexualDimorphismChart);
 		model.addAttribute("sexualDimorphismSummary", sexualDimorphismSummary);
 		model.addAttribute("fertilityMap", fertilityDistrib);
 

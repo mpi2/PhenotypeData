@@ -418,7 +418,6 @@ public class AnalyticsChartProvider {
 		JSONArray categories = new JSONArray();
 		List<String> categoriesList = new ArrayList<String>();
 		Map<String, List<AggregateCountXYBean>> centerMap = new HashMap<String, List<AggregateCountXYBean>>();
-
 		try {
 			// List categories first
 			// List centers
@@ -436,22 +435,28 @@ public class AnalyticsChartProvider {
 				}
 				beans.add(bean);
 			}
-
+			
 			// build by center specific list
 			for (String center: centerMap.keySet()) {
 				List<AggregateCountXYBean> beans = centerMap.get(center);
 				JSONObject containerJsonObject=new JSONObject();
 				JSONArray dataArray=new JSONArray();
-
+				// previous_countLines checks if a procedure has more than one id
+				int previous_countLines = 0;
 				// so always the same order for categories
 				for (String procedure: categoriesList) {
-
 					int countLines = 0;
 					// Retrieve procedure (not the fastest way)
 					for (AggregateCountXYBean bean: beans) {
 						if (bean.getxValue().equals(procedure)) {
-							countLines = bean.getAggregateCount();
+							// countLines = bean.getAggregateCount() + previous_countLines;
+							if (previous_countLines != 0) {
+								countLines = bean.getAggregateCount() + previous_countLines;
+							} else {
+								countLines = bean.getAggregateCount();
+							} 
 						}
+						previous_countLines = countLines;
 					}
 					dataArray.put(countLines);
 				}

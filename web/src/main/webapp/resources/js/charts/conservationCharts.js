@@ -62,8 +62,10 @@ $(function () {
 	        }
 	    },
 	    tooltip: {
-	        valueSuffix: ' mouse orthologs',
-	        backgroundColor: "rgba(245,245,245,1)"
+	    		backgroundColor: "rgba(255,255,255,0)",
+	    		valueSuffix: ' mouse orthologs',
+            useHTML: true,
+            backgroundColor: "rgba(255,255,255,1)",
 	    },
 	    plotOptions: {
 	        bar: {
@@ -302,8 +304,9 @@ $(function () {
 	        }
 	    },
 	    tooltip: {
-	        valueSuffix: ' mouse orthologs',
-	        backgroundColor: "rgba(245,245,245,1)"
+	    		valueSuffix: ' mouse orthologs',
+            useHTML: true,
+            backgroundColor: "rgba(255,255,255,1)"
 	    },
 	    plotOptions: {
 	        bar: {
@@ -401,8 +404,9 @@ $(function () {
 	        }
 	    },
 	    tooltip: {
-	        valueSuffix: ' mouse orthologs',
-	        backgroundColor: "rgba(245,245,245,1)"
+	    		valueSuffix: ' mouse orthologs',
+            useHTML: true,
+            backgroundColor: "rgba(255,255,255,1)"
 	    },
 	    plotOptions: {
 	        bar: {
@@ -514,7 +518,8 @@ $(function () {
 	    },
 	    tooltip: {
 	        valueSuffix: ' mouse orthologs',
-	        backgroundColor: "rgba(245,245,245,1)"
+            useHTML: true,
+            backgroundColor: "rgba(255,255,255,1)"
 	    },
 	    plotOptions: {
 	        bar: {
