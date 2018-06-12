@@ -197,26 +197,32 @@ def main(argv):
 
 
     # Get the files in NFS
-    nfs_file_list = []
-    os.path.walk(root_dir, add_to_list, nfs_file_list)
-    nfs_file_list = [f.split(root_dir)[-1] for f in nfs_file_list]
-    logger.info("Number of files from NFS = " + str(len(nfs_file_list)))
+    list_nfs_filenames = []
+    os.path.walk(root_dir, add_to_list, list_nfs_filenames)
+    list_nfs_filenames = [f.split(root_dir)[-1] for f in list_nfs_filenames]
+    logger.info("Number of files from NFS = " + str(len(list_nfs_filenames)))
 
 
-    set_solr_filenames = set(solr_directory_to_filenames_map.keys())
-    set_omero_filenames = set(omero_file_list)
-    set_nfs_file_list = set(nfs_file_list)
+    # Modified to carry out case-insensitive comparisons.
+    set_solr_filenames = set([k.lower() for k in solr_directory_to_filenames_map.keys()])
+    set_omero_filenames = set([f.lower() for f in omero_file_list])
+    dict_nfs_filenames = {}
+    for f in list_nfs_filenames:
+        # Note that if more than one file maps to the same case insensitive value
+        # only the last one encountered will be used
+        dict_nfs_filenames[f.lower()] = f
+    set_nfs_filenames = set(dict_nfs_filenames.keys())
 
     files_to_upload = set_solr_filenames - set_omero_filenames
-    files_to_upload_available = files_to_upload.intersection(set_nfs_file_list)
+    files_to_upload_available = files_to_upload.intersection(set_nfs_filenames)
     files_to_upload_unavailable = files_to_upload - files_to_upload_available
 
     # Create a dictionary for the files to upload with the directory as the
-    # key and the filenames as the values, so each dir can be passed to 
+    # key and the original nfs filenames as the values, so each dir can be passed to 
     # omero with associated files
     dict_files_to_upload = {}
     for f in files_to_upload_available:
-        dirname, filename = os.path.split(f)
+        dirname, filename = os.path.split(dict_nfs_filenames[f])
         if dict_files_to_upload.has_key(dirname):
             dict_files_to_upload[dirname].append(filename)
         else:
@@ -267,7 +273,10 @@ def main(argv):
             file_list += '\n' + f
             if i > 99:
                 break
-        logger.warning("The following files (truncated at 100) were present in Solr but absent in NFS:" + file_list)
+        message = "The following files (converted to lower case and " + \
+            "truncated at 100) were present in Solr but absent in NFS:" + \
+            file_list
+        logger.warning(message)
 
 def add_to_list(L,dirname,names):
     """Add files to list whilst walking through dir tree"""
