@@ -1799,7 +1799,7 @@ public class CdaSqlUtils {
             parameterMap.clear();
             parameterMap.put("observationPk", observationPk);
             parameterMap.put("samplePk", biologicalSamplePk);
-            parameterMap.put("downloadFilePath", URI.toLowerCase());
+            parameterMap.put("downloadFilePath", URI);
             parameterMap.put("imageLink", mediaFile.getLink());
             parameterMap.put("incrementValue", null);
             parameterMap.put("fileType", mediaFile.getFileType());
@@ -1902,7 +1902,7 @@ public class CdaSqlUtils {
             parameterMap.clear();
             parameterMap.put("observationPk", observationPk);
             parameterMap.put("samplePk", biologicalSamplePk);
-            parameterMap.put("downloadFilePath", mediaParameter.getURI().toLowerCase());
+            parameterMap.put("downloadFilePath", mediaParameter.getURI());
             parameterMap.put("imageLink", mediaParameter.getLink());
             parameterMap.put("incrementValue", null);
             parameterMap.put("fileType", mediaParameter.getFileType());
@@ -2088,7 +2088,7 @@ public class CdaSqlUtils {
             parameterMap.clear();
             parameterMap.put("observationPk", observationPk);
             parameterMap.put("samplePk", samplePk);
-            parameterMap.put("downloadFilePath", seriesMediaParameterValue.getURI().toLowerCase());
+            parameterMap.put("downloadFilePath", seriesMediaParameterValue.getURI());
             parameterMap.put("imageLink", seriesMediaParameterValue.getLink());
             parameterMap.put("incrementValue", seriesMediaParameterValue.getIncrementValue());
             parameterMap.put("fileType", seriesMediaParameterValue.getFileType());
