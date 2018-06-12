@@ -6,10 +6,9 @@
 
 <t:genericpage>
 
-    <jsp:attribute name="title">${pageTitle} Register Interest Summary</jsp:attribute>
+    <jsp:attribute name="title">Register Interest Summary</jsp:attribute>
 
-    <jsp:attribute name="breadcrumb">&nbsp;&raquo; <a href="${baseUrl}">Register Interest
-        Summary</a> &nbsp;&raquo; ${pageTitle}</jsp:attribute>
+    <jsp:attribute name="breadcrumb">&nbsp;&raquo; <a href="${baseUrl}"></a>Register Interest Summary</jsp:attribute>
 
     <jsp:attribute name="header">
         <style>
@@ -58,35 +57,74 @@
 
                         <div class="section">
                             <div class="inner">
-                                <h3>Genes for which you have registered interest</h3>
 
-                                <div id="registerInterestSummaryTableDiv">
-                                    <table id="registerInterestSummary-table"
-                                           class='table tableSorter'>
-                                        <thead>
-                                            <tr>
-                                                <th>Gene Symbol</th>
-                                                <th>Gene MGI Accession Id</th>
-                                                <th>Assignment Status</th>
-                                                <th>Null Allele Production Status</th>
-                                                <th>Conditional Allele Production Status</th>
-                                                <th>Phenotyping Data Available</th>
-                                                <th>Action</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr>
-                                                <td>row 1</td>
-                                                <td>row 1</td>
-                                                <td>row 1</td>
-                                                <td>row 1</td>
-                                                <td>row 1</td>
-                                                <td>row 1</td>
-                                                <td>row 1</td>
-                                            </tr>
-                                        </tbody>
-                                        <!-- BODY -->
-                                    </table>
+                                <c:forEach var="contactGene" items="${registerInterestSummaryList}" varStatus="loop">
+
+                                    <h3>Genes for which ${contactGene.contact.address} has registered interest:</h3>
+
+                                    <div id="registerInterestSummaryTableDiv">
+                                        <table id="registerInterestSummary-table"
+                                               class='table tableSorter'>
+                                            <thead>
+                                                <tr>
+                                                    <th>Gene Symbol</th>
+                                                    <th>Gene MGI Accession Id</th>
+                                                    <th>Assignment Status</th>
+                                                    <th>Null Allele Production Status</th>
+                                                    <th>Conditional Allele Production Status</th>
+                                                    <th>Phenotyping Data Available</th>
+                                                    <th>Action</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+
+                                                <c:forEach var="gene" items="${contactGene.genes}" varStatus="loop">
+
+                                                    <tr>
+                                                        <td>
+                                                            <a href='genes/${gene.mgiAccessionId}'>${gene.symbol}</a>
+                                                        </td>
+                                                        <td><a href="//www.informatics.jax.org/marker/${gene.mgiAccessionId}">${gene.mgiAccessionId}</a></td>
+                                                        <td>${gene.riAssignmentStatus}</td>
+                                                        <td>
+                                                            <c:choose>
+                                                                <c:when test="${gene.riNullAlleleProductionStatus == 'Genotype confirmed mice'}">
+                                                                    <a href='search/allele2?kw="${gene.mgiAccessionId}"'>${gene.riNullAlleleProductionStatus}</a>
+                                                                </c:when>
+                                                                <c:otherwise>
+                                                                    ${gene.riNullAlleleProductionStatus}
+                                                                </c:otherwise>
+                                                            </c:choose>
+                                                        </td>
+                                                        <td>
+                                                            <c:choose>
+                                                                <c:when test="${gene.riConditionalAlleleProductionStatus == 'Genotype confirmed mice'}">
+                                                                    <a href='search/allele2?kw="${gene.mgiAccessionId}"'>${gene.riConditionalAlleleProductionStatus}</a>
+                                                                </c:when>
+                                                                <c:otherwise>
+                                                                    ${gene.riConditionalAlleleProductionStatus}
+                                                                </c:otherwise>
+                                                            </c:choose>
+                                                        </td>
+                                                        <td>
+                                                            <c:choose>
+                                                                <c:when test="${gene.riPhenotypingStatus == 'Yes'}">
+                                                                    <a href='genes/${gene.mgiAccessionId}#section-associations'>${gene.riPhenotypingStatus}</a>
+                                                                </c:when>
+                                                                <c:otherwise>
+                                                                    ${gene.riPhenotypingStatus}
+                                                                </c:otherwise>
+                                                            </c:choose>
+                                                        </td>
+                                                        <td>Unregister</td>
+                                                    </tr>
+
+                                                </c:forEach>
+
+                                            </tbody>
+                                        </table>
+                                    </div>
+
                                     <div id="tsv-result" style="display: none;"></div>
                                     <br/>
                                     <div id="export">
@@ -102,7 +140,9 @@
                                         </p>
                                     </div>
                                     <br/> <br/>
-                                </div>
+
+                                </c:forEach>
+
                             </div>
                         </div>
                     </div>

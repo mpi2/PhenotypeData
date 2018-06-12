@@ -5,17 +5,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.boot.web.support.ErrorPageFilter;
 import org.springframework.context.annotation.*;
-import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
 import org.springframework.orm.hibernate5.support.OpenSessionInViewInterceptor;
-import org.springframework.orm.jpa.JpaVendorAdapter;
-import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
-import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
@@ -23,12 +18,9 @@ import org.springframework.web.servlet.view.InternalResourceViewResolver;
 import org.springframework.web.servlet.view.JstlView;
 import uk.ac.ebi.phenotype.web.util.DeploymentInterceptor;
 
-import javax.persistence.PersistenceContext;
-import javax.sql.DataSource;
 import javax.validation.constraints.NotNull;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 
 /**
  * Created by ilinca on 01/03/2017.
@@ -75,6 +67,22 @@ public class PhenotypeArchiveConfig {
 
     @Value("${live_site}")
     private String liveSite;
+
+
+    @NotNull
+    @Value("${wsuser}")
+    private String wsuser;
+
+    @NotNull
+    @Value("${wspass}")
+    private String wspass;
+
+    @Bean
+    public RestTemplate restTemplate(RestTemplateBuilder builder) {
+        return builder
+                .basicAuthorization(wsuser, wspass)
+                .build();
+    }
 
     @Bean
     public ErrorPageFilter errorPageFilter() {
@@ -157,8 +165,6 @@ public class PhenotypeArchiveConfig {
                 super.addResourceHandlers(registry);
 
             }
-
         };
     }
-
 }

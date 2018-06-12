@@ -17,6 +17,8 @@
 package uk.ac.ebi.phenotype.web.controller;
 
 import org.apache.commons.lang3.StringUtils;
+import org.mousephenotype.cda.db.pojo.RegisterInterestSummary;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -25,6 +27,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.client.RestTemplate;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -32,6 +35,8 @@ import javax.servlet.http.HttpServletResponse;
 @Controller
 public class RegisterInterestSummaryController {
 
+    @Autowired
+    RestTemplate restTemplate;
 
     @RequestMapping(value = { "/registerInterestSummary" }, method = RequestMethod.GET)
     public String homePage(HttpServletRequest request, ModelMap model) {
@@ -48,6 +53,11 @@ public class RegisterInterestSummaryController {
         System.out.println("url = " + request.getRequestURL());
         System.out.println("roles = " + StringUtils.join(auth.getAuthorities(), ", "));
 
+
+        RegisterInterestSummary[]  summary = restTemplate.getForObject(
+                "https://www.ebi.ac.uk/mi/impc/interest/contacts?email=mrelac@ebi.ac.uk", RegisterInterestSummary[].class
+        );
+        model.addAttribute(summary);
 
 
         return "registerInterestSummary";

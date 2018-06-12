@@ -16,80 +16,225 @@
 
 package org.mousephenotype.cda.db.pojo;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import java.util.Date;
+import java.util.List;
+
 /*
- * This class encapsulates the code and data necessary to represent a single Register Interest data item (row) fetched
- * from the register interest web service. The data item contains all of the detail fields used to manage a user's
- * genes of registered interest in the registerInterestSummary.jsp.
+ * This class encapsulates the code and data necessary to represent the results of a register interest GET for a single
+ * contact from the register interest web service. The data item contains all of the detail fields used to manage the
+ * contact's genes of registered interest in the registerInterestSummary.jsp.
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class RegisterInterestSummary {
 
-    private String geneSymbol;
-    private String mgiAccessionId;
-    private String assignmentStatus;
-    private String nullAlleleProductionStatus;
-    private String conditionalAlleleProductionStatus;
-    private boolean phenotypingDataAvailable;
+    // These definitions must match those in the Register Interest project's GeneStatus class.
+    // FIXME Creating an unpleasant dependency here.
+    public static final String MOUSE_PRODUCED = "Genotype confirmed mice";
 
-    public String getGeneSymbol() {
-        return geneSymbol;
+    private Contact contact;
+
+    private List<Gene> genes;
+
+    public Contact getContact() {
+        return contact;
     }
 
-    public void setGeneSymbol(String geneSymbol) {
-        this.geneSymbol = geneSymbol;
+    public void setContact(Contact contact) {
+        this.contact = contact;
     }
 
-    public String getMgiAccessionId() {
-        return mgiAccessionId;
+    public List<Gene> getGenes() {
+        return genes;
     }
 
-    public void setMgiAccessionId(String mgiAccessionId) {
-        this.mgiAccessionId = mgiAccessionId;
-    }
-
-    public String getAssignmentStatus() {
-        return assignmentStatus;
-    }
-
-    public void setAssignmentStatus(String assignmentStatus) {
-        this.assignmentStatus = assignmentStatus;
-    }
-
-    public String getNullAlleleProductionStatus() {
-        return nullAlleleProductionStatus;
-    }
-
-    public void setNullAlleleProductionStatus(String nullAlleleProductionStatus) {
-        this.nullAlleleProductionStatus = nullAlleleProductionStatus;
-    }
-
-    public String getConditionalAlleleProductionStatus() {
-        return conditionalAlleleProductionStatus;
-    }
-
-    public void setConditionalAlleleProductionStatus(String conditionalAlleleProductionStatus) {
-        this.conditionalAlleleProductionStatus = conditionalAlleleProductionStatus;
-    }
-
-    public boolean isPhenotypingDataAvailable() {
-        return phenotypingDataAvailable;
-    }
-
-    public void setPhenotypingDataAvailable(boolean phenotypingDataAvailable) {
-        this.phenotypingDataAvailable = phenotypingDataAvailable;
+    public void setGenes(List<Gene> genes) {
+        this.genes = genes;
     }
 
     @Override
     public String toString() {
         return "RegisterInterestSummary{" +
-                "geneSymbol='" + geneSymbol + '\'' +
-                ", mgiAccessionId='" + mgiAccessionId + '\'' +
-                ", assignmentStatus='" + assignmentStatus + '\'' +
-                ", nullAlleleProductionStatus='" + nullAlleleProductionStatus + '\'' +
-                ", conditionalAlleleProductionStatus='" + conditionalAlleleProductionStatus + '\'' +
-                ", phenotypingDataAvailable=" + phenotypingDataAvailable +
+                "contact=" + contact +
+                ", genes=" + genes +
                 '}';
+    }
+
+
+    public static class Contact {
+        private int pk;
+        private String address;
+
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
+        private Date createdAt;
+
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
+        private Date updatedAt;
+
+        private boolean active;
+
+
+
+        public int getPk() {
+            return pk;
+        }
+
+        public void setPk(int pk) {
+            this.pk = pk;
+        }
+
+        public String getAddress() {
+            return address;
+        }
+
+        public void setAddress(String address) {
+            this.address = address;
+        }
+
+        public Date getCreatedAt() {
+            return createdAt;
+        }
+
+        public void setCreatedAt(Date createdAt) {
+            this.createdAt = createdAt;
+        }
+
+        public Date getUpdatedAt() {
+            return updatedAt;
+        }
+
+        public void setUpdatedAt(Date updatedAt) {
+            this.updatedAt = updatedAt;
+        }
+
+        public boolean isActive() {
+            return active;
+        }
+
+        public void setActive(boolean active) {
+            this.active = active;
+        }
+
+        @Override
+        public String toString() {
+            return "Contact{" +
+                    "pk=" + pk +
+                    ", address='" + address + '\'' +
+                    ", createdAt=" + createdAt +
+                    ", updatedAt=" + updatedAt +
+                    ", active=" + active +
+                    '}';
+        }
+    }
+
+    public static class Gene {
+
+        private int pk;
+        private String mgiAccessionId;
+        private String symbol;
+        private String riAssignmentStatus;
+        private String riConditionalAlleleProductionStatus;
+        private String riNullAlleleProductionStatus;
+        private String riPhenotypingStatus;
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
+        private Date createdAt;
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
+        private Date updatedAt;
+
+
+        // CUSTOM GETTERS (not automatically generated by IJ tools. Some of these are meant to override the automatically generated ones)
+
+        public String getRiConditionalAlleleProductionStatus() {
+            return ((riConditionalAlleleProductionStatus.isEmpty()? "None" : riConditionalAlleleProductionStatus));
+        }
+
+        public String getRiNullAlleleProductionStatus() {
+            return ((riNullAlleleProductionStatus.isEmpty() ? "None" : riNullAlleleProductionStatus));
+        }
+
+        public String getRiPhenotypingStatus() {
+            return ((riPhenotypingStatus.isEmpty() ? "No" : "Yes"));
+        }
+
+
+        // AUTOMATICALLY GENERATED GETTERS AND SETTERS
+
+        public int getPk() {
+            return pk;
+        }
+
+        public void setPk(int pk) {
+            this.pk = pk;
+        }
+
+        public String getMgiAccessionId() {
+            return mgiAccessionId;
+        }
+
+        public void setMgiAccessionId(String mgiAccessionId) {
+            this.mgiAccessionId = mgiAccessionId;
+        }
+
+        public String getSymbol() {
+            return symbol;
+        }
+
+        public void setSymbol(String symbol) {
+            this.symbol = symbol;
+        }
+
+        public String getRiAssignmentStatus() {
+            return riAssignmentStatus;
+        }
+
+        public void setRiAssignmentStatus(String riAssignmentStatus) {
+            this.riAssignmentStatus = riAssignmentStatus;
+        }
+
+        public void setRiConditionalAlleleProductionStatus(String riConditionalAlleleProductionStatus) {
+            this.riConditionalAlleleProductionStatus = riConditionalAlleleProductionStatus;
+        }
+
+        public void setRiNullAlleleProductionStatus(String riNullAlleleProductionStatus) {
+            this.riNullAlleleProductionStatus = riNullAlleleProductionStatus;
+        }
+
+        public void setRiPhenotypingStatus(String riPhenotypingStatus) {
+            this.riPhenotypingStatus = riPhenotypingStatus;
+        }
+
+        public Date getCreatedAt() {
+            return createdAt;
+        }
+
+        public void setCreatedAt(Date createdAt) {
+            this.createdAt = createdAt;
+        }
+
+        public Date getUpdatedAt() {
+            return updatedAt;
+        }
+
+        public void setUpdatedAt(Date updatedAt) {
+            this.updatedAt = updatedAt;
+        }
+
+
+        @Override
+        public String toString() {
+            return "gene{" +
+                    "pk=" + pk +
+                    ", mgiAccessionId='" + mgiAccessionId + '\'' +
+                    ", symbol='" + symbol + '\'' +
+                    ", riAssignmentStatus='" + riAssignmentStatus + '\'' +
+                    ", riConditionalAlleleProductionStatus='" + riConditionalAlleleProductionStatus + '\'' +
+                    ", riNullAlleleProductionStatus='" + riNullAlleleProductionStatus + '\'' +
+                    ", riPhenotypingStatus='" + riPhenotypingStatus + '\'' +
+                    ", createdAt=" + createdAt +
+                    ", updatedAt=" + updatedAt +
+                    '}';
+        }
     }
 }
