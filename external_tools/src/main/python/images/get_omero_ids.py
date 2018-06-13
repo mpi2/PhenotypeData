@@ -196,7 +196,20 @@ def getOmeroIdsAndPaths(dbConn, omeroUser, omeroPass, omeroHost, omeroPort, full
                     originalUploadedFilePathToOmero=path[0].val
                     #print originalUploadedFilePathToOmero
                     #print originalUploadedFilePathToOmero+" id="+str(image.getId())
-                    storeOmeroId(dbConn, image.getId(), originalUploadedFilePathToOmero, fullResPathsAlreadyHave )
+
+                    # If this is a leica (.lif or .lei) file do the matching differently
+                    if originalUploadedFilePathToOmero.find('.lif') > 0 or originalUploadedFilePathToOmero.find('.lei') > 0:
+                        # Get all images stored in the same file
+                        query = 'SELECT id, name FROM Image WHERE fileset.id = :id'
+                        original_path,original_im_name = os.path.split(originalUploadedFilePathToOmero)
+                        for im_details in conn.getQueryService().projection(query, params):
+                            omero_id = im_details[0].val
+                            omero_im_name = im_details[1].val
+                            if omero_im_name.find(original_im_name) >= 0:
+                                modifiedUploadedFilePathToOmero = originalUploadedFilePathToOmero.replace(original_im_name, omero_im_name)
+                                storeOmeroId(dbConn, omero_id, modifiedUploadedFilePathToOmero, fullResPathsAlreadyHave )
+                    else:
+                        storeOmeroId(dbConn, image.getId(), originalUploadedFilePathToOmero, fullResPathsAlreadyHave )
             #print "\nProject="+project.getName()+"Annotations on Dataset:", dataset.getName()
             for ann in dataset.listAnnotations():
                 #filesetId=ann.getId()
