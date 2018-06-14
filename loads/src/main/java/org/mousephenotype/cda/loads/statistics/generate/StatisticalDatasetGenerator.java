@@ -71,7 +71,7 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
 
             // Load these 3I procedures manually from file Ania sent
             // IMPC will analyse the PBI hits per Lucie. See comment in ThreeIStatisticalResultLoader class
-            "MGP_BMI", "MGP_IMM", "MGP_MLN", "MGP_ANA" //, "MGP_PBI"
+            "MGP_BMI", "MGP_IMM", "MGP_MLN", "MGP_ANA", "MGP_EEI" //, "MGP_PBI"
             ));
 
 
