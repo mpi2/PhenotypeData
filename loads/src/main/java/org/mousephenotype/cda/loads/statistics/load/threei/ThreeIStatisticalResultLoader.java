@@ -24,7 +24,6 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.sql.DataSource;
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -44,8 +43,9 @@ public class ThreeIStatisticalResultLoader extends StatisticalResultLoader imple
 
     final private Logger logger = LoggerFactory.getLogger(getClass());
 
-    Map<String, PhenotypedColony> phenotypedColonies;
-    Set<String> missingColonies = new HashSet<>();
+    private Map<String, PhenotypedColony> phenotypedColonies;
+    private Set<String> missingColonies;
+    private Set<String> missingProcedures;
 
     private Resource threeIFile;
 
@@ -64,6 +64,8 @@ public class ThreeIStatisticalResultLoader extends StatisticalResultLoader imple
         this.phenotypedColonies = cdaSqlUtils.getPhenotypedColonies();
         this.threeIFile = threeIFile;
 
+        missingProcedures = new HashSet<>();
+        missingColonies = new HashSet<>();
     }
 
 
@@ -71,7 +73,6 @@ public class ThreeIStatisticalResultLoader extends StatisticalResultLoader imple
      * Process a string from a results file into a LineStatisticalResult object
      *
      * @param data a line from a statistical results file
-     * @throws IOException
      */
     LineStatisticalResult getResult(ThreeIFileResult data) {
 
@@ -154,6 +155,11 @@ public class ThreeIStatisticalResultLoader extends StatisticalResultLoader imple
                 result.setCountControlFemale(569);
                 break;
 
+            case "MGP_EEI_001":
+                result.setCountControlMale(366);
+                result.setCountControlFemale(362);
+                break;
+
             case "MGP_IMM_001":
             case "MGP_MLN_001":
             case "MGP_BMI_001":
@@ -177,6 +183,13 @@ public class ThreeIStatisticalResultLoader extends StatisticalResultLoader imple
                     So, for now, we do not process the blood hits supplied in the file
 
                  */
+
+                if ( ! missingProcedures.contains(data.getProcedure_Id()))
+                {
+                    logger.warn("Cannot find control counts for procedure {}", data.getProcedure_Id());
+                    missingProcedures.add(data.getProcedure_Id());
+
+                }
 
                 return null;
 
@@ -589,8 +602,10 @@ public class ThreeIStatisticalResultLoader extends StatisticalResultLoader imple
 
             result.setProcedureId(procedure.getDbId());
             result.setProcedureGroup(data.getProcedure());
+            result.setProcedureName(procedure.getName());
 
             result.setParameterId(parameter.getDbId());
+            result.setParameterName(parameter.getName());
             result.setParameterStableId(parameter.getStableId());
             result.setDependentVariable(parameter.getStableId());
 
@@ -638,9 +653,9 @@ public class ThreeIStatisticalResultLoader extends StatisticalResultLoader imple
 
             result.setCalculationTimeNanos(0L);
 
-            result.setStatus(data.getStatus() == "Success" ? data.getStatus() : data.getStatus() + " - " + data.getCode());
+            result.setStatus(data.getStatus().equalsIgnoreCase("Success") ? data.getStatus() : data.getStatus() + " - " + data.getCode());
 
-            if (data.getStatus() == "Success") {
+            if (data.getStatus().equalsIgnoreCase("Success")) {
                 if (data.getSuggestedMpTerm().startsWith("MP:")) {
                     result.setMpAcc(data.getSuggestedMpTerm());
 
@@ -687,6 +702,7 @@ public class ThreeIStatisticalResultLoader extends StatisticalResultLoader imple
                     p.executeUpdate();
 
                     counts.put(result.getStatisticalMethod(), counts.getOrDefault(result.getStatisticalMethod(), 0) + 1);
+                    counts.put(result.getParameterName(), counts.getOrDefault(result.getParameterName(), 0) + 1);
 
                 } catch (SQLException e) {
                     e.printStackTrace();
@@ -694,8 +710,15 @@ public class ThreeIStatisticalResultLoader extends StatisticalResultLoader imple
 
             }
 
-            for (String method : counts.keySet()) {
-                logger.info("  ADDED " + counts.get(method) + " statistical results for method: " + method);
+            logger.info("  ADDED " + counts.get("Manual") + " statistical results for Method: Manual");
+            counts.remove("Manual");
+
+            for (String parameterName : counts.keySet()) {
+                logger.info("     " + counts.get(parameterName) + " for Parameter: " + parameterName);
+            }
+
+            if ( ! missingProcedures.isEmpty()) {
+                logger.warn("Cound not find data for procedures: {}", StringUtils.join(missingColonies, ", "));
             }
 
         } catch (Exception e) {
