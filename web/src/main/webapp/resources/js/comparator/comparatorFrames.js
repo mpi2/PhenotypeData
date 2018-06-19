@@ -1,6 +1,6 @@
 $(document).ready(function(){						
 	
-console.log('comparator.js ready');
+console.log('comparatorFrames.js ready');
 
 
 var previousControlId=$(".clickable_image_control").first().attr('id');
