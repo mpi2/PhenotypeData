@@ -69,6 +69,7 @@ public class ImageComparatorController {
 				@RequestParam(value="mediaType", required=false) String mediaType,
 				@RequestParam(value="colony_id", required=false) String colonyId,
 				@RequestParam(value="mp_id", required=false) String mpId,
+				@RequestParam(value="force_frames", required=false, defaultValue="false") Boolean forceFrames,
 				Model model, HttpServletRequest request)
 			throws SolrServerException, IOException {
 		System.out.println("calling image imageComparator");
@@ -138,9 +139,12 @@ public class ImageComparatorController {
 		model.addAttribute("controls", controls);
 		
 		boolean federated=this.isFederated(filteredMutants);
-		
-		if(mediaType!=null && mediaType.equals("pdf") || federated){//we need iframes to load google pdf viewer so switch to this view for the pdfs or to work with JAX federated omero housed at JAX
-			System.out.println("using frames based comparator to pdfs");
+		boolean zStacked=this.isZStacked(filteredMutants);//for 3i stacked images we need the frames view to display the stacks - unless we can get the js viewports to display them easily
+		if(forceFrames) {//flag to override anything else and show frames view - for debugging mainly or possibly to show z-stacks
+			return "comparatorFrames";
+		}
+		if(mediaType!=null && mediaType.equals("pdf") || federated || zStacked){//we need iframes to load google pdf viewer so switch to this view for the pdfs or to work with JAX federated omero housed at JAX
+			System.out.println("using frames based comparator");
 			return "comparatorFrames";
 		}
 		return "comparator";//js viewport used to view images in this view.
@@ -185,6 +189,16 @@ public class ImageComparatorController {
 	private boolean isFederated(List<ImageDTO> filteredMutants) {
 		for(ImageDTO image:filteredMutants){
 			if(image.getImageLink()!=null && (image.getImageLink().contains("omero") || image.getImageLink().contains("NDPServe"))){//at the moment only use federated approach on omero served images - bad assumption here unwritten rule
+				return true;
+				
+			}
+		}
+		return false;
+	}
+	
+	private boolean isZStacked(List<ImageDTO> filteredMutants) {
+		for(ImageDTO image:filteredMutants){
+			if(image.getParameterStableId().equals("MGP_EEI_114_001")){//at the moment only use federated approach on omero served images - bad assumption here unwritten rule
 				return true;
 				
 			}
