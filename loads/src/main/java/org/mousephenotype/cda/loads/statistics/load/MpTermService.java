@@ -125,7 +125,10 @@ public class MpTermService {
 
 		            ResultSet resultSet = statement.executeQuery();
                     while (resultSet.next()) {
+
                         sex = resultSet.getString("sex");
+                        if (sex == null) { sex = ""; }
+
                         if (a.getOption() != null) {
 
                             Map<String, OntologyTerm> categoryToTerm = getAllOptionsForParameter(connection, ontologyTermDAO, parameter, a.getType());
@@ -156,7 +159,7 @@ public class MpTermService {
 	/**
 	 * Return the annotation term according to the values in the result
  	 */
-    public OntologyTerm getMPTerm(String parameterStableId, ResultDTO res, SexType sex, Connection connection, float SIGNIFICANCE_THRESHOLD) throws SQLException {
+    public OntologyTerm getMPTerm(String parameterStableId, ResultDTO res, SexType sex, Connection connection, float SIGNIFICANCE_THRESHOLD, Boolean tryHard) throws SQLException {
 
         // Short circuit if requesting a sex specific annotation but the result has no data for that sex
         if (res.getCategoryA()==null && sex != null && ((sex.equals(SexType.female) && res.getFemalePvalue() == null) || (sex.equals(SexType.male) && res.getMalePvalue() == null))) {
@@ -203,7 +206,8 @@ public class MpTermService {
                 return (OntologyTerm) annotations.get(PhenotypeAnnotationType.abnormal, "", sexString);
             }
 
-        } else if ( (sex != null && sex.equals(SexType.female)) || (sex == null && res.getMalePvalue()==null && res.getFemalePvalue()!=null && res.getFemalePvalue()<BASE_SIGNIFICANCE_THRESHOLD)) { // female effect
+//        } else if ( (sex != null && sex.equals(SexType.female)) || (sex == null && res.getMalePvalue()==null && res.getFemalePvalue()!=null && res.getFemalePvalue()<BASE_SIGNIFICANCE_THRESHOLD)) { // female effect
+        } else if ( (sex != null && sex.equals(SexType.female)) ) { // female effect
 
             if (res.getFemalePvalue() == null) {
 
@@ -236,7 +240,8 @@ public class MpTermService {
                 }
             }
 
-        } else if ( (sex != null && sex.equals(SexType.male)) || (sex == null && res.getFemalePvalue()==null && res.getMalePvalue()!=null && res.getMalePvalue()<BASE_SIGNIFICANCE_THRESHOLD)) { // male effect
+//        } else if ( (sex != null && sex.equals(SexType.male)) || (sex == null && res.getFemalePvalue()==null && res.getMalePvalue()!=null && res.getMalePvalue()<BASE_SIGNIFICANCE_THRESHOLD)) { // male effect
+        } else if ( (sex != null && sex.equals(SexType.male)) ) { // male effect
 
             if (res.getNullTestPvalue() != null && res.getMalePvalue() == null) {
                 if (res.getNullTestPvalue() < SIGNIFICANCE_THRESHOLD) {
@@ -277,10 +282,13 @@ public class MpTermService {
 
 
         OntologyTerm ontologyTerm = null;
-        if (res.getNullTestPvalue()!=null && res.getNullTestPvalue() <= SIGNIFICANCE_THRESHOLD) {
-            ontologyTerm = (OntologyTerm) annotations.get(PhenotypeAnnotationType.abnormal, "", sexString);
-            if (ontologyTerm == null) {
-                ontologyTerm = (OntologyTerm) annotations.get(PhenotypeAnnotationType.inferred, "", sexString);
+
+	    if (tryHard) {
+            if (res.getNullTestPvalue() != null && res.getNullTestPvalue() <= SIGNIFICANCE_THRESHOLD) {
+                ontologyTerm = (OntologyTerm) annotations.get(PhenotypeAnnotationType.abnormal, "", sexString);
+                if (ontologyTerm == null) {
+                    ontologyTerm = (OntologyTerm) annotations.get(PhenotypeAnnotationType.inferred, "", sexString);
+                }
             }
         }
 

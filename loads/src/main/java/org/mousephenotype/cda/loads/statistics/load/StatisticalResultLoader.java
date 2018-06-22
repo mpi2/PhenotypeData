@@ -957,7 +957,7 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
 
             String parameterId = result.getParameterStableId();
 
-            OntologyTerm mpTerm = mpTermService.getMPTerm(parameterId, resultWrapper, null, connection, 1.0f);
+            OntologyTerm mpTerm = mpTermService.getMPTerm(parameterId, resultWrapper, null, connection, 1.0f, false);
 
             if (mpTerm != null) {
                 result.setMpAcc(mpTerm.getId().getAccession());
@@ -968,10 +968,10 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
                 OntologyTerm maleMpTerm = null;
 
                 if (resultWrapper.getFemaleEffectSize() != null) {
-                    femaleMpTerm = mpTermService.getMPTerm(parameterId, resultWrapper, SexType.female, connection, 1.0f);
+                    femaleMpTerm = mpTermService.getMPTerm(parameterId, resultWrapper, SexType.female, connection, 1.0f, false);
                 }
                 if (resultWrapper.getMaleEffectSize() != null) {
-                    maleMpTerm = mpTermService.getMPTerm(parameterId, resultWrapper, SexType.male, connection, 1.0f);
+                    maleMpTerm = mpTermService.getMPTerm(parameterId, resultWrapper, SexType.male, connection, 1.0f, false);
                 }
 
                 if (femaleMpTerm != null && result instanceof LightweightUnidimensionalResult) {

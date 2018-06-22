@@ -48,10 +48,6 @@ public class StatisticalResultLoaderTest {
     @Autowired
     CdaSqlUtils cdaSqlUtils;
 
-    @Autowired
-    @Qualifier("threeIFile")
-    Resource threeIFile;
-
     @Before
     public void before() throws SQLException {
 
@@ -78,8 +74,11 @@ public class StatisticalResultLoaderTest {
         ClassPathResource file = new ClassPathResource("data/IMPC--IMPC--UC_Davis--UCD_001--IMPC_HEM--MGI2683688--013.tsv-test-with-weight.result");
         String[] loadArgs = new String[]{
                 "--location",
-                file.getPath()
+                file.getFile().getAbsolutePath()
         };
+
+        statisticalResultLoader.parameterTypeMap.put("IMPC_HEM_001_001", ObservationType.unidimensional);
+        statisticalResultLoader.parameterTypeMap.put("IMPC_HEM_002_001", ObservationType.unidimensional);
 
         statisticalResultLoader.run(loadArgs);
 
@@ -92,6 +91,13 @@ public class StatisticalResultLoaderTest {
             ResultSetMetaData rsmd = resultSet.getMetaData();
 
             while (resultSet.next()) {
+
+                if (resultSet.getString("Status").equals("Success")) {
+                    Boolean hasMpTerm = resultSet.getString("mp_acc") != null ||
+                            resultSet.getString("male_mp_acc") != null ||
+                            resultSet.getString("female_mp_acc") != null;
+                    Assert.assertTrue(hasMpTerm);
+                }
                 resultCount++;
                 Integer bioModelId = resultSet.getInt("experimental_id");
                 Assert.assertNotNull(bioModelId);
@@ -108,10 +114,7 @@ public class StatisticalResultLoaderTest {
 
         }
 
-        //
-        // PBI data is not loaded by the 3I loader
-        //
-        Assert.assertEquals(13, resultCount.intValue());
+        Assert.assertEquals(12, resultCount.intValue());
 
     }
 
