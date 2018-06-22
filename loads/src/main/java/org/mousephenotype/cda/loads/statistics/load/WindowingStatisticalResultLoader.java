@@ -448,10 +448,10 @@ public class WindowingStatisticalResultLoader extends BasicService implements Co
      */
     LineStatisticalResult getResult(String data, String filename) {
 
-        if (data.contains("metadata_group")) {
-            // This is a header
-            return null;
-        }
+//        if (data.contains("metadata_group")) {
+//            // This is a header
+//            return null;
+//        }
 
         LineStatisticalResult result = new LineStatisticalResult();
 
@@ -1004,7 +1004,7 @@ public class WindowingStatisticalResultLoader extends BasicService implements Co
 
     private void processFile(String loc) throws IOException {
 System.out.println("starting to process file");
-System.exit(1);
+//System.exit(1);
         try {
             Map<String, Integer> counts = new HashMap<>();
 
@@ -1080,33 +1080,34 @@ System.exit(1);
         populateBioModelMap();
         populateControlBioModelMap();
         populateParameterTypeMap();
+        System.out.println("populated lookups blah");
 
-        if (regularFile) {
+        //if (regularFile) {
 
             // process the file
             processFile(fileLocation);
 
-        } else if (directory) {
-
-            // process all regular files in the directory that end in "result" and have "tsv" in the filename
-            Files
-                .walk(Paths.get(fileLocation))
-                .filter(p -> p.toString().endsWith("result"))
-                .filter(p -> p.toString().contains(".tsv"))
-                .filter(p -> Files.isRegularFile(p.toAbsolutePath()))
-                .parallel()
-                .forEach(p -> {
-                    logger.info("Processing file: " + p.toAbsolutePath().toString());
-                    try {
-                        processFile(p.toAbsolutePath().toString());
-                    } catch (IOException e) {
-                        logger.warn("IO error proccessing file: " + p.toAbsolutePath().toString());
-                    }
-                });
-
-        } else {
-            logger.warn("File " + fileLocation + " is not a regular file or a directory");
-        }
+//        } else if (directory) {
+//
+//            // process all regular files in the directory that end in "result" and have "tsv" in the filename
+//            Files
+//                .walk(Paths.get(fileLocation))
+//                .filter(p -> p.toString().contains("Successfull"))
+//                .filter(p -> p.toString().contains(".tsv"))
+//                .filter(p -> Files.isRegularFile(p.toAbsolutePath()))
+//                .parallel()
+//                .forEach(p -> {
+//                    logger.info("Processing file: " + p.toAbsolutePath().toString());
+//                    try {
+//                        processFile(p.toAbsolutePath().toString());
+//                    } catch (IOException e) {
+//                        logger.warn("IO error proccessing file: " + p.toAbsolutePath().toString());
+//                    }
+//                });
+//
+//        } else {
+//            logger.warn("File " + fileLocation + " is not a regular file or a directory");
+//        }
 
 
     }
