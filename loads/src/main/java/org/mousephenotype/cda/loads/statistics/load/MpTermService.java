@@ -49,7 +49,7 @@ public class MpTermService {
         this.ppDAO = ppDAO;
     }
 
-    Map<String, OntologyTerm> getAllOptionsForParameter(Connection connection, OntologyTermDAO ontologyTermDAO, Parameter parameter, PhenotypeAnnotationType associationType) throws SQLException {
+    public Map<String, OntologyTerm> getAllOptionsForParameter(Connection connection, OntologyTermDAO ontologyTermDAO, Parameter parameter, PhenotypeAnnotationType associationType) throws SQLException {
 
         Map<String, OntologyTerm> categoryToTerm = new HashMap<>();
 
@@ -92,7 +92,7 @@ public class MpTermService {
      * @param parameterStableId the parameter stable ID in question
      * @return map of the associated directions to their MP terms
      */
-    MultiKeyMap getAnnotationTypeMap(String parameterStableId, Connection connection, OntologyTermDAO ontologyTermDAO) throws SQLException {
+    public MultiKeyMap getAnnotationTypeMap(String parameterStableId, Connection connection, OntologyTermDAO ontologyTermDAO) throws SQLException {
 
         if (parameterCache.containsKey(parameterStableId)) {
             return parameterCache.get(parameterStableId);
