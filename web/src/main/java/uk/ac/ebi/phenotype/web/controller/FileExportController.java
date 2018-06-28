@@ -49,6 +49,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import uk.ac.ebi.phenotype.service.*;
 import uk.ac.ebi.phenotype.service.search.SearchUrlService;
 import uk.ac.ebi.phenotype.service.search.SearchUrlServiceFactory;
@@ -143,6 +144,7 @@ public class FileExportController {
 	 * @throws URISyntaxException
 	 */
 	@ResponseBody
+	@CrossOrigin(origins = {"http://localhost:4200", "https://wwwdev.ebi.ac.uk/"})
 	@RequestMapping(value = "/exportraw", method = RequestMethod.GET, produces = "text/plain")
 	public String getExperimentalData(
 			@RequestParam(value = "phenotyping_center", required = true) String phenotypingCenter, // assume reuired in code
