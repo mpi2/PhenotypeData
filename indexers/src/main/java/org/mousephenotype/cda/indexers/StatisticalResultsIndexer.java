@@ -667,11 +667,16 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
             result.setProcedureId(resultSet.getInt("procedure_id"));
             result.setParameterId(resultSet.getInt("parameter_id"));
             result.setParameterStableId(resultSet.getString("dependent_variable"));
-            result.setSex(SexType.valueOf(resultSet.getString("sex")));
 
             result.setNullTestPvalue(resultSet.getDouble("categorical_p_value"));
             result.setGenotypeEffectSize(resultSet.getDouble("categorical_effect_size"));
 
+
+            try {
+                result.setSex(SexType.valueOf(resultSet.getString("sex")));
+            } catch (Exception e) {
+                result.setSex(null);
+            }
 
             SqlUtils sqlUtils = new SqlUtils();
             Boolean additionalColumns = false;
