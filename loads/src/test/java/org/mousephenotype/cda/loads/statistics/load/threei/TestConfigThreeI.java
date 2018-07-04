@@ -7,13 +7,10 @@ import org.mousephenotype.cda.db.dao.OntologyTermDAO;
 import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.db.dao.ReferenceDAO;
 import org.mousephenotype.cda.loads.common.CdaSqlUtils;
-import org.mousephenotype.cda.loads.statistics.load.MpTermService;
-import org.springframework.beans.BeansException;
+import org.mousephenotype.cda.db.statistics.MpTermService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.*;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
@@ -39,9 +36,7 @@ import javax.sql.DataSource;
 @ComponentScan(basePackages = "org.mousephenotype.cda.db.dao", excludeFilters = {
         @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = {GwasDAO.class, ReferenceDAO.class})}
 )
-public class TestConfigThreeI implements ApplicationContextAware {
-
-    private ApplicationContext context;
+public class TestConfigThreeI {
 
     // cda database
     @Bean
@@ -111,8 +106,4 @@ public class TestConfigThreeI implements ApplicationContextAware {
         return new NamedParameterJdbcTemplate(cdaDataSource());
     }
 
-    @Override
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        this.context = applicationContext;
-    }
 }

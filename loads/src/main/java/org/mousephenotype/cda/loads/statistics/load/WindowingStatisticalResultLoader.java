@@ -6,6 +6,7 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.mousephenotype.cda.db.pojo.OntologyTerm;
+import org.mousephenotype.cda.db.statistics.*;
 import org.mousephenotype.cda.enumerations.*;
 import org.mousephenotype.cda.loads.statistics.generate.StatisticalDatasetGenerator;
 import org.mousephenotype.cda.solr.service.BasicService;

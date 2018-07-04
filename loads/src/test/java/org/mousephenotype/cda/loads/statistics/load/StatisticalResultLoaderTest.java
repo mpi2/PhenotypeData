@@ -4,16 +4,12 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mousephenotype.cda.db.statistics.MpTermService;
 import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.loads.common.CdaSqlUtils;
-import org.mousephenotype.cda.loads.statistics.load.threei.TestConfigThreeI;
-import org.mousephenotype.cda.loads.statistics.load.threei.ThreeIStatisticalResultLoader;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.FilterType;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.jdbc.datasource.init.ScriptUtils;
@@ -23,14 +19,8 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import javax.sql.DataSource;
 import java.sql.*;
 
-import static org.junit.Assert.*;
-
 @RunWith(SpringJUnit4ClassRunner.class)
-@ComponentScan(basePackages = "org.mousephenotype.cda.loads.statistics.load",
-        excludeFilters = {
-                @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = {ThreeIStatisticalResultLoader.class})}
-)
-@ContextConfiguration(classes = TestConfigThreeI.class)
+@ContextConfiguration(classes = StatisticalResultLoaderTestConfig.class)
 public class StatisticalResultLoaderTest {
 
 
@@ -52,7 +42,7 @@ public class StatisticalResultLoaderTest {
     public void before() throws SQLException {
 
         // Reload databases.
-        String[] cdaSchemas = new String[] {
+        String[] cdaSchemas = new String[]{
                 "sql/h2/cda/schema.sql",
                 "sql/h2/impress/impressSchema.sql",
                 "sql/h2/statistical_results.sql"
@@ -67,7 +57,7 @@ public class StatisticalResultLoaderTest {
 
 
     @Test
-    public void testParseThreeIStatsResult() throws Exception {
+    public void testParseStatsResult() throws Exception {
 
         StatisticalResultLoader statisticalResultLoader = new StatisticalResultLoader(cdaDataSource, mpTermService);
 
@@ -79,6 +69,7 @@ public class StatisticalResultLoaderTest {
 
         statisticalResultLoader.parameterTypeMap.put("IMPC_HEM_001_001", ObservationType.unidimensional);
         statisticalResultLoader.parameterTypeMap.put("IMPC_HEM_002_001", ObservationType.unidimensional);
+        statisticalResultLoader.parameterTypeMap.put("IMPC_EYE_092_001", ObservationType.categorical);
 
         statisticalResultLoader.run(loadArgs);
 
@@ -104,9 +95,9 @@ public class StatisticalResultLoaderTest {
                 Assert.assertTrue(bioModelId > 0);
 
                 for (int i = 1; i <= rsmd.getColumnCount(); i++) {
-                    if (i > 1 && i<rsmd.getColumnCount()) System.out.print(",  ");
+                    if (i > 1 && i < rsmd.getColumnCount()) System.out.print(",  ");
                     String columnValue = resultSet.getString(i);
-                    System.out.print(rsmd.getColumnName(i) + ": " + columnValue );
+                    System.out.print(rsmd.getColumnName(i) + ": " + columnValue);
                 }
                 System.out.println("");
 
@@ -114,7 +105,42 @@ public class StatisticalResultLoaderTest {
 
         }
 
-        Assert.assertEquals(12, resultCount.intValue());
+        statsQuery = "SELECT * FROM stats_categorical_results ";
+        resultCount = 0;
+        try (Connection connection = cdaDataSource.getConnection(); PreparedStatement p = connection.prepareStatement(statsQuery)) {
+            ResultSet resultSet = p.executeQuery();
+            ResultSetMetaData rsmd = resultSet.getMetaData();
+
+            while (resultSet.next()) {
+
+                if (resultSet.getString("Status").equals("Success")) {
+                    Boolean hasMpTerm = resultSet.getString("mp_acc") != null ||
+                            resultSet.getString("male_mp_acc") != null ||
+                            resultSet.getString("female_mp_acc") != null;
+                    Assert.assertTrue(hasMpTerm);
+                }
+                resultCount++;
+                Integer bioModelId = resultSet.getInt("experimental_id");
+                Assert.assertNotNull(bioModelId);
+                Assert.assertTrue(bioModelId > 0);
+
+                for (int i = 1; i <= rsmd.getColumnCount(); i++) {
+                    if (i > 1 && i < rsmd.getColumnCount()) System.out.print(",  ");
+                    String columnValue = resultSet.getString(i);
+                    System.out.print(rsmd.getColumnName(i) + ": " + columnValue);
+                }
+                System.out.println("");
+
+                if (resultSet.getString("metadata_group").equals("TEST_EYE_MALE_ONLY_SIGNIFICANT_R")) {
+                    Assert.assertTrue(resultSet.getString("male_mp_acc") != null ||
+                            resultSet.getString("female_mp_acc") == null);
+                }
+
+            }
+
+        }
+
+        Assert.assertEquals(13, resultCount.intValue());
 
     }
 

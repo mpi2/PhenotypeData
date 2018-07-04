@@ -6,7 +6,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.loads.common.CdaSqlUtils;
-import org.mousephenotype.cda.loads.statistics.load.MpTermService;
+import org.mousephenotype.cda.db.statistics.MpTermService;
 import org.mousephenotype.cda.loads.statistics.load.StatisticalResultLoaderConfig;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

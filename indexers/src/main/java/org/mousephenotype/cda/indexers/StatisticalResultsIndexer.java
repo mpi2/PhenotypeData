@@ -18,8 +18,11 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.mousephenotype.cda.constants.ParameterConstants;
 import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
+import org.mousephenotype.cda.db.pojo.OntologyTerm;
 import org.mousephenotype.cda.db.pojo.Parameter;
 import org.mousephenotype.cda.db.pojo.PhenotypeAnnotationType;
+import org.mousephenotype.cda.db.statistics.MpTermService;
+import org.mousephenotype.cda.db.statistics.ResultDTO;
 import org.mousephenotype.cda.db.utilities.SqlUtils;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
@@ -84,6 +87,9 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 
     @Autowired
     private PhenotypePipelineDAO phenotypePipelineDAO;
+
+    @Autowired
+    private MpTermService mpTermService;
 
     private Map<Integer, ImpressBaseDTO> pipelineMap = new HashMap<>();
     private Map<Integer, ImpressBaseDTO> procedureMap = new HashMap<>();
@@ -650,6 +656,66 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 
     }
 
+
+    String getResult(StatisticalResultDTO doc, ResultSet resultSet) {
+
+        String mpTerm = null;
+
+        ResultDTO result = new ResultDTO();
+        try {
+            result.setPipelineId(resultSet.getInt("pipeline_id"));
+            result.setProcedureId(resultSet.getInt("procedure_id"));
+            result.setParameterId(resultSet.getInt("parameter_id"));
+            result.setParameterStableId(resultSet.getString("dependent_variable"));
+            result.setSex(SexType.valueOf(resultSet.getString("sex")));
+
+            result.setNullTestPvalue(resultSet.getDouble("categorical_p_value"));
+            result.setGenotypeEffectSize(resultSet.getDouble("categorical_effect_size"));
+
+
+            SqlUtils sqlUtils = new SqlUtils();
+            Boolean additionalColumns = false;
+            try (Connection conn = komp2DataSource.getConnection()) {
+                additionalColumns = sqlUtils.columnInSchemaMysql(conn, "stats_categorical_result", "male_p_value");
+            }
+
+            if (additionalColumns) {
+                result.setMalePvalue(resultSet.getDouble("male_p_value"));
+                result.setMaleEffectSize(resultSet.getDouble("male_effect_size"));
+
+                result.setFemalePvalue(resultSet.getDouble("female_p_value"));
+                result.setFemaleEffectSize(resultSet.getDouble("female_effect_size"));
+            }
+
+            result.setCategoryA(resultSet.getString("category_a"));
+            result.setCategoryB(resultSet.getString("category_b"));
+
+
+            if (result.getCategoryA() == null) {
+                result.setCategoryA("abnormal");
+                result.setCategoryB("normal");
+            }
+
+            OntologyTerm term = mpTermService.getMPTerm(
+                    doc.getParameterStableId(),
+                    result,
+                    doc.getSex() == null ? null : SexType.valueOf(doc.getSex()),
+                    komp2DataSource.getConnection(),
+                    0.0001f,
+                    Boolean.TRUE);
+
+            if (term != null) {
+                mpTerm = term.getId().getAccession();
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+
+        return mpTerm;
+    }
+
     /**
      * Add the appropriate MP term associations to the document
      *
@@ -702,8 +768,15 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
             }
         }
 
+        // If after all that the mp_term is still null, this is probably a poorly loaded statistical result
+        // Try to determine the correct MP term by parsing the result again
+        if (mpTerm == null) {
+            mpTerm = getResult(doc, r);
+        }
 
-        // Add the appropriate fields for the global MP term
+
+
+            // Add the appropriate fields for the global MP term
         if (mpTerm != null) {
 
             addMpTermData(mpTerm, doc);
@@ -1089,7 +1162,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
             List<StatisticalResultDTO> docs = new ArrayList<>();
 
             String additionalColumns = "male_p_value, male_effect_size, female_p_value, female_effect_size, classification_tag, ";
-            try (Connection connection = komp2DataSource.getConnection();) {
+            try (Connection connection = komp2DataSource.getConnection()) {
 
                 SqlUtils sqlUtils = new SqlUtils();
                 Boolean sexSpecificStats = sqlUtils.columnInSchemaMysql(connection, "stats_categorical_result", "male_p_value");
@@ -1131,7 +1204,6 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
             doc.setpValue(r.getDouble("categorical_p_value"));
 
             doc.setEffectSize(r.getDouble("categorical_effect_size"));
-
 
             if (additionalColumns) {
                 doc.setMaleKoEffectPValue(r.getDouble("male_p_value"));

@@ -3,7 +3,7 @@ package org.mousephenotype.cda.loads.annotations;
 import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.db.pojo.Parameter;
 import org.mousephenotype.cda.enumerations.ZygosityType;
-import org.mousephenotype.cda.loads.statistics.load.ResultDTO;
+import org.mousephenotype.cda.db.statistics.ResultDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;

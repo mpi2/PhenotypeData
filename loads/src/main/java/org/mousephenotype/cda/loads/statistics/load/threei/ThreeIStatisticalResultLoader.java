@@ -5,6 +5,7 @@ import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import org.apache.commons.lang.StringUtils;
 import org.mousephenotype.cda.db.pojo.PhenotypedColony;
+import org.mousephenotype.cda.db.statistics.*;
 import org.mousephenotype.cda.enumerations.*;
 import org.mousephenotype.cda.loads.common.CdaSqlUtils;
 import org.mousephenotype.cda.loads.common.config.DataSourceCdaConfig;

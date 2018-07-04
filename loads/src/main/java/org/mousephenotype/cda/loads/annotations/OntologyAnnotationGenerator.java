@@ -1,13 +1,15 @@
 package org.mousephenotype.cda.loads.annotations;
 
+import com.mchange.util.AssertException;
+import com.thoughtworks.xstream.InitializationException;
 import org.mousephenotype.cda.db.dao.OntologyTermDAO;
 import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.db.pojo.OntologyTerm;
 import org.mousephenotype.cda.db.pojo.Parameter;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
-import org.mousephenotype.cda.loads.statistics.load.MpTermService;
-import org.mousephenotype.cda.loads.statistics.load.ResultDTO;
+import org.mousephenotype.cda.db.statistics.MpTermService;
+import org.mousephenotype.cda.db.statistics.ResultDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
@@ -62,6 +64,18 @@ public class OntologyAnnotationGenerator implements CommandLineRunner {
         this.ontologyTermDAO = ontologyTermDAO;
         this.komp2DataSource = komp2DataSource;
         this.phenotypePipelineDAO = phenotypePipelineDAO;
+
+        try (Connection connection = komp2DataSource.getConnection()) {
+            insertPhenotypeCallSummaryStatement = connection.prepareStatement("INSERT INTO phenotype_call_summary(external_db_id, project_id, gf_acc, gf_db_id, strain_acc, strain_db_id, allele_acc, allele_db_id, sex, zygosity, parameter_id, procedure_id, pipeline_id, mp_acc, mp_db_id, p_value, effect_size, organisation_id, colony_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
+            insertCategoricalStatResultPhenotypeCallSummaryStatement = connection.prepareStatement("INSERT INTO stat_result_phenotype_call_summary(categorical_result_id, phenotype_call_summary_id) VALUES (?, ?)", Statement.RETURN_GENERATED_KEYS);
+            insertUnidimensionalStatResultPhenotypeCallSummaryStatement = connection.prepareStatement("INSERT INTO stat_result_phenotype_call_summary(unidimensional_result_id, phenotype_call_summary_id) VALUES (?, ?)", Statement.RETURN_GENERATED_KEYS);
+            insertRRPlusStatResultPhenotypeCallSummaryStatement = connection.prepareStatement("INSERT INTO stat_result_phenotype_call_summary(rrplus_result_id, phenotype_call_summary_id) VALUES (?, ?)", Statement.RETURN_GENERATED_KEYS);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new InitializationException("Cannot initialize prepared statements -- SQL Exception occured", e);
+        }
+
+
     }
 
     /**

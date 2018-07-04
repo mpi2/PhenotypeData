@@ -6,19 +6,16 @@ import org.mousephenotype.cda.db.dao.GwasDAO;
 import org.mousephenotype.cda.db.dao.OntologyTermDAO;
 import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.db.dao.ReferenceDAO;
+import org.mousephenotype.cda.db.statistics.MpTermService;
 import org.mousephenotype.cda.loads.common.CdaSqlUtils;
-import org.springframework.beans.BeansException;
+import org.mousephenotype.cda.loads.statistics.load.threei.TestConfigThreeI;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.FilterType;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
@@ -32,18 +29,17 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceContext;
 import javax.sql.DataSource;
 
-/**
- * Created by mrelac on 02/05/2017.
- */
 @Configuration
 @EnableTransactionManagement
 @EnableAutoConfiguration
 @ComponentScan(basePackages = "org.mousephenotype.cda.db.dao", excludeFilters = {
-        @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = {GwasDAO.class, ReferenceDAO.class})}
+        @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = {
+                StatisticalResultLoaderConfig.class,
+                TestConfigThreeI.class,
+                GwasDAO.class,
+                ReferenceDAO.class})}
 )
-public class StatisticalResultLoaderTestConfig implements ApplicationContextAware {
-
-    private ApplicationContext context;
+public class StatisticalResultLoaderTestConfig {
 
     // cda database
     @Bean
@@ -108,8 +104,4 @@ public class StatisticalResultLoaderTestConfig implements ApplicationContextAwar
         return new NamedParameterJdbcTemplate(cdaDataSource());
     }
 
-    @Override
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        this.context = applicationContext;
-    }
 }
