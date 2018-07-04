@@ -775,7 +775,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 
         // If after all that the mp_term is still null, this is probably a poorly loaded statistical result
         // Try to determine the correct MP term by parsing the result again
-        if (mpTerm == null) {
+        if (mpTerm == null && doc.getDataType().contains("categorical")) {
             mpTerm = getResult(doc, r);
         }
 
