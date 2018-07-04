@@ -701,16 +701,18 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
                 result.setCategoryB("normal");
             }
 
-            OntologyTerm term = mpTermService.getMPTerm(
-                    doc.getParameterStableId(),
-                    result,
-                    doc.getSex() == null ? null : SexType.valueOf(doc.getSex()),
-                    komp2DataSource.getConnection(),
-                    0.0001f,
-                    Boolean.TRUE);
+            try (Connection connection = komp2DataSource.getConnection()) {
+                OntologyTerm term = mpTermService.getMPTerm(
+                        doc.getParameterStableId(),
+                        result,
+                        doc.getSex() == null ? null : SexType.valueOf(doc.getSex()),
+                        connection,
+                        0.0001f,
+                        Boolean.TRUE);
 
-            if (term != null) {
-                mpTerm = term.getId().getAccession();
+                if (term != null) {
+                    mpTerm = term.getId().getAccession();
+                }
             }
 
         } catch (SQLException e) {
