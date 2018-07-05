@@ -2,7 +2,10 @@ package org.mousephenotype.cda.loads.statistics.load;
 
 import org.hibernate.SessionFactory;
 import org.mousephenotype.cda.db.dao.GwasDAO;
+import org.mousephenotype.cda.db.dao.OntologyTermDAO;
+import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.db.dao.ReferenceDAO;
+import org.mousephenotype.cda.db.statistics.MpTermService;
 import org.mousephenotype.cda.loads.common.CdaSqlUtils;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
@@ -17,7 +20,9 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
 import org.springframework.orm.hibernate5.LocalSessionFactoryBuilder;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
+import org.springframework.util.Assert;
 
+import javax.inject.Inject;
 import javax.persistence.PersistenceContext;
 import javax.sql.DataSource;
 
@@ -90,6 +95,13 @@ public class StatisticalResultLoaderConfig implements ApplicationContextAware {
         this.context = applicationContext;
     }
 
+    @Bean
+    @Inject
+    public MpTermService mpTermService(OntologyTermDAO ontologyTermDAO, PhenotypePipelineDAO phenotypePipelineDAO) {
+        Assert.notNull(ontologyTermDAO, "ontologyTermDAO cannot be null");
+        Assert.notNull(phenotypePipelineDAO, "phenotypePipelineDAO cannot be null");
+        return new MpTermService(ontologyTermDAO, phenotypePipelineDAO);
+    }
     @Bean
     public NamedParameterJdbcTemplate jdbcKomp2() {
         return new NamedParameterJdbcTemplate(komp2DataSource());

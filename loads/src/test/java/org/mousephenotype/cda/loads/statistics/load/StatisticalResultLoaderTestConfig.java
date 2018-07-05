@@ -2,6 +2,7 @@ package org.mousephenotype.cda.loads.statistics.load;
 
 
 import org.hibernate.SessionFactory;
+import org.springframework.util.Assert;
 import org.mousephenotype.cda.db.dao.GwasDAO;
 import org.mousephenotype.cda.db.dao.OntologyTermDAO;
 import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
@@ -25,6 +26,7 @@ import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
+import javax.inject.Inject;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceContext;
 import javax.sql.DataSource;
@@ -81,17 +83,13 @@ public class StatisticalResultLoaderTestConfig {
         return sessionBuilder.buildSessionFactory();
     }
 
-    @Autowired
-    OntologyTermDAO ontologyTermDAO;
-
-    @Autowired
-    PhenotypePipelineDAO ppDAO;
-
     @Bean
-    public MpTermService mpTermService() {
-        return new MpTermService(ontologyTermDAO, ppDAO);
+    @Inject
+    public MpTermService mpTermService(OntologyTermDAO ontologyTermDAO, PhenotypePipelineDAO phenotypePipelineDAO) {
+        Assert.notNull(ontologyTermDAO, "ontologyTermDAO cannot be null");
+        Assert.notNull(phenotypePipelineDAO, "phenotypePipelineDAO cannot be null");
+        return new MpTermService(ontologyTermDAO, phenotypePipelineDAO);
     }
-
 
     @Bean
     public CdaSqlUtils cdaSqlUtils() {
