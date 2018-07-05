@@ -5,6 +5,7 @@ INSERT INTO `phenotype_procedure` VALUES (116,217,'MGP_ANA_001',6,'Anti-nuclear 
 INSERT INTO `phenotype_procedure` VALUES (121,229,'MGP_IMM_001',6,'Spleen Immunophenotyping','3i Spleen Immunophenotyping',1,0,0,'experiment','Terminal','Week 16');
 INSERT INTO `phenotype_procedure` VALUES (120,223,'MGP_MLN_001',6,'Mesenteric Lymph Node Immunophenotyping','3i Mesenteric Lymph Node Immunophenotyping',1,0,0,'experiment','Terminal','Week 16');
 INSERT INTO `phenotype_procedure` VALUES (115,216,'MGP_PBI_001',6,'Whole blood peripheral blood leukocyte immunophenotyping','',1,0,0,'experiment','Terminal','Week 16');
+INSERT INTO `phenotype_procedure` VALUES (113,219,'MGP_EEI_001',6,'Ear epidermis immunophenotyping','',1,0,0,'experiment','Terminal','Week 16');
 
 INSERT INTO `phenotype_parameter` VALUES (3580,'MGP_PBI_009_001',6,'CD4+ CD44+ CD62L- alpha beta effector T cell percentage','cd4_cd44_cd62l_alpha_beta_effector_t_cell_percentage',1,0,'%','FLOAT','simpleParameter',NULL,1,0,0,0,1,0,0,0,0,0,'',5577);
 INSERT INTO `phenotype_parameter` VALUES (3586,'MGP_PBI_015_001',6,'IgD+ mature B cell percentage','igd_mature_b_cell_percentage',1,0,'%','FLOAT','simpleParameter',NULL,1,0,0,0,1,0,0,0,0,0,'',5583);
@@ -19,6 +20,8 @@ INSERT INTO `phenotype_parameter` VALUES (4045,'MGP_IMM_047_001',6,'Transitional
 INSERT INTO `phenotype_parameter` VALUES (4115,'MGP_IMM_117_001',6,'Memory B cells - % of CD45+','memory_b_cells_of_cd45',1,0,'%','FLOAT','simpleParameter',NULL,1,0,0,0,0,0,0,0,0,0,'',6396);
 INSERT INTO `phenotype_parameter` VALUES (3616,'MGP_ANA_001_001',6,'ANA score','ana_score',1,0,'','FLOAT','simpleParameter',NULL,1,0,0,0,0,0,0,0,0,0,'This is the raw score data that is then classified into positive or negative',5613);
 INSERT INTO `phenotype_parameter` VALUES (3617,'MGP_ANA_002_001',6,'ANA classification','ana_classification',1,1,'','TEXT','simpleParameter','ANA score >= 2 -> Positive; Negative',1,0,0,1,1,0,1,0,0,0,'This is the parameter we would like analysing like any other categorical data',5614);
+INSERT INTO `phenotype_parameter` VALUES (4140,'MGP_IMM_007_001',6,'Resting CD4+ T helper cells - % of CD4+ T helper cells','resting_cd4_t_helper_cells_of_cd4_t_helper_cells',1,1,'%','FLOAT','simpleParameter',NULL,1,0,0,0,1,0,0,0,0,0,'',6286);
+INSERT INTO `phenotype_parameter` VALUES (3772,'MGP_EEI_002_001',6,'DETC coverage','detc_coverage',1,0,'%','FLOAT','simpleParameter',NULL,1,0,0,0,0,0,0,0,0,0,'',5633);
 
 INSERT INTO `genomic_feature` VALUES
 	('MGI:99495',3,'Brd2','bromodomain containing 2','1',2,'2',2,17,34112023,34122634,-1,'17.98','active');
@@ -44,6 +47,8 @@ INSERT INTO `genomic_feature` VALUES
 INSERT INTO `genomic_feature` VALUES
 	('MGI:105303',3,'Cxcr2','chemokine (C-X-C motif) receptor 2','1',2,'2',2,1,74153991,74161246,1,'38.41','active');
 
+INSERT INTO `genomic_feature` VALUES ('MGI:894679',3,'Bach2','BTB and CNC homology, basic leucine zipper transcription factor 2','1',2,'2',2,4,32238804,32586104,1,'14.02','active');
+
 
 INSERT INTO `allele` VALUES ('MGI:5637047',3,'MGI:1917747',3,'CV:000000101',3,'Arhgap17<tm1b(EUCOMM)Wtsi>','targeted mutation 1b, Wellcome Trust Sanger Institute');
 INSERT INTO `allele` VALUES ('MGI:4842593',3,'MGI:105303',3,'CV:000000101',3,'Cxcr2<tm1a(EUCOMM)Wtsi>','targeted mutation 1a, Wellcome Trust Sanger Institute');
@@ -53,6 +58,7 @@ INSERT INTO `allele` VALUES ('MGI:5692712',3,'MGI:1919247',3,'CV:000000101',3,'S
 INSERT INTO `allele` VALUES ('MGI:5548883',3,'MGI:3036236',3,'CV:000000101',3,'Tceal5<tm1b(KOMP)Wtsi>','targeted mutation 1b, Wellcome Trust Sanger Institute');
 INSERT INTO `allele` VALUES ('MGI:5636887',3,'MGI:102784',3,'CV:000000101',3,'Tgfb1i1<tm1b(KOMP)Wtsi>','targeted mutation 1b, Wellcome Trust Sanger Institute');
 INSERT INTO `allele` VALUES ('NULL-B4B97ABCD',22,'MGI:99495',3,'CV:000000101',3,'Brd2<em1(IMPC)Wtsi>','Brd2<em1(IMPC)Wtsi>');
+INSERT INTO `allele` VALUES ('MGI:4882014',3,'MGI:894679',3,'CV:000000101',3,'Bach2<tm1a(EUCOMM)Wtsi>','targeted mutation 1a, Wellcome Trust Sanger Institute');
 
 INSERT INTO `strain` VALUES ('MGI:2159965',3,'CV:00000025',3,'C57BL/6N');
 
@@ -81,6 +87,9 @@ VALUES
 	 (SELECT @PROJECT_ID_THREEI), (SELECT @ORG_ID_WTSI), (SELECT @PROJECT_ID_THREEI))
 ;
 
+INSERT INTO `phenotyped_colony` VALUES (6049,'MFZQ','EPD0689_1_H02','MGI:894679',3,'Bach2<tm1a(EUCOMM)Wtsi>','C57BL/6N',3,8,3,8);
+
+
 
 INSERT INTO `biological_model` VALUES (21960,3,'Arhgap17<tm1b(EUCOMM)Wtsi>/Arhgap17<tm1b(EUCOMM)Wtsi>','C57BL/6N-Arhgap17<tm1b(EUCOMM)Wtsi>/Wtsi',NULL);
 INSERT INTO `biological_model` VALUES (24855,3,'Cxcr2<tm1a(EUCOMM)Wtsi>/Cxcr2<tm1a(EUCOMM)Wtsi>','C57BL/6N-Cxcr2<tm1a(EUCOMM)Wtsi>/Wtsi',NULL);
@@ -107,6 +116,7 @@ INSERT INTO `biological_model` VALUES (44476,23,'Tceal5<tm1b(KOMP)Wtsi>/Tceal5<t
 INSERT INTO `biological_model` VALUES (44483,23,'Pclaf<tm1a(EUCOMM)Wtsi>/Pclaf<tm1a(EUCOMM)Wtsi>','involves: C57BL/6N','homozygote');
 INSERT INTO `biological_model` VALUES (44617,23,'Cxcr2<tm1a(EUCOMM)Wtsi>/Cxcr2<tm1a(EUCOMM)Wtsi>','involves: C57BL/6N','homozygote');
 INSERT INTO `biological_model` VALUES (45706,22,'Brd2<em1(IMPC)Wtsi>/Brd2<em1(IMPC)Wtsi>','involves: C57BL/6N','homozygote');
+INSERT INTO `biological_model` VALUES (45007,23,'Bach2<tm1a(EUCOMM)Wtsi>/Bach2<tm1a(EUCOMM)Wtsi>','involves: C57BL/6N','homozygote');
 
 INSERT INTO `biological_model_strain` VALUES (39064,'MGI:2159965',3);
 INSERT INTO `biological_model_strain` VALUES (39160,'MGI:2159965',3);
@@ -128,6 +138,7 @@ INSERT INTO `biological_model_strain` VALUES (44476,'MGI:2159965',3);
 INSERT INTO `biological_model_strain` VALUES (44483,'MGI:2159965',3);
 INSERT INTO `biological_model_strain` VALUES (44617,'MGI:2159965',3);
 INSERT INTO `biological_model_strain` VALUES (45706,'MGI:2159965',3);
+INSERT INTO `biological_model_strain` VALUES (45007,'MGI:2159965',3);
 
 INSERT INTO `biological_model_allele` VALUES (1088,'MGI:4436065',3);
 INSERT INTO `biological_model_allele` VALUES (1116,'MGI:4461798',3);
@@ -192,6 +203,7 @@ INSERT INTO `biological_model_allele` VALUES (44632,'MGI:4461713',3);
 INSERT INTO `biological_model_allele` VALUES (45230,'MGI:5446173',3);
 INSERT INTO `biological_model_allele` VALUES (45427,'MGI:4461745',3);
 INSERT INTO `biological_model_allele` VALUES (45706,'NULL-B4B97ABCD',22);
+INSERT INTO `biological_model_allele` VALUES (45007,'MGI:4882014',3);
 
 INSERT INTO `biological_model_genomic_feature` VALUES (950,'MGI:3833387',3);
 INSERT INTO `biological_model_genomic_feature` VALUES (1093,'MGI:1333874',3);
@@ -280,4 +292,5 @@ INSERT INTO `biological_model_genomic_feature` VALUES (44476,'MGI:3036236',3);
 INSERT INTO `biological_model_genomic_feature` VALUES (44483,'MGI:1915276',3);
 INSERT INTO `biological_model_genomic_feature` VALUES (44617,'MGI:105303',3);
 INSERT INTO `biological_model_genomic_feature` VALUES (45706,'MGI:99495',3);
+INSERT INTO `biological_model_genomic_feature` VALUES (45007,'MGI:894679',3);
 
