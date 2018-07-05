@@ -96,8 +96,8 @@ public class ThreeIStatisticalResultLoader extends StatisticalResultLoader imple
             return null;
         }
 
-        String dataSource = "3I";
-        String project = "3I";
+        String dataSource = "3i";
+        String project = "3i";
         String center = "WTSI";
         String pipeline = "MGP_001";
         String procedure = data.getProcedure_Id();
