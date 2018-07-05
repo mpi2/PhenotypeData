@@ -59,7 +59,7 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
     protected void populateParameterTypeMap() throws SQLException {
         Map<String, ObservationType> map = parameterTypeMap;
 
-        String query= "SELECT DISTINCT parameter_stable_id, observation_type FROM observation WHERE missing != 1 AND observation_type IN ('categorical', 'unidimensional')";
+        String query= "SELECT DISTINCT * FROM phenotype_parameter_type";
 
         try (Connection connection = komp2DataSource.getConnection(); PreparedStatement p = connection.prepareStatement(query)) {
             ResultSet r = p.executeQuery();
