@@ -79,6 +79,7 @@ public class ThreeILoadTest {
 
         threeIStatisticalResultLoader.parameterTypeMap.put("MGP_IMM_047_001", ObservationType.unidimensional);
         threeIStatisticalResultLoader.parameterTypeMap.put("MGP_IMM_117_001", ObservationType.unidimensional);
+        threeIStatisticalResultLoader.parameterTypeMap.put("MGP_IMM_007_001", ObservationType.unidimensional);
 
         threeIStatisticalResultLoader.parameterTypeMap.put("MGP_MLN_010_001", ObservationType.unidimensional);
         threeIStatisticalResultLoader.parameterTypeMap.put("MGP_MLN_026_001", ObservationType.unidimensional);
@@ -124,7 +125,7 @@ public class ThreeILoadTest {
         //
         // PBI data is not loaded by the 3I loader
         //
-        Assert.assertEquals(13, resultCount.intValue());
+        Assert.assertEquals(14, resultCount.intValue());
 
     }
 }
