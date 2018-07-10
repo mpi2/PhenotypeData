@@ -311,6 +311,7 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 			impcImagesCore.commit();
 
 		} catch (SolrServerException | IOException e) {
+			e.printStackTrace();
 			throw new IndexerException(e);
 		}
 
