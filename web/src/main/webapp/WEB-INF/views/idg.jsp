@@ -59,7 +59,7 @@
 						</p>
                     </div>
                 </div>	<!-- section -->
-
+<%-- 
 
 						<div class="section" >
 								<h1 id="section-associations">IMPC data representation for IDG genes</h1>
@@ -138,7 +138,7 @@
             </div>
         </div>
         <!-- section -->
-
+ --%>
         <script>
             $(document).ready(function () {
                 $.fn.qTip({
