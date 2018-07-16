@@ -17,6 +17,12 @@
 
 	<jsp:body>
 
+		<div id="myGenes">
+			<a href="${riBaseUrl}/summary">My Genes</a>
+		</div>
+
+		<br />
+
 		<div id='datasets'></div>
 
 		<div id="tabs">
@@ -566,7 +572,7 @@
 							highlighSynonym();
 
 							// register interest js
-							addRegisterInterestJs();
+							// addRegisterInterestJs();
 
 							if (coreName == 'allele2'){
 								decodeAlleleName();

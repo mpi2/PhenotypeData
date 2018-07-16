@@ -491,7 +491,7 @@
 							highlighSynonym();
 
 							// register interest js
-							addRegisterInterestJs();
+							// addRegisterInterestJs();
 						}
 					}
 				});
