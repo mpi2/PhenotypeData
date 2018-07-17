@@ -54,8 +54,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import uk.ac.ebi.phenodigm2.Disease;
+import uk.ac.ebi.phenodigm2.DiseaseModelAssociation;
+import uk.ac.ebi.phenodigm2.GeneDiseaseAssociation;
+import uk.ac.ebi.phenodigm2.WebDao;
 import uk.ac.ebi.phenotype.error.GenomicFeatureNotFoundException;
-import uk.ac.ebi.phenotype.generic.util.RegisterInterestDrupalSolr;
+import uk.ac.ebi.phenotype.generic.util.RegisterInterestUtils;
 import uk.ac.ebi.phenotype.generic.util.SolrIndex2;
 import uk.ac.ebi.phenotype.ontology.PhenotypeSummaryBySex;
 import uk.ac.ebi.phenotype.ontology.PhenotypeSummaryDAO;
@@ -78,10 +82,6 @@ import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
 import java.util.*;
-import uk.ac.ebi.phenodigm2.Disease;
-import uk.ac.ebi.phenodigm2.GeneDiseaseAssociation;
-import uk.ac.ebi.phenodigm2.DiseaseModelAssociation;
-import uk.ac.ebi.phenodigm2.WebDao;
 
 @Controller
 public class GenesController {
@@ -321,14 +321,43 @@ public class GenesController {
 //		if ( gwasMappings.size() > 0 ){
 //			model.addAttribute("gwasPhenoMapping", gwasMappings.get(0).getPhenoMappingCategory());
 //		}
-        // code for assessing if the person is logged in and if so have they
-        // registered interest in this gene or not?
-        RegisterInterestDrupalSolr registerInterest = new RegisterInterestDrupalSolr(drupalBaseUrl, request);
-        Map<String, String> regInt = registerInterest.registerInterestState(acc, request, registerInterest);
 
-        model.addAttribute("registerInterestButtonString", regInt.get("registerInterestButtonString"));
-        model.addAttribute("registerButtonAnchor", regInt.get("registerButtonAnchor"));
-        model.addAttribute("registerButtonId", regInt.get("registerButtonId"));
+
+        RegisterInterestUtils riUtils = new RegisterInterestUtils(config.get("riBaseUrl"));
+        boolean loggedIn = false;
+        try {
+
+            loggedIn = riUtils.loggedIn(request);
+
+        } catch (Exception e) {
+            // Nothing to do. If register interest service isn't working, a 500 is thrown. Handle as unauthenticated.
+        }
+
+        String riBaseUrl = config.get("riBaseUrl");
+        String paBaseUrl = config.get("paBaseUrl");
+        String registerButtonString = "Login to register interest";
+        String registerButtonAnchor = riBaseUrl + "/login?target=genes&acc=" + acc;
+        String registerButtonId = acc;
+
+        if (loggedIn) {
+
+            List<String> geneAccessionIds = riUtils.getGeneAccessionIds();
+
+            if (geneAccessionIds.contains(acc)) {
+
+                registerButtonString = "Unregister interest";
+                registerButtonAnchor = paBaseUrl + "/unregistration/gene?geneAccessionId=" + acc + "&target=genes/" + acc;
+
+            } else {
+
+                registerButtonString = "Register interest";
+                registerButtonAnchor = paBaseUrl + "/registration/gene?geneAccessionId=" + acc + "&target=genes/" + acc;
+            }
+        }
+
+        model.addAttribute("registerInterestButtonString", registerButtonString);
+        model.addAttribute("registerButtonAnchor", registerButtonAnchor);
+        model.addAttribute("registerButtonId", registerButtonId);
 
         try {
             getExperimentalImages(acc, model);

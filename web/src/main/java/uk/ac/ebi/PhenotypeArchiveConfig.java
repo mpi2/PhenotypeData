@@ -70,6 +70,10 @@ public class PhenotypeArchiveConfig {
     @Value("${riBaseUrl}")
     private String riBaseUrl;
 
+    @NotNull
+    @Value("${paBaseUrl}")
+    private String paBaseUrl;
+
 
     @Bean
     public ErrorPageFilter errorPageFilter() {
@@ -98,6 +102,7 @@ public class PhenotypeArchiveConfig {
         map.put("googleAnalytics", googleAnalytics);
         map.put("liveSite", liveSite);
         map.put("riBaseUrl", riBaseUrl);
+        map.put("paBaseUrl", paBaseUrl);
         return map;
     }
 

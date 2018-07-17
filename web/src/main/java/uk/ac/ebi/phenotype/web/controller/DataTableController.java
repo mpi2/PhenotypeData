@@ -623,7 +623,11 @@ public class DataTableController {
 
                     String unregister = "<div class='registerforinterest' oldtitle='Unregister interest' title=''>"
                             + "<i class='fa fa-sign-out'></i>"
-                            + "<a id='" + doc.getString("mgi_accession_id") + "' class='regInterest primary interest' href='" + paBaseUrl + "/unregistration/gene?geneAccessionId=" + doc.getString("mgi_accession_id") + "'>&nbsp;Unregister Interest</a>"
+                            + "<a id='" + doc.getString("mgi_accession_id")
+								+ "' class='regInterest primary interest' href='"
+								+ paBaseUrl + "/unregistration/gene?geneAccessionId=" + doc.getString("mgi_accession_id")
+								+ "&target=search&quest;kw=*"
+								+ "'>&nbsp;Unregister Interest</a>"
                             + "</div>";
                     rowData.add(unregister);
 
@@ -631,7 +635,11 @@ public class DataTableController {
 
                     String unregister = "<div class='registerforinterest' oldtitle='Register interest' title=''>"
                             + "<i class='fa fa-sign-in'></i>"
-                            + "<a id='" + doc.getString("mgi_accession_id") + "' class='regInterest primary interest' href='" + paBaseUrl + "/registration/gene?geneAccessionId=" + doc.getString("mgi_accession_id") + "'>&nbsp;Register Interest</a>"
+                            + "<a id='" + doc.getString("mgi_accession_id")
+								+ "' class='regInterest primary interest' href='"
+								+ paBaseUrl + "/registration/gene?geneAccessionId=" + doc.getString("mgi_accession_id")
+								+ "&target=search&quest;kw=*"
+								+ "'>&nbsp;Register Interest</a>"
                             + "</div>";
                     rowData.add(unregister);
                 }
@@ -641,7 +649,7 @@ public class DataTableController {
 				// Use Register Interest login link
 				String interest = "<div class='registerforinterest' oldtitle='Login to register interest' title=''>"
 						+ "<i class='fa fa-sign-in'></i>"
-						+ "<a class='regInterest' href='" + riBaseUrl + "/login?returnTo=pasearch'>&nbsp;Interest</a>"
+						+ "<a class='regInterest' href='" + riBaseUrl + "/login?target=search&quest;kw=*'>&nbsp;Interest</a>"
 						+ "</div>";
 
 				rowData.add(interest);
@@ -660,44 +668,47 @@ public class DataTableController {
 
 
 	@RequestMapping(value = "/riSuccessHandler", method = RequestMethod.GET)
-	public String successHandlerUrl(
+	public String riSuccessHandlerUrl(
 			ModelMap model,
 			HttpServletRequest request,
 			HttpServletResponse response,
 			HttpSession session,
-			@RequestParam("token") String token
+			@RequestParam("token") String token,
+			@RequestParam("target") String target
 	) {
 
 		// Set the token.
         Cookie cookie = new Cookie("RISESSIONID", token);
-        log.debug("/successHandlerUrl(): Session cookie: " + cookie.getValue());
+        log.debug("/riSuccessHandlerUrl(): Session cookie: " + cookie.getValue());
         response.addCookie(cookie);
 
-        return "redirect:/search?kw=*";
+        return "redirect:" + paBaseUrl + "/" + target;
 	}
 
 
 	@RequestMapping(value = "/registration/gene", method = RequestMethod.GET)
 	public String registrationGene(
 			@RequestParam("geneAccessionId") String geneAccessionId,
+			@RequestParam("target") String target,
 			HttpServletRequest request,
 			ModelMap model) {
 
 	    RegisterInterestUtils riUtils = new RegisterInterestUtils(riBaseUrl);
 	    riUtils.registerGene(request, geneAccessionId);
-		return "redirect:" + paBaseUrl + "/search?kw=*";
+		return "redirect:" + paBaseUrl + "/" + target;
 	}
 
 
     @RequestMapping(value = "/unregistration/gene", method = RequestMethod.GET)
     public String unregistrationGene(
             @RequestParam("geneAccessionId") String geneAccessionId,
+			@RequestParam("target") String target,
             HttpServletRequest request,
             ModelMap model) {
 
         RegisterInterestUtils riUtils = new RegisterInterestUtils(riBaseUrl);
         riUtils.unregisterGene(request, geneAccessionId);
-        return "redirect:" + paBaseUrl + "/search?kw=*";
+		return "redirect:" + paBaseUrl + "/" + target;
     }
 
 
