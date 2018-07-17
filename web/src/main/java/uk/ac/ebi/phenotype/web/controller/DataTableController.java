@@ -641,7 +641,7 @@ public class DataTableController {
 				// Use Register Interest login link
 				String interest = "<div class='registerforinterest' oldtitle='Login to register interest' title=''>"
 						+ "<i class='fa fa-sign-in'></i>"
-						+ "<a class='regInterest' href='" + riBaseUrl + "/login?returnTo=riSuccessHandler'>&nbsp;Interest</a>"
+						+ "<a class='regInterest' href='" + riBaseUrl + "/login?returnTo=pasearch'>&nbsp;Interest</a>"
 						+ "</div>";
 
 				rowData.add(interest);
@@ -672,10 +672,6 @@ public class DataTableController {
         Cookie cookie = new Cookie("RISESSIONID", token);
         log.debug("/successHandlerUrl(): Session cookie: " + cookie.getValue());
         response.addCookie(cookie);
-
-        RegisterInterestUtils riUtils = new RegisterInterestUtils(riBaseUrl);
-
-        Cookie c = riUtils.getCookie(request, "RISESSIONID");
 
         return "redirect:/search?kw=*";
 	}
