@@ -15,8 +15,6 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.generic.util;
 
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
 
 import java.net.URLDecoder;

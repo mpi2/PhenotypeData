@@ -289,31 +289,6 @@
 			      <p>More charts and status information are available from <a href="https://www.mousephenotype.org/imits/v2/reports/mi_production/komp2_graph_report_display">iMits</a>. </p>
 		      </div>
 		    </div> <!-- section -->
-	<!--
-				<div class="section">
-						<h2 class="title" id="section-associations"> Sexual Dimorphism </h2>
-		            <div class="inner">
-										<div id="sexualDimorphismChart">
-			            		<script type="text/javascript">${sexualDimorphismChart}</script>
-										</div>
-
-										<table>
-										<thead>
-											<tr>
-											<th class="headerSort">Status</th>
-											<th class="headerSort">Number of Calls</th>
-											</tr>
-										</thead>
-										<tbody>
-											<c:forEach var="status" items="${sexualDimorphismSummary.entrySet()}">
-												<tr><td>${status.getKey().getText()}</td><td>${status.getValue()}</td></tr>
-											</c:forEach>
-										</tbody>
-
-										</table>
-		         </div>
-		    </div> <!-- section -->
-
 
 		    <!-- div class="section">
 						<h2 class="title" id="section-associations"> Fertility and Viability </h2>

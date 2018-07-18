@@ -19,17 +19,12 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.json.JSONObject;
 import org.mousephenotype.cda.db.beans.AggregateCountXYBean;
 import org.mousephenotype.cda.db.dao.AnalyticsDAO;
-import org.mousephenotype.cda.db.dao.StatisticalResultDAO;
-import org.mousephenotype.cda.enumerations.SignificantType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.service.Allele2Service;
-import org.mousephenotype.cda.solr.service.AlleleService;
 import org.mousephenotype.cda.solr.service.ObservationService;
 import org.mousephenotype.cda.solr.service.PhenodigmService;
-import org.mousephenotype.cda.solr.service.PostQcService;
 import org.mousephenotype.cda.solr.service.StatisticalResultService;
 import org.mousephenotype.cda.solr.service.dto.Allele2DTO;
-import org.mousephenotype.cda.solr.service.dto.AlleleDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +32,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -57,11 +53,6 @@ public class ReleaseController {
 	@Autowired
 	private AnalyticsDAO analyticsDAO;
 
-	@Autowired
-	private StatisticalResultDAO statisticalResultDAO;
-
-	@Autowired
-	private PostQcService gpService;
 
 	@Autowired
 	private StatisticalResultService srService;
@@ -90,6 +81,16 @@ public class ReleaseController {
 				"MMgls");
 		statisticalMethodsShortName.put("Mixed Model framework, linear mixed-effects model, equation withoutWeight",
 				"MMlme");
+	}
+
+	/**
+	 * Force update meta info cache every fifteen minutes
+	 * @throws SQLException when the database is not available
+	 */
+	@Scheduled(cron = "0 */15 * * * *")
+	private void updateCacheTimer() throws SQLException {
+		cachedMetaInfo = null;
+		getMetaInfo();
 	}
 
 	/**
@@ -336,10 +337,6 @@ public class ReleaseController {
 				"Number of Genes", " genes", "genotypeStatusByCenterChart", "checkAllGenByCenter",
 				"uncheckAllGenByCenter");
 
-		HashMap<SignificantType, Integer> sexualDimorphismSummary = statisticalResultDAO.getSexualDimorphismSummary();
-		// String sexualDimorphismChart = chartsProvider.generateSexualDimorphismChart(sexualDimorphismSummary,
-		//		"Distribution of Phenotype Calls", "sexualDimorphismChart");
-
 		HashMap<String, Integer> fertilityDistrib = getFertilityMap();
 
 		/**
@@ -379,7 +376,6 @@ public class ReleaseController {
 		model.addAttribute("phenotypingDistributionChart", phenotypingDistributionChart);
 		model.addAttribute("genotypingDistributionChart", genotypingDistributionChart);
 		// model.addAttribute("sexualDimorphismChart", sexualDimorphismChart);
-		model.addAttribute("sexualDimorphismSummary", sexualDimorphismSummary);
 		model.addAttribute("fertilityMap", fertilityDistrib);
 
 		return null;
