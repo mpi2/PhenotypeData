@@ -16,6 +16,14 @@
 
 package uk.ac.ebi.phenotype.generic.util;
 
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+import net.sf.json.JSONSerializer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import uk.ac.ebi.phenotype.web.util.DrupalHttpProxy;
+
+import javax.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -23,16 +31,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
-import net.sf.json.JSONSerializer;
-import uk.ac.ebi.phenotype.web.util.DrupalHttpProxy;
 
 public class RegisterInterestDrupalSolr {
 
@@ -140,7 +138,7 @@ public class RegisterInterestDrupalSolr {
 	public Map<String, String> registerInterestState(String acc, HttpServletRequest request, RegisterInterestDrupalSolr registerInterest)
 			throws UnsupportedEncodingException {
 
-			String registerInterestButtonString = "";
+			String registerButtonText = "";
 			String registerButtonAnchor = "";
 			String id = acc;
 
@@ -148,14 +146,14 @@ public class RegisterInterestDrupalSolr {
 
 			if (registerInterest.loggedIn()) {
 				if (registerInterest.alreadyInterested(acc)) {
-					registerInterestButtonString = "Unregister interest";
+					registerButtonText = "Unregister interest";
 					id = acc;
 				} else {
-					registerInterestButtonString = "Register interest";
+					registerButtonText = "Register interest";
 					id = acc;
 				}
 			} else {
-				registerInterestButtonString = "Login to register interest";
+				registerButtonText = "Login to register interest";
 				// Use the drupal destination parameter to redirect back to this
 				// page
 				// after logging in
@@ -173,7 +171,7 @@ public class RegisterInterestDrupalSolr {
 			}
 
 			Map<String, String> retVal = new HashMap<>();
-			retVal.put("registerInterestButtonString", registerInterestButtonString);
+			retVal.put("registerButtonText", registerButtonText);
 			retVal.put("registerButtonAnchor", registerButtonAnchor);
 			retVal.put("registerButtonId", id);
 

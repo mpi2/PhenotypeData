@@ -132,7 +132,7 @@ public class PhenotypesController {
         // register interest state
  		RegisterInterestDrupalSolr registerInterest = new RegisterInterestDrupalSolr(drupalBaseUrl, request);
  		Map<String, String> regInt = registerInterest.registerInterestState(phenotypeId, request, registerInterest);
- 		model.addAttribute("registerInterestButtonString", regInt.get("registerInterestButtonString"));
+ 		model.addAttribute("registerButtonText", regInt.get("registerButtonText"));
  		model.addAttribute("registerButtonAnchor", regInt.get("registerButtonAnchor"));
  		model.addAttribute("registerButtonId", regInt.get("registerButtonId"));
         

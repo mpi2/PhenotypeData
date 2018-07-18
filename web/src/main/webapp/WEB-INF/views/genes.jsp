@@ -154,7 +154,61 @@
 
                     });
 
+                    registerInterest();
+
                 });
+
+
+                function registerInterest() {
+
+                    $('a.interest').click(function () {
+
+                        var anchorControl = $(this);
+                        // var divControl = $(anchorControl).parent();
+                        var iconControl = $(anchorControl).find('i');
+                        var endpoint = $(anchorControl).attr('href');
+
+                        var currentAnchorText = $(anchorControl).text();
+
+                        $.ajax({
+                            url: endpoint,
+                            success: function (response) {
+
+                                if (currentAnchorText.trim().toUpperCase() === 'Unregister Interest'.toUpperCase()) {
+
+                                    $(iconControl).removeClass('fa-sign-out');
+                                    $(iconControl).addClass('fa-sign-in');
+
+                                    endpoint = endpoint.replace('unregistration', 'registration');
+                                    $(anchorControl).attr('href', endpoint);
+
+                                    currentAnchorText = currentAnchorText.replace('Unregister', 'Register');
+                                    $(anchorControl).text(currentAnchorText);
+
+                                } else {
+
+                                    // Register -> Unregister
+                                    $(iconControl).removeClass('fa-sign-in');
+                                    $(iconControl).addClass('fa-sign-out');
+
+                                    endpoint = endpoint.replace('registration', 'unregistration');
+                                    $(anchorControl).attr('href', endpoint);
+
+                                    currentAnchorText = currentAnchorText.replace('Register', 'Unregister');
+                                    $(anchorControl).text(currentAnchorText);
+                                }
+                            },
+                            error: function (err) {
+                                return true;
+                                window.alert('AJAX error trying to register interest: ' + err);
+                            }
+                        });
+
+                        return false;
+                    });
+                }
+
+
             </script>
 
             <link rel="stylesheet" type="text/css" href="${baseUrl}/css/genes.css"/>				

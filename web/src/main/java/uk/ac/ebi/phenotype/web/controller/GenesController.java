@@ -335,9 +335,12 @@ public class GenesController {
 
         String riBaseUrl = config.get("riBaseUrl");
         String paBaseUrl = config.get("paBaseUrl");
-        String registerButtonString = "Login to register interest";
-        String registerButtonAnchor = riBaseUrl + "/login?target=genes&acc=" + acc;
+        String registerButtonText = "Login to register interest";
+        String registerButtonAnchor = riBaseUrl + "/login?target=genes/" + acc;
+
+
         String registerButtonId = acc;
+        String registerIconClass = "fa fa-sign-in";
 
         if (loggedIn) {
 
@@ -345,19 +348,22 @@ public class GenesController {
 
             if (geneAccessionIds.contains(acc)) {
 
-                registerButtonString = "Unregister interest";
+                registerIconClass = "fa fa-sign-out";
+                registerButtonText = "Unregister interest";
                 registerButtonAnchor = paBaseUrl + "/unregistration/gene?geneAccessionId=" + acc + "&target=genes/" + acc;
 
             } else {
 
-                registerButtonString = "Register interest";
+                registerIconClass = "fa fa-sign-in";
+                registerButtonText = "Register interest";
                 registerButtonAnchor = paBaseUrl + "/registration/gene?geneAccessionId=" + acc + "&target=genes/" + acc;
             }
         }
 
-        model.addAttribute("registerInterestButtonString", registerButtonString);
+        model.addAttribute("registerButtonText", registerButtonText);
         model.addAttribute("registerButtonAnchor", registerButtonAnchor);
         model.addAttribute("registerButtonId", registerButtonId);
+        model.addAttribute("registerIconClass", registerIconClass);
 
         try {
             getExperimentalImages(acc, model);

@@ -41,7 +41,7 @@
 								<a href='' id='facetPanel' class="fa fa-question-circle" aria-describedby="qtip-26"></a>
 							</p>
 
-							<div id='facetSrchMsg'><img src='../../img/loading_small.gif' /> Processing search ...</div>
+							<div id='facetSrchMsg'><img src='img/loading_small.gif' /> Processing search ...</div>
 							<div class="flist">
 								<ul>
 									<li class="fmcat" id="gene">
@@ -78,7 +78,7 @@
 								<a href='' id='facetPanel' class="fa fa-question-circle" aria-describedby="qtip-26"></a>
 							</p>
 
-							<div id='facetSrchMsg'><img src='../../img/loading_small.gif' /> Processing search ...</div>
+							<div id='facetSrchMsg'><img src='img/loading_small.gif' /> Processing search ...</div>
 							<div class="flist">
 								<ul>
 									<li class="fmcat" id="mp">
@@ -115,7 +115,7 @@
 								<a href='' id='facetPanel' class="fa fa-question-circle" aria-describedby="qtip-26"></a>
 							</p>
 
-							<div id='facetSrchMsg'><img src='../../img/loading_small.gif' /> Processing search ...</div>
+							<div id='facetSrchMsg'><img src='img/loading_small.gif' /> Processing search ...</div>
 							<div class="flist">
 								<ul>
 									<li class="fmcat" id="disease">
@@ -152,7 +152,7 @@
 								<a href='' id='facetPanel' class="fa fa-question-circle" aria-describedby="qtip-26"></a>
 							</p>
 
-							<div id='facetSrchMsg'><img src='../../img/loading_small.gif' /> Processing search ...</div>
+							<div id='facetSrchMsg'><img src='img/loading_small.gif' /> Processing search ...</div>
 							<div class="flist">
 								<ul>
 									<li class="fmcat" id="ma">
@@ -189,7 +189,7 @@
 								<a href='' id='facetPanel' class="fa fa-question-circle" aria-describedby="qtip-26"></a>
 							</p>
 
-							<div id='facetSrchMsg'><img src='../../img/loading_small.gif' /> Processing search ...</div>
+							<div id='facetSrchMsg'><img src='img/loading_small.gif' /> Processing search ...</div>
 							<div class="flist">
 								<ul>
 									<li class="fmcat" id="impc_images">
@@ -227,7 +227,7 @@
 								<a href='' id='facetPanel' class="fa fa-question-circle" aria-describedby="qtip-26"></a>
 							</p>
 
-							<div id='facetSrchMsg'><img src='../../img/loading_small.gif' /> Processing search ...</div>
+							<div id='facetSrchMsg'><img src='img/loading_small.gif' /> Processing search ...</div>
 							<div class="flist">
 								<ul>
 									<li class="fmcat" id="images">
@@ -491,7 +491,6 @@
 							highlighSynonym();
 
 							// register interest js
-							// addRegisterInterestJs();
 						}
 					}
 				});
@@ -511,89 +510,6 @@
 						$(this).addClass("highlight");
 					}).mouseout(function() {
 						$(this).removeClass("highlight");
-					});
-				}
-				function addRegisterInterestJs(){
-
-					$('a.interest').click(function() {
-
-						var termId = $(this).attr('id');
-						var endpoint = null;
-
-						if (/^MP:/.exec(termId)) {
-							endpoint = "/togglempflagfromjs/";
-						} else if (/^MGI:/.exec(termId)) {
-							endpoint = "/toggleflagfromjs/";
-						}
-
-						var label = $(this).text();
-						var regBtn = $(this);
-
-						$.ajax({
-							url : endpoint + termId,
-							success : function(response) {
-								// console.log('success');
-
-								if (response === 'null') {
-									window.alert('Null error trying to register interest');
-								} else {
-									// 3 labels (before login is 'Interest')
-									// compare using the actual raw character for &nbsp;
-									if (label == String.fromCharCode(160) + 'Register interest') {
-										regBtn.text(String.fromCharCode(160) + 'Unregister interest');
-										regBtn.siblings('i').removeClass('fa-sign-in').addClass('fa-sign-out')
-										.parent().attr('oldtitle', 'Unregister interest').qtip({
-											style : {
-												classes : 'qtipimpc flat'
-											},
-											position : {
-												my : 'top center',
-												at : 'bottom center'
-											},
-											content : {
-												text : $(this).attr('oldtitle')
-											}
-										}); // refresh
-											// tooltip
-									} else if (label == String.fromCharCode(160) + 'Unregister interest') {
-										regBtn.text(String.fromCharCode(160) + 'Register interest');
-										regBtn.siblings('i').removeClass('fa-sign-out').addClass('fa-sign-in')
-										.parent().attr('oldtitle', 'Register interest').qtip({
-											style : {
-												classes : 'qtipimpc flat'
-											},
-											position : {
-												my : 'top center',
-												at : 'bottom center'
-											},
-											content : {
-												text : $(this).attr('oldtitle')
-											}
-										}); // refresh
-									}
-								}
-							},
-							error : function() {
-								window.alert('AJAX error trying to register interest');
-							}
-						});
-						return false;
-					});
-
-					// applied when result page first loads
-					$('div.registerforinterest, td .status').each(function() {
-						$(this).qtip({
-							style : {
-								classes : 'qtipimpc flat'
-							},
-							position : {
-								my : 'top center',
-								at : 'bottom center'
-							},
-							content : {
-								text : $(this).attr('oldtitle')
-							}
-						});
 					});
 				}
 

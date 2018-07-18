@@ -46,7 +46,7 @@
 						</span>
 					</div>
 					<div class='content'>
-						<div class='facetSrchMsg'><img src='../../img/loading_small.gif' /> Processing search ...</div>
+						<div class='facetSrchMsg'><img src='img/loading_small.gif' /> Processing search ...</div>
 						<div class="flist">
 							<ul>
 								<li class="fmcat" id="gene">
@@ -82,7 +82,7 @@
 						</span>
 					</div>
 					<div class='content'>
-						<div class='facetSrchMsg'><img src='../../img/loading_small.gif' /> Processing search ...</div>
+						<div class='facetSrchMsg'><img src='img/loading_small.gif' /> Processing search ...</div>
 						<div class="flist">
 							<ul>
 								<li class="fmcat" id="mp">
@@ -117,7 +117,7 @@
 						</span>
 					</div>
 					<div class='content'>
-						<div class='facetSrchMsg'><img src='../../img/loading_small.gif' /> Processing search ...</div>
+						<div class='facetSrchMsg'><img src='img/loading_small.gif' /> Processing search ...</div>
 						<div class="flist">
 							<ul>
 								<li class="fmcat" id="disease">
@@ -151,7 +151,7 @@
 						</span>
 					</div>
 					<div class='content'>
-						<div class='facetSrchMsg'><img src='../../img/loading_small.gif' /> Processing search ...</div>
+						<div class='facetSrchMsg'><img src='img/loading_small.gif' /> Processing search ...</div>
 						<div class="flist">
 							<ul>
 								<li class="fmcat" id="anatomy">
@@ -185,7 +185,7 @@
 						</span>
 					</div>
 					<div class='content'>
-						<div class='facetSrchMsg'><img src='../../img/loading_small.gif' /> Processing search ...</div>
+						<div class='facetSrchMsg'><img src='img/loading_small.gif' /> Processing search ...</div>
 						<div class="flist">
 							<ul>
 								<li class="fmcat" id="impc_images">
@@ -221,7 +221,7 @@
 						</span>
 					</div>
 					<div class='content'>
-						<div class='facetSrchMsg'><img src='../../img/loading_small.gif' /> Processing search ...</div>
+						<div class='facetSrchMsg'><img src='img/loading_small.gif' /> Processing search ...</div>
 						<div class="flist">
 							<ul>
 								<li class="fmcat" id="images">
@@ -256,7 +256,7 @@
 						</span>
 					</div>
 					<div class='content'>
-						<div class='facetSrchMsg'><img src='../../img/loading_small.gif' /> Processing search ...</div>
+						<div class='facetSrchMsg'><img src='img/loading_small.gif' /> Processing search ...</div>
 						<div class="flist">
 							<ul>
 								<li class="fmcat" id="allele2">
@@ -572,7 +572,7 @@
 							highlighSynonym();
 
 							// register interest js
-							// addRegisterInterestJs();
+							registerInterest();
 
 							if (coreName == 'allele2'){
 								decodeAlleleName();
@@ -613,6 +613,63 @@
 
 				//------------------------- FUNCTIONS ------------------------
 
+
+                function registerInterest() {
+
+                    $('a.interest').click(function () {
+
+                        var anchorControl = $(this);
+                        var divControl = $(anchorControl).parent();
+                        var iconControl = $(anchorControl).prev();
+                        var endpoint = $(anchorControl).attr('href');
+
+                        var currentAnchorText = $(anchorControl).text();
+                        var currentOldtitle = $(divControl).attr('oldtitle');
+
+                        $.ajax({
+                            url: endpoint,
+                            success: function (response) {
+
+                                if (currentAnchorText.trim().toUpperCase() === 'Unregister Interest'.toUpperCase()) {
+
+                                    // Unregister -> Register
+									currentOldtitle = currentOldtitle.replace('Unregister', 'Register');
+									$(divControl).attr('oldtitle', currentOldtitle);
+
+									$(iconControl).removeClass('fa-sign-out');
+									$(iconControl).addClass('fa-sign-in');
+
+									endpoint = endpoint.replace('unregistration', 'registration');
+									$(anchorControl).attr('href', endpoint);
+
+									currentAnchorText = currentAnchorText.replace('Unregister', 'Register');
+									$(anchorControl).text(currentAnchorText);
+
+								} else {
+
+                                    // Register -> Unregister
+                                    currentOldtitle = currentOldtitle.replace('Register', 'Unregister');
+                                    $(divControl).attr('oldtitle', currentOldtitle);
+
+                                    $(iconControl).removeClass('fa-sign-in');
+                                    $(iconControl).addClass('fa-sign-out');
+
+                                    endpoint = endpoint.replace('registration', 'unregistration');
+                                    $(anchorControl).attr('href', endpoint);
+
+                                    currentAnchorText = currentAnchorText.replace('Register', 'Unregister');
+                                    $(anchorControl).text(currentAnchorText);
+								}
+                            },
+                            error: function () {
+                                window.alert('AJAX error trying to register interest');
+                            }
+                        });
+
+                        return false;
+                    });
+                }
+
 			function decodeAlleleName(){
 				$('span.allelename').each(function(){
 					$(this).html(decodeURI($(this).html()));
@@ -626,106 +683,6 @@
 					$(this).addClass("highlight");
 				}).mouseout(function() {
 					$(this).removeClass("highlight");
-				});
-			}
-			function addRegisterInterestJs(){
-
-				$('a.interest').click(function() {
-
-					var termId = $(this).attr('id');
-					var endpoint = null;
-
-					if (/^MP:/.exec(termId)) {
-						endpoint = "/togglempflagfromjs/";
-					} else if (/^MGI:/.exec(termId)) {
-						endpoint = "/toggleflagfromjs/";
-					}
-
-					var label = $(this).text();
-					var regBtn = $(this);
-
-					$.ajax({
-						url : endpoint + termId,
-						success : function(response) {
-							// console.log('success');
-
-							if (response === 'null') {
-								window.alert('Null error trying to register interest');
-							} else {
-								// 3 labels (before login is 'Interest')
-								// compare using the actual raw character for &nbsp;
-								if (label == String.fromCharCode(160) + 'Register interest') {
-									regBtn.text(String.fromCharCode(160) + 'Unregister interest');
-									regBtn.siblings('i').removeClass('fa-sign-in').addClass('fa-sign-out')
-											.parent().attr('oldtitle', 'Unregister interest').qtip({
-												style : {
-													classes : 'qtipimpc flat'
-												},
-												position : {
-													my : 'top center',
-													at : 'bottom center'
-												},
-												content : {
-													text : $(this).attr('oldtitle')
-												}
-											}); // refresh
-												// tooltip
-								} else if (label == String.fromCharCode(160) + 'Unregister interest') {
-									regBtn.text(String.fromCharCode(160) + 'Register interest');
-									regBtn.siblings('i').removeClass('fa-sign-out').addClass('fa-sign-in')
-											.parent().attr('oldtitle', 'Register interest').qtip({
-												style : {
-													classes : 'qtipimpc flat'
-												},
-												position : {
-													my : 'top center',
-													at : 'bottom center'
-												},
-												content : {
-													text : $(this).attr('oldtitle')
-												}
-											}); // refresh
-								}
-							}
-						},
-						error : function() {
-							window.alert('AJAX error trying to register interest');
-						}
-					});
-					return false;
-				});
-
-				// applied when result page first loads
-				$('div.registerforinterest, td .status').each(function() {
-					$(this).qtip({
-						style : {
-							classes : 'qtipimpc flat'
-						},
-						position : {
-							my : 'top center',
-							at : 'bottom center'
-						},
-						content : {
-							text : $(this).attr('oldtitle')
-						}
-					});
-				});
-
-				// show more/less for mp definition
-				$('div.moreLess').click(function(){
-					if ( $(this).hasClass('expand') ){
-						$(this).removeClass('expand');
-						$(this).siblings('div.fullDef').hide();
-						$(this).siblings('div.partDef').show();
-						$(this).text("Show more ...");
-
-					}
-					else {
-						$(this).addClass('expand');
-						$(this).siblings('div.fullDef').show();
-						$(this).siblings('div.partDef').hide();
-						$(this).text("Show less ...");
-					}
 				});
 			}
 
