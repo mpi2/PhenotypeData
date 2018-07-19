@@ -323,8 +323,8 @@ public class GenesController {
 //		}
 
 
-        RegisterInterestUtils riUtils = new RegisterInterestUtils(config.get("riBaseUrl"));
-        boolean loggedIn = false;
+        RegisterInterestUtils riUtils  = new RegisterInterestUtils(config.get("riBaseUrl"));
+        boolean               loggedIn = false;
         try {
 
             loggedIn = riUtils.loggedIn(request);

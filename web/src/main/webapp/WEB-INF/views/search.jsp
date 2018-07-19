@@ -616,7 +616,7 @@
 
                 function registerInterest() {
 
-                    $('a.interest').click(function () {
+                    $('a.regInterest').click(function () {
 
                         var anchorControl = $(this);
                         var divControl = $(anchorControl).parent();
@@ -662,7 +662,7 @@
 								}
                             },
                             error: function () {
-                                window.alert('AJAX error trying to register interest');
+                                window.alert('Unable to access register interest service at this time.');
                             }
                         });
 

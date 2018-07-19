@@ -161,10 +161,9 @@
 
                 function registerInterest() {
 
-                    $('a.interest').click(function () {
+                    $('a.regInterest').click(function () {
 
                         var anchorControl = $(this);
-                        // var divControl = $(anchorControl).parent();
                         var iconControl = $(anchorControl).find('i');
                         var endpoint = $(anchorControl).attr('href');
 
@@ -199,8 +198,7 @@
                                 }
                             },
                             error: function (err) {
-                                return true;
-                                window.alert('AJAX error trying to register interest: ' + err);
+                                window.alert('Unable to access register interest service at this time.');
                             }
                         });
 
