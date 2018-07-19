@@ -350,13 +350,13 @@ public class GenesController {
 
                 registerIconClass = "fa fa-sign-out";
                 registerButtonText = "Unregister interest";
-                registerButtonAnchor = paBaseUrl + "/unregistration/gene?geneAccessionId=" + acc + "&target=genes/" + acc;
+                registerButtonAnchor = paBaseUrl + "/riUnregistration/gene?geneAccessionId=" + acc + "&target=genes/" + acc;
 
             } else {
 
                 registerIconClass = "fa fa-sign-in";
                 registerButtonText = "Register interest";
-                registerButtonAnchor = paBaseUrl + "/registration/gene?geneAccessionId=" + acc + "&target=genes/" + acc;
+                registerButtonAnchor = paBaseUrl + "/riRegistration/gene?geneAccessionId=" + acc + "&target=genes/" + acc;
             }
         }
 
@@ -427,6 +427,7 @@ public class GenesController {
         PhenotypeDisplayStatus phenotypeDisplayStatus = getPhenotypeDisplayStatus(phenotypeStarted, numberOfTopLevelMpTermsWithStatisticalResult, postQcDataMapList, rowsForPhenotypeTable);
         model.addAttribute("phenotypeDisplayStatus", phenotypeDisplayStatus);
     }
+
 
     /**
      * Encapsulate logic for how we are displaying phenotype information in the

@@ -16,7 +16,7 @@
 <div class="floatright">
 
   <p>
-    <a class="btn regInterest" id="${registerButtonId}" href="${registerButtonAnchor}">
+    <a class="btn" id="${registerButtonId}" href="${registerButtonAnchor}">
       <i class="${registerIconClass}"></i>
       ${registerButtonText}
     </a>

@@ -167,40 +167,53 @@
                         var iconControl = $(anchorControl).find('i');
                         var endpoint = $(anchorControl).attr('href');
 
-                        var currentAnchorText = $(anchorControl).text();
+                        var currentAnchorText = $(anchorControl).text().trim();
 
-                        $.ajax({
-                            url: endpoint,
-                            success: function (response) {
+                        function riSuccess() {
 
-                                if (currentAnchorText.trim().toUpperCase() === 'Unregister Interest'.toUpperCase()) {
+                            if (currentAnchorText.toUpperCase() === 'Unregister Interest'.toUpperCase()) {
 
-                                    $(iconControl).removeClass('fa-sign-out');
-                                    $(iconControl).addClass('fa-sign-in');
+                                $(iconControl).removeClass('fa-sign-out');
+                                $(iconControl).addClass('fa-sign-in');
 
-                                    endpoint = endpoint.replace('unregistration', 'registration');
-                                    $(anchorControl).attr('href', endpoint);
+                                endpoint = endpoint.replace('unregistration', 'registration');
+                                $(anchorControl).attr('href', endpoint);
 
-                                    currentAnchorText = currentAnchorText.replace('Unregister', 'Register');
-                                    $(anchorControl).text(currentAnchorText);
+                                $(anchorControl).html('Register interest');
 
-                                } else {
+                            } else {
 
-                                    // Register -> Unregister
-                                    $(iconControl).removeClass('fa-sign-in');
-                                    $(iconControl).addClass('fa-sign-out');
+                                // Register -> Unregister
+                                $(iconControl).removeClass('fa-sign-in');
+                                $(iconControl).addClass('fa-sign-out');
 
-                                    endpoint = endpoint.replace('registration', 'unregistration');
-                                    $(anchorControl).attr('href', endpoint);
+                                endpoint = endpoint.replace('registration', 'unregistration');
+                                $(anchorControl).attr('href', endpoint);
 
-                                    currentAnchorText = currentAnchorText.replace('Register', 'Unregister');
-                                    $(anchorControl).text(currentAnchorText);
-                                }
-                            },
-                            error: function (err) {
-                                window.alert('Unable to access register interest service at this time.');
+                                $(anchorControl).html('Unregister interest');
                             }
-                        });
+                        }
+
+                        function riError() {
+                            window.alert('Unable to access register interest service at this time.');
+                        }
+
+                        if (endpoint.includes('login?target')) {
+                            $.ajax({
+                                url: endpoint,
+                                dataType: 'jsonp',
+                                beforeSend: setHeader,
+                                error: riError
+                            });
+                        } else {
+                            $.ajax({
+                                url: endpoint,
+                                dataType: undefined,
+                                beforeSend: undefined,
+                                success: riSuccess,
+                                error: riError
+                            });
+                        }
 
                         return false;
                     });

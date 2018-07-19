@@ -625,7 +625,7 @@ public class DataTableController {
                             + "<i class='fa fa-sign-out'></i>"
                             + "<a id='" + doc.getString("mgi_accession_id")
 								+ "' class='regInterest primary interest' href='"
-								+ paBaseUrl + "/unregistration/gene?geneAccessionId=" + doc.getString("mgi_accession_id")
+								+ paBaseUrl + "/riUnregistration/gene?geneAccessionId=" + doc.getString("mgi_accession_id")
 								+ "&target=search&quest;kw=*"
 								+ "'>&nbsp;Unregister Interest</a>"
                             + "</div>";
@@ -637,7 +637,7 @@ public class DataTableController {
                             + "<i class='fa fa-sign-in'></i>"
                             + "<a id='" + doc.getString("mgi_accession_id")
 								+ "' class='regInterest primary interest' href='"
-								+ paBaseUrl + "/registration/gene?geneAccessionId=" + doc.getString("mgi_accession_id")
+								+ paBaseUrl + "/riRegistration/gene?geneAccessionId=" + doc.getString("mgi_accession_id")
 								+ "&target=search&quest;kw=*"
 								+ "'>&nbsp;Register Interest</a>"
                             + "</div>";
@@ -686,29 +686,29 @@ public class DataTableController {
 	}
 
 
-	@RequestMapping(value = "/registration/gene", method = RequestMethod.GET)
-	public String registrationGene(
+	@RequestMapping(value = "/riRegistration/gene", method = RequestMethod.GET)
+	public String riRegistrationGene(
 			@RequestParam("geneAccessionId") String geneAccessionId,
 			@RequestParam("target") String target,
 			HttpServletRequest request,
 			ModelMap model) {
 
 	    RegisterInterestUtils riUtils = new RegisterInterestUtils(riBaseUrl);
-	    riUtils.registerGene(request, geneAccessionId);
-		return "redirect:" + paBaseUrl + "/" + target;
+			riUtils.registerGene(request, geneAccessionId);
+			return "redirect:" + paBaseUrl + "/" + target;
 	}
 
 
-    @RequestMapping(value = "/unregistration/gene", method = RequestMethod.GET)
-    public String unregistrationGene(
+    @RequestMapping(value = "/riUnregistration/gene", method = RequestMethod.GET)
+    public String riUnregistrationGene(
             @RequestParam("geneAccessionId") String geneAccessionId,
 			@RequestParam("target") String target,
             HttpServletRequest request,
             ModelMap model) {
 
         RegisterInterestUtils riUtils = new RegisterInterestUtils(riBaseUrl);
-        riUtils.unregisterGene(request, geneAccessionId);
-		return "redirect:" + paBaseUrl + "/" + target;
+			riUtils.unregisterGene(request, geneAccessionId);
+			return "redirect:" + paBaseUrl + "/" + target;
     }
 
 

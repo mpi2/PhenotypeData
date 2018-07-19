@@ -626,49 +626,68 @@
                         var currentAnchorText = $(anchorControl).text();
                         var currentOldtitle = $(divControl).attr('oldtitle');
 
-                        $.ajax({
-                            url: endpoint,
-                            success: function (response) {
+                        function riSuccess() {
+                            if (currentAnchorText.trim().toUpperCase() === 'Unregister Interest'.toUpperCase()) {
 
-                                if (currentAnchorText.trim().toUpperCase() === 'Unregister Interest'.toUpperCase()) {
+                                // Unregister -> Register
+                                currentOldtitle = currentOldtitle.replace('Unregister', 'Register');
+                                $(divControl).attr('oldtitle', currentOldtitle);
 
-                                    // Unregister -> Register
-									currentOldtitle = currentOldtitle.replace('Unregister', 'Register');
-									$(divControl).attr('oldtitle', currentOldtitle);
+                                $(iconControl).removeClass('fa-sign-out');
+                                $(iconControl).addClass('fa-sign-in');
 
-									$(iconControl).removeClass('fa-sign-out');
-									$(iconControl).addClass('fa-sign-in');
+                                endpoint = endpoint.replace('ruUnregistration', 'riRegistration');
+                                $(anchorControl).attr('href', endpoint);
 
-									endpoint = endpoint.replace('unregistration', 'registration');
-									$(anchorControl).attr('href', endpoint);
+                                currentAnchorText = currentAnchorText.replace('Unregister', 'Register');
+                                $(anchorControl).text(currentAnchorText);
 
-									currentAnchorText = currentAnchorText.replace('Unregister', 'Register');
-									$(anchorControl).text(currentAnchorText);
+                            } else {
 
-								} else {
+                                // Register -> Unregister
+                                currentOldtitle = currentOldtitle.replace('Register', 'Unregister');
+                                $(divControl).attr('oldtitle', currentOldtitle);
 
-                                    // Register -> Unregister
-                                    currentOldtitle = currentOldtitle.replace('Register', 'Unregister');
-                                    $(divControl).attr('oldtitle', currentOldtitle);
+                                $(iconControl).removeClass('fa-sign-in');
+                                $(iconControl).addClass('fa-sign-out');
 
-                                    $(iconControl).removeClass('fa-sign-in');
-                                    $(iconControl).addClass('fa-sign-out');
+                                endpoint = endpoint.replace('riRegistration', 'riUnregistration');
+                                $(anchorControl).attr('href', endpoint);
 
-                                    endpoint = endpoint.replace('registration', 'unregistration');
-                                    $(anchorControl).attr('href', endpoint);
-
-                                    currentAnchorText = currentAnchorText.replace('Register', 'Unregister');
-                                    $(anchorControl).text(currentAnchorText);
-								}
-                            },
-                            error: function () {
-                                window.alert('Unable to access register interest service at this time.');
+                                currentAnchorText = currentAnchorText.replace('Register', 'Unregister');
+                                $(anchorControl).text(currentAnchorText);
                             }
-                        });
+                        }
 
-                        return false;
+                        function riError() {
+                            window.alert('Unable to access register interest service at this time.');
+                        }
+
+
+
+
+						if (endpoint.includes('login?target')) {
+                            $.ajax({
+                                url: endpoint,
+                                dataType: 'jsonp',
+                                beforeSend: setHeader,
+                                // success: riSuccess,
+                                error: riError
+                            });
+                        } else {
+                            $.ajax({
+                                url: endpoint,
+								dataType: undefined,
+								beforeSend: undefined,
+                                success: riSuccess,
+                                error: riError
+                            });
+						}
+
+						return false;
                     });
                 }
+
 
 			function decodeAlleleName(){
 				$('span.allelename').each(function(){
