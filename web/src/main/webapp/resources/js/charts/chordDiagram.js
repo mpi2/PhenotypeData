@@ -34,7 +34,7 @@ var drawChords = function (svgId, containerId, openNewPage, mpTopLevelTerms, idg
 
     function ready(error, json) {
 
-        console.log("in here");
+        console.log("in here with json="+json);
         if (error) throw error;
 
         else {
