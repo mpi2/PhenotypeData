@@ -872,38 +872,6 @@ public class DataTableController {
 			// link out to ontology browser page
 			rowData.add("<a href='" + baseUrl + "/ontologyBrowser?" + "termId=" + mpId + "'><i class=\"fa fa-share-alt-square\"></i> Browse</a>");
 
-			// register of interest
-			if (registerInterest.loggedIn()) {
-				if (registerInterest.alreadyInterested(mpId)) {
-					// FIXME regInterest
-					String uinterest = "<div class='registerforinterest' oldtitle='Unregister interest' title=''>"
-							+ "<i class='fa fa-sign-out'></i>"
-							+ "<a id='" + mpId + "' class='regInterest primary interest' href=''>&nbsp;Unregister interest</a>"
-							+ "</div>";
-
-					rowData.add(uinterest);
-				} else {
-					// FIXME regInterest
-					String rinterest = "<div class='registerforinterest' oldtitle='Register interest' title=''>"
-							+ "<i class='fa fa-sign-in'></i>"
-							+ "<a id='" + mpId + "' class='regInterest primary interest' href=''>&nbsp;Register interest</a>"
-							+ "</div>";
-
-					rowData.add(rinterest);
-				}
-			} else {
-				// use the login link instead of register link to avoid user clicking on tab which
-				// will strip out destination link that we don't want to see happened
-				// FIXME regInterest
-				String interest = "<div class='registerforinterest' oldtitle='Login to register interest' title=''>"
-						+ "<i class='fa fa-sign-in'></i>"
-						// + "<a class='regInterest' href='/user/login?destination=data/search#fq=*:*&facet=mp'>&nbsp;Interest</a>"
-						+ "<a class='regInterest' href='/user/login?destination=data/search/mp?kw=*&fq=top_level_mp_term:*'>&nbsp;Interest</a>"
-						+ "</div>";
-
-				rowData.add(interest);
-			}
-
 			j.getJSONArray("aaData").add(rowData);
 		}
 

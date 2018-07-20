@@ -45,7 +45,6 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import uk.ac.ebi.phenotype.error.GenomicFeatureNotFoundException;
 import uk.ac.ebi.phenotype.error.OntologyTermNotFoundException;
-import uk.ac.ebi.phenotype.generic.util.RegisterInterestDrupalSolr;
 import uk.ac.ebi.phenotype.web.util.FileExportUtils;
 
 import javax.annotation.PostConstruct;
@@ -128,14 +127,7 @@ public class PhenotypesController {
     	MpDTO mpTerm = mpService.getPhenotype(phenotypeId);
     	
      	model.addAttribute("hasData", mpTerm  == null ? false : true);
-        
-        // register interest state
- 		RegisterInterestDrupalSolr registerInterest = new RegisterInterestDrupalSolr(drupalBaseUrl, request);
- 		Map<String, String> regInt = registerInterest.registerInterestState(phenotypeId, request, registerInterest);
- 		model.addAttribute("registerButtonText", regInt.get("registerButtonText"));
- 		model.addAttribute("registerButtonAnchor", regInt.get("registerButtonAnchor"));
- 		model.addAttribute("registerButtonId", regInt.get("registerButtonId"));
-        
+
         // Query the images for this phenotype
         SolrDocumentList images = imagesSummaryHelper.getDocsForMpTerm(phenotypeId, 0, numberOfImagesToDisplay).getResults();
 

@@ -533,7 +533,7 @@
 
 						var noSort = {}; // should match all existing columns
 						noSort["gene"] = [1,2,3];
-						noSort["mp"] = [0,1,2,3];
+						noSort["mp"] = [0,1,2];
 						noSort["disease"] = [1];
 						noSort["anatomy"] = [1];
 						noSort["images"] = [0,1];
