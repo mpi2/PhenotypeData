@@ -36,16 +36,20 @@ public class ExcelReader {
     private Workbook workbook;
     private Sheet datatypeSheet;
     private Iterator<Row> rowIterator;
+    private Iterator<Sheet> sheetIterator;
     private ArrayList<String> columnHeadings;
     private String[] lastRowRead;
     private int numberOfRowsRead;
     private int numberOfMiceProcessed;
+    private int currentSheet;
+    private int nSheets;
 
     public ExcelReader(String inFilename) {
         try {
             this.excelFile = new FileInputStream(new File(inFilename));
             this.workbook = new XSSFWorkbook(excelFile);
-            this.datatypeSheet = workbook.getSheetAt(0);
+            this.sheetIterator = workbook.iterator();
+            this.datatypeSheet = sheetIterator.next();
             this.rowIterator = datatypeSheet.iterator();
 
             setColumnHeadings();
@@ -88,41 +92,29 @@ public class ExcelReader {
 
     // Returns next row in spreadsheet. returns null if no rows left
     public String[] getRow() {
-        if (!this.rowIterator.hasNext()) {
-            this.lastRowRead = null;
-            return null;
-        }
-        
-        Row currentRow = this.rowIterator.next();
-        Iterator<Cell> cellIterator = currentRow.iterator();
-        int nColumns = this.getNumberOfColumns();
-
-        // Get row details
-        String[] resultRow = new String[nColumns];
-        for (int col=0; col < nColumns; col++) {
-            if (cellIterator.hasNext()) {
-                Cell currentCell = cellIterator.next();
-                int colIndex = currentCell.getColumnIndex();
-                //getCellTypeEnum shown as deprecated for version 3.15
-                //getCellTypeEnum ill be renamed to getCellType starting from version 4.0
-             if (currentCell.getCellTypeEnum() == CellType.STRING) {
-                    resultRow[colIndex] = "" + currentCell.getStringCellValue();
-                } else if (currentCell.getCellTypeEnum() == CellType.NUMERIC) {
-                    if (DateUtil.isCellDateFormatted(currentCell)) {
-                        resultRow[colIndex] = "" + currentCell.getDateCellValue();
-                    } else {
-                    resultRow[colIndex] = currentCell.getNumericCellValue() + "";
-                    }
-                } else {
-                    resultRow[colIndex] = "NonStringNonNumericValue";
-                }
-            }
-        }
+        // Need wrapper because row iterator can return rows that had values
+        // in them but were deleted.
         // Set any cells in row that are null to NonStringNonNumericValue
-        for (int col=0; col<nColumns; col++) {
-        	if (resultRow[col] == null) {
-        		resultRow[col] = "NonStringNonNumericValue";
-        	}
+        // However, if all cells are null then this is an empty row and we
+        // want to discard it.
+        int nColumns = this.getNumberOfColumns();
+        String[] resultRow;
+        while (true) {
+            resultRow = localGetRow();
+            if (resultRow == null) {
+                return resultRow;
+            }
+            
+            int nNullCells = 0;
+            for (int col=0; col<nColumns; col++) {
+            	if (resultRow[col] == null || resultRow[col].equals("NonStringNonNumericValue")) {
+                    nNullCells += 1;
+            		resultRow[col] = "NonStringNonNumericValue";
+            	}
+            }
+            if (nNullCells < nColumns) {
+                break;
+            }
         }
         numberOfRowsRead++;
         this.lastRowRead = resultRow;
@@ -157,7 +149,7 @@ public class ExcelReader {
     // Wrapper around hasNext to check if either buffer for last row read or
     // the row iterator have values
     public boolean hasNext() {
-        return (this.rowIterator.hasNext());
+        return (sheetIterator.hasNext() || rowIterator.hasNext());
     }
 
     // Return number of rows read so far
@@ -172,11 +164,58 @@ public class ExcelReader {
 
     // Reset reader
     public void reset() {
-        this.rowIterator = datatypeSheet.iterator();
+        sheetIterator = workbook.iterator();
+        datatypeSheet = sheetIterator.next();
+        rowIterator = datatypeSheet.iterator();
         // Call getRow twice - the first time to discard the column headings
         getRow();
         numberOfRowsRead = 0;
         numberOfMiceProcessed = 0;
         getRow();
+    }
+
+    private String[] localGetRow() {
+        if (!rowIterator.hasNext()) {
+            // Check if there is another sheet
+            if (this.sheetIterator.hasNext()) {
+                datatypeSheet = sheetIterator.next();
+                rowIterator = datatypeSheet.iterator();
+            } else {
+                // Return null if there is no other sheet
+                this.lastRowRead = null;
+                return null;
+            }
+            if (!this.rowIterator.hasNext()) {
+                this.lastRowRead = null;
+                return null;
+            }
+        }
+        
+        Row currentRow = this.rowIterator.next();
+        Iterator<Cell> cellIterator = currentRow.iterator();
+        int nColumns = this.getNumberOfColumns();
+
+        // Get row details
+        String[] resultRow = new String[nColumns];
+        for (int col=0; col < nColumns; col++) {
+            if (cellIterator.hasNext()) {
+                Cell currentCell = cellIterator.next();
+                int colIndex = currentCell.getColumnIndex();
+                //getCellTypeEnum shown as deprecated for version 3.15
+                //getCellTypeEnum ill be renamed to getCellType starting from version 4.0
+             if (currentCell.getCellTypeEnum() == CellType.STRING) {
+                    resultRow[colIndex] = "" + currentCell.getStringCellValue();
+                } else if (currentCell.getCellTypeEnum() == CellType.NUMERIC) {
+                    if (DateUtil.isCellDateFormatted(currentCell)) {
+                        resultRow[colIndex] = "" + currentCell.getDateCellValue();
+                    } else {
+                    resultRow[colIndex] = currentCell.getNumericCellValue() + "";
+                    }
+                } else {
+                    resultRow[colIndex] = "NonStringNonNumericValue";
+                }
+            }
+        }
+        return resultRow;
     }
 }
