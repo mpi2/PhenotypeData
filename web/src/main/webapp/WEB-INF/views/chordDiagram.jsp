@@ -18,7 +18,7 @@
 
     <script src="//d3js.org/d3.v4.min.js"></script>
     <script src="//d3js.org/queue.v1.min.js"></script>
-    <script type="text/javascript" src="${baseUrl}/js/charts/chordDiagram.js?v=${version}"></script>
+    <script type="text/javascript" src="${baseUrl}/js/charts/chordDiagram.js?v=212"></script>
 
     </jsp:attribute>
 
