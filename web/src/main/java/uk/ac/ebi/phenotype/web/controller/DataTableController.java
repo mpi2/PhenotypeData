@@ -45,17 +45,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
-import uk.ac.ebi.phenotype.generic.util.RegisterInterestDrupalSolr;
 import uk.ac.ebi.phenotype.generic.util.RegisterInterestUtils;
 import uk.ac.ebi.phenotype.service.BatchQueryForm;
 
 import javax.annotation.Resource;
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 import javax.sql.DataSource;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
@@ -547,8 +543,6 @@ public class DataTableController {
 
 	public String parseJsonforGeneDataTable(JSONObject json, HttpServletRequest request, String qryStr, String fqOri, String solrCoreName, boolean legacyOnly) throws UnsupportedEncodingException {
 
-		RegisterInterestDrupalSolr registerInterest = new RegisterInterestDrupalSolr(config.get("drupalBaseUrl"), request);
-
 		JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
 		int totalDocs = json.getJSONObject("response").getInt("numFound");
 
@@ -610,7 +604,7 @@ public class DataTableController {
 			boolean loggedIn = false;
 			try {
 
-				loggedIn = riUtils.loggedIn(request);
+				loggedIn = riUtils.isLoggedIn(request);
 
 			} catch (Exception e) {
 				// Nothing to do. If register interest service isn't working, a 500 is thrown. Handle as unauthenticated.
@@ -624,7 +618,7 @@ public class DataTableController {
                     String unregister = "<div class='registerforinterest' oldtitle='Unregister interest' title=''>"
                             + "<i class='fa fa-sign-out'></i>"
                             + "<a id='" + doc.getString("mgi_accession_id")
-								+ "' class='regInterest primary interest' href='"
+								+ "' class='regInterestxx primary interest' href='"
 								+ paBaseUrl + "/riUnregistration/gene?geneAccessionId=" + doc.getString("mgi_accession_id")
 								+ "&target=search&quest;kw=*"
 								+ "'>&nbsp;Unregister Interest</a>"
@@ -636,7 +630,7 @@ public class DataTableController {
                     String unregister = "<div class='registerforinterest' oldtitle='Register interest' title=''>"
                             + "<i class='fa fa-sign-in'></i>"
                             + "<a id='" + doc.getString("mgi_accession_id")
-								+ "' class='regInterest primary interest' href='"
+								+ "' class='regInterestxx primary interest' href='"
 								+ paBaseUrl + "/riRegistration/gene?geneAccessionId=" + doc.getString("mgi_accession_id")
 								+ "&target=search&quest;kw=*"
 								+ "'>&nbsp;Register Interest</a>"
@@ -647,9 +641,18 @@ public class DataTableController {
 			} else {
 
 				// Use Register Interest login link
+				StringBuilder href = new StringBuilder();
+				href
+						.append("href='")
+						.append(paBaseUrl)
+						.append("/riRegistrationGet/gene?geneAccessionId=")
+						.append(doc.getString("mgi_accession_id"))
+//						.append("&target=")
+//						.append("/api/registration/gene")
+						.append("'");
 				String interest = "<div class='registerforinterest' oldtitle='Login to register interest' title=''>"
 						+ "<i class='fa fa-sign-in'></i>"
-						+ "<a class='regInterest' href='" + riBaseUrl + "/login?target=search&quest;kw=*'>&nbsp;Interest</a>"
+						+ "<a class='regInterestxx' " + href.toString() + ">&nbsp;Interest</a>"
 						+ "</div>";
 
 				rowData.add(interest);
@@ -665,51 +668,6 @@ public class DataTableController {
 
 		return j.toString();
 	}
-
-
-	@RequestMapping(value = "/riSuccessHandler", method = RequestMethod.GET)
-	public String riSuccessHandlerUrl(
-			ModelMap model,
-			HttpServletRequest request,
-			HttpServletResponse response,
-			HttpSession session,
-			@RequestParam("token") String token,
-			@RequestParam("target") String target
-	) {
-
-		// Set the token.
-        Cookie cookie = new Cookie("RISESSIONID", token);
-        log.debug("/riSuccessHandlerUrl(): Session cookie: " + cookie.getValue());
-        response.addCookie(cookie);
-
-        return "redirect:" + paBaseUrl + "/" + target;
-	}
-
-
-	@RequestMapping(value = "/riRegistration/gene", method = RequestMethod.GET)
-	public String riRegistrationGene(
-			@RequestParam("geneAccessionId") String geneAccessionId,
-			@RequestParam("target") String target,
-			HttpServletRequest request,
-			ModelMap model) {
-
-	    RegisterInterestUtils riUtils = new RegisterInterestUtils(riBaseUrl);
-			riUtils.registerGene(request, geneAccessionId);
-			return "redirect:" + paBaseUrl + "/" + target;
-	}
-
-
-    @RequestMapping(value = "/riUnregistration/gene", method = RequestMethod.GET)
-    public String riUnregistrationGene(
-            @RequestParam("geneAccessionId") String geneAccessionId,
-			@RequestParam("target") String target,
-            HttpServletRequest request,
-            ModelMap model) {
-
-        RegisterInterestUtils riUtils = new RegisterInterestUtils(riBaseUrl);
-			riUtils.unregisterGene(request, geneAccessionId);
-			return "redirect:" + paBaseUrl + "/" + target;
-    }
 
 
 	public String parseJsonforProtocolDataTable(JSONObject json, HttpServletRequest request, String solrCoreName) {
@@ -764,7 +722,6 @@ public class DataTableController {
 
 	public String parseJsonforMpDataTable(JSONObject json, HttpServletRequest request, String qryStr, String solrCoreNamet) throws UnsupportedEncodingException {
 
-		RegisterInterestDrupalSolr registerInterest = new RegisterInterestDrupalSolr(config.get("drupalBaseUrl"), request);
 		String baseUrl = request.getAttribute("baseUrl").toString();
 
 		JSONObject j = new JSONObject();

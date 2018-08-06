@@ -26,8 +26,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
 import javax.inject.Inject;
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.Collections;
 import java.util.List;
 
@@ -36,7 +36,6 @@ public class RegisterInterestUtils {
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
 	private HttpEntity<String> httpEntityHeaders;
-	private Boolean            loggedIn = false;
 	private String             riBaseUrl;
 
 
@@ -47,21 +46,6 @@ public class RegisterInterestUtils {
 		this.riBaseUrl = riBaseUrl;
 	}
 
-
-
-    public Cookie getCookie(HttpServletRequest request, String cookieName) {
-
-        Cookie[] cookies = request.getCookies();
-        if (cookies != null) {
-            for (Cookie cookie : cookies) {
-                if (cookie.getName().equals(cookieName)) {
-                    return cookie;
-                }
-            }
-        }
-
-        return null;
-    }
 
     /**
      *
@@ -74,44 +58,78 @@ public class RegisterInterestUtils {
         return response.getBody();
     }
 
-	public  boolean loggedIn(HttpServletRequest request) {
+    /**
+     * Test to determine if contact has registered for specified gene. Remote endpoint is security-restricted, so contact
+     * will be authenticated upon return from this call if they weren't already.
+     *
+     * @param geneAccessionId
+     * @return True if contact is registered for specified gene; false otherwise
+     */
+    public boolean isRegisteredForGene(HttpServletRequest request, HttpServletResponse response, String geneAccessionId) {
 
-        Cookie cookie = getCookie(request, "RISESSIONID");
+        boolean retVal;
 
-        if (cookie != null) {
+        httpEntityHeaders = new HttpEntity<String>(buildHeadersFromRiToken(request));
 
-            HttpHeaders headers = new HttpHeaders();
-            headers.add("Cookie", "JSESSIONID=" + cookie.getValue());
-            httpEntityHeaders = new HttpEntity<>(headers);
+        ResponseEntity<Boolean> restResponse = new RestTemplate().exchange(riBaseUrl + "/api/registration/gene?geneAccessionId=" + geneAccessionId,
+                                                                           HttpMethod.GET, httpEntityHeaders, Boolean.class);
+        retVal = restResponse.getBody() == null ? false : restResponse.getBody();
 
-            ResponseEntity<List<String>> response = new RestTemplate().exchange(riBaseUrl + "/api/roles", HttpMethod.GET, httpEntityHeaders,
-                                                                                new ParameterizedTypeReference<List<String>>() {
-                                                                                }, Collections.emptyMap());
-            List<String> roles = response.getBody();
+        return retVal;
+    }
 
-            loggedIn = (roles.contains("ROLE_USER")) || (roles.contains("ROLE_ADMIN"));
+	public boolean isLoggedIn(HttpServletRequest request) {
+
+        // Use the web service to check if we're logged in.
+
+        httpEntityHeaders = new HttpEntity<String>(buildHeadersFromRiToken(request));
+
+        ResponseEntity<List<String>> response = new RestTemplate().exchange(riBaseUrl + "/api/roles", HttpMethod.GET, httpEntityHeaders,
+                                                                            new ParameterizedTypeReference<List<String>>() {
+                                                                            }, Collections.emptyMap());
+        List<String> roles = response.getBody();
+
+        boolean loggedIn = (roles.contains("ROLE_USER")) || (roles.contains("ROLE_ADMIN"));
+
+        return loggedIn;
+	}
+
+    /**
+     * Register currently logged in user for interest in {@code geneAccessionId}
+     *
+     * @param geneAccessionId
+     * @return String returned by Register Interest web service 'register' action. An empty string indicates success.
+     */
+    public String registerGene(HttpServletRequest request, HttpServletResponse response, String geneAccessionId) {
+
+        if ( ! isLoggedIn(request)) {
+            return "User not logged in.";
         }
 
-		return loggedIn;
-	}
+        // Use the web service to register interest in gene.
+        httpEntityHeaders = new HttpEntity<String>(buildHeadersFromRiToken(request));
 
-	/**
-	 * Register currently logged in user for interest in {@code geneAccessionId}
-	 *
-	 * @param geneAccessionId
-	 * @return String returned by Register Interest web service 'register' action. An empty string indicates success.
-	 */
-	public  String registerGene(HttpServletRequest request, String geneAccessionId) {
-		String retVal = "User not logged in.";
+        ResponseEntity<String> restResponse = new RestTemplate().exchange(riBaseUrl + "/api/registration/gene?geneAccessionId=" + geneAccessionId,
+                                                                          HttpMethod.POST, httpEntityHeaders, String.class);
 
-		if (loggedIn(request)) {
-			ResponseEntity<String> response = new RestTemplate().exchange(riBaseUrl + "/api/registration/gene?geneAccessionId=" + geneAccessionId,
-																		  HttpMethod.POST, httpEntityHeaders, String.class);
-			retVal = response.getBody() == null ? "" : response.getBody();
-		}
+        return restResponse.getBody() == null ? "" : restResponse.getBody();
+    }
 
-		return retVal;
-	}
+	public static void setRiSessionCookie(HttpServletRequest request) {
+
+        String cookieValue = "JSESSIONID=" + request.getSession().getAttribute("riToken");
+        request.getSession().setAttribute("Set-Cookie", cookieValue);
+    }
+
+    public static HttpHeaders buildHeadersFromRiToken(HttpServletRequest request) {
+
+        String riToken = (String) request.getSession().getAttribute("riToken");
+        String      cookieNameValuePair  = "JSESSIONID=" + riToken;
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Cookie", cookieNameValuePair);
+
+        return headers;
+    }
 
 	/**
 	 * Unregister currently logged in user for interest in {@code geneAccessionId}
@@ -120,14 +138,17 @@ public class RegisterInterestUtils {
 	 * @return String returned by Register Interest web service 'unregister' action. An empty string indicates success.
 	 */
 	public  String unregisterGene(HttpServletRequest request, String geneAccessionId) {
-		String retVal = "User not logged in.";
 
-		if (loggedIn(request)) {
-			ResponseEntity<String> response = new RestTemplate().exchange(riBaseUrl + "/api/unregistration/gene?geneAccessionId=" + geneAccessionId,
-																		  HttpMethod.DELETE, httpEntityHeaders, String.class);
-			retVal = response.getBody() == null ? "" : response.getBody();
-		}
+        if ( ! isLoggedIn(request)) {
+            return "User not logged in.";
+        }
 
-		return retVal;
+        // Use the web service to unregister.
+        httpEntityHeaders = new HttpEntity<String>(buildHeadersFromRiToken(request));
+
+        ResponseEntity<String> restResponse = new RestTemplate().exchange(riBaseUrl + "/api/unregistration/gene?geneAccessionId=" + geneAccessionId,
+                                                                          HttpMethod.DELETE, httpEntityHeaders, String.class);
+
+        return restResponse.getBody() == null ? "" : restResponse.getBody();
 	}
 }

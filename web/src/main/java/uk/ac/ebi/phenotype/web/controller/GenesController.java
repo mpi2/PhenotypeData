@@ -327,7 +327,7 @@ public class GenesController {
         boolean               loggedIn = false;
         try {
 
-            loggedIn = riUtils.loggedIn(request);
+            loggedIn = riUtils.isLoggedIn(request);
 
         } catch (Exception e) {
             // Nothing to do. If register interest service isn't working, a 500 is thrown. Handle as unauthenticated.
