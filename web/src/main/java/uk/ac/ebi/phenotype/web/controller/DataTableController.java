@@ -611,14 +611,15 @@ public class DataTableController {
 			}
 
 			if (loggedIn) {
-                List<String> geneAccessionIds = riUtils.getGeneAccessionIds();
+				Map<String, List<String>> geneAccessionIdMap = riUtils.getGeneAccessionIds();
+				List<String> geneAccessionIds = geneAccessionIdMap.get("geneAccessionIds");
 
                 if (geneAccessionIds.contains(mgiId)) {
 
                     String unregister = "<div class='registerforinterest' oldtitle='Unregister interest' title=''>"
                             + "<i class='fa fa-sign-out'></i>"
                             + "<a id='" + doc.getString("mgi_accession_id")
-								+ "' class='regInterestxx primary interest' href='"
+								+ "' class='regInterest primary interest' href='"
 								+ paBaseUrl + "/riUnregistration/gene?geneAccessionId=" + doc.getString("mgi_accession_id")
 								+ "&target=search&quest;kw=*"
 								+ "'>&nbsp;Unregister Interest</a>"
@@ -630,7 +631,7 @@ public class DataTableController {
                     String unregister = "<div class='registerforinterest' oldtitle='Register interest' title=''>"
                             + "<i class='fa fa-sign-in'></i>"
                             + "<a id='" + doc.getString("mgi_accession_id")
-								+ "' class='regInterestxx primary interest' href='"
+								+ "' class='regInterest primary interest' href='"
 								+ paBaseUrl + "/riRegistration/gene?geneAccessionId=" + doc.getString("mgi_accession_id")
 								+ "&target=search&quest;kw=*"
 								+ "'>&nbsp;Register Interest</a>"
@@ -642,17 +643,15 @@ public class DataTableController {
 
 				// Use Register Interest login link
 				StringBuilder href = new StringBuilder();
+
 				href
 						.append("href='")
-						.append(paBaseUrl)
-						.append("/riRegistrationGet/gene?geneAccessionId=")
-						.append(doc.getString("mgi_accession_id"))
-//						.append("&target=")
-//						.append("/api/registration/gene")
+						.append(paBaseUrl).append("/riLogin")
+						.append("?target=" + paBaseUrl + "/search?kw=*")
 						.append("'");
 				String interest = "<div class='registerforinterest' oldtitle='Login to register interest' title=''>"
 						+ "<i class='fa fa-sign-in'></i>"
-						+ "<a class='regInterestxx' " + href.toString() + ">&nbsp;Interest</a>"
+						+ "<a class='regInterest' " + href.toString() + ">&nbsp;Interest</a>"
 						+ "</div>";
 
 				rowData.add(interest);

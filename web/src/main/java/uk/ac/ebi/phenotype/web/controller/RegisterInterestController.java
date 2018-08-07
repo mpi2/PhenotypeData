@@ -20,7 +20,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -55,25 +54,29 @@ public class RegisterInterestController {
 			@RequestParam("geneAccessionId") String geneAccessionId,
 			@RequestParam("target") String target,
 			HttpServletRequest request,
-			HttpServletResponse response,
-			ModelMap model) {
+			HttpServletResponse response) {
 
 		RegisterInterestUtils riUtils = new RegisterInterestUtils(riBaseUrl);
 		riUtils.registerGene(request, response, geneAccessionId);
 		return "redirect:" + paBaseUrl + "/" + target;
 	}
 
-	@RequestMapping(value = "/riRegistrationGet/gene", method = RequestMethod.GET)
+	/**
+	 * This endpoint is called to log in to Register Interest. After a successful login, the caller is redirected back
+	 * to {code target} along with the Register Interest JSESSIONID token.
+	 *
+	 * @param target The target to redirect to after successful authentication
+	 * @return
+	 */
+	@RequestMapping(value = "/riLogin", method = RequestMethod.GET)
 	public String riRegistrationGetGene(
-			@RequestParam("geneAccessionId") String geneAccessionId,
-			@RequestParam(value = "target", required = false) String target,
-			HttpServletRequest request,
-			HttpServletResponse response,
-			ModelMap model) {
+			@RequestParam(value = "target", required = false) String target) {
 
-		RegisterInterestUtils riUtils = new RegisterInterestUtils(riBaseUrl);
-		riUtils.isRegisteredForGene(request, response, geneAccessionId);
-		return "redirect:" + paBaseUrl + "/" + target;
+		if (target == null) {
+			target = paBaseUrl + "/search?kw=*";
+		}
+
+		return "redirect:" + riBaseUrl + "/login?target=" + target;
 	}
 
 	@RequestMapping(value = "/riSuccessHandler", method = RequestMethod.GET)
@@ -91,8 +94,6 @@ public class RegisterInterestController {
 			request.getSession().setAttribute("riToken", riToken);
 		}
 
-		RegisterInterestUtils.setRiSessionCookie(request);
-
 		return "redirect:" + target;
 	}
 
@@ -100,8 +101,7 @@ public class RegisterInterestController {
     public String riUnregistrationGene(
             @RequestParam("geneAccessionId") String geneAccessionId,
 			@RequestParam("target") String target,
-            HttpServletRequest request,
-            ModelMap model) {
+            HttpServletRequest request) {
 
         RegisterInterestUtils riUtils = new RegisterInterestUtils(riBaseUrl);
 			riUtils.unregisterGene(request, geneAccessionId);

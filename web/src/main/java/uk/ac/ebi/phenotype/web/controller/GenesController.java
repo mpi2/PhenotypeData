@@ -333,18 +333,21 @@ public class GenesController {
             // Nothing to do. If register interest service isn't working, a 500 is thrown. Handle as unauthenticated.
         }
 
-        String riBaseUrl = config.get("riBaseUrl");
+        // Use Register Interest login link
         String paBaseUrl = config.get("paBaseUrl");
         String registerButtonText = "Login to register interest";
-        String registerButtonAnchor = riBaseUrl + "/login?target=genes/" + acc;
-
+        String registerButtonAnchor = new StringBuilder()
+                .append(paBaseUrl).append("/riLogin")
+                .append("?target=" + paBaseUrl + "/genes/" + acc)
+                .toString();
 
         String registerButtonId = acc;
         String registerIconClass = "fa fa-sign-in";
 
         if (loggedIn) {
 
-            List<String> geneAccessionIds = riUtils.getGeneAccessionIds();
+            Map<String, List<String>> geneAccessionIdMap = riUtils.getGeneAccessionIds();
+            List<String> geneAccessionIds = geneAccessionIdMap.get("geneAccessionIds");
 
             if (geneAccessionIds.contains(acc)) {
 

@@ -30,6 +30,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 public class RegisterInterestUtils {
 
@@ -51,38 +52,18 @@ public class RegisterInterestUtils {
      *
      * @return a list of the currently logged in user's gene interest mgi accession ids
      */
-    public List<String> getGeneAccessionIds() {
+    public Map<String, List<String>> getGeneAccessionIds() {
 
-        ResponseEntity<List<String>> response = new RestTemplate().exchange(riBaseUrl + "/api/summary/list", HttpMethod.GET, httpEntityHeaders,
-                                                                            new ParameterizedTypeReference<List<String>>() { }, Collections.emptyMap());
+        ResponseEntity<Map<String, List<String>>> response = new RestTemplate().exchange(riBaseUrl + "/api/summary/list", HttpMethod.GET, httpEntityHeaders,
+                                                                                         new ParameterizedTypeReference<Map<String, List<String>>>() { }, Collections.emptyMap());
         return response.getBody();
-    }
-
-    /**
-     * Test to determine if contact has registered for specified gene. Remote endpoint is security-restricted, so contact
-     * will be authenticated upon return from this call if they weren't already.
-     *
-     * @param geneAccessionId
-     * @return True if contact is registered for specified gene; false otherwise
-     */
-    public boolean isRegisteredForGene(HttpServletRequest request, HttpServletResponse response, String geneAccessionId) {
-
-        boolean retVal;
-
-        httpEntityHeaders = new HttpEntity<String>(buildHeadersFromRiToken(request));
-
-        ResponseEntity<Boolean> restResponse = new RestTemplate().exchange(riBaseUrl + "/api/registration/gene?geneAccessionId=" + geneAccessionId,
-                                                                           HttpMethod.GET, httpEntityHeaders, Boolean.class);
-        retVal = restResponse.getBody() == null ? false : restResponse.getBody();
-
-        return retVal;
     }
 
 	public boolean isLoggedIn(HttpServletRequest request) {
 
         // Use the web service to check if we're logged in.
 
-        httpEntityHeaders = new HttpEntity<String>(buildHeadersFromRiToken(request));
+        httpEntityHeaders = new HttpEntity<>(buildHeadersFromRiToken(request));
 
         ResponseEntity<List<String>> response = new RestTemplate().exchange(riBaseUrl + "/api/roles", HttpMethod.GET, httpEntityHeaders,
                                                                             new ParameterizedTypeReference<List<String>>() {
@@ -107,18 +88,12 @@ public class RegisterInterestUtils {
         }
 
         // Use the web service to register interest in gene.
-        httpEntityHeaders = new HttpEntity<String>(buildHeadersFromRiToken(request));
+        httpEntityHeaders = new HttpEntity<>(buildHeadersFromRiToken(request));
 
         ResponseEntity<String> restResponse = new RestTemplate().exchange(riBaseUrl + "/api/registration/gene?geneAccessionId=" + geneAccessionId,
                                                                           HttpMethod.POST, httpEntityHeaders, String.class);
 
         return restResponse.getBody() == null ? "" : restResponse.getBody();
-    }
-
-	public static void setRiSessionCookie(HttpServletRequest request) {
-
-        String cookieValue = "JSESSIONID=" + request.getSession().getAttribute("riToken");
-        request.getSession().setAttribute("Set-Cookie", cookieValue);
     }
 
     public static HttpHeaders buildHeadersFromRiToken(HttpServletRequest request) {
@@ -144,7 +119,7 @@ public class RegisterInterestUtils {
         }
 
         // Use the web service to unregister.
-        httpEntityHeaders = new HttpEntity<String>(buildHeadersFromRiToken(request));
+        httpEntityHeaders = new HttpEntity<>(buildHeadersFromRiToken(request));
 
         ResponseEntity<String> restResponse = new RestTemplate().exchange(riBaseUrl + "/api/unregistration/gene?geneAccessionId=" + geneAccessionId,
                                                                           HttpMethod.DELETE, httpEntityHeaders, String.class);

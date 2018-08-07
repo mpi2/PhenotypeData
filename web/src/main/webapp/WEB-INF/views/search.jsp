@@ -572,7 +572,7 @@
 							highlighSynonym();
 
 							// register interest js
-							registerInterest();
+							// registerInterest();
 
 							if (coreName == 'allele2'){
 								decodeAlleleName();
