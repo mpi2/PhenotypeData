@@ -15,10 +15,8 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.web.controller;
 
-import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
-import org.mousephenotype.cda.solr.SolrUtils;
 import org.mousephenotype.cda.solr.generic.util.Tools;
 import org.mousephenotype.cda.solr.service.SolrIndex;
 import org.slf4j.Logger;
@@ -39,8 +37,6 @@ import javax.sql.DataSource;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URLDecoder;
-import java.util.HashMap;
-import java.util.Map;
 
 @Controller
 public class SearchController {
@@ -88,7 +84,7 @@ public class SearchController {
 	 */
 	@RequestMapping("/search/")  // appended slash
 	public String searchForward(HttpServletRequest request) {
-		String redirectUrl = request.getScheme() + ":" + request.getAttribute("mappedHostname") + request.getAttribute("baseUrl") + "/search";
+		String redirectUrl = request.getScheme() + ":" + request.getAttribute("mappedHostname") + request.getAttribute("baseUrl") + "/search/gene?kw=*";
 		return "redirect:" + redirectUrl;
 	}
 
@@ -99,11 +95,16 @@ public class SearchController {
 
 		String paramString = request.getQueryString();
 
-		System.out.println("paramStr: " + paramString);
+		logger.debug("paramStr: {}", paramString);
+
+		if ((paramString == null) || (paramString.equals("kw=*"))) {
+			return searchForward(request);
+		}
+
 		SearchSettings settings = new SearchSettings("gene", "*", null, request);
-		//System.out.println("settings: "+ settings.toString());
 		return processSearch(settings, model);
 	}
+
 	/**
 	 * Primary gateway to searching on the web portal.
 	 *
