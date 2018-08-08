@@ -610,6 +610,8 @@ public class DataTableController {
 				// Nothing to do. If register interest service isn't working, a 500 is thrown. Handle as unauthenticated.
 			}
 
+			String target = paBaseUrl + "/search/gene?" + request.getQueryString();
+
 			if (loggedIn) {
 				Map<String, List<String>> geneAccessionIdMap = riUtils.getGeneAccessionIds();
 				List<String> geneAccessionIds = geneAccessionIdMap.get("geneAccessionIds");
@@ -621,7 +623,7 @@ public class DataTableController {
                             + "<a id='" + doc.getString("mgi_accession_id")
 								+ "' class='regInterest primary interest' href='"
 								+ paBaseUrl + "/riUnregistration/gene?geneAccessionId=" + doc.getString("mgi_accession_id")
-								+ "&target=search&quest;kw=*"
+								+ "&target=" + target
 								+ "'>&nbsp;Unregister Interest</a>"
                             + "</div>";
                     rowData.add(unregister);
@@ -633,7 +635,7 @@ public class DataTableController {
                             + "<a id='" + doc.getString("mgi_accession_id")
 								+ "' class='regInterest primary interest' href='"
 								+ paBaseUrl + "/riRegistration/gene?geneAccessionId=" + doc.getString("mgi_accession_id")
-								+ "&target=search&quest;kw=*"
+                            + "&target=" + target
 								+ "'>&nbsp;Register Interest</a>"
                             + "</div>";
                     rowData.add(unregister);
@@ -647,7 +649,7 @@ public class DataTableController {
 				href
 						.append("href='")
 						.append(paBaseUrl).append("/riLogin")
-						.append("?target=" + paBaseUrl + "/search?kw=*")
+						.append("?target=" + target)
 						.append("'");
 				String interest = "<div class='registerforinterest' oldtitle='Login to register interest' title=''>"
 						+ "<i class='fa fa-sign-in'></i>"

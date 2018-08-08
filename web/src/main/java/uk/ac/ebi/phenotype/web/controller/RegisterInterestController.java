@@ -58,7 +58,7 @@ public class RegisterInterestController {
 
 		RegisterInterestUtils riUtils = new RegisterInterestUtils(riBaseUrl);
 		riUtils.registerGene(request, response, geneAccessionId);
-		return "redirect:" + paBaseUrl + "/" + target;
+		return "redirect:" + target;
 	}
 
 	/**
@@ -73,7 +73,7 @@ public class RegisterInterestController {
 			@RequestParam(value = "target", required = false) String target) {
 
 		if (target == null) {
-			target = paBaseUrl + "/search?kw=*";
+			target = paBaseUrl + "/search/gene?kw=*";
 		}
 
 		return "redirect:" + riBaseUrl + "/login?target=" + target;
@@ -87,7 +87,7 @@ public class RegisterInterestController {
 	) {
 
 		if (target == null) {
-			target = paBaseUrl + "/search?kw=*";
+			target = paBaseUrl + "/search/gene?kw=*";
 		}
 
 		if (riToken != null) {
@@ -105,6 +105,6 @@ public class RegisterInterestController {
 
         RegisterInterestUtils riUtils = new RegisterInterestUtils(riBaseUrl);
 			riUtils.unregisterGene(request, geneAccessionId);
-			return "redirect:" + paBaseUrl + "/" + target;
+			return "redirect:" + target;
     }
 }

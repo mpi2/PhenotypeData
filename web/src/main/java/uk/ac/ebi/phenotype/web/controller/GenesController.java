@@ -353,13 +353,13 @@ public class GenesController {
 
                 registerIconClass = "fa fa-sign-out";
                 registerButtonText = "Unregister interest";
-                registerButtonAnchor = paBaseUrl + "/riUnregistration/gene?geneAccessionId=" + acc + "&target=genes/" + acc;
+                registerButtonAnchor = paBaseUrl + "/riUnregistration/gene?geneAccessionId=" + acc + "&target=" + paBaseUrl + "/genes/" + acc;
 
             } else {
 
                 registerIconClass = "fa fa-sign-in";
                 registerButtonText = "Register interest";
-                registerButtonAnchor = paBaseUrl + "/riRegistration/gene?geneAccessionId=" + acc + "&target=genes/" + acc;
+                registerButtonAnchor = paBaseUrl + "/riRegistration/gene?geneAccessionId=" + acc + "&target=" + paBaseUrl + "/genes/" + acc;
             }
         }
 
