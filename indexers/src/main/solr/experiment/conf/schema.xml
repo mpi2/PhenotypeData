@@ -16,7 +16,7 @@
  limitations under the License.
 -->
 
-<schema name="gene core" version="1.1">
+<schema name="experiment core" version="1.2">
 
     <types>
         <fieldtype name="string" class="solr.StrField" sortMissingLast="true" omitNorms="true"/>
@@ -24,6 +24,23 @@
         <fieldType name="int" class="solr.TrieIntField" precisionStep="0" omitNorms="true" positionIncrementGap="0"/>
         <fieldType name="float" class="solr.TrieFloatField" precisionStep="0" omitNorms="true" positionIncrementGap="0"/>
         <fieldType name="tdate" class="solr.TrieDateField" omitNorms="true" precisionStep="6" positionIncrementGap="0"/>
+        <!--  to be used for autosuggest  -->
+        <fieldType name="text_ngram" class="solr.TextField">
+            <analyzer type="index">
+                <tokenizer class="solr.WhitespaceTokenizerFactory"/>
+                <filter class="solr.LowerCaseFilterFactory"/>
+                <filter class="solr.RemoveDuplicatesTokenFilterFactory"/>
+                <filter class="solr.EdgeNGramFilterFactory" minGramSize="1" maxGramSize="100" side="front"/>
+                <filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="true"/>
+            </analyzer>
+            <analyzer type="query">
+                <tokenizer class="solr.WhitespaceTokenizerFactory"/>
+                <filter class="solr.LowerCaseFilterFactory"/>
+                <filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="true"/>
+                <!-- <filter class="solr.KStemFilterFactory"/>  -->
+                <filter class="solr.RemoveDuplicatesTokenFilterFactory"/>
+            </analyzer>
+        </fieldType>
     </types>
 
     <fields>
@@ -140,12 +157,29 @@
         <field name="sequence_id" type="int" indexed="true" stored="true" multiValued="false"/>
         <field name="age_in_days" type="int" indexed="true" stored="true" multiValued="false"/>
         <field name="age_in_weeks" type="int" indexed="true" stored="true" multiValued="false"/>
+
+        <!-- autocomplete -->
+        <field name="parameter_name_ac" type="text_ngram" indexed="true" stored="false" multiValued="false"/>
+        <field name="parameter_stable_id_ac" type="text_ngram" indexed="true" stored="false" multiValued="false"/>
+        <field name="procedure_name_ac" type="text_ngram" indexed="true" stored="false" multiValued="false"/>
+        <field name="procedure_group_ac" type="text_ngram" indexed="true" stored="false" multiValued="false"/>
+        <field name="allele_symbol_ac" type="text_ngram" indexed="true" stored="false" multiValued="false"/>
+        <field name="colony_id_ac" type="text_ngram" indexed="true" stored="false" multiValued="false"/>
+
     </fields>
 
     <uniqueKey>id</uniqueKey>
 
     <!-- field for the QueryParser to use when an explicit fieldname is absent -->
     <defaultSearchField>id</defaultSearchField>
+
+    <copyField source="parameter_name" dest="parameter_name_ac"/>
+    <copyField source="parameter_stable_id" dest="parameter_stable_id_ac"/>
+    <copyField source="procedure_name" dest="procedure_name_ac"/>
+    <copyField source="procedure_group" dest="procedure_group_ac"/>
+    <copyField source="allele_symbol" dest="allele_symbol_ac"/>
+    <copyField source="colony_id" dest="colony_id_ac"/>
+
 
     <!-- SolrQueryParser configuration: defaultOperator="AND|OR" -->
     <solrQueryParser defaultOperator="OR"/>
