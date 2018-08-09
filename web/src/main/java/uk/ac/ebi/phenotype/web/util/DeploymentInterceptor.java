@@ -28,6 +28,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
+
 @Component
 public class DeploymentInterceptor extends HandlerInterceptorAdapter {
 
@@ -42,6 +43,7 @@ public class DeploymentInterceptor extends HandlerInterceptorAdapter {
     /**
      * set baseUrl and other variables for all controllers
      */
+    @Override
     public boolean preHandle(
             HttpServletRequest request,
             HttpServletResponse response,
