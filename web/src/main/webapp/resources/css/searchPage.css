@@ -321,8 +321,8 @@ div#dTable_pagination {
 	margin-top: 6px;
 	padding: 30px 20px 20px 20px;
 	border: 2px solid #0978A1;
-	-webkit-border-radius:;
-	-moz-border-radius:;
+	/*-webkit-border-radius:;*/
+	/*-moz-border-radius:;*/
 	border-radius: 5px;
 }
 
@@ -441,8 +441,8 @@ div.searchcontent {
 	margin-top: -15px;
 }
 #bigsearchbox {
-    -webkit-border-radius:;
-    -moz-border-radius:;
+    /*-webkit-border-radius:;*/
+    /*-moz-border-radius:;*/
     border-radius: 5px;
     float: left;
     width: 94%;
@@ -462,7 +462,7 @@ div.searchcontent {
     position: absolute;
     top: 23px;
     right: 4em;
-}}
+}
 i.searchExample {
 	top: 22px;
 	float: right;

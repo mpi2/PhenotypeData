@@ -17,6 +17,7 @@ import org.springframework.web.servlet.view.InternalResourceViewResolver;
 import org.springframework.web.servlet.view.JstlView;
 import uk.ac.ebi.phenotype.web.util.DeploymentInterceptor;
 
+import javax.validation.constraints.NotNull;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -67,6 +68,15 @@ public class PhenotypeArchiveConfig {
     @Value("${live_site}")
     private String liveSite;
 
+    @NotNull
+    @Value("${riBaseUrl}")
+    private String riBaseUrl;
+
+    @NotNull
+    @Value("${paBaseUrl}")
+    private String paBaseUrl;
+
+
     @Bean
     public ErrorPageFilter errorPageFilter() {
         return new ErrorPageFilter();
@@ -93,6 +103,8 @@ public class PhenotypeArchiveConfig {
         map.put("pdfThumbnailUrl", pdfThumbnailUrl);
         map.put("googleAnalytics", googleAnalytics);
         map.put("liveSite", liveSite);
+        map.put("riBaseUrl", riBaseUrl);
+        map.put("paBaseUrl", paBaseUrl);
         return map;
     }
 

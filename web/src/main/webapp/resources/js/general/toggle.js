@@ -18,44 +18,48 @@
  */
 jQuery(document).ready(	function() {
 
-	$('a.interest').click(function(){
-		var termId = $(this).attr('id');
-		var endpoint = null;
-	     
-	     if ( /^MP:/.exec(termId) ){
-	     	endpoint = "/togglempflagfromjs/";
-	     }
-	     else if ( /^MGI:/.exec(termId) ){
-	     	endpoint = "/toggleflagfromjs/";
-	     }
-		
-		
-		var label = $(this).text();
-		var regBtn = $(this);
-		$.ajax({
-			url: endpoint + termId,                           
-			success: function (response) {
-			function endsWith(str, suffix) {
-				return str.indexOf(suffix, str.length - suffix.length) !== -1;
-        	}
-			if(response === 'null') {
-				window.alert('Null error trying to register interest');
-			} 
-			else {                          
-				if( label == 'Register interest' ) {
-					regBtn.text('Unregister interest');
-				} 
-				else {
-					regBtn.text('Register interest');
-				}                               
-			}                         
-        },
-        error: function () {
-        	console.log('error on registering interest');                     
-        }
-    });
-	return false;    		    	  
-});
+
+// 18-July-2018 (mrelac) - commented out this function, as it hijacks a.interest and processes it using old, incorrect Harwell rules.
+
+
+// 	$('a.interest').click(function(){
+// 		var termId = $(this).attr('id');
+// 		var endpoint = null;
+//
+// 	     if ( /^MP:/.exec(termId) ){
+// 	     	endpoint = "/togglempflagfromjs/";
+// 	     }
+// 	     else if ( /^MGI:/.exec(termId) ){
+// 	     	endpoint = "/toggleflagfromjs/";
+// 	     }
+//
+//
+// 		var label = $(this).text();
+// 		var regBtn = $(this);
+// 		$.ajax({
+// 			url: endpoint + termId,
+// 			success: function (response) {
+// 			function endsWith(str, suffix) {
+// 				return str.indexOf(suffix, str.length - suffix.length) !== -1;
+//         	}
+// 			if(response === 'null') {
+// 				window.alert('Null error trying to register interest');
+// 			}
+// 			else {
+// 				if( label == 'Register interest' ) {
+// 					regBtn.text('Unregister interest');
+// 				}
+// 				else {
+// 					regBtn.text('Register interest');
+// 				}
+// 			}
+//         },
+//         error: function () {
+//         	console.log('error on registering interest');
+//         }
+//     });
+// 	return false;
+// });
 
 
 });

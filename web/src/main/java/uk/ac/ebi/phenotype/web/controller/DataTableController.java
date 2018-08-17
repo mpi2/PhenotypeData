@@ -15,46 +15,20 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.web.controller;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URISyntaxException;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.sql.DataSource;
-
-import org.apache.commons.collections.CollectionUtils;
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+import net.sf.json.JSONSerializer;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.mousephenotype.cda.db.dao.GenomicFeatureDAO;
 import org.mousephenotype.cda.db.dao.ReferenceDAO;
 import org.mousephenotype.cda.solr.generic.util.JSONImageUtils;
 import org.mousephenotype.cda.solr.generic.util.Tools;
 import org.mousephenotype.cda.solr.service.ExpressionService;
 import org.mousephenotype.cda.solr.service.GeneService;
-import org.mousephenotype.cda.solr.service.MpService;
 import org.mousephenotype.cda.solr.service.SolrIndex;
 import org.mousephenotype.cda.solr.service.SolrIndex.AnnotNameValCount;
 import org.mousephenotype.cda.solr.service.dto.Allele2DTO;
@@ -65,28 +39,35 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
-import net.sf.json.JSONSerializer;
-import uk.ac.ebi.phenotype.generic.util.RegisterInterestDrupalSolr;
+import org.springframework.web.bind.annotation.*;
+import uk.ac.ebi.phenotype.generic.util.RegisterInterestUtils;
 import uk.ac.ebi.phenotype.service.BatchQueryForm;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.sql.DataSource;
+import javax.validation.constraints.NotNull;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URISyntaxException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.*;
 
 
 @Controller
 public class DataTableController {
-
-	private static final int ArrayList = 0;
 
 	private final Logger log = LoggerFactory.getLogger(this.getClass().getCanonicalName());
 
@@ -95,9 +76,6 @@ public class DataTableController {
 
 	@Autowired
 	private GeneService geneService;
-
-	@Autowired
-	private MpService mpService;
 
 	@Autowired
 	ExpressionService expressionService;
@@ -122,8 +100,14 @@ public class DataTableController {
 	@Autowired
 	private ReferenceDAO referenceDAO;
 
-	@Autowired
-	private GenomicFeatureDAO genesDao;
+    @NotNull
+    @Value("${riBaseUrl}")
+    private String riBaseUrl;
+
+    @NotNull
+    @Value("${paBaseUrl}")
+    private String paBaseUrl;
+
 
 	/**
 	 <p>
@@ -559,8 +543,6 @@ public class DataTableController {
 
 	public String parseJsonforGeneDataTable(JSONObject json, HttpServletRequest request, String qryStr, String fqOri, String solrCoreName, boolean legacyOnly) throws UnsupportedEncodingException {
 
-		RegisterInterestDrupalSolr registerInterest = new RegisterInterestDrupalSolr(config.get("drupalBaseUrl"), request);
-
 		JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
 		int totalDocs = json.getJSONObject("response").getInt("numFound");
 
@@ -616,29 +598,62 @@ public class DataTableController {
 			rowData.add(phenotypeStatusHTMLRepresentation);
 
 			// register of interest
-			if (registerInterest.loggedIn()) {
-				if (registerInterest.alreadyInterested(mgiId)) {
-					String uinterest = "<div class='registerforinterest' oldtitle='Unregister interest' title=''>"
-							+ "<i class='fa fa-sign-out'></i>"
-							+ "<a id='" + doc.getString("mgi_accession_id") + "' class='regInterest primary interest' href=''>&nbsp;Unregister interest</a>"
-							+ "</div>";
 
-					rowData.add(uinterest);
-				} else {
-					String rinterest = "<div class='registerforinterest' oldtitle='Register interest' title=''>"
-							+ "<i class='fa fa-sign-in'></i>"
-							+ "<a id='" + doc.getString("mgi_accession_id") + "' class='regInterest primary interest' href=''>&nbsp;Register interest</a>"
-							+ "</div>";
+			RegisterInterestUtils riUtils = new RegisterInterestUtils(riBaseUrl);
 
-					rowData.add(rinterest);
-				}
+			boolean loggedIn = false;
+			try {
+
+				loggedIn = riUtils.isLoggedIn(request);
+
+			} catch (Exception e) {
+				// Nothing to do. If register interest service isn't working, a 500 is thrown. Handle as unauthenticated.
+			}
+
+			String target = paBaseUrl + "/search/gene?" + request.getQueryString();
+
+			if (loggedIn) {
+				Map<String, List<String>> geneAccessionIdMap = riUtils.getGeneAccessionIds();
+				List<String> geneAccessionIds = geneAccessionIdMap.get("geneAccessionIds");
+
+                if (geneAccessionIds.contains(mgiId)) {
+
+                    String unregister = "<div class='registerforinterest' oldtitle='Unregister interest' title=''>"
+                            + "<i class='fa fa-sign-out'></i>"
+                            + "<a id='" + doc.getString("mgi_accession_id")
+								+ "' class='regInterest primary interest' href='"
+								+ paBaseUrl + "/riUnregistration/gene?geneAccessionId=" + doc.getString("mgi_accession_id")
+								+ "&target=" + target
+								+ "'>&nbsp;Unregister Interest</a>"
+                            + "</div>";
+                    rowData.add(unregister);
+
+                } else {
+
+                    String unregister = "<div class='registerforinterest' oldtitle='Register interest' title=''>"
+                            + "<i class='fa fa-sign-in'></i>"
+                            + "<a id='" + doc.getString("mgi_accession_id")
+								+ "' class='regInterest primary interest' href='"
+								+ paBaseUrl + "/riRegistration/gene?geneAccessionId=" + doc.getString("mgi_accession_id")
+                            + "&target=" + target
+								+ "'>&nbsp;Register Interest</a>"
+                            + "</div>";
+                    rowData.add(unregister);
+                }
+
 			} else {
-				// use the login link instead of register link to avoid user clicking on tab which
-				// will strip out destination link that we don't want to see happened
+
+				// Use Register Interest login link
+				StringBuilder href = new StringBuilder();
+
+				href
+						.append("href='")
+						.append(paBaseUrl).append("/riLogin")
+						.append("?target=" + target)
+						.append("'");
 				String interest = "<div class='registerforinterest' oldtitle='Login to register interest' title=''>"
 						+ "<i class='fa fa-sign-in'></i>"
-						// + "<a class='regInterest' href='/user/login?destination=data/search#fq=*:*&facet=gene'>&nbsp;Interest</a>"
-						+ "<a class='regInterest' href='/user/login?destination=data/search/gene?kw=*&fq=*:*'>&nbsp;Interest</a>"
+						+ "<a class='regInterest' " + href.toString() + ">&nbsp;Interest</a>"
 						+ "</div>";
 
 				rowData.add(interest);
@@ -654,6 +669,7 @@ public class DataTableController {
 
 		return j.toString();
 	}
+
 
 	public String parseJsonforProtocolDataTable(JSONObject json, HttpServletRequest request, String solrCoreName) {
 
@@ -707,7 +723,6 @@ public class DataTableController {
 
 	public String parseJsonforMpDataTable(JSONObject json, HttpServletRequest request, String qryStr, String solrCoreNamet) throws UnsupportedEncodingException {
 
-		RegisterInterestDrupalSolr registerInterest = new RegisterInterestDrupalSolr(config.get("drupalBaseUrl"), request);
 		String baseUrl = request.getAttribute("baseUrl").toString();
 
 		JSONObject j = new JSONObject();
@@ -814,35 +829,6 @@ public class DataTableController {
 
 			// link out to ontology browser page
 			rowData.add("<a href='" + baseUrl + "/ontologyBrowser?" + "termId=" + mpId + "'><i class=\"fa fa-share-alt-square\"></i> Browse</a>");
-
-			// register of interest
-			if (registerInterest.loggedIn()) {
-				if (registerInterest.alreadyInterested(mpId)) {
-					String uinterest = "<div class='registerforinterest' oldtitle='Unregister interest' title=''>"
-							+ "<i class='fa fa-sign-out'></i>"
-							+ "<a id='" + mpId + "' class='regInterest primary interest' href=''>&nbsp;Unregister interest</a>"
-							+ "</div>";
-
-					rowData.add(uinterest);
-				} else {
-					String rinterest = "<div class='registerforinterest' oldtitle='Register interest' title=''>"
-							+ "<i class='fa fa-sign-in'></i>"
-							+ "<a id='" + mpId + "' class='regInterest primary interest' href=''>&nbsp;Register interest</a>"
-							+ "</div>";
-
-					rowData.add(rinterest);
-				}
-			} else {
-				// use the login link instead of register link to avoid user clicking on tab which
-				// will strip out destination link that we don't want to see happened
-				String interest = "<div class='registerforinterest' oldtitle='Login to register interest' title=''>"
-						+ "<i class='fa fa-sign-in'></i>"
-						// + "<a class='regInterest' href='/user/login?destination=data/search#fq=*:*&facet=mp'>&nbsp;Interest</a>"
-						+ "<a class='regInterest' href='/user/login?destination=data/search/mp?kw=*&fq=top_level_mp_term:*'>&nbsp;Interest</a>"
-						+ "</div>";
-
-				rowData.add(interest);
-			}
 
 			j.getJSONArray("aaData").add(rowData);
 		}

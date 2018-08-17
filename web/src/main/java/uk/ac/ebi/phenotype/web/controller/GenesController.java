@@ -54,8 +54,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import uk.ac.ebi.phenodigm2.Disease;
+import uk.ac.ebi.phenodigm2.DiseaseModelAssociation;
+import uk.ac.ebi.phenodigm2.GeneDiseaseAssociation;
+import uk.ac.ebi.phenodigm2.WebDao;
 import uk.ac.ebi.phenotype.error.GenomicFeatureNotFoundException;
-import uk.ac.ebi.phenotype.generic.util.RegisterInterestDrupalSolr;
+import uk.ac.ebi.phenotype.generic.util.RegisterInterestUtils;
 import uk.ac.ebi.phenotype.generic.util.SolrIndex2;
 import uk.ac.ebi.phenotype.ontology.PhenotypeSummaryBySex;
 import uk.ac.ebi.phenotype.ontology.PhenotypeSummaryDAO;
@@ -78,10 +82,6 @@ import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
 import java.util.*;
-import uk.ac.ebi.phenodigm2.Disease;
-import uk.ac.ebi.phenodigm2.GeneDiseaseAssociation;
-import uk.ac.ebi.phenodigm2.DiseaseModelAssociation;
-import uk.ac.ebi.phenodigm2.WebDao;
 
 @Controller
 public class GenesController {
@@ -321,14 +321,52 @@ public class GenesController {
 //		if ( gwasMappings.size() > 0 ){
 //			model.addAttribute("gwasPhenoMapping", gwasMappings.get(0).getPhenoMappingCategory());
 //		}
-        // code for assessing if the person is logged in and if so have they
-        // registered interest in this gene or not?
-        RegisterInterestDrupalSolr registerInterest = new RegisterInterestDrupalSolr(drupalBaseUrl, request);
-        Map<String, String> regInt = registerInterest.registerInterestState(acc, request, registerInterest);
 
-        model.addAttribute("registerInterestButtonString", regInt.get("registerInterestButtonString"));
-        model.addAttribute("registerButtonAnchor", regInt.get("registerButtonAnchor"));
-        model.addAttribute("registerButtonId", regInt.get("registerButtonId"));
+
+        RegisterInterestUtils riUtils  = new RegisterInterestUtils(config.get("riBaseUrl"));
+        boolean               loggedIn = false;
+        try {
+
+            loggedIn = riUtils.isLoggedIn(request);
+
+        } catch (Exception e) {
+            // Nothing to do. If register interest service isn't working, a 500 is thrown. Handle as unauthenticated.
+        }
+
+        // Use Register Interest login link
+        String paBaseUrl = config.get("paBaseUrl");
+        String registerButtonText = "Login to register interest";
+        String registerButtonAnchor = new StringBuilder()
+                .append(paBaseUrl).append("/riLogin")
+                .append("?target=" + paBaseUrl + "/genes/" + acc)
+                .toString();
+
+        String registerButtonId = acc;
+        String registerIconClass = "fa fa-sign-in";
+
+        if (loggedIn) {
+
+            Map<String, List<String>> geneAccessionIdMap = riUtils.getGeneAccessionIds();
+            List<String> geneAccessionIds = geneAccessionIdMap.get("geneAccessionIds");
+
+            if (geneAccessionIds.contains(acc)) {
+
+                registerIconClass = "fa fa-sign-out";
+                registerButtonText = "Unregister interest";
+                registerButtonAnchor = paBaseUrl + "/riUnregistration/gene?geneAccessionId=" + acc + "&target=" + paBaseUrl + "/genes/" + acc;
+
+            } else {
+
+                registerIconClass = "fa fa-sign-in";
+                registerButtonText = "Register interest";
+                registerButtonAnchor = paBaseUrl + "/riRegistration/gene?geneAccessionId=" + acc + "&target=" + paBaseUrl + "/genes/" + acc;
+            }
+        }
+
+        model.addAttribute("registerButtonText", registerButtonText);
+        model.addAttribute("registerButtonAnchor", registerButtonAnchor);
+        model.addAttribute("registerButtonId", registerButtonId);
+        model.addAttribute("registerIconClass", registerIconClass);
 
         try {
             getExperimentalImages(acc, model);
@@ -392,6 +430,7 @@ public class GenesController {
         PhenotypeDisplayStatus phenotypeDisplayStatus = getPhenotypeDisplayStatus(phenotypeStarted, numberOfTopLevelMpTermsWithStatisticalResult, postQcDataMapList, rowsForPhenotypeTable);
         model.addAttribute("phenotypeDisplayStatus", phenotypeDisplayStatus);
     }
+
 
     /**
      * Encapsulate logic for how we are displaying phenotype information in the
