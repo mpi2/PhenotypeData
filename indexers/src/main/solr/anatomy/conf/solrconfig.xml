@@ -922,13 +922,15 @@
      </lst>
   </requestHandler>
 
-	<!-- Need this for dataimporthandler to work -->  
-  <requestHandler name="/dataimport" 
+  <!-- Need this for dataimporthandler to work -->
+  <!-- We're not using DataImportHandler, so this will fail because DataImportHandler is no longer a dependency.
+  <requestHandler name="/dataimport"
      class="org.apache.solr.handler.dataimport.DataImportHandler">
     <lst name="defaults">
       <str name="config">data-config.xml</str>
     </lst>
   </requestHandler>
+  -->
  
   <!-- A Robust Example 
        
