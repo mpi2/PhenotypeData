@@ -34,6 +34,6 @@ public class EmbryoRestGetterTest {
 		System.out.println("in getEmbryoDataTest blah");
 		EmbryoRestGetter embryoRest=new EmbryoRestGetter(embryoViewerFilename);
 		EmbryoRestData embryoDataSet = embryoRest.getEmbryoRestData();
-		System.out.println(embryoDataSet);
+		System.out.println(String.format("There are %s strain(s) in the embryo file", (embryoDataSet.getStrains()!=null?embryoDataSet.getStrains().size():"*NO*")));
 	}
 }
