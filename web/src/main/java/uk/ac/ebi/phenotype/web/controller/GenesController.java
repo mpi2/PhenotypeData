@@ -131,6 +131,9 @@ public class GenesController {
     @Autowired
     private WebDao phenoDigm2Dao;
 
+    @Autowired
+    private RegisterInterestUtils riUtils;
+
     @Resource(name = "globalConfiguration")
     Map<String, String> config;
 
@@ -323,7 +326,6 @@ public class GenesController {
 //		}
 
 
-        RegisterInterestUtils riUtils  = new RegisterInterestUtils(config.get("riBaseUrl"));
         boolean               loggedIn = false;
         try {
 

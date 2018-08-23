@@ -80,6 +80,9 @@ public class DataTableController {
 	@Autowired
 	ExpressionService expressionService;
 
+	@Autowired
+	private RegisterInterestUtils riUtils;
+
 	@Resource(name = "globalConfiguration")
 	private Map<String, String> config;
 
@@ -598,8 +601,6 @@ public class DataTableController {
 			rowData.add(phenotypeStatusHTMLRepresentation);
 
 			// register of interest
-
-			RegisterInterestUtils riUtils = new RegisterInterestUtils(riBaseUrl);
 
 			boolean loggedIn = false;
 			try {

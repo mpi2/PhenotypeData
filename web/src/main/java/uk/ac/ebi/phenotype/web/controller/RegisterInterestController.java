@@ -18,6 +18,7 @@ package uk.ac.ebi.phenotype.web.controller;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -48,6 +49,9 @@ public class RegisterInterestController {
     @Value("${paBaseUrl}")
     private String paBaseUrl;
 
+    @Autowired
+	private RegisterInterestUtils riUtils;
+
 
 	@RequestMapping(value = "/riRegistration/gene", method = RequestMethod.GET)
 	public String riRegistrationGene(
@@ -56,7 +60,6 @@ public class RegisterInterestController {
 			HttpServletRequest request,
 			HttpServletResponse response) {
 
-		RegisterInterestUtils riUtils = new RegisterInterestUtils(riBaseUrl);
 		riUtils.registerGene(request, response, geneAccessionId);
 		return "redirect:" + target;
 	}
@@ -103,7 +106,6 @@ public class RegisterInterestController {
 			@RequestParam("target") String target,
             HttpServletRequest request) {
 
-        RegisterInterestUtils riUtils = new RegisterInterestUtils(riBaseUrl);
 			riUtils.unregisterGene(request, geneAccessionId);
 			return "redirect:" + target;
     }

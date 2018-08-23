@@ -18,34 +18,32 @@ package uk.ac.ebi.phenotype.generic.util;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.constraints.NotNull;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+@Service
 public class RegisterInterestUtils {
 
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
 	private HttpEntity<String> httpEntityHeaders;
-	private String             riBaseUrl;
 
-
-	@Inject
-	public RegisterInterestUtils(
-			String riBaseUrl
-	) {
-		this.riBaseUrl = riBaseUrl;
-	}
+    @NotNull
+    @Value("${riBaseUrl}")
+    private String riBaseUrl;
 
 
     /**
