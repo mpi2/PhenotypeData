@@ -71,15 +71,11 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
 
             // Load these 3I procedures manually from file Ania sent
             // IMPC will analyse the PBI hits per Lucie. See comment in ThreeIStatisticalResultLoader class
-            "MGP_BMI", "MGP_IMM", "MGP_MLN", "MGP_ANA" //, "MGP_PBI"
+            "MGP_BMI", "MGP_IMM", "MGP_MLN", "MGP_ANA", "MGP_EEI" //, "MGP_PBI"
             ));
 
 
-    private final Set<String> skipParameters = new HashSet<>(Arrays.asList(
-            "M-G-P_022_001_001",
-            // Skip analysing these parameters (from Natasha)
-            "JAX_SLW_001_001" ,"JAX_LDT_007_001" ,"ICS_SHO_004_001" ,"IMPC_EYE_056_001",
-            "IMPC_ECG_015_001" ,"IMPC_ECG_003_001" ,"JAX_LDT_006_001" ,"IMPC_ECG_010_001"));
+    private final Set<String> skipParameters = new HashSet<>();
 
 
     private final static List<String> PIVOT = Arrays.asList(

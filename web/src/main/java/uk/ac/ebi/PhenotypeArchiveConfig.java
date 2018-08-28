@@ -5,17 +5,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.boot.web.support.ErrorPageFilter;
 import org.springframework.context.annotation.*;
-import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
 import org.springframework.orm.hibernate5.support.OpenSessionInViewInterceptor;
-import org.springframework.orm.jpa.JpaVendorAdapter;
-import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
-import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
@@ -23,12 +17,9 @@ import org.springframework.web.servlet.view.InternalResourceViewResolver;
 import org.springframework.web.servlet.view.JstlView;
 import uk.ac.ebi.phenotype.web.util.DeploymentInterceptor;
 
-import javax.persistence.PersistenceContext;
-import javax.sql.DataSource;
 import javax.validation.constraints.NotNull;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 
 /**
  * Created by ilinca on 01/03/2017.
@@ -41,6 +32,7 @@ import java.util.Properties;
         "uk.ac.ebi.phenotype.web.controller"},
         excludeFilters = @ComponentScan.Filter(value = org.mousephenotype.cda.annotations.ComponentScanNonParticipant.class, type = FilterType.ANNOTATION))
 @PropertySource("file:${user.home}/configfiles/${profile:dev}/application.properties")
+@EnableScheduling
 public class PhenotypeArchiveConfig {
 
     private static final Logger logger = LoggerFactory.getLogger(PhenotypeArchiveConfig.class);
@@ -76,6 +68,15 @@ public class PhenotypeArchiveConfig {
     @Value("${live_site}")
     private String liveSite;
 
+    @NotNull
+    @Value("${riBaseUrl}")
+    private String riBaseUrl;
+
+    @NotNull
+    @Value("${paBaseUrl}")
+    private String paBaseUrl;
+
+
     @Bean
     public ErrorPageFilter errorPageFilter() {
         return new ErrorPageFilter();
@@ -102,6 +103,8 @@ public class PhenotypeArchiveConfig {
         map.put("pdfThumbnailUrl", pdfThumbnailUrl);
         map.put("googleAnalytics", googleAnalytics);
         map.put("liveSite", liveSite);
+        map.put("riBaseUrl", riBaseUrl);
+        map.put("paBaseUrl", paBaseUrl);
         return map;
     }
 

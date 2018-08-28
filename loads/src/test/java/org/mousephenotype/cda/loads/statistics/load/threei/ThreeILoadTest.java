@@ -6,7 +6,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.loads.common.CdaSqlUtils;
-import org.mousephenotype.cda.loads.statistics.load.MpTermService;
+import org.mousephenotype.cda.db.statistics.MpTermService;
 import org.mousephenotype.cda.loads.statistics.load.StatisticalResultLoaderConfig;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,10 +20,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ComponentScan(basePackages = "org.mousephenotype.cda.loads.statistics.load",
@@ -82,6 +79,7 @@ public class ThreeILoadTest {
 
         threeIStatisticalResultLoader.parameterTypeMap.put("MGP_IMM_047_001", ObservationType.unidimensional);
         threeIStatisticalResultLoader.parameterTypeMap.put("MGP_IMM_117_001", ObservationType.unidimensional);
+        threeIStatisticalResultLoader.parameterTypeMap.put("MGP_IMM_007_001", ObservationType.unidimensional);
 
         threeIStatisticalResultLoader.parameterTypeMap.put("MGP_MLN_010_001", ObservationType.unidimensional);
         threeIStatisticalResultLoader.parameterTypeMap.put("MGP_MLN_026_001", ObservationType.unidimensional);
@@ -94,6 +92,8 @@ public class ThreeILoadTest {
         threeIStatisticalResultLoader.parameterTypeMap.put("MGP_PBI_009_001", ObservationType.unidimensional);
         threeIStatisticalResultLoader.parameterTypeMap.put("MGP_PBI_015_001", ObservationType.unidimensional);
 
+        threeIStatisticalResultLoader.parameterTypeMap.put("MGP_EEI_002_001", ObservationType.unidimensional);
+
         threeIStatisticalResultLoader.run(loadArgs);
 
 
@@ -103,11 +103,21 @@ public class ThreeILoadTest {
         Integer resultCount = 0;
         try (Connection connection = cdaDataSource.getConnection(); PreparedStatement p = connection.prepareStatement(statsQuery)) {
             ResultSet resultSet = p.executeQuery();
+            ResultSetMetaData rsmd = resultSet.getMetaData();
+
             while (resultSet.next()) {
                 resultCount++;
                 Integer bioModelId = resultSet.getInt("experimental_id");
                 Assert.assertNotNull(bioModelId);
                 Assert.assertTrue(bioModelId > 0);
+
+                for (int i = 1; i <= rsmd.getColumnCount(); i++) {
+                    if (i > 1 && i<rsmd.getColumnCount()) System.out.print(",  ");
+                    String columnValue = resultSet.getString(i);
+                    System.out.print(rsmd.getColumnName(i) + ": " + columnValue );
+                }
+                System.out.println("");
+
             }
 
         }
@@ -115,7 +125,7 @@ public class ThreeILoadTest {
         //
         // PBI data is not loaded by the 3I loader
         //
-        Assert.assertEquals(12, resultCount.intValue());
+        Assert.assertEquals(14, resultCount.intValue());
 
     }
 }

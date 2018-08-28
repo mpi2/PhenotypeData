@@ -63,8 +63,12 @@ public class ImageService implements WebStatus{
 
 
 	@NotNull
-    @Value("${drupal_base_url}")
-    private String drupalBaseUrl;
+    @Value("${reports_hostname}")
+    private String reportsHostname;
+
+	@NotNull
+	@Value("${base_url}")
+	private String baseUrl;
 
     public List<ImageSummary> getImageSummary(String markerAccessionId)
     throws SolrServerException, IOException {
@@ -554,8 +558,8 @@ public class ImageService implements WebStatus{
                 List<String> row = new ArrayList<>();
                 ArrayList<String> params = new ArrayList<>();
                 ArrayList<String> paramValues = new ArrayList<>();
-                String urlToImagePicker = drupalBaseUrl
-                        + "/data/imageComparator/";
+                String urlToImagePicker = reportsHostname + baseUrl
+                        + "/imageComparator?acc=";
 
                 for (SolrDocument doc : group.getResult()) {
                     if (row.size() == 0) {
@@ -565,7 +569,7 @@ public class ImageService implements WebStatus{
                                 .iterator().next().toString());
                         urlToImagePicker += doc
                                 .getFieldValue(ImageDTO.GENE_ACCESSION_ID)
-                                + "/";
+                                + "&parameter_stable_id=";
                         urlToImagePicker += doc
                                 .getFieldValue(ImageDTO.PARAMETER_STABLE_ID);
                         if (doc.getFieldValue(ImageDTO.ALLELE_SYMBOL) != null) {

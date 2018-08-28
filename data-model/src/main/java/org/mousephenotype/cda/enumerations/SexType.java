@@ -16,41 +16,46 @@
  *******************************************************************************/
 
 package org.mousephenotype.cda.enumerations;
+
 /**
- * Simple enumeration of genders
- * 
- * @author Gautier Koscielny (EMBL-EBI) <koscieln@ebi.ac.uk>
- * @since February 2012
+ * Simple enumeration of sexes
  */
 
 public enum SexType {
-	
-	female("female"),
-	hermaphrodite("hermaphrodite"),
-	male("male"),
-	not_applicable("not applicable"),
-	no_data("no data"),
-	both("both");
 
-	private final String name;
+    female("female"),
+    hermaphrodite("hermaphrodite"),
+    male("male"),
+    not_applicable("not applicable"),
+    no_data("no data"),
+    both("both");
 
-	SexType(String name) {
-		this.name = name;
-	}
+    private final String name;
 
+    SexType(String name) {
+        this.name = name;
+    }
 
-	public String getName(){
-		return this.toString();
-	}
-	public static SexType getByDisplayName(String displayName) {
-		switch (displayName) {
-			case "female":	return SexType.female;
-			case "hermaphrodite": return SexType.hermaphrodite;
-			case "male": return SexType.male;
-			case "not applicable": return SexType.not_applicable;
-			case "no data": return SexType.no_data;
-			case "both": return SexType.both;
-			default: throw new IllegalArgumentException("No enum constant " + SexType.class + "." + displayName);
-		}
-	}
+    public String getName() {
+        return this.toString();
+    }
+
+    public static SexType getByDisplayName(String displayName) {
+        switch (displayName) {
+            case "female":
+                return SexType.female;
+            case "hermaphrodite":
+                return SexType.hermaphrodite;
+            case "male":
+                return SexType.male;
+            case "not applicable":
+                return SexType.not_applicable;
+            case "no data":
+                return SexType.no_data;
+            case "both":
+                return SexType.both;
+            default:
+                throw new IllegalArgumentException("No enum constant " + SexType.class + "." + displayName);
+        }
+    }
 }

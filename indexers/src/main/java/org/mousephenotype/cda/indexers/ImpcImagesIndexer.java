@@ -209,6 +209,7 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 			}
 
 			imageList.addAll(secondaryProjectImageList);
+			System.out.println("primary imageList size is "+imagePrimaryList.size());
 			imageList.addAll(imagePrimaryList);
 		
 			
@@ -310,6 +311,7 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 			impcImagesCore.commit();
 
 		} catch (SolrServerException | IOException e) {
+			e.printStackTrace();
 			throw new IndexerException(e);
 		}
 

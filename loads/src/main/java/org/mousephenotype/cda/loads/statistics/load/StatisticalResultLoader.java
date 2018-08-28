@@ -6,6 +6,7 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.mousephenotype.cda.db.pojo.OntologyTerm;
+import org.mousephenotype.cda.db.statistics.*;
 import org.mousephenotype.cda.enumerations.*;
 import org.mousephenotype.cda.loads.statistics.generate.StatisticalDatasetGenerator;
 import org.mousephenotype.cda.solr.service.BasicService;
@@ -58,7 +59,7 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
     protected void populateParameterTypeMap() throws SQLException {
         Map<String, ObservationType> map = parameterTypeMap;
 
-        String query= "SELECT DISTINCT parameter_stable_id, observation_type FROM observation WHERE missing != 1 AND observation_type IN ('categorical', 'unidimensional')";
+        String query= "SELECT DISTINCT * FROM phenotype_parameter_type";
 
         try (Connection connection = komp2DataSource.getConnection(); PreparedStatement p = connection.prepareStatement(query)) {
             ResultSet r = p.executeQuery();
@@ -957,7 +958,7 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
 
             String parameterId = result.getParameterStableId();
 
-            OntologyTerm mpTerm = mpTermService.getMPTerm(parameterId, resultWrapper, null, connection, 1.0f);
+            OntologyTerm mpTerm = mpTermService.getMPTerm(parameterId, resultWrapper, null, connection, 1.0f, false);
 
             if (mpTerm != null) {
                 result.setMpAcc(mpTerm.getId().getAccession());
@@ -968,10 +969,10 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
                 OntologyTerm maleMpTerm = null;
 
                 if (resultWrapper.getFemaleEffectSize() != null) {
-                    femaleMpTerm = mpTermService.getMPTerm(parameterId, resultWrapper, SexType.female, connection, 1.0f);
+                    femaleMpTerm = mpTermService.getMPTerm(parameterId, resultWrapper, SexType.female, connection, 1.0f, false);
                 }
                 if (resultWrapper.getMaleEffectSize() != null) {
-                    maleMpTerm = mpTermService.getMPTerm(parameterId, resultWrapper, SexType.male, connection, 1.0f);
+                    maleMpTerm = mpTermService.getMPTerm(parameterId, resultWrapper, SexType.male, connection, 1.0f, false);
                 }
 
                 if (femaleMpTerm != null && result instanceof LightweightUnidimensionalResult) {

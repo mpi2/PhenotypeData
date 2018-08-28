@@ -34,7 +34,7 @@ var drawChords = function (svgId, containerId, openNewPage, mpTopLevelTerms, idg
 
     function ready(error, json) {
 
-        console.log("in here");
+        console.log("in here with json="+json);
         if (error) throw error;
 
         else {
@@ -135,7 +135,8 @@ var drawChords = function (svgId, containerId, openNewPage, mpTopLevelTerms, idg
                     return d.angle > Math.PI ? "end" : null;
                 })
                 .text(function (d) {
-                    return labels[d.index].name.replace("phenotype", "");
+                    labels_json = JSON.parse(labels)
+                    return labels_json[d.index].name.replace("phenotype", "");
                 });
 
             g.append("g")

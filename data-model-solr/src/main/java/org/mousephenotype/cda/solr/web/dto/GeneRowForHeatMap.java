@@ -48,7 +48,15 @@ public class GeneRowForHeatMap implements Comparable<GeneRowForHeatMap>{
 
 
 	public String getHumanSymbolToString() {
-		return humanSymbol.toString().replaceAll("\\]|\\[", "");
+		if(humanSymbol==null) {
+			System.err.println("human geneSymbol is null");
+			return "No Human Symbol";
+		
+		}else {
+			//System.out.println("returning humanSymobl"+humanSymbol.toString().replaceAll("\\]|\\[", ""));
+			return humanSymbol.toString().replaceAll("\\]|\\[", "");
+		}
+		
 	}
 
 	public void setHumanSymbol(List<String> humanSymbol) {

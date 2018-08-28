@@ -15,6 +15,7 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.web.util;
 
+import org.mousephenotype.cda.utilities.UrlUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +29,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
+
 @Component
 public class DeploymentInterceptor extends HandlerInterceptorAdapter {
 
@@ -42,6 +44,7 @@ public class DeploymentInterceptor extends HandlerInterceptorAdapter {
     /**
      * set baseUrl and other variables for all controllers
      */
+    @Override
     public boolean preHandle(
             HttpServletRequest request,
             HttpServletResponse response,
@@ -58,6 +61,12 @@ public class DeploymentInterceptor extends HandlerInterceptorAdapter {
 	    Map<String, String> requestConfig = new HashMap<>();
 	    requestConfig.put("releaseVersion", dataReleaseVersionManager.getReleaseVersion());
 	    requestConfig.put("version", "v2.1.4");
+
+        requestConfig.put("riBaseUrlWithScheme", UrlUtils.urlWithScheme(request.getRequestURL().toString(), config.get("riBaseUrl")));
+        requestConfig.put("paBaseUrlWithScheme", UrlUtils.urlWithScheme(request.getRequestURL().toString(), config.get("paBaseUrl")));
+
+		config.put("paBaseUrlWithScheme", UrlUtils.urlWithScheme(request.getRequestURL().toString(), config.get("paBaseUrl")));
+		config.put("riBaseUrlWithScheme", UrlUtils.urlWithScheme(request.getRequestURL().toString(), config.get("riBaseUrl")));
 
 	    // Map the global config values into the request configuration
 	    config.keySet().forEach(key -> {
@@ -129,6 +138,4 @@ public class DeploymentInterceptor extends HandlerInterceptorAdapter {
 
 		return config.get("drupalBaseUrl");
 	}
-
 }
-

@@ -1,25 +1,25 @@
 package org.mousephenotype.cda.loads.common;
 
-import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mousephenotype.cda.db.pojo.OntologyTerm;
 import org.mousephenotype.cda.db.pojo.Strain;
 import org.mousephenotype.cda.loads.exceptions.DataLoadException;
-import org.mousephenotype.cda.utilities.RunStatus;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Import;
+import org.springframework.core.io.Resource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import org.springframework.test.context.TestPropertySource;
+import org.springframework.jdbc.datasource.init.ScriptUtils;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.util.*;
+import javax.sql.DataSource;
+import java.sql.SQLException;
 
 /**
  * Created by mrelac on 27/09/16.
  */
 @RunWith(SpringRunner.class)
-@TestPropertySource("file:${user.home}/configfiles/${profile:dev}/test.properties")
 @Import(CdaSqlUtilsTestConfig.class)
 public class CdaSqlUtilsTest {
 
@@ -157,6 +157,18 @@ public class CdaSqlUtilsTest {
 //
 //        System.out.println();
 //    }
+
+    @Autowired
+    private ApplicationContext context;
+
+    @Autowired
+    private DataSource cdaDataSource;
+
+    @Before
+    public void before() throws SQLException {
+        Resource r = context.getResource("sql/CdaSqlUtilsTest.sql");
+        ScriptUtils.executeSqlScript(cdaDataSource.getConnection(), r);
+    }
 
     @Test
     public void testGetStrain() throws DataLoadException {

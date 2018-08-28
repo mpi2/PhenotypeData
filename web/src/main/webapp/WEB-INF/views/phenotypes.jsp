@@ -179,14 +179,7 @@
 								<c:if test="${!hasData}">
 									<p>This MP term has not been considered for annotation in <a href="https://www.mousephenotype.org/impress">IMPReSS</a>. However, you can search and retrieve all MP terms currently associated to the Knock-out mutant lines from the <a href="${baseUrl}/search">IMPC Search</a> page. You can also look at all the MP terms used to annotate the IMPReSS SOPs from the <a href="https://www.mousephenotype.org/impress/ontologysearch">IMPReSS ontology search</a> page.</p>
 								</c:if>
-								<c:choose>
-		                        	<c:when test="${registerButtonAnchor!=''}">
-		                            	<p> <a class="btn" href='${registerButtonAnchor}'><i class="fa fa-sign-in"></i>${registerInterestButtonString}</a></p>
-		                            </c:when>
-			                        <c:otherwise>
-			                            <p> <a class="btn interest" id='${registerButtonId}'><i class="fa fa-sign-in"></i>${registerInterestButtonString}</a></p>
-			                        </c:otherwise>
-		                        </c:choose>
+
 		                        <c:if test="${orderPossible}">
 		                          	<p> <a class="btn" href="#order2"> <i class="fa fa-shopping-cart"></i> Order </a> </p>
 		                        </c:if>

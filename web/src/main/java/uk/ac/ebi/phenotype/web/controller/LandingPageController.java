@@ -327,7 +327,7 @@ public class LandingPageController {
     
     
     
-    private ArrayList<JSONObject> GetLatestProjectStatus(ArrayList<JSONObject> cmg_genes_bestphenodigm) throws SolrServerException, IOException {
+    private ArrayList<JSONObject> GetLatestProjectStatus(ArrayList<JSONObject> cmg_genes_bestphenodigm) throws SolrServerException, IOException, JSONException {
     		for (JSONObject gene : cmg_genes_bestphenodigm) {
     			if (!gene.isNull("mouse_orthologue") && !gene.get("mouse_orthologue").equals("") && !gene.get("mouse_orthologue").equals("-")) {
     				String mouse_orthologue = gene.get("mouse_orthologue").toString();
@@ -339,7 +339,7 @@ public class LandingPageController {
     		return cmg_genes_bestphenodigm;
     }
     
-    private ArrayList<JSONObject> GetBestPhenodigm (String phenotypeOverlapScoreFile, ArrayList<JSONObject> cmg_genes_information) throws IOException {
+    private ArrayList<JSONObject> GetBestPhenodigm (String phenotypeOverlapScoreFile, ArrayList<JSONObject> cmg_genes_information) throws IOException, JSONException {
     		// reads from /src/main/resources/20171206-CMG-best-phenodigm.json and compose the page
     		BufferedReader in = new BufferedReader(new FileReader(new ClassPathResource(phenotypeOverlapScoreFile).getFile()));
     		if (in != null) {
@@ -384,7 +384,7 @@ public class LandingPageController {
     		return cmg_genes_information;
     }
     
-    private ArrayList<JSONObject> GetCmgGenes (String file_path_genes) throws IOException {
+    private ArrayList<JSONObject> GetCmgGenes (String file_path_genes) throws IOException, JSONException {
     		ArrayList<JSONObject> file_content = new ArrayList<JSONObject>();
     		// reads from /src/main/resources/cmg_orthologues_json.json and compose the page
     		BufferedReader in = new BufferedReader(new FileReader(new ClassPathResource(file_path_genes).getFile()));

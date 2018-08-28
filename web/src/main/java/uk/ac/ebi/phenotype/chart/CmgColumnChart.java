@@ -1,10 +1,12 @@
 package uk.ac.ebi.phenotype.chart;
 
 import java.util.ArrayList;
+
+import org.json.JSONException;
 import org.json.JSONObject;
 
 public class CmgColumnChart {
-	public static String getColumnChart(ArrayList<JSONObject> info_genes, String typeGenes, String chartId, String title, String subtitle){
+	public static String getColumnChart(ArrayList<JSONObject> info_genes, String typeGenes, String chartId, String title, String subtitle) throws JSONException {
 		int impc_with_phenotype = 0;
 		int impc_in_production = 0;
 		int total_genes = 0;

@@ -117,7 +117,7 @@
                 <div id="chordContainerIonChannels" class="half"></div>
                 <svg id="chordDiagramSvgIonChannels" width="960" height="960"></svg>
                 <script>
-                    drawChords("chordDiagramSvgIonChannels", "chordContainerIonChannels", false, [], true, "Ion Channels", true);
+                    drawChords("chordDiagramSvgIonChannels", "chordContainerIonChannels", false, [], true, "Ion Channel", true);
                 </script>
 
 
@@ -125,7 +125,7 @@
                 <div id="chordContainerGPCRs" class="half"></div>
                 <svg id="chordDiagramSvgGPCRs" width="960" height="960"></svg>
                 <script>
-                    drawChords("chordDiagramSvgGPCRs", "chordContainerGPCRs", false, [], true, "GPCRs", true);
+                    drawChords("chordDiagramSvgGPCRs", "chordContainerGPCRs", false, [], true, "GPCR", true);
                 </script>
 
 
@@ -133,12 +133,12 @@
                 <div id="chordContainerKinases" class="half"></div>
                 <svg id="chordDiagramSvgKinases" width="960" height="960"></svg>
                 <script>
-                    drawChords("chordDiagramSvgKinases", "chordContainerKinases", false, [], true, "Kinases", true);
+                    drawChords("chordDiagramSvgKinases", "chordContainerKinases", false, [], true, "Kinase", true);
                 </script>
             </div>
         </div>
         <!-- section -->
-
+ 
         <script>
             $(document).ready(function () {
                 $.fn.qTip({

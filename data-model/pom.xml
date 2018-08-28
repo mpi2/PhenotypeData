@@ -100,11 +100,18 @@
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
             <version>20171018</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.solr</groupId>
             <artifactId>solr-solrj</artifactId>
             <version>5.5.4</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.tomcat.embed</groupId>
+            <artifactId>tomcat-embed-core</artifactId>
+            <version>8.5.14</version>
+            <scope>compile</scope>
         </dependency>
 
     </dependencies>

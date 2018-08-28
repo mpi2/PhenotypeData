@@ -17,13 +17,6 @@
 package org.mousephenotype.cda.selenium.support;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrClient;
-import org.apache.solr.client.solrj.response.Group;
-import org.apache.solr.client.solrj.response.GroupCommand;
-import org.apache.solr.client.solrj.response.QueryResponse;
-import org.apache.solr.common.SolrDocument;
-import org.apache.solr.common.SolrDocumentList;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.mousephenotype.cda.utilities.RunStatus;
 import org.openqa.selenium.*;
@@ -369,7 +362,9 @@ public class TestUtils {
     /**
      * Creates a set from <code>input</code> using <code>colIndexes</code>, using
      * the underscore character as a column delimiter. Each value is first trimmed,
-     * then lowercased.
+     * then lowercased. Resulting strings containing multiple adjacent spaces are collapsed into a single space
+     * so that comparison against web page strings (which automatically collapse multiple spaces into a single space)
+     * won't fail simply because of multiple spaces.
      *
      * Example: input.body[][] = "a", "b", "c", "d", "e"
      *                           "f", "g", "h", "i", "j"
@@ -394,6 +389,7 @@ public class TestUtils {
 
                 try {
                     cell = row[colIndex].trim().toLowerCase() + "_";
+                    cell = cell.replaceAll("\\s+", " ");
                 } catch (Exception e) { }
                 resultString += cell;
             }
