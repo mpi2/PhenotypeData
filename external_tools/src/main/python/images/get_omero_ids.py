@@ -198,6 +198,11 @@ def getOmeroIdsAndPaths(dbConn, omeroUser, omeroPass, omeroHost, omeroPort, full
                     #print originalUploadedFilePathToOmero+" id="+str(image.getId())
 
                     # If this is a leica (.lif or .lei) file do the matching differently
+                    # The convention for leica files is to store them in a subdirectory named based on the
+                    # filename e.g. 160229.lif is stored in:
+                    #               WTSI/MGP_001/MGP_EEI_001/MGP_EEI_114_001/160229/160229.lif
+                    # and 130918.lei is stored in:
+                    #               WTSI/MGP_001/MGP_EEI_001/MGP_EEI_114_001/130918/130918.lei
                     if originalUploadedFilePathToOmero.find('.lif') > 0 or originalUploadedFilePathToOmero.find('.lei') > 0:
                         # Get all images stored in the same file
                         query = 'SELECT id, name FROM Image WHERE fileset.id = :id'
@@ -205,6 +210,10 @@ def getOmeroIdsAndPaths(dbConn, omeroUser, omeroPass, omeroHost, omeroPort, full
                         for im_details in conn.getQueryService().projection(query, params):
                             omero_id = im_details[0].val
                             omero_im_name = im_details[1].val
+                            # Omero appends the mouse number to the filename to uniquely identify an image
+                            # e.g for M012345678 in 160229, the omero_im_name is '160229.lif [M012345678]'
+                            # which is also part of the path stored in solr & the komp2 database, so we 
+                            # modify the filename accordingly
                             if omero_im_name.find(original_im_name) >= 0:
                                 modifiedUploadedFilePathToOmero = originalUploadedFilePathToOmero.replace(original_im_name, omero_im_name)
                                 storeOmeroId(dbConn, omero_id, modifiedUploadedFilePathToOmero, fullResPathsAlreadyHave )
