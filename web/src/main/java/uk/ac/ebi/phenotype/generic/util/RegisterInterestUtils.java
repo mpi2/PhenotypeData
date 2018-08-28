@@ -59,6 +59,12 @@ public class RegisterInterestUtils {
 
     public boolean isLoggedIn(HttpServletRequest request) {
 
+
+        // FIXME See if this is causing the PA performance problem.
+if (1 == 1) return false;
+
+
+
         // Use the web service to check if we're logged in.
 
         httpEntityHeaders = new HttpEntity<>(buildHeadersFromRiToken(request));
