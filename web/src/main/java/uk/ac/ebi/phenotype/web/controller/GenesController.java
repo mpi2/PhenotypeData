@@ -336,11 +336,12 @@ public class GenesController {
         }
 
         // Use Register Interest login link
-        String paBaseUrl = config.get("paBaseUrl");
+        String paBaseUrlWithScheme = config.get("paBaseUrlWithScheme");
+        String riBaseUrlWithScheme = config.get("riBaseUrlWithScheme");
         String registerButtonText = "Login to register interest";
         String registerButtonAnchor = new StringBuilder()
-                .append(paBaseUrl).append("/riLogin")
-                .append("?target=" + paBaseUrl + "/genes/" + acc)
+                .append(paBaseUrlWithScheme).append("/riLogin")
+                .append("?target=" + paBaseUrlWithScheme + "/genes/" + acc)
                 .toString();
 
         String registerButtonId = acc;
@@ -348,20 +349,20 @@ public class GenesController {
 
         if (loggedIn) {
 
-            Map<String, List<String>> geneAccessionIdMap = riUtils.getGeneAccessionIds();
+            Map<String, List<String>> geneAccessionIdMap = riUtils.getGeneAccessionIds(riBaseUrlWithScheme);
             List<String> geneAccessionIds = geneAccessionIdMap.get("geneAccessionIds");
 
             if (geneAccessionIds.contains(acc)) {
 
                 registerIconClass = "fa fa-sign-out";
                 registerButtonText = "Unregister interest";
-                registerButtonAnchor = paBaseUrl + "/riUnregistration/gene?geneAccessionId=" + acc + "&target=" + paBaseUrl + "/genes/" + acc;
+                registerButtonAnchor = paBaseUrlWithScheme + "/riUnregistration/gene?geneAccessionId=" + acc + "&target=" + paBaseUrlWithScheme + "/genes/" + acc;
 
             } else {
 
                 registerIconClass = "fa fa-sign-in";
                 registerButtonText = "Register interest";
-                registerButtonAnchor = paBaseUrl + "/riRegistration/gene?geneAccessionId=" + acc + "&target=" + paBaseUrl + "/genes/" + acc;
+                registerButtonAnchor = paBaseUrlWithScheme + "/riRegistration/gene?geneAccessionId=" + acc + "&target=" + paBaseUrlWithScheme + "/genes/" + acc;
             }
         }
 

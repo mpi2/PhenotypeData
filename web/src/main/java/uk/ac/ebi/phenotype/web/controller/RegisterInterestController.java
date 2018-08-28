@@ -16,6 +16,7 @@
 
 package uk.ac.ebi.phenotype.web.controller;
 
+import org.mousephenotype.cda.utilities.UrlUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,12 +43,12 @@ public class RegisterInterestController {
 	private Map<String, String> config;
 
     @NotNull
-    @Value("${riBaseUrl}")
-    private String riBaseUrl;
-
-    @NotNull
     @Value("${paBaseUrl}")
     private String paBaseUrl;
+
+    @NotNull
+    @Value("${riBaseUrl}")
+    private String riBaseUrl;
 
     @Autowired
 	private RegisterInterestUtils riUtils;
@@ -60,8 +61,10 @@ public class RegisterInterestController {
 			HttpServletRequest request,
 			HttpServletResponse response) {
 
-		riUtils.registerGene(request, response, geneAccessionId);
-		return "redirect:" + target;
+        String targetWithScheme    = (target == null ? null : UrlUtils.urlWithScheme(request.getRequestURL().toString(), target));
+
+		riUtils.registerGene(request, geneAccessionId);
+		return "redirect:" + targetWithScheme;
 	}
 
 	/**
@@ -73,13 +76,17 @@ public class RegisterInterestController {
 	 */
 	@RequestMapping(value = "/riLogin", method = RequestMethod.GET)
 	public String riRegistrationGetGene(
+	        HttpServletRequest request,
 			@RequestParam(value = "target", required = false) String target) {
 
+        String paBaseUrlWithScheme = UrlUtils.urlWithScheme(request.getRequestURL().toString(), paBaseUrl);
+        String riBaseUrlWithScheme = UrlUtils.urlWithScheme(request.getRequestURL().toString(), riBaseUrl);
+
 		if (target == null) {
-			target = paBaseUrl + "/search/gene?kw=*";
+			target = paBaseUrlWithScheme + "/search/gene?kw=*";
 		}
 
-		return "redirect:" + riBaseUrl + "/login?target=" + target;
+		return "redirect:" + riBaseUrlWithScheme + "/login?target=" + target;
 	}
 
 	@RequestMapping(value = "/riSuccessHandler", method = RequestMethod.GET)
@@ -89,15 +96,18 @@ public class RegisterInterestController {
 			HttpServletRequest request
 	) {
 
+        String paBaseUrlWithScheme = UrlUtils.urlWithScheme(request.getRequestURL().toString(), paBaseUrl);
+        String targetWithScheme    = (target == null ? null : UrlUtils.urlWithScheme(request.getRequestURL().toString(), target));
+
 		if (target == null) {
-			target = paBaseUrl + "/search/gene?kw=*";
+			targetWithScheme = paBaseUrlWithScheme + "/search/gene?kw=*";
 		}
 
 		if (riToken != null) {
 			request.getSession().setAttribute("riToken", riToken);
 		}
 
-		return "redirect:" + target;
+		return "redirect:" + targetWithScheme;
 	}
 
     @RequestMapping(value = "/riUnregistration/gene", method = RequestMethod.GET)
@@ -106,7 +116,9 @@ public class RegisterInterestController {
 			@RequestParam("target") String target,
             HttpServletRequest request) {
 
-			riUtils.unregisterGene(request, geneAccessionId);
-			return "redirect:" + target;
+        String targetWithScheme = (target == null ? null : UrlUtils.urlWithScheme(request.getRequestURL().toString(), target));
+
+        riUtils.unregisterGene(request, geneAccessionId);
+        return "redirect:" + targetWithScheme;
     }
 }

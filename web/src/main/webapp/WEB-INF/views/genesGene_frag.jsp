@@ -81,7 +81,7 @@
      title="visualise mouse-human gene orthologs with Ensembl comparative genomics browser">Ensembl Orthologs</a>
   &nbsp;&nbsp;
 
-  <a target="_blank" href="${riBaseUrl}/summary" title="Show your genes of interest">My Genes</a>
+  <a target="_blank" href="${riBaseUrlWithScheme}/summary" title="Show your genes of interest">My Genes</a>
   &nbsp;&nbsp;
 
   <c:if test="${gene.isIdgGene}">

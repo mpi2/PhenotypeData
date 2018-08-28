@@ -16,6 +16,7 @@
 
 package uk.ac.ebi.phenotype.generic.util;
 
+import org.mousephenotype.cda.utilities.UrlUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,7 +29,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotNull;
 import java.util.Collections;
 import java.util.List;
@@ -37,7 +37,7 @@ import java.util.Map;
 @Service
 public class RegisterInterestUtils {
 
-	private final Logger log = LoggerFactory.getLogger(this.getClass());
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	private HttpEntity<String> httpEntityHeaders;
 
@@ -50,9 +50,11 @@ public class RegisterInterestUtils {
      *
      * @return a list of the currently logged in user's gene interest mgi accession ids
      */
-    public Map<String, List<String>> getGeneAccessionIds() {
+    public Map<String, List<String>> getGeneAccessionIds(String riBaseUrlWithScheme) {
 
-        ResponseEntity<Map<String, List<String>>> response = new RestTemplate().exchange(riBaseUrl + "/api/summary/list", HttpMethod.GET, httpEntityHeaders,
+        String target = riBaseUrlWithScheme + "/api/summary/list";
+        logger.debug("target = {}", target);
+        ResponseEntity<Map<String, List<String>>> response = new RestTemplate().exchange(target, HttpMethod.GET, httpEntityHeaders,
                                                                                          new ParameterizedTypeReference<Map<String, List<String>>>() { }, Collections.emptyMap());
         return response.getBody();
     }
@@ -63,7 +65,8 @@ public class RegisterInterestUtils {
 
         httpEntityHeaders = new HttpEntity<>(buildHeadersFromRiToken(request));
 
-        ResponseEntity<List<String>> response = new RestTemplate().exchange(riBaseUrl + "/api/roles", HttpMethod.GET, httpEntityHeaders,
+        String riBaseUrlWithScheme = UrlUtils.urlWithScheme(request.getRequestURL().toString(), riBaseUrl);
+        ResponseEntity<List<String>> response = new RestTemplate().exchange(riBaseUrlWithScheme + "/api/roles", HttpMethod.GET, httpEntityHeaders,
                                                                             new ParameterizedTypeReference<List<String>>() {
                                                                             }, Collections.emptyMap());
         List<String> roles = response.getBody();
@@ -73,13 +76,13 @@ public class RegisterInterestUtils {
         return loggedIn;
 	}
 
-    /**
-     * Register currently logged in user for interest in {@code geneAccessionId}
+    /**     * Register currently logged in user for interest in {@code geneAccessionId}
      *
+     * @param request
      * @param geneAccessionId
      * @return String returned by Register Interest web service 'register' action. An empty string indicates success.
      */
-    public String registerGene(HttpServletRequest request, HttpServletResponse response, String geneAccessionId) {
+    public String registerGene(HttpServletRequest request, String geneAccessionId) {
 
         if ( ! isLoggedIn(request)) {
             return "User not logged in.";
@@ -88,7 +91,8 @@ public class RegisterInterestUtils {
         // Use the web service to register interest in gene.
         httpEntityHeaders = new HttpEntity<>(buildHeadersFromRiToken(request));
 
-        ResponseEntity<String> restResponse = new RestTemplate().exchange(riBaseUrl + "/api/registration/gene?geneAccessionId=" + geneAccessionId,
+        String riBaseUrlWithScheme = UrlUtils.urlWithScheme(request.getRequestURL().toString(), riBaseUrl);
+        ResponseEntity<String> restResponse = new RestTemplate().exchange(riBaseUrlWithScheme + "/api/registration/gene?geneAccessionId=" + geneAccessionId,
                                                                           HttpMethod.POST, httpEntityHeaders, String.class);
 
         return restResponse.getBody() == null ? "" : restResponse.getBody();
@@ -119,7 +123,8 @@ public class RegisterInterestUtils {
         // Use the web service to unregister.
         httpEntityHeaders = new HttpEntity<>(buildHeadersFromRiToken(request));
 
-        ResponseEntity<String> restResponse = new RestTemplate().exchange(riBaseUrl + "/api/unregistration/gene?geneAccessionId=" + geneAccessionId,
+        String riBaseUrlWithScheme = UrlUtils.urlWithScheme(request.getRequestURL().toString(), riBaseUrl);
+        ResponseEntity<String> restResponse = new RestTemplate().exchange(riBaseUrlWithScheme + "/api/unregistration/gene?geneAccessionId=" + geneAccessionId,
                                                                           HttpMethod.DELETE, httpEntityHeaders, String.class);
 
         return restResponse.getBody() == null ? "" : restResponse.getBody();

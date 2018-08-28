@@ -35,6 +35,7 @@ import org.mousephenotype.cda.solr.service.dto.Allele2DTO;
 import org.mousephenotype.cda.solr.service.dto.AnatomyDTO;
 import org.mousephenotype.cda.solr.service.dto.GeneDTO;
 import org.mousephenotype.cda.solr.service.dto.MpDTO;
+import org.mousephenotype.cda.utilities.UrlUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -611,10 +612,12 @@ public class DataTableController {
 				// Nothing to do. If register interest service isn't working, a 500 is thrown. Handle as unauthenticated.
 			}
 
-			String target = paBaseUrl + "/search/gene?" + request.getQueryString();
+            String paBaseUrlWithScheme = UrlUtils.urlWithScheme(request.getRequestURL().toString(), paBaseUrl);
+			String riBaseUrlWithScheme = UrlUtils.urlWithScheme(request.getRequestURL().toString(), riBaseUrl);
+			String target = paBaseUrlWithScheme + "/search/gene?" + request.getQueryString();
 
 			if (loggedIn) {
-				Map<String, List<String>> geneAccessionIdMap = riUtils.getGeneAccessionIds();
+				Map<String, List<String>> geneAccessionIdMap = riUtils.getGeneAccessionIds(riBaseUrlWithScheme);
 				List<String> geneAccessionIds = geneAccessionIdMap.get("geneAccessionIds");
 
                 if (geneAccessionIds.contains(mgiId)) {
@@ -623,7 +626,7 @@ public class DataTableController {
                             + "<i class='fa fa-sign-out'></i>"
                             + "<a id='" + doc.getString("mgi_accession_id")
 								+ "' class='regInterest primary interest' href='"
-								+ paBaseUrl + "/riUnregistration/gene?geneAccessionId=" + doc.getString("mgi_accession_id")
+								+ paBaseUrlWithScheme + "/riUnregistration/gene?geneAccessionId=" + doc.getString("mgi_accession_id")
 								+ "&target=" + target
 								+ "'>&nbsp;Unregister Interest</a>"
                             + "</div>";
@@ -635,7 +638,7 @@ public class DataTableController {
                             + "<i class='fa fa-sign-in'></i>"
                             + "<a id='" + doc.getString("mgi_accession_id")
 								+ "' class='regInterest primary interest' href='"
-								+ paBaseUrl + "/riRegistration/gene?geneAccessionId=" + doc.getString("mgi_accession_id")
+								+ paBaseUrlWithScheme + "/riRegistration/gene?geneAccessionId=" + doc.getString("mgi_accession_id")
                             + "&target=" + target
 								+ "'>&nbsp;Register Interest</a>"
                             + "</div>";
@@ -649,7 +652,7 @@ public class DataTableController {
 
 				href
 						.append("href='")
-						.append(paBaseUrl).append("/riLogin")
+						.append(paBaseUrlWithScheme).append("/riLogin")
 						.append("?target=" + target)
 						.append("'");
 				String interest = "<div class='registerforinterest' oldtitle='Login to register interest' title=''>"
