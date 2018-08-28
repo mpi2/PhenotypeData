@@ -18,7 +18,7 @@
 	<jsp:body>
 
 		<div id="myGenes">
-			<a href="${riBaseUrlWithScheme}/summary" title="Show your genes of interest">My Genes</a>
+			<a href="${riBaseUrl}/summary" title="Show your genes of interest">My Genes</a>
 		</div>
 
 		<br />

@@ -19,7 +19,6 @@ package org.mousephenotype.cda.utilities;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLDecoder;
@@ -191,27 +190,5 @@ public class UrlUtils {
         }
 
         return result;
-    }
-
-    public static String urlWithScheme(String requestUrl, String urlString) {
-
-        String urlStringWithScheme;
-
-        try {
-            URL url = new URL(requestUrl);
-
-            String scheme;
-
-            if ( (url.getHost().equals("localhost") || url.getHost().equals("127.0.0.1")))
-                scheme = "http";
-            else
-                scheme = "https";
-
-            urlStringWithScheme = (urlString.startsWith("http") ? urlString : scheme + ":" + urlString);
-        } catch (MalformedURLException e) {
-            return "";
-        }
-
-        return urlStringWithScheme;
     }
 }
