@@ -614,7 +614,7 @@ public class DataTableController {
 			String target = paBaseUrl + "/search/gene?" + request.getQueryString();
 
 			if (loggedIn) {
-				Map<String, List<String>> geneAccessionIdMap = riUtils.getGeneAccessionIds();
+				Map<String, List<String>> geneAccessionIdMap = riUtils.getGeneAccessionIds(request);
 				List<String> geneAccessionIds = geneAccessionIdMap.get("geneAccessionIds");
 
 				if (geneAccessionIds.contains(mgiId)) {

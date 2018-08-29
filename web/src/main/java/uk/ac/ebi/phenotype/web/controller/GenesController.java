@@ -348,7 +348,7 @@ public class GenesController {
 
         if (loggedIn) {
 
-            Map<String, List<String>> geneAccessionIdMap = riUtils.getGeneAccessionIds();
+            Map<String, List<String>> geneAccessionIdMap = riUtils.getGeneAccessionIds(request);
             List<String> geneAccessionIds = geneAccessionIdMap.get("geneAccessionIds");
 
             if (geneAccessionIds.contains(acc)) {

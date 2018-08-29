@@ -50,8 +50,9 @@ public class RegisterInterestUtils {
      *
      * @return a list of the currently logged in user's gene interest mgi accession ids
      */
-    public Map<String, List<String>> getGeneAccessionIds() {
+    public Map<String, List<String>> getGeneAccessionIds(HttpServletRequest request) {
 
+        httpEntityHeaders = new HttpEntity<>(buildHeadersFromRiToken(request));
         ResponseEntity<Map<String, List<String>>> response = new RestTemplate().exchange(riBaseUrl + "/api/summary/list", HttpMethod.GET, httpEntityHeaders,
                                                                                          new ParameterizedTypeReference<Map<String, List<String>>>() { }, Collections.emptyMap());
         return response.getBody();
@@ -59,22 +60,36 @@ public class RegisterInterestUtils {
 
     public boolean isLoggedIn(HttpServletRequest request) {
 
+        String riToken = (String) request.getSession().getAttribute("riToken");
+        if (riToken == null) {
+            return false;
+        }
+
+
+
+//        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
         // FIXME See if this is causing the PA performance problem.
-if (1 == 1) return false;
+
+//        logger.info("riToken = {}", request.getSession().getAttribute("riToken"));
+//if (1 == 1) return false;
 
 
 
         // Use the web service to check if we're logged in.
 
         httpEntityHeaders = new HttpEntity<>(buildHeadersFromRiToken(request));
-
+logger.info("PA RegisterInterestUtils.isLoggedIn(): calling RestTemplate");
         ResponseEntity<List<String>> response = new RestTemplate().exchange(riBaseUrl + "/api/roles", HttpMethod.GET, httpEntityHeaders,
                                                                             new ParameterizedTypeReference<List<String>>() {
                                                                             }, Collections.emptyMap());
+
+        logger.info("PA RegisterInterestUtils.isLoggedIn(): RestTemplate call complete");
         List<String> roles = response.getBody();
 
+        logger.info("PA RegisterInterestUtils.isLoggedIn(): Before roles.contains");
         boolean loggedIn = (roles.contains("ROLE_USER")) || (roles.contains("ROLE_ADMIN"));
+        logger.info("PA RegisterInterestUtils.isLoggedIn(): After roles.contains");
 
         return loggedIn;
     }

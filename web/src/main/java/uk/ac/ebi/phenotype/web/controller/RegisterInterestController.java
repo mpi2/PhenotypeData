@@ -72,7 +72,7 @@ public class RegisterInterestController {
      * @return
      */
     @RequestMapping(value = "/riLogin", method = RequestMethod.GET)
-    public String riRegistrationGetGene(
+    public String riLogin(
             @RequestParam(value = "target", required = false) String target) {
 
         if (target == null) {
