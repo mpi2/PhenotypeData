@@ -27,6 +27,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.stream.Collectors;
 
 @SpringBootApplication
 @Import(value = {GenerateDerivedParametersConfig.class})
@@ -185,16 +186,6 @@ public class GenerateDerivedParameters implements CommandLineRunner {
 
                 case "ICS_ROT_002_001":
                     task = () -> copyMeanOfIncrements("ICS_ROT_002_001", "ICS_ROT_001_001");
-                    tasks.add(executor.submit(task));
-                    break;
-
-                case "IMPC_GRS_010_001":
-                    task = () -> copyDivisionResult("IMPC_GRS_010_001", "IMPC_GRS_008_001", "IMPC_GRS_003_001");
-                    tasks.add(executor.submit(task));
-                    break;
-
-                case "IMPC_GRS_011_001":
-                    task = () -> copyDivisionResult("IMPC_GRS_011_001", "IMPC_GRS_009_001", "IMPC_GRS_003_001");
                     tasks.add(executor.submit(task));
                     break;
 
@@ -455,10 +446,38 @@ public class GenerateDerivedParameters implements CommandLineRunner {
                     break;
 
                 default:
+                    logger.info("Delayed processing parameter " + parameter);
+                    break;
+            }
+        }
+
+
+        //
+        // These parameters have dependencies on other derived parameters
+        //
+
+        for (String parameter : parameters.stream().filter(x -> Arrays.asList("IMPC_GRS_010_001", "IMPC_GRS_011_001").contains(x)).collect(Collectors.toList())) {
+
+            logger.info("Processing parameter {}", parameter);
+
+            switch (parameter) {
+                case "IMPC_GRS_010_001":
+                    task = () -> copyDivisionResult("IMPC_GRS_010_001", "IMPC_GRS_008_001", "IMPC_GRS_003_001");
+                    tasks.add(executor.submit(task));
+                    break;
+
+                case "IMPC_GRS_011_001":
+                    task = () -> copyDivisionResult("IMPC_GRS_011_001", "IMPC_GRS_009_001", "IMPC_GRS_003_001");
+                    tasks.add(executor.submit(task));
+                    break;
+
+                default:
                     logger.warn("Cannot find case to create parameter " + parameter);
                     break;
             }
         }
+
+
     }
 
 
