@@ -18,6 +18,7 @@ package uk.ac.ebi.phenotype.web.controller;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -35,10 +36,10 @@ import java.util.Map;
 @Controller
 public class RegisterInterestController {
 
-	private final Logger log = LoggerFactory.getLogger(this.getClass().getCanonicalName());
+    private final Logger log = LoggerFactory.getLogger(this.getClass().getCanonicalName());
 
-	@Resource(name = "globalConfiguration")
-	private Map<String, String> config;
+    @Resource(name = "globalConfiguration")
+    private Map<String, String> config;
 
     @NotNull
     @Value("${riBaseUrl}")
@@ -48,63 +49,64 @@ public class RegisterInterestController {
     @Value("${paBaseUrl}")
     private String paBaseUrl;
 
+    @Autowired
+    private RegisterInterestUtils riUtils;
 
-	@RequestMapping(value = "/riRegistration/gene", method = RequestMethod.GET)
-	public String riRegistrationGene(
-			@RequestParam("geneAccessionId") String geneAccessionId,
-			@RequestParam("target") String target,
-			HttpServletRequest request,
-			HttpServletResponse response) {
 
-		RegisterInterestUtils riUtils = new RegisterInterestUtils(riBaseUrl);
-		riUtils.registerGene(request, response, geneAccessionId);
-		return "redirect:" + target;
-	}
+    @RequestMapping(value = "/riRegistration/gene", method = RequestMethod.GET)
+    public String riRegistrationGene(
+            @RequestParam("geneAccessionId") String geneAccessionId,
+            @RequestParam("target") String target,
+            HttpServletRequest request,
+            HttpServletResponse response) {
 
-	/**
-	 * This endpoint is called to log in to Register Interest. After a successful login, the caller is redirected back
-	 * to {code target} along with the Register Interest JSESSIONID token.
-	 *
-	 * @param target The target to redirect to after successful authentication
-	 * @return
-	 */
-	@RequestMapping(value = "/riLogin", method = RequestMethod.GET)
-	public String riRegistrationGetGene(
-			@RequestParam(value = "target", required = false) String target) {
+        riUtils.registerGene(request, response, geneAccessionId);
+        return "redirect:" + target;
+    }
 
-		if (target == null) {
-			target = paBaseUrl + "/search/gene?kw=*";
-		}
+    /**
+     * This endpoint is called to log in to Register Interest. After a successful login, the caller is redirected back
+     * to {code target} along with the Register Interest JSESSIONID token.
+     *
+     * @param target The target to redirect to after successful authentication
+     * @return
+     */
+    @RequestMapping(value = "/riLogin", method = RequestMethod.GET)
+    public String riLogin(
+            @RequestParam(value = "target", required = false) String target) {
 
-		return "redirect:" + riBaseUrl + "/login?target=" + target;
-	}
+        if (target == null) {
+            target = paBaseUrl + "/search/gene?kw=*";
+        }
 
-	@RequestMapping(value = "/riSuccessHandler", method = RequestMethod.GET)
-	public String riSuccessHandler(
-			@RequestParam(value = "target", required = false) String target,
-			@RequestParam(value = "riToken", required = false) String riToken,
-			HttpServletRequest request
-	) {
+        return "redirect:" + riBaseUrl + "/login?target=" + target;
+    }
 
-		if (target == null) {
-			target = paBaseUrl + "/search/gene?kw=*";
-		}
+    @RequestMapping(value = "/riSuccessHandler", method = RequestMethod.GET)
+    public String riSuccessHandler(
+            @RequestParam(value = "target", required = false) String target,
+            @RequestParam(value = "riToken", required = false) String riToken,
+            HttpServletRequest request
+    ) {
 
-		if (riToken != null) {
-			request.getSession().setAttribute("riToken", riToken);
-		}
+        if (target == null) {
+            target = paBaseUrl + "/search/gene?kw=*";
+        }
 
-		return "redirect:" + target;
-	}
+        if (riToken != null) {
+            request.getSession().setAttribute("riToken", riToken);
+        }
+
+        return "redirect:" + target;
+    }
 
     @RequestMapping(value = "/riUnregistration/gene", method = RequestMethod.GET)
     public String riUnregistrationGene(
             @RequestParam("geneAccessionId") String geneAccessionId,
-			@RequestParam("target") String target,
+            @RequestParam("target") String target,
             HttpServletRequest request) {
 
-        RegisterInterestUtils riUtils = new RegisterInterestUtils(riBaseUrl);
-			riUtils.unregisterGene(request, geneAccessionId);
-			return "redirect:" + target;
+        riUtils.unregisterGene(request, geneAccessionId);
+        return "redirect:" + target;
     }
 }

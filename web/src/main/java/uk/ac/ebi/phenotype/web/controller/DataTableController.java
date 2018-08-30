@@ -80,6 +80,9 @@ public class DataTableController {
 	@Autowired
 	ExpressionService expressionService;
 
+	@Autowired
+	private RegisterInterestUtils riUtils;
+
 	@Resource(name = "globalConfiguration")
 	private Map<String, String> config;
 
@@ -100,13 +103,13 @@ public class DataTableController {
 	@Autowired
 	private ReferenceDAO referenceDAO;
 
-    @NotNull
-    @Value("${riBaseUrl}")
-    private String riBaseUrl;
+	@NotNull
+	@Value("${riBaseUrl}")
+	private String riBaseUrl;
 
-    @NotNull
-    @Value("${paBaseUrl}")
-    private String paBaseUrl;
+	@NotNull
+	@Value("${paBaseUrl}")
+	private String paBaseUrl;
 
 
 	/**
@@ -599,8 +602,6 @@ public class DataTableController {
 
 			// register of interest
 
-			RegisterInterestUtils riUtils = new RegisterInterestUtils(riBaseUrl);
-
 			boolean loggedIn = false;
 			try {
 
@@ -613,33 +614,33 @@ public class DataTableController {
 			String target = paBaseUrl + "/search/gene?" + request.getQueryString();
 
 			if (loggedIn) {
-				Map<String, List<String>> geneAccessionIdMap = riUtils.getGeneAccessionIds();
+				Map<String, List<String>> geneAccessionIdMap = riUtils.getGeneAccessionIds(request);
 				List<String> geneAccessionIds = geneAccessionIdMap.get("geneAccessionIds");
 
-                if (geneAccessionIds.contains(mgiId)) {
+				if (geneAccessionIds.contains(mgiId)) {
 
-                    String unregister = "<div class='registerforinterest' oldtitle='Unregister interest' title=''>"
-                            + "<i class='fa fa-sign-out'></i>"
-                            + "<a id='" + doc.getString("mgi_accession_id")
-								+ "' class='regInterest primary interest' href='"
-								+ paBaseUrl + "/riUnregistration/gene?geneAccessionId=" + doc.getString("mgi_accession_id")
-								+ "&target=" + target
-								+ "'>&nbsp;Unregister Interest</a>"
-                            + "</div>";
-                    rowData.add(unregister);
+					String unregister = "<div class='registerforinterest' oldtitle='Unregister interest' title=''>"
+							+ "<i class='fa fa-sign-out'></i>"
+							+ "<a id='" + doc.getString("mgi_accession_id")
+							+ "' class='regInterest primary interest' href='"
+							+ paBaseUrl + "/riUnregistration/gene?geneAccessionId=" + doc.getString("mgi_accession_id")
+							+ "&target=" + target
+							+ "'>&nbsp;Unregister Interest</a>"
+							+ "</div>";
+					rowData.add(unregister);
 
-                } else {
+				} else {
 
-                    String unregister = "<div class='registerforinterest' oldtitle='Register interest' title=''>"
-                            + "<i class='fa fa-sign-in'></i>"
-                            + "<a id='" + doc.getString("mgi_accession_id")
-								+ "' class='regInterest primary interest' href='"
-								+ paBaseUrl + "/riRegistration/gene?geneAccessionId=" + doc.getString("mgi_accession_id")
-                            + "&target=" + target
-								+ "'>&nbsp;Register Interest</a>"
-                            + "</div>";
-                    rowData.add(unregister);
-                }
+					String unregister = "<div class='registerforinterest' oldtitle='Register interest' title=''>"
+							+ "<i class='fa fa-sign-in'></i>"
+							+ "<a id='" + doc.getString("mgi_accession_id")
+							+ "' class='regInterest primary interest' href='"
+							+ paBaseUrl + "/riRegistration/gene?geneAccessionId=" + doc.getString("mgi_accession_id")
+							+ "&target=" + target
+							+ "'>&nbsp;Register Interest</a>"
+							+ "</div>";
+					rowData.add(unregister);
+				}
 
 			} else {
 

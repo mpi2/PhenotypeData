@@ -32,82 +32,82 @@ import java.util.Map;
 @Component
 public class DeploymentInterceptor extends HandlerInterceptorAdapter {
 
-    private final Logger log = LoggerFactory.getLogger(this.getClass().getCanonicalName());
+	private final Logger log = LoggerFactory.getLogger(this.getClass().getCanonicalName());
 
-    @Autowired
-    DataReleaseVersionManager dataReleaseVersionManager;
+	@Autowired
+	DataReleaseVersionManager dataReleaseVersionManager;
 
-    @Resource(name = "globalConfiguration")
-    private Map<String, String> config;
+	@Resource(name = "globalConfiguration")
+	private Map<String, String> config;
 
-    /**
-     * set baseUrl and other variables for all controllers
-     */
-    @Override
-    public boolean preHandle(
-            HttpServletRequest request,
-            HttpServletResponse response,
-            Object handler) throws Exception {
+	/**
+	 * set baseUrl and other variables for all controllers
+	 */
+	@Override
+	public boolean preHandle(
+			HttpServletRequest request,
+			HttpServletResponse response,
+			Object handler) throws Exception {
 
-        // Do not set attributes for assets
-        if (request.getRequestURI().endsWith(".js")
-                || request.getRequestURI().endsWith(".css")
-                || request.getRequestURI().endsWith(".gif")
-                || request.getRequestURI().endsWith(".png")) {
-            return true;
-        }
+		// Do not set attributes for assets
+		if (request.getRequestURI().endsWith(".js")
+				|| request.getRequestURI().endsWith(".css")
+				|| request.getRequestURI().endsWith(".gif")
+				|| request.getRequestURI().endsWith(".png")) {
+			return true;
+		}
 
-	    Map<String, String> requestConfig = new HashMap<>();
-	    requestConfig.put("releaseVersion", dataReleaseVersionManager.getReleaseVersion());
-	    requestConfig.put("version", "v2.1.4");
+		Map<String, String> requestConfig = new HashMap<>();
+		requestConfig.put("releaseVersion", dataReleaseVersionManager.getReleaseVersion());
+		requestConfig.put("version", "v2.1.4");
 
-	    // Map the global config values into the request configuration
-	    config.keySet().forEach(key -> {
-		    log.debug("Setting {} to {}", key, config.get(key));
-		    requestConfig.put(key, config.get(key));
-	    });
-
-
-	    // Base url and mapped hostname get overwritten when there is a proxy in the middle.
-	    // Set the defaults here and override below if necessary.
-	    String mappedHostname = getMappedHostname(request.getServerName(), request.getServerPort(), request.getHeader("x-forwarded-host"));
-	    requestConfig.put("mappedHostname", mappedHostname);
-	    requestConfig.put("baseUrl", request.getContextPath());
-
-        // If this webapp is being accessed behind a proxy, the
-        // x-forwarded-host header will be set, in which case, use the
-        // configured baseUrl and mediaBauseUrl paths.  If this webapp is
-        // being accessed directly set the baseUrl and mediaBaseUrl as
-        // the current context path
-        if (request.getHeader("x-forwarded-host") != null) {
-
-            String[] forwards = request.getHeader("x-forwarded-host").split(",");
-
-            for (String forward : forwards) {
-                if ( ! forward.matches(".*ebi\\.ac\\.uk")) {
-                    log.debug("Request proxied. Using baseUrl: " + config.get("baseUrl"));
-	                requestConfig.put("baseUrl", config.get("baseUrl"));
-                    break;
-                }
-            }
-        }
+		// Map the global config values into the request configuration
+		config.keySet().forEach(key -> {
+			log.debug("Setting {} to {}", key, config.get(key));
+			requestConfig.put(key, config.get(key));
+		});
 
 
-        if (config.get("liveSite").equals("false")) {
-            // If DEV or BETA, refresh the cache daily
-            String dateStamp = new SimpleDateFormat("yyyyMMdd").format(Calendar.getInstance().getTime());
-	        requestConfig.put("version", dateStamp);
-        }
+		// Base url and mapped hostname get overwritten when there is a proxy in the middle.
+		// Set the defaults here and override below if necessary.
+		String mappedHostname = getMappedHostname(request.getServerName(), request.getServerPort(), request.getHeader("x-forwarded-host"));
+		requestConfig.put("mappedHostname", mappedHostname);
+		requestConfig.put("baseUrl", request.getContextPath());
 
-	    // Map the request configuration into the request object
-	    requestConfig.keySet().forEach(key -> {
-		    request.setAttribute(key, requestConfig.get(key));
-	    });
-	    request.setAttribute("requestConfig", requestConfig);
+		// If this webapp is being accessed behind a proxy, the
+		// x-forwarded-host header will be set, in which case, use the
+		// configured baseUrl and mediaBauseUrl paths.  If this webapp is
+		// being accessed directly set the baseUrl and mediaBaseUrl as
+		// the current context path
+		if (request.getHeader("x-forwarded-host") != null) {
 
-	    log.debug("Interception! Intercepted path " + request.getRequestURI());
-	    return true;
-    }
+			String[] forwards = request.getHeader("x-forwarded-host").split(",");
+
+			for (String forward : forwards) {
+				if ( ! forward.matches(".*ebi\\.ac\\.uk")) {
+					log.debug("Request proxied. Using baseUrl: " + config.get("baseUrl"));
+					requestConfig.put("baseUrl", config.get("baseUrl"));
+					break;
+				}
+			}
+		}
+
+
+		if (config.get("liveSite").equals("false")) {
+			// If DEV or BETA, refresh the cache daily
+			String dateStamp = new SimpleDateFormat("yyyyMMdd").format(Calendar.getInstance().getTime());
+			requestConfig.put("version", dateStamp);
+		}
+
+		// Map the request configuration into the request object
+		requestConfig.keySet().forEach(key -> {
+			request.setAttribute(key, requestConfig.get(key));
+		});
+		request.setAttribute("requestConfig", requestConfig);
+
+		log.debug("Interception! Intercepted path " + request.getRequestURI());
+		return true;
+	}
 
 	/**
 	 * Get the correct mapped hostname depending on if the request has been proxied or not
@@ -131,6 +131,4 @@ public class DeploymentInterceptor extends HandlerInterceptorAdapter {
 
 		return config.get("drupalBaseUrl");
 	}
-
 }
-
