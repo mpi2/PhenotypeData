@@ -4,8 +4,11 @@ import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.mousephenotype.cda.solr.service.ImpressService;
 import org.mousephenotype.cda.solr.service.PhenotypeCenterService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.web.servlet.ServletContextInitializer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -14,6 +17,8 @@ import org.springframework.data.solr.core.SolrOperations;
 import org.springframework.data.solr.core.SolrTemplate;
 import org.springframework.data.solr.repository.config.EnableSolrRepositories;
 
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
 import javax.validation.constraints.NotNull;
 
 
@@ -176,5 +181,18 @@ public class SolrServerConfig {
 		return new PhenotypeCenterService(solrBaseUrl + "/experiment", impressService);
 	}
 
+
+	protected final Logger logger = LoggerFactory.getLogger(this.getClass().getCanonicalName());
+	@Bean
+	public ServletContextInitializer servletContextInitializer() {
+		return new ServletContextInitializer() {
+			@Override
+			public void onStartup(ServletContext servletContext) throws ServletException {
+				boolean secure = true;
+				logger.info("setSecure({})", secure);
+				servletContext.getSessionCookieConfig().setSecure(secure);
+			}
+		};
+	}
 
 }
