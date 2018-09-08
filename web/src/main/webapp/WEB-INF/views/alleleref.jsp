@@ -125,7 +125,7 @@
                 oConf.kw = "";
                 oConf.baseUrl = "${baseUrl}";
                 oConf.rowFormat = true;
-                oConf.orderBy = "date_of_publication DESC"; // default
+                oConf.orderBy = "firstPublicationDate DESC"; // default
                 oConf.id = "alleleRef";
                 $.fn.fetchAlleleRefDataTable2(oConf);
 

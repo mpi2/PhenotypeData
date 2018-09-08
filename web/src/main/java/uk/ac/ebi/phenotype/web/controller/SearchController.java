@@ -15,8 +15,10 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.web.controller;
 
+import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
+import org.mousephenotype.cda.solr.SolrUtils;
 import org.mousephenotype.cda.solr.generic.util.Tools;
 import org.mousephenotype.cda.solr.service.SolrIndex;
 import org.slf4j.Logger;
@@ -37,6 +39,8 @@ import javax.sql.DataSource;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URLDecoder;
+import java.util.HashMap;
+import java.util.Map;
 
 @Controller
 public class SearchController {
@@ -92,19 +96,17 @@ public class SearchController {
 	public String searchResult2(
 			HttpServletRequest request,
 			Model model) throws IOException, URISyntaxException {
-
+		
+		
 		String paramString = request.getQueryString();
-
-		logger.debug("paramStr: {}", paramString);
-
-		if ((paramString == null) || (paramString.equals("kw=*"))) {
+		System.out.println("paramStr: " + paramString);
+		if(paramString == null) {
 			return searchForward(request);
 		}
-
 		SearchSettings settings = new SearchSettings("gene", "*", null, request);
+		//System.out.println("settings: "+ settings.toString());
 		return processSearch(settings, model);
 	}
-
 	/**
 	 * Primary gateway to searching on the web portal.
 	 *

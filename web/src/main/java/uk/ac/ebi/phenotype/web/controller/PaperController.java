@@ -22,12 +22,13 @@ import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.lang.StringUtils;
 import org.mousephenotype.cda.db.dao.GenomicFeatureDAO;
 import org.mousephenotype.cda.db.dao.ReferenceDAO;
-import org.mousephenotype.cda.db.pojo.ReferenceDTO;
+import org.mousephenotype.cda.db.pojo.Allele;
 import org.mousephenotype.cda.solr.generic.util.Tools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -38,6 +39,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import uk.ac.ebi.phenotype.web.dao.ReferenceRepository;
+import uk.ac.ebi.phenotype.web.dao.ReferenceService;
+import uk.ac.ebi.phenotype.web.dto.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -50,7 +54,9 @@ import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.sql.*;
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 
@@ -77,6 +83,9 @@ public class PaperController {
     private ReferenceDAO referenceDAO;
 
     @Autowired
+    private ReferenceService referenceService;
+
+    @Autowired
     private GenomicFeatureDAO genesDao;
 
     @Autowired
@@ -93,66 +102,102 @@ public class PaperController {
 
         JSONObject jParams = (JSONObject) JSONSerializer.toJSON(params);
 
-        String searchKw = jParams.getString("kw");
+        String searchKw = jParams.containsKey("kw") ? jParams.getString("kw") : null;
         String orderByStr = jParams.getString("orderBy");
-        String filter = jParams.getString("filter");
+        String filter = request.getParameter("sSearch");
         String id = jParams.getString("id");
+        String iDisplayStartJSON = jParams.containsKey("iDisplayStart") ? jParams.getString("iDisplayStart") : "0";
+        String iDisplayLengthJSON = jParams.containsKey("iDisplayLength") ? jParams.getString("iDisplayLength") : "10";
+        String iDisplayStart = request.getParameter("iDisplayStart") != null ? request.getParameter("iDisplayStart") : iDisplayStartJSON;
+        String iDisplayLength = request.getParameter("iDisplayLength") != null ? request.getParameter("iDisplayLength") : iDisplayLengthJSON;
+        int start = Integer.parseInt(iDisplayStart);
+        int length = Integer.parseInt(iDisplayLength);
+
 
 //        System.out.println("id - : "+ id);
 //        System.out.println("kw - : "+ searchKw);
 //        System.out.println("filter - : "+ filter);
 //        System.out.println("order - : "+ orderByStr);
 
-        Boolean doAgencyPaper =  false;
+        Boolean doAgencyPaper = false;
         Boolean doBioSystemPaper = false;
-        if (id != null && id.equals("agency")){
+        if (id != null && id.equals("agency")) {
             doAgencyPaper = true;
         }
-        if (id != null && id.equals("cardio")){
+        if (id != null && id.equals("cardio")) {
             doBioSystemPaper = true;
         }
         Boolean consortium = jParams.containsKey("consortium") ? jParams.getBoolean("consortium") : false;
 
-        String content = fetch_allele_ref2(searchKw, filter, orderByStr, consortium, doAgencyPaper, doBioSystemPaper);
+        String content = fetch_allele_ref2(searchKw, start, length, filter, orderByStr, consortium, doAgencyPaper, doBioSystemPaper);
         return new ResponseEntity<String>(content, createResponseHeaders(), HttpStatus.CREATED);
 
     }
 
-    public String fetch_allele_ref2(String sSearch, String filter, String orderByStr, Boolean consortium, Boolean doAgencyPaper, Boolean doBioSystemPaper) throws SQLException, UnsupportedEncodingException {
+    public String fetch_allele_ref2(String sSearch, int start, int length, String filter, String orderByStr, Boolean consortium, Boolean doAgencyPaper, Boolean doBioSystemPaper) throws SQLException, UnsupportedEncodingException {
         final int DISPLAY_THRESHOLD = 5;
 
-        List<ReferenceDTO> references = new ArrayList<>();
-        if (doAgencyPaper){
-            references = referenceDAO.getReferenceRowsAgencyPaper(sSearch, filter, orderByStr);
-        }
-        else if (doBioSystemPaper){
-            references = referenceDAO.getReferenceRowsForBiologicalSystemPapers(sSearch, filter, orderByStr);
-        }
-        else {
-            //System.out.println("fetching non-agency papers ....");
-            references = referenceDAO.getReferenceRows(sSearch, filter, orderByStr, consortium);
+        List<Publication> references = new ArrayList<>();
+        String orderByField = orderByStr.split(" ")[0];
+        String orderByDirection = orderByStr.split(" ")[1];
+        int total = 10;
+        int totalDisplay = 10;
+        if (consortium) {
+            references = referenceService.getAllConsortium(filter, start, length, orderByField, orderByDirection);
+            total = referenceService.countConsortium();
+            if(filter == null || filter.isEmpty()) {
+                totalDisplay = total;
+            } else {
+                totalDisplay = referenceService.countConsortiumFiltered(filter);
+            }
+        } else if (doAgencyPaper) {
+            references = referenceService.getAllAgency(sSearch, filter, start, length, orderByField, orderByDirection);
+            total = referenceService.countAgency(sSearch);
+            if(filter == null || filter.isEmpty()) {
+                totalDisplay = total;
+            } else {
+                totalDisplay = referenceService.countAgencyFiltered(sSearch, filter);
+            }
+        } else if (doBioSystemPaper) {
+            references = referenceService.getAllBiosystem(sSearch, filter, start, length, orderByField, orderByDirection);
+            total = referenceService.countBiosystem(sSearch);
+            if(filter == null || filter.isEmpty()) {
+                totalDisplay = total;
+            } else {
+                totalDisplay = referenceService.countBiosystemFiltered(sSearch, filter);
+            }
+        } else {
+            references = referenceService.getAllReviewed(filter, start, length, orderByField, orderByDirection);
+            total = referenceService.countReviewed();
+            if(filter == null || filter.isEmpty()) {
+                totalDisplay = total;
+            } else {
+                totalDisplay = referenceService.countFiltered(filter);
+            }
         }
 
         JSONObject j = new JSONObject();
         j.put("aaData", new Object[0]);
-        j.put("iTotalRecords", references.size());
-        j.put("iTotalDisplayRecords", references.size());
+        j.put("iTotalRecords", total);
+        j.put("iTotalDisplayRecords", totalDisplay);
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-M-dd");
 
-        for (ReferenceDTO reference : references) {
+        for (Publication reference : references) {
 
             List<String> rowData = new ArrayList<>();
             List<String> alleleSymbolinks = new ArrayList<>();
 
             int totalAlleleCount = 0;
 
-            if (reference.getAlleleAccessionIds() != null) {
+            if (reference.getAlleles() != null) {
 
-                totalAlleleCount = reference.getAlleleAccessionIds().size();
+                totalAlleleCount = reference.getAlleles().size();
                 // show max of 10 alleles for a paper
                 int showCount = totalAlleleCount > DISPLAY_THRESHOLD ? DISPLAY_THRESHOLD : totalAlleleCount;
 
-                for (int i = 0; i < totalAlleleCount; i++) {
-                    String symbol = Tools.superscriptify(reference.getAlleleSymbols().get(i));
+                for (int i=0; i < reference.getAlleles().size(); i++) {
+                    AlleleRef allele = reference.getAlleles().get(i);
+                    String symbol = Tools.superscriptify(allele.getAlleleSymbol());
 
                     if (symbol.equals("N/A")) {
                         continue;
@@ -160,117 +205,57 @@ public class PaperController {
 
                     String cssClass = "class='" + (i < DISPLAY_THRESHOLD ? "showMe" : "hideMe") + "'";
 
-                    if (reference.getImpcGeneLinks() != null && reference.getImpcGeneLinks().size() != 0) {
+                    String alleleLink = null;
 
-                        String alleleLink = null;
-                        if (i < reference.getImpcGeneLinks().size()) {
-                            alleleLink = "<span " + cssClass + "><a target='_blank' href='" + reference.getImpcGeneLinks().get(i) + "'>" + symbol + "</a></span>";
-                        } else {
-                            if (i > 0) {
-                                alleleLink = "<span " + cssClass + "><a target='_blank' href='" + reference.getImpcGeneLinks().get(0) + "'>" + symbol + "</a></span>";
-                            } else {
-                                alleleLink = "<span " + cssClass + ">" + symbol + "</span>";
-                            }
-                        }
+                    if(allele.getGacc() != null) {
+                        alleleLink = "<span " + cssClass + "><a target='_blank' href='http://www.mousephenotype.org/data/genes/" + allele.getGacc().toUpperCase() + "'>" + symbol + "</a></span>";
+                    } else {
+                        alleleLink = "<span " + cssClass + ">" + symbol + "</span>";
+                    }
 
-                        alleleSymbolinks.add(alleleLink);
-                    }
-                    else {
-                        // some allele id does not associate with a gene id in database yet
-                        alleleSymbolinks.add("<span " + cssClass + ">" + symbol + "</span>");
-                    }
+                    alleleSymbolinks.add(alleleLink);
                 }
             }
 
-            int pmid = reference.getPmid();
-            List<String> paperLinks = new ArrayList<>();
-            List<String> paperLinksOther = new ArrayList<>();
-            List<String> paperLinksPubmed = new ArrayList<>();
-            List<String> paperLinksEuroPubmed = new ArrayList<>();
-            String[] urlList = (reference.getPaperUrls() != null) ? reference.getPaperUrls().toArray(new String[0]) : new String[0];
-
-            for (int i = 0; i < urlList.length; i ++) {
-                String[] urls = urlList[i].split(",");
-
-                int pubmedSeen = 0;
-                int eupubmedSeen = 0;
-                int otherSeen = 0;
-
-                for (int k = 0; k < urls.length; k ++) {
-                    String url = urls[k];
-
-                    if (pubmedSeen != 1) {
-                        if (url.startsWith("http://www.pubmedcentral.nih.gov") && url.endsWith("pdf")) {
-                            paperLinksPubmed.add(url);
-
-                            pubmedSeen ++;
-                        } else if (url.startsWith("http://www.pubmedcentral.nih.gov") && url.endsWith(Integer.toString(pmid))) {
-                            paperLinksPubmed.add(url);
-                            pubmedSeen ++;
-                        }
-                    }
-                    if (eupubmedSeen != 1) {
-                        if (url.startsWith("http://europepmc.org/") && url.endsWith("pdf=render")) {
-                            paperLinksEuroPubmed.add(url);
-                            eupubmedSeen ++;
-                        } else if (url.startsWith("http://europepmc.org/")) {
-                            paperLinksEuroPubmed.add(url);
-                            eupubmedSeen ++;
-                        }
-                    }
-                    if (otherSeen != 1 &&  ! url.startsWith("http://www.pubmedcentral.nih.gov") &&  ! url.startsWith("http://europepmc.org/")) {
-                        paperLinksOther.add(url);
-                        otherSeen ++;
-                    }
-                }
-            }
+            int pmid = Integer.parseInt(reference.getPmid());
 
 
-            // ordered
-//            paperLinks.addAll(paperLinksEuroPubmed);
-//            paperLinks.addAll(paperLinksPubmed);
-//            paperLinks.addAll(paperLinksOther);
-//            rowData.add(StringUtils.join(paperLinks, ""));
-            // for now show only one
             String paperLink = null;
-            if (paperLinksEuroPubmed.size()>0){
-                paperLink = paperLinksEuroPubmed.get(0);
-            }
-            else if (paperLinksPubmed.size()>0){
-                paperLink = paperLinksPubmed.get(0);
-            }
-            else {
-                paperLink = paperLinksOther.get(0);
+
+            for(FullTextUrl url: reference.getFullTextUrlList()) {
+                paperLink = url.getUrl();
+                if (url.getSite().equals("Europe_PMC") && url.getDocumentStyle().equals("html"))
+                    break;
             }
 
-            if (paperLink == null || paperLink.isEmpty()){
+            if (paperLink == null || paperLink.isEmpty()) {
                 rowData.add("<p>" + reference.getTitle() + "</p>");
-            }
-            else {
+            } else {
                 rowData.add("<p><a href='" + paperLink + "'>" + reference.getTitle() + "</a></p>");
             }
 
-            rowData.add("<p><i>" + reference.getJournal() + "</i>, " + reference.getDateOfPublication() + "</p>");
+            rowData.add("<p><i>" + reference.getJournalInfo().getJournal().getTitle() + "</i>, " + dateFormat.format(reference.getFirstPublicationDate()) + "</p>");
 
             // papers citing this paper
             if (! reference.getCitedBy().isEmpty()) {
-                String delimiter = "|||";
-                String citations = reference.getCitedBy().replace(delimiter, "");
-                String[] num = StringUtils.split(reference.getCitedBy(), delimiter);
-                int len = num.length;
+                int len = reference.getCitedBy().size();
+                String citations = "";
+                for (CitingPaper paper : reference.getCitedBy()) {
+                    citations += "<li><a target='_blank' href='" + paper.getUrl() +"'>" + paper.getTitle() + "</a> (" + dateFormat.format(paper.getPublicationDate()) + ")</li>";
+                }
                 rowData.add("<div id='citedBy' class='valToggle' rel=" + len + ">Cited by (" + len + ")</div><div class='valHide'><ul>" + citations + "</ul></div>");
             }
 
-            rowData.add("<p class='author'>" + reference.getAuthor() + "</p>");
+            rowData.add("<p class='author'>" + reference.getAuthorString() + "</p>");
 
             // hidden by default abstract, toggle to show/hide
-            if (! reference.getAbstractTxt().isEmpty()) {
-                rowData.add("<div id='abstract' class='valToggle'>Show abstract</div><div class='valHide'>" + reference.getAbstractTxt() + "</div>");
+            if (reference.getAbstractText() != null && !reference.getAbstractText().isEmpty()) {
+                rowData.add("<div id='abstract' class='valToggle'>Show abstract</div><div class='valHide'>" + reference.getAbstractText() + "</div>");
             }
 
-            rowData.add("<p>PMID: " + Integer.toString(reference.getPmid()) + "</p>");
+            rowData.add("<p>PMID: " + reference.getPmid() + "</p>");
 
-            if (alleleSymbolinks.size() > 0){
+            if (alleleSymbolinks.size() > 0) {
                 if (totalAlleleCount > DISPLAY_THRESHOLD) {
                     alleleSymbolinks.add("<div class='alleleToggle' rel=" + alleleSymbolinks.size() + ">Show all " + alleleSymbolinks.size() + " alleles</div>");
                 }
@@ -278,28 +263,26 @@ public class PaperController {
             }
 
             List<String> agencyList = new ArrayList();
-            int agencyCount = reference.getGrantAgencies().size();
+            int agencyCount = reference.getGrantsList().size();
 
             // unique agency
             for (int i = 0; i < agencyCount; i++) {
-                String grantAgency = reference.getGrantAgencies().get(i);
-                if ( ! grantAgency.isEmpty()) {
-                    if ( ! agencyList.contains(grantAgency)) {
+                String grantAgency = reference.getGrantsList().get(i).getAgency();
+                if (!grantAgency.isEmpty()) {
+                    if (!agencyList.contains(grantAgency)) {
                         agencyList.add(grantAgency);
                     }
                 }
             }
 
-            if (agencyList.size() >0) {
+            if (agencyList.size() > 0) {
                 rowData.add("<p>Grant agency: " + StringUtils.join(agencyList, ", ") + "</p>");
             }
 
             // hidden in datatable: mesh terms
-            if (! (reference.getMeshTerms().size() == 1 && reference.getMeshTerms().get(0).isEmpty())) {
-                String meshTerms = StringUtils.join(reference.getMeshTerms(), ", ");
+            if (reference.getMeshHeadingList().size() > 0) {
+                String meshTerms = StringUtils.join(reference.getMeshHeadingList(), ", ");
                 rowData.add("<div id='meshTree' class='valToggle'>Show mesh terms</div><div class='valHide'>" + meshTerms + "</div>");
-                //rowData.add("<span class='meshTree'>Show mesh tree</span><div class='meshTerms'>" + reference.getMeshJsonStr() + "</div>");
-                //rowData.add("<div class='meshTree'>Show mesh tree</div><div class='meshTerms'>" + reference.getMeshJsonStr() + "</div><div class='meshTreeDiv'></div>");
             }
 
             // single column
@@ -418,7 +401,7 @@ public class PaperController {
             // line chart: yearly paper increase over the years
             //----------------------------------------------------
 
-            String qry = "select left(date_of_publication,4) as year, count(*) as count " +
+   /*         String qry = "select left(date_of_publication,4) as year, count(*) as count " +
                     "from allele_ref where falsepositive = 'no' and reviewed ='yes' group by left(date_of_publication,4) order by year";
 
             PreparedStatement py = conn.prepareStatement(qry);
@@ -434,16 +417,18 @@ public class PaperController {
                 yearAddedCount.put(year, addedCount);
             }
 
-            dataJson.put("yearlyIncrease", yearAddedCount);
+            System.out.println();*/
+
+            dataJson.put("yearlyIncrease", referenceService.getAddedCountByYear());
 
             //-----------------------------------------------------------------------------------
             // bar chart: monthly increments (weekly drilldown) by counts (merge of datasources)
             //-----------------------------------------------------------------------------------
 
             String querySum2 = "SELECT date, sum(count) AS counts  "
-                + "FROM datasource_by_year_weekly_increase "
-                + "WHERE date > '2017-02-09' "
-                + "GROUP BY date";
+                    + "FROM datasource_by_year_weekly_increase "
+                    + "WHERE date > '2017-02-09' "
+                    + "GROUP BY date";
 
             PreparedStatement p5 = conn.prepareStatement(querySum2);
             ResultSet resultSet5 = p5.executeQuery();
@@ -462,15 +447,14 @@ public class PaperController {
                 String key = yyyy + "-" + mm;
                 String key2 = mm + "-" + dd;
 
-                if ( !monthIncreaseWeekDrilldown.containsKey(key)){
+                if (!monthIncreaseWeekDrilldown.containsKey(key)) {
                     monthIncreaseWeekDrilldown.put(key, new HashMap<String, Integer>());
                 }
-                if ( !monthIncreaseWeekDrilldown.get(key).containsKey(key2)) {
+                if (!monthIncreaseWeekDrilldown.get(key).containsKey(key2)) {
                     monthIncreaseWeekDrilldown.get(key).put(key2, count);
-                }
-                else {
+                } else {
                     int weekcnt = monthIncreaseWeekDrilldown.get(key).get(key2);
-                    monthIncreaseWeekDrilldown.get(key).put(key2, weekcnt+count);
+                    monthIncreaseWeekDrilldown.get(key).put(key2, weekcnt + count);
                 }
             }
 
@@ -480,7 +464,7 @@ public class PaperController {
             // bar data: quarterly paper increase by year of publication
             //-----------------------------------------------------------
 
-            String querySum3 = "select left(date_of_publication, 7) as yyyymm, count(*) as count " +
+ /*           String querySum3 = "select left(date_of_publication, 7) as yyyymm, count(*) as count " +
                     "from allele_ref where falsepositive = 'no' and reviewed = 'yes' group by left(date_of_publication , 7);";
 
             PreparedStatement pQuarter = conn.prepareStatement(querySum3);
@@ -493,28 +477,27 @@ public class PaperController {
                 String yyyymm = resultSetQ.getString("yyyymm");
                 String[] ym = yyyymm.split("-");
                 String year = ym[0];
-                String quarter  = quarters.get(ym[1]);
+                String quarter = quarters.get(ym[1]);
                 Integer count = resultSetQ.getInt("count");
 
-                if ( ! yearQuarterSum.containsKey(year)){
+                if (!yearQuarterSum.containsKey(year)) {
                     yearQuarterSum.put(year, new HashMap<String, Integer>());
                 }
 
-                if ( ! yearQuarterSum.get(year).containsKey(quarter)){
+                if (!yearQuarterSum.get(year).containsKey(quarter)) {
                     yearQuarterSum.get(year).put(quarter, count);
-                }
-                else {
+                } else {
                     int addedCount2 = yearQuarterSum.get(year).get(quarter);
-                    yearQuarterSum.get(year).put(quarter, count+addedCount2);
+                    yearQuarterSum.get(year).put(quarter, count + addedCount2);
                 }
-            }
+            }*/
 
-            dataJson.put("yearQuarterSum", yearQuarterSum);
+            dataJson.put("yearQuarterSum", referenceService.getCountByQuarter());
 
             //----------------------------------------------------------------------------
             // bar data: agency by number of papers and drilldown to year of that number
             //----------------------------------------------------------------------------
-            String agentQry = "select left(date_of_publication, 4) as yyyy, pmid, agency from allele_ref where falsepositive = 'no' and reviewed = 'yes'";
+   /*         String agentQry = "select left(date_of_publication, 4) as yyyy, pmid, agency from allele_ref where falsepositive = 'no' and reviewed = 'yes'";
 
             PreparedStatement pAgent = conn.prepareStatement(agentQry);
             ResultSet resultSetAgent = pAgent.executeQuery();
@@ -526,14 +509,14 @@ public class PaperController {
                 String agencies = resultSetAgent.getString("agency");
                 String pmid = Integer.toString(resultSetAgent.getInt("pmid"));
 
-                for(String ag : StringUtils.split(agencies, "|||")){
+                for (String ag : StringUtils.split(agencies, "|||")) {
                     Set<String> agencyList = new HashSet<String>(Arrays.asList(StringUtils.split(ag, ",")));
-                    for(String agency : agencyList){
+                    for (String agency : agencyList) {
                         agency = agency.trim();
-                        if (! agencyPmidYear.containsKey(agency)){
+                        if (!agencyPmidYear.containsKey(agency)) {
                             agencyPmidYear.put(agency, new HashMap<String, String>());
                         }
-                        if (! agencyPmidYear.get(agency).containsKey(pmid)){
+                        if (!agencyPmidYear.get(agency).containsKey(pmid)) {
                             agencyPmidYear.get(agency).put(pmid, year);
                         }
                     }
@@ -554,18 +537,16 @@ public class PaperController {
                 Map<String, String> pmidYear = (Map<String, String>) pair.getValue();
                 String pmidCount = String.valueOf(pmidYear.keySet().size());
 
-                if (! numAgency.containsKey(pmidCount)) {
+                if (!numAgency.containsKey(pmidCount)) {
                     numAgency.put(pmidCount, new ArrayList<String>());
                 }
                 numAgency.get(pmidCount).add(ag);
                 //itAg.remove();
-            }
+            }*/
 
-            dataJson.put("agencyPmidYear", agencyPmidYear);
-            dataJson.put("numAgency", numAgency);
+            dataJson.put("agencyCount", referenceService.getCountByAgency());
 
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         } finally {
             conn.close();
@@ -622,7 +603,7 @@ public class PaperController {
         List<String> pmidStrs = Arrays.asList(idStr.split(","));
         int pmidCount = pmidStrs.size();
 
-        for( String pmidStr : pmidStrs ){
+        for (String pmidStr : pmidStrs) {
             pmidQrys.add("ext_id:" + pmidStr);
         }
 
@@ -637,8 +618,7 @@ public class PaperController {
 
         if (pubmeds.size() == 0) {
             status = "Paper id(s) not found in pubmed database";
-        }
-        else {
+        } else {
             List<String> failedPmids = new ArrayList<>();
             List<String> failedPmidsMsg = new ArrayList<>();
             List<String> foundPmids = new ArrayList<>();
@@ -648,24 +628,22 @@ public class PaperController {
                 Map.Entry pair = (Map.Entry) it.next();
                 String pmidStr = pair.getKey().toString();
 
-                System.out.println("Working on "+ pmidStr);
+                System.out.println("Working on " + pmidStr);
                 foundPmids.add(pmidStr);
 
                 Pubmed pub = (Pubmed) pair.getValue();
 
                 String msg = savePmidData(pub);
 
-                if (msg.contains("duplicate ")){
+                if (msg.contains("duplicate ")) {
                     ignoreStatus += pub.getPmid() + "\n";
                     ignoredCount++;
-                }
-                else if ( ! msg.equals("success") ){
+                } else if (!msg.equals("success")) {
                     //System.out.println("failed: "+ msg);
                     msg = msg.replace(" for key 'pmid'", "");
                     failedPmids.add(pmidStr);
                     failedPmidsMsg.add(msg);
-                }
-                else {
+                } else {
                     successStatus += pmidStr + " added to database\n";
                 }
 
@@ -675,20 +653,18 @@ public class PaperController {
             String submitted = pmidCount + " PMID(s) submitted\n";
             status += submitted;
 
-            if ( failedPmids.size() == 0 && foundPmids.size() == pmidCount && ignoreStatus.isEmpty() ) {
+            if (failedPmids.size() == 0 && foundPmids.size() == pmidCount && ignoreStatus.isEmpty()) {
                 status += pmidCount + " PMID(s) added successfully";
-            }
-            else if (failedPmids.size() == 0 && foundPmids.size() == pmidCount && ! ignoreStatus.isEmpty() ){
+            } else if (failedPmids.size() == 0 && foundPmids.size() == pmidCount && !ignoreStatus.isEmpty()) {
                 status += ignoredCount + " PMID(s) ignored  - already in database:\n" + ignoreStatus;
-            }
-            else {
+            } else {
                 failStatus += fetchNotFoundMsg(pmidStrs, failedPmids);
-                if ( !successStatus.equals("")){
+                if (!successStatus.equals("")) {
                     status += "Success:\n" + successStatus;
                 }
 
                 notFoundStatus = fetchNotFoundMsg(pmidStrs, foundPmids);
-                if ( !notFoundStatus.equals("") ){
+                if (!notFoundStatus.equals("")) {
                     status += "Not Found:\n" + notFoundStatus;
                 }
 
@@ -726,7 +702,7 @@ public class PaperController {
         List<String> pmidAlleleStrs = Arrays.asList(idAlleleStr.split("___"));
 
         //System.out.println("param: "+idAlleleStr);
-        for( String pmidAlleleStr : pmidAlleleStrs) {
+        for (String pmidAlleleStr : pmidAlleleStrs) {
 
             //System.out.println("pmidAlleleStr: " + pmidAlleleStr);
             List<String> alleles = new ArrayList<>();
@@ -776,8 +752,7 @@ public class PaperController {
 
             if (goodAlleleSymbols.size() != 0) {
                 alleleSymbols = StringUtils.join(goodAlleleSymbols, "|||");
-            }
-            else {
+            } else {
                 alleleSymbols = "N/A";
             }
 
@@ -785,8 +760,7 @@ public class PaperController {
 
             if (pubmeds.size() == 0) {
                 status = pmid + " not found in pubmed database";
-            }
-            else {
+            } else {
 
                 Iterator it = pubmeds.entrySet().iterator();
                 while (it.hasNext()) {
@@ -856,13 +830,13 @@ public class PaperController {
 
     }
 
-    public Map<String, String> isImpcAllele(String allelename, Connection conn){
+    public Map<String, String> isImpcAllele(String allelename, Connection conn) {
 
         Map<String, String> alleleGene = new HashMap<>();
 
         String query = "SELECT acc, gf_acc FROM allele WHERE symbol=?";
         try (PreparedStatement p = conn.prepareStatement(query)) {
-            p.setString(1,allelename);
+            p.setString(1, allelename);
 
             ResultSet resultSet = p.executeQuery();
 
@@ -877,17 +851,17 @@ public class PaperController {
         return alleleGene;
     }
 
-    public String fetchNotFoundMsg(List<String> pmidStrs, List<String> failedPmids ){
+    public String fetchNotFoundMsg(List<String> pmidStrs, List<String> failedPmids) {
         String msg = "";
-        for (String pmid : pmidStrs){
-            if ( !failedPmids.contains(pmid)){
+        for (String pmid : pmidStrs) {
+            if (!failedPmids.contains(pmid)) {
                 msg += pmid + " not found in pubmed\n";
             }
         }
         return msg;
     }
 
-    public String savePmidData(Pubmed pub) throws SQLException{
+    public String savePmidData(Pubmed pub) throws SQLException {
 
         Connection conn = admintoolsDataSource.getConnection();
         Boolean autocommit = conn.getAutoCommit();
@@ -915,7 +889,7 @@ public class PaperController {
 
         insertStatement.setString(1, pub.getGeneAccs() == null || pub.getGeneAccs().isEmpty() ? "" : pub.getGeneAccs());
         insertStatement.setString(2, pub.getAlleleAccs() == null || pub.getAlleleAccs().isEmpty() ? "" : pub.getAlleleAccs());
-        insertStatement.setString(3, pub.getAlleleSymbols() == null || pub.getAlleleSymbols().isEmpty()  ? "" : pub.getAlleleSymbols());
+        insertStatement.setString(3, pub.getAlleleSymbols() == null || pub.getAlleleSymbols().isEmpty() ? "" : pub.getAlleleSymbols());
         insertStatement.setString(4, "");
         insertStatement.setInt(5, pmid);
         insertStatement.setString(6, pub.getDateOfPublication());
@@ -963,7 +937,7 @@ public class PaperController {
 
         // fetch mesh terms: heading pulus mesh heading+mesh qualifier
         List<String> mterms = new ArrayList<>();
-        for ( int k=0; k<pub.meshTerms.size(); k++ ) {
+        for (int k = 0; k < pub.meshTerms.size(); k++) {
             MeshTerm mt = pub.meshTerms.get(k);
             mterms.add(mt.meshHeading);
             for (String mq : mt.meshQualifiers) {
@@ -979,7 +953,7 @@ public class PaperController {
         try {
 
             int count = insertStatement.executeUpdate();
-            if (count==0){
+            if (count == 0) {
                 return "duplicate " + pmid;
             }
 
@@ -989,24 +963,22 @@ public class PaperController {
             conn.setAutoCommit(autocommit);
 
             return "success";
-        }
-        catch(SQLException se){
+        } catch (SQLException se) {
             conn.rollback();
             conn.setAutoCommit(autocommit);
 
             return se.getMessage();
-        }
-        finally {
+        } finally {
             conn.close();
         }
     }
 
     public void updateTableDatasourceByYearWeeklyIncrease(String dateOfPublication, List<String> mterms, Connection conn) throws SQLException {
 
-        String[] dateparts = StringUtils.split(dateOfPublication,"-");
+        String[] dateparts = StringUtils.split(dateOfPublication, "-");
         String year = dateparts[0];
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        String yyyymmdd =sdf.format(Calendar.getInstance().getTime());
+        String yyyymmdd = sdf.format(Calendar.getInstance().getTime());
 
         try {
             PreparedStatement insertStatement = conn.prepareStatement("INSERT INTO datasource_by_year_weekly_increase (date, year, datasource, count) "
@@ -1024,7 +996,7 @@ public class PaperController {
             if (mterms.size() > 0) {
 
                 List<String> mts = new ArrayList<>();
-                for(String m : mterms){
+                for (String m : mterms) {
                     mts.add("'" + m + "'");
                 }
 
@@ -1054,8 +1026,8 @@ public class PaperController {
                 }
 
                 String updateSql = "UPDATE paperMeshTopmesh SET number_mapped_mesh = (case" + whenMesh + " end), "
-                    + "number_mapped_pmid = (case" + whenPmid +  " end) "
-                    + "WHERE top_mesh in (" + StringUtils.join(tops, ",") + ")";
+                        + "number_mapped_pmid = (case" + whenPmid + " end) "
+                        + "WHERE top_mesh in (" + StringUtils.join(tops, ",") + ")";
 
                 //System.out.println("update: "+ updateSql);
                 PreparedStatement upt = conn.prepareStatement(updateSql);
@@ -1094,7 +1066,7 @@ public class PaperController {
         Map<Integer, Pubmed> pubmeds = new HashMap<>();
 
         // attach pubmed info to pmid
-        for( String q : pmidQrys ){
+        for (String q : pmidQrys) {
             //System.out.println("Working on filter: "+ q);
             String dbfetchUrl = "https://www.ebi.ac.uk/europepmc/webservices/rest/search/query=" + q + "%20and%20src:MED&format=json&resulttype=core";
             //System.out.println(dbfetchUrl);
@@ -1119,25 +1091,21 @@ public class PaperController {
                 if (r.containsKey("title")) {
                     // sometime paper title is within "[]", remove this: trouble from Europubmed
                     String title = r.getString("title");
-                    title = title.replaceAll("\\[", "").replaceAll("\\]","");
+                    title = title.replaceAll("\\[", "").replaceAll("\\]", "");
                     pub.setTitle(title);
                 } else {
                     pub.setTitle("");
                 }
 
-                if (r.containsKey("electronicPublicationDate")){
+                if (r.containsKey("electronicPublicationDate")) {
                     pub.setDateOfPublication(r.getString("electronicPublicationDate"));
-                }
-                else if (r.containsKey("firstPublicationDate")){
+                } else if (r.containsKey("firstPublicationDate")) {
                     pub.setDateOfPublication(r.getString("firstPublicationDate"));
-                }
-                else if (r.containsKey("journalInfo") && r.getJSONObject("journalInfo").containsKey("printPublicationDate")) {
+                } else if (r.containsKey("journalInfo") && r.getJSONObject("journalInfo").containsKey("printPublicationDate")) {
                     pub.setDateOfPublication(r.getJSONObject("journalInfo").getString("printPublicationDate"));
-                }
-                else if (r.containsKey("pubYear")){
+                } else if (r.containsKey("pubYear")) {
                     pub.setDateOfPublication(r.getString("pubYear") + "-00-00");
-                }
-                else {
+                } else {
                     pub.setDateOfPublication("");
                 }
 
@@ -1203,18 +1171,18 @@ public class PaperController {
                 List<MeshTerm> meshTerms = new ArrayList<>();
                 JSONArray meshHeadings_modified = new JSONArray();
 
-                if ( r.containsKey("meshHeadingList") ){
+                if (r.containsKey("meshHeadingList")) {
                     JSONArray meshHeadings = r.getJSONObject("meshHeadingList").getJSONArray("meshHeading");
-                    for ( int mh=0; mh<meshHeadings.size(); mh++ ){
+                    for (int mh = 0; mh < meshHeadings.size(); mh++) {
                         JSONObject thisMeshHeading = (JSONObject) meshHeadings.get(mh);
                         JSONObject thisMeshHeading_modified = new JSONObject();
 
-                        MeshTerm mt  = new MeshTerm();
+                        MeshTerm mt = new MeshTerm();
                         //System.out.println(thisMeshHeading.toString());
 
                         // mesh heading
                         mt.setMeshHeading("");
-                        if ( thisMeshHeading.containsKey("descriptorName") ){
+                        if (thisMeshHeading.containsKey("descriptorName")) {
                             mt.setMeshHeading(thisMeshHeading.getString("descriptorName"));
 
                             String topMeshTerm = fetchTopLevelMesh(mt.meshHeading);
@@ -1223,20 +1191,20 @@ public class PaperController {
 
                         // mesh subheading
                         mt.setMeshQualifiers(new ArrayList<>());
-                        if ( thisMeshHeading.containsKey("meshQualifierList") ) {
-                            JSONArray meshQualifiers= thisMeshHeading.getJSONObject("meshQualifierList").getJSONArray("meshQualifier");
+                        if (thisMeshHeading.containsKey("meshQualifierList")) {
+                            JSONArray meshQualifiers = thisMeshHeading.getJSONObject("meshQualifierList").getJSONArray("meshQualifier");
                             JSONArray meshQualifiers_modified = new JSONArray();
 
                             for (int mq = 0; mq < meshQualifiers.size(); mq++) {
                                 JSONObject thisMeshQualifier = (JSONObject) meshQualifiers.get(mq);
-                                if ( thisMeshQualifier.containsKey("qualifierName") ){
+                                if (thisMeshQualifier.containsKey("qualifierName")) {
                                     String qf = thisMeshQualifier.getString("qualifierName");
 
                                     JSONObject thisMeshQualifier_modified = new JSONObject();
                                     thisMeshQualifier_modified.put("text", qf);
                                     meshQualifiers_modified.add(thisMeshQualifier_modified);
 
-                                    if ( ! mt.getMeshQualifiers().contains(qf)) {
+                                    if (!mt.getMeshQualifiers().contains(qf)) {
                                         mt.getMeshQualifiers().add(qf);
                                     }
                                 }
@@ -1269,12 +1237,11 @@ public class PaperController {
             URL url = new URL(dbfetchUrl);
             BufferedReader inBuf = new BufferedReader(new InputStreamReader(url.openStream()));
             StringBuffer strBuf = new StringBuffer();
-            while(inBuf.ready()) {
+            while (inBuf.ready()) {
                 strBuf.append(inBuf.readLine() + System.getProperty("line.separator"));
             }
             jsonStr = strBuf.toString();
-        }
-        catch(IOException ex) {
+        } catch (IOException ex) {
             System.out.println(ex.getMessage());
         }
         // Return the response data as JSON object
@@ -1459,6 +1426,7 @@ public class PaperController {
                     '}';
         }
     }
+
     public class Grant {
         public String id;
         public String acronym;
@@ -1488,6 +1456,7 @@ public class PaperController {
             this.agency = agency;
         }
     }
+
     public class Paperurl {
         public String url;
 
@@ -1499,6 +1468,7 @@ public class PaperController {
             this.url = url;
         }
     }
+
     public class MeshTerm {
         public String meshHeading;
         public List<String> meshQualifiers; // same as mes subheading

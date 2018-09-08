@@ -365,9 +365,12 @@
                 var drillDownSeriesDataAgency = [];
                 var agencyNames = [];
 
-                //console.log(j.numAgency);
+                console.log(j.agencyCount);
 
-                var paperCountList = Object.keys(j.numAgency).sort(function(a, b) {
+                agencyNames = Object.keys(j.agencyCount);
+                agencyNumPaperSeries = Object.values(j.agencyCount);
+
+/*                var paperCountList = Object.keys(j.numAgency).sort(function(a, b) {
                     return +/\d+/.exec(b)[0] - +/\d+/.exec(a)[0];
                 });
 
@@ -417,7 +420,7 @@
                         //console.log(yo);
                         drillDownSeriesDataAgency.push(yo);
                     }
-                }
+                }*/
                 // console.log("a")
                 // console.log(agencyNumPaperSeries);
                 // console.log("b")
@@ -473,7 +476,7 @@
                                 events: {
                                     click: function () {
 
-                                        var agencyName = this.name;
+                                        var agencyName = this.category;
 
                                         var tableHeader = "<thead><th></th></thead>";
                                         var tableCols = 1;
@@ -486,21 +489,24 @@
                                         var oConf = {};
                                         oConf.id = "agency";
                                         oConf.kw = agencyName;
-                                        oConf.orderBy = "date_of_publication DESC";
+                                        oConf.orderBy = "firstPublicationDate DESC";
                                         var id = oConf.id;
                                         oConf.filter = "";
 
+                                        console.log(oConf);
+
                                         $.ajax({
-                                            'url': baseUrl + '/dataTableAlleleRef2?doAlleleRef=' + JSON.stringify(oConf),
+                                            'url': baseUrl + '/dataTableAlleleRef2?doAlleleRef=' + encodeURI(JSON.stringify(oConf)),
                                             'async': true,
                                             'jsonp': 'json.wrf',
                                             'success': function (json) {
+                                                console.log(json);
 
                                                 var oTable = $('table#agency').dataTable({
                                                     "bSort": false, // true is default
                                                     "processing": true,
                                                     "paging": true,
-                                                    //"serverSide": false,  // do not want sorting to be processed from server, false by default
+                                                    "serverSide": true,  // do not want sorting to be processed from server, false by default
                                                     "sDom": "i<<'#exportSpinner'>l<f><'saveTable'>r>tip",
                                                     "sPaginationType": "bootstrap",
                                                     "searchHighlight": true,
@@ -509,7 +515,16 @@
                                                         "sSearch": "Filter: "
                                                     },
                                                     "aaData" : json.aaData,  // array of objects
-                                                    "iTotalRecords" : json.iTotalRecords
+                                                    "iTotalRecords" : json.iTotalRecords,
+                                                    "sAjaxSource": baseUrl + '/dataTableAlleleRef2',
+                                                    "fnServerParams": function (aoData) {
+                                                        aoData.push(
+                                                            {
+                                                                "name": "doAlleleRef",
+                                                                "value": JSON.stringify(oConf)
+                                                            }
+                                                        );
+                                                    }
 
                                                 });
 
@@ -620,15 +635,15 @@
 
                                                     if ($(this).siblings("i").hasClass("fa-caret-down")){
                                                         $(this).siblings("i").removeClass("fa-caret-down").addClass("fa-caret-up");
-                                                        oConf.orderBy = "date_of_publication ASC";
+                                                        oConf.orderBy = "firstPublicationDate ASC";
                                                     }
                                                     else {
                                                         $(this).siblings("i").removeClass("fa-caret-up").addClass("fa-caret-down");
-                                                        oConf.orderBy = "date_of_publication DESC";
+                                                        oConf.orderBy = "firstPublicationDate DESC";
                                                     }
 
                                                     $.ajax({
-                                                        'url': baseUrl + '/dataTableAlleleRef2?doAlleleRef=' + JSON.stringify(oConf),
+                                                        'url': baseUrl + '/dataTableAlleleRef2?doAlleleRef=' + encodeURI(JSON.stringify(oConf)),
                                                         'async': true,
                                                         'jsonp': 'json.wrf',
                                                         'success': function (json) {
@@ -824,7 +839,7 @@
             "sDom": "<<'#exportSpinner'>l<f><'saveTable'>r>tip",
             "sPaginationType": "bootstrap",
             "searchHighlight": true,
-            "iDisplayLength": 200,
+            "iDisplayLength": 10,
             "oLanguage": {
                 "sSearch": "Filter: "
             },
@@ -918,7 +933,7 @@
             "bSort": false, // true is default
             "processing": true,
             "paging": true,
-            //"serverSide": false,  // do not want sorting to be processed from server, false by default
+            "serverSide": true,  // do not want sorting to be processed from server, false by default
             "sDom": "i<<'#exportSpinner'>l<f><'saveTable'>r>tip",
             "sPaginationType": "bootstrap",
             "searchHighlight": true,
@@ -954,7 +969,7 @@
                 //oConf.kw = oConf.kw;
                 oConf.fileName = 'impc_publications';
                 oConf.iDisplayStart = 0;
-                oConf.iDisplayLength = 5000;
+                oConf.iDisplayLength = 10;
                 oConf.dataType = "alleleRef";
 
                 var fileTypeTsv = "fileType=tsv";
@@ -1012,11 +1027,11 @@
 
 					if ($(this).siblings("i").hasClass("fa-caret-down")){
                         $(this).siblings("i").removeClass("fa-caret-down").addClass("fa-caret-up");
-						oConf.orderBy = "date_of_publication ASC";
+						oConf.orderBy = "firstPublicationDate ASC";
 					}
 					else {
                         $(this).siblings("i").removeClass("fa-caret-up").addClass("fa-caret-down");
-                        oConf.orderBy = "date_of_publication DESC";
+                        oConf.orderBy = "firstPublicationDate DESC";
 					}
 
                     if ($("#" + id +"_filter").find('input').val() != "") {
@@ -1027,7 +1042,7 @@
                     }
 
 					$.ajax({
-						'url': baseUrl + '/dataTableAlleleRef2?doAlleleRef=' + JSON.stringify(oConf),
+						'url': baseUrl + '/dataTableAlleleRef2?doAlleleRef=' + encodeURI(JSON.stringify(oConf)),
 						'async': true,
 						'jsonp': 'json.wrf',
 						'success': function (json) {
@@ -1655,7 +1670,7 @@
 			'class' : 'table tableSorter'
 		});
 
-        var sortFields = ["date_of_publication", "title", "journal"];
+        var sortFields = ["firstPublicationDate", "title", "journal"];
         var sortChkboxes = "";
         // for (var i=0; i<sortFields.length; i++){
         //     var label = sortFields[i].replace(/_/g, " ");
