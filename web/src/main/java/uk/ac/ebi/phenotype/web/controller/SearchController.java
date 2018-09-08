@@ -88,7 +88,7 @@ public class SearchController {
 	 */
 	@RequestMapping("/search/")  // appended slash
 	public String searchForward(HttpServletRequest request) {
-		String redirectUrl = request.getScheme() + ":" + request.getAttribute("mappedHostname") + request.getAttribute("baseUrl") + "/search";
+		String redirectUrl = request.getScheme() + ":" + request.getAttribute("mappedHostname") + request.getAttribute("baseUrl") + "/search/gene?kw=*";
 		return "redirect:" + redirectUrl;
 	}
 
@@ -96,10 +96,13 @@ public class SearchController {
 	public String searchResult2(
 			HttpServletRequest request,
 			Model model) throws IOException, URISyntaxException {
-
+		
+		
 		String paramString = request.getQueryString();
-
 		System.out.println("paramStr: " + paramString);
+		if(paramString == null) {
+			return searchForward(request);
+		}
 		SearchSettings settings = new SearchSettings("gene", "*", null, request);
 		//System.out.println("settings: "+ settings.toString());
 		return processSearch(settings, model);
