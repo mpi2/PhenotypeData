@@ -237,7 +237,7 @@ public class PaperController {
             rowData.add("<p><i>" + reference.getJournalInfo().getJournal().getTitle() + "</i>, " + dateFormat.format(reference.getFirstPublicationDate()) + "</p>");
 
             // papers citing this paper
-            if (! reference.getCitedBy().isEmpty()) {
+            if (reference.getCitedBy() != null && ! reference.getCitedBy().isEmpty()) {
                 int len = reference.getCitedBy().size();
                 String citations = "";
                 for (CitingPaper paper : reference.getCitedBy()) {
@@ -280,7 +280,7 @@ public class PaperController {
             }
 
             // hidden in datatable: mesh terms
-            if (reference.getMeshHeadingList().size() > 0) {
+            if (reference.getMeshHeadingList() != null && reference.getMeshHeadingList().size() > 0) {
                 String meshTerms = StringUtils.join(reference.getMeshHeadingList(), ", ");
                 rowData.add("<div id='meshTree' class='valToggle'>Show mesh terms</div><div class='valHide'>" + meshTerms + "</div>");
             }
