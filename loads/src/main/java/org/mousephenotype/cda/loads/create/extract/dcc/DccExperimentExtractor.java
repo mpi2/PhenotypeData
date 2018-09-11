@@ -60,7 +60,7 @@ public class DccExperimentExtractor implements CommandLineRunner {
     // These procedures are always meant to be skipped. Additional skipped parameters passed in on the command line are
     // appended to these.
    	private Set<String> skipProcedures = new HashSet<>(Arrays.asList("SLM_SLM", "SLM_AGS", "TRC_TRC", "DSS_DSS", "MGP_ANA", "MGP_BCI", "MGP_BMI", "MGP_EEI", "MGP_MLN", "MGP_PBI", "MGP_IMM"));
-//   	private Set<String> skipThreeIProcedures = new HashSet<>(Arrays.asList("SLM_SLM", "SLM_AGS", "TRC_TRC", "DSS_DSS"));
+
     // Load all 3i data
    	private Set<String> skipThreeIProcedures = new HashSet<>();
 
@@ -80,7 +80,7 @@ public class DccExperimentExtractor implements CommandLineRunner {
     }
 
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
         SpringApplication app = new SpringApplication(DccExperimentExtractor.class);
         app.setBannerMode(Banner.Mode.OFF);
         app.setLogStartupInfo(false);
@@ -88,7 +88,7 @@ public class DccExperimentExtractor implements CommandLineRunner {
     }
 
     @Override
-    public void run(String... args) throws Exception {
+    public void run(String... args) throws DataLoadException {
 
         initialize(args);
         run();
@@ -114,6 +114,7 @@ public class DccExperimentExtractor implements CommandLineRunner {
         parser.accepts("filename").withRequiredArg().ofType(String.class);
 
         // parameter to indicate profile (subdirectory of configfiles containing application.properties)
+        // NOTE: 'profile' is not required by this code, but it is passed in on the command line and consumed by the XxxConfig classes.
         parser.accepts("profile").withRequiredArg().ofType(String.class);
 
         // parameter to indicate procedures to be skipped in experiment files.

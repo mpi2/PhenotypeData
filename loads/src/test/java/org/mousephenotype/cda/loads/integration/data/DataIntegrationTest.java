@@ -19,12 +19,9 @@ package org.mousephenotype.cda.loads.integration.data;
 import org.h2.tools.Server;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.loads.common.BioModelResults;
-import org.mousephenotype.cda.loads.common.CdaSqlUtils;
-import org.mousephenotype.cda.loads.common.DccSqlUtils;
 import org.mousephenotype.cda.loads.create.extract.dcc.DccExperimentExtractor;
 import org.mousephenotype.cda.loads.create.extract.dcc.DccSpecimenExtractor;
 import org.mousephenotype.cda.loads.create.load.ExperimentLoader;
@@ -39,53 +36,35 @@ import org.springframework.core.io.Resource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.datasource.init.ScriptUtils;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+
+import static junit.framework.TestCase.assertTrue;
 
 /**
  * This is an end-to-end integration data test class that uses an in-memory database to populate a small dcc, cda_base,
  * and cda set of databases.
  */
-// FIXME
 @RunWith(SpringJUnit4ClassRunner.class)
 @ComponentScan
 @ContextConfiguration(classes = TestConfig.class)
-@TestPropertySource("file:${user.home}/configfiles/${profile:dev}/test.properties")
-
 public class DataIntegrationTest {
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private ApplicationContext context;
 
-    
+    @Autowired
+    private DataSource cdaDataSource;
     
     @Autowired
     private DataSource dccDataSource;
-
-    @Autowired
-    private DccSqlUtils dccSqlUtils;
-
-
-
-    @Autowired
-    private DataSource cdabaseDataSource;
-
-    @Autowired
-    private CdaSqlUtils cdabaseSqlUtils;
-
-    
-
-
-    @Autowired
-    private CdaSqlUtils cdaSqlUtils;
 
     @Autowired
     private NamedParameterJdbcTemplate jdbcCda;
@@ -104,9 +83,6 @@ public class DataIntegrationTest {
     @Autowired
     private ExperimentLoader experimentLoader;
 
-    @Autowired
-    private DataSource cdaDataSource;
-
 
 
     // Set startServer to true to produce an in-memory h2 database browser.
@@ -124,7 +100,7 @@ public class DataIntegrationTest {
             Runnable runnable = () -> {
 
                 try {
-                    Server.startWebServer(cdaDataSource.getConnection());
+                    Server.startWebServer(dccDataSource.getConnection());
 
                     server = Server.createWebServer("-web");  // .start();
                     server.start();
@@ -158,14 +134,97 @@ public class DataIntegrationTest {
         };
 
         for (String schema : cdaSchemas) {
+            logger.info("cda schema: " + schema);
             Resource r = context.getResource(schema);
             ScriptUtils.executeSqlScript(cdaDataSource.getConnection(), r);
         }
         for (String schema : dccSchemas) {
+            logger.info("dcc schema: " + schema);
             Resource r = context.getResource(schema);
+            String s = dccDataSource.getConnection().getSchema();
+            System.out.println("dcc schema = " + s);
             ScriptUtils.executeSqlScript(dccDataSource.getConnection(), r);
         }
     }
+
+
+
+
+    @Test
+    public void testLoadSpecimenAndExperiment() throws Exception {
+
+        Resource dataResource   = context.getResource("classpath:sql/h2/LoadSpecimenAndExperiment-data.sql");
+        Resource specimenResource   = context.getResource("classpath:xml/LoadSpecimenAndExperiment-Specimens.xml");
+        Resource experimentResource = context.getResource("classpath:xml/LoadSpecimenAndExperiment-Experiment.xml");
+
+        ScriptUtils.executeSqlScript(cdaDataSource.getConnection(), dataResource);
+
+        String[] extractSpecimenArgs = new String[]{
+                "--datasourceShortName=EuroPhenome",
+                "--filename=" + specimenResource.getFile().getAbsolutePath()
+        };
+
+        String[] extractExperimentArgs = new String[]{
+                "--datasourceShortName=EuroPhenome",
+                "--filename=" + experimentResource.getFile().getAbsolutePath()
+        };
+
+        String[] loadArgs = new String[] {
+        };
+
+        dccSpecimenExtractor.run(extractSpecimenArgs);
+        dccExperimentExtractor.run(extractExperimentArgs);
+
+        sampleLoader.run(loadArgs);
+        experimentLoader.run(loadArgs);
+
+        String bsQuery = "SELECT COUNT(*) AS cnt FROM biological_sample";
+        Integer bsCount = 0;
+
+        String bmsQuery = "SELECT COUNT(*) AS cnt FROM biological_model_sample";
+        Integer bmsCount = 0;
+
+        try (Connection connection = cdaDataSource.getConnection(); PreparedStatement p = connection.prepareStatement(bsQuery)) {
+            ResultSet resultSet = p.executeQuery();
+            while (resultSet.next()) {
+                bsCount = resultSet.getInt("cnt");
+            }
+        }
+
+        try (Connection connection = cdaDataSource.getConnection(); PreparedStatement p = connection.prepareStatement(bmsQuery)) {
+            ResultSet resultSet = p.executeQuery();
+            while (resultSet.next()) {
+                bmsCount = resultSet.getInt("cnt");
+            }
+        }
+
+        assertTrue(bsCount == bmsCount);
+
+        // Check that the model has a gene, allele and strain
+
+        String modelQuery = "SELECT * FROM biological_model bm " +
+                "INNER JOIN biological_model_allele bma ON bma.biological_model_id=bm.id " +
+                "INNER JOIN biological_model_genomic_feature bmgf ON bmgf.biological_model_id=bm.id " +
+                "INNER JOIN biological_model_strain bmstrain ON bmstrain.biological_model_id=bm.id " +
+                "INNER JOIN biological_model_sample bmsamp ON bmsamp.biological_model_id=bm.id " ;
+        Integer modelCount = 0;
+        Set<Integer> modelIds = new HashSet<>();
+        try (Connection connection = cdaDataSource.getConnection(); PreparedStatement p = connection.prepareStatement(modelQuery)) {
+            ResultSet resultSet = p.executeQuery();
+            while (resultSet.next()) {
+                modelCount++;
+                modelIds.add(resultSet.getInt("id"));
+            }
+
+        }
+
+        Assert.assertEquals(modelCount.intValue(), 31);
+        Assert.assertEquals(modelIds.size(), 1);
+
+    }
+
+
+
 
     /**
      * The intention of this test is to verify that the background strain is the same for control specimens as it is for
@@ -181,7 +240,7 @@ public class DataIntegrationTest {
      *   control specimenId:  14819
      *   mutant specimenId:   19603       WTSI.2013-10-31.14.experiment.impc.xml   line 38783
      */
- @Ignore
+ //@Ignore
     @Test
     public void testBackgroundStrainIsEqual() throws Exception {
 
@@ -201,8 +260,7 @@ public class DataIntegrationTest {
                 "--filename=" + experimentResource.getFile().getAbsolutePath()
         };
 
-        String[] loadArgs = new String[]{
-                "--profile=dev",
+        String[] loadArgs = new String[] {
                 };
 
         dccSpecimenExtractor.run(extractSpecimenArgs);
@@ -227,11 +285,12 @@ public class DataIntegrationTest {
     /*
      * Test the special MGP EuroPhenome remapping rule
      */
-@Ignore
-    @Test
-    public void testEuroPhenomeRemapper() {
-
-    }
+    // FIXME - Implement me.
+//@Ignore
+//    @Test
+//    public void testEuroPhenomeRemapper() {
+//
+//    }
 
     /*
      * Test that line-level experiments get the correct biological model and friends.
@@ -289,21 +348,34 @@ public class DataIntegrationTest {
      */
 //@Ignore
     @Test
-    public void testLineLevelExperiment() throws Exception {
+    public void testLineLevelExperimentAndComboSpecimenHaveSameBioModel() throws Exception {
 
         Resource dataResource   = context.getResource("classpath:sql/h2/LineLevelExperiment-data.sql");
         Resource experimentResource = context.getResource("classpath:xml/LineLevelExperiment-Experiment.xml");
+        Resource specimenResource = context.getResource("classpath:xml/LineLevelSpecimen-Specimens.xml");
 
         ScriptUtils.executeSqlScript(cdaDataSource.getConnection(), dataResource);
+
+
+
+        String[] extractSpecimenArgs = new String[]{
+                "--datasourceShortName=IMPC",
+                "--filename=" + specimenResource.getFile().getAbsolutePath()
+        };
+
+
+        String[] loadArgs = new String[] {
+        };
+
+        dccSpecimenExtractor.run(extractSpecimenArgs);
+
+        sampleLoader.run(loadArgs);
 
         String[] extractExperimentArgs = new String[]{
                 "--datasourceShortName=IMPC",
                 "--filename=" + experimentResource.getFile().getAbsolutePath()
         };
 
-        String[] loadArgs = new String[]{
-                "--profile=dev",
-                };
 
         dccExperimentExtractor.run(extractExperimentArgs);
 
@@ -323,6 +395,30 @@ public class DataIntegrationTest {
 
             Assert.fail();
         }
+
+
+        // Check that the models created have the same gene, allele and strain
+
+        String modelQuery = "SELECT * FROM biological_model bm " +
+                "INNER JOIN biological_model_strain bmstrain ON bmstrain.biological_model_id=bm.id " +
+                "INNER JOIN biological_model_sample bmsamp ON bmsamp.biological_model_id=bm.id " ;
+        Integer modelCount = 0;
+        Set<Integer> modelIds = new HashSet<>();
+        try (Connection connection = cdaDataSource.getConnection(); PreparedStatement p = connection.prepareStatement(modelQuery)) {
+            ResultSet resultSet = p.executeQuery();
+            while (resultSet.next()) {
+                modelCount++;
+                modelIds.add(resultSet.getInt("id"));
+            }
+
+        }
+
+        System.out.println("Checking line and specimen have the same bio model");
+        Assert.assertEquals(1, modelCount.intValue());
+        Assert.assertEquals(1, modelIds.size());
+        System.out.println("  SUCCESS");
+
+
     }
 
 //    @Test

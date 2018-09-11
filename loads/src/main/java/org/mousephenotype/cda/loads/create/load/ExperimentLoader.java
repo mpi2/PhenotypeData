@@ -52,7 +52,7 @@ import java.util.concurrent.*;
 public class ExperimentLoader implements CommandLineRunner {
 
     // How many threads used to process experiments
-    private static final int N_THREADS = 60;
+    private static final int N_THREADS = 75;
     private static final Boolean ONE_AT_A_TIME = Boolean.FALSE;
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -92,25 +92,25 @@ public class ExperimentLoader implements CommandLineRunner {
     // lookup maps returning cda table primary key given dca unique string
     // Initialise them here, as this code gets called multiple times for different dcc data sources
     // and these maps must be cleared before their second and subsequent uses.
-    private static Map<String, Integer>                cdaDb_idMap                       = new ConcurrentHashMap<>();
-    private static Map<String, Integer>                cdaProject_idMap                  = new ConcurrentHashMap<>();
-    private static Map<String, Integer>                cdaPipeline_idMap                 = new ConcurrentHashMap<>();
-    private static Map<String, Integer>                cdaProcedure_idMap                = new ConcurrentHashMap<>();
-    private static Map<String, Integer>                cdaParameter_idMap                = new ConcurrentHashMap<>();
-    private static Map<String, String>                 cdaParameterNameMap               = new ConcurrentHashMap<>();          // map of impress parameter names keyed by stable_parameter_id
+    private static Map<String, Integer>                cdaDb_idMap                       = new ConcurrentHashMapAllowNull<>();
+    private static Map<String, Integer>                cdaProject_idMap                  = new ConcurrentHashMapAllowNull<>();
+    private static Map<String, Integer>                cdaPipeline_idMap                 = new ConcurrentHashMapAllowNull<>();
+    private static Map<String, Integer>                cdaProcedure_idMap                = new ConcurrentHashMapAllowNull<>();
+    private static Map<String, Integer>                cdaParameter_idMap                = new ConcurrentHashMapAllowNull<>();
+    private static Map<String, String>                 cdaParameterNameMap               = new ConcurrentHashMapAllowNull<>();          // map of impress parameter names keyed by stable_parameter_id
     private static Set<String>                         derivedImpressParameters          = new ConcurrentSkipListSet<>();
     private static Set<String>                         metadataAndDataAnalysisParameters = new ConcurrentSkipListSet<>();
-    private static Map<BioSampleKey, BiologicalSample> samplesMap                        = new ConcurrentHashMap<>();
+    private static Map<BioSampleKey, BiologicalSample> samplesMap                        = new ConcurrentHashMapAllowNull<>();
     private static StrainMapper                        strainMapper;
     private static Map<String, Strain>                 strainsByNameOrMgiAccessionIdMap;
 
 
     // DCC parameter lookup maps, keyed by procedure_pk
-    private static Map<Long, List<MediaParameter>>       mediaParameterMap       = new ConcurrentHashMap<>();
-    private static Map<Long, List<OntologyParameter>>    ontologyParameterMap    = new ConcurrentHashMap<>();
-    private static Map<Long, List<SeriesParameter>>      seriesParameterMap      = new ConcurrentHashMap<>();
-    private static Map<Long, List<SeriesMediaParameter>> seriesMediaParameterMap = new ConcurrentHashMap<>();
-    private static Map<Long, List<MediaSampleParameter>> mediaSampleParameterMap = new ConcurrentHashMap<>();
+    private static Map<Long, List<MediaParameter>>       mediaParameterMap       = new ConcurrentHashMapAllowNull<>();
+    private static Map<Long, List<OntologyParameter>>    ontologyParameterMap    = new ConcurrentHashMapAllowNull<>();
+    private static Map<Long, List<SeriesParameter>>      seriesParameterMap      = new ConcurrentHashMapAllowNull<>();
+    private static Map<Long, List<SeriesMediaParameter>> seriesMediaParameterMap = new ConcurrentHashMapAllowNull<>();
+    private static Map<Long, List<MediaSampleParameter>> mediaSampleParameterMap = new ConcurrentHashMapAllowNull<>();
 
     private static BioModelManager               bioModelManager;
     private static Map<String, Integer>          cdaOrganisation_idMap;
@@ -139,7 +139,7 @@ public class ExperimentLoader implements CommandLineRunner {
     }
 
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
         SpringApplication app = new SpringApplication(ExperimentLoader.class);
         app.setBannerMode(Banner.Mode.OFF);
         app.setLogStartupInfo(false);
@@ -148,17 +148,17 @@ public class ExperimentLoader implements CommandLineRunner {
 
 
     @Override
-    public void run(String... strings) throws Exception {
+    public void run(String... strings) throws DataLoadException {
 
         Assert.notNull(jdbcCda, "jdbcCda must not be null");
         Assert.notNull(cdaSqlUtils, "cdaSqlUtils must not be null");
         Assert.notNull(dccSqlUtils, "dccSqlUtils must not be null");
 
         bioModelManager = new BioModelManager(cdaSqlUtils, dccSqlUtils);
-        cdaOrganisation_idMap = new ConcurrentHashMap<>(cdaSqlUtils.getCdaOrganisation_idsByDccCenterId());
+        cdaOrganisation_idMap = new ConcurrentHashMapAllowNull<>(cdaSqlUtils.getCdaOrganisation_idsByDccCenterId());
         phenotypedColonyMap = bioModelManager.getPhenotypedColonyMap();
-        missingColonyMap = new ConcurrentHashMap<>(cdaSqlUtils.getMissingColonyIdsMap());
-        ontologyTermMap = new ConcurrentHashMap<>(bioModelManager.getOntologyTermMap());
+        missingColonyMap = new ConcurrentHashMapAllowNull<>(cdaSqlUtils.getMissingColonyIdsMap());
+        ontologyTermMap = new ConcurrentHashMapAllowNull<>(bioModelManager.getOntologyTermMap());
         OntologyTerm impcUncharacterizedBackgroundStrain = ontologyTermMap.get(CdaSqlUtils.IMPC_UNCHARACTERIZED_BACKGROUND_STRAIN);
         strainMapper = new StrainMapper(cdaSqlUtils, bioModelManager.getStrainsByNameOrMgiAccessionIdMap(), impcUncharacterizedBackgroundStrain);
         strainsByNameOrMgiAccessionIdMap = bioModelManager.getStrainsByNameOrMgiAccessionIdMap();
@@ -176,7 +176,7 @@ public class ExperimentLoader implements CommandLineRunner {
 
         logger.info("Getting experiments");
         List<DccExperimentDTO> dccExperiments = dccSqlUtils.getExperiments();
-        logger.info("Getting experiments complete.");
+        logger.info("Getting experiments complete. Loading {} experiments from DCC.", dccExperiments.size());
 
         CommonUtils.printJvmMemoryConfiguration();
 
@@ -189,66 +189,49 @@ public class ExperimentLoader implements CommandLineRunner {
 
         CommonUtils.printJvmMemoryConfiguration();
 
-        // FIXME These won't be called multiple times after we remove the LoadFromDcc class.
-        // Initialise maps. If they are not null, clear them first, as this method gets called multiple times to
-        // load data from different dcc databases.
         logger.info("Loading lookup maps started");
 
-        cdaDb_idMap.clear();
         cdaDb_idMap = cdaSqlUtils.getCdaDb_idsByDccDatasourceShortName();
         logger.info("loaded {} db_id rows", cdaDb_idMap.size());
 
-        cdaProject_idMap.clear();
         cdaProject_idMap = cdaSqlUtils.getCdaProject_idsByDccProject();
         logger.info("loaded {} project rows", cdaProject_idMap.size());
 
-        cdaPipeline_idMap.clear();
         cdaPipeline_idMap = cdaSqlUtils.getCdaPipeline_idsByDccPipeline();
         logger.info("loaded {} pipeline rows", cdaPipeline_idMap.size());
 
-        cdaProcedure_idMap.clear();
         cdaProcedure_idMap = cdaSqlUtils.getCdaProcedure_idsByDccProcedureId();
         logger.info("loaded {} procedure rows", cdaProcedure_idMap.size());
 
-        cdaParameter_idMap.clear();
         cdaParameter_idMap = cdaSqlUtils.getCdaParameter_idsByDccParameterId();
         logger.info("loaded {} parameter rows", cdaParameter_idMap.size());
 
-        cdaParameterNameMap.clear();
         cdaParameterNameMap = cdaSqlUtils.getCdaParameterNames();
         logger.info("loaded {} parameterName rows", cdaParameterNameMap.size());
 
-        derivedImpressParameters.clear();
         derivedImpressParameters = cdaSqlUtils.getImpressDerivedParameters();
         logger.info("loaded {} derivedImpressParameter rows", derivedImpressParameters.size());
 
-        metadataAndDataAnalysisParameters.clear();
         metadataAndDataAnalysisParameters = cdaSqlUtils.getImpressMetadataAndDataAnalysisParameters();
         logger.info("loaded {} requiredImpressParameter rows", metadataAndDataAnalysisParameters.size());
 
-        samplesMap.clear();
         samplesMap = cdaSqlUtils.getBiologicalSamplesMapBySampleKey();
         logger.info("loaded {} sample rows", samplesMap.size());
 
 
         // Load DCC parameter maps.
-        mediaParameterMap.clear();
         mediaParameterMap = dccSqlUtils.getMediaParameters();
         logger.info("loaded {} mediaParameter rows", mediaParameterMap.size());
 
-        ontologyParameterMap.clear();
         ontologyParameterMap = dccSqlUtils.getOntologyParameters();
         logger.info("loaded {} ontologyParameter rows", ontologyParameterMap.size());
 
-        seriesParameterMap.clear();
         seriesParameterMap = dccSqlUtils.getSeriesParameters();
         logger.info("loaded {} seriesParameter rows", seriesParameterMap.size());
 
-        seriesMediaParameterMap.clear();
         seriesMediaParameterMap = dccSqlUtils.getSeriesMediaParameters();
         logger.info("loaded {} seriesMediaParameter rows", seriesMediaParameterMap.size());
 
-        mediaSampleParameterMap.clear();
         mediaSampleParameterMap = dccSqlUtils.getMediaSampleParameters();
         logger.info("loaded {} mediaSampleParameter rows", mediaSampleParameterMap.size());
 
@@ -344,6 +327,11 @@ public class ExperimentLoader implements CommandLineRunner {
 
         System.out.println("New biological models for line-level experiments: " + bioModelsAddedCount);
 
+        if (dccExperiments.size() != Integer.parseInt(loadCounts.get(1).get(0))) {
+            logger.warn("Failed to load all experiments from DCC. Expected {}, Loaded {}", dccExperiments.size(), loadCounts.get(1).get(0));
+        } else {
+            logger.info("Loaded all expected experiments from DCC. Expected {}, Loaded {}", dccExperiments.size(), loadCounts.get(1).get(0));
+        }
 
         // Log info sets
 
@@ -487,7 +475,7 @@ public class ExperimentLoader implements CommandLineRunner {
     private Experiment insertExperiment(DccExperimentDTO dccExperiment) throws DataLoadException {
         Experiment experiment = new Experiment();
         Integer dbId;
-        Integer phenotypingCenterPk;
+        Integer phenotypingCenterPk = null;
         String phenotypingCenter;
         Integer projectPk;
         Integer pipelinePk;
@@ -554,7 +542,7 @@ public class ExperimentLoader implements CommandLineRunner {
          *       with the IMPC specimen's 'C57Bl6n', which causes a new strain by that name to be created, then later
          *       causes the database to complain about duplicate biological models.
          */
-        if ((dccExperiment.getSpecimenStrainId() != null) && ( ! dccExperiment.getSpecimenStrainId().isEmpty()) && (dccExperiment.getDatasourceShortName().equalsIgnoreCase(CdaSqlUtils.EUROPHENOME))) {
+        if ((dccExperiment.getSpecimenStrainId() != null) && ( ! dccExperiment.getSpecimenStrainId().isEmpty()) && (dccExperiment.getDatasourceShortName().equalsIgnoreCase(CdaSqlUtils.EUROPHENOME) || dccExperiment.getDatasourceShortName().equalsIgnoreCase(CdaSqlUtils.MGP))) {
             String remappedStrainName = strainMapper.parseMultipleBackgroundStrainNames(dccExperiment.getSpecimenStrainId());
             dccExperiment.setSpecimenStrainId(remappedStrainName);
             PhenotypedColony colony = phenotypedColonyMap.get(dccExperiment.getColonyId());
@@ -583,32 +571,43 @@ public class ExperimentLoader implements CommandLineRunner {
         {
             PhenotypedColony colony = phenotypedColonyMap.get(dccExperiment.getColonyId());
 
+            // Run the strain name through the StrainMapper to remap incorrect legacy strain names.
+            Strain remappedStrain;
+            try {
+                if ((dccExperiment.getSpecimenStrainId() != null) && (!dccExperiment.getSpecimenStrainId().isEmpty()) && (dccExperiment.getDatasourceShortName().equalsIgnoreCase(CdaSqlUtils.EUROPHENOME) || dccExperiment.getDatasourceShortName().equalsIgnoreCase(CdaSqlUtils.MGP))) {
+
+                    synchronized (strainMapper) {
+
+                        String backgroundStrainName = dccExperiment.getSpecimenStrainId();
+
+                        remappedStrain = strainMapper.lookupBackgroundStrain(backgroundStrainName);
+                        if (backgroundStrainName != null && remappedStrain == null) {
+                            remappedStrain = StrainMapper.createBackgroundStrain(backgroundStrainName);
+                            cdaSqlUtils.insertStrain(remappedStrain);
+                            strainsByNameOrMgiAccessionIdMap.put(remappedStrain.getName(), remappedStrain);
+                            strainsByNameOrMgiAccessionIdMap.put(remappedStrain.getId().getAccession(), remappedStrain);
+                        }
+                        if (colony != null) {
+                            colony.setBackgroundStrain(remappedStrain.getName());
+                        }
+
+                    }
+
+                }
+            } catch (Exception e ) {
+                e.printStackTrace();
+            }
+
             // If iMits has the colony, use it to get the strain name.
             if (colony != null) {
                 dccExperiment.setSpecimenStrainId(colony.getBackgroundStrain());
             }
 
-            // Run the strain name through the StrainMapper to remap incorrect legacy strain names.
-            Strain remappedStrain;
-            synchronized (strainMapper) {
-                remappedStrain = strainMapper.lookupBackgroundStrain(dccExperiment.getSpecimenStrainId());
-                if (remappedStrain == null) {
-                    remappedStrain = StrainMapper.createBackgroundStrain(dccExperiment.getSpecimenStrainId());
-                    cdaSqlUtils.insertStrain(remappedStrain);
-                    strainsByNameOrMgiAccessionIdMap.put(remappedStrain.getName(), remappedStrain);
-                    strainsByNameOrMgiAccessionIdMap.put(remappedStrain.getId().getAccession(), remappedStrain);
-                }
-                dccExperiment.setSpecimenStrainId(remappedStrain.getName());
-                if (colony != null) {
-                    colony.setBackgroundStrain(remappedStrain.getName());
-                }
-            }
 
             // Get phenotypingCenter and phenotypingCenterPk.
             phenotypingCenter = LoadUtils.mappedExternalCenterNames.get(dccExperiment.getPhenotypingCenter());
             if (colony != null) {
 
-                colony.setBackgroundStrain((remappedStrain.getName()));
                 phenotypingCenterPk = colony.getPhenotypingCentre().getId();
 
             } else {
@@ -619,10 +618,14 @@ public class ExperimentLoader implements CommandLineRunner {
                     return null;
                 }
 
-                // It is an error if a MUTANT is not found in the iMits report (i.e. its colony is null)
-                missing = new MissingColonyId(dccExperiment.getColonyId(), 1, MISSING_COLONY_ID_REASON);
-                missingColonyMap.put(dccExperiment.getColonyId(), missing);
-                return null;
+                if (dccExperiment.isControl()) {
+                    phenotypingCenterPk = cdaOrganisation_idMap.get(dccExperiment.getPhenotypingCenter());
+                } else {
+                    // It is an error if a MUTANT is not found in the iMits report (i.e. its colony is null)
+                    missing = new MissingColonyId(dccExperiment.getColonyId(), 1, MISSING_COLONY_ID_REASON);
+                    missingColonyMap.put(dccExperiment.getColonyId(), missing);
+                    return null;
+                }
             }
         }
 
@@ -696,18 +699,22 @@ public class ExperimentLoader implements CommandLineRunner {
         // Get the biological model primary key.
         String zygosity;
         BioModelKey key;
+        BioModelKey impcDsKey;
 
         if (dccExperiment.isLineLevel()) {
             List<SimpleParameter> simpleParameterList = dccSqlUtils.getSimpleParameters(dccExperiment.getDcc_procedure_pk());
             zygosity = LoadUtils.getLineLevelZygosity(simpleParameterList);
             key = bioModelManager.createMutantKey(dccExperiment.getDatasourceShortName(), dccExperiment.getColonyId(), zygosity);
+            impcDsKey = bioModelManager.createMutantKey(CdaSqlUtils.IMPC, dccExperiment.getColonyId(), zygosity);
         } else {
             if (dccExperiment.isControl()) {
                 zygosity = LoadUtils.getControlZygosity();
                 key = bioModelManager.createControlKey(dccExperiment.getDatasourceShortName(), dccExperiment.getSpecimenStrainId());
+                impcDsKey = bioModelManager.createControlKey(CdaSqlUtils.IMPC, dccExperiment.getSpecimenStrainId());
             } else {
                 zygosity = LoadUtils.getSpecimenLevelMutantZygosity(dccExperiment.getZygosity());
                 key = bioModelManager.createMutantKey(dccExperiment.getDatasourceShortName(), dccExperiment.getColonyId(), zygosity);
+                impcDsKey = bioModelManager.createMutantKey(CdaSqlUtils.IMPC, dccExperiment.getColonyId(), zygosity);
             }
         }
         biologicalModelPk = bioModelManager.getBiologicalModelPk(key);
@@ -720,15 +727,22 @@ public class ExperimentLoader implements CommandLineRunner {
 
             } else {
 
-                MissingColonyId mid = missingColonyMap.get(dccExperiment.getColonyId());                                // Skip any known missing colony ids. We already know about them.
-                if (mid == null) {
-                    // Specimen-level experiment models should already be loaded. Log a warning and skip them if they are not.
-                    String message = "Unknown sample '" + dccExperiment.getSpecimenId() + "' for experiment '" + dccExperiment.getExperimentId() + "', colonyId "
-                            + dccExperiment.getColonyId() + ". isControl = " + dccExperiment.isControl() + ". key = " + key + ". Skipping.";
-                    logger.warn(message);
+                if (dccExperiment.getDatasourceShortName().equals(CdaSqlUtils.THREEI)) {                                // 3i reuses IMPC samples, so try using the same key, but with IMPC instead of 3i.
+                    biologicalModelPk = bioModelManager.getBiologicalModelPk(impcDsKey);
                 }
 
-                return null;
+                if (biologicalModelPk == null) {
+
+                    MissingColonyId mid = missingColonyMap.get(dccExperiment.getColonyId());                                // Skip any known missing colony ids. We already know about them.
+                    if (mid == null) {
+                        // Specimen-level experiment models should already be loaded. Log a warning and skip them if they are not.
+                        String message = "Unknown sample '" + dccExperiment.getSpecimenId() + "' for experiment '" + dccExperiment.getExperimentId() + "', colonyId "
+                                + dccExperiment.getColonyId() + ". isControl = " + dccExperiment.isControl() + ". key = " + key + ". Skipping.";
+                        logger.warn(message);
+                    }
+
+                    return null;
+                }
             }
         }
 
@@ -789,7 +803,12 @@ public class ExperimentLoader implements CommandLineRunner {
 
         for (ProcedureMetadata metadata : dccMetadataList) {
             String parameterName = cdaParameterNameMap.get(metadata.getParameterID());
-            metadataCombinedList.add(parameterName + " = " + metadata.getValue());
+
+            // Do not cache the experimenter ID
+            if ( ! parameterName.toLowerCase().contains("experimenter")) {
+                metadataCombinedList.add(parameterName + " = " + metadata.getValue());
+            }
+
             if (metadataAndDataAnalysisParameters.contains(metadata.getParameterID())) {
                 metadataGroupList.add(parameterName + " = " + metadata.getValue());
             }
@@ -800,6 +819,10 @@ public class ExperimentLoader implements CommandLineRunner {
             metadataCombinedList.add("ProductionCenter = " + dccExperiment.getProductionCenter());
             metadataGroupList.add("ProductionCenter = " + dccExperiment.getProductionCenter());
         }
+
+        // Put the required metadata group components in a sorted order for producing
+        // The same hash for the same values irrespective of the order of the input
+        Collections.sort(metadataGroupList);
 
         metadataCombined = StringUtils.join(metadataCombinedList, "::");
         metadataGroup = StringUtils.join(metadataGroupList, "::");
@@ -1000,6 +1023,11 @@ public class ExperimentLoader implements CommandLineRunner {
 
     private void insertSimpleParameter(DccExperimentDTO dccExperiment, SimpleParameter simpleParameter, int experimentPk,
                                        int dbId, Integer biologicalSamplePk, int missing) throws DataLoadException {
+
+        if (dccExperiment.getSpecimenId() != null && dccExperiment.getSpecimenId().equals("B6NC_46853_163447") && dccExperiment.getProcedureId().startsWith("IMPC_CBC")) {
+            logger.info("CANARY -- specimen B6NC_46853_163447\n{}, \nParameter: {}", dccExperiment, simpleParameter.getParameterID());
+        }
+
         String parameterStableId = simpleParameter.getParameterID();
         Integer parameterPk = cdaParameter_idMap.get(parameterStableId);
         if (parameterPk == null) {
@@ -1033,7 +1061,7 @@ public class ExperimentLoader implements CommandLineRunner {
             simpleParameter.getValue().equals("present"))
         {
 
-            logger.info("Special rule: skipping specimen {}, experiment {}, parameter {}, sex {} ",
+            logger.debug("Special rule: skipping specimen {}, experiment {}, parameter {}, sex {} ",
                         dccExperiment.getSpecimenId(), dccExperiment.getExperimentId(),
                         parameterStableId, dccExperiment.getSex());
             return;
@@ -1072,6 +1100,13 @@ public class ExperimentLoader implements CommandLineRunner {
 
         // Insert experiment_observation
         cdaSqlUtils.insertExperiment_observation(experimentPk, observationPk);
+
+        if (dccExperiment.getSpecimenId() != null && dccExperiment.getSpecimenId().equals("B6NC_46853_163447") && dccExperiment.getProcedureId().startsWith("IMPC_CBC")) {
+            logger.info("END CANARY -- Successfully inserted specimen B6NC_46853_163447, experimentPk {}, parameter {}", experimentPk, simpleParameter.getParameterID());
+        }
+
+
+
     }
 
     private void insertMediaParameter(DccExperimentDTO dccExperiment, MediaParameter mediaParameter,

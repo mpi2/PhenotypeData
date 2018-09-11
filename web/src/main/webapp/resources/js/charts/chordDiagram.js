@@ -3,9 +3,12 @@
  */
 /** Initialize var mpTopLevelTerms if you want it filtered **/
 
+
+/* drawChords("chordDiagramSvgIonChannels", "chordContainerIonChannels", false, [], true, "Ion Channels", true); */
+
 var drawChords = function (svgId, containerId, openNewPage, mpTopLevelTerms, idg, idgClass, clickableChords) {
 
-    console.log(mpTopLevelTerms);
+    console.log("mpTopLevelTerms " + mpTopLevelTerms);
     console.log("containerId " + containerId);
     console.log("openNewPage " + openNewPage);
     console.log("svgId " + svgId);
@@ -19,7 +22,11 @@ var drawChords = function (svgId, containerId, openNewPage, mpTopLevelTerms, idg
     console.log(jsonSource);
 
     var url = (mpTopLevelTerms && mpTopLevelTerms.length > 0) ? baseUrl + "/chordDiagram?phenotype_name=" + mpTopLevelTerms.join("&phenotype_name=") : baseUrl+ "/chordDiagram?";
-
+    
+    
+    console.log(url);
+    
+    
     queue().defer(d3.json, jsonSource)
         .await(ready);
 
@@ -27,7 +34,7 @@ var drawChords = function (svgId, containerId, openNewPage, mpTopLevelTerms, idg
 
     function ready(error, json) {
 
-        console.log("in here");
+        console.log("in here with json="+json);
         if (error) throw error;
 
         else {
@@ -128,7 +135,8 @@ var drawChords = function (svgId, containerId, openNewPage, mpTopLevelTerms, idg
                     return d.angle > Math.PI ? "end" : null;
                 })
                 .text(function (d) {
-                    return labels[d.index].name.replace("phenotype", "");
+                    labels_json = JSON.parse(labels)
+                    return labels_json[d.index].name.replace("phenotype", "");
                 });
 
             g.append("g")

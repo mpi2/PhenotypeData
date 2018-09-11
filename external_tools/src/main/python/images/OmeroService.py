@@ -6,6 +6,7 @@ import time
 import omero
 import sys
 import collections
+import logging
 import omero.all
 import omero.rtypes
 import omero
@@ -51,7 +52,8 @@ def main(argv):
     
 class OmeroService:
     def __init__(self, omeroHost, omeroPort, omeroUsername, omeroPass, group):
-        print "init OmeroService"
+        self.logger = logging.getLogger(__name__)
+        self.logger.info("init OmeroService")
         self.omeroHost=omeroHost
         self.omeroPort=omeroPort
         self.omeroUsername=omeroUsername
@@ -60,124 +62,132 @@ class OmeroService:
         self.conn=self.getConnection()
         
     def getConnection(self):
-        self.cli = omero.cli.CLI()
-        self.cli.loadplugins()
-        self.cli.invoke(["login", self.omeroUsername+'@'+self.omeroHost, "-w", self.omeroPass, "-C"], strict=True)
-        #cli.invoke(["login", "%s@localhost" % user, "-w", passw, "-C"], strict=True)
-        self.cli.invoke(["sessions", "group", self.group], strict=True)
-        sessionId = self.cli._event_context.sessionUuid
-        self.conn = BlitzGateway(host=self.omeroHost)
-        self.conn.connect(sUuid = sessionId)
+        try: 
+            self.cli = omero.cli.CLI()
+            self.cli.loadplugins()
+            self.cli.invoke(["login", self.omeroUsername+'@'+self.omeroHost, "-w", self.omeroPass, "-C"], strict=True)
+            #cli.invoke(["login", "%s@localhost" % user, "-w", passw, "-C"], strict=True)
+            self.cli.invoke(["sessions", "group", self.group], strict=True)
+            sessionId = self.cli._event_context.sessionUuid
+            self.conn = BlitzGateway(host=self.omeroHost)
+            self.conn.connect(sUuid = sessionId)
     
-        user = self.conn.getUser()
-        #print "Current user:"
-        #print "   ID:", user.getId()
-        #print "   Username:", user.getName()
-        #print "   Full Name:", user.getFullName()
+            user = self.conn.getUser()
+            #print "Current user:"
+            #print "   ID:", user.getId()
+            #print "   Username:", user.getName()
+            #print "   Full Name:", user.getFullName()
     
-        #print "Member of:"
-        #for g in self.conn.getGroupsMemberOf():
-            #print "   ID:", g.getId(), " Name:", g.getName()
-        group = self.conn.getGroupFromContext()
-        #print "Current group: ", group.getName()
+            #print "Member of:"
+            #for g in self.conn.getGroupsMemberOf():
+                #print "   ID:", g.getId(), " Name:", g.getName()
+            group = self.conn.getGroupFromContext()
+            #print "Current group: ", group.getName()
     
-        #print "Other Members of current group:"
-        #for exp in conn.listColleagues():
-        #    print "   ID:", exp.getId(), exp.getOmeName(), " Name:", exp.getFullName()
+            #print "Other Members of current group:"
+            #for exp in conn.listColleagues():
+            #    print "   ID:", exp.getId(), exp.getOmeName(), " Name:", exp.getFullName()
     
-        #print "Owner of:"
-        #for g in conn.listOwnedGroups():
-        #    print "   ID:", g.getName(), " Name:", g.getId()
+            #print "Owner of:"
+            #for g in conn.listOwnedGroups():
+            #    print "   ID:", g.getName(), " Name:", g.getId()
     
-        # New in OMERO 5
-        #print "Admins:"
-        #for exp in conn.getAdministrators():
-        #   print "   ID:", exp.getId(), exp.getOmeName(), " Name:", exp.getFullName()
+            # New in OMERO 5
+            #print "Admins:"
+            #for exp in conn.getAdministrators():
+            #   print "   ID:", exp.getId(), exp.getOmeName(), " Name:", exp.getFullName()
     
-        # The 'context' of our current session
-        ctx = self.conn.getEventContext()
-        # print ctx     # for more info
-        #print ctx
-        return self.conn
+            # The 'context' of our current session
+            ctx = self.conn.getEventContext()
+            # print ctx     # for more info
+            #print ctx
+            return self.conn
+        except Exception, e:
+            self.logger.exception(e)
     
-    def getImagesAlreadyInOmero(self, filterProject=None, filterDataset=None):
-        directory_to_filename_map = collections.OrderedDict()
-        if self.conn is None:
-            self.conn=self.getConnection()
-        print "\nList Projects:"
-        print "=" * 50
-        my_expId = self.conn.getUser().getId()
-        projects=self.conn.listProjects(my_expId)
-        if filterProject is not None:
-            self.filterProjectName=filterProject#instance variable as can't pass to standard python filter method?
-            filteredProjects=filter(self.filterProjectFunction,projects)
-            for project in filteredProjects:
-                print "filtered project="+project.getName()
-        else:
-            filteredProjects=projects
-        for project in filteredProjects:
-            print "looking for project name="+project.getName()
-            for dataset in project.listChildren():
-                self.print_obj(dataset, 2)
-                for image in dataset.listChildren():
-                    #print_obj(image, 4)
-                    fileset = image.getFileset()
-                    #print 'fileset=', fileset
-                    if fileset is not None:
-                        #print 'image id=', image.getId()
-                        filesetId=fileset.getId()
-                        query = 'SELECT clientPath FROM FilesetEntry WHERE fileset.id = :id'
-                        params = omero.sys.ParametersI()
-                        params.addId(omero.rtypes.rlong(filesetId))
-                        for path in self.conn.getQueryService().projection(query, params):
-                            fullPath=path[0].val
-                            if splitString in fullPath:
-                                #print 'path in omero=' +fullPath
-                                relativeOmeroUrl=fullPath.split(splitString,1)[1]
-                                relDir, filename=relativeOmeroUrl.rsplit('/',1)
-                                #print "relDir="+relDir+" filename="+filename
-                                #directory_to_filename_map.add(relativeOmeroUrl)
-                                directory_to_filename_map.setdefault(relDir,list()).append( filename )
-        # Close connection:
-        # =================================================================
-        # When you are done, close the session to free up server resources.
-        return directory_to_filename_map
-    
+    def getImagesAlreadyInOmero(self):
+        query = 'SELECT clientPath FROM FilesetEntry WHERE fileset.id >= :id';
+        params = omero.sys.ParametersI()
+        params.addId(omero.rtypes.rlong(0))
+        omero_file_data = self.conn.getQueryService().projection(query, params)
+
+        # Get the filepath by splitting the indir path
+        omero_file_list = []
+        for ofd in omero_file_data:
+            try:
+                #indir,ofd_path = ofd[1].split(root_dir[1:])
+                ofd_path = ofd[0].val.split('impc/')[-1]
+            except Exception as e:
+                self.logger.error("Problem extracting root_dir from clientpath " + ofd[0].val)
+                self.logger.error("Error was: " + str(e))
+                omero_file_list.append(ofd[0].val)
+                continue
+            #if indir is None or len(indir) < 1:
+            #    print "Did not extract root_dir from " + ofd[1]
+            omero_file_list.append(ofd_path)
+        return omero_file_list
+
+    def getAnnotationsAlreadyInOmero(self):
+        #query = 'SELECT ds.name, (SELECT o.name FROM originalfile o ' + \
+        #        'WHERE o.id=a.file) AS filename FROM datasetannotationlink ' + \
+        #        'dsal, dataset ds, annotation a where dsal.parent=ds.id and ' + \
+        #        ' dsal.child=a.id and ' + \
+        #        ' dsal.child >= :id'
+        
+        omero_annotation_list = []
+        file_annotations = self.conn.listFileAnnotations()
+        for fa in file_annotations:
+            links = fa.getParentLinks('dataset')
+            for link in links:
+                datasets = link.getAncestry()
+                for ds in datasets:
+                    dir_parts = ds.getName().split('-')
+                    if len(dir_parts) == 4:
+                        dir_parts.append(fa.getFileName())
+                        omero_annotation_list.append("/".join(dir_parts))
+        return omero_annotation_list
+
+
     def filterProjectFunction(self, project):
-        print "project name="+project.getName()
+        self.logger.info("project name="+project.getName())
         if project.getName().startswith(self.filterProjectName):
             return True
         else:
             return False
     
     def loadFileOrDir(self, directory,  project=None, dataset=None, filenames=None):
-        print "loadFileOrDir with:", directory,  project, dataset, filenames
+        if filenames is not None:
+            str_n_files = str(len(filenames))
+        else:
+            str_n_files = "0"
+
+        self.logger.info("loadFileOrDir with: Directory=" + directory + ", project=" + str(project) + ", dataset=" + str(dataset) + ", # of files=" + str_n_files)
         #chop dir to get project and dataset
         
         #if filenames is non then load the entire dir
         if filenames is not None:
-            for file in filenames:
-                fullPath=directory+"/"+file
-                print "loading file="+fullPath
+            for filename in filenames:
+                fullPath=directory+"/"+filename
+                self.logger.info("loading file="+fullPath)
                 try:
                     self.load(fullPath, project, dataset)
-                except:
-                    print "OmeroService Unexpected error loading file:", sys.exc_info()[0]
-                    print "continue"
+                except Exception as e:
+                    self.logger.warning("OmeroService Unexpected error loading file:" + str(e))
+                    self.logger.warning("Skipping " + fullPath + " and continuing")
                     continue
                 
         else:
-            print "loading directory"
+            self.logger.info("loading directory")
             try:
                 self.load(directory, project, dataset)
-            except:
-                    print "OmeroService Unexpected error loading directory:", sys.exc_info()[0]
-                    print "continue"
-                    raise
+            except Exception as e:
+                    self.logger.exception("OmeroService Unexpected error loading directory:" + str(e))
 
     def load(self, path, project=None, dataset=None):  
-        print "-"*10
-        print "path=",path," project=", project,"dataset=",dataset
+        self.logger.info("-"*10)
+        self.logger.info("path="+path)
+        self.logger.info("project="+str(project))
+        self.logger.info("dataset="+str(dataset))
         #if self.cli is None or self.conn is None:
             #print "cli is none!!!!!"
         self.getConnection()
@@ -185,30 +195,30 @@ class OmeroService:
        
         import_args = ["import"]
         if project is not None:
-            "project in load is not None"+project
+            self.logger.info("project in load is not None. Project name: "+project)
             #project=project.replace(" ","-")
         if dataset is not None:
-            print "dataset in load is not None"+dataset
+            self.logger.info("dataset in load is not None. Dataset name: "+dataset)
             dsId = self.create_containers(self.cli, dataset, self.omeroHost, project)
-            print "dsId="+str(dsId)
+            self.logger.info("datasetId="+str(dsId))
             import_args.extend(["--","-d", str(dsId), "--exclude","filename"])#"--no_thumbnails",,"--debug", "ALL"])
             #import_args.extend(["--","--transfer","ln_s","-d", str(dsId), "--exclude","filename"])#"--no_thumbnails",,"--debug", "ALL"])
             #import_args.extend(["--", "-d", str(dsId)])#"--no_thumbnails",,"--debug", "ALL"])
         else:
-            print "dataset is None!!!!!!!!!!!!!!!!!!!!"
+            self.logger.warning("dataset is None!!!!!!!!!!!!!!!!!!!!")
         
-        print 'importing project=' ,project, 'dataset=',dataset, 'filename=', path
+        self.logger.info('importing project=' + str(project) +  ', dataset=' + str(dataset) + ', filename=' + str(path))
         
         if(path.endswith('.pdf')):
-            print "We have a pdf document- loading as attachment "+str(path)#we need to upload as an attachment
+            self.logger.info("We have a pdf document- loading as attachment "+str(path))#we need to upload as an attachment
             namespace = "imperial.training.demo"
             fileAnn = self.conn.createFileAnnfromLocalFile(str(path), mimetype=None, ns=namespace, desc=None)
-            print "fileAnn="+str(fileAnn)
+            self.logger.info("fileAnn="+str(fileAnn))
             datasetForAnnotation = self.conn.getObject("Dataset", dsId)
-            print "Attaching FileAnnotation to Dataset: ", str(datasetForAnnotation)," File ID:", fileAnn.getId(), ",", fileAnn.getFile().getName(), "Size:", fileAnn.getFile().getSize()
-            print "Dataset="+str(datasetForAnnotation)
+            self.logger.info( "Attaching FileAnnotation to Dataset: " + str(datasetForAnnotation) + ", File ID: " + str(fileAnn.getId()) + ", File Name: " + fileAnn.getFile().getName() + ", Size:" + str(fileAnn.getFile().getSize()))
+            self.logger.info("Dataset="+str(datasetForAnnotation))
             datasetForAnnotation.linkAnnotation(fileAnn)
-            print "linked annotation!"
+            self.logger.info("linked annotation!")
         else:
             import_args.append(path)
             #print " import args="
@@ -234,19 +244,19 @@ class OmeroService:
         if project is not None:
             p = self.conn.getObject("Project", attributes={'name': project}, params=params)
             if p is None:
-                print "Creating Project:", project
+                self.logger.info("Creating Project:" + project)
                 p = omero.model.ProjectI()
                 p.name = wrap(str(project))
                 prId = self.conn.getUpdateService().saveAndReturnObject(p).id.val
-                print "Project id after created="+str(prId)
+                self.logger.info("Project id after created="+str(prId))
             else:
-                print "Using Project:", project, p
+                self.logger.info( "Using Project:" + project + ":" + p.getName())
                 prId = p.getId()
                 # Since Project already exists, check children for Dataset
                 for c in p.listChildren():
-                    print "c getname="+c.getName()
+                    self.logger.info("c getname="+c.getName())
                     if c.getName() == dataset:
-                        print "c=d matches name"
+                        self.logger.info("c=d matches name")
                         d = c
     
         #if d is None:
@@ -254,19 +264,19 @@ class OmeroService:
         #    d = self.conn.getObject("Dataset", attributes={'name': dataset}, params=params)
     
         if d is None:
-            print "Creating Dataset:", dataset
+            self.logger.info( "Creating Dataset:" + dataset)
             d = omero.model.DatasetI()
             d.name = wrap(str(dataset))
             dsId = self.conn.getUpdateService().saveAndReturnObject(d).id.val
             if prId is not None:
-                print "Linking Project-Dataset..."
+                self.logger.info("Linking Project-Dataset...")
                 link = omero.model.ProjectDatasetLinkI()
                 link.child = omero.model.DatasetI(dsId, False)
                 link.parent = omero.model.ProjectI(prId, False)
                 self.conn.getUpdateService().saveObject(link)
                 
         else:
-            print "Using Dataset:", dataset, d
+            self.logger.info( "Using Dataset:" + dataset + ":" + d.getName())
             dsId = d.getId()
         
         return dsId
@@ -276,12 +286,13 @@ class OmeroService:
         Helper method to display info about OMERO objects.
         Not all objects will have a "name" or owner field.
         """
-        print """%s%s:%s  Name:"%s" (owner=%s)""" % (\
+        msg = """%s%s:%s  Name:"%s" (owner=%s)""" % (\
                 " " * indent,
                 obj.OMERO_CLASS,\
                 obj.getId(),\
                 obj.getName(),\
                 obj.getOwnerOmeName())
+        self.logger.info(msg)
     
 if __name__ == "__main__":
     main(sys.argv[1:]) 

@@ -37,7 +37,7 @@ import java.io.IOException;
 import java.util.List;
 
 /**
- ** This report produces a file of impress database differences between a previous version and the current one.
+ ** This report produces a file of cdabase database differences between a previous version and the current one.
  *
  * Created by mrelac on 24/07/2015.
  */
@@ -47,14 +47,14 @@ public class ValidateExtractImpressReport extends AbstractReport implements Comm
     private Logger   logger   = LoggerFactory.getLogger(this.getClass());
     private LoadValidateCountsQuery loadValidateCountsQuery;
 
-    private NamedParameterJdbcTemplate jdbcImpressPrevious;
-    private NamedParameterJdbcTemplate jdbcImpressCurrent;
+    private NamedParameterJdbcTemplate jdbcCdabasePrevious;
+    private NamedParameterJdbcTemplate jdbcCdabaseCurrent;
     private SqlUtils                   sqlUtils;
 
     @Inject
-    public ValidateExtractImpressReport(NamedParameterJdbcTemplate jdbcImpressPrevious, NamedParameterJdbcTemplate jdbcImpressCurrent, SqlUtils sqlUtils) {
-        this.jdbcImpressPrevious = jdbcImpressPrevious;
-        this.jdbcImpressCurrent = jdbcImpressCurrent;
+    public ValidateExtractImpressReport(NamedParameterJdbcTemplate jdbcCdabasePrevious, NamedParameterJdbcTemplate jdbcCdabaseCurrent, SqlUtils sqlUtils) {
+        this.jdbcCdabasePrevious = jdbcCdabasePrevious;
+        this.jdbcCdabaseCurrent = jdbcCdabaseCurrent;
         this.sqlUtils = sqlUtils;
     }
 
@@ -83,7 +83,7 @@ public class ValidateExtractImpressReport extends AbstractReport implements Comm
     @Override
     protected void initialise(String[] args) throws ReportException {
         super.initialise(args);
-        loadValidateCountsQuery = new LoadValidateCountsQuery(jdbcImpressPrevious, jdbcImpressCurrent, csvWriter);
+        loadValidateCountsQuery = new LoadValidateCountsQuery(jdbcCdabasePrevious, jdbcCdabaseCurrent, csvWriter);
         loadValidateCountsQuery.addQueries(queries);
     }
 
@@ -113,8 +113,8 @@ public class ValidateExtractImpressReport extends AbstractReport implements Comm
         long start = System.currentTimeMillis();
 
         try {
-            String db1Info    = sqlUtils.getDbInfoString(jdbcImpressPrevious);
-            String db2Info    = sqlUtils.getDbInfoString(jdbcImpressCurrent);
+            String db1Info    = sqlUtils.getDbInfoString(jdbcCdabasePrevious);
+            String db2Info    = sqlUtils.getDbInfoString(jdbcCdabaseCurrent);
 
             logger.info("VALIDATION STARTED AGAINST DATABASES {} AND {}", db1Info, db2Info);
 

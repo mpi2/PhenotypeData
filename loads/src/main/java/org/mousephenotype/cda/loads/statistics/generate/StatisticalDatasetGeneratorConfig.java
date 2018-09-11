@@ -26,7 +26,7 @@ import org.springframework.context.annotation.PropertySource;
 import javax.validation.constraints.NotNull;
 
 @Configuration
-@PropertySource(value="file:${user.home}/configfiles/${profile:dev}/application.properties")
+@PropertySource(value="file:${user.home}/configfiles/${profile:dev}/datarelease.properties")
 public class StatisticalDatasetGeneratorConfig {
 
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());

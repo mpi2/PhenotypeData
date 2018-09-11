@@ -35,7 +35,7 @@
             <id>mouse-informatics</id>
             <name>Mouse Informatics internal repository</name>
             <layout>default</layout>
-            <url>http://ves-ebi-d9.ebi.ac.uk:8080/nexus/content/groups/public/</url>
+            <url>http://ves-ebi-d9.ebi.ac.uk:8081/repository/mouse/</url>
             <snapshots>
                 <enabled>false</enabled>
             </snapshots>
@@ -46,7 +46,7 @@
         <repository>
             <id>deployment</id>
             <name>Internal Releases</name>
-            <url>http://ves-ebi-d9.ebi.ac.uk:8080/nexus/content/repositories/releases/</url>
+            <url>http://ves-ebi-d9.ebi.ac.uk:8081/repository/mouse-phenotype/</url>
         </repository>
     </distributionManagement>
 
@@ -88,12 +88,6 @@
 
             <dependency>
                 <groupId>org.mousephenotype.cda</groupId>
-                <artifactId>data-model-neo4j</artifactId>
-                <version>${phenotypedata.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.mousephenotype.cda</groupId>
                 <artifactId>data-model-solr</artifactId>
                 <version>${phenotypedata.version}</version>
             </dependency>
@@ -115,14 +109,6 @@
                 <artifactId>loads</artifactId>
                 <version>${phenotypedata.version}</version>
             </dependency>
-
-            <dependency>
-                <groupId>org.mousephenotype.cda</groupId>
-                <artifactId>neo4j-load</artifactId>
-                <version>${phenotypedata.version}</version>
-            </dependency>
-
-
 
             <!-- https://mvnrepository.com/artifact/net.sf.jopt-simple/jopt-simple -->
             <dependency>

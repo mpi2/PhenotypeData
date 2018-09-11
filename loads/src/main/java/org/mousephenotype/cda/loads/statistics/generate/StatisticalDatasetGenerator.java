@@ -21,6 +21,7 @@ import org.springframework.util.Assert;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.validation.constraints.NotNull;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -42,6 +43,8 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
 
 
     public static final String FILENAME_SEPERATOR = "--";
+    private static final int MAX_COLONIES_PER_FILE = 25;
+    private static final int MAX_CONTROLS_BEFORE_SPLITTING = 1500;
 
     final private Logger logger = LoggerFactory.getLogger(getClass());
     final private SolrClient experimentCore;
@@ -64,25 +67,45 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
             "IMPC_EMA", "IMPC_GEP", "IMPC_GPP", "IMPC_EVP", "IMPC_MAA", "IMPC_GEO",
             "IMPC_GPO", "IMPC_EMO", "IMPC_GPO", "IMPC_EVO", "IMPC_GPM", "IMPC_EVM",
             "IMPC_GEL", "IMPC_HPL", "IMPC_HEL", "IMPC_EOL", "IMPC_GPL", "IMPC_EVL",
-            "IMPC_VIA", "IMPC_FER"));
+            "IMPC_VIA", "IMPC_FER",
+
+            // Load these 3I procedures manually from file Ania sent
+            // IMPC will analyse the PBI hits per Lucie. See comment in ThreeIStatisticalResultLoader class
+            "MGP_BMI", "MGP_IMM", "MGP_MLN", "MGP_ANA", "MGP_EEI" //, "MGP_PBI"
+            ));
 
 
-    private final Set<String> skipParameters = new HashSet<>(Arrays.asList(
-            // Do not statistically analyze ANA derived parameter per TM 20171121
-            "MGP_ANA_002_001",
-            "M-G-P_022_001_001",
-            // Skip these parameters (from Natasha)
-            "JAX_SLW_001_001" ,"JAX_LDT_007_001" ,"ICS_SHO_004_001" ,"IMPC_EYE_056_001",
-            "IMPC_ECG_015_001" ,"IMPC_ECG_003_001" ,"JAX_LDT_006_001" ,"IMPC_ECG_010_001"));
+    private final Set<String> skipParameters = new HashSet<>();
 
 
     private final static List<String> PIVOT = Arrays.asList(
             ObservationDTO.DATASOURCE_NAME,
-            ObservationDTO.PROJECT_NAME,
+//            ObservationDTO.PROJECT_NAME,
             ObservationDTO.PHENOTYPING_CENTER,
             ObservationDTO.PIPELINE_STABLE_ID,
             ObservationDTO.PROCEDURE_GROUP,
             ObservationDTO.STRAIN_ACCESSION_ID);
+
+    private final static List<String> FIELDS = Arrays.asList(
+            ObservationDTO.PROJECT_NAME,
+            ObservationDTO.DATE_OF_EXPERIMENT,
+            ObservationDTO.EXTERNAL_SAMPLE_ID,
+            ObservationDTO.STRAIN_NAME,
+            ObservationDTO.ALLELE_ACCESSION_ID,
+            ObservationDTO.GENE_ACCESSION_ID,
+            ObservationDTO.GENE_SYMBOL,
+            ObservationDTO.WEIGHT,
+            ObservationDTO.SEX,
+            ObservationDTO.ZYGOSITY,
+            ObservationDTO.BIOLOGICAL_SAMPLE_GROUP,
+            ObservationDTO.COLONY_ID,
+            ObservationDTO.METADATA_GROUP,
+            ObservationDTO.PARAMETER_STABLE_ID,
+            ObservationDTO.PARAMETER_NAME,
+            ObservationDTO.DATA_POINT,
+            ObservationDTO.CATEGORY,
+            ObservationDTO.OBSERVATION_TYPE
+    );
 
     @Override
     public void run(String... strings) throws Exception {
@@ -123,9 +146,12 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
             .parallel()
             .forEach(result -> {
 
-                logger.info("Processing {} {} {} {} {}", result.get(ObservationDTO.DATASOURCE_NAME), result.get(ObservationDTO.PHENOTYPING_CENTER), result.get(ObservationDTO.PIPELINE_STABLE_ID), result.get(ObservationDTO.PROCEDURE_GROUP), result.get(ObservationDTO.STRAIN_ACCESSION_ID));
-
-                String fields = "date_of_experiment,external_sample_id,strain_name,allele_accession_id,gene_accession_id,gene_symbol,weight,sex,zygosity,biological_sample_group,colony_id,metadata_group,parameter_stable_id,parameter_name,data_point,category,observation_type";
+                logger.info("Processing {} {} {} {} {}",
+                        result.get(ObservationDTO.DATASOURCE_NAME),
+                        result.get(ObservationDTO.PHENOTYPING_CENTER),
+                        result.get(ObservationDTO.PIPELINE_STABLE_ID),
+                        result.get(ObservationDTO.PROCEDURE_GROUP),
+                        result.get(ObservationDTO.STRAIN_ACCESSION_ID));
 
                 SolrQuery q1 = new SolrQuery();
                 q1.setQuery("*:*")
@@ -136,35 +162,35 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
                         .addFilterQuery(ObservationDTO.STRAIN_ACCESSION_ID + ":\"" + result.get(ObservationDTO.STRAIN_ACCESSION_ID) + "\"")
 
                         .addFilterQuery("observation_type:(categorical OR unidimensional)")
-                        .setFields(fields)
+                        .setFields(FIELDS.stream().collect(Collectors.joining(",")))
                         .setRows(Integer.MAX_VALUE)
                 ;
 
-                // Project remapping rules switches EUMODIC to MGP for some legacy colonies, but cannot
-                // remap corresponding controls (no imits entry for controls).
-                // Ignore project when assembling control group for these remapped colonies
-
-// ********* TEMPORARY TEMPORARY TEMPORARY TEMPORARY TEMPORARY *********
-// For now, do not include PROJECT in the splitting
-// ********* TEMPORARY TEMPORARY TEMPORARY TEMPORARY TEMPORARY *********
-
-//                if ( ! (
-//                        "MGP".equals(result.get(ObservationDTO.PROJECT_NAME)) &&
-//                        "WTSI".equals(result.get(ObservationDTO.PHENOTYPING_CENTER)) &&
-//                        "M-G-P_001".equals(result.get(ObservationDTO.PIPELINE_STABLE_ID))
-//                        )
-//                    ) {
-//                    q1.addFilterQuery(ObservationDTO.PROJECT_NAME + ":\"" + result.get(ObservationDTO.PROJECT_NAME) + "\"");
-//                }
-
-// ********* TEMPORARY TEMPORARY TEMPORARY TEMPORARY TEMPORARY *********
-// For now, do not include PROJECT in the splitting
-// ********* TEMPORARY TEMPORARY TEMPORARY TEMPORARY TEMPORARY *********
-
                 logger.debug(SolrUtils.getBaseURL(experimentCore) + "/select" + q1.toQueryString());
-
+                
                 try {
                     List<ObservationDTO> observationDTOs = experimentCore.query(q1).getBeans(ObservationDTO.class);
+
+                    String projectName = "IMPC";
+
+                    if (result.get(ObservationDTO.PIPELINE_STABLE_ID).startsWith("M-G-P")) {
+                        projectName = "MGP";
+                    } else if (result.get(ObservationDTO.PIPELINE_STABLE_ID).startsWith("ESLIM")) {
+                        projectName = "EUMODIC";
+                    } else if (result.get(ObservationDTO.DATASOURCE_NAME).equalsIgnoreCase("3i")) {
+                        projectName = "MGP";
+                    } else if (result.get(ObservationDTO.DATASOURCE_NAME).equalsIgnoreCase("EuroPhenome")) {
+                        projectName = "EUMODIC";
+                    }
+
+                    logger.debug("Using project '{}' for {} {} {} {} {}.",
+                            projectName,
+                            result.get(ObservationDTO.DATASOURCE_NAME),
+                            result.get(ObservationDTO.PHENOTYPING_CENTER),
+                            result.get(ObservationDTO.PIPELINE_STABLE_ID),
+                            result.get(ObservationDTO.PROCEDURE_GROUP),
+                            result.get(ObservationDTO.STRAIN_ACCESSION_ID));
+
                     Map<String, Map<String, String>> specimenParameterMap = new HashMap<>();
 
                     for (ObservationDTO observationDTO : observationDTOs) {
@@ -217,6 +243,11 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
                             String mappedDataValue = observationDTO.getCategory();
                             switch (observationDTO.getCategory()) {
 
+                                // 2018-02-06
+                                // Per email chain Luis, Hamed, Ewan, Jeremy, Hugh
+                                // No data one eye categories are collapsed
+                                case "no data left eye":
+                                case "no data right eye":
                                 case "imageOnly":
                                 case "no data":
                                 case "no data for both eyes":
@@ -265,16 +296,16 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
                     logger.info("  Has {} specimens with {} parameters", specimenParameterMap.size(), specimenParameterMap.values().stream().mapToInt(value -> value.keySet().size()).sum());
 
                     // Allow low N if ABR procedure
-                    if (specimenParameterMap.size() < 5 && ! (result.get(ObservationDTO.PROCEDURE_GROUP).equals("IMPC_ABR") || result.get(ObservationDTO.DATASOURCE_NAME).equals("3i") ) ) {
-                        logger.info("  Not processing due to low N {} {} {} {} {}",
-                                result.get(ObservationDTO.PROJECT_NAME),
-                                result.get(ObservationDTO.PHENOTYPING_CENTER),
-                                result.get(ObservationDTO.PIPELINE_STABLE_ID),
-                                result.get(ObservationDTO.PROCEDURE_GROUP),
-                                result.get(ObservationDTO.STRAIN_ACCESSION_ID)
-                        );
-                        return;
-                    }
+//                    if (specimenParameterMap.size() < 5 && ! (result.get(ObservationDTO.PROCEDURE_GROUP).equals("IMPC_ABR") || result.get(ObservationDTO.DATASOURCE_NAME).equals("3i") ) ) {
+//                        logger.info("  Not processing due to low N {} {} {} {} {}",
+//                                result.get(projectName),
+//                                result.get(ObservationDTO.PHENOTYPING_CENTER),
+//                                result.get(ObservationDTO.PIPELINE_STABLE_ID),
+//                                result.get(ObservationDTO.PROCEDURE_GROUP),
+//                                result.get(ObservationDTO.STRAIN_ACCESSION_ID)
+//                        );
+//                        return;
+//                    }
 
                     List<String> headers = new ArrayList<>(Arrays.asList("specimen_id", "group", "background_strain_name", "colony_id", "marker_accession_id", "allele_accession_id", "batch", "metadata_group", "zygosity", "weight", "sex", "::"));
 
@@ -305,23 +336,101 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
 
                     }
 
-                    StringBuilder sb = new StringBuilder();
-                    for (List<String> line : lines) {
-                        sb.append(line.stream().collect(Collectors.joining("\t")));
-                        sb.append("\n");
+
+                    if (
+                            // File has more than MAX_CONTROLS_BEFORE_SPLITTING control specimens
+                            lines
+                                    .stream()
+                                    .filter(x->x.get(1).equals("control"))
+                                    .count() > MAX_CONTROLS_BEFORE_SPLITTING
+
+                            &&
+                            // AND file has more than MAX_COLONIES_PER_FILE colonies
+                            lines
+                                    .stream()
+                                    .filter(x->x.get(1).equals("experimental"))
+                                    .map(x->x.get(3))
+                                    .distinct()
+                                    .count() > MAX_COLONIES_PER_FILE
+                            )
+                    {
+                        // Split the file into multiple pieces
+
+                        List<List<String>> controls = lines
+                                .stream()
+                                .filter(x->x.get(1).equals("control"))
+                                .collect(Collectors.toList());
+
+                        Integer fileNumber = 0;
+                        Integer colonyNumber = 0;
+                        List<List<String>> colonySubset = new ArrayList<>();
+                        colonySubset.add(headers);
+                        colonySubset.addAll(controls);
+
+                        for (String colonyId : lines
+                                .stream()
+                                .filter(x -> x.get(1).equals("experimental"))
+                                .map(x -> x.get(3))
+                                .distinct()
+                                .collect(Collectors.toSet())) {
+
+                            List<List<String>> mutants = lines
+                                    .stream()
+                                    .filter(x -> x.get(3).equals(colonyId))
+                                    .collect(Collectors.toList());
+
+                            colonySubset.addAll(mutants);
+
+                            colonyNumber += 1;
+
+                            if (colonyNumber % MAX_COLONIES_PER_FILE == 0) {
+
+                                // Write the file
+
+                                StringBuilder sb = new StringBuilder();
+                                for (List<String> line : colonySubset) {
+                                    sb.append(line.stream().collect(Collectors.joining("\t")));
+                                    sb.append("\n");
+                                }
+
+                                writeFile(result, projectName, fileNumber, sb);
+
+                                fileNumber += 1;
+
+                                // Reset the array to produce a new file
+                                colonySubset = new ArrayList<>();
+                                colonySubset.add(headers);
+                                colonySubset.addAll(controls);
+
+                            }
+
+                        }
+
+                        // Write the final file
+
+                        StringBuilder sb = new StringBuilder();
+                        for (List<String> line : colonySubset) {
+                            sb.append(line.stream().collect(Collectors.joining("\t")));
+                            sb.append("\n");
+                        }
+
+                        writeFile(result, projectName, fileNumber, sb);
+
+                        // Reset the array to produce a new file
+                        colonySubset = new ArrayList<>();
+                        colonySubset.add(headers);
+                        colonySubset.addAll(controls);
+
+                    } else {
+
+                        StringBuilder sb = new StringBuilder();
+                        for (List<String> line : lines) {
+                            sb.append(line.stream().collect(Collectors.joining("\t")));
+                            sb.append("\n");
+                        }
+
+                        writeFile(result, projectName, 0, sb);
                     }
-
-                    String filename = "tsvs/" + Stream.of(
-                            result.get(ObservationDTO.DATASOURCE_NAME).replace(" ", "_"),
-                            result.get(ObservationDTO.PROJECT_NAME).replace(" ", "_"),
-                            result.get(ObservationDTO.PHENOTYPING_CENTER).replace(" ", "_"),
-                            result.get(ObservationDTO.PIPELINE_STABLE_ID),
-                            result.get(ObservationDTO.PROCEDURE_GROUP),
-                            result.get(ObservationDTO.STRAIN_ACCESSION_ID).replace(":", "")).collect(Collectors.joining(FILENAME_SEPERATOR)) + ".tsv";
-
-                    Path p = new File(filename).toPath();
-                    logger.info("Writing file {} ({})", filename, p);
-                    Files.write(p, sb.toString().getBytes());
 
                 } catch (Exception e) {
                     logger.warn("Error occurred geting data for query: " + q1.toQueryString(), e);
@@ -330,6 +439,26 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
 
             });
 
+    }
+
+    private void writeFile(
+            @NotNull Map<String, String> result,
+            @NotNull String projectName,
+            @NotNull Integer fileNumber,
+            @NotNull StringBuilder data) throws IOException {
+
+        String filename = "tsvs/" + Stream.of(
+                result.get(ObservationDTO.DATASOURCE_NAME).replace(" ", "_"),
+                projectName,
+                result.get(ObservationDTO.PHENOTYPING_CENTER).replace(" ", "_"),
+                result.get(ObservationDTO.PIPELINE_STABLE_ID),
+                result.get(ObservationDTO.PROCEDURE_GROUP),
+                result.get(ObservationDTO.STRAIN_ACCESSION_ID).replace(":", ""),
+                String.format("%03d", fileNumber)).collect(Collectors.joining(FILENAME_SEPERATOR)) + ".tsv";
+
+        Path p = new File(filename).toPath();
+        logger.info("Writing file {} ({})", filename, p);
+        Files.write(p, data.toString().getBytes());
     }
 
     public List<Map<String, String>> getStatisticalDatasets(List<String> parameters) throws SolrServerException, IOException {

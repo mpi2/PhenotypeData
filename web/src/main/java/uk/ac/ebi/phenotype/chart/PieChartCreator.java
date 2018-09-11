@@ -32,7 +32,7 @@ String pieChart="";
 	public static String getPieChart(Map<String, Integer> labelToNumber, String chartId, String title, String subtitle, Map<String, String> map){
 		
 		List<String> colors=new ArrayList<>();
-		if(map == null){//if no colormap then use highdifference colors as default
+		if(map == null){//if no colormap then use high difference colors as default
 			colors = ChartColors.getHighDifferenceColorsRgba(ChartColors.alphaOpaque);
 		}else if(map!=null){
 			for(Entry<String, Integer> entry: labelToNumber.entrySet()){

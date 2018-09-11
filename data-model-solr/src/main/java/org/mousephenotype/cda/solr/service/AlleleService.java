@@ -84,7 +84,7 @@ public class AlleleService implements WebStatus{
 		QueryResponse solrResponse;
 
 		if (center != null){
-			String geneQuery = AlleleDTO.PHENOTYPING_CENTRE + ":\"" + center + "\"";
+			String geneQuery = AlleleDTO.LATEST_PHENOTYPING_CENTRE + ":\"" + center + "\"";
 			solrQuery.setQuery(geneQuery);
 		}else {
 			solrQuery.setQuery("*:*");

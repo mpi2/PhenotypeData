@@ -208,11 +208,6 @@ public class TestConfigSolr {
 		return DataSourceBuilder.create().build();
 	}
 
-	@Bean
-	@ConfigurationProperties(prefix = "datasource.ontodb")
-	public DataSource ontodbDataSource() {
-		return DataSourceBuilder.create().build();
-	}
 
 	@Bean
 	public GrossPathService grossPathService() {

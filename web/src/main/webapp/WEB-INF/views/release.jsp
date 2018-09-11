@@ -24,7 +24,7 @@
                     'pageName': 'phenome',
                     'tip': 'top right',
                     'corner': 'right top'
-                });
+                }); 
             });
         </script>
 
@@ -123,7 +123,7 @@
                                     <h3>Data release ${metaInfo["data_release_version"]}</h3>
 
                                     <div class="pad10px">
-                                        <strong>Data release ${metaInfo["data_release_version"]} includes:</strong>
+                                        <strong>Data release ${metaInfo["data_release_version"]} represents a major data release. Changes include:</strong>
                                         ${metaInfo["data_release_notes"]}
                                     </div>
                                 </div>
@@ -135,7 +135,7 @@
 
                     <div class="section">
                         <h2 class="title" id="data_reports">Data Reports</h2>
-
+	
                         <div class="inner">
                             <div id="dataReportsDiv">
                                 <div class="container span12">
@@ -196,8 +196,8 @@
                                         </tbody>
                                     </table>
                                     <p><sup>*</sup>&nbsp;Excluded from statistical analysis.</p>
-
-                                    <h3>Procedures</h3>
+									
+                                    <!-- <h3>Procedures</h3>
 
                                     <div id="lineProcedureChart">
                                         <script type="text/javascript">
@@ -206,9 +206,9 @@
                                     </div>
 	
 	                                <a id="checkAllProcedures" class="buttonForHighcharts"><i class="fa fa-check" aria-hidden="true"></i> Select all</a>
-    								<a id="uncheckAllProcedures"  class="buttonForHighcharts"><i class="fa fa-times" aria-hidden="true"></i> Deselect all</a>
-    								<div class="clear both"></div>
-
+    									<a id="uncheckAllProcedures"  class="buttonForHighcharts"><i class="fa fa-times" aria-hidden="true"></i> Deselect all</a> -->
+    								
+<%-- 
                                     <h3>Allele Types</h3>
                                     <table id="allele_types">
                                         <thead>
@@ -229,7 +229,9 @@
                                         </c:forEach>
                                         </tbody>
                                     </table>
-                                    <p>Mouse knockout programs:&nbsp;${metaInfo['mouse_knockout_programs']}</p>
+                                    <p>Mouse knockout programs:&nbsp;${metaInfo['mouse_knockout_programs']}</p> 
+--%>
+
                                 </div>
                             </div>
                             <div class="clear"></div>
@@ -254,12 +256,12 @@
 							<h3>Overall</h3>
 							<div class="half">
 								<div id="genotypeStatusChart">
-			          		<script type="text/javascript">${genotypeStatusChart.getChart()}</script>
+			          				<script type="text/javascript">${genotypeStatusChart.getChart()}</script>
 								</div>
 							</div>
 							<div class="half">
-			         	<div id="phenotypeStatusChart">
-			          		<script type="text/javascript">${phenotypeStatusChart.getChart()}</script>
+			         			<div id="phenotypeStatusChart">
+			          				<script type="text/javascript">${phenotypeStatusChart.getChart()}</script>
 								</div>
 							</div>
 		         	  <div class="clear"></div>
@@ -287,31 +289,6 @@
 			      <p>More charts and status information are available from <a href="https://www.mousephenotype.org/imits/v2/reports/mi_production/komp2_graph_report_display">iMits</a>. </p>
 		      </div>
 		    </div> <!-- section -->
-	<!--
-				<div class="section">
-						<h2 class="title" id="section-associations"> Sexual Dimorphism </h2>
-		            <div class="inner">
-										<div id="sexualDimorphismChart">
-			            		<script type="text/javascript">${sexualDimorphismChart}</script>
-										</div>
-
-										<table>
-										<thead>
-											<tr>
-											<th class="headerSort">Status</th>
-											<th class="headerSort">Number of Calls</th>
-											</tr>
-										</thead>
-										<tbody>
-											<c:forEach var="status" items="${sexualDimorphismSummary.entrySet()}">
-												<tr><td>${status.getKey().getText()}</td><td>${status.getValue()}</td></tr>
-											</c:forEach>
-										</tbody>
-
-										</table>
-		         </div>
-		    </div> <!-- section -->
-
 
 		    <!-- div class="section">
 						<h2 class="title" id="section-associations"> Fertility and Viability </h2>
@@ -384,8 +361,8 @@
 							<a id="checkAllPhenCalls" class="buttonForHighcharts"><i class="fa fa-check" aria-hidden="true"></i> Select all</a>
     						<a id="uncheckAllPhenCalls"  class="buttonForHighcharts"><i class="fa fa-times" aria-hidden="true"></i> Deselect all</a>
     						<div class="clear both"></div>
-							<br/><br/>
 
+<%-- 
                             <h2>Phenotype Associations Overview
                                 <span class="documentation">
                                     <a href='' id='phenomePanel' class="fa fa-question-circle pull-right"></a>
@@ -411,13 +388,15 @@
 							</c:forEach>
 							</c:forEach>
 							</tbody>
-							</table>
+							</table> 
+--%>
+
 							</div>
 						</div>
 					</div>
 				</div><!-- end of section -->
 
-				<div class="section">
+<%-- 				<div class="section">
 
 			    <h2 class="title" id="statistical-analysis">Statistical Analysis</h2>
 
@@ -448,20 +427,20 @@
 
 							<h3>P-value distributions</h3>
 							<c:forEach var="entry" items="${statisticalMethods}">
-							<c:set var="dataType" value="${entry.key}" />
-							<c:forEach var="method" items="${entry.value}">
-							<c:set var="chartName" value="${statisticalMethodsShortName[method]}Chart" />
-							<div id="${chartName}">
-							<script type="text/javascript">
-								${distributionCharts[chartName]}
-							</script>
-							</div>
-							</c:forEach>
+								<c:set var="dataType" value="${entry.key}" />
+								<c:forEach var="method" items="${entry.value}">
+									<c:set var="chartName" value="${statisticalMethodsShortName[method]}Chart" />
+									<div id="${chartName}">
+										<script type="text/javascript">
+											${distributionCharts[chartName]}
+										</script>
+									</div>
+								</c:forEach>
 							</c:forEach>
 							</div>
 						</div>
 					</div>
-				</div><!-- end of section -->
+				</div><!-- end of section --> --%>
 
 				<div class="section">
 
@@ -489,11 +468,9 @@
                                 <a id="checkAllDataPoints" class="buttonForHighcharts"><i class="fa fa-check" aria-hidden="true"></i> Select all</a>
     							<a id="uncheckAllDataPoints"  class="buttonForHighcharts"><i class="fa fa-times" aria-hidden="true"></i> Deselect all</a>
     							<div class="clear both"></div>
-								<br/><br/>
-                                <br/>
-                                <br/>
-                                <br/>
+                             <br/><br/>
 
+<!-- 
                                 <div id="topLevelTrendsChart">
                                     <script type="text/javascript">
                                         ${topLevelTrendsChart}
@@ -501,10 +478,11 @@
                                 </div>
                                 <a id="checkAllTopLevels" class="buttonForHighcharts"><i class="fa fa-check" aria-hidden="true"></i> Select all</a>
     							<a id="uncheckAllTopLevels"  class="buttonForHighcharts"><i class="fa fa-times" aria-hidden="true"></i> Deselect all</a>
-    							<div class="clear both"></div>
-                                <br/>
-                                <br/>
-                                <br/>
+    							<div class="clear both"></div> 
+    							<br/>
+                             <br/>
+                             <br/>
+-->
 
                                 <h3>Previous Releases</h3>
                                 <ul>

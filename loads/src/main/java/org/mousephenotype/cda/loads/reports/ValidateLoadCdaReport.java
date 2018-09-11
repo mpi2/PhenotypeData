@@ -62,23 +62,27 @@ public class ValidateLoadCdaReport extends AbstractReport implements CommandLine
      * DATABASES: cda, komp2_base
      ****************************
     */
-    private final double      DELTA   = 0.8;
-    private LoadsQueryDelta[] queries = new LoadsQueryDelta[] {
-            new LoadsQueryDelta("allele COUNTS", DELTA, "SELECT count(*) FROM allele"),
-            new LoadsQueryDelta("biological_model COUNTS", DELTA, "SELECT count(*) FROM biological_model"),
-            new LoadsQueryDelta("biological_model_allele COUNTS", DELTA, "SELECT count(*) FROM biological_model_allele"),
-            new LoadsQueryDelta("biological_model_genomic_feature COUNTS", DELTA, "SELECT count(*) FROM biological_model_genomic_feature"),
-            new LoadsQueryDelta("biological_model_phenotype COUNTS", DELTA, "SELECT count(*) FROM biological_model_phenotype"),
-            new LoadsQueryDelta("biological_model_sample COUNTS", DELTA, "SELECT count(*) FROM biological_model_sample"),
-            new LoadsQueryDelta("biological_model_strain COUNTS", DELTA, "SELECT count(*) FROM biological_model_strain"),
-            new LoadsQueryDelta("biological_sample COUNTS", DELTA, "SELECT count(*) FROM biological_sample"),
-            new LoadsQueryDelta("external_db COUNTS", DELTA, "SELECT count(*) FROM external_db"),
-            new LoadsQueryDelta("genomic_feature COUNTS", DELTA, "SELECT count(*) FROM genomic_feature"),
-            new LoadsQueryDelta("live_sample COUNTS", DELTA, "SELECT count(*) FROM live_sample"),
-            new LoadsQueryDelta("ontology_term COUNTS", DELTA, "SELECT count(*) FROM ontology_term"),
-            new LoadsQueryDelta("organisation COUNTS", DELTA, "SELECT count(*) FROM organisation"),
-            new LoadsQueryDelta("project COUNTS", DELTA, "SELECT count(*) FROM project"),
-            new LoadsQueryDelta("strain COUNTS", DELTA, "SELECT count(*) FROM strain")
+    private final double      DELTA_MODERATELY_CLOSE = 0.8;
+    private final double      DELTA_VERY_CLOSE       = 0.95;
+    private final double      DELTA_ONE_TO_ONE       = 1.0;
+    private LoadsQueryDelta[] queries                = new LoadsQueryDelta[] {
+            new LoadsQueryDelta("allele COUNTS",                           DELTA_ONE_TO_ONE, "SELECT count(*) FROM allele"),
+            new LoadsQueryDelta("biological_model COUNTS",                 DELTA_ONE_TO_ONE, "SELECT count(*) FROM biological_model"),
+            new LoadsQueryDelta("biological_model_allele COUNTS",          DELTA_ONE_TO_ONE, "SELECT count(*) FROM biological_model_allele"),
+            new LoadsQueryDelta("biological_model_genomic_feature COUNTS", DELTA_ONE_TO_ONE, "SELECT count(*) FROM biological_model_genomic_feature"),
+            new LoadsQueryDelta("biological_model_phenotype COUNTS",       DELTA_ONE_TO_ONE, "SELECT count(*) FROM biological_model_phenotype"),
+            new LoadsQueryDelta("biological_model_sample COUNTS",          DELTA_ONE_TO_ONE, "SELECT count(*) FROM biological_model_sample"),
+            new LoadsQueryDelta("biological_model_strain COUNTS",          DELTA_ONE_TO_ONE, "SELECT count(*) FROM biological_model_strain"),
+            new LoadsQueryDelta("biological_sample COUNTS",                DELTA_ONE_TO_ONE, "SELECT count(*) FROM biological_sample"),
+            new LoadsQueryDelta("experiment COUNTS",                       DELTA_ONE_TO_ONE, "SELECT count(*) FROM experiment"),
+            new LoadsQueryDelta("external_db COUNTS",                      DELTA_ONE_TO_ONE, "SELECT count(*) FROM external_db"),
+            new LoadsQueryDelta("genomic_feature COUNTS",                  DELTA_ONE_TO_ONE, "SELECT count(*) FROM genomic_feature"),
+            new LoadsQueryDelta("live_sample COUNTS",                      DELTA_ONE_TO_ONE, "SELECT count(*) FROM live_sample"),
+            new LoadsQueryDelta("observation COUNTS",                      DELTA_ONE_TO_ONE, "SELECT count(*) FROM observation"),
+            new LoadsQueryDelta("ontology_term COUNTS",                    DELTA_ONE_TO_ONE, "SELECT count(*) FROM ontology_term"),
+            new LoadsQueryDelta("organisation COUNTS",                     DELTA_ONE_TO_ONE, "SELECT count(*) FROM organisation"),
+            new LoadsQueryDelta("project COUNTS",                          DELTA_ONE_TO_ONE, "SELECT count(*) FROM project"),
+            new LoadsQueryDelta("strain COUNTS",                           DELTA_ONE_TO_ONE, "SELECT count(*) FROM strain")
     };
 
     @Override

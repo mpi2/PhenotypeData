@@ -876,6 +876,7 @@ CREATE TABLE `image_record_observation` (
 	`media_sample_local_id` varchar(45) DEFAULT NULL,
 	`media_section_id` varchar(45) DEFAULT NULL,
 	`omero_id` int(11) DEFAULT NULL,
+    `omero_dataset_id` int(11) DEFAULT NULL,
 	PRIMARY KEY (`id`)
 ) ;
 

@@ -1,5 +1,7 @@
 package org.mousephenotype.cda.loads.statistics.load;
 
+import org.mousephenotype.cda.db.statistics.LightweightResult;
+import org.mousephenotype.cda.db.statistics.StatisticalResult;
 import org.mousephenotype.cda.db.utilities.SqlUtils;
 
 import java.io.Serializable;

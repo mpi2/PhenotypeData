@@ -28,6 +28,7 @@ import org.mousephenotype.cda.reports.support.ReportException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.Banner;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -43,11 +44,12 @@ import java.util.List;
  * Created by mrelac on 24/07/2015.
  */
 @ComponentScan("org.mousephenotype.cda.loads.reports")
-public class ValidateExtractDccReport extends AbstractReport {
+public class ValidateExtractDccReport extends AbstractReport implements CommandLineRunner {
+
+    private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private LoadValidateMissingQuery loadValidateMissingQuery;
     private LoadValidateCountsQuery  loadValidateCountsQuery;
-    private Logger   logger   = LoggerFactory.getLogger(this.getClass());
 
     private NamedParameterJdbcTemplate jdbcDccPrevious;
     private NamedParameterJdbcTemplate jdbcDccCurrent;

@@ -81,7 +81,7 @@ public class SampleLoader implements CommandLineRunner {
     private static Set<String> unexpectedStage             = new ConcurrentSkipListSet<>();
 
     private final  Logger               logger  = LoggerFactory.getLogger(this.getClass());
-    private static Map<String, Integer> written = new ConcurrentHashMap<>();
+    private static Map<String, Integer> written = new ConcurrentHashMapAllowNull<>();
 
     private OntologyTerm developmentalStageMouse;
     private OntologyTerm sampleTypeMouseEmbryoStage;
@@ -94,8 +94,8 @@ public class SampleLoader implements CommandLineRunner {
     private int efoDbId;
 
     private static BioModelManager      bioModelManager;
-    private static Map<String, Integer> cdaDb_idMap      = new ConcurrentHashMap<>();
-    private static Map<String, Integer> cdaProject_idMap = new ConcurrentHashMap<>();
+    private static Map<String, Integer> cdaDb_idMap;
+    private static Map<String, Integer> cdaProject_idMap;
     private static Map<String, Integer> cdaOrganisation_idMap;
 
     private final String MISSING_MUTANT_COLONY_ID_REASON = "MUTANT specimen not found in phenotyped_colony table";
@@ -118,7 +118,7 @@ public class SampleLoader implements CommandLineRunner {
     }
 
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
         SpringApplication app = new SpringApplication(SampleLoader.class);
         app.setBannerMode(Banner.Mode.OFF);
         app.setLogStartupInfo(false);
@@ -127,7 +127,7 @@ public class SampleLoader implements CommandLineRunner {
 
 
     @Override
-    public void run(String... strings) throws Exception {
+    public void run(String... strings) throws DataLoadException {
 
         Assert.notNull(jdbcCda, "jdbcCda must not be null");
         Assert.notNull(cdaSqlUtils, "cdaSqlUtils must not be null");
@@ -140,7 +140,7 @@ public class SampleLoader implements CommandLineRunner {
         cdaOrganisation_idMap = cdaSqlUtils.getCdaOrganisation_idsByDccCenterId();
         phenotypedColonyMap = bioModelManager.getPhenotypedColonyMap();
         missingColonyMap = cdaSqlUtils.getMissingColonyIdsMap();
-        ontologyTermMap = new ConcurrentHashMap<>(bioModelManager.getOntologyTermMap());
+        ontologyTermMap = new ConcurrentHashMapAllowNull<>(bioModelManager.getOntologyTermMap());
         OntologyTerm impcUncharacterizedBackgroundStrain = ontologyTermMap.get(CdaSqlUtils.IMPC_UNCHARACTERIZED_BACKGROUND_STRAIN);
         strainMapper = new StrainMapper(cdaSqlUtils, bioModelManager.getStrainsByNameOrMgiAccessionIdMap(), impcUncharacterizedBackgroundStrain);
         strainsByNameOrMgiAccessionIdMap = bioModelManager.getStrainsByNameOrMgiAccessionIdMap();
@@ -157,11 +157,11 @@ public class SampleLoader implements CommandLineRunner {
 
         developmentalStageMouse = ontologyTermMap.get(CdaSqlUtils.ONTOLOGY_TERM_POSTNATAL);
         sampleTypeMouseEmbryoStage = ontologyTermMap.get(CdaSqlUtils.ONTOLOGY_TERM_MOUSE_EMBRYO_STAGE);
-        sampleTypePostnatalMouse = cdaSqlUtils.getOntologyTerm("MA:0002405");                // postnatal mouse
+        sampleTypePostnatalMouse = ontologyTermMap.get(CdaSqlUtils.ONTOLOGY_TERM_POSTNATAL_MOUSE);
         efoDbId = cdaDb_idMap.get("EFO");
 
         Assert.notNull(developmentalStageMouse, "developmentalStageMouse must not be null");
-        Assert.notNull(sampleTypeMouseEmbryoStage, "xsampleTypeMouseEmbryoStagex must not be null");
+        Assert.notNull(sampleTypeMouseEmbryoStage, "sampleTypeMouseEmbryoStagex must not be null");
         Assert.notNull(sampleTypePostnatalMouse, "sampleTypePostnatalMouse must not be null");
         Assert.notNull(efoDbId, "efoDbId must not be null");
 
@@ -172,7 +172,20 @@ public class SampleLoader implements CommandLineRunner {
 
         logger.info("Getting samples");
         List<SpecimenExtended> specimens = dccSqlUtils.getSpecimens();
-        logger.info("Getting samples complete.");
+
+        // Consolidate casing of baseline colony IDs to lowercase
+        specimens.forEach(x -> {
+            if (x != null &&
+                    x.getSpecimen() != null &&
+                    x.getSpecimen().getColonyID() != null &&
+                    x.getSpecimen().isIsBaseline() &&
+                    x.getSpecimen().getColonyID().equals("Baseline")
+                ) {
+                x.getSpecimen().setColonyID("baseline");
+            }
+        });
+
+        logger.info("Getting samples complete. {} samples to load", specimens.size());
 
         String message = "**** LOADING " + dccSqlUtils.getDbName() + " SAMPLES ****";
         logger.info(StringUtils.repeat("*", message.length()));
@@ -195,6 +208,7 @@ public class SampleLoader implements CommandLineRunner {
 
                 if (sampleCount % 20000 == 0) {
                     tasks = drainQueue(tasks);
+                    logger.info("Processed 20,000 more specimens, {} done", sampleCount);
                 }
             }
         }
@@ -306,17 +320,17 @@ public class SampleLoader implements CommandLineRunner {
             }
         }
 
-            /*
-             * Some legacy strain names use a semicolon to separate multiple strain names contained in a single
-             * field. Load processing code expects the separator for multiple strains to be an asterisk. Remapping
-             * changes the specimen's strainId and the phenotypedColony's strainId (called backgroundStrain).
-             *
-             * NOTE: Only do this for legacy EuroPhenome sources. Overriding the colony backgroundStrain is a big deal
-             *       and breaks the loader if run against IMPC (e.g. the correct colony strain 'C57BL/6N' gets overwritten
-             *       with the IMPC specimen's 'C57Bl6n', which causes a new strain by that name to be created, then later
-             *       causes the database to complain about duplicate biological models.
-             */
-        if ((specimen.getStrainID() != null) && ( ! specimen.getStrainID().isEmpty()) && (specimenExtended.getDatasourceShortName().equalsIgnoreCase(CdaSqlUtils.EUROPHENOME))) {
+        /*
+         * Some legacy strain names use a semicolon to separate multiple strain names contained in a single
+         * field. Load processing code expects the separator for multiple strains to be an asterisk. Remapping
+         * changes the specimen's strainId and the phenotypedColony's strainId (called backgroundStrain).
+         *
+         * NOTE: Only do this for legacy EuroPhenome sources. Overriding the colony backgroundStrain is a big deal
+         *       and breaks the loader if run against IMPC (e.g. the correct colony strain 'C57BL/6N' gets overwritten
+         *       with the IMPC specimen's 'C57Bl6n', which causes a new strain by that name to be created, then later
+         *       causes the database to complain about duplicate biological models.
+         */
+        if ((specimen.getStrainID() != null) && ( ! specimen.getStrainID().isEmpty()) && (specimenExtended.getDatasourceShortName().equalsIgnoreCase(CdaSqlUtils.EUROPHENOME) || specimenExtended.getDatasourceShortName().equalsIgnoreCase(CdaSqlUtils.MGP))) {
             String remappedStrainName = strainMapper.parseMultipleBackgroundStrainNames(specimen.getStrainID());
             specimen.setStrainID(remappedStrainName);
             PhenotypedColony colony = phenotypedColonyMap.get(specimen.getColonyID());
@@ -376,9 +390,9 @@ public class SampleLoader implements CommandLineRunner {
 
             // Get phenotypingCenterPk and productionCenterPk.
             if (colony != null) {
-                phenotypingCenterPk = colony.getPhenotypingCentre().getId();                                        // phenotypingCenterPk from colony
+                phenotypingCenterPk = colony.getPhenotypingCentre().getId();                                            // phenotypingCenterPk from colony
                 productionCenterPk = (
-                        colony.getProductionCentre() == null                                                        // productionCenterPk from colony
+                        colony.getProductionCentre() == null                                                            // productionCenterPk from colony
                                 ? phenotypingCenterPk
                                 : colony.getProductionCentre().getId());
             } else {
@@ -397,8 +411,8 @@ public class SampleLoader implements CommandLineRunner {
                 }
 
                 // It is OK if a CONTROL has no colony. Use the specimen instance.
-                phenotypingCenterPk = cdaOrganisation_idMap.get(specimen.getPhenotypingCentre().value());           // phenotypingCenterPk from specimen using dcc center name
-                productionCenterPk =                                                                                // productionCenterPk from specimen
+                phenotypingCenterPk = cdaOrganisation_idMap.get(specimen.getPhenotypingCentre().value());               // phenotypingCenterPk from specimen using dcc center name
+                productionCenterPk =                                                                                    // productionCenterPk from specimen
                         (specimen.getProductionCentre() == null
                                 ? phenotypingCenterPk
                                 : cdaOrganisation_idMap.get(specimen.getProductionCentre().value()));
@@ -529,7 +543,7 @@ public class SampleLoader implements CommandLineRunner {
         String       sex;
         String       zygosity;
 
-        Map<String, Integer> counts = new ConcurrentHashMap<>();
+        Map<String, Integer> counts = new ConcurrentHashMapAllowNull<>();
         counts.put("biologicalModel", 0);
         counts.put("biologicalSample", 0);
         counts.put("liveSample", 0);
@@ -686,6 +700,7 @@ public class SampleLoader implements CommandLineRunner {
             term.setId(new DatasourceEntityId(termAcc, efoDbId));
             term.setDescription(termName);
             term.setName(termName);
+            term.setIsObsolete(false);
             List<OntologyTerm> terms = new ArrayList<>();
             terms.add(term);
             Map<String, Integer> counts = cdaSqlUtils.insertOntologyTerm(terms);

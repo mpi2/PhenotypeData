@@ -94,10 +94,6 @@
 </table>
 
 <div id="export">
-    <p class="textright"> Download data as:
-        <a id="tsvDownload" href="${baseUrl}/secondaryproject/export/idg?fileType=tsv&fileName=idgData" target="_blank"
-           class="button fa fa-download">TSV</a>
-        <a id="xlsDownload" href="${baseUrl}/secondaryproject/export/idg?fileType=xls&fileName=idgData" target="_blank"
-           class="button fa fa-download">XLS</a>
+    <p class="textright"> <a href="http://ftp.ebi.ac.uk/pub/databases/impc/idg/IDG_file_for_IMPC_webportal.tsv">Download complete IDG data</a>
     </p>
 </div>

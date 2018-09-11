@@ -118,7 +118,7 @@
 
 	};
 	// fetch paper data points for highCharts
-    $.fn.fetchAllelePaperDataPointsIncrement = function(chartYearIncrease, chartMonthIncrease, chartQuarter, chartGrantQuarter) {
+    $.fn.fetchAllelePaperDataPointsIncrement = function(){//chartYearIncrease, chartMonthIncrease, chartQuarter, chartGrantQuarter) {
 
         $.ajax({
             'url': baseUrl + '/fetchPaperStats',
@@ -365,9 +365,12 @@
                 var drillDownSeriesDataAgency = [];
                 var agencyNames = [];
 
-                //console.log(j.numAgency);
+                console.log(j.agencyCount);
 
-                var paperCountList = Object.keys(j.numAgency).sort(function(a, b) {
+                agencyNames = Object.keys(j.agencyCount);
+                agencyNumPaperSeries = Object.values(j.agencyCount);
+
+/*                var paperCountList = Object.keys(j.numAgency).sort(function(a, b) {
                     return +/\d+/.exec(b)[0] - +/\d+/.exec(a)[0];
                 });
 
@@ -417,7 +420,7 @@
                         //console.log(yo);
                         drillDownSeriesDataAgency.push(yo);
                     }
-                }
+                }*/
                 // console.log("a")
                 // console.log(agencyNumPaperSeries);
                 // console.log("b")
@@ -473,7 +476,7 @@
                                 events: {
                                     click: function () {
 
-                                        var agencyName = this.name;
+                                        var agencyName = this.category;
 
                                         var tableHeader = "<thead><th></th></thead>";
                                         var tableCols = 1;
@@ -486,21 +489,24 @@
                                         var oConf = {};
                                         oConf.id = "agency";
                                         oConf.kw = agencyName;
-                                        oConf.orderBy = "date_of_publication DESC";
+                                        oConf.orderBy = "firstPublicationDate DESC";
                                         var id = oConf.id;
                                         oConf.filter = "";
 
+                                        console.log(oConf);
+
                                         $.ajax({
-                                            'url': baseUrl + '/dataTableAlleleRef2?doAlleleRef=' + JSON.stringify(oConf),
+                                            'url': baseUrl + '/dataTableAlleleRef2?doAlleleRef=' + encodeURI(JSON.stringify(oConf)),
                                             'async': true,
                                             'jsonp': 'json.wrf',
                                             'success': function (json) {
+                                                console.log(json);
 
                                                 var oTable = $('table#agency').dataTable({
                                                     "bSort": false, // true is default
                                                     "processing": true,
                                                     "paging": true,
-                                                    //"serverSide": false,  // do not want sorting to be processed from server, false by default
+                                                    "serverSide": true,  // do not want sorting to be processed from server, false by default
                                                     "sDom": "i<<'#exportSpinner'>l<f><'saveTable'>r>tip",
                                                     "sPaginationType": "bootstrap",
                                                     "searchHighlight": true,
@@ -509,7 +515,16 @@
                                                         "sSearch": "Filter: "
                                                     },
                                                     "aaData" : json.aaData,  // array of objects
-                                                    "iTotalRecords" : json.iTotalRecords
+                                                    "iTotalRecords" : json.iTotalRecords,
+                                                    "sAjaxSource": baseUrl + '/dataTableAlleleRef2',
+                                                    "fnServerParams": function (aoData) {
+                                                        aoData.push(
+                                                            {
+                                                                "name": "doAlleleRef",
+                                                                "value": JSON.stringify(oConf)
+                                                            }
+                                                        );
+                                                    }
 
                                                 });
 
@@ -620,15 +635,15 @@
 
                                                     if ($(this).siblings("i").hasClass("fa-caret-down")){
                                                         $(this).siblings("i").removeClass("fa-caret-down").addClass("fa-caret-up");
-                                                        oConf.orderBy = "date_of_publication ASC";
+                                                        oConf.orderBy = "firstPublicationDate ASC";
                                                     }
                                                     else {
                                                         $(this).siblings("i").removeClass("fa-caret-up").addClass("fa-caret-down");
-                                                        oConf.orderBy = "date_of_publication DESC";
+                                                        oConf.orderBy = "firstPublicationDate DESC";
                                                     }
 
                                                     $.ajax({
-                                                        'url': baseUrl + '/dataTableAlleleRef2?doAlleleRef=' + JSON.stringify(oConf),
+                                                        'url': baseUrl + '/dataTableAlleleRef2?doAlleleRef=' + encodeURI(JSON.stringify(oConf)),
                                                         'async': true,
                                                         'jsonp': 'json.wrf',
                                                         'success': function (json) {
@@ -824,7 +839,7 @@
             "sDom": "<<'#exportSpinner'>l<f><'saveTable'>r>tip",
             "sPaginationType": "bootstrap",
             "searchHighlight": true,
-            "iDisplayLength": 200,
+            "iDisplayLength": 10,
             "oLanguage": {
                 "sSearch": "Filter: "
             },
@@ -918,7 +933,7 @@
             "bSort": false, // true is default
             "processing": true,
             "paging": true,
-            //"serverSide": false,  // do not want sorting to be processed from server, false by default
+            "serverSide": true,  // do not want sorting to be processed from server, false by default
             "sDom": "i<<'#exportSpinner'>l<f><'saveTable'>r>tip",
             "sPaginationType": "bootstrap",
             "searchHighlight": true,
@@ -954,7 +969,7 @@
                 //oConf.kw = oConf.kw;
                 oConf.fileName = 'impc_publications';
                 oConf.iDisplayStart = 0;
-                oConf.iDisplayLength = 5000;
+                oConf.iDisplayLength = 10;
                 oConf.dataType = "alleleRef";
 
                 var fileTypeTsv = "fileType=tsv";
@@ -1012,11 +1027,11 @@
 
 					if ($(this).siblings("i").hasClass("fa-caret-down")){
                         $(this).siblings("i").removeClass("fa-caret-down").addClass("fa-caret-up");
-						oConf.orderBy = "date_of_publication ASC";
+						oConf.orderBy = "firstPublicationDate ASC";
 					}
 					else {
                         $(this).siblings("i").removeClass("fa-caret-up").addClass("fa-caret-down");
-                        oConf.orderBy = "date_of_publication DESC";
+                        oConf.orderBy = "firstPublicationDate DESC";
 					}
 
                     if ($("#" + id +"_filter").find('input').val() != "") {
@@ -1027,7 +1042,7 @@
                     }
 
 					$.ajax({
-						'url': baseUrl + '/dataTableAlleleRef2?doAlleleRef=' + JSON.stringify(oConf),
+						'url': baseUrl + '/dataTableAlleleRef2?doAlleleRef=' + encodeURI(JSON.stringify(oConf)),
 						'async': true,
 						'jsonp': 'json.wrf',
 						'success': function (json) {
@@ -1472,7 +1487,7 @@
 			var btn = $('<button></button>').attr(
 					{
 						'class' : oFormatSelector[f]
-								+ ' fa fa-download gridDump ' + conf['class']
+								+ ' fa fa-download ' + conf['class']
 					}).html(f);
 
 			$(iconDiv).append(btn);
@@ -1655,7 +1670,7 @@
 			'class' : 'table tableSorter'
 		});
 
-        var sortFields = ["date_of_publication", "title", "journal"];
+        var sortFields = ["firstPublicationDate", "title", "journal"];
         var sortChkboxes = "";
         // for (var i=0; i<sortFields.length; i++){
         //     var label = sortFields[i].replace(/_/g, " ");
@@ -1837,136 +1852,96 @@
 	}
 
 	$.fn.initDataTableDumpControl = function(oInfos) {
-		// function initDataTableDumpControl(oInfos) {
 
 		$('div#saveTable').remove();
 		$('div#toolBox').remove();
 
 		// var saveTool = $("<div id='saveTable'></div>").html("Download table
 		// <img src='"+baseUrl+"/img/floppy.png' />");//.corner("4px");
-		var saveTool = $("<div id='saveTable'></div>")
-				.html(
-						"<span class='fa fa-download'>&nbsp;<span id='dnld'>Download</span></span>");// .corner("4px");
+		var saveTool = $("<div id='saveTable'></div>").html("<span class='fa fa-download'>&nbsp;<span id='dnld'>Download (non-collapsed dataset, ie, multiple rows for same gene)</span></span>");// .corner("4px");
 
 		var toolBox = fetchSaveTableGui();
 
-		$('div.dataTables_processing').siblings('div#tableTool').append(
+        $('div.dataTables_processing').siblings('div#tableTool').append(
 				saveTool, toolBox);
 
-		$('div#saveTable')
-				.click(
-						function() {
+        if (oInfos.hasOwnProperty('dogoterm')){
+            $('div#toolBox').hide();
+        }
 
-							if ($('div#toolBox').is(":visible")) {
-								$('div#toolBox').hide();
-							} else {
-								$('div#toolBox').show();
+        $('div#saveTable').click(function() {
 
-								// browser-specific position fix
-								if (parseInt(getInternetExplorerVersion()) === 8) {
-									// if ($.browser.msie &&
-									// parseInt($.browser.version, 10) === 8) {
-									$('div#toolBox').css({
-										'top' : '-30px',
-										'left' : '65px'
-									});
-								}
+            if ($('div#toolBox').is(":visible")) {
+                $('div#toolBox').hide();
+            } else {
+                $('div#toolBox').show();
 
-								var solrCoreName;
-								if (oInfos.hasOwnProperty('widgetName')) {
-									solrCoreName = oInfos.widgetName.replace(
-											'Facet', '');
-								}
+                // browser-specific position fix
+                if (parseInt(getInternetExplorerVersion()) === 8) {
+                    // if ($.browser.msie &&
+                    // parseInt($.browser.version, 10) === 8) {
+                    $('div#toolBox').css({
+                        'top' : '-30px',
+                        'left' : '65px'
+                    });
+                }
 
-								// work out solr query start and row length
-								// dynamically
-								var iActivePage = $(
-										'div.dataTables_paginate li.active a')
-										.text();
-								var oCurrDt = $('table.dataTable').dataTable(); // find
-																				// the
-																				// dataTable
-																				// object
-								var oSettings = oCurrDt.fnSettings();
-								var iLength = oSettings._iDisplayLength;
-								var iRowStart = iActivePage == 1 ? 0
-										: iActivePage * iLength - iLength;
+                var solrCoreName;
+                if (oInfos.hasOwnProperty('widgetName')) {
+                    solrCoreName = oInfos.widgetName.replace('Facet', '');
+                }
 
-								var showImgView = $('div#resultMsg div#imgView')
-										.attr('rel') == 'imgView' ? true
-										: false;
+                // work out solr query start and row length
+                // dynamically
+                var iActivePage = $('div.dataTables_paginate li.active a').text();
+                var oCurrDt = $('table.dataTable').dataTable(); // find the dataTable object
+                var oSettings = oCurrDt.fnSettings();
+                var iLength = oSettings._iDisplayLength;
+                var iRowStart = iActivePage == 1 ? 0 : iActivePage * iLength - iLength;
 
-								$('button.gridDump').unbind('click');
+                var showImgView = $('div#resultMsg div#imgView').attr('rel') == 'imgView' ? true : false;
 
-								var conf = {
-									legacyOnly : oInfos.legacyOnly,
-									externalDbId : 5,
-									rowStart : iRowStart,
-									length : iLength,
-									solrCoreName : solrCoreName,
-									params : oInfos.params,
-									showImgView : showImgView,
-									// gridFields:
-									// MPI2.searchAndFacetConfig.facetParams[oInfos.widgetName].gridFields,
-									gridFields : oInfos.gridFields,
-									dogoterm : oInfos
-											.hasOwnProperty('dogoterm') ? oInfos.dogoterm
-											: false,
-									fileName : typeof oInfos.fileName == 'undefined' ? solrCoreName
-											+ '_table_dump'
-											: oInfos.fileName,
-									filterStr : oInfos
-											.hasOwnProperty('filterStr') ? oInfos.filterStr
-											: false,
-									doAlleleRef : oInfos
-											.hasOwnProperty('doAlleleRef') ? oInfos.doAlleleRef
-											: false,
-								};
+                $('button.gridDump').unbind('click');
 
-								var exportObjPageTsv = buildExportUrl(conf,
-										'tsv', 'page');
-								var exportObjPageXls = buildExportUrl(conf,
-										'xls', 'page');
-								var exportObjAllTsv = buildExportUrl(conf,
-										'tsv', 'all');
-								var exportObjAllXls = buildExportUrl(conf,
-										'xls', 'all');
-								$('button.gridDump')
-										.each(
-												function(index, obj) {
-													if ($(this).hasClass(
-															'tsv_grid')) {
-														$(this)
-																.attr(
-																		'data-exporturl',
-																		exportObjPageTsv.exportUrl);
-													} else if ($(this)
-															.hasClass(
-																	'xls_grid')) {
-														$(this)
-																.attr(
-																		'data-exporturl',
-																		exportObjPageXls.exportUrl);
-													} else if ($(this)
-															.hasClass('tsv_all')) {
-														$(this)
-																.attr(
-																		'data-exporturl',
-																		exportObjAllTsv.exportUrl);
-													} else if ($(this)
-															.hasClass('xls_all')) {
-														$(this)
-																.attr(
-																		'data-exporturl',
-																		exportObjAllXls.exportUrl);
-													}
-												});
+                var conf = {
+                    legacyOnly : oInfos.legacyOnly,
+                    externalDbId : 5,
+                    rowStart : iRowStart,
+                    length : iLength,
+                    solrCoreName : solrCoreName,
+                    params : oInfos.params,
+                    showImgView : showImgView,
+                    // gridFields:
+                    // MPI2.searchAndFacetConfig.facetParams[oInfos.widgetName].gridFields,
+                    gridFields : oInfos.gridFields,
+                    dogoterm : oInfos.hasOwnProperty('dogoterm') ? oInfos.dogoterm : false,
+                    fileName : typeof oInfos.fileName == 'undefined' ? solrCoreName + '_table_dump' : oInfos.fileName,
+                    filterStr : oInfos.hasOwnProperty('filterStr') ? oInfos.filterStr : false,
+                    doAlleleRef : oInfos.hasOwnProperty('doAlleleRef') ? oInfos.doAlleleRef : false
+                };
 
-								$('button.gridDump').click(function() {
-									initGridExporter($(this), conf);
-								});
-							}
-						});
+                var exportObjPageTsv = buildExportUrl(conf, 'tsv', 'page');
+                var exportObjPageXls = buildExportUrl(conf, 'xls', 'page');
+                var exportObjAllTsv = buildExportUrl(conf, 'tsv', 'all');
+                var exportObjAllXls = buildExportUrl(conf, 'xls', 'all');
+
+                $('button.gridDump').each(function(index, obj) {
+                    if ($(this).hasClass('tsv_grid')) {
+                        $(this).attr('data-exporturl', exportObjPageTsv.exportUrl);
+                    } else if ($(this).hasClass('xls_grid')) {
+                        $(this).attr('data-exporturl', exportObjPageXls.exportUrl);
+                    } else if ($(this).hasClass('tsv_all')) {
+                        $(this).attr('data-exporturl', exportObjAllTsv.exportUrl);
+                    } else if ($(this).hasClass('xls_all')) {
+                        $(this).attr('data-exporturl', exportObjAllXls.exportUrl);
+                    }
+                });
+
+                $('button.gridDump').click(function() {
+                    initGridExporter($(this), conf);
+                });
+            }
+        });
 	}
 
 	/**
@@ -1993,8 +1968,7 @@
 
 	function initGridExporter(thisButt, conf) {
 		var fileType = thisButt.text();
-		var dumpMode = thisButt.attr('class').indexOf('all') != -1 ? 'all'
-				: 'page';
+		var dumpMode = thisButt.attr('class').indexOf('all') != -1 ? 'all' : 'page';
 
 		var exportObj = buildExportUrl(conf, fileType, dumpMode);
 		var form = exportObj.form;
@@ -2009,24 +1983,23 @@
 				url1 = solrUrl + '/' + conf['solrCoreName'] + "/select?";
 				paramStr += "&wt=json";
 
-				$
-						.ajax({
-							url : url1,
-							data : paramStr,
-							dataType : 'jsonp',
-							jsonp : 'json.wrf',
-							timeout : 5000,
-							success : function(json) {
-								// prewarn users if dataset is big
-								if (confirmDownloadIfExceedsThreshold(json.response.numFound)) {
-									$(form).appendTo('body').submit().remove();
-								}
-							},
-							error : function(jqXHR, textStatus, errorThrown) {
-								$('div#facetBrowser').html(
-										'Error fetching data ...');
-							}
-						});
+				$.ajax({
+                    url : url1,
+                    data : paramStr,
+                    dataType : 'jsonp',
+                    jsonp : 'json.wrf',
+                    timeout : 5000,
+                    success : function(json) {
+                        // prewarn users if dataset is big
+                        if (confirmDownloadIfExceedsThreshold(json.response.numFound)) {
+                            $(form).appendTo('body').submit().remove();
+                        }
+                    },
+                    error : function(jqXHR, textStatus, errorThrown) {
+                        $('div#facetBrowser').html(
+                                'Error fetching data ...');
+                    }
+                });
 			} else if (conf.hasOwnProperty('doAlleleRef')) {
 				dump_all_allele_ref(conf, form);
 			}

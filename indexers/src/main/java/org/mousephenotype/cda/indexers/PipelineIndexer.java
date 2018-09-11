@@ -200,36 +200,36 @@ public class PipelineIndexer extends AbstractIndexer implements CommandLineRunne
 						}
 
 						if (param.getAbnormalMpId() != null){
-							doc.setAbnormalMpId(new ArrayList<String>(param.getAbnormalMpId()));
+							doc.setAbnormalMpId(new ArrayList<>(param.getAbnormalMpId()));
 							for (String mpId: param.getAbnormalMpId()){
 								try {
 									doc.addAbnormalMpTerm(mpParser.getOntologyTerm(mpId).getName());
 								} catch (NullPointerException e) {
-									logger.warn(" Cannot get information from mpIdToMp map for id {}", mpId);
+									logger.warn(" Cannot get information (abnormal) from mpIdToMp map for id {}", mpId);
 								}
 							}
 						}
 						if (param.getIncreasedMpId() != null){
-							doc.setIncreasedMpId(new ArrayList<String>(param.getIncreasedMpId()));
+							doc.setIncreasedMpId(new ArrayList<>(param.getIncreasedMpId()));
 							for(String mpId: param.getIncreasedMpId()){
 								try {
 									doc.addIncreasedMpTerm(mpParser.getOntologyTerm(mpId).getName());
 								} catch (NullPointerException e) {
-									logger.warn(" Cannot get information from mpIdToMp map for id {}", mpId);
+									logger.warn(" Cannot get information (increased) from mpIdToMp map for id {}", mpId);
 								}
 							}
 						}
 						if (param.getDecreasedMpId()!= null){
-							doc.setDecreasedMpId(new ArrayList<String>(param.getDecreasedMpId()));
+							doc.setDecreasedMpId(new ArrayList<>(param.getDecreasedMpId()));
 							for(String mpId: param.getDecreasedMpId()){
 								if (mpParser.getOntologyTerm(mpId) != null) {
 									try {
 										doc.addDecreasedMpTerm(mpParser.getOntologyTerm(mpId).getName());
 									} catch (NullPointerException e) {
-										logger.warn(" Cannot get information from mpIdToMp map for id {}", mpId);
+										logger.warn(" Cannot get information (decreased) from mpIdToMp map for id {}", mpId);
 									}
 								} else {
-									logger.warn(" Cannot find MP term for MP ID {}", mpId);
+									logger.warn(" Cannot find MP term (decreased) for MP ID {}", mpId);
 								}
 							}
 						}

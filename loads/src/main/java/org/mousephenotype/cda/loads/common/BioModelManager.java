@@ -28,7 +28,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * This class encapsulates the code and data to query and insert into the biological model tables. Typical usage is to
@@ -87,11 +86,15 @@ public class BioModelManager {
         Specimen specimen = specimenExtended.getSpecimen();
 
         BioModelKey key = createMutantKey(specimenExtended.getDatasourceShortName(), specimen.getColonyID(), zygosity);
-        if (getBiologicalModelPk(key) == null) {
-            insert(dbId, biologicalSamplePk, phenotypingCenterPk, specimenExtended);
+        Integer     biologicalModelPk = getBiologicalModelPk(key);
+        if (biologicalModelPk == null) {
+            biologicalModelPk = insert(dbId, biologicalSamplePk, phenotypingCenterPk, specimenExtended);
+        } else {
+            // Insert the relationship between biological_model and biological_sample
+            cdaSqlUtils.insertBiologicalModelSample(biologicalModelPk, biologicalSamplePk);
         }
 
-        return getBiologicalModelPk(key);
+        return biologicalModelPk;
     }
 
     public synchronized int insertControlIfMissing(SpecimenExtended specimenExtended, int dbId, int biologicalSamplePk,
@@ -104,6 +107,9 @@ public class BioModelManager {
         Integer     biologicalModelPk = getBiologicalModelPk(key);
         if (biologicalModelPk == null) {
             biologicalModelPk = insert(dbId, biologicalSamplePk, phenotypingCenterPk, specimenExtended);
+        } else {
+            // Insert the relationship between biological_model and biological_sample
+            cdaSqlUtils.insertBiologicalModelSample(biologicalModelPk, biologicalSamplePk);
         }
 
         return biologicalModelPk;
@@ -116,7 +122,7 @@ public class BioModelManager {
         Integer     biologicalModelPk = getBiologicalModelPk(key);
 
         if (biologicalModelPk == null) {
-            biologicalModelPk = insert(dbId, phenotypingCenterPk, lineExperiment);
+            biologicalModelPk = insert(dbId, lineExperiment);
         }
 
         return biologicalModelPk;
@@ -151,6 +157,13 @@ public class BioModelManager {
         gene = getGene(colony);
         allele = getAllele(colony, gene);
         strain = strainsByNameOrMgiAccessionIdMap.get(colony.getBackgroundStrain());
+
+        if (strain == null) {
+            Strain newStrain = StrainMapper.createBackgroundStrain(colony.getBackgroundStrain());
+            cdaSqlUtils.insertStrain(newStrain);
+            strainsByNameOrMgiAccessionIdMap.put(colony.getBackgroundStrain(), newStrain);
+            strain = newStrain;
+        }
 
         key = new BioModelKey(datasourceShortName, strain.getId().getAccession(), gene.getId().getAccession(), allele.getId().getAccession(), zygosity);
 
@@ -208,19 +221,21 @@ public class BioModelManager {
     // PRIVATE METHODS
 
 
-    private void initialise() throws DataLoadException {
+    private synchronized void initialise() throws DataLoadException {
 
         // Initialise maps
-        allelesBySymbolMap = new ConcurrentHashMap<>(cdaSqlUtils.getAllelesBySymbol());
-        genesByAccMap = new ConcurrentHashMap<>(cdaSqlUtils.getGenesByAcc());
-        phenotypedColonyMap = new ConcurrentHashMap<>(cdaSqlUtils.getPhenotypedColonies());
-        strainsByNameOrMgiAccessionIdMap = new ConcurrentHashMap<>(cdaSqlUtils.getStrainsByNameOrMgiAccessionIdMap());
-        bioModelPkMap = new ConcurrentHashMap<>(cdaSqlUtils.getBiologicalModelPksMapByBioModelKey());
-        ontologyTermMap = new ConcurrentHashMap<>(cdaSqlUtils.getOntologyTermsByName());
+        allelesBySymbolMap = new ConcurrentHashMapAllowNull<>(cdaSqlUtils.getAllelesBySymbol());
+        genesByAccMap = new ConcurrentHashMapAllowNull<>(cdaSqlUtils.getGenesByAcc());
+        phenotypedColonyMap = new ConcurrentHashMapAllowNull<>(cdaSqlUtils.getPhenotypedColonies());
+        strainsByNameOrMgiAccessionIdMap = new ConcurrentHashMapAllowNull<>(cdaSqlUtils.getStrainsByNameOrMgiAccessionIdMap());
+        bioModelPkMap = new ConcurrentHashMapAllowNull<>(cdaSqlUtils.getBiologicalModelPksMapByBioModelKey());
+        ontologyTermMap = new ConcurrentHashMapAllowNull<>(cdaSqlUtils.getOntologyTermsByName());
     }
 
 
     /**
+     * Insert a sample-level {@link SpecimenExtended} control or mutant biological model
+     *
      * @param dbId             the dbId of the specimen whose biological model is to be inserted
      * @param biologicalSamplePk the biologicalSample primary key
      * @param phenotypingCenterPk the phenotyping center primary key
@@ -239,12 +254,12 @@ public class BioModelManager {
 
         if (experimentGroup == ExperimentGroup.CONTROL) {
 
-            biologicalModelPk = insertControl(dbId, biologicalSamplePk, phenotypingCenterPk, datasourceShortName, specimen.getStrainID());
+            biologicalModelPk = insertControl(dbId, biologicalSamplePk, datasourceShortName, specimen.getStrainID());
 
         } else {
 
             zygosity = LoadUtils.getSpecimenLevelMutantZygosity(specimen.getZygosity().value());
-            biologicalModelPk = insertMutant(dbId, biologicalSamplePk, phenotypingCenterPk, datasourceShortName, specimen.getColonyID(), zygosity);
+            biologicalModelPk = insertMutant(dbId, biologicalSamplePk, datasourceShortName, specimen.getColonyID(), zygosity);
         }
 
         return biologicalModelPk;
@@ -252,15 +267,16 @@ public class BioModelManager {
 
 
     /**
+     * Insert a line-level {@link DccExperimentDTO} mutant biological model
+     *
      * @param dbId                the dbId of the line experiment whose biological model is to be inserted
-     * @param phenotypingCenterPk the phenotyping center primary key
      * @param lineExperiment      the line experiment whose biological model is to be inserted
      *
      * @return the biological_model primary key of the newly inserted record.
      *
      * @throws DataLoadException
      */
-    private int insert(int dbId, int phenotypingCenterPk, DccExperimentDTO lineExperiment) throws DataLoadException {
+    private int insert(int dbId, DccExperimentDTO lineExperiment) throws DataLoadException {
 
         String datasourceShortName = lineExperiment.getDatasourceShortName();
 
@@ -268,11 +284,11 @@ public class BioModelManager {
         List<SimpleParameter> simpleParameterList = dccSqlUtils.getSimpleParameters(lineExperiment.getDcc_procedure_pk());
         String zygosity = LoadUtils.getLineLevelZygosity(simpleParameterList);
 
-        return insertMutant(dbId, null, phenotypingCenterPk, datasourceShortName, lineExperiment.getColonyId(), zygosity);
+        return insertMutant(dbId, null, datasourceShortName, lineExperiment.getColonyId(), zygosity);
     }
 
 
-    private int insertMutant(int dbId, Integer biologicalSamplePk, int phenotypingCenterPk, String datasourceShortName,
+    private int insertMutant(int dbId, Integer biologicalSamplePk, String datasourceShortName,
                              String colonyId, String zygosity) throws DataLoadException {
 
         int    biologicalModelPk;
@@ -307,7 +323,7 @@ public class BioModelManager {
         return biologicalModelPk;
     }
 
-    private int insertControl(int dbId, int biologicalSamplePk, int phenotypingCenterPk, String datasourceShortName, String strainName) throws DataLoadException {
+    private int insertControl(int dbId, int biologicalSamplePk, String datasourceShortName, String strainName) throws DataLoadException {
 
         String allelicComposition = "";
         String zygosity           = ZygosityType.homozygote.getName();

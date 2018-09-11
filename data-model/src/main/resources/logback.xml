@@ -43,15 +43,16 @@
         @Configuration class. Add the 'static' modifier to this method to avoid these container lifecycle issues; see @Bean javadoc for complete details. -->
     <logger name="org.springframework.context.annotation.ConfigurationClassEnhancer"                                             level="ERROR" />
 
+    <!-- Suppress thelk reasoner INFO messages -->
+    <logger name="org.semanticweb.elk.reasoner.Reasoner"                                                                         level="WARN" />
+
     <logger name="org.springframework.test.context.support.DirtiesContextBeforeModesTestExecutionListener"                       level="WARN" />
 
     <logger name="org.semanticweb.owlapi.util.SAXParsers"                                                                        level="ERROR" />
 
     <include resource="org/springframework/boot/logging/logback/base.xml"/>
 
-    <logger name="org.springframework.data.neo4j.mapping.Neo4jPersistentProperty"                                                level="ERROR" />
     <logger name="org.springframework.boot.test"                                                                                 level="WARN" />
-    <logger name="org.neo4j.ogm.drivers"                                                                                         level="WARN" />
 
     <logger name="org.hibernate.validator.messageinterpolation.ParameterMessageInterpolator"                                     level="ERROR" />
 

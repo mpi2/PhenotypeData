@@ -23,8 +23,8 @@ import org.apache.solr.client.solrj.response.*;
 import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
+import org.mousephenotype.cda.constants.Constants;
 import org.mousephenotype.cda.enumerations.BiologicalSampleType;
-import org.mousephenotype.cda.enumerations.Expression;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.SolrUtils;
@@ -55,7 +55,7 @@ public class ImageService implements WebStatus{
 	@Autowired
 	@Qualifier("impcImagesCore")
 	private SolrClient solr;
-	private final Logger logger = LoggerFactory.getLogger(ImageService.class);
+	private static final Logger logger = LoggerFactory.getLogger(ImageService.class);
 
 
 	public ImageService() {
@@ -63,8 +63,12 @@ public class ImageService implements WebStatus{
 
 
 	@NotNull
-    @Value("${drupal_base_url}")
-    private String drupalBaseUrl;
+    @Value("${reports_hostname}")
+    private String reportsHostname;
+
+	@NotNull
+	@Value("${base_url}")
+	private String baseUrl;
 
     public List<ImageSummary> getImageSummary(String markerAccessionId)
     throws SolrServerException, IOException {
@@ -323,13 +327,28 @@ public class ImageService implements WebStatus{
 		return response;
 	}
 
-	public static SolrQuery allImageRecordSolrQuery()
-			throws SolrServerException, IOException {
+	/**
+	 *  Return a query string formated for getting all the image records from the experiment core
+	 *
+	 *  The query string should come out looking something like this:
+	 *  q=*:*&fq=downloadFilePath:(*filter* OR *filter2* ...)&fq="observation_type:image_record_observation
+	 * @return a SolrQuery representing the query to get all appropriate image documents
+	 */
+	public static SolrQuery allImageRecordSolrQuery() {
 
-		return new SolrQuery().setQuery(ImageDTO.OBSERVATION_TYPE + ":image_record")
-				.addFilterQuery(
-						"(" + ObservationDTO.DOWNLOAD_FILE_PATH + ":"
-								+ "*mousephenotype.org*)");
+		// Double escape of the colon is required for regex matching, then string matching
+		String filter = Constants.INCLUDE_IMAGE_PATHS
+				.stream()
+				.map(x -> "*" + x.replaceAll(":", "\\\\:") + "*")
+				.collect(Collectors.joining(" OR "));
+
+		SolrQuery query = new SolrQuery()
+				.setQuery(ImageDTO.OBSERVATION_TYPE + ":image_record")
+				.addFilterQuery(ObservationDTO.DOWNLOAD_FILE_PATH + ":" + "(" + filter + ")");
+
+		logger.info("Solr query to get images: {}", query.toString());
+
+		return query;
 	}
 
 	public QueryResponse getProcedureFacetsForGeneByProcedure(
@@ -539,8 +558,8 @@ public class ImageService implements WebStatus{
                 List<String> row = new ArrayList<>();
                 ArrayList<String> params = new ArrayList<>();
                 ArrayList<String> paramValues = new ArrayList<>();
-                String urlToImagePicker = drupalBaseUrl
-                        + "/data/imageComparator/";
+                String urlToImagePicker = reportsHostname + baseUrl
+                        + "/imageComparator?acc=";
 
                 for (SolrDocument doc : group.getResult()) {
                     if (row.size() == 0) {
@@ -550,7 +569,7 @@ public class ImageService implements WebStatus{
                                 .iterator().next().toString());
                         urlToImagePicker += doc
                                 .getFieldValue(ImageDTO.GENE_ACCESSION_ID)
-                                + "/";
+                                + "&parameter_stable_id=";
                         urlToImagePicker += doc
                                 .getFieldValue(ImageDTO.PARAMETER_STABLE_ID);
                         if (doc.getFieldValue(ImageDTO.ALLELE_SYMBOL) != null) {
@@ -655,10 +674,8 @@ public class ImageService implements WebStatus{
 	/**
 	 *
 	 * @param numberOfImagesToRetrieve
-	 * @param parameterStableId TODO
-	 * @param expression TODO
-	 * @param anatomy if this is specified then filter by parameter_association_name and don't filter on date
-	 * @return
+	 * @param parameterStableId the parameter to query
+	 * @return a solr query configured with the passed in values
 	 * @throws SolrServerException, IOException
 	 */
 	public QueryResponse getControlImagesForExpressionData(int numberOfImagesToRetrieve, String parameterStableId, String anatomyId, String parameterAssociationValue) throws SolrServerException, IOException {
@@ -781,9 +798,7 @@ public class ImageService implements WebStatus{
 	 * @param imgDoc
 	 *            the solr document representing the image record
 	 * @param parameterStableId TODO
-	 * @param anatomy
-	 *            TODO
-	 * @param expression TODO
+	 * @param anatomy the anatomy term
 	 * @return solr document list, now updated to include all appropriate
 	 *         control images
 	 * @throws SolrServerException, IOException

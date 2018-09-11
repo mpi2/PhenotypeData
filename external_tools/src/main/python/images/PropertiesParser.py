@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import ConfigParser
+import logging
 
 class PropertiesParser(object):
 
@@ -20,6 +21,7 @@ class PropertiesParser(object):
     def __init__(self):
         self.secheadname = 'fakeSectionHead'
         self.sechead = '[' + self.secheadname + ']\n'
+        self.logger = logging.getLogger(__name__)
 
     def readline(self):
         if self.sechead:
@@ -42,7 +44,7 @@ class PropertiesParser(object):
             # reset the section head incase the parser will be used again
             self.sechead = '[' + self.secheadname + ']\n'
             return cp.items(self.secheadname)
-        except Exception, e:
-            print "Problem parsing " + filepath + ". Error message: " + str(e)
+        except Exception as e:
+            self.logger.error("Problem parsing " + filepath + ". Error message: " + str(e))
             return {}
             

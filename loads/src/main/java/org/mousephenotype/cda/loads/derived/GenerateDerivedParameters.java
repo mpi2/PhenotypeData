@@ -9,6 +9,7 @@ import org.mousephenotype.cda.db.pojo.*;
 import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
+import org.mousephenotype.cda.loads.common.ConcurrentHashMapAllowNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
@@ -26,6 +27,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.stream.Collectors;
 
 @SpringBootApplication
 @Import(value = {GenerateDerivedParametersConfig.class})
@@ -36,11 +38,11 @@ public class GenerateDerivedParameters implements CommandLineRunner {
     private ExecutorService executor;
     private List<Future<Integer>> tasks = new ArrayList<>();
 
-    private Map<Integer, LiveSample> animals = new ConcurrentHashMap<>();
-    private Map<Integer, Datasource> datasourcesById = new ConcurrentHashMap<>();
-    private Map<Integer, Project> projects = new ConcurrentHashMap<>();
-    private Map<String, Pipeline> pipelines = new ConcurrentHashMap<>();
-    private Map<String, Organisation> organisations = new ConcurrentHashMap<>();
+    private Map<Integer, LiveSample> animals = new ConcurrentHashMapAllowNull<>();
+    private Map<Integer, Datasource> datasourcesById = new ConcurrentHashMapAllowNull<>();
+    private Map<Integer, Project> projects = new ConcurrentHashMapAllowNull<>();
+    private Map<String, Pipeline> pipelines = new ConcurrentHashMapAllowNull<>();
+    private Map<String, Organisation> organisations = new ConcurrentHashMapAllowNull<>();
 
     private DataSource komp2DataSource;
     private BiologicalModelDAO biologicalModelDAO;
@@ -187,13 +189,8 @@ public class GenerateDerivedParameters implements CommandLineRunner {
                     tasks.add(executor.submit(task));
                     break;
 
-                case "IMPC_GRS_010_001":
-                    task = () -> copyDivisionResult("IMPC_GRS_010_001", "IMPC_GRS_008_001", "IMPC_GRS_003_001");
-                    tasks.add(executor.submit(task));
-                    break;
-
-                case "IMPC_GRS_011_001":
-                    task = () -> copyDivisionResult("IMPC_GRS_011_001", "IMPC_GRS_009_001", "IMPC_GRS_003_001");
+                case "IMPC_HWT_012_001":
+                    task = () -> copyDivisionResult("IMPC_HWT_012_001", "IMPC_HWT_008_001", "IMPC_HWT_007_001");
                     tasks.add(executor.submit(task));
                     break;
 
@@ -449,10 +446,38 @@ public class GenerateDerivedParameters implements CommandLineRunner {
                     break;
 
                 default:
+                    logger.info("Delayed processing parameter " + parameter);
+                    break;
+            }
+        }
+
+
+        //
+        // These parameters have dependencies on other derived parameters
+        //
+
+        for (String parameter : parameters.stream().filter(x -> Arrays.asList("IMPC_GRS_010_001", "IMPC_GRS_011_001").contains(x)).collect(Collectors.toList())) {
+
+            logger.info("Processing parameter {}", parameter);
+
+            switch (parameter) {
+                case "IMPC_GRS_010_001":
+                    task = () -> copyDivisionResult("IMPC_GRS_010_001", "IMPC_GRS_008_001", "IMPC_GRS_003_001");
+                    tasks.add(executor.submit(task));
+                    break;
+
+                case "IMPC_GRS_011_001":
+                    task = () -> copyDivisionResult("IMPC_GRS_011_001", "IMPC_GRS_009_001", "IMPC_GRS_003_001");
+                    tasks.add(executor.submit(task));
+                    break;
+
+                default:
                     logger.warn("Cannot find case to create parameter " + parameter);
                     break;
             }
         }
+
+
     }
 
 
@@ -465,6 +490,7 @@ public class GenerateDerivedParameters implements CommandLineRunner {
         allParams.add("GMC_914_001_705");
         allParams.add("GMC_914_001_705");
         allParams.add("TCP_TFL_002_001");
+        allParams.add("IMPC_HWT_012_001");
         allParams.add("IMPC_DXA_007_001");
         allParams.add("IMPC_DXA_008_001");
         allParams.add("IMPC_DXA_009_001");
@@ -1290,6 +1316,12 @@ public class GenerateDerivedParameters implements CommandLineRunner {
 
                 try {
                     ObservationDTO dto = parameterMap.get(numeratorParameter).get(id);
+
+                    // Filter out calculating derived parameter for HRWL_OWT procedures
+                    if (dto.getProcedureStableId().startsWith("HRWL_OWT")) {
+                        continue;
+                    }
+
                     Procedure proc = getProcedureFromObservation(param, dto);
                     Datasource datasource = datasourcesById.get(dto.getExternalDbId());
                     Experiment currentExperiment = createNewExperiment(dto, "derived_" + parameterToCreate + "_" + i++, proc, true);
@@ -1322,6 +1354,7 @@ public class GenerateDerivedParameters implements CommandLineRunner {
 
                     String errorMsg = String.format("Error while trying to calculate %s for animal id %s, formula %s / %s (actual values %s / %s)", parameterToCreate, id, numeratorParameter, divisorParameter, n, d);
                     logger.error(errorMsg, e);
+                    e.printStackTrace();
 
                 }
 

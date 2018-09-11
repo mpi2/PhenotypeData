@@ -54,8 +54,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import uk.ac.ebi.phenodigm2.Disease;
+import uk.ac.ebi.phenodigm2.DiseaseModelAssociation;
+import uk.ac.ebi.phenodigm2.GeneDiseaseAssociation;
+import uk.ac.ebi.phenodigm2.WebDao;
 import uk.ac.ebi.phenotype.error.GenomicFeatureNotFoundException;
-import uk.ac.ebi.phenotype.generic.util.RegisterInterestDrupalSolr;
+import uk.ac.ebi.phenotype.generic.util.RegisterInterestUtils;
 import uk.ac.ebi.phenotype.generic.util.SolrIndex2;
 import uk.ac.ebi.phenotype.ontology.PhenotypeSummaryBySex;
 import uk.ac.ebi.phenotype.ontology.PhenotypeSummaryDAO;
@@ -78,10 +82,6 @@ import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
 import java.util.*;
-import uk.ac.ebi.phenodigm2.Disease;
-import uk.ac.ebi.phenodigm2.GeneDiseaseAssociation;
-import uk.ac.ebi.phenodigm2.DiseaseModelAssociation;
-import uk.ac.ebi.phenodigm2.WebDao;
 
 @Controller
 public class GenesController {
@@ -127,9 +127,12 @@ public class GenesController {
 
     @Autowired
     private ImpressService impressService;
-    
+
     @Autowired
     private WebDao phenoDigm2Dao;
+
+    @Autowired
+    private RegisterInterestUtils riUtils;
 
     @Resource(name = "globalConfiguration")
     Map<String, String> config;
@@ -200,12 +203,12 @@ public class GenesController {
 
     @RequestMapping("/genes/export/{acc}")
     public void genesExport(@PathVariable String acc,
-            @RequestParam(required = true, value = "fileType") String fileType,
-            @RequestParam(required = true, value = "fileName") String fileName,
-            @RequestParam(required = false, value = "top_level_mp_term_name") List<String> topLevelMpTermName,
-            @RequestParam(required = false, value = "resource_fullname") List<String> resourceFullname,
-            @RequestParam(value = "heatmap", required = false, defaultValue = "false") Boolean showHeatmap,
-            Model model, HttpServletRequest request, HttpServletResponse response, RedirectAttributes attributes)
+                            @RequestParam(required = true, value = "fileType") String fileType,
+                            @RequestParam(required = true, value = "fileName") String fileName,
+                            @RequestParam(required = false, value = "top_level_mp_term_name") List<String> topLevelMpTermName,
+                            @RequestParam(required = false, value = "resource_fullname") List<String> resourceFullname,
+                            @RequestParam(value = "heatmap", required = false, defaultValue = "false") Boolean showHeatmap,
+                            Model model, HttpServletRequest request, HttpServletResponse response, RedirectAttributes attributes)
             throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException, IOException, SQLException, SolrServerException {
 
         PhenotypeFacetResult phenoResult = phenotypeCallSummaryService.getPhenotypeCallByGeneAccessionAndFilter(acc, topLevelMpTermName, resourceFullname);
@@ -310,7 +313,7 @@ public class GenesController {
             }
 
         } catch (Exception e) {
-        	e.printStackTrace();
+            e.printStackTrace();
             LOGGER.error("ERROR: ", e);
         }
 
@@ -321,14 +324,51 @@ public class GenesController {
 //		if ( gwasMappings.size() > 0 ){
 //			model.addAttribute("gwasPhenoMapping", gwasMappings.get(0).getPhenoMappingCategory());
 //		}
-        // code for assessing if the person is logged in and if so have they
-        // registered interest in this gene or not?
-        RegisterInterestDrupalSolr registerInterest = new RegisterInterestDrupalSolr(drupalBaseUrl, request);
-        Map<String, String> regInt = registerInterest.registerInterestState(acc, request, registerInterest);
 
-        model.addAttribute("registerInterestButtonString", regInt.get("registerInterestButtonString"));
-        model.addAttribute("registerButtonAnchor", regInt.get("registerButtonAnchor"));
-        model.addAttribute("registerButtonId", regInt.get("registerButtonId"));
+
+        boolean               loggedIn = false;
+        try {
+
+            loggedIn = riUtils.isLoggedIn(request);
+
+        } catch (Exception e) {
+            // Nothing to do. If register interest service isn't working, a 500 is thrown. Handle as unauthenticated.
+        }
+
+        // Use Register Interest login link
+        String paBaseUrl = config.get("paBaseUrl");
+        String registerButtonText = "Login to register interest";
+        String registerButtonAnchor = new StringBuilder()
+                .append(paBaseUrl).append("/riLogin")
+                .append("?target=" + paBaseUrl + "/genes/" + acc)
+                .toString();
+
+        String registerButtonId = acc;
+        String registerIconClass = "fa fa-sign-in";
+
+        if (loggedIn) {
+
+            Map<String, List<String>> geneAccessionIdMap = riUtils.getGeneAccessionIds(request);
+            List<String> geneAccessionIds = geneAccessionIdMap.get("geneAccessionIds");
+
+            if (geneAccessionIds.contains(acc)) {
+
+                registerIconClass = "fa fa-sign-out";
+                registerButtonText = "Unregister interest";
+                registerButtonAnchor = paBaseUrl + "/riUnregistration/gene?geneAccessionId=" + acc + "&target=" + paBaseUrl + "/genes/" + acc;
+
+            } else {
+
+                registerIconClass = "fa fa-sign-in";
+                registerButtonText = "Register interest";
+                registerButtonAnchor = paBaseUrl + "/riRegistration/gene?geneAccessionId=" + acc + "&target=" + paBaseUrl + "/genes/" + acc;
+            }
+        }
+
+        model.addAttribute("registerButtonText", registerButtonText);
+        model.addAttribute("registerButtonAnchor", registerButtonAnchor);
+        model.addAttribute("registerButtonId", registerButtonId);
+        model.addAttribute("registerIconClass", registerIconClass);
 
         try {
             getExperimentalImages(acc, model);
@@ -393,6 +433,7 @@ public class GenesController {
         model.addAttribute("phenotypeDisplayStatus", phenotypeDisplayStatus);
     }
 
+
     /**
      * Encapsulate logic for how we are displaying phenotype information in the
      * gene page here so easy to read through and error check
@@ -437,7 +478,7 @@ public class GenesController {
 
         for (PhenotypeSummaryBySex summary : phenotypeSummaryObjects.values()) {
             for (PhenotypeSummaryType phen : summary.getBothPhenotypes(significant)) {
-            	mpGroups.put(phen.getGroup(), phen.getTopLevelIds());
+                mpGroups.put(phen.getGroup(), phen.getTopLevelIds());
             }
             for (PhenotypeSummaryType phen : summary.getMalePhenotypes(significant)) {
                 mpGroups.put(phen.getGroup(), phen.getTopLevelIds());
@@ -456,9 +497,9 @@ public class GenesController {
      */
     @RequestMapping("/genesPhenoFrag/{acc}")
     public String genesPhenoFrag(@PathVariable String acc,
-            @RequestParam(required = false, value = "top_level_mp_term_name") List<String> topLevelMpTermName,
-            @RequestParam(required = false, value = "resource_fullname") List<String> resourceFullname,
-            Model model, HttpServletRequest request, RedirectAttributes attributes)
+                                 @RequestParam(required = false, value = "top_level_mp_term_name") List<String> topLevelMpTermName,
+                                 @RequestParam(required = false, value = "resource_fullname") List<String> resourceFullname,
+                                 Model model, HttpServletRequest request, RedirectAttributes attributes)
             throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException, IOException, SolrServerException {
 
         // Pass on any query string after the
@@ -507,7 +548,7 @@ public class GenesController {
         Map<String, Double> stringDBTable = readStringDbTable(gene.getMarkerSymbol());
         // Adds "orthologousDiseaseAssociations", "phenotypicDiseaseAssociations" to the model
         /** pdsimplify: replaced processDisease by processDisease2
-         * The genesSummary jsp should be updated to use phenodigm2 objects **/         
+         * The genesSummary jsp should be updated to use phenodigm2 objects **/
         processDisease(acc, model);
         model.addAttribute("stringDbTable", stringDBTable);
         model.addAttribute("significantTopLevelMpGroups", mpGroupsSignificant);
@@ -581,7 +622,7 @@ public class GenesController {
 
         List<PhenotypeCallSummaryDTO> phenotypeList = new ArrayList<PhenotypeCallSummaryDTO>();
         PhenotypeFacetResult phenoResult = null;
-        
+
 
         //for image links we need a query that brings back mp terms and colony_ids that have mp terms
         //http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/impc_images/select?q=gene_accession_id:%22MGI:1913955%22&fq=mp_id:*&facet=true&facet.mincount=1&facet.limit=-1&facet.field=colony_id&facet.field=mp_id&facet.field=mp_term&rows=0
@@ -590,7 +631,7 @@ public class GenesController {
         try {
 
             phenoResult = phenotypeCallSummaryService.getPhenotypeCallByGeneAccessionAndFilter(acc, topLevelMpTermName, resourceFullname);
-           
+
             phenotypeList = phenoResult.getPhenotypeCallSummaries();
             Map<String, Map<String, Integer>> phenoFacets = phenoResult.getFacetResults();
             // sort facets
@@ -991,7 +1032,7 @@ public class GenesController {
 
         return "genesAllele2_frag";
     }
- 
+
     /**
      * Adds disease-related info to the model using the Phenodigm2 core.
      *
@@ -1006,30 +1047,30 @@ public class GenesController {
         // fetch diseases that are linked to a gene via annotations/curation
         LOGGER.info(String.format("%s - getting gene-disease associations for gene ", acc));
         List<GeneDiseaseAssociation> geneAssociations = phenoDigm2Dao.getGeneToDiseaseAssociations(acc);
-        
+
         // fetch just the ids, and encode them into an array
         HashSet<String> curatedDiseases = new HashSet<>();
-        for (Disease assoc : geneAssociations) {        
+        for (Disease assoc : geneAssociations) {
             curatedDiseases.add(assoc.getId());
-        }        
+        }
         String curatedJsArray = String.join("\", \"", curatedDiseases);
         if (curatedDiseases.size() > 0) {
             curatedJsArray = "[\"" + curatedJsArray + "\"]";
         } else {
             curatedJsArray = "[]";
         }
-        model.addAttribute("curatedDiseases", curatedJsArray);                
-        
+        model.addAttribute("curatedDiseases", curatedJsArray);
+
         // fetch models that have this gene
         List<DiseaseModelAssociation> modelAssociations = phenoDigm2Dao.getGeneToDiseaseModelAssociations(acc);
         LOGGER.info("Found " + modelAssociations.size()+ " associations");
-                        
+
         // create a js object representation of the models        
         String modelAssocsJsArray = "[]";
         boolean hasModelsByOrthology = false;
         if (modelAssociations.size() > 0) {
             List<String> jsons = new ArrayList<>();
-            for (DiseaseModelAssociation assoc : modelAssociations) {                
+            for (DiseaseModelAssociation assoc : modelAssociations) {
                 jsons.add(assoc.makeDiseaseJson());
                 if (curatedDiseases.contains(assoc.getDiseaseId())) {
                     hasModelsByOrthology = true;
@@ -1039,7 +1080,7 @@ public class GenesController {
         }
         model.addAttribute("modelAssociations", modelAssocsJsArray);
         model.addAttribute("hasModelsByOrthology", hasModelsByOrthology);
-        model.addAttribute("hasModelAssociations", modelAssociations.size()>0);                
+        model.addAttribute("hasModelAssociations", modelAssociations.size()>0);
     }
 
 }

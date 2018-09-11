@@ -51,6 +51,14 @@ public class ParameterIncrement {
 	@Column(name = "increment_minimum")
 	private String minimum;
 
+	public Integer getId() {
+		return id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
+	}
+
 	/**
 	 *
 	 */

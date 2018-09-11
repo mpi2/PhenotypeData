@@ -116,6 +116,7 @@ CREATE TABLE mediaParameter (
   parameterId VARCHAR(255) NOT NULL,
   parameterStatus VARCHAR(255) DEFAULT NULL,
   URI VARCHAR(255) NOT NULL,
+  link VARCHAR(255) DEFAULT NULL,
   procedure_pk INT NOT NULL
 
 );
@@ -160,7 +161,8 @@ DROP TABLE IF EXISTS parameterAssociation;
 CREATE TABLE parameterAssociation (
   pk INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
   parameterId VARCHAR(255) NOT NULL,
-  sequenceId INTEGER DEFAULT NULL
+  sequenceId INTEGER DEFAULT NULL,
+  link VARCHAR(255) DEFAULT NULL
 
 );
 
@@ -216,6 +218,7 @@ CREATE TABLE mediaFile (
   fileType VARCHAR(255) NOT NULL,
   localId VARCHAR(255) NOT NULL,
   URI VARCHAR(255) NOT NULL,
+  link VARCHAR(255) DEFAULT NULL,
   mediaSection_pk INT NOT NULL
 
 );
@@ -258,6 +261,7 @@ CREATE TABLE seriesMediaParameterValue (
   fileType VARCHAR(255) DEFAULT NULL,
   incrementValue VARCHAR(255) NOT NULL,
   URI VARCHAR(255) NOT NULL,
+  link VARCHAR(255) DEFAULT NULL,
   seriesMediaParameter_pk INT NOT NULL
 
 );

@@ -64,7 +64,7 @@
 						<div class="section" >
 								<h1 id="section-associations">IMPC data representation for IDG genes</h1>
 		           					 <div class="inner">
-		            	<p>
+		            		<p>
                             IDG human genes are mapped to mouse orthologs using <a href="${baseUrl}/secondaryproject/idg/mapping">HomoloGene</a>. The
                             <a href="${baseUrl}/documentation/aboutImpc#whatisimpc">IMPC consortium</a> is using different <a href="${baseUrl}/documentation/aboutImpc#howdoesimpcwork">complementary
                             targeting strategies</a> to produce Knockout strains. Mice are produced and submitted to standardised phenotyping pipelines.
@@ -117,7 +117,7 @@
                 <div id="chordContainerIonChannels" class="half"></div>
                 <svg id="chordDiagramSvgIonChannels" width="960" height="960"></svg>
                 <script>
-                    drawChords("chordDiagramSvgIonChannels", "chordContainerIonChannels", false, [], true, "Ion Channels", true);
+                    drawChords("chordDiagramSvgIonChannels", "chordContainerIonChannels", false, [], true, "Ion Channel", true);
                 </script>
 
 
@@ -125,7 +125,7 @@
                 <div id="chordContainerGPCRs" class="half"></div>
                 <svg id="chordDiagramSvgGPCRs" width="960" height="960"></svg>
                 <script>
-                    drawChords("chordDiagramSvgGPCRs", "chordContainerGPCRs", false, [], true, "GPCRs", true);
+                    drawChords("chordDiagramSvgGPCRs", "chordContainerGPCRs", false, [], true, "GPCR", true);
                 </script>
 
 
@@ -133,12 +133,12 @@
                 <div id="chordContainerKinases" class="half"></div>
                 <svg id="chordDiagramSvgKinases" width="960" height="960"></svg>
                 <script>
-                    drawChords("chordDiagramSvgKinases", "chordContainerKinases", false, [], true, "Kinases", true);
+                    drawChords("chordDiagramSvgKinases", "chordContainerKinases", false, [], true, "Kinase", true);
                 </script>
             </div>
         </div>
         <!-- section -->
-
+ 
         <script>
             $(document).ready(function () {
                 $.fn.qTip({

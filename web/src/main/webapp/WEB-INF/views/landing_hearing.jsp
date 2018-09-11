@@ -93,10 +93,17 @@ table.dataTable thead tr {
             <div class="block block-system">
                 <div class="content">
                     <div class="node node-gene">
-                        <h1 class="title" id="top">Hearing</h1>
+                        <h1 class="title" id="top">${ pageTitle }</h1>
 							<div class="section">
     							<div class="inner">
-    							 <p> ${shortDescription} </p>
+	    							 <p>
+	    							 	<h3 style='margin-top:0;'>The IMPC is hunting unknown genes responsible for hearing loss by screening knockout mice </h3>
+									<ul>
+										<li> 360 million people worldwide live with mild to profound hearing loss</li>
+										<li> 70% hearing loss occurs as an isolated condition (non-syndromic) and 30% with additional phenotypes (syndromic)</li>
+										<li> The vast majority of genes responsible for hearing loss are unknown </li>
+									</ul>
+	    							 </p>
     							</div>
     						</div>	
                         <%-- <c:import url="landing_overview_frag.jsp"/> removed as requested by Mike author of hearing paper --%>
@@ -118,10 +125,8 @@ table.dataTable thead tr {
 										href="http://www.mousephenotype.org/impress/protocol/186">Combined SHIRPA and Dysmorphology (CSD)</a> protocol, which 
                                     includes a response to a click box test (absence is indicative of a strong hearing deficit) and  visual inspection for behavioural signs that may indicate vestibular dysfunction e.g. head bobbing or circling.
                                 </p>
-                                
-
-                                <c:import
-									url="landing_procedures_frag.jsp" />
+                                <h4>Procedures that can lead to relevant phenotype associations</h4>
+                                <c:import url="landing_procedures_frag.jsp" />
                             </div>
                         </div>
                         
@@ -718,7 +723,7 @@ table.dataTable thead tr {
                                     <a
 										href="${baseUrl}/genes/MGI:1337062">Ap3s1<sup>tm1b(EUCOMM)Hmgu</sup></a>
                                     <div class="chart" id="tram2"
-										graphUrl="${baseUrl}/chart?accession=MGI:1337062&parameter_stable_id=IMPC_ABR_008_001&chart_type=UNIDIMENSIONAL_ABR_PLOT&pipeline_stable_id=HMGU_001&zygosity=homozygote&phenotyping_center=HMGU&strain_accession_id=MGI:2164831&allele_accession_id=MGI:5548436&metadata_group=d5fe13bb3cac96104edd5493d1c33d63&chart_only=true">
+										graphUrl="${baseUrl}/chart?accession=MGI:1337062&allele_accession_id=MGI:5548436&zygosity=homozygote&parameter_stable_id=IMPC_ABR_006_001&pipeline_stable_id=HMGU_001&phenotyping_center=HMGU&chart_only=true&chart_type=UNIDIMENSIONAL_ABR_PLOT">
                                         <div id="spinner_tram2">
 											<i class="fa fa-refresh fa-spin"></i>
 										</div>
@@ -731,7 +736,7 @@ table.dataTable thead tr {
                                     <a
 										href="${baseUrl}/genes/MGI:3583900">Elmod1<sup>tm1b(EUCOMM)Hmgu</sup></a>
                                     <div class="chart" id="ush1c"
-										graphUrl="${baseUrl}/chart?accession=MGI:3583900&parameter_stable_id=IMPC_ABR_006_001&chart_type=UNIDIMENSIONAL_ABR_PLOT&pipeline_stable_id=HRWL_001&zygosity=homozygote&phenotyping_center=MRC%20Harwell&strain_accession_id=MGI:2164831&allele_accession_id=MGI:5548895&metadata_group=e35a6844b77bb571edd0697582d736bb&chart_only=true">
+										graphUrl="${baseUrl}/chart?accession=MGI:3583900&allele_accession_id=MGI:5548895&zygosity=homozygote&parameter_stable_id=IMPC_ABR_004_001&pipeline_stable_id=HRWL_001&phenotyping_center=MRC%20Harwell&chart_only=true&chart_type=UNIDIMENSIONAL_ABR_PLOT">
                                         <div id="spinner_ush1c">
 											<i class="fa fa-refresh fa-spin"></i>
 										</div>

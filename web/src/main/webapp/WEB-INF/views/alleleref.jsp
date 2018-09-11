@@ -33,7 +33,7 @@
                 float: left;
                 border: none;
                 background: none;
-                margin: bottom: 0;
+                margin-bottom: 0;
                 padding-bottom: 0;
             }
             div#tabs > ul li a {
@@ -125,7 +125,7 @@
                 oConf.kw = "";
                 oConf.baseUrl = "${baseUrl}";
                 oConf.rowFormat = true;
-                oConf.orderBy = "date_of_publication DESC"; // default
+                oConf.orderBy = "firstPublicationDate DESC"; // default
                 oConf.id = "alleleRef";
                 $.fn.fetchAlleleRefDataTable2(oConf);
 
@@ -146,7 +146,7 @@
                             $('div#agencyBox').show();
                             var chartWeek = "chartWeek";
                             var chartMonth = "chartMonth";
-                            $.fn.fetchAllelePaperDataPointsIncrement(chartYearIncrease, chartMonthIncrease, chartQuarter, chartGrantQuarter);
+                            $.fn.fetchAllelePaperDataPointsIncrement();//chartYearIncrease, chartMonthIncrease, chartQuarter, chartGrantQuarter);
                         }
                         else if (ui.newTab.index() == 2){
                             $('div#agencyBox').hide();  // container for agency funded papers

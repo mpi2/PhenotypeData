@@ -641,7 +641,7 @@ public class GenePageTest {
         numOccurrences = 0;
         final List<String> expectedSignificantList = Arrays.asList(
                 new String[]{
-                        "Akt2 growth/size/body region phenotype measurements"
+                          "Akt2 growth/size/body region phenotype measurements"
                         , "Akt2 homeostasis/metabolism phenotype or adipose tissue phenotype measurements"
                         , "Akt2 behavior/neurological phenotype or nervous system phenotype measurements"
                         , "Akt2 skeleton phenotype measurements"
@@ -649,7 +649,7 @@ public class GenePageTest {
                 });
         final List<String> expectedNotSignificantList = Arrays.asList(
                 new String[]{
-                        "Akt2 reproductive system phenotype measurements"
+                          "Akt2 reproductive system phenotype measurements"
                         , "Akt2 cardiovascular system phenotype measurements"
                         , "Akt2 digestive/alimentary phenotype or liver/biliary system phenotype measurements"
                         , "Akt2 renal/urinary system phenotype measurements"
@@ -674,9 +674,9 @@ public class GenePageTest {
         List<String> actualNotSignificantList = genePage.getNotSignificantAbnormalities();
         if (actualSignificantList.size() + actualNotSignificantList.size() < expectedSignificantList.size() + expectedNotSignificantList.size()) {
             message = "FAILED [Sum of Significant and Non-Significant Abnormalities (count)]. Expected "
-                    + expectedSignificantList.size() + expectedNotSignificantList.size()
+                    + (expectedSignificantList.size() + expectedNotSignificantList.size())
                     + " strings but found "
-                    + Integer.sum(actualSignificantList.size(), actualNotSignificantList.size()) + ".";
+                    + (actualSignificantList.size() + actualNotSignificantList.size()) + ".";
             masterStatus.addError(message);
             System.out.println(message);
         } else {

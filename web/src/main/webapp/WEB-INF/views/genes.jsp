@@ -154,7 +154,72 @@
 
                     });
 
+                    registerInterest();
+
                 });
+
+
+                function registerInterest() {
+
+                    $('a.regInterest').click(function () {
+
+                        var anchorControl = $(this);
+                        var iconControl = $(anchorControl).find('i');
+                        var endpoint = $(anchorControl).attr('href');
+
+                        var currentAnchorText = $(anchorControl).text().trim();
+
+                        function riSuccess() {
+
+                            if (currentAnchorText.toUpperCase() === 'Unregister Interest'.toUpperCase()) {
+
+                                $(iconControl).removeClass('fa-sign-out');
+                                $(iconControl).addClass('fa-sign-in');
+
+                                endpoint = endpoint.replace('unregistration', 'registration');
+                                $(anchorControl).attr('href', endpoint);
+
+                                $(anchorControl).html('Register interest');
+
+                            } else {
+
+                                // Register -> Unregister
+                                $(iconControl).removeClass('fa-sign-in');
+                                $(iconControl).addClass('fa-sign-out');
+
+                                endpoint = endpoint.replace('registration', 'unregistration');
+                                $(anchorControl).attr('href', endpoint);
+
+                                $(anchorControl).html('Unregister interest');
+                            }
+                        }
+
+                        function riError() {
+                            window.alert('Unable to access register interest service at this time.');
+                        }
+
+                        if (endpoint.includes('login?target')) {
+                            $.ajax({
+                                url: endpoint,
+                                dataType: 'jsonp',
+                                beforeSend: setHeader,
+                                error: riError
+                            });
+                        } else {
+                            $.ajax({
+                                url: endpoint,
+                                dataType: undefined,
+                                beforeSend: undefined,
+                                success: riSuccess,
+                                error: riError
+                            });
+                        }
+
+                        return false;
+                    });
+                }
+
+
             </script>
 
             <link rel="stylesheet" type="text/css" href="${baseUrl}/css/genes.css"/>				

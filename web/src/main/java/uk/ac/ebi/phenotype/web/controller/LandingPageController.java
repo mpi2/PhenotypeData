@@ -1,35 +1,71 @@
 package uk.ac.ebi.phenotype.web.controller;
 
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.json.JSONException;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.Group;
-import org.json.JSONException;
+import org.hibernate.exception.DataException;
+import org.mousephenotype.cda.solr.generic.util.PhenotypeFacetResult;
 import org.mousephenotype.cda.solr.service.*;
 import org.mousephenotype.cda.solr.service.dto.CountTableRow;
+import org.mousephenotype.cda.solr.service.dto.GeneDTO;
 import org.mousephenotype.cda.solr.service.dto.ImpressDTO;
 import org.mousephenotype.cda.solr.service.dto.MpDTO;
+import org.mousephenotype.cda.solr.web.dto.PhenotypeCallSummaryDTO;
+import org.mousephenotype.cda.solr.web.dto.PhenotypePageTableRow;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
+import com.fasterxml.jackson.dataformat.csv.CsvMapper;
+import com.fasterxml.jackson.dataformat.csv.CsvSchema;
+
+import net.minidev.json.parser.JSONParser;
+
+// import com.google.common.io.Files;
+
 import uk.ac.ebi.phenotype.bean.LandingPageDTO;
 import uk.ac.ebi.phenotype.chart.AnalyticsChartProvider;
+import uk.ac.ebi.phenotype.chart.CmgColumnChart;
 import uk.ac.ebi.phenotype.chart.ScatterChartAndTableProvider;
 import uk.ac.ebi.phenotype.error.OntologyTermNotFoundException;
+import uk.ac.ebi.phenotype.web.util.FileExportUtils;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotNull;
+
+import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
+
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.util.ArrayList;
+import java.util.List;
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.core.io.Resource;
+
 
 /**
  * Created by ilinca on 24/10/2016.
@@ -75,63 +111,63 @@ public class LandingPageController {
     }
 
 
-	@RequestMapping("/biological-system")
-	public String getAlleles(Model model, HttpServletRequest request) throws IOException {
-
-        String baseUrl = request.getAttribute("baseUrl").toString();
-
-        List<LandingPageDTO> bsPages = new ArrayList<>();
-        LandingPageDTO cardiovascular = new LandingPageDTO();
-
-        cardiovascular.setTitle("Cardiovascular");
-        cardiovascular.setImage(impcMediaBaseUrl + "/render_thumbnail/211474/400/");
-        cardiovascular.setDescription("This page aims to present cardiovascular system related phenotypes lines which have been produced by IMPC.");
-        cardiovascular.setLink("biological-system/cardiovascular");
-        bsPages.add(cardiovascular);
-
-        // don't show deafness or vision pages on live until ready
-        Boolean isLive= Boolean.valueOf((String) request.getAttribute("liveSite"));
-        
-            LandingPageDTO deafness = new LandingPageDTO();
-            deafness.setTitle("Hearing");
-            deafness.setImage(baseUrl + "/img/landing/deafnessIcon.png");
-            deafness.setDescription("This page aims to relate deafnessnes to phenotypes which have been produced by IMPC.");
-            deafness.setLink("biological-system/hearing");
-            bsPages.add(deafness);
-            if(!isLive){
-	            LandingPageDTO vision = new LandingPageDTO();
-	            vision.setTitle("Vision");
-	            vision.setImage(baseUrl + "/img/landing/deafnessIcon.png");
-	            vision.setDescription("This page aims to relate vision to phenotypes which have been produced by IMPC.");
-	            vision.setLink("biological-system/vision");
-	            bsPages.add(vision);
-	            
-	            LandingPageDTO metabolism = new LandingPageDTO();
-	            metabolism.setTitle("Metabolism");
-	            metabolism.setImage(baseUrl + "/img/landing/deafnessIcon.png");
-	            metabolism.setDescription("This page aims to relate metabolism to phenotypes which have been produced by IMPC.");
-	            metabolism.setLink("biological-system/metabolism");
-	            bsPages.add(metabolism);
-	            
-	            LandingPageDTO cmg = new LandingPageDTO();
-	            cmg.setTitle("Center for Mendelian Genomics ");
-	            cmg.setImage(baseUrl + "/img/landing/cmg-logo_1.png");
-	            cmg.setDescription("This page aims to relate CMG mouse lines to phenotypes which have been produced by IMPC.");
-	            cmg.setLink("biological-system/cmg");
-	            bsPages.add(cmg);
-            }
-
-        model.addAttribute("pages", bsPages);
-
-        return "landing";
-	}
+//	@RequestMapping("/biological-system")
+//	public String getAlleles(Model model, HttpServletRequest request) throws IOException {
+//
+//        String baseUrl = request.getAttribute("baseUrl").toString();
+//
+//        List<LandingPageDTO> bsPages = new ArrayList<>();
+//        LandingPageDTO cardiovascular = new LandingPageDTO();
+//
+//        cardiovascular.setTitle("Cardiovascular");
+//        cardiovascular.setImage(impcMediaBaseUrl + "/render_thumbnail/211474/400/");
+//        cardiovascular.setDescription("This page aims to present cardiovascular system related phenotypes lines which have been produced by IMPC.");
+//        cardiovascular.setLink("biological-system/cardiovascular");
+//        bsPages.add(cardiovascular);
+//
+//        // don't show deafness or vision pages on live until ready
+//        Boolean isLive= Boolean.valueOf((String) request.getAttribute("liveSite"));
+//        
+//            LandingPageDTO deafness = new LandingPageDTO();
+//            deafness.setTitle("Hearing");
+//            deafness.setImage(baseUrl + "/img/landing/deafnessIcon.png");
+//            deafness.setDescription("This page aims to relate deafnessnes to phenotypes which have been produced by IMPC.");
+//            deafness.setLink("biological-system/hearing");
+//            bsPages.add(deafness);
+//            if(!isLive){
+//	            LandingPageDTO vision = new LandingPageDTO();
+//	            vision.setTitle("Vision");
+//	            vision.setImage(baseUrl + "/img/landing/deafnessIcon.png");
+//	            vision.setDescription("This page aims to relate vision to phenotypes which have been produced by IMPC.");
+//	            vision.setLink("biological-system/vision");
+//	            bsPages.add(vision);
+//	            
+//	            LandingPageDTO metabolism = new LandingPageDTO();
+//	            metabolism.setTitle("Metabolism");
+//	            metabolism.setImage(baseUrl + "/img/landing/deafnessIcon.png");
+//	            metabolism.setDescription("This page aims to relate metabolism to phenotypes which have been produced by IMPC.");
+//	            metabolism.setLink("biological-system/metabolism");
+//	            bsPages.add(metabolism);
+//	            
+//	            LandingPageDTO cmg = new LandingPageDTO();
+//	            cmg.setTitle("Center for Mendelian Genomics ");
+//	            cmg.setImage(baseUrl + "/img/landing/cmg-logo_1.png");
+//	            cmg.setDescription("This page aims to relate CMG mouse lines to phenotypes which have been produced by IMPC.");
+//	            cmg.setLink("biological-system/cmg");
+//	            bsPages.add(cmg);
+//            }
+//
+//        model.addAttribute("pages", bsPages);
+//
+//        return "landing";
+//	}
 
     @RequestMapping(value = "/embryo", method = RequestMethod.GET)
     public String loadEmbryoPage(Model model, HttpServletRequest request, RedirectAttributes attributes)
             throws OntologyTermNotFoundException, IOException, URISyntaxException, SolrServerException, SQLException {
 
         AnalyticsChartProvider chartsProvider = new AnalyticsChartProvider();
-        List<String> resources = Arrays.asList( "IMPC"  );
+        List<String> resources = Arrays.asList( "IMPC" );
         Map<String, Set<String>> viabilityRes = os.getViabilityCategories(resources, true);
 
         Map<String, Long> viabilityMap = os.getViabilityCategories(viabilityRes);
@@ -143,62 +179,60 @@ public class LandingPageController {
         return "embryo";
     }
 
+    @RequestMapping(value = "/biological-system/pain", method = RequestMethod.GET)
+    public String loadPainBiologicalSystemPage(Model model, HttpServletRequest request, RedirectAttributes attributes) {
+	    	System.out.println("pain page called");
+	    	return "landing_pain";
+    }
+    
+    @RequestMapping(value = "/biological-system/conservation", method = RequestMethod.GET)
+    public String loadConservaionBiologicalSystemPage(Model model, HttpServletRequest request, RedirectAttributes attributes) {
+	    	System.out.println("conservation page called");
+	    	return "landing_conservation";
+    }
 
     @RequestMapping(value = "/biological-system/{page}", method = RequestMethod.GET)
     public String loadBiologicalSystemPage(@PathVariable String page, Model model, HttpServletRequest request, RedirectAttributes attributes)
             throws OntologyTermNotFoundException, IOException, URISyntaxException, SolrServerException, SQLException, ExecutionException, InterruptedException, JSONException {
 
         String pageTitle = "";
+        String baseUrl = request.getAttribute("baseUrl").toString();
         List<String> resources = new ArrayList<>();
         resources.add("IMPC");
         List<String> anatomyIds = new ArrayList<>(); // corresponding anatomical system, used for images
         MpDTO mpDTO = null;
-
+        ArrayList<JSONObject> cmg_genes = null;
 
         if (page.equalsIgnoreCase("hearing")) { // Need to decide if we want deafness only or top level hearing/vestibular phen
             mpDTO = mpService.getPhenotype("MP:0005377");
             anatomyIds.add("MA:0002443");
             anatomyIds.add("EMAPA:36002");
-            model.addAttribute("shortDescription", "<h3 style='margin-top:0;'>The IMPC is hunting unknown genes responsible for hearing loss by screening knockout mice </h3>" + 
-			      "<ul><li> 360 million people worldwide live with mild to profound hearing loss</li>" +
-			      "<li> 70% hearing loss occurs as an isolated condition (non-syndromic) and 30% with additional phenotypes (syndromic)</li>" +
-			      "<li> The vast majority of genes responsible for hearing loss are unknown </li></ul>");
             pageTitle = "Hearing";
-
-        } else
-        if (page.equalsIgnoreCase("cardiovascular")) {
+        } else if (page.equalsIgnoreCase("cardiovascular")) {
             mpDTO = mpService.getPhenotype("MP:0005385");
             anatomyIds.add("MA:0000010");
             anatomyIds.add("EMAPA:16104");
-            model.addAttribute("shortDescription", "This page introduces <b>cardiovascular</b> related phenotypes present in mouse lines produced by the IMPC. " +
-                    "The cardiovascular system refers to the observable morphological and physiological characteristics of the mammalian heart, blood vessels, or circulatory system that are manifested through development and lifespan.");
-            pageTitle = "Cardiovascular system";
-        }
-        else if (page.equalsIgnoreCase("vision")) {
+            pageTitle = "Cardiovascular System";
+        } else if (page.equalsIgnoreCase("vision")) {
         		mpDTO = mpService.getPhenotype("MP:0005391");
           	anatomyIds.add("EMAPA:36003");
           	anatomyIds.add("MA:0002444");
           	pageTitle = "Vision";
-        }
-        else if (page.equalsIgnoreCase("metabolism")) {
+        } else if (page.equalsIgnoreCase("metabolism")) {
             mpDTO = mpService.getPhenotype("MP:0005376");
-            model.addAttribute("shortDescription", "<h3>The IMPC is increasing our understanding of the genetic basis for metabolic diseases</h3>"
-            		+ "<ul><li>Metabolic diseases, such as obesity and diabetes, affect people worldwide</li>"
-            		+ "<li>The function of many genes in the genome is still unknown</li>"
-            		+ "<li>Knockout mice allow us to understand metabolic procedures and relate them to human disease</li></ul>"
-            		
-            		+ "Press releases:&nbsp;"
-            		//+ " <a target='_blank' href='https://www.ebi.ac.uk/about/news'>EMBL-EBI</a>&nbsp;|&nbsp;\n"
-            		//+ "<a target='_blank' href='https://www.mrc.ac.uk/news/browse/'>MRC</a>&nbsp;|&nbsp;\n"
-            		+ "<a target='_blank' href='http://bit.ly/MetabolismNewsStory'>IMPC</a>"
-            		+ "<br /><a target='_blank' href='http://bit.ly/IMPCMetabolism'>Nature communications publication</a>"
-            		+ "<br /><a target='_blank' href='http://bit.ly/MetabolismSuppMaterial'>Supporting information</a></p>");
             pageTitle = "Metabolism";
-        } 
-        else if (page.equalsIgnoreCase("cmg")) {
+        } else if (page.equalsIgnoreCase("cmg")) {
         		// mpDTO = mpService.getPhenotype("MP:0000001");
-        		model.addAttribute("shortDescription", "<p>The <a href='https://www.mendelian.org/' target='_blank'>Centers for Mendelian Genomics</a> (CMG) is an NIH funded project to use genome-wide sequencing and other genomic approaches to discover the genetic basis underlying as many human Mendelian traits as possible.  The IMPC is helping CMG validate human disease gene variants by creating and characterizing orthologous knockout mice.</p>");
         		pageTitle = "Centers for Mendelian Genomics";
+        		String phenotypeOverlapScoreFile = "cmg_best_phenodigm.json";
+			String cmgOrthologuesJsonFile = "cmg_orthologues_json.json";
+			
+			cmg_genes = GetCmgGenes(cmgOrthologuesJsonFile);
+			cmg_genes = GetBestPhenodigm(phenotypeOverlapScoreFile, cmg_genes);
+			cmg_genes = GetLatestProjectStatus(cmg_genes);
+			
+			// System.out.println(cmg_genes);
+			
         }
         
         //else if (page.equalsIgnoreCase("vision")) {
@@ -278,13 +312,199 @@ public class LandingPageController {
         }
         
         model.addAttribute("pageTitle", pageTitle);
+        
+        if (cmg_genes != null) {
+        	 	model.addAttribute("cmg_genes", cmg_genes);
+        	 	model.addAttribute("columnChart1", CmgColumnChart.getColumnChart(cmg_genes, "tier1", "columnChart1", "CMG Tier 1 candidates", ""));
+        	 	model.addAttribute("columnChart2", CmgColumnChart.getColumnChart(cmg_genes, "tier2", "columnChart2", "CMG Tier 2 candidates", ""));
+        }
 
 //        model.addAttribute("dataJs", getData(null, null, null, mpDTO.getAccession(), request) + ";");
 
         return "landing_" + page;
 
     }
-
+    
+    
+    
+    private ArrayList<JSONObject> GetLatestProjectStatus(ArrayList<JSONObject> cmg_genes_bestphenodigm) throws SolrServerException, IOException, JSONException {
+    		for (JSONObject gene : cmg_genes_bestphenodigm) {
+    			if (!gene.isNull("mouse_orthologue") && !gene.get("mouse_orthologue").equals("") && !gene.get("mouse_orthologue").equals("-")) {
+    				String mouse_orthologue = gene.get("mouse_orthologue").toString();
+    				String latestProjectStatus = geneService.getLatestProjectStatusForGeneSet(mouse_orthologue);
+    				gene.remove("impc_status");
+    				gene.put("impc_status", latestProjectStatus);
+    			} 
+    		}
+    		return cmg_genes_bestphenodigm;
+    }
+    
+    private ArrayList<JSONObject> GetBestPhenodigm (String phenotypeOverlapScoreFile, ArrayList<JSONObject> cmg_genes_information) throws IOException, JSONException {
+    		// reads from /src/main/resources/20171206-CMG-best-phenodigm.json and compose the page
+    		BufferedReader in = new BufferedReader(new FileReader(new ClassPathResource(phenotypeOverlapScoreFile).getFile()));
+    		if (in != null) {
+    			String json = in.lines().collect(Collectors.joining(" "));
+    			JSONArray info = null;
+    			try {
+    				info = new JSONArray(json);
+    			} catch (JSONException e) {
+    				e.printStackTrace();
+    			}
+    			
+    			for (int i = 0; i < info.length(); i++) {
+    				JSONObject jsonObj = null;
+    				try {
+    					jsonObj = info.getJSONObject(i);
+    				} catch (JSONException e) {
+    					e.printStackTrace();
+    				}
+				if (!jsonObj.isNull("gene_id") && !jsonObj.isNull("CMG_disease")) {
+					String gene_id = jsonObj.getString("gene_id");
+					String CMG_disease = jsonObj.getString("CMG_disease");
+					for (JSONObject gene : cmg_genes_information) {
+						if (!gene.isNull("mouse_orthologue") && !gene.isNull("omim_id")) {
+							String mouse_orthologue = gene.getString("mouse_orthologue");
+							String omim_id = gene.getString("omim_id");
+							if (gene_id.equals(mouse_orthologue) && CMG_disease.equals(omim_id)) {  
+								if (!jsonObj.isNull("best_phenoscore_IMPC")) {
+									gene.remove("impc_mouse");
+									gene.put("impc_mouse", jsonObj.get("best_phenoscore_IMPC"));
+								} 
+								if (!jsonObj.isNull("best_phenoscore_MGI")) {
+									gene.remove("published_mouse");
+									gene.put("published_mouse", jsonObj.get("best_phenoscore_MGI"));
+								} 
+								continue;
+							} 
+						} 
+					}
+				}
+    			}
+		}
+    		return cmg_genes_information;
+    }
+    
+    private ArrayList<JSONObject> GetCmgGenes (String file_path_genes) throws IOException, JSONException {
+    		ArrayList<JSONObject> file_content = new ArrayList<JSONObject>();
+    		// reads from /src/main/resources/cmg_orthologues_json.json and compose the page
+    		BufferedReader in = new BufferedReader(new FileReader(new ClassPathResource(file_path_genes).getFile()));
+    		if (in != null) {
+    			String json = in.lines().collect(Collectors.joining(" "));
+    			JSONArray genes = null;
+    			try {
+    				genes = new JSONArray(json);
+    			} catch (JSONException e) {
+    				e.printStackTrace();
+    			}
+    			for (int i = 0; i < genes.length(); i++) {
+    				JSONObject jsonObj = null;
+    				JSONObject jsonObjFiltered = new JSONObject(); 
+    				try {
+    					jsonObj = genes.getJSONObject(i);
+    				} catch (JSONException e) {
+    					e.printStackTrace();
+    				}
+    				try {
+    					if (!jsonObj.isNull("Phenotype")) {
+    						jsonObjFiltered.put("disease", jsonObj.getString("Phenotype"));
+    					} else {
+    						jsonObjFiltered.put("disease", "");
+    					}
+    				} catch (JSONException e) {
+    					e.printStackTrace();
+    				}
+    				try {
+    					if (!jsonObj.isNull("OMIM")) {
+    						jsonObjFiltered.put("omim_id", jsonObj.getString("OMIM"));
+    					} else {
+    						jsonObjFiltered.put("omim_id", "");
+    					}
+    					
+    				} catch (JSONException e) {
+    					e.printStackTrace();
+    				}
+    				try {
+    					if (!jsonObj.isNull("Tier_1_Gene")) {
+    						jsonObjFiltered.put("tier_1_gene", jsonObj.getString("Tier_1_Gene"));
+    					} else {
+    						jsonObjFiltered.put("tier_1_gene", "");
+    					}
+    				} catch (JSONException e) {
+    					e.printStackTrace();
+    				}
+    				try {
+    					if (!jsonObj.isNull("Tier_2_Gene")) {
+    						jsonObjFiltered.put("tier_2_gene", jsonObj.getString("Tier_2_Gene"));
+    					} else {
+    						jsonObjFiltered.put("tier_2_gene", "");
+    					}
+    					
+    				} catch (JSONException e) {
+    					e.printStackTrace();
+    				}
+    				try {
+    					if (!jsonObj.isNull("Approved_symbol")) {
+    						jsonObjFiltered.put("approved_symbol", jsonObj.getString("Approved_symbol"));
+    					} else {
+    						jsonObjFiltered.put("approved_symbol", "");
+    					}
+    				} catch (JSONException e) {
+    					e.printStackTrace();
+    				}
+    				try {
+    					if (!jsonObj.isNull("HGNC_ID")) {
+    						jsonObjFiltered.put("hgnc_id", jsonObj.getString("HGNC_ID"));
+    					} else {
+    						jsonObjFiltered.put("hgnc_id", "");
+    					}
+    				} catch (JSONException e) {
+    					e.printStackTrace();
+    				}
+    				try {
+    					if (!jsonObj.isNull("mgi_id")) {
+    						jsonObjFiltered.put("mouse_orthologue", jsonObj.getString("mgi_id"));
+    					} else {
+    						jsonObjFiltered.put("mouse_orthologue", "");
+    					}
+    				} catch (JSONException e) {
+    					e.printStackTrace();
+    				}
+    				try {
+    					if (!jsonObj.isNull("link_IMPC")) {
+    						jsonObjFiltered.put("link_IMPC", jsonObj.getString("link_IMPC"));
+    					} else {
+    						jsonObjFiltered.put("link_IMPC", "");
+    					}
+    				} catch (JSONException e) {
+    					e.printStackTrace();
+    				}
+    				try {
+    					if (!jsonObj.isNull("support_count")) {
+    						jsonObjFiltered.put("support_count", jsonObj.get("support_count"));
+    					} else {
+    						jsonObjFiltered.put("support_count", "");
+    					}
+    				} catch (JSONException e) {
+    					e.printStackTrace();
+    				}
+    				try {
+    					if (!jsonObj.isNull("support")) {
+    						String list_inferences = jsonObj.getString("support").replaceAll(",", ", ");
+    						jsonObjFiltered.put("support", list_inferences);
+    					} else {
+    						jsonObjFiltered.put("support", "");
+    					}
+    				} catch (JSONException e) {
+    					e.printStackTrace();
+    				}
+    				jsonObjFiltered.put("impc_mouse", "NA");
+    				jsonObjFiltered.put("published_mouse", "NA");
+    				jsonObjFiltered.put("impc_status", "");
+    				file_content.add(jsonObjFiltered);    			
+    			}
+    		}
+    		return file_content;
+    }
 
 	private Set<String> getHearingPublicationGeneSet() {
 		Set<String> filterOnMarkerAccession;

@@ -41,12 +41,6 @@ public class ReportsConfig {
     }
 
     @Bean
-    @ConfigurationProperties(prefix = "datasource.ontodb")
-    public DataSource ontodbDataSource() {
-        return DataSourceBuilder.create().driverClassName("com.mysql.jdbc.Driver").build();
-    }
-
-    @Bean
     @Primary
     @PersistenceContext(name = "komp2Context")
     public LocalContainerEntityManagerFactoryBean emf(EntityManagerFactoryBuilder builder) {
@@ -177,31 +171,5 @@ public class ReportsConfig {
    	@Bean(name = "jdbcDccCurrent")
    	public JdbcTemplate jdbcDccCurrent() {
    		return new JdbcTemplate(dccCurrent());
-   	}
-
-
-
-    @Bean(name = "impressPrevious")
-    @ConfigurationProperties(prefix = "datasource.impress.compare.previous")
-   	public DataSource impressPrevious() {
-           DataSource ds = DataSourceBuilder.create().driverClassName("com.mysql.jdbc.Driver").build();
-   		return ds;
-   	}
-
-   	@Bean(name = "impressCurrent")
-    @ConfigurationProperties(prefix = "datasource.impress.compare.current")
-   	public DataSource impressCurrent() {
-           DataSource ds = DataSourceBuilder.create().build();
-   		return ds;
-   	}
-
-   	@Bean(name = "jdbcImpressPrevious")
-   	public JdbcTemplate jdbcImpressPrevious() {
-   		return new JdbcTemplate(impressPrevious());
-   	}
-
-   	@Bean(name = "jdbcImpressCurrent")
-   	public JdbcTemplate jdbcImpressCurrent() {
-   		return new JdbcTemplate(impressCurrent());
    	}
 }

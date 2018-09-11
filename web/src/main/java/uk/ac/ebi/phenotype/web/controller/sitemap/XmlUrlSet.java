@@ -16,15 +16,10 @@
 
 package uk.ac.ebi.phenotype.web.controller.sitemap;
 
+import javax.xml.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElements;
-import javax.xml.bind.annotation.XmlRootElement;
 
 
 /**
@@ -35,7 +30,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement(name = "urlset")
 public class XmlUrlSet {
 
-    private final static int MAX_SITEMAP_ENTRIES = 500;
+    private final static int MAX_SITEMAP_ENTRIES = 50000;
 
     @XmlElements({@XmlElement(name = "url", type = XmlUrl.class)})
     private final List<XmlUrl> xmlUrls = new ArrayList();

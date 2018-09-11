@@ -14,21 +14,14 @@
 
 <!--  login interest button -->
 <div class="floatright">
-  <c:choose>
-    <c:when
-            test="${registerButtonAnchor!=''}">
-      <p><a class="btn"
-            href='${registerButtonAnchor}'><i
-              class="fa fa-sign-in"></i>${registerInterestButtonString}</a>
-      </p>
-    </c:when>
-    <c:otherwise>
-      <p><a
-              class="btn interest" id='${registerButtonId}'><i
-              class="fa fa-sign-in"></i>${registerInterestButtonString}</a>
-      </p>
-    </c:otherwise>
-  </c:choose>
+
+  <p>
+    <a class="btn" id="${registerButtonId}" href="${registerButtonAnchor}">
+      <i class="${registerIconClass}"></i>
+      ${registerButtonText}
+    </a>
+  </p>
+
   <c:if
           test="${orderPossible}">
     <p><a class="btn"
@@ -75,23 +68,28 @@
 
 <p class="with-label">
   <span id="summaryLinks" class="label">Links</span>
-  <a target="_blank" href="http://www.informatics.jax.org/marker/${gene.mgiAccessionId}" title="see gene page at JAX">${gene.mgiAccessionId}</a>&nbsp;&nbsp;
-  <a target="_blank" href="http://www.ensembl.org/Mus_musculus/Gene/Summary?g=${gene.mgiAccessionId}" title="visualise mouse gene with ensembl genome broswer">Ensembl
-    Gene</a>&nbsp;&nbsp;
-  <!--    <a href="http://www.ensembl.org/Mus_musculus/Location/View?g=${gene.mgiAccessionId};contigviewbottom=das:http://das.sanger.ac.uk/das/ikmc_products=labels">Location&nbsp;View</a>&nbsp;&nbsp;-->
-  <a target="_blank" href="http://www.ensembl.org/Mus_musculus/Location/Compara_Alignments/Image?align=677;db=core;g=${gene.mgiAccessionId}" title="visualise mouse-human gene orthologs with Ensembl comparative genomics   
+  <a target="_blank" href="http://www.informatics.jax.org/marker/${gene.mgiAccessionId}"
+     title="see gene page at JAX">${gene.mgiAccessionId}</a>
+  &nbsp;&nbsp;
 
-browser">Ensembl Orthologs</a>
-    
-    <c:if test="${gene.isIdgGene}">
-    	&nbsp;&nbsp;<a href="${baseUrl}/secondaryproject/idg" title="Illuminating the Druggable Genome mouse-human orthologue">IDG</a>
-    </c:if>
-    
-    
-  
-  <%-- &nbsp; <a href="../genomeBrowser/${acc}" target="new"> IMPC Gene Browser</a> --%>
-  <span
-        id="enu"></span>
+  <a target="_blank" href="http://www.ensembl.org/Mus_musculus/Gene/Summary?g=${gene.mgiAccessionId}"
+     title="visualise mouse gene with ensembl genome broswer">Ensembl Gene</a>
+  &nbsp;&nbsp;
+
+  <a target="_blank"
+     href="http://www.ensembl.org/Mus_musculus/Location/Compara_Alignments/Image?align=677;db=core;g=${gene.mgiAccessionId}"
+     title="visualise mouse-human gene orthologs with Ensembl comparative genomics browser">Ensembl Orthologs</a>
+  &nbsp;&nbsp;
+
+  <a target="_blank" href="${riBaseUrl}/summary" title="Show your genes of interest">My Genes</a>
+  &nbsp;&nbsp;
+
+  <c:if test="${gene.isIdgGene}">
+    <a href="${baseUrl}/secondaryproject/idg" title="Illuminating the Druggable Genome mouse-human orthologue">IDG</a>
+    &nbsp;&nbsp;
+  </c:if>
+
+  <span id="enu"></span>
 </p>
 
 <c:if test="${viabilityCalls != null && viabilityCalls.size() > 0}">

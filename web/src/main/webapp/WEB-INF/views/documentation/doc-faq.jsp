@@ -47,12 +47,12 @@
         <li>What is the current version of IMPC release?<br>
           <p>The current version of release can be found on the bottom right of every page in the footer.</p>
         </li>
-        <li><a href="${baseUrl}/documentation/doc-explore#phenoAssocSection0">Find gene to phenotype associations, allele maps and more</a></li>
+        <li><a href="${baseUrl}/documentation/doc-explore#0">Find gene to phenotype associations, allele maps and more</a></li>
         <li><a href="${baseUrl}/documentation/doc-explore#1">Find a list of genes associated with a phenotype, assays used to measure the phenotype and more</a></li>
         <li><a href="${baseUrl}/documentation/doc-explore#2">Find genes associated with rare diseases</a></li>
         <li><a href="${baseUrl}/documentation/doc-explore#4">Retrieve LacZ and phenotype images</a></li>
-        <li><a href="${baseUrl}/documentation/graph-help.html">Learn how we visualize phenotype data</a></li>
-        <li><a href="${baseUrl}/documentation/statistics-help.html">Learn about the statistical tests used to determine gene to phenotype associations</a></li>
+        <li><a href="${baseUrl}/documentation/doc-explore#5">Learn how we visualize phenotype data</a></li>
+        <li><a href="${baseUrl}/documentation/doc-method">Learn about the statistical tests used to determine gene to phenotype associations</a></li>
 
       </ul>
 

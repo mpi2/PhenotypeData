@@ -1341,6 +1341,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 				.addField(StatisticalResultDTO.PROCEDURE_STABLE_ID)
 				.addField(StatisticalResultDTO.MARKER_ACCESSION_ID)
 				.addField(StatisticalResultDTO.TOP_LEVEL_MP_TERM_NAME)
+				.addField(StatisticalResultDTO.MP_TERM_NAME)
 				.addField(StatisticalResultDTO.MARKER_SYMBOL)
 				.addField(StatisticalResultDTO.STATUS)
 				.addField(StatisticalResultDTO.SIGNIFICANT)
@@ -1362,17 +1363,30 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 
 			for (SolrDocument doc : docs) {
 				List<String> currentTopLevelMps = (ArrayList<String>)doc.get(StatisticalResultDTO.TOP_LEVEL_MP_TERM_NAME);
-				for (String mp : currentTopLevelMps) {
-					HeatMapCell cell = row.getXAxisToCellMap().containsKey(mp) ? row.getXAxisToCellMap().get(mp) : new HeatMapCell(mp, HeatMapCell.THREE_I_NO_DATA);
-					if (doc.getFieldValue(StatisticalResultDTO.SIGNIFICANT) != null && doc.getFieldValue(StatisticalResultDTO.SIGNIFICANT).toString().equalsIgnoreCase("true")) {
-						cell.addStatus(HeatMapCell.THREE_I_DEVIANCE_SIGNIFICANT);
-					} else if (doc.getFieldValue(StatisticalResultDTO.STATUS).toString().equals("Success")) {
-						cell.addStatus(HeatMapCell.THREE_I_DATA_ANALYSED_NOT_SIGNIFICANT);
-					} else {
-						cell.addStatus(HeatMapCell.THREE_I_COULD_NOT_ANALYSE);
-					}
 
-					row.add(cell);
+				// The current top level might be null, because the actual term is already a top level,
+				// check the associated mp term to see, and add it if it's already top-level
+				if (currentTopLevelMps == null) {
+					if (topLevelMps.stream().anyMatch(x -> x.getName().equals(doc.getFieldValue(StatisticalResultDTO.MP_TERM_NAME).toString()))) {
+						currentTopLevelMps = new ArrayList<>();
+						currentTopLevelMps.add(doc.getFieldValue(StatisticalResultDTO.MP_TERM_NAME).toString());
+					}
+				}
+
+				// The term might have been annotated to "mammalian phenotype" which doesn't have an icon in the grid.  Skip it
+				if (currentTopLevelMps!= null) {
+					for (String mp : currentTopLevelMps) {
+						HeatMapCell cell = row.getXAxisToCellMap().containsKey(mp) ? row.getXAxisToCellMap().get(mp) : new HeatMapCell(mp, HeatMapCell.THREE_I_NO_DATA);
+						if (doc.getFieldValue(StatisticalResultDTO.SIGNIFICANT) != null && doc.getFieldValue(StatisticalResultDTO.SIGNIFICANT).toString().equalsIgnoreCase("true")) {
+							cell.addStatus(HeatMapCell.THREE_I_DEVIANCE_SIGNIFICANT);
+						} else if (doc.getFieldValue(StatisticalResultDTO.STATUS).toString().equals("Success")) {
+							cell.addStatus(HeatMapCell.THREE_I_DATA_ANALYSED_NOT_SIGNIFICANT);
+						} else {
+							cell.addStatus(HeatMapCell.THREE_I_COULD_NOT_ANALYSE);
+						}
+
+						row.add(cell);
+					}
 				}
 			}
 			geneRowMap.put(geneAcc,row);
@@ -1613,8 +1627,13 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 		if (sex != null) {
 			q.addFilterQuery("(" + StatisticalResultDTO.PHENOTYPE_SEX + ":" + sex.getName() + " OR " + StatisticalResultDTO.SEX + ":" + sex.getName() + ")");
 		}
+		
+		System.out.println("Query: " + q);
 
-		QueryResponse results = solr.query(q);
+		QueryResponse results = solr.query(q); 
+		
+		System.out.println("Results: " + results.getGroupResponse().getValues().get(0).getValues().size());
+		
 		return results.getGroupResponse().getValues().get(0).getValues();
 	}
 

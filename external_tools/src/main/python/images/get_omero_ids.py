@@ -43,17 +43,36 @@ def main(argv):
                         help='Hostname for server hosting omero instance'
     )
     parser.add_argument('--profile', dest='profile', default='dev',
-                        help='profile from which to read config: dev, prod, live, ...')
+                        help='Name of profile from which to read config: ' + \
+                             'dev, prod, live, ... Assumed to be present ' + \
+                             'in configfiles/profilename/application.properties'
+    )
+    parser.add_argument('--profile-path', dest='profilePath',
+                        help='Explicit path to file from which to read ' + \
+                             'profile e.g. ' + \
+                             '/home/kola/configfiles/dev/application.properties'
+    )
 
     args = parser.parse_args()
     
     # Get values from property file and use as defaults that can be overridden
     # by command line parameters
-    try:
-        pp = OmeroPropertiesParser(args.profile)
-        omeroProps = pp.getOmeroProps()
-    except:
-        omeroProps = {}
+    if args.profilePath is not None:
+        try:
+            pp = OmeroPropertiesParser()
+            omeroProps = pp.getOmeroProps(args.profilePath)
+        except Exception as e:
+            print "Could not read application properties file from " + args.profilePath
+            print "Error was: " + str(e)
+            return
+    else:
+        try:
+            pp = OmeroPropertiesParser(args.profile)
+            omeroProps = pp.getOmeroProps()
+        except Exception as e:
+            print "Could not read application properties file for profile " + args.profile
+            print "Error was: " + str(e)
+            return
 
     komp2Host = args.komp2Host if args.komp2Host<>None else omeroProps['komp2host']
     print "setting komp2Host="+komp2Host
@@ -177,7 +196,29 @@ def getOmeroIdsAndPaths(dbConn, omeroUser, omeroPass, omeroHost, omeroPort, full
                     originalUploadedFilePathToOmero=path[0].val
                     #print originalUploadedFilePathToOmero
                     #print originalUploadedFilePathToOmero+" id="+str(image.getId())
-                    storeOmeroId(dbConn, image.getId(), originalUploadedFilePathToOmero, fullResPathsAlreadyHave )
+
+                    # If this is a leica (.lif or .lei) file do the matching differently
+                    # The convention for leica files is to store them in a subdirectory named based on the
+                    # filename e.g. 160229.lif is stored in:
+                    #               WTSI/MGP_001/MGP_EEI_001/MGP_EEI_114_001/160229/160229.lif
+                    # and 130918.lei is stored in:
+                    #               WTSI/MGP_001/MGP_EEI_001/MGP_EEI_114_001/130918/130918.lei
+                    if originalUploadedFilePathToOmero.find('.lif') > 0 or originalUploadedFilePathToOmero.find('.lei') > 0:
+                        # Get all images stored in the same file
+                        query = 'SELECT id, name FROM Image WHERE fileset.id = :id'
+                        original_path,original_im_name = os.path.split(originalUploadedFilePathToOmero)
+                        for im_details in conn.getQueryService().projection(query, params):
+                            omero_id = im_details[0].val
+                            omero_im_name = im_details[1].val
+                            # Omero appends the mouse number to the filename to uniquely identify an image
+                            # e.g for M012345678 in 160229, the omero_im_name is '160229.lif [M012345678]'
+                            # which is also part of the path stored in solr & the komp2 database, so we 
+                            # modify the filename accordingly
+                            if omero_im_name.find(original_im_name) >= 0:
+                                modifiedUploadedFilePathToOmero = originalUploadedFilePathToOmero.replace(original_im_name, omero_im_name)
+                                storeOmeroId(dbConn, omero_id, modifiedUploadedFilePathToOmero, fullResPathsAlreadyHave )
+                    else:
+                        storeOmeroId(dbConn, image.getId(), originalUploadedFilePathToOmero, fullResPathsAlreadyHave )
             #print "\nProject="+project.getName()+"Annotations on Dataset:", dataset.getName()
             for ann in dataset.listAnnotations():
                 #filesetId=ann.getId()

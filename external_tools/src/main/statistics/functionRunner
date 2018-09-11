@@ -1,0 +1,15 @@
+#!/bin/bash
+
+#PROFILE
+
+FILEPATH=REPLACE_DIR/functions
+source ${FILEPATH}/phenstat.profile
+export PATH=~/tex/2017/bin/x86_64-linux/:$PATH
+
+# 
+# Run the process with weight modelled in
+# 
+ARGS="${FILEPATH}/function.R --file=$1 --result=${FILEPATH}/../result --mapfile=${FILEPATH}/functionMethodMap --eqfile=${FILEPATH}/functionEquationMap --withWeight=TRUE"
+echo running: [Rscript ${ARGS}]
+Rscript ${ARGS}
+

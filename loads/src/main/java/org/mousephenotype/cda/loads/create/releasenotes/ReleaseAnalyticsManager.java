@@ -97,14 +97,14 @@ public class ReleaseAnalyticsManager {
      */
     public static final String[] analyticsTableCreation = new String[]{
 
-            "drop table if exists analytics_lines_procedures",
+            "drop table if exists analytics_lines_procedures;",
             "create table analytics_lines_procedures select count(distinct ls.colony_id) as nb_mutant_lines, org.name as phenotyping_center, ex.procedure_stable_id, pp.name as procedure_name from biological_sample bs join observation o on o.biological_sample_id = bs.id join live_sample ls on ls.id = bs.id join experiment_observation exo on exo.observation_id = o.id join experiment ex on ex.id = exo.experiment_id join phenotype_procedure pp on ex.procedure_id = pp.id join organisation org on org.id = ex.organisation_id where bs.sample_group = 'experimental' and bs.db_id = 22 group by ex.procedure_stable_id, org.name;",
-            "drop table if exists analytics_significant_calls_procedures",
+            "drop table if exists analytics_significant_calls_procedures;",
             "create table analytics_significant_calls_procedures select count(pcs.p_value) as significant_calls, o.name as phenotyping_center, pp.stable_id as procedure_stable_id, pp.name as procedure_name from phenotype_call_summary pcs join phenotype_procedure pp on pp.id = pcs.procedure_id join organisation o on o.id = pcs.organisation_id where pcs.external_db_id = 22 and p_value <= 0.0001 group by o.name, pp.stable_id order by o.name asc;",
-            "drop table if exists analytics_pvalue_distribution",
+            "drop table if exists analytics_pvalue_distribution;",
             "create table analytics_pvalue_distribution (datatype varchar(50) NOT NULL, statistical_method varchar(200) NOT NULL, pvalue_bin float NOT NULL, interval_scale float NOT NULL, pvalue_count int(10) not null) COLLATE=utf8_general_ci ENGINE=MyISAM;",
-            "truncate table analytics_mp_calls",
-            "ALTER TABLE analytics_mp_calls AUTO_INCREMENT = 1"
+            "truncate table analytics_mp_calls;",
+            "ALTER TABLE analytics_mp_calls AUTO_INCREMENT = 1;"
     };
 
     public static final String[] statisticalMethods = new String[]{

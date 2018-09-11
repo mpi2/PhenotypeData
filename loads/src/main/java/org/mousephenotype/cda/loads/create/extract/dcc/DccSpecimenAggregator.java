@@ -98,8 +98,9 @@ public class DccSpecimenAggregator implements CommandLineRunner {
 
     private DataSource  dccDataSource;
     private DccSqlUtils dccSqlUtils;
-@Autowired
-NamedParameterJdbcTemplate jdbcDcc;
+
+    @Autowired
+    NamedParameterJdbcTemplate jdbcDcc;
 
     public DccSpecimenAggregator(
             DataSource dccDataSource,
@@ -110,7 +111,7 @@ NamedParameterJdbcTemplate jdbcDcc;
     }
 
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
         SpringApplication app = new SpringApplication(DccSpecimenAggregator.class);
         app.setBannerMode(Banner.Mode.OFF);
         app.setLogStartupInfo(false);
@@ -118,7 +119,7 @@ NamedParameterJdbcTemplate jdbcDcc;
     }
 
     @Override
-    public void run(String... args) throws Exception {
+    public void run(String... args) throws DataLoadException {
 
         initialize(args);
         run();
@@ -136,7 +137,8 @@ NamedParameterJdbcTemplate jdbcDcc;
          */
         parser.accepts("filename").withRequiredArg().ofType(String.class);
 
-        // parameter to indicate profile (subdirectory of configfiles containing application.properties). The dcc database defined in this file is where specimens2 will be created/written.
+        // parameter to indicate profile (subdirectory of configfiles containing application.properties). The dcc database defined in this file is where specimens will be created/written.
+        // NOTE: 'profile' is not required by this code, but it is passed in on the command line and consumed by the XxxConfig classes.
         parser.accepts("profile").withRequiredArg().ofType(String.class);
 
         OptionSet options = parser.parse(args);

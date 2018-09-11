@@ -69,7 +69,7 @@ public class DccSpecimenExtractor implements CommandLineRunner {
     }
 
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
         SpringApplication app = new SpringApplication(DccSpecimenExtractor.class);
         app.setBannerMode(Banner.Mode.OFF);
         app.setLogStartupInfo(false);
@@ -77,7 +77,7 @@ public class DccSpecimenExtractor implements CommandLineRunner {
     }
 
     @Override
-    public void run(String... args) throws Exception {
+    public void run(String... args) throws DataLoadException {
 
         initialize(args);
         run();
