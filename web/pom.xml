@@ -306,6 +306,31 @@
             <artifactId>spring-boot-starter-data-mongodb</artifactId>
         </dependency>
 
+        <!-- Register Interest core dependency -->
+        <dependency>
+            <groupId>org.mousephenotype.ri</groupId>
+            <artifactId>core</artifactId>
+            <version>1.0.0-RELEASE</version>
+        </dependency>
+
+        <!-- springframework.boot-->
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+            <version>RELEASE</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <!-- springframework.security-->
+
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-test</artifactId>
+            <!--<version>5.0.7.RELEASE</version>-->
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 
     <build>
