@@ -20,7 +20,7 @@ import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import org.mousephenotype.cda.loads.common.CdaSqlUtils;
 import org.mousephenotype.cda.loads.common.DccSqlUtils;
-import org.mousephenotype.cda.loads.create.extract.dcc.config.ExtractDccConfigBeans;
+//import org.mousephenotype.cda.loads.create.extract.dcc.config.ExtractDccConfigBeans;
 import org.mousephenotype.cda.loads.exceptions.DataLoadException;
 import org.mousephenotype.dcc.exportlibrary.datastructure.core.specimen.*;
 import org.mousephenotype.dcc.exportlibrary.datastructure.core.common.*;
