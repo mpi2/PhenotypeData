@@ -78,7 +78,7 @@ public class DataTableController {
 	private GeneService geneService;
 
 	@Autowired
-	ExpressionService expressionService;
+    ExpressionService expressionService;
 
 	@Autowired
 	private RegisterInterestUtils riUtils;
@@ -102,10 +102,6 @@ public class DataTableController {
 
 	@Autowired
 	private ReferenceDAO referenceDAO;
-
-	@NotNull
-	@Value("${riBaseUrl}")
-	private String riBaseUrl;
 
 	@NotNull
 	@Value("${paBaseUrl}")
@@ -218,7 +214,7 @@ public class DataTableController {
 			results.addAll(solrResponse.getResults());
 		}
 
-		String mode = "onPage";
+		String         mode = "onPage";
 		BatchQueryForm form = new BatchQueryForm(mode, request, results, fllist, dataTypeName, queryIds);
 		//System.out.println(form.j.toString());
 
@@ -605,7 +601,7 @@ public class DataTableController {
 			boolean loggedIn = false;
 			try {
 
-				loggedIn = riUtils.isLoggedIn(request);
+				loggedIn = riUtils.isLoggedIn();
 
 			} catch (Exception e) {
 				// Nothing to do. If register interest service isn't working, a 500 is thrown. Handle as unauthenticated.
@@ -614,8 +610,8 @@ public class DataTableController {
 			String target = paBaseUrl + "/search/gene?" + request.getQueryString();
 
 			if (loggedIn) {
-				Map<String, List<String>> geneAccessionIdMap = riUtils.getGeneAccessionIds(request);
-				List<String> geneAccessionIds = geneAccessionIdMap.get("geneAccessionIds");
+
+				List<String> geneAccessionIds = riUtils.getGeneAccessionIds();
 
 				if (geneAccessionIds.contains(mgiId)) {
 
@@ -623,7 +619,7 @@ public class DataTableController {
 							+ "<i class='fa fa-sign-out'></i>"
 							+ "<a id='" + doc.getString("mgi_accession_id")
 							+ "' class='regInterest primary interest' href='"
-							+ paBaseUrl + "/riUnregistration/gene?geneAccessionId=" + doc.getString("mgi_accession_id")
+							+ paBaseUrl + "/unregistration/gene?geneAccessionId=" + doc.getString("mgi_accession_id")
 							+ "&target=" + target
 							+ "'>&nbsp;Unregister Interest</a>"
 							+ "</div>";
@@ -635,7 +631,7 @@ public class DataTableController {
 							+ "<i class='fa fa-sign-in'></i>"
 							+ "<a id='" + doc.getString("mgi_accession_id")
 							+ "' class='regInterest primary interest' href='"
-							+ paBaseUrl + "/riRegistration/gene?geneAccessionId=" + doc.getString("mgi_accession_id")
+							+ paBaseUrl + "/registration/gene?geneAccessionId=" + doc.getString("mgi_accession_id")
 							+ "&target=" + target
 							+ "'>&nbsp;Register Interest</a>"
 							+ "</div>";
@@ -649,7 +645,7 @@ public class DataTableController {
 
 				href
 						.append("href='")
-						.append(paBaseUrl).append("/riLogin")
+						.append(paBaseUrl).append("/login")
 						.append("?target=" + target)
 						.append("'");
 				String interest = "<div class='registerforinterest' oldtitle='Login to register interest' title=''>"
@@ -1118,9 +1114,9 @@ public class DataTableController {
 
 				List<String> rowData = new ArrayList<String>();
 
-				AnnotNameValCount annot = annots.get(i);
-				String displayAnnotName = annot.getName();
-				String annotVal = annot.getVal();
+				AnnotNameValCount annot            = annots.get(i);
+				String            displayAnnotName = annot.getName();
+				String            annotVal         = annot.getVal();
 
 				String qryStr = query.replaceAll("\"", "");
 				String displayLabel = annotVal;
@@ -1882,8 +1878,8 @@ public class DataTableController {
 
 		List<String> pmidQryStr = new ArrayList<>();
 		pmidQryStr.add("ext_id:" + pmid);
-		Map<Integer, PaperController.Pubmed> pd = paperController.fetchEuropePubmedData(pmidQryStr);
-		PaperController.Pubmed pub = pd.get(pmid);
+		Map<Integer, PaperController.Pubmed> pd  = paperController.fetchEuropePubmedData(pmidQryStr);
+		PaperController.Pubmed               pub = pd.get(pmid);
 
 		return pub;
 	}

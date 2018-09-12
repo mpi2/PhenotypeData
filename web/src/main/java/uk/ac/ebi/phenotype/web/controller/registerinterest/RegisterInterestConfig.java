@@ -14,12 +14,13 @@
  * License.
  ******************************************************************************/
 
-package uk.ac.ebi;
+package uk.ac.ebi.phenotype.web.controller.registerinterest;
 
 import org.mousephenotype.ri.core.services.CoreService;
 import org.mousephenotype.ri.core.services.GenerateService;
 import org.mousephenotype.ri.core.services.SendService;
 import org.mousephenotype.ri.core.utils.SqlUtils;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Bean;
@@ -47,7 +48,7 @@ public class RegisterInterestConfig {
 
     @NotNull
     @Value("${datasource.ri.url}")
-    private String riUrl;
+    private String riDbUrl;
 
     @Bean
     public NamedParameterJdbcTemplate jdbc() {
@@ -60,8 +61,9 @@ public class RegisterInterestConfig {
     }
 
     @Bean
+    @Qualifier("riDataSource")
     public DataSource riDataSource() {
-        return SqlUtils.getConfiguredDatasource(riUrl, dbUsername, dbPassword);
+        return SqlUtils.getConfiguredDatasource(riDbUrl, dbUsername, dbPassword);
     }
 
 
@@ -82,13 +84,6 @@ public class RegisterInterestConfig {
     @NotNull
     @Value("${mail.smtp.replyto}")
     private String smtpReplyto;
-
-
-
-
-    @NotNull
-    @Value("${riBaseUrl}")
-    String riBaseUrl;
 
     @NotNull
     @Value("${paBaseUrl}")
@@ -124,10 +119,6 @@ public class RegisterInterestConfig {
         return paBaseUrl;
     }
 
-    @Bean
-    public String riBaseUrl() {
-        return riBaseUrl;
-    }
 
     @Bean
     public String drupalBaseUrl() {
@@ -136,6 +127,6 @@ public class RegisterInterestConfig {
 
     @Bean
     public CoreService coreService() {
-        return new CoreService(new GenerateService(paBaseUrl, riBaseUrl, sqlUtils()), new SendService(sqlUtils()));
+        return new CoreService(new GenerateService(paBaseUrl, sqlUtils()), new SendService(sqlUtils()));
     }
 }

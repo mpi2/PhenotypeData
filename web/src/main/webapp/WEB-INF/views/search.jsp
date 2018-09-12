@@ -18,7 +18,7 @@
 	<jsp:body>
 
 		<div id="myGenes">
-			<a href="${riBaseUrl}/summary" title="Show your genes of interest">My Genes</a>
+			<a href="${paBaseUrl}/summary" title="Show your genes of interest">My Genes</a>
 		</div>
 
 		<br />
@@ -636,7 +636,7 @@
                                 $(iconControl).removeClass('fa-sign-out');
                                 $(iconControl).addClass('fa-sign-in');
 
-                                endpoint = endpoint.replace('ruUnregistration', 'riRegistration');
+                                endpoint = endpoint.replace('unregistration', 'registration');
                                 $(anchorControl).attr('href', endpoint);
 
                                 currentAnchorText = currentAnchorText.replace('Unregister', 'Register');
@@ -651,7 +651,7 @@
                                 $(iconControl).removeClass('fa-sign-in');
                                 $(iconControl).addClass('fa-sign-out');
 
-                                endpoint = endpoint.replace('riRegistration', 'riUnregistration');
+                                endpoint = endpoint.replace('registration', 'unregistration');
                                 $(anchorControl).attr('href', endpoint);
 
                                 currentAnchorText = currentAnchorText.replace('Register', 'Unregister');

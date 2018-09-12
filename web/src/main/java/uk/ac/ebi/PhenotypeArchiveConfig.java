@@ -69,10 +69,6 @@ public class PhenotypeArchiveConfig {
     private String liveSite;
 
     @NotNull
-    @Value("${riBaseUrl}")
-    private String riBaseUrl;
-
-    @NotNull
     @Value("${paBaseUrl}")
     private String paBaseUrl;
 
@@ -103,7 +99,6 @@ public class PhenotypeArchiveConfig {
         map.put("pdfThumbnailUrl", pdfThumbnailUrl);
         map.put("googleAnalytics", googleAnalytics);
         map.put("liveSite", liveSite);
-        map.put("riBaseUrl", riBaseUrl);
         map.put("paBaseUrl", paBaseUrl);
         return map;
     }

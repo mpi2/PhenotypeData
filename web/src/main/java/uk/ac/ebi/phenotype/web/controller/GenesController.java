@@ -329,7 +329,7 @@ public class GenesController {
         boolean               loggedIn = false;
         try {
 
-            loggedIn = riUtils.isLoggedIn(request);
+            loggedIn = riUtils.isLoggedIn();
 
         } catch (Exception e) {
             // Nothing to do. If register interest service isn't working, a 500 is thrown. Handle as unauthenticated.
@@ -339,7 +339,7 @@ public class GenesController {
         String paBaseUrl = config.get("paBaseUrl");
         String registerButtonText = "Login to register interest";
         String registerButtonAnchor = new StringBuilder()
-                .append(paBaseUrl).append("/riLogin")
+                .append(paBaseUrl).append("/login")
                 .append("?target=" + paBaseUrl + "/genes/" + acc)
                 .toString();
 
@@ -348,20 +348,19 @@ public class GenesController {
 
         if (loggedIn) {
 
-            Map<String, List<String>> geneAccessionIdMap = riUtils.getGeneAccessionIds(request);
-            List<String> geneAccessionIds = geneAccessionIdMap.get("geneAccessionIds");
+            List<String> geneAccessionIds = riUtils.getGeneAccessionIds();
 
             if (geneAccessionIds.contains(acc)) {
 
                 registerIconClass = "fa fa-sign-out";
                 registerButtonText = "Unregister interest";
-                registerButtonAnchor = paBaseUrl + "/riUnregistration/gene?geneAccessionId=" + acc + "&target=" + paBaseUrl + "/genes/" + acc;
+                registerButtonAnchor = paBaseUrl + "/unregistration/gene?geneAccessionId=" + acc + "&target=" + paBaseUrl + "/genes/" + acc;
 
             } else {
 
                 registerIconClass = "fa fa-sign-in";
                 registerButtonText = "Register interest";
-                registerButtonAnchor = paBaseUrl + "/riRegistration/gene?geneAccessionId=" + acc + "&target=" + paBaseUrl + "/genes/" + acc;
+                registerButtonAnchor = paBaseUrl + "/registration/gene?geneAccessionId=" + acc + "&target=" + paBaseUrl + "/genes/" + acc;
             }
         }
 

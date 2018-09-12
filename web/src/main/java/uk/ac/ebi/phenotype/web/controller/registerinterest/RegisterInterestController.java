@@ -14,7 +14,7 @@
  * License.
  *******************************************************************************/
 
-package uk.ac.ebi.phenotype.web.controller;
+package uk.ac.ebi.phenotype.web.controller.registerinterest;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -30,10 +30,7 @@ import org.mousephenotype.ri.core.utils.SqlUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -45,10 +42,8 @@ import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.client.RestTemplate;
 import uk.ac.ebi.phenotype.generic.util.RegisterInterestUtils;
 
-import javax.annotation.Resource;
 import javax.inject.Inject;
 import javax.mail.Message;
 import javax.servlet.http.HttpServletRequest;
@@ -57,7 +52,6 @@ import javax.servlet.http.HttpSession;
 import java.security.SecureRandom;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 
@@ -65,89 +59,6 @@ import java.util.stream.Collectors;
 public class RegisterInterestController {
 
     private final Logger log = LoggerFactory.getLogger(this.getClass().getCanonicalName());
-
-    @Resource(name = "globalConfiguration")
-    private Map<String, String> config;
-
-//    @NotNull
-//    @Value("${riBaseUrl}")
-//    private String riBaseUrl;
-//
-//    @NotNull
-//    @Value("${paBaseUrl}")
-//    private String paBaseUrl;
-
-    @Autowired
-    private RegisterInterestUtils riUtils;
-
-
-    @RequestMapping(value = "/riRegistration/gene", method = RequestMethod.GET)
-    public String riRegistrationGene(
-            @RequestParam("geneAccessionId") String geneAccessionId,
-            @RequestParam("target") String target,
-            HttpServletRequest request,
-            HttpServletResponse response) {
-
-        riUtils.registerGene(request, response, geneAccessionId);
-        return "redirect:" + target;
-    }
-
-    /**
-     * This endpoint is called to log in to Register Interest. After a successful login, the caller is redirected back
-     * to {code target} along with the Register Interest JSESSIONID token.
-     *
-     * @param target The target to redirect to after successful authentication
-     * @return
-     */
-    @RequestMapping(value = "/riLogin", method = RequestMethod.GET)
-    public String riLogin(
-            @RequestParam(value = "target", required = false) String target) {
-
-        if (target == null) {
-            target = paBaseUrl + "/search/gene?kw=*";
-        }
-
-        return "redirect:" + riBaseUrl + "/login?target=" + target;
-    }
-
-    @RequestMapping(value = "/riSuccessHandler", method = RequestMethod.GET)
-    public String riSuccessHandler(
-            @RequestParam(value = "target", required = false) String target,
-            @RequestParam(value = "riToken", required = false) String riToken,
-            HttpServletRequest request
-    ) {
-
-        if (target == null) {
-            target = paBaseUrl + "/search/gene?kw=*";
-        }
-
-        if (riToken != null) {
-            request.getSession().setAttribute("riToken", riToken);
-        }
-
-        return "redirect:" + target;
-    }
-
-    @RequestMapping(value = "/riUnregistration/gene", method = RequestMethod.GET)
-    public String riUnregistrationGene(
-            @RequestParam("geneAccessionId") String geneAccessionId,
-            @RequestParam("target") String target,
-            HttpServletRequest request) {
-
-        riUtils.unregisterGene(request, geneAccessionId);
-        return "redirect:" + target;
-    }
-
-
-
-
-
-
-
-
-
-
-
 
     private final int PASSWORD_CHANGE_TTL_MINUTES = 10;
 
@@ -195,7 +106,7 @@ public class RegisterInterestController {
     public final static String TITLE_UNREGISTER_GENE_FAILED     = "Gene unregistration failed.";
     public final static String TITLE_SEND_MAIL_FAILED           = "Mail server is down";
 
-    private final org.slf4j.Logger logger        = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger        = LoggerFactory.getLogger(this.getClass());
     private       CoreService      coreService;
     private       DateUtils        dateUtils     = new DateUtils();
     private       EmailUtils       emailUtils    = new EmailUtils();
@@ -204,7 +115,6 @@ public class RegisterInterestController {
     // Properties
     private String          drupalBaseUrl;
     private String          paBaseUrl;
-    private String          riBaseUrl;
     private PasswordEncoder passwordEncoder;
     private SqlUtils        sqlUtils;
     private String          smtpFrom;
@@ -213,18 +123,9 @@ public class RegisterInterestController {
     private String          smtpReplyto;
 
 
-
-
-
-
-
-
-
-
     @Inject
     public RegisterInterestController(
             String paBaseUrl,
-            String riBaseUrl,
             String drupalBaseUrl,
             PasswordEncoder passwordEncoder,
             SqlUtils sqlUtils,
@@ -235,7 +136,6 @@ public class RegisterInterestController {
             CoreService coreService
     ) {
         this.paBaseUrl = paBaseUrl;
-        this.riBaseUrl = riBaseUrl;
         this.drupalBaseUrl = drupalBaseUrl;
         this.passwordEncoder = passwordEncoder;
         this.sqlUtils = sqlUtils;
@@ -244,12 +144,6 @@ public class RegisterInterestController {
         this.smtpPort = smtpPort;
         this.smtpReplyto = smtpReplyto;
         this.coreService = coreService;
-    }
-
-
-    @RequestMapping(value = {"/"})
-    public String root() {
-        return "redirect:" + riBaseUrl + "/summary";
     }
 
 
@@ -271,7 +165,6 @@ public class RegisterInterestController {
         }
 
         HttpSession session = request.getSession();
-        session.setAttribute("riBaseUrl", riBaseUrl);
         session.setAttribute("paBaseUrl", paBaseUrl);
         session.setAttribute("drupalBaseUrl", drupalBaseUrl);
 
@@ -284,7 +177,7 @@ public class RegisterInterestController {
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
-        // Access is denied. Return to errorPage page.
+        // Access is denied. Return to ri_errorPage page.
         model.addAttribute("title", TITLE_INVALID_CREDENTIALS);
         model.addAttribute("error", ERR_INVALID_CREDENTIALS);
 
@@ -293,7 +186,7 @@ public class RegisterInterestController {
 
         sleep(SHORT_SLEEP_SECONDS);
 
-        return "errorPage";
+        return "ri_errorPage";
     }
 
 
@@ -310,54 +203,46 @@ public class RegisterInterestController {
             new SecurityContextLogoutHandler().logout(request, response, auth);
         }
 
-        return "redirect:" + riBaseUrl + "/summary";
+        return "redirect:" + paBaseUrl + "/summary";
     }
 
 
-    @RequestMapping(value = "/registration/gene", method = RequestMethod.POST)
+    @Secured("ROLE_USER")
+    @RequestMapping(value = "/registration/gene", method = RequestMethod.GET)
     public String registrationGene(
-            HttpServletRequest request,
-            ModelMap model,
-            @RequestParam("geneAccessionId") String geneAccessionId
-    ) {
+            @RequestParam("geneAccessionId") String geneAccessionId,
+            @RequestParam("target") String target) throws InterestException
+    {
+        sqlUtils.registerGene(securityUtils.getPrincipal(), geneAccessionId);
 
-        model.put("riBaseUrl", riBaseUrl);
-
-        // Use the web service to register
-        HttpHeaders            headers  = SecurityUtils.buildHeadersFromJsessionId(request);
-        ResponseEntity<String> response = new RestTemplate().exchange(riBaseUrl + "/api/registration/gene?geneAccessionId=" + geneAccessionId, HttpMethod.POST, new HttpEntity<String>(headers), String.class);
-        String                 body     = response.getBody();
-        if ((body != null) && (body.isEmpty())) {
-            logger.warn(body);
-        }
-
-        return "redirect:" + riBaseUrl + "/summary";
+        return "redirect:" + target;
     }
 
 
-    @RequestMapping(value = "/unregistration/gene", method = RequestMethod.POST)
+    @Secured("ROLE_USER")
+    @RequestMapping(value = "/unregistration/gene", method = RequestMethod.GET)
     public String unregistrationGene(
+
             HttpServletRequest request,
-            ModelMap model,
-            @RequestParam("geneAccessionId") String geneAccessionId
-    ) {
 
-        model.put("riBaseUrl", riBaseUrl);
 
-        // Use the web service to unregister
-        HttpHeaders headers = SecurityUtils.buildHeadersFromJsessionId(request);
-        ResponseEntity<String> response = new RestTemplate().exchange(riBaseUrl + "/api/unregistration/gene?geneAccessionId=" + geneAccessionId, HttpMethod.DELETE, new HttpEntity<String>(headers), String.class);
-        String body = response.getBody();
-        if ((body != null) && (body.isEmpty())) {
-            logger.warn(body);
+
+            @RequestParam(value = "geneAccessionId", required = false) String geneAccessionId,
+            @RequestParam(value = "target", required = false) String target) throws InterestException
+    {
+        sqlUtils.unregisterGene(securityUtils.getPrincipal(), geneAccessionId);
+
+        if (target == null) {
+            target = paBaseUrl + "/summary";
         }
 
-        return "redirect:" + riBaseUrl + "/summary";
+        return "redirect:" + target;
     }
 
 
+    @Secured("ROLE_USER")
     @RequestMapping(value = "/summary", method = RequestMethod.GET)
-    public String summary(ModelMap model, HttpServletRequest request) throws InterestException {
+    public String summary(ModelMap model, HttpServletRequest request) {
 
         Contact contact = sqlUtils.getContact(securityUtils.getPrincipal());
         if (contact == null) {
@@ -371,16 +256,16 @@ public class RegisterInterestController {
 
             sleep(SHORT_SLEEP_SECONDS);
 
-            return "errorPage";
+            return "ri_errorPage";
         }
 
         Summary summary = sqlUtils.getSummary(securityUtils.getPrincipal());
 
         model.addAttribute("summary", summary);
-        model.addAttribute("riBaseUrl", request.getSession().getAttribute("riBaseUrl"));
+        model.addAttribute("paBaseUrl", request.getSession().getAttribute("paBaseUrl"));
         model.addAttribute("paBaseUrl", request.getSession().getAttribute("paBaseUrl"));
 
-        return "summaryPage";
+        return "ri_summaryPage";
     }
 
 
@@ -389,7 +274,7 @@ public class RegisterInterestController {
         model.addAttribute("title", TITLE_CHANGE_PASSWORD_REQUEST);
         model.addAttribute("status", INFO_CHANGE_PASSWORD);
 
-        return "changePasswordRequestPage";
+        return "ri_changePasswordRequestPage";
     }
 
 
@@ -405,7 +290,7 @@ public class RegisterInterestController {
             model.addAttribute("title", TITLE_EMAIL_ADDRESS_MISMATCH);
             model.addAttribute("error", ERR_EMAIL_ADDRESS_MISMATCH);
 
-            return "changePasswordRequestPage";
+            return "ri_changePasswordRequestPage";
         }
 
         // Validate that it looks like an e-mail address.
@@ -413,12 +298,12 @@ public class RegisterInterestController {
             model.addAttribute("title", TITLE_INVALID_EMAIL_ADDRESS);
             model.addAttribute("error", ERR_INVALID_EMAIL_ADDRESS);
 
-            return "changePasswordRequestPage";
+            return "ri_changePasswordRequestPage";
         }
 
         // Generate and assemble email with password change
         String token     = buildToken(emailAddress);
-        String tokenLink = riBaseUrl + "/changePasswordResponse?token=" + token;
+        String tokenLink = paBaseUrl + "/changePasswordResponse?token=" + token;
         logger.debug("tokenLink = " + tokenLink);
 
         String  body;
@@ -447,7 +332,7 @@ public class RegisterInterestController {
             model.addAttribute("title", TITLE_SEND_MAIL_FAILED);
             model.addAttribute("error", ERR_SEND_MAIL_FAILED);
             logger.error("Error trying to send password change e-mail to {}: {}", emailAddress, e.getLocalizedMessage());
-            return "errorPage";
+            return "ri_errorPage";
         }
 
         String status = "An e-mail containing a change password link has been sent to <i>" + emailAddress + "</i>.\n" +
@@ -459,7 +344,7 @@ public class RegisterInterestController {
 
         logger.info("Sent Change Password email to {}", emailAddress);
 
-        return "statusPage";
+        return "ri_statusPage";
     }
 
 
@@ -472,7 +357,7 @@ public class RegisterInterestController {
         // Look up email address from reset_credentials table
         ResetCredentials resetCredentials = sqlUtils.getResetCredentials(token);
 
-        // If not found, return to errorPage page.
+        // If not found, return to ri_errorPage page.
         if (resetCredentials == null) {
             model.addAttribute("title", TITLE_INVALID_TOKEN);
             model.addAttribute("error", ERR_INVALID_TOKEN);
@@ -481,10 +366,10 @@ public class RegisterInterestController {
 
             sleep(SHORT_SLEEP_SECONDS);
 
-            return "errorPage";
+            return "ri_errorPage";
         }
 
-        // If token has expired, return to errorPage page.
+        // If token has expired, return to ri_errorPage page.
         if (dateUtils.isExpired(resetCredentials.getCreatedAt(), PASSWORD_CHANGE_TTL_MINUTES)) {
             model.addAttribute("title", TITLE_INVALID_TOKEN);
             model.addAttribute("error", ERR_INVALID_TOKEN);
@@ -493,12 +378,12 @@ public class RegisterInterestController {
 
             sleep(SHORT_SLEEP_SECONDS);
 
-            return "errorPage";
+            return "ri_errorPage";
         }
 
         model.addAttribute("token", token);
 
-        return "changePasswordResponsePage";
+        return "ri_changePasswordResponsePage";
     }
 
 
@@ -514,7 +399,7 @@ public class RegisterInterestController {
         String status;
         model.addAttribute("token", token);
 
-        // Validate the new password. Return to changePasswordResponsePage if validation fails.
+        // Validate the new password. Return to ri_changePasswordResponsePage if validation fails.
         String error = validateNewPassword(newPassword, repeatPassword);
         if (!error.isEmpty()) {
             model.addAttribute("title", TITLE_PASSWORD_MISMATCH);
@@ -524,13 +409,13 @@ public class RegisterInterestController {
 
             sleep(SHORT_SLEEP_SECONDS);
 
-            return "changePasswordResponsePage";
+            return "ri_changePasswordResponsePage";
         }
 
         // Look up email address from reset_credentials table
         ResetCredentials resetCredentials = sqlUtils.getResetCredentials(token);
 
-        // If not found, return to errorPage page.
+        // If not found, return to ri_errorPage page.
         if (resetCredentials == null) {
             model.addAttribute("title", TITLE_INVALID_TOKEN);
             model.addAttribute("error", ERR_INVALID_TOKEN);
@@ -539,7 +424,7 @@ public class RegisterInterestController {
 
             sleep(SHORT_SLEEP_SECONDS);
 
-            return "errorPage";
+            return "ri_errorPage";
         }
 
         String emailAddress = resetCredentials.getAddress();
@@ -572,7 +457,7 @@ public class RegisterInterestController {
             model.addAttribute("error", ERR_CHANGE_PASSWORD_FAILED);
             logger.error("Error trying to change password for {}: {}", emailAddress, e.getLocalizedMessage());
 
-            return "errorPage";
+            return "ri_errorPage";
         }
 
         logger.info("Password successfully changed for {}", emailAddress);
@@ -585,18 +470,20 @@ public class RegisterInterestController {
         model.addAttribute("status", status);
         model.addAttribute("emailAddress", emailAddress);
 
-        return "statusPage";
+        return "ri_statusPage";
     }
 
 
+    @Secured("ROLE_USER")
     @RequestMapping(value = "/account", method = RequestMethod.GET)
     public String accountGetUrl(ModelMap model) {
         model.addAttribute("emailAddress", securityUtils.getPrincipal());
 
-        return "deleteAccountConfirmationPage";
+        return "ri_deleteAccountConfirmationPage";
     }
 
 
+    @Secured("ROLE_USER")
     @RequestMapping(value = "/account", method = RequestMethod.POST)
     public String accountDeleteUrl(
             HttpServletRequest request,
@@ -609,11 +496,11 @@ public class RegisterInterestController {
 
         } catch (InterestException e) {
 
-            logger.error(e.getLocalizedMessage().toString());
+            logger.error(e.getLocalizedMessage());
             model.addAttribute("title", TITLE_ACCOUNT_NOT_DELETED);
             model.addAttribute("error", ERR_ACCOUNT_NOT_DELETED);
 
-            return "errorPage";
+            return "ri_errorPage";
         }
 
         // Log user out.
@@ -623,7 +510,7 @@ public class RegisterInterestController {
             new SecurityContextLogoutHandler().logout(request, response, auth);
         }
 
-        return "redirect:" + riBaseUrl + "/login?deleted";
+        return "redirect:" + paBaseUrl + "/login?deleted";
     }
 
 
@@ -633,7 +520,7 @@ public class RegisterInterestController {
     /**
      * Build and return a unique hash token for this email address
      *
-     * @param emailAddress
+     * @param emailAddress contact email address
      * @return a unique hash token for this email address
      */
     private String buildToken(String emailAddress) {
