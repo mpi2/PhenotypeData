@@ -30,7 +30,7 @@
 
                 <div class="login-card">
                     <div class="login-form">
-                        <form action="login" method="POST" class="form-horizontal">
+                        <form action="${paBaseUrl}/login" method="POST" class="form-horizontal">
                             <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
 
                             <c:if test="${param.error != null}">
