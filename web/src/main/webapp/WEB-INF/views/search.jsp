@@ -572,7 +572,7 @@
 							highlighSynonym();
 
 							// register interest js
-							// registerInterest();
+
 
 							if (coreName == 'allele2'){
 								decodeAlleleName();
@@ -613,80 +613,6 @@
 
 				//------------------------- FUNCTIONS ------------------------
 
-
-                function registerInterest() {
-
-                    $('a.regInterest').click(function () {
-
-                        var anchorControl = $(this);
-                        var divControl = $(anchorControl).parent();
-                        var iconControl = $(anchorControl).prev();
-                        var endpoint = $(anchorControl).attr('href');
-
-                        var currentAnchorText = $(anchorControl).text();
-                        var currentOldtitle = $(divControl).attr('oldtitle');
-
-                        function riSuccess() {
-                            if (currentAnchorText.trim().toUpperCase() === 'Unregister Interest'.toUpperCase()) {
-
-                                // Unregister -> Register
-                                currentOldtitle = currentOldtitle.replace('Unregister', 'Register');
-                                $(divControl).attr('oldtitle', currentOldtitle);
-
-                                $(iconControl).removeClass('fa-sign-out');
-                                $(iconControl).addClass('fa-sign-in');
-
-                                endpoint = endpoint.replace('unregistration', 'registration');
-                                $(anchorControl).attr('href', endpoint);
-
-                                currentAnchorText = currentAnchorText.replace('Unregister', 'Register');
-                                $(anchorControl).text(currentAnchorText);
-
-                            } else {
-
-                                // Register -> Unregister
-                                currentOldtitle = currentOldtitle.replace('Register', 'Unregister');
-                                $(divControl).attr('oldtitle', currentOldtitle);
-
-                                $(iconControl).removeClass('fa-sign-in');
-                                $(iconControl).addClass('fa-sign-out');
-
-                                endpoint = endpoint.replace('registration', 'unregistration');
-                                $(anchorControl).attr('href', endpoint);
-
-                                currentAnchorText = currentAnchorText.replace('Register', 'Unregister');
-                                $(anchorControl).text(currentAnchorText);
-                            }
-                        }
-
-                        function riError() {
-                            window.alert('Unable to access register interest service at this time.');
-                        }
-
-
-
-
-						if (endpoint.includes('login?target')) {
-                            $.ajax({
-                                url: endpoint,
-                                dataType: 'jsonp',
-                                beforeSend: setHeader,
-                                // success: riSuccess,
-                                error: riError
-                            });
-                        } else {
-                            $.ajax({
-                                url: endpoint,
-								dataType: undefined,
-								beforeSend: undefined,
-                                success: riSuccess,
-                                error: riError
-                            });
-						}
-
-						return false;
-                    });
-                }
 
 
 			function decodeAlleleName(){

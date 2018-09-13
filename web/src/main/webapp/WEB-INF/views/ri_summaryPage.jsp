@@ -123,7 +123,7 @@
                                                                 </c:choose>
                                                             </td>
                                                             <td>
-                                                                <a href="${paBaseUrl}/unregistration/gene?geneAccessionId=${gene.mgiAccessionId}">Unregister</a>
+                                                                <a href="${paBaseUrl}/unregistration/gene/${gene.mgiAccessionId}?target=${paBaseUrl}/summary">Unregister</a>
                                                             </td>
                                                         </tr>
                                                     </c:forEach>

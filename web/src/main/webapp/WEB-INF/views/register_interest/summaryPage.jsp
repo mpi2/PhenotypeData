@@ -69,7 +69,7 @@
 
                                                         <tr>
                                                             <td>
-                                                                <a href='${paBaseUrl}/riSuccessHandler?riToken=${pageContext.session.id}&target=${paBaseUrl}/genes/${gene.mgiAccessionId}'>${gene.symbol}</a>
+                                                                <a href='${paBaseUrl}/genes/${gene.mgiAccessionId}'>${gene.symbol}</a>
                                                             </td>
                                                             <td><a href="//www.informatics.jax.org/marker/${gene.mgiAccessionId}">${gene.mgiAccessionId}</a></td>
 
@@ -113,8 +113,7 @@
                                                             <td>
                                                                 <c:choose>
                                                                     <c:when test="${gene.riPhenotypingStatus == 'Phenotyping data available'}">
-
-                                                                        <a href='${paBaseUrl}/riSuccessHandler?riToken=${pageContext.session.id}&target=${paBaseUrl}/genes/${gene.mgiAccessionId}#section-associations'>Yes</a>
+                                                                        <a href='${paBaseUrl}/genes/${gene.mgiAccessionId}#section-associations'>Yes</a>
                                                                     </c:when>
                                                                     <c:otherwise>
                                                                         No
@@ -122,12 +121,7 @@
                                                                 </c:choose>
                                                             </td>
                                                             <td>
-                                                                <form id="unregisterForm" action="${riBaseUrl}/unregistration/gene?geneAccessionId=${gene.mgiAccessionId}" method="post" style="border:0;">
-                                                                    <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
-
-                                                                    <input type="submit" id="unregisterGene"
-                                                                           class="btn btn-block btn-primary btn-default" value="Unregister">
-                                                                </form>
+                                                                <a href='${riBaseUrl}/unregistration/${gene.mgiAccessionId}'>Unregister</a>
                                                             </td>
                                                         </tr>
                                                     </c:forEach>
@@ -140,7 +134,7 @@
 
                             <br />
 
-                            <a href='${paBaseUrl}/riSuccessHandler?riToken=${pageContext.session.id}'>Search for more genes to register</a>
+                            <a href='${paBaseUrl}/search/gene?kw=*'>Search for more genes to register</a>
 
                         </div>
                     </div>

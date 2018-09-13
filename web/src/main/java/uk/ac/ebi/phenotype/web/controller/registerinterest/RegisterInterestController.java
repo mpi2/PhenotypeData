@@ -29,7 +29,6 @@ import org.mousephenotype.ri.core.utils.SecurityUtils;
 import org.mousephenotype.ri.core.utils.SqlUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -39,10 +38,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import uk.ac.ebi.phenotype.generic.util.RegisterInterestUtils;
 
 import javax.inject.Inject;
 import javax.mail.Message;
@@ -151,13 +150,6 @@ public class RegisterInterestController {
     public String login(
             HttpServletRequest request
     ) {
-        String target = request.getParameter("target");
-
-        // target is supplied by phenotypeArchive to indicate that we need to redirect back to PA after authentication.
-        if (target != null) {
-            request.getSession().setAttribute("target", target);
-        }
-
         String error = request.getParameter("error");
 
         if (error != null) {
@@ -185,7 +177,7 @@ public class RegisterInterestController {
         logger.info("/Access_Denied: No permission to access page for user {} with role {}", securityUtils.getPrincipal(), StringUtils.join(roles, ", "));
 
         sleep(SHORT_SLEEP_SECONDS);
-
+// FIXME Is this correct? return or redirect? errorPage or loginPage?
         return "ri_errorPage";
     }
 
@@ -195,8 +187,6 @@ public class RegisterInterestController {
     @RequestMapping(value = "/logout2", method = RequestMethod.GET)
     public String logout2(HttpServletRequest request, HttpServletResponse response) {
 
-        // Always remove riToken from the session attributes.
-        request.getSession().removeAttribute("riToken");
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth != null) {
             logger.info("/logout: User {} logged out.", securityUtils.getPrincipal());
@@ -206,11 +196,20 @@ public class RegisterInterestController {
         return "redirect:" + paBaseUrl + "/summary";
     }
 
+    // Call this endpoint from unauthenticated pages that want to force authentication (e.g. search, gene pages)
+    @Secured("ROLE_USER")
+    @RequestMapping(value = "/authenticated", method = RequestMethod.GET)
+    public String authenticated(
+            @RequestParam("target") String target
+    ) {
+        return "redirect:" + target;
+    }
+
 
     @Secured("ROLE_USER")
-    @RequestMapping(value = "/registration/gene", method = RequestMethod.GET)
+    @RequestMapping(value = "/registration/gene/{geneAccessionId}", method = RequestMethod.GET)
     public String registrationGene(
-            @RequestParam("geneAccessionId") String geneAccessionId,
+            @PathVariable("geneAccessionId") String geneAccessionId,
             @RequestParam("target") String target) throws InterestException
     {
         sqlUtils.registerGene(securityUtils.getPrincipal(), geneAccessionId);
@@ -220,21 +219,12 @@ public class RegisterInterestController {
 
 
     @Secured("ROLE_USER")
-    @RequestMapping(value = "/unregistration/gene", method = RequestMethod.GET)
+    @RequestMapping(value = "/unregistration/gene/{geneAccessionId}", method = RequestMethod.GET)
     public String unregistrationGene(
-
-            HttpServletRequest request,
-
-
-
-            @RequestParam(value = "geneAccessionId", required = false) String geneAccessionId,
-            @RequestParam(value = "target", required = false) String target) throws InterestException
+            @PathVariable("geneAccessionId") String geneAccessionId,
+            @RequestParam("target") String target) throws InterestException
     {
         sqlUtils.unregisterGene(securityUtils.getPrincipal(), geneAccessionId);
-
-        if (target == null) {
-            target = paBaseUrl + "/summary";
-        }
 
         return "redirect:" + target;
     }
@@ -243,7 +233,6 @@ public class RegisterInterestController {
     @Secured("ROLE_USER")
     @RequestMapping(value = "/summary", method = RequestMethod.GET)
     public String summary(ModelMap model, HttpServletRequest request) {
-
         Contact contact = sqlUtils.getContact(securityUtils.getPrincipal());
         if (contact == null) {
             model.addAttribute("title", TITLE_INVALID_CREDENTIALS);
@@ -262,7 +251,6 @@ public class RegisterInterestController {
         Summary summary = sqlUtils.getSummary(securityUtils.getPrincipal());
 
         model.addAttribute("summary", summary);
-        model.addAttribute("paBaseUrl", request.getSession().getAttribute("paBaseUrl"));
         model.addAttribute("paBaseUrl", request.getSession().getAttribute("paBaseUrl"));
 
         return "ri_summaryPage";

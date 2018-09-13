@@ -619,8 +619,8 @@ public class DataTableController {
 							+ "<i class='fa fa-sign-out'></i>"
 							+ "<a id='" + doc.getString("mgi_accession_id")
 							+ "' class='regInterest primary interest' href='"
-							+ paBaseUrl + "/unregistration/gene?geneAccessionId=" + doc.getString("mgi_accession_id")
-							+ "&target=" + target
+							+ paBaseUrl + "/unregistration/gene/" + doc.getString("mgi_accession_id")
+							+ "?target=" + target
 							+ "'>&nbsp;Unregister Interest</a>"
 							+ "</div>";
 					rowData.add(unregister);
@@ -631,8 +631,8 @@ public class DataTableController {
 							+ "<i class='fa fa-sign-in'></i>"
 							+ "<a id='" + doc.getString("mgi_accession_id")
 							+ "' class='regInterest primary interest' href='"
-							+ paBaseUrl + "/registration/gene?geneAccessionId=" + doc.getString("mgi_accession_id")
-							+ "&target=" + target
+							+ paBaseUrl + "/registration/gene/" + doc.getString("mgi_accession_id")
+							+ "?target=" + target
 							+ "'>&nbsp;Register Interest</a>"
 							+ "</div>";
 					rowData.add(unregister);
@@ -640,12 +640,12 @@ public class DataTableController {
 
 			} else {
 
-				// Use Register Interest login link
+				// Use Register Interest authenticated endpoint
 				StringBuilder href = new StringBuilder();
 
 				href
 						.append("href='")
-						.append(paBaseUrl).append("/login")
+						.append(paBaseUrl).append("/authenticated")
 						.append("?target=" + target)
 						.append("'");
 				String interest = "<div class='registerforinterest' oldtitle='Login to register interest' title=''>"

@@ -42,6 +42,7 @@ import org.mousephenotype.cda.utilities.HttpProxy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -74,6 +75,7 @@ import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
@@ -133,6 +135,10 @@ public class GenesController {
 
     @Autowired
     private RegisterInterestUtils riUtils;
+
+    @NotNull
+    @Value("${paBaseUrl}")
+    private String paBaseUrl;
 
     @Resource(name = "globalConfiguration")
     Map<String, String> config;
@@ -332,14 +338,14 @@ public class GenesController {
             loggedIn = riUtils.isLoggedIn();
 
         } catch (Exception e) {
-            // Nothing to do. If register interest service isn't working, a 500 is thrown. Handle as unauthenticated.
+            // Nothing to do. Handle as unauthenticated.
         }
 
-        // Use Register Interest login link
+        // Use Register Interest authenticated endpoint
         String paBaseUrl = config.get("paBaseUrl");
         String registerButtonText = "Login to register interest";
         String registerButtonAnchor = new StringBuilder()
-                .append(paBaseUrl).append("/login")
+                .append(paBaseUrl).append("/authenticated")
                 .append("?target=" + paBaseUrl + "/genes/" + acc)
                 .toString();
 
@@ -354,13 +360,13 @@ public class GenesController {
 
                 registerIconClass = "fa fa-sign-out";
                 registerButtonText = "Unregister interest";
-                registerButtonAnchor = paBaseUrl + "/unregistration/gene?geneAccessionId=" + acc + "&target=" + paBaseUrl + "/genes/" + acc;
+                registerButtonAnchor = paBaseUrl + "/unregistration/gene/" + acc + "?target=" + paBaseUrl + "/genes/" + acc;
 
             } else {
 
                 registerIconClass = "fa fa-sign-in";
                 registerButtonText = "Register interest";
-                registerButtonAnchor = paBaseUrl + "/registration/gene?geneAccessionId=" + acc + "&target=" + paBaseUrl + "/genes/" + acc;
+                registerButtonAnchor = paBaseUrl + "/registration/gene/" + acc + "?target=" + paBaseUrl + "/genes/" + acc;
             }
         }
 
