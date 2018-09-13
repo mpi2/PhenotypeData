@@ -92,6 +92,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                         .successHandler(new SavedRequestAwareAuthenticationSuccessHandler())
                         .usernameParameter("ssoId")
                         .passwordParameter("password")
+
+        .and().csrf().disable()
         ;
     }
 
