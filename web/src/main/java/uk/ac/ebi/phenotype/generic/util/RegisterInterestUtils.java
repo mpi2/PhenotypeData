@@ -16,9 +16,9 @@
 
 package uk.ac.ebi.phenotype.generic.util;
 
-import org.mousephenotype.ri.core.entities.Gene;
-import org.mousephenotype.ri.core.entities.Summary;
-import org.mousephenotype.ri.core.utils.SqlUtils;
+import org.mousephenotype.cda.ri.core.entities.Gene;
+import org.mousephenotype.cda.ri.core.entities.Summary;
+import org.mousephenotype.cda.ri.core.utils.SqlUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;

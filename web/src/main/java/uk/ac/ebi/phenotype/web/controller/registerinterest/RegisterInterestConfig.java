@@ -16,10 +16,10 @@
 
 package uk.ac.ebi.phenotype.web.controller.registerinterest;
 
-import org.mousephenotype.ri.core.services.CoreService;
-import org.mousephenotype.ri.core.services.GenerateService;
-import org.mousephenotype.ri.core.services.SendService;
-import org.mousephenotype.ri.core.utils.SqlUtils;
+import org.mousephenotype.cda.ri.core.services.CoreService;
+import org.mousephenotype.cda.ri.core.services.GenerateService;
+import org.mousephenotype.cda.ri.core.services.SendService;
+import org.mousephenotype.cda.ri.core.utils.SqlUtils;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -68,7 +68,6 @@ public class RegisterInterestConfig {
 
 
     // e-mail server properties
-
     @NotNull
     @Value("${mail.smtp.from}")
     private String smtpFrom;
@@ -127,6 +126,6 @@ public class RegisterInterestConfig {
 
     @Bean
     public CoreService coreService() {
-        return new CoreService(new GenerateService(paBaseUrl, sqlUtils()), new SendService(sqlUtils()));
+        return new CoreService(new GenerateService(paBaseUrl, sqlUtils()), new SendService(sqlUtils(), smtpHost, smtpPort, smtpFrom, smtpReplyto));
     }
 }

@@ -18,15 +18,15 @@ package uk.ac.ebi.phenotype.web.controller.registerinterest;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.mousephenotype.ri.core.entities.Contact;
-import org.mousephenotype.ri.core.entities.ResetCredentials;
-import org.mousephenotype.ri.core.entities.Summary;
-import org.mousephenotype.ri.core.exceptions.InterestException;
-import org.mousephenotype.ri.core.services.CoreService;
-import org.mousephenotype.ri.core.utils.DateUtils;
-import org.mousephenotype.ri.core.utils.EmailUtils;
-import org.mousephenotype.ri.core.utils.SecurityUtils;
-import org.mousephenotype.ri.core.utils.SqlUtils;
+import org.mousephenotype.cda.ri.core.entities.Contact;
+import org.mousephenotype.cda.ri.core.entities.ResetCredentials;
+import org.mousephenotype.cda.ri.core.entities.Summary;
+import org.mousephenotype.cda.ri.core.exceptions.InterestException;
+import org.mousephenotype.cda.ri.core.services.CoreService;
+import org.mousephenotype.cda.ri.core.utils.DateUtils;
+import org.mousephenotype.cda.ri.core.utils.EmailUtils;
+import org.mousephenotype.cda.ri.core.utils.SecurityUtils;
+import org.mousephenotype.cda.ri.core.utils.SqlUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.access.annotation.Secured;
@@ -389,7 +389,7 @@ public class RegisterInterestController {
 
         // Validate the new password. Return to ri_changePasswordResponsePage if validation fails.
         String error = validateNewPassword(newPassword, repeatPassword);
-        if (!error.isEmpty()) {
+        if ( ! error.isEmpty()) {
             model.addAttribute("title", TITLE_PASSWORD_MISMATCH);
             model.addAttribute("error", ERR_PASSWORD_MISMATCH);
 

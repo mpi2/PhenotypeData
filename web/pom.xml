@@ -308,9 +308,9 @@
 
         <!-- Register Interest core dependency -->
         <dependency>
-            <groupId>org.mousephenotype.ri</groupId>
-            <artifactId>core</artifactId>
-            <version>1.0.0-RELEASE</version>
+            <groupId>org.mousephenotype.cda</groupId>
+            <artifactId>ri-core</artifactId>
+            <version>1.0.0</version>
         </dependency>
 
         <!-- springframework.boot-->
