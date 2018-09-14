@@ -32,6 +32,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
@@ -89,7 +90,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                     .formLogin()
                         .loginPage("/rilogin")
                         .failureUrl("/rilogin?error")
-                        .successHandler(new RiSavedRequestAwareAuthenticationSuccessHandler())
+                        .successHandler(new RiRefererRedirectionAuthenticationSuccessHandler())
                         .usernameParameter("ssoId")
                         .passwordParameter("password")
 
@@ -153,5 +154,17 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         public void setRequestCache(RequestCache requestCache) {
             this.requestCache = requestCache;
         }
+    }
+
+
+    public class RiRefererRedirectionAuthenticationSuccessHandler
+            extends SimpleUrlAuthenticationSuccessHandler
+            implements AuthenticationSuccessHandler {
+
+        public RiRefererRedirectionAuthenticationSuccessHandler() {
+            super();
+            setUseReferer(true);
+        }
+
     }
 }
