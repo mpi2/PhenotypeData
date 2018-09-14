@@ -16,6 +16,8 @@
 
 package uk.ac.ebi.phenotype.generic.util;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -26,8 +28,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class SecurityUtils {
+
+    private static final Logger logger = LoggerFactory.getLogger(SecurityUtils.class);
 
     public static final String ANONYMOUS_USER = "anonymous";
 
@@ -62,6 +67,8 @@ public class SecurityUtils {
 
         boolean isLoggedIn = false;
 
+logger.info("principal = {}", authentication.getPrincipal().toString());
+logger.info("authorities = {}", authorities.stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList()));
         for (GrantedAuthority authority : authorities) {
             if (authority.getAuthority().equals("ROLE_USER")) {
                 isLoggedIn = true;
