@@ -26,7 +26,7 @@
                             <div class="inner">
                                 <form id="formActions" style="border: 0;">
                                     <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
-                                    <a href="${paBaseUrl}/logout2">Logout</a>
+                                    <a href="${paBaseUrl}/rilogout">Logout</a>
                                     &nbsp;&nbsp;&nbsp;&nbsp;
                                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                                     <button type="submit" class="btn btn-block btn-primary btn-default" formaction="${paBaseUrl}/changePasswordRequest" formmethod="get">Reset registration of interest password</button>

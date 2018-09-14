@@ -146,8 +146,8 @@ public class RegisterInterestController {
     }
 
 
-    @RequestMapping(value = "/login", method = RequestMethod.GET)
-    public String login(
+    @RequestMapping(value = "/rilogin", method = RequestMethod.GET)
+    public String rilogin(
             HttpServletRequest request
     ) {
         String error = request.getParameter("error");
@@ -161,6 +161,24 @@ public class RegisterInterestController {
         session.setAttribute("drupalBaseUrl", drupalBaseUrl);
 
         return "loginPage";
+    }
+
+
+    @RequestMapping(value = "/rilogin", method = RequestMethod.POST)
+    public String riloginPost(
+            HttpServletRequest request
+    ) {
+        String error = request.getParameter("error");
+
+        if (error != null) {
+            sleep(INVALID_PASSWORD_SLEEP_SECONDS);
+        }
+
+        HttpSession session = request.getSession();
+        session.setAttribute("paBaseUrl", paBaseUrl);
+        session.setAttribute("drupalBaseUrl", drupalBaseUrl);
+
+        return "redirect: " + paBaseUrl + "/summary";
     }
 
 
@@ -183,9 +201,9 @@ public class RegisterInterestController {
 
 
     // The logical endpoint name is /logout, but when /logout is used, this method never gets called. It appears like
-    // some Spring magic is going on. Renaming the endpoint to /logout2 avoids Spring interference and gets properly called.
-    @RequestMapping(value = "/logout2", method = RequestMethod.GET)
-    public String logout2(HttpServletRequest request, HttpServletResponse response) {
+    // some Spring magic is going on. Renaming the endpoint to /rilogout avoids Spring interference and gets properly called.
+    @RequestMapping(value = "/rilogout", method = RequestMethod.GET)
+    public String rilogout(HttpServletRequest request, HttpServletResponse response) {
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth != null) {

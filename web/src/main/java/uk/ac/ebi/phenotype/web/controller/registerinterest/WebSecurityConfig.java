@@ -87,9 +87,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
                 .and()
                     .formLogin()
-                        .loginPage("/login")
-                        .failureUrl("/login?error")
-                        .successHandler(new SavedRequestAwareAuthenticationSuccessHandler())
+                        .loginPage("/rilogin")
+                        .failureUrl("/rilogin?error")
+                        .successHandler(new RiSavedRequestAwareAuthenticationSuccessHandler())
                         .usernameParameter("ssoId")
                         .passwordParameter("password")
         ;
@@ -114,5 +114,38 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Bean
     public PasswordEncoder bcryptPasswordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    public class RiSavedRequestAwareAuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
+        protected final Log logger = LogFactory.getLog(this.getClass());
+        private RequestCache requestCache = new HttpSessionRequestCache();
+
+        public RiSavedRequestAwareAuthenticationSuccessHandler() {
+        }
+
+        public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws ServletException, IOException {
+            logger.info("RiSavedRequest: Authentication Success!");
+            SavedRequest savedRequest = this.requestCache.getRequest(request, response);
+            if (savedRequest == null) {
+                logger.info("RiSavedRequest: savedRequest is null.");
+                super.onAuthenticationSuccess(request, response, authentication);
+            } else {
+                String targetUrlParameter = this.getTargetUrlParameter();
+                if (!this.isAlwaysUseDefaultTargetUrl() && (targetUrlParameter == null || !StringUtils.hasText(request.getParameter(targetUrlParameter)))) {
+                    this.clearAuthenticationAttributes(request);
+                    String targetUrl = savedRequest.getRedirectUrl();
+                    this.logger.info("Redirecting to DefaultSavedRequest Url: " + targetUrl);
+                    this.getRedirectStrategy().sendRedirect(request, response, targetUrl);
+                } else {
+                    logger.info("RiSavedRequest: removing request.");
+                    this.requestCache.removeRequest(request, response);
+                    super.onAuthenticationSuccess(request, response, authentication);
+                }
+            }
+        }
+
+        public void setRequestCache(RequestCache requestCache) {
+            this.requestCache = requestCache;
+        }
     }
 }
