@@ -68,6 +68,13 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
 
         http
+
+
+
+                .requiresChannel().antMatchers("/rilogin").requiresSecure().and()
+
+
+
                 .authorizeRequests()
 
                     .antMatchers(HttpMethod.GET, "/authenticated/**").access("hasRole('USER') or hasRole('ADMIN')")
@@ -90,6 +97,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                         .successHandler(new RiSavedRequestAwareAuthenticationSuccessHandler())
                         .usernameParameter("ssoId")
                         .passwordParameter("password")
+
+
+
+
 
 
 .and().sessionManagement().sessionFixation().none()
