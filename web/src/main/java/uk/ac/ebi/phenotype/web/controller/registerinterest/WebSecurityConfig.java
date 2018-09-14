@@ -20,6 +20,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -32,7 +33,6 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
@@ -45,6 +45,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
+import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.util.Map;
 
@@ -90,7 +91,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                     .formLogin()
                         .loginPage("/rilogin")
                         .failureUrl("/rilogin?error")
-                        .successHandler(new RiRefererRedirectionAuthenticationSuccessHandler())
+                        .successHandler(new RiSavedRequestAwareAuthenticationSuccessHandler())
                         .usernameParameter("ssoId")
                         .passwordParameter("password")
 
@@ -123,6 +124,17 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         return new BCryptPasswordEncoder();
     }
 
+
+
+
+
+    @NotNull
+    @Value("${paBaseUrl}")
+    private String paBaseUrl;
+
+
+
+
     public class RiSavedRequestAwareAuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
         protected final Log logger = LogFactory.getLog(this.getClass());
         private RequestCache requestCache = new HttpSessionRequestCache();
@@ -132,6 +144,15 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
         public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws ServletException, IOException {
             logger.info("RiSavedRequest: Authentication Success!");
+
+            if (1 == 1) {
+                String targetUrl = paBaseUrl + "/summary";
+                this.logger.info("Forcing redirect to " + targetUrl);
+                this.getRedirectStrategy().sendRedirect(request, response, targetUrl);
+                return;
+            }
+
+
             SavedRequest savedRequest = this.requestCache.getRequest(request, response);
             if (savedRequest == null) {
                 logger.info("RiSavedRequest: savedRequest is null.");
@@ -154,17 +175,5 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         public void setRequestCache(RequestCache requestCache) {
             this.requestCache = requestCache;
         }
-    }
-
-
-    public class RiRefererRedirectionAuthenticationSuccessHandler
-            extends SimpleUrlAuthenticationSuccessHandler
-            implements AuthenticationSuccessHandler {
-
-        public RiRefererRedirectionAuthenticationSuccessHandler() {
-            super();
-            setUseReferer(true);
-        }
-
     }
 }
