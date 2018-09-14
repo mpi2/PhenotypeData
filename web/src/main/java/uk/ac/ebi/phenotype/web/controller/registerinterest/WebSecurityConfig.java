@@ -94,6 +94,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                         .passwordParameter("password")
 
 
+                .and().sessionManagement().sessionFixation().none()
+
+
         .and().csrf().disable();
         ;
     }
