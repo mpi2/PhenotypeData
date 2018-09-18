@@ -74,13 +74,12 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         http
 
             .headers()
-                // spring-security-core 4.2.8 is broken: specifying X-Frame-Options:ALLOW-FROM also incorrectly adds DENY to the same header so it reads ALLOW-FROM DENY.
+                // in spring-security-core 4.2.8 , the addHeaderWriter line commented out below is broken: specifying X-Frame-Options:ALLOW-FROM also incorrectly adds DENY to the same header so it reads ALLOW-FROM DENY.
                 // see https://github.com/spring-projects/spring-security/issues/123
 //                .addHeaderWriter(new XFrameOptionsHeaderWriter(new WhiteListedAllowFromStrategy(Arrays.asList("www.immunophenotype.org", "wwwdev.ebi.ac.uk"))))
 
                 .addHeaderWriter(new XFrameOptionsHeaderWriter(new StaticAllowFromStrategy(new URI("http://www.immunophenotype.org"))))
                 .addHeaderWriter(new XFrameOptionsHeaderWriter(new StaticAllowFromStrategy(new URI("http://wwwdev.ebi.ac.uk"))))
-//                .frameOptions().disable()
 
             .and()
 
