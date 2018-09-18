@@ -73,7 +73,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         http
 
             .headers()
-                .addHeaderWriter(new XFrameOptionsHeaderWriter(new WhiteListedAllowFromStrategy(Arrays.asList("www.immunophenotype.org", "wwwdev.ebi.ac.uk"))))
+                .frameOptions()
+                    .sameOrigin()
+                    .addHeaderWriter(new XFrameOptionsHeaderWriter(new WhiteListedAllowFromStrategy(Arrays.asList("www.immunophenotype.org", "wwwdev.ebi.ac.uk"))))
 
             .and()
 
