@@ -33,6 +33,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
+import org.springframework.security.web.header.writers.frameoptions.StaticAllowFromStrategy;
 import org.springframework.security.web.header.writers.frameoptions.WhiteListedAllowFromStrategy;
 import org.springframework.security.web.header.writers.frameoptions.XFrameOptionsHeaderWriter;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
@@ -46,6 +47,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
 import java.io.IOException;
+import java.net.URI;
 import java.util.Arrays;
 
 /**
@@ -70,12 +72,24 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
 
+
+//        WhiteListedAllowFromStrategy s = new WhiteListedAllowFromStrategy(Arrays.asList("www.immunophenotype.org", "wwwdev.ebi.ac.uk"));
+        StaticAllowFromStrategy s1 = new StaticAllowFromStrategy(new URI("wwwdev.ebi.ac.uk"));
+        StaticAllowFromStrategy s2 = new StaticAllowFromStrategy(new URI("www.immunophenotype.org"));
+
         http
 
             .headers()
-                .frameOptions()
-                    .sameOrigin()
-                    .addHeaderWriter(new XFrameOptionsHeaderWriter(new WhiteListedAllowFromStrategy(Arrays.asList("www.immunophenotype.org", "wwwdev.ebi.ac.uk"))))
+                .addHeaderWriter(new XFrameOptionsHeaderWriter(s1))
+                .addHeaderWriter(new XFrameOptionsHeaderWriter(s2))
+//                .addHeaderWriter(new XFrameOptionsHeaderWriter(new WhiteListedAllowFromStrategy(Arrays.asList("www.immunophenotype.org", "wwwdev.ebi.ac.uk"))))
+//                .disable()
+//
+//                .headers()
+//                .frameOptions()
+//                    .deny()
+
+        //                    .sameOrigin()
 
             .and()
 
