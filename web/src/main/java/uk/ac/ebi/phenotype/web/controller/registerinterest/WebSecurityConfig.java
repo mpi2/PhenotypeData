@@ -34,7 +34,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.security.web.header.writers.frameoptions.StaticAllowFromStrategy;
-import org.springframework.security.web.header.writers.frameoptions.WhiteListedAllowFromStrategy;
 import org.springframework.security.web.header.writers.frameoptions.XFrameOptionsHeaderWriter;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 import org.springframework.security.web.savedrequest.RequestCache;
@@ -48,7 +47,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
 import java.io.IOException;
 import java.net.URI;
-import java.util.Arrays;
 
 /**
  * Created by mrelac on 12/06/2017.
@@ -73,25 +71,18 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
 
 
-//        WhiteListedAllowFromStrategy s = new WhiteListedAllowFromStrategy(Arrays.asList("www.immunophenotype.org", "wwwdev.ebi.ac.uk"));
-        StaticAllowFromStrategy s1 = new StaticAllowFromStrategy(new URI("wwwdev.ebi.ac.uk"));
-        StaticAllowFromStrategy s2 = new StaticAllowFromStrategy(new URI("www.immunophenotype.org"));
-
         http
 
             .headers()
-                .addHeaderWriter(new XFrameOptionsHeaderWriter(s1))
-                .addHeaderWriter(new XFrameOptionsHeaderWriter(s2))
+                // spring-security-core 4.2.8 is broken: specifying X-Frame-Options:ALLOW-FROM also incorrectly adds DENY to the same header so it reads ALLOW-FROM DENY.
+                // see https://github.com/spring-projects/spring-security/issues/123
 //                .addHeaderWriter(new XFrameOptionsHeaderWriter(new WhiteListedAllowFromStrategy(Arrays.asList("www.immunophenotype.org", "wwwdev.ebi.ac.uk"))))
-                .disable()
-//
-//                .headers()
-//                .frameOptions()
-//                    .deny()
 
-        //                    .sameOrigin()
+                .addHeaderWriter(new XFrameOptionsHeaderWriter(new StaticAllowFromStrategy(new URI("http://www.immunophenotype.org"))))
+                .addHeaderWriter(new XFrameOptionsHeaderWriter(new StaticAllowFromStrategy(new URI("http://wwwdev.ebi.ac.uk"))))
+//                .frameOptions().disable()
 
-//            .and()
+            .and()
 
             .authorizeRequests()
 
