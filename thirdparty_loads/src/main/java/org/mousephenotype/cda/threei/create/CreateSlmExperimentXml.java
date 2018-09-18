@@ -51,6 +51,7 @@ import java.util.*;
 
 import java.sql.Date;
 import java.time.format.DateTimeFormatter;
+import java.time.ZonedDateTime;
 
 
 /**
@@ -197,6 +198,7 @@ public class CreateSlmExperimentXml extends Create3iXmls implements CommandLineR
                         case "SLM_SLM_003_001":
                             // Change the format of the date to:
                             // YYYY-MM-DDThh:mm:ss+time_diff
+                            simpleParameter.setValue(toZonedDate(value));
                             simpleParameter.setUnit("days post infection");
                             break;
                         case "SLM_SLM_004_001": case "SLM_SLM_008_001":
@@ -239,6 +241,19 @@ public class CreateSlmExperimentXml extends Create3iXmls implements CommandLineR
         } catch (Exception e) {
             logger.error("Problem marshalling centreExperiment to {}", outFilename);
             throw new DataLoadException(e);
+        }
+    }
+
+    // Convert a date to a zoned date
+    private String toZonedDate(String d) {
+        try {
+            DateTimeFormatter inFormatter = DateTimeFormatter.ofPattern("dd-MMM-yyyy HH:mm:ss XXX");
+            DateTimeFormatter outFormatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
+            ZonedDateTime dateVal = ZonedDateTime.parse(d + " 00:00:00 +01:00:00",inFormatter);
+            return dateVal.format(outFormatter);
+        } catch (Exception e) {
+           logger.error("Problem converting " + d + " to zoned date" + " using unconverted value");
+           return d;
         }
     }
 }
