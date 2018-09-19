@@ -69,7 +69,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
 
-        AllowFromStrategy strategy = httpServletRequest -> "//www.immunophenotype.org, //wwwdev.ebi.ac.uk";
+        AllowFromStrategy strategy = httpServletRequest -> "www.immunophenotype.org, wwwdev.ebi.ac.uk";
 
         http
 
