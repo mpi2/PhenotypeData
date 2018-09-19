@@ -174,7 +174,7 @@ public class RegisterInterestController {
             sleep(INVALID_PASSWORD_SLEEP_SECONDS);
         }
 
-        HttpSession session = request.getSession(true);
+        HttpSession session = request.getSession();
         session.setAttribute("paBaseUrl", paBaseUrl);
         session.setAttribute("drupalBaseUrl", drupalBaseUrl);
 
