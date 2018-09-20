@@ -114,7 +114,7 @@ public class ObservationDTOBase {
 
 
 	@Field(ID)
-    protected Integer id;
+    protected String id;
 
     @Field(DATASOURCE_ID)
     protected Integer dataSourceId;
@@ -847,7 +847,7 @@ public class ObservationDTOBase {
 	/**
      * @return the id
      */
-    public Integer getId() {
+    public String getId() {
         return id;
     }
 
@@ -855,7 +855,7 @@ public class ObservationDTOBase {
      * @param id
      *            the id to set
      */
-    public void setId(Integer id) {
+    public void setId(String id) {
         this.id = id;
     }
 

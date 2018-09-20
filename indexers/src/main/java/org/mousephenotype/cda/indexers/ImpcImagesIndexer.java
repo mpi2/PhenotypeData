@@ -463,10 +463,9 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 		int highestObserationId=this.getHighestObservationId();
 
 		List<ImageDTO> phisImageDtos = populatePhisImages();
-		int id=highestObserationId;
 		for(ImageDTO image:phisImageDtos){
-			id++;//do here so one higher than highest obs id
-			image.setId(id);//add a generated id that we know hasn't been used before
+			highestObserationId++;//do here so one higher than highest obs id
+			image.setId(String.valueOf(highestObserationId));//add a generated id that we know hasn't been used before
 			addMpInfo( image, runStatus);
 		}
 		return phisImageDtos;
@@ -509,7 +508,7 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 		// Override with actual highest observation document ID
 		List<ObservationDTO> docs = experimentCore.query(query).getBeans(ObservationDTO.class);
 		if (docs.size() > 0) {
-			highestObsId = docs.get(0).getId();
+			highestObsId = Integer.parseInt(docs.get(0).getId());
 		}
 
 		logger.debug("largest observation id = "+highestObsId);

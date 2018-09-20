@@ -251,7 +251,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 			while (r.next()) {
 
 				ObservationDTOWrite o = new ObservationDTOWrite();
-				o.setId(r.getInt("id"));
+				o.setId(r.getString("id"));
 				o.setParameterId(r.getInt("parameter_id"));
 				o.setExperimentId(r.getInt("experiment_id"));
 				o.setExperimentSourceId(r.getString("external_id"));
