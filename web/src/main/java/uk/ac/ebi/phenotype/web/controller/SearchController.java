@@ -68,7 +68,7 @@ public class SearchController {
 	@RequestMapping("/index.html")
 	public String rootForward(HttpServletRequest request) {
 
-		String scheme = (request.getAttribute("isProxied").equals("true") ? "https" : request.getScheme());
+		String scheme = (request.getAttribute("isProxied") == Boolean.TRUE ? "https" : request.getScheme());
 		logger.info("rootForward(): isProxied = {}. scheme = {}.", request.getAttribute("isProxied"), scheme);
 		String redirectUrl = scheme + ":" + request.getAttribute("mappedHostname") + request.getAttribute("baseUrl") + "/search";
 
@@ -89,7 +89,7 @@ public class SearchController {
 	@RequestMapping("/search/")  // appended slash
 	public String searchForward(HttpServletRequest request) {
 
-		String scheme = (request.getAttribute("isProxied").equals(true) ? "https" : request.getScheme());
+		String scheme = (request.getAttribute("isProxied") == Boolean.TRUE ? "https" : request.getScheme());
 		logger.info("searchForward(): isProxied = {}. scheme = {}.", request.getAttribute("isProxied"), scheme);
 		String redirectUrl = scheme + ":" + request.getAttribute("mappedHostname") + request.getAttribute("baseUrl") + "/search/gene?kw=*";
 

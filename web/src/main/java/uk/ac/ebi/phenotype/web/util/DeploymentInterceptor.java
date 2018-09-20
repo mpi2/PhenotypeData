@@ -57,7 +57,7 @@ public class DeploymentInterceptor extends HandlerInterceptorAdapter {
 			return true;
 		}
 
-		Map<String, String> requestConfig = new HashMap<>();
+		Map<String, Object> requestConfig = new HashMap<>();
 		requestConfig.put("releaseVersion", dataReleaseVersionManager.getReleaseVersion());
 		requestConfig.put("version", "v2.1.4");
 
@@ -73,7 +73,7 @@ public class DeploymentInterceptor extends HandlerInterceptorAdapter {
 		String mappedHostname = getMappedHostname(request.getServerName(), request.getServerPort(), request.getHeader("x-forwarded-host"));
 		requestConfig.put("mappedHostname", mappedHostname);
 		requestConfig.put("baseUrl", request.getContextPath());
-		requestConfig.put("isProxied", "false");
+		requestConfig.put("isProxied", Boolean.FALSE);
 		log.info("mappedHostName = {}. baseUrl = {}", mappedHostname, request.getContextPath());
 
 		// If this webapp is being accessed behind a proxy, the
@@ -87,7 +87,7 @@ public class DeploymentInterceptor extends HandlerInterceptorAdapter {
 			// in the request header (typically http, but if you configure your localhost to use https, you want to stay
 			// in https). Set this session variable here so it can be queried later on (e.g. in SearchController) to
 			// use the correct scheme.
-			requestConfig.put("isProxied", "true");
+			requestConfig.put("isProxied", Boolean.TRUE);
 
 			String[] forwards = request.getHeader("x-forwarded-host").split(",");
 
