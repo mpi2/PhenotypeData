@@ -32,7 +32,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
 import org.springframework.security.web.header.writers.frameoptions.AllowFromStrategy;
 import org.springframework.security.web.header.writers.frameoptions.XFrameOptionsHeaderWriter;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
@@ -128,7 +128,40 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         return new BCryptPasswordEncoder();
     }
 
-    public class RiSavedRequestAwareAuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
+//    public class RiSavedRequestAwareAuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
+//        protected final Log logger = LogFactory.getLog(this.getClass());
+//        private RequestCache requestCache = new HttpSessionRequestCache();
+//
+//        public RiSavedRequestAwareAuthenticationSuccessHandler() {
+//        }
+//
+//        public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws ServletException, IOException {
+//            logger.info("RiSavedRequest: Authentication Success!");
+//            SavedRequest savedRequest = this.requestCache.getRequest(request, response);
+//            if (savedRequest == null) {
+//                logger.info("RiSavedRequest: savedRequest is null.");
+//                super.onAuthenticationSuccess(request, response, authentication);
+//            } else {
+//                String targetUrlParameter = this.getTargetUrlParameter();
+//                if (!this.isAlwaysUseDefaultTargetUrl() && (targetUrlParameter == null || !StringUtils.hasText(request.getParameter(targetUrlParameter)))) {
+//                    this.clearAuthenticationAttributes(request);
+//                    String targetUrl = savedRequest.getRedirectUrl();
+//                    this.logger.info("Redirecting to DefaultSavedRequest Url: " + targetUrl);
+//                    this.getRedirectStrategy().sendRedirect(request, response, targetUrl);
+//                } else {
+//                    logger.info("RiSavedRequest: removing request.");
+//                    this.requestCache.removeRequest(request, response);
+//                    super.onAuthenticationSuccess(request, response, authentication);
+//                }
+//            }
+//        }
+//
+//        public void setRequestCache(RequestCache requestCache) {
+//            this.requestCache = requestCache;
+//        }
+//    }
+
+    public class RiSavedRequestAwareAuthenticationSuccessHandler extends SavedRequestAwareAuthenticationSuccessHandler {
         protected final Log logger = LogFactory.getLog(this.getClass());
         private RequestCache requestCache = new HttpSessionRequestCache();
 
