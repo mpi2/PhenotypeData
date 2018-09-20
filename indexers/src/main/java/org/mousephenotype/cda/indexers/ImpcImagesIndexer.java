@@ -460,12 +460,12 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 		//observation_ids are stored as solr id field and so we need to make sure no conflict
 		//need to query the experiment core to make sure we allocate numbers over what we already have
 		//this could have other issues if we have assumed id is observation id elsewhere -but I think it's in loading the db and not after indexing??
-		int highestObserationId=this.getHighestObservationId();
+		int highestObserationId=0;
 
 		List<ImageDTO> phisImageDtos = populatePhisImages();
 		for(ImageDTO image:phisImageDtos){
 			highestObserationId++;//do here so one higher than highest obs id
-			image.setId(String.valueOf(highestObserationId));//add a generated id that we know hasn't been used before
+			image.setId("secondary_" + String.valueOf(highestObserationId));//add a generated id that we know hasn't been used before
 			addMpInfo( image, runStatus);
 		}
 		return phisImageDtos;
@@ -484,36 +484,6 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 			}
 		}
 		return image;
-	}
-
-	/**
-	 * get the largest document ID in the observation core
-	 *
-	 * @return an int representing the largest ID in the observation core, or 1000000000 if the lookup fails to produce a document
-	 * @throws SolrServerException
-	 * @throws IOException
-	 */
-	int getHighestObservationId() throws SolrServerException, IOException {
-
-		// Query should look like:
-		//   http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/experiment/select?q=*:*&rows=1&sort=id%20desc&rows=1&fl=id
-		SolrQuery query = new SolrQuery()
-				.setQuery("*:*")
-				.setFields("id")
-				.addSort("id", SolrQuery.ORDER.desc)
-				.setRows(1);
-
-		int highestObsId = 1000000000; // Default to One BILLION, in case the lookup fails
-
-		// Override with actual highest observation document ID
-		List<ObservationDTO> docs = experimentCore.query(query).getBeans(ObservationDTO.class);
-		if (docs.size() > 0) {
-			highestObsId = Integer.parseInt(docs.get(0).getId());
-		}
-
-		logger.debug("largest observation id = "+highestObsId);
-
-		return highestObsId;
 	}
 
 
