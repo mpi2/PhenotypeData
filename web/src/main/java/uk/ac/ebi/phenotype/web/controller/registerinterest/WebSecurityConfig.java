@@ -16,8 +16,8 @@
 
 package uk.ac.ebi.phenotype.web.controller.registerinterest;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -35,6 +35,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
 import org.springframework.security.web.header.writers.frameoptions.AllowFromStrategy;
 import org.springframework.security.web.header.writers.frameoptions.XFrameOptionsHeaderWriter;
+import org.springframework.security.web.savedrequest.DefaultSavedRequest;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.savedrequest.SavedRequest;
@@ -42,10 +43,13 @@ import org.springframework.util.StringUtils;
 
 import javax.inject.Inject;
 import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
 import java.io.IOException;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Created by mrelac on 12/06/2017.
@@ -162,14 +166,44 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 //    }
 
     public class RiSavedRequestAwareAuthenticationSuccessHandler extends SavedRequestAwareAuthenticationSuccessHandler {
-        protected final Log logger = LogFactory.getLog(this.getClass());
-        private RequestCache requestCache = new HttpSessionRequestCache();
+
+        private final Logger       logger       = LoggerFactory.getLogger(this.getClass().getCanonicalName());
+        private       RequestCache requestCache = new HttpSessionRequestCache();
 
         public RiSavedRequestAwareAuthenticationSuccessHandler() {
         }
 
         public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws ServletException, IOException {
             logger.info("RiSavedRequest: Authentication Success!");
+
+
+
+            // FIXME
+            DefaultSavedRequest dsr = (DefaultSavedRequest) request.getSession().getAttribute("SPRING_SECURITY_SAVED_REQUEST");
+            if (dsr == null) {
+                logger.info("**************** DefaultSavedRequest is NULL! ****************");
+            } else {
+                List<Cookie> cookies = dsr.getCookies();
+                Cookie js = null;
+                for (Cookie cookie : cookies) {
+                    if (cookie.getName().equalsIgnoreCase("jsessionid")) {
+                        js = cookie;
+                        break;
+                    }
+                }
+                if (js == null) {
+                    logger.info("NO JSESSIONID COOKIE!");
+                } else {
+                    logger.info("dsr.requestURL = {}. scheme = {}. JSESSIONID domain::name::path::value: {}::{}::{}::{}", dsr.getRequestURL(), dsr.getScheme(), js.getDomain(), js.getName(), js.getPath(), js.getValue());
+                }
+            }
+
+
+
+
+
+            String referer = (String) request.getAttribute("Referer");
+            logger.info("Referer: {}", referer);
             SavedRequest savedRequest = this.requestCache.getRequest(request, response);
             if (savedRequest == null) {
                 logger.info("RiSavedRequest: savedRequest is null.");
