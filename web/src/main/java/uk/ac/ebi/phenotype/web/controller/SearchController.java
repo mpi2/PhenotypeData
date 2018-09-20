@@ -69,6 +69,7 @@ public class SearchController {
 	public String rootForward(HttpServletRequest request) {
 
 		String scheme = (request.getAttribute("isProxied").equals("true") ? "https" : request.getScheme());
+		logger.info("rootForward(): isProxied = {}. scheme = {}.", request.getAttribute("isProxied"), scheme);
 		String redirectUrl = scheme + ":" + request.getAttribute("mappedHostname") + request.getAttribute("baseUrl") + "/search";
 
 		return "redirect:" + redirectUrl;
@@ -89,6 +90,7 @@ public class SearchController {
 	public String searchForward(HttpServletRequest request) {
 
 		String scheme = (request.getAttribute("isProxied").equals(true) ? "https" : request.getScheme());
+		logger.info("searchForward(): isProxied = {}. scheme = {}.", request.getAttribute("isProxied"), scheme);
 		String redirectUrl = scheme + ":" + request.getAttribute("mappedHostname") + request.getAttribute("baseUrl") + "/search/gene?kw=*";
 
 		return "redirect:" + redirectUrl;
