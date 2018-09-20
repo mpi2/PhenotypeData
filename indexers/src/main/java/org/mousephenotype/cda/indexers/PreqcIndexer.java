@@ -420,19 +420,19 @@ public class PreqcIndexer extends AbstractIndexer implements CommandLineRunner {
                         if (sex.equals("Both")) {
 
                             // use incremental id instead of id field from Harwell
-                            o.setId(count++);
+                            o.setId(String.valueOf(count++));
                             o.setSex(SexType.female.getName());
                             documentCount++;
                             preqcCore.addBean(o, 5000);
 
-                            o.setId(count++);
+                            o.setId(String.valueOf(count++));
                             o.setSex(SexType.male.getName());
                             documentCount++;
                             preqcCore.addBean(o, 5000);
 
                         } else {
 
-                            o.setId(count++);
+                            o.setId(String.valueOf(count++));
 
                             try {
 
