@@ -460,12 +460,12 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 		//observation_ids are stored as solr id field and so we need to make sure no conflict
 		//need to query the experiment core to make sure we allocate numbers over what we already have
 		//this could have other issues if we have assumed id is observation id elsewhere -but I think it's in loading the db and not after indexing??
-		int highestObserationId=0;
+		int highestSecondaryId=0;
 
 		List<ImageDTO> phisImageDtos = populatePhisImages();
 		for(ImageDTO image:phisImageDtos){
-			highestObserationId++;//do here so one higher than highest obs id
-			image.setId("secondary_" + String.valueOf(highestObserationId));//add a generated id that we know hasn't been used before
+			highestSecondaryId++;//do here so one higher than highest obs id
+			image.setId("secondary_" + String.valueOf(highestSecondaryId));//add a generated id that we know hasn't been used before
 			addMpInfo( image, runStatus);
 		}
 		return phisImageDtos;
