@@ -31,14 +31,6 @@ public class ImpcImagesIndexerTest implements ApplicationContextAware {
     }
 
 
-    @Test
-    public void getHighestObservationId() throws Exception {
-
-        Integer largest = impcImagesIndexer.getHighestObservationId();
-        System.out.println("Largest ID is " + largest);
-        assert(largest > 1000000); // There are at least One MILLION documents
-    }
-
 
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
