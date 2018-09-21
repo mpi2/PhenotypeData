@@ -26,7 +26,7 @@
         <div class="login-card">
             <div class="login-form">
 
-                <form action="changePasswordResponse" method="post" class="form-horizontal">
+                <form action="changePasswordResponse" method="POST" class="form-horizontal">
                     <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
                     <input type="hidden" name="token" value="${token}" />
 

@@ -195,7 +195,7 @@ public class RegisterInterestController {
         logger.info("/Access_Denied: No permission to access page for user {} with role {}", securityUtils.getPrincipal(), StringUtils.join(roles, ", "));
 
         sleep(SHORT_SLEEP_SECONDS);
-// FIXME Is this correct? return or redirect? errorPage or loginPage?
+
         return "ri_errorPage";
     }
 
@@ -225,11 +225,15 @@ public class RegisterInterestController {
 
 
     @Secured("ROLE_USER")
-    @RequestMapping(value = "/registration/gene/{geneAccessionId}", method = RequestMethod.GET)
+    @RequestMapping(value = "/registration/gene/{geneAccessionId}", method = RequestMethod.POST)
     public String registrationGene(
-            @PathVariable("geneAccessionId") String geneAccessionId,
-            @RequestParam("target") String target) throws InterestException
+            HttpServletRequest request,
+            @PathVariable("geneAccessionId") String geneAccessionId) throws InterestException
     {
+        String target = request.getParameter("target");
+        if (target == null) {
+            target = paBaseUrl + "/summary";
+        }
         sqlUtils.registerGene(securityUtils.getPrincipal(), geneAccessionId);
 
         return "redirect:" + target;
@@ -237,11 +241,15 @@ public class RegisterInterestController {
 
 
     @Secured("ROLE_USER")
-    @RequestMapping(value = "/unregistration/gene/{geneAccessionId}", method = RequestMethod.GET)
+    @RequestMapping(value = "/unregistration/gene/{geneAccessionId}", method = RequestMethod.POST)
     public String unregistrationGene(
-            @PathVariable("geneAccessionId") String geneAccessionId,
-            @RequestParam("target") String target) throws InterestException
+            HttpServletRequest request,
+            @PathVariable("geneAccessionId") String geneAccessionId) throws InterestException
     {
+        String target = request.getParameter("target");
+        if (target == null) {
+            target = paBaseUrl + "/summary";
+        }
         sqlUtils.unregisterGene(securityUtils.getPrincipal(), geneAccessionId);
 
         return "redirect:" + target;
@@ -275,7 +283,7 @@ public class RegisterInterestController {
     }
 
 
-    @RequestMapping(value = "/changePasswordRequest", method = RequestMethod.GET)
+    @RequestMapping(value = "/changePasswordRequest", method = RequestMethod.POST)
     public String changePasswordRequest(ModelMap model) {
         model.addAttribute("title", TITLE_CHANGE_PASSWORD_REQUEST);
         model.addAttribute("status", INFO_CHANGE_PASSWORD);
@@ -350,12 +358,14 @@ public class RegisterInterestController {
 
         logger.info("Sent Change Password email to {}", emailAddress);
 
+        model.addAttribute("showSummaryLink", true);
+
         return "ri_statusPage";
     }
 
 
     @RequestMapping(value = "/changePasswordResponse", method = RequestMethod.GET)
-    public String changePasswordResponseGetUrl(ModelMap model, HttpServletRequest request) {
+    public String changePasswordResponseGet(ModelMap model, HttpServletRequest request) {
 
         // Parse out query string for token value.
         String token = SecurityUtils.getTokenFromQueryString(request.getQueryString());
@@ -394,7 +404,7 @@ public class RegisterInterestController {
 
 
     @RequestMapping(value = "/changePasswordResponse", method = RequestMethod.POST)
-    public String changePasswordResponsePostUrl(
+    public String changePasswordResponsePost(
             ModelMap model, HttpServletRequest request,
             HttpServletResponse response,
             @RequestParam("token") String token,
@@ -476,13 +486,15 @@ public class RegisterInterestController {
         model.addAttribute("status", status);
         model.addAttribute("emailAddress", emailAddress);
 
+        model.addAttribute("showSummaryLink", true);
+
         return "ri_statusPage";
     }
 
 
     @Secured("ROLE_USER")
-    @RequestMapping(value = "/account", method = RequestMethod.GET)
-    public String accountGetUrl(ModelMap model) {
+    @RequestMapping(value = "/accountDeleteRequest", method = RequestMethod.POST)
+    public String accountDeleteRequest(ModelMap model) {
         model.addAttribute("emailAddress", securityUtils.getPrincipal());
 
         return "ri_deleteAccountConfirmationPage";
@@ -490,8 +502,8 @@ public class RegisterInterestController {
 
 
     @Secured("ROLE_USER")
-    @RequestMapping(value = "/account", method = RequestMethod.POST)
-    public String accountDeleteUrl(
+    @RequestMapping(value = "/accountDeleteConfirmation", method = RequestMethod.POST)
+    public String accountDeleteConfirmation(
             HttpServletRequest request,
             HttpServletResponse response,
             ModelMap model
@@ -516,7 +528,11 @@ public class RegisterInterestController {
             new SecurityContextLogoutHandler().logout(request, response, auth);
         }
 
-        return "redirect:" + paBaseUrl + "/login?deleted";
+        model.addAttribute("showWhen", true);
+        model.addAttribute("showLoginLink", true);
+        model.addAttribute("status", "Your account has been deleted.");
+
+        return "ri_statusPage";
     }
 
 

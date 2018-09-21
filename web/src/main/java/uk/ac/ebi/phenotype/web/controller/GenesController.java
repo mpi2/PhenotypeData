@@ -346,13 +346,15 @@ public class GenesController {
         String registerButtonText = "Login to register interest";
         String registerButtonAnchor = new StringBuilder()
                 .append(paBaseUrl).append("/authenticated")
-                .append("?target=" + paBaseUrl + "/genes/" + acc)
                 .toString();
+        String formMethod = "GET";
 
         String registerButtonId = acc;
         String registerIconClass = "fa fa-sign-in";
 
         if (loggedIn) {
+
+            formMethod = "POST";
 
             List<String> geneAccessionIds = riUtils.getGeneAccessionIds();
 
@@ -360,13 +362,13 @@ public class GenesController {
 
                 registerIconClass = "fa fa-sign-out";
                 registerButtonText = "Unregister interest";
-                registerButtonAnchor = paBaseUrl + "/unregistration/gene/" + acc + "?target=" + paBaseUrl + "/genes/" + acc;
+                registerButtonAnchor = paBaseUrl + "/unregistration/gene/" + acc;
 
             } else {
 
                 registerIconClass = "fa fa-sign-in";
                 registerButtonText = "Register interest";
-                registerButtonAnchor = paBaseUrl + "/registration/gene/" + acc + "?target=" + paBaseUrl + "/genes/" + acc;
+                registerButtonAnchor = paBaseUrl + "/registration/gene/" + acc;
             }
         }
 
@@ -374,6 +376,7 @@ public class GenesController {
         model.addAttribute("registerButtonAnchor", registerButtonAnchor);
         model.addAttribute("registerButtonId", registerButtonId);
         model.addAttribute("registerIconClass", registerIconClass);
+        model.addAttribute("formMethod", formMethod);
 
         try {
             getExperimentalImages(acc, model);

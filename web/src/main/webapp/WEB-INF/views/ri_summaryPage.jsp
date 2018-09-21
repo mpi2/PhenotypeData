@@ -29,9 +29,9 @@
                                     <a href="${paBaseUrl}/rilogout">Logout</a>
                                     &nbsp;&nbsp;&nbsp;&nbsp;
                                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                    <button type="submit" class="btn btn-block btn-primary btn-default" formaction="${paBaseUrl}/changePasswordRequest" formmethod="get">Reset registration of interest password</button>
+                                    <button type="submit" class="btn btn-block btn-primary btn-default" formaction="${paBaseUrl}/changePasswordRequest" formmethod="POST">Reset registration of interest password</button>
                                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                    <button type="submit" class="btn btn-block btn-primary btn-default" formaction="${paBaseUrl}/account" formmethod="get">Delete all registrations of interest</button>
+                                    <button type="submit" class="btn btn-block btn-primary btn-default" formaction="${paBaseUrl}/accountDeleteRequest" formmethod="POST">Delete all registrations of interest</button>
                                 </form>
 
                                 <h6>Username: ${summary.emailAddress}</h6>
@@ -123,7 +123,10 @@
                                                                 </c:choose>
                                                             </td>
                                                             <td>
-                                                                <a href="${paBaseUrl}/unregistration/gene/${gene.mgiAccessionId}?target=${paBaseUrl}/summary">Unregister</a>
+                                                                <form id="formUnregister" style="border: 0;">
+                                                                    <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
+                                                                    <button type="submit" class="btn btn-block btn-primary btn-default" formaction="${paBaseUrl}/unregistration/gene/${gene.mgiAccessionId}" formmethod="POST">Unregister</button>
+                                                                </form>
                                                             </td>
                                                         </tr>
                                                     </c:forEach>

@@ -26,8 +26,7 @@
     <div class="login-container">
         <div class="login-card">
             <div class="login-form">
-                <form action="changePasswordEmail" method="post" class="form-horizontal">
-                    <%--<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />--%>
+                <form action="changePasswordEmail" method="POST" class="form-horizontal">
                     <div class="alert alert-success">
                         <c:if test="${showWhen}">
                             ${current.toLocaleString()}:&nbsp;
@@ -37,7 +36,12 @@
 
                     <br />
 
-                    <a href="${paBaseUrl}/summary">Summary</a>
+                    <c:if test="${showLoginLink}">
+                        <a href="${paBaseUrl}/rilogin">Log in</a>
+                    </c:if>
+                    <c:if test="${showSummaryLink}">
+                        <a href="${paBaseUrl}/summary">Summary</a>
+                    </c:if>
 
                 </form>
             </div>

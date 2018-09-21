@@ -26,7 +26,7 @@
     <div class="login-container">
         <div class="login-card">
             <div class="login-form">
-                <form action="changePasswordEmail" method="post" class="form-horizontal">
+                <form action="changePasswordEmail" method="POST" class="form-horizontal">
 
                     <div class="alert alert-danger">
                         <c:if test="${showWhen}">
@@ -37,7 +37,7 @@
 
                     <br />
 
-                    <a href="${paBaseUrl}/login">Login</a>
+                    <a href="${paBaseUrl}/rilogin">Login</a>
 
                 </form>
             </div>

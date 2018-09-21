@@ -7,7 +7,52 @@
 <t:genericpage>
 
     <jsp:attribute name="title">IMPC Login</jsp:attribute>
-    <jsp:attribute name="breadcrumb">&nbsp;&raquo; <a href="${paBaseUrl}/login">Register Interest</a> &raquo; Login</jsp:attribute>
+    <jsp:attribute name="breadcrumb">&nbsp;&raquo; <a href="${paBaseUrl}/rilogin">Register Interest</a> &raquo; Login</jsp:attribute>
+
+    <jsp:attribute name="header">
+
+        <style>
+            .like_anchor {
+                align-items: normal;
+                background-color: rgba(0,0,0,0);
+                border-color: rgb(0, 0, 238);
+                border-style: none;
+                box-sizing: content-box;
+                cursor: pointer;
+                display: inline;
+                font: inherit;
+                height: auto;
+                padding: 0;
+                perspective-origin: 0 0;
+                text-align: start;
+                transform-origin: 0 0;
+                width: auto;
+                -moz-appearance: none;
+                -webkit-logical-height: 1em; /* Chrome ignores auto, so we have to use this hack to set the correct height  */
+                -webkit-logical-width: auto; /* Chrome ignores auto, but here for completeness */
+
+                color: #0978a1;
+                fill: #0978a1;
+                text-decoration: none;
+            }
+
+            /* Mozilla uses a pseudo-element to show focus on buttons, */
+            /* but anchors are highlighted via the focus pseudo-class. */
+
+            @supports (-moz-appearance:none) { /* Mozilla-only */
+            like_anchor::-moz-focus-inner { /* reset any predefined properties */
+            border: none;
+            padding: 0;
+            }
+            like_anchor:focus { /* add outline to focus pseudo-class */
+            outline-style: dotted;
+            outline-width: 1px;
+            }
+            }
+
+        </style>
+
+    </jsp:attribute>
 
     <jsp:attribute name="bodyTag">
         <body>
@@ -63,10 +108,13 @@
 
                             <br/>
 
-                            <a href="${paBaseUrl}/changePasswordRequest">New account</a>
-                            &nbsp;&nbsp;&nbsp;&nbsp;
-                            <a href="${paBaseUrl}/changePasswordRequest">Forgot password?</a>
+                        </form>
 
+                        <form class="form-horizontal">
+                            <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
+                            <button class="like_anchor" type="submit" formaction="${paBaseUrl}/changePasswordRequest" formmethod="POST">New account</button>
+                            &nbsp;&nbsp;&nbsp;&nbsp;
+                            <button class="like_anchor" type="submit" formaction="${paBaseUrl}/changePasswordRequest" formmethod="POST">Forgot password?</button>
                         </form>
                     </div>
                 </div>

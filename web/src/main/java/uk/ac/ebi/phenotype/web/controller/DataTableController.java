@@ -43,6 +43,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -608,52 +609,52 @@ public class DataTableController {
 			}
 
 			String target = paBaseUrl + "/search/gene?" + request.getQueryString();
+			String formAction;
+			String formMethod;
+			String registerIconClass;
+			String registerButtonText;
+
+			CsrfToken csrf = (CsrfToken) request.getAttribute("_csrf");
 
 			if (loggedIn) {
 
 				List<String> geneAccessionIds = riUtils.getGeneAccessionIds();
 
+				formMethod = "POST";
+
 				if (geneAccessionIds.contains(mgiId)) {
 
-					String unregister = "<div class='registerforinterest' oldtitle='Unregister interest' title=''>"
-							+ "<i class='fa fa-sign-out'></i>"
-							+ "<a id='" + doc.getString("mgi_accession_id")
-							+ "' class='regInterest primary interest' href='"
-							+ paBaseUrl + "/unregistration/gene/" + doc.getString("mgi_accession_id")
-							+ "?target=" + target
-							+ "'>&nbsp;Unregister Interest</a>"
-							+ "</div>";
-					rowData.add(unregister);
+					formAction = paBaseUrl + "/unregistration/gene/" + doc.getString("mgi_accession_id");
+					registerIconClass = "fa fa-sign-out";
+					registerButtonText = "Unregister interest";
+
+					String unregisterTag = buildRiFormTag(target, formAction, formMethod, registerIconClass, registerButtonText, csrf);
+
+					rowData.add(unregisterTag);
 
 				} else {
 
-					String unregister = "<div class='registerforinterest' oldtitle='Register interest' title=''>"
-							+ "<i class='fa fa-sign-in'></i>"
-							+ "<a id='" + doc.getString("mgi_accession_id")
-							+ "' class='regInterest primary interest' href='"
-							+ paBaseUrl + "/registration/gene/" + doc.getString("mgi_accession_id")
-							+ "?target=" + target
-							+ "'>&nbsp;Register Interest</a>"
-							+ "</div>";
-					rowData.add(unregister);
+					formAction = paBaseUrl + "/registration/gene/" + doc.getString("mgi_accession_id");
+					registerIconClass = "fa fa-sign-in";
+					registerButtonText = "Register interest";
+
+					String registerTag = buildRiFormTag(target, formAction, formMethod, registerIconClass, registerButtonText, csrf);
+
+					rowData.add(registerTag);
 				}
 
 			} else {
 
 				// Use Register Interest authenticated endpoint
-				StringBuilder href = new StringBuilder();
 
-				href
-						.append("href='")
-						.append(paBaseUrl).append("/authenticated")
-						.append("?target=" + target)
-						.append("'");
-				String interest = "<div class='registerforinterest' oldtitle='Login to register interest' title=''>"
-						+ "<i class='fa fa-sign-in'></i>"
-						+ "<a class='regInterest' " + href.toString() + ">&nbsp;Interest</a>"
-						+ "</div>";
+				formAction = paBaseUrl + "/authenticated";
+				formMethod = "GET";
+				registerIconClass = "fa fa-sign-in";
+				registerButtonText = "Login to register interest";
 
-				rowData.add(interest);
+				String interestTag = buildRiFormTag(target, formAction, formMethod, registerIconClass, registerButtonText, csrf);
+
+				rowData.add(interestTag);
 			}
 
 			j.getJSONArray("aaData").add(rowData);
@@ -665,6 +666,23 @@ public class DataTableController {
 		j.put("facet_fields", facetFields);
 
 		return j.toString();
+	}
+
+	private String buildRiFormTag(String target, String formAction, String formMethod, String registerIconClass, String registerButtonText, CsrfToken csrf) {
+		String riFormTag =
+				" <span>\n" +
+				"  <form style=\"border: 0;\">\n" +
+						"    <input type=\"hidden\" name=\"" + csrf.getParameterName() + "\" value=\"" + csrf.getToken() + "\" />\n" +
+						"    <input type=\"hidden\" name=\"target\" value=\"" + target + "\" />\n" +
+						"      <button type=\"submit\" class=\"btn btn-block btn-primary btn-default\" formaction=\"" + formAction + "\" formmethod=\"" + formMethod + "\" style=\"vertical-align: top\">\n" +
+						"        <i class=\"" + registerIconClass + "\"></i>\n" +
+						"        " + registerButtonText + "\n" +
+						"      </button>\n" +
+						"    </a>\n" +
+						"  </form>" +
+		        " </span>\n";
+
+		return riFormTag;
 	}
 
 
