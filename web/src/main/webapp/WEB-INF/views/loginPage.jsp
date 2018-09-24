@@ -10,7 +10,9 @@
     <jsp:attribute name="breadcrumb">&nbsp;&raquo; <a href="${paBaseUrl}/rilogin">Register Interest</a> &raquo; Login</jsp:attribute>
 
     <jsp:attribute name="header">
-
+        <!-- This style makes a button look like an IMPC link. It is meant to be used where you need to do a POST
+             on a part of the page that has nearby buttons that are meant to stand out more than the POST link decorated
+             with this class. -->
         <style>
             .like_anchor {
                 align-items: normal;

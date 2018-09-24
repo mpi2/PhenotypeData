@@ -147,14 +147,5 @@
             </div>
         </div>
 
-        <script type="text/javascript">
-
-            $(document).ready(function () {
-
-                // Disable drupal login links on the page
-                $('ul.menu li.leaf').css('display', 'none');
-            });
-        </script>
-
     </jsp:body>
 </t:genericpage>

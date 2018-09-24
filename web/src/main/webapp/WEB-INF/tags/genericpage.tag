@@ -343,6 +343,14 @@
         </c:when>
     </c:choose>
 
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+            // Disable drupal links at the top of the header.
+            $('div#tn').css('display', 'none');
+        });
+    </script>
+
 </div> <!-- wrapper -->
 </body>
 
