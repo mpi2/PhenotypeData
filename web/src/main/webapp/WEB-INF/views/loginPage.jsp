@@ -114,7 +114,7 @@
 
                         <form class="form-horizontal">
                             <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
-                            <button class="like_anchor" type="submit" formaction="${paBaseUrl}/changePasswordRequest" formmethod="POST">New account</button>
+                            <button class="like_anchor" type="submit" formaction="${paBaseUrl}/accountRequest" formmethod="POST">New account</button>
                             &nbsp;&nbsp;&nbsp;&nbsp;
                             <button class="like_anchor" type="submit" formaction="${paBaseUrl}/changePasswordRequest" formmethod="POST">Forgot password?</button>
                         </form>

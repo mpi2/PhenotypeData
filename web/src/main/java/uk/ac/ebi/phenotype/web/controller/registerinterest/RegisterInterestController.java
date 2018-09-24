@@ -78,10 +78,17 @@ public class RegisterInterestController {
     public final static String ERR_SEND_MAIL_FAILED       = "The e-mail send failed.";
     public final static String ERR_INVALID_CREDENTIALS    = "Invalid username and password.";
 
+
+    // Button strings
+    public final static String BUTTON_CHANGE_PASSWORD = "Send e-mail to change password";
+    public final static String BUTTON_CREATE_ACCOUNT  = "Send e-mail to create account";
+
+
     // Info messages
     public final static String INFO_ACCOUNT_CREATED    = "Your account has been created.";
     public static final String INFO_ALREADY_REGISTERED = "You are already registered for this gene.";
     public final static String INFO_CHANGE_PASSWORD    = "Send an e-mail to the address below to change the password.";
+    public final static String INFO_CREATE_ACCOUNT     = "Send an e-mail to the address below to create an account.";
     public static final String INFO_NOT_REGISTERED     = "You are not registered for this gene.";
     public final static String INFO_PASSWORD_EXPIRED   = "Your password is expired. Please use the <i>change password</i> link below to change your password.";
     public final static String INFO_PASSWORD_CHANGED   = "Your password has been changed.";
@@ -100,6 +107,7 @@ public class RegisterInterestController {
     public final static String TITLE_CHANGE_PASSWORD_FAILED     = "Change password failed";
     public final static String TITLE_CHANGE_PASSWORD_REQUEST    = "Change password";
     public final static String TITLE_CHANGE_PASSWORD_EMAIL_SENT = "Change password e-mail sent";
+    public final static String TITLE_CREATE_ACCOUNT_REQUEST     = "Create account";
     public final static String TITLE_PASSWORD_CHANGED           = "Password Changed";
     public final static String TITLE_REGISTER_GENE_FAILED       = "Gene registration failed.";
     public final static String TITLE_UNREGISTER_GENE_FAILED     = "Gene unregistration failed.";
@@ -287,6 +295,17 @@ public class RegisterInterestController {
     public String changePasswordRequest(ModelMap model) {
         model.addAttribute("title", TITLE_CHANGE_PASSWORD_REQUEST);
         model.addAttribute("status", INFO_CHANGE_PASSWORD);
+        model.addAttribute("buttonText", BUTTON_CHANGE_PASSWORD);
+
+        return "ri_changePasswordRequestPage";
+    }
+
+
+    @RequestMapping(value = "/accountRequest", method = RequestMethod.POST)
+    public String accountRequest(ModelMap model) {
+        model.addAttribute("title", TITLE_CREATE_ACCOUNT_REQUEST);
+        model.addAttribute("status", INFO_CREATE_ACCOUNT);
+        model.addAttribute("buttonText", BUTTON_CREATE_ACCOUNT);
 
         return "ri_changePasswordRequestPage";
     }
@@ -349,8 +368,8 @@ public class RegisterInterestController {
             return "ri_errorPage";
         }
 
-        String status = "An e-mail containing a change password link has been sent to <i>" + emailAddress + "</i>.\n" +
-                "Any previous links are no longer valid. This link is valid for " + PASSWORD_CHANGE_TTL_MINUTES + " minutes.";
+        String status = "An e-mail with instructions has been sent to <i>" + emailAddress + "</i>.\n" +
+                        "The e-mail contains a link valid for " + PASSWORD_CHANGE_TTL_MINUTES + " minutes. Any previous links are no longer valid.";
         model.addAttribute("emailAddress", emailAddress);
         model.addAttribute("title", TITLE_CHANGE_PASSWORD_EMAIL_SENT);
         model.addAttribute("status", status);
