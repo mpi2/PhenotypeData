@@ -87,7 +87,7 @@ public class RegisterInterestController {
     // Info messages
     public final static String INFO_ACCOUNT_CREATED    = "Your account has been created.";
     public static final String INFO_ALREADY_REGISTERED = "You are already registered for this gene.";
-    public final static String INFO_CHANGE_PASSWORD    = "Send an e-mail to the address below to change the password.";
+    public final static String INFO_CHANGE_PASSWORD    = "Send an e-mail to the address below to change your password.";
     public final static String INFO_CREATE_ACCOUNT     = "Send an e-mail to the address below to create an account.";
     public static final String INFO_NOT_REGISTERED     = "You are not registered for this gene.";
     public final static String INFO_PASSWORD_EXPIRED   = "Your password is expired. Please use the <i>change password</i> link below to change your password.";
