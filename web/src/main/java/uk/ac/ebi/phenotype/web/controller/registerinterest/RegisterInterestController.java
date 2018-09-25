@@ -59,7 +59,7 @@ public class RegisterInterestController {
 
     private final Logger log = LoggerFactory.getLogger(this.getClass().getCanonicalName());
 
-    private final int PASSWORD_CHANGE_TTL_MINUTES = 10;
+    private final int PASSWORD_CHANGE_TTL_MINUTES = 180;
 
     // Sleep intervals
     private final int INVALID_PASSWORD_SLEEP_SECONDS = 1;

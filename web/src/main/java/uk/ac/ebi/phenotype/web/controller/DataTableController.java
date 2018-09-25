@@ -669,10 +669,12 @@ public class DataTableController {
 	}
 
 	private String buildRiFormTag(String target, String formAction, String formMethod, String registerIconClass, String registerButtonText, CsrfToken csrf) {
+		// If csrf is disabled, the CsrfToken will be null. Account for that here to avoid NPE.
+		String csrfLine = (csrf == null ? "" : "    <input type=\"hidden\" name=\"" + csrf.getParameterName() + "\" value=\"" + csrf.getToken() + "\" />\n");
 		String riFormTag =
 				" <span>\n" +
 				"  <form style=\"border: 0;\">\n" +
-						"    <input type=\"hidden\" name=\"" + csrf.getParameterName() + "\" value=\"" + csrf.getToken() + "\" />\n" +
+						csrfLine +
 						"    <input type=\"hidden\" name=\"target\" value=\"" + target + "\" />\n" +
 						"      <button type=\"submit\" class=\"btn btn-block btn-primary btn-default\" formaction=\"" + formAction + "\" formmethod=\"" + formMethod + "\" style=\"vertical-align: top\">\n" +
 						"        <i class=\"" + registerIconClass + "\"></i>\n" +

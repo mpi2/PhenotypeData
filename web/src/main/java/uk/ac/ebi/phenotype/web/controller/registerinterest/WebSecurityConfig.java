@@ -59,6 +59,7 @@ import java.io.IOException;
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     private DataSource riDataSource;
+    private final int MAX_INACTIVE_INTERVAL_IN_HOURS = 24;
 
     // Must use qualifier to get ri database; otherwise, komp2 is served up.
     @Inject
