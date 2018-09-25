@@ -16,10 +16,13 @@
 
 package uk.ac.ebi.phenotype.web.controller.registerinterest;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -32,12 +35,17 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.DefaultRedirectStrategy;
+import org.springframework.security.web.RedirectStrategy;
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
 import org.springframework.security.web.header.writers.frameoptions.AllowFromStrategy;
 import org.springframework.security.web.header.writers.frameoptions.XFrameOptionsHeaderWriter;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.savedrequest.SavedRequest;
+import org.springframework.security.web.session.InvalidSessionStrategy;
+import org.springframework.security.web.util.UrlUtils;
+import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 import javax.inject.Inject;
@@ -45,6 +53,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
+import javax.validation.constraints.NotNull;
 import java.io.IOException;
 
 /**
@@ -60,6 +69,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     private DataSource riDataSource;
     private final int MAX_INACTIVE_INTERVAL_IN_HOURS = 24;
+
+    @NotNull
+    @Value("${paBaseUrl}")
+    private String paBaseUrl;
 
     // Must use qualifier to get ri database; otherwise, komp2 is served up.
     @Inject
@@ -120,6 +133,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                         .ignoringAntMatchers("/addpmidAllele")
                         .ignoringAntMatchers("/gwaslookup")
 
+                .and().sessionManagement().invalidSessionStrategy(new RiSimpleRedirectInvalidSessionStrategy(paBaseUrl + "/search/gene?kw=*"))
         ;
     }
 
@@ -155,6 +169,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws ServletException, IOException {
             logger.info("RiSavedRequest: Authentication Success!");
 
+            // Set the session maximum inactive interval. The interval parameter is in seconds.
+            request.getSession().setMaxInactiveInterval(MAX_INACTIVE_INTERVAL_IN_HOURS * 3600);
+
             SavedRequest savedRequest = this.requestCache.getRequest(request, response);
             if (savedRequest == null) {
                 logger.info("RiSavedRequest: savedRequest is null.");
@@ -176,6 +193,39 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
         public void setRequestCache(RequestCache requestCache) {
             this.requestCache = requestCache;
+        }
+    }
+
+
+    public final class RiSimpleRedirectInvalidSessionStrategy implements InvalidSessionStrategy {
+        private final Log              logger           = LogFactory.getLog(this.getClass());
+        private final String           destinationUrl;
+        private final RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
+        private       boolean          createNewSession = true;
+
+        public RiSimpleRedirectInvalidSessionStrategy(String invalidSessionUrl) {
+            Assert.isTrue(UrlUtils.isValidRedirectUrl(invalidSessionUrl), "url must start with '/' or with 'http(s)'");
+            this.destinationUrl = invalidSessionUrl;
+        }
+
+        public void onInvalidSessionDetected(HttpServletRequest request, HttpServletResponse response) throws IOException {
+
+            String referer = request.getHeader("referer");
+            if ((referer != null) && ( ! referer.startsWith(paBaseUrl))) {
+                referer = null;                         // Don't use referer if it doesn't start with known, safe url.
+            }
+
+            String target = (referer == null ? this.destinationUrl : referer);
+            this.logger.debug("Starting new session (if required) and redirecting to '" + target + "'");
+            if (this.createNewSession) {
+                request.getSession();
+            }
+
+            this.redirectStrategy.sendRedirect(request, response, target);
+        }
+
+        public void setCreateNewSession(boolean createNewSession) {
+            this.createNewSession = createNewSession;
         }
     }
 }
