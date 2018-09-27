@@ -26,7 +26,6 @@ import org.mousephenotype.cda.ri.core.services.CoreService;
 import org.mousephenotype.cda.ri.core.services.GenerateService;
 import org.mousephenotype.cda.ri.core.utils.DateUtils;
 import org.mousephenotype.cda.ri.core.utils.EmailUtils;
-import org.mousephenotype.cda.ri.core.utils.SecurityUtils;
 import org.mousephenotype.cda.ri.core.utils.SqlUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,6 +42,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import uk.ac.ebi.phenotype.generic.util.SecurityUtils;
 
 import javax.inject.Inject;
 import javax.mail.Message;
@@ -120,7 +120,6 @@ public class RegisterInterestController {
     private       CoreService      coreService;
     private       DateUtils        dateUtils     = new DateUtils();
     private       EmailUtils       emailUtils    = new EmailUtils();
-    private       SecurityUtils    securityUtils = new SecurityUtils();
 
     // Properties
     private String          drupalBaseUrl;
@@ -172,6 +171,11 @@ public class RegisterInterestController {
         if (error != null) {
             sleep(INVALID_PASSWORD_SLEEP_SECONDS);
         }
+        
+        // If user is already logged in, redirect them to the summary page.
+        if (SecurityUtils.isLoggedIn()) {
+            return "redirect: " + paBaseUrl + "/summary";
+        }
 
         HttpSession session = request.getSession();
         session.setAttribute("paBaseUrl", paBaseUrl);
@@ -209,7 +213,7 @@ public class RegisterInterestController {
         model.addAttribute("error", ERR_INVALID_CREDENTIALS);
 
         List<String> roles = auth.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList());
-        logger.info("/Access_Denied: No permission to access page for user {} with role {}", securityUtils.getPrincipal(), StringUtils.join(roles, ", "));
+        logger.info("/Access_Denied: No permission to access page for user {} with role {}", SecurityUtils.getPrincipal(), StringUtils.join(roles, ", "));
 
         sleep(SHORT_SLEEP_SECONDS);
 
@@ -224,7 +228,7 @@ public class RegisterInterestController {
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth != null) {
-            logger.info("/logout: User {} logged out.", securityUtils.getPrincipal());
+            logger.info("/logout: User {} logged out.", SecurityUtils.getPrincipal());
             new SecurityContextLogoutHandler().logout(request, response, auth);
         }
 
@@ -251,7 +255,7 @@ public class RegisterInterestController {
         if (target == null) {
             target = paBaseUrl + "/summary";
         }
-        sqlUtils.registerGene(securityUtils.getPrincipal(), geneAccessionId);
+        sqlUtils.registerGene(SecurityUtils.getPrincipal(), geneAccessionId);
 
         return "redirect:" + target;
     }
@@ -267,7 +271,7 @@ public class RegisterInterestController {
         if (target == null) {
             target = paBaseUrl + "/summary";
         }
-        sqlUtils.unregisterGene(securityUtils.getPrincipal(), geneAccessionId);
+        sqlUtils.unregisterGene(SecurityUtils.getPrincipal(), geneAccessionId);
 
         return "redirect:" + target;
     }
@@ -277,7 +281,7 @@ public class RegisterInterestController {
     @RequestMapping(value = "/summary", method = RequestMethod.GET)
     public String summary(ModelMap model, HttpServletRequest request) {
 
-        Summary summary = sqlUtils.getSummary(securityUtils.getPrincipal());
+        Summary summary = sqlUtils.getSummary(SecurityUtils.getPrincipal());
 
         model.addAttribute("summary", summary);
         model.addAttribute("paBaseUrl", paBaseUrl);
@@ -511,7 +515,7 @@ public class RegisterInterestController {
     @Secured("ROLE_USER")
     @RequestMapping(value = "/accountDeleteRequest", method = RequestMethod.POST)
     public String accountDeleteRequest(ModelMap model) {
-        model.addAttribute("emailAddress", securityUtils.getPrincipal());
+        model.addAttribute("emailAddress", SecurityUtils.getPrincipal());
 
         return "ri_deleteAccountConfirmationPage";
     }
@@ -526,11 +530,11 @@ public class RegisterInterestController {
     ) {
         try {
 
-            sqlUtils.deleteContact(securityUtils.getPrincipal());
+            sqlUtils.deleteContact(SecurityUtils.getPrincipal());
 
         } catch (InterestException e) {
 
-            logger.error("Unable to delete account for {}. Reason: {}", securityUtils.getPrincipal(), e.getLocalizedMessage());
+            logger.error("Unable to delete account for {}. Reason: {}", SecurityUtils.getPrincipal(), e.getLocalizedMessage());
 
             return "redirect: " + paBaseUrl + "/summary?error=" + ERR_ACCOUNT_NOT_DELETED;
         }
@@ -538,7 +542,7 @@ public class RegisterInterestController {
         // Log user out.
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth != null) {
-            logger.info("deleteAccountDeleteUrl(): User {} logged out.", securityUtils.getPrincipal());
+            logger.info("deleteAccountDeleteUrl(): User {} logged out.", SecurityUtils.getPrincipal());
             new SecurityContextLogoutHandler().logout(request, response, auth);
         }
 
@@ -622,11 +626,27 @@ public class RegisterInterestController {
                 .append("<br />")
                 .append("</td>")
                 .append("</tr>")
+
+
                 .append("<tr>")
                 .append("<td>")
                 .append("<a href=\"" + tokenLink + "\">" + buttonText + "</a>")
+                .append("<br />")
+                .append("<br />")
                 .append("</td>")
                 .append("</tr>")
+
+                .append("<tr>")
+                .append("<td>")
+                .append("If you are having trouble seeing the link, please paste this text into your browser:")
+                .append("<br />")
+                .append("<br />")
+                .append(tokenLink)
+                .append("<br />")
+                .append("<br />")
+                .append("</td>")
+                .append("</tr>")
+
                 .append("</table>")
                 .append("<br />")
                 .append(GenerateService.getEmailEpilogue(true))
@@ -673,8 +693,22 @@ public class RegisterInterestController {
                 .append("<tr>")
                 .append("<td>")
                 .append("<a href=\"" + tokenLink + "\">" + buttonText + "</a>")
+                .append("<br />")
+                .append("<br />")
                 .append("</td>")
                 .append("</tr>")
+
+                .append("<tr>")
+                .append("<td>")
+                .append("If you are having trouble seeing the link, please paste this text into your browser:")
+                .append("<br />")
+                .append("<br />")
+                .append(tokenLink)
+                .append("<br />")
+                .append("<br />")
+                .append("</td>")
+                .append("</tr>")
+
                 .append("</table>")
                 .append("<br />")
                 .append(GenerateService.getEmailEpilogue(true))

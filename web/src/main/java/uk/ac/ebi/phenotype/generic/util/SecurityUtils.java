@@ -83,9 +83,11 @@ logger.info("authorities = {}", authorities.stream().map(GrantedAuthority::getAu
         Integer PASSWORD_LENGTH = 12;
         SecureRandom secureRandom = new SecureRandom();
         byte[] bytes = new byte[PASSWORD_LENGTH];
+
         secureRandom.nextBytes(bytes);
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         String encryptedPassword = passwordEncoder.encode(bytes.toString());
+
         return encryptedPassword;
     }
 }
