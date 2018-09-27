@@ -20,7 +20,18 @@
             <div class="block block-system">
                 <div class="content">
                     <div class="node node-gene">
-                        <h1 class="title" id="top">Register Interest Summary </h1>
+                        <h1 class="title" id="top">Register Interest Summary</h1>
+
+                        <div class="alert alert-danger" style="color: crimson">
+                            <c:if test="${showWhen}">
+                                ${current.toLocaleString()}:&nbsp;
+                                <br />
+                                <br />
+                            </c:if>
+                            <c:if test="${not empty error}">
+                                <p>${error}</p>
+                            </c:if>
+                        </div>
 
                         <div class="section">
                             <div class="inner">
@@ -29,7 +40,7 @@
                                     <a href="${paBaseUrl}/rilogout">Logout</a>
                                     &nbsp;&nbsp;&nbsp;&nbsp;
                                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                    <button type="submit" class="btn btn-block btn-primary btn-default" formaction="${paBaseUrl}/changePasswordRequest" formmethod="POST">Reset registration of interest password</button>
+                                    <button type="submit" class="btn btn-block btn-primary btn-default" formaction="${paBaseUrl}/resetPasswordRequest" formmethod="GET">Reset registration of interest password</button>
                                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                                     <button type="submit" class="btn btn-block btn-primary btn-default" formaction="${paBaseUrl}/accountDeleteRequest" formmethod="POST">Delete all registrations of interest</button>
                                 </form>

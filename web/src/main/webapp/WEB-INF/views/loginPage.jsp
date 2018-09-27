@@ -81,18 +81,31 @@
                             <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
 
                             <c:if test="${param.error != null}">
-                                <div class="messages error">
-                                    <p>Invalid username and password.</p>
-                                </div>
+
+                                <c:if test="${empty param.errorMessage}">
+                                    <div class="messages error">
+                                        <p>Invalid username and password.</p>
+                                    </div>
+                                </c:if>
+                                <c:if test="${not empty param.errorMessage}">
+                                    <div class="messages error">
+                                        <p>${param.errorMessage}</p>
+                                    </div>
+                                </c:if>
                             </c:if>
                             <c:if test="${param.logout != null}">
-                                <div class="messages">
+                                <div class="messages" style="color: indigo">
                                     <p>You have been logged out successfully.</p>
                                 </div>
                             </c:if>
                             <c:if test="${param.deleted != null}">
-                                <div class="messages">
+                                <div class="messages" style="color: indigo">
                                     <p>Your account has been deleted as requested.</p>
+                                </div>
+                            </c:if>
+                            <c:if test="${param.status != null}">
+                                <div class="messages" style="color: indigo">
+                                    <p>${param.status}</p>
                                 </div>
                             </c:if>
 
@@ -114,9 +127,9 @@
 
                         <form class="form-horizontal">
                             <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
-                            <button class="like_anchor" type="submit" formaction="${paBaseUrl}/accountRequest" formmethod="POST">New account</button>
+                            <button class="like_anchor" type="submit" formaction="${paBaseUrl}/newAccountRequest" formmethod="GET">New account</button>
                             &nbsp;&nbsp;&nbsp;&nbsp;
-                            <button class="like_anchor" type="submit" formaction="${paBaseUrl}/changePasswordRequest" formmethod="POST">Forgot password?</button>
+                            <button class="like_anchor" type="submit" formaction="${paBaseUrl}/resetPasswordRequest" formmethod="GET">Forgot password?</button>
                         </form>
                     </div>
                 </div>

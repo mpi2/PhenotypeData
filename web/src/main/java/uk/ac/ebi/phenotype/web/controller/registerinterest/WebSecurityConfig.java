@@ -68,7 +68,7 @@ import java.io.IOException;
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     private DataSource riDataSource;
-    private final int MAX_INACTIVE_INTERVAL_IN_HOURS = 24;
+    private final int MAX_INACTIVE_INTERVAL_IN_HOURS = 26;
 
     @NotNull
     @Value("${paBaseUrl}")

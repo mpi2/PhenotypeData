@@ -23,6 +23,7 @@ import org.mousephenotype.cda.ri.core.entities.ResetCredentials;
 import org.mousephenotype.cda.ri.core.entities.Summary;
 import org.mousephenotype.cda.ri.core.exceptions.InterestException;
 import org.mousephenotype.cda.ri.core.services.CoreService;
+import org.mousephenotype.cda.ri.core.services.GenerateService;
 import org.mousephenotype.cda.ri.core.utils.DateUtils;
 import org.mousephenotype.cda.ri.core.utils.EmailUtils;
 import org.mousephenotype.cda.ri.core.utils.SecurityUtils;
@@ -59,7 +60,7 @@ public class RegisterInterestController {
 
     private final Logger log = LoggerFactory.getLogger(this.getClass().getCanonicalName());
 
-    private final int PASSWORD_CHANGE_TTL_MINUTES = 180;
+    private final int EMAIL_VALIDITY_TTL_MINUTES = 180;
 
     // Sleep intervals
     private final int INVALID_PASSWORD_SLEEP_SECONDS = 1;
@@ -68,50 +69,52 @@ public class RegisterInterestController {
     // Error messages
     public final static String ERR_ACCOUNT_LOCKED         = "Your account is locked.";
     public final static String ERR_ACCOUNT_NOT_DELETED    = "We were unable to delete your account. Please contact IMPC mouse informatics.";
+    public final static String ERR_CREATE_ACCOUNT_FAILED  = "We were unable to create your account. Please contact IMPC mouse informatics.";
     public final static String ERR_EMAIL_ADDRESS_MISMATCH = "The e-mail addresses do not match.";
+    public final static String ERR_EXPIRED_TOKEN          = "Expired token.";
+    public final static String ERR_INVALID_CREDENTIALS    = "Invalid username and password.";
     public final static String ERR_INVALID_EMAIL_ADDRESS  = "The value provided is not a valid e-mail address. Please enter a valid e-mail address.";
     public final static String ERR_INVALID_TOKEN          = "Invalid token.";
     public final static String ERR_PASSWORD_MISMATCH      = "The passwords do not match.";
-    public final static String ERR_REGISTER_GENE_FAILED   = "The gene could not be registered.";
-    public final static String ERR_UNREGISTER_GENE_FAILED = "The gene could not be unregistered.";
-    public final static String ERR_CHANGE_PASSWORD_FAILED = "The password could not be changed.";
-    public final static String ERR_SEND_MAIL_FAILED       = "The e-mail send failed.";
-    public final static String ERR_INVALID_CREDENTIALS    = "Invalid username and password.";
+    public final static String ERR_REGISTER_GENE_FAILED   = "The gene could not be registered. Please contact IMPC mouse informatics.";
+    public final static String ERR_RESET_PASSWORD_FAILED  = "We were unable to reset your password. Please contact IMPC mouse informatics.";
+    public final static String ERR_SEND_MAIL_FAILED       = "Unable to send e-mail. Please contact IMPC mouse informatics.";
+    public final static String ERR_UNREGISTER_GENE_FAILED = "The gene could not be unregistered. Please contact IMPC mouse informatics.";
 
 
-    // Button strings
-    public final static String BUTTON_CHANGE_PASSWORD = "Send e-mail to change password";
-    public final static String BUTTON_CREATE_ACCOUNT  = "Send e-mail to create account";
+    // E-mail subject lines
+    public final static String EMAIL_SUBJECT_NEW_ACCOUNT    = "Request to create a new IMPC Register Interest account";
+    public final static String EMAIL_SUBJECT_RESET_PASSWORD = "Request to reset your IMPC Register Interest password";
 
 
     // Info messages
     public final static String INFO_ACCOUNT_CREATED    = "Your account has been created.";
     public static final String INFO_ALREADY_REGISTERED = "You are already registered for this gene.";
-    public final static String INFO_CHANGE_PASSWORD    = "Send an e-mail to the address below to change your password.";
-    public final static String INFO_CREATE_ACCOUNT     = "Send an e-mail to the address below to create an account.";
+    public final static String INFO_RESET_PASSWORD     = "Send an e-mail to the address below to reset your password.";
+    public final static String INFO_NEW_ACCOUNT        = "Send an e-mail to the address below to create a new account.";
     public static final String INFO_NOT_REGISTERED     = "You are not registered for this gene.";
-    public final static String INFO_PASSWORD_EXPIRED   = "Your password is expired. Please use the <i>change password</i> link below to change your password.";
-    public final static String INFO_PASSWORD_CHANGED   = "Your password has been changed.";
+    public final static String INFO_PASSWORD_EXPIRED   = "Your password is expired. Please use the <i>reset password</i> link below to reset your password.";
+    public final static String INFO_PASSWORD_RESET     = "Your password has been reset.";
 
 
     // Title strings
-    public final static String TITLE_ACCOUNT_CREATED            = "Account created";
-    public final static String TITLE_ACCOUNT_LOCKED             = "Account locked";
-    public final static String TITLE_ACCOUNT_NOT_DELETED        = "Account not deleted";
-    public final static String TITLE_INVALID_TOKEN              = "Invalid token";
-    public final static String TITLE_INVALID_EMAIL_ADDRESS      = "Invalid e-mail address";
-    public final static String TITLE_PASSWORD_EXPIRED           = "Password expired";
-    public final static String TITLE_INVALID_CREDENTIALS        = "Invalid credentials";
-    public final static String TITLE_PASSWORD_MISMATCH          = "Password mismatch";
-    public final static String TITLE_EMAIL_ADDRESS_MISMATCH     = "e-mail address mismatch";
-    public final static String TITLE_CHANGE_PASSWORD_FAILED     = "Change password failed";
-    public final static String TITLE_CHANGE_PASSWORD_REQUEST    = "Change password";
-    public final static String TITLE_CHANGE_PASSWORD_EMAIL_SENT = "Change password e-mail sent";
-    public final static String TITLE_CREATE_ACCOUNT_REQUEST     = "Create account";
-    public final static String TITLE_PASSWORD_CHANGED           = "Password Changed";
-    public final static String TITLE_REGISTER_GENE_FAILED       = "Gene registration failed.";
-    public final static String TITLE_UNREGISTER_GENE_FAILED     = "Gene unregistration failed.";
-    public final static String TITLE_SEND_MAIL_FAILED           = "Mail server is down";
+    public final static String TITLE_NEW_ACCOUNT_CREATED       = "Account created";
+    public final static String TITLE_ACCOUNT_LOCKED            = "Account locked";
+    public final static String TITLE_ACCOUNT_NOT_DELETED       = "Account not deleted";
+    public final static String TITLE_INVALID_TOKEN             = "Invalid token";
+    public final static String TITLE_INVALID_EMAIL_ADDRESS     = "Invalid e-mail address";
+    public final static String TITLE_PASSWORD_EXPIRED          = "Password expired";
+    public final static String TITLE_INVALID_CREDENTIALS       = "Invalid credentials";
+    public final static String TITLE_PASSWORD_MISMATCH         = "Password mismatch";
+    public final static String TITLE_EMAIL_ADDRESS_MISMATCH    = "e-mail address mismatch";
+    public final static String TITLE_RESET_PASSWORD_FAILED     = "Reset password failed";
+    public final static String TITLE_RESET_PASSWORD_REQUEST    = "Reset password";
+    public final static String TITLE_EMAIL_SENT = "E-mail sent";
+    public final static String TITLE_NEW_ACCOUNT_REQUEST       = "Create new account";
+    public final static String TITLE_PASSWORD_RESET            = "Password Reset";
+    public final static String TITLE_REGISTER_GENE_FAILED      = "Gene registration failed.";
+    public final static String TITLE_UNREGISTER_GENE_FAILED    = "Gene unregistration failed.";
+    public final static String TITLE_SEND_MAIL_FAILED          = "E-mail server error.";
 
     private final Logger logger        = LoggerFactory.getLogger(this.getClass());
     private       CoreService      coreService;
@@ -128,6 +131,12 @@ public class RegisterInterestController {
     private String          smtpHost;
     private int             smtpPort;
     private String          smtpReplyto;
+
+
+    private enum ActionType {
+        NEW_ACCOUNT,
+        RESET_PASSWORD
+    }
 
 
     @Inject
@@ -195,7 +204,7 @@ public class RegisterInterestController {
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
-        // Access is denied. Return to ri_errorPage page.
+        // Access is denied. Return to login page.
         model.addAttribute("title", TITLE_INVALID_CREDENTIALS);
         model.addAttribute("error", ERR_INVALID_CREDENTIALS);
 
@@ -204,7 +213,7 @@ public class RegisterInterestController {
 
         sleep(SHORT_SLEEP_SECONDS);
 
-        return "ri_errorPage";
+        return "loginPage";
     }
 
 
@@ -267,88 +276,89 @@ public class RegisterInterestController {
     @Secured("ROLE_USER")
     @RequestMapping(value = "/summary", method = RequestMethod.GET)
     public String summary(ModelMap model, HttpServletRequest request) {
-        Contact contact = sqlUtils.getContact(securityUtils.getPrincipal());
-        if (contact == null) {
-            model.addAttribute("title", TITLE_INVALID_CREDENTIALS);
-            model.addAttribute("error", ERR_INVALID_CREDENTIALS);
-
-            // contact is null. Get roles from authentication.
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            List<String>   roles          = authentication.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList());
-            logger.info("summary: Unable to get principal for user {} with role {}", securityUtils.getPrincipal(), StringUtils.join(roles, ", "));
-
-            sleep(SHORT_SLEEP_SECONDS);
-
-            return "ri_errorPage";
-        }
 
         Summary summary = sqlUtils.getSummary(securityUtils.getPrincipal());
 
         model.addAttribute("summary", summary);
-        model.addAttribute("paBaseUrl", request.getSession().getAttribute("paBaseUrl"));
+        model.addAttribute("paBaseUrl", paBaseUrl);
 
         return "ri_summaryPage";
     }
 
 
-    @RequestMapping(value = "/changePasswordRequest", method = RequestMethod.POST)
-    public String changePasswordRequest(ModelMap model) {
-        model.addAttribute("title", TITLE_CHANGE_PASSWORD_REQUEST);
-        model.addAttribute("status", INFO_CHANGE_PASSWORD);
-        model.addAttribute("buttonText", BUTTON_CHANGE_PASSWORD);
+    @RequestMapping(value = "/resetPasswordRequest", method = RequestMethod.GET)
+    public String resetPasswordRequest(ModelMap model) {
+        model.addAttribute("title", TITLE_RESET_PASSWORD_REQUEST);
 
-        return "ri_changePasswordRequestPage";
+        return "ri_collectEmailAddressPage";
+    }
+
+    @RequestMapping(value = "/newAccountRequest", method = RequestMethod.GET)
+    public String newAccountRequest(ModelMap model) {
+        model.addAttribute("title", TITLE_NEW_ACCOUNT_REQUEST);
+
+        return "ri_collectEmailAddressPage";
     }
 
 
-    @RequestMapping(value = "/accountRequest", method = RequestMethod.POST)
-    public String accountRequest(ModelMap model) {
-        model.addAttribute("title", TITLE_CREATE_ACCOUNT_REQUEST);
-        model.addAttribute("status", INFO_CREATE_ACCOUNT);
-        model.addAttribute("buttonText", BUTTON_CREATE_ACCOUNT);
-
-        return "ri_changePasswordRequestPage";
-    }
-
-
-    @RequestMapping(value = "/changePasswordEmail", method = RequestMethod.POST)
-    public String changePasswordEmail(
-            ModelMap model,
-            @RequestParam(value = "emailAddress", defaultValue = "") String emailAddress,
-            @RequestParam(value = "repeatEmailAddress", defaultValue = "") String repeatEmailAddress
+    @RequestMapping(value = "/sendEmail", method = RequestMethod.POST)
+    public String sendEmail(ModelMap model,
+        @RequestParam(value = "emailAddress", defaultValue = "") String emailAddress,
+        @RequestParam(value = "repeatEmailAddress", defaultValue = "") String repeatEmailAddress,
+        @RequestParam("action") String action
     ) {
+        model.addAttribute("emailAddress", emailAddress);
+        model.addAttribute("repeatEmailAddress", repeatEmailAddress);
+
+        ActionType actionType = (action.equals("Reset password") ? ActionType.RESET_PASSWORD : ActionType.NEW_ACCOUNT);
+
+        String body;
+        String subject;
+        String title;
+
+        switch (actionType) {
+            case NEW_ACCOUNT:
+                title = TITLE_NEW_ACCOUNT_REQUEST;
+                subject = EMAIL_SUBJECT_NEW_ACCOUNT;
+                break;
+
+            default:
+                title = TITLE_RESET_PASSWORD_REQUEST;
+                subject = EMAIL_SUBJECT_RESET_PASSWORD;
+                break;
+        }
+
+
         // Validate e-mail addresses are identical.
-        if (!emailAddress.equals(repeatEmailAddress)) {
+        if ( ! emailAddress.equals(repeatEmailAddress)) {
             model.addAttribute("emailAddress", emailAddress);
-            model.addAttribute("title", TITLE_EMAIL_ADDRESS_MISMATCH);
+            model.addAttribute("title", title);
             model.addAttribute("error", ERR_EMAIL_ADDRESS_MISMATCH);
 
-            return "ri_changePasswordRequestPage";
+            return "ri_collectEmailAddressPage";
         }
 
         // Validate that it looks like an e-mail address.
-        if (!emailUtils.isValidEmailAddress(emailAddress)) {
-            model.addAttribute("title", TITLE_INVALID_EMAIL_ADDRESS);
+        if ( ! emailUtils.isValidEmailAddress(emailAddress)) {
+            model.addAttribute("title", title);
             model.addAttribute("error", ERR_INVALID_EMAIL_ADDRESS);
 
-            return "ri_changePasswordRequestPage";
+            return "ri_collectEmailAddressPage";
         }
 
-        // Generate and assemble email with password change
+        // Generate and assemble email
         String token     = buildToken(emailAddress);
-        String tokenLink = paBaseUrl + "/changePasswordResponse?token=" + token;
+        String tokenLink = paBaseUrl + "/setPassword?token=" + token + "&action=" + action;
         logger.debug("tokenLink = " + tokenLink);
 
-        String  body;
-        String  subject;
-        Contact contact = sqlUtils.getContact(emailAddress);
-        if (contact == null) {
-            body = generateCreateAccountEmail(tokenLink);
-            subject = "Your request to create new IMPC Register Interest account";
+        Contact contact       = sqlUtils.getContact(emailAddress);
+        boolean accountExists = (contact != null);
+        if (actionType == ActionType.NEW_ACCOUNT) {
+            body = generateNewAccountEmail(tokenLink, accountExists);
         } else {
-            body = generateChangePasswordEmail(tokenLink);
-            subject = "Your request to change your IMPC Register Interest password";
+            body = generateResetPasswordEmail(tokenLink, accountExists);
         }
+
         Message message = emailUtils.assembleEmail(smtpHost, smtpPort, smtpFrom, smtpReplyto, subject, body, emailAddress, true);
 
         // Insert request to reset_credentials table
@@ -364,93 +374,90 @@ public class RegisterInterestController {
 
             model.addAttribute("title", TITLE_SEND_MAIL_FAILED);
             model.addAttribute("error", ERR_SEND_MAIL_FAILED);
-            logger.error("Error trying to send password change e-mail to {}: {}", emailAddress, e.getLocalizedMessage());
-            return "ri_errorPage";
+            logger.error("Error trying to send e-mail to {}: {}", emailAddress, e.getLocalizedMessage());
+
+            return "loginPage";
         }
 
-        String status = "An e-mail with instructions has been sent to <i>" + emailAddress + "</i>.\n" +
-                        "The e-mail contains a link valid for " + PASSWORD_CHANGE_TTL_MINUTES + " minutes. Any previous links are no longer valid.";
-        model.addAttribute("emailAddress", emailAddress);
-        model.addAttribute("title", TITLE_CHANGE_PASSWORD_EMAIL_SENT);
+        String status = "An e-mail with instructions has been sent to <i>" + emailAddress + "</i>. " +
+                "The e-mail contains a link valid for " + EMAIL_VALIDITY_TTL_MINUTES / 60 + " hours. Any previous links are no longer valid.";
+
+        model.addAttribute("title", title);
         model.addAttribute("status", status);
-        model.addAttribute("showWhen", true);
+        model.addAttribute("repeatEmailAddress", emailAddress);
+        model.addAttribute("hideButton", true);
 
-        logger.info("Sent Change Password email to {}", emailAddress);
-
-        model.addAttribute("showSummaryLink", true);
-
-        return "ri_statusPage";
+        return "ri_collectEmailAddressPage";
     }
 
 
-    @RequestMapping(value = "/changePasswordResponse", method = RequestMethod.GET)
-    public String changePasswordResponseGet(ModelMap model, HttpServletRequest request) {
-
-        // Parse out query string for token value.
-        String token = SecurityUtils.getTokenFromQueryString(request.getQueryString());
+    @RequestMapping(value = "/setPassword", method = RequestMethod.GET)
+    public String setPasswordGet(
+            ModelMap model,
+            HttpServletRequest request,
+            @RequestParam("token") String token) {
 
         // Look up email address from reset_credentials table
         ResetCredentials resetCredentials = sqlUtils.getResetCredentials(token);
 
-        // If not found, return to ri_errorPage page.
+        // If not found, redirect to login page.
         if (resetCredentials == null) {
-            model.addAttribute("title", TITLE_INVALID_TOKEN);
-            model.addAttribute("error", ERR_INVALID_TOKEN);
 
             logger.info("Token {} not found", token);
 
             sleep(SHORT_SLEEP_SECONDS);
 
-            return "ri_errorPage";
+            return "redirect: rilogin?error=true&errorMessage=" + ERR_INVALID_TOKEN;
         }
 
-        // If token has expired, return to ri_errorPage page.
-        if (dateUtils.isExpired(resetCredentials.getCreatedAt(), PASSWORD_CHANGE_TTL_MINUTES)) {
-            model.addAttribute("title", TITLE_INVALID_TOKEN);
-            model.addAttribute("error", ERR_INVALID_TOKEN);
+        // If token has expired, redirect to login page.
+        if (dateUtils.isExpired(resetCredentials.getCreatedAt(), EMAIL_VALIDITY_TTL_MINUTES)) {
 
             logger.info("Token {} has expired", token);
 
             sleep(SHORT_SLEEP_SECONDS);
 
-            return "ri_errorPage";
+            return "redirect: rilogin?error=true&errorMessage=" + ERR_EXPIRED_TOKEN;
         }
 
         model.addAttribute("token", token);
+        model.addAttribute("emailAddress", resetCredentials.getAddress());
 
-        return "ri_changePasswordResponsePage";
+        return "ri_setPasswordPage";
     }
 
 
-    @RequestMapping(value = "/changePasswordResponse", method = RequestMethod.POST)
-    public String changePasswordResponsePost(
+    @RequestMapping(value = "/setPassword", method = RequestMethod.POST)
+    public String setPasswordPost(
             ModelMap model, HttpServletRequest request,
             HttpServletResponse response,
             @RequestParam("token") String token,
             @RequestParam("newPassword") String newPassword,
-            @RequestParam("repeatPassword") String repeatPassword
+            @RequestParam("repeatPassword") String repeatPassword,
+            @RequestParam("action") String action
     ) {
-        String title;
-        String status;
+
+        ActionType actionType = (action.equals("Reset password") ? ActionType.RESET_PASSWORD : ActionType.NEW_ACCOUNT);
+
         model.addAttribute("token", token);
 
-        // Validate the new password. Return to ri_changePasswordResponsePage if validation fails.
+        // Validate the new password. Return to ri_setPasswordPage if validation fails.
         String error = validateNewPassword(newPassword, repeatPassword);
         if ( ! error.isEmpty()) {
             model.addAttribute("title", TITLE_PASSWORD_MISMATCH);
             model.addAttribute("error", ERR_PASSWORD_MISMATCH);
 
-            logger.info("Token {} not found", token);
+            logger.info("Password validation failed.");
 
             sleep(SHORT_SLEEP_SECONDS);
 
-            return "ri_changePasswordResponsePage";
+            return "ri_setPasswordPage";
         }
 
         // Look up email address from reset_credentials table
         ResetCredentials resetCredentials = sqlUtils.getResetCredentials(token);
 
-        // If not found, return to ri_errorPage page.
+        // If not found, return to ri_setPasswordPage page.
         if (resetCredentials == null) {
             model.addAttribute("title", TITLE_INVALID_TOKEN);
             model.addAttribute("error", ERR_INVALID_TOKEN);
@@ -459,7 +466,7 @@ public class RegisterInterestController {
 
             sleep(SHORT_SLEEP_SECONDS);
 
-            return "ri_errorPage";
+            return "ri_setPasswordPage";
         }
 
         String emailAddress = resetCredentials.getAddress();
@@ -471,16 +478,12 @@ public class RegisterInterestController {
             if (contact == null) {
                 sqlUtils.createAccount(emailAddress, passwordEncoder.encode(newPassword));
                 contact = sqlUtils.getContact(emailAddress);
-                title = TITLE_ACCOUNT_CREATED;
-                status = INFO_ACCOUNT_CREATED;
 
                 // Send welcome e-mail.
                 coreService.generateAndSendWelcome(emailAddress);
 
             } else {
                 sqlUtils.updatePassword(emailAddress, passwordEncoder.encode(newPassword));
-                title = TITLE_PASSWORD_CHANGED;
-                status = INFO_PASSWORD_CHANGED;
             }
 
             // Consume (remove) the reset_credential record.
@@ -488,26 +491,20 @@ public class RegisterInterestController {
 
         } catch (InterestException e) {
 
-            model.addAttribute("title", TITLE_CHANGE_PASSWORD_FAILED);
-            model.addAttribute("error", ERR_CHANGE_PASSWORD_FAILED);
-            logger.error("Error trying to change password for {}: {}", emailAddress, e.getLocalizedMessage());
+            model.addAttribute("title", TITLE_RESET_PASSWORD_FAILED);
+            model.addAttribute("error", ERR_RESET_PASSWORD_FAILED);
+            logger.error("Error trying to [re]set password for {}: {}", emailAddress, e.getLocalizedMessage());
 
-            return "ri_errorPage";
+            String errorMessage = (actionType == ActionType.NEW_ACCOUNT ? ERR_CREATE_ACCOUNT_FAILED : ERR_RESET_PASSWORD_FAILED);
+
+            return "redirect: rilogin?error=true&errorMessage=" + errorMessage;
         }
-
-        logger.info("Password successfully changed for {}", emailAddress);
 
         // Get the user's roles and mark the user as authenticated.
         Authentication authentication = new UsernamePasswordAuthenticationToken(emailAddress, null, contact.getRoles());
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        model.addAttribute("title", title);
-        model.addAttribute("status", status);
-        model.addAttribute("emailAddress", emailAddress);
-
-        model.addAttribute("showSummaryLink", true);
-
-        return "ri_statusPage";
+        return "redirect: " + paBaseUrl + "/summary";
     }
 
 
@@ -533,11 +530,9 @@ public class RegisterInterestController {
 
         } catch (InterestException e) {
 
-            logger.error(e.getLocalizedMessage());
-            model.addAttribute("title", TITLE_ACCOUNT_NOT_DELETED);
-            model.addAttribute("error", ERR_ACCOUNT_NOT_DELETED);
+            logger.error("Unable to delete account for {}. Reason: {}", securityUtils.getPrincipal(), e.getLocalizedMessage());
 
-            return "ri_errorPage";
+            return "redirect: " + paBaseUrl + "/summary?error=" + ERR_ACCOUNT_NOT_DELETED;
         }
 
         // Log user out.
@@ -551,7 +546,7 @@ public class RegisterInterestController {
         model.addAttribute("showLoginLink", true);
         model.addAttribute("status", "Your account has been deleted.");
 
-        return "ri_statusPage";
+        return "loginPage";
     }
 
 
@@ -593,7 +588,8 @@ public class RegisterInterestController {
             .append("}")
             .append("</style>").toString();
 
-    private String generateChangePasswordEmail(String tokenLink) {
+    private String generateResetPasswordEmail(String tokenLink, boolean accountExists) {
+        String buttonText = (accountExists ? TITLE_RESET_PASSWORD_REQUEST : TITLE_NEW_ACCOUNT_REQUEST);
 
         StringBuilder body = new StringBuilder()
                 .append("<html>")
@@ -604,25 +600,43 @@ public class RegisterInterestController {
                 .append("Dear colleague,")
                 .append("<br />")
                 .append("<br />")
-                .append("This e-mail was sent in response to a request to change your IMPC Register Interest password. ")
-                .append("If you made no such request, please ignore this e-mail; otherwise, please click on the link ")
-                .append("below to change your IMPC Register Interest password.")
+                .append("This e-mail was sent in response to a request to reset your IMPC Register Interest password. ");
+        
+        if (accountExists) {
+            body
+                    .append("<br />")
+                    .append("<br />")
+                    .append("If you made no such request, please ignore this e-mail; otherwise, please click on the link ")
+                    .append("below to reset your IMPC Register Interest password.");
+        } else {
+            body
+                    .append("As no account exists yet for this e-mail address, the account will be created first. ")
+                    .append("<br />")
+                    .append("<br />")
+                    .append("If you made no such request, please ignore this e-mail; otherwise, please click on the link ")
+                    .append("below to create your account and set your password.");
+        }
+        
+        body
                 .append("<br />")
                 .append("<br />")
                 .append("</td>")
                 .append("</tr>")
                 .append("<tr>")
-                .append("<td class=\"button\">")
-                .append("<a href=\"" + tokenLink + "\">Reset password</a>")
+                .append("<td>")
+                .append("<a href=\"" + tokenLink + "\">" + buttonText + "</a>")
                 .append("</td>")
                 .append("</tr>")
                 .append("</table>")
+                .append("<br />")
+                .append(GenerateService.getEmailEpilogue(true))
                 .append("</html>");
 
         return body.toString();
     }
 
-    private String generateCreateAccountEmail(String tokenLink) {
+    private String generateNewAccountEmail(String tokenLink, boolean accountExists) {
+        String buttonText = (accountExists ? TITLE_RESET_PASSWORD_REQUEST : TITLE_NEW_ACCOUNT_REQUEST);
 
         StringBuilder body = new StringBuilder()
                 .append("<html>")
@@ -633,21 +647,37 @@ public class RegisterInterestController {
                 .append("Dear colleague,")
                 .append("<br />")
                 .append("<br />")
-                .append("This e-mail was sent in response to a request to create a new IMPC Register Interest account. ")
-                .append("Your username will be your e-mail address.")
-                .append("<br />")
-                .append("If you made no such request, please ignore this e-mail; otherwise, please click on the link ")
-                .append("below to set your IMPC Register Interest password and create your account.")
+                .append("This e-mail was sent in response to a request to create a new IMPC Register Interest account. ");
+
+        if (accountExists) {
+            body
+                    .append("As an account already exists for this e-mail address, no account will be created. You may use this link to reset your password.")
+                    .append("<br />")
+                    .append("<br />")
+                    .append("If you made no such request, please ignore this e-mail; otherwise, please click on the link ")
+                    .append("below to reset your password.");
+        } else {
+            body
+                    .append("Your username will be your e-mail address.")
+                    .append("<br />")
+                    .append("<br />")
+                    .append("If you made no such request, please ignore this e-mail; otherwise, please click on the link ")
+                    .append("below to create your IMPC Register Interest account and set your password.");
+        }
+
+        body
                 .append("<br />")
                 .append("<br />")
                 .append("</td>")
                 .append("</tr>")
                 .append("<tr>")
-                .append("<td class=\"button\">")
-                .append("<a href=\"" + tokenLink + "\">Create account</a>")
+                .append("<td>")
+                .append("<a href=\"" + tokenLink + "\">" + buttonText + "</a>")
                 .append("</td>")
                 .append("</tr>")
                 .append("</table>")
+                .append("<br />")
+                .append(GenerateService.getEmailEpilogue(true))
                 .append("</html>");
 
         return body.toString();

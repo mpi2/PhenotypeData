@@ -96,20 +96,6 @@ public class SecurityUtils {
         return null;
     }
 
-    public static String getTokenFromQueryString(String queryString) {
-
-        if ((queryString == null) || (queryString.isEmpty())) {
-            return "";
-        }
-
-        String[] pieces = StringUtils.split(queryString, "=");
-        if ((pieces.length != 2) && (!pieces[0].equals("token"))) {
-            return "";
-        }
-
-        return pieces[1];
-    }
-
     public static HttpHeaders buildHeadersFromJsessionId(HttpServletRequest request) {
         String      cookieNameValuePair  = getCookieNameValuePair(request, "JSESSIONID");
         HttpHeaders headers = new HttpHeaders();
