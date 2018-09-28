@@ -20,7 +20,18 @@
             <div class="block block-system">
                 <div class="content">
                     <div class="node node-gene">
-                        <h1 class="title" id="top">Register Interest Summary </h1>
+                        <h1 class="title" id="top">Register Interest Summary</h1>
+
+                        <div class="alert alert-danger" style="color: crimson">
+                            <c:if test="${showWhen}">
+                                ${current.toLocaleString()}:&nbsp;
+                                <br />
+                                <br />
+                            </c:if>
+                            <c:if test="${not empty error}">
+                                <p>${error}</p>
+                            </c:if>
+                        </div>
 
                         <div class="section">
                             <div class="inner">
@@ -29,9 +40,9 @@
                                     <a href="${paBaseUrl}/rilogout">Logout</a>
                                     &nbsp;&nbsp;&nbsp;&nbsp;
                                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                    <button type="submit" class="btn btn-block btn-primary btn-default" formaction="${paBaseUrl}/changePasswordRequest" formmethod="get">Reset registration of interest password</button>
+                                    <button type="submit" class="btn btn-block btn-primary btn-default" formaction="${paBaseUrl}/resetPasswordRequest" formmethod="GET">Reset registration of interest password</button>
                                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                    <button type="submit" class="btn btn-block btn-primary btn-default" formaction="${paBaseUrl}/account" formmethod="get">Delete all registrations of interest</button>
+                                    <button type="submit" class="btn btn-block btn-primary btn-default" formaction="${paBaseUrl}/accountDeleteRequest" formmethod="POST">Delete all registrations of interest</button>
                                 </form>
 
                                 <h6>Username: ${summary.emailAddress}</h6>
@@ -123,7 +134,10 @@
                                                                 </c:choose>
                                                             </td>
                                                             <td>
-                                                                <a href="${paBaseUrl}/unregistration/gene/${gene.mgiAccessionId}?target=${paBaseUrl}/summary">Unregister</a>
+                                                                <form id="formUnregister" style="border: 0;">
+                                                                    <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
+                                                                    <button type="submit" class="btn btn-block btn-primary btn-default" formaction="${paBaseUrl}/unregistration/gene/${gene.mgiAccessionId}" formmethod="POST">Unregister</button>
+                                                                </form>
                                                             </td>
                                                         </tr>
                                                     </c:forEach>
@@ -143,15 +157,6 @@
                 </div>
             </div>
         </div>
-
-        <script type="text/javascript">
-
-            $(document).ready(function () {
-
-                // Disable drupal login links on the page
-                $('ul.menu li.leaf').css('display', 'none');
-            });
-        </script>
 
     </jsp:body>
 </t:genericpage>

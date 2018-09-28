@@ -92,7 +92,7 @@ public class GenerateService {
                 .append(inHtml ? "<br /><br />" : "\n\n");
         }
 
-        sb.append(getEpilogue(inHtml));
+        sb.append(getEmailEpilogue(inHtml));
 
 
         return sb.toString();
@@ -196,7 +196,7 @@ public class GenerateService {
                 .append(inHtml ? "</ul>\n" : "\n")
                 .append("\n")
 
-                .append(getEpilogue(inHtml))
+                .append(getEmailEpilogue(inHtml))
         ;
 
         return sb.toString();
@@ -206,7 +206,7 @@ public class GenerateService {
     // PROTECTED METHODS
 
 
-    protected static String getEpilogue(boolean inHtml) {
+    public static String getEmailEpilogue(boolean inHtml) {
 
         StringBuilder body = new StringBuilder();
 
