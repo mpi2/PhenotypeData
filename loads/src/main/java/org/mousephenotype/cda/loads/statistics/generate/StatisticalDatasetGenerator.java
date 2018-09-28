@@ -231,13 +231,7 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
 
 
                         // Add a column for the MAPPED category for EYE parameters
-                        if (ObservationType.valueOf(observationDTO.getObservationType()) == ObservationType.categorical &&
-                                (
-                                        observationDTO.getParameterStableId().toUpperCase().contains("_EYE_") ||
-                                                observationDTO.getParameterStableId().toUpperCase().contains("M-G-P_014") ||
-                                                observationDTO.getParameterStableId().toUpperCase().contains("ESLIM_014")
-                                )
-                                ) {
+                        if (ObservationType.valueOf(observationDTO.getObservationType()) == ObservationType.categorical) {
 
                             // Get mapped data category
                             String mappedDataValue = observationDTO.getCategory();
