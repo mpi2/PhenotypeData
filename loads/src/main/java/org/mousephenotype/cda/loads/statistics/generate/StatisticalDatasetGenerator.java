@@ -478,7 +478,7 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
                 .addFacetPivotField(PIVOT.stream().collect(Collectors.joining(",")));
 
         // Filter out any parameters to be skipped (if any)
-        if (skipParameters != null) {
+        if (skipParameters != null && ! skipParameters.isEmpty()) {
             query.addFilterQuery("-parameter_stable_id:(" + StringUtils.join(skipParameters, " OR ") + ")");
         }
 
