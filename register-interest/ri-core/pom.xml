@@ -13,9 +13,9 @@
 
     <parent>
         <groupId>org.mousephenotype.cda</groupId>
-        <artifactId>parent</artifactId>
+        <artifactId>register-interest</artifactId>
         <version>1.0.0</version>
-        <relativePath>../parent/pom.xml</relativePath>
+        <relativePath>../pom.xml</relativePath>
     </parent>
 
 

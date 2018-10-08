@@ -1,5 +1,6 @@
 org/mousephenotype/cda/ri/core/entities/Contact.class
 org/mousephenotype/cda/ri/core/services/GenerateService.class
+org/mousephenotype/cda/ri/core/utils/PasswordUtils.class
 org/mousephenotype/cda/ri/core/entities/GeneSent.class
 org/mousephenotype/cda/ri/core/utils/ParseUtils.class
 org/mousephenotype/cda/ri/core/rowmappers/ContactRoleRowMapper.class

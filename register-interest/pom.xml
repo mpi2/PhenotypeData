@@ -12,14 +12,16 @@
     </parent>
 
     <artifactId>register-interest</artifactId>
-    <packaging>jar</packaging>
+    <version>1.0.0</version>
+    <packaging>pom</packaging>
 
     <name>register-interest</name>
-    <description>Code for the register interest system</description>
+    <description>IMPC PhenotypeArchive register interest implementation</description>
 
-    <dependencies>
-
-    </dependencies>
+    <modules>
+        <module>ri-extract</module>
+        <module>ri-core</module>
+    </modules>
 
     <!--<build>-->
         <!--<plugins>-->

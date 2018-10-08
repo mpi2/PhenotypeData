@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <!-- FRAMEWORK -->
+    <logger name="ch.qos.logback"                                                           level="ERROR" />
+    <logger name="org.apache.maven"                                                         level="WARN" />
+    <logger name="org.apache.tomcat.jdbc.pool"                                              level="${log.level:-WARN}" />
+    <logger name="org.apache.tomcat.jdbc.pool.PooledConnection"                             level="${log.level:-ERROR}" />
+    <logger name="org.hibernate"                                                            level="${log.level:-WARN}" />
+    <logger name="org.springframework"                                                      level="WARN" />
+    <logger name="org.springframework.context.annotation.ConfigurationClassEnhancer"        level="ERROR" />
+
+
+    <!-- PHENOTYPE ARCHIVE -->
+    <logger name="org.mousephenotype"                                                       level="INFO"/>
+   	<logger name="org.mousephenotype.interest"                                              level="INFO" />
+
+
+    <include resource="org/springframework/boot/logging/logback/base.xml"/>
+
+</configuration>
