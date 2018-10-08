@@ -8,6 +8,13 @@
 
     <jsp:attribute name="title">${title}</jsp:attribute>
     <jsp:attribute name="breadcrumb">&nbsp;&raquo; <a href="${paBaseUrl}/summary">Register Interest</a> &raquo; ${title}</jsp:attribute>
+
+    <jsp:attribute name="header">
+
+        <script src='https://www.google.com/recaptcha/api.js'></script>
+
+    </jsp:attribute>
+
     <jsp:attribute name="bodyTag">
         <body>
     </jsp:attribute>
@@ -62,6 +69,8 @@
                                     <input type="text" class="form-control" id="repeatEmailAddress" name="repeatEmailAddress" value="${repeatEmailAddress}" placeholder="myaddress@example.com" required />
                                 </div>
                             </div>
+
+                            <div class="g-recaptcha" data-sitekey="6Lef_XMUAAAAAOxVAnqOUC6a6DTRQ98m76bHKYVr"></div>
 
                             <!-- Show the button by default. Allow it to be hidden. -->
                             <c:if test="${empty hideButton}">

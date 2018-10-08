@@ -10,52 +10,54 @@
     <jsp:attribute name="breadcrumb">&nbsp;&raquo; <a href="${paBaseUrl}/rilogin">Register Interest</a> &raquo; Login</jsp:attribute>
 
     <jsp:attribute name="header">
+
+        <script src='https://www.google.com/recaptcha/api.js'></script>
+
         <!-- This style makes a button look like an IMPC link. It is meant to be used where you need to do a POST
              on a part of the page that has nearby buttons that are meant to stand out more than the POST link decorated
              with this class. -->
-        <style>
-            .like_anchor {
-                align-items: normal;
-                background-color: rgba(0,0,0,0);
-                border-color: rgb(0, 0, 238);
-                border-style: none;
-                box-sizing: content-box;
-                cursor: pointer;
-                display: inline;
-                font: inherit;
-                height: auto;
-                padding: 0;
-                perspective-origin: 0 0;
-                text-align: start;
-                transform-origin: 0 0;
-                width: auto;
-                -moz-appearance: none;
-                -webkit-logical-height: 1em; /* Chrome ignores auto, so we have to use this hack to set the correct height  */
-                -webkit-logical-width: auto; /* Chrome ignores auto, but here for completeness */
+        <%--<style>--%>
+            <%--.like_anchor {--%>
+                <%--align-items: normal;--%>
+                <%--background-color: rgba(0,0,0,0);--%>
+                <%--border-color: rgb(0, 0, 238);--%>
+                <%--border-style: none;--%>
+                <%--box-sizing: content-box;--%>
+                <%--cursor: pointer;--%>
+                <%--display: inline;--%>
+                <%--font: inherit;--%>
+                <%--height: auto;--%>
+                <%--padding: 0;--%>
+                <%--perspective-origin: 0 0;--%>
+                <%--text-align: start;--%>
+                <%--transform-origin: 0 0;--%>
+                <%--width: auto;--%>
+                <%---moz-appearance: none;--%>
+                <%---webkit-logical-height: 1em; /* Chrome ignores auto, so we have to use this hack to set the correct height  */--%>
+                <%---webkit-logical-width: auto; /* Chrome ignores auto, but here for completeness */--%>
 
-                color: #0978a1;
-                fill: #0978a1;
-                text-decoration: none;
-            }
+                <%--color: #0978a1;--%>
+                <%--fill: #0978a1;--%>
+                <%--text-decoration: none;--%>
+            <%--}--%>
 
-            /* Mozilla uses a pseudo-element to show focus on buttons, */
-            /* but anchors are highlighted via the focus pseudo-class. */
+            <%--/* Mozilla uses a pseudo-element to show focus on buttons, */--%>
+            <%--/* but anchors are highlighted via the focus pseudo-class. */--%>
 
-            @supports (-moz-appearance:none) { /* Mozilla-only */
-            like_anchor::-moz-focus-inner { /* reset any predefined properties */
-            border: none;
-            padding: 0;
-            }
-            like_anchor:focus { /* add outline to focus pseudo-class */
-            outline-style: dotted;
-            outline-width: 1px;
-            }
-            }
+            <%--@supports (-moz-appearance:none) { /* Mozilla-only */--%>
+            <%--like_anchor::-moz-focus-inner { /* reset any predefined properties */--%>
+            <%--border: none;--%>
+            <%--padding: 0;--%>
+            <%--}--%>
+            <%--like_anchor:focus { /* add outline to focus pseudo-class */--%>
+            <%--outline-style: dotted;--%>
+            <%--outline-width: 1px;--%>
+            <%--}--%>
+            <%--}--%>
 
-        </style>
+        <%--</style>--%>
 
     </jsp:attribute>
-
     <jsp:attribute name="bodyTag">
         <body>
     </jsp:attribute>
@@ -117,6 +119,8 @@
                                 <input type="password" class="form-control  required" id="password" name="password" placeholder="Enter password" required />
                             </div>
 
+                            <div class="g-recaptcha" data-sitekey="6Lef_XMUAAAAAOxVAnqOUC6a6DTRQ98m76bHKYVr"></div>
+
                             <div class="form-actions">
                                 <input type="submit" class="btn btn-block btn-primary btn-default" value="Log in" />
                             </div>
@@ -125,12 +129,11 @@
 
                         </form>
 
-                        <form class="form-horizontal">
-                            <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
-                            <button class="like_anchor" type="submit" formaction="${paBaseUrl}/newAccountRequest" formmethod="GET">New account</button>
-                            &nbsp;&nbsp;&nbsp;&nbsp;
-                            <button class="like_anchor" type="submit" formaction="${paBaseUrl}/resetPasswordRequest" formmethod="GET">Forgot password?</button>
-                        </form>
+
+
+                        <a href="${paBaseUrl}/newAccountRequest">New account</a>
+                        &nbsp;&nbsp;&nbsp;&nbsp;
+                        <a href="${paBaseUrl}/resetPasswordRequest">Forgot password?</a>
                     </div>
                 </div>
             </div>
@@ -148,15 +151,6 @@
                 <a href="${drupalBaseUrl}/user/login">Log in to the IMPC forum</a>
             </div>
         </div>
-
-        <script type="text/javascript">
-
-            $(document).ready(function () {
-
-                // Disable drupal login links on the page
-                $('ul.menu li.leaf').css('display', 'none');
-            });
-        </script>
 
     </jsp:body>
 </t:genericpage>
