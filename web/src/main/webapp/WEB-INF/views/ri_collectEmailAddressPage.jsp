@@ -24,7 +24,7 @@
                     <div class="login-form">
                         <form action="sendEmail" method="POST" class="form-horizontal">
                             <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
-                            <input type="hidden" name="action" value="${title}" />
+                            <input type="hidden" name="requestedAction" value="${title}" />
 
                             <c:choose>
                                 <c:when test="${not empty error}">

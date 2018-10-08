@@ -133,8 +133,19 @@ public class RegisterInterestController {
 
 
     private enum ActionType {
-        NEW_ACCOUNT,
-        RESET_PASSWORD
+        NEW_ACCOUNT(TITLE_NEW_ACCOUNT_REQUEST),
+        RESET_PASSWORD(TITLE_RESET_PASSWORD_REQUEST);
+
+        String displayValue;
+
+        private ActionType(String displayValue) {
+            this.displayValue = displayValue;
+        }
+
+        @Override
+        public String toString() {
+            return displayValue;
+        }
     }
 
 
@@ -309,18 +320,18 @@ public class RegisterInterestController {
     public String sendEmail(ModelMap model,
         @RequestParam(value = "emailAddress", defaultValue = "") String emailAddress,
         @RequestParam(value = "repeatEmailAddress", defaultValue = "") String repeatEmailAddress,
-        @RequestParam("action") String action
+        @RequestParam("requestedAction") String requestedAction
     ) {
         model.addAttribute("emailAddress", emailAddress);
         model.addAttribute("repeatEmailAddress", repeatEmailAddress);
 
-        ActionType actionType = (action.equals("Reset password") ? ActionType.RESET_PASSWORD : ActionType.NEW_ACCOUNT);
+        ActionType requestedActionType = (requestedAction.equals("Reset password") ? ActionType.RESET_PASSWORD : ActionType.NEW_ACCOUNT);
 
         String body;
         String subject;
         String title;
 
-        switch (actionType) {
+        switch (requestedActionType) {
             case NEW_ACCOUNT:
                 title = TITLE_NEW_ACCOUNT_REQUEST;
                 subject = EMAIL_SUBJECT_NEW_ACCOUNT;
@@ -351,13 +362,16 @@ public class RegisterInterestController {
         }
 
         // Generate and assemble email
-        String token     = buildToken(emailAddress);
-        String tokenLink = paBaseUrl + "/setPassword?token=" + token + "&action=" + action;
+        String token = buildToken(emailAddress);
+
+        Contact    contact       = sqlUtils.getContact(emailAddress);
+        ActionType actualAction  = (contact == null ? ActionType.NEW_ACCOUNT : ActionType.RESET_PASSWORD);
+        boolean    accountExists = (contact != null);
+
+        String tokenLink = paBaseUrl + "/setPassword?token=" + token + "&action=" + actualAction.toString();
         logger.debug("tokenLink = " + tokenLink);
 
-        Contact contact       = sqlUtils.getContact(emailAddress);
-        boolean accountExists = (contact != null);
-        if (actionType == ActionType.NEW_ACCOUNT) {
+        if (requestedActionType == ActionType.NEW_ACCOUNT) {
             body = generateNewAccountEmail(tokenLink, accountExists);
         } else {
             body = generateResetPasswordEmail(tokenLink, accountExists);
