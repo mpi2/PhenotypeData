@@ -1962,7 +1962,7 @@ INSERT INTO organisation(id, name, fullname, country) VALUES(26, 'RBRC', 'RIKEN 
 INSERT INTO organisation(id, name, fullname, country) VALUES(27, 'TCP', 'The Centre for Phenogenomics', 'Canada');
 INSERT INTO organisation(id, name, fullname, country) VALUES(28, 'NING', 'Nanjing University Model Animal Research Center', 'China');
 INSERT INTO organisation(id, name, fullname, country) VALUES(29, 'CDTA', 'Institut de Transgenose (CDTA Orleans)', 'France');
-INSERT INTO organisation(id, name, fullname, country) VALUES(30, 'IMG', 'Institute of Molecular Genetics of the ASCR, v. v. i.', 'Czech Republic');
+INSERT INTO organisation(id, name, fullname, country) VALUES(30, 'CCM-IMG', 'Institute of Molecular Genetics of the ASCR, v. v. i.', 'Czech Republic');
 INSERT INTO organisation(id, name, fullname, country) VALUES(31, 'CAM-SU GRC', 'Cambrige-Soochow Genomic Resource Center', 'China');
 INSERT INTO organisation(id, name, fullname, country) VALUES(32, 'CRL', 'Charles River Laboratory', 'USA');
 INSERT INTO organisation(id, name, fullname, country) VALUES(33, 'INFRAFRONTIER-VETMEDUNI', 'University of Veterinary Medicine Vienna', 'Austria');
