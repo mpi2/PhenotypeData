@@ -37,7 +37,10 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.DefaultRedirectStrategy;
 import org.springframework.security.web.RedirectStrategy;
+import org.springframework.security.web.access.channel.ChannelProcessingFilter;
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.header.writers.frameoptions.AllowFromStrategy;
 import org.springframework.security.web.header.writers.frameoptions.XFrameOptionsHeaderWriter;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
@@ -49,6 +52,7 @@ import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 import javax.inject.Inject;
+import javax.servlet.Filter;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -80,12 +84,17 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         this.riDataSource = riDataSource;
     }
 
+    @Autowired
+    private CaptchaFilter captchaFilter;
+
     @Override
     protected void configure(HttpSecurity http) throws Exception {
 
         AllowFromStrategy strategy = httpServletRequest -> "www.immunophenotype.org, wwwdev.ebi.ac.uk";
 
         http
+
+//            .addFilterAt(captchaFilter, UsernamePasswordAuthenticationFilter.class )
 
             .headers()
                 // in spring-security-core 4.2.8 , the addHeaderWriter line commented out below is broken: specifying X-Frame-Options:ALLOW-FROM also incorrectly adds DENY to the same header so it reads ALLOW-FROM DENY.
@@ -111,10 +120,12 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                     .exceptionHandling()
                         .accessDeniedPage("/Access_Denied")
 
+
                 .and()
                     .formLogin()
                         .loginPage("/rilogin")
                         .failureUrl("/rilogin?error")
+
                         .successHandler(new RiSavedRequestAwareAuthenticationSuccessHandler())
                         .usernameParameter("ssoId")
                         .passwordParameter("password")

@@ -403,7 +403,6 @@ public class RegisterInterestController {
         model.addAttribute("title", title);
         model.addAttribute("status", status);
         model.addAttribute("repeatEmailAddress", emailAddress);
-        model.addAttribute("hideButton", true);
 
         return "ri_collectEmailAddressPage";
     }
@@ -425,7 +424,7 @@ public class RegisterInterestController {
 
             sleep(SHORT_SLEEP_SECONDS);
 
-            return "redirect: rilogin?error=true&errorMessage=" + ERR_INVALID_TOKEN;
+            return "redirect: " + paBaseUrl + "/rilogin?error=true&errorMessage=" + ERR_INVALID_TOKEN;
         }
 
         // If token has expired, redirect to login page.
@@ -435,7 +434,7 @@ public class RegisterInterestController {
 
             sleep(SHORT_SLEEP_SECONDS);
 
-            return "redirect: rilogin?error=true&errorMessage=" + ERR_EXPIRED_TOKEN;
+            return "redirect: "+ paBaseUrl + "/rilogin?error=true&errorMessage=" + ERR_EXPIRED_TOKEN;
         }
 
         model.addAttribute("token", token);
@@ -515,7 +514,7 @@ public class RegisterInterestController {
 
             String errorMessage = (actionType == ActionType.NEW_ACCOUNT ? ERR_CREATE_ACCOUNT_FAILED : ERR_RESET_PASSWORD_FAILED);
 
-            return "redirect: rilogin?error=true&errorMessage=" + errorMessage;
+            return "redirect: " + paBaseUrl + "/rilogin?error=true&errorMessage=" + errorMessage;
         }
 
         // Get the user's roles and mark the user as authenticated.

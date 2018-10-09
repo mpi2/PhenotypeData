@@ -13,6 +13,34 @@
 
         <script src='https://www.google.com/recaptcha/api.js'></script>
 
+
+        <style>
+
+            div.text {
+                margin: 0;
+                padding: 0;
+                padding-bottom: 1.25em;
+            }
+
+            div.text label {
+                margin: 0;
+                padding: 0;
+                display: block;
+                font-size: 100%;
+                padding-top: .1em;
+                padding-right: .25em;
+                width: 10em;
+                text-align: left;
+                float: left;
+            }
+
+            input[type="text"] {
+                width:450px;
+
+            }
+
+        </style>
+
     </jsp:attribute>
 
     <jsp:attribute name="bodyTag">
@@ -52,34 +80,27 @@
                                 </c:when>
                             </c:choose>
 
-                            <div class="input-group input-sm">
-                                <div class="onethird" style="padding-bottom: 10px">
-                                    <label class="input-group-addon" for="username">Email address</label>
-                                </div>
-                                <div class="twothird" style="padding-bottom: 10px">
-                                    <input type="text" class="form-control" id="username" name="emailAddress" value="${emailAddress}" placeholder="myaddress@example.com" required />
-                                </div>
-                            </div>
 
-                            <div class="input-group input-sm">
-                                <div class="onethird" style="padding-bottom: 10px">
-                                    <label class="input-group-addon" for="repeatEmailAddress">Repeat email address</label>
+                            <div>
+                                <div class="text">
+                                    <label for="username">Email address
+                                    </label>
+                                    <input type="text" id="username" name="emailAddress" value="${emailAddress}" placeholder="myaddress@example.com" required />
                                 </div>
-                                <div class="twothird" style="padding-bottom: 10px">
-                                    <input type="text" class="form-control" id="repeatEmailAddress" name="repeatEmailAddress" value="${repeatEmailAddress}" placeholder="myaddress@example.com" required />
+                                <div class="text">
+                                    <label for="repeatEmailAddress">Repeat email address
+                                    </label>
+                                    <input type="text" id="repeatEmailAddress" name="repeatEmailAddress" value="${repeatEmailAddress}" placeholder="myaddress@example.com" required />
                                 </div>
-                            </div>
-                            <!-- Show the button by default. Allow it to be hidden. -->
-                            <c:if test="${empty hideButton}">
-                                <div class="form-actions">
+
+                                <div style="padding-bottom:1.25em;" class="g-recaptcha" data-sitekey="6Lef_XMUAAAAAOxVAnqOUC6a6DTRQ98m76bHKYVr"></div>
+
+                                <div>
                                     <input type="submit" class="btn btn-block btn-primary btn-default"
                                            value="${title}"/>
                                 </div>
-                            </c:if>
 
-                            <br />
-
-                            <div class="g-recaptcha" data-sitekey="6Lef_XMUAAAAAOxVAnqOUC6a6DTRQ98m76bHKYVr"></div>
+                            </div>
 
                         </form>
                     </div>
