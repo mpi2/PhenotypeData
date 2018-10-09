@@ -33,17 +33,21 @@ public class CaptchaFilter extends OncePerRequestFilter {
     private final Logger log = LoggerFactory.getLogger(this.getClass().getCanonicalName());
 
     // See https://www.google.com/recaptcha for setup
-    private static final String RECAPTCHA_SECRET = "6Lef_XMUAAAAAKeGrofZoht5Yp1RJIqAI5tKTxpN";
+    @NotNull
+    @Value("${recaptcha.secret}")
+    private String recaptchaSecret;
 
-    private static final String RECAPTCHA_URL = "https://www.google.com/recaptcha/api/siteverify";
-    private static final String RECAPTCHA_RESPONSE_PARAM = "g-recaptcha-response";
+    @NotNull
+    @Value("${recaptcha.url}")
+    private String recaptchaUrl;
 
+    @NotNull
+    @Value("${recaptcha.response.param}")
+    private String recaptchaResponseParam;
 
     @NotNull
     @Value("${paBaseUrl}")
     private String paBaseUrl;
-
-
 
 
     @Override
@@ -87,11 +91,11 @@ public class CaptchaFilter extends OncePerRequestFilter {
         try {
 
             CloseableHttpClient client = HttpClients.createDefault();
-            HttpPost httpPost = new HttpPost(RECAPTCHA_URL);
+            HttpPost httpPost = new HttpPost(recaptchaUrl);
 
             List<NameValuePair> params = new ArrayList<>();
-            params.add(new BasicNameValuePair("secret", RECAPTCHA_SECRET));
-            params.add(new BasicNameValuePair("response", req.getParameter(RECAPTCHA_RESPONSE_PARAM)));
+            params.add(new BasicNameValuePair("secret", recaptchaSecret));
+            params.add(new BasicNameValuePair("response", req.getParameter(recaptchaResponseParam)));
             httpPost.setEntity(new UrlEncodedFormEntity(params));
 
             CloseableHttpResponse response = client.execute(httpPost);
