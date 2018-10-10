@@ -248,11 +248,11 @@ public class CreateSlmExperimentXml extends Create3iXmls implements CommandLineR
     private String toZonedDate(String d) {
         try {
             DateTimeFormatter inFormatter = DateTimeFormatter.ofPattern("dd-MMM-yyyy HH:mm:ss XXX");
-            DateTimeFormatter outFormatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
-            ZonedDateTime dateVal = ZonedDateTime.parse(d + " 00:00:00 +01:00:00",inFormatter);
+            DateTimeFormatter outFormatter = DateTimeFormatter.ISO_INSTANT;
+            ZonedDateTime dateVal = ZonedDateTime.parse(d + " 00:00:00 +00:00:00",inFormatter);
             return dateVal.format(outFormatter);
         } catch (Exception e) {
-           logger.error("Problem converting " + d + " to zoned date" + " using unconverted value");
+           logger.error("Problem converting '" + d + "' to zoned date" + " using unconverted value");
            return d;
         }
     }
