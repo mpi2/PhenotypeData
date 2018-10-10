@@ -57,29 +57,31 @@
             <div class="login-container">
                 <div class="login-card">
                     <div class="login-form">
-                        <form action="sendEmail" method="POST" class="form-horizontal">
+                        <form action="${paBaseUrl}/sendEmail" method="POST" class="form-horizontal">
                             <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
                             <input type="hidden" name="requestedAction" value="${title}" />
 
-                            <c:choose>
-                                <c:when test="${not empty error}">
-                                    <div class="messages error">
-                                        <c:if test="${showWhen}">
-                                            ${current.toLocaleString()}:&nbsp;
-                                        </c:if>
-                                        <p>${error}</p>
-                                    </div>
-                                </c:when>
-                                <c:when test="${not empty status}">
-                                    <div class="messages" style="color: indigo">
-                                        <c:if test="${showWhen}">
-                                            ${current.toLocaleString()}:&nbsp;
-                                        </c:if>
-                                        <p>${status}</p>
-                                    </div>
-                                </c:when>
-                            </c:choose>
+                            <c:if test="${param.error != null}">
 
+                                <c:if test="${empty param.errorMessage}">
+                                    <div class="messages error">
+                                        <p>Invalid username and password.</p>
+                                    </div>
+                                </c:if>
+                                <c:if test="${not empty param.errorMessage}">
+                                    <div class="messages error">
+                                        <p>${param.errorMessage}</p>
+                                    </div>
+                                </c:if>
+                            </c:if>
+                            <c:if test="${status != null}">
+                                <div class="messages" style="color: indigo">
+                                    <c:if test="${showWhen}">
+                                        ${current.toLocaleString()}:&nbsp;
+                                    </c:if>
+                                    <p>${status}</p>
+                                </div>
+                            </c:if>
 
                             <div>
                                 <div class="text">
@@ -93,13 +95,13 @@
                                     <input type="text" id="repeatEmailAddress" name="repeatEmailAddress" value="${repeatEmailAddress}" placeholder="myaddress@example.com" required />
                                 </div>
 
-                                <div style="padding-bottom:1.25em;" class="g-recaptcha" data-sitekey="6LckO3QUAAAAAAYOdZIrVrfhiz7Xueo_9l8mbCcQ"></div>
+                                <div style="padding-bottom:1.25em;" class="g-recaptcha" data-sitekey=${recaptchaPublic}></div>
+
 
                                 <div>
                                     <input type="submit" class="btn btn-block btn-primary btn-default"
                                            value="${title}"/>
                                 </div>
-
                             </div>
 
                         </form>

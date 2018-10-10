@@ -1,7 +1,6 @@
 package uk.ac.ebi.phenotype.web.controller.registerinterest;
 
 import org.apache.http.NameValuePair;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -18,12 +17,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import javax.servlet.*;
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -52,14 +52,13 @@ public class CaptchaFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res, FilterChain chain) throws ServletException, IOException {
-
         if (
-                ("POST".equalsIgnoreCase(req.getMethod())) &&
-                        (
-                                req.getServletPath().contains("rilogin") ||
-                                req.getServletPath().contains("sendEmail")
-                        )
-                ) {
+            ("POST".equalsIgnoreCase(req.getMethod())) &&
+                (
+                    req.getServletPath().contains("rilogin") ||
+                    req.getServletPath().contains("sendEmail")
+                )
+            ) {
 
             System.out.println("\n");
             System.out.println("Request path " + req.getRequestURI());
@@ -67,8 +66,13 @@ public class CaptchaFilter extends OncePerRequestFilter {
 
             log.info("URL = " + req.getRequestURL());
 
-            if (! validateRecaptcha(req)) {
-                res.sendRedirect(paBaseUrl + "/rilogin?error=true");
+            if ( ! validateRecaptcha(req)) {
+                String target = req.getHeader("referer");
+                if ((target == null) || ! (target.startsWith(paBaseUrl))) {
+                    target = paBaseUrl + "/rilogin";
+                }
+                target += "?error=true";
+                res.sendRedirect(target);
                 return;
             }
 

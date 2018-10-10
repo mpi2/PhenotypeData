@@ -119,17 +119,14 @@
                                 <input type="password" class="form-control  required" id="password" name="password" placeholder="Enter password" required />
                             </div>
 
-                            <div class="g-recaptcha" data-sitekey="6LckO3QUAAAAAAYOdZIrVrfhiz7Xueo_9l8mbCcQ"></div>
+                            <div style="padding-top:0.8em;" class="g-recaptcha" data-sitekey=${recaptchaPublic}></div>
 
                             <div class="form-actions">
-                                <input type="submit" class="btn btn-block btn-primary btn-default" value="Log in" />
+                                <input type="submit" formmethod="POST" class="btn btn-block btn-primary btn-default" value="Log in" />
                             </div>
-
                             <br/>
 
                         </form>
-
-
 
                         <a href="${paBaseUrl}/newAccountRequest">New account</a>
                         &nbsp;&nbsp;&nbsp;&nbsp;

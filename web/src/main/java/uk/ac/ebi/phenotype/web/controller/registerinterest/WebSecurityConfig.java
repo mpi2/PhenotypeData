@@ -37,10 +37,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.DefaultRedirectStrategy;
 import org.springframework.security.web.RedirectStrategy;
-import org.springframework.security.web.access.channel.ChannelProcessingFilter;
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+import org.springframework.security.web.csrf.CsrfFilter;
 import org.springframework.security.web.header.writers.frameoptions.AllowFromStrategy;
 import org.springframework.security.web.header.writers.frameoptions.XFrameOptionsHeaderWriter;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
@@ -52,7 +50,6 @@ import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 import javax.inject.Inject;
-import javax.servlet.Filter;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -93,8 +90,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         AllowFromStrategy strategy = httpServletRequest -> "www.immunophenotype.org, wwwdev.ebi.ac.uk";
 
         http
-
-//            .addFilterAt(captchaFilter, UsernamePasswordAuthenticationFilter.class )
+            .addFilterAfter(captchaFilter, CsrfFilter.class)
 
             .headers()
                 // in spring-security-core 4.2.8 , the addHeaderWriter line commented out below is broken: specifying X-Frame-Options:ALLOW-FROM also incorrectly adds DENY to the same header so it reads ALLOW-FROM DENY.
@@ -116,35 +112,35 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                     .antMatchers(HttpMethod.GET,"/**")
                         .permitAll()
 
-                .and()
-                    .exceptionHandling()
-                        .accessDeniedPage("/Access_Denied")
+            .and()
+                .exceptionHandling()
+                    .accessDeniedPage("/Access_Denied")
 
 
-                .and()
-                    .formLogin()
-                        .loginPage("/rilogin")
-                        .failureUrl("/rilogin?error")
+            .and()
+                .formLogin()
+                    .loginPage("/rilogin")
+                    .failureUrl("/rilogin?error")
 
-                        .successHandler(new RiSavedRequestAwareAuthenticationSuccessHandler())
-                        .usernameParameter("ssoId")
-                        .passwordParameter("password")
+                    .successHandler(new RiSavedRequestAwareAuthenticationSuccessHandler())
+                    .usernameParameter("ssoId")
+                    .passwordParameter("password")
 
-                // Ignore all csrf that isn't part of the login process.
-                .and()
-                    .csrf()
-                        .ignoringAntMatchers("/dataTable_bq")
-                        .ignoringAntMatchers("/dataTableAlleleRefPost")
-                        .ignoringAntMatchers("/fetchAlleleRefPmidData")
-                        .ignoringAntMatchers("/querybroker")
-                        .ignoringAntMatchers("/bqExport")
-                        .ignoringAntMatchers("/batchQuery")
-                        .ignoringAntMatchers("/alleleRefLogin")
-                        .ignoringAntMatchers("/addpmid")
-                        .ignoringAntMatchers("/addpmidAllele")
-                        .ignoringAntMatchers("/gwaslookup")
+            // Ignore all csrf that isn't part of the login process.
+            .and()
+                .csrf()
+                    .ignoringAntMatchers("/dataTable_bq")
+                    .ignoringAntMatchers("/dataTableAlleleRefPost")
+                    .ignoringAntMatchers("/fetchAlleleRefPmidData")
+                    .ignoringAntMatchers("/querybroker")
+                    .ignoringAntMatchers("/bqExport")
+                    .ignoringAntMatchers("/batchQuery")
+                    .ignoringAntMatchers("/alleleRefLogin")
+                    .ignoringAntMatchers("/addpmid")
+                    .ignoringAntMatchers("/addpmidAllele")
+                    .ignoringAntMatchers("/gwaslookup")
 
-                .and().sessionManagement().invalidSessionStrategy(new RiSimpleRedirectInvalidSessionStrategy(paBaseUrl + "/search/gene?kw=*"))
+            .and().sessionManagement().invalidSessionStrategy(new RiSimpleRedirectInvalidSessionStrategy(paBaseUrl + "/search/gene?kw=*"))
         ;
     }
 

@@ -92,6 +92,10 @@ public class RegisterInterestConfig {
     @Value("${drupal_base_url}")
     private String drupalBaseUrl;
 
+    @NotNull
+    @Value("${recaptcha.public}")
+    private String recaptchaPublic;
+
 
     @Bean
     public String smtpFrom() {
@@ -122,6 +126,11 @@ public class RegisterInterestConfig {
     @Bean
     public String drupalBaseUrl() {
         return drupalBaseUrl;
+    }
+
+    @Bean
+    public String recaptchaPublic() {
+        return recaptchaPublic;
     }
 
     @Bean
