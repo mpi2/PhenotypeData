@@ -1,7 +1,9 @@
 package uk.ac.ebi.phenotype.web.controller.registerinterest;
 
+import org.apache.http.HttpHost;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.ResponseHandler;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
@@ -95,13 +97,25 @@ public class CaptchaFilter extends OncePerRequestFilter {
         try {
 
             CloseableHttpClient client = HttpClients.createDefault();
+
+
+            HttpHost proxy = new HttpHost("hx-wwwcache.ebi.ac.uk", 3128, "http");
+            RequestConfig config = RequestConfig.custom()
+                    .setProxy(proxy)
+                    .build();
+
             HttpPost httpPost = new HttpPost(recaptchaUrl);
+
+            httpPost.setConfig(config);
+
+
 
             List<NameValuePair> params = new ArrayList<>();
             params.add(new BasicNameValuePair("secret", recaptchaSecret));
             params.add(new BasicNameValuePair("response", req.getParameter(recaptchaResponseParam)));
             httpPost.setEntity(new UrlEncodedFormEntity(params));
-
+HttpHost h = httpPost.getConfig().getProxy();
+System.out.println("\n\nPROXY: " + (h == null ? "NULL" : h.toURI()));
             CloseableHttpResponse response = client.execute(httpPost);
 
             ResponseHandler<String> handler = new BasicResponseHandler();
