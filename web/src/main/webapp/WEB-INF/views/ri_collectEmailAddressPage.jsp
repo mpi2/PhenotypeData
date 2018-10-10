@@ -93,7 +93,7 @@
                                     <input type="text" id="repeatEmailAddress" name="repeatEmailAddress" value="${repeatEmailAddress}" placeholder="myaddress@example.com" required />
                                 </div>
 
-                                <div style="padding-bottom:1.25em;" class="g-recaptcha" data-sitekey="6Lef_XMUAAAAAOxVAnqOUC6a6DTRQ98m76bHKYVr"></div>
+                                <div style="padding-bottom:1.25em;" class="g-recaptcha" data-sitekey="6LckO3QUAAAAAAYOdZIrVrfhiz7Xueo_9l8mbCcQ"></div>
 
                                 <div>
                                     <input type="submit" class="btn btn-block btn-primary btn-default"

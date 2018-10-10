@@ -82,7 +82,7 @@ public class CaptchaFilter extends OncePerRequestFilter {
      *
      * @param req the request
      * @return true if the user is not a bot
-     * @throws IOException when the
+     * @throws IOException when the server fails to respond appropriately
      */
     private boolean validateRecaptcha(ServletRequest req) {
 
