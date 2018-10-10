@@ -13,6 +13,7 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.mousephenotype.cda.utilities.HttpProxy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,6 +27,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.Proxy;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -98,24 +102,25 @@ public class CaptchaFilter extends OncePerRequestFilter {
 
             CloseableHttpClient client = HttpClients.createDefault();
 
+            HttpPost httpPost = new HttpPost(recaptchaUrl);
+            HttpProxy httpProxy = new HttpProxy();
+            Proxy proxy = httpProxy.getProxy(new URL(recaptchaUrl), false);
+            if (proxy != null) {
+                String proxyHostname = ((InetSocketAddress) proxy.address()).getHostName();
+                int    proxyPort     = ((InetSocketAddress) proxy.address()).getPort();
 
-            HttpHost proxy = new HttpHost("hx-wwwcache.ebi.ac.uk", 3128, "http");
-            RequestConfig config = RequestConfig.custom()
-                    .setProxy(proxy)
+                RequestConfig config = RequestConfig.custom()
+                    .setProxy(new HttpHost(proxyHostname, proxyPort))
                     .build();
 
-            HttpPost httpPost = new HttpPost(recaptchaUrl);
-
-            httpPost.setConfig(config);
-
-
+                httpPost.setConfig(config);
+            }
 
             List<NameValuePair> params = new ArrayList<>();
             params.add(new BasicNameValuePair("secret", recaptchaSecret));
             params.add(new BasicNameValuePair("response", req.getParameter(recaptchaResponseParam)));
             httpPost.setEntity(new UrlEncodedFormEntity(params));
-HttpHost h = httpPost.getConfig().getProxy();
-System.out.println("\n\nPROXY: " + (h == null ? "NULL" : h.toURI()));
+
             CloseableHttpResponse response = client.execute(httpPost);
 
             ResponseHandler<String> handler = new BasicResponseHandler();
