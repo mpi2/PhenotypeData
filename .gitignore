@@ -129,3 +129,5 @@ datasources-config.xml
 # Ignore any test property files
 *testConfig.properties
 *test.properties
+
+/.apt_generated/
