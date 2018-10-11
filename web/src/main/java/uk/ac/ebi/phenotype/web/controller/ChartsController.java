@@ -58,6 +58,8 @@ import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static org.springframework.web.bind.annotation.ValueConstants.DEFAULT_NONE;
+
 
 @Controller
 public class ChartsController {
@@ -194,7 +196,7 @@ public class ChartsController {
                         @RequestParam(required = false, value = "accession") String[] accession,
                         @RequestParam(required = false, value = "strain_accession_id") String strain,
                         @RequestParam(required = false, value = "allele_accession_id") String alleleAccession,
-                        @RequestParam(required = false, value = "metadata_group") String metadataGroup,
+                        @RequestParam(required = false, value = "metadata_group", defaultValue = DEFAULT_NONE) String metadataGroup,
                         @RequestParam(required = false, value = "parameter_stable_id") String parameterStableId,
                         @RequestParam(required = false, value = "gender") String[] gender,
                         @RequestParam(required = false, value = "zygosity") String[] zygosity,
@@ -241,7 +243,7 @@ public class ChartsController {
         // List<String> phenotypingCenters = getParamsAsList(phenotypingCenter);
        
         String metaDataGroupString = null;
-        if (metadataGroup != null) {
+        if (metadataGroup != null && ! metadataGroup.equals(DEFAULT_NONE)) {
             metaDataGroupString = metadataGroup;
         }
 
