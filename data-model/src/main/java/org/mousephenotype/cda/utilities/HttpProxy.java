@@ -15,43 +15,38 @@
  *******************************************************************************/
 package org.mousephenotype.cda.utilities;
 
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.InetSocketAddress;
-import java.net.Proxy;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
-import java.util.HashMap;
+import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
-
-import org.apache.commons.io.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.*;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.util.HashMap;
 
 
 public class HttpProxy {
 
 	private final Logger log = LoggerFactory.getLogger(this.getClass().getCanonicalName());
 
-	// Timeout after 2 seconds
-	private int CONNECTION_TIMEOUT = 30000;
-	protected HashMap<URL, String> cache = new HashMap<URL, String>();
-	private String cookie = null;
+	// Timeout after 30 seconds
+	private int                    CONNECTION_TIMEOUT_IN_MILLISECONDS = 30000;
+	protected HashMap<URL, String> cache                              = new HashMap<>();
+	private String                 cookieString                       = null;
 
 	
 	public String getContent(URL url) throws IOException, URISyntaxException {
 		return this.getContent(url, false);
 	}
 	/**
-	 * Method to get page content from an external URL
+	 * Method to get page content from an external URL. 'External URL' means any url external to the EBI.
 	 *
 	 * @param url the url to interrogate
 	 * @return the content in a String
@@ -119,14 +114,14 @@ public class HttpProxy {
 
 		log.debug("Getting content from URL: " + url);
 
-		// Send the cookie (if there is one) along with request
-		if (cookie != null) {
-			log.debug("Setting cookie: " + cookie);
-			urlConn.setRequestProperty("Cookie", cookie);
+		// Send the cookieString (if there is one) along with request
+		if (cookieString != null) {
+			log.debug("Setting cookieString: " + cookieString);
+			urlConn.setRequestProperty("Cookie", cookieString);
 		}
 
 		urlConn.setHostnameVerifier(new CustomizedHostNameVerifier());
-		urlConn.setReadTimeout(CONNECTION_TIMEOUT);
+		urlConn.setReadTimeout(CONNECTION_TIMEOUT_IN_MILLISECONDS);
 		urlConn.connect();
 		inStream = new InputStreamReader(urlConn.getInputStream());
 
@@ -158,7 +153,7 @@ public class HttpProxy {
 			urlConn = (HttpURLConnection) url.openConnection();
 		}
 
-		urlConn.setReadTimeout(CONNECTION_TIMEOUT);
+		urlConn.setReadTimeout(CONNECTION_TIMEOUT_IN_MILLISECONDS);
 		urlConn.connect();
 		try {
 			inStream = new InputStreamReader(urlConn.getInputStream());
@@ -222,17 +217,16 @@ public class HttpProxy {
 	}
 
 	/**
-	 * @return the cookieString
+	 * @return the cookie string
 	 */
 	public String getCookieString() {
-		return cookie;
+		return cookieString;
 	}
 
 	/**
-	 * @param cookieString the cookieString to set
+	 * @param cookieString the cookieString string to set
 	 */
-	public void setCookieString(String cookie) {
-		this.cookie = cookie;
+	public void setCookieString(String cookieString) {
+		this.cookieString = cookieString;
 	}
-
 }

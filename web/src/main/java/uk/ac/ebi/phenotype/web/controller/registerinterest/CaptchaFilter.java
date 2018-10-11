@@ -1,42 +1,30 @@
 package uk.ac.ebi.phenotype.web.controller.registerinterest;
 
-import org.apache.http.HttpHost;
 import org.apache.http.NameValuePair;
-import org.apache.http.client.ResponseHandler;
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.BasicResponseHandler;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.mousephenotype.cda.utilities.HttpProxy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import uk.ac.ebi.phenotype.web.util.CaptchaHttpProxy;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.net.Proxy;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
 @Component
 public class CaptchaFilter extends OncePerRequestFilter {
 
-    private final Logger log = LoggerFactory.getLogger(this.getClass().getCanonicalName());
+    private final Logger           log              = LoggerFactory.getLogger(this.getClass().getCanonicalName());
+    private       CaptchaHttpProxy captchaHttpProxy = new CaptchaHttpProxy();
 
     // See https://www.google.com/recaptcha for setup
     @NotNull
@@ -90,54 +78,34 @@ public class CaptchaFilter extends OncePerRequestFilter {
     /**
      * Contact the google recaptcha service and validate the user is a human
      *
-     * @param req the request
+     * @param request the request
      * @return true if the user is not a bot
      * @throws IOException when the server fails to respond appropriately
      */
-    private boolean validateRecaptcha(ServletRequest req) {
+    private boolean validateRecaptcha(HttpServletRequest request) {
 
         boolean success = false;
 
+        List<NameValuePair> params = new ArrayList<>();
+        params.add(new BasicNameValuePair("secret", recaptchaSecret));
+        params.add(new BasicNameValuePair("response", request.getParameter(recaptchaResponseParam)));
+
+        String body = "";
+
         try {
-
-            CloseableHttpClient client = HttpClients.createDefault();
-
-            HttpPost httpPost = new HttpPost(recaptchaUrl);
-            HttpProxy httpProxy = new HttpProxy();
-            Proxy proxy = httpProxy.getProxy(new URL(recaptchaUrl), false);
-            if (proxy != null) {
-                String proxyHostname = ((InetSocketAddress) proxy.address()).getHostName();
-                int    proxyPort     = ((InetSocketAddress) proxy.address()).getPort();
-
-                RequestConfig config = RequestConfig.custom()
-                    .setProxy(new HttpHost(proxyHostname, proxyPort))
-                    .build();
-
-                httpPost.setConfig(config);
+            body = captchaHttpProxy.getContent(recaptchaUrl, params);
+            if (body != null) {
+                JSONObject recaptchaResponse = new JSONObject(body);
+                success = recaptchaResponse.getBoolean("success");
             }
 
-            List<NameValuePair> params = new ArrayList<>();
-            params.add(new BasicNameValuePair("secret", recaptchaSecret));
-            params.add(new BasicNameValuePair("response", req.getParameter(recaptchaResponseParam)));
-            httpPost.setEntity(new UrlEncodedFormEntity(params));
+        } catch (IOException | JSONException e) {
 
-            CloseableHttpResponse response = client.execute(httpPost);
-
-            ResponseHandler<String> handler = new BasicResponseHandler();
-            String body = handler.handleResponse(response);
-            log.info("Response from google recaptcha service: " + body);
-
-            JSONObject recaptchaResponse = new JSONObject(body);
-            success = recaptchaResponse.getBoolean("success");
-        } catch (NullPointerException | JSONException  | IOException  e) {
-            log.info("Exception from recaptcha service" , e);
+            log.info("Exception from recaptcha service", e);
         }
 
+        log.info("Response from google recaptcha service: " + body);
+
         return success;
-    }
-
-    @Override
-    public void destroy() {
-
     }
 }
