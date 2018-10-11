@@ -24,6 +24,7 @@
     <logger name="org.mousephenotype.cda.utilities.HttpProxy"                   level="WARN" />
     <logger name="org.mousephenotype.cda.loads"                                 level="INFO" />
     <logger name="org.mousephenotype.cda.solr.service"                          level="WARN" />
+    <logger name="org.mousephenotype.interest"                                  level="INFO" />
 
     <!-- uncomment this line to see ImageService solr queries -->
     <logger name="org.mousephenotype.cda.solr.service.ImageService"             level="INFO" />

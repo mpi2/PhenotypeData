@@ -65,6 +65,11 @@ public class CaptchaFilter extends OncePerRequestFilter {
                 if ((target == null) || ! (target.startsWith(paBaseUrl))) {
                     target = paBaseUrl + "/rilogin";
                 }
+                if (target.endsWith("sendEmail")) {
+                    // sendEmail is a POST and will throw a 405 if redirected, as there is no GET. Remap to either New account or Reset password url as appropriate.
+                    String requestedAction = req.getParameter("requestedAction");
+                    target = paBaseUrl + (RegisterInterestController.TITLE_NEW_ACCOUNT_REQUEST.equals(requestedAction) ? "/newAccountRequest" : "/resetPasswordRequest");
+                }
                 target += "?error=true";
                 res.sendRedirect(target);
                 return;
