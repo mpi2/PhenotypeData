@@ -130,6 +130,7 @@ public class RegisterInterestController {
     private String          smtpHost;
     private int             smtpPort;
     private String          smtpReplyto;
+    private String          recaptchaPublic;
 
 
     private enum ActionType {
@@ -159,7 +160,8 @@ public class RegisterInterestController {
             String smtpHost,
             int smtpPort,
             String smtpReplyto,
-            CoreService coreService
+            CoreService coreService,
+            String recaptchaPublic
     ) {
         this.paBaseUrl = paBaseUrl;
         this.drupalBaseUrl = drupalBaseUrl;
@@ -170,13 +172,12 @@ public class RegisterInterestController {
         this.smtpPort = smtpPort;
         this.smtpReplyto = smtpReplyto;
         this.coreService = coreService;
+        this.recaptchaPublic = recaptchaPublic;
     }
 
 
     @RequestMapping(value = "/rilogin", method = RequestMethod.GET)
-    public String rilogin(
-            HttpServletRequest request
-    ) {
+    public String rilogin(HttpServletRequest request) {
         String error = request.getParameter("error");
 
         if (error != null) {
@@ -191,15 +192,14 @@ public class RegisterInterestController {
         HttpSession session = request.getSession();
         session.setAttribute("paBaseUrl", paBaseUrl);
         session.setAttribute("drupalBaseUrl", drupalBaseUrl);
+        session.setAttribute("recaptchaPublic", recaptchaPublic);
 
         return "loginPage";
     }
 
 
     @RequestMapping(value = "/rilogin", method = RequestMethod.POST)
-    public String riloginPost(
-            HttpServletRequest request
-    ) {
+    public String riloginPost(HttpServletRequest request) {
         String error = request.getParameter("error");
 
         if (error != null) {
@@ -290,7 +290,7 @@ public class RegisterInterestController {
 
     @Secured("ROLE_USER")
     @RequestMapping(value = "/summary", method = RequestMethod.GET)
-    public String summary(ModelMap model, HttpServletRequest request) {
+    public String summary(ModelMap model) {
 
         Summary summary = sqlUtils.getSummary(SecurityUtils.getPrincipal());
 
@@ -302,28 +302,40 @@ public class RegisterInterestController {
 
 
     @RequestMapping(value = "/resetPasswordRequest", method = RequestMethod.GET)
-    public String resetPasswordRequest(ModelMap model) {
+    public String resetPasswordRequest(HttpServletRequest request, ModelMap model) {
+
+        HttpSession session = request.getSession();
+
         model.addAttribute("title", TITLE_RESET_PASSWORD_REQUEST);
+        session.setAttribute("recaptchaPublic", recaptchaPublic);
 
         return "ri_collectEmailAddressPage";
     }
 
     @RequestMapping(value = "/newAccountRequest", method = RequestMethod.GET)
-    public String newAccountRequest(ModelMap model) {
+    public String newAccountRequest(HttpServletRequest request, ModelMap model) {
+
+        HttpSession session = request.getSession();
+
         model.addAttribute("title", TITLE_NEW_ACCOUNT_REQUEST);
+        session.setAttribute("recaptchaPublic", recaptchaPublic);
 
         return "ri_collectEmailAddressPage";
     }
 
 
     @RequestMapping(value = "/sendEmail", method = RequestMethod.POST)
-    public String sendEmail(ModelMap model,
+    public String sendEmail(HttpServletRequest request, ModelMap model,
         @RequestParam(value = "emailAddress", defaultValue = "") String emailAddress,
         @RequestParam(value = "repeatEmailAddress", defaultValue = "") String repeatEmailAddress,
         @RequestParam("requestedAction") String requestedAction
     ) {
+
+        HttpSession session = request.getSession();
+
         model.addAttribute("emailAddress", emailAddress);
         model.addAttribute("repeatEmailAddress", repeatEmailAddress);
+        session.setAttribute("recaptchaPublic", recaptchaPublic);
 
         ActionType requestedActionType = (requestedAction.equals("Reset password") ? ActionType.RESET_PASSWORD : ActionType.NEW_ACCOUNT);
 

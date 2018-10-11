@@ -1,8 +1,9 @@
 package uk.ac.ebi.phenotype.web.controller.registerinterest;
 
+import org.apache.http.HttpHost;
 import org.apache.http.NameValuePair;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.ResponseHandler;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
@@ -12,18 +13,23 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.mousephenotype.cda.utilities.HttpProxy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import javax.servlet.*;
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
+import java.net.InetSocketAddress;
+import java.net.Proxy;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -52,14 +58,13 @@ public class CaptchaFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res, FilterChain chain) throws ServletException, IOException {
-
         if (
-                ("POST".equalsIgnoreCase(req.getMethod())) &&
-                        (
-                                req.getServletPath().contains("rilogin") ||
-                                req.getServletPath().contains("sendEmail")
-                        )
-                ) {
+            ("POST".equalsIgnoreCase(req.getMethod())) &&
+                (
+                    req.getServletPath().contains("rilogin") ||
+                    req.getServletPath().contains("sendEmail")
+                )
+            ) {
 
             System.out.println("\n");
             System.out.println("Request path " + req.getRequestURI());
@@ -67,8 +72,13 @@ public class CaptchaFilter extends OncePerRequestFilter {
 
             log.info("URL = " + req.getRequestURL());
 
-            if (! validateRecaptcha(req)) {
-                res.sendRedirect(paBaseUrl + "/rilogin?error=true");
+            if ( ! validateRecaptcha(req)) {
+                String target = req.getHeader("referer");
+                if ((target == null) || ! (target.startsWith(paBaseUrl))) {
+                    target = paBaseUrl + "/rilogin";
+                }
+                target += "?error=true";
+                res.sendRedirect(target);
                 return;
             }
 
@@ -91,7 +101,20 @@ public class CaptchaFilter extends OncePerRequestFilter {
         try {
 
             CloseableHttpClient client = HttpClients.createDefault();
+
             HttpPost httpPost = new HttpPost(recaptchaUrl);
+            HttpProxy httpProxy = new HttpProxy();
+            Proxy proxy = httpProxy.getProxy(new URL(recaptchaUrl), false);
+            if (proxy != null) {
+                String proxyHostname = ((InetSocketAddress) proxy.address()).getHostName();
+                int    proxyPort     = ((InetSocketAddress) proxy.address()).getPort();
+
+                RequestConfig config = RequestConfig.custom()
+                    .setProxy(new HttpHost(proxyHostname, proxyPort))
+                    .build();
+
+                httpPost.setConfig(config);
+            }
 
             List<NameValuePair> params = new ArrayList<>();
             params.add(new BasicNameValuePair("secret", recaptchaSecret));
