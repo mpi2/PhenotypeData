@@ -33,24 +33,18 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.URL;
-import java.util.HashMap;
 import java.util.List;
 
 
 public class CaptchaHttpProxy {
 
 	private final Logger log = LoggerFactory.getLogger(this.getClass().getCanonicalName());
-	protected HashMap<URL, String> cache = new HashMap<>();
 
 	public String getContent(String urlString, List<NameValuePair> params) throws IOException {
 
 		// Convert to a URI and back to a URL to get any strange characters to
 		// be encoded during the process
 		URL escapedUrl = new URL(new URL(urlString).toExternalForm().replace(" ", "%20"));
-
-		if (cache.containsKey(escapedUrl)) {
-			return cache.get(escapedUrl);
-		}
 
 		HttpPost httpPost = new HttpPost(urlString);
 		httpPost.setEntity(new UrlEncodedFormEntity(params));
@@ -70,11 +64,14 @@ public class CaptchaHttpProxy {
 						.build();
 
 				httpPost.setConfig(config);
-			}
+				log.info("Using proxy {}:{}", proxyHostname, proxyPort);
+			} else {
+			    log.info("Not using proxy");
+            }
 
 		} catch (NumberFormatException e) {
 
-			// Don't us e proxy. The proxyPort is either null or not convertible to an int.
+			// Don't us a proxy. The proxyPort is either null or not convertible to an int.
 
 		} catch (Exception e) {
 
@@ -86,8 +83,6 @@ public class CaptchaHttpProxy {
 
 		ResponseHandler<String> handler = new BasicResponseHandler();
 		content = handler.handleResponse(response);
-
-		cache.put(escapedUrl, content);
 
 		return content;
 	}
