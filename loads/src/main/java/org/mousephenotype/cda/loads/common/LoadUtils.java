@@ -107,6 +107,9 @@ public class LoadUtils {
         put("RIKEN BRC",                "RBRC");                        // center.project -> project.name
         put("KMPC",                     "KMPC");                        // center.project -> project.name
         put("Kmpc",                     "KMPC");                        // center.project -> project.name
+        put("EUMODIC",                  "EUMODIC");                     // center.project -> project.name
+        put("3i",                       "3i");                     // center.project -> project.name
+        put("IMPC",                     "IMPC");                     // center.project -> project.name
     }};
 
 
