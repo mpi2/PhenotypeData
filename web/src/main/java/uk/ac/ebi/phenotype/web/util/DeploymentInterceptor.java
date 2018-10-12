@@ -74,7 +74,7 @@ public class DeploymentInterceptor extends HandlerInterceptorAdapter {
 		requestConfig.put("mappedHostname", mappedHostname);
 		requestConfig.put("baseUrl", request.getContextPath());
 		requestConfig.put("isProxied", Boolean.FALSE);
-		log.info("mappedHostName = {}. baseUrl = {}", mappedHostname, request.getContextPath());
+		log.debug("mappedHostName = {}. baseUrl = {}", mappedHostname, request.getContextPath());
 
 		// If this webapp is being accessed behind a proxy, the
 		// x-forwarded-host header will be set, in which case, use the
@@ -93,7 +93,7 @@ public class DeploymentInterceptor extends HandlerInterceptorAdapter {
 
 			for (String forward : forwards) {
 				if ( ! forward.matches(".*ebi\\.ac\\.uk")) {
-					log.info("Request proxied. Using baseUrl: " + config.get("baseUrl"));
+					log.debug("Request proxied. Using baseUrl: " + config.get("baseUrl"));
 					requestConfig.put("baseUrl", config.get("baseUrl"));
 					break;
 				}
@@ -113,7 +113,7 @@ public class DeploymentInterceptor extends HandlerInterceptorAdapter {
 		});
 		request.setAttribute("requestConfig", requestConfig);
 
-		log.info("Interception! Intercepted path " + request.getRequestURI());
+		log.debug("Interception! Intercepted path " + request.getRequestURI());
 		return true;
 	}
 
