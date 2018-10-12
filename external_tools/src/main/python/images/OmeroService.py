@@ -16,6 +16,7 @@ from omero.rtypes import wrap
 from omero.model import DatasetI, ProjectI
 from common import splitString
 from OmeroPropertiesParser import OmeroPropertiesParser
+import psycopg2
 
 def main(argv):
     print "running main method in OmeroService"
@@ -126,6 +127,47 @@ class OmeroService:
             #    print "Did not extract root_dir from " + ofd[1]
             omero_file_list.append(ofd_path)
         return omero_file_list
+
+    def getImagesAlreadyInOmeroViaPostgres(self, omeroDbDetails):
+        # Get files already in omero by directly querying postgres db
+        try:
+            print "Attempting to get file list directly from Postgres DB"
+            omeroDbUser = omeroDbDetails['omerodbuser']
+            omeroDbPass = omeroDbDetails['omerodbpass']
+            omeroDbName = omeroDbDetails['omerodbname']
+            omeroDbHost = omeroDbDetails['omerodbhost']
+            omeroDbPort = omeroDbDetails['omerodbport']
+        
+            conn = psycopg2.connect(database=omeroDbName, user=omeroDbUser,
+                                    password=omeroDbPass, host=omeroDbHost,
+                                    port=omeroDbPort)
+            cur = conn.cursor()
+            # Get the actual files uploaded to Omero
+            query = "SELECT DISTINCT clientpath FROM filesetentry " + \
+                    "INNER JOIN fileset ON filesetentry.fileset=fileset.id " +\
+                    "WHERE fileset.id >=0"
+            cur.execute(query)
+            omero_file_list = []
+            for f in cur.fetchall():
+                omero_file_list.append(f[0].split('impc/')[-1])
+        
+            ## Get the images contained in the leica files uploaded to Omero
+            ## These images are in the download_urls obtained from solr
+            #query = "SELECT name FROM image " + \
+            #        "WHERE name LIKE '%.lif%' OR name LIKE '%.lei%'"
+            #cur.execute(query)
+            #omero_image_list = []
+            #for i in cur.fetchall():
+            #    omero_image_list.append(i[0])
+            conn.close()
+            return omero_file_list
+
+        except KeyError as e:
+            print "Could not connect to omero postgres database. Key " + str(e) + \
+                  " not present in omero properties file. Aborting!"
+            conn.close()
+            sys.exit()
+
 
     def getAnnotationsAlreadyInOmero(self):
         #query = 'SELECT ds.name, (SELECT o.name FROM originalfile o ' + \
