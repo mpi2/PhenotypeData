@@ -103,6 +103,8 @@ public class ApplicationSend implements CommandLineRunner {
 
         OptionSet options = null;
 
+        parser.allowsUnrecognizedOptions();
+
         parser.acceptsAll(Arrays.asList(OPT_HELP), "Display help/usage information\t" + USAGE)
                 .forHelp();
 
