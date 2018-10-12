@@ -295,7 +295,6 @@ public class SearchController {
 				settings.getiDisplayStart(), settings.getiDisplayLength(),
 				facet);
 
-		System.out.println("search result url: " + queryUrl);
 		JSONObject result = queryBrokerService.runQuery(queryUrl);
 
 		return result;
