@@ -237,38 +237,32 @@ public class GenerateService {
 
     protected String getSummaryPreface(boolean inHtml) {
         StringBuilder sb = new StringBuilder();
-
         sb
-                .append("Dear colleague,\n")
+            .append("Dear colleague,\n")
 
-                .append(inHtml ? "<br /><br />" : "\n\n")
+            .append(inHtml ? "<br /><br />" : "\n\n")
 
-                .append("Below please find a summary of the IMPC genes for which you have registered interest.\n")
+            .append("Below please find a summary of the IMPC genes for which you have registered interest.\n")
 
-                .append(inHtml ? "<br /><br />" : "\n\n")
+            .append(inHtml ? "<br /><br />" : "\n\n")
 
-                .append("You have previously joined the IMPC ")
-                .append(inHtml ? "<i>" : "'")
-                .append("Register Interest")
-                .append(inHtml ? "</i>" : "'")
-                .append(" ")
-                .append("list, which records your email address and genes for which you would like updates on mouse knockout, production, and phenotyping.\n")
+            .append("You have previously joined the IMPC ")
+            .append(inHtml ? "<i>" : "'")
+            .append("Register Interest")
+            .append(inHtml ? "</i>" : "'")
+            .append(" ")
+            .append("list, which records your email address and genes for which you would like updates on mouse knockout, production, and phenotyping.\n")
 
-                .append(inHtml ? "<br /><br />" : "\n\n")
+            .append(inHtml ? "<br /><br />" : "\n\n")
 
-                .append("You can unsubscribe from any gene for which you have registered interest by clicking on its corresponding ")
-                .append(inHtml ? "<i>" : "'")
-                .append("Unregister")
-                .append(inHtml ? "</i>" : "'")
-                .append(" ")
-                .append("link in the")
-                .append(inHtml ? "<b>" : "'")
-                .append("Action")
-                .append(inHtml ? "</b>" : "'")
-                .append(" ")
-                .append("column below.\n")
+            //                .append("You can unsubscribe from any gene for which you have registered interest by clicking on its corresponding ")
+            .append("You may manage the list of genes for which you have registered interest by visiting the IMPC ")
+            .append(inHtml ? "<a href=\"" + paBaseUrl + "/summary" + "\">" : "'")
+            .append("summary")
+            .append(inHtml ? "</a>" : "'")
+            .append(" page at " + paBaseUrl + "/summary.\n")
 
-                .append(inHtml ? "<br /><br />" : "\n\n")
+            .append(inHtml ? "<br /><br />" : "\n\n")
 
         ;
 

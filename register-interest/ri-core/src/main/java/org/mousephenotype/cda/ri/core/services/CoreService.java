@@ -70,7 +70,7 @@ public class CoreService {
             sendService.sendSummary(summary, SendService.DEFAULT_SUMMARY_SUBJECT, content, inHtml);
             count++;
 
-            // Pause for 36 seconds so we don't exceed 100 e-mails per hour.
+            // Pause so we don't exceed 100 e-mails per hour.
             sleep(36);
         }
 
@@ -96,7 +96,7 @@ public class CoreService {
                 sendService.sendSummary(summaryWithDecoration, SendService.DEFAULT_SUMMARY_SUBJECT, content, true);
                 count++;
 
-                // Pause for 36 seconds so we don't exceed 100 e-mails per hour.
+                // Pause so we don't exceed 100 e-mails per hour.
                 sleep(36);
             }
         }

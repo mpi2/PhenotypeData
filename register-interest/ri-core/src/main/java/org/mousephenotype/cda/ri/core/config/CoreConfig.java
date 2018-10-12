@@ -16,6 +16,9 @@
 
 package org.mousephenotype.cda.ri.core.config;
 
+import org.mousephenotype.cda.ri.core.services.CoreService;
+import org.mousephenotype.cda.ri.core.services.GenerateService;
+import org.mousephenotype.cda.ri.core.services.SendService;
 import org.mousephenotype.cda.ri.core.utils.SqlUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -39,6 +42,22 @@ public class CoreConfig {
     @Value("${paBaseUrl}")
     private String paBaseUrl;
 
+    @NotNull
+    @Value("${mail.smtp.host}")
+    private String smtpHost;
+
+    @NotNull
+    @Value("${mail.smtp.port}")
+    private Integer smtpPort;
+
+    @NotNull
+    @Value("${mail.smtp.from}")
+    private String smtpFrom;
+
+    @NotNull
+    @Value("${mail.smtp.replyto}")
+    private String smtpReplyto;
+
 
     @Bean
     public String paBaseUrl() {
@@ -53,6 +72,21 @@ public class CoreConfig {
     @Bean
     public SqlUtils sqlUtils() {
         return new SqlUtils(jdbc());
+    }
+
+    @Bean
+    public CoreService coreService() {
+        return new CoreService(generateService(), sendService());
+    }
+
+    @Bean
+    public GenerateService generateService() {
+        return new GenerateService(paBaseUrl, sqlUtils());
+    }
+
+    @Bean
+    public SendService sendService() {
+        return new SendService(sqlUtils(), smtpHost, smtpPort, smtpFrom, smtpReplyto);
     }
 
     @NotNull

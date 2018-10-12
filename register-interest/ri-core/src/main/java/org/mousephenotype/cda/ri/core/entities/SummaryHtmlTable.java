@@ -27,7 +27,7 @@ public class SummaryHtmlTable {
 
     private final  Logger                   logger   = LoggerFactory.getLogger(this.getClass());
     private static List<String>             headings = Arrays.asList(new String[] {
-            "Gene Symbol", "Gene MGI Accession Id", "Assignment Status", "Null Allele Production", "Conditional Allele Production", "Phenotyping Data Available", "Action"
+            "Gene Symbol", "Gene MGI Accession Id", "Assignment Status", "Null Allele Production", "Conditional Allele Production", "Phenotyping Data Available"
     });
 
 
@@ -117,7 +117,7 @@ public class SummaryHtmlTable {
         if (currentValue.equals(GeneStatus.MOUSE_PRODUCTION_STARTED)){
             anchor = null;
         } else if (currentValue.equals(GeneStatus.MOUSE_PRODUCED)) {
-            anchor = paBaseUrl + "/search/allele2?k2=\"" + geneWithDecoration.getMgiAccessionId() + "\"";
+            anchor = paBaseUrl + "/search/allele2?kw=\"" + geneWithDecoration.getMgiAccessionId() + "\"";
         } else {
             anchor = null;
         }
@@ -133,7 +133,7 @@ public class SummaryHtmlTable {
         if (currentValue.equals(GeneStatus.MOUSE_PRODUCTION_STARTED)) {
             anchor = null;
         } else if (currentValue.equals(GeneStatus.MOUSE_PRODUCED)) {
-            anchor = paBaseUrl + "/search/allele2?k2=\"" + geneWithDecoration.getMgiAccessionId() + "\"";
+            anchor = paBaseUrl + "/search/allele2?kw=\"" + geneWithDecoration.getMgiAccessionId() + "\"";
         } else {
             anchor = null;
         }
@@ -158,15 +158,6 @@ public class SummaryHtmlTable {
         }
         cell = buildHtmlCell("td", currentValue, anchor);
         row.append(cell);
-
-
-        // Action
-        anchor = paBaseUrl + "/summary";
-        currentValue = "Unregister";
-        cell = buildHtmlCell("td", currentValue, anchor);
-        row.append(cell);
-
-        row.append("</tr>");
 
         return row.toString();
     }
