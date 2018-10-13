@@ -1,5 +1,6 @@
 package org.mousephenotype.cda.indexers;
 
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -77,14 +78,19 @@ public class StatisticalResultsIndexerTest implements ApplicationContextAware {
             statisticalResultIndexer.setMpParser(ontologyParserFactory.getMpParser());
             statisticalResultIndexer.setMpMaParser(ontologyParserFactory.getMpParser());
             statisticalResultIndexer.setMaParser(ontologyParserFactory.getMpParser());
+            statisticalResultIndexer.setSAVE(Boolean.FALSE);
 
-        } catch (IllegalAccessException | InstantiationException | SQLException | OWLOntologyCreationException | OWLOntologyStorageException | IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    @Test
-    public void getEmbryoSignificantCalls() throws Exception {
+    @Test @Ignore
+    public void getEmbryoSignificantCalls() {
+        
+        String testName = Thread.currentThread().getStackTrace()[1].getMethodName();
+        System.out.println("\n-------------------  " + testName + "-------------------");
+
         Map<String, String> embryoSignificantResults = statisticalResultIndexer.getEmbryoSignificantResults();
 
         Set<String> parameters = embryoSignificantResults
@@ -114,8 +120,11 @@ public class StatisticalResultsIndexerTest implements ApplicationContextAware {
     }
 
 
-    @Test
+    @Test @Ignore
     public void getRrPlusResults() {
+
+        String testName = Thread.currentThread().getStackTrace()[1].getMethodName();
+        System.out.println("\n-------------------  " + testName + "-------------------");
 
         List<StatisticalResultDTO> results = statisticalResultIndexer.getReferenceRangePlusResults().call();
         assert (results.size() > 100);
@@ -130,24 +139,32 @@ public class StatisticalResultsIndexerTest implements ApplicationContextAware {
     }
 
 
-    @Test
+    @Test @Ignore
     public void getEmbryoResults() {
+
+        String testName = Thread.currentThread().getStackTrace()[1].getMethodName();
+        System.out.println("\n-------------------  " + testName + "-------------------");
 
         List<StatisticalResultDTO> results = statisticalResultIndexer.getEmbryoResults().call();
         assert (results.size() > 100);
     }
 
-    @Test
+    @Test @Ignore
     public void getEmbryoViabilityResults() {
-
-        statisticalResultIndexer.setSAVE(Boolean.FALSE);
+        
+        String testName = Thread.currentThread().getStackTrace()[1].getMethodName();
+        System.out.println("\n-------------------  " + testName + "-------------------");
+        
         List<StatisticalResultDTO> results = statisticalResultIndexer.getEmbryoViabilityResults().call();
         assert (results.size() > 100);
     }
 
 
-    @Test
+    @Test @Ignore
     public void getGrossPathologyResults() {
+
+        String testName = Thread.currentThread().getStackTrace()[1].getMethodName();
+        System.out.println("\n-------------------  " + testName + "-------------------");
 
         List<StatisticalResultDTO> results = statisticalResultIndexer.getGrossPathologyResults().call();
         assert (results.size() > 100);
@@ -174,27 +191,17 @@ public class StatisticalResultsIndexerTest implements ApplicationContextAware {
     }
 
 
-    @Test
+    @Test @Ignore
     public void getBothCategoricalAndUnidimResults() {
+
+        String testName = Thread.currentThread().getStackTrace()[1].getMethodName();
+        System.out.println("\n-------------------  " + testName + "-------------------");
 
 
         List<Callable<List<StatisticalResultDTO>>> resultGenerators = Arrays.asList(
                 statisticalResultIndexer.getCategoricalResults(),
                 statisticalResultIndexer.getUnidimensionalResults()
         );
-
-//		for (Callable<List<StatisticalResultDTO>> r : resultGenerators) {
-//
-//			try {
-//
-//				List<StatisticalResultDTO> producers = r.call();
-//				assert(producers.size() > 1000);
-//
-//			} catch (Exception e) {
-//				e.printStackTrace();
-//			}
-//
-//		}
 
         ExecutorService pool = Executors.newFixedThreadPool(4);
         List<Future<List<StatisticalResultDTO>>> producers = new ArrayList<>();
@@ -232,8 +239,11 @@ public class StatisticalResultsIndexerTest implements ApplicationContextAware {
     }
 
 
-    @Test
+    @Test @Ignore
     public void getCategoricalResults() throws Exception {
+
+        String testName = Thread.currentThread().getStackTrace()[1].getMethodName();
+        System.out.println("\n-------------------  " + testName + "-------------------");
 
         StatisticalResultsIndexer.CategoricalResults r = statisticalResultIndexer.getCategoricalResults();
 
@@ -245,10 +255,12 @@ public class StatisticalResultsIndexerTest implements ApplicationContextAware {
     }
 
 
-    @Test
+    @Test @Ignore
     public void getCategoricalResultsForAkt2() throws Exception {
 
-        statisticalResultIndexer.setSAVE(Boolean.FALSE);
+        String testName = Thread.currentThread().getStackTrace()[1].getMethodName();
+        System.out.println("\n-------------------  " + testName + "-------------------");
+
         StatisticalResultsIndexer.CategoricalResults r = statisticalResultIndexer.getCategoricalResults();
 
         System.out.println("Assessing result of type " + r.getClass().getSimpleName());
@@ -281,8 +293,11 @@ public class StatisticalResultsIndexerTest implements ApplicationContextAware {
 
     }
 
-    @Test
+    @Test @Ignore
     public void getUnidimResults() throws Exception {
+
+        String testName = Thread.currentThread().getStackTrace()[1].getMethodName();
+        System.out.println("\n-------------------  " + testName + "-------------------");
 
         StatisticalResultsIndexer.UnidimensionalResults r = statisticalResultIndexer.getUnidimensionalResults();
 
@@ -293,11 +308,12 @@ public class StatisticalResultsIndexerTest implements ApplicationContextAware {
 
     }
 
-    @Test
+    @Test @Ignore
     public void getUnidimResultsWithStage() throws Exception {
 
-        // DO NOT SAVE THE RESULTS TO SOLR
-        statisticalResultIndexer.setSAVE(Boolean.FALSE);
+        String testName = Thread.currentThread().getStackTrace()[1].getMethodName();
+        System.out.println("\n-------------------  " + testName + "-------------------");
+
         StatisticalResultsIndexer.UnidimensionalResults r = statisticalResultIndexer.getUnidimensionalResults();
 
         List<StatisticalResultDTO> results = r.call();
@@ -315,10 +331,12 @@ public class StatisticalResultsIndexerTest implements ApplicationContextAware {
 
     }
 
-    @Test
+    @Test @Ignore
     public void getIMMResultsForMpExistenceTest() throws Exception {
 
-        statisticalResultIndexer.setSAVE(Boolean.FALSE);
+        String testName = Thread.currentThread().getStackTrace()[1].getMethodName();
+        System.out.println("\n-------------------  " + testName + "-------------------");
+
         StatisticalResultsIndexer.ReferenceRangePlusResults r = statisticalResultIndexer.getReferenceRangePlusResults();
 
         System.out.println("Assessing result of type " + r.getClass().getSimpleName());
@@ -343,10 +361,12 @@ public class StatisticalResultsIndexerTest implements ApplicationContextAware {
     }
 
 
-    @Test
+    @Test @Ignore
     public void testRrPlusResultsForTopLevelMpExistence() throws Exception {
 
-        statisticalResultIndexer.setSAVE(Boolean.FALSE);
+        String testName = Thread.currentThread().getStackTrace()[1].getMethodName();
+        System.out.println("\n-------------------  " + testName + "-------------------");
+
         StatisticalResultsIndexer.ReferenceRangePlusResults r = statisticalResultIndexer.getReferenceRangePlusResults();
 
         System.out.println("Assessing result of type " + r.getClass().getSimpleName());
@@ -374,9 +394,11 @@ public class StatisticalResultsIndexerTest implements ApplicationContextAware {
     }
 
 
-    @Test
-    @Ignore
+    @Test @Ignore
     public void getSignificanceField() throws Exception {
+
+        String testName = Thread.currentThread().getStackTrace()[1].getMethodName();
+        System.out.println("\n-------------------  " + testName + "-------------------");
 
 
         // Results that have a p-value
@@ -441,9 +463,11 @@ public class StatisticalResultsIndexerTest implements ApplicationContextAware {
 
     }
 
-    @Test
-    @Ignore
+    @Test @Ignore
     public void resultsUniqueIds() throws Exception {
+
+        String testName = Thread.currentThread().getStackTrace()[1].getMethodName();
+        System.out.println("\n-------------------  " + testName + "-------------------");
 
         List<String> ids = new ArrayList<>();
         List<Callable<List<StatisticalResultDTO>>> resultGenerators = Arrays.asList(
