@@ -64,7 +64,9 @@ public class ImageService implements WebStatus{
 		Assert.notNull(solr, "Image solr core cannot be null");
 		this.solr = solr;
 
-		logger.info("Image Service starting with solr core: " + ((HttpSolrClient)solr).getBaseURL());
+		if (solr instanceof HttpSolrClient) {
+			logger.info("Image Service starting with solr core: " + ((HttpSolrClient) solr).getBaseURL());
+		}
 	}
 
 	public ImageService() {
