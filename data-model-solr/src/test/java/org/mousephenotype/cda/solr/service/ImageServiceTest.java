@@ -5,6 +5,7 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.response.Group;
 import org.apache.solr.client.solrj.response.QueryResponse;
+import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -56,6 +57,7 @@ public class ImageServiceTest {
         @Value("${solr.host}")
         private String solrBaseUrl;
 
+
         @Bean(name = "impcImagesCore")
         HttpSolrClient getExperimentCore() {
             return new HttpSolrClient(solrBaseUrl + "/impc_images");
@@ -67,9 +69,14 @@ public class ImageServiceTest {
         }
     }
 
+    @Before
+    public void setup() {
+        System.out.println("Testing using SOLR endpoint: " + this.imageService);
+    }
 
     @Test
     public void allImageRecordSolrQueryTest() throws Exception {
+
 
         SolrQuery query = ImageService.allImageRecordSolrQuery();
 
@@ -213,7 +220,6 @@ public class ImageServiceTest {
     }
 
     @Test
-    @Ignore
     public void testGetComparisonViewerMethodsWithExpression() throws IOException, SolrServerException {
 
         String         testName                  = Thread.currentThread().getStackTrace()[1].getMethodName();
@@ -259,7 +265,6 @@ public class ImageServiceTest {
     }
 
     @Test
-    @Ignore
     public void testGetComparisonViewerMethodsWithAmbiguous() throws IOException, SolrServerException {
         String         testName               = Thread.currentThread().getStackTrace()[1].getMethodName();
         String         acc                    = "MGI:109331";
@@ -311,7 +316,6 @@ public class ImageServiceTest {
     }
 
     @Test
-    @Ignore
     public void testGetComparisonViewerMethodsWithNoExpression() throws IOException, SolrServerException {
 
         String         testName                  = Thread.currentThread().getStackTrace()[1].getMethodName();

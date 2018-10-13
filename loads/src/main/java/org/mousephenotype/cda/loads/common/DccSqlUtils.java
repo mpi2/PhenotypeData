@@ -43,6 +43,7 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Created by mrelac on 02/03/2016.
@@ -88,24 +89,13 @@ public class DccSqlUtils {
    		"EPD0135_1_A05_10562", "EPD0145_4_B09_10826", "EPD0242_4_B03_10233",
         "Dll1_C3H_113",        "Dll1_C3H_10333",      "EPD0059_2_C08_10660");
 
-
     /**
-     * This is a list of known bad colony ids. specimens and experiments that reference colony ids in this list may
-     * be safely ignored/skipped. Criteria for entry into this list are:
-     * - The colonyId must not already exist
-     * - There is not enough information (e.g. gene, strain) information to hand-curate a phenotyped_colony record
-     *
-     * 2017-11-22 (mrelac) Use the table 'missing_colony_id' to look these up.
+     * Translation is required for some project names supplied in the data files
+     * Record the translations in the PROJECT_NAME_TRANSLATIONS map
      */
-    // FIXME
-    @Deprecated
-    public static List<String> knownBadColonyIds = Arrays.asList(
-            new String[] {
-                    "(Deluca)<Deluca>", "EPD0038_2_A04", "internal", "Trm1", "MAG", "EUCJ0019_C12",
-                    "EPD0130_2_C06"     // Even though this colonyId is in Hugh's list, Jeremy's research has shown there is newer data submitted under colonyId MEYN supporting the data in EPD00130_2_C06, which was an aborted experiment.
-            }
-    );
-
+    Map<String, String> PROJECT_NAME_TRANSLATIONS = Collections.unmodifiableMap(Stream.of(
+            new AbstractMap.SimpleEntry<>("Eumodic", "EUMODIC"))
+            .collect(Collectors.toMap(AbstractMap.SimpleEntry::getKey, AbstractMap.SimpleEntry::getValue)));
 
     /**
      * Most of the EuroPhenome colony ids provided by the DCC have a number appended to them that must be removed in order to match
@@ -2758,7 +2748,14 @@ public class DccSqlUtils {
             if ( ! rs.wasNull()) {
                 specimen.setProductionCentre(CentreILARcode.fromValue(productionCenter));
             }
-            specimen.setProject(rs.getString("project"));
+
+            // Translate unconventional project names to IMPC project names:
+            // Specifically required to remap "Eumodic" to "EUMODIC" for case sensitive lookups
+            // by the ConcurrentHashMapAllowNulls class
+            // and hence the cdaSqlUtils.getCdaProject_idsByDccProject() method
+            specimen.setProject(PROJECT_NAME_TRANSLATIONS.getOrDefault(rs.getString("project"), rs.getString("project")));
+
+
             specimen.setSpecimenID(rs.getString("specimenId"));
             String strainId = rs.getString("strainId");
             if ( ! rs.wasNull()) {
