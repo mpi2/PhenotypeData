@@ -83,7 +83,7 @@
                                                             <td>
                                                                 <a href='${paBaseUrl}/genes/${gene.mgiAccessionId}'>${gene.symbol}</a>
                                                             </td>
-                                                            <td><a href="//www.informatics.jax.org/marker/${gene.mgiAccessionId}">${gene.mgiAccessionId}</a></td>
+                                                            <td><a href="http://www.informatics.jax.org/marker/${gene.mgiAccessionId}">${gene.mgiAccessionId}</a></td>
 
                                                             <td>
                                                                 <c:choose>
