@@ -195,8 +195,8 @@ public class ThreeISpecimenExperimentLoadIntegrationTest {
             }
         }
 
-        final int EXPECTED_SPECIMEN_COUNT = 1;
-        final int EXPECTED_EXPERIMENT_COUNT = 1;
+        final int EXPECTED_SPECIMEN_COUNT = 2;
+        final int EXPECTED_EXPERIMENT_COUNT = 2;
         assertTrue( "Expected " + EXPECTED_SPECIMEN_COUNT + " specimen(s). Found " + specimenCount, specimenCount == EXPECTED_SPECIMEN_COUNT);
         assertTrue( "Expected " + EXPECTED_EXPERIMENT_COUNT + " experiment(s). Found " + experimentCount, experimentCount == EXPECTED_EXPERIMENT_COUNT);
 
@@ -240,7 +240,7 @@ public class ThreeISpecimenExperimentLoadIntegrationTest {
 
         }
 
-        Assert.assertEquals(1, modelCount.intValue());
+        Assert.assertEquals(2, modelCount.intValue());
         Assert.assertEquals(1, modelIds.size());
 
 
@@ -267,7 +267,7 @@ public class ThreeISpecimenExperimentLoadIntegrationTest {
             }
         }
 
-        Assert.assertEquals(1, experimentCount.intValue());
-        Assert.assertEquals(12, observationCount.intValue());
+        Assert.assertEquals(2, experimentCount.intValue());
+        Assert.assertEquals(24, observationCount.intValue());
     }
 }
