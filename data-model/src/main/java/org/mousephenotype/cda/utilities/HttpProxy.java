@@ -63,7 +63,7 @@ public class HttpProxy {
 
 		// Convert spaces to the URL encoded form
 		URL escapedUrl = new URL(url.toExternalForm().replace(" ", "%20"));
-		log.info("PARSING Solr URL: " + escapedUrl);
+		log.debug("PARSING Solr URL: " + escapedUrl);
 
 		String content = "";
 
@@ -209,7 +209,7 @@ public class HttpProxy {
 
 		Proxy proxy = null;
 		if (proxyHost != null && proxyPort != null) {
-			log.info("Proxy Settings: " + proxyHost + " on port: " + proxyPort);
+			log.debug("Proxy Settings: " + proxyHost + " on port: " + proxyPort);
 			InetSocketAddress inet = new InetSocketAddress(proxyHost, proxyPort);
 			proxy = new Proxy(Proxy.Type.HTTP, inet);
 		}

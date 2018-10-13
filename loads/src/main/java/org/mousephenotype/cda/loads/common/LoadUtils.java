@@ -93,8 +93,8 @@ public class LoadUtils {
     public static final Map<String, String> mappedExternalProjectNames = new TreeMap<String, String>(String.CASE_INSENSITIVE_ORDER) {{
         put("BaSH",                     "BaSH");                        // center.project -> project.name
         put("DTCC",                     "DTCC");                        // center.project -> project.name
+        put("EUMODIC",                  "EUMODIC");                     // center.project -> project.name
         put("EUCOMM-EUMODIC",           "EUMODIC");                     // center.project -> project.name
-        put("Eumodic",                  "EUMODIC");                     // center.project -> project.name
         put("Helmholtz GMC",            "Helmholtz GMC");               // center.project -> project.name
         put("JAX",                      "JAX");                         // center.project -> project.name
         put("NING",                     "MARC");                        // center.project -> project.name
@@ -107,7 +107,6 @@ public class LoadUtils {
         put("RIKEN BRC",                "RBRC");                        // center.project -> project.name
         put("KMPC",                     "KMPC");                        // center.project -> project.name
         put("Kmpc",                     "KMPC");                        // center.project -> project.name
-        put("EUMODIC",                  "EUMODIC");                     // center.project -> project.name
         put("3i",                       "3i");                     // center.project -> project.name
         put("IMPC",                     "IMPC");                     // center.project -> project.name
     }};
