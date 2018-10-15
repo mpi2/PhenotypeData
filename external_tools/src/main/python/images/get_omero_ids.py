@@ -181,17 +181,31 @@ def getOmeroIdsAndPaths(dbConn, omeroUser, omeroPass, omeroHost, omeroPort, full
         print_obj(project)
         for dataset in project.listChildren():
             print_obj(dataset, 2)
+            paths_already_processed = []
+                            
             for image in dataset.listChildren():
                 #print_obj(image, 4)
                 #getOriginalFile(image)
                 fileset = image.getFileset()
                 filesetId=fileset.getId()
                 #print 'filesetId=',filesetId
-                query = 'SELECT clientPath FROM FilesetEntry WHERE fileset.id = :id'
+                query = "SELECT DISTINCT clientPath FROM FilesetEntry WHERE fileset.id = :id AND clientPath NOT LIKE '%EEI_%tif'"
                 params = omero.sys.ParametersI()
                 params.addId(omero.rtypes.rlong(filesetId))
                 #print 'params=',params
                 for path in conn.getQueryService().projection(query, params):
+                    # The EEI data returns multiple results with the same filename and is treated as a special case
+                    # this block of code checks to ensure that we do not process a file more than once, and is
+                    # specifically aimed at the EEI (lei and lif) files.
+                    try:
+                        already_processed = paths_already_processed.index(path[0].val) >= 0
+                    except ValueError:
+                        already_processed = False
+                        paths_already_processed.append(path[0].val)
+                    if already_processed:
+                        print path[0].val + " has already been processed and is being skipped on this iteration"
+                        continue
+
                     #print 'path=', path[0].val
                     originalUploadedFilePathToOmero=path[0].val
                     #print originalUploadedFilePathToOmero
@@ -210,12 +224,14 @@ def getOmeroIdsAndPaths(dbConn, omeroUser, omeroPass, omeroHost, omeroPort, full
                         for im_details in conn.getQueryService().projection(query, params):
                             omero_id = im_details[0].val
                             omero_im_name = im_details[1].val
+                            #print "omero_im_name = " + omero_im_name
                             # Omero appends the mouse number to the filename to uniquely identify an image
                             # e.g for M012345678 in 160229, the omero_im_name is '160229.lif [M012345678]'
                             # which is also part of the path stored in solr & the komp2 database, so we 
                             # modify the filename accordingly
                             if omero_im_name.find(original_im_name) >= 0:
                                 modifiedUploadedFilePathToOmero = originalUploadedFilePathToOmero.replace(original_im_name, omero_im_name)
+                                #print "modifiedUploadedFilePathToOmero = " + modifiedUploadedFilePathToOmero
                                 storeOmeroId(dbConn, omero_id, modifiedUploadedFilePathToOmero, fullResPathsAlreadyHave )
                     else:
                         storeOmeroId(dbConn, image.getId(), originalUploadedFilePathToOmero, fullResPathsAlreadyHave )
