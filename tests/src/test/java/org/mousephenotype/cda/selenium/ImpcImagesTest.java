@@ -23,13 +23,14 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.selenium.config.TestConfig;
-import org.mousephenotype.cda.solr.service.GeneService;
-import org.mousephenotype.cda.solr.service.dto.GeneDTO;
 import org.mousephenotype.cda.selenium.support.GenePage;
 import org.mousephenotype.cda.selenium.support.TestUtils;
+import org.mousephenotype.cda.solr.service.GeneService;
+import org.mousephenotype.cda.solr.service.dto.GeneDTO;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.mousephenotype.cda.utilities.RunStatus;
 import org.openqa.selenium.By;
+import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.RemoteWebDriver;
@@ -130,7 +131,13 @@ public class ImpcImagesTest {
 
             try {
                 driver.get(target);
-                wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("span#enu")));
+
+                try {
+                    wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("span#enu")));
+                } catch (TimeoutException e) {
+                    logger.info("target: {}. Exception: {}", target, e.getLocalizedMessage());
+                    continue;
+                }
                 GenePage genePage = new GenePage(driver, wait, target, geneId, phenotypePipelineDAO, baseUrl);
 
                 if (genePage.hasImpcImages()) {
