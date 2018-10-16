@@ -20,7 +20,7 @@ package org.mousephenotype.cda.ri.core.entities;
  * Created by mrelac on 12/05/2017.
  *
  * This class extends Gene, adding boolean flags indicating whether or not the status components are to be decorated
- * or not. Decoration indicates that each of the gene's status components is now different from the status in the
+ * or not. Decoration indicates that one or more of the gene's status components is now different from the status in the
  * gene_sent table. If there is no record in the gene_sent table (i.e. {@code geneSent} is null), all statuses are
  * considered decorated; otherwise, only those statuses that differ are decorated. If the gene status and geneSent
  * status are identical, {@code isDecorated} is false; otherwise, the caller should interrogate the other booleans
@@ -45,22 +45,23 @@ public class GeneWithDecoration extends Gene {
             isPhenotypingStatusDecorated = true;
             isDecorated = true;
         } else {
-            if ( ! isStatusEqual(gene.getRiAssignmentStatus(), geneSent.getAssignmentStatus())) {
+
+            if (( ! isStatusEqual(gene.getRiAssignmentStatus(), geneSent.getAssignmentStatus())) || geneSent.getSentAt() == null) {
                 isDecorated = true;
                 isAssignmentStatusDecorated = true;
             }
 
-            if ( ! isStatusEqual(gene.getRiConditionalAlleleProductionStatus(), geneSent.getConditionalAlleleProductionStatus())) {
+            if (( ! isStatusEqual(gene.getRiConditionalAlleleProductionStatus(), geneSent.getConditionalAlleleProductionStatus())) || geneSent.getSentAt() == null) {
                 isDecorated = true;
                 isConditionalAlleleProductionStatusDecorated = true;
             }
 
-            if ( ! isStatusEqual(gene.getRiNullAlleleProductionStatus(), geneSent.getNullAlleleProductionStatus())) {
+            if (( ! isStatusEqual(gene.getRiNullAlleleProductionStatus(), geneSent.getNullAlleleProductionStatus())) || geneSent.getSentAt() == null) {
                 isDecorated = true;
                 isNullAlleleProductionStatusDecorated = true;
             }
 
-            if ( ! isStatusEqual(gene.getRiPhenotypingStatus(), geneSent.getPhenotypingStatus())) {
+            if (( ! isStatusEqual(gene.getRiPhenotypingStatus(), geneSent.getPhenotypingStatus())) || geneSent.getSentAt() == null) {
                 isDecorated = true;
                 isPhenotypingStatusDecorated = true;
             }

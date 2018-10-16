@@ -203,9 +203,6 @@ public class GenerateService {
     }
 
 
-    // PROTECTED METHODS
-
-
     public static String getEmailEpilogue(boolean inHtml) {
 
         StringBuilder body = new StringBuilder();

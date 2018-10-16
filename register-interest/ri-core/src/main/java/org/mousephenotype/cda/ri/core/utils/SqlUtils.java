@@ -651,7 +651,10 @@ public class SqlUtils {
                 "  gs.assignment_status,\n" +
                 "  gs.null_allele_production_status,\n" +
                 "  gs.conditional_allele_production_status,\n" +
-                "  gs.phenotyping_status\n" +
+                "  gs.phenotyping_status,\n" +
+                "  gs.created_at,\n" +
+                "  gs.sent_at,\n" +
+                "  gs.updated_at\n" +
                 "FROM contact c\n" +
                 "JOIN contact_gene cg ON cg.contact_pk = c.pk\n" +
                 "JOIN gene g ON g.pk = cg.gene_pk\n" +
@@ -673,6 +676,9 @@ public class SqlUtils {
             geneSent.setConditionalAlleleProductionStatus((String) result.get("conditional_allele_production_status"));
             geneSent.setNullAlleleProductionStatus((String) result.get("null_allele_production_status"));
             geneSent.setPhenotypingStatus((String) result.get("phenotyping_status"));
+            geneSent.setCreatedAt((Date) result.get("created_at"));
+            geneSent.setSentAt((Date) result.get("sent_at"));
+            geneSent.setUpdatedAt((Date) result.get("updated_at"));
             results.put(geneSent.getMgiAccessionId(), geneSent);
         }
 

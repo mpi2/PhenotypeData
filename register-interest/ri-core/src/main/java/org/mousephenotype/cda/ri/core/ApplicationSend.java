@@ -38,11 +38,22 @@ public class ApplicationSend implements CommandLineRunner {
     private final Logger       logger        = LoggerFactory.getLogger(this.getClass());
     private       CoreService  coreService;
 
-    private final String[] OPT_SUPPRESS = {"s", "suppress"};
+    private final String[] OPT_NO_DECORATION = {"n", "noDecoration"};
+    private final String[] OPT_SEND = {"s", "send"};
+
+    private final String OPT_NO_DECORATION_DESCRIPTION =
+            "By default, decoration is added to each gene's state in the form of an asterisk ('*') to indicate that" +
+            " the gene's state has changed. Specifying this option omits this decoration.";
+
+    private final String OPT_SEND_DESCRIPTION =
+            "Each qualifying e-mail is generated, but by default it is not sent (for safety reasons, so as to avoid" +
+            " sending spam by mistake). Specify this flag when you want to generate and send each qualifying e-mail.";
+
     private final String[] OPT_HELP = {"h", "help"};
 
     private boolean help    = false;
-    private boolean suppress = false;
+    private boolean noDecoration = false;
+    private boolean send = false;
 
     public static void main(String[] args) {
         SpringApplication app = new SpringApplication(ApplicationSend.class);
@@ -58,7 +69,7 @@ public class ApplicationSend implements CommandLineRunner {
     }
 
 
-    public static final String USAGE = "Usage: [--help/-h] | [--suppress/-s]";
+    public static final String USAGE = "Usage: [--help/-h] | [[--noDecoration/-n] [--send/s]]";
 
     /**
      * @param args
@@ -69,17 +80,7 @@ public class ApplicationSend implements CommandLineRunner {
 
         initialise(args);
 
-        if (suppress) {
-
-            logger.info("Generate and send gene status to all contacts.");
-            coreService.generateAndSendAll();
-
-        } else {
-
-            logger.info("Generate and send gene status to contacts with gene status CHANGED since last e-mail.");
-            coreService.generateAndSendDecorated();
-
-        }
+        coreService.generateAndSend(noDecoration, send);
     }
 
 
@@ -108,7 +109,10 @@ public class ApplicationSend implements CommandLineRunner {
         parser.acceptsAll(Arrays.asList(OPT_HELP), "Display help/usage information\t" + USAGE)
                 .forHelp();
 
-        parser.acceptsAll(Arrays.asList(OPT_SUPPRESS), "Suppress the decoration indicating whether or not a gene's status has changed since the last e-mail sent")
+        parser.acceptsAll(Arrays.asList(OPT_NO_DECORATION), OPT_NO_DECORATION_DESCRIPTION)
+                .forHelp();
+
+        parser.acceptsAll(Arrays.asList(OPT_SEND), OPT_SEND_DESCRIPTION)
                 .forHelp();
 
         try {
@@ -123,7 +127,8 @@ public class ApplicationSend implements CommandLineRunner {
         }
 
         help = (options.has("help"));
-        suppress = (options.has("suppress"));
+        noDecoration = (options.has("noDecoration"));
+        send = (options.has("send"));
 
         return options;
     }
