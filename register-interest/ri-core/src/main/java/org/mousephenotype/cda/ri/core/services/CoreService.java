@@ -56,51 +56,42 @@ public class CoreService {
     }
 
 
-    public void generateAndSendAll() {
+    public void generateAndSend(boolean noDecoration, boolean send) {
 
         int     count    = 0;
         boolean inHtml   = true;
 
-        logger.info("BEGIN generateAndSendAll");
+        logger.info("BEGIN generateAndSend noDecoration = {}. send = {}", noDecoration, send);
 
         Map<String, Summary> summaries = generateService.getAllSummariesByEmailAddress();
         for (Summary summary : summaries.values()) {
 
-            String content = generateService.getSummaryContent(summary, inHtml);
-            sendService.sendSummary(summary, SendService.DEFAULT_SUMMARY_SUBJECT, content, inHtml);
+            Map<String, GeneSent> genesSentByGeneAccessionId = generateService.getGeneSentStatusByGeneAccessionId(summary.getEmailAddress());
+            Summary decoratedSummary = new SummaryWithDecoration(summary, genesSentByGeneAccessionId);
+            if ( ! ((SummaryWithDecoration) decoratedSummary).isDecorated()) {
+                continue;
+            }
+
+            if ( ! noDecoration) {
+                summary = decoratedSummary;
+            }
+
+            String content = generateService.getSummaryContent(summary, true);
+
+            if (send) {
+
+                sendService.sendSummary(summary, SendService.DEFAULT_SUMMARY_SUBJECT, content, inHtml);
+            }
+
             count++;
+            logger.info("{} : {}", count, summary.getEmailAddress());
 
             // Pause so we don't exceed 100 e-mails per hour.
-            sleep(36);
-        }
-
-        logger.info("END generateAndSendAll. Processed {} summaries.", count);
-    }
-
-    public void generateAndSendDecorated() {
-
-        int count = 0;
-
-        logger.info("BEGIN generateAndSendDecorated");
-
-        Map<String, Summary> summaries = generateService.getAllSummariesByEmailAddress();
-        for (Summary summaryWithoutDecoration : summaries.values()) {
-
-            Map<String, GeneSent> genesSentByGeneAccessionId = generateService.getGeneSentStatusByGeneAccessionId(summaryWithoutDecoration.getEmailAddress());
-            SummaryWithDecoration summaryWithDecoration = new SummaryWithDecoration(summaryWithoutDecoration, genesSentByGeneAccessionId);
-            if (summaryWithDecoration.isDecorated()) {
-
-                // At least one gene status component is decorated. Send an e-mail.
-
-                String content = generateService.getSummaryContent(summaryWithDecoration, true);
-                sendService.sendSummary(summaryWithDecoration, SendService.DEFAULT_SUMMARY_SUBJECT, content, true);
-                count++;
-
-                // Pause so we don't exceed 100 e-mails per hour.
+            if (send) {
                 sleep(36);
             }
         }
 
-        logger.info("END generateAndSendDecorated. Processed {} summaries.", count);
+        logger.info("END generateAndSend. Processed {} summaries.", count);
     }
 }
