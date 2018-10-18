@@ -322,23 +322,6 @@
             <scope>compile</scope>
         </dependency>
 
-        <!-- springframework.security-->
-
-        <!--<dependency>-->
-            <!--<groupId>org.springframework.security</groupId>-->
-            <!--<artifactId>spring-security-test</artifactId>-->
-            <!--&lt;!&ndash;<version>5.0.7.RELEASE</version>&ndash;&gt;-->
-            <!--<scope>test</scope>-->
-        <!--</dependency>-->
-
-        <dependency>
-            <groupId>org.springframework.security</groupId>
-            <artifactId>spring-security-core</artifactId>
-            <!--<version>4.2.4.RELEASE</version>-->
-            <version>4.2.8.RELEASE</version>
-            <scope>compile</scope>
-        </dependency>
-
     </dependencies>
 
     <build>
