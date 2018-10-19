@@ -11,8 +11,8 @@ import sys
 import os.path
 import argparse
 
-import mysql.connector
-from mysql.connector import errorcode
+#import mysql.connector
+#from mysql.connector import errorcode
 
 import psycopg2
 
@@ -318,7 +318,8 @@ def storeOmeroId(cnx, omero_id, originalUploadedFilePathToOmero, fullResPathsAlr
         cur.execute("""UPDATE image_record_observation SET omero_id=%s WHERE full_resolution_file_path=%s""", (omero_id, fullResolutionFilePath))
             #if cur.rowcount != 1: #note that if the uri has already been added the row count will be 0
                # print("error affected rows = {}".format(cur.rowcount)+ downloadFilePath)
-    except mysql.connector.Error as err:
+    #except mysql.connector.Error as err:
+    except Exception as err:
             print(err)
 
 if __name__ == "__main__":
