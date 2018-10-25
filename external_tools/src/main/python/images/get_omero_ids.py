@@ -181,13 +181,16 @@ def getOmeroIdsAndPaths(dbConn, omeroUser, omeroPass, omeroHost, omeroPort, full
         print_obj(project)
         for dataset in project.listChildren():
             print_obj(dataset, 2)
+            if dataset.getName().find("_EEI_") >=0:
+                print "Skipping " + dataset.getName()
+                continue
             for image in dataset.listChildren():
                 #print_obj(image, 4)
                 #getOriginalFile(image)
                 fileset = image.getFileset()
                 filesetId=fileset.getId()
                 #print 'filesetId=',filesetId
-                query = 'SELECT clientPath FROM FilesetEntry WHERE fileset.id = :id'
+                query = "SELECT clientPath FROM FilesetEntry WHERE fileset.id = :id AND (clientPath NOT LIKE '%lei%' OR clientPath NOT LIKE '%lif%') "
                 params = omero.sys.ParametersI()
                 params.addId(omero.rtypes.rlong(filesetId))
                 #print 'params=',params
