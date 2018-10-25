@@ -9,13 +9,10 @@ import glob
 import shutil
 import sys
 import os.path
+import sys
 import argparse
-
-#import mysql.connector
-#from mysql.connector import errorcode
-
-import psycopg2
-
+import mysql.connector
+from mysql.connector import errorcode
 import omero.rtypes
 from common import splitString
 from database import getDbConnection,getFullResolutionFilePaths
@@ -45,17 +42,6 @@ def main(argv):
     parser.add_argument('-o', '--omeroHost', dest='omeroHost',
                         help='Hostname for server hosting omero instance'
     )
-    parser.add_argument('--omeroDbUser', dest='omeroDbUser', 
-                        help='name of the omero postgres database')
-    parser.add_argument('--omeroDbPass', dest='omeroDbPass',
-                        help='Password for the omero postgress database')
-    parser.add_argument('--omeroDbName', dest='omeroDbName',
-                        help='Name of the postgres database omero uses')
-    parser.add_argument('--omeroDbHost', dest='omeroDbHost',
-                        help='Hostname for the server hosting the omero postgres database')
-    parser.add_argument('--omeroDbPort', dest='omeroDbPort',
-                        help='Port to connect on the postgres server hosting the omero database')
- 
     parser.add_argument('--profile', dest='profile', default='dev',
                         help='Name of profile from which to read config: ' + \
                              'dev, prod, live, ... Assumed to be present ' + \
@@ -66,7 +52,7 @@ def main(argv):
                              'profile e.g. ' + \
                              '/home/kola/configfiles/dev/application.properties'
     )
-    
+
     args = parser.parse_args()
     
     # Get values from property file and use as defaults that can be overridden
@@ -111,35 +97,7 @@ def main(argv):
     dbConn=getDbConnection(komp2Host, komp2Port, komp2db, komp2User, komp2Pass)
     #cnx=getDbConnection(komp2Host, komp2Port, komp2db, komp2User, komp2Pass)
     fullResPathsAlreadyHave=getFullResolutionFilePaths(dbConn)
-
-    # Get Postgres connection for directly querying omero database
-    try:
-        print "Attempting to connect directly to Postgres DB"
-        omeroDbUser = args.omeroDbUser if args.omeroDbUser is not None else omeroProps['omerodbuser']
-        omeroDbPass = args.omeroDbPass if args.omeroDbPass is not None else omeroProps['omerodbpass']
-        omeroDbName = args.omeroDbName if args.omeroDbName is not None else omeroProps['omerodbname']
-        omeroDbHost = args.omeroDbHost if args.omeroDbHost is not None else omeroProps['omerodbhost']
-        if args.omeroDbPort is not None:
-            omeroDbPort = args.omeroDbPort
-        elif 'omerodbport' in omeroProps:
-            omeroDbPort = omeroProps['omerodbport']
-        else:
-            omeroDbPort = '5432'
-    
-        psqlConn = psycopg2.connect(database=omeroDbName, user=omeroDbUser,
-                                password=omeroDbPass, host=omeroDbHost,
-                                port=omeroDbPort)
-    except KeyError as e:
-        print "Could not connect to omero postgres database. Key " + str(e) + \
-              " not present in omero properties file. Aborting!"
-        sys.exit()
-    except Exception as e:
-        print "Could not connect to omero postgres database. Error: " + str(e)
-        sys.exit()
-
-    
-    getOmeroIdsAndPaths(dbConn, psqlConn, omeroUser, omeroPass, omeroHost, omeroPort, fullResPathsAlreadyHave)
-    psqlConn.close()
+    getOmeroIdsAndPaths(dbConn, omeroUser, omeroPass, omeroHost, omeroPort, fullResPathsAlreadyHave)
 
 
 def print_obj(obj, indent=0):
@@ -163,7 +121,7 @@ def getOriginalFile(imageObj):
     	print path, name
     return path, name
 
-def getOmeroIdsAndPaths(dbConn, psqlConn, omeroUser, omeroPass, omeroHost, omeroPort, fullResPathsAlreadyHave):
+def getOmeroIdsAndPaths(dbConn, omeroUser, omeroPass, omeroHost, omeroPort, fullResPathsAlreadyHave):
 
     from omero.gateway import BlitzGateway
     # Connect to the Python Blitz Gateway
@@ -177,6 +135,7 @@ def getOmeroIdsAndPaths(dbConn, psqlConn, omeroUser, omeroPass, omeroHost, omero
     # Check if you are connected.
     # =============================================================
     if not connected:
+        import sys
         sys.stderr.write("Error: Connection not available, please check your user name and password.\n")
         sys.exit
     # Using secure connection.
@@ -222,29 +181,24 @@ def getOmeroIdsAndPaths(dbConn, psqlConn, omeroUser, omeroPass, omeroHost, omero
         print_obj(project)
         for dataset in project.listChildren():
             print_obj(dataset, 2)
-            paths_already_processed = []
-            print dataset.getName()
-            if dataset.getName().find("MGP_EEI_001") >= 0: 
+            if dataset.getName().find("_EEI_") >=0:
+                print "Skipping " + dataset.getName()
                 continue
-                            
             for image in dataset.listChildren():
                 #print_obj(image, 4)
                 #getOriginalFile(image)
                 fileset = image.getFileset()
                 filesetId=fileset.getId()
                 #print 'filesetId=',filesetId
-                query = "SELECT clientPath FROM FilesetEntry WHERE fileset.id = :id"
+                query = "SELECT clientPath FROM FilesetEntry WHERE fileset.id = :id AND (clientPath NOT LIKE '%lei%' OR clientPath NOT LIKE '%lif%') "
                 params = omero.sys.ParametersI()
                 params.addId(omero.rtypes.rlong(filesetId))
                 #print 'params=',params
                 for path in conn.getQueryService().projection(query, params):
-                    # The EEI data returns multiple results with the same 
-                    # filename and is treated as a special case separately
                     #print 'path=', path[0].val
                     originalUploadedFilePathToOmero=path[0].val
                     #print originalUploadedFilePathToOmero
                     #print originalUploadedFilePathToOmero+" id="+str(image.getId())
-
                     storeOmeroId(dbConn, image.getId(), originalUploadedFilePathToOmero, fullResPathsAlreadyHave )
             #print "\nProject="+project.getName()+"Annotations on Dataset:", dataset.getName()
             for ann in dataset.listAnnotations():
@@ -264,39 +218,6 @@ def getOmeroIdsAndPaths(dbConn, psqlConn, omeroUser, omeroPass, omeroHost, omero
     # =================================================================
     # When you are done, close the session to free up server resources.
     conn._closeSession()
-
-    # Query Postgres directly to get ids for Leica images (MGP_EEI_114_001)
-    try:
-        cur = psqlConn.cursor()
-        # Get the actual leica files uploaded to Omero
-        query = "SELECT i.id, fs.clientpath, i.name FROM filesetentry fs " + \
-                "INNER JOIN image i ON fs.fileset=i.fileset " + \
-                "WHERE fs.clientpath LIKE '%lif' OR fs.clientpath LIKE '%lei'"
-        print query
-        cur.execute(query)
-        omero_leica_file_list = []
-        for f in cur.fetchall():
-            newpath = os.path.split(f[1].split('impc/')[-1])[0]
-            newfn = os.path.join(newpath,f[2])
-            print newfn
-            omero_leica_file_list.append(newfn)
-            omero_id = f[0]
-            print omero_id
-            storeOmeroId(dbConn, omero_id, newfn, fullResPathsAlreadyHave )
-    
-        ## Get the images contained in the leica files uploaded to Omero
-        ## These images are in the download_urls obtained from solr
-        #query = "SELECT name FROM image " + \
-        #        "WHERE name LIKE '%.lif%' OR name LIKE '%.lei%'"
-        #cur.execute(query)
-        #omero_leica_image_list = []
-        #for i in cur.fetchall():
-        #    omero_leica_image_list.append(i[0])
-    except Exception as e:
-        print "Error trying to get Leica image details directly from Postgres. Error message was: " + str(e)
-        psqlConn.close()
-        sys.exit()
-
 
 def storeOmeroId(cnx, omero_id, originalUploadedFilePathToOmero, fullResPathsAlreadyHave):
     global loadedCount
@@ -318,8 +239,7 @@ def storeOmeroId(cnx, omero_id, originalUploadedFilePathToOmero, fullResPathsAlr
         cur.execute("""UPDATE image_record_observation SET omero_id=%s WHERE full_resolution_file_path=%s""", (omero_id, fullResolutionFilePath))
             #if cur.rowcount != 1: #note that if the uri has already been added the row count will be 0
                # print("error affected rows = {}".format(cur.rowcount)+ downloadFilePath)
-    #except mysql.connector.Error as err:
-    except Exception as err:
+    except mysql.connector.Error as err:
             print(err)
 
 if __name__ == "__main__":
