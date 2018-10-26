@@ -22,7 +22,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <selenium.version>2.41.0</selenium.version>
         <selenium-firefox.version>2.44.0</selenium-firefox.version>
-    </properties>
+        <micrometer.version>0.8.0</micrometer.version>
+     </properties>
 
     <dependencies>
 
@@ -216,6 +217,13 @@
             <groupId>commons-fileupload</groupId>
             <artifactId>commons-fileupload</artifactId>
             <version>1.2.2</version>
+        </dependency>
+
+        <!-- Expose Actuator Metrics for Prometheus -->
+        <dependency>
+            <groupId>com.moelholm</groupId>
+            <artifactId>prometheus-spring-boot-starter</artifactId>
+            <version>1.0.1</version>
         </dependency>
 
         <!-- Apache Commons Upload -->
