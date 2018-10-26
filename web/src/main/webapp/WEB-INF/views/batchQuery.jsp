@@ -526,7 +526,7 @@
             		
             		if ( dataType == 'disease' ){
             			if ( ! (uppercaseId.indexOf('OMIM') == 0 ||
-            				 uppercaseId.indexOf('ORPHANET') == 0 ||
+            				 uppercaseId.indexOf('ORPHA') == 0 ||
             				 uppercaseId.indexOf('DECIPHER') == 0) ){
             			
                 			alert(errMsg);
@@ -742,7 +742,7 @@
 										  	<input type="radio" id="ensembl" value="ENSMUSG00000011257" name="dataType" class='bq'>Ensembl Gene
 										  	<input type="radio" id="mp" value="MP:0001926" name="dataType" class='bq'>MP
 										  	<input type="radio" id="hp" value="HP:0000400" name="dataType" class='bq'>HP<br>
-										  	<input type="radio" id="disease" value="OMIM:100300 or ORPHANET:10 or DECIPHER:38" name="dataType" class='bq'>OMIM / ORPHANET / DECIPHER
+										  	<input type="radio" id="disease" value="OMIM:100300 or ORPHA:93 or DECIPHER:17" name="dataType" class='bq'>OMIM / ORPHANET / DECIPHER
 										  	<input type="radio" id="anatomy" value="MA:0003077 or EMAPA:35955 (ok to mix)" name="dataType" class='bq'>ANATOMY</td></tr>
 										  	<tr><td><span class='cat'>Symbol:</span></td>
 										  	<td><input type="radio" id="human_marker_symbol" value="Ca4 or CA4 (case insensitive). Synonym search supported" name="dataType" class='bq'>Human Marker Symbol

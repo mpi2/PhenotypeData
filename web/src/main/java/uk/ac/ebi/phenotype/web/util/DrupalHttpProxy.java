@@ -156,14 +156,14 @@ public class DrupalHttpProxy extends HttpProxy {
 
 		try {
 			if (getDrupalSessionCookieString() != null && ! getDrupalSessionCookieString().equals("") ) {
-				log.info("Getting drupal menu.");
+				log.debug("Getting drupal menu.");
 				URL url = new URL(secureDrupalBaseUrl + "/menudisplaycombinedrendered");
 
 				content = this.getContent(url);
 
 			} else {
 				if (publicMenu == null || randomGenerator.nextInt(100) == 1) {
-					log.info("Not logged in, using standard menu.");
+					log.debug("Not logged in, using standard menu.");
 					URL url = new URL(secureDrupalBaseUrl + "/menudisplaycombinedrendered");
 
 					publicMenu = this.getContent(url);

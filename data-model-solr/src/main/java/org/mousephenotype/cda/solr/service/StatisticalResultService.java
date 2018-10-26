@@ -162,7 +162,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 				StatisticalResultDTO.PHENOTYPING_CENTER + "," +
 				StatisticalResultDTO.STRAIN_ACCESSION_ID + "," +
 				StatisticalResultDTO.ALLELE_ACCESSION_ID;
-		if (metaDataGroup != null){
+		if (metaDataGroup != null && metaDataGroup.size() > 0){
 			pivotFacet += "," + StatisticalResultDTO.METADATA_GROUP;
 
 		}

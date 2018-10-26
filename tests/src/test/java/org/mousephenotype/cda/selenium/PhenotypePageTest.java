@@ -20,7 +20,8 @@ package org.mousephenotype.cda.selenium;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Test;
+ import org.junit.Ignore;
+ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
  import org.mousephenotype.cda.selenium.config.TestConfig;
@@ -137,7 +138,7 @@ public class PhenotypePageTest {
      * @throws SolrServerException
      */
     @Test
-//@Ignore
+@Ignore
     public void testMGI_MPLinksAreValid() throws SolrServerException, IOException {
         RunStatus status = new RunStatus();
         String testName = "testMGI_MPLinksAreValid";
@@ -202,7 +203,7 @@ public class PhenotypePageTest {
      * @throws SolrServerException
      */
     @Test
-//@Ignore
+@Ignore
     public void testPageForEveryMPTermId() throws TestException {
         try {
             String testName = "testPageForEveryMPTermId";
@@ -224,7 +225,7 @@ public class PhenotypePageTest {
      * @throws TestException
      */
     @Test
-//@Ignore
+@Ignore
     public void testPageForEveryTopLevelMPTermId() throws TestException {
         String testName = "testPageForEveryTopLevelMPTermId";
         try {
@@ -247,7 +248,7 @@ public class PhenotypePageTest {
      * @throws TestException
      */
     @Test
-//@Ignore
+@Ignore
     public void testPageForEveryIntermediateLevelMPTermId() throws TestException {
         String testName = "testPageForEveryIntermediateLevelMPTermId";
 
@@ -265,7 +266,7 @@ public class PhenotypePageTest {
      *
      * @throws SolrServerException
      */
-//@Ignore
+@Ignore
     @Test
     public void testInvalidMpTermId() throws SolrServerException {
         RunStatus status = new RunStatus();
@@ -300,7 +301,7 @@ public class PhenotypePageTest {
 
      // Tests known phenotype pages that have historically been broken or are interesting cases, such as one with a download filename with a forward slash.
         @Test
-//@Ignore
+@Ignore
         public void testKnownPages() throws TestException {
             String testName = "testKnownPages";
 
@@ -319,7 +320,7 @@ public class PhenotypePageTest {
         }
 
      // Test the top section: Definition, synonyms, mapped hp terms, procedures, mpId.
-//@Ignore
+@Ignore
     @Test
     public void testTopSection() throws SolrServerException {
         String testName = "testTopSection";

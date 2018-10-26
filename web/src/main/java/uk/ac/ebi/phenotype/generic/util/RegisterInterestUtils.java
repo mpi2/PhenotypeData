@@ -16,133 +16,59 @@
 
 package uk.ac.ebi.phenotype.generic.util;
 
+import org.mousephenotype.cda.ri.core.entities.Gene;
+import org.mousephenotype.cda.ri.core.entities.Summary;
+import org.mousephenotype.cda.ri.core.utils.SqlUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 @Service
 public class RegisterInterestUtils {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private HttpEntity<String> httpEntityHeaders;
-
     @NotNull
-    @Value("${riBaseUrl}")
-    private String riBaseUrl;
+    @Value("${paBaseUrl}")
+    private String paBaseUrl;
+
+    private SqlUtils sqlUtils;
+
+    @Inject
+    public RegisterInterestUtils(SqlUtils sqlUtils) {
+        this.sqlUtils = sqlUtils;
+    }
 
 
     /**
      *
      * @return a list of the currently logged in user's gene interest mgi accession ids
      */
-    public Map<String, List<String>> getGeneAccessionIds(HttpServletRequest request) {
+    @Secured("ROLE_USER")
+    public List<String> getGeneAccessionIds() {
 
-        httpEntityHeaders = new HttpEntity<>(buildHeadersFromRiToken(request));
-        ResponseEntity<Map<String, List<String>>> response = new RestTemplate().exchange(riBaseUrl + "/api/summary/list", HttpMethod.GET, httpEntityHeaders,
-                                                                                         new ParameterizedTypeReference<Map<String, List<String>>>() { }, Collections.emptyMap());
-        return response.getBody();
-    }
+        Summary summary = sqlUtils.getSummary(SecurityUtils.getPrincipal());
 
-    public boolean isLoggedIn(HttpServletRequest request) {
+        List<Gene> genes = summary.getGenes();
 
-        String riToken = (String) request.getSession().getAttribute("riToken");
-        if (riToken == null) {
-            return false;
+        List<String> geneAccessionIds = new ArrayList<>();
+        for (Gene gene : genes) {
+            geneAccessionIds.add(gene.getMgiAccessionId());
         }
 
-
-
-//        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-
-        // FIXME See if this is causing the PA performance problem.
-
-//        logger.info("riToken = {}", request.getSession().getAttribute("riToken"));
-//if (1 == 1) return false;
-
-
-
-        // Use the web service to check if we're logged in.
-
-        httpEntityHeaders = new HttpEntity<>(buildHeadersFromRiToken(request));
-logger.info("PA RegisterInterestUtils.isLoggedIn(): calling RestTemplate");
-        ResponseEntity<List<String>> response = new RestTemplate().exchange(riBaseUrl + "/api/roles", HttpMethod.GET, httpEntityHeaders,
-                                                                            new ParameterizedTypeReference<List<String>>() {
-                                                                            }, Collections.emptyMap());
-
-        logger.info("PA RegisterInterestUtils.isLoggedIn(): RestTemplate call complete");
-        List<String> roles = response.getBody();
-
-        logger.info("PA RegisterInterestUtils.isLoggedIn(): Before roles.contains");
-        boolean loggedIn = (roles.contains("ROLE_USER")) || (roles.contains("ROLE_ADMIN"));
-        logger.info("PA RegisterInterestUtils.isLoggedIn(): After roles.contains");
-
-        return loggedIn;
+        return geneAccessionIds;
     }
 
-    /**
-     * Register currently logged in user for interest in {@code geneAccessionId}
-     *
-     * @param geneAccessionId
-     * @return String returned by Register Interest web service 'register' action. An empty string indicates success.
-     */
-    public String registerGene(HttpServletRequest request, HttpServletResponse response, String geneAccessionId) {
+    @Secured("ROLE_USER")
+    public boolean isLoggedIn() {
 
-        if ( ! isLoggedIn(request)) {
-            return "User not logged in.";
-        }
-
-        // Use the web service to register interest in gene.
-        httpEntityHeaders = new HttpEntity<>(buildHeadersFromRiToken(request));
-
-        ResponseEntity<String> restResponse = new RestTemplate().exchange(riBaseUrl + "/api/registration/gene?geneAccessionId=" + geneAccessionId,
-                                                                          HttpMethod.POST, httpEntityHeaders, String.class);
-
-        return restResponse.getBody() == null ? "" : restResponse.getBody();
-    }
-
-    public static HttpHeaders buildHeadersFromRiToken(HttpServletRequest request) {
-
-        String riToken = (String) request.getSession().getAttribute("riToken");
-        String      cookieNameValuePair  = "JSESSIONID=" + riToken;
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Cookie", cookieNameValuePair);
-
-        return headers;
-    }
-
-    /**
-     * Unregister currently logged in user for interest in {@code geneAccessionId}
-     *
-     * @param geneAccessionId
-     * @return String returned by Register Interest web service 'unregister' action. An empty string indicates success.
-     */
-    public  String unregisterGene(HttpServletRequest request, String geneAccessionId) {
-
-        if ( ! isLoggedIn(request)) {
-            return "User not logged in.";
-        }
-
-        // Use the web service to unregister.
-        httpEntityHeaders = new HttpEntity<>(buildHeadersFromRiToken(request));
-
-        ResponseEntity<String> restResponse = new RestTemplate().exchange(riBaseUrl + "/api/unregistration/gene?geneAccessionId=" + geneAccessionId,
-                                                                          HttpMethod.DELETE, httpEntityHeaders, String.class);
-
-        return restResponse.getBody() == null ? "" : restResponse.getBody();
+        return SecurityUtils.isLoggedIn();
     }
 }

@@ -634,9 +634,9 @@ public class ExperimentLoader implements CommandLineRunner {
         if (phenotypingCenterPk == null) {
             missingCenters.add("Missing phenotyping center '" + dccExperiment.getPhenotypingCenter() + "'");
             if (dccExperiment.isLineLevel()) {
-                experimentsMissingCenters.add("Null/invalid phenotyping center '" + dccExperiment.getPhenotypingCenter() + "'\tproject::line\t" + dccExperiment.getProject() + "::" + dccExperiment.getExperimentId());
+                experimentsMissingCenters.add("Null/invalid phenotyping center '" + dccExperiment.getPhenotypingCenter() + "'\tproject::colony::line\t" + dccExperiment.getProject() + "::" + dccExperiment.getColonyId() + "::" + dccExperiment.getExperimentId());
             } else {
-                experimentsMissingCenters.add("Null/invalid phenotyping center '" + dccExperiment.getPhenotypingCenter() + "'\tproject::experiment\t" + dccExperiment.getProject() + "::" + dccExperiment.getExperimentId());
+                experimentsMissingCenters.add("Null/invalid phenotyping center '" + dccExperiment.getPhenotypingCenter() + "'\tproject::colony::experiment\t" + dccExperiment.getProject() + "::" + dccExperiment.getColonyId() + "::" + dccExperiment.getExperimentId());
             }
 
             return null;
@@ -653,9 +653,9 @@ public class ExperimentLoader implements CommandLineRunner {
         if (projectPk == null) {
             missingProjects.add("Missing project '" + dccExperiment.getProject() + "'");
             if (dccExperiment.isLineLevel()) {
-                experimentsMissingProjects.add("Null/invalid project '" + dccExperiment.getProject() + "'\tcenter::line\t" + dccExperiment.getPhenotypingCenter() + "::" + dccExperiment.getExperimentId());
+                experimentsMissingProjects.add("Null/invalid project '" + dccExperiment.getProject() + "'\tcenter::colony::line\t" + dccExperiment.getPhenotypingCenter() + "::" + dccExperiment.getColonyId() + "::" + dccExperiment.getExperimentId());
             } else {
-                experimentsMissingProjects.add("Null/invalid project '" + dccExperiment.getProject() + "'\tcenter::experiment\t" + dccExperiment.getPhenotypingCenter() + "::" + dccExperiment.getExperimentId());
+                experimentsMissingProjects.add("Null/invalid project '" + dccExperiment.getProject() + "'\tcenter::colony::experiment\t" + dccExperiment.getPhenotypingCenter() + "::" + dccExperiment.getColonyId() + "::" + dccExperiment.getExperimentId());
             }
             return null;
         }
@@ -663,9 +663,9 @@ public class ExperimentLoader implements CommandLineRunner {
         if (pipelinePk == null) {
             missingPipelines.add("Missing pipeline '" + dccExperiment.getPipeline() + "'");
             if (dccExperiment.isLineLevel()) {
-                experimentsMissingPipelines.add("Null/invalid pipeline '" + dccExperiment.getPipeline() + "'\tcenter::line\t" + dccExperiment.getPhenotypingCenter() + "::" + dccExperiment.getExperimentId());
+                experimentsMissingPipelines.add("Null/invalid pipeline '" + dccExperiment.getPipeline() + "'\tcenter::colony::line\t" + dccExperiment.getPhenotypingCenter() + "::" + dccExperiment.getColonyId() + "::" + dccExperiment.getExperimentId());
             } else {
-                experimentsMissingPipelines.add("Null/invalid pipeline '" + dccExperiment.getPipeline() + "'\tcenter::experiment\t" + dccExperiment.getPhenotypingCenter() + "::" + dccExperiment.getExperimentId());
+                experimentsMissingPipelines.add("Null/invalid pipeline '" + dccExperiment.getPipeline() + "'\tcenter::colony::experiment\t" + dccExperiment.getPhenotypingCenter() + "::" + dccExperiment.getColonyId() + "::" + dccExperiment.getExperimentId());
             }
             return null;
         }
@@ -674,9 +674,9 @@ public class ExperimentLoader implements CommandLineRunner {
         if (procedurePk == null) {
             missingProcedures.add("Missing procedure '" + dccExperiment.getProcedureId() + "'");
             if (dccExperiment.isLineLevel()) {
-                experimentsMissingProcedures.add("Null/invalid procedure '" + dccExperiment.getProcedureId() + "'\tcenter::line\t" + dccExperiment.getPhenotypingCenter() + "::" + dccExperiment.getExperimentId());
+                experimentsMissingProcedures.add("Null/invalid procedure '" + dccExperiment.getProcedureId() + "'\tcenter::colony::line\t" + dccExperiment.getPhenotypingCenter() + "::" + dccExperiment.getColonyId() + "::" + dccExperiment.getExperimentId());
             } else {
-                experimentsMissingProcedures.add("Null/invalid procedure '" + dccExperiment.getProcedureId() + "'\tcenter::experiment\t" + dccExperiment.getPhenotypingCenter() + "::" + dccExperiment.getExperimentId());
+                experimentsMissingProcedures.add("Null/invalid procedure '" + dccExperiment.getProcedureId() + "'\tcenter::colony::experiment\t" + dccExperiment.getPhenotypingCenter() + "::" + dccExperiment.getColonyId() + "::" + dccExperiment.getExperimentId());
             }
             return null;
         }
@@ -1025,7 +1025,7 @@ public class ExperimentLoader implements CommandLineRunner {
                                        int dbId, Integer biologicalSamplePk, int missing) throws DataLoadException {
 
         if (dccExperiment.getSpecimenId() != null && dccExperiment.getSpecimenId().equals("B6NC_46853_163447") && dccExperiment.getProcedureId().startsWith("IMPC_CBC")) {
-            logger.info("CANARY -- specimen B6NC_46853_163447\n{}, \nParameter: {}", dccExperiment, simpleParameter.getParameterID());
+            logger.debug("CANARY -- specimen B6NC_46853_163447\n{}, \nParameter: {}", dccExperiment, simpleParameter.getParameterID());
         }
 
         String parameterStableId = simpleParameter.getParameterID();
@@ -1102,7 +1102,7 @@ public class ExperimentLoader implements CommandLineRunner {
         cdaSqlUtils.insertExperiment_observation(experimentPk, observationPk);
 
         if (dccExperiment.getSpecimenId() != null && dccExperiment.getSpecimenId().equals("B6NC_46853_163447") && dccExperiment.getProcedureId().startsWith("IMPC_CBC")) {
-            logger.info("END CANARY -- Successfully inserted specimen B6NC_46853_163447, experimentPk {}, parameter {}", experimentPk, simpleParameter.getParameterID());
+            logger.debug("END CANARY -- Successfully inserted specimen B6NC_46853_163447, experimentPk {}, parameter {}", experimentPk, simpleParameter.getParameterID());
         }
 
 

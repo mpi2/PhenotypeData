@@ -430,9 +430,12 @@ public class GenePage {
         List<String> expectedButtons = Arrays.asList( new String[] { "Login to register interest" } );
         List<String> actualButtons = new ArrayList<>();
 
-        List<WebElement> actualButtonElements = driver.findElements(By.xpath("//a[contains(@class, 'btn')]"));
+        List<WebElement> actualButtonElements = driver.findElements(By.xpath("//a[contains(@class, 'btn')] | //button[contains(@class, 'btn')]"));
         for (WebElement webElement : actualButtonElements) {
-            actualButtons.add(webElement.getText());
+
+            if ( ! webElement.getText().trim().isEmpty()) {
+                actualButtons.add(webElement.getText());
+            }
         }
         // ... count
         if (actualButtons.size() < expectedButtons.size()) {

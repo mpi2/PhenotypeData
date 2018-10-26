@@ -16,10 +16,15 @@
 <div class="floatright">
 
   <p>
-    <a class="btn" id="${registerButtonId}" href="${registerButtonAnchor}">
-      <i class="${registerIconClass}"></i>
-      ${registerButtonText}
+  <form style="border: 0;">
+    <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
+    <input type="hidden" name="target" value="${paBaseUrl}/genes/${gene.mgiAccessionId}" />
+      <button type="submit" class="btn btn-block btn-primary btn-default" formaction="${registerButtonAnchor}" formmethod="${formMethod}">
+        <i class="${registerIconClass}"></i>
+        ${registerButtonText}
+      </button>
     </a>
+  </form>
   </p>
 
   <c:if
@@ -81,7 +86,7 @@
      title="visualise mouse-human gene orthologs with Ensembl comparative genomics browser">Ensembl Orthologs</a>
   &nbsp;&nbsp;
 
-  <a target="_blank" href="${riBaseUrl}/summary" title="Show your genes of interest">My Genes</a>
+  <a target="_blank" href="${paBaseUrl}/summary" title="Show your genes of interest">My Genes</a>
   &nbsp;&nbsp;
 
   <c:if test="${gene.isIdgGene}">

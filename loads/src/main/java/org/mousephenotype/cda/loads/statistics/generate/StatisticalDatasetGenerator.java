@@ -231,13 +231,7 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
 
 
                         // Add a column for the MAPPED category for EYE parameters
-                        if (ObservationType.valueOf(observationDTO.getObservationType()) == ObservationType.categorical &&
-                                (
-                                        observationDTO.getParameterStableId().toUpperCase().contains("_EYE_") ||
-                                                observationDTO.getParameterStableId().toUpperCase().contains("M-G-P_014") ||
-                                                observationDTO.getParameterStableId().toUpperCase().contains("ESLIM_014")
-                                )
-                                ) {
+                        if (ObservationType.valueOf(observationDTO.getObservationType()) == ObservationType.categorical) {
 
                             // Get mapped data category
                             String mappedDataValue = observationDTO.getCategory();
@@ -471,9 +465,6 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
                 // Only processing categorical and unidimensional parameters
                 .addFilterQuery("observation_type:(categorical OR unidimensional)")
 
-                // Filter out incorrect M-G-P pipeline bodyweight
-                .addFilterQuery("-parameter_stable_id:(" + StringUtils.join(skipParameters, " OR ") + ")")
-
                 // Filter out IMM results until we have normalised parameters in IMPRESS
                 .addFilterQuery("-parameter_stable_id:*_IMM_*")
 
@@ -486,6 +477,12 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
                 .setFacetMinCount(1)
                 .addFacetPivotField(PIVOT.stream().collect(Collectors.joining(",")));
 
+        // Filter out any parameters to be skipped (if any)
+        if (skipParameters != null && ! skipParameters.isEmpty()) {
+            query.addFilterQuery("-parameter_stable_id:(" + StringUtils.join(skipParameters, " OR ") + ")");
+        }
+
+        // Restrict to parameters to be analysed (if specified)
         if (parameters!=null) {
             query.addFilterQuery("parameter_stable_id:(" + StringUtils.join(parameters, " OR ") + ")");
         }

@@ -190,7 +190,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 
         documentCount = populateStatisticalResultsSolrCore();
 
-        logger.info(" Added {} total beans in {}", documentCount, commonUtils.msToHms(System.currentTimeMillis() - start));
+        logger.info((SAVE?"":"Would have") + " Added {} total beans in {}", documentCount, commonUtils.msToHms(System.currentTimeMillis() - start));
         return runStatus;
     }
 
@@ -241,7 +241,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
             if (SAVE) statisticalResultCore.commit();
             checkSolrCount(count);
 
-            logger.info(" Added {} statistical result documents", count);
+            logger.info((SAVE?"":"Would have") + " Added {} statistical result documents", count);
 
         } catch (IOException | SolrServerException e) {
             throw new IndexerException(e);
@@ -1190,7 +1190,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
                         if (SAVE) statisticalResultCore.addBean(doc, 30000);
                         shouldHaveAdded.add(doc.getDocId());
                         if (docs.size() % REPORT_INTERVAL == 0) {
-                            logger.info(" Added {} categorical doucments", docs.size());
+                            logger.info((SAVE?"":"Would have") + " Added {} categorical doucments", docs.size());
                         }
                     }
 
@@ -1201,7 +1201,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
                 logger.warn(" Error occurred getting categorical results", e);
             }
 
-            logger.info(" Added {} categorical documents", docs.size());
+            logger.info((SAVE?"":"Would have") + " Added {} categorical documents", docs.size());
             return docs;
         }
 
@@ -1301,13 +1301,13 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
                     if (SAVE) statisticalResultCore.addBean(doc, 30000);
                     shouldHaveAdded.add(doc.getDocId());
                     if (docs.size()% REPORT_INTERVAL ==0) {
-                        logger.info(" Added {} unidimensional doucments", docs.size());
+                        logger.info((SAVE?"":"Would have") + " Added {} unidimensional doucments", docs.size());
                     }
                 }
             } catch (Exception e) {
                 logger.warn(" Error occurred getting unidimensional results", e);
             }
-            logger.info(" Added {} unidimensional documents", docs.size());
+            logger.info((SAVE?"":"Would have") + " Added {} unidimensional documents", docs.size());
             return docs;
         }
 
@@ -1454,7 +1454,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
             } catch (Exception e) {
                 logger.warn(" Error occurred getting RR plus results", e);
             }
-            logger.info(" Added {} RR plus documents", docs.size());
+            logger.info((SAVE?"":"Would have") + " Added {} RR plus documents", docs.size());
             return docs;
         }
 
@@ -1697,7 +1697,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
                 logger.warn(" Error occurred getting fertility results", e);
             }
 
-            logger.info(" Added {} fertility parameter documents", docs.size());
+            logger.info((SAVE?"":"Would have") + " Added {} fertility parameter documents", docs.size());
             return docs;
         }
 
@@ -1762,7 +1762,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
                 logger.warn(" Error occurred getting viability results", e);
             }
 
-            logger.info(" Added {} viability parameter documents", docs.size());
+            logger.info((SAVE?"":"Would have") + " Added {} viability parameter documents", docs.size());
             return docs;
         }
 
@@ -1891,7 +1891,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
                 logger.warn(" Error occurred getting embryo results", e);
             }
 
-            logger.info(" Added {} embryo viability parameter documents", docs.size());
+            logger.info( (SAVE?"":"Would have") + " Added {} embryo viability parameter documents", docs.size());
             return docs;
         }
 
@@ -1950,7 +1950,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
                 logger.warn(" Error occurred getting gross pathology results", e);
             }
 
-            logger.info(" Added {} gross pathology parameter documents", docs.size());
+            logger.info((SAVE?"":"Would have") + " Added {} gross pathology parameter documents", docs.size());
             return docs;
         }
 
