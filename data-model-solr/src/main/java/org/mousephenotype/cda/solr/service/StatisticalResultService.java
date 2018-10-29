@@ -162,10 +162,10 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 				StatisticalResultDTO.PHENOTYPING_CENTER + "," +
 				StatisticalResultDTO.STRAIN_ACCESSION_ID + "," +
 				StatisticalResultDTO.ALLELE_ACCESSION_ID;
-		if (metaDataGroup != null && metaDataGroup.size() > 0){
+		//pivot needs to have metadata_group irrespective of if it's included in filter or not as we want seperate experiments based on the metadata
 			pivotFacet += "," + StatisticalResultDTO.METADATA_GROUP;
 
-		}
+		//}
 		query.add("facet.pivot", pivotFacet );
 
 		query.setFacetLimit(-1);

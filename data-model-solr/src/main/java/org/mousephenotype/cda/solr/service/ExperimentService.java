@@ -531,9 +531,11 @@ public class ExperimentService{
             return null;// return null if no experiments
         }
         if (experimentList.size() > 1 && !TimeSeriesConstants.DERIVED_BODY_WEIGHT_PARAMETERS.contains(parameterStableId)) {//need the BWT exemption as we get multiple experiments for that- so we just need to pass them back and let the chart and table code handle them...?
+        	System.out.println("experiment list size="+experimentList.size());
         	for(ExperimentDTO experiment : experimentList){
-        		System.out.println("aaahhhh"+ experiment);
+        		System.out.println("aaahhhh experimentId="+ experiment.getExperimentId()+ " metadata_group="+experiment.getMetadataGroup());
         	}
+        	//return experimentList.get(0);
             throw new SpecificExperimentException("Too many experiments returned - should only be one from this method call");
         }
         ExperimentDTO experiment=null;
