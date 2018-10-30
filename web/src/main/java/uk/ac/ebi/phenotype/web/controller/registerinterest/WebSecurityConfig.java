@@ -122,7 +122,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                     .loginPage("/rilogin")
                     .failureUrl("/rilogin?error")
 
-                    .successHandler(new RiSavedRequestAwareAuthenticationSuccessHandler())
+                    //.successHandler(new RiSavedRequestAwareAuthenticationSuccessHandler())
                     .usernameParameter("ssoId")
                     .passwordParameter("password")
 
@@ -138,9 +138,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                     .ignoringAntMatchers("/alleleRefLogin")
                     .ignoringAntMatchers("/addpmid")
                     .ignoringAntMatchers("/addpmidAllele")
-                    .ignoringAntMatchers("/gwaslookup")
-
-            .and().sessionManagement().invalidSessionStrategy(new RiSimpleRedirectInvalidSessionStrategy(paBaseUrl + "/search/gene?kw=*"))
+                    .ignoringAntMatchers("/gwaslookup");
+             //.and().sessionManagement().invalidSessionStrategy(new RiSimpleRedirectInvalidSessionStrategy(paBaseUrl + "/search/gene?kw=*"))
         ;
     }
 
