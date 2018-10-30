@@ -607,6 +607,7 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
                 if (
                         (
                                 x.getParameterStableId().toUpperCase().contains("IMPC_EYE") ||
+                                x.getParameterStableId().toUpperCase().contains("IMPC_XRY") ||
                                 procedureGroup.toUpperCase().contains("M-G-P_013") ||
                                 procedureGroup.toUpperCase().contains("M-G-P_014") ||
                                 procedureGroup.toUpperCase().contains("ESLIM_013") ||
