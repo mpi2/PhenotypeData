@@ -184,7 +184,9 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 	private Set<String> getParametersForChartFromPivot(PivotField pivot, String urlParams, Set<String> set){
 
 		if ( pivot != null){
+			if(pivot.getValue().toString().length()>0) {//if the value is not set don't add an empty string parameter as this will then fail with the metadata_group being set to empty string!!
 			urlParams += pivot.getField() + "=" + pivot.getValue().toString() + "&";
+			}
 			if (pivot.getPivot() != null) {
 				for (PivotField p : pivot.getPivot()) {
 					getParametersForChartFromPivot(p, urlParams, set);

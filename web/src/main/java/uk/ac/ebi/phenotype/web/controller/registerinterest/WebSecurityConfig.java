@@ -174,24 +174,24 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         }
 
         public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws ServletException, IOException {
-            logger.info("RiSavedRequest: Authentication Success!");
+            System.out.println("============RiSavedRequest: Authentication Success!");
 
             // Set the session maximum inactive interval. The interval parameter is in seconds.
             request.getSession().setMaxInactiveInterval(MAX_INACTIVE_INTERVAL_IN_HOURS * 3600);
 
             SavedRequest savedRequest = this.requestCache.getRequest(request, response);
             if (savedRequest == null) {
-                logger.info("RiSavedRequest: savedRequest is null.");
+            	System.out.println("==============RiSavedRequest: savedRequest is null.");
                 super.onAuthenticationSuccess(request, response, authentication);
             } else {
                 String targetUrlParameter = this.getTargetUrlParameter();
                 if (!this.isAlwaysUseDefaultTargetUrl() && (targetUrlParameter == null || !StringUtils.hasText(request.getParameter(targetUrlParameter)))) {
                     this.clearAuthenticationAttributes(request);
                     String targetUrl = savedRequest.getRedirectUrl();
-                    this.logger.info("Redirecting to DefaultSavedRequest Url: " + targetUrl);
+                    System.out.println("==================Redirecting to DefaultSavedRequest Url: " + targetUrl);
                     this.getRedirectStrategy().sendRedirect(request, response, targetUrl);
                 } else {
-                    logger.info("RiSavedRequest: removing request.");
+                	System.out.println("====================RiSavedRequest: removing request.");
                     this.requestCache.removeRequest(request, response);
                     super.onAuthenticationSuccess(request, response, authentication);
                 }
@@ -216,14 +216,14 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         }
 
         public void onInvalidSessionDetected(HttpServletRequest request, HttpServletResponse response) throws IOException {
-
+        	System.out.println("============================Invalid session detected");
             String referer = request.getHeader("referer");
             if ((referer != null) && ( ! referer.startsWith(paBaseUrl))) {
                 referer = null;                         // Don't use referer if it doesn't start with known, safe url.
             }
 
             String target = (referer == null ? this.destinationUrl : referer);
-            this.logger.debug("Starting new session (if required) and redirecting to '" + target + "'");
+            System.out.println("===========================Starting new session (if required) and redirecting to '" + target + "'");
             if (this.createNewSession) {
                 request.getSession();
             }
