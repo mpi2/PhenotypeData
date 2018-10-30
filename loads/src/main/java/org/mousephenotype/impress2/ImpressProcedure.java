@@ -1,41 +1,11 @@
-/*******************************************************************************
- * Copyright 2015 EMBL - European Bioinformatics Institute
- *
- * Licensed under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License. You may obtain a copy of the License at
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
- * either express or implied. See the License for the specific
- * language governing permissions and limitations under the
- * License.
- *******************************************************************************/
-package org.mousephenotype.cda.db.pojo;
+package org.mousephenotype.impress2;
 
-/**
- *
- * A concrete representation of phenotype procedure within a schedule.
- *
- * A procedure has a name and stable id. A collection of meta information is
- * attached to the procedure.
- *
- * @author Gautier Koscielny (EMBL-EBI) <koscieln@ebi.ac.uk>
- * @since February 2012
- * @see PipelineEntry
- * @see Pipeline
- */
 
 import java.io.Serializable;
 import java.util.Collection;
-import java.util.Set;
 
-public class Procedure implements Serializable {
+public class ImpressProcedure implements Serializable {
 
-    private Datasource          datasource;
-    private Set<MetaData>       metaDataSet;
     private Integer             procedureId;
     private String              procedureKey;
     private Short               minFemales   = 0;
@@ -54,14 +24,14 @@ public class Procedure implements Serializable {
     private Collection<Integer> parameterCollection;
     private Integer             scheduleId;
 
-    public Procedure() {
+    public ImpressProcedure() {
     }
 
-    public Procedure(Integer procedureId) {
+    public ImpressProcedure(Integer procedureId) {
         this.procedureId = procedureId;
     }
 
-    public Procedure(Integer procedureId, String procedureKey, int type, String level, int majorVersion, int minorVersion) {
+    public ImpressProcedure(Integer procedureId, String procedureKey, int type, String level, int majorVersion, int minorVersion) {
         this.procedureId = procedureId;
         this.procedureKey = procedureKey;
         this.type = type;
@@ -206,9 +176,7 @@ public class Procedure implements Serializable {
         this.scheduleId = scheduleId;
     }
 
-
-
-
+    
 
     @Override
     public int hashCode() {
@@ -220,55 +188,11 @@ public class Procedure implements Serializable {
     @Override
     public boolean equals(Object object) {
         // TODO: Warning - this method won't work in the case the id fields are not set
-        if (!(object instanceof Procedure)) {
+        if (!(object instanceof ImpressProcedure)) {
             return false;
         }
-        Procedure other = (Procedure) object;
+        ImpressProcedure other = (ImpressProcedure) object;
         return !((this.procedureId == null && other.procedureId != null) || (this.procedureId != null && !this.procedureId.equals(other.procedureId)));
     }
 
-
-    // COMPATIBILITY
-
-
-    public Integer getId() {
-        return getProcedureId();
-    }
-
-    public void setId(Integer procedureId) {
-        setProcedureId(procedureId);
-    }
-    public Datasource getDatasource() {
-        return datasource;
-    }
-
-    public void setDatasource(Datasource datasource) {
-        this.datasource = datasource;
-    }
-
-    public Set<MetaData> getMetaDataSet() {
-        return metaDataSet;
-    }
-
-    public void setMetaDataSet(Set<MetaData> metaDataSet) {
-        this.metaDataSet = metaDataSet;
-    }
-    public Integer getStableKey() {
-        return getProcedureId();
-    }
-    public void setStableKey(Integer procedureId) {
-        setProcedureId(procedureId);
-    }
-
-    public String getStableId() {
-        return getProcedureKey();
-    }
-    public void setStableId(String procedureKey) {
-        setProcedureKey(procedureKey);
-    }
-
-    @Deprecated
-    public void addParameter(Parameter parameter) {
-
-    }
 }

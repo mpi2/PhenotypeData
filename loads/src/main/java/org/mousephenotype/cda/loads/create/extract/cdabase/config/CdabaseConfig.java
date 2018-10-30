@@ -41,6 +41,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 import org.springframework.util.Assert;
+import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -77,6 +78,12 @@ public class CdabaseConfig extends DataSourceCdabaseConfig {
     @NotNull
     @Value("${cdabase.workspace}")
     protected String cdabaseWorkspace;
+
+    public RestTemplate restTemplate;
+
+    @NotNull
+    @Value("${impress.service.url}")
+    protected String impressServiceUrl;
 
 
     @Inject
@@ -480,6 +487,11 @@ public class CdabaseConfig extends DataSourceCdabaseConfig {
         client.setMarshaller(marshaller);
         client.setUnmarshaller(marshaller);
         return client;
+    }
+
+    @Bean
+    public String impressServiceUrl() {
+        return impressServiceUrl;
     }
 
     // NOTE: Using @Lazy here and in the @Autowire to postpone creation of this bean (so that @PostConstruct can be used)

@@ -15,52 +15,232 @@
  *******************************************************************************/
 package org.mousephenotype.cda.db.pojo;
 
-/**
- *
- * Representation of a phenotype pipeline along with its procedures.
- *
- * @author Gautier Koscielny (EMBL-EBI) <koscieln@ebi.ac.uk>
- * @since February 2012
- * @see PipelineEntry
- */
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
-import javax.persistence.*;
-import java.util.HashSet;
-import java.util.Set;
-
-
-@Entity
-@Table(name = "phenotype_pipeline")
-public class Pipeline extends PipelineEntry {
-
-    @ManyToMany(cascade = CascadeType.ALL)
-    @JoinTable(
-            name = "phenotype_pipeline_procedure",
-            joinColumns = @JoinColumn(name = "pipeline_id"),
-            inverseJoinColumns = @JoinColumn(name = "procedure_id")
-    )
-    private Set<Procedure> procedures= new HashSet<>();
+public class Pipeline implements Serializable {
+    private Datasource          datasource;
+    private Integer             pipelineId;
+    private String              pipelineKey;
+    private String              pipelineType;
+    private String              name;
+    private Integer             weight;
+    private boolean             isVisible;
+    private boolean             isActive = true;
+    private boolean             isDeprecated;
+    private int                 majorVersion = 1;
+    private int                 minorVersion = 0;
+    private String              description;
+    private boolean             isInternal;
+    private boolean             isDeleted;
+    private String              centreName;
+    private Short               impc;
+    private Collection<Integer> scheduleCollection;
 
     public Pipeline() {
-        super();
     }
 
-    public void addProcedure(Procedure procedure) {
-        procedures.add(procedure);
+    public Pipeline(Integer pipelineId) {
+        this.pipelineId = pipelineId;
     }
 
-    /**
-     * @return the procedures
-     */
-    public Set<Procedure> getProcedures() {
-        return procedures;
+    public Pipeline(Integer pipelineId, String pipelineKey, boolean isVisible, boolean isActive, boolean isDeprecated, int majorVersion, int minorVersion, boolean isInternal, boolean isDeleted, String pipelineType) {
+        this.pipelineId = pipelineId;
+        this.pipelineKey = pipelineKey;
+        this.isVisible = isVisible;
+        this.isActive = isActive;
+        this.isDeprecated = isDeprecated;
+        this.majorVersion = majorVersion;
+        this.minorVersion = minorVersion;
+        this.isInternal = isInternal;
+        this.isDeleted = isDeleted;
+        this.pipelineType = pipelineType;
     }
 
-    /**
-     * @param procedures the procedures to set
-     */
-    public void setProcedures(Set<Procedure> procedures) {
-        this.procedures = procedures;
+    public Datasource getDatasource() {
+        return datasource;
+    }
+
+    public void setDatasource(Datasource datasource) {
+        this.datasource = datasource;
+    }
+
+    public Integer getPipelineId() {
+        return pipelineId;
+    }
+
+    public void setPipelineId(Integer pipelineId) {
+        this.pipelineId = pipelineId;
+    }
+
+    public String getPipelineKey() {
+        return pipelineKey;
+    }
+
+    public void setPipelineKey(String pipelineKey) {
+        this.pipelineKey = pipelineKey;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Integer getWeight() {
+        return weight;
+    }
+
+    public void setWeight(Integer weight) {
+        this.weight = weight;
+    }
+
+    public boolean getIsVisible() {
+        return isVisible;
+    }
+
+    public void setIsVisible(boolean isVisible) {
+        this.isVisible = isVisible;
+    }
+
+    public boolean getIsActive() {
+        return isActive;
+    }
+
+    public void setIsActive(boolean isActive) {
+        this.isActive = isActive;
+    }
+
+    public boolean getIsDeprecated() {
+        return isDeprecated;
+    }
+
+    public void setIsDeprecated(boolean isDeprecated) {
+        this.isDeprecated = isDeprecated;
+    }
+
+    public int getMajorVersion() {
+        return majorVersion;
+    }
+
+    public void setMajorVersion(int majorVersion) {
+        this.majorVersion = majorVersion;
+    }
+
+    public int getMinorVersion() {
+        return minorVersion;
+    }
+
+    public void setMinorVersion(int minorVersion) {
+        this.minorVersion = minorVersion;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public boolean getIsInternal() {
+        return isInternal;
+    }
+
+    public void setIsInternal(boolean isInternal) {
+        this.isInternal = isInternal;
+    }
+
+    public boolean getIsDeleted() {
+        return isDeleted;
+    }
+
+    public void setIsDeleted(boolean isDeleted) {
+        this.isDeleted = isDeleted;
+    }
+
+    public String getCentreName() {
+        return centreName;
+    }
+
+    public void setCentreName(String centreName) {
+        this.centreName = centreName;
+    }
+
+    public Short getImpc() {
+        return impc;
+    }
+
+    public void setImpc(Short impc) {
+        this.impc = impc;
+    }
+
+    public String getPipelineType() {
+        return pipelineType;
+    }
+
+    public void setPipelineType(String pipelineType) {
+        this.pipelineType = pipelineType;
+    }
+
+    public Collection<Integer> getScheduleCollection() {
+        return scheduleCollection;
+    }
+
+    public void setScheduleCollection(Collection<Integer> scheduleCollection) {
+        this.scheduleCollection = scheduleCollection;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 0;
+        hash += (pipelineId != null ? pipelineId.hashCode() : 0);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        // TODO: Warning - this method won't work in the case the id fields are not set
+        if (!(object instanceof Pipeline)) {
+            return false;
+        }
+        Pipeline other = (Pipeline) object;
+        return !((this.pipelineId == null && other.pipelineId != null) || (this.pipelineId != null && !this.pipelineId.equals(other.pipelineId)));
+    }
+
+
+    // COMPATIBILITY
+
+
+    public Integer getId() {
+        return getPipelineId();
+    }
+
+    public void setId(Integer pipelineId) {
+        setPipelineId(pipelineId);
+    }
+
+    @Deprecated
+    public List<Procedure> getProcedures() {
+        return new ArrayList<>();
+    }
+
+    public Integer getStableKey() {
+        return getPipelineId();
+    }
+    public void setStableKey(Integer pipelineId) {
+        setPipelineId(pipelineId);
+    }
+
+    public String getStableId() {
+        return getPipelineKey();
+    }
+    public void setStableId(String pipelineKey) {
+        setPipelineKey(pipelineKey);
     }
 
 }

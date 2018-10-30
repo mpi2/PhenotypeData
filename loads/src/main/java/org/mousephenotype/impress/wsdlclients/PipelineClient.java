@@ -31,7 +31,7 @@ public class PipelineClient extends WebServiceGatewaySupport {
         GetPipelineResponse response = (GetPipelineResponse) getWebServiceTemplate()
                 .marshalSendAndReceive("https://www.mousephenotype.org/impress/soap/server",
                                        request,
-                                       new SoapActionCallback("https://www.mousephenotype.org/impress/soap/server/GetPipeline"));
+                                       new SoapActionCallback("https://www.mousephenotype.org/impress/soap/server/ImpressPipeline"));
 
         return response;
     }

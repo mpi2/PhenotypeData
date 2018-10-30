@@ -1,3 +1,132 @@
+DROP TABLE IF EXISTS i2_pipeline;
+CREATE TABLE i2_pipeline (
+  db_id                 INTEGER                   NOT NULL,
+  pipelineId            INTEGER                   NOT NULL,
+  pipeline_key          VARCHAR(40)               NOT NULL,
+  pipeline_type         VARCHAR(100)              NOT NULL,
+  name                  VARCHAR(100)              NOT NULL,
+  weight                INTEGER                   DEFAULT 0,
+  is_visible            TINYINT                   DEFAULT 1,
+  is_active             TINYINT                   DEFAULT 1,
+  is_deprecated         TINYINT                   DEFAULT 0,
+  major_version         INTEGER NOT NULL          DEFAULT 1,
+  minor_version         INTEGER NOT NULL          DEFAULT 0,
+  description           VARCHAR(2000)             DEFAULT NULL,
+  is_internal           TINYINT                   DEFAULT 0,
+  is_deleted            TINYINT                   DEFAULT 0,
+  centre_name           VARCHAR(100)              DEFAULT NULL,
+  impc                  INTEGER                   NOT NULL,
+
+  PRIMARY KEY (pipelineId)
+);
+
+
+DROP TABLE IF EXISTS i2_schedule;
+CREATE TABLE i2_schedule (
+  db_id                 INTEGER                   NOT NULL,
+  schedule_id           INTEGER                   NOT NULL,
+  is_active             TINYINT                   DEFAULT 1,
+  is_deprecated         TINYINT                   DEFAULT 0,
+  time_label            VARCHAR(40)               NOT NULL,
+  time                  VARCHAR(40)               NOT NULL,
+  time_unit             VARCHAR(40)               NOT NULL,
+  stage                 VARCHAR(20)               DEFAULT 'Adult',
+  pipelineId            INTEGER                   NOT NULL,
+
+  PRIMARY KEY (schedule_id)
+);
+
+
+DROP TABLE IF EXISTS i2_procedure;
+CREATE TABLE i2_procedure (
+  db_id                 INTEGER                   NOT NULL,
+  procedureId           INTEGER                   NOT NULL,
+  procedure_key         VARCHAR(40)               NOT NULL,
+  min_females           INTEGER                   DEFAULT NULL,
+  min_males             INTEGER                   DEFAULT NULL,
+  min_animals           INTEGER                   DEFAULT NULL,
+  is_visible            TINYINT                   DEFAULT 1,
+  is_mandatory          TINYINT                   DEFAULT 0,
+  is_internal           TINYINT                   DEFAULT 0,
+  name                  VARCHAR(200)              NOT NULL,
+  type                  INTEGER                   NOT NULL,
+  level                 VARCHAR(40)               NOT NULL,
+  major_version         INTEGER NOT NULL          DEFAULT 1,
+  minor_version         INTEGER NOT NULL          DEFAULT 0,
+  description           VARCHAR(2000)             DEFAULT NULL,
+  old_procedure_key     VARCHAR(40)               NOT NULL,
+  schedule_id           INTEGER                   NOT NULL,
+
+  PRIMARY KEY (procedure_id)
+);
+
+
+DROP TABLE IF EXISTS i2_parameter;
+CREATE TABLE i2_parameter (
+  db_id                 INTEGER                   NOT NULL,
+  parameterId           INTEGER                   NOT NULL,
+  parameter_key         VARCHAR(40)               NOT NULL,
+  name                  VARCHAR(200)              NOT NULL,
+  type                  INTEGER                   NOT NULL,
+  is_visible            TINYINT                   DEFAULT 1,
+  is_active             TINYINT                   DEFAULT 1,
+  is_deprecated         TINYINT                   DEFAULT 0,
+  major_version         INTEGER NOT NULL          DEFAULT 1,
+  minor_version         INTEGER NOT NULL          DEFAULT 0,
+  derivation            VARCHAR(40)               DEFAULT NULL,
+  description           VARCHAR(2000)             DEFAULT NULL,
+  is_annotation         TINYINT                   NOT NULL,
+  is_derived            TINYINT                   NOT NULL,
+  is_important          TINYINT                   NOT NULL,
+  is_increment          TINYINT                   NOT NULL,
+  is_media              TINYINT                   NOT NULL,
+  is_option             TINYINT                   NOT NULL,
+  is_required           TINYINT                   NOT NULL,
+  qc_check              TINYINT                   NOT NULL,
+  qc_min                FLOAT                     NOT NULL,
+  qc_max                FLOAT                     NOT NULL,
+  qc_notes              VARCHAR(2000)             DEFAULT NULL,
+  value_type            VARCHAR(40)               DEFAULT NULL,
+  graph_type            VARCHAR(40)               DEFAULT NULL,
+  data_analysis_notes   VARCHAR(2000)             DEFAULT NULL,
+  is_internal           TINYINT                   DEFAULT 0,
+  is_deleted            TINYINT                   DEFAULT 0,
+  old_parameter_key     VARCHAR(40)               NOT NULL,
+  original_param_id     INTEGER                   NOT NULL,
+  ontology_group_id     INTEGER                   NOT NULL,
+  weight                INTEGER                   NOT NULL,
+  procedure_id          INTEGER                   NOT NULL,
+  unit                  INTEGER                   NOT NULL,
+
+
+
+
+
+
+
+  min_females           INTEGER                   DEFAULT NULL,
+  min_males             INTEGER                   DEFAULT NULL,
+  min_animals           INTEGER                   DEFAULT NULL,
+  is_mandatory          TINYINT                   DEFAULT 0,
+  is_internal           TINYINT                   DEFAULT 0,
+  level                 VARCHAR(40)               NOT NULL,
+  old_procedure_key     VARCHAR(40)               NOT NULL,
+  schedule_id           INTEGER                   NOT NULL,
+
+  PRIMARY KEY (procedure_id)
+);
+
+
+
+
+
+
+
+
+
+
+
+
 -- MySQL dump 10.13  Distrib 5.1.73, for redhat-linux-gnu (x86_64)
 --
 -- Host: mysql-mi-dev    Database: impress_6_0
@@ -157,16 +286,25 @@ CREATE TABLE `phenotype_parameter_option` (
 
 DROP TABLE IF EXISTS `phenotype_pipeline`;
 CREATE TABLE `phenotype_pipeline` (
-  `id` int(10) NOT NULL AUTO_INCREMENT,
-  `stable_id` varchar(40) NOT NULL,
-  `db_id` int(10) NOT NULL,
-  `name` varchar(100) NOT NULL,
-  `description` varchar(2000) DEFAULT NULL,
-  `major_version` int(10) NOT NULL DEFAULT '1',
-  `minor_version` int(10) NOT NULL DEFAULT '0',
-  `stable_key` int(10) DEFAULT '0',
-  `is_deprecated` tinyint(1) DEFAULT NULL,
-  PRIMARY KEY (`id`)
+  id              INTEGER   AUTO_INCREMENT  NOT NULL,
+  db_id           INTEGER                   NOT NULL,
+  stable_key      INTEGER                   NOT NULL,
+  stable_id       VARCHAR(40)               NOT NULL,
+  pipeline_type   VARCHAR(100)              NOT NULL,
+  name            VARCHAR(100)              NOT NULL,
+  weight          INTEGER                   DEFAULT 0,
+  is_visible      TINYINT                   DEFAULT 1,
+  is_active       TINYINT                   DEFAULT 1,
+  is_deprecated   TINYINT                   DEFAULT 0,
+  major_version   INTEGER NOT NULL          DEFAULT 1,
+  minor_version   INTEGER NOT NULL          DEFAULT 0,
+  description     VARCHAR(2000)             DEFAULT NULL,
+  is_internal     TINYINT                   DEFAULT 0,
+  is_deleted      TINYINT                   DEFAULT 0,
+  centre_name     VARCHAR(100)              DEFAULT NULL,
+  impc            INTEGER                   NOT NULL,
+
+  PRIMARY KEY (id)
 );
 
 

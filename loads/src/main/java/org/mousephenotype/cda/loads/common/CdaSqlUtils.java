@@ -2677,42 +2677,42 @@ public class CdaSqlUtils {
 
         Integer procedurePk = null;
 
-        final String insertProcedure =
-                "INSERT INTO phenotype_procedure (stable_key, stable_id, db_id, name, description, major_version, minor_version, is_mandatory, level, stage, stage_label)" +
-                " VALUES (:stableKey, :stableId, :dbId, :name, :description, :majorVersion, :minorVersion, :isMandatory, :level, :stage, :stageLabel)";
-        final String insertPhenotypeProcedureMetaData = "INSERT INTO phenotype_procedure_meta_data() VALUES (:procedureId, :metaName, :metaValue)";
-
-        KeyHolder           keyholder       = new GeneratedKeyHolder();
-        Map<String, Object> parameterMap    = new HashMap<>();
-
-        parameterMap.put("stableKey", procedure.getStableKey());
-        parameterMap.put("stableId", procedure.getStableId());
-        parameterMap.put("dbId", procedure.getDatasource().getId());
-        parameterMap.put("name", procedure.getName());
-        parameterMap.put("description", procedure.getDescription());
-        parameterMap.put("majorVersion", procedure.getMajorVersion());
-        parameterMap.put("minorVersion", procedure.getMinorVersion());
-        parameterMap.put("isMandatory", procedure.isMandatory() ? 1 : 0);
-        parameterMap.put("level", procedure.getLevel());
-        parameterMap.put("stage", procedure.getStage());
-        parameterMap.put("stageLabel", procedure.getStageLabel());
-        SqlParameterSource  parameterSource = new MapSqlParameterSource(parameterMap);
-
-        int count = jdbcCda.update(insertProcedure, parameterSource, keyholder);
-
-        if (count > 0) {
-            procedurePk = keyholder.getKey().intValue();
-            procedure.setId(procedurePk);
-
-            if (procedure.getMetaDataSet() != null) {
-                for (MetaData metaData : procedure.getMetaDataSet()) {
-                    parameterMap.put("procedure_id", procedurePk);
-                    parameterMap.put("meta_name", metaData.getName());
-                    parameterMap.put("meta_value", metaData.getValue());
-                    jdbcCda.update(insertPhenotypeProcedureMetaData,parameterMap);
-                }
-            }
-        }
+//        final String insertProcedure =
+//                "INSERT INTO phenotype_procedure (stable_key, stable_id, db_id, name, description, major_version, minor_version, is_mandatory, level, stage, stage_label)" +
+//                " VALUES (:stableKey, :stableId, :dbId, :name, :description, :majorVersion, :minorVersion, :isMandatory, :level, :stage, :stageLabel)";
+//        final String insertPhenotypeProcedureMetaData = "INSERT INTO phenotype_procedure_meta_data() VALUES (:procedureId, :metaName, :metaValue)";
+//
+//        KeyHolder           keyholder       = new GeneratedKeyHolder();
+//        Map<String, Object> parameterMap    = new HashMap<>();
+//
+//        parameterMap.put("stableKey", procedure.getStableKey());
+//        parameterMap.put("stableId", procedure.getStableId());
+//        parameterMap.put("dbId", procedure.getDatasource().getId());
+//        parameterMap.put("name", procedure.getName());
+//        parameterMap.put("description", procedure.getDescription());
+//        parameterMap.put("majorVersion", procedure.getMajorVersion());
+//        parameterMap.put("minorVersion", procedure.getMinorVersion());
+//        parameterMap.put("isMandatory", procedure.isMandatory() ? 1 : 0);
+//        parameterMap.put("level", procedure.getLevel());
+//        parameterMap.put("stage", procedure.getStage());
+//        parameterMap.put("stageLabel", procedure.getStageLabel());
+//        SqlParameterSource  parameterSource = new MapSqlParameterSource(parameterMap);
+//
+//        int count = jdbcCda.update(insertProcedure, parameterSource, keyholder);
+//
+//        if (count > 0) {
+//            procedurePk = keyholder.getKey().intValue();
+//            procedure.setId(procedurePk);
+//
+//            if (procedure.getMetaDataSet() != null) {
+//                for (MetaData metaData : procedure.getMetaDataSet()) {
+//                    parameterMap.put("procedure_id", procedurePk);
+//                    parameterMap.put("meta_name", metaData.getName());
+//                    parameterMap.put("meta_value", metaData.getValue());
+//                    jdbcCda.update(insertPhenotypeProcedureMetaData,parameterMap);
+//                }
+//            }
+//        }
 
         return procedurePk;
     }
