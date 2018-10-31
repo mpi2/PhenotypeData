@@ -181,60 +181,25 @@ def getOmeroIdsAndPaths(dbConn, omeroUser, omeroPass, omeroHost, omeroPort, full
         print_obj(project)
         for dataset in project.listChildren():
             print_obj(dataset, 2)
-            paths_already_processed = []
-                            
+            if dataset.getName().find("_EEI_") >=0:
+                print "Skipping " + dataset.getName()
+                continue
             for image in dataset.listChildren():
                 #print_obj(image, 4)
                 #getOriginalFile(image)
                 fileset = image.getFileset()
                 filesetId=fileset.getId()
                 #print 'filesetId=',filesetId
-                query = "SELECT DISTINCT clientPath FROM FilesetEntry WHERE fileset.id = :id AND clientPath NOT LIKE '%EEI_%tif'"
+                query = "SELECT clientPath FROM FilesetEntry WHERE fileset.id = :id AND (clientPath NOT LIKE '%lei%' OR clientPath NOT LIKE '%lif%') "
                 params = omero.sys.ParametersI()
                 params.addId(omero.rtypes.rlong(filesetId))
                 #print 'params=',params
                 for path in conn.getQueryService().projection(query, params):
-                    # The EEI data returns multiple results with the same filename and is treated as a special case
-                    # this block of code checks to ensure that we do not process a file more than once, and is
-                    # specifically aimed at the EEI (lei and lif) files.
-                    try:
-                        already_processed = paths_already_processed.index(path[0].val) >= 0
-                    except ValueError:
-                        already_processed = False
-                        paths_already_processed.append(path[0].val)
-                    if already_processed:
-                        print path[0].val + " has already been processed and is being skipped on this iteration"
-                        continue
-
                     #print 'path=', path[0].val
                     originalUploadedFilePathToOmero=path[0].val
                     #print originalUploadedFilePathToOmero
                     #print originalUploadedFilePathToOmero+" id="+str(image.getId())
-
-                    # If this is a leica (.lif or .lei) file do the matching differently
-                    # The convention for leica files is to store them in a subdirectory named based on the
-                    # filename e.g. 160229.lif is stored in:
-                    #               WTSI/MGP_001/MGP_EEI_001/MGP_EEI_114_001/160229/160229.lif
-                    # and 130918.lei is stored in:
-                    #               WTSI/MGP_001/MGP_EEI_001/MGP_EEI_114_001/130918/130918.lei
-                    if originalUploadedFilePathToOmero.find('.lif') > 0 or originalUploadedFilePathToOmero.find('.lei') > 0:
-                        # Get all images stored in the same file
-                        query = 'SELECT id, name FROM Image WHERE fileset.id = :id'
-                        original_path,original_im_name = os.path.split(originalUploadedFilePathToOmero)
-                        for im_details in conn.getQueryService().projection(query, params):
-                            omero_id = im_details[0].val
-                            omero_im_name = im_details[1].val
-                            #print "omero_im_name = " + omero_im_name
-                            # Omero appends the mouse number to the filename to uniquely identify an image
-                            # e.g for M012345678 in 160229, the omero_im_name is '160229.lif [M012345678]'
-                            # which is also part of the path stored in solr & the komp2 database, so we 
-                            # modify the filename accordingly
-                            if omero_im_name.find(original_im_name) >= 0:
-                                modifiedUploadedFilePathToOmero = originalUploadedFilePathToOmero.replace(original_im_name, omero_im_name)
-                                #print "modifiedUploadedFilePathToOmero = " + modifiedUploadedFilePathToOmero
-                                storeOmeroId(dbConn, omero_id, modifiedUploadedFilePathToOmero, fullResPathsAlreadyHave )
-                    else:
-                        storeOmeroId(dbConn, image.getId(), originalUploadedFilePathToOmero, fullResPathsAlreadyHave )
+                    storeOmeroId(dbConn, image.getId(), originalUploadedFilePathToOmero, fullResPathsAlreadyHave )
             #print "\nProject="+project.getName()+"Annotations on Dataset:", dataset.getName()
             for ann in dataset.listAnnotations():
                 #filesetId=ann.getId()

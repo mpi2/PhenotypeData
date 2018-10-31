@@ -162,10 +162,10 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 				StatisticalResultDTO.PHENOTYPING_CENTER + "," +
 				StatisticalResultDTO.STRAIN_ACCESSION_ID + "," +
 				StatisticalResultDTO.ALLELE_ACCESSION_ID;
-		if (metaDataGroup != null && metaDataGroup.size() > 0){
+		//pivot needs to have metadata_group irrespective of if it's included in filter or not as we want seperate experiments based on the metadata
 			pivotFacet += "," + StatisticalResultDTO.METADATA_GROUP;
 
-		}
+		//}
 		query.add("facet.pivot", pivotFacet );
 
 		query.setFacetLimit(-1);
@@ -184,7 +184,9 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 	private Set<String> getParametersForChartFromPivot(PivotField pivot, String urlParams, Set<String> set){
 
 		if ( pivot != null){
+			if(pivot.getValue().toString().length()>0) {//if the value is not set don't add an empty string parameter as this will then fail with the metadata_group being set to empty string!!
 			urlParams += pivot.getField() + "=" + pivot.getValue().toString() + "&";
+			}
 			if (pivot.getPivot() != null) {
 				for (PivotField p : pivot.getPivot()) {
 					getParametersForChartFromPivot(p, urlParams, set);
