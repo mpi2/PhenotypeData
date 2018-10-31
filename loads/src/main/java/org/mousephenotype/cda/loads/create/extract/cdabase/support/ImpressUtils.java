@@ -16,13 +16,8 @@
 
 package org.mousephenotype.cda.loads.create.extract.cdabase.support;
 
-import org.mousephenotype.cda.db.pojo.Datasource;
-import org.mousephenotype.cda.db.pojo.Procedure;
-import org.mousephenotype.impress2.ImpressProcedure;
-import org.mousephenotype.impress2.ImpressSchedule;
-import org.mousephenotype.cda.db.pojo.Pipeline;
-import org.mousephenotype.cda.db.pojo.Schedule;
-import org.mousephenotype.impress2.ImpressPipeline;
+import org.mousephenotype.cda.db.pojo.*;
+import org.mousephenotype.impress2.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -34,6 +29,7 @@ import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Component
 public class ImpressUtils {
@@ -117,21 +113,12 @@ public class ImpressUtils {
 
         pipeline.setDatasource(datasource);
 
-        pipeline.setPipelineId(impressPipeline.getPipelineId());
-        pipeline.setPipelineKey(impressPipeline.getPipelineKey());
-        pipeline.setPipelineType(impressPipeline.getPipelineType());
-        pipeline.setName(impressPipeline.getName());
-        pipeline.setWeight(impressPipeline.getWeight());
-        pipeline.setIsVisible(impressPipeline.getIsVisible());
-        pipeline.setIsActive(impressPipeline.getIsActive());
-        pipeline.setIsDeprecated(impressPipeline.getIsDeprecated());
+        pipeline.setStableKey(impressPipeline.getPipelineId());
+        pipeline.setStableId(impressPipeline.getPipelineKey());
         pipeline.setMajorVersion(impressPipeline.getMajorVersion());
         pipeline.setMinorVersion(impressPipeline.getMinorVersion());
         pipeline.setDescription(impressPipeline.getDescription());
-        pipeline.setIsInternal(impressPipeline.getIsInternal());
-        pipeline.setIsDeleted(impressPipeline.getIsDeleted());
-        pipeline.setCentreName(impressPipeline.getCentreName());
-        pipeline.setImpc(impressPipeline.getImpc());
+        pipeline.setName(impressPipeline.getName());
         pipeline.setScheduleCollection(impressPipeline.getScheduleCollection());
 
         return pipeline;
@@ -185,6 +172,7 @@ public class ImpressUtils {
         schedule.setTime(impressSchedule.getTime());
         schedule.setTimeLabel(impressSchedule.getTimeLabel());
         schedule.setTimeUnit(impressSchedule.getTimeUnit());
+        schedule.setProcedureCollection(impressSchedule.getProcedureCollection());
 
         return schedule;
     }
@@ -215,25 +203,16 @@ public class ImpressUtils {
 
             impressProcedure.setProcedureId((Integer) procedureMap.get("procedureId"));
             impressProcedure.setProcedureKey((String) procedureMap.get("procedureKey"));
-//            impressProcedure.setMinFemales(((Integer) procedureMap.get("minFemales")).shortValue());
-//            impressProcedure.setMinMales(((Integer) procedureMap.get("minMales")).shortValue());
 
             o = procedureMap.get("minFemales");
-            if (o == null) { logger.info("procedureId {}: minFemales is null. Setting to 0.", procedureId); }
-            short s = (o == null ? 0 : ((Integer) o).shortValue());
-            impressProcedure.setMinFemales(s);
+            impressProcedure.setMinFemales(o == null ? null : ((Integer) o).shortValue());
 
             o = procedureMap.get("minMales");
-            if (o == null) { logger.info("procedureId {}: minMales is null. Setting to 0.", procedureId); }
-            s = (o == null ? 0 : ((Integer) o).shortValue());
-            impressProcedure.setMinMales(s);
+            impressProcedure.setMinMales(o == null ? null : ((Integer) o).shortValue());
 
             o = procedureMap.get("minAnimals");
-            if (o == null) { logger.info("procedureId {}: minAnimals is null. Setting to 0.", procedureId); }
-            s = (o == null ? 0 : ((Integer) o).shortValue());
-            impressProcedure.setMinAnimals(s);
+            impressProcedure.setMinAnimals(o == null ? null : ((Integer) o).shortValue());
 
-//            impressProcedure.setMinAnimals(((Integer) procedureMap.get("minAnimals")).shortValue());
             impressProcedure.setIsVisible((Boolean) procedureMap.get("isVisible"));
             impressProcedure.setIsMandatory((Boolean) procedureMap.get("isMandatory"));
             impressProcedure.setIsInternal((Boolean) procedureMap.get("isInternal"));
@@ -245,7 +224,9 @@ public class ImpressUtils {
             impressProcedure.setDescription((String) procedureMap.get("description"));
             impressProcedure.setOldProcedureKey((String) procedureMap.get("oldProcedureKey"));
             impressProcedure.setParameterCollection((List<Integer>) procedureMap.get("parameterCollection"));
+
         } catch (Exception e) {
+
             return null;
         }
 
@@ -262,23 +243,144 @@ public class ImpressUtils {
 
         procedure.setDatasource(datasource);
 
-        procedure.setProcedureId(impressProcedure.getProcedureId());
-        procedure.setProcedureKey(impressProcedure.getProcedureKey());
-        procedure.setMinFemales(impressProcedure.getMinFemales());
-        procedure.setMinMales(impressProcedure.getMinMales());
-        procedure.setMinAnimals(impressProcedure.getMinAnimals());
-        procedure.setIsVisible(impressProcedure.getIsVisible());
-        procedure.setIsMandatory(impressProcedure.getIsMandatory());
-        procedure.setIsInternal(impressProcedure.getIsInternal());
-        procedure.setName(impressProcedure.getName());
-        procedure.setType(impressProcedure.getType());
-        procedure.setLevel(impressProcedure.getLevel());
+        procedure.setStableKey(impressProcedure.getProcedureId());
+        procedure.setStableId(impressProcedure.getProcedureKey());
         procedure.setMajorVersion(impressProcedure.getMajorVersion());
         procedure.setMinorVersion(impressProcedure.getMinorVersion());
         procedure.setDescription(impressProcedure.getDescription());
-        procedure.setOldProcedureKey(impressProcedure.getOldProcedureKey());
+        procedure.setName(impressProcedure.getName());
+        procedure.setLevel(impressProcedure.getLevel());
         procedure.setParameterCollection(impressProcedure.getParameterCollection());
 
         return procedure;
+    }
+
+
+    // PARAMETER
+
+
+    public Parameter getParameter(int parameterId, Datasource datasource, Map<Integer, String> unitsById) {
+
+        ImpressParameter impressParameter = getImpressParameter(parameterId);
+
+        return toParameter(impressParameter, datasource, unitsById);
+    }
+
+    public ImpressParameter getImpressParameter(int parameterId) {
+
+        ImpressParameter impressParameter = new ImpressParameter();
+        String url = impressServiceUrl + "/parameter/" + parameterId;
+
+        try {
+
+            RestTemplate rt   = new RestTemplate();
+            Object       o    = rt.getForEntity(url, Object.class);
+            Object       body = ((ResponseEntity) o).getBody();
+
+            HashMap<String, Object> parameterMap = (HashMap<String, Object>) body;
+
+            impressParameter.setParameterId((Integer) parameterMap.get("parameterId"));
+            impressParameter.setParameterKey((String) parameterMap.get("parameterKey"));
+            impressParameter.setType((String) parameterMap.get("type"));
+            impressParameter.setName((String) parameterMap.get("name"));
+            impressParameter.setIsVisible((Boolean) parameterMap.get("isVisible"));
+            impressParameter.setIsActive((Boolean) parameterMap.get("isActive"));
+            impressParameter.setIsDeprecated((Boolean) parameterMap.get("isDeprecated"));
+            impressParameter.setMajorVersion((Integer) parameterMap.get("majorVersion"));
+            impressParameter.setMinorVersion((Integer) parameterMap.get("minorVersion"));
+            impressParameter.setDerivation((String) parameterMap.get("derivation"));
+            impressParameter.setDescription((String) parameterMap.get("description"));
+            impressParameter.setIsAnnotation((Boolean) parameterMap.get("isAnnotation"));
+            impressParameter.setIsDerived((Boolean) parameterMap.get("isDerived"));
+            impressParameter.setIsImportant((Boolean) parameterMap.get("isImportant"));
+            impressParameter.setIsIncrement((Boolean) parameterMap.get("isIncrement"));
+            impressParameter.setIsMedia((Boolean) parameterMap.get("isMedia"));
+            impressParameter.setIsOption((Boolean) parameterMap.get("isOption"));
+            impressParameter.setIsRequired((Boolean) parameterMap.get("isRequired"));
+            impressParameter.setQcCheck((Boolean) parameterMap.get("qcCheck"));
+            impressParameter.setQcMin((Float) parameterMap.get("qcMin"));
+            impressParameter.setQcMax((Float) parameterMap.get("qcMax"));
+            impressParameter.setQcNotes((String) parameterMap.get("qcNotes"));
+            impressParameter.setValueType((String) parameterMap.get("valueType"));
+            impressParameter.setGraphType((String) parameterMap.get("graphType"));
+            impressParameter.setDataAnalysisNotes((String) parameterMap.get("dataAnalysisNotes"));
+            impressParameter.setIsInternal((Boolean) parameterMap.get("isInternal"));
+            impressParameter.setIsDeleted((Boolean) parameterMap.get("isDeleted"));
+            impressParameter.setOldParameterKey((String) parameterMap.get("oldParameterKey"));
+            impressParameter.setOriginalParamId((Integer) parameterMap.get("originalParamId"));
+            impressParameter.setOntologyGroupId((Integer) parameterMap.get("ontologyGroupId"));
+            impressParameter.setWeight((Integer) parameterMap.get("weight"));
+            impressParameter.setProcedureId((Integer) parameterMap.get("procedureId"));
+
+            Integer unitId = (Integer) parameterMap.get("unit");
+            ImpressUnits impressUnits = null;
+            if (unitId != null) {
+                impressUnits = new ImpressUnits();
+                impressUnits.setId(unitId);
+            }
+            impressParameter.setUnit(impressUnits);
+
+            impressParameter.setIncrementCollection((List<Integer>) parameterMap.get("incrementCollection"));
+            impressParameter.setOptionCollection((List<Integer>) parameterMap.get("optionCollection"));
+            impressParameter.setMptermCollection((List<Integer>) parameterMap.get("mptermCollection"));
+
+        } catch (Exception e) {
+
+            return null;
+        }
+
+        return impressParameter;
+    }
+
+    public Parameter toParameter(ImpressParameter impressParameter, Datasource datasource, Map<Integer, String> unitsById) {
+
+        if (impressParameter == null) {
+            return null;
+        }
+
+        Parameter parameter = new Parameter();
+
+        parameter.setDatasource(datasource);
+
+        parameter.setStableKey(impressParameter.getParameterId());
+        parameter.setStableId(impressParameter.getParameterKey());
+        parameter.setType(impressParameter.getType());
+        parameter.setName(impressParameter.getName());
+        parameter.setMajorVersion(impressParameter.getMajorVersion());
+        parameter.setMinorVersion(impressParameter.getMinorVersion());
+        parameter.setDescription(impressParameter.getDescription());
+        parameter.setAnnotateFlag(impressParameter.getIsAnnotation());
+        parameter.setDerivedFlag(impressParameter.getIsDerived());
+        parameter.setImportantFlag(impressParameter.getIsImportant());
+        parameter.setIncrementFlag(impressParameter.getIsIncrement());
+        parameter.setMediaFlag(impressParameter.getIsMedia());
+        parameter.setOptionsFlag(impressParameter.getIsOption());
+        parameter.setRequiredFlag(impressParameter.getIsRequired());
+        parameter.setDatatype(impressParameter.getValueType());
+        parameter.setDataAnalysisNotes(impressParameter.getDataAnalysisNotes());
+
+        ImpressUnits unit = impressParameter.getUnit();
+        parameter.setUnit(unit == null ? null : unitsById.get(unit.getId()));
+
+        return parameter;
+    }
+
+
+    public Map<Integer, String> getUnits() {
+
+        Map<Integer, String> units = new HashMap<>();
+
+        String url = impressServiceUrl + "/unit/list";
+
+        RestTemplate rt   = new RestTemplate();
+        Object       o    = rt.getForEntity(url, Object.class);
+        Object       body = ((ResponseEntity) o).getBody();
+
+        HashMap<String, String> unitsMap = (HashMap<String, String>) body;
+        for (Map.Entry<String, String> entry : unitsMap.entrySet()) {
+            units.put(Integer.parseInt(entry.getKey()), entry.getValue());
+        }
+
+        return units;
     }
 }

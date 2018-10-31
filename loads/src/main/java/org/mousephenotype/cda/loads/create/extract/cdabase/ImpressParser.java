@@ -82,7 +82,7 @@ public class ImpressParser implements CommandLineRunner {
     private Set<String>        normalCategory = new HashSet<>();
     private Set<String>        omitPipelines  = new HashSet<>();
 
-    private Map<String, Parameter>    parametersByStableIdMap = new HashMap<>();                                        // This is the map of parameters indexed by parameter stableId
+//    private Map<String, Parameter>    parametersByStableIdMap = new HashMap<>();                                        // This is the map of parameters indexed by parameter stableId
 //    private Map<String, Procedure>    proceduresByStableIdMap = new HashMap<>();                                        // This is the map of procedures indexed by procedure stableId
     private Map<String, OntologyTerm> updatedOntologyTerms;                                                             // This is the map of all ontology terms, updated, indexed by ontology accession id
 
@@ -104,6 +104,7 @@ public class ImpressParser implements CommandLineRunner {
     private Map<Integer, Schedule> schedulesById = new HashMap<>();
     private Map<Integer, Procedure> proceduresById = new HashMap<>();
     private Map<Integer, Parameter> parametersById = new HashMap<>();
+    private Map<Integer, String> unitsById = new HashMap<>();
 
 
 
@@ -170,6 +171,9 @@ public class ImpressParser implements CommandLineRunner {
 
         initialise(args);
 
+        // LOAD UNITS
+        unitsById = impressUtils.getUnits();
+
 
         // LOAD PIPELINES
         List<Pipeline> pipelines = impressUtils.getPipelines(datasource);
@@ -178,14 +182,14 @@ public class ImpressParser implements CommandLineRunner {
 
             // Skip any pipelines starting with the -o/--omitPipelines flag value(s) (multiple -o flags permitted)
             if (shouldSkip(pipeline)) {
-                logger.info("Skipping omitted pipelineId {} ({})", pipeline.getPipelineId(), pipeline.getPipelineKey());
+                logger.info("Skipping omitted pipelineId {} ({})", pipeline.getStableKey(), pipeline.getStableId());
                 continue;
             }
 
-            logger.info("INSERTing pipelineId {} ({})", pipeline.getPipelineId(), pipeline.getPipelineKey());
+            logger.info("INSERTing pipelineId {} ({})", pipeline.getStableKey(), pipeline.getStableId());
 
             if (cdabaseSqlUtils.insertPhenotypePipeline(pipeline) == null) {
-                logger.warn("INSERT OF pipeline {} ({}) FAILED. PIPELINE SKIPPED..." + pipeline.getPipelineId(), pipeline.getPipelineKey());
+                logger.warn("INSERT OF pipeline {} ({}) FAILED. PIPELINE SKIPPED...", pipeline.getStableKey(), pipeline.getStableId());
                 continue;
             }
 
@@ -218,6 +222,11 @@ public class ImpressParser implements CommandLineRunner {
                         proceduresById.put(scheduleId, procedure);
 
                         logger.info("Loading procedureId {}", procedureId);
+
+                        if (cdabaseSqlUtils.insertPhenotypeProcedure(pipeline.getId(), procedure) == null) {
+                            logger.warn("INSERT OF procedureId {} ({}) FAILED. PROCEDURE SKIPPED...", procedure.getStableKey(), procedure.getStableId());
+                            continue;
+                        }
                     }
 
 
@@ -226,7 +235,23 @@ public class ImpressParser implements CommandLineRunner {
 
                         Parameter parameter = parametersById.get(parameterId);
 
+                        if (parameter == null) {
 
+                            parameter = impressUtils.getParameter(parameterId, datasource, unitsById);
+                            if (parameter == null) {
+                                logger.warn("Unable to get parameterId {}. Skipping...", parameterId);
+                                continue;
+                            }
+                            parametersById.put(scheduleId, parameter);
+
+                            logger.debug("INSERTing parameterId {} ({})", parameter.getStableKey(), parameter.getStableId());
+
+                            parameter = insertParameter(parameter, procedure, pipeline.getStableId());
+                            if (parameter == null) {
+                                logger.warn("INSERT OF parameterId {} ({}) FAILED. PARAMETER SKIPPED...", parameter.getStableKey(), parameter.getStableId());
+                                continue;
+                            }
+                        }
                     }
 
 
@@ -281,31 +306,31 @@ public class ImpressParser implements CommandLineRunner {
 //                        }
 
                     // LOAD PARAMETERS
-                    NodeList parameterNodesMap = ((Element) parametersClient.getParameters(procedure.getProcedureKey()).getGetParametersResult()).getChildNodes();
-                    for (int i = 0; i < parameterNodesMap.getLength(); i++) {
-                        NodeList  parameterNodes = parameterNodesMap.item(i).getChildNodes();
-                        Parameter parameter      = getParameter(parameterNodes, procedure);
-
-                        logger.debug("    Loading parameter: {}", parameter.getStableId());
-
-                        if (!parametersByStableIdMap.containsKey(parameter.getStableId())) {
-                            try {
-                                parameter = insertParameter(parameter, procedure, pipeline.getStableId());
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                                logger.error("INSERT OF pipeline::procedure::parameter {}::{}::{} FAILED", pipeline.getStableId(), procedure.getProcedureId(), parameter.getStableId());
-                                System.exit(1);
-                            }
-                            if (parameter == null) {
-                                continue;                                                                               // If the INSERT failed, continue on to the next parameter
-                            }
-                            parametersByStableIdMap.put(parameter.getStableId(), parameter);
-                        }
-
-                        cdabaseSqlUtils.insertPhenotypeProcedureParameter(procedure.getId(), parameter.getId());        // INSERT into the phenotype_procedure_parameter lookup table
-                    }
-
-                    cdabaseSqlUtils.insertPhenotypePipelineProcedure(pipeline.getPipelineId(), procedure.getId());                  // INSERT into the phenotype_pipeline_procedure lookup table
+//                    NodeList parameterNodesMap = ((Element) parametersClient.getParameters(procedure.getProcedureKey()).getGetParametersResult()).getChildNodes();
+//                    for (int i = 0; i < parameterNodesMap.getLength(); i++) {
+//                        NodeList  parameterNodes = parameterNodesMap.item(i).getChildNodes();
+//                        Parameter parameter      = getParameter(parameterNodes, procedure);
+//
+//                        logger.debug("    Loading parameter: {}", parameter.getStableId());
+//
+//                        if (!parametersByStableIdMap.containsKey(parameter.getStableId())) {
+//                            try {
+//                                parameter = insertParameter(parameter, procedure, pipeline.getStableId());
+//                            } catch (Exception e) {
+//                                e.printStackTrace();
+//                                logger.error("INSERT OF pipeline::procedure::parameter {}::{}::{} FAILED", pipeline.getStableId(), procedure.getProcedureId(), parameter.getStableId());
+//                                System.exit(1);
+//                            }
+//                            if (parameter == null) {
+//                                continue;                                                                               // If the INSERT failed, continue on to the next parameter
+//                            }
+//                            parametersByStableIdMap.put(parameter.getStableId(), parameter);
+//                        }
+//
+//                        cdabaseSqlUtils.insertPhenotypeProcedureParameter(procedure.getId(), parameter.getId());        // INSERT into the phenotype_procedure_parameter lookup table
+//                    }
+//
+//                    cdabaseSqlUtils.insertPhenotypePipelineProcedure(pipeline.getPipelineId(), procedure.getId());                  // INSERT into the phenotype_pipeline_procedure lookup table
                 }
             }
         }
@@ -491,52 +516,52 @@ public class ImpressParser implements CommandLineRunner {
         return parameterOptions;
     }
 
-    private Parameter getParameter(NodeList parameterNodes, Procedure procedure) {
-
-        Parameter parameter;
-        Map<String, String> map = new HashMap<>();
-
-        // Parse out the keys and values for this parameter
-        for (int j = 0; j < parameterNodes.getLength(); j++) {
-            NodeList m = parameterNodes.item(j).getChildNodes();
-            map.put(m.item(0).getTextContent(), m.item(1).getTextContent());
-        }
-
-        String parameterStableId = map.get("parameter_key");
-
-        parameter = parametersByStableIdMap.get(parameterStableId);
-        if (parameter == null) {
-            parameter = new Parameter();
-            parameter.setStableId(map.get("parameter_key"));
-            parameter.setStableKey(Integer.parseInt(map.get("parameter_id")));
-            parameter.setDatasource(datasource);
-            parameter.setName(map.get("parameter_name"));
-            parameter.setDescription(map.get("description"));
-            parameter.setMajorVersion(Integer.parseInt(map.get("major_version")));
-            parameter.setMinorVersion(Integer.parseInt(map.get("minor_version")));
-            parameter.setType(map.get("type"));
-            parameter.setRequiredFlag(Boolean.parseBoolean(map.get("is_required")));
-            parameter.setRequiredForDataAnalysisFlag(Boolean.parseBoolean(map.get("is_required_for_data_analysis")));
-            parameter.setDataAnalysisNotes(map.get("data_analysis_notes"));
-            parameter.setOptionsFlag(Boolean.parseBoolean(map.get("is_option")));
-            parameter.setMetaDataFlag(map.get("type").equals("procedureMetadata"));
-            parameter.setMediaFlag(Boolean.parseBoolean(map.get("is_media")));
-            parameter.setIncrementFlag(Boolean.parseBoolean(map.get("is_increment")));
-            parameter.setDerivedFlag(Boolean.parseBoolean(map.get("is_derived")));
-            parameter.setAnnotateFlag(Boolean.parseBoolean(map.get("is_annotation")));
-            if (parameter.getDerivedFlag()) {
-                parameter.setFormula(map.get("derivation"));
-            }
-
-            parameter.setUnit(map.get("unit"));
-
-            parameter.setDatatype(map.get("value_type"));
-        }
-
-        procedure.addParameter(parameter);
-
-        return parameter;
-    }
+//    private Parameter getParameter(NodeList parameterNodes, Procedure procedure) {
+//
+//        Parameter parameter;
+//        Map<String, String> map = new HashMap<>();
+//
+//        // Parse out the keys and values for this parameter
+//        for (int j = 0; j < parameterNodes.getLength(); j++) {
+//            NodeList m = parameterNodes.item(j).getChildNodes();
+//            map.put(m.item(0).getTextContent(), m.item(1).getTextContent());
+//        }
+//
+//        String parameterStableId = map.get("parameter_key");
+//
+//        parameter = parametersByStableIdMap.get(parameterStableId);
+//        if (parameter == null) {
+//            parameter = new Parameter();
+//            parameter.setStableId(map.get("parameter_key"));
+//            parameter.setStableKey(Integer.parseInt(map.get("parameter_id")));
+//            parameter.setDatasource(datasource);
+//            parameter.setName(map.get("parameter_name"));
+//            parameter.setDescription(map.get("description"));
+//            parameter.setMajorVersion(Integer.parseInt(map.get("major_version")));
+//            parameter.setMinorVersion(Integer.parseInt(map.get("minor_version")));
+//            parameter.setType(map.get("type"));
+//            parameter.setRequiredFlag(Boolean.parseBoolean(map.get("is_required")));
+//            parameter.setRequiredForDataAnalysisFlag(Boolean.parseBoolean(map.get("is_required_for_data_analysis")));
+//            parameter.setDataAnalysisNotes(map.get("data_analysis_notes"));
+//            parameter.setOptionsFlag(Boolean.parseBoolean(map.get("is_option")));
+//            parameter.setMetaDataFlag(map.get("type").equals("procedureMetadata"));
+//            parameter.setMediaFlag(Boolean.parseBoolean(map.get("is_media")));
+//            parameter.setIncrementFlag(Boolean.parseBoolean(map.get("is_increment")));
+//            parameter.setDerivedFlag(Boolean.parseBoolean(map.get("is_derived")));
+//            parameter.setAnnotateFlag(Boolean.parseBoolean(map.get("is_annotation")));
+//            if (parameter.getDerivedFlag()) {
+//                parameter.setFormula(map.get("derivation"));
+//            }
+//
+//            parameter.setUnit(map.get("unit"));
+//
+//            parameter.setDatatype(map.get("value_type"));
+//        }
+//
+//        procedure.addParameter(parameter);
+//
+//        return parameter;
+//    }
 
     private List<ParameterOntologyAnnotationWithSex> getPhenotypeParameterOntologyAssociations(String pipelineKey, String procedureKey, Parameter parameter) {
 
