@@ -1,0 +1,10 @@
+Marker Symbol	MGI Accession ID	Colony Name	Es Cell Name	Colony Background Strain	Production Centre	Production Consortium	Phenotyping Centre	Phenotyping Consortium	Cohort Production Centre	Allele Symbol	Report Phenotype data To Public	Selected For Late Adult Pipeline	Report Late Adult Phenotype data To Public
+Dcakd	MGI:1915337	DCADB	HEPD0832_6_F03	C57BL/6N	BCM	BaSH	BCM	BaSH	BCM	Dcakd<tm1b(EUCOMM)Hmgu>	t
+Dctd	MGI:2444529	Dctd_cas9_del134-1		C57BL/6N	MARC	MARC	MARC	MARC	MARC	Dctd<em1(IMPC)Marc>	t
+Dctpp1	MGI:1913672	Dctpp1_cas9_del31		C57BL/6N	MARC	MARC	MARC	MARC	MARC	Dctpp1<em1(IMPC)Marc>	f
+Ddc	MGI:94876	Ddc_HMGU_Crispr1_AABD-1		C57BL/6NCrl	HMGU	Helmholtz GMC	HMGU	Helmholtz GMC	HMGU		t
+Ints6l	MGI:2442593	Ddx26b_cas9_del41		C57BL/6N	MARC	MARC	MARC	MARC	MARC	Ints6l<em1(IMPC)Marc>	f
+Ddx39	MGI:1915528	DDXVB	EPD0756_2_B07	C57BL/6N	BCM	BaSH	BCM	BaSH	BCM	Ddx39<tm1b(KOMP)Wtsi>	t
+Mapk13	MGI:1346864	HMGU-MapK13-Crispr-1_AAAL-1		C57BL/6NCrl	HMGU	Helmholtz GMC	HMGU	Helmholtz GMC	HMGU	Mapk13<em1(IMPC)Hmgu>	t
+Mettl5	MGI:1922672	HMGU-Mettl5-Crispr1-AAAQ-1		C57BL/6NCrl	HMGU	Helmholtz GMC	HMGU	Helmholtz GMC	HMGU		t
+Cpeb4	MGI:1914829	HMGU-Monterotondo-EPD0060_4_E10-1-1	EPD0060_4_E10	C57BL/6NCrl	HMGU	Helmholtz GMC	HMGU	Helmholtz GMC	HMGU	Cpeb4<tm1b(EUCOMM)Wtsi>	t

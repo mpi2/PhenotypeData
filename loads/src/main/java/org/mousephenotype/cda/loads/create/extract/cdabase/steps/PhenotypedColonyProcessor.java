@@ -16,6 +16,7 @@
 
 package org.mousephenotype.cda.loads.create.extract.cdabase.steps;
 
+import com.mysql.jdbc.StringUtils;
 import org.mousephenotype.cda.db.pojo.*;
 import org.mousephenotype.cda.enumerations.DbIdType;
 import org.mousephenotype.cda.loads.common.CdaSqlUtils;
@@ -136,6 +137,15 @@ public class PhenotypedColonyProcessor implements ItemProcessor<PhenotypedColony
             }
         }
         newPhenotypedColony.setGene(gene);
+
+        //
+        // Every colony should have an allele symbol rovided by iMits
+        // Validate that the allele symbol is not null or empty string
+        //
+        if ( StringUtils.isNullOrEmpty(newPhenotypedColony.getAlleleSymbol()) ) {
+            logger.warn("Allele symbol is null or empty for colony {}. Skipping record", newPhenotypedColony.getColonyName());
+            return null;
+        }
 
         String mappedProject = loadUtils.translateTerm(newPhenotypedColony.getProductionConsortium().getName());
         Project productionConsortium = projects.get(mappedProject);
