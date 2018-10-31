@@ -628,6 +628,22 @@ public class SqlUtils {
         return genes;
     }
 
+    public GeneSent getGeneSent(String emailAddress, String mgiAccessionId) {
+        GeneSent geneSent = null;
+        final String query = "SELECT * FROM gene_sent WHERE address = :address AND mgi_accession_id = :mgiAccessionId";
+
+        Map<String, Object> parameterMap = new HashMap<>();
+        parameterMap.put("address", emailAddress);
+        parameterMap.put("mgiAccessionId", mgiAccessionId);
+
+        List<GeneSent> geneSentList = jdbcInterest.query(query, parameterMap, new GeneSentRowMapper());
+        if ( ! geneSentList.isEmpty()) {
+            geneSent = geneSentList.get(0);
+        }
+
+        return geneSent;
+    }
+
     /**
      * Return a map of {@link GeneSent} statuses, indexed by mgi_accession_id, matching the given {@code address}
      * @param emailAddress the contact e-mail address
@@ -651,7 +667,10 @@ public class SqlUtils {
                 "  gs.assignment_status,\n" +
                 "  gs.null_allele_production_status,\n" +
                 "  gs.conditional_allele_production_status,\n" +
-                "  gs.phenotyping_status\n" +
+                "  gs.phenotyping_status,\n" +
+                "  gs.created_at,\n" +
+                "  gs.sent_at,\n" +
+                "  gs.updated_at\n" +
                 "FROM contact c\n" +
                 "JOIN contact_gene cg ON cg.contact_pk = c.pk\n" +
                 "JOIN gene g ON g.pk = cg.gene_pk\n" +
@@ -673,6 +692,9 @@ public class SqlUtils {
             geneSent.setConditionalAlleleProductionStatus((String) result.get("conditional_allele_production_status"));
             geneSent.setNullAlleleProductionStatus((String) result.get("null_allele_production_status"));
             geneSent.setPhenotypingStatus((String) result.get("phenotyping_status"));
+            geneSent.setCreatedAt((Date) result.get("created_at"));
+            geneSent.setSentAt((Date) result.get("sent_at"));
+            geneSent.setUpdatedAt((Date) result.get("updated_at"));
             results.put(geneSent.getMgiAccessionId(), geneSent);
         }
 
@@ -791,6 +813,7 @@ public class SqlUtils {
      * @throws InterestException if either {@code emailAddress} or {@code geneAccessionId} doesn't exist, or if contact
      *                           is already registered for this gene.
      */
+    @Transactional
     public void registerGene(String emailAddress, String geneAccessionId) throws InterestException {
 
         String message;
@@ -821,11 +844,12 @@ public class SqlUtils {
         try {
 
             jdbcInterest.update(insert, parameterMap);
+            updateGeneSent(emailAddress, gene);
 
         } catch (DuplicateKeyException e) {
 
             message = "Contact " + emailAddress + " is already registered for gene " + geneAccessionId + ".";
-            throw new InterestException(message, InterestStatus.EXISTS);
+            logger.warn(message);
         }
     }
 
@@ -931,6 +955,51 @@ public class SqlUtils {
             parameterMap.put("sentAt", now);
 
             jdbcInterest.update(insert, parameterMap);
+        }
+    }
+
+    /**
+     * Updates the gene_sent table for this contact emailAddress and gene. If a row already exists for this contact
+     * and gene, the row is updated.
+     */
+    @Transactional
+    public void updateGeneSent(String emailAddress, Gene gene) {
+
+        final String insert =
+                "INSERT INTO gene_sent (address, mgi_accession_id, assignment_status, conditional_allele_production_status, null_allele_production_status, phenotyping_status, created_at, sent_at) " +
+                "VALUES (:address, :mgiAccessionId, :assignmentStatus, :conditionalAlleleProductionStatus, :nullAlleleProductionStatus, :phenotypingStatus, :createdAt, :sentAt)";
+
+        final String update =
+                "UPDATE gene_sent SET" +
+                        " assignmentstatus = :assignmentStatus," +
+                        " conditional_allele_production_status = :conditionalAlleleProductionStatus," +
+                        " null_allele_production_status = :nullAlleleProductionStatus," +
+                        " phenotyping_status = :phenotypingStatus," +
+                        " sent_at = :sentAt" +
+                " WHERE pk = :pk";
+
+        Date now = new Date();
+
+        Map<String, Object> parameterMap = new HashMap<>();
+
+        parameterMap.put("address", emailAddress);
+        parameterMap.put("mgiAccessionId", gene.getMgiAccessionId());
+        parameterMap.put("assignmentStatus", gene.getRiAssignmentStatus());
+        parameterMap.put("conditionalAlleleProductionStatus", gene.getRiConditionalAlleleProductionStatus());
+        parameterMap.put("nullAlleleProductionStatus", gene.getRiNullAlleleProductionStatus());
+        parameterMap.put("phenotypingStatus", gene.getRiPhenotypingStatus());
+        parameterMap.put("createdAt", now);
+        parameterMap.put("sentAt", now);
+
+        GeneSent geneSent = getGeneSent(emailAddress, gene.getMgiAccessionId());
+        if (geneSent == null) {
+
+            jdbcInterest.update(insert, parameterMap);
+
+        } else {
+
+            parameterMap.put("pk", geneSent.getPk());
+            jdbcInterest.update(update, parameterMap);
         }
     }
 

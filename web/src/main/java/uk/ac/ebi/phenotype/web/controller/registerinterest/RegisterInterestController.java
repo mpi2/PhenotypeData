@@ -539,16 +539,23 @@ public class RegisterInterestController {
 
     @Secured("ROLE_USER")
     @RequestMapping(value = "/accountDeleteRequest", method = RequestMethod.POST)
-    public String accountDeleteRequest(ModelMap model) {
+    public String accountDeleteRequestPost(ModelMap model) {
         model.addAttribute("emailAddress", SecurityUtils.getPrincipal());
 
         return "ri_deleteAccountConfirmationPage";
     }
 
+    // Create a GET to avoid HttpError 405 when reloading the page via the BACK button.
+    @RequestMapping(value = "/accountDeleteRequest", method = RequestMethod.GET)
+    public String accountDeleteRequest() {
+
+        return "redirect:" + paBaseUrl + "/search/gene?kw=*";
+    }
+
 
     @Secured("ROLE_USER")
     @RequestMapping(value = "/accountDeleteConfirmation", method = RequestMethod.POST)
-    public String accountDeleteConfirmation(
+    public String accountDeleteConfirmationPost(
             HttpServletRequest request,
             HttpServletResponse response,
             ModelMap model
@@ -575,8 +582,16 @@ public class RegisterInterestController {
         model.addAttribute("showLoginLink", true);
         model.addAttribute("status", "Your account has been deleted.");
 
-        return "loginPage";
+        return "redirect:" + paBaseUrl + "/search/gene?kw=*";
     }
+
+    // Create a GET to avoid HttpError 405 when reloading the page via the BACK button.
+    @RequestMapping(value = "/accountDeleteConfirmation", method = RequestMethod.GET)
+    public String accountDeleteConfirmation() {
+
+        return "redirect:" + paBaseUrl + "/search/gene?kw=*";
+    }
+
 
 
     // PRIVATE METHODS
