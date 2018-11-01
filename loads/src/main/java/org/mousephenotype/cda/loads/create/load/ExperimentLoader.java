@@ -876,7 +876,7 @@ public class ExperimentLoader implements CommandLineRunner {
             if (INCLUDE_DERIVED_PARAMETERS) {
                 insertSimpleParameter(dccExperiment, simpleParameter, experimentPk, dbId, biologicalSamplePk, missing);
             } else {
-                if ( ! derivedImpressParameters.contains(simpleParameter.getParameterID()) || simpleParameter.getParameterID().equals("MGP_ANA_002_001")) {
+                if ( ! derivedImpressParameters.contains(simpleParameter.getParameterID())) {
                     insertSimpleParameter(dccExperiment, simpleParameter, experimentPk, dbId, biologicalSamplePk, missing);
                 }
             }

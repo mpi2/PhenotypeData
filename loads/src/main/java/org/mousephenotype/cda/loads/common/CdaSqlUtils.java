@@ -3201,7 +3201,9 @@ public class CdaSqlUtils {
      */
     public synchronized HashSet<String> getImpressDerivedParameters() {
 
-        String query = "SELECT stable_id FROM phenotype_parameter WHERE derived = 1";
+        String query = "SELECT distinct stable_id FROM phenotype_parameter p " +
+                "INNER JOIN observation o ON p.stable_id = o.parameter_stable_id " +
+                "WHERE derived = 1 " ;
         List<String> results = jdbcCda.queryForList(query, new HashMap(), String.class);
         return new HashSet<>(results);
     }
