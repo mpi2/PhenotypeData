@@ -962,14 +962,18 @@ public class CdaSqlUtils {
             if (gene.getXrefs() != null) {
                 for (Xref xref : gene.getXrefs()) {
                     try {
-                        Map<String, Object> parameterMap = new HashMap<>();
-                        parameterMap.put("acc", gene.getId().getAccession());
-                        parameterMap.put("db_id", gene.getId().getDatabaseId());
-                        parameterMap.put("xref_acc", xref.getXrefAccession());
-                        parameterMap.put("xref_db_id", xref.getXrefDatabaseId());
+                        for (String accession : xref.getXrefAccession().split("\\|")) {
 
-                        count = jdbcCda.update(xrefInsert, parameterMap);
-                        countsMap.put("xrefs", countsMap.get("xrefs") + count);
+                            Map<String, Object> parameterMap = new HashMap<>();
+                            parameterMap.put("acc", gene.getId().getAccession());
+                            parameterMap.put("db_id", gene.getId().getDatabaseId());
+                            parameterMap.put("xref_acc", accession);
+                            parameterMap.put("xref_db_id", xref.getXrefDatabaseId());
+
+                            count = jdbcCda.update(xrefInsert, parameterMap);
+                            countsMap.put("xrefs", countsMap.get("xrefs") + count);
+
+                        }
 
                     } catch (DuplicateKeyException dke) {
 
