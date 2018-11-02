@@ -26,10 +26,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 import javax.validation.constraints.NotNull;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Component
 public class ImpressUtils {
@@ -40,19 +37,6 @@ public class ImpressUtils {
     @Value("${impress.service.url}")
     protected String impressServiceUrl;
 
-//    public List<String> getPipelineKeys() {
-//
-//        String url = impressServiceUrl + "/pipeline/list/keys";
-//
-//        RestTemplate rt   = new RestTemplate();
-//        Object       o    = rt.getForEntity(url, Object.class);
-//        Object       body = ((ResponseEntity) o).getBody();
-//
-//        HashMap<String, String> hm           = ((HashMap<String, String>) body);
-//        List<String>            pipelineKeys = new ArrayList(hm.values());
-//
-//        return pipelineKeys;
-//    }
 
     public List<Pipeline> getPipelines(Datasource datasource) {
 
@@ -80,28 +64,36 @@ public class ImpressUtils {
         Object       body = ((ResponseEntity) o).getBody();
 
         HashMap<String, HashMap<String, Object>> pipelinesMap = (HashMap<String, HashMap<String, Object>>) body;
-        for (HashMap<String, Object> pipelineMap : pipelinesMap.values()) {
 
-            ImpressPipeline pipeline = new ImpressPipeline();
+        try {
+            for (HashMap<String, Object> pipelineMap : pipelinesMap.values()) {
 
-            pipeline.setPipelineId((Integer) pipelineMap.get("pipelineId"));
-            pipeline.setPipelineKey((String) pipelineMap.get("pipelineKey"));
-            pipeline.setPipelineType((String) pipelineMap.get("pipelineType"));
-            pipeline.setName((String) pipelineMap.get("name"));
-            pipeline.setWeight((Integer) pipelineMap.get("weight"));
-            pipeline.setIsVisible((Boolean) pipelineMap.get("isVisible"));
-            pipeline.setIsActive((Boolean) pipelineMap.get("isActive"));
-            pipeline.setIsDeprecated((Boolean) pipelineMap.get("isDeprecated"));
-            pipeline.setMajorVersion((Integer) pipelineMap.get("majorVersion"));
-            pipeline.setMinorVersion((Integer) pipelineMap.get("minorVersion"));
-            pipeline.setDescription((String) pipelineMap.get("description"));
-            pipeline.setIsInternal((Boolean) pipelineMap.get("isInternal"));
-            pipeline.setIsDeleted((Boolean) pipelineMap.get("isDeleted"));
-            pipeline.setCentreName((String) pipelineMap.get("centreName"));
-            pipeline.setImpc(((Integer) pipelineMap.get("impc")).shortValue());
-            pipeline.setScheduleCollection((List<Integer>) pipelineMap.get("scheduleCollection"));
+                ImpressPipeline pipeline = new ImpressPipeline();
 
-            pipelines.add(pipeline);
+                pipeline.setPipelineId((Integer) pipelineMap.get("pipelineId"));
+                pipeline.setPipelineKey((String) pipelineMap.get("pipelineKey"));
+                pipeline.setPipelineType((String) pipelineMap.get("pipelineType"));
+                pipeline.setName((String) pipelineMap.get("name"));
+                pipeline.setIsVisible((Boolean) pipelineMap.get("isVisible"));
+                pipeline.setIsActive((Boolean) pipelineMap.get("isActive"));
+                pipeline.setIsDeprecated((Boolean) pipelineMap.get("isDeprecated"));
+                pipeline.setMajorVersion((Integer) pipelineMap.get("majorVersion"));
+                pipeline.setMinorVersion((Integer) pipelineMap.get("minorVersion"));
+                pipeline.setDescription((String) pipelineMap.get("description"));
+                pipeline.setIsInternal((Boolean) pipelineMap.get("isInternal"));
+                pipeline.setIsDeleted((Boolean) pipelineMap.get("isDeleted"));
+                pipeline.setCentreName((String) pipelineMap.get("centreName"));
+                pipeline.setImpc(((Integer) pipelineMap.get("impc")).shortValue());
+                pipeline.setScheduleCollection((List<Integer>) pipelineMap.get("scheduleCollection"));
+
+                pipelines.add(pipeline);
+            }
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+            logger.warn(e.getLocalizedMessage());
+            return null;
         }
 
         return pipelines;
@@ -138,7 +130,7 @@ public class ImpressUtils {
     public ImpressSchedule getImpressSchedule(int scheduleId) {
 
         ImpressSchedule impressSchedule = new ImpressSchedule();
-        String url = impressServiceUrl + "/schedule/" + scheduleId;
+        String          url             = impressServiceUrl + "/schedule/" + scheduleId;
 
         RestTemplate rt   = new RestTemplate();
         Object       o    = rt.getForEntity(url, Object.class);
@@ -146,19 +138,27 @@ public class ImpressUtils {
 
         HashMap<String, Object> impressScheduleMap = (HashMap<String, Object>) body;
 
-        impressSchedule.setScheduleId((Integer) impressScheduleMap.get("scheduleId"));
-        impressSchedule.setIsActive((Boolean) impressScheduleMap.get("isActive"));
-        impressSchedule.setIsDeprecated((Boolean) impressScheduleMap.get("isDeprecated"));
-        impressSchedule.setTimeLabel((String) impressScheduleMap.get("timeLabel"));
-        impressSchedule.setTime((String) impressScheduleMap.get("time"));
-        impressSchedule.setTimeUnit((String) impressScheduleMap.get("timeUnit"));
-        impressSchedule.setStage((String) impressScheduleMap.get("stage"));
-        impressSchedule.setPipelineId((Integer) impressScheduleMap.get("pipelineId"));
-        impressSchedule.setProcedureCollection((List<Integer>) impressScheduleMap.get("procedureCollection"));
+        try {
+            impressSchedule.setScheduleId((Integer) impressScheduleMap.get("scheduleId"));
+            impressSchedule.setIsActive((Boolean) impressScheduleMap.get("isActive"));
+            impressSchedule.setIsDeprecated((Boolean) impressScheduleMap.get("isDeprecated"));
+            impressSchedule.setTimeLabel((String) impressScheduleMap.get("timeLabel"));
+            impressSchedule.setTime((String) impressScheduleMap.get("time"));
+            impressSchedule.setTimeUnit((String) impressScheduleMap.get("timeUnit"));
+            impressSchedule.setStage((String) impressScheduleMap.get("stage"));
+            impressSchedule.setPipelineId((Integer) impressScheduleMap.get("pipelineId"));
+            impressSchedule.setProcedureCollection((List<Integer>) impressScheduleMap.get("procedureCollection"));
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+            logger.warn(e.getLocalizedMessage());
+            return null;
+        }
 
         return impressSchedule;
     }
-    
+
     public Schedule toSchedule(ImpressSchedule impressSchedule, Datasource datasource) {
 
         Schedule schedule = new Schedule();
@@ -191,7 +191,7 @@ public class ImpressUtils {
     public ImpressProcedure getImpressProcedure(int procedureId) {
 
         ImpressProcedure impressProcedure = new ImpressProcedure();
-        String url = impressServiceUrl + "/procedure/" + procedureId;
+        String           url              = impressServiceUrl + "/procedure/" + procedureId;
 
         try {
 
@@ -224,9 +224,12 @@ public class ImpressUtils {
             impressProcedure.setDescription((String) procedureMap.get("description"));
             impressProcedure.setOldProcedureKey((String) procedureMap.get("oldProcedureKey"));
             impressProcedure.setParameterCollection((List<Integer>) procedureMap.get("parameterCollection"));
+            impressProcedure.setScheduleId((Integer) procedureMap.get("scheduleId"));
 
         } catch (Exception e) {
 
+            e.printStackTrace();
+            logger.warn(e.getLocalizedMessage());
             return null;
         }
 
@@ -251,6 +254,7 @@ public class ImpressUtils {
         procedure.setName(impressProcedure.getName());
         procedure.setLevel(impressProcedure.getLevel());
         procedure.setParameterCollection(impressProcedure.getParameterCollection());
+        procedure.setScheduleKey(impressProcedure.getScheduleId());
 
         return procedure;
     }
@@ -269,7 +273,7 @@ public class ImpressUtils {
     public ImpressParameter getImpressParameter(int parameterId) {
 
         ImpressParameter impressParameter = new ImpressParameter();
-        String url = impressServiceUrl + "/parameter/" + parameterId;
+        String           url              = impressServiceUrl + "/parameter/" + parameterId;
 
         try {
 
@@ -298,8 +302,13 @@ public class ImpressUtils {
             impressParameter.setIsOption((Boolean) parameterMap.get("isOption"));
             impressParameter.setIsRequired((Boolean) parameterMap.get("isRequired"));
             impressParameter.setQcCheck((Boolean) parameterMap.get("qcCheck"));
-            impressParameter.setQcMin((Float) parameterMap.get("qcMin"));
-            impressParameter.setQcMax((Float) parameterMap.get("qcMax"));
+
+            Double d = (Double) parameterMap.get("qcMin");
+            impressParameter.setQcMin(d == null ? null : d.floatValue());
+
+            d = (Double) parameterMap.get("qcMax");
+            impressParameter.setQcMax(d == null ? null : d.floatValue());
+
             impressParameter.setQcNotes((String) parameterMap.get("qcNotes"));
             impressParameter.setValueType((String) parameterMap.get("valueType"));
             impressParameter.setGraphType((String) parameterMap.get("graphType"));
@@ -312,7 +321,7 @@ public class ImpressUtils {
             impressParameter.setWeight((Integer) parameterMap.get("weight"));
             impressParameter.setProcedureId((Integer) parameterMap.get("procedureId"));
 
-            Integer unitId = (Integer) parameterMap.get("unit");
+            Integer      unitId       = (Integer) parameterMap.get("unit");
             ImpressUnits impressUnits = null;
             if (unitId != null) {
                 impressUnits = new ImpressUnits();
@@ -326,6 +335,8 @@ public class ImpressUtils {
 
         } catch (Exception e) {
 
+            e.printStackTrace();
+            logger.warn(e.getLocalizedMessage());
             return null;
         }
 
@@ -364,6 +375,200 @@ public class ImpressUtils {
 
         return parameter;
     }
+
+
+    // INCREMENT
+
+
+    public List<ParameterIncrement> getIncrements(int parameterId) {
+
+        List<ParameterIncrement> increments = new ArrayList<>();
+
+        List<ImpressIncrement> impressIncrements = getImpressIncrements(parameterId);
+
+        for (ImpressIncrement impressIncrement : impressIncrements) {
+            ParameterIncrement increment = toIncrement(impressIncrement);
+            increments.add(increment);
+        }
+
+        return increments;
+    }
+
+    public List<ImpressIncrement> getImpressIncrements(Integer parameterId) {
+
+        List<ImpressIncrement> increments = new ArrayList<>();
+
+        String url = impressServiceUrl + "/increment/belongingtoparameter/full/" + parameterId;
+
+        RestTemplate rt   = new RestTemplate();
+        Object       o    = rt.getForEntity(url, Object.class);
+        Object       body = ((ResponseEntity) o).getBody();
+
+        List<Map<String, Object>> list = (List<Map<String, Object>>) body;
+
+        try {
+            for (Map<String, Object> map : list) {
+
+                ImpressIncrement increment = new ImpressIncrement();
+
+                increment.setIncrementId((Integer) map.get("incrementId"));
+
+
+
+
+
+                try {
+                    increment.setWeight((Integer) map.get("weight"));
+                } catch (NullPointerException e) {
+                    logger.warn("weight for parameterId {} is NULL! url = {}", parameterId, url);
+                }
+
+
+
+                increment.setIsActive((Boolean) map.get("isActive"));
+
+                o = map.get("incrementString");
+                increment.setIncrementString(o == null ? "" : (String) o);
+
+                o = map.get("incrementType");
+                increment.setIncrementType(o == null ? "" : (String) o);
+
+                o = map.get("incrementUnit");
+                increment.setIncrementUnit(o == null ? "" : (String) o);
+
+                o = map.get("incrementMin");
+                increment.setIncrementMin(o == null ? null : (Integer) o);
+
+                increment.setIsDeleted((Boolean) map.get("isDeleted"));
+
+                o = map.get("originalId");
+                increment.setOriginalId(o == null ? null : (Integer) o);
+
+                increment.setParameterId((Integer) map.get("parameterId"));
+
+                increments.add(increment);
+            }
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+            logger.warn(e.getLocalizedMessage());
+            return null;
+        }
+
+        return increments;
+    }
+
+    public ParameterIncrement toIncrement(ImpressIncrement impressIncrement) {
+
+        if (impressIncrement == null) {
+            return null;
+        }
+
+        ParameterIncrement increment = new ParameterIncrement();
+
+
+        Integer i = impressIncrement.getIncrementMin();
+        increment.setMinimum(i == null ? "" : i.toString());
+
+        increment.setUnit(impressIncrement.getIncrementUnit() == null ? "" : impressIncrement.getIncrementUnit());
+
+        increment.setDataType(impressIncrement.getIncrementType() == null ? "" : impressIncrement.getIncrementType());
+
+        increment.setValue(impressIncrement.getIncrementString());
+
+        return increment;
+    }
+
+
+    // OPTION
+
+
+    public List<ParameterOption> getOptions(Parameter parameter, Set<String> normalCategory) {
+
+        List<ParameterOption> options = new ArrayList<>();
+
+        List<ImpressOption> impressOptions = getImpressOptions(parameter.getStableKey());
+
+        for (ImpressOption impressOption : impressOptions) {
+            ParameterOption option = toOption(impressOption, parameter.getStableId(), normalCategory);
+            options.add(option);
+        }
+
+        return options;
+    }
+
+    public List<ImpressOption> getImpressOptions(Integer parameterId) {
+
+        List<ImpressOption> options = new ArrayList<>();
+
+        String url = impressServiceUrl + "/option/belongingtoparameter/full/" + parameterId;
+
+        RestTemplate rt   = new RestTemplate();
+        Object       o    = rt.getForEntity(url, Object.class);
+        Object       body = ((ResponseEntity) o).getBody();
+
+        List<HashMap<String, Object>> impressOptionsList = (List<HashMap<String, Object>>) body;
+
+        try {
+
+            for (HashMap<String, Object> map : impressOptionsList) {
+
+                ImpressOption option = new ImpressOption();
+
+                option.setOptionId((Integer) map.get("optionId"));
+                option.setPhoWeight((Integer) map.get("phoweight"));
+
+                o = map.get("parentId");
+                option.setParentId(o == null ? null : (Integer) o);
+
+                o = map.get("name");
+                option.setName(o == null ? "" : (String) o);
+
+                option.setIsDefault((Boolean) map.get("isDefault"));
+                option.setIsActive((Boolean) map.get("isActive"));
+                option.setPoWeight((Integer) map.get("poweight"));
+
+                o = map.get("description");
+                option.setDescription(o == null ? "" : (String) o);
+
+                option.setIsDeleted((Boolean) map.get("isDeleted"));
+
+                option.setParameterId((Integer) map.get("parameterId"));
+
+                options.add(option);
+            }
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+            logger.warn(e.getLocalizedMessage());
+            return null;
+        }
+
+        return options;
+    }
+
+    public ParameterOption toOption(ImpressOption impressOption, String parameterStableId, Set<String> normalCategory) {
+
+        if (impressOption == null) {
+            return null;
+        }
+
+        ParameterOption option = new ParameterOption();
+
+        option.setName(impressOption.getName());
+        option.setDescription(impressOption.getDescription());
+
+        // This is the same format as the populate method, parameterStableId_NormalOption
+        String candidate = parameterStableId + "_" + option.getName();
+        option.setNormalCategory(normalCategory.contains(candidate));
+
+        return option;
+    }
+
+
+    // UNITS
 
 
     public Map<Integer, String> getUnits() {

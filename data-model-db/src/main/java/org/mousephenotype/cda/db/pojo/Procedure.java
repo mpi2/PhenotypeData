@@ -85,6 +85,9 @@ public class Procedure extends PipelineEntry implements Comparable, Serializable
     @Column(name = "level")
     private String level;
 
+    @Column(name = "schedule_key")
+    private Integer scheduleKey;
+
     public Procedure() {
         super();
     }
@@ -219,5 +222,13 @@ public class Procedure extends PipelineEntry implements Comparable, Serializable
 
     public void setParameterCollection(Collection<Integer> parameterCollection) {
         this.parameterCollection = parameterCollection;
+    }
+
+    public Integer getScheduleKey() {
+        return scheduleKey;
+    }
+
+    public void setScheduleKey(Integer scheduleKey) {
+        this.scheduleKey = scheduleKey;
     }
 }

@@ -24,11 +24,8 @@ import org.mousephenotype.cda.db.pojo.*;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.loads.common.CdaSqlUtils;
 import org.mousephenotype.cda.loads.create.extract.cdabase.support.ImpressUtils;
-import org.mousephenotype.impress.GetParameterIncrementsResponse;
 import org.mousephenotype.impress.GetParameterMPTermsResponse;
-import org.mousephenotype.impress.GetParameterOptionsResponse;
 import org.mousephenotype.impress.wsdlclients.*;
-import org.mousephenotype.impress2.ImpressPipeline;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.Banner;
@@ -88,9 +85,9 @@ public class ImpressParser implements CommandLineRunner {
 
     private final String IMPRESS_SHORT_NAME = "IMPReSS";
 
-    // SOAP web service classes
+//    // SOAP web service classes
     private ParameterMPTermsClient         parameterMPTermsClient;
-    private ParameterIncrementsClient      parameterIncrementsClient;
+//    private ParameterIncrementsClient      parameterIncrementsClient;
     private ParameterOntologyOptionsClient parameterOntologyOptionsClient;
     private ParameterOptionsClient         parameterOptionsClient;
     private ParametersClient               parametersClient;
@@ -130,7 +127,7 @@ public class ImpressParser implements CommandLineRunner {
             CdaSqlUtils cdabaseSqlUtils,
             ImpressUtils impressUtils,
             DataSource cdabaseDataSource,
-            ParameterIncrementsClient parameterIncrementsClient,
+//            ParameterIncrementsClient parameterIncrementsClient,
             ParameterMPTermsClient parameterMPTermsClient,
             ParameterOntologyOptionsClient parameterOntologyOptionsClient,
             ParameterOptionsClient parameterOptionsClient,
@@ -144,7 +141,7 @@ public class ImpressParser implements CommandLineRunner {
         this.cdabaseSqlUtils = cdabaseSqlUtils;
         this.impressUtils = impressUtils;
         this.cdabaseDataSource = cdabaseDataSource;
-        this.parameterIncrementsClient = parameterIncrementsClient;
+//        this.parameterIncrementsClient = parameterIncrementsClient;
         this.parameterMPTermsClient = parameterMPTermsClient;
         this.parameterOntologyOptionsClient = parameterOntologyOptionsClient;
         this.parameterOptionsClient = parameterOptionsClient;
@@ -219,7 +216,12 @@ public class ImpressParser implements CommandLineRunner {
                             logger.warn("Unable to get procedureId {}. Skipping...", procedureId);
                             continue;
                         }
-                        proceduresById.put(scheduleId, procedure);
+
+                        // Add SCHEDULE components to PROCEDURE
+                        procedure.setStageLabel(schedule.getTimeLabel());
+                        procedure.setStage(schedule.getStage());
+
+                        proceduresById.put(procedureId, procedure);
 
                         logger.info("Loading procedureId {}", procedureId);
 
@@ -233,6 +235,7 @@ public class ImpressParser implements CommandLineRunner {
                     // LOAD PARAMETERS
                     for (Integer parameterId : procedure.getParameterCollection()) {
 
+                        logger.info("Loading pipelineId::scheduleId::procedureId::parameterId   {}::{}::{}::{}", pipeline.getStableKey(), schedule.getScheduleId(), procedure.getStableKey(), parameterId);
                         Parameter parameter = parametersById.get(parameterId);
 
                         if (parameter == null) {
@@ -242,7 +245,7 @@ public class ImpressParser implements CommandLineRunner {
                                 logger.warn("Unable to get parameterId {}. Skipping...", parameterId);
                                 continue;
                             }
-                            parametersById.put(scheduleId, parameter);
+                            parametersById.put(parameterId, parameter);
 
                             logger.debug("INSERTing parameterId {} ({})", parameter.getStableKey(), parameter.getStableId());
 
@@ -252,7 +255,11 @@ public class ImpressParser implements CommandLineRunner {
                                 continue;
                             }
                         }
+
+                        cdabaseSqlUtils.insertPhenotypeProcedureParameter(procedure.getId(), parameter.getId());        // INSERT into the phenotype_procedure_parameter lookup table
                     }
+
+                    cdabaseSqlUtils.insertPhenotypePipelineProcedure(pipeline.getId(), procedure.getId());              // INSERT into the phenotype_pipeline_procedure lookup table
 
 
 
@@ -342,7 +349,6 @@ public class ImpressParser implements CommandLineRunner {
 
     private void initialise(String[] args) throws IOException, SQLException {
 
-
         // Parse and load command-line parameters
         OptionParser parser  = new OptionParser();
         OptionSet    options = parseOptions(parser, args);
@@ -383,16 +389,7 @@ public class ImpressParser implements CommandLineRunner {
         // Load updated ontology terms
         List<OntologyTerm> originalTerms = cdabaseSqlUtils.getOntologyTerms();
         updatedOntologyTerms = cdabaseSqlUtils.getUpdatedOntologyTermMap(originalTerms, null, null);     // We're trying to update all terms. Ignore infos and warnings, as most don't apply to IMPReSS.
-
-
-
-
-
-
-
-
     }
-
 
 
     protected OptionSet parseOptions(OptionParser parser, String[] args) {
@@ -439,82 +436,82 @@ public class ImpressParser implements CommandLineRunner {
 
 
 
-    private List<ParameterIncrement> getIncrements(String parameterKey) {
+//    private List<ParameterIncrement> getIncrements(String parameterKey) {
+//
+//        List<ParameterIncrement> parameterIncrements = new ArrayList<>();
+//
+//        List<Map<String, String>> incrementsList = new ArrayList<>();
+//
+//
+//        // Create a map of increments from the IMPReSS web service.
+//        GetParameterIncrementsResponse response              = parameterIncrementsClient.getParameterIncrements(parameterKey);
+//        NodeList                       incrementNodeList = ((Element) response.getGetParameterIncrementsResult()).getChildNodes();
+//
+//        // Parse out the keys and values for this parameter increment
+//        for (int i = 0; i < incrementNodeList.getLength(); i++) {
+//            NodeList incrementNodes = incrementNodeList.item(i).getChildNodes();
+//
+//            Map<String, String> incrementChildNodeListMap = new HashMap<>();
+//
+//            // Parse out the keys and values for this parameter
+//            for (int j = 0; j < incrementNodes.getLength(); j++) {
+//                NodeList incrementChildNodeList = incrementNodes.item(j).getChildNodes();
+//                incrementChildNodeListMap.put(incrementChildNodeList.item(0).getTextContent(), incrementChildNodeList.item(1).getTextContent());
+//            }
+//
+//            incrementsList.add(incrementChildNodeListMap);
+//        }
+//
+//        for (Map<String, String> map : incrementsList) {
+//            ParameterIncrement increment = new ParameterIncrement();
+//            increment.setDataType(map.get("type").toUpperCase());
+//            increment.setMinimum(map.get("min"));
+//            increment.setUnit(map.get("unit"));
+//            increment.setValue(map.get("string"));
+//
+//            parameterIncrements.add(increment);
+//        }
+//
+//        return parameterIncrements;
+//    }
 
-        List<ParameterIncrement> parameterIncrements = new ArrayList<>();
-
-        List<Map<String, String>> incrementsList = new ArrayList<>();
-
-
-        // Create a map of increments from the IMPReSS web service.
-        GetParameterIncrementsResponse response              = parameterIncrementsClient.getParameterIncrements(parameterKey);
-        NodeList                       incrementNodeList = ((Element) response.getGetParameterIncrementsResult()).getChildNodes();
-
-        // Parse out the keys and values for this parameter increment
-        for (int i = 0; i < incrementNodeList.getLength(); i++) {
-            NodeList incrementNodes = incrementNodeList.item(i).getChildNodes();
-
-            Map<String, String> incrementChildNodeListMap = new HashMap<>();
-
-            // Parse out the keys and values for this parameter
-            for (int j = 0; j < incrementNodes.getLength(); j++) {
-                NodeList incrementChildNodeList = incrementNodes.item(j).getChildNodes();
-                incrementChildNodeListMap.put(incrementChildNodeList.item(0).getTextContent(), incrementChildNodeList.item(1).getTextContent());
-            }
-
-            incrementsList.add(incrementChildNodeListMap);
-        }
-
-        for (Map<String, String> map : incrementsList) {
-            ParameterIncrement increment = new ParameterIncrement();
-            increment.setDataType(map.get("type").toUpperCase());
-            increment.setMinimum(map.get("min"));
-            increment.setUnit(map.get("unit"));
-            increment.setValue(map.get("string"));
-
-            parameterIncrements.add(increment);
-        }
-
-        return parameterIncrements;
-    }
-
-    private List<ParameterOption> getOptions(String parameterKey) {
-
-        List<ParameterOption> parameterOptions = new ArrayList<>();
-
-        List<Map<String, String>> optionsList = new ArrayList<>();
-
-        GetParameterOptionsResponse response = parameterOptionsClient.getParameterOptions(parameterKey);
-        NodeList optionNodeList = ((Element) response.getGetParameterOptionsResult()).getChildNodes();
-
-        for (int i = 0; i < optionNodeList.getLength(); i++) {
-            NodeList optionNodes = optionNodeList.item(i).getChildNodes();
-
-            Map<String, String> optionChildNodeListMap = new HashMap<>();
-
-            // Parse out the keys and values for this parameter
-            for (int j = 0; j < optionNodes.getLength(); j++) {
-                NodeList optionChildNodeList = optionNodes.item(j).getChildNodes();
-                optionChildNodeListMap.put(optionChildNodeList.item(0).getTextContent(), optionChildNodeList.item(1).getTextContent());
-            }
-
-            optionsList.add(optionChildNodeListMap);
-        }
-
-        for (Map<String, String> map : optionsList) {
-            ParameterOption option = new ParameterOption();
-            option.setName(map.get("name"));
-            option.setDescription(map.get("description"));
-
-            // This is the same format as the populate method, parameterStableId_NormalOption
-            String candidate = parameterKey + "_" + option.getName();
-            option.setNormalCategory(normalCategory.contains(candidate));
-
-            parameterOptions.add(option);
-        }
-
-        return parameterOptions;
-    }
+//    private List<ParameterOption> getOptions(String parameterKey) {
+//
+//        List<ParameterOption> parameterOptions = new ArrayList<>();
+//
+//        List<Map<String, String>> optionsList = new ArrayList<>();
+//
+//        GetParameterOptionsResponse response = parameterOptionsClient.getParameterOptions(parameterKey);
+//        NodeList optionNodeList = ((Element) response.getGetParameterOptionsResult()).getChildNodes();
+//
+//        for (int i = 0; i < optionNodeList.getLength(); i++) {
+//            NodeList optionNodes = optionNodeList.item(i).getChildNodes();
+//
+//            Map<String, String> optionChildNodeListMap = new HashMap<>();
+//
+//            // Parse out the keys and values for this parameter
+//            for (int j = 0; j < optionNodes.getLength(); j++) {
+//                NodeList optionChildNodeList = optionNodes.item(j).getChildNodes();
+//                optionChildNodeListMap.put(optionChildNodeList.item(0).getTextContent(), optionChildNodeList.item(1).getTextContent());
+//            }
+//
+//            optionsList.add(optionChildNodeListMap);
+//        }
+//
+//        for (Map<String, String> map : optionsList) {
+//            ParameterOption option = new ParameterOption();
+//            option.setName(map.get("name"));
+//            option.setDescription(map.get("description"));
+//
+//            // This is the same format as the populate method, parameterStableId_NormalOption
+//            String candidate = parameterKey + "_" + option.getName();
+//            option.setNormalCategory(normalCategory.contains(candidate));
+//
+//            parameterOptions.add(option);
+//        }
+//
+//        return parameterOptions;
+//    }
 
 //    private Parameter getParameter(NodeList parameterNodes, Procedure procedure) {
 //
@@ -565,11 +562,31 @@ public class ImpressParser implements CommandLineRunner {
 
     private List<ParameterOntologyAnnotationWithSex> getPhenotypeParameterOntologyAssociations(String pipelineKey, String procedureKey, Parameter parameter) {
 
-        List<ParameterOntologyAnnotationWithSex> annotations          = new ArrayList<>();
+        List<ParameterOntologyAnnotationWithSex> annotations = new ArrayList<>();
 
         // Get the map of ontology terms from the IMPReSS web service.
+
+
+
+
+
+
         List<Map<String, String>> ontologyTermsFromWs = new ArrayList<>();
-        NodeList ontologyTermMap = ((Element) parameterOntologyOptionsClient.getParameterOntologyOptions(parameter.getStableId()).getGetParameterOntologyOptionsResult()).getChildNodes();
+        NodeList ontologyTermMap;
+
+        try {
+            ontologyTermMap = ((Element) parameterOntologyOptionsClient.getParameterOntologyOptions(parameter.getStableId()).getGetParameterOntologyOptionsResult()).getChildNodes();
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.error("parameterOntologyOptionsClient() call failed. Reason: {}", e.getLocalizedMessage());
+
+
+
+            return annotations;
+
+
+
+        }
 
         for (int i = 0; i < ontologyTermMap.getLength(); i++) {
             NodeList ontologyTermNodes = ontologyTermMap.item(i).getChildNodes();
@@ -587,7 +604,7 @@ public class ImpressParser implements CommandLineRunner {
 
         /*
          * Loop through this parameter's ontology terms, creating an ontologyAnnotation for each term. Add each
-          * ontologyAnnotation to this parameter's annotations list.
+         * ontologyAnnotation to this parameter's annotations list.
          */
         for (Map<String, String> ontologyTermFromWs : ontologyTermsFromWs) {
 
@@ -752,10 +769,10 @@ public class ImpressParser implements CommandLineRunner {
 //        return pipeline;
 //    }
 
-    private Procedure getProcedure(String procedureKey, Pipeline pipeline) {
-
-        Procedure procedure
-                = null;
+//    private Procedure getProcedure(String procedureKey, Pipeline pipeline) {
+//
+//        Procedure procedure
+//                = null;
 //        Map<String, String> map = new HashMap<>();
 //
 //        NodeList procedureNodes = ((Element) procedureClient.getProcedure(procedureKey, pipeline.getStableId()).getGetProcedureResult()).getChildNodes();
@@ -787,9 +804,9 @@ public class ImpressParser implements CommandLineRunner {
 //        }
 //
 //        pipeline.addProcedure(procedure);
-
-        return procedure;
-    }
+//
+//        return procedure;
+//    }
     
     private SexType getSexType(String sex, String parameterKey) {
 
@@ -821,35 +838,38 @@ public class ImpressParser implements CommandLineRunner {
 
         // INCREMENTS
         if (parameter.isIncrementFlag()) {
-            List<ParameterIncrement> increments = getIncrements(parameter.getStableId());
+
+            List<ParameterIncrement> increments = impressUtils.getIncrements(parameter.getStableKey());
             cdabaseSqlUtils.insertPhenotypeParameterIncrements(parameter.getId(), increments);
         }
 
         // OPTIONS
         if (parameter.isOptionsFlag()) {
-            List<ParameterOption> options = getOptions(parameter.getStableId());
+
+            List<ParameterOption> options = impressUtils.getOptions(parameter, normalCategory);
             cdabaseSqlUtils.insertPhenotypeParameterOptions(parameter.getId(), options);
             parameter.setOptions(options);                                                                              // Set the list of options (with their primary keys) for use by the next step.
         }
 
         // ONTOLOGY ANNOTATIONS
-        List<ParameterOntologyAnnotationWithSex> annotations = getPhenotypeParameterOntologyAssociations(pipelineKey, procedure.getStableId(), parameter);
+        List<ParameterOntologyAnnotationWithSex> annotations =
+
+                getPhenotypeParameterOntologyAssociations(pipelineKey, procedure.getStableId(), parameter);
         cdabaseSqlUtils.insertPhenotypeParameterOntologyAnnotations(parameter.getId(), annotations);
 
         return parameter;
     }
 
 
+    private boolean shouldSkip(Pipeline pipeline) {
+        String pipelineStableId = pipeline.getStableId();
+        for (String omitPipeline : omitPipelines) {
+            if (pipelineStableId.startsWith(omitPipeline)) {
 
-        private boolean shouldSkip(Pipeline pipeline) {
-            String pipelineStableId = pipeline.getStableId();
-            for (String omitPipeline : omitPipelines) {
-                if (pipelineStableId.startsWith(omitPipeline)) {
-
-                    return true;
-                }
+                return true;
             }
-
-            return false;
         }
+
+        return false;
+    }
 }

@@ -2678,8 +2678,8 @@ public class CdaSqlUtils {
         Integer procedurePk = null;
 
         final String insertProcedure =
-                "INSERT INTO phenotype_procedure (stable_key, stable_id, db_id, name, description, major_version, minor_version, is_mandatory, level, stage, stage_label)" +
-                " VALUES (:stableKey, :stableId, :dbId, :name, :description, :majorVersion, :minorVersion, :isMandatory, :level, :stage, :stageLabel)";
+                "INSERT INTO phenotype_procedure (stable_key, stable_id, db_id, name, description, major_version, minor_version, is_mandatory, level, stage, stage_label, schedule_key)" +
+                " VALUES (:stableKey, :stableId, :dbId, :name, :description, :majorVersion, :minorVersion, :isMandatory, :level, :stage, :stageLabel, :scheduleKey)";
         final String insertPhenotypeProcedureMetaData = "INSERT INTO phenotype_procedure_meta_data() VALUES (:procedureId, :metaName, :metaValue)";
 
         KeyHolder           keyholder       = new GeneratedKeyHolder();
@@ -2696,6 +2696,7 @@ public class CdaSqlUtils {
         parameterMap.put("level", procedure.getLevel());
         parameterMap.put("stage", procedure.getStage());
         parameterMap.put("stageLabel", procedure.getStageLabel());
+        parameterMap.put("scheduleKey", procedure.getScheduleKey());
         SqlParameterSource  parameterSource = new MapSqlParameterSource(parameterMap);
 
         int count = jdbcCda.update(insertProcedure, parameterSource, keyholder);
@@ -2725,7 +2726,7 @@ public class CdaSqlUtils {
 
         parameterMap.put("procedureId", phenotypeProcedurePk);
         parameterMap.put("parameterId", phenotypeParameterPk);
-        jdbcCda.update(insertPhenotypeProcedureParameter, parameterMap);
+            jdbcCda.update(insertPhenotypeProcedureParameter, parameterMap);
     }
 
     public int insertProcedureMetadata(List<ProcedureMetadata> metadataList, String procedureId, int experimentPk, int observationPk) {

@@ -56,6 +56,7 @@ CREATE TABLE phenotype_procedure (
   level                      VARCHAR(20),
   stage                      VARCHAR(20) DEFAULT 'Adult',
   stage_label                VARCHAR(20),
+  schedule_key               INT(10) DEFAULT 0,
 
   PRIMARY KEY (id)
 
