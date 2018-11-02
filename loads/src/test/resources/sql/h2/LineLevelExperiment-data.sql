@@ -3,14 +3,30 @@
 INSERT INTO `phenotype_pipeline` VALUES
   (1,'MGP_001',6,'MGP Select Pipeline','',1,0,1,NULL);
 
+INSERT INTO phenotype_pipeline VALUES
+  (7, 'HMGU_001', 6, 'German Mouse Clinic', 'German Mouse Clinic Pipeline for IMPC Project _ Rotarod as an additional center-specific Procedure', 1, 0, 14, 0);
+
 INSERT INTO `phenotype_procedure` VALUES
-  (1,1,'IMPC_FER_001',6,'Fertility of Homozygous Knock-out Mice','',1,1,1,'line','Adult','Unrestricted');
+  (1,1,'IMPC_FER_001',6,'Fertility of Homozygous Knock-out Mice','',1,1,1,'line','Adult','Unrestricted'),
+  (14,154,'IMPC_VIA_001',6,'Viability Primary Screen','',1,0,0,'line','Adult','Unrestricted'),
+  (102,249,'MGP_ALZ_001',6,'Adult LacZ','',1,0,0,'experiment','Adult','Unrestricted');
 
 INSERT INTO genomic_feature VALUES
-  ('MGI:2152453', 3, 'Gsk3a', 'glycogen synthase kinase 3 alpha', 1, 2, 2, 2, 7, 25228258, 25237851, -1, 13.73, 'active');
+  ('MGI:2152453', 3, 'Gsk3a', 'glycogen synthase kinase 3 alpha', 1, 2, 2, 2, 7, 25228258, 25237851, -1, 13.73, 'active'),
+  ('MGI:1919912',3,'Dis3','DIS3 homolog, exosome endoribonuclease and 3''-5'' exoribonuclease',1,2,2,2,14,99075206,99099770,-1,49.25,'active');
 
 INSERT INTO allele VALUES
+  ('MGI:5548623',3,'MGI:1919912',3,'CV:000000101',3,'Dis3<tm1e.1(EUCOMM)Hmgu>','targeted mutation 1e.1, Helmholtz Zentrum Muenchen GmbH'),
   ('MGI:4434136', 3, 'MGI:2152453', 3, 'CV:000000101', 3, 'Gsk3a<tm1a(EUCOMM)Wtsi>', 'targeted mutation 1a, Wellcome Trust Sanger Institute');
+
+INSERT INTO phenotyped_colony VALUES
+  (3458,'HMGU-HEPD0659_5_E08-1-1','HEPD0659_5_E08','MGI:1919912',3,'Dis3<tm1e.1(EUCOMM)Hmgu>','C57BL/6NTac',9,15,9,15),
+  (301,'MCCU','EPD0051_1_H11','MGI:2152453',3,'Gsk3a<tm1a(EUCOMM)Wtsi>','C57BL/6Brd-Tyr<c-Brd>;C57BL/6N;C57BL/6NTac',3,8,3,8);
+
+INSERT INTO ontology_term (acc, db_id, name, is_obsolete, replacement_acc) VALUES
+  ('EFO:0002948', 15, 'postnatal',          0, null),
+  ('EFO:0005857', 15, 'mouse embryo stage', 0, null),
+  ('MA:0002405',   8, 'postnatal mouse',    0, null);
 
 
 INSERT INTO `phenotype_parameter` VALUES (506,'IMPC_FER_001_001',6,'Gross Findings Male','gross_findings',1,4,' ','TEXT','simpleParameter',NULL,1,0,0,0,1,0,1,0,0,0,'',2365);
@@ -37,15 +53,7 @@ INSERT INTO `phenotype_parameter` VALUES (526,'IMPC_FER_021_001',6,'Age of set u
 INSERT INTO `phenotype_parameter` VALUES (527,'IMPC_FER_022_001',6,'Time spent in  breeding (Male screen)','',1,0,'days','INT','procedureMetadata',NULL,0,1,0,0,0,0,0,0,0,0,'',4274);
 INSERT INTO `phenotype_parameter` VALUES (528,'IMPC_FER_023_001',6,'Time spent in breeding (Female screen)','',1,0,'days','INT','procedureMetadata',NULL,0,1,0,0,0,0,0,0,0,0,'',4275);
 
-INSERT INTO phenotyped_colony VALUES
-  (301,'MCCU','EPD0051_1_H11','MGI:2152453',3,'Gsk3a<tm1a(EUCOMM)Wtsi>','C57BL/6Brd-Tyr<c-Brd>;C57BL/6N;C57BL/6NTac',3,8,3,8);
 
-INSERT INTO ontology_term (acc, db_id, name, is_obsolete, replacement_acc) VALUES
-  ('EFO:0002948', 15, 'postnatal',          0, null),
-  ('EFO:0005857', 15, 'mouse embryo stage', 0, null),
-  ('MA:0002405',   8, 'postnatal mouse',    0, null);
-
-INSERT INTO `phenotype_procedure` VALUES (102,249,'MGP_ALZ_001',6,'Adult LacZ','',1,0,0,'experiment','Adult','Unrestricted');
 
 INSERT INTO `phenotype_parameter` VALUES (3322,'MGP_ALZ_082_001',6,'Adrenal Gland','adrenal_gland',1,0,'','TEXT','simpleParameter',NULL,0,0,0,0,1,0,1,0,0,0,'',6859);
 INSERT INTO `phenotype_parameter` VALUES (3323,'MGP_ALZ_083_001',6,'Lower Urinary Tract','lower_urinary_tract',1,0,'','TEXT','simpleParameter',NULL,0,0,0,0,1,0,1,0,0,0,'',6860);
@@ -101,3 +109,37 @@ INSERT INTO `phenotype_parameter` VALUES (3372,'MGP_ALZ_132_001',6,'Camera equip
 INSERT INTO `phenotype_parameter` VALUES (3373,'MGP_ALZ_133_001',6,'Sample preparation stain name','sample_preparation_stain_name',1,0,'','TEXT','procedureMetadata',NULL,0,1,0,0,0,0,0,0,0,0,'',6910);
 INSERT INTO `phenotype_parameter` VALUES (3374,'MGP_ALZ_134_001',6,'Sample preparation reference impc','sample_preparation_reference_impc',1,0,'','TEXT','procedureMetadata',NULL,0,1,0,0,0,0,0,0,0,0,'',6911);
 INSERT INTO `phenotype_parameter` VALUES (3375,'MGP_ALZ_135_001',6,'Date of Sacrifice','date_of_sacrifice',1,0,'','DATE','procedureMetadata',NULL,0,1,0,0,0,0,0,0,0,0,'',6912);
+
+INSERT INTO phenotype_parameter VALUES (634, 'IMPC_VIA_001_001', 6, 'Outcome', '', 1, 1, ' ', 'TEXT', 'simpleParameter', null, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, '', 3794);
+INSERT INTO phenotype_parameter VALUES (635, 'IMPC_VIA_002_001', 6, 'Additional Outcome', '', 1, 1, ' ', 'TEXT', 'simpleParameter', null, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, '', 3795);
+INSERT INTO phenotype_parameter VALUES (637, 'IMPC_VIA_003_001', 6, 'Total pups', '', 1, 1, 'count', 'INT', 'simpleParameter', null, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', 3796);
+INSERT INTO phenotype_parameter VALUES (638, 'IMPC_VIA_004_001', 6, 'Total pups WT', '', 1, 1, 'count', 'INT', 'simpleParameter', null, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', 3797);
+INSERT INTO phenotype_parameter VALUES (639, 'IMPC_VIA_005_001', 6, 'Total pups heterozygous', '', 1, 0, 'count', 'INT', 'simpleParameter', null, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', 3798);
+INSERT INTO phenotype_parameter VALUES (640, 'IMPC_VIA_006_001', 6, 'Total pups homozygous', '', 1, 0, 'count', 'INT', 'simpleParameter', null, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', 3799);
+INSERT INTO phenotype_parameter VALUES (641, 'IMPC_VIA_007_001', 6, 'Total male WT', '', 1, 0, 'count', 'INT', 'simpleParameter', null, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', 3800);
+INSERT INTO phenotype_parameter VALUES (642, 'IMPC_VIA_008_001', 6, 'Total male heterozygous', '', 1, 0, 'count', 'INT', 'simpleParameter', null, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', 3801);
+INSERT INTO phenotype_parameter VALUES (643, 'IMPC_VIA_009_001', 6, 'Total male homozygous', '', 1, 1, 'count', 'INT', 'simpleParameter', null, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', 3802);
+INSERT INTO phenotype_parameter VALUES (644, 'IMPC_VIA_010_001', 6, 'Total male pups', '', 1, 0, 'count', 'INT', 'simpleParameter', null, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', 3803);
+INSERT INTO phenotype_parameter VALUES (645, 'IMPC_VIA_011_001', 6, 'Total female WT', '', 1, 0, 'count', 'INT', 'simpleParameter', null, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', 3804);
+INSERT INTO phenotype_parameter VALUES (646, 'IMPC_VIA_012_001', 6, 'Total female heterozygous', '', 1, 0, 'count', 'INT', 'simpleParameter', null, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', 3805);
+INSERT INTO phenotype_parameter VALUES (647, 'IMPC_VIA_013_001', 6, 'Total female homozygous', '', 1, 0, 'count', 'INT', 'simpleParameter', null, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', 3806);
+INSERT INTO phenotype_parameter VALUES (648, 'IMPC_VIA_014_001', 6, 'Total female pups', '', 1, 1, 'count', 'INT', 'simpleParameter', null, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', 3807);
+INSERT INTO phenotype_parameter VALUES (652, 'IMPC_VIA_015_001', 6, '% pups WT', '', 1, 3, '%', 'FLOAT', 'simpleParameter', 'IMPC_VIA_004_001 IMPC_VIA_003_001 /', 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, '', 3808);
+INSERT INTO phenotype_parameter VALUES (649, 'IMPC_VIA_016_001', 6, 'Free Comment', '', 1, 0, ' ', 'TEXT', 'simpleParameter', null, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', 3809);
+INSERT INTO phenotype_parameter VALUES (650, 'IMPC_VIA_017_001', 6, 'Average litter size', '', 1, 0, ' ', 'FLOAT', 'simpleParameter', null, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', 3810);
+INSERT INTO phenotype_parameter VALUES (653, 'IMPC_VIA_018_001', 6, '% pups heterozygous', '', 1, 2, '%', 'FLOAT', 'simpleParameter', 'IMPC_VIA_005_001 IMPC_VIA_003_001 /', 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, '', 3811);
+INSERT INTO phenotype_parameter VALUES (654, 'IMPC_VIA_019_001', 6, '% pups homozygous', '', 1, 1, '%', 'FLOAT', 'simpleParameter', 'IMPC_VIA_006_001 IMPC_VIA_003_001 /', 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, '', 3812);
+INSERT INTO phenotype_parameter VALUES (655, 'IMPC_VIA_020_001', 6, '% male WT', '', 1, 1, '%', 'FLOAT', 'simpleParameter', 'IMPC_VIA_007_001 IMPC_VIA_010_001 /', 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, '', 3813);
+INSERT INTO phenotype_parameter VALUES (656, 'IMPC_VIA_021_001', 6, '% male heterozygous', '', 1, 1, '%', 'FLOAT', 'simpleParameter', 'IMPC_VIA_008_001 IMPC_VIA_010_001 /', 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, '', 3814);
+INSERT INTO phenotype_parameter VALUES (657, 'IMPC_VIA_022_001', 6, '% male homozygous', '', 1, 1, '%', 'FLOAT', 'simpleParameter', 'IMPC_VIA_009_001 IMPC_VIA_010_001 /', 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, '', 3815);
+INSERT INTO phenotype_parameter VALUES (658, 'IMPC_VIA_023_001', 6, '% female WT', '', 1, 1, '%', 'FLOAT', 'simpleParameter', 'IMPC_VIA_011_001 IMPC_VIA_014_001 /', 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, '', 3816);
+INSERT INTO phenotype_parameter VALUES (659, 'IMPC_VIA_024_001', 6, '% female heterozygous', '', 1, 1, '%', 'FLOAT', 'simpleParameter', 'IMPC_VIA_012_001 IMPC_VIA_014_001 /', 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, '', 3817);
+INSERT INTO phenotype_parameter VALUES (660, 'IMPC_VIA_025_001', 6, '% female homozygous', '', 1, 1, '%', 'FLOAT', 'simpleParameter', 'IMPC_VIA_013_001 IMPC_VIA_014_001 /', 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, '', 3818);
+INSERT INTO phenotype_parameter VALUES (661, 'IMPC_VIA_026_001', 6, 'Female age earliest start', '', 1, 1, 'Weeks', 'INT', 'procedureMetadata', null, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, '', 3819);
+INSERT INTO phenotype_parameter VALUES (662, 'IMPC_VIA_027_001', 6, 'Female age oldest end', '', 1, 1, 'Weeks', 'INT', 'procedureMetadata', null, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, '', 3820);
+INSERT INTO phenotype_parameter VALUES (663, 'IMPC_VIA_028_001', 6, 'Time of dark cycle start', '', 1, 1, ' ', 'TIME', 'procedureMetadata', null, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, '', 3821);
+INSERT INTO phenotype_parameter VALUES (664, 'IMPC_VIA_029_001', 6, 'Time of dark cycle end', '', 1, 0, ' ', 'TIME', 'procedureMetadata', null, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, '', 3822);
+INSERT INTO phenotype_parameter VALUES (665, 'IMPC_VIA_030_001', 6, 'Age of pups at genotype', '', 1, 1, 'Weeks', 'INT', 'procedureMetadata', null, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, '', 3823);
+INSERT INTO phenotype_parameter VALUES (666, 'IMPC_VIA_031_001', 6, 'Breeding Strategy', '', 1, 0, ' ', 'TEXT', 'procedureMetadata', null, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, '', 3824);
+INSERT INTO phenotype_parameter VALUES (651, 'IMPC_VIA_032_001', 6, 'P-value for outcome call', '', 1, 2, ' ', 'FLOAT', 'simpleParameter', 'IMPC_VIA_006_001 IMPC_VIA_003_001 IMPC_VIA_031_001 get_binomial_distribution_p_value', 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, '', 3826);
+INSERT INTO phenotype_parameter VALUES (636, 'IMPC_VIA_033_001', 6, 'Additional Subviable Outcome', '', 1, 1, ' ', 'TEXT', 'simpleParameter', null, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, '', 4860);
