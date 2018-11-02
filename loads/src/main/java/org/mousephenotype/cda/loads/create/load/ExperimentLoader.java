@@ -85,7 +85,7 @@ public class ExperimentLoader implements CommandLineRunner {
     private int lineLevelProcedureCount   = 0;
     private int sampleLevelProcedureCount = 0;
 
-    private final boolean INCLUDE_DERIVED_PARAMETERS = false;
+    private final boolean INCLUDE_DERIVED_PARAMETERS = true;
     private final String  MISSING_COLONY_ID_REASON   = "ExperimentLoader: specimen was not found in phenotyped_colony table";
 
 
