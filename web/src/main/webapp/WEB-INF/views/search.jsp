@@ -595,9 +595,7 @@
 						}
 					}
 
-                    _doProductFancyBox();
-
-					$(this).append("<span class='tabfc'> ("+${facetCount}[thisId]+")</span>");
+                    $(this).append("<span class='tabfc'> ("+${facetCount}[thisId]+")</span>");
 
 					$('li.noData').click(function(){
 						return false;
@@ -858,52 +856,6 @@
 			}
 
 		});
-
-        function _doProductFancyBox(){
-            $('.iFrameFancy').click(function()
-                    {
-                      $.fancybox.open([
-                                    {
-                                        href : $(this).attr('data-url'),
-                                        
-                                    }
-                                ],
-                                {
-                                    'maxWidth'          : 1000,
-                                    'maxHeight'         : 1900,
-                                    'fitToView'         : false,
-                                    'width'             : '100%',
-                                    'height'            : '85%',
-                                    'autoSize'          : false,
-                                    'transitionIn'      : 'none',
-                                    'transitionOut'     : 'none',
-                                    'type'              : 'iframe',
-                                    scrolling           : 'auto'
-                                });
-                    }
-            );
-			$('.iFrameVector').click(function()	{
-				$.fancybox.open([
-							{
-								href : $(this).attr('data-url'),
-								title : 'Vector map'
-							}
-						],
-						{
-							'maxWidth'          : 1000,
-							'maxHeight'         : 500,
-							'fitToView'         : false,
-							'width'             : '100%',
-							'height'            : '40%',
-							'autoSize'          : false,
-							'transitionIn'      : 'none',
-							'transitionOut'     : 'none',
-							'type'              : 'iframe',
-							scrolling           : 'auto'
-						});
-			});
-
-        }
 
 
 
