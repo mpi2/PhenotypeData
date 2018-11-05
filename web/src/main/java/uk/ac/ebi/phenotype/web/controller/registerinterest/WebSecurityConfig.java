@@ -87,7 +87,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
 
-        AllowFromStrategy strategy = httpServletRequest -> "www.immunophenotype.org, wwwdev.ebi.ac.uk, dev.mousephenotype.org, www.mousephenotype.org, beta.mousephenotype.org, staging.mousephenotype.org, test.mousephenotype.org";
+    	AllowFromStrategy strategy = httpServletRequest -> "www.immunophenotype.org, www.ebi.ac.uk, wwwdev.ebi.ac.uk, www.mousephenotype.org, beta.mousephenotype.org, dev.mousephenotype.org, staging.mousephenotype.org, test.mousephenotype.org";
+
 
         http
             .addFilterAfter(captchaFilter, CsrfFilter.class)

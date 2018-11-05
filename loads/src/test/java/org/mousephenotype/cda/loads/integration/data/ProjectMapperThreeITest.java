@@ -56,7 +56,7 @@ public class ProjectMapperThreeITest {
     private ApplicationContext context;
 
     @Test
-    public void testLoadMissingSpecimenAndExperiment() throws SQLException {
+    public void testCaseInsensitiveProjectLookup() throws SQLException {
 
 
         // Reload databases.
@@ -73,9 +73,38 @@ public class ProjectMapperThreeITest {
 
         final Map<String, Integer> m = cdaSqlUtils.getCdaProject_idsByDccProject();
 
-        Assert.assertTrue(m.get("Eumodic") == null);
+        Assert.assertTrue(m.get("Eumodic") == 1);
         Assert.assertTrue(m.get("EUMODIC") == 1);
         Assert.assertTrue(m.get("3i") == 27);
         Assert.assertTrue(m.get("IMPC") == 4);
+
+        logger.info("Getting Eumodic, returned {} (Should be 1)", m.get("Eumodic"));
     }
+
+    @Test
+    public void testCaseSensitiveProjectLookup() throws SQLException {
+
+
+        // Reload databases.
+        String[] cdaSchemas = new String[]{
+                "sql/h2/cda/schema.sql",
+                "sql/h2/impress/impressSchema.sql"
+        };
+
+        for (String schema : cdaSchemas) {
+            logger.info("cda schema: " + schema);
+            Resource r = context.getResource(schema);
+            ScriptUtils.executeSqlScript(cdaDataSource.getConnection(), r);
+        }
+
+        final Map<String, Integer> m = cdaSqlUtils.getCdaOrganisation_idsByDccCenterId();
+
+        logger.info("Getting Bcm, returned {} (Should be 25)", m.get("Bcm"));
+        logger.info("Getting BCM, returned {} (Should be null)", m.get("BCM"));
+
+        Assert.assertTrue(m.get("Bcm") == 25);
+        Assert.assertTrue(m.get("BCM") == null);
+
+    }
+
 }

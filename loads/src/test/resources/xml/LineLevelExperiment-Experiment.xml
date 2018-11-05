@@ -213,4 +213,69 @@
         </experiment>
 
     </centre>
+
+    <centre centreID="Gmc" pipeline="HMGU_001" project="Helmholtz GMC">
+        <line colonyID="HMGU-HEPD0659_5_E08-1-1">
+            <procedure procedureID="IMPC_VIA_001">
+                <simpleParameter parameterID="IMPC_VIA_001_001" unit="count">
+                    <value>Homozygous - Lethal</value>
+                </simpleParameter>
+                <simpleParameter parameterID="IMPC_VIA_003_001" unit="count">
+                    <value>28</value>
+                </simpleParameter>
+                <simpleParameter parameterID="IMPC_VIA_004_001" unit="count">
+                    <value>10</value>
+                </simpleParameter>
+                <simpleParameter parameterID="IMPC_VIA_005_001" unit="count">
+                    <value>18</value>
+                </simpleParameter>
+                <simpleParameter parameterID="IMPC_VIA_006_001" unit="count">
+                    <value>0</value>
+                </simpleParameter>
+                <simpleParameter parameterID="IMPC_VIA_010_001" unit="count">
+                    <value>18</value>
+                </simpleParameter>
+                <simpleParameter parameterID="IMPC_VIA_007_001" unit="count">
+                    <value>8</value>
+                </simpleParameter>
+                <simpleParameter parameterID="IMPC_VIA_008_001" unit="count">
+                    <value>10</value>
+                </simpleParameter>
+                <simpleParameter parameterID="IMPC_VIA_009_001" unit="count">
+                    <value>0</value>
+                </simpleParameter>
+                <simpleParameter parameterID="IMPC_VIA_011_001" unit="count">
+                    <value>2</value>
+                </simpleParameter>
+                <simpleParameter parameterID="IMPC_VIA_012_001" unit="count">
+                    <value>8</value>
+                </simpleParameter>
+                <simpleParameter parameterID="IMPC_VIA_013_001" unit="count">
+                    <value>0</value>
+                </simpleParameter>
+                <simpleParameter parameterID="IMPC_VIA_014_001" unit="count">
+                    <value>10</value>
+                </simpleParameter>
+                <simpleParameter parameterID="IMPC_VIA_019_001" unit="%">
+                    <value>0.0</value>
+                </simpleParameter>
+                <simpleParameter parameterID="IMPC_VIA_032_001">
+                    <value>3.17479E-4</value>
+                </simpleParameter>
+                <procedureMetadata parameterID="IMPC_VIA_028_001">
+                    <value>18:30:00</value>
+                </procedureMetadata>
+                <procedureMetadata parameterID="IMPC_VIA_029_001">
+                    <value>06:30:00</value>
+                </procedureMetadata>
+                <procedureMetadata parameterID="IMPC_VIA_030_001">
+                    <value>4</value>
+                </procedureMetadata>
+                <procedureMetadata parameterID="IMPC_VIA_031_001">
+                    <value>HetXHet</value>
+                </procedureMetadata>
+            </procedure>
+        </line>
+    </centre>
+
 </centreProcedureSet>

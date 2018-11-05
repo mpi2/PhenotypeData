@@ -397,6 +397,29 @@ public class DataIntegrationTest {
         }
 
 
+
+        // Check that the models created have the same gene, allele and strain
+
+        String q = "SELECT * FROM experiment e " +
+                "INNER JOIN experiment_observation eo ON eo.experiment_id=e.id " +
+                "INNER JOIN observation o ON o.id=eo.observation_id " +
+                "INNER JOIN unidimensional_observation uo ON uo.id=o.id " ;
+
+        Boolean foundViaParam = Boolean.FALSE;
+        try (Connection connection = cdaDataSource.getConnection(); PreparedStatement p = connection.prepareStatement(q)) {
+            ResultSet resultSet = p.executeQuery();
+            while (resultSet.next()) {
+                String paramStableId = resultSet.getString("parameter_stable_id");
+                if (paramStableId.equalsIgnoreCase("IMPC_VIA_032_001")) {
+                    foundViaParam = Boolean.TRUE;
+                    break;
+                }
+            }
+        }
+
+        Assert.assertTrue("IMPC_VIA_032_001 parameter is NOT loaded", foundViaParam);
+
+
         // Check that the models created have the same gene, allele and strain
 
         String modelQuery = "SELECT * FROM biological_model bm " +

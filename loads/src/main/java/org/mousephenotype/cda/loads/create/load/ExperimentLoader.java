@@ -85,7 +85,7 @@ public class ExperimentLoader implements CommandLineRunner {
     private int lineLevelProcedureCount   = 0;
     private int sampleLevelProcedureCount = 0;
 
-    private final boolean INCLUDE_DERIVED_PARAMETERS = false;
+    private final boolean INCLUDE_DERIVED_PARAMETERS = true;
     private final String  MISSING_COLONY_ID_REASON   = "ExperimentLoader: specimen was not found in phenotyped_colony table";
 
 
@@ -876,7 +876,7 @@ public class ExperimentLoader implements CommandLineRunner {
             if (INCLUDE_DERIVED_PARAMETERS) {
                 insertSimpleParameter(dccExperiment, simpleParameter, experimentPk, dbId, biologicalSamplePk, missing);
             } else {
-                if ( ! derivedImpressParameters.contains(simpleParameter.getParameterID()) || simpleParameter.getParameterID().equals("MGP_ANA_002_001")) {
+                if ( ! derivedImpressParameters.contains(simpleParameter.getParameterID())) {
                     insertSimpleParameter(dccExperiment, simpleParameter, experimentPk, dbId, biologicalSamplePk, missing);
                 }
             }
