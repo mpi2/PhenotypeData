@@ -394,7 +394,7 @@ public class DataTableController {
 			}
 
 			List<String> order = new ArrayList<>();
-			String dataUrl= config.get("drupalBaseUrl") + config.get("baseUrl")+ "/order?acc=" + markerAcc + "&allele=" + alleleName +"&bare=true";
+			String dataUrl = baseUrl + "/order?acc=" + markerAcc + "&allele=" + alleleName +"&bare=true";
 
 			if ( doc.containsKey(Allele2DTO.TARGETING_VECTOR_AVAILABLE) && doc.getBoolean(Allele2DTO.TARGETING_VECTOR_AVAILABLE) ) {
 				order.add("<tr>");
