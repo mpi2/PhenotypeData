@@ -57,7 +57,7 @@
 	                               <td style="text-align: center;">Vector</td>
 	                               <td>
 	                               		<c:if test="${not empty row.vectorMapLink}">
-	                               			<a class="fancybox" target="_blank" style="text-align:right" href="${row.vectorMapLink}" fullRes="${row.vectorMapLink}" original="${row.vectorMapLink}">
+	                               			<a target="_blank" style="text-align:right" href="${row.vectorMapLink}" fullRes="${row.vectorMapLink}" original="${row.vectorMapLink}">
 		                                   
 		                                   		<i class="fa fa-th-list fa-lg" title="Image"></i>
 		                                   
@@ -74,7 +74,7 @@
 	                            	<td style="text-align: center;">Gene</td>
                                		<td >
                                			<c:if test="${not empty row.geneMapLink}">
-	                               			<a class="fancybox" target="_blank" style="text-align:right" href="${row.geneMapLink}" fullRes="${row.geneMapLink}" original="${row.geneMapLink}">
+	                               			<a target="_blank" style="text-align:right" href="${row.geneMapLink}">
 	                                   			<i class="fa fa-th-list fa-lg" title="Image"></i>
 	                                   		</a>
 	                                   </c:if>
@@ -96,25 +96,21 @@
                           
                           <td style="text-align: center;" rowspan="${rowSpan}">
 	                          <c:if test="${row.targetingVectorAvailable}">
-	                          	<a class="iFrameFancy btn" data-url="${baseUrl}/order?acc=${row.mgiAccessionId}&allele=${row.alleleName}&type=targeting_vector${creLineParam}&bare=true"><i class="fa fa-shopping-cart"></i></a>
-	                          	<%-- <a class="iFrameFancy" style="text-align:right" data-url="${baseUrl}/order?acc=${acc}&allele=${row.alleleName}&type=targeting_vector" >
-		                                   
-		                                   		<i class="fa fa-th-list fa-lg" title="Image"></i>
-		                                   
-		                                   </a> --%>
+	                          	<a class="btn" target="_blank" href="${baseUrl}/order?acc=${row.mgiAccessionId}&allele=${row.alleleName}&type=targeting_vector${creLineParam}&bare=true"><i class="fa fa-shopping-cart"></i></a>
+	                          	
 	                          </c:if>
                           </td>
                          
                           <td style="text-align: center;" rowspan="${rowSpan}">
                            
 	                           <c:if test="${row.esCellAvailable}">
-	                          	<a class="iFrameFancy btn" data-url="${baseUrl}/order?acc=${row.mgiAccessionId}&allele=${row.alleleName}&type=es_cell${creLineParam}&bare=true"><i class="fa fa-shopping-cart"></i></a>
+	                          	<a class="btn" target="_blank" href="${baseUrl}/order?acc=${row.mgiAccessionId}&allele=${row.alleleName}&type=es_cell${creLineParam}&bare=true"><i class="fa fa-shopping-cart"></i></a>
 	                          </c:if>
                           </td>
                           
                           <td style="text-align: center;" rowspan="${rowSpan}">
 	                           <c:if test="${row.mouseAvailable}">
-	                          	<a class="iFrameFancy btn" data-url="${baseUrl}/order?acc=${row.mgiAccessionId}&allele=${row.alleleName}&type=mouse${creLineParam}&bare=true"><i class="fa fa-shopping-cart"></i></a>
+	                          	<a class="btn" target="_blank" href="${baseUrl}/order?acc=${row.mgiAccessionId}&allele=${row.alleleName}&type=mouse${creLineParam}&bare=true"><i class="fa fa-shopping-cart"></i></a>
 	                           </c:if>
                           </td>
                           

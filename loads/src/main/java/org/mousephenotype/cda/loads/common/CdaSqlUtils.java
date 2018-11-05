@@ -399,14 +399,13 @@ public class CdaSqlUtils {
      * @return A complete map of cda project_id primary keys, keyed by dcc center.project
      */
     public synchronized Map<String, Integer> getCdaProject_idsByDccProject() {
-        Map<String, Integer> map = new ConcurrentHashMapAllowNull<>();
+        Map<String, Integer> map = new ConcurrentHashMapAllowNull<>(ConcurrentHashMapAllowNull.CASE_INSENSITIVE_KEYS);
 
         Map<String, Project> projects = getProjects();
 
         Iterator<Map.Entry<String, String>> entrySetIt = LoadUtils.mappedExternalProjectNames.entrySet().iterator();
         while (entrySetIt.hasNext()) {
             Map.Entry<String, String> entry = entrySetIt.next();
-            // key = external (e.g. dcc) name.  value = cda project.name.
             String dccName = entry.getKey();
             String cdaName = entry.getValue();
 

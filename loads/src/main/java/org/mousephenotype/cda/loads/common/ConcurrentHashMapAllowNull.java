@@ -13,6 +13,11 @@ public class ConcurrentHashMapAllowNull<K,V> extends ConcurrentHashMap<K,V> impl
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
+    private Boolean caseInsensitive = Boolean.FALSE;
+
+    public final static Boolean CASE_INSENSITIVE_KEYS = Boolean.TRUE;
+    public final static Boolean CASE_SENSITIVE = Boolean.FALSE;
+
 
     /**
      * Change the default behavior of ConcurrentHashMap so that performing a get with
@@ -28,6 +33,11 @@ public class ConcurrentHashMapAllowNull<K,V> extends ConcurrentHashMap<K,V> impl
         if (key == null) {
             return null;
         } else {
+            // Treat the keys to this map by uppercassing the keys
+            // Verify that the uppercased key is in the map and return if so
+            if (caseInsensitive && key instanceof String && super.get(key.toString().toUpperCase()) != null) {
+                return super.get(key.toString().toUpperCase());
+            }
             return super.get(key);
         }
     }
@@ -46,7 +56,13 @@ public class ConcurrentHashMapAllowNull<K,V> extends ConcurrentHashMap<K,V> impl
             return null;
         }
 
-        return super.put(key, value);
+        // If this map is supposed to be case insensitive, uppercase the key before putting it
+        // in the map
+        if (caseInsensitive && key instanceof String) {
+            return super.put(((K) key.toString().toUpperCase()), value);
+        } else {
+            return super.put(key, value);
+        }
     }
 
 
@@ -57,6 +73,16 @@ public class ConcurrentHashMapAllowNull<K,V> extends ConcurrentHashMap<K,V> impl
 
     public ConcurrentHashMapAllowNull() {
         super();
+    }
+
+    /**
+     * Set the map to case sensitive (default) or insensitive key lookups
+     *
+     * @param caseInsensitive TRUE (Default) case-sensitive, FALSE case insensitive
+     */
+    public ConcurrentHashMapAllowNull(Boolean caseInsensitive) {
+        super();
+        this.caseInsensitive = caseInsensitive;
     }
 
     public ConcurrentHashMapAllowNull(int initialCapacity) {
@@ -74,6 +100,16 @@ public class ConcurrentHashMapAllowNull<K,V> extends ConcurrentHashMap<K,V> impl
     public ConcurrentHashMapAllowNull(int initialCapacity, float loadFactor, int concurrencyLevel) {
         super(initialCapacity, loadFactor, concurrencyLevel);
     }
+
+
+    public Boolean getCaseInsensitive() {
+        return caseInsensitive;
+    }
+
+    public void setCaseInsensitive(Boolean caseInsensitive) {
+        this.caseInsensitive = caseInsensitive;
+    }
+
 
 
 }
