@@ -509,7 +509,11 @@ public class PipelineIndexer extends AbstractIndexer implements CommandLineRunne
 		}
 
         if (procIdToParams.size() < MIN_ROW_COUNT) {
-            runStatus.addWarning(" procIdToParams # records = " + procIdToParams.size() + ". Expected at least " + MIN_ROW_COUNT + " records.");
+		    String message = String.format(
+		            " procIdToParams # records = %s. Expected at least %s records.",
+                    procIdToParams.size(),
+                    MIN_ROW_COUNT);
+            runStatus.addWarning(message);
         }
 
 		return procIdToParams;
@@ -521,10 +525,12 @@ public class PipelineIndexer extends AbstractIndexer implements CommandLineRunne
 		Map<String, Set<String>> procIdToParams = populateProcedureToParameterMap(runStatus);
 
 		Map<String, ProcedureDTO> procedureIdToProcedureMap = new HashMap<>();
-		String queryString = "SELECT id as pproc_id, stable_id, name, stable_key, is_mandatory, description, concat(name, '___', stable_id) as proc_name_id "
-				+ "FROM phenotype_procedure";
+        String q = "SELECT id as pproc_id, stable_id, name, stable_key, " +
+                "is_mandatory, stage, stage_label, description, " +
+                "concat(name, '___', stable_id) as proc_name_id " +
+                "FROM phenotype_procedure " ;
 
-		try (PreparedStatement p = komp2DbConnection.prepareStatement(queryString)) {
+		try (PreparedStatement p = komp2DbConnection.prepareStatement(q)) {
 
 			ResultSet resultSet = p.executeQuery();
 
@@ -537,6 +543,8 @@ public class PipelineIndexer extends AbstractIndexer implements CommandLineRunne
 				proc.setProcNameId(resultSet.getString("proc_name_id"));
 				proc.setRequired(resultSet.getBoolean("is_mandatory"));
 				proc.setDescription(resultSet.getString("description"));
+				proc.setStage(resultSet.getString("stage"));
+				proc.setStageLabel(resultSet.getString("stage_label"));
 				for (String parameterId : procIdToParams.get(proc.getStableId())){
 					proc.addParameter(paramIdToParameter.get(parameterId));
 				}
