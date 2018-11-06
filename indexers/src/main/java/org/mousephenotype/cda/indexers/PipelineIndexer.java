@@ -154,6 +154,9 @@ public class PipelineIndexer extends AbstractIndexer implements CommandLineRunne
 						doc.setIdIdId(ididid);
 
 						doc.setRequired(procedure.isRequired());
+						doc.setStage(procedure.getStage());
+						doc.setStageLabel(procedure.getStageLabel());
+
 						//doc.setDescription(procBean.description); -> maybe we don't need this. If we do, should differentiate from parameter description.
 						doc.setObservationType(param.getObservationType().name());
 						if (param.getUnitX() != null){
