@@ -24,8 +24,8 @@ import org.mousephenotype.cda.db.pojo.*;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.loads.common.CdaSqlUtils;
 import org.mousephenotype.cda.loads.create.extract.cdabase.support.ImpressUtils;
-import org.mousephenotype.impress.GetParameterMPTermsResponse;
-import org.mousephenotype.impress.wsdlclients.*;
+import org.mousephenotype.impress.wsdlclients.ParameterMPTermsClient;
+import org.mousephenotype.impress.wsdlclients.ParameterOntologyOptionsClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.Banner;
@@ -36,8 +36,6 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.core.io.Resource;
 import org.springframework.jdbc.datasource.init.ScriptUtils;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
 
 import javax.inject.Inject;
 import javax.sql.DataSource;
@@ -85,25 +83,13 @@ public class ImpressParserV2 implements CommandLineRunner {
 
 //    // SOAP web service classes
     private ParameterMPTermsClient         parameterMPTermsClient;
-//    private ParameterIncrementsClient      parameterIncrementsClient;
     private ParameterOntologyOptionsClient parameterOntologyOptionsClient;
-    private ParameterOptionsClient         parameterOptionsClient;
-    private ParametersClient               parametersClient;
-//    private PipelineClient                 pipelineClient;
-//    private PipelineKeysClient             pipelineKeysClient;
-    private ProcedureClient                procedureClient;
-    private ProcedureKeysClient            procedureKeysClient;
 
     // RESTful web service classes
-    private Map<String, Pipeline>   pipelines;
     private Map<Integer, Schedule>  schedulesById  = new HashMap<>();
     private Map<Integer, Procedure> proceduresById = new HashMap<>();
     private Map<Integer, Parameter> parametersById = new HashMap<>();
     private Map<Integer, String>    unitsById      = new HashMap<>();
-
-
-
-
 
 
     private final String[] OPT_HELP = {"h", "help"};
@@ -125,29 +111,15 @@ public class ImpressParserV2 implements CommandLineRunner {
             CdaSqlUtils cdabaseSqlUtils,
             ImpressUtils impressUtils,
             DataSource cdabaseDataSource,
-//            ParameterIncrementsClient parameterIncrementsClient,
             ParameterMPTermsClient parameterMPTermsClient,
-            ParameterOntologyOptionsClient parameterOntologyOptionsClient,
-            ParameterOptionsClient parameterOptionsClient,
-            ParametersClient parametersClient,
-//            PipelineClient pipelineClient,
-//            PipelineKeysClient pipelineKeysClient,
-            ProcedureClient procedureClient,
-            ProcedureKeysClient procedureKeysClient
+            ParameterOntologyOptionsClient parameterOntologyOptionsClient
     ) {
         this.context = context;
         this.cdabaseSqlUtils = cdabaseSqlUtils;
         this.impressUtils = impressUtils;
         this.cdabaseDataSource = cdabaseDataSource;
-//        this.parameterIncrementsClient = parameterIncrementsClient;
         this.parameterMPTermsClient = parameterMPTermsClient;
         this.parameterOntologyOptionsClient = parameterOntologyOptionsClient;
-        this.parameterOptionsClient = parameterOptionsClient;
-        this.parametersClient = parametersClient;
-//        this.pipelineClient = pipelineClient;
-//        this.pipelineKeysClient = pipelineKeysClient;
-        this.procedureClient = procedureClient;
-        this.procedureKeysClient = procedureKeysClient;
     }
 
     /**
@@ -198,7 +170,7 @@ public class ImpressParserV2 implements CommandLineRunner {
                     schedule = impressUtils.getSchedule(scheduleId, datasource);
                     schedulesById.put(scheduleId, schedule);
 
-                    logger.info("INSERTing scheduleId {}", scheduleId);
+                    logger.info("  INSERTing scheduleId {}", scheduleId);
                 }
 
 
@@ -221,7 +193,7 @@ public class ImpressParserV2 implements CommandLineRunner {
 
                         proceduresById.put(procedureId, procedure);
 
-                        logger.info("Loading procedureId {}", procedureId);
+                        logger.info("    Loading procedureId {}", procedureId);
 
                         if (cdabaseSqlUtils.insertPhenotypeProcedure(pipeline.getId(), procedure) == null) {
                             logger.warn("INSERT OF procedureId {} ({}) FAILED. PROCEDURE SKIPPED...", procedure.getStableKey(), procedure.getStableId());
@@ -233,7 +205,7 @@ public class ImpressParserV2 implements CommandLineRunner {
                     // LOAD PARAMETERS
                     for (Integer parameterId : procedure.getParameterCollection()) {
 
-                        logger.info("Loading pipelineId::scheduleId::procedureId::parameterId   {}::{}::{}::{}", pipeline.getStableKey(), schedule.getScheduleId(), procedure.getStableKey(), parameterId);
+                        logger.debug("      Loading pipelineId::scheduleId::procedureId::parameterId   {}::{}::{}::{}", pipeline.getStableKey(), schedule.getScheduleId(), procedure.getStableKey(), parameterId);
                         Parameter parameter = parametersById.get(parameterId);
 
                         if (parameter == null) {
@@ -258,84 +230,6 @@ public class ImpressParserV2 implements CommandLineRunner {
                     }
 
                     cdabaseSqlUtils.insertPhenotypePipelineProcedure(pipeline.getId(), procedure.getId());              // INSERT into the phenotype_pipeline_procedure lookup table
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                    if (1 == 1) continue;
-
-
-
-
-
-//                /*
-//                 * If procedure DOES NOT EXIST in procedure map
-//                 *    INSERT procedure from web service
-//                 *    add to procedure map
-//                 *    If parameter DOES NOT EXIST in parameter map
-//                 *        INSERT parameter from web service
-//                 *        add to parameter map
-//                 *    INSERT phenotype_procedure_parameter
-//                 *
-//                 * INSERT phenotype_pipeline_procedure
-//                 */
-//
-//                List<String> procedureKeys = procedureKeysClient.getProcedureKeys(pipeline.getStableId()).getGetProcedureKeysResult().getItem();
-//
-//                for (String procedureKey : procedureKeys) {
-//
-//                    logger.debug("  Loading procedure: {}", procedureKey);
-
-//                    Procedure procedure = proceduresByStableIdMap.get(procedureKey);
-//                    if (procedure == null) {
-//                        procedure = getProcedure(procedureKey, pipeline);                                                   // Get the procedure details from the web service
-//                        cdabaseSqlUtils.insertPhenotypeProcedure(pipeline.getPipelineId(), procedure);                              // INSERT the procedure
-//                        try {
-//                            proceduresByStableIdMap.put(procedure.getStableId(), procedure);                                    // Add the procedure to the map
-//                        } catch (Exception e) {
-//                            e.printStackTrace();
-//                            logger.error("INSERT OF pipeline::procedure {}::{} FAILED", pipeline.getStableId(), procedureKey);
-//                            System.exit(1);
-//                        }
-
-                    // LOAD PARAMETERS
-//                    NodeList parameterNodesMap = ((Element) parametersClient.getParameters(procedure.getProcedureKey()).getGetParametersResult()).getChildNodes();
-//                    for (int i = 0; i < parameterNodesMap.getLength(); i++) {
-//                        NodeList  parameterNodes = parameterNodesMap.item(i).getChildNodes();
-//                        Parameter parameter      = getParameter(parameterNodes, procedure);
-//
-//                        logger.debug("    Loading parameter: {}", parameter.getStableId());
-//
-//                        if (!parametersByStableIdMap.containsKey(parameter.getStableId())) {
-//                            try {
-//                                parameter = insertParameter(parameter, procedure, pipeline.getStableId());
-//                            } catch (Exception e) {
-//                                e.printStackTrace();
-//                                logger.error("INSERT OF pipeline::procedure::parameter {}::{}::{} FAILED", pipeline.getStableId(), procedure.getProcedureId(), parameter.getStableId());
-//                                System.exit(1);
-//                            }
-//                            if (parameter == null) {
-//                                continue;                                                                               // If the INSERT failed, continue on to the next parameter
-//                            }
-//                            parametersByStableIdMap.put(parameter.getStableId(), parameter);
-//                        }
-//
-//                        cdabaseSqlUtils.insertPhenotypeProcedureParameter(procedure.getId(), parameter.getId());        // INSERT into the phenotype_procedure_parameter lookup table
-//                    }
-//
-//                    cdabaseSqlUtils.insertPhenotypePipelineProcedure(pipeline.getPipelineId(), procedure.getId());                  // INSERT into the phenotype_pipeline_procedure lookup table
                 }
             }
         }
@@ -428,177 +322,12 @@ public class ImpressParserV2 implements CommandLineRunner {
         return USAGE;
     }
 
-
-
-
-
-
-
-//    private List<ParameterIncrement> getIncrements(String parameterKey) {
-//
-//        List<ParameterIncrement> parameterIncrements = new ArrayList<>();
-//
-//        List<Map<String, String>> incrementsList = new ArrayList<>();
-//
-//
-//        // Create a map of increments from the IMPReSS web service.
-//        GetParameterIncrementsResponse response              = parameterIncrementsClient.getParameterIncrements(parameterKey);
-//        NodeList                       incrementNodeList = ((Element) response.getGetParameterIncrementsResult()).getChildNodes();
-//
-//        // Parse out the keys and values for this parameter increment
-//        for (int i = 0; i < incrementNodeList.getLength(); i++) {
-//            NodeList incrementNodes = incrementNodeList.item(i).getChildNodes();
-//
-//            Map<String, String> incrementChildNodeListMap = new HashMap<>();
-//
-//            // Parse out the keys and values for this parameter
-//            for (int j = 0; j < incrementNodes.getLength(); j++) {
-//                NodeList incrementChildNodeList = incrementNodes.item(j).getChildNodes();
-//                incrementChildNodeListMap.put(incrementChildNodeList.item(0).getTextContent(), incrementChildNodeList.item(1).getTextContent());
-//            }
-//
-//            incrementsList.add(incrementChildNodeListMap);
-//        }
-//
-//        for (Map<String, String> map : incrementsList) {
-//            ParameterIncrement increment = new ParameterIncrement();
-//            increment.setDataType(map.get("type").toUpperCase());
-//            increment.setMinimum(map.get("min"));
-//            increment.setUnit(map.get("unit"));
-//            increment.setValue(map.get("string"));
-//
-//            parameterIncrements.add(increment);
-//        }
-//
-//        return parameterIncrements;
-//    }
-
-//    private List<ParameterOption> getOptions(String parameterKey) {
-//
-//        List<ParameterOption> parameterOptions = new ArrayList<>();
-//
-//        List<Map<String, String>> optionsList = new ArrayList<>();
-//
-//        GetParameterOptionsResponse response = parameterOptionsClient.getParameterOptions(parameterKey);
-//        NodeList optionNodeList = ((Element) response.getGetParameterOptionsResult()).getChildNodes();
-//
-//        for (int i = 0; i < optionNodeList.getLength(); i++) {
-//            NodeList optionNodes = optionNodeList.item(i).getChildNodes();
-//
-//            Map<String, String> optionChildNodeListMap = new HashMap<>();
-//
-//            // Parse out the keys and values for this parameter
-//            for (int j = 0; j < optionNodes.getLength(); j++) {
-//                NodeList optionChildNodeList = optionNodes.item(j).getChildNodes();
-//                optionChildNodeListMap.put(optionChildNodeList.item(0).getTextContent(), optionChildNodeList.item(1).getTextContent());
-//            }
-//
-//            optionsList.add(optionChildNodeListMap);
-//        }
-//
-//        for (Map<String, String> map : optionsList) {
-//            ParameterOption option = new ParameterOption();
-//            option.setName(map.get("name"));
-//            option.setDescription(map.get("description"));
-//
-//            // This is the same format as the populate method, parameterStableId_NormalOption
-//            String candidate = parameterKey + "_" + option.getName();
-//            option.setNormalCategory(normalCategory.contains(candidate));
-//
-//            parameterOptions.add(option);
-//        }
-//
-//        return parameterOptions;
-//    }
-
-//    private Parameter getParameter(NodeList parameterNodes, Procedure procedure) {
-//
-//        Parameter parameter;
-//        Map<String, String> map = new HashMap<>();
-//
-//        // Parse out the keys and values for this parameter
-//        for (int j = 0; j < parameterNodes.getLength(); j++) {
-//            NodeList m = parameterNodes.item(j).getChildNodes();
-//            map.put(m.item(0).getTextContent(), m.item(1).getTextContent());
-//        }
-//
-//        String parameterStableId = map.get("parameter_key");
-//
-//        parameter = parametersByStableIdMap.get(parameterStableId);
-//        if (parameter == null) {
-//            parameter = new Parameter();
-//            parameter.setStableId(map.get("parameter_key"));
-//            parameter.setStableKey(Integer.parseInt(map.get("parameter_id")));
-//            parameter.setDatasource(datasource);
-//            parameter.setName(map.get("parameter_name"));
-//            parameter.setDescription(map.get("description"));
-//            parameter.setMajorVersion(Integer.parseInt(map.get("major_version")));
-//            parameter.setMinorVersion(Integer.parseInt(map.get("minor_version")));
-//            parameter.setType(map.get("type"));
-//            parameter.setRequiredFlag(Boolean.parseBoolean(map.get("is_required")));
-//            parameter.setRequiredForDataAnalysisFlag(Boolean.parseBoolean(map.get("is_required_for_data_analysis")));
-//            parameter.setDataAnalysisNotes(map.get("data_analysis_notes"));
-//            parameter.setOptionsFlag(Boolean.parseBoolean(map.get("is_option")));
-//            parameter.setMetaDataFlag(map.get("type").equals("procedureMetadata"));
-//            parameter.setMediaFlag(Boolean.parseBoolean(map.get("is_media")));
-//            parameter.setIncrementFlag(Boolean.parseBoolean(map.get("is_increment")));
-//            parameter.setDerivedFlag(Boolean.parseBoolean(map.get("is_derived")));
-//            parameter.setAnnotateFlag(Boolean.parseBoolean(map.get("is_annotation")));
-//            if (parameter.getDerivedFlag()) {
-//                parameter.setFormula(map.get("derivation"));
-//            }
-//
-//            parameter.setUnit(map.get("unit"));
-//
-//            parameter.setDatatype(map.get("value_type"));
-//        }
-//
-//        procedure.addParameter(parameter);
-//
-//        return parameter;
-//    }
-
     private List<ParameterOntologyAnnotationWithSex> getPhenotypeParameterOntologyAssociations(String pipelineKey, String procedureKey, Parameter parameter) {
 
         List<ParameterOntologyAnnotationWithSex> annotations = new ArrayList<>();
 
         // Get the map of ontology terms from the IMPReSS web service.
-
-
-
-
-
-
-        List<Map<String, String>> ontologyTermsFromWs = new ArrayList<>();
-        NodeList ontologyTermMap;
-
-        try {
-            ontologyTermMap = ((Element) parameterOntologyOptionsClient.getParameterOntologyOptions(parameter.getStableId()).getGetParameterOntologyOptionsResult()).getChildNodes();
-        } catch (Exception e) {
-            e.printStackTrace();
-            logger.error("parameterOntologyOptionsClient() call failed. Reason: {}", e.getLocalizedMessage());
-
-
-
-            return annotations;
-
-
-
-        }
-
-        for (int i = 0; i < ontologyTermMap.getLength(); i++) {
-            NodeList ontologyTermNodes = ontologyTermMap.item(i).getChildNodes();
-
-            Map<String, String> map = new HashMap<>();
-
-            // Parse out the keys and values for this parameter
-            for (int j = 0; j < ontologyTermNodes.getLength(); j++) {
-                NodeList m = ontologyTermNodes.item(j).getChildNodes();
-                map.put(m.item(0).getTextContent(), m.item(1).getTextContent());
-            }
-
-            ontologyTermsFromWs.add(map);
-        }
+        List<Map<String, String>> ontologyTermsFromWs = impressUtils.getOntologyTermsFromWs(parameterOntologyOptionsClient, parameter);
 
         /*
          * Loop through this parameter's ontology terms, creating an ontologyAnnotation for each term. Add each
@@ -615,7 +344,7 @@ public class ImpressParserV2 implements CommandLineRunner {
 
             String       ontologyAcc  = ontologyTermFromWs.get("ontology_id");                                          // Extract the ontology term accession id from the web service
             String       ontologyName = ontologyTermFromWs.get("ontology_term");                                        // Extract the term name from the web service in case we need to create one.
-            OntologyTerm ontologyTerm = updatedOntologyTerms.get(ontologyAcc);                                          // Get the updated ontology term
+            OntologyTerm ontologyTerm = updatedOntologyTerms.get(ontologyAcc);                                          // Get the updated ontology term if it exists.
             if (ontologyTerm == null) {
 
                 if ((ontologyAcc == null) || (ontologyAcc.trim().isEmpty())) {
@@ -645,25 +374,8 @@ public class ImpressParserV2 implements CommandLineRunner {
             annotations.add(ontologyAnnotation);
         }
 
-        // Create a map of MP terms from the IMPReSS web service.
-        GetParameterMPTermsResponse response = parameterMPTermsClient.getParameterMPTerms(parameter.getStableId());
-        NodeList mpOntologyTermMap = ((Element) response.getGetParameterMPTermsResult()).getChildNodes();
-
-        List<Map<String, String>> mpOntologyTermsFromWs = new ArrayList<>();
-
-        for (int i = 0; i < mpOntologyTermMap.getLength(); i++) {
-            NodeList mpOntologyTermNodes = mpOntologyTermMap.item(i).getChildNodes();
-
-            Map<String, String> map = new HashMap<>();
-
-            // Parse out the keys and values for this parameter
-            for (int j = 0; j < mpOntologyTermNodes.getLength(); j++) {
-                NodeList m = mpOntologyTermNodes.item(j).getChildNodes();
-                map.put(m.item(0).getTextContent(), m.item(1).getTextContent());
-            }
-
-            mpOntologyTermsFromWs.add(map);
-        }
+        // Create the map of MP ontology terms from the IMPReSS web service.
+        List<Map<String, String>> mpOntologyTermsFromWs = impressUtils.getMpOntologyTermsFromWs(parameterMPTermsClient, parameter);
 
         /*
          * Loop through this parameter's mp ontology terms, creating an mpOntologyAnnotation for each mp term. Add each
@@ -736,76 +448,6 @@ public class ImpressParserV2 implements CommandLineRunner {
         return annotations;
     }
 
-//    private Pipeline getPipeline(String pipelineKey) {
-//
-//        NodeList pipelineNodes = ((Element) pipelineClient.getPipeline(pipelineKey).getGetPipelineResult()).getChildNodes();
-////        ImpressPipeline impressPipeline = impressUtils.
-//
-//
-//
-//
-//
-//
-//        Map<String, String> map = new HashMap<>();
-//        // Parse out the keys and values for this pipeline
-//        for (int j = 0; j < pipelineNodes.getLength(); j++) {
-//            NodeList m = pipelineNodes.item(j).getChildNodes();
-//            map.put(m.item(0).getTextContent(), m.item(1).getTextContent());
-//        }
-//
-//        logger.debug("Parsed pipeline map: {}", map);
-//
-//        Pipeline pipeline = new Pipeline();
-//        pipeline.setStableId(map.get("pipeline_key"));
-//        pipeline.setStableKey(Integer.valueOf(map.get("pipeline_id")));
-//        pipeline.setDatasource(datasource);
-//        pipeline.setName(map.get("pipeline_name"));
-//        pipeline.setDescription(map.get("description"));
-//        pipeline.setMajorVersion(Integer.parseInt(map.get("major_version")));
-//        pipeline.setMinorVersion(Integer.parseInt(map.get("minor_version")));
-//
-//        return pipeline;
-//    }
-
-//    private Procedure getProcedure(String procedureKey, Pipeline pipeline) {
-//
-//        Procedure procedure
-//                = null;
-//        Map<String, String> map = new HashMap<>();
-//
-//        NodeList procedureNodes = ((Element) procedureClient.getProcedure(procedureKey, pipeline.getStableId()).getGetProcedureResult()).getChildNodes();
-//
-//        // Parse out the keys and values for this procedure
-//        for (int j = 0; j < procedureNodes.getLength(); j++) {
-//            NodeList m = procedureNodes.item(j).getChildNodes();
-//            map.put(m.item(0).getTextContent(), m.item(1).getTextContent());
-//        }
-//
-//        String procedureStableId = map.get("procedure_key");
-//
-//        procedure = proceduresByStableIdMap.get(procedureStableId);
-//        if (procedure == null) {
-//            procedure = new Procedure();
-//            procedure.setStableId(procedureStableId);
-//            procedure.setStableKey(Integer.parseInt(map.get("procedure_id")));
-//            procedure.setDatasource(datasource);
-//            procedure.setName(map.get("procedure_name"));
-//            procedure.setDescription(map.get("description"));
-//            procedure.setStage(map.get("stage"));
-//            procedure.setStageLabel(map.get("stage_label"));
-//            procedure.setLevel(map.get("level"));
-//            procedure.setMajorVersion(Integer.parseInt(map.get("major_version")));
-//            procedure.setMinorVersion(Integer.parseInt(map.get("minor_version")));
-//            procedure.setMandatory(Boolean.parseBoolean(map.get("is_mandatory")));
-//
-//            procedure.addPipeline(pipeline);
-//        }
-//
-//        pipeline.addProcedure(procedure);
-//
-//        return procedure;
-//    }
-    
     private SexType getSexType(String sex, String parameterKey) {
 
         // Default value for sexType is null

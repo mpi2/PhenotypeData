@@ -17,6 +17,9 @@
 package org.mousephenotype.cda.loads.create.extract.cdabase.support;
 
 import org.mousephenotype.cda.db.pojo.*;
+import org.mousephenotype.impress.GetParameterMPTermsResponse;
+import org.mousephenotype.impress.wsdlclients.ParameterMPTermsClient;
+import org.mousephenotype.impress.wsdlclients.ParameterOntologyOptionsClient;
 import org.mousephenotype.impress2.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,6 +27,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 import javax.validation.constraints.NotNull;
 import java.util.*;
@@ -582,4 +587,59 @@ public class ImpressUtils {
 
         return units;
     }
+
+
+    // ANNOTATIONS
+
+
+    public List<Map<String, String>> getOntologyTermsFromWs(ParameterOntologyOptionsClient parameterOntologyOptionsClient, Parameter parameter) {
+
+        // Get the map of ontology terms from the IMPReSS web service.
+        List<Map<String, String>> ontologyTermsFromWs = new ArrayList<>();
+        NodeList                  ontologyTermMap     = ((Element) parameterOntologyOptionsClient.getParameterOntologyOptions(parameter.getStableId()).getGetParameterOntologyOptionsResult()).getChildNodes();
+
+        for (int i = 0; i < ontologyTermMap.getLength(); i++) {
+            NodeList ontologyTermNodes = ontologyTermMap.item(i).getChildNodes();
+
+            Map<String, String> map = new HashMap<>();
+
+            // Parse out the keys and values for this parameter
+            for (int j = 0; j < ontologyTermNodes.getLength(); j++) {
+                NodeList m = ontologyTermNodes.item(j).getChildNodes();
+                map.put(m.item(0).getTextContent(), m.item(1).getTextContent());
+            }
+
+            ontologyTermsFromWs.add(map);
+        }
+
+        return ontologyTermsFromWs;
+    }
+
+    public List<Map<String, String>> getMpOntologyTermsFromWs(ParameterMPTermsClient parameterMPTermsClient, Parameter parameter) {
+        // Create the map of MP ontology terms from the IMPReSS web service.
+        List<Map<String, String>> ontologyTermsFromWs = new ArrayList<>();
+
+        // Create a map of MP terms from the IMPReSS web service.
+        GetParameterMPTermsResponse response          = parameterMPTermsClient.getParameterMPTerms(parameter.getStableId());
+        NodeList                    mpOntologyTermMap = ((Element) response.getGetParameterMPTermsResult()).getChildNodes();
+
+        List<Map<String, String>> mpOntologyTermsFromWs = new ArrayList<>();
+
+        for (int i = 0; i < mpOntologyTermMap.getLength(); i++) {
+            NodeList mpOntologyTermNodes = mpOntologyTermMap.item(i).getChildNodes();
+
+            Map<String, String> map = new HashMap<>();
+
+            // Parse out the keys and values for this parameter
+            for (int j = 0; j < mpOntologyTermNodes.getLength(); j++) {
+                NodeList m = mpOntologyTermNodes.item(j).getChildNodes();
+                map.put(m.item(0).getTextContent(), m.item(1).getTextContent());
+            }
+
+            mpOntologyTermsFromWs.add(map);
+        }
+
+        return mpOntologyTermsFromWs;
+    }
+
 }
