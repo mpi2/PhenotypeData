@@ -413,17 +413,11 @@ public class ImpressUtils {
 
                 increment.setIncrementId((Integer) map.get("incrementId"));
 
-
-
-
-
                 try {
                     increment.setWeight((Integer) map.get("weight"));
                 } catch (NullPointerException e) {
                     logger.warn("weight for parameterId {} is NULL! url = {}", parameterId, url);
                 }
-
-
 
                 increment.setIsActive((Boolean) map.get("isActive"));
 
