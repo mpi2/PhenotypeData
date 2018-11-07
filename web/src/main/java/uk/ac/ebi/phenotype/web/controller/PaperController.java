@@ -208,7 +208,7 @@ public class PaperController {
                     String alleleLink = null;
 
                     if(allele.getGacc() != null) {
-                        alleleLink = "<span " + cssClass + "><a target='_blank' href='http://www.mousephenotype.org/data/genes/" + allele.getGacc().toUpperCase() + "'>" + symbol + "</a></span>";
+                        alleleLink = "<span " + cssClass + "><a target='_blank' href='//www.mousephenotype.org/data/genes/" + allele.getGacc().toUpperCase() + "'>" + symbol + "</a></span>";
                     } else {
                         alleleLink = "<span " + cssClass + ">" + symbol + "</span>";
                     }

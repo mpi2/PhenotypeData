@@ -970,7 +970,6 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 				.setRows(10)
 				;
 
-		System.out.println("statistical-result query========"+query);
 		if(strain != null) {
 			query.addFilterQuery(StatisticalResultDTO.STRAIN_ACCESSION_ID + ":\"" + strain + "\"");
 		}
@@ -986,6 +985,8 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 		} else {
 			query.addFilterQuery(StatisticalResultDTO.METADATA_GROUP + ":" + metadataGroup);
 		}
+
+		System.out.println("statistical-result query========: "+query);
 
 		response = solr.query(query);
 		List<StatisticalResultDTO> solrResults = response.getBeans(StatisticalResultDTO.class);

@@ -168,8 +168,11 @@
         <field name="media" type="boolean" indexed="true" stored="true" required="false" multiValued="false"/>
         <field name="annotate" type="boolean" indexed="true" stored="true" required="false" multiValued="false"/>
 
-        <!-- MP stuff -->
+        <!-- Stage for procedure -->
+        <field name="stage" type="string" indexed="true" stored="true" required="false" multiValued="false" />
+        <field name="stage_label" type="string" indexed="true" stored="true" required="false" multiValued="false" />
 
+        <!-- MP stuff -->
         <field name="mp_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
         <field name="mp_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />
         <field name="mp_term_synonym" type="string" indexed="true" stored="true" required="false" multiValued="true" />

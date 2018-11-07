@@ -398,17 +398,17 @@ public class DataTableController {
 
 			if ( doc.containsKey(Allele2DTO.TARGETING_VECTOR_AVAILABLE) && doc.getBoolean(Allele2DTO.TARGETING_VECTOR_AVAILABLE) ) {
 				order.add("<tr>");
-				order.add("<td><a class='iFrameFancy' data-url='" + dataUrl + "&type=targeting_vector'><i class='fa fa-shopping-cart'><span class='orderFont'> Targeting vector</span></i></a></td>");
+				order.add("<td><a target='_blank' href='" + dataUrl + "&type=targeting_vector'><i class='fa fa-shopping-cart'><span class='orderFont'> Targeting vector</span></i></a></td>");
 
 				if (doc.containsKey(Allele2DTO.VECTOR_ALLELE_IMAGE)) {
-					order.add("<td><a class='iFrameVector' data-url='" + doc.getString(Allele2DTO.VECTOR_ALLELE_IMAGE) + "' title='map for vector'><i class='fa fa-th-list'></i></a></td>");
+					order.add("<td><a target='_blank' href='" + doc.getString(Allele2DTO.VECTOR_ALLELE_IMAGE) + "' title='map for vector'><i class='fa fa-th-list'></i></a></td>");
 				}
 				else {
 					order.add("<td></td>");
 				}
 
 				if (doc.containsKey(Allele2DTO.VECTOR_GENBANK_LINK)) {
-					order.add("<td><a class='genbank' href='" + doc.getString(Allele2DTO.VECTOR_GENBANK_LINK) + "' title='genbank file for vector'><i class='fa fa-file-text'></i></a></td>");
+					order.add("<td><a target='_blank' href='" + doc.getString(Allele2DTO.VECTOR_GENBANK_LINK) + "' title='genbank file for vector'><i class='fa fa-file-text'></i></a></td>");
 				}
 				else {
 					order.add("<td></td>");
@@ -417,10 +417,10 @@ public class DataTableController {
 			}
 			if ( doc.containsKey(Allele2DTO.ES_CELL_AVAILABLE) && doc.getBoolean(Allele2DTO.ES_CELL_AVAILABLE)){
 				order.add("<tr>");
-				order.add("<td><a class='iFrameFancy' data-url='" + dataUrl + "&type=es_cell'><i class='fa fa-shopping-cart'><span class='orderFont'> ES cell</span></i></a></td>");
+				order.add("<td><a target='_blank' href='" + dataUrl + "&type=es_cell'><i class='fa fa-shopping-cart'><span class='orderFont'> ES cell</span></i></a></td>");
 
 				if (doc.containsKey(Allele2DTO.ALLELE_SIMPLE_IMAGE)) {
-					order.add("<td><a class='iFrameVector' data-url='" + doc.getString(Allele2DTO.ALLELE_SIMPLE_IMAGE) + "' title='map for allele'><i class='fa fa-th-list'></i></a></td>");
+					order.add("<td><a target='_blank' href='" + doc.getString(Allele2DTO.ALLELE_SIMPLE_IMAGE) + "' title='map for allele'><i class='fa fa-th-list'></i></a></td>");
 				}
 				else {
 					order.add("<td></td>");
@@ -437,10 +437,10 @@ public class DataTableController {
 
 			if ( doc.containsKey(Allele2DTO.MOUSE_AVAILABLE) && doc.getBoolean(Allele2DTO.MOUSE_AVAILABLE)){
 				order.add("<tr>");
-				order.add("<td><a class='iFrameFancy' data-url='" + dataUrl + "&type=mouse'><i class='fa fa-shopping-cart'><span class='orderFont'> Mouse</span></i></a></td>");
+				order.add("<td><a target='_blank' href='" + dataUrl + "&type=mouse'><i class='fa fa-shopping-cart'><span class='orderFont'> Mouse</span></i></a></td>");
 
 				if (doc.containsKey(Allele2DTO.ALLELE_SIMPLE_IMAGE)) {
-					order.add("<td><a class='iFrameVector' data-url='" + doc.getString(Allele2DTO.ALLELE_SIMPLE_IMAGE) + "' title='map for allele'><i class='fa fa-th-list'></i></a></td>");
+					order.add("<td><a target='_blank' href='" + doc.getString(Allele2DTO.ALLELE_SIMPLE_IMAGE) + "' title='map for allele'><i class='fa fa-th-list'></i></a></td>");
 				}
 				else {
 					order.add("<td></td>");
