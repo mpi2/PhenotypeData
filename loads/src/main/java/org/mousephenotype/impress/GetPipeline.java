@@ -31,7 +31,7 @@ import javax.xml.bind.annotation.XmlType;
 @XmlType(name = "", propOrder = {
     "pipelineKey"
 })
-@XmlRootElement(name = "ImpressPipeline")
+@XmlRootElement(name = "getPipeline")
 public class GetPipeline {
 
     @XmlElement(required = true, nillable = true)

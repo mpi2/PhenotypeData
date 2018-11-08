@@ -423,10 +423,10 @@ public class ImpressDataValidationTest extends TestCase {
 					.thenComparing(Procedure::getDescription)
 					.thenComparing(Procedure::getMajorVersion)
 					.thenComparing(Procedure::getMinorVersion)
-//					.thenComparing(Procedure::isMandatory)
-//					.thenComparing(Procedure::getLevel)
-//					.thenComparing(Procedure::getStage)
-//					.thenComparing(Procedure::getStageLabel)
+					.thenComparing(Procedure::isMandatory)
+					.thenComparing(Procedure::getLevel)
+					.thenComparing(Procedure::getStage)
+					.thenComparing(Procedure::getStageLabel)
 					.compare(o1, o2);
 		}
 	}
@@ -896,10 +896,10 @@ public class ImpressDataValidationTest extends TestCase {
             data.setMajorVersion(rs.getInt("major_version"));
             data.setMinorVersion(rs.getInt("minor_version"));
             integer = rs.getInt("is_mandatory");
-//            data.setMandatory((integer != null) && (integer == 1 ? true : false));
-//            data.setLevel(rs.getString("level"));
-//            data.setStage(rs.getString("stage"));
-//            data.setStageLabel(rs.getString("stage_label"));
+            data.setMandatory((integer != null) && (integer == 1 ? true : false));
+            data.setLevel(rs.getString("level"));
+            data.setStage(rs.getString("stage"));
+            data.setStageLabel(rs.getString("stage_label"));
 
             return data;
         }

@@ -291,9 +291,9 @@ public interface ImpressSoapPort {
      * @return
      *     returns java.lang.Object
      */
-    @WebMethod(action = "http://www.mousephenotype.org/impress/soap/server#ImpressPipeline")
+    @WebMethod(action = "http://www.mousephenotype.org/impress/soap/server#getPipeline")
     @WebResult(name = "getPipelineResult", targetNamespace = "")
-    @RequestWrapper(localName = "ImpressPipeline", targetNamespace = "http://www.mousephenotype.org/impress/soap/server", className = "org.mousephenotype.impress.ImpressPipeline")
+    @RequestWrapper(localName = "getPipeline", targetNamespace = "http://www.mousephenotype.org/impress/soap/server", className = "org.mousephenotype.impress.GetPipeline")
     @ResponseWrapper(localName = "getPipelineResponse", targetNamespace = "http://www.mousephenotype.org/impress/soap/server", className = "org.mousephenotype.impress.GetPipelineResponse")
     public Object getPipeline(
         @WebParam(name = "pipelineKey", targetNamespace = "")

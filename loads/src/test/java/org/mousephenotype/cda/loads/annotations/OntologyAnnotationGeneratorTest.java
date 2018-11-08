@@ -179,29 +179,28 @@ public class OntologyAnnotationGeneratorTest {
             List<Procedure> procedures = new ArrayList<>(pipeline.getProcedures());
             Collections.shuffle(procedures);
             for (Procedure procedure : procedures) {
+                logger.info("Testing procedure: {}", procedure);
+                for (Parameter parameter : procedure.getParameters()) {
 
-//                logger.info("Testing procedure: {}", procedure);
-//                for (Parameter parameter : procedure.getParameters()) {
-//
-//                    logger.info("Testing parameter: {}", parameter);
-//                    MultiKeyMap annotationsMap = mpTermService.getAnnotationTypeMap(parameter.getStableId(), connection, termDAO);
-//                    System.out.println(annotationsMap);
-//
-//                    Map<PhenotypeAnnotationType, OntologyTerm> shouldHave = new HashMap<>();
-//                    for (ParameterOntologyAnnotation pa : parameter.getAnnotations()) {
-//                        shouldHave.put((pa.getType()), pa.getOntologyTerm());
-//                    }
-//                    System.out.println("should have is:" + shouldHave);
-//
-//                    for(PhenotypeAnnotationType key : shouldHave.keySet()) {
-//                        logger.warn("Checking key: " + key);
-//                        logger.warn("  Should have value: " + shouldHave.get(key));
-//                        assert(annotationsMap.containsKey(key, "", ""));
-//                        assert(annotationsMap.get(key, "", "").equals(shouldHave.get(key)));
-//                    }
-//
-//                }
-//                break;
+                    logger.info("Testing parameter: {}", parameter);
+                    MultiKeyMap annotationsMap = mpTermService.getAnnotationTypeMap(parameter.getStableId(), connection, termDAO);
+                    System.out.println(annotationsMap);
+
+                    Map<PhenotypeAnnotationType, OntologyTerm> shouldHave = new HashMap<>();
+                    for (ParameterOntologyAnnotation pa : parameter.getAnnotations()) {
+                        shouldHave.put((pa.getType()), pa.getOntologyTerm());
+                    }
+                    System.out.println("should have is:" + shouldHave);
+
+                    for(PhenotypeAnnotationType key : shouldHave.keySet()) {
+                        logger.warn("Checking key: " + key);
+                        logger.warn("  Should have value: " + shouldHave.get(key));
+                        assert(annotationsMap.containsKey(key, "", ""));
+                        assert(annotationsMap.get(key, "", "").equals(shouldHave.get(key)));
+                    }
+
+                }
+                break;
             }
             break;
         }

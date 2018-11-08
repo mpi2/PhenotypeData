@@ -162,13 +162,6 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- Latest Impress 2.0 client entities -->
-        <dependency>
-            <groupId>uk.ac.mrc.har</groupId>
-            <artifactId>impressclient</artifactId>
-            <version>1.0-SNAPSHOT</version>
-        </dependency>
-
     </dependencies>
 
     <build>

@@ -596,20 +596,27 @@ public class ImpressUtils {
 
         // Get the map of ontology terms from the IMPReSS web service.
         List<Map<String, String>> ontologyTermsFromWs = new ArrayList<>();
-        NodeList                  ontologyTermMap     = ((Element) parameterOntologyOptionsClient.getParameterOntologyOptions(parameter.getStableId()).getGetParameterOntologyOptionsResult()).getChildNodes();
 
-        for (int i = 0; i < ontologyTermMap.getLength(); i++) {
-            NodeList ontologyTermNodes = ontologyTermMap.item(i).getChildNodes();
+        try {
+            NodeList ontologyTermMap = ((Element) parameterOntologyOptionsClient.getParameterOntologyOptions(parameter.getStableId()).getGetParameterOntologyOptionsResult()).getChildNodes();
 
-            Map<String, String> map = new HashMap<>();
+            for (int i = 0; i < ontologyTermMap.getLength(); i++) {
+                NodeList ontologyTermNodes = ontologyTermMap.item(i).getChildNodes();
 
-            // Parse out the keys and values for this parameter
-            for (int j = 0; j < ontologyTermNodes.getLength(); j++) {
-                NodeList m = ontologyTermNodes.item(j).getChildNodes();
-                map.put(m.item(0).getTextContent(), m.item(1).getTextContent());
+                Map<String, String> map = new HashMap<>();
+
+                // Parse out the keys and values for this parameter
+                for (int j = 0; j < ontologyTermNodes.getLength(); j++) {
+                    NodeList m = ontologyTermNodes.item(j).getChildNodes();
+                    map.put(m.item(0).getTextContent(), m.item(1).getTextContent());
+                }
+
+                ontologyTermsFromWs.add(map);
             }
+        } catch (Exception e) {
 
-            ontologyTermsFromWs.add(map);
+            e.printStackTrace();
+            logger.warn(e.getLocalizedMessage());
         }
 
         return ontologyTermsFromWs;
@@ -617,29 +624,32 @@ public class ImpressUtils {
 
     public List<Map<String, String>> getMpOntologyTermsFromWs(ParameterMPTermsClient parameterMPTermsClient, Parameter parameter) {
         // Create the map of MP ontology terms from the IMPReSS web service.
-        List<Map<String, String>> ontologyTermsFromWs = new ArrayList<>();
-
-        // Create a map of MP terms from the IMPReSS web service.
-        GetParameterMPTermsResponse response          = parameterMPTermsClient.getParameterMPTerms(parameter.getStableId());
-        NodeList                    mpOntologyTermMap = ((Element) response.getGetParameterMPTermsResult()).getChildNodes();
-
         List<Map<String, String>> mpOntologyTermsFromWs = new ArrayList<>();
 
-        for (int i = 0; i < mpOntologyTermMap.getLength(); i++) {
-            NodeList mpOntologyTermNodes = mpOntologyTermMap.item(i).getChildNodes();
+        // Create a map of MP terms from the IMPReSS web service.
+        try {
+            GetParameterMPTermsResponse response          = parameterMPTermsClient.getParameterMPTerms(parameter.getStableId());
+            NodeList                    mpOntologyTermMap = ((Element) response.getGetParameterMPTermsResult()).getChildNodes();
 
-            Map<String, String> map = new HashMap<>();
 
-            // Parse out the keys and values for this parameter
-            for (int j = 0; j < mpOntologyTermNodes.getLength(); j++) {
-                NodeList m = mpOntologyTermNodes.item(j).getChildNodes();
-                map.put(m.item(0).getTextContent(), m.item(1).getTextContent());
+            for (int i = 0; i < mpOntologyTermMap.getLength(); i++) {
+                NodeList mpOntologyTermNodes = mpOntologyTermMap.item(i).getChildNodes();
+
+                Map<String, String> map = new HashMap<>();
+
+                // Parse out the keys and values for this parameter
+                for (int j = 0; j < mpOntologyTermNodes.getLength(); j++) {
+                    NodeList m = mpOntologyTermNodes.item(j).getChildNodes();
+                    map.put(m.item(0).getTextContent(), m.item(1).getTextContent());
+                }
+
+                mpOntologyTermsFromWs.add(map);
             }
-
-            mpOntologyTermsFromWs.add(map);
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.warn(e.getLocalizedMessage());
         }
 
         return mpOntologyTermsFromWs;
     }
-
 }

@@ -41,7 +41,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 import org.springframework.util.Assert;
-import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -78,8 +77,6 @@ public class CdabaseConfig extends DataSourceCdabaseConfig {
     @NotNull
     @Value("${cdabase.workspace}")
     protected String cdabaseWorkspace;
-
-    public RestTemplate restTemplate;
 
     @NotNull
     @Value("${impress.service.url}")

@@ -57,5 +57,4 @@ public class ImpressUnits implements Serializable {
         ImpressUnits other = (ImpressUnits) object;
         return !((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id)));
     }
-
 }

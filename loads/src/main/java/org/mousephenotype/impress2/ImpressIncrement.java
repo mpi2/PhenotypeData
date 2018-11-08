@@ -1,7 +1,5 @@
 package org.mousephenotype.impress2;
 
-import uk.ac.mrc.har.impressclient.entities.Increment;
-
 import java.io.Serializable;
 
 public class ImpressIncrement implements Serializable {
@@ -123,7 +121,7 @@ public class ImpressIncrement implements Serializable {
     @Override
     public boolean equals(Object object) {
         // TODO: Warning - this method won't work in the case the id fields are not set
-        if (!(object instanceof Increment)) {
+        if (!(object instanceof ImpressIncrement)) {
             return false;
         }
         ImpressIncrement other = (ImpressIncrement) object;
