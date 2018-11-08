@@ -129,6 +129,12 @@ public class GenerateDerivedParameters implements CommandLineRunner {
 
             switch (parameter) {
 
+                // Only called via manually passing in the parameter
+                case "IMPC_VIA_032_001":
+                    task = () -> IMPC_VIA_032_001();
+                    tasks.add(executor.submit(task));
+                    break;
+
                 case "GMC_914_001_704":
                     task = () -> copyDivisionResult("GMC_914_001_704", "GMC_914_001_015", "GMC_914_001_001");
                     tasks.add(executor.submit(task));

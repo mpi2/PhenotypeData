@@ -32,6 +32,8 @@ public class ProcedureDTO extends ImpressBaseDTO{
 	private String procNameId;
 	private String observationType;	
 	private String description;
+	private String stage;
+	private String stageLabel;
 	private List<ParameterDTO> parameters;
 	
 	public ProcedureDTO(Integer id, Integer stableKey, String stableId, String name){
@@ -94,7 +96,20 @@ public class ProcedureDTO extends ImpressBaseDTO{
 	public void setDescription(String description) {
 		this.description = description;
 	}
-	
-	
-		
+
+	public String getStage() {
+		return stage;
+	}
+
+	public void setStage(String stage) {
+		this.stage = stage;
+	}
+
+	public String getStageLabel() {
+		return stageLabel;
+	}
+
+	public void setStageLabel(String stageLabel) {
+		this.stageLabel = stageLabel;
+	}
 }
