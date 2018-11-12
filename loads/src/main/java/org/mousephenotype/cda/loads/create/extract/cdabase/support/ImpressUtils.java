@@ -78,16 +78,16 @@ public class ImpressUtils {
                 pipeline.setPipelineId((Integer) pipelineMap.get("pipelineId"));
                 pipeline.setPipelineKey((String) pipelineMap.get("pipelineKey"));
                 pipeline.setPipelineType((String) pipelineMap.get("pipelineType"));
-                pipeline.setName((String) pipelineMap.get("name"));
+                pipeline.setName(newlineToSpace((String) pipelineMap.get("name")));
                 pipeline.setIsVisible((Boolean) pipelineMap.get("isVisible"));
                 pipeline.setIsActive((Boolean) pipelineMap.get("isActive"));
                 pipeline.setIsDeprecated((Boolean) pipelineMap.get("isDeprecated"));
                 pipeline.setMajorVersion((Integer) pipelineMap.get("majorVersion"));
                 pipeline.setMinorVersion((Integer) pipelineMap.get("minorVersion"));
-                pipeline.setDescription((String) pipelineMap.get("description"));
+                pipeline.setDescription(newlineToSpace((String) pipelineMap.get("description")));
                 pipeline.setIsInternal((Boolean) pipelineMap.get("isInternal"));
                 pipeline.setIsDeleted((Boolean) pipelineMap.get("isDeleted"));
-                pipeline.setCentreName((String) pipelineMap.get("centreName"));
+                pipeline.setCentreName(newlineToSpace((String) pipelineMap.get("centreName")));
                 pipeline.setImpc(((Integer) pipelineMap.get("impc")).shortValue());
                 pipeline.setScheduleCollection((List<Integer>) pipelineMap.get("scheduleCollection"));
 
@@ -221,12 +221,12 @@ public class ImpressUtils {
             impressProcedure.setIsVisible((Boolean) procedureMap.get("isVisible"));
             impressProcedure.setIsMandatory((Boolean) procedureMap.get("isMandatory"));
             impressProcedure.setIsInternal((Boolean) procedureMap.get("isInternal"));
-            impressProcedure.setName((String) procedureMap.get("name"));
+            impressProcedure.setName(newlineToSpace((String) procedureMap.get("name")));
             impressProcedure.setType((Integer) procedureMap.get("type"));
             impressProcedure.setLevel((String) procedureMap.get("level"));
             impressProcedure.setMajorVersion((Integer) procedureMap.get("majorVersion"));
             impressProcedure.setMinorVersion((Integer) procedureMap.get("minorVersion"));
-            impressProcedure.setDescription((String) procedureMap.get("description"));
+            impressProcedure.setDescription(newlineToSpace((String) procedureMap.get("description")));
             impressProcedure.setOldProcedureKey((String) procedureMap.get("oldProcedureKey"));
             impressProcedure.setParameterCollection((List<Integer>) procedureMap.get("parameterCollection"));
             impressProcedure.setScheduleId((Integer) procedureMap.get("scheduleId"));
@@ -281,7 +281,6 @@ public class ImpressUtils {
         String           url              = impressServiceUrl + "/parameter/" + parameterId;
 
         try {
-
             RestTemplate rt   = new RestTemplate();
             Object       o    = rt.getForEntity(url, Object.class);
             Object       body = ((ResponseEntity) o).getBody();
@@ -291,14 +290,14 @@ public class ImpressUtils {
             impressParameter.setParameterId((Integer) parameterMap.get("parameterId"));
             impressParameter.setParameterKey((String) parameterMap.get("parameterKey"));
             impressParameter.setType((String) parameterMap.get("type"));
-            impressParameter.setName((String) parameterMap.get("name"));
+            impressParameter.setName(newlineToSpace((String) parameterMap.get("name")));
             impressParameter.setIsVisible((Boolean) parameterMap.get("isVisible"));
             impressParameter.setIsActive((Boolean) parameterMap.get("isActive"));
             impressParameter.setIsDeprecated((Boolean) parameterMap.get("isDeprecated"));
             impressParameter.setMajorVersion((Integer) parameterMap.get("majorVersion"));
             impressParameter.setMinorVersion((Integer) parameterMap.get("minorVersion"));
             impressParameter.setDerivation((String) parameterMap.get("derivation"));
-            impressParameter.setDescription((String) parameterMap.get("description"));
+            impressParameter.setDescription(newlineToSpace((String) parameterMap.get("description")));
             impressParameter.setIsAnnotation((Boolean) parameterMap.get("isAnnotation"));
             impressParameter.setIsDerived((Boolean) parameterMap.get("isDerived"));
             impressParameter.setIsImportant((Boolean) parameterMap.get("isImportant"));
@@ -314,10 +313,10 @@ public class ImpressUtils {
             d = (Double) parameterMap.get("qcMax");
             impressParameter.setQcMax(d == null ? null : d.floatValue());
 
-            impressParameter.setQcNotes((String) parameterMap.get("qcNotes"));
+            impressParameter.setQcNotes(newlineToSpace((String) parameterMap.get("qcNotes")));
             impressParameter.setValueType((String) parameterMap.get("valueType"));
             impressParameter.setGraphType((String) parameterMap.get("graphType"));
-            impressParameter.setDataAnalysisNotes((String) parameterMap.get("dataAnalysisNotes"));
+            impressParameter.setDataAnalysisNotes(newlineToSpace((String) parameterMap.get("dataAnalysisNotes")));
             impressParameter.setIsInternal((Boolean) parameterMap.get("isInternal"));
             impressParameter.setIsDeleted((Boolean) parameterMap.get("isDeleted"));
             impressParameter.setOldParameterKey((String) parameterMap.get("oldParameterKey"));
@@ -522,7 +521,7 @@ public class ImpressUtils {
                 option.setParentId(o == null ? null : (Integer) o);
 
                 o = map.get("name");
-                option.setName(o == null ? "" : (String) o);
+                option.setName(o == null ? "" : newlineToSpace((String) o));
 
                 option.setIsDefault((Boolean) map.get("isDefault"));
                 option.setIsActive((Boolean) map.get("isActive"));
@@ -666,5 +665,23 @@ public class ImpressUtils {
         }
 
         return mpOntologyTermsFromWs;
+    }
+
+    /**
+     * If token is not null, replaces all newline characters with a single space. Some impress names have a newline
+     * in the middle of a two-word name, which causes processing problems downstream. Some of this data is old and,
+     * despite requests to the DCC to scrub it, it is still bad.
+     * @param token String to be scrubbed. If null, null is returned. If not null, all newlines are replaced with a
+     *              single space
+     * @return the scrubbed token, if not null; otherwise, null
+     */
+    public static String newlineToSpace(String token) {
+        String result = token;
+
+        if (result != null) {
+            result = result.replaceAll("\\n", " ");
+        }
+
+        return result;
     }
 }

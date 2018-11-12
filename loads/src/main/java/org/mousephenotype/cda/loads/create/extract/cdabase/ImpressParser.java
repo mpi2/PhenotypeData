@@ -19,6 +19,7 @@ package org.mousephenotype.cda.loads.create.extract.cdabase;
 import org.mousephenotype.cda.db.pojo.*;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.loads.common.CdaSqlUtils;
+import org.mousephenotype.cda.loads.create.extract.cdabase.support.ImpressUtils;
 import org.mousephenotype.impress.GetParameterIncrementsResponse;
 import org.mousephenotype.impress.GetParameterMPTermsResponse;
 import org.mousephenotype.impress.GetParameterOptionsResponse;
@@ -360,7 +361,7 @@ public class ImpressParser implements CommandLineRunner {
             parameter.setStableId(map.get("parameter_key"));
             parameter.setStableKey(Integer.parseInt(map.get("parameter_id")));
             parameter.setDatasource(datasource);
-            parameter.setName(map.get("parameter_name"));
+            parameter.setName(ImpressUtils.newlineToSpace(map.get("parameter_name")));
             parameter.setDescription(map.get("description"));
             parameter.setMajorVersion(Integer.parseInt(map.get("major_version")));
             parameter.setMinorVersion(Integer.parseInt(map.get("minor_version")));
@@ -563,7 +564,7 @@ public class ImpressParser implements CommandLineRunner {
         pipeline.setStableId(map.get("pipeline_key"));
         pipeline.setStableKey(Integer.valueOf(map.get("pipeline_id")));
         pipeline.setDatasource(datasource);
-        pipeline.setName(map.get("pipeline_name"));
+        pipeline.setName(ImpressUtils.newlineToSpace(map.get("pipeline_name")));
         pipeline.setDescription(map.get("description"));
         pipeline.setMajorVersion(Integer.parseInt(map.get("major_version")));
         pipeline.setMinorVersion(Integer.parseInt(map.get("minor_version")));
@@ -592,7 +593,7 @@ public class ImpressParser implements CommandLineRunner {
             procedure.setStableId(procedureStableId);
             procedure.setStableKey(Integer.parseInt(map.get("procedure_id")));
             procedure.setDatasource(datasource);
-            procedure.setName(map.get("procedure_name"));
+            procedure.setName(ImpressUtils.newlineToSpace(map.get("procedure_name")));
             procedure.setDescription(map.get("description"));
             procedure.setStage(map.get("stage"));
             procedure.setStageLabel(map.get("stage_label"));
