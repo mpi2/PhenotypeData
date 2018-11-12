@@ -197,7 +197,7 @@ public class ImpressParserV2 implements CommandLineRunner {
 
                         proceduresById.put(procedureId, procedure);
 
-                        logger.info("    Loading procedureId {}", procedureId);
+                        logger.info("    Loading procedureId::procedureKey {}::{}", procedureId, procedure.getStableId());
 
                         if (cdabaseSqlUtils.insertPhenotypeProcedure(pipeline.getId(), procedure) == null) {
                             logger.warn("INSERT OF procedureId {} ({}) FAILED. PROCEDURE SKIPPED...", procedure.getStableKey(), procedure.getStableId());
