@@ -25,8 +25,8 @@ package org.mousephenotype.cda.db.pojo;
  */
 
 import javax.persistence.*;
-import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 
@@ -35,7 +35,7 @@ import java.util.Set;
 public class Pipeline extends PipelineEntry {
 
     @Transient
-    private Set<Integer> scheduleCollection;
+    private List<Integer> scheduleCollection;
 
     @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(
@@ -67,11 +67,11 @@ public class Pipeline extends PipelineEntry {
         this.procedures = procedures;
     }
 
-    public Set<Integer> getScheduleCollection() {
+    public List<Integer> getScheduleCollection() {
         return scheduleCollection;
     }
 
-    public void setScheduleCollection(Set<Integer> scheduleCollection) {
+    public void setScheduleCollection(List<Integer> scheduleCollection) {
         this.scheduleCollection = scheduleCollection;
     }
 }

@@ -91,6 +91,10 @@ public class ImpressParserV2 implements CommandLineRunner {
     private Map<Integer, Parameter> parametersById = new HashMap<>();
     private Map<Integer, String>    unitsById      = new HashMap<>();
 
+    // Sets for missing terms for display at the end of the run.
+    private Set<String> missingOntologyTerms = new HashSet<>();
+    private Set<String> missingMpTerms       = new HashSet<>();
+
 
     private final String[] OPT_HELP = {"h", "help"};
     private final String[] OPT_OMIT_PIPELINES = {"o", "omitPipelines"};
@@ -233,6 +237,20 @@ public class ImpressParserV2 implements CommandLineRunner {
                 }
             }
         }
+
+        // Print out missing sets
+        Collections.sort(new ArrayList<>(missingOntologyTerms));
+        for (String term : missingOntologyTerms) {
+            logger.warn(term);
+        }
+
+        System.out.println();
+
+        Collections.sort(new ArrayList<>(missingMpTerms));
+        for (String term : missingOntologyTerms) {
+            logger.warn(term);
+        }
+
     }
 
 
@@ -329,7 +347,7 @@ public class ImpressParserV2 implements CommandLineRunner {
         // Get the map of ontology terms from the IMPReSS web service. A null return value indicates an error.
         List<Map<String, String>> ontologyTermsFromWs = impressUtils.getOntologyTermsFromWs(parameterOntologyOptionsClient, parameter);
         if (ontologyTermsFromWs == null) {
-            logger.warn("for pipelineKey::procedureKey::parameterKey(parameterId) {}::{}::{}({})", pipelineKey, procedureKey, parameter.getStableId(), parameter.getStableKey());
+            missingOntologyTerms.add("parameterOntologyOptionsClient(): Missing ontology term for pipelineKey::procedureKey::parameterKey(parameterId) " + pipelineKey + "::" + procedureKey + "::" + parameter.getStableId() + "::" + parameter.getStableKey());
             return annotations;
         }
 
@@ -381,7 +399,7 @@ public class ImpressParserV2 implements CommandLineRunner {
         // Create the map of MP ontology terms from the IMPReSS web service.
         List<Map<String, String>> mpOntologyTermsFromWs = impressUtils.getMpOntologyTermsFromWs(parameterMPTermsClient, parameter);
         if (mpOntologyTermsFromWs == null) {
-            logger.warn("for pipelineKey::procedureKey::parameterKey(parameterId) {}::{}::{}({})", pipelineKey, procedureKey, parameter.getStableId(), parameter.getStableKey());
+            missingMpTerms.add("parameterMPTermsClient(): Missing MP ontology term for pipelineKey::procedureKey::parameterKey(parameterId) " + pipelineKey + "::" + procedureKey + "::" + parameter.getStableId() + "::" + parameter.getStableKey());
             return annotations;
         }
 

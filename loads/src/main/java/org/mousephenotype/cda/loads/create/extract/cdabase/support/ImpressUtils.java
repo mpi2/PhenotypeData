@@ -89,7 +89,7 @@ public class ImpressUtils {
                 pipeline.setIsDeleted((Boolean) pipelineMap.get("isDeleted"));
                 pipeline.setCentreName((String) pipelineMap.get("centreName"));
                 pipeline.setImpc(((Integer) pipelineMap.get("impc")).shortValue());
-                pipeline.setScheduleCollection((Set<Integer>) pipelineMap.get("scheduleCollection"));
+                pipeline.setScheduleCollection((List<Integer>) pipelineMap.get("scheduleCollection"));
 
                 pipelines.add(pipeline);
             }
@@ -116,7 +116,7 @@ public class ImpressUtils {
         pipeline.setMinorVersion(impressPipeline.getMinorVersion());
         pipeline.setDescription(impressPipeline.getDescription());
         pipeline.setName(impressPipeline.getName());
-        pipeline.setScheduleCollection(new HashSet<>(impressPipeline.getScheduleCollection()));
+        pipeline.setScheduleCollection(new ArrayList<>(impressPipeline.getScheduleCollection()));
 
         return pipeline;
     }
@@ -592,6 +592,7 @@ public class ImpressUtils {
     // ANNOTATIONS
 
 
+    @Deprecated
     public List<Map<String, String>> getOntologyTermsFromWs(ParameterOntologyOptionsClient parameterOntologyOptionsClient, Parameter parameter) {
 
         // Get the map of ontology terms from the IMPReSS web service.
@@ -616,14 +617,20 @@ public class ImpressUtils {
 
         } catch (Exception e) {
 
-            e.printStackTrace();
-            logger.warn("{}: parameterId", e.getLocalizedMessage(), parameter.getStableId());
+            if (e.getLocalizedMessage().toLowerCase().startsWith("the parameter key supplied does not exist")) {
+                // Do nothing. Caller logs the error.
+            } else {
+                e.printStackTrace();
+                logger.warn("{}: parameterId", e.getLocalizedMessage(), parameter.getStableId());
+            }
+
             return null;
         }
 
         return ontologyTermsFromWs;
     }
 
+    @Deprecated
     public List<Map<String, String>> getMpOntologyTermsFromWs(ParameterMPTermsClient parameterMPTermsClient, Parameter parameter) {
         // Create the map of MP ontology terms from the IMPReSS web service.
         List<Map<String, String>> mpOntologyTermsFromWs = new ArrayList<>();
@@ -648,8 +655,13 @@ public class ImpressUtils {
             }
         } catch (Exception e) {
 
-            e.printStackTrace();
-            logger.warn("{}: parameterId", e.getLocalizedMessage(), parameter.getStableId());
+            if (e.getLocalizedMessage().toLowerCase().startsWith("the parameter key supplied does not exist")) {
+                // Do nothing. Caller logs the error.
+            } else {
+                e.printStackTrace();
+                logger.warn("{}: parameterId", e.getLocalizedMessage(), parameter.getStableId());
+            }
+
             return null;
         }
 
