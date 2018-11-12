@@ -38,7 +38,8 @@ import java.util.Set;
 @Table(name = "phenotype_procedure")
 public class Procedure extends PipelineEntry implements Comparable, Serializable {
 
-    private Collection<Integer> parameterCollection;
+    @Transient
+    private Set<Integer> parameterCollection;
 
     @Column(name = "is_mandatory")
     boolean isMandatory;
@@ -216,11 +217,11 @@ public class Procedure extends PipelineEntry implements Comparable, Serializable
         return this.getName().compareTo(p.getName());
     }
 
-    public Collection<Integer> getParameterCollection() {
+    public Set<Integer> getParameterCollection() {
         return parameterCollection;
     }
 
-    public void setParameterCollection(Collection<Integer> parameterCollection) {
+    public void setParameterCollection(Set<Integer> parameterCollection) {
         this.parameterCollection = parameterCollection;
     }
 

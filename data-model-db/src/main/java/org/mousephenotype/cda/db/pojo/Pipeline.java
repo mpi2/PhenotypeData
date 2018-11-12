@@ -34,7 +34,8 @@ import java.util.Set;
 @Table(name = "phenotype_pipeline")
 public class Pipeline extends PipelineEntry {
 
-    private Collection<Integer> scheduleCollection;
+    @Transient
+    private Set<Integer> scheduleCollection;
 
     @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(
@@ -66,11 +67,11 @@ public class Pipeline extends PipelineEntry {
         this.procedures = procedures;
     }
 
-    public Collection<Integer> getScheduleCollection() {
+    public Set<Integer> getScheduleCollection() {
         return scheduleCollection;
     }
 
-    public void setScheduleCollection(Collection<Integer> scheduleCollection) {
+    public void setScheduleCollection(Set<Integer> scheduleCollection) {
         this.scheduleCollection = scheduleCollection;
     }
 }

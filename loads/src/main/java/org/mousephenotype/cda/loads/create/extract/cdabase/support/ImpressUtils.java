@@ -89,7 +89,7 @@ public class ImpressUtils {
                 pipeline.setIsDeleted((Boolean) pipelineMap.get("isDeleted"));
                 pipeline.setCentreName((String) pipelineMap.get("centreName"));
                 pipeline.setImpc(((Integer) pipelineMap.get("impc")).shortValue());
-                pipeline.setScheduleCollection((List<Integer>) pipelineMap.get("scheduleCollection"));
+                pipeline.setScheduleCollection((Set<Integer>) pipelineMap.get("scheduleCollection"));
 
                 pipelines.add(pipeline);
             }
@@ -116,7 +116,7 @@ public class ImpressUtils {
         pipeline.setMinorVersion(impressPipeline.getMinorVersion());
         pipeline.setDescription(impressPipeline.getDescription());
         pipeline.setName(impressPipeline.getName());
-        pipeline.setScheduleCollection(impressPipeline.getScheduleCollection());
+        pipeline.setScheduleCollection(new HashSet<>(impressPipeline.getScheduleCollection()));
 
         return pipeline;
     }
@@ -258,7 +258,7 @@ public class ImpressUtils {
         procedure.setDescription(impressProcedure.getDescription());
         procedure.setName(impressProcedure.getName());
         procedure.setLevel(impressProcedure.getLevel());
-        procedure.setParameterCollection(impressProcedure.getParameterCollection());
+        procedure.setParameterCollection(new HashSet<>(impressProcedure.getParameterCollection()));
         procedure.setScheduleKey(impressProcedure.getScheduleId());
 
         return procedure;
@@ -613,10 +613,12 @@ public class ImpressUtils {
 
                 ontologyTermsFromWs.add(map);
             }
+
         } catch (Exception e) {
 
             e.printStackTrace();
-            logger.warn(e.getLocalizedMessage());
+            logger.warn("{}: parameterId", e.getLocalizedMessage(), parameter.getStableId());
+            return null;
         }
 
         return ontologyTermsFromWs;
@@ -630,7 +632,6 @@ public class ImpressUtils {
         try {
             GetParameterMPTermsResponse response          = parameterMPTermsClient.getParameterMPTerms(parameter.getStableId());
             NodeList                    mpOntologyTermMap = ((Element) response.getGetParameterMPTermsResult()).getChildNodes();
-
 
             for (int i = 0; i < mpOntologyTermMap.getLength(); i++) {
                 NodeList mpOntologyTermNodes = mpOntologyTermMap.item(i).getChildNodes();
@@ -646,8 +647,10 @@ public class ImpressUtils {
                 mpOntologyTermsFromWs.add(map);
             }
         } catch (Exception e) {
+
             e.printStackTrace();
-            logger.warn(e.getLocalizedMessage());
+            logger.warn("{}: parameterId", e.getLocalizedMessage(), parameter.getStableId());
+            return null;
         }
 
         return mpOntologyTermsFromWs;

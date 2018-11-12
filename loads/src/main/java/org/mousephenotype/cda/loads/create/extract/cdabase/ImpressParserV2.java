@@ -326,8 +326,12 @@ public class ImpressParserV2 implements CommandLineRunner {
 
         List<ParameterOntologyAnnotationWithSex> annotations = new ArrayList<>();
 
-        // Get the map of ontology terms from the IMPReSS web service.
+        // Get the map of ontology terms from the IMPReSS web service. A null return value indicates an error.
         List<Map<String, String>> ontologyTermsFromWs = impressUtils.getOntologyTermsFromWs(parameterOntologyOptionsClient, parameter);
+        if (ontologyTermsFromWs == null) {
+            logger.warn("for pipelineKey::procedureKey::parameterKey(parameterId) {}::{}::{}({})", pipelineKey, procedureKey, parameter.getStableId(), parameter.getStableKey());
+            return annotations;
+        }
 
         /*
          * Loop through this parameter's ontology terms, creating an ontologyAnnotation for each term. Add each
@@ -376,6 +380,10 @@ public class ImpressParserV2 implements CommandLineRunner {
 
         // Create the map of MP ontology terms from the IMPReSS web service.
         List<Map<String, String>> mpOntologyTermsFromWs = impressUtils.getMpOntologyTermsFromWs(parameterMPTermsClient, parameter);
+        if (mpOntologyTermsFromWs == null) {
+            logger.warn("for pipelineKey::procedureKey::parameterKey(parameterId) {}::{}::{}({})", pipelineKey, procedureKey, parameter.getStableId(), parameter.getStableKey());
+            return annotations;
+        }
 
         /*
          * Loop through this parameter's mp ontology terms, creating an mpOntologyAnnotation for each mp term. Add each
