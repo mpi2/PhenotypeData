@@ -38,6 +38,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
 import org.springframework.validation.BindException;
 
 import java.util.HashMap;
@@ -56,6 +57,7 @@ public class PhenotypedColonyLoader implements InitializingBean, Step {
     private final Logger             logger               = LoggerFactory.getLogger(this.getClass());
 
     private FlatFileItemReader<PhenotypedColony> phenotypedColonyReader = new FlatFileItemReader<>();
+    private Boolean resourceAlreadySet = false;
 
     public enum FilenameKeys {
         EBI_PhenotypedColony
@@ -92,10 +94,18 @@ public class PhenotypedColonyLoader implements InitializingBean, Step {
         this.phenotypedColonyKeys = phenotypedColonyKeys;
     }
 
+    public PhenotypedColonyLoader(Resource inputFileResource) throws DataLoadException {
+        phenotypedColonyReader.setResource(inputFileResource);
+        this.resourceAlreadySet = true;
+    }
+
     @Override
     public void afterPropertiesSet() throws Exception {
 
-        phenotypedColonyReader.setResource(new FileSystemResource(phenotypedColonyKeys.get(FilenameKeys.EBI_PhenotypedColony)));
+        if ( ! resourceAlreadySet ) {
+            phenotypedColonyReader.setResource(new FileSystemResource(phenotypedColonyKeys.get(FilenameKeys.EBI_PhenotypedColony)));
+        }
+
         phenotypedColonyReader.setComments(new String[] {"#" });
         phenotypedColonyReader.setRecordSeparatorPolicy(new BlankLineRecordSeparatorPolicy());
         DefaultLineMapper<PhenotypedColony> lineMapperPhenotypedColony = new DefaultLineMapper<>();

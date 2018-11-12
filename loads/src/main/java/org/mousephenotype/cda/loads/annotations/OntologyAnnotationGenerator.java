@@ -1753,7 +1753,7 @@ public class OntologyAnnotationGenerator implements CommandLineRunner {
 			"        AND o.parameter_stable_id REGEXP 'IMPC_GPL*|IMPC_GEL*|IMPC_GPM*|IMPC_GEM*|IMPC_GPO*|IMPC_GEO*|IMPC_GPP*|IMPC_GEP*' " +
 			"  GROUP BY ls.zygosity, ls.colony_id, o.parameter_stable_id " +
 			"  HAVING COUNT(co.category) > 1) AS b ON (b.colony_id=ls.colony_id AND b.parameter_stable_id=o.parameter_stable_id AND b.zygosity=ls.zygosity) " +
-			"WHERE co.category IN ('yes', 'abnormal') AND " +
+			"WHERE co.category IN ('yes', 'abnormal') AND pparam.annotate = 1 AND " +
 			"  e.procedure_id IN (SELECT id FROM phenotype_procedure WHERE stable_id REGEXP 'IMPC_GPL|IMPC_GEL|IMPC_GPM|IMPC_GEM|IMPC_GPO|IMPC_GEO|IMPC_GPP|IMPC_GEP') ";
 
 		try (PreparedStatement statement = connection.prepareStatement(query)) {

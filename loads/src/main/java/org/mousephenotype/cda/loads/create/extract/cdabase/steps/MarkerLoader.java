@@ -119,7 +119,7 @@ public class MarkerLoader implements InitializingBean, Step {
             , "unused_5"                // E - cM Position
             , "unused_6"                // F - Chromosome
             , "unused_7"                // G - Type
-            , "unused_8"                // H - Secondary Accession IDs (|-delimited)
+            , "secondaryAccessionIds"   // H - Secondary Accession IDs (|-delimited)
             , "entrezId"                // I - EntrezGene ID
             , "unused_10"               // J - Synonyms (|-delimited)
             , "unused_11"               // K - Feature Types (|-delimited)
@@ -220,7 +220,7 @@ public class MarkerLoader implements InitializingBean, Step {
         DefaultLineMapper<List<Xref>> lineMapperEntrezGeneXrefs = new DefaultLineMapper<>();
         DelimitedLineTokenizer  tokenizerEntrezGeneXrefs  = new DelimitedLineTokenizer("\t");
         tokenizerEntrezGeneXrefs.setStrict(false);     // Relax token count. Some lines have more tokens; others, less, causing a parsing exception.
-        tokenizerEntrezGeneXrefs.setNames(xrefEnsemblColumnNames);
+        tokenizerEntrezGeneXrefs.setNames(xrefEntrezGeneColumnNames);
         lineMapperEntrezGeneXrefs.setLineTokenizer(tokenizerEntrezGeneXrefs);
         lineMapperEntrezGeneXrefs.setFieldSetMapper(new XrefFieldSetMapper());
         xrefEntrezGenesReader.setLineMapper(lineMapperEntrezGeneXrefs);

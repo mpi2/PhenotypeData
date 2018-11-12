@@ -32,6 +32,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Deprecated
 public class RegisterInterestDrupalSolr {
 
 	private final Logger log = LoggerFactory.getLogger(this.getClass());

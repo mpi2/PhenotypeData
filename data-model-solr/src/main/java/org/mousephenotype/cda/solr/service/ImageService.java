@@ -19,6 +19,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.response.*;
 import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.common.SolrDocument;
@@ -42,7 +43,9 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
+import org.springframework.util.Assert;
 
+import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.util.*;
@@ -52,11 +55,19 @@ import java.util.stream.Collectors;
 @Service
 public class ImageService implements WebStatus{
 
-	@Autowired
-	@Qualifier("impcImagesCore")
-	private SolrClient solr;
 	private static final Logger logger = LoggerFactory.getLogger(ImageService.class);
 
+	private SolrClient solr;
+
+	@Inject
+	public ImageService(@Qualifier("impcImagesCore") SolrClient solr) {
+		Assert.notNull(solr, "Image solr core cannot be null");
+		this.solr = solr;
+
+		if (solr instanceof HttpSolrClient) {
+			logger.info("Image Service starting with solr core: " + ((HttpSolrClient) solr).getBaseURL());
+		}
+	}
 
 	public ImageService() {
 	}

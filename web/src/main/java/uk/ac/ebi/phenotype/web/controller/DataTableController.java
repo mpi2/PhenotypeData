@@ -43,6 +43,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -78,7 +79,7 @@ public class DataTableController {
 	private GeneService geneService;
 
 	@Autowired
-	ExpressionService expressionService;
+    ExpressionService expressionService;
 
 	@Autowired
 	private RegisterInterestUtils riUtils;
@@ -102,10 +103,6 @@ public class DataTableController {
 
 	@Autowired
 	private ReferenceDAO referenceDAO;
-
-	@NotNull
-	@Value("${riBaseUrl}")
-	private String riBaseUrl;
 
 	@NotNull
 	@Value("${paBaseUrl}")
@@ -218,7 +215,7 @@ public class DataTableController {
 			results.addAll(solrResponse.getResults());
 		}
 
-		String mode = "onPage";
+		String         mode = "onPage";
 		BatchQueryForm form = new BatchQueryForm(mode, request, results, fllist, dataTypeName, queryIds);
 		//System.out.println(form.j.toString());
 
@@ -401,17 +398,17 @@ public class DataTableController {
 
 			if ( doc.containsKey(Allele2DTO.TARGETING_VECTOR_AVAILABLE) && doc.getBoolean(Allele2DTO.TARGETING_VECTOR_AVAILABLE) ) {
 				order.add("<tr>");
-				order.add("<td><a class='iFrameFancy' data-url='" + dataUrl + "&type=targeting_vector'><i class='fa fa-shopping-cart'><span class='orderFont'> Targeting vector</span></i></a></td>");
+				order.add("<td><a target='_blank' href='" + dataUrl + "&type=targeting_vector'><i class='fa fa-shopping-cart'><span class='orderFont'> Targeting vector</span></i></a></td>");
 
 				if (doc.containsKey(Allele2DTO.VECTOR_ALLELE_IMAGE)) {
-					order.add("<td><a class='iFrameVector' data-url='" + doc.getString(Allele2DTO.VECTOR_ALLELE_IMAGE) + "' title='map for vector'><i class='fa fa-th-list'></i></a></td>");
+					order.add("<td><a target='_blank' href='" + doc.getString(Allele2DTO.VECTOR_ALLELE_IMAGE) + "' title='map for vector'><i class='fa fa-th-list'></i></a></td>");
 				}
 				else {
 					order.add("<td></td>");
 				}
 
 				if (doc.containsKey(Allele2DTO.VECTOR_GENBANK_LINK)) {
-					order.add("<td><a class='genbank' href='" + doc.getString(Allele2DTO.VECTOR_GENBANK_LINK) + "' title='genbank file for vector'><i class='fa fa-file-text'></i></a></td>");
+					order.add("<td><a target='_blank' href='" + doc.getString(Allele2DTO.VECTOR_GENBANK_LINK) + "' title='genbank file for vector'><i class='fa fa-file-text'></i></a></td>");
 				}
 				else {
 					order.add("<td></td>");
@@ -420,10 +417,10 @@ public class DataTableController {
 			}
 			if ( doc.containsKey(Allele2DTO.ES_CELL_AVAILABLE) && doc.getBoolean(Allele2DTO.ES_CELL_AVAILABLE)){
 				order.add("<tr>");
-				order.add("<td><a class='iFrameFancy' data-url='" + dataUrl + "&type=es_cell'><i class='fa fa-shopping-cart'><span class='orderFont'> ES cell</span></i></a></td>");
+				order.add("<td><a target='_blank' href='" + dataUrl + "&type=es_cell'><i class='fa fa-shopping-cart'><span class='orderFont'> ES cell</span></i></a></td>");
 
 				if (doc.containsKey(Allele2DTO.ALLELE_SIMPLE_IMAGE)) {
-					order.add("<td><a class='iFrameVector' data-url='" + doc.getString(Allele2DTO.ALLELE_SIMPLE_IMAGE) + "' title='map for allele'><i class='fa fa-th-list'></i></a></td>");
+					order.add("<td><a target='_blank' href='" + doc.getString(Allele2DTO.ALLELE_SIMPLE_IMAGE) + "' title='map for allele'><i class='fa fa-th-list'></i></a></td>");
 				}
 				else {
 					order.add("<td></td>");
@@ -440,10 +437,10 @@ public class DataTableController {
 
 			if ( doc.containsKey(Allele2DTO.MOUSE_AVAILABLE) && doc.getBoolean(Allele2DTO.MOUSE_AVAILABLE)){
 				order.add("<tr>");
-				order.add("<td><a class='iFrameFancy' data-url='" + dataUrl + "&type=mouse'><i class='fa fa-shopping-cart'><span class='orderFont'> Mouse</span></i></a></td>");
+				order.add("<td><a target='_blank' href='" + dataUrl + "&type=mouse'><i class='fa fa-shopping-cart'><span class='orderFont'> Mouse</span></i></a></td>");
 
 				if (doc.containsKey(Allele2DTO.ALLELE_SIMPLE_IMAGE)) {
-					order.add("<td><a class='iFrameVector' data-url='" + doc.getString(Allele2DTO.ALLELE_SIMPLE_IMAGE) + "' title='map for allele'><i class='fa fa-th-list'></i></a></td>");
+					order.add("<td><a target='_blank' href='" + doc.getString(Allele2DTO.ALLELE_SIMPLE_IMAGE) + "' title='map for allele'><i class='fa fa-th-list'></i></a></td>");
 				}
 				else {
 					order.add("<td></td>");
@@ -605,59 +602,59 @@ public class DataTableController {
 			boolean loggedIn = false;
 			try {
 
-				loggedIn = riUtils.isLoggedIn(request);
+				loggedIn = riUtils.isLoggedIn();
 
 			} catch (Exception e) {
 				// Nothing to do. If register interest service isn't working, a 500 is thrown. Handle as unauthenticated.
 			}
 
 			String target = paBaseUrl + "/search/gene?" + request.getQueryString();
+			String formAction;
+			String formMethod;
+			String registerIconClass;
+			String registerButtonText;
+
+			CsrfToken csrf = (CsrfToken) request.getAttribute("_csrf");
 
 			if (loggedIn) {
-				Map<String, List<String>> geneAccessionIdMap = riUtils.getGeneAccessionIds(request);
-				List<String> geneAccessionIds = geneAccessionIdMap.get("geneAccessionIds");
+
+				List<String> geneAccessionIds = riUtils.getGeneAccessionIds();
+
+				formMethod = "POST";
 
 				if (geneAccessionIds.contains(mgiId)) {
 
-					String unregister = "<div class='registerforinterest' oldtitle='Unregister interest' title=''>"
-							+ "<i class='fa fa-sign-out'></i>"
-							+ "<a id='" + doc.getString("mgi_accession_id")
-							+ "' class='regInterest primary interest' href='"
-							+ paBaseUrl + "/riUnregistration/gene?geneAccessionId=" + doc.getString("mgi_accession_id")
-							+ "&target=" + target
-							+ "'>&nbsp;Unregister Interest</a>"
-							+ "</div>";
-					rowData.add(unregister);
+					formAction = paBaseUrl + "/unregistration/gene/" + doc.getString("mgi_accession_id");
+					registerIconClass = "fa fa-sign-out";
+					registerButtonText = "Unregister interest";
+
+					String unregisterTag = buildRiFormTag(target, formAction, formMethod, registerIconClass, registerButtonText, csrf);
+
+					rowData.add(unregisterTag);
 
 				} else {
 
-					String unregister = "<div class='registerforinterest' oldtitle='Register interest' title=''>"
-							+ "<i class='fa fa-sign-in'></i>"
-							+ "<a id='" + doc.getString("mgi_accession_id")
-							+ "' class='regInterest primary interest' href='"
-							+ paBaseUrl + "/riRegistration/gene?geneAccessionId=" + doc.getString("mgi_accession_id")
-							+ "&target=" + target
-							+ "'>&nbsp;Register Interest</a>"
-							+ "</div>";
-					rowData.add(unregister);
+					formAction = paBaseUrl + "/registration/gene/" + doc.getString("mgi_accession_id");
+					registerIconClass = "fa fa-sign-in";
+					registerButtonText = "Register interest";
+
+					String registerTag = buildRiFormTag(target, formAction, formMethod, registerIconClass, registerButtonText, csrf);
+
+					rowData.add(registerTag);
 				}
 
 			} else {
 
-				// Use Register Interest login link
-				StringBuilder href = new StringBuilder();
+				// Use Register Interest authenticated endpoint
 
-				href
-						.append("href='")
-						.append(paBaseUrl).append("/riLogin")
-						.append("?target=" + target)
-						.append("'");
-				String interest = "<div class='registerforinterest' oldtitle='Login to register interest' title=''>"
-						+ "<i class='fa fa-sign-in'></i>"
-						+ "<a class='regInterest' " + href.toString() + ">&nbsp;Interest</a>"
-						+ "</div>";
+				formAction = paBaseUrl + "/authenticated";
+				formMethod = "GET";
+				registerIconClass = "fa fa-sign-in";
+				registerButtonText = "Login to register interest";
 
-				rowData.add(interest);
+				String interestTag = buildRiFormTag(target, formAction, formMethod, registerIconClass, registerButtonText, csrf);
+
+				rowData.add(interestTag);
 			}
 
 			j.getJSONArray("aaData").add(rowData);
@@ -669,6 +666,25 @@ public class DataTableController {
 		j.put("facet_fields", facetFields);
 
 		return j.toString();
+	}
+
+	private String buildRiFormTag(String target, String formAction, String formMethod, String registerIconClass, String registerButtonText, CsrfToken csrf) {
+		// If csrf is disabled, the CsrfToken will be null. Account for that here to avoid NPE.
+		String csrfLine = (csrf == null ? "" : "    <input type=\"hidden\" name=\"" + csrf.getParameterName() + "\" value=\"" + csrf.getToken() + "\" />\n");
+		String riFormTag =
+				" <span>\n" +
+				"  <form style=\"border: 0;\">\n" +
+						csrfLine +
+						"    <input type=\"hidden\" name=\"target\" value=\"" + target + "\" />\n" +
+						"      <button type=\"submit\" class=\"btn btn-block btn-primary btn-default\" formaction=\"" + formAction + "\" formmethod=\"" + formMethod + "\" style=\"vertical-align: top\">\n" +
+						"        <i class=\"" + registerIconClass + "\"></i>\n" +
+						"        " + registerButtonText + "\n" +
+						"      </button>\n" +
+						"    </a>\n" +
+						"  </form>" +
+		        " </span>\n";
+
+		return riFormTag;
 	}
 
 
@@ -1118,9 +1134,9 @@ public class DataTableController {
 
 				List<String> rowData = new ArrayList<String>();
 
-				AnnotNameValCount annot = annots.get(i);
-				String displayAnnotName = annot.getName();
-				String annotVal = annot.getVal();
+				AnnotNameValCount annot            = annots.get(i);
+				String            displayAnnotName = annot.getName();
+				String            annotVal         = annot.getVal();
 
 				String qryStr = query.replaceAll("\"", "");
 				String displayLabel = annotVal;
@@ -1882,8 +1898,8 @@ public class DataTableController {
 
 		List<String> pmidQryStr = new ArrayList<>();
 		pmidQryStr.add("ext_id:" + pmid);
-		Map<Integer, PaperController.Pubmed> pd = paperController.fetchEuropePubmedData(pmidQryStr);
-		PaperController.Pubmed pub = pd.get(pmid);
+		Map<Integer, PaperController.Pubmed> pd  = paperController.fetchEuropePubmedData(pmidQryStr);
+		PaperController.Pubmed               pub = pd.get(pmid);
 
 		return pub;
 	}

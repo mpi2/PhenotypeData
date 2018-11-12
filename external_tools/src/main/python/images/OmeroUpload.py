@@ -145,8 +145,16 @@ def main(argv):
         solr_directory_to_filenames_map[key] = rec['download_file_path']
 
     # Get images from Omero
+    # Sometimes omero on the server throws an ICE memory limit exception. In that case go directly
+    # via postgres. This may return more records than going via omero, but that should not
+    # be a problem.
     omeroS = OmeroService(omeroHost, omeroPort, omeroUsername, omeroPass, group)
-    omero_file_list = omeroS.getImagesAlreadyInOmero()
+    try:
+        omero_file_list = omeroS.getImagesAlreadyInOmero()
+    except Exception as e: # TODO: Use exact exception here. It's something like ::Ice::MemoryLimitException
+        logger.warn("Problem attempting to get images from omero. Attempting via Postgres")
+        logger.warn("Exception message was " + str(e))
+        omero_file_list = omeroS.getImagesAlreadyInOmeroViaPostgres(omeroProps)
     logger.info("Number of files from omero = " + str(len(omero_file_list)))
     
     # Don't use OmeroService to get annotations as we are having a out of
