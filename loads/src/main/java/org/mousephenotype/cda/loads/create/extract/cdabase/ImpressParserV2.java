@@ -162,22 +162,25 @@ public class ImpressParserV2 implements CommandLineRunner {
 
             loadPipeline(pipeline);
 
-            // Print out missing sets
-            Collections.sort(new ArrayList<>(missingOntologyTerms));
-            for (String term : missingOntologyTerms) {
-                logger.warn(term);
+            if ( ! missingOntologyTerms.isEmpty()) {
+                // Print out missing sets
+                logger.info("Missing ontology terms:");
+                Collections.sort(new ArrayList<>(missingOntologyTerms));
+                for (String term : missingOntologyTerms) {
+                    logger.warn(term);
+                }
+
+                missingOntologyTerms.clear();
             }
 
-            missingOntologyTerms.clear();
+            if ( ! missingMpTerms.isEmpty()) {
+                Collections.sort(new ArrayList<>(missingMpTerms));
+                for (String term : missingMpTerms) {
+                    logger.warn(term);
+                }
 
-            System.out.println();
-
-            Collections.sort(new ArrayList<>(missingMpTerms));
-            for (String term : missingOntologyTerms) {
-                logger.warn(term);
+                missingMpTerms.clear();
             }
-
-            missingMpTerms.clear();
         }
     }
 
@@ -188,7 +191,7 @@ public class ImpressParserV2 implements CommandLineRunner {
     @Transactional
     public void loadPipeline(Pipeline pipeline) {
 
-        logger.info("INSERTing pipelineId {} ({})", pipeline.getStableKey(), pipeline.getStableId());
+        logger.info("\n***** INSERTing pipelineId {} ({}) *****", pipeline.getStableKey(), pipeline.getStableId());
 
         if (cdabaseSqlUtils.insertPhenotypePipeline(pipeline) == null) {
             logger.warn("INSERT OF pipeline {} ({}) FAILED. PIPELINE SKIPPED...", pipeline.getStableKey(), pipeline.getStableId());

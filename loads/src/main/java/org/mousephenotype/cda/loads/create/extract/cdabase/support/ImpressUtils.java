@@ -618,9 +618,11 @@ public class ImpressUtils {
 
             if (e.getLocalizedMessage().toLowerCase().startsWith("the parameter key supplied does not exist")) {
                 // Do nothing. Caller logs the error.
+            } else if (e.getLocalizedMessage().toLowerCase().startsWith("Could not read JSON document: Illegal unquoted character ((CTRL-CHAR, code 10)")) {
+                logger.warn("unquoted character for parameterId {} ({})", parameter.getStableKey(), parameter.getStableId());
             } else {
                 e.printStackTrace();
-                logger.warn("{}: parameterId", e.getLocalizedMessage(), parameter.getStableId());
+                logger.warn("{}: parameterId {} ({})", e.getLocalizedMessage(), parameter.getStableKey(), parameter.getStableId());
             }
 
             return null;
@@ -656,9 +658,11 @@ public class ImpressUtils {
 
             if (e.getLocalizedMessage().toLowerCase().startsWith("the parameter key supplied does not exist")) {
                 // Do nothing. Caller logs the error.
+            } else if (e.getLocalizedMessage().toLowerCase().startsWith("Could not read JSON document: Illegal unquoted character ((CTRL-CHAR, code 10)")) {
+                logger.warn("unquoted character for parameterId {} ({})", parameter.getStableKey(), parameter.getStableId());
             } else {
                 e.printStackTrace();
-                logger.warn("{}: parameterId", e.getLocalizedMessage(), parameter.getStableId());
+                logger.warn("{}: parameterId {} ({})", e.getLocalizedMessage(), parameter.getStableKey(), parameter.getStableId());
             }
 
             return null;
