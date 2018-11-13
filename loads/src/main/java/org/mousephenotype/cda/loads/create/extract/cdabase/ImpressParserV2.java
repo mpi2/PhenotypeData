@@ -190,8 +190,8 @@ public class ImpressParserV2 implements CommandLineRunner {
 
     @Transactional
     public void loadPipeline(Pipeline pipeline) {
-
-        logger.info("\n***** INSERTing pipelineId {} ({}) *****", pipeline.getStableKey(), pipeline.getStableId());
+        System.out.println();
+        logger.info("***** INSERTing pipelineId {} ({}) *****", pipeline.getStableKey(), pipeline.getStableId());
 
         if (cdabaseSqlUtils.insertPhenotypePipeline(pipeline) == null) {
             logger.warn("INSERT OF pipeline {} ({}) FAILED. PIPELINE SKIPPED...", pipeline.getStableKey(), pipeline.getStableId());
