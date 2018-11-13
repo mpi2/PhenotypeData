@@ -48,6 +48,8 @@ import java.sql.SQLException;
 import java.util.*;
 
 /*
+ * Impress Version 1:
+ *
  *  Classes generated using this command line:
  *
  *  1. Create a temporary directory for the generated sources and targets and create the sources and targets directories:
@@ -360,28 +362,23 @@ public class ImpressParserV2 implements CommandLineRunner {
 
         List<ParameterOntologyAnnotationWithSex> annotations = new ArrayList<>();
 
-        // Get the map of ontology terms from the IMPReSS web service. A null return value indicates an error.
-        List<Map<String, String>> ontologyTermsFromWs = impressUtils.getOntologyTermsFromWs(parameterOntologyOptionsClient, parameter);
-        if (ontologyTermsFromWs == null) {
-            missingOntologyTerms.add("parameterOntologyOptionsClient(): Missing ontology term for pipelineKey::procedureKey::parameterKey(parameterId) " + pipelineKey + "::" + procedureKey + "::" + parameter.getStableId() + "::" + parameter.getStableKey());
-            return annotations;
-        }
+        Map<String, String> ontologyTermsFromWs = impressUtils.getOntologyTermsFromWs(parameter);
 
         /*
          * Loop through this parameter's ontology terms, creating an ontologyAnnotation for each term. Add each
          * ontologyAnnotation to this parameter's annotations list.
          */
-        for (Map<String, String> ontologyTermFromWs : ontologyTermsFromWs) {
+        for (Map.Entry<String, String> entry : ontologyTermsFromWs.entrySet()) {
 
             ParameterOntologyAnnotationWithSex ontologyAnnotation = new ParameterOntologyAnnotationWithSex();
+// FIXME
+//            if (ontologyTermFromWs.get("sex") != null && ! ontologyTermFromWs.get("sex").isEmpty()) {                   // Get SexType
+//                SexType sexType = getSexType(ontologyTermFromWs.get("sex"), parameter.getStableId());
+//                ontologyAnnotation.setSex(sexType);
+//            }
 
-            if (ontologyTermFromWs.get("sex") != null && ! ontologyTermFromWs.get("sex").isEmpty()) {                   // Get SexType
-                SexType sexType = getSexType(ontologyTermFromWs.get("sex"), parameter.getStableId());
-                ontologyAnnotation.setSex(sexType);
-            }
-
-            String       ontologyAcc  = ontologyTermFromWs.get("ontology_id");                                          // Extract the ontology term accession id from the web service
-            String       ontologyName = ontologyTermFromWs.get("ontology_term");                                        // Extract the term name from the web service in case we need to create one.
+            String       ontologyAcc  = entry.getKey();                                                                 // Get the accession id
+            String       ontologyName = ImpressUtils.newlineToSpace(entry.getValue());                                  // Get the ontology term
             OntologyTerm ontologyTerm = updatedOntologyTerms.get(ontologyAcc);                                          // Get the updated ontology term if it exists.
             if (ontologyTerm == null) {
 
@@ -535,7 +532,6 @@ public class ImpressParserV2 implements CommandLineRunner {
 
         // ONTOLOGY ANNOTATIONS
         List<ParameterOntologyAnnotationWithSex> annotations =
-
                 getPhenotypeParameterOntologyAssociations(pipelineKey, procedure.getStableId(), parameter);
         cdabaseSqlUtils.insertPhenotypeParameterOntologyAnnotations(parameter.getId(), annotations);
 

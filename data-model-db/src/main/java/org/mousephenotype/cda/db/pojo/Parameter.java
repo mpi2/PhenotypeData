@@ -87,6 +87,9 @@ public class Parameter extends PipelineEntry {
 	@Column(name = "data_analysis_notes")
 	private String dataAnalysisNotes;
 
+	@Transient
+	private Integer ontologyGroupId;
+
 	/**
 	 * bi-directional
 	 */
@@ -551,8 +554,14 @@ public class Parameter extends PipelineEntry {
 		return cunit;
 	}
 
+	public Integer getOntologyGroupId() {
+		return ontologyGroupId;
+	}
 
-	
+	public void setOntologyGroupId(Integer ontologyGroupId) {
+		this.ontologyGroupId = ontologyGroupId;
+	}
+
 	@Override
 	public String toString() {
 		return "Parameter [name=" + getName() + ", unit=" + unit + ", type=" + type + ", datatype=" + datatype + ", formula=" + formula

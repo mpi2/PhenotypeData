@@ -377,6 +377,8 @@ public class ImpressUtils {
         ImpressUnits unit = impressParameter.getUnit();
         parameter.setUnit(unit == null ? null : unitsById.get(unit.getId()));
 
+        parameter.setOntologyGroupId(impressParameter.getOntologyGroupId());
+
         return parameter;
     }
 
@@ -589,6 +591,57 @@ public class ImpressUtils {
 
 
     // ANNOTATIONS
+
+
+    public Map<String, String> getOntologyTermsFromWs(Parameter parameter) {
+
+        Map<String, String> ontologyTerms = new HashMap<>();
+
+        // A null ontologyGroupId indicates there are no ontology terms.
+        if (parameter.getOntologyGroupId() == null) {
+            return ontologyTerms;
+        }
+
+        String url = impressServiceUrl + "/ontologyoption/optionsingroup/" + parameter.getOntologyGroupId();
+
+        try {
+
+            RestTemplate rt   = new RestTemplate();
+            Object       o    = rt.getForEntity(url, Object.class);
+            Object       body = ((ResponseEntity) o).getBody();
+
+            List<Map<String, Object>> list = (List<Map<String, Object>>) body;
+            for (Map<String, Object> ontologyOptionMap : list) {
+                Map<String, Object> ontologyTermMap = (Map<String, Object>) ontologyOptionMap.get("ontologyTermId");
+
+                String acc = (String) ontologyTermMap.get("ontologyTerm");
+                String term = (String) ontologyTermMap.get("ontologyTermName");
+                ontologyTerms.put(acc, term);
+            }
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+            logger.warn(e.getLocalizedMessage());
+            return null;
+        }
+
+        return ontologyTerms;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
     @Deprecated
