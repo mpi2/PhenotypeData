@@ -36,6 +36,8 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.core.io.Resource;
 import org.springframework.jdbc.datasource.init.ScriptUtils;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
 import javax.sql.DataSource;
@@ -65,6 +67,7 @@ import java.util.*;
  */
 
 @ComponentScan
+@Component
 public class ImpressParserV2 implements CommandLineRunner {
 
     private DataSource         cdabaseDataSource;
@@ -146,7 +149,7 @@ public class ImpressParserV2 implements CommandLineRunner {
         unitsById = impressUtils.getUnits();
 
 
-        // LOAD PIPELINES
+        // LOAD PIPELINES and their child elements
         List<Pipeline> pipelines = impressUtils.getPipelines(datasource);
 
         for (Pipeline pipeline : pipelines) {
@@ -157,104 +160,114 @@ public class ImpressParserV2 implements CommandLineRunner {
                 continue;
             }
 
-            logger.info("INSERTing pipelineId {} ({})", pipeline.getStableKey(), pipeline.getStableId());
+            loadPipeline(pipeline);
 
-            if (cdabaseSqlUtils.insertPhenotypePipeline(pipeline) == null) {
-                logger.warn("INSERT OF pipeline {} ({}) FAILED. PIPELINE SKIPPED...", pipeline.getStableKey(), pipeline.getStableId());
-                continue;
+            // Print out missing sets
+            Collections.sort(new ArrayList<>(missingOntologyTerms));
+            for (String term : missingOntologyTerms) {
+                logger.warn(term);
             }
 
+            missingOntologyTerms.clear();
 
-            // LOAD SCHEDULES
-            for (Integer scheduleId : pipeline.getScheduleCollection()) {
+            System.out.println();
 
-                Schedule schedule = schedulesById.get(scheduleId);
-
-                if (schedule == null) {
-                    schedule = impressUtils.getSchedule(scheduleId, datasource);
-                    schedulesById.put(scheduleId, schedule);
-
-                    logger.info("  INSERTing scheduleId {}", scheduleId);
-                }
-
-
-                // LOAD PROCEDURES
-                for (Integer procedureId : schedule.getProcedureCollection()) {
-
-                    Procedure procedure = proceduresById.get(procedureId);
-
-                    if (procedure == null) {
-
-                        procedure = impressUtils.getProcedure(procedureId, datasource);
-                        if (procedure == null) {
-                            logger.warn("Unable to get procedureId {}. Skipping...", procedureId);
-                            continue;
-                        }
-
-                        // Add SCHEDULE components to PROCEDURE
-                        procedure.setStageLabel(schedule.getTimeLabel());
-                        procedure.setStage(schedule.getStage());
-
-                        proceduresById.put(procedureId, procedure);
-
-                        logger.info("    Loading procedureId::procedureKey {}::{}", procedureId, procedure.getStableId());
-
-                        if (cdabaseSqlUtils.insertPhenotypeProcedure(pipeline.getId(), procedure) == null) {
-                            logger.warn("INSERT OF procedureId {} ({}) FAILED. PROCEDURE SKIPPED...", procedure.getStableKey(), procedure.getStableId());
-                            continue;
-                        }
-                    }
-
-
-                    // LOAD PARAMETERS
-                    for (Integer parameterId : procedure.getParameterCollection()) {
-
-                        logger.debug("      Loading pipelineId::scheduleId::procedureId::parameterId   {}::{}::{}::{}", pipeline.getStableKey(), schedule.getScheduleId(), procedure.getStableKey(), parameterId);
-                        Parameter parameter = parametersById.get(parameterId);
-
-                        if (parameter == null) {
-
-                            parameter = impressUtils.getParameter(parameterId, datasource, unitsById);
-                            if (parameter == null) {
-                                logger.warn("Unable to get parameterId {}. Skipping...", parameterId);
-                                continue;
-                            }
-                            parametersById.put(parameterId, parameter);
-
-                            logger.debug("INSERTing parameterId {} ({})", parameter.getStableKey(), parameter.getStableId());
-
-                            parameter = insertParameter(parameter, procedure, pipeline.getStableId());
-                            if (parameter == null) {
-                                logger.warn("INSERT OF parameterId {} ({}) FAILED. PARAMETER SKIPPED...", parameter.getStableKey(), parameter.getStableId());
-                                continue;
-                            }
-                        }
-
-                        cdabaseSqlUtils.insertPhenotypeProcedureParameter(procedure.getId(), parameter.getId());        // INSERT into the phenotype_procedure_parameter lookup table
-                    }
-
-                    cdabaseSqlUtils.insertPhenotypePipelineProcedure(pipeline.getId(), procedure.getId());              // INSERT into the phenotype_pipeline_procedure lookup table
-                }
+            Collections.sort(new ArrayList<>(missingMpTerms));
+            for (String term : missingOntologyTerms) {
+                logger.warn(term);
             }
+
+            missingMpTerms.clear();
         }
-
-        // Print out missing sets
-        Collections.sort(new ArrayList<>(missingOntologyTerms));
-        for (String term : missingOntologyTerms) {
-            logger.warn(term);
-        }
-
-        System.out.println();
-
-        Collections.sort(new ArrayList<>(missingMpTerms));
-        for (String term : missingOntologyTerms) {
-            logger.warn(term);
-        }
-
     }
 
 
     // PRIVATE METHODS
+
+
+    @Transactional
+    public void loadPipeline(Pipeline pipeline) {
+
+        logger.info("INSERTing pipelineId {} ({})", pipeline.getStableKey(), pipeline.getStableId());
+
+        if (cdabaseSqlUtils.insertPhenotypePipeline(pipeline) == null) {
+            logger.warn("INSERT OF pipeline {} ({}) FAILED. PIPELINE SKIPPED...", pipeline.getStableKey(), pipeline.getStableId());
+            return;
+        }
+
+
+        // LOAD SCHEDULES
+        for (Integer scheduleId : pipeline.getScheduleCollection()) {
+
+            Schedule schedule = schedulesById.get(scheduleId);
+
+            if (schedule == null) {
+                schedule = impressUtils.getSchedule(scheduleId, datasource);
+                schedulesById.put(scheduleId, schedule);
+
+                logger.info("  INSERTing scheduleId {}", scheduleId);
+            }
+
+
+            // LOAD PROCEDURES
+            for (Integer procedureId : schedule.getProcedureCollection()) {
+
+                Procedure procedure = proceduresById.get(procedureId);
+
+                if (procedure == null) {
+
+                    procedure = impressUtils.getProcedure(procedureId, datasource);
+                    if (procedure == null) {
+                        logger.warn("Unable to get procedureId {}. Skipping...", procedureId);
+                        continue;
+                    }
+
+                    // Add SCHEDULE components to PROCEDURE
+                    procedure.setStageLabel(schedule.getTimeLabel());
+                    procedure.setStage(schedule.getStage());
+
+                    proceduresById.put(procedureId, procedure);
+
+                    logger.info("    Loading procedureId::procedureKey {}::{}", procedureId, procedure.getStableId());
+
+                    if (cdabaseSqlUtils.insertPhenotypeProcedure(pipeline.getId(), procedure) == null) {
+                        logger.warn("INSERT OF procedureId {} ({}) FAILED. PROCEDURE SKIPPED...", procedure.getStableKey(), procedure.getStableId());
+                        continue;
+                    }
+                }
+
+
+                // LOAD PARAMETERS
+                for (Integer parameterId : procedure.getParameterCollection()) {
+
+                    logger.debug("      Loading pipelineId::scheduleId::procedureId::parameterId   {}::{}::{}::{}", pipeline.getStableKey(), schedule.getScheduleId(), procedure.getStableKey(), parameterId);
+                    Parameter parameter = parametersById.get(parameterId);
+
+                    if (parameter == null) {
+
+                        parameter = impressUtils.getParameter(parameterId, datasource, unitsById);
+                        if (parameter == null) {
+                            logger.warn("Unable to get parameterId {}. Skipping...", parameterId);
+                            continue;
+                        }
+                        parametersById.put(parameterId, parameter);
+
+                        logger.debug("INSERTing parameterId {} ({})", parameter.getStableKey(), parameter.getStableId());
+
+                        parameter = insertParameter(parameter, procedure, pipeline.getStableId());
+                        if (parameter == null) {
+                            logger.warn("INSERT OF parameterId {} ({}) FAILED. PARAMETER SKIPPED...", parameter.getStableKey(), parameter.getStableId());
+                            continue;
+                        }
+                    }
+
+                    cdabaseSqlUtils.insertPhenotypeProcedureParameter(procedure.getId(), parameter.getId());        // INSERT into the phenotype_procedure_parameter lookup table
+                }
+
+                cdabaseSqlUtils.insertPhenotypePipelineProcedure(pipeline.getId(), procedure.getId());              // INSERT into the phenotype_pipeline_procedure lookup table
+            }
+        }
+    }
 
 
     private void initialise(String[] args) throws IOException, SQLException {
