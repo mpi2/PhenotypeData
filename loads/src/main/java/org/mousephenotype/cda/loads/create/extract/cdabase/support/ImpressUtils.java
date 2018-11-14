@@ -24,8 +24,10 @@ import org.mousephenotype.impress2.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -622,7 +624,7 @@ public class ImpressUtils {
         } catch (Exception e) {
 
             e.printStackTrace();
-            logger.warn(e.getLocalizedMessage());
+            logger.warn("URL: {}. Error: {}", url, e.getLocalizedMessage());
             return null;
         }
 
@@ -644,111 +646,25 @@ public class ImpressUtils {
 
             Map<String, Map<String, Object>> map = (Map<String, Map<String, Object>>) body;
             for (Map<String, Object> ontologyTermMap : map.values()) {
-                String acc = (String) ontologyTermMap.get("ontologyTerm");
+                String acc  = (String) ontologyTermMap.get("ontologyTerm");
                 String term = (String) ontologyTermMap.get("ontologyTermName");
                 ontologyTerms.put(acc, term);
             }
 
+        } catch (HttpClientErrorException e) {
+
+            // If there are no ontology terms, an HttpClientErrorException will be thrown with HttpStatus 404.
+            if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
+                return ontologyTerms;
+            }
         } catch (Exception e) {
 
             e.printStackTrace();
-            logger.warn(e.getLocalizedMessage());
+            logger.warn("URL: {}. Error: {}", url, e.getLocalizedMessage());
             return null;
         }
 
         return ontologyTerms;
-    }
-
-
-
-
-
-
-
-
-
-
-
-
-
-    @Deprecated
-    public List<Map<String, String>> getOntologyTermsFromWs(ParameterOntologyOptionsClient parameterOntologyOptionsClient, Parameter parameter) {
-
-        // Get the map of ontology terms from the IMPReSS web service.
-        List<Map<String, String>> ontologyTermsFromWs = new ArrayList<>();
-
-        try {
-            NodeList ontologyTermMap = ((Element) parameterOntologyOptionsClient.getParameterOntologyOptions(parameter.getStableId()).getGetParameterOntologyOptionsResult()).getChildNodes();
-
-            for (int i = 0; i < ontologyTermMap.getLength(); i++) {
-                NodeList ontologyTermNodes = ontologyTermMap.item(i).getChildNodes();
-
-                Map<String, String> map = new HashMap<>();
-
-                // Parse out the keys and values for this parameter
-                for (int j = 0; j < ontologyTermNodes.getLength(); j++) {
-                    NodeList m = ontologyTermNodes.item(j).getChildNodes();
-                    map.put(m.item(0).getTextContent(), m.item(1).getTextContent());
-                }
-
-                ontologyTermsFromWs.add(map);
-            }
-
-        } catch (Exception e) {
-
-            if (e.getLocalizedMessage().toLowerCase().startsWith("the parameter key supplied does not exist")) {
-                // Do nothing. Caller logs the error.
-            } else if (e.getLocalizedMessage().toLowerCase().startsWith("Could not read JSON document: Illegal unquoted character ((CTRL-CHAR, code 10)")) {
-                logger.warn("unquoted character for parameterId {} ({})", parameter.getStableKey(), parameter.getStableId());
-            } else {
-                e.printStackTrace();
-                logger.warn("{}: parameterId {} ({})", e.getLocalizedMessage(), parameter.getStableKey(), parameter.getStableId());
-            }
-
-            return null;
-        }
-
-        return ontologyTermsFromWs;
-    }
-
-    @Deprecated
-    public List<Map<String, String>> getMpOntologyTermsFromWs(ParameterMPTermsClient parameterMPTermsClient, Parameter parameter) {
-        // Create the map of MP ontology terms from the IMPReSS web service.
-        List<Map<String, String>> mpOntologyTermsFromWs = new ArrayList<>();
-
-        // Create a map of MP terms from the IMPReSS web service.
-        try {
-            GetParameterMPTermsResponse response          = parameterMPTermsClient.getParameterMPTerms(parameter.getStableId());
-            NodeList                    mpOntologyTermMap = ((Element) response.getGetParameterMPTermsResult()).getChildNodes();
-
-            for (int i = 0; i < mpOntologyTermMap.getLength(); i++) {
-                NodeList mpOntologyTermNodes = mpOntologyTermMap.item(i).getChildNodes();
-
-                Map<String, String> map = new HashMap<>();
-
-                // Parse out the keys and values for this parameter
-                for (int j = 0; j < mpOntologyTermNodes.getLength(); j++) {
-                    NodeList m = mpOntologyTermNodes.item(j).getChildNodes();
-                    map.put(m.item(0).getTextContent(), m.item(1).getTextContent());
-                }
-
-                mpOntologyTermsFromWs.add(map);
-            }
-        } catch (Exception e) {
-
-            if (e.getLocalizedMessage().toLowerCase().startsWith("the parameter key supplied does not exist")) {
-                // Do nothing. Caller logs the error.
-            } else if (e.getLocalizedMessage().toLowerCase().startsWith("Could not read JSON document: Illegal unquoted character ((CTRL-CHAR, code 10)")) {
-                logger.warn("unquoted character for parameterId {} ({})", parameter.getStableKey(), parameter.getStableId());
-            } else {
-                e.printStackTrace();
-                logger.warn("{}: parameterId {} ({})", e.getLocalizedMessage(), parameter.getStableKey(), parameter.getStableId());
-            }
-
-            return null;
-        }
-
-        return mpOntologyTermsFromWs;
     }
 
     /**

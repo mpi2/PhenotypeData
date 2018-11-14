@@ -192,8 +192,8 @@ public class ImpressParserV2 implements CommandLineRunner {
 
     @Transactional
     public void loadPipeline(Pipeline pipeline) {
-        System.out.println();
-        logger.info("***** INSERTing pipelineId {} ({}) *****", pipeline.getStableKey(), pipeline.getStableId());
+        System.out.println(" ");
+        logger.info("***** Loading pipelineId {} ({}) *****", pipeline.getStableKey(), pipeline.getStableId());
 
         if (cdabaseSqlUtils.insertPhenotypePipeline(pipeline) == null) {
             logger.warn("INSERT OF pipeline {} ({}) FAILED. PIPELINE SKIPPED...", pipeline.getStableKey(), pipeline.getStableId());
@@ -210,7 +210,7 @@ public class ImpressParserV2 implements CommandLineRunner {
                 schedule = impressUtils.getSchedule(scheduleId, datasource);
                 schedulesById.put(scheduleId, schedule);
 
-                logger.info("  INSERTing scheduleId {}", scheduleId);
+                logger.debug("      Loading pipelineId::scheduleId {}::{}", pipeline.getStableKey(), scheduleId);
             }
 
 
@@ -233,7 +233,7 @@ public class ImpressParserV2 implements CommandLineRunner {
 
                     proceduresById.put(procedureId, procedure);
 
-                    logger.info("    Loading procedureId::procedureKey {}::{}", procedureId, procedure.getStableId());
+                    logger.info("    Loading scheduleId::procedureId::procedureKey {}::{}::{}", scheduleId, procedureId, procedure.getStableId());
 
                     if (cdabaseSqlUtils.insertPhenotypeProcedure(pipeline.getId(), procedure) == null) {
                         logger.warn("INSERT OF procedureId {} ({}) FAILED. PROCEDURE SKIPPED...", procedure.getStableKey(), procedure.getStableId());
