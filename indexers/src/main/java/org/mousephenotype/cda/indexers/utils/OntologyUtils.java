@@ -192,7 +192,7 @@ public class OntologyUtils {
         	b.setStableId(resultSet.getString("stable_id")); 
         	b.setName(resultSet.getString("name"));
         	b.setAnnotate(resultSet.getBoolean("annotate"));
-        	b.setDataType(resultSet.getString("dataType"));
+        	b.setDataType(resultSet.getString("datatype"));
             impressMap.put(resultSet.getInt("id"), b);
             
         }
