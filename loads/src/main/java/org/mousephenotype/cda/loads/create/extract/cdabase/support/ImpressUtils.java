@@ -630,7 +630,34 @@ public class ImpressUtils {
     }
 
 
+    public Map<String, String> getMpOntologyTermsFromWs(Parameter parameter) {
 
+        Map<String, String> ontologyTerms = new HashMap<>();
+
+        String url = impressServiceUrl + "/ontologyterm/belongingtoparameter/" + parameter.getStableKey();
+
+        try {
+
+            RestTemplate rt   = new RestTemplate();
+            Object       o    = rt.getForEntity(url, Object.class);
+            Object       body = ((ResponseEntity) o).getBody();
+
+            Map<String, Map<String, Object>> map = (Map<String, Map<String, Object>>) body;
+            for (Map<String, Object> ontologyTermMap : map.values()) {
+                String acc = (String) ontologyTermMap.get("ontologyTerm");
+                String term = (String) ontologyTermMap.get("ontologyTermName");
+                ontologyTerms.put(acc, term);
+            }
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+            logger.warn(e.getLocalizedMessage());
+            return null;
+        }
+
+        return ontologyTerms;
+    }
 
 
 
