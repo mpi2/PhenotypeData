@@ -493,7 +493,7 @@
   </fieldType>
 
         <field name="ididid" type="string" indexed="true" stored="true"/>
-        <field name="dataType" type="string" indexed="true" stored="true"/>
+        <field name="data_type" type="string" indexed="true" stored="true"/>
         <field name="_version_" type="plong" indexed="true" stored="true"/>
 
         <field name="parameter_id" type="pint" indexed="true" stored="true" required="true" multiValued="false"/>
