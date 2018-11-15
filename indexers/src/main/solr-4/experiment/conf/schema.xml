@@ -1,0 +1,188 @@
+<?xml version="1.0" ?>
+<!--
+ Licensed to the Apache Software Foundation (ASF) under one or more
+ contributor license agreements.  See the NOTICE file distributed with
+ this work for additional information regarding copyright ownership.
+ The ASF licenses this file to You under the Apache License, Version 2.0
+ (the "License"); you may not use this file except in compliance with
+ the License.  You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+
+<schema name="experiment core" version="1.2">
+
+    <types>
+        <fieldtype name="string" class="solr.StrField" sortMissingLast="true" omitNorms="true"/>
+        <fieldType name="long" class="solr.TrieLongField" precisionStep="0" positionIncrementGap="0"/>
+        <fieldType name="int" class="solr.TrieIntField" precisionStep="0" omitNorms="true" positionIncrementGap="0"/>
+        <fieldType name="float" class="solr.TrieFloatField" precisionStep="0" omitNorms="true" positionIncrementGap="0"/>
+        <fieldType name="tdate" class="solr.TrieDateField" omitNorms="true" precisionStep="6" positionIncrementGap="0"/>
+        <!--  to be used for autosuggest  -->
+        <fieldType name="text_ngram" class="solr.TextField">
+            <analyzer type="index">
+                <tokenizer class="solr.WhitespaceTokenizerFactory"/>
+                <filter class="solr.LowerCaseFilterFactory"/>
+                <filter class="solr.RemoveDuplicatesTokenFilterFactory"/>
+                <filter class="solr.EdgeNGramFilterFactory" minGramSize="1" maxGramSize="100" side="front"/>
+                <filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="true"/>
+            </analyzer>
+            <analyzer type="query">
+                <tokenizer class="solr.WhitespaceTokenizerFactory"/>
+                <filter class="solr.LowerCaseFilterFactory"/>
+                <filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="true"/>
+                <!-- <filter class="solr.KStemFilterFactory"/>  -->
+                <filter class="solr.RemoveDuplicatesTokenFilterFactory"/>
+            </analyzer>
+        </fieldType>
+    </types>
+
+    <fields>
+        <field name="_version_" type="long" indexed="true" stored="true"/>
+        <field name="id" type="int" indexed="true" stored="true" multiValued="false" required="true"/>
+        <field name="phenotyping_center_id" type="int" indexed="true" stored="true" multiValued="false"/>
+        <field name="phenotyping_center" type="string" indexed="true" stored="true" multiValued="false"/>
+        <field name="production_center_id" type="int" indexed="true" stored="true" multiValued="false"/>
+        <field name="production_center" type="string" indexed="true" stored="true" multiValued="false"/>
+
+        <field name="gene_accession_id" type="string" indexed="true" stored="true" multiValued="false"/>
+        <field name="gene_symbol" type="string" indexed="true" stored="true" multiValued="false"/>
+        <field name="allele_accession_id" type="string" indexed="true" stored="true" multiValued="false"/>
+        <field name="allele_symbol" type="string" indexed="true" stored="true" multiValued="false"/>
+        <field name="zygosity" type="string" indexed="true" stored="true" multiValued="false"/>
+        <field name="sex" type="string" indexed="true" stored="true" multiValued="false"/>
+        <field name="biological_model_id" type="int" indexed="true" stored="true" multiValued="false"/>
+        <field name="biological_sample_id" type="int" indexed="true" stored="true" multiValued="false"/>
+        <field name="biological_sample_group" type="string" indexed="true" stored="true" multiValued="false"/>
+        <field name="strain_accession_id" type="string" indexed="true" stored="true" multiValued="false"/>
+        <field name="strain_name" type="string" indexed="true" stored="true" multiValued="false"/>
+        <field name="genetic_background" type="string" indexed="true" stored="true" multiValued="false"/>
+        <field name="allelic_composition" type="string" indexed="true" stored="true" multiValued="false"/>
+        <field name="colony_id" type="string" indexed="true" stored="true" multiValued="false"/>
+        <field name="litter_id" type="string" indexed="true" stored="true" multiValued="false"/>
+        <field name="date_of_birth" type="tdate" indexed="true" stored="true" multiValued="false"/>
+        <field name="external_sample_id" type="string" indexed="true" stored="true" multiValued="false"/>
+
+        <field name="datasource_id" type="int" indexed="true" stored="true" multiValued="false"/>
+        <field name="datasource_name" type="string" indexed="true" stored="true" multiValued="false"/>
+        <field name="project_id" type="int" indexed="true" stored="true" multiValued="false"/>
+        <field name="project_name" type="string" indexed="true" stored="true" multiValued="false"/>
+        <field name="pipeline_id" type="int" indexed="true" stored="true" multiValued="false"/>
+        <field name="pipeline_name" type="string" indexed="true" stored="true" multiValued="false"/>
+        <field name="pipeline_stable_id" type="string" indexed="true" stored="true" multiValued="false"/>
+        <field name="procedure_id" type="int" indexed="true" stored="true" multiValued="false"/>
+        <field name="procedure_name" type="string" indexed="true" stored="true" multiValued="false"/>
+        <field name="procedure_stable_id" type="string" indexed="true" stored="true" multiValued="false"/>
+        <field name="procedure_group" type="string" indexed="true" stored="true" multiValued="false"/>
+        <field name="parameter_id" type="int" indexed="true" stored="true" multiValued="false"/>
+        <field name="parameter_name" type="string" indexed="true" stored="true" multiValued="false"/>
+        <field name="parameter_stable_id" type="string" indexed="true" stored="true" multiValued="false"/>
+
+        <field name="experiment_id" type="int" indexed="true" stored="true" multiValued="false"/>
+        <field name="observation_type" type="string" indexed="true" stored="true" multiValued="false"/>
+        <field name="experiment_source_id" type="string" indexed="true" stored="true" multiValued="false"/>
+        <field name="date_of_experiment" type="tdate" indexed="true" stored="true" multiValued="false"/>
+
+        <!-- weight parameters -->
+        <field name="weight_parameter_stable_id" type="string" indexed="true" stored="true" multiValued="false"/>
+        <field name="weight_date" type="tdate" indexed="true" stored="true" multiValued="false"/>
+        <field name="weight_days_old" type="int" indexed="true" stored="true" multiValued="false"/>
+        <field name="weight" type="float" indexed="true" stored="true" multiValued="false"/>
+
+        <!-- unidimensional/multidimensional/time series -->
+        <field name="data_point" type="float" indexed="true" stored="true" multiValued="false"/>
+
+        <!-- multidimensional -->
+        <field name="order_index" type="int" indexed="true" stored="true" multiValued="false"/>
+        <field name="dimension" type="string" indexed="true" stored="true" multiValued="false"/>
+
+        <!-- time series -->
+        <field name="time_point" type="string" indexed="true" stored="true" multiValued="false"/>
+        <field name="discrete_point" type="float" indexed="true" stored="true" multiValued="false"/>
+
+        <!-- categorical -->
+        <field name="category" type="string" indexed="true" stored="true" multiValued="false"/>
+        <field name="raw_category" type="string" indexed="true" stored="true" multiValued="false"/>
+
+        <!-- metadata -->
+        <field name="metadata" type="string" indexed="true" stored="true" multiValued="true"/>
+        <field name="metadata_group" type="string" indexed="true" stored="true" multiValued="false"/>
+
+        <!-- anatomy: MA and EMAP or other anatomy (eg. EMAPA) -->
+        <field name="anatomy_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+        <field name="anatomy_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+        <field name="anatomy_id_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+        <field name="anatomy_term_synonym" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+
+        <field name="top_level_anatomy_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+        <field name="top_level_anatomy_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+        <field name="top_level_anatomy_term_synonym" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+
+        <field name="selected_top_level_anatomy_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+        <field name="selected_top_level_anatomy_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+        <field name="selected_top_level_anatomy_term_synonym" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+
+        <field name="intermediate_anatomy_id" type="string" indexed="true" stored="true" multiValued="true" />
+        <field name="intermediate_anatomy_term" type="string" indexed="true" stored="true" multiValued="true" />
+        <field name="intermediate_anatomy_term_synonym" type="string" indexed="true" stored="true" multiValued="true" />
+
+        <field name="parent_anatomy_id" type="string" indexed="true" stored="true" multiValued="true" />
+        <field name="parent_anatomy_term" type="string" indexed="true" stored="true" multiValued="true" />
+        <field name="parent_anatomy_term_synonym" type="string" indexed="true" stored="true" multiValued="true" />
+
+        <field name="child_anatomy_id" type="string" indexed="true" stored="true" multiValued="true" />
+        <field name="child_anatomy_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+        <field name="child_anatomy_term_synonym" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+
+        <!-- images -->
+        <field name="download_file_path" type="string" indexed="true" stored="true" multiValued="false"/>
+        <field name="file_type" type="string" indexed="true" stored="true" multiValued="false"/>
+        <field name="parameter_association_stable_id" type="string" indexed="true" stored="true" multiValued="true"/>
+        <field name="parameter_association_sequence_id" type="string" indexed="true" stored="true" multiValued="true"/>
+        <field name="parameter_association_dim_id" type="string" indexed="true" stored="true" multiValued="true"/>
+        <field name="parameter_association_name" type="string" indexed="true" stored="true" multiValued="true"/>
+        <field name="parameter_association_value" type="string" indexed="true" stored="true" multiValued="true"/>
+        <field name="developmental_stage_acc" type="string" indexed="true" stored="true" multiValued="false"/>
+        <field name="developmental_stage_name" type="string" indexed="true" stored="true" multiValued="false"/>
+        <field name="text_value" type="string" indexed="true" stored="true" multiValued="false"/>
+        <field name="sub_term_id" type="string" indexed="true" stored="true" multiValued="true"/>
+        <field name="sub_term_name" type="string" indexed="true" stored="true" multiValued="true"/>
+        <field name="sub_term_description" type="string" indexed="true" stored="true" multiValued="true"/>
+        <field name="sequence_id" type="int" indexed="true" stored="true" multiValued="false"/>
+        <field name="age_in_days" type="int" indexed="true" stored="true" multiValued="false"/>
+        <field name="age_in_weeks" type="int" indexed="true" stored="true" multiValued="false"/>
+
+        <!-- autocomplete -->
+        <field name="parameter_name_ac" type="text_ngram" indexed="true" stored="false" multiValued="false"/>
+        <field name="parameter_stable_id_ac" type="text_ngram" indexed="true" stored="false" multiValued="false"/>
+        <field name="procedure_name_ac" type="text_ngram" indexed="true" stored="false" multiValued="false"/>
+        <field name="procedure_group_ac" type="text_ngram" indexed="true" stored="false" multiValued="false"/>
+        <field name="allele_symbol_ac" type="text_ngram" indexed="true" stored="false" multiValued="false"/>
+        <field name="colony_id_ac" type="text_ngram" indexed="true" stored="false" multiValued="false"/>
+
+    </fields>
+
+    <uniqueKey>id</uniqueKey>
+
+    <!-- field for the QueryParser to use when an explicit fieldname is absent -->
+    <defaultSearchField>id</defaultSearchField>
+
+    <copyField source="parameter_name" dest="parameter_name_ac"/>
+    <copyField source="parameter_stable_id" dest="parameter_stable_id_ac"/>
+    <copyField source="procedure_name" dest="procedure_name_ac"/>
+    <copyField source="procedure_group" dest="procedure_group_ac"/>
+    <copyField source="allele_symbol" dest="allele_symbol_ac"/>
+    <copyField source="colony_id" dest="colony_id_ac"/>
+
+
+    <!-- SolrQueryParser configuration: defaultOperator="AND|OR" -->
+    <solrQueryParser defaultOperator="OR"/>
+
+</schema>
+
