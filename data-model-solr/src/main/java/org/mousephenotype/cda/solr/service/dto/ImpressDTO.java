@@ -50,6 +50,7 @@ public class ImpressDTO {
 	public static final String MEDIA = "media";
 	public static final String ANNOTATE = "annotate";
 	public static final String OBSERVATION_TYPE = ObservationDTO.OBSERVATION_TYPE;
+	public static final String DATA_TYPE = ObservationDTO.DATA_TYPE;
 
 	public static final String STAGE = "stage";
 	public static final String STAGE_LABEL = "stage_label";
@@ -137,6 +138,9 @@ public class ImpressDTO {
 
 	@Field(OBSERVATION_TYPE)
 	private String observationType;
+
+	@Field(DATA_TYPE)
+	private String dataType;
 
 	@Field(STAGE)
 	private String stage;
@@ -424,6 +428,13 @@ public class ImpressDTO {
 		return observationType;
 	}
 
+	public String getDataType() {
+		return dataType;
+	}
+
+	public void setDataType(String dataType) {
+		this.dataType = dataType;
+	}
 
 	public void setObservationType(String observationType) {
 		this.observationType = observationType;
@@ -457,6 +468,7 @@ public class ImpressDTO {
 				Objects.equals(unitY, that.unitY) &&
 				Objects.equals(description, that.description) &&
 				Objects.equals(observationType, that.observationType) &&
+				Objects.equals(dataType, that.dataType) &&
 				Objects.equals(stage, that.stage) &&
 				Objects.equals(stageLabel, that.stageLabel) &&
 				Objects.equals(parameterStableId, that.parameterStableId) &&
