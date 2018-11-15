@@ -277,7 +277,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 				o.setParameterId(parameterMap.get(r.getInt("parameter_id")).getId());
 				o.setParameterName(parameterMap.get(r.getInt("parameter_id")).getName());
 				o.setParameterStableId(parameterMap.get(r.getInt("parameter_id")).getStableId());
-				o.setDataType(parameterMap.get(r.getString("parameter_id")).getDatatype());
+				o.setDataType(parameterMap.get(r.getInt("parameter_id")).getDatatype());
 
 				o.setProcedureId(procedureMap.get(r.getInt("procedure_id")).getId());
 				o.setProcedureName(procedureMap.get(r.getInt("procedure_id")).getName());
