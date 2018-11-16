@@ -154,6 +154,7 @@ public class ChartsController {
             if ((accessionsParams != null) && (accessionsParams.length > 0) && (parameterIds != null) && (parameterIds.length > 0)) {
                 for (String parameterStableId : parameterIds) {
                     if (parameterStableId.contains("_FER_")) {
+                    	System.err.println("We don't have data for fertility so we can't display charts");
                         String url =  "http:" + request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl").toString() + "/genes/" + accessionsParams[0];
                         return "redirect:" + url;
                     }
@@ -451,7 +452,9 @@ public class ChartsController {
                 paramIds.remove(abrParameters.get(i));
             }
         }
-
+        if(geneIds.size()==0) {
+        	System.err.println("There are no geneIds for this request....probably and error");
+        }
 
         for (String geneId : geneIds) {
 
@@ -470,6 +473,10 @@ public class ChartsController {
             for (String parameterId : paramIds) {
 
                 ParameterDTO parameter = is.getParameterByStableId(parameterId);
+                if(parameter==null) {
+                	System.err.println("no parameter returned skipping for parameterId="+parameterId);
+                	continue;
+                }
                 pNames.add(StringUtils.capitalize(parameter.getName()) + " (" + parameter.getStableId() + ")");
 				// instead of an experiment list here we need just the outline
                 // of the experiments - how many, observation types
