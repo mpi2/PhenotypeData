@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <schema name="mpi2-allele2" version="1.6">
+  <uniqueKey>allele2_id</uniqueKey>
 
         <fieldType name="text" class="solr.TextField" positionIncrementGap="100">
             <analyzer type="index">
@@ -467,6 +468,7 @@
         <field name="_version_" type="plong" indexed="true" stored="true"/>
 
 
+        <field name="allele2_id" type="string" indexed="true" stored="true" multiValued="false"/>
         <field name="marker_symbol" type="string" indexed="true" stored="true" multiValued="false"/>
         <field name="mgi_accession_id" type="string" indexed="true" stored="true" multiValued="false"/>
         <field name="marker_type" type="string" indexed="true" stored="true" multiValued="false"/>

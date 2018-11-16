@@ -69,6 +69,7 @@ public class Allele2Indexer  extends AbstractIndexer implements CommandLineRunne
             index ++;
             Allele2DTO doc = new Allele2DTO();
 
+            doc.setAllele2Id(String.valueOf(index));
             doc.setAlleleCategory(getValueFor(Allele2DTO.ALLELE_CATEGORY, array, columns, runStatus));
             doc.setAlleleDescription(getValueFor(Allele2DTO.ALLELE_DESCRIPTION,array, columns, runStatus));
             doc.setAlleleImage(getValueFor(Allele2DTO.ALLELE_IMAGE,array, columns, runStatus));
