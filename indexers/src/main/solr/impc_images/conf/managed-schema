@@ -574,6 +574,7 @@
         <field name="observation_type"                  type="string" indexed="true" stored="true" multiValued="false" />
         <field name="experiment_source_id"              type="string" indexed="true" stored="true" multiValued="false" />
         <field name="date_of_experiment"                type="pdate"  indexed="true" stored="true" multiValued="false" />
+        <field name="data_type"                         type="string" indexed="true" stored="true" multiValued="false" />
         <field name="increment_value"                   type="pint" indexed="true" stored="true" />
 
         <!-- weight parameters -->
