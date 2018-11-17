@@ -19,7 +19,7 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.mousephenotype.cda.constants.Constants;
+import org.mousephenotype.cda.db.WeightMap;
 import org.mousephenotype.cda.db.utilities.SqlUtils;
 import org.mousephenotype.cda.enumerations.BiologicalSampleType;
 import org.mousephenotype.cda.enumerations.SexType;
@@ -60,7 +60,6 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * Populate the experiment core
@@ -70,7 +69,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 
 	private final Logger logger = LoggerFactory.getLogger(ObservationIndexer.class);
 
-	final String DATETIME_FORMAT = "yyyy-MM-dd HH:mm:ss.S";
+	final String DATETIME_FORMAT = WeightMap.DATETIME_FORMAT;
 
 	private Connection connection;
 
@@ -84,6 +83,9 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 	@Autowired
 	@Qualifier("experimentCore")
 	SolrClient observationCore;
+
+	@Autowired
+	WeightMap weightMap;
 
 	@Value("${experimenterIdMap}")
 	String experimenterIdMap;
@@ -102,8 +104,6 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 	Map<Integer, DatasourceBean> projectMap = new HashMap<>();
 	Map<Integer, List<ParameterAssociationBean>> parameterAssociationMap = new HashMap<>();
 
-	Map<Integer, List<WeightBean>> weightMap = new HashMap<>();
-	Map<Integer, WeightBean> ipgttWeightMap = new HashMap<>();
 	Map<Integer, List<String>> experimenterData = new HashMap<>();
 
 
@@ -115,7 +115,6 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 	OntologyParser maParser;
 	OntologyParserFactory ontologyParserFactory;
 
-	public static final String ipgttWeightParameter = "IMPC_IPG_001_001";
 	public static final List<String> maleFertilityParameters = Arrays.asList("IMPC_FER_001_001", "IMPC_FER_006_001",
 			"IMPC_FER_007_001", "IMPC_FER_008_001", "IMPC_FER_009_001");
 	public static final List<String> femaleFertilityParameters = Arrays.asList("IMPC_FER_019_001", "IMPC_FER_010_001",
@@ -180,14 +179,6 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 			populateParameterAssociationMap();
 			logger.debug("  map size: " + parameterAssociationMap.size());
 
-			logger.debug("  populating weight map");
-			populateWeightMap();
-			logger.debug("  map size: " + weightMap.size());
-
-			logger.debug("  populating ipgt map");
-			populateIpgttWeightMap();
-			logger.debug("  map size: " + ipgttWeightMap.size());
-
 			logger.debug("  populating emap to emapa map");
 			populateEmap2EmapaMap();
 			logger.debug(" map size: "+ emap2emapaIdMap.size());
@@ -217,8 +208,6 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 		int missingBiologicalDataErrorCount = 0;
 		observationCore.deleteByQuery("*:*");
 
-		Boolean hasSequenceIdColumn = sqlUtils.columnInSchemaMysql(connection, "observation", "sequence_id");
-
 		String query = "SELECT o.id as id, o.db_id as datasource_id, o.parameter_id as parameter_id, o.parameter_stable_id, "
 				+ "o.observation_type, o.missing, o.parameter_status, o.parameter_status_message, "
 				+ "o.biological_sample_id, "
@@ -228,13 +217,9 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 				+ "co.category as raw_category, uo.data_point as unidimensional_data_point, "
 				+ "mo.data_point as multidimensional_data_point, tso.data_point as time_series_data_point, "
 				+ "tro.text as text_value, mo.order_index, mo.dimension, tso.time_point, "
-				+ "tso.discrete_point, iro.file_type, iro.download_file_path ";
-
-		if (hasSequenceIdColumn) {
-			query += ", o.sequence_id as sequence_id ";
-		}
-
-		query += "FROM observation o " + "LEFT OUTER JOIN categorical_observation co ON o.id=co.id "
+				+ "tso.discrete_point, iro.file_type, iro.download_file_path, o.sequence_id as sequence_id "
+				+ "FROM observation o "
+				+ "LEFT OUTER JOIN categorical_observation co ON o.id=co.id "
 				+ "LEFT OUTER JOIN unidimensional_observation uo ON o.id=uo.id "
 				+ "LEFT OUTER JOIN multidimensional_observation mo ON o.id=mo.id "
 				+ "LEFT OUTER JOIN time_series_observation tso ON o.id=tso.id "
@@ -256,12 +241,10 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 				o.setExperimentId(r.getInt("experiment_id"));
 				o.setExperimentSourceId(r.getString("external_id"));
 
-				if (hasSequenceIdColumn) {
-					if (r.getString("sequence_id") != null && !r.getString("sequence_id").equals("")) {
-						if (isInteger(r.getString("sequence_id"))) {
-							Integer seqId = Integer.parseInt(r.getString("sequence_id"));
-							o.setSequenceId(seqId);
-						}
+				if (StringUtils.isNotEmpty(r.getString("sequence_id"))) {
+					if (isInteger(r.getString("sequence_id"))) {
+						Integer seqId = Integer.parseInt(r.getString("sequence_id"));
+						o.setSequenceId(seqId);
 					}
 				}
 
@@ -566,22 +549,21 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 					}
 				}
 
-				// Add weight parameters only if this observation isn't for a
+				// Add weight parameters only if this observation isn't itself a
 				// weight parameter
-				if (!Constants.weightParameters.contains(o.getParameterStableId())
-						&& !ipgttWeightParameter.equals(o.getParameterStableId())) {
-
-					WeightBean b = getNearestWeight(o.getBiologicalSampleId(), dateOfExperiment);
+				if ( ! WeightMap.isWeightParameter(o.getParameterStableId()) )
+				{
+					WeightMap.BodyWeight b = weightMap.getNearestWeight(o.getBiologicalSampleId(), dateOfExperiment);
 
 					if (o.getProcedureGroup().contains("_IPG")) {
-						b = getNearestIpgttWeight(o.getBiologicalSampleId());
+						b = weightMap.getNearestIpgttWeight(o.getBiologicalSampleId());
 					}
 
 					if (b != null) {
-						o.setWeight(b.weight);
-						o.setWeightDate(b.date);
-						o.setWeightDaysOld(b.daysOld);
-						o.setWeightParameterStableId(b.parameterStableId);
+						o.setWeight(b.getWeight());
+						o.setWeightDate(b.getDate());
+						o.setWeightDaysOld(b.getDaysOld());
+						o.setWeightParameterStableId(b.getParameterStableId());
 					}
 				}
 
@@ -619,12 +601,12 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 			doc.getAnatomyTerm().add(term.getName());
 			doc.getAnatomyTermSynonym().addAll(term.getSynonyms());
 			if (term.getTopLevelIds() != null) {
-				doc.setSelectedTopLevelAnatomyId(term.getTopLevelIds().stream().collect(Collectors.toList()));
-				doc.setSelectedTopLevelAnatomyTerm(term.getTopLevelNames().stream().collect(Collectors.toList()));
+				doc.setSelectedTopLevelAnatomyId(new ArrayList<>(term.getTopLevelIds()));
+				doc.setSelectedTopLevelAnatomyTerm(new ArrayList<>(term.getTopLevelNames()));
 			}
 			if (term.getIntermediateIds() != null) {
-				doc.setIntermediateAnatomyId(term.getIntermediateIds().stream().collect(Collectors.toList()));
-				doc.setIntermediateAnatomyTerm(term.getIntermediateNames().stream().collect(Collectors.toList()));
+				doc.setIntermediateAnatomyId(new ArrayList<>(term.getIntermediateIds()));
+				doc.setIntermediateAnatomyTerm(new ArrayList<>(term.getIntermediateNames()));
 			}
 		}
 	}
@@ -632,10 +614,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 	public static boolean isInteger(String s) {
 		try {
 			Integer.parseInt(s);
-		} catch (NumberFormatException e) {
-			e.printStackTrace();
-			return false;
-		} catch (NullPointerException e) {
+		} catch (NullPointerException | NumberFormatException e) {
 			e.printStackTrace();
 			return false;
 		}
@@ -651,15 +630,6 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 	 *             when a database exception occurs
 	 */
 	void populateBiologicalDataMap() throws SQLException {
-
-		String featureFlagMeansQuery = "SELECT column_name FROM information_schema.COLUMNS WHERE TABLE_NAME='biological_sample' AND TABLE_SCHEMA=(SELECT database())";
-		Set<String> featureFlags = new HashSet<>();
-		try (PreparedStatement p = connection.prepareStatement(featureFlagMeansQuery)) {
-			ResultSet r = p.executeQuery();
-			while (r.next()) {
-				featureFlags.add(r.getString("column_name"));
-			}
-		}
 
 		String query = "SELECT CAST(bs.id AS CHAR) as biological_sample_id, bs.organisation_id as phenotyping_center_id, "
 				+ "org.name as phenotyping_center_name, bs.sample_group, bs.external_id as external_sample_id, "
@@ -983,102 +953,12 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 		}
 	}
 
-	/**
-	 * Return map of specimen ID => List of all weights ordered by date ASC
-	 *
-	 * @exception SQLException
-	 *                When a database error occurs
-	 */
-	void populateWeightMap() throws SQLException {
 
-		int count = 0;
-
-		String query = "SELECT o.biological_sample_id, data_point AS weight, parameter_stable_id,  date_of_experiment, datediff(date_of_experiment, ls.date_of_birth) as days_old, e.organisation_id "
-				+ "FROM observation o " + "  INNER JOIN unidimensional_observation uo ON uo.id = o.id  "
-				+ "  INNER JOIN live_sample ls ON ls.id=o.biological_sample_id  "
-				+ "  INNER JOIN experiment_observation eo ON o.id = eo.observation_id  "
-				+ "  INNER JOIN experiment e ON e.id = eo.experiment_id  " + "WHERE parameter_stable_id IN ("
-				+ StringUtils.join(Constants.weightParameters, ",") + ") AND data_point > 0"
-				+ "  ORDER BY biological_sample_id, date_of_experiment ASC ";
-
-		try (PreparedStatement statement = getConnection().prepareStatement(query)) {
-			ResultSet resultSet = statement.executeQuery();
-			while (resultSet.next()) {
-
-				WeightBean b = new WeightBean();
-				try {
-					b.date = ZonedDateTime.parse(resultSet.getString("date_of_experiment"),
-							DateTimeFormatter.ofPattern(DATETIME_FORMAT).withZone(ZoneId.of("UTC")));
-				} catch (NullPointerException e) {
-					e.printStackTrace();
-					b.date = null;
-					logger.debug("  No date of experiment set for sample id {} parameter {}",
-							resultSet.getString("biological_sample_id"), resultSet.getString("parameter_stable_id"));
-				}
-
-				b.weight = resultSet.getFloat("weight");
-				b.parameterStableId = resultSet.getString("parameter_stable_id");
-				b.daysOld = resultSet.getInt("days_old");
-
-				final Integer specimenId = resultSet.getInt("biological_sample_id");
-
-				if (!weightMap.containsKey(specimenId)) {
-					weightMap.put(specimenId, new ArrayList<>());
-				}
-
-				weightMap.get(specimenId).add(b);
-				count += 1;
-			}
-		}
-
-		logger.info(" Added {} specimen weight data map entries", count, weightMap.size());
-	}
-
-	/**
-	 * Return map of specimen ID => weight for
-	 *
-	 * @exception SQLException
-	 *                When a database error occurrs
-	 */
-	void populateIpgttWeightMap() throws SQLException {
-
-		String query = "SELECT o.biological_sample_id, data_point AS weight, parameter_stable_id, date_of_experiment, DATEDIFF(date_of_experiment, ls.date_of_birth) AS days_old "
-				+ "FROM observation o " + "  INNER JOIN unidimensional_observation uo ON uo.id = o.id "
-				+ "  INNER JOIN live_sample ls ON ls.id=o.biological_sample_id "
-				+ "  INNER JOIN experiment_observation eo ON o.id = eo.observation_id "
-				+ "  INNER JOIN experiment e ON e.id = eo.experiment_id " + "WHERE parameter_stable_id = '"
-				+ ipgttWeightParameter + "' ";
-
-		try (PreparedStatement statement = getConnection().prepareStatement(query)) {
-			ResultSet resultSet = statement.executeQuery();
-			while (resultSet.next()) {
-
-				WeightBean b = new WeightBean();
-				try {
-					b.date = ZonedDateTime.parse(resultSet.getString("date_of_experiment"),
-							DateTimeFormatter.ofPattern(DATETIME_FORMAT).withZone(ZoneId.of("UTC")));
-				} catch (NullPointerException e) {
-					e.printStackTrace();
-					b.date = null;
-					logger.debug("  No date of experiment set for sample id {} parameter {}",
-							resultSet.getString("biological_sample_id"), resultSet.getString("parameter_stable_id"));
-
-				}
-				b.weight = resultSet.getFloat("weight");
-				b.parameterStableId = resultSet.getString("parameter_stable_id");
-				b.daysOld = resultSet.getInt("days_old");
-
-				final Integer specimenId = resultSet.getInt("biological_sample_id");
-				ipgttWeightMap.put(specimenId, b);
-			}
-		}
-
-	}
 
 	/**
 	 * Return map of EMAP => EMAPA
 	 *
-	 * @exception SQLException
+	 * @exception IOException
 	 *                When a database error occurrs
 	 */
 	void populateEmap2EmapaMap() throws IOException {
@@ -1115,65 +995,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 
 	}
 
-	/**
-	 * Compare all weight dates to select the nearest to the date of experiment
-	 *
-	 * @param specimenID
-	 *            the specimen
-	 * @param dateOfExperiment
-	 *            the date
-	 * @return the nearest weight bean to the date of the experiment
-	 */
-	WeightBean getNearestWeight(Integer specimenID, ZonedDateTime dateOfExperiment) {
 
-		WeightBean nearest = null;
-
-		if (dateOfExperiment != null && weightMap.containsKey(specimenID)) {
-
-			for (WeightBean candidate : weightMap.get(specimenID)) {
-
-				if (nearest == null) {
-					nearest = candidate;
-					continue;
-				}
-
-				if (Math.abs(
-					dateOfExperiment.toInstant().toEpochMilli() - candidate.date.toInstant().toEpochMilli()) < Math
-					.abs(dateOfExperiment.toInstant().toEpochMilli()
-						- nearest.date.toInstant().toEpochMilli())) {
-					nearest = candidate;
-				}
-			}
-		}
-
-		// Do not return weight that is > 4 days away from the experiment
-		// since the weight of the specimen become less and less relevant
-		// (Heuristic from Natasha Karp @ WTSI)
-		// 4 days = 345,600,000 ms
-		if (nearest != null && Math
-			.abs(dateOfExperiment.toInstant().toEpochMilli() - nearest.date.toInstant().toEpochMilli()) > 3.456E8) {
-			nearest = null;
-		}
-		return nearest;
-	}
-
-	/**
-	 * Select date of experiment
-	 *
-	 * @param specimenID
-	 *            the specimen
-	 * @return the nearest weight bean to the date of the experiment
-	 */
-	WeightBean getNearestIpgttWeight(Integer specimenID) {
-
-		WeightBean nearest = null;
-
-		if (ipgttWeightMap.containsKey(specimenID)) {
-			nearest = ipgttWeightMap.get(specimenID);
-		}
-
-		return nearest;
-	}
 
 	public Connection getConnection() {
 		return connection;
@@ -1200,10 +1022,6 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 
 	Map<Integer, DatasourceBean> getProjectMap() {
 		return projectMap;
-	}
-
-	Map<Integer, List<WeightBean>> getWeightMap() {
-		return weightMap;
 	}
 
 	/**
@@ -1235,21 +1053,6 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 
 	}
 
-	/**
-	 * Internal class to act as Map value DTO for weight data
-	 */
-	class WeightBean {
-		public String parameterStableId;
-		public ZonedDateTime date;
-		public Float weight;
-		public Integer daysOld;
-
-		@Override
-		public String toString() {
-			return "WeightBean{" + "parameterStableId='" + parameterStableId + '\'' + ", date=" + date + ", weight="
-					+ weight + ", daysOld=" + daysOld + '}';
-		}
-	}
 
 	/**
 	 * Internal class to act as Map value DTO for datasource data
