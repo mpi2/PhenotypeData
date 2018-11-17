@@ -1,12 +1,29 @@
 -- database: cda
 
-INSERT INTO `phenotype_pipeline` VALUES
-  (8,'MGP_001',6,'MGP Select Pipeline','',1,0,15,NULL);
+INSERT INTO `phenotype_pipeline` VALUES (5,'JAX_001',6,'JAX Pipeline','',1,0,12,0);
+INSERT INTO `phenotype_pipeline` VALUES (8,'MGP_001',6,'MGP Select Pipeline','',1,0,15,NULL);
 
+
+INSERT INTO `phenotype_procedure` VALUES
+  (1,103,'IMPC_BWT_001',6,'Body Weight','The body weight test measures the weight of the mouse in a time series, allowing monitoring of its evolution; also, it is required in many other procedures.',1,3,1,'experiment','Adult','Unrestricted');
 
 INSERT INTO phenotype_procedure VALUES
   (67,183,'IMPC_INS_003',6,'Insulin Blood Level','The insulin concentration in the blood is an important indicator of diabetes.Ontological description: abnormal circulating insulin level [MP:0001560]; increased circulating insulin level [MP:0002079]; decreased circulating insulin level [MP:0002727].',3,1,0,'experiment','Terminal','Week 16');
 
+INSERT INTO `phenotype_procedure` VALUES
+  (57,90,'IMPC_DXA_001',6,'Body Composition (DEXA lean/fat)','Measure bone mineral content and density as well as body composition in mice using the DEXA (Dual Energy X-ray Absorptiometry) analyser.',1,8,1,'experiment','Adult','Week 14');
+
+INSERT INTO `phenotype_parameter` VALUES (1,'IMPC_BWT_001_001',6,'Body weight','body_weight',1,3,'g','FLOAT','simpleParameter',NULL,1,0,0,0,0,0,0,0,0,0,'',2100);
+INSERT INTO `phenotype_parameter` VALUES (2,'IMPC_BWT_002_001',6,'General comments about the mouse','general_comments_about_the_mouse',1,1,' ','TEXT','simpleParameter',NULL,0,0,0,0,0,0,0,0,0,0,'',2101);
+INSERT INTO `phenotype_parameter` VALUES (3,'IMPC_BWT_003_001',6,'Equipment ID','equipment_name',1,0,' ','TEXT','procedureMetadata',NULL,1,1,0,0,0,0,0,0,0,0,'',2102);
+INSERT INTO `phenotype_parameter` VALUES (4,'IMPC_BWT_004_001',6,'Equipment manufacturer','equipment_manufacturer',1,2,' ','TEXT','procedureMetadata',NULL,1,1,0,0,0,0,1,0,0,0,'',2103);
+INSERT INTO `phenotype_parameter` VALUES (5,'IMPC_BWT_005_001',6,'Experimenter ID','experimenter_id',1,0,' ','TEXT','procedureMetadata',NULL,1,1,0,0,0,0,0,0,0,0,'',2104);
+INSERT INTO `phenotype_parameter` VALUES (6,'IMPC_BWT_006_001',6,'Date equipment last calibrated','',1,2,' ','DATE','procedureMetadata',NULL,0,1,0,0,0,0,0,0,0,0,'',2171);
+INSERT INTO `phenotype_parameter` VALUES (7,'IMPC_BWT_007_001',6,'Equipment model','',1,1,' ','TEXT','procedureMetadata',NULL,1,1,0,0,0,0,1,0,0,0,'',2356);
+INSERT INTO `phenotype_parameter` VALUES (8,'IMPC_BWT_008_001',6,'Body weight curve','Derivation to collect all body weights measured (when available) and plot them correctly as time series.',1,1,'g','FLOAT','seriesMediaParameter','IMPC_GRS_003_001 IMPC_CAL_001_001 IMPC_DXA_001_001 IMPC_HWT_007_001 IMPC_PAT_049_001 IMPC_BWT_001_001 IMPC_ABR_001_001 IMPC_CHL_001_001 TCP_CHL_001_001 HMGU_ROT_004_001 PLOT_ALL_PARAMETERS_AS_TIMESERIES',0,0,0,1,0,0,0,0,0,0,'',4276);
+
+INSERT INTO `phenotype_parameter` VALUES (2026,'IMPC_DXA_001_001',6,'Body weight','body_weight',1,1,'g','FLOAT','simpleParameter',NULL,1,0,0,0,0,0,0,0,0,0,'',1906);
+INSERT INTO `phenotype_parameter` VALUES (2027,'IMPC_DXA_002_001',6,'Fat mass','fat_mass',1,1,'g','FLOAT','simpleParameter',NULL,1,0,0,0,1,0,0,0,0,0,'',1907);
 
 INSERT INTO `phenotype_parameter` VALUES
   (2157,'IMPC_INS_001_001',6,'Insulin','insulin',1,3,'pg/ml','FLOAT','simpleParameter',NULL,1,0,0,0,1,0,0,0,0,0,'',2610),

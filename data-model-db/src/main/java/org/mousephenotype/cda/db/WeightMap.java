@@ -24,7 +24,7 @@ public class WeightMap {
 
     private final Logger logger = LoggerFactory.getLogger(WeightMap.class);
 
-    private  static final String ipgttWeightParameter = "IMPC_IPG_001_001";
+    private static final String ipgttWeightParameter = "IMPC_IPG_001_001";
 
     public static final String DATETIME_FORMAT = "yyyy-MM-dd HH:mm:ss.S";
     private Map<Integer, List<BodyWeight>> weightMap = new HashMap<>();
@@ -70,18 +70,36 @@ public class WeightMap {
         return weightMap.size();
     }
 
+
+    public BodyWeight getNearestWeight(Integer specimenID, ZonedDateTime dateOfExperiment) {
+        return getNearestWeight(specimenID, null, dateOfExperiment);
+    }
+
     /**
      * Compare all weight dates to select the nearest to the date of experiment
      *
-     * @param specimenID
-     *            the specimen
-     * @param dateOfExperiment
-     *            the date
+     * This method follows a set of rules as follows:
+     *  1) Closest weight in time to the date of experiment
+     *
+     *  NOTE: If there are multiple points in time equidistant from the date of exeperiment
+     *  2) Weight value from the same procedure
+     *  3) The IMPC bodyweight procedure IMPC_BWT
+     *  4) The weight with the largest value (favoring future weights over past weights)
+     *
+     *
+     * @param specimenID       the specimen
+     * @param stableId         the stable ID of the parameter with which to associate the weight
+     * @param dateOfExperiment the date the experiment was conducted
      * @return the nearest weight bean to the date of the experiment
      */
-    public BodyWeight getNearestWeight(Integer specimenID, ZonedDateTime dateOfExperiment) {
+    public BodyWeight getNearestWeight(Integer specimenID, String stableId, ZonedDateTime dateOfExperiment) {
 
         BodyWeight nearest = null;
+        String procedureGroup = null;
+
+        if (stableId!= null) {
+            procedureGroup = stableId.substring(0, stableId.indexOf("_", 1));
+        }
 
         if (dateOfExperiment != null && weightMap.containsKey(specimenID)) {
 
@@ -92,11 +110,36 @@ public class WeightMap {
                     continue;
                 }
 
-                if (Math.abs(
-                        dateOfExperiment.toInstant().toEpochMilli() - candidate.date.toInstant().toEpochMilli()) < Math
-                        .abs(dateOfExperiment.toInstant().toEpochMilli()
-                                - nearest.date.toInstant().toEpochMilli())) {
+                final long candidateDiff = Math.abs(dateOfExperiment.toInstant().toEpochMilli() - candidate.date.toInstant().toEpochMilli());
+                final long nearestDiff = Math.abs(dateOfExperiment.toInstant().toEpochMilli() - nearest.date.toInstant().toEpochMilli());
+
+                // If the date of the candidate weight is closer in time to the date of experiment, use that
+                if (candidateDiff < nearestDiff) {
                     nearest = candidate;
+                }
+                // If the weights are the same distance away in time to the date of experiment...
+                else if (candidateDiff == nearestDiff){
+
+                    // This is now a selection based on rules
+                    //   1) Prefer weight measurements from the same procedure
+                    //   2) Second preference are data from the IMPC_BWT procedure
+                    //   3) Third preference is the larger weight value (selective pressure towards weight dates in the future)
+
+                    // NOTE: If there are multiple weight measurements from the same procedure that are equidistant
+                    // the largest value will be preferred
+
+                    if (procedureGroup!= null && candidate.getParameterStableId().contains(procedureGroup)) {
+                        if (candidate.getWeight() > nearest.getWeight()) {
+                            nearest = candidate;
+                        }
+                    } else if (candidate.getParameterStableId().contains("_BWT")) {
+                        if (candidate.getWeight() > nearest.getWeight()) {
+                            nearest = candidate;
+                        }
+                    } else if (candidate.getWeight() > nearest.getWeight()) {
+                        nearest = candidate;
+                    }
+
                 }
             }
         }
@@ -105,8 +148,8 @@ public class WeightMap {
         // since the weight of the specimen become less and less relevant
         // (Heuristic from Natasha Karp @ WTSI)
         // 4 days = 345,600,000 ms
-        if (nearest != null && Math
-                .abs(dateOfExperiment.toInstant().toEpochMilli() - nearest.date.toInstant().toEpochMilli()) > 3.456E8) {
+        if (nearest != null &&
+                Math.abs(dateOfExperiment.toInstant().toEpochMilli() - nearest.date.toInstant().toEpochMilli()) > 3.456E8) {
             nearest = null;
         }
         return nearest;
@@ -139,7 +182,7 @@ public class WeightMap {
 
         int count = 0;
 
-        String query = "SELECT o.biological_sample_id, data_point AS weight, parameter_stable_id,  date_of_experiment, datediff(date_of_experiment, ls.date_of_birth) as days_old, e.organisation_id "
+        String query = "SELECT o.biological_sample_id, data_point AS weight, parameter_stable_id,  date_of_experiment, DATEDIFF(date_of_experiment, ls.date_of_birth) as days_old, e.organisation_id "
                 + "FROM observation o " + "  INNER JOIN unidimensional_observation uo ON uo.id = o.id  "
                 + "  INNER JOIN live_sample ls ON ls.id=o.biological_sample_id  "
                 + "  INNER JOIN experiment_observation eo ON o.id = eo.observation_id  "
@@ -188,11 +231,12 @@ public class WeightMap {
     private void populateIpgttWeightMap() throws SQLException {
 
         String query = "SELECT o.biological_sample_id, data_point AS weight, parameter_stable_id, date_of_experiment, DATEDIFF(date_of_experiment, ls.date_of_birth) AS days_old "
-                + "FROM observation o " + "  INNER JOIN unidimensional_observation uo ON uo.id = o.id "
+                + "FROM observation o "
+                + "  INNER JOIN unidimensional_observation uo ON uo.id = o.id "
                 + "  INNER JOIN live_sample ls ON ls.id=o.biological_sample_id "
                 + "  INNER JOIN experiment_observation eo ON o.id = eo.observation_id "
-                + "  INNER JOIN experiment e ON e.id = eo.experiment_id " + "WHERE parameter_stable_id = '"
-                + ipgttWeightParameter + "' ";
+                + "  INNER JOIN experiment e ON e.id = eo.experiment_id "
+                + "WHERE parameter_stable_id = '" + ipgttWeightParameter + "' ";
 
         try (Connection connection = komp2DataSource.getConnection(); PreparedStatement statement = connection.prepareStatement(query)) {
             ResultSet resultSet = statement.executeQuery();
@@ -265,6 +309,23 @@ public class WeightMap {
         public String toString() {
             return "WeightBean{" + "parameterStableId='" + parameterStableId + '\'' + ", date=" + date + ", weight="
                     + weight + ", daysOld=" + daysOld + '}';
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            BodyWeight that = (BodyWeight) o;
+            return Objects.equals(parameterStableId, that.parameterStableId) &&
+                    Objects.equals(date, that.date) &&
+                    Objects.equals(weight, that.weight) &&
+                    Objects.equals(daysOld, that.daysOld);
+        }
+
+        @Override
+        public int hashCode() {
+
+            return Objects.hash(parameterStableId, date, weight, daysOld);
         }
     }
 

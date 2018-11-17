@@ -553,7 +553,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 				// weight parameter
 				if ( ! WeightMap.isWeightParameter(o.getParameterStableId()) )
 				{
-					WeightMap.BodyWeight b = weightMap.getNearestWeight(o.getBiologicalSampleId(), dateOfExperiment);
+					WeightMap.BodyWeight b = weightMap.getNearestWeight(o.getBiologicalSampleId(), o.getParameterStableId(), dateOfExperiment);
 
 					if (o.getProcedureGroup().contains("_IPG")) {
 						b = weightMap.getNearestIpgttWeight(o.getBiologicalSampleId());
