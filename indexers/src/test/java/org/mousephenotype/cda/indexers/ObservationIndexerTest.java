@@ -6,6 +6,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.config.TestConfigIndexers;
+import org.mousephenotype.cda.db.WeightMap;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
 import org.mousephenotype.cda.solr.service.OntologyBean;
 import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
@@ -21,15 +22,14 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -45,6 +45,9 @@ public class ObservationIndexerTest {
     @Autowired
     @Qualifier("komp2DataSource")
     private DataSource ds;
+
+    @Autowired
+    WeightMap weightMap;
 
     @Before
     public void setUp() throws Exception {
@@ -120,19 +123,37 @@ public class ObservationIndexerTest {
 
 	@Test
 	//@Ignore
-	public void testPopulateWeightMap() throws Exception {
-		observationIndexer.initialise();
+	public void testWeightMap() throws Exception {
 
-		observationIndexer.populateWeightMap();
-		Map<Integer, List<ObservationIndexer.WeightBean>> weightMap = observationIndexer.getWeightMap();
+        logger.info("Size of weight map {}", weightMap.size());
+        Assert.assertTrue(weightMap.size() > 50);
 
-		ZonedDateTime dateOfExperiment = ZonedDateTime.ofInstant(new SimpleDateFormat("yyyy-MM-dd").parse("2015-04-29").toInstant(), ZoneId.of("UTC"));
 
-		System.out.println("Weight map for speciment 94369 is : " + weightMap.get(94369));
-		System.out.println("Nearest weight to 2015-04-29 00:00:00 is " + observationIndexer.getNearestWeight(94369, dateOfExperiment) );
-		Assert.assertTrue(weightMap.size() > 50);
+        ZonedDateTime dateOfExperiment = ZonedDateTime.ofInstant(new SimpleDateFormat("yyyy-MM-dd").parse("2015-04-29").toInstant(), ZoneId.of("UTC"));
+		System.out.println("Weight map for specimen 94369 is : " + weightMap.get(94369));
+        System.out.println("Nearest weight to 2015-04-29 00:00:00 is " + weightMap.getNearestWeight(94369, dateOfExperiment) );
 
-		logger.info("Size of weight map {}", weightMap.size());
+
+		Integer testDbId = null;
+		try (Connection c = ds.getConnection(); PreparedStatement s = c.prepareStatement("SELECT * FROM biological_sample where external_id = 'B6NTAC-USA/680.8f_5016035'") ) {
+            ResultSet rs = s.executeQuery();
+            while (rs.next()) {
+                testDbId = rs.getInt("id");
+            }
+        }
+
+        dateOfExperiment = ZonedDateTime.ofInstant(new SimpleDateFormat("yyyy-MM-dd").parse("2012-07-17").toInstant(), ZoneId.of("UTC"));
+        System.out.println("Weight map for specimen 'B6NTAC-USA/680.8f_5016035' (DB ID is " + testDbId+ ") is : " + weightMap.get(testDbId));
+        System.out.println("Nearest weight to 2012-07-17 00:00:00 is " + weightMap.getNearestWeight(testDbId, dateOfExperiment) );
+        
+        Set<Float> weights = new HashSet<>();
+        for (int i = 0; i< 1000; i++) {
+            final WeightMap.BodyWeight nearestWeight = weightMap.getNearestWeight(testDbId, dateOfExperiment);
+            weights.add(nearestWeight.getWeight());
+        }
+
+        Assert.assertEquals("Error Multiple weights found for same date", 1, weights.size());
+
 
 	}
 
