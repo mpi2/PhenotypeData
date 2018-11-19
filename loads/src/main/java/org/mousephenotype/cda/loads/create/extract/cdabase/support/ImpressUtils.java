@@ -17,9 +17,6 @@
 package org.mousephenotype.cda.loads.create.extract.cdabase.support;
 
 import org.mousephenotype.cda.db.pojo.*;
-import org.mousephenotype.impress.GetParameterMPTermsResponse;
-import org.mousephenotype.impress.wsdlclients.ParameterMPTermsClient;
-import org.mousephenotype.impress.wsdlclients.ParameterOntologyOptionsClient;
 import org.mousephenotype.impress2.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,8 +26,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
 
 import javax.validation.constraints.NotNull;
 import java.util.*;
@@ -43,6 +38,9 @@ public class ImpressUtils {
     @NotNull
     @Value("${impress.service.url}")
     protected String impressServiceUrl;
+
+
+    // PIPELINE
 
 
     public List<Pipeline> getPipelines(Datasource datasource) {
@@ -667,6 +665,73 @@ public class ImpressUtils {
         return ontologyTerms;
     }
 
+    public Map<String, Integer> getOntologyTermStableKeysByAccFromWs() {
+
+        Map<String, Integer> map = new HashMap<>();
+
+        String url = impressServiceUrl + "/ontologyterm/list";
+
+        try {
+
+            RestTemplate rt   = new RestTemplate();
+            Object       o    = rt.getForEntity(url, Object.class);
+            Object       body = ((ResponseEntity) o).getBody();
+            Map<String, String> wsOntologyTermsMap = (Map<String, String>) body;
+            for (Map.Entry<String, String> entry : wsOntologyTermsMap.entrySet()) {
+                Integer ontologyTermId = Integer.parseInt(entry.getKey());
+                String  accessionId    = entry.getValue();
+                map.put(accessionId, ontologyTermId);
+            }
+        } catch (Exception e) {
+
+            e.printStackTrace();
+            logger.warn("URL: {}. Error: {}", url, e.getLocalizedMessage());
+            return null;
+        }
+
+        return map;
+    }
+
+    public Map<String, ImpressParamMpterm> getParamMpTermsByOntologyTermAccessionId(Parameter parameter, Map<Integer, OntologyTerm> updatedOntologyTermsByStableKey) {
+
+        Map<String, ImpressParamMpterm> terms = new HashMap<>();
+
+        String url = impressServiceUrl + "/ontologyterm/linksbelongingtoparameter/" + parameter.getStableKey();
+
+        try {
+
+            RestTemplate              rt   = new RestTemplate();
+            Object                    o    = rt.getForEntity(url, Object.class);
+            Object                    body = ((ResponseEntity) o).getBody();
+            List<Map<String, Object>> maps = (List<Map<String, Object>>) body;
+
+            for (Map<String, Object> map : maps) {
+
+                ImpressParamMpterm term = getTerm(map);
+                String ontologyTermAccessionId = updatedOntologyTermsByStableKey.get(term.getOntologyTermId()).getId().getAccession();
+                terms.put(ontologyTermAccessionId, term);
+            }
+
+        } catch (HttpClientErrorException e) {
+
+            // If there are no outcomes, an HttpClientErrorException will be thrown with HttpStatus 404.
+            if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
+                return terms;
+            }
+         } catch (Exception e) {
+
+            e.printStackTrace();
+            logger.warn("URL: {}. Error: {}", url, e.getLocalizedMessage());
+            return terms;
+        }
+
+        return terms;
+    }
+
+
+    // GENERAL PUBLIC METHODS
+
+
     /**
      * If token is not null, replaces all newline characters with a single space. Some impress names have a newline
      * in the middle of a two-word name, which causes processing problems downstream. Some of this data is old and,
@@ -684,4 +749,25 @@ public class ImpressUtils {
 
         return result;
     }
+
+
+    // PRIVATE METHODS
+
+
+    private ImpressParamMpterm getTerm(Map<String, Object> map) {
+
+        ImpressParamMpterm term = new ImpressParamMpterm();
+        term.setParamMptermId((Integer) map.get("paramMptermId"));
+        term.setOntologyTermId((Integer) map.get("ontologyTermId"));
+        term.setWeight((Integer) map.get("weight"));
+        term.setIsDeleted((Boolean) map.get("isDeleted"));
+        term.setOptionText((String) map.get("optionText"));
+        term.setIncrementId((Integer) map.get("incrementId"));
+        term.setParameterId((Integer) map.get("parameterId"));
+        term.setSex((String) map.get("sex"));
+        term.setSelectionOutcome((String) map.get("selectionOutcome"));
+
+        return term;
+    }
+
 }

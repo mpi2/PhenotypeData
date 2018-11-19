@@ -24,8 +24,7 @@ import org.mousephenotype.cda.db.pojo.*;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.loads.common.CdaSqlUtils;
 import org.mousephenotype.cda.loads.create.extract.cdabase.support.ImpressUtils;
-import org.mousephenotype.impress.wsdlclients.ParameterMPTermsClient;
-import org.mousephenotype.impress.wsdlclients.ParameterOntologyOptionsClient;
+import org.mousephenotype.impress2.ImpressParamMpterm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.Banner;
@@ -82,23 +81,22 @@ public class ImpressParserV2 implements CommandLineRunner {
     private Set<String>        normalCategory = new HashSet<>();
     private Set<String>        omitPipelines  = new HashSet<>();
 
-    private Map<String, OntologyTerm> updatedOntologyTerms;                                                             // This is the map of all ontology terms, updated, indexed by ontology accession id
+    private Map<String, OntologyTerm> updatedOntologyTermsByOriginalOntologyAccessionId;                                // This is the map of all ontology terms, updated, indexed by original ontology accession id
 
     private final String IMPRESS_SHORT_NAME = "IMPReSS";
 
-//    // SOAP web service classes
-    private ParameterMPTermsClient         parameterMPTermsClient;
-    private ParameterOntologyOptionsClient parameterOntologyOptionsClient;
-
     // RESTful web service classes
-    private Map<Integer, Schedule>  schedulesById  = new HashMap<>();
-    private Map<Integer, Procedure> proceduresById = new HashMap<>();
-    private Map<Integer, Parameter> parametersById = new HashMap<>();
-    private Map<Integer, String>    unitsById      = new HashMap<>();
+    private Map<Integer, Schedule>     schedulesById                   = new HashMap<>();
+    private Map<Integer, Procedure>    proceduresById                  = new HashMap<>();
+    private Map<Integer, Parameter>    parametersById                  = new HashMap<>();
+    private Map<Integer, String>       unitsById                       = new HashMap<>();
+    private Map<Integer, OntologyTerm> updatedOntologyTermsByStableKey = new HashMap<>();
 
     // Sets for missing terms for display at the end of the run.
     private Set<String> missingOntologyTerms = new HashSet<>();
     private Set<String> missingMpTerms       = new HashSet<>();
+
+    private int associationCounter = 0;
 
 
     private final String[] OPT_HELP = {"h", "help"};
@@ -119,16 +117,12 @@ public class ImpressParserV2 implements CommandLineRunner {
             ApplicationContext context,
             CdaSqlUtils cdabaseSqlUtils,
             ImpressUtils impressUtils,
-            DataSource cdabaseDataSource,
-            ParameterMPTermsClient parameterMPTermsClient,
-            ParameterOntologyOptionsClient parameterOntologyOptionsClient
+            DataSource cdabaseDataSource
     ) {
         this.context = context;
         this.cdabaseSqlUtils = cdabaseSqlUtils;
         this.impressUtils = impressUtils;
         this.cdabaseDataSource = cdabaseDataSource;
-        this.parameterMPTermsClient = parameterMPTermsClient;
-        this.parameterOntologyOptionsClient = parameterOntologyOptionsClient;
     }
 
     /**
@@ -150,6 +144,16 @@ public class ImpressParserV2 implements CommandLineRunner {
         // LOAD UNITS
         unitsById = impressUtils.getUnits();
 
+        // LOAD ONTOLOGY TERM MAP FROM WEB SERVICE
+        Map<String, Integer> ontologyTermStableKeysByAccFromWs = impressUtils.getOntologyTermStableKeysByAccFromWs();
+
+        // LOAD ontologyTermsByStableKey MAP WITH UPDATED TERMS
+        for (Map.Entry<String, Integer> entry : ontologyTermStableKeysByAccFromWs.entrySet()) {
+            String acc = entry.getKey();
+            Integer stableKey = entry.getValue();
+            OntologyTerm updatedTerm = updatedOntologyTermsByOriginalOntologyAccessionId.get(acc);
+            updatedOntologyTermsByStableKey.put(stableKey, updatedTerm);
+        }
 
         // LOAD PIPELINES and their child elements
         List<Pipeline> pipelines = impressUtils.getPipelines(datasource);
@@ -316,7 +320,7 @@ public class ImpressParserV2 implements CommandLineRunner {
 
         // Load updated ontology terms
         List<OntologyTerm> originalTerms = cdabaseSqlUtils.getOntologyTerms();
-        updatedOntologyTerms = cdabaseSqlUtils.getUpdatedOntologyTermMap(originalTerms, null, null);     // We're trying to update all terms. Ignore infos and warnings, as most don't apply to IMPReSS.
+        updatedOntologyTermsByOriginalOntologyAccessionId = cdabaseSqlUtils.getUpdatedOntologyTermMap(originalTerms, null, null);     // We're trying to update all terms. Ignore infos and warnings, as most don't apply to IMPReSS.
     }
 
 
@@ -362,120 +366,91 @@ public class ImpressParserV2 implements CommandLineRunner {
 
         List<ParameterOntologyAnnotationWithSex> annotations = new ArrayList<>();
 
-        /*
-         * Loop through this parameter's ontology terms, creating an ontologyAnnotation for each term. Add each
-         * ontologyAnnotation to this parameter's annotations list.
-         */
+        // Get this parameter's ontology annotations.
+        // NOTE: if ontologyTermsFromWs is null, continue on to the mp ontology terms.
         Map<String, String> ontologyTermsFromWs = impressUtils.getOntologyTermsFromWs(parameter);
+        if (ontologyTermsFromWs != null) {
 
-        for (Map.Entry<String, String> entry : ontologyTermsFromWs.entrySet()) {
+            for (Map.Entry<String, String> entry : ontologyTermsFromWs.entrySet()) {
 
-            ParameterOntologyAnnotationWithSex ontologyAnnotation = new ParameterOntologyAnnotationWithSex();
+                ParameterOntologyAnnotationWithSex ontologyAnnotation = new ParameterOntologyAnnotationWithSex();
 
-            String ontologyAcc  = entry.getKey();                                                                       // Get the accession id
-            String ontologyName = ImpressUtils.newlineToSpace(entry.getValue());                                        // Get the ontology term
+                String originalOntologyAcc  = entry.getKey();                                                           // Get the original accession id
+                String originalOntologyName = ImpressUtils.newlineToSpace(entry.getValue());                            // Get the original ontology term
 
-            // Logs error and returns null if unable to create term.
-            OntologyTerm ontologyTerm = getOntologyTerm(ontologyAcc, ontologyName, pipeline, procedure, parameter);
-            if (ontologyTerm == null) {
-                continue;
+                OntologyTerm updatedOntologyTerm = getUpdatedOntologyTerm(originalOntologyAcc, originalOntologyName, pipeline, procedure, parameter);
+                if (updatedOntologyTerm == null) {
+                    continue;
+                }
+
+                ontologyAnnotation.setOntologyTerm(updatedOntologyTerm);
+                parameter.addAnnotation(ontologyAnnotation);
+                annotations.add(ontologyAnnotation);
             }
-//// FIXME
-////            if (ontologyTermFromWs.get("sex") != null && ! ontologyTermFromWs.get("sex").isEmpty()) {                   // Get SexType
-////                SexType sexType = getSexType(ontologyTermFromWs.get("sex"), parameter.getStableId());
-////                ontologyAnnotation.setSex(sexType);
-////            }
-
-            ontologyAnnotation.setOntologyTerm(ontologyTerm);
-            parameter.addAnnotation(ontologyAnnotation);
-            annotations.add(ontologyAnnotation);
         }
 
-
-
-
-
-
-
-
-
-
-
-
-        // Create the map of MP ontology terms from the IMPReSS web service.
-
-
-
-
-
-
-        /*
-         * Loop through this parameter's MP ontology terms, creating an ontologyAnnotation for each term. Add each
-         * ontologyAnnotation to this parameter's annotations list.
-         */
+        // Get this parameter's MP ontology annotations.
         Map<String, String> mpOntologyTermsFromWs = impressUtils.getMpOntologyTermsFromWs(parameter);
-//        if (mpOntologyTermsFromWs == null) {
-//            missingMpTerms.add("parameterMPTermsClient(): Missing MP ontology term for pipelineKey::procedureKey::parameterKey(parameterId) " + pipelineKey + "::" + procedureKey + "::" + parameter.getStableId() + "::" + parameter.getStableKey());
-//            return annotations;
-//        }
+        if (mpOntologyTermsFromWs != null) {
 
-        for (Map.Entry<String, String> entry : mpOntologyTermsFromWs.entrySet()) {
+            // Get the outcome and sex for each of this parameter's MP terms
+            Map<String, ImpressParamMpterm> impressParamMpTermsByOntologyTermAccessionId = impressUtils.getParamMpTermsByOntologyTermAccessionId(parameter, updatedOntologyTermsByStableKey);
 
-            ParameterOntologyAnnotationWithSex ontologyAnnotation = new ParameterOntologyAnnotationWithSex();
+            for (Map.Entry<String, String> entry : mpOntologyTermsFromWs.entrySet()) {
 
-            String ontologyAcc  = entry.getKey();                                                                       // Get the accession id
-            String ontologyName = ImpressUtils.newlineToSpace(entry.getValue());                                        // Get the ontology term
+                ParameterOntologyAnnotationWithSex mpOntologyAnnotation = new ParameterOntologyAnnotationWithSex();
 
+                String ontologyAcc  = entry.getKey();                                                                   // Get the accession id
+                String ontologyName = ImpressUtils.newlineToSpace(entry.getValue());                                    // Get the ontology term
 
+                OntologyTerm ontologyTerm = getUpdatedOntologyTerm(ontologyAcc, ontologyName, pipeline, procedure, parameter); // If the ontology term can't be found/created, continue to the next.
+                if (ontologyTerm == null) {
+                    continue;
+                }
 
-            // Logs error and returns null if unable to create term.
+                // Remap original ontology acc and name to be updated.
+                ontologyAcc = ontologyTerm.getId().getAccession();
+                ontologyName = ontologyTerm.getName();
 
+                ImpressParamMpterm paramMpTerm = impressParamMpTermsByOntologyTermAccessionId.get(ontologyAcc);
 
-            OntologyTerm ontologyTerm = getOntologyTerm(ontologyAcc, ontologyName, pipeline, procedure, parameter);
-            if (ontologyTerm == null) {
-                continue;
+                // OUTCOME
+                String outcome = paramMpTerm.getSelectionOutcome();
+                PhenotypeAnnotationType phenotypeAnnotationType = ((outcome == null) || (outcome.trim().isEmpty()) ? null : PhenotypeAnnotationType.find(outcome));
+                mpOntologyAnnotation.setType(phenotypeAnnotationType);
+
+                // SEX
+                String sex = paramMpTerm.getSex();
+                if ((sex != null) && ( ! sex.trim().isEmpty())) {                                                       // Get SexType
+                    SexType sexType = getSexType(sex, parameter.getStableId());
+                    mpOntologyAnnotation.setSex(sexType);
+                }
+
+                // OPTIONS
+                // FIXME - this comment is wrong: If this ontology term has an option, wire up the annotation to the option using the option's primary key and the ontology term's name.
+                if (parameter.isOptionsFlag()) {
+                    String optionName = paramMpTerm.getOptionText();
+
+                    // Look up the option in this parameter's options list so we can extract the phenotype_parameter_option primary key.
+                    for (ParameterOption parameterOption : parameter.getOptions()) {
+                        if (parameterOption.getName().equals(optionName)) {
+                            parameterOption.setNormalCategory(true);
+                            mpOntologyAnnotation.setOption(parameterOption);
+
+                            // log every 1000th association for spot checking.
+                            if ((associationCounter % 1000) == 0) {
+                                logger.info("Associate outcome {} to option {} for parameterKey {} ({}) with MP Ontology term {}", outcome, parameterOption.getName(), parameter.getStableId(), parameter.getStableKey(), ontologyTerm.getId().getAccession());
+                            }
+                            break;
+                        }
+                    }
+                }
+
+                mpOntologyAnnotation.setOntologyTerm(ontologyTerm);
+                parameter.addAnnotation(mpOntologyAnnotation);
+                annotations.add(mpOntologyAnnotation);
             }
-//// FIXME
-
-            // OUTCOME
-//            String outcome = mpOntologyTermFromWs.get("selection_outcome");
-//            PhenotypeAnnotationType phenotypeAnnotationType = ((outcome == null) || (outcome.trim().isEmpty()) ? null : PhenotypeAnnotationType.find(outcome));
-//            mpOntologyAnnotation.setType(phenotypeAnnotationType);
-//
-
-            // SEX
-//            if (mpOntologyTermFromWs.get("sex") != null && ! mpOntologyTermFromWs.get("sex").isEmpty()) {               // Get SexType
-//                SexType sexType = getSexType(mpOntologyTermFromWs.get("sex"), parameter.getStableId());
-//                mpOntologyAnnotation.setSex(sexType);
-//            }
-
-            // OPTIONS
-//            if (parameter.isOptionsFlag()) {                                                                            // Add mp options as specified by the web service
-//                if (mpOntologyTermFromWs.get("option").length() > 0) {
-//                    String optionName = mpOntologyTermFromWs.get("option");
-//
-//                    // Look up the option in this parameter's options list so we can extract the phenotype_parameter_option primary key.
-//                    for (ParameterOption parameterOption : parameter.getOptions()) {
-//                        if (parameterOption.getName().equals(optionName)) {
-//                            parameterOption.setNormalCategory(true);
-//                            mpOntologyAnnotation.setOption(parameterOption);
-//                            logger.debug("Associate " + outcome + " to option " + parameterOption.getName() + " to parameter " + parameter.getStableId() + " with MP Ontology term '" + mpOntologyTermFromWs.get("mp_term") + "'. ");
-//                            break;
-//                        }
-//                    }
-//                } else {
-//                    logger.debug("Associate " + outcome + " to parameter " + parameter.getStableId() + " with MP Ontology term '" + mpOntologyTermFromWs.get("mp_term") + "'.");
-//                }
-//            }
-
-
-
-
-            ontologyAnnotation.setOntologyTerm(ontologyTerm);
-            parameter.addAnnotation(ontologyAnnotation);
-            annotations.add(ontologyAnnotation);
         }
-
 
         return annotations;
     }
@@ -497,13 +472,8 @@ public class ImpressParserV2 implements CommandLineRunner {
     }
 
 
-
-
-
-
-
-    private OntologyTerm getOntologyTerm(String ontologyAcc, String ontologyName, Pipeline pipeline, Procedure procedure, Parameter parameter) {
-        OntologyTerm ontologyTerm = updatedOntologyTerms.get(ontologyAcc);                                          // Get the updated ontology term if it exists.
+    private OntologyTerm getUpdatedOntologyTerm(String ontologyAcc, String ontologyName, Pipeline pipeline, Procedure procedure, Parameter parameter) {
+        OntologyTerm ontologyTerm = updatedOntologyTermsByOriginalOntologyAccessionId.get(ontologyAcc);                                          // Get the updated ontology term if it exists.
         if (ontologyTerm == null) {
 
             if ((ontologyAcc == null) || (ontologyAcc.trim().isEmpty())) {
@@ -525,7 +495,7 @@ public class ImpressParserV2 implements CommandLineRunner {
             ontologyTerm.setIsObsolete(false);
 
             cdabaseSqlUtils.insertOntologyTerm(ontologyTerm);
-            updatedOntologyTerms.put(ontologyTerm.getId().getAccession(), ontologyTerm);
+            updatedOntologyTermsByOriginalOntologyAccessionId.put(ontologyTerm.getId().getAccession(), ontologyTerm);
 
             logger.warn("Created ontology term {}, name '{}' for {}({})::{}({})::{}({})",
                         ontologyTerm.getId(), ontologyTerm.getName(),
@@ -536,9 +506,6 @@ public class ImpressParserV2 implements CommandLineRunner {
 
         return ontologyTerm;
     }
-
-
-
 
 
     /**
