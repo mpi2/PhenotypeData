@@ -151,11 +151,11 @@ public class ProductDTO {
     private List<String> qcData;
 
 
-    public List<String> getProductIndex() {
+    public String getProductIndex() {
         return productIndex;
     }
 
-    public void setProductIndex(List<String> productIndex) {
+    public void setProductIndex(String productIndex) {
         this.productIndex = productIndex;
     }
 
