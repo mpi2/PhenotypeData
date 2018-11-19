@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <schema name="mpi2-product" version="1.6">
-  
+  <uniqueKey>product_id</uniqueKey>
+
 
         <!-- to be used for autosuggest -->
         <fieldType name="text_ngram" class="solr.TextField">
