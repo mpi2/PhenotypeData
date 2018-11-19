@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <schema name="mpi2-product" version="1.6">
-  <uniqueKey>product_id</uniqueKey>
+  <uniqueKey>product_index</uniqueKey>
 
 
         <!-- to be used for autosuggest -->
@@ -450,6 +450,7 @@
   </fieldType>
 
         <field name="_version_" type="plong" indexed="true" stored="true"/>
+        <field name="product_index" type="string" indexed="true" stored="true" multiValued="false"/>
         <field name="product_id" type="string" indexed="true" stored="true" multiValued="false"/>
         <field name="allele_design_project" type="string" indexed="true" stored="true" multiValued="false"/>
         <field name="marker_symbol" type="string" indexed="true" stored="true" multiValued="false"/>

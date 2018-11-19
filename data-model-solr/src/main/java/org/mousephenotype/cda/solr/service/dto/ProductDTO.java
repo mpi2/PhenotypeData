@@ -6,6 +6,7 @@ import java.util.List;
 
 public class ProductDTO {
 
+    public static final String PRODUCT_INDEX = "product_index";
     public static final String PRODUCT_ID = "product_id";
     public static final String ALLELE_ID = "allele_id";
     public static final String MARKER_SYMBOL = "marker_symbol";
@@ -43,6 +44,9 @@ public class ProductDTO {
     public static final String ALLELE_SYMBOL = "allele_symbol";
     public static final String AUTO_SUGGEST = "auto_suggest";
     public static final String ALLELE_DESIGN_PROJECT="allele_design_project";
+
+    @Field(PRODUCT_INDEX)
+    private String productIndex;
 
     @Field(ALLELE_DESIGN_PROJECT)
     private String alleleDesignProject;
@@ -145,6 +149,15 @@ public class ProductDTO {
 
     @Field(QC_DATA)
     private List<String> qcData;
+
+
+    public List<String> getProductIndex() {
+        return productIndex;
+    }
+
+    public void setProductIndex(List<String> productIndex) {
+        this.productIndex = productIndex;
+    }
 
     public List<String> getQcData() {
         return qcData;
@@ -411,6 +424,7 @@ public class ProductDTO {
     public String toString() {
         return "ProductDTO{" +
                 "ikmcProjectId='" + ikmcProjectId + '\'' +
+                ", productIndex='" + productIndex + '\'' +
                 ", cassette='" + cassette + '\'' +
                 ", designId='" + designId + '\'' +
                 ", laoAssays=" + laoAssays +
