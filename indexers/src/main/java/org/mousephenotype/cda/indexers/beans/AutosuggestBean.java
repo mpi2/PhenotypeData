@@ -324,7 +324,7 @@ public class AutosuggestBean {
 		return autosuggestId;
 	}
 
-	public void setAutosuggestId(String allele2Id) {
+	public void setAutosuggestId(String autosuggestId) {
 		this.autosuggestId = autosuggestId;
 	}
 
