@@ -3,6 +3,7 @@ package org.mousephenotype.cda.loads.derived;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.math3.stat.inference.BinomialTest;
 import org.mousephenotype.cda.db.dao.*;
 import org.mousephenotype.cda.db.pojo.*;
@@ -279,6 +280,40 @@ public class GenerateDerivedParameters implements CommandLineRunner {
                     task = () -> IMPC_IPG_011_001();
                     tasks.add(executor.submit(task));
                     break;
+
+
+
+                case "IMPC_FEA_003_001":
+                    task = () -> copyMultiplicationOfDivision("IMPC_FEA_003_001", "IMPC_FEA_002_001", "IMPC_FEA_033_001", 100);
+                    tasks.add(executor.submit(task));
+                    break;
+
+                case "IMPC_FEA_009_001":
+                    task = () -> copyMultiplicationOfDivision("IMPC_FEA_009_001", "IMPC_FEA_008_001", "IMPC_FEA_049_001", 100);
+                    tasks.add(executor.submit(task));
+                    break;
+
+                case "IMPC_FEA_015_001":
+                    task = () -> copyMultiplicationOfDivision("IMPC_FEA_015_001", "IMPC_FEA_014_001", "IMPC_FEA_057_001", 100);
+                    tasks.add(executor.submit(task));
+                    break;
+
+                case "IMPC_FEA_021_001":
+                    task = () -> copyMultiplicationOfDivision("IMPC_FEA_021_001", "IMPC_FEA_020_001", "IMPC_FEA_060_001", 100);
+                    tasks.add(executor.submit(task));
+                    break;
+
+                case "IMPC_FEA_091_001":
+                    task = () -> copyMultiplicationOfDivision("IMPC_FEA_091_001", "IMPC_FEA_090_001", "IMPC_FEA_036_001", 100);
+                    tasks.add(executor.submit(task));
+                    break;
+
+                case "IMPC_FEA_100_001":
+                    task = () -> copyMultiplicationOfDivision("IMPC_FEA_100_001", "IMPC_FEA_099_001", "IMPC_FEA_039_001", 100);
+                    tasks.add(executor.submit(task));
+                    break;
+
+
 
                 case "ESLIM_004_001_701":
                     task = () -> copyAUC("ESLIM_004_001_701", "ESLIM_004_001_002");
@@ -1223,15 +1258,6 @@ public class GenerateDerivedParameters implements CommandLineRunner {
                 ObservationDTO dto = parameterMap.get(numeratorParameter).get(id);
                 Datasource datasource = datasourcesById.get(dto.getExternalDbId());
                 Experiment currentExperiment = createNewExperiment(dto, "derived_" + parameterToCreate + "_" + i++, getProcedureFromObservation(param, dto), true);
-
-//                String metadataGroup = parameterMap.get(divisorParameter).get(id).getMetadataGroup() + "_" +
-//                        parameterMap.get(numeratorParameter).get(id).getMetadataGroup();
-//
-//                String metadata = parameterMap.get(divisorParameter).get(id).getMetadataCombined() + "_" +
-//                        parameterMap.get(numeratorParameter).get(id).getMetadataCombined();
-//
-//                currentExperiment.setMetadataCombined(metadata);
-//                currentExperiment.setMetadataGroup(DigestUtils.md5Hex(metadataGroup));
 
                 // Use the same metadata as the other parameters in this procedure
                 currentExperiment.setMetadataCombined(dto.getMetadataCombined());
@@ -2196,9 +2222,22 @@ public class GenerateDerivedParameters implements CommandLineRunner {
     private Map<String, ObservationDTO> getResultsMapByParameter (String parameterId)
             throws SQLException {
 
+        // Metadata parmeters required for processing several Fear Conditioning derived parameters
+        Set<String> metadataParametersToInclude = new HashSet<>(Arrays.asList(
+                "IMPC_FEA_033_001",
+                "IMPC_FEA_049_001",
+                "IMPC_FEA_057_001",
+                "IMPC_FEA_060_001",
+                "IMPC_FEA_036_001",
+                "IMPC_FEA_039_001"));
+
+
         Map<String, ObservationDTO> res = new HashMap<> ();
 
-        String query = "SELECT DISTINCT e.project_id,  e.procedure_id, e.procedure_stable_id, e.db_id, ls.colony_id, "
+        List<String> queries = new ArrayList<>();
+
+        // Gather all data from unidimensional data type
+        queries.add("SELECT DISTINCT e.project_id,  e.procedure_id, e.procedure_stable_id, e.db_id, ls.colony_id, "
                 + "bmstrain.strain_acc, ls.zygosity, ls.sex, ls.date_of_birth, uo.data_point, bs.id, "
                 + "org.name, e.date_of_experiment, e.metadata_group, e.metadata_combined, pipeline_stable_id, pipeline_id  " +
                 "FROM observation o " +
@@ -2211,20 +2250,43 @@ public class GenerateDerivedParameters implements CommandLineRunner {
                 "INNER JOIN biological_model_sample bms ON bms.biological_sample_id=bs.id " +
                 "INNER JOIN biological_model_strain bmstrain ON bmstrain.biological_model_id=bms.biological_model_id " +
                 "WHERE o.parameter_stable_id=?" +
-                "AND o.missing=0";
+                "AND o.missing=0");
+
+        // Gather all data from selected list of metadata parameters as these are used for calcualtions on the FEA
+        // procedure
+        if (metadataParametersToInclude.contains(parameterId)) {
+            queries.add("SELECT DISTINCT e.project_id,  e.procedure_id, e.procedure_stable_id, e.db_id, ls.colony_id, \n" +
+                    "bmstrain.strain_acc, ls.zygosity, ls.sex, ls.date_of_birth, mo.value as data_point, bs.id, \n" +
+                    "org.name, e.date_of_experiment, e.metadata_group, e.metadata_combined, pipeline_stable_id, pipeline_id  \n" +
+                    "FROM procedure_meta_data mo\n" +
+                    "INNER JOIN experiment e ON e.id=mo.experiment_id \n" +
+                    "INNER JOIN organisation org ON org.id=e.organisation_id\n" +
+                    "INNER JOIN experiment_observation eo ON eo.experiment_id=e.id \n" +
+                    "INNER JOIN observation o on o.id=eo.observation_id\n" +
+                    "INNER JOIN biological_sample bs ON bs.id=o.biological_sample_id \n" +
+                    "INNER JOIN live_sample ls ON ls.id=bs.id \n" +
+                    "INNER JOIN biological_model_sample bms ON bms.biological_sample_id=bs.id \n" +
+                    "INNER JOIN biological_model_strain bmstrain ON bmstrain.biological_model_id=bms.biological_model_id \n" +
+                    "WHERE mo.parameter_id=?" +
+                    "AND o.missing=0");
+        }
 
 
-        logger.trace("Executing query: " + query);
-        logger.trace("With parameters parameterId="+parameterId);
+        logger.trace("Executing queries: " + StringUtils.join(queries, "\n"));
+        logger.trace("With parameters parameterId=" + parameterId);
 
-        try (Connection connection = komp2DataSource.getConnection(); PreparedStatement statement = connection.prepareStatement(query)) {
-            statement.setString(1, parameterId);
-            ResultSet resultSet = statement.executeQuery();
-            while (resultSet.next()) {
-                ObservationDTO obsDTO = fillUnidimensionalObsDTO(resultSet);
-                res.put(resultSet.getString("id") + "#" + obsDTO.getPipelineId(), obsDTO);
+        for (String query : queries) {
+
+            try (Connection connection = komp2DataSource.getConnection(); PreparedStatement statement = connection.prepareStatement(query)) {
+                statement.setString(1, parameterId);
+                ResultSet resultSet = statement.executeQuery();
+                while (resultSet.next()) {
+                    ObservationDTO obsDTO = fillUnidimensionalObsDTO(resultSet);
+                    res.put(resultSet.getString("id") + "#" + obsDTO.getPipelineId(), obsDTO);
+                }
             }
         }
+
         return res;
     }
 

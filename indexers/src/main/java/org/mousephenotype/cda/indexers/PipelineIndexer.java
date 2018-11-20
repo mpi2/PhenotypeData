@@ -171,6 +171,7 @@ public class PipelineIndexer extends AbstractIndexer implements CommandLineRunne
 						doc.setDerived(param.isDerived());
 						doc.setMedia(param.isMedia());
 						doc.setAnnotate(param.isAnnotate());
+						doc.setDataType(param.getDataType());
 
 						if (param.getCategories().size() > 0){
 							doc.setCategories(param.getCategories());

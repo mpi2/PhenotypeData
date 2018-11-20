@@ -117,7 +117,7 @@ public class OntologyUtils {
         
     	Map<Integer, ParameterDTO> impressMap;
 
-        String query = "SELECT id, stable_key, name, stable_id, annotate FROM phenotype_parameter";
+        String query = "SELECT id, stable_key, name, stable_id, annotate, datatype FROM phenotype_parameter";
 
         try (PreparedStatement p = connection.prepareStatement(query)) {
 
@@ -192,6 +192,7 @@ public class OntologyUtils {
         	b.setStableId(resultSet.getString("stable_id")); 
         	b.setName(resultSet.getString("name"));
         	b.setAnnotate(resultSet.getBoolean("annotate"));
+        	b.setDataType(resultSet.getString("datatype"));
             impressMap.put(resultSet.getInt("id"), b);
             
         }

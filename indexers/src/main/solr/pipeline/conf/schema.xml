@@ -136,7 +136,7 @@
     <fields>
 
         <field name="ididid" type="string" indexed="true" stored="true"/>
-        <field name="dataType" type="string" indexed="true" stored="true"/>
+        <field name="data_type" type="string" indexed="true" stored="true"/>
         <field name="_version_" type="long" indexed="true" stored="true"/>
 
         <field name="parameter_id" type="int" indexed="true" stored="true" required="true" multiValued="false"/>

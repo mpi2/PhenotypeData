@@ -54,6 +54,7 @@ public class ExperimentLoader implements CommandLineRunner {
     // How many threads used to process experiments
     private static final int N_THREADS = 75;
     private static final Boolean ONE_AT_A_TIME = Boolean.FALSE;
+    private static Boolean SHUFFLE = Boolean.FALSE;
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -176,6 +177,12 @@ public class ExperimentLoader implements CommandLineRunner {
 
         logger.info("Getting experiments");
         List<DccExperimentDTO> dccExperiments = dccSqlUtils.getExperiments();
+
+        // Sometimes helpful to load the experiments in other-than-file order (for testing, etc.)
+        if (SHUFFLE) {
+            Collections.shuffle(dccExperiments);
+        }
+
         logger.info("Getting experiments complete. Loading {} experiments from DCC.", dccExperiments.size());
 
         CommonUtils.printJvmMemoryConfiguration();
@@ -1506,5 +1513,13 @@ public class ExperimentLoader implements CommandLineRunner {
 
             return retVal;
         }
+    }
+
+    public static Boolean getSHUFFLE() {
+        return SHUFFLE;
+    }
+
+    public static void setSHUFFLE(Boolean SHUFFLE) {
+        ExperimentLoader.SHUFFLE = SHUFFLE;
     }
 }

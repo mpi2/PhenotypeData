@@ -58,6 +58,7 @@ public class ObservationDTOBase {
 	public final static String PARAMETER_ID = "parameter_id";
 	public final static String PARAMETER_NAME = "parameter_name";
 	public final static String PARAMETER_STABLE_ID = "parameter_stable_id";
+	public final static String DATA_TYPE = "data_type";
 	public final static String EXPERIMENT_ID = "experiment_id";
 	public final static String EXPERIMENT_SOURCE_ID = "experiment_source_id";
 	public final static String OBSERVATION_TYPE = "observation_type";
@@ -142,6 +143,9 @@ public class ObservationDTOBase {
 
     @Field(PARAMETER_STABLE_ID)
     protected String parameterStableId;
+
+    @Field(DATA_TYPE)
+    protected String dataType;
 
     @Field(PIPELINE_ID)
     protected Integer pipelineId;
@@ -932,7 +936,15 @@ public class ObservationDTOBase {
         this.parameterStableId = parameterStableId;
     }
 
-    /**
+	public String getDataType() {
+		return dataType;
+	}
+
+	public void setDataType(String dataType) {
+		this.dataType = dataType;
+	}
+
+	/**
      * @return the pipelineId
      */
     public Integer getPipelineId() {
