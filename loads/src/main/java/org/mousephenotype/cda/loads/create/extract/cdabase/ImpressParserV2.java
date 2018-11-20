@@ -199,6 +199,7 @@ public class ImpressParserV2 implements CommandLineRunner {
 
         Set<String> exceptions = impressUtils.getExceptions();
         if ( ! exceptions.isEmpty()) {
+            System.out.println(" ");
             logger.info("exceptions:");
             for (String exception : exceptions) {
                 logger.warn(exception);
