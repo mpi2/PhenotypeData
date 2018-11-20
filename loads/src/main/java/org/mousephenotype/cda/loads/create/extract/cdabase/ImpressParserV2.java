@@ -438,7 +438,7 @@ public class ImpressParserV2 implements CommandLineRunner {
                             mpOntologyAnnotation.setOption(parameterOption);
 
                             // log every 1000th association for spot checking.
-                            if ((associationCounter % 1000) == 0) {
+                            if ((++associationCounter % 200) == 0) {
                                 logger.info("Associate outcome {} to option {} for parameterKey {} ({}) with MP Ontology term {}", outcome, parameterOption.getName(), parameter.getStableId(), parameter.getStableKey(), ontologyTerm.getId().getAccession());
                             }
                             break;
