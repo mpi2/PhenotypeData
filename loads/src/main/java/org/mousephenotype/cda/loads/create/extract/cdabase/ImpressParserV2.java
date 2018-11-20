@@ -24,6 +24,7 @@ import org.mousephenotype.cda.db.pojo.*;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.loads.common.CdaSqlUtils;
 import org.mousephenotype.cda.loads.create.extract.cdabase.support.ImpressUtils;
+import org.mousephenotype.cda.utilities.CommonUtils;
 import org.mousephenotype.impress2.ImpressParamMpterm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -96,19 +97,30 @@ public class ImpressParserV2 implements CommandLineRunner {
     private Set<String> missingOntologyTerms = new HashSet<>();
     private Set<String> missingMpTerms       = new HashSet<>();
 
+    // To support the -c / --component flag, these hold the pipelineId, scheduleId, procedureId, and parameterId.
+    // A value of 0 for any component  means process all of those components and their dependencies.
+    private int pipelineIdComponent = 0;
+    private int scheduleIdComponent = 0;
+    private int procedureIdComponent = 0;
+    private int parameterIdComponent = 0;
+
     private int associationCounter = 0;
 
 
     private final String[] OPT_HELP = {"h", "help"};
     private final String[] OPT_OMIT_PIPELINES = {"o", "omitPipelines"};
+    private final String[] OPT_COMPONENT = {"c", "component"};
 
     private final String OPT_OMIT_PIPELINES_DESCRIPTION =
             "By default, no pipelines are omitted. Specify this parameter once for every pipeline you want to skip. The" +
             " pipeline value you supply is an approximate 'starts-with' match, so you only need to specify the starting" +
             " characters that uniquely identify the pipeline(s) you want to omit. You may specify this parameter multiple times.";
+    private final String OPT_COMPONENT_DESCRIPTION =
+            "By default, all pipelines, schedules, procedures, and parameters are processed. Use this option to execute" +
+            " a single pipelineId [::scheduleId [::procedureId [::parameterId]]]. This parameter may be specified only once.";
     private boolean help    = false;
 
-    public static final String USAGE = "Usage: [--help/-h] | [--omitPipelines/-o p1] [--omitPipelines/-o p2] [...]";
+    public static final String USAGE = "Usage: [--help/-h] | [--component/-c pipelineId[::scheduleId[::procedureId[::parameterId]]]] | [--omitPipelines/-o p1] [--omitPipelines/-o p2] [...]";
 
 
     @Inject
@@ -167,25 +179,29 @@ public class ImpressParserV2 implements CommandLineRunner {
             }
 
             loadPipeline(pipeline);
+        }
 
-            if ( ! missingOntologyTerms.isEmpty()) {
-                // Print out missing sets
-                logger.info("Missing ontology terms:");
-                Collections.sort(new ArrayList<>(missingOntologyTerms));
-                for (String term : missingOntologyTerms) {
-                    logger.warn(term);
-                }
-
-                missingOntologyTerms.clear();
+        if ( ! missingOntologyTerms.isEmpty()) {
+            logger.info("Missing ontology terms:");
+            Collections.sort(new ArrayList<>(missingOntologyTerms));
+            for (String term : missingOntologyTerms) {
+                logger.warn(term);
             }
+        }
 
-            if ( ! missingMpTerms.isEmpty()) {
-                Collections.sort(new ArrayList<>(missingMpTerms));
-                for (String term : missingMpTerms) {
-                    logger.warn(term);
-                }
+        if ( ! missingMpTerms.isEmpty()) {
+            logger.info("Missing MP ontology terms:");
+            Collections.sort(new ArrayList<>(missingMpTerms));
+            for (String term : missingMpTerms) {
+                logger.warn(term);
+            }
+        }
 
-                missingMpTerms.clear();
+        Set<String> exceptions = impressUtils.getExceptions();
+        if ( ! exceptions.isEmpty()) {
+            logger.info("exceptions:");
+            for (String exception : exceptions) {
+                logger.warn(exception);
             }
         }
     }
@@ -196,6 +212,11 @@ public class ImpressParserV2 implements CommandLineRunner {
 
     @Transactional
     public void loadPipeline(Pipeline pipeline) {
+
+        if ((pipelineIdComponent > 0) && (pipeline.getStableKey() != pipelineIdComponent)) {
+            return;
+        }
+
         System.out.println(" ");
         logger.info("***** Loading pipelineId {} ({}) *****", pipeline.getStableKey(), pipeline.getStableId());
 
@@ -207,6 +228,10 @@ public class ImpressParserV2 implements CommandLineRunner {
 
         // LOAD SCHEDULES
         for (Integer scheduleId : pipeline.getScheduleCollection()) {
+
+            if ((scheduleIdComponent > 0) && (scheduleId != scheduleIdComponent)) {
+                continue;
+            }
 
             Schedule schedule = schedulesById.get(scheduleId);
 
@@ -220,6 +245,10 @@ public class ImpressParserV2 implements CommandLineRunner {
 
             // LOAD PROCEDURES
             for (Integer procedureId : schedule.getProcedureCollection()) {
+
+                if ((procedureIdComponent > 0) && (procedureId != procedureIdComponent)) {
+                    continue;
+                }
 
                 Procedure procedure = proceduresById.get(procedureId);
 
@@ -237,7 +266,7 @@ public class ImpressParserV2 implements CommandLineRunner {
 
                     proceduresById.put(procedureId, procedure);
 
-                    logger.info("    Loading scheduleId::procedureId::procedureKey {}::{}::{}", scheduleId, procedureId, procedure.getStableId());
+                    logger.info("    Loading pipeline::scheduleId::procedureId::procedureKey {}::{}::{}::{}", pipeline.getStableKey(), scheduleId, procedureId, procedure.getStableId());
 
                     if (cdabaseSqlUtils.insertPhenotypeProcedure(pipeline.getId(), procedure) == null) {
                         logger.warn("INSERT OF procedureId {} ({}) FAILED. PROCEDURE SKIPPED...", procedure.getStableKey(), procedure.getStableId());
@@ -248,6 +277,11 @@ public class ImpressParserV2 implements CommandLineRunner {
 
                 // LOAD PARAMETERS
                 for (Integer parameterId : procedure.getParameterCollection()) {
+
+
+                    if ((parameterIdComponent > 0) && (parameterId != parameterIdComponent)) {
+                        continue;
+                    }
 
                     logger.debug("      Loading pipelineId::scheduleId::procedureId::parameterId   {}::{}::{}::{}", pipeline.getStableKey(), schedule.getScheduleId(), procedure.getStableKey(), parameterId);
                     Parameter parameter = parametersById.get(parameterId);
@@ -327,7 +361,8 @@ public class ImpressParserV2 implements CommandLineRunner {
     protected OptionSet parseOptions(OptionParser parser, String[] args) {
 
         OptionSet options = null;
-        OptionSpec<String> omitSpec = null;
+        OptionSpec<String> omitSpec;
+        OptionSpec<String> componentSpec;
 
         parser.allowsUnrecognizedOptions();
 
@@ -337,6 +372,10 @@ public class ImpressParserV2 implements CommandLineRunner {
         omitSpec = parser.acceptsAll(Arrays.asList(OPT_OMIT_PIPELINES), OPT_OMIT_PIPELINES_DESCRIPTION)
                 .withRequiredArg()
                 .withValuesSeparatedBy(",")
+                .forHelp();
+
+        componentSpec = parser.acceptsAll(Arrays.asList(OPT_COMPONENT), OPT_COMPONENT_DESCRIPTION)
+                .withRequiredArg()
                 .forHelp();
 
         try {
@@ -355,7 +394,57 @@ public class ImpressParserV2 implements CommandLineRunner {
             omitPipelines.addAll(options.valuesOf(omitSpec));
         }
 
+        if (options.has("c")) {
+            String components = options.valueOf(componentSpec);
+            parseComponents(components);
+        }
+
         return options;
+    }
+
+    private void parseComponents(String components) {
+
+        String[] parts = components.split("::");
+        if (parts.length > 4) {
+            System.out.println(usage());
+            System.exit(1);
+        }
+
+        Integer i;
+        switch (parts.length) {
+            case 4:
+                i = CommonUtils.tryParseInt(parts[3]);
+                if (i == null) {
+                    System.out.println(usage());
+                    System.exit(1);
+                }
+                parameterIdComponent = i;
+
+            case 3:
+                i = CommonUtils.tryParseInt(parts[2]);
+                if (i == null) {
+                    System.out.println(usage());
+                    System.exit(1);
+                }
+                procedureIdComponent = i;
+
+            case 2:
+                i = CommonUtils.tryParseInt(parts[1]);
+                if (i == null) {
+                    System.out.println(usage());
+                    System.exit(1);
+                }
+                scheduleIdComponent = i;
+
+            case 1:
+                i = CommonUtils.tryParseInt(parts[0]);
+                if (i == null) {
+                    System.out.println(usage());
+                    System.exit(1);
+                }
+                pipelineIdComponent = i;
+
+        }
     }
 
     private String usage() {
@@ -368,7 +457,7 @@ public class ImpressParserV2 implements CommandLineRunner {
 
         // Get this parameter's ontology annotations.
         // NOTE: if ontologyTermsFromWs is null, continue on to the mp ontology terms.
-        Map<String, String> ontologyTermsFromWs = impressUtils.getOntologyTermsFromWs(parameter);
+        Map<String, String> ontologyTermsFromWs = impressUtils.getOntologyTermsFromWs(pipeline.getStableKey(), procedure.getScheduleKey(), procedure.getStableKey(), parameter);
         if (ontologyTermsFromWs != null) {
 
             for (Map.Entry<String, String> entry : ontologyTermsFromWs.entrySet()) {
@@ -390,11 +479,12 @@ public class ImpressParserV2 implements CommandLineRunner {
         }
 
         // Get this parameter's MP ontology annotations.
-        Map<String, String> mpOntologyTermsFromWs = impressUtils.getMpOntologyTermsFromWs(parameter);
+        Map<String, String> mpOntologyTermsFromWs = impressUtils.getMpOntologyTermsFromWs(pipeline.getStableKey(), procedure.getScheduleKey(), procedure.getStableKey(), parameter);
         if (mpOntologyTermsFromWs != null) {
 
             // Get the outcome and sex for each of this parameter's MP terms
-            Map<String, ImpressParamMpterm> impressParamMpTermsByOntologyTermAccessionId = impressUtils.getParamMpTermsByOntologyTermAccessionId(parameter, updatedOntologyTermsByStableKey);
+            Map<String, ImpressParamMpterm> impressParamMpTermsByOntologyTermAccessionId = impressUtils.getParamMpTermsByOntologyTermAccessionId(
+                    pipeline.getStableKey(), procedure.getScheduleKey(), procedure.getStableKey(), parameter, updatedOntologyTermsByStableKey);
 
             for (Map.Entry<String, String> entry : mpOntologyTermsFromWs.entrySet()) {
 

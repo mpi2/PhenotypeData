@@ -33,6 +33,13 @@ import java.util.*;
 @Component
 public class ImpressUtils {
 
+    // Save exceptions in a set for client retrieval.
+    private Set<String> exceptions = new HashSet<>();
+    public Set<String> getExceptions() {
+        return exceptions;
+    }
+
+
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @NotNull
@@ -593,7 +600,7 @@ public class ImpressUtils {
     // ANNOTATIONS
 
 
-    public Map<String, String> getOntologyTermsFromWs(Parameter parameter) {
+    public Map<String, String> getOntologyTermsFromWs(int pipelineId, int scheduleId, int procedureId, Parameter parameter) {
 
         Map<String, String> ontologyTerms = new HashMap<>();
 
@@ -621,16 +628,17 @@ public class ImpressUtils {
 
         } catch (Exception e) {
 
-            e.printStackTrace();
-            logger.warn("URL: {}. Error: {}", url, e.getLocalizedMessage());
-            return null;
+            String message = pipelineId + "::" + scheduleId + "::" + procedureId + "::" + parameter.getStableKey() + "::" +
+                    parameter.getStableId() + ": URL: " + url;
+            exceptions.add(message);
+            return ontologyTerms;
         }
 
         return ontologyTerms;
     }
 
 
-    public Map<String, String> getMpOntologyTermsFromWs(Parameter parameter) {
+    public Map<String, String> getMpOntologyTermsFromWs(int pipelineId, int scheduleId, int procedureId, Parameter parameter) {
 
         Map<String, String> ontologyTerms = new HashMap<>();
 
@@ -657,9 +665,10 @@ public class ImpressUtils {
             }
         } catch (Exception e) {
 
-            e.printStackTrace();
-            logger.warn("URL: {}. Error: {}", url, e.getLocalizedMessage());
-            return null;
+            String message = pipelineId + "::" + scheduleId + "::" + procedureId + "::" + parameter.getStableKey() + "::" +
+                    parameter.getStableId() + ": URL: " + url;
+            exceptions.add(message);
+            return ontologyTerms;
         }
 
         return ontologyTerms;
@@ -692,7 +701,7 @@ public class ImpressUtils {
         return map;
     }
 
-    public Map<String, ImpressParamMpterm> getParamMpTermsByOntologyTermAccessionId(Parameter parameter, Map<Integer, OntologyTerm> updatedOntologyTermsByStableKey) {
+    public Map<String, ImpressParamMpterm> getParamMpTermsByOntologyTermAccessionId(int pipelineId, int scheduleId, int procedureId, Parameter parameter, Map<Integer, OntologyTerm> updatedOntologyTermsByStableKey) {
 
         Map<String, ImpressParamMpterm> terms = new HashMap<>();
 
@@ -720,8 +729,9 @@ public class ImpressUtils {
             }
          } catch (Exception e) {
 
-            e.printStackTrace();
-            logger.warn("URL: {}. Error: {}", url, e.getLocalizedMessage());
+            String message = pipelineId + "::" + scheduleId + "::" + procedureId + "::" + parameter.getStableKey() + "::" +
+                    parameter.getStableId() + ": URL: " + url;
+            exceptions.add(message);
             return terms;
         }
 
