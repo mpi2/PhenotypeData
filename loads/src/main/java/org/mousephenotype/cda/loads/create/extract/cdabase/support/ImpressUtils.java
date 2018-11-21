@@ -70,14 +70,14 @@ public class ImpressUtils {
         List<ImpressPipeline> pipelines = new ArrayList<>();
 
         String url = impressServiceUrl + "/pipeline/list/full";
-
-        RestTemplate rt   = new RestTemplate();
-        Object       o    = rt.getForEntity(url, Object.class);
-        Object       body = ((ResponseEntity) o).getBody();
-
-        HashMap<String, HashMap<String, Object>> pipelinesMap = (HashMap<String, HashMap<String, Object>>) body;
-
         try {
+
+            RestTemplate rt   = new RestTemplate();
+            Object       o    = rt.getForEntity(url, Object.class);
+            Object       body = ((ResponseEntity) o).getBody();
+
+            HashMap<String, HashMap<String, Object>> pipelinesMap = (HashMap<String, HashMap<String, Object>>) body;
+
             for (HashMap<String, Object> pipelineMap : pipelinesMap.values()) {
 
                 ImpressPipeline pipeline = new ImpressPipeline();
@@ -145,12 +145,13 @@ public class ImpressUtils {
         String          url             = impressServiceUrl + "/schedule/" + scheduleId;
 
         RestTemplate rt   = new RestTemplate();
-        Object       o    = rt.getForEntity(url, Object.class);
-        Object       body = ((ResponseEntity) o).getBody();
-
-        HashMap<String, Object> impressScheduleMap = (HashMap<String, Object>) body;
 
         try {
+            Object o    = rt.getForEntity(url, Object.class);
+            Object body = ((ResponseEntity) o).getBody();
+
+            HashMap<String, Object> impressScheduleMap = (HashMap<String, Object>) body;
+
             impressSchedule.setScheduleId((Integer) impressScheduleMap.get("scheduleId"));
             impressSchedule.setIsActive((Boolean) impressScheduleMap.get("isActive"));
             impressSchedule.setIsDeprecated((Boolean) impressScheduleMap.get("isDeprecated"));
@@ -412,14 +413,14 @@ public class ImpressUtils {
         List<ImpressIncrement> increments = new ArrayList<>();
 
         String url = impressServiceUrl + "/increment/belongingtoparameter/full/" + parameterId;
-
-        RestTemplate rt   = new RestTemplate();
-        Object       o    = rt.getForEntity(url, Object.class);
-        Object       body = ((ResponseEntity) o).getBody();
-
-        List<Map<String, Object>> list = (List<Map<String, Object>>) body;
-
         try {
+
+            RestTemplate rt   = new RestTemplate();
+            Object       o    = rt.getForEntity(url, Object.class);
+            Object       body = ((ResponseEntity) o).getBody();
+
+            List<Map<String, Object>> list = (List<Map<String, Object>>) body;
+
             for (Map<String, Object> map : list) {
 
                 ImpressIncrement increment = new ImpressIncrement();
@@ -511,13 +512,13 @@ public class ImpressUtils {
 
         String url = impressServiceUrl + "/option/belongingtoparameter/full/" + parameterId;
 
-        RestTemplate rt   = new RestTemplate();
-        Object       o    = rt.getForEntity(url, Object.class);
-        Object       body = ((ResponseEntity) o).getBody();
-
-        List<HashMap<String, Object>> impressOptionsList = (List<HashMap<String, Object>>) body;
-
         try {
+
+            RestTemplate rt   = new RestTemplate();
+            Object       o    = rt.getForEntity(url, Object.class);
+            Object       body = ((ResponseEntity) o).getBody();
+
+            List<HashMap<String, Object>> impressOptionsList = (List<HashMap<String, Object>>) body;
 
             for (HashMap<String, Object> map : impressOptionsList) {
 
