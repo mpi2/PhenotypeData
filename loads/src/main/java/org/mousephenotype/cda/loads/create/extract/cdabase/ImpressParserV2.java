@@ -237,7 +237,7 @@ public class ImpressParserV2 implements CommandLineRunner {
             Schedule schedule = schedulesById.get(scheduleId);
 
             if (schedule == null) {
-                schedule = impressUtils.getSchedule(scheduleId, datasource);
+                schedule = impressUtils.getSchedule(pipeline.getStableKey(), scheduleId, datasource);
                 schedulesById.put(scheduleId, schedule);
 
                 logger.debug("      Loading pipelineId::scheduleId {}::{}", pipeline.getStableKey(), scheduleId);
@@ -255,7 +255,7 @@ public class ImpressParserV2 implements CommandLineRunner {
 
                 if (procedure == null) {
 
-                    procedure = impressUtils.getProcedure(procedureId, datasource);
+                    procedure = impressUtils.getProcedure(pipeline.getStableKey(), scheduleId, procedureId, datasource);
                     if (procedure == null) {
                         logger.warn("Unable to get procedureId {}. Skipping...", procedureId);
                         continue;
@@ -289,7 +289,7 @@ public class ImpressParserV2 implements CommandLineRunner {
 
                     if (parameter == null) {
 
-                        parameter = impressUtils.getParameter(parameterId, datasource, unitsById);
+                        parameter = impressUtils.getParameter(pipeline.getStableKey(), scheduleId, procedureId, parameterId, datasource, unitsById);
                         if (parameter == null) {
                             logger.warn("Unable to get parameterId {}. Skipping...", parameterId);
                             continue;
@@ -614,14 +614,14 @@ public class ImpressParserV2 implements CommandLineRunner {
         // INCREMENTS
         if (parameter.isIncrementFlag()) {
 
-            List<ParameterIncrement> increments = impressUtils.getIncrements(parameter.getStableKey());
+            List<ParameterIncrement> increments = impressUtils.getIncrements(pipeline.getStableKey(), procedure.getScheduleKey(), procedure.getStableKey(), parameter.getStableKey());
             cdabaseSqlUtils.insertPhenotypeParameterIncrements(parameter.getId(), increments);
         }
 
         // OPTIONS
         if (parameter.isOptionsFlag()) {
 
-            List<ParameterOption> options = impressUtils.getOptions(parameter, normalCategory);
+            List<ParameterOption> options = impressUtils.getOptions(pipeline.getStableKey(), procedure.getScheduleKey(), procedure.getStableKey(), parameter, normalCategory);
             cdabaseSqlUtils.insertPhenotypeParameterOptions(parameter.getId(), options);
             parameter.setOptions(options);                                                                              // Set the list of options (with their primary keys) for use by the next step.
         }

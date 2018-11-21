@@ -103,6 +103,7 @@ public class ImpressUtils {
 
         } catch (Exception e) {
 
+            logger.info("URL: {}", url);
             e.printStackTrace();
             logger.warn(e.getLocalizedMessage());
             return null;
@@ -132,14 +133,14 @@ public class ImpressUtils {
     // SCHEDULE
 
 
-    public Schedule getSchedule(int scheduleId, Datasource datasource) {
+    public Schedule getSchedule(int pipelineId, int scheduleId, Datasource datasource) {
 
-        ImpressSchedule impressSchedule = getImpressSchedule(scheduleId);
+        ImpressSchedule impressSchedule = getImpressSchedule(pipelineId, scheduleId);
 
         return toSchedule(impressSchedule, datasource);
     }
 
-    public ImpressSchedule getImpressSchedule(int scheduleId) {
+    public ImpressSchedule getImpressSchedule(int pipelineId, int scheduleId) {
 
         ImpressSchedule impressSchedule = new ImpressSchedule();
         String          url             = impressServiceUrl + "/schedule/" + scheduleId;
@@ -164,8 +165,8 @@ public class ImpressUtils {
 
         } catch (Exception e) {
 
-            e.printStackTrace();
-            logger.warn(e.getLocalizedMessage());
+            String message = "pipelineId::scheduleId" + pipelineId + "::" + scheduleId + ": URL: " + url;
+            exceptions.add(message);
             return null;
         }
 
@@ -194,14 +195,14 @@ public class ImpressUtils {
     // PROCEDURE
 
 
-    public Procedure getProcedure(int procedureId, Datasource datasource) {
+    public Procedure getProcedure(int pipelineId, int scheduleId, int procedureId, Datasource datasource) {
 
-        ImpressProcedure impressProcedure = getImpressProcedure(procedureId);
+        ImpressProcedure impressProcedure = getImpressProcedure(pipelineId, scheduleId, procedureId);
 
         return toProcedure(impressProcedure, datasource);
     }
 
-    public ImpressProcedure getImpressProcedure(int procedureId) {
+    public ImpressProcedure getImpressProcedure(int pipelineId, int scheduleId, int procedureId) {
 
         ImpressProcedure impressProcedure = new ImpressProcedure();
         String           url              = impressServiceUrl + "/procedure/" + procedureId;
@@ -242,7 +243,8 @@ public class ImpressUtils {
         } catch (Exception e) {
 
             e.printStackTrace();
-            logger.warn(e.getLocalizedMessage());
+            String message = "pipelineId::scheduleId::procedureId::" + pipelineId + "::" + scheduleId + "::" + procedureId + ": URL: " + url;
+            exceptions.add(message);
             return null;
         }
 
@@ -276,14 +278,14 @@ public class ImpressUtils {
     // PARAMETER
 
 
-    public Parameter getParameter(int parameterId, Datasource datasource, Map<Integer, String> unitsById) {
+    public Parameter getParameter(int pipelineId, int scheduleId, int procedureId, int parameterId, Datasource datasource, Map<Integer, String> unitsById) {
 
-        ImpressParameter impressParameter = getImpressParameter(parameterId);
+        ImpressParameter impressParameter = getImpressParameter(pipelineId, scheduleId, procedureId, parameterId);
 
         return toParameter(impressParameter, datasource, unitsById);
     }
 
-    public ImpressParameter getImpressParameter(int parameterId) {
+    public ImpressParameter getImpressParameter(int pipelineId, int scheduleId, int procedureId, int parameterId) {
 
         ImpressParameter impressParameter = new ImpressParameter();
         String           url              = impressServiceUrl + "/parameter/" + parameterId;
@@ -347,8 +349,8 @@ public class ImpressUtils {
 
         } catch (Exception e) {
 
-            e.printStackTrace();
-            logger.warn(e.getLocalizedMessage());
+            String message = "pipelineId::scheduleId::procedureId::parameterId" + pipelineId + "::" + scheduleId + "::" + procedureId + "::" + parameterId + ": URL: " + url;
+            exceptions.add(message);
             return null;
         }
 
@@ -394,11 +396,11 @@ public class ImpressUtils {
     // INCREMENT
 
 
-    public List<ParameterIncrement> getIncrements(int parameterId) {
+    public List<ParameterIncrement> getIncrements(int pipelineId, int scheduleId, int procedureId, int parameterId) {
 
         List<ParameterIncrement> increments = new ArrayList<>();
 
-        List<ImpressIncrement> impressIncrements = getImpressIncrements(parameterId);
+        List<ImpressIncrement> impressIncrements = getImpressIncrements(pipelineId, scheduleId, procedureId, parameterId);
 
         for (ImpressIncrement impressIncrement : impressIncrements) {
             ParameterIncrement increment = toIncrement(impressIncrement);
@@ -408,7 +410,7 @@ public class ImpressUtils {
         return increments;
     }
 
-    public List<ImpressIncrement> getImpressIncrements(Integer parameterId) {
+    public List<ImpressIncrement> getImpressIncrements(int pipelineId, int scheduleId, int procedureId, int parameterId) {
 
         List<ImpressIncrement> increments = new ArrayList<>();
 
@@ -459,8 +461,8 @@ public class ImpressUtils {
 
         } catch (Exception e) {
 
-            e.printStackTrace();
-            logger.warn(e.getLocalizedMessage());
+            String message = pipelineId + "::" + scheduleId + "::" + procedureId + "::" + parameterId + ": URL: " + url;
+            exceptions.add(message);
             return null;
         }
 
@@ -492,11 +494,11 @@ public class ImpressUtils {
     // OPTION
 
 
-    public List<ParameterOption> getOptions(Parameter parameter, Set<String> normalCategory) {
+    public List<ParameterOption> getOptions(int pipelineId, int scheduleId, int procedureId, Parameter parameter, Set<String> normalCategory) {
 
         List<ParameterOption> options = new ArrayList<>();
 
-        List<ImpressOption> impressOptions = getImpressOptions(parameter.getStableKey());
+        List<ImpressOption> impressOptions = getImpressOptions(pipelineId, scheduleId, procedureId, parameter.getStableKey());
 
         for (ImpressOption impressOption : impressOptions) {
             ParameterOption option = toOption(impressOption, parameter.getStableId(), normalCategory);
@@ -506,7 +508,7 @@ public class ImpressUtils {
         return options;
     }
 
-    public List<ImpressOption> getImpressOptions(Integer parameterId) {
+    public List<ImpressOption> getImpressOptions(int pipelineId, int scheduleId, int procedureId, int parameterId) {
 
         List<ImpressOption> options = new ArrayList<>();
 
@@ -549,8 +551,8 @@ public class ImpressUtils {
 
         } catch (Exception e) {
 
-            e.printStackTrace();
-            logger.warn(e.getLocalizedMessage());
+            String message = pipelineId + "::" + scheduleId + "::" + procedureId + "::" + parameterId + ": URL: " + url;
+            exceptions.add(message);
             return null;
         }
 
