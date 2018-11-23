@@ -87,8 +87,9 @@ public class ReleaseController {
 	 * Force update meta info cache every fifteen minutes
 	 * @throws SQLException when the database is not available
 	 */
-	@Scheduled(cron = "0 */15 * * * *")
+	@Scheduled(cron = "0 0/15 * * * *")
 	private void updateCacheTimer() throws SQLException {
+		logger.info("Cache timeout expired. Clearing metadata cache");
 		cachedMetaInfo = null;
 		getMetaInfo();
 	}
