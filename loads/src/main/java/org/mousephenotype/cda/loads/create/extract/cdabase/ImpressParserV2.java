@@ -237,7 +237,7 @@ public class ImpressParserV2 implements CommandLineRunner {
             Schedule schedule = schedulesById.get(scheduleId);
 
             if (schedule == null) {
-                schedule = impressUtils.getSchedule(pipeline.getStableKey(), scheduleId, datasource);
+                schedule = impressUtils.getSchedule(pipeline.getStableKey(), scheduleId);
                 schedulesById.put(scheduleId, schedule);
 
                 logger.debug("      Loading pipelineId::scheduleId {}::{}", pipeline.getStableKey(), scheduleId);

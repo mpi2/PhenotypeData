@@ -121,4 +121,18 @@ public class ImpressSchedule implements Serializable {
         return !((this.scheduleId == null && other.scheduleId != null) || (this.scheduleId != null && !this.scheduleId.equals(other.scheduleId)));
     }
 
+    @Override
+    public String toString() {
+        return "ImpressSchedule{" +
+                "scheduleId=" + scheduleId +
+                ", isActive=" + isActive +
+                ", isDeprecated=" + isDeprecated +
+                ", timeLabel='" + timeLabel + '\'' +
+                ", time='" + time + '\'' +
+                ", timeUnit='" + timeUnit + '\'' +
+                ", stage='" + stage + '\'' +
+                ", pipelineId=" + pipelineId +
+                ", procedureCollection=" + procedureCollection +
+                '}';
+    }
 }

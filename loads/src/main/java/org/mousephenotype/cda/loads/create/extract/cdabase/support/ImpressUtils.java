@@ -133,11 +133,11 @@ public class ImpressUtils {
     // SCHEDULE
 
 
-    public Schedule getSchedule(int pipelineId, int scheduleId, Datasource datasource) {
+    public Schedule getSchedule(int pipelineId, int scheduleId) {
 
         ImpressSchedule impressSchedule = getImpressSchedule(pipelineId, scheduleId);
 
-        return toSchedule(impressSchedule, datasource);
+        return toSchedule(impressSchedule);
     }
 
     public ImpressSchedule getImpressSchedule(int pipelineId, int scheduleId) {
@@ -173,20 +173,28 @@ public class ImpressUtils {
         return impressSchedule;
     }
 
-    public Schedule toSchedule(ImpressSchedule impressSchedule, Datasource datasource) {
+    public Schedule toSchedule(ImpressSchedule impressSchedule) {
 
         Schedule schedule = new Schedule();
 
-        schedule.setIsActive(impressSchedule.getIsActive());
-        schedule.setIsDeprecated(impressSchedule.getIsDeprecated());
-        schedule.setPipelineId(impressSchedule.getPipelineId());
-        schedule.setProcedureCollection(impressSchedule.getProcedureCollection());
-        schedule.setScheduleId(impressSchedule.getScheduleId());
-        schedule.setStage(impressSchedule.getStage());
-        schedule.setTime(impressSchedule.getTime());
-        schedule.setTimeLabel(impressSchedule.getTimeLabel());
-        schedule.setTimeUnit(impressSchedule.getTimeUnit());
-        schedule.setProcedureCollection(impressSchedule.getProcedureCollection());
+        try {
+            schedule.setIsActive(impressSchedule.getIsActive());
+            schedule.setIsDeprecated(impressSchedule.getIsDeprecated());
+            schedule.setPipelineId(impressSchedule.getPipelineId());
+            schedule.setProcedureCollection(impressSchedule.getProcedureCollection());
+            schedule.setScheduleId(impressSchedule.getScheduleId());
+            schedule.setStage(impressSchedule.getStage());
+            schedule.setTime(impressSchedule.getTime());
+            schedule.setTimeLabel(impressSchedule.getTimeLabel());
+            schedule.setTimeUnit(impressSchedule.getTimeUnit());
+            schedule.setProcedureCollection(impressSchedule.getProcedureCollection());
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+            logger.warn("impressSchedule: {}", impressSchedule);
+            return null;
+        }
 
         return schedule;
     }
