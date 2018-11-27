@@ -112,7 +112,7 @@ public class ValidateExtractImpressReport extends AbstractReport implements Comm
             "SELECT pi.stable_id, pr.stable_id, pa.stable_id, edb.Name AS datasource_name, pa.name, pa.major_version, pa.minor_version,\n" +
                     "  pa.unit, pa.datatype, pa.parameter_type, pa.formula,\n" +
                     "  pa.increment, pa.options, pa.sequence, pa.media,\n" +
-                    "  pa.data_analysis, pa.data_analysis_notes\n" +
+                    "  pa.data_analysis_notes\n" +
                     "FROM phenotype_parameter pa\n" +
                     "JOIN external_db edb ON edb.id = pa.db_id\n" +
                     "JOIN phenotype_procedure_parameter prpa ON prpa.parameter_id = pa.id\n" +
@@ -123,8 +123,7 @@ public class ValidateExtractImpressReport extends AbstractReport implements Comm
     private final String parameterQueryNoNotes =
             "SELECT pi.stable_id, pr.stable_id, pa.stable_id, edb.Name AS datasource_name, pa.name, pa.major_version, pa.minor_version,\n" +
                     "  pa.unit, pa.datatype, pa.parameter_type, pa.formula,\n" +
-                    "  pa.increment, pa.options, pa.sequence, pa.media,\n" +
-                    "  pa.data_analysis\n" +
+                    "  pa.increment, pa.options, pa.sequence, pa.media\n" +
                     "FROM phenotype_parameter pa\n" +
                     "JOIN external_db edb ON edb.id = pa.db_id\n" +
                     "JOIN phenotype_procedure_parameter prpa ON prpa.parameter_id = pa.id\n" +

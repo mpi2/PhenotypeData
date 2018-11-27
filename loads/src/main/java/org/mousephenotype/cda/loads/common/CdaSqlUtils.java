@@ -2472,7 +2472,7 @@ public class CdaSqlUtils {
         String insert =
                 "INSERT INTO phenotype_parameter (stable_id, db_id, name, description, major_version, minor_version," +
                 " unit, datatype, parameter_type, formula, required, metadata, important, derived, annotate, increment," +
-                " options, sequence, media, data_analysis, data_analysis_notes, stable_key)" +
+                " options, sequence, media, data_analysis_notes, stable_key)" +
                 " VALUES (:stableId, :dbId, :name, :description, :majorVersion, :minorVersion," +
                 " :unit, :datatype, :parameterType, :formula, :required, :metadata, :important, :derived, :annotate, :increment," +
                 " :options, :sequence, :media, :dataAnalysis, :dataAnalysisNotes, :stableKey)";
@@ -2501,7 +2501,6 @@ public class CdaSqlUtils {
         parameterMap.put("options", parameter.isOptionsFlag() ? 1 : 0);
         parameterMap.put("sequence", parameter.getSequence());
         parameterMap.put("media", parameter.isMediaFlag() ? 1 : 0);
-        parameterMap.put("dataAnalysis", parameter.isRequiredForDataAnalysisFlag() ? 1 : 0);
         parameterMap.put("dataAnalysisNotes", parameter.getDataAnalysisNotes());
         parameterMap.put("stableKey", parameter.getStableKey());
         SqlParameterSource  parameterSource = new MapSqlParameterSource(parameterMap);
@@ -3214,11 +3213,11 @@ public class CdaSqlUtils {
 
     /**
      *
-     * @return The set of metadata and data_analysis parameters
+     * @return The set of metadata and important (known as requiredForDataAnalysisFlag in Impress V1) parameters
      */
-    public synchronized HashSet<String> getImpressMetadataAndDataAnalysisParameters() {
+    public synchronized HashSet<String> getImpressMetadataAndIsImportantParameters() {
 
-        String query = "SELECT stable_id FROM phenotype_parameter WHERE metadata = 1 AND data_analysis = 1";
+        String query = "SELECT stable_id FROM phenotype_parameter WHERE metadata = 1 AND important = 1";
         List<String> results = jdbcCda.queryForList(query, new HashMap(), String.class);
         return new HashSet<>(results);
     }
@@ -3375,9 +3374,6 @@ public class CdaSqlUtils {
             
             flag = rs.getInt("media");
             parameter.setMediaFlag((flag != null) && (flag == 1 ? true : false));
-            
-            flag = rs.getInt("data_analysis");
-            parameter.setRequiredForDataAnalysisFlag((flag != null) && (flag == 1 ? true : false));
 
             parameter.setDataAnalysisNotes(rs.getString("data_analysis_notes"));
             parameter.setStableKey(rs.getInt("stable_key"));

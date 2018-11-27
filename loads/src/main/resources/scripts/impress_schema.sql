@@ -108,7 +108,6 @@ CREATE TABLE phenotype_parameter (
   options                   TINYINT(1) DEFAULT 0,
   sequence                  INT(10) UNSIGNED NOT NULL,
   media                     TINYINT(1) DEFAULT 0,
-  data_analysis             TINYINT(1) DEFAULT 0,
   data_analysis_notes       TEXT,
   stable_key                INT(10) DEFAULT 0,
 

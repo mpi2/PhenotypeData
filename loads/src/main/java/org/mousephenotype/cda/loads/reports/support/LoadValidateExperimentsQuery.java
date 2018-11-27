@@ -161,7 +161,7 @@ public class LoadValidateExperimentsQuery {
                     "  ( SELECT IF(GROUP_CONCAT(DISTINCT pmdin.value) IS NULL, '', MD5(GROUP_CONCAT(DISTINCT CONCAT(pp.name, ' = ', pmdin.value) ORDER BY pmdin.parameter_id ASC SEPARATOR '::')))\n" +
                     "    FROM procedure_meta_data pmdin\n" +
                     "    JOIN phenotype_parameter pp ON pp.stable_id=pmdin.parameter_id\n" +
-                    "    WHERE pp.data_analysis=1 AND pmdin.experiment_id=e.id) AS e_metadata_group,\n" +
+                    "    WHERE pp.important=1 AND pmdin.experiment_id=e.id) AS e_metadata_group,\n" +
                     "  e.procedure_status                    AS e_procedure_status,\n" +
                     "  e.procedure_status_message            AS e_procedure_status_message,\n" +
                     "  \n" +
@@ -238,7 +238,7 @@ public class LoadValidateExperimentsQuery {
                     "            )\n" +
                     "        FROM procedure_meta_data pmdin\n" +
                     "        JOIN phenotype_parameter pp ON pp.stable_id = pmdin.parameter_id\n" +
-                    "        WHERE pp.data_analysis = 1\n" +
+                    "        WHERE pp.important = 1\n" +
                     "          AND pmdin.observation_id    = ob.id\n" +
                     "          AND pmdin.experiment_id = e.id)\n" +
                     "                                        AS ob_metadata_group,\n" +

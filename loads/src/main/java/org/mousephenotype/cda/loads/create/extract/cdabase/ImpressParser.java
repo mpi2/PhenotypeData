@@ -367,7 +367,7 @@ public class ImpressParser implements CommandLineRunner {
             parameter.setMinorVersion(Integer.parseInt(map.get("minor_version")));
             parameter.setType(map.get("type"));
             parameter.setRequiredFlag(Boolean.parseBoolean(map.get("is_required")));
-            parameter.setRequiredForDataAnalysisFlag(Boolean.parseBoolean(map.get("is_required_for_data_analysis")));
+            parameter.setImportantFlag(Boolean.parseBoolean(map.get("important")));
             parameter.setDataAnalysisNotes(map.get("data_analysis_notes"));
             parameter.setOptionsFlag(Boolean.parseBoolean(map.get("is_option")));
             parameter.setMetaDataFlag(map.get("type").equals("procedureMetadata"));
