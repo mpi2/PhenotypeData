@@ -2475,7 +2475,7 @@ public class CdaSqlUtils {
                 " options, sequence, media, data_analysis_notes, stable_key)" +
                 " VALUES (:stableId, :dbId, :name, :description, :majorVersion, :minorVersion," +
                 " :unit, :datatype, :parameterType, :formula, :required, :metadata, :important, :derived, :annotate, :increment," +
-                " :options, :sequence, :media, :dataAnalysis, :dataAnalysisNotes, :stableKey)";
+                " :options, :sequence, :media, :dataAnalysisNotes, :stableKey)";
 
         KeyHolder           keyholder       = new GeneratedKeyHolder();
         Map<String, Object> parameterMap    = new HashMap<>();
