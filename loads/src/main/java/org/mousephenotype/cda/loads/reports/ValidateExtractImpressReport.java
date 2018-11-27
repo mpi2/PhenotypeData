@@ -82,26 +82,26 @@ public class ValidateExtractImpressReport extends AbstractReport implements Comm
             new LoadsQueryDelta("phenotype_procedure_parameter COUNTS", DELTA, "SELECT count(*) FROM phenotype_procedure_parameter")
     };
 
-    private final String pipelineQuery =
+    private final String pipeline =
         "SELECT pi.stable_id, edb.Name AS datasource_name,pi.name, pi.major_version, pi.minor_version\n" +
         "FROM phenotype_pipeline pi\n" +
         "JOIN external_db edb ON edb.id = pi.db_id";
 
-    private final String procedureQueryWithStage =
+    private final String procedureWithStage =
         "SELECT pi.stable_id, pr.stable_id, edb.Name AS datasource_name, pr.name, pr.major_version, pr.minor_version, pr.level, pr.stage, pr.stage_label\n" +
                 "FROM phenotype_procedure pr\n" +
                 "JOIN external_db edb ON edb.id = pr.db_id\n" +
                 "JOIN phenotype_pipeline_procedure pipr ON pipr.procedure_id = pr.id\n" +
                 "JOIN phenotype_pipeline pi ON pi.id = pipr.pipeline_id";
 
-    private final String procedureQueryNoStage =
+    private final String procedureNoStage =
             "SELECT pi.stable_id, pr.stable_id, edb.Name AS datasource_name, pr.name, pr.major_version, pr.minor_version, pr.level, pr.stage_label\n" +
                     "FROM phenotype_procedure pr\n" +
                     "JOIN external_db edb ON edb.id = pr.db_id\n" +
                     "JOIN phenotype_pipeline_procedure pipr ON pipr.procedure_id = pr.id\n" +
                     "JOIN phenotype_pipeline pi ON pi.id = pipr.pipeline_id";
 
-    private final String procedureQueryNoStageNoMinor =
+    private final String procedureNoStageNoMinor =
             "SELECT pi.stable_id, pr.stable_id, edb.Name AS datasource_name, pr.name, pr.major_version, pr.level, pr.stage_label\n" +
                     "FROM phenotype_procedure pr\n" +
                     "JOIN external_db edb ON edb.id = pr.db_id\n" +
@@ -120,9 +120,10 @@ public class ValidateExtractImpressReport extends AbstractReport implements Comm
                     "JOIN phenotype_pipeline_procedure pipr ON pipr.procedure_id = pr.id and pr.id = prpa.procedure_id\n" +
                     "JOIN phenotype_pipeline pi ON pi.id = pipr.pipeline_id";
 
-    private final String parameterQueryNoNotes =
+    // Don't include unit, as in impress v1 blank units are not trimmed, but in v2 they are trimmed, causing a diff to show.
+    private final String parameterNoNotesNoUnit =
             "SELECT pi.stable_id, pr.stable_id, pa.stable_id, edb.Name AS datasource_name, pa.name, pa.major_version, pa.minor_version,\n" +
-                    "  pa.unit, pa.datatype, pa.parameter_type, pa.formula,\n" +
+                    "  pa.datatype, pa.parameter_type, pa.formula,\n" +
                     "  pa.increment, pa.options, pa.sequence, pa.media\n" +
                     "FROM phenotype_parameter pa\n" +
                     "JOIN external_db edb ON edb.id = pa.db_id\n" +
@@ -131,14 +132,68 @@ public class ValidateExtractImpressReport extends AbstractReport implements Comm
                     "JOIN phenotype_pipeline_procedure pipr ON pipr.procedure_id = pr.id and pr.id = prpa.procedure_id\n" +
                     "JOIN phenotype_pipeline pi ON pi.id = pipr.pipeline_id";
 
+    private final String parameterOptions =
+            "SELECT pi.stable_id, pr.stable_id, pa.stable_id, edb.Name AS datasource_name,\n" +
+                    "  pao.name, pao.normal\n" +
+                    "FROM phenotype_parameter pa\n" +
+                    "JOIN external_db edb ON edb.id = pa.db_id\n" +
+                    "JOIN phenotype_procedure_parameter prpa ON prpa.parameter_id = pa.id\n" +
+                    "JOIN phenotype_procedure pr ON pr.id = prpa.procedure_id\n" +
+                    "JOIN phenotype_pipeline_procedure pipr ON pipr.procedure_id = pr.id and pr.id = prpa.procedure_id\n" +
+                    "JOIN phenotype_pipeline pi ON pi.id = pipr.pipeline_id\n" +
+                    "JOIN phenotype_parameter_lnk_option palo ON palo.parameter_id = pa.id\n" +
+                    "JOIN phenotype_parameter_option pao ON pao.id = palo.option_id";
+
+    private final String parameterIncrements =
+            "SELECT pi.stable_id, pr.stable_id, pa.stable_id, edb.Name AS datasource_name,\n" +
+                    "  pai.increment_value, pai.increment_datatype, pai.increment_unit,pai.increment_minimum\n" +
+                    "FROM phenotype_parameter pa\n" +
+                    "JOIN external_db edb ON edb.id = pa.db_id\n" +
+                    "JOIN phenotype_procedure_parameter prpa ON prpa.parameter_id = pa.id\n" +
+                    "JOIN phenotype_procedure pr ON pr.id = prpa.procedure_id\n" +
+                    "JOIN phenotype_pipeline_procedure pipr ON pipr.procedure_id = pr.id and pr.id = prpa.procedure_id\n" +
+                    "JOIN phenotype_pipeline pi ON pi.id = pipr.pipeline_id\n" +
+                    "JOIN phenotype_parameter_lnk_increment pali ON pali.parameter_id = pa.id\n" +
+                    "JOIN phenotype_parameter_increment pai ON pai.id = pali.increment_id";
+
+    private final String parameterAnnotations =
+            "SELECT pi.stable_id, pr.stable_id, pa.stable_id, edb.Name AS datasource_name,\n" +
+                    "  paoa.event_type, paoa.option_id, paoa.ontology_acc,paoa.ontology_db_id, paoa.sex\n" +
+                    "FROM phenotype_parameter pa\n" +
+                    "JOIN external_db edb ON edb.id = pa.db_id\n" +
+                    "JOIN phenotype_procedure_parameter prpa ON prpa.parameter_id = pa.id\n" +
+                    "JOIN phenotype_procedure pr ON pr.id = prpa.procedure_id\n" +
+                    "JOIN phenotype_pipeline_procedure pipr ON pipr.procedure_id = pr.id and pr.id = prpa.procedure_id\n" +
+                    "JOIN phenotype_pipeline pi ON pi.id = pipr.pipeline_id\n" +
+                    "JOIN phenotype_parameter_lnk_ontology_annotation paola ON paola.parameter_id = pa.id\n" +
+                    "JOIN phenotype_parameter_ontology_annotation paoa ON paoa.id = paola.annotation_id";
+
+    private final String parameterAnnotationsOptions =
+            "SELECT pi.stable_id, pr.stable_id, pa.stable_id, edb.Name AS datasource_name,\n" +
+                    "  paoa.event_type, paoa.option_id, paoa.ontology_acc,paoa.ontology_db_id, paoa.sex,\n" +
+                    "  pao.name AS optionName, pao.normal AS optionNormal\n" +
+                    "FROM phenotype_parameter pa\n" +
+                    "JOIN external_db edb ON edb.id = pa.db_id\n" +
+                    "JOIN phenotype_procedure_parameter prpa ON prpa.parameter_id = pa.id\n" +
+                    "JOIN phenotype_procedure pr ON pr.id = prpa.procedure_id\n" +
+                    "JOIN phenotype_pipeline_procedure pipr ON pipr.procedure_id = pr.id and pr.id = prpa.procedure_id\n" +
+                    "JOIN phenotype_pipeline pi ON pi.id = pipr.pipeline_id\n" +
+                    "JOIN phenotype_parameter_lnk_ontology_annotation paola ON paola.parameter_id = pa.id\n" +
+                    "JOIN phenotype_parameter_ontology_annotation paoa ON paoa.id = paola.annotation_id\n" +
+                    "JOIN phenotype_parameter_option pao ON pao.id = paoa.option_id";
+
 
     private List<ValidationQuery> contentQueries = Arrays.asList(new ValidationQuery[] {
-            new ValidationQuery("pipeline  ", pipelineQuery),
-            new ValidationQuery("procedureWithStage", procedureQueryWithStage),
-            new ValidationQuery("ProcedureNoStage", procedureQueryNoStage),
-            new ValidationQuery("ProcedureNoStageNoMinor", procedureQueryNoStageNoMinor),
+            new ValidationQuery("pipeline  ", pipeline),
+            new ValidationQuery("procedureWithStage", procedureWithStage),
+            new ValidationQuery("ProcedureNoStage", procedureNoStage),
+            new ValidationQuery("ProcedureNoStageNoMinor", procedureNoStageNoMinor),
             new ValidationQuery("parameter", parameterQuery),
-            new ValidationQuery("parameterNoNotes", parameterQueryNoNotes)
+            new ValidationQuery("parameterNoNotesNoUnit", parameterNoNotesNoUnit),
+            new ValidationQuery("parameterOptions", parameterOptions),
+            new ValidationQuery("parameterIncrements", parameterIncrements),
+            new ValidationQuery("parameterAnnotations", parameterAnnotations),
+            new ValidationQuery("parameterAnnotationsOptions", parameterAnnotationsOptions)
     });
 
     @Override
