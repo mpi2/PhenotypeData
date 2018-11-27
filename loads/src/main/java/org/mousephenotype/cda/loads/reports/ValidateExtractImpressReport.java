@@ -101,20 +101,45 @@ public class ValidateExtractImpressReport extends AbstractReport implements Comm
                     "JOIN phenotype_pipeline_procedure pipr ON pipr.procedure_id = pr.id\n" +
                     "JOIN phenotype_pipeline pi ON pi.id = pipr.pipeline_id";
 
+    private final String procedureQueryNoStageNoMinor =
+            "SELECT pi.stable_id, pr.stable_id, edb.Name AS datasource_name, pr.name, pr.major_version, pr.level, pr.stage_label\n" +
+                    "FROM phenotype_procedure pr\n" +
+                    "JOIN external_db edb ON edb.id = pr.db_id\n" +
+                    "JOIN phenotype_pipeline_procedure pipr ON pipr.procedure_id = pr.id\n" +
+                    "JOIN phenotype_pipeline pi ON pi.id = pipr.pipeline_id";
+
     private final String parameterQuery =
-            "SELECT pa.stable_id, edb.Name AS datasource_name, pa.name, pa.major_version, pa.minor_version,\n" +
+            "SELECT pi.stable_id, pr.stable_id, pa.stable_id, edb.Name AS datasource_name, pa.name, pa.major_version, pa.minor_version,\n" +
                     "  pa.unit, pa.datatype, pa.parameter_type, pa.formula,\n" +
                     "  pa.increment, pa.options, pa.sequence, pa.media,\n" +
                     "  pa.data_analysis, pa.data_analysis_notes\n" +
                     "FROM phenotype_parameter pa\n" +
-                    "JOIN external_db edb ON edb.id = pa.db_id";
+                    "JOIN external_db edb ON edb.id = pa.db_id\n" +
+                    "JOIN phenotype_procedure_parameter prpa ON prpa.parameter_id = pa.id\n" +
+                    "JOIN phenotype_procedure pr ON pr.id = prpa.procedure_id\n" +
+                    "JOIN phenotype_pipeline_procedure pipr ON pipr.procedure_id = pr.id and pr.id = prpa.procedure_id\n" +
+                    "JOIN phenotype_pipeline pi ON pi.id = pipr.pipeline_id";
+
+    private final String parameterQueryNoNotes =
+            "SELECT pi.stable_id, pr.stable_id, pa.stable_id, edb.Name AS datasource_name, pa.name, pa.major_version, pa.minor_version,\n" +
+                    "  pa.unit, pa.datatype, pa.parameter_type, pa.formula,\n" +
+                    "  pa.increment, pa.options, pa.sequence, pa.media,\n" +
+                    "  pa.data_analysis\n" +
+                    "FROM phenotype_parameter pa\n" +
+                    "JOIN external_db edb ON edb.id = pa.db_id\n" +
+                    "JOIN phenotype_procedure_parameter prpa ON prpa.parameter_id = pa.id\n" +
+                    "JOIN phenotype_procedure pr ON pr.id = prpa.procedure_id\n" +
+                    "JOIN phenotype_pipeline_procedure pipr ON pipr.procedure_id = pr.id and pr.id = prpa.procedure_id\n" +
+                    "JOIN phenotype_pipeline pi ON pi.id = pipr.pipeline_id";
 
 
     private List<ValidationQuery> contentQueries = Arrays.asList(new ValidationQuery[] {
             new ValidationQuery("pipeline  ", pipelineQuery),
             new ValidationQuery("procedureWithStage", procedureQueryWithStage),
             new ValidationQuery("ProcedureNoStage", procedureQueryNoStage),
-           new ValidationQuery("parameter", parameterQuery)
+            new ValidationQuery("ProcedureNoStageNoMinor", procedureQueryNoStageNoMinor),
+            new ValidationQuery("parameter", parameterQuery),
+            new ValidationQuery("parameterNoNotes", parameterQueryNoNotes)
     });
 
     @Override
