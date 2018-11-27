@@ -603,8 +603,16 @@ public class ImpressService extends BasicService implements WebStatus {
 				mpsByProcedure.put(procedure, new TreeSet<>());
 			}
 
-			mpsByProcedure.get(procedure).add(mpId);
-
+			try {
+				mpsByProcedure.get(procedure).add(mpId);
+			} catch(NullPointerException e) {
+				e.printStackTrace();
+				e.getLocalizedMessage();
+				if (mpsByProcedure != null) {
+					System.out.println("Missing procedure in mpsByProcedure from ImpressService.");
+					System.out.println(procedure);
+				}
+			}
 		}
 
 		return mpsByProcedure;
