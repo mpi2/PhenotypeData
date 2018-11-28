@@ -28,9 +28,14 @@ import java.util.Map;
  * Created by mrelac on 28/07/2015.
  */
 public class ReportParser extends AbstractReportParser {
-    protected String targetFilename;
+
+    protected String  targetFilename;
+    protected boolean checkContent = false;
+    protected boolean useLenient = false;
 
     public static final String TARGET_FILENAME_ARG = "targetFilename";
+    public static final String USE_LENIENT_ARG = "useLenient";
+    public static final String CHECK_CONTENT_ARG = "checkContent";
 
     public Map<String, String> parse(String[] args) {
         PropertySource ps = new SimpleCommandLinePropertySource(args);
@@ -39,6 +44,14 @@ public class ReportParser extends AbstractReportParser {
 
         if ((ps.containsProperty(TARGET_FILENAME_ARG))  && ps.getProperty(TARGET_FILENAME_ARG) != null) {
             propertyMap.put(TARGET_FILENAME_ARG, ps.getProperty(TARGET_FILENAME_ARG).toString());
+        }
+
+        if (ps.containsProperty(USE_LENIENT_ARG)) {
+            propertyMap.put(USE_LENIENT_ARG, "true");
+        }
+
+        if (ps.containsProperty(CHECK_CONTENT_ARG)) {
+            propertyMap.put(CHECK_CONTENT_ARG, "true");
         }
 
         return propertyMap;
@@ -54,10 +67,26 @@ public class ReportParser extends AbstractReportParser {
             targetFilename = null;
         }
 
+        if (propertyMap.containsKey(USE_LENIENT_ARG)) {
+            useLenient =  true;
+        }
+
+        if (propertyMap.containsKey(CHECK_CONTENT_ARG)) {
+            checkContent =  true;
+        }
+
         return errors;
     }
 
     public String getTargetFilename() {
         return targetFilename;
+    }
+
+    public boolean useLenient() {
+        return useLenient;
+    }
+
+    public boolean checkContent() {
+        return checkContent;
     }
 }

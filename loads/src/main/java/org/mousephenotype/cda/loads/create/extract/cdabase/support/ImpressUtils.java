@@ -388,9 +388,13 @@ public class ImpressUtils {
         parameter.setIncrementFlag(impressParameter.getIsIncrement());
         parameter.setMediaFlag(impressParameter.getIsMedia());
         parameter.setOptionsFlag(impressParameter.getIsOption());
+        parameter.setMetaDataFlag(impressParameter.getType().equals("procedureMetadata"));
         parameter.setRequiredFlag(impressParameter.getIsRequired());
         parameter.setDatatype(impressParameter.getValueType());
         parameter.setDataAnalysisNotes(impressParameter.getDataAnalysisNotes());
+        if (parameter.getDerivedFlag()) {
+            parameter.setFormula(impressParameter.getDerivation());
+        }
 
         ImpressUnits unit = impressParameter.getUnit();
         parameter.setUnit(unit == null ? null : unitsById.get(unit.getId()));

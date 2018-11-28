@@ -38,16 +38,17 @@ import java.util.List;
  */
 public abstract class AbstractReport {
 
-    protected PropertiesConfiguration applicationProperties;
-    protected CommonUtils             commonUtils         = new CommonUtils();
-    protected MpCSVWriter             csvWriter;
-    protected final ReportFormat      defaultReportFormat = ReportFormat.csv;
-    protected final Logger            log                 = LoggerFactory.getLogger(this.getClass());
-    protected ReportFormat            reportFormat;
-    protected File                    targetFile;
-    protected String                  targetFilename;
-    protected List<String>            resources           = Arrays.asList(new String[] {"IMPC", "3i"});
-    protected ReportParser            parser              = new ReportParser();
+    protected       PropertiesConfiguration applicationProperties;
+    protected       CommonUtils             commonUtils         = new CommonUtils();
+    protected       MpCSVWriter             csvWriter;
+    protected final ReportFormat            defaultReportFormat = ReportFormat.csv;
+    protected final Logger                  log                 = LoggerFactory.getLogger(this.getClass());
+    protected       ReportFormat            reportFormat;
+    protected       File                    targetFile;
+    protected       String                  targetFilename;
+    protected       List<String>            resources           = Arrays.asList(new String[]{"IMPC", "3i"});
+    protected       ReportParser            parser              = new ReportParser();
+    protected       boolean                 useLenient          = false;
 
     public static final String DATA_ERROR = "DATA ERROR";
     public static final String NO_INFO_AVAILABLE = "No information available";
@@ -117,6 +118,10 @@ public abstract class AbstractReport {
             System.exit(1);
         }
 
+        if (parser.useLenient()) {
+            useLenient = true;
+        }
+
         if (parser.showHelp()) {
             usage();
             System.exit(0);
@@ -150,6 +155,7 @@ public abstract class AbstractReport {
                 , "   [--" + ReportParser.REPORT_FORMAT_ARG    + "={csv | tsv}]"
                 , "   [--" + ReportParser.PROPERTIES_FILE_ARG  + "=properties_file]"
                 , "   [--" + ReportParser.PREFIX_ARG           + "=prefix]"
+                , "   [--" + ReportParser.USE_LENIENT_ARG      + "]"
                 , "   [--" + ReportParser.HELP_ARG             + "]"
         };
         String[] defaults = {
@@ -157,6 +163,7 @@ public abstract class AbstractReport {
                 , "Default is " + ReportParser.DEFAULT_TARGET_DIRECTORY
                 , "Default is " + ReportParser.DEFAULT_REPORT_FORMAT
                 , "Default is " + ReportParser.DEFAULT_PROPERTIES_FILE
+                , "Default is false"
                 , "Default is none"
                 , ""
         };
@@ -172,5 +179,6 @@ public abstract class AbstractReport {
         log.info("Target directory: " + parser.getTargetDirectory());
         log.info("Report format:    " + reportFormat);
         log.info("Properties targetFile:  " + (parser.getApplicationProperties() == null ? "<omitted>" : parser.getApplicationProperties().getURL().toString()));
+        log.info("useLenient: " + useLenient);
     }
 }

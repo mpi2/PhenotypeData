@@ -47,8 +47,8 @@ import java.util.List;
 public class ValidateExtractImpressReport extends AbstractReport implements CommandLineRunner {
 
     private Logger   logger   = LoggerFactory.getLogger(this.getClass());
-    private LoadValidateCountsQuery loadValidateCountsQuery;
 
+    private LoadValidateCountsQuery    loadValidateCountsQuery;
     private NamedParameterJdbcTemplate jdbcCdabasePrevious;
     private NamedParameterJdbcTemplate jdbcCdabaseCurrent;
     private SqlUtils                   sqlUtils;
@@ -83,36 +83,40 @@ public class ValidateExtractImpressReport extends AbstractReport implements Comm
     };
 
     private final String pipeline =
-        "SELECT pi.stable_id, edb.Name AS datasource_name,pi.name, pi.major_version, pi.minor_version\n" +
+        "SELECT pi.stable_id, edb.Name AS datasource_name,pi.name\n" +
         "FROM phenotype_pipeline pi\n" +
         "JOIN external_db edb ON edb.id = pi.db_id";
 
-    private final String procedureWithStage =
-        "SELECT pi.stable_id, pr.stable_id, edb.Name AS datasource_name, pr.name, pr.major_version, pr.minor_version, pr.level, pr.stage, pr.stage_label\n" +
+    private final String procedure =
+        "SELECT pi.stable_id, pr.stable_id, edb.Name AS datasource_name\n" +
                 "FROM phenotype_procedure pr\n" +
                 "JOIN external_db edb ON edb.id = pr.db_id\n" +
                 "JOIN phenotype_pipeline_procedure pipr ON pipr.procedure_id = pr.id\n" +
                 "JOIN phenotype_pipeline pi ON pi.id = pipr.pipeline_id";
 
-    private final String procedureNoStage =
-            "SELECT pi.stable_id, pr.stable_id, edb.Name AS datasource_name, pr.name, pr.major_version, pr.minor_version, pr.level, pr.stage_label\n" +
+    private final String procedureLevel =
+            "SELECT pi.stable_id, pr.stable_id, edb.Name AS datasource_name, pr.level\n" +
                     "FROM phenotype_procedure pr\n" +
                     "JOIN external_db edb ON edb.id = pr.db_id\n" +
                     "JOIN phenotype_pipeline_procedure pipr ON pipr.procedure_id = pr.id\n" +
                     "JOIN phenotype_pipeline pi ON pi.id = pipr.pipeline_id";
 
-    private final String procedureNoStageNoMinor =
-            "SELECT pi.stable_id, pr.stable_id, edb.Name AS datasource_name, pr.name, pr.major_version, pr.level, pr.stage_label\n" +
+    private final String procedureStage =
+            "SELECT pi.stable_id, pr.stable_id, edb.Name AS datasource_name, pr.stage\n" +
                     "FROM phenotype_procedure pr\n" +
                     "JOIN external_db edb ON edb.id = pr.db_id\n" +
                     "JOIN phenotype_pipeline_procedure pipr ON pipr.procedure_id = pr.id\n" +
                     "JOIN phenotype_pipeline pi ON pi.id = pipr.pipeline_id";
 
-    private final String parameterQuery =
-            "SELECT pi.stable_id, pr.stable_id, pa.stable_id, edb.Name AS datasource_name, pa.name, pa.major_version, pa.minor_version,\n" +
-                    "  pa.unit, pa.datatype, pa.parameter_type, pa.formula,\n" +
-                    "  pa.increment, pa.options, pa.sequence, pa.media,\n" +
-                    "  pa.data_analysis_notes\n" +
+    private final String procedureStageLabel =
+            "SELECT pi.stable_id, pr.stable_id, edb.Name AS datasource_name, pr.stage_label\n" +
+                    "FROM phenotype_procedure pr\n" +
+                    "JOIN external_db edb ON edb.id = pr.db_id\n" +
+                    "JOIN phenotype_pipeline_procedure pipr ON pipr.procedure_id = pr.id\n" +
+                    "JOIN phenotype_pipeline pi ON pi.id = pipr.pipeline_id";
+
+    private final String parameter =
+            "SELECT pi.stable_id, pr.stable_id, pa.stable_id, edb.Name AS datasource_name\n" +
                     "FROM phenotype_parameter pa\n" +
                     "JOIN external_db edb ON edb.id = pa.db_id\n" +
                     "JOIN phenotype_procedure_parameter prpa ON prpa.parameter_id = pa.id\n" +
@@ -120,17 +124,77 @@ public class ValidateExtractImpressReport extends AbstractReport implements Comm
                     "JOIN phenotype_pipeline_procedure pipr ON pipr.procedure_id = pr.id and pr.id = prpa.procedure_id\n" +
                     "JOIN phenotype_pipeline pi ON pi.id = pipr.pipeline_id";
 
-    // Don't include unit, as in impress v1 blank units are not trimmed, but in v2 they are trimmed, causing a diff to show.
-    private final String parameterNoNotesNoUnit =
-            "SELECT pi.stable_id, pr.stable_id, pa.stable_id, edb.Name AS datasource_name, pa.name, pa.major_version, pa.minor_version,\n" +
-                    "  pa.datatype, pa.parameter_type, pa.formula,\n" +
-                    "  pa.increment, pa.options, pa.sequence, pa.media\n" +
+    private final String parameterUnit =
+            "SELECT pi.stable_id, pr.stable_id, pa.stable_id, edb.Name AS datasource_name, pa.unit\n" +
                     "FROM phenotype_parameter pa\n" +
                     "JOIN external_db edb ON edb.id = pa.db_id\n" +
                     "JOIN phenotype_procedure_parameter prpa ON prpa.parameter_id = pa.id\n" +
                     "JOIN phenotype_procedure pr ON pr.id = prpa.procedure_id\n" +
                     "JOIN phenotype_pipeline_procedure pipr ON pipr.procedure_id = pr.id and pr.id = prpa.procedure_id\n" +
                     "JOIN phenotype_pipeline pi ON pi.id = pipr.pipeline_id";
+
+    private final String parameterDatatype =
+            "SELECT pi.stable_id, pr.stable_id, pa.stable_id, edb.Name AS datasource_name, pa.datatype\n" +
+                    "FROM phenotype_parameter pa\n" +
+                    "JOIN external_db edb ON edb.id = pa.db_id\n" +
+                    "JOIN phenotype_procedure_parameter prpa ON prpa.parameter_id = pa.id\n" +
+                    "JOIN phenotype_procedure pr ON pr.id = prpa.procedure_id\n" +
+                    "JOIN phenotype_pipeline_procedure pipr ON pipr.procedure_id = pr.id and pr.id = prpa.procedure_id\n" +
+                    "JOIN phenotype_pipeline pi ON pi.id = pipr.pipeline_id";
+
+    private final String parameterType =
+            "SELECT pi.stable_id, pr.stable_id, pa.stable_id, edb.Name AS datasource_name, pa.parameter_type\n" +
+                    "FROM phenotype_parameter pa\n" +
+                    "JOIN external_db edb ON edb.id = pa.db_id\n" +
+                    "JOIN phenotype_procedure_parameter prpa ON prpa.parameter_id = pa.id\n" +
+                    "JOIN phenotype_procedure pr ON pr.id = prpa.procedure_id\n" +
+                    "JOIN phenotype_pipeline_procedure pipr ON pipr.procedure_id = pr.id and pr.id = prpa.procedure_id\n" +
+                    "JOIN phenotype_pipeline pi ON pi.id = pipr.pipeline_id";
+
+    private final String parameterFormula =
+            "SELECT pi.stable_id, pr.stable_id, pa.stable_id, edb.Name AS datasource_name, pa.formula\n" +
+                    "FROM phenotype_parameter pa\n" +
+                    "JOIN external_db edb ON edb.id = pa.db_id\n" +
+                    "JOIN phenotype_procedure_parameter prpa ON prpa.parameter_id = pa.id\n" +
+                    "JOIN phenotype_procedure pr ON pr.id = prpa.procedure_id\n" +
+                    "JOIN phenotype_pipeline_procedure pipr ON pipr.procedure_id = pr.id and pr.id = prpa.procedure_id\n" +
+                    "JOIN phenotype_pipeline pi ON pi.id = pipr.pipeline_id";
+
+    private final String parameterRequired =
+            "SELECT pi.stable_id, pr.stable_id, pa.stable_id, edb.Name AS datasource_name, pa.required\n" +
+                    "FROM phenotype_parameter pa\n" +
+                    "JOIN external_db edb ON edb.id = pa.db_id\n" +
+                    "JOIN phenotype_procedure_parameter prpa ON prpa.parameter_id = pa.id\n" +
+                    "JOIN phenotype_procedure pr ON pr.id = prpa.procedure_id\n" +
+                    "JOIN phenotype_pipeline_procedure pipr ON pipr.procedure_id = pr.id and pr.id = prpa.procedure_id\n" +
+                    "JOIN phenotype_pipeline pi ON pi.id = pipr.pipeline_id";
+
+    private final String parameterMetadata =
+            "SELECT pi.stable_id, pr.stable_id, pa.stable_id, edb.Name AS datasource_name, pa.metadata\n" +
+                    "FROM phenotype_parameter pa\n" +
+                    "JOIN external_db edb ON edb.id = pa.db_id\n" +
+                    "JOIN phenotype_procedure_parameter prpa ON prpa.parameter_id = pa.id\n" +
+                    "JOIN phenotype_procedure pr ON pr.id = prpa.procedure_id\n" +
+                    "JOIN phenotype_pipeline_procedure pipr ON pipr.procedure_id = pr.id and pr.id = prpa.procedure_id\n" +
+                    "JOIN phenotype_pipeline pi ON pi.id = pipr.pipeline_id";
+
+    private final String parameterDerived =
+            "SELECT pi.stable_id, pr.stable_id, pa.stable_id, edb.Name AS datasource_name, pa.derived\n" +
+                    "FROM phenotype_parameter pa\n" +
+                    "JOIN external_db edb ON edb.id = pa.db_id\n" +
+                    "JOIN phenotype_procedure_parameter prpa ON prpa.parameter_id = pa.id\n" +
+                    "JOIN phenotype_procedure pr ON pr.id = prpa.procedure_id\n" +
+                    "JOIN phenotype_pipeline_procedure pipr ON pipr.procedure_id = pr.id and pr.id = prpa.procedure_id\n" +
+                    "JOIN phenotype_pipeline pi ON pi.id = pipr.pipeline_id";
+
+
+
+
+
+
+
+
+
 
     private final String parameterOptions =
             "SELECT pi.stable_id, pr.stable_id, pa.stable_id, edb.Name AS datasource_name,\n" +
@@ -185,15 +249,27 @@ public class ValidateExtractImpressReport extends AbstractReport implements Comm
 
     private List<ValidationQuery> contentQueries = Arrays.asList(new ValidationQuery[] {
             new ValidationQuery("pipeline  ", pipeline),
-            new ValidationQuery("procedureWithStage", procedureWithStage),
-            new ValidationQuery("ProcedureNoStage", procedureNoStage),
-            new ValidationQuery("ProcedureNoStageNoMinor", procedureNoStageNoMinor),
-            new ValidationQuery("parameter", parameterQuery),
-            new ValidationQuery("parameterNoNotesNoUnit", parameterNoNotesNoUnit),
-            new ValidationQuery("parameterOptions", parameterOptions),
-            new ValidationQuery("parameterIncrements", parameterIncrements),
-            new ValidationQuery("parameterAnnotations", parameterAnnotations),
-            new ValidationQuery("parameterAnnotationsOptions", parameterAnnotationsOptions)
+            new ValidationQuery("procedure", procedure),
+            new ValidationQuery("procedureLevel", procedureLevel),
+//            new ValidationQuery("procedureStage", procedureStage),                                // Omit this test until Ant remaps single-character stages to strings like Version 1 had
+//            new ValidationQuery("procedureStageLabel", procedureStageLabel),                      // Omit this test. The komp2 values for stage label don't match impress v1!
+            new ValidationQuery("parameter", parameter),
+            new ValidationQuery("parameterUnit", parameterUnit),
+            new ValidationQuery("parameterDatatype", parameterDatatype),
+            new ValidationQuery("parameterType", parameterType),
+            new ValidationQuery("parameterFormula", parameterFormula),
+            new ValidationQuery("parameterRequired", parameterRequired),
+            new ValidationQuery("parameterMetadata", parameterMetadata),
+            new ValidationQuery("parameterDerived", parameterDerived),
+//            new ValidationQuery("ProcedureNoStageNoMinor", procedureNoStageNoMinor),
+//            new ValidationQuery("parameter", parameter),
+//            new ValidationQuery("parameterFormula", parameterFormula),
+//            new ValidationQuery("parameterNotes", parameterNotes),
+//            new ValidationQuery("parameterUnits", parameterUnits),
+//            new ValidationQuery("parameterOptions", parameterOptions),
+//            new ValidationQuery("parameterIncrements", parameterIncrements),
+//            new ValidationQuery("parameterAnnotations", parameterAnnotations),
+//            new ValidationQuery("parameterAnnotationsOptions", parameterAnnotationsOptions)
     });
 
     @Override
@@ -240,38 +316,41 @@ public class ValidateExtractImpressReport extends AbstractReport implements Comm
 
         loadValidateCountsQuery.execute();
 
-        System.out.println(" ");
+        if (parser.checkContent()) {
 
-        for (ValidationQuery query : contentQueries) {
+            System.out.println(" ");
 
-            List<String[]> diffs;
+            for (ValidationQuery query : contentQueries) {
 
-            try {
-                diffs = sqlUtils.queryDiff(jdbcCdabasePrevious, jdbcCdabaseCurrent, query.query);
-                int numErrorsToShow = Math.min(ivNumErrorsToShow, diffs.size());
-                if (diffs.size() == 0) {
-                    logger.info("SUCCESS:\t{}: {}", query.name, ImpressUtils.newlineToSpace(query.query));
-                } else {
-                    logger.warn("FAIL:\t{}: Displaying first {} diff rows of {}. query: {}", query.name, numErrorsToShow, diffs.size(), ImpressUtils.newlineToSpace(query.query));
-                }
-                for (int i = 0; i < numErrorsToShow; i++) {
-                    String[]      diff = diffs.get(i);
-                    StringBuilder sb   = new StringBuilder();
-                    for (int j = 0; j < diff.length; j++) {
-                        if (j > 0) {
-                            sb.append("\t");
-                        }
-                        sb.append(diff[j]);
+                List<String[]> diffs;
+
+                try {
+                    diffs = sqlUtils.queryDiff(jdbcCdabasePrevious, jdbcCdabaseCurrent, query.query, useLenient);
+                    int numErrorsToShow = Math.min(ivNumErrorsToShow, diffs.size());
+                    if (diffs.size() == 0) {
+                        logger.info("SUCCESS:\t{}: {}", query.name, ImpressUtils.newlineToSpace(query.query));
+                    } else {
+                        logger.warn("FAIL:\t{}: Displaying first {} diff rows of {}. query: {}", query.name, numErrorsToShow, diffs.size(), ImpressUtils.newlineToSpace(query.query));
                     }
+                    for (int i = 0; i < numErrorsToShow; i++) {
+                        String[]      diff = diffs.get(i);
+                        StringBuilder sb   = new StringBuilder();
+                        for (int j = 0; j < diff.length; j++) {
+                            if (j > 0) {
+                                sb.append("\t");
+                            }
+                            sb.append(diff[j]);
+                        }
 
-                    logger.warn("\t{}", sb);
+                        logger.warn("\t{}", sb);
+                    }
+                    System.out.println(" ");
+
+                } catch (Exception e) {
+
+                    e.printStackTrace();
+                    logger.error("ERROR: {}", e.getLocalizedMessage());
                 }
-                System.out.println(" ");
-
-            } catch (Exception e) {
-
-                e.printStackTrace();
-                logger.error("ERROR: {}", e.getLocalizedMessage());
             }
         }
 
