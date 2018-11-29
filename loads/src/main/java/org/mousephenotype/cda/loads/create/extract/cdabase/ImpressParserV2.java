@@ -279,7 +279,6 @@ public class ImpressParserV2 implements CommandLineRunner {
                 // LOAD PARAMETERS
                 for (Integer parameterId : procedure.getParameterCollection()) {
 
-
                     if ((parameterIdComponent > 0) && (parameterId != parameterIdComponent)) {
                         continue;
                     }

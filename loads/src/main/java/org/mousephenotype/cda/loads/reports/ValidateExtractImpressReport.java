@@ -82,6 +82,30 @@ public class ValidateExtractImpressReport extends AbstractReport implements Comm
             new LoadsQueryDelta("phenotype_procedure_parameter COUNTS", DELTA, "SELECT count(*) FROM phenotype_procedure_parameter")
     };
 
+
+
+    private final String excludedProcedures =
+            " WHERE pr.stable_id NOT IN (\n" +
+                    "'bcmla_abr_001',\n" +
+                    "'bcmla_ecg_001',\n" +
+                    "'hmgula_ins_001',\n" +
+                    "'hrwlip_csd_001',\n" +
+                    "'hrwlla_csd_001',\n" +
+                    "'icsla_abr_001',\n" +
+                    "'icsla_ecg_001',\n" +
+                    "'tcpip_csd_001',\n" +
+                    "'tcpla_csd_001',\n" +
+                    "'tcpla_ecg_001',\n" +
+                    "'tcpla_eye_001',\n" +
+                    "'ucdip_csd_001',\n" +
+                    "'ucdla_csd_001',\n" +
+                    "'ucdla_ecg_001',\n" +
+                    "'ucdla_eye_001'\n" +
+                    ")";
+
+    private final String excludedParameters =
+            " AND (pa.stable_id NOT IN ('bcmla_eye_093_001'))";
+
     private final String pipeline =
         "SELECT pi.stable_id, edb.Name AS datasource_name,pi.name\n" +
         "FROM phenotype_pipeline pi\n" +
@@ -187,15 +211,6 @@ public class ValidateExtractImpressReport extends AbstractReport implements Comm
                     "JOIN phenotype_pipeline_procedure pipr ON pipr.procedure_id = pr.id and pr.id = prpa.procedure_id\n" +
                     "JOIN phenotype_pipeline pi ON pi.id = pipr.pipeline_id";
 
-
-
-
-
-
-
-
-
-
     private final String parameterOptions =
             "SELECT pi.stable_id, pr.stable_id, pa.stable_id, edb.Name AS datasource_name,\n" +
                     "  pao.name, pao.normal\n" +
@@ -232,6 +247,16 @@ public class ValidateExtractImpressReport extends AbstractReport implements Comm
                     "JOIN phenotype_parameter_lnk_ontology_annotation paola ON paola.parameter_id = pa.id\n" +
                     "JOIN phenotype_parameter_ontology_annotation paoa ON paoa.id = paola.annotation_id";
 
+
+
+
+
+
+
+
+
+
+
     private final String parameterAnnotationsOptions =
             "SELECT pi.stable_id, pr.stable_id, pa.stable_id, edb.Name AS datasource_name,\n" +
                     "  paoa.event_type, paoa.option_id, paoa.ontology_acc,paoa.ontology_db_id, paoa.sex,\n" +
@@ -246,29 +271,29 @@ public class ValidateExtractImpressReport extends AbstractReport implements Comm
                     "JOIN phenotype_parameter_ontology_annotation paoa ON paoa.id = paola.annotation_id\n" +
                     "JOIN phenotype_parameter_option pao ON pao.id = paoa.option_id";
 
-
     private List<ValidationQuery> contentQueries = Arrays.asList(new ValidationQuery[] {
-            new ValidationQuery("pipeline  ", pipeline),
+
+            /*
+            new ValidationQuery("pipeline", pipeline),
             new ValidationQuery("procedure", procedure),
             new ValidationQuery("procedureLevel", procedureLevel),
-//            new ValidationQuery("procedureStage", procedureStage),                                // Omit this test until Ant remaps single-character stages to strings like Version 1 had
+            new ValidationQuery("procedureStage", procedureStage),
 //            new ValidationQuery("procedureStageLabel", procedureStageLabel),                      // Omit this test. The komp2 values for stage label don't match impress v1!
             new ValidationQuery("parameter", parameter),
             new ValidationQuery("parameterUnit", parameterUnit),
-            new ValidationQuery("parameterDatatype", parameterDatatype),
+//            new ValidationQuery("parameterDatatype", parameterDatatype),                          // Omit this test. Spot-checking revealed V1 has blank datatype, V2 has non-blank datatype.
             new ValidationQuery("parameterType", parameterType),
-            new ValidationQuery("parameterFormula", parameterFormula),
+//            new ValidationQuery("parameterFormula", parameterFormula),                            // Omit this test, as the new impress V2 formulas are similar to, but slightly different from the impress V1 formulas.
             new ValidationQuery("parameterRequired", parameterRequired),
             new ValidationQuery("parameterMetadata", parameterMetadata),
             new ValidationQuery("parameterDerived", parameterDerived),
-//            new ValidationQuery("ProcedureNoStageNoMinor", procedureNoStageNoMinor),
-//            new ValidationQuery("parameter", parameter),
-//            new ValidationQuery("parameterFormula", parameterFormula),
-//            new ValidationQuery("parameterNotes", parameterNotes),
-//            new ValidationQuery("parameterUnits", parameterUnits),
-//            new ValidationQuery("parameterOptions", parameterOptions),
-//            new ValidationQuery("parameterIncrements", parameterIncrements),
-//            new ValidationQuery("parameterAnnotations", parameterAnnotations),
+            new ValidationQuery("parameterOptions", parameterOptions),
+            new ValidationQuery("parameterIncrements", parameterIncrements),
+                                                                         */
+
+
+
+            new ValidationQuery("parameterAnnotations", parameterAnnotations),
 //            new ValidationQuery("parameterAnnotationsOptions", parameterAnnotationsOptions)
     });
 
@@ -292,7 +317,7 @@ public class ValidateExtractImpressReport extends AbstractReport implements Comm
         app.run(args);
     }
 
-    private final int ivNumErrorsToShow = 6;
+    private final int ivNumErrorsToShow = 16;
 
     @Override
     public void run(String[] args) throws Exception {
@@ -325,7 +350,14 @@ public class ValidateExtractImpressReport extends AbstractReport implements Comm
                 List<String[]> diffs;
 
                 try {
-                    diffs = sqlUtils.queryDiff(jdbcCdabasePrevious, jdbcCdabaseCurrent, query.query, useLenient);
+                    String q = query.query;
+                    if ((query.name.startsWith("procedure")) || (query.name.startsWith("parameter"))) {
+                        q += excludedProcedures;
+                    }
+                    if ((query.name.startsWith("parameter"))) {
+                        q += excludedParameters;
+                    }
+                    diffs = sqlUtils.queryDiff(jdbcCdabasePrevious, jdbcCdabaseCurrent, q, useLenient);
                     int numErrorsToShow = Math.min(ivNumErrorsToShow, diffs.size());
                     if (diffs.size() == 0) {
                         logger.info("SUCCESS:\t{}: {}", query.name, ImpressUtils.newlineToSpace(query.query));
