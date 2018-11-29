@@ -599,6 +599,10 @@ public class ImpressService extends BasicService implements WebStatus {
 
 		List<Map<String, String>> pivots = getFacetPivotResults(response, true);
 
+		System.out.println("Pivots:");
+        System.out.println(pivots);
+        System.out.println();
+
 		for (Map<String, String> pivot : pivots ) {
 			String procedure = pivot.get(ImpressDTO.PROCEDURE_STABLE_ID);
 			String mpId = pivot.get(ImpressDTO.MP_ID);
