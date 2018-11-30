@@ -488,8 +488,6 @@ public class ImpressParserV2 implements CommandLineRunner {
 
             for (Map.Entry<String, String> entry : mpOntologyTermsFromWs.entrySet()) {
 
-                ParameterOntologyAnnotationWithSex mpOntologyAnnotation = new ParameterOntologyAnnotationWithSex();
-
                 String ontologyAcc  = entry.getKey();                                                                   // Get the accession id
                 String ontologyName = ImpressUtils.newlineToSpace(entry.getValue());                                    // Get the ontology term
 
@@ -505,8 +503,10 @@ public class ImpressParserV2 implements CommandLineRunner {
                 List<ImpressParamMpterm> paramMpterms = impressParamMpTermsByOntologyTermAccessionId.get(ontologyAcc);
                 for (ImpressParamMpterm paramMpterm : paramMpterms) {
 
+                    ParameterOntologyAnnotationWithSex mpOntologyAnnotation = new ParameterOntologyAnnotationWithSex();
+
                     // OUTCOME
-                    String                  outcome                 = paramMpterm.getSelectionOutcome();
+                    String outcome = paramMpterm.getSelectionOutcome();
                     PhenotypeAnnotationType phenotypeAnnotationType = ((outcome == null) || (outcome.trim().isEmpty()) ? null : PhenotypeAnnotationType.find(outcome));
                     mpOntologyAnnotation.setType(phenotypeAnnotationType);
 
@@ -514,7 +514,7 @@ public class ImpressParserV2 implements CommandLineRunner {
                     String sex = paramMpterm.getSex();
                     if ((sex != null) && (!sex.trim().isEmpty())) {                                                       // Get SexType
                         SexType sexType = getSexType(sex, parameter.getStableId());
-                        mpOntologyAnnotation.setSex(sexType);
+                        mpOntologyAnnotation.setSex             (sexType);
                     }
 
                     // OPTIONS - If this ontology term has options, wire them up.

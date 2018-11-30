@@ -404,6 +404,5 @@ public class ValidateExtractImpressReport extends AbstractReport implements Comm
             this.name = name;
             this.query = query;
         }
-
     }
 }
