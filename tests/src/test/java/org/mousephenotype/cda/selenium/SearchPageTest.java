@@ -988,7 +988,9 @@ int i = 0;
                 String row = rows.get(i);
                 if (row.trim().isEmpty())
                     continue;
+                logger.error("Row[" + i + "]: " +  row);
                 if ( ! row.startsWith(expectedStartsWith)) {
+
                     status.addError("Row[" + i + "]: Expected autosuggest row to begin with 'Hox'. Row value = " + row);
                     break;
                 }
@@ -1027,6 +1029,7 @@ int i = 0;
                 String row = rows.get(i);
                 if (row.isEmpty())
                     continue;
+                logger.error("Row[" + i + "]: " +  row);
                 if ( ! row.startsWith(expectedStartsWith)) {
                     status.addError("Row[" + i + "]: Expected autosuggest row to begin with 'Hox'. Row value = " + row);
                     break;
