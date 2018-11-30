@@ -237,7 +237,7 @@ public class ValidateExtractImpressReport extends AbstractReport implements Comm
 
     private final String parameterAnnotations =
             "SELECT pi.stable_id, pr.stable_id, pa.stable_id, edb.Name AS datasource_name,\n" +
-                    "  paoa.event_type, paoa.option_id, paoa.ontology_acc,paoa.ontology_db_id, paoa.sex\n" +
+                    "  paoa.event_type, paoa.ontology_acc,paoa.ontology_db_id, paoa.sex\n" +
                     "FROM phenotype_parameter pa\n" +
                     "JOIN external_db edb ON edb.id = pa.db_id\n" +
                     "JOIN phenotype_procedure_parameter prpa ON prpa.parameter_id = pa.id\n" +
@@ -247,19 +247,8 @@ public class ValidateExtractImpressReport extends AbstractReport implements Comm
                     "JOIN phenotype_parameter_lnk_ontology_annotation paola ON paola.parameter_id = pa.id\n" +
                     "JOIN phenotype_parameter_ontology_annotation paoa ON paoa.id = paola.annotation_id";
 
-
-
-
-
-
-
-
-
-
-
     private final String parameterAnnotationsOptions =
             "SELECT pi.stable_id, pr.stable_id, pa.stable_id, edb.Name AS datasource_name,\n" +
-                    "  paoa.event_type, paoa.option_id, paoa.ontology_acc,paoa.ontology_db_id, paoa.sex,\n" +
                     "  pao.name AS optionName, pao.normal AS optionNormal\n" +
                     "FROM phenotype_parameter pa\n" +
                     "JOIN external_db edb ON edb.id = pa.db_id\n" +
@@ -267,34 +256,30 @@ public class ValidateExtractImpressReport extends AbstractReport implements Comm
                     "JOIN phenotype_procedure pr ON pr.id = prpa.procedure_id\n" +
                     "JOIN phenotype_pipeline_procedure pipr ON pipr.procedure_id = pr.id and pr.id = prpa.procedure_id\n" +
                     "JOIN phenotype_pipeline pi ON pi.id = pipr.pipeline_id\n" +
-                    "JOIN phenotype_parameter_lnk_ontology_annotation paola ON paola.parameter_id = pa.id\n" +
-                    "JOIN phenotype_parameter_ontology_annotation paoa ON paoa.id = paola.annotation_id\n" +
-                    "JOIN phenotype_parameter_option pao ON pao.id = paoa.option_id";
+                    "LEFT OUTER JOIN phenotype_parameter_lnk_ontology_annotation paola ON paola.parameter_id = pa.id\n" +
+                    "LEFT OUTER JOIN phenotype_parameter_ontology_annotation paoa ON paoa.id = paola.annotation_id\n" +
+                    "LEFT OUTER JOIN phenotype_parameter_option pao ON pao.id = paoa.option_id";
 
     private List<ValidationQuery> contentQueries = Arrays.asList(new ValidationQuery[] {
 
-            /*
+//            new ValidationQuery("procedureStageLabel", procedureStageLabel),                      // Omit this test. The komp2 values for stage label don't match impress v1!
+//            new ValidationQuery("parameterDatatype", parameterDatatype),                          // Omit this test. Spot-checking revealed V1 has blank datatype, V2 has non-blank datatype.
+//            new ValidationQuery("parameterFormula", parameterFormula),                            // Omit this test, as the new impress V2 formulas are similar to, but slightly different from the impress V1 formulas.
+
             new ValidationQuery("pipeline", pipeline),
             new ValidationQuery("procedure", procedure),
             new ValidationQuery("procedureLevel", procedureLevel),
             new ValidationQuery("procedureStage", procedureStage),
-//            new ValidationQuery("procedureStageLabel", procedureStageLabel),                      // Omit this test. The komp2 values for stage label don't match impress v1!
             new ValidationQuery("parameter", parameter),
             new ValidationQuery("parameterUnit", parameterUnit),
-//            new ValidationQuery("parameterDatatype", parameterDatatype),                          // Omit this test. Spot-checking revealed V1 has blank datatype, V2 has non-blank datatype.
             new ValidationQuery("parameterType", parameterType),
-//            new ValidationQuery("parameterFormula", parameterFormula),                            // Omit this test, as the new impress V2 formulas are similar to, but slightly different from the impress V1 formulas.
             new ValidationQuery("parameterRequired", parameterRequired),
             new ValidationQuery("parameterMetadata", parameterMetadata),
             new ValidationQuery("parameterDerived", parameterDerived),
             new ValidationQuery("parameterOptions", parameterOptions),
             new ValidationQuery("parameterIncrements", parameterIncrements),
-                                                                         */
-
-
-
             new ValidationQuery("parameterAnnotations", parameterAnnotations),
-//            new ValidationQuery("parameterAnnotationsOptions", parameterAnnotationsOptions)
+            new ValidationQuery("parameterAnnotationsOptions", parameterAnnotationsOptions)
     });
 
     @Override
@@ -317,7 +302,7 @@ public class ValidateExtractImpressReport extends AbstractReport implements Comm
         app.run(args);
     }
 
-    private final int ivNumErrorsToShow = 16;
+    private final int ivNumErrorsToShow = 6;
 
     @Override
     public void run(String[] args) throws Exception {
