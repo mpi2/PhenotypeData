@@ -716,9 +716,9 @@ public class ImpressUtils {
         return map;
     }
 
-    public Map<String, ImpressParamMpterm> getParamMpTermsByOntologyTermAccessionId(int pipelineId, int scheduleId, int procedureId, Parameter parameter, Map<Integer, OntologyTerm> updatedOntologyTermsByStableKey) {
+    public Map<String, List<ImpressParamMpterm>> getParamMpTermsByOntologyTermAccessionId(int pipelineId, int scheduleId, int procedureId, Parameter parameter, Map<Integer, OntologyTerm> updatedOntologyTermsByStableKey) {
 
-        Map<String, ImpressParamMpterm> terms = new HashMap<>();
+        Map<String, List<ImpressParamMpterm>> terms = new HashMap<>();
 
         String url = impressServiceUrl + "/ontologyterm/linksbelongingtoparameter/" + parameter.getStableKey();
 
@@ -731,9 +731,16 @@ public class ImpressUtils {
 
             for (Map<String, Object> map : maps) {
 
-                ImpressParamMpterm term = getTerm(map);
-                String ontologyTermAccessionId = updatedOntologyTermsByStableKey.get(term.getOntologyTermId()).getId().getAccession();
-                terms.put(ontologyTermAccessionId, term);
+                ImpressParamMpterm paramMpTerm = getTerm(map);
+                String ontologyTermAccessionId = updatedOntologyTermsByStableKey.get(paramMpTerm.getOntologyTermId()).getId().getAccession();
+
+                List<ImpressParamMpterm> accumulatedParamMpTerms = terms.get(ontologyTermAccessionId);
+                if (accumulatedParamMpTerms == null) {
+                    accumulatedParamMpTerms = new ArrayList<>();
+                    terms.put(ontologyTermAccessionId, accumulatedParamMpTerms);
+                }
+
+                accumulatedParamMpTerms.add(paramMpTerm);
             }
 
         } catch (HttpClientErrorException e) {

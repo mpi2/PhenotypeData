@@ -483,7 +483,7 @@ public class ImpressParserV2 implements CommandLineRunner {
         if (mpOntologyTermsFromWs != null) {
 
             // Get the outcome and sex for each of this parameter's MP terms
-            Map<String, ImpressParamMpterm> impressParamMpTermsByOntologyTermAccessionId = impressUtils.getParamMpTermsByOntologyTermAccessionId(
+            Map<String, List<ImpressParamMpterm>> impressParamMpTermsByOntologyTermAccessionId = impressUtils.getParamMpTermsByOntologyTermAccessionId(
                     pipeline.getStableKey(), procedure.getScheduleKey(), procedure.getStableKey(), parameter, updatedOntologyTermsByStableKey);
 
             for (Map.Entry<String, String> entry : mpOntologyTermsFromWs.entrySet()) {
@@ -502,43 +502,44 @@ public class ImpressParserV2 implements CommandLineRunner {
                 ontologyAcc = ontologyTerm.getId().getAccession();
                 ontologyName = ontologyTerm.getName();
 
-                ImpressParamMpterm paramMpTerm = impressParamMpTermsByOntologyTermAccessionId.get(ontologyAcc);
+                List<ImpressParamMpterm> paramMpterms = impressParamMpTermsByOntologyTermAccessionId.get(ontologyAcc);
+                for (ImpressParamMpterm paramMpterm : paramMpterms) {
 
-                // OUTCOME
-                String outcome = paramMpTerm.getSelectionOutcome();
-                PhenotypeAnnotationType phenotypeAnnotationType = ((outcome == null) || (outcome.trim().isEmpty()) ? null : PhenotypeAnnotationType.find(outcome));
-                mpOntologyAnnotation.setType(phenotypeAnnotationType);
+                    // OUTCOME
+                    String                  outcome                 = paramMpterm.getSelectionOutcome();
+                    PhenotypeAnnotationType phenotypeAnnotationType = ((outcome == null) || (outcome.trim().isEmpty()) ? null : PhenotypeAnnotationType.find(outcome));
+                    mpOntologyAnnotation.setType(phenotypeAnnotationType);
 
-                // SEX
-                String sex = paramMpTerm.getSex();
-                if ((sex != null) && ( ! sex.trim().isEmpty())) {                                                       // Get SexType
-                    SexType sexType = getSexType(sex, parameter.getStableId());
-                    mpOntologyAnnotation.setSex(sexType);
-                }
+                    // SEX
+                    String sex = paramMpterm.getSex();
+                    if ((sex != null) && (!sex.trim().isEmpty())) {                                                       // Get SexType
+                        SexType sexType = getSexType(sex, parameter.getStableId());
+                        mpOntologyAnnotation.setSex(sexType);
+                    }
 
-                // OPTIONS
-                // FIXME - this comment is wrong: If this ontology term has an option, wire up the annotation to the option using the option's primary key and the ontology term's name.
-                if (parameter.isOptionsFlag()) {
-                    String optionName = paramMpTerm.getOptionText();
+                    // OPTIONS - If this ontology term has options, wire them up.
+                    if (parameter.isOptionsFlag()) {
+                        String optionName = paramMpterm.getOptionText();
 
-                    // Look up the option in this parameter's options list so we can extract the phenotype_parameter_option primary key.
-                    for (ParameterOption parameterOption : parameter.getOptions()) {
-                        if (parameterOption.getName().equals(optionName)) {
-                            parameterOption.setNormalCategory(true);
-                            mpOntologyAnnotation.setOption(parameterOption);
+                        // Look up the option in this parameter's options list so we can extract the phenotype_parameter_option primary key.
+                        for (ParameterOption parameterOption : parameter.getOptions()) {
+                            if (parameterOption.getName().equals(optionName)) {
+                                parameterOption.setNormalCategory(true);
+                                mpOntologyAnnotation.setOption(parameterOption);
 
-                            // log every 1000th association for spot checking.
-                            if ((++associationCounter % 200) == 0) {
-                                logger.info("Associate outcome {} to option {} for parameterKey {} ({}) with MP Ontology term {}", outcome, parameterOption.getName(), parameter.getStableId(), parameter.getStableKey(), ontologyTerm.getId().getAccession());
+                                // log every 1000th association for spot checking.
+                                if ((++associationCounter % 200) == 0) {
+                                    logger.info("Associate outcome {} to option {} for parameterKey {} ({}) with MP Ontology term {}", outcome, parameterOption.getName(), parameter.getStableId(), parameter.getStableKey(), ontologyTerm.getId().getAccession());
+                                }
+                                break;
                             }
-                            break;
                         }
                     }
-                }
 
-                mpOntologyAnnotation.setOntologyTerm(ontologyTerm);
-                parameter.addAnnotation(mpOntologyAnnotation);
-                annotations.add(mpOntologyAnnotation);
+                    mpOntologyAnnotation.setOntologyTerm(ontologyTerm);
+                    parameter.addAnnotation(mpOntologyAnnotation);
+                    annotations.add(mpOntologyAnnotation);
+                }
             }
         }
 
