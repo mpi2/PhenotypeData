@@ -593,15 +593,7 @@ public class ImpressService extends BasicService implements WebStatus {
 
 		QueryResponse response = solr.query(query);
 
-		System.out.println("Solr response:");
-		System.out.println(response);
-		System.out.println();
-
 		List<Map<String, String>> pivots = getFacetPivotResults(response, true);
-
-		System.out.println("Pivots:");
-        System.out.println(pivots);
-        System.out.println();
 
 		for (Map<String, String> pivot : pivots ) {
 			String procedure = pivot.get(ImpressDTO.PROCEDURE_STABLE_ID);
