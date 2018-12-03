@@ -256,9 +256,23 @@ public class ValidateExtractImpressReport extends AbstractReport implements Comm
                     "JOIN phenotype_procedure pr ON pr.id = prpa.procedure_id\n" +
                     "JOIN phenotype_pipeline_procedure pipr ON pipr.procedure_id = pr.id and pr.id = prpa.procedure_id\n" +
                     "JOIN phenotype_pipeline pi ON pi.id = pipr.pipeline_id\n" +
-                    "LEFT OUTER JOIN phenotype_parameter_lnk_ontology_annotation paola ON paola.parameter_id = pa.id\n" +
-                    "LEFT OUTER JOIN phenotype_parameter_ontology_annotation paoa ON paoa.id = paola.annotation_id\n" +
-                    "LEFT OUTER JOIN phenotype_parameter_option pao ON pao.id = paoa.option_id";
+                    "JOIN phenotype_parameter_lnk_ontology_annotation paola ON paola.parameter_id = pa.id\n" +
+                    "JOIN phenotype_parameter_ontology_annotation paoa ON paoa.id = paola.annotation_id\n" +
+                    "JOIN phenotype_parameter_option pao ON pao.id = paoa.option_id";
+
+    private final String parameterAnnotationsOntologyTerms =
+            "SELECT DISTINCT pi.stable_id, pr.stable_id, pa.stable_id, edbIm.Name AS impressDatasourceName,\n" +
+                    "  ot.acc, edbOn.name AS ontologyDatasourceName\n" +
+                    "FROM phenotype_parameter pa\n" +
+                    "JOIN external_db edbIm ON edbIm.id = pa.db_id\n" +
+                    "JOIN phenotype_procedure_parameter prpa ON prpa.parameter_id = pa.id\n" +
+                    "JOIN phenotype_procedure pr ON pr.id = prpa.procedure_id\n" +
+                    "JOIN phenotype_pipeline_procedure pipr ON pipr.procedure_id = pr.id and pr.id = prpa.procedure_id\n" +
+                    "JOIN phenotype_pipeline pi ON pi.id = pipr.pipeline_id\n" +
+                    "JOIN phenotype_parameter_lnk_ontology_annotation paola ON paola.parameter_id = pa.id\n" +
+                    "JOIN phenotype_parameter_ontology_annotation paoa ON paoa.id = paola.annotation_id\n" +
+                    "JOIN ontology_term ot ON ot.acc = paoa.ontology_acc AND ot.db_id = paoa.ontology_db_id\n" +
+                    "JOIN external_db edbOn ON edbOn.id = paoa.ontology_db_id";
 
     private List<ValidationQuery> contentQueries = Arrays.asList(new ValidationQuery[] {
 
@@ -279,7 +293,8 @@ public class ValidateExtractImpressReport extends AbstractReport implements Comm
             new ValidationQuery("parameterOptions", parameterOptions),
             new ValidationQuery("parameterIncrements", parameterIncrements),
             new ValidationQuery("parameterAnnotations", parameterAnnotations),
-            new ValidationQuery("parameterAnnotationsOptions", parameterAnnotationsOptions)
+            new ValidationQuery("parameterAnnotationsOptions", parameterAnnotationsOptions),
+            new ValidationQuery("parameterAnnotationsOntologyTerms", parameterAnnotationsOntologyTerms),
     });
 
     @Override
@@ -302,7 +317,7 @@ public class ValidateExtractImpressReport extends AbstractReport implements Comm
         app.run(args);
     }
 
-    private final int ivNumErrorsToShow = 6;
+    private final int ivNumErrorsToShow = 200;
 
     @Override
     public void run(String[] args) throws Exception {
@@ -347,7 +362,8 @@ public class ValidateExtractImpressReport extends AbstractReport implements Comm
                     if (diffs.size() == 0) {
                         logger.info("SUCCESS:\t{}: {}", query.name, ImpressUtils.newlineToSpace(query.query));
                     } else {
-                        logger.warn("FAIL:\t{}: Displaying first {} diff rows of {}. query: {}", query.name, numErrorsToShow, diffs.size(), ImpressUtils.newlineToSpace(query.query));
+                        // Subtract 1 from numErrorsToShow and diffs.size() to account for heading row.
+                        logger.warn("FAIL:\t{}: Displaying first {} diff rows of {}. query: {}", query.name, numErrorsToShow - 1, diffs.size() - 1, ImpressUtils.newlineToSpace(query.query));
                     }
                     for (int i = 0; i < numErrorsToShow; i++) {
                         String[]      diff = diffs.get(i);
