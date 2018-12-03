@@ -25,7 +25,6 @@ import java.util.List;
  */
 public class AutosuggestBean {
 
-	public static final String AUTOSUGGEST_ID = "autosuggest_id";
 	public static final String DOCTYPE = "docType";
 	public static final String MGI_ACCESSION_ID = "mgi_accession_id";
 	public static final String MGI_ALLELE_ACCESSION_ID = "allele_accession_id";
@@ -107,8 +106,6 @@ public class AutosuggestBean {
 	public static final String GWAS_DOWNSTREAM_GENE = "gwas_downstream_gene";
 	public static final String GWAS_SNP_ID = "gwas_snp_id";
 
-	@Field(AUTOSUGGEST_ID)
-	private String autosuggestId;
 
 	@Field(DOCTYPE)
 	private String docType;
@@ -319,14 +316,6 @@ public class AutosuggestBean {
 	@Field(GWAS_SNP_ID)
 	private String gwasSnpId;
 
-
-	public String getAutosuggestId() {
-		return autosuggestId;
-	}
-
-	public void setAutosuggestId(String autosuggestId) {
-		this.autosuggestId = autosuggestId;
-	}
 
 	public String getDocType() {
 		return docType;
@@ -895,7 +884,6 @@ public class AutosuggestBean {
 
 		AutosuggestBean that = (AutosuggestBean) o;
 
-        if (autosuggestId != null ? !autosuggestId.equals(that.autosuggestId) : that.autosuggestId != null) return false;
 		if (docType != null ? !docType.equals(that.docType) : that.docType != null) return false;
 		if (mgiAccessionId != null ? !mgiAccessionId.equals(that.mgiAccessionId) : that.mgiAccessionId != null)
 			return false;
@@ -1013,7 +1001,6 @@ public class AutosuggestBean {
 	@Override
 	public int hashCode() {
 		int result = docType != null ? docType.hashCode() : 0;
-        result = 31 * result + (autosuggestId != null ? autosuggestId.hashCode() : 0);
 		result = 31 * result + (mgiAccessionId != null ? mgiAccessionId.hashCode() : 0);
 		result = 31 * result + (mgiAlleleAccessionIds != null ? mgiAlleleAccessionIds.hashCode() : 0);
 		result = 31 * result + (alleleMgiAccessionId != null ? alleleMgiAccessionId.hashCode() : 0);
@@ -1090,7 +1077,6 @@ public class AutosuggestBean {
 	public String toString() {
 		return "AutosuggestBean{" +
 				"docType='" + docType + '\'' +
-                ", autosuggestId='" + autosuggestId + '\'' +
 				", mgiAccessionId='" + mgiAccessionId + '\'' +
 				", mgiAlleleAccessionIds=" + mgiAlleleAccessionIds +
 				", alleleMgiAccessionId='" + alleleMgiAccessionId + '\'' +

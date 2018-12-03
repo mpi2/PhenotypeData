@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <schema name="autosuggest core" version="1.6">
-  <uniqueKey>autosuggest_id</uniqueKey>
 
 		<!-- A text field that uses WordDelimiterFilter to enable splitting and matching of
 			words on case-change, alpha numeric boundaries, and non-alphanumeric chars,
