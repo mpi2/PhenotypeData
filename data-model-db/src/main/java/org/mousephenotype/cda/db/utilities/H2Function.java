@@ -1,4 +1,4 @@
-package org.mousephenotype.cda.loads.integration.data.utilities;
+package org.mousephenotype.cda.db.utilities;
 
 import java.lang.reflect.Field;
 import java.sql.Date;
