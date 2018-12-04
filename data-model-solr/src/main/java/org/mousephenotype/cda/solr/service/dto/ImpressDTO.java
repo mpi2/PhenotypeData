@@ -50,6 +50,10 @@ public class ImpressDTO {
 	public static final String MEDIA = "media";
 	public static final String ANNOTATE = "annotate";
 	public static final String OBSERVATION_TYPE = ObservationDTO.OBSERVATION_TYPE;
+	public static final String DATA_TYPE = ObservationDTO.DATA_TYPE;
+
+	public static final String STAGE = "stage";
+	public static final String STAGE_LABEL = "stage_label";
 
 
 	public static final String MP_ID = MpDTO.MP_ID; // All possible MP terms
@@ -134,6 +138,15 @@ public class ImpressDTO {
 
 	@Field(OBSERVATION_TYPE)
 	private String observationType;
+
+	@Field(DATA_TYPE)
+	private String dataType;
+
+	@Field(STAGE)
+	private String stage;
+
+	@Field(STAGE_LABEL)
+	private String stageLabel;
 
 	@Field(PARAMETER_ID)
 	private int parameterId;
@@ -415,11 +428,100 @@ public class ImpressDTO {
 		return observationType;
 	}
 
+	public String getDataType() {
+		return dataType;
+	}
+
+	public void setDataType(String dataType) {
+		this.dataType = dataType;
+	}
 
 	public void setObservationType(String observationType) {
 		this.observationType = observationType;
 	}
 
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		ImpressDTO that = (ImpressDTO) o;
+		return increment == that.increment &&
+				metadata == that.metadata &&
+				hasOptions == that.hasOptions &&
+				derived == that.derived &&
+				media == that.media &&
+				annotate == that.annotate &&
+				required == that.required &&
+				parameterId == that.parameterId &&
+				parameterStableKey == that.parameterStableKey &&
+				procedureStableKey == that.procedureStableKey &&
+				pipelineId == that.pipelineId &&
+				pipelineStableKey == that.pipelineStableKey &&
+				Objects.equals(increasedMpId, that.increasedMpId) &&
+				Objects.equals(abnormalMpId, that.abnormalMpId) &&
+				Objects.equals(decreasedMpId, that.decreasedMpId) &&
+				Objects.equals(increasedMpTerm, that.increasedMpTerm) &&
+				Objects.equals(abnormalMpTerm, that.abnormalMpTerm) &&
+				Objects.equals(decreasedMpTerm, that.decreasedMpTerm) &&
+				Objects.equals(catgories, that.catgories) &&
+				Objects.equals(unitX, that.unitX) &&
+				Objects.equals(unitY, that.unitY) &&
+				Objects.equals(description, that.description) &&
+				Objects.equals(observationType, that.observationType) &&
+				Objects.equals(dataType, that.dataType) &&
+				Objects.equals(stage, that.stage) &&
+				Objects.equals(stageLabel, that.stageLabel) &&
+				Objects.equals(parameterStableId, that.parameterStableId) &&
+				Objects.equals(parameterName, that.parameterName) &&
+				Objects.equals(procedureId, that.procedureId) &&
+				Objects.equals(procedureStableId, that.procedureStableId) &&
+				Objects.equals(procedureName, that.procedureName) &&
+				Objects.equals(pipelineStableId, that.pipelineStableId) &&
+				Objects.equals(pipelineName, that.pipelineName) &&
+				Objects.equals(ididid, that.ididid) &&
+				Objects.equals(mpId, that.mpId) &&
+				Objects.equals(mpTerm, that.mpTerm) &&
+				Objects.equals(mpTermSynonym, that.mpTermSynonym) &&
+				Objects.equals(topLevelMpId, that.topLevelMpId) &&
+				Objects.equals(topLevelMpTerm, that.topLevelMpTerm) &&
+				Objects.equals(topLevelMpTermSynonym, that.topLevelMpTermSynonym) &&
+				Objects.equals(intermediateMpId, that.intermediateMpId) &&
+				Objects.equals(intermediateMpTerm, that.intermediateMpTerm) &&
+				Objects.equals(intermediateMpTermSynonym, that.intermediateMpTermSynonym) &&
+				Objects.equals(inferredMaId, that.inferredMaId) &&
+				Objects.equals(selectedTopLevelMaId, that.selectedTopLevelMaId) &&
+				Objects.equals(inferredSelectedTopLevelMaTerm, that.inferredSelectedTopLevelMaTerm) &&
+				Objects.equals(inferredSelectedTopLevelMaId, that.inferredSelectedTopLevelMaId) &&
+				Objects.equals(maId, that.maId) &&
+				Objects.equals(maTerm, that.maTerm) &&
+				Objects.equals(emapId, that.emapId) &&
+				Objects.equals(emapTerm, that.emapTerm) &&
+				Objects.equals(anatomyId, that.anatomyId) &&
+				Objects.equals(anatomyTerm, that.anatomyTerm);
+	}
+
+	@Override
+	public int hashCode() {
+
+		return Objects.hash(increasedMpId, abnormalMpId, decreasedMpId, increasedMpTerm, abnormalMpTerm, decreasedMpTerm, catgories, unitX, unitY, increment, metadata, hasOptions, derived, media, annotate, required, description, observationType, stage, stageLabel, parameterId, parameterStableId, parameterName, parameterStableKey, procedureId, procedureStableId, procedureName, procedureStableKey, pipelineId, pipelineStableId, pipelineStableKey, pipelineName, ididid, mpId, mpTerm, mpTermSynonym, topLevelMpId, topLevelMpTerm, topLevelMpTermSynonym, intermediateMpId, intermediateMpTerm, intermediateMpTermSynonym, inferredMaId, selectedTopLevelMaId, inferredSelectedTopLevelMaTerm, inferredSelectedTopLevelMaId, maId, maTerm, emapId, emapTerm, anatomyId, anatomyTerm);
+	}
+
+	public String getStage() {
+
+		return stage;
+	}
+
+	public void setStage(String stage) {
+		this.stage = stage;
+	}
+
+	public String getStageLabel() {
+		return stageLabel;
+	}
+
+	public void setStageLabel(String stageLabel) {
+		this.stageLabel = stageLabel;
+	}
 
 	public List<String> getMpId() {
 
@@ -939,142 +1041,6 @@ public class ImpressDTO {
 
 	public String getMaId() {
 		return maId;
-	}
-
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
-
-		ImpressDTO that = (ImpressDTO) o;
-
-		if (increment != that.increment) return false;
-		if (metadata != that.metadata) return false;
-		if (hasOptions != that.hasOptions) return false;
-		if (derived != that.derived) return false;
-		if (media != that.media) return false;
-		if (annotate != that.annotate) return false;
-		if (required != that.required) return false;
-		if (parameterId != that.parameterId) return false;
-		if (parameterStableKey != that.parameterStableKey) return false;
-		if (procedureStableKey != that.procedureStableKey) return false;
-		if (pipelineId != that.pipelineId) return false;
-		if (pipelineStableKey != that.pipelineStableKey) return false;
-		if (increasedMpId != null ? !increasedMpId.equals(that.increasedMpId) : that.increasedMpId != null)
-			return false;
-		if (abnormalMpId != null ? !abnormalMpId.equals(that.abnormalMpId) : that.abnormalMpId != null) return false;
-		if (decreasedMpId != null ? !decreasedMpId.equals(that.decreasedMpId) : that.decreasedMpId != null)
-			return false;
-		if (increasedMpTerm != null ? !increasedMpTerm.equals(that.increasedMpTerm) : that.increasedMpTerm != null)
-			return false;
-		if (abnormalMpTerm != null ? !abnormalMpTerm.equals(that.abnormalMpTerm) : that.abnormalMpTerm != null)
-			return false;
-		if (decreasedMpTerm != null ? !decreasedMpTerm.equals(that.decreasedMpTerm) : that.decreasedMpTerm != null)
-			return false;
-		if (catgories != null ? !catgories.equals(that.catgories) : that.catgories != null) return false;
-		if (unitY != null ? !unitY.equals(that.unitY) : that.unitY != null) return false;
-		if (unitX != null ? !unitX.equals(that.unitX) : that.unitX != null) return false;
-
-		if (description != null ? !description.equals(that.description) : that.description != null) return false;
-		if (observationType != null ? !observationType.equals(that.observationType) : that.observationType != null)
-			return false;
-		if (parameterStableId != null ? !parameterStableId.equals(that.parameterStableId) : that.parameterStableId != null)
-			return false;
-		if (parameterName != null ? !parameterName.equals(that.parameterName) : that.parameterName != null)
-			return false;
-		if (procedureId != null ? !procedureId.equals(that.procedureId) : that.procedureId != null) return false;
-		if (procedureStableId != null ? !procedureStableId.equals(that.procedureStableId) : that.procedureStableId != null)
-			return false;
-		if (procedureName != null ? !procedureName.equals(that.procedureName) : that.procedureName != null)
-			return false;
-		if (pipelineStableId != null ? !pipelineStableId.equals(that.pipelineStableId) : that.pipelineStableId != null)
-			return false;
-		if (pipelineName != null ? !pipelineName.equals(that.pipelineName) : that.pipelineName != null) return false;
-		if (ididid != null ? !ididid.equals(that.ididid) : that.ididid != null) return false;
-		if (mpId != null ? !mpId.equals(that.mpId) : that.mpId != null) return false;
-		if (mpTerm != null ? !mpTerm.equals(that.mpTerm) : that.mpTerm != null) return false;
-		if (mpTermSynonym != null ? !mpTermSynonym.equals(that.mpTermSynonym) : that.mpTermSynonym != null)
-			return false;
-		if (topLevelMpId != null ? !topLevelMpId.equals(that.topLevelMpId) : that.topLevelMpId != null) return false;
-		if (topLevelMpTerm != null ? !topLevelMpTerm.equals(that.topLevelMpTerm) : that.topLevelMpTerm != null)
-			return false;
-		if (topLevelMpTermSynonym != null ? !topLevelMpTermSynonym.equals(that.topLevelMpTermSynonym) : that.topLevelMpTermSynonym != null)
-			return false;
-		if (intermediateMpId != null ? !intermediateMpId.equals(that.intermediateMpId) : that.intermediateMpId != null)
-			return false;
-		if (intermediateMpTerm != null ? !intermediateMpTerm.equals(that.intermediateMpTerm) : that.intermediateMpTerm != null)
-			return false;
-		if (intermediateMpTermSynonym != null ? !intermediateMpTermSynonym.equals(that.intermediateMpTermSynonym) : that.intermediateMpTermSynonym != null)
-			return false;
-		if (inferredMaId != null ? !inferredMaId.equals(that.inferredMaId) : that.inferredMaId != null) return false;
-		if (selectedTopLevelMaId != null ? !selectedTopLevelMaId.equals(that.selectedTopLevelMaId) : that.selectedTopLevelMaId != null)
-			return false;
-		if (inferredSelectedTopLevelMaTerm != null ? !inferredSelectedTopLevelMaTerm.equals(that.inferredSelectedTopLevelMaTerm) : that.inferredSelectedTopLevelMaTerm != null)
-			return false;
-		if (inferredSelectedTopLevelMaId != null ? !inferredSelectedTopLevelMaId.equals(that.inferredSelectedTopLevelMaId) : that.inferredSelectedTopLevelMaId != null)
-			return false;
-		if (maId != null ? !maId.equals(that.maId) : that.maId != null) return false;
-		if (maTerm != null ? !maTerm.equals(that.maTerm) : that.maTerm != null) return false;
-		if (emapId != null ? !emapId.equals(that.emapId) : that.emapId != null) return false;
-		if (emapTerm != null ? !emapTerm.equals(that.emapTerm) : that.emapTerm != null) return false;
-		if (anatomyId != null ? !anatomyId.equals(that.anatomyId) : that.anatomyId != null) return false;
-		return !(anatomyTerm != null ? !anatomyTerm.equals(that.anatomyTerm) : that.anatomyTerm != null);
-
-	}
-
-	@Override
-	public int hashCode() {
-		int result = increasedMpId != null ? increasedMpId.hashCode() : 0;
-		result = 31 * result + (abnormalMpId != null ? abnormalMpId.hashCode() : 0);
-		result = 31 * result + (decreasedMpId != null ? decreasedMpId.hashCode() : 0);
-		result = 31 * result + (increasedMpTerm != null ? increasedMpTerm.hashCode() : 0);
-		result = 31 * result + (abnormalMpTerm != null ? abnormalMpTerm.hashCode() : 0);
-		result = 31 * result + (decreasedMpTerm != null ? decreasedMpTerm.hashCode() : 0);
-		result = 31 * result + (catgories != null ? catgories.hashCode() : 0);
-		result = 31 * result + (unitY != null ? unitY.hashCode() : 0);
-		result = 31 * result + (unitX != null ? unitX.hashCode() : 0);
-		result = 31 * result + (increment ? 1 : 0);
-		result = 31 * result + (metadata ? 1 : 0);
-		result = 31 * result + (hasOptions ? 1 : 0);
-		result = 31 * result + (derived ? 1 : 0);
-		result = 31 * result + (media ? 1 : 0);
-		result = 31 * result + (annotate ? 1 : 0);
-		result = 31 * result + (required ? 1 : 0);
-		result = 31 * result + (description != null ? description.hashCode() : 0);
-		result = 31 * result + (observationType != null ? observationType.hashCode() : 0);
-		result = 31 * result + parameterId;
-		result = 31 * result + (parameterStableId != null ? parameterStableId.hashCode() : 0);
-		result = 31 * result + (parameterName != null ? parameterName.hashCode() : 0);
-		result = 31 * result + parameterStableKey;
-		result = 31 * result + (procedureId != null ? procedureId.hashCode() : 0);
-		result = 31 * result + (procedureStableId != null ? procedureStableId.hashCode() : 0);
-		result = 31 * result + (procedureName != null ? procedureName.hashCode() : 0);
-		result = 31 * result + procedureStableKey;
-		result = 31 * result + pipelineId;
-		result = 31 * result + (pipelineStableId != null ? pipelineStableId.hashCode() : 0);
-		result = 31 * result + pipelineStableKey;
-		result = 31 * result + (pipelineName != null ? pipelineName.hashCode() : 0);
-		result = 31 * result + (ididid != null ? ididid.hashCode() : 0);
-		result = 31 * result + (mpId != null ? mpId.hashCode() : 0);
-		result = 31 * result + (mpTerm != null ? mpTerm.hashCode() : 0);
-		result = 31 * result + (mpTermSynonym != null ? mpTermSynonym.hashCode() : 0);
-		result = 31 * result + (topLevelMpId != null ? topLevelMpId.hashCode() : 0);
-		result = 31 * result + (topLevelMpTerm != null ? topLevelMpTerm.hashCode() : 0);
-		result = 31 * result + (topLevelMpTermSynonym != null ? topLevelMpTermSynonym.hashCode() : 0);
-		result = 31 * result + (intermediateMpId != null ? intermediateMpId.hashCode() : 0);
-		result = 31 * result + (intermediateMpTerm != null ? intermediateMpTerm.hashCode() : 0);
-		result = 31 * result + (intermediateMpTermSynonym != null ? intermediateMpTermSynonym.hashCode() : 0);
-		result = 31 * result + (inferredMaId != null ? inferredMaId.hashCode() : 0);
-		result = 31 * result + (selectedTopLevelMaId != null ? selectedTopLevelMaId.hashCode() : 0);
-		result = 31 * result + (inferredSelectedTopLevelMaTerm != null ? inferredSelectedTopLevelMaTerm.hashCode() : 0);
-		result = 31 * result + (inferredSelectedTopLevelMaId != null ? inferredSelectedTopLevelMaId.hashCode() : 0);
-		result = 31 * result + (maId != null ? maId.hashCode() : 0);
-		result = 31 * result + (maTerm != null ? maTerm.hashCode() : 0);
-		result = 31 * result + (emapId != null ? emapId.hashCode() : 0);
-		result = 31 * result + (emapTerm != null ? emapTerm.hashCode() : 0);
-		result = 31 * result + (anatomyId != null ? anatomyId.hashCode() : 0);
-		result = 31 * result + (anatomyTerm != null ? anatomyTerm.hashCode() : 0);
-		return result;
 	}
 
 	@Override

@@ -57,11 +57,6 @@ public class MarkerProcessorXrefGenes implements ItemProcessor<List<Xref>, List<
             , "Ensembl Gene start"      // L - (unused)
             , "Ensembl Gene end"        // M - (unused)
             , "Ensembl Gene strand"     // N - (unused)
-            , "VEGA Gene ID"            // O
-            , "VEGA Gene chromosome"    // P - (unused)
-            , "VEGA Gene start"         // Q - (unused)
-            , "VEGA Gene end"           // R - (unused)
-            , "VEGA Gene strand"        // S - (unused)
             , "CCDS IDs"                // T
             , "HGNC ID"                 // U - (unused)
             , "HomoloGene ID"           // V - (unused)
@@ -99,12 +94,7 @@ public class MarkerProcessorXrefGenes implements ItemProcessor<List<Xref>, List<
                 , "Ensembl Gene start"              // L - (unused)
                 , "Ensembl Gene end"                // M - (unused)
                 , "Ensembl Gene strand"             // N - (unused)
-                , xrefs.get(2).getXrefAccession()   // O
-                , "VEGA Gene chromosome"            // P - (unused)
-                , "VEGA Gene start"                 // Q - (unused)
-                , "VEGA Gene end"                   // R - (unused)
-                , "VEGA Gene strand"                // S - (unused)
-                , xrefs.get(3).getXrefAccession()   // T
+                , xrefs.get(2).getXrefAccession()   // T
                 , "HGNC ID"                         // U - (unused)
                 , "HomoloGene ID"                   // V - (unused)
             };

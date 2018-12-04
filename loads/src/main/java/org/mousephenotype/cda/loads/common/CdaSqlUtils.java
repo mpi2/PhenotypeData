@@ -399,14 +399,13 @@ public class CdaSqlUtils {
      * @return A complete map of cda project_id primary keys, keyed by dcc center.project
      */
     public synchronized Map<String, Integer> getCdaProject_idsByDccProject() {
-        Map<String, Integer> map = new ConcurrentHashMapAllowNull<>();
+        Map<String, Integer> map = new ConcurrentHashMapAllowNull<>(ConcurrentHashMapAllowNull.CASE_INSENSITIVE_KEYS);
 
         Map<String, Project> projects = getProjects();
 
         Iterator<Map.Entry<String, String>> entrySetIt = LoadUtils.mappedExternalProjectNames.entrySet().iterator();
         while (entrySetIt.hasNext()) {
             Map.Entry<String, String> entry = entrySetIt.next();
-            // key = external (e.g. dcc) name.  value = cda project.name.
             String dccName = entry.getKey();
             String cdaName = entry.getValue();
 
@@ -962,14 +961,18 @@ public class CdaSqlUtils {
             if (gene.getXrefs() != null) {
                 for (Xref xref : gene.getXrefs()) {
                     try {
-                        Map<String, Object> parameterMap = new HashMap<>();
-                        parameterMap.put("acc", gene.getId().getAccession());
-                        parameterMap.put("db_id", gene.getId().getDatabaseId());
-                        parameterMap.put("xref_acc", xref.getXrefAccession());
-                        parameterMap.put("xref_db_id", xref.getXrefDatabaseId());
+                        for (String accession : xref.getXrefAccession().split("\\|")) {
 
-                        count = jdbcCda.update(xrefInsert, parameterMap);
-                        countsMap.put("xrefs", countsMap.get("xrefs") + count);
+                            Map<String, Object> parameterMap = new HashMap<>();
+                            parameterMap.put("acc", gene.getId().getAccession());
+                            parameterMap.put("db_id", gene.getId().getDatabaseId());
+                            parameterMap.put("xref_acc", accession);
+                            parameterMap.put("xref_db_id", xref.getXrefDatabaseId());
+
+                            count = jdbcCda.update(xrefInsert, parameterMap);
+                            countsMap.put("xrefs", countsMap.get("xrefs") + count);
+
+                        }
 
                     } catch (DuplicateKeyException dke) {
 
@@ -3201,7 +3204,9 @@ public class CdaSqlUtils {
      */
     public synchronized HashSet<String> getImpressDerivedParameters() {
 
-        String query = "SELECT stable_id FROM phenotype_parameter WHERE derived = 1";
+        String query = "SELECT distinct stable_id FROM phenotype_parameter p " +
+                "INNER JOIN observation o ON p.stable_id = o.parameter_stable_id " +
+                "WHERE derived = 1 " ;
         List<String> results = jdbcCda.queryForList(query, new HashMap(), String.class);
         return new HashSet<>(results);
     }

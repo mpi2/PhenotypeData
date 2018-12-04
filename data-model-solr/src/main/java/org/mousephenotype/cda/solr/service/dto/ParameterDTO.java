@@ -35,12 +35,12 @@ public class ParameterDTO  extends ImpressBaseDTO{
 	boolean media;	
 	boolean annotate;	
 	
-	String dataType;
-	String parameterType;
-	String maId;
-	String maName;
-	String unitY;
-	String unitX;
+	private String dataType;
+	private String parameterType;
+	private String maId;
+	private String maName;
+	private String unitY;
+	private String unitX;
 
 	List<String> abnormalMpId;
 	List<String> increasedMpId;
@@ -83,6 +83,14 @@ public class ParameterDTO  extends ImpressBaseDTO{
 
 	public void setUnitX(String unitX) {
 		this.unitX = unitX;
+	}
+
+	public String getDatatype() {
+		return dataType;
+	}
+
+	public void setDatatype(String datatype) {
+		this.dataType = datatype;
 	}
 
 	public String getEmapId() {

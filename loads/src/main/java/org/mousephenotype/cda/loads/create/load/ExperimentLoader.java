@@ -54,6 +54,7 @@ public class ExperimentLoader implements CommandLineRunner {
     // How many threads used to process experiments
     private static final int N_THREADS = 75;
     private static final Boolean ONE_AT_A_TIME = Boolean.FALSE;
+    private static Boolean SHUFFLE = Boolean.FALSE;
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -85,7 +86,7 @@ public class ExperimentLoader implements CommandLineRunner {
     private int lineLevelProcedureCount   = 0;
     private int sampleLevelProcedureCount = 0;
 
-    private final boolean INCLUDE_DERIVED_PARAMETERS = false;
+    private final boolean INCLUDE_DERIVED_PARAMETERS = true;
     private final String  MISSING_COLONY_ID_REASON   = "ExperimentLoader: specimen was not found in phenotyped_colony table";
 
 
@@ -176,6 +177,12 @@ public class ExperimentLoader implements CommandLineRunner {
 
         logger.info("Getting experiments");
         List<DccExperimentDTO> dccExperiments = dccSqlUtils.getExperiments();
+
+        // Sometimes helpful to load the experiments in other-than-file order (for testing, etc.)
+        if (SHUFFLE) {
+            Collections.shuffle(dccExperiments);
+        }
+
         logger.info("Getting experiments complete. Loading {} experiments from DCC.", dccExperiments.size());
 
         CommonUtils.printJvmMemoryConfiguration();
@@ -876,7 +883,7 @@ public class ExperimentLoader implements CommandLineRunner {
             if (INCLUDE_DERIVED_PARAMETERS) {
                 insertSimpleParameter(dccExperiment, simpleParameter, experimentPk, dbId, biologicalSamplePk, missing);
             } else {
-                if ( ! derivedImpressParameters.contains(simpleParameter.getParameterID()) || simpleParameter.getParameterID().equals("MGP_ANA_002_001")) {
+                if ( ! derivedImpressParameters.contains(simpleParameter.getParameterID())) {
                     insertSimpleParameter(dccExperiment, simpleParameter, experimentPk, dbId, biologicalSamplePk, missing);
                 }
             }
@@ -1506,5 +1513,13 @@ public class ExperimentLoader implements CommandLineRunner {
 
             return retVal;
         }
+    }
+
+    public static Boolean getSHUFFLE() {
+        return SHUFFLE;
+    }
+
+    public static void setSHUFFLE(Boolean SHUFFLE) {
+        ExperimentLoader.SHUFFLE = SHUFFLE;
     }
 }

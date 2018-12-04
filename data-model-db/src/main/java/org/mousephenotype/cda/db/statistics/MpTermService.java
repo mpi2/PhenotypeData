@@ -357,7 +357,7 @@ public class MpTermService {
                             k0 = (PhenotypeAnnotationType) k.getKey(0);
                             k1 = (String) k.getKey(1);
                             k2 = (String) k.getKey(2);
-                            System.out.println("  Associating term " + annotations.get(k.getKey(0), k.getKey(1), k.getKey(2)) + " for event " + k0 + " parameter " + res.getParameterStableId() + " for sex " + sex);
+                            logger.debug("  Associating term " + annotations.get(k.getKey(0), k.getKey(1), k.getKey(2)) + " for event " + k0 + " parameter " + res.getParameterStableId() + " for sex " + sex);
                         }
 
                     }
@@ -373,7 +373,7 @@ public class MpTermService {
                                 k0 = ((PhenotypeAnnotationType) k.getKey(0));
                                 k1 = (String) k.getKey(1);
                                 k2 = (String) k.getKey(2);
-                                System.out.println("  Associating term " + annotations.get(k.getKey(0), k.getKey(1), k.getKey(2)) + " for event " + k0 + " parameter " + res.getParameterStableId() + " for sex " + sex);
+                                logger.debug("  Associating term " + annotations.get(k.getKey(0), k.getKey(1), k.getKey(2)) + " for event " + k0 + " parameter " + res.getParameterStableId() + " for sex " + sex);
                             }
 
                         }
@@ -433,7 +433,7 @@ public class MpTermService {
                         k0 = (PhenotypeAnnotationType) k.getKey(0);
                         k1 = (String) k.getKey(1);
                         k2 = (String) k.getKey(2);
-                        System.out.println("  Associating term " + annotations.get(k.getKey(0), k.getKey(1), k.getKey(2)) + " for event " + k0 + " parameter " + res.getParameterStableId() + " for sex " + sex);
+                        logger.debug("  Associating term " + annotations.get(k.getKey(0), k.getKey(1), k.getKey(2)) + " for event " + k0 + " parameter " + res.getParameterStableId() + " for sex " + sex);
                     }
 
                 }
@@ -449,7 +449,7 @@ public class MpTermService {
                             k0 = ((PhenotypeAnnotationType) k.getKey(0));
                             k1 = (String) k.getKey(1);
                             k2 = (String) k.getKey(2);
-                            System.out.println("  Associating term " + annotations.get(k.getKey(0), k.getKey(1), k.getKey(2)) + " for event " + k0 + " parameter " + res.getParameterStableId() + " for sex " + sex);
+                            logger.debug("  Associating term " + annotations.get(k.getKey(0), k.getKey(1), k.getKey(2)) + " for event " + k0 + " parameter " + res.getParameterStableId() + " for sex " + sex);
                         }
 
                     }

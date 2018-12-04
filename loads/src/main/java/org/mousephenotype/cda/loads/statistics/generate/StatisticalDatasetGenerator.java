@@ -74,10 +74,6 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
             "MGP_BMI", "MGP_IMM", "MGP_MLN", "MGP_ANA", "MGP_EEI" //, "MGP_PBI"
             ));
 
-
-    private final Set<String> skipParameters = new HashSet<>();
-
-
     private final static List<String> PIVOT = Arrays.asList(
             ObservationDTO.DATASOURCE_NAME,
 //            ObservationDTO.PROJECT_NAME,
@@ -112,9 +108,6 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
 
         logger.info("Starting statistical dataset generation");
 
-        logger.info("Populating normal category lookup");
-        Map<String, String> normalEyeCategory = getNormalEyeCategories();
-
         List<String> parametersToLoad = null;
 
         OptionParser parser = new OptionParser();
@@ -136,8 +129,14 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
 
         // Create directory if not exists
         File d = new File("tsvs");
+
         if ( ! d.exists()) {
-            d.mkdir();
+
+            final boolean success = d.mkdir();
+
+            if ( ! success) {
+                logger.warn("Could not make directory: {}", d.toString());
+            }
         }
 
         results
@@ -318,8 +317,7 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
 
                         Map<String, String> data = specimenParameterMap.get(key);
 
-                        List<String> line = new ArrayList<>();
-                        line.addAll(Arrays.asList(key.split("\t")));
+                        List<String> line = new ArrayList<>(Arrays.asList(key.split("\t")));
                         line.add("::"); // Separator column
 
                         for (String parameter : sortedParameters) {
@@ -455,7 +453,7 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
         Files.write(p, data.toString().getBytes());
     }
 
-    public List<Map<String, String>> getStatisticalDatasets(List<String> parameters) throws SolrServerException, IOException {
+    private List<Map<String, String>> getStatisticalDatasets(List<String> parameters) throws SolrServerException, IOException {
         SolrQuery query = new SolrQuery();
         query.setQuery("*:*")
 
@@ -477,10 +475,6 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
                 .setFacetMinCount(1)
                 .addFacetPivotField(PIVOT.stream().collect(Collectors.joining(",")));
 
-        // Filter out any parameters to be skipped (if any)
-        if (skipParameters != null && ! skipParameters.isEmpty()) {
-            query.addFilterQuery("-parameter_stable_id:(" + StringUtils.join(skipParameters, " OR ") + ")");
-        }
 
         // Restrict to parameters to be analysed (if specified)
         if (parameters!=null) {
@@ -491,79 +485,6 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
         return getFacetPivotResults(experimentCore.query(query), false);
     }
 
-    /**
-     * Get list of "normal" category
-     * @return map of categories
-     */
-    private Map<String,String> getNormalEyeCategories() {
-
-    Map<String,String> map = new HashMap<>();
-
-        map.put("ESLIM_014_001_001", "normal");
-        map.put("ESLIM_014_001_003", "normal");
-        map.put("ESLIM_014_001_004", "absent");
-        map.put("ESLIM_014_001_005", "normal");
-        map.put("ESLIM_014_001_006", "normal");
-        map.put("ESLIM_014_001_007", "normal");
-        map.put("ESLIM_014_001_008", "absent");
-        map.put("ESLIM_014_001_009", "normal");
-        map.put("ESLIM_014_001_010", "normal");
-        map.put("ESLIM_014_001_011", "normal");
-        map.put("ESLIM_014_001_012", "normal");
-        map.put("ESLIM_014_001_013", "normal");
-        map.put("ESLIM_014_001_014", "normal");
-        map.put("ESLIM_014_001_015", "normal");
-        map.put("IMPC_EYE_001_001",  "present");
-        map.put("IMPC_EYE_002_001",  "absent");
-        map.put("IMPC_EYE_003_001",  "absent");
-        map.put("IMPC_EYE_004_001",  "normal");
-        map.put("IMPC_EYE_005_001",  "normal");
-        map.put("IMPC_EYE_006_001",  "normal");
-        map.put("IMPC_EYE_007_001",  "normal");
-        map.put("IMPC_EYE_008_001",  "absent");
-        map.put("IMPC_EYE_009_001",  "absent");
-        map.put("IMPC_EYE_010_001",  "normal");
-        map.put("IMPC_EYE_011_001",  "normal");
-        map.put("IMPC_EYE_012_001",  "normal");
-        map.put("IMPC_EYE_013_001",  "normal");
-        map.put("IMPC_EYE_014_001",  "normal");
-        map.put("IMPC_EYE_015_001",  "normal");
-        map.put("IMPC_EYE_016_001",  "normal");
-        map.put("IMPC_EYE_017_001",  "absent");
-        map.put("IMPC_EYE_018_001",  "absent");
-        map.put("IMPC_EYE_019_001",  "absent");
-        map.put("IMPC_EYE_020_001",  "normal");
-        map.put("IMPC_EYE_021_001",  "normal");
-        map.put("IMPC_EYE_022_001",  "normal");
-        map.put("IMPC_EYE_023_001",  "normal");
-        map.put("IMPC_EYE_024_001",  "normal");
-        map.put("IMPC_EYE_025_001",  "normal");
-        map.put("IMPC_EYE_026_001",  "normal");
-        map.put("IMPC_EYE_027_001",  "absent");
-        map.put("IMPC_EYE_080_001",  "absent");
-        map.put("IMPC_EYE_081_001",  "absent");
-        map.put("IMPC_EYE_082_001",  "normal");
-        map.put("IMPC_EYE_083_001",  "normal");
-        map.put("IMPC_EYE_084_001",  "absent");
-        map.put("IMPC_EYE_085_001",  "absent");
-        map.put("IMPC_EYE_086_001",  "absent");
-        map.put("M-G-P_014_001_001", "normal");
-        map.put("M-G-P_014_001_003", "normal");
-        map.put("M-G-P_014_001_004", "absent");
-        map.put("M-G-P_014_001_005", "normal");
-        map.put("M-G-P_014_001_006", "normal");
-        map.put("M-G-P_014_001_007", "normal");
-        map.put("M-G-P_014_001_008", "absent");
-        map.put("M-G-P_014_001_009", "normal");
-        map.put("M-G-P_014_001_010", "normal");
-        map.put("M-G-P_014_001_011", "normal");
-        map.put("M-G-P_014_001_012", "normal");
-        map.put("M-G-P_014_001_013", "normal");
-        map.put("M-G-P_014_001_014", "normal");
-        map.put("M-G-P_014_001_015", "normal");
-
-        return map;
-    }
 
     /**
      * Gets a map of procedure group -> SortedSet(paramter stable IDs) for each procedure group
@@ -607,6 +528,7 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
                 if (
                         (
                                 x.getParameterStableId().toUpperCase().contains("IMPC_EYE") ||
+                                x.getParameterStableId().toUpperCase().contains("IMPC_XRY") ||
                                 procedureGroup.toUpperCase().contains("M-G-P_013") ||
                                 procedureGroup.toUpperCase().contains("M-G-P_014") ||
                                 procedureGroup.toUpperCase().contains("ESLIM_013") ||

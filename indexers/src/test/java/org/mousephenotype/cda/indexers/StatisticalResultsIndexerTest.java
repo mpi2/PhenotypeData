@@ -256,6 +256,51 @@ public class StatisticalResultsIndexerTest implements ApplicationContextAware {
 
 
     @Test @Ignore
+    public void getUnidmensionalResultsAllHaveBiologicalModel() throws Exception {
+
+        String testName = Thread.currentThread().getStackTrace()[1].getMethodName();
+        System.out.println("\n-------------------  " + testName + "-------------------");
+
+        StatisticalResultsIndexer.UnidimensionalResults r = statisticalResultIndexer.getUnidimensionalResults();
+
+        System.out.println("Assessing result of type " + r.getClass().getSimpleName());
+        List<StatisticalResultDTO> results = r.call();
+
+        Optional<StatisticalResultDTO> missing = results.stream()
+                .filter(x -> x.getMutantBiologicalModelId() == null || x.getMutantBiologicalModelId() == 0)
+                .findFirst();
+        missing.ifPresent(x -> {
+            System.out.println("Unidimensional stats result");
+            System.out.println("Found first instance with no biological model for: " + x);
+        });
+
+        assert (results.size() > 100000);
+
+    }
+
+    @Test @Ignore
+    public void getCategoricalResultsAllHaveBiologicalModel() throws Exception {
+
+        String testName = Thread.currentThread().getStackTrace()[1].getMethodName();
+        System.out.println("\n-------------------  " + testName + "-------------------");
+
+        StatisticalResultsIndexer.CategoricalResults r = statisticalResultIndexer.getCategoricalResults();
+
+        System.out.println("Assessing result of type " + r.getClass().getSimpleName());
+        List<StatisticalResultDTO> results = r.call();
+
+        results.forEach(x -> {
+            if (x.getMutantBiologicalModelId() == null || x.getMutantBiologicalModelId() == 0) {
+                System.out.println("Cannot find biological model for Categorical stats result: " + x);
+            }
+        });
+
+        assert (results.size() > 100000);
+
+    }
+
+
+    @Test @Ignore
     public void getCategoricalResultsForAkt2() throws Exception {
 
         String testName = Thread.currentThread().getStackTrace()[1].getMethodName();

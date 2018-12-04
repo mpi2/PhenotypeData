@@ -1,3 +1,4 @@
+
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
 <%@taglib prefix="t" tagdir="/WEB-INF/tags"%>
@@ -61,7 +62,7 @@
 					 											<c:forEach var="orderName" items="${ store.value[0].orderNames}" varStatus="repoIndex">
 					 											<%-- ${orderName} store!!!!= ${store} --%>
 					 											 <c:if test="${orderName eq store.key}">
-					 												<a class="btn" href="${ store.value[0].orderLinks[repoIndex.index] }" target="_blank"><i class="fa fa-shopping-cart"></i>&nbsp;&nbsp;&nbsp;&nbsp;Go to ${store.key} site for ordering</a> OR <div class="btn close">Close Window</div>
+					 												<a class="btn" href="${ store.value[0].orderLinks[repoIndex.index] }" target="_blank"><i class="fa fa-shopping-cart"></i>&nbsp;&nbsp;&nbsp;&nbsp;Go to ${store.key} site for ordering</a>
 					 											 </c:if>
 					 											</c:forEach>
 					 										</td>
@@ -117,19 +118,7 @@
  					</div>
  				</div>
  			</div> -->
- 
- <script type="text/javascript">
 
-//close the fancybox if the return to previous page button is clicked and they don't want to go to order page
-$(document).ready(function () {
-	$('.btn.close').click(function()
-		{
-		parent.$.fancybox.close(); 
-		}
- 	);
-});
-    
- </script>
 		
 	</jsp:body>
 </t:genericpage>

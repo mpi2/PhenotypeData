@@ -84,43 +84,9 @@ public class ThreeISpecimenExperimentLoadIntegrationTest {
     private ExperimentLoader experimentLoader;
 
 
-
-    // Set startServer to true to produce an in-memory h2 database browser.
-    private static boolean startServer = false;
-    private static Server server;
-
-    private Thread thread;
     @Before
     public void before() throws SQLException {
 
-
-        // Show browser if startServer is true.
-        if (startServer) {
-            startServer = false;
-            Runnable runnable = () -> {
-
-                try {
-                    Server.startWebServer(dccDataSource.getConnection());
-
-                    server = Server.createWebServer("-web");  // .start();
-                    server.start();
-                    System.out.println("URL: " + server.getURL());
-                    System.out.println("Port: " + server.getPort());
-                    Server.openBrowser(server.getURL());
-
-                } catch (Exception e) {
-                    System.out.println("Embedded h2 server failed to start: " + e.getLocalizedMessage());
-                    System.exit(1);
-                }
-            };
-
-            thread = new Thread(runnable);
-            thread.start();
-            try {
-                Thread.sleep(5000);
-            } catch (Exception e) {
-            }
-        }
 
 
         // Reload databases.

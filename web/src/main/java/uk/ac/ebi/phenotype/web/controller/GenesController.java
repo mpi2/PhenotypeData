@@ -136,10 +136,6 @@ public class GenesController {
     @Autowired
     private RegisterInterestUtils riUtils;
 
-    @NotNull
-    @Value("${paBaseUrl}")
-    private String paBaseUrl;
-
     @Resource(name = "globalConfiguration")
     Map<String, String> config;
 

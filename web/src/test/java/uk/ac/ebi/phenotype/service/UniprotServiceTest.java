@@ -54,7 +54,7 @@ public class UniprotServiceTest {
         UniprotDTO dto = new UniprotDTO();
 		try {
 
-			dto = uniprotService.readXml("http://www.uniprot.org/uniprot/P26367.xml" , dto);
+			dto = uniprotService.readXml("https://www.uniprot.org/uniprot/P26367.xml" , dto);
 
 	        assert(dto.getFunction() != null);
 	        assert(dto.getGoCell() != null && dto.getGoCell().size() >= 2);
