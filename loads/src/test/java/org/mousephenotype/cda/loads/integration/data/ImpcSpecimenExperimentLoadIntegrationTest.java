@@ -31,7 +31,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.datasource.init.ScriptUtils;
@@ -363,12 +362,12 @@ public class ImpcSpecimenExperimentLoadIntegrationTest {
         for (int i = 0; i<MAX_REPEATED_LOAD_ATTEMPTS; i++) {
 
             Resource cdaResource = context.getResource("classpath:sql/h2/LoadImpcSpecimenExperiment-data.sql");
-            Resource specimenResource = context.getResource("classpath:xml/ImpcSpecimenExperiment-specimens.xml");
+            Resource specimenResource2 = context.getResource("classpath:xml/ImpcSpecimenExperiment-specimens2.xml");
             Resource experimentResourceWeights = context.getResource("classpath:xml/ImpcSpecimenExperiment-experiments-weight3.xml");
 
             String[] extractSpecimenArgs = new String[]{
                     "--datasourceShortName=IMPC",
-                    "--filename=" + specimenResource.getFile().getAbsolutePath()
+                    "--filename=" + specimenResource2.getFile().getAbsolutePath()
             };
 
             String[] extractExperimentArgs = new String[]{
