@@ -15,7 +15,6 @@ import org.hibernate.SessionFactory;
 import org.springframework.context.annotation.*;
 import org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
@@ -54,10 +53,11 @@ public class TestConfig {
 
 	@Bean(name = "komp2DataSource")
 	@Primary
-	public DataSource h2DataSource() {
+	public DataSource komp2DataSource() {
 		return new EmbeddedDatabaseBuilder().setType(EmbeddedDatabaseType.H2)
 			.ignoreFailedDrops(true)
 			.setName("komp2test")
+			.addScript("sql/h2/H2ReplaceDateDiff.sql")
 			.build();
 	}
 
@@ -90,7 +90,7 @@ public class TestConfig {
 	@Primary
 	public SessionFactory getSessionFactory() {
 
-		LocalSessionFactoryBuilder sessionBuilder = new LocalSessionFactoryBuilder(h2DataSource());
+		LocalSessionFactoryBuilder sessionBuilder = new LocalSessionFactoryBuilder(komp2DataSource());
 		sessionBuilder.scanPackages("org.mousephenotype.cda.db.entity");
 		sessionBuilder.scanPackages("org.mousephenotype.cda.db.pojo");
 
@@ -100,7 +100,7 @@ public class TestConfig {
 	@Bean
 	public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
 		LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
-		em.setDataSource(h2DataSource());
+		em.setDataSource(komp2DataSource());
 		em.setPackagesToScan("org.mousephenotype.cda.db.entity", "org.mousephenotype.cda.db.pojo");
 
 		JpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
