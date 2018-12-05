@@ -105,5 +105,13 @@ class OmeroPropertiesParser(PropertiesParser):
             k2 = k.lower()
             if k2 in clargs_dict and clargs_dict[k2] is not None:
                 omeroprops[k] = clargs_dict[k2]
+
+        #Now add values that begin with namespace but are not in properties
+        #If the namespace ends with a dot remove it
+        if omerons[-1] == '.':
+            omerons = omerons[:-1]
+        for k in clargs_dict.keys():
+            if clargs_dict[k] is not None and k not in omeroprops.keys() and k.find(omerons) == 0:
+                omeroprops[k] = clargs_dict[k]
         return omeroprops
 
