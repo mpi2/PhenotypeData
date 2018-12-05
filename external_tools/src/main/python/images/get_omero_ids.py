@@ -3,26 +3,24 @@
 """program to populate the omero_id into the imageObservation table so we can then index them with pure java from the database and solr experiment index"""
 
 import os
-import json
-from xml.dom.minidom import parseString
-import glob
-import shutil
 import sys
 import os.path
-import sys
 import argparse
+
 import mysql.connector
 from mysql.connector import errorcode
-import omero.rtypes
+
+import psycopg2
+
 from common import splitString
 from database import getDbConnection,getFullResolutionFilePaths
 from OmeroPropertiesParser import OmeroPropertiesParser
 
 def main(argv):
-    print "running main method of get_omero_ids!!"
+    print "running main method of get_omero_ids - using postgresQL directly!!"
 
     parser = argparse.ArgumentParser(
-        description='Populate omero_ids into the komp2 image_record_observation table so we can then index them with pure java from the database and solr experiment index'
+        description='Populate omero_ids into the komp2 image_record_observation table so we can then index them with pure java from the database and solr experiment index. This version uses postgresQl directly'
     )
     parser.add_argument('-H', '--host', dest='komp2Host',
                         help='Hostname for server hosting komp2 db'
@@ -39,9 +37,17 @@ def main(argv):
     parser.add_argument('--pass', dest='komp2Pass',
                         help='Password for komp2db'
     )
-    parser.add_argument('-o', '--omeroHost', dest='omeroHost',
-                        help='Hostname for server hosting omero instance'
-    )
+    parser.add_argument('--omeroDbUser', dest='omeroDbUser', 
+                        help='name of the omero postgres database')
+    parser.add_argument('--omeroDbPass', dest='omeroDbPass',
+                        help='Password for the omero postgress database')
+    parser.add_argument('--omeroDbName', dest='omeroDbName',
+                        help='Name of the postgres database omero uses')
+    parser.add_argument('--omeroDbHost', dest='omeroDbHost',
+                        help='Hostname for the server hosting the omero postgres database')
+    parser.add_argument('--omeroDbPort', dest='omeroDbPort',
+                        help='Port to connect on the postgres server hosting the omero database')
+ 
     parser.add_argument('--profile', dest='profile', default='dev',
                         help='Name of profile from which to read config: ' + \
                              'dev, prod, live, ... Assumed to be present ' + \
@@ -52,7 +58,7 @@ def main(argv):
                              'profile e.g. ' + \
                              '/home/kola/configfiles/dev/application.properties'
     )
-
+    
     args = parser.parse_args()
     
     # Get values from property file and use as defaults that can be overridden
@@ -80,15 +86,9 @@ def main(argv):
     print 'setting komp2Port='+komp2Port
     komp2db = args.komp2Db if args.komp2Db<>None else omeroProps['komp2db']
     print 'setting komp2db='+komp2db
-    omeroHost = args.omeroHost if args.omeroHost<>None else omeroProps['omerohost']
-    print 'setting omeroHost='+omeroHost
 
     komp2User = args.komp2User if args.komp2User<>None else omeroProps['komp2user']
     komp2Pass = args.komp2Pass if args.komp2Pass<>None else omeroProps['komp2pass']
-
-    omeroPort = omeroProps['omeroport']
-    omeroUser = omeroProps['omerouser']
-    omeroPass = omeroProps['omeropass']
 
     global loadedCount
     loadedCount=0
@@ -96,149 +96,129 @@ def main(argv):
     print "about to run getdb with arguments komp2db="+komp2db
     dbConn=getDbConnection(komp2Host, komp2Port, komp2db, komp2User, komp2Pass)
     #cnx=getDbConnection(komp2Host, komp2Port, komp2db, komp2User, komp2Pass)
-    fullResPathsAlreadyHave=getFullResolutionFilePaths(dbConn)
-    getOmeroIdsAndPaths(dbConn, omeroUser, omeroPass, omeroHost, omeroPort, fullResPathsAlreadyHave)
+
+    # Get Postgres connection for directly querying omero database
+    try:
+        print "Attempting to connect directly to Postgres DB"
+        omeroDbUser = args.omeroDbUser if args.omeroDbUser is not None else omeroProps['omerodbuser']
+        omeroDbPass = args.omeroDbPass if args.omeroDbPass is not None else omeroProps['omerodbpass']
+        omeroDbName = args.omeroDbName if args.omeroDbName is not None else omeroProps['omerodbname']
+        omeroDbHost = args.omeroDbHost if args.omeroDbHost is not None else omeroProps['omerodbhost']
+        if args.omeroDbPort is not None:
+            omeroDbPort = args.omeroDbPort
+        elif 'omerodbport' in omeroProps:
+            omeroDbPort = omeroProps['omerodbport']
+        else:
+            omeroDbPort = '5432'
+    
+        psqlConn = psycopg2.connect(database=omeroDbName, user=omeroDbUser,
+                                password=omeroDbPass, host=omeroDbHost,
+                                port=omeroDbPort)
+        print "Connected to Postgres DB"
+    except KeyError as e:
+        print "Could not connect to omero postgres database. Key " + str(e) + \
+              " not present in omero properties file. Aborting!"
+        sys.exit()
+    except Exception as e:
+        print "Could not connect to omero postgres database. Error: " + str(e)
+        sys.exit()
+
+    
+    getOmeroIdsAndPaths(dbConn, psqlConn)
+    dbConn.close()
+    psqlConn.close()
 
 
-def print_obj(obj, indent=0):
-    """
-    Helper method to display info about OMERO objects.
-    Not all objects will have a "name" or owner field.
-    """
-    print """%s%s:%s  Name:"%s" (owner=%s)""" % (\
-            " " * indent,
-            obj.OMERO_CLASS,\
-            obj.getId(),\
-            obj.getName(),\
-            obj.getOwnerOmeName())
+def getOmeroIdsAndPaths(dbConn, psqlConn):
 
-def getOriginalFile(imageObj):
-    fileset = imageObj.getFileset()
+    # We query the postgres DB for details of the root user in the assumption that all necessary image and annotation
+    # steps were done via this user.
+    
+    # Get a cursor for the postgres db
+    pg_cur = psqlConn.cursor()
+    query = "SELECT id FROM experimenter WHERE lastname='root'"
+    pg_cur.execute(query)
+    if pg_cur.rowcount != 1:
+        print "Error - expected one row from query to get user ID for root. got " + str(pg_cur.rowcount) + " - exiting"
+        sys.exit(-1)
+    
+    my_expId = str(pg_cur.fetchone()[0])
+    query = "SELECT id, name FROM project WHERE owner_id=" + my_expId
+    pg_cur.execute(query)
+    for project_id, project_name in pg_cur.fetchall():
+        print "Processing project: " + project_name
+        
+        query = "Select ds.id, ds.name from dataset ds inner join projectdatasetlink pdsl on ds.id=pdsl.child where pdsl.parent="+str(project_id)
+        #print query
+        pg_cur.execute(query)
+        for dataset in pg_cur.fetchall():
+            dataset_id, dataset_name = dataset
+            print "Processing dataset: " + dataset_name
+            if dataset_name.find('MGP_EEI_114_001') >= 0:
+                query = "SELECT i.id, fse.clientpath, i.name FROM image i " + \
+                    "INNER JOIN datasetimagelink dsil ON i.id=dsil.child " + \
+                    "INNER JOIN filesetentry fse ON i.fileset=fse.fileset " + \
+                    "WHERE dsil.parent=" + str(dataset_id) + " "\
+                    "AND (fse.clientpath LIKE '%lif' OR fse.clientpath LIKE '%lei')"
+                #print query
+                pg_cur.execute(query)
+                for omero_id, image_path, image_name in pg_cur.fetchall():
+                    newpath = os.path.split(image_path.split('impc/')[-1])[0]
+                    image_path = os.path.join(newpath,image_name)
+                    #print "Processing image: " + image_path
+                    storeOmeroId(dbConn, omero_id, image_path)
+    
+            else:
+                query = "SELECT i.id, fse.clientpath, i.name FROM image i " + \
+                    "INNER JOIN datasetimagelink dsil ON i.id=dsil.child " + \
+                    "INNER JOIN filesetentry fse ON i.fileset=fse.fileset " + \
+                    "WHERE dsil.parent=" + str(dataset_id)
+                #print query
+                pg_cur.execute(query)
+                for omero_id, image_path, image_name in pg_cur.fetchall():
+                    #print "Processing image: " + image_path
+                    storeOmeroId(dbConn, omero_id, image_path)
+    
 
-    for origFile in fileset.listFiles():
-        name = origFile.getName()
-        path = origFile.getPath()
-    	print path, name
-    return path, name
+            # Deal with annotations if present
+            query = "SELECT a.id, of.path, of.name FROM annotation a " + \
+                "INNER JOIN datasetannotationlink dsal ON a.id=dsal.child " + \
+                "INNER JOIN originalfile of ON a.file=of.id " + \
+                "WHERE dsal.parent=" + str(dataset_id)
+        
+            pg_cur.execute(query)
+            if pg_cur.rowcount > 0:
+                print "Processing annotations for dataset: " + dataset_name
+                #print query
+            for annotation_id, annotation_dir, annotation_name in pg_cur.fetchall():
+                annotation_id=str(annotation_id)
+                if annotation_dir is not None and annotation_name is not None:
+                    annotation_path = os.path.join(annotation_dir,annotation_name)
+                    #print "Annotation details: " + annotation_id + ": " + annotation_path
+                    storeOmeroId(dbConn, annotation_id, annotation_path)
+                else:
+                    message = "Cannot update annotation_id: " + str(annotation_id) + \
+                              " - annotation_dir = " + str(annotation_dir) + \
+                              ", annotation_name = " + str(annotation_name)
+                    print message
+                    continue
 
-def getOmeroIdsAndPaths(dbConn, omeroUser, omeroPass, omeroHost, omeroPort, fullResPathsAlreadyHave):
 
-    from omero.gateway import BlitzGateway
-    # Connect to the Python Blitz Gateway
-    # =============================================================
-    # Make a simple connection to OMERO, printing details of the
-    # connection. See OmeroPy/Gateway for more info
-    group='public_group'
-    conn = BlitzGateway(omeroUser, omeroPass, host=omeroHost, port=omeroPort,  group=group)
-    connected = conn.connect()
-    #conn.SERVICE_OPTS.setOmeroGroup(-1)#3 is the current public_group may change - what is the correct way to do this?
-    # Check if you are connected.
-    # =============================================================
-    if not connected:
-        import sys
-        sys.stderr.write("Error: Connection not available, please check your user name and password.\n")
-        sys.exit
-    # Using secure connection.
-    # =============================================================
-    # By default, once we have logged in, data transfer is not encrypted (faster)
-    # To use a secure connection, call setSecure(Tru
-    # conn.setSecure(True)         # <--------- Uncomment t
-    # Current session details
-    # =============================================================
-    # By default, you will have logged into your 'current' group in OMERO. This
-    # can be changed by switching group in the OMERO.insight or OMERO.web clien
-    user = conn.getUser()
-    print "Current user:"
-    print "   ID:", user.getId()
-    print "   Username:", user.getName()
-    print "   Full Name:", user.getFullName()
-    print "Member of:"
-    for g in conn.getGroupsMemberOf():
-        print "   ID:", g.getName(), " Name:", g.getId()
-    group = conn.getGroupFromContext()
-    print "Current group: ", group.getName()
-    print "Other Members of current group:"
-    for exp in conn.listColleagues():
-        print "   ID:", exp.getId(), exp.getOmeName(), " Name:", exp.getFullName()
-    print "Owner of:"
-    for g in conn.listOwnedGroups():
-        print "   ID:", g.getName(), " Name:", g.getId()
-    # New in OMERO 5
-    print "Admins:"
-    for exp in conn.getAdministrators():
-        print "   ID:", exp.getId(), exp.getOmeName(), " Name:", exp.getFullName()
-    # The 'context' of our current session
-    ctx = conn.getEventContext()
-    print ctx     # for more info
-    #print ctx
-    # The only_owned=True parameter limits the Projects which are returned.
-    # If the parameter is omitted or the value is False, then all Projects
-    # visible in the current group are returned.
-    #print "\nList Projects:"
-    #print "=" * 50
-    my_expId = conn.getUser().getId()
-    for project in conn.listProjects(my_expId):
-        print_obj(project)
-        for dataset in project.listChildren():
-            print_obj(dataset, 2)
-            if dataset.getName().find("_EEI_") >=0:
-                print "Skipping " + dataset.getName()
-                continue
-            for image in dataset.listChildren():
-                #print_obj(image, 4)
-                #getOriginalFile(image)
-                fileset = image.getFileset()
-                filesetId=fileset.getId()
-                #print 'filesetId=',filesetId
-                query = "SELECT clientPath FROM FilesetEntry WHERE fileset.id = :id AND (clientPath NOT LIKE '%lei%' OR clientPath NOT LIKE '%lif%') "
-                params = omero.sys.ParametersI()
-                params.addId(omero.rtypes.rlong(filesetId))
-                #print 'params=',params
-                for path in conn.getQueryService().projection(query, params):
-                    #print 'path=', path[0].val
-                    originalUploadedFilePathToOmero=path[0].val
-                    #print originalUploadedFilePathToOmero
-                    #print originalUploadedFilePathToOmero+" id="+str(image.getId())
-                    storeOmeroId(dbConn, image.getId(), originalUploadedFilePathToOmero, fullResPathsAlreadyHave )
-            #print "\nProject="+project.getName()+"Annotations on Dataset:", dataset.getName()
-            for ann in dataset.listAnnotations():
-                #filesetId=ann.getId()
-                #query = 'SELECT clientPath FROM FileSet WHERE file.id = :id'
-                #params = omero.sys.ParametersI()
-                #params.addId(omero.rtypes.rlong(filesetId))
-                #for path in conn.getQueryService().projection(query, params):
-                    #print 'path=', path[0].val
-                    #originalUploadedFilePathToOmero=path[0].val
-                    if isinstance(ann, omero.gateway.FileAnnotationWrapper):
-                        #print "Annotation ID:", ann.getId(), ann.getFile().getName(), "Size:", ann.getFile().getSize()
-                        originalUploadedFilePathToOmero=dataset.getName().replace("-","/")+"/"+ann.getFile().getName()
-                        #print "originalUploadedFilePathToOmero for annotation="+originalUploadedFilePathToOmero
-                        storeOmeroId(dbConn, ann.getId(), originalUploadedFilePathToOmero, fullResPathsAlreadyHave )
-    # Close connection:
-    # =================================================================
-    # When you are done, close the session to free up server resources.
-    conn._closeSession()
-
-def storeOmeroId(cnx, omero_id, originalUploadedFilePathToOmero, fullResPathsAlreadyHave):
+def storeOmeroId(cnx, omero_id, originalUploadedFilePathToOmero):
     global loadedCount
     loadedCount=loadedCount+1
     if loadedCount % 1000==0:
         print "loadedCount="+str(loadedCount)
-    #print "originalUploadedFilePathToOmero="+originalUploadedFilePathToOmero
     if splitString in originalUploadedFilePathToOmero:
         fullResolutionFilePath=originalUploadedFilePathToOmero.split(splitString,1)[1]#destinationFilePath.replace(nfsDir,"")
     elif "images/impc/" in originalUploadedFilePathToOmero:
         fullResolutionFilePath=originalUploadedFilePathToOmero.split("images/impc/",1)[1]
     else:
         fullResolutionFilePath=originalUploadedFilePathToOmero#just use this String if impc is not in the original file path as this must be an annotation which we will just have the relatvie path
-    #if fullResolutionFilePath not in fullResPathsAlreadyHave:
-    # print 'need to store the new url here with omero_id='+str(omero_id)+' fullResolutionFilePath= '+fullResolutionFilePath
+
     try:
-        cur = cnx.cursor(buffered=True)
-            #SQL query to INSERT a record into the table FACTRESTTBL.
-        cur.execute("""UPDATE image_record_observation SET omero_id=%s WHERE full_resolution_file_path=%s""", (omero_id, fullResolutionFilePath))
-            #if cur.rowcount != 1: #note that if the uri has already been added the row count will be 0
-               # print("error affected rows = {}".format(cur.rowcount)+ downloadFilePath)
+        mysql_cur = cnx.cursor(buffered=True)
+        mysql_cur.execute("""UPDATE image_record_observation SET omero_id=%s WHERE full_resolution_file_path=%s""", (omero_id, fullResolutionFilePath))
     except mysql.connector.Error as err:
             print(err)
 
