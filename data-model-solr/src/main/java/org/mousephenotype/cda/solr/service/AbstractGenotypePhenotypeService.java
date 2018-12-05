@@ -244,16 +244,20 @@ public class AbstractGenotypePhenotypeService extends BasicService {
 
         QueryResponse response = solr.query(q);
         for (PivotField p : response.getFacetPivot().get(pivot)){
-            String mpTermId = p.getValue().toString();
-            String mpName = p.getPivot().get(0).getValue().toString();
-            List<PivotField> pivotFields = p.getPivot().get(0).getPivot();
-            Set<String> uniqueAccessions=new HashSet<>();
-            for(PivotField accessionField: pivotFields){
-            	String accession=accessionField.getValue().toString();
-            	uniqueAccessions.add(accession);
+            if (p.getPivot() != null){
+                String mpTermId = p.getValue().toString();
+                String mpName = p.getPivot().get(0).getValue().toString();
+                List<PivotField> pivotFields = p.getPivot().get(0).getPivot();
+                Set<String> uniqueAccessions=new HashSet<>();
+                if (pivotFields != null){
+                    for(PivotField accessionField: pivotFields){
+                        String accession=accessionField.getValue().toString();
+                        uniqueAccessions.add(accession);
+                    }
+                }
+                int count=uniqueAccessions.size();//we are setting this to the size of the unique set of gene accessions for this MP term and not the count as the count has male and female results and doesn't relate to the number of unique genes which is what we are currently displaying on the interface
+                list.add(new CountTableRow(mpName, mpTermId, count));
             }
-            int count=uniqueAccessions.size();//we are setting this to the size of the unique set of gene accessions for this MP term and not the count as the count has male and female results and doesn't relate to the number of unique genes which is what we are currently displaying on the interface
-            list.add(new CountTableRow(mpName, mpTermId, count));
         }
 
         return list;
@@ -283,16 +287,18 @@ public class AbstractGenotypePhenotypeService extends BasicService {
         QueryResponse response = solr.query(q);
         for (PivotField pivot : response.getFacetPivot().get(facetPivot)){
 
-            String mpTerm = pivot.getValue().toString();
+            if (pivot.getPivot() != null){
+                String mpTerm = pivot.getValue().toString();
 
-            if( ! mpTermsByGene.containsKey(mpTerm)) {
-                mpTermsByGene.put(mpTerm, new ArrayList<String>());
-            }
+                if( ! mpTermsByGene.containsKey(mpTerm)) {
+                    mpTermsByGene.put(mpTerm, new ArrayList<String>());
+                }
 
-            for (PivotField genePivot : pivot.getPivot()){
-                String gene = genePivot.getValue().toString();
-                if (geneSymbols.contains(gene)){
-                    mpTermsByGene.get(mpTerm).add(gene);
+                for (PivotField genePivot : pivot.getPivot()){
+                    String gene = genePivot.getValue().toString();
+                    if (geneSymbols.contains(gene)){
+                        mpTermsByGene.get(mpTerm).add(gene);
+                    }
                 }
             }
         }
@@ -328,11 +334,13 @@ public class AbstractGenotypePhenotypeService extends BasicService {
         QueryResponse response = solr.query(q);
 
         for( PivotField pivot : response.getFacetPivot().get(pivotFacet)){
-            String id = pivot.getValue().toString();
-            String name = pivot.getPivot().get(0).getValue().toString();
-            int count = pivot.getPivot().get(0).getCount();
-            String[] row = {id, name, Integer.toString(count)};
-            res.add(row);
+            if (pivot.getPivot() != null){
+                String id = pivot.getValue().toString();
+                String name = pivot.getPivot().get(0).getValue().toString();
+                int count = pivot.getPivot().get(0).getCount();
+                String[] row = {id, name, Integer.toString(count)};
+                res.add(row);
+            }
         }
 
         logger.info("Done in " + (System.currentTimeMillis() - time));

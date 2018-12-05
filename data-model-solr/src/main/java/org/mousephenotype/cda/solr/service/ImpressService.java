@@ -168,10 +168,12 @@ public class ImpressService extends BasicService implements WebStatus {
         	QueryResponse res = solr.query(q);
 
         	for( PivotField pivot : res.getFacetPivot().get(pivotFacet)){
-    			for (PivotField parameter : pivot.getPivot()){
-    				String[] row = {pivot.getValue().toString(), parameter.getValue().toString()};
-    				result.add(row);
-    			}
+    			if (pivot.getPivot() != null){
+    				for (PivotField parameter : pivot.getPivot()){
+						String[] row = {pivot.getValue().toString(), parameter.getValue().toString()};
+						result.add(row);
+					}
+				}
     		}
 
         } catch (SolrServerException | IOException e) {

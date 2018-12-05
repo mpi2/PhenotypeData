@@ -161,11 +161,13 @@ public class BasicService {
         List<PivotField> facetPivot = response.getFacetPivot().get(pivot);
 
         for( PivotField p : facetPivot){
-			List<String> secondLevelFacets = new ArrayList<>();
-			for (PivotField pf : p.getPivot()){
-				secondLevelFacets.add(pf.getValue().toString());
+			if (p.getPivot() != null) {
+				List<String> secondLevelFacets = new ArrayList<>();
+				for (PivotField pf : p.getPivot()){
+					secondLevelFacets.add(pf.getValue().toString());
+				}
+				res.put(p.getValue().toString(), new ArrayList<String>(secondLevelFacets));
 			}
-			res.put(p.getValue().toString(), new ArrayList<String>(secondLevelFacets));
 		}
 
         return res;
@@ -183,11 +185,13 @@ public class BasicService {
 		List<PivotField> facetPivot = response.getFacetPivot().get(pivot);
 
 		for( PivotField p : facetPivot){
-			Map<String, Integer> secondLevelFacets = new HashMap<>();
-			for (PivotField pf : p.getPivot()){
-				secondLevelFacets.put(pf.getValue().toString(), pf.getCount());
+			if (p.getPivot() != null) {
+				Map<String, Integer> secondLevelFacets = new HashMap<>();
+				for (PivotField pf : p.getPivot()){
+					secondLevelFacets.put(pf.getValue().toString(), pf.getCount());
+				}
+				res.put(p.getValue().toString(), secondLevelFacets);
 			}
-			res.put(p.getValue().toString(), secondLevelFacets);
 		}
 
 		return res;
