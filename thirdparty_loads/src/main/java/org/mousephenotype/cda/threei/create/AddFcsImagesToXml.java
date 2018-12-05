@@ -48,6 +48,11 @@ import java.sql.Date;
 import java.time.format.DateTimeFormatter;
 import java.time.ZonedDateTime;
 
+import java.io.File;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
+import java.lang.Integer;
+import java.math.BigInteger;
 
 /**
  * Created by kolab on 12/11/2018 - based on CreateSlmAgsExperimentXml
@@ -65,8 +70,10 @@ public class AddFcsImagesToXml extends Create3iXmls implements CommandLineRunner
 
     private String fileType = "image/png";
     private String indirBase = "file:///nfs/komp2/web/images/3i/headline_images/";
-    private Map <String, List<String> > seriesMediaParameterIds = 
+    private Map <String, List<String> > seriesMediaParameterIDs = 
             new HashMap();
+
+    private Map <String, List<ImageDetails> > imageDetails = new HashMap();
 
     
     public static void main(String[] args) throws Exception {
@@ -135,9 +142,9 @@ public class AddFcsImagesToXml extends Create3iXmls implements CommandLineRunner
         // Add parameters for each assay type and their procedures
         // The procedures are used to check the correct XML file is
         // being processed
-        seriesMediaParameterIds.put("mln", Arrays.asList("MGP_MLN_206_001","MGP_MLN_001"));
-        seriesMediaParameterIds.put("imm", Arrays.asList("MGP_IMM_233_001","MGP_IMM_001"));
-        seriesMediaParameterIds.put("bmi", Arrays.asList("MGP_BMI_045_001","MGP_BMI_001"));
+        seriesMediaParameterIDs.put("mln", Arrays.asList("MGP_MLN_206_001","MGP_MLN_001"));
+        seriesMediaParameterIDs.put("imm", Arrays.asList("MGP_IMM_233_001","MGP_IMM_001"));
+        seriesMediaParameterIDs.put("bmi", Arrays.asList("MGP_BMI_045_001","MGP_BMI_001"));
     }
 
     private void run() throws DataLoadException {
@@ -162,7 +169,7 @@ public class AddFcsImagesToXml extends Create3iXmls implements CommandLineRunner
         //  - it is sufficient to find one instance of the expected
         //    procedure
         Boolean xmlValidForProcedure = false;
-        String currentProcedure = seriesMediaParameterIds.get(assay).get(1);
+        String currentProcedure = seriesMediaParameterIDs.get(assay).get(1);
         CentreProcedure centreProcedure = centreProcedures.get(0);
         for (Experiment experiment : centreProcedure.getExperiment()) {
             String procedureName = experiment.getProcedure().getProcedureID();
@@ -178,10 +185,97 @@ public class AddFcsImagesToXml extends Create3iXmls implements CommandLineRunner
         }
         
         // Get details of png files from imagedir
+        File dir = new File(imageDir);
+        Pattern parameter_matcher = Pattern.compile("([A-Z]{3,3}_[A-Z]{3,3}_\\d{3,3}_\\d{3,3})");
+        Pattern number_matcher = Pattern.compile("(\\d{6,9})");
+        String[] fnames = dir.list();
+        
+        if (fnames == null) {
+            logger.error("Could not get any files from {}", imageDir);
+            return;
+        }
+
+        for (String fname : fnames) {
+
+            Matcher matcher = number_matcher.matcher(fname);
+            if (!matcher.find()){
+                logger.warn("Could not find mnumber in {} - not processing",fname);
+                continue;
+            }
+            // Next three lines get mnumber as string with no leading zeros
+            String mnumber = matcher.group();
+            Integer number = Integer.parseInt(mnumber);
+            mnumber = number.toString();
+
+            matcher = parameter_matcher.matcher(fname);
+            if (!matcher.find()){
+                logger.warn("Could not find parameterID in " + fname + " - not processing");
+                continue;
+            }
+            ImageDetails i = new ImageDetails();
+            i.parameterID = matcher.group(); //matcher.group();
+            i.uri = this.indirBase + fname;
+            i.fileType = this.fileType;
+
+            if (this.imageDetails.containsKey(mnumber)) {
+                i.incrementValue = this.imageDetails.get(mnumber).size()+1;
+                this.imageDetails.get(mnumber).add(i);
+            } else {
+                i.incrementValue = 1;
+                List<ImageDetails> tempImageDetails = new ArrayList();
+                tempImageDetails.add(i);
+                this.imageDetails.put(mnumber, tempImageDetails);
+            }
+        }
+
+        // Create required elements for each image. Would have liked to
+        // use a lambda function (this.imageDetails.forEach) to iterate
+        // through the FCS imageDetails, but I'm not familiar with the
+        // Experiment object, so will use the more straightforward but
+        // less efficient option of iterating through the Experiments
+        String seriesMediaParameterID = this.seriesMediaParameterIDs.get(assay).get(0);
+        for (Experiment experiment : centreProcedure.getExperiment()){
+            String mnumber = experiment.getSpecimenID().get(0);
+            if (this.imageDetails.containsKey(mnumber)) {
+                List<SeriesMediaParameterValue> smpvList = 
+                    new ArrayList<SeriesMediaParameterValue>();
+                for (ImageDetails imgDetail : imageDetails.get(mnumber)) {
+                    SeriesMediaParameterValue smpv = 
+                        new SeriesMediaParameterValue();
+                    smpv.setIncrementValue(""+imgDetail.incrementValue);
+                    smpv.setURI(imgDetail.uri);
+                    smpv.setFileType(imgDetail.fileType);
+
+                    List<ParameterAssociation> smpaList = 
+                        new ArrayList<ParameterAssociation>();
+                    ParameterAssociation smpa = new ParameterAssociation();
+                    smpa.setParameterID(imgDetail.parameterID);
+                    smpa.setSequenceID(BigInteger.valueOf(imgDetail.incrementValue));
+                    smpaList.add(smpa);
+
+                    smpv.setParameterAssociation(smpaList);
+                    smpvList.add(smpv);
+                }
 
 
-        // Create required elements for each image
 
+                SeriesMediaParameter seriesMediaParameter = 
+                    new SeriesMediaParameter();
+                seriesMediaParameter.setParameterID(seriesMediaParameterID);
+                seriesMediaParameter.setValue(smpvList);
+                Procedure procedure = experiment.getProcedure();
+                List<SeriesMediaParameter> seriesMediaParameters = 
+                    procedure.getSeriesMediaParameter();
+                if (seriesMediaParameters == null) {
+                    seriesMediaParameters = new ArrayList<SeriesMediaParameter>();
+                }
+                seriesMediaParameters.add(seriesMediaParameter);
+                procedure.setSeriesMediaParameter(seriesMediaParameters);
+
+            } else {
+                System.out.println("NO FCS images for " + mnumber);
+            }
+        }
         try {
             // Save to file
             CentreProcedureSet centreProcedureSet = new CentreProcedureSet();
@@ -192,5 +286,12 @@ public class AddFcsImagesToXml extends Create3iXmls implements CommandLineRunner
             logger.error("Problem marshalling centreExperiment to {}", outFilename);
             throw new DataLoadException(e);
         }
+    }
+
+    private class ImageDetails {
+        public int incrementValue;
+        public String uri;
+        public String parameterID;
+        public String fileType;
     }
 }
