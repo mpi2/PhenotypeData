@@ -98,7 +98,9 @@ class OmeroPropertiesParser(PropertiesParser):
             return omeroprops
 
         # Otherwise attempt to override values
-        clargs_dict = {k.lower(): v for k, v in vars(clargs).items()}
+        # dict comprehensions do not work with python < 2.7 (server is 2.6.6!)
+        # clargs_dict = {k.lower(): v for k, v in vars(clargs).items()}
+        clargs_dict = dict((k.lower(), v) for k, v in vars(clargs).items())
         for k in omeroprops.keys():
             k2 = k.lower()
             if k2 in clargs_dict and clargs_dict[k2] is not None:
