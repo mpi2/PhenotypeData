@@ -83,14 +83,14 @@ def main(argv):
     if args.profilePath is not None:
         try:
             pp = OmeroPropertiesParser()
-            omeroProps = pp.getOmeroProps(args.profilePath)
+            omeroProps = pp.getOmeroProps(args.profilePath,clargs=args)
         except Exception as e:
             logger.error("Could not read application properties file from " + args.profilePath)
             logger.error("Error was: " + str(e))
             return
     else:
         try:
-            pp = OmeroPropertiesParser(args.profile)
+            pp = OmeroPropertiesParser(args.profile,clargs=args)
             omeroProps = pp.getOmeroProps()
         except Exception as e:
             logger.error("Could not read application properties file for profile " + args.profile)
