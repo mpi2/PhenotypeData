@@ -40,7 +40,7 @@ public class UniprotService {
 	    UniprotDTO dto = new UniprotDTO();
 
 	    if (id != null){ // not all genes have a human entry in uniprot
-	    	dto = readXml("http://www.uniprot.org/uniprot/" + id + ".xml", dto);
+	    	dto = readXml("https://www.uniprot.org/uniprot/" + id + ".xml", dto);
 	    }
 	    
 	    return dto;

@@ -16,6 +16,7 @@
 
 package org.mousephenotype.cda.ri.core.services;
 
+import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -102,6 +103,42 @@ public class GenerateServiceTest extends BaseTest {
 //            System.out.println("response: " + output);
 //        }
 
+    }
+
+    @Before
+    public void setUp() throws Exception {
+    }
+
+    @Test
+    public void getAllSummariesByEmailAddress() {
+    }
+
+    @Test
+    public void getGeneSentStatusByGeneAccessionId() {
+    }
+
+    @Test
+    public void getsummaryByEmailAddress() {
+    }
+
+    @Test
+    public void getSummaryContent() {
+    }
+
+    @Test
+    public void getWelcomeContent() {
+    }
+
+    @Test
+    public void getEmailEpilogue() {
+    }
+
+    @Test
+    public void getSummaryHtmlTableText() {
+    }
+
+    @Test
+    public void getSummaryPreface() {
     }
 
 
