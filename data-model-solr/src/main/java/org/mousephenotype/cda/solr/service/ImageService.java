@@ -1132,9 +1132,9 @@ public class ImageService implements WebStatus{
 		logger.info("solr query for images properties for mp = " + query);
 		QueryResponse response = solr.query(query);
 		for( PivotField pivot : response.getFacetPivot().get(pivotFacet)){
-			//System.out.println("pivot="+pivot.getValue());
+			System.out.println("pivot="+pivot.getValue());
 			String mpIdAndName=pivot.getValue().toString();
-			//System.out.println("mpIdAndName" +mpIdAndName);
+			System.out.println("mpIdAndName" +mpIdAndName);
 			String mpId="";
 			Set<String> colonIds=new TreeSet<>();
 			if(mpIdAndName.contains("_")){
@@ -1142,7 +1142,7 @@ public class ImageService implements WebStatus{
 			}
 			for (PivotField mp : pivot.getPivot()){
 
-				//System.out.println("adding mp="+pivot.getValue()+" adding value="+mp.getValue());
+				System.out.println("adding mp="+pivot.getValue()+" adding value="+mp.getValue());
 				String colonyId=mp.getValue().toString();
 				colonIds.add(colonyId);
 			}
