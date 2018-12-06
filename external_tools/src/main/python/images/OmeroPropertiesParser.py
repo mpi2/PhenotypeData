@@ -50,12 +50,13 @@ class OmeroPropertiesParser(PropertiesParser):
             return os.path.join(os.environ['HOME'],'configfiles', self.profile, 'application.properties')
         
 
-    def getOmeroProps(self, filepath="", omerons="omero."):
+    def getOmeroProps(self, filepath="", omerons="omero.", clargs=None):
         """Get omero properties from java like properties file
         
         Keyword arguments:
         filepath -- the path of the file. If empty computes this from profile
         omerons -- the namespace defining omero properties
+        clargs -- parser object containing command line parameters as namespace
         
         Returns:
             dictionary whose keys are omero property names stripped of namespace
@@ -92,4 +93,25 @@ class OmeroPropertiesParser(PropertiesParser):
                 omeroprops['komp2port'] = komp2port
                 omeroprops['komp2db'] = komp2db
 
+        # If no command line args object passed return
+        if clargs is None:
+            return omeroprops
+
+        # Otherwise attempt to override values
+        # dict comprehensions do not work with python < 2.7 (server is 2.6.6!)
+        # clargs_dict = {k.lower(): v for k, v in vars(clargs).items()}
+        clargs_dict = dict((k.lower(), v) for k, v in vars(clargs).items())
+        for k in omeroprops.keys():
+            k2 = k.lower()
+            if k2 in clargs_dict and clargs_dict[k2] is not None:
+                omeroprops[k] = clargs_dict[k2]
+
+        #Now add values that begin with namespace but are not in properties
+        #If the namespace ends with a dot remove it
+        if omerons[-1] == '.':
+            omerons = omerons[:-1]
+        for k in clargs_dict.keys():
+            if clargs_dict[k] is not None and k not in omeroprops.keys() and k.find(omerons) == 0:
+                omeroprops[k] = clargs_dict[k]
         return omeroprops
+

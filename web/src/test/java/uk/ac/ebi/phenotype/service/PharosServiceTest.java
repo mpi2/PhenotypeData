@@ -19,7 +19,7 @@ public class PharosServiceTest {
 
         PharosDTO pharosDTO = ps.getPharosInfo("MTOR");
         assertTrue (pharosDTO != null);
-        assertTrue (pharosDTO.getIdg2() == 0 );
+        assertTrue(pharosDTO.getIdgfam().equalsIgnoreCase("kinase"));
         assertTrue (pharosDTO.getTdl().equalsIgnoreCase("Tclin") );
 
         System.out.println(pharosDTO);
