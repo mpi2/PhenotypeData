@@ -83,7 +83,7 @@ public class GenerateService {
 
         sb
                 .append(getSummaryPreface(inHtml))
-                .append(getSummaryHtmlTableText(summary))
+                .append(getSummaryHtmlTableText(summary, inHtml))
                 .append(inHtml ? "<br />" : "\n");
 
         if ((summary instanceof SummaryWithDecoration) && (((SummaryWithDecoration) summary).isDecorated())){
@@ -210,10 +210,11 @@ public class GenerateService {
         body
                 .append("You may review our e-mail list privacy policy at:")
                 .append(inHtml ? "<br /><br />" : "\n\n")
-                .append(SummaryHtmlTable.buildHtmlCell("div", PRIVACY_POLICY_LINK, PRIVACY_POLICY_LINK))
+                .append(inHtml ? SummaryHtmlTable.buildHtmlCell("div", PRIVACY_POLICY_LINK, PRIVACY_POLICY_LINK) : PRIVACY_POLICY_LINK + "\n")
                 .append(inHtml ? "<br />" : "\n")
                 .append("For further information / enquiries please write to ")
-                .append("<a href=\"mailto: " + MOUSEINFORMATICS_EMAIL + "\">" + MOUSEINFORMATICS_EMAIL + "</a>.")
+                .append(inHtml ? "<a href=\"mailto: " + MOUSEINFORMATICS_EMAIL + "\">" + MOUSEINFORMATICS_EMAIL + "</a>" : MOUSEINFORMATICS_EMAIL)
+                .append(".")
                 .append(inHtml ? "<br /><br />" : "\n\n")
                 .append("Best Regards,\n")
                 .append(inHtml ? "<br /><br />" : "\n\n")
@@ -226,10 +227,11 @@ public class GenerateService {
      * @param summary The {@link Summary} instance containing the summary information (emailAddress and genes of
      *                interest). If the instance is a {@link SummaryWithDecoration}, the resulting string will contain
      *                gene state change decoration; otherwise, it will not.
+     * @param inHtml - if true, format result using html; otherwise, do not.
      * @return An HTML string containing this contact's summary information, in HTML table format
      */
-    protected String getSummaryHtmlTableText(Summary summary) {
-        return SummaryHtmlTable.buildTableContent(paBaseUrl, summary);
+    protected String getSummaryHtmlTableText(Summary summary, boolean inHtml) {
+        return SummaryHtmlTable.buildTableContent(paBaseUrl, summary, inHtml);
     }
 
     protected String getSummaryPreface(boolean inHtml) {
@@ -252,7 +254,6 @@ public class GenerateService {
 
             .append(inHtml ? "<br /><br />" : "\n\n")
 
-            //                .append("You can unsubscribe from any gene for which you have registered interest by clicking on its corresponding ")
             .append("You may manage the list of genes for which you have registered interest by visiting the IMPC ")
             .append(inHtml ? "<a href=\"" + paBaseUrl + "/summary" + "\">" : "'")
             .append("summary")

@@ -21,28 +21,36 @@ SET @PK_PDA = (SELECT pk FROM gene_status WHERE status = @PDA);
 SET @PK_PAPP = (SELECT pk FROM gene_status WHERE status = @PAPP);
 SET @PK_W = (SELECT pk FROM gene_status WHERE status = @W);
 
-INSERT INTO contact (address, created_at) VALUES
-  ('user1@ebi.ac.uk', @now),
-  ('user2@ebi.ac.uk', @now),
-  ('user3@ebi.ac.uk', @now),
-  ('user4@ebi.ac.uk', @now)
+INSERT INTO contact (pk, address, created_at) VALUES
+  (1, 'user1@ebi.ac.uk', @now),
+  (2, 'user2@ebi.ac.uk', @now),
+  (3, 'user3@ebi.ac.uk', @now),
+  (4, 'user4@ebi.ac.uk', @now)
 ;
 
 
 INSERT INTO gene
-(mgi_accession_id,   symbol,     assigned_to,  assignment_status, assignment_status_date, ri_assignment_status,  conditional_allele_production_centre,  conditional_allele_production_status, ri_conditional_allele_production_status, conditional_allele_production_status_date, conditional_allele_production_start_date,  null_allele_production_centre,  null_allele_production_status, ri_null_allele_production_status, null_allele_production_status_date, null_allele_production_start_date, phenotyping_centre, phenotyping_status, phenotyping_status_date, ri_phenotyping_status, number_of_significant_phenotypes, created_at) VALUES
-  ('MGI:103576',      'Ccl11',    'c-010',       @W,                @now,                   @W,                   'caps-010',                             NULL,                                 NULL,                                    @nowplus2,                                 @nowplus1,                                 'naps-010',                     NULL,                          NULL,                             @nowplus4,                          @nowplus3,                         'ps-010',           NULL,               @nowplus5,               NULL,                  NULL,                             @now),
-  ('MGI:1919199',     'Cers5',    'c-010',       @PAPP,             @now,                   @PAPP,                'caps-010',                             @MP,                                  @MP,                                     @nowplus2,                                 @nowplus1,                                 'naps-010',                     @MP,                           @MP,                              @nowplus4,                          @nowplus3,                         'ps-010',           @PDA,               @nowplus5,               @PDA,                  NULL,                             @now),
-  ('MGI:2443658',     'Prr14l',   'c-010',       @PAPP,             @now,                   @PAPP,                'caps-010',                             NULL,                                 NULL,                                    @nowplus2,                                 @nowplus1,                                 'naps-010',                     @MP,                           @MP,                              @nowplus4,                          @nowplus3,                         'ps-010',           NULL,               @nowplus5,               NULL,                  NULL,                             @now),
-  ('MGI:2444824',     'Sirpb1a',  'c-010',       NULL,              @now,                   NULL,                 'caps-010',                             NULL,                                 NULL,                                    @nowplus2,                                 @nowplus1,                                 'naps-010',                     @MP,                           @MP,                              @nowplus4,                          @nowplus3,                         'ps-010',           NULL,               @nowplus5,               NULL,                  NULL,                             @now),
-  ('MGI:3576659',     'Ano5',     'c-010',       @PAPP,             @now,                   @PAPP,                'caps-010',                             @MPS,                                 NULL,                                    @nowplus2,                                 @nowplus1,                                 'naps-010',                     @MPS,                          @MPS,                             @nowplus4,                          @nowplus3,                         'ps-010',           NULL,               @nowplus5,               NULL,                  NULL,                             @now)
+(pk,  mgi_accession_id,  symbol,     assigned_to,  assignment_status, assignment_status_date, ri_assignment_status,  conditional_allele_production_centre,  conditional_allele_production_status, ri_conditional_allele_production_status, conditional_allele_production_status_date, conditional_allele_production_start_date,  null_allele_production_centre,  null_allele_production_status, ri_null_allele_production_status, null_allele_production_status_date, null_allele_production_start_date, phenotyping_centre, phenotyping_status, phenotyping_status_date, ri_phenotyping_status, number_of_significant_phenotypes, created_at) VALUES
+  (1, 'MGI:103576',      'Ccl11',    'c-010',      @W,                @now,                   @W,                    'caps-010',                            NULL,                                 NULL,                                    @nowplus2,                                 @nowplus1,                                'naps-010',                      NULL,                          NULL,                             @nowplus4,                          @nowplus3,                        'ps-010',            NULL,               @nowplus5,               NULL,                  NULL,                             @now),
+  (2, 'MGI:1919199',     'Cers5',    'c-010',      @PAPP,             @now,                   @PAPP,                 'caps-010',                            @MP,                                  @MP,                                     @nowplus2,                                 @nowplus1,                                'naps-010',                      @MP,                           @MP,                              @nowplus4,                          @nowplus3,                        'ps-010',            @PDA,               @nowplus5,               @PDA,                  NULL,                             @now),
+  (3, 'MGI:2443658',     'Prr14l',   'c-010',      @PAPP,             @now,                   @PAPP,                 'caps-010',                            NULL,                                 NULL,                                    @nowplus2,                                 @nowplus1,                                'naps-010',                      @MP,                           @MP,                              @nowplus4,                          @nowplus3,                        'ps-010',            NULL,               @nowplus5,               NULL,                  NULL,                             @now),
+  (4, 'MGI:2444824',     'Sirpb1a',  'c-010',      NULL,              @now,                   NULL,                  'caps-010',                            NULL,                                 NULL,                                    @nowplus2,                                 @nowplus1,                                'naps-010',                      @MP,                           @MP,                              @nowplus4,                          @nowplus3,                        'ps-010',            NULL,               @nowplus5,               NULL,                  NULL,                             @now),
+  (5, 'MGI:3576659',     'Ano5',     'c-010',      @PAPP,             @now,                   @PAPP,                 'caps-010',                            @MPS,                                 NULL,                                    @nowplus2,                                 @nowplus1,                                'naps-010',                      @MPS,                          @MPS,                             @nowplus4,                          @nowplus3,                        'ps-010',            NULL,               @nowplus5,               NULL,                  NULL,                             @now)
 ;
 
+INSERT INTO contact_gene
+(pk,  contact_pk, gene_pk, created_at) VALUES
+  (1, 1,          1,       @now),
+  (2, 1,          2,       @now),
+  (3, 1,          3,       @now),
+  (4, 2,          4,       @now),
+  (5, 2,          5,       @now);
+
 INSERT INTO gene_sent
-(pk, address,           mgi_accession_id, created_at, sent_at) VALUES
-  (1,  'user1@ebi.ac.uk', 'MGI:103576',      NOW(),      NOW()),
-  (2,  'user1@ebi.ac.uk', 'MGI:1919199',     NOW(),      NOW()),
-  (3,  'user1@ebi.ac.uk', 'MGI:2443658',     NOW(),      NOW()),
-  (4,  'user2@ebi.ac.uk', 'MGI:2444824',     NOW(),      NOW()),
-  (5,  'user3@ebi.ac.uk', 'MGI:3576659',     NOW(),      NOW())
+(pk,  address,           mgi_accession_id, assignment_status, conditional_allele_production_status, null_allele_production_status, phenotyping_status, created_at, sent_at) VALUES
+  (1, 'user1@ebi.ac.uk', 'MGI:103576',     @PAPP,             @MPS,                                 NULL,                          NULL,               NOW(),      NOW()),
+  (2, 'user1@ebi.ac.uk', 'MGI:1919199',    @PAPP,             @MP,                                  @MP,                           @PDA,               NOW(),      NOW()),
+  (3, 'user1@ebi.ac.uk', 'MGI:2443658',    @PAPP,             NULL,                                 @MPS,                          @MPDA,              NOW(),      NOW()),
+  (4, 'user2@ebi.ac.uk', 'MGI:2444824',    NULL,              NULL,                                 @MP,                           NULL,               NOW(),      NOW()),
+  (5, 'user2@ebi.ac.uk', 'MGI:3576659',    @PAPP,             NULL,                                 @MPS,                          NULL,               NOW(),      NOW())
 ;
