@@ -260,10 +260,6 @@ public class GenerateServiceTest extends BaseTest {
         assertEquals(expectedEmailEpilogueContentInHtml, content);
     }
 
-    @Test
-    public void getSummaryPreface() {
-    }
-
 
     // static strings
     private static String expectedSummaryContentNoHtml =
@@ -396,13 +392,4 @@ public class GenerateServiceTest extends BaseTest {
                     "Ccl11\tMGI:103576\tWithdrawn\tNone\tNone\tNo\t\n" +
                     "Cers5\tMGI:1919199\tSelected for production and phenotyping\tGenotype confirmed mice\tGenotype confirmed mice\tYes\t\n" +
                     "Prr14l\tMGI:2443658\tSelected for production and phenotyping\tGenotype confirmed mice\tNone\tNo\t\n";
-
-    private static String expectedSummaryHtmlTableContentInHtmlWithGenes =
-            "<style>  table {    font-family: arial, sans-serif;    border-collapse: collapse;    width: 100%;}td, th {    border: 1px solid #dddddd;    text-align: left;    padding: 8px;}tr:nth-child(even) {    background-color: #dddddd;}</style><table id=\"genesTable\"><tr><th>Gene Symbol</th><th>Gene MGI Accession Id</th><th>Assignment Status</th><th>Null Allele Production</th><th>Conditional Allele Production</th><th>Phenotyping Data Available</th></tr><tr><td><a href=\"https://dev.mousephenotype.org/data/genes/MGI:103576\" alt =\"https://dev.mousephenotype.org/data/genes/MGI:103576\">Ccl11</a></td><td><a href=\"http://www.informatics.jax.org/marker/MGI:103576\" alt =\"http://www.informatics.jax.org/marker/MGI:103576\">MGI:103576</a></td><td>Withdrawn</td><td>None</td><td>None</td><td>No</td><tr><td><a href=\"https://dev.mousephenotype.org/data/genes/MGI:1919199\" alt =\"https://dev.mousephenotype.org/data/genes/MGI:1919199\">Cers5</a></td><td><a href=\"http://www.informatics.jax.org/marker/MGI:1919199\" alt =\"http://www.informatics.jax.org/marker/MGI:1919199\">MGI:1919199</a></td><td>Selected for production and phenotyping</td><td><a href=\"https://dev.mousephenotype.org/data/search/allele2?kw=&quot;MGI:1919199&quot;\" alt =\"https://dev.mousephenotype.org/data/search/allele2?kw=&quot;MGI:1919199&quot;\">Genotype confirmed mice</a></td><td><a href=\"https://dev.mousephenotype.org/data/search/allele2?kw=&quot;MGI:1919199&quot;\" alt =\"https://dev.mousephenotype.org/data/search/allele2?kw=&quot;MGI:1919199&quot;\">Genotype confirmed mice</a></td><td><a href=\"https://dev.mousephenotype.org/data/genes/MGI:1919199#section-associations\" alt =\"https://dev.mousephenotype.org/data/genes/MGI:1919199#section-associations\">Yes</a></td><tr><td><a href=\"https://dev.mousephenotype.org/data/genes/MGI:2443658\" alt =\"https://dev.mousephenotype.org/data/genes/MGI:2443658\">Prr14l</a></td><td><a href=\"http://www.informatics.jax.org/marker/MGI:2443658\" alt =\"http://www.informatics.jax.org/marker/MGI:2443658\">MGI:2443658</a></td><td>Selected for production and phenotyping</td><td><a href=\"https://dev.mousephenotype.org/data/search/allele2?kw=&quot;MGI:2443658&quot;\" alt =\"https://dev.mousephenotype.org/data/search/allele2?kw=&quot;MGI:2443658&quot;\">Genotype confirmed mice</a></td><td>None</td><td>No</td></table>";
-
-    private static String expectedSummaryHtmlTableContentNoHtmlNoGenes =
-            "";
-
-    private static String expectedSummaryHtmlTableContentInHtmlNoGenes =
-            "";
 }
