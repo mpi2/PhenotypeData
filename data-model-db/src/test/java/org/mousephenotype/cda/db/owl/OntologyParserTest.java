@@ -1,61 +1,47 @@
-package org.mousephenotype.cda.owl;
+package org.mousephenotype.cda.db.owl;
 
 /**
  * Created by ilinca on 10/08/2016.
+ * Refactored by mrelac on 07/12/2018.
  */
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mousephenotype.cda.utilities.UrlUtils;
-import org.semanticweb.owlapi.model.IRI;
-import org.semanticweb.owlapi.model.OWLOntologyCreationException;
-import org.semanticweb.owlapi.model.OWLOntologyStorageException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.mousephenotype.cda.owl.OntologyParser;
+import org.mousephenotype.cda.owl.OntologyParserFactory;
+import org.mousephenotype.cda.owl.OntologyTermDTO;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
-import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import uk.ac.manchester.cs.owl.owlapi.OWLObjectPropertyImpl;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringRunner;
 
+import javax.sql.DataSource;
 import javax.validation.constraints.NotNull;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FilenameFilter;
-import java.io.IOException;
-import java.net.URL;
-import java.nio.channels.Channels;
-import java.nio.channels.ReadableByteChannel;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
-/**
- * DISABLED THESE TESTS UNTIL THEY CAN BE REFACTORED TO NOT DOWNLOAD THE ONTOLOGY FILES INTO owlpath (SEE MPII-3002)
- */
-//@RunWith(SpringJUnit4ClassRunner.class)
-//@TestPropertySource(locations = {"file:${user.home}/configfiles/${profile:dev}/test.properties"})
-@Deprecated
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
+@RunWith(SpringRunner.class)
+
+@ContextConfiguration(classes = {OntologyParserTestConfig.class})
 public class OntologyParserTest {
 
 //    public static boolean               downloadFiles = false;
 //    private       Map<String, Download> downloads     = new HashMap<>();  // key = map name. value = download info.
 //    public        boolean               doDownload    = true;
 //    private final Logger                logger        = LoggerFactory.getLogger(this.getClass());
-//    private       OntologyParser        ontologyParser;
+    private   OntologyParser ontologyParser;
 //
 //
-//    @NotNull
-//    @Value("${owlpath}")
-//    protected String owlpath;
+    @NotNull
+    @Value("${owlpath}")
+    protected String         owlpath;
+
+    @Autowired
+    DataSource komp2DataSource;
 //
 //    @Before
 //    public void setUp() throws Exception {
@@ -80,117 +66,32 @@ public class OntologyParserTest {
 //        Resource resource = new ClassPathResource("mp-ext-merged.owl");
 //        Files.copy(resource.getInputStream(), Paths.get(mpExtMerged), StandardCopyOption.REPLACE_EXISTING);
 //    }
-//
-//    private class Download {
-//        public final String name;
-//        public final String url;
-//        public final String target;
-//
-//        public Download(String name, String url, String target) {
-//            this.name = name;
-//            this.url = url;
-//            this.target = target;
-//        }
-//    }
-//
-//    private void downloadFiles() {
-//
-//        try {
-//            Files.createDirectories(Paths.get(owlpath));
-//        } catch (IOException e) {
-//            System.err.println("Create owlpath directory '" + owlpath + "' failed. Reason: " + e.getLocalizedMessage());
-//        }
-//
-//        if (doDownload) {
-//            for (Download download : downloads.values()) {
-//                // Download the owl files.
-//
-//                FileOutputStream    fos;
-//                ReadableByteChannel rbc;
-//                final DateFormat    DATE_FORMAT    = new SimpleDateFormat("yyyyMMddHHmmss");
-//                String              outputAppender = DATE_FORMAT.format(new Date());
-//                String              target;
-//                String              targetTemp;
-//                URL                 url;
-//
-//                target = download.target;
-//                targetTemp = target + "." + outputAppender;
-//                try {
-//                    url = new URL(UrlUtils.getRedirectedUrl(download.url));
-//                    if (download.url.equals(url.toString())) {
-//                        logger.debug("DOWNLOADING " + url.toString() + " to " + download.target);
-//                    } else {
-//                        logger.debug("DOWNLOADING " + download.url + " (remapped to " + url.toString() + ") to " + download.target);
-//                    }
-//                    rbc = Channels.newChannel(url.openStream());
-//                    fos = new FileOutputStream(targetTemp);
-//                    fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
-//                    Files.move(Paths.get(targetTemp), Paths.get(target), StandardCopyOption.REPLACE_EXISTING);
-//
-//                } catch (IOException e) {
-//                    logger.error(download.url + " -> " + target + " download failed. Reason: " + e.getLocalizedMessage());
-//                }
-//            }
-//        }
-//    }
-//
-//@Ignore
-//    @Test
-//    public void testOwlOntologyDownloads() throws Exception {
-//        String message;
-//        List<Exception> exception = new ArrayList();
-//        File owlpathFile = new File(owlpath);
-//        File[] owlFiles = owlpathFile.listFiles(new FilenameFilter() {
-//            @Override
-//            public boolean accept(File dir, String name) {
-//                return name.toLowerCase().endsWith(".owl");
-//            }
-//        });
-//
-//        String prefix;
-//        for (File file : owlFiles) {
-//            prefix = file.getName().replace(".owl", "").toUpperCase();
-//            try {
-//                ontologyParser = new OntologyParser(file.getPath(), prefix, null, null);
-//            } catch (Exception e) {
-//                message = "[FAIL - " + prefix + "] Exception in " + file.getPath() + "(" + prefix + "): " + e.getLocalizedMessage();
-//                exception.add(e);
-//                System.out.println(message + "\n");
-//                continue;
-//            }
-//            List<OntologyTermDTO> terms = ontologyParser.getTerms();
-//            if (terms.size() > 700) {
-//                logger.debug("[PASS - " + prefix + "] - " + file.getPath() + ". Size: " + terms.size());
-//            } else {
-//                logger.debug("[FAIL - " + prefix + "] - " + file.getPath() + ". Size: " + terms.size());
-//            }
-//        }
-//
-//        if ( ! exception.isEmpty()) {
-//            throw exception.get(0);            // Just throw the first one.
-//        }
-//    }
-//
-//
-//	@Test
-//	public void findSpecificMaTermMA_0002405() throws Exception {
-//		ontologyParser = new OntologyParser(downloads.get("ma").target, downloads.get("ma").name, null, null);
-//		List<OntologyTermDTO> termList = ontologyParser.getTerms();
-//		Map<String, OntologyTermDTO> terms = termList.stream()
-//				.filter(term -> term.getAccessionId().equals("MA:0002406"))
-//				.collect(Collectors.toMap(OntologyTermDTO::getAccessionId, ontologyTermDTO -> ontologyTermDTO));
-//		Assert.assertTrue(terms.containsKey("MA:0002406"));
-//	}
-//
-//
-//    // Because it had that IRI used twice, once with ObjectProperty and once with AnnotationProperty RO_0002200
-//    @Test
-//    public void testUberon()  throws Exception {
-//
-//        ontologyParser = new OntologyParser(downloads.get("uberon").target, downloads.get("uberon").name, null, null);
-//
-//    }
-//
+
+	@Test
+	public void findSpecificMaTermMA_0002405() throws Exception {
+
+	    OntologyParserFactory f = new OntologyParserFactory(komp2DataSource, owlpath);
+
+	    ontologyParser = f.getMaParser();
+
+		List<OntologyTermDTO> termList = ontologyParser.getTerms();
+		Map<String, OntologyTermDTO> terms = termList.stream()
+				.filter(term -> term.getAccessionId().equals("MA:0002406"))
+				.collect(Collectors.toMap(OntologyTermDTO::getAccessionId, ontologyTermDTO -> ontologyTermDTO));
+		assertTrue(terms.containsKey("MA:0002406"));
+	}
+
+
+    // Because it had that IRI used twice, once with ObjectProperty and once with AnnotationProperty RO_0002200
+    @Test
+    public void testUberon()  throws Exception {
+
+		OntologyParserFactory f = new OntologyParserFactory(komp2DataSource, owlpath);
+
+		ontologyParser = f.getUberonParser();
+		assertNotNull(ontologyParser);
+    }
+
 //    // Because it had that IRI used twice, once with ObjectProperty and once with AnnotationProperty RO_0002200
 //    @Test
 //    public void testEFO()  throws Exception {
