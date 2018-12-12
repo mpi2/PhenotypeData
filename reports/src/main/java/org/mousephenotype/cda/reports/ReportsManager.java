@@ -39,7 +39,7 @@ import java.util.List;
  * Created by mrelac on 23/06/2015.
  */
 
-@PropertySource("file:${user.home}/configfiles/${profile}/application.properties")
+@PropertySource("file:${user.home}/configfiles/${profile:prod}/application.properties")
 @SpringBootApplication
 public class ReportsManager implements CommandLineRunner {
 
@@ -73,6 +73,9 @@ public class ReportsManager implements CommandLineRunner {
 
     @Autowired
     private ImpcPValuesReport impcPValuesReport;
+
+    @Autowired
+    private ImpcPhenotypesProceduresReport impcPhenotypesProceduresReport;
 
     @Autowired
     private MetabolismCalorimetryReport metabolismCalorimetryReport;
@@ -121,6 +124,7 @@ public class ReportsManager implements CommandLineRunner {
         HITS_PER_PARAMETER_AND_PROCEDURE("hitsPerParameterAndProcedure", "Hits per parameter and procedure report"),
         IMPC_GAF("impcGaf", "IMPC GAF report"),
         IMPC_P_VALUES("impcPValues", "IMPC p-values report"),
+        IMPC_PHENOTYPES_PROCEDURES("impcSignificantPhenotypesProcedures", "IMPC significant phenotypes by procedures complete report"),
         LACZ_EXPRESSION("laczExpression", "Lacz expression report"),
         METABOLISM_CALORIMETRY("metabolismCalorimetry", "Metabolism calorimetry"),
         METABOLISM_CBC("metabolismCBC", "Metabolism CBC"),
@@ -289,6 +293,11 @@ public class ReportsManager implements CommandLineRunner {
                     case IMPC_P_VALUES:
                         impcPValuesReport.run(args);
                         file = impcPValuesReport.targetFile;
+                        break;
+
+                    case IMPC_PHENOTYPES_PROCEDURES:
+                        impcPhenotypesProceduresReport.run(args);
+                        file = impcPhenotypesProceduresReport.targetFile;
                         break;
 
                     case PHENOTYPE_OVERVIEW_PER_GENE:
