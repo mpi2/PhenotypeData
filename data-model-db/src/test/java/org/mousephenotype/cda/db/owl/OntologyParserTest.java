@@ -5,6 +5,7 @@ package org.mousephenotype.cda.db.owl;
  * Refactored by mrelac on 07/12/2018.
  */
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.owl.OntologyParser;
@@ -19,8 +20,10 @@ import javax.sql.DataSource;
 import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -66,7 +69,7 @@ public class OntologyParserTest {
 //        Resource resource = new ClassPathResource("mp-ext-merged.owl");
 //        Files.copy(resource.getInputStream(), Paths.get(mpExtMerged), StandardCopyOption.REPLACE_EXISTING);
 //    }
-
+@Ignore
 	@Test
 	public void findSpecificMaTermMA_0002405() throws Exception {
 
@@ -83,6 +86,7 @@ public class OntologyParserTest {
 
 
     // Because it had that IRI used twice, once with ObjectProperty and once with AnnotationProperty RO_0002200
+@Ignore
     @Test
     public void testUberon()  throws Exception {
 
@@ -92,62 +96,52 @@ public class OntologyParserTest {
 		assertNotNull(ontologyParser);
     }
 
-//    // Because it had that IRI used twice, once with ObjectProperty and once with AnnotationProperty RO_0002200
+@Ignore
+    @Test
+    public void testNarrowSynonyms() throws Exception {
+
+		OntologyParserFactory f = new OntologyParserFactory(komp2DataSource, owlpath);
+
+		ontologyParser = f.getMpHpParser();
+
+        OntologyTermDTO term = ontologyParser.getOntologyTerm("MP:0006325");
+
+        Set<String> narrowSynonyms = ontologyParser.getNarrowSynonyms(term, 1);
+
+        assertFalse("Narrow synonyms list is empty!", narrowSynonyms.isEmpty());
+        assertTrue("Narrow synonyms list does not contain a label!", narrowSynonyms.contains("conductive hearing impairment"));
+        assertTrue("Narrow synonyms list does not contain an exact synonym!", narrowSynonyms.contains("complete hearing loss"));
+
+        // Test both HP and MP terms are considered.
+        // Abnormal glucose homeostasis MP:0002078 is equivalent to HP:0011014
+        term = ontologyParser.getOntologyTerm("MP:0002078");
+
+        assertTrue("HP synonym not found, was looking for Abnormal C-peptide level ." , ontologyParser.getNarrowSynonyms(term,2).contains("Abnormal C-peptide level"));
+    }
+
+
+    // mp-hp.owl is now generated - not downloaded (mrelac - 15-Feb-2018)
 //    @Test
-//    public void testEFO()  throws Exception {
+//    public void testEquivalent() throws Exception {
 //
-//        ontologyParser = new OntologyParser(downloads.get("efo").target, downloads.get("efo").name, null, null);
-//        List<OntologyTermDTO> terms = ontologyParser.getTerms();
-//        Assert.assertFalse("Expected at least one term.", terms.isEmpty());
-//
-//    }
-//
-//
-//    @Test
-//    public void testNarrowSynonyms() throws Exception {
-//
-//        logger.debug("target: " + downloads.get("mphp").target);
-//        logger.debug("name:   " + downloads.get("mphp").name);
 //        ontologyParser = new OntologyParser(downloads.get("mphp").target, downloads.get("mphp").name, null, null);
-//        OntologyTermDTO term = ontologyParser.getOntologyTerm("MP:0006325");
+//        List<OntologyTermDTO> terms = ontologyParser.getTerms();
+//        Assert.assertFalse("Term list is empty!", terms.isEmpty());
 //
-//        Set<String> narrowSynonyms = ontologyParser.getNarrowSynonyms(term, 1);
+//        OntologyTermDTO mp0000572 = ontologyParser.getOntologyTerm("MP:0000572");
+//        Assert.assertNotNull("Could not find MP:0000572 in mp-hp.owl", mp0000572);
 //
-//        Assert.assertFalse("Narrow synonyms list is empty!", narrowSynonyms.isEmpty());
-//        Assert.assertTrue("Narrow synonyms list does not contain a label!", narrowSynonyms.contains("conductive hearing impairment"));
-//        Assert.assertTrue("Narrow synonyms list does not contain an exact synonym!", narrowSynonyms.contains("complete hearing loss"));
-//
-//        // Test both HP and MP terms are considered.
-//        // Abnormal glucose homeostasis MP:0002078 is equivalent to HP:0011014
-//        term = ontologyParser.getOntologyTerm("MP:0002078");
-//
-//        Assert.assertTrue("HP synonym not found, was looking for Abnormal C-peptide level ." , ontologyParser.getNarrowSynonyms(term,2).contains("Abnormal C-peptide level"));
-//
+//        Assert.assertFalse("Could not find equivalent class for MP:0000572 in mp-hp.owl. Equivalent class should be HP:0005922.", mp0000572.getEquivalentClasses().isEmpty());
+//        Set<OntologyTermDTO> termSet = mp0000572.getEquivalentClasses();
+//        List<OntologyTermDTO> eqTerms =
+//                termSet.stream()
+//                .filter(term -> term.getAccessionId().equals("HP:0005922"))
+//                .collect(Collectors.toList());
+//        Assert.assertFalse("Expected equivalent class HP:0005922 but list is empty.", eqTerms.isEmpty());
+//        Assert.assertTrue("Expected equivalent class HP:0005922. Not found.", eqTerms.get(0).getAccessionId().equals("HP:0005922"));
 //    }
-//
-//
-//    // mp-hp.owl is now generated - not downloaded (mrelac - 15-Feb-2018)
-////    @Test
-////    public void testEquivalent() throws Exception {
-////
-////        ontologyParser = new OntologyParser(downloads.get("mphp").target, downloads.get("mphp").name, null, null);
-////        List<OntologyTermDTO> terms = ontologyParser.getTerms();
-////        Assert.assertFalse("Term list is empty!", terms.isEmpty());
-////
-////        OntologyTermDTO mp0000572 = ontologyParser.getOntologyTerm("MP:0000572");
-////        Assert.assertNotNull("Could not find MP:0000572 in mp-hp.owl", mp0000572);
-////
-////        Assert.assertFalse("Could not find equivalent class for MP:0000572 in mp-hp.owl. Equivalent class should be HP:0005922.", mp0000572.getEquivalentClasses().isEmpty());
-////        Set<OntologyTermDTO> termSet = mp0000572.getEquivalentClasses();
-////        List<OntologyTermDTO> eqTerms =
-////                termSet.stream()
-////                .filter(term -> term.getAccessionId().equals("HP:0005922"))
-////                .collect(Collectors.toList());
-////        Assert.assertFalse("Expected equivalent class HP:0005922 but list is empty.", eqTerms.isEmpty());
-////        Assert.assertTrue("Expected equivalent class HP:0005922. Not found.", eqTerms.get(0).getAccessionId().equals("HP:0005922"));
-////    }
-//
-//
+
+
 //    @Test
 //    public void testReplacementOptions() throws Exception {
 //
