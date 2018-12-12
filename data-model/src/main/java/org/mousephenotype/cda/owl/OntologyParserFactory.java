@@ -80,7 +80,7 @@ public class OntologyParserFactory {
             "HP:0000818","HP:0000478","HP:0000598","HP:0002664","HP:0002715","HP:0000119",
             "HP:0000152"));
 
-    // These aprsers are used by several indexers so it makes sense to initialize them in one place, so that they don't get out of synch.
+    // These parsers are used by several indexers so it makes sense to initialize them in one place, so that they don't get out of synch.
     public OntologyParser getMpParser() throws OWLOntologyCreationException, OWLOntologyStorageException, IOException, SQLException {
         return  new OntologyParser(owlpath + "/mp.owl", "MP", TOP_LEVEL_MP_TERMS, getWantedMPIds());
     }
