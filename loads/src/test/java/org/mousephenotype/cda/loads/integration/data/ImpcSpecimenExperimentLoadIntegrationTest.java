@@ -31,7 +31,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.datasource.init.ScriptUtils;
@@ -39,12 +38,14 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import javax.sql.DataSource;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -361,12 +362,12 @@ public class ImpcSpecimenExperimentLoadIntegrationTest {
         for (int i = 0; i<MAX_REPEATED_LOAD_ATTEMPTS; i++) {
 
             Resource cdaResource = context.getResource("classpath:sql/h2/LoadImpcSpecimenExperiment-data.sql");
-            Resource specimenResource = context.getResource("classpath:xml/ImpcSpecimenExperiment-specimens.xml");
+            Resource specimenResource2 = context.getResource("classpath:xml/ImpcSpecimenExperiment-specimens2.xml");
             Resource experimentResourceWeights = context.getResource("classpath:xml/ImpcSpecimenExperiment-experiments-weight3.xml");
 
             String[] extractSpecimenArgs = new String[]{
                     "--datasourceShortName=IMPC",
-                    "--filename=" + specimenResource.getFile().getAbsolutePath()
+                    "--filename=" + specimenResource2.getFile().getAbsolutePath()
             };
 
             String[] extractExperimentArgs = new String[]{
@@ -433,7 +434,9 @@ public class ImpcSpecimenExperimentLoadIntegrationTest {
         }
 
         ScriptUtils.executeSqlScript(cdaDataSource.getConnection(), cdaResource);
-        replaceH2DateDiffMethodWithMysqlCompatibleMethod();
+
+        Resource r = context.getResource("sql/h2/H2ReplaceDateDiff.sql");
+        ScriptUtils.executeSqlScript(cdaDataSource.getConnection(), r);
     }
 
 
@@ -456,15 +459,5 @@ public class ImpcSpecimenExperimentLoadIntegrationTest {
         logger.debug("Nearest weight to " + dateOfExperiment + " is " + weightMap.getNearestWeight(testDbId, "IMPC_DXA_002_001", dateOfExperiment));
 
         return weightMap.getNearestWeight(testDbId, dateOfExperiment);
-    }
-
-    private void replaceH2DateDiffMethodWithMysqlCompatibleMethod() throws SQLException {
-        // Replace the H2 default DATEDIFF function to be compatible with MySQL DATEDIFF syntax
-        String replaceDateDiff = "CREATE ALIAS IF NOT EXISTS REMOVE_DATE_DIFF FOR \"org.mousephenotype.cda.loads.integration.data.utilities.H2Function.removeDateDifference\"; " +
-                "CALL REMOVE_DATE_DIFF(); " +
-                "DROP ALIAS IF EXISTS DATEDIFF; " +
-                "CREATE ALIAS DATEDIFF FOR \"org.mousephenotype.cda.loads.integration.data.utilities.H2Function.dateDifference\"; ";
-        Resource d = new ByteArrayResource(replaceDateDiff.getBytes());
-        ScriptUtils.executeSqlScript(cdaDataSource.getConnection(), d);
     }
 }

@@ -19,10 +19,21 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
-@Component
+/**
+ * WeightMap is a body weight specimen map used primarily in the association of body weights to parameters in the
+ * ObservationIndexer. There is also an integration test in the loads module that also requires access to this class
+ * and belongs in the loads module.
+ *
+ * As of 12/12/2018, loading this class takes upwards of 8 minutes, and there is no requirement that it be managed by
+ * Spring.
+ *
+ * Manually instantiate this class as required.
+ *
+ * NOTE: Do not make this a spring component because it will slow everything that component-scans it.
+ */
 public class WeightMap {
 
-    private final Logger logger = LoggerFactory.getLogger(WeightMap.class);
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private static final String ipgttWeightParameter = "IMPC_IPG_001_001";
 
@@ -31,12 +42,9 @@ public class WeightMap {
     private Map<Integer, BodyWeight> ipgttWeightMap = new HashMap<>();
     private DataSource komp2DataSource;
 
-    public WeightMap() {
-    }
-
-    @Inject
-    public WeightMap(@Named("komp2DataSource") DataSource komp2DataSource) {
+    public WeightMap(@Named("komp2DataSource") DataSource komp2DataSource) throws SQLException {
         this.komp2DataSource = komp2DataSource;
+        initialize();
     }
 
     public static boolean isWeightParameter(String stableId) {
@@ -47,7 +55,6 @@ public class WeightMap {
         return ipgttWeightParameter.equalsIgnoreCase(stableId);
     }
 
-    @PostConstruct
     public void initialize() throws SQLException {
         logger.debug("  populating weight map");
         populateWeightMap();
@@ -191,6 +198,7 @@ public class WeightMap {
                 + "  ORDER BY biological_sample_id, date_of_experiment ASC ";
 
         try (Connection connection = komp2DataSource.getConnection(); PreparedStatement statement = connection.prepareStatement(query)) {
+            logger.info("populating weight map. This takes upwards of 8 minutes.");
             ResultSet resultSet = statement.executeQuery();
             while (resultSet.next()) {
 

@@ -46,8 +46,6 @@ public class ObservationIndexerTest {
     @Qualifier("komp2DataSource")
     private DataSource ds;
 
-    @Autowired
-    WeightMap weightMap;
 
     @Before
     public void setUp() throws Exception {
@@ -124,6 +122,9 @@ public class ObservationIndexerTest {
 	@Test
 	//@Ignore
 	public void testWeightMap() throws Exception {
+
+        // Instantiate WeightMap here as it takes upwards of 8 minutes to load.
+        WeightMap weightMap = new WeightMap(ds);
 
         logger.info("Size of weight map {}", weightMap.size());
         Assert.assertTrue(weightMap.size() > 50);

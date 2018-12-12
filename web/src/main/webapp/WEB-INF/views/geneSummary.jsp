@@ -205,7 +205,7 @@
 			                               	 	</p>
 		                               	 	</c:if>
 		                               	 	<br/><br/>
-		                               	 	<p class="credit"> These annotations were provided by <a href="http://www.uniprot.org/uniprot/${gene.getUniprotHumanCanonicalAcc()}">Uniprot</a>.</p>
+		                               	 	<p class="credit"> These annotations were provided by <a href="https://www.uniprot.org/uniprot/${gene.getUniprotHumanCanonicalAcc()}">Uniprot</a>.</p>
 		                               	 	<br/>
 	                                    </div>
                                     </c:if>
