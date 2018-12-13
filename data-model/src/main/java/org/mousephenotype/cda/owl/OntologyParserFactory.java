@@ -60,17 +60,17 @@ public class OntologyParserFactory {
             "MP:0005379", "MP:0005380",  "MP:0005381", "MP:0005384", "MP:0005385", "MP:0005382", "MP:0005388", "MP:0005389", "MP:0005386",
             "MP:0005387", "MP:0005391",  "MP:0005390", "MP:0005394", "MP:0005397", "MP:0010771"));
 
-    protected static final Set<String> TOP_LEVEL_MA_TERMS = new HashSet<>(Arrays.asList("MA:0000004", "MA:0000007", "MA:0000009",
+    public static final Set<String> TOP_LEVEL_MA_TERMS = new HashSet<>(Arrays.asList("MA:0000004", "MA:0000007", "MA:0000009",
             "MA:0000010", "MA:0000012", "MA:0000014", "MA:0000016", "MA:0000017", "MA:0000325", "MA:0000326", "MA:0000327",
             "MA:0002411", "MA:0002418", "MA:0002431", "MA:0002711", "MA:0002887", "MA:0002405"));
 
-    protected static final List<String> TREE_TOP_LEVEL_MA_TERMS = new ArrayList<>(Arrays.asList("MA:0002433", "MA:0002450", "MA:0000003",
+    public static final List<String> TREE_TOP_LEVEL_MA_TERMS = new ArrayList<>(Arrays.asList("MA:0002433", "MA:0002450", "MA:0000003",
             "MA:0003001", "MA:0003002"));
 
-    protected static final Set<String> TOP_LEVEL_EMAPA_TERMS = new HashSet<>(Arrays.asList("EMAPA:16104", "EMAPA:16192", "EMAPA:16246",
+    public static final Set<String> TOP_LEVEL_EMAPA_TERMS = new HashSet<>(Arrays.asList("EMAPA:16104", "EMAPA:16192", "EMAPA:16246",
             "EMAPA:16405", "EMAPA:16469", "EMAPA:16727", "EMAPA:16748", "EMAPA:16840", "EMAPA:17524", "EMAPA:31858"));
 
-    protected static final List<String> TREE_TOP_LEVEL_EMAPA_TERMS = new ArrayList<>(Arrays.asList("EMAPA:16039", "EMAPA:36040", "EMAPA:36037",
+    public static final List<String> TREE_TOP_LEVEL_EMAPA_TERMS = new ArrayList<>(Arrays.asList("EMAPA:16039", "EMAPA:36040", "EMAPA:36037",
             "EMAPA:36031", "EMAPA:16042", "EMAPA:35949", "EMAPA:16103", "EMAPA:35868"));
 
     public static final Set<String> TOP_LEVEL_HP_TERMS = new HashSet<>(Arrays.asList( "HP:0002086","HP:0045027","HP:0001871","HP:0001939","HP:0001574","HP:0001608",
