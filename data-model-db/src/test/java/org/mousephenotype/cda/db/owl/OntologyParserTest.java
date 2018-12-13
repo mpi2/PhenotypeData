@@ -236,8 +236,8 @@ public class OntologyParserTest {
         wantedIds.add("MP:0008901");
         wantedIds.add("MP:0005395"); // "other phenotype" -  obsolete and should not be in the sim
         Set<String> termsInSlim = ontologyParserExtended.getTermsInSlim(wantedIds, null);
-        assertTrue(termsInSlim.size() == 7);
-        assertTrue(!termsInSlim.contains("MP:0005395"));
+        assertTrue("Expected 7 terms in slim but found " + termsInSlim.size(), termsInSlim.size()== 7);
+        assertTrue( "Expected to find MP:0005395 but didn't", ! termsInSlim.contains("MP:0005395"));
     }
 
 
@@ -259,14 +259,16 @@ public class OntologyParserTest {
         ontologyParser = new OntologyParser(owlpath + "/mp.owl", "MP", null, null);
         OntologyTermDTO term = ontologyParser.getOntologyTerm("MP:0005452");  // abnormal adipose tissue amount
         assertTrue(term.getChildIds().contains("MP:0010024"));
-        logger.debug("term.getChildIds().size() " + term.getChildIds().size() + term.getChildIds());
-        assertTrue(term.getChildIds().size() == 4); // 4 child terms in the ontology without reasoning
-        assertTrue(term.getChildNames().size() == 4);
+        int size = term.getChildIds().size();
+        assertTrue("Expected 4 child ids but found " + size, size == 4);
+        size = term.getChildNames().size();
+        assertTrue("Expected 4 child names but found " + size, size == 4);
 
         term =ontologyParser.getOntologyTerm("MP:0000003");
-        logger.debug("term.getChildIds().size() " + term.getChildIds().size() + term.getChildIds());
-        assertTrue(term.getChildIds().size() >= 12); // 11 child terms in the ontology without reasoning
-        assertTrue(term.getChildNames().size() >= 12);
+        size = term.getChildIds().size();
+        assertTrue("Expected at least 12 child ids but found " + size, size >= 12);
+        size = term.getChildNames().size();
+        assertTrue("Expected at least 12 child names but found " + size, size >= 12);
 
     }
 
