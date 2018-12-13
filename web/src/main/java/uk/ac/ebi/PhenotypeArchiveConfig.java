@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.boot.web.support.ErrorPageFilter;
 import org.springframework.context.annotation.*;
+import org.springframework.http.CacheControl;
 import org.springframework.orm.hibernate5.support.OpenSessionInViewInterceptor;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
@@ -20,6 +21,7 @@ import uk.ac.ebi.phenotype.web.util.DeploymentInterceptor;
 import javax.validation.constraints.NotNull;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by ilinca on 01/03/2017.
@@ -142,15 +144,15 @@ public class PhenotypeArchiveConfig {
             public void addResourceHandlers(ResourceHandlerRegistry registry) {
 
                 logger.info("Adding WebMvc resources");
-                registry.addResourceHandler("/css/**").addResourceLocations("/resources/css/");
-                registry.addResourceHandler("/js/**").addResourceLocations("/resources/js/");
-                registry.addResourceHandler("/img/**").addResourceLocations("/resources/img/");
-                registry.addResourceHandler("/documentation/**").addResourceLocations("/resources/documentation/");
+                registry.addResourceHandler("/css/**").addResourceLocations("/resources/css/").setCacheControl(CacheControl.maxAge(1, TimeUnit.DAYS));
+                registry.addResourceHandler("/js/**").addResourceLocations("/resources/js/").setCacheControl(CacheControl.maxAge(1, TimeUnit.DAYS));
+                registry.addResourceHandler("/img/**").addResourceLocations("/resources/img/").setCacheControl(CacheControl.maxAge(1, TimeUnit.DAYS));
+                registry.addResourceHandler("/documentation/**").addResourceLocations("/resources/documentation/").setCacheControl(CacheControl.maxAge(1, TimeUnit.DAYS));
                 registry.addResourceHandler("/dalliance/**").addResourceLocations("/resources/dalliance/");
-                registry.addResourceHandler("/release_notes/**").addResourceLocations("/resources/release_notes/");
+                registry.addResourceHandler("/release_notes/**").addResourceLocations("/resources/release_notes/").setCacheControl(CacheControl.maxAge(1, TimeUnit.DAYS));
                 registry.addResourceHandler("/image_compara/**").addResourceLocations("/resources/image_compara/");
                 registry.addResourceHandler("/dist/**").addResourceLocations("/resources/js/anatomogram/dist/");
-                registry.addResourceHandler("/fonts/**").addResourceLocations("/resources/fonts/");
+                registry.addResourceHandler("/fonts/**").addResourceLocations("/resources/fonts/").setCacheControl(CacheControl.maxAge(1, TimeUnit.DAYS));
 
                 super.addResourceHandlers(registry);
 
