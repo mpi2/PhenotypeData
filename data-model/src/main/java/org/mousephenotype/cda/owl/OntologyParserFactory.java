@@ -19,7 +19,6 @@ import uk.ac.manchester.cs.owl.owlapi.OWLObjectPropertyImpl;
 import javax.sql.DataSource;
 import java.io.File;
 import java.io.IOException;
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -74,7 +73,7 @@ public class OntologyParserFactory {
     protected static final List<String> TREE_TOP_LEVEL_EMAPA_TERMS = new ArrayList<>(Arrays.asList("EMAPA:16039", "EMAPA:36040", "EMAPA:36037",
             "EMAPA:36031", "EMAPA:16042", "EMAPA:35949", "EMAPA:16103", "EMAPA:35868"));
 
-    protected static final Set<String> TOP_LEVEL_HP_TERMS = new HashSet<>(Arrays.asList( "HP:0002086","HP:0045027","HP:0001871","HP:0001939","HP:0001574","HP:0001608",
+    public static final Set<String> TOP_LEVEL_HP_TERMS = new HashSet<>(Arrays.asList( "HP:0002086","HP:0045027","HP:0001871","HP:0001939","HP:0001574","HP:0001608",
             "HP:0001626","HP:0025354","HP:0001507","HP:0025142","HP:0001197","HP:0003549",
             "HP:0025031","HP:0003011","HP:0040064","HP:0000924","HP:0000769","HP:0000707",
             "HP:0000818","HP:0000478","HP:0000598","HP:0002664","HP:0002715","HP:0000119",
@@ -97,8 +96,8 @@ public class OntologyParserFactory {
         return new OntologyParser(owlpath + "/ma.owl", "MA", TOP_LEVEL_MA_TERMS, getMaWantedIds());
     }
 
-    public OntologyParser getHpParser(DataSource phenodigmDB) throws OWLOntologyCreationException, OWLOntologyStorageException, IOException, SQLException {
-        return new OntologyParser(owlpath + "/hp.owl", "HP", TOP_LEVEL_HP_TERMS, getHpWantedIds(phenodigmDB));
+    public OntologyParser getHpParser() throws OWLOntologyCreationException, OWLOntologyStorageException, IOException, SQLException {
+        return new OntologyParser(owlpath + "/hp.owl", "HP", TOP_LEVEL_HP_TERMS, getHpWantedIds());
     }
 
     public OntologyParser getEmapaParser() throws OWLOntologyCreationException, OWLOntologyStorageException, IOException, SQLException {
@@ -123,7 +122,7 @@ public class OntologyParserFactory {
         return parser;
     }
 
-    protected Set<String> getHpWantedIds(DataSource phenodigm) throws SQLException, OWLOntologyCreationException, OWLOntologyStorageException, IOException {
+    protected Set<String> getHpWantedIds() throws SQLException, OWLOntologyCreationException, OWLOntologyStorageException, IOException {
 
         OntologyParser mpParser = getMpParser();
         OntologyParser mpHpParser = getMpHpParser();
@@ -348,7 +347,4 @@ public class OntologyParserFactory {
 
         return emapMap;
     }
-
-
-
 }
