@@ -57,19 +57,19 @@ public class OntologyParserTestConfig {
     @Primary
     @ConfigurationProperties(prefix = "datasource.komp2")
     public DataSource komp2DataSource() {
-        return DataSourceBuilder.create().driverClassName("com.mysql.jdbc.Driver").build();
+        return DataSourceBuilder.create().build();
     }
 
     @Bean
     @ConfigurationProperties(prefix = "datasource.admintools")
     public DataSource admintoolsDataSource() {
-        return DataSourceBuilder.create().driverClassName("com.mysql.jdbc.Driver").build();
+        return DataSourceBuilder.create().build();
     }
 
     @Bean
     @ConfigurationProperties(prefix = "datasource.phenodigm")
     public DataSource phenodigmDataSource() {
-        return DataSourceBuilder.create().driverClassName("com.mysql.jdbc.Driver").build();
+        return DataSourceBuilder.create().build();
     }
 
 
@@ -90,7 +90,7 @@ public class OntologyParserTestConfig {
     protected Properties buildHibernateProperties() {
         Properties hibernateProperties = new Properties();
 
-        hibernateProperties.setProperty("hibernate.dialect", "org.hibernate.dialect.MySQLDialect");
+//        hibernateProperties.setProperty("hibernate.dialect", "org.hibernate.dialect.MySQLDialect");
         hibernateProperties.setProperty("hibernate.show_sql", "false");
         hibernateProperties.setProperty("hibernate.use_sql_comments", "false");
         hibernateProperties.setProperty("hibernate.format_sql", "false");
