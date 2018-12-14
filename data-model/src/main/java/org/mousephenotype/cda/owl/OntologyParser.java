@@ -2,7 +2,6 @@ package org.mousephenotype.cda.owl;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.semanticweb.elk.owlapi.ElkReasoner;
 import org.semanticweb.elk.owlapi.ElkReasonerFactory;
 import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.model.*;
@@ -887,6 +886,4 @@ public class OntologyParser {
         return children;
 
     }
-
-
 }

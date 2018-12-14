@@ -16,6 +16,7 @@
 
 package org.mousephenotype.cda.ri.core.entities;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.util.HtmlUtils;
@@ -46,20 +47,25 @@ public class SummaryHtmlTable {
             "    background-color: #dddddd;"+
             "}";
 
-    public static String buildTableContent(String paBaseUrl, Summary summary) {
+    public static String buildTableContent(String paBaseUrl, Summary summary, boolean inHtml) {
 
         StringBuilder body = new StringBuilder();
 
-        body
-                .append("<style>" + style + "</style>")
-                .append("<table id=\"genesTable\">")
-                .append(buildRow("th", headings));
-
-        for (Gene gene : summary.getGenes()) {
-            body.append(buildRow(paBaseUrl, gene));
+        if (inHtml) {
+            body
+                    .append("<style>" + style + "</style>")
+                    .append("<table id=\"genesTable\">")
+                    .append(buildRow("th", headings));
+        } else {
+            body
+                    .append(StringUtils.join(headings, "\t"));
         }
 
-        body.append("</table>");
+        for (Gene gene : summary.getGenes()) {
+            body.append(buildRow(paBaseUrl, gene, inHtml));
+        }
+
+        body.append(inHtml ? "</table>" : "\n");
 
         return body.toString();
     }
@@ -68,9 +74,10 @@ public class SummaryHtmlTable {
     /**
      * Builds an html data row for the specified gene and optional {@link GeneSent} instance. {@code} may be null.
      * @param gene This contact's {@link Gene} instance. Never null.
+     * @param inHtml Boolean indicating whether or not the output should be in html
      * @return html tr text, wrapped in tr tag.
      */
-    public static String buildRow(String paBaseUrl, Gene gene) {
+    public static String buildRow(String paBaseUrl, Gene gene, boolean inHtml) {
 
         StringBuilder row = new StringBuilder();
         String anchor;
@@ -89,17 +96,17 @@ public class SummaryHtmlTable {
             geneWithDecoration.setDecorated(false);
         }
 
-        row.append("<tr>");
+        row.append(inHtml ? "<tr>" : "\n");
 
         // Gene symbol
         anchor = paBaseUrl + "/genes/" + geneWithDecoration.getMgiAccessionId();
-        cell = buildHtmlCell("td", geneWithDecoration.getSymbol(), anchor);
+        cell = (inHtml ? buildHtmlCell("td", geneWithDecoration.getSymbol(), anchor) : geneWithDecoration.getSymbol() + "\t");
         row.append(cell);
 
 
         // Gene MGI accession id
         anchor = "http://www.informatics.jax.org/marker/" + geneWithDecoration.getMgiAccessionId();
-        cell = buildHtmlCell("td", geneWithDecoration.getMgiAccessionId(), anchor);
+        cell = (inHtml ? buildHtmlCell("td", geneWithDecoration.getMgiAccessionId(), anchor) : geneWithDecoration.getMgiAccessionId() + "\t");
         row.append(cell);
 
 
@@ -108,7 +115,7 @@ public class SummaryHtmlTable {
         if (geneWithDecoration.isAssignmentStatusDecorated()) {
             currentValue += " *";
         }
-        cell = buildHtmlCell("td", currentValue, null);
+        cell = (inHtml ? buildHtmlCell("td", currentValue, null) : currentValue + "\t");
         row.append(cell);
 
 
@@ -124,7 +131,7 @@ public class SummaryHtmlTable {
         if (geneWithDecoration.isNullAlleleProductionStatusDecorated()) {
             currentValue += " *";
         }
-        cell = buildHtmlCell("td", currentValue, anchor);
+        cell = (inHtml ? buildHtmlCell("td", currentValue, anchor) : currentValue + "\t");
         row.append(cell);
 
 
@@ -140,7 +147,7 @@ public class SummaryHtmlTable {
         if (geneWithDecoration.isConditionalAlleleProductionStatusDecorated()) {
             currentValue += " *";
         }
-        cell = buildHtmlCell("td", currentValue, anchor);
+        cell = (inHtml ? buildHtmlCell("td", currentValue, anchor) : currentValue + "\t");
         row.append(cell);
 
 
@@ -156,7 +163,7 @@ public class SummaryHtmlTable {
         if (geneWithDecoration.isPhenotypingStatusDecorated()) {
             currentValue += " *";
         }
-        cell = buildHtmlCell("td", currentValue, anchor);
+        cell = (inHtml ? buildHtmlCell("td", currentValue, anchor) : currentValue + "\t");
         row.append(cell);
 
         return row.toString();

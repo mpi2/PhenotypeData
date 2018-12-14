@@ -84,7 +84,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 	@Qualifier("experimentCore")
 	SolrClient observationCore;
 
-	@Autowired
+	// NOTE: Loading weightMap takes upwards of 8 minutes; therefore, it is not spring-managed. Load it manually and only when needed.
 	WeightMap weightMap;
 
 	@Value("${experimenterIdMap}")
@@ -135,6 +135,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 
 	@Override
 	public RunStatus run() throws IndexerException, SQLException, IOException, SolrServerException {
+		weightMap = new WeightMap(komp2DataSource);
 		long count = 0;
 		RunStatus runStatus = new RunStatus();
 		long start = System.currentTimeMillis();
