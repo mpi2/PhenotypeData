@@ -120,7 +120,7 @@ public class IndexerConfig {
     @Bean
     SolrClient phenodigmCore() {
         // readonly
-        return new HttpSolrClient(phenodigmSolrBaseUrl + "/phenodigm");
+        return new HttpSolrClient(solrBaseUrl + "/phenodigm");
     }
 
     @Bean
