@@ -205,7 +205,11 @@ System.out.println("no charts returned - using old method");
 
 			return ChartType.UNIDIMENSIONAL_ABR_PLOT;
 
-		}else if(parameter.getStableId().equals("IMPC_VIA_001_001")){
+		}else if(parameter.getStableId().equals("IMPC_VIA_001_001") ||
+				parameter.getStableId().equals("IMPC_EVM_001_001") ||
+				parameter.getStableId().equals("IMPC_EVO_001_001") ||
+				parameter.getStableId().equals("IMPC_EVL_001_001") ||
+				parameter.getStableId().equals("IMPC_EVP_001_001")){
 			return ChartType.PIE;
 
 		}else if(parameter.getStableId().equals("IMPC_EYE_092_001")){

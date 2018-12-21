@@ -1320,6 +1320,8 @@ public class AbstractGenotypePhenotypeService extends BasicService {
         query.setQuery("*:*");
         query.setRows(rows != null? rows : Integer.MAX_VALUE);
         query.set("sort", StatisticalResultDTO.P_VALUE + " asc");
+        query.set("wt", "xml");
+
 
         if (geneAccession != null) {
             query.addFilterQuery(StatisticalResultDTO.MARKER_ACCESSION_ID + ":\"" + geneAccession + "\"");
