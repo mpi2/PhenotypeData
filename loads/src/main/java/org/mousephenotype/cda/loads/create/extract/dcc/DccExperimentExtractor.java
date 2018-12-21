@@ -34,6 +34,8 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.sql.DataSource;
@@ -246,6 +248,11 @@ public class DccExperimentExtractor implements CommandLineRunner {
 
     }
 
+    // 300000 ms = 5 minutes
+    @Retryable(
+            maxAttempts = 6,
+            backoff = @Backoff(delay = 300000)
+    )
     @Transactional
     public void insertExperiment(Experiment experiment, String datasourceShortName, CentreProcedure centerProcedure, long centerPk) throws DataLoadException {
 
