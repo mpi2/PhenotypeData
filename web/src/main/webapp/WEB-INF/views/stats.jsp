@@ -69,7 +69,7 @@
 
             </c:forEach>
 
-			<c:if test="${param.parameter_stable_id != 'IMPC_VIA_001_001'}"><!-- only show downloads if not viability pie charts as we don't have download for line level params yet -->
+			<c:if test="${param.parameter_stable_id != 'IMPC_VIA_001_001' && param.parameter_stable_id != 'IMPC_EVL_001_001' && param.parameter_stable_id != 'IMPC_EVM_001_001' && param.parameter_stable_id != 'IMPC_EVO_001_001' && param.parameter_stable_id != 'IMPC_EVP_001_001'}"><!-- only show downloads if not viability or embryo viability pie charts as we don't have download for line level params yet -->
 			            <div class="section">
 			                <div id="exportIconsDivGlobal"></div>
 			            </div>

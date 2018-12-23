@@ -27,6 +27,11 @@
             <h5>${viabilityDTO.category}</h5>
         </c:if>
 
+        <c:if test="${embryoViabilityDTO!=null}">
+            <h5>${embryoViabilityDTO.proceedureName}</h5>
+            <h5>Outcome: ${embryoViabilityDTO.category}</h5>
+        </c:if>
+
         <p>Background - <t:formatAllele>${geneticBackgroundString}</t:formatAllele>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
             Phenotyping Center - ${phenotypingCenter}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
             <c:if test="${pipeline.name!=null}">Pipeline - <a href="${pipelineUrl}">${pipeline.name }</a></c:if>
@@ -51,6 +56,9 @@
             </c:when>
             <c:when test="${viabilityDTO!=null}">
                 <jsp:include page="pieFrag.jsp"/>
+            </c:when>
+            <c:when test="${embryoViabilityDTO!=null}">
+                <jsp:include page="embryoViabilityPieFrag.jsp"/>
             </c:when>
             <c:when test="${fertilityDTO!=null}">
                 <jsp:include page="fertPieFrag.jsp"/>
