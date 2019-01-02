@@ -71,9 +71,9 @@
 							<thead>
 							<tr>
 							
-							<th>
+							<%-- removed as not date of sacrifice so some are ridiculous - until Luis has added date of sacrifice <th>
 							Age in Weeks
-							</th>
+							</th> --%>
 							<th>
 							Zyg
 							</th>
@@ -124,9 +124,9 @@
 								<c:forEach var="histRow" items="${histopathRows}">
 								
 								<tr>
-									<td>
+									<%-- <td>
 									${histRow.ageInWeeks}
-									</td>
+									</td> --%>
 									<td>
 									${histRow.zygosity}
 					
