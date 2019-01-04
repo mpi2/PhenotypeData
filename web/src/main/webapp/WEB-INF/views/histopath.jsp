@@ -63,7 +63,7 @@
 							<p>1=Significant (histopathology finding that is interpreted by the histopathologist to not be a background strain-related finding or an incidental finding)
 					</div>
 							
-							<div class="inner">
+							<div class="inner" style="width: 2000px;">
 							 ${gene.markerSymbol}: ${gene.markerName}
 							 
 							 <table id="histopath" class="table tableSorter">
@@ -112,9 +112,9 @@
 							Free Text
 							</th>
 							
-							<%-- <th>
+							<th>
 							Images
-							</th> --%>
+							</th>
 							<%-- <th>Sample Id</th> --%>
 						
 							
@@ -285,9 +285,9 @@
 										<%-- <img src="${impcMediaBaseUrl}render_thumbnail/${image.omeroId}/200"/>  --%>
 										<%-- increment= ${image.increment_value} --%>
 										 <!-- <div id="grid">  -->
-                                           <ul>
-												<t:impcimgdisplay2 img="${image}" impcMediaBaseUrl="${impcMediaBaseUrl}"></t:impcimgdisplay2> 
-											</ul>		
+                                           
+												<t:hist_img_display img="${image}" impcMediaBaseUrl="${impcMediaBaseUrl}"></t:hist_img_display> 
+													
 										<!-- </div>  -->
 										 </c:forEach> 
 									</td> 
@@ -338,7 +338,7 @@
       <script> 
         $(document).ready(function() {
     $('#histopath').DataTable(
-    		{"paging":   false, "searching": false, "order": [[ 3, "asc" ]]});
+    		{"paging":   false, "searching": false, "order": [[ 2, "asc" ]]});
 } );
         </script> 
     </jsp:body>
