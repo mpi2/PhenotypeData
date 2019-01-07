@@ -60,7 +60,8 @@ import java.util.List;
 @RunWith(SpringRunner.class)
 @TestPropertySource("file:${user.home}/configfiles/${profile:dev}/test.properties")
 @SpringBootTest(classes = TestConfig.class)
-public class ImpcImagesTest {
+public class
+ImpcImagesTest {
 
     private CommonUtils   commonUtils = new CommonUtils();
     private WebDriver     driver;
@@ -128,6 +129,7 @@ public class ImpcImagesTest {
         for (String geneId : geneIds) {
             RunStatus status = new RunStatus();
             target = baseUrl + "/genes/" + geneId;
+logger.info("target: {}", target);
 
             try {
                 driver.get(target);
@@ -138,6 +140,11 @@ public class ImpcImagesTest {
                     logger.info("target: {}. Exception: {}", target, e.getLocalizedMessage());
                     continue;
                 }
+catch (Exception e) {
+
+    logger.info("target: {}. Exception: {}", target, e.getLocalizedMessage());
+    continue;
+}
                 GenePage genePage = new GenePage(driver, wait, target, geneId, phenotypePipelineDAO, baseUrl);
 
                 if (genePage.hasImpcImages()) {
