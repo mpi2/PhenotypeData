@@ -129,22 +129,12 @@ ImpcImagesTest {
         for (String geneId : geneIds) {
             RunStatus status = new RunStatus();
             target = baseUrl + "/genes/" + geneId;
-logger.info("target: {}", target);
 
             try {
                 driver.get(target);
 
-                try {
-                    wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("span#enu")));
-                } catch (TimeoutException e) {
-                    logger.info("target: {}. Exception: {}", target, e.getLocalizedMessage());
-                    continue;
-                }
-catch (Exception e) {
+                wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("span#enu")));
 
-    logger.info("target: {}. Exception: {}", target, e.getLocalizedMessage());
-    continue;
-}
                 GenePage genePage = new GenePage(driver, wait, target, geneId, phenotypePipelineDAO, baseUrl);
 
                 if (genePage.hasImpcImages()) {
@@ -162,7 +152,7 @@ catch (Exception e) {
             }
 
             if (status.hasErrors()) {
-                System.out.println("[" + i + "] [FAIL]. REASON: " + StringUtils.join(status.getErrorMessages(), ", "));
+                System.out.println("[" + i + "] [FAIL]. URL: " + target + ". REASON: " + StringUtils.join(status.getErrorMessages(), ", "));
             } else {
                 status.successCount++;
                 System.out.println("[" + i + "] [PASS]. URL: " + target);
