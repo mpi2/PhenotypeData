@@ -93,8 +93,6 @@ public class HistopathController {
 				else {
 					AnatomyDTO anatomy = anatomyService.getTermByName(anatomyTerm);
 					if (anatomy != null) {
-						//System.out.println("anatomy=" + row.getAnatomyName()
-						 //+ anatomy.getAnatomyId());
 						anatomyNameToTermId.put(anatomyTerm, anatomy.getAnatomyId());
 					} else {
 						System.err.println("anatomy missing for "+row.getAnatomyName());
@@ -108,7 +106,8 @@ public class HistopathController {
 						//System.out.println(
 						//		"looping through image " + image.getFieldValues(ImageDTO.PARAMETER_ASSOCIATION_VALUE));
 						for (Object maId : image.getFieldValues(ImageDTO.PARAMETER_ASSOCIATION_VALUE)) {
-							if (maId.equals(row.getAnatomyId())) {
+							System.out.println("row sampleid="+row.getSampleId());
+							if (maId.equals(row.getAnatomyId()) && row.getSampleId().equals(sampleIds.get(image.get(ImageDTO.EXTERNAL_SAMPLE_ID)))) {
 								System.out.println("hurrah anatomy found="+maId);
 								row.addImage(image);
 							}
