@@ -334,10 +334,8 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
 						this.getParameterStableIds(), this.getPipelineStableIds(), this.getPhenotypingCenters());
 				evidenceLink.setAlt("Graph");
 				evidenceLink.setIconType(EvidenceLink.IconType.GRAPH);
-				if (parameter.getStableId().contains("_FER_") || parameter.getStableId().contains("IMPC_EVL_001_")
-						|| parameter.getStableId().contains("IMPC_EVP_001")
-						|| parameter.getStableId().contains("IMPC_EVO_001_")
-						|| parameter.getStableId().contains("IMPC_EVM_001_")) {
+
+				if (parameter.getStableId().contains("_FER_")) {
 					evidenceLink.setDisplay(false);
 				} else {
 					evidenceLink.setDisplay(true);

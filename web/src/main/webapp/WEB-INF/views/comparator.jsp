@@ -44,17 +44,17 @@
    <link href="${omeroStaticUrl}3rdparty/panojs-2.0.0/panojs.css" type="text/css" rel="stylesheet"></link>
    <%--  <link href="${omeroStaticUrl}webgateway/css/ome.gs_slider.css" type="text/css" rel="stylesheet"></link>  --%>
    
-    <script src="${omeroStaticUrl}3rdparty/jquery.mousewheel-3.0.6.js" type="text/javascript"></script> 
+    <%-- <script src="${omeroStaticUrl}3rdparty/jquery.mousewheel-3.0.6.js" type="text/javascript"></script> 
    <script src="${omeroStaticUrl}webgateway/js/ome.gs_slider.js" type="text/javascript"></script> 
    <script src="${omeroStaticUrl}webgateway/js/ome.popup.js" type="text/javascript"></script>
     <script src="${omeroStaticUrl}webgateway/js/ome.gs_utils.js" type="text/javascript"></script>
    <script src="${omeroStaticUrl}webgateway/js/ome.viewport.js" type="text/javascript"></script>
    <script src="${omeroStaticUrl}webgateway/js/ome.viewportImage.js" type="text/javascript"></script>
-    
+     --%>
 </jsp:attribute>
 
 <jsp:attribute name="addToFooter">
-	<%-- <script src="${omeroStaticUrl}/omeroweb.viewer.min.js" type="text/javascript"></script> --%>
+	<script src="${omeroStaticUrl}/omeroweb.viewer.min.js" type="text/javascript"></script> 
 	<script type='text/javascript' src="${baseUrl}/js/comparator/comparator.js?v=${version}"></script>
 </jsp:attribute>
 <jsp:body>
