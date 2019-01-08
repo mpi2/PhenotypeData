@@ -16,6 +16,7 @@
 
 package org.mousephenotype.cda.ri;
 
+import org.mousephenotype.cda.ri.core.services.GenerateService;
 import org.mousephenotype.cda.ri.core.utils.SqlUtils;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -30,6 +31,8 @@ import javax.sql.DataSource;
  */
 @Configuration
 public class BaseTestConfig {
+
+    public static final String PA_BASE_URL = "https://dev.mousephenotype.org/data";
     @Bean
     public DataSource riDataSource() {
         return new EmbeddedDatabaseBuilder()
@@ -47,5 +50,10 @@ public class BaseTestConfig {
     @Bean
     protected NamedParameterJdbcTemplate jdbc() {
         return new NamedParameterJdbcTemplate(riDataSource());
+    }
+
+    @Bean
+    protected GenerateService generateService() {
+        return new GenerateService(PA_BASE_URL, sqlUtils());
     }
 }

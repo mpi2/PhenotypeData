@@ -975,11 +975,13 @@ public class ObservationService extends BasicService implements WebStatus {
     public List<ObservationDTO> getViabilityData(String parameterStableId, String pipelineStableId, String gene, List<String> zygosities, String phenotypingCenter, String strain, SexType sex, String metaDataGroup, String alleleAccession)
     throws SolrServerException, IOException  {
 
-        List<ObservationDTO> resultsDTO;
+        List<ObservationDTO> resultsDTO = null;
         SolrQuery query = buildQuery(parameterStableId, pipelineStableId, gene, zygosities, phenotypingCenter, strain, sex, metaDataGroup, alleleAccession);
         QueryResponse response = solr.query(query);
-        resultsDTO = response.getBeans(ObservationDTO.class);
-
+        // Avoid calling this method if there are no results
+        for(int i=0; i < response.getResults().getNumFound(); i++){
+            resultsDTO = response.getBeans(ObservationDTO.class);
+        }
         return resultsDTO;
 
     }

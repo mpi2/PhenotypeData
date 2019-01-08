@@ -21,6 +21,7 @@ import org.mousephenotype.cda.enumerations.ControlStrategy;
 import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
+import org.mousephenotype.cda.enumerations.EmbryoViability;
 import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
@@ -29,6 +30,7 @@ import org.mousephenotype.cda.solr.stats.strategy.AllControlsStrategy;
 import org.mousephenotype.cda.solr.stats.strategy.ControlSelectionStrategy;
 import org.mousephenotype.cda.solr.web.dto.FertilityDTO;
 import org.mousephenotype.cda.solr.web.dto.ViabilityDTO;
+import org.mousephenotype.cda.solr.web.dto.EmbryoViability_DTO;
 import org.mousephenotype.cda.web.TimeSeriesConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -127,7 +129,7 @@ public class ExperimentService{
             if (experiment.getMetadata() == null) {
                 experiment.setMetadata(observation.getMetadata());
             }
-            
+
             if (observation.getAlleleSymbol() != null){ 
             	experiment.setAlleleSymobl(observation.getAlleleSymbol());
             }
@@ -195,7 +197,7 @@ public class ExperimentService{
             experiment.setProcedureName(observation.getProcedureName());
 
             experimentsMap.put(experimentKey, experiment);
-            
+
         }
 
         // Set to record the experiments that don't have control data
@@ -427,26 +429,52 @@ public class ExperimentService{
     public ViabilityDTO getSpecificViabilityExperimentDTO(String parameterStableId, String pipelineStableId, String acc, String phenotypingCenter, String strain, String metadataGroup, String alleleAccession) throws SolrServerException, IOException , URISyntaxException, SpecificExperimentException {
         ViabilityDTO viabilityDTO=new ViabilityDTO();
         Map<String, ObservationDTO> paramStableIdToObservation = new HashMap<>();
-            //for viability we don't need to filter on Sex or Zygosity
+        //for viability we don't need to filter on Sex or Zygosity
         List<ObservationDTO> observations = os.getExperimentObservationsBy(parameterStableId, pipelineStableId, acc, null, phenotypingCenter, strain, null, metadataGroup, alleleAccession);
         ObservationDTO outcomeObservation = observations.get(0);
         System.out.println("specific outcome="+observations);
-           System.out.println("category of observation="+outcomeObservation.getCategory());
-       viabilityDTO.setCategory(observations.get(0).getCategory());
-       for(int i=3;i<15; i++){
-    	   String formatted = String.format("%02d",i);
-           System.out.println("Number with leading zeros: " + formatted);
-    	   String param="IMPC_VIA_0"+formatted+"_001";
-           List<ObservationDTO> observationsForCounts = os.getViabilityData(param, pipelineStableId, acc, null, phenotypingCenter, strain, null, metadataGroup, alleleAccession);
-           if(observationsForCounts.size()>1){
-        	   System.err.println("More than one observation found for a viability request!!!");
-           }
-           System.out.println("vai param name="+observationsForCounts.get(0).getParameterName());
-           System.out.println("via data_point="+observationsForCounts.get(0).getDataPoint());
-           paramStableIdToObservation.put(param,observationsForCounts.get(0));
-       }
-       viabilityDTO.setParamStableIdToObservation(paramStableIdToObservation);
+        System.out.println("category of observation="+outcomeObservation.getCategory());
+        viabilityDTO.setCategory(observations.get(0).getCategory());
+        for(int i=3;i<15; i++){
+            String formatted = String.format("%02d",i);
+            System.out.println("Number with leading zeros: " + formatted);
+            String param="IMPC_VIA_0"+formatted+"_001";
+            List<ObservationDTO> observationsForCounts = os.getViabilityData(param, pipelineStableId, acc, null, phenotypingCenter, strain, null, metadataGroup, alleleAccession);
+            if(observationsForCounts.size()>1){
+                System.err.println("More than one observation found for a viability request!!!");
+            }
+            System.out.println("vai param name="+observationsForCounts.get(0).getParameterName());
+            System.out.println("via data_point="+observationsForCounts.get(0).getDataPoint());
+            paramStableIdToObservation.put(param,observationsForCounts.get(0));
+        }
+        viabilityDTO.setParamStableIdToObservation(paramStableIdToObservation);
         return viabilityDTO;
+    }
+
+    public EmbryoViability_DTO getSpecificEmbryoViability_ExperimentDTO(String parameterStableId, String pipelineStableId, String acc, String phenotypingCenter, String strain, String metadataGroup, String alleleAccession, EmbryoViability embryoViability) throws SolrServerException, IOException , URISyntaxException, SpecificExperimentException {
+        EmbryoViability_DTO embryoViability_DTO=new EmbryoViability_DTO(embryoViability);
+        Map<String, ObservationDTO> paramStableIdToObservation = new HashMap<>();
+        //for viability we don't need to filter on Sex or Zygosity
+        List<ObservationDTO> observations = os.getExperimentObservationsBy(parameterStableId, pipelineStableId, acc, null, phenotypingCenter, strain, null, metadataGroup, alleleAccession);
+        ObservationDTO outcomeObservation = observations.get(0);
+        System.out.println("specific outcome="+observations);
+        System.out.println("category of observation="+outcomeObservation.getCategory());
+        System.out.println("proceedure_name of observation="+outcomeObservation.getProcedureName());
+        embryoViability_DTO.setCategory(observations.get(0).getCategory());
+        embryoViability_DTO.setProceedureName(observations.get(0).getProcedureName());
+        for(String param : embryoViability_DTO.parameters.parameterList){
+            List<ObservationDTO> observationsForCounts = os.getViabilityData(param, pipelineStableId, acc, null, phenotypingCenter, strain, null, metadataGroup, alleleAccession);
+            if(observationsForCounts != null){
+                if(observationsForCounts.size()>1){
+                    System.err.println("More than one observation found for a viability request!!!");
+                }
+                System.out.println("vai param name="+observationsForCounts.get(0).getParameterName());
+                System.out.println("via data_point="+observationsForCounts.get(0).getDataPoint());
+                paramStableIdToObservation.put(param,observationsForCounts.get(0));
+            }
+        }
+        embryoViability_DTO.setParamStableIdToObservation(paramStableIdToObservation);
+        return embryoViability_DTO;
     }
 
     public FertilityDTO getSpecificFertilityExperimentDTO(String parameterStableId, String pipelineStableId, String acc, String phenotypingCenter, String strain, String metadataGroup, String alleleAccession) throws SolrServerException, IOException , URISyntaxException, SpecificExperimentException {

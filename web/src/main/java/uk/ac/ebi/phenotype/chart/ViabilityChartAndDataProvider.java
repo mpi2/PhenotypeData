@@ -24,6 +24,7 @@ import org.apache.commons.lang.WordUtils;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
 import org.mousephenotype.cda.solr.web.dto.ViabilityDTO;
+import org.mousephenotype.cda.solr.web.dto.EmbryoViability_DTO;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -66,10 +67,10 @@ public class ViabilityChartAndDataProvider {
 			maleLabelToNumber.put(WordUtils.capitalize(ob.getParameterName()), Math.round(ob.getDataPoint()));
 			}
 		}
-		Map<String, Integer> femaleLabelToNumber = new LinkedHashMap<>();
 		String maleChart = PieChartCreator.getPieChart(maleLabelToNumber, "maleChart", "Male Counts", "", ChartColors.getZygosityColorMap());
 		viabilityDTO.setMaleChart(maleChart);
 
+		Map<String, Integer> femaleLabelToNumber = new LinkedHashMap<>();
 		for(ObservationDTO ob:female){
 			if(Math.round(ob.getDataPoint())>0){
 			femaleLabelToNumber.put(WordUtils.capitalize(ob.getParameterName()), Math.round(ob.getDataPoint()));
@@ -80,4 +81,72 @@ public class ViabilityChartAndDataProvider {
 		return viabilityDTO;
 	}
 
+
+	public EmbryoViability_DTO doEmbryo_ViabilityData(ParameterDTO parameter, EmbryoViability_DTO embryoViability_DTO) {
+		//we need 3 sets of data for the 3 graphs
+		Map<String, ObservationDTO> paramStableIdToObservation = embryoViability_DTO.getParamStableIdToObservation();
+
+		List<ObservationDTO> total=new ArrayList<>();
+		total.add(paramStableIdToObservation.get(embryoViability_DTO.parameters.totalEmbryosWt));
+		total.add(paramStableIdToObservation.get(embryoViability_DTO.parameters.totalEmbryosHet));
+		total.add(paramStableIdToObservation.get(embryoViability_DTO.parameters.totalEmbryosHom));
+		System.out.println(embryoViability_DTO.parameters.totalEmbryosWt);
+
+
+		List<ObservationDTO> dead=new ArrayList<>();
+		dead.add(paramStableIdToObservation.get(embryoViability_DTO.parameters.totalDeadEmbryosWt));
+		dead.add(paramStableIdToObservation.get(embryoViability_DTO.parameters.totalDeadEmbryosHet));
+		dead.add(paramStableIdToObservation.get(embryoViability_DTO.parameters.totalDeadEmbryosHom));
+
+
+		List<ObservationDTO> live=new ArrayList<>();
+		live.add(paramStableIdToObservation.get(embryoViability_DTO.parameters.totalLiveEmbryosWt));
+		live.add(paramStableIdToObservation.get(embryoViability_DTO.parameters.totalLiveEmbryosHet));
+		live.add(paramStableIdToObservation.get(embryoViability_DTO.parameters.totalLiveEmbryosHom));
+
+
+		Map<String, Integer> totalLabelToNumber = new LinkedHashMap<>();
+		for(ObservationDTO ob:total){
+			if(ob != null){
+				if(Math.round(ob.getDataPoint())>0){
+					totalLabelToNumber.put(WordUtils.capitalize(ob.getParameterName()), Math.round(ob.getDataPoint()));
+				}
+			}
+		}
+		if(totalLabelToNumber.size() > 0){
+			String totalChart = PieChartCreator.getPieChart(totalLabelToNumber, "totalChart", "Total Counts (Dead and Live)", "", ChartColors.getZygosityColorMap());
+			embryoViability_DTO.setTotalChart(totalChart);
+		}
+
+		Map<String, Integer> deadLabelToNumber = new LinkedHashMap<>();
+		for(ObservationDTO ob:dead){
+			if(ob != null){
+				if(Math.round(ob.getDataPoint())>0){
+					deadLabelToNumber.put(WordUtils.capitalize(ob.getParameterName()), Math.round(ob.getDataPoint()));
+				}
+			}
+		}
+		if(deadLabelToNumber.size() > 0){
+			String deadChart = PieChartCreator.getPieChart(deadLabelToNumber, "deadChart", "Dead Counts", "", ChartColors.getZygosityColorMap());
+			embryoViability_DTO.setDeadChart(deadChart);
+		}
+
+		Map<String, Integer> liveLabelToNumber = new LinkedHashMap<>();
+		for(ObservationDTO ob:live){
+			if(ob != null){
+				if(Math.round(ob.getDataPoint())>0){
+					liveLabelToNumber.put(WordUtils.capitalize(ob.getParameterName()), Math.round(ob.getDataPoint()));
+				}
+			}
+		}
+		if (liveLabelToNumber.size() > 0){
+			String liveChart = PieChartCreator.getPieChart(liveLabelToNumber, "liveChart", "Live Counts", "", ChartColors.getZygosityColorMap());
+			embryoViability_DTO.setLiveChart(liveChart);
+		}
+
+		return embryoViability_DTO;
+
+	}
+
+	
 }

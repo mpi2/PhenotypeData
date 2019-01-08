@@ -90,6 +90,7 @@ public class OverviewChartsController {
 
 
 	@ResponseBody
+	@CrossOrigin(origins = "*", maxAge = 3600)
 	@RequestMapping(value="/chordDiagram.json", method=RequestMethod.GET)
 	public String getMatrix(
 			@RequestParam(required = false, value = "phenotype_name") List<String> phenotypeName,

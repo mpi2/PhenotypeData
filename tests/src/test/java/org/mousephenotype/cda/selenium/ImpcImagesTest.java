@@ -60,7 +60,8 @@ import java.util.List;
 @RunWith(SpringRunner.class)
 @TestPropertySource("file:${user.home}/configfiles/${profile:dev}/test.properties")
 @SpringBootTest(classes = TestConfig.class)
-public class ImpcImagesTest {
+public class
+ImpcImagesTest {
 
     private CommonUtils   commonUtils = new CommonUtils();
     private WebDriver     driver;
@@ -132,12 +133,8 @@ public class ImpcImagesTest {
             try {
                 driver.get(target);
 
-                try {
-                    wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("span#enu")));
-                } catch (TimeoutException e) {
-                    logger.info("target: {}. Exception: {}", target, e.getLocalizedMessage());
-                    continue;
-                }
+                wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("span#enu")));
+
                 GenePage genePage = new GenePage(driver, wait, target, geneId, phenotypePipelineDAO, baseUrl);
 
                 if (genePage.hasImpcImages()) {
@@ -155,7 +152,7 @@ public class ImpcImagesTest {
             }
 
             if (status.hasErrors()) {
-                System.out.println("[" + i + "] [FAIL]. REASON: " + StringUtils.join(status.getErrorMessages(), ", "));
+                System.out.println("[" + i + "] [FAIL]. URL: " + target + ". REASON: " + StringUtils.join(status.getErrorMessages(), ", "));
             } else {
                 status.successCount++;
                 System.out.println("[" + i + "] [PASS]. URL: " + target);
