@@ -105,10 +105,10 @@ public class HistopathController {
 					if (image != null && image.containsKey(ImageDTO.PARAMETER_ASSOCIATION_VALUE)) {
 						//System.out.println(
 						//		"looping through image " + image.getFieldValues(ImageDTO.PARAMETER_ASSOCIATION_VALUE));
-						for (Object maId : image.getFieldValues(ImageDTO.PARAMETER_ASSOCIATION_VALUE)) {
-							System.out.println("row sampleid="+row.getSampleId());
-							if (maId.equals(row.getAnatomyId()) && row.getSampleId().equals(sampleIds.get(image.get(ImageDTO.EXTERNAL_SAMPLE_ID)))) {
-								System.out.println("hurrah anatomy found="+maId);
+						for (Object maId : image.getFieldValues(ImageDTO.PARAMETER_ASSOCIATION_NAME)) {
+							//System.out.println("row sampleid="+row.getSampleId());
+							if (maId.equals(row.getAnatomyName()) && row.getSampleId().equals(sampleIds.get(image.get(ImageDTO.EXTERNAL_SAMPLE_ID)))) {
+								//System.out.println("hurrah anatomy found="+maId);
 								row.addImage(image);
 							}
 						}
