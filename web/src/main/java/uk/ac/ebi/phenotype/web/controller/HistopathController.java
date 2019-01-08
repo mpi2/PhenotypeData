@@ -8,6 +8,7 @@ import org.mousephenotype.cda.solr.service.HistopathService;
 import org.mousephenotype.cda.solr.service.ImageService;
 import org.mousephenotype.cda.solr.service.dto.AnatomyDTO;
 import org.mousephenotype.cda.solr.service.dto.GeneDTO;
+import org.mousephenotype.cda.solr.service.dto.ImageDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.mousephenotype.cda.solr.web.dto.HistopathPageTableRow;
 import org.slf4j.Logger;
@@ -65,7 +66,7 @@ public class HistopathController {
 		for (ObservationDTO obs : allObservations) {
 			if(obs.getDownloadFilePath()!=null){
 				SolrDocument image = imageService.getImageByDownloadFilePath(obs.getDownloadFilePath());
-				
+				System.out.println("image="+image);
 				histopathImagesForGene.add(image);
 			}
 			
@@ -92,18 +93,31 @@ public class HistopathController {
 				else {
 					AnatomyDTO anatomy = anatomyService.getTermByName(anatomyTerm);
 					if (anatomy != null) {
-						// System.out.println("anatomy=" + row.getAnatomyName()
-						// + anatomy.getAnatomyId());
 						anatomyNameToTermId.put(anatomyTerm, anatomy.getAnatomyId());
 					} else {
-						// System.out.println("anatomy missing for
-						// "+row.getAnatomyName());
+						System.err.println("anatomy missing for "+row.getAnatomyName());
 						anatomyNameToTermId.put(anatomyTerm, "");
 					}
 					row.setAnatomyId(anatomyNameToTermId.get(anatomyTerm));
 				}
+				
+				for (SolrDocument image : histopathImagesForGene) {
+					if (image != null && image.containsKey(ImageDTO.PARAMETER_ASSOCIATION_VALUE)) {
+						//System.out.println(
+						//		"looping through image " + image.getFieldValues(ImageDTO.PARAMETER_ASSOCIATION_VALUE));
+						for (Object maId : image.getFieldValues(ImageDTO.PARAMETER_ASSOCIATION_VALUE)) {
+							System.out.println("row sampleid="+row.getSampleId());
+							if (maId.equals(row.getAnatomyId()) && row.getSampleId().equals(sampleIds.get(image.get(ImageDTO.EXTERNAL_SAMPLE_ID)))) {
+								System.out.println("hurrah anatomy found="+maId);
+								row.addImage(image);
+							}
+						}
+					}
+				}
 			}
 			parameterNames.addAll(row.getParameterNames());
+			
+			
 		}
 
 		// Collections.sort(histopathRows, new HistopathAnatomyComparator());

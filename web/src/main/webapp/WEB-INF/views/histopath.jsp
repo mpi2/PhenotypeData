@@ -63,7 +63,7 @@
 							<p>1=Significant (histopathology finding that is interpreted by the histopathologist to not be a background strain-related finding or an incidental finding)
 					</div>
 							
-							<div class="inner">
+							<div class="inner" style="width: 2000px;">
 							 ${gene.markerSymbol}: ${gene.markerName}
 							 
 							 <table id="histopath" class="table tableSorter">
@@ -71,9 +71,9 @@
 							<thead>
 							<tr>
 							
-							<th>
+							<%-- removed as not date of sacrifice so some are ridiculous - until Luis has added date of sacrifice <th>
 							Age in Weeks
-							</th>
+							</th> --%>
 							<th>
 							Zyg
 							</th>
@@ -112,9 +112,9 @@
 							Free Text
 							</th>
 							
-							<%-- <th>
+							<th>
 							Images
-							</th> --%>
+							</th>
 							<%-- <th>Sample Id</th> --%>
 						
 							
@@ -124,9 +124,9 @@
 								<c:forEach var="histRow" items="${histopathRows}">
 								
 								<tr>
-									<td>
+									<%-- <td>
 									${histRow.ageInWeeks}
-									</td>
+									</td> --%>
 									<td>
 									${histRow.zygosity}
 					
@@ -279,18 +279,18 @@
 									
 									
 									
-									<%-- <td>
-										<c:forEach var="image" items="${histRow.imageList }"> --%>
+									<td>
+										<c:forEach var="image" items="${histRow.imageList }">
 										
 										<%-- <img src="${impcMediaBaseUrl}render_thumbnail/${image.omeroId}/200"/>  --%>
 										<%-- increment= ${image.increment_value} --%>
-										 <!-- <div id="grid"> -->
+										 <!-- <div id="grid">  -->
                                            
-												<%-- <t:impcimghistdisplay img="${image}" impcMediaBaseUrl="${impcMediaBaseUrl}"></t:impcimghistdisplay> --%>
-											
-										<!-- </div> -->
-										<%-- </c:forEach> 
-									</td> --%>
+												<t:hist_img_display img="${image}" impcMediaBaseUrl="${impcMediaBaseUrl}"></t:hist_img_display> 
+													
+										<!-- </div>  -->
+										 </c:forEach> 
+									</td> 
 									<%-- <td id="${histRow.sampleId}_${histRow.anatomyName}">
 										${histRow.sampleId}
 									</td> --%>
@@ -338,7 +338,7 @@
       <script> 
         $(document).ready(function() {
     $('#histopath').DataTable(
-    		{"paging":   false, "searching": false, "order": [[ 3, "asc" ]]});
+    		{"paging":   false, "searching": false, "order": [[ 2, "asc" ]]});
 } );
         </script> 
     </jsp:body>
