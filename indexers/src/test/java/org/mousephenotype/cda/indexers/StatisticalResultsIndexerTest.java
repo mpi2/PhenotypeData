@@ -1,6 +1,5 @@
 package org.mousephenotype.cda.indexers;
 
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -10,8 +9,6 @@ import org.mousephenotype.cda.indexers.utils.IndexerMap;
 import org.mousephenotype.cda.owl.OntologyParserFactory;
 import org.mousephenotype.cda.solr.service.AbstractGenotypePhenotypeService;
 import org.mousephenotype.cda.solr.service.dto.StatisticalResultDTO;
-import org.semanticweb.owlapi.model.OWLOntologyCreationException;
-import org.semanticweb.owlapi.model.OWLOntologyStorageException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
@@ -25,8 +22,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
-import java.io.IOException;
-import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;

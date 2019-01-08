@@ -25,6 +25,7 @@ import org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerA
 import org.springframework.boot.autoconfigure.jms.JndiConnectionFactoryAutoConfiguration;
 import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.retry.annotation.EnableRetry;
 
 /**
  * Created by mrelac on 18/08/16.
@@ -34,6 +35,7 @@ import org.springframework.context.annotation.Configuration;
  */
 @Configuration
 @EnableBatchProcessing
+@EnableRetry
 @EnableAutoConfiguration(exclude = {
         JndiConnectionFactoryAutoConfiguration.class,
         DataSourceAutoConfiguration.class,

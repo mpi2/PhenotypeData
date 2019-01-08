@@ -21,6 +21,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mousephenotype.cda.db.WeightMap;
 import org.mousephenotype.cda.loads.create.extract.dcc.DccExperimentExtractor;
 import org.mousephenotype.cda.loads.create.extract.dcc.DccSpecimenExtractor;
 import org.mousephenotype.cda.loads.create.load.ExperimentLoader;
@@ -41,6 +42,10 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -269,5 +274,190 @@ public class ImpcSpecimenExperimentLoadIntegrationTest {
 
         Assert.assertEquals(1, experimentCount.intValue());
         Assert.assertEquals(1, observationCount.intValue());
+    }
+
+
+
+
+    @Test
+    public void testWeightMapIsDeterministicRegardlessOfOrderOfLoadedValues() throws Exception {
+
+        Integer MAX_REPEATED_LOAD_ATTEMPTS = 10;
+        ZonedDateTime dateOfExperiment = ZonedDateTime.ofInstant(new SimpleDateFormat("yyyy-MM-dd").parse("2009-10-16").toInstant(), ZoneId.of("UTC"));
+        Set<WeightMap.BodyWeight> nearestWeights = new HashSet<>();
+
+        for (int i = 0; i<MAX_REPEATED_LOAD_ATTEMPTS; i++) {
+
+            Resource cdaResource = context.getResource("classpath:sql/h2/LoadImpcSpecimenExperiment-data.sql");
+            Resource specimenResource = context.getResource("classpath:xml/ImpcSpecimenExperiment-specimens.xml");
+            Resource experimentResourceWeightsFirstOrder = context.getResource("classpath:xml/ImpcSpecimenExperiment-experiments-weight1.xml");
+            Resource experimentResourceWeightsSecondOrder = context.getResource("classpath:xml/ImpcSpecimenExperiment-experiments-weight2.xml");
+
+            String[] extractSpecimenArgs = new String[]{
+                    "--datasourceShortName=IMPC",
+                    "--filename=" + specimenResource.getFile().getAbsolutePath()
+            };
+
+            String[] extractExperimentArgsFirstOrder = new String[]{
+                    "--datasourceShortName=IMPC",
+                    "--filename=" + experimentResourceWeightsFirstOrder.getFile().getAbsolutePath()
+            };
+
+            String[] extractExperimentArgsSecondOrder = new String[]{
+                    "--datasourceShortName=IMPC",
+                    "--filename=" + experimentResourceWeightsSecondOrder.getFile().getAbsolutePath()
+            };
+
+            String[] loadArgs = new String[]{
+            };
+
+            resetDatabases(cdaResource);
+
+            // First load of the weight data
+            dccSpecimenExtractor.run(extractSpecimenArgs);
+            dccExperimentExtractor.run(extractExperimentArgsFirstOrder);
+            sampleLoader.run(loadArgs);
+            experimentLoader.setSHUFFLE(Boolean.TRUE);
+            experimentLoader.run(loadArgs);
+
+            nearestWeights.add(getNearestWeightFromDatabase(dateOfExperiment));
+
+            System.out.println("\n********************************************************************");
+            System.out.println("NEAREST WEIGHTS SET AFTER LOAD USING FIRST ORDERING: " + nearestWeights);
+            System.out.println("********************************************************************\n");
+            resetDatabases(cdaResource);
+
+
+            // Second load of the weight data
+            dccSpecimenExtractor.run(extractSpecimenArgs);
+            dccExperimentExtractor.run(extractExperimentArgsSecondOrder);
+            sampleLoader.run(loadArgs);
+            experimentLoader.setSHUFFLE(Boolean.TRUE);
+            experimentLoader.run(loadArgs);
+
+            nearestWeights.add(getNearestWeightFromDatabase(dateOfExperiment));
+
+            System.out.println("\n*********************************************************************");
+            System.out.println("NEAREST WEIGHTS SET AFTER LOAD USING SECOND ORDERING: " + nearestWeights);
+            System.out.println("*********************************************************************\n");
+
+            // Found a case where the nearest weight algorithm is non-deterministic,
+            // Break out of the loop as the test will now fail
+            if (nearestWeights.size() > 1) {
+                break;
+            }
+        }
+
+        Assert.assertEquals(1, nearestWeights.size());
+    }
+
+
+    @Test
+    public void testWeightMapReturnsWeightFromSameProcedure() throws Exception {
+
+        Integer MAX_REPEATED_LOAD_ATTEMPTS = 5;
+        ZonedDateTime dateOfExperiment = ZonedDateTime.ofInstant(new SimpleDateFormat("yyyy-MM-dd").parse("2009-10-16").toInstant(), ZoneId.of("UTC"));
+        Set<WeightMap.BodyWeight> nearestWeights = new HashSet<>();
+
+        for (int i = 0; i<MAX_REPEATED_LOAD_ATTEMPTS; i++) {
+
+            Resource cdaResource = context.getResource("classpath:sql/h2/LoadImpcSpecimenExperiment-data.sql");
+            Resource specimenResource2 = context.getResource("classpath:xml/ImpcSpecimenExperiment-specimens2.xml");
+            Resource experimentResourceWeights = context.getResource("classpath:xml/ImpcSpecimenExperiment-experiments-weight3.xml");
+
+            String[] extractSpecimenArgs = new String[]{
+                    "--datasourceShortName=IMPC",
+                    "--filename=" + specimenResource2.getFile().getAbsolutePath()
+            };
+
+            String[] extractExperimentArgs = new String[]{
+                    "--datasourceShortName=IMPC",
+                    "--filename=" + experimentResourceWeights.getFile().getAbsolutePath()
+            };
+
+            String[] loadArgs = new String[]{
+            };
+
+            resetDatabases(cdaResource);
+
+            // First load of the weight data
+            dccSpecimenExtractor.run(extractSpecimenArgs);
+            dccExperimentExtractor.run(extractExperimentArgs);
+            sampleLoader.run(loadArgs);
+            experimentLoader.setSHUFFLE(Boolean.TRUE);
+            experimentLoader.run(loadArgs);
+
+            nearestWeights.add(getNearestWeightFromDatabase(dateOfExperiment));
+
+            System.out.println("\n********************************************************************");
+            System.out.println("Iteration " + i + " NEAREST WEIGHTS SET AFTER LOAD USING FIRST ORDERING: " + nearestWeights);
+            System.out.println("********************************************************************\n");
+
+            // Found a case where the nearest weight algorithm is non-deterministic,
+            // Break out of the loop as the test will now fail
+            Assert.assertEquals(1, nearestWeights.size());
+            Assert.assertTrue(new ArrayList<>(nearestWeights).get(0).getWeight() - 35.31 < 0.0001);
+            Assert.assertTrue(new ArrayList<>(nearestWeights).get(0).getParameterStableId().contains("DXA"));
+        }
+
+    }
+
+
+
+    //
+    // BEGIN PRIVATE METHODS
+    //
+
+
+    private void resetDatabases(Resource cdaResource) throws SQLException {
+        //
+        // DROP AND RECREATE THE DATABASE
+        //
+
+        String[] cdaSchemas = new String[]{
+                "sql/h2/cda/schema.sql",
+                "sql/h2/impress/impressSchema.sql"
+        };
+        String[] dccSchemas = new String[]{
+                "sql/h2/dcc/createSpecimen.sql",
+                "sql/h2/dcc/createExperiment.sql"
+        };
+
+        for (String schema : cdaSchemas) {
+            Resource r = context.getResource(schema);
+            ScriptUtils.executeSqlScript(cdaDataSource.getConnection(), r);
+        }
+        for (String schema : dccSchemas) {
+            Resource r = context.getResource(schema);
+            ScriptUtils.executeSqlScript(dccDataSource.getConnection(), r);
+
+        }
+
+        ScriptUtils.executeSqlScript(cdaDataSource.getConnection(), cdaResource);
+
+        Resource r = context.getResource("sql/h2/H2ReplaceDateDiff.sql");
+        ScriptUtils.executeSqlScript(cdaDataSource.getConnection(), r);
+    }
+
+
+    private WeightMap.BodyWeight getNearestWeightFromDatabase(ZonedDateTime dateOfExperiment) throws SQLException {
+
+        WeightMap weightMap = new WeightMap(cdaDataSource);
+        weightMap.initialize();
+        logger.debug("Weight Map is :" + weightMap.get());
+
+        // Get the specimen ID for checking weight
+        Integer testDbId = null;
+        try (Connection c = cdaDataSource.getConnection(); PreparedStatement s = c.prepareStatement("SELECT * FROM biological_sample where external_id = 'C10837'")) {
+            ResultSet rs = s.executeQuery();
+            while (rs.next()) {
+                testDbId = rs.getInt("id");
+            }
+        }
+
+        logger.debug("Weight map for specimen 'C10837' (DB ID is " + testDbId + ") is : " + weightMap.get(testDbId));
+        logger.debug("Nearest weight to " + dateOfExperiment + " is " + weightMap.getNearestWeight(testDbId, "IMPC_DXA_002_001", dateOfExperiment));
+
+        return weightMap.getNearestWeight(testDbId, dateOfExperiment);
     }
 }

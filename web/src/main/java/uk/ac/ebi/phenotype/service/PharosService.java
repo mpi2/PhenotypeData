@@ -1,15 +1,12 @@
 package uk.ac.ebi.phenotype.service;
 
 import com.fasterxml.jackson.annotation.*;
-import org.apache.commons.lang.builder.ToStringBuilder;
 import org.springframework.retry.annotation.EnableRetry;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import javax.validation.Valid;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -19,28 +16,20 @@ import java.util.Map;
 @Service
 public class PharosService {
 
-    private static final String PHAROS_URL = "http://juniper.health.unm.edu/tcrd/api/target?q={q}";
+private static final String PHAROS_URL = "https://pharos.nih.gov/idg/api/v1/targets";
     private RestTemplate restTemplate = new RestTemplate();
 
     @Retryable
     public PharosDTO getPharosInfo(String humanGeneSymbol){
 
-        Map<String, String> params = new HashMap<>();
-        params.put("q", "{\"genesymb\":\"" + humanGeneSymbol + "\"}");
-
-        PharosRestDTO result = restTemplate.getForObject(PHAROS_URL, PharosRestDTO.class, params);
+        String url = PHAROS_URL + "/" + humanGeneSymbol;
+        PharosRestDTO result = restTemplate.getForObject(url, PharosRestDTO.class);
 
         System.out.println(result);
 
-        if(result != null && result.getResults().size() > 0){
+        if(result != null) {
 
-            List<Result> res = result.getResults();
-
-            if (res.size() > 1){
-                System.out.println("More than 1 PHAROS result for this gene!! " + PHAROS_URL.replace("{q}", params.get("q")) );
-            }
-
-            PharosDTO pharos = getPharosDtoFromResult(res.get(0), humanGeneSymbol);
+            PharosDTO pharos = getPharosDtoFromResult(result, humanGeneSymbol);
 
             return pharos;
 
@@ -50,14 +39,13 @@ public class PharosService {
     }
 
 
-    PharosDTO getPharosDtoFromResult(Result res, String humanGeneSymbol) {
+    PharosDTO getPharosDtoFromResult(PharosRestDTO result, String humanGeneSymbol) {
 
         PharosDTO pharosDTO = new PharosDTO();
 
-        pharosDTO.setIdg2(res.getIdg2());
-        pharosDTO.setIdgfam(res.getFam());
+        pharosDTO.setIdgfam(result.getIdgFamily());
         pharosDTO.setPageLink("https://pharos.nih.gov/idg/targets/" + humanGeneSymbol);
-        pharosDTO.setTdl(res.getTdl());
+        pharosDTO.setTdl(result.getIdgTDL());
 
         return pharosDTO;
     }
@@ -68,381 +56,230 @@ public class PharosService {
 
     // **
     // ** NOTE: If the classes need to be regenerated, DO NOT FORGET that the static modifier must be
-    // **       must be added to all the constructors or this will not work.  For more infromation see
+    // **       added to all the constructors or this will not work.  For more infromation see
     // **       http://www.cowtowncoder.com/blog/archives/2010/08/entry_411.html
     // **
 
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @JsonPropertyOrder({
-            "protein"
-    })
-    public static class Components {
-
-        @JsonProperty("protein")
-        @Valid
-        private List<Protein> protein = null;
-        @JsonIgnore
-        @Valid
-        private Map<String, Object> additionalProperties = new HashMap<String, Object>();
-
-        /**
-         * No args constructor for use in serialization
-         *
-         */
-        public Components() {
-        }
-
-        /**
-         *
-         * @param protein
-         */
-        public Components(List<Protein> protein) {
-            super();
-            this.protein = protein;
-        }
-
-        @JsonProperty("protein")
-        public List<Protein> getProtein() {
-            return protein;
-        }
-
-        @JsonProperty("protein")
-        public void setProtein(List<Protein> protein) {
-            this.protein = protein;
-        }
-
-        @Override
-        public String toString() {
-            return ToStringBuilder.reflectionToString(this);
-        }
-
-        @JsonAnyGetter
-        public Map<String, Object> getAdditionalProperties() {
-            return this.additionalProperties;
-        }
-
-        @JsonAnySetter
-        public void setAdditionalProperty(String name, Object value) {
-            this.additionalProperties.put(name, value);
-        }
-
-    }
-
-
-
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    @JsonPropertyOrder({
-            "data_ver",
-            "dbname",
-            "dump_file",
-            "is_copy",
-            "owner",
-            "query",
-            "schema_ver"
-    })
-    public static class Metadata {
-
-        @JsonProperty("data_ver")
-        private String dataVer;
-        @JsonProperty("dbname")
-        private String dbname;
-        @JsonProperty("dump_file")
-        private Object dumpFile;
-        @JsonProperty("is_copy")
-        private Integer isCopy;
-        @JsonProperty("owner")
-        private String owner;
-        @JsonProperty("query")
-        @Valid
-        private Query query;
-        @JsonProperty("schema_ver")
-        private String schemaVer;
-        @JsonIgnore
-        @Valid
-        private Map<String, Object> additionalProperties = new HashMap<String, Object>();
-
-        /**
-         * No args constructor for use in serialization
-         *
-         */
-        public Metadata() {
-        }
-
-        /**
-         *
-         * @param dumpFile
-         * @param dataVer
-         * @param query
-         * @param dbname
-         * @param owner
-         * @param isCopy
-         * @param schemaVer
-         */
-        public Metadata(String dataVer, String dbname, Object dumpFile, Integer isCopy, String owner, Query query, String schemaVer) {
-            super();
-            this.dataVer = dataVer;
-            this.dbname = dbname;
-            this.dumpFile = dumpFile;
-            this.isCopy = isCopy;
-            this.owner = owner;
-            this.query = query;
-            this.schemaVer = schemaVer;
-        }
-
-        @JsonProperty("data_ver")
-        public String getDataVer() {
-            return dataVer;
-        }
-
-        @JsonProperty("data_ver")
-        public void setDataVer(String dataVer) {
-            this.dataVer = dataVer;
-        }
-
-        @JsonProperty("dbname")
-        public String getDbname() {
-            return dbname;
-        }
-
-        @JsonProperty("dbname")
-        public void setDbname(String dbname) {
-            this.dbname = dbname;
-        }
-
-        @JsonProperty("dump_file")
-        public Object getDumpFile() {
-            return dumpFile;
-        }
-
-        @JsonProperty("dump_file")
-        public void setDumpFile(Object dumpFile) {
-            this.dumpFile = dumpFile;
-        }
-
-        @JsonProperty("is_copy")
-        public Integer getIsCopy() {
-            return isCopy;
-        }
-
-        @JsonProperty("is_copy")
-        public void setIsCopy(Integer isCopy) {
-            this.isCopy = isCopy;
-        }
-
-        @JsonProperty("owner")
-        public String getOwner() {
-            return owner;
-        }
-
-        @JsonProperty("owner")
-        public void setOwner(String owner) {
-            this.owner = owner;
-        }
-
-        @JsonProperty("query")
-        public Query getQuery() {
-            return query;
-        }
-
-        @JsonProperty("query")
-        public void setQuery(Query query) {
-            this.query = query;
-        }
-
-        @JsonProperty("schema_ver")
-        public String getSchemaVer() {
-            return schemaVer;
-        }
-
-        @JsonProperty("schema_ver")
-        public void setSchemaVer(String schemaVer) {
-            this.schemaVer = schemaVer;
-        }
-
-        @Override
-        public String toString() {
-            return ToStringBuilder.reflectionToString(this);
-        }
-
-        @JsonAnyGetter
-        public Map<String, Object> getAdditionalProperties() {
-            return this.additionalProperties;
-        }
-
-        @JsonAnySetter
-        public void setAdditionalProperty(String name, Object value) {
-            this.additionalProperties.put(name, value);
-        }
-
-    }
-
-
-
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    @JsonPropertyOrder({
-            "metadata",
-            "results"
+            "id",
+            "version",
+            "created",
+            "modified",
+            "deprecated",
+            "name",
+            "accession",
+            "gene",
+            "description",
+            "idgFamily",
+            "idgTDL",
+            "novelty",
+            "antibodyCount",
+            "monoclonalCount",
+            "pubmedCount",
+            "jensenScore",
+            "patentCount",
+            "grantCount",
+            "grantTotalCost",
+            "r01Count",
+            "ppiCount",
+            "knowledgeAvailability",
+            "pubTatorScore",
+            "kind",
+            "self",
+            "_organism",
+            "_synonyms",
+            "_publications",
+            "_properties",
+            "_links",
+            "_namespace"
     })
     public static class PharosRestDTO {
 
-        @JsonProperty("metadata")
-        @Valid
-        private Metadata metadata;
-        @JsonProperty("results")
-        @Valid
-        private List<Result> results = null;
-        @JsonIgnore
-        @Valid
-        private Map<String, Object> additionalProperties = new HashMap<String, Object>();
-
-        /**
-         * No args constructor for use in serialization
-         *
-         */
-        public PharosRestDTO() {
-        }
-
-        /**
-         *
-         * @param results
-         * @param metadata
-         */
-        public PharosRestDTO(Metadata metadata, List<Result> results) {
-            super();
-            this.metadata = metadata;
-            this.results = results;
-        }
-
-        @JsonProperty("metadata")
-        public Metadata getMetadata() {
-            return metadata;
-        }
-
-        @JsonProperty("metadata")
-        public void setMetadata(Metadata metadata) {
-            this.metadata = metadata;
-        }
-
-        @JsonProperty("results")
-        public List<Result> getResults() {
-            return results;
-        }
-
-        @JsonProperty("results")
-        public void setResults(List<Result> results) {
-            this.results = results;
-        }
-
-        @Override
-        public String toString() {
-            return ToStringBuilder.reflectionToString(this);
-        }
-
-        @JsonAnyGetter
-        public Map<String, Object> getAdditionalProperties() {
-            return this.additionalProperties;
-        }
-
-        @JsonAnySetter
-        public void setAdditionalProperty(String name, Object value) {
-            this.additionalProperties.put(name, value);
-        }
-
-    }
-
-
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    @JsonPropertyOrder({
-            "chr",
-            "description",
-            "dtoid",
-            "family",
-            "geneid",
-            "id",
-            "name",
-            "seq",
-            "stringid",
-            "sym",
-            "uniprot",
-            "up_version"
-    })
-    public static class Protein {
-
-        @JsonProperty("chr")
-        private String chr;
-        @JsonProperty("description")
-        private String description;
-        @JsonProperty("dtoid")
-        private String dtoid;
-        @JsonProperty("family")
-        private String family;
-        @JsonProperty("geneid")
-        private Integer geneid;
         @JsonProperty("id")
         private Integer id;
+        @JsonProperty("version")
+        private Integer version;
+        @JsonProperty("created")
+        private Long created;
+        @JsonProperty("modified")
+        private Long modified;
+        @JsonProperty("deprecated")
+        private Boolean deprecated;
         @JsonProperty("name")
         private String name;
-        @JsonProperty("seq")
-        private String seq;
-        @JsonProperty("stringid")
-        private String stringid;
-        @JsonProperty("sym")
-        private String sym;
-        @JsonProperty("uniprot")
-        private String uniprot;
-        @JsonProperty("up_version")
-        private Integer upVersion;
+        @JsonProperty("accession")
+        private String accession;
+        @JsonProperty("gene")
+        private String gene;
+        @JsonProperty("description")
+        private String description;
+        @JsonProperty("idgFamily")
+        private String idgFamily;
+        @JsonProperty("idgTDL")
+        private String idgTDL;
+        @JsonProperty("novelty")
+        private Double novelty;
+        @JsonProperty("antibodyCount")
+        private Integer antibodyCount;
+        @JsonProperty("monoclonalCount")
+        private Integer monoclonalCount;
+        @JsonProperty("pubmedCount")
+        private Object pubmedCount;
+        @JsonProperty("jensenScore")
+        private Double jensenScore;
+        @JsonProperty("patentCount")
+        private Integer patentCount;
+        @JsonProperty("grantCount")
+        private Object grantCount;
+        @JsonProperty("grantTotalCost")
+        private Object grantTotalCost;
+        @JsonProperty("r01Count")
+        private Object r01Count;
+        @JsonProperty("ppiCount")
+        private Integer ppiCount;
+        @JsonProperty("knowledgeAvailability")
+        private Double knowledgeAvailability;
+        @JsonProperty("pubTatorScore")
+        private Double pubTatorScore;
+        @JsonProperty("kind")
+        private String kind;
+        @JsonProperty("self")
+        private String self;
+        @JsonProperty("_organism")
+        private Object organism;
+        @JsonProperty("_synonyms")
+        private Synonyms synonyms;
+        @JsonProperty("_publications")
+        private Publications publications;
+        @JsonProperty("_properties")
+        private Properties properties;
+        @JsonProperty("_links")
+        private Links links;
+        @JsonProperty("_namespace")
+        private Object namespace;
         @JsonIgnore
-        @Valid
         private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
-        /**
-         * No args constructor for use in serialization
-         *
-         */
-        public Protein() {
+        @JsonProperty("id")
+        public Integer getId() {
+            return id;
         }
 
-        /**
-         *
-         * @param id
-         * @param dtoid
-         * @param geneid
-         * @param upVersion
-         * @param family
-         * @param description
-         * @param name
-         * @param seq
-         * @param stringid
-         * @param sym
-         * @param uniprot
-         * @param chr
-         */
-        public Protein(String chr, String description, String dtoid, String family, Integer geneid, Integer id, String name, String seq, String stringid, String sym, String uniprot, Integer upVersion) {
-            super();
-            this.chr = chr;
-            this.description = description;
-            this.dtoid = dtoid;
-            this.family = family;
-            this.geneid = geneid;
+        @JsonProperty("id")
+        public void setId(Integer id) {
             this.id = id;
+        }
+
+        public PharosRestDTO withId(Integer id) {
+            this.id = id;
+            return this;
+        }
+
+        @JsonProperty("version")
+        public Integer getVersion() {
+            return version;
+        }
+
+        @JsonProperty("version")
+        public void setVersion(Integer version) {
+            this.version = version;
+        }
+
+        public PharosRestDTO withVersion(Integer version) {
+            this.version = version;
+            return this;
+        }
+
+        @JsonProperty("created")
+        public Long getCreated() {
+            return created;
+        }
+
+        @JsonProperty("created")
+        public void setCreated(Long created) {
+            this.created = created;
+        }
+
+        public PharosRestDTO withCreated(Long created) {
+            this.created = created;
+            return this;
+        }
+
+        @JsonProperty("modified")
+        public Long getModified() {
+            return modified;
+        }
+
+        @JsonProperty("modified")
+        public void setModified(Long modified) {
+            this.modified = modified;
+        }
+
+        public PharosRestDTO withModified(Long modified) {
+            this.modified = modified;
+            return this;
+        }
+
+        @JsonProperty("deprecated")
+        public Boolean getDeprecated() {
+            return deprecated;
+        }
+
+        @JsonProperty("deprecated")
+        public void setDeprecated(Boolean deprecated) {
+            this.deprecated = deprecated;
+        }
+
+        public PharosRestDTO withDeprecated(Boolean deprecated) {
+            this.deprecated = deprecated;
+            return this;
+        }
+
+        @JsonProperty("name")
+        public String getName() {
+            return name;
+        }
+
+        @JsonProperty("name")
+        public void setName(String name) {
             this.name = name;
-            this.seq = seq;
-            this.stringid = stringid;
-            this.sym = sym;
-            this.uniprot = uniprot;
-            this.upVersion = upVersion;
         }
 
-        @JsonProperty("chr")
-        public String getChr() {
-            return chr;
+        public PharosRestDTO withName(String name) {
+            this.name = name;
+            return this;
         }
 
-        @JsonProperty("chr")
-        public void setChr(String chr) {
-            this.chr = chr;
+        @JsonProperty("accession")
+        public String getAccession() {
+            return accession;
+        }
+
+        @JsonProperty("accession")
+        public void setAccession(String accession) {
+            this.accession = accession;
+        }
+
+        public PharosRestDTO withAccession(String accession) {
+            this.accession = accession;
+            return this;
+        }
+
+        @JsonProperty("gene")
+        public String getGene() {
+            return gene;
+        }
+
+        @JsonProperty("gene")
+        public void setGene(String gene) {
+            this.gene = gene;
+        }
+
+        public PharosRestDTO withGene(String gene) {
+            this.gene = gene;
+            return this;
         }
 
         @JsonProperty("description")
@@ -455,109 +292,339 @@ public class PharosService {
             this.description = description;
         }
 
-        @JsonProperty("dtoid")
-        public String getDtoid() {
-            return dtoid;
+        public PharosRestDTO withDescription(String description) {
+            this.description = description;
+            return this;
         }
 
-        @JsonProperty("dtoid")
-        public void setDtoid(String dtoid) {
-            this.dtoid = dtoid;
+        @JsonProperty("idgFamily")
+        public String getIdgFamily() {
+            return idgFamily;
         }
 
-        @JsonProperty("family")
-        public String getFamily() {
-            return family;
+        @JsonProperty("idgFamily")
+        public void setIdgFamily(String idgFamily) {
+            this.idgFamily = idgFamily;
         }
 
-        @JsonProperty("family")
-        public void setFamily(String family) {
-            this.family = family;
+        public PharosRestDTO withIdgFamily(String idgFamily) {
+            this.idgFamily = idgFamily;
+            return this;
         }
 
-        @JsonProperty("geneid")
-        public Integer getGeneid() {
-            return geneid;
+        @JsonProperty("idgTDL")
+        public String getIdgTDL() {
+            return idgTDL;
         }
 
-        @JsonProperty("geneid")
-        public void setGeneid(Integer geneid) {
-            this.geneid = geneid;
+        @JsonProperty("idgTDL")
+        public void setIdgTDL(String idgTDL) {
+            this.idgTDL = idgTDL;
         }
 
-        @JsonProperty("id")
-        public Integer getId() {
-            return id;
+        public PharosRestDTO withIdgTDL(String idgTDL) {
+            this.idgTDL = idgTDL;
+            return this;
         }
 
-        @JsonProperty("id")
-        public void setId(Integer id) {
-            this.id = id;
+        @JsonProperty("novelty")
+        public Double getNovelty() {
+            return novelty;
         }
 
-        @JsonProperty("name")
-        public String getName() {
-            return name;
+        @JsonProperty("novelty")
+        public void setNovelty(Double novelty) {
+            this.novelty = novelty;
         }
 
-        @JsonProperty("name")
-        public void setName(String name) {
-            this.name = name;
+        public PharosRestDTO withNovelty(Double novelty) {
+            this.novelty = novelty;
+            return this;
         }
 
-        @JsonProperty("seq")
-        public String getSeq() {
-            return seq;
+        @JsonProperty("antibodyCount")
+        public Integer getAntibodyCount() {
+            return antibodyCount;
         }
 
-        @JsonProperty("seq")
-        public void setSeq(String seq) {
-            this.seq = seq;
+        @JsonProperty("antibodyCount")
+        public void setAntibodyCount(Integer antibodyCount) {
+            this.antibodyCount = antibodyCount;
         }
 
-        @JsonProperty("stringid")
-        public String getStringid() {
-            return stringid;
+        public PharosRestDTO withAntibodyCount(Integer antibodyCount) {
+            this.antibodyCount = antibodyCount;
+            return this;
         }
 
-        @JsonProperty("stringid")
-        public void setStringid(String stringid) {
-            this.stringid = stringid;
+        @JsonProperty("monoclonalCount")
+        public Integer getMonoclonalCount() {
+            return monoclonalCount;
         }
 
-        @JsonProperty("sym")
-        public String getSym() {
-            return sym;
+        @JsonProperty("monoclonalCount")
+        public void setMonoclonalCount(Integer monoclonalCount) {
+            this.monoclonalCount = monoclonalCount;
         }
 
-        @JsonProperty("sym")
-        public void setSym(String sym) {
-            this.sym = sym;
+        public PharosRestDTO withMonoclonalCount(Integer monoclonalCount) {
+            this.monoclonalCount = monoclonalCount;
+            return this;
         }
 
-        @JsonProperty("uniprot")
-        public String getUniprot() {
-            return uniprot;
+        @JsonProperty("pubmedCount")
+        public Object getPubmedCount() {
+            return pubmedCount;
         }
 
-        @JsonProperty("uniprot")
-        public void setUniprot(String uniprot) {
-            this.uniprot = uniprot;
+        @JsonProperty("pubmedCount")
+        public void setPubmedCount(Object pubmedCount) {
+            this.pubmedCount = pubmedCount;
         }
 
-        @JsonProperty("up_version")
-        public Integer getUpVersion() {
-            return upVersion;
+        public PharosRestDTO withPubmedCount(Object pubmedCount) {
+            this.pubmedCount = pubmedCount;
+            return this;
         }
 
-        @JsonProperty("up_version")
-        public void setUpVersion(Integer upVersion) {
-            this.upVersion = upVersion;
+        @JsonProperty("jensenScore")
+        public Double getJensenScore() {
+            return jensenScore;
         }
 
-        @Override
-        public String toString() {
-            return ToStringBuilder.reflectionToString(this);
+        @JsonProperty("jensenScore")
+        public void setJensenScore(Double jensenScore) {
+            this.jensenScore = jensenScore;
+        }
+
+        public PharosRestDTO withJensenScore(Double jensenScore) {
+            this.jensenScore = jensenScore;
+            return this;
+        }
+
+        @JsonProperty("patentCount")
+        public Integer getPatentCount() {
+            return patentCount;
+        }
+
+        @JsonProperty("patentCount")
+        public void setPatentCount(Integer patentCount) {
+            this.patentCount = patentCount;
+        }
+
+        public PharosRestDTO withPatentCount(Integer patentCount) {
+            this.patentCount = patentCount;
+            return this;
+        }
+
+        @JsonProperty("grantCount")
+        public Object getGrantCount() {
+            return grantCount;
+        }
+
+        @JsonProperty("grantCount")
+        public void setGrantCount(Object grantCount) {
+            this.grantCount = grantCount;
+        }
+
+        public PharosRestDTO withGrantCount(Object grantCount) {
+            this.grantCount = grantCount;
+            return this;
+        }
+
+        @JsonProperty("grantTotalCost")
+        public Object getGrantTotalCost() {
+            return grantTotalCost;
+        }
+
+        @JsonProperty("grantTotalCost")
+        public void setGrantTotalCost(Object grantTotalCost) {
+            this.grantTotalCost = grantTotalCost;
+        }
+
+        public PharosRestDTO withGrantTotalCost(Object grantTotalCost) {
+            this.grantTotalCost = grantTotalCost;
+            return this;
+        }
+
+        @JsonProperty("r01Count")
+        public Object getR01Count() {
+            return r01Count;
+        }
+
+        @JsonProperty("r01Count")
+        public void setR01Count(Object r01Count) {
+            this.r01Count = r01Count;
+        }
+
+        public PharosRestDTO withR01Count(Object r01Count) {
+            this.r01Count = r01Count;
+            return this;
+        }
+
+        @JsonProperty("ppiCount")
+        public Integer getPpiCount() {
+            return ppiCount;
+        }
+
+        @JsonProperty("ppiCount")
+        public void setPpiCount(Integer ppiCount) {
+            this.ppiCount = ppiCount;
+        }
+
+        public PharosRestDTO withPpiCount(Integer ppiCount) {
+            this.ppiCount = ppiCount;
+            return this;
+        }
+
+        @JsonProperty("knowledgeAvailability")
+        public Double getKnowledgeAvailability() {
+            return knowledgeAvailability;
+        }
+
+        @JsonProperty("knowledgeAvailability")
+        public void setKnowledgeAvailability(Double knowledgeAvailability) {
+            this.knowledgeAvailability = knowledgeAvailability;
+        }
+
+        public PharosRestDTO withKnowledgeAvailability(Double knowledgeAvailability) {
+            this.knowledgeAvailability = knowledgeAvailability;
+            return this;
+        }
+
+        @JsonProperty("pubTatorScore")
+        public Double getPubTatorScore() {
+            return pubTatorScore;
+        }
+
+        @JsonProperty("pubTatorScore")
+        public void setPubTatorScore(Double pubTatorScore) {
+            this.pubTatorScore = pubTatorScore;
+        }
+
+        public PharosRestDTO withPubTatorScore(Double pubTatorScore) {
+            this.pubTatorScore = pubTatorScore;
+            return this;
+        }
+
+        @JsonProperty("kind")
+        public String getKind() {
+            return kind;
+        }
+
+        @JsonProperty("kind")
+        public void setKind(String kind) {
+            this.kind = kind;
+        }
+
+        public PharosRestDTO withKind(String kind) {
+            this.kind = kind;
+            return this;
+        }
+
+        @JsonProperty("self")
+        public String getSelf() {
+            return self;
+        }
+
+        @JsonProperty("self")
+        public void setSelf(String self) {
+            this.self = self;
+        }
+
+        public PharosRestDTO withSelf(String self) {
+            this.self = self;
+            return this;
+        }
+
+        @JsonProperty("_organism")
+        public Object getOrganism() {
+            return organism;
+        }
+
+        @JsonProperty("_organism")
+        public void setOrganism(Object organism) {
+            this.organism = organism;
+        }
+
+        public PharosRestDTO withOrganism(Object organism) {
+            this.organism = organism;
+            return this;
+        }
+
+        @JsonProperty("_synonyms")
+        public Synonyms getSynonyms() {
+            return synonyms;
+        }
+
+        @JsonProperty("_synonyms")
+        public void setSynonyms(Synonyms synonyms) {
+            this.synonyms = synonyms;
+        }
+
+        public PharosRestDTO withSynonyms(Synonyms synonyms) {
+            this.synonyms = synonyms;
+            return this;
+        }
+
+        @JsonProperty("_publications")
+        public Publications getPublications() {
+            return publications;
+        }
+
+        @JsonProperty("_publications")
+        public void setPublications(Publications publications) {
+            this.publications = publications;
+        }
+
+        public PharosRestDTO withPublications(Publications publications) {
+            this.publications = publications;
+            return this;
+        }
+
+        @JsonProperty("_properties")
+        public Properties getProperties() {
+            return properties;
+        }
+
+        @JsonProperty("_properties")
+        public void setProperties(Properties properties) {
+            this.properties = properties;
+        }
+
+        public PharosRestDTO withProperties(Properties properties) {
+            this.properties = properties;
+            return this;
+        }
+
+        @JsonProperty("_links")
+        public Links getLinks() {
+            return links;
+        }
+
+        @JsonProperty("_links")
+        public void setLinks(Links links) {
+            this.links = links;
+        }
+
+        public PharosRestDTO withLinks(Links links) {
+            this.links = links;
+            return this;
+        }
+
+        @JsonProperty("_namespace")
+        public Object getNamespace() {
+            return namespace;
+        }
+
+        @JsonProperty("_namespace")
+        public void setNamespace(Object namespace) {
+            this.namespace = namespace;
+        }
+
+        public PharosRestDTO withNamespace(Object namespace) {
+            this.namespace = namespace;
+            return this;
         }
 
         @JsonAnyGetter
@@ -568,53 +635,58 @@ public class PharosService {
         @JsonAnySetter
         public void setAdditionalProperty(String name, Object value) {
             this.additionalProperties.put(name, value);
+        }
+
+        public PharosRestDTO withAdditionalProperty(String name, Object value) {
+            this.additionalProperties.put(name, value);
+            return this;
         }
 
     }
 
 
-
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @JsonPropertyOrder({
-            "genesymb"
+            "count",
+            "href"
     })
-    public static class Query {
+    public static class Links {
 
-        @JsonProperty("genesymb")
-        private String genesymb;
+        @JsonProperty("count")
+        private Integer count;
+        @JsonProperty("href")
+        private String href;
         @JsonIgnore
-        @Valid
         private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
-        /**
-         * No args constructor for use in serialization
-         *
-         */
-        public Query() {
+        @JsonProperty("count")
+        public Integer getCount() {
+            return count;
         }
 
-        /**
-         *
-         * @param genesymb
-         */
-        public Query(String genesymb) {
-            super();
-            this.genesymb = genesymb;
+        @JsonProperty("count")
+        public void setCount(Integer count) {
+            this.count = count;
         }
 
-        @JsonProperty("genesymb")
-        public String getGenesymb() {
-            return genesymb;
+        public Links withCount(Integer count) {
+            this.count = count;
+            return this;
         }
 
-        @JsonProperty("genesymb")
-        public void setGenesymb(String genesymb) {
-            this.genesymb = genesymb;
+        @JsonProperty("href")
+        public String getHref() {
+            return href;
         }
 
-        @Override
-        public String toString() {
-            return ToStringBuilder.reflectionToString(this);
+        @JsonProperty("href")
+        public void setHref(String href) {
+            this.href = href;
+        }
+
+        public Links withHref(String href) {
+            this.href = href;
+            return this;
         }
 
         @JsonAnyGetter
@@ -625,6 +697,11 @@ public class PharosService {
         @JsonAnySetter
         public void setAdditionalProperty(String name, Object value) {
             this.additionalProperties.put(name, value);
+        }
+
+        public Links withAdditionalProperty(String name, Object value) {
+            this.additionalProperties.put(name, value);
+            return this;
         }
 
     }
@@ -632,181 +709,46 @@ public class PharosService {
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @JsonPropertyOrder({
-            "comment",
-            "components",
-            "description",
-            "fam",
-            "famext",
-            "id",
-            "idg2",
-            "name",
-            "tdl",
-            "ttype"
+            "count",
+            "href"
     })
-    public static class Result {
+    public static class Properties {
 
-        @JsonProperty("comment")
-        private Object comment;
-        @JsonProperty("components")
-        @Valid
-        private Components components;
-        @JsonProperty("description")
-        private Object description;
-        @JsonProperty("fam")
-        private String fam;
-        @JsonProperty("famext")
-        private String famext;
-        @JsonProperty("id")
-        private Integer id;
-        @JsonProperty("idg2")
-        private Integer idg2;
-        @JsonProperty("name")
-        private String name;
-        @JsonProperty("tdl")
-        private String tdl;
-        @JsonProperty("ttype")
-        private String ttype;
+        @JsonProperty("count")
+        private Integer count;
+        @JsonProperty("href")
+        private String href;
         @JsonIgnore
-        @Valid
         private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
-        /**
-         * No args constructor for use in serialization
-         *
-         */
-        public Result() {
+        @JsonProperty("count")
+        public Integer getCount() {
+            return count;
         }
 
-        /**
-         *
-         * @param id
-         * @param tdl
-         * @param description
-         * @param name
-         * @param ttype
-         * @param famext
-         * @param components
-         * @param fam
-         * @param comment
-         * @param idg2
-         */
-        public Result(Object comment, Components components, Object description, String fam, String famext, Integer id, Integer idg2, String name, String tdl, String ttype) {
-            super();
-            this.comment = comment;
-            this.components = components;
-            this.description = description;
-            this.fam = fam;
-            this.famext = famext;
-            this.id = id;
-            this.idg2 = idg2;
-            this.name = name;
-            this.tdl = tdl;
-            this.ttype = ttype;
+        @JsonProperty("count")
+        public void setCount(Integer count) {
+            this.count = count;
         }
 
-        @JsonProperty("comment")
-        public Object getComment() {
-            return comment;
+        public Properties withCount(Integer count) {
+            this.count = count;
+            return this;
         }
 
-        @JsonProperty("comment")
-        public void setComment(Object comment) {
-            this.comment = comment;
+        @JsonProperty("href")
+        public String getHref() {
+            return href;
         }
 
-        @JsonProperty("components")
-        public Components getComponents() {
-            return components;
+        @JsonProperty("href")
+        public void setHref(String href) {
+            this.href = href;
         }
 
-        @JsonProperty("components")
-        public void setComponents(Components components) {
-            this.components = components;
-        }
-
-        @JsonProperty("description")
-        public Object getDescription() {
-            return description;
-        }
-
-        @JsonProperty("description")
-        public void setDescription(Object description) {
-            this.description = description;
-        }
-
-        @JsonProperty("fam")
-        public String getFam() {
-            return fam;
-        }
-
-        @JsonProperty("fam")
-        public void setFam(String fam) {
-            this.fam = fam;
-        }
-
-        @JsonProperty("famext")
-        public String getFamext() {
-            return famext;
-        }
-
-        @JsonProperty("famext")
-        public void setFamext(String famext) {
-            this.famext = famext;
-        }
-
-        @JsonProperty("id")
-        public Integer getId() {
-            return id;
-        }
-
-        @JsonProperty("id")
-        public void setId(Integer id) {
-            this.id = id;
-        }
-
-        @JsonProperty("idg2")
-        public Integer getIdg2() {
-            return idg2;
-        }
-
-        @JsonProperty("idg2")
-        public void setIdg2(Integer idg2) {
-            this.idg2 = idg2;
-        }
-
-        @JsonProperty("name")
-        public String getName() {
-            return name;
-        }
-
-        @JsonProperty("name")
-        public void setName(String name) {
-            this.name = name;
-        }
-
-        @JsonProperty("tdl")
-        public String getTdl() {
-            return tdl;
-        }
-
-        @JsonProperty("tdl")
-        public void setTdl(String tdl) {
-            this.tdl = tdl;
-        }
-
-        @JsonProperty("ttype")
-        public String getTtype() {
-            return ttype;
-        }
-
-        @JsonProperty("ttype")
-        public void setTtype(String ttype) {
-            this.ttype = ttype;
-        }
-
-        @Override
-        public String toString() {
-            return ToStringBuilder.reflectionToString(this);
+        public Properties withHref(String href) {
+            this.href = href;
+            return this;
         }
 
         @JsonAnyGetter
@@ -819,9 +761,135 @@ public class PharosService {
             this.additionalProperties.put(name, value);
         }
 
+        public Properties withAdditionalProperty(String name, Object value) {
+            this.additionalProperties.put(name, value);
+            return this;
+        }
+
+    }
+
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @JsonPropertyOrder({
+            "count",
+            "href"
+    })
+    public static class Publications {
+
+        @JsonProperty("count")
+        private Integer count;
+        @JsonProperty("href")
+        private String href;
+        @JsonIgnore
+        private Map<String, Object> additionalProperties = new HashMap<String, Object>();
+
+        @JsonProperty("count")
+        public Integer getCount() {
+            return count;
+        }
+
+        @JsonProperty("count")
+        public void setCount(Integer count) {
+            this.count = count;
+        }
+
+        public Publications withCount(Integer count) {
+            this.count = count;
+            return this;
+        }
+
+        @JsonProperty("href")
+        public String getHref() {
+            return href;
+        }
+
+        @JsonProperty("href")
+        public void setHref(String href) {
+            this.href = href;
+        }
+
+        public Publications withHref(String href) {
+            this.href = href;
+            return this;
+        }
+
+        @JsonAnyGetter
+        public Map<String, Object> getAdditionalProperties() {
+            return this.additionalProperties;
+        }
+
+        @JsonAnySetter
+        public void setAdditionalProperty(String name, Object value) {
+            this.additionalProperties.put(name, value);
+        }
+
+        public Publications withAdditionalProperty(String name, Object value) {
+            this.additionalProperties.put(name, value);
+            return this;
+        }
+
+    }
+
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @JsonPropertyOrder({
+            "count",
+            "href"
+    })
+    public static class Synonyms {
+
+        @JsonProperty("count")
+        private Integer             count;
+        @JsonProperty("href")
+        private String              href;
+        @JsonIgnore
+        private Map<String, Object> additionalProperties = new HashMap<String, Object>();
+
+        @JsonProperty("count")
+        public Integer getCount() {
+            return count;
+        }
+
+        @JsonProperty("count")
+        public void setCount(Integer count) {
+            this.count = count;
+        }
+
+        public Synonyms withCount(Integer count) {
+            this.count = count;
+            return this;
+        }
+
+        @JsonProperty("href")
+        public String getHref() {
+            return href;
+        }
+
+        @JsonProperty("href")
+        public void setHref(String href) {
+            this.href = href;
+        }
+
+        public Synonyms withHref(String href) {
+            this.href = href;
+            return this;
+        }
+
+        @JsonAnyGetter
+        public Map<String, Object> getAdditionalProperties() {
+            return this.additionalProperties;
+        }
+
+        @JsonAnySetter
+        public void setAdditionalProperty(String name, Object value) {
+            this.additionalProperties.put(name, value);
+        }
+
+        public Synonyms withAdditionalProperty(String name, Object value) {
+            this.additionalProperties.put(name, value);
+            return this;
+        }
     }
 
     // *** END GENERATED FROM http://www.jsonschema2pojo.org/ ****************************************
-
-
 }

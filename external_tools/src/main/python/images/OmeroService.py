@@ -165,7 +165,8 @@ class OmeroService:
         except KeyError as e:
             print "Could not connect to omero postgres database. Key " + str(e) + \
                   " not present in omero properties file. Aborting!"
-            conn.close()
+            if 'conn' in locals():
+                conn.close()
             sys.exit()
 
 

@@ -54,6 +54,7 @@ public class ExperimentLoader implements CommandLineRunner {
     // How many threads used to process experiments
     private static final int N_THREADS = 75;
     private static final Boolean ONE_AT_A_TIME = Boolean.FALSE;
+    private static Boolean SHUFFLE = Boolean.FALSE;
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -176,6 +177,12 @@ public class ExperimentLoader implements CommandLineRunner {
 
         logger.info("Getting experiments");
         List<DccExperimentDTO> dccExperiments = dccSqlUtils.getExperiments();
+
+        // Sometimes helpful to load the experiments in other-than-file order (for testing, etc.)
+        if (SHUFFLE) {
+            Collections.shuffle(dccExperiments);
+        }
+
         logger.info("Getting experiments complete. Loading {} experiments from DCC.", dccExperiments.size());
 
         CommonUtils.printJvmMemoryConfiguration();
@@ -733,12 +740,18 @@ public class ExperimentLoader implements CommandLineRunner {
 
                 if (biologicalModelPk == null) {
 
-                    MissingColonyId mid = missingColonyMap.get(dccExperiment.getColonyId());                                // Skip any known missing colony ids. We already know about them.
+                    MissingColonyId mid = missingColonyMap.get(dccExperiment.getColonyId());                            // Skip any known missing colony ids. We already know about them.
                     if (mid == null) {
-                        // Specimen-level experiment models should already be loaded. Log a warning and skip them if they are not.
-                        String message = "Unknown sample '" + dccExperiment.getSpecimenId() + "' for experiment '" + dccExperiment.getExperimentId() + "', colonyId "
-                                + dccExperiment.getColonyId() + ". isControl = " + dccExperiment.isControl() + ". key = " + key + ". Skipping.";
-                        logger.warn(message);
+                        PhenotypedColony phenotypedColony = phenotypedColonyMap.get(dccExperiment.getColonyId());
+                        if (phenotypedColony != null) {                                                                 // Skip any colony ids missing from phenotyped_colony. Add them to the missingColonyIds set below.
+
+                            // Specimen-level experiment models should already be loaded. Log a warning and skip them if they are not.
+                            String message = "Unknown sample '" + dccExperiment.getSpecimenId() + "' for experiment '" + dccExperiment.getExperimentId() + "', colonyId "
+                                    + dccExperiment.getColonyId() + ". isControl = " + dccExperiment.isControl() + ". key = " + key + ". Skipping.";
+                            logger.warn(message);
+                        }
+                    } else {
+                        missingColonyIds.add(dccExperiment.getColonyId());
                     }
 
                     return null;
@@ -1506,5 +1519,13 @@ public class ExperimentLoader implements CommandLineRunner {
 
             return retVal;
         }
+    }
+
+    public static Boolean getSHUFFLE() {
+        return SHUFFLE;
+    }
+
+    public static void setSHUFFLE(Boolean SHUFFLE) {
+        ExperimentLoader.SHUFFLE = SHUFFLE;
     }
 }

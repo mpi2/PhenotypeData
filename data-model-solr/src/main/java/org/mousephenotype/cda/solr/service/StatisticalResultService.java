@@ -1661,6 +1661,29 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 		return result;
 	}
 
+	public List<StatisticalResultDTO> getImpcPvaluesAndMpTerms() throws SolrServerException, IOException  {
+		SolrQuery q = new SolrQuery("*:*")
+				.addFilterQuery(StatisticalResultDTO.STATUS + ":Success")
+				.addFilterQuery(StatisticalResultDTO.RESOURCE_NAME + ":(IMPC OR 3i)")
+				.addField(StatisticalResultDTO.ALLELE_SYMBOL)
+				.addField(StatisticalResultDTO.COLONY_ID)
+				.addField(StatisticalResultDTO.MARKER_SYMBOL)
+				.addField(StatisticalResultDTO.MARKER_ACCESSION_ID)
+				.addField(StatisticalResultDTO.ZYGOSITY)
+				.addField(StatisticalResultDTO.MP_TERM_NAME)
+				.addField(StatisticalResultDTO.PHENOTYPING_CENTER)
+				.addField(StatisticalResultDTO.PARAMETER_STABLE_ID)
+				.addField(StatisticalResultDTO.PROCEDURE_STABLE_ID)
+				.addField(StatisticalResultDTO.PARAMETER_NAME)
+				.addField(StatisticalResultDTO.P_VALUE)
+				.setRows(Integer.MAX_VALUE)
+				.setSort(StatisticalResultDTO.DOCUMENT_ID, SolrQuery.ORDER.asc);
+
+		List<StatisticalResultDTO> result = solr.query(q).getBeans(StatisticalResultDTO.class);
+
+		return result;
+	}
+
 	class OverviewRatio {
 		Double meanFControl;
 		Double meanFMutant;

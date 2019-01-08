@@ -58,10 +58,6 @@ public class IndexerConfig {
     @Value("${solr.host}")
     private String solrBaseUrl;
 
-//    @NotNull
-// 	@Value("${phenodigm.solrserver}")
-// 	private String phenodigmSolrBaseUrl;
-
     // Indexers for writing
     @Bean
     SolrClient experimentCore() {
