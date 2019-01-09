@@ -49,6 +49,8 @@ import javax.activation.MimetypesFileTypeMap;
 import java.sql.SQLException;
 import java.util.*;
 
+import java.text.DecimalFormat;
+
 import java.sql.Date;
 
 /**
@@ -168,6 +170,13 @@ public class CreateDssExperimentXml extends Create3iXmls implements CommandLineR
             boolean imageAssignAttempted = false;
             boolean imageAssigned = false;
 
+            // Count values provided for sections and if complete compute
+            // section totals
+            double section1Total = 0.0;
+            double section2Total = 0.0;
+            int section1Count = 0;
+            int section2Count = 0;
+
             for (String[] rowResult : rowsForMouse) {
                 String parameterImpressId = rowResult[24];
                 String value = rowResult[20].equals("NonStringNonNumericValue") ? "" : rowResult[20];
@@ -175,17 +184,58 @@ public class CreateDssExperimentXml extends Create3iXmls implements CommandLineR
                 // I have gone into IMPReSS to determine this
                 // but ideally this should be specified in a configuration
                 // file
+                
+                // Get the integer value for computation of totals and 
+                // average histology scores
+                double valueDouble;
+                try {
+                    valueDouble = Double.parseDouble(value);
+                } catch (NumberFormatException e) {
+                    valueDouble = -1.0;
+                }
                 switch (parameterImpressId) {
+                    // Count the number of times we add right and left
+                    // values.
+                    //
+                    // 001 - Section 1 Epithelium
+                    // 002 - Section 1 Lamina
+                    // 003 - Section 1 Area
+                    // 004 - Section 1 Severe Markers
+                    //
+                    // 005 - Section 2 Epithelium
+                    // 006 - Section 2 Lamina
+                    // 007 - Section 2 Area
+                    // 008 - Section 2 Severe Markers
+                    //
+                    // 009 - Total section 1 scores
+                    // 010 - Total section 2 scores
+                    // 011 - Average histology score
+                    //
                     // SimpleParameters
                     case "DSS_DSS_001_001": case "DSS_DSS_002_001":
                     case "DSS_DSS_003_001" : case "DSS_DSS_004_001" :
+                        if (valueDouble > -0.5) {
+                            section1Total += valueDouble;
+                            section1Count += 1;
+                        }
+                        simpleParameters.add(createSimpleParameter(
+                            parameterImpressId,value));
+                        
+                        break;
+
                     case "DSS_DSS_005_001" : case "DSS_DSS_006_001" :
                     case "DSS_DSS_007_001" : case "DSS_DSS_008_001" :
+                        if (valueDouble > -0.5) {
+                            section2Total += valueDouble;
+                            section2Count += 1;
+                        }
+                        simpleParameters.add(createSimpleParameter(
+                            parameterImpressId,value));
+                        break;
+                    
                     case "DSS_DSS_012_001" : case "DSS_DSS_014_001" :
-                        SimpleParameter simpleParameter = new SimpleParameter();
-                        simpleParameter.setParameterID(parameterImpressId);
-                        simpleParameter.setValue(value);
-                        simpleParameters.add(simpleParameter);
+                        simpleParameters.add(createSimpleParameter(
+                            parameterImpressId,value));
                         break;
 
                     // ProcedureMetadata
@@ -245,6 +295,30 @@ public class CreateDssExperimentXml extends Create3iXmls implements CommandLineR
             }
             //experiment.setSequenceID("3I_" + row[0]);
 
+            // Check the right and left totals. Value added to the
+            // averages depends on whether all the totals have been added up
+            DecimalFormat formatter = new DecimalFormat("#.##");
+            if (section1Count == 4) {
+                simpleParameters.add(createSimpleParameter(
+                    "DSS_DSS_009_001", formatter.format(section1Total)));
+            } else {
+                String message = "No section 1 totals for expt ID " 
+                    + exptId + ". Expected 4 values, got " + section1Count;
+                logger.warn(message);
+            }
+            if (section2Count == 4) {
+                simpleParameters.add(createSimpleParameter(
+                    "DSS_DSS_010_001", formatter.format(section2Total)));
+            } else {
+                String message = "No section 2 totals for expt ID " 
+                    + exptId + ". Expected 4 values, got " + section2Count;
+                logger.warn(message);
+            }
+            if (section1Count == 4 && section2Count == 4) {
+                simpleParameters.add(createSimpleParameter(
+                    "DSS_DSS_011_001", 
+                    formatter.format((section1Total+section2Total)/2)));
+            }
             //Experiments
             procedure.setSimpleParameter(simpleParameters);
             procedure.setProcedureMetadata(procedureMetadatas);
@@ -277,4 +351,15 @@ public class CreateDssExperimentXml extends Create3iXmls implements CommandLineR
             throw new DataLoadException(e);
         }
     }
+    
+    // Create simple parameter
+    private SimpleParameter createSimpleParameter(String paramId, 
+                                                    String paramValue) {
+        SimpleParameter simpleParameter = new SimpleParameter();
+        simpleParameter.setParameterID(paramId);
+        simpleParameter.setValue(paramValue);
+
+        return simpleParameter;
+    }
+
 }
