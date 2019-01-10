@@ -50,6 +50,7 @@ import java.sql.SQLException;
 import java.util.*;
 
 import java.text.DecimalFormat;
+import java.util.regex.Pattern;
 
 import java.sql.Date;
 
@@ -266,7 +267,7 @@ public class CreateDssExperimentXml extends Create3iXmls implements CommandLineR
                     	SeriesMediaParameterValue smpv = 
                                 new SeriesMediaParameterValue();
                         smpv.setIncrementValue("" + increment);
-                        smpv.setURI(imageOnePath);
+                        smpv.setURI(filenameToLcase(imageOnePath));
                         smpv.setFileType(mimetypes.getContentType(imageOnePath));
                         smpvList.add(smpv);
                         increment++;
@@ -277,7 +278,7 @@ public class CreateDssExperimentXml extends Create3iXmls implements CommandLineR
                     	SeriesMediaParameterValue smpv = 
                                 new SeriesMediaParameterValue();
                         smpv.setIncrementValue("" + increment);
-                        smpv.setURI(imageTwoPath);
+                        smpv.setURI(filenameToLcase(imageTwoPath));
                         smpv.setFileType(mimetypes.getContentType(imageTwoPath));
                         smpvList.add(smpv);
                     }
@@ -360,6 +361,15 @@ public class CreateDssExperimentXml extends Create3iXmls implements CommandLineR
         simpleParameter.setValue(paramValue);
 
         return simpleParameter;
+    }
+
+    // Convert filename to lower case
+    private String filenameToLcase(String fPath) {
+        String separator = Pattern.quote("/");
+        String[] splittedFileName = fPath.split(separator);
+        String oldFileName = splittedFileName[splittedFileName.length-1];
+        String newFileName = oldFileName.toLowerCase();
+        return fPath.replace(oldFileName,newFileName);
     }
 
 }
