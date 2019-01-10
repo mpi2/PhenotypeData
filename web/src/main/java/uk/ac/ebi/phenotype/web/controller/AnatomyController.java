@@ -95,6 +95,8 @@ public class AnatomyController {
 	@RequestMapping(value = "/anatomy_file/{anatomy}", method = RequestMethod.GET)
 	public void loadMaFile(@PathVariable String anatomy, Model model, HttpServletRequest request, HttpServletResponse response, RedirectAttributes attributes)
 			throws SolrServerException, IOException, URISyntaxException, JSONException {
+		response.setContentType("text/tab-separated-values");
+		response.setHeader("Content-Disposition", "attachment; filename=\"antomy.tsv\"");
 		JSONObject maAssociatedExpressionImagesResponse = JSONImageUtils.getAnatomyAssociatedExpressionImages(anatomy, config, numberOfImagesToDisplay);
 		JSONArray expressionImageDocs = maAssociatedExpressionImagesResponse.getJSONObject("response").getJSONArray("docs");
 		int numberExpressionImagesFound=maAssociatedExpressionImagesResponse.getJSONObject("response").getInt("numFound");

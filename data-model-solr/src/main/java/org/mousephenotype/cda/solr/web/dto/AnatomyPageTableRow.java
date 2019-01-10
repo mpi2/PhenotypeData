@@ -262,8 +262,9 @@ public class AnatomyPageTableRow extends DataTableRow{
 		}
 		String imageUrl="";
 		if(numberOfImages>0) {
+			imageUrl="https://www.mousephenotype.org";
 			if(this.getEvidenceLink()!=null && this.getEvidenceLink().getUrl()!=null) {
-			imageUrl=this.getEvidenceLink().getUrl();
+			imageUrl+=this.getEvidenceLink().getUrl();
 			}
 		}
 		StringJoiner anatomyStringJoiner = new StringJoiner(",");
@@ -283,7 +284,7 @@ public class AnatomyPageTableRow extends DataTableRow{
 			anatomyLinkString=anatomyLinkStringJoiner.toString();
 		}
 		return this.getGene().getSymbol()+tab+this.getAllele().getSymbol()+tab+geneAccession+tab+expression +tab+ anatomyString + tab+ anatomyLinkString +tab+ this.getZygosity().getShortName()+tab+this.getSexes()+tab
-				+ this.getParameter().getName() + tab+ this.getPhenotypingCenter()+tab+numberOfImages+tab+ "https://www.mousephenotype.org"+imageUrl;
+				+ this.getParameter().getName() + tab+ this.getPhenotypingCenter()+tab+numberOfImages+tab+ imageUrl;
 	}
 	
 	
