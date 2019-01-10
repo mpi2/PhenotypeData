@@ -368,7 +368,11 @@ public class CreateDssExperimentXml extends Create3iXmls implements CommandLineR
         String separator = Pattern.quote("/");
         String[] splittedFileName = fPath.split(separator);
         String oldFileName = splittedFileName[splittedFileName.length-1];
-        String newFileName = oldFileName.toLowerCase();
+        //String newFileName = oldFileName.toLowerCase();
+        // We only want to convert the 1st letter of the filename to lcase
+        String newFileName = oldFileName.substring(0,1).toLowerCase() +
+            oldFileName.substring(1, oldFileName.length());
+
         return fPath.replace(oldFileName,newFileName);
     }
 
