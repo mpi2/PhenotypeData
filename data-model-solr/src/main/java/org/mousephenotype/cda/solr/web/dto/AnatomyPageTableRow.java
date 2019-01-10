@@ -146,7 +146,7 @@ public class AnatomyPageTableRow extends DataTableRow{
 
     public EvidenceLink buildImageUrl(String baseUrl, String anatomyId, String anatomyTerm, String expressionValue){
     	//http://localhost:8080/phenotype-archive/imageCompara?anatomy_id:%22EMAPA:16105%22&gene_symbol:Ap4e1&parameter_name:%22LacZ%20images%20wholemount%22&parameter_association_value:%22ambiguous%22
-		
+		//System.out.println("building evidence link");
     	String url = baseUrl + "/imageComparator?";
         url +=ImageDTO.ANATOMY_ID + "=" + anatomyId;
        
@@ -170,6 +170,7 @@ public class AnatomyPageTableRow extends DataTableRow{
     	}
 
     	EvidenceLink link = new EvidenceLink();
+    	//System.out.println("setting url in link "+url);
     	link.setUrl(url);
     	link.setIconType(IconType.IMAGE);
     	link.setAlt("Images");
@@ -261,7 +262,9 @@ public class AnatomyPageTableRow extends DataTableRow{
 		}
 		String imageUrl="";
 		if(numberOfImages>0) {
-			imageUrl=this.getImagesEvidenceLink().getUrl();
+			if(this.getEvidenceLink()!=null && this.getEvidenceLink().getUrl()!=null) {
+			imageUrl=this.getEvidenceLink().getUrl();
+			}
 		}
 		StringJoiner anatomyStringJoiner = new StringJoiner(",");
 		String anatomyString="";

@@ -66,7 +66,7 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
 	// keep the top level terms so we can display the correct icons next to them in the row
 	protected Set<String> topLevelMpGroups;
 	private List<PhenotypeCallUniquePropertyBean> phenotypeCallUniquePropertyBeans = new ArrayList<>();
-	private EvidenceLink imagesEvidenceLink=new EvidenceLink();
+	private EvidenceLink imagesEvidenceLink;
 
 	
 
