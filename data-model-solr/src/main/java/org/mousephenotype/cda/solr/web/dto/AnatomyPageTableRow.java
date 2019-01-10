@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.StringJoiner;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -247,6 +248,39 @@ public class AnatomyPageTableRow extends DataTableRow{
 	public String toString() {
 		return "AnatomyPageTableRow [expression=" + expression + ", anatomy=" + anatomy + ", anatomyLinks="
 				+ anatomyLinks + ", numberOfImages=" + numberOfImages + "]";
+	}
+
+
+	public String getTsv() {
+		String tab="\t";
+		String geneAccession="";
+		if(this.getGene().getAccessionId()==null) {
+			geneAccession="control";
+		}else {
+			geneAccession=this.getGene().getAccessionId();
+		}
+		String imageUrl="";
+		if(numberOfImages>0) {
+			imageUrl=this.getImagesEvidenceLink().getUrl();
+		}
+		StringJoiner anatomyStringJoiner = new StringJoiner(",");
+		String anatomyString="";
+		if(anatomy!=null) {
+			for( OntologyTerm ana: anatomy) {
+				anatomyStringJoiner.add(ana.getName());
+			}
+			anatomyString=anatomyStringJoiner.toString();
+		}
+		StringJoiner anatomyLinkStringJoiner = new StringJoiner(",");
+		String anatomyLinkString="";
+		if(anatomy!=null) {
+			for( OntologyTerm ana: anatomy) {
+				anatomyLinkStringJoiner.add("http://www.mousephenotype.org/anatomy/"+ana.getId().getAccession());
+			}
+			anatomyLinkString=anatomyLinkStringJoiner.toString();
+		}
+		return this.getGene().getSymbol()+tab+this.getAllele().getSymbol()+tab+geneAccession+tab+expression +tab+ anatomyString + tab+ anatomyLinkString +tab+ this.getZygosity().getShortName()+tab+this.getSexes()+tab
+				+ this.getParameter().getName() + tab+ this.getPhenotypingCenter()+tab+numberOfImages+tab+ imageUrl;
 	}
 	
 	

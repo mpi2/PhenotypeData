@@ -38,7 +38,10 @@ import uk.ac.ebi.phenotype.chart.PieChartCreator;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.URISyntaxException;
 import java.util.*;
 
@@ -85,7 +88,33 @@ public class AnatomyController {
 	@RequestMapping(value = "/anatomy/{anatomy}", method = RequestMethod.GET)
 	public String loadMaPage(@PathVariable String anatomy, Model model, HttpServletRequest request, RedirectAttributes attributes)
 			throws SolrServerException, IOException, URISyntaxException, JSONException {
+		return processAnatomyPage(anatomy, model, request);
 
+	}
+	
+	@RequestMapping(value = "/anatomy_file/{anatomy}", method = RequestMethod.GET)
+	public void loadMaFile(@PathVariable String anatomy, Model model, HttpServletRequest request, HttpServletResponse response, RedirectAttributes attributes)
+			throws SolrServerException, IOException, URISyntaxException, JSONException {
+		JSONObject maAssociatedExpressionImagesResponse = JSONImageUtils.getAnatomyAssociatedExpressionImages(anatomy, config, numberOfImagesToDisplay);
+		JSONArray expressionImageDocs = maAssociatedExpressionImagesResponse.getJSONObject("response").getJSONArray("docs");
+		int numberExpressionImagesFound=maAssociatedExpressionImagesResponse.getJSONObject("response").getInt("numFound");
+		model.addAttribute("numberExpressionImagesFound", numberExpressionImagesFound);
+		List<AnatomyPageTableRow> anatomyTable = expressionService.getLacZDataForAnatomy(anatomy,null, null, null, null, request.getAttribute("baseUrl").toString());
+		List<AnatomyPageTableRow> anatomyRowsFromImages = is.getImagesForAnatomy(anatomy, null, null, null, null, request.getAttribute("baseUrl").toString());
+		//System.out.println("images="+anatomyRowsFromImages);
+		//now collapse the rows from both the categorical and image data sources
+		ArrayList<AnatomyPageTableRow> collapsedTable = collapseCategoricalAndImageRows(anatomyTable, anatomyRowsFromImages);
+		//System.out.println("collapsed="+collapsedTable);
+		Collections.sort(collapsedTable, new ImageNumberComparator());
+		String tsvString="";
+		PrintWriter writer = response.getWriter();
+		for(AnatomyPageTableRow row:collapsedTable) {
+			writer.println(row.getTsv());
+		}
+	}
+
+	private String processAnatomyPage(String anatomy, Model model, HttpServletRequest request)
+			throws SolrServerException, IOException, URISyntaxException, JSONException {
 		AnatomyDTO anatomyTerm = anatomyService.getTerm(anatomy);
 
 		//get expression only images
@@ -97,7 +126,6 @@ public class AnatomyController {
 		List<AnatomyPageTableRow> anatomyRowsFromImages = is.getImagesForAnatomy(anatomy, null, null, null, null, request.getAttribute("baseUrl").toString());
 		//now collapse the rows from both the categorical and image data sources
 		ArrayList<AnatomyPageTableRow> collapsedTable = collapseCategoricalAndImageRows(anatomyTable, anatomyRowsFromImages);
-		
 		List<PhenotypeTableRowAnatomyPage> phenotypesTable = new ArrayList<>(gpService.getCollapsedPhenotypesForAnatomy(anatomy, request.getAttribute("baseUrl").toString()));
 		Integer genesWithPhenotype = gpService.getGenesByAnatomy(anatomy);
 		Integer testedGenes = srService.getGenesByAnatomy(anatomy);
@@ -116,9 +144,7 @@ public class AnatomyController {
         // Stuff for parent-child display
         model.addAttribute("hasChildren", (anatomyTerm.getChildAnatomyId() != null && anatomyTerm.getChildAnatomyId().size() > 0) ? true : false);
         model.addAttribute("hasParents", (anatomyTerm.getParentAnatomyId() != null && anatomyTerm.getParentAnatomyId().size() > 0) ? true : false);
-
         return "anatomy";
-
 	}
 
 	private List<AnatomogramDataBean> getAnatomogramBeanByAnatomyTerm(AnatomyDTO anatomyTerm) throws SolrServerException, IOException {
@@ -142,12 +168,16 @@ public class AnatomyController {
 		anatomyTable.addAll(anatomyRowsFromImages);
 		Map<String, AnatomyPageTableRow> res = new HashMap<>();
 		for(AnatomyPageTableRow row:anatomyTable){
+			
 			if(res.containsKey(row.getKey())){
+				
 				AnatomyPageTableRow tempRow = res.get(row.getKey());
+				
 				if(tempRow.getNumberOfImages()>0){
-					System.out.println("cat row exp="+row.getExpression()+ " image row expression="+tempRow.getExpression());
+					
 					res.put(row.getKey(), tempRow);//always keep the row that has image links in preference to catagorical as we want the image link
 				}else{
+					
 					res.put(row.getKey(), row);
 				}
 			}else{
@@ -266,3 +296,12 @@ public class AnatomyController {
 	}
 
 }
+
+class ImageNumberComparator implements Comparator<AnatomyPageTableRow> {
+    @Override
+    public int compare(AnatomyPageTableRow rowa, AnatomyPageTableRow rowb) {
+        return rowb.getNumberOfImages()-rowa.getNumberOfImages();
+    }
+}
+
+
