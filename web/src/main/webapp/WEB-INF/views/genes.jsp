@@ -363,7 +363,7 @@
                                               <c:choose>
                                                   <c:when test="${not empty wholemountExpressionImagesBean.filteredTopLevelAnatomyTerms && not empty sectionExpressionImagesBean.filteredTopLevelAnatomyTerms}">
                                                       <div id="tabs-3">
-                                                          <jsp:include page="genesAdultLacZ+ExpImg_frag.jsp"></jsp:include>
+                                                          <jsp:include page="genesAdultLacZExpImg_frag.jsp"></jsp:include>
                                                           </div>
                                                   </c:when>
                                                   <c:otherwise>
