@@ -66,7 +66,7 @@ public class HistopathController {
 		for (ObservationDTO obs : allObservations) {
 			if(obs.getDownloadFilePath()!=null){
 				SolrDocument image = imageService.getImageByDownloadFilePath(obs.getDownloadFilePath());
-				System.out.println("image="+image);
+				//System.out.println("image="+image);
 				histopathImagesForGene.add(image);
 			}
 			

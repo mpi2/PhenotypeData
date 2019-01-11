@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.StringJoiner;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -145,7 +146,7 @@ public class AnatomyPageTableRow extends DataTableRow{
 
     public EvidenceLink buildImageUrl(String baseUrl, String anatomyId, String anatomyTerm, String expressionValue){
     	//http://localhost:8080/phenotype-archive/imageCompara?anatomy_id:%22EMAPA:16105%22&gene_symbol:Ap4e1&parameter_name:%22LacZ%20images%20wholemount%22&parameter_association_value:%22ambiguous%22
-		
+		//System.out.println("building evidence link");
     	String url = baseUrl + "/imageComparator?";
         url +=ImageDTO.ANATOMY_ID + "=" + anatomyId;
        
@@ -169,6 +170,7 @@ public class AnatomyPageTableRow extends DataTableRow{
     	}
 
     	EvidenceLink link = new EvidenceLink();
+    	//System.out.println("setting url in link "+url);
     	link.setUrl(url);
     	link.setIconType(IconType.IMAGE);
     	link.setAlt("Images");
@@ -247,6 +249,42 @@ public class AnatomyPageTableRow extends DataTableRow{
 	public String toString() {
 		return "AnatomyPageTableRow [expression=" + expression + ", anatomy=" + anatomy + ", anatomyLinks="
 				+ anatomyLinks + ", numberOfImages=" + numberOfImages + "]";
+	}
+
+
+	public String getTsv() {
+		String tab="\t";
+		String geneAccession="";
+		if(this.getGene().getAccessionId()==null) {
+			geneAccession="control";
+		}else {
+			geneAccession=this.getGene().getAccessionId();
+		}
+		String imageUrl="";
+		if(numberOfImages>0) {
+			imageUrl="https://www.mousephenotype.org";
+			if(this.getEvidenceLink()!=null && this.getEvidenceLink().getUrl()!=null) {
+			imageUrl+=this.getEvidenceLink().getUrl();
+			}
+		}
+		StringJoiner anatomyStringJoiner = new StringJoiner(",");
+		String anatomyString="";
+		if(anatomy!=null) {
+			for( OntologyTerm ana: anatomy) {
+				anatomyStringJoiner.add(ana.getName());
+			}
+			anatomyString=anatomyStringJoiner.toString();
+		}
+		StringJoiner anatomyLinkStringJoiner = new StringJoiner(",");
+		String anatomyLinkString="";
+		if(anatomy!=null) {
+			for( OntologyTerm ana: anatomy) {
+				anatomyLinkStringJoiner.add("http://www.mousephenotype.org/anatomy/"+ana.getId().getAccession());
+			}
+			anatomyLinkString=anatomyLinkStringJoiner.toString();
+		}
+		return this.getGene().getSymbol()+tab+this.getAllele().getSymbol()+tab+geneAccession+tab+expression +tab+ anatomyString + tab+ anatomyLinkString +tab+ this.getZygosity().getShortName()+tab+this.getSexes()+tab
+				+ this.getParameter().getName() + tab+ this.getPhenotypingCenter()+tab+numberOfImages+tab+ imageUrl;
 	}
 	
 	
