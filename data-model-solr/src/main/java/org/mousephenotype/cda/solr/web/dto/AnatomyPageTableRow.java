@@ -289,7 +289,7 @@ public class AnatomyPageTableRow extends DataTableRow{
 	
 	
 	public static String getTabbedHeader(){
-    	return "Phenotype\tAllele\tZygosity\tSex\tLife Stage\tProcedure\tParameter\tPhenotyping Center\tSource\tP Value\tData";
+    	return "Gene Symbol\tMGI Accession\tMGI Allele\tExpression\tAnatomy\tAnatomy URLs\tZygosity\tSex\tProcedure Name\tPhenotyping Center\tNumber of Images\tImage Link";
     }
 	
 }

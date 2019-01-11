@@ -110,7 +110,7 @@ public class AnatomyController {
 		String tsvString="";
 		
 		List<String> dataRows = new ArrayList<>();
-		AnatomyPageTableRow.getTabbedHeader();
+		dataRows.add(AnatomyPageTableRow.getTabbedHeader());
 		for(AnatomyPageTableRow row:collapsedTable) {
 	        dataRows.add(row.toTabbedString());
 		}
