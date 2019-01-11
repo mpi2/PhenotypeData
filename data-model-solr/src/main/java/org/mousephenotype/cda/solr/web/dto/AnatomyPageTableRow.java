@@ -252,7 +252,7 @@ public class AnatomyPageTableRow extends DataTableRow{
 	}
 
 
-	public String getTsv() {
+	public String toTabbedString() {
 		String tab="\t";
 		String geneAccession="";
 		if(this.getGene().getAccessionId()==null) {
@@ -288,5 +288,8 @@ public class AnatomyPageTableRow extends DataTableRow{
 	}
 	
 	
-
+	public static String getTabbedHeader(){
+    	return "Phenotype\tAllele\tZygosity\tSex\tLife Stage\tProcedure\tParameter\tPhenotyping Center\tSource\tP Value\tData";
+    }
+	
 }
