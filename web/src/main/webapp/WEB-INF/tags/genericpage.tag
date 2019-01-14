@@ -59,93 +59,40 @@
         <c:otherwise>Search genes, SOP, MP, images by MGI ID, gene symbol, synonym or name</c:otherwise>
     </c:choose>
 </c:set>
-
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
+
 <head>
-
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title><jsp:invoke fragment="title"></jsp:invoke> | International Mouse Phenotyping Consortium</title>
-
-
-    <!--  NEW DESIGN CSS -->
-
-    <!-- css -->
-    <link href='//fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600' rel='stylesheet' type='text/css'>
-    <link rel="stylesheet" href="${baseUrl}/css/vendor/jquery.ui/jquery.ui.core.css">
-    <link rel="stylesheet" href="${baseUrl}/css/vendor/jquery.ui/jquery.ui.slider.css">
-    <link rel="stylesheet" href="${baseUrl}/css/vendor/font-awesome/font-awesome.min.css">
-    <link rel="stylesheet" href="${baseUrl}/js/vendor/jquery/jquery.qtip-2.2/jquery.qtip.min.css">
-    <link rel="stylesheet" href="${baseUrl}/js/vendor/jquery/jquery.fancybox-2.1.5/jquery.fancybox.css">
-    <link rel="stylesheet" href="${drupalBaseUrl}/sites/all/modules/feedback_simple/feedback_simple.css">
-    <link rel="stylesheet" href="${baseUrl}/js/vendor/DataTables-1.10.4/extensions/TableTools/css/dataTables.tableTools.min.css">
-    <%--<link rel="stylesheet" href="${baseUrl}/css/searchPage.css">--%>
-
+    <link rel="profile" href="http://gmpg.org/xfn/11">
+    <link rel="pingback" href="https://mousephenotypedev.org/xmlrpc.php">
+    <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-TXfwrfuHVznxCssTxWoPZjhcss/hp38gEOH8UPZG/JcXonvBQ6SlsIF49wUzsGno"
+          crossorigin="anonymous">
+    <link rel="apple-touch-icon-precomposed" sizes="57x57" href="${baseUrl}/img/apple-touch-icon-57x57.png" />
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="${baseUrl}/img/apple-touch-icon-114x114.png" />
+    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="${baseUrl}/img/apple-touch-icon-72x72.png" />
+    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="${baseUrl}/img/apple-touch-icon-144x144.png" />
+    <link rel="apple-touch-icon-precomposed" sizes="60x60" href="${baseUrl}/img/apple-touch-icon-60x60.png" />
+    <link rel="apple-touch-icon-precomposed" sizes="120x120" href="${baseUrl}/img/apple-touch-icon-120x120.png" />
+    <link rel="apple-touch-icon-precomposed" sizes="76x76" href="${baseUrl}/img/apple-touch-icon-76x76.png" />
+    <link rel="apple-touch-icon-precomposed" sizes="152x152" href="${baseUrl}/img/apple-touch-icon-152x152.png" />
+    <link rel="icon" type="image/png" href="${baseUrl}/img/favicon-196x196.png" sizes="196x196" />
+    <link rel="icon" type="image/png" href="${baseUrl}/img/favicon-96x96.png" sizes="96x96" />
+    <link rel="icon" type="image/png" href="${baseUrl}/img/favicon-32x32.png" sizes="32x32" />
+    <link rel="icon" type="image/png" href="${baseUrl}/img/favicon-16x16.png" sizes="16x16" />
+    <link rel="icon" type="image/png" href="${baseUrl}/img/favicon-128.png" sizes="128x128" />
+    <meta name="msapplication-TileColor" content="#FFFFFF" />
+    <meta name="msapplication-TileImage" content="${baseUrl}/img/mstile-144x144.png" />
+    <meta name="msapplication-square70x70logo" content="${baseUrl}/img/mstile-70x70.png" />
+    <meta name="msapplication-square150x150logo" content="${baseUrl}/img/mstile-150x150.png" />
+    <meta name="msapplication-wide310x150logo" content="${baseUrl}/img/mstile-310x150.png" />
+    <meta name="msapplication-square310x310logo" content="${baseUrl}/img/mstile-310x310.png" />
     <link href="${baseUrl}/css/default.css" rel="stylesheet" type="text/css" />
-    <%--<link href="${baseUrl}/css/wdm.css" rel="stylesheet" type="text/css" />--%>
-
-    <!-- EBI CSS -->
     <link href="${baseUrl}/css/additionalStyling.css" rel="stylesheet" type="text/css" />
-
-    <script>
-        <%--
-        Some browsers do not provide a console object see:
-        http://stackoverflow.com/questions/690251/what-happened-to-console-log-in-ie8
-        http://digitalize.ca/2010/04/javascript-tip-save-me-from-console-log-errors/
-        // In case we forget to take out console statements. IE fails otherwise
-        --%>
-        try {
-            console.log(" ");
-        } catch (err) {
-            var console = {};
-            console.log = console.error = console.info = console.debug = console.warn = console.trace = console.dir = console.dirxml = console.group = console.groupEnd = console.time = console.timeEnd = console.assert = console.profile = function () {
-            };
-        }
-
-        <c:forEach var="entry" items="${requestConfig}">
-        var ${entry.key} = "${entry.value}";
-        </c:forEach>
-
-        <%--var baseUrl = "${baseUrl}";--%>
-        <%--var solrUrl = '${solrUrl}';--%>
-        <%--var pdfThumbnailUrl = "${pdfThumbnailUrl}";--%>
-        <%--var drupalBaseUrl = "${drupalBaseUrl}";--%>
-        <%--var mediaBaseUrl = "${mediaBaseUrl}";--%>
-    </script>
-
-    <%--
-    Include google tracking code on live site
-    --%>
-    <c:if test="${liveSite}">
-        <script>
-            (function (i, s, o, g, r, a, m) {
-                i['GoogleAnalyticsObject'] = r;
-                i[r] = i[r] || function () {
-                        (i[r].q = i[r].q || []).push(arguments)
-                    }, i[r].l = 1 * new Date();
-                a = s.createElement(o),
-                    m = s.getElementsByTagName(o)[0];
-                a.async = 1;
-                a.src = g;
-                m.parentNode.insertBefore(a, m)
-            })(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');
-
-            ga('create', 'UA-23433997-1', 'auto');
-            ga('send', 'pageview');
-        </script>
-    </c:if>
-
-    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
-    <!--[if lt IE 9]>
-    <script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>
-    <style>
-        #logoImage {margin: 5px; padding:5px;}
-        .container .container .navbar .navbar-inner {width:100%}
-        img#logoImage{margin-right:10px;padding-right: 30px;}
-    </style>
-    <![endif]-->
+    <link href="${baseUrl}/css/impc-icons.css" rel="stylesheet" type="text/css" />
+    <link href="${baseUrl}/css/impc-icons.css" rel="stylesheet" type="text/css" />
 
     <!-- NEW DESIGN JAVASCRIPT -->
 
@@ -161,196 +108,503 @@
 
 
     <!--[if lt IE 9 ]><script type="text/javascript" src="js/selectivizr-min.js"></script><![endif]-->
-    <script type="text/javascript" src="${baseUrl}/js/vendor/jquery/jquery.qtip-2.2/jquery.qtip.min.js?v=${version}"></script>
+    <!--script type="text/javascript" src="${baseUrl}/js/vendor/jquery/jquery.qtip-2.2/jquery.qtip.min.js?v=${version}"></script-->
     <script type="text/javascript" src="${baseUrl}/js/vendor/jquery/jquery.fancybox-2.1.5/jquery.fancybox.pack.js?v=${version}"></script>
     <script type="text/javascript" src="${baseUrl}/js/vendor/jquery/jquery.tablesorter.min.js?v=${version}"></script>
 
     <script type='text/javascript' src="${baseUrl}/js/general/toggle.js?v=${version}"></script>
 
     <script type="text/javascript" src="${baseUrl}/js/default.js?v=${version}"></script>
-
-    <jsp:invoke fragment="header" />
-
-    <%-- Always use www.mousephenotype.org as the canonical domain, except for bare pages --%>
-    <c:choose>
-        <c:when test="${param['bare'] == null}">
-            <link rel="canonical" href="http://www.mousephenotype.org/data<%= destUnEncoded.replaceAll(request.getContextPath(), "")%>" />
-        </c:when>
-    </c:choose>
-
+    <!--script type='text/javascript' src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js'></script-->
+    <script type='text/javascript' src='https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.3/js/bootstrap.bundle.min.js'
+            async='async'></script>
+    <script type='text/javascript' src='https://cdnjs.cloudflare.com/ajax/libs/object-fit-images/3.2.4/ofi.min.js'></script>
+    <script type='text/javascript' src='https://cdnjs.cloudflare.com/ajax/libs/prefixfree/1.0.7/prefixfree.min.js'></script>
+    <script type='text/javascript' src='${baseUrl}/js/buffaloZoo.js'></script>
+    <link rel="stylesheet" type="text/css" href="https://ebi.emblstatic.net/web_guidelines/EBI-Icon-fonts/v1.3/fonts.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap4.min.css">
 </head>
 
+<body>
 
-<jsp:invoke fragment="bodyTag"/>
+<div class="header">
+    <div class="header__nav-top d-none d-lg-block">
+        <div class="container text-right">
+            <div class="menu-top-nav-container">
+                <ul id="menu-top-nav" class="menu">
+                    <li id="menu-item-13" class="menu-item menu-item-type-post_type menu-item-object-page page_item page-item-11 menu-item-13"><a
+                            href="https://mousephenotypedev.org/faqs/">FAQs</a></li>
+                    <li id="menu-item-14" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-14"><a
+                            href="#">Forum</a></li>
+                    <li id="menu-item-15" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-15"><a
+                            href="https://mousephenotypedev.org/contact-us/">Contact Us</a></li>
+                </ul>
+            </div> <a id="searchButton" class="header__search collapsed" href="/" data-toggle="collapse"
+                      data-target="#searchBar" aria-controls="searchBar" aria-expanded="false">Search<i id="search-icon-open"
+                                                                                                        class="fal fa-search"></i><i id="search-icon-close" class="fal fa-times"></i></a>
+        </div>
+    </div>
 
-<c:if test='${!param["bare"].equalsIgnoreCase("true")}'>
-<div id="feedback_simple">
-    <a class="feedback_simple-right feedback_simple" style="top: 35%; height: 100px; width: 35px;" target="_self" href=""><img src="${drupalBaseUrl}/sites/all/modules/feedback_simple/feedback_simple.gif" /></a>
-</div>
-</c:if>
-
-<div id="wrapper">
-    <c:choose>
-        <c:when test="${param['bare'] == null}">
-            <script type="text/javascript" >
-                // assign the url to feedback link dynamically
-                // this won't work with hashtag change which is taken care of in search.jsp
-                $('a.feedback_simple').attr('href', '/website-feedback?page=' + document.URL);
-            </script>
-
-            <header id="header">
-                <div class="region region-header">
-
-                    <div id="tn">
-                        <div class="region region-usernavi">
-                            <div id="block-system-user-menu" class="block block-system block-menu">
-                                <div class="content">
-                                    <ul class="menu">${usermenu}</ul>
-                                    <div class="clear"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div id="logo">
-                        <a href="${drupalBaseUrl}/"><img src="${baseUrl}/img/impc.png" alt="IMPC Logo" /></a>
-                        <div id="logoslogan">International Mouse Phenotyping Consortium</div>
-                    </div>
-
-                    <nav id="mn">${menu}</nav>
-                    <div class="clear"></div>
+    <div class="header__nav">
+        <div class="container">
+            <div class="row">
+                <div class="col-6 col-md-3">
+                    <a href="https://mousephenotypedev.org" class="header__logo-link "><img class="header__logo" src="${baseUrl}/img/impclogo@2x.png" /></a>
                 </div>
-
-            </header>
-
-            <div id="main">
-                <div class="breadcrumb">
-
-                    <a href="${drupalBaseUrl}">Home</a><jsp:invokefragment="breadcrumb" /><%-- breadcrumbs here --%>
-                </div>
-                    <%--<div class='searchcontent'>--%>
-                    <%--<div id='bigsearchbox' class='block'>--%>
-                    <%--<div class='content'>--%>
-                    <%--<p><i id='sicon' class='fa fa-search'></i></p>--%>
-                    <%--<div class='ui-widget'>--%>
-                    <%--<input id='s' value="search">--%>
-                    <%--<i id='clearIcon' class='fa fa-times'></i>--%>
-                    <%--</div>--%>
-                    <%--</div>--%>
-                    <%--</div>--%>
-                    <%--<a><i class='fa fa-question-circle fa-2x searchExample'></i></a>--%>
-                    <%--<div style="clear: both"></div>--%>
-                    <%--</div>--%>
-
-                    <%--<div id='batchQryLink'>--%>
-                    <%--<a id='batchquery' href='${baseUrl}/batchQuery'><i class='fa fa-th-list batchQuery'></i><span id='bqry'>Batch search</span></a>--%>
-                    <%--</div>--%>
-                <div class='searchcontent'>
-                    <div id='bigsearchbox' class='block'>
-                        <i id='sicon' class='fa fa-search'></i>
-                        <input id='s' value="search">
-                        <i id='clearIcon' class='fa fa-times'></i>
-                    </div>
-                    <a><i class='fa fa-question-circle fa-2x searchExample'></i></a>
-                    <div style="clear: both"></div>
-                    <div id='batchQryLink'>
-                        <a id='batchquery' href='${baseUrl}/batchQuery'><i class='fa fa-th-list batchQuery'></i><span id='bqry'>Batch search</span></a>
-                    </div>
-                    <div style="clear: both"></div>
-                </div>
-
-                <jsp:doBody />
-            </div>
-            <!-- /main -->
-
-            <footer id="footer">
-
-                <div class="centercontent">
-                    <div class="region region-footer">
-                        <div id="block-block-7" class="block block-block">
-                            <div class="content">
-                                <img src="${baseUrl}/img/footerLogos.jpg" />
-                                <div class="clear"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="footerline">
-
-                    <div class="centercontent">
-
-                        <div id="footersitemap" class="twothird left">&nbsp;</div>
-                        <div class="onethird right">
-
-                            <div id="vnavi">
-                                <ul>
-                                    <li><a href="${baseUrl}/release">Release: ${releaseVersion}</a></li>
-                                    <li><a href="ftp://ftp.ebi.ac.uk/pub/databases/impc/">FTP</a></li>
-                                    <li><a href="${baseUrl}/documentation/index">Help/Documentation</a></li>
+                <div class="col-6 col-md-9 text-right">
+                        <span class="d-none d-lg-block">
+                            <div class="menu-main-nav-container">
+                                <ul id="menu-main-nav" class="menu">
+                                    <li id="menu-item-16" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-16"><a
+                                            href="https://mousephenotypedev.org/about-impc/">About IMPC</a></li>
+                                    <li id="menu-item-17" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-17"><a
+                                            href="https://mousephenotypedev.org/understanding-the-data/">Understanding
+                                            the Data</a></li>
+                                    <li id="menu-item-18" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-18"><a
+                                            href="https://mousephenotypedev.org/human-diseases/">Human Diseases</a></li>
+                                    <li id="menu-item-19" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-19"><a
+                                            href="https://mousephenotypedev.org/news-and-events/">News &#038; Events</a></li>
+                                    <li id="menu-item-20" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-20"><a
+                                            href="#">Blog</a></li>
                                 </ul>
                             </div>
+                        </span>
+                    <button class="navbar-toggler collapsed d-inline d-lg-none active" type="button" data-toggle="collapse"
+                            data-target="#navbarToggleExternalContent " aria-controls="navbarToggleExternalContent"
+                            aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="icon-bar top-bar"></span>
+                        <span class="icon-bar middle-bar"></span>
+                        <span class="icon-bar bottom-bar"></span>
+                    </button>
+                    <div class="collapse" id="searchBar">
+                        <form action="https://mousephenotypedev.org">
+                            <div class="row search-pop">
+                                <div class="search-pop__input col col-9 text-left no-gutters">
+                                    <p>This search is for the main website only. Please use the specialist portal
+                                        search for Genes and
+                                        Phenotypes.</p>
+                                    <input id="searchField" type="search" class="form-control" id="s" name="s"
+                                           placeholder="Let's find what I'm looking for...">
+                                </div>
+                                <div class="col col-3 text-right search-submit">
+                                    <button type="submit">Search <i class="fal fa-search"></i></button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
 
-                            <div class="clear"></div>
+                </div>
+            </div>
+        </div>
 
-                            <p class="textright">&copy; 2016 IMPC &middot; International Mouse Phenotyping Consortium</p>
+    </div>
+    <div class="header__drop"></div>
 
-                            <div class="clear"></div>
+    <div class="mobile-nav collapse" id="navbarToggleExternalContent">
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggleExternalContent "
+                aria-controls="navbarToggleExternalContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="icon-bar top-bar"></span>
+            <span class="icon-bar middle-bar"></span>
+            <span class="icon-bar bottom-bar"></span>
+        </button>
+        <p class="mobile-nav__search-text">This search is for the main website only. Please use the specialist
+            portal
+            search for Genes and Phenotypes.</p>
+        <div class="mobile-nav__search mb-3">
+            <form action="https://mousephenotypedev.org">
+                <div class="row">
+                    <div class="col col-10 text-left">
+                        <input type="search" class="form-control" id="s" name="s" placeholder="I'm looking for...">
+                    </div>
+                    <div class="col col-2 text-right">
+                        <button type="submit"> <i class="fas fa-search"></i></button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="row">
+            <div class="col-12">
 
-                        </div>
+                <h3 class="mt-2"><a class="object-id-7" href="https://mousephenotypedev.org/about-impc/">About IMPC</a></h3>
 
-                        <div class="clear"></div>
+                <div class="mobile-nav__sub-pages">
+                    <p><a href="https://mousephenotypedev.org/about-impc/collaborations/">Collaborations</a></p>
+                    <div class="sub-pages">
+                    </div>
+                    <p><a href="https://mousephenotypedev.org/about-impc/funding/">Funding</a></p>
+                    <div class="sub-pages">
+                    </div>
+                    <p><a href="https://mousephenotypedev.org/about-impc/consortium-members/">Consortium members</a></p>
+                    <div class="sub-pages">
+                    </div>
+                    <p><a href="https://mousephenotypedev.org/about-impc/animal-welfare/">Animal welfare</a></p>
+                    <div class="sub-pages">
+                    </div>
+                    <p><a href="https://mousephenotypedev.org/about-impc/governance/">Governance</a></p>
+                    <div class="sub-pages">
+                    </div>
+                    <p><a href="https://mousephenotypedev.org/about-impc/our-people/">Our people</a></p>
+                    <div class="sub-pages">
+                    </div>
+
+                </div>
+
+                <h3 class="mt-2"><a class="object-id-8" href="https://mousephenotypedev.org/understanding-the-data/">Understanding
+                    the Data</a></h3>
+
+                <div class="mobile-nav__sub-pages">
+                    <p><a href="https://mousephenotypedev.org/understanding-the-data/gene-knockout-technology/">Gene
+                        knockout technology</a></p>
+                    <div class="sub-pages">
+                    </div>
+                    <p><a href="https://mousephenotypedev.org/understanding-the-data/research-highlights/">Research
+                        highlights</a></p>
+                    <div class="sub-pages">
+                        <p><a href="https://mousephenotypedev.org/understanding-the-data/research-highlights/vignettes/">Vignettes</a></p>
+
+                        <p><a href="https://mousephenotypedev.org/understanding-the-data/research-highlights/embryo-development/">Embryo
+                            development</a></p>
+
+                        <p><a href="https://mousephenotypedev.org/understanding-the-data/research-highlights/sexual-dimorphism/">Sexual
+                            dimorphism</a></p>
+
+                        <p><a href="https://mousephenotypedev.org/understanding-the-data/research-highlights/cardiovascular/">Cardiovascular</a></p>
+
+                        <p><a href="https://mousephenotypedev.org/understanding-the-data/research-highlights/hearing/">Hearing</a></p>
+
+                        <p><a href="https://mousephenotypedev.org/understanding-the-data/research-highlights/metabolism/">Metabolism</a></p>
+
+                        <p><a href="https://mousephenotypedev.org/understanding-the-data/research-highlights/translating-to-other-species/">Translating
+                            to other species</a></p>
+
+                        <p><a href="https://mousephenotypedev.org/understanding-the-data/research-highlights/embryo-development-2/">Embryo
+                            development</a></p>
+
+                    </div>
+                    <p><a href="https://mousephenotypedev.org/understanding-the-data/latest-data-release/">Latest
+                        data
+                        release</a></p>
+                    <div class="sub-pages">
+                    </div>
+                    <p><a href="https://mousephenotypedev.org/understanding-the-data/phenotyping-process-impress/">Phenotyping
+                        process (IMPRess)</a></p>
+                    <div class="sub-pages">
+                    </div>
+
+                </div>
+
+                <h3 class="mt-2"><a class="object-id-9" href="https://mousephenotypedev.org/human-diseases/">Human
+                    Diseases</a></h3>
+
+                <div class="mobile-nav__sub-pages">
+
+                </div>
+
+                <h3 class="mt-2"><a class="object-id-10" href="https://mousephenotypedev.org/news-and-events/">News
+                    &#038;
+                    Events</a></h3>
+
+                <div class="mobile-nav__sub-pages">
+                    <p><a href="https://mousephenotypedev.org/news-and-events/events/">Events</a></p>
+                    <div class="sub-pages">
+                    </div>
+                    <p><a href="https://mousephenotypedev.org/news-and-events/news/">News</a></p>
+                    <div class="sub-pages">
+                    </div>
+                    <p><a href="https://mousephenotypedev.org/news-and-events/latest-publications/">Latest
+                        Publications</a></p>
+                    <div class="sub-pages">
+                        <p><a href="https://mousephenotypedev.org/news-and-events/latest-publications/papers-using-impc-resources/">Papers
+                            using IMPC resources</a></p>
+
+                        <p><a href="https://mousephenotypedev.org/news-and-events/latest-publications/impc-papers/">IMPC
+                            Papers</a></p>
+
+                        <p><a href="https://mousephenotypedev.org/news-and-events/latest-publications/test-page/">Test
+                            Page</a></p>
 
                     </div>
 
                 </div>
 
-                <jsp:invoke fragment="addToFooter"/>
+                <h3 class="mt-2"><a class="object-id-105" href="https://mousephenotypedev.org/news-and-events/2018/12/03/blog-2/">Blog</a></h3>
 
-                <script>
-                    var localFrameworkVersion = '1.1';
-                    var newDataProtectionNotificationBanner = document.createElement('script');
-                    newDataProtectionNotificationBanner.src = 'https://ebi.emblstatic.net/web_guidelines/EBI-Framework/v1.3/js/ebi-global-includes/script/5_ebiFrameworkNotificationBanner.js?legacyRequest='+localFrameworkVersion;
-                    document.head.appendChild(newDataProtectionNotificationBanner);
-                    newDataProtectionNotificationBanner.onload = function() {
-                        ebiFrameworkRunDataProtectionBanner(); // invoke the banner
-                    };
-                </script>
-                <div data-data-protection-version="0.1" data-message="This website requires cookies, and the limited processing of your personal data in order to function. By using the site you are agreeing to this as outlined in our <a href='http://www.mousephenotype.org/about-impc/impc-privacy-policy'>Privacy policies</a>." data-service-id="mousephenotype-org" id="data-protection-message-configuration">&nbsp;</div>
+                <div class="mobile-nav__sub-pages">
 
-            </footer>
+                </div>
 
-        </c:when>
-        <c:otherwise>
-            <div id="main">
-                <jsp:doBody />
+                <h3 class="mt-2"><a class="object-id-11" href="https://mousephenotypedev.org/faqs/">FAQs</a></h3>
+
+                <div class="mobile-nav__sub-pages">
+
+                </div>
+
+                <h3 class="mt-2"><a class="object-id-107" href="https://mousephenotypedev.org/news-and-events/2018/12/03/forum-2/">Forum</a></h3>
+
+                <div class="mobile-nav__sub-pages">
+
+                </div>
+
+                <h3 class="mt-2"><a class="object-id-12" href="https://mousephenotypedev.org/contact-us/">Contact
+                    Us</a></h3>
+
+                <div class="mobile-nav__sub-pages">
+
+                </div>
             </div>
-            <!-- /main -->
-            <footer id="footer">
-                <jsp:invoke fragment="addToFooter"/>
-            </footer>
-        </c:otherwise>
-    </c:choose>
+        </div>
+    </div>
 
-    <!-- <script type="text/javascript" src='${baseUrl}/js/script.min.js?v=${version}' ></script>-->
-    <script type='text/javascript' src='${baseUrl}/js/searchAndFacet/searchAndFacetConfig.js?v=${version}'></script>
-    <script type='text/javascript' src='${baseUrl}/js/utils/tools.js?v=${version}'></script>
-    <script type='text/javascript' src='${baseUrl}/js/general/ui.dropdownchecklist_modif.js?v=${version}'></script>
-    <script type='text/javascript' src='${baseUrl}/js/documentationConfig.js?v=${version}'></script>
-    <c:choose>
-        <c:when test="${param['bare'] == null}">
-            <script type='text/javascript' src="${baseUrl}/js/searchAndFacet/breadcrumbSearchBox.js?v=${version}"></script>
-        </c:when>
-    </c:choose>
+    <div class="about-menu sub-menu collapse" id="about-menu">
+        <div class="about-menu__inside">
+            <div class="container">
 
-    <script type="text/javascript">
+                <a href="https://mousephenotypedev.org/about-impc/">About IMPC</a>
 
-        $(document).ready(function () {
-            // Disable drupal links at the top of the header.
-            $('div#tn').css('display', 'none');
-        });
-    </script>
 
-</div> <!-- wrapper -->
+                <a href="https://mousephenotypedev.org/about-impc/collaborations/">Collaborations</a>
+
+                <a href="https://mousephenotypedev.org/about-impc/funding/">Funding</a>
+
+                <a href="https://mousephenotypedev.org/about-impc/consortium-members/">Consortium members</a>
+
+                <a href="https://mousephenotypedev.org/about-impc/animal-welfare/">Animal welfare</a>
+
+                <a href="https://mousephenotypedev.org/about-impc/governance/">Governance</a>
+
+                <a href="https://mousephenotypedev.org/about-impc/our-people/">Our people</a>
+
+
+            </div>
+        </div>
+        <div class="about-menu__drop"></div>
+    </div>
+
+    <div class="data-menu sub-menu collapse" id="data-menu">
+        <div class="data-menu__inside">
+            <div class="container">
+
+
+                <div class="row no-gutters">
+                    <div class="col col-auto text-left">
+                        <a href="https://mousephenotypedev.org/understanding-the-data/">Understanding the Data</a>
+                    </div>
+                    <div class="col col-auto text-left">
+                        <a href="https://mousephenotypedev.org/understanding-the-data/gene-knockout-technology/">Gene
+                            knockout technology</a>
+                        <div class="sub-pages">
+                        </div>
+
+                    </div>
+                    <div class="col col-auto text-left">
+                        <a href="https://mousephenotypedev.org/understanding-the-data/research-highlights/">Research
+                            highlights</a>
+                        <div class="sub-pages">
+                            <p><a href="https://mousephenotypedev.org/understanding-the-data/research-highlights/vignettes/">Vignettes</a></p>
+
+                            <p><a href="https://mousephenotypedev.org/understanding-the-data/research-highlights/embryo-development/">Embryo
+                                development</a></p>
+
+                            <p><a href="https://mousephenotypedev.org/understanding-the-data/research-highlights/sexual-dimorphism/">Sexual
+                                dimorphism</a></p>
+
+                            <p><a href="https://mousephenotypedev.org/understanding-the-data/research-highlights/cardiovascular/">Cardiovascular</a></p>
+
+                            <p><a href="https://mousephenotypedev.org/understanding-the-data/research-highlights/hearing/">Hearing</a></p>
+
+                            <p><a href="https://mousephenotypedev.org/understanding-the-data/research-highlights/metabolism/">Metabolism</a></p>
+
+                            <p><a href="https://mousephenotypedev.org/understanding-the-data/research-highlights/translating-to-other-species/">Translating
+                                to other species</a></p>
+
+                            <p><a href="https://mousephenotypedev.org/understanding-the-data/research-highlights/embryo-development-2/">Embryo
+                                development</a></p>
+
+                        </div>
+
+                    </div>
+                    <div class="col col-auto text-left">
+                        <a href="https://mousephenotypedev.org/understanding-the-data/latest-data-release/">Latest
+                            data
+                            release</a>
+                        <div class="sub-pages">
+                        </div>
+
+                    </div>
+                    <div class="col col-auto text-left">
+                        <a href="https://mousephenotypedev.org/understanding-the-data/phenotyping-process-impress/">Phenotyping
+                            process (IMPRess)</a>
+                        <div class="sub-pages">
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="data-menu__drop"></div>
+    </div>
+
+    <div class="news-menu sub-menu collapse" id="news-menu">
+        <div class="news-menu__inside">
+            <div class="container">
+
+
+                <div class="row no-gutters justify-content-end">
+                    <div class="col col-auto text-left">
+                        <a href="https://mousephenotypedev.org/news-and-events/">News &#038; Events</a>
+                    </div>
+
+                    <div class="col col-auto text-left">
+                        <a href="https://mousephenotypedev.org/news-and-events/events/">Events</a>
+                        <div class="sub-pages">
+                        </div>
+
+                    </div>
+                    <div class="col col-auto text-left">
+                        <a href="https://mousephenotypedev.org/news-and-events/news/">News</a>
+                        <div class="sub-pages">
+                        </div>
+
+                    </div>
+                    <div class="col col-auto text-left">
+                        <a href="https://mousephenotypedev.org/news-and-events/latest-publications/">Latest
+                            Publications</a>
+                        <div class="sub-pages">
+                            <p><a href="https://mousephenotypedev.org/news-and-events/latest-publications/papers-using-impc-resources/">Papers
+                                using IMPC resources</a></p>
+
+                            <p><a href="https://mousephenotypedev.org/news-and-events/latest-publications/impc-papers/">IMPC
+                                Papers</a></p>
+
+                            <p><a href="https://mousephenotypedev.org/news-and-events/latest-publications/test-page/">Test
+                                Page</a></p>
+
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="news-menu__drop"></div>
+    </div>
+
+</div>
+
+
+
+<div class="click-guard"></div>
+
+<main id="main" class="main" role="main">
+    <div class="container-fluid">
+        <div class="single-header ">
+            <img src="${baseUrl}/img/defaultBanner.png" />
+            <div class="row text-center">
+                <div class="col-12 col-md-6 offset-md-3">
+                    <div class="portal-search pb-5 mb-5 mt-5">
+                        <div class="portal-search__tabs">
+                            <a data-type="gene" class="active portalTab portalTabSearchPage left-shadow" href="#">Genes</a>
+                            <a data-type="pheno" class="portalTab portalTabSearchPage right-shadow" href="#">Phenotypes</a>
+                        </div>
+                        <div class="portal-search__inputs">
+                            <form action="https://mousephenotypedev.org/portal-search/">
+                                <input id="searchInput" name="term" class="portal-search__input" placeholder="Search the portal..."
+                                       type="text" />
+                                <button id="searchIcon" type="submit"> <i class="fas fa-search"></i></button>
+                                <input id="searchType" type="hidden" name="type" value="gene"></input>
+                                <div id="searchLoader" class="lds-ring">
+                                    <div></div>
+                                    <div></div>
+                                    <div></div>
+                                    <div></div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <jsp:doBody />
+    </div>
+
+    <div class="news-letter pt-5 pb-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-12 col-md-8 offset-md-2 text-center">
+                    <h2>The IMPC Newsletter</h2>
+                    <p class="mt-4">
+                        Get highlights of the most important data releases,
+                        news and events, delivered straight to your email inbox</p>
+                    <a class="btn btn-mailing btn-primary" target="_blank" href="https://forms.office.com/Pages/ResponsePage.aspx?id=jYTJ3EdDnkKo2NytnQUzMV3vNFn2DMZLqTjqljGsCfNUMDg0Q09OQThJUkVaVUpONVpSTVVSVEZERy4u
+">Subscribe
+                        to newsletter</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+</main>
+
+<div class="footer">
+    <div class="container">
+        <div class="row">
+
+            <div class="col-12 col-md-6">
+                <p><strong>© 2018 IMPC International Mouse Phenotyping Consortium.</strong></p>
+                <p><strong>All Rights Reserved.<br />
+                    <a href="#">Accesibility &amp; Cookies</a></strong><br />
+                    <a href="#"><strong>Terms of use</strong></a></p>
+            </div>
+
+            <div class="col-12 col-md-3 footer-nav">
+                <div class="menu-main-nav-container">
+                    <ul id="menu-main-nav-1" class="menu">
+                        <li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-16"><a href="https://mousephenotypedev.org/about-impc/">About
+                            IMPC</a></li>
+                        <li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-17"><a href="https://mousephenotypedev.org/understanding-the-data/">Understanding
+                            the Data</a></li>
+                        <li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-18"><a href="https://mousephenotypedev.org/human-diseases/">Human
+                            Diseases</a></li>
+                        <li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-19"><a href="https://mousephenotypedev.org/news-and-events/">News
+                            &#038; Events</a></li>
+                        <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-20"><a href="#">Blog</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-3 footer-nav">
+                <div class="menu-top-nav-container">
+                    <ul id="menu-top-nav-1" class="menu">
+                        <li class="menu-item menu-item-type-post_type menu-item-object-page page_item page-item-11 menu-item-13"><a
+                                href="https://mousephenotypedev.org/faqs/">FAQs</a></li>
+                        <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-14"><a href="#">Forum</a></li>
+                        <li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-15"><a href="https://mousephenotypedev.org/contact-us/">Contact
+                            Us</a></li>
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+        <div class="row">
+            <div class="col">
+                <ul class="footer__social">
+                    <li>
+                        <a href="https://twitter.com/impc" target="_blank"><i class="fab fa-twitter"></i></a>
+                    </li>
+                    <li>
+                        <a href="https://www.instagram.com/geneoftheday/" target="_blank"><i class="fab fa-instagram"></i></a>
+                    </li>
+                    <li>
+                        <a href="https://www.youtube.com/channel/UCXp3DhDYbpJHu4MCX_wZKww" target="_blank"><i class="fab fa-youtube"></i></a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/searchAndFacetConfig.js?v=${version}'></script>
+<script type='text/javascript' src='${baseUrl}/js/utils/tools.js?v=${version}'></script>
+<script type='text/javascript' src='${baseUrl}/js/general/ui.dropdownchecklist_modif.js?v=${version}'></script>
+<script type='text/javascript' src='${baseUrl}/js/documentationConfig.js?v=${version}'></script>
 </body>
 
+</html>
