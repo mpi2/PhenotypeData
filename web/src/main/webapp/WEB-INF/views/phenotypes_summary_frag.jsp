@@ -105,3 +105,19 @@
 		</div>
 	
 </c:if>
+
+<div class="row">
+<div class="col-12 col-md-2 font-weight-bold">
+	MP browser
+</div>
+<div class="col-12 col-md-10">
+	<a href="${baseUrl}/ontologyBrowser?termId=${phenotype.getMpId()}">${phenotype.getMpId()}</a>
+								<c:if test="${!hasData}">
+									<p>This MP term has not been considered for annotation in <a href="https://www.mousephenotype.org/impress">IMPReSS</a>. However, you can search and retrieve all MP terms currently associated to the Knock-out mutant lines from the <a href="${baseUrl}/search">IMPC Search</a> page. You can also look at all the MP terms used to annotate the IMPReSS SOPs from the <a href="https://www.mousephenotype.org/impress/ontologysearch">IMPReSS ontology search</a> page.</p>
+								</c:if>
+
+		                        <c:if test="${orderPossible}">
+		                          	<p> <a class="btn" href="#order2"> <i class="fa fa-shopping-cart"></i> Order </a> </p>
+		                        </c:if>
+	</div>	                        
+</div>
