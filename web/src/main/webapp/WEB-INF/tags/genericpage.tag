@@ -96,6 +96,10 @@
     <script type='text/javascript' src='https://cdnjs.cloudflare.com/ajax/libs/prefixfree/1.0.7/prefixfree.min.js'></script>
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs4/dt-1.10.18/r-2.2.2/datatables.min.css"/>
     <script type="text/javascript" src="https://cdn.datatables.net/v/bs4/dt-1.10.18/r-2.2.2/datatables.min.js"></script>
+    <script
+            src="https://code.jquery.com/ui/1.12.0/jquery-ui.min.js"
+            integrity="sha256-eGE6blurk5sHj+rmkfsGYeKyZx3M4bG+ZlFyA7Kns7E="
+            crossorigin="anonymous"></script>
 
 
 
@@ -104,11 +108,16 @@
     <script type="text/javascript" src="${baseUrl}/js/head.min.js?v=${version}"></script>
     <script type='text/javascript' src='${baseUrl}/js/buffaloZoo.js'></script>
     <script type="text/javascript" src="${baseUrl}/js/default.js?v=${version}"></script>
+    <link rel="stylesheet" href="${baseUrl}/js/vendor/jquery/jquery.qtip-2.2/jquery.qtip.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.6/dist/jquery.fancybox.min.css" />
+    <script src="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.6/dist/jquery.fancybox.min.js"></script>
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap4.min.css">
     <link href="${baseUrl}/css/default.css" rel="stylesheet" type="text/css" media='all'/>
     <link href="${baseUrl}/css/additionalStyling.css" rel="stylesheet" type="text/css" />
     <link href="${baseUrl}/css/impc-icons.css" rel="stylesheet" type="text/css" />
     <link rel="stylesheet" type="text/css" href="https://ebi.emblstatic.net/web_guidelines/EBI-Icon-fonts/v1.3/fonts.css">
+    <jsp:invoke fragment="header" />
+
 </head>
 
 <body>
@@ -591,6 +600,7 @@
 <script type='text/javascript' src='${baseUrl}/js/utils/tools.js?v=${version}'></script>
 <script type='text/javascript' src='${baseUrl}/js/general/ui.dropdownchecklist_modif.js?v=${version}'></script>
 <script type='text/javascript' src='${baseUrl}/js/documentationConfig.js?v=${version}'></script>
+
 </body>
 
 </html>

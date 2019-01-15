@@ -438,7 +438,7 @@ color:#0978a1
 
 
 table.dataTable.dtr-inline.collapsed>tbody>tr[role="row"]>td:first-child:before, table.dataTable.dtr-inline.collapsed>tbody>tr[role="row"]>th:first-child:before {
-	top: 17px;
+	top: 40%;
 	left: 4px;
 	height: 14px;
 	width: 14px;
@@ -454,5 +454,11 @@ table.dataTable.dtr-inline.collapsed>tbody>tr[role="row"]>td:first-child:before,
 	font-family: 'Courier New', Courier, monospace;
 	line-height: 14px;
 	content: '+';
-	background-color: #ed7b25;
+	background-color: #ce6211;
 }
+
+table.dataTable.dtr-inline.collapsed>tbody>tr.parent>td:first-child:before, table.dataTable.dtr-inline.collapsed>tbody>tr.parent>th:first-child:before {
+	content: '-';
+	background-color: #6c757d;
+}
+

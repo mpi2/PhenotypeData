@@ -272,7 +272,7 @@
         initAccordions();
         initSections();
         initFancybox();
-        initTablesort();
+        // initTablesort();
         initTableFilter();
         initReduceLongTables();
         initRowtoggle();
