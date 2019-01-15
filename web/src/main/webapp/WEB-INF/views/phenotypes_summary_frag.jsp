@@ -80,22 +80,28 @@
 </c:if>
 
 <c:if test="${not empty procedures}">
-									<div id="procedures" class="with-label"> <span class="label">Procedure</span>
-										<ul>
-										<c:set var="count" value="0" scope="page"/>
-											<c:forEach var="procedure" items="${procedures}" varStatus="firstLoop">
-		 										<c:set var="count" value="${count+1}" />
-		 										<c:set var="hrefVar" value="${drupalBaseUrl}/impress/protocol/${procedure.procedureStableKey}"/>
-		 										<c:if test="${fn:contains(procedure.procedureStableId,'M-G-P')}">
+	<div class="row">
+		<div class="col-12 col-md-2 font-weight-bold">Procedure
+			</div>
+			<div class="col-12 col-md-10">
+				<ul>
+					<c:set var="count" value="0" scope="page"/>
+						<c:forEach var="procedure" items="${procedures}" varStatus="firstLoop">
+		 						<c:set var="count" value="${count+1}" />
+		 								<c:set var="hrefVar" value="${drupalBaseUrl}/impress/protocol/${procedure.procedureStableKey}"/>
+		 									<c:if test="${fn:contains(procedure.procedureStableId,'M-G-P')}">
 		 											<c:set var="hrefVar" value="${drupalBaseUrl}/impress/parameters/${procedure.procedureStableKey}/4"/>
-		 										</c:if>
-		  										<li><a href="${hrefVar}">
+		 									</c:if>
+		  									<li><a href="${hrefVar}">
 		  											${procedure.procedureName} (${procedure.procedureStableId.split("_")[0]},
 		  											v${procedure.procedureStableId.substring(procedure.procedureStableId.length()-1, procedure.procedureStableId.length())})
-		  										</a></li>
+		  										</a>
+		  									</li>
 			 									<c:if test="${count==3 && !firstLoop.last}"><p ><a id='show_other_procedures'><i class="fa fa-caret-right"></i><span id="procedureToogleLink">Show more</span></a></p> <div id="other_procedures"></c:if>
 												<c:if test="${firstLoop.last && fn:length(procedures) > 3}"></c:if>
 											</c:forEach>
 										</ul>
-									</div>
+			</div>
+		</div>
+	
 </c:if>

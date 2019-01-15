@@ -129,6 +129,17 @@
                }
             });
         });
+        
+        //really this method below could be changed to use the same method as above??? JW
+        $( "#show_other_procedures" ).click(function() {
+    		$( "#other_procedures" ).toggle( "slow", function() {
+    		// Animation complete.
+    		 });
+    		
+    		var text = $('#procedureToogleLink').text();
+    		$('#procedureToogleLink').text(
+                    text == "Show more" ? "Show less" : "Show more");
+    	});
     </script>
 			
 </jsp:body>

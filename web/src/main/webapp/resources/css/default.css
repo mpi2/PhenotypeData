@@ -7056,5 +7056,7 @@ icon-grid { font-size: 2em }
 /* additional styling added by the EBI for clickable icons etc
 */
 
-
-/* .synToggle { cursor: pointer; } */
+li.fullList {
+    display: none;
+}
+.synToggle { cursor: pointer; }
