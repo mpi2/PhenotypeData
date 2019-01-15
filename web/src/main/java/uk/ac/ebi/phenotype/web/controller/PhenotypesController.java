@@ -100,6 +100,16 @@ public class PhenotypesController {
     private void postConstruct() {
         drupalBaseUrl = config.get("drupalBaseUrl");
     }
+    
+    /**
+     * Convenience method for developing the new buf zoo style - delete when style done JW
+     * @return
+     */
+    @RequestMapping(value="/phenotypes/index", method = RequestMethod.GET)
+    public String loadIndex() {
+    	System.out.println("inde page loading");
+    	return "index";
+    }
 
     /**
      * Phenotype controller loads information required for displaying the
