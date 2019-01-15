@@ -22,7 +22,7 @@
     	<div id="phenoSumSmallDiv">
     </c:if>
     <c:if test="${phenotypeDisplayStatus.postQcTopLevelMPTermsAvailable}">
-        <h5 class="sectHint">All Phenotypes Summary</h5>
+        <h4>All Phenotypes Summary</h4>
         <p>Based on automated MP annotations supported by experiments on knockout mouse models. 
     
       		Click on icons to go to all ${gene.markerSymbol} data for that phenotype.

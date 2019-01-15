@@ -25,17 +25,20 @@
 
 
 <script>
+    $(document).ready(function() {
+        $('#genes').DataTable({responsive: true});
+    } );
     var resTemp = document.getElementsByClassName("resultCount");
     if (resTemp.length > 1)
         resTemp[0].remove();
 </script>
 
 
-<table id="genes" class="table tableSorter">
+<table id="genes" class="table table-striped table-bordered dt-responsive" style="width:100%">
     <thead>
     <tr>
-    	<th class="headerSort">System</th>
         <th class="headerSort">Phenotype</th>
+    	<th class="headerSort">System</th>
         <th class="headerSort">Allele</th>
         <th class="headerSort" title="Zygosity">Zyg</th>
         <th class="headerSort">Sex</th>
@@ -51,25 +54,7 @@
     <c:forEach var="phenotype" items="${rowsForPhenotypeTable}" varStatus="status">
         <c:set var="europhenome_gender" value="Both-Split"/>
         <tr>
-        	<td>
-        		<div class="row_abnormalities">
-        			<c:set var="marginLeftCount" value="0"/>
-        			<c:forEach var="topLevelMpGroup" items="${phenotype.topLevelMpGroups }" varStatus="groupCount">
-        				<c:choose>
-        					<c:when test="${topLevelMpGroup eq 'NA' }">
-        					<%-- <div title="${topLevelMpGroup}" >${topLevelMpGroup}</div> don't display a top level icon if there is no top level group for the top level mp term--%>
-        					</c:when>
-        				<c:otherwise>
-        					<c:set var="marginLeft" value="${marginLeftCount * 40 }"/>
-        					<div class="sprite_orange sprite_row_${topLevelMpGroup.replaceAll(' |/', '_')}" data-hasqtip="27" title="${topLevelMpGroup}" style="margin: 0px 0px 0px ${marginLeft}px"></div>
-							<c:set var="marginLeftCount" value="${marginLeftCount+1 }"/>
-        				</c:otherwise>
-        				</c:choose>
-					
-        			</c:forEach>
-        		</div>
-        	</td>
-        	
+
             <td>
              
                 <c:if test="${ empty phenotype.phenotypeTerm.id }">
@@ -79,6 +64,23 @@
                     <a href="${baseUrl}/phenotypes/${phenotype.phenotypeTerm.id}">${phenotype.phenotypeTerm.name}</a>
                 </c:if>
 
+            </td>
+            <td class="text-lg-center" style="font-size: 1.8em;">
+                <span class="row_abnormalities">
+                    <c:set var="marginLeftCount" value="0"/>
+                    <c:forEach var="topLevelMpGroup" items="${phenotype.topLevelMpGroups }" varStatus="groupCount">
+                        <c:choose>
+                            <c:when test="${topLevelMpGroup eq 'NA' }">
+                                <%-- <div title="${topLevelMpGroup}" >${topLevelMpGroup}</div> don't display a top level icon if there is no top level group for the top level mp term--%>
+                            </c:when>
+                            <c:otherwise>
+
+                                <i class="${phenotypeGroupIcons[phenotypeGroups.indexOf(topLevelMpGroup)]} text-primary" data-hasqtip="27" title="${topLevelMpGroup}"></i>
+                            </c:otherwise>
+                        </c:choose>
+
+                    </c:forEach>
+                </span>
             </td>
             <td>
             <!-- note that allele page takes mgi GENE id not allele id -->
@@ -101,7 +103,7 @@
 
            
 			
-				<td class="postQcLink">
+				<td class="postQcLink" style="font-size: 1.8em;">
 			
 			<c:if test="${phenotype.getEvidenceLink().getDisplay()}">
 				<c:if test='${phenotype.getEvidenceLink().getIconType().name().equalsIgnoreCase("IMAGE")}'>
