@@ -7051,3 +7051,10 @@ hr {
 .abnormalities .allicons {  opacity: 0.4; position: absolute; width: 200px; height: 160px; background-image: url(../img/icon/sprite-abnormalities.png); }
 
 icon-grid { font-size: 2em }
+
+
+/* additional styling added by the EBI for clickable icons etc
+*/
+
+
+/* .synToggle { cursor: pointer; } */
