@@ -68,8 +68,8 @@
     <title><jsp:invoke fragment="title"></jsp:invoke> | International Mouse Phenotyping Consortium</title>
     <link rel="profile" href="http://gmpg.org/xfn/11">
     <link rel="pingback" href="https://mousephenotypedev.org/xmlrpc.php">
-    <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-TXfwrfuHVznxCssTxWoPZjhcss/hp38gEOH8UPZG/JcXonvBQ6SlsIF49wUzsGno"
-          crossorigin="anonymous">
+   <!--  <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-TXfwrfuHVznxCssTxWoPZjhcss/hp38gEOH8UPZG/JcXonvBQ6SlsIF49wUzsGno"
+          crossorigin="anonymous"> -->
     <link rel="apple-touch-icon-precomposed" sizes="57x57" href="${baseUrl}/img/apple-touch-icon-57x57.png" />
     <link rel="apple-touch-icon-precomposed" sizes="114x114" href="${baseUrl}/img/apple-touch-icon-114x114.png" />
     <link rel="apple-touch-icon-precomposed" sizes="72x72" href="${baseUrl}/img/apple-touch-icon-72x72.png" />
@@ -595,9 +595,11 @@
             </div>
         </div>
     </div>
+    
+    <jsp:invoke fragment="addToFooter"/>
 </div>
 <script type='text/javascript' src='${baseUrl}/js/searchAndFacet/searchAndFacetConfig.js?v=${version}'></script>
-<script type='text/javascript' src='${baseUrl}/js/utils/tools.js?v=${version}'></script>
+<%-- <script type='text/javascript' src='${baseUrl}/js/utils/tools.js?v=${version}'></script> commented out as causing erros - for debug JW--%>
 <script type='text/javascript' src='${baseUrl}/js/general/ui.dropdownchecklist_modif.js?v=${version}'></script>
 <script type='text/javascript' src='${baseUrl}/js/documentationConfig.js?v=${version}'></script>
 

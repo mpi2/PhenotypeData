@@ -3,7 +3,7 @@
 <%@taglib prefix="t" tagdir="/WEB-INF/tags" %>
 
 <div class="row pt-5 pb-5 white-bg">
- <div class="col-12 col-md-6">
+ <div class="col-12 col-md-4">
 <c:if test="${not empty phenotype.getMpDefinition()}">
 	
 	<div class="row">
@@ -127,14 +127,14 @@
  <!-- end of half section -->
 
 
-<div class="col-12 col-md-6">
+<div class="col-12 col-md-8">
 	                        
 
 
 
 
 
-half should be here!!!!
+half with ontology navigator should be here!!!!
 <div id="parentChild" class="half">
 									<c:if test="${hasChildren && hasParents}">
 		                            	<div class="half" id="parentDiv"></div>

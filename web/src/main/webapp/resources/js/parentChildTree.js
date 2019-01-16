@@ -47,6 +47,7 @@ function shortenLabel(label){
 }
 
 if (hasParents){
+	console.log('in hasParents');
     d3_v3.json("../" + ontPrefix + "Tree/json/" + ont_id + "?type=parents", function(error, root) {
 
         svgP = d3_v3.select("#parentDiv").append("svg")
@@ -116,6 +117,7 @@ if (hasParents){
 }
 
 if (hasChildren){
+	console.log('in hasChildren');
     d3_v3.json("../" + ontPrefix + "Tree/json/" + ont_id + "?type=children", function(error, root) {
 
         var svg = d3_v3.select("#childDiv").append("svg")

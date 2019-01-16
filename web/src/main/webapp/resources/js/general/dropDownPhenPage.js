@@ -1,11 +1,11 @@
 $(document).ready(function(){						
 	
 	// bubble popup for brief panel documentation
-	$.fn.qTip({
-		'pageName': 'phenotypes',	
-		'tip': 'top right',
-		'corner' : 'right top'
-	});
+//	$.fn.qTip({
+//		'pageName': 'phenotypes',	
+//		'tip': 'top right',
+//		'corner' : 'right top'
+//	}); removed as causing errors and should use bootstrap instead???? JW
 	
 	var selectedFilters = "";
 	var dropdownsList = new Array();

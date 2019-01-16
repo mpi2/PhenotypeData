@@ -38,6 +38,7 @@
 
 		<script type="text/javascript">
 			// Stuff dor parent-child. Will be used in parentChildTree.js.
+			console.log('getting phenotype infor for parentChildTree.js');
 			var ont_id = '${phenotype.getMpId()}';
 			var ontPrefix = "mp";
 			var page = "phenotypes";
@@ -94,6 +95,35 @@
                     </div>
                 </div>
             </div>
+            
+            <c:if test="${genePercentage.getDisplay()}">
+            
+             <div class="container">
+                <div class="row">
+                    <div class="col-12 no-gutters">
+                        <h3>Phenotype associations stats</h3>
+                        
+                        <jsp:include page="phenotypes_ass_stats_frag.jsp"/>
+                          		
+                        </div>
+                    </div>
+              </div>
+              
+           </c:if>
+           
+           <c:if test="${hasData}">
+           
+           <div class="container">
+                <div class="row">
+                    <div class="col-12 no-gutters">
+                        <h3>Gene variants with ${phenotype.getMpTerm()}</h3>
+                        <jsp:include page="phenotypes_gene_variant_frag.jsp"></jsp:include>
+           			</div>
+           		</div>
+           </div>
+           
+           
+           </c:if>
 
 				
  <script type="text/javascript">
