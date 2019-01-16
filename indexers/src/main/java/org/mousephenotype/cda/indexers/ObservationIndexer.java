@@ -511,9 +511,9 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 					o.setTextValue(text_value);
 				}
 
-				if (ontologyEntityMap.containsKey(o.getId())) {
+				if (ontologyEntityMap.containsKey(Integer.parseInt(o.getId()))) {
 
-					List<OntologyBean> subOntBeans = ontologyEntityMap.get(o.getId());
+					List<OntologyBean> subOntBeans = ontologyEntityMap.get(Integer.parseInt(o.getId()));
 					for (OntologyBean bean : subOntBeans) {
 						o.addSubTermId(bean.getId());
 						o.addSubTermName(bean.getName());
