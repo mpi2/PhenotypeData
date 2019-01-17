@@ -118,7 +118,7 @@
                      link.type = 'text/css';
                      link.href = '
 
-                    ${drupalBaseUrl}/heatmap/css/heatmap.1.3.1.css';
+                    drupalBaseUrl/heatmap/css/heatmap.1.3.1.css';
                          link.media = 'all';
                          head.appendChild(link);
                          } */
