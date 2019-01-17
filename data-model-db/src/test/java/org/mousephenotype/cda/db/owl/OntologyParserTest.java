@@ -5,7 +5,6 @@ package org.mousephenotype.cda.db.owl;
  * Refactored by mrelac on 07/12/2018.
  */
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.owl.OntologyParser;
@@ -34,7 +33,6 @@ import static org.junit.Assert.*;
 @RunWith(SpringRunner.class)
 
 @ContextConfiguration(classes = {OntologyParserTestConfig.class})
-@Ignore
 public class OntologyParserTest {
 
     private final Logger         logger = LoggerFactory.getLogger(this.getClass());
