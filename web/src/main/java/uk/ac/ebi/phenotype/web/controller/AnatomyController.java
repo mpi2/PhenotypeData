@@ -25,6 +25,7 @@ import org.mousephenotype.cda.solr.service.dto.AnatomyDTO;
 import org.mousephenotype.cda.solr.service.dto.ImageDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.mousephenotype.cda.solr.web.dto.AnatomyPageTableRow;
+import org.mousephenotype.cda.solr.web.dto.GenePageTableRow;
 import org.mousephenotype.cda.solr.web.dto.PhenotypeTableRowAnatomyPage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,6 +36,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import uk.ac.ebi.phenotype.chart.PieChartCreator;
+import uk.ac.ebi.phenotype.web.util.FileExportUtils;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -92,27 +94,29 @@ public class AnatomyController {
 
 	}
 	
-	@RequestMapping(value = "/anatomy_file/{anatomy}", method = RequestMethod.GET)
-	public void loadMaFile(@PathVariable String anatomy, Model model, HttpServletRequest request, HttpServletResponse response, RedirectAttributes attributes)
+	@RequestMapping(value = "/anatomy/export/{anatomy}", method = RequestMethod.GET)
+	public void loadMaFile(@PathVariable String anatomy, 
+			@RequestParam(required = true, value = "fileType") String fileType,
+			Model model, HttpServletRequest request, HttpServletResponse response, RedirectAttributes attributes)
 			throws SolrServerException, IOException, URISyntaxException, JSONException {
-		response.setContentType("text/tab-separated-values");
-		response.setHeader("Content-Disposition", "attachment; filename=\"antomy.tsv\"");
-		JSONObject maAssociatedExpressionImagesResponse = JSONImageUtils.getAnatomyAssociatedExpressionImages(anatomy, config, numberOfImagesToDisplay);
-		JSONArray expressionImageDocs = maAssociatedExpressionImagesResponse.getJSONObject("response").getJSONArray("docs");
-		int numberExpressionImagesFound=maAssociatedExpressionImagesResponse.getJSONObject("response").getInt("numFound");
-		model.addAttribute("numberExpressionImagesFound", numberExpressionImagesFound);
+//		response.setContentType("text/tab-separated-values");
+//		response.setHeader("Content-Disposition", "attachment; filename=\""+anatomy.replace(":", "_")+".tsv\"");
 		List<AnatomyPageTableRow> anatomyTable = expressionService.getLacZDataForAnatomy(anatomy,null, null, null, null, request.getAttribute("baseUrl").toString());
 		List<AnatomyPageTableRow> anatomyRowsFromImages = is.getImagesForAnatomy(anatomy, null, null, null, null, request.getAttribute("baseUrl").toString());
 		//System.out.println("images="+anatomyRowsFromImages);
 		//now collapse the rows from both the categorical and image data sources
 		ArrayList<AnatomyPageTableRow> collapsedTable = collapseCategoricalAndImageRows(anatomyTable, anatomyRowsFromImages);
-		//System.out.println("collapsed="+collapsedTable);
 		Collections.sort(collapsedTable, new ImageNumberComparator());
 		String tsvString="";
-		PrintWriter writer = response.getWriter();
+		
+		List<String> dataRows = new ArrayList<>();
+		dataRows.add(AnatomyPageTableRow.getTabbedHeader());
 		for(AnatomyPageTableRow row:collapsedTable) {
-			writer.println(row.getTsv());
+	        dataRows.add(row.toTabbedString());
 		}
+        String filters = null;
+        String fileName=anatomy.replace(":", "_");
+		 FileExportUtils.writeOutputFile(response, dataRows, fileType, fileName, filters);
 	}
 
 	private String processAnatomyPage(String anatomy, Model model, HttpServletRequest request)

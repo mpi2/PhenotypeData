@@ -1099,7 +1099,7 @@ public class OntologyAnnotationGenerator implements CommandLineRunner {
                     "                INNER JOIN experiment_observation eo2 ON eo2.observation_id = o2.id " +
                     "                INNER JOIN experiment e2 ON e2.id = eo2.experiment_id " +
                     "                INNER JOIN phenotype_parameter pp2 ON pp2.id=o2.parameter_id " +
-                    "              WHERE pp2.name like '%Significance score' AND co2.category = 1) a ON a.sequence_id = o.sequence_id AND a.experiment_id = e.id AND a.name = CONCAT_WS(' - ', SUBSTRING_INDEX(p.name, ' - ', 1), 'Significance score') " +
+                    "              WHERE pp2.name like '%Significance score' AND co2.category = 1) a ON (a.sequence_id = o.sequence_id OR a.sequence_id is null) AND a.experiment_id = e.id AND a.name = CONCAT_WS(' - ', SUBSTRING_INDEX(p.name, ' - ', 1), 'Significance score') " +
                     "WHERE term_value != 'normal' AND term LIKE 'MPATH:%' " ;
         }
         else if ( ontologyName.toUpperCase().equals("EMAP") ){
