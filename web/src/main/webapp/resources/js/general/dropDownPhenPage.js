@@ -93,11 +93,11 @@ $(document).ready(function(){
 	
 	
 	//stuff for dropdown tick boxes here
-//	var allDropdowns = new Array();
-//	allDropdowns[0] = $('#resource_fullname');
-//	allDropdowns[1] = $('#procedure_name');
-//	allDropdowns[2] = $('#marker_symbol');
-//	allDropdowns[3] = $('#mp_term_name');
+	var allDropdowns = new Array();
+	allDropdowns[0] = $('#resource_fullname');
+	allDropdowns[1] = $('#procedure_name');
+	allDropdowns[2] = $('#marker_symbol');
+	allDropdowns[3] = $('#mp_term_name');
 //	createDropdown(allDropdowns[3].sort(), "Phenotype: All", allDropdowns);
 //	createDropdown(allDropdowns[0],"Source: All", allDropdowns);
 //	createDropdown(allDropdowns[1], "Procedure: All", allDropdowns);
