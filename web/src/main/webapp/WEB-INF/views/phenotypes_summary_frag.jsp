@@ -3,7 +3,7 @@
 <%@taglib prefix="t" tagdir="/WEB-INF/tags" %>
 
 <div class="row pt-5 pb-5 white-bg">
- <div class="col-12 col-md-4">
+ <div class="col-12 col-md-7">
 <c:if test="${not empty phenotype.getMpDefinition()}">
 	
 	<div class="row">
@@ -85,7 +85,7 @@
 	<div class="row">
 		<div class="col-12 col-md-4 font-weight-bold">Procedure
 			</div>
-			<div class="col-12 col-md-8">
+			<div class="col-12 col-md-4">
 				<ul>
 					<c:set var="count" value="0" scope="page"/>
 						<c:forEach var="procedure" items="${procedures}" varStatus="firstLoop">
@@ -127,18 +127,11 @@
  <!-- end of half section -->
 
 
-<div class="col-12 col-md-8">
-	                        
-
-
-
-
-
-half with ontology navigator should be here!!!!
-<div id="parentChild" class="half">
+<div id="parentChild" class="col-12 col-md-5">
+	                        <div class="row">
 									<c:if test="${hasChildren && hasParents}">
-		                            	<div class="half" id="parentDiv"></div>
-										<div class="half" id="childDiv"></div>
+		                            	<div class="col-12 col-md-6" id="parentDiv"></div>
+										<div class="col-12 col-md-6" id="childDiv"></div>
 									</c:if>
 									<c:if test="${hasChildren && !hasParents}">
 										<div id="childDiv"></div>
@@ -147,8 +140,5 @@ half with ontology navigator should be here!!!!
 		                            	<div id="parentDiv"></div>
 									</c:if>
 							</div>
-
-
-
 </div>
 </div>

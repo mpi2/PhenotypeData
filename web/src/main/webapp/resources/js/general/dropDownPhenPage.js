@@ -137,6 +137,7 @@ $(document).ready(function(){
 				addParamsToURL();
 			}, textFormatFunction: function(options) {
 				var selectedOptions = options.filter(":selected");
+				console.log('select options='+selectedOptions.html());
 		        var countOfSelected = selectedOptions.size();
 		        var size = options.size();
 		        var text = "";
