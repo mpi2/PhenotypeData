@@ -15,30 +15,7 @@ $(document).ready(function(){
 	
 	function initPhenoDataTable(){
             var aDataTblCols = [0,1,2,3,4,5,6,7,8];
-            $('table#phenotypes').dataTable( {
-           // 	$.fn.initDataTable($('table#phenotypes'), {
-            	"aoColumns": [
-            	              { "sType": "html", "mRender":function( data, type, full ) {
-            	            	  return (type === "filter") ? $(data).text() : data;
-            	              }},
-            	              { "sType": "string"},
-            	              { "sType": "string"},
-            	              { "sType": "html", "mRender":function( data, type, full ) {
-            	            	  return (type === "filter") ? $(data).text() : data;
-            	              }},
-            	              { "sType": "string"},
-            	              { "sType": "string"},
-            	              { "sType": "html"},
-                              { "sType": "allnumeric", "aTargets": [ 3 ] },
-                              { "sType": "string", "bSortable" : false }
-                      ],
-                "aaSorting": [[ 7, 'asc' ]],//sort by the p value on init
-
-        		"bDestroy": true,
-        		"bFilter":false,
-        		"bPaginate":true,
-                "sPaginationType": "bootstrap"
-            });
+            $('table#phenotypes').dataTable( );
         }
 	
 	function removeFilterSelects(){ // Remove selected options when going back to the page
@@ -96,117 +73,122 @@ $(document).ready(function(){
 	});
 	
 	        
-	function refreshPhenoTable(newUrl){
-
-		$.ajax({
-			url: newUrl,
-			cache: false
-		}).done(function( html ) {
-			$("#phenotypes_wrapper").html(html);//phenotypes wrapper div has been created by the original datatable so we need to replace this div with the new table and content
-			initPhenoDataTable();
-			addParamsToURL();
-		});
-	}
+//	function refreshPhenoTable(newUrl){
+//
+//		$.ajax({
+//			url: newUrl,
+//			cache: false
+//		}).done(function( html ) {
+//			$("#phenotypes_wrapper").html(html);//phenotypes wrapper div has been created by the original datatable so we need to replace this div with the new table and content
+//			initPhenoDataTable();
+//			addParamsToURL();
+//		});
+//	}
 	//http://stackoverflow.com/questions/5990386/datatables-search-box-outside-datatable
 	//to move the input text or reassign the div that does it and hide the other one??
 	//put filtering in another text field than the default so we can position it with the other controls like dropdown ajax filters for project etc
 
+	
+	$('.selectpicker').selectpicker();
+	
+	
 	//stuff for dropdown tick boxes here
 	var allDropdowns = new Array();
 	allDropdowns[0] = $('#resource_fullname');
 	allDropdowns[1] = $('#procedure_name');
 	allDropdowns[2] = $('#marker_symbol');
 	allDropdowns[3] = $('#mp_term_name');
-	createDropdown(allDropdowns[3].sort(), "Phenotype: All", allDropdowns);
-	createDropdown(allDropdowns[0],"Source: All", allDropdowns);
-	createDropdown(allDropdowns[1], "Procedure: All", allDropdowns);
-	createDropdown(allDropdowns[2].sort(), "Gene: All", allDropdowns);
+//	createDropdown(allDropdowns[3].sort(), "Phenotype: All", allDropdowns);
+//	createDropdown(allDropdowns[0],"Source: All", allDropdowns);
+//	createDropdown(allDropdowns[1], "Procedure: All", allDropdowns);
+//	createDropdown(allDropdowns[2].sort(), "Gene: All", allDropdowns);
 	
-	function createDropdown(multipleSel, emptyText,  allDd){
-		$(multipleSel).dropdownchecklist( { firstItemChecksAll: false, emptyText: emptyText, icon: {}, 
-			minWidth: 150, onItemClick: function(checkbox, selector){
-				var justChecked = checkbox.prop("checked");
-				var values = [];
-				for(var  i=0; i < selector.options.length; i++ ) {
-					if (selector.options[i].selected && (selector.options[i].value != "")) {
-						values .push(selector.options[i].value);
-					}
-				}
-
-				if(justChecked){				    		 
-					values.push( checkbox.val());
-				}else{//just unchecked value is in the array so we remove it as already ticked
-					var index = $.inArray(checkbox.val(), values);
-					values.splice(index, 1);
-				}  
-				
-				// add current one and create drop down object 
-				dd1 = new Object();
-				dd1.name = multipleSel.attr('id'); 
-				dd1.array = values; // selected values
-				
-				dropdownsList[0] = dd1;
-				
-				var ddI  = 1; 
-				for (var ii=0; ii<allDd.length; ii++) { 
-					if ($(allDd[ii]).attr('id') != multipleSel.attr('id')) {
-						dd = new Object();
-						dd.name = allDd[ii].attr('id'); 
-						dd.array = allDd[ii].val() || []; 
-						dropdownsList[ddI++] = dd;
-					}
-				}
-				refreshGenesPhenoFrag(dropdownsList);
-				addParamsToURL();
-			}, textFormatFunction: function(options) {
-				var selectedOptions = options.filter(":selected");
-		        var countOfSelected = selectedOptions.size();
-		        var size = options.size();
-		        var text = "";
-		        if (size > 1){
-		        	options.each(function() {
-	                    if ($(this).prop("selected")) {
-	                        if ( text != "" ) { text += ", "; }
-	                        /* NOTE use of .html versus .text, which can screw up ampersands for IE */
-	                        var optCss = $(this).attr('style');
-	                        var tempspan = $('<span/>');
-	                        tempspan.html( $(this).html() );
-	                        if ( optCss == null ) {
-	                                text += tempspan.html();
-	                        } else {
-	                                tempspan.attr('style',optCss);
-	                                text += $("<span/>").append(tempspan).html();
-	                        }
-	                    }
-	                });
-		        }
-		        switch(countOfSelected) {
-		           case 0: return emptyText;
-		           case 1: return selectedOptions.text();
-		           case options.size(): return emptyText;
-		           default: return text;
-		        }
-			}
-		} );
-	}
+//	function createDropdown(multipleSel, emptyText,  allDd){
+//		$(multipleSel).dropdownchecklist( { firstItemChecksAll: false, emptyText: emptyText, icon: {}, 
+//			minWidth: 150, onItemClick: function(checkbox, selector){
+//				var justChecked = checkbox.prop("checked");
+//				var values = [];
+//				for(var  i=0; i < selector.options.length; i++ ) {
+//					if (selector.options[i].selected && (selector.options[i].value != "")) {
+//						values .push(selector.options[i].value);
+//					}
+//				}
+//
+//				if(justChecked){				    		 
+//					values.push( checkbox.val());
+//				}else{//just unchecked value is in the array so we remove it as already ticked
+//					var index = $.inArray(checkbox.val(), values);
+//					values.splice(index, 1);
+//				}  
+//				
+//				// add current one and create drop down object 
+//				dd1 = new Object();
+//				dd1.name = multipleSel.attr('id'); 
+//				dd1.array = values; // selected values
+//				
+//				dropdownsList[0] = dd1;
+//				
+//				var ddI  = 1; 
+//				for (var ii=0; ii<allDd.length; ii++) { 
+//					if ($(allDd[ii]).attr('id') != multipleSel.attr('id')) {
+//						dd = new Object();
+//						dd.name = allDd[ii].attr('id'); 
+//						dd.array = allDd[ii].val() || []; 
+//						dropdownsList[ddI++] = dd;
+//					}
+//				}
+//				refreshGenesPhenoFrag(dropdownsList);
+//				addParamsToURL();
+//			}, textFormatFunction: function(options) {
+//				var selectedOptions = options.filter(":selected");
+//				console.log('select options='+selectedOptions.html());
+//		        var countOfSelected = selectedOptions.size();
+//		        var size = options.size();
+//		        var text = "";
+//		        if (size > 1){
+//		        	options.each(function() {
+//	                    if ($(this).prop("selected")) {
+//	                        if ( text != "" ) { text += ", "; }
+//	                        /* NOTE use of .html versus .text, which can screw up ampersands for IE */
+//	                        var optCss = $(this).attr('style');
+//	                        var tempspan = $('<span/>');
+//	                        tempspan.html( $(this).html() );
+//	                        if ( optCss == null ) {
+//	                                text += tempspan.html();
+//	                        } else {
+//	                                tempspan.attr('style',optCss);
+//	                                text += $("<span/>").append(tempspan).html();
+//	                        }
+//	                    }
+//	                });
+//		        }
+//		        switch(countOfSelected) {
+//		           case 0: return emptyText;
+//		           case 1: return selectedOptions.text();
+//		           case options.size(): return emptyText;
+//		           default: return text;
+//		        }
+//			}
+//		} );
+//	}
 	
 	//if filter parameters are already set then we need to set them as selected in the dropdowns
-	var previousParams=$("#filterParams").html();
-	
-	function refreshGenesPhenoFrag(dropdownsList) {
-		var rootUrl = window.location.href;
-		var newUrl = rootUrl.replace("phenotypes", "geneVariantsWithPhenotypeTable").split("#")[0];
-		var output ='?';
-		selectedFilters = "";
-		for (var it = 0; it < dropdownsList.length; it++){
-			if (dropdownsList[it].array.length > 0){
-				selectedFilters += '&' + dropdownsList[it].name + '=' + dropdownsList[it].array.join('&' + dropdownsList[it].name + '=');
-			}
-		}
-		newUrl += output + selectedFilters;
-		refreshPhenoTable(newUrl);
-		return false;
-	}
+//	var previousParams=$("#filterParams").html();
+//	
+//	function refreshGenesPhenoFrag(dropdownsList) {
+//		var rootUrl = window.location.href;
+//		var newUrl = rootUrl.replace("phenotypes", "geneVariantsWithPhenotypeTable").split("#")[0];
+//		var output ='?';
+//		selectedFilters = "";
+//		for (var it = 0; it < dropdownsList.length; it++){
+//			if (dropdownsList[it].array.length > 0){
+//				selectedFilters += '&' + dropdownsList[it].name + '=' + dropdownsList[it].array.join('&' + dropdownsList[it].name + '=');
+//			}
+//		}
+//		newUrl += output + selectedFilters;
+//		refreshPhenoTable(newUrl);
+//		return false;
+//	}
 	
 	
 	/** 
