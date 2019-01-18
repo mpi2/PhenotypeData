@@ -26,6 +26,15 @@
        	<script type='text/javascript' src='${baseUrl}/js/charts/exporting.js?v=${version}'></script>
 		<script type="text/javascript" src="${baseUrl}/js/vendor/d3/d3.v3.js"></script>
 		<script type="text/javascript" src="${baseUrl}/js/vendor/d3/d3.layout.js"></script>
+		
+		<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.2/css/bootstrap-select.min.css">
+
+<!-- Latest compiled and minified JavaScript -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.2/js/bootstrap-select.min.js"></script>
+
+<!-- (Optional) Latest compiled and minified JavaScript translation files -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.2/js/i18n/defaults-*.min.js"></script>
 
 	</jsp:attribute>
 

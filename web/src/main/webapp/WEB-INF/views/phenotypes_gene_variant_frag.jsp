@@ -16,7 +16,7 @@ paramvalues=${paramValues.fq}||
 								<c:if test="${not empty phenotypes}">
 									<form class="tablefiltering no-style" id="target" action="">
 											<c:forEach var="phenoFacet" items="${phenoFacets}" varStatus="phenoFacetStatus">
-													<select id="${phenoFacet.key}" class="impcdropdown"	multiple="multiple" title="Filter on ${phenoFacet.key}">
+													<select id="${phenoFacet.key}" class="selectpicker"	multiple="multiple" title="Filter on ${phenoFacet.key}">
 														<c:forEach var="facet" items="${phenoFacet.value}">
 															<option>${facet.key}</option>
 														</c:forEach>
