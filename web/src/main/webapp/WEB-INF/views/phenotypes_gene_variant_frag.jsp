@@ -3,7 +3,7 @@
 <%@taglib prefix="t" tagdir="/WEB-INF/tags" %>
 	
 <div class="row pt-5 pb-5 white-bg">
-
+paramvalues=${paramValues.fq}||
 						<c:if test="${errorMessage != null}">
 							<div class="alert alert-info"><p>${errorMessage}</p></div>
 						</c:if>

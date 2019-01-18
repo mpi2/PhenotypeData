@@ -110,7 +110,7 @@
               </div>
               
            </c:if>
-           
+          has data?= ${hasData}
            <c:if test="${hasData}">
            
            <div class="container">

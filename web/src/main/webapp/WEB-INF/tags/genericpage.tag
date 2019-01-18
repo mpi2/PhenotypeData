@@ -121,7 +121,7 @@
 </head>
 
 <body>
-
+<jsp:invoke fragment="bodyTag"/>
 <div class="header">
     <div class="header__nav-top d-none d-lg-block">
         <div class="container text-right">
