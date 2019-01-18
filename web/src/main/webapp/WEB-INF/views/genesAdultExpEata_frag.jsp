@@ -36,7 +36,7 @@
 <!-- <h2 class="title" id="section-impc_expression">Expression Overview<i class="fa fa-question-circle pull-right" title="Brief info about this panel"></i></h2>
 -->
 <div>
-    <table id="expressionTable" class="row-border">
+    <table id="expressionTable" class="table table-striped table-bordered dt-responsive" style="width:100%">
         <thead>
             <th>Anatomy</th>
             <th

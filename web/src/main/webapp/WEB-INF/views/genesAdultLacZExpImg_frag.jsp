@@ -14,57 +14,55 @@
 <!-- <h2 class="title" id="section-impc_expression">Expression Data<i class="fa fa-question-circle pull-right" title="Brief info about this panel"></i></h2>
 -->
 
-    
-    <div class="accordion-body"
-     style="display: block;">
-    <h3>LacZ Wholemount Images</h3>
-    <c:forEach var="entry" items="${wholemountExpressionImagesBean.filteredTopLevelAnatomyTerms}"
-               varStatus="status">
-               
-               
- <%--  value="${baseUrl}/imageComparator?&acc=${acc}&anatomy_term=${entry.name}"></c:set> --%><!--  &acc=${acc}&parameter_stable_id=IMPC_ALZ_076_001 -->
-        <c:set var="href"
-               scope="page"
-             
-               value="${baseUrl}/imageComparator?acc=${acc}&anatomy_term=${entry.name}&parameter_stable_id=IMPC_ALZ_076_001"></c:set>
-        <ul>
-            <t:impcimgdisplay2
-                    category="${entry.name}(${entry.count})" 
-                    href="${fn:escapeXml(href)}"
-                    img="${wholemountExpressionImagesBean.expFacetToDocs[entry.name][0]}"
-                    impcMediaBaseUrl="${impcMediaBaseUrl}"
-                    >
-            </t:impcimgdisplay2>
-        </ul>
+<div class="tz-gallery small">
+    <div class="container">
+        <div class="heading">
+            <h5>LacZ Wholemount Images</h5>
+        </div>
+        <div class="row">
+            <c:forEach var="entry" items="${wholemountExpressionImagesBean.filteredTopLevelAnatomyTerms}"
+                       varStatus="status">
+                <c:set var="href"
+                       scope="page"
 
-    </c:forEach> <!-- solrFacets end -->
-    
+                       value="${baseUrl}/imageComparator?acc=${acc}&anatomy_term=${entry.name}&parameter_stable_id=IMPC_ALZ_076_001"></c:set>
+                <t:impcimgdisplay2
+                        category="${entry.name}(${entry.count})"
+                        href="${fn:escapeXml(href)}"
+                        img="${wholemountExpressionImagesBean.expFacetToDocs[entry.name][0]}"
+                        impcMediaBaseUrl="${impcMediaBaseUrl}"
+                >
+                </t:impcimgdisplay2>
+            </c:forEach>
+
+        </div>
     </div>
-    
-    <div class="accordion-body"
-     style="display: block;">
-   <h3>LacZ Section Images</h3>
-     <c:forEach var="entry" items="${sectionExpressionImagesBean.filteredTopLevelAnatomyTerms}"
-               varStatus="status">
-               
-               
- <%--  value="${baseUrl}/imageComparator?&acc=${acc}&anatomy_term=${entry.name}"></c:set> --%><!--  &acc=${acc}&parameter_stable_id=IMPC_ALZ_076_001 -->
-        <c:set var="href"
-               scope="page"
-             
-               value="${baseUrl}/imageComparator?acc=${acc}&anatomy_term=${entry.name}&parameter_stable_id=IMPC_ALZ_075_001"></c:set>
-        <ul>
-            <t:impcimgdisplay2
-                    category="${entry.name}(${entry.count})" 
-                    href="${fn:escapeXml(href)}"
-                    img="${sectionExpressionImagesBean.expFacetToDocs[entry.name][0]}"
-                    impcMediaBaseUrl="${impcMediaBaseUrl}"
-                    >
-            </t:impcimgdisplay2>
-        </ul>
+</div>
 
-    </c:forEach> <!-- solrFacets end -->
-	</div>
 
+<div class="tz-gallery small">
+    <div class="container">
+        <div class="heading">
+            <h5>LacZ Section Images</h5>
+        </div>
+        <div class="row">
+            <c:forEach var="entry" items="${sectionExpressionImagesBean.filteredTopLevelAnatomyTerms}"
+                       varStatus="status">
+                <c:set var="href"
+                       scope="page"
+
+                       value="${baseUrl}/imageComparator?acc=${acc}&anatomy_term=${entry.name}&parameter_stable_id=IMPC_ALZ_075_001"></c:set>
+                <t:impcimgdisplay2
+                        category="${entry.name}(${entry.count})"
+                        href="${fn:escapeXml(href)}"
+                        img="${sectionExpressionImagesBean.expFacetToDocs[entry.name][0]}"
+                        impcMediaBaseUrl="${impcMediaBaseUrl}"
+                >
+                </t:impcimgdisplay2>
+            </c:forEach>
+
+        </div>
+    </div>
+</div>
 
 

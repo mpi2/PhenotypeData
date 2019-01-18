@@ -21,7 +21,7 @@ allele = allele.replaceAll("##", "</sup>");
 <%@ attribute name="href" required="false" %>
 <%@ attribute name="category" required="false" %>
 <%@ attribute name="parameterName" required="false" %>
-<li style="height:275px; max-height:275px; min-height:275px; word-wrap: break-word;width:12%">
+<div class="col-sm-6 col-md-2">
     <!-- href specified as arg to tag as in the case of gene page to image picker links -->
     <!-- pdf annotation not image -->
     <!-- defaults to image -->
@@ -33,24 +33,31 @@ allele = allele.replaceAll("##", "</sup>");
             <!-- href specified as arg to tag as in the case of gene page to image picker links -->
             <c:if test="${fn:containsIgnoreCase(img.download_url, 'annotation') }">
                 <!-- if this image is a pdf on the gene page we want to link to a list view of the pdfs for that gene not the image picker -->
-                <a href="${href}&mediaType=pdf">
-                    <img src="../${pdfThumbnailUrl}" class="thumbnailStyle"></a>
+    <div class="thumbnail">
+        <a href="${href}&mediaType=pdf">
+            <img src="../${pdfThumbnailUrl}">
+        </a>
+    </div>
             </c:if>
 
             <c:if test="${!fn:containsIgnoreCase(img.download_url, 'annotation') }"> <!-- if has no annotation in string then not a pdf -->
+    <div class="thumbnail">
                 <a href="${href}">
-                    <img src="${img.thumbnail_url}" class="thumbnailStyle"/></a>
+                    <img src="${img.thumbnail_url}"/></a>
+    </div>
             </c:if>
-            <div class="caption" style="height:150px; word-wrap: break-word;">
+            <div class="caption">
 
         </c:when>
 
         <c:when test="${fn:containsIgnoreCase(img.download_url, 'annotation') }">
         <!-- used pdf images on normal image scrolldown pages -->
+    <div class="thumbnail">
             <a href="${img.download_url}">
-                <img src="../${pdfThumbnailUrl}" class="thumbnailStyle">
+                <img src="../${pdfThumbnailUrl}">
             </a>
-            <div class="caption" style="max-width: 200px; max-height: 200px;width:auto;height:auto">
+    </div>
+            <div class="caption">
             <c:if test="${not empty img.external_sample_id}">sample id: ${img.external_sample_id}<br/></c:if>
             <c:if test="${not empty img.biological_sample_group}">${img.biological_sample_group}<br/></c:if>
             <c:if test="${not empty img.date_of_experiment}">Exp.date: ${img.date_of_experiment}<br/></c:if>
@@ -58,10 +65,12 @@ allele = allele.replaceAll("##", "</sup>");
 
          <c:otherwise>
             <!-- used for lacz expression pages -->
+                <div class="thumbnail">
             <a href="${img.jpeg_url}" class="fancybox" fullRes="${img.jpeg_url}" original="${img.download_url}">
-                <img src="${img.thumbnail_url}" class="thumbnailStyle">
+                <img src="${img.thumbnail_url}">
             </a>
-            <div class="caption" style="height:150px; overflow:auto;">
+                </div>
+            <div class="caption">
           </c:otherwise>
     </c:choose>
 
@@ -115,4 +124,4 @@ allele = allele.replaceAll("##", "</sup>");
             </div>
 
 
-</li>
+</div>
