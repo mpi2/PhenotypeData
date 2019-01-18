@@ -4,7 +4,9 @@
 
 
 <div class="container float-right" style="max-width: 30%; min-width: 300px">
+    <div class="row no-gutters justify-content-center">Data by physiological system</div>
     <div class="row no-gutters">
+
         <div class="container text-center text-muted" style="font-size: 1.8em;">
             <c:forEach var="i" begin="0" end="3">
                 <div class="row no-gutters">

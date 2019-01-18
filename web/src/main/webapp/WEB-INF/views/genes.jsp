@@ -12,216 +12,230 @@
         <body class="gene-node no-sidebars small-header">
 
         </jsp:attribute>
-        <jsp:attribute name="addToFooter">
+    <jsp:attribute name="addToFooter">
             <%--  floating menu, displays quick links to sections of long page --%>
-            <div class="region region-pinned">
-                <div id="flyingnavi" class="block smoothScroll">
-                    <a href="#top"><i class="fa fa-chevron-up" title="scroll to top"></i></a>
-                        <%-- Menu list always displays a fixed number of headings --%> 
-                    <ul>                                                
-                        <li><a href="#top">Gene</a></li>
-                        <li><a href="#section-associations">Phenotype Associations</a></li>						
-                        <li><a href="#section-expression">Expression</a></li>
-                        <li><a href="#section-images">Associated Images</a></li>
-                        <li><a href="#section-disease-models">Disease Models</a></li>
-                        <li><a href="#order2">Order Mouse and ES Cells</a></li>
-                    </ul>
-                    <div class="clear"></div>
-                </div>
+        <div class="region region-pinned">
+            <div id="flyingnavi" class="block smoothScroll">
+                <a href="#top"><i class="fa fa-chevron-up" title="scroll to top"></i></a>
+                    <%-- Menu list always displays a fixed number of headings --%>
+                <ul>
+                    <li><a href="#top">Gene</a></li>
+                    <li><a href="#section-associations">Phenotype Associations</a></li>
+                    <li><a href="#section-expression">Expression</a></li>
+                    <li><a href="#section-images">Associated Images</a></li>
+                    <li><a href="#section-disease-models">Disease Models</a></li>
+                    <li><a href="#order2">Order Mouse and ES Cells</a></li>
+                </ul>
+                <div class="clear"></div>
             </div>
+        </div>
         </jsp:attribute>
 
 
-        <jsp:attribute name="header">
+    <jsp:attribute name="header">
 
             <script src="${baseUrl}/js/general/enu.js"></script>
             <script src="${baseUrl}/js/general/dropdownfilters.js"></script>
-            <script type="text/javascript" src="${baseUrl}/js/general/allele.js"></script>            
-            <%-- Phenogrid requirements --%>
-            <script type="text/javascript" src="${baseUrl}/js/phenogrid-1.3.1/dist/phenogrid-bundle.js?v=${version}"></script>
-            <link rel="stylesheet" type="text/css" href="${baseUrl}/js/phenogrid-1.3.1/dist/phenogrid-bundle.css?v=${version}">
+            <script type="text/javascript" src="${baseUrl}/js/general/allele.js"></script>
+        <%-- Phenogrid requirements --%>
+        <script type="text/javascript"
+                src="${baseUrl}/js/phenogrid-1.3.1/dist/phenogrid-bundle.js?v=${version}"></script>
+            <link rel="stylesheet" type="text/css"
+                  href="${baseUrl}/js/phenogrid-1.3.1/dist/phenogrid-bundle.css?v=${version}">
 
-            <%-- Phenodigm2 requirements --%>                                
-            <script src="//d3js.org/d3.v4.min.js"></script>
+        <%-- Phenodigm2 requirements --%>
+        <script src="//d3js.org/d3.v4.min.js"></script>
             <script type="text/javascript">var impc = {baseUrl: "${baseUrl}"}</script>        
             <script type="text/javascript" src="${baseUrl}/js/vendor/underscore/underscore-1.8.3.min.js"></script>
             <script type="text/javascript" src="${baseUrl}/js/phenodigm2/phenodigm2.js?v=${version}"></script>       
-            <link rel="stylesheet" type="text/css" href="${baseUrl}/css/phenodigm2.css"/>                                
-            <%-- End of phenodigm2 requirements --%>
+            <link rel="stylesheet" type="text/css" href="${baseUrl}/css/phenodigm2.css"/>
+        <%-- End of phenodigm2 requirements --%>
 
-            <script type="text/javascript">
-                var gene_id = '${acc}';
+        <script type="text/javascript">
+            var gene_id = '${acc}';
 
-                $(document).ready(function () {
-                    var heatmap_generated = 0;
-                    var expressionTab = 0;
-                    var hash = location.hash;
-                    if (hash.indexOf("tabs-") > -1) {
-                        expressionTab = $('a[href="' + hash + '"]').parent().index();
-                        $("#section-expression").focus();
+            $(document).ready(function () {
+                var heatmap_generated = 0;
+                var expressionTab = 0;
+                var hash = location.hash;
+                if (hash.indexOf("tabs-") > -1) {
+                    expressionTab = $('a[href="' + hash + '"]').parent().index();
+                    $("#section-expression").focus();
+                }
+
+                $("#exptabs").tabs({active: expressionTab});
+                $("#phenotabs").tabs({active: 0});
+                $("#phenotabs2").tabs({active: 0});
+                $("#tabs").tabs();
+
+                $('div#anatomo1').hide(); // by default
+
+                $('.wtExp').hide();
+                $('div#toggleWt').click(function () {
+                    if ($('.wtExp').is(':visible')) {
+                        $('.wtExp').hide();
+                        $(this).text("Show Wildtype Expression");
+                    } else {
+                        $('.wtExp').show();
+                        $(this).text("Hide Wildtype Expression");
                     }
+                });
 
-                    $("#exptabs").tabs({active: expressionTab});
-                    $("#phenotabs").tabs({active: 0});
-                    $("#phenotabs2").tabs({active: 0});
-                    $("#tabs").tabs();
+                $('div#anatogramToggle').change(function () {
+                    if ($('#anatomo1').is(':visible')) {
+                        $('#anatomo1').hide();
+                        $('#anatomo2').show();
+                        $(this).text("Show expression table");
+                    } else {
+                        $('#anatomo1').show();
+                        $('#anatomo2').hide();
+                        $(this).text("Hide expression table");
+                    }
+                });
 
-                    $('div#anatomo1').hide(); // by default
+                $('input[name=options]').change(function(){
+                    var value = $( 'input[name=options]:checked' ).val();
+                    if(value === 'anatogram') {
+                        $('#anatomo1').hide();
+                        $('#anatomo2').show();
+                    } else {
+                        $('#anatomo2').hide();
+                        $('#anatomo1').show();
+                    }
+                });
 
-                    $('.wtExp').hide();
-                    $('div#toggleWt').click(function () {
-                        if ($('.wtExp').is(':visible')) {
-                            $('.wtExp').hide();
-                            $(this).text("Show Wildtype Expression");
-                        } else {
-                            $('.wtExp').show();
-                            $(this).text("Hide Wildtype Expression");
-                        }
-                    });
+                $('#heatmap_link').click(function () {
+                    console.log('heatmap link clicked');
 
-                    $('div#expDataView').click(function () {
-                        if ($('#anatomo1').is(':visible')) {
-                            $('#anatomo1').hide();
-                            $('#anatomo2').show();
-                            $(this).text("Show expression table");
-                        } else {
-                            $('#anatomo1').show();
-                            $('#anatomo2').hide();
-                            $(this).text("Hide expression table");
-                        }
-                    });
+                    /* //load the css
+                     var cssId = 'myCss';  // you could encode the css path itself to generate id..
+                     if (!document.getElementById(cssId))
+                     {
+                     var head  = document.getElementsByTagName('head')[0];
+                     var link  = document.createElement('link');
+                     link.id   = cssId;
+                     link.rel  = 'stylesheet';
+                     link.type = 'text/css';
+                     link.href = '
 
-                    $('#heatmap_link').click(function () {
-                        console.log('heatmap link clicked');
-
-                        /* //load the css
-                         var cssId = 'myCss';  // you could encode the css path itself to generate id..
-                         if (!document.getElementById(cssId))
-                         {
-                         var head  = document.getElementsByTagName('head')[0];
-                         var link  = document.createElement('link');
-                         link.id   = cssId;
-                         link.rel  = 'stylesheet';
-                         link.type = 'text/css';
-                         link.href = '${drupalBaseUrl}/heatmap/css/heatmap.1.3.1.css';
+                    drupalBaseUrl/heatmap/css/heatmap.1.3.1.css';
                          link.media = 'all';
                          head.appendChild(link);
                          } */
 
-                        if ($('#heatmap_toggle_div').length) {//check if this div exists first as this will ony exist if phenotypeStarted and we don't want to do this if not.
-                            $('#heatmap_toggle_div').toggleClass('hidden');//toggle the div whether the heatmap has been generated or not.
-                            $('#phenotypeTableDiv').toggleClass('hidden');
-                            if (!heatmap_generated) {
+                    if ($('#heatmap_toggle_div').length) {//check if this div exists first as this will ony exist if phenotypeStarted and we don't want to do this if not.
+                        $('#heatmap_toggle_div').toggleClass('hidden');//toggle the div whether the heatmap has been generated or not.
+                        $('#phenotypeTableDiv').toggleClass('hidden');
+                        if (!heatmap_generated) {
 
-                                var script = document.createElement('script');
-                                script.src = "${drupalBaseUrl}/heatmap/js/heatmap.1.3.1.js";
-                                script.onload = function () {
+                            var script = document.createElement('script');
+                            //script.src = "${drupalBaseUrl}/heatmap/js/heatmap.1.3.1.js";
+                            script.src = "${baseUrl}/js/vendor/dcc/heatmap.js";
+                            script.onload = function () {
 
-                                    //do stuff with the script
-                                    new dcc.PhenoHeatMap({
-                                        /* identifier of <div> node that will host the heatmap */
-                                        'container': 'phenodcc-heatmap',
-                                        /* colony identifier (MGI identifier) */
-                                        'mgiid': '${gene.mgiAccessionId}',
-                                        /* default usage mode: ontological or procedural */
-                                        'mode': 'ontological',
-                                        /* number of phenotype columns to use per section */
-                                        'ncol': 5,
-                                        /* heatmap title to use */
-                                        'title': '${gene.markerSymbol}',
-                                        'url': {
-                                            /* the base URL of the heatmap javascript source */
-                                            'jssrc': '${fn:replace(drupalBaseUrl, "https:", "")}/heatmap/js/',
-                                            /* the base URL of the heatmap data source */
-                                            'json': '${fn:replace(drupalBaseUrl, "https:", "")}/heatmap/rest/',
-                                            /* function that generates target URL for data visualisation */
-                                            'viz': dcc.heatmapUrlGenerator
-                                        }
-                                    });
-                                    heatmap_generated = 1;
+                                //do stuff with the script
+                                new dcc.PhenoHeatMap({
+                                    /* identifier of <div> node that will host the heatmap */
+                                    'container': 'phenodcc-heatmap',
+                                    /* colony identifier (MGI identifier) */
+                                    'mgiid': '${gene.mgiAccessionId}',
+                                    /* default usage mode: ontological or procedural */
+                                    'mode': 'ontological',
+                                    /* number of phenotype columns to use per section */
+                                    'ncol': 5,
+                                    /* heatmap title to use */
+                                    'title': '${gene.markerSymbol}',
+                                    'url': {
+                                        /* the base URL of the heatmap javascript source */
+                                        'jssrc': '${fn:replace(drupalBaseUrl, "https:", "")}/heatmap/js/',
+                                        /* the base URL of the heatmap data source */
+                                        'json': '${fn:replace(drupalBaseUrl, "https:", "")}/heatmap/rest/',
+                                        /* function that generates target URL for data visualisation */
+                                        'viz': dcc.heatmapUrlGenerator
+                                    }
+                                });
+                                heatmap_generated = 1;
 
-                                };
-
-
-                                document.head.appendChild(script);
+                            };
 
 
-
-                            }//end of if heatmap generated
-
-                        }
+                            document.head.appendChild(script);
 
 
+                        }//end of if heatmap generated
 
-                    });
+                    }
 
-                    // registerInterest();
 
                 });
 
+                // registerInterest();
 
-                function registerInterest() {
+            });
 
-                    $('a.regInterest').click(function () {
 
-                        var anchorControl = $(this);
-                        var iconControl = $(anchorControl).find('i');
-                        var endpoint = $(anchorControl).attr('href');
+            function registerInterest() {
 
-                        var currentAnchorText = $(anchorControl).text().trim();
+                $('a.regInterest').click(function () {
 
-                        function riSuccess() {
+                    var anchorControl = $(this);
+                    var iconControl = $(anchorControl).find('i');
+                    var endpoint = $(anchorControl).attr('href');
 
-                            if (currentAnchorText.toUpperCase() === 'Unregister Interest'.toUpperCase()) {
+                    var currentAnchorText = $(anchorControl).text().trim();
 
-                                $(iconControl).removeClass('fa-sign-out');
-                                $(iconControl).addClass('fa-sign-in');
+                    function riSuccess() {
 
-                                endpoint = endpoint.replace('unregistration', 'registration');
-                                $(anchorControl).attr('href', endpoint);
+                        if (currentAnchorText.toUpperCase() === 'Unregister Interest'.toUpperCase()) {
 
-                                $(anchorControl).html('Register interest');
+                            $(iconControl).removeClass('fa-sign-out');
+                            $(iconControl).addClass('fa-sign-in');
 
-                            } else {
+                            endpoint = endpoint.replace('unregistration', 'registration');
+                            $(anchorControl).attr('href', endpoint);
 
-                                // Register -> Unregister
-                                $(iconControl).removeClass('fa-sign-in');
-                                $(iconControl).addClass('fa-sign-out');
+                            $(anchorControl).html('Register interest');
 
-                                endpoint = endpoint.replace('registration', 'unregistration');
-                                $(anchorControl).attr('href', endpoint);
-
-                                $(anchorControl).html('Unregister interest');
-                            }
-                        }
-
-                        function riError() {
-                            window.alert('Unable to access register interest service at this time.');
-                        }
-
-                        if (endpoint.includes('login?target')) {
-                            $.ajax({
-                                url: endpoint,
-                                dataType: 'jsonp',
-                                beforeSend: setHeader,
-                                error: riError
-                            });
                         } else {
-                            $.ajax({
-                                url: endpoint,
-                                dataType: undefined,
-                                beforeSend: undefined,
-                                success: riSuccess,
-                                error: riError
-                            });
+
+                            // Register -> Unregister
+                            $(iconControl).removeClass('fa-sign-in');
+                            $(iconControl).addClass('fa-sign-out');
+
+                            endpoint = endpoint.replace('registration', 'unregistration');
+                            $(anchorControl).attr('href', endpoint);
+
+                            $(anchorControl).html('Unregister interest');
                         }
+                    }
 
-                        return false;
-                    });
-                }
+                    function riError() {
+                        window.alert('Unable to access register interest service at this time.');
+                    }
+
+                    if (endpoint.includes('login?target')) {
+                        $.ajax({
+                            url: endpoint,
+                            dataType: 'jsonp',
+                            beforeSend: setHeader,
+                            error: riError
+                        });
+                    } else {
+                        $.ajax({
+                            url: endpoint,
+                            dataType: undefined,
+                            beforeSend: undefined,
+                            success: riSuccess,
+                            error: riError
+                        });
+                    }
+
+                    return false;
+                });
+            }
 
 
-            </script>
+        </script>
 
             <link rel="stylesheet" type="text/css" href="${baseUrl}/css/genes.css"/>				
 
@@ -240,43 +254,291 @@
 
         </jsp:attribute>
 
-        <jsp:body>
-            <div class="container data-heading">
-                <div class="row">
-                    <div class="col-12 no-gutters">
-                        <h2>Gene: ${gene.markerSymbol}</h2>
+    <jsp:body>
+        <div class="container data-heading">
+            <div class="row">
+                <div class="col-12 no-gutters">
+                    <h2>Gene: ${gene.markerSymbol}</h2>
+                </div>
+            </div>
+        </div>
+
+        <div class="container single single--no-side">
+            <div class="row">
+                <div class="col-12 white-bg">
+                    <div class="page-content pt-5 pb-5">
+                        <jsp:include page="genesGene_frag.jsp"/>
                     </div>
                 </div>
             </div>
+        </div>
 
-            <div class="container single single--no-side">
-                <div class="row">
-                    <div class="col-12 white-bg">
-                        <div class="page-content pt-5 pb-5">
-                            <jsp:include page="genesGene_frag.jsp"/>
-                        </div>
+        <div class="container">
+            <div class="row">
+                <div class="col-12 no-gutters">
+                    <h3>Phenotypes for ${gene.markerSymbol}</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="container single single--no-side">
+            <div class="row">
+                <div class="col-12 white-bg">
+                    <div class="page-content pt-5 pb-5">
+                        <jsp:include page="genesPhenotypeAssociation_frag.jsp"/>
                     </div>
                 </div>
             </div>
+        </div>
 
-            <div class="container">
-                <div class="row">
-                    <div class="col-12 no-gutters">
-                        <h3>Phenotype associations for ${gene.markerSymbol}</h3>
+        <div class="container">
+            <div class="row">
+                <div class="col-12 no-gutters">
+                    <h3>Expression</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="container single single--no-side">
+            <div class="row">
+                <div class="col-12 white-bg">
+                    <div class="page-content pt-5 pb-5">
+                        <c:if test="${empty impcAdultExpressionImageFacetsWholemount
+                                                  and empty impcAdultExpressionImageFacetsSection
+                                                  and empty expressionAnatomyToRow
+                                                  and empty impcEmbryoExpressionImageFacets
+                                                  and empty embryoExpressionAnatomyToRow
+                                                  and empty expressionFacets}">
+                            <div class="alert alert_info">Expression data not available</div>
+                        </c:if>
+
+                        <c:if test="${not empty impcAdultExpressionImageFacetsWholemount
+                                                  or not empty impcAdultExpressionImageFacetsSection
+                                                  or not empty expressionAnatomyToRow
+                                                  or not empty impcEmbryoExpressionImageFacets
+                                                  or not empty embryoExpressionAnatomyToRow}">
+
+                            <h4 class="sectHint">IMPC lacZ Expression Data</h4>
+                            <!-- section for expression data here -->
+                            <ul class="nav nav-tabs" id="expressionTab" role="tablist">
+                                <li class="nav-item">
+                                    <a class="nav-link active" id="adult-tab" data-toggle="tab" href="#adult"
+                                       role="tab" aria-controls="adult-tab" aria-selected="true">Adult Expression</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="adult-image-tab" data-toggle="tab" href="#adult-image"
+                                       role="tab" aria-controls="adult-image-tab" aria-selected="false">Adult Expression
+                                        Image</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="embryo-tab" data-toggle="tab" href="#embryo" role="tab"
+                                       aria-controls="embryo-tab" aria-selected="false">Embryo Expression</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="embryo-image-tab" data-toggle="tab" href="#embryo-image"
+                                       role="tab" aria-controls="embryo-image-tab" aria-selected="false">Embryo
+                                        Expression Image</a>
+                                </li>
+                            </ul>
+                            <div class="tab-content" id="expressionTabContent">
+                                <div class="tab-pane fade show active" id="adult" role="tabpanel"
+                                     aria-labelledby="adult-tab"><c:choose>
+                                    <c:when test="${not empty expressionAnatomyToRow }">
+                                        <div>
+                                            <!-- Expression in Anatomogram -->
+                                            <jsp:include page="genesAnatomogram_frag.jsp"></jsp:include>
+                                        </div>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <div>
+                                            <!-- Expression in Anatomogram -->
+                                            No expression data was found for this adult tab
+                                        </div>
+                                    </c:otherwise>
+                                </c:choose>
+                                </div>
+                                <div class="tab-pane fade" id="adult-image" role="tabpanel"
+                                     aria-labelledby="adult-image-tab">
+
+                                </div>
+                                <div class="tab-pane fade" id="embryo" role="tabpanel" aria-labelledby="embryo-tab">
+                                    ...
+                                </div>
+                                <div class="tab-pane fade" id="embryo-image" role="tabpanel"
+                                     aria-labelledby="embryo-image-tab">...
+                                </div>
+                            </div>
+                        </c:if>
+
                     </div>
                 </div>
             </div>
+        </div>
 
-            <div class="container single single--no-side">
-                <div class="row">
-                    <div class="col-12 white-bg">
-                        <div class="page-content pt-5 pb-5">
-                            <jsp:include page="genesPhenotypeAssociation_frag.jsp"/>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <c:choose>
+            <c:when test='${baseUrl.startsWith("/phenotype-archive")}'>
+                <%-- path: /phenotype-archive/js/newanatomogram/ --%>
+                <script type="text/javascript"
+                        src="${baseUrl}/js/newanatomogram/vendorCommons.bundle.local.js"></script>
+            </c:when>
+            <c:otherwise>
+                <%-- path: /data/js/newanatomogram/ --%>
+                <script type="text/javascript" src="${baseUrl}/js/newanatomogram/vendorCommons.bundle.js"></script>
+            </c:otherwise>
+        </c:choose>
 
-        </jsp:body>
+        <script type="text/javascript" src="${baseUrl}/js/newanatomogram/anatomogram.bundle.js"></script>
 
-    </t:genericpage>
+        <%-- Block augmenting/filling phenodigm tables --%>
+        <script type="text/javascript">
+            var curatedDiseases = ${curatedDiseases};
+            var modelAssociations = ${modelAssociations}; // this object name is required in phenodigm2.js
+        </script>
+        <script type="text/javascript">
+            // disease tables drive by phenodigm core
+            var diseaseTableConfs = [
+                {
+                    id: '#diseases_by_annotation',
+                    tableConf: {
+                        paging: false,
+                        info: false,
+                        searching: false,
+                        order: [[4, 'desc'], [3, 'desc'], [2, 'desc']],
+                        sPaginationType: "bootstrap"
+                    },
+                    phenodigm2Conf: {
+                        pageType: "genes",
+                        gene: "${gene.mgiAccessionId}",
+                        groupBy: "diseaseId",
+                        filterKey: "diseaseId",
+                        filter: curatedDiseases,
+                        minScore: 0,
+                        innerTables: true
+                    }
+                },
+                {
+                    id: '#diseases_by_phenotype',
+                    tableConf: {
+                        order: [[4, 'desc'], [3, 'desc'], [2, 'desc']],
+                        pageLength: 20,
+                        lengthMenu: [20, 50, 100],
+                        sPaginationType: "bootstrap"
+                    },
+                    phenodigm2Conf: {
+                        pageType: "genes",
+                        gene: "${gene.mgiAccessionId}",
+                        groupBy: "diseaseId",
+                        filterKey: "diseaseId",
+                        filter: [],
+                        minScore: 1,
+                        innerTables: true
+                    }
+                }];
+
+            $(document).ready(function () {
+                // create phenodigm tables
+                for (var i = 0; i < diseaseTableConfs.length; i++) {
+                    var dTable = diseaseTableConfs[i];
+                    impc.phenodigm2.makeTable(modelAssociations, dTable.id, dTable.phenodigm2Conf);
+                    var dataTable = $(dTable.id).DataTable(dTable.tableConf);
+                    $.fn.addTableClickPhenogridHandler(dTable.id, dataTable);
+                }
+            });
+        </script>
+
+        <%-- Block augmenting/filling anatomy content--%>
+        <script type="text/javascript">
+            $(document).ready(function () {
+
+                // --- new anatomogram as of 2017-07 ------
+                //console.log(${anatomogram});
+                // invoke anatomogram only when
+                // this check is not empty: impcAdultExpressionImageFacets
+
+                if ($('div#anatomogramContainer') != undefined && $('div#anatomogramContainer').length == 1) {
+
+                    // anatomogram stuff
+                    //var expData = JSON.parse(${anatomogram});
+                    var expData = ${anatomogram};
+                    //console.log(expData);
+                    var topLevelName2maIdMap = expData.topLevelName2maIdMap;
+                    var maId2UberonEfoMap = expData.maId2UberonEfoMap;
+                    var uberonEfo2MaIdMap = expData.uberonEfo2MaIdMap;
+                    var maId2topLevelNameMap = expData.maId2topLevelNameMap;
+
+                    var uberons2Gene = expData.allPaths;
+
+                    mouseAnatomogram(uberons2Gene, [], []);
+
+                    // top level MA term talks to anatomogram
+                    $("ul#expList table td").on("mouseover", function () {
+                        var topname = $(this).text().trim();
+                        var maIds = topLevelName2maIdMap[topname];
+                        //console.log(topname + " - " + maIds);
+                        var uberonIds = [];
+                        for (var a = 0; a < maIds.length; a++) {
+                            uberonIds = uberonIds.concat(maId2UberonEfoMap[maIds[a]]);
+                        }
+                        uberonIds = $.fn.getUnique(uberonIds);
+                        mouseAnatomogram(uberons2Gene, uberonIds, []);
+                    }).on("mouseout", function () {
+                        mouseAnatomogram(uberons2Gene, [], []);
+                    });
+                }
+
+                //------------ end of new anatomogram ----------
+
+
+                function mouseAnatomogram(uberons2Gene, highlightIds, selectIds) {
+                    anatomogram.render({
+                        showColour: 'gray',
+                        highlightColour: '#ce6211',
+                        selectColour: 'purple',
+                        showOpacity: '0.3',
+                        highlightOpacity: '0.6',
+                        selectOpacity: '0.8',
+                        species: 'mus_musculus',
+                        showIds: uberons2Gene,
+                        highlightIds: highlightIds,
+                        selectIds: selectIds,
+                        onMouseOver: function (id) {
+                            var maIds = uberonEfo2MaIdMap[id];
+                            var topLevelNames = [];
+                            for (var i = 0; i < maIds.length; i++) {
+                                var tops = maId2topLevelNameMap[maIds[i]];
+                                for (var j = 0; j < tops.length; j++) {
+                                    topLevelNames.push(tops[j]);
+                                }
+                            }
+
+                            topLevelNames = $.fn.getUnique(topLevelNames);
+                            console.log("TOP: " + topLevelNames);
+
+                            $('ul#expList table td.showAdultImage').each(function () {
+
+                                if ($.fn.inArray($(this).text().trim(), topLevelNames)) {
+                                    console.log("top: " + $(this).text().trim());
+                                    $(this).addClass("mahighlight");
+                                }
+                            });
+                        },
+                        onMouseOut: function (id) {
+                            $('ul#expList table td').removeClass("mahighlight");
+                        },
+                        onClick: function (id) {
+                            console.log(id + " click")
+
+                        }
+                    }, 'anatomogramContainer')
+                }
+
+
+            });
+
+
+        </script>
+
+
+    </jsp:body>
+
+</t:genericpage>

@@ -22,34 +22,60 @@
     	<div id="phenoSumSmallDiv">
     </c:if>
     <c:if test="${phenotypeDisplayStatus.postQcTopLevelMPTermsAvailable}">
-        <h4>All Phenotypes Summary</h4>
-        <p>Based on automated MP annotations supported by experiments on knockout mouse models. 
-    
-      		Click on icons to go to all ${gene.markerSymbol} data for that phenotype.
-      	</p> 
+        <p>Based on automated MP annotations supported by experiments on knockout mouse models.</p>
       	
         </c:if>
         
         <c:if test="${phenotypeDisplayStatus.postQcDataAvailable || phenotypeDisplayStatus.displayHeatmap || bodyWeight }">
 	        <div id="all_data" class="with-label">
-	        
-		        <span class="label">All Data:</span> 
-		         <c:if test="${bodyWeight}">
-		        <a id="bodyWeightBtn" class="btn" href="${baseUrl}/charts?accession=${acc}&parameter_stable_id=IMPC_BWT_008_001&&chart_type=TIME_SERIES_LINE" title="Body Weight Curves">Body Weight Data</a>
+
+				<c:if test="${phenotypeDisplayStatus.postQcDataAvailable}">
+					<!-- best example http://localhost:8080/PhenotypeArchive/genes/MGI:1913955 -->
+					<a id="allAdultDataBtn" class="btn btn-primary" href='${baseUrl}/experiments?geneAccession=${gene.mgiAccessionId}' title="All Data">Phenotype measurements</a>
+				</c:if>
+
+				<c:if test="${bodyWeight}">
+		        <a id="bodyWeightBtn" class="btn btn-primary" href="${baseUrl}/charts?accession=${acc}&parameter_stable_id=IMPC_BWT_008_001&&chart_type=TIME_SERIES_LINE" title="Body Weight Curves">Body Weight</a>
 		        </c:if>
-		        <c:if test="${phenotypeDisplayStatus.postQcDataAvailable}">
-		            <!-- best example http://localhost:8080/PhenotypeArchive/genes/MGI:1913955 -->
-		            <a id="allAdultDataBtn" class="btn" href='${baseUrl}/experiments?geneAccession=${gene.mgiAccessionId}' title="All Data">${gene.markerSymbol} Measurements</a>
-		        </c:if>
-		       
+
 				<c:if test="${phenotypeDisplayStatus.displayHeatmap}">
 		        	<%-- <jsp:include page="heatmapFrag.jsp"/> split out from frag as need to display heatmap in different location to button --%>
 		        	<c:if test="${phenotypeStarted}">
-	 						<a id="heatmap_link" class="btn">Heatmap / Table</a>
+	 						<!--a id="heatmap_link" class="btn">Heatmap / Table</a-->
 					
 					</c:if>
 		        </c:if>
-		       
+
+				<!-- Button trigger modal -->
+				<button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#exampleModal" id="heatmap_link">
+					Preliminary data
+				</button>
+
+				<!-- Modal -->
+				<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+					<div class="modal-dialog" role="document" style="max-width: 60%">
+						<div class="modal-content">
+							<div class="modal-header">
+								<h5 class="modal-title" id="exampleModalLabel">Phenotype Heatmap of Preliminary Data</h5>
+								<span class="documentation"><a href='' id='heatmapSection' class="fa fa-question-circle pull-right"></a></span>
+								<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+									<span aria-hidden="true">&times;</span>
+								</button>
+							</div>
+							<div class="modal-body">
+								<div id="heatmap_toggle_div" class="section">
+									<div class="dcc-heatmap-root">
+										<div class="phenodcc-heatmap"
+											 id="phenodcc-heatmap"></div>
+									</div>
+								</div>
+							</div>
+							<div class="modal-footer">
+								<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+							</div>
+						</div>
+					</div>
+				</div>
 	        </div>
 	        
 	        				
@@ -57,7 +83,6 @@
         </c:if>
         <c:if test="${gene.embryoDataAvailable || gene.embryoAnalysisUrl!=null || gene.dmddImageDataAvailable || hasVignette}">
         	<div id="embryo" class="with-label">
-        	<span class="label">Embryo Data: </span>
 		        <c:if test="${gene.embryoDataAvailable}">
 		            <a id="embryoViewerBtn" class="btn" href="${drupalBaseUrl}/embryoviewer/?mgi=${acc}" title="3D Embryo Images are Available">3D Embryo Imaging</a>
 		        </c:if>
@@ -67,7 +92,7 @@
 		        </c:if>
 		        
 		        <c:if test="${gene.dmddImageDataAvailable}">
-		            <a id="DmddViewerBtn" class="btn" href="https://dmdd.org.uk/mutants/${gene.markerSymbol}" target="_blank" title="Embryo Images and Manual Phenotypes from the DMDD project" >DMDD Images and Phenotypes</a>
+		            <a id="DmddViewerBtn" class="btn" href="https://dmdd.org.uk/mutants/${gene.markerSymbol}" target="_blank" title="Embryo Images and Manual Phenotypes from the DMDD project" >DMDD Embryo</a>
 		        </c:if> 
 		
 		        <c:if test="${hasVignette}">
