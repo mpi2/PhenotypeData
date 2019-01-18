@@ -90,6 +90,8 @@
     <meta name="msapplication-wide310x150logo" content="${baseUrl}/img/mstile-310x150.png" />
     <meta name="msapplication-square310x310logo" content="${baseUrl}/img/mstile-310x310.png" />
     <script type='text/javascript' src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js'></script>
+    <!-- <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    <script src="http://code.jquery.com/jquery-migrate-1.4.1.js"></script> -->
     <script type='text/javascript' src='https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.3/js/bootstrap.bundle.min.js'
             async='async'></script>
     <script type='text/javascript' src='https://cdnjs.cloudflare.com/ajax/libs/object-fit-images/3.2.4/ofi.min.js'></script>
