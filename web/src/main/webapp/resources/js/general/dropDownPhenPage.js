@@ -88,36 +88,16 @@ $(document).ready(function(){
 	//to move the input text or reassign the div that does it and hide the other one??
 	//put filtering in another text field than the default so we can position it with the other controls like dropdown ajax filters for project etc
 
-	
+	//stuff for dropdown tick boxes here
 	$('.selectpicker').selectpicker();
-	
-	var allDropdowns = new Array();
-	allDropdowns[0] = $('#resource_fullname');
-	allDropdowns[1] = $('#procedure_name');
-	allDropdowns[2] = $('#marker_symbol');
-	allDropdowns[3] = $('#mp_term_name');
-	
 	$('#procedure_name').on('changed.bs.select', function (e, clickedIndex, isSelected, previousValue) {
-		  console.log('procedure selected'+ clickedIndex);
-		  console.log(this.value);
-		  
-		 console.log( $('#procedure_name').val()); 
 		 refreshGenesPhenoFrag();
 		});
-	
 	$('#marker_symbol').on('changed.bs.select', function (e, clickedIndex, isSelected, previousValue) {
-		  console.log('marker selected'+ clickedIndex);
-		  console.log(this.value);
-		  
-		 console.log( $('#marker_symbol').val()); 
 		 refreshGenesPhenoFrag();
 		});
 	
-	$('#mp_term_name').on('changed.bs.select', function (e, clickedIndex, isSelected, previousValue) {
-		  console.log('term selected'+ clickedIndex);
-		  console.log(this.value);
-		  
-		 console.log( $('#mp_term_name').val()); 
+	$('#mp_term_name').on('changed.bs.select', function (e, clickedIndex, isSelected, previousValue) {	
 		 refreshGenesPhenoFrag();
 		});
 	
@@ -149,96 +129,12 @@ $(document).ready(function(){
 			}
 		}
 		
-//		for (var it = 0; it < dropdownsList.length; it++){
-//			if (dropdownsList[it].array.length > 0){
-//				selectedFilters += '&' + dropdownsList[it].name + '=' + dropdownsList[it].array.join('&' + dropdownsList[it].name + '=');
-//			}
-//		}
 		newUrl += output + selectedFilters;
 		console.log('new url='+newUrl);
 		refreshPhenoTable(newUrl);
 		return false;
 	}
 	
-	//stuff for dropdown tick boxes here
-	
-//	createDropdown(allDropdowns[3].sort(), "Phenotype: All", allDropdowns);
-//	createDropdown(allDropdowns[0],"Source: All", allDropdowns);
-//	createDropdown(allDropdowns[1], "Procedure: All", allDropdowns);
-//	createDropdown(allDropdowns[2].sort(), "Gene: All", allDropdowns);
-	
-//	function createDropdown(multipleSel, emptyText,  allDd){
-//		$(multipleSel).dropdownchecklist( { firstItemChecksAll: false, emptyText: emptyText, icon: {}, 
-//			minWidth: 150, onItemClick: function(checkbox, selector){
-//				var justChecked = checkbox.prop("checked");
-//				var values = [];
-//				for(var  i=0; i < selector.options.length; i++ ) {
-//					if (selector.options[i].selected && (selector.options[i].value != "")) {
-//						values .push(selector.options[i].value);
-//					}
-//				}
-//
-//				if(justChecked){				    		 
-//					values.push( checkbox.val());
-//				}else{//just unchecked value is in the array so we remove it as already ticked
-//					var index = $.inArray(checkbox.val(), values);
-//					values.splice(index, 1);
-//				}  
-//				
-//				// add current one and create drop down object 
-//				dd1 = new Object();
-//				dd1.name = multipleSel.attr('id'); 
-//				dd1.array = values; // selected values
-//				
-//				dropdownsList[0] = dd1;
-//				
-//				var ddI  = 1; 
-//				for (var ii=0; ii<allDd.length; ii++) { 
-//					if ($(allDd[ii]).attr('id') != multipleSel.attr('id')) {
-//						dd = new Object();
-//						dd.name = allDd[ii].attr('id'); 
-//						dd.array = allDd[ii].val() || []; 
-//						dropdownsList[ddI++] = dd;
-//					}
-//				}
-//				refreshGenesPhenoFrag(dropdownsList);
-//				addParamsToURL();
-//			}, textFormatFunction: function(options) {
-//				var selectedOptions = options.filter(":selected");
-//				console.log('select options='+selectedOptions.html());
-//		        var countOfSelected = selectedOptions.size();
-//		        var size = options.size();
-//		        var text = "";
-//		        if (size > 1){
-//		        	options.each(function() {
-//	                    if ($(this).prop("selected")) {
-//	                        if ( text != "" ) { text += ", "; }
-//	                        /* NOTE use of .html versus .text, which can screw up ampersands for IE */
-//	                        var optCss = $(this).attr('style');
-//	                        var tempspan = $('<span/>');
-//	                        tempspan.html( $(this).html() );
-//	                        if ( optCss == null ) {
-//	                                text += tempspan.html();
-//	                        } else {
-//	                                tempspan.attr('style',optCss);
-//	                                text += $("<span/>").append(tempspan).html();
-//	                        }
-//	                    }
-//	                });
-//		        }
-//		        switch(countOfSelected) {
-//		           case 0: return emptyText;
-//		           case 1: return selectedOptions.text();
-//		           case options.size(): return emptyText;
-//		           default: return text;
-//		        }
-//			}
-//		} );
-//	}
-	
-	//if filter parameters are already set then we need to set them as selected in the dropdowns
-//	var previousParams=$("#filterParams").html();
-//	
 	
 	
 	
