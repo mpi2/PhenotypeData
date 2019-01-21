@@ -27,7 +27,7 @@
 
                        value="${baseUrl}/imageComparator?acc=${acc}&anatomy_term=${entry.name}&parameter_stable_id=IMPC_ALZ_076_001"></c:set>
                 <t:impcimgdisplay2
-                        category="${entry.name}(${entry.count})"
+                        category="${entry.name} (${entry.count})"
                         href="${fn:escapeXml(href)}"
                         img="${wholemountExpressionImagesBean.expFacetToDocs[entry.name][0]}"
                         impcMediaBaseUrl="${impcMediaBaseUrl}"
@@ -53,7 +53,7 @@
 
                        value="${baseUrl}/imageComparator?acc=${acc}&anatomy_term=${entry.name}&parameter_stable_id=IMPC_ALZ_075_001"></c:set>
                 <t:impcimgdisplay2
-                        category="${entry.name}(${entry.count})"
+                        category="${entry.name} (${entry.count})"
                         href="${fn:escapeXml(href)}"
                         img="${sectionExpressionImagesBean.expFacetToDocs[entry.name][0]}"
                         impcMediaBaseUrl="${impcMediaBaseUrl}"

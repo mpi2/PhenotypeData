@@ -20,31 +20,40 @@
     <%--</h2>--%>
     <!--  <div class="alert alert-info">Work in progress. Images may depict phenotypes not statistically associated with a mouse strain.</div>	 -->
 
+<div class="accordion mb-3" id="legacyImagesAccordion">
+  <div class="list-group">
+    <c:forEach var="entry" items="${solrFacets}" varStatus="status">
+      <div id="legacyImagesHeading${status.index}">
+        <button class="btn btn-link list-group-item list-group-item-action" type="button"
+                data-toggle="collapse"
+                data-target="#legacyImagesCollapse${status.index}" aria-expanded="false"
+                aria-controls="collapse${status.index}">
+            ${entry.name} (${entry.count})
+        </button>
+      </div>
 
-<c:forEach var="entry" items="${solrFacets}" varStatus="status">
-  <div class="accordion-group">
-    <div class="accordion-heading">
-        ${entry.name} (${entry.count})
-    </div>
-    <div class="accordion-body">
-      <ul>
-        <c:forEach var="doc" items="${facetToDocs[entry.name]}">
-          <li>
-            <t:imgdisplay
-                    img="${doc}"
-                    mediaBaseUrl="${mediaBaseUrl}"></t:imgdisplay>
-          </li>
-        </c:forEach>
-      </ul>
-      <div class="clear"></div>
-      <c:if test="${entry.count>5}">
-        <p class="textright">
-          <a href="${baseUrl}/images?gene_id=${acc}&fq=expName:${entry.name}">
-            <i class="fa fa-caret-right"></i> show all ${entry.count} images</a>
-        </p>
-      </c:if>
-    </div>
-    <!--  end of accordion body -->
+      <div id="legacyImagesCollapse${status.index}" class="collapse"
+           aria-labelledby="legacyImagesHeading${status.index}"
+           data-parent="#legacyImagesAccordion">
+        <div class="tz-gallery small">
+          <div class="container">
+            <div class="row">
+              <c:forEach var="doc" items="${facetToDocs[entry.name]}">
+
+                <t:imgdisplay
+                        img="${doc}"
+                        mediaBaseUrl="${mediaBaseUrl}"></t:imgdisplay>
+
+              </c:forEach>
+            </div>
+          </div>
+        </div>
+        <c:if test="${entry.count>5}">
+          <p class="text-right">
+            <a href="${baseUrl}/images?gene_id=${acc}&fq=expName:${entry.name}">View
+              all ${entry.count} images</a>
+          </p>
+        </c:if>
+      </div>
+    </c:forEach>
   </div>
-</c:forEach><!-- solrFacets end -->
-

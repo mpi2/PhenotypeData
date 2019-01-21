@@ -10,13 +10,12 @@
 <%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@taglib prefix="t" tagdir="/WEB-INF/tags" %>
 
-<div class="accordion-body" style="display: block">
-    <div id="grid">
+<div class="card-columns small">
         <c:forEach var="group" items="${impcImageGroups}" varStatus="status">
 
 
             <c:forEach var="doc" items="${group.result}">
-                <ul>
+                <div class="card" style="max-width: 200px">
 
                     <c:set var="label" value="${doc.procedure_name}: ${doc.parameter_name}"/>
                     <c:if test="${doc.parameter_name eq 'Images'}">
@@ -42,7 +41,7 @@
                             <!-- http://localhost:8080/phenotype-archive/impcImages/images?q=*:*%20AND%20observation_type:image_record&qf=imgQf&defType=edismax&fq=procedure_name:%22Brain%20Histopathology%22 -->
                             <c:set var="href" scope="page"
                                    value='${baseUrl}/impcImages/images?q=mp_id:"${phenotype.getMpId()}" OR+intermediate_mp_id:"${phenotype.getMpId()}" OR intermediate_mp_term:"${phenotype.getMpId()}" OR top_level_mp_term:"${phenotype.getMpId()}"&fq=parameter_stable_id:${doc.parameter_stable_id}'></c:set>&fq=parameter_stable_id:\"${doc.parameter_stable_id}"&fq=mp_id:"MP:0000807" OR+intermediate_mp_id:"MP:0000807" OR intermediate_mp_term:"MP:0000807" OR top_level_mp_term:"MP:0000807"&group=true&group.field=parameter_stable_id&group
-             
+
                         </c:when> --%>
                     <c:if test="${doc.omero_id != '0'}"> <!-- omero images and gene or mp ids for comparator -->
                         <c:set var="query" value='parameter_stable_id=${doc.parameter_stable_id}'/>
@@ -60,14 +59,16 @@
                                value='${baseUrl}/imageComparator?${query}'></c:set>
                     </c:if>
 
+                    <%--img class="card-img-top img-fluid" src="${doc.thumbnail_url}" alt="Card image cap"--%>
 
-                    <t:impcimgdisplay2
+
+                    <t:impcimgdisplaycard
                             img="${doc}"
                             impcMediaBaseUrl="${impcMediaBaseUrl}"
                             pdfThumbnailUrl="${pdfThumbnailUrl}"
                             href="${fn:escapeXml(href)}"
                             count="${paramToNumber[doc.parameter_stable_id]}"
-                            parameterName="${label}"></t:impcimgdisplay2>
+                            parameterName="${label}"></t:impcimgdisplaycard>
 
 
                         <%--  <div class="clear"></div>
@@ -75,12 +76,11 @@
                                 <p class="textright"><a href="${baseUrl}/images?gene_id=${acc}&fq=expName:${entry.name}"><i class="fa fa-caret-right"></i> show all ${entry.count} images</a></p>
                             </c:if> --%>
 
-                </ul>
+                </div>
             </c:forEach>
 
 
         </c:forEach>
-    </div>
-</div>
+        </div>
 
 
