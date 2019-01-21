@@ -223,7 +223,7 @@
               <c:forEach
                       var="phenoFacet" items="${phenoFacets}"
                       varStatus="phenoFacetStatus">
-                <select id="${phenoFacet.key}" class="impcdropdown"
+                <select id="top_level_mp_term_name" class="selectpicker"
                         multiple="multiple"
                         title="Filter on ${phenoFacet.key}">
                   <c:forEach

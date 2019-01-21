@@ -24,14 +24,14 @@
 </c:forEach>
 
 
-<script>
+<!-- <script>
     $(document).ready(function() {
         $('#genes').DataTable({responsive: true});
     } );
     var resTemp = document.getElementsByClassName("resultCount");
     if (resTemp.length > 1)
         resTemp[0].remove();
-</script>
+</script> -->
 
 
 <table id="genes" class="table table-striped table-bordered dt-responsive" style="width:100%">
