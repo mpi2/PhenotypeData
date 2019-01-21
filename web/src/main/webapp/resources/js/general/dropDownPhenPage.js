@@ -73,17 +73,17 @@ $(document).ready(function(){
 	});
 	
 	        
-//	function refreshPhenoTable(newUrl){
-//
-//		$.ajax({
-//			url: newUrl,
-//			cache: false
-//		}).done(function( html ) {
-//			$("#phenotypes_wrapper").html(html);//phenotypes wrapper div has been created by the original datatable so we need to replace this div with the new table and content
-//			initPhenoDataTable();
-//			addParamsToURL();
-//		});
-//	}
+	function refreshPhenoTable(newUrl){
+
+		$.ajax({
+			url: newUrl,
+			cache: false
+		}).done(function( html ) {
+			$("#phenotypes_wrapper").html(html);//phenotypes wrapper div has been created by the original datatable so we need to replace this div with the new table and content
+			initPhenoDataTable();
+			addParamsToURL();
+		});
+	}
 	//http://stackoverflow.com/questions/5990386/datatables-search-box-outside-datatable
 	//to move the input text or reassign the div that does it and hide the other one??
 	//put filtering in another text field than the default so we can position it with the other controls like dropdown ajax filters for project etc
@@ -91,13 +91,77 @@ $(document).ready(function(){
 	
 	$('.selectpicker').selectpicker();
 	
-	
-	//stuff for dropdown tick boxes here
 	var allDropdowns = new Array();
 	allDropdowns[0] = $('#resource_fullname');
 	allDropdowns[1] = $('#procedure_name');
 	allDropdowns[2] = $('#marker_symbol');
 	allDropdowns[3] = $('#mp_term_name');
+	
+	$('#procedure_name').on('changed.bs.select', function (e, clickedIndex, isSelected, previousValue) {
+		  console.log('procedure selected'+ clickedIndex);
+		  console.log(this.value);
+		  
+		 console.log( $('#procedure_name').val()); 
+		 refreshGenesPhenoFrag();
+		});
+	
+	$('#marker_symbol').on('changed.bs.select', function (e, clickedIndex, isSelected, previousValue) {
+		  console.log('marker selected'+ clickedIndex);
+		  console.log(this.value);
+		  
+		 console.log( $('#marker_symbol').val()); 
+		 refreshGenesPhenoFrag();
+		});
+	
+	$('#mp_term_name').on('changed.bs.select', function (e, clickedIndex, isSelected, previousValue) {
+		  console.log('term selected'+ clickedIndex);
+		  console.log(this.value);
+		  
+		 console.log( $('#mp_term_name').val()); 
+		 refreshGenesPhenoFrag();
+		});
+	
+	
+	function refreshGenesPhenoFrag() {
+		var rootUrl = window.location.href;
+		var newUrl = rootUrl.replace("phenotypes", "geneVariantsWithPhenotypeTable").split("#")[0];
+		var output ='?';
+		selectedFilters = "";
+		
+		
+		if($('#procedure_name').val().length > 0){
+			
+			for (var it = 0; it < $('#procedure_name').val().length; it++){
+			selectedFilters += '&' +'procedure_name' + '='+$('#procedure_name').val()[it];
+			}
+		}
+		
+		if($('#marker_symbol').val().length > 0){
+			
+			for (var it = 0; it < $('#marker_symbol').val().length; it++){
+			selectedFilters += '&' +'marker_symbol' + '='+$('#marker_symbol').val()[it];
+			}
+		}
+		if($('#mp_term_name').val().length > 0){
+			
+			for (var it = 0; it < $('#mp_term_name').val().length; it++){
+			selectedFilters += '&' +'mp_term_name' + '='+$('#mp_term_name').val()[it];
+			}
+		}
+		
+//		for (var it = 0; it < dropdownsList.length; it++){
+//			if (dropdownsList[it].array.length > 0){
+//				selectedFilters += '&' + dropdownsList[it].name + '=' + dropdownsList[it].array.join('&' + dropdownsList[it].name + '=');
+//			}
+//		}
+		newUrl += output + selectedFilters;
+		console.log('new url='+newUrl);
+		refreshPhenoTable(newUrl);
+		return false;
+	}
+	
+	//stuff for dropdown tick boxes here
+	
 //	createDropdown(allDropdowns[3].sort(), "Phenotype: All", allDropdowns);
 //	createDropdown(allDropdowns[0],"Source: All", allDropdowns);
 //	createDropdown(allDropdowns[1], "Procedure: All", allDropdowns);
@@ -175,20 +239,7 @@ $(document).ready(function(){
 	//if filter parameters are already set then we need to set them as selected in the dropdowns
 //	var previousParams=$("#filterParams").html();
 //	
-//	function refreshGenesPhenoFrag(dropdownsList) {
-//		var rootUrl = window.location.href;
-//		var newUrl = rootUrl.replace("phenotypes", "geneVariantsWithPhenotypeTable").split("#")[0];
-//		var output ='?';
-//		selectedFilters = "";
-//		for (var it = 0; it < dropdownsList.length; it++){
-//			if (dropdownsList[it].array.length > 0){
-//				selectedFilters += '&' + dropdownsList[it].name + '=' + dropdownsList[it].array.join('&' + dropdownsList[it].name + '=');
-//			}
-//		}
-//		newUrl += output + selectedFilters;
-//		refreshPhenoTable(newUrl);
-//		return false;
-//	}
+	
 	
 	
 	/** 
