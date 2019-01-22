@@ -409,7 +409,8 @@
                             <div class="list-group">
                                 <c:forEach var="entry" items="${expressionFacets}" varStatus="status">
                                     <div id="heading${status.index}">
-                                        <button class="btn btn-link list-group-item list-group-item-action" type="button"
+                                        <button class="btn btn-link list-group-item list-group-item-action"
+                                                type="button"
                                                 data-toggle="collapse"
                                                 data-target="#collapse${status.index}" aria-expanded="false"
                                                 aria-controls="collapse${status.index}">
@@ -491,45 +492,79 @@
                 </div>
             </div>
         </div>
+        </div>
 
 
-        <%--Disease section (phenodigm2) --%>
-        <div class="section">
-            <h2 class="title" id="section-disease-models">Disease Models
-                <span class="documentation">
-                                        <a href="" id="diseaseSection" class="fa fa-question-circle pull-right"></a>
-                                    </span>
-            </h2>
-            <div class="inner">
-                <div id="phenotabs2" class="phenotabs">
-                    <ul class='tabs'>
-                        <li><a href="#by-annotation">By annotation and orthology</a></li>
-                        <li><a href="#by-phenotype">By phenotypic similarity</a></li>
-                    </ul>
-                    <div id="by-annotation">
-                        <c:choose>
-                            <c:when test="${!hasModelsByOrthology}">
-                                No associations by disease annotation and gene orthology found.
-                            </c:when>
-                            <c:otherwise>
-                                <table id="diseases_by_annotation" class="table tablesorter disease"></table>
-                            </c:otherwise>
-                        </c:choose>
-                    </div>
-                    <div id="by-phenotype">
-                        <c:choose>
-                            <c:when test="${empty modelAssociations}">
-                                No associations by phenotypic similarity found.
-                            </c:when>
-                            <c:otherwise>
-                                <table id="diseases_by_phenotype" class="table tablesorter disease"></table>
-                            </c:otherwise>
-                        </c:choose>
+
+        <div class="container">
+            <div class="row">
+                <div class="col-12 no-gutters">
+                    <h3>Disease Models</h3>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="container single single--no-side">
+            <div class="row">
+                <div class="col-12 white-bg">
+                    <div class="page-content pt-5 pb-5">
+                        <div>
+                            <div id="phenotabs2" class="phenotabs">
+                                <ul class='tabs'>
+                                    <li><a href="#by-annotation">By annotation and orthology</a></li>
+                                    <li><a href="#by-phenotype">By phenotypic similarity</a></li>
+                                </ul>
+                                <div id="by-annotation">
+                                    <c:choose>
+                                        <c:when test="${!hasModelsByOrthology}">
+                                            No associations by disease annotation and gene orthology found.
+                                        </c:when>
+                                        <c:otherwise>
+                                            <table id="diseases_by_annotation"
+                                                   class="table tablesorter disease"></table>
+                                        </c:otherwise>
+                                    </c:choose>
+                                </div>
+                                <div id="by-phenotype">
+                                    <c:choose>
+                                        <c:when test="${empty modelAssociations}">
+                                            No associations by phenotypic similarity found.
+                                        </c:when>
+                                        <c:otherwise>
+                                            <table id="diseases_by_phenotype" class="table tablesorter disease"></table>
+                                        </c:otherwise>
+                                    </c:choose>
+                                </div>
+                            </div>
+
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-        <%-- End of disease section (phenodigm2) --%>
+
+
+        <div class="container">
+            <div class="row">
+                <div class="col-12 no-gutters">
+                    <h3>Order Mouse and ES Cells</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="container single single--no-side">
+            <div class="row">
+                <div class="col-12 white-bg">
+                    <div class="page-content pt-5 pb-5">
+                        <jsp:include page="orderSectionFrag.jsp"></jsp:include>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- End of Order Mouse and ES Cells -->
+
 
         <c:choose>
             <c:when test='${baseUrl.startsWith("/phenotype-archive")}'>
