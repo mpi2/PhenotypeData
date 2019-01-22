@@ -14,7 +14,7 @@
   	<c:if test="${phenotypeDisplayStatus.postQcTopLevelMPTermsAvailable}">
     	<jsp:include page="phenotype_icons_frag.jsp"/>
 	</c:if>
-   
+
 	<c:if test="${phenotypeDisplayStatus.postQcTopLevelMPTermsAvailable}">
     	<div id="phenoSumDiv">
     </c:if>
@@ -23,9 +23,9 @@
     </c:if>
     <c:if test="${phenotypeDisplayStatus.postQcTopLevelMPTermsAvailable}">
         <p>Based on automated MP annotations supported by experiments on knockout mouse models.</p>
-      	
+
         </c:if>
-        
+
         <c:if test="${phenotypeDisplayStatus.postQcDataAvailable || phenotypeDisplayStatus.displayHeatmap || bodyWeight }">
 	        <div id="all_data" class="with-label">
 
@@ -42,7 +42,7 @@
 		        	<%-- <jsp:include page="heatmapFrag.jsp"/> split out from frag as need to display heatmap in different location to button --%>
 		        	<c:if test="${phenotypeStarted}">
 	 						<!--a id="heatmap_link" class="btn">Heatmap / Table</a-->
-					
+
 					</c:if>
 		        </c:if>
 
@@ -77,54 +77,54 @@
 					</div>
 				</div>
 	        </div>
-	        
-	        				
-								
+
+
+
         </c:if>
         <c:if test="${gene.embryoDataAvailable || gene.embryoAnalysisUrl!=null || gene.dmddImageDataAvailable || hasVignette}">
         	<div id="embryo" class="with-label">
 		        <c:if test="${gene.embryoDataAvailable}">
 		            <a id="embryoViewerBtn" class="btn" href="${drupalBaseUrl}/embryoviewer/?mgi=${acc}" title="3D Embryo Images are Available">3D Embryo Imaging</a>
 		        </c:if>
-		        
+
 		        <c:if test="${gene.embryoAnalysisUrl!=null}">
 		            <a id="embryoAnalysisBtn" class="btn" href="${gene.embryoAnalysisUrl}" title="Automated 3D Volumetric Analysis of Embryo images">3D Embryo Vol Analysis</a>
 		        </c:if>
-		        
+
 		        <c:if test="${gene.dmddImageDataAvailable}">
 		            <a id="DmddViewerBtn" class="btn" href="https://dmdd.org.uk/mutants/${gene.markerSymbol}" target="_blank" title="Embryo Images and Manual Phenotypes from the DMDD project" >DMDD Embryo</a>
-		        </c:if> 
-		
+		        </c:if>
+
 		        <c:if test="${hasVignette}">
 		            <a class="btn" href="${baseUrl}/embryo/vignettes#${acc}" title="embryo vignette exists for this gene">Embryo Vignette</a>
 		        </c:if>
 			</div>
-		</c:if>			
-				
-				
+		</c:if>
+
+
 				<c:if test="${phenotypeDisplayStatus.displayHeatmap}">
 		        <div id="heatmap_toggle_div" class="section hidden">
 							<h2 class="title" id="heatmap">Phenotype Heatmap of Preliminary Data
 								<span class="documentation"><a href='' id='heatmapSection' class="fa fa-question-circle pull-right"></a></span>
 							</h2>
-	
+
 							<div class="dcc-heatmap-root">
 								<div class="phenodcc-heatmap"
 									 id="phenodcc-heatmap"></div>
 							</div>
 				</div><!-- end of Pre-QC phenotype heatmap -->
 			</c:if>
-       
 
-       
+
+
     </div>
-  
 
-						
+
+
     <c:if test="${!phenotypeDisplayStatus.eitherPostQcOrPreQcSignificantDataIsAvailable}"><!-- no significant postQC data or preQcData-->
-    
+
 	   <%--  <c:choose> --%>
-	    	<c:if test="${ attemptRegistered && phenotypeStarted }"> 
+	    	<c:if test="${ attemptRegistered && phenotypeStarted }">
 	    		No results meet the p-value threshold
 	 		</c:if>
 	 		<%-- <c:if test="${phenotypeDisplayStatus.postQcDataAvailable}">
@@ -135,33 +135,33 @@
 			          may appear with new pre-QC phenotype data.
 	 		</c:if> --%>
 	         <%-- <p> No hits that meet the p value threshold. <jsp:include page="heatmapFrag.jsp"/></p> --%>
-	         <c:if test="${ attemptRegistered && !phenotypeStarted }"> 
+	         <c:if test="${ attemptRegistered && !phenotypeStarted }">
 		        <div class="alert alert-info">
 		          <h5>Registered for phenotyping</h5>
-		
+
 		          <p>Phenotyping is planned for a knockout strain of this gene but
 		            data is not currently available.</p>
 		        </div>
 		    </c:if>
-	    
-	    	
-	    	<c:if test="${!attemptRegistered}"> 
+
+
+	    	<c:if test="${!attemptRegistered}">
 		        <div class="alert alert-info">
 		          <h5>Not currently registered for phenotyping</h5>
-		
+
 		          <p>Phenotyping is currently not planned for a knockout strain of this gene.
 		          </p>
 		        </div>
 		    </c:if>
-		      
-		      	<br/>
-	  </c:if> 
-	    	
-	    	
-   
-     
 
-     
+		      	<br/>
+	  </c:if>
+
+
+
+
+
+
     <%-- <c:if test="${phenotypeDisplayStatus.postQcDataAvailable && !phenotypeDisplayStatus.eitherPostQcOrPreQcSignificantDataIsAvailable}"> don't think we need this section now??
       <div class="alert alert-info">
         <h5>No Significant Phenotype Associations Found</h5>
@@ -216,10 +216,10 @@
       <div class="row-fluid" id="phenotypesDiv">
 
         <div class="container span12">
- 
+
           <c:if test="${not empty rowsForPhenotypeTable}">
-            <form class="tablefiltering no-style" id="target" action="destination.html">
-           
+            <div class="tablefiltering no-style" id="target" action="destination.html">
+
               <c:forEach
                       var="phenoFacet" items="${phenoFacets}"
                       varStatus="phenoFacetStatus">
@@ -232,9 +232,9 @@
                   </c:forEach>
                 </select>
               </c:forEach>
-           
+
               <div class="clear"></div>
-            </form> 
+            </div>
             <div class="clear"></div>
 
             <c:set var="count" value="0" scope="page"/>

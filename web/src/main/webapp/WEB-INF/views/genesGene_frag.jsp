@@ -105,7 +105,7 @@
     <div class="col-12 col-md-12">
         <div class="float-left mr-1 mb-1">
             <c:if test="${orderPossible}">
-                <a class="btn btn-primary inactive"  role="button" aria-pressed="false" href="#order2"><i class="fa fa-shopping-cart"></i>Order</a>
+                <a class="btn btn-primary inactive"  role="button" aria-pressed="false" href="#order2"><i class="fa fa-shopping-cart"></i>&nbsp;Order</a>
             </c:if>
         </div>
         <div class="float-left">
@@ -114,7 +114,7 @@
                 <input type="hidden" name="target" value="${paBaseUrl}/genes/${gene.mgiAccessionId}"/>
                 <button type="submit" class="btn btn-primary" formaction="${registerButtonAnchor}"
                         formmethod="${formMethod}">
-                    <i class="${registerIconClass}"></i>
+                    <i class="${registerIconClass}"></i>&nbsp;
                     ${registerButtonText}
                 </button>
             </form>
