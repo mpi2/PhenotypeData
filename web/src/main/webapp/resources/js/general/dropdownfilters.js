@@ -18,7 +18,7 @@ $(document).ready(function(){
 	// use jquery DataTable for table searching/sorting/pagination
     function initGenePhenotypesTable(){
 		var aDataTblCols = [0,1,2,3,4,5,6,7];
-		$('table#genes').dataTable( );
+		$('table#genes').dataTable();
 		//	var oDataTable = $.fn.initDataTable($('table#phenotypes'), {
 //	    $('table#genes').dataTable( {
 //			"aoColumns": [{ "sType": "string",  "bSortable" : true},
@@ -92,6 +92,7 @@ $(document).ready(function(){
 			url: newUrl,
 			cache: false
 		}).done(function( html ) {
+			console.log(newUrl);
 			$("#genes_wrapper").html(html);//phenotypes wrapper div has been created by the original datatable so we need to replace this div with the new table and content
 			initGenePhenotypesTable();
 		});

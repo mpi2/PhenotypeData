@@ -513,6 +513,7 @@ public class GenesController {
 
         // Pass on any query string after the
         String queryString = request.getQueryString();
+
         processPhenotypes(acc, model, topLevelMpTermName, resourceFullname, request);
 
         return "PhenoFrag";
@@ -744,6 +745,8 @@ public class GenesController {
         ArrayList<GenePageTableRow> l = new ArrayList(phenotypes.values());
         Collections.sort(l);
         model.addAttribute("rowsForPhenotypeTable", l);
+        model.addAttribute("phenotypeGroups", phenotypeGroups);
+        model.addAttribute("phenotypeGroupIcons", phenotypeGroupIcons);
         return l;
     }
 
