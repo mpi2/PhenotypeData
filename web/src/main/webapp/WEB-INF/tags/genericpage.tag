@@ -130,6 +130,32 @@
     <!-- Latest compiled and minified JavaScript -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.2/js/bootstrap-select.min.js"></script>
     <!-- Latest compiled and minified JavaScript -->
+    
+    <script>
+    <%--
+    Some browsers do not provide a console object see:
+    http://stackoverflow.com/questions/690251/what-happened-to-console-log-in-ie8
+    http://digitalize.ca/2010/04/javascript-tip-save-me-from-console-log-errors/
+    // In case we forget to take out console statements. IE fails otherwise
+    --%>
+    try {
+        console.log(" ");
+    } catch (err) {
+        var console = {};
+        console.log = console.error = console.info = console.debug = console.warn = console.trace = console.dir = console.dirxml = console.group = console.groupEnd = console.time = console.timeEnd = console.assert = console.profile = function () {
+        };
+    }
+
+    <c:forEach var="entry" items="${requestConfig}">
+    var ${entry.key} = "${entry.value}";
+    </c:forEach>
+
+    <%--var baseUrl = "${baseUrl}";--%>
+    <%--var solrUrl = '${solrUrl}';--%>
+    <%--var pdfThumbnailUrl = "${pdfThumbnailUrl}";--%>
+    <%--var drupalBaseUrl = "${drupalBaseUrl}";--%>
+    <%--var mediaBaseUrl = "${mediaBaseUrl}";--%>
+</script>
 
     <jsp:invoke fragment="header" />
 
