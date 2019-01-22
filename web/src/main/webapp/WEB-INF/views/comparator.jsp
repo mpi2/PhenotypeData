@@ -60,8 +60,8 @@
 <jsp:body>
 
 
-<div class="block">
-    <div class="content">
+ <div class="row">
+       <div class="col-12 no-gutters">
         	<div class="node"> 
 	        <c:set var="jpegUrlThumbWithoutId" value="${impcMediaBaseUrl}/render_birds_eye_view"/>
 	        <c:set var="jpegUrlDetailWithoutId" value="${impcMediaBaseUrl}/img_detail"/>

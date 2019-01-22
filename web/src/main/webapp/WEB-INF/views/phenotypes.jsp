@@ -87,7 +87,9 @@
                     <div class="col-12 no-gutters">
                         <h2>Phenotype: ${phenotype.getMpTerm()}<span class="documentation">
                         <!--  I hate this way of linking to documentation can't we find a simpler more elegant way that I don't have to try and remember how it works each time?? JW -->
-                        <a href='' id='summarySection' class="fa fa-question-circle pull-right"></a></span></h2>
+                        <a href='' id='summarySection' class="glyphicon glyphicon-question-sign"></a></span>
+                        <span class="glyphicon glyphicon-question-sign" aria-hidden=true></span></h2>
+                       
                     </div>
                 </div>
     </div>
