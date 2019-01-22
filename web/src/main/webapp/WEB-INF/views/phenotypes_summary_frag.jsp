@@ -128,7 +128,7 @@
 
 
 <div id="parentChild" class="col-12 col-md-5">
-	                        <div class="row">
+	                        <div class="row no-gutters">
 									<c:if test="${hasChildren && hasParents}">
 		                            	<div class="col-12 col-md-6" id="parentDiv"></div>
 										<div class="col-12 col-md-6" id="childDiv"></div>
