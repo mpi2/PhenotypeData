@@ -91,7 +91,6 @@
 			$(document).ready(function() {
 			  var oTable = $('#strainPvalues').dataTable({
 				//		"sPaginationType": "bootstrap"
-						"bPaginate":false
 			  });
 			  // Sort immediately with p-value column starting with the lowest one
 			  oTable.fnSort( [ [6,'asc'] ] );

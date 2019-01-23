@@ -12,24 +12,8 @@
         <body class="gene-node no-sidebars small-header">
 
         </jsp:attribute>
-    <jsp:attribute name="addToFooter">
-            <%--  floating menu, displays quick links to sections of long page --%>
-        <div class="region region-pinned">
-            <div id="flyingnavi" class="block smoothScroll">
-                <a href="#top"><i class="fa fa-chevron-up" title="scroll to top"></i></a>
-                    <%-- Menu list always displays a fixed number of headings --%>
-                <ul>
-                    <li><a href="#top">Gene</a></li>
-                    <li><a href="#section-associations">Phenotype Associations</a></li>
-                    <li><a href="#section-expression">Expression</a></li>
-                    <li><a href="#section-images">Associated Images</a></li>
-                    <li><a href="#section-disease-models">Disease Models</a></li>
-                    <li><a href="#order2">Order Mouse and ES Cells</a></li>
-                </ul>
-                <div class="clear"></div>
-            </div>
-        </div>
-        </jsp:attribute>
+
+
 
 
     <jsp:attribute name="header">
