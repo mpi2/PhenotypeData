@@ -509,35 +509,40 @@
             <div class="row">
                 <div class="col-12 white-bg">
                     <div class="page-content pt-5 pb-5">
-                        <div>
-                            <div id="phenotabs2" class="phenotabs">
-                                <ul class='tabs'>
-                                    <li><a href="#by-annotation">By annotation and orthology</a></li>
-                                    <li><a href="#by-phenotype">By phenotypic similarity</a></li>
-                                </ul>
-                                <div id="by-annotation">
-                                    <c:choose>
-                                        <c:when test="${!hasModelsByOrthology}">
-                                            No associations by disease annotation and gene orthology found.
-                                        </c:when>
-                                        <c:otherwise>
-                                            <table id="diseases_by_annotation"
-                                                   class="table tablesorter disease"></table>
-                                        </c:otherwise>
-                                    </c:choose>
-                                </div>
-                                <div id="by-phenotype">
-                                    <c:choose>
-                                        <c:when test="${empty modelAssociations}">
-                                            No associations by phenotypic similarity found.
-                                        </c:when>
-                                        <c:otherwise>
-                                            <table id="diseases_by_phenotype" class="table tablesorter disease"></table>
-                                        </c:otherwise>
-                                    </c:choose>
-                                </div>
+                        <ul class="nav nav-tabs" id="diseasesTab" role="tablist">
+                            <li class="nav-item">
+                                <a class="nav-link active" id="byAnnotation-tab" data-toggle="tab" href="#byAnnotation"
+                                   role="tab" aria-controls="byAnnotation-tab" aria-selected="false">By Annotation and Orthology</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="byPhenotype-tab" data-toggle="tab" href="#byPhenotype"
+                                   role="tab" aria-controls="byPhenotype-tab" aria-selected="false">By phenotypic Similarity</a>
+                            </li>
+                        </ul>
+                        <div class="tab-content mt-2" id="diseasesTabContent">
+                            <div class="tab-pane fade show active" id="byAnnotation" role="tabpanel"
+                                 aria-labelledby="byAnnotation-tab">
+                                <c:choose>
+                                    <c:when test="${!hasModelsByOrthology}">
+                                        No associations by disease annotation and gene orthology found.
+                                    </c:when>
+                                    <c:otherwise>
+                                        <table id="diseases_by_annotation"
+                                               class="table tablesorter disease" style="width:100%"></table>
+                                    </c:otherwise>
+                                </c:choose>
                             </div>
-
+                            <div class="tab-pane fade" id="byPhenotype" role="tabpanel"
+                                 aria-labelledby="byPhenotype-tab">
+                                <c:choose>
+                                    <c:when test="${empty modelAssociations}">
+                                        No associations by phenotypic similarity found.
+                                    </c:when>
+                                    <c:otherwise>
+                                        <table id="diseases_by_phenotype" class="table tablesorter disease" style="width:100%"></table>
+                                    </c:otherwise>
+                                </c:choose>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -562,7 +567,7 @@
                 </div>
             </div>
         </div>
-        
+
         <!-- End of Order Mouse and ES Cells -->
 
 
