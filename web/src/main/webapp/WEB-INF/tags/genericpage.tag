@@ -533,7 +533,8 @@
 <main id="main" class="main" role="main">
     <div class="container-fluid">
         <div class="single-header ">
-            <img src="https://www.mousephenotypetest.org/wp-content/uploads/2018/12/newsBanner-150x150.png" srcset="https://www.mousephenotypetest.org/wp-content/uploads/2018/12/newsBanner-300x62.png 300w, https://www.mousephenotypetest.org/wp-content/uploads/2018/12/newsBanner-768x158.png 768w, https://www.mousephenotypetest.org/wp-content/uploads/2018/12/newsBanner-1024x210.png 1024w, https://www.mousephenotypetest.org/wp-content/uploads/2018/12/newsBanner.png 1440w" sizes="100%">            <div class="row text-center">
+            <img src="https://www.mousephenotypetest.org/wp-content/uploads/2018/12/utdBanner.png" srcset="https://www.mousephenotypetest.org/wp-content/uploads/2018/12/utdBanner-300x62.png 300w, https://www.mousephenotypetest.org/wp-content/uploads/2018/12/utdBanner-768x158.png 768w, https://www.mousephenotypetest.org/wp-content/uploads/2018/12/utdBanner-1024x210.png 1024w, https://www.mousephenotypetest.org/wp-content/uploads/2018/12/utdBanner.png 1440w" sizes="100%">
+            <div class="row text-center">
                 <div class="col-12 col-md-6 offset-md-3">
                     <div class="portal-search pb-5 mb-5 mt-5">
                         <div class="portal-search__tabs">
@@ -639,7 +640,7 @@
     <jsp:invoke fragment="addToFooter"/>
 </div>
 <script type='text/javascript' src='${baseUrl}/js/searchAndFacet/searchAndFacetConfig.js?v=${version}'></script>
-<%-- <script type='text/javascript' src='${baseUrl}/js/utils/tools.js?v=${version}'></script> commented out as causing erros - for debug JW--%>
+<script type='text/javascript' src='${baseUrl}/js/utils/tools.js?v=${version}'></script>
 <script type='text/javascript' src='${baseUrl}/js/general/ui.dropdownchecklist_modif.js?v=${version}'></script>
 <script type='text/javascript' src='${baseUrl}/js/documentationConfig.js?v=${version}'></script>
 

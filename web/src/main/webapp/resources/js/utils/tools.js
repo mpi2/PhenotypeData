@@ -2611,13 +2611,13 @@ $
  * "normal": "", "disabled": "disabled" } } } );
  */
 // Have the tableTools collection use a bootstrap compatible dropdown
-$.extend(true, $.fn.DataTable.TableTools.DEFAULTS.oTags, {
+/*$.extend(true, $.fn.DataTable.TableTools.DEFAULTS.oTags, {
 	"collection" : {
 		"container" : "ul",
 		"button" : "li",
 		"liner" : "a"
 	}
-});
+});*/
 
 $.fn.dataTableExt.sErrMode = 'throw'; // override default alert
 

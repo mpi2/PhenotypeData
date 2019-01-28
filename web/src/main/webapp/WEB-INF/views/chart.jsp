@@ -16,34 +16,38 @@
 
         <c:if test="${ ! chartOnly}">
 
+            <div class="container mt-3" id="section-associations">
+                <div class="row">
+                    <div class="col-12 no-gutters">
+                        <h3>Allele -<t:formatAllele>${symbol}</t:formatAllele></h3>
+                    </div>
+                </div>
+            </div>
 
-        <h2 class="title" id="section-associations">
-            Allele -<t:formatAllele>${symbol}</t:formatAllele>
-            <span class="documentation"><a href="" id='generalPanel'
-                                           class="fa fa-question-circle pull-right"></a></span>
-        </h2>
-
-        <c:if test="${viabilityDTO!=null}">
-            <h5>${viabilityDTO.category}</h5>
-        </c:if>
-
-        <c:if test="${embryoViabilityDTO!=null}">
-            <h5>${embryoViabilityDTO.proceedureName}</h5>
-            <h5>Outcome: ${embryoViabilityDTO.category}</h5>
-        </c:if>
-
-        <p>Background - <t:formatAllele>${geneticBackgroundString}</t:formatAllele>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-            Phenotyping Center - ${phenotypingCenter}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-            <c:if test="${pipeline.name!=null}">Pipeline - <a href="${pipelineUrl}">${pipeline.name }</a></c:if>
-        </p>
-
-        <p>
-            <c:if test="${metadata != null}">
-                Metadata Group - ${metadata}
+            <div class="container single single--no-side">
+                <div class="row">
+                    <div class="col-12 white-bg">
+                        <div class="page-content pt-5 pb-5">
+            <c:if test="${viabilityDTO!=null}">
+                <h5>${viabilityDTO.category}</h5>
             </c:if>
-        </p>
 
-        <br/> <br/>
+            <c:if test="${embryoViabilityDTO!=null}">
+                <h5>${embryoViabilityDTO.proceedureName}</h5>
+                <h5>Outcome: ${embryoViabilityDTO.category}</h5>
+            </c:if>
+
+            <p>Background - <t:formatAllele>${geneticBackgroundString}</t:formatAllele>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                Phenotyping Center - ${phenotypingCenter}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <c:if test="${pipeline.name!=null}">Pipeline - <a href="${pipelineUrl}">${pipeline.name }</a></c:if>
+            </p>
+
+            <p>
+                <c:if test="${metadata != null}">
+                    Metadata Group - ${metadata}
+                </c:if>
+            </p>
+
 
         </c:if>
 
@@ -74,3 +78,8 @@
 
     </c:otherwise>
 </c:choose>
+                        </div>
+                    </div>
+                </div>
+            </div>
+

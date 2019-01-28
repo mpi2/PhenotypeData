@@ -22,7 +22,7 @@
     </div>
 </div>
 
-<div id="anatomo1">
+<div id="anatomo1" class="row justify-content-center">
     <jsp:include page="genesAdultExpEata_frag.jsp"></jsp:include>
 </div>
 <div id="anatomo2" class="container mt-3">

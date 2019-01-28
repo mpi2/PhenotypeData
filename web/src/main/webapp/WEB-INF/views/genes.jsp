@@ -660,8 +660,10 @@
                         var maIds = topLevelName2maIdMap[topname];
                         //console.log(topname + " - " + maIds);
                         var uberonIds = [];
-                        for (var a = 0; a < maIds.length; a++) {
-                            uberonIds = uberonIds.concat(maId2UberonEfoMap[maIds[a]]);
+                        if(maIds && maIds.length) {
+                            for (var a = 0; a < maIds.length; a++) {
+                                uberonIds = uberonIds.concat(maId2UberonEfoMap[maIds[a]]);
+                            }
                         }
                         uberonIds = $.fn.getUnique(uberonIds);
                         mouseAnatomogram(uberons2Gene, uberonIds, []);
@@ -688,20 +690,23 @@
                         onMouseOver: function (id) {
                             var maIds = uberonEfo2MaIdMap[id];
                             var topLevelNames = [];
-                            for (var i = 0; i < maIds.length; i++) {
-                                var tops = maId2topLevelNameMap[maIds[i]];
-                                for (var j = 0; j < tops.length; j++) {
-                                    topLevelNames.push(tops[j]);
+                            if(maIds && maIds.length) {
+                                for (var i = 0; i < maIds.length; i++) {
+                                    var tops = maId2topLevelNameMap[maIds[i]];
+                                    for (var j = 0; j < tops.length; j++) {
+                                        topLevelNames.push(tops[j]);
+                                    }
                                 }
                             }
 
+
                             topLevelNames = $.fn.getUnique(topLevelNames);
-                            console.log("TOP: " + topLevelNames);
+                            //console.log("TOP: " + topLevelNames);
 
                             $('ul#expList table td.showAdultImage').each(function () {
 
                                 if ($.fn.inArray($(this).text().trim(), topLevelNames)) {
-                                    console.log("top: " + $(this).text().trim());
+                                    //console.log("top: " + $(this).text().trim());
                                     $(this).addClass("mahighlight");
                                 }
                             });
@@ -710,7 +715,7 @@
                             $('ul#expList table td').removeClass("mahighlight");
                         },
                         onClick: function (id) {
-                            console.log(id + " click")
+                            //console.log(id + " click")
 
                         }
                     }, 'anatomogramContainer')
