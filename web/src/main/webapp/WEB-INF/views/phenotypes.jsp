@@ -94,17 +94,20 @@
                 </div>
     </div>
 
-	  <div class="container single single--no-side">
+			<c:if test="${hasData}">
+           
+           <div class="container">
                 <div class="row">
-                    <div class="col-12 white-bg">
-                        <div class="page-content pt-5 pb-5">
-                        
-                        <jsp:include page="phenotypes_summary_frag.jsp"/>
-                          		
-                        </div>
-                    </div>
-                </div>
-            </div>
+                    <div class="col-12 no-gutters">
+                        <h3>IMPC Gene variants with ${phenotype.getMpTerm()}</h3>
+                        <jsp:include page="phenotypes_gene_variant_frag.jsp"></jsp:include>
+           			</div>
+           		</div>
+           </div>
+           
+           
+           </c:if>
+	  
             
             <c:if test="${genePercentage.getDisplay()}">
             
@@ -121,19 +124,18 @@
               
            </c:if>
       
-           <c:if test="${hasData}">
            
            <div class="container">
                 <div class="row">
                     <div class="col-12 no-gutters">
-                        <h3>Gene variants with ${phenotype.getMpTerm()}</h3>
-                        <jsp:include page="phenotypes_gene_variant_frag.jsp"></jsp:include>
-           			</div>
-           		</div>
-           </div>
-           
-           
-           </c:if>
+                        <div class="page-content pt-5 pb-5">
+                        
+                        <jsp:include page="phenotypes_summary_frag.jsp"/>
+                          		
+                        </div>
+                    </div>
+                </div>
+            </div>
 
 				
  <script type="text/javascript">
