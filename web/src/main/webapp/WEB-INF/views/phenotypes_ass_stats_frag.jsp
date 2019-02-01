@@ -2,8 +2,8 @@
 <%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@taglib prefix="t" tagdir="/WEB-INF/tags" %>
 	
-
-
+<div class="row pt-5 pb-5 white-bg">
+  <div class="col-12 col-md-12">
 							<!-- Phenotype Assoc. summary -->
 
 
@@ -43,7 +43,6 @@
 
 							</c:if>
 
-
 							<!-- baseline charts -->
 							<c:if test="${parametersAssociated.size() > 0}">
 								<c:if test="${parametersAssociated.size() > 1}">
@@ -55,9 +54,12 @@
 											</select>
 										</p>
 									</c:if>
+									</div>
+<div class="col-12 col-md-6">
 									<div id="baselineChart"></div>
 										<c:if test="${parametersAssociated.size() > 0}">
-												<div id="chartsHalfBaseline" class="half">
+										<div id="chartsHalfBaseline">
+												
 												<%-- <c:if test="${parametersAssociated.size() > 1}">
 													<p> Select a parameter <i class="fa fa-bar-chart-o" ></i>&nbsp; &nbsp;
 														<select class="overviewSelect" onchange="ajaxToBeBaseline('${phenotype.getMpId()}', this.options[this.selectedIndex].value);">
@@ -85,11 +87,11 @@
 
 
 
-
+</div>
 
 								<!-- Overview Graphs -->
 								<c:if test="${parametersAssociated.size() > 0}">
-								<div id="chartsHalf" class="half">
+								<div class="col-12 col-md-6 ">
 
 									<br/>
 
@@ -108,4 +110,5 @@
 					
 
 
-<!-- end of main section -->
+	
+</div> <!-- end of main section -->

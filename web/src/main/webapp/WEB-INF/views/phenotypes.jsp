@@ -105,9 +105,25 @@
            </div>
            
            </c:if>
-	  
+   
+           <div class="container">
+                <div class="row">
+                    <div class="col-12 no-gutters">
+                    <h3>Phenotype Summary Information</h3>
+                        </div>
+                </div>
+            </div> 
+            <div class="container single single--no-side">
+            	<div class="row">
+                	<div class="col-12 white-bg">
+                    	<div class="page-content pt-5 pb-5">
+                        	<jsp:include page="phenotypes_summary_frag.jsp"/>     		
+                     	</div>
+                 	</div>
+            	</div>
+            </div> 
             
-            <c:if test="${genePercentage.getDisplay()}">
+             <c:if test="${genePercentage.getDisplay()}">
             
              <div class="container">
                 <div class="row">
@@ -127,24 +143,6 @@
                   </div>
               </div>
            </c:if>
-      
-           
-           <div class="container">
-                <div class="row">
-                    <div class="col-12 no-gutters">
-                    <h3>Phenotype Summary Information</h3>
-                        </div>
-                </div>
-            </div> 
-            <div class="container single single--no-side">
-            	<div class="row">
-                	<div class="col-12 white-bg">
-                    	<div class="page-content pt-5 pb-5">
-                        	<jsp:include page="phenotypes_summary_frag.jsp"/>     		
-                     	</div>
-                 	</div>
-            	</div>
-            </div> 
 
 				
  <script type="text/javascript">
