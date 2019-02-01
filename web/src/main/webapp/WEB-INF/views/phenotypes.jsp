@@ -85,26 +85,23 @@
 	<div class="container data-heading">
                 <div class="row">
                     <div class="col-12 no-gutters">
-                        <h2>Phenotype: ${phenotype.getMpTerm()}<span class="documentation">
-                        <!--  I hate this way of linking to documentation can't we find a simpler more elegant way that I don't have to try and remember how it works each time?? JW -->
-                        <a href='' id='summarySection' class="glyphicon glyphicon-question-sign"></a></span>
-                        <span class="glyphicon glyphicon-question-sign" aria-hidden=true></span></h2>
-                       
+                        <h2>Phenotype: ${phenotype.getMpTerm()}</h2>
                     </div>
                 </div>
     </div>
 
 			<c:if test="${hasData}">
+           <div class="container single single--no-side">
            
-           <div class="container">
                 <div class="row">
-                    <div class="col-12 no-gutters">
+                    <div class="col-12 white-bg">
+                    <div class="col-12 white-bg">
                         <h3>IMPC Gene variants with ${phenotype.getMpTerm()}</h3>
                         <jsp:include page="phenotypes_gene_variant_frag.jsp"></jsp:include>
            			</div>
+           			</div>
            		</div>
            </div>
-           
            
            </c:if>
 	  
@@ -115,27 +112,38 @@
                 <div class="row">
                     <div class="col-12 no-gutters">
                         <h3>Phenotype associations stats</h3>
-                        
-                        <jsp:include page="phenotypes_ass_stats_frag.jsp"/>
-                          		
-                        </div>
+                          </div>
                     </div>
               </div>
               
+              <div class="container single single--no-side">
+            	<div class="row">
+                	<div class="col-12 white-bg">
+                    	<div class="page-content pt-5 pb-5">
+                        	<jsp:include page="phenotypes_ass_stats_frag.jsp"/>
+                        </div>
+                     </div>  		
+                  </div>
+              </div>
            </c:if>
       
            
            <div class="container">
                 <div class="row">
                     <div class="col-12 no-gutters">
-                        <div class="page-content pt-5 pb-5">
-                        
-                        <jsp:include page="phenotypes_summary_frag.jsp"/>
-                          		
+                    <h3>Phenotype Summary Information</h3>
                         </div>
-                    </div>
                 </div>
-            </div>
+            </div> 
+            <div class="container single single--no-side">
+            	<div class="row">
+                	<div class="col-12 white-bg">
+                    	<div class="page-content pt-5 pb-5">
+                        	<jsp:include page="phenotypes_summary_frag.jsp"/>     		
+                     	</div>
+                 	</div>
+            	</div>
+            </div> 
 
 				
  <script type="text/javascript">
