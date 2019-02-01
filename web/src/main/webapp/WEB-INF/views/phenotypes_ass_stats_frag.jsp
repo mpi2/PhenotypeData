@@ -2,7 +2,7 @@
 <%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@taglib prefix="t" tagdir="/WEB-INF/tags" %>
 	
-<div class="row pt-5 pb-5 white-bg">
+
 
 							<!-- Phenotype Assoc. summary -->
 
@@ -108,4 +108,4 @@
 					
 
 
-</div> <!-- end of main section -->
+<!-- end of main section -->

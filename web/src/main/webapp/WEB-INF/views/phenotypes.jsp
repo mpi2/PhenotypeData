@@ -96,6 +96,7 @@
                 <div class="row">
                     <div class="col-12 white-bg">
                     <div class="col-12 white-bg">
+                    <br/>
                         <h3>IMPC Gene variants with ${phenotype.getMpTerm()}</h3>
                         <jsp:include page="phenotypes_gene_variant_frag.jsp"></jsp:include>
            			</div>
