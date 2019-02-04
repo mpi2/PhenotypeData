@@ -220,7 +220,7 @@
 			  <div class="row">
 				  <div class="col" id="target" action="destination.html">
 
-					  <c:forEach
+					  <%--c:forEach
 							  var="phenoFacet" items="${phenoFacets}"
 							  varStatus="phenoFacetStatus">
 						  <select id="top_level_mp_term_name" class="selectpicker"
@@ -231,7 +231,7 @@
 								  <option>${facet.key}</option>
 							  </c:forEach>
 						  </select>
-					  </c:forEach>
+					  </c:forEach--%>
 
 				  </div>
 			  </div>
@@ -252,8 +252,8 @@
               <div id="export">
                   <p class="textright">
                       Download data as:
-                      <a id="tsvDownload" href="${baseUrl}/genes/export/${gene.getMgiAccessionId()}?fileType=tsv&fileName=${gene.markerSymbol}" target="_blank" class="button fa fa-download">&nbsp;TSV</a>
-                      <a id="xlsDownload" href="${baseUrl}/genes/export/${gene.getMgiAccessionId()}?fileType=xls&fileName=${gene.markerSymbol}" target="_blank" class="button fa fa-download">&nbsp;XLS</a>
+					  <a id="tsvDownload" href="${baseUrl}/genes/export/${gene.getMgiAccessionId()}?fileType=tsv&fileName=${gene.markerSymbol}" target="_blank" class="btn btn-outline-primary"><i class="fa fa-download"></i>&nbsp;TSV</a>
+					  <a id="xlsDownload" href="${baseUrl}/genes/export/${gene.getMgiAccessionId()}?fileType=xls&fileName=${gene.markerSymbol}" target="_blank" class="btn btn-outline-primary"><i class="fa fa-download"></i>&nbsp;XLS</a>
                   </p>
               </div>
 

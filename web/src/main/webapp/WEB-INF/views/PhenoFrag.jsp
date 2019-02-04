@@ -34,7 +34,7 @@
 </script> -->
 
 
-<table id="genes" class="table table-striped table-bordered dt-responsive" style="width:100%">
+<table id="genes" class="table dt-responsive" style="width:100%">
     <thead>
     <tr>
         <th class="headerSort">Phenotype</th>
