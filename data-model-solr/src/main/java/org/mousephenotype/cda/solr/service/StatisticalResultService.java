@@ -325,12 +325,14 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 			}
 
 			for( PivotField pivot : res.getFacetPivot().get(pivotFacet)){
-				List<String> lst = new ArrayList<>();
-				for (PivotField gene : pivot.getPivot()){
-					lst.add(gene.getValue().toString());
+				if (pivot.getPivot() != null){
+					List<String> lst = new ArrayList<>();
+					for (PivotField gene : pivot.getPivot()){
+						lst.add(gene.getValue().toString());
+					}
+					dto.addParametersByProcedure(pivot.getValue().toString(), new ArrayList<>(lst));
+					dto.addProcedureNames(pivot.getValue().toString());
 				}
-				dto.addParametersByProcedure(pivot.getValue().toString(), new ArrayList<>(lst));
-				dto.addProcedureNames(pivot.getValue().toString());
 			}
 
 			SolrDocument doc = res.getResults().get(0);
@@ -855,11 +857,13 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 		QueryResponse response = solr.query(q);
 
 		for( PivotField pivot : response.getFacetPivot().get(pivotFacet)){
-			List<String> colonies = new ArrayList<>();
-			for (PivotField colony : pivot.getPivot()){
-				colonies.add(colony.getValue().toString());
+			if (pivot.getPivot() != null) {
+				List<String> colonies = new ArrayList<>();
+				for (PivotField colony : pivot.getPivot()){
+					colonies.add(colony.getValue().toString());
+				}
+				res.put(pivot.getValue().toString(), new ArrayList<String>(colonies));
 			}
-			res.put(pivot.getValue().toString(), new ArrayList<String>(colonies));
 		}
 
 		return res;
@@ -892,11 +896,13 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 		QueryResponse response = solr.query(q);
 
 		for( PivotField pivot : response.getFacetPivot().get(pivotFacet)){
-			List<String> genes = new ArrayList<>();
-			for (PivotField gene : pivot.getPivot()){
-				genes.add(gene.getValue().toString());
+			if (pivot.getPivot() != null) {
+				List<String> genes = new ArrayList<>();
+				for (PivotField gene : pivot.getPivot()){
+					genes.add(gene.getValue().toString());
+				}
+				res.put(pivot.getValue().toString(), new ArrayList<String>(genes));
 			}
-			res.put(pivot.getValue().toString(), new ArrayList<String>(genes));
 		}
 
 		return res;
@@ -1029,12 +1035,14 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 		try {
 			response = solr.query(query).getFacetPivot();
 			for (PivotField genePivot : response.get(StatisticalResultDTO.MARKER_ACCESSION_ID + "," + StatisticalResultDTO.PROCEDURE_STABLE_ID)){
-				String geneName = genePivot.getValue().toString();
-				Set<String> procedures = new HashSet<>();
-				for (PivotField f : genePivot.getPivot()){
-					procedures.add(f.getValue().toString());
+				if (genePivot.getPivot() != null) {
+					String geneName = genePivot.getValue().toString();
+					Set<String> procedures = new HashSet<>();
+					for (PivotField f : genePivot.getPivot()){
+						procedures.add(f.getValue().toString());
+					}
+					res.put(geneName, procedures);
 				}
-				res.put(geneName, procedures);
 			}
 		} catch (SolrServerException | IOException e) {
 			e.printStackTrace();
@@ -1491,11 +1499,13 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 		QueryResponse response = solr.query(q);
 
 		for( PivotField pivot : response.getFacetPivot().get(pivotFacet)){
-			List<String> lst = new ArrayList<>();
-			for (PivotField gene : pivot.getPivot()){
-				lst.add(gene.getValue().toString());
+			if (pivot.getPivot() != null){
+				List<String> lst = new ArrayList<>();
+				for (PivotField gene : pivot.getPivot()){
+					lst.add(gene.getValue().toString());
+				}
+				res.put(pivot.getValue().toString(), new ArrayList<String>(lst));
 			}
-			res.put(pivot.getValue().toString(), new ArrayList<String>(lst));
 		}
 
 		return res;
@@ -1604,11 +1614,13 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 		QueryResponse response = solr.query(q);
 
 		for( PivotField pivot : response.getFacetPivot().get(pivotFacet)){
-			List<String> genes = new ArrayList<>();
-			for (PivotField gene : pivot.getPivot()){
-				genes.add(gene.getValue().toString());
+			if (pivot.getPivot() != null) {
+				List<String> genes = new ArrayList<>();
+				for (PivotField gene : pivot.getPivot()){
+					genes.add(gene.getValue().toString());
+				}
+				res.put(pivot.getValue().toString(), new ArrayList<String>(genes));
 			}
-			res.put(pivot.getValue().toString(), new ArrayList<String>(genes));
 		}
 
 		return res;

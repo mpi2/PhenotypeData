@@ -62,17 +62,31 @@ public class BasicService {
                 results.addAll(lmap);
             }
         } else {
-            Map<String, String> map = new HashMap<String, String>();
-            map.put(pivotLevel.getField(), pivotLevel.getValue().toString());
-            if (keepCount)
-            	map.put(pivotLevel.getField() + "_count", new Integer(pivotLevel.getCount()).toString());
-            // add the parent pivot
-            if (parentPivot != null) {
-                map.put(parentPivot.getField(), parentPivot.getValue().toString());
-                if (keepCount)
-                	map.put(parentPivot.getField() + "_count", new Integer(parentPivot.getCount()).toString());
-            }
-            results.add(map);
+
+        	// It is important to test the state of the parentPivot here since Solr7
+			// does not return an empty pivot list if there is no associated data
+			//
+			// The Solr 4 query response format was:
+			// {field=procedure_stable_id,value=GMC_900_001,count=26,pivot=[]}
+			//
+			// The Solr 7 query response format is:
+			// {field=procedure_stable_id,value=GMC_900_001,count=26}
+			//
+        	if(parentPivot != null){
+
+        		Map<String, String> map = new HashMap<String, String>();
+				map.put(pivotLevel.getField(), pivotLevel.getValue().toString());
+				if (keepCount)
+					map.put(pivotLevel.getField() + "_count", new Integer(pivotLevel.getCount()).toString());
+
+				// add the parent pivot
+				map.put(parentPivot.getField(), parentPivot.getValue().toString());
+				if (keepCount)
+					map.put(parentPivot.getField() + "_count", new Integer(parentPivot.getCount()).toString());
+
+				results.add(map);
+
+			}
         }
         //
         return results;
@@ -147,11 +161,13 @@ public class BasicService {
         List<PivotField> facetPivot = response.getFacetPivot().get(pivot);
 
         for( PivotField p : facetPivot){
-			List<String> secondLevelFacets = new ArrayList<>();
-			for (PivotField pf : p.getPivot()){
-				secondLevelFacets.add(pf.getValue().toString());
+			if (p.getPivot() != null) {
+				List<String> secondLevelFacets = new ArrayList<>();
+				for (PivotField pf : p.getPivot()){
+					secondLevelFacets.add(pf.getValue().toString());
+				}
+				res.put(p.getValue().toString(), new ArrayList<String>(secondLevelFacets));
 			}
-			res.put(p.getValue().toString(), new ArrayList<String>(secondLevelFacets));
 		}
 
         return res;
@@ -169,11 +185,13 @@ public class BasicService {
 		List<PivotField> facetPivot = response.getFacetPivot().get(pivot);
 
 		for( PivotField p : facetPivot){
-			Map<String, Integer> secondLevelFacets = new HashMap<>();
-			for (PivotField pf : p.getPivot()){
-				secondLevelFacets.put(pf.getValue().toString(), pf.getCount());
+			if (p.getPivot() != null) {
+				Map<String, Integer> secondLevelFacets = new HashMap<>();
+				for (PivotField pf : p.getPivot()){
+					secondLevelFacets.put(pf.getValue().toString(), pf.getCount());
+				}
+				res.put(p.getValue().toString(), secondLevelFacets);
 			}
-			res.put(p.getValue().toString(), secondLevelFacets);
 		}
 
 		return res;

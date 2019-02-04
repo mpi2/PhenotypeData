@@ -57,6 +57,7 @@ public class ImpressServiceTest {
 	}
 
 	@Autowired
+	@NotNull
 	ImpressService impressService;
 
 

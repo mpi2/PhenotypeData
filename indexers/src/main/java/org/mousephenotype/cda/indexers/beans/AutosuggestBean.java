@@ -105,7 +105,8 @@ public class AutosuggestBean {
 	public static final String GWAS_UPSTREAM_GENE = "gwas_upstream_gene";
 	public static final String GWAS_DOWNSTREAM_GENE = "gwas_downstream_gene";
 	public static final String GWAS_SNP_ID = "gwas_snp_id";
-	
+
+
 	@Field(DOCTYPE)
 	private String docType;
 

@@ -62,6 +62,9 @@ public class SearchUrlServiceAnatomy extends SearchUrlService {
     }
 
     @Override
+    public String facetMinCount() { return "0"; }
+
+    @Override
     public String facetSort() {
         return "index";
     }

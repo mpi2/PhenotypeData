@@ -185,7 +185,7 @@ final int MAX_MISSING_LIFE_STAGE_ERRORS_TO_LOG = 100;
 
                 GenotypePhenotypeDTO doc = new GenotypePhenotypeDTO();
 
-                doc.setId(r.getInt("id"));
+                doc.setId(r.getString("id"));
                 doc.setSex(r.getString("sex"));
                 doc.setZygosity(r.getString("zygosity"));
                 doc.setPhenotypingCenter(r.getString("phenotyping_center"));

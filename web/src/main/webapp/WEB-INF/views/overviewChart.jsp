@@ -4,7 +4,7 @@
 
 <script type="text/javascript">
 	${chart.getChart()}
-	$(document).ready(function() {
+	$(document).ready(function() {/* removing as controls center and sex for chart at bottom of phenotype page now is hardly used, can bring back if requested
 console.log('overview function ready');
 		var c = '${centerFilters}';
 		if (c != ""){
@@ -80,5 +80,5 @@ console.log('overview function ready');
 					});
 
 				});
-		}
+		} */
 	});

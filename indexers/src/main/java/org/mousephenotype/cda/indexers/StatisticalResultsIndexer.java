@@ -923,8 +923,9 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
                 + "INNER JOIN strain strain ON strain.acc=bmstrain.strain_acc "
                 + "WHERE exists(SELECT DISTINCT gf.symbol FROM biological_model_genomic_feature bmgf INNER JOIN genomic_feature gf ON gf.acc=bmgf.gf_acc WHERE bmgf.biological_model_id=bm.id)";
 
-        try (Connection connection = komp2DataSource.getConnection(); PreparedStatement p = connection.prepareStatement(query)) {
+        try (Connection connection = komp2DataSource.getConnection(); PreparedStatement p = connection.prepareStatement(query, java.sql.ResultSet.TYPE_FORWARD_ONLY,  java.sql.ResultSet.CONCUR_READ_ONLY)) {
 
+            p.setFetchSize(Integer.MIN_VALUE);
             ResultSet resultSet = p.executeQuery();
 
             while (resultSet.next()) {
@@ -957,8 +958,9 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 
         String query = "SELECT id, name, short_name FROM external_db";
 
-        try (Connection connection = komp2DataSource.getConnection(); PreparedStatement p = connection.prepareStatement(query)) {
+        try (Connection connection = komp2DataSource.getConnection(); PreparedStatement p = connection.prepareStatement(query, java.sql.ResultSet.TYPE_FORWARD_ONLY,  java.sql.ResultSet.CONCUR_READ_ONLY)) {
 
+            p.setFetchSize(Integer.MIN_VALUE);
             ResultSet resultSet = p.executeQuery();
 
             while (resultSet.next()) {
@@ -987,8 +989,9 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
         );
 
         for (String query : queries) {
-            try (Connection connection = komp2DataSource.getConnection(); PreparedStatement p = connection.prepareStatement(query)) {
+            try (Connection connection = komp2DataSource.getConnection(); PreparedStatement p = connection.prepareStatement(query, java.sql.ResultSet.TYPE_FORWARD_ONLY,  java.sql.ResultSet.CONCUR_READ_ONLY)) {
 
+                p.setFetchSize(Integer.MIN_VALUE);
                 ResultSet resultSet = p.executeQuery();
 
                 while (resultSet.next()) {
@@ -1090,8 +1093,9 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
                 "INNER JOIN phenotype_parameter_lnk_ontology_annotation l ON l.parameter_id=p.id " +
                 "INNER JOIN phenotype_parameter_ontology_annotation o ON o.id=l.annotation_id WHERE ontology_acc like 'MP:%'" ;
 
-        try (Connection connection = komp2DataSource.getConnection(); PreparedStatement p = connection.prepareStatement(query)) {
+        try (Connection connection = komp2DataSource.getConnection(); PreparedStatement p = connection.prepareStatement(query, java.sql.ResultSet.TYPE_FORWARD_ONLY,  java.sql.ResultSet.CONCUR_READ_ONLY)) {
 
+            p.setFetchSize(Integer.MIN_VALUE);
             ResultSet resultSet = p.executeQuery();
 
             while (resultSet.next()) {
@@ -1176,8 +1180,9 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 
                 query = query.replaceAll("SEX_SPECIFIC_STATS", sexSpecificStats ? additionalColumns : "");
 
-                try (PreparedStatement p = connection.prepareStatement(query)) {
+                try (PreparedStatement p = connection.prepareStatement(query, java.sql.ResultSet.TYPE_FORWARD_ONLY,  java.sql.ResultSet.CONCUR_READ_ONLY)) {
 
+                    p.setFetchSize(Integer.MIN_VALUE);
                     ResultSet r = p.executeQuery();
                     while (r.next()) {
                         StatisticalResultDTO doc = parseCategoricalResult(r, sexSpecificStats);
@@ -1286,8 +1291,9 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
             logger.info("  Starting unidimensional documents generation");
 
             List<StatisticalResultDTO> docs = new ArrayList<>();
-            try (Connection connection = komp2DataSource.getConnection(); PreparedStatement p = connection.prepareStatement(query)) {
+            try (Connection connection = komp2DataSource.getConnection(); PreparedStatement p = connection.prepareStatement(query, java.sql.ResultSet.TYPE_FORWARD_ONLY,  java.sql.ResultSet.CONCUR_READ_ONLY)) {
 
+                p.setFetchSize(Integer.MIN_VALUE);
                 ResultSet r = p.executeQuery();
                 while (r.next()) {
                     StatisticalResultDTO doc = parseUnidimensionalResult(r);
@@ -1435,8 +1441,9 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
         public List<StatisticalResultDTO> call() {
 
             List<StatisticalResultDTO> docs = new ArrayList<>();
-            try (Connection connection = komp2DataSource.getConnection(); PreparedStatement p = connection.prepareStatement(query)) {
+            try (Connection connection = komp2DataSource.getConnection(); PreparedStatement p = connection.prepareStatement(query, java.sql.ResultSet.TYPE_FORWARD_ONLY,  java.sql.ResultSet.CONCUR_READ_ONLY)) {
 
+                p.setFetchSize(Integer.MIN_VALUE);
                 ResultSet r = p.executeQuery();
                 while (r.next()) {
                     StatisticalResultDTO doc = parseReferenceRangeResult(r);
@@ -1664,8 +1671,9 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 
             List<StatisticalResultDTO> docs = new ArrayList<>();
 
-            try (Connection connection = komp2DataSource.getConnection(); PreparedStatement p = connection.prepareStatement(query)) {
+            try (Connection connection = komp2DataSource.getConnection(); PreparedStatement p = connection.prepareStatement(query, java.sql.ResultSet.TYPE_FORWARD_ONLY,  java.sql.ResultSet.CONCUR_READ_ONLY)) {
 
+                p.setFetchSize(Integer.MIN_VALUE);
                 ResultSet r = p.executeQuery();
                 while (r.next()) {
 
@@ -1737,8 +1745,9 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 
             List<StatisticalResultDTO> docs = new ArrayList<>();
 
-            try (Connection connection = komp2DataSource.getConnection(); PreparedStatement p = connection.prepareStatement(query)) {
+            try (Connection connection = komp2DataSource.getConnection(); PreparedStatement p = connection.prepareStatement(query, java.sql.ResultSet.TYPE_FORWARD_ONLY,  java.sql.ResultSet.CONCUR_READ_ONLY)) {
 
+                p.setFetchSize(Integer.MIN_VALUE);
                 ResultSet r = p.executeQuery();
                 while (r.next()) {
 
@@ -1790,9 +1799,10 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 
             List<StatisticalResultDTO> docs = new ArrayList<>();
 
-            try (Connection connection = komp2DataSource.getConnection(); PreparedStatement p = connection.prepareStatement(query)) {
+            try (Connection connection = komp2DataSource.getConnection(); PreparedStatement p = connection.prepareStatement(query, java.sql.ResultSet.TYPE_FORWARD_ONLY,  java.sql.ResultSet.CONCUR_READ_ONLY)) {
 
 
+                p.setFetchSize(Integer.MIN_VALUE);
                 ResultSet r = p.executeQuery();
                 Integer i = 0;
 
@@ -1859,7 +1869,9 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
         public List<StatisticalResultDTO> call() {
 
             List<StatisticalResultDTO> docs = new ArrayList<>();
-            try (Connection connection = komp2DataSource.getConnection(); PreparedStatement p = connection.prepareStatement(query)) {
+            try (Connection connection = komp2DataSource.getConnection(); PreparedStatement p = connection.prepareStatement(query, java.sql.ResultSet.TYPE_FORWARD_ONLY,  java.sql.ResultSet.CONCUR_READ_ONLY)) {
+
+                p.setFetchSize(Integer.MIN_VALUE);
                 ResultSet r = p.executeQuery();
                 while (r.next()) {
                     StatisticalResultDTO doc = parseLineResult(r);
@@ -1918,8 +1930,9 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 
             List<StatisticalResultDTO> docs = new ArrayList<>();
 
-            try (Connection connection = komp2DataSource.getConnection(); PreparedStatement p = connection.prepareStatement(query)) {
+            try (Connection connection = komp2DataSource.getConnection(); PreparedStatement p = connection.prepareStatement(query, java.sql.ResultSet.TYPE_FORWARD_ONLY,  java.sql.ResultSet.CONCUR_READ_ONLY)) {
 
+                p.setFetchSize(Integer.MIN_VALUE);
                 ResultSet r = p.executeQuery();
                 Integer i = 0;
                 while (r.next()) {

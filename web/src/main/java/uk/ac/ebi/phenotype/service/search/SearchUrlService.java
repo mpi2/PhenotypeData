@@ -140,10 +140,12 @@ public abstract class SearchUrlService {
         for (String facetField : facetFields()) {
             solrStr += "&facet.field=" + facetField;
         }
-        return "&facet=on&facet.limit=-1&facet.sort=" + facetSort() + solrStr;
+        return "&facet=on&facet.limit=-1&facet.mincount=" + facetMinCount() + "&facet.sort=" + facetSort() + solrStr;
     }
 
     public abstract String facetSort();
+
+    public abstract String facetMinCount();
 
     public abstract List<String> gridHeaders();
 

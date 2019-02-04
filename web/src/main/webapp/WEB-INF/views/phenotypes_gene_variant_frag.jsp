@@ -9,11 +9,11 @@
 
 						<div id="phenotypesDiv">
 							<div class="container span12">
-								<c:forEach var="filterParameters" items="${paramValues.fq}">
+								<%-- <c:forEach var="filterParameters" items="${paramValues.fq}">
 									${filterParameters}
-								</c:forEach>
+								</c:forEach> --%>
 								<c:if test="${not empty phenotypes}">
-									<form class="tablefiltering no-style" id="target" action="">
+									<%-- <form class="tablefiltering no-style" id="target" action="">
 											<c:forEach var="phenoFacet" items="${phenoFacets}" varStatus="phenoFacetStatus">
 													<select id="${phenoFacet.key}" class="selectpicker"	multiple="multiple" title="Filter on ${phenoFacet.key}">
 														<c:forEach var="facet" items="${phenoFacet.value}">
@@ -23,7 +23,7 @@
 											</c:forEach>
 
 											<div class="clear"></div>
-									</form>
+									</form> --%>
 
 									<jsp:include page="geneVariantsWithPhenotypeTable.jsp"/>
 

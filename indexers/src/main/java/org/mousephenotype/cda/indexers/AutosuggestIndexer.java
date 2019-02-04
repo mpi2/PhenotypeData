@@ -86,6 +86,7 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
     //public static final int PHENODIGM_CORE_MAX_RESULTS = 350000;
     public static final int MP_CORE_MAX_RESULTS = 350000;
 
+
     // Sets used to insure uniqueness when loading core components.
 
     // gene
@@ -1268,7 +1269,7 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
 	                    	mapKey = gw.getUpstreamGene();
 	                        if (gwasUpstreamGeneSymbolSet.add(mapKey)) {
 	                        	a.setGwasUpstreamGene(mapKey);
-	                            beans.add(a);
+ 	                            beans.add(a);
 	                        }
                     	}
                     	break;

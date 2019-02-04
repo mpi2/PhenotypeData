@@ -128,7 +128,7 @@ public class MGIPhenotypeIndexer extends AbstractIndexer implements CommandLineR
             while (r.next()) {
                 GenotypePhenotypeDTO doc = new GenotypePhenotypeDTO();
 
-                doc.setId(count);
+                doc.setId(String.valueOf(count));
                 doc.setZygosity(r.getString("zygosity"));
                 doc.setProjectName(r.getString("project_name"));
                 doc.setProjectFullname(r.getString("project_fullname"));

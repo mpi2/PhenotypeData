@@ -78,6 +78,9 @@ public class SearchUrlServicePhenodigm2Disease extends SearchUrlService {
     }
 
     @Override
+    public String facetMinCount() { return "0"; }
+
+    @Override
     public List<String> gridHeaders() {
         return Arrays.asList("Disease", "Source");
     }

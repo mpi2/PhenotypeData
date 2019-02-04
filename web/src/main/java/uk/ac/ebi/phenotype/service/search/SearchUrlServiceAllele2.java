@@ -92,6 +92,9 @@ public class SearchUrlServiceAllele2 extends SearchUrlService {
     }
 
     @Override
+    public String facetMinCount() { return "0"; }
+
+    @Override
     public List<String> gridHeaders() {
         return Arrays.asList("Allele Name", "Mutation", "<span id='porder'>Order</span><span id='pmap'>Map</span><span id='pseq'>Seq</span>");
     }
