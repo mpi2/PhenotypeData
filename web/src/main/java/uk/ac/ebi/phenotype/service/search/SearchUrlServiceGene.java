@@ -86,6 +86,9 @@ public class SearchUrlServiceGene extends SearchUrlService {
     }
 
     @Override
+    public String facetMinCount() { return "1"; }
+
+    @Override
     public List<String> gridHeaders() {
         return Arrays.asList("Gene", "Production", "Phenotype", "Register");
     }

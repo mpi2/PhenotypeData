@@ -199,13 +199,15 @@ public class PhenotypeCenterService {
 		List<PivotField> fields = response.getFacetPivot().get(ObservationDTO.PHENOTYPING_CENTER + "," + ObservationDTO.PROCEDURE_STABLE_ID);
 
 		for (PivotField facet: fields){
-			List<String> proceduresList = new ArrayList<>();
-			String center = facet.getValue().toString();
-			List<PivotField> procedures = facet.getPivot();
-			for (PivotField procedure : procedures){
-				proceduresList.add(procedure.getValue().toString());
+			if (facet.getPivot() != null){
+				List<String> proceduresList = new ArrayList<>();
+				String center = facet.getValue().toString();
+				List<PivotField> procedures = facet.getPivot();
+				for (PivotField procedure : procedures){
+					proceduresList.add(procedure.getValue().toString());
+				}
+				res.put(center, proceduresList);
 			}
-			res.put(center, proceduresList);
 		}
 		return res;
 	}

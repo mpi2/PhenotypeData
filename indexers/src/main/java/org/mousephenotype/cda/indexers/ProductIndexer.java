@@ -70,6 +70,8 @@ public class ProductIndexer  extends AbstractIndexer implements CommandLineRunne
             index ++;
             ProductDTO doc = new ProductDTO();
 
+            doc.setProductIndex(String.valueOf(index));
+
             //doc.setAlleleHasIssues();
             doc.setAlleleId(getValueFor(ProductDTO.ALLELE_ID, array, columns, runStatus));
 

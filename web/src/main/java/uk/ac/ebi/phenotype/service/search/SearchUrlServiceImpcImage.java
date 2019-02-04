@@ -84,6 +84,9 @@ public class SearchUrlServiceImpcImage extends SearchUrlService {
     }
 
     @Override
+    public String facetMinCount() { return "0"; }
+
+    @Override
     public List<String> gridHeaders() {
         return Arrays.asList("Name", "Images");
     }

@@ -230,8 +230,10 @@ public class ObservationService extends BasicService implements WebStatus {
         QueryResponse response = solr.query(q);
 
         for (PivotField pivot : response.getFacetPivot().get(geneProcedurePivot)) {
-            if (pivot.getPivot().size() >= n) {
-                genes.add(pivot.getValue().toString());
+            if (pivot.getPivot() != null){
+                if (pivot.getPivot().size() >= n) {
+                    genes.add(pivot.getValue().toString());
+                }
             }
         }
 
@@ -527,12 +529,14 @@ public class ObservationService extends BasicService implements WebStatus {
         try {
             response = solr.query(q).getFacetPivot();
             for (PivotField genePivot : response.get(pivotFacet)) {
-                String center = genePivot.getValue().toString();
-                HashSet<String> colonies = new HashSet<>();
-                for (PivotField f : genePivot.getPivot()) {
-                    colonies.add(f.getValue().toString());
+                if (genePivot.getPivot() != null){
+                    String center = genePivot.getValue().toString();
+                    HashSet<String> colonies = new HashSet<>();
+                    for (PivotField f : genePivot.getPivot()) {
+                        colonies.add(f.getValue().toString());
+                    }
+                    res.put(center, colonies);
                 }
-                res.put(center, colonies);
             }
         } catch (SolrServerException | IOException e) {
             e.printStackTrace();

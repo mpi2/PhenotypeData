@@ -83,7 +83,7 @@ public class GenotypePhenotypeDTO {
 
     @Id
     @Field(ID)
-    Integer id;
+    String id;
 
     @Field(ONTOLOGY_DB_ID)
     Integer ontologyDbId;
@@ -238,12 +238,12 @@ public class GenotypePhenotypeDTO {
     @Field(LIFE_STAGE_NAME)
     String lifeStageName;
 
-    public Integer getId() {
+    public String getId() {
 
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(String id) {
 
         this.id = id;
     }

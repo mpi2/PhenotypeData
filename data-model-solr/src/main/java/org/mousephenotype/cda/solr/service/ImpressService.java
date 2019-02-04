@@ -168,10 +168,12 @@ public class ImpressService extends BasicService implements WebStatus {
         	QueryResponse res = solr.query(q);
 
         	for( PivotField pivot : res.getFacetPivot().get(pivotFacet)){
-    			for (PivotField parameter : pivot.getPivot()){
-    				String[] row = {pivot.getValue().toString(), parameter.getValue().toString()};
-    				result.add(row);
-    			}
+    			if (pivot.getPivot() != null){
+    				for (PivotField parameter : pivot.getPivot()){
+						String[] row = {pivot.getValue().toString(), parameter.getValue().toString()};
+						result.add(row);
+					}
+				}
     		}
 
         } catch (SolrServerException | IOException e) {
@@ -603,8 +605,16 @@ public class ImpressService extends BasicService implements WebStatus {
 				mpsByProcedure.put(procedure, new TreeSet<>());
 			}
 
-			mpsByProcedure.get(procedure).add(mpId);
-
+			try {
+				mpsByProcedure.get(procedure).add(mpId);
+			} catch(NullPointerException e) {
+				e.printStackTrace();
+				e.getLocalizedMessage();
+				if (mpsByProcedure != null) {
+					System.out.println("Missing procedure in mpsByProcedure from ImpressService.");
+					System.out.println(procedure);
+				}
+			}
 		}
 
 		return mpsByProcedure;

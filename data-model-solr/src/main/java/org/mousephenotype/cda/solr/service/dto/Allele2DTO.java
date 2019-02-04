@@ -6,6 +6,7 @@ import java.util.List;
 
 public class Allele2DTO {
 
+	public static final String ALLELE2_ID = "allele2_id";
 	public static final String MGI_ACCESSION_ID="mgi_accession_id";
 	public static final String MARKER_SYMBOL="marker_symbol";
 	public static final String HUMAN_GENE_SYMBOL = "human_gene_symbol";
@@ -70,7 +71,9 @@ public class Allele2DTO {
 	public static final String TISSUE_ENQUIRY_LINKS="tissue_enquiry_links";
 	public static final String TISSUE_DISTRIBUTION_CENTRES = "tissue_distribution_centres";
 
-	
+
+	@Field(ALLELE2_ID)
+	private String allele2Id;
 	@Field(ALLELE_DESIGN_PROJECT)
 	private String alleleDesignProject;
 	@Field(MUTATION_TYPE)
@@ -220,6 +223,14 @@ public class Allele2DTO {
 	@Field(TISSUE_DISTRIBUTION_CENTRES)
 	private List<String> tissueDistributionCentres;
 
+
+	public String getAllele2Id() {
+		return allele2Id;
+	}
+
+	public void setAllele2Id(String allele2Id) {
+		this.allele2Id = allele2Id;
+	}
 
 	public String getAlleleDesignProject() {
 		return alleleDesignProject;
@@ -702,6 +713,7 @@ public class Allele2DTO {
 
 		Allele2DTO that = (Allele2DTO) o;
 
+		if (allele2Id != null ? !allele2Id.equals(that.allele2Id) : that.allele2Id != null) return false;
 		if (alleleDesignProject != null ? !alleleDesignProject.equals(that.alleleDesignProject) : that.alleleDesignProject != null)
 			return false;
 		if (mutationType != null ? !mutationType.equals(that.mutationType) : that.mutationType != null) return false;
@@ -802,6 +814,7 @@ public class Allele2DTO {
 	@Override
 	public int hashCode() {
 		int result = alleleDesignProject != null ? alleleDesignProject.hashCode() : 0;
+		result = 31 * result + (allele2Id != null ? allele2Id.hashCode() : 0);
 		result = 31 * result + (mutationType != null ? mutationType.hashCode() : 0);
 		result = 31 * result + (alleleCategory != null ? alleleCategory.hashCode() : 0);
 		result = 31 * result + (alleleFeatures != null ? alleleFeatures.hashCode() : 0);
@@ -867,6 +880,7 @@ public class Allele2DTO {
 	public String toString() {
 		return "Allele2DTO{" +
 				"alleleDesignProject='" + alleleDesignProject + '\'' +
+				", allele2Id='" + allele2Id + '\'' +
 				", mutationType='" + mutationType + '\'' +
 				", alleleCategory='" + alleleCategory + '\'' +
 				", alleleFeatures=" + alleleFeatures +

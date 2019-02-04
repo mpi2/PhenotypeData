@@ -989,6 +989,7 @@ int i = 0;
                 if (row.trim().isEmpty())
                     continue;
                 if ( ! row.startsWith(expectedStartsWith)) {
+
                     status.addError("Row[" + i + "]: Expected autosuggest row to begin with 'Hox'. Row value = " + row);
                     break;
                 }
