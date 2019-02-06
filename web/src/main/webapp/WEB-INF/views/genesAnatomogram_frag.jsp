@@ -28,11 +28,11 @@
 <div id="anatomo2" class="container mt-3">
 
     <div class="row justify-content-center">
-        <div class='col-4 text-center'>
+        <div class='col-sm-4 text-center'>
             <h6 id="expression-anatomogram" class="font-weight-bold">Expression in Anatomogram</h6>
             <div id='anatomogramContainer'></div>
         </div>
-        <div class='col-4'>
+        <div class='col-sm-4'>
             <h6 class="font-weight-bold text-center">Tissues/organs lacZ+ expression</h6>
             <ul id='expList'>
                 <table>

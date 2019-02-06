@@ -3,7 +3,7 @@
 <%@taglib prefix="t" tagdir="/WEB-INF/tags" %>
 
 
-<div class="container float-right" style="max-width: 30%; min-width: 300px">
+<div class="container" style="max-width: 30%; min-width: 300px">
     <div class="row no-gutters justify-content-center">View data by physiological system</div>
     <div class="row no-gutters">
 
