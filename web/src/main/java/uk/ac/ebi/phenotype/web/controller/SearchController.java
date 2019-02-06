@@ -79,7 +79,7 @@ public class SearchController {
 	}
 
 	@RequestMapping("/search/gene")
-	public String searchGenes(@RequestParam(value = "kw", required = false, defaultValue = "") String keywords,
+	public String searchGenes(@RequestParam(value = "kw", required = false, defaultValue = "*") String keywords,
 			HttpServletRequest request,
 			Model model) throws IOException, URISyntaxException, SolrServerException {
 		
