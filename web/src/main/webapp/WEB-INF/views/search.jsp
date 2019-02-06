@@ -117,7 +117,7 @@
           		<div class="row">
           			<div class="col-12 col-md-6">
           				<p><b>Name: </b>${gene.markerName}<br>
-          				<b>Human orthologs: </b><c:forEach var="orth" items="${gene.humanGeneSymbol}">${orth}</c:forEach><br>
+          				<b>Human orthologs:  </b><c:forEach var="orth" items="${gene.humanGeneSymbol}">${orth}</c:forEach><br>
           				<b>Synonyms: </b>
           				<c:forEach var="syn" items="${gene.markerSynonym}">${syn}<m03jus></c:forEach>
           				</p>
