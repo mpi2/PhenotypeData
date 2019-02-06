@@ -59,6 +59,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author Matt Pearce
@@ -70,16 +71,13 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
 
     private final Logger logger = LoggerFactory.getLogger(MPIndexer.class);
     private static final int LEVELS_FOR_NARROW_SYNONYMS = 2;
-    private Map<String, Synonym> synonymsBySymbol;                              // Map of Synonym, keyed by synonym symbol
+
+    // Map of Synonym, keyed by synonym symbol
+    private Map<String, Synonym> synonymsBySymbol;
 
     @Autowired
     @Qualifier("alleleCore")
     private SolrClient alleleCore;
-
-    // TODO replace with service (imported below)
-//    @Autowired
-//    @Qualifier("preqcCore")
-//    private SolrClient preqcCore;
 
     // TODO replace with service (imported below)
     @Autowired
@@ -96,10 +94,6 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
     @Autowired
     @Qualifier("postqcService")
     PostQcService postqcService;
-//
-//    @Autowired
-//    @Qualifier("preqcService")
-//    PreQcService preqcService;
 
 
     private static Connection komp2DbConnection;
@@ -212,28 +206,31 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
                 else {
                     Set <OntologyTermDTO> hpTerms = mpTerm.getEquivalentClasses();
                     for ( OntologyTermDTO hpTerm : hpTerms ){
-                        //System.out.println(hpTerm.toString());
                         Set<String> hpIds = new HashSet<>();
                         hpIds.add(hpTerm.getAccessionId());
-                        mp.setHpId(new ArrayList(hpIds));
+                        mp.setHpId(new ArrayList<>(hpIds));
                         if ( hpTerm.getName() != null ){
                             Set<String> hpNames = new HashSet<>();
                             hpNames.add(hpTerm.getName());
-                            mp.setHpTerm(new ArrayList(hpNames));
+                            mp.setHpTerm(new ArrayList<>(hpNames));
                         }
                         if ( hpTerm.getSynonyms() != null ){
-                            mp.setHpTermSynonym(new ArrayList(hpTerm.getSynonyms()));
+                            mp.setHpTermSynonym(new ArrayList<>(hpTerm.getSynonyms()));
                         }
                     }
                     // the narrow synomys are subclasses from 2 levels down
-                    List<String> nss = new ArrayList<>();
+                    Set<String> nss = new TreeSet<>();
                     // MP root term MP:0000001 does not have narrow synonyms
                     if (mpTerm.getNarrowSynonymClasses() != null){
                         for (OntologyTermDTO ns : mpTerm.getNarrowSynonymClasses()){
                             nss.add(ns.getName());
                         }
-                        if (nss.size() > 0){
-                            mp.setMpNarrowSynonym(nss);
+
+                        // 20190202 Per TFM. In an effort to restrict the extraneous terms found in the phenotype search
+                        // while still keeping relevant narrow terms (like deafness), TFM has empirically determined
+                        // that, to include deafness, we need to include no more than 80 narrow terms
+                        if (nss.size() > 0 && nss.size() < 80){
+                            mp.setMpNarrowSynonym(new ArrayList<>(nss));
                         }
                     }
 
@@ -422,7 +419,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
         RunStatus status = new RunStatus();
 
         List<SolrClient> ss = new ArrayList<>();
-        //ss.add(preqcCore);
+
         ss.add(genotypePhenotypeCore);
 
         for (int i = 0; i < ss.size(); i++){
