@@ -59,35 +59,6 @@
 
 	<jsp:body>
 	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
 	<div class="container single single--no-side">
   <div class="row">
     <div class="col-12 col-md-2 pseudo-padding"></div>
@@ -111,15 +82,16 @@
         <div class="page-content pb-5">
           <p>Number of results: <span id="numResults">${numberOfResults}</span></p>
           <div id="results">
-          	<div class="search-result">
+          	
           	<c:forEach var="gene" items="${genes}">
-          		<a href="https://www.mousephenotype.org/data/genes/MGI:2683486"><h4>${gene.markerSymbol}</h4></a>
+          	<div class="search-result">
+          		<a href="${drupalBaseUrl}/genes/${gene.mgiAccessionId}"><h4>${gene.markerSymbol}</h4></a>
           		<div class="row">
           			<div class="col-12 col-md-6">
           				<p><b>Name: </b>${gene.markerName}<br>
           				<b>Human orthologs:  </b><c:forEach var="orth" items="${gene.humanGeneSymbol}">${orth}</c:forEach><br>
           				<b>Synonyms: </b>
-          				<c:forEach var="syn" items="${gene.markerSynonym}">${syn}<m03jus></c:forEach>
+          				<c:forEach var="syn" items="${gene.markerSynonym}">${syn} <m03jus></c:forEach>
           				</p>
           			</div>
           			
@@ -130,8 +102,20 @@
           		<b>Phenotype Status: </b>${gene.latestPhenotypeStatus}</p>
           		</div>
           	</div>
-          	</c:forEach>
           	</div>
+          	</c:forEach>
+          	
+          	<c:forEach var="phenotype" items="${phenotypes}">
+          		<div class="search-result">
+          			<a href="https://www.mousephenotype.org/data/phenotypes/MP:0020279"><h4>abnormal creatine kinase level</h4></a>
+          			<div class="row"><div class="col-12 col-md-6"><b>Synonym: </b>abnormal creatine phosphokinase level<p></p></div>
+          			<div class="col-12 col-md-6">
+          				<b>Definition: </b>abnormal level of the enzyme that catalyzes the reversible transfer of creatine to phosphocreatine<p></p>
+          			</div>
+          			</div>
+          			</div>
+          	</c:forEach>
+          	
           </div>
          </div>
 
@@ -147,32 +131,7 @@
       </div>
     </div>
   </div>
-
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	Search results here....
-	<table>
-	
-	<c:forEach var="gene" items="${genes}">
-	<tr>
-	<td>
-	${gene.markerSymbol}
-	</td>
-	</tr>
-	</c:forEach>
-	</table>
-	</jsp:body>
-	
-	
-
+</jsp:body>
 </t:genericpage>
 
 

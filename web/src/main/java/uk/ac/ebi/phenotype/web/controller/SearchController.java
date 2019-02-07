@@ -24,7 +24,9 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.mousephenotype.cda.solr.service.SearchGeneService;
-import org.mousephenotype.cda.solr.service.dto.GeneResult;
+import org.mousephenotype.cda.solr.service.SearchPhenotypeService;
+import org.mousephenotype.cda.solr.service.dto.GeneDTO;
+import org.mousephenotype.cda.solr.service.dto.MpDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +42,9 @@ public class SearchController {
 
 	@Autowired
 	SearchGeneService searchGeneService;
+
+	@Autowired
+	SearchPhenotypeService searchPhenotypeService;
 
 
 	/**
@@ -85,7 +90,7 @@ public class SearchController {
 		
 		System.out.println("calling gene search method: kw="+ keywords);
 		QueryResponse response = searchGeneService.searchGenes(keywords);
-		final List<GeneResult> genes = response.getBeans(GeneResult.class);
+		final List<GeneDTO> genes = response.getBeans(GeneDTO.class);
 		
 		model.addAttribute("numberOfResults",Long.toString(response.getResults().getNumFound()));
 		model.addAttribute("genes", genes);
@@ -94,11 +99,16 @@ public class SearchController {
 	
 
 	@RequestMapping("/search/phenotype")
-	public String searchPhenotypes(@RequestParam(value = "kw", required = false, defaultValue = "") String keywords,
+	public String searchPhenotypes(@RequestParam(value = "kw", required = false, defaultValue = "*") String keywords,
 			HttpServletRequest request,
-			Model model) throws IOException, URISyntaxException {
+			Model model) throws IOException, URISyntaxException, SolrServerException {
 		
 		System.out.println("calling phenotype search method: kw="+ keywords);
+		QueryResponse response = searchPhenotypeService.searchPhenotypes(keywords);
+		final List<MpDTO> phenotypes = response.getBeans(MpDTO.class);
+		
+		model.addAttribute("numberOfResults",Long.toString(response.getResults().getNumFound()));
+		model.addAttribute("phenotypes", phenotypes);
 		return "search";
 	}
 	
