@@ -114,7 +114,7 @@
                         </c:if>
 
                         <c:if test="${bodyWeight}">
-                            <a id="bodyWeightBtn" class="btn btn-outline-primary" href="${baseUrl}/charts?accession=${acc}&parameter_stable_id=IMPC_BWT_008_001&&chart_type=TIME_SERIES_LINE" title="Body Weight Curves" style="display: inline-block; max-width: 300px; width: 80%;">Body Weight</a>
+                            <a id="bodyWeightBtn" class="btn btn-outline-primary" href="${baseUrl}/charts?accession=${acc}&parameter_stable_id=IMPC_BWT_008_001&&chart_type=TIME_SERIES_LINE" title="Body Weight Curves" style="display: inline-block; max-width: 300px; width: 80%;">Body weight</a>
                         </c:if>
 
                         <c:if test="${phenotypeDisplayStatus.displayHeatmap}">

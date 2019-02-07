@@ -3,27 +3,27 @@
 <%@taglib prefix="t" tagdir="/WEB-INF/tags" %>
 
 
-<div class="container" style="max-width: 30%; min-width: 300px">
+<div class="container" style="min-width: 300px">
     <div class="row no-gutters justify-content-center">View data by physiological system</div>
     <div class="row no-gutters">
 
-        <div class="container text-center text-muted" style="font-size: 1.8em;">
+        <div class="container text-center text-muted">
             <c:forEach var="i" begin="0" end="3">
                 <div class="row no-gutters">
                     <c:forEach var="j" begin="0" end="4">
                         <c:choose>
                             <c:when test="${not empty significantTopLevelMpGroups.get(phenotypeGroups[i*5 + j])}">
-                                <a class="col btn-outline-warning" href='${baseUrl}/experiments?geneAccession=${gene.mgiAccessionId}&${significantTopLevelMpGroups.get(phenotypeGroups[i*5 + j])}'>
+                                <a class="col-sm btn btn-light btn-icon m-1" href='${baseUrl}/experiments?geneAccession=${gene.mgiAccessionId}&${significantTopLevelMpGroups.get(phenotypeGroups[i*5 + j])}'>
                                     <i class="${phenotypeGroupIcons[i*5 + j]} text-primary" title="${gene.markerSymbol} ${phenotypeGroups[i*5 + j]} measurements" data-toggle="tooltip" data-placement="top"></i>
                                 </a>
                             </c:when>
                             <c:when test="${not empty notsignificantTopLevelMpGroups.get(phenotypeGroups[i*5 + j])}">
-                                <a class="col btn-outline-warning" href='${baseUrl}/experiments?geneAccession=${gene.mgiAccessionId}&${notsignificantTopLevelMpGroups.get(phenotypeGroups[i*5 + j])}'>
+                                <a class="col-sm btn btn-light btn-icon m-1" href='${baseUrl}/experiments?geneAccession=${gene.mgiAccessionId}&${notsignificantTopLevelMpGroups.get(phenotypeGroups[i*5 + j])}'>
                                     <i class="${phenotypeGroupIcons[i*5 + j]} text-info" title="${gene.markerSymbol} ${phenotypeGroups[i*5 + j]} measurements" data-toggle="tooltip" data-placement="top"></i>
                                 </a>
                             </c:when>
                             <c:otherwise>
-                                <a class="col btn-outline-light disabled">
+                                <a class="col-sm btn btn-light btn-icon disabled m-1">
                                     <i class="${phenotypeGroupIcons[i*5 + j]} text-muted" title="${gene.markerSymbol} ${phenotypeGroups[i*5 + j]} measurements" data-toggle="tooltip" data-placement="top"></i>
                                 </a>
                             </c:otherwise>
