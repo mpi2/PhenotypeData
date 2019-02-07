@@ -8,6 +8,7 @@ import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
+import org.mousephenotype.cda.solr.service.dto.MpDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -38,15 +39,16 @@ public class SearchPhenotypeService {
 	 */
 	public QueryResponse searchPhenotypes(String keywords) throws SolrServerException, IOException {
 		//current query used by BZ is just taken from old one which has DisMax and boost in the URL (boosts could be in solr config as defaults??)
-//https://www.ebi.ac.uk/mi/impc/solr/gene/select?facet.field=latest_phenotype_status&facet.field=legacy_phenotype_status&facet.field=status&facet.field=latest_production_centre&facet.field=latest_phenotyping_centre&facet.field=marker_type&facet.field=embryo_data_available&facet.field=embryo_modalities&facet.field=embryo_analysis_view_name&fl=marker_symbol,mgi_accession_id,marker_synonym,marker_name,marker_type,human_gene_symbol,latest_es_cell_status,latest_production_status,latest_phenotype_status,status,es_cell_status,mouse_status,legacy_phenotype_status,allele_name&fq=+*:*&rows=10&bq=marker_symbol_lowercase:(akt*)^1000+marker_symbol_bf:(akt*)^100+latest_phenotype_status:%22Phenotyping+Complete%22+^200&q=akt*&facet.limit=-1&defType=edismax&qf=geneQf&wt=json&indent=true&facet=on&facet.sort=count&start=0
-		final SolrQuery query = new SolrQuery("auto_suggest:"+keywords);
+//https://wwwdev.ebi.ac.uk/mi/impc/dev/solr/mp/select?facet.field=top_level_mp_term_inclusive&fl=mp_id,mp_term,mixSynQf,mp_definition&fq=+*:*&rows=10&bq=mp_term:("abnormal")^1000+mp_term_synonym:("abnormal")^500+mp_definition:("abnormal")^100&q="abnormal"&facet.limit=-1&defType=edismax&qf=mixSynQf&wt=json&facet=on&facet.sort=index&indent=true&start=0
+		final SolrQuery query = new SolrQuery(keywords);
 		query.add("defType", "edismax");
-		//query.addField(GeneDTO.MGI_ACCESSION_ID);
-		//query.setFields(GeneResult.MARKER_NAME, GeneResult.MARKER_SYMBOL, GeneResult.MARKER_SYNONYM, GeneResult.HUMAN_GENE_SYMBOL, GeneResult.LATEST_ES_CELL_STATUS, GeneResult.LATEST_MOUSE_STATUS, GeneResult.LATEST_PHENOTYPE_STATUS);
-		//bq=marker_symbol_lowercase:(akt*)^1000+marker_symbol_bf:(akt*)^100+latest_phenotype_status:%22Phenotyping+Complete%22+^200&
-//		query.add("bq", "latest_phenotype_status:\"Phenotyping Complete\"^200");
-//		query.add("bq", "marker_symbol_lowercase:("+keywords+"*)^1000" );
-//		query.add("bq", "marker_symbol_bf:("+keywords+"*)^100");
+		query.setFields(MpDTO.MP_TERM, MpDTO.MP_TERM_SYNONYM, MpDTO.MP_DEFINITION);
+		//boost looks like this bq=mp_term:("abnormal")^1000+mp_term_synonym:("abnormal")^500+mp_definition:("abnormal")^100&
+		query.add("bq", "mp_term:(\""+keywords+"\")^1000");
+		query.add("bq", "mp_term_synonym:(\""+keywords+"\")^500");
+		query.add("bq", "mp_definition:(\""+keywords+"\")^100");
+		query.add("qf","mixSynQf");
+		
 		//query.setRows(Integer.MAX_VALUE);
 System.out.println("search query="+query);
 		final QueryResponse response = solr.query( query);
