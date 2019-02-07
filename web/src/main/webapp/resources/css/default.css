@@ -6823,6 +6823,13 @@ ul#menu-top-nav li.current-menu-item a {
     text-decoration: underline;
     text-decoration-color: #8e8e8e;
     color: black; }
+
+td>a {
+    font-weight: normal;
+    text-decoration: underline;
+    text-decoration-color: #8e8e8e;
+    color: black; }
+
 .page-content a:hover {
     text-decoration-color: black; }
 

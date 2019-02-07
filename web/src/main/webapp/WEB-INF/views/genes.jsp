@@ -95,6 +95,23 @@
                     }
                 });
 
+                $('div#phTable').hide();
+                $('input[name=optionsPh]').change(function () {
+                    var value = $('input[name=optionsPh]:checked').val();
+                    if (value === 'phChart') {
+                        $('#phTable').hide();
+                        $('#phChart').show();
+                    } else {
+                        $('#phChart').hide();
+                        $('#phTable').show();
+                    }
+                });
+
+                $('#strainPvalues').dataTable({
+                    "bFilter": false,
+                    "bLengthChange": false
+                });
+
                 $('#heatmap_link').click(function () {
                     console.log('heatmap link clicked');
 

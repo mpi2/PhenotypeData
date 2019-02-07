@@ -296,7 +296,7 @@
                 </div>
                 <div class="tab-pane fade show" id="alldata" role="tabpanel"
                      aria-labelledby="alldata-tab">
-                    <div id="chart-and-table">
+                    <div id="all-chart">
                         <jsp:include page="/experimentsFrag" flush="true">
                             <jsp:param name="geneAccession"
                                        value="${gene.mgiAccessionId}"/>
