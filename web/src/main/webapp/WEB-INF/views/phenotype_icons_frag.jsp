@@ -13,18 +13,18 @@
                     <c:forEach var="j" begin="0" end="4">
                         <c:choose>
                             <c:when test="${not empty significantTopLevelMpGroups.get(phenotypeGroups[i*5 + j])}">
-                                <a class="col-sm btn btn-light btn-icon m-1" href='${baseUrl}/experiments?geneAccession=${gene.mgiAccessionId}&${significantTopLevelMpGroups.get(phenotypeGroups[i*5 + j])}'>
-                                    <i class="${phenotypeGroupIcons[i*5 + j]} text-primary" title="${gene.markerSymbol} ${phenotypeGroups[i*5 + j]} measurements" data-toggle="tooltip" data-placement="top"></i>
+                                <a class="col-sm btn btn-outline-primary btn-icon significant m-1" href='${baseUrl}/experiments?geneAccession=${gene.mgiAccessionId}&${significantTopLevelMpGroups.get(phenotypeGroups[i*5 + j])}'>
+                                    <i class="${phenotypeGroupIcons[i*5 + j]}" title="${gene.markerSymbol} ${phenotypeGroups[i*5 + j]} measurements" data-toggle="tooltip" data-placement="top"></i>
                                 </a>
                             </c:when>
                             <c:when test="${not empty notsignificantTopLevelMpGroups.get(phenotypeGroups[i*5 + j])}">
-                                <a class="col-sm btn btn-light btn-icon m-1" href='${baseUrl}/experiments?geneAccession=${gene.mgiAccessionId}&${notsignificantTopLevelMpGroups.get(phenotypeGroups[i*5 + j])}'>
-                                    <i class="${phenotypeGroupIcons[i*5 + j]} text-info" title="${gene.markerSymbol} ${phenotypeGroups[i*5 + j]} measurements" data-toggle="tooltip" data-placement="top"></i>
+                                <a class="col-sm btn btn-outline-info btn-icon m-1" href='${baseUrl}/experiments?geneAccession=${gene.mgiAccessionId}&${notsignificantTopLevelMpGroups.get(phenotypeGroups[i*5 + j])}'>
+                                    <i class="${phenotypeGroupIcons[i*5 + j]}" title="${gene.markerSymbol} ${phenotypeGroups[i*5 + j]} measurements" data-toggle="tooltip" data-placement="top"></i>
                                 </a>
                             </c:when>
                             <c:otherwise>
-                                <a class="col-sm btn btn-light btn-icon disabled m-1">
-                                    <i class="${phenotypeGroupIcons[i*5 + j]} text-muted" title="${gene.markerSymbol} ${phenotypeGroups[i*5 + j]} measurements" data-toggle="tooltip" data-placement="top"></i>
+                                <a class="col-sm btn btn-outline-light btn-icon non-tested disabled m-1">
+                                    <i class="${phenotypeGroupIcons[i*5 + j]}" title="${gene.markerSymbol} ${phenotypeGroups[i*5 + j]} measurements" data-toggle="tooltip" data-placement="top"></i>
                                 </a>
                             </c:otherwise>
                         </c:choose>

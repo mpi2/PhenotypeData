@@ -7365,9 +7365,12 @@ hr {
     z-index: 3; }
 
 .btn-icon {
-    color: #212529;
-    background-color: #efefef;
-    border-color: #efefef;
+    background-color: #fff;
     font-size: 1.8em;
     padding: 0 0;
+}
+
+.non-tested {
+    border-color: #6c757d !important;
+    border: 1px solid transparent;
 }
