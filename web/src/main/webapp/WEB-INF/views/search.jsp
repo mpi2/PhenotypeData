@@ -107,10 +107,11 @@
           	
           	<c:forEach var="phenotype" items="${phenotypes}">
           		<div class="search-result">
-          			<a href="https://www.mousephenotype.org/data/phenotypes/MP:0020279"><h4>abnormal creatine kinase level</h4></a>
-          			<div class="row"><div class="col-12 col-md-6"><b>Synonym: </b>abnormal creatine phosphokinase level<p></p></div>
+          			<a href="https://www.mousephenotype.org/data/phenotypes/MP:0020279"><h4>${phenotype.mpTerm}</h4></a>
+          			<div class="row"><div class="col-12 col-md-6"><b>Synonym: </b>
+          			<c:forEach var="synonym" items="${phenotype.mpTermSynonym}">${synonym}</c:forEach><p></p></div>
           			<div class="col-12 col-md-6">
-          				<b>Definition: </b>abnormal level of the enzyme that catalyzes the reversible transfer of creatine to phosphocreatine<p></p>
+          				<b>Definition: </b>${phenotype.mpDefinition}<p></p>
           			</div>
           			</div>
           			</div>
