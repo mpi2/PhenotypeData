@@ -241,11 +241,9 @@
 
     <jsp:body>
         <div class="container data-heading">
-            <div class="row">
+            <div class="row row-shadow">
                 <div class="col-12 no-gutters">
-                    <h2 style="display: inline-block">Gene: ${gene.markerSymbol} - ${gene.markerName}</h2>
-                    <span class="text-dark float-right" style="font-size: xx-large;"><i class="fa fa-shopping-cart"></i></span>
-                    <span class="text-dark float-right mr-2" style="font-size: xx-large;"><i class="fas fa-heart-circle"></i></span>
+                    <h2>Gene: ${gene.markerSymbol} - ${gene.markerName}</h2>
                 </div>
             </div>
         </div>
@@ -269,7 +267,7 @@
         </div-->
 
         <div class="container single single--no-side">
-            <div class="row">
+            <div class="row row-over-shadow">
                 <div class="col-12 white-bg">
                     <div class="page-content pt-5 pb-5">
                         <jsp:include page="genesPhenotypeAssociation_frag.jsp"/>

@@ -38,7 +38,6 @@ $(document).ready(function () {
         $('#menu-item-17 a').removeClass('active');
     });
 
-
     var dataOpen = false;
     $("#menu-item-17 a").on('touchstart', function (e) {
         if (!dataOpen) {
@@ -84,6 +83,10 @@ $(document).ready(function () {
         e.preventDefault();
         $('.portalTab').removeClass('active');
         $(this).addClass('active');
+        //not on search page
+        if ($(this).hasClass('portalTabSearchPage')) {
+            return;
+        }
         $('#searchType').val($(this).data("type"));
     });
 
@@ -93,20 +96,24 @@ $(document).ready(function () {
         if (!searchOn) {
             $('.click-guard').css('visibility', 'visible').hide().fadeIn('slow');
             $(this).addClass('active');
-            $('#search-icon-open').hide();
-            $('#search-icon-close').show();
+            $('#search-icon-open').fadeOut();
+            $('#search-icon-close').fadeIn(function () {
+                $('#searchField').focus();
+            });
+
             searchOn = true;
             return;
         }
         $('.click-guard').fadeOut('slow', function () {
             $(this).hide().css('visibility', 'hidden');
         })
-        $('#search-icon-open').show();
-        $('#search-icon-close').hide();
+        $('#search-icon-open').fadeIn();
+        $('#search-icon-close').fadeOut();
         $(this).removeClass('active');
         searchOn = false;
         return;
     });
 
 });
+
 
