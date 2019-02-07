@@ -14,9 +14,15 @@
         </jsp:attribute>
 
 
-
-
     <jsp:attribute name="header">
+        		<script type="text/javascript">
+                    var base_url = '${baseUrl}';
+                    var geneId = '${gene.mgiAccessionId}';
+                </script>
+        <script type='text/javascript' src="${baseUrl}/js/general/dropDownExperimentPage.js?v=${version}"></script>
+		<script type='text/javascript' src='${baseUrl}/js/charts/highcharts.js?v=${version}'></script>
+        <script type='text/javascript' src='${baseUrl}/js/charts/highcharts-more.js?v=${version}'></script>
+        <script type='text/javascript' src='${baseUrl}/js/charts/exporting.js?v=${version}'></script>
 
             <script src="${baseUrl}/js/general/enu.js"></script>
             <script src="${baseUrl}/js/general/dropdownfilters.js"></script>
@@ -249,21 +255,21 @@
         </div>
 
         <!--div class="container single single--no-side">
-            <div class="row">
-                <div class="col-12 white-bg">
-                    <div class="page-content pt-5 pb-5">
-                        <%--jsp:include page="genesGene_frag.jsp"/--%>
-                    </div>
-                </div>
-            </div>
+        <div class="row">
+        <div class="col-12 white-bg">
+        <div class="page-content pt-5 pb-5">
+        <%--jsp:include page="genesGene_frag.jsp"/--%>
+        </div>
+        </div>
+        </div>
         </div-->
 
         <!--div class="container">
-            <div class="row">
-                <div class="col-12 no-gutters">
-                    <h3>Phenotypes for ${gene.markerSymbol}</h3>
-                </div>
-            </div>
+        <div class="row">
+        <div class="col-12 no-gutters">
+        <h3>Phenotypes for ${gene.markerSymbol}</h3>
+        </div>
+        </div>
         </div-->
 
         <div class="container single single--no-side">
@@ -438,45 +444,44 @@
                 </div>
             </div>
 
-        <div class="container">
-            <div class="row">
-                <div class="col-12 no-gutters">
-                    <h3>Associated Images</h3>
+            <div class="container">
+                <div class="row">
+                    <div class="col-12 no-gutters">
+                        <h3>Associated Images</h3>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <div class="container single single--no-side">
-            <div class="row">
-                <div class="col-12 white-bg">
-                    <div class="page-content pt-5 pb-5">
-                        <div>
-                            <c:if test="${empty impcImageGroups and empty solrFacets}">
-                                <div class="alert alert_info">Phenotype associated images not available</div>
-                            </c:if>
-
-                            <c:if test="${not empty impcImageGroups or not empty solrFacets}">
-                                <c:if test="${not empty impcImageGroups}">
-                                    <jsp:include page="impcImagesByParameter_frag.jsp"></jsp:include>
+            <div class="container single single--no-side">
+                <div class="row">
+                    <div class="col-12 white-bg">
+                        <div class="page-content pt-5 pb-5">
+                            <div>
+                                <c:if test="${empty impcImageGroups and empty solrFacets}">
+                                    <div class="alert alert_info">Phenotype associated images not available</div>
                                 </c:if>
 
-                                <c:if test="${not empty impcImageFacets and not empty solrFacets}">
-                                    <hr>
-                                </c:if>
+                                <c:if test="${not empty impcImageGroups or not empty solrFacets}">
+                                    <c:if test="${not empty impcImageGroups}">
+                                        <jsp:include page="impcImagesByParameter_frag.jsp"></jsp:include>
+                                    </c:if>
 
-                                <c:if test="${not empty solrFacets}">
-                                    <h5>Legacy Phenotype Associated Images</h5>
-                                    <jsp:include page="genesLegacyPhenoAssocImg_frag.jsp"></jsp:include>
-                                </c:if>
+                                    <c:if test="${not empty impcImageFacets and not empty solrFacets}">
+                                        <hr>
+                                    </c:if>
 
-                            </c:if>
+                                    <c:if test="${not empty solrFacets}">
+                                        <h5>Legacy Phenotype Associated Images</h5>
+                                        <jsp:include page="genesLegacyPhenoAssocImg_frag.jsp"></jsp:include>
+                                    </c:if>
+
+                                </c:if>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        </div>
-
 
 
         <div class="container">
@@ -495,11 +500,13 @@
                         <ul class="nav nav-tabs" id="diseasesTab" role="tablist">
                             <li class="nav-item">
                                 <a class="nav-link active" id="byAnnotation-tab" data-toggle="tab" href="#byAnnotation"
-                                   role="tab" aria-controls="byAnnotation-tab" aria-selected="false">By Annotation and Orthology</a>
+                                   role="tab" aria-controls="byAnnotation-tab" aria-selected="false">By Annotation and
+                                    Orthology</a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" id="byPhenotype-tab" data-toggle="tab" href="#byPhenotype"
-                                   role="tab" aria-controls="byPhenotype-tab" aria-selected="false">By phenotypic Similarity</a>
+                                   role="tab" aria-controls="byPhenotype-tab" aria-selected="false">By phenotypic
+                                    Similarity</a>
                             </li>
                         </ul>
                         <div class="tab-content mt-2" id="diseasesTabContent">
@@ -522,7 +529,8 @@
                                         No associations by phenotypic similarity found.
                                     </c:when>
                                     <c:otherwise>
-                                        <table id="diseases_by_phenotype" class="table tablesorter disease" style="width:100%"></table>
+                                        <table id="diseases_by_phenotype" class="table tablesorter disease"
+                                               style="width:100%"></table>
                                     </c:otherwise>
                                 </c:choose>
                             </div>
@@ -659,7 +667,7 @@
                         var maIds = topLevelName2maIdMap[topname];
                         //console.log(topname + " - " + maIds);
                         var uberonIds = [];
-                        if(maIds && maIds.length) {
+                        if (maIds && maIds.length) {
                             for (var a = 0; a < maIds.length; a++) {
                                 uberonIds = uberonIds.concat(maId2UberonEfoMap[maIds[a]]);
                             }
@@ -689,7 +697,7 @@
                         onMouseOver: function (id) {
                             var maIds = uberonEfo2MaIdMap[id];
                             var topLevelNames = [];
-                            if(maIds && maIds.length) {
+                            if (maIds && maIds.length) {
                                 for (var i = 0; i < maIds.length; i++) {
                                     var tops = maId2topLevelNameMap[maIds[i]];
                                     for (var j = 0; j < tops.length; j++) {

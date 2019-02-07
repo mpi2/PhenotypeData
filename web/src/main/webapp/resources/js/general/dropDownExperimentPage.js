@@ -4,7 +4,7 @@ $(document).ready(function(){
 	
 	removeFilterSelects();
 	
-	var dropdownsList = new Array();	
+/*	var dropdownsList = new Array();
 	var allDropdowns = new Array();
 	allDropdowns[0] = $('#proceduresFilter');
 	createDropdown(allDropdowns[0],"Procedure: All", allDropdowns);
@@ -13,10 +13,7 @@ $(document).ready(function(){
 	allDropdowns[2] = $('#phenotypingCenterFilter');
 	createDropdown(allDropdowns[2],"Center: All", allDropdowns);
 	allDropdowns[3] = $('#phenotypes');
-	createDropdown(allDropdowns[3],"Phenotype: All", allDropdowns);
-	
-	var geneId = window.location.href.split("geneAccession=")[1];
-	geneId = geneId.split("&")[0];
+	createDropdown(allDropdowns[3],"Phenotype: All", allDropdowns);*/
 	
 	function createDropdown(multipleSel, emptyText,  allDd){
 	
@@ -59,7 +56,8 @@ $(document).ready(function(){
 				
 				var selectedOptions = options.filter(":selected");
 		        var text = "";
-		        if (options.size() > 1){
+		        if (options.length > 1){
+		        if (options.length > 1){
 		        	options.each(function() {
 	                    if ($(this).prop("selected")) {
 	                        if ( text != "" ) { text += ", "; }
@@ -76,7 +74,7 @@ $(document).ready(function(){
 	                });
 		        }
 		        
-		        switch(selectedOptions.size()) {
+		        switch(selectedOptions.length) {
 		           case 0: return emptyText;
 		           case 1:return selectedOptions.text();
 		           case options.size():  return emptyText;

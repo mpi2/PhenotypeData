@@ -7,8 +7,8 @@
 
 	<!-- Associations table -->
 	<c:if test="${chart != null}">
-	<p>Hints: Use the dropdown filters to filter both the chart and the table. Hover over points in chart to see the parameter name and information. Click on a point to view the chart for that data point. Click and drag on the chart to zoom to that area.
-		</p>				
+	<!--p>Hints: Use the dropdown filters to filter both the chart and the table. Hover over points in chart to see the parameter name and information. Click on a point to view the chart for that data point. Click and drag on the chart to zoom to that area.
+		</p-->
 		<!-- chart here -->
 		
 		<a id="checkAll" class="buttonForHighcharts"><i class="fa fa-check" aria-hidden="true"></i> Select all</a>
@@ -25,6 +25,7 @@
 		var resTemp = document.getElementsByClassName("resultCount");
 		if (resTemp.length > 1){ resTemp[0].remove();}
 	</script>
+
 
 	<table id="strainPvalues">
 		<thead>
@@ -53,7 +54,6 @@
 						<td>${row.getZygosity().getShortName()}</td>
 						<td>${row.getFemaleMutantCount()}f:${row.getMaleMutantCount()}m</td>
 						<td>${row.getStatisticalMethod()}</td>
-						<!-- pValue -->
 						<c:choose>
 							<c:when
 								test="${ ! empty row && row.getStatus() == 'SUCCESS'}">
@@ -85,7 +85,6 @@
 			</c:forEach>
 		</tbody>
 	</table>
-
 
 		<script type="text/javascript">
 			$(document).ready(function() {

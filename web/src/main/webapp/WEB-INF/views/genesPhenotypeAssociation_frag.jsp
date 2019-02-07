@@ -16,11 +16,17 @@
             <c:if test="${phenotypeDisplayStatus.postQcTopLevelMPTermsAvailable}">
             <div id="phenoSumDiv">
                 </c:if>
-                <c:if test="${!phenotypeDisplayStatus.postQcTopLevelMPTermsAvailable}"> <!-- only display a normal div if no phenotype icons displayed -->
+                <c:if test="${!phenotypeDisplayStatus.postQcTopLevelMPTermsAvailable}">
+                <!-- only display a normal div if no phenotype icons displayed -->
                 <div id="phenoSumSmallDiv">
                     </c:if>
                     <c:if test="${phenotypeDisplayStatus.postQcTopLevelMPTermsAvailable}">
-                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Donec ultrices tincidunt arcu non sodales. Aliquet porttitor lacus luctus accumsan tortor posuere ac. Est ante in nibh mauris. Tristique sollicitudin nibh sit amet commodo nulla facilisi nullam. At ultrices mi tempus imperdiet nulla. Nam libero justo laoreet sit amet cursus sit. Eget nunc lobortis mattis aliquam faucibus purus in massa tempor.</p>
+                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut
+                            labore et dolore magna aliqua. Donec ultrices tincidunt arcu non sodales. Aliquet porttitor
+                            lacus luctus accumsan tortor posuere ac. Est ante in nibh mauris. Tristique sollicitudin
+                            nibh sit amet commodo nulla facilisi nullam. At ultrices mi tempus imperdiet nulla. Nam
+                            libero justo laoreet sit amet cursus sit. Eget nunc lobortis mattis aliquam faucibus purus
+                            in massa tempor.</p>
 
                     </c:if>
 
@@ -49,20 +55,20 @@
                     <c:if test="${phenotypeDisplayStatus.displayHeatmap}">
                         <div id="heatmap_toggle_div" class="section hidden">
                             <h2 class="title" id="heatmap">Phenotype Heatmap of Preliminary Data
-                                <span class="documentation"><a href='' id='heatmapSection' class="fa fa-question-circle pull-right"></a></span>
+                                <span class="documentation"><a href='' id='heatmapSection'
+                                                               class="fa fa-question-circle pull-right"></a></span>
                             </h2>
 
                             <div class="dcc-heatmap-root">
                                 <div class="phenodcc-heatmap"
                                      id="phenodcc-heatmap"></div>
                             </div>
-                        </div><!-- end of Pre-QC phenotype heatmap -->
+                        </div>
+                        <!-- end of Pre-QC phenotype heatmap -->
                     </c:if>
 
 
-
                 </div>
-
 
 
                 <c:if test="${!phenotypeDisplayStatus.eitherPostQcOrPreQcSignificantDataIsAvailable}"><!-- no significant postQC data or preQcData-->
@@ -110,11 +116,16 @@
 
                         <c:if test="${phenotypeDisplayStatus.postQcDataAvailable}">
                             <!-- best example http://localhost:8080/PhenotypeArchive/genes/MGI:1913955 -->
-                            <a id="allAdultDataBtn" class="btn btn-outline-primary mb-2 mt-2" href='${baseUrl}/experiments?geneAccession=${gene.mgiAccessionId}' title="All Data" style="display: inline-block; max-width: 300px; width: 80%;">Phenotype measurements</a>
+                            <a id="allAdultDataBtn" class="btn btn-outline-primary mb-2 mt-2"
+                               href='${baseUrl}/experiments?geneAccession=${gene.mgiAccessionId}' title="All Data"
+                               style="display: inline-block; max-width: 300px; width: 80%;">Phenotype measurements</a>
                         </c:if>
 
                         <c:if test="${bodyWeight}">
-                            <a id="bodyWeightBtn" class="btn btn-outline-primary" href="${baseUrl}/charts?accession=${acc}&parameter_stable_id=IMPC_BWT_008_001&&chart_type=TIME_SERIES_LINE" title="Body Weight Curves" style="display: inline-block; max-width: 300px; width: 80%;">Body weight</a>
+                            <a id="bodyWeightBtn" class="btn btn-outline-primary"
+                               href="${baseUrl}/charts?accession=${acc}&parameter_stable_id=IMPC_BWT_008_001&&chart_type=TIME_SERIES_LINE"
+                               title="Body Weight Curves" style="display: inline-block; max-width: 300px; width: 80%;">Body
+                                weight</a>
                         </c:if>
 
                         <c:if test="${phenotypeDisplayStatus.displayHeatmap}">
@@ -156,7 +167,6 @@
                             </div>
                         </div-->
                     </div>
-
 
 
                 </c:if>
@@ -205,68 +215,105 @@
 
         <%--<c:if test='${hasPreQcThatMeetsCutOff || rowsForPhenotypeTable.size() > 0}'>--%>
         <c:if test='${rowsForPhenotypeTable.size() > 0}'>
-            <!-- Associations table -->
-            <div id="phenotypeTableDiv" class="inner-division">
-                <h5>Significant Phenotypes</h5>
 
-
-                <div class="row">
-                    <div class="container">
-
-                        <div class="row" id="phenotypesDiv">
-
+            <ul class="nav nav-tabs" id="phenotypesTab" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link active" id="significant-tab" data-toggle="tab" href="#significant"
+                       role="tab" aria-controls="significant-tab" aria-selected="false">Significant Phenotypes</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="alldata-tab" data-toggle="tab" href="#alldata"
+                       role="tab" aria-controls="alldata-tab" aria-selected="false">All Phenotypes</a>
+                </li>
+            </ul>
+            <div class="tab-content" id="phenotypesTabContent">
+                <div class="tab-pane fade show active" id="significant" role="tabpanel"
+                     aria-labelledby="significant-tab">
+                    <!-- Associations table -->
+                    <div id="phenotypeTableDiv" class="inner-division">
+                        <div class="row">
                             <div class="container">
 
-                                <c:if test="${not empty rowsForPhenotypeTable}">
-                                    <div class="row">
-                                        <div class="col" id="target" action="destination.html">
+                                <div class="row" id="phenotypesDiv">
 
-                                                <%--c:forEach
-                                                        var="phenoFacet" items="${phenoFacets}"
-                                                        varStatus="phenoFacetStatus">
-                                                    <select id="top_level_mp_term_name" class="selectpicker"
-                                                            multiple="multiple"
-                                                            title="Filter on ${phenoFacet.key}">
-                                                        <c:forEach
-                                                                var="facet" items="${phenoFacet.value}">
-                                                            <option>${facet.key}</option>
-                                                        </c:forEach>
-                                                    </select>
-                                                </c:forEach--%>
+                                    <div class="container">
 
-                                        </div>
+                                        <c:if test="${not empty rowsForPhenotypeTable}">
+                                            <div class="row">
+                                                <div class="col" id="target" action="destination.html">
+
+                                                        <%--c:forEach
+                                                                var="phenoFacet" items="${phenoFacets}"
+                                                                varStatus="phenoFacetStatus">
+                                                            <select id="top_level_mp_term_name" class="selectpicker"
+                                                                    multiple="multiple"
+                                                                    title="Filter on ${phenoFacet.key}">
+                                                                <c:forEach
+                                                                        var="facet" items="${phenoFacet.value}">
+                                                                    <option>${facet.key}</option>
+                                                                </c:forEach>
+                                                            </select>
+                                                        </c:forEach--%>
+
+                                                </div>
+                                            </div>
+
+
+                                            <c:set var="count" value="0" scope="page"/>
+                                            <c:forEach
+                                                    var="phenotype" items="${rowsForPhenotypeTable}"
+                                                    varStatus="status">
+                                                <c:forEach
+                                                        var="sex" items="${phenotype.sexes}">
+                                                    <c:set var="count" value="${count + 1}" scope="page"/>
+                                                </c:forEach>
+                                            </c:forEach>
+
+                                            <jsp:include page="PhenoFrag.jsp"></jsp:include>
+
+                                            <div id="export">
+                                                <p class="textright">
+                                                    Download data as:
+                                                    <a id="tsvDownload"
+                                                       href="${baseUrl}/genes/export/${gene.getMgiAccessionId()}?fileType=tsv&fileName=${gene.markerSymbol}"
+                                                       target="_blank" class="btn btn-outline-primary"><i
+                                                            class="fa fa-download"></i>&nbsp;TSV</a>
+                                                    <a id="xlsDownload"
+                                                       href="${baseUrl}/genes/export/${gene.getMgiAccessionId()}?fileType=xls&fileName=${gene.markerSymbol}"
+                                                       target="_blank" class="btn btn-outline-primary"><i
+                                                            class="fa fa-download"></i>&nbsp;XLS</a>
+                                                </p>
+                                            </div>
+
+                                        </c:if>
+
                                     </div>
-
-
-                                    <c:set var="count" value="0" scope="page"/>
-                                    <c:forEach
-                                            var="phenotype" items="${rowsForPhenotypeTable}"
-                                            varStatus="status">
-                                        <c:forEach
-                                                var="sex" items="${phenotype.sexes}">
-                                            <c:set var="count" value="${count + 1}" scope="page"/>
-                                        </c:forEach>
-                                    </c:forEach>
-
-                                    <jsp:include page="PhenoFrag.jsp"></jsp:include>
-
-                                    <div id="export">
-                                        <p class="textright">
-                                            Download data as:
-                                            <a id="tsvDownload" href="${baseUrl}/genes/export/${gene.getMgiAccessionId()}?fileType=tsv&fileName=${gene.markerSymbol}" target="_blank" class="btn btn-outline-primary"><i class="fa fa-download"></i>&nbsp;TSV</a>
-                                            <a id="xlsDownload" href="${baseUrl}/genes/export/${gene.getMgiAccessionId()}?fileType=xls&fileName=${gene.markerSymbol}" target="_blank" class="btn btn-outline-primary"><i class="fa fa-download"></i>&nbsp;XLS</a>
-                                        </p>
-                                    </div>
-
-                                </c:if>
-
+                                </div>
                             </div>
                         </div>
+
+                    </div><!-- end of div for mini section line -->
+                </div>
+                <div class="tab-pane fade show" id="alldata" role="tabpanel"
+                     aria-labelledby="alldata-tab">
+                    <div id="chart-and-table">
+                        <jsp:include page="/experimentsFrag" flush="true">
+                            <jsp:param name="geneAccession"
+                                       value="${gene.mgiAccessionId}"/>
+                        </jsp:include>
+                            <%--p class="textright">
+                                Download data as:
+                                <a id="tsvDownload"
+                                   href="${baseUrl}/experiments/export?${requestScope['javax.servlet.forward.query_string']}&fileType=tsv&fileName=allData${allelePageDTO.getGeneSymbol()}"
+                                   target="_blank" class="button fa fa-download">TSV</a>
+                                <a id="xlsDownload"
+                                   href="${baseUrl}/experiments/export?${requestScope['javax.servlet.forward.query_string']}&fileType=xls&fileName=allData${allelePageDTO.getGeneSymbol()}"
+                                   target="_blank" class="button fa fa-download">XLS</a>
+                            </p--%>
                     </div>
                 </div>
 
-            </div><!-- end of div for mini section line -->
+            </div>
+
         </c:if>
-</div>
-
-
+    </div>
