@@ -65,7 +65,7 @@
                 </c:if>
 
             </td>
-            <td class="text-lg-center" style="font-size: 1.8em;">
+            <td class="text-lg-center" style="font-size: 1.25em;">
                 <span class="row_abnormalities">
                     <c:set var="marginLeftCount" value="0"/>
                     <c:forEach var="topLevelMpGroup" items="${phenotype.topLevelMpGroups }" varStatus="groupCount">

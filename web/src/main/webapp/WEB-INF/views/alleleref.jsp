@@ -177,50 +177,55 @@
     </jsp:attribute>
     <jsp:body>
 
-        <div class="region region-content">
-            <div class="block">
-                <div class='content'>
-                    <div class="node node-gene">
-                        <h1 class="title" id="top">IKMC/IMPC related publications</h1>
+        <div class="container data-heading">
+            <div class="row row-shadow">
+                <div class="col-12 no-gutters">
+                    <h2>IKMC/IMPC related publications</h2>
+                </div>
+            </div>
+        </div>
 
-                        <div class="section">
-                            <div class="inner">
-                                <div class="clear"></div>
+        <div class="container single single--no-side">
+            <div class="row row-over-shadow">
+                <div class="col-12 white-bg">
+                    <div class="page-content pt-5 pb-5">
 
-                                <div id="tabs">
-                                    <ul>
-                                        <li><a href="#tabs-1">Browse publication</a></li>
-                                        <li><a href="#tabs-2">Publication stats</a></li>
-                                        <li><a href="#tabs-3">Consortium publications</a></li>
-                                    </ul>
-                                    <div id="tabs-1">
-                                        <!-- container to display dataTable -->
-                                        <div id="alleleRef"></div>
+                        <ul class="nav nav-tabs" id="publicationsTab" role="tablist">
+                            <li class="nav-item">
+                                <a class="nav-link active" id="browse-tab" data-toggle="tab" href="#browse"
+                                   role="tab" aria-controls="browse-tab" aria-selected="false">All publications</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="stats-tab" data-toggle="tab" href="#stats"
+                                   role="tab" aria-controls="stats-tab" aria-selected="false">Publications stats</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="consortium-tab" data-toggle="tab" href="#consortium"
+                                   role="tab" aria-controls="consortium-tab" aria-selected="false">Consortium publications</a>
+                            </li>
+                        </ul>
 
-                                    </div>
-                                    <div class="clear"></div>
-                                    <div id="tabs-2">
-                                        <div id="chartYearIncrease" class="chart"></div>
-                                        <div id="chartQuarter" class="chart"></div>
-                                        <div id="chartMonthIncrease" class="chart"></div>
-                                        <div id="chartGrantQuarter" class="chart"></div>
-                                        <div class="clear"></div>
-
-                                    </div>
-                                    <div id="tabs-3">
-                                        <!-- container to display dataTable -->
-                                        <div id="consortiumPapers"></div>
-
-                                    </div>
-                                </div>
+                        <div class="tab-content" id="publicationsTabContent">
+                            <div class="tab-pane fade show active" id="browse" role="tabpanel"
+                                 aria-labelledby="browse-tab">
+                                <div id="alleleRef"></div>
+                            </div>
+                            <div class="tab-pane fade show active" id="stats" role="tabpanel"
+                                 aria-labelledby="stats-tab">
+                                <div id="chartYearIncrease" class="chart"></div>
+                                <div id="chartQuarter" class="chart"></div>
+                                <div id="chartMonthIncrease" class="chart"></div>
+                                <div id="chartGrantQuarter" class="chart"></div>
                                 <div id='agencyBox'>
                                     <div id="agencyName"></div>
                                     <div id="agency"></div>
                                 </div>
-
+                            </div>
+                            <div class="tab-pane fade show active" id="consortium" role="tabpanel"
+                                 aria-labelledby="consortium-tab">
+                                <div id="consortiumPapers"></div>
                             </div>
                         </div>
-
                     </div>
                 </div>
             </div>
