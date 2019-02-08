@@ -43,7 +43,14 @@
         </jsp:attribute>
 
     <jsp:body>
-
+<div class="container data-heading">
+            <div class="row row-shadow">
+                <div class="col-12 no-gutters">
+                
+                    <h2>${pageTitle} Gene: ${gene.markerSymbol} - ${gene.markerName}</h2>
+                </div>
+            </div>
+        </div>
 
         <c:if test="${statsError}">
             <div class="alert alert-error">
