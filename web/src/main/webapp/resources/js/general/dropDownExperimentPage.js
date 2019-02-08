@@ -15,7 +15,7 @@ $(document).ready(function(){
 	allDropdowns[3] = $('#phenotypes');
 	createDropdown(allDropdowns[3],"Phenotype: All", allDropdowns);*/
 	
-	function createDropdown(multipleSel, emptyText,  allDd){
+	function createDropdown(multipleSel, emptyText,  allDd) {
 	
 		$(multipleSel).dropdownchecklist( { 
 			firstItemChecksAll: false, 
@@ -81,7 +81,7 @@ $(document).ready(function(){
 		           default: return text;
 		        }
 			}
-		});
+		}});
 	}	
 
 	

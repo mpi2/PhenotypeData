@@ -114,12 +114,12 @@
                 <c:if test="${phenotypeDisplayStatus.postQcDataAvailable || phenotypeDisplayStatus.displayHeatmap || bodyWeight }">
                     <div id="all_data" class="with-label text-center">
 
-                        <c:if test="${phenotypeDisplayStatus.postQcDataAvailable}">
+                        <%--c:if test="${phenotypeDisplayStatus.postQcDataAvailable}">
                             <!-- best example http://localhost:8080/PhenotypeArchive/genes/MGI:1913955 -->
                             <a id="allAdultDataBtn" class="btn btn-outline-primary mb-2 mt-2"
                                href='${baseUrl}/experiments?geneAccession=${gene.mgiAccessionId}' title="All Data"
                                style="display: inline-block; max-width: 300px; width: 80%;">Phenotype measurements</a>
-                        </c:if>
+                        </c:if--%>
 
                         <c:if test="${bodyWeight}">
                             <a id="bodyWeightBtn" class="btn btn-outline-primary"
