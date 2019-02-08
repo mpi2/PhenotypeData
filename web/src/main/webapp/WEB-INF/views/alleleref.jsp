@@ -13,7 +13,7 @@
         <link href="${baseUrl}/css/alleleref.css" rel="stylesheet" />
         <link type="text/css" rel="stylesheet" href="${baseUrl}/css/vendor/jstree.min.css"/>
 
-        <style>
+        <!--style>
 
             /*------ tabs stuff --------*/
             div.ui-tabs {
@@ -85,7 +85,13 @@
             }
 
 
-         </style>
+         </style-->
+
+        <style>
+            table#alleleRef {
+                width: 100% !important;
+            }
+        </style>
 
         <%--<script type='text/javascript' src='${baseUrl}/js/charts/highcharts.js?v=${version}'></script>--%>
         <%--<script type='text/javascript' src='${baseUrl}/js/charts/highcharts-more.js?v=${version}'></script>--%>
@@ -128,8 +134,13 @@
                 oConf.orderBy = "firstPublicationDate DESC"; // default
                 oConf.id = "alleleRef";
                 $.fn.fetchAlleleRefDataTable2(oConf);
+                var oConf2 = oConf;
+                oConf2.consortium = true;
+                oConf2.id = "consortiumPapers";
 
-                // find out which tab to open from hash tag
+                $.fn.fetchAlleleRefDataTable2(oConf2);
+
+              /*  // find out which tab to open from hash tag
                 var matches = window.location.hash.match(/(\d)$/);
                 var tabIndex = matches == null ? 0 : matches[0];
 
@@ -158,7 +169,7 @@
                         }
                     }
                 });
-                tabs.tabs({active: tabIndex});
+                tabs.tabs({active: tabIndex});*/
             });
 
         </script>
@@ -208,9 +219,13 @@
                         <div class="tab-content" id="publicationsTabContent">
                             <div class="tab-pane fade show active" id="browse" role="tabpanel"
                                  aria-labelledby="browse-tab">
-                                <div id="alleleRef"></div>
+                                <div class="container">
+                                    <div class="row">
+                                        <div id="alleleRef" class="col"></div>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="tab-pane fade show active" id="stats" role="tabpanel"
+                            <div class="tab-pane fade show" id="stats" role="tabpanel"
                                  aria-labelledby="stats-tab">
                                 <div id="chartYearIncrease" class="chart"></div>
                                 <div id="chartQuarter" class="chart"></div>
@@ -221,7 +236,7 @@
                                     <div id="agency"></div>
                                 </div>
                             </div>
-                            <div class="tab-pane fade show active" id="consortium" role="tabpanel"
+                            <div class="tab-pane fade show" id="consortium" role="tabpanel"
                                  aria-labelledby="consortium-tab">
                                 <div id="consortiumPapers"></div>
                             </div>

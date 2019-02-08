@@ -20,15 +20,40 @@
                 <!-- only display a normal div if no phenotype icons displayed -->
                 <div id="phenoSumSmallDiv">
                     </c:if>
-                    <c:if test="${phenotypeDisplayStatus.postQcTopLevelMPTermsAvailable}">
-                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut
-                            labore et dolore magna aliqua. Donec ultrices tincidunt arcu non sodales. Aliquet porttitor
-                            lacus luctus accumsan tortor posuere ac. Est ante in nibh mauris. Tristique sollicitudin
-                            nibh sit amet commodo nulla facilisi nullam. At ultrices mi tempus imperdiet nulla. Nam
-                            libero justo laoreet sit amet cursus sit. Eget nunc lobortis mattis aliquam faucibus purus
-                            in massa tempor.</p>
+                        <c:if test="${!(empty gene.markerSynonym)}">
+                            <div class="row no-gutters">
+                                <div class="col-md-2 align-middle text-right pr-1">
+                                    <div class="align-middle font-weight-bold pr-2" style="border-right: solid">Synonyms</div>
+                                </div>
+                                <div class="col-md-10 align-middle">
+                                    <c:if test='${fn:length(gene.markerSynonym) gt 1}'>
 
-                    </c:if>
+                                        <c:forEach var="synonym" items="${gene.markerSynonym}" varStatus="loop">
+                                            <span class="badge badge-info">${synonym}</span>
+                                        </c:forEach>
+
+                                    </c:if>
+                                    <c:if test='${fn:length(gene.markerSynonym) == 1}'>
+
+                                        <c:forEach var="synonym" items="${gene.markerSynonym}" varStatus="loop">
+                                    <span class="badge badge-info">${synonym}</span>
+                                            <%--<c:if test="${!loop.last}">,&nbsp;</c:if>--%>
+                                        </c:forEach>
+
+                                    </c:if>
+                                </div>
+                            </div>
+                        </c:if>
+                        <c:if test="${viabilityCalls != null && viabilityCalls.size() > 0}">
+                            <div class="row no-gutters">
+                                <div class="col-md-2 align-middle text-right pr-1">
+                                    <div class="align-middle font-weight-bold pr-2" style="border-right: solid">Viability</div>
+                                </div>
+                                <div class="col-md-10 align-middle">
+                                    <t:viabilityButton callList="${viabilityCalls}" link=""></t:viabilityButton>
+                                </div>
+                            </div>
+                        </c:if>
 
 
                     <%--c:if test="${gene.embryoDataAvailable || gene.embryoAnalysisUrl!=null || gene.dmddImageDataAvailable || hasVignette}">
@@ -122,7 +147,7 @@
                         </c:if--%>
 
                         <c:if test="${bodyWeight}">
-                            <a id="bodyWeightBtn" class="btn btn-outline-primary"
+                            <a id="bodyWeightBtn" class="btn btn-outline-primary mt-2"
                                href="${baseUrl}/charts?accession=${acc}&parameter_stable_id=IMPC_BWT_008_001&&chart_type=TIME_SERIES_LINE"
                                title="Body Weight Curves" style="display: inline-block; max-width: 300px; width: 80%;">Body
                                 weight</a>
