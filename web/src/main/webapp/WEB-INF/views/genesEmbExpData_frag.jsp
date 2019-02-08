@@ -32,12 +32,16 @@
 
     <script>
         $(document).ready(function () {
-            $('#embryoExpressionTable').DataTable({responsive: true});
+            $('#embryoExpressionTable').DataTable({
+                responsive: true,
+                "bFilter":false,
+                "bLengthChange": false
+            });
         });
     </script>
     <div class="row justify-content-center">
         <div class="col-md-10">
-            <table id="embryoExpressionTable" class="table table-striped table-bordered dt-responsive" style="width:100%">
+            <table id="embryoExpressionTable" class="table dt-responsive" style="width:100%">
                 <thead>
                 <th>Anatomy</th>
                 <th

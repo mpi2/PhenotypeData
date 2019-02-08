@@ -21,7 +21,10 @@ $(document).ready(function(){
 		$('table#genes').dataTable(
 			{
                 "bFilter":false,
-                "bLengthChange": false
+                "bLengthChange": false,
+                'columnDefs': [
+                    {'max-width': '100px', 'targets': 0}
+                ]
             }
 		);
 		//	var oDataTable = $.fn.initDataTable($('table#phenotypes'), {

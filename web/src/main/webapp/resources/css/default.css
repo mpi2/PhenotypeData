@@ -6818,11 +6818,18 @@ ul#menu-top-nav li.current-menu-item a {
         padding-top: 27px;
         height: 100px; } }
 
-.page-content a {
+.page-content a:not(.btn) a:not(.nav-link) {
     font-weight: normal;
     text-decoration: underline;
     text-decoration-color: #8e8e8e;
     color: black; }
+
+td>a {
+    font-weight: normal;
+    text-decoration: underline;
+    text-decoration-color: #8e8e8e;
+    color: black; }
+
 .page-content a:hover {
     text-decoration-color: black; }
 
@@ -7363,3 +7370,14 @@ hr {
     opacity: 0.9;
     visibility: hidden;
     z-index: 3; }
+
+.btn-icon {
+    background-color: #fff;
+    font-size: 1.8em;
+    padding: 0 0;
+}
+
+.non-tested {
+    border-color: #6c757d !important;
+    border: 1px solid transparent;
+}

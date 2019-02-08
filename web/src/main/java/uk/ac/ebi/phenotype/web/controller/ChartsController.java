@@ -150,6 +150,8 @@ public class ChartsController {
                          @RequestParam(required = false, value = "chart_type") ChartType chartType,
                          @RequestParam(required = false, value = "pipeline_stable_id") String[] pipelineStableIds,
                          @RequestParam(required = false, value = "allele_accession_id") String[] alleleAccession,
+                         @RequestParam(required = false, value = "pageTitle") String pageTitle,
+                         @RequestParam(required = false, value = "pageLinkBack") String pageLinkBack,
                          HttpServletRequest request, HttpServletResponse response,
                          Model model) {
         try {
@@ -163,6 +165,7 @@ public class ChartsController {
                 }
             }
             response.addHeader("Access-Control-Allow-Origin", "*");//allow javascript requests from other domain - note spring way of doing this does not work!!!! as usual!!!
+            model.addAttribute("pageTitle", pageTitle);
 //            response.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE");
 //            response.setHeader("Access-Control-Max-Age", "3600");
 //            response.setHeader("Access-Control-Allow-Headers", "x-requested-with");

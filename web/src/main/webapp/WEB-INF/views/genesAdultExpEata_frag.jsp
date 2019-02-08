@@ -24,7 +24,7 @@
         <span title="Ambiguous" class="${noColor}"><i class="${ambiguousIcon}"></i>&nbsp;Ambiguous</span>
     </div>
     <div class="row justify-content-center">
-        <div class="col-md-10">
+        <div class="col-sm-12">
             <div id="toggleWt" class="float-right">Show Wildtype Expression</div>
         </div>
     </div>
@@ -32,15 +32,19 @@
 
     <script>
         $(document).ready(function () {
-            $('#expressionTable').DataTable({responsive: true});
+            $('#expressionTable').DataTable({
+                responsive: true,
+                "bFilter":false,
+                "bLengthChange": false
+            });
         });
     </script>
 
     <!-- <h2 class="title" id="section-impc_expression">Expression Overview<i class="fa fa-question-circle pull-right" title="Brief info about this panel"></i></h2>
     -->
     <div class="row justify-content-center">
-        <div class="col-md-10">
-            <table id="expressionTable" class="table table-striped table-bordered dt-responsive" style="width:100%">
+        <div class="col-sm-12">
+            <table id="expressionTable" class="table dt-responsive" style="width:100%">
                 <thead>
                 <th>Anatomy</th>
                 <th

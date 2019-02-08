@@ -975,9 +975,9 @@
                 var fileTypeTsv = "fileType=tsv";
                 var fileTypeXls = "fileType=xls";
 
-                var toolBox = '<span>Export table as: &nbsp;&nbsp;&nbsp;'
-                    + '<a id="tsvA" class="fa fa-download gridDump" href="">TSV</a>&nbsp;&nbsp;&nbsp;or&nbsp;&nbsp;&nbsp;'
-                    + '<a id="xlsA" class="fa fa-download gridDump" href="">XLS</a></span>';//+
+                var toolBox = '<span>Export table as: &nbsp;'
+                    + '<a id="tsvA" href=""><i class="fa fa-download gridDump"></i>&nbsp;TSV</a>'
+                    + '<a id="xlsA"  href=""><i class="fa fa-download gridDump"></i>&nbsp;XLS</a></span>';//+
                 // '<span>For more information, consider <a href=${baseUrl}/batchQuery>Batch search</a></span>';
 
                 $("div.saveTable").html(toolBox);

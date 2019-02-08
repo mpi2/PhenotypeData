@@ -65,7 +65,7 @@
                 </c:if>
 
             </td>
-            <td class="text-lg-center" style="font-size: 1.8em;">
+            <td class="text-lg-center" style="font-size: 1.25em;">
                 <span class="row_abnormalities">
                     <c:set var="marginLeftCount" value="0"/>
                     <c:forEach var="topLevelMpGroup" items="${phenotype.topLevelMpGroups }" varStatus="groupCount">
@@ -110,7 +110,7 @@
 					<a href="${phenotype.getEvidenceLink().getUrl() }"><i class="fa fa-image" alt="${phenotype.getEvidenceLink().getAlt()}"></i></a>
 				</c:if>
 				<c:if test='${phenotype.getEvidenceLink().getIconType().name().equalsIgnoreCase("GRAPH")}'>
-					<a href="${phenotype.getEvidenceLink().getUrl() }" ><i class="fa fa-bar-chart-o" alt="${phenotype.getEvidenceLink().getAlt()}"></i> </a>
+					<a href="${phenotype.getEvidenceLink().getUrl() }&pageTitle=${phenotype.phenotypeTerm.name}&linkBack=linkback link here" ><i class="fa fa-bar-chart-o" alt="${phenotype.getEvidenceLink().getAlt()}"></i> </a>
 				</c:if>
 				<c:if test='${phenotype.getEvidenceLink().getIconType().name().equalsIgnoreCase("TABLE")}'>
                        <a href="${phenotype.getEvidenceLink().getUrl() }"><i class="fa fa-table" alt="${phenotype.getEvidenceLink().getAlt()}"></i> </a>
