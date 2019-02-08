@@ -18,7 +18,39 @@
  */
 jQuery(document).ready(	function() {
 
+	function GetURLParameter(sParam)
+	{
+	    var sPageURL = window.location.search.substring(1);
+	    var sURLVariables = sPageURL.split('&');
+	    for (var i = 0; i < sURLVariables.length; i++)
+	    {
+	        var sParameterName = sURLVariables[i].split('=');
+	        if (sParameterName[0] == sParam)
+	        {
+	            return sParameterName[1];
+	        }
+	    }
+	}
+	
+	    var type = GetURLParameter('type');
+	    console.log('type='+type);
+	    if(type==='gene'){
+	    	console.log('gene is default so do nothing');
+	    }else if(type==='phenotype'){
+	    	console.log('phenotype type on load so change style of tabs to match');
+	    }
+	    
 
+	
+	$( "#geneSearchTab" ).click(function() {
+		  console.log( "gene search tab clicked" );
+		  $('#searchType').val('gene');
+		});
+	
+	$( "#phenotypeSearchTab" ).click(function() {
+		  console.log( "phenotype search tab clicked" );
+		  $('#searchType').val('phenotype');
+		});
 // 18-July-2018 (mrelac) - commented out this function, as it hijacks a.interest and processes it using old, incorrect Harwell rules.
 
 

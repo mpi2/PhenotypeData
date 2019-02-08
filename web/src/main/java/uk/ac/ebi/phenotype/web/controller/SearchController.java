@@ -73,45 +73,53 @@ public class SearchController {
 	 *
 	 * @return
 	 */
-	@RequestMapping("/search/")  // appended slash
-	public String searchForward(HttpServletRequest request) {
+//	@RequestMapping("/search/")  // appended slash
+//	public String searchForward(HttpServletRequest request) {
+//
+//		String scheme = (request.getAttribute("isProxied") == Boolean.TRUE ? "https" : request.getScheme());
+//		logger.info("searchForward(): isProxied = {}. scheme = {}.", request.getAttribute("isProxied"), scheme);
+//		String redirectUrl = scheme + ":" + request.getAttribute("mappedHostname") + request.getAttribute("baseUrl") + "/search/gene?kw=*";
+//
+//		return "redirect:" + redirectUrl;
+//	}
 
-		String scheme = (request.getAttribute("isProxied") == Boolean.TRUE ? "https" : request.getScheme());
-		logger.info("searchForward(): isProxied = {}. scheme = {}.", request.getAttribute("isProxied"), scheme);
-		String redirectUrl = scheme + ":" + request.getAttribute("mappedHostname") + request.getAttribute("baseUrl") + "/search/gene?kw=*";
-
-		return "redirect:" + redirectUrl;
-	}
-
-	@RequestMapping("/search/gene")
-	public String searchGenes(@RequestParam(value = "kw", required = false, defaultValue = "*") String keywords,
+	@RequestMapping("/search")
+	public String search(@RequestParam(value = "term", required = false, defaultValue = "*") String term,
+			@RequestParam(value = "type", required = false, defaultValue = "gene") String type,
 			HttpServletRequest request,
 			Model model) throws IOException, URISyntaxException, SolrServerException {
 		
-		System.out.println("calling gene search method: kw="+ keywords);
-		QueryResponse response = searchGeneService.searchGenes(keywords);
+		System.out.println("calling type="+ type+" search method kw="+ term);
+		if(type.equalsIgnoreCase("gene")) {
+			model=searchGenes(term, model);
+		}else {
+			model=searchPhenotypes(term, model);
+		}
+		return "search";
+	}
+
+
+	private Model searchGenes(String term, Model model) throws SolrServerException, IOException {
+		QueryResponse response = searchGeneService.searchGenes(term);
 		final List<GeneDTO> genes = response.getBeans(GeneDTO.class);
 		
 		model.addAttribute("numberOfResults",Long.toString(response.getResults().getNumFound()));
 		model.addAttribute("genes", genes);
-		return "search";
+		return model;
 	}
 	
-
-	@RequestMapping("/search/phenotype")
-	public String searchPhenotypes(@RequestParam(value = "kw", required = false, defaultValue = "*") String keywords,
-			HttpServletRequest request,
-			Model model) throws IOException, URISyntaxException, SolrServerException {
-		
-		System.out.println("calling phenotype search method: kw="+ keywords);
-		QueryResponse response = searchPhenotypeService.searchPhenotypes(keywords);
+	private Model searchPhenotypes(String term, Model model) throws SolrServerException, IOException {
+		QueryResponse response = searchPhenotypeService.searchPhenotypes(term);
 		final List<MpDTO> phenotypes = response.getBeans(MpDTO.class);
 		
 		model.addAttribute("numberOfResults",Long.toString(response.getResults().getNumFound()));
 		model.addAttribute("phenotypes", phenotypes);
-		return "search";
+		return model;
 	}
+
 	
+
+
 
 	
 	
