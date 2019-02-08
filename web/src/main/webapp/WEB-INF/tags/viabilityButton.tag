@@ -17,6 +17,9 @@
 			<c:if test="${fn:contains(call, 'Subviable')}">
 				<span class="badge badge-warning">${call}</span>
 			</c:if>
+			<c:if test="${fn:contains(call, 'Viable')}">
+				<span class="badge badge-success">${call}</span>
+			</c:if>
 		</c:forEach>
 	<!--</a> -->
 </c:if>
@@ -31,6 +34,9 @@
 			</c:if>
 			<c:if test="${fn:contains(call, 'Subviable')}">
 				<span class="badge badge-warning">${call}</span>
+			</c:if>
+			<c:if test="${fn:contains(call, 'Viable')}">
+				<span class="badge badge-success">${call}</span>
 			</c:if>
 		</c:forEach>
 	<!--/span-->
