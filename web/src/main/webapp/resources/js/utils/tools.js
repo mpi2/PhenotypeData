@@ -956,8 +956,8 @@
                 var fileTypeXls = "fileType=xls";
 
                 var toolBox = 'Export table: '
-                    + '<a id="tsvA" href=""><i class="fa fa-download gridDump"</i>TSV</a>&nbsp;or&nbsp;'
-                    + '<a id="xlsA" href="><i class="fa fa-download gridDump"</i>XLS</a>';//+
+                    + '<a id="tsvA" href=""><i class="fa fa-download gridDump"></i>TSV</a>&nbsp;or&nbsp;'
+                    + '<a id="xlsA" href=""><i class="fa fa-download gridDump"></i>XLS</a>';//+
 
                 $("div.export").html(toolBox);
 
@@ -1646,7 +1646,8 @@
 
 		var table = $('<table></table>').attr({
 			'id' : id,
-			'class' : 'table tableSorter'
+			'class' : 'table tableSorter',
+            'style' : 'width: 100%'
 		});
 
         var sortFields = ["firstPublicationDate", "title", "journal"];
