@@ -542,7 +542,7 @@
             <div class="container">
                 <div class="row">
                     <div class="col ">
-                        <h1><jsp:invoke fragment="pagename"></jsp:invoke> </h1>
+                        <h1><jsp:invoke fragment="pagename" /> </h1>
                     </div>
                 </div>
             </div>
@@ -554,7 +554,23 @@
                 <div class="col-12 col-md-12">
                     <div class="pr-md-25">
 
-                        <jsp:invoke fragment="breadcrumb"></jsp:invoke>
+                        <div class="breadcrumbs-people">
+                            <div class="row">
+                                <div class="col-12 d-none d-md-block">
+                                    <p><a href="/">Home</a> <span>></span>
+                                        <a href="https://www.mousephenotypetest.org/understanding-the-data/research-highlights/">
+                                            Research highlights </a><span>></span>
+                                        <jsp:invoke fragment="breadcrumb" /> </p>
+                                </div>
+                                <div class="col-12 d-block d-md-none">
+                                    <p><a href="/">Home</a><span>></span>
+                                        <a href="https://www.mousephenotypetest.org/understanding-the-data/research-highlights/">
+                                            Research highlights </a><span>></span>
+                                        <jsp:invoke fragment="breadcrumb" /> </p>
+                                </div>
+                            </div>
+                        </div>
+
 
                         <div class="pre-content">
 

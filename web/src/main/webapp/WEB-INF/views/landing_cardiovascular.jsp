@@ -7,25 +7,8 @@
 <t:genericpage-landing>
 
     <jsp:attribute name="title">${systemName} landing page | IMPC Phenotype Information</jsp:attribute>
-
-    <jsp:attribute name="breadcrumb">
-        <div class="breadcrumbs-people">
-            <div class="row">
-                <div class="col-12 d-none d-md-block">
-                    <p><a href="/">Home</a> <span>></span>
-                        <a href="https://www.mousephenotypetest.org/understanding-the-data/research-highlights/">
-                            Research highlights </a><span>></span>
-                            ${systemName} </p>
-                </div>
-                <div class="col-12 d-block d-md-none">
-                    <p><a href="/">Home</a><span>></span>
-                        <a href="https://www.mousephenotypetest.org/understanding-the-data/research-highlights/">
-                            Research highlights </a><span>></span>
-                            ${systemName} </p>
-                </div>
-            </div>
-        </div>
-    </jsp:attribute>
+    <jsp:attribute name="pagename">${pageTitle}</jsp:attribute>
+    <jsp:attribute name="breadcrumb">${systemName}</jsp:attribute>
 
     <jsp:attribute name="header">
         <!-- CSS Local Imports -->
@@ -59,17 +42,14 @@
 
     <jsp:attribute name="bodyTag"><body  class="phenotype-node no-sidebars small-header"></jsp:attribute>
 
-    <jsp:attribute name="addToFooter">
-		
-	</jsp:attribute>
+    <jsp:attribute name="addToFooter"></jsp:attribute>
 
-    <jsp:attribute name="pagename">${pageTitle}</jsp:attribute>
 
     <jsp:body>
 
         <div class="container">
             <div class="row">
-                <div class="col-12 no-gutters">
+                <div class="col-12">
                     <h5>
                         This page introduces cardiovascular related phenotypes present in mouse lines produced by the
                         IMPC. The cardiovascular system
@@ -79,20 +59,15 @@
                     </h5>
                 </div>
             </div>
-        </div>
 
-        <div class="container">
             <div class="row">
-                <div class="col-12 no-gutters">
+                <div class="col-12">
                 <c:import url="landing_overview_frag.jsp"/>
                 </div>
             </div>
-        </div>
 
-
-        <div class="container">
             <div class="row">
-                <div class="col-12 no-gutters">
+                <div class="col-12">
 
                     <h2 id="approach">Approach</h2>
 
@@ -108,11 +83,9 @@
 
                 </div>
             </div>
-        </div>
 
-        <div class="container">
             <div class="row">
-                <div class="col-12 no-gutters">
+                <div class="col-12">
 
                     <h2 class="title">Phenotypes distribution</h2>
 
@@ -137,10 +110,7 @@
 
                 </div>
             </div>
-        </div>
 
-
-        <div class="container">
             <div class="row">
                 <div class="col-12" id="gene-ko-effect" >
 
@@ -178,12 +148,9 @@
 
                 </div>
             </div>
-        </div>
 
-
-        <div class="container">
             <div class="row">
-                <div class="col-12 no-gutters" id="paper">
+                <div class="col-12" id="paper">
 
                     <jsp:include page="paper_frag.jsp"></jsp:include>
 

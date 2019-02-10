@@ -4,12 +4,12 @@
 <%@ taglib prefix="t" tagdir="/WEB-INF/tags" %>
 <%@ taglib prefix='fn' uri='http://java.sun.com/jsp/jstl/functions' %>
 
-<t:genericpage>
+<t:genericpage-landing>
 
     <jsp:attribute name="title">${pageTitle} landing page | IMPC Phenotype Information</jsp:attribute>
+    <jsp:attribute name="pagename">${pageTitle}</jsp:attribute>
+    <jsp:attribute name="breadcrumb">${systemName}</jsp:attribute>
 
-    <jsp:attribute name="breadcrumb">&nbsp;&raquo; <a href="${baseUrl}/landing">Landing
-        Pages</a> &nbsp;&raquo; ${pageTitle}</jsp:attribute>
 
     <jsp:attribute name="header">
 
@@ -25,44 +25,34 @@
 
     <jsp:attribute name="bodyTag"><body  class="phenotype-node no-sidebars small-header"></jsp:attribute>
 
-    <jsp:attribute name="addToFooter">
+    <jsp:attribute name="addToFooter"></jsp:attribute>
 
-
-
-	</jsp:attribute>
     <jsp:body>
 
-        <div class="region region-content">
-            <div class="block block-system">
-                <div class="content">
-                    <div class="node node-gene">
-                        <h1 class="title" id="top">${pageTitle} </h1>
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
 
-                        <c:import url="landing_overview_frag.jsp"/>
+                    <c:import url="landing_overview_frag.jsp"/>
 
-                        <div class="section">
-                            <h2 class="title">Approach</h2>
-                            <div class="inner">
-                            		<h4>Procedures that can lead to relevant phenotype associations</h4>
-                                <c:import url="landing_procedures_frag.jsp"/>
-                            </div>
-                        </div>
+                    <h2 class="title">Approach</h2>
+                    <h4>Procedures that can lead to relevant phenotype associations</h4>
+                    <c:import url="landing_procedures_frag.jsp"/>
+                </div>
+            </div>
 
-                        <div class="section">
-                            <h2 class="title">Phenotypes distribution</h2>
-                            <div class="inner">
-                                <div id="phenotypeChart">
-                                    <script type="text/javascript"> $(function () {  ${phenotypeChart} }); </script>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="section">
-                            <jsp:include page="paper_frag.jsp"></jsp:include>
-                        </div>
-
-
+            <div class="row">
+                <div class="col-12">
+                    <h2 class="title">Phenotypes distribution</h2>
+                    <div id="phenotypeChart">
+                        <script type="text/javascript"> $(function () {  ${phenotypeChart} }); </script>
                     </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-12">
+                    <jsp:include page="paper_frag.jsp"></jsp:include>
                 </div>
             </div>
         </div>
@@ -70,6 +60,6 @@
 
     </jsp:body>
 
-</t:genericpage>
+</t:genericpage-landing>
 
 

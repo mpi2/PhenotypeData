@@ -2602,7 +2602,7 @@ $
 $.fn.dataTableExt.sErrMode = 'throw'; // override default alert
 
 $.extend($.fn.dataTableExt.oStdClasses, {
-	"sWrapper" : "dataTables_wrapper form-inline"
+	"sWrapper" : "dataTables_wrapper"
 });
 
 // Sort image columns based on the content of the title tag
