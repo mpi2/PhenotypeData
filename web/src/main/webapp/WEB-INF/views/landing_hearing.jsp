@@ -587,9 +587,9 @@
 					<div class="row">
 						<div class="col-6" style="text-align: center">
 							<h3>Novel, mild hearing loss</h3>
-							<a href="${baseUrl}/genes/MGI:1337062">Ap3s1<sup>tm1b(EUCOMM)Hmgu</sup></a>
-							<div class="chart" id="tram2"
-								graphUrl="${baseUrl}/chart?accession=MGI:1337062&allele_accession_id=MGI:5548436&zygosity=homozygote&parameter_stable_id=IMPC_ABR_006_001&pipeline_stable_id=HMGU_001&phenotyping_center=HMGU&chart_only=true&chart_type=UNIDIMENSIONAL_ABR_PLOT">
+							<a href="${baseUrl}/genes/MGI:1933736">Adgrb1<sup>tm2a(EUCOMM)Wtsi</sup></a>
+							<div class="chart" id="Adgrb1"
+								graphUrl="${baseUrl}/chart?accession=MGI:1933736&allele_accession_id=MGI:5006776&zygosity=homozygote&parameter_stable_id=IMPC_ABR_002_001&parameter_stable_id=IMPC_ABR_004_001&parameter_stable_id=IMPC_ABR_006_001&parameter_stable_id=IMPC_ABR_008_001&parameter_stable_id=IMPC_ABR_010_001&parameter_stable_id=IMPC_ABR_012_001&pipeline_stable_id=MGP_001&phenotyping_center=WTSI&chart_only=true&chart_type=UNIDIMENSIONAL_ABR_PLOT">
 								<div id="spinner_tram2">
 									<i class="fa fa-refresh fa-spin"></i>
 								</div>
