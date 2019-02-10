@@ -934,39 +934,19 @@
             "processing": true,
             "paging": true,
             "serverSide": true,  // do not want sorting to be processed from server, false by default
-            "sDom": "i<<'#exportSpinner'>l<f><'saveTable'>r>tip",
-            "sPaginationType": "bootstrap",
+            "sDom": "<'col-6'i><'col-3'f><'col-3 export'>t<'col-6'i><'col-6'p>",
+            "bLengthChange": false,
+            "bFilter": true,
             "searchHighlight": true,
             "iDisplayLength": 10,
             "oLanguage": {
                 "sSearch": "Filter: "
             },
-            // "columnDefs": [
-            //     //  { "type": "alt-string", targets: 4 },   //4th col sorted using alt-string
-            //     {
-            //         "targets": [7], // 7th col
-            //         "visible": false
-            //     }
-            //
-            // ],
-            // "aaSorting": [[3, "desc"]],  // default sort column: 4th col
-            // "aoColumns": [
-            //     {"bSearchable": true, "sType": "string", "bSortable": true},
-            //     {"bSearchable": true, "sType": "html", "bSortable": true},
-            //     {"bSearchable": true, "sType": "string", "bSortable": true},
-            //     {"bSearchable": true, "sType": "string", "bSortable": true},
-            //     {"bSearchable": true, "sType": "string", "bSortable": true},
-            //     {"bSearchable": true, "sType": "html", "bSortable": true},
-            //     {"bSearchable": true, "sType": "string", "bSortable": false},
-            //     {"bSearchable": true, "sType": "string", "bSortable": false}
-            // ],
             "aoColumns": [
                {"bSearchable": true, "sType": "html", "bSortable": true}
             ],
             "initComplete": function (oSettings, json) {  // when dataTable is loaded
 
-                // download tool
-                //oConf.kw = oConf.kw;
                 oConf.fileName = 'impc_publications';
                 oConf.iDisplayStart = 0;
                 oConf.iDisplayLength = 10;
@@ -975,12 +955,11 @@
                 var fileTypeTsv = "fileType=tsv";
                 var fileTypeXls = "fileType=xls";
 
-                var toolBox = '<span>Export table as: &nbsp;'
-                    + '<a id="tsvA" href=""><i class="fa fa-download gridDump"></i>&nbsp;TSV</a>'
-                    + '<a id="xlsA"  href=""><i class="fa fa-download gridDump"></i>&nbsp;XLS</a></span>';//+
-                // '<span>For more information, consider <a href=${baseUrl}/batchQuery>Batch search</a></span>';
+                var toolBox = 'Export table: '
+                    + '<a id="tsvA" href=""><i class="fa fa-download gridDump"</i>TSV</a>&nbsp;or&nbsp;'
+                    + '<a id="xlsA" href="><i class="fa fa-download gridDump"</i>XLS</a>';//+
 
-                $("div.saveTable").html(toolBox);
+                $("div.export").html(toolBox);
 
                 $('a.gridDump').on('click', function(){
 
