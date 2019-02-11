@@ -198,7 +198,7 @@ public class ChartsController {
     
     
     @RequestMapping("/chart")
-    public String chart(@RequestParam(required = true, value = "experimentNumber") String experimentNumber,
+    public String chart(@RequestParam(required = true, value = "experimentNumber", defaultValue = "1") String experimentNumber,
                         @RequestParam(required = false, value = "accession") String[] accession,
                         @RequestParam(required = false, value = "strain_accession_id") String strain,
                         @RequestParam(required = false, value = "allele_accession_id") String alleleAccession,
