@@ -9,6 +9,7 @@
     <jsp:attribute name="title">${systemName} landing page | IMPC Phenotype Information</jsp:attribute>
     <jsp:attribute name="pagename">${pageTitle}</jsp:attribute>
     <jsp:attribute name="breadcrumb">${systemName}</jsp:attribute>
+    <jsp:attribute name="bodyTag"><body  class="phenotype-node no-sidebars small-header"></jsp:attribute>
 
     <jsp:attribute name="header">
         <!-- CSS Local Imports -->
@@ -40,7 +41,6 @@
 	</jsp:attribute>
 
 
-    <jsp:attribute name="bodyTag"><body  class="phenotype-node no-sidebars small-header"></jsp:attribute>
 
     <jsp:attribute name="addToFooter"></jsp:attribute>
 
