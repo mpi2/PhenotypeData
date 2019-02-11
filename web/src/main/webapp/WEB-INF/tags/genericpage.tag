@@ -516,6 +516,8 @@
                                 <input id="searchInput" name="term" class="portal-search__input" placeholder="Search the portal..." type="text" value="${param.term}">
                                 <button id="searchIcon" type="submit"> <i class="fas fa-search"></i></button>
                                 <input id="searchType" type="hidden" name="type" value="${param.type}">
+                                <input id="start" type="hidden" name="start" value="${param.start}">
+                                <input id="rows" type="hidden" name="rows" value="${param.rows}">
                                 <div id="searchLoader" class="lds-ring">
                                     <div></div>
                                     <div></div>
