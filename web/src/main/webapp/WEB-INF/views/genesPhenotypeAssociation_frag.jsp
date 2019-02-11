@@ -67,12 +67,12 @@
                                 </div>
                             </div>
                         </c:if>
-                        <div class="row no-gutters justify-content-center mt-5 text-center text-muted">
-                            <a href="#phenotypesTab" class="col-sm-2">
+                        <div class="row no-gutters justify-content-center mt-5 text-center ">
+                            <a href="#phenotypesTab" class="col-sm-2 text-dark">
                                 <i class="fas fa-file-medical-alt mb-1" style="font-size: 5em;"></i>
-                                <span style="display: block; font-size: smaller">Phenotype data</span>
+                                <span style="display: block; font-size: smaller;">Phenotype data</span>
                             </a>
-                            <a href="#phenotypesTab" class="col-sm-2">
+                            <a href="#phenotypesTab" class="col-sm-2 text-dark">
                                 <i class="fas fa-ruler-combined mb-1" style="font-size: 5em;"></i>
                                 <span style="display: block; font-size: smaller">All measurements</span>
                             </a>
@@ -80,15 +80,15 @@
                                 <i class="icon icon-conceptual icon-expression" style="font-size: 5em;"></i>
                                 <span style="display: block; font-size: smaller"></span>
                             </a-->
-                            <a href="#expression" class="col-sm-2">
+                            <a href="#expression" class="col-sm-2 text-dark">
                                 <i class="fas fa-images mb-1" style="font-size: 5em;" data-toggle="tooltip" data-placement="top"></i>
                                 <span style="display: block; font-size: smaller">Expression & Images</span>
                             </a>
-                            <a href="#diseases" class="col-sm-2">
+                            <a href="#diseases" class="col-sm-2 text-dark">
                                 <i class="fas fa-procedures mb-1" style="font-size: 5em;" data-toggle="tooltip" data-placement="top"></i>
                                 <span style="display: block; font-size: smaller">Disease models</span>
                             </a>
-                            <a href="#order" class="col-sm-2">
+                            <a href="#order" class="col-sm-2 text-dark">
                                 <i class="fas fa-shopping-cart mb-1" style="font-size: 5em;" data-toggle="tooltip" data-placement="top"></i>
                                 <span style="display: block; font-size: smaller">Order</span>
                             </a>
