@@ -109,26 +109,28 @@ public class SearchController {
 		}
 		QueryResponse response = searchGeneService.searchGenes(term, start, rows);
 		final List<GeneDTO> genes = response.getBeans(GeneDTO.class);
-		
-		model.addAttribute("numberOfResults",Long.toString(response.getResults().getNumFound()));
 		model.addAttribute("genes", genes);
-		model=addPagination(start, rows, model);
+		model=addPagination(start, rows, response,model);
 		return model;
 	}
 	
 	private Model searchPhenotypes(String term, Integer start, Integer rows, Model model) throws SolrServerException, IOException {
 		QueryResponse response = searchPhenotypeService.searchPhenotypes(term, start, rows);
 		final List<MpDTO> phenotypes = response.getBeans(MpDTO.class);
-		
-		model.addAttribute("numberOfResults",Long.toString(response.getResults().getNumFound()));
 		model.addAttribute("phenotypes", phenotypes);
-		model=addPagination(start, rows, model);
+		model=addPagination(start, rows, response, model);
 		return model;
 	}
 	
-	private Model addPagination(Integer start, Integer rows, Model model) {
+	private Model addPagination(Integer start, Integer rows, QueryResponse response, Model model) {
+		Long numberOfResults=response.getResults().getNumFound();
+		model.addAttribute("numberOfResults",Long.toString(response.getResults().getNumFound()));
 		model.addAttribute("start",start);
 		model.addAttribute("rows",rows);
+		long pagesDouble=Math.round((double)numberOfResults/(double)rows);
+		
+		System.out.println("numberOfResults="+numberOfResults+"pagesLong="+pagesDouble+" pages="+pagesDouble);
+		model.addAttribute("pages", String.valueOf(pagesDouble));
 		return model;
 	}
 

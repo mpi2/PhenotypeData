@@ -42,9 +42,9 @@ public class SearchPhenotypeService {
 	public QueryResponse searchPhenotypes(String keywords, Integer start, Integer rows) throws SolrServerException, IOException {
 		//current query used by BZ is just taken from old one which has DisMax and boost in the URL (boosts could be in solr config as defaults??)
 //https://wwwdev.ebi.ac.uk/mi/impc/dev/solr/mp/select?facet.field=top_level_mp_term_inclusive&fl=mp_id,mp_term,mixSynQf,mp_definition&fq=+*:*&rows=10&bq=mp_term:("abnormal")^1000+mp_term_synonym:("abnormal")^500+mp_definition:("abnormal")^100&q="abnormal"&facet.limit=-1&defType=edismax&qf=mixSynQf&wt=json&facet=on&facet.sort=index&indent=true&start=0
-		final SolrQuery query = new SolrQuery(keywords);
+		final SolrQuery query = new SolrQuery("\""+keywords+"\"");
 		query.add("defType", "edismax");
-		query.setFields(MpDTO.MP_TERM, MpDTO.MP_TERM_SYNONYM, MpDTO.MP_DEFINITION);
+		query.setFields(MpDTO.ACCESSION,MpDTO.MP_TERM, MpDTO.MP_TERM_SYNONYM, MpDTO.MP_DEFINITION);
 		//boost looks like this bq=mp_term:("abnormal")^1000+mp_term_synonym:("abnormal")^500+mp_definition:("abnormal")^100&
 		query.add("bq", "mp_term:(\""+keywords+"\")^1000");
 		query.add("bq", "mp_term_synonym:(\""+keywords+"\")^500");
