@@ -299,7 +299,7 @@
             </div>
         </div>
 
-        <div class="container">
+        <div class="container" id="expression">
             <div class="row">
                 <div class="col-12 no-gutters">
                     <h3>Expression</h3>
@@ -460,40 +460,40 @@
                     </div>
                 </div>
             </div>
+        </div>
 
-            <div class="container">
-                <div class="row">
-                    <div class="col-12 no-gutters">
-                        <h3>Associated Images</h3>
-                    </div>
+        <div class="container" id="images">
+            <div class="row">
+                <div class="col-12 no-gutters">
+                    <h3>Associated Images</h3>
                 </div>
             </div>
+        </div>
 
-            <div class="container single single--no-side">
-                <div class="row">
-                    <div class="col-12 white-bg">
-                        <div class="page-content pt-5 pb-5">
-                            <div>
-                                <c:if test="${empty impcImageGroups and empty solrFacets}">
-                                    <div class="alert alert_info">Phenotype associated images not available</div>
+        <div class="container single single--no-side">
+            <div class="row">
+                <div class="col-12 white-bg">
+                    <div class="page-content pt-5 pb-5">
+                        <div>
+                            <c:if test="${empty impcImageGroups and empty solrFacets}">
+                                <div class="alert alert_info">Phenotype associated images not available</div>
+                            </c:if>
+
+                            <c:if test="${not empty impcImageGroups or not empty solrFacets}">
+                                <c:if test="${not empty impcImageGroups}">
+                                    <jsp:include page="impcImagesByParameter_frag.jsp"></jsp:include>
                                 </c:if>
 
-                                <c:if test="${not empty impcImageGroups or not empty solrFacets}">
-                                    <c:if test="${not empty impcImageGroups}">
-                                        <jsp:include page="impcImagesByParameter_frag.jsp"></jsp:include>
-                                    </c:if>
-
-                                    <c:if test="${not empty impcImageFacets and not empty solrFacets}">
-                                        <hr>
-                                    </c:if>
-
-                                    <c:if test="${not empty solrFacets}">
-                                        <h5>Legacy Phenotype Associated Images</h5>
-                                        <jsp:include page="genesLegacyPhenoAssocImg_frag.jsp"></jsp:include>
-                                    </c:if>
-
+                                <c:if test="${not empty impcImageFacets and not empty solrFacets}">
+                                    <hr>
                                 </c:if>
-                            </div>
+
+                                <c:if test="${not empty solrFacets}">
+                                    <h5>Legacy Phenotype Associated Images</h5>
+                                    <jsp:include page="genesLegacyPhenoAssocImg_frag.jsp"></jsp:include>
+                                </c:if>
+
+                            </c:if>
                         </div>
                     </div>
                 </div>
@@ -501,7 +501,7 @@
         </div>
 
 
-        <div class="container">
+        <div class="container" id="diseases">
             <div class="row">
                 <div class="col-12 no-gutters">
                     <h3>Disease Models</h3>
@@ -558,7 +558,7 @@
         </div>
 
 
-        <div class="container">
+        <div class="container" id="order">
             <div class="row">
                 <div class="col-12 no-gutters">
                     <h3>Order Mouse and ES Cells</h3>

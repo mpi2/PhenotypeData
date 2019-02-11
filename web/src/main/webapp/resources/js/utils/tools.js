@@ -508,7 +508,6 @@
                                                     "paging": true,
                                                     "serverSide": true,  // do not want sorting to be processed from server, false by default
                                                     "sDom": "i<<'#exportSpinner'>l<f><'saveTable'>r>tip",
-                                                    "sPaginationType": "bootstrap",
                                                     "searchHighlight": true,
                                                     "iDisplayLength": 10,
                                                     "oLanguage": {
@@ -837,7 +836,6 @@
             "paging": false,
             //"serverSide": false,  // do not want sorting to be processed from server, false by default
             "sDom": "<<'#exportSpinner'>l<f><'saveTable'>r>tip",
-            "sPaginationType": "bootstrap",
             "searchHighlight": true,
             "iDisplayLength": 10,
             "oLanguage": {
@@ -2086,7 +2084,6 @@
 			"bRetrieve" : true,
 			/* "bDestroy": true, */
 			"bFilter" : false,
-			"sPaginationType" : "bootstrap",
 		};
 		var oTbl = jqObj.dataTable($.extend({}, params, customConfig))
 				.fnSearchHighlighting();
