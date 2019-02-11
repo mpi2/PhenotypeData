@@ -79,20 +79,21 @@ $(document).ready(function () {
         e.preventDefault();
     })
 
-    $('.portalTab').on('click', function (e) {
-        e.preventDefault();
-        $('.portalTab').removeClass('active');
-        $(this).addClass('active');
-        //not on search page
-        if ($(this).hasClass('portalTabSearchPage')) {
-            return;
-        }
-        $('#searchType').val($(this).data("type"));
-    });
+//    $('.portalTab').on('click', function (e) {
+//    	console.log('calling BZjs .portalTab');
+//        e.preventDefault();
+//        $('.portalTab').removeClass('active');
+//        $(this).addClass('active');
+//        //not on search page
+//        if ($(this).hasClass('portalTabSearchPage')) {
+//            return;
+//        }
+//        $('#searchType').val($(this).data("type"));
+//    });
 
     var searchOn = false;
     $('#searchButton').on('click', function (e) {
-
+    	console.log('calling BZjs searchButton');
         if (!searchOn) {
             $('.click-guard').css('visibility', 'visible').hide().fadeIn('slow');
             $(this).addClass('active');

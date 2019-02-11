@@ -508,14 +508,16 @@
                 <div class="col-12 col-md-6 offset-md-3">
                     <div class="portal-search pb-5 mb-5 mt-5">
                         <div class="portal-search__tabs">
-                            <a data-type="gene" class="active portalTab portalTabSearchPage left-shadow" href="#">Genes</a>
-                            <a data-type="pheno" class="portalTab portalTabSearchPage right-shadow" href="#">Phenotypes</a>
+                            <a id="geneSearchTab" data-type="gene" class="active portalTab portalTabSearchPage left-shadow" href="#">Genes</a>
+                            <a id="phenotypeSearchTab" data-type="pheno" class="portalTab portalTabSearchPage right-shadow" href="#">Phenotypes</a>
                         </div>
                         <div class="portal-search__inputs">
-                            <form action="https://mousephenotypetest.org/portal-search/">
-                                <input id="searchInput" name="term" class="portal-search__input" placeholder="Search the portal..." type="text">
+                            <form id="searchForm" action="${baseUrl}/search">
+                                <input id="searchInput" name="term" class="portal-search__input" placeholder="Search the portal..." type="text" value="${param.term}">
                                 <button id="searchIcon" type="submit"> <i class="fas fa-search"></i></button>
-                                <input id="searchType" type="hidden" name="type" value="gene">
+                                <input id="searchType" type="hidden" name="type" value="${param.type}">
+                                <input id="start" type="hidden" name="start" value="${param.start}">
+                                <input id="rows" type="hidden" name="rows" value="${param.rows}">
                                 <div id="searchLoader" class="lds-ring">
                                     <div></div>
                                     <div></div>
