@@ -54,6 +54,39 @@
                                 </div>
                             </div>
                         </c:if>
+                        <c:if test="${viabilityCalls != null && viabilityCalls.size() > 0}">
+                            <div class="row no-gutters">
+                                <div class="col-md-2 align-middle text-right pr-1">
+                                    <div class="align-middle font-weight-bold pr-2" style="border-right: solid">Other links</div>
+                                </div>
+                                <div class="col-md-10 align-middle" style="font-size: 80%; margin-top: 5px;">
+                                    <a target="_blank" href="http://www.informatics.jax.org/marker/${gene.mgiAccessionId}"
+                                       title="see gene page at JAX">JAX &nbsp;<i class="fas fa-external-link"></i></a>
+                                    <a target="_blank" href="http://www.ensembl.org/Mus_musculus/Gene/Summary?g=${gene.mgiAccessionId}"
+                                       title="visualise mouse gene with ensembl genome broswer">Ensembl &nbsp;<i class="fas fa-external-link"></i></a>
+                                </div>
+                            </div>
+                        </c:if>
+                        <div class="row no-gutters justify-content-center mt-5 text-center text-muted">
+                            <a class="col-sm-3">
+                                <i class="icon icon-conceptual icon-expression" style="font-size: 5em;"></i>
+                                <!--i class="fas fa-file-medical-alt mb-1" style="font-size: 5em;" data-toggle="tooltip" data-placement="top"></i-->
+                                <span style="display: block; font-size: smaller">Expression</span>
+                            </a>
+                            <a class="col-sm-3">
+                                <i class="fas fa-images mb-1" style="font-size: 5em;" data-toggle="tooltip" data-placement="top"></i>
+                                <span style="display: block; font-size: smaller">Images</span>
+                            </a>
+                            <a class="col-sm-3">
+                                <i class="fas fa-procedures mb-1" style="font-size: 5em;" data-toggle="tooltip" data-placement="top"></i>
+                                <span style="display: block; font-size: smaller">Disease models</span>
+                            </a>
+                            <a class="col-sm-3">
+                                <i class="fas fa-shopping-cart mb-1" style="font-size: 5em;" data-toggle="tooltip" data-placement="top"></i>
+                                <span style="display: block; font-size: smaller">Order</span>
+                            </a>
+                        </div>
+
 
 
                     <%--c:if test="${gene.embryoDataAvailable || gene.embryoAnalysisUrl!=null || gene.dmddImageDataAvailable || hasVignette}">
@@ -244,11 +277,11 @@
             <ul class="nav nav-tabs" id="phenotypesTab" role="tablist">
                 <li class="nav-item">
                     <a class="nav-link active" id="significant-tab" data-toggle="tab" href="#significant"
-                       role="tab" aria-controls="significant-tab" aria-selected="false">Significant Phenotypes</a>
+                       role="tab" aria-controls="significant-tab" aria-selected="false">Significant phenotypes</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" id="alldata-tab" data-toggle="tab" href="#alldata"
-                       role="tab" aria-controls="alldata-tab" aria-selected="false">All Phenotypes</a>
+                       role="tab" aria-controls="alldata-tab" aria-selected="false">All measurements</a>
                 </li>
             </ul>
             <div class="tab-content" id="phenotypesTabContent">

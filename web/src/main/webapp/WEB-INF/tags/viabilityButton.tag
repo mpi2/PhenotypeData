@@ -12,13 +12,13 @@
 		<c:forEach var="call" items="${callList}" varStatus="loop">
 			<%--<span class="left">${call.replaceAll("Homozygous - ","Hom<br/>")}</span>--%>
 			<c:if test="${fn:contains(call, 'Lethal')}">
-				<span class="badge badge-danger">${call}</span>
+				<span class="badge badge-danger" style="font-size: 80%;">${call}</span>
 			</c:if>
 			<c:if test="${fn:contains(call, 'Subviable')}">
-				<span class="badge badge-warning">${call}</span>
+				<span class="badge badge-warning" style="font-size: 80%;">${call}</span>
 			</c:if>
 			<c:if test="${fn:contains(call, 'Viable')}">
-				<span class="badge badge-success">${call}</span>
+				<span class="badge badge-success" style="font-size: 80%;">${call}</span>
 			</c:if>
 		</c:forEach>
 	<!--</a> -->
@@ -30,13 +30,13 @@
 		<c:forEach var="call" items="${callList}" varStatus="loop">
 			<%--<span class="left">${call.replaceAll("Homozygous - ","Hom<br/>")}</span>--%>
 			<c:if test="${fn:contains(call, 'Lethal')}">
-				<span class="badge badge-danger">${call}</span>
+				<span class="badge badge-danger" style="font-size: 80%;">${call}</span>
 			</c:if>
 			<c:if test="${fn:contains(call, 'Subviable')}">
-				<span class="badge badge-warning">${call}</span>
+				<span class="badge badge-warning" style="font-size: 80%;">${call}</span>
 			</c:if>
 			<c:if test="${fn:contains(call, 'Viable')}">
-				<span class="badge badge-success">${call}</span>
+				<span class="badge badge-success" style="font-size: 80%;">${call}</span>
 			</c:if>
 		</c:forEach>
 	<!--/span-->
