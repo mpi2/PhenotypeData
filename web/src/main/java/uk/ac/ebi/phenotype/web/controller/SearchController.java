@@ -130,6 +130,9 @@ public class SearchController {
 		long pagesDouble=Math.round((double)numberOfResults/(double)rows);
 		
 		System.out.println("numberOfResults="+numberOfResults+"pagesLong="+pagesDouble+" pages="+pagesDouble);
+		if(pagesDouble==0) {
+			pagesDouble=1;//we always want to return at least one page even if 0 results or less than 10.
+		}
 		model.addAttribute("pages", String.valueOf(pagesDouble));
 		return model;
 	}

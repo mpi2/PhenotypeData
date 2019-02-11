@@ -107,7 +107,7 @@
           	
           	<c:forEach var="phenotype" items="${phenotypes}">
           		<div class="search-result">
-          			<a href="https://www.mousephenotype.org/data/phenotypes/${phenotype.accession}"><h4>${phenotype.mpTerm}</h4></a>
+          			<a href="${drupalBaseUrl}/phenotypes/${phenotype.accession}"><h4>${phenotype.mpTerm}</h4></a>
           			<div class="row"><div class="col-12 col-md-6"><b>Synonym: </b>
           			<c:forEach var="synonym" items="${phenotype.mpTermSynonym}">${synonym}</c:forEach><p></p></div>
           			<div class="col-12 col-md-6">
@@ -126,7 +126,7 @@
             <div class="col-md-9 col-12 text-left text-md-center">
              <div id="pagination">
              <c:forEach var="i" begin="0" end="${pages-1}">
-             <a data-start="${i*rows }" class="page-numbers page-num-search <c:if test='${start eq i*rows }'>current</c:if> href=" #"="">${i+1}</a>
+             <a data-start="${i*rows }" class="page-numbers page-num-search <c:if test='${start eq i*rows }'>current</c:if>" href="${baseUrl}/search?term=${param.term}&type=${param.type}&start=${i*rows}&rows=${rows}">${i+1}</a>
              <!-- <a data-start="10" class="page-numbers page-num-search false href=" #"="">2</a> -->
              </c:forEach>
              </div>
