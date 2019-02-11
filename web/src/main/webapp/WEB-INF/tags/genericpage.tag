@@ -512,7 +512,7 @@
                             <a id="phenotypeSearchTab" data-type="pheno" class="portalTab portalTabSearchPage right-shadow" href="#">Phenotypes</a>
                         </div>
                         <div class="portal-search__inputs">
-                            <form action="${baseUrl}/search">
+                            <form id="searchForm" action="${baseUrl}/search">
                                 <input id="searchInput" name="term" class="portal-search__input" placeholder="Search the portal..." type="text" value="${param.term}">
                                 <button id="searchIcon" type="submit"> <i class="fas fa-search"></i></button>
                                 <input id="searchType" type="hidden" name="type" value="${param.type}">

@@ -36,8 +36,12 @@ jQuery(document).ready(	function() {
 	    console.log('type='+type);
 	    if(type==='gene'){
 	    	console.log('gene is default so do nothing');
+	    	$('#geneSearchTab').addClass('active');
+	    	$('#phenotypeSearchTab').removeClass('active');
 	    }else if(type==='phenotype'){
 	    	console.log('phenotype type on load so change style of tabs to match');
+	    	$('#phenotypeSearchTab').addClass('active');
+	    	$('#geneSearchTab').removeClass('active');
 	    }
 	    
 
@@ -45,11 +49,15 @@ jQuery(document).ready(	function() {
 	$( "#geneSearchTab" ).click(function() {
 		  console.log( "gene search tab clicked" );
 		  $('#searchType').val('gene');
+		  $( "#searchForm" ).submit();
+		  //BZ submits on clicking on a tab should we do that? probably yes...
+		  //note possible conflict in buffaloZoo.js $('.portalTab').on('click',
 		});
 	
 	$( "#phenotypeSearchTab" ).click(function() {
 		  console.log( "phenotype search tab clicked" );
 		  $('#searchType').val('phenotype');
+		  $( "#searchForm" ).submit();
 		});
 // 18-July-2018 (mrelac) - commented out this function, as it hijacks a.interest and processes it using old, incorrect Harwell rules.
 

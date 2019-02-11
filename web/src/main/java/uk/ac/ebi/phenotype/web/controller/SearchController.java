@@ -100,6 +100,9 @@ public class SearchController {
 
 
 	private Model searchGenes(String term, Model model) throws SolrServerException, IOException {
+		if(term.contains(":")) {
+			term=term.replace(":", "\\:");
+		}
 		QueryResponse response = searchGeneService.searchGenes(term);
 		final List<GeneDTO> genes = response.getBeans(GeneDTO.class);
 		
