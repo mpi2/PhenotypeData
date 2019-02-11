@@ -86,37 +86,49 @@ public class SearchController {
 	@RequestMapping("/search")
 	public String search(@RequestParam(value = "term", required = false, defaultValue = "*") String term,
 			@RequestParam(value = "type", required = false, defaultValue = "gene") String type,
+			@RequestParam(value = "start", required = false, defaultValue = "0") String start,
+			@RequestParam(value = "rows", required = false, defaultValue = "10") String rows,
 			HttpServletRequest request,
 			Model model) throws IOException, URISyntaxException, SolrServerException {
 		
-		System.out.println("calling type="+ type+" search method kw="+ term);
+		System.out.println("calling type="+ type+" search method kw="+ term+"  start="+start+" rows="+rows);
+		int startLong = Integer.parseInt(start);
+		int rowLong = Integer.parseInt(rows);
 		if(type.equalsIgnoreCase("gene")) {
-			model=searchGenes(term, model);
+			model=searchGenes(term,  startLong, rowLong, model);
 		}else {
-			model=searchPhenotypes(term, model);
+			model=searchPhenotypes(term,  startLong, rowLong, model);
 		}
 		return "search";
 	}
 
 
-	private Model searchGenes(String term, Model model) throws SolrServerException, IOException {
+	private Model searchGenes(String term, Integer start, Integer rows, Model model) throws SolrServerException, IOException {
 		if(term.contains(":")) {
 			term=term.replace(":", "\\:");
 		}
-		QueryResponse response = searchGeneService.searchGenes(term);
+		QueryResponse response = searchGeneService.searchGenes(term, start, rows);
 		final List<GeneDTO> genes = response.getBeans(GeneDTO.class);
 		
 		model.addAttribute("numberOfResults",Long.toString(response.getResults().getNumFound()));
 		model.addAttribute("genes", genes);
+		model=addPagination(start, rows, model);
 		return model;
 	}
 	
-	private Model searchPhenotypes(String term, Model model) throws SolrServerException, IOException {
-		QueryResponse response = searchPhenotypeService.searchPhenotypes(term);
+	private Model searchPhenotypes(String term, Integer start, Integer rows, Model model) throws SolrServerException, IOException {
+		QueryResponse response = searchPhenotypeService.searchPhenotypes(term, start, rows);
 		final List<MpDTO> phenotypes = response.getBeans(MpDTO.class);
 		
 		model.addAttribute("numberOfResults",Long.toString(response.getResults().getNumFound()));
 		model.addAttribute("phenotypes", phenotypes);
+		model=addPagination(start, rows, model);
+		return model;
+	}
+	
+	private Model addPagination(Integer start, Integer rows, Model model) {
+		model.addAttribute("start",start);
+		model.addAttribute("rows",rows);
 		return model;
 	}
 
