@@ -46,7 +46,7 @@ public class SearchGeneService {
 		final SolrQuery query = new SolrQuery(keywords);
 		query.add("defType", "edismax");
 		//query.addField(GeneDTO.MGI_ACCESSION_ID);
-		query.setFields(GeneDTO.MARKER_NAME, GeneDTO.MARKER_SYMBOL, GeneDTO.MARKER_SYNONYM, GeneDTO.HUMAN_GENE_SYMBOL, GeneDTO.LATEST_ES_CELL_STATUS, GeneDTO.LATEST_MOUSE_STATUS, GeneDTO.LATEST_PHENOTYPE_STATUS);
+		query.setFields(GeneDTO.MGI_ACCESSION_ID,GeneDTO.MARKER_NAME, GeneDTO.MARKER_SYMBOL, GeneDTO.MARKER_SYNONYM, GeneDTO.HUMAN_GENE_SYMBOL, GeneDTO.LATEST_ES_CELL_STATUS, GeneDTO.LATEST_MOUSE_STATUS, GeneDTO.LATEST_PHENOTYPE_STATUS);
 		//bq=marker_symbol_lowercase:(akt*)^1000+marker_symbol_bf:(akt*)^100+latest_phenotype_status:%22Phenotyping+Complete%22+^200&
 		query.add("bq", "latest_phenotype_status:\"Phenotyping Complete\"^200");
 		query.add("bq", "marker_symbol_lowercase:("+keywords+"*)^1000" );
@@ -54,7 +54,7 @@ public class SearchGeneService {
 		query.add("qf", "geneQf");
 		query.setStart(start);
 		query.setRows(rows);
-System.out.println("search query="+query);
+System.out.println("gene search query="+query);
 		final QueryResponse response = solr.query( query);
 		return response;
 		

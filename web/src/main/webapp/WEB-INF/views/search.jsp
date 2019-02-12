@@ -107,9 +107,11 @@
           	
           	<c:forEach var="phenotype" items="${phenotypes}">
           		<div class="search-result">
-          			<a href="${drupalBaseUrl}/phenotypes/${phenotype.accession}"><h4>${phenotype.mpTerm}</h4></a>
+          			<a href="${drupalBaseUrl}/phenotypes/${phenotype.mpId}"><h4>${phenotype.mpTerm}</h4></a>
           			<div class="row"><div class="col-12 col-md-6"><b>Synonym: </b>
-          			<c:forEach var="synonym" items="${phenotype.mpTermSynonym}">${synonym}</c:forEach><p></p></div>
+          			<c:forEach var="synonym" items="${phenotype.mpTermSynonym}" varStatus="loop">
+                                                ${synonym}
+                                                <c:if test="${!loop.last}">,</c:if></c:forEach><p></p></div>
           			<div class="col-12 col-md-6">
           				<b>Definition: </b>${phenotype.mpDefinition}<p></p>
           			</div>

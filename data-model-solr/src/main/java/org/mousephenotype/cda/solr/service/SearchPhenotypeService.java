@@ -44,7 +44,7 @@ public class SearchPhenotypeService {
 //https://wwwdev.ebi.ac.uk/mi/impc/dev/solr/mp/select?facet.field=top_level_mp_term_inclusive&fl=mp_id,mp_term,mixSynQf,mp_definition&fq=+*:*&rows=10&bq=mp_term:("abnormal")^1000+mp_term_synonym:("abnormal")^500+mp_definition:("abnormal")^100&q="abnormal"&facet.limit=-1&defType=edismax&qf=mixSynQf&wt=json&facet=on&facet.sort=index&indent=true&start=0
 		final SolrQuery query = new SolrQuery("\""+keywords+"\"");
 		query.add("defType", "edismax");
-		query.setFields(MpDTO.ACCESSION,MpDTO.MP_TERM, MpDTO.MP_TERM_SYNONYM, MpDTO.MP_DEFINITION);
+		query.setFields(MpDTO.MP_ID, MpDTO.MP_TERM, MpDTO.MP_TERM_SYNONYM, MpDTO.MP_DEFINITION);
 		//boost looks like this bq=mp_term:("abnormal")^1000+mp_term_synonym:("abnormal")^500+mp_definition:("abnormal")^100&
 		query.add("bq", "mp_term:(\""+keywords+"\")^1000");
 		query.add("bq", "mp_term_synonym:(\""+keywords+"\")^500");
@@ -55,7 +55,7 @@ public class SearchPhenotypeService {
 		query.setRows(rows);
 		
 		//query.setRows(Integer.MAX_VALUE);
-System.out.println("search query="+query);
+System.out.println("phenotype search query="+query);
 		final QueryResponse response = solr.query( query);
 		return response;
 		
