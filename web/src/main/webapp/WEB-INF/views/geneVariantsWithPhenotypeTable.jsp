@@ -76,7 +76,7 @@
                     </a>
                 </c:if>
                 <c:if test='${phenotype.getEvidenceLink().getIconType().name().equalsIgnoreCase("GRAPH")}'>
-                    <a href="${phenotype.getEvidenceLink().getUrl() }" class="fancyboxGraph"><i class="fa fa-bar-chart-o" alt="${phenotype.getEvidenceLink().getAlt()}"></i>
+                    <a href="${phenotype.getEvidenceLink().getUrl() }&pageTitle=Phenotype: ${phenotype.phenotypeTerm.name}"><i class="fa fa-bar-chart-o" alt="${phenotype.getEvidenceLink().getAlt()}"></i>
                     </a>
                 </c:if>
                  <c:if test='${phenotype.getEvidenceLink().getIconType().name().equalsIgnoreCase("TABLE")}'>

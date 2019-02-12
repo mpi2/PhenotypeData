@@ -37,6 +37,9 @@
                 <h5>Outcome: ${embryoViabilityDTO.category}</h5>
             </c:if>
 
+	<h3><a href="link here">Procedure: ${parameter.procedureNames[0]}</a></h3>
+	<h4><a href="link here">Parameter: ${parameter.name}</a></h4>
+	<h4><a href="link here">Allele: <t:formatAllele>${alleleSymbol}</t:formatAllele></a></h4>
             <p>Background - <t:formatAllele>${geneticBackgroundString}</t:formatAllele>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                 Phenotyping Center - ${phenotypingCenter}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                 <c:if test="${pipeline.name!=null}">Pipeline - <a href="${pipelineUrl}">${pipeline.name }</a></c:if>

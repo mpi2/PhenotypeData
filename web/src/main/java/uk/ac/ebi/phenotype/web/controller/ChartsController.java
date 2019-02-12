@@ -231,7 +231,8 @@ public class ChartsController {
 		// TODO need to check we don't have more than one accession and one
         // parameter throw and exception if we do
         // get the parameter object from the stable id
-        ParameterDTO parameter = is.getParameterByStableId(parameterStableId);     
+        ParameterDTO parameter = is.getParameterByStableId(parameterStableId);  
+        model.addAttribute("parameter", parameter);
         
         if (parameter == null) {
         	System.out.println("throwing parameter not found exception");
@@ -290,7 +291,7 @@ public class ChartsController {
 //        }
 
         experiment = experimentService.getSpecificExperimentDTO(parameterStableId, pipelineStableId, accession[0], genderList, zyList, phenotypingCenter, strain, metaDataGroupString, alleleAccession, SOLR_URL);
-
+        model.addAttribute("alleleSymbol",experiment.getAlleleSymobl());
         if (parameterStableId.startsWith("IMPC_VIA_")) {
             // Its a viability outcome param which means its a line level query
             // so we don't use the normal experiment query in experiment service

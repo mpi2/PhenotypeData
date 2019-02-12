@@ -47,7 +47,7 @@
             <div class="row row-shadow">
                 <div class="col-12 no-gutters">
                 
-                    <h2>${pageTitle} ${gene.markerSymbol} - ${gene.markerName}</h2>
+                    <h2>${pageTitle} Gene: ${gene.markerSymbol}</h2>
                 </div>
             </div>
         </div>
