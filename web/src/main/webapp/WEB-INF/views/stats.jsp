@@ -68,13 +68,10 @@
 
         <c:forEach var="graphUrl" items="${allGraphUrlSet}" varStatus="graphUrlLoop">
 
-            <div class="section">
-                <div class="inner">
+            
                     <div class="chart" graphUrl="${baseUrl}/chart?${graphUrl}" id="divChart_${graphUrlLoop.count}">
                         <div id="spinner${graphUrlLoop.count}"><i class="fa fa-refresh fa-spin"></i></div>
                     </div>
-                </div>
-            </div>
 
         </c:forEach>
 
