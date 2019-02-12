@@ -70,7 +70,9 @@
             <c:otherwise>
                 <jsp:include page="unidimensionalStatsFrag.jsp"/>
             </c:otherwise>
-        </c:choose> <!-- only show scatter if scatter else only show unidimensional - otherwise we get unidimensional tables showing twice on the same page -->
+        </c:choose>
+
+        <!-- only show scatter if scatter else only show unidimensional - otherwise we get unidimensional tables showing twice on the same page -->
 
         <jsp:include page="timeSeriesStatsFrag.jsp"/>
 

@@ -417,7 +417,7 @@
                                 <a data-type="pheno" class="portalTab portalTabSearchPage right-shadow" href="#">Phenotypes</a>
                             </div>
                             <div class="portal-search__inputs">
-                                <form action="https://mousephenotypedev.org/portal-search/">
+                                <form action="${baseUrl}/search/">
                                     <input id="searchInput" name="term" class="portal-search__input" placeholder="Search the portal..."
                                         type="text" />
                                     <button id="searchIcon" type="submit"> <i class="fas fa-search"></i></button>

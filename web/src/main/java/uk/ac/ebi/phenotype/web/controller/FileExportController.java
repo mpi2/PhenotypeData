@@ -118,7 +118,7 @@ public class FileExportController {
 	private GwasDAO gwasDao;	
 
 	@Autowired
-	private SearchController searchController;
+	private BatchQueryController searchController;
 
 	@Autowired
 	private SearchUrlServiceFactory urlFactory;
