@@ -14,6 +14,7 @@
 
 	<!-- CSS Local Imports -->
         <link rel="stylesheet" href="${baseUrl}/css/treeStyle.css">
+        <link rel="stylesheet" href="${baseUrl}/css/vendor/font-awesome/font-awesome.min.css" />
 
 		<script type="text/javascript">
 			var phenotypeId = '${phenotype.getMpId()}';
