@@ -85,7 +85,7 @@
           	
           	<c:forEach var="gene" items="${genes}">
           	<div class="search-result">
-          		<a href="${drupalBaseUrl}/genes/${gene.mgiAccessionId}"><h4>${gene.markerSymbol}</h4></a>
+          		<a href="${baseUrl}/genes/${gene.mgiAccessionId}"><h4>${gene.markerSymbol}</h4></a>
           		<div class="row">
           			<div class="col-12 col-md-6">
           				<p><b>Name: </b>${gene.markerName}<br>
@@ -107,7 +107,7 @@
           	
           	<c:forEach var="phenotype" items="${phenotypes}">
           		<div class="search-result">
-          			<a href="${drupalBaseUrl}/phenotypes/${phenotype.mpId}"><h4>${phenotype.mpTerm}</h4></a>
+          			<a href="${baseUrl}/phenotypes/${phenotype.mpId}"><h4>${phenotype.mpTerm}</h4></a>
           			<div class="row"><div class="col-12 col-md-6"><b>Synonym: </b>
           			<c:forEach var="synonym" items="${phenotype.mpTermSynonym}" varStatus="loop">
                                                 ${synonym}
