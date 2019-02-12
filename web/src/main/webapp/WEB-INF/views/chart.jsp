@@ -37,8 +37,8 @@
                 <h5>Outcome: ${embryoViabilityDTO.category}</h5>
             </c:if>
 
-	<h3><a href="https://www.mousephenotype.org/impress/protocol/215">Procedure: ${parameter.procedureNames[0]}</a></h3>
-	<h4><a href="https://www.mousephenotype.org/impress/parameterontologies/5553/215">Parameter: ${parameter.name}</a></h4>
+	<h3><a href="${procedureUrl}">Procedure: ${parameter.procedureNames[0]}</a></h3>
+	<h4><a href="${parameterUrl}">Parameter: ${parameter.name}</a></h4>
 	<h4>Allele: <t:formatAllele>${alleleSymbol}</t:formatAllele></h4>
             <p>Background - <t:formatAllele>${geneticBackgroundString}</t:formatAllele>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                 Phenotyping Center - ${phenotypingCenter}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;

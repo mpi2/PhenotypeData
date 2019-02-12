@@ -31,6 +31,7 @@ import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
 import org.mousephenotype.cda.solr.service.dto.GeneDTO;
 import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
 import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
+import org.mousephenotype.cda.solr.service.dto.ProcedureDTO;
 import org.mousephenotype.cda.solr.service.exception.SpecificExperimentException;
 import org.mousephenotype.cda.solr.web.dto.ViabilityDTO;
 import org.mousephenotype.cda.solr.web.dto.EmbryoViability_DTO;
@@ -291,6 +292,19 @@ public class ChartsController {
 //        }
 
         experiment = experimentService.getSpecificExperimentDTO(parameterStableId, pipelineStableId, accession[0], genderList, zyList, phenotypingCenter, strain, metaDataGroupString, alleleAccession, SOLR_URL);
+        ProcedureDTO proc = is.getProcedureByStableId(experiment.getProcedureStableId()) ;
+        String procedureUrl="";
+        String parameterUrl="";
+        if (proc != null) {
+			//procedureDescription = String.format("<a href=\"%s\">%s</a>", is.getProcedureUrlByKey(((Integer)proc.getStableKey()).toString()),  "Procedure: "+ proc.getName());
+        	procedureUrl=is.getProcedureUrlByKey(((Integer)proc.getStableKey()).toString());
+        	model.addAttribute("procedureUrl", procedureUrl);
+        }
+		if (parameter.getStableKey() != null) {
+			//title = String.format("<a href=\"%s\">%s</a>", is.getParameterUrlByProcedureAndParameterKey(proc.getStableKey(),parameter.getStableKey()),  "Parameter: "+ parameter.getName());
+			parameterUrl=is.getParameterUrlByProcedureAndParameterKey(proc.getStableKey(),parameter.getStableKey());
+			model.addAttribute("parameterUrl", parameterUrl);
+		}
         model.addAttribute("alleleSymbol",experiment.getAlleleSymobl());
         setTitlesForGraph(model, experiment.getGeneticBackgtround(), experiment.getAlleleSymobl());
         
