@@ -16,13 +16,13 @@
 
         <c:if test="${ ! chartOnly}">
 
-            <div class="container mt-3" id="section-associations">
+            <!-- <div class="container mt-3" id="section-associations"> -->
                 <%-- <div class="row">
                     <div class="col-12 no-gutters">
                         <h3>Allele -<t:formatAllele>${symbol}</t:formatAllele></h3>
                     </div>
                 </div> --%>
-            </div>
+            <!-- </div> -->
 
             <div class="container single single--no-side">
                 <div class="row">
@@ -40,9 +40,8 @@
 	<h3><a href="${procedureUrl}">Procedure: ${parameter.procedureNames[0]}</a></h3>
 	<h4><a href="${parameterUrl}">Parameter: ${parameter.name}</a></h4>
 	<h4>Allele: <t:formatAllele>${alleleSymbol}</t:formatAllele></h4>
-            <p>Background - <t:formatAllele>${geneticBackgroundString}</t:formatAllele>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                Phenotyping Center - ${phenotypingCenter}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                <c:if test="${pipeline.name!=null}">Pipeline - <a href="${pipelineUrl}">${pipeline.name }</a></c:if>
+            <p>Phenotyping Center - ${phenotypingCenter}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<c:if test="${pipeline.name!=null}">Pipeline - <a href="${pipelineUrl}">${pipeline.name }</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</c:if>Background - <t:formatAllele>${geneticBackgroundString}</t:formatAllele>
+                
             </p>
 
             <p>
