@@ -56,6 +56,7 @@
 
 
         </c:if>
+        <span class="badge badge-info">Charts have mouseovers and are very clickable for further functionality - please feel free to mouseover or click on the legends and chart data points</span>
 
         <c:choose>
             <c:when test="${param['chart_type'] eq 'UNIDIMENSIONAL_SCATTER_PLOT'}">
