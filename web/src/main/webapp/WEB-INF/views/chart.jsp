@@ -38,13 +38,13 @@
             </c:if>
 
 	<h4>Charts showing results from testing with </h4>
-	<h4><a href="${procedureUrl}">Procedure: ${parameter.procedureNames[0]}</a></h4>
+	<h4>Procedure: <a href="${procedureUrl}"><button type="button" class="btn btn-primary">${parameter.procedureNames[0]}</button></a></h4>
 	
-	<h4><a href="${parameterUrl}">Parameter: ${parameter.name}</a></h4>
+	<h4>Parameter: <a href="${parameterUrl}"><button type="button" class="btn btn-secondary">${parameter.name}</button></a></h4>
 	<%-- <h4><a href="${parameterUrl}">Parameter: ${parameter.name}</a></h4> --%>
 	<h4>Allele: <t:formatAllele>${alleleSymbol}</t:formatAllele></h4>
-            at ${phenotypingCenter} phenotyping center 
-            <p><c:if test="${pipeline.name!=null}">Pipeline - <a href="${pipelineUrl}">${pipeline.name }</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</c:if>Background - <t:formatAllele>${geneticBackgroundString}</t:formatAllele>
+            <p>at ${phenotypingCenter} phenotyping center 
+            <c:if test="${pipeline.name!=null}">Pipeline - <a href="${pipelineUrl}">${pipeline.name }</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</c:if>Background - <t:formatAllele>${geneticBackgroundString}</t:formatAllele>
                </p> 
             
 
