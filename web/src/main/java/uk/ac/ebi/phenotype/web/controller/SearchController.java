@@ -63,33 +63,12 @@ public class SearchController {
 	}
 
 
-	/**
-	 * search page
-	 *
-	 */
-
-	/**
-	 * redirect calls to the base url or /search path to the search page with the version 2 URL path
-	 *
-	 * @return
-	 */
-//	@RequestMapping("/search/")  // appended slash
-//	public String searchForward(HttpServletRequest request) {
-//
-//		String scheme = (request.getAttribute("isProxied") == Boolean.TRUE ? "https" : request.getScheme());
-//		logger.info("searchForward(): isProxied = {}. scheme = {}.", request.getAttribute("isProxied"), scheme);
-//		String redirectUrl = scheme + ":" + request.getAttribute("mappedHostname") + request.getAttribute("baseUrl") + "/search/gene?kw=*";
-//
-//		return "redirect:" + redirectUrl;
-//	}
-
 	@RequestMapping("/search")
 	public String search(@RequestParam(value = "term", required = false, defaultValue = "*") String term,
 			@RequestParam(value = "type", required = false, defaultValue = "gene") String type,
 			@RequestParam(value = "start", required = false, defaultValue = "0") String start,
 			@RequestParam(value = "rows", required = false, defaultValue = "10") String rows,
-			HttpServletRequest request,
-			Model model) throws IOException, URISyntaxException, SolrServerException {
+			Model model) throws IOException, SolrServerException {
 		
 		System.out.println("calling type="+ type+" search method kw="+ term+"  start="+start+" rows="+rows);
 		int startLong = Integer.parseInt(start);
@@ -129,7 +108,7 @@ public class SearchController {
 		model.addAttribute("rows",rows);
 		long pagesDouble=Math.round((double)numberOfResults/(double)rows);
 		
-		System.out.println("numberOfResults="+numberOfResults+"pagesLong="+pagesDouble+" pages="+pagesDouble);
+		System.out.println("numberOfResults="+numberOfResults+", pagesLong="+pagesDouble+", pages="+pagesDouble);
 		if(pagesDouble==0) {
 			pagesDouble=1;//we always want to return at least one page even if 0 results or less than 10.
 		}
@@ -137,11 +116,6 @@ public class SearchController {
 		return model;
 	}
 
-	
-
-
-
-	
 	
 
 }
