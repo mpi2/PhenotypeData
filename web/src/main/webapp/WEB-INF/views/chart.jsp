@@ -25,7 +25,7 @@
             <!-- </div> -->
 
             <div class="container single single--no-side">
-                <div class="row">
+                <div class="row row-over-shadow">
                     <div class="col-12 white-bg">
                         <div class="page-content pt-5 pb-5">
             <c:if test="${viabilityDTO!=null}">
