@@ -37,19 +37,22 @@
                 <h5>Outcome: ${embryoViabilityDTO.category}</h5>
             </c:if>
 
-	<h3>Charts showing results from testing with <a href="${procedureUrl}">Procedure: ${parameter.procedureNames[0]}</a> and <a href="${parameterUrl}">Parameter: ${parameter.name}</a></h3>
+	<h4>Charts showing results from testing with </h4>
+	<h4><a href="${procedureUrl}">Procedure: ${parameter.procedureNames[0]}</a></h4>
+	
+	<h4><a href="${parameterUrl}">Parameter: ${parameter.name}</a></h4>
 	<%-- <h4><a href="${parameterUrl}">Parameter: ${parameter.name}</a></h4> --%>
 	<h4>Allele: <t:formatAllele>${alleleSymbol}</t:formatAllele></h4>
-            at ${phenotypingCenter} phenotyping centers 
+            at ${phenotypingCenter} phenotyping center 
             <p><c:if test="${pipeline.name!=null}">Pipeline - <a href="${pipelineUrl}">${pipeline.name }</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</c:if>Background - <t:formatAllele>${geneticBackgroundString}</t:formatAllele>
                </p> 
             
 
-            <p>
+            <%-- <p>
                 <c:if test="${metadata != null}">
                     Metadata Group - ${metadata}
                 </c:if>
-            </p>
+            </p> --%>
 
 
         </c:if>
