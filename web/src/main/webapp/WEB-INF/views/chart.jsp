@@ -16,16 +16,16 @@
 
         <c:if test="${ ! chartOnly}">
 
-            <div class="container mt-3" id="section-associations">
+            <!-- <div class="container mt-3" id="section-associations"> -->
                 <%-- <div class="row">
                     <div class="col-12 no-gutters">
                         <h3>Allele -<t:formatAllele>${symbol}</t:formatAllele></h3>
                     </div>
                 </div> --%>
-            </div>
+            <!-- </div> -->
 
             <div class="container single single--no-side">
-                <div class="row">
+                <div class="row row-over-shadow">
                     <div class="col-12 white-bg">
                         <div class="page-content pt-5 pb-5">
             <c:if test="${viabilityDTO!=null}">
@@ -37,19 +37,26 @@
                 <h5>Outcome: ${embryoViabilityDTO.category}</h5>
             </c:if>
 
-            <p>Background - <t:formatAllele>${geneticBackgroundString}</t:formatAllele>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                Phenotyping Center - ${phenotypingCenter}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                <c:if test="${pipeline.name!=null}">Pipeline - <a href="${pipelineUrl}">${pipeline.name }</a></c:if>
-            </p>
+	<h4>Charts showing results from testing with </h4>
+	<h4>Procedure: <a href="${procedureUrl}"><button type="button" class="btn btn-primary">${parameter.procedureNames[0]}</button></a></h4>
+	
+	<h4>Parameter: <a href="${parameterUrl}"><button type="button" class="btn btn-secondary">${parameter.name}</button></a></h4>
+	<%-- <h4><a href="${parameterUrl}">Parameter: ${parameter.name}</a></h4> --%>
+	<h4>Allele: <t:formatAllele>${alleleSymbol}</t:formatAllele></h4>
+            <p>at ${phenotypingCenter} phenotyping center 
+            <c:if test="${pipeline.name!=null}">Pipeline - <a href="${pipelineUrl}">${pipeline.name }</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</c:if>Background - <t:formatAllele>${geneticBackgroundString}</t:formatAllele>
+               </p> 
+            
 
-            <p>
+            <%-- <p>
                 <c:if test="${metadata != null}">
                     Metadata Group - ${metadata}
                 </c:if>
-            </p>
+            </p> --%>
 
 
         </c:if>
+        <span class="badge badge-info">Charts have mouseovers and are very clickable for further functionality - please feel free to mouseover or click on the legends and chart data points</span>
 
         <c:choose>
             <c:when test="${param['chart_type'] eq 'UNIDIMENSIONAL_SCATTER_PLOT'}">

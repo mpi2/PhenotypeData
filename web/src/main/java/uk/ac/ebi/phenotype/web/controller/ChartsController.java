@@ -31,6 +31,7 @@ import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
 import org.mousephenotype.cda.solr.service.dto.GeneDTO;
 import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
 import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
+import org.mousephenotype.cda.solr.service.dto.ProcedureDTO;
 import org.mousephenotype.cda.solr.service.exception.SpecificExperimentException;
 import org.mousephenotype.cda.solr.web.dto.ViabilityDTO;
 import org.mousephenotype.cda.solr.web.dto.EmbryoViability_DTO;
@@ -231,7 +232,8 @@ public class ChartsController {
 		// TODO need to check we don't have more than one accession and one
         // parameter throw and exception if we do
         // get the parameter object from the stable id
-        ParameterDTO parameter = is.getParameterByStableId(parameterStableId);     
+        ParameterDTO parameter = is.getParameterByStableId(parameterStableId);  
+        model.addAttribute("parameter", parameter);
         
         if (parameter == null) {
         	System.out.println("throwing parameter not found exception");
@@ -290,15 +292,29 @@ public class ChartsController {
 //        }
 
         experiment = experimentService.getSpecificExperimentDTO(parameterStableId, pipelineStableId, accession[0], genderList, zyList, phenotypingCenter, strain, metaDataGroupString, alleleAccession, SOLR_URL);
-
+        ProcedureDTO proc = is.getProcedureByStableId(experiment.getProcedureStableId()) ;
+        String procedureUrl="";
+        String parameterUrl="";
+        if (proc != null) {
+			//procedureDescription = String.format("<a href=\"%s\">%s</a>", is.getProcedureUrlByKey(((Integer)proc.getStableKey()).toString()),  "Procedure: "+ proc.getName());
+        	procedureUrl=is.getProcedureUrlByKey(((Integer)proc.getStableKey()).toString());
+        	model.addAttribute("procedureUrl", procedureUrl);
+        }
+		if (parameter.getStableKey() != null) {
+			//title = String.format("<a href=\"%s\">%s</a>", is.getParameterUrlByProcedureAndParameterKey(proc.getStableKey(),parameter.getStableKey()),  "Parameter: "+ parameter.getName());
+			parameterUrl=is.getParameterUrlByProcedureAndParameterKey(proc.getStableKey(),parameter.getStableKey());
+			model.addAttribute("parameterUrl", parameterUrl);
+		}
+        model.addAttribute("alleleSymbol",experiment.getAlleleSymobl());
+        setTitlesForGraph(model, experiment.getGeneticBackgtround(), experiment.getAlleleSymobl());
+        
         if (parameterStableId.startsWith("IMPC_VIA_")) {
             // Its a viability outcome param which means its a line level query
             // so we don't use the normal experiment query in experiment service
             ViabilityDTO viability = experimentService.getSpecificViabilityExperimentDTO(parameterStableId, pipelineStableId, accession[0], phenotypingCenter, strain, metaDataGroupString, alleleAccession);
             ViabilityDTO viabilityDTO = viabilityChartAndDataProvider.doViabilityData(parameter, viability);
             model.addAttribute("viabilityDTO", viabilityDTO);
-            setTitlesForGraph(model, experiment.getGeneticBackgtround(), experiment.getAlleleSymobl());
-        }
+           }
 
         if (parameterStableId.startsWith("IMPC_EVL_")) {
             // Its an E9.5 embryonic viability outcome param which means its a line level query
@@ -307,8 +323,7 @@ public class ChartsController {
             EmbryoViability_DTO embryoViability = experimentService.getSpecificEmbryoViability_ExperimentDTO(parameterStableId, pipelineStableId, accession[0], phenotypingCenter, strain, metaDataGroupString, alleleAccession, EmbryoViability.E9_5);
             EmbryoViability_DTO embryoViability_DTO = viabilityChartAndDataProvider.doEmbryo_ViabilityData(parameter, embryoViability);
             model.addAttribute("embryoViabilityDTO", embryoViability_DTO);
-            setTitlesForGraph(model, experiment.getGeneticBackgtround(), experiment.getAlleleSymobl());
-        }
+            }
 
         if (parameterStableId.startsWith("IMPC_EVM_")) {
             // Its an E12.5 embryonic viability outcome param which means its a line level query
@@ -317,8 +332,7 @@ public class ChartsController {
             EmbryoViability_DTO embryoViability = experimentService.getSpecificEmbryoViability_ExperimentDTO(parameterStableId, pipelineStableId, accession[0], phenotypingCenter, strain, metaDataGroupString, alleleAccession, EmbryoViability.E12_5);
             EmbryoViability_DTO embryoViability_DTO = viabilityChartAndDataProvider.doEmbryo_ViabilityData(parameter, embryoViability);
             model.addAttribute("embryoViabilityDTO", embryoViability_DTO);
-            setTitlesForGraph(model, experiment.getGeneticBackgtround(), experiment.getAlleleSymobl());
-        }
+            }
 
         if (parameterStableId.startsWith("IMPC_EVO_")) {
             // Its an E14.5 embryonic viability outcome param which means its a line level query
@@ -327,8 +341,7 @@ public class ChartsController {
             EmbryoViability_DTO embryoViability = experimentService.getSpecificEmbryoViability_ExperimentDTO(parameterStableId, pipelineStableId, accession[0], phenotypingCenter, strain, metaDataGroupString, alleleAccession, EmbryoViability.E14_5);
             EmbryoViability_DTO embryoViability_DTO = viabilityChartAndDataProvider.doEmbryo_ViabilityData(parameter, embryoViability);
             model.addAttribute("embryoViabilityDTO", embryoViability_DTO);
-            setTitlesForGraph(model, experiment.getGeneticBackgtround(), experiment.getAlleleSymobl());
-        }
+            }
 
         if (parameterStableId.startsWith("IMPC_EVP_")) {
             // Its an E18.5 embryonic viability outcome param which means its a line level query
@@ -337,8 +350,7 @@ public class ChartsController {
             EmbryoViability_DTO embryoViability = experimentService.getSpecificEmbryoViability_ExperimentDTO(parameterStableId, pipelineStableId, accession[0], phenotypingCenter, strain, metaDataGroupString, alleleAccession, EmbryoViability.E18_5);
             EmbryoViability_DTO embryoViability_DTO = viabilityChartAndDataProvider.doEmbryo_ViabilityData(parameter, embryoViability);
             model.addAttribute("embryoViabilityDTO", embryoViability_DTO);
-            setTitlesForGraph(model, experiment.getGeneticBackgtround(), experiment.getAlleleSymobl());
-        }
+            }
 
         
         
@@ -353,8 +365,7 @@ public class ChartsController {
             }
 
             String xAxisTitle = xUnits;
-            setTitlesForGraph(model, experiment.getGeneticBackgtround(), experiment.getAlleleSymobl());
-
+            
             try {
 				// if (chartType == null){
                 // chartType = GraphUtils.getDefaultChartType(parameter);

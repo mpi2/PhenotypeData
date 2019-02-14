@@ -7,8 +7,8 @@
 	
     <br/> <br/>
     
-    <p class = "chartTitle">${timeSeriesChartsAndTable.title}</p>
-	<p class = "chartSubtitle">${timeSeriesChartsAndTable.subtitle}</p>
+    <p class = "chartTitle">${timeSeriesChartsAndTable.subtitle}</p>
+	<p class = "chartSubtitle">${timeSeriesChartsAndTable.title}</p>
 		<div id="timechart${experimentNumber}"> </div>		
 		    
 	  <div>

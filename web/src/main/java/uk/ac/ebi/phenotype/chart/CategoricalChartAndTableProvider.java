@@ -299,8 +299,8 @@ public class CategoricalChartAndTableProvider {
 		+ "colors:" + colors + ", "
 		+ "tooltip: {  pointFormat: '{series.name}: <b>{point.y}</b>'},"
 		+ "chart: { renderTo: '" + chartId + "', type: 'column' }, "
-		+ "title: { text: '<span data-parameterStableId=\"" + parameter.getStableId() + "\">" + WordUtils.capitalize(title) + "</span>', useHTML:true }, "
-		+ "subtitle: { text:'" + subtitle + "'}, credits: { enabled: false }, "
+		+ "title: { text: '', useHTML:true }, "
+		+ "subtitle: { text:''}, credits: { enabled: false }, "
 		+ "xAxis: { categories: " + xAxisCategoriesArray + "}, "
 		+ "yAxis: { min: 0, title: { text: 'Percent Occurrence' } ,  "
 		+ "labels: {       formatter: function() { return this.value +'%';   }  }  },  "
@@ -390,9 +390,9 @@ public class CategoricalChartAndTableProvider {
 			+ "tooltip : "+ toolTipFunction
 			+ ", colors:" + colors
 			+ ", chart: { renderTo: 'chart"	+ chartId + "', type: 'column' }, "
-			+ "title: {  text: ' "+ title +"', useHTML:true  }, "
+			+ "title: {  text: ' ', useHTML:true  }, "
 			+ "credits: { enabled: false }, "
-			+ "subtitle: {  useHTML: true,  text: '" + procedureDescription + "', x: -20 }, "
+			+ "subtitle: { text: '', x: -20 }, "
 			+ "xAxis: { categories: "+ xAxisCategoriesArray+ "}, "
 			+ "yAxis: { min: 0, title: { text: 'Percent Occurrence' } ,  labels: {  formatter: function() { return this.value +'%';   }  }},  "
 			+ "plotOptions: { column: { stacking: 'percent' } }, "

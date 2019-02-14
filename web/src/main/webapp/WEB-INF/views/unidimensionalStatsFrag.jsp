@@ -8,9 +8,6 @@ ${data.mpTermId}
 </c:if>
 <!-- unidimensional here -->
 <c:if test="${unidimensionalChartDataSet!=null}">
-		
-	<p class = "chartTitle">${unidimensionalChartDataSet.title}</p>
-	<p class = "chartSubtitle">${unidimensionalChartDataSet.subtitle}</p>
 	
 	<br/>
 	

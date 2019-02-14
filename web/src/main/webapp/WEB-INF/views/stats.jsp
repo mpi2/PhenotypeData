@@ -47,7 +47,7 @@
             <div class="row row-shadow">
                 <div class="col-12 no-gutters">
                 
-                    <h2>${pageTitle} ${gene.markerSymbol} - ${gene.markerName}</h2>
+                    <h2>${pageTitle}</h2>
                 </div>
             </div>
         </div>
@@ -68,13 +68,10 @@
 
         <c:forEach var="graphUrl" items="${allGraphUrlSet}" varStatus="graphUrlLoop">
 
-            <div class="section">
-                <div class="inner">
+            
                     <div class="chart" graphUrl="${baseUrl}/chart?${graphUrl}" id="divChart_${graphUrlLoop.count}">
                         <div id="spinner${graphUrlLoop.count}"><i class="fa fa-refresh fa-spin"></i></div>
                     </div>
-                </div>
-            </div>
 
         </c:forEach>
 

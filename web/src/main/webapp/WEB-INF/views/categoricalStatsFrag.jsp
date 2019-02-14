@@ -14,7 +14,6 @@
     <a id="uncheckAll"  class="buttonForHighcharts"><i class="fa fa-times" aria-hidden="true"></i> Deselect all</a>
     
     <div class="clear both"></div>
-    
 	<script type="text/javascript">	${categoricalChartDataObject.chart} </script>
 
 	<div style="overflow: hidden; overflow-x: auto;">
