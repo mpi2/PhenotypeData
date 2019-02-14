@@ -339,10 +339,11 @@ public class ImageService implements WebStatus{
 	}
 
 	/**
-	 *  Return a query string formated for getting all the image records from the experiment core
+	 *  Return a query string formatted for getting all the image records from the experiment core
 	 *
 	 *  The query string should come out looking something like this:
-	 *  q=*:*&fq=downloadFilePath:(*filter* OR *filter2* ...)&fq="observation_type:image_record_observation
+	 *  q=observation_type:image_record AND downloadFilePath:(*filter* OR *filter2* ...)
+	 *
 	 * @return a SolrQuery representing the query to get all appropriate image documents
 	 */
 	public static SolrQuery allImageRecordSolrQuery() {
@@ -354,8 +355,7 @@ public class ImageService implements WebStatus{
 				.collect(Collectors.joining(" OR "));
 
 		SolrQuery query = new SolrQuery()
-				.setQuery(ImageDTO.OBSERVATION_TYPE + ":image_record")
-				.addFilterQuery(ObservationDTO.DOWNLOAD_FILE_PATH + ":" + "(" + filter + ")");
+				.setQuery(ImageDTO.OBSERVATION_TYPE + ":image_record AND " + ObservationDTO.DOWNLOAD_FILE_PATH + ":" + "(" + filter + ")");
 
 		logger.info("Solr query to get images: {}", query.toString());
 
