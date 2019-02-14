@@ -266,7 +266,7 @@
         <div class="container data-heading">
             <div class="row row-shadow">
                 <div class="col-12 no-gutters">
-                    <h2>Gene: ${gene.markerSymbol} - ${gene.markerName} <i class="fal fa-bell"></i></h2>
+                    <h2>Gene: ${gene.markerSymbol} <i class="fal fa-bell" style="float: right"></i></h2>
                 </div>
             </div>
         </div>
@@ -465,7 +465,7 @@
         <div class="container" id="images">
             <div class="row">
                 <div class="col-12 no-gutters">
-                    <h3><i class="fal fa-images"></i>&nbsp;Associated Images</h3>
+                    <h3><i class="fal fa-images"></i>>&nbsp;Associated Images</h3>
                 </div>
             </div>
         </div>

@@ -22,16 +22,24 @@
                     </c:if>
                         <div class="row no-gutters">
                             <div class="col-md-2 align-middle text-right pr-1">
-                                <div class="align-middle font-weight-bold pr-2" style="border-right: solid">MGI ID</div>
+                                <div class="align-middle font-weight-bold pr-2">Name</div>
                             </div>
                             <div class="col-md-10 align-middle">
-                                <span class="badge badge-info">${gene.mgiAccessionId}</span>
+                                <span>${gene.markerName}</span>
+                            </div>
+                        </div>
+                        <div class="row no-gutters">
+                            <div class="col-md-2 align-middle text-right pr-1">
+                                <div class="align-middle font-weight-bold pr-2">MGI ID</div>
+                            </div>
+                            <div class="col-md-10 align-middle">
+                                <span>${gene.mgiAccessionId}</span>
                             </div>
                         </div>
                         <c:if test="${!(empty gene.markerSynonym)}">
                             <div class="row no-gutters">
                                 <div class="col-md-2 align-middle text-right pr-1">
-                                    <div class="align-middle font-weight-bold pr-2" style="border-right: solid">Synonyms</div>
+                                    <div class="align-middle font-weight-bold pr-2">Synonyms</div>
                                 </div>
                                 <div class="col-md-10 align-middle">
                                     <c:if test='${fn:length(gene.markerSynonym) gt 1}'>
@@ -55,7 +63,7 @@
                         <c:if test="${viabilityCalls != null && viabilityCalls.size() > 0}">
                             <div class="row no-gutters">
                                 <div class="col-md-2 align-middle text-right pr-1">
-                                    <div class="align-middle font-weight-bold pr-2" style="border-right: solid">Viability</div>
+                                    <div class="align-middle font-weight-bold pr-2">Viability</div>
                                 </div>
                                 <div class="col-md-10 align-middle">
                                     <t:viabilityButton callList="${viabilityCalls}" link=""></t:viabilityButton>
@@ -65,7 +73,7 @@
                         <c:if test="${viabilityCalls != null && viabilityCalls.size() > 0}">
                             <div class="row no-gutters">
                                 <div class="col-md-2 align-middle text-right pr-1">
-                                    <div class="align-middle font-weight-bold pr-2" style="border-right: solid">Other links</div>
+                                    <div class="align-middle font-weight-bold pr-2">Other links</div>
                                 </div>
                                 <div class="col-md-10 align-middle" style="font-size: 80%; margin-top: 5px;">
                                     <a target="_blank" href="http://www.informatics.jax.org/marker/${gene.mgiAccessionId}"
