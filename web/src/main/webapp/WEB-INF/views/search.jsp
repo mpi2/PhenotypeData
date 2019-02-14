@@ -1,5 +1,6 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="t" tagdir="/WEB-INF/tags" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
 <t:genericpage>
@@ -78,6 +79,29 @@
 
                         <div class="page-content pb-5">
                             <p>Number of results: <span id="numResults">${numberOfResults}</span></p>
+                            <c:if test="${numberOfResults == 0}">
+                                <div class="alert alert-warning">
+                                    No results found for search term "${param.term}".
+                                    <c:if test="${fn:length(phenotypeSuggestions) > 0 || fn:length(geneSuggestions) > 0}">
+                                        Perhaps you were searching for:
+                                        <ul class="my-2">
+                                            <c:forEach var="i" items="${phenotypeSuggestions}">
+                                                <li>
+                                                    <a href="${baseUrl}/search?term=${i}&type=${param.type}" aria-controls="suggestion" data-dt-idx="0" tabindex="0" class="">${i}</a>
+
+                                                </li>
+                                            </c:forEach>
+                                            <c:forEach var="i" items="${geneSuggestions}">
+                                                <li>
+                                                    <a href="${baseUrl}/search?term=${i}&type=${param.type}" aria-controls="suggestion" data-dt-idx="0" tabindex="0" class="">${i}</a>
+
+                                                </li>
+                                            </c:forEach>
+                                        </ul>
+                                    </c:if>
+                                </div>
+                            </c:if>
+
                             <div id="results">
 
                                 <c:forEach var="gene" items="${genes}">
@@ -109,13 +133,23 @@
                                     <div class="search-result">
                                         <a href="${baseUrl}/phenotypes/${phenotype.mpId}">
                                             <h4>${phenotype.mpTerm}</h4></a>
+                                            <c:if test="${phenotype.geneCount == 0}">
+                                            <div class="alert alert-light" role="alert">
+                                                No IMPC genes are currently associated with this phenotype
+                                            </div>
+                                            </c:if>
+                                            <c:if test="${phenotype.geneCount != 0}">
+                                            <div class="alert alert-primary" role="alert">
+                                                ${phenotype.geneCount} gene<c:if test="${phenotype.geneCount != 1}">s</c:if> associated with this phenotype
+                                            </div>
+                                            </c:if>
                                         <div class="row">
                                             <div class="col-12 col-md-6"><b>Synonym: </b>
                                                 <c:forEach var="syn" items="${phenotype.mpTermSynonym}" varStatus="loop">
                                                     ${syn}<c:if test="${!loop.last}">,</c:if>
                                                 </c:forEach><p></p></div>
                                             <div class="col-12 col-md-6">
-                                                <b>Definition: </b>${phenotype.mpDefinition}<p></p>
+                                                <b>Definition: </b>${phenotype.mpDefinition}
                                             </div>
                                         </div>
                                     </div>
@@ -139,28 +173,24 @@
                         <%--</div>--%>
 
 
-                        <c:choose>
-                            <c:when test="${numberOfResults%10 == 0}">
-                                <c:set var="totalPages" value="${pages-1}" />
-                            </c:when>
-                            <c:otherwise>
-                                <c:set var="totalPages" value="${pages}" />
-                            </c:otherwise>
-                        </c:choose>
+                        <c:set var="totalPages" value="${pages}" />
 
                         <c:choose>
                             <c:when test="${start == 0}">
                                 <c:set var="currentPage">1</c:set>
-                                <c:set var="nextDisplayPage" value="${(currentPage+2)>totalPages ? totalPages : (currentPage+2)}" />
+                                <c:set var="nextDisplayPage" value="${(currentPage+1)>totalPages ? totalPages : (currentPage+1)}" />
                             </c:when>
                             <c:otherwise>
-                                <c:set var="currentPage"><fmt:formatNumber value="${(start/rows) + ((start/rows) % 1 == 0 ? 0 : 0.5)}" type="number" pattern="#" /></c:set>
+                                <c:set var="currentPage"><fmt:formatNumber value="${(start/rows) + ((start%rows) == 0 ? 0 : 0.5)}" type="number" pattern="#" /></c:set>
                                 <c:set var="nextDisplayPage" value="${(currentPage+1)>totalPages ? totalPages : (currentPage+1)}" />
                             </c:otherwise>
                         </c:choose>
 
                         <c:choose>
-                            <c:when test="${currentPage != totalPages}">
+                            <c:when test="${currentPage == 3}">
+                                <c:set var="prevDisplayPage" value="2" />
+                            </c:when>
+                            <c:when test="${currentPage != totalPages && currentPage!=3}">
                                 <c:set var="prevDisplayPage" value="${(currentPage-1) < 1 ? 1 : (currentPage-1)}" />
                             </c:when>
                             <c:otherwise>
@@ -168,13 +198,15 @@
                             </c:otherwise>
                         </c:choose>
 
-                        <!--
-                        Current page: ${currentPage}
-                        Total pages: ${totalPages}
-                        First page: ${prevDisplayPage}
-                        Last page: ${nextDisplayPage}
-                        -->
 
+
+                        Current page: ${currentPage}<br />
+                        Total pages: ${totalPages}<br />
+                        First page: ${prevDisplayPage}<br />
+                        Last page: ${nextDisplayPage}<br />
+                        <!-- -->
+
+                        <c:if test="${numberOfResults > rows}">
                         <div class="row justify-content-between">
                             <div class="col-md-auto my-2">
                                 <p class="">Showing ${start+1} to ${((start + rows)<numberOfResults) ? (start + rows) : numberOfResults} of ${numberOfResults} entries</p>
@@ -212,10 +244,8 @@
                                             <a href="#" aria-controls="cardio" data-dt-idx="6" tabindex="0" class="page-link">...</a></li>
                                     </c:if>
 
-
                                     <li class="paginate_button page-item <c:if test="${currentPage == totalPages}">active</c:if>">
-                                        <a href="${baseUrl}/search?term=${param.term}&type=${param.type}&start=${totalPages*rows}&rows=${rows}" aria-controls="cardio" data-dt-idx="0" tabindex="0" class="page-link">${totalPages}</a></li>
-
+                                        <a href="${baseUrl}/search?term=${param.term}&type=${param.type}&start=${(totalPages)*rows}&rows=${rows}" aria-controls="cardio" data-dt-idx="0" tabindex="0" class="page-link">${totalPages}</a></li>
                                     <c:if test="${start != totalPages*rows}">
                                         <li class="paginate_button page-item next" id="next">
                                             <a href="${baseUrl}/search?term=${param.term}&type=${param.type}&start=${nextDisplayPage*rows}&rows=${rows}" aria-controls="cardio" data-dt-idx="0" tabindex="0" class="page-link">Next</a></li>
@@ -227,6 +257,7 @@
                                 </ul>
                             </div>
                         </div>
+                        </c:if>
 
                     </div>
                 </div>
