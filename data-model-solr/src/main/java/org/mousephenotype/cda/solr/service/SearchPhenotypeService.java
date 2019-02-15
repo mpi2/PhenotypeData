@@ -49,7 +49,9 @@ public class SearchPhenotypeService {
         //current query used by BZ is just taken from old one which has DisMax and boost in the URL (boosts could be in solr config as defaults??)
         //https://wwwdev.ebi.ac.uk/mi/impc/dev/solr/mp/select?facet.field=top_level_mp_term_inclusive&fl=mp_id,mp_term,mixSynQf,mp_definition&fq=+*:*&rows=10&bq=mp_term:("abnormal")^1000+mp_term_synonym:("abnormal")^500+mp_definition:("abnormal")^100&q="abnormal"&facet.limit=-1&defType=edismax&qf=mixSynQf&wt=json&facet=on&facet.sort=index&indent=true&start=0
 
-        final SolrQuery query = new SolrQuery("\"" + keywords + "\"");
+        String search = keywords.isEmpty() || keywords.equals("*") ? "*:*" : "\"" + keywords + "\"";
+
+        final SolrQuery query = new SolrQuery(search);
         query.add("defType", "edismax");
         query.setFields(MpDTO.MP_ID, MpDTO.MP_TERM, MpDTO.MP_TERM_SYNONYM, MpDTO.MP_DEFINITION);
 
@@ -68,7 +70,7 @@ public class SearchPhenotypeService {
 
     public QueryResponse searchPhenotypeSuggestions(String keyword, Integer distance) throws IOException, SolrServerException {
 
-        String search = keyword.isEmpty() ? "*:*" : keyword.replaceAll("\\w", "") + "~" + distance;
+        String search = keyword.isEmpty() ? "*:*" : keyword.replaceAll("\\s", "") + "~" + distance;
 
         final SolrQuery query = new SolrQuery(search);
         query.add("defType", "edismax");

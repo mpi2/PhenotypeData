@@ -66,26 +66,34 @@ public class SearchController {
     @RequestMapping("/search")
     public String search(@RequestParam(value = "term", required = false, defaultValue = "*") String term,
                          @RequestParam(value = "type", required = false, defaultValue = "gene") String type,
-                         @RequestParam(value = "start", required = false, defaultValue = "0") String start,
+                         @RequestParam(value = "page", required = false, defaultValue = "1") String page,
                          @RequestParam(value = "rows", required = false, defaultValue = "10") String rows,
                          Model model) throws IOException, SolrServerException {
 
-        System.out.println("calling type=" + type + " search method kw=" + term + "  start=" + start + " rows=" + rows);
-        int startLong = Integer.parseInt(start);
-        int rowLong = Integer.parseInt(rows);
+        Integer pageNumber = Integer.parseInt(page);
+        Integer rowsPerPage = Integer.parseInt(rows);
+        Integer start = (pageNumber-1) * rowsPerPage;
+
         if (type.equalsIgnoreCase("gene")) {
-            model = searchGenes(term, startLong, rowLong, model);
+            model = searchGenes(term, start, rowsPerPage, model);
         } else {
-            model = searchPhenotypes(term, startLong, rowLong, model);
+            model = searchPhenotypes(term, start, rowsPerPage, model);
         }
+
+        Long numberOfResults = Long.parseLong((String)model.asMap().get("numberOfResults"));
+        Long numPages = (long) Math.ceil((double) numberOfResults / rowsPerPage);
+
+        model.addAttribute("currentPage", pageNumber);
+        model.addAttribute("rows", rowsPerPage);
+        model.addAttribute("start", start);
+        model.addAttribute("numPages", numPages);
+
         return "search";
     }
 
 
     private Model searchGenes(String term, Integer start, Integer rows, Model model) throws SolrServerException, IOException {
-        if (term.contains(":")) {
-            term = term.replace(":", "\\:");
-        }
+
         QueryResponse response = searchGeneService.searchGenes(term, start, rows);
         final List<GeneDTO> genes = response.getBeans(GeneDTO.class);
 
@@ -100,15 +108,17 @@ public class SearchController {
         }
 
         model.addAttribute("genes", genes);
-        model = addPagination(start, rows, response, model);
+        model.addAttribute("numberOfResults", Long.toString(response.getResults().getNumFound()));
+
         return model;
     }
 
     private Model searchPhenotypes(String term, Integer start, Integer rows, Model model) throws SolrServerException, IOException {
+
         QueryResponse response = searchPhenotypeService.searchPhenotypes(term, start, rows);
         final List<SearchResultMpDTO> phenotypes = response.getBeans(SearchResultMpDTO.class);
 
-        if (phenotypes.size()<1) {
+        if (phenotypes.size() < 1) {
             QueryResponse suggestionsResponse = searchPhenotypeService.searchPhenotypeSuggestions(term, 3);
             System.out.println("suggestionsResponse: " + suggestionsResponse);
             final List<String> suggestions = suggestionsResponse
@@ -125,28 +135,9 @@ public class SearchController {
             result.setGeneCount(genesByPhenotype.getOrDefault(result.getMpTerm(), 0));
         }
 
-        System.out.println("genesByPhenotypes: " + genesByPhenotype);
-        System.out.println("phenotypes: " + phenotypes);
-
         model.addAttribute("phenotypes", phenotypes);
-        model = addPagination(start, rows, response, model);
-
-        return model;
-    }
-
-    private Model addPagination(Integer start, Integer rows, QueryResponse response, Model model) {
-        Long numberOfResults = response.getResults().getNumFound();
         model.addAttribute("numberOfResults", Long.toString(response.getResults().getNumFound()));
-        model.addAttribute("start", start);
-        model.addAttribute("rows", rows);
-        long pagesDouble = (long) Math.ceil((double) numberOfResults / (double) rows);
-        if ((numberOfResults % rows) == 0) pagesDouble -= 1;
 
-        System.out.println("numberOfResults=" + numberOfResults + ", pagesLong=" + pagesDouble + ", pages=" + pagesDouble);
-        if (pagesDouble == 0) {
-            pagesDouble = 1;//we always want to return at least one page even if 0 results or less than 10.
-        }
-        model.addAttribute("pages", String.valueOf(pagesDouble));
         return model;
     }
 
