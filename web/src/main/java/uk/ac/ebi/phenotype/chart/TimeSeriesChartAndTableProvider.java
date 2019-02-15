@@ -92,7 +92,7 @@ public class TimeSeriesChartAndTableProvider {
 			TimeSeriesStats stats = new TimeSeriesStats();
 			String label = ChartUtils.getLabel(null, sex);
 			List<DiscreteTimePoint> controlMeans = stats.getMeanDataPoints(controlDataPoints);
-			lines.put(label, controlMeans);
+			lines.put(label+" (count)", controlMeans);
 
 			for (ZygosityType zType : experiment.getZygosities()) {
 
@@ -126,7 +126,7 @@ public class TimeSeriesChartAndTableProvider {
 				logger.debug("doing mutant data");
 				List<DiscreteTimePoint> mutantMeans = stats.getMeanDataPoints(mutantData);
 				label = ChartUtils.getLabel(zType, sex);
-				lines.put(label, mutantMeans);
+				lines.put(label+" (count)", mutantMeans);
 			}
 		}
 

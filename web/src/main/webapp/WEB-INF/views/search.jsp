@@ -76,8 +76,8 @@
                                 </div>
                             </div>
                         </div>
-
                     </div>
+
                     <div class="pre-content pr-md-25">
                         <h2>Search</h2>
 

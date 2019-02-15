@@ -1464,7 +1464,7 @@
 			var btn = $('<button></button>').attr(
 					{
 						'class' : oFormatSelector[f]
-								+ ' fa fa-download ' + conf['class'] + 'btn btn-outline-primary'
+								+ ' fa fa-download ' + conf['class'] + ' btn btn-primary '
 					}).html(f);
 
 			$(iconDiv).append(btn);

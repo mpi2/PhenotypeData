@@ -29,7 +29,7 @@
 			<thead>
 				<tr>
 					<th>Control/Hom/Het</th>
-					<c:forEach var="categoryObject"	items="${categoricalResultAndChart.maleAndFemale[0].categoricalSets[0].catObjects}"	varStatus="categoriesStatus">
+					<c:forEach var="categoryObject"	items="${categoricalResultAndChart.maleAndFemale[0].categoricalSets[0].catObjects}"	 varStatus="categoriesStatus">
 						<th>${categoryObject.category}</th>
 					</c:forEach>
 					<th>P Value</th>
