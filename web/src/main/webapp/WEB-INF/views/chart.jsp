@@ -14,7 +14,7 @@
 
     <c:otherwise>
 
-        <div class="modal fade in w-75"  data-backdrop="false" id="conditions" tabindex="-1" role="dialog">
+        <div class="modal fade in w-100"  data-backdrop="true" id="conditions" tabindex="-1" role="dialog">
             <div class="modal-dialog modal-dialog-centered  modal-lg" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -24,12 +24,14 @@
                         </button>
                     </div>
                     <div class="modal-body">
-                        <dl class="small">
+                        <table class="table table-striped">
                             <c:forEach var="entry" items="${metadataMap}">
-                                <dt>${entry.key}</dt>
-                                <dd>${entry.value}</dd>
+                                <tr>
+                                <th>${entry.key}</th>
+                                <td>${entry.value}</td>
+                                </tr>
                             </c:forEach>
-                        </dl>
+                        </table>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -130,7 +132,7 @@
             </div>
         </c:if>
 
-        <span class="badge badge-info w-100">Mouseover the charts for more information. Click and drag to zoom the chart. Click on the legends to disable/enable data.</span>
+        <p class="alert alert-warning w-100">Mouseover the charts for more information. Click and drag to zoom the chart. Click on the legends to disable/enable data.</p>
 
         <c:choose>
             <c:when test="${param['chart_type'] eq 'UNIDIMENSIONAL_SCATTER_PLOT'}">

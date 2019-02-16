@@ -28,7 +28,7 @@
                         })
                             .done(function (html) {
                                 $('#' + id).append(html);
-                                $('#spinner' + (i + 1)).html('');
+                                $('#spinner' + (i + 1)).remove();
                                 if (html.search('section-associations') === -1) {//if this element not found in the html then no graph present so remove placeholder section
                                     console.log('element found');
                                     //$( '#'+ id ).html( '' );
@@ -67,10 +67,18 @@
 
         <c:forEach var="graphUrl" items="${allGraphUrlSet}" varStatus="graphUrlLoop">
 
-            
             <div class="chart" graphUrl="${baseUrl}/chart?${graphUrl}" id="divChart_${graphUrlLoop.count}">
-                <div class="row" id="spinner${graphUrlLoop.count}"><div class="col-12"><i class="fa fa-refresh fa-spin"></i></div></div>
+                <div id="spinner${graphUrlLoop.count}" class="container">
+                    <div class="pre-content">
+                        <div class="row no-gutters">
+                            <div class="col-12 my-5">
+                                <p class="h4 text-center text-justify"><i class="fas fa-atom fa-spin"></i> A moment please while we gather the data . . .</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
+
 
         </c:forEach>
 
@@ -82,7 +90,7 @@
                             <h3 class="pb-2"><i class="fa fa-download"></i> Download all the data</h3>
                             <hr />
                             <div id="exportIconsDivGlobal"></div>
-                            <p class="alert alert-info">NOTE: Data from all charts will be aggregated into one download file.</p>
+                            <p class="alert alert-warning">NOTE: Data from all charts will be aggregated into one download file.</p>
                         </div>
                     </div>
                 </div>
