@@ -53,7 +53,7 @@
 
             <div class="container single single--no-side">
 
-            <div class="breadcrumbs" style="margin-top: auto; margin: auto; padding: auto">
+            <div class="breadcrumbs" style="box-shadow: none; margin-top: auto; margin: auto; padding: auto">
                 <div class="row">
                     <div class="col-12">
                         <p><a href="/">Home</a> <span>></span>
