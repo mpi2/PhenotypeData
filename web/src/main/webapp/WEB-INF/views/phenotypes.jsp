@@ -178,7 +178,7 @@
                                             <div style="font-size: small; font-weight: lighter;">of tested males</div>
                                         </div>
                                     </div>
-                                    <div class="row no-gutters text-center text-info mt-3">
+                                    <div class="row no-gutters text-center text-info mt-5">
                                         <div class="col-4">
                                             <div id="numberOfGenes">0</div>
                                             <div style="font-size: small; font-weight: lighter;">tested genes</div>
