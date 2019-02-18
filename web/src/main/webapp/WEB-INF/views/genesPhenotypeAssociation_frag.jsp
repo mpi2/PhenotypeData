@@ -83,7 +83,7 @@
                                 </div>
                             </div>
                         </c:if>
-                        <div class="row no-gutters justify-content-center mt-5 text-center ">
+                        <div class="row no-gutters justify-content-center mt-3 text-center ">
                             <a href="#phenotypesTab" class="col-sm-2" onclick="$('#significant-tab').trigger('click')">
                                 <i class="fal fa-file-medical-alt mb-1" style="font-size: 5em;"></i>
                                 <span style="display: block; font-size: smaller;">Significant phenotypes</span>
