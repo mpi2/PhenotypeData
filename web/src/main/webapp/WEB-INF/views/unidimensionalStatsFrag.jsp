@@ -9,16 +9,18 @@ ${data.mpTermId}
 <!-- unidimensional here -->
 <c:if test="${unidimensionalChartDataSet!=null}">
 	
-	<br/>
-	
-	<div id="chart${experimentNumber}" class="onethird"></div>
-	<div id="scatter${experimentNumber}" class="twothird"></div>
-	<div class="clear"></div>
+	<div class="row">
+
+
+	<div id="chart${experimentNumber}" class="col-4"></div>
+	<div id="scatter${experimentNumber}" class="col-8"></div>
 	<script type="text/javascript">
-				${scatterChartAndData.chart};
-  			$(function () {${unidimensionalChartDataSet.chartData.chart}
+		${scatterChartAndData.chart};
+		$(function () {${unidimensionalChartDataSet.chartData.chart}
 	</script>
-	<br/> <br/>
+
+	</div>
+
 </c:if>
 
 <jsp:include page="unidimensionalTables.jsp"></jsp:include>

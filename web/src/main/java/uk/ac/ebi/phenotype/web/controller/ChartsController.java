@@ -19,6 +19,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.json.JSONException;
+import org.mousephenotype.cda.db.pojo.CategoricalResult;
 import org.mousephenotype.cda.enumerations.EmbryoViability;
 import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.enumerations.SexType;
@@ -27,14 +28,10 @@ import org.mousephenotype.cda.solr.service.ExperimentService;
 import org.mousephenotype.cda.solr.service.GeneService;
 import org.mousephenotype.cda.solr.service.ImpressService;
 import org.mousephenotype.cda.solr.service.StatisticalResultService;
-import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
-import org.mousephenotype.cda.solr.service.dto.GeneDTO;
-import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
-import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
-import org.mousephenotype.cda.solr.service.dto.ProcedureDTO;
+import org.mousephenotype.cda.solr.service.dto.*;
 import org.mousephenotype.cda.solr.service.exception.SpecificExperimentException;
-import org.mousephenotype.cda.solr.web.dto.ViabilityDTO;
 import org.mousephenotype.cda.solr.web.dto.EmbryoViability_DTO;
+import org.mousephenotype.cda.solr.web.dto.ViabilityDTO;
 import org.mousephenotype.cda.web.ChartType;
 import org.mousephenotype.cda.web.TimeSeriesConstants;
 import org.slf4j.Logger;
@@ -54,7 +51,6 @@ import uk.ac.ebi.phenotype.error.ParameterNotFoundException;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.sql.SQLException;
@@ -234,13 +230,16 @@ public class ChartsController {
         // get the parameter object from the stable id
         ParameterDTO parameter = is.getParameterByStableId(parameterStableId);  
         model.addAttribute("parameter", parameter);
-        
+
+
         if (parameter == null) {
         	System.out.println("throwing parameter not found exception");
             throw new ParameterNotFoundException("Parameter " + parameterStableId + " can't be found.", parameterStableId);
         }
 
         String metadata = null;
+        List<String> metadataList = null;
+
         String xUnits = parameter.getUnitX();
         ObservationType observationTypeForParam = parameter.getObservationType();
         List<String> genderList = getParamsAsList(gender);
@@ -290,6 +289,9 @@ public class ChartsController {
 //            }
 //            return "chart";
 //        }
+
+        GeneDTO gene = geneService.getGeneById(accession[0]);
+        model.addAttribute("gene", gene);
 
         experiment = experimentService.getSpecificExperimentDTO(parameterStableId, pipelineStableId, accession[0], genderList, zyList, phenotypingCenter, strain, metaDataGroupString, alleleAccession, SOLR_URL);
         ProcedureDTO proc = is.getProcedureByStableId(experiment.getProcedureStableId()) ;
@@ -362,6 +364,7 @@ public class ChartsController {
 
             if (experiment.getMetadataGroup() != null){
             	metadata = experiment.getMetadataHtml();
+            	metadataList = experiment.getMetadata();
             }
 
             String xAxisTitle = xUnits;
@@ -444,7 +447,6 @@ public class ChartsController {
             }
 
             model.addAttribute("pipeline", pipeline);
-            model.addAttribute("metadata", metadata);
             model.addAttribute("phenotypingCenter", phenotypingCenter);
             model.addAttribute("experimentNumber", experimentNumber);
             model.addAttribute("statsError", statsError);
@@ -452,6 +454,91 @@ public class ChartsController {
             model.addAttribute("srUrl", experiment.getStatisticalResultUrl());
             model.addAttribute("phenStatDataUrl", experiment.getDataPhenStatFormatUrl());
             model.addAttribute("chartOnly", chartOnly);
+
+            // Metadata
+            Map<String, String> metadataMap = null;
+            if (metadataList != null) {
+                metadataMap = metadataList
+                        .stream()
+                        .map(x -> Arrays.asList((x.split("="))))
+                        .filter(x -> x.size()==2)
+                        .collect(Collectors.toMap(
+                                k->k.get(0),
+                                v->v.get(1),
+                                (v1, v2) -> v1.concat(", ".concat(v2)),
+                                TreeMap::new
+                        ));
+            }
+            model.addAttribute("metadata", metadata);
+            model.addAttribute("metadataMap", metadataMap);
+
+
+            Integer numberFemaleMutantMice = 0;
+            Integer numberMaleMutantMice = 0;
+            Integer numberFemaleControlMice = 0;
+            Integer numberMaleControlMice = 0;
+
+            if (unidimensionalChartDataSet != null) {
+                List<UnidimensionalStatsObject> statsObjects = unidimensionalChartDataSet.getStatsObjects();
+                for (UnidimensionalStatsObject so : statsObjects) {
+                    if (so.getSexType() == SexType.female) {
+                        if (so.getLine().equals("Control")) {
+                            numberFemaleControlMice = so.getSampleSize();
+                        } else {
+                            numberFemaleMutantMice = so.getSampleSize();
+                        }
+                    } else if (so.getSexType() == SexType.male) {
+                        if (so.getLine().equals("Control")) {
+                            numberMaleControlMice = so.getSampleSize();
+                        } else {
+                            numberMaleMutantMice = so.getSampleSize();
+                        }
+                    }
+                }
+            }
+
+            if (categoricalResultAndChart != null) {
+                final List<CategoricalResult> statsResults = categoricalResultAndChart.getStatsResults();
+                for (CategoricalResult cr : statsResults) {
+                    numberFemaleControlMice = cr.getFemaleControls();
+                    numberFemaleMutantMice = cr.getFemaleMutants();
+                    numberMaleControlMice = cr.getMaleControls();
+                    numberMaleMutantMice = cr.getMaleMutants();
+                }
+            }
+
+            if (timeSeriesForParam != null) {
+                final ExperimentDTO e = timeSeriesForParam.getExperiment();
+                final Set<ObservationDTO> controls = e.getControls();
+                final Set<ObservationDTO> mutants = e.getMutants();
+
+                for (ObservationDTO o : controls) {
+                    if (SexType.valueOf(o.getSex()) == SexType.female) {
+                        numberFemaleControlMice += 1;
+                    } else if (SexType.valueOf(o.getSex()) == SexType.male) {
+                        numberMaleControlMice += 1;
+                    }
+                }
+
+                for (ObservationDTO o : mutants) {
+                    if (SexType.valueOf(o.getSex()) == SexType.female) {
+                        numberFemaleMutantMice += 1;
+                    } else if (SexType.valueOf(o.getSex()) == SexType.male) {
+                        numberMaleMutantMice += 1;
+                    }
+                }
+
+
+            }
+
+
+            model.addAttribute("numberFemaleMutantMice", numberFemaleMutantMice);
+            model.addAttribute("numberMaleMutantMice", numberMaleMutantMice);
+            model.addAttribute("numberFemaleControlMice", numberFemaleControlMice);
+            model.addAttribute("numberMaleControlMice", numberMaleControlMice);
+            model.addAttribute("numberMice", numberFemaleMutantMice + numberMaleMutantMice + numberFemaleControlMice + numberMaleControlMice);
+
+
 
         } else {
             System.out.println("empty experiment");

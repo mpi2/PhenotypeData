@@ -99,7 +99,7 @@
             
             
          
-            <td>${phenotype.prValueAsString}</td>
+            <td><t:formatScientific>${phenotype.prValueAsString}</t:formatScientific></td>
 
            
 			

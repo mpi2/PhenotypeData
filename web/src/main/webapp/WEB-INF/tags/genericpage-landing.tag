@@ -534,8 +534,7 @@
 <main id="main" class="main" role="main">
     <div class="container-fluid">
         <div class="single-header">
-            <img src="https://www.mousephenotypetest.org/wp-content/uploads/2018/12/utdBanner-150x150.png" srcset="https://www.mousephenotypetest.org/wp-content/uploads/2018/12/utdBanner-300x62.png 300w, https://www.mousephenotypetest.org/wp-content/uploads/2018/12/utdBanner-768x158.png 768w, https://www.mousephenotypetest.org/wp-content/uploads/2018/12/utdBanner-1024x210.png 1024w, https://www.mousephenotypetest.org/wp-content/uploads/2018/12/utdBanner.png 1440w"
-                 sizes="100%" />
+            <img src="https://www.mousephenotypetest.org/wp-content/uploads/2018/12/utdBanner-150x150.png" srcset="https://www.mousephenotypetest.org/wp-content/uploads/2018/12/utdBanner-300x62.png 300w, https://www.mousephenotypetest.org/wp-content/uploads/2018/12/utdBanner-768x158.png 768w, https://www.mousephenotypetest.org/wp-content/uploads/2018/12/utdBanner-1024x210.png 1024w, https://www.mousephenotypetest.org/wp-content/uploads/2018/12/utdBanner.png 1440w" sizes="100%" />
 
 
 

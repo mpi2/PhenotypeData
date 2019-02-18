@@ -502,36 +502,46 @@
 <div class="click-guard"></div>
 
 <main id="main" class="main" role="main">
+
         <div class="single-header">
-            <img src="${baseUrl}/img/defaultBanner.png">
-            <div class="row text-center no-gutters">
-                <div class="col-12 col-md-6 offset-md-3">
-                    <div class="portal-search pb-5 mb-5 mt-5">
-                        <div class="portal-search__tabs">
-                            <a id="geneSearchTab" data-type="gene" class="active portalTab portalTabSearchPage left-shadow" href="#">Genes</a>
-                            <a id="phenotypeSearchTab" data-type="pheno" class="portalTab portalTabSearchPage right-shadow" href="#">Phenotypes</a>
-                        </div>
-                        <div class="portal-search__inputs">
-                            <form id="searchForm" action="${baseUrl}/search">
-                                <input id="searchInput" name="term" class="portal-search__input" placeholder="Search the portal..." type="text" value="${param.term}">
-                                <button id="searchIcon" type="submit"> <i class="fas fa-search"></i></button>
-                                <input id="searchType" type="hidden" name="type" value="${param.type}">
-                                <input id="start" type="hidden" name="start" value="${param.start}">
-                                <input id="rows" type="hidden" name="rows" value="${param.rows}">
-                                <div id="searchLoader" class="lds-ring">
-                                    <div></div>
-                                    <div></div>
-                                    <div></div>
-                                    <div></div>
-                                </div>
-                            </form>
+            <img src="https://www.mousephenotypetest.org/wp-content/uploads/2019/02/understanding-150x150.png"
+                 srcset="https://www.mousephenotypetest.org/wp-content/uploads/2019/02/understanding-300x62.png 300w, https://www.mousephenotypetest.org/wp-content/uploads/2019/02/understanding-768x158.png 768w, https://www.mousephenotypetest.org/wp-content/uploads/2019/02/understanding-1024x210.png 1024w, https://www.mousephenotypetest.org/wp-content/uploads/2019/02/understanding.png 1440w"
+                 sizes="100%"/>
+
+            <div class="container">
+                <div class="row">
+                    <div class="col ">
+
+                    </div>
+                </div>
+                <div class="row text-center">
+                    <div class="col-12 col-md-8 offset-md-2">
+                        <div class="portal-search pb-5 mb-5 mt-5">
+                            <div class="portal-search__tabs">
+                                <a id="geneSearchTab" data-type="gene" class="portalTab portalTabSearchPage left-shadow <c:if test="${param.type != 'phenotype'}">active</c:if>" href="${baseUrl}/search">Genes</a>
+                                <a id="phenotypeSearchTab" data-type="pheno" class=" portalTab portalTabSearchPage right-shadow <c:if test="${param.type == 'phenotype'}">active</c:if>" href="${baseUrl}/search?type=phenotype">Phenotypes</a>
+                            </div>
+                            <div class="portal-search__inputs">
+                                <form id="searchForm" action="${baseUrl}/search">
+                                    <input id="searchTerm" name="term" class="portal-search__input" value="${param.term}" placeholder="Search the data..." type="text"/>
+                                    <button id="searchIcon" type="submit"><i class="fas fa-search"></i></button>
+                                    <input id="searchType" type="hidden" name="type" value="${param.type}">
+                                    <div id="searchLoader" class="lds-ring">
+                                        <div></div>
+                                        <div></div>
+                                        <div></div>
+                                        <div></div>
+                                    </div>
+                                </form>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        <jsp:doBody />
     </div>
+
+    <jsp:doBody />
 
     <div class="news-letter pt-5 pb-5">
         <div class="container">
@@ -541,14 +551,13 @@
                     <p class="mt-4">
                         Get highlights of the most important data releases,
                         news and events, delivered straight to your email inbox</p>
-                    <a class="btn btn-mailing btn-primary" target="_blank" href="https://forms.office.com/Pages/ResponsePage.aspx?id=jYTJ3EdDnkKo2NytnQUzMV3vNFn2DMZLqTjqljGsCfNUMDg0Q09OQThJUkVaVUpONVpSTVVSVEZERy4u
-">Subscribe
+                    <a class="btn btn-mailing btn-primary" target="_blank" href="https://forms.office.com/Pages/ResponsePage.aspx?id=jYTJ3EdDnkKo2NytnQUzMV3vNFn2DMZLqTjqljGsCfNUMDg0Q09OQThJUkVaVUpONVpSTVVSVEZERy4u">Subscribe
                         to newsletter</a>
                 </div>
             </div>
         </div>
     </div>
-    </div>
+
 </main>
 
 <div class="footer">

@@ -46,8 +46,7 @@
 <div class="container data-heading">
             <div class="row row-shadow">
                 <div class="col-12 no-gutters">
-                
-                    <h2>${pageTitle}</h2>
+                    <h2>${gene.markerSymbol} data chart</h2>
                 </div>
             </div>
         </div>
@@ -69,9 +68,9 @@
         <c:forEach var="graphUrl" items="${allGraphUrlSet}" varStatus="graphUrlLoop">
 
             
-                    <div class="chart" graphUrl="${baseUrl}/chart?${graphUrl}" id="divChart_${graphUrlLoop.count}">
-                        <div id="spinner${graphUrlLoop.count}"><i class="fa fa-refresh fa-spin"></i></div>
-                    </div>
+            <div class="chart" graphUrl="${baseUrl}/chart?${graphUrl}" id="divChart_${graphUrlLoop.count}">
+                <div class="row" id="spinner${graphUrlLoop.count}"><div class="col-12"><i class="fa fa-refresh fa-spin"></i></div></div>
+            </div>
 
         </c:forEach>
 
@@ -80,7 +79,10 @@
                 <div class="row">
                     <div class="col-12 white-bg">
                         <div class="page-content pt-5 pb-5">
+                            <h3 class="pb-2"><i class="fa fa-download"></i> Download all the data</h3>
+                            <hr />
                             <div id="exportIconsDivGlobal"></div>
+                            <p class="alert alert-info">NOTE: Data from all charts will be aggregated into one download file.</p>
                         </div>
                     </div>
                 </div>
@@ -103,7 +105,7 @@
                                 TSV: 'tsv_phenoAssoc',
                                 XLS: 'xls_phenoAssoc'
                             },
-                            class: 'fileIcon exportButton'
+                            class: 'btn btn-primary'
                         }));
 
                     var params = window.location.href.split("/charts?")[1]; //.split("&");
