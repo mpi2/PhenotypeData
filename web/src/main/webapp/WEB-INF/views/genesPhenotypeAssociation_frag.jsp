@@ -24,7 +24,7 @@
                             <div class="col-md-2 align-middle text-right pr-1">
                                 <div class="align-middle font-weight-bold pr-2">Name</div>
                             </div>
-                            <div class="col-md-10 align-middle">
+                            <div class="col-md-10 align-middle" style="font-size: 80%">
                                 <span>${gene.markerName}</span>
                             </div>
                         </div>
@@ -32,7 +32,7 @@
                             <div class="col-md-2 align-middle text-right pr-1">
                                 <div class="align-middle font-weight-bold pr-2">MGI ID</div>
                             </div>
-                            <div class="col-md-10 align-middle">
+                            <div class="col-md-10 align-middle" style="font-size: 80%">
                                 <span>${gene.mgiAccessionId}</span>
                             </div>
                         </div>
