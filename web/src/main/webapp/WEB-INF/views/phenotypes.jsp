@@ -16,7 +16,7 @@
 
 	<!-- CSS Local Imports -->
         <link rel="stylesheet" href="${baseUrl}/css/treeStyle.css">
-        <link rel="stylesheet" href="${baseUrl}/css/vendor/font-awesome/font-awesome.min.css" />
+        <link rel="stylesheet" href="${baseUrl}/css/vendor/font-awesome/font-awesome.min.css"/>
 
 		<script type="text/javascript">
             var phenotypeId = '${phenotype.getMpId()}';
@@ -45,45 +45,7 @@
     <jsp:attribute name="bodyTag">
 	
 	</jsp:attribute>
-
-    <jsp:attribute name="addToFooter">
-
-		<script type="text/javascript">
-            // Stuff dor parent-child. Will be used in parentChildTree.js.
-            console.log('getting phenotype infor for parentChildTree.js');
-            var ont_id = '${phenotype.getMpId()}';
-            var ontPrefix = "mp";
-            var page = "phenotypes";
-            var hasChildren = ${hasChildren};
-            var hasParents = ${hasParents};
-        </script>
-    	<script type="text/javascript" src="${baseUrl}/js/parentChildTree.js"></script>
-
-		<div class="region region-pinned">
-            <div id="flyingnavi" class="block smoothScroll">
-
-                <a href="#top"><i class="fa fa-chevron-up" title="scroll to top"></i></a>
-
-                <ul>
-                    <li><a href="#top">Phenotype</a></li>
-                    <c:if test="${genePercentage.getDisplay()}">
-		                		<li><a href="#data-summary">Phenotype Association Stats</a></li>
-		            </c:if>
-                    <c:if test="${hasData}">
-		                <li><a href="#gene-variants">Gene Variants</a></li><!-- message comes up in this section so dont' check here -->
-		            </c:if>
-                    <c:if test="${not empty images && fn:length(images) !=0}">
-		                <li><a href="#imagesSection">Images</a></li>
-		            </c:if>
-                </ul>
-
-                <div class="clear"></div>
-
-            </div>
-
-        </div>
-
-	</jsp:attribute>
+    
     <jsp:body>
 
         <div class="container data-heading">
@@ -99,46 +61,103 @@
                 <div class="row row-over-shadow">
                     <div class="col-12 white-bg">
                         <div class="page-content pt-5 pb-5">
+
                             <div class="row no-gutters">
-                                <div class="col-8">
-                                    <div class="row no-gutters justify-content-end text-center">
-                                        <a href="#phenotypesTab" class="col-sm-4"
-                                           onclick="$('#significant-tab').trigger('click')">
+                                <div class="col-8 align-middle">
+                                    <div class="row no-gutters">
+                                        <div class="col-md-2 align-middle text-right pr-1">
+                                            <div class="align-middle font-weight-bold pr-2">Definition</div>
+                                        </div>
+                                        <div class="col-md-10 align-middle" style="font-size: 80%;">
+                                            <span>${phenotype.getMpDefinition()}</span>
+                                        </div>
+                                    </div>
+                                    <c:if test="${not empty phenotype.getMpTermSynonym()}">
+                                        <div class="row no-gutters">
+                                            <div class="col-md-2 align-middle text-right pr-1">
+                                                <div class="align-middle font-weight-bold pr-2">Synonyms</div>
+                                            </div>
+                                            <div class="col-md-8">
+                                                <c:if test='${phenotype.getMpTermSynonym().size() == 1}'>
+
+                                                    <c:forEach var="synonym" items="${phenotype.getMpTermSynonym()}"
+                                                               varStatus="loop">
+                                                        <span class='badge badge-info'
+                                                              style="font-size: 80%;">${synonym}</span>
+                                                        <%--<c:if test="${!loop.last}">,&nbsp;</c:if>--%>
+                                                    </c:forEach>
+                                                </c:if>
+
+                                                <c:if test='${phenotype.getMpTermSynonym().size() gt 1}'>
+                                                    <c:set var="count" value="0" scope="page"/>
+
+                                                    <c:forEach var="synonym" items="${phenotype.getMpTermSynonym()}"
+                                                               varStatus="loop">
+                                                        <c:set var="count" value="${count + 1}" scope="page"/>
+                                                        <span class='badge badge-info'
+                                                              style="font-size: 80%;">${synonym}</span>
+                                                    </c:forEach>
+                                                </c:if>
+                                            </div>
+                                        </div>
+                                    </c:if>
+
+                                    <div class="row no-gutters justify-content-end text-center mt-3">
+                                        <a href="#genesAssociations" class="col-sm-4">
                                             <i class="fal fa-dna mb-1" style="font-size: 5em;"></i>
-                                            <span style="display: block; font-size: smaller;">Significant phenotypes</span>
+                                            <span style="display: block; font-size: smaller;">Significant gene associations</span>
                                         </a>
-                                        <a href="#phenotypesTab" class="col-sm-4"
-                                           onclick="$('#alldata-tab').trigger('click')">
+                                        <a href="#phenotypeProcedures" class="col-sm-4">
                                             <i class="fal fa-tasks mb-1" style="font-size: 5em;"></i>
-                                            <span style="display: block; font-size: smaller">All measurements</span>
+                                            <span style="display: block; font-size: smaller">The way we measure</span>
                                         </a>
-                                        <a href="#expression" class="col-sm-4">
-                                            <i class="fal fa-chart-line mb-1" style="font-size: 5em;" data-toggle="tooltip"
+                                        <a href="#phenotypeStats" class="col-sm-4">
+                                            <i class="fal fa-chart-line mb-1" style="font-size: 5em;"
+                                               data-toggle="tooltip"
                                                data-placement="top"></i>
-                                            <span style="display: block; font-size: smaller">Expression & images</span>
+                                            <span style="display: block; font-size: smaller">Phenotype stats</span>
                                         </a>
                                     </div>
                                 </div>
-                                <div class="col-lg-4 justify-content-center text-center text-primary" style="font-size: xx-large; font-weight: bolder; line-height: 1.0;">
+                                <div class="col-lg-4 justify-content-center text-center text-primary"
+                                     style="font-size: xx-large; font-weight: bolder; line-height: 1.0;">
                                     <div class="row no-gutters">
                                         <div class="col-4"><i class="fal fa-dna"></i></div>
                                         <div class="col-4"><i class="fal fa-venus"></i></div>
                                         <div class="col-4"><i class="fal fa-mars"></i></div>
                                     </div>
-                                    <div class="row no-gutters">
-                                        <div class="col-4"><div>12.27%</div><div style="font-size: small; font-weight: lighter;">of tested genes</div></div>
-                                        <div class="col-4"><div>8.04%</div><div style="font-size: small; font-weight: lighter;">of tested females</div></div>
-                                        <div class="col-4"><div>10.05%</div><div style="font-size: small; font-weight: lighter;">of tested males</div></div>
+                                    <div class="row no-gutters mt-3">
+                                        <div class="col-4">
+                                            <div><span id="percentageOfGenes">0</span>%</div>
+                                            <div style="font-size: small; font-weight: lighter;">of tested genes</div>
+                                        </div>
+                                        <div class="col-4">
+                                            <div><span id="percentageOfFemales">0</span>%</div>
+                                            <div style="font-size: small; font-weight: lighter;">of tested females</div>
+                                        </div>
+                                        <div class="col-4">
+                                            <div><span id="percentageOfMales">0</span>%</div>
+                                            <div style="font-size: small; font-weight: lighter;">of tested males</div>
+                                        </div>
                                     </div>
-                                    <div class="row no-gutters text-center text-info mt-3">
-                                        <div class="col-4"><div>5157</div><div style="font-size: small; font-weight: lighter;">tested genes</div></div>
-                                        <div class="col-4"><div>5101</div><div style="font-size: small; font-weight: lighter;">tested females</div></div>
-                                        <div class="col-4"><div>5124</div><div style="font-size: small; font-weight: lighter;">tested males</div></div>
+                                    <div class="row no-gutters text-center text-info mt-5">
+                                        <div class="col-4">
+                                            <div id="numberOfGenes">0</div>
+                                            <div style="font-size: small; font-weight: lighter;">tested genes</div>
+                                        </div>
+                                        <div class="col-4">
+                                            <div id="numberOfSignificantGenes">0</div>
+                                            <div style="font-size: small; font-weight: lighter;">significant genes</div>
+                                        </div>
+                                        <div class="col-4">
+                                            <div id="numberOfMeasumeasurements">0</div>
+                                            <div style="font-size: small; font-weight: lighter;">measurement types</div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                            <div class="row no-gutters">
-                                <h3>IMPC Gene variants with ${phenotype.getMpTerm()}</h3>
+                            <div class="row no-gutters mt-5">
+                                <h4 id="genesAssociations">IMPC Gene variants with ${phenotype.getMpTerm()}</h4>
                                 <jsp:include page="phenotypes_gene_variant_frag.jsp"></jsp:include>
                             </div>
                         </div>
@@ -151,7 +170,7 @@
         <div class="container">
             <div class="row">
                 <div class="col-12 no-gutters">
-                    <h3>Phenotype Summary Information</h3>
+                    <h3 id="phenotypeProcedures"><i class="fas fa-tasks"></i>&nbsp;The way we measure</h3>
                 </div>
             </div>
         </div>
@@ -170,7 +189,7 @@
             <div class="container">
                 <div class="row">
                     <div class="col-12 no-gutters">
-                        <h3>Phenotype associations stats</h3>
+                        <h3 id="phenotypeStats"><i class="fas fa-chart-line"></i>&nbsp;Phenotype associations stats</h3>
                     </div>
                 </div>
             </div>
@@ -191,6 +210,51 @@
             $('document').ready(function () {
 
                 var whatIsRelatedSyn = "Related synonyms are mostly terms of the Human Phenotype Ontology that are mapped to an mammalian phenotype (MP) term. Occasionally, they may be children of the current MP term.";
+                var number = 0;
+                var animatedNumbers = {
+                    percentageOfGenes: ${genePercentage.getTotalPercentage()},
+                    percentageOfFemales: ${genePercentage.getFemalePercentage()},
+                    percentageOfMales: ${genePercentage.getMalePercentage()},
+                    numberOfGenes: ${genePercentage.getTotalGenesTested()},
+                    numberOfSignificantGenes: ${genePercentage.getTotalGenesAssociated()},
+                    numberOfMeasumeasurements: ${parametersAssociated.size()},
+                };
+                var intervals = {};
+                var counters = {
+                    percentageOfGenes: 0,
+                    percentageOfFemales: 0,
+                    percentageOfMales: 0,
+                    numberOfGenes: 0,
+                    numberOfSignificantGenes: 0,
+                    numberOfMeasumeasurements: 0,
+                };
+                $("#proceduresTable").dataTable(
+                    {
+                        "bFilter":false,
+                        "bLengthChange": false
+                    }
+                );
+                Object.keys(animatedNumbers).forEach(key => {
+
+                    intervals[key] = setInterval(function () {
+                        $('#' + key).text(Math.floor(counters[key]));
+                        if (counters[key] >= animatedNumbers[key]) {
+                            clearInterval(intervals[key]);
+                            $('#' + key).text(animatedNumbers[key]);
+                        }
+                        counters[key] = counters[key] + (animatedNumbers[key] / 250);
+                    }, 1);
+
+            })
+                ;
+                var interval = setInterval(function () {
+                    $('#numberOfGenes').text(Math.floor(number));
+                    if (number >= ${genePercentage.getTotalGenesTested()}) {
+                        clearInterval(interval);
+                        $('#numberOfGenes').text(${genePercentage.getTotalGenesTested()});
+                    }
+                    number = number + (${genePercentage.getTotalGenesTested()} / 250);
+                }, 1);
 
                 // what is related synonym
                 /* $('i.relatedSyn').qtip({

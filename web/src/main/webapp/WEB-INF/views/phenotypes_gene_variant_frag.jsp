@@ -2,7 +2,7 @@
 <%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@taglib prefix="t" tagdir="/WEB-INF/tags" %>
 	
-<div class="row pt-5 pb-5 white-bg">
+<div class="row pb-5 white-bg">
 						<c:if test="${errorMessage != null}">
 							<div class="alert alert-info"><p>${errorMessage}</p></div>
 						</c:if>
@@ -31,8 +31,8 @@
 									<div id="export">
 										<p class="textright">
 											Download data as:
-											<a id="tsvDownload" href="${baseUrl}/phenotypes/export/${phenotype.getMpId()}?fileType=tsv&fileName=${phenotype.getMpTerm()}" target="_blank" class="button fa fa-download">TSV</a>
-											<a id="xlsDownload" href="${baseUrl}/phenotypes/export/${phenotype.getMpId()}?fileType=xls&fileName=${phenotype.getMpTerm()}" target="_blank" class="button fa fa-download">XLS</a>
+											<a id="tsvDownload" href="${baseUrl}/phenotypes/export/${phenotype.getMpId()}?fileType=tsv&fileName=${phenotype.getMpTerm()}" target="_blank" class="btn btn-outline-primary"><i class="fa fa-download"></i>&nbsp; TSV</a>
+											<a id="xlsDownload" href="${baseUrl}/phenotypes/export/${phenotype.getMpId()}?fileType=xls&fileName=${phenotype.getMpTerm()}" target="_blank" class="btn btn-outline-primary"><i class="fa fa-download"></i>&nbsp; XLS</a>
 										</p>
 									</div>
 							</c:if>

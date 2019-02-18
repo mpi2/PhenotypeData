@@ -24,7 +24,7 @@
                             <div class="col-md-2 align-middle text-right pr-1">
                                 <div class="align-middle font-weight-bold pr-2">Name</div>
                             </div>
-                            <div class="col-md-10 align-middle">
+                            <div class="col-md-10 align-middle" style="font-size: 80%">
                                 <span>${gene.markerName}</span>
                             </div>
                         </div>
@@ -32,7 +32,7 @@
                             <div class="col-md-2 align-middle text-right pr-1">
                                 <div class="align-middle font-weight-bold pr-2">MGI ID</div>
                             </div>
-                            <div class="col-md-10 align-middle">
+                            <div class="col-md-10 align-middle" style="font-size: 80%">
                                 <span>${gene.mgiAccessionId}</span>
                             </div>
                         </div>
@@ -45,14 +45,14 @@
                                     <c:if test='${fn:length(gene.markerSynonym) gt 1}'>
 
                                         <c:forEach var="synonym" items="${gene.markerSynonym}" varStatus="loop">
-                                            <span class="badge badge-info">${synonym}</span>
+                                            <span class="badge badge-info" style="font-size: 80%;">${synonym}</span>
                                         </c:forEach>
 
                                     </c:if>
                                     <c:if test='${fn:length(gene.markerSynonym) == 1}'>
 
                                         <c:forEach var="synonym" items="${gene.markerSynonym}" varStatus="loop">
-                                    <span class="badge badge-info">${synonym}</span>
+                                    <span class="badge badge-info" style="font-size: 80%;">${synonym}</span>
                                             <%--<c:if test="${!loop.last}">,&nbsp;</c:if>--%>
                                         </c:forEach>
 
@@ -77,13 +77,13 @@
                                 </div>
                                 <div class="col-md-10 align-middle" style="font-size: 80%; margin-top: 5px;">
                                     <a target="_blank" href="http://www.informatics.jax.org/marker/${gene.mgiAccessionId}"
-                                       title="see gene page at JAX">JAX &nbsp;<i class="fas fa-external-link"></i></a>
+                                       title="see gene page at JAX">MGI &nbsp;<i class="fas fa-external-link"></i></a>
                                     <a target="_blank" href="http://www.ensembl.org/Mus_musculus/Gene/Summary?g=${gene.mgiAccessionId}"
                                        title="visualise mouse gene with ensembl genome broswer">Ensembl &nbsp;<i class="fas fa-external-link"></i></a>
                                 </div>
                             </div>
                         </c:if>
-                        <div class="row no-gutters justify-content-center mt-5 text-center ">
+                        <div class="row no-gutters justify-content-center mt-3 text-center ">
                             <a href="#phenotypesTab" class="col-sm-2" onclick="$('#significant-tab').trigger('click')">
                                 <i class="fal fa-file-medical-alt mb-1" style="font-size: 5em;"></i>
                                 <span style="display: block; font-size: smaller;">Significant phenotypes</span>

@@ -184,7 +184,7 @@
         <div class="container">
             <div class="row">
                 <div class="col-6 col-md-3">
-                    <a href="/" class="header__logo-link active"><img class="header__logo" src="${baseUrl}/img/impc-logo@2x.png"></a>
+                    <a href="https://www.mousephenotypetest.org" class="header__logo-link active"><img class="header__logo" src="${baseUrl}/img/impc-logo@2x.png"></a>
                 </div>
                 <div class="col-6 col-md-9 text-right">
                         <span class="d-none d-lg-block">
