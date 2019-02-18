@@ -45,45 +45,7 @@
     <jsp:attribute name="bodyTag">
 	
 	</jsp:attribute>
-
-    <jsp:attribute name="addToFooter">
-
-		<script type="text/javascript">
-            // Stuff dor parent-child. Will be used in parentChildTree.js.
-            console.log('getting phenotype infor for parentChildTree.js');
-            var ont_id = '${phenotype.getMpId()}';
-            var ontPrefix = "mp";
-            var page = "phenotypes";
-            var hasChildren = ${hasChildren};
-            var hasParents = ${hasParents};
-        </script>
-    	<script type="text/javascript" src="${baseUrl}/js/parentChildTree.js"></script>
-
-		<div class="region region-pinned">
-            <div id="flyingnavi" class="block smoothScroll">
-
-                <a href="#top"><i class="fa fa-chevron-up" title="scroll to top"></i></a>
-
-                <ul>
-                    <li><a href="#top">Phenotype</a></li>
-                    <c:if test="${genePercentage.getDisplay()}">
-		                		<li><a href="#data-summary">Phenotype Association Stats</a></li>
-		            </c:if>
-                    <c:if test="${hasData}">
-		                <li><a href="#gene-variants">Gene Variants</a></li><!-- message comes up in this section so dont' check here -->
-		            </c:if>
-                    <c:if test="${not empty images && fn:length(images) !=0}">
-		                <li><a href="#imagesSection">Images</a></li>
-		            </c:if>
-                </ul>
-
-                <div class="clear"></div>
-
-            </div>
-
-        </div>
-
-	</jsp:attribute>
+    
     <jsp:body>
 
         <div class="container data-heading">
