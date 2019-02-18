@@ -45,14 +45,14 @@
                                     <c:if test='${fn:length(gene.markerSynonym) gt 1}'>
 
                                         <c:forEach var="synonym" items="${gene.markerSynonym}" varStatus="loop">
-                                            <span class="badge badge-info">${synonym}</span>
+                                            <span class="badge badge-info" style="font-size: 80%;">${synonym}</span>
                                         </c:forEach>
 
                                     </c:if>
                                     <c:if test='${fn:length(gene.markerSynonym) == 1}'>
 
                                         <c:forEach var="synonym" items="${gene.markerSynonym}" varStatus="loop">
-                                    <span class="badge badge-info">${synonym}</span>
+                                    <span class="badge badge-info" style="font-size: 80%;">${synonym}</span>
                                             <%--<c:if test="${!loop.last}">,&nbsp;</c:if>--%>
                                         </c:forEach>
 
@@ -77,7 +77,7 @@
                                 </div>
                                 <div class="col-md-10 align-middle" style="font-size: 80%; margin-top: 5px;">
                                     <a target="_blank" href="http://www.informatics.jax.org/marker/${gene.mgiAccessionId}"
-                                       title="see gene page at JAX">JAX &nbsp;<i class="fas fa-external-link"></i></a>
+                                       title="see gene page at JAX">MGI &nbsp;<i class="fas fa-external-link"></i></a>
                                     <a target="_blank" href="http://www.ensembl.org/Mus_musculus/Gene/Summary?g=${gene.mgiAccessionId}"
                                        title="visualise mouse gene with ensembl genome broswer">Ensembl &nbsp;<i class="fas fa-external-link"></i></a>
                                 </div>

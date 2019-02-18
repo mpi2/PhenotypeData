@@ -465,7 +465,7 @@
         <div class="container" id="images">
             <div class="row">
                 <div class="col-12 no-gutters">
-                    <h3><i class="fal fa-images"></i>>&nbsp;Associated Images</h3>
+                    <h3><i class="fal fa-images"></i>&nbsp;Associated Images</h3>
                 </div>
             </div>
         </div>

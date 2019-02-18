@@ -2,7 +2,7 @@
 <%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@taglib prefix="t" tagdir="/WEB-INF/tags" %>
 	
-<div class="row pt-5 pb-5 white-bg">
+<div class="row pb-5 white-bg">
 						<c:if test="${errorMessage != null}">
 							<div class="alert alert-info"><p>${errorMessage}</p></div>
 						</c:if>
