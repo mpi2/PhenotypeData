@@ -45,7 +45,7 @@
     <jsp:attribute name="bodyTag">
 	
 	</jsp:attribute>
-    
+
     <jsp:body>
 
         <div class="container data-heading">
@@ -128,15 +128,15 @@
                                     </div>
                                     <div class="row no-gutters mt-3">
                                         <div class="col-4">
-                                            <div><span id="percentageOfGenes">0</span>%</div>
+                                            <div><span id="percentageOfGenes">0</span><span id="percentageOfGenesSign">%</span></div>
                                             <div style="font-size: small; font-weight: lighter;">of tested genes</div>
                                         </div>
                                         <div class="col-4">
-                                            <div><span id="percentageOfFemales">0</span>%</div>
+                                            <div><span id="percentageOfFemales">0</span><span id="percentageOfFemalesSign">%</span></div>
                                             <div style="font-size: small; font-weight: lighter;">of tested females</div>
                                         </div>
                                         <div class="col-4">
-                                            <div><span id="percentageOfMales">0</span>%</div>
+                                            <div><span id="percentageOfMales">0</span><span id="percentageOfMalesSign">%</span></div>
                                             <div style="font-size: small; font-weight: lighter;">of tested males</div>
                                         </div>
                                     </div>
@@ -237,24 +237,21 @@
                 Object.keys(animatedNumbers).forEach(key => {
 
                     intervals[key] = setInterval(function () {
-                        $('#' + key).text(Math.floor(counters[key]));
-                        if (counters[key] >= animatedNumbers[key]) {
+                        if(isNaN(animatedNumbers[key])) {
                             clearInterval(intervals[key]);
-                            $('#' + key).text(animatedNumbers[key]);
+                            $('#' + key).text("-");
+                            $('#' + key + "Sign").text("");
+                        } else {
+                            $('#' + key).text(Math.floor(counters[key]));
+                            if (counters[key] >= animatedNumbers[key]) {
+                                clearInterval(intervals[key]);
+                                $('#' + key).text(animatedNumbers[key]);
+                            }
+                            counters[key] = counters[key] + (animatedNumbers[key] / 250);
                         }
-                        counters[key] = counters[key] + (animatedNumbers[key] / 250);
                     }, 1);
 
-            })
-                ;
-                var interval = setInterval(function () {
-                    $('#numberOfGenes').text(Math.floor(number));
-                    if (number >= ${genePercentage.getTotalGenesTested()}) {
-                        clearInterval(interval);
-                        $('#numberOfGenes').text(${genePercentage.getTotalGenesTested()});
-                    }
-                    number = number + (${genePercentage.getTotalGenesTested()} / 250);
-                }, 1);
+            });
 
                 // what is related synonym
                 /* $('i.relatedSyn').qtip({
