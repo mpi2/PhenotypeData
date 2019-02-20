@@ -82,7 +82,7 @@
 
                                                     <c:forEach var="synonym" items="${phenotype.getMpTermSynonym()}"
                                                                varStatus="loop">
-                                                        <span>${synonym}</span>
+                                                        <span>${synonym}<c:if test="${!loop.last}">,&nbsp;</c:if></span>
                                                         <c:if test="${!loop.last}">,&nbsp;</c:if>
                                                     </c:forEach>
                                                 </c:if>
@@ -93,8 +93,8 @@
                                                     <c:forEach var="synonym" items="${phenotype.getMpTermSynonym()}"
                                                                varStatus="loop">
                                                         <c:set var="count" value="${count + 1}" scope="page"/>
-                                                        <span>${synonym}</span>
-                                                        <c:if test="${!loop.last}">,&nbsp;</c:if>
+                                                        <span>${synonym}<c:if test="${!loop.last}">,&nbsp;</c:if></span>
+
                                                     </c:forEach>
                                                 </c:if>
                                             </div>
