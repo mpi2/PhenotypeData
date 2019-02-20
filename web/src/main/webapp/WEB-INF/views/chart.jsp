@@ -34,7 +34,7 @@
                         </table>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Close</button>
                     </div>
                 </div>
             </div>
@@ -120,7 +120,7 @@
                         <tr>
                             <td colspan="2">
 
-                                <button type="button" class="btn btn-primary w-100" data-toggle="modal" data-target="#conditions">Show experimental conditions</button>
+                                <button type="button" class="btn btn-outline-primary w-100" data-toggle="modal" data-target="#conditions">Show experimental conditions</button>
 
                                 <!-- Metadata group: ${metadata} -->
                             </td>

@@ -113,7 +113,7 @@
                                 TSV: 'tsv_phenoAssoc',
                                 XLS: 'xls_phenoAssoc'
                             },
-                            class: 'btn btn-primary'
+                            class: 'btn btn-outline-primary'
                         }));
 
                     var params = window.location.href.split("/charts?")[1]; //.split("&");

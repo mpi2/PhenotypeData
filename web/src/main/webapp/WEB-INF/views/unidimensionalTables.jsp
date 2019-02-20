@@ -349,17 +349,15 @@
         </div>
         </div>
 
-        <div class="row mt-5">
-            <div class="col-12">
+        < class="row mt-5">
+            <p class="col-12">
                 <h4> Access the results programmatically </h4>
                 <hr />
                 <p>
-                    <a target="_blank" class="btn btn-primary" href='${srUrl}'> Statistical result raw XML </a>&nbsp;&nbsp;
-                    <a target="_blank" class="btn btn-primary" href='${gpUrl}'> Genotype phenotype raw XML </a>&nbsp;&nbsp;
-                    <a target="_blank" class="btn btn-primary" href='${baseUrl}${phenStatDataUrl}'> PhenStat-ready raw experiment data</a>
+                    <a target="_blank" class="btn btn-outline-primary btn-sm" href='${srUrl}'> Statistical result raw XML </a>
+                    <a target="_blank" class="btn btn-outline-primary btn-sm" href='${gpUrl}'> Genotype phenotype raw XML </a>
+                    <a target="_blank" class="btn btn-outline-primary btn-sm" href='${baseUrl}${phenStatDataUrl}'> PhenStat-ready raw experiment data</a>
                 </p>
-            </div>
-        </div>
         </div>
         <div class="col-4">
 
@@ -524,13 +522,12 @@
                         <%-- <c:if test="${data.result.genderFemaleKoEstimate!=null}"><tr><td>Gender Female KO Estimate </td><td>${data.result.genderFemaleKoEstimate }</td></tr></c:if> --%>
                         <%-- <c:if test="${data.result.genderMaleKoEstimate!=null}"><tr><td>Gender Male KO Estimate </td><td>${data.result.genderMaleKoEstimate }</td></tr></c:if> --%>
                     </table>
-                    </div>
             </c:if>
         </c:if>
     </c:if>
-
-
     </div>
+    </div>
+
 
 
 
