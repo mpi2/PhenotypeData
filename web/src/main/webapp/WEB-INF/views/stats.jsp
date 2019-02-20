@@ -72,7 +72,7 @@
                     <div class="pre-content">
                         <div class="row no-gutters">
                             <div class="col-12 my-5">
-                                <p class="h4 text-center text-justify"><i class="fas fa-atom fa-spin"></i> A moment please while we gather the data . . .</p>
+                                <p class="h4 text-center text-justify"><i class="fas fa-atom fa-spin"></i> A moment please while we gather the data . . . .</p>
                             </div>
                         </div>
                     </div>

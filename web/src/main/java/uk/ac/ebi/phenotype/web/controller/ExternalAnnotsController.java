@@ -70,12 +70,6 @@ public class ExternalAnnotsController {
 	@Autowired
 	private GwasDAO gwasDao;
 
-	@Autowired
-	@Qualifier("admintoolsDataSource")
-	//@Qualifier("admintoolsDataSourceLocal")
-	private DataSource admintoolsDataSource;
-
-
 	/**
 	 * redirect calls to the base url to the gwaslookup page
 	 *
