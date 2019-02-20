@@ -475,7 +475,7 @@
         <div class="container single single--no-side">
             <div class="row">
                 <div class="col-12 white-bg">
-                    <div class="page-content pt-5 pb-5">
+                    <div class="page-content pb-5">
                         <ul class="nav nav-tabs" id="diseasesTab" role="tablist">
                             <li class="nav-item">
                                 <a class="nav-link active" id="byAnnotation-tab" data-toggle="tab" href="#byAnnotation"
