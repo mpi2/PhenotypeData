@@ -94,6 +94,7 @@
                                                                varStatus="loop">
                                                         <c:set var="count" value="${count + 1}" scope="page"/>
                                                         <span>${synonym}</span>
+                                                        <c:if test="${!loop.last}">,&nbsp;</c:if>
                                                     </c:forEach>
                                                 </c:if>
                                             </div>
