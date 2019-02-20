@@ -18,7 +18,18 @@
 <c:set var="yesColor" scope="page" value="text-info"/>
 <c:set var="noColor" scope="page" value="text-muted"/>
 
-<div class="container mt-3">
+<div class="row justify-content-end mt-3 mr-2">
+    <div class="btn-group btn-group-toggle" data-toggle="buttons">
+        <label class="btn btn-outline-primary btn-sm active">
+            <input type="radio" name="optionsEmbryo" id=" " autocomplete="off" value="anatogram" checked> Images
+        </label>
+        <label class="btn btn-outline-primary btn-sm">
+            <input type="radio" name="optionsEmbryo" id="optionsEmbryo" value="table" autocomplete="off"> Table
+        </label>
+    </div>
+</div>
+
+<div class="container mt-3" id="embryo1">
     <div class="mb-2 row justify-content-center">
         <span title="Expression" class="${yesColor} mr-2"><i class="${expressionIcon}"></i> &nbsp;Expression</span>
         <span title="No Expression" class="${noColor} mr-2"> <i class="${noExpressionIcon}"></i>&nbsp;No Expression</span>
@@ -186,5 +197,18 @@
 
         </div>
     </div>
+</div>
+
+<div id="embryo2">
+    <c:choose>
+        <c:when test="${not empty wholemountExpressionImagesEmbryoBean.expFacetToDocs || not empty sectionExpressionEmbryoImagesBean.expFacetToDocs}">
+            <jsp:include page="genesEmbExpImg_frag.jsp"></jsp:include>
+        </c:when>
+        <c:otherwise>
+            <h5>
+                No expression image was found for this embryo tab
+            </h5>
+        </c:otherwise>
+    </c:choose>
 </div>
 

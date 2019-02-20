@@ -60,6 +60,7 @@
                 $("#tabs").tabs();
 
                 $('div#anatomo1').hide(); // by default
+                $('div#embryo1').hide(); // by default
 
                 $('.wtExp').hide();
                 $('div#toggleWt').click(function () {
@@ -92,6 +93,17 @@
                     } else {
                         $('#anatomo2').hide();
                         $('#anatomo1').show();
+                    }
+                });
+
+                $('input[name=optionsEmbryo]').change(function () {
+                    var value = $('input[name=optionsEmbryo]:checked').val();
+                    if (value === 'anatogram') {
+                        $('#embryo1').hide();
+                        $('#embryo2').show();
+                    } else {
+                        $('#embryo2').hide();
+                        $('#embryo1').show();
                     }
                 });
 
@@ -331,23 +343,23 @@
                             <ul class="nav nav-tabs" id="expressionTab" role="tablist">
                                 <li class="nav-item">
                                     <a class="nav-link active" id="adult-tab" data-toggle="tab" href="#adult"
-                                       role="tab" aria-controls="adult-tab" aria-selected="false">Adult Expression</a>
+                                       role="tab" aria-controls="adult-tab" aria-selected="false">Adult Expression Images</a>
                                 </li>
-                                <li class="nav-item">
+                                <!--li class="nav-item">
                                     <a class="nav-link" id="adult-image-tab" data-toggle="tab" href="#adult-image"
                                        role="tab" aria-controls="adult-image-tab" aria-selected="false">Adult Expression
                                         Image</a>
-                                </li>
+                                </li-->
                                 <li class="nav-item">
                                     <a class="nav-link" id="_embryo-tab" data-toggle="tab" href="#_embryo"
                                        role="tab" aria-controls="_embryo-tab" aria-selected="true">Embryo
-                                        Expression</a>
+                                        Expression Images</a>
                                 </li>
-                                <li class="nav-item">
+                                <!--li class="nav-item">
                                     <a class="nav-link" id="embryo-image-tab" data-toggle="tab" href="#embryo-image"
                                        role="tab" aria-controls="embryo-image-tab" aria-selected="false">Embryo
-                                        Expression Image</a>
-                                </li>
+                                        Expression Images</a>
+                                </li-->
                             </ul>
                             <div class="tab-content" id="expressionTabContent">
                                 <div class="tab-pane fade show active" id="adult" role="tabpanel"
@@ -367,7 +379,7 @@
                                         </c:otherwise>
                                     </c:choose>
                                 </div>
-                                <div class="tab-pane fade" id="adult-image" role="tabpanel"
+                                <%--div class="tab-pane fade" id="adult-image" role="tabpanel"
                                      aria-labelledby="adult-image-tab">
                                     <c:choose>
                                         <c:when test="${not empty wholemountExpressionImagesBean.filteredTopLevelAnatomyTerms && not empty sectionExpressionImagesBean.filteredTopLevelAnatomyTerms}">
@@ -379,7 +391,7 @@
                                             </h5>
                                         </c:otherwise>
                                     </c:choose>
-                                </div>
+                                </div--%>
                                 <div class="tab-pane fade" id="_embryo" role="tabpanel" aria-labelledby="_embryo-tab">
                                     <c:choose>
                                         <c:when test="${not empty embryoExpressionAnatomyToRow}">
@@ -392,7 +404,7 @@
                                         </c:otherwise>
                                     </c:choose>
                                 </div>
-                                <div class="tab-pane fade" id="embryo-image" role="tabpanel"
+                                <%--div class="tab-pane fade" id="embryo-image" role="tabpanel"
                                      aria-labelledby="embryo-image-tab">
                                     <c:choose>
                                         <c:when test="${not empty wholemountExpressionImagesEmbryoBean.expFacetToDocs || not empty sectionExpressionEmbryoImagesBean.expFacetToDocs}">
@@ -404,59 +416,9 @@
                                             </h5>
                                         </c:otherwise>
                                     </c:choose>
-                                </div>
+                                </div--%>
                             </div>
                         </c:if>
-                        <c:if test="${not empty expressionFacets}">
-                        <hr class="col-xs-12">
-
-                        <h4>Secondary lacZ Expression Data</h4>
-
-                        <div class="accordion mb-3" id="secondaryExpressionAccordion">
-                            <div class="list-group">
-                                <c:forEach var="entry" items="${expressionFacets}" varStatus="status">
-                                    <div id="heading${status.index}">
-                                        <button class="btn btn-link list-group-item list-group-item-action"
-                                                type="button"
-                                                data-toggle="collapse"
-                                                data-target="#collapse${status.index}" aria-expanded="false"
-                                                aria-controls="collapse${status.index}">
-                                                ${entry.name} (${entry.count})
-                                        </button>
-                                    </div>
-
-                                    <div id="collapse${status.index}" class="collapse"
-                                         aria-labelledby="heading${status.index}"
-                                         data-parent="#secondaryExpressionAccordion">
-                                        <div class="tz-gallery small">
-                                            <div class="container">
-                                                <div class="row">
-                                                    <c:forEach var="doc" items="${expFacetToDocs[entry.name]}">
-
-                                                        <t:imgdisplay
-                                                                img="${doc}"
-                                                                mediaBaseUrl="${mediaBaseUrl}"></t:imgdisplay>
-
-                                                    </c:forEach>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <c:if test="${entry.count>5}">
-                                            <p class="text-right">
-                                                <a href='${baseUrl}/images?gene_id=${acc}&fq=sangerProcedureName:"Wholemount Expression"&fq=selected_top_level_ma_term:"${entry.name}"'>View
-                                                    all ${entry.count} images</a>
-                                            </p>
-                                        </c:if>
-                                    </div>
-                                </c:forEach>
-                            </div>
-
-
-                            <!-- thumbnail scroller markup begin -->
-
-                                <%--</div>--%>
-                            </c:if>
-                        </div>
                     </div>
                 </div>
             </div>

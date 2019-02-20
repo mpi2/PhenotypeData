@@ -65,4 +65,59 @@
     </div>
 </div>
 
+<c:if test="${not empty expressionFacets}">
+    <div class="container">
+        <div class="heading row">
+            <h5>LacZ Section Images</h5>
+        </div>
+
+        <div class="row accordion mb-3" id="secondaryExpressionAccordion">
+            <div class="list-group col-12">
+                <c:forEach var="entry" items="${expressionFacets}" varStatus="status">
+                    <div id="heading${status.index}">
+                        <button class="btn btn-link list-group-item list-group-item-action"
+                                type="button"
+                                data-toggle="collapse"
+                                data-target="#collapse${status.index}" aria-expanded="false"
+                                aria-controls="collapse${status.index}">
+                                ${entry.name} (${entry.count})
+                        </button>
+                    </div>
+
+                    <div id="collapse${status.index}" class="collapse"
+                         aria-labelledby="heading${status.index}"
+                         data-parent="#secondaryExpressionAccordion">
+                        <div class="tz-gallery small">
+                            <div class="container">
+                                <div class="row">
+                                    <c:forEach var="doc" items="${expFacetToDocs[entry.name]}">
+
+                                        <t:imgdisplay
+                                                img="${doc}"
+                                                mediaBaseUrl="${mediaBaseUrl}"></t:imgdisplay>
+
+                                    </c:forEach>
+                                </div>
+                            </div>
+                        </div>
+                        <c:if test="${entry.count>5}">
+                            <p class="text-right">
+                                <a href='${baseUrl}/images?gene_id=${acc}&fq=sangerProcedureName:"Wholemount Expression"&fq=selected_top_level_ma_term:"${entry.name}"'>View
+                                    all ${entry.count} images</a>
+                            </p>
+                        </c:if>
+                    </div>
+                </c:forEach>
+            </div>
+
+
+            <!-- thumbnail scroller markup begin -->
+
+                <%--</div>--%>
+
+        </div>
+    </div>
+
+</c:if>
+
 
