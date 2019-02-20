@@ -117,7 +117,7 @@ public class PhenotypeCenterService {
 		List<StrainBean> strains=new ArrayList<>();
 		SolrQuery query = new SolrQuery()
 			.setQuery(ObservationDTO.PHENOTYPING_CENTER + ":\"" + center + "\" AND " + ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":experimental")
-			.setFields(ObservationDTO.GENE_ACCESSION_ID,ObservationDTO.ALLELE_SYMBOL, ObservationDTO.GENE_SYMBOL)
+			.setFields(ObservationDTO.GENE_ACCESSION_ID,ObservationDTO.ALLELE_SYMBOL, ObservationDTO.GENE_SYMBOL, ObservationDTO.ZYGOSITY, ObservationDTO.DEVELOPMENTAL_STAGE_NAME)
 			.setRows(1000000);
 		query.set("group", true);
 		query.set("group.field", ObservationDTO.COLONY_ID);
@@ -138,6 +138,8 @@ public class PhenotypeCenterService {
 				strain.setAllele((String)doc.get(ObservationDTO.ALLELE_SYMBOL));
 				strain.setGeneSymbol((String)doc.get(ObservationDTO.GENE_SYMBOL));
 				strain.setMgiAccession((String)doc.get(ObservationDTO.GENE_ACCESSION_ID));
+				strain.setZygosity((String)doc.get(ObservationDTO.ZYGOSITY));
+				strain.setLifeStage((String)doc.get(ObservationDTO.DEVELOPMENTAL_STAGE_NAME));
 				strains.add(strain);
 			}
 		}
@@ -274,8 +276,12 @@ public class PhenotypeCenterService {
         header.add("Gene Symbol");
         header.add("MGI Gene Id");
         header.add("Allele Symbol");
+
+
+		header.add("Zygosity");
+		header.add("Life Stage");
         header.add("Phenotyping Center");
-        header.add("Percenage Done");
+        header.add("Percentage Done");
         header.add("Number of Done Procedures");
         header.add("Done Procedures");
         header.add("MPS Tested For");
@@ -296,6 +302,9 @@ public class PhenotypeCenterService {
 				row.add(strain.getGeneSymbol());
 				row.add(strain.getMgiAccession());
 				row.add(strain.getAllele());
+
+				row.add(strain.getZygosity());
+				row.add(strain.getLifeStage());
 				row.add(center);
 				Float percentageDone = (float) ((procedures.size() * 100) / (float)possibleProceduresPerCenter.get(center).size());
 				row.add(percentageDone.toString());
@@ -335,6 +344,9 @@ class StrainBean{
 	String allele;
 	String geneSymbol;
 	String colonyId;
+	String zygosity;
+	String lifeStage;
+
 
 	public String getMgiAccession() {
 
@@ -378,5 +390,19 @@ class StrainBean{
 		this.colonyId = colonyId;
 	}
 
+	public String getZygosity() {
+		return zygosity;
+	}
 
+	public void setZygosity(String zygosity) {
+		this.zygosity = zygosity;
+	}
+
+	public String getLifeStage() {
+		return lifeStage;
+	}
+
+	public void setLifeStage(String lifeStage) {
+		this.lifeStage = lifeStage;
+	}
 }
