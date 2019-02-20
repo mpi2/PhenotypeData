@@ -6825,15 +6825,37 @@ ul#menu-top-nav li.current-menu-item a {
     font-weight: normal;
     text-decoration: underline;
     text-decoration-color: #8e8e8e;
-    color: black; }
+    color: black;
+}
 
 td>a {
     font-weight: normal;
     text-decoration: underline;
     text-decoration-color: #8e8e8e;
-    color: black; }
+    color: black;
+}
 
-.page-content a:hover {
+td>a:hover {
+    color: black;
+    text-decoration-color: black;
+}
+
+.page-nav-link {
+    font-weight: normal;
+    text-decoration: underline;
+    text-decoration-color: #8e8e8e;
+    color: black;
+    display: block;
+    font-size: smaller;
+}
+
+.page-nav-link:hover {
+    color: black;
+    text-decoration-color: black;
+}
+
+.page-content a:hover a:not(.btn) a:not(.nav-link) {
+    color: black;
     text-decoration-color: black; }
 
 .page-content p {

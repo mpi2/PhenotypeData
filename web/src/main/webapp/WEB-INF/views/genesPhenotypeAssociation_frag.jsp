@@ -24,7 +24,7 @@
                             <div class="col-md-2 align-middle text-right pr-1">
                                 <div class="align-middle font-weight-bold pr-2">Name</div>
                             </div>
-                            <div class="col-md-10 align-middle" style="font-size: 80%">
+                            <div class="col-md-10 align-middle">
                                 <span>${gene.markerName}</span>
                             </div>
                         </div>
@@ -32,7 +32,7 @@
                             <div class="col-md-2 align-middle text-right pr-1">
                                 <div class="align-middle font-weight-bold pr-2">MGI ID</div>
                             </div>
-                            <div class="col-md-10 align-middle" style="font-size: 80%">
+                            <div class="col-md-10 align-middle">
                                 <span>${gene.mgiAccessionId}</span>
                             </div>
                         </div>
@@ -45,15 +45,15 @@
                                     <c:if test='${fn:length(gene.markerSynonym) gt 1}'>
 
                                         <c:forEach var="synonym" items="${gene.markerSynonym}" varStatus="loop">
-                                            <span class="badge badge-info" style="font-size: 80%;">${synonym}</span>
+                                            <span>${synonym}</span>
                                         </c:forEach>
 
                                     </c:if>
                                     <c:if test='${fn:length(gene.markerSynonym) == 1}'>
 
                                         <c:forEach var="synonym" items="${gene.markerSynonym}" varStatus="loop">
-                                    <span class="badge badge-info" style="font-size: 80%;">${synonym}</span>
-                                            <%--<c:if test="${!loop.last}">,&nbsp;</c:if>--%>
+                                    <span>${synonym}</span>
+                                            <c:if test="${!loop.last}">,&nbsp;</c:if>
                                         </c:forEach>
 
                                     </c:if>
@@ -75,38 +75,38 @@
                                 <div class="col-md-2 align-middle text-right pr-1">
                                     <div class="align-middle font-weight-bold pr-2">Other links</div>
                                 </div>
-                                <div class="col-md-10 align-middle" style="font-size: 80%; margin-top: 5px;">
-                                    <a target="_blank" href="http://www.informatics.jax.org/marker/${gene.mgiAccessionId}"
-                                       title="see gene page at JAX">MGI &nbsp;<i class="fas fa-external-link"></i></a>
-                                    <a target="_blank" href="http://www.ensembl.org/Mus_musculus/Gene/Summary?g=${gene.mgiAccessionId}"
-                                       title="visualise mouse gene with ensembl genome broswer">Ensembl &nbsp;<i class="fas fa-external-link"></i></a>
+                                <div class="col-md-10 align-middle">
+                                    <a target="_blank" class="page-nav-link" href="http://www.informatics.jax.org/marker/${gene.mgiAccessionId}"
+                                       title="See gene page at JAX" style="font-size: initial; display: inline;">MGI &nbsp;<i class="fas fa-external-link"></i></a>
+                                    <a target="_blank" class="page-nav-link" href="http://www.ensembl.org/Mus_musculus/Gene/Summary?g=${gene.mgiAccessionId}"
+                                       title="Visualise mouse gene with ensembl genome broswer" style="font-size: initial; display: inline;">Ensembl &nbsp;<i class="fas fa-external-link"></i></a>
                                 </div>
                             </div>
                         </c:if>
-                        <div class="row no-gutters justify-content-center mt-3 text-center ">
+                        <div class="row no-gutters justify-content-center mt-3 text-center page-content">
                             <a href="#phenotypesTab" class="col-sm-2" onclick="$('#significant-tab').trigger('click')">
-                                <i class="fal fa-file-medical-alt mb-1" style="font-size: 5em;"></i>
-                                <span style="display: block; font-size: smaller;">Significant phenotypes</span>
+                                <i class="fal fa-file-medical-alt mb-1 text-dark" style="font-size: 5em;"></i>
+                                <span class="page-nav-link">Significant phenotypes</span>
                             </a>
                             <a href="#phenotypesTab" class="col-sm-2" onclick="$('#alldata-tab').trigger('click')">
-                                <i class="fal fa-ruler-combined mb-1" style="font-size: 5em;"></i>
-                                <span style="display: block; font-size: smaller">All measurements</span>
+                                <i class="fal fa-ruler-combined mb-1 text-dark" style="font-size: 5em;"></i>
+                                <span class="page-nav-link">All measurements</span>
                             </a>
                             <!--a class="col-sm-2">
                                 <i class="icon icon-conceptual icon-expression" style="font-size: 5em;"></i>
                                 <span style="display: block; font-size: smaller"></span>
                             </a-->
                             <a href="#expression" class="col-sm-2">
-                                <i class="fal fa-images mb-1" style="font-size: 5em;" data-toggle="tooltip" data-placement="top"></i>
-                                <span style="display: block; font-size: smaller">Expression & images</span>
+                                <i class="fal fa-images mb-1 text-dark" style="font-size: 5em;" data-toggle="tooltip" data-placement="top"></i>
+                                <span class="page-nav-link">Expression & images</span>
                             </a>
                             <a href="#diseases" class="col-sm-2">
-                                <i class="fal fa-procedures mb-1" style="font-size: 5em;" data-toggle="tooltip" data-placement="top"></i>
-                                <span style="display: block; font-size: smaller">Disease models</span>
+                                <i class="fal fa-procedures mb-1 text-dark" style="font-size: 5em;" data-toggle="tooltip" data-placement="top"></i>
+                                <span class="page-nav-link">Disease models</span>
                             </a>
                             <a href="#order" class="col-sm-2">
-                                <i class="fal fa-shopping-cart mb-1" style="font-size: 5em;" data-toggle="tooltip" data-placement="top"></i>
-                                <span style="display: block; font-size: smaller">Order</span>
+                                <i class="fal fa-shopping-cart mb-1 text-dark" style="font-size: 5em;" data-toggle="tooltip" data-placement="top"></i>
+                                <span class="page-nav-link">Order</span>
                             </a>
                         </div>
 
