@@ -99,7 +99,7 @@
             
             
          
-            <td><t:formatScientific>${phenotype.prValueAsString}</t:formatScientific></td>
+            <td data-sort="${phenotype.prValueAsString}"><t:formatScientific>${phenotype.prValueAsString}</t:formatScientific></td>
 
            
 			

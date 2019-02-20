@@ -14,7 +14,7 @@ NumberFormat formatter =  new DecimalFormat("0.###E0");
 
 textout = String.format("%1.3G",value).replace("E", "&#215;10<sup>") + "</sup>";
 
-textout = String.format("%1.3G",value);
+//textout = String.format("%1.3G",value);
 }
 	
 %>
