@@ -24,7 +24,22 @@ $(document).ready(function(){
                 "bLengthChange": false,
                 'columnDefs': [
                     {'max-width': '100px', 'targets': 0}
-                ]
+                ],
+				'fnDrawCallback': function () {
+                    $('table#genes tbody tr').click(function () {
+
+                        // get position of the selected row
+                        var position = table.fnGetPosition(this);
+
+                        // value of the first column (can be hidden)
+                        var id = table.fnGetData(position)[0];
+
+                        // redirect
+                        document.location.href = '?q=node/6?id=' + id;
+                    })
+
+
+                }
             }
 		);
 		//	var oDataTable = $.fn.initDataTable($('table#phenotypes'), {

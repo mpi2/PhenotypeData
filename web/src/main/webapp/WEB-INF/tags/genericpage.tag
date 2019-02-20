@@ -172,7 +172,7 @@
                         <ul id="menu-top-nav" class="menu">
                             <li id="menu-item-13" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-13"><a href="https://mousephenotypetest.org/faqs/">FAQs</a></li>
                             <li id="menu-item-14" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-14"><a href="#">Forum</a></li>
-                            <li id="menu-item-15" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-15"><a href="https://mousephenotypetest.org/contact-us/">Contact Us</a></li>
+                            <li id="menu-item-15" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-15"><a href="https://mousephenotypetest.org/contact-us/">Contact us</a></li>
                         </ul>
                     </div> <a id="searchButton" class="header__search collapsed" href="/" data-toggle="collapse" data-target="#searchBar" aria-controls="searchBar" aria-expanded="false">Search<i id="search-icon-open" class="fal fa-search"></i><i id="search-icon-close" class="fal fa-times"></i></a>
                 </div>
@@ -359,7 +359,7 @@
 
                 </div>
 
-                <h3 class="mt-2"><a class="object-id-12" href="https://mousephenotypetest.org/contact-us/">Contact Us</a></h3>
+                <h3 class="mt-2"><a class="object-id-12" href="https://mousephenotypetest.org/contact-us/">Contact us</a></h3>
 
                 <div class="mobile-nav__sub-pages">
 
@@ -559,45 +559,31 @@
     </div>
 
 </main>
-
 <div class="footer">
     <div class="container">
         <div class="row">
 
-            <div class="col-12 col-md-6">
-                <p><strong>© 2018 IMPC International Mouse Phenotyping Consortium.</strong></p>
-                <p><strong>All Rights Reserved.<br />
-                    <a href="#">Accesibility &amp; Cookies</a></strong><br />
+            <div class="col-12 col-md-6 footer-text">
+                <p><strong>© 2019 IMPC International Mouse Phenotyping Consortium.</strong></p>
+                <p><strong>All Rights Reserved.</strong></p>
+                <p><strong><br>
+                    <a href="#">Accesibility &amp; Cookies</a></strong><br>
                     <a href="#"><strong>Terms of use</strong></a></p>
             </div>
 
             <div class="col-12 col-md-3 footer-nav">
-                <div class="menu-main-nav-container">
-                    <ul id="menu-main-nav-1" class="menu">
-                        <li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-16"><a href="https://mousephenotypetest.org/about-impc/">About
-                            IMPC</a></li>
-                        <li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-17"><a href="https://mousephenotypetest.org/understanding-the-data/">Understanding
-                            the Data</a></li>
-                        <li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-18"><a href="https://mousephenotypetest.org/human-diseases/">Human
-                            Diseases</a></li>
-                        <li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-19"><a href="https://mousephenotypetest.org/news-and-events/">News
-                            &#038; Events</a></li>
-                        <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-20"><a href="#">Blog</a></li>
-                    </ul>
-                </div>
-            </div>
+                <div class="menu-main-nav-container"><ul id="menu-main-nav-1" class="menu"><li class="menu-item menu-item-type-post_type menu-item-object-page current-menu-item page_item page-item-7 current_page_item menu-item-16"><a href="https://www.mousephenotypetest.org/about-impc/">About IMPC</a></li>
+                    <li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-17"><a href="https://www.mousephenotypetest.org/understanding-the-data/">Understanding the Data</a></li>
+                    <li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-18"><a href="https://www.mousephenotypetest.org/human-diseases/">Human Diseases</a></li>
+                    <li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-19"><a href="https://www.mousephenotypetest.org/news-and-events/">News &amp; Events</a></li>
+                    <li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-983"><a href="https://www.mousephenotypetest.org/blog/">Blog</a></li>
+                </ul></div>            </div>
 
             <div class="col-12 col-md-3 footer-nav">
-                <div class="menu-top-nav-container">
-                    <ul id="menu-top-nav-1" class="menu">
-                        <li class="menu-item menu-item-type-post_type menu-item-object-page page_item page-item-11 menu-item-13"><a
-                                href="https://mousephenotypetest.org/faqs/">FAQs</a></li>
-                        <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-14"><a href="#">Forum</a></li>
-                        <li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-15"><a href="https://mousephenotypetest.org/contact-us/">Contact
-                            Us</a></li>
-                    </ul>
-                </div>
-            </div>
+                <div class="menu-top-nav-container"><ul id="menu-top-nav-1" class="menu"><li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-13"><a href="https://www.mousephenotypetest.org/faqs/">FAQs</a></li>
+                    <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-14"><a href="https://www.mousephenotype.org/forum">Forum</a></li>
+                    <li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-15"><a href="https://www.mousephenotypetest.org/contact-us/">Contact us</a></li>
+                </ul></div>            </div>
 
         </div>
         <div class="row">
@@ -612,13 +598,18 @@
                     <li>
                         <a href="https://www.youtube.com/channel/UCXp3DhDYbpJHu4MCX_wZKww" target="_blank"><i class="fab fa-youtube"></i></a>
                     </li>
+                    <li>
+                        <a href="https://www.facebook.com/InternationalMousePhenotypingConsortium" target="_blank"><i class="fab fa-facebook"></i></a>
+                    </li>
+                    <li>
+                        <a href="https://www.reddit.com/user/MousePhenotyping" target="_blank"><i class="fab fa-reddit"></i></a>
+                    </li>
                 </ul>
             </div>
         </div>
     </div>
-    
-    <jsp:invoke fragment="addToFooter"/>
 </div>
+
 <script type='text/javascript' src='${baseUrl}/js/searchAndFacet/searchAndFacetConfig.js?v=${version}'></script>
 <script type='text/javascript' src='${baseUrl}/js/utils/tools.js?v=${version}'></script>
 <script type='text/javascript' src='${baseUrl}/js/general/ui.dropdownchecklist_modif.js?v=${version}'></script>

@@ -1608,6 +1608,7 @@ select.form-control-lg:not([size]):not([multiple]), .input-group-lg > select.for
 .btn {
     display: inline-block;
     font-weight: 400;
+    text-transform: uppercase;
     text-align: center;
     white-space: nowrap;
     vertical-align: middle;
@@ -7382,4 +7383,15 @@ hr {
 .non-tested {
     border-color: #6c757d !important;
     border: 1px solid transparent;
+}
+
+.btn-mailing {
+    border-radius: 45px;
+    padding: 13px 32px;
+    font-size: 14px;
+    text-transform: uppercase;
+    font-weight: 600;
+    outline: none !important;
+    box-shadow: none;
+    border-style: solid;
 }

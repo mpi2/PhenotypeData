@@ -428,7 +428,7 @@ public class PhenotypesController {
     		ParameterDTO param = impressService.getParameterByStableId(parameterStableId);
     		if (param.getObservationType().equals(ObservationType.unidimensional)){
     			res.add(param);
-    		} 
+    		}
     	}
         Collections.sort(res, ImpressBaseDTO.getComparatorByNameImpcFirst());
 
