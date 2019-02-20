@@ -23,22 +23,19 @@ $(document).ready(function(){
                 "bFilter":false,
                 "bLengthChange": false,
                 'columnDefs': [
-                    {'max-width': '100px', 'targets': 0}
+                    {
+                        "targets": [ 7 ],
+                        "visible": false
+                    },
+					{
+                        "targets": [ 0 ],
+                        "max-width": "100px"
+					}
                 ],
-				'fnDrawCallback': function () {
-                    $('table#genes tbody tr').click(function () {
-
-                        // get position of the selected row
-                        var position = table.fnGetPosition(this);
-
-                        // value of the first column (can be hidden)
-                        var id = table.fnGetData(position)[0];
-
-                        // redirect
-                        document.location.href = '?q=node/6?id=' + id;
-                    })
-
-
+				'rowCallback': function (row, data, index) {
+                	$(row).on('click', function () {
+                        window.location.href = decodeURIComponent(data[7]['@data-sort']);
+                    });
                 }
             }
 		);

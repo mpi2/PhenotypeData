@@ -7417,3 +7417,13 @@ hr {
     box-shadow: none;
     border-style: solid;
 }
+
+.clickableRows > tbody > tr:hover {
+    background-color: #ed7b2538;
+    cursor: pointer;
+}
+
+.clickableRows > tbody > tr > td:focus {
+    outline-style: none;
+}
+
