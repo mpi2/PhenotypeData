@@ -108,10 +108,6 @@ public class FileExportController {
 	private String hostName;
 
 	@Autowired
-	@Qualifier("admintoolsDataSource")
-	private DataSource admintoolsDataSource;
-
-	@Autowired
 	private ReferenceDAO referenceDAO;
 
 	@Autowired
