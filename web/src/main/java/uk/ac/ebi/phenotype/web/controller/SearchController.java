@@ -48,11 +48,11 @@ public class SearchController {
 
 
     /**
-     * redirect calls to the base url or /search path to the search page with the version 2 URL path
+     * redirect calls to the base url or a page named index.html to the search page
      *
      * @return
      */
-    @RequestMapping("/index.html")
+    @RequestMapping(value={"/", "/index.html"})
     public String rootForward(HttpServletRequest request) {
 
         String scheme = (request.getAttribute("isProxied") == Boolean.TRUE ? "https" : request.getScheme());
