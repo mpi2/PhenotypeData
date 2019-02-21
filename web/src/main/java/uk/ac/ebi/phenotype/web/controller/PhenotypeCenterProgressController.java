@@ -15,38 +15,31 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.web.controller;
 
-import java.io.IOException;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.apache.solr.client.solrj.SolrServerException;
 import org.json.JSONArray;
-import org.mousephenotype.cda.solr.service.PhenotypeCenterService;
+import org.mousephenotype.cda.solr.service.PhenotypeCenterProcedureCompletenessService;
 import org.mousephenotype.cda.solr.service.dto.ProcedureDTO;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.*;
+
 
 @Controller
 public class PhenotypeCenterProgressController {
 
-	@Resource(name="phenotypeCenterService")
-	@Autowired
-	PhenotypeCenterService phenCenterProgress;
+	PhenotypeCenterProgressController(PhenotypeCenterProcedureCompletenessService phenotypeCenterProcedureCompletenessService) {
+		this.phenotypeCenterProcedureCompletenessService = phenotypeCenterProcedureCompletenessService;
+	}
+
+	PhenotypeCenterProcedureCompletenessService phenotypeCenterProcedureCompletenessService;
 
 	@RequestMapping("/centerProgress")
-	public String showPhenotypeCenterProgress( HttpServletRequest request, Model model){
+	public String showPhenotypeCenterProgress(Model model){
 		processPhenotypeCenterProgress(model);
 		return "centerProgress";
 	}
@@ -55,21 +48,18 @@ public class PhenotypeCenterProgressController {
 	/**
 	 *
 	 * @param response
-	 * @param model
 	 * @throws IOException
-	 * @author tudose
+	 * @author tudose, mrelac
 	 */
 	@RequestMapping("/reports/centerProgressCsv")
 	@ResponseBody
-	public void showPhenotypeCenterProgressCsv(HttpServletResponse response, Model model) throws IOException  {
+	public void showPhenotypeCenterProgressCsv(HttpServletResponse response)  {
 
 	    String csvFileName = "PhenotypeCenterProgress.csv";
 	 	try {
-			List<String[]> centerProceduresPerStrain = phenCenterProgress.getCentersProgressByStrainCsv();
+			List<String[]> centerProceduresPerStrain = phenotypeCenterProcedureCompletenessService.getCentersProgressByStrainCsv();
 			ControllerUtils.writeAsCSV(centerProceduresPerStrain, csvFileName, response);
 		} catch (SolrServerException | IOException e) {
-			e.printStackTrace();
-		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 	}
@@ -79,11 +69,10 @@ public class PhenotypeCenterProgressController {
 		Map<String, Map<String, List<ProcedureDTO>>> centerDataMap=null;
 		
 		try {
-			centerDataMap = phenCenterProgress.getCentersProgressInformation();
+			centerDataMap = phenotypeCenterProcedureCompletenessService.getPhenotypeCenterService().getCentersProgressInformation();
 		} catch (SolrServerException | IOException e) {
 			e.printStackTrace();
 		}
-
 
 		Map<String,JSONArray> centerDataJSON=new HashMap<>();
 		getPostOrPreQcData(centerDataMap, centerDataJSON);
@@ -133,5 +122,4 @@ public class PhenotypeCenterProgressController {
 			return 1;
 		}
 	}
-
 }
