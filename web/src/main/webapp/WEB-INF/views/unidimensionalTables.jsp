@@ -349,7 +349,7 @@
         </div>
         </div>
 
-        < class="row mt-5">
+        <div class="row mt-5">
             <p class="col-12">
                 <h4> Access the results programmatically </h4>
                 <hr />

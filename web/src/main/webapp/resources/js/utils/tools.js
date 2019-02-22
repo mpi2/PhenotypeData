@@ -1451,7 +1451,7 @@
 		var it = 0;
 		for ( var f in oFormatSelector) {
 			if (it++ > 0)
-				$(iconDiv).append("&nbsp;or&nbsp;");
+
 			// var btn = $('<a href="#"></a>').attr({'class': oFormatSelector[f]
 			// + ' ' + conf['class']}).html("<i class=\"fa fa-download\"></i> "
 			// + f);
