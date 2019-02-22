@@ -34,7 +34,10 @@ $(document).ready(function(){
                 ],
 				'rowCallback': function (row, data, index) {
                 	$(row).on('click', function () {
-                        window.location.href = decodeURIComponent(data[7]['@data-sort']);
+                		var url = data[7]['@data-sort'];
+                		if (url !== "none") {
+                            window.location.href = decodeURIComponent(url);
+                        }
                     });
                 }
             }

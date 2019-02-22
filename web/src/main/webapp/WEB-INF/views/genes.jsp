@@ -119,10 +119,6 @@
                     }
                 });
 
-                $('#strainPvalues').dataTable({
-                    "bFilter": false,
-                    "bLengthChange": false
-                });
 
                 $('#heatmap_link').click(function () {
                     console.log('heatmap link clicked');

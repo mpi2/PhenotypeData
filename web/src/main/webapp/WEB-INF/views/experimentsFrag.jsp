@@ -44,7 +44,7 @@
 </script>
 
 <div id="phTable">
-    <table id="strainPvalues" class="table dt-responsive">
+    <table id="strainPvalues" class="table dt-responsive clickableRows" style="width:100%;">
         <thead>
         <tr>
             <th class="headerSort">Allele</th>
@@ -55,7 +55,6 @@
             <th class="headerSort">Statistical<br/>Method</th>
             <th class="headerSort">P Value</th>
             <th class="headerSort">Status</th>
-            <th class="headerSort">Graph</th>
         </tr>
         </thead>
 
@@ -87,16 +86,18 @@
                         </c:otherwise>
                     </c:choose>
                     <td>${row.status}</td>
-                    <td class="postQcLink">
-                        <c:if test="${row.getEvidenceLink().getDisplay()}">
-                            <a href='${row.getEvidenceLink().getUrl()}'>
-                                <i class="fa fa-bar-chart-o" title="${row.getEvidenceLink().getAlt()}"> </i>
-                            </a>
-                        </c:if>
-                        <c:if test="${!row.getEvidenceLink().getDisplay()}">
-                            <i class="fa fa-bar-chart-o" title="No supporting data supplied."></i>
-                        </c:if>
-                    </td>
+
+                    <c:if test="${row.getEvidenceLink().getDisplay()}">
+                        <td data-sort="${row.getEvidenceLink().getUrl()}">
+                        </td>
+
+                    </c:if>
+                    <c:if test="${!row.getEvidenceLink().getDisplay()}">
+                        <td data-sort="none">
+
+                        </td>
+                    </c:if>
+
                 </tr>
             </c:forEach>
         </c:forEach>
@@ -108,6 +109,27 @@
     $(document).ready(function () {
         var oTable = $('#strainPvalues').dataTable({
             "bFilter": false,
-            "bLengthChange": false
+            "bLengthChange": false,
+            'columnDefs': [
+                {
+                    "targets": [8],
+                    "visible": false
+                },
+                {
+                    "targets": [0],
+                    "max-width": "100px"
+                }
+            ],
+            'rowCallback': function (row, data, index) {
+                $(row).on('click', function () {
+                    var url = data[8]['@data-sort'];
+                    if (url !== "none") {
+                        window.location.href = decodeURIComponent(url);
+                    } else {
+                        console.log(row);
+                    }
+                });
+            }
         });
+    });
 </script>

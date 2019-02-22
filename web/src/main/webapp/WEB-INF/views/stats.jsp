@@ -83,12 +83,17 @@
         </c:forEach>
 
         <c:if test="${param.parameter_stable_id != 'IMPC_VIA_001_001' && param.parameter_stable_id != 'IMPC_EVL_001_001' && param.parameter_stable_id != 'IMPC_EVM_001_001' && param.parameter_stable_id != 'IMPC_EVO_001_001' && param.parameter_stable_id != 'IMPC_EVP_001_001'}"><!-- only show downloads if not viability or embryo viability pie charts as we don't have download for line level params yet -->
+            <div class="container" id="expression">
+                <div class="row">
+                    <div class="col-12 no-gutters">
+                        <h3><i class="fa fa-download"></i>&nbsp;Download all the data</h3>
+                    </div>
+                </div>
+            </div>
             <div class="container single single--no-side">
                 <div class="row">
                     <div class="col-12 white-bg">
                         <div class="page-content pt-5 pb-5">
-                            <h3 class="pb-2"><i class="fa fa-download"></i> Download all the data</h3>
-                            <hr />
                             <div id="exportIconsDivGlobal"></div>
                             <p class="alert alert-warning">NOTE: Data from all charts will be aggregated into one download file.</p>
                         </div>

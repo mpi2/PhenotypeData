@@ -18,7 +18,7 @@
         resTemp[0].remove();
 </script>
 
-<table id="phenotypes"  class="table tableSorter">
+<table id="phenotypes"  class="table tableSorter clickableRows">
 
     <thead>
     <tr>

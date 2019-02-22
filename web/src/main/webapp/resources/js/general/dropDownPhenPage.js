@@ -15,7 +15,23 @@ $(document).ready(function(){
 	
 	function initPhenoDataTable(){
             var aDataTblCols = [0,1,2,3,4,5,6,7,8];
-            $('table#phenotypes').dataTable( );
+            $('table#phenotypes').dataTable(
+                {
+                    "bFilter":false,
+                    "bLengthChange": false,
+                    'columnDefs': [
+                        {
+                            "targets": [ 8 ],
+                            "visible": false
+                        }
+                    ],
+                    'rowCallback': function (row, data, index) {
+                        $(row).on('click', function () {
+                            window.location.href = decodeURIComponent(data[8]['@data-sort']);
+                        });
+                    }
+                }
+			);
         }
 	
 	function removeFilterSelects(){ // Remove selected options when going back to the page

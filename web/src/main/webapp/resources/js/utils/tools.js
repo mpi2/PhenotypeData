@@ -1461,11 +1461,12 @@
 			// but due to a couple of ajax down the road, I could not get it to
 			// work.
 			// The button is styled as the new design
-			var btn = $('<button></button>').attr(
+			var btn = $('<button>&nbsp;</button>').attr(
 					{
-						'class' : oFormatSelector[f]
-								+ ' fa fa-download ' + conf['class'] + ' btn btn-primary '
+						'class' : oFormatSelector[f] + conf['class'] + ' btn btn-primary '
 					}).html(f);
+
+			btn.prepend( "<i class='fa fa-download'></i>" );
 
 			$(iconDiv).append(btn);
 		}
