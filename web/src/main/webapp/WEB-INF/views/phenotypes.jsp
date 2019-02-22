@@ -171,7 +171,7 @@
                     </div>
                 </div>
             </div>
-
+            </div>
         </c:if>
 
         <div class="container">
