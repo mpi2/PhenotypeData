@@ -82,7 +82,7 @@
                             </td>
                         </c:when>
                         <c:otherwise>
-                            <td><t:formatScientific>${row.getpValue()}</t:formatScientific></td>
+                            <td data-sort="${row.getpValue()}"><t:formatScientific>${row.getpValue()}</t:formatScientific></td>
                         </c:otherwise>
                     </c:choose>
                     <td>${row.status}</td>
@@ -127,6 +127,9 @@
                         window.location.href = decodeURIComponent(url);
                     } else {
                         console.log(row);
+                        row.removeClass('clickableRows');
+                        row.addClass('unClickableRows');
+                        row.addClass('text-muted');
                     }
                 });
             }

@@ -7430,3 +7430,8 @@ hr {
     outline-style: none;
 }
 
+
+.unClickableRows > tbody > tr:hover {
+    background-color: #ecececf5;
+}
+

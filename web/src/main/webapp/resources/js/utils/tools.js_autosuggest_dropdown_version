@@ -244,8 +244,7 @@
     		"bProcessing": true,
     		"bServerSide": true,	    		
     		//"sDom": "<'row-fluid'<'span6'><'span6'>>t<'row-fluid'<'span6'i><'span6'p>>",
-    		"sDom": "<'row-fluid'<'#exportSpinner'><'#tableTool'>r>t<'row-fluid'<'span6'i><'span6'p>>",    		
-			"sPaginationType": "bootstrap",    		
+    		"sDom": "<'row-fluid'<'#exportSpinner'><'#tableTool'>r>t<'row-fluid'<'span6'i><'span6'p>>",
     		"fnDrawCallback": function( oSettings ) {  // when dataTable is loaded
     			
     			// ie fix, as this style in CSS is not working for IE8 

@@ -1451,7 +1451,7 @@
 		var it = 0;
 		for ( var f in oFormatSelector) {
 			if (it++ > 0)
-
+				$(iconDiv).append("&nbsp;or&nbsp;");
 			// var btn = $('<a href="#"></a>').attr({'class': oFormatSelector[f]
 			// + ' ' + conf['class']}).html("<i class=\"fa fa-download\"></i> "
 			// + f);
@@ -1461,12 +1461,13 @@
 			// but due to a couple of ajax down the road, I could not get it to
 			// work.
 			// The button is styled as the new design
-			var btn = $('<button>&nbsp;</button>').attr(
+			var btn = $('<button></button>').attr(
 					{
 						'class' : oFormatSelector[f] + conf['class'] + ' btn btn-primary '
 					}).html(f);
+			//console.log(btn);
 
-			btn.prepend( "<i class='fa fa-download'></i>" );
+			btn.prepend( "<i class='fa fa-download'></i>&nbsp;" );
 
 			$(iconDiv).append(btn);
 		}

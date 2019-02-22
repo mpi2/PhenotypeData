@@ -37,7 +37,12 @@ $(document).ready(function(){
                 		var url = data[7]['@data-sort'];
                 		if (url !== "none") {
                             window.location.href = decodeURIComponent(url);
-                        }
+                        } else {
+                            console.log(row);
+                            row.removeClass('clickableRows');
+                            row.addClass('unClickableRows');
+                            row.addClass('text-muted');
+						}
                     });
                 }
             }

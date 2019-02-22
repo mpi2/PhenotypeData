@@ -23,11 +23,23 @@ $(document).ready(function(){
                         {
                             "targets": [ 8 ],
                             "visible": false
+                        },
+                        {
+                            "targets": [ 0 ],
+                            "max-width": "100px"
                         }
                     ],
                     'rowCallback': function (row, data, index) {
                         $(row).on('click', function () {
-                            window.location.href = decodeURIComponent(data[8]['@data-sort']);
+                            var url = data[8]['@data-sort'];
+                            if (url !== "none") {
+                                window.location.href = decodeURIComponent(url);
+                            } else {
+                                console.log(row);
+                                row.removeClass('clickableRows');
+                                row.addClass('unClickableRows');
+                                row.addClass('text-muted');
+							}
                         });
                     }
                 }

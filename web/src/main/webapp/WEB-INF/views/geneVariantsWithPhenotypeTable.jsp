@@ -62,7 +62,9 @@
 
             <td>${phenotype.phenotypingCenter} | ${phenotype.dataSourceName}</td>
 
-            <td>${phenotype.prValueAsString}</td>
+            <td data-sort="${phenotype.prValueAsString}">
+                <t:formatScientific>${phenotype.prValueAsString}</t:formatScientific>
+            </td>
 
 
             <c:if test="${phenotype.getEvidenceLink().getDisplay()}">
