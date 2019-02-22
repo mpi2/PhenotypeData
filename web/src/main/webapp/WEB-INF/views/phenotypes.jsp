@@ -101,7 +101,7 @@
                                         </div>
                                     </c:if>
 
-                                    <div class="row no-gutters justify-content-end text-center mt-3">
+                                    <div class="row no-gutters justify-content-around text-center mt-3">
                                         <a href="#genesAssociations" class="col-sm-4">
                                             <i class="fal fa-dna mb-1 text-dark" style="font-size: 5em;"></i>
                                             <span class="page-nav-link">Significant gene associations</span>
