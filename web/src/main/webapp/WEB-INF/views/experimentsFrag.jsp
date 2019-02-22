@@ -107,6 +107,17 @@
 
 <script type="text/javascript">
     $(document).ready(function () {
+        $('div#phTable').hide();
+        $('input[name=optionsPh]').change(function () {
+            var value = $('input[name=optionsPh]:checked').val();
+            if (value === 'phChart') {
+                $('#phTable').hide();
+                $('#phChart').show();
+            } else {
+                $('#phChart').hide();
+                $('#phTable').show();
+            }
+        });
         var oTable = $('#strainPvalues').dataTable({
             "bFilter": false,
             "bLengthChange": false,

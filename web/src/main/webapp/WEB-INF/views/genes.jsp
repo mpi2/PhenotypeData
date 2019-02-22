@@ -107,17 +107,7 @@
                     }
                 });
 
-                $('div#phTable').hide();
-                $('input[name=optionsPh]').change(function () {
-                    var value = $('input[name=optionsPh]:checked').val();
-                    if (value === 'phChart') {
-                        $('#phTable').hide();
-                        $('#phChart').show();
-                    } else {
-                        $('#phChart').hide();
-                        $('#phTable').show();
-                    }
-                });
+
 
 
                 $('#heatmap_link').click(function () {
