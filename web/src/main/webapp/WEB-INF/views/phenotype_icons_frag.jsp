@@ -4,32 +4,18 @@
 
 <script>
     function filterAllData() {
-        /*if($('#' + rdId).is(':checked')) {
-            console.log('hi');
-        } else {
-            $('#alldata').html("     <div class=\"pre-content\">\n" +
-                "                        <div class=\"row no-gutters\">\n" +
-                "                            <div class=\"col-12 my-5\">\n" +
-                "                                <p class=\"h4 text-center text-justify\"><i class=\"fas fa-atom fa-spin\"></i> A moment please while we gather the data . . . .</p>\n" +
-                "                            </div>\n" +
-                "                        </div>\n" +
-                "                    </div>");
-            $.ajax({
-                url : '/data/experimentsFrag?geneAccession=' + geneAccession + '&' + mpTermId,
-                type: 'GET',
-                success: function(data){
-                    $('#alldata').html(data);
-                    $('#alldata-tab').trigger('click');
-                    $('#phenotypesTab').scrollTop();
-                }
-            });
-        }*/
-
         var val = [];
+        var legend = '';
         $('#phIconGrid').find('input:checked').each(function() {
             val.push($(this).data('value'));
+            var category = $(this).attr("title").replace(new RegExp(' phenotype', 'g'), '');
+            var significance = $(this).attr("value");
+            var color = significance === 'significant'  ? 'badge-primary' : 'badge-info';
+            legend += '<span class="badge ' + color + ' mr-1">' + category + '</span>';
         });
-        $('#alldata').html("     <div class=\"pre-content\">\n" +
+        legend = legend === '' ? ' all phenotypes' : legend;
+        $('#phDataTitle').html(legend);
+        $('#all-chart').html("     <div class=\"pre-content\">\n" +
             "                        <div class=\"row no-gutters\">\n" +
             "                            <div class=\"col-12 my-5\">\n" +
             "                                <p class=\"h4 text-center text-justify\"><i class=\"fas fa-atom fa-spin\"></i> A moment please while we gather the data . . . .</p>\n" +
@@ -40,7 +26,7 @@
             url : '/data/experimentsFrag?geneAccession=' + '${gene.mgiAccessionId}' + '&' + val.join('&'),
             type: 'GET',
             success: function(data){
-                $('#alldata').html(data);
+                $('#all-chart').html(data);
                 $('#alldata-tab').trigger('click');
                 $('#phenotypesTab').scrollTop();
             }
@@ -59,13 +45,13 @@
                         <c:choose>
                             <c:when test="${not empty significantTopLevelMpGroups.get(phenotypeGroups[i*5 + j])}">
                                 <label class="col-sm btn btn-outline-primary btn-icon significant m-1" href="#phenotypesTab" >
-                                    <input type="checkbox"  autocomplete="off" data-value="${significantTopLevelMpGroups.get(phenotypeGroups[i*5 + j])}" onchange="filterAllData()">
+                                    <input type="checkbox"  autocomplete="off" data-value="${significantTopLevelMpGroups.get(phenotypeGroups[i*5 + j])}" onchange="filterAllData()" title="${phenotypeGroups[i*5 + j]}" value="significant">
                                     <i class="${phenotypeGroupIcons[i*5 + j]}" title="${gene.markerSymbol} ${phenotypeGroups[i*5 + j]} measurements" data-toggle="tooltip" data-placement="top"></i>
                                 </label>
                             </c:when>
                             <c:when test="${not empty notsignificantTopLevelMpGroups.get(phenotypeGroups[i*5 + j])}">
                                 <label class="col-sm btn btn-outline-info btn-icon m-1" href="#phenotypesTab">
-                                    <input type="checkbox" autocomplete="off" data-value="${notsignificantTopLevelMpGroups.get(phenotypeGroups[i*5 + j])}" onchange="filterAllData()">
+                                    <input type="checkbox" autocomplete="off" data-value="${notsignificantTopLevelMpGroups.get(phenotypeGroups[i*5 + j])}" onchange="filterAllData()" title="${phenotypeGroups[i*5 + j]}" value="no_significant">
                                     <i class="${phenotypeGroupIcons[i*5 + j]}" title="${gene.markerSymbol} ${phenotypeGroups[i*5 + j]} measurements" data-toggle="tooltip" data-placement="top"></i>
                                 </label>
                             </c:when>

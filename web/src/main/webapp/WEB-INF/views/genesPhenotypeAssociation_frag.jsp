@@ -377,7 +377,9 @@
                 </div>
                 <div class="tab-pane fade show" id="alldata" role="tabpanel"
                      aria-labelledby="alldata-tab">
-                    <h4 id="phDataTitle" class="mt-2"></h4>
+                    <p class="mt-3">
+                        Filtered by: <span id="phDataTitle"> all phenotypes</span>
+                    </p>
                     <div id="all-chart">
                         <jsp:include page="/experimentsFrag" flush="true">
                             <jsp:param name="geneAccession"
