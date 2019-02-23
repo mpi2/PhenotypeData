@@ -2,7 +2,6 @@ package uk.ac.ebi.phenotype.web.controller;
 
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
-import org.apache.tomcat.jni.Time;
 import org.mousephenotype.cda.solr.service.SearchGeneService;
 import org.mousephenotype.cda.solr.service.SearchPhenotypeService;
 import org.mousephenotype.cda.solr.service.dto.GeneDTO;
@@ -18,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -45,16 +45,16 @@ public class ErrorHandlerController implements ErrorController  {
     {
         final String URL = request.getRequestURL().toString();
 
-        model.addAttribute("timestamp", Time.now());
+        model.addAttribute("timestamp", LocalDateTime.now());
         model.addAttribute("error", "An error");
         model.addAttribute("status", request.getAttribute("javax.servlet.error.status_code"));
 
-        QueryResponse geneSuggestionResponse = null;
-        QueryResponse phenSuggestionResponse = null;
+        QueryResponse geneSuggestionResponse;
+        QueryResponse phenSuggestionResponse;
         List<String> phenotypeSuggestions = new ArrayList<>();
         List<String> geneSuggestions = new ArrayList<>();
 
-        // Try to get suggestions about genes, phenotypes, and content
+        // Try to get suggestions from the URL about genes, phenotypes, and content
         try {
 
             String originalUri = ((String)request.getAttribute(RequestDispatcher.FORWARD_REQUEST_URI));
@@ -67,7 +67,7 @@ public class ErrorHandlerController implements ErrorController  {
                     .map(x -> "*"+x+"*")
                     .collect(Collectors.joining(" "));
 
-            geneSuggestionResponse = searchGeneService.searchSuggestions(originalUri, 10);
+            geneSuggestionResponse = searchGeneService.searchSuggestions(originalUri, 4);
             phenSuggestionResponse = searchPhenotypeService.searchSuggestions(originalUri, 10);
 
             if(geneSuggestionResponse != null){
