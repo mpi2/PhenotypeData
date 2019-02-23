@@ -44,8 +44,6 @@ public class ErrorHandlerController implements ErrorController  {
     public String error(Model model, HttpServletRequest request)
     {
         final String URL = request.getRequestURL().toString();
-        Exception exception = (Exception) request.getAttribute("javax.servlet.error.exception");
-
 
         model.addAttribute("timestamp", Time.now());
         model.addAttribute("error", "An error");
