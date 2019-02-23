@@ -22,13 +22,13 @@
             "                            </div>\n" +
             "                        </div>\n" +
             "                    </div>");
+        $('#alldata-tab').trigger('click');
+        $('#phenotypesTab').scrollTop();
         $.ajax({
             url : '/data/experimentsFrag?geneAccession=' + '${gene.mgiAccessionId}' + '&' + val.join('&'),
             type: 'GET',
             success: function(data){
                 $('#all-chart').html(data);
-                $('#alldata-tab').trigger('click');
-                $('#phenotypesTab').scrollTop();
             }
         });
     }

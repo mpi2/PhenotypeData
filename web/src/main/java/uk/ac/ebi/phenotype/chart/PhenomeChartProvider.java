@@ -38,7 +38,10 @@ public class PhenomeChartProvider {
 
 		String chartString = "	$(function () { \n"
 		+ "  pvaluesOverviewChart = new Highcharts.Chart({ \n"
-		+ "     chart: {\n"
+		+ "     chart: {\n" +
+				"        style: {\n" +
+				"            fontFamily: '\"Roboto\", sans-serif;'\n" +
+				"        },"
 		+ "renderTo: 'chartDiv',\n"
 		+ "         type: 'scatter',\n"
 		+ "         zoomType: 'xy',\n"
@@ -87,7 +90,7 @@ public class PhenomeChartProvider {
 		+ "      credits: { \n"
 		+ "         enabled: false \n"
 		+ "      }, \n"
-		+ "     legend: { layout: 'horizontal', align: 'right',	verticalAlign: 'top', borderWidth: 0	},"
+		+ "     legend: { layout: 'horizontal', align: 'left',	verticalAlign: 'top', borderWidth: 0	},"
 		+ "     tooltip: {\n"
 		+ "        headerFormat: '<span style=\"font-size:10px\">{point.name}</span><table>',\n"
 		+ "        pointFormat: '" + pointFormat + "',\n"
