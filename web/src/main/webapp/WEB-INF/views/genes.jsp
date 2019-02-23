@@ -20,9 +20,12 @@
                     var geneId = '${gene.mgiAccessionId}';
                 </script>
         <script type='text/javascript' src="${baseUrl}/js/general/dropDownExperimentPage.js?v=${version}"></script>
-		<script type='text/javascript' src='${baseUrl}/js/charts/highcharts.js?v=${version}'></script>
-        <script type='text/javascript' src='${baseUrl}/js/charts/highcharts-more.js?v=${version}'></script>
-        <script type='text/javascript' src='${baseUrl}/js/charts/exporting.js?v=${version}'></script>
+		<%--script type='text/javascript' src='${baseUrl}/js/charts/highcharts.js?v=${version}'></script--%>
+        <script src="https://code.highcharts.com/highcharts.js"></script>
+        <script src="https://code.highcharts.com/modules/exporting.js"></script>
+
+        <%--script type='text/javascript' src='${baseUrl}/js/charts/highcharts-more.js?v=${version}'></script--%>
+        <%--script type='text/javascript' src='${baseUrl}/js/charts/exporting.js?v=${version}'></script--%>
 
             <script src="${baseUrl}/js/general/enu.js"></script>
             <script src="${baseUrl}/js/general/dropdownfilters.js"></script>

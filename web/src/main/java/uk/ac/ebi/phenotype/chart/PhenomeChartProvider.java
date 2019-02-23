@@ -90,7 +90,7 @@ public class PhenomeChartProvider {
 		+ "      credits: { \n"
 		+ "         enabled: false \n"
 		+ "      }, \n"
-		+ "     legend: { layout: 'horizontal', align: 'left',	verticalAlign: 'top', borderWidth: 0	},"
+		+ "     legend: { layout: 'horizontal', align: 'left',	verticalAlign: 'top', borderWidth: 0, maxHeight: 200	},"
 		+ "     tooltip: {\n"
 		+ "        headerFormat: '<span style=\"font-size:10px\">{point.name}</span><table>',\n"
 		+ "        pointFormat: '" + pointFormat + "',\n"
