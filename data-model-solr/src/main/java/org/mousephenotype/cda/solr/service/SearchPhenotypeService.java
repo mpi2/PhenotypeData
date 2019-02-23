@@ -68,7 +68,7 @@ public class SearchPhenotypeService {
         return solr.query(query);
     }
 
-    public QueryResponse searchPhenotypeSuggestions(String keyword, Integer distance) throws IOException, SolrServerException {
+    public QueryResponse searchSuggestions(String keyword, Integer distance) throws IOException, SolrServerException {
 
         String search = keyword.isEmpty() ? "*:*" : keyword.replaceAll("\\s", "") + "~" + distance;
 
@@ -80,7 +80,6 @@ public class SearchPhenotypeService {
         query.setRows(3);
         query.setSort("score", SolrQuery.ORDER.desc);
 
-        System.out.println("phenotype suggestion query=" + query);
         return solr.query(query);
     }
 

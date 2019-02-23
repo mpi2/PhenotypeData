@@ -74,20 +74,6 @@ public class PhenotypeArchiveConfig {
     @Value("${paBaseUrl}")
     private String paBaseUrl;
 
-
-    @Bean
-    public ErrorPageFilter errorPageFilter() {
-        return new ErrorPageFilter();
-    }
-
-    @Bean
-    public FilterRegistrationBean disableSpringBootErrorFilter(ErrorPageFilter filter) {
-        FilterRegistrationBean filterRegistrationBean = new FilterRegistrationBean();
-        filterRegistrationBean.setFilter(filter);
-        filterRegistrationBean.setEnabled(false);
-        return filterRegistrationBean;
-    }
-
     @Bean(name = "globalConfiguration")
     public Map<String, String> getGlobalConfig() {
         Map<String, String> map = new HashMap<>();
@@ -107,8 +93,7 @@ public class PhenotypeArchiveConfig {
 
     @Bean
     public InternalResourceViewResolver viewResolver() {
-        InternalResourceViewResolver viewResolver =
-                new InternalResourceViewResolver();
+        InternalResourceViewResolver viewResolver = new InternalResourceViewResolver();
         viewResolver.setViewClass(JstlView.class);
         viewResolver.setPrefix("/WEB-INF/views/");
         viewResolver.setSuffix(".jsp");
@@ -130,13 +115,10 @@ public class PhenotypeArchiveConfig {
             @Autowired
             DeploymentInterceptor deploymentInterceptor;
 
-//            @Autowired
-//            OpenSessionInViewInterceptor openSessionInViewInterceptor;
 
             @Override
             public void addInterceptors(InterceptorRegistry registry) {
                 registry.addInterceptor(deploymentInterceptor);
-//                registry.addInterceptor(openSessionInViewInterceptor);
                 super.addInterceptors(registry);
             }
 

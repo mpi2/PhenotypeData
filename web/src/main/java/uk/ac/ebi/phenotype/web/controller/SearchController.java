@@ -40,11 +40,14 @@ public class SearchController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @Autowired
-    SearchGeneService searchGeneService;
+    private final SearchGeneService searchGeneService;
+    private final SearchPhenotypeService searchPhenotypeService;
 
     @Autowired
-    SearchPhenotypeService searchPhenotypeService;
+    public SearchController(SearchGeneService searchGeneService, SearchPhenotypeService searchPhenotypeService) {
+        this.searchGeneService = searchGeneService;
+        this.searchPhenotypeService = searchPhenotypeService;
+    }
 
 
     /**
@@ -98,7 +101,7 @@ public class SearchController {
         final List<GeneDTO> genes = response.getBeans(GeneDTO.class);
 
         if (genes.size()<1) {
-            QueryResponse suggestionsResponse = searchGeneService.searchGeneSuggestions(term, 3);
+            QueryResponse suggestionsResponse = searchGeneService.searchSuggestions(term, 3);
             final List<String> suggestions = suggestionsResponse
                     .getBeans(GeneDTO.class)
                     .stream()
@@ -119,7 +122,7 @@ public class SearchController {
         final List<SearchResultMpDTO> phenotypes = response.getBeans(SearchResultMpDTO.class);
 
         if (phenotypes.size() < 1) {
-            QueryResponse suggestionsResponse = searchPhenotypeService.searchPhenotypeSuggestions(term, 3);
+            QueryResponse suggestionsResponse = searchPhenotypeService.searchSuggestions(term, 3);
             System.out.println("suggestionsResponse: " + suggestionsResponse);
             final List<String> suggestions = suggestionsResponse
                     .getBeans(MpDTO.class)

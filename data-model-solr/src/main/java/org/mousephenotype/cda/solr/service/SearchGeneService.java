@@ -58,7 +58,7 @@ public class SearchGeneService {
     }
 
 
-    public QueryResponse searchGeneSuggestions(String keyword, Integer distance) throws IOException, SolrServerException {
+    public QueryResponse searchSuggestions(String keyword, Integer distance) throws IOException, SolrServerException {
 
         String search = keyword.isEmpty() ? "*:*" : keyword.replaceAll("\\s", "") + "~" + distance;
 
