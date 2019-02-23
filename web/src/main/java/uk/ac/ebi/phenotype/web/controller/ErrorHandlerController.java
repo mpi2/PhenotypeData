@@ -50,7 +50,6 @@ public class ErrorHandlerController implements ErrorController  {
         model.addAttribute("timestamp", Time.now());
         model.addAttribute("error", "An error");
         model.addAttribute("status", request.getAttribute("javax.servlet.error.status_code"));
-        model.addAttribute("message", exception.getMessage());
 
         QueryResponse geneSuggestionResponse = null;
         QueryResponse phenSuggestionResponse = null;
