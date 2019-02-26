@@ -145,7 +145,7 @@
                         <p><a href="https://www.mousephenotypetest.org/understanding-the-data/accessing-the-data/batch-query/">Batch query</a></p>
 
                     </div>
-                    <p><a href="https://www.mousephenotypetest.org/understanding-the-data/phenotyping-process-impress/">Phenotyping process (IMPRess)</a></p>
+                    <p><a href="https://www.mousephenotypetest.org/understanding-the-data/phenotyping-process-impress/">Phenotyping process (IMPReSS)</a></p>
                     <div class="sub-pages">
                     </div>
 
