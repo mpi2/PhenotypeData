@@ -512,19 +512,28 @@ public class ChartsController {
                 final Set<ObservationDTO> controls = e.getControls();
                 final Set<ObservationDTO> mutants = e.getMutants();
 
+                // Count each specimen only once, not matter how many time's it's been measured
+                Set<String> specimensSeen = new HashSet<>();
+
                 for (ObservationDTO o : controls) {
-                    if (SexType.valueOf(o.getSex()) == SexType.female) {
-                        numberFemaleControlMice += 1;
-                    } else if (SexType.valueOf(o.getSex()) == SexType.male) {
-                        numberMaleControlMice += 1;
+                    if ( ! specimensSeen.contains(o.getExternalSampleId())) {
+                        specimensSeen.add(o.getExternalSampleId());
+                        if (SexType.valueOf(o.getSex()) == SexType.female) {
+                            numberFemaleControlMice += 1;
+                        } else if (SexType.valueOf(o.getSex()) == SexType.male) {
+                            numberMaleControlMice += 1;
+                        }
                     }
                 }
 
                 for (ObservationDTO o : mutants) {
-                    if (SexType.valueOf(o.getSex()) == SexType.female) {
-                        numberFemaleMutantMice += 1;
-                    } else if (SexType.valueOf(o.getSex()) == SexType.male) {
-                        numberMaleMutantMice += 1;
+                    if ( ! specimensSeen.contains(o.getExternalSampleId())) {
+                        specimensSeen.add(o.getExternalSampleId());
+                        if (SexType.valueOf(o.getSex()) == SexType.female) {
+                            numberFemaleMutantMice += 1;
+                        } else if (SexType.valueOf(o.getSex()) == SexType.male) {
+                            numberMaleMutantMice += 1;
+                        }
                     }
                 }
 
