@@ -17,10 +17,10 @@
             <c:set var="count" value="0" scope="page"/>
             <c:forEach var="procedure" items="${procedures}" varStatus="firstLoop">
                 <c:set var="count" value="${count+1}"/>
-                <c:set var="hrefVar" value="${drupalBaseUrl}/impress/protocol/${procedure.procedureStableKey}"/>
+                <c:set var="hrefVar" value="${baseUrl}/impress/protocol/${procedure.procedureStableKey}"/>
                 <c:if test="${fn:contains(procedure.procedureStableId,'M-G-P')}">
                     <c:set var="hrefVar"
-                           value="${drupalBaseUrl}/impress/parameters/${procedure.procedureStableKey}/4"/>
+                           value="${baseUrl}/impress/parameters/${procedure.procedureStableKey}/4"/>
                 </c:if>
                 <tr>
                     <td>

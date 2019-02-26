@@ -18,6 +18,7 @@ $(document).ready(function(){
             $('table#phenotypes').dataTable(
                 {
                     "bFilter":false,
+                    "responsive" : true,
                     "bLengthChange": false,
                     'columnDefs': [
                         {
