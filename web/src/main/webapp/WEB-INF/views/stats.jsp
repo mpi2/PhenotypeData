@@ -118,7 +118,7 @@
                                 TSV: 'tsv_phenoAssoc',
                                 XLS: 'xls_phenoAssoc'
                             },
-                            class: 'btn btn-outline-primary'
+                            class: 'btn btn-outline-primary fileIcon'
                         }));
 
                     var params = window.location.href.split("/charts?")[1]; //.split("&");
@@ -195,6 +195,8 @@
                     function buildExportUrl(conf, fileType) {
                         if (fileType === undefined)
                             fileType = '';
+                        console.log(fileType);
+                        fileType = fileType.indexOf('TSV') >= 0 ? 'tsv' : 'xls';
                         var url = baseUrl + '/export';
                         var sInputs = '';
                         for (var k in conf) {
@@ -235,6 +237,7 @@
                     }
 
                     function _doDataExport(url, form) {
+                        console.log('hi');
                         $(form).appendTo('body').submit().remove();
                     }
                 });

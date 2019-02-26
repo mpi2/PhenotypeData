@@ -1448,7 +1448,7 @@
 		var textPos = conf.textPos;
 		var iconDiv = $('<p></p>').attr({
 			'class' : textPos
-		}).html(label + " &nbsp;");
+		}).html(label);
 		var it = 0;
 		for ( var f in oFormatSelector) {
 			if (it++ > 0)
