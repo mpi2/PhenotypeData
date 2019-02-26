@@ -28,7 +28,7 @@
                 <div class="col-6 col-md-9 text-right">
             <span class="d-none d-lg-block">
               <div class="menu-main-nav-container"><ul id="menu-main-nav" class="menu"><li id="menu-item-16" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-16"><a href="https://www.mousephenotypetest.org/about-impc/">About IMPC</a></li>
-<li id="menu-item-17" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-17"><a href="https://www.mousephenotypetest.org/understanding-the-data/">Data</a></li>
+<li id="menu-item-17" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-17 current-menu-item"><a href="https://www.mousephenotypetest.org/understanding-the-data/">Data</a></li>
 <li id="menu-item-18" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-18"><a href="https://www.mousephenotypetest.org/human-diseases/">Human Diseases</a></li>
 <li id="menu-item-19" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-19"><a href="https://www.mousephenotypetest.org/news-and-events/">News &#038; Events</a></li>
 <li id="menu-item-983" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-983"><a href="https://www.mousephenotypetest.org/blog/">Blog</a></li>
@@ -325,7 +325,7 @@
                             <p><a href="https://www.mousephenotypetest.org/news-and-events/latest-publications/papers-using-impc-resources/">Papers using IMPC resources</a></p>
 
                             <p><a href="https://www.mousephenotypetest.org/news-and-events/latest-publications/impc-papers/">IMPC Papers</a></p>
-                            
+
                         </div>
 
                     </div>
