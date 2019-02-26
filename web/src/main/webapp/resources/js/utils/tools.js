@@ -20,6 +20,7 @@
  * Author: Chao-Kung Chen
  */
 (function($) {
+    $.fn.DataTable.ext.pager.numbers_length = 10;
 
 
 	$.fn.setSearchMode = function(oCounts) {

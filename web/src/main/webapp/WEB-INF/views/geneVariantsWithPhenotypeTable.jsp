@@ -18,7 +18,7 @@
         resTemp[0].remove();
 </script>
 
-<table id="phenotypes" class="table clickableRows" style="width: 100%">
+<table id="phenotypes" class="table tableSorter clickableRows dt-responsive" style="width: 100%">
 
     <thead>
     <tr>
