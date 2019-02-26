@@ -325,9 +325,7 @@
                             <p><a href="https://www.mousephenotypetest.org/news-and-events/latest-publications/papers-using-impc-resources/">Papers using IMPC resources</a></p>
 
                             <p><a href="https://www.mousephenotypetest.org/news-and-events/latest-publications/impc-papers/">IMPC Papers</a></p>
-
-                            <p><a href="https://www.mousephenotypetest.org/news-and-events/latest-publications/test-page/">Test Page</a></p>
-
+                            
                         </div>
 
                     </div>
