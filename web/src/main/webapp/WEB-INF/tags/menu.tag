@@ -286,7 +286,7 @@
 
                     </div>
                     <div class="col col-auto text-left">
-                        <a href="https://www.mousephenotypetest.org/understanding-the-data/phenotyping-process-impress/">Phenotyping process (IMPRess)</a>
+                        <a href="https://www.mousephenotypetest.org/understanding-the-data/phenotyping-process-impress/">Phenotyping process (IMPReSS)</a>
                         <div class="sub-pages">
                         </div>
 
