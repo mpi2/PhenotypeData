@@ -241,7 +241,6 @@ public class GenesController {
 
     private void processGeneRequest(String acc, Model model, HttpServletRequest request)
             throws GenomicFeatureNotFoundException, URISyntaxException, IOException, SQLException, SolrServerException {
-        List<Map<String, String>> postQcDataMapList = new ArrayList<>();
         int numberOfTopLevelMpTermsWithStatisticalResult = 0;
         GeneDTO gene = geneService.getGeneById(acc);
 
@@ -301,9 +300,6 @@ public class GenesController {
             }
             model.addAttribute("numberOfTopLevelMpTermsWithStatisticalResult", numberOfTopLevelMpTermsWithStatisticalResult);
 
-            postQcDataMapList = observationService.getDistinctPipelineAlleleCenterListByGeneAccession(acc);
-
-            model.addAttribute("postQcDataMapList", postQcDataMapList);
             String genePageUrl = request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl").toString();
             Map<String, String> status = geneService.getProductionStatus(acc, genePageUrl);
             prodStatusIcons = (status.get("productionIcons").equalsIgnoreCase("")) ? prodStatusIcons : status.get("productionIcons");
@@ -311,9 +307,7 @@ public class GenesController {
 
             model.addAttribute("orderPossible", status.get("orderPossible"));
 
-            //bodyweight parameter to see if we have bodyweight data for button to link to
-            ParameterDTO parameter = impressService.getParameterByStableId("IMPC_BWT_008_001");
-            if (observationService.getChartPivots("accession=" + acc, acc, parameter, null, null, null, null, null, null).size() > 0) {
+            if (observationService.hasBodyWeight(acc)) {
                 model.addAttribute("bodyWeight", true);
             }
 
@@ -438,41 +432,8 @@ public class GenesController {
         //model.addAttribute("alleleProductsCre2", orderService.getCreData(acc));
         model.addAttribute("creLineAvailable", orderService.crelineAvailable(acc));
 
-        PhenotypeDisplayStatus phenotypeDisplayStatus = getPhenotypeDisplayStatus(phenotypeStarted, numberOfTopLevelMpTermsWithStatisticalResult, postQcDataMapList, rowsForPhenotypeTable);
-        model.addAttribute("phenotypeDisplayStatus", phenotypeDisplayStatus);
     }
 
-
-    /**
-     * Encapsulate logic for how we are displaying phenotype information in the
-     * gene page here so easy to read through and error check
-     *
-     * @return
-     */
-    private PhenotypeDisplayStatus getPhenotypeDisplayStatus(boolean phenotypeStarted, int numberOfTopLevelMpTermsWithStatisticalResult, List<Map<String, String>> postQcDataMapList, ArrayList<GenePageTableRow> rowsForPhenotypeTable) {
-        //example of gene with preQc but not postQc Iqgap2
-        //example of gene with preQc but not significant  Stox2, Mast3
-        //example with lots of phenotype data http://localhost:8080/phenotype-archive/genes/MGI:109331
-
-        PhenotypeDisplayStatus displayStatus = new PhenotypeDisplayStatus();
-        if (phenotypeStarted) {
-            displayStatus.setDisplayHeatmap(true);
-        }
-
-        if (numberOfTopLevelMpTermsWithStatisticalResult > 0) {
-            displayStatus.setPostQcTopLevelMPTermsAvailable(true);
-        }
-
-        //dataMap is not empty
-        if (!postQcDataMapList.isEmpty()) {
-            displayStatus.setPostQcDataAvailable(true);
-        }
-        if (rowsForPhenotypeTable.size() > 0) {
-            displayStatus.setEitherPostQcOrPreQcSignificantDataIsAvailable(true);
-        }
-
-        return displayStatus;
-    }
 
     /**
      * @author ilinca
@@ -875,30 +836,12 @@ public class GenesController {
             throws SolrServerException, IOException, SQLException {
         boolean overview = true;
         boolean embryoOnly = false;
-        List<Count> parameterCounts = expressionService.getLaczCategoricalParametersForGene(acc);
-
-        List<AnatomogramDataBean> anatomogramDataBeans = expressionService.getAnatomogramDataBeans(parameterCounts);
-        Map<String, Long> topLevelMaCounts = expressionService.getLacSelectedTopLevelMaCountsForAnatomogram(anatomogramDataBeans);
-        Set<String> topLevelMaIds = expressionService.getLacSelectedTopLevelMaIdsForAnatomogram(anatomogramDataBeans);
-
-        //System.out.println("Genes controller: topLevelMaCounts"+topLevelMaCounts);
-        model.addAttribute("topLevelMaCounts", topLevelMaCounts);
-        model.addAttribute("topLevelMaIds", topLevelMaIds);
-        JSONObject anatomogram = expressionService.getAnatomogramJson(anatomogramDataBeans);
-        model.addAttribute("anatomogram", anatomogram);
 
         ExpressionImagesBean section = expressionService.getLacImageDataForGene(acc, null, "IMPC_ALZ_075_001", overview);
         ExpressionImagesBean wholemount = expressionService.getLacImageDataForGene(acc, null, "IMPC_ALZ_076_001", overview);
         model.addAttribute("sectionExpressionImagesBean", section);
         model.addAttribute("wholemountExpressionImagesBean", wholemount);
 
-//		model.addAttribute("haveImpcAdultImagesSection", section.getHaveImpcImages());
-//		model.addAttribute("haveImpcAdultImagesWholemount", wholemount.getHaveImpcImages());
-        //need to do these for section and wholemount
-//		model.addAttribute("impcAdultExpressionImageFacetsSection", section.getFilteredTopLevelAnatomyTerms());
-//		model.addAttribute("impcAdultExpressionFacetToDocsSection", section.getExpFacetToDocs());
-//		model.addAttribute("impcAdultExpressionImageFacetsWholemount", wholemount.getFilteredTopLevelAnatomyTerms());
-//		model.addAttribute("impcAdultExpressionFacetToDocsWholemount", wholemount.getExpFacetToDocs());
         expressionService.getExpressionDataForGene(acc, model, embryoOnly);
     }
 
@@ -915,23 +858,13 @@ public class GenesController {
         //good test gene:Nxn with selected top level emap terms
         boolean overview = true;
         boolean embryoOnly = true;
-        //get embryo images
-        //solrQuery.addFilterQuery(ImageDTO.PARAMETER_STABLE_ID + ":IMPC_ELZ_064_001" + " OR "
-        //+ ImageDTO.PARAMETER_STABLE_ID + ":IMPC_ELZ_063_001");
 
         //impcEmbryoExpressionFacetToDocsWholemount
         ExpressionImagesBean wholemount = expressionService.getLacImageDataForGene(acc, null, "IMPC_ELZ_064_001", overview);
         ExpressionImagesBean section = expressionService.getLacImageDataForGene(acc, null, "IMPC_ELZ_063_001", overview);
         model.addAttribute("sectionExpressionImagesEmbryoBean", section);
         model.addAttribute("wholemountExpressionImagesEmbryoBean", wholemount);
-//		model.addAttribute("impcEmbryoExpressionImageFacetsWholemount", wholemount.getExpFacetToDocs());
-//		model.addAttribute("impcEmbryoExpressionImageFacetsSection", section.getExpFacetToDocs());
-//		
-//		
-//		model.addAttribute("topLevelMaCountsEmbryoWholemount", wholemount.getFilteredTopLevelAnatomyTerms());
-//		model.addAttribute("topLevelMaCountsEmbryoSection", section.getFilteredTopLevelAnatomyTerms());
-//		model.addAttribute("haveImpcAdultImagesEmbryoSection", section.getHaveImpcImages());
-//		model.addAttribute("haveImpcAdultImagesEmbryoWholemount", wholemount.getHaveImpcImages());
+
         expressionService.getExpressionDataForGene(acc, model, embryoOnly);
 
     }

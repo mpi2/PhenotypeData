@@ -40,11 +40,7 @@ import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.SolrUtils;
 import org.mousephenotype.cda.solr.generic.util.JSONRestUtil;
-import org.mousephenotype.cda.solr.service.dto.CountTableRow;
-import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
-import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
-import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
-import org.mousephenotype.cda.solr.service.dto.StatisticalResultDTO;
+import org.mousephenotype.cda.solr.service.dto.*;
 import org.mousephenotype.cda.solr.web.dto.CategoricalDataObject;
 import org.mousephenotype.cda.solr.web.dto.CategoricalSet;
 import org.mousephenotype.cda.web.WebStatus;
@@ -86,7 +82,26 @@ public class ObservationService extends BasicService implements WebStatus {
     public ObservationService() {
 
     }
-    
+
+
+    /**
+     * Return true if the marker has bodyweight data
+     *
+     * @param markerAcccesionId
+     * @return
+     * @throws IOException
+     * @throws SolrServerException
+     */
+    public Boolean hasBodyWeight(String markerAcccesionId) throws IOException, SolrServerException {
+        SolrQuery query = new SolrQuery()
+                .setQuery(ObservationDTO.GENE_ACCESSION_ID + ":\"" + markerAcccesionId + "\"")
+                .addFilterQuery(ObservationDTO.PARAMETER_STABLE_ID + ":IMPC_BWT_008_001")
+                .setRows(1);
+
+        QueryResponse response = solr.query(query);
+        return response.getBeans(ExperimentDTO.class).size() > 0;
+    }
+
     /**
      * Reinstated this method to show charts when no Statistical Result associated
      * @param mgiAccession
