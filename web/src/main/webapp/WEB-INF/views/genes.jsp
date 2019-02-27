@@ -19,7 +19,7 @@
                     var base_url = '${baseUrl}';
                     var geneId = '${gene.mgiAccessionId}';
                 </script>
-        <script type='text/javascript' src="${baseUrl}/js/general/dropDownExperimentPage.js?v=${version}"></script>
+        <script type='text/javascript' src="${baseUrl}/js/general/dropDownExperimentPage.js?v=${version}" async></script>
 		<%--script type='text/javascript' src='${baseUrl}/js/charts/highcharts.js?v=${version}'></script--%>
         <script src="https://code.highcharts.com/highcharts.js"></script>
         <script src="https://code.highcharts.com/modules/exporting.js"></script>
@@ -28,20 +28,20 @@
         <%--script type='text/javascript' src='${baseUrl}/js/charts/exporting.js?v=${version}'></script--%>
 
             <script src="${baseUrl}/js/general/enu.js"></script>
-            <script src="${baseUrl}/js/general/dropdownfilters.js"></script>
-            <script type="text/javascript" src="${baseUrl}/js/general/allele.js"></script>
+            <script src="${baseUrl}/js/general/dropdownfilters.js" async></script>
+            <script type="text/javascript" src="${baseUrl}/js/general/allele.js" async></script>
         <%-- Phenogrid requirements --%>
         <script type="text/javascript"
-                src="${baseUrl}/js/phenogrid-1.3.1/dist/phenogrid-bundle.js?v=${version}"></script>
+                src="${baseUrl}/js/phenogrid-1.3.1/dist/phenogrid-bundle.min.js?v=${version}" async></script>
             <link rel="stylesheet" type="text/css"
-                  href="${baseUrl}/js/phenogrid-1.3.1/dist/phenogrid-bundle.css?v=${version}">
+                  href="${baseUrl}/js/phenogrid-1.3.1/dist/phenogrid-bundle.min.css?v=${version}" async>
 
         <%-- Phenodigm2 requirements --%>
         <script src="//d3js.org/d3.v4.min.js"></script>
             <script type="text/javascript">var impc = {baseUrl: "${baseUrl}"}</script>        
             <script type="text/javascript" src="${baseUrl}/js/vendor/underscore/underscore-1.8.3.min.js"></script>
-            <script type="text/javascript" src="${baseUrl}/js/phenodigm2/phenodigm2.js?v=${version}"></script>       
-            <link rel="stylesheet" type="text/css" href="${baseUrl}/css/phenodigm2.css"/>
+            <script type="text/javascript" src="${baseUrl}/js/phenodigm2/phenodigm2.js?v=${version}" async></script>
+            <link rel="stylesheet" type="text/css" href="${baseUrl}/css/phenodigm2.css" async>
         <%-- End of phenodigm2 requirements --%>
 
         <script type="text/javascript">
@@ -113,7 +113,7 @@
 
 
 
-                $('#heatmap_link').click(function () {
+                /*$('#heatmap_link').click(function () {
                     console.log('heatmap link clicked');
 
                     /* //load the css
@@ -130,36 +130,28 @@
                     drupalBaseUrl/heatmap/css/heatmap.1.3.1.css';
                          link.media = 'all';
                          head.appendChild(link);
-                         } */
+                         }
 
                     if ($('#heatmap_toggle_div').length) {//check if this div exists first as this will ony exist if phenotypeStarted and we don't want to do this if not.
                         $('#heatmap_toggle_div').toggleClass('hidden');//toggle the div whether the heatmap has been generated or not.
                         $('#phenotypeTableDiv').toggleClass('hidden');
                         if (!heatmap_generated) {
 
-                            var script = document.createElement('script');
+                            /*var script = document.createElement('script');
                             //script.src = "${drupalBaseUrl}/heatmap/js/heatmap.1.3.1.js";
                             script.src = "${baseUrl}/js/vendor/dcc/heatmap.js";
                             script.onload = function () {
 
                                 //do stuff with the script
                                 new dcc.PhenoHeatMap({
-                                    /* identifier of <div> node that will host the heatmap */
                                     'container': 'phenodcc-heatmap',
-                                    /* colony identifier (MGI identifier) */
                                     'mgiid': '${gene.mgiAccessionId}',
-                                    /* default usage mode: ontological or procedural */
                                     'mode': 'ontological',
-                                    /* number of phenotype columns to use per section */
                                     'ncol': 5,
-                                    /* heatmap title to use */
                                     'title': '${gene.markerSymbol}',
                                     'url': {
-                                        /* the base URL of the heatmap javascript source */
                                         'jssrc': '${fn:replace(drupalBaseUrl, "https:", "")}/heatmap/js/',
-                                        /* the base URL of the heatmap data source */
                                         'json': '${fn:replace(drupalBaseUrl, "https:", "")}/heatmap/rest/',
-                                        /* function that generates target URL for data visualisation */
                                         'viz': dcc.heatmapUrlGenerator
                                     }
                                 });
@@ -178,7 +170,7 @@
 
                 });
 
-                // registerInterest();
+                // registerInterest();*/
 
             });
 
