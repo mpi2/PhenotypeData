@@ -422,7 +422,7 @@
                        to occupy
       -->
     <queryResultCache class="solr.LRUCache"
-                      size="64"
+                      size="128"
                       initialSize="0"
                       autowarmCount="0"/>
 
@@ -433,7 +433,7 @@
          this cache will not be autowarmed.
       -->
     <documentCache class="solr.LRUCache"
-                   size="64"
+                   size="0"
                    initialSize="0"
                    autowarmCount="0"/>
 

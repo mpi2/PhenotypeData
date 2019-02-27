@@ -408,7 +408,7 @@
                and old cache.
       -->
     <filterCache class="solr.FastLRUCache"
-                 size="64"
+                 size="1024"
                  initialSize="0"
                  autowarmCount="0"/>
 
@@ -421,7 +421,7 @@
                        to occupy
       -->
     <queryResultCache class="solr.LRUCache"
-                      size="64"
+                      size="1024"
                       initialSize="0"
                       autowarmCount="0"/>
 
@@ -432,7 +432,7 @@
          this cache will not be autowarmed.
       -->
     <documentCache class="solr.LRUCache"
-                   size="64"
+                   size="1024"
                    initialSize="0"
                    autowarmCount="0"/>
     <!-- custom cache currently used by block join --> 
