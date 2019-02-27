@@ -155,11 +155,7 @@
                 <c:if test="${!phenotypeDisplayStatus.eitherPostQcOrPreQcSignificantDataIsAvailable}"><!-- no significant postQC data or preQcData-->
 
                     <%--  <c:choose> --%>
-                <c:if test="${ attemptRegistered && phenotypeStarted }">
-                    <div class="alert alert-warning mt-3" role="alert">
-                        No results meet the p-value threshold
-                    </div>
-                </c:if>
+
                     <%-- <c:if test="${phenotypeDisplayStatus.postQcDataAvailable}">
                                 No significant phenotype associations were found with data that has
                              passed quality control (QC), but you can click
@@ -300,12 +296,17 @@
         <c:if test='${rowsForPhenotypeTable.size() > 0 || phenotypeDisplayStatus.postQcTopLevelMPTermsAvailable}'>
 
             <ul class="nav nav-tabs" id="phenotypesTab" role="tablist">
-            <c:if test='${rowsForPhenotypeTable.size() > 0}'>
                 <li class="nav-item">
+                    <c:if test='${rowsForPhenotypeTable.size() > 0}'>
                     <a class="nav-link active" id="significant-tab" data-toggle="tab" href="#significant"
                        role="tab" aria-controls="significant-tab" aria-selected="true"><i class="fal fa-file-medical-alt"></i>&nbsp; Significant phenotypes</a>
+                    </c:if>
+                    <c:if test='${rowsForPhenotypeTable.size() <= 0}'>
+                        <a class="nav-link" id="significant-tab" data-toggle="tab" href="#significant"
+                           role="tab" aria-controls="significant-tab" aria-selected="true"><i class="fal fa-file-medical-alt"></i>&nbsp; Significant phenotypes</a>
+                    </c:if>
+
                 </li>
-                </c:if>
                 <li class="nav-item">
                     <c:if test='${rowsForPhenotypeTable.size() > 0}'>
                     <a class="nav-link" id="alldata-tab" data-toggle="tab" href="#alldata"
@@ -317,11 +318,22 @@
                     </c:if>
                 </li>
             </ul>
-        <c:if test='${rowsForPhenotypeTable.size() > 0}'>
+
             <div class="tab-content" id="phenotypesTabContent" id="phenotypeAssociations">
-                <div class="tab-pane fade show active" id="significant" role="tabpanel"
-                     aria-labelledby="significant-tab">
+                <c:if test='${rowsForPhenotypeTable.size() <= 0}'>
+                    <div class="tab-pane fade show" id="significant" role="tabpanel"
+                         aria-labelledby="significant-tab">
+                    <c:if test="${ attemptRegistered && phenotypeStarted }">
+                        <div class="alert alert-warning mt-3" role="alert">
+                            No results meet the p-value threshold
+                        </div>
+                    </c:if>
+                    </div>
+                </c:if>
                     <!-- Associations table -->
+                    <c:if test='${rowsForPhenotypeTable.size() > 0}'>
+                        <div class="tab-pane fade show active" id="significant" role="tabpanel"
+                             aria-labelledby="significant-tab">
                     <div id="phenotypeTableDiv" class="inner-division">
                         <div class="row">
                             <div class="container">
@@ -375,9 +387,10 @@
                                                        target="_blank" class="btn btn-outline-primary"><i
                                                             class="fa fa-download"></i>&nbsp;XLS</a>
                                                 </p>
+                                                </c:if>
                                             </div>
 
-                                        </c:if>
+
 
                                     </div>
                                 </div>
