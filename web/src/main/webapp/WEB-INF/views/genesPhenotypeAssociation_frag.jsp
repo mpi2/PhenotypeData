@@ -297,18 +297,27 @@
 
 
         <%--<c:if test='${hasPreQcThatMeetsCutOff || rowsForPhenotypeTable.size() > 0}'>--%>
-        <c:if test='${rowsForPhenotypeTable.size() > 0}'>
+        <c:if test='${rowsForPhenotypeTable.size() > 0 || phenotypeDisplayStatus.postQcTopLevelMPTermsAvailable}'>
 
             <ul class="nav nav-tabs" id="phenotypesTab" role="tablist">
+            <c:if test='${rowsForPhenotypeTable.size() > 0}'>
                 <li class="nav-item">
                     <a class="nav-link active" id="significant-tab" data-toggle="tab" href="#significant"
                        role="tab" aria-controls="significant-tab" aria-selected="true"><i class="fal fa-file-medical-alt"></i>&nbsp; Significant phenotypes</a>
                 </li>
+                </c:if>
                 <li class="nav-item">
+                    <c:if test='${rowsForPhenotypeTable.size() > 0}'>
                     <a class="nav-link" id="alldata-tab" data-toggle="tab" href="#alldata"
                        role="tab" aria-controls="alldata-tab" aria-selected="false"><i class="fal fa-ruler-combined"></i>&nbsp; All measurements</a>
+                    </c:if>
+                    <c:if test='${rowsForPhenotypeTable.size() <= 0}'>
+                        <a class="nav-link active" id="alldata-tab" data-toggle="tab" href="#alldata"
+                           role="tab" aria-controls="alldata-tab" aria-selected="false"><i class="fal fa-ruler-combined"></i>&nbsp; All measurements</a>
+                    </c:if>
                 </li>
             </ul>
+        <c:if test='${rowsForPhenotypeTable.size() > 0}'>
             <div class="tab-content" id="phenotypesTabContent" id="phenotypeAssociations">
                 <div class="tab-pane fade show active" id="significant" role="tabpanel"
                      aria-labelledby="significant-tab">
@@ -377,8 +386,15 @@
 
                     </div><!-- end of div for mini section line -->
                 </div>
+        </c:if>
+            <c:if test='${rowsForPhenotypeTable.size() > 0}'>
                 <div class="tab-pane fade show" id="alldata" role="tabpanel"
                      aria-labelledby="alldata-tab">
+            </c:if>
+                <c:if test='${rowsForPhenotypeTable.size() <= 0}'>
+                <div class="tab-pane fade show active" id="alldata" role="tabpanel"
+                     aria-labelledby="alldata-tab">
+                    </c:if>
                     <p class="mt-3">
                         Filtered by: <span id="phDataTitle"> all phenotypes</span>
                     </p>
@@ -404,3 +420,4 @@
         </c:if>
     </div>
 </div>
+
