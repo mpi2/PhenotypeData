@@ -318,7 +318,7 @@
                                                   and empty impcEmbryoExpressionImageFacets
                                                   and empty embryoExpressionAnatomyToRow
                                                   and empty expressionFacets}">
-                            <div class="alert alert_info">Expression data not available</div>
+                            <div class="alert alert-warning mt-3">Expression data not available</div>
                         </c:if>
 
                         <c:if test="${not empty impcAdultExpressionImageFacetsWholemount
@@ -361,7 +361,7 @@
                                             </div>
                                         </c:when>
                                         <c:otherwise>
-                                            <div>
+                                            <div class="alert alert-warning mt-3">
                                                 <!-- Expression in Anatomogram -->
                                                 No expression data was found for this adult tab
                                             </div>
@@ -387,9 +387,9 @@
                                             <jsp:include page="genesEmbExpData_frag.jsp"></jsp:include>
                                         </c:when>
                                         <c:otherwise>
-                                            <h5>
+                                        <div class="alert alert-warning mt-3">
                                                 No expression data was found for this embryo tab
-                                            </h5>
+                                            </div>
                                         </c:otherwise>
                                     </c:choose>
                                 </div>
@@ -427,7 +427,7 @@
                     <div class="page-content pt-5 pb-5">
                         <div>
                             <c:if test="${empty impcImageGroups and empty solrFacets}">
-                                <div class="alert alert_info">Phenotype associated images not available</div>
+                                <div class="alert alert-warningmt-3">Phenotype associated images not available</div>
                             </c:if>
 
                             <c:if test="${not empty impcImageGroups or not empty solrFacets}">
@@ -482,7 +482,9 @@
                                  aria-labelledby="byAnnotation-tab">
                                 <c:choose>
                                     <c:when test="${!hasModelsByOrthology}">
-                                        No associations by disease annotation and gene orthology found.
+                                        <div class="alert alert-warning mt-3">
+                                            No associations by disease annotation and gene orthology found.
+                                        </div>
                                     </c:when>
                                     <c:otherwise>
                                         <table id="diseases_by_annotation"
@@ -494,7 +496,9 @@
                                  aria-labelledby="byPhenotype-tab">
                                 <c:choose>
                                     <c:when test="${empty modelAssociations}">
+                                    <div class="alert alert-warning mt-3">
                                         No associations by phenotypic similarity found.
+                                    </div>
                                     </c:when>
                                     <c:otherwise>
                                         <table id="diseases_by_phenotype" class="table tablesorter disease"

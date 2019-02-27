@@ -133,7 +133,7 @@
                     </c:if--%>
 
 
-                    <c:if test="${phenotypeDisplayStatus.displayHeatmap}">
+                    <%--c:if test="${phenotypeDisplayStatus.displayHeatmap}">
                         <div id="heatmap_toggle_div" class="section hidden">
                             <h2 class="title" id="heatmap">Phenotype Heatmap of Preliminary Data
                                 <span class="documentation"><a href='' id='heatmapSection'
@@ -146,7 +146,7 @@
                             </div>
                         </div>
                         <!-- end of Pre-QC phenotype heatmap -->
-                    </c:if>
+                    </c:if--%>
 
 
                 </div>
@@ -156,7 +156,9 @@
 
                     <%--  <c:choose> --%>
                 <c:if test="${ attemptRegistered && phenotypeStarted }">
-                    No results meet the p-value threshold
+                    <div class="alert alert-warning mt-3" role="alert">
+                        No results meet the p-value threshold
+                    </div>
                 </c:if>
                     <%-- <c:if test="${phenotypeDisplayStatus.postQcDataAvailable}">
                                 No significant phenotype associations were found with data that has

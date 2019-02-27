@@ -132,7 +132,7 @@
             </div>
         </c:if>
 
-        <p class="alert alert-warning w-100">Mouseover the charts for more information. Click and drag to zoom the chart. Click on the legends to disable/enable data.</p>
+        <p class="alert alert-info w-100">Mouseover the charts for more information. Click and drag to zoom the chart. Click on the legends to disable/enable data.</p>
 
         <c:choose>
             <c:when test="${param['chart_type'] eq 'UNIDIMENSIONAL_SCATTER_PLOT'}">
