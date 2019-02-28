@@ -199,8 +199,9 @@ public class PhenotypeCenterProcedureCompletenessService {
 		Map<String, List<String>> possibleProceduresPerCenter = phenotypeCenterService.getProceduresPerCenter();
 
 		for(String center: centers){
-//			List<PhenotypeCenterServiceBean> strains = phenotypeCenterService.getMutantStrainsForCenter(center);
-			Set<PhenotypeCenterServiceBean> strains = phenotypeCenterService.getMutantStrainsForCenters();
+		    // FIXME FIXME FIXME added for ProcedureCompletenessAllReport
+			List<PhenotypeCenterServiceBean> strains = phenotypeCenterService.getMutantStrainsForCenter(center);
+//			Set<PhenotypeCenterServiceBean> strains = phenotypeCenterService.getMutantStrainsForCenters();
 
 			for(PhenotypeCenterServiceBean strain: strains){
 				List<String> procedures = phenotypeCenterService.getDoneProcedureIdsPerStrainAndCenter(center, strain.getColonyId());
