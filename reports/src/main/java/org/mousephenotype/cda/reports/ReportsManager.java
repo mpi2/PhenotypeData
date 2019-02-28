@@ -99,6 +99,9 @@ public class ReportsManager implements CommandLineRunner {
     private ProcedureCompletenessImpcReport procedureCompletenessImpcReport;
 
     @Autowired
+    private ProcedureCompletenessImpcReport procedureCompletenessAllReport;
+
+    @Autowired
     private ViabilityReport viabilityReport;
 
     @Autowired
@@ -312,9 +315,8 @@ public class ReportsManager implements CommandLineRunner {
                         break;
 
                     case PROCEDURE_COMPLETENESS_ALL:
-                        // FIXME FIXME FIXME
-//                        procedureCompletenessAllReport.run(args);
-//                        file = procedureCompletenessAllReport.targetFile;
+                        procedureCompletenessAllReport.run(args);
+                        file = procedureCompletenessAllReport.targetFile;
                         break;
 
                     case VIABILITY:
