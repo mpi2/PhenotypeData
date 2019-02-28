@@ -29,10 +29,12 @@
                             .done(function (html) {
                                 $('#' + id).append(html);
                                 $('#spinner' + (i + 1)).remove();
-                                if (html.search('section-associations') === -1) {//if this element not found in the html then no graph present so remove placeholder section
+
+                                //if this element not found in the html then no graph present so remove placeholder section
+                                if (html.search('section-associations') === -1) {
                                     console.log('element found');
                                     //$( '#'+ id ).html( '' );
-                                    console.log('id=' + $('#' + id).parent().parent().html(''));
+                                    console.log('id=' + $('#chart' + id).html(''));
                                 }
 
                             });
@@ -67,7 +69,7 @@
 
         <c:forEach var="graphUrl" items="${allGraphUrlSet}" varStatus="graphUrlLoop">
 
-            <div class="chart" graphUrl="${baseUrl}/chart?${graphUrl}" id="divChart_${graphUrlLoop.count}">
+            <div class="chart" id="chart${graphUrlLoop.count}" graphUrl="${baseUrl}/chart?${graphUrl}" id="divChart_${graphUrlLoop.count}">
                 <div id="spinner${graphUrlLoop.count}" class="container">
                     <div class="pre-content">
                         <div class="row no-gutters">
