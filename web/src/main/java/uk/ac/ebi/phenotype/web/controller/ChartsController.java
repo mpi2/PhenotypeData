@@ -49,6 +49,7 @@ import uk.ac.ebi.phenotype.error.GenomicFeatureNotFoundException;
 import uk.ac.ebi.phenotype.error.ParameterNotFoundException;
 
 import javax.annotation.Resource;
+import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -64,36 +65,16 @@ import static org.springframework.web.bind.annotation.ValueConstants.DEFAULT_NON
 public class ChartsController {
 
     private final Logger log = LoggerFactory.getLogger(ChartsController.class);
-
-    @Autowired
-    private CategoricalChartAndTableProvider categoricalChartAndTableProvider;
-
-    @Autowired
-    private TimeSeriesChartAndTableProvider timeSeriesChartAndTableProvider;
-
-    @Autowired
-    private UnidimensionalChartAndTableProvider continousChartAndTableProvider;
-
-    @Autowired
-    private ScatterChartAndTableProvider scatterChartAndTableProvider;
-
-    @Autowired
-    private AbrChartAndTableProvider abrChartAndTableProvider;
-
-    @Autowired
-    private ViabilityChartAndDataProvider viabilityChartAndDataProvider;
-
-    @Autowired
-    private ExperimentService experimentService;
-
-    @Autowired
-    private StatisticalResultService srService;
-
-    @Autowired
-    private GeneService geneService;
-    
-    @Autowired
-    private ImpressService is;
+    private final CategoricalChartAndTableProvider categoricalChartAndTableProvider;
+    private final TimeSeriesChartAndTableProvider timeSeriesChartAndTableProvider;
+    private final UnidimensionalChartAndTableProvider continousChartAndTableProvider;
+    private final ScatterChartAndTableProvider scatterChartAndTableProvider;
+    private final AbrChartAndTableProvider abrChartAndTableProvider;
+    private final ViabilityChartAndDataProvider viabilityChartAndDataProvider;
+    private final ExperimentService experimentService;
+    private final StatisticalResultService srService;
+    private final GeneService geneService;
+    private final ImpressService is;
     
     @Resource(name = "globalConfiguration")
     private Map<String, String> config;
@@ -101,6 +82,20 @@ public class ChartsController {
 
     @Value("${solr_url}")
     public String SOLR_URL;
+
+    @Inject
+    public ChartsController(CategoricalChartAndTableProvider categoricalChartAndTableProvider, TimeSeriesChartAndTableProvider timeSeriesChartAndTableProvider, UnidimensionalChartAndTableProvider continousChartAndTableProvider, ScatterChartAndTableProvider scatterChartAndTableProvider, AbrChartAndTableProvider abrChartAndTableProvider, ViabilityChartAndDataProvider viabilityChartAndDataProvider, ExperimentService experimentService, StatisticalResultService srService, GeneService geneService, ImpressService is) {
+        this.categoricalChartAndTableProvider = categoricalChartAndTableProvider;
+        this.timeSeriesChartAndTableProvider = timeSeriesChartAndTableProvider;
+        this.continousChartAndTableProvider = continousChartAndTableProvider;
+        this.scatterChartAndTableProvider = scatterChartAndTableProvider;
+        this.abrChartAndTableProvider = abrChartAndTableProvider;
+        this.viabilityChartAndDataProvider = viabilityChartAndDataProvider;
+        this.experimentService = experimentService;
+        this.srService = srService;
+        this.geneService = geneService;
+        this.is = is;
+    }
 
 
     /**
@@ -209,13 +204,13 @@ public class ChartsController {
                         @RequestParam(required = false, value = "chart_type") ChartType chartType,
                         @RequestParam(required = false, value = "chart_only", defaultValue = "false") boolean chartOnly,
                         @RequestParam(required = false, value = "standAlone") boolean standAlone, Model model)
-            throws GenomicFeatureNotFoundException, ParameterNotFoundException, IOException, URISyntaxException, SolrServerException, SpecificExperimentException {
+            throws ParameterNotFoundException, IOException, URISyntaxException, SolrServerException, SpecificExperimentException {
     	if(parameterStableId!=null && !parameterStableId.equals("")){
     		boolean isDerivedBodyWeight=TimeSeriesConstants.DERIVED_BODY_WEIGHT_PARAMETERS.contains(parameterStableId);
     		model.addAttribute("isDerivedBodyWeight", isDerivedBodyWeight);
     	}
         UnidimensionalDataSet unidimensionalChartDataSet = null;
-        ChartData timeSeriesForParam = null;
+        ChartData seriesParameterChartData = null;
         CategoricalResultAndCharts categoricalResultAndChart = null;
 
         boolean statsError = false;
@@ -256,13 +251,11 @@ public class ChartsController {
 
         List<String> zyList = getParamsAsList(zygosity);
 
-        Integer pipelineId = null;
         ImpressBaseDTO pipeline = null;
 
         if (pipelineStableId != null &&  ! pipelineStableId.equals("")) {
             log.debug("pipe stable id=" + pipelineStableId);
             pipeline = is.getPipeline(pipelineStableId);
-            pipelineId = pipeline.getId();
             model.addAttribute("pipeline", pipeline);
             model.addAttribute("pipelineUrl", is.getPipelineUrlByStableId(pipeline.getStableId()));
         }
@@ -354,205 +347,195 @@ public class ChartsController {
             model.addAttribute("embryoViabilityDTO", embryoViability_DTO);
             }
 
-        
-        
-        if (experiment != null) {
-            if (pipeline == null) {
-                // if we don't already have the pipeline from the url params get it via the experiment returned
-                pipeline = is.getPipeline(experiment.getPipelineStableId());
-            }
 
-            if (experiment.getMetadataGroup() != null){
-            	metadata = experiment.getMetadataHtml();
-            	metadataList = experiment.getMetadata();
-            }
-
-            String xAxisTitle = xUnits;
-            
-            try {
-				// if (chartType == null){
-                // chartType = GraphUtils.getDefaultChartType(parameter);
-                // // chartType might still be null after this
-                // if(chartType==ChartType.PIE){
-                // viabilityDTO =
-                // viabilityChartAndDataProvider.doViabilityData(null, null);
-                // model.addAttribute("viabilityDTO", viabilityDTO);
-                // //model.addAttribute("tableData", viabilityDTO);
-                // return "chart";
-                // }
-                // }
-                if (chartType != null) {
-
-                    ScatterChartAndData scatterChartAndData;
-
-                    switch (chartType) {
-
-                        case UNIDIMENSIONAL_SCATTER_PLOT:
-
-                            scatterChartAndData = scatterChartAndTableProvider.doScatterData(experiment, null, null, parameter, experimentNumber);
-                            model.addAttribute("scatterChartAndData", scatterChartAndData);
-
-                            if (observationTypeForParam.equals(ObservationType.unidimensional)) {
-                                List<UnidimensionalStatsObject> unidimenStatsObjects = scatterChartAndData.getUnidimensionalStatsObjects();
-                                unidimensionalChartDataSet = new UnidimensionalDataSet();
-                                unidimensionalChartDataSet.setStatsObjects(unidimenStatsObjects);
-                                model.addAttribute("unidimensionalChartDataSet", unidimensionalChartDataSet);
-                            }
-                            break;
-
-                        case UNIDIMENSIONAL_ABR_PLOT:
-
-                            // get experiments for other parameters too
-                            model.addAttribute("abrChart", abrChartAndTableProvider.getChart(pipelineStableId, accession[0], genderList, zyList, phenotypingCenter, strain, metaDataGroupString, alleleAccession, "abrChart" + experimentNumber, SOLR_URL));
-                            break;
-
-	                    case UNIDIMENSIONAL_BOX_PLOT:
-
-                            try {
-                                unidimensionalChartDataSet = continousChartAndTableProvider.doUnidimensionalData(experiment, experimentNumber, parameter, ChartType.UNIDIMENSIONAL_BOX_PLOT, false, xAxisTitle);
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-                            model.addAttribute("unidimensionalChartDataSet", unidimensionalChartDataSet);
-
-		                    scatterChartAndData = scatterChartAndTableProvider.doScatterData(experiment, unidimensionalChartDataSet.getMin(), unidimensionalChartDataSet.getMax(), parameter, experimentNumber);
-		                    model.addAttribute("scatterChartAndData", scatterChartAndData);
-
-		                    break;
-
-	                    case CATEGORICAL_STACKED_COLUMN:
-
-                            categoricalResultAndChart = categoricalChartAndTableProvider.doCategoricalData(experiment, parameter, accession[0], experimentNumber);
-                            model.addAttribute("categoricalResultAndChart", categoricalResultAndChart);
-                            break;
-
-                        case TIME_SERIES_LINE:
-
-                            timeSeriesForParam = timeSeriesChartAndTableProvider.doTimeSeriesData(experiment, parameter, experimentNumber);
-                            model.addAttribute("timeSeriesChartsAndTable", timeSeriesForParam);
-                            break;
-
-                        default:
-
-                            log.error("Unknown how to display graph for observation type: " + observationTypeForParam);
-                            break;
-                    }
-                }else{
-                	log.error("chart type is null");
-                }
-
-            } catch (SQLException e) {
-                log.error(ExceptionUtils.getFullStackTrace(e));
-                statsError = true;
-            }
-
-            model.addAttribute("pipeline", pipeline);
-            model.addAttribute("phenotypingCenter", phenotypingCenter);
-            model.addAttribute("experimentNumber", experimentNumber);
-            model.addAttribute("statsError", statsError);
-            model.addAttribute("gpUrl", experiment.getGenotypePhenotypeUrl());
-            model.addAttribute("srUrl", experiment.getStatisticalResultUrl());
-            model.addAttribute("phenStatDataUrl", experiment.getDataPhenStatFormatUrl());
-            model.addAttribute("chartOnly", chartOnly);
-
-            // Metadata
-            Map<String, String> metadataMap = null;
-            if (metadataList != null) {
-                metadataMap = metadataList
-                        .stream()
-                        .map(x -> Arrays.asList((x.split("="))))
-                        .filter(x -> x.size()==2)
-                        .collect(Collectors.toMap(
-                                k->k.get(0),
-                                v->v.get(1),
-                                (v1, v2) -> v1.concat(", ".concat(v2)),
-                                TreeMap::new
-                        ));
-            }
-            model.addAttribute("metadata", metadata);
-            model.addAttribute("metadataMap", metadataMap);
-
-
-            Integer numberFemaleMutantMice = 0;
-            Integer numberMaleMutantMice = 0;
-            Integer numberFemaleControlMice = 0;
-            Integer numberMaleControlMice = 0;
-
-            if (unidimensionalChartDataSet != null) {
-                List<UnidimensionalStatsObject> statsObjects = unidimensionalChartDataSet.getStatsObjects();
-                for (UnidimensionalStatsObject so : statsObjects) {
-                    if (so.getSexType() == SexType.female) {
-                        if (so.getLine().equals("Control")) {
-                            numberFemaleControlMice = so.getSampleSize();
-                        } else {
-                            numberFemaleMutantMice = so.getSampleSize();
-                        }
-                    } else if (so.getSexType() == SexType.male) {
-                        if (so.getLine().equals("Control")) {
-                            numberMaleControlMice = so.getSampleSize();
-                        } else {
-                            numberMaleMutantMice = so.getSampleSize();
-                        }
-                    }
-                }
-            }
-
-            if (categoricalResultAndChart != null) {
-                final List<CategoricalResult> statsResults = categoricalResultAndChart.getStatsResults();
-                for (CategoricalResult cr : statsResults) {
-                    numberFemaleControlMice = cr.getFemaleControls();
-                    numberFemaleMutantMice = cr.getFemaleMutants();
-                    numberMaleControlMice = cr.getMaleControls();
-                    numberMaleMutantMice = cr.getMaleMutants();
-                }
-            }
-
-            if (timeSeriesForParam != null) {
-                final ExperimentDTO e = timeSeriesForParam.getExperiment();
-                final Set<ObservationDTO> controls = e.getControls();
-                final Set<ObservationDTO> mutants = e.getMutants();
-
-                // Count each specimen only once, not matter how many time's it's been measured
-                Set<String> specimensSeen = new HashSet<>();
-
-                for (ObservationDTO o : controls) {
-                    if ( ! specimensSeen.contains(o.getExternalSampleId())) {
-                        specimensSeen.add(o.getExternalSampleId());
-                        if (SexType.valueOf(o.getSex()) == SexType.female) {
-                            numberFemaleControlMice += 1;
-                        } else if (SexType.valueOf(o.getSex()) == SexType.male) {
-                            numberMaleControlMice += 1;
-                        }
-                    }
-                }
-
-                for (ObservationDTO o : mutants) {
-                    if ( ! specimensSeen.contains(o.getExternalSampleId())) {
-                        specimensSeen.add(o.getExternalSampleId());
-                        if (SexType.valueOf(o.getSex()) == SexType.female) {
-                            numberFemaleMutantMice += 1;
-                        } else if (SexType.valueOf(o.getSex()) == SexType.male) {
-                            numberMaleMutantMice += 1;
-                        }
-                    }
-                }
-
-
-            }
-
-
-            model.addAttribute("numberFemaleMutantMice", numberFemaleMutantMice);
-            model.addAttribute("numberMaleMutantMice", numberMaleMutantMice);
-            model.addAttribute("numberFemaleControlMice", numberFemaleControlMice);
-            model.addAttribute("numberMaleControlMice", numberMaleControlMice);
-            model.addAttribute("numberMice", numberFemaleMutantMice + numberMaleMutantMice + numberFemaleControlMice + numberMaleControlMice);
-
-
-
-        } else {
-            System.out.println("empty experiment");
-            model.addAttribute("emptyExperiment", true);
+        if (pipeline == null) {
+            // if we don't already have the pipeline from the url params get it via the experiment returned
+            pipeline = is.getPipeline(experiment.getPipelineStableId());
         }
+
+        if (experiment.getMetadataGroup() != null){
+            metadata = experiment.getMetadataHtml();
+            metadataList = experiment.getMetadata();
+        }
+
+        try {
+            // if (chartType == null){
+            // chartType = GraphUtils.getDefaultChartType(parameter);
+            // // chartType might still be null after this
+            // if(chartType==ChartType.PIE){
+            // viabilityDTO =
+            // viabilityChartAndDataProvider.doViabilityData(null, null);
+            // model.addAttribute("viabilityDTO", viabilityDTO);
+            // //model.addAttribute("tableData", viabilityDTO);
+            // return "chart";
+            // }
+            // }
+            if (chartType != null) {
+
+                ScatterChartAndData scatterChartAndData;
+
+                switch (chartType) {
+
+                    case UNIDIMENSIONAL_SCATTER_PLOT:
+
+                        scatterChartAndData = scatterChartAndTableProvider.doScatterData(experiment, null, null, parameter, experimentNumber);
+                        model.addAttribute("scatterChartAndData", scatterChartAndData);
+
+                        if (observationTypeForParam.equals(ObservationType.unidimensional)) {
+                            List<UnidimensionalStatsObject> unidimenStatsObjects = scatterChartAndData.getUnidimensionalStatsObjects();
+                            unidimensionalChartDataSet = new UnidimensionalDataSet();
+                            unidimensionalChartDataSet.setStatsObjects(unidimenStatsObjects);
+                            model.addAttribute("unidimensionalChartDataSet", unidimensionalChartDataSet);
+                        }
+                        break;
+
+                    case UNIDIMENSIONAL_ABR_PLOT:
+
+                        seriesParameterChartData = abrChartAndTableProvider.getAbrChartAndData(experiment, parameter, "abrChart" + experimentNumber, SOLR_URL);
+                        model.addAttribute("abrChart", seriesParameterChartData.getChart());
+                        break;
+
+                    case UNIDIMENSIONAL_BOX_PLOT:
+
+                        try {
+                            unidimensionalChartDataSet = continousChartAndTableProvider.doUnidimensionalData(experiment, experimentNumber, parameter, ChartType.UNIDIMENSIONAL_BOX_PLOT, false, xUnits);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        model.addAttribute("unidimensionalChartDataSet", unidimensionalChartDataSet);
+
+                        scatterChartAndData = scatterChartAndTableProvider.doScatterData(experiment, unidimensionalChartDataSet.getMin(), unidimensionalChartDataSet.getMax(), parameter, experimentNumber);
+                        model.addAttribute("scatterChartAndData", scatterChartAndData);
+
+                        break;
+
+                    case CATEGORICAL_STACKED_COLUMN:
+
+                        categoricalResultAndChart = categoricalChartAndTableProvider.doCategoricalData(experiment, parameter, accession[0], experimentNumber);
+                        model.addAttribute("categoricalResultAndChart", categoricalResultAndChart);
+                        break;
+
+                    case TIME_SERIES_LINE:
+
+                        seriesParameterChartData = timeSeriesChartAndTableProvider.doTimeSeriesData(experiment, parameter, experimentNumber);
+                        model.addAttribute("timeSeriesChartsAndTable", seriesParameterChartData);
+                        break;
+
+                    default:
+
+                        log.error("Unknown how to display graph for observation type: " + observationTypeForParam);
+                        break;
+                }
+            }else{
+                log.error("chart type is null");
+            }
+
+        } catch (SQLException e) {
+            log.error(ExceptionUtils.getFullStackTrace(e));
+            statsError = true;
+        }
+
+        model.addAttribute("pipeline", pipeline);
+        model.addAttribute("phenotypingCenter", phenotypingCenter);
+        model.addAttribute("experimentNumber", experimentNumber);
+        model.addAttribute("statsError", statsError);
+        model.addAttribute("gpUrl", experiment.getGenotypePhenotypeUrl());
+        model.addAttribute("srUrl", experiment.getStatisticalResultUrl());
+        model.addAttribute("phenStatDataUrl", experiment.getDataPhenStatFormatUrl());
+        model.addAttribute("chartOnly", chartOnly);
+
+        // Metadata
+        Map<String, String> metadataMap = null;
+        if (metadataList != null) {
+            metadataMap = metadataList
+                    .stream()
+                    .map(x -> Arrays.asList((x.split("="))))
+                    .filter(x -> x.size()==2)
+                    .collect(Collectors.toMap(
+                            k->k.get(0),
+                            v->v.get(1),
+                            (v1, v2) -> v1.concat(", ".concat(v2)),
+                            TreeMap::new
+                    ));
+        }
+        model.addAttribute("metadata", metadata);
+        model.addAttribute("metadataMap", metadataMap);
+
+
+        Integer numberFemaleMutantMice = 0;
+        Integer numberMaleMutantMice = 0;
+        Integer numberFemaleControlMice = 0;
+        Integer numberMaleControlMice = 0;
+
+        if (unidimensionalChartDataSet != null) {
+            List<UnidimensionalStatsObject> statsObjects = unidimensionalChartDataSet.getStatsObjects();
+            for (UnidimensionalStatsObject so : statsObjects) {
+                if (so.getSexType() == SexType.female) {
+                    if (so.getLine().equals("Control")) {
+                        numberFemaleControlMice = so.getSampleSize();
+                    } else {
+                        numberFemaleMutantMice = so.getSampleSize();
+                    }
+                } else if (so.getSexType() == SexType.male) {
+                    if (so.getLine().equals("Control")) {
+                        numberMaleControlMice = so.getSampleSize();
+                    } else {
+                        numberMaleMutantMice = so.getSampleSize();
+                    }
+                }
+            }
+        }
+
+        if (categoricalResultAndChart != null) {
+            final List<CategoricalResult> statsResults = categoricalResultAndChart.getStatsResults();
+            for (CategoricalResult cr : statsResults) {
+                numberFemaleControlMice = cr.getFemaleControls();
+                numberFemaleMutantMice = cr.getFemaleMutants();
+                numberMaleControlMice = cr.getMaleControls();
+                numberMaleMutantMice = cr.getMaleMutants();
+            }
+        }
+
+        if (seriesParameterChartData != null) {
+            final ExperimentDTO e = seriesParameterChartData.getExperiment();
+            final Set<ObservationDTO> controls = e.getControls();
+            final Set<ObservationDTO> mutants = e.getMutants();
+
+            // Count each specimen only once, not matter how many time's it's been measured
+            Set<String> specimensSeen = new HashSet<>();
+
+            for (ObservationDTO o : controls) {
+                if ( ! specimensSeen.contains(o.getExternalSampleId())) {
+                    specimensSeen.add(o.getExternalSampleId());
+                    if (SexType.valueOf(o.getSex()) == SexType.female) {
+                        numberFemaleControlMice += 1;
+                    } else if (SexType.valueOf(o.getSex()) == SexType.male) {
+                        numberMaleControlMice += 1;
+                    }
+                }
+            }
+
+            for (ObservationDTO o : mutants) {
+                if ( ! specimensSeen.contains(o.getExternalSampleId())) {
+                    specimensSeen.add(o.getExternalSampleId());
+                    if (SexType.valueOf(o.getSex()) == SexType.female) {
+                        numberFemaleMutantMice += 1;
+                    } else if (SexType.valueOf(o.getSex()) == SexType.male) {
+                        numberMaleMutantMice += 1;
+                    }
+                }
+            }
+
+
+        }
+
+
+        model.addAttribute("numberFemaleMutantMice", numberFemaleMutantMice);
+        model.addAttribute("numberMaleMutantMice", numberMaleMutantMice);
+        model.addAttribute("numberFemaleControlMice", numberFemaleControlMice);
+        model.addAttribute("numberMaleControlMice", numberMaleControlMice);
+        model.addAttribute("numberMice", numberFemaleMutantMice + numberMaleMutantMice + numberFemaleControlMice + numberMaleControlMice);
+
 
         return "chart";
     }

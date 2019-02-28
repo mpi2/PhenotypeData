@@ -24,10 +24,7 @@ import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.service.ExperimentService;
 import org.mousephenotype.cda.solr.service.ImpressService;
-import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
-import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
-import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
-import org.mousephenotype.cda.solr.service.dto.ProcedureDTO;
+import org.mousephenotype.cda.solr.service.dto.*;
 import org.mousephenotype.cda.solr.service.exception.SpecificExperimentException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -35,6 +32,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class AbrChartAndTableProvider {
@@ -54,6 +52,29 @@ public class AbrChartAndTableProvider {
 	@Autowired
 	ImpressService impressService;
 
+	public ChartData getAbrChartAndData(ExperimentDTO experiment,	ParameterDTO parameter, String chartId, String solrURL) throws IOException, SolrServerException {
+
+		ChartData chartData = new ChartData();
+
+		chartData.setExperiment(experiment);
+
+		chartData.setParameter(parameter);
+
+		chartData.setChart(getChart(
+				experiment.getPipelineStableId(),
+				experiment.getMutants().stream().map(ObservationDTOBase::getGeneAccession).findFirst().orElseThrow(NullPointerException::new),
+				experiment.getSexes().stream().map(SexType::getName).collect(Collectors.toList()),
+				experiment.getZygosities().stream().map(ZygosityType::getName).collect(Collectors.toList()),
+				experiment.getOrganisation(),
+				experiment.getStrain(),
+				experiment.getMetadataGroup(),
+				experiment.getAlleleAccession(),
+				chartId,
+				solrURL
+				));
+
+		return chartData;
+	}
 
 	public String getChart(String pipelineStableId, String acc, List<String> genderList, List<String> zyList,
 			String phenotypingCenter, String strain, String metadataGroup, String alleleAccession, String chartId, String ebiMappedSolrUrl) throws SolrServerException, IOException {
