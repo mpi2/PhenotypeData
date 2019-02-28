@@ -16,7 +16,8 @@
     <div class="clear both"></div>
 	<script type="text/javascript">	${categoricalChartDataObject.chart} </script>
 
-	<div style="overflow: hidden; overflow-x: auto;">
+	<div class="row">
+            <div class="col-8">
 		<c:forEach var="result"	items="${categoricalResultAndChart.statsResults}">
 			<c:if test="${result.status ne 'Success'}">
 				<div class="alert">
@@ -25,7 +26,7 @@
 			</c:if>
 
 		</c:forEach>
-		<table id="catTable">
+		<table class="table table-striped small">
 			<thead>
 				<tr>
 					<th>Control/Hom/Het</th>
@@ -65,18 +66,21 @@
 		</table>
 
 		<div>
-			<p>
-				<a class="toggle-button btn"> <i class="fa fa-caret-right"> </i> More Statistics </a>
-			</p>
-
-			<div class="toggle-div hidden">
-				<p>
-					<a href='${srUrl}'> Statistical result raw XML </a> &nbsp;&nbsp;
-					<a href='${gpUrl}'> Genotype phenotype raw XML </a>&nbsp;&nbsp;
-					<a href='${baseUrl}${phenStatDataUrl}'> PhenStat-ready raw experiment data</a>
-				</p>
-			</div>
+		
+		<div class="row mt-5">
+                    <div class="col-12">
+                        <h4> Access the results programmatically </h4>
+                        <hr>
+                        <p>
+                            <a target="_blank" class="btn btn-outline-primary btn-sm" href='${srUrl}'> Statistical result raw XML </a>
+                            <a target="_blank" class="btn btn-outline-primary btn-sm" href='${gpUrl}'> Genotype phenotype raw XML </a>
+                            <a target="_blank" class="btn btn-outline-primary btn-sm" href='${baseUrl}${phenStatDataUrl}'> PhenStat-ready raw experiment data</a>
+                        </p>
+                    </div>
+                </div>
+			
 		</div>
+	</div>
 	</div>
 </c:forEach>
 
