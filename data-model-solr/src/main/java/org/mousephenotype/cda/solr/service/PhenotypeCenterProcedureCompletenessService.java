@@ -17,21 +17,17 @@
 package org.mousephenotype.cda.solr.service;
 
 import org.apache.solr.client.solrj.SolrClient;
-import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.mousephenotype.cda.solr.SolrUtils;
-import org.mousephenotype.cda.solr.service.dto.StatisticalResultDTO;
-import org.mousephenotype.cda.utilities.HttpProxy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 @Service
 public class PhenotypeCenterProcedureCompletenessService {
@@ -59,11 +55,7 @@ public class PhenotypeCenterProcedureCompletenessService {
 	 * @return a {@List} of {@String[]} of each center's progress by Strain, suitable for display in a report
 	 * @throws SolrServerException, IOException
 	 */
-	public List<String[]> getCentersProgressByStrainCsv() throws SolrServerException, IOException, URISyntaxException {
-
-
-		final Set<ProcedureStatusDTO> procedureParameterStatuses = getProcedureParameterStatuses();
-
+	public List<String[]> getCentersProgressByStrainCsv() throws SolrServerException, IOException {
 
 		List<String> centers = phenotypeCenterService.getPhenotypeCenters();
         List<String[]> results = new ArrayList<>();
@@ -73,53 +65,7 @@ public class PhenotypeCenterProcedureCompletenessService {
         header.add("Gene Symbol");
         header.add("MGI Gene Id");
         header.add("Allele Symbol");
-		header.add("Zygosity");
-		header.add("Life Stage");
         header.add("Phenotyping Center");
-
-
-//        header.add("Procedures With Parameter Status Success");
-//		header.add("Parameter Status Success Procedure Count");
-//		header.add("Parameter Status Success Count");
-//        header.add("Procedures With Parameter Status Fail");
-//		header.add("Parameter Status Fail Procedure Count");
-//		header.add("Parameter Status Fail Count");
-//		header.add("Procedures With Parameter Status Other");
-//		header.add("Parameter Status Other Procedure Count");
-//		header.add("Parameter Status Other Count");
-
-
-
-
-		header.add("Procedure Ids with Parameter Status Success");
-		header.add("Procedure Names with Parameter Status Success");
-		header.add("Parameter Ids with Status Success");
-		header.add("Parameter Names with Status Success");
-		header.add("Top Level MP Ids with Parameter Status Success");
-		header.add("Top Level MP Names with Parameter Status Success");
-		header.add("MP Ids with Parameter Status Success");
-		header.add("MP Names with Parameter Status Success");
-		header.add("Procedure Ids with Parameter Status Success Count");
-		header.add("Parameter Ids with Status Success Count");
-
-
-
-		header.add("Procedure Ids with Parameter Status Fail");
-		header.add("Procedure Ids with Parameter Status Fail Count");
-		header.add("Parameter Ids with Status Fail Count");
-
-
-
-		header.add("Procedure Ids with Parameter Status Other");
-		header.add("Procedure Ids with Parameter Status Other Count");
-		header.add("Parameter Ids with Status Other Count");
-
-
-
-
-
-
-
         header.add("Percentage Done");
         header.add("Number of Done Procedures");
         header.add("Done Procedures");
@@ -132,8 +78,7 @@ public class PhenotypeCenterProcedureCompletenessService {
 		Map<String, List<String>> possibleProceduresPerCenter = phenotypeCenterService.getProceduresPerCenter();
 
 		for(String center: centers){
-//			List<PhenotypeCenterServiceBean> strains = phenotypeCenterService.getMutantStrainsForCenter(center);
-			Set<PhenotypeCenterServiceBean> strains = phenotypeCenterService.getMutantStrainsForCenters();
+			List<PhenotypeCenterServiceBean> strains = phenotypeCenterService.getMutantStrainsForCenter(center);
 
 			for(PhenotypeCenterServiceBean strain: strains){
 				List<String> procedures = phenotypeCenterService.getDoneProcedureIdsPerStrainAndCenter(center, strain.getColonyId());
@@ -146,42 +91,6 @@ public class PhenotypeCenterProcedureCompletenessService {
 				row.add(strain.getZygosity());
 				row.add(strain.getLifeStage());
 				row.add(center);
-
-
-				// Get the procedures and statuses for the given colony id and center
-				final Set<ProcedureStatusDTO> statuses = procedureParameterStatuses
-						.stream()
-						.filter(x -> x.getColonyId().equalsIgnoreCase(strain.getColonyId()))
-						.filter(x -> x.getCenter().equalsIgnoreCase(center))
-						.filter(x -> procedures.contains(x.getProcedureStableId()))
-						.collect(Collectors.toSet());
-
-				Set<ProcedureStatusDTO> rowsByProcedure = new HashSet<>();
-				Set<ProcedureStatusDTO> successful      = new HashSet<>();
-				Set<ProcedureStatusDTO> failed          = new HashSet<>();
-				Set<ProcedureStatusDTO> other           = new HashSet<>();
-
-				// Iterate the list of procedures and calucluate the success / failure
-				for (String procedure : procedures) {
-					rowsByProcedure.addAll(statuses.stream().filter(x -> x.getProcedureStableId().equals(procedure)).collect(Collectors.toSet()));
-					successful.addAll(rowsByProcedure.stream().filter(x -> x.getStatus().equals(STATUSES.SUCCESS)).collect(Collectors.toSet()));
-					failed.addAll(rowsByProcedure.stream().filter(x -> x.getStatus().equals(STATUSES.FAILED)).collect(Collectors.toSet()));
-					other.addAll(rowsByProcedure.stream().filter(x -> x.getStatus().equals(STATUSES.OTHER)).collect(Collectors.toSet()));
-				}
-
-				row.add(successful.stream().map(ProcedureStatusDTO::getProcedureStableId).collect(Collectors.joining(", ")));
-				row.add(Integer.toString(successful.size()));
-				row.add(successful.stream().map(ProcedureStatusDTO::getCount).reduce(0, Integer::sum).toString());
-
-
-				row.add(failed.stream().map(ProcedureStatusDTO::getProcedureStableId).collect(Collectors.joining(", ")));
-				row.add(Integer.toString(failed.size()));
-				row.add(failed.stream().map(ProcedureStatusDTO::getCount).reduce(0, Integer::sum).toString());
-
-				row.add(other.stream().map(ProcedureStatusDTO::getProcedureStableId).collect(Collectors.joining(", ")));
-				row.add(Integer.toString(other.size()));
-				row.add(other.stream().map(ProcedureStatusDTO::getCount).reduce(0, Integer::sum).toString());
-
 				Float percentageDone = (float) ((procedures.size() * 100) / (float)possibleProceduresPerCenter.get(center).size());
 				row.add(percentageDone.toString());
 				row.add("" + procedures.size()); // #procedures done
@@ -204,106 +113,5 @@ public class PhenotypeCenterProcedureCompletenessService {
 
 	public PhenotypeCenterService getPhenotypeCenterService() {
 		return phenotypeCenterService;
-	}
-
-
-    /**
-     *  colony_id + phenotyping_center : "procedure_stable_id", "parameter_stable_id", "status"
-     * Return a map of xxx, keyed by colony_id
-
-     * @return
-     * @throws SolrServerException, IOException
-     */
-    public Set<ProcedureStatusDTO> getProcedureParameterStatuses() throws IOException, URISyntaxException  {
-
-		String facetPivotFields =
-				    StatisticalResultDTO.COLONY_ID
-//			+ "," + StatisticalResultDTO.PHENOTYPING_CENTER
-////			+ "," + StatisticalResultDTO.ZYGOSITY
-////			+ "," + StatisticalResultDTO.LIFE_STAGE_NAME
-//			+ "," + StatisticalResultDTO.PROCEDURE_STABLE_ID
-//			+ "," + StatisticalResultDTO.STATUS
-		;
-
-        SolrQuery query = new SolrQuery()
-                .setQuery("*:*")
-                .setRows(0)
-				.setFacet(true)
-				.setFacetMinCount(1)
-				.setFacetLimit(-1)
-				.addFacetPivotField(facetPivotFields);
-
-		query
-				.set("wt", "xslt")
-				.set("tr", "pivot.xsl");
-
-		HttpProxy proxy = new HttpProxy();
-
-		URL url = new URL(SolrUtils.getBaseURL(statisticalResultCore) + "/select?" + query);
-
-
-		String content = proxy.getContent(url);
-
-//		String content = proxy.getContent(new URL(SolrUtils.getBaseURL(statisticalResultCore) + "/select?" + query));
-
-//		return Arrays.stream(content.split("\r"))
-//				.skip(1)
-//				.map(ProcedureStatusDTO::new)
-//				.collect(Collectors.toSet());
-
-		Set<ProcedureStatusDTO> procedureParameterStatuses;
-		procedureParameterStatuses = Arrays.stream(content.split("\r"))
-				.skip(1)
-				.map(ProcedureStatusDTO::new)
-				.collect(Collectors.toSet());
-
-		return procedureParameterStatuses;
-    }
-
-
-	public class ProcedureStatusDTO {
-		private String   colonyId;
-		private String   center;
-		private String   procedureStableId;
-		private STATUSES status;
-		private Integer  count;
-
-		public ProcedureStatusDTO(String data) {
-			List<String> fields = Arrays.asList((data.split("\","))).stream().map(x -> x.replaceAll("\"", "")).collect(Collectors.toList());
-
-			this.colonyId = fields.get(0);
-			this.center = fields.get(1);
-			this.procedureStableId = fields.get(2);
-			this.status = fields.get(3).equalsIgnoreCase("Success") ? STATUSES.SUCCESS :
-					fields.get(3).toLowerCase().startsWith("failed") ? STATUSES.FAILED :
-					STATUSES.OTHER;
-			this.count = Integer.parseInt(fields.get(4));
-		}
-
-		public String getColonyId() {
-			return colonyId;
-		}
-
-		public String getCenter() {
-			return center;
-		}
-
-		public String getProcedureStableId() {
-			return procedureStableId;
-		}
-
-		public STATUSES getStatus() {
-			return status;
-		}
-
-		public Integer getCount() {
-			return count;
-		}
-	}
-
-	enum STATUSES {
-    	SUCCESS,
-		FAILED,
-		OTHER;
 	}
 }

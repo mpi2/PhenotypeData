@@ -75,7 +75,7 @@
 											<tr><td><a href="ftp://ftp.ebi.ac.uk/pub/databases/impc/latest/reports/phenotypeOverviewPerGeneReport.csv">phenotypeOverviewPerGeneReport.csv</a></td>
 												<td>Phenotype overview per gene</td>
 											</tr>
-											<tr><td><a href="ftp://ftp.ebi.ac.uk/pub/databases/impc/latest/reports/procedureCompletenessReport.csv">procedureCompletenessReport.csv</a></td>
+											<tr><td><a href="ftp://ftp.ebi.ac.uk/pub/databases/impc/latest/reports/procedureCompletenessImpcReport.csv">procedureCompletenessImpcReport.csv</a></td>
 												<td>Procedure completeness</td>
 											</tr>
 											<tr><td><a href="ftp://ftp.ebi.ac.uk/pub/databases/impc/latest/reports/sexualDimorphismNoBodyWeightReport.csv">sexualDimorphismNoBodyWeightReport.csv</a></td>
