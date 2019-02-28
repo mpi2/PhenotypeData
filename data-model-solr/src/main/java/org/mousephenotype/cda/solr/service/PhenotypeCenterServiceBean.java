@@ -16,11 +16,16 @@
 
 package org.mousephenotype.cda.solr.service;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
 /**
  * This is the DTO used with the PhenotypeCenterService. It holds the service components.
  */
 public class PhenotypeCenterServiceBean {
 
+    String center;
     String mgiAccession;
     String allele;
     String geneSymbol;
@@ -28,6 +33,18 @@ public class PhenotypeCenterServiceBean {
     String zygosity;
     String lifeStage;
 
+    public PhenotypeCenterServiceBean() {
+
+    }
+
+    public PhenotypeCenterServiceBean(String data) {
+        List<String> fields = Arrays.asList((data.split("\","))).stream().map(x -> x.replaceAll("\"", "")).collect(Collectors.toList());
+
+        this.center = fields.get(0);
+        this.colonyId = fields.get(1);
+        this.zygosity = fields.get(2);
+        this.lifeStage = fields.get(3);
+    }
 
     public String getMgiAccession() {
 

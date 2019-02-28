@@ -37,14 +37,14 @@ import java.util.*;
 public class PhenotypeCenterService {
 
     private final Logger     logger         = LoggerFactory.getLogger(this.getClass());
-    private       SolrClient solrClientExperiment;
+    private       SolrClient experimentCore;
     private final String     datasourceName = "IMPC";//pipeline but takes care of things like WTSI MGP select is IMPC!
 
 	public PhenotypeCenterService(
 			@Qualifier("experimentCore")
 			SolrClient solrClientExperiment)
 	{
-		this.solrClientExperiment = solrClientExperiment;
+		this.experimentCore = solrClientExperiment;
 	}
 
 	/**
@@ -61,11 +61,11 @@ public class PhenotypeCenterService {
 		.addFacetField(ObservationDTO.PHENOTYPING_CENTER)
 		.setFacetMinCount(1)
 		.setRows(0);
-		if(SolrUtils.getBaseURL(solrClientExperiment).endsWith("experiment")){
+		if(SolrUtils.getBaseURL(experimentCore).endsWith("experiment")){
 			query.addFilterQuery(ObservationDTO.DATASOURCE_NAME+":"+"\""+datasourceName+"\"");
 		}
 
-		QueryResponse response = solrClientExperiment.query(query);
+		QueryResponse response = experimentCore.query(query);
 		//String resp = response.getResponse().toString();
 		List<FacetField> fields = response.getFacetFields();
 		//System.out.println("values="+fields.get(0).getValues());
@@ -91,17 +91,62 @@ public class PhenotypeCenterService {
 		.setFacetMinCount(1)
 		.setFacetLimit(-1)
 		.setRows(0);
-		if(SolrUtils.getBaseURL(solrClientExperiment).endsWith("experiment")){
+		if(SolrUtils.getBaseURL(experimentCore).endsWith("experiment")){
 				query.addFilterQuery(ObservationDTO.DATASOURCE_NAME + ":" + "\"" + datasourceName + "\"");
 		}
-		QueryResponse response = solrClientExperiment.query(query);
+		QueryResponse response = experimentCore.query(query);
 		List<FacetField> fields = response.getFacetFields();
 		for(Count values: fields.get(0).getValues()){
 			strains.add(values.getName());
 		}
-		logger.info("getStrainsForCenter ---- " + SolrUtils.getBaseURL(solrClientExperiment) + "/select?" + query);
+		logger.info("getStrainsForCenter ---- " + SolrUtils.getBaseURL(experimentCore) + "/select?" + query);
 		return strains;
 	}
+
+//	public Set<PhenotypeCenterServiceBean> getMutantStrainsForCenters() throws IOException, URISyntaxException {
+//
+//		Set<PhenotypeCenterServiceBean> mutantStrainsForCenters = new HashSet<>();
+//
+//		String queryString = ObservationDTO.BIOLOGICAL_SAMPLE_GROUP    + ":experimental";
+//
+//		String facetPivotFields =
+//				    ObservationDTO.PHENOTYPING_CENTER
+//			+ "," + ObservationDTO.COLONY_ID
+//			+ "," + ObservationDTO.ZYGOSITY
+//			+ "," + ObservationDTO.DEVELOPMENTAL_STAGE_NAME;
+//
+//		SolrQuery query = new SolrQuery()
+//				.setQuery(queryString)
+//				.setRows(0)
+//				.setFacet(true)
+//				.setFacetMinCount(1)
+//				.setFacetLimit(-1)
+//				.addFacetPivotField(facetPivotFields);
+//
+//		query
+//				.set("wt", "xslt")
+//				.set("tr", "pivot.xsl");
+//		HttpProxy proxy   = new HttpProxy();
+//		String    content = proxy.getContent(new URL(SolrUtils.getBaseURL(experimentCore) + "/select?" + query));
+//
+//		// Get the required unique rows.
+//		mutantStrainsForCenters = Arrays.stream(content.split("\r"))
+//				.skip(1)
+//				.map(PhenotypeCenterServiceBean::new)
+//				.collect(Collectors.toSet());
+//
+//		// Fill in the remaining PhenotypeCenterServiceBean fields: mgiAccessionId, allele, geneSymbol
+//
+//
+//
+//
+//		return mutantStrainsForCenters;
+//	}
+
+
+
+
+
 
 	public List<PhenotypeCenterServiceBean> getMutantStrainsForCenter(String center)  throws SolrServerException, IOException  {
 
@@ -115,10 +160,10 @@ public class PhenotypeCenterService {
 		query.set("group.limit", 1);
 
 
-		if(SolrUtils.getBaseURL(solrClientExperiment).endsWith("experiment")){
+		if(SolrUtils.getBaseURL(experimentCore).endsWith("experiment")){
 				query.addFilterQuery(ObservationDTO.DATASOURCE_NAME + ":" + "\"" + datasourceName + "\"");
 		}
-		QueryResponse response = solrClientExperiment.query(query);
+		QueryResponse response = experimentCore.query(query);
 		GroupResponse groups = response.getGroupResponse();
 		for( Group group : groups.getValues().get(0).getValues()){
 			PhenotypeCenterServiceBean strain = new PhenotypeCenterServiceBean();
@@ -134,7 +179,7 @@ public class PhenotypeCenterService {
 				strains.add(strain);
 			}
 		}
-		logger.info("getStrainsForCenter -- " + SolrUtils.getBaseURL(solrClientExperiment) + "/select?" + query);
+		logger.info("getStrainsForCenter -- " + SolrUtils.getBaseURL(experimentCore) + "/select?" + query);
 		return strains;
 	}
 
@@ -157,11 +202,11 @@ public class PhenotypeCenterService {
 		 .setFacetMinCount(1)
 		 .setRows(0);
 
-		if(SolrUtils.getBaseURL(solrClientExperiment).endsWith("experiment")){
+		if(SolrUtils.getBaseURL(experimentCore).endsWith("experiment")){
 			query.addFilterQuery(ObservationDTO.DATASOURCE_NAME+":"+"\""+datasourceName+"\"");
 		}
 
-		QueryResponse response = solrClientExperiment.query(query);
+		QueryResponse response = experimentCore.query(query);
 		List<FacetField> fields = response.getFacetFields();
 		for(int i=0; i< fields.get(0).getValues().size(); i++){
 			ProcedureDTO procedure = new ProcedureDTO();
@@ -187,7 +232,7 @@ public class PhenotypeCenterService {
 		 .addFacetPivotField(ObservationDTO.PHENOTYPING_CENTER + "," + ObservationDTO.PROCEDURE_STABLE_ID)
 		 .setFacetMinCount(1)
 		 .setRows(0);
-		QueryResponse response = solrClientExperiment.query(query);
+		QueryResponse response = experimentCore.query(query);
 		Map<String, List<String>> res = new HashMap<>();
 		List<PivotField> fields = response.getFacetPivot().get(ObservationDTO.PHENOTYPING_CENTER + "," + ObservationDTO.PROCEDURE_STABLE_ID);
 
@@ -217,7 +262,7 @@ public class PhenotypeCenterService {
 		 .setFacetMinCount(1)
 		 .setRows(0);
 
-		QueryResponse response = solrClientExperiment.query(query);
+		QueryResponse response = experimentCore.query(query);
 		List<FacetField> fields = response.getFacetFields();
 		for( Count field: fields.get(0).getValues()){
 			procedures.add(field.getName());
