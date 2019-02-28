@@ -106,6 +106,7 @@
 </div>
 
 <script type="text/javascript">
+    var firstDTLoad = true;
     $(document).ready(function () {
         $('div#phTable').hide();
         $('input[name=optionsPh]').change(function () {
@@ -116,33 +117,37 @@
             } else {
                 $('#phChart').hide();
                 $('#phTable').show();
-            }
-        });
-        var oTable = $('#strainPvalues').dataTable({
-            "bFilter": false,
-            "bLengthChange": false,
-            'columnDefs': [
-                {
-                    "targets": [8],
-                    "visible": false
-                },
-                {
-                    "targets": [0],
-                    "max-width": "100px"
+                if(firstDTLoad) {
+                    var oTable = $('#strainPvalues').dataTable({
+                        "bFilter": false,
+                        "bLengthChange": false,
+                        'columnDefs': [
+                            {
+                                "targets": [8],
+                                "visible": false
+                            },
+                            {
+                                "targets": [0],
+                                "max-width": "100px"
+                            }
+                        ],
+                        'rowCallback': function (row, data, index) {
+                            $(row).on('click', function () {
+                                var url = data[8]['@data-sort'];
+                                if (url !== "none") {
+                                    window.location.href = decodeURIComponent(url);
+                                } else {
+                                    console.log(row);
+                                    row.removeClass('clickableRows');
+                                    row.addClass('unClickableRows');
+                                    row.addClass('text-muted');
+                                }
+                            });
+                        }
+                    });
+                    firstDTLoad = false;
                 }
-            ],
-            'rowCallback': function (row, data, index) {
-                $(row).on('click', function () {
-                    var url = data[8]['@data-sort'];
-                    if (url !== "none") {
-                        window.location.href = decodeURIComponent(url);
-                    } else {
-                        console.log(row);
-                        row.removeClass('clickableRows');
-                        row.addClass('unClickableRows');
-                        row.addClass('text-muted');
-                    }
-                });
+
             }
         });
     });
