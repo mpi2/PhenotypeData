@@ -15,57 +15,68 @@
     
     <div class="clear both"></div>
 	<script type="text/javascript">	${categoricalChartDataObject.chart} </script>
-
+<p>
 	<div class="row">
-            <div class="col-8">
-		<c:forEach var="result"	items="${categoricalResultAndChart.statsResults}">
-			<c:if test="${result.status ne 'Success'}">
-				<div class="alert">
-					<strong>Statistics ${result.status}. Control Sex ${result.controlSex} Experimental Sex ${result.experimentalSex}</strong>
-				</div>
-			</c:if>
-
-		</c:forEach>
-		<table class="table table-striped small">
-			<thead>
-				<tr>
-					<th>Control/Hom/Het</th>
-					<c:forEach var="categoryObject"	items="${categoricalResultAndChart.maleAndFemale[0].categoricalSets[0].catObjects}"	 varStatus="categoriesStatus">
-						<th>${categoryObject.category}</th>
-					</c:forEach>
-					<th>P Value</th>
-					<%-- <th>Effect Size</th> --%>
-				</tr>
-			</thead>
-			<tbody>
-			<c:set var="emptyColumnNumber" value="0" scope="page"/>
-				<c:forEach var="maleOrFemale" items="${categoricalResultAndChart.maleAndFemale}" varStatus="maleOrFemaleStatus">
-					<c:forEach var="categoricalSet"	items="${maleOrFemale.categoricalSets}" varStatus="catSetStatus">
-						<tr>
-							<td>${categoricalSet.name }</td>
-							<c:forEach var="catObject" items="${categoricalSet.catObjects}"	varStatus="catObjectStatus">
-								<td>${catObject.count }</td>
-							</c:forEach>
-							<td>${categoricalSet.catObjects[0].pValue }</td>
-							<%-- <td>${categoricalSet.catObjects[0].maxEffect }</td> removed effect size as per Terrys request --%>
-						</tr>	
-					</c:forEach>
-
-				</c:forEach>
+            <div class="col-12">
+            	<div class="row">
+            		<div class="col-4">
+            		
+           			 <c:if test="${categoricalResultAndChart.combinedPValue!=null}">
+						 <h4> Results of statistical analysis  </h4>
+							
+                            <dl class="alert alert-success">
+									<dt>Combined Male and Female P value</dt>
+									<dd><t:formatScientific>${categoricalResultAndChart.combinedPValue}</t:formatScientific></dd>
+									
+									<%-- <dt>Males only</dt>
+									<dd>${categoricalResultAndChart.malePValue}</dd>
+									
+									<dt>Females only</dt>
+									<dd>${categoricalResultAndChart.femalePValue}</dd> --%>
+							</dl> 
+					</c:if>
+					
+					
+					</div>
 				
-				<c:if test="${categoricalResultAndChart.combinedPValue!=null && categoricalResultAndChart.combinedPValue!=0.0}">
-				<tr>
-					<td>Combined Male and Female Analysis</td>
-					<c:forEach begin="1" end="${fn:length(categoricalResultAndChart.maleAndFemale[0].categoricalSets[0].catObjects)}" varStatus="loop">
-					<td></td>
-					</c:forEach>
-					<td>${categoricalResultAndChart.combinedPValue}</td></tr> 
-				</c:if>
-
-			</tbody>
-		</table>
-
-		<div>
+            
+            
+            		<div class="col-8">
+					
+						<table class="table table-striped small">
+							<thead>
+								<tr>
+									<th>Control/Hom/Het</th>
+									<c:forEach var="categoryObject"	items="${categoricalResultAndChart.maleAndFemale[0].categoricalSets[0].catObjects}"	 varStatus="categoriesStatus">
+										<th>${categoryObject.category}</th>
+									</c:forEach>
+									<%-- <th>P Value</th> --%>
+									<%-- <th>Effect Size</th> --%>
+								</tr>
+							</thead>
+							<tbody>
+							<c:set var="emptyColumnNumber" value="0" scope="page"/>
+								<c:forEach var="maleOrFemale" items="${categoricalResultAndChart.maleAndFemale}" varStatus="maleOrFemaleStatus">
+									<c:forEach var="categoricalSet"	items="${maleOrFemale.categoricalSets}" varStatus="catSetStatus">
+										<tr>
+											<td>${categoricalSet.name }</td>
+											<c:forEach var="catObject" items="${categoricalSet.catObjects}"	varStatus="catObjectStatus">
+												<td>${catObject.count }</td>
+											</c:forEach>
+											<%-- <td>${categoricalSet.catObjects[0].pValue }</td> --%>
+											<%-- <td>${categoricalSet.catObjects[0].maxEffect }</td> removed effect size as per Terrys request --%>
+										</tr>	
+									</c:forEach>
+				
+								</c:forEach>
+								
+								
+							</tbody>
+						</table>
+						</div>
+				
+					</div>
+		
 		
 		<div class="row mt-5">
                     <div class="col-12">
@@ -81,7 +92,7 @@
 			
 		</div>
 	</div>
-	</div>
+	
 </c:forEach>
 
 <script>
