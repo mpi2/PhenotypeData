@@ -63,8 +63,7 @@ public class TimeSeriesChartAndTableProvider {
 
 
 
-	public ChartData doTimeSeriesData(ExperimentDTO experiment,	ParameterDTO parameter, String experimentNumber)
-	throws IOException,	URISyntaxException {
+	public ChartData doTimeSeriesData(ExperimentDTO experiment,	ParameterDTO parameter, String experimentNumber) {
 
 		ChartData chartNTableForParameter = null;
 		Map<String, List<DiscreteTimePoint>> lines = new TreeMap<String, List<DiscreteTimePoint>>();
