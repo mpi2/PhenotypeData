@@ -70,8 +70,7 @@
                 <c:forEach var="mapEntry"
                            items="${expressionAnatomyToRow}">
                     <tr>
-                        <td><a
-                                href="${baseUrl}/anatomy/${mapEntry.value.abnormalAnatomyId}">${mapEntry.value.abnormalAnatomyName}</a>
+                        <td><span>${mapEntry.value.abnormalAnatomyName}</span>
                         </td>
                         <td><span
                                 title="${mapEntry.value.numberOfHetSpecimens} Heterozygous Mutant Mice">${mapEntry.value.numberOfHetSpecimens}</span>

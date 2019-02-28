@@ -62,7 +62,7 @@
                 $("#phenotabs2").tabs({active: 0});
                 $("#tabs").tabs();
 
-                $('div#anatomo1').hide(); // by default
+                $('div#anatomo2').hide(); // by default
                 $('div#embryo1').hide(); // by default
 
                 $('.wtExp').hide();

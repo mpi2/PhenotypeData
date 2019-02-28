@@ -14,10 +14,10 @@
 <div class="row justify-content-end mt-3 mr-2">
     <div class="btn-group btn-group-toggle" data-toggle="buttons">
         <label class="btn btn-outline-primary btn-sm active">
-            <input type="radio" name="options" id=" " autocomplete="off" value="anatogram" checked> Images
+            <input type="radio" name="options" id="expressionTableToggle" value="table" autocomplete="off"> Table
         </label>
         <label class="btn btn-outline-primary btn-sm">
-            <input type="radio" name="options" id="expressionTableToggle" value="table" autocomplete="off"> Table
+            <input type="radio" name="options" id=" " autocomplete="off" value="anatogram" checked> Images
         </label>
     </div>
 </div>
