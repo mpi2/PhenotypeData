@@ -131,8 +131,10 @@
                 oConf.baseUrl = "${baseUrl}";
                 oConf.rowFormat = true;
                 oConf.orderBy = "firstPublicationDate DESC"; // default
+                oConf.consortium = false;
                 oConf.id = "alleleRef";
                 $.fn.fetchAlleleRefDataTable2(oConf);
+
                 var oConf2 = {};
                 oConf2.iDisplayLength = 10;
                 oConf2.iDisplayStart = 0;

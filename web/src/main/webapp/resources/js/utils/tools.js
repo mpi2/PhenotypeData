@@ -955,20 +955,12 @@
                 var fileTypeXls = "fileType=xls";
 
                 var toolBox = 'Export table: '
-                    + '<a id="tsvA" href=""><i class="fa fa-download gridDump"></i>TSV</a>&nbsp;or&nbsp;'
-                    + '<a id="xlsA" href=""><i class="fa fa-download gridDump"></i>XLS</a>';//+
+                    + '<a id="tsvA' + id +'"  href="#" class="gridDump"><i class="fa fa-download"></i>TSV</a>&nbsp;or&nbsp;'
+                    + '<a id="xlsA' + id + '" href="#" class="gridDump"><i class="fa fa-download"></i>XLS</a>';//+
 
-                $("div.export").html(toolBox);
+                $('div[id^="' + id + '_wrapper"]').find('.export:first').html(toolBox);
 
-                $('a.gridDump').on('click', function(){
-
-                    id = $(this).parent().parent().siblings('div.dataTables_processing').attr('id').replace('_processing','');
-                    oConf.id = id;
-                    oConf.consortium = false;
-
-                    if (id == 'consortiumPapers'){
-                        oConf.consortium = true;
-                    }
+                $("#tsvA" + id + ", " + "#xlsA" + id).on('click', function(){
 
                     var paramStr = "mode=all";
                     if ($("#" + id +"_filter").find('input').val() != "") {
@@ -982,10 +974,11 @@
                         paramStr += "&" + i + "=" + val;
                     });
 
+                    console.log(paramStr);
 
                     //alert(991 + " " + id + " - " + oConf.kw + "\n" +oConf.filter );
 
-                    if ($(this).attr('id') == 'tsvA'){
+                    if ($(this).attr('id').indexOf('tsvA') >= 0){
                        $(this).attr('href', baseUrl+"/export2?" + fileTypeTsv + "&" + paramStr);
                     }
                     else {

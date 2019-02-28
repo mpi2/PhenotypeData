@@ -391,7 +391,7 @@ public class ExternalAnnotsController {
 		return "allelerefedit";
 	}
 
-	@RequestMapping(value = "/alleleref", method = RequestMethod.GET)
+	@RequestMapping(value = "/publications", method = RequestMethod.GET)
 	public String dataTableJsonAlleleRef(
 			HttpServletRequest request,
 			HttpServletResponse response,
