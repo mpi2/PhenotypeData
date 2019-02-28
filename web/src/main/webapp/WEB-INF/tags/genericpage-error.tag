@@ -53,23 +53,18 @@
 <c:set var="uri">${pageContext.request.requestURL}</c:set>
 <c:set var="domain">${pageContext.request.serverName}</c:set>
 
-<c:set var="queryStringPlaceholder">
-    <c:choose>
-        <c:when test="${not empty queryString}">${queryString}</c:when>
-        <c:otherwise>Search genes, SOP, MP, images by MGI ID, gene symbol, synonym or name</c:otherwise>
-    </c:choose>
-</c:set>
+<c:if test="${showFullpage}">
+
 <!doctype html>
 <html lang="en">
 
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title><jsp:invoke fragment="title"></jsp:invoke> | International Mouse Phenotyping Consortium</title>
+    <title><jsp:invoke fragment="title" /> | International Mouse Phenotyping Consortium</title>
     <link rel="profile" href="http://gmpg.org/xfn/11">
     <link rel="pingback" href="https://mousephenotypetest.org/xmlrpc.php">
-   <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-TXfwrfuHVznxCssTxWoPZjhcss/hp38gEOH8UPZG/JcXonvBQ6SlsIF49wUzsGno"
-          crossorigin="anonymous">
+   <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-TXfwrfuHVznxCssTxWoPZjhcss/hp38gEOH8UPZG/JcXonvBQ6SlsIF49wUzsGno" crossorigin="anonymous">
     <link rel="apple-touch-icon-precomposed" sizes="57x57" href="${baseUrl}/img/apple-touch-icon-57x57.png" />
     <link rel="apple-touch-icon-precomposed" sizes="114x114" href="${baseUrl}/img/apple-touch-icon-114x114.png" />
     <link rel="apple-touch-icon-precomposed" sizes="72x72" href="${baseUrl}/img/apple-touch-icon-72x72.png" />
@@ -90,8 +85,6 @@
     <meta name="msapplication-wide310x150logo" content="${baseUrl}/img/mstile-310x150.png" />
     <meta name="msapplication-square310x310logo" content="${baseUrl}/img/mstile-310x310.png" />
     <script type='text/javascript' src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js'></script>
-    <!-- <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-    <script src="http://code.jquery.com/jquery-migrate-1.4.1.js"></script> -->
     <script type='text/javascript' src='https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.3/js/bootstrap.bundle.min.js'
             async='async'></script>
     <script type='text/javascript' src='https://cdnjs.cloudflare.com/ajax/libs/object-fit-images/3.2.4/ofi.min.js'></script>
@@ -146,15 +139,11 @@
         };
     }
 
+    <jsp:useBean id="requestConfig" scope="request" type="java.util.Map"/>
     <c:forEach var="entry" items="${requestConfig}">
     var ${entry.key} = "${entry.value}";
     </c:forEach>
 
-    <%--var baseUrl = "${baseUrl}";--%>
-    <%--var solrUrl = '${solrUrl}';--%>
-    <%--var pdfThumbnailUrl = "${pdfThumbnailUrl}";--%>
-    <%--var drupalBaseUrl = "${drupalBaseUrl}";--%>
-    <%--var mediaBaseUrl = "${mediaBaseUrl}";--%>
 </script>
 
     <jsp:invoke fragment="header" />
@@ -163,14 +152,14 @@
 
 <body>
 <jsp:invoke fragment="bodyTag"/>
-
-<t:menu />
-
+    <t:menu />
+</c:if>
 
 <main id="main" class="main" role="main">
 
     <jsp:doBody />
 
+    <c:if test="${showFullpage}">
     <div class="news-letter pt-5 pb-5">
         <div class="container">
             <div class="row">
@@ -185,18 +174,23 @@
             </div>
         </div>
     </div>
-
+    </c:if>
 </main>
 
-<t:footer />
+<c:if test="${showFullpage}">
 
-<jsp:invoke fragment="addToFooter"/>
+    <t:footer />
 
-<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/searchAndFacetConfig.js?v=${version}'></script>
-<script type='text/javascript' src='${baseUrl}/js/utils/tools.js?v=${version}'></script>
-<script type='text/javascript' src='${baseUrl}/js/general/ui.dropdownchecklist_modif.js?v=${version}'></script>
-<script type='text/javascript' src='${baseUrl}/js/documentationConfig.js?v=${version}'></script>
+    <jsp:invoke fragment="addToFooter"/>
+
+    <script type='text/javascript' src='${baseUrl}/js/searchAndFacet/searchAndFacetConfig.js?v=${version}'></script>
+    <script type='text/javascript' src='${baseUrl}/js/utils/tools.js?v=${version}'></script>
+    <script type='text/javascript' src='${baseUrl}/js/general/ui.dropdownchecklist_modif.js?v=${version}'></script>
+    <script type='text/javascript' src='${baseUrl}/js/documentationConfig.js?v=${version}'></script>
+
 
 </body>
 
 </html>
+
+</c:if>

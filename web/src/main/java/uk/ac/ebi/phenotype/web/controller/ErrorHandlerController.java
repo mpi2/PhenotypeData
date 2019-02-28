@@ -8,19 +8,16 @@ import org.mousephenotype.cda.solr.service.dto.GeneDTO;
 import org.mousephenotype.cda.solr.service.dto.MpDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.web.ErrorController;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
-
+import javax.inject.Inject;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Controller("error")
@@ -28,13 +25,15 @@ public class ErrorHandlerController implements ErrorController  {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+    private static Set<String> embeddedPages = new HashSet<>(Arrays.asList("/chart", "/experiment"));
+
     private static final String PATH = "/error";
 
 
     private final SearchGeneService searchGeneService;
     private final SearchPhenotypeService searchPhenotypeService;
 
-    @Autowired
+    @Inject
     public ErrorHandlerController(SearchGeneService searchGeneService, SearchPhenotypeService searchPhenotypeService) {
         this.searchGeneService = searchGeneService;
         this.searchPhenotypeService = searchPhenotypeService;
@@ -44,10 +43,15 @@ public class ErrorHandlerController implements ErrorController  {
     public String error(Model model, HttpServletRequest request)
     {
         final String URL = request.getRequestURL().toString();
+        final String forwardedUrl = request.getAttribute(RequestDispatcher.FORWARD_REQUEST_URI).toString();
 
         model.addAttribute("timestamp", LocalDateTime.now());
         model.addAttribute("error", "An error");
         model.addAttribute("status", request.getAttribute("javax.servlet.error.status_code"));
+        model.addAttribute("showFullpage", ! embeddedPages.stream().map(forwardedUrl::contains).findFirst().orElse(false));
+
+        System.out.println("Request URL: " + request.getAttribute(RequestDispatcher.FORWARD_REQUEST_URI));
+        System.out.println("Status: " + request.getAttribute("javax.servlet.error.status_code"));
 
         QueryResponse geneSuggestionResponse;
         QueryResponse phenSuggestionResponse;

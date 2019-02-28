@@ -7,7 +7,7 @@
         <div class="container text-right">
             <div class="row">
                 <div class="col">
-                    <div class="menu-top-nav-container"><ul id="menu-top-nav" class="menu"><li id="menu-item-13" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-13"><a href="https://www.mousephenotypetest.org/faqs/">FAQs</a></li>
+                    <div class="menu-top-nav-container"><ul id="menu-top-nav" class="menu"><li id="menu-item-13" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-13"><a href="https://www.mousephenotypetest.org/help/">Help</a></li>
                         <li id="menu-item-14" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-14"><a href="https://www.mousephenotype.org/forum">Forum</a></li>
                         <li id="menu-item-15" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-15"><a href="https://www.mousephenotypetest.org/contact-us/">Contact us</a></li>
                     </ul></div>            <a id="searchButton" class="header__search collapsed" href="/" data-toggle="collapse" data-target="#searchBar"
@@ -188,7 +188,7 @@
                 </div>
 
                 <h3 class="mt-2"><a class="object-id-11"
-                                    href="https://www.mousephenotypetest.org/faqs/">FAQs</a></h3>
+                                    href="https://www.mousephenotypetest.org/help/">Help</a></h3>
 
                 <div class="mobile-nav__sub-pages">
 
