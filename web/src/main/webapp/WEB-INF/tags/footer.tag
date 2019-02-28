@@ -23,7 +23,7 @@
                 </ul></div>            </div>
 
             <div class="col-12 col-md-3 footer-nav">
-                <div class="menu-top-nav-container"><ul id="menu-top-nav-1" class="menu"><li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-13"><a href="https://www.mousephenotypetest.org/faqs/">FAQs</a></li>
+                <div class="menu-top-nav-container"><ul id="menu-top-nav-1" class="menu"><li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-13"><a href="https://www.mousephenotypetest.org/help/">Help</a></li>
                     <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-14"><a href="https://www.mousephenotype.org/forum">Forum</a></li>
                     <li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-15"><a href="https://www.mousephenotypetest.org/contact-us/">Contact us</a></li>
                 </ul></div>            </div>
