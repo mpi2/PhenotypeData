@@ -36,7 +36,6 @@ public class PhenotypeCenterProcedureCompletenessService {
 
 	private ImpressService impressService;
 	private PhenotypeCenterService phenotypeCenterService;
-	private SolrClient statisticalResultCore;
 
 	public PhenotypeCenterProcedureCompletenessService(
 			PhenotypeCenterService phenotypeCenterService,
@@ -46,7 +45,6 @@ public class PhenotypeCenterProcedureCompletenessService {
 	{
 		this.phenotypeCenterService = phenotypeCenterService;
 		this.impressService = impressService;
-		this.statisticalResultCore = statisticalResultCore;
 	}
 
 
@@ -65,10 +63,6 @@ public class PhenotypeCenterProcedureCompletenessService {
         header.add("Gene Symbol");
         header.add("MGI Gene Id");
         header.add("Allele Symbol");
-
-
-		header.add("Zygosity");
-		header.add("Life Stage");
         header.add("Phenotyping Center");
         header.add("Percentage Done");
         header.add("Number of Done Procedures");
@@ -91,9 +85,6 @@ public class PhenotypeCenterProcedureCompletenessService {
 				row.add(strain.getGeneSymbol());
 				row.add(strain.getMgiAccession());
 				row.add(strain.getAllele());
-
-				row.add(strain.getZygosity());
-				row.add(strain.getLifeStage());
 				row.add(center);
 				Float percentageDone = (float) ((procedures.size() * 100) / (float)possibleProceduresPerCenter.get(center).size());
 				row.add(percentageDone.toString());

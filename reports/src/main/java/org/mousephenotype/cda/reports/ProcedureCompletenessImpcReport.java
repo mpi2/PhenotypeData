@@ -34,13 +34,13 @@ import java.util.List;
  * Created by mrelac on 24/07/2015.
  */
 @Component
-public class ProcedureCompletenessReport extends AbstractReport {
+public class ProcedureCompletenessImpcReport extends AbstractReport {
 
     protected Logger                                      logger = LoggerFactory.getLogger(this.getClass());
     private   PhenotypeCenterProcedureCompletenessService phenotypeCenterProcedureCompletenessService;
 
 
-    public ProcedureCompletenessReport(
+    public ProcedureCompletenessImpcReport(
             PhenotypeCenterProcedureCompletenessService phenotypeCenterProcedureCompletenessService
     ) {
         super();
