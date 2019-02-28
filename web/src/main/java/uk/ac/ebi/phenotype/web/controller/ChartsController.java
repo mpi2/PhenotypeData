@@ -36,7 +36,6 @@ import org.mousephenotype.cda.web.ChartType;
 import org.mousephenotype.cda.web.TimeSeriesConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -57,6 +56,7 @@ import java.net.URISyntaxException;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.springframework.web.bind.annotation.ValueConstants.DEFAULT_NONE;
 
@@ -534,8 +534,9 @@ public class ChartsController {
         model.addAttribute("numberMaleMutantMice", numberMaleMutantMice);
         model.addAttribute("numberFemaleControlMice", numberFemaleControlMice);
         model.addAttribute("numberMaleControlMice", numberMaleControlMice);
-        model.addAttribute("numberMice", numberFemaleMutantMice + numberMaleMutantMice + numberFemaleControlMice + numberMaleControlMice);
 
+        final int totalSamples = Stream.of(numberFemaleMutantMice, numberMaleMutantMice, numberFemaleControlMice, numberMaleControlMice).filter(Objects::nonNull).mapToInt(Integer::intValue).sum();
+        model.addAttribute("numberMice", totalSamples);
 
         return "chart";
     }
