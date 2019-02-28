@@ -98,7 +98,6 @@
 
         <script src="https://code.highcharts.com/highcharts.js"></script>
         <script src="https://code.highcharts.com/modules/exporting.js"></script>
-        <script src="https://code.highcharts.com/highcharts.js"></script>
         <script src="https://code.highcharts.com/modules/data.js"></script>
         <script src="https://code.highcharts.com/modules/drilldown.js"></script>
         <script type="text/javascript" src='${baseUrl}/js/vendor/jstree/jstree.min.js'></script>
@@ -134,11 +133,18 @@
                 oConf.orderBy = "firstPublicationDate DESC"; // default
                 oConf.id = "alleleRef";
                 $.fn.fetchAlleleRefDataTable2(oConf);
-                var oConf2 = oConf;
+                var oConf2 = {};
+                oConf2.iDisplayLength = 10;
+                oConf2.iDisplayStart = 0;
+                oConf2.kw = "";
+                oConf2.baseUrl = "${baseUrl}";
+                oConf2.rowFormat = true;
+                oConf2.orderBy = "firstPublicationDate DESC"; // default
                 oConf2.consortium = true;
                 oConf2.id = "consortiumPapers";
 
                 $.fn.fetchAlleleRefDataTable2(oConf2);
+                $.fn.fetchAllelePaperDataPointsIncrement();
 
               /*  // find out which tab to open from hash tag
                 var matches = window.location.hash.match(/(\d)$/);
