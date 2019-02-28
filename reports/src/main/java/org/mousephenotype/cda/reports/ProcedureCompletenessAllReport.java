@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright © 2015 EMBL - European Bioinformatics Institute
+ * Copyright © 2019 EMBL - European Bioinformatics Institute
  * <p>
  * Licensed under the Apache License, Version 2.0 (the
  * "License"); you may not use this targetFile except in compliance
@@ -31,7 +31,7 @@ import java.util.List;
 /**
  * Procedure Completeness report.
  *
- * Created by mrelac on 24/07/2015.
+ * Created by mrelac on 28/02/2019.
  */
 @Component
 public class ProcedureCompletenessAllReport extends AbstractReport {
