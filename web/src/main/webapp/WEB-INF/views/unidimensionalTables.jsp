@@ -18,10 +18,10 @@
         <!-- Statistical Result docId: ${data.result.id} -->
 
         <div class="row">
-            <div class="col-8">
+            <div class="col-md-8">
 
                 <div class="row">
-                    <div class="col-6">
+                    <div class="col-md-6">
 
                 <c:if test="${data.result.statisticalMethod!=null and data.result.statisticalMethod!='Wilcoxon rank sum test with continuity correction' and data.result.statisticalMethod!='Reference Ranges Plus framework'}">
 
@@ -296,7 +296,7 @@
 
                 </div>
 
-                    <div class="col-6">
+                    <div class="col-md-6">
 
                     <h4> Summary statistics of the dataset  </h4>
                 <%-- always print the summary statistics table --%>
@@ -348,7 +348,7 @@
                 </div>
 
                 <div class="row mt-5">
-                    <div class="col-12">
+                    <div class="col-md-12">
                         <h4> Access the results programmatically </h4>
                         <hr />
                         <p>
@@ -360,7 +360,7 @@
                 </div>
             </div>
 
-            <div class="col-4">
+            <div class="col-md-4">
                 <c:if test="${fn:length(unidimensionalChartDataSet.statsObjects)>1}">
 
                 <c:set var="data" value="${unidimensionalChartDataSet.statsObjects[1]}"></c:set>

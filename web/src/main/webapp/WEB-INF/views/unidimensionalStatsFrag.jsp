@@ -12,8 +12,8 @@ ${data.mpTermId}
 	<div class="row">
 
 
-	<div id="chart${experimentNumber}" class="col-4"></div>
-	<div id="scatter${experimentNumber}" class="col-8"></div>
+	<div id="chart${experimentNumber}" class="col-md-4"></div>
+	<div id="scatter${experimentNumber}" class="col-md-8"></div>
 	<script type="text/javascript">
 		${scatterChartAndData.chart};
 		$(function () {${unidimensionalChartDataSet.chartData.chart}

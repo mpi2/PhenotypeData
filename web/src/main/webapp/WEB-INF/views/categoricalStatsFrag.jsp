@@ -17,9 +17,9 @@
 	<script type="text/javascript">	${categoricalChartDataObject.chart} </script>
 <p>
 	<div class="row">
-            <div class="col-12">
+            <div class="col-md-12">
             	<div class="row">
-            		<div class="col-4">
+            		<div class="col-md-4">
             		
            			 <c:if test="${categoricalResultAndChart.combinedPValue!=null}">
 						 <h4> Results of statistical analysis  </h4>
@@ -41,7 +41,7 @@
 				
             
             
-            		<div class="col-8">
+            		<div class="col-md-8">
 					
 						<table class="table table-striped small">
 							<thead>
@@ -79,7 +79,7 @@
 		
 		
 		<div class="row mt-5">
-                    <div class="col-12">
+                    <div class="col-md-12">
                         <h4> Access the results programmatically </h4>
                         <hr>
                         <p>

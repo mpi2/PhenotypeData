@@ -7,13 +7,13 @@
 
 		<div class="row">
 
-			<div class="col-12">
+			<div class="col-md-12">
 				<div id="timechart${experimentNumber}"></div>
 			</div>
 		</div>
 
 	  <div class="row">
-		<div class="col-12">
+		<div class="col-md-12">
 
 			<%--<p>--%>
 			<%--<c:if test="${isDerivedBodyWeight}"> <!-- these don't work for IPGTT -->--%>

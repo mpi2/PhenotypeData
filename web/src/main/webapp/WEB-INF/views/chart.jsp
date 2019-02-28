@@ -44,7 +44,7 @@
 
             <!-- <div class="container mt-3" id="section-associations"> -->
                 <%-- <div class="row">
-                    <div class="col-12 no-gutters">
+                    <div class="col-md-12 no-gutters">
                         <h3>Allele -<t:formatAllele>${symbol}</t:formatAllele></h3>
                     </div>
                 </div> --%>
@@ -55,7 +55,7 @@
 
             <div class="breadcrumbs" style="box-shadow: none; margin-top: auto; margin: auto; padding: auto">
                 <div class="row">
-                    <div class="col-12">
+                    <div class="col-md-12">
                         <p><a href="/">Home</a> <span>></span>
                             <a href="${baseUrl}/search">Genes</a> <span>></span>
                             <a href="${baseUrl}/genes/${gene.mgiAccessionId}">${gene.markerSymbol}</a> <span>></span>
@@ -67,7 +67,7 @@
 
 
             <div class="row row-over-shadow">
-                    <div class="col-12 white-bg">
+                    <div class="col-md-12 white-bg">
                         <div class="page-content">
 
             <c:if test="${viabilityDTO!=null}">
@@ -81,7 +81,7 @@
 
 
             <div class="row">
-            <div class="col-6">
+            <div class="col-md-6">
                 <div class="card w-100">
                     <div class="card-header">
                         Description of the experiments performed
@@ -106,7 +106,7 @@
                 </div>
             </div>
 
-                <div class="col-6">
+                <div class="col-md-6">
                     <table class="table table-striped">
                         <tr>
                             <th>Phenotyping center</th>
