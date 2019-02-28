@@ -195,7 +195,7 @@ public class PhenomeChartProvider {
 		+ "           align: 'right', \n"
 		+ "           style: { \n"
 		+ "              fontSize: '10px', \n"
-		+ "              fontFamily: 'Verdana, sans-serif' \n"
+		+ "              fontFamily: '\"Roboto\", sans-serif' \n"
 		+ "         } \n"
 		+ "     }, \n"
 		+ "      showLastLabel: true \n"

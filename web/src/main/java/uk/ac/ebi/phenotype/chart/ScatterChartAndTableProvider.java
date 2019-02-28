@@ -71,7 +71,7 @@ public class ScatterChartAndTableProvider {
 			+ "         align: 'right', "
 			+ "         style: { "
 			+ "           fontSize: '13px', "
-			+ "           fontFamily: 'Verdana, sans-serif' "
+		    + "            fontFamily: '\"Roboto\", sans-serif;'\n"
 			+ "         }, "
 			+ "         formatter: function() { return Highcharts.dateFormat('%b %Y', this.value); } "
 			+ "       },"

@@ -88,12 +88,19 @@
                     </div>
                     <div class="card-body">
                         <p>
+        <c:if test="${embryoViabilityDTO==null}">
                             A <b>${parameter.procedureNames[0]}</b> phenotypic assay was performed on <b>${numberMice}
                             mice</b> carrying the <b><t:formatAllele>${alleleSymbol}</t:formatAllele></b> allele. The
                             charts
                             show the results of measuring <b>${parameter.name}</b> in <b>${numberFemaleMutantMice}
                             female</b>, <b>${numberMaleMutantMice} male</b> mutants compared to
                             <b>${numberFemaleControlMice} female</b>, <b>${numberMaleControlMice} male</b> controls.
+        </c:if>
+
+        <c:if test="${embryoViabilityDTO!=null}">
+            A <b>${parameter.procedureNames[0]}</b> phenotypic assay was performed on a mutant strain carrying the <b><t:formatAllele>${alleleSymbol}</t:formatAllele></b> allele. The
+            charts below show the proportion of wild type, heterozygous, and homozygous offspring.
+        </c:if>
                         </p>
                     </div>
                 </div>
