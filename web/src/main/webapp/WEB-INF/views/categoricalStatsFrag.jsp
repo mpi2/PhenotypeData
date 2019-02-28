@@ -17,36 +17,31 @@
 	<script type="text/javascript">	${categoricalChartDataObject.chart} </script>
 <p>
 	<div class="row">
-            <div class="col-8">
+            <div class="col-12">
             	<div class="row">
-            		<div class="col-6">
+            		<div class="col-4">
             		
-           			 <c:if test="${categoricalResultAndChart.combinedPValue!=null && categoricalResultAndChart.combinedPValue!=0.0}">
+           			 <c:if test="${categoricalResultAndChart.combinedPValue!=null}">
 						 <h4> Results of statistical analysis  </h4>
-
+							
                             <dl class="alert alert-success">
-							<dt>Combined Male and Female Analysis</dt>
-							<%-- <c:forEach begin="1" end="${fn:length(categoricalResultAndChart.maleAndFemale[0].categoricalSets[0].catObjects)}" varStatus="loop">
-							<td></td>
-							</c:forEach> --%>
-							<dd>${categoricalResultAndChart.combinedPValue}</dd>
+									<dt>Combined Male and Female P value</dt>
+									<dd><t:formatScientific>${categoricalResultAndChart.combinedPValue}</t:formatScientific></dd>
+									
+									<%-- <dt>Males only</dt>
+									<dd>${categoricalResultAndChart.malePValue}</dd>
+									
+									<dt>Females only</dt>
+									<dd>${categoricalResultAndChart.femalePValue}</dd> --%>
 							</dl> 
 					</c:if>
 					
-					<c:forEach var="result"	items="${categoricalResultAndChart.statsResults}">
-							<c:if test="${result.status ne 'Success'}">
-								 <dl class="alert alert-success">
-									<dt>Statistics ${result.status}. Control Sex ${result.controlSex} Experimental Sex ${result.experimentalSex}</dt>
-								</dl>
-							</c:if>
-				
-						</c:forEach>
 					
 					</div>
 				
             
             
-            		<div class="col-6">
+            		<div class="col-8">
 					
 						<table class="table table-striped small">
 							<thead>
@@ -55,7 +50,7 @@
 									<c:forEach var="categoryObject"	items="${categoricalResultAndChart.maleAndFemale[0].categoricalSets[0].catObjects}"	 varStatus="categoriesStatus">
 										<th>${categoryObject.category}</th>
 									</c:forEach>
-									<th>P Value</th>
+									<%-- <th>P Value</th> --%>
 									<%-- <th>Effect Size</th> --%>
 								</tr>
 							</thead>
@@ -68,7 +63,7 @@
 											<c:forEach var="catObject" items="${categoricalSet.catObjects}"	varStatus="catObjectStatus">
 												<td>${catObject.count }</td>
 											</c:forEach>
-											<td>${categoricalSet.catObjects[0].pValue }</td>
+											<%-- <td>${categoricalSet.catObjects[0].pValue }</td> --%>
 											<%-- <td>${categoricalSet.catObjects[0].maxEffect }</td> removed effect size as per Terrys request --%>
 										</tr>	
 									</c:forEach>
