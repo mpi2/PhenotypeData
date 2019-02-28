@@ -526,20 +526,6 @@
         <!-- End of Order Mouse and ES Cells -->
 
 
-        <c:choose>
-            <c:when test='${baseUrl.startsWith("/phenotype-archive")}'>
-                <%-- path: /phenotype-archive/js/newanatomogram/ --%>
-                <script type="text/javascript"
-                        src="${baseUrl}/js/newanatomogram/vendorCommons.bundle.local.js"></script>
-            </c:when>
-            <c:otherwise>
-                <%-- path: /data/js/newanatomogram/ --%>
-                <script type="text/javascript" src="${baseUrl}/js/newanatomogram/vendorCommons.bundle.js"></script>
-            </c:otherwise>
-        </c:choose>
-
-        <script type="text/javascript" src="${baseUrl}/js/newanatomogram/anatomogram.bundle.js"></script>
-
         <%-- Block augmenting/filling phenodigm tables --%>
         <script type="text/javascript">
             var curatedDiseases = ${curatedDiseases};
@@ -601,102 +587,6 @@
             });
         </script>
 
-        <%-- Block augmenting/filling anatomy content--%>
-        <script type="text/javascript">
-            $(document).ready(function () {
-
-                // --- new anatomogram as of 2017-07 ------
-                //console.log(${anatomogram});
-                // invoke anatomogram only when
-                // this check is not empty: impcAdultExpressionImageFacets
-
-                if ($('div#anatomogramContainer') != undefined && $('div#anatomogramContainer').length == 1) {
-
-                    // anatomogram stuff
-                    //var expData = JSON.parse(${anatomogram});
-                    var expData = ${anatomogram};
-                    //console.log(expData);
-                    var topLevelName2maIdMap = expData.topLevelName2maIdMap;
-                    var maId2UberonEfoMap = expData.maId2UberonEfoMap;
-                    var uberonEfo2MaIdMap = expData.uberonEfo2MaIdMap;
-                    var maId2topLevelNameMap = expData.maId2topLevelNameMap;
-
-                    var uberons2Gene = expData.allPaths;
-
-                    mouseAnatomogram(uberons2Gene, [], []);
-
-                    // top level MA term talks to anatomogram
-                    $("ul#expList table td").on("mouseover", function () {
-                        var topname = $(this).text().trim();
-                        var maIds = topLevelName2maIdMap[topname];
-                        //console.log(topname + " - " + maIds);
-                        var uberonIds = [];
-                        if (maIds && maIds.length) {
-                            for (var a = 0; a < maIds.length; a++) {
-                                uberonIds = uberonIds.concat(maId2UberonEfoMap[maIds[a]]);
-                            }
-                        }
-                        uberonIds = $.fn.getUnique(uberonIds);
-                        mouseAnatomogram(uberons2Gene, uberonIds, []);
-                    }).on("mouseout", function () {
-                        mouseAnatomogram(uberons2Gene, [], []);
-                    });
-                }
-
-                //------------ end of new anatomogram ----------
-
-
-                function mouseAnatomogram(uberons2Gene, highlightIds, selectIds) {
-                    anatomogram.render({
-                        showColour: 'gray',
-                        highlightColour: '#ce6211',
-                        selectColour: 'purple',
-                        showOpacity: '0.3',
-                        highlightOpacity: '0.6',
-                        selectOpacity: '0.8',
-                        species: 'mus_musculus',
-                        showIds: uberons2Gene,
-                        highlightIds: highlightIds,
-                        selectIds: selectIds,
-                        onMouseOver: function (id) {
-                            var maIds = uberonEfo2MaIdMap[id];
-                            var topLevelNames = [];
-                            if (maIds && maIds.length) {
-                                for (var i = 0; i < maIds.length; i++) {
-                                    var tops = maId2topLevelNameMap[maIds[i]];
-                                    for (var j = 0; j < tops.length; j++) {
-                                        topLevelNames.push(tops[j]);
-                                    }
-                                }
-                            }
-
-
-                            topLevelNames = $.fn.getUnique(topLevelNames);
-                            //console.log("TOP: " + topLevelNames);
-
-                            $('ul#expList table td.showAdultImage').each(function () {
-
-                                if ($.fn.inArray($(this).text().trim(), topLevelNames)) {
-                                    //console.log("top: " + $(this).text().trim());
-                                    $(this).addClass("mahighlight");
-                                }
-                            });
-                        },
-                        onMouseOut: function (id) {
-                            $('ul#expList table td').removeClass("mahighlight");
-                        },
-                        onClick: function (id) {
-                            //console.log(id + " click")
-
-                        }
-                    }, 'anatomogramContainer')
-                }
-
-
-            });
-
-
-        </script>
 
     </jsp:body>
 
