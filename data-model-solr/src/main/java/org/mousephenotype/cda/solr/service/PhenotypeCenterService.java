@@ -103,57 +103,12 @@ public class PhenotypeCenterService {
 		return strains;
 	}
 
-//	public Set<PhenotypeCenterServiceBean> getMutantStrainsForCenters() throws IOException, URISyntaxException {
-//
-//		Set<PhenotypeCenterServiceBean> mutantStrainsForCenters = new HashSet<>();
-//
-//		String queryString = ObservationDTO.BIOLOGICAL_SAMPLE_GROUP    + ":experimental";
-//
-//		String facetPivotFields =
-//				    ObservationDTO.PHENOTYPING_CENTER
-//			+ "," + ObservationDTO.COLONY_ID
-//			+ "," + ObservationDTO.ZYGOSITY
-//			+ "," + ObservationDTO.DEVELOPMENTAL_STAGE_NAME;
-//
-//		SolrQuery query = new SolrQuery()
-//				.setQuery(queryString)
-//				.setRows(0)
-//				.setFacet(true)
-//				.setFacetMinCount(1)
-//				.setFacetLimit(-1)
-//				.addFacetPivotField(facetPivotFields);
-//
-//		query
-//				.set("wt", "xslt")
-//				.set("tr", "pivot.xsl");
-//		HttpProxy proxy   = new HttpProxy();
-//		String    content = proxy.getContent(new URL(SolrUtils.getBaseURL(experimentCore) + "/select?" + query));
-//
-//		// Get the required unique rows.
-//		mutantStrainsForCenters = Arrays.stream(content.split("\r"))
-//				.skip(1)
-//				.map(PhenotypeCenterServiceBean::new)
-//				.collect(Collectors.toSet());
-//
-//		// Fill in the remaining PhenotypeCenterServiceBean fields: mgiAccessionId, allele, geneSymbol
-//
-//
-//
-//
-//		return mutantStrainsForCenters;
-//	}
-
-
-
-
-
-
 	public List<PhenotypeCenterServiceBean> getMutantStrainsForCenter(String center)  throws SolrServerException, IOException  {
 
 		List<PhenotypeCenterServiceBean> strains=new ArrayList<>();
 		SolrQuery query = new SolrQuery()
 			.setQuery(ObservationDTO.PHENOTYPING_CENTER + ":\"" + center + "\" AND " + ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":experimental")
-			.setFields(ObservationDTO.GENE_ACCESSION_ID,ObservationDTO.ALLELE_SYMBOL, ObservationDTO.GENE_SYMBOL, ObservationDTO.ZYGOSITY, ObservationDTO.DEVELOPMENTAL_STAGE_NAME)
+			.setFields(ObservationDTO.GENE_ACCESSION_ID,ObservationDTO.ALLELE_SYMBOL, ObservationDTO.GENE_SYMBOL)
 			.setRows(1000000);
 		query.set("group", true);
 		query.set("group.field", ObservationDTO.COLONY_ID);
@@ -174,8 +129,6 @@ public class PhenotypeCenterService {
 				strain.setAllele((String)doc.get(ObservationDTO.ALLELE_SYMBOL));
 				strain.setGeneSymbol((String)doc.get(ObservationDTO.GENE_SYMBOL));
 				strain.setMgiAccession((String)doc.get(ObservationDTO.GENE_ACCESSION_ID));
-				strain.setZygosity((String)doc.get(ObservationDTO.ZYGOSITY));
-				strain.setLifeStage((String)doc.get(ObservationDTO.DEVELOPMENTAL_STAGE_NAME));
 				strains.add(strain);
 			}
 		}

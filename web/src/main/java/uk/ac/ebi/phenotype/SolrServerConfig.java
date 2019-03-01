@@ -177,6 +177,6 @@ public class SolrServerConfig {
 
     @Bean
     PhenotypeCenterProcedureCompletenessService phenotypeCenterProcedureCompletenessService() {
-        return new PhenotypeCenterProcedureCompletenessService(phenotypeCenterService(), impressService, getStatisticalResultCore());
+        return new PhenotypeCenterProcedureCompletenessService(phenotypeCenterService(), impressService);
     }
 }

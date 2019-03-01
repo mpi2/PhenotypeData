@@ -30,8 +30,6 @@ public class PhenotypeCenterServiceBean {
     String allele;
     String geneSymbol;
     String colonyId;
-    String zygosity;
-    String lifeStage;
 
     public PhenotypeCenterServiceBean() {
 
@@ -42,8 +40,6 @@ public class PhenotypeCenterServiceBean {
 
         this.center = fields.get(0);
         this.colonyId = fields.get(1);
-        this.zygosity = fields.get(2);
-        this.lifeStage = fields.get(3);
     }
 
     public String getMgiAccession() {
@@ -86,21 +82,5 @@ public class PhenotypeCenterServiceBean {
     public void setColonyId(String colonyId) {
 
         this.colonyId = colonyId;
-    }
-
-    public String getZygosity() {
-        return zygosity;
-    }
-
-    public void setZygosity(String zygosity) {
-        this.zygosity = zygosity;
-    }
-
-    public String getLifeStage() {
-        return lifeStage;
-    }
-
-    public void setLifeStage(String lifeStage) {
-        this.lifeStage = lifeStage;
     }
 }

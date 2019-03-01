@@ -19,7 +19,7 @@ package org.mousephenotype.cda.reports;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.mousephenotype.cda.reports.support.ReportException;
-import org.mousephenotype.cda.solr.service.PhenotypeCenterProcedureCompletenessService;
+import org.mousephenotype.cda.solr.service.PhenotypeCenterProcedureCompletenessAllService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -33,18 +33,19 @@ import java.util.List;
  *
  * Created by mrelac on 28/02/2019.
  */
+
 @Component
 public class ProcedureCompletenessAllReport extends AbstractReport {
 
-    protected Logger                                      logger = LoggerFactory.getLogger(this.getClass());
-    private   PhenotypeCenterProcedureCompletenessService phenotypeCenterProcedureCompletenessService;
+    protected Logger                                         logger = LoggerFactory.getLogger(this.getClass());
+    private   PhenotypeCenterProcedureCompletenessAllService phenotypeCenterProcedureCompletenessAllService;
 
 
     public ProcedureCompletenessAllReport(
-            PhenotypeCenterProcedureCompletenessService phenotypeCenterProcedureCompletenessService
+            PhenotypeCenterProcedureCompletenessAllService phenotypeCenterProcedureCompletenessAllService
     ) {
         super();
-        this.phenotypeCenterProcedureCompletenessService = phenotypeCenterProcedureCompletenessService;
+        this.phenotypeCenterProcedureCompletenessAllService = phenotypeCenterProcedureCompletenessAllService;
     }
 
     @Override
@@ -65,7 +66,7 @@ public class ProcedureCompletenessAllReport extends AbstractReport {
 
         List<String[]> result;
         try {
-            result = phenotypeCenterProcedureCompletenessService.getCentersProgressByStrainCsv();
+            result = phenotypeCenterProcedureCompletenessAllService.getCentersProgressByStrainCsv();
         } catch (Exception e) {
             throw new ReportException("Exception creating " + this.getClass().getCanonicalName() + ". Reason: " + e.getLocalizedMessage());
         }
