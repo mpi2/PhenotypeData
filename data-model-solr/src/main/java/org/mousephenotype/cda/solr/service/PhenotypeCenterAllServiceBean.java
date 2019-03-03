@@ -16,40 +16,31 @@
 
 package org.mousephenotype.cda.solr.service;
 
+import java.io.Serializable;
+import java.util.List;
+
 /**
  * This is the DTO used with the PhenotypeCenterService. It holds the service components.
  */
-public class PhenotypeCenterAllServiceBean {
+public class PhenotypeCenterAllServiceBean implements Serializable {
 
-    public String center;
-    public String colonyId;
-    public String zygosity;
-    public String geneAccessionId;
-    public String geneSymbol;
-    public String alleleAccessionId;
-    public String alleleSymbol;
-    public String procedureStableId;
-    public String procedureName;
-    public String parameterStableId;
-    public String parameterName;
-    public String topLevelMpTermId;
-    public String topLevelMpTermName;
-    public String mpTermId;
-    public String mpTermName;
-    public String lifeStageName;
-    public String status;
+    private String       colonyId;
+    private String       zygosity;
+    private String       geneAccessionId;
+    private String       geneSymbol;
+    private String       alleleAccessionId;
+    private String       alleleSymbol;
+    private String       procedureStableId;
+    private String       parameterStableId;
+    private List<String> topLevelMpTermId;
+    private String       mpTermId;
+    private String       lifeStageName;
+
+    private PhenotypeCenterProcedureCompletenessAllService.STATUSES status;
 
 
     public PhenotypeCenterAllServiceBean() {
 
-    }
-
-    public String getCenter() {
-        return center;
-    }
-
-    public void setCenter(String center) {
-        this.center = center;
     }
 
     public String getColonyId() {
@@ -108,14 +99,6 @@ public class PhenotypeCenterAllServiceBean {
         this.procedureStableId = procedureStableId;
     }
 
-    public String getProcedureName() {
-        return procedureName;
-    }
-
-    public void setProcedureName(String procedureName) {
-        this.procedureName = procedureName;
-    }
-
     public String getParameterStableId() {
         return parameterStableId;
     }
@@ -124,28 +107,12 @@ public class PhenotypeCenterAllServiceBean {
         this.parameterStableId = parameterStableId;
     }
 
-    public String getParameterName() {
-        return parameterName;
-    }
-
-    public void setParameterName(String parameterName) {
-        this.parameterName = parameterName;
-    }
-
-    public String getTopLevelMpTermId() {
+    public List<String> getTopLevelMpTermId() {
         return topLevelMpTermId;
     }
 
-    public void setTopLevelMpTermId(String topLevelMpTermId) {
+    public void setTopLevelMpTermId(List<String> topLevelMpTermId) {
         this.topLevelMpTermId = topLevelMpTermId;
-    }
-
-    public String getTopLevelMpTermName() {
-        return topLevelMpTermName;
-    }
-
-    public void setTopLevelMpTermName(String topLevelMpTermName) {
-        this.topLevelMpTermName = topLevelMpTermName;
     }
 
     public String getMpTermId() {
@@ -156,14 +123,6 @@ public class PhenotypeCenterAllServiceBean {
         this.mpTermId = mpTermId;
     }
 
-    public String getMpTermName() {
-        return mpTermName;
-    }
-
-    public void setMpTermName(String mpTermName) {
-        this.mpTermName = mpTermName;
-    }
-
     public String getLifeStageName() {
         return lifeStageName;
     }
@@ -172,11 +131,11 @@ public class PhenotypeCenterAllServiceBean {
         this.lifeStageName = lifeStageName;
     }
 
-    public String getStatus() {
+    public PhenotypeCenterProcedureCompletenessAllService.STATUSES getStatus() {
         return status;
     }
 
     public void setStatus(String status) {
-        this.status = status;
+        this.status = PhenotypeCenterProcedureCompletenessAllService.STATUSES.getStatus(status);
     }
 }

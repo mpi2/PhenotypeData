@@ -19,6 +19,8 @@ package org.mousephenotype.cda.solr.service;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.response.FacetField;
+import org.apache.solr.client.solrj.response.PivotField;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.mousephenotype.cda.solr.service.dto.StatisticalResultDTO;
 import org.slf4j.Logger;
@@ -27,9 +29,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Created this new class to duplicate functionality of PhenotypeCenterService but with dataSource ALL instead of just
@@ -54,29 +54,29 @@ public class PhenotypeCenterAllService {
 	}
 
 	// FIXME FIXME FIXME
-//	/**
-//	 * Get a list of all phenotyping Centers we have data for
-//	 * http://wwwdev.ebi.ac.uk/mi/impc/dev/solr/experiment/select?q=*:*&indent=true&facet=true&facet.field=phenotyping_center&facet.mincount=1&wt=json&rows=0
-//	 * @return
-//	 * @throws SolrServerException, IOException
-//	 */
-//	public List<String> getPhenotypeCenters() throws SolrServerException, IOException  {
-//
-//		List<String> centers=new ArrayList<>();
-//		SolrQuery query = new SolrQuery()
-//		.setQuery("*:*")
-//		.addFacetField(ObservationDTO.PHENOTYPING_CENTER)
-//		.setFacetMinCount(1)
-//		.setRows(0);
-//
-//		QueryResponse response = statisticalResultCore.query(query);
-//		List<FacetField> fields = response.getFacetFields();
-//		for(Count values: fields.get(0).getValues()){
-//			centers.add(values.getName());
-//		}
-//
-//		return centers;
-//	}
+	/**
+	 * Get a list of all phenotyping Centers we have data for
+	 * http://wwwdev.ebi.ac.uk/mi/impc/dev/solr/experiment/select?q=*:*&indent=true&facet=true&facet.field=phenotyping_center&facet.mincount=1&wt=json&rows=0
+	 * @return
+	 * @throws SolrServerException, IOException
+	 */
+	public List<String> getPhenotypeCenters() throws SolrServerException, IOException  {
+
+		List<String> centers=new ArrayList<>();
+		SolrQuery query = new SolrQuery()
+		.setQuery("*:*")
+		.addFacetField(StatisticalResultDTO.PHENOTYPING_CENTER)
+		.setFacetMinCount(1)
+		.setRows(0);
+
+		QueryResponse response = statisticalResultCore.query(query);
+		List<FacetField> fields = response.getFacetFields();
+		for(FacetField.Count values: fields.get(0).getValues()){
+			centers.add(values.getName());
+		}
+
+		return centers;
+	}
 
 //	/**
 //	 * get the strains with data for a center
@@ -301,6 +301,71 @@ public class PhenotypeCenterAllService {
 
 
 
+
+
+    public Map<String, String> getKeyValuePairs(String pivotFacet) {
+
+        Map<String, String> map  = new HashMap<>();
+
+        SolrQuery query = new SolrQuery();
+
+        query
+                .setQuery("*:*")
+                .setRows(0)
+                .setFacet(true)
+                .setFacetMinCount(1)
+                .setFacetLimit(-1)
+                .add("facet.pivot", pivotFacet);
+
+        try {
+            QueryResponse    response = statisticalResultCore.query(query);
+
+            for( PivotField pivot : response.getFacetPivot().get(pivotFacet)) {
+                if (pivot.getPivot() != null){
+                    for (PivotField parameter : pivot.getPivot()){
+                        String[] row = {pivot.getValue().toString(), parameter.getValue().toString()};
+                        map.put(row[0], row[1]);
+                    }
+                }
+            }
+
+        } catch (Exception e) {
+            System.err.println("Exception: " + e.getLocalizedMessage());
+            e.printStackTrace();
+        }
+
+        return map;
+    }
+
+
+    public Map<String, String> getProcedureNamesById() {
+        final
+        String pivotFacet =  StatisticalResultDTO.PROCEDURE_STABLE_ID + "," + StatisticalResultDTO.PROCEDURE_NAME;
+        return getKeyValuePairs(pivotFacet);
+    }
+
+
+    public Map<String, String> getParameterNamesById() {
+        final
+        String pivotFacet =  StatisticalResultDTO.PARAMETER_STABLE_ID + "," + StatisticalResultDTO.PARAMETER_NAME;
+        return getKeyValuePairs(pivotFacet);
+    }
+
+
+    public Map<String, String> getTopLevelMpNamesById() {
+        final
+        String pivotFacet =  StatisticalResultDTO.TOP_LEVEL_MP_TERM_ID + "," + StatisticalResultDTO.TOP_LEVEL_MP_TERM_NAME;
+        return getKeyValuePairs(pivotFacet);
+    }
+
+
+    public Map<String, String> getMpNamesById() {
+        final
+        String pivotFacet =  StatisticalResultDTO.MP_TERM_ID + "," + StatisticalResultDTO.MP_TERM_NAME;
+        return getKeyValuePairs(pivotFacet);
+    }
+
+
 	public Set<PhenotypeCenterAllServiceBean> getDataByCenter(String center) throws SolrServerException, IOException {
 
 		final String[] fields = {
@@ -331,20 +396,16 @@ public class PhenotypeCenterAllService {
 		query.setFilterQueries(StatisticalResultDTO.PHENOTYPING_CENTER + ":\"" + center + "\"");
 		query.setFields(fields);
 		query.setRows(1000000);
-		QueryResponse    response         = statisticalResultCore.query(query);
+        QueryResponse response = statisticalResultCore.query(query);
 
 		List<StatisticalResultDTO> dtos = response.getBeans(StatisticalResultDTO.class);
-
 
 		HashSet<PhenotypeCenterAllServiceBean>  data = new HashSet<>();
 		for (StatisticalResultDTO dto : dtos) {
 
-			for (int i = 0; i < (dto.getTopLevelMpTermId() == null ? 1 : dto.getTopLevelMpTermId().size()); i++) {
-
 				// Add a separate row for every topLevelMpTermId
 				PhenotypeCenterAllServiceBean bean = new PhenotypeCenterAllServiceBean();
 
-				bean.setCenter(dto.getPhenotypingCenter());
 				bean.setColonyId(dto.getColonyId());
 				bean.setZygosity(dto.getZygosity());
 				bean.setGeneAccessionId(dto.getMarkerAccessionId());
@@ -352,18 +413,13 @@ public class PhenotypeCenterAllService {
 				bean.setAlleleAccessionId(dto.getAlleleAccessionId());
 				bean.setAlleleSymbol(dto.getAlleleSymbol());
 				bean.setProcedureStableId(dto.getProcedureStableId());
-				bean.setProcedureName(dto.getProcedureName());
 				bean.setParameterStableId(dto.getParameterStableId());
-				bean.setParameterName(dto.getParameterName());
-				bean.setTopLevelMpTermId(dto.getTopLevelMpTermId() == null ? null : dto.getTopLevelMpTermId().get(i));
-				bean.setTopLevelMpTermName(dto.getTopLevelMpTermName() == null ? null : dto.getTopLevelMpTermName().get(i));
+				bean.setTopLevelMpTermId(dto.getTopLevelMpTermId());
 				bean.setMpTermId(dto.getMpTermId());
-				bean.setMpTermName(dto.getMpTermName());
 				bean.setLifeStageName(dto.getLifeStageName());
 				bean.setStatus(dto.getStatus());
 
 				data.add(bean);
-			}
 		}
 
 		return data;
