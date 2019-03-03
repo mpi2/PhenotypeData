@@ -45,6 +45,8 @@ allele = allele.replaceAll("##", "</sup>");
                     <img src="${img.thumbnail_url}" class="card-img-top img-fluid"></a>
     </div>
             </c:if>
+ 
+  
             <div class="card-body">
 
         </c:when>

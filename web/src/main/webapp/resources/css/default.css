@@ -7435,3 +7435,7 @@ hr {
     background-color: #ecececf5;
 }
 
+.highcharts-title {
+    font-family: "Roboto", sans-serif !important;
+}
+

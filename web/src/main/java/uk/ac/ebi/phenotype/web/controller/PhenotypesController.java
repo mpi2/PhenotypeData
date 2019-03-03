@@ -57,6 +57,10 @@ import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 @Controller
 public class PhenotypesController {
@@ -159,7 +163,7 @@ public class PhenotypesController {
         model.addAttribute("phenotype", mpTerm);
 
 
-        List<ImpressDTO> procedures = new ArrayList<ImpressDTO>(impressService.getProceduresByMpTerm(phenotypeId, true));
+        List<ImpressDTO> procedures = new ArrayList<ImpressDTO>(impressService.getProceduresByMpTerm(phenotypeId, true)).stream().filter(distinctByKey(ImpressDTO::getProcedureName)).collect(Collectors.toList());
 	    Collections.sort(procedures, ImpressDTO.getComparatorByProcedureNameImpcFirst());
 	    model.addAttribute("procedures", procedures);
 
@@ -179,6 +183,11 @@ public class PhenotypesController {
         
         return "phenotypes";
         
+    }
+
+    public static <T> Predicate<T> distinctByKey(Function<? super T, ?> keyExtractor) {
+        Set<Object> seen = ConcurrentHashMap.newKeySet();
+        return t -> seen.add(keyExtractor.apply(t));
     }
     
     

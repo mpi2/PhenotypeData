@@ -251,6 +251,7 @@ public class AbrChartAndTableProvider {
 				"  xAxis: {   categories: "  + categories + "},"+
 				"  yAxis: {   title: {    text: '" + unit + "'  }, min:0, max:120, tickInterval: 20 },"+
 				"  tooltip: {valueSuffix: ' " + unit + "', shared:true },"+
+					"style: { fontFamily: '\"Roboto\", sans-serif;'\n  }," +
 				"  legend: { },"+
 				"  credits: { enabled: false },  " +
 				"  series: [ ";

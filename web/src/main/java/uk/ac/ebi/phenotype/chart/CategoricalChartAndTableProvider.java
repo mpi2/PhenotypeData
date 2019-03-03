@@ -298,7 +298,7 @@ public class CategoricalChartAndTableProvider {
 		String javascript = "$(document).ready(function() { chart = new Highcharts.Chart({ "
 		+ "colors:" + colors + ", "
 		+ "tooltip: {  pointFormat: '{series.name}: <b>{point.y}</b>'},"
-		+ "chart: { renderTo: '" + chartId + "', type: 'column' }, "
+		+ "chart: { renderTo: '" + chartId + "', type: 'column', style: { fontFamily: '\"Roboto\", sans-serif' }}, "
 		+ "title: { text: '', useHTML:true }, "
 		+ "subtitle: { text:''}, credits: { enabled: false }, "
 		+ "xAxis: { categories: " + xAxisCategoriesArray + "}, "
@@ -389,7 +389,7 @@ public class CategoricalChartAndTableProvider {
 			+ " = new Highcharts.Chart({ "
 			+ "tooltip : "+ toolTipFunction
 			+ ", colors:" + colors
-			+ ", chart: { renderTo: 'chart"	+ chartId + "', type: 'column' }, "
+			+ ", chart: { renderTo: 'chart"	+ chartId + "', type: 'column', style: { fontFamily: '\"Roboto\", sans-serif' } }, "
 			+ "title: {  text: ' ', useHTML:true  }, "
 			+ "credits: { enabled: false }, "
 			+ "subtitle: { text: '', x: -20 }, "

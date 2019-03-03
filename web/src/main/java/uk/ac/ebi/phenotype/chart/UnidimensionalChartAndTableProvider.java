@@ -259,7 +259,7 @@ public class UnidimensionalChartAndTableProvider {
 
 		List<String> colors = ChartColors.getFemaleMaleColorsRgba(ChartColors.alphaOpaque);
 		String chartString = " chart = new Highcharts.Chart({ " + " colors:" + colors
-			+ ", chart: { type: 'boxplot', renderTo: 'chart" + experimentNumber + "'},  "
+			+ ", chart: { type: 'boxplot', renderTo: 'chart" + experimentNumber + "', style: { fontFamily: '\"Roboto\", sans-serif' }},  "
 			+ " tooltip: { formatter: function () { if(typeof this.point.high === 'undefined')"
 			+ "{ return '<b>Observation</b><br/>' + this.point.y; } "
 			+ "else { return '<b>Genotype: ' + this.key + '</b>"
@@ -278,7 +278,7 @@ public class UnidimensionalChartAndTableProvider {
 			+ "           align: 'right', "
 			+ "           style: { "
 			+ "              fontSize: '15px',"
-			+ "              fontFamily: 'Verdana, sans-serif'"
+			+ "              fontFamily: '\"Roboto\", sans-serif'"
 			+ "         } "
 			+ "     }, "
 			+ " }, \n"
@@ -297,7 +297,7 @@ public class UnidimensionalChartAndTableProvider {
 			if (val < min) min = val;
 		String chartId = "histogram" + values.hashCode();
 		String yTitle = "Number of lines";
-		String javascript = "$(function () {    var chart; $(document).ready(function() {chart = new Highcharts.Chart({ chart: {  type: 'column' , renderTo: '" + chartId + "'}," + " title: { text: '" + title + "' },  subtitle: {   text: '' }, " + " xAxis: { categories: " + labels + " }," + " yAxis: { min: " + min + ",  title: {  text: '" + yTitle + "'  }   }," + " tooltip: {" + "   headerFormat: '<span style=\"font-size:10px\">{point.key}</span><table>'," + "  pointFormat: '<tr><td style=\"color:{series.color};padding:0\">{series.name}: </td>' +" + "     '<td style=\"padding:0\"><b>{point.y:.1f} mm</b></td></tr>'," + " footerFormat: '</table>', shared: true,  useHTML: true  }, " + "  plotOptions: {   column: {  pointPadding: 0.2,  borderWidth: 0  }  }," + "   series: [{ name: 'Mutants',  data: " + values + "  }]" + " });  }); });";
+		String javascript = "$(function () {    var chart; $(document).ready(function() {chart = new Highcharts.Chart({ chart: { style: { fontFamily: '\"Roboto\", sans-serif;'  } , type: 'column' , renderTo: '" + chartId + "'}," + " title: { text: '" + title + "' },  subtitle: {   text: '' }, " + " xAxis: { categories: " + labels + " }," + " yAxis: { min: " + min + ",  title: {  text: '" + yTitle + "'  }   }," + " tooltip: {" + "   headerFormat: '<span style=\"font-size:10px\">{point.key}</span><table>'," + "  pointFormat: '<tr><td style=\"color:{series.color};padding:0\">{series.name}: </td>' +" + "     '<td style=\"padding:0\"><b>{point.y:.1f} mm</b></td></tr>'," + " footerFormat: '</table>', shared: true,  useHTML: true  }, " + "  plotOptions: {   column: {  pointPadding: 0.2,  borderWidth: 0  }  }," + "   series: [{ name: 'Mutants',  data: " + values + "  }]" + " });  }); });";
 		ChartData chartAndTable = new ChartData();
 		chartAndTable.setChart(javascript);
 		chartAndTable.setId(chartId);
@@ -348,12 +348,12 @@ public class UnidimensionalChartAndTableProvider {
         	", chart: {type: 'column' }," +
         	" title: {text: '" + title + "'}," +
         	" credits: { enabled: false },  " +
-        	" xAxis: { type: 'category', labels: { rotation: -45, style: {fontSize: '11px', fontFamily: 'Verdana, sans-serif'} } }," +
+        	" xAxis: { type: 'category', labels: { rotation: -45, style: {fontSize: '11px', fontFamily: '\"Roboto\", sans-serif'} } }," +
         	" yAxis: { min: 0, title: { text: 'Number of genes' } }," +
         	" legend: { enabled: false }," +
         	" tooltip: { pointFormat: '<b>{point.y}</b>' }," +
         	" series: [{ name: 'Population',  data: " + data + "," +
-            " dataLabels: { enabled: true, style: { fontSize: '13px', fontFamily: 'Verdana, sans-serif' } } }]" +
+            " dataLabels: { enabled: true, style: { fontSize: '13px', fontFamily: '\"Roboto\", sans-serif' } } }]" +
 			" }); });";
 		ChartData chartAndTable = new ChartData();
 		chartAndTable.setChart(javascript);
@@ -417,7 +417,7 @@ public class UnidimensionalChartAndTableProvider {
 		String yTitle = "Number of lines";
 		String javascript = "$(document).ready(function() {" + "chart = new Highcharts.Chart({ "
 		+ "	colors:['rgba(239, 123, 11,0.7)','rgba(9, 120, 161,0.7)'],"
-		+ " chart: {  type: 'column' , renderTo: 'single-chart-div',  zoomType: 'y'}," +
+		+ " chart: {  type: 'column' , renderTo: 'single-chart-div',  zoomType: 'y', style: { fontFamily: '\"Roboto\", sans-serif' }}," +
 		" title: {  text: '<span data-parameterStableId=\"" + parameter.getStableId() + "\">" + title + "</span>', useHTML:true  }," +
 		" subtitle: { text: '" + subtitle + "'}," +
 		" credits: { enabled: false }," +

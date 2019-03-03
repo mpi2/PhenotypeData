@@ -9,13 +9,15 @@
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@taglib prefix="t" tagdir="/WEB-INF/tags" %>
+<div class="row">
 
-<div class="card-columns small">
         <c:forEach var="group" items="${impcImageGroups}" varStatus="status">
 
-
+<div class="col-sm-2">
             <c:forEach var="doc" items="${group.result}">
-                <div class="card" style="max-width: 200px">
+            
+	
+                <div class="card" >
 
                     <c:set var="label" value="${doc.procedure_name}: ${doc.parameter_name}"/>
                     <c:if test="${doc.parameter_name eq 'Images'}">
@@ -77,10 +79,14 @@
                             </c:if> --%>
 
                 </div>
+                
+                
+                
             </c:forEach>
 
-
+</div>
         </c:forEach>
+        
 </div>
 
 

@@ -9,8 +9,6 @@
             <thead>
             <tr>
                 <th class="headerSort">Procedure</th>
-                <th class="headerSort">Pipeline</th>
-                <th class="headerSort">Version</th>
             </tr>
             </thead>
             <tbody>
@@ -26,11 +24,6 @@
                     <td>
                         <a href="${hrefVar}">${procedure.procedureName}</a>
                     </td>
-                    <td>
-                            ${procedure.procedureStableId.split("_")[0]}
-                    </td>
-                    <td>
-                        v${procedure.procedureStableId.substring(procedure.procedureStableId.length()-1, procedure.procedureStableId.length())}</td>
                 </tr>
             </c:forEach>
 
