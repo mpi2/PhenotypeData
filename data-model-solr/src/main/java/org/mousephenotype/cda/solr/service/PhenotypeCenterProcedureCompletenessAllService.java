@@ -128,7 +128,7 @@ public class PhenotypeCenterProcedureCompletenessAllService {
             int centerRowCount = 0;
 
             logger.info("Processing center '{} - Start'", center);
-            System.out.println(df.format(new Date()) + ": Processing center '" + center + "' - End.");
+            System.out.println(df.format(new Date()) + ": Processing center '" + center + "' - Start.");
 
             for (ProcedureCompletenessDTO dto : dtos) {
 
