@@ -94,11 +94,11 @@ public class PhenotypesController {
     @Resource(name = "globalConfiguration")
     Map<String, String> config;
 
-    private String drupalBaseUrl;
+    private String cmsBaseUrl;
 
     @PostConstruct
     private void postConstruct() {
-        drupalBaseUrl = config.get("drupalBaseUrl");
+        cmsBaseUrl = config.get("cmsBaseUrl");
     }
     
     /**
@@ -232,7 +232,7 @@ public class PhenotypesController {
         for (PhenotypeCallSummaryDTO pcs : phenotypeList) {
 
             // On the phenotype pages we only display stats graphs as evidence, the MPATH links can't be linked from phen pages
-            DataTableRow pr = new PhenotypePageTableRow(pcs, baseUrl, drupalBaseUrl, false);
+            DataTableRow pr = new PhenotypePageTableRow(pcs, baseUrl, cmsBaseUrl, false);
 
 	        // Collapse rows on sex
             if (phenotypes.containsKey(pr.hashCode())) {
@@ -331,7 +331,7 @@ public class PhenotypesController {
             List<String> sex = new ArrayList<String>();
             sex.add(pcs.getSex().toString());
             // On the phenotype pages we only display stats graphs as evidence, the MPATH links can't be linked from phen pages
-            PhenotypePageTableRow pr = new PhenotypePageTableRow(pcs, url, drupalBaseUrl, false);
+            PhenotypePageTableRow pr = new PhenotypePageTableRow(pcs, url, cmsBaseUrl, false);
             phenotypes.add(pr);
         } 
         

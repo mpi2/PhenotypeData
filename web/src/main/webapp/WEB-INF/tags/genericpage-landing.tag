@@ -1,55 +1,20 @@
-<%@ tag description="Overall Page template" pageEncoding="UTF-8" import="uk.ac.ebi.phenotype.web.util.DrupalHttpProxy,java.net.URLEncoder" %>
+<%@ tag description="Landing page template" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="t" tagdir="/WEB-INF/tags"%>
-
 
 <%-- -------------------------------------------------------------------------- --%>
 <%-- NOTE: All "magic" variables are defined in the DeploymentInterceptor class --%>
-<%-- This includes such variables isbaseUrl, drupalBaseUrl and releaseVersion.. --%>
+<%-- This includes such variables isbaseUrl, cmsBaseUrl and releaseVersion.. --%>
 <%-- -------------------------------------------------------------------------- --%>
 
-
-<%
-    /*
-     Get the menu JSON array from drupal, fallback to a default menu when drupal
-     cannot be contacted
-     */
-    DrupalHttpProxy proxy = new DrupalHttpProxy(request);
-    String url = (String) request.getAttribute("drupalBaseUrl");
-
-    String content = proxy.getDrupalMenu(url);
-    String[] menus = content.split("MAIN\\*MENU\\*BELOW");
-
-    String baseUrl = (request.getAttribute("baseUrl") != null &&  ! ((String) request.getAttribute("baseUrl")).isEmpty()) ? (String) request.getAttribute("baseUrl") : (String) application.getInitParameter("baseUrl");
-    jspContext.setAttribute("baseUrl", baseUrl);
-
-
-
-    // Use the drupal destination parameter to redirect back to this page
-    // after logging in
-    String dest = (String) request.getAttribute("javax.servlet.forward.request_uri");
-    String destUnEncoded = dest;
-    if (request.getQueryString() != null) {
-        dest += URLEncoder.encode("?" + request.getQueryString(), "UTF-8");
-        destUnEncoded += "?" + request.getQueryString();
-    }
-
-    String usermenu = menus[0]
-            .replace("current=menudisplaycombinedrendered", "destination=" + dest)
-            .replace("user/register", "user/register?destination=" + dest)
-            .replace(request.getContextPath(), baseUrl.substring(1));
-
-    jspContext.setAttribute("usermenu", usermenu);
-    jspContext.setAttribute("menu", menus[1]);
-%>
 <%@attribute name="header" fragment="true"%>
 <%@attribute name="footer" fragment="true"%>
 <%@attribute name="title" fragment="true"%>
 <%@attribute name="breadcrumb" fragment="true"%>
-<%@attribute name="pagename" fragment="true"%>
 <%@attribute name="bodyTag" fragment="true"%>
 <%@attribute name="addToFooter" fragment="true"%>
+<%@attribute name="pagename" fragment="true"%>
 
 <c:set var="uri">${pageContext.request.requestURL}</c:set>
 <c:set var="domain">${pageContext.request.serverName}</c:set>
@@ -121,9 +86,6 @@
      replaced with below as unable to get his due to CORS or licence?-->
      
     <link href="${baseUrl}/css/default.css" rel="stylesheet" type="text/css" media='all'/>
-    <link href="${baseUrl}/css/additionalStyling.css" rel="stylesheet" type="text/css" />
-    <link href="${baseUrl}/css/impc-icons.css" rel="stylesheet" type="text/css" />
-    <link href="${baseUrl}/css/gallery-clean.css" rel="stylesheet" type="text/css" />
     <link rel="stylesheet" type="text/css" href="https://ebi.emblstatic.net/web_guidelines/EBI-Icon-fonts/v1.3/fonts.css">
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.2/css/bootstrap-select.min.css">
@@ -154,7 +116,7 @@
     <%--var baseUrl = "${baseUrl}";--%>
     <%--var solrUrl = '${solrUrl}';--%>
     <%--var pdfThumbnailUrl = "${pdfThumbnailUrl}";--%>
-    <%--var drupalBaseUrl = "${drupalBaseUrl}";--%>
+    <%--var cmsBaseUrl = "${cmsBaseUrl}";--%>
     <%--var mediaBaseUrl = "${mediaBaseUrl}";--%>
 </script>
 

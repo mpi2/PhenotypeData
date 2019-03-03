@@ -37,7 +37,7 @@
 					<h2 class="title"><span id="parallel-title">Gene KO effect comparator </span><span class="documentation" ><a href='' id='parallelPanel' class="fa fa-question-circle pull-right"></a></span> </h2>
 					<div class="inner">
 						<p>
-							Visualize multiple strain across several continuous parameters used for multiple <a href="${drupalBaseUrl}/impress">system phenotyping</a>.
+							Visualize multiple strain across several continuous parameters used for multiple <a href="${cmsBaseUrl}/impress">system phenotyping</a>.
 							The parameter measurement values are corrected to account for batch effects to represent the true genotype effect thus allowing a
 							side by side comparison/visualisation. Only continuous parameters can be visualized using this methodology. Results are represented with a graph and a table.
 

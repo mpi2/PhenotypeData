@@ -13,7 +13,7 @@
 	<jsp:attribute name="header">
 
 		<script type="text/javascript">
-			var drupalBaseUrl = '${drupalBaseUrl}';
+			var cmsBaseUrl = '${cmsBaseUrl}';
 		</script>
 
         <script type="text/javascript">

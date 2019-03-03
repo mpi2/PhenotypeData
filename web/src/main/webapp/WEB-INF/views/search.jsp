@@ -10,7 +10,6 @@
             name="bodyTag"><body id="top" class="page-node searchpage one-sidebar sidebar-first small-header"></jsp:attribute>
 
     <jsp:attribute name="header">
-		<%-- <link href="${baseUrl}/css/searchPage.css" rel="stylesheet" type="text/css" /> --%>
         <link href="https://www.mousephenotypetest.org/wp-content/themes/impc/css/styles.css?ver=40ab77c511c0b72810d6828792c28c78"
               rel="stylesheet" type="text/css"/>
 		<script type="application/ld+json">
@@ -55,12 +54,9 @@
         </script>
 	</jsp:attribute>
 
-    <jsp:attribute name="addToFooter"></jsp:attribute>
-
+    <jsp:attribute name="addToFooter" />
 
     <jsp:body>
-
-
 
         <div class="container single single--no-side">
             <div class="row">
@@ -238,7 +234,9 @@
                 </div>
             </div>
         </div>
+
     </jsp:body>
+
 </t:genericpage>
 
 

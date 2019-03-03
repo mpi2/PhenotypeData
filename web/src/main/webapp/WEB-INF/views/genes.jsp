@@ -127,7 +127,7 @@
                      link.type = 'text/css';
                      link.href = '
 
-                    drupalBaseUrl/heatmap/css/heatmap.1.3.1.css';
+                    cmsBaseUrl/heatmap/css/heatmap.1.3.1.css';
                          link.media = 'all';
                          head.appendChild(link);
                          }
@@ -138,7 +138,7 @@
                         if (!heatmap_generated) {
 
                             /*var script = document.createElement('script');
-                            //script.src = "${drupalBaseUrl}/heatmap/js/heatmap.1.3.1.js";
+                            //script.src = "${cmsBaseUrl}/heatmap/js/heatmap.1.3.1.js";
                             script.src = "${baseUrl}/js/vendor/dcc/heatmap.js";
                             script.onload = function () {
 
@@ -150,8 +150,8 @@
                                     'ncol': 5,
                                     'title': '${gene.markerSymbol}',
                                     'url': {
-                                        'jssrc': '${fn:replace(drupalBaseUrl, "https:", "")}/heatmap/js/',
-                                        'json': '${fn:replace(drupalBaseUrl, "https:", "")}/heatmap/rest/',
+                                        'jssrc': '${fn:replace(cmsBaseUrl, "https:", "")}/heatmap/js/',
+                                        'json': '${fn:replace(cmsBaseUrl, "https:", "")}/heatmap/rest/',
                                         'viz': dcc.heatmapUrlGenerator
                                     }
                                 });
@@ -243,13 +243,13 @@
             <c:if test="${phenotypeStarted}">
                 <!--[if !IE]><!-->
                 <link rel="stylesheet" type="text/css"
-                      href="${drupalBaseUrl}/heatmap/css/heatmap.1.3.1.css"/>
+                      href="${cmsBaseUrl}/heatmap/css/heatmap.1.3.1.css"/>
                 <!--<![endif]-->
                 <!--[if IE 8]>
-                <link rel="stylesheet" type="text/css" href="${drupalBaseUrl}/heatmap/css/heatmapIE8.1.3.1.css">
+                <link rel="stylesheet" type="text/css" href="${cmsBaseUrl}/heatmap/css/heatmapIE8.1.3.1.css">
                 <![endif]-->
                 <!--[if gte IE 9]>
-                <link rel="stylesheet" type="text/css" href="${drupalBaseUrl}/heatmap/css/heatmap.1.3.1.css">
+                <link rel="stylesheet" type="text/css" href="${cmsBaseUrl}/heatmap/css/heatmap.1.3.1.css">
                 <![endif]-->
             </c:if>
 

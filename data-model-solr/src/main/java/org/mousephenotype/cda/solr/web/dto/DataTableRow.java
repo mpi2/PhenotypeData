@@ -44,7 +44,7 @@ import java.util.*;
  */
 public abstract class DataTableRow implements Comparable<DataTableRow> {
 
-	private   String          drupalBaseUrl;
+	private   String          cmsBaseUrl;
 	protected BasicBean       phenotypeTerm;
 	protected MarkerBean      gene;
 	protected MarkerBean      allele;
@@ -102,10 +102,10 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
 	public DataTableRow() {
 	}
 
-	public DataTableRow(PhenotypeCallSummaryDTO pcs, String baseUrl, String drupalBaseUrl)
+	public DataTableRow(PhenotypeCallSummaryDTO pcs, String baseUrl, String cmsBaseUrl)
 			throws UnsupportedEncodingException, SolrServerException {
 
-		this.drupalBaseUrl = drupalBaseUrl;
+		this.cmsBaseUrl = cmsBaseUrl;
 		List<String> sex = new ArrayList<>();
 		sex.add(pcs.getSex().toString());
 		this.setGid(pcs.getgId());
@@ -536,7 +536,7 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
 
 		if (projectId != that.projectId)
 			return false;
-		if (drupalBaseUrl != null ? !drupalBaseUrl.equals(that.drupalBaseUrl) : that.drupalBaseUrl != null)
+		if (cmsBaseUrl != null ? !cmsBaseUrl.equals(that.cmsBaseUrl) : that.cmsBaseUrl != null)
 			return false;
 		if (phenotypeTerm != null ? !phenotypeTerm.equals(that.phenotypeTerm) : that.phenotypeTerm != null)
 			return false;
@@ -577,7 +577,7 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
 	 */
 	@Override
 	public int hashCode() {
-		int result = drupalBaseUrl != null ? drupalBaseUrl.hashCode() : 0;
+		int result = cmsBaseUrl != null ? cmsBaseUrl.hashCode() : 0;
 		result = 31 * result + (phenotypeTerm != null ? phenotypeTerm.hashCode() : 0);
 		result = 31 * result + (gene != null ? gene.hashCode() : 0);
 		result = 31 * result + (allele != null ? allele.hashCode() : 0);
@@ -606,7 +606,7 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
 	@Override
 	public String toString() {
 		return "DataTableRow [" +
-				 "drupalBaseUrl=" + drupalBaseUrl + ", phenotypeTerm=" + phenotypeTerm + ",gene=" + gene + ", allele="
+				 "cmsBaseUrl=" + cmsBaseUrl + ", phenotypeTerm=" + phenotypeTerm + ",gene=" + gene + ", allele="
 				 + allele + ", sexes=" + sexes + ", zygosity=" + zygosity + ",	 lifeStageName=" + lifeStageName
 				 + ", lifeStageAcc=" + lifeStageAcc + ", projectId=" +
 				 projectId + ", phenotypingCenter="
