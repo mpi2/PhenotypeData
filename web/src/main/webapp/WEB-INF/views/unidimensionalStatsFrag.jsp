@@ -20,7 +20,17 @@ ${data.mpTermId}
 	</script>
 
 	</div>
+	
 
 </c:if>
+<div class="row">
+<c:if test="${headlineImages!=null}">
+	<c:forEach var="image" items="${headlineImages}" >
+		<t:headline_image img="${image}" impcMediaBaseUrl="${impcMediaBaseUrl}"/>
+	</c:forEach>
+	
+</c:if>
+</div>
 
 <jsp:include page="unidimensionalTables.jsp"></jsp:include>
+

@@ -433,6 +433,7 @@ public class ImageService implements WebStatus{
 	 * @param parameterAssociationValue
 	 * @param mpId
 	 * @param colonyId
+	 * @param parameterAssociationStableId TODO
 	 * @return
 	 * @throws SolrServerException
 	 * @throws IOException
@@ -440,7 +441,7 @@ public class ImageService implements WebStatus{
 	public QueryResponse getImages(String mgiAccession, String parameterStableId,
 			String experimentOrControl, int numberOfImagesToRetrieve, SexType sex,
 			String metadataGroup, String strain, String anatomyId,
-			String parameterAssociationValue, String mpId, String colonyId) throws SolrServerException, IOException {
+			String parameterAssociationValue, String mpId, String colonyId, String parameterAssociationStableId) throws SolrServerException, IOException {
 
 		SolrQuery solrQuery = new SolrQuery().setQuery("*:*");
 		//gene accession will take precedence if both acc and symbol supplied
@@ -483,12 +484,19 @@ public class ImageService implements WebStatus{
 			solrQuery.addFilterQuery(ObservationDTO.COLONY_ID + ":\""
 					+ colonyId+"\"");
 		}
+		if (StringUtils.isNotEmpty(parameterAssociationStableId)) {
+			solrQuery.addFilterQuery(ObservationDTO.PARAMETER_ASSOCIATION_STABLE_ID + ":"
+					+ "\""+parameterAssociationStableId+"\"");//put in quotes for "no expression" query
+		}
 		
 		solrQuery.setRows(numberOfImagesToRetrieve);
-        logger.info("solr Query in image service "+solrQuery);
+        System.out.println("solr Query in image service "+solrQuery);
 		QueryResponse response = solr.query(solrQuery);
 		return response;
 	}
+	
+	
+	
 
 
 	/**
@@ -911,7 +919,7 @@ public class ImageService implements WebStatus{
 						QueryResponse responseExperimental = this
 								.getImages(acc,count.getName(),
 										"experimental", 1,null, null,
-										null, anatomyId, null, null, null);
+										null, anatomyId, null, null, null, null);
 						if (responseExperimental.getResults().size() > 0) {
 
 							ImageDTO imgDoc = responseExperimental
@@ -928,7 +936,7 @@ public class ImageService implements WebStatus{
 											imgDoc
 													.getStrainName(),
 											anatomyId,
-											null, null, null);
+											null, null, null, null);
 
 							list = getControls(numberOfControls, null, imgDoc,
 									null, null, null);
@@ -1176,7 +1184,7 @@ public class ImageService implements WebStatus{
 		List<ImageDTO> mutants=new ArrayList<>();
 	
 		QueryResponse responseExperimental = this.getImages(acc, parameterStableId,"experimental", Integer.MAX_VALUE, 
-						null, null, null, anatomyId, parameterAssociationValue, mpId, colonyId);
+						null, null, null, anatomyId, parameterAssociationValue, mpId, colonyId, null);
 		
 		if (responseExperimental != null && responseExperimental.getResults().size()>0) {
 			//mutants=responseExperimental.getResults();

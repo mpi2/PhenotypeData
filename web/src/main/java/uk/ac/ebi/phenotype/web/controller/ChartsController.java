@@ -18,6 +18,7 @@ package uk.ac.ebi.phenotype.web.controller;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.response.QueryResponse;
 import org.json.JSONException;
 import org.mousephenotype.cda.db.pojo.CategoricalResult;
 import org.mousephenotype.cda.enumerations.EmbryoViability;
@@ -26,6 +27,7 @@ import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.service.ExperimentService;
 import org.mousephenotype.cda.solr.service.GeneService;
+import org.mousephenotype.cda.solr.service.ImageService;
 import org.mousephenotype.cda.solr.service.ImpressService;
 import org.mousephenotype.cda.solr.service.StatisticalResultService;
 import org.mousephenotype.cda.solr.service.dto.*;
@@ -75,6 +77,7 @@ public class ChartsController {
     private final StatisticalResultService srService;
     private final GeneService geneService;
     private final ImpressService is;
+    private final ImageService imageService;
     
     @Resource(name = "globalConfiguration")
     private Map<String, String> config;
@@ -84,7 +87,7 @@ public class ChartsController {
     public String SOLR_URL;
 
     @Inject
-    public ChartsController(CategoricalChartAndTableProvider categoricalChartAndTableProvider, TimeSeriesChartAndTableProvider timeSeriesChartAndTableProvider, UnidimensionalChartAndTableProvider continousChartAndTableProvider, ScatterChartAndTableProvider scatterChartAndTableProvider, AbrChartAndTableProvider abrChartAndTableProvider, ViabilityChartAndDataProvider viabilityChartAndDataProvider, ExperimentService experimentService, StatisticalResultService srService, GeneService geneService, ImpressService is) {
+    public ChartsController(CategoricalChartAndTableProvider categoricalChartAndTableProvider, TimeSeriesChartAndTableProvider timeSeriesChartAndTableProvider, UnidimensionalChartAndTableProvider continousChartAndTableProvider, ScatterChartAndTableProvider scatterChartAndTableProvider, AbrChartAndTableProvider abrChartAndTableProvider, ViabilityChartAndDataProvider viabilityChartAndDataProvider, ExperimentService experimentService, StatisticalResultService srService, GeneService geneService, ImpressService is, ImageService imageService) {
         this.categoricalChartAndTableProvider = categoricalChartAndTableProvider;
         this.timeSeriesChartAndTableProvider = timeSeriesChartAndTableProvider;
         this.continousChartAndTableProvider = continousChartAndTableProvider;
@@ -95,6 +98,7 @@ public class ChartsController {
         this.srService = srService;
         this.geneService = geneService;
         this.is = is;
+        this.imageService=imageService;
     }
 
 
@@ -219,6 +223,7 @@ public class ChartsController {
             String url = config.get("baseUrl") + "/genes/" + accession[0];
             return "redirect:" + url;
         }
+        
 
 		// TODO need to check we don't have more than one accession and one
         // parameter throw and exception if we do
@@ -232,6 +237,18 @@ public class ChartsController {
             throw new ParameterNotFoundException("Parameter " + parameterStableId + " can't be found.", parameterStableId);
         }
 
+        if(parameter.getStableId().startsWith("MGP_IMM")) {
+        	//spleen Immunophenotyping e.g. Sik3 has many
+        	System.out.println("flow cytomerty for 3i detected get headline images");
+        	//lets get the 3i headline images
+        	//example query http://ves-hx-d8.ebi.ac.uk:8986/solr/impc_images/select?q=parameter_stable_id:MGP_IMM_233_001
+        	//or maybe we need to filter by parameter association first based no the initial parameter
+        	//http://ves-hx-d8.ebi.ac.uk:8986/solr/impc_images/select?q=parameter_stable_id:MGP_IMM_233_001&fq=parameter_association_stable_id:MGP_IMM_086_001&fq=gene_symbol:Sik3
+        	QueryResponse imagesResponse = imageService.getImages(accession[0],null, "experimental", 1000, null, null, null, null,null, null, null, parameter.getStableId());
+        	System.out.println("number of images found="+imagesResponse.getResults().getNumFound());
+        	model.addAttribute("headlineImages",imagesResponse.getBeans(ImageDTO.class));
+        }
+        
         String metadata = null;
         List<String> metadataList = null;
 
@@ -435,6 +452,7 @@ public class ChartsController {
             statsError = true;
         }
 
+        
         model.addAttribute("pipeline", pipeline);
         model.addAttribute("phenotypingCenter", phenotypingCenter);
         model.addAttribute("experimentNumber", experimentNumber);
