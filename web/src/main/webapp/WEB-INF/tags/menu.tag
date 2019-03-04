@@ -141,7 +141,7 @@
     <div class="${menu.get(i).menuId} sub-menu collapse" id="${menu.get(i).menuId}">
         <div class="${menu.get(i).menuId}__inside">
             <div class="container">
-                <div class="row no-gutters">
+                <div class="row no-gutters justify-content-end">
                     <div class="col col-auto text-left">
                         <a href="${menu.get(i).url}"><c:if test="${menu.get(i).name.toLowerCase().contains('data')}">Understanding the </c:if>${menu.get(i).name}</a>
                     </div>
