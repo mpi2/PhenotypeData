@@ -239,15 +239,17 @@ public class ChartsController {
 
         //3i procedures with at least some headline images associated
         if(parameter.getStableId().startsWith("MGP_BMI") || parameter.getStableId().startsWith("MGP_MLN") ||parameter.getStableId().startsWith("MGP_IMM") ) {
-        	//spleen Immunophenotyping e.g. Sik3 has many
-        	//chart example= http://localhost:8090/phenotype-archive/charts?phenotyping_center=WTSI&accession=MGI:2446296&parameter_stable_id=MGP_IMM_086_001
-        	//bone marrow chart example=http://localhost:8090/phenotype-archive/charts?phenotyping_center=WTSI&accession=MGI:1353467&parameter_stable_id=MGP_BMI_018_001
-        	//
+        	
         	System.out.println("flow cytomerty for 3i detected get headline images");
         	//lets get the 3i headline images
         	//example query http://ves-hx-d8.ebi.ac.uk:8986/solr/impc_images/select?q=parameter_stable_id:MGP_IMM_233_001
         	//or maybe we need to filter by parameter association first based no the initial parameter
+        	//spleen Immunophenotyping e.g. Sik3 has many
+        	//chart example= http://localhost:8090/phenotype-archive/charts?phenotyping_center=WTSI&accession=MGI:2446296&parameter_stable_id=MGP_IMM_086_001
+        	//bone marrow chart example=http://localhost:8090/phenotype-archive/charts?phenotyping_center=WTSI&accession=MGI:1353467&parameter_stable_id=MGP_BMI_018_001
+        	//http://localhost:8090/phenotype-archive/charts?phenotyping_center=WTSI&accession=MGI:1353467&parameter_stable_id=MGP_BMI_018_001
         	//http://ves-hx-d8.ebi.ac.uk:8986/solr/impc_images/select?q=parameter_stable_id:MGP_IMM_233_001&fq=parameter_association_stable_id:MGP_IMM_086_001&fq=gene_symbol:Sik3
+        	//http://localhost:8090/phenotype-archive/charts?phenotyping_center=WTSI&accession=MGI:1915276&parameter_stable_id=MGP_MLN_114_001
         	QueryResponse imagesResponse = imageService.getImages(accession[0],null, "experimental", 1000, null, null, null, null,null, null, null, parameter.getStableId());
         	System.out.println("number of images found="+imagesResponse.getResults().getNumFound());
         	model.addAttribute("headlineImages",imagesResponse.getBeans(ImageDTO.class));
