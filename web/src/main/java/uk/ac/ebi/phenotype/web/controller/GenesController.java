@@ -105,7 +105,7 @@ public class GenesController {
     @Resource(name = "globalConfiguration")
     Map<String, String> config;
 
-    private String drupalBaseUrl;
+    private String cmsBaseUrl;
 
     private PharosService pharosService;
 
@@ -131,7 +131,7 @@ public class GenesController {
     @PostConstruct
     private void postConstruct() {
 
-        drupalBaseUrl = config.get("drupalBaseUrl");
+        cmsBaseUrl = config.get("cmsBaseUrl");
         pharosService = new PharosService();
 
     }
@@ -210,7 +210,7 @@ public class GenesController {
             List<String> sex = new ArrayList<String>();
             sex.add(pcs.getSex().toString());
             // On the phenotype pages we only display stats graphs as evidence, the MPATH links can't be linked from phen pages
-            GenePageTableRow pr = new GenePageTableRow(pcs, url, drupalBaseUrl);
+            GenePageTableRow pr = new GenePageTableRow(pcs, url, cmsBaseUrl);
             phenotypes.add(pr);
         }
 
@@ -601,7 +601,7 @@ public class GenesController {
 
         for (PhenotypeCallSummaryDTO pcs : phenotypeList) {
 
-            DataTableRow pr = new GenePageTableRow(pcs, request.getAttribute("baseUrl").toString(), drupalBaseUrl);
+            DataTableRow pr = new GenePageTableRow(pcs, request.getAttribute("baseUrl").toString(), cmsBaseUrl);
 
             // Collapse rows on sex	and p-value		
             if (phenotypes.containsKey(pr.hashCode())) {

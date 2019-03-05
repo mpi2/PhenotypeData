@@ -1305,7 +1305,7 @@
 				.parseHashString(window.location.hash.substring(1));
 
 		var breadcrumbBox = $('p.ikmcbreadcrumb');
-		var baseLinks = "<a href=" + drupalBaseUrl
+		var baseLinks = "<a href=" + cmsBaseUrl
 				+ ">Home</a> &raquo; <a href=" + baseUrl
 				+ "/search>Search</a> &raquo; ";
 

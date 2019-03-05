@@ -605,7 +605,7 @@ public class FileExportController {
 	private List<String> composeProtocolDataTableRows(JSONObject json, HttpServletRequest request) {
 		JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
 
-		String impressBaseUrl = request.getAttribute("drupalBaseUrl").toString().replace("https", "http")
+		String impressBaseUrl = request.getAttribute("cmsBaseUrl").toString().replace("https", "http")
 				+ "/impress/protocol/";
 
 		List<String> rowData = new ArrayList<>();

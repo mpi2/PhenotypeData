@@ -40,8 +40,8 @@ public class PhenotypeArchiveConfig {
     private static final Logger logger = LoggerFactory.getLogger(PhenotypeArchiveConfig.class);
 
 
-    @Value("${drupal_base_url}")
-    private String drupalBaseUrl;
+    @Value("${cms_base_url}")
+    private String cmsBaseUrl;
 
     @Value("${solr_url}")
     private String solrUrl;
@@ -78,7 +78,7 @@ public class PhenotypeArchiveConfig {
     public Map<String, String> getGlobalConfig() {
         Map<String, String> map = new HashMap<>();
         map.put("baseUrl", baseUrl);
-        map.put("drupalBaseUrl", drupalBaseUrl);
+        map.put("cmsBaseUrl", cmsBaseUrl);
         map.put("solrUrl", solrUrl);
         map.put("internalSolrUrl", internalSolrUrl);
         map.put("mediaBaseUrl", mediaBaseUrl);

@@ -89,8 +89,8 @@ public class RegisterInterestConfig {
     String paBaseUrl;
 
     @NotNull
-    @Value("${drupal_base_url}")
-    private String drupalBaseUrl;
+    @Value("${cms_base_url}")
+    private String cmsBaseUrl;
 
     @NotNull
     @Value("${recaptcha.public}")
@@ -124,8 +124,8 @@ public class RegisterInterestConfig {
 
 
     @Bean
-    public String drupalBaseUrl() {
-        return drupalBaseUrl;
+    public String cmsBaseUrl() {
+        return cmsBaseUrl;
     }
 
     @Bean

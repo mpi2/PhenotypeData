@@ -31,9 +31,9 @@ public class GenePageTableRow extends DataTableRow {
         super();
     }
 
-    public GenePageTableRow(PhenotypeCallSummaryDTO pcs, String baseUrl, String drupalBaseUrl)
+    public GenePageTableRow(PhenotypeCallSummaryDTO pcs, String baseUrl, String cmsBaseUrl)
     throws UnsupportedEncodingException, SolrServerException {
-        super(pcs, baseUrl, drupalBaseUrl);
+        super(pcs, baseUrl, cmsBaseUrl);
     }
 
     /**

@@ -137,6 +137,6 @@ public class DeploymentInterceptor extends HandlerInterceptorAdapter {
 			return mappedHostname;
 		}
 
-		return config.get("drupalBaseUrl");
+		return config.get("cmsBaseUrl");
 	}
 }

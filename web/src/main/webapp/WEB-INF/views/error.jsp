@@ -74,7 +74,7 @@
 <div class="alert alert-warning">
     <h3>Where to go from here...</h3>
     <ul class="my-1">
-        <li>You can visit the <a href="${drupalBaseUrl}/">IMPC home page</a></li>
+        <li>You can visit the <a href="${cmsBaseUrl}/">IMPC home page</a></li>
         <li>You can <a href="/">learn more about the IMPC</a></li>
         <li>You can search the data portal:</li>
     </ul>

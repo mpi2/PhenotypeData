@@ -129,10 +129,10 @@
 					<img class="w-100" alt="IEV" src="${baseUrl}/img/IEV.png" />
 					<p> The embryonic and perinatal lethal pipeline comprises several 3D imaging modalities to quantify aberrant morphology that could not be determined by gross inspection. Images acquired by micro-CT and OPT are available via our Interactive Embryo Viewer (IEV). </p>
 					<div>
-						<a class="btn btn-primary" href="${drupalBaseUrl}/embryoviewer/?mgi=MGI:2147810&pid=203&h=undefined&s=on&c=off&a=off&o=vertical&zoom=0&sb=600&wn=146521&wx=54&wy=66&wz=68&wl=0&wu=254&mn=129313&mx=52&my=68&mz=108&ml=0&mu=205">Tmem132a</a>
-						<a class="btn btn-primary" href="${drupalBaseUrl}/embryoviewer/?mgi=MGI:1916804&mod=203&h=624&wt=klf7-tm1b-ic/16.5b_5553715&mut=klhdc2-tm1b-ic/21.1f_5578050&s=on&c=off&a=off&wx=64&wy=117&wz=178&mx=44&my=107&mz=154&wl=0&wu=255&ml=0&mu=255&o=vertical&zoom=0">Klhdc2</a>
-						<a class="btn btn-primary" href="${drupalBaseUrl}/embryoviewer/?mgi=MGI:1195985&mod=203&h=561&wt=Population%20average&mut=AAPN_K1026-1-e15.5&s=off&c=off&a=on&wx=94&wy=64&wz=177&mx=94&my=70&mz=137&wl=0&wu=255&ml=0&mu=254&o=vertical&zoom=0&wto=jacobian&muto=none">Cbx4</a>
-						<a class="btn btn-primary" href="${drupalBaseUrl}/embryoviewer/?mgi=MGI:102806&pid=203&h=569&s=on&c=off&a=off&o=vertical&zoom=0&sb=600&wn=ABIF_K1339-10-e15.5&wx=79&wy=107&wz=141&wl=0&wu=255&mn=ABIF_K1267-19-e15.5&mx=79&my=107&mz=142&ml=0&mu=255">Acvr2a</a>
+						<a class="btn btn-primary" href="${cmsBaseUrl}/embryoviewer/?mgi=MGI:2147810&pid=203&h=undefined&s=on&c=off&a=off&o=vertical&zoom=0&sb=600&wn=146521&wx=54&wy=66&wz=68&wl=0&wu=254&mn=129313&mx=52&my=68&mz=108&ml=0&mu=205">Tmem132a</a>
+						<a class="btn btn-primary" href="${cmsBaseUrl}/embryoviewer/?mgi=MGI:1916804&mod=203&h=624&wt=klf7-tm1b-ic/16.5b_5553715&mut=klhdc2-tm1b-ic/21.1f_5578050&s=on&c=off&a=off&wx=64&wy=117&wz=178&mx=44&my=107&mz=154&wl=0&wu=255&ml=0&mu=255&o=vertical&zoom=0">Klhdc2</a>
+						<a class="btn btn-primary" href="${cmsBaseUrl}/embryoviewer/?mgi=MGI:1195985&mod=203&h=561&wt=Population%20average&mut=AAPN_K1026-1-e15.5&s=off&c=off&a=on&wx=94&wy=64&wz=177&mx=94&my=70&mz=137&wl=0&wu=255&ml=0&mu=254&o=vertical&zoom=0&wto=jacobian&muto=none">Cbx4</a>
+						<a class="btn btn-primary" href="${cmsBaseUrl}/embryoviewer/?mgi=MGI:102806&pid=203&h=569&s=on&c=off&a=off&o=vertical&zoom=0&sb=600&wn=ABIF_K1339-10-e15.5&wx=79&wy=107&wz=141&wl=0&wu=255&mn=ABIF_K1267-19-e15.5&mx=79&my=107&mz=142&ml=0&mu=255">Acvr2a</a>
 						<a class="btn btn-primary" href="${baseUrl}/search/gene?kw=*&fq=(embryo_data_available:%22true%22)"> See all </a>
 					</div>
 				</div>
@@ -248,7 +248,7 @@
 			<div class="row mb-5">
 				<div class="col-12">
 					<h2 class="title ">IMPC Embryonic Pipeline</h2>
-					<div><a href="${drupalBaseUrl}/impress" ><img src="${baseUrl}/img/embryo_impress.png"/> </a></div>
+					<div><a href="${cmsBaseUrl}/impress" ><img src="${baseUrl}/img/embryo_impress.png"/> </a></div>
 				</div>
 			</div>
 
