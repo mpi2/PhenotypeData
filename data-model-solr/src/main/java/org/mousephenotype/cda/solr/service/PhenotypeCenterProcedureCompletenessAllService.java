@@ -19,9 +19,9 @@ package org.mousephenotype.cda.solr.service;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.mousephenotype.cda.solr.SolrUtils;
+import org.apache.solr.client.solrj.response.PivotField;
+import org.apache.solr.client.solrj.response.QueryResponse;
 import org.mousephenotype.cda.solr.service.dto.StatisticalResultDTO;
-import org.mousephenotype.cda.utilities.HttpProxy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -29,7 +29,6 @@ import org.springframework.stereotype.Service;
 
 import java.io.*;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
@@ -47,7 +46,7 @@ import java.util.stream.Collectors;
  */
 
 @Service
-public class PhenotypeCenterProcedureCompletenessAllService {
+public class PhenotypeCenterProcedureCompletenessAllService extends BasicService {
 
 	private final Logger                    logger = LoggerFactory.getLogger(this.getClass());
 	private       PhenotypeCenterAllService phenotypeCenterAllService;
@@ -62,12 +61,16 @@ public class PhenotypeCenterProcedureCompletenessAllService {
 		this.statisticalResultCore = statisticalResultCore;
 	}
 
-    private Map<String, String> procedureNamesById;
-    private Map<String, String> parameterNamesById;
-    private Map<String, String> topLevelMpNamesById;
-    private Map<String, String> mpNamesById;
+    private Map<String, String>      procedureNamesById;
+    private Map<String, String>      parameterNamesById;
+    private Map<String, String>      mpNamesById;
+    private Map<String, Integer>     missingMpTerms       = new HashMap<>();
+    private Map<String, Set<String>> missingMpTermCenters = new HashMap<>();
 
-    final boolean USE_PERSIST = true;
+    // If not null, specifies the path to which the persisted PhenotypeCenterAllServiceBean class instances (one for each center) is written and read from.
+    // If null, the PhenotypeCenterAllServiceBean class is not persisted.
+    private final String PERSIST_PATH = null;
+//    private final String PERSIST_PATH = "/Users/mrelac/persistedData/";
 
 
 	/**
@@ -79,7 +82,6 @@ public class PhenotypeCenterProcedureCompletenessAllService {
 
         procedureNamesById = phenotypeCenterAllService.getProcedureNamesById();
         parameterNamesById = phenotypeCenterAllService.getParameterNamesById();
-        topLevelMpNamesById = phenotypeCenterAllService.getTopLevelMpNamesById();
         mpNamesById = phenotypeCenterAllService.getMpNamesById();
 
 
@@ -108,6 +110,8 @@ public class PhenotypeCenterProcedureCompletenessAllService {
 		header.add("MP Names with Parameter Status Success");
 		header.add("Procedure Ids with Parameter Status Success Count");
 		header.add("Parameter Ids with Status Success Count");
+        header.add("Top Level MP Ids with Status Success Count");
+        header.add("MP Ids with Status Success Count");
 
 		header.add("Procedure Ids with Parameter Status Fail");
 		header.add("Procedure Ids with Parameter Status Fail Count");
@@ -120,12 +124,14 @@ public class PhenotypeCenterProcedureCompletenessAllService {
 		results.add(header.toArray(temp));
 
 
+        final SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         List<String> centers = phenotypeCenterAllService.getPhenotypeCenters();
 
         for (String center : centers) {
-            final Set<ProcedureCompletenessDTO>      dtos         = getProcedureCompletenessDTOs(center);
-            final Set<PhenotypeCenterAllServiceBean> dataByCenter = getCenterData(center);
-            int centerRowCount = 0;
+
+            final Set<ProcedureCompletenessDTO>      dtos           = getProcedureCompletenessDTOs(center);
+            final Set<PhenotypeCenterAllServiceBean> dataByCenter   = getCenterData(center);
+            int                                      centerRowCount = 0;
 
             logger.info("Processing center '{} - Start'", center);
             System.out.println(df.format(new Date()) + ": Processing center '" + center + "' - Start.");
@@ -136,83 +142,121 @@ public class PhenotypeCenterProcedureCompletenessAllService {
                 List<PhenotypeCenterAllServiceBean> rowData =
                         dataByCenter
                                 .stream()
-                                .filter(x -> x.getLifeStageName().equalsIgnoreCase(dto.getLifeStageName()))
-                                .filter(x -> x.getZygosity().equalsIgnoreCase(dto.getZygosity()))
-                                .filter(x -> x.getColonyId().equalsIgnoreCase(dto.getColonyId()))
+                                .filter(phenotypeCenterAllServiceBean -> phenotypeCenterAllServiceBean.getLifeStageName().equalsIgnoreCase(dto.getLifeStageName()))
+                                .filter(phenotypeCenterAllServiceBean -> phenotypeCenterAllServiceBean.getZygosity().equalsIgnoreCase(dto.getZygosity()))
+                                .filter(phenotypeCenterAllServiceBean -> phenotypeCenterAllServiceBean.getColonyId().equalsIgnoreCase(dto.getColonyId()))
                                 .collect(Collectors.toList());
 
                 // Get set of bean rows for each status type
-                Set<PhenotypeCenterAllServiceBean> rowDataSuccess = rowData.stream().filter(x -> x.getStatus().equals(STATUSES.SUCCESS)).collect(Collectors.toSet());
-                Set<PhenotypeCenterAllServiceBean> rowDataFailed  = rowData.stream().filter(x -> x.getStatus().equals(STATUSES.FAILED)).collect(Collectors.toSet());
-                Set<PhenotypeCenterAllServiceBean> rowDataOther   = rowData.stream().filter(x -> x.getStatus().equals(STATUSES.OTHER)).collect(Collectors.toSet());
+                Set<PhenotypeCenterAllServiceBean> rowDataSuccess = rowData
+                        .stream()
+                        .filter(phenotypeCenterAllServiceBean -> phenotypeCenterAllServiceBean.getStatus().equals(STATUSES.SUCCESS))
+                        .collect(Collectors.toSet());
+                Set<PhenotypeCenterAllServiceBean> rowDataFailed  = rowData
+                        .stream()
+                        .filter(phenotypeCenterAllServiceBean -> phenotypeCenterAllServiceBean.getStatus().equals(STATUSES.FAILED))
+                        .collect(Collectors.toSet());
+                Set<PhenotypeCenterAllServiceBean> rowDataOther   = rowData
+                        .stream()
+                        .filter(phenotypeCenterAllServiceBean -> phenotypeCenterAllServiceBean.getStatus().equals(STATUSES.OTHER))
+                        .collect(Collectors.toSet());
 
 
                 // Aggregate procedure, parameter, topLevelMp, and mp for status = SUCCESS
-                final Set<String> procedureIdsSuccess = rowDataSuccess
+                final List<String> procedureIdsSuccess = rowDataSuccess
                         .stream()
-                        .map(x -> x.getProcedureStableId())
-                        .collect(Collectors.toSet());
+                        .map(phenotypeCenterAllServiceBean -> phenotypeCenterAllServiceBean.getProcedureStableId())
+                        .distinct()
+                        .sorted()
+                        .collect(Collectors.toList());
 
-                final Set<String> parameterIdsSuccess = rowDataSuccess
+                final List<String> parameterIdsSuccess = rowDataSuccess
                         .stream()
-                        .map(x -> x.getParameterStableId())
-                        .collect(Collectors.toSet());
+                        .map(phenotypeCenterAllServiceBean -> phenotypeCenterAllServiceBean.getParameterStableId())
+                        .distinct()
+                        .sorted()
+                        .collect(Collectors.toList());
 
-                // Remove null topLevelMpTermId list elements first that cause NPE when flatMap is called.
-                final Set<String> topLevelMpIdsSuccess = rowDataSuccess
+                final List<String> parameterIdsFailed = rowDataFailed
                         .stream()
-                        .filter(x -> x.getTopLevelMpTermId() != null)
-                        .collect(Collectors.toSet())
-                        .stream()
-                        .flatMap(x -> x.getTopLevelMpTermId()
-                        .stream())
-                        .collect(Collectors.toSet());
+                        .map(phenotypeCenterAllServiceBean -> phenotypeCenterAllServiceBean.getParameterStableId())
+                        .distinct()
+                        .sorted()
+                        .collect(Collectors.toList());
 
-                // Remove null mpTermId elements first that cause NPE when flatMap is called.
-                final Set<String> mpIdsSuccess = rowDataSuccess
+                final List<String> parameterIdsOther = rowDataOther
                         .stream()
-                        .map(x -> x.getMpTermId())
-                        .filter(x -> x != null)
-                        .collect(Collectors.toSet());
+                        .map(phenotypeCenterAllServiceBean -> phenotypeCenterAllServiceBean.getParameterStableId())
+                        .distinct()
+                        .sorted()
+                        .collect(Collectors.toList());
 
-                // NOTE: Use List instead of Set when extracting names, as sometimes the name already exists and needs to be duplicated.
+                // Remove all null mp and topLevelMP ids from the master list.
+                rowDataSuccess.removeIf(phenotypeCenterAllServiceBean -> phenotypeCenterAllServiceBean.getTopLevelMpTermId() == null);
+                rowDataSuccess.removeIf(phenotypeCenterAllServiceBean -> phenotypeCenterAllServiceBean.getMpTermId() == null);
+
+                // Don't use Sets for id/name collections, as Set order is not guaranteed.
+                final List<String> topLevelMpIdsSuccess = rowDataSuccess
+                        .stream()
+                        .flatMap(topLevelMpId -> topLevelMpId.getTopLevelMpTermId()
+                            .stream())
+                        .distinct()
+                        .sorted()
+                        .collect(Collectors.toList());
+
+                final List<String> mpIdsSuccess = rowDataSuccess
+                        .stream()
+                        .map(mpId -> mpId.getMpTermId())
+                        .distinct()
+                        .sorted()
+                        .collect(Collectors.toList());
+
                 final List<String> procedureNamesSuccess = procedureIdsSuccess
                         .stream()
-                        .map(x -> {
-                            return procedureNamesById.get(x);
-                        }).collect(Collectors.toList());
+                        .map(procedureStableId -> procedureNamesById.get(procedureStableId))
+                        .collect(Collectors.toList());
 
                 final List<String> parameterNamesSuccess = parameterIdsSuccess
                         .stream()
-                        .map(x -> {
-                            return parameterNamesById.get(x);
-                        })
+                        .map(parameterStableId -> parameterNamesById.get(parameterStableId))
                         .collect(Collectors.toList());
 
                 final List<String> topLevelMpNamesSuccess = topLevelMpIdsSuccess
                         .stream()
-                        .map(x -> {
-                            return topLevelMpNamesById.get(x);
-                        })
+                        .map(mpId -> mpNamesById.get(mpId))
                         .collect(Collectors.toList());
 
                 final List<String> mpNamesSuccess = mpIdsSuccess
                         .stream()
-                        .map(x -> {
-                            return mpNamesById.get(x);
-                        }).collect(Collectors.toList());
+                        .map(mpId -> {
+                            String mpName = mpNamesById.get(mpId);
+                            if (mpName == null) {
+                                Integer count = missingMpTerms.get(mpId);
+                                count = (count == null ? 1 : count + 1);
+                                missingMpTerms.put(mpId, count);
+                                Set<String> centerList = missingMpTermCenters.get(mpId);
+                                if (centerList == null) {
+                                    centerList = new HashSet<>();
+                                }
+                                centerList.add(center);
+                                missingMpTermCenters.put(mpId, centerList);
+                                mpName = "MISSING FROM MP CORE";
+                            }
+                            return mpName;
+                        })
+                        .collect(Collectors.toList());
 
 
                 // Aggregate procedure for status = FAILED
                 final Set<String> procedureIdsFailed = rowDataFailed
                         .stream()
-                        .map(x -> x.getProcedureStableId())
+                        .map(phenotypeCenterAllServiceBean -> phenotypeCenterAllServiceBean.getProcedureStableId())
                         .collect(Collectors.toSet());
 
                 // Aggregate procedure for status = OTHER
                 final Set<String> procedureIdsOther = rowDataOther
                         .stream()
-                        .map(x -> x.getProcedureStableId())
+                        .map(phenotypeCenterAllServiceBean -> phenotypeCenterAllServiceBean.getProcedureStableId())
                         .collect(Collectors.toSet());
 
                 // Write the data
@@ -239,21 +283,25 @@ public class PhenotypeCenterProcedureCompletenessAllService {
                 row.add(topLevelMpNamesSuccess.stream().map(String::toString).collect(Collectors.joining(", ")));
 
                 row.add(mpIdsSuccess.stream().map(String::toString).collect(Collectors.joining(", ")));
-                row.add(mpNamesSuccess.stream().map(String::toString).collect(Collectors.joining(", ")));
+                    row.add(mpNamesSuccess.stream().map(String::toString).collect(Collectors.joining(", ")));
 
                 row.add(Integer.toString(procedureIdsSuccess.size()));
-                row.add(Integer.toString(rowDataSuccess.stream().map(x -> x.getParameterStableId()).distinct().toArray().length));
+                row.add(Integer.toString(parameterIdsSuccess.size()));
+                row.add(Integer.toString(topLevelMpIdsSuccess.size()));
+                row.add(Integer.toString(mpIdsSuccess.size()));
 
 
                 // Write FAILED aggregates
                 row.add(procedureIdsFailed.stream().map(String::toString).collect(Collectors.joining(", ")));
                 row.add(Integer.toString(procedureIdsFailed.size()));
-                row.add(Integer.toString(rowDataFailed.stream().map(x -> x.getParameterStableId()).distinct().toArray().length));
+                row.add(Integer.toString(parameterIdsFailed.size()));
+
 
                 // Write OTHER aggregates
                 row.add(procedureIdsOther.stream().map(String::toString).collect(Collectors.joining(", ")));
                 row.add(Integer.toString(procedureIdsOther.size()));
-                row.add(Integer.toString(rowDataOther.stream().map(x -> x.getParameterStableId()).distinct().toArray().length));
+                row.add(Integer.toString(parameterIdsOther.size()));
+
 
                 results.add(row.toArray(temp));
                 centerRowCount++;
@@ -265,9 +313,18 @@ public class PhenotypeCenterProcedureCompletenessAllService {
             System.out.println(df.format(new Date()) + ": Processing center '" + center + "' - End. " + centerRowCount + " rows added.");
         }
 
+        if ( ! missingMpTerms.isEmpty()) {
+            for (Map.Entry<String, Integer> entry : missingMpTerms.entrySet()) {
+                logger.error("Missing mp term {}. Count: {}. Centers: {}", entry.getKey(), entry.getValue(),
+                             missingMpTermCenters
+                                     .get(entry.getKey())
+                                     .stream()
+                                     .map(String::toString)
+                                     .collect(Collectors.joining(", ")));
+            }
+        }
 		return results;
 	}
-SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
 	/**
 	 * @return a Map of report row data, indexed by center
@@ -294,68 +351,51 @@ SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 			.addFacetPivotField(facetPivotFields)
             .addFilterQuery("phenotyping_center:\"" + center + "\"")
             .add("facet.pivot", facetPivotFields)
-            .set("wt", "xslt")
-            .set("tr", "pivot.xsl");
+        ;
 
+        StringBuilder sb = new StringBuilder();
 
+        try {
+            QueryResponse response = statisticalResultCore.query(query);
 
-//        try {
-//            QueryResponse response = statisticalResultCore.query(query);
-//
-//            for( PivotField pivot : response.getFacetPivot().get(facetPivotFields)) {
-//                if (pivot.getPivot() != null){
-//                    System.out.println();
-//                    for (PivotField parameter : pivot.getPivot()) {
-//                        Object[] row = {pivot.getValue().toString(), parameter.getValue().toString()};
-//                        System.out.println();
-//                    }
-//                }
-//            }
-//
-//        } catch (Exception e) {
-//            System.err.println("Exception: " + e.getLocalizedMessage());
-//            e.printStackTrace();
-//        }
+            for( PivotField lifeStagePivot : response.getFacetPivot().get(facetPivotFields)) {
 
+                String lifeStageValue = lifeStagePivot.getValue().toString();
 
+                for (PivotField zygosityPivot : lifeStagePivot.getPivot()) {
 
+                    String zygosityValue = zygosityPivot.getValue().toString();
 
+                    for (PivotField colonyIdPivot : zygosityPivot.getPivot()) {
 
+                        String colonyIdValue = colonyIdPivot.getValue().toString();
 
+                        sb
+                                .append("\"")
+                                .append(lifeStageValue)
+                                .append("\",")
 
+                                .append("\"")
+                                .append(zygosityValue)
+                                .append("\",")
 
+                                .append("\"")
+                                .append(colonyIdValue)
+                                .append("\"\n")
+                        ;
+                    }
+                }
+            }
 
+        } catch (Exception e) {
+            System.err.println("Exception: " + e.getLocalizedMessage());
+            e.printStackTrace();
+        }
 
-
-//		query
-//			.set("wt", "xslt")
-//			.set("tr", "pivot.xsl");
-
-		HttpProxy proxy = new HttpProxy();
-
-		// FIXME FIXME FIXME FIXME FIXME
-		// FIXME FIXME FIXME FIXME FIXME
-		// FIXME FIXME FIXME FIXME FIXME
-		// FIXME FIXME FIXME FIXME FIXME
-		// FIXME FIXME FIXME FIXME FIXME
-		// FIXME FIXME FIXME FIXME FIXME
-		// FIXME FIXME FIXME FIXME FIXME
-		// FIXME FIXME FIXME FIXME FIXME
-		// FIXME FIXME FIXME FIXME FIXME
-		URL url = new URL(SolrUtils.getBaseURL(statisticalResultCore) + "/select?" + query);
-//url = new URL("http://ves-ebi-d0:8986/solr/statistical-result/select?q=*:*&rows=0&facet=true&facet.mincount=1&facet.limit=-1&facet.pivot=phenotyping_center,life_stage_name,zygosity,status,colony_id&wt=xslt&tr=pivot.xsl");
-		String content = proxy.getContent(url);
-
-//		String content = proxy.getContent(new URL(SolrUtils.getBaseURL(statisticalResultCore) + "/select?" + query));
-
-//		return Arrays.stream(content.split("\r"))
-//				.skip(1)
-//				.map(ProcedureStatusDTO::new)
-//				.collect(Collectors.toSet());
+        String content = sb.toString();
 
 		Set<ProcedureCompletenessDTO> procedureParameterStatuses;
-		procedureParameterStatuses = Arrays.stream(content.split("\r"))
-				.skip(1)
+		procedureParameterStatuses = Arrays.stream(content.split("\n"))
 				.map(ProcedureCompletenessDTO::new)
 				.collect(Collectors.toSet());
 
@@ -369,7 +409,10 @@ SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         private String colonyId;
 
 		public ProcedureCompletenessDTO(String data) {
-			List<String> fields = Arrays.asList((data.split("\","))).stream().map(x -> x.replaceAll("\"", "")).collect(Collectors.toList());
+			List<String> fields = Arrays.asList((data.split("\",")))
+                    .stream()
+                    .map(x -> x.replaceAll("\"", ""))
+                    .collect(Collectors.toList());
 
 			this.lifeStageName = fields.get(0);
 			this.zygosity = fields.get(1);
@@ -406,7 +449,14 @@ SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
 	    try {
 
-            FileOutputStream   fout = new FileOutputStream("/Users/mrelac/persisted_" + center.replaceAll(" ", "_"));
+	        File persistPath = new File(PERSIST_PATH);
+	        if ( ! persistPath.exists()) {
+	            persistPath.mkdirs();
+            }
+
+	        final String persistedFilename = PERSIST_PATH + "PhenotypeCenterAllServiceBeans_" + center.replaceAll(" ", "_");
+
+            FileOutputStream   fout = new FileOutputStream(persistedFilename);
             OutputStream os = new BufferedOutputStream(fout);
             ObjectOutputStream oos  = new ObjectOutputStream(os);
             oos.writeObject(dataByCenter);
@@ -423,7 +473,8 @@ SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
         try {
 
-            FileInputStream   fin = new FileInputStream("/Users/mrelac/persisted_" + center.replaceAll(" ", "_"));
+            final String persistedFilename = PERSIST_PATH + "PhenotypeCenterAllServiceBeans_" + center.replaceAll(" ", "_");
+            FileInputStream   fin = new FileInputStream(persistedFilename);
             InputStream is = new BufferedInputStream(fin);
             ObjectInputStream ios = new ObjectInputStream(is);
             results = (Set<PhenotypeCenterAllServiceBean>) ios.readObject();
@@ -438,15 +489,15 @@ SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     private boolean isPersistedDataByCenter(String center) {
 
-	    String filename = "/Users/mrelac/persisted_" + center.replaceAll(" ", "_");
+        final String persistedFilename = PERSIST_PATH + "PhenotypeCenterAllServiceBeans_" + center.replaceAll(" ", "_");
 
-        return Files.exists(Paths.get(filename));
+        return Files.exists(Paths.get(persistedFilename));
     }
 
     private Set<PhenotypeCenterAllServiceBean> getCenterData(String center) {
         Set<PhenotypeCenterAllServiceBean> data = new HashSet<>();
 
-        if (USE_PERSIST && isPersistedDataByCenter(center)) {
+        if ((PERSIST_PATH != null) && isPersistedDataByCenter(center)) {
 
             logger.info("loading persisted data for center '{}'", center);
             data = loadDataByCenter(center);
@@ -456,7 +507,7 @@ SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             try {
 
                 data = phenotypeCenterAllService.getDataByCenter(center);
-                if (USE_PERSIST) {
+                if (PERSIST_PATH != null) {
                     logger.info("persisting data for center '{}", center);
                     persistDataByCenter(data, center);
                 }

@@ -163,7 +163,7 @@ public class SolrServerConfig {
 
 	@Bean
 	PhenotypeCenterAllService phenotypeCenterAllService() {
-		return new PhenotypeCenterAllService(getStatisticalResultCore());
+		return new PhenotypeCenterAllService(getStatisticalResultCore(), getMpCore());
 	}
 
 	@Bean
