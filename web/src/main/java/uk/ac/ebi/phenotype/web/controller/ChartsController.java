@@ -237,8 +237,12 @@ public class ChartsController {
             throw new ParameterNotFoundException("Parameter " + parameterStableId + " can't be found.", parameterStableId);
         }
 
-        if(parameter.getStableId().startsWith("MGP_IMM")) {
+        //3i procedures with at least some headline images associated
+        if(parameter.getStableId().startsWith("MGP_BMI") || parameter.getStableId().startsWith("MGP_MLN") ||parameter.getStableId().startsWith("MGP_IMM") ) {
         	//spleen Immunophenotyping e.g. Sik3 has many
+        	//chart example= http://localhost:8090/phenotype-archive/charts?phenotyping_center=WTSI&accession=MGI:2446296&parameter_stable_id=MGP_IMM_086_001
+        	//bone marrow chart example=http://localhost:8090/phenotype-archive/charts?phenotyping_center=WTSI&accession=MGI:1353467&parameter_stable_id=MGP_BMI_018_001
+        	//
         	System.out.println("flow cytomerty for 3i detected get headline images");
         	//lets get the 3i headline images
         	//example query http://ves-hx-d8.ebi.ac.uk:8986/solr/impc_images/select?q=parameter_stable_id:MGP_IMM_233_001
@@ -304,22 +308,112 @@ public class ChartsController {
         model.addAttribute("gene", gene);
 
         experiment = experimentService.getSpecificExperimentDTO(parameterStableId, pipelineStableId, accession[0], genderList, zyList, phenotypingCenter, strain, metaDataGroupString, alleleAccession, SOLR_URL);
-        ProcedureDTO proc = is.getProcedureByStableId(experiment.getProcedureStableId()) ;
-        String procedureUrl="";
-        String parameterUrl="";
-        if (proc != null) {
-			//procedureDescription = String.format("<a href=\"%s\">%s</a>", is.getProcedureUrlByKey(((Integer)proc.getStableKey()).toString()),  "Procedure: "+ proc.getName());
-        	procedureUrl=is.getProcedureUrlByKey(((Integer)proc.getStableKey()).toString());
-        	model.addAttribute("procedureUrl", procedureUrl);
-        }
-		if (parameter.getStableKey() != null) {
-			//title = String.format("<a href=\"%s\">%s</a>", is.getParameterUrlByProcedureAndParameterKey(proc.getStableKey(),parameter.getStableKey()),  "Parameter: "+ parameter.getName());
-			parameterUrl=is.getParameterUrlByProcedureAndParameterKey(proc.getStableKey(),parameter.getStableKey());
-			model.addAttribute("parameterUrl", parameterUrl);
-		}
-        model.addAttribute("alleleSymbol",experiment.getAlleleSymobl());
-        setTitlesForGraph(model, experiment.getGeneticBackgtround(), experiment.getAlleleSymobl());
+        //error getting procedure for this page?? http://localhost:8090/phenotype-archive/charts?phenotyping_center=WTSI&accession=MGI:1915276&parameter_stable_id=MGP_MLN_057_001
+        ProcedureDTO proc=null;
+        if(experiment!=null) {
+        	proc = is.getProcedureByStableId(experiment.getProcedureStableId());
         
+	        String procedureUrl="";
+	        String parameterUrl="";
+	        if (proc != null) {
+				//procedureDescription = String.format("<a href=\"%s\">%s</a>", is.getProcedureUrlByKey(((Integer)proc.getStableKey()).toString()),  "Procedure: "+ proc.getName());
+	        	procedureUrl=is.getProcedureUrlByKey(((Integer)proc.getStableKey()).toString());
+	        	model.addAttribute("procedureUrl", procedureUrl);
+	        }
+			if (parameter.getStableKey() != null) {
+				//title = String.format("<a href=\"%s\">%s</a>", is.getParameterUrlByProcedureAndParameterKey(proc.getStableKey(),parameter.getStableKey()),  "Parameter: "+ parameter.getName());
+				parameterUrl=is.getParameterUrlByProcedureAndParameterKey(proc.getStableKey(),parameter.getStableKey());
+				model.addAttribute("parameterUrl", parameterUrl);
+			}
+	        model.addAttribute("alleleSymbol",experiment.getAlleleSymobl());
+	        setTitlesForGraph(model, experiment.getGeneticBackgtround(), experiment.getAlleleSymobl());
+	        if (pipeline == null) {
+	            // if we don't already have the pipeline from the url params get it via the experiment returned
+	            pipeline = is.getPipeline(experiment.getPipelineStableId());
+	        }
+
+	        if (experiment.getMetadataGroup() != null){
+	            metadata = experiment.getMetadataHtml();
+	            metadataList = experiment.getMetadata();
+	        }
+	        
+	        try {
+	            // if (chartType == null){
+	            // chartType = GraphUtils.getDefaultChartType(parameter);
+	            // // chartType might still be null after this
+	            // if(chartType==ChartType.PIE){
+	            // viabilityDTO =
+	            // viabilityChartAndDataProvider.doViabilityData(null, null);
+	            // model.addAttribute("viabilityDTO", viabilityDTO);
+	            // //model.addAttribute("tableData", viabilityDTO);
+	            // return "chart";
+	            // }
+	            // }
+	            if (chartType != null) {
+
+	                ScatterChartAndData scatterChartAndData;
+
+	                switch (chartType) {
+
+	                    case UNIDIMENSIONAL_SCATTER_PLOT:
+
+	                        scatterChartAndData = scatterChartAndTableProvider.doScatterData(experiment, null, null, parameter, experimentNumber);
+	                        model.addAttribute("scatterChartAndData", scatterChartAndData);
+
+	                        if (observationTypeForParam.equals(ObservationType.unidimensional)) {
+	                            List<UnidimensionalStatsObject> unidimenStatsObjects = scatterChartAndData.getUnidimensionalStatsObjects();
+	                            unidimensionalChartDataSet = new UnidimensionalDataSet();
+	                            unidimensionalChartDataSet.setStatsObjects(unidimenStatsObjects);
+	                            model.addAttribute("unidimensionalChartDataSet", unidimensionalChartDataSet);
+	                        }
+	                        break;
+
+	                    case UNIDIMENSIONAL_ABR_PLOT:
+
+	                        seriesParameterChartData = abrChartAndTableProvider.getAbrChartAndData(experiment, parameter, "abrChart" + experimentNumber, SOLR_URL);
+	                        model.addAttribute("abrChart", seriesParameterChartData.getChart());
+	                        break;
+
+	                    case UNIDIMENSIONAL_BOX_PLOT:
+
+	                        try {
+	                            unidimensionalChartDataSet = continousChartAndTableProvider.doUnidimensionalData(experiment, experimentNumber, parameter, ChartType.UNIDIMENSIONAL_BOX_PLOT, false, xUnits);
+	                        } catch (JSONException e) {
+	                            e.printStackTrace();
+	                        }
+	                        model.addAttribute("unidimensionalChartDataSet", unidimensionalChartDataSet);
+
+	                        scatterChartAndData = scatterChartAndTableProvider.doScatterData(experiment, unidimensionalChartDataSet.getMin(), unidimensionalChartDataSet.getMax(), parameter, experimentNumber);
+	                        model.addAttribute("scatterChartAndData", scatterChartAndData);
+
+	                        break;
+
+	                    case CATEGORICAL_STACKED_COLUMN:
+
+	                        categoricalResultAndChart = categoricalChartAndTableProvider.doCategoricalData(experiment, parameter, accession[0], experimentNumber);
+	                        model.addAttribute("categoricalResultAndChart", categoricalResultAndChart);
+	                        break;
+
+	                    case TIME_SERIES_LINE:
+
+	                        seriesParameterChartData = timeSeriesChartAndTableProvider.doTimeSeriesData(experiment, parameter, experimentNumber);
+	                        model.addAttribute("timeSeriesChartsAndTable", seriesParameterChartData);
+	                        break;
+
+	                    default:
+
+	                        log.error("Unknown how to display graph for observation type: " + observationTypeForParam);
+	                        break;
+	                }
+	            }else{
+	                log.error("chart type is null");
+	            }
+
+	        } catch (SQLException e) {
+	            log.error(ExceptionUtils.getFullStackTrace(e));
+	            statsError = true;
+	        }
+        }
         if (parameterStableId.startsWith("IMPC_VIA_")) {
             // Its a viability outcome param which means its a line level query
             // so we don't use the normal experiment query in experiment service
@@ -365,101 +459,18 @@ public class ChartsController {
             }
 
 
-        if (pipeline == null) {
-            // if we don't already have the pipeline from the url params get it via the experiment returned
-            pipeline = is.getPipeline(experiment.getPipelineStableId());
-        }
-
-        if (experiment.getMetadataGroup() != null){
-            metadata = experiment.getMetadataHtml();
-            metadataList = experiment.getMetadata();
-        }
-
-        try {
-            // if (chartType == null){
-            // chartType = GraphUtils.getDefaultChartType(parameter);
-            // // chartType might still be null after this
-            // if(chartType==ChartType.PIE){
-            // viabilityDTO =
-            // viabilityChartAndDataProvider.doViabilityData(null, null);
-            // model.addAttribute("viabilityDTO", viabilityDTO);
-            // //model.addAttribute("tableData", viabilityDTO);
-            // return "chart";
-            // }
-            // }
-            if (chartType != null) {
-
-                ScatterChartAndData scatterChartAndData;
-
-                switch (chartType) {
-
-                    case UNIDIMENSIONAL_SCATTER_PLOT:
-
-                        scatterChartAndData = scatterChartAndTableProvider.doScatterData(experiment, null, null, parameter, experimentNumber);
-                        model.addAttribute("scatterChartAndData", scatterChartAndData);
-
-                        if (observationTypeForParam.equals(ObservationType.unidimensional)) {
-                            List<UnidimensionalStatsObject> unidimenStatsObjects = scatterChartAndData.getUnidimensionalStatsObjects();
-                            unidimensionalChartDataSet = new UnidimensionalDataSet();
-                            unidimensionalChartDataSet.setStatsObjects(unidimenStatsObjects);
-                            model.addAttribute("unidimensionalChartDataSet", unidimensionalChartDataSet);
-                        }
-                        break;
-
-                    case UNIDIMENSIONAL_ABR_PLOT:
-
-                        seriesParameterChartData = abrChartAndTableProvider.getAbrChartAndData(experiment, parameter, "abrChart" + experimentNumber, SOLR_URL);
-                        model.addAttribute("abrChart", seriesParameterChartData.getChart());
-                        break;
-
-                    case UNIDIMENSIONAL_BOX_PLOT:
-
-                        try {
-                            unidimensionalChartDataSet = continousChartAndTableProvider.doUnidimensionalData(experiment, experimentNumber, parameter, ChartType.UNIDIMENSIONAL_BOX_PLOT, false, xUnits);
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                        model.addAttribute("unidimensionalChartDataSet", unidimensionalChartDataSet);
-
-                        scatterChartAndData = scatterChartAndTableProvider.doScatterData(experiment, unidimensionalChartDataSet.getMin(), unidimensionalChartDataSet.getMax(), parameter, experimentNumber);
-                        model.addAttribute("scatterChartAndData", scatterChartAndData);
-
-                        break;
-
-                    case CATEGORICAL_STACKED_COLUMN:
-
-                        categoricalResultAndChart = categoricalChartAndTableProvider.doCategoricalData(experiment, parameter, accession[0], experimentNumber);
-                        model.addAttribute("categoricalResultAndChart", categoricalResultAndChart);
-                        break;
-
-                    case TIME_SERIES_LINE:
-
-                        seriesParameterChartData = timeSeriesChartAndTableProvider.doTimeSeriesData(experiment, parameter, experimentNumber);
-                        model.addAttribute("timeSeriesChartsAndTable", seriesParameterChartData);
-                        break;
-
-                    default:
-
-                        log.error("Unknown how to display graph for observation type: " + observationTypeForParam);
-                        break;
-                }
-            }else{
-                log.error("chart type is null");
-            }
-
-        } catch (SQLException e) {
-            log.error(ExceptionUtils.getFullStackTrace(e));
-            statsError = true;
-        }
+        
 
         
         model.addAttribute("pipeline", pipeline);
         model.addAttribute("phenotypingCenter", phenotypingCenter);
         model.addAttribute("experimentNumber", experimentNumber);
         model.addAttribute("statsError", statsError);
-        model.addAttribute("gpUrl", experiment.getGenotypePhenotypeUrl());
-        model.addAttribute("srUrl", experiment.getStatisticalResultUrl());
-        model.addAttribute("phenStatDataUrl", experiment.getDataPhenStatFormatUrl());
+        if(experiment!=null) {
+	        model.addAttribute("gpUrl", experiment.getGenotypePhenotypeUrl());
+	        model.addAttribute("srUrl", experiment.getStatisticalResultUrl());
+	        model.addAttribute("phenStatDataUrl", experiment.getDataPhenStatFormatUrl());
+        }
         model.addAttribute("chartOnly", chartOnly);
 
         // Metadata
