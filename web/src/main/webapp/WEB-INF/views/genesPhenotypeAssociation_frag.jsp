@@ -159,7 +159,7 @@
 <!-- Empty anchor for links, used for disease paper. Don't remove. -->
 
 
-<c:if test='${hasPreQcThatMeetsCutOff || rowsForPhenotypeTable.size() > 0}'>
+<c:if test='${notsignificantTopLevelMpGroups.size() > 0 || rowsForPhenotypeTable.size() > 0}'>
 
 
     <ul class="nav nav-tabs" id="phenotypesTab" role="tablist">
