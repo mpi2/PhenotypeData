@@ -413,7 +413,11 @@ public class ChartsController {
 	            log.error(ExceptionUtils.getFullStackTrace(e));
 	            statsError = true;
 	        }
+        }  else {
+            System.out.println("empty experiment");
+            model.addAttribute("emptyExperiment", true);
         }
+        
         if (parameterStableId.startsWith("IMPC_VIA_")) {
             // Its a viability outcome param which means its a line level query
             // so we don't use the normal experiment query in experiment service
@@ -566,7 +570,6 @@ public class ChartsController {
 
         final int totalSamples = Stream.of(numberFemaleMutantMice, numberMaleMutantMice, numberFemaleControlMice, numberMaleControlMice).filter(Objects::nonNull).mapToInt(Integer::intValue).sum();
         model.addAttribute("numberMice", totalSamples);
-
         return "chart";
     }
     
