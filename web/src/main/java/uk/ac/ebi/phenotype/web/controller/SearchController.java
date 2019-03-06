@@ -37,6 +37,8 @@ import javax.sql.DataSource;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URLDecoder;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Controller
 public class SearchController {
@@ -75,6 +77,17 @@ public class SearchController {
 		return "redirect:" + redirectUrl;
 	}
 
+	private String removeSpecialCharacters(String searchString) {
+		Pattern pt = Pattern.compile("[^a-zA-Z0-9]");
+        Matcher match= pt.matcher(searchString);
+        while(match.find())
+        {
+            String s= match.group();
+            searchString=searchString.replaceAll("\\"+s, "");
+        }
+        System.out.println(searchString);
+        return searchString;
+	}
 
 	/**
 	 * search page
@@ -177,6 +190,9 @@ public class SearchController {
 		}
 
 		String paramString = request.getQueryString();
+		if(query!="*") {
+			query=removeSpecialCharacters(query);
+		}
 
 		// encode the parsed search settings into an object
 		SearchSettings settings = new SearchSettings(dataType, query, fqStr, request);
