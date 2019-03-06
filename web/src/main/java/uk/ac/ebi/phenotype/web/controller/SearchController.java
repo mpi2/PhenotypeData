@@ -189,8 +189,7 @@ public class SearchController {
 			dataType = "gene";
 		}
 
-		String paramString = request.getQueryString();
-		if(query!="*") {
+		if(!query.contentEquals("*")) {
 			query=removeSpecialCharacters(query);
 		}
 
