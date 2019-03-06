@@ -32,9 +32,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 @SpringBootApplication
 @Import(value = {StatisticalResultLoaderConfig.class})
@@ -133,20 +132,25 @@ public class WindowingStatisticalResultLoader extends BasicService implements Co
         try {
             Map<String, Integer> counts = new HashMap<>();
 
+            AtomicInteger c = new AtomicInteger();
             Files.lines(Paths.get(loc)).forEach(line -> {
 
                 LightweightResult result;
                 try {
                     result = getBaseResult(getResult(line));
                 } catch (Exception e) {
-                    System.out.println("Error processing row: " + line.substring(0,150)+"...\n");
-                    System.out.println(e);
+                    System.out.println("Error processing row: " + line.substring(0,300)+"...\n");
+                    c.getAndIncrement();
+                    if(c.get()<100 || Math.random()<0.001) {
+                        // Print the first 100 stacktraces and then sample at 1 per 1000
+                        e.printStackTrace();
+                    }
                     return;
                 }
 
                 if (result == null) {
                     // Skipping record
-                    System.out.println("Skipping row: " + line.substring(0,150)+"...\n");
+                    System.out.println("Skipping row: " + line.substring(0,300)+"...\n");
                     return;
                 }
 
@@ -160,6 +164,8 @@ public class WindowingStatisticalResultLoader extends BasicService implements Co
                     e.printStackTrace();
                 }
             });
+
+            System.out.println("There were " + c.get() + " exceptions thrown");
 
             for(String method : counts.keySet()) {
                 logger.info("  ADDED " + counts.get(method) + " statistical results for method: " + method);
