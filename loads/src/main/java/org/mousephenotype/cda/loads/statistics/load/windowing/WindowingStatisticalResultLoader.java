@@ -139,14 +139,14 @@ public class WindowingStatisticalResultLoader extends BasicService implements Co
                 try {
                     result = getBaseResult(getResult(line));
                 } catch (Exception e) {
-                    System.out.println("Error processing row: " + line.substring(1,50)+"...");
+                    System.out.println("Error processing row: " + line.substring(0,150)+"...\n");
                     System.out.println(e);
                     return;
                 }
 
                 if (result == null) {
                     // Skipping record
-                    System.out.println("Skipping row: " + line.substring(1,50)+"...");
+                    System.out.println("Skipping row: " + line.substring(0,150)+"...\n");
                     return;
                 }
 
@@ -366,9 +366,6 @@ public class WindowingStatisticalResultLoader extends BasicService implements Co
         JSONObject additionalInformation = normalResult.getJSONObject("additional_information");
         JSONObject summaryStatistics = additionalInformation.getJSONObject("summary_statistics");
         JSONObject details = json.getJSONObject("result").getJSONObject("details");
-
-        System.out.println(summaryStatistics.toString(2));
-
 
         Integer maleControls = null;
         Integer femaleControls = null;
