@@ -135,10 +135,10 @@ public class WindowingStatisticalResultLoader extends BasicService implements Co
 
             Files.lines(Paths.get(loc)).forEach(line -> {
 
-                LightweightResult result = null;
+                LightweightResult result;
                 try {
                     result = getBaseResult(getResult(line));
-                } catch (JSONException e) {
+                } catch (Exception e) {
                     System.out.println("Error processing row: " + line.substring(1,50)+"...");
                     System.out.println(e);
                     return;
@@ -146,6 +146,7 @@ public class WindowingStatisticalResultLoader extends BasicService implements Co
 
                 if (result == null) {
                     // Skipping record
+                    System.out.println("Skipping row: " + line.substring(1,50)+"...");
                     return;
                 }
 
