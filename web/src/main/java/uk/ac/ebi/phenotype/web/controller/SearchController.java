@@ -33,6 +33,8 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Controller
@@ -76,6 +78,9 @@ public class SearchController {
         Integer pageNumber = Integer.parseInt(page);
         Integer rowsPerPage = Integer.parseInt(rows);
         Integer start = (pageNumber-1) * rowsPerPage;
+        if(!term.contentEquals("*")) {
+        	term=removeSpecialCharacters(term);
+        }
 
         if (type.equalsIgnoreCase("gene")) {
             model = searchGenes(term, start, rowsPerPage, model);
@@ -93,6 +98,22 @@ public class SearchController {
 
         return "search";
     }
+    /**
+     * remove coding from the search string so javascript cannot be hacked on the search interface
+     * @param searchString
+     * @return
+     */
+    private String removeSpecialCharacters(String searchString) {
+		Pattern pt = Pattern.compile("[^a-zA-Z0-9]");
+        Matcher match= pt.matcher(searchString);
+        while(match.find())
+        {
+            String s= match.group();
+            searchString=searchString.replaceAll("\\"+s, "");
+        }
+        System.out.println(searchString);
+        return searchString;
+	}
 
 
     private Model searchGenes(String term, Integer start, Integer rows, Model model) throws SolrServerException, IOException {
