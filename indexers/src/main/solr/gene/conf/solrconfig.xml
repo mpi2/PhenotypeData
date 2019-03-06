@@ -422,7 +422,7 @@
                        to occupy
       -->
     <queryResultCache class="solr.LRUCache"
-                      size="0"
+                      size="32"
                       initialSize="0"
                       autowarmCount="0"/>
 
