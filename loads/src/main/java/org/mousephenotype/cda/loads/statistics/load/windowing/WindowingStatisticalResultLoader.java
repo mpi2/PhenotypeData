@@ -143,7 +143,8 @@ public class WindowingStatisticalResultLoader extends BasicService implements Co
                     c.getAndIncrement();
                     if(c.get()<100 || Math.random()<0.001) {
                         // Print the first 100 stacktraces and then sample at 1 per 1000
-                        e.printStackTrace();
+                        String fullStackTrace = org.apache.commons.lang.exception.ExceptionUtils.getFullStackTrace(e);
+                        System.out.println("Stacktrace: " + fullStackTrace);
                     }
                     return;
                 }
