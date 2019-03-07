@@ -476,7 +476,7 @@ public class WindowingStatisticalResultLoader extends BasicService implements Co
         fields[46] = normalResult.getString("sex_mvko_standard_error"); // Sex MvKO standard error
         fields[47] = normalResult.getString("sex_mvko_p_val"); // Sex MvKO p-val
         fields[48] = normalResult.getString("classification_tag"); // Classification tag
-        fields[49] = normalResult.getJSONObject("additional_information").toString(); // Additional information
+        fields[49] = additionalInformation.toString(); // Additional information
 
 
         //
