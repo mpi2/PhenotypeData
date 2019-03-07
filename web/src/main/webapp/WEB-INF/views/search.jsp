@@ -84,20 +84,20 @@
                             </c:if>
                             <c:if test="${numberOfResults == 0}">
                                 <div class="alert alert-warning">
-                                    <h4>No results found for search term "${param.term}".</h4>
+                                    <h4>No results found for search term "${term}".</h4>
                                     <c:if test="${fn:length(phenotypeSuggestions) > 0 || fn:length(geneSuggestions) > 0}">
                                         <hr />
                                         Perhaps you were searching for:
                                         <ul class="my-2">
                                             <c:forEach var="i" items="${phenotypeSuggestions}">
                                                 <li>
-                                                    <a href="${baseUrl}/search?term=${i}&type=${param.type}" aria-controls="suggestion" data-dt-idx="0" tabindex="0" class="">${i}</a>
+                                                    <a href="${baseUrl}/search?term=${i}&type=${type}" aria-controls="suggestion" data-dt-idx="0" tabindex="0" class="">${i}</a>
 
                                                 </li>
                                             </c:forEach>
                                             <c:forEach var="i" items="${geneSuggestions}">
                                                 <li>
-                                                    <a href="${baseUrl}/search?term=${i}&type=${param.type}" aria-controls="suggestion" data-dt-idx="0" tabindex="0" class="">${i}</a>
+                                                    <a href="${baseUrl}/search?term=${i}&type=${type}" aria-controls="suggestion" data-dt-idx="0" tabindex="0" class="">${i}</a>
 
                                                 </li>
                                             </c:forEach>
@@ -188,7 +188,7 @@
                                 <ul class="pagination my-0">
                                     <c:if test="${currentPage != 1}">
                                         <li class="paginate_button page-item previous" id="previous">
-                                            <a href="${baseUrl}/search?term=${param.term}&type=${param.type}&page=${prevDisplayPage}&rows=${rows}" class="page-link">Previous</a></li>
+                                            <a href="${baseUrl}/search?term=${term}&type=${type}&page=${prevDisplayPage}&rows=${rows}" class="page-link">Previous</a></li>
                                     </c:if>
                                     <c:if test="${currentPage == 1}">
                                         <li class="paginate_button page-item previous disabled" id="previous">
@@ -196,7 +196,7 @@
                                     </c:if>
 
                                     <li class="paginate_button page-item <c:if test="${currentPage == 1}">active</c:if>">
-                                        <a href="${baseUrl}/search?term=${param.term}&type=${param.type}&page=1&rows=${rows}" class="page-link">1</a></li>
+                                        <a href="${baseUrl}/search?term=${term}&type=${type}&page=1&rows=${rows}" class="page-link">1</a></li>
 
                                     <c:if test="${currentPage > 3 }">
                                         <li class="paginate_button page-item disabled" id="cardio_ellipsis">
@@ -206,7 +206,7 @@
                                     <c:forEach var="i" begin="${prevDisplayPage}" end="${nextDisplayPage}">
                                         <c:if test="${i != numPages && i!=1}">
                                         <li class="paginate_button page-item <c:if test="${currentPage == i}">active</c:if>" id="navigate-${i}">
-                                            <a href="${baseUrl}/search?term=${param.term}&type=${param.type}&page=${i}&rows=${rows}" class="page-link">${i}</a></li>
+                                            <a href="${baseUrl}/search?term=${term}&type=${type}&page=${i}&rows=${rows}" class="page-link">${i}</a></li>
                                         </c:if>
                                     </c:forEach>
 
@@ -216,10 +216,10 @@
                                     </c:if>
 
                                     <li class="paginate_button page-item <c:if test="${currentPage == numPages}">active</c:if>">
-                                        <a href="${baseUrl}/search?term=${param.term}&type=${param.type}&page=${numPages}&rows=${rows}" class="page-link">${numPages}</a></li>
+                                        <a href="${baseUrl}/search?term=${term}&type=${type}&page=${numPages}&rows=${rows}" class="page-link">${numPages}</a></li>
                                     <c:if test="${currentPage != numPages}">
                                         <li class="paginate_button page-item next" id="next">
-                                            <a href="${baseUrl}/search?term=${param.term}&type=${param.type}&page=${nextDisplayPage}&rows=${rows}" class="page-link">Next</a></li>
+                                            <a href="${baseUrl}/search?term=${term}&type=${type}&page=${nextDisplayPage}&rows=${rows}" class="page-link">Next</a></li>
                                     </c:if>
                                     <c:if test="${currentPage == numPages}">
                                         <li class="paginate_button page-item next disabled" id="next">

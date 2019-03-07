@@ -53,13 +53,13 @@
                                         <ul class="m-0">
                                             <c:forEach var="i" items="${phenotypeSuggestions}">
                                                 <li>
-                                                    <a href="${baseUrl}/search?term=${i}&type=${param.type}" aria-controls="suggestion" data-dt-idx="0" tabindex="0" class="">${i}</a>
+                                                    <a href="${baseUrl}/search?term=${i}&type=${type}" aria-controls="suggestion" data-dt-idx="0" tabindex="0" class="">${i}</a>
 
                                                 </li>
                                             </c:forEach>
                                             <c:forEach var="i" items="${geneSuggestions}">
                                                 <li>
-                                                    <a href="${baseUrl}/search?term=${i}&type=${param.type}" aria-controls="suggestion" data-dt-idx="0" tabindex="0" class="">${i}</a>
+                                                    <a href="${baseUrl}/search?term=${i}&type=${type}" aria-controls="suggestion" data-dt-idx="0" tabindex="0" class="">${i}</a>
 
                                                 </li>
                                             </c:forEach>
@@ -82,14 +82,14 @@
         <div class="col-12">
             <div class="portal-search my-1">
                 <div class="portal-search__tabs">
-                    <a id="geneSearchTab" data-type="gene" class="portalTab portalTabSearchPage left-shadow <c:if test="${param.type != 'phenotype'}">active</c:if>" href="${baseUrl}/search">Genes</a>
-                    <a id="phenotypeSearchTab" data-type="pheno" class=" portalTab portalTabSearchPage right-shadow <c:if test="${param.type == 'phenotype'}">active</c:if>" href="${baseUrl}/search?type=phenotype">Phenotypes</a>
+                    <a id="geneSearchTab" data-type="gene" class="portalTab portalTabSearchPage left-shadow <c:if test="${type != 'phenotype'}">active</c:if>" href="${baseUrl}/search">Genes</a>
+                    <a id="phenotypeSearchTab" data-type="pheno" class=" portalTab portalTabSearchPage right-shadow <c:if test="${type == 'phenotype'}">active</c:if>" href="${baseUrl}/search?type=phenotype">Phenotypes</a>
                 </div>
                 <div class="portal-search__inputs">
                     <form id="searchForm" action="${baseUrl}/search">
-                        <input id="searchTerm" name="term" class="portal-search__input" value="${param.term}" placeholder="Search the data..." type="text"/>
+                        <input id="searchTerm" name="term" class="portal-search__input" value="${term}" placeholder="Search the data..." type="text"/>
                         <button id="searchIcon" type="submit"><i class="fas fa-search"></i></button>
-                        <input id="searchType" type="hidden" name="type" value="${param.type}">
+                        <input id="searchType" type="hidden" name="type" value="${type}">
                         <div id="searchLoader" class="lds-ring">
                             <div></div>
                             <div></div>

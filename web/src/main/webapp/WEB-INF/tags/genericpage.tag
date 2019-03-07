@@ -149,9 +149,9 @@
                             </div>
                             <div class="portal-search__inputs">
                                 <form id="searchForm" action="${baseUrl}/search">
-                                    <input id="searchTerm" name="term" class="portal-search__input" value="${param.term}" placeholder="Search the data..." type="text"/>
+                                    <input id="searchTerm" name="term" class="portal-search__input" value="${term}" placeholder="Search the data..." type="text"/>
                                     <button id="searchIcon" type="submit"><i class="fas fa-search"></i></button>
-                                    <input id="searchType" type="hidden" name="type" value="${param.type}">
+                                    <input id="searchType" type="hidden" name="type" value="${type}">
                                     <div id="searchLoader" class="lds-ring">
                                         <div></div>
                                         <div></div>

@@ -69,7 +69,7 @@ public class SearchController {
 
 
     @RequestMapping("/search")
-    public String search(@RequestParam(value = "term", required = false, defaultValue = "*") String term,
+    public String search(@RequestParam(value = "term", required = false, defaultValue = "") String term,
                          @RequestParam(value = "type", required = false, defaultValue = "gene") String type,
                          @RequestParam(value = "page", required = false, defaultValue = "1") String page,
                          @RequestParam(value = "rows", required = false, defaultValue = "10") String rows,
@@ -78,9 +78,10 @@ public class SearchController {
         Integer pageNumber = Integer.parseInt(page);
         Integer rowsPerPage = Integer.parseInt(rows);
         Integer start = (pageNumber-1) * rowsPerPage;
-        if(!term.contentEquals("*")) {
+        
         	term=removeSpecialCharacters(term);
-        }
+        	type=removeSpecialCharacters(type);
+        
 
         if (type.equalsIgnoreCase("gene")) {
             model = searchGenes(term, start, rowsPerPage, model);
@@ -91,6 +92,12 @@ public class SearchController {
         Long numberOfResults = Long.parseLong((String)model.asMap().get("numberOfResults"));
         Long numPages = (long) Math.ceil((double) numberOfResults / rowsPerPage);
 
+//        if(term.contentEquals("*")) {
+//        	term="";//change back to empty string
+//        	//note need to set this to get around javascript hacking when using direct ${param.term} in jsp
+//        }
+        model.addAttribute("term", term);
+        model.addAttribute("type", type);
         model.addAttribute("currentPage", pageNumber);
         model.addAttribute("rows", rowsPerPage);
         model.addAttribute("start", start);
@@ -118,6 +125,9 @@ public class SearchController {
 
     private Model searchGenes(String term, Integer start, Integer rows, Model model) throws SolrServerException, IOException {
 
+    	if(term.isEmpty()) {
+    		term="*";
+    	}
         QueryResponse response = searchGeneService.searchGenes(term, start, rows);
         final List<GeneDTO> genes = response.getBeans(GeneDTO.class);
 
@@ -138,7 +148,9 @@ public class SearchController {
     }
 
     private Model searchPhenotypes(String term, Integer start, Integer rows, Model model) throws SolrServerException, IOException {
-
+    	if(term.isEmpty()) {
+    		term="*";
+    	}
         QueryResponse response = searchPhenotypeService.searchPhenotypes(term, start, rows);
         final List<SearchResultMpDTO> phenotypes = response.getBeans(SearchResultMpDTO.class);
 
