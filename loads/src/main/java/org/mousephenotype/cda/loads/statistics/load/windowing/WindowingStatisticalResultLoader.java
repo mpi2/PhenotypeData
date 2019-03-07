@@ -255,12 +255,12 @@ public class WindowingStatisticalResultLoader extends BasicService implements Co
         values.put(HEADERS.PIPELINE_NAME, dataFields.get(10));
 
         if (dataFields.get(11).contains("_")) {
-            List<String> pipelines = Arrays.asList(dataFields.get(11).split("_"));
+            List<String> pipelinePieces = Arrays.asList(dataFields.get(11).split("_"));
 
-            String pipelineStableId = pipelines.get(pipelines.size()-1);
+            String pipelineStableId = dataFields.get(11);
 
-            if ( pipelines.size() > 2) {
-                pipelineStableId = pipelines.get(pipelines.size()-2) + "_" + pipelines.get(pipelines.size()-1);
+            if ( pipelinePieces.size() > 2) {
+                pipelineStableId = pipelinePieces.get(pipelinePieces.size()-2) + "_" + pipelinePieces.get(pipelinePieces.size()-1);
             }
             values.put(HEADERS.PIPELINE_STABLE_ID, pipelineStableId);
         } else {
