@@ -370,8 +370,28 @@ public class WindowingStatisticalResultLoader extends BasicService implements Co
         fields[5] = "OK"; // code
 
         JSONObject normalResult = json.getJSONObject("result").getJSONObject("vectoroutput").getJSONObject("normal_result");
-        JSONObject additionalInformation = normalResult.getJSONObject("additional_information");
-        JSONObject summaryStatistics = additionalInformation.getJSONObject("summary_statistics");
+        JSONObject normalAdditionalInformation = normalResult.getJSONObject("additional_information");
+        JSONObject normalSummaryStatistics = normalAdditionalInformation.getJSONObject("summary_statistics");
+
+        JSONObject jsonResult = normalResult;
+        JSONObject additionalInformation = normalAdditionalInformation;
+        JSONObject summaryStatistics = normalSummaryStatistics;
+
+        final List<String> keysFromWindowedResult = new ArrayList<>();
+        for (Iterator s = json.getJSONObject("result").getJSONObject("vectoroutput").getJSONObject("windowed_result").keys(); s.hasNext(); ) {
+            String key = (String) s.next();
+            keysFromWindowedResult.add(key);
+        }
+        if (keysFromWindowedResult.size() > 0) {
+            JSONObject windowedResult = json.getJSONObject("result").getJSONObject("vectoroutput").getJSONObject("windowed_result");
+            JSONObject windowedAdditionalInformation = windowedResult.getJSONObject("additional_information");
+            JSONObject windowedSummaryStatistics = windowedAdditionalInformation.getJSONObject("summary_statistics");
+
+            jsonResult = windowedResult;
+            additionalInformation = windowedAdditionalInformation;
+            summaryStatistics = windowedSummaryStatistics;
+        }
+
         JSONObject details = json.getJSONObject("result").getJSONObject("details");
 
         Integer maleControls = null;
@@ -428,7 +448,7 @@ public class WindowingStatisticalResultLoader extends BasicService implements Co
 
         fields[16] = weights.size() > 0 ? "true" : "false"; // weight available
 
-        String method = normalResult.getString("method");
+        String method = jsonResult.getString("method");
 
         final List<String> keysFromAddtionalInformation = new ArrayList<>();
         for (Iterator s = additionalInformation.keys(); s.hasNext(); ) {
@@ -446,36 +466,36 @@ public class WindowingStatisticalResultLoader extends BasicService implements Co
         fields[18] = values.get(HEADERS.PARAMETER_STABLE_ID); // Dependent variable
 
 
-        fields[19] = normalResult.getString("batch_included"); // Batch included
-        fields[20] = normalResult.getString("residual_variances_homogeneity"); // Residual variances homogeneity
-        fields[21] = normalResult.getString("genotype_contribution"); // Genotype contribution
-        fields[22] = normalResult.getString("genotype_estimate"); // Genotype estimate
-        fields[23] = normalResult.getString("genotype_standard_error"); // Genotype standard error
-        fields[24] = normalResult.getString("genotype_p_val"); // Genotype p-Val
-        fields[25] = normalResult.getString("genotype_percentage_change"); // Genotype percentage change
-        fields[26] = normalResult.getString("sex_estimate"); // Sex estimate
-        fields[27] = normalResult.getString("sex_standard_error"); // Sex standard error
-        fields[28] = normalResult.getString("sex_p_val"); // Sex p-val
-        fields[29] = normalResult.getString("weight_estimate"); // Weight estimate
-        fields[30] = normalResult.getString("weight_standard_error"); // Weight standard error
-        fields[31] = normalResult.getString("weight_p_val"); // Weight p-val
-        fields[32] = normalResult.getString("gp1_genotype"); // Gp1 genotype
-        fields[33] = normalResult.getString("gp1_residuals_normality_test"); // Gp1 Residuals normality test
-        fields[34] = normalResult.getString("gp2_genotype"); // Gp2 genotype
-        fields[35] = normalResult.getString("gp2_residuals_normality_test"); // Gp2 Residuals normality test
-        fields[36] = normalResult.getString("blups_test"); // Blups test
-        fields[37] = normalResult.getString("rotated_residuals_normality_test"); // Rotated residuals normality test
-        fields[38] = normalResult.getString("intercept_estimate"); // Intercept estimate
-        fields[39] = normalResult.getString("intercept_standard_error"); // Intercept standard error
-        fields[40] = normalResult.getString("interaction_included"); // Interaction included
-        fields[41] = normalResult.getString("interaction_p_val"); // Interaction p-val
-        fields[42] = normalResult.getString("sex_fvko_estimate"); // Sex FvKO estimate
-        fields[43] = normalResult.getString("sex_fvko_standard_error"); // Sex FvKO standard error
-        fields[44] = normalResult.getString("sex_fvko_p_val"); // Sex FvKO p-val
-        fields[45] = normalResult.getString("sex_mvko_estimate"); // Sex MvKO estimate
-        fields[46] = normalResult.getString("sex_mvko_standard_error"); // Sex MvKO standard error
-        fields[47] = normalResult.getString("sex_mvko_p_val"); // Sex MvKO p-val
-        fields[48] = normalResult.getString("classification_tag"); // Classification tag
+        fields[19] = jsonResult.getString("batch_included"); // Batch included
+        fields[20] = jsonResult.getString("residual_variances_homogeneity"); // Residual variances homogeneity
+        fields[21] = jsonResult.getString("genotype_contribution"); // Genotype contribution
+        fields[22] = jsonResult.getString("genotype_estimate"); // Genotype estimate
+        fields[23] = jsonResult.getString("genotype_standard_error"); // Genotype standard error
+        fields[24] = jsonResult.getString("genotype_p_val"); // Genotype p-Val
+        fields[25] = jsonResult.getString("genotype_percentage_change"); // Genotype percentage change
+        fields[26] = jsonResult.getString("sex_estimate"); // Sex estimate
+        fields[27] = jsonResult.getString("sex_standard_error"); // Sex standard error
+        fields[28] = jsonResult.getString("sex_p_val"); // Sex p-val
+        fields[29] = jsonResult.getString("weight_estimate"); // Weight estimate
+        fields[30] = jsonResult.getString("weight_standard_error"); // Weight standard error
+        fields[31] = jsonResult.getString("weight_p_val"); // Weight p-val
+        fields[32] = jsonResult.getString("gp1_genotype"); // Gp1 genotype
+        fields[33] = jsonResult.getString("gp1_residuals_normality_test"); // Gp1 Residuals normality test
+        fields[34] = jsonResult.getString("gp2_genotype"); // Gp2 genotype
+        fields[35] = jsonResult.getString("gp2_residuals_normality_test"); // Gp2 Residuals normality test
+        fields[36] = jsonResult.getString("blups_test"); // Blups test
+        fields[37] = jsonResult.getString("rotated_residuals_normality_test"); // Rotated residuals normality test
+        fields[38] = jsonResult.getString("intercept_estimate"); // Intercept estimate
+        fields[39] = jsonResult.getString("intercept_standard_error"); // Intercept standard error
+        fields[40] = jsonResult.getString("interaction_included"); // Interaction included
+        fields[41] = jsonResult.getString("interaction_p_val"); // Interaction p-val
+        fields[42] = jsonResult.getString("sex_fvko_estimate"); // Sex FvKO estimate
+        fields[43] = jsonResult.getString("sex_fvko_standard_error"); // Sex FvKO standard error
+        fields[44] = jsonResult.getString("sex_fvko_p_val"); // Sex FvKO p-val
+        fields[45] = jsonResult.getString("sex_mvko_estimate"); // Sex MvKO estimate
+        fields[46] = jsonResult.getString("sex_mvko_standard_error"); // Sex MvKO standard error
+        fields[47] = jsonResult.getString("sex_mvko_p_val"); // Sex MvKO p-val
+        fields[48] = jsonResult.getString("classification_tag"); // Classification tag
         fields[49] = additionalInformation.toString(); // Additional information
 
 
@@ -909,6 +929,7 @@ public class WindowingStatisticalResultLoader extends BasicService implements Co
         result.setWeightAvailable(data.getWeightAvailable() != null && data.getWeightAvailable().equals("TRUE"));
 
         result.setCalculationTimeNanos(0L);
+        result.setAdditionalInformation(data.getAdditionalInformation());
 
         result.setStatus(data.getStatus()=="Success" ? data.getStatus() : data.getStatus() + " - " + data.getCode());
 
