@@ -18,11 +18,11 @@ allele = allele.replaceAll("##", "</sup>");
 <%@ attribute name="impcMediaBaseUrl" required="true" %>
      
      
-<div class="col-sm-6 col-md-3">
+<div class="col-sm-6 col-md-6">
 
     <div class="thumbnail">
         <a href="${impcMediaBaseUrl}/render_image/${img.omeroId}/"><img
-                src="${impcMediaBaseUrl}/render_birds_eye_view/${img.omeroId}/" style="max-width: 200px"></a>
+                src="${impcMediaBaseUrl}/render_thumbnail/${img.omeroId}/550" style="max-width: 800px"></a>
     </div>
 
     <div class="caption">
