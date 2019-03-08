@@ -23,14 +23,17 @@ ${data.mpTermId}
 	
 
 </c:if>
-<div class="row">
+
 <c:if test="${headlineImages!=null}">
-	<c:forEach var="image" items="${headlineImages}" >
-		<t:headline_image img="${image}" impcMediaBaseUrl="${impcMediaBaseUrl}"/>
-	</c:forEach>
+<br/>
+<h2>Flow cytometry results:</h2>
+	<div class="row">
 	
+		<c:forEach var="image" items="${headlineImages}" >
+			<t:headline_image img="${image}" impcMediaBaseUrl="${impcMediaBaseUrl}"/>
+		</c:forEach>
+	</div>
 </c:if>
-</div>
 
 <jsp:include page="unidimensionalTables.jsp"></jsp:include>
 
