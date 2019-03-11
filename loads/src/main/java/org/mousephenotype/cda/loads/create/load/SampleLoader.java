@@ -43,6 +43,7 @@ import org.springframework.util.Assert;
 
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.stream.Collectors;
 
 /**
  * Loads the specimens from a database with a dcc schema into the cda database.
@@ -225,9 +226,25 @@ public class SampleLoader implements CommandLineRunner {
 
         // Log warning sets
 
-        for (String missingColonyId : missingColonyIds) {
-            logger.warn(missingColonyId);
+        // Remove any colonyIds that are already known to be missing.
+        missingColonyIds
+                .stream()
+                .filter(colonyId -> ! missingColonyMap.containsKey(colonyId))
+                .collect(Collectors.toSet());
+
+        if ( ! missingColonyIds.isEmpty()) {
+            logger.warn("Missing colony ids:");
         }
+        missingColonyIds
+                .stream()
+                .distinct()
+                .sorted()
+                .map(colonyId -> {
+                    System.out.println(colonyId);
+                    return colonyId;
+                })
+                .collect(Collectors.toSet());
+
 
         for (MissingColonyId missing : missingColonyMap.values()) {
             if (missing.getLogLevel() == 1) {
