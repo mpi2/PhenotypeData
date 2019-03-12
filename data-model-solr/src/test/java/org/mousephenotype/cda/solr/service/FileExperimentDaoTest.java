@@ -1,5 +1,7 @@
 package org.mousephenotype.cda.solr.service;
 
+import static org.junit.Assert.assertFalse;
+
 import java.io.File;
 
 import javax.validation.constraints.NotNull;
@@ -28,7 +30,14 @@ public class FileExperimentDaoTest {
 
 	private final Logger logger = LoggerFactory.getLogger(FileExperimentDaoTest.class);
 
-	// Sring Configuration class
+	String center="MARC";
+	String procedure="IMPC_HEM";
+	String parameter="IMPC_HEM_038_001";
+	String colonyId="1110018G07Rik_HEPD0633_2_C09_1";
+	String zygosity="homozygote";
+	String metadata="08aa37a898ab923b9ffdbd01c0077040";
+	
+	// String Configuration class
 	// Only wire up the observation service for this test suite
 	@Configuration
 	@ComponentScan(
@@ -60,41 +69,30 @@ public class FileExperimentDaoTest {
 	@Autowired
 	FileExperimentDao fileExperimentDao;
 
+	@Test
+	public void testGetStatsSummary() {
+		fileExperimentDao.getStatsSummary(center, procedure, parameter, colonyId, zygosity, metadata);
+	}
 
 	@Test
-	public void getFileByCenterProcedureParameterAndColonyId(){
-///nfs/nobackup/spot/mouseinformatics/HAMED_HA/DR9.2/jobs/Results_9.2_V1/MARC/IMPC_HEM/IMPC_HEM_038_001/1110018G07Rik_HEPD0633_2_C09_1/homozygote/08aa37a898ab923b9ffdbd01c0077040/output_Successful.tsv
-		String center="MARC";
-		String procedure="IMPC_HEM";
-		String parameter="IMPC_HEM_038_001";
-		String colonyId="1110018G07Rik_HEPD0633_2_C09_1";
-		String zygosity="homozygote";
-		String metadata="08aa37a898ab923b9ffdbd01c0077040";
+	public void getFilePath(){
+		String filePath=fileExperimentDao.getFilePathFromIndex(center, procedure, parameter, colonyId, zygosity, metadata);
+		assertFalse(filePath.isEmpty());
 		
-		File file=fileExperimentDao.getFileByCenterProcedureParameterAndColonyId(center, procedure, parameter, colonyId, zygosity, metadata);
-		assert(file.isFile());
+		
 		
 	}
 	
 	@Test
-	public void readIndexFileTest() {
-		File indexFile=fileExperimentDao.readIndexFile();
-		assert(indexFile.isFile());
+	public void getFileWhenNotInIndex() {
+		String filePath=fileExperimentDao.getFilePathFromIndex("blah", procedure, parameter, colonyId, zygosity, metadata);
+		assert(filePath.isEmpty());
 	}
-
+	
 //	@Test
-//	public void getGrossPathObservationByProcedureNameAndGene(){
-//
-//		String procedureName="Gross Pathology and Tissue Collection";
-//		String geneAccession="MGI:2449119";
-//		try {
-//			List<ObservationDTO> result = fileExperimentDao.getObservationsByProcedureNameAndGene(procedureName, geneAccession);
-//			assertTrue(result.size()>0);
-//
-//		} catch (SolrServerException | IOException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
+//	public void readIndexFileTest() {
+//		File indexFile=fileExperimentDao.readIndexFile();
+//		assert(indexFile.isFile());
 //	}
 
 	
