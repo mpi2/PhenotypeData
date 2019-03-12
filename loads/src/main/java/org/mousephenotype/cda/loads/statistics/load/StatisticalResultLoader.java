@@ -1021,17 +1021,7 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
                     continue;
                 }
 
-                try (Connection connection = komp2DataSource.getConnection()) {
-
-                    PreparedStatement p = result.getSaveResultStatement(connection);
-                    p.executeUpdate();
-
-                    counts.put(result.getStatisticalMethod(), counts.getOrDefault(result.getStatisticalMethod(), 0) + 1);
-
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-
+                saveResult(counts, result);
             }
 
             for(String method : counts.keySet()) {
@@ -1043,6 +1033,22 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
         }
 
 
+    }
+
+
+    /**
+     * Sace the results object to the database
+     *
+     * @param counts
+     * @param result
+     */
+    protected void saveResult(Map<String, Integer> counts, LightweightResult result) {
+        try (Connection connection = komp2DataSource.getConnection(); PreparedStatement p = result.getSaveResultStatement(connection)) {
+            p.executeUpdate();
+            counts.put(result.getStatisticalMethod(), counts.getOrDefault(result.getStatisticalMethod(), 0) + 1);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -1068,18 +1074,7 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
         boolean regularFile = Files.isRegularFile(Paths.get(fileLocation));
         boolean directory = Files.isDirectory(Paths.get(fileLocation));
 
-        // Populate lookups
-        populateOrganisationMap();
-        populatePipelineMap();
-        populateProcedureMap();
-        populateColonyProcedureMap();
-        populateParameterMap();
-        populateDatasourceMap();
-        populateProjectMap();
-        populateColonyAlleleMap();
-        populateBioModelMap();
-        populateControlBioModelMap();
-        populateParameterTypeMap();
+        initializeMaps();
 
         if (regularFile) {
 
@@ -1109,6 +1104,21 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
         }
 
 
+    }
+
+    // Populate lookups
+    protected void initializeMaps() throws SQLException {
+        populateOrganisationMap();
+        populatePipelineMap();
+        populateProcedureMap();
+        populateColonyProcedureMap();
+        populateParameterMap();
+        populateDatasourceMap();
+        populateProjectMap();
+        populateColonyAlleleMap();
+        populateBioModelMap();
+        populateControlBioModelMap();
+        populateParameterTypeMap();
     }
 
     public static void main(String[] args) throws Exception {
