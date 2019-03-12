@@ -232,29 +232,19 @@ public class SampleLoader implements CommandLineRunner {
                 .filter(colonyId -> ! missingColonyMap.containsKey(colonyId))
                 .collect(Collectors.toSet());
 
+        // Log any remaining missing colonyIds and add them to the missing_colony_id table.
         if ( ! missingColonyIds.isEmpty()) {
             logger.warn("Missing colony ids:");
         }
         missingColonyIds
                 .stream()
-                .distinct()
                 .sorted()
                 .map(colonyId -> {
                     System.out.println(colonyId);
+                    cdaSqlUtils.insertMissingColonyId(colonyId, 0, "Missing from SampleLoader");
                     return colonyId;
                 })
                 .collect(Collectors.toSet());
-
-
-        for (MissingColonyId missing : missingColonyMap.values()) {
-            if (missing.getLogLevel() == 1) {
-                // Log the message as a warning
-                logger.warn(missing.getReason() + ". colonyId: " + missing.getColonyId());
-
-                // Add the missing colony id to the missing_colony_id table and set log_level to INFO.
-                cdaSqlUtils.insertMissingColonyId(missing.getColonyId(), 0, missing.getReason());
-            }
-        }
 
         for (String missingDatasourceShortName : missingDatasourceShortNames) {
             logger.warn(missingDatasourceShortName);
@@ -323,10 +313,7 @@ public class SampleLoader implements CommandLineRunner {
 
             PhenotypedColony phenotypedColony = phenotypedColonyMap.get(specimen.getColonyID());
             if ((phenotypedColony == null) || (phenotypedColony.getColonyName() == null)) {
-                String errMsg = "Unable to get phenotypedColony for experiment samples for colonyId "
-                        + specimen.getColonyID()
-                        + " to apply special 3i project remap rule. Rule NOT applied, defaulted to MGP project.";
-                missingColonyIds.add(errMsg);
+                missingColonyIds.add(specimen.getColonyID());
 
             } else {
 
@@ -384,8 +371,7 @@ public class SampleLoader implements CommandLineRunner {
             // If the strainId is still null, the colonyId was not found in iMits and the specimen.strainId is null.
             // We cannot create a strain without a strain name, so treat this as a missing colonyId.
             if ((specimen.getStrainID() == null) || (specimen.getStrainID().trim().isEmpty())) {
-                String message = "Specimen not found in phenotyped_colony table and specimen strainId is null. colonyId: " + specimen.getColonyID();
-                missingColonyIds.add(message);
+                missingColonyIds.add(specimen.getColonyID());
                 return null;
             }
 

@@ -41,6 +41,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.stream.Collectors;
 
 /**
  * Loads the experiments from a database with a dcc schema into the cda database.
@@ -364,20 +365,26 @@ public class ExperimentLoader implements CommandLineRunner {
 
         // Log warning sets
 
-        for (String missingColonyId : missingColonyIds) {
-            logger.warn(missingColonyId);
-        }
+        // Remove any colonyIds that are already known to be missing.
+        missingColonyIds
+                .stream()
+                .filter(colonyId -> ! missingColonyMap.containsKey(colonyId))
+                .collect(Collectors.toSet());
 
-        for (MissingColonyId missing : missingColonyMap.values()) {
-            if (missing.getLogLevel() == 1) {
-                // Log the message as a warning
-                message = missing.getReason() + ". colonyId: " + missing.getColonyId();
-                logger.warn(message);
-
-                // Add the missing colony id to the missing_colony_id table and set log_level to INFO.
-                cdaSqlUtils.insertMissingColonyId(missing.getColonyId(), 0, missing.getReason());
-            }
+        // Log any remaining missing colonyIds and add them to the missing_colony_id table.
+        if ( ! missingColonyIds.isEmpty()) {
+            logger.warn("Missing colony ids:");
         }
+        missingColonyIds
+                .stream()
+                .sorted()
+                .map(colonyId -> {
+                    System.out.println(colonyId);
+                    cdaSqlUtils.insertMissingColonyId(colonyId, 0, "Missing from ExperimentLoader");
+                    return colonyId;
+                })
+                .collect(Collectors.toSet());
+
 
         for (String missingDatasourceShortName : missingDatasourceShortNames) {
             logger.warn(missingDatasourceShortName);
@@ -524,10 +531,7 @@ public class ExperimentLoader implements CommandLineRunner {
 
             PhenotypedColony phenotypedColony = phenotypedColonyMap.get(dccExperiment.getColonyId());
             if ((phenotypedColony == null) || (phenotypedColony.getColonyName() == null)) {
-                String errMsg = "Unable to get phenotypedColony for experiment samples for colonyId "
-                        + dccExperiment.getColonyId()
-                        + " to apply special 3i project remap rule. Rule NOT applied, defaulted to MGP project.";
-                missingColonyIds.add(errMsg);
+                missingColonyIds.add(dccExperiment.getColonyId());
 
             } else {
 
@@ -775,7 +779,7 @@ public class ExperimentLoader implements CommandLineRunner {
 
             PhenotypedColony phenotypedColony = phenotypedColonyMap.get(dccExperiment.getColonyId());
             if ((phenotypedColony == null) || (phenotypedColony.getColonyName() == null)) {
-                missingColonyIds.add("Null/invalid colony '" + dccExperiment.getColonyId() + "'\tcenter\t" + dccExperiment.getPhenotypingCenter());
+                missingColonyIds.add(dccExperiment.getColonyId());
                 return null;
             }
 
