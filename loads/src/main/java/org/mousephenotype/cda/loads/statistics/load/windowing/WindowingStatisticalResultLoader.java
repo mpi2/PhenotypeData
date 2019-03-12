@@ -429,10 +429,19 @@ public class WindowingStatisticalResultLoader extends BasicService implements Co
         fields[8] = maleMutants == null ? "" : maleMutants.toString(); // count mm
         fields[9] = femaleMutants == null ? "" : femaleMutants.toString(); // count mf
 
-        fields[10] = categoriesFromJson.contains("Male_control") ? summaryStatistics.getJSONObject("Male_control").getString("mean") : ""; // mean cm
-        fields[11] = categoriesFromJson.contains("Female_control") ? summaryStatistics.getJSONObject("Female_control").getString("mean") : ""; // mean cf
-        fields[12] = categoriesFromJson.contains("Male_experimental") ? summaryStatistics.getJSONObject("Male_experimental").getString("mean") : ""; // mean mm
-        fields[13] = categoriesFromJson.contains("Female_experimental") ? summaryStatistics.getJSONObject("Female_experimental").getString("mean") : ""; // mean mf
+        String method = jsonResult.getString("method");
+
+        if (method.toLowerCase().startsWith("reference range")) {
+            fields[10] = ""; // mean cm
+            fields[11] = ""; // mean cf
+            fields[12] = ""; // mean mm
+            fields[13] = ""; // mean mf
+        } else {
+            fields[10] = categoriesFromJson.contains("Male_control") ? summaryStatistics.getJSONObject("Male_control").getString("mean") : ""; // mean cm
+            fields[11] = categoriesFromJson.contains("Female_control") ? summaryStatistics.getJSONObject("Female_control").getString("mean") : ""; // mean cf
+            fields[12] = categoriesFromJson.contains("Male_experimental") ? summaryStatistics.getJSONObject("Male_experimental").getString("mean") : ""; // mean mm
+            fields[13] = categoriesFromJson.contains("Female_experimental") ? summaryStatistics.getJSONObject("Female_experimental").getString("mean") : ""; // mean mf
+        }
 
         fields[14] = details.getString("concurrent_control_selection"); // control_strategy
         fields[15] = additionalInformation.getString("multibatch_in_analysis"); // workflow
@@ -448,7 +457,6 @@ public class WindowingStatisticalResultLoader extends BasicService implements Co
 
         fields[16] = weights.size() > 0 ? "true" : "false"; // weight available
 
-        String method = jsonResult.getString("method");
 
         final List<String> keysFromAddtionalInformation = new ArrayList<>();
         for (Iterator s = additionalInformation.keys(); s.hasNext(); ) {
