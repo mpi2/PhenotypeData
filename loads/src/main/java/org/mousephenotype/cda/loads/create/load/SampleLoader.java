@@ -227,7 +227,7 @@ public class SampleLoader implements CommandLineRunner {
         // Log warning sets
 
         // Remove any colonyIds that are already known to be missing.
-        missingColonyIds
+        missingColonyIds = missingColonyIds
                 .stream()
                 .filter(colonyId -> ! missingColonyMap.containsKey(colonyId))
                 .collect(Collectors.toSet());
