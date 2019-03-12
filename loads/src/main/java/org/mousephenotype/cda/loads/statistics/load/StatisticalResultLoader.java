@@ -16,12 +16,12 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.Profile;
 import org.springframework.util.Assert;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.sql.DataSource;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.sql.Connection;
@@ -32,6 +32,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @SpringBootApplication
+@Profile("!WINDOWING")
 @Import(value = {StatisticalResultLoaderConfig.class})
 public class StatisticalResultLoader extends BasicService implements CommandLineRunner {
 
@@ -49,10 +50,10 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
     protected Map<String, Integer> datasourceMap = new HashMap<>();
     protected Map<String, Integer> projectMap = new HashMap<>();
     protected Map<String, String> colonyAlleleMap = new HashMap<>();
-    protected Map<String, Map<String, String>> colonyProcedureMap = new HashMap<>();
+    private Map<String, Map<String, String>> colonyProcedureMap = new HashMap<>();
     protected Map<String, Map<ZygosityType, Integer>> bioModelMap = new HashMap<>();
     protected Map<Integer, String> bioModelStrainMap = new HashMap<>();
-    protected Map<String, Integer> controlBioModelMap = new HashMap<>();
+    private Map<String, Integer> controlBioModelMap = new HashMap<>();
     public Map<String, ObservationType> parameterTypeMap = new HashMap<>();
 
 
@@ -213,7 +214,7 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
     /**
      * Lookup procedure by colony
      *
-     * @throws SQLException
+     * @throws SQLException when db messes up
      */
     protected void populateColonyProcedureMap() throws SQLException {
         Map<String, Map<String, String>> map = colonyProcedureMap;
@@ -243,7 +244,7 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
     }
     /**
      * Lookup procedure by procedure group (split by "_" chop the last element)
-     * @throws SQLException
+     * @throws SQLException x
      */
     protected void populateProcedureMap() throws SQLException {
         Map<String, NameIdDTO> map = procedureMap;
@@ -445,7 +446,6 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
      48	Classification tag
      49	Additional information
      * @param data a line from a statistical results file
-     * @throws IOException
      */
     LineStatisticalResult getResult(String data, String filename) {
 
@@ -546,88 +546,83 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
             return result;
         }
 
-        switch(result.getStatus()) {
-            case "TESTED":
-                // Result was processed successfully by PhenStat, load the result object
+        if ("TESTED".equals(result.getStatus())) {
+            // Result was processed successfully by PhenStat, load the result object
 
-                // Always set status to Success with sucessfully processed
-                result.setStatus( "Success" );
+            // Always set status to Success with sucessfully processed
+            result.setStatus("Success");
 
 
-                // Vector output results from PhenStat start at field 19
-                int i = 19;
+            // Vector output results from PhenStat start at field 19
+            int i = 19;
 
-                result.setBatchIncluded( getBooleanField(fields[i++]) );
-                result.setResidualVariancesHomogeneity( getBooleanField(fields[i++]) );
-                result.setGenotypeContribution( getDoubleField(fields[i++]) );
-                result.setGenotypeEstimate( getStringField(fields[i++]) );
-                result.setGenotypeStandardError( getDoubleField(fields[i++]) );
-                result.setGenotypePVal( getStringField(fields[i++]) );
-                result.setGenotypePercentageChange( getStringField(fields[i++]) );
-                result.setSexEstimate( getDoubleField(fields[i++]) );
-                result.setSexStandardError( getDoubleField(fields[i++]) );
-                result.setSexPVal( getDoubleField(fields[i++]) );
-                result.setWeightEstimate( getDoubleField(fields[i++]) );
-                result.setWeightStandardError( getDoubleField(fields[i++]) );
-                result.setWeightPVal( getDoubleField(fields[i++]) );
-                result.setGroup1Genotype( getStringField(fields[i++]) );
-                result.setGroup1ResidualsNormalityTest( getDoubleField(fields[i++]) );
-                result.setGroup2Genotype( getStringField(fields[i++]) );
-                result.setGroup2ResidualsNormalityTest( getDoubleField(fields[i++]) );
-                result.setBlupsTest( getDoubleField(fields[i++]) );
-                result.setRotatedResidualsNormalityTest( getDoubleField(fields[i++]) );
-                result.setInterceptEstimate( getDoubleField(fields[i++]) );
-                result.setInterceptStandardError( getDoubleField(fields[i++]) );
-                result.setInteractionIncluded( getBooleanField(fields[i++]) );
-                result.setInteractionPVal( getDoubleField(fields[i++]) );
-                result.setSexFvKOEstimate( getDoubleField(fields[i++]) );
-                result.setSexFvKOStandardError( getDoubleField(fields[i++]) );
-                result.setSexFvKOPVal( getDoubleField(fields[i++]) );
-                result.setSexMvKOEstimate( getDoubleField(fields[i++]) );
-                result.setSexMvKOStandardError( getDoubleField(fields[i++]) );
-                result.setSexMvKOPVal( getDoubleField(fields[i++]) );
-                result.setClassificationTag( getStringField(fields[i++]) );
-                result.setAdditionalInformation( "file: "+  filename + "Additional: " + getStringField(fields[i++]) );
+            result.setBatchIncluded(getBooleanField(fields[i++]));
+            result.setResidualVariancesHomogeneity(getBooleanField(fields[i++]));
+            result.setGenotypeContribution(getDoubleField(fields[i++]));
+            result.setGenotypeEstimate(getStringField(fields[i++]));
+            result.setGenotypeStandardError(getDoubleField(fields[i++]));
+            result.setGenotypePVal(getStringField(fields[i++]));
+            result.setGenotypePercentageChange(getStringField(fields[i++]));
+            result.setSexEstimate(getDoubleField(fields[i++]));
+            result.setSexStandardError(getDoubleField(fields[i++]));
+            result.setSexPVal(getDoubleField(fields[i++]));
+            result.setWeightEstimate(getDoubleField(fields[i++]));
+            result.setWeightStandardError(getDoubleField(fields[i++]));
+            result.setWeightPVal(getDoubleField(fields[i++]));
+            result.setGroup1Genotype(getStringField(fields[i++]));
+            result.setGroup1ResidualsNormalityTest(getDoubleField(fields[i++]));
+            result.setGroup2Genotype(getStringField(fields[i++]));
+            result.setGroup2ResidualsNormalityTest(getDoubleField(fields[i++]));
+            result.setBlupsTest(getDoubleField(fields[i++]));
+            result.setRotatedResidualsNormalityTest(getDoubleField(fields[i++]));
+            result.setInterceptEstimate(getDoubleField(fields[i++]));
+            result.setInterceptStandardError(getDoubleField(fields[i++]));
+            result.setInteractionIncluded(getBooleanField(fields[i++]));
+            result.setInteractionPVal(getDoubleField(fields[i++]));
+            result.setSexFvKOEstimate(getDoubleField(fields[i++]));
+            result.setSexFvKOStandardError(getDoubleField(fields[i++]));
+            result.setSexFvKOPVal(getDoubleField(fields[i++]));
+            result.setSexMvKOEstimate(getDoubleField(fields[i++]));
+            result.setSexMvKOStandardError(getDoubleField(fields[i++]));
+            result.setSexMvKOPVal(getDoubleField(fields[i++]));
+            result.setClassificationTag(getStringField(fields[i++]));
+            result.setAdditionalInformation("file: " + filename + "Additional: " + getStringField(fields[i++]));
 
-                logger.debug("Last iteration left index i at: ", i);
+            logger.debug("Last iteration left index i at: ", i);
+        } else {
+            // Result was not processed by PhenStat
 
-                break;
-
-            default:
-                // Result was not processed by PhenStat
-
-                result.setBatchIncluded( null );
-                result.setResidualVariancesHomogeneity( null );
-                result.setGenotypeContribution( null );
-                result.setGenotypeEstimate( null );
-                result.setGenotypeStandardError( null );
-                result.setGenotypePVal( null );
-                result.setGenotypePercentageChange( null );
-                result.setSexEstimate( null );
-                result.setSexStandardError( null );
-                result.setSexPVal( null );
-                result.setWeightEstimate( null );
-                result.setWeightStandardError( null );
-                result.setWeightPVal( null );
-                result.setGroup1Genotype( null );
-                result.setGroup1ResidualsNormalityTest( null );
-                result.setGroup2Genotype( null );
-                result.setGroup2ResidualsNormalityTest( null );
-                result.setBlupsTest( null );
-                result.setRotatedResidualsNormalityTest( null );
-                result.setInterceptEstimate( null );
-                result.setInterceptStandardError( null );
-                result.setInteractionIncluded( null );
-                result.setInteractionPVal( null );
-                result.setSexFvKOEstimate( null );
-                result.setSexFvKOStandardError( null );
-                result.setSexFvKOPVal( null );
-                result.setSexMvKOEstimate( null );
-                result.setSexMvKOStandardError( null );
-                result.setSexMvKOPVal( null );
-                result.setClassificationTag( null );
-                result.setAdditionalInformation( "file: "+  filename );
-                break;
+            result.setBatchIncluded(null);
+            result.setResidualVariancesHomogeneity(null);
+            result.setGenotypeContribution(null);
+            result.setGenotypeEstimate(null);
+            result.setGenotypeStandardError(null);
+            result.setGenotypePVal(null);
+            result.setGenotypePercentageChange(null);
+            result.setSexEstimate(null);
+            result.setSexStandardError(null);
+            result.setSexPVal(null);
+            result.setWeightEstimate(null);
+            result.setWeightStandardError(null);
+            result.setWeightPVal(null);
+            result.setGroup1Genotype(null);
+            result.setGroup1ResidualsNormalityTest(null);
+            result.setGroup2Genotype(null);
+            result.setGroup2ResidualsNormalityTest(null);
+            result.setBlupsTest(null);
+            result.setRotatedResidualsNormalityTest(null);
+            result.setInterceptEstimate(null);
+            result.setInterceptStandardError(null);
+            result.setInteractionIncluded(null);
+            result.setInteractionPVal(null);
+            result.setSexFvKOEstimate(null);
+            result.setSexFvKOStandardError(null);
+            result.setSexFvKOPVal(null);
+            result.setSexMvKOEstimate(null);
+            result.setSexMvKOStandardError(null);
+            result.setSexMvKOPVal(null);
+            result.setClassificationTag(null);
+            result.setAdditionalInformation("file: " + filename);
         }
 
 
@@ -641,12 +636,12 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
         String name;
         String stableId;
 
-        public NameIdDTO(int dbId, String name) {
+        NameIdDTO(int dbId, String name) {
             this.dbId = dbId;
             this.name = name;
         }
 
-        public NameIdDTO(int dbId, String name, String stableId) {
+        NameIdDTO(int dbId, String name, String stableId) {
             this.dbId = dbId;
             this.name = name;
             this.stableId = stableId;
@@ -707,7 +702,7 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
             return null;
         }
 
-        NameIdDTO procedure = procedureMap.get(actualProc!=null ? actualProc : procedureMap.get(data.getProcedure()));
+        NameIdDTO procedure = procedureMap.get(actualProc);
 
         NameIdDTO parameter = parameterMap.get(data.getDependentVariable());
 
@@ -933,9 +928,9 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
 
         result.setCalculationTimeNanos(0L);
 
-        result.setStatus(data.getStatus()=="Success" ? data.getStatus() : data.getStatus() + " - " + data.getCode());
+        result.setStatus(data.getStatus().equals("Success") ? data.getStatus() : data.getStatus() + " - " + data.getCode());
 
-        if (data.getStatus()=="Success") {
+        if (data.getStatus().equals("Success")) {
             setMpTerm(result);
         }
 
@@ -982,7 +977,7 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
                     ((LightweightUnidimensionalResult) result).setMaleMpAcc(maleMpTerm.getId().getAccession());
                 }
 
-                if (femaleMpTerm != null && maleMpTerm != null && maleMpTerm.equals(femaleMpTerm)) {
+                if (maleMpTerm != null && maleMpTerm.equals(femaleMpTerm)) {
 
                     // Both female and male terms are defined and the same
                     result.setMpAcc(femaleMpTerm.getId().getAccession());
@@ -1003,7 +998,7 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
         }
     }
 
-    private void processFile(String loc) throws IOException {
+    private void processFile(String loc) {
 
         try {
             Map<String, Integer> counts = new HashMap<>();
@@ -1011,7 +1006,8 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
             for (String line : Files.readAllLines(Paths.get(loc))) {
 
                 if (line.startsWith("#")) {
-                    // This is a comment, see if there is
+                    // This is a comment, skip
+                    continue;
                 }
 
                 LightweightResult result = getBaseResult(getResult(line, Paths.get(loc).getFileName().toString()));
@@ -1039,8 +1035,8 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
     /**
      * Sace the results object to the database
      *
-     * @param counts
-     * @param result
+     * @param counts you know
+     * @param result you also know
      */
     protected void saveResult(Map<String, Integer> counts, LightweightResult result) {
         try (Connection connection = komp2DataSource.getConnection(); PreparedStatement p = result.getSaveResultStatement(connection)) {
@@ -1053,10 +1049,6 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
 
     @Override
         public void run(String... strings) throws Exception {
-
-        if ( ! (this instanceof StatisticalResultLoader)) {
-            return;
-        }
 
         logger.info("Starting statistical result loader");
 
@@ -1092,11 +1084,7 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
                 .parallel()
                 .forEach(p -> {
                     logger.info("Processing file: " + p.toAbsolutePath().toString());
-                    try {
-                        processFile(p.toAbsolutePath().toString());
-                    } catch (IOException e) {
-                        logger.warn("IO error proccessing file: " + p.toAbsolutePath().toString());
-                    }
+                    processFile(p.toAbsolutePath().toString());
                 });
 
         } else {
@@ -1121,7 +1109,7 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
         populateParameterTypeMap();
     }
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
         SpringApplication.run(StatisticalResultLoader.class, args);
     }
 

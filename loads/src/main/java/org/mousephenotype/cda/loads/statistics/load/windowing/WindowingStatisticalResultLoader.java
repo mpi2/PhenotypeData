@@ -7,8 +7,6 @@ import org.json.JSONObject;
 import org.mousephenotype.cda.db.statistics.LightweightResult;
 import org.mousephenotype.cda.db.statistics.LineStatisticalResult;
 import org.mousephenotype.cda.db.statistics.MpTermService;
-import org.mousephenotype.cda.enumerations.ObservationType;
-import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.loads.statistics.load.StatisticalResultLoader;
 import org.mousephenotype.cda.loads.statistics.load.StatisticalResultLoaderConfig;
 import org.slf4j.Logger;
@@ -16,39 +14,23 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.Profile;
 import org.springframework.util.Assert;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.sql.DataSource;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @SpringBootApplication
+@Profile("WINDOWING")
 @Import(value = {StatisticalResultLoaderConfig.class})
 public class WindowingStatisticalResultLoader extends StatisticalResultLoader implements CommandLineRunner {
 
     final private Logger logger = LoggerFactory.getLogger(getClass());
-
-    protected DataSource komp2DataSource;
-    protected MpTermService mpTermService;
-
-    protected Map<String, NameIdDTO> organisationMap = new HashMap<>();
-    protected Map<String, NameIdDTO> pipelineMap = new HashMap<>();
-    protected Map<String, NameIdDTO> procedureMap = new HashMap<>();
-    protected Map<String, NameIdDTO> parameterMap = new HashMap<>();
-
-    protected Map<String, Integer> datasourceMap = new HashMap<>();
-    protected Map<String, Integer> projectMap = new HashMap<>();
-    protected Map<String, String> colonyAlleleMap = new HashMap<>();
-    protected Map<String, Map<String, String>> colonyProcedureMap = new HashMap<>();
-    protected Map<String, Map<ZygosityType, Integer>> bioModelMap = new HashMap<>();
-    protected Map<Integer, String> bioModelStrainMap = new HashMap<>();
-    protected Map<String, Integer> controlBioModelMap = new HashMap<>();
-    public Map<String, ObservationType> parameterTypeMap = new HashMap<>();
 
 
     public WindowingStatisticalResultLoader() { }
@@ -78,8 +60,8 @@ public class WindowingStatisticalResultLoader extends StatisticalResultLoader im
         String fileLocation = (String) options.valuesOf("location").get(0);
 
         // If the location is a single file, parse it
-        boolean regularFile = Files.isRegularFile(Paths.get(fileLocation));
         boolean directory = Files.isDirectory(Paths.get(fileLocation));
+        boolean regularFile = Files.isRegularFile(Paths.get(fileLocation));
 
         initializeMaps();
 
@@ -184,19 +166,6 @@ public class WindowingStatisticalResultLoader extends StatisticalResultLoader im
             this.identifier = identifier;
         }
 
-        public static String getEnumNameForValue(Object value){
-            HEADERS[] values = HEADERS.values();
-            String enumValue = null;
-            for(HEADERS eachValue : values) {
-                enumValue = eachValue.toString();
-
-                if (enumValue.equalsIgnoreCase(value.toString())) {
-                    return eachValue.name();
-                }
-            }
-            return enumValue;
-        }
-
     }
 
 
@@ -208,7 +177,7 @@ public class WindowingStatisticalResultLoader extends StatisticalResultLoader im
      *
      *
      * @param data a line from a statistical results file
-     * @throws IOException
+     * @throws JSONException sometimes
      */
     LineStatisticalResult getResult(String data) throws JSONException {
 
@@ -526,88 +495,83 @@ public class WindowingStatisticalResultLoader extends StatisticalResultLoader im
 
         // fields[18] is a duplicate of fields[3]
 
-        switch(result.getStatus()) {
-            case "TESTED":
-                // Result was processed successfully by PhenStat, load the result object
+        if ("TESTED".equals(result.getStatus())) {
+            // Result was processed successfully by PhenStat, load the result object
 
-                // Always set status to Success with successfully processed
-                result.setStatus( "Success" );
+            // Always set status to Success with successfully processed
+            result.setStatus("Success");
 
 
-                // Vector output results from PhenStat start at field 19
-                int i = 19;
+            // Vector output results from PhenStat start at field 19
+            int i = 19;
 
-                result.setBatchIncluded( getBooleanField(fields[i++]) );
-                result.setResidualVariancesHomogeneity( getBooleanField(fields[i++]) );
-                result.setGenotypeContribution( getDoubleField(fields[i++]) );
-                result.setGenotypeEstimate( getStringField(fields[i++]) );
-                result.setGenotypeStandardError( getDoubleField(fields[i++]) );
-                result.setGenotypePVal( getStringField(fields[i++]) );
-                result.setGenotypePercentageChange( getStringField(fields[i++]) );
-                result.setSexEstimate( getDoubleField(fields[i++]) );
-                result.setSexStandardError( getDoubleField(fields[i++]) );
-                result.setSexPVal( getDoubleField(fields[i++]) );
-                result.setWeightEstimate( getDoubleField(fields[i++]) );
-                result.setWeightStandardError( getDoubleField(fields[i++]) );
-                result.setWeightPVal( getDoubleField(fields[i++]) );
-                result.setGroup1Genotype( getStringField(fields[i++]) );
-                result.setGroup1ResidualsNormalityTest( getDoubleField(fields[i++]) );
-                result.setGroup2Genotype( getStringField(fields[i++]) );
-                result.setGroup2ResidualsNormalityTest( getDoubleField(fields[i++]) );
-                result.setBlupsTest( getDoubleField(fields[i++]) );
-                result.setRotatedResidualsNormalityTest( getDoubleField(fields[i++]) );
-                result.setInterceptEstimate( getDoubleField(fields[i++]) );
-                result.setInterceptStandardError( getDoubleField(fields[i++]) );
-                result.setInteractionIncluded( getBooleanField(fields[i++]) );
-                result.setInteractionPVal( getDoubleField(fields[i++]) );
-                result.setSexFvKOEstimate( getDoubleField(fields[i++]) );
-                result.setSexFvKOStandardError( getDoubleField(fields[i++]) );
-                result.setSexFvKOPVal( getDoubleField(fields[i++]) );
-                result.setSexMvKOEstimate( getDoubleField(fields[i++]) );
-                result.setSexMvKOStandardError( getDoubleField(fields[i++]) );
-                result.setSexMvKOPVal( getDoubleField(fields[i++]) );
-                result.setClassificationTag( getStringField(fields[i++]) );
-                result.setAdditionalInformation( getStringField(fields[i++]) );
+            result.setBatchIncluded(getBooleanField(fields[i++]));
+            result.setResidualVariancesHomogeneity(getBooleanField(fields[i++]));
+            result.setGenotypeContribution(getDoubleField(fields[i++]));
+            result.setGenotypeEstimate(getStringField(fields[i++]));
+            result.setGenotypeStandardError(getDoubleField(fields[i++]));
+            result.setGenotypePVal(getStringField(fields[i++]));
+            result.setGenotypePercentageChange(getStringField(fields[i++]));
+            result.setSexEstimate(getDoubleField(fields[i++]));
+            result.setSexStandardError(getDoubleField(fields[i++]));
+            result.setSexPVal(getDoubleField(fields[i++]));
+            result.setWeightEstimate(getDoubleField(fields[i++]));
+            result.setWeightStandardError(getDoubleField(fields[i++]));
+            result.setWeightPVal(getDoubleField(fields[i++]));
+            result.setGroup1Genotype(getStringField(fields[i++]));
+            result.setGroup1ResidualsNormalityTest(getDoubleField(fields[i++]));
+            result.setGroup2Genotype(getStringField(fields[i++]));
+            result.setGroup2ResidualsNormalityTest(getDoubleField(fields[i++]));
+            result.setBlupsTest(getDoubleField(fields[i++]));
+            result.setRotatedResidualsNormalityTest(getDoubleField(fields[i++]));
+            result.setInterceptEstimate(getDoubleField(fields[i++]));
+            result.setInterceptStandardError(getDoubleField(fields[i++]));
+            result.setInteractionIncluded(getBooleanField(fields[i++]));
+            result.setInteractionPVal(getDoubleField(fields[i++]));
+            result.setSexFvKOEstimate(getDoubleField(fields[i++]));
+            result.setSexFvKOStandardError(getDoubleField(fields[i++]));
+            result.setSexFvKOPVal(getDoubleField(fields[i++]));
+            result.setSexMvKOEstimate(getDoubleField(fields[i++]));
+            result.setSexMvKOStandardError(getDoubleField(fields[i++]));
+            result.setSexMvKOPVal(getDoubleField(fields[i++]));
+            result.setClassificationTag(getStringField(fields[i++]));
+            result.setAdditionalInformation(getStringField(fields[i++]));
 
-                logger.debug("Last iteration left index i at: ", i);
+            logger.debug("Last iteration left index i at: ", i);
+        } else {
+            // Result was not processed by PhenStat
 
-                break;
-
-            default:
-                // Result was not processed by PhenStat
-
-                result.setBatchIncluded( null );
-                result.setResidualVariancesHomogeneity( null );
-                result.setGenotypeContribution( null );
-                result.setGenotypeEstimate( null );
-                result.setGenotypeStandardError( null );
-                result.setGenotypePVal( null );
-                result.setGenotypePercentageChange( null );
-                result.setSexEstimate( null );
-                result.setSexStandardError( null );
-                result.setSexPVal( null );
-                result.setWeightEstimate( null );
-                result.setWeightStandardError( null );
-                result.setWeightPVal( null );
-                result.setGroup1Genotype( null );
-                result.setGroup1ResidualsNormalityTest( null );
-                result.setGroup2Genotype( null );
-                result.setGroup2ResidualsNormalityTest( null );
-                result.setBlupsTest( null );
-                result.setRotatedResidualsNormalityTest( null );
-                result.setInterceptEstimate( null );
-                result.setInterceptStandardError( null );
-                result.setInteractionIncluded( null );
-                result.setInteractionPVal( null );
-                result.setSexFvKOEstimate( null );
-                result.setSexFvKOStandardError( null );
-                result.setSexFvKOPVal( null );
-                result.setSexMvKOEstimate( null );
-                result.setSexMvKOStandardError( null );
-                result.setSexMvKOPVal( null );
-                result.setClassificationTag( null );
-                result.setAdditionalInformation( "Orig data: "+  data );
-                break;
+            result.setBatchIncluded(null);
+            result.setResidualVariancesHomogeneity(null);
+            result.setGenotypeContribution(null);
+            result.setGenotypeEstimate(null);
+            result.setGenotypeStandardError(null);
+            result.setGenotypePVal(null);
+            result.setGenotypePercentageChange(null);
+            result.setSexEstimate(null);
+            result.setSexStandardError(null);
+            result.setSexPVal(null);
+            result.setWeightEstimate(null);
+            result.setWeightStandardError(null);
+            result.setWeightPVal(null);
+            result.setGroup1Genotype(null);
+            result.setGroup1ResidualsNormalityTest(null);
+            result.setGroup2Genotype(null);
+            result.setGroup2ResidualsNormalityTest(null);
+            result.setBlupsTest(null);
+            result.setRotatedResidualsNormalityTest(null);
+            result.setInterceptEstimate(null);
+            result.setInterceptStandardError(null);
+            result.setInteractionIncluded(null);
+            result.setInteractionPVal(null);
+            result.setSexFvKOEstimate(null);
+            result.setSexFvKOStandardError(null);
+            result.setSexFvKOPVal(null);
+            result.setSexMvKOEstimate(null);
+            result.setSexMvKOStandardError(null);
+            result.setSexMvKOPVal(null);
+            result.setClassificationTag(null);
+            result.setAdditionalInformation("Orig data: " + data);
         }
 
 
