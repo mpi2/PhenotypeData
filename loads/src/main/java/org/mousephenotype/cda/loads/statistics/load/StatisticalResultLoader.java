@@ -385,7 +385,7 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
 
 
     // Will return true only when str is TRUE or true
-    Boolean getBooleanField(String str) {
+    protected Boolean getBooleanField(String str) {
         return Boolean.parseBoolean(str);
     }
 
