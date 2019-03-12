@@ -1919,7 +1919,8 @@ INSERT INTO missing_colony_id (colony_id, log_level, reason) VALUES
 	('PMCY', -1, 'Known missing 3i colony id'),
 	('SPLY', -1, 'Known missing 3i colony id'),
 	('SPN', -1, 'Known missing 3i colony id'),
-	('TAAN', -1, 'Known missing 3i colony id')
+	('TAAN', -1, 'Known missing 3i colony id'),
+	('JR24351', -1, 'JAX - colony aborted. OK to omit colony. See e-mail to jmason dated 2018-10-11 13:46')
 ;
 
 
