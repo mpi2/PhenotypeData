@@ -11,7 +11,8 @@ import org.mousephenotype.cda.loads.common.CdaSqlUtils;
 import org.mousephenotype.cda.loads.common.config.DataSourceCdaConfig;
 import org.mousephenotype.cda.loads.common.config.DataSourceCdabaseConfig;
 import org.mousephenotype.cda.loads.common.config.DataSourceDccConfig;
-import org.mousephenotype.cda.loads.statistics.load.*;
+import org.mousephenotype.cda.loads.statistics.load.StatisticalResultFailed;
+import org.mousephenotype.cda.loads.statistics.load.StatisticalResultLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
@@ -760,7 +761,7 @@ public class ThreeIStatisticalResultLoader extends StatisticalResultLoader imple
 
     }
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
         SpringApplication.run(ThreeIStatisticalResultLoader.class, args);
     }
 
