@@ -15,7 +15,6 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.Profile;
 import org.springframework.util.Assert;
 
 import javax.inject.Inject;
@@ -27,7 +26,6 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @SpringBootApplication
-@Profile("WINDOWING")
 @Import(value = {StatisticalResultLoaderConfig.class})
 public class WindowingStatisticalResultLoader extends StatisticalResultLoader implements CommandLineRunner {
 
