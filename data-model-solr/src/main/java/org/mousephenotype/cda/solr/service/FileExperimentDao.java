@@ -53,16 +53,18 @@ public class FileExperimentDao {
         
     }
 
-    public void getStatsSummary(String center, String procedure, String parameter, String colonyId, String zygosity, String metadata) {
+    public Result getStatsSummary(String center, String procedure, String parameter, String colonyId, String zygosity, String metadata) {
     	String path=this.getFilePathFromIndex(center, procedure, parameter, colonyId, zygosity, metadata);
+    	Result result=null;
     	if(path.isEmpty()) {
     		System.err.println("no file at that path "+path);
     	}else {
-    		this.readSuccesFile(path);
+    		result= this.readSuccesFile(path);
     	}
+    	return result;
     }
     
-    public void readSuccesFile(String path) {
+    public Result readSuccesFile(String path) {
     	//need the details section of the json object
     	List<String> lines=null;
     	try (Stream<String> stream = Files.lines(Paths.get(path))) {
@@ -82,15 +84,16 @@ public class FileExperimentDao {
     	
     	ObjectMapper mapper = new ObjectMapper();
     	mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+    	StatsJson value =null;
     	try {
-    		StatsJson value = mapper.readValue(json , StatsJson.class);
+    		value = mapper.readValue(json , StatsJson.class);
     		System.out.println(value.getResult().getDetails().getResponseType());
     		System.out.println(value.getResult().getDetails());
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-    	
+    	return value.getResult();
     }
     
     /**

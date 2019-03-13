@@ -71,7 +71,7 @@ public class FileExperimentDaoTest {
 
 	@Test
 	public void testGetStatsSummary() {
-		fileExperimentDao.getStatsSummary(center, procedure, parameter, colonyId, zygosity, metadata);
+		Result result = fileExperimentDao.getStatsSummary(center, procedure, parameter, colonyId, zygosity, metadata);
 	}
 
 	@Test
