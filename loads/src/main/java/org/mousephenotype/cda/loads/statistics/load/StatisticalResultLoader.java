@@ -1065,6 +1065,7 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
 
         // Skip the main loader if we're loading windowing data
         if (options.has("windowing")) {
+            logger.info("Only loading windowing statistical result");
             return;
         }
 

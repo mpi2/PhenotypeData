@@ -53,12 +53,9 @@ public class WindowingStatisticalResultLoader extends StatisticalResultLoader im
 
         // parameter to indicate the location of the result file(s)
         OptionParser parser = new OptionParser();
+        parser.accepts("windowing").withOptionalArg().ofType(String.class).isRequired();
         parser.accepts("location").withRequiredArg().ofType(String.class).isRequired();
         OptionSet options = parser.parse(strings);
-        if ( ! options.hasArgument("location") ) {
-            logger.error("location argument missing");
-            return;
-        }
         String fileLocation = (String) options.valuesOf("location").get(0);
 
         // If the location is a single file, parse it
