@@ -87,8 +87,8 @@ public class FileExperimentDao {
     	StatsJson value =null;
     	try {
     		value = mapper.readValue(json , StatsJson.class);
-    		System.out.println(value.getResult().getDetails().getResponseType());
-    		System.out.println(value.getResult().getDetails());
+    		//System.out.println(value.getResult().getDetails().getResponseType());
+    		//System.out.println(value.getResult().getDetails());
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
