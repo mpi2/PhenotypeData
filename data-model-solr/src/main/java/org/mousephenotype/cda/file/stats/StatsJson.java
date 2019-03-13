@@ -1,4 +1,4 @@
-package org.mousephenotype.cda.solr.service;
+package org.mousephenotype.cda.file.stats;
 
 public class StatsJson {
 

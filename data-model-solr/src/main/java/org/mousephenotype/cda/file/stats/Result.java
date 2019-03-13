@@ -1,4 +1,5 @@
-package org.mousephenotype.cda.solr.service;
+package org.mousephenotype.cda.file.stats;
+
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.JsonNode;

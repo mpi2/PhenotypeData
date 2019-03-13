@@ -1,6 +1,8 @@
-package org.mousephenotype.cda.solr.service;
+package org.mousephenotype.cda.file.stats;
 
 import java.util.List;
+
+
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

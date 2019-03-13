@@ -1,4 +1,4 @@
-package org.mousephenotype.cda.solr.service;
+package org.mousephenotype.cda.file.stats;
 
 import static org.junit.Assert.assertFalse;
 
@@ -29,7 +29,7 @@ import org.springframework.test.context.support.AnnotationConfigContextLoader;
 public class FileExperimentDaoTest {
 
 	private final Logger logger = LoggerFactory.getLogger(FileExperimentDaoTest.class);
-
+//chart for this set here: http://www.mousephenotype.org/data/charts?accession=MGI:1915747&parameter_stable_id=IMPC_HEM_038_001
 	String center="MARC";
 	String procedure="IMPC_HEM";
 	String parameter="IMPC_HEM_038_001";

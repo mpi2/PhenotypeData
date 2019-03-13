@@ -13,7 +13,7 @@
  * language governing permissions and limitations under the
  * License.
  *******************************************************************************/
-package org.mousephenotype.cda.solr.service;
+package org.mousephenotype.cda.file.stats;
 
 import java.io.File;
 import java.io.IOException;
