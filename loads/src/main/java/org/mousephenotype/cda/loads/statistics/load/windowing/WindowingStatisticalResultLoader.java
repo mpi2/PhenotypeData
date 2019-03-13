@@ -65,6 +65,8 @@ public class WindowingStatisticalResultLoader extends StatisticalResultLoader im
         boolean directory = Files.isDirectory(Paths.get(fileLocation));
         boolean regularFile = Files.isRegularFile(Paths.get(fileLocation));
 
+        logger.info("Loading data from file {}", fileLocation);
+
         initializeMaps();
 
 
@@ -99,6 +101,8 @@ public class WindowingStatisticalResultLoader extends StatisticalResultLoader im
             Map<String, Integer> counts = new HashMap<>();
 
             AtomicInteger c = new AtomicInteger();
+
+            logger.info("Processing file {} by streaming", loc);
             Files.lines(Paths.get(loc)).forEach(line -> {
 
                 LightweightResult result;

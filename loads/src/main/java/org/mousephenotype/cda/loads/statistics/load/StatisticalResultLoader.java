@@ -1048,21 +1048,25 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
     @Override
         public void run(String... strings) throws Exception {
 
-        if ( ! (this instanceof StatisticalResultLoader) ) {
-            return;
-        }
-
         logger.info("Starting statistical result loader");
 
         // parameter to indicate the location of the result file(s)
         OptionParser parser = new OptionParser();
         parser.accepts("location").withRequiredArg().ofType(String.class).isRequired();
+        parser.accepts("windowing").withOptionalArg().ofType(String.class).isRequired();
         OptionSet options = parser.parse(strings);
+
         if ( ! options.hasArgument("location") ) {
             logger.error("location argument missing");
             return;
         }
+
         String fileLocation = (String) options.valuesOf("location").get(0);
+
+        // Skip the main loader if we're loading windowing data
+        if (options.has("windowing")) {
+            return;
+        }
 
         // If the location is a single file, parse it
         boolean regularFile = Files.isRegularFile(Paths.get(fileLocation));
@@ -1098,6 +1102,9 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
 
     // Populate lookups
     protected void initializeMaps() throws SQLException {
+
+        logger.info("Initializing maps");
+
         populateOrganisationMap();
         populatePipelineMap();
         populateProcedureMap();
@@ -1109,6 +1116,9 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
         populateBioModelMap();
         populateControlBioModelMap();
         populateParameterTypeMap();
+
+        logger.info("Done initializing maps");
+
     }
 
     public static void main(String[] args) {
