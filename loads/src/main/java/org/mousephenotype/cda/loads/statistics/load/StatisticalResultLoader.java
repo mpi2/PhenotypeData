@@ -897,10 +897,10 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
         result.setFemaleMutantCount(data.getCountMutantFemale());
 
         Set<String> sexes = new HashSet<>();
-        if (data.getCountMutantMale()>3) {
+        if (data.getCountMutantMale() != null && data.getCountMutantMale()>3) {
             sexes.add("male");
         }
-        if (data.getCountMutantFemale()>3) {
+        if (data.getCountMutantFemale() != null && data.getCountMutantFemale()>3) {
             sexes.add("female");
         }
 
