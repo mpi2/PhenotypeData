@@ -361,7 +361,7 @@ public class ExperimentLoader implements CommandLineRunner {
 
         // Log any remaining missing colonyIds and add them to the missing_colony_id table.
         if ( ! missingColonyIds.isEmpty()) {
-            logger.warn("Missing colony ids:");
+            logger.warn("{} missing colony ids:", missingColonyIds.size());
         }
         missingColonyIds
                 .stream()
@@ -1006,8 +1006,7 @@ public class ExperimentLoader implements CommandLineRunner {
         Date dccDate = dccExperiment.getDateOfExperiment();
         String message = "Invalid experiment date '" + dccDate + "'" +
                 " for datasource " + dccExperiment.getDatasourceShortName() +
-                ", center " + dccExperiment.getPhenotypingCenter() +
-                ", experimentId '" + dccExperiment.getExperimentId() + "'";
+                ", center " + dccExperiment.getPhenotypingCenter();
 
         try {
 
