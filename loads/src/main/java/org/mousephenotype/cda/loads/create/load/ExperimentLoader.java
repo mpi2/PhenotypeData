@@ -41,6 +41,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.stream.Collectors;
 
 /**
  * Loads the experiments from a database with a dcc schema into the cda database.
@@ -66,7 +67,6 @@ public class ExperimentLoader implements CommandLineRunner {
 
     private Set<String> badDates                     = new ConcurrentSkipListSet<>();
     private Set<String> experimentsMissingSamples    = new ConcurrentSkipListSet<>();        // value = specimenId + "_" + cda phenotypingCenterPk
-    private Set<String> ignoredExperimentsInfo       = new ConcurrentSkipListSet<>();
     private Set<String> missingBackgroundStrains     = new ConcurrentSkipListSet<>();
     private Set<String> missingColonyIds             = new ConcurrentSkipListSet<>();
     private Set<String> missingProjects              = new ConcurrentSkipListSet<>();
@@ -269,7 +269,6 @@ public class ExperimentLoader implements CommandLineRunner {
             UniqueExperimentId uniqueExperiment = new UniqueExperimentId(dccExperiment.getPhenotypingCenter(), dccExperiment.getExperimentId());
 
             if (ignoredExperiments.contains(uniqueExperiment)) {
-                ignoredExperimentsInfo.add("Ignoring center::experiment " + ignoredExperiments.toString());
                 continue;
             }
 
@@ -334,12 +333,6 @@ public class ExperimentLoader implements CommandLineRunner {
 
         System.out.println("New biological models for line-level experiments: " + bioModelsAddedCount);
 
-        if (dccExperiments.size() != Integer.parseInt(loadCounts.get(1).get(0))) {
-            logger.warn("Failed to load all experiments from DCC. Expected {}, Loaded {}", dccExperiments.size(), loadCounts.get(1).get(0));
-        } else {
-            logger.info("Loaded all expected experiments from DCC. Expected {}, Loaded {}", dccExperiments.size(), loadCounts.get(1).get(0));
-        }
-
         // Log info sets
 
         for (String missingBackgroundStrain : missingBackgroundStrains) {
@@ -353,10 +346,6 @@ public class ExperimentLoader implements CommandLineRunner {
             }
         }
 
-        for (String ignoredExperimentInfo : ignoredExperimentsInfo) {
-            logger.info(ignoredExperimentInfo);
-        }
-
         for (String badDate : badDates) {
             logger.info(badDate);
         }
@@ -364,20 +353,26 @@ public class ExperimentLoader implements CommandLineRunner {
 
         // Log warning sets
 
-        for (String missingColonyId : missingColonyIds) {
-            logger.warn(missingColonyId);
-        }
+        // Remove any colonyIds that are already known to be missing.
+        missingColonyIds = missingColonyIds
+                .stream()
+                .filter(colonyId -> ! missingColonyMap.containsKey(colonyId))
+                .collect(Collectors.toSet());
 
-        for (MissingColonyId missing : missingColonyMap.values()) {
-            if (missing.getLogLevel() == 1) {
-                // Log the message as a warning
-                message = missing.getReason() + ". colonyId: " + missing.getColonyId();
-                logger.warn(message);
-
-                // Add the missing colony id to the missing_colony_id table and set log_level to INFO.
-                cdaSqlUtils.insertMissingColonyId(missing.getColonyId(), 0, missing.getReason());
-            }
+        // Log any remaining missing colonyIds and add them to the missing_colony_id table.
+        if ( ! missingColonyIds.isEmpty()) {
+            logger.warn("{} missing colony ids:", missingColonyIds.size());
         }
+        missingColonyIds
+                .stream()
+                .sorted()
+                .map(colonyId -> {
+                    System.out.println(colonyId);
+                    cdaSqlUtils.insertMissingColonyId(colonyId, 0, "Missing from ExperimentLoader");
+                    return colonyId;
+                })
+                .collect(Collectors.toSet());
+
 
         for (String missingDatasourceShortName : missingDatasourceShortNames) {
             logger.warn(missingDatasourceShortName);
@@ -524,10 +519,7 @@ public class ExperimentLoader implements CommandLineRunner {
 
             PhenotypedColony phenotypedColony = phenotypedColonyMap.get(dccExperiment.getColonyId());
             if ((phenotypedColony == null) || (phenotypedColony.getColonyName() == null)) {
-                String errMsg = "Unable to get phenotypedColony for experiment samples for colonyId "
-                        + dccExperiment.getColonyId()
-                        + " to apply special 3i project remap rule. Rule NOT applied, defaulted to MGP project.";
-                missingColonyIds.add(errMsg);
+                missingColonyIds.add(dccExperiment.getColonyId());
 
             } else {
 
@@ -775,7 +767,7 @@ public class ExperimentLoader implements CommandLineRunner {
 
             PhenotypedColony phenotypedColony = phenotypedColonyMap.get(dccExperiment.getColonyId());
             if ((phenotypedColony == null) || (phenotypedColony.getColonyName() == null)) {
-                missingColonyIds.add("Null/invalid colony '" + dccExperiment.getColonyId() + "'\tcenter\t" + dccExperiment.getPhenotypingCenter());
+                missingColonyIds.add(dccExperiment.getColonyId());
                 return null;
             }
 
@@ -1012,7 +1004,9 @@ public class ExperimentLoader implements CommandLineRunner {
         SimpleDateFormat dateFormat  = new SimpleDateFormat("yyyy-MM-dd");
 
         Date dccDate = dccExperiment.getDateOfExperiment();
-        String message = "Invalid experiment date '" + dccDate + "' for center " + dccExperiment.getPhenotypingCenter();
+        String message = "Invalid experiment date '" + dccDate + "'" +
+                " for datasource " + dccExperiment.getDatasourceShortName() +
+                ", center " + dccExperiment.getPhenotypingCenter();
 
         try {
 
@@ -1366,9 +1360,15 @@ public class ExperimentLoader implements CommandLineRunner {
                     try {
                         timePoint = simpleDateFormat.parse(parsedIncrementValue);                                       // timePoint (overridden if increment value represents a date.
                         SimpleDateFormat ymdFormat = new SimpleDateFormat("yyyy-MM-dd");
+
                         Date maxDate = new Date();
                         Date minDate = ymdFormat.parse("1975-01-01");
-                        String message = "Invalid timepoint date '" + ymdFormat.format(timePoint) + "' for center " + dccExperiment.getPhenotypingCenter();
+                        String message = "Invalid timepoint date '" + ymdFormat.format(timePoint) + "'" +
+                                " for datasource " + dccExperiment.getDatasourceShortName() +
+                                ", center " + dccExperiment.getPhenotypingCenter() +
+                                ", experimentId '" + dccExperiment.getExperimentId() + "'";
+
+
                         if ( ! commonUtils.isDateValid(timePoint, minDate, maxDate)) {
                             valueMissing = 1;
                             badDates.add(message);
