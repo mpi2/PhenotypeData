@@ -25,11 +25,7 @@ import org.mousephenotype.cda.enumerations.EmbryoViability;
 import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
-import org.mousephenotype.cda.solr.service.ExperimentService;
-import org.mousephenotype.cda.solr.service.GeneService;
-import org.mousephenotype.cda.solr.service.ImageService;
-import org.mousephenotype.cda.solr.service.ImpressService;
-import org.mousephenotype.cda.solr.service.StatisticalResultService;
+import org.mousephenotype.cda.solr.service.*;
 import org.mousephenotype.cda.solr.service.dto.*;
 import org.mousephenotype.cda.solr.service.exception.SpecificExperimentException;
 import org.mousephenotype.cda.solr.web.dto.EmbryoViability_DTO;
@@ -573,6 +569,15 @@ public class ChartsController {
 
         final int totalSamples = Stream.of(numberFemaleMutantMice, numberMaleMutantMice, numberFemaleControlMice, numberMaleControlMice).filter(Objects::nonNull).mapToInt(Integer::intValue).sum();
         model.addAttribute("numberMice", totalSamples);
+
+        String zygosityString = "carry";
+        if (zygosity != null && zygosity.length > 0) {
+            zygosityString = "are " + StringUtils.join(Arrays.asList(zygosity), ", ") + " for";
+        }
+
+        zygosityString = zygosityString.replaceAll("zygote", "zygous");
+
+        model.addAttribute("zygosity", zygosityString);
         return "chart";
     }
     
