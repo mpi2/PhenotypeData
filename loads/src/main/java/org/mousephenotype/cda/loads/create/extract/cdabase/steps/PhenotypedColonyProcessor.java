@@ -16,7 +16,7 @@
 
 package org.mousephenotype.cda.loads.create.extract.cdabase.steps;
 
-import com.mysql.jdbc.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.mousephenotype.cda.db.pojo.*;
 import org.mousephenotype.cda.enumerations.DbIdType;
 import org.mousephenotype.cda.loads.common.CdaSqlUtils;
@@ -59,15 +59,15 @@ public class PhenotypedColonyProcessor implements ItemProcessor<PhenotypedColony
 
     private final String[] expectedHeadings = new String[] {
             "Marker Symbol"
-          , "MGI Accession ID"
-          , "Colony Name"
-          , "Es Cell Name"
-          , "Colony Background Strain"
-          , "Cohort Production Centre"
-          , "Production Consortium"
-          , "Phenotyping Centre"
-          , "Phenotyping Consortium"
-          , "Allele Symbol"
+            , "MGI Accession ID"
+            , "Colony Name"
+            , "Es Cell Name"
+            , "Colony Background Strain"
+            , "Cohort Production Centre"
+            , "Production Consortium"
+            , "Phenotyping Centre"
+            , "Phenotyping Consortium"
+            , "Allele Symbol"
     };
 
 
@@ -85,15 +85,15 @@ public class PhenotypedColonyProcessor implements ItemProcessor<PhenotypedColony
         if (lineNumber == 1) {
             String[] actualHeadings = new String[] {
                     newPhenotypedColony.getGene().getSymbol()
-                  , newPhenotypedColony.getGene().getId().getAccession()
-                  , newPhenotypedColony.getColonyName()
-                  , newPhenotypedColony.getEs_cell_name()
-                  , newPhenotypedColony.getBackgroundStrain()
-                  , newPhenotypedColony.getProductionCentre().getName()
-                  , newPhenotypedColony.getProductionConsortium().getName()
-                  , newPhenotypedColony.getPhenotypingCentre().getName()
-                  , newPhenotypedColony.getPhenotypingConsortium().getName()
-                  , newPhenotypedColony.getAlleleSymbol()
+                    , newPhenotypedColony.getGene().getId().getAccession()
+                    , newPhenotypedColony.getColonyName()
+                    , newPhenotypedColony.getEs_cell_name()
+                    , newPhenotypedColony.getBackgroundStrain()
+                    , newPhenotypedColony.getProductionCentre().getName()
+                    , newPhenotypedColony.getProductionConsortium().getName()
+                    , newPhenotypedColony.getPhenotypingCentre().getName()
+                    , newPhenotypedColony.getPhenotypingConsortium().getName()
+                    , newPhenotypedColony.getAlleleSymbol()
             };
 
             for (int i = 0; i < expectedHeadings.length; i++) {
@@ -142,7 +142,7 @@ public class PhenotypedColonyProcessor implements ItemProcessor<PhenotypedColony
         // Every colony should have an allele symbol rovided by iMits
         // Validate that the allele symbol is not null or empty string
         //
-        if ( StringUtils.isNullOrEmpty(newPhenotypedColony.getAlleleSymbol()) ) {
+        if (StringUtils.isEmpty(newPhenotypedColony.getAlleleSymbol()) ) {
             logger.warn("Allele symbol is null or empty for colony {}. Skipping record", newPhenotypedColony.getColonyName());
             return null;
         }
