@@ -3,6 +3,7 @@ package org.mousephenotype.cda.file.stats;
 import static org.junit.Assert.assertFalse;
 
 import java.io.File;
+import java.util.List;
 
 import javax.validation.constraints.NotNull;
 
@@ -71,31 +72,40 @@ public class FileExperimentDaoTest {
 
 	@Test
 	public void testGetStatsSummary() {
-		Result result = fileExperimentDao.getStatsSummary(center, procedure, parameter, colonyId, zygosity, metadata);
+		Stats result = fileExperimentDao.getStatsSummary(center, procedure, parameter, colonyId, zygosity, metadata);
 	System.out.println("result = "+result);
 	}
 
-	@Test
-	public void getFilePath(){
-		String filePath=fileExperimentDao.getFilePathFromIndex(center, procedure, parameter, colonyId, zygosity, metadata);
-		assertFalse(filePath.isEmpty());
-		
-		
-		
-	}
-	
-	@Test
-	public void getFileWhenNotInIndex() {
-		String filePath=fileExperimentDao.getFilePathFromIndex("blah", procedure, parameter, colonyId, zygosity, metadata);
-		assert(filePath.isEmpty());
-	}
-	
 //	@Test
-//	public void readIndexFileTest() {
-//		File indexFile=fileExperimentDao.readIndexFile();
-//		assert(indexFile.isFile());
+//	public void getFilePath(){
+//		String filePath=fileExperimentDao.getFilePathFromIndex(center, procedure, parameter, colonyId, zygosity, metadata);
+//		assertFalse(filePath.isEmpty());
+//		
+//		
+//		
 //	}
+//	
+//	@Test
+//	public void getFileWhenNotInIndex() {
+//		String filePath=fileExperimentDao.getFilePathFromIndex("blah", procedure, parameter, colonyId, zygosity, metadata);
+//		assert(filePath.isEmpty());
+//	}
+	
+	@Test
+	public void readIndexFileTest() {
+		File indexFile=fileExperimentDao.readIndexFile();
+		assert(indexFile.isFile());
+	}
 
+	
+	@Test
+	public void getParameterOptionsForRequest() {
+		List<String> filePaths = fileExperimentDao.getParameterOptionsForRequest(center, parameter, metadata);
+		assert(filePaths.size()>0);
+		filePaths.forEach(blah -> System.out.println(blah));
+		System.out.println("filepaths size="+filePaths.size());
+		
+	}
 	
 	
 

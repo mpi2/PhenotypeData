@@ -4,10 +4,17 @@ import static org.springframework.web.bind.annotation.ValueConstants.DEFAULT_NON
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.List;
+import java.util.Map;
 
+import javax.annotation.Resource;
 import javax.inject.Inject;
 
 import org.apache.solr.client.solrj.SolrServerException;
+import org.mousephenotype.cda.file.stats.FileExperimentDao;
+import org.mousephenotype.cda.file.stats.Result;
+import org.mousephenotype.cda.file.stats.Stats;
+import org.mousephenotype.cda.file.stats.StatsJson;
 import org.mousephenotype.cda.solr.service.exception.SpecificExperimentException;
 import org.mousephenotype.cda.web.ChartType;
 import org.springframework.stereotype.Controller;
@@ -21,12 +28,15 @@ import uk.ac.ebi.phenotype.error.ParameterNotFoundException;
 @Controller
 public class FileChartController {
 
-	private FileUnidimensionalChartAndTableProvider fileProvider;
-
+	 @Resource(name = "globalConfiguration")
+	    private Map<String, String> config;
+	 
+	//private FileUnidimensionalChartAndTableProvider fileProvider;
+	private FileExperimentDao statsProvider;
 
 	@Inject
-    public FileChartController(FileUnidimensionalChartAndTableProvider fileProvider) {
-		this.fileProvider=fileProvider;
+    public FileChartController(FileExperimentDao statsProvider) {
+		this.statsProvider=statsProvider;
 	}
     		
     		
@@ -47,6 +57,9 @@ public class FileChartController {
                         @RequestParam(required = false, value = "standAlone") boolean standAlone, Model model)
             throws ParameterNotFoundException, IOException, URISyntaxException, SolrServerException, SpecificExperimentException {
 System.out.println("got to file chart controller");
+		List<String> filePaths = statsProvider.getParameterOptionsForRequest(phenotypingCenter, parameterStableId, metadataGroup);
+		System.out.println("filePaths.size="+filePaths.size());
+        Stats result = statsProvider.getStatsSummary(phenotypingCenter, "", parameterStableId, "", zygosity[0], metadataGroup);
 		return "fileChart";
 	}
 }

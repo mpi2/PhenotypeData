@@ -2,7 +2,6 @@ package org.mousephenotype.cda.file.stats;
 
 public class StatsJson {
 
-	//private Result result;
 private Result result;
 
 public Result getResult() {

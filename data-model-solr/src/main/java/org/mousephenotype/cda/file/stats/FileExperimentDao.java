@@ -23,9 +23,16 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import javax.inject.Inject;
+
+import org.apache.solr.client.solrj.SolrClient;
+import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -39,23 +46,24 @@ public class FileExperimentDao {
     private static final String indexFilename="Index_V1_DR92.txt";
     private static final String successFileName="output_Successful.tsv";
     
+    
     private final String rootStatsDirectory;
+   
     private final String originalDirectory;//need this to chop off path from the index file for replacement with local root directory!
 	private File indexFile;
 	private List<String> succesfulOnly;
 
-
-    
-    public FileExperimentDao(String rootDataDirectory, String originalDirectory) {
+	@Inject
+    public FileExperimentDao(@Value("${root_stats_directory}")String rootDataDirectory,@Value("${original_stats_directory}") String originalDirectory) {
         this.rootStatsDirectory = rootDataDirectory;
         this.originalDirectory=originalDirectory;
         this.readIndexFile();
         
     }
 
-    public Result getStatsSummary(String center, String procedure, String parameter, String colonyId, String zygosity, String metadata) {
+    public Stats getStatsSummary(String center, String procedure, String parameter, String colonyId, String zygosity, String metadata) {
     	String path=this.getFilePathFromIndex(center, procedure, parameter, colonyId, zygosity, metadata);
-    	Result result=null;
+    	Stats result=null;
     	if(path.isEmpty()) {
     		System.err.println("no file at that path "+path);
     	}else {
@@ -64,7 +72,7 @@ public class FileExperimentDao {
     	return result;
     }
     
-    public Result readSuccesFile(String path) {
+    private Stats readSuccesFile(String path) {
     	//need the details section of the json object
     	List<String> lines=null;
     	try (Stream<String> stream = Files.lines(Paths.get(path))) {
@@ -93,7 +101,9 @@ public class FileExperimentDao {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-    	return value.getResult();
+    	
+    	Stats stats=new Stats(summaryInfo, value.getResult());
+    	return stats;
     }
     
     /**
@@ -141,6 +151,18 @@ public class FileExperimentDao {
 		
 		
 		return indexFile;
+	}
+
+
+	public List<String> getParameterOptionsForRequest(String phenotypingCenter, String parameterStableId,
+			String metadataGroup) {
+		
+		Stream<String> filePaths=succesfulOnly.stream();
+		List<String> pathsForRequest = filePaths
+		.filter(string -> string.contains(phenotypingCenter))
+		.filter(string -> string.contains(parameterStableId)).collect(Collectors.toList());
+		return pathsForRequest;
+		
 	}
 
     

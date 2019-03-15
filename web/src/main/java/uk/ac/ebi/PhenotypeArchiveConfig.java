@@ -31,7 +31,8 @@ import java.util.concurrent.TimeUnit;
         "org.mousephenotype.cda.solr",
         "org.mousephenotype.cda.utilities",
         "org.mousephenotype.cda.db",
-        "uk.ac.ebi.phenotype.web.controller"},
+        "uk.ac.ebi.phenotype.web.controller"
+        ,"org.mousephenotype.cda.file.stats"},
         excludeFilters = @ComponentScan.Filter(value = org.mousephenotype.cda.annotations.ComponentScanNonParticipant.class, type = FilterType.ANNOTATION))
 @PropertySource("file:${user.home}/configfiles/${profile:dev}/application.properties")
 @EnableScheduling
@@ -73,6 +74,8 @@ public class PhenotypeArchiveConfig {
     @NotNull
     @Value("${paBaseUrl}")
     private String paBaseUrl;
+    
+
 
     @Bean(name = "globalConfiguration")
     public Map<String, String> getGlobalConfig() {
