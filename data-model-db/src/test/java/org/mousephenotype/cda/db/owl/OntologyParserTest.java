@@ -5,6 +5,7 @@ package org.mousephenotype.cda.db.owl;
  * Refactored by mrelac on 07/12/2018.
  */
 
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.owl.OntologyParser;
@@ -91,8 +92,13 @@ public class OntologyParserTest {
         // Test both HP and MP terms are considered.
         // Abnormal glucose homeostasis MP:0002078 is equivalent to HP:0011014
         term = ontologyParser.getOntologyTerm("MP:0002078");
+        String expectedSynonym = "Abnormal C-peptide level";
 
-        assertTrue("HP synonym not found, was looking for Abnormal C-peptide level ." , ontologyParser.getNarrowSynonyms(term,2).contains("Abnormal C-peptide level"));
+        Set<String> terms = ontologyParser.getNarrowSynonyms(term,2);
+        if ( ! terms.contains(expectedSynonym)) {
+            System.out.println("Found synonyms: " + StringUtils.join(terms, ", "));
+            fail("Expected synonym '" + expectedSynonym + "' but was not found in Found synonymns.");
+        }
     }
 
 
