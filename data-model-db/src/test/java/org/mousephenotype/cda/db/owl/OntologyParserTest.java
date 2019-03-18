@@ -70,7 +70,7 @@ public class OntologyParserTest {
 		OntologyParserFactory f = new OntologyParserFactory(komp2DataSource, owlpath);
 
 		ontologyParser = f.getUberonParser();
-		assertNotNull(ontologyParser);
+        assertNotNull(ontologyParser);
     }
 
 
@@ -90,9 +90,9 @@ public class OntologyParserTest {
         assertTrue("Narrow synonyms list does not contain an exact synonym!", narrowSynonyms.contains("complete hearing loss"));
 
         // Test both HP and MP terms are considered.
-        // Abnormal glucose homeostasis MP:0002078 is equivalent to HP:0011014
+        // MP:0002078, 'Abnormal glucose homeostasis' is equivalent to HP:0001952, 'Glucose intolerance'
         term = ontologyParser.getOntologyTerm("MP:0002078");
-        String expectedSynonym = "Abnormal C-peptide level";
+        String expectedSynonym = "Glucose intolerance";
 
         Set<String> terms = ontologyParser.getNarrowSynonyms(term,2);
         if ( ! terms.contains(expectedSynonym)) {
