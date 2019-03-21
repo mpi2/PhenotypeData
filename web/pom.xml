@@ -335,6 +335,11 @@
             <scope>compile</scope>
         </dependency>
 
+        <dependency>
+        	<groupId>uk.ac.ebi.phenotype</groupId>
+        	<artifactId>stats-rest-service</artifactId>
+        	<version>0.0.1</version>
+        </dependency>
     </dependencies>
 
     <build>

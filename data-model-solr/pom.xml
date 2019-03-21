@@ -18,6 +18,15 @@
     <description>Data model DTOs for interacting with SOLR</description>
 
     <dependencies>
+    
+    <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-rest</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-mongodb</artifactId>
+        </dependency> 
 
         <dependency>
             <groupId>org.mousephenotype.cda</groupId>

@@ -24,6 +24,7 @@ import org.mousephenotype.cda.db.pojo.StatisticalResult;
 import org.mousephenotype.cda.db.pojo.UnidimensionalResult;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
+import org.mousephenotype.cda.file.stats.Stats;
 import org.mousephenotype.cda.solr.imits.StatusConstants;
 import org.mousephenotype.cda.solr.service.ImpressService;
 import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
@@ -36,6 +37,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import uk.ac.ebi.phenotype.service.StatsService;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -50,6 +53,9 @@ public class UnidimensionalChartAndTableProvider {
 
 	@Autowired
 	ImpressService impressService;
+	
+	 @Autowired
+	 private StatsService statsService;
 
 	/**
 	 * return one unidimensional data set per experiment - one experiment should
@@ -59,7 +65,10 @@ public class UnidimensionalChartAndTableProvider {
 	 */
 	public UnidimensionalDataSet doUnidimensionalData(ExperimentDTO experiment, String chartId, ParameterDTO parameter, ChartType boxOrScatter, Boolean byMouseId, String yAxisTitle)
 			throws SQLException, IOException, URISyntaxException, JSONException {
-
+		
+		//http://localhost:8090/phenotype-archive/charts?accession=MGI:1915747&parameter_stable_id=IMPC_HEM_038_001
+		long startTime = System.currentTimeMillis();
+System.out.println("start time="+System.currentTimeMillis());
 		ChartData chartAndTable = null;
 		List<UnidimensionalDataSet> unidimensionalDataSets = new ArrayList<>();
 
@@ -131,6 +140,20 @@ public class UnidimensionalChartAndTableProvider {
 		unidimensionalDataSet.setMax(boxMinMax.get("max"));
 		unidimensionalDataSet.setTitle(title);
 		unidimensionalDataSet.setSubtitle(procedureDescription);
+		System.out.println("end time="+System.currentTimeMillis());
+		long endTime=System.currentTimeMillis();
+		long timeTaken=endTime-startTime;
+		System.out.println("time taken="+timeTaken);
+		
+		//lets do the same thing here and return another chart created by the stats rest service for speed comparison and make sure show the same chart!!
+		long fileStartTime = System.currentTimeMillis();
+
+		//Stats stats = statsService.getTestStatsData();
+		
+		long fileEndTime=System.currentTimeMillis();
+		long fileTimeTaken=fileEndTime-fileStartTime;
+		System.out.println("time taken="+fileTimeTaken);
+		
 		return unidimensionalDataSet;
 
 	}
