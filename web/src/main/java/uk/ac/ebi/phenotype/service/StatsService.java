@@ -31,16 +31,7 @@ public class StatsService {
 	
 		}
 	
-	
-	public ResponseEntity<PagedResources<Stats>> findByGeneAccessionAndAlleleAccessionAndParameterStableIdAndPipelineStableIdAndZygosity(String geneAccession, String alleleAccession, String parameterStableId,
-			 String pipelineStableId, String zygosity,  String phenotypingCenter, String metaDataGroup){
-		
-		ResponseEntity<PagedResources<Stats>> stats=statsClient.findByGeneAccessionAndAlleleAccessionAndParameterStableIdAndPipelineStableIdAndZygosity(geneAccession, alleleAccession, parameterStableId,
-				 pipelineStableId, zygosity, phenotypingCenter, metaDataGroup);
 
-		return stats;
-	
-		}
 	
 	/**
 	 * just get the stats in order returned from the data source (findall in sping data)

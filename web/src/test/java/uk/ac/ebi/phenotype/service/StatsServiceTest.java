@@ -104,28 +104,5 @@ public class StatsServiceTest {
 		assert(statsResponse.getBody().getContent().size()==1);
 	}
 	
-	
-//	@Test
-//	public void testGetIndividualStatsDataHalfQuery() {
-//		ResponseEntity<PagedResources<Stats>> statsResponse=null;
-//		String geneAccession="MGI:2443170";
-//		String alleleAccession="MGI:2159965";
-//		String parameterStableId="IMPC_HEM_038_001";
-//		String pipelineStableId="IMPC_001";
-//		String zygosity="homozygote";
-//		String phenotypingCenter="MARC";
-//		String metaDataGroup= "08aa37a898ab923b9ffdbd01c0077040";
-//		
-//		
-//		try {
-//			statsResponse = statsService.findByGeneAccessionAndAlleleAccessionAndParameterStableIdAndPipelineStableIdAndZygosity(geneAccession, alleleAccession, parameterStableId, pipelineStableId, zygosity, phenotypingCenter, metaDataGroup);
-//		} catch (Exception e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-//		System.out.println("test response ="+statsResponse);
-//		System.out.println("stats list="+statsResponse.getBody().getContent());
-//		assert(statsResponse.getBody().getContent().size()==1);
-//	}
 
 }
