@@ -94,7 +94,7 @@ public class StatsServiceTest {
 		
 		
 		try {
-			statsResponse = statsService.findByGeneAccessionAndAlleleAccessionAndParameterStableIdAndPipelineStableIdAndZygosityAndPhenotypingCenterAndMetaDataGroup(geneAccession, alleleAccession, parameterStableId, pipelineStableId, zygosity, phenotypingCenter, metaDataGroup);
+			statsResponse = statsService.getUniqueStatsResult(geneAccession, alleleAccession, parameterStableId, pipelineStableId, zygosity, phenotypingCenter, metaDataGroup);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

@@ -22,10 +22,10 @@ public class StatsService {
 		this.statsClient=statsClient;
 	}
 	
-	public ResponseEntity<PagedResources<Stats>> findByGeneAccessionAndAlleleAccessionAndParameterStableIdAndPipelineStableIdAndZygosityAndPhenotypingCenterAndMetaDataGroup(String geneAccession, String alleleAccession, String parameterStableId,
+	public ResponseEntity<PagedResources<Stats>> getUniqueStatsResult(String geneAccession, String alleleAccession, String parameterStableId,
 			 String pipelineStableId,  String zygosity,  String phenotypingCenter,  String metaDataGroup){
 		
-		ResponseEntity<PagedResources<Stats>> stats=statsClient.findByGeneAccessionAndAlleleAccessionAndParameterStableIdAndPipelineStableIdAndZygosityAndPhenotypingCenterAndMetaDataGroup(geneAccession, alleleAccession, parameterStableId,
+		ResponseEntity<PagedResources<Stats>> stats=statsClient.getUniqueStatsResult(geneAccession, alleleAccession, parameterStableId,
 		 pipelineStableId,  zygosity,  phenotypingCenter,  metaDataGroup);
 		return stats;
 	
