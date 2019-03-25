@@ -14,12 +14,22 @@ import org.springframework.hateoas.mvc.TypeReferences;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 @Component
 public class StatsClient {
 
     private static final String URL = "http://localhost:8080/stats?page={page}&size={size}";
+    
+    private static final String GENEURL = "http://localhost:8080/stats/search/findByGeneSymbol?geneSymbol={geneSymbol}";
+    
+    private static final String GENE_ACCESSION_URL = "http://localhost:8080/stats/search/findByGeneAccession?geneAccession={geneAccession}";
+    
+    private static final String SINGLE_STATS_URL = "http://localhost:8080/stats/search/findByGeneAccessionAndAlleleAccessionAndParameterStableIdAndPipelineStableIdAndZygosityAndPhenotypingCenterAndMetaDataGroup?geneAccession={geneAccession}&alleleAccession={alleleAccession}&parameterStableId={parameterStableId}&pipelineStableId={pipelineStableId}&zygosity={zygosity}&phenotypingCenter={phenotypingCenter}&metaDataGroup={metaDataGroup}";
+    
+    
+    private static final String HALF_STATS_URL = "http://localhost:8080/stats/search/findByGeneAccessionAndAlleleAccessionAndParameterStableIdAndPipelineStableIdAndZygosityAndPhenotypingCenterAndMetaDataGroup?geneAccession={geneAccession}&alleleAccession={alleleAccession}&parameterStableId={parameterStableId}&pipelineStableId={pipelineStableId}&zygosity={zygosity}&phenotypingCenter={phenotypingCenter}&metaDataGroup={metaDataGroup}";
     
     @Autowired
     RestTemplate template;//=new RestTemplate();
@@ -28,45 +38,133 @@ public class StatsClient {
     public StatsClient(RestTemplate restTemplate) {
     	this.template=restTemplate;
     }
+    
+    public ResponseEntity<PagedResources<Stats>> findByGeneAccessionAndAlleleAccessionAndParameterStableIdAndPipelineStableIdAndZygosityAndPhenotypingCenterAndMetaDataGroup(String geneAccession, String alleleAccession, String parameterStableId,
+   		 String pipelineStableId,  String zygosity,  String phenotypingCenter,  String metaDataGroup){
+    	//http://localhost:8080/stats/search/findByGeneAccessionAndAlleleAccessionAndParameterStableIdAndPipelineStableIdAndZygosityAndPhenotypingCenterAndMetaDataGroup?geneAccession=MGI:2443170&alleleAccession=MGI:2159965&parameterStableId=IMPC_HEM_038_001&pipelineStableId=IMPC_001&zygosity=homozygote&phenotypingCenter=MARC&metaDataGroup=08aa37a898ab923b9ffdbd01c0077040
+    	ResponseEntity<PagedResources<Stats>> statsResponse=null;
+		try {
+			Map<String, String> params = new HashMap<>();
+			    params.put("geneAccession", geneAccession);
+			    params.put("alleleAccession", alleleAccession);
+			    params.put("parameterStableId", parameterStableId);
+			    params.put("pipelineStableId", pipelineStableId);
+			    params.put("zygosity", zygosity);
+			    params.put("phenotypingCenter", phenotypingCenter);
+			    params.put("metaDataGroup", metaDataGroup);
+			statsResponse = template
+			        .exchange(SINGLE_STATS_URL, HttpMethod.GET, null,
+			                new ParameterizedTypeReference<PagedResources<Stats>>() {
+			                }, params);
+			System.out.println("singleStatsResponse="+statsResponse);
+		} catch (RestClientException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        return statsResponse;
+	
+    }
+    
+    public ResponseEntity<PagedResources<Stats>> findByGeneAccessionAndAlleleAccessionAndParameterStableIdAndPipelineStableIdAndZygosity(String geneAccession, String alleleAccession, String parameterStableId,
+      		 String pipelineStableId, String zygosity,  String phenotypingCenter,  String metaDataGroup){
+       	//http://localhost:8080/stats/search/findByGeneAccessionAndAlleleAccessionAndParameterStableIdAndPipelineStableIdAndZygosityAndPhenotypingCenterAndMetaDataGroup?geneAccession=MGI:2443170&alleleAccession=MGI:2159965&parameterStableId=IMPC_HEM_038_001&pipelineStableId=IMPC_001&zygosity=homozygote&phenotypingCenter=MARC&metaDataGroup=08aa37a898ab923b9ffdbd01c0077040
+       	ResponseEntity<PagedResources<Stats>> statsResponse=null;
+   		try {
+   			Map<String, String> params = new HashMap<>();
+   			    params.put("geneAccession", geneAccession);
+   			    params.put("alleleAccession", alleleAccession);
+  			    params.put("parameterStableId", parameterStableId);
+  			    params.put("pipelineStableId", pipelineStableId);
+   			    params.put("zygosity", zygosity);
+   			    params.put("phenotypingCenter", phenotypingCenter);
+   			    params.put("metaDataGroup", metaDataGroup);
+   			statsResponse = template
+   			        .exchange(HALF_STATS_URL, HttpMethod.GET, null,
+   			                new ParameterizedTypeReference<PagedResources<Stats>>() {
+   			                }, params);
+   			System.out.println("singleStatsResponse="+statsResponse);
+   		} catch (RestClientException e) {
+   			// TODO Auto-generated catch block
+   			e.printStackTrace();
+   		}
+           return statsResponse;
+   	
+       }
+
 
    
 
-    public Stream<Stats> getStats(int offset, int limit) {
+    public ResponseEntity<PagedResources<Stats>> getStats(int offset, int limit) {
         Map<String, Integer> params = new HashMap<>();
         params.put("page", offset / limit);
         params.put("size", limit);
 
         // Using external class
-        final ResponseEntity<StatsResources> statsResponse = template
-                .getForEntity(URL, StatsResources.class, params);
-System.out.println("statsResponse="+statsResponse);
+//        final ResponseEntity<StatsResources> statsResponse = template
+//                .getForEntity(URL, StatsResources.class, params);
+//System.out.println("statsResponse="+statsResponse);
         // Using instantiated ParametrizedTypeReference Resources 
-        final ResponseEntity<Resources<Stats>> statsResponse2 = template
-                .exchange(URL, HttpMethod.GET, null,
-                        new ParameterizedTypeReference<Resources<Stats>>() {
-                        }, params);
-        System.out.println("statsResponse2="+statsResponse2);
+//        final ResponseEntity<Resources<Stats>> statsResponse2 = template
+//                .exchange(URL, HttpMethod.GET, null,
+//                        new ParameterizedTypeReference<Resources<Stats>>() {
+//                        }, params);
+//        System.out.println("statsResponse2="+statsResponse2);
         // Using instantiated ParametrizedTypeReference Resources
         final ResponseEntity<PagedResources<Stats>> statsResponse3 = template
                 .exchange(URL, HttpMethod.GET, null,
                         new ParameterizedTypeReference<PagedResources<Stats>>() {
                         }, params);
         System.out.println("statsResponse3="+statsResponse3);
-        // Does not work for some reason, ends up with empty Resources inside Resources
-        // final ResponseEntity<Resources<Resource<Student>>> studentResponse = template
-        //         .exchange(URL, HttpMethod.GET, null,
-        //                 new TypeReferences.ResourcesType<Resource<Student>>() {
-        //                 }, params);
+        return statsResponse3;
 
         // Using provided PagedResources type class, note the required {}
         // This is used for return
-        final ResponseEntity<PagedResources<Resource<Stats>>> statsResponse4 =
-                template
-                .exchange(URL, HttpMethod.GET, null,
-                        new TypeReferences.PagedResourcesType<Resource<Stats>>(){},
-                        params);
-
-        return statsResponse4.getBody().getContent().stream()
-                .map(Resource::getContent);
+//        final ResponseEntity<PagedResources<Resource<Stats>>> statsResponse4 =
+//                template
+//                .exchange(URL, HttpMethod.GET, null,
+//                        new TypeReferences.PagedResourcesType<Resource<Stats>>(){},
+//                        params);
+//
+//        return statsResponse4.getBody().getContent().stream()
+//                .map(Resource::getContent);
     }
+
+    
+    public ResponseEntity<PagedResources<Stats>> getStatsDataForGeneAccession(String geneAccession) {
+		
+		 ResponseEntity<PagedResources<Stats>> statsResponse=null;
+		try {
+			Map<String, String> params = new HashMap<>();
+			    params.put("geneAccession", geneAccession);
+			statsResponse = template
+			        .exchange(GENE_ACCESSION_URL, HttpMethod.GET, null,
+			                new ParameterizedTypeReference<PagedResources<Stats>>() {
+			                }, params);
+			System.out.println("statsResponse3="+statsResponse);
+		} catch (RestClientException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+       return statsResponse;
+	}
+    
+
+
+	public ResponseEntity<PagedResources<Stats>> getStatsDataForGeneSymbol(String geneSymbol) {
+		
+		 ResponseEntity<PagedResources<Stats>> statsResponse=null;
+		try {
+			Map<String, String> params = new HashMap<>();
+			    params.put("geneSymbol", geneSymbol);
+			statsResponse = template
+			        .exchange(GENEURL, HttpMethod.GET, null,
+			                new ParameterizedTypeReference<PagedResources<Stats>>() {
+			                }, params);
+			System.out.println("statsResponse3="+statsResponse);
+		} catch (RestClientException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        return statsResponse;
+	}
 }

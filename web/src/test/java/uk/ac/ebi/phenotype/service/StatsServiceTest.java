@@ -1,28 +1,15 @@
 package uk.ac.ebi.phenotype.service;
 
-import static org.junit.Assert.*;
-
-import java.util.List;
-
-import org.apache.solr.client.solrj.SolrClient;
-import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 //import org.mousephenotype.cda.config.TestConfigIndexers;
 import org.mousephenotype.cda.file.stats.Stats;
-import org.mousephenotype.cda.file.stats.StatsList;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.client.RestTemplateBuilder;
-import org.springframework.context.annotation.Bean;
-import org.springframework.data.solr.core.SolrOperations;
-import org.springframework.data.solr.core.SolrTemplate;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.TestPropertySource;
+import org.springframework.hateoas.PagedResources;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.support.AnnotationConfigContextLoader;
 import org.springframework.web.client.RestTemplate;
 
 
@@ -53,15 +40,92 @@ public class StatsServiceTest {
 
 	@Test
 	public void testGetTestStatsData() {
-		List<Stats> statsList=null;
+		ResponseEntity<PagedResources<Stats>> statsResponse=null;
 		try {
-			statsList = statsService.getTestStatsData();
+			statsResponse = statsService.getStatsData(0, 2);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		System.out.println(statsList);
-		//assert(statsList.getStats().size()>0);
+		System.out.println("test response ="+statsResponse);
+		System.out.println("stats list="+statsResponse.getBody().getContent());
+		assert(statsResponse.getBody().getContent().size()==2);
 	}
+	
+	@Test
+	public void testGetDataForGeneAccession() {
+		ResponseEntity<PagedResources<Stats>> statsResponse=null;
+		try {
+			statsResponse = statsService.getStatsDataForGeneAccesssion("MGI:2443170");
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		System.out.println("test response ="+statsResponse);
+		System.out.println("stats list="+statsResponse.getBody().getContent());
+		assert(statsResponse.getBody().getContent().size()==1);
+	}
+	
+	
+	@Test
+	public void testGetDataForGeneSybmol() {
+		ResponseEntity<PagedResources<Stats>> statsResponse=null;
+		try {
+			statsResponse = statsService.getStatsDataForGeneSymbol("Arel1");
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		System.out.println("test response ="+statsResponse);
+		System.out.println("stats list="+statsResponse.getBody().getContent());
+		assert(statsResponse.getBody().getContent().size()==1);
+	}
+	
+	@Test
+	public void testGetIndividualStatsData() {
+		ResponseEntity<PagedResources<Stats>> statsResponse=null;
+		String geneAccession="MGI:2443170";
+		String alleleAccession="MGI:2159965";
+		String parameterStableId="IMPC_HEM_038_001";
+		String pipelineStableId="IMPC_001";
+		String zygosity="homozygote";
+		String phenotypingCenter="MARC";
+		String metaDataGroup= "08aa37a898ab923b9ffdbd01c0077040";
+		
+		
+		try {
+			statsResponse = statsService.findByGeneAccessionAndAlleleAccessionAndParameterStableIdAndPipelineStableIdAndZygosityAndPhenotypingCenterAndMetaDataGroup(geneAccession, alleleAccession, parameterStableId, pipelineStableId, zygosity, phenotypingCenter, metaDataGroup);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		System.out.println("test response ="+statsResponse);
+		System.out.println("stats list="+statsResponse.getBody().getContent());
+		assert(statsResponse.getBody().getContent().size()==1);
+	}
+	
+	
+//	@Test
+//	public void testGetIndividualStatsDataHalfQuery() {
+//		ResponseEntity<PagedResources<Stats>> statsResponse=null;
+//		String geneAccession="MGI:2443170";
+//		String alleleAccession="MGI:2159965";
+//		String parameterStableId="IMPC_HEM_038_001";
+//		String pipelineStableId="IMPC_001";
+//		String zygosity="homozygote";
+//		String phenotypingCenter="MARC";
+//		String metaDataGroup= "08aa37a898ab923b9ffdbd01c0077040";
+//		
+//		
+//		try {
+//			statsResponse = statsService.findByGeneAccessionAndAlleleAccessionAndParameterStableIdAndPipelineStableIdAndZygosity(geneAccession, alleleAccession, parameterStableId, pipelineStableId, zygosity, phenotypingCenter, metaDataGroup);
+//		} catch (Exception e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//		System.out.println("test response ="+statsResponse);
+//		System.out.println("stats list="+statsResponse.getBody().getContent());
+//		assert(statsResponse.getBody().getContent().size()==1);
+//	}
 
 }
