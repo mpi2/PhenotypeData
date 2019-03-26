@@ -35,9 +35,7 @@ public class StatsServiceTest {
 		RestTemplateBuilder builder=new RestTemplateBuilder();
 		restTemplate = restConfiguration.restTemplate(builder);
 		StatsClient client=new StatsClient(restTemplate);
-		statsService=new StatsService(client);
-		
-		
+		statsService=new StatsService(client);		
 	}
 
 	@After
