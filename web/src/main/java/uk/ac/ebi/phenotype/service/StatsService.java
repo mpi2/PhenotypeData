@@ -1,6 +1,11 @@
 package uk.ac.ebi.phenotype.service;
 
+import java.util.Collection;
+import java.util.List;
+
+import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.file.stats.Stats;
+import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.PagedResources;
 import org.springframework.http.ResponseEntity;
@@ -32,6 +37,27 @@ public class StatsService {
 		}
 	
 
+	
+	public ExperimentDTO getSpecificExperimentDTO(String parameterStableId, String pipelineStableId, String geneAccession, List<String> genderList, List<String> zyList, String phenotypingCenter, String strain, String metaDataGroup, String alleleAccession, String ebiMappedSolrUrl)
+	{
+		String zygosity=null;
+		ExperimentDTO experimentDTO=new ExperimentDTO();
+//		if(zyList.isEmpty()||zyList==null) {
+//			zygosity=null;
+//		}else {
+//			
+//		}
+		ResponseEntity<PagedResources<Stats>> response = this.getUniqueStatsResult(geneAccession, alleleAccession, parameterStableId, pipelineStableId, "homozygote", phenotypingCenter, metaDataGroup);
+		Collection<Stats> stats = response.getBody().getContent();
+		assert(stats.size()==1);
+		Stats first = stats.iterator().next();
+		experimentDTO.setAlleleAccession(first.getAlleleAccession());
+		experimentDTO.setMetadataGroup(first.getMetaDataGroup());
+		experimentDTO.setParameterStableId(parameterStableId);
+		experimentDTO.setAlleleSymobl(first.getAllele());
+		System.out.println("experiment from file="+experimentDTO);
+		return experimentDTO;
+}
 	
 	/**
 	 * just get the stats in order returned from the data source (findall in sping data)

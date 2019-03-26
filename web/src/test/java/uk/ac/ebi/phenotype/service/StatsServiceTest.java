@@ -1,11 +1,15 @@
 package uk.ac.ebi.phenotype.service;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 //import org.mousephenotype.cda.config.TestConfigIndexers;
 import org.mousephenotype.cda.file.stats.Stats;
+import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.hateoas.PagedResources;
 import org.springframework.http.ResponseEntity;
@@ -32,6 +36,8 @@ public class StatsServiceTest {
 		restTemplate = restConfiguration.restTemplate(builder);
 		StatsClient client=new StatsClient(restTemplate);
 		statsService=new StatsService(client);
+		
+		
 	}
 
 	@After
@@ -105,4 +111,23 @@ public class StatsServiceTest {
 	}
 	
 
+	
+	@Test
+	public void testGetSpecificExperimentDTO(){
+		
+		String pipelineStableId="IMPC_001";
+		String phenotypingCenter="MARC";
+		List<String> zyList=new ArrayList<>();//do we ignore these now as the stats contains data for both
+		List<String> genderList=new ArrayList<>();//do we ignore these now as the stats contains data for both
+		String parameterStableId="IMPC_HEM_038_001";;
+		String geneAccession="MGI:2443170";
+		String alleleAccession="MGI:2159965";
+		String metadataGroup= "08aa37a898ab923b9ffdbd01c0077040";
+		String ebiMappedSolrUrl="//ves-ebi-d0.ebi.ac.uk:8986/solr";
+		String strain="";//we hve colonyId now so what do we do with this?
+		ExperimentDTO experimentDTO = statsService.getSpecificExperimentDTO(parameterStableId, pipelineStableId, geneAccession, genderList, zyList, phenotypingCenter, strain, metadataGroup, alleleAccession, ebiMappedSolrUrl);
+		assert(experimentDTO.getAlleleAccession().equals(alleleAccession));
+		assert(experimentDTO.getMetadataGroup().equals(metadataGroup));
+		
+	}
 }
