@@ -1,11 +1,17 @@
 package uk.ac.ebi.phenotype.service;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.mousephenotype.cda.enumerations.ZygosityType;
+import org.mousephenotype.cda.file.stats.Point;
 import org.mousephenotype.cda.file.stats.Stats;
 import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
+import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.PagedResources;
 import org.springframework.http.ResponseEntity;
@@ -55,6 +61,18 @@ public class StatsService {
 		exp.setMetadataGroup(stat.getMetaDataGroup());
 		exp.setParameterStableId(parameterStableId);
 		exp.setAlleleSymobl(stat.getAllele());
+		//loop over points and then asssing to observation types ??
+		
+		List<Point> allPoints = stat.getResult().getDetails().getPoints();
+		Set<ObservationDTO> controls=new HashSet<>();
+		for(Point point: allPoints) {
+			String sampleType=point.getSampleType();
+					String sex=	point.getSex();
+					String value = point.getValue();
+					Float bw=point.getBodyWeight();
+		}
+		
+		exp.setControls(controls);
 		
 		System.out.println("experiment from file="+exp);
 		return exp;
