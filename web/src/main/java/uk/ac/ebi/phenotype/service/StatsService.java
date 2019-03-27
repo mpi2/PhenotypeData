@@ -47,7 +47,7 @@ public class StatsService {
 	public ExperimentDTO getSpecificExperimentDTO(String parameterStableId, String pipelineStableId, String geneAccession, List<String> genderList, List<String> zyList, String phenotypingCenter, String strain, String metaDataGroup, String alleleAccession, String ebiMappedSolrUrl)
 	{
 		String zygosity=null;
-		ExperimentDTO exp=new ExperimentDTO();
+	
 //		if(zyList.isEmpty()||zyList==null) {
 //			zygosity=null;
 //		}else {
@@ -56,11 +56,20 @@ public class StatsService {
 		ResponseEntity<PagedResources<Stats>> response = this.getUniqueStatsResult(geneAccession, alleleAccession, parameterStableId, pipelineStableId, "homozygote", phenotypingCenter, metaDataGroup);
 		Collection<Stats> stats = response.getBody().getContent();
 		assert(stats.size()==1);
+		ExperimentDTO exp = convertToExperiment(parameterStableId, stats);
+		
+		System.out.println("experiment from file="+exp);
+		return exp;
+}
+
+	private ExperimentDTO convertToExperiment(String parameterStableId, Collection<Stats> stats) {
 		Stats stat = stats.iterator().next();
+		ExperimentDTO exp=new ExperimentDTO();
 		exp.setAlleleAccession(stat.getAlleleAccession());
 		exp.setMetadataGroup(stat.getMetaDataGroup());
 		exp.setParameterStableId(parameterStableId);
 		exp.setAlleleSymobl(stat.getAllele());
+		String zygosity = stat.getZygosity();//only one zygosity per stats object which we can then set for all observations
 		//loop over points and then asssing to observation types ??
 		
 		List<Point> allPoints = stat.getResult().getDetails().getPoints();
@@ -70,13 +79,24 @@ public class StatsService {
 					String sex=	point.getSex();
 					String value = point.getValue();
 					Float bw=point.getBodyWeight();
+					point.setSex(sex);
+					point.setSampleType(sampleType);
+					point.setValue(value);
+					point.setBodyWeight(bw);
+					
+//					 if (ZygosityType.valueOf(point.getZygosity()).equals(ZygosityType.heterozygote)) {
+//			                experiment.getHeterozygoteMutants().add(observation);
+//			            } else if (ZygosityType.valueOf(observation.getZygosity()).equals(ZygosityType.homozygote)) {
+//			                experiment.getHomozygoteMutants().add(observation);
+//			            } else if (ZygosityType.valueOf(observation.getZygosity()).equals(ZygosityType.hemizygote)) {
+//			                experiment.getHemizygoteMutants().add(observation);
+//			            }
+					
 		}
 		
 		exp.setControls(controls);
-		
-		System.out.println("experiment from file="+exp);
 		return exp;
-}
+	}
 	
 	/**
 	 * just get the stats in order returned from the data source (findall in sping data)
