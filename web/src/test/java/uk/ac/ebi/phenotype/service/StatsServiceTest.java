@@ -9,8 +9,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 //import org.mousephenotype.cda.config.TestConfigIndexers;
 import org.mousephenotype.cda.file.stats.Stats;
+import org.mousephenotype.cda.file.stats.StatsRepository;
 import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
 import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.data.repository.query.Param;
 import org.springframework.hateoas.PagedResources;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -27,6 +29,8 @@ public class StatsServiceTest {
 	private StatsService statsService;
 	
 	RestTemplate restTemplate;
+	
+	
 
 	@Before
 	public void setUp() throws Exception {
@@ -123,9 +127,16 @@ public class StatsServiceTest {
 		String metadataGroup= "08aa37a898ab923b9ffdbd01c0077040";
 		String ebiMappedSolrUrl="//ves-ebi-d0.ebi.ac.uk:8986/solr";
 		String strain="";//we hve colonyId now so what do we do with this?
-		ExperimentDTO experimentDTO = statsService.getSpecificExperimentDTO(parameterStableId, pipelineStableId, geneAccession, genderList, zyList, phenotypingCenter, strain, metadataGroup, alleleAccession, ebiMappedSolrUrl);
+		ExperimentDTO experimentDTO = statsService.getSpecificExperimentDTOFromRest(parameterStableId, pipelineStableId, geneAccession, genderList, zyList, phenotypingCenter, strain, metadataGroup, alleleAccession, ebiMappedSolrUrl);
 		assert(experimentDTO.getAlleleAccession().equals(alleleAccession));
 		assert(experimentDTO.getMetadataGroup().equals(metadataGroup));
+		
+		
+//		List<Stats> stats = repo.findByGeneAccessionAndAlleleAccessionAndParameterStableIdAndPipelineStableIdAndZygosityAndPhenotypingCenterAndMetaDataGroup(geneAccession, alleleAccession, parameterStableId, pipelineStableId, "homozygote", phenotypingCenter,  metadataGroup);
+////		@Param("geneAccession") String geneAccession, @Param("alleleAccession") String alleleAccession, @Param("parameterStableId") String parameterStableId,
+////		@Param("pipelineStableId") String pipelineStableId,  @Param("zygosity") String zygosity, @Param("phenotypingCenter") String phenotypingCenter, @Param("metaDataGroup") String metaDataGroup);
+//		assert(stats.get(0).getAlleleAccession().equals(alleleAccession));
+//		assert((stats.get(0).getMetaDataGroup().equals(metadataGroup)));
 		
 	}
 }

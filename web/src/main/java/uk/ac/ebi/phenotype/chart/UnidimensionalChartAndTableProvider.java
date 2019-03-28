@@ -24,7 +24,6 @@ import org.mousephenotype.cda.db.pojo.StatisticalResult;
 import org.mousephenotype.cda.db.pojo.UnidimensionalResult;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
-import org.mousephenotype.cda.file.stats.Stats;
 import org.mousephenotype.cda.solr.imits.StatusConstants;
 import org.mousephenotype.cda.solr.service.ImpressService;
 import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;

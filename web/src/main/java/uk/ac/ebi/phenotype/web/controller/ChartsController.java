@@ -25,6 +25,8 @@ import org.mousephenotype.cda.enumerations.EmbryoViability;
 import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
+import org.mousephenotype.cda.file.stats.Stats;
+import org.mousephenotype.cda.file.stats.StatsRepository;
 import org.mousephenotype.cda.solr.service.ExperimentService;
 import org.mousephenotype.cda.solr.service.GeneService;
 import org.mousephenotype.cda.solr.service.ImageService;
@@ -87,6 +89,9 @@ public class ChartsController {
 
     @Value("${solr_url}")
     public String SOLR_URL;
+    
+    @Autowired
+    private StatsRepository repo;
 
     @Inject
     public ChartsController(CategoricalChartAndTableProvider categoricalChartAndTableProvider, TimeSeriesChartAndTableProvider timeSeriesChartAndTableProvider, UnidimensionalChartAndTableProvider continousChartAndTableProvider, ScatterChartAndTableProvider scatterChartAndTableProvider, AbrChartAndTableProvider abrChartAndTableProvider, ViabilityChartAndDataProvider viabilityChartAndDataProvider, ExperimentService experimentService, StatisticalResultService srService, GeneService geneService, ImpressService is, ImageService imageService) {
@@ -336,12 +341,14 @@ public class ChartsController {
 			if(parameterStableId.equalsIgnoreCase("IMPC_HEM_038_001")) {
 				//get experiment object from the new rest service as a temporary measure we can convert to an experiment object and then we don't have to rewrite the chart code?? and easy to test if experiment objects are the same??
 				System.out.println("Get data from new rest service");
-				experiment=new ExperimentDTO();
+				List<Stats>stats=repo.findAll();
+				//List<Stats>stats=repo.findByGeneAccessionAndAlleleAccessionAndParameterStableIdAndPipelineStableIdAndZygosityAndPhenotypingCenterAndMetaDataGroup(accession[0], alleleAccession, parameterStableId, pipelineStableId, "homozygote", phenotypingCenter, metaDataGroupString);
+				System.out.println("stats from repository size="+stats.size());
 			}
-			//else {
+			else {
 			experiment = experimentService.getSpecificExperimentDTO(parameterStableId, pipelineStableId, accession[0], genderList, zyList, phenotypingCenter, strain, metaDataGroupString, alleleAccession, SOLR_URL);
 			System.out.println("experiment from solr="+experiment);
-			//}
+			}
 			//error getting procedure for this page?? http://localhost:8090/phenotype-archive/charts?phenotyping_center=WTSI&accession=MGI:1915276&parameter_stable_id=MGP_MLN_057_001
 			ProcedureDTO proc=null;
 			if(experiment!=null) {

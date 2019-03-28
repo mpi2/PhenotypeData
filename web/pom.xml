@@ -75,6 +75,12 @@
             <groupId>org.mousephenotype.cda</groupId>
             <artifactId>data-model-solr</artifactId>
         </dependency>
+        
+        <dependency>
+            <groupId>org.mousephenotype.cda</groupId>
+            <artifactId>data-model-stats</artifactId>
+            <version>1.0.0</version>
+        </dependency>
 
         <dependency>
             <groupId>javax.servlet</groupId>
@@ -335,11 +341,11 @@
             <scope>compile</scope>
         </dependency>
 
-        <dependency>
+        <!-- <dependency>
         	<groupId>uk.ac.ebi.phenotype</groupId>
         	<artifactId>stats-rest-service</artifactId>
         	<version>0.0.1</version>
-        </dependency>
+        </dependency> -->
     </dependencies>
 
     <build>

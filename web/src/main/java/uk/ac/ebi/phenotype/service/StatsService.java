@@ -7,9 +7,11 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.junit.Test;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.file.stats.Point;
 import org.mousephenotype.cda.file.stats.Stats;
+import org.mousephenotype.cda.file.stats.StatsRepository;
 import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +31,10 @@ public class StatsService {
 	@Autowired
 	StatsClient statsClient;
 	
+	//need to import the jar somehow or have the stats repo as a module in the PA???
+	@Autowired
+	StatsRepository repo;
+	
 	public StatsService(StatsClient statsClient) {
 		this.statsClient=statsClient;
 	}
@@ -44,7 +50,7 @@ public class StatsService {
 	
 
 	
-	public ExperimentDTO getSpecificExperimentDTO(String parameterStableId, String pipelineStableId, String geneAccession, List<String> genderList, List<String> zyList, String phenotypingCenter, String strain, String metaDataGroup, String alleleAccession, String ebiMappedSolrUrl)
+	public ExperimentDTO getSpecificExperimentDTOFromRest(String parameterStableId, String pipelineStableId, String geneAccession, List<String> genderList, List<String> zyList, String phenotypingCenter, String strain, String metaDataGroup, String alleleAccession, String ebiMappedSolrUrl)
 	{
 		String zygosity=null;
 	
@@ -56,6 +62,24 @@ public class StatsService {
 		ResponseEntity<PagedResources<Stats>> response = this.getUniqueStatsResult(geneAccession, alleleAccession, parameterStableId, pipelineStableId, "homozygote", phenotypingCenter, metaDataGroup);
 		Collection<Stats> stats = response.getBody().getContent();
 		assert(stats.size()==1);
+		ExperimentDTO exp = convertToExperiment(parameterStableId, stats);
+		
+		System.out.println("experiment from file="+exp);
+		return exp;
+}
+	
+	
+	public ExperimentDTO getSpecificExperimentDTOFromRepository(String parameterStableId, String pipelineStableId, String geneAccession, List<String> genderList, List<String> zyList, String phenotypingCenter, String strain, String metaDataGroup, String alleleAccession, String ebiMappedSolrUrl)
+	{
+		String zygosity=null;
+	
+//		if(zyList.isEmpty()||zyList==null) {
+//			zygosity=null;
+//		}else {
+//			
+//		}
+		List<Stats> stats = repo.findByGeneAccessionAndAlleleAccessionAndParameterStableIdAndPipelineStableIdAndZygosityAndPhenotypingCenterAndMetaDataGroup(geneAccession, alleleAccession, parameterStableId, pipelineStableId, "homozygote", phenotypingCenter, metaDataGroup);
+		assert(stats.size()>0);
 		ExperimentDTO exp = convertToExperiment(parameterStableId, stats);
 		
 		System.out.println("experiment from file="+exp);
