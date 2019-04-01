@@ -25,8 +25,6 @@ import org.mousephenotype.cda.enumerations.EmbryoViability;
 import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
-import org.mousephenotype.cda.file.stats.Stats;
-import org.mousephenotype.cda.file.stats.StatsRepository;
 import org.mousephenotype.cda.solr.service.ExperimentService;
 import org.mousephenotype.cda.solr.service.GeneService;
 import org.mousephenotype.cda.solr.service.ImageService;
@@ -51,7 +49,9 @@ import org.springframework.web.servlet.ModelAndView;
 import uk.ac.ebi.phenotype.chart.*;
 import uk.ac.ebi.phenotype.error.GenomicFeatureNotFoundException;
 import uk.ac.ebi.phenotype.error.ParameterNotFoundException;
-import uk.ac.ebi.phenotype.service.StatsService;
+import uk.ac.ebi.phenotype.web.dao.Stats;
+import uk.ac.ebi.phenotype.web.dao.StatsRepository;
+import uk.ac.ebi.phenotype.web.dao.StatsService;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
@@ -90,8 +90,10 @@ public class ChartsController {
     @Value("${solr_url}")
     public String SOLR_URL;
     
+//    @Autowired
+//    private StatsRepository repo;
     @Autowired
-    private StatsRepository repo;
+	 private StatsService statsService;
 
     @Inject
     public ChartsController(CategoricalChartAndTableProvider categoricalChartAndTableProvider, TimeSeriesChartAndTableProvider timeSeriesChartAndTableProvider, UnidimensionalChartAndTableProvider continousChartAndTableProvider, ScatterChartAndTableProvider scatterChartAndTableProvider, AbrChartAndTableProvider abrChartAndTableProvider, ViabilityChartAndDataProvider viabilityChartAndDataProvider, ExperimentService experimentService, StatisticalResultService srService, GeneService geneService, ImpressService is, ImageService imageService) {
@@ -341,8 +343,8 @@ public class ChartsController {
 			if(parameterStableId.equalsIgnoreCase("IMPC_HEM_038_001")) {
 				//get experiment object from the new rest service as a temporary measure we can convert to an experiment object and then we don't have to rewrite the chart code?? and easy to test if experiment objects are the same??
 				System.out.println("Get data from new rest service");
-				List<Stats>stats=repo.findAll();
-				//List<Stats>stats=repo.findByGeneAccessionAndAlleleAccessionAndParameterStableIdAndPipelineStableIdAndZygosityAndPhenotypingCenterAndMetaDataGroup(accession[0], alleleAccession, parameterStableId, pipelineStableId, "homozygote", phenotypingCenter, metaDataGroupString);
+				List<Stats>stats=statsService.findAll();
+				//List<Stats>stats=statsService.findByGeneAccessionAndAlleleAccessionAndParameterStableIdAndPipelineStableIdAndZygosityAndPhenotypingCenterAndMetaDataGroup(accession[0], alleleAccession, parameterStableId, pipelineStableId, "homozygote", phenotypingCenter, metaDataGroupString);
 				System.out.println("stats from repository size="+stats.size());
 			}
 			else {

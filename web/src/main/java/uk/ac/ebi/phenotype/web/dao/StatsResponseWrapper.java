@@ -1,16 +1,19 @@
-package uk.ac.ebi.phenotype.service;
+package uk.ac.ebi.phenotype.web.dao;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.mousephenotype.cda.file.stats.Stats;
-import org.springframework.hateoas.Resources;
+/**
+ * used to store more information about the list returned e.g. how many potential restuls of the pagination
+ * @author jwarren
+ *
+ */
+public class StatsResponseWrapper {
 
-public class StatsResources extends Resources<Stats> {
-
-private List<Stats> stats;
 	
-	public StatsResources() {
+	private List<Stats> stats;
+	
+	public StatsResponseWrapper() {
 		stats=new ArrayList<>();
 	}
 
@@ -26,5 +29,6 @@ private List<Stats> stats;
 	public String toString() {
 		return "StatsList [stats=" + stats + "]";
 	}
+	
 	
 }

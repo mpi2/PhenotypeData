@@ -1,10 +1,9 @@
-package uk.ac.ebi.phenotype.service;
+package uk.ac.ebi.phenotype.web.dao;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Stream;
 
-import org.mousephenotype.cda.file.stats.Stats;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.hateoas.PagedResources;
@@ -16,6 +15,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
+
+import uk.ac.ebi.phenotype.web.dao.Stats;
 
 @Component
 public class StatsClient {

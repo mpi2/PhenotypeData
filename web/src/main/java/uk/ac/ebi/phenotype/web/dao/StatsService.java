@@ -1,23 +1,18 @@
-package uk.ac.ebi.phenotype.service;
+package uk.ac.ebi.phenotype.web.dao;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.TreeSet;
 
-import org.junit.Test;
-import org.mousephenotype.cda.enumerations.ZygosityType;
-import org.mousephenotype.cda.file.stats.Point;
-import org.mousephenotype.cda.file.stats.Stats;
-import org.mousephenotype.cda.file.stats.StatsRepository;
 import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.hateoas.PagedResources;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+
+import uk.ac.ebi.phenotype.web.dao.Point;
+import uk.ac.ebi.phenotype.web.dao.Stats;
+import uk.ac.ebi.phenotype.web.dao.StatsRepository;
 
 
 /**
@@ -28,45 +23,52 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class StatsService {
-	@Autowired
-	StatsClient statsClient;
+//	@Autowired
+//	StatsClient statsClient;
 	
 	//need to import the jar somehow or have the stats repo as a module in the PA???
-	@Autowired
-	StatsRepository repo;
+//	@Autowired
+	private final StatsRepository statsRepository;
 	
-	public StatsService(StatsClient statsClient) {
-		this.statsClient=statsClient;
+	@Autowired
+	public StatsService(StatsRepository statsRepository) {
+		this.statsRepository=statsRepository;
 	}
 	
-	public ResponseEntity<PagedResources<Stats>> getUniqueStatsResult(String geneAccession, String alleleAccession, String parameterStableId,
-			 String pipelineStableId,  String zygosity,  String phenotypingCenter,  String metaDataGroup){
-		
-		ResponseEntity<PagedResources<Stats>> stats=statsClient.getUniqueStatsResult(geneAccession, alleleAccession, parameterStableId,
-		 pipelineStableId,  zygosity,  phenotypingCenter,  metaDataGroup);
-		return stats;
+	public List<Stats> findAll(){
+		System.out.println("statsRepository="+statsRepository);
+		return statsRepository.findByGeneSymbol("Arel1");
+	}
 	
-		}
+	
+//	public ResponseEntity<PagedResources<Stats>> getUniqueStatsResult(String geneAccession, String alleleAccession, String parameterStableId,
+//			 String pipelineStableId,  String zygosity,  String phenotypingCenter,  String metaDataGroup){
+//		
+//		ResponseEntity<PagedResources<Stats>> stats=statsClient.getUniqueStatsResult(geneAccession, alleleAccession, parameterStableId,
+//		 pipelineStableId,  zygosity,  phenotypingCenter,  metaDataGroup);
+//		return stats;
+//	
+//		}
 	
 
 	
-	public ExperimentDTO getSpecificExperimentDTOFromRest(String parameterStableId, String pipelineStableId, String geneAccession, List<String> genderList, List<String> zyList, String phenotypingCenter, String strain, String metaDataGroup, String alleleAccession, String ebiMappedSolrUrl)
-	{
-		String zygosity=null;
-	
-//		if(zyList.isEmpty()||zyList==null) {
-//			zygosity=null;
-//		}else {
-//			
-//		}
-		ResponseEntity<PagedResources<Stats>> response = this.getUniqueStatsResult(geneAccession, alleleAccession, parameterStableId, pipelineStableId, "homozygote", phenotypingCenter, metaDataGroup);
-		Collection<Stats> stats = response.getBody().getContent();
-		assert(stats.size()==1);
-		ExperimentDTO exp = convertToExperiment(parameterStableId, stats);
-		
-		System.out.println("experiment from file="+exp);
-		return exp;
-}
+//	public ExperimentDTO getSpecificExperimentDTOFromRest(String parameterStableId, String pipelineStableId, String geneAccession, List<String> genderList, List<String> zyList, String phenotypingCenter, String strain, String metaDataGroup, String alleleAccession, String ebiMappedSolrUrl)
+//	{
+//		String zygosity=null;
+//	
+////		if(zyList.isEmpty()||zyList==null) {
+////			zygosity=null;
+////		}else {
+////			
+////		}
+//		ResponseEntity<PagedResources<Stats>> response = this.getUniqueStatsResult(geneAccession, alleleAccession, parameterStableId, pipelineStableId, "homozygote", phenotypingCenter, metaDataGroup);
+//		Collection<Stats> stats = response.getBody().getContent();
+//		assert(stats.size()==1);
+//		ExperimentDTO exp = convertToExperiment(parameterStableId, stats);
+//		
+//		System.out.println("experiment from file="+exp);
+//		return exp;
+//}
 	
 	
 	public ExperimentDTO getSpecificExperimentDTOFromRepository(String parameterStableId, String pipelineStableId, String geneAccession, List<String> genderList, List<String> zyList, String phenotypingCenter, String strain, String metaDataGroup, String alleleAccession, String ebiMappedSolrUrl)
@@ -78,7 +80,7 @@ public class StatsService {
 //		}else {
 //			
 //		}
-		List<Stats> stats = repo.findByGeneAccessionAndAlleleAccessionAndParameterStableIdAndPipelineStableIdAndZygosityAndPhenotypingCenterAndMetaDataGroup(geneAccession, alleleAccession, parameterStableId, pipelineStableId, "homozygote", phenotypingCenter, metaDataGroup);
+		List<Stats> stats = statsRepository.findByGeneAccessionAndAlleleAccessionAndParameterStableIdAndPipelineStableIdAndZygosityAndPhenotypingCenterAndMetaDataGroup(geneAccession, alleleAccession, parameterStableId, pipelineStableId, "homozygote", phenotypingCenter, metaDataGroup);
 		assert(stats.size()>0);
 		ExperimentDTO exp = convertToExperiment(parameterStableId, stats);
 		
@@ -128,11 +130,11 @@ public class StatsService {
 	 * @param limit
 	 * @return
 	 */
-	public ResponseEntity<PagedResources<Stats>> getStatsData(int offset, int limit) {
-		
-		ResponseEntity<PagedResources<Stats>> stats = statsClient.getStats(offset, limit);
-		
-		return stats;
+//	public ResponseEntity<PagedResources<Stats>> getStatsData(int offset, int limit) {
+//		
+//		ResponseEntity<PagedResources<Stats>> stats = statsClient.getStats(offset, limit);
+//		
+//		return stats;
 //		RestTemplate restTemplate = new RestTemplate();
 //		ResponseEntity<List<Stats>> response = restTemplate.exchange(
 //		  "http://localhost:8080/stats",
@@ -152,18 +154,18 @@ public class StatsService {
 //		}
 //        System.out.println("stats parameter="+statsList);//.getStats().get(0).getParameterStableId()
 		
-	}
+//	}
 	
-	public ResponseEntity<PagedResources<Stats>> getStatsDataForGeneAccesssion(String geneAccession) {
-		return statsClient.getStatsDataForGeneAccession(geneAccession);
-		
-	}
+//	public ResponseEntity<PagedResources<Stats>> getStatsDataForGeneAccesssion(String geneAccession) {
+//		return statsClient.getStatsDataForGeneAccession(geneAccession);
+//		
+//	}
 	
 
-	public ResponseEntity<PagedResources<Stats>> getStatsDataForGeneSymbol(String geneSybmol) {
-		return statsClient.getStatsDataForGeneSymbol(geneSybmol);
-		
-	}
+//	public ResponseEntity<PagedResources<Stats>> getStatsDataForGeneSymbol(String geneSybmol) {
+//		return statsClient.getStatsDataForGeneSymbol(geneSybmol);
+//		
+//	}
 
 	
 	

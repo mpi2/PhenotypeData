@@ -26,7 +26,6 @@ import org.mousephenotype.cda.db.pojo.CategoricalResult;
 import org.mousephenotype.cda.enumerations.EmbryoViability;
 import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.enumerations.SexType;
-import org.mousephenotype.cda.file.stats.Stats;
 import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
 import org.mousephenotype.cda.solr.service.dto.GeneDTO;
 import org.mousephenotype.cda.solr.service.dto.ImageDTO;
@@ -52,7 +51,8 @@ import uk.ac.ebi.phenotype.chart.ScatterChartAndData;
 import uk.ac.ebi.phenotype.chart.UnidimensionalDataSet;
 import uk.ac.ebi.phenotype.chart.UnidimensionalStatsObject;
 import uk.ac.ebi.phenotype.error.ParameterNotFoundException;
-import uk.ac.ebi.phenotype.service.StatsService;
+import uk.ac.ebi.phenotype.web.dao.Stats;
+import uk.ac.ebi.phenotype.web.dao.StatsService;
 
 @Controller
 public class FileChartController {

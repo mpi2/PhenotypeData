@@ -7,9 +7,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-//import org.mousephenotype.cda.config.TestConfigIndexers;
-import org.mousephenotype.cda.file.stats.Stats;
-import org.mousephenotype.cda.file.stats.StatsRepository;
 import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.data.repository.query.Param;
@@ -17,6 +14,9 @@ import org.springframework.hateoas.PagedResources;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.client.RestTemplate;
+
+import uk.ac.ebi.phenotype.web.dao.Stats;
+import uk.ac.ebi.phenotype.web.dao.StatsRepository;
 
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -39,7 +39,7 @@ public class StatsServiceTest {
 		RestTemplateBuilder builder=new RestTemplateBuilder();
 		restTemplate = restConfiguration.restTemplate(builder);
 		StatsClient client=new StatsClient(restTemplate);
-		statsService=new StatsService(client);		
+		//statsService=new StatsService(client);		
 	}
 
 	@After

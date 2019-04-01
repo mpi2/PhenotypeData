@@ -37,7 +37,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import uk.ac.ebi.phenotype.service.StatsService;
+import uk.ac.ebi.phenotype.web.dao.StatsService;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -53,8 +53,6 @@ public class UnidimensionalChartAndTableProvider {
 	@Autowired
 	ImpressService impressService;
 	
-	 @Autowired
-	 private StatsService statsService;
 
 	/**
 	 * return one unidimensional data set per experiment - one experiment should

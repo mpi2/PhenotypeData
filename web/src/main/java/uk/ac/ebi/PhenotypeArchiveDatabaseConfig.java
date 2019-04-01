@@ -1,6 +1,7 @@
 package uk.ac.ebi;
 
 import org.mousephenotype.cda.db.utilities.SqlUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
@@ -14,6 +15,9 @@ import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
 import org.springframework.orm.jpa.JpaVendorAdapter;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
+
+import uk.ac.ebi.phenotype.service.StatsService;
+import uk.ac.ebi.phenotype.web.dao.StatsRepository;
 
 import javax.persistence.PersistenceContext;
 import javax.sql.DataSource;
@@ -59,7 +63,21 @@ public class PhenotypeArchiveDatabaseConfig {
     public DataSource admintoolsDataSource() {
         return SqlUtils.getConfiguredDatasource(admintools2Url, admintools2Username, admintoolsPassword);
     }
-
+    
+//    @Bean
+//    public StatsRepository getStatsRepository() {
+//    	//StatsRepository repo=new StatsRepository();
+//        return new StatsRepository();
+//    }
+//    @Autowired
+//    StatsRepository statsRepository;
+    
+//    @Bean
+//    public StatsService getStatsService(StatsRepository statsRepository) {
+//    	//StatsRepository repo=new StatsRepository();
+//        return new StatsService(statsRepository);
+//    }
+    
     @Bean
     public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
         LocalContainerEntityManagerFactoryBean emf = new LocalContainerEntityManagerFactoryBean();
