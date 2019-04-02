@@ -1,10 +1,15 @@
 package uk.ac.ebi.phenotype.web.dao;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.mousephenotype.cda.db.pojo.StatisticalResult;
+import org.mousephenotype.cda.enumerations.ObservationType;
+import org.mousephenotype.cda.enumerations.SexType;
+import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -90,38 +95,68 @@ public class StatisticsService {
 
 	public ExperimentDTO convertToExperiment(String parameterStableId, Collection<Statistics> stats) {
 		Statistics stat = stats.iterator().next();
-		ExperimentDTO exp=new ExperimentDTO();
+		ExperimentDTO exp = new ExperimentDTO();
 		exp.setAlleleAccession(stat.getAlleleAccession());
 		exp.setMetadataGroup(stat.getMetaDataGroup());
 		exp.setParameterStableId(parameterStableId);
 		exp.setProcedureStableId(stat.getProcedureStableId());
 		exp.setAlleleSymobl(stat.getAllele());
-		String zygosity = stat.getZygosity();//only one zygosity per stats object which we can then set for all observations
-		//loop over points and then asssing to observation types ??
-		
+		// question will this code suffice - probably not - need to set for both stats
+		// files in one experiment DTO?
+		String zygosity = stat.getZygosity();// only one zygosity per stats object which we can then set for all
+												// observations
+		// loop over points and then asssing to observation types ??
+		ZygosityType zyg = ZygosityType.valueOf(stat.getZygosity());
+		Set<ZygosityType> zygs = new HashSet();
+		zygs.add(zyg);
+		exp.setZygosities(zygs);
+		Set<SexType> sexes = new HashSet<>();
+		sexes.add(SexType.valueOf("both"));// question are all stats files for both??? if so setting it here???
+		exp.setSexes(sexes);
+
 		List<Point> allPoints = stat.getResult().getDetails().getPoints();
-		Set<ObservationDTO> controls=new HashSet<>();
-		for(Point point: allPoints) {
-			String sampleType=point.getSampleType();
-					String sex=	point.getSex();
-					String value = point.getValue();
-					Float bw=point.getBodyWeight();
-					point.setSex(sex);
-					point.setSampleType(sampleType);
-					point.setValue(value);
-					point.setBodyWeight(bw);
-					
-//					 if (ZygosityType.valueOf(point.getZygosity()).equals(ZygosityType.heterozygote)) {
-//			                experiment.getHeterozygoteMutants().add(observation);
-//			            } else if (ZygosityType.valueOf(observation.getZygosity()).equals(ZygosityType.homozygote)) {
-//			                experiment.getHomozygoteMutants().add(observation);
-//			            } else if (ZygosityType.valueOf(observation.getZygosity()).equals(ZygosityType.hemizygote)) {
-//			                experiment.getHemizygoteMutants().add(observation);
-//			            }
-					
+		Set<ObservationDTO> controls = new HashSet<>();
+		Set<ObservationDTO> mutants = new HashSet<>();
+
+		 exp.setControls(new HashSet<ObservationDTO>());
+		 exp.setHomozygoteMutants(new HashSet<ObservationDTO>());
+         exp.setHeterozygoteMutants(new HashSet<ObservationDTO>());
+         exp.setHemizygoteMutants(new HashSet<ObservationDTO>());
+		for (Point point : allPoints) {
+			ObservationDTO obs = new ObservationDTO();
+			String sampleType = point.getSampleType();
+			obs.setObservationType(sampleType);
+			String sex = point.getSex();
+			obs.setSex(sex);
+			String value = point.getValue();
+			obs.setDataPoint(Float.valueOf(value));
+			
+			Float bw = point.getBodyWeight();
+			obs.setWeight(bw);
+			
+
+			if (sampleType.equals("control")) {
+				exp.getControls().add(obs);
+			} else {
+				obs.setZygosity(zygosity);
+				if (zyg.equals(ZygosityType.heterozygote)) {
+					exp.getHeterozygoteMutants().add(obs);
+				} else if (ZygosityType.valueOf(obs.getZygosity()).equals(ZygosityType.homozygote)) {
+					exp.getHomozygoteMutants().add(obs);
+				} else if (ZygosityType.valueOf(obs.getZygosity()).equals(ZygosityType.hemizygote)) {
+					exp.getHemizygoteMutants().add(obs);
+				}
+
+			}
+
 		}
-		
-		exp.setControls(controls);
+
+		List<? extends StatisticalResult> results=new ArrayList<>();
+		StatisticalResult result=new StatisticalResult();
+		//result.set
+		exp.setResults(results);
+		//question - hard coding this here until hamed puts in a field of observation_type in the stats file in next version...
+		exp.setObservationType(ObservationType.unidimensional);
 		return exp;
 	}
 	
