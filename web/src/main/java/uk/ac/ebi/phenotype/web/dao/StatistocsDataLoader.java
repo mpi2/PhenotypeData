@@ -6,23 +6,24 @@ import javax.inject.Inject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 
 //@SpringBootApplication
-public class StatsDataLoader implements CommandLineRunner {
+public class StatistocsDataLoader implements CommandLineRunner {
 	
 	@Autowired
-	private StatsRepository statsRepository;
+	private StatisticsRepository statsRepository;
 	private FileStatsDao statsProvider;
 
 	
 	public static void main(String []args) {
 		System.out.println("running main stats service method in StatsDataLoader!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-		SpringApplication.run(StatsDataLoader.class, args);
+		SpringApplication.run(StatistocsDataLoader.class, args);
 	}
 	
 	@Inject
-    public StatsDataLoader(FileStatsDao statsProvider) {
+    public StatistocsDataLoader(FileStatsDao statsProvider) {
 		this.statsProvider=statsProvider;
 	}
 
@@ -33,12 +34,12 @@ public class StatsDataLoader implements CommandLineRunner {
 	}
 
 	private void loadDataIntoMongo() {
-		List<Stats>stats=statsProvider.getAllStatsFromFiles();
+		List<Statistics>stats=statsProvider.getAllStatsFromFiles();
 		System.out.println("stats size="+stats.size());
 		this.saveDataToMongo(stats);
 	}
 	
-	private void saveDataToMongo(List<Stats>stats) {
+	private void saveDataToMongo(List<Statistics>stats) {
 		
 		
 		System.out.println("deleting data from mongodb!!!!!!!!!!!!!!!!!!!!!!!!!!!!");

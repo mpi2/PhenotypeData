@@ -51,8 +51,8 @@ import uk.ac.ebi.phenotype.chart.ScatterChartAndData;
 import uk.ac.ebi.phenotype.chart.UnidimensionalDataSet;
 import uk.ac.ebi.phenotype.chart.UnidimensionalStatsObject;
 import uk.ac.ebi.phenotype.error.ParameterNotFoundException;
-import uk.ac.ebi.phenotype.web.dao.Stats;
-import uk.ac.ebi.phenotype.web.dao.StatsService;
+import uk.ac.ebi.phenotype.web.dao.Statistics;
+import uk.ac.ebi.phenotype.web.dao.StatisticsService;
 
 @Controller
 public class FileChartController {
@@ -62,10 +62,10 @@ public class FileChartController {
 	 
 	//private FileUnidimensionalChartAndTableProvider fileProvider;
 	 @Autowired
-	private StatsService statsProvider;
+	private StatisticsService statsProvider;
 
 	@Inject
-    public FileChartController(StatsService statsProvider) {
+    public FileChartController(StatisticsService statsProvider) {
 		this.statsProvider=statsProvider;
 	}
     		

@@ -1,15 +1,25 @@
-package org.mousephenotype.cda.file.stats;
+package uk.ac.ebi.phenotype.web.dao;
 
 import javax.annotation.Resource;
 
 import org.springframework.data.annotation.Id;
 
 @Resource
-public class Stats  {
+public class Statistics  {
 	
 	@Id
 	private String id;
 	
+	private String procedureStableId;
+	
+	public String getProcedureStableId() {
+		return procedureStableId;
+	}
+
+	public void setProcedureStableId(String procedureStableId) {
+		this.procedureStableId = procedureStableId;
+	}
+
 	private String parameterStableId;
 	
 	private String parameterStableName;
@@ -128,7 +138,7 @@ public class Stats  {
 		this.allele = allele;
 	}
 
-	public Stats() {
+	public Statistics() {
 		super();
 	}
 
@@ -148,7 +158,7 @@ public class Stats  {
 		this.parameterStableId = parameterStableId;
 	}
 
-	public Stats(Result result) {
+	public Statistics(Result result) {
 		this.result=result;
 	}
 	

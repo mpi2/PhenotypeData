@@ -72,7 +72,7 @@ public class FileStatsDaoTest {
 
 	@Test
 	public void testGetStatsSummary() {
-		Stats result = fileExperimentDao.getStatsSummary(center, procedure, parameter, colonyId, zygosity, metadata);
+		Statistics result = fileExperimentDao.getStatsSummary(center, procedure, parameter, colonyId, zygosity, metadata);
 	System.out.println("result = "+result);
 	}
 

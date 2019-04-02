@@ -19,7 +19,6 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 import org.springframework.web.servlet.view.InternalResourceViewResolver;
 import org.springframework.web.servlet.view.JstlView;
 
-import uk.ac.ebi.phenotype.web.dao.StatsRepository;
 import uk.ac.ebi.phenotype.web.util.DeploymentInterceptor;
 
 import javax.validation.constraints.NotNull;

@@ -5,21 +5,21 @@ import java.util.List;
 
 import org.springframework.hateoas.Resources;
 
-import uk.ac.ebi.phenotype.web.dao.Stats;
+import uk.ac.ebi.phenotype.web.dao.Statistics;
 
-public class StatsResources extends Resources<Stats> {
+public class StatsResources extends Resources<Statistics> {
 
-private List<Stats> stats;
+private List<Statistics> stats;
 	
 	public StatsResources() {
 		stats=new ArrayList<>();
 	}
 
-	public List<Stats> getStats() {
+	public List<Statistics> getStats() {
 		return stats;
 	}
 
-	public void setStats(List<Stats> stats) {
+	public void setStats(List<Statistics> stats) {
 		this.stats = stats;
 	}
 

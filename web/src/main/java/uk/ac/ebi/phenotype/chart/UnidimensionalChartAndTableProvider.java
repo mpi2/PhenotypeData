@@ -37,7 +37,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import uk.ac.ebi.phenotype.web.dao.StatsService;
+import uk.ac.ebi.phenotype.web.dao.StatisticsService;
 
 import java.io.IOException;
 import java.net.URISyntaxException;

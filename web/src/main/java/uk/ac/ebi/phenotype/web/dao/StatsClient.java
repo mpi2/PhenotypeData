@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
-import uk.ac.ebi.phenotype.web.dao.Stats;
+import uk.ac.ebi.phenotype.web.dao.Statistics;
 
 @Component
 public class StatsClient {
@@ -40,10 +40,10 @@ public class StatsClient {
     	this.template=restTemplate;
     }
     
-    public ResponseEntity<PagedResources<Stats>> getUniqueStatsResult(String geneAccession, String alleleAccession, String parameterStableId,
+    public ResponseEntity<PagedResources<Statistics>> getUniqueStatsResult(String geneAccession, String alleleAccession, String parameterStableId,
    		 String pipelineStableId,  String zygosity,  String phenotypingCenter,  String metaDataGroup){
     	//http://localhost:8080/stats/search/findByGeneAccessionAndAlleleAccessionAndParameterStableIdAndPipelineStableIdAndZygosityAndPhenotypingCenterAndMetaDataGroup?geneAccession=MGI:2443170&alleleAccession=MGI:2159965&parameterStableId=IMPC_HEM_038_001&pipelineStableId=IMPC_001&zygosity=homozygote&phenotypingCenter=MARC&metaDataGroup=08aa37a898ab923b9ffdbd01c0077040
-    	ResponseEntity<PagedResources<Stats>> statsResponse=null;
+    	ResponseEntity<PagedResources<Statistics>> statsResponse=null;
 		try {
 			Map<String, String> params = new HashMap<>();
 			    params.put("geneAccession", geneAccession);
@@ -55,7 +55,7 @@ public class StatsClient {
 			    params.put("metaDataGroup", metaDataGroup);
 			statsResponse = template
 			        .exchange(SINGLE_STATS_URL, HttpMethod.GET, null,
-			                new ParameterizedTypeReference<PagedResources<Stats>>() {
+			                new ParameterizedTypeReference<PagedResources<Statistics>>() {
 			                }, params);
 			System.out.println("singleStatsResponse="+statsResponse);
 		} catch (RestClientException e) {
@@ -66,10 +66,10 @@ public class StatsClient {
 	
     }
     
-    public ResponseEntity<PagedResources<Stats>> findByGeneAccessionAndAlleleAccessionAndParameterStableIdAndPipelineStableIdAndZygosity(String geneAccession, String alleleAccession, String parameterStableId,
+    public ResponseEntity<PagedResources<Statistics>> findByGeneAccessionAndAlleleAccessionAndParameterStableIdAndPipelineStableIdAndZygosity(String geneAccession, String alleleAccession, String parameterStableId,
       		 String pipelineStableId, String zygosity){
        	//http://localhost:8080/stats/search/findByGeneAccessionAndAlleleAccessionAndParameterStableIdAndPipelineStableIdAndZygosityAndPhenotypingCenterAndMetaDataGroup?geneAccession=MGI:2443170&alleleAccession=MGI:2159965&parameterStableId=IMPC_HEM_038_001&pipelineStableId=IMPC_001&zygosity=homozygote&phenotypingCenter=MARC&metaDataGroup=08aa37a898ab923b9ffdbd01c0077040
-       	ResponseEntity<PagedResources<Stats>> statsResponse=null;
+       	ResponseEntity<PagedResources<Statistics>> statsResponse=null;
    		try {
    			Map<String, String> params = new HashMap<>();
    			    params.put("geneAccession", geneAccession);
@@ -80,7 +80,7 @@ public class StatsClient {
    			 
    			statsResponse = template
    			        .exchange(HALF_STATS_URL, HttpMethod.GET, null,
-   			                new ParameterizedTypeReference<PagedResources<Stats>>() {
+   			                new ParameterizedTypeReference<PagedResources<Statistics>>() {
    			                }, params);
    			System.out.println("singleStatsResponse="+statsResponse);
    		} catch (RestClientException e) {
@@ -94,7 +94,7 @@ public class StatsClient {
 
    
 
-    public ResponseEntity<PagedResources<Stats>> getStats(int offset, int limit) {
+    public ResponseEntity<PagedResources<Statistics>> getStats(int offset, int limit) {
         Map<String, Integer> params = new HashMap<>();
         params.put("page", offset / limit);
         params.put("size", limit);
@@ -110,9 +110,9 @@ public class StatsClient {
 //                        }, params);
 //        System.out.println("statsResponse2="+statsResponse2);
         // Using instantiated ParametrizedTypeReference Resources
-        final ResponseEntity<PagedResources<Stats>> statsResponse3 = template
+        final ResponseEntity<PagedResources<Statistics>> statsResponse3 = template
                 .exchange(URL, HttpMethod.GET, null,
-                        new ParameterizedTypeReference<PagedResources<Stats>>() {
+                        new ParameterizedTypeReference<PagedResources<Statistics>>() {
                         }, params);
         System.out.println("statsResponse3="+statsResponse3);
         return statsResponse3;
@@ -130,15 +130,15 @@ public class StatsClient {
     }
 
     
-    public ResponseEntity<PagedResources<Stats>> getStatsDataForGeneAccession(String geneAccession) {
+    public ResponseEntity<PagedResources<Statistics>> getStatsDataForGeneAccession(String geneAccession) {
 		
-		 ResponseEntity<PagedResources<Stats>> statsResponse=null;
+		 ResponseEntity<PagedResources<Statistics>> statsResponse=null;
 		try {
 			Map<String, String> params = new HashMap<>();
 			    params.put("geneAccession", geneAccession);
 			statsResponse = template
 			        .exchange(GENE_ACCESSION_URL, HttpMethod.GET, null,
-			                new ParameterizedTypeReference<PagedResources<Stats>>() {
+			                new ParameterizedTypeReference<PagedResources<Statistics>>() {
 			                }, params);
 			System.out.println("statsResponse3="+statsResponse);
 		} catch (RestClientException e) {
@@ -150,15 +150,15 @@ public class StatsClient {
     
 
 
-	public ResponseEntity<PagedResources<Stats>> getStatsDataForGeneSymbol(String geneSymbol) {
+	public ResponseEntity<PagedResources<Statistics>> getStatsDataForGeneSymbol(String geneSymbol) {
 		
-		 ResponseEntity<PagedResources<Stats>> statsResponse=null;
+		 ResponseEntity<PagedResources<Statistics>> statsResponse=null;
 		try {
 			Map<String, String> params = new HashMap<>();
 			    params.put("geneSymbol", geneSymbol);
 			statsResponse = template
 			        .exchange(GENEURL, HttpMethod.GET, null,
-			                new ParameterizedTypeReference<PagedResources<Stats>>() {
+			                new ParameterizedTypeReference<PagedResources<Statistics>>() {
 			                }, params);
 			System.out.println("statsResponse3="+statsResponse);
 		} catch (RestClientException e) {

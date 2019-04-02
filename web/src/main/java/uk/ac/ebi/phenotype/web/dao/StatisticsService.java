@@ -11,8 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import uk.ac.ebi.phenotype.web.dao.Point;
-import uk.ac.ebi.phenotype.web.dao.Stats;
-import uk.ac.ebi.phenotype.web.dao.StatsRepository;
+import uk.ac.ebi.phenotype.web.dao.Statistics;
+import uk.ac.ebi.phenotype.web.dao.StatisticsRepository;
 
 
 /**
@@ -22,20 +22,20 @@ import uk.ac.ebi.phenotype.web.dao.StatsRepository;
  */
 
 @Service
-public class StatsService {
+public class StatisticsService {
 //	@Autowired
 //	StatsClient statsClient;
 	
 	//need to import the jar somehow or have the stats repo as a module in the PA???
 //	@Autowired
-	private final StatsRepository statsRepository;
+	private final StatisticsRepository statsRepository;
 	
 	@Autowired
-	public StatsService(StatsRepository statsRepository) {
+	public StatisticsService(StatisticsRepository statsRepository) {
 		this.statsRepository=statsRepository;
 	}
 	
-	public List<Stats> findAll(){
+	public List<Statistics> findAll(){
 		System.out.println("statsRepository="+statsRepository);
 		return statsRepository.findByGeneSymbol("Arel1");
 	}
@@ -80,7 +80,7 @@ public class StatsService {
 //		}else {
 //			
 //		}
-		List<Stats> stats = statsRepository.findByGeneAccessionAndAlleleAccessionAndParameterStableIdAndPipelineStableIdAndZygosityAndPhenotypingCenterAndMetaDataGroup(geneAccession, alleleAccession, parameterStableId, pipelineStableId, "homozygote", phenotypingCenter, metaDataGroup);
+		List<Statistics> stats = statsRepository.findByGeneAccessionAndAlleleAccessionAndParameterStableIdAndPipelineStableIdAndZygosityAndPhenotypingCenterAndMetaDataGroup(geneAccession, alleleAccession, parameterStableId, pipelineStableId, "homozygote", phenotypingCenter, metaDataGroup);
 		assert(stats.size()>0);
 		ExperimentDTO exp = convertToExperiment(parameterStableId, stats);
 		
@@ -88,12 +88,13 @@ public class StatsService {
 		return exp;
 }
 
-	private ExperimentDTO convertToExperiment(String parameterStableId, Collection<Stats> stats) {
-		Stats stat = stats.iterator().next();
+	public ExperimentDTO convertToExperiment(String parameterStableId, Collection<Statistics> stats) {
+		Statistics stat = stats.iterator().next();
 		ExperimentDTO exp=new ExperimentDTO();
 		exp.setAlleleAccession(stat.getAlleleAccession());
 		exp.setMetadataGroup(stat.getMetaDataGroup());
 		exp.setParameterStableId(parameterStableId);
+		exp.setProcedureStableId(stat.getProcedureStableId());
 		exp.setAlleleSymobl(stat.getAllele());
 		String zygosity = stat.getZygosity();//only one zygosity per stats object which we can then set for all observations
 		//loop over points and then asssing to observation types ??

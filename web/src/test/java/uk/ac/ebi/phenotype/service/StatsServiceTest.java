@@ -15,8 +15,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.client.RestTemplate;
 
-import uk.ac.ebi.phenotype.web.dao.Stats;
-import uk.ac.ebi.phenotype.web.dao.StatsRepository;
+import uk.ac.ebi.phenotype.web.dao.Statistics;
+import uk.ac.ebi.phenotype.web.dao.StatisticsRepository;
 
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -26,7 +26,7 @@ public class StatsServiceTest {
 
 	
 	
-	private StatsService statsService;
+	private StatisticsService statsService;
 	
 	RestTemplate restTemplate;
 	
@@ -48,7 +48,7 @@ public class StatsServiceTest {
 
 	@Test
 	public void testGetTestStatsData() {
-		ResponseEntity<PagedResources<Stats>> statsResponse=null;
+		ResponseEntity<PagedResources<Statistics>> statsResponse=null;
 		try {
 			statsResponse = statsService.getStatsData(0, 2);
 		} catch (Exception e) {
@@ -62,7 +62,7 @@ public class StatsServiceTest {
 	
 	@Test
 	public void testGetDataForGeneAccession() {
-		ResponseEntity<PagedResources<Stats>> statsResponse=null;
+		ResponseEntity<PagedResources<Statistics>> statsResponse=null;
 		try {
 			statsResponse = statsService.getStatsDataForGeneAccesssion("MGI:2443170");
 		} catch (Exception e) {
@@ -77,7 +77,7 @@ public class StatsServiceTest {
 	
 	@Test
 	public void testGetDataForGeneSybmol() {
-		ResponseEntity<PagedResources<Stats>> statsResponse=null;
+		ResponseEntity<PagedResources<Statistics>> statsResponse=null;
 		try {
 			statsResponse = statsService.getStatsDataForGeneSymbol("Arel1");
 		} catch (Exception e) {
@@ -91,7 +91,7 @@ public class StatsServiceTest {
 	
 	@Test
 	public void testGetIndividualStatsData() {
-		ResponseEntity<PagedResources<Stats>> statsResponse=null;
+		ResponseEntity<PagedResources<Statistics>> statsResponse=null;
 		String geneAccession="MGI:2443170";
 		String alleleAccession="MGI:2159965";
 		String parameterStableId="IMPC_HEM_038_001";

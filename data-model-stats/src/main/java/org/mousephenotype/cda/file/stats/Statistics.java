@@ -1,21 +1,21 @@
-package uk.ac.ebi.phenotype.web.dao;
+package org.mousephenotype.cda.file.stats;
 
 import javax.annotation.Resource;
 
 import org.springframework.data.annotation.Id;
 
 @Resource
-public class Stats  {
-	
+public class Statistics {
+
 	@Id
 	private String id;
-	
+
 	private String parameterStableId;
-	
+
 	private String parameterStableName;
-	
+
 	private String pipelineStableId;
-	
+
 	public String getPipelineStableId() {
 		return pipelineStableId;
 	}
@@ -25,17 +25,17 @@ public class Stats  {
 	}
 
 	private String allele;
-	
+
 	private String geneSymbol;
-	
+
 	private String phenotypingCenter;
-	
+
 	private String geneAccession;
-	
+
 	private String alleleAccession;
-	
+
 	private String metaDataGroup;
-	
+
 	public String getPhenotypingCenter() {
 		return phenotypingCenter;
 	}
@@ -53,13 +53,13 @@ public class Stats  {
 	}
 
 	private String zygosity;
-	
+
 	private String colonyId;
-	
+
 	private int impressParameterKey;
-	
+
 	private int impressProtocolKey;
-	
+
 	public String getColonyId() {
 		return colonyId;
 	}
@@ -92,8 +92,6 @@ public class Stats  {
 		this.zygosity = zygosity;
 	}
 
-	
-
 	public String getGeneAccession() {
 		return geneAccession;
 	}
@@ -118,8 +116,6 @@ public class Stats  {
 		this.geneSymbol = geneSymbol;
 	}
 
-
-
 	public String getAllele() {
 		return allele;
 	}
@@ -128,7 +124,7 @@ public class Stats  {
 		this.allele = allele;
 	}
 
-	public Stats() {
+	public Statistics() {
 		super();
 	}
 
@@ -148,12 +144,12 @@ public class Stats  {
 		this.parameterStableId = parameterStableId;
 	}
 
-	public Stats(Result result) {
-		this.result=result;
+	public Statistics(Result result) {
+		this.result = result;
 	}
-	
+
 	Result result;
-	
+
 	public Result getResult() {
 		return result;
 	}
@@ -163,6 +159,7 @@ public class Stats  {
 	}
 
 	private String headerInfo;
+
 	public String getHeaderInfo() {
 		return headerInfo;
 	}
@@ -171,10 +168,10 @@ public class Stats  {
 		this.headerInfo = headerInfo;
 	}
 
-	//set the points objects before loading into mongo
+	// set the points objects before loading into mongo
 	public void setPoints() {
 		result.getDetails().setPoints();
-		
+
 	}
 
 	@Override
@@ -188,8 +185,9 @@ public class Stats  {
 				+ "]";
 	}
 
-	
+	public void setProcedureStableId(String string) {
+		// TODO Auto-generated method stub
 
-	
+	}
 
 }

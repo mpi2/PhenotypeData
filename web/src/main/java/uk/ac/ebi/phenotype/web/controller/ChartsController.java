@@ -49,9 +49,9 @@ import org.springframework.web.servlet.ModelAndView;
 import uk.ac.ebi.phenotype.chart.*;
 import uk.ac.ebi.phenotype.error.GenomicFeatureNotFoundException;
 import uk.ac.ebi.phenotype.error.ParameterNotFoundException;
-import uk.ac.ebi.phenotype.web.dao.Stats;
-import uk.ac.ebi.phenotype.web.dao.StatsRepository;
-import uk.ac.ebi.phenotype.web.dao.StatsService;
+import uk.ac.ebi.phenotype.web.dao.Statistics;
+import uk.ac.ebi.phenotype.web.dao.StatisticsRepository;
+import uk.ac.ebi.phenotype.web.dao.StatisticsService;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
@@ -93,7 +93,7 @@ public class ChartsController {
 //    @Autowired
 //    private StatsRepository repo;
     @Autowired
-	 private StatsService statsService;
+	 private StatisticsService statsService;
 
     @Inject
     public ChartsController(CategoricalChartAndTableProvider categoricalChartAndTableProvider, TimeSeriesChartAndTableProvider timeSeriesChartAndTableProvider, UnidimensionalChartAndTableProvider continousChartAndTableProvider, ScatterChartAndTableProvider scatterChartAndTableProvider, AbrChartAndTableProvider abrChartAndTableProvider, ViabilityChartAndDataProvider viabilityChartAndDataProvider, ExperimentService experimentService, StatisticalResultService srService, GeneService geneService, ImpressService is, ImageService imageService) {
@@ -343,8 +343,13 @@ public class ChartsController {
 			if(parameterStableId.equalsIgnoreCase("IMPC_HEM_038_001")) {
 				//get experiment object from the new rest service as a temporary measure we can convert to an experiment object and then we don't have to rewrite the chart code?? and easy to test if experiment objects are the same??
 				System.out.println("Get data from new rest service");
-				List<Stats>stats=statsService.findAll();
+				List<Statistics>stats=statsService.findAll();
+				assert(stats.size()==1);
+				//Stats stat=stats.iterator().next();
+				experiment = statsService.convertToExperiment(parameterStableId, stats);
+				//experiment=statsService.getSpecificExperimentDTOFromRepository(parameterStableId, pipelineStableId, accession[0], genderList, zyList, phenotypingCenter, strain, metaDataGroupString, alleleAccession, SOLR_URL);
 				//List<Stats>stats=statsService.findByGeneAccessionAndAlleleAccessionAndParameterStableIdAndPipelineStableIdAndZygosityAndPhenotypingCenterAndMetaDataGroup(accession[0], alleleAccession, parameterStableId, pipelineStableId, "homozygote", phenotypingCenter, metaDataGroupString);
+				
 				System.out.println("stats from repository size="+stats.size());
 			}
 			else {

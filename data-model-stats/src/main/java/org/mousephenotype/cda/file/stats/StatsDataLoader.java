@@ -35,12 +35,12 @@ public class StatsDataLoader implements CommandLineRunner {
 	}
 
 	private void loadDataIntoMongo() {
-		List<Stats>stats=statsProvider.getAllStatsFromFiles();
+		List<Statistics>stats=statsProvider.getAllStatsFromFiles();
 		System.out.println("stats size="+stats.size());
 		this.saveDataToMongo(stats);
 	}
 	
-	private void saveDataToMongo(List<Stats>stats) {
+	private void saveDataToMongo(List<Statistics>stats) {
 		
 		
 		System.out.println("deleting data from mongodb!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
