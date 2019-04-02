@@ -1,21 +1,25 @@
 package uk.ac.ebi.phenotype.web.dao;
 
+import java.util.Date;
+
 public class Point {
 	
 	private String sex;
 	private String value;
 	private String sampleType;
 	private Float bodyWeight;
+	private String dateOfExperiment;
 	
 	public Point() {
 		
 	}
 	
-	public Point(String value, String sex, String sampleType, Float bodyWeight) {
+	public Point(String value, String sex, String sampleType, Float bodyWeight, String dateOfExperiment) {
 		this.value=value;
 		this.sex=sex;
 		this.sampleType=sampleType;
 		this.bodyWeight=bodyWeight;
+		this.dateOfExperiment=dateOfExperiment;
 	}
 	
 	
@@ -43,5 +47,15 @@ public class Point {
 	public void setBodyWeight(Float bodyWeight) {
 		this.bodyWeight = bodyWeight;
 	}
+
+	public String getDateOfExperiment() {
+		return dateOfExperiment;
+	}
+
+	public void setDateOfExperiment(String dateOfExperiment) {
+		this.dateOfExperiment = dateOfExperiment;
+	}
+
+	
 
 }

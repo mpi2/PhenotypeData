@@ -1,10 +1,17 @@
 package uk.ac.ebi.phenotype.web.dao;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.TimeZone;
 
 import org.mousephenotype.cda.db.pojo.StatisticalResult;
 import org.mousephenotype.cda.enumerations.ObservationType;
@@ -110,18 +117,17 @@ public class StatisticsService {
 		Set<ZygosityType> zygs = new HashSet();
 		zygs.add(zyg);
 		exp.setZygosities(zygs);
-		Set<SexType> sexes = new HashSet<>();
-		sexes.add(SexType.valueOf("both"));// question are all stats files for both??? if so setting it here???
-		exp.setSexes(sexes);
 
 		List<Point> allPoints = stat.getResult().getDetails().getPoints();
 		Set<ObservationDTO> controls = new HashSet<>();
 		Set<ObservationDTO> mutants = new HashSet<>();
 
-		 exp.setControls(new HashSet<ObservationDTO>());
-		 exp.setHomozygoteMutants(new HashSet<ObservationDTO>());
-         exp.setHeterozygoteMutants(new HashSet<ObservationDTO>());
-         exp.setHemizygoteMutants(new HashSet<ObservationDTO>());
+		exp.setControls(new HashSet<ObservationDTO>());
+		exp.setHomozygoteMutants(new HashSet<ObservationDTO>());
+		exp.setHeterozygoteMutants(new HashSet<ObservationDTO>());
+		exp.setHemizygoteMutants(new HashSet<ObservationDTO>());
+		Set<SexType> sexes = new HashSet<>();
+
 		for (Point point : allPoints) {
 			ObservationDTO obs = new ObservationDTO();
 			String sampleType = point.getSampleType();
@@ -130,14 +136,25 @@ public class StatisticsService {
 			obs.setSex(sex);
 			String value = point.getValue();
 			obs.setDataPoint(Float.valueOf(value));
-			
+
 			Float bw = point.getBodyWeight();
 			obs.setWeight(bw);
-			
+			obs.setSex(sex);
+
+			sexes.add(SexType.valueOf(sex));// question are all stats files for both??? if so setting it here???
+			SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+			if (point.getDateOfExperiment() != null) {
+				try {
+					obs.setDateOfExperiment(dateFormat.parse(point.getDateOfExperiment()));
+				} catch (ParseException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
 
 			if (sampleType.equals("control")) {
 				exp.getControls().add(obs);
-			} else {
+			} else if (sampleType.equals("experimental")) {
 				obs.setZygosity(zygosity);
 				if (zyg.equals(ZygosityType.heterozygote)) {
 					exp.getHeterozygoteMutants().add(obs);
@@ -150,15 +167,34 @@ public class StatisticsService {
 			}
 
 		}
+		exp.setSexes(sexes);
 
-		List<? extends StatisticalResult> results=new ArrayList<>();
-		StatisticalResult result=new StatisticalResult();
-		//result.set
+		List<? extends StatisticalResult> results = new ArrayList<>();
+		StatisticalResult result = new StatisticalResult();
+		// result.set
 		exp.setResults(results);
-		//question - hard coding this here until hamed puts in a field of observation_type in the stats file in next version...
+		// question - hard coding this here until hamed puts in a field of
+		// observation_type in the stats file in next version...
 		exp.setObservationType(ObservationType.unidimensional);
 		return exp;
 	}
+	
+	
+	 /**
+     * @return the dateOfExperiment
+     */
+    public Date getDateOfExperiment(Date dateOfExperiment) {
+	    //        return dateOfExperiment;
+    	if(dateOfExperiment==null){
+    		return null;
+    	}
+	    ZonedDateTime zdt = ZonedDateTime.ofInstant(dateOfExperiment.toInstant(), ZoneId.of("UTC"));
+	    if(TimeZone.getDefault().inDaylightTime(dateOfExperiment)) {
+		    zdt = dateOfExperiment.toInstant().atZone(ZoneId.of(TimeZone.getDefault().getID()));
+	    }
+	    return Date.from(zdt.toLocalDateTime().toInstant(ZoneOffset.ofHours(0)));
+    }
+
 	
 	/**
 	 * just get the stats in order returned from the data source (findall in sping data)

@@ -108,7 +108,7 @@ public class Details {
 	public List<Point> setPoints() {
 		
 		for(int i=0; i<originalResponse.size(); i++) {
-			points.add(new Point(originalResponse.get(i),originalSex.get(i), originalBiologicalSampleGroup.get(i), originalBodyWeight.get(i) ));
+			points.add(new Point(originalResponse.get(i),originalSex.get(i), originalBiologicalSampleGroup.get(i), originalBodyWeight.get(i) , originalDateOfExperiment.get(i)));
 		}
 		System.out.println("set point size="+this.points.size());
 		return points;

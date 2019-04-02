@@ -10,7 +10,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 
 //@SpringBootApplication
-public class StatistocsDataLoader implements CommandLineRunner {
+public class StatisticsDataLoader implements CommandLineRunner {
 	
 	@Autowired
 	private StatisticsRepository statsRepository;
@@ -19,11 +19,11 @@ public class StatistocsDataLoader implements CommandLineRunner {
 	
 	public static void main(String []args) {
 		System.out.println("running main stats service method in StatsDataLoader!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-		SpringApplication.run(StatistocsDataLoader.class, args);
+		SpringApplication.run(StatisticsDataLoader.class, args);
 	}
 	
 	@Inject
-    public StatistocsDataLoader(FileStatsDao statsProvider) {
+    public StatisticsDataLoader(FileStatsDao statsProvider) {
 		this.statsProvider=statsProvider;
 	}
 
