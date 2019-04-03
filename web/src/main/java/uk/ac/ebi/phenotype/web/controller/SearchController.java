@@ -111,7 +111,7 @@ public class SearchController {
      * @return
      */
     private String removeSpecialCharacters(String searchString) {
-		Pattern pt = Pattern.compile("[^a-zA-Z0-9]");
+		Pattern pt = Pattern.compile("[^a-zA-Z0-9 ]");
         Matcher match= pt.matcher(searchString);
         while(match.find())
         {
