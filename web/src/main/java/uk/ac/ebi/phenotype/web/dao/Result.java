@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 
 public class Result {
 	@JsonIgnore
-	private  JsonNode vectoroutput;
+	private  VectorOutput vectoroutput;
 	
 	private  Details details;
 
