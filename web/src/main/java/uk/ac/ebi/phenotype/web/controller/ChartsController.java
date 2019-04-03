@@ -48,6 +48,7 @@ import uk.ac.ebi.phenotype.error.ParameterNotFoundException;
 import uk.ac.ebi.phenotype.web.dao.Statistics;
 import uk.ac.ebi.phenotype.web.dao.StatisticsRepository;
 import uk.ac.ebi.phenotype.web.dao.StatisticsService;
+import uk.ac.ebi.phenotype.web.dao.StatisticsServiceUtilities;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
@@ -318,13 +319,14 @@ public class ChartsController {
 			
 			GeneDTO gene = geneService.getGeneById(accession[0]);
 			model.addAttribute("gene", gene);
-			if(parameterStableId.equalsIgnoreCase("IMPC_HEM_038_001")) {
+			boolean testNew=true;//change to look at old chart with current code
+			if(parameterStableId.equalsIgnoreCase("IMPC_HEM_038_001")&& testNew) {
 				//get experiment object from the new rest service as a temporary measure we can convert to an experiment object and then we don't have to rewrite the chart code?? and easy to test if experiment objects are the same??
 				System.out.println("Get data from new rest service");
 				List<Statistics>stats=statsService.findAll();
 				assert(stats.size()==1);
 				//Stats stat=stats.iterator().next();
-				experiment = statsService.convertToExperiment(parameterStableId, stats);
+				experiment = StatisticsServiceUtilities.convertToExperiment(parameterStableId, stats);
 				//experiment=statsService.getSpecificExperimentDTOFromRepository(parameterStableId, pipelineStableId, accession[0], genderList, zyList, phenotypingCenter, strain, metaDataGroupString, alleleAccession, SOLR_URL);
 				//List<Stats>stats=statsService.findByGeneAccessionAndAlleleAccessionAndParameterStableIdAndPipelineStableIdAndZygosityAndPhenotypingCenterAndMetaDataGroup(accession[0], alleleAccession, parameterStableId, pipelineStableId, "homozygote", phenotypingCenter, metaDataGroupString);
 				
