@@ -59,7 +59,7 @@ public class ApplicationSend implements CommandLineRunner {
         SpringApplication app = new SpringApplication(ApplicationSend.class);
         app.setBannerMode(Banner.Mode.OFF);
         app.setLogStartupInfo(false);
-        app.setWebEnvironment(false);
+//        app.setWebEnvironment(false);
         app.run(args);
     }
 

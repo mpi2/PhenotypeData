@@ -56,10 +56,10 @@
             <artifactId>spring-boot-starter-hateoas</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-actuator-docs</artifactId>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.springframework.boot</groupId>-->
+            <!--<artifactId>spring-boot-actuator-docs</artifactId>-->
+        <!--</dependency>-->
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -207,10 +207,10 @@
             <artifactId>spring-aop</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-actuator</artifactId>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.springframework.boot</groupId>-->
+            <!--<artifactId>spring-boot-starter-actuator</artifactId>-->
+        <!--</dependency>-->
 
         <!-- Apache Commons Upload -->
         <dependency>
@@ -219,12 +219,12 @@
             <version>1.3.3</version>
         </dependency>
 
-        <!-- Expose Actuator Metrics for Prometheus -->
-        <dependency>
-            <groupId>com.moelholm</groupId>
-            <artifactId>prometheus-spring-boot-starter</artifactId>
-            <version>1.0.1</version>
-        </dependency>
+        <!--&lt;!&ndash; Expose Actuator Metrics for Prometheus &ndash;&gt;-->
+        <!--<dependency>-->
+            <!--<groupId>com.moelholm</groupId>-->
+            <!--<artifactId>prometheus-spring-boot-starter</artifactId>-->
+            <!--<version>1.0.1</version>-->
+        <!--</dependency>-->
 
         <!-- Apache Commons Upload -->
         <dependency>
@@ -329,7 +329,45 @@
             <scope>compile</scope>
         </dependency>
 
+
+
+
+
+
+
+
+
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-config</artifactId>
+        </dependency>
+
+        <!--<dependency>-->
+            <!--<groupId>org.springframework.boot</groupId>-->
+            <!--<artifactId>spring-boot-starter-actuator</artifactId>-->
+        <!--</dependency>-->
+
+
+
+
+
+
+
+
+
     </dependencies>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>Finchley.SR2</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <build>
         <finalName>phenotype-archive</finalName>
@@ -339,6 +377,7 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>2.1.4.RELEASE</version>
                 <configuration>
                     <mainClass>uk.ac.ebi.PhenotypeArchive</mainClass>
                 </configuration>

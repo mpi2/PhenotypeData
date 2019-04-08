@@ -58,10 +58,10 @@
 		</dependency>
 
 		<!-- needed for single db connections DataSource -->
-		<dependency>
-			<groupId>commons-dbcp</groupId>
-			<artifactId>commons-dbcp</artifactId>
-		</dependency>
+		<!--<dependency>-->
+			<!--<groupId>commons-dbcp</groupId>-->
+			<!--<artifactId>commons-dbcp</artifactId>-->
+		<!--</dependency>-->
 
 		<!-- for RestTemplate if we use that for getting embryo images, currently
 			using httpclient as json structure not standard

@@ -4,7 +4,6 @@ import org.hibernate.SessionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.boot.web.support.ErrorPageFilter;
 import org.springframework.context.annotation.*;
@@ -33,45 +32,51 @@ import java.util.concurrent.TimeUnit;
         "org.mousephenotype.cda.db",
         "uk.ac.ebi.phenotype.web.controller"},
         excludeFilters = @ComponentScan.Filter(value = org.mousephenotype.cda.annotations.ComponentScanNonParticipant.class, type = FilterType.ANNOTATION))
-@PropertySource("file:${user.home}/configfiles/${profile:dev}/application.properties")
+
+
+
+//@PropertySource("file:${user.home}/configfiles/${profile:dev}/application.properties")
+//@PropertySource("${configServerUrl}")
+@PropertySource("http://ves-ebi-d9.ebi.ac.uk:8989/pa/dev")
+
 @EnableScheduling
 public class PhenotypeArchiveConfig {
 
     private static final Logger logger = LoggerFactory.getLogger(PhenotypeArchiveConfig.class);
 
 
-    @Value("${drupal_base_url}")
+//    @Value("${drupal_base_url}")
     private String drupalBaseUrl;
 
-    @Value("${solr_url}")
+//    @Value("${solr_url}")
     private String solrUrl;
 
-    @Value("${base_url}")
+//    @Value("${base_url}")
     private String baseUrl;
 
-    @Value("${internal_solr_url}")
+//    @Value("${internal_solr_url}")
     private String internalSolrUrl;
 
-    @Value("${media_base_url}")
+//    @Value("${media_base_url}")
     private String mediaBaseUrl;
 
-    @Value("${impc_media_base_url}")
+//    @Value("${impc_media_base_url}")
     private String impcMediaBaseUrl;
 
-    @Value("${monarch_url}")
+//    @Value("${monarch_url}")
     private String monarchUrl;
 
-    @Value("${pdf_thumbnail_url}")
+//    @Value("${pdf_thumbnail_url}")
     private String pdfThumbnailUrl;
 
-    @Value("${google_analytics}")
+//    @Value("${google_analytics}")
     private String googleAnalytics;
 
-    @Value("${live_site}")
+//    @Value("${live_site}")
     private String liveSite;
 
     @NotNull
-    @Value("${paBaseUrl}")
+//    @Value("${paBaseUrl}")
     private String paBaseUrl;
 
 

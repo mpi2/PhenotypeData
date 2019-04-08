@@ -32,7 +32,11 @@ import javax.sql.DataSource;
 import javax.validation.constraints.NotNull;
 
 @Configuration
-@PropertySource("file:${user.home}/configfiles/${profile}/application.properties")
+//@PropertySource("file:${user.home}/configfiles/${profile}/application.properties")
+
+//@PropertySource("${configServerUrl}")
+//@PropertySource("http://ves-ebi-d9.ebi.ac.uk:8989/pa/dev")
+
 @EnableAutoConfiguration
 public class RegisterInterestConfig {
 

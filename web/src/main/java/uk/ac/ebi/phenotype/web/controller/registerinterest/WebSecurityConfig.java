@@ -64,7 +64,11 @@ import java.io.IOException;
  */
 @Configuration
 @EnableWebSecurity
-@PropertySource("file:${user.home}/configfiles/${profile}/application.properties")
+//@PropertySource("file:${user.home}/configfiles/${profile}/application.properties")
+
+//@PropertySource("${configServerUrl}")
+@PropertySource("http://ves-ebi-d9.ebi.ac.uk:8989/pa/dev")
+
 @ComponentScan("uk.ac.ebi.phenotype.web.controller.registerinterest")
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
