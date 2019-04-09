@@ -19,17 +19,25 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.mousephenotype.cda.utilities.HttpProxy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
+//import org.springframework.boot.configurationprocessor.json.JSONArray;
+//import org.springframework.boot.configurationprocessor.json.JSONObject;
+//
+//import net.sf.json.JSONArray;
+//import net.sf.json.JSONObject;
 import net.sf.json.JSONSerializer;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
-
+@Component
 public class JSONRestUtil {
 
+
+	@Autowired
+	private static ObjectMapper objectMapper;
 
 	private final static Logger log = LoggerFactory.getLogger(JSONRestUtil.class);
 

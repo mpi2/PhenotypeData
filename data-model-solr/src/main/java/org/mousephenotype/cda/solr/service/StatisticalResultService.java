@@ -15,8 +15,8 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.service;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.random.EmpiricalDistribution;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
@@ -28,8 +28,6 @@ import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.util.NamedList;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.mousephenotype.cda.constants.OverviewChartsConstants;
 import org.mousephenotype.cda.db.dao.BiologicalModelDAO;
 import org.mousephenotype.cda.db.dao.DatasourceDAO;
@@ -49,6 +47,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.configurationprocessor.json.JSONException;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -238,7 +238,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 				.add("group.field", StatisticalResultDTO.MARKER_ACCESSION_ID)
 				.add("group.ngroups", "true")
 				.add("wt","json");
-		JSONObject groups = new JSONObject(solr.query(query).getResponse().get("grouped").toString().replaceAll("=",":"));
+		JSONObject groups = new JSONObject(solr.query(query).getResponse().get("grouped").toString().replaceAll("=", ":"));
 
 		return groups.getJSONObject(StatisticalResultDTO.MARKER_ACCESSION_ID).getInt("ngroups");
 
