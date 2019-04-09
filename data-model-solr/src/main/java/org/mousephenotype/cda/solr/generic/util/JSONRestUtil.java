@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
 //
 //import net.sf.json.JSONArray;
 //import net.sf.json.JSONObject;
-import net.sf.json.JSONSerializer;
+//import net.sf.json.JSONSerializer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -51,6 +51,9 @@ public class JSONRestUtil {
 	 * @throws URISyntaxException
 	 */
 	public static JSONObject getResults(String url) throws IOException, URISyntaxException {
+
+
+	    objectMapper.getFactory().
 
 		log.debug("GETTING CONTENT FROM: " + url);
 
